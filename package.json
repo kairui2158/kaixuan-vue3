@@ -1,8 +1,8 @@
 {
   "name": "writing-assistant",
-  "version": "2.7.63",
+  "version": "3.0.0",
   "description": "Novel Workshop - AI-driven desktop novel writing app",
-  "main": "main.js",
+  "main": "electron/main.js",
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
@@ -11,8 +11,6 @@
     "build:vue": "vite build",
     "build": "npm run build:vue && electron-builder --win",
     "build:portable": "npm run build:vue && electron-builder --win portable",
-    "audit": "node tests/scripts/audit_ui.js",
-    "gate": "node tests/scripts/gate_check.js",
     "type-check": "vue-tsc --noEmit"
   },
   "author": "kaixuan",
@@ -47,14 +45,8 @@
       "buildResources": "build"
     },
     "files": [
-      "main.js",
-      "preload.js",
-      "renderer.html",
-      "renderer_v2.js",
-      "panels.js",
-      "style.css",
-      "js/**/*",
-      "styles/**/*",
+      "electron/**/*",
+      "dist-renderer/**/*",
       "node_modules/**/*",
       "package.json"
     ],
