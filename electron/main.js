@@ -89,10 +89,9 @@ function createWindow() {
  })
 
  ipcMain.handle('provider:testConnection', async function(event, baseUrl, apiKey) {
-  ipcMain.handle('provider:testConnection', async function(event, baseUrl, apiKey) {
-    try {
-      var tUrl = baseUrl.replace(/\/$/, '') + '/v1/models'
-      var tResp = await fetch(tUrl, { headers: { 'Authorization': 'Bearer ' + apiKey } })
+  try {
+    var tUrl = baseUrl.replace(/\/$/, '') + '/v1/models'
+    var tResp = await fetch(tUrl, { headers: { 'Authorization': 'Bearer ' + apiKey } })
       if (tResp.ok) return { connected: true }
       return { connected: false, error: 'HTTP ' + tResp.status }
     } catch(te) {
