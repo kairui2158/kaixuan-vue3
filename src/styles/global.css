@@ -1,0 +1,104 @@
+/* Global shared styles - supplement to tokens.css */
+
+/* Scrollbar styles */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+/* Text selection */
+::selection { background: var(--accent); color: var(--text-on-accent); }
+
+/* Focus outline */
+*:focus { outline: none; }
+*:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+/* Input reset */
+input, textarea, select, button { font-family: inherit; font-size: inherit; }
+input, textarea { user-select: text; }
+
+/* Transition utilities */
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+.slide-enter-active, .slide-leave-active { transition: transform 0.2s ease; }
+.slide-enter-from { transform: translateX(-100%); }
+.slide-leave-to { transform: translateX(-100%); }
+
+/* Common button styles */
+.btn-primary {
+  background: var(--accent-gradient);
+  color: var(--text-on-accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 16px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: var(--transition-fast);
+}
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 6px 16px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: var(--transition-fast);
+}
+.btn-secondary:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 16px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: var(--transition);
+}
+.card-hover:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-light);
+}
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-muted);
+  padding: 48px 24px;
+  text-align: center;
+}
+
+/* Tooltip */
+[data-tooltip] { position: relative; }
+[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  padding: 4px 8px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 11px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: var(--z-tooltip);
+  pointer-events: none;
+}
