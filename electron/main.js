@@ -2,6 +2,10 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const fs = require('fs')
 
+// Enable GPU hardware acceleration
+app.disableHardwareAcceleration = false
+app.commandLine.appendSwitch('enable-gpu-rasterization')
+
 // IPC handler modules
 const { registerCryptoHandlers } = require('./ipc/crypto')
 const { registerStorageHandlers, setDataDir, getDataDir } = require('./ipc/storage')

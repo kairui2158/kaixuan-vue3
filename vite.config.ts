@@ -12,10 +12,7 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist-renderer',
-    emptyOutDir: true,
-    rollupOptions: {
-      input: resolve(__dirname, 'src/main.ts')
-    }
+    emptyOutDir: true
   },
   server: {
     port: 5173,
