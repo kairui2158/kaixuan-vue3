@@ -1,0 +1,349 @@
+/* === Design Token System (Unified) ===
+ * Single source of truth for all design tokens.
+ * Replaces 3 duplicate :root blocks in style.css (lines 3, 2894, 3792).
+ * Generated: 2026-07-18
+ */
+
+:root {
+  /* --- Color: Background --- */
+  --bg-primary: #0a0a0c;
+  --bg-secondary: #121215;
+  --bg-tertiary: #1a1a1f;
+  --bg-elevated: #212129;
+  --bg-input: #15151c;
+  --bg-glass: rgba(20, 20, 28, 0.85);
+  --bg-hover: rgba(124, 140, 248, 0.06);
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  --bg-overlay-soft: rgba(0, 0, 0, 0.15);
+
+  /* --- Color: Text --- */
+  --text-primary: #e8e8ec;
+  --text-secondary: #a0a2ac;
+  --text-muted: #888a94; /* WCAG AA 5.04:1 on bg-tertiary (was #585866 2.48:1 FAIL) */
+  --text-on-accent: #ffffff;
+
+  /* --- Color: Accent --- */
+  --accent: #7c8cf8;
+  --accent-hover: #9da9fa;
+  --accent-active: #6b7af0;
+  --accent-light: #9da9fa;
+  --accent-lighter: #b8c2fc;
+  --accent-dim: rgba(124, 140, 248, 0.12);
+  --accent-glow: rgba(124, 140, 248, 0.25);
+  --accent-gradient: linear-gradient(135deg, #7c8cf8 0%, #9b6cf8 100%);
+  --accent-gradient-hover: linear-gradient(135deg, #9da9fa 0%, #b07cf8 100%);
+
+  /* --- Color: Status --- */
+  --danger: #e0556a;
+  --danger-hover: #c44558;
+  --danger-light: #ee8a9a;
+  --danger-dim: rgba(224, 85, 106, 0.12);
+  --success: #4caf88;
+  --success-light: #6ddab0;
+  --success-dim: rgba(76, 175, 136, 0.12);
+  --warning: #f0a050;
+  --warning-bright: #ffa726;
+  --warning-dim: rgba(240, 160, 80, 0.12);
+  --info: #5b9cf5;
+
+  /* --- Color: Chat --- */
+  --user-bubble: #1c2850;
+  --ai-bubble: #18181e;
+
+  /* --- Color: Border --- */
+  --border-color: #25252e;
+  --border-light: #35353f;
+  --border-focus: #4a4a58;
+
+  /* --- Spacing (2px base scale) --- */
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 6px;
+  --space-4: 8px;
+  --space-5: 12px;
+  --space-6: 16px;
+  --space-8: 24px;
+  --space-10: 32px;
+  --space-12: 40px;
+
+  /* --- Spacing: Semantic aliases --- */
+  --space-xxs: 2px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 24px;
+  --gap: 8px;
+
+  /* --- Border radius --- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-btn: 6px;
+
+  /* --- Shadow --- */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.25);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+  --shadow: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+  --shadow-xl: 0 16px 48px rgba(0,0,0,0.55);
+  --shadow-glow: 0 0 24px rgba(124, 140, 248, 0.15);
+  --shadow-panel-sm: 0 2px 12px rgba(0, 0, 0, 0.2);
+
+  /* --- Shadow: Accent --- */
+  --shadow-accent-xs: 0 1px 4px rgba(124, 140, 248, 0.2);
+  --shadow-accent-sm: 0 2px 8px rgba(124, 140, 248, 0.25);
+  --shadow-accent-md: 0 4px 16px rgba(124, 140, 248, 0.35);
+
+  /* --- Shadow: Danger --- */
+  /* R43 dim2: focus ring and status glow tokens */
+  --shadow-focus: 0 0 0 2px var(--accent-dim);
+  --shadow-focus-accent: 0 0 0 1px var(--accent);
+  --shadow-focus-danger: 0 0 0 3px var(--danger-dim);
+  --shadow-glow-sm: 0 0 12px var(--success-dim);
+  --shadow-border-accent: inset 3px 0 0 var(--accent);
+
+
+  /* --- Blur/Filter (维度11) --- */
+  --blur-sm: blur(4px);
+  --blur-md: blur(8px);
+  --blur-lg: blur(16px);
+  --blur-xl: blur(24px);
+  /* 毛玻璃面板: backdrop-filter 用 */
+  --backdrop-blur-sm: blur(4px);
+  --backdrop-blur-md: blur(12px);
+  --backdrop-blur-lg: blur(20px);
+  --backdrop-saturate: saturate(1.2);
+  --blur-sm: blur(4px);
+  --blur: blur(8px);
+
+  /* --- Font --- */
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* --- Font size (fixed, no clamp) --- */
+  --font-size: clamp(12px, 0.85vw, 16px);
+  --font-size-xs: clamp(12px, 0.72vw, 13px);
+  --font-size-sm: clamp(13px, 0.72vw, 14px);
+  --font-size-md: clamp(12px, 0.9vw, 16px);
+  --font-size-md-lg: 15px; /* h2 ??,??md(14)?lg(16)?????? */
+  --font-size-lg: clamp(15px, 1.1vw, 20px);
+  --font-size-xl: 20px;
+  --font-size-editor: clamp(13px, 1vw, 18px);
+  /* R43 dim5: editor typography tokens */
+  --font-family-editor: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", Georgia, serif;
+  --line-height-editor: 1.8;
+
+  /* --- Font weight --- */
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* --- Line height --- */
+  --lh-tight: 1.3;
+  --lh-normal: 1.6;
+  --lh-loose: 1.8;
+
+  /* --- Letter spacing --- */
+  --ls-tight: -0.01em;
+  --ls-normal: 0;
+  --ls-wide: 0.04em;
+
+  /* --- Opacity (维度10) --- */
+  --opacity-disabled: 0.5;
+  --opacity-overlay: 0.85;
+  --opacity-overlay-strong: 0.95;
+  --opacity-placeholder: 0.4;
+  --opacity-50: 0.5;
+
+  /* --- Transition ---
+   * WARNING: Do NOT use var() inside transition shorthand.
+   * var() returning a full value causes shorthand parsing failure (duration=0s).
+   * Use hardcoded values like "0.12s ease" in shorthand.
+   */
+  --transition-fast: 0.12s ease;
+  --transition: 0.2s ease;
+  --transition-slow: 0.3s ease;
+  --transition-button: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  --transition-panel: opacity 0.2s ease, transform 0.2s ease;
+  --transition-card: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  --transition-input: border-color 0.15s ease, box-shadow 0.15s ease;
+  --transition-tab: background-color 0.15s ease, color 0.15s ease;
+
+  /* --- Easing --- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-expo: cubic-bezier(0.87, 0, 0.13, 1);
+
+  /* --- Transform (维度12) --- */
+  /* hover 微提升: 现代按钮/卡片悬浮标配 */
+  --hover-lift: translateY(-1px);
+  --hover-lift-md: translateY(-2px);
+  --hover-press: scale(0.97);
+  --hover-press-sm: scale(0.98);
+  --tf-press: scale(0.97);
+  --tf-none: none;
+
+  /* --- Button sizing --- */
+  --btn-xs-height: 24px;
+  --btn-sm-height: 28px;
+  --btn-md-height: 32px;
+  --btn-lg-height: 38px;
+  --btn-xs-padding: 2px 8px;
+  --btn-sm-padding: 4px 12px;
+  --btn-md-padding: 6px 16px;
+  --btn-lg-padding: 8px 20px;
+  /* R43 dim3: extended button/form padding tokens */
+  --btn-xxs-padding: 2px 6px;
+  --btn-tight-padding: 6px 8px;
+  --btn-wide-padding: 4px 10px;
+  --btn-medium-padding: 6px 10px;
+  --btn-tab-padding: 0 14px;
+  --btn-chip-padding: 1px 4px;
+  /* R43 dim3: panel/modal padding tokens */
+  --panel-header-padding: 8px 12px;
+  --panel-body-padding: 16px;
+  --modal-tab-padding: 0 14px;
+
+  /* --- Form sizing --- */
+  --form-height: 28px;
+  --form-padding: 4px 8px;
+
+  /* --- Focus --- */
+  --focus-glow: 0 0 0 3px var(--accent-dim);
+
+  /* --- z-index --- */
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-overlay: 500;
+  --z-modal: 1000;
+  --z-toast: 9999;
+  --z-tooltip: 10001;
+
+  /* --- Color scheme --- */
+  color-scheme: dark;
+  /* P1: migrated from style.css :root (2026-07-19) - aliases for backward compat */
+  --accent-primary: var(--accent);
+  --bg: var(--bg-primary);
+  --bg-card: var(--bg-elevated);
+  --bg-sidebar: var(--bg-secondary);
+  --success-active: var(--success);
+  --text-bright: var(--text-primary);
+  /* P1: fix self-referential bug (was var(--user-bubble-gradient) infinite loop) */
+  --user-bubble-gradient: linear-gradient(135deg, #1c2850 0%, #2a3870 100%);
+
+  /* === Unified Component Specs (P2, ref: shadcn/mantine/chakra/radix) === */
+  /* Card unified spec - all card-like components use these */
+  --card-width: auto;
+  --card-min-width: 240px;
+  --card-max-width: 480px;
+  --card-padding: 16px;
+  --card-padding-sm: 12px;
+  --card-padding-lg: 20px;
+  --card-gap: 12px;
+  --card-radius: 12px;
+  --card-border: 1px solid var(--border-color);
+  --card-bg: var(--bg-elevated);
+  --card-shadow: var(--shadow-sm);
+  --card-shadow-hover: var(--shadow-md);
+
+  /* Card typography unified */
+  --card-font-size: 14px;
+  --card-font-size-sm: 12px;
+  --card-font-size-lg: 16px;
+  --card-font-weight: 500;
+  --card-font-weight-title: 600;
+  --card-line-height: 1.5;
+  --card-text-color: var(--text-primary);
+  --card-text-secondary: var(--text-secondary);
+
+  /* Modal/Dialog unified spec (ref: shadcn max-w-lg + fade+zoom) */
+  --modal-width-sm: 400px;
+  --modal-width: 512px;
+  --modal-width-lg: 640px;
+  --modal-width-xl: 800px;
+  --modal-radius: 12px;
+  --modal-padding: 24px;
+  --modal-header-padding: 16px 24px;
+  --modal-footer-padding: 12px 24px;
+  --modal-overlay-bg: var(--bg-overlay);
+  --modal-bg: var(--bg-elevated);
+  --modal-shadow: var(--shadow-xl);
+  --modal-anim-in: opacity 0.2s ease, transform 0.2s ease;
+  --modal-anim-scale: scale(1);
+  --modal-anim-scale-in: scale(0.95);
+
+  /* Panel unified spec */
+  --panel-width: 320px;
+  --panel-width-sm: 280px;
+  --panel-width-lg: 400px;
+  --panel-radius: 8px;
+  --panel-padding: 16px;
+  --panel-header-height: 40px;
+  --panel-bg: var(--bg-secondary);
+
+  /* Button unified matrix (ref: shadcn 6 variant x 4 size) */
+  --btn-radius: 6px;
+  --btn-gap: 8px;
+  --btn-gap-sm: 4px;
+  --btn-gap-lg: 12px;
+  --btn-font-size-xs: 11px;
+  --btn-font-size-sm: 12px;
+  --btn-font-size-md: 13px;
+  --btn-font-size-lg: 15px;
+  --btn-transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  /* Unique vars moved from style.css (were outside :root, invalid) */
+  --space-0: 0px;
+  --space-7: 20px;
+  --fw-normal: 400;
+  --opacity-0: 0;
+  --opacity-30: 0.3;
+  --opacity-70: 0.7;
+  --opacity-100: 1;
+  --tf-lift: translateY(-1px);
+  --btn-icon-size: 28px;
+  --focus-ring: 2px solid var(--accent);
+  /* === 维度13: 光标系统 (Cursor) === */
+  --cursor-pointer: pointer;
+  --cursor-default: default;
+  --cursor-grab: grab;
+  --cursor-grabbing: grabbing;
+  --cursor-text: text;
+  --cursor-not-allowed: not-allowed;
+  --cursor-help: help;
+  --cursor-move: move;
+
+  /* === 维度14: 文字渲染优化 (Font Rendering) === */
+  --font-smoothing: antialiased;
+  --font-smoothing-moz: grayscale;
+  --text-rendering: optimizeLegibility;
+
+  /* === 维度15: 选中控制 (User Select) === */
+  --user-select-none: none;
+  --user-select-text: text;
+  --user-select-all: all;
+
+  /* === 渐变系统扩充 (维度2) === */
+  --grad-surface: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  --grad-elevated: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-tertiary) 100%);
+  --grad-accent-subtle: linear-gradient(135deg, rgba(124,140,248,0.08) 0%, rgba(155,108,248,0.08) 100%);
+  --grad-success: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
+  --grad-danger: linear-gradient(135deg, var(--danger) 0%, var(--danger-light) 100%);
+
+  /* === z-index 完善为10级标尺 (跨切面C3) === */
+  --z-base: 1;
+  --z-sticky: 10;
+  --z-dropdown: 100;
+  --z-sticky-header: 200;
+  --z-overlay: 500;
+  --z-drawer: 600;
+  --z-modal: 1000;
+  --z-modal-high: 1500;
+  --z-toast: 2000;
+  --z-tooltip: 3000;
+
+  --focus-ring-offset: 2px;
+}

@@ -1,0 +1,63 @@
+/* modal-panel.css - 弹窗/面板/卡片/遮罩层系统（组件层）
+   替换原 style.css 中所有 .modal/.panel/.card/.overlay/.backdrop/.dialog 规则（原204条散落定义）。
+   规则：每组件只定义一次；全用 var(--xxx)；禁用重要性提升；transition 硬编码 0.2s ease。 */
+/* 1. 遮罩层 */
+.modal-backdrop,.modal-overlay,.panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1;opacity:1;pointer-events:auto;}
+/* 隐藏的 modal 内部 backdrop：当 modal 没有 .visible 类时隐藏，有 .visible 时显示 */
+.modal:not(.visible) .modal-backdrop{display:none !important;}
+/* 2. 模态框容器 */
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:1001;background:transparent;}
+.modal.modal-hidden,.modal-hidden{display:none;}
+.modal.visible{display:flex !important;}
+/* 3. 模态框内容 */
+.modal-content{position:relative;display:flex;flex-direction:column;background:var(--bg-elevated);border:1px solid var(--border-color);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);max-width:90vw;max-height:85vh;width:640px;min-width:400px;margin:auto;overflow:hidden;opacity:1;pointer-events:auto;z-index:2;}
+.modal-content-sm{max-width:480px;width:480px;}
+.modal-content.modal-lg{max-width:800px;width:800px;}
+/* 4. 模态框头部 */
+.modal-header,.modal-title-bar{display:flex;align-items:center;justify-content:space-between;padding: var(--panel-header-padding);border-bottom:1px solid var(--border-color);background:var(--bg-elevated);flex-shrink:0;min-height:40px;}
+.modal-header h3{margin:0;font-size:var(--font-size-md);font-weight:var(--fw-semibold);color:var(--text-primary);}
+/* 5. 模态框主体 */
+.modal-body{padding: var(--panel-body-padding);overflow-y:auto;flex:1;min-height:0;overscroll-behavior:contain;}
+/* 6. 模态框底部 */
+.modal-footer,.modal-actions,.dialog-footer{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding: var(--panel-header-padding);border-top:1px solid var(--border-color);background:var(--bg-elevated);flex-shrink:0;}
+.modal-footer button,.modal-actions button,.dialog-footer button{min-width:64px;}
+/* 7. 关闭按钮 */
+.modal-close,.modal .btn-close{display:inline-flex;align-items:center;justify-content:center;background:none;border:none;color:var(--text-secondary);font-size:var(--font-size-md);cursor:pointer;padding:2px 6px;border-radius:var(--radius-sm);transition:background 0.2s ease,color 0.2s ease;}
+.modal-close:hover,.modal .btn-close:hover{background:var(--bg-hover);color:var(--text-primary);}
+/* 8. 标签页 */
+.modal-tabs{display:flex;gap:0;padding:0 var(--space-md);border-bottom:1px solid var(--border-color);background:var(--bg-elevated);height:40px;flex-shrink:0;align-items:stretch;}
+.modal-tab{display:inline-flex;align-items:center;justify-content:center;padding: var(--modal-tab-padding);height:100%;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:var(--font-size-sm);font-weight:var(--fw-medium);cursor:pointer;white-space:nowrap;transition:background 0.2s ease,color 0.2s ease,border-color 0.2s ease;}
+.modal-tab:hover{color:var(--text-primary);background:var(--bg-hover);}
+.modal-tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:var(--fw-semibold);}
+.modal-tab:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent-glow);}
+/* 9. 卡片系统 */
+.card,.item-card,.card-item,.setting-card,.skill-card,.agent-card{background:var(--bg-elevated);border:1px solid var(--border-color);border-radius:var(--radius);padding:var(--space-md);transition:border-color 0.2s ease,transform 0.2s ease,box-shadow 0.2s ease;overflow:hidden;min-width:0;word-break:break-word;}
+.card:hover,.item-card:hover,.card-item:hover,.setting-card:hover,.skill-card:hover,.agent-card:hover{border-color:var(--border-light);transform:translateY(-2px);box-shadow:var(--shadow);}
+.card-title,.card-name{font-size:var(--font-size-sm);font-weight:var(--fw-semibold);color:var(--text-primary);margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.card-content,.card-desc{font-size:var(--font-size-sm);color:var(--text-secondary);line-height:1.6;overflow:hidden;word-break:break-word;}
+.card-actions{display:flex;gap:var(--space-sm);margin-top:var(--space-sm);padding-top:var(--space-sm);border-top:1px solid var(--border-color);}
+.card.selected,.card-item.selected,.skill-card.selected,.agent-card.selected{border-color:var(--accent);box-shadow: var(--shadow-focus-accent);}
+/* 10. 卡片网格 */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--space-md);align-items:start;}
+.card-grid > .sc-item,.card-grid > .card-item,.card-grid > .grid-card,.card-grid-item,.item-list > div{cursor:pointer;transition:border-color 0.2s ease,transform 0.2s ease,box-shadow 0.2s ease;}
+.card-grid > .sc-item:hover,.card-grid > .card-item:hover,.card-grid > .grid-card:hover,.card-grid-item:hover,.item-list > div:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow);}
+.card-grid .sc-item.selected,.card-grid .grid-card.selected{border-color:var(--accent);box-shadow: var(--shadow-focus-accent);}
+/* 11. 面板系统 */
+.panel{background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:var(--radius-lg);display:flex;flex-direction:column;overflow:hidden;}
+.panel-header,.section-header,.area-header{display:flex;align-items:center;gap:8px;padding: var(--panel-header-padding);background:var(--bg-secondary);border-bottom:1px solid var(--border-color);font-size:var(--font-size-sm);font-weight:var(--fw-semibold);color:var(--text-secondary);min-height:40px;flex-shrink:0;user-select:none;}
+.panel-title,.section-title{font-size:var(--font-size-sm);font-weight:var(--fw-semibold);color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.panel-actions{margin-left:auto;display:flex;align-items:center;gap:4px;}
+.panel-body{padding: var(--panel-body-padding);flex:1;overflow-y:auto;overscroll-behavior:contain;}
+.panel-scroll{overflow-y:auto;flex:1;overscroll-behavior:contain;}
+/* 12. 浮层面板 */
+.overlay-panel{position:absolute;background:var(--bg-elevated);border:1px solid var(--border-color);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);z-index:1002;opacity:1;}
+.overlay-panel.visible{opacity:1;}
+.overlay-panel .btn-close{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--border-color);background:var(--bg-hover);color:var(--text-secondary);border-radius:var(--radius-sm);cursor:pointer;font-size:var(--font-size-md);transition:background 0.2s ease,color 0.2s ease;}
+.overlay-panel .btn-close:hover{color:var(--text-primary);background:var(--border-color);}
+/* 13. 动画定义 */
+@keyframes wh-fade-in{from{opacity:0;}to{opacity:1;}}
+@keyframes wh-modal-in{from{opacity:0;transform:translateY(8px) scale(0.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes wh-panel-slide-in{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+@keyframes wh-modal-out{from{opacity:1;transform:translateY(0) scale(1);}to{opacity:0;transform:translateY(8px) scale(0.98);}}
+/* 关闭动画：由 JS 在移除前添加 .modal-closing 触发 */
+.modal.modal-closing .modal-content{animation:wh-modal-out 0.15s ease forwards;}

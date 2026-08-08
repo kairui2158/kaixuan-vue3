@@ -1,0 +1,85 @@
+{
+  "name": "writing-assistant",
+  "version": "2.7.63",
+  "description": "Novel Workshop - AI-driven desktop novel writing app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "dev:vue": "vite",
+    "dev:electron": "electron . --dev",
+    "build:vue": "vite build",
+    "build": "npm run build:vue && electron-builder --win",
+    "build:portable": "npm run build:vue && electron-builder --win portable",
+    "audit": "node tests/scripts/audit_ui.js",
+    "gate": "node tests/scripts/gate_check.js",
+    "type-check": "vue-tsc --noEmit"
+  },
+  "author": "kaixuan",
+  "license": "MIT",
+  "dependencies": {
+    "hotkeys-js": "^4.0.4",
+    "idb": "^8.0.3",
+    "jschardet": "^3.1.4",
+    "marked": "^18.0.5",
+    "notyf": "^3.10.0",
+    "pinia": "^4.0.2",
+    "vue": "^3.5.41",
+    "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.2",
+    "@biomejs/cli-win32-x64": "^2.5.2",
+    "@playwright/test": "^1.61.1",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0",
+    "playwright": "^1.61.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.1",
+    "vue-tsc": "^3.3.9"
+  },
+  "build": {
+    "appId": "com.kaixuan.writing-assistant",
+    "productName": "写作助手",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer.html",
+      "renderer_v2.js",
+      "panels.js",
+      "style.css",
+      "js/**/*",
+      "styles/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "写作助手-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "写作助手",
+      "include": "build/installer.nsh"
+    }
+  }
+}

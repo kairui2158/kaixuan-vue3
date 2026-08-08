@@ -1,0 +1,33 @@
+node_modules/
+.test_electron/
+.playwright-cli/
+*.log
+*.tmp
+*.old
+_*.py
+_*.js
+_*.ps1
+_*.bat
+_*.txt
+_*.log
+test_*.png
+test_*.cjs
+desktop_screenshot.png
+BACKUP/
+electron-app/
+*.png
+_electron_*.log
+
+# WriterHelper extracted config (contains encrypted credentials)
+.writerHelper/
+
+# WriterHelper VSIX source (contains third-party encrypted credentials)
+analysis/writerhelper/
+
+dist/
+
+# Archived temp scripts (historical, not tracked)
+_archive/
+
+# Temp working scripts in scripts/tmp/ (CDP probes, audit tools, not part of app)
+scripts/tmp/

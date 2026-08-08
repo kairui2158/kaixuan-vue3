@@ -1,0 +1,75 @@
+/* Tokens copied from C drive - single source of truth for design tokens */
+:root {
+  --bg-primary: #0a0a0c;
+  --bg-secondary: #121215;
+  --bg-tertiary: #1a1a1f;
+  --bg-elevated: #212129;
+  --bg-input: #15151c;
+  --bg-glass: rgba(20, 20, 28, 0.85);
+  --bg-hover: rgba(124, 140, 248, 0.06);
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  --text-primary: #e8e8ec;
+  --text-secondary: #a0a2ac;
+  --text-muted: #888a94;
+  --text-on-accent: #ffffff;
+  --accent: #7c8cf8;
+  --accent-hover: #9da9fa;
+  --accent-active: #6b7af0;
+  --accent-gradient: linear-gradient(135deg, #7c8cf8 0%, #9b6cf8 100%);
+  --danger: #e0556a;
+  --success: #4caf88;
+  --warning: #f0a050;
+  --info: #5b9cf5;
+  --user-bubble: #1c2850;
+  --ai-bubble: #18181e;
+  --border-color: #25252e;
+  --border-light: #35353f;
+  --border-focus: #4a4a58;
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 6px;
+  --space-4: 8px;
+  --space-5: 12px;
+  --space-6: 16px;
+  --space-8: 24px;
+  --space-10: 32px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-editor: "Noto Serif SC", "Source Han Serif SC", Georgia, serif;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-overlay: 500;
+  --z-modal: 1000;
+  --z-toast: 2000;
+  --z-tooltip: 3000;
+  --transition-fast: 0.12s ease;
+  --transition: 0.2s ease;
+  --transition-slow: 0.3s ease;
+  color-scheme: dark;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 14px;
+  line-height: 1.6;
+  overflow: hidden;
+  user-select: none;
+}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
