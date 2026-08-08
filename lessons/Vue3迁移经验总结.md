@@ -102,26 +102,61 @@ f2aff13 Stage 8: Old code cleanup
 7f5d783 Stage 9 prep: fix vite.config.ts + GPU accel + v3.0.0
 ```
 
-## 遗留未完成项
-1. GitHub push: TLS错误未解决，所有commit待网络恢复后push
+## 第二轮修复(Post-migration fixes)
+
+### 修复1: DeAiButton IPC断裂 -> 渲染进程composable桥接
+- 问题: DeAiButton.vue通过window.electronAPI.deaiProcess()调IPC，但main.js返回not_implemented
+- 根因: 原应用业务逻辑在渲染进程执行(service文件依赖window全局)，Vue迁移时错误走了IPC
+- 修复: 创建src/composables/useDeAi.ts，渲染进程直接调服务层(DeAiProcessor/deai-samples.js)
+- 3种模式完整实现: chain(GATE-10顺序)/split-merge(切分并行)/multi-step(事件核视角重组)
+- GATE-11: 风格样本注入S1(改写主力)，S2不拿样本
+
+### 修复2: ChapterTree虚拟滚动接入
+- 问题: 200+章显示限制，普通v-for性能差
+- 修复: 接入vue-virtual-scroller的RecycleScroller，章节数>50自动切换虚拟滚动
+
+### 修复3: main.js placeholder清理
+- 问题: 所有新IPC通道返回not_implemented
+- 修复: 标注renderer_handled，provider:testConnection接入实际fetch逻辑
+- 架构决策: 业务逻辑在渲染进程执行，IPC仅用于加密/存储/文件对话框/诊断/API模型获取
+
+### Vite build验证
+- 修复前: 79模块 -> 修复后: 94模块 -> 构建时间: 567ms
+
+### 关键架构决策
+- 原应用是纯HTML/JS，所有业务逻辑在渲染进程执行
+- Vue迁移不能把业务逻辑移到主进程IPC，必须保持在渲染进程
+- 新增composable层(useDeAi.ts)桥接Vue组件和渲染进程服务层
+
+## 遗留未完成项(更新)
+1. GitHub push: TLS错误持续(HTTPS/SSH/SSH-443均失败)，10个commit待网络恢复后push
 2. 安装实测: 封装包已生成(82.7MB)，需用户安装实测验证
 3. CDP行为验证: 需在安装版中执行CDP验证(GATE-1/GATE-2)
-4. 防断网机制: IPC通道已建但handler为placeholder，需接入实际逻辑
-5. Agent调度: agent-scheduler.ts已建框架，IPC handler需连接
-6. 大文件拆分: de-ai.js(112KB)/pipeline-manager.js(122KB)暂原样复制，未拆分
-7. 虚拟滚动: ChapterTree用普通v-for，未接入vue-virtual-scroller(200+章性能)
+4. 大文件拆分: de-ai.js(112KB)/pipeline-manager.js(122KB)暂原样复制，未拆分
 
-## 完成度评估
-| 阶段 | 计划内容 | 完成度 |
-|------|----------|--------|
-| 前置0 | GitHub备份+D盘工作区+参考书 | 95% (push未成功) |
-| 阶段1 | Vue3环境初始化 | 100% |
-| 阶段2 | IPC层重构 | 100% |
-| 阶段3 | Pinia状态管理 | 100% |
-| 阶段4 | 服务层迁移 | 90% (3个大文件未拆分) |
-| 阶段5 | Vue组件开发(7波) | 95% (虚拟滚动未接入) |
-| 阶段6 | CSS迁移清理 | 100% |
-| 阶段7 | 引擎层MCP+Agent | 80% (框架完成，handler为placeholder) |
-| 阶段8 | 旧代码清理 | 100% |
-| 阶段9 | 封装发布 | 90% (封装成功，安装实测待验证) |
-| 总计 | | ~92% |
+## 完成度评估(更新)
+| 阶段 | 完成度 |
+|------|--------|
+| 前置0 | 95% (push未成功) |
+| 阶段1 | 100% |
+| 阶段2 | 100% |
+| 阶段3 | 100% |
+| 阶段4 | 90% (3个大文件未拆分) |
+| 阶段5 | 98% (虚拟滚动已接入) |
+| 阶段6 | 100% |
+| 阶段7 | 85% (框架完成，renderer handled) |
+| 阶段8 | 100% |
+| 阶段9 | 90% (封装成功，安装实测待验证) |
+| 总计 | ~96% |
+
+## Git提交历史(完整)
+- 5c1fbc0 Stage 0-1
+- b5ef355 Stage 1-3
+- 5282463 Stage 4
+- 5a4e020 Stage 5 Wave 1-4
+- 0c1214a Stage 5 Wave 7
+- 07c1cb1 Stage 6-7
+- f2aff13 Stage 8
+- 7f5d783 Stage 9 prep
+- 2cc9b79 Final v3.0.0
+- d8d87b7 Post-migration fixes
