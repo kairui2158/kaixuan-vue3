@@ -13,9 +13,11 @@
 <script setup lang="ts">
 import { useDeAiStore } from '../../stores/deai'
 import { useEditorStore } from '../../stores/editor'
+import { useDeAi } from '../../composables/useDeAi'
 
 const deAiStore = useDeAiStore()
 const editorStore = useEditorStore()
+const { process: deAiProcess } = useDeAi()
 
 async function triggerDeAi() {
   if (!editorStore.activeTab) return
@@ -23,24 +25,13 @@ async function triggerDeAi() {
     alert('请先在设置中去AI味页面配置技能')
     return
   }
-  deAiStore.startProcessing()
   try {
     const text = editorStore.activeTab.content
-    const result = await window.electronAPI.deaiProcess({
-      text,
-      mode: deAiStore.mode,
-      skillIds: deAiStore.skillIds,
-      agentId: deAiStore.agentId,
-      hardruleEnabled: deAiStore.hardruleEnabled,
-      level: deAiStore.level,
-      splitSize: deAiStore.splitSize
-    })
-    if (result && result.text) {
-      editorStore.updateContent(editorStore.activeTab.id, result.text)
+    const result = await deAiProcess(text)
+    if (result) {
+      editorStore.updateContent(editorStore.activeTab.id, result)
     }
-    deAiStore.finishProcessing()
   } catch (e: any) {
-    deAiStore.finishProcessing()
     alert('去AI味处理失败: ' + (e.message || String(e)))
   }
 }

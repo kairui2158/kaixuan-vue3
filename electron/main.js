@@ -46,56 +46,59 @@ function createWindow() {
   registerDialogHandlers()
   registerLifecycleHandlers(mainWindow)
 
-  // New IPC channels for Vue 3 migration
-  // Agent management channels
-  ipcMain.handle('agent:execute', async function(event, config) {
-    // Placeholder: will be connected to agent-scheduler in stage 7
-    return { status: 'not_implemented', message: 'Agent scheduler not yet available' }
-  })
+ // New IPC channels for Vue 3 migration
+  // These features are handled in renderer process via composables
+ ipcMain.handle('agent:execute', async function(event, config) {
+    return { status: 'renderer_handled' }
+ })
 
-  ipcMain.handle('agent:spawn', async function(event, config) {
-    return { status: 'not_implemented', message: 'Agent spawn not yet available' }
-  })
+ ipcMain.handle('agent:spawn', async function(event, config) {
+    return { status: 'renderer_handled' }
+ })
 
-  ipcMain.handle('agent:status', function(event, agentId) {
-    return { status: 'not_implemented' }
-  })
+ ipcMain.handle('agent:status', function(event, agentId) {
+    return { status: 'renderer_handled' }
+ })
 
-  ipcMain.handle('agent:cancel', function(event, agentId) {
-    return { status: 'not_implemented' }
-  })
-
-  // Pipeline channels
-  ipcMain.handle('pipeline:generate', async function(event, config) {
-    return { status: 'not_implemented' }
-  })
-
-  ipcMain.handle('pipeline:resume', async function(event, breakpoint) {
-    return { status: 'not_implemented' }
-  })
-
-  // DeAI channels
-  ipcMain.handle('deai:process', async function(event, config) {
-    return { status: 'not_implemented' }
-  })
-
-  ipcMain.handle('deai:cancel', function(event) {
+ ipcMain.handle('agent:cancel', function(event, agentId) {
     return { status: 'ok' }
-  })
+ })
 
-  // Skill channels
-  ipcMain.handle('skill:execute', async function(event, config) {
-    return { status: 'not_implemented' }
-  })
+ ipcMain.handle('pipeline:generate', async function(event, config) {
+    return { status: 'renderer_handled' }
+ })
 
-  ipcMain.handle('skill:validate', function(event, output, rules) {
-    return { valid: true, errors: [] }
-  })
+ ipcMain.handle('pipeline:resume', async function(event, breakpoint) {
+    return { status: 'renderer_handled' }
+ })
 
-  // Provider channels
+ ipcMain.handle('deai:process', async function(event, config) {
+    return { status: 'renderer_handled' }
+ })
+
+ ipcMain.handle('deai:cancel', function(event) {
+   return { status: 'ok' }
+ })
+
+ ipcMain.handle('skill:execute', async function(event, config) {
+    return { status: 'renderer_handled' }
+ })
+
+ ipcMain.handle('skill:validate', function(event, output, rules) {
+   return { valid: true, errors: [] }
+ })
+
+ ipcMain.handle('provider:testConnection', async function(event, baseUrl, apiKey) {
   ipcMain.handle('provider:testConnection', async function(event, baseUrl, apiKey) {
-    return { connected: false, error: 'Not implemented' }
-  })
+    try {
+      var tUrl = baseUrl.replace(/\/$/, '') + '/v1/models'
+      var tResp = await fetch(tUrl, { headers: { 'Authorization': 'Bearer ' + apiKey } })
+      if (tResp.ok) return { connected: true }
+      return { connected: false, error: 'HTTP ' + tResp.status }
+    } catch(te) {
+      return { connected: false, error: te.message }
+    }
+ })
 
   // Load the app
   var isDev = process.argv.includes('--dev')

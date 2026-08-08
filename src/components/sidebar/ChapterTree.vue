@@ -10,7 +10,25 @@
         点击右上角"项目"按钮<br>创建或打开你的小说项目
       </div>
       <div v-else class="tree-list" ref="treeList">
-        <div v-for="vol in volumes" :key="vol.id || vol.name" class="volume-group">
+        <RecycleScroller
+          v-if="flatItems.length > 50"
+          :items="flatItems"
+          :item-size="28"
+          key-field="key"
+          v-slot="{ item }"
+          class="virtual-tree"
+        >
+          <div v-if="item.type === 'volume'" class="volume-item" @click="toggleVolume(item.vol)">
+            <span class="vol-arrow" :class="{ expanded: expandedVolumes.has(item.vol.id || item.vol.name) }">&gt;</span>
+            <span class="vol-name">{{ item.vol.name }}</span>
+            <span class="vol-count">{{ getVolChapters(item.vol).length }}章</span>
+          </div>
+          <div v-else class="chapter-item" :class="{ active: item.ch.id === activeChapterId }" @click="selectChapter(item.ch)">
+            {{ item.ch.title }}
+          </div>
+        </RecycleScroller>
+        <template v-else>
+          <div v-for="vol in volumes" :key="vol.id || vol.name" class="volume-group">
           <div class="volume-item" @click="toggleVolume(vol)">
             <span class="vol-arrow" :class="{ expanded: expandedVolumes.has(vol.id || vol.name) }">&gt;</span>
             <span class="vol-name">{{ vol.name }}</span>
@@ -26,6 +44,7 @@
             >{{ ch.title }}</div>
           </div>
         </div>
+        </template>
       </div>
     </div>
   </aside>
@@ -33,6 +52,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { RecycleScroller } from 'vue-virtual-scroller'
 import { useProjectStore } from '../../stores/project'
 import { useEditorStore } from '../../stores/editor'
 
@@ -44,6 +64,21 @@ const activeChapterId = ref<string | null>(null)
 const treeList = ref<HTMLElement | null>(null)
 
 const volumes = computed(() => projectStore.volumes || [])
+
+// Flat list for virtual scrolling when chapters exceed 50
+const flatItems = computed(() => {
+  const items: any[] = []
+  for (const vol of volumes.value) {
+    items.push({ type: 'volume', vol, key: 'vol-' + (vol.id || vol.name) })
+    if (expandedVolumes.value.has(vol.id || vol.name)) {
+      const chs = getVolChapters(vol)
+      for (const ch of chs) {
+        items.push({ type: 'chapter', ch, key: 'ch-' + ch.id })
+      }
+    }
+  }
+  return items
+})
 
 function getVolChapters(vol: any) {
   const volId = vol.id || vol.name
@@ -134,6 +169,9 @@ defineEmits<{ navigate: [string] }>()
 }
 .tree-list {
   padding: 0 4px;
+}
+.virtual-tree {
+  height: 100%;
 }
 .volume-group {
   margin-bottom: 2px;
