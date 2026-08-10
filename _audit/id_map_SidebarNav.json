@@ -1,0 +1,32 @@
+[
+  {
+    "id": "btn-outline-workspace",
+    "tag": "button",
+    "cls": "sidebar-btn",
+    "line": 65
+  },
+  {
+    "id": "btn-pipeline",
+    "tag": "button",
+    "cls": "sidebar-btn",
+    "line": 67
+  },
+  {
+    "id": "btn-settings",
+    "tag": "button",
+    "cls": "sidebar-btn",
+    "line": 71
+  },
+  {
+    "id": "btn-settings-collection",
+    "tag": "button",
+    "cls": "sidebar-btn",
+    "line": 66
+  },
+  {
+    "id": "theme-toggle-btn",
+    "tag": "button",
+    "cls": "sidebar-btn",
+    "line": 71
+  }
+]

@@ -1,0 +1,362 @@
+
+===== pipeline-cards L7070-L7120 =====
+7070 
+7071 
+7072 /* ===== UNIFIED PIPELINE CARDS (replaces 8+ duplicate definitions, 2026-07-23) ===== */
+7073 .pl-vol-card, .pl-volume-card, .pl-ch-card, .pl-chapter-card, .pl-chap-card {
+7074   background: var(--bg-card, var(--bg-elevated));
+7075   border: 1px solid var(--border-color);
+7076   border-radius: var(--radius-md);
+7077   padding: var(--space-md);
+7078   margin-bottom: var(--space-sm);
+7079   box-shadow: var(--shadow-sm);
+7080   transition: var(--transition-card);
+7081   overflow: hidden;
+7082   min-width: 0;
+7083   max-width: 100%;
+7084   word-break: break-word;
+7085   overflow-wrap: break-word;
+7086 }
+7087 .pl-vol-card:hover, .pl-volume-card:hover, .pl-ch-card:hover, .pl-chapter-card:hover, .pl-chap-card:hover {
+7088   border-color: var(--border-light);
+7089   box-shadow: var(--shadow-md);
+7090 }
+7091 .pl-vol-card.confirmed, .pl-volume-card.confirmed {
+7092   border-color: var(--success);
+7093   border-left: 3px solid var(--success);
+7094 }
+7095 .pl-vol-card-header, .pl-vol-card .pl-vol-card-header,
+7096 .pl-volume-card .vol-header, .pl-ch-card-header, .pl-chapter-card .ch-header {
+7097   display: flex;
+7098   justify-content: space-between;
+7099   align-items: center;
+7100   gap: var(--space-sm);
+7101   margin-bottom: var(--space-sm);
+7102   min-width: 0;
+7103 }
+7104 .pl-vol-card-title, .pl-vol-card .pl-vol-card-title,
+7105 .pl-volume-card .vol-title, .pl-ch-card-title, .pl-chapter-card .ch-title {
+7106   font-weight: 600;
+7107   font-size: var(--font-size-sm);
+7108   color: var(--text-primary);
+7109   overflow: hidden;
+7110   text-overflow: ellipsis;
+7111   white-space: nowrap;
+7112   min-width: 0;
+7113   flex: 1;
+7114 }
+7115 .pl-vol-card-body, .pl-vol-card .pl-vol-card-body,
+7116 .pl-volume-card .vol-body, .pl-ch-card-body, .pl-chapter-card .ch-body {
+7117   font-size: var(--font-size-sm);
+7118   color: var(--text-secondary);
+7119   line-height: 1.6;
+7120   overflow: hidden;
+
+===== modal-layout L560-L620 =====
+560 
+561 /* === Resize Handle Section === */
+562 /* .resize-handle merged to L751 */
+563 .resize-handle:hover, .resize-handle.active { background: var(--accent); }
+564 .resize-handle-v:hover, .resize-handle-v.active { width: 4px; }
+565 .resize-handle-h:hover, .resize-handle-h.active { height: 4px; }
+566 
+567 /* === Resize Handle Body Cursor === */
+568 
+569 
+570 /* === Pipeline Step Indicators === */
+571 /* .pl-steps position:relative merged to L350 */
+572 .pl-steps::before {
+573   content: '';
+574   position: absolute;
+575   left: 27px;
+576   top: 40px;
+577   bottom: 8px;
+578   width: 2px;
+579   background: var(--border-color);
+580   z-index: var(--z-base);
+581 }
+582 .pl-step { position: relative; z-index: var(--z-base); opacity: 0.5; }
+583 .pl-step.completed .pl-step-num { background: var(--success); color: var(--text-on-accent); }
+584 .pl-step.active .pl-step-num { background: var(--accent); color: var(--text-on-accent); transform: scale(1.1); }
+585 /* .pl-step-num transition merged to L355 */
+586 /* .pl-step-status merged to L705 */
+587 .pl-step-status[data-status="done"] { background: rgba(76,175,136,0.2); color: var(--success); }
+588 .pl-step-status[data-status="active"] { background: var(--accent-dim); color: var(--accent); }
+589 
+590 /* === Form Standardization === */
+591 
+592 /* === Panel Transition Animations === */
+593 #panel-backdrop {
+594   display: none; opacity: 0; pointer-events: none;
+595   transition: opacity 0.2s ease;
+596 }
+597 #panel-backdrop.visible { display: block; opacity: 1; pointer-events: auto; }
+598 
+599 /* === Modal Transition Animations === */
+600 /* [R33] Removed display:flex from ID selectors - .modal-hidden in modal-panel.css handles visibility */
+601 #settings-modal, #project-modal, #new-project-modal, #plugin-market-modal, #sc-bind-modal, #skill-bind-modal, #volume-modal {
+602   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+603    align-items: center; justify-content: center;
+604   background: var(--bg-overlay); backdrop-filter: blur(4px);
+605   opacity: 0; pointer-events: none;
+606   transition: opacity 0.2s ease;
+607 }
+608 #settings-modal.visible, #project-modal.visible, #new-project-modal.visible, #plugin-market-modal.visible, #sc-bind-modal.visible, #skill-bind-modal.visible, #volume-modal.visible {
+609   display: flex !important; opacity: 1; pointer-events: auto;
+610 }
+611 
+612 /* === Keyboard Shortcuts Reference === */
+613 .kbd-shortcuts { display: flex; flex-direction: column; gap: var(--space-sm); margin-top: 12px; }
+614 .kbd-row { display: flex; align-items: center; gap: var(--space-sm); font-size: var(--font-size-sm); color: var(--text-secondary); }
+615 .kbd { display: inline-block; padding: var(--btn-xxs-padding); background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); font-size: var(--font-size-xs); font-family: monospace; color: var(--text-primary); min-width: 20px; text-align: center; }
+616 
+617 /* === Breadcrumb === */
+618 
+619 /* === Form UI Polish === */
+620 /* .empty-state L1052 removed: layout overridden by L4886, props by !important */
+
+===== modal-content-width L1060-L1090 =====
+1060 /* [FIX1] removed old pl-vol-card header/actions - UNIFIED block replaces this */
+1061 /* [FIX1] removed old pl-vol-card header/actions - UNIFIED block replaces this */
+1062 /* [FIX1] removed old pl-vol-card header/actions - UNIFIED block replaces this */
+1063 /* [FIX1] removed old pl-vol-card header/actions - UNIFIED block replaces this */
+1064 /* [FIX1] removed old pl-vol-card header/actions - UNIFIED block replaces this */
+1065 /* [FIX1] removed old pl-vol-card header/actions - UNIFIED block replaces this */
+1066 /* [FIX1] removed orphaned properties from deleted block */
+1067 /* [FIX1] removed orphaned properties from deleted block */
+1068 /* [FIX1] removed orphaned closing brace from deleted block */
+1069 
+1070 .pl-ch-card-header {
+1071   display: flex;
+1072   align-items: center;
+1073   gap: var(--space-sm);
+1074   margin-bottom: var(--space-sm);
+1075 }
+1076 .pl-ch-card-actions {
+1077   display: flex;
+1078   gap: var(--space-sm);
+1079   margin-top: var(--space-sm);
+1080   align-items: center;
+1081 }
+1082 .pl-ch-card-actions button {
+1083   padding: var(--space-xs) var(--space-md);
+1084   border: 1px solid var(--border-color, var(--border-focus));
+1085   border-radius: var(--radius-xs);
+1086   cursor: pointer;
+1087   font-size: var(--font-size-sm);
+1088   background: var(--bg-input, var(--border-light));
+1089   color: var(--text-primary, var(--text-primary));
+1090 }
+
+===== card-hover-selected L1800-L1850 =====
+1800 
+1801 
+1802 /* ===== MERGED FROM: style-p2-areas.css ===== */
+1803 /* === P2: Area-level UI Polish === */
+1804 
+1805 /* 1. Editor area */
+1806 .word-count {
+1807   font-size: var(--font-size-xs, 11px);
+1808   color: var(--text-muted);
+1809   margin-left: auto;
+1810   padding: 0 var(--space-2, 4px);
+1811 }
+1812 
+1813 /* 2. Sidebar */
+1814 
+1815 /* 3. Chapter tree */
+1816 
+1817 /* 4. Chat bubbles */
+1818 
+1819 /* 5. Breadcrumb */
+1820 
+1821 /* 6. Status bar */
+1822 
+1823 
+1824 
+1825 /* ===== MERGED FROM: style-p3-buttons.css ===== */
+1826 /* ============================================================ */
+1827 /* style-p3-buttons.css  -  P3 按钮深度优化层                       */
+1828 /* ------------------------------------------------------------ */
+1829 /* 职责: 统一全站按钮的间距、尺寸、排列、微交互                    */
+1830 /* 依赖: style.css + style-p0-override.css (--space-* / --fw-* /  */
+1831 /*       --t-* / --btn-*-height 等)                                */
+1832 /* 覆盖策略: :is() 多选择器提升特异性, 覆盖 p1/p2 旧定义           */
+1833 /* 优先级: 加载顺序在 p2-areas.css 之后 (最高)                    */
+1834 /* ============================================================ */
+1835 
+1836 /* === 1. 按钮间距阶梯系统 === */
+1837 
+1838 /* === 2. 按钮尺寸标准化 === */
+1839 
+1840 /* === 3. 按钮组排列优化 === */
+1841 
+1842 /* === 4. 编辑器工具栏按钮 === */
+1843 :is(.editor-header, .editor-toolbar) {
+1844   gap: var(--toolbar-gap, 2px);
+1845 }
+1846 :is(.editor-header, .editor-toolbar) button,
+1847 :is(.editor-header, .editor-toolbar) .btn {
+1848   height: var(--btn-sm-height);
+1849   min-width: 28px;
+1850   padding: 0 var(--space-2, 4px);
+
+===== sidebar-overflow-misc L6985-L7060 =====
+6985 .agent-card,
+6986 .sc-item-card,
+6987 .mem-item,
+6988 td, th {
+6989   overflow: hidden;
+6990   text-overflow: ellipsis;
+6991   word-break: break-word;
+6992   max-width: 100%;
+6993 }
+6994 /* Sidebar buttons: contain SVG icons */
+6995 .sidebar-btn {
+6996   overflow: hidden;
+6997   display: flex;
+6998   align-items: center;
+6999   justify-content: center;
+7000 }
+7001 .sidebar-btn svg {
+7002   flex-shrink: 0;
+7003   max-width: 100%;
+7004   max-height: 100%;
+7005 }
+7006 /* Pipeline steps: horizontal scroll instead of overflow */
+7007 .pl-steps {
+7008   overflow-x: auto;
+7009   overflow-y: hidden;
+7010 }
+7011 /* Form groups: full width with box-sizing */
+7012 .form-group input,
+7013 .form-group select,
+7014 .form-group textarea {
+7015   width: 100%;
+7016   box-sizing: border-box;
+7017 }
+7018 /* Bug fix: provider edit form-actions layout */
+7019 #provider-edit-view .form-actions {
+7020   display: flex;
+7021   flex-wrap: wrap;
+7022   gap: var(--space-sm);
+7023   justify-content: flex-end;
+7024   margin-top: 16px;
+7025   padding-top: 16px;
+7026   border-top: 1px solid var(--border-color);
+7027 }
+7028 #provider-edit-view .form-actions button {
+7029   min-width: 72px;
+7030   height: 32px;
+7031   border-radius: var(--radius-sm);
+7032   font-size: var(--font-size-sm);
+7033   transition: var(--transition-button);
+7034 }
+7035 /* Provider edit form: constrain widths */
+7036 #provider-edit-view input,
+7037 #provider-edit-view textarea,
+7038 #provider-edit-view select {
+7039   max-width: 100%;
+7040   box-sizing: border-box;
+7041 }
+7042 /* Skill chips in pipeline: wrap and don't overflow */
+7043 .pl-skills-list {
+7044   display: flex;
+7045   flex-wrap: wrap;
+7046   gap: var(--space-sm);
+7047   overflow: visible;
+7048 }
+7049 .pl-skills-list span {
+7050   max-width: 200px;
+7051   overflow: hidden;
+7052   text-overflow: ellipsis;
+7053   white-space: nowrap;
+7054 }
+7055 /* Context summary: scroll instead of overflow */
+7056 #pl-context-summary {
+7057   word-break: break-word;
+7058   overflow-wrap: break-word;
+7059 }
+7060 /* Status bar: truncate text */
+
+===== skill-template-editor L7410-L7490 =====
+7410 .sf-template-preview:empty::before { content: 'Markdown 预览区（实时渲染）'; color: var(--text-muted); font-style: italic; }
+7411 .sf-template-preview h1, .sf-template-preview h2, .sf-template-preview h3 { margin: 0.5em 0 0.3em; border-bottom: 1px solid var(--border-color); padding-bottom: 2px; }
+7412 .sf-template-preview h1 { font-size: 1.3em; }
+7413 .sf-template-preview h2 { font-size: 1.15em; }
+7414 .sf-template-preview h3 { font-size: 1.05em; border-bottom: none; }
+7415 .sf-template-preview code { background: var(--bg-elevated); padding: 1px 4px; border-radius: 2px; font-family: var(--font-mono, monospace); font-size: 0.9em; }
+7416 .sf-template-preview pre { background: var(--bg-elevated); padding: var(--space-sm); border-radius: var(--radius-sm); overflow-x: auto; margin: 0.5em 0; }
+7417 .sf-template-preview pre code { background: none; padding: 0; }
+7418 .sf-template-preview table { border-collapse: collapse; width: 100%; margin: 0.5em 0; }
+7419 .sf-template-preview th, .sf-template-preview td { border: 1px solid var(--border-color); padding: 4px 8px; text-align: left; }
+7420 .sf-template-preview th { background: var(--bg-elevated); font-weight: 600; }
+7421 .sf-template-preview .var-highlight { color: var(--primary, #4a9eff); font-weight: 600; background: rgba(74, 158, 255, 0.1); padding: 0 2px; border-radius: 2px; }
+7422 .sf-template-preview .script-block { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-sm); margin: 0.5em 0; font-family: var(--font-mono, monospace); font-size: 0.85em; color: var(--text-secondary); white-space: pre-wrap; }
+7423 .sf-template-preview .script-block::before { content: '[script]'; display: block; color: var(--text-muted); font-size: 0.85em; margin-bottom: 4px; }
+7424 .sf-template-preview ul, .sf-template-preview ol { margin: 0.3em 0; padding-left: 1.5em; }
+7425 .sf-template-preview li { margin: 0.15em 0; }
+7426 .sf-template-preview blockquote { border-left: 3px solid var(--border-color); padding-left: var(--space-sm); margin: 0.5em 0; color: var(--text-secondary); }
+7427 .sf-template-preview p { margin: 0.3em 0; }
+7428 @media (max-width: 768px) {
+7429   .sf-template-wrapper { flex-direction: column; }
+7430   .sf-template-preview { max-height: 200px; }
+7431 }
+7432 
+7433 
+7434 /* === Diagnostic Panel === */
+7435 .diag-log-list {
+7436   background: var(--bg-darker, #1a1a1e);
+7437   border-radius: 6px;
+7438   padding: 8px;
+7439   font-size: 12px;
+7440   font-family: "Consolas", "Monaco", monospace;
+7441   line-height: 1.5;
+7442 }
+7443 .diag-log-list > div {
+7444   padding: 3px 4px;
+7445   border-bottom: 1px solid rgba(255,255,255,0.05);
+7446   word-break: break-all;
+7447 }
+7448 #tab-diag .section-header {
+7449   display: flex;
+7450   justify-content: space-between;
+7451   align-items: center;
+7452   margin-bottom: 12px;
+7453 }
+7454 #tab-diag .btn-sm {
+7455   padding: 4px 12px;
+7456   font-size: 12px;
+7457   border-radius: 4px;
+7458   cursor: pointer;
+7459   background: var(--bg-card, #2a2a2e);
+7460   color: var(--text-primary, #e0e0e0);
+7461   border: 1px solid var(--border-color, #3a3a3e);
+7462 }
+7463 #tab-diag .btn-sm:hover {
+7464   background: var(--bg-hover, #3a3a3e);
+7465 }
+7466 #tab-diag .btn-sm.btn-danger {
+7467   color: #ff6b6b;
+7468 }
+7469 #tab-diag .btn-sm.btn-danger:hover {
+7470   background: rgba(255,107,107,0.15);
+7471 }
+7472 
+7473 .deai-common-params { background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: var(--space-sm) var(--space-md); margin-bottom: var(--space-md); }
+7474 .deai-param-row { display: flex; flex-wrap: wrap; gap: var(--space-md); align-items: flex-end; }
+7475 .deai-param-item { display: flex; flex-direction: column; gap: 4px; }
+7476 .deai-param-label { font-size: var(--font-size-xs, 12px); color: var(--text-muted); font-weight: 500; }
+7477 .deai-param-select { min-width: 100px; padding: 4px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-elevated); color: var(--text-primary); font-size: var(--font-size-sm); }
+7478 .deai-mode-cards { display: flex; gap: var(--space-sm); margin-bottom: var(--space-md); }
+7479 .deai-mode-card { flex: 1; border: 2px solid var(--border-color); border-radius: var(--radius-sm); overflow: hidden; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; background: var(--bg-elevated); }
+7480 .deai-mode-card:hover { border-color: var(--accent-color, #5a7d9a); }
+7481 .deai-mode-card.active { border-color: var(--accent-color, #5a7d9a); box-shadow: 0 0 0 1px var(--accent-color, #5a7d9a); }
+7482 .deai-mode-card-header { display: flex; align-items: center; gap: 6px; padding: var(--space-sm) var(--space-md); border-bottom: 1px solid var(--border-color); }
+7483 .deai-mode-card.active .deai-mode-card-header { background: var(--bg-tertiary); }
+7484 .deai-mode-card-icon { font-weight: 700; color: var(--text-muted); font-size: var(--font-size-sm); }
+7485 .deai-mode-card.active .deai-mode-card-icon { color: var(--accent-color, #5a7d9a); }
+7486 .deai-mode-card-title { font-weight: 600; color: var(--text-primary); font-size: var(--font-size-sm); }
+7487 .deai-mode-card-desc { font-size: var(--font-size-xs, 12px); color: var(--text-muted); margin-left: auto; }
+7488 .deai-mode-card-body { padding: var(--space-sm) var(--space-md); }
+7489 

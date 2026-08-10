@@ -1,0 +1,176 @@
+[
+  {
+    "id": "btn-ai-names",
+    "tag": "div",
+    "cls": "editor-header",
+    "line": 101
+  },
+  {
+    "id": "btn-batch-review",
+    "tag": "div",
+    "cls": "editor-header",
+    "line": 101
+  },
+  {
+    "id": "btn-export",
+    "tag": "div",
+    "cls": "editor-header",
+    "line": 101
+  },
+  {
+    "id": "btn-export-data",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 297
+  },
+  {
+    "id": "btn-export-outline-md",
+    "tag": "div",
+    "cls": "ow-hidden",
+    "line": 635
+  },
+  {
+    "id": "btn-export-outline-txt",
+    "tag": "div",
+    "cls": "ow-hidden",
+    "line": 635
+  },
+  {
+    "id": "btn-find-close",
+    "tag": "button",
+    "cls": "find-close",
+    "line": 132
+  },
+  {
+    "id": "btn-find-next",
+    "tag": "button",
+    "cls": "",
+    "line": 120
+  },
+  {
+    "id": "btn-find-prev",
+    "tag": "button",
+    "cls": "",
+    "line": 117
+  },
+  {
+    "id": "btn-generate-content",
+    "tag": "div",
+    "cls": "editor-header",
+    "line": 101
+  },
+  {
+    "id": "btn-redo",
+    "tag": "div",
+    "cls": "editor-header",
+    "line": 101
+  },
+  {
+    "id": "btn-replace-all",
+    "tag": "button",
+    "cls": "",
+    "line": 126
+  },
+  {
+    "id": "btn-replace-one",
+    "tag": "button",
+    "cls": "",
+    "line": 123
+  },
+  {
+    "id": "btn-revise",
+    "tag": "div",
+    "cls": "editor-header",
+    "line": 101
+  },
+  {
+    "id": "btn-save-editor",
+    "tag": "div",
+    "cls": "editor-header",
+    "line": 101
+  },
+  {
+    "id": "btn-timeline",
+    "tag": "div",
+    "cls": "editor-header",
+    "line": 101
+  },
+  {
+    "id": "btn-undo",
+    "tag": "div",
+    "cls": "editor-header",
+    "line": 101
+  },
+  {
+    "id": "btn-writing-rules",
+    "tag": "div",
+    "cls": "editor-header",
+    "line": 101
+  },
+  {
+    "id": "editor-content",
+    "tag": "textarea",
+    "cls": "",
+    "line": 139
+  },
+  {
+    "id": "editor-mode-badge",
+    "tag": "div",
+    "cls": "editor-header",
+    "line": 101
+  },
+  {
+    "id": "editor-panel",
+    "tag": "section",
+    "cls": "",
+    "line": 97
+  },
+  {
+    "id": "editor-title",
+    "tag": "div",
+    "cls": "editor-header",
+    "line": 101
+  },
+  {
+    "id": "export-dropdown",
+    "tag": "div",
+    "cls": "editor-header",
+    "line": 101
+  },
+  {
+    "id": "find-count",
+    "tag": "span",
+    "cls": "find-count",
+    "line": 129
+  },
+  {
+    "id": "find-input",
+    "tag": "input",
+    "cls": "",
+    "line": 111
+  },
+  {
+    "id": "find-replace-bar",
+    "tag": "div",
+    "cls": "",
+    "line": 108
+  },
+  {
+    "id": "replace-input",
+    "tag": "input",
+    "cls": "",
+    "line": 114
+  },
+  {
+    "id": "resizer-editor-chat",
+    "tag": "div",
+    "cls": "resizer-v",
+    "line": 145
+  },
+  {
+    "id": "word-count",
+    "tag": "div",
+    "cls": "editor-header",
+    "line": 101
+  }
+]

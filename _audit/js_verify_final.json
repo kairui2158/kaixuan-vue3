@@ -1,0 +1,270 @@
+{
+  "summary": {
+    "TRULY_MISSING": 9,
+    "NEEDS_PORT": 19,
+    "REPLACED_BY_VUE_REACTIVE": 5,
+    "REPLACED_BY_VUE_LIFECYCLE": 4
+  },
+  "total": 37,
+  "details": {
+    "_addSettingsItem": {
+      "oldFile": "NOT_FOUND",
+      "oldImpl": null,
+      "classification": "TRULY_MISSING",
+      "vueEvidence": "",
+      "vueMatches": []
+    },
+    "_importDroppedFile": {
+      "oldFile": "NOT_FOUND",
+      "oldImpl": null,
+      "classification": "TRULY_MISSING",
+      "vueEvidence": "",
+      "vueMatches": []
+    },
+    "_parseRepoReadme": {
+      "oldFile": "NOT_FOUND",
+      "oldImpl": null,
+      "classification": "TRULY_MISSING",
+      "vueEvidence": "",
+      "vueMatches": []
+    },
+    "_syncBoundSettingsToPipeline": {
+      "oldFile": "NOT_FOUND",
+      "oldImpl": null,
+      "classification": "TRULY_MISSING",
+      "vueEvidence": "",
+      "vueMatches": []
+    },
+    "addSelectedSkills": {
+      "oldFile": "NOT_FOUND",
+      "oldImpl": null,
+      "classification": "TRULY_MISSING",
+      "vueEvidence": "",
+      "vueMatches": []
+    },
+    "getContextSettings": {
+      "oldFile": "NOT_FOUND",
+      "oldImpl": null,
+      "classification": "TRULY_MISSING",
+      "vueEvidence": "",
+      "vueMatches": []
+    },
+    "importOutlineFile": {
+      "oldFile": "NOT_FOUND",
+      "oldImpl": null,
+      "classification": "TRULY_MISSING",
+      "vueEvidence": "",
+      "vueMatches": []
+    },
+    "_acceptDiffLine": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _acceptDiffLine(idx) {\n    this._diffAccepted[idx] = true;\n    document.querySelectorAll('.diff-line[data-idx=\"' + idx + '\"]').forEach(function(el) {\n      el.style.opacity = \"0.5\";\n      el.style.textDecoration = \"line-through\";\n    });\n  }",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Business validation/diff logic - needs porting",
+      "vueMatches": []
+    },
+    "_applyInlineAction": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _applyInlineAction(action, selectedText) {\n    this._hideInlineMenu();\n    var actionLabels = {\n      rewrite:\"改写\",expand:\"扩写\",polish:\"润色\",regenerate:\"重写段落\",\n      translate:\"翻译\",style:\"风格转换\",scene:\"场景描写\",dialogue:\"对话生成\",\n      plot:\"情节推演\",inject:\"上下文注入\",\n      continue:\"续写\",condense:\"精简\",modify:\"修改\",\n      summary:\"概括\",character:\"角色描写\",environment:\"环境描写\",\n      psychology:\"心理描写\",pacing:\"节奏调整\",foreshadow:\"伏笔铺垫\",\n      conflict:\"冲突强化\",emotion:\"情感强化\"\n    };\n    var label = actionLabels[action] || action;\n    var chatInput = document.getElementById(\"user-input\");\n    if (!chatInput) return;\n    var prompt = \"【\" + label + \"】请对以下选中文本进行\" + label + \"操作：\\n\\n\" + selectedText;\n    if (action === \"inject\") {\n      prompt = \"请基于以下上下文继续写作：\\n\\n\" + selectedText;\n    }\n    chatInput.value = prompt;\n    t",
+      "classification": "REPLACED_BY_VUE_REACTIVE",
+      "vueEvidence": "Inline menu logic replaced by Vue3 component state + v-if",
+      "vueMatches": []
+    },
+    "_applyTextFilter": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _applyTextFilter(text, filterWords) {\n    if (!text || typeof text !== \"string\" || text.length === 0) return text;\n    var _aiWords = filterWords || [\"值得注意的是\", \"此外\", \"与此同时\", \"由此可见\", \"综上所述\", \"总体而言\", \"从某种程度来说\", \"进行了\", \"做出了\", \"存在着\", \"发生了\", \"产生了\", \"形成了\", \"极大的\", \"显著的\", \"深刻的\", \"充分的\", \"有效的\"];\n    if (_aiWords.length > 0) {\n      var beforeLen = text.length;\n      for (var awi = 0; awi < _aiWords.length; awi++) {\n        var aw = _aiWords[awi];\n        while (text.indexOf(aw) >= 0) {\n          text = text.replace(aw, \"\");\n        }\n      }\n      if (text.length !== beforeLen) {\n        console.log(\"[FILTER] AI words filtered: \" + beforeLen + \" -> \" + text.length + \" chars\");\n      }\n    }\n    var result = text;\n\n    // --- 规则1：段落开头句号改逗号 ---\n    var lines = result.split(\"\\n\");\n    for (var li = 0;",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Business logic function - needs porting to composable/service",
+      "vueMatches": []
+    },
+    "_buildDiffResult": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _buildDiffResult() {\n    var result = [];\n    var changeIdx = 0;\n    for (var i = 0; i < this._diffChanges.length; i++) {\n      var c = this._diffChanges[i];\n      if (c.type === \"unchanged\") { result.push(c.text); }\n      else if (c.type === \"added\") {\n        if (this._diffAccepted[changeIdx] !== false) result.push(c.text);\n        changeIdx++;\n      } else if (c.type === \"removed\") {\n        if (this._diffAccepted[changeIdx] === true) { /* skip removed line */ }\n        else result.push(c.text);\n        changeIdx++;\n      }\n    }\n    return result.join(\"\\n\");\n  }",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Business validation/diff logic - needs porting",
+      "vueMatches": []
+    },
+    "_checkInlineMenu": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _checkInlineMenu() {\n    var ed = document.getElementById(\"editor-content\");\n    if (!ed) return;\n    var text = \"\";\n    var rect = null;\n    var sel = window.getSelection();\n    if (sel && sel.toString().trim().length >= 2) {\n      text = sel.toString().trim();\n      try { rect = sel.getRangeAt(0).getBoundingClientRect(); } catch(e) { rect = null; }\n    }\n    if ((!text || text.length < 2) && ed.selectionStart !== undefined && ed.selectionEnd !== undefined && ed.selectionStart !== ed.selectionEnd) {\n      text = ed.value.substring(ed.selectionStart, ed.selectionEnd).trim();\n      var edRect = ed.getBoundingClientRect();\n      rect = { left: edRect.left + 20, top: edRect.top + 20, width: 100, bottom: edRect.top + 40 };\n    }\n    if (!text || text.length < 2) { this._hideInlineMenu(); retu",
+      "classification": "REPLACED_BY_VUE_REACTIVE",
+      "vueEvidence": "Inline menu logic replaced by Vue3 component state + v-if",
+      "vueMatches": []
+    },
+    "_cleanupPanel": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _cleanupPanel(panelId) {\n    var panel = document.getElementById(panelId);\n    if (!panel) return;\n    var spinner = panel.querySelectorAll(\".spinner\");\n    spinner.forEach(function(s) { s.remove(); });\n    var progressBar = panel.querySelectorAll(\".progress-bar\");\n    progressBar.forEach(function(p) { p.remove(); });\n    if (this._panelCleanupTimers && this._panelCleanupTimers[panelId]) {\n      clearInterval(this._panelCleanupTimers[panelId]);\n      delete this._panelCleanupTimers[panelId];\n    }\n    var inputs = panel.querySelectorAll(\"input, textarea\");\n    inputs.forEach(function(inp) {\n      if (inp.dataset.persist !== \"true\") {\n        inp.removeEventListener(\"input\", inp._debounceHandler);\n      }\n    });\n  }",
+      "classification": "REPLACED_BY_VUE_LIFECYCLE",
+      "vueEvidence": "Vue3 lifecycle hooks (onMounted/onUnmounted/watch) replace manual timer/DOM management",
+      "vueMatches": []
+    },
+    "_clearHighlights": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _clearHighlights() {\n  }",
+      "classification": "REPLACED_BY_VUE_REACTIVE",
+      "vueEvidence": "Vue3 reactive state + v-if/v-show replaces manual DOM style manipulation",
+      "vueMatches": []
+    },
+    "_deAiSplitMerge": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _deAiSplitMerge(text, cfg, cancelController) {\n    var NL = String.fromCharCode(10);\n    // Get agent config\n    var agentModel = null, agentTemp = null, agentSysPrompt = null;\n    if (cfg.agentId) {\n      try { var ag = AgentManager.get(cfg.agentId); if (ag) { agentModel = ag.model || null; agentTemp = ag.temperature != null ? ag.temperature : null; agentSysPrompt = ag.systemPrompt || null; } } catch(e) { console.warn(\"[WARN] deAI agent get failed\", e); }\n    }\n    // Get output skill (only need 1)\n    var outputSkill = null;\n    if (cfg.skills && cfg.skills.length > 0) {\n      try { outputSkill = SkillManager.get(cfg.skills[0]); } catch(e) { console.warn(\"[WARN] deAI skill get failed\", e); }\n    }\n    if (!outputSkill) { this._toast(\"未找到输出SKILL，无法执行Agent调度\", \"error\"); return text; }\n   ",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Function not found in Vue3 - needs investigation",
+      "vueMatches": []
+    },
+    "_estimateTokens": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _estimateTokens(userText, aiText) {\n    var inputLen = (userText || \"\").length;\n    var outputLen = (aiText || \"\").length;\n    var est = Math.ceil((inputLen + outputLen) / 1.5);\n    this._updateTokenCount({ total_tokens: est });\n  }",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Utility function - needs porting to composable",
+      "vueMatches": []
+    },
+    "_getBoundSettingsForContext": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _getBoundSettingsForContext(volId, chId) {\n    var _p = this._getProjectData(); if (!_p || !_p.settingsCollection) return \"\";\n    var sc = _p.settingsCollection;\n   var contextIds = [];\n    if (volId) contextIds.push(volId);\n    if (chId) contextIds.push(chId);\n    if (contextIds.length === 0) {\n      // No specific context: include all settings\n      var allText = \"\";\n      var cats = sc.categories || Object.keys(sc.items);\n      for (var c = 0; c < cats.length; c++) {\n        var items = sc.items[cats[c]] || [];\n        for (var i = 0; i < items.length; i++) {\n          var it = items[i];\n          allText += \"\\n[\" + (cats[c]) + \"] \" + (it.name || \"\") + \": \";\n          var keys = Object.keys(it.attrs || {});\n          for (var k = 0; k < keys.length; k++) { allText += keys[k] + \"=\" + it",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Function not found in Vue3 - needs investigation",
+      "vueMatches": []
+    },
+    "_getDeAiTemperature": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _getDeAiTemperature(level, version, stage) {\n   var tempMap = { light: 0.4, medium: 0.7, heavy: 1.0 };\n   var t = tempMap[level] || 0.7;\n   if (version === \"v2\") t = t * 0.7;\n   // Stage-based temperature: split/verify=low precision, rewrite=high creativity\n   if (stage === \"split\" || stage === \"verify\") t = Math.min(t, 0.3);\n   if (stage === \"rewrite\" || stage === \"perspective\") t = Math.max(t, 0.6);\n   return t;\n }",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Utility function - needs porting to composable",
+      "vueMatches": []
+    },
+    "_getWordCount": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _getWordCount() {\n    var editor = document.getElementById(\"editor-content\");\n    if (!editor || !editor.value) return 0;\n    var text = editor.value.trim();\n    if (!text) return 0;\n    return text.replace(/\\s+/g, \"\").length;\n  }",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Utility function - needs porting to composable",
+      "vueMatches": []
+    },
+    "_lcsDiff": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _lcsDiff(a, b) {\n    var aLines = a.split(\"\\n\");\n    var bLines = b.split(\"\\n\");\n    var n = aLines.length, m = bLines.length;\n    var dp = [];\n    for (var i = 0; i <= n; i++) dp.push(new Array(m + 1).fill(0));\n    for (var i = n - 1; i >= 0; i--) {\n      for (var j = m - 1; j >= 0; j--) {\n        dp[i][j] = aLines[i] === bLines[j] ? dp[i+1][j+1] + 1 : Math.max(dp[i+1][j], dp[i][j+1]);\n      }\n    }\n    var changes = [];\n    var i = 0, j = 0;\n    while (i < n && j < m) {\n      if (aLines[i] === bLines[j]) { changes.push({type:\"unchanged\", text:aLines[i]}); i++; j++; }\n      else if (dp[i+1][j] >= dp[i][j+1]) { changes.push({type:\"removed\", text:aLines[i]}); i++; }\n      else { changes.push({type:\"added\", text:bLines[j]}); j++; }\n    }\n    while (i < n) { changes.push({type:\"removed\", tex",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Business logic function - needs porting to composable/service",
+      "vueMatches": []
+    },
+    "_looksLikeJSON": {
+      "oldFile": "NOT_FOUND",
+      "oldImpl": null,
+      "classification": "TRULY_MISSING",
+      "vueEvidence": "",
+      "vueMatches": []
+    },
+    "_mergeSegments": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _mergeSegments(results, segments) {\n    if (!results || results.length === 0) return \"\";\n    var finalText = results[0] || segments[0].text;\n    for (var i = 1; i < results.length; i++) {\n      finalText += segments[i].connector + (results[i] || segments[i].text);\n    }\n    return finalText;\n  }",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Business logic function - needs porting to composable/service",
+      "vueMatches": []
+    },
+    "_rejectDiffLine": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _rejectDiffLine(idx) {\n    this._diffAccepted[idx] = false;\n    document.querySelectorAll('.diff-line[data-idx=\"' + idx + '\"]').forEach(function(el) {\n      el.style.opacity = \"0.3\";\n    });\n  }",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Business validation/diff logic - needs porting",
+      "vueMatches": []
+    },
+    "_safeRender": {
+      "oldFile": "NOT_FOUND",
+      "oldImpl": null,
+      "classification": "TRULY_MISSING",
+      "vueEvidence": "",
+      "vueMatches": []
+    },
+    "_selectDeAiMode": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _selectDeAiMode(mode) {\n    if (!this._deAiConfig) this._deAiConfig = {};\n    this._deAiConfig.agentMode = mode;\n    if (window.DiagLogger) DiagLogger.info(\"deai\", \"Mode switched to: \" + mode);\n    var hidden = document.getElementById(\"deai-mode-select\");\n    if (hidden) hidden.value = mode;\n    var cards = document.querySelectorAll(\".deai-mode-card\");\n    for (var i = 0; i < cards.length; i++) {\n      var cardMode = cards[i].getAttribute(\"data-mode\");\n      if (cardMode === mode) {\n        cards[i].classList.add(\"active\");\n        var body = cards[i].querySelector(\".deai-mode-card-body\");\n        if (body) body.style.display = \"block\";\n      } else {\n        cards[i].classList.remove(\"active\");\n        var body2 = cards[i].querySelector(\".deai-mode-card-body\");\n        if (body2) body2.s",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Function not found in Vue3 - needs investigation",
+      "vueMatches": []
+    },
+    "_setBtnLoading": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _setBtnLoading(btn, loading) {\n   if (!btn) return;\n   if (loading) {\n     btn.classList.add(\"btn-loading\");\n     btn.disabled = true;\n   } else {\n    btn.classList.remove(\"btn-loading\");\n     btn.disabled = false;\n   }\n }",
+      "classification": "REPLACED_BY_VUE_LIFECYCLE",
+      "vueEvidence": "Vue3 lifecycle hooks (onMounted/onUnmounted/watch) replace manual timer/DOM management",
+      "vueMatches": []
+    },
+    "_startAutoSaveTimer": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _startAutoSaveTimer() {\n    var self = this;\n    if (this._autoSaveTimer) clearInterval(this._autoSaveTimer);\n    this._autoSaveTimer = setInterval(function() { self.autoSave(); }, 30000);\n  }",
+      "classification": "REPLACED_BY_VUE_LIFECYCLE",
+      "vueEvidence": "Vue3 lifecycle hooks (onMounted/onUnmounted/watch) replace manual timer/DOM management",
+      "vueMatches": []
+    },
+    "_stopAutoSaveTimer": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _stopAutoSaveTimer() {\n    if (this._autoSaveTimer) { clearInterval(this._autoSaveTimer); this._autoSaveTimer = null; }\n  }",
+      "classification": "REPLACED_BY_VUE_LIFECYCLE",
+      "vueEvidence": "Vue3 lifecycle hooks (onMounted/onUnmounted/watch) replace manual timer/DOM management",
+      "vueMatches": []
+    },
+    "_syncDeAiConfigFromDOM": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " _syncDeAiConfigFromDOM() {\n   var modeSel = document.getElementById(\"deai-mode-select\");\n   if (modeSel) this._deAiConfig.agentMode = modeSel.value;\n   // Read split size from the active mode's input\n   var _curMode = this._deAiConfig.agentMode || 'chain';\n   var _splitId = _curMode === 'multi-step' ? 'deai-split-size-ms' : 'deai-split-size';\n   var splitInp = document.getElementById(_splitId);\n   if (splitInp) this._deAiConfig.splitSize = parseInt(splitInp.value) || 1000;\n   var hrT = document.getElementById(\"deai-hardrule-enabled\");\n   if (hrT) this._deAiConfig.hardRulesEnabled = hrT.checked;\n   // Read agent from the active mode's select\n   var _agId = _curMode === 'split-merge' ? 'deai-agent-select-sm' : (_curMode === 'multi-step' ? 'deai-agent-select-ms' : 'deai-agent-select');\n   va",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Function not found in Vue3 - needs investigation",
+      "vueMatches": []
+    },
+    "addMessage": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": "\naddMessage(role, text, isStreaming) {\n    var self = this;\n   var emptyEl = document.querySelector(\"#messages-list #chat-empty-state\") || document.querySelector(\"#messages-list .empty-state\") || document.querySelector(\"#messages-list .chat-empty\");\n   if (emptyEl) emptyEl.remove();\n  var msg = { role: role, text: text, time: Date.now() };\n   var el = document.createElement(\"div\");\n   el.className = \"msg msg-\" + role;\n    var content = document.createElement(\"div\");\n    content.className = \"message-content\";\n    if (role === \"ai\") { content.innerHTML = (typeof marked !== \"undefined\" ? marked.parse(text) : self._escHtml(text)); }\n    else { content.textContent = text; }\n    if (isStreaming && role === \"ai\" && !text) {\n      var spinner = document.createElement(\"span\");\n      spinner.classNa",
+      "classification": "REPLACED_BY_VUE_REACTIVE",
+      "vueEvidence": "Vue3 reactive state + v-if/v-show replaces manual DOM style manipulation",
+      "vueMatches": []
+    },
+    "autoResizeInput": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " autoResizeInput() {\n    var inp = document.getElementById(\"user-input\");\n    inp.style.height = \"auto\";\n    inp.style.height = Math.min(inp.scrollHeight, 120) + \"px\";\n  }",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Function not found in Vue3 - needs investigation",
+      "vueMatches": []
+    },
+    "getSaveStatusInfo": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " getSaveStatusInfo() {\n    return {\n      hasProject: !!this.currentProjectId,\n      lastSaveTime: this._lastSaveTime ? new Date(this._lastSaveTime).toLocaleTimeString('zh-CN') : null,\n      projectCount: (typeof ProjectManager !== 'undefined' && ProjectManager.getAll) ? ProjectManager.getAll().length : 0\n    };\n  }",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Function not found in Vue3 - needs investigation",
+      "vueMatches": []
+    },
+    "processSegment": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " processSegment(segIdx) {\n      return new Promise(function(resolve, reject) {\n        resolve();\n      }).then(function() {\n       var seg = segments[segIdx];\n       steps[segIdx].status = \"active\";\n       self._updateDeAiProgress(steps, segIdx, totalSteps, 0);\n       // Fix C: SKILL template is system message, not user message\n       var chainPrompt = seg.text;\n       if (seg.overlapContext) chainPrompt = \"[上文尾部参考，请勿重复输出此段]\\n\" + seg.overlapContext + NL + NL + chainPrompt;\n      var _smParamPrefix = \"[去AI味参数]\\n文体类型: \" + (cfg.textType || \"novel\") + \"\\n改写版本: \" + (cfg.version || \"v3\") + \"\\n改写强度: \" + (cfg.level || \"medium\") + \"\\n\\n[以下为待处理文本]\\n\";\n       chainPrompt = _smParamPrefix + chainPrompt;\n       if (typeof DeAiSamples !== \"undefined\" && segIdx === 0) { try { chainPrompt += NL + NL + \"[",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Business logic function - needs porting to composable/service",
+      "vueMatches": []
+    },
+    "switchTab": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " switchTab(tabName) {\n    document.querySelectorAll(\".modal-tab\").forEach(function(t) { t.classList.remove(\"active\"); });\n    document.querySelector(\".modal-tab[data-tab='\" + tabName + \"']\").classList.add(\"active\");\n    document.querySelectorAll(\".tab-content\").forEach(function(tc) { tc.classList.remove(\"visible\"); });\n    var tab = document.getElementById(\"tab-\" + tabName);\n    if (tab) tab.classList.add(\"visible\");\n    // 同步 style.display，覆盖内联 display:none\n    document.querySelectorAll(\".tab-content\").forEach(function(tc) { tc.style.display = \"none\"; });\n    if (tab) tab.style.display = \"block\";\n    if (tabName === \"skills\") this.renderSkillList();\n    if (tabName === \"agents\") this.renderAgentList(); this.populateAgentSelect();\n    if (tabName === \"appearance\") this._fillAppearanceForm(",
+      "classification": "REPLACED_BY_VUE_REACTIVE",
+      "vueEvidence": "Vue3 reactive state + v-if/v-show replaces manual DOM style manipulation",
+      "vueMatches": []
+    },
+    "testSkill": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " testSkill(id) {\n    var s = SkillManager.get(id);\n    if (!s) return;\n    var modal = document.getElementById(\"skill-test-modal\");\n    if (!modal) {\n      modal = document.createElement(\"div\");\n      modal.id = \"skill-test-modal\";\n      modal.className = \"modal\";\n      modal.innerHTML = \"<div class='modal-content' style='max-width:600px'><div class='modal-header'><h4 id='stm-title'>测试技能</h4><button id='stm-close' class='btn-close'>&times;</button></div><div class='modal-body'><div class='form-group'><label>模拟输入文本（替换 {{selectedText}}）</label><textarea id='stm-input' rows='4' class='full-width' placeholder='输入测试文本，模拟技能注入后的上下文...'></textarea></div><div class='form-actions'><button id='btn-stm-run' class='btn-primary'>运行测试</button></div><div id='stm-result' style='margin-top:12px;padding:12px",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Function not found in Vue3 - needs investigation",
+      "vueMatches": []
+    },
+    "validateEventCores": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " validateEventCores(output, inputSeg) {\n    if (!output || output.trim().length < 20) return false;\n    var coreCount = (output.match(/段\\d+/g) || []).length;\n    var paraCount = inputSeg.split(NL).filter(function(p) { return p.trim().length > 10; }).length;\n    return coreCount >= Math.max(1, Math.floor(paraCount * 0.7));\n  }",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Business validation/diff logic - needs porting",
+      "vueMatches": []
+    },
+    "validatePerspective": {
+      "oldFile": "renderer_v2.js",
+      "oldImpl": " validatePerspective(output) {\n    if (!output) return true;\n    var methods = output.match(/(换主语|视点转移|因果倒置|存在句转换)/g) || [];\n    if (methods.length < 3) return true;\n    for (var i = 0; i < methods.length - 2; i++) {\n      if (methods[i] === methods[i+1] && methods[i+1] === methods[i+2]) return false;\n    }\n    return true;\n  }",
+      "classification": "NEEDS_PORT",
+      "vueEvidence": "Business validation/diff logic - needs porting",
+      "vueMatches": []
+    }
+  }
+}

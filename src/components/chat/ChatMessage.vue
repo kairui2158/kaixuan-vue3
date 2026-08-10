@@ -3,9 +3,18 @@
     <div class="message-bubble" :class="message.role">
       <div class="message-content" v-html="renderedContent"></div>
       <div class="message-actions" v-if="message.role === 'assistant'">
-        <button class="msg-btn" title="复制" @click="$emit('copy', message.content)">copy</button>
-        <button class="msg-btn" title="重新生成" @click="$emit('regenerate')">redo</button>
-        <button class="msg-btn" title="应用到编辑区" @click="$emit('apply', message.content)">apply</button>
+        <button class="msg-btn" title="复制" @click="$emit('copy', message.content)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span>复制</span>
+        </button>
+        <button class="msg-btn" title="重新生成" @click="$emit('regenerate')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          <span>重生成</span>
+        </button>
+        <button class="msg-btn" title="应用到编辑区" @click="$emit('apply', message.content)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>应用</span>
+        </button>
       </div>
     </div>
   </div>
@@ -13,6 +22,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { marked } from 'marked'
 
 const props = defineProps<{ message: { role: string; content: string } }>()
 defineEmits<{
@@ -22,12 +32,13 @@ defineEmits<{
 }>()
 
 const renderedContent = computed(() => {
-  let html = props.message.content || ''
-  html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-  html = html.replace(/`(.+?)`/g, '<code>$1</code>')
-  html = html.replace(/\n/g, '<br>')
+  const content = props.message.content || ''
+  const html = marked.parse(content, { breaks: true }) as string
   return html
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/on\w+\s*=\s*"[^"]*"/gi, '')
+    .replace(/on\w+\s*=\s*'[^']*'/gi, '')
+    .replace(/javascript:/gi, '')
 })
 </script>
 

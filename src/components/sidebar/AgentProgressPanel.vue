@@ -117,6 +117,8 @@ onUnmounted(() => {
 .agp-name {
   color: var(--text-primary);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   min-width: 60px;
 }
 .agp-mini-bar {
@@ -134,6 +136,7 @@ onUnmounted(() => {
 .agp-task {
   color: var(--text-muted);
   white-space: nowrap;
+  text-overflow: ellipsis;
   max-width: 80px;
   overflow: hidden;
   text-overflow: ellipsis;

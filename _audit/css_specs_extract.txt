@@ -1,0 +1,414 @@
+
+===== cards+sidebar L1890-L1975 =====
+1890   font-size: var(--font-size-sm);
+1891 }
+1892 :is(.modal-footer, .dialog-footer) > :is(.btn-secondary, .btn-cancel, .footer-left) {
+1893   margin-right: auto;
+1894 }
+1895 :is(.modal-footer, .dialog-footer) > :is(.btn-primary, .btn-confirm, .footer-right) {
+1896   margin-left: auto;
+1897 }
+1898 
+1899 /* === 6. 卡片内按钮 === */
+1900 :is(.card, .item-card) { position: relative; }
+1901 :is(.card, .item-card) > :is(.card-action, .item-action, .card-close, .card-menu) {
+1902   position: absolute;
+1903   top: var(--space-4, 8px);
+1904   right: var(--space-4, 8px);
+1905   width: var(--btn-xs-height);
+1906   height: var(--btn-xs-height);
+1907   min-width: var(--btn-xs-height);
+1908   padding: 0;
+1909   border-radius: var(--radius-xs, 4px);
+1910   display: inline-flex;
+1911   align-items: center;
+1912   justify-content: center;
+1913   z-index: 2;
+1914 }
+1915 :is(.card, .item-card) > :is(.card-footer, .item-footer) button,
+1916 :is(.card, .item-card) :is(.card-footer, .item-footer) .btn {
+1917   width: 100%;
+1918   height: var(--btn-sm-height, 28px);
+1919   padding: 0 var(--space-md);
+1920   font-size: var(--font-size-sm);
+1921 }
+1922 
+1923 /* === 7. 侧边栏图标按钮 === */
+1924 :is(.sidebar-btn, #app-sidebar button) {
+1925   width: var(--btn-sm-height);
+1926   height: var(--btn-sm-height);
+1927   min-width: var(--btn-sm-height);
+1928   padding: 0;
+1929   margin: 0 var(--toolbar-gap, 2px);
+1930   border-radius: var(--radius-sm, 6px);
+1931   display: flex;
+1932   align-items: center;
+1933   justify-content: center;
+1934   position: relative;
+1935   border: none;
+1936   font-size: var(--font-size-sm);
+1937   background: transparent;
+1938   color: var(--text-secondary);
+1939   transition: background 0.12s ease, color 0.12s ease;
+1940 }
+1941 :is(.sidebar-btn, #app-sidebar button):hover {
+1942   background: var(--bg-hover);
+1943   color: var(--accent);
+1944   transform: none;
+1945 }
+1946 :is(.sidebar-btn, #app-sidebar button).active {
+1947   background: var(--accent-dim);
+1948   color: var(--accent);
+1949 }
+1950 :is(.sidebar-btn, #app-sidebar button).active::before {
+1951   content: '';
+1952   position: absolute;
+1953   left: 0;
+1954   top: 6px;
+1955   bottom: 6px;
+1956   width: 3px;
+1957   background: var(--accent);
+1958   border-radius: 0 3px 3px 0;
+1959 }
+1960 :is(.sidebar-btn, #app-sidebar button) svg {
+1961   width: 20px;
+1962   height: 20px;
+1963   flex-shrink: 0;
+1964 }
+1965 
+1966 /* === 8. 微交互细节 === */
+1967 :is(.btn, button:not(:is(.sidebar-btn, #app-sidebar button, .editor-header button, .editor-toolbar button))):hover {
+1968   transform: translateY(-1px);
+1969 }
+1970 :is(.btn, button):disabled,
+1971 :is(.btn, button).is-disabled,
+1972 
+1973 /* === 9. 加载状态按钮 === */
+1974 :is(.btn, button).btn-loading,
+1975 :is(.btn, button).btn-loading > *,
+
+===== modals L2140-L2210 =====
+2140  * 3. Form Controls 表单控件深度美化
+2141  * ============================================================ */
+2142 
+2143 /* 统一 input/textarea/select 高度 */
+2144 :is(.modal, .modal-content, .form-group, .confirm-dialog) input[type="text"],
+2145 :is(.modal, .modal-content, .form-group, .confirm-dialog) input[type="password"],
+2146 :is(.modal, .modal-content, .form-group, .confirm-dialog) input[type="url"],
+2147 :is(.modal, .modal-content, .form-group, .confirm-dialog) input[type="number"],
+2148 :is(.modal, .modal-content, .form-group, .confirm-dialog) input[type="email"],
+2149 :is(.modal, .modal-content, .form-group, .confirm-dialog) select,
+2150 :is(.modal, .modal-content, .form-group, .confirm-dialog) textarea {
+2151   height: 34px;
+2152   border-radius: var(--radius-sm);
+2153   border: 1px solid var(--border-color);
+2154   padding: 0 var(--space-md);
+2155   background: var(--bg-input);
+2156   color: var(--text-primary);
+2157   font-size: var(--font-size-sm);
+2158   font-family: inherit;
+2159   outline: none;
+2160   box-sizing: border-box;
+2161   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+2162 }
+2163 
+2164 /* focus 状态 */
+2165 :is(.modal, .modal-content, .form-group) input:focus,
+2166 :is(.modal, .modal-content, .form-group) textarea:focus,
+2167 :is(.modal, .modal-content, .form-group) select:focus {
+2168   border-color: var(--accent);
+2169   box-shadow: var(--shadow-focus);
+2170   outline: none;
+2171 }
+2172 
+2173 /* placeholder */
+2174 :is(.modal, .modal-content, .form-group) input::placeholder,
+2175 :is(.modal, .modal-content, .form-group) textarea::placeholder {
+2176   color: var(--text-muted);
+2177   opacity: 0.6;
+2178 }
+2179 
+2180 /* textarea 特殊 */
+2181 :is(.modal, .modal-content, .form-group) textarea {
+2182   min-height: 80px;
+2183   resize: vertical;
+2184   line-height: 1.6;
+2185   padding: var(--space-sm) var(--space-md);
+2186   height: auto;
+2187 }
+2188 
+2189 /* select 自定义箭头 */
+2190 :is(.modal, .modal-content, .form-group) select {
+2191   appearance: none;
+2192   -webkit-appearance: none;
+2193   -moz-appearance: none;
+2194   padding-right: 32px;
+2195   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a2ac' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+2196   background-repeat: no-repeat;
+2197   background-position: right 10px center;
+2198   background-size: 12px;
+2199   cursor: pointer;
+2200 }
+2201 
+2202 /* checkbox / radio 自定义 */
+2203 :is(.modal, .modal-content, .form-group) input[type="checkbox"],
+2204 :is(.modal, .modal-content, .form-group) input[type="radio"] {
+2205   width: var(--space-md);
+2206   height: var(--space-md);
+2207   accent-color: var(--accent);
+2208   cursor: pointer;
+2209   vertical-align: middle;
+2210   margin: 0 4px 0 0;
+
+===== btn-form-actions L6290-L6320 =====
+6290   font-weight: 500;
+6291   cursor: pointer;
+6292   transition: var(--transition);
+6293   border: none;
+6294 }
+6295 #agent-form .form-actions .btn-primary,
+6296 #skill-form .form-actions .btn-primary {
+6297   background: var(--accent);
+6298   color: var(--text-on-accent);
+6299 }
+6300 #agent-form .form-actions .btn-primary:hover,
+6301 #skill-form .form-actions .btn-primary:hover {
+6302   background: var(--accent-hover);
+6303 }
+6304 #agent-form .form-actions .btn-secondary,
+6305 #skill-form .form-actions .btn-secondary {
+6306   background: var(--border-color);
+6307   color: var(--text-primary);
+6308 }
+6309 #agent-form .form-actions .btn-secondary:hover,
+6310 #skill-form .form-actions .btn-secondary:hover {
+6311   background: var(--border-light);
+6312   filter: brightness(1.15);
+6313 }
+6314 
+6315 /* --- Var details --- */
+6316 #skill-form .var-details {
+6317   margin: 16px 0;
+6318   padding: var(--space-md);
+6319   background: var(--accent-dim);
+6320   border: 1px solid var(--border-color);
+
+===== btn-system L6950-L6995 =====
+6950 input[type="number"],
+6951 input[type="password"],
+6952 input[type="search"],
+6953 select,
+6954 textarea {
+6955   box-sizing: border-box;
+6956   max-width: 100%;
+6957 }
+6958 /* All buttons: no text overflow */
+6959 button,
+6960 .btn-primary,
+6961 .btn-secondary,
+6962 .btn-sm,
+6963 .btn-icon {
+6964   overflow: visible;
+6965   text-overflow: ellipsis;
+6966 }
+6967 /* Editor toolbar: wrap and don't overflow */
+6968 .editor-toolbar {
+6969   flex-wrap: wrap;
+6970   overflow: visible;
+6971 }
+6972 /* Panel headers: truncate long titles */
+6973 .pl-header h3,
+6974 .sc-header h3,
+6975 .mem-header h3,
+6976 .ow-editor-header span {
+6977   overflow: hidden;
+6978   text-overflow: ellipsis;
+6979   white-space: nowrap;
+6980   min-width: 0;
+6981 }
+6982 /* Card content: prevent text overflow */
+6983 .provider-card,
+6984 .skill-card,
+6985 .agent-card,
+6986 .sc-item-card,
+6987 .mem-item,
+6988 td, th {
+6989   overflow: hidden;
+6990   text-overflow: ellipsis;
+6991   word-break: break-word;
+6992   max-width: 100%;
+6993 }
+6994 /* Sidebar buttons: contain SVG icons */
+6995 .sidebar-btn {
+
+===== chat-panel L6885-L6935 =====
+6885 #messages-container {
+6886   flex: 1;
+6887   overflow-y: auto;
+6888   padding: var(--space-sm);
+6889   display: block;
+6890 }
+6891 /* Chat input area */
+6892 .chat-input-row {
+6893   display: flex;
+6894   gap: var(--space-sm);
+6895   padding: var(--space-sm);
+6896   border-top: 1px solid var(--border-color);
+6897   flex-shrink: 0;
+6898 }
+6899 .chat-input-row textarea {
+6900   flex: 1;
+6901   min-height: 36px;
+6902   max-height: 120px;
+6903   resize: none;
+6904   padding: var(--space-3) var(--space-4);
+6905   background: var(--bg-input);
+6906   border: 1px solid var(--border-color);
+6907   border-radius: var(--radius);
+6908   color: var(--text-primary);
+6909   font-size: var(--font-size-sm);
+6910   font-family: inherit;
+6911   box-sizing: border-box;
+6912 }
+6913 .chat-input-row .btn-send {
+6914   min-width: 48px;
+6915   height: 36px;
+6916   padding: 0 var(--space-5);
+6917   border-radius: var(--radius);
+6918   background: var(--accent);
+6919   color: var(--text-on-accent);
+6920   border: none;
+6921   cursor: pointer;
+6922   font-size: var(--font-size-sm);
+6923   transition: var(--transition-button);
+6924   flex-shrink: 0;
+6925 }
+6926 .chat-input-row .btn-send:hover {
+6927   background: var(--accent-hover);
+6928 }
+6929 
+6930 /* Problem 4: Global overflow/box-sizing fixes */
+6931 /* Ensure all flex children don't overflow */
+6932 #app-body,
+6933 #app-main,
+6934 #editor-panel,
+6935 #chat-panel,
+
+===== statusbar L7055-L7075 =====
+7055 /* Context summary: scroll instead of overflow */
+7056 #pl-context-summary {
+7057   word-break: break-word;
+7058   overflow-wrap: break-word;
+7059 }
+7060 /* Status bar: truncate text */
+7061 #statusbar {
+7062   overflow: hidden;
+7063   white-space: nowrap;
+7064 }
+7065 #statusbar span {
+7066   overflow: hidden;
+7067   text-overflow: ellipsis;
+7068   white-space: nowrap;
+7069 }
+7070 
+7071 
+7072 /* ===== UNIFIED PIPELINE CARDS (replaces 8+ duplicate definitions, 2026-07-23) ===== */
+7073 .pl-vol-card, .pl-volume-card, .pl-ch-card, .pl-chapter-card, .pl-chap-card {
+7074   background: var(--bg-card, var(--bg-elevated));
+7075   border: 1px solid var(--border-color);
+
+===== deai-settings L7340-L7410 =====
+7340   color: var(--text-primary);
+7341   font-size: var(--font-size-md);
+7342   cursor: pointer;
+7343   transition: background 0.1s ease;
+7344 }
+7345 .export-dropdown button:hover {
+7346   background: var(--bg-hover);
+7347 }
+7348 \n/* de-ai button */\n#btn-de-ai { color: #e87d3d; font-weight: 600; }\n#btn-de-ai:hover { background: #fff3e0; }\n
+7349 /* === de-AI settings panel === */
+7350 .deai-config-section { padding: 12px 0; }
+7351 .deai-skill-bar { display: flex; gap: 8px; margin-bottom: 8px; }
+7352 .deai-skill-bar select { flex: 1; }
+7353 .deai-skills-list { margin-bottom: 12px; }
+7354 .deai-skill-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-dim); border: 1px solid var(--accent-glow); border-radius: var(--radius-lg); padding: var(--btn-xs-padding); margin: 2px; font-size: var(--font-size-sm); color: var(--accent-lighter); }
+7355 .deai-skill-chip span { color: var(--accent-lighter); font-weight: var(--fw-medium); }
+7356 .deai-skill-remove { background: none; border: none; color: var(--danger,#e74c3c); cursor: pointer; font-size: 16px; padding: 0 2px; line-height: 1; }
+7357 .deai-skill-remove:hover { color: #c0392b; }
+7358 .deai-hardrule-toggle { margin: 8px 0; }
+7359 .deai-hardrule-toggle .toggle-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
+7360 .deai-hardrules-list { margin-top: 8px; padding-left: 16px; }
+7361 .deai-hardrule-item { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 13px; color: var(--text-primary,#333); cursor: pointer; }
+7362 .deai-hardrule-item input[type=checkbox] { margin: 0; cursor: pointer; }
+7363 .deai-hardrule-item span { user-select: none; }
+7364 
+7365 .deai-progress-bar { width: 100%; height: 8px; background: var(--bg-tertiary); border-radius: var(--radius-sm); overflow: hidden; margin-bottom: var(--space-sm); }
+7366 .deai-progress-fill { height: 100%; width: 0%; background: var(--accent-gradient); border-radius: var(--radius-sm); transition: width 0.3s ease; }
+7367 .deai-progress-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md); }
+7368 #deai-progress-percent { font-size: var(--font-size-lg); font-weight: var(--fw-semibold); color: var(--accent); }
+7369 #deai-progress-step { font-size: var(--font-size-sm); color: var(--text-secondary); }
+7370 .deai-step-list { display: flex; flex-direction: column; gap: var(--space-xs); }
+7371 .deai-step-item { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-xs) var(--space-sm); border-radius: var(--radius-sm); font-size: var(--font-size-sm); }
+7372 .deai-step-item .deai-step-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; border: 2px solid var(--border-color); background: transparent; }
+7373 .deai-step-item .deai-step-label { flex: 1; color: var(--text-secondary); }
+7374 .deai-step-item .deai-step-status { font-size: var(--font-size-xs); color: var(--text-muted); }
+7375 .deai-step-item.pending .deai-step-dot { border-color: var(--border-color); background: transparent; }
+7376 .deai-step-item.active .deai-step-dot { border-color: var(--accent); background: var(--accent); animation: deai-pulse 1s ease-in-out infinite; }
+7377 .deai-step-item.active .deai-step-label { color: var(--text-primary); font-weight: var(--fw-medium); }
+7378 .deai-step-item.active .deai-step-status { color: var(--accent); }
+7379 .deai-step-item.done .deai-step-dot { border-color: var(--success); background: var(--success); }
+7380 .deai-step-item.done .deai-step-label { color: var(--text-muted); text-decoration: line-through; }
+7381 .deai-step-item.done .deai-step-status { color: var(--success); }
+7382 .deai-step-item.failed .deai-step-dot { border-color: var(--danger); background: var(--danger); }
+7383 .deai-step-item.failed .deai-step-label { color: var(--danger); }
+7384 .deai-step-item.failed .deai-step-status { color: var(--danger); }
+7385 @keyframes deai-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+7386 
+7387 #deai-split-size-group { margin-top: var(--space-sm); }
+7388 #deai-split-size-group input { width: 100%; padding: var(--form-padding); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: var(--font-size-md); }
+7389 
+7390 .deai-step-group { border-left: 3px solid var(--border-color); padding-left: var(--space-md); margin-bottom: var(--space-md); }
+7391 .deai-step-title { font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-sm); font-size: var(--font-size-md); }
+7392 .deai-radio-group { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+7393 .deai-radio-option { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; color: var(--text-secondary); font-size: var(--font-size-sm); }
+7394 .deai-radio-option input[type=radio] { cursor: pointer; }
+7395 .deai-flow-preview { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-sm); font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.8; }
+7396 .deai-flow-step { display: inline-block; padding: 2px 8px; margin: 2px; border-radius: var(--radius-sm); background: var(--bg-elevated); color: var(--text-primary); }
+7397 .deai-flow-arrow { color: var(--text-muted); margin: 0 2px; }
+7398 .deai-flow-time { font-weight: 600; color: var(--text-primary); }
+7399 .deai-verify-status { display: flex; align-items: center; gap: 8px; padding: var(--space-sm); border-radius: var(--radius-sm); background: var(--bg-tertiary); border: 1px solid var(--border-color); font-size: var(--font-size-sm); }
+7400 .deai-verify-icon { font-weight: 700; color: var(--text-muted); }
+7401 .deai-verify-status.configured .deai-verify-icon { color: #4CAF50; }
+7402 .deai-verify-status.not-configured .deai-verify-icon { color: var(--text-muted); }
+7403 .deai-verify-name { color: var(--text-primary); font-weight: 500; }
+7404 .deai-verify-hint { color: var(--text-muted); font-size: var(--font-size-xs, 12px); }
+7405 
+7406 /* ===== SKILL Template Editor: dual-pane with Markdown preview ===== */
+7407 .sf-template-wrapper { display: flex; gap: var(--space-sm); min-height: 280px; }
+7408 .sf-template-input { flex: 1; min-width: 0; padding: var(--form-padding); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: var(--font-size-sm); font-family: var(--font-mono, monospace); resize: vertical; line-height: 1.6; }
+7409 .sf-template-preview { flex: 1; min-width: 0; padding: var(--form-padding); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary); font-size: var(--font-size-sm); overflow-y: auto; max-height: 350px; line-height: 1.6; }
+7410 .sf-template-preview:empty::before { content: 'Markdown 预览区（实时渲染）'; color: var(--text-muted); font-style: italic; }
+
+===== skill-area-extra L1185-L1205 =====
+1185 
+1186 
+1187 /* === Editor Toolbar Groups === */
+1188 
+1189 /* === Skill Area Modernization === */
+1190 #skill-area { margin-top: var(--space-sm); border-top: 1px solid var(--border-color); padding: var(--space-sm) 0; transition: var(--transition); }
+1191 .skill-area-header {
+1192   display: flex; justify-content: space-between; align-items: center;
+1193   cursor: pointer; padding: var(--space-xs) var(--space-sm); border-radius: var(--radius-sm);
+1194   transition: var(--transition-panel);
+1195 }
+1196 .skill-area-header:hover { background: var(--bg-tertiary); }
+1197 .skill-area-title { font-weight: 700; font-size: var(--font-size-sm); color: var(--text-primary); }
+1198 .skill-area-arrow { font-size: var(--font-size-xs); color: var(--text-muted); transition: transform var(--transition); }
+1199 .skill-area-content { margin-top: 4px; padding: 0 var(--space-sm); flex: 1; min-width: 0; }
+1200 .agent-info-bar {
+1201   margin-bottom: 6px; padding: var(--btn-medium-padding);
+1202   background: var(--bg-elevated); border-radius: var(--radius-sm);
+1203   border-left: 3px solid var(--accent, var(--accent));
+1204   font-size: var(--font-size-xs); color: var(--text-secondary);
+1205   display: none; transition: var(--transition);

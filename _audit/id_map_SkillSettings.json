@@ -1,0 +1,140 @@
+[
+  {
+    "id": "btn-add-skill",
+    "tag": "div",
+    "cls": "section-header",
+    "line": 309
+  },
+  {
+    "id": "btn-cancel-skill",
+    "tag": "div",
+    "cls": "form-actions",
+    "line": 359
+  },
+  {
+    "id": "btn-generate-outline-skills",
+    "tag": "div",
+    "cls": "ow-hidden",
+    "line": 635
+  },
+  {
+    "id": "btn-save-bind",
+    "tag": "div",
+    "cls": "modal-footer",
+    "line": 685
+  },
+  {
+    "id": "btn-save-skill",
+    "tag": "div",
+    "cls": "form-actions",
+    "line": 359
+  },
+  {
+    "id": "btn-save-skill-binding",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 942
+  },
+  {
+    "id": "sbm-skill-list",
+    "tag": "div",
+    "cls": "checkbox-list",
+    "line": 934
+  },
+  {
+    "id": "sbm-title",
+    "tag": "h3",
+    "cls": "",
+    "line": 918
+  },
+  {
+    "id": "sf-bind-id",
+    "tag": "div",
+    "cls": "form-group modal-hidden",
+    "line": 344
+  },
+  {
+    "id": "sf-bind-id-group",
+    "tag": "div",
+    "cls": "form-group modal-hidden",
+    "line": 344
+  },
+  {
+    "id": "sf-bind-type",
+    "tag": "div",
+    "cls": "form-group",
+    "line": 341
+  },
+  {
+    "id": "sf-category",
+    "tag": "div",
+    "cls": "form-group",
+    "line": 333
+  },
+  {
+    "id": "sf-depth",
+    "tag": "div",
+    "cls": "form-group",
+    "line": 341
+  },
+  {
+    "id": "sf-desc",
+    "tag": "div",
+    "cls": "form-group",
+    "line": 329
+  },
+  {
+    "id": "sf-frequency",
+    "tag": "div",
+    "cls": "form-group",
+    "line": 341
+  },
+  {
+    "id": "sf-inject-mode",
+    "tag": "div",
+    "cls": "form-group",
+    "line": 337
+  },
+  {
+    "id": "sf-linked-list",
+    "tag": "div",
+    "cls": "form-group",
+    "line": 347
+  },
+  {
+    "id": "sf-name",
+    "tag": "div",
+    "cls": "form-group",
+    "line": 325
+  },
+  {
+    "id": "sf-template",
+    "tag": "div",
+    "cls": "form-group",
+    "line": 355
+  },
+  {
+    "id": "sf-template-preview",
+    "tag": "div",
+    "cls": "form-group",
+    "line": 355
+  },
+  {
+    "id": "skill-bind-modal",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 902
+  },
+  {
+    "id": "skill-form",
+    "tag": "div",
+    "cls": "modal-hidden",
+    "line": 317
+  },
+  {
+    "id": "skill-form-title",
+    "tag": "h4",
+    "cls": "",
+    "line": 321
+  }
+]

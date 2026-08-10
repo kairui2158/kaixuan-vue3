@@ -7,6 +7,7 @@ export const usePipelineStore = defineStore('pipeline', () => {
   const generationProgress = ref(0)
   const generationStatus = ref('')
   const breakpoint = ref<any>(null)
+  const chapterProgress = ref<{ volumeIndex: number; chapterIndex: number; total: number } | null>(null)
 
   const stepNames = ['outline', 'settings', 'volumes', 'chapters', 'body']
   const currentStepName = computed(() => stepNames[currentStep.value] || '')
@@ -39,16 +40,34 @@ export const usePipelineStore = defineStore('pipeline', () => {
 
   function saveBreakpoint(data: any) {
     breakpoint.value = data
+    if (data && data.volumeIndex !== undefined) {
+      chapterProgress.value = {
+        volumeIndex: data.volumeIndex,
+        chapterIndex: data.chapterIndex || 0,
+        total: data.total || 0
+      }
+    }
+  }
+
+  function updateChapterProgress(chapterIndex: number) {
+    if (chapterProgress.value) {
+      chapterProgress.value.chapterIndex = chapterIndex
+    }
+  }
+
+  function clearChapterProgress() {
+    chapterProgress.value = null
   }
 
   function clearBreakpoint() {
     breakpoint.value = null
+    chapterProgress.value = null
   }
 
   return {
-    currentStep, isGenerating, generationProgress, generationStatus, breakpoint,
+    currentStep, isGenerating, generationProgress, generationStatus, breakpoint, chapterProgress,
     currentStepName,
     setStep, startGeneration, updateProgress, finishGeneration, failGeneration,
-    saveBreakpoint, clearBreakpoint
+    saveBreakpoint, clearBreakpoint, updateChapterProgress, clearChapterProgress
   }
 })

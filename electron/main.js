@@ -8,7 +8,6 @@ app.commandLine.appendSwitch('enable-gpu-rasterization')
 
 // IPC handler modules
 const { registerCryptoHandlers } = require('./ipc/crypto')
-const { registerStorageHandlers, setDataDir, getDataDir } = require('./ipc/storage')
 const { registerDiagHandlers, setLogDir } = require('./ipc/diag')
 const { registerApiHandlers } = require('./ipc/api')
 const { registerDialogHandlers } = require('./ipc/dialog')
@@ -22,6 +21,7 @@ function createWindow() {
   var logDir = path.join(userDataDir, 'logs')
 
   setDataDir(dataDir)
+  setLegacyDir(path.join(require('os').homedir(), 'Documents', '写作助手数据'))
   setLogDir(logDir)
 
   mainWindow = new BrowserWindow({
@@ -88,26 +88,45 @@ function createWindow() {
    return { valid: true, errors: [] }
  })
 
- ipcMain.handle('provider:testConnection', async function(event, baseUrl, apiKey) {
-  try {
-    var tUrl = baseUrl.replace(/\/$/, '') + '/v1/models'
-    var tResp = await fetch(tUrl, { headers: { 'Authorization': 'Bearer ' + apiKey } })
-      if (tResp.ok) return { connected: true }
-      return { connected: false, error: 'HTTP ' + tResp.status }
-    } catch(te) {
-      return { connected: false, error: te.message }
+ipcMain.handle('provider:testConnection', async function(event, baseUrl, apiKey) {
+  return await new Promise(function(resolve) {
+    var trimmed = baseUrl.replace(/\/+$/, '')
+    var tUrl = trimmed.match(/\/v\d+$/) ? trimmed + '/models' : trimmed + '/v1/models'
+    var parsed = new URL(tUrl)
+    var isHttps = parsed.protocol === 'https:'
+    var https = require('https')
+    var http = require('http')
+    var mod = isHttps ? https : http
+    var options = {
+      hostname: parsed.hostname,
+      port: parsed.port || (isHttps ? 443 : 80),
+      path: parsed.pathname + parsed.search,
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + apiKey },
+      timeout: 15000
     }
- })
+    var req = mod.request(options, function(res) {
+      res.on('data', function() {})
+      res.on('end', function() {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve({ connected: true })
+        } else {
+          resolve({ connected: false, error: 'HTTP ' + res.statusCode })
+        }
+      })
+    })
+    req.on('error', function(e) { resolve({ connected: false, error: e.message }) })
+    req.on('timeout', function() { req.destroy(); resolve({ connected: false, error: 'Request timeout after 15s' }) })
+    req.end()
+  })
+})
 
   // Load the app
   var isDev = process.argv.includes('--dev')
   if (isDev) {
     // In dev mode, load from Vite dev server or old renderer
     var viteUrl = 'http://localhost:5173'
-    mainWindow.loadURL(viteUrl).catch(function() {
-      // Fallback to old renderer during migration
-      mainWindow.loadFile(path.join(__dirname, '..', 'renderer.html'))
-    })
+    mainWindow.loadURL(viteUrl)
     mainWindow.webContents.openDevTools()
   } else {
     // Production: load built Vue app, fallback to old renderer
@@ -115,7 +134,8 @@ function createWindow() {
     if (fs.existsSync(vueIndex)) {
       mainWindow.loadFile(vueIndex)
     } else {
-      mainWindow.loadFile(path.join(__dirname, '..', 'renderer.html'))
+      // No fallback - Vue3 app is the only renderer
+      console.error('dist-renderer/index.html not found! Build with: npx vite build')
     }
   }
 
@@ -159,3 +179,4 @@ process.on('uncaughtException', function(e) {
 process.on('unhandledRejection', function(reason) {
   console.error('Unhandled rejection:', reason)
 })
+const { registerStorageHandlers, setDataDir, getDataDir, setLegacyDir } = require('./ipc/storage')

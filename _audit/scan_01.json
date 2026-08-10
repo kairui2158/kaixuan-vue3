@@ -1,0 +1,277 @@
+{
+  "title": "Novel Workshop",
+  "buttons": [
+    {
+      "t": "x",
+      "c": "btn-icon",
+      "v": true,
+      "d": false,
+      "id": ""
+    },
+    {
+      "t": "",
+      "c": "sidebar-btn",
+      "v": true,
+      "d": false,
+      "id": ""
+    },
+    {
+      "t": "",
+      "c": "sidebar-btn",
+      "v": true,
+      "d": false,
+      "id": ""
+    },
+    {
+      "t": "",
+      "c": "sidebar-btn",
+      "v": true,
+      "d": false,
+      "id": ""
+    },
+    {
+      "t": "",
+      "c": "sidebar-btn",
+      "v": true,
+      "d": false,
+      "id": ""
+    },
+    {
+      "t": "生成",
+      "c": "btn-sm btn-secondary",
+      "v": true,
+      "d": false,
+      "id": ""
+    },
+    {
+      "t": "项目",
+      "c": "btn-sm btn-secondary",
+      "v": true,
+      "d": false,
+      "id": ""
+    },
+    {
+      "t": "undo",
+      "c": "btn-sm btn-secondary",
+      "v": true,
+      "d": false,
+      "id": ""
+    },
+    {
+      "t": "redo",
+      "c": "btn-sm btn-secondary",
+      "v": true,
+      "d": false,
+      "id": ""
+    },
+    {
+      "t": "生成",
+      "c": "btn-sm btn-secondary",
+      "v": true,
+      "d": false,
+      "id": ""
+    },
+    {
+      "t": "保存",
+      "c": "btn-sm btn-secondary",
+      "v": true,
+      "d": false,
+      "id": ""
+    },
+    {
+      "t": "导出",
+      "c": "btn-sm btn-secondary",
+      "v": true,
+      "d": false,
+      "id": ""
+    },
+    {
+      "t": "去AI味",
+      "c": "btn-sm btn-secondary",
+      "v": true,
+      "d": false,
+      "id": ""
+    },
+    {
+      "t": "send",
+      "c": "btn-send",
+      "v": true,
+      "d": false,
+      "id": ""
+    }
+  ],
+  "selects": [
+    {
+      "c": "header-selector",
+      "n": 1,
+      "o": "默认",
+      "v": "",
+      "id": ""
+    },
+    {
+      "c": "header-selector",
+      "n": 1,
+      "o": "自动",
+      "v": "",
+      "id": ""
+    },
+    {
+      "c": "agent-selector",
+      "n": 1,
+      "o": "默认",
+      "v": "",
+      "id": ""
+    },
+    {
+      "c": "agent-selector",
+      "n": 1,
+      "o": "自动",
+      "v": "",
+      "id": ""
+    }
+  ],
+  "inputs": [
+    {
+      "t": "textarea",
+      "c": "editor-content",
+      "p": "请先创建或打开项目，然后选择左侧章节开始写作...",
+      "v": true,
+      "id": ""
+    },
+    {
+      "t": "textarea",
+      "c": "chat-input",
+      "p": "输入消息...",
+      "v": true,
+      "id": ""
+    }
+  ],
+  "panels": [
+    {
+      "c": "sidebar-nav",
+      "v": true,
+      "ch": 5
+    },
+    {
+      "c": "sidebar-btn",
+      "v": true,
+      "ch": 1
+    },
+    {
+      "c": "sidebar-icon",
+      "v": true,
+      "ch": 1
+    },
+    {
+      "c": "sidebar-btn",
+      "v": true,
+      "ch": 1
+    },
+    {
+      "c": "sidebar-icon",
+      "v": true,
+      "ch": 1
+    },
+    {
+      "c": "sidebar-btn",
+      "v": true,
+      "ch": 1
+    },
+    {
+      "c": "sidebar-icon",
+      "v": true,
+      "ch": 1
+    },
+    {
+      "c": "sidebar-btn",
+      "v": true,
+      "ch": 1
+    },
+    {
+      "c": "sidebar-icon",
+      "v": true,
+      "ch": 1
+    },
+    {
+      "c": "sidebar-divider",
+      "v": true,
+      "ch": 0
+    },
+    {
+      "c": "editor-panel",
+      "v": true,
+      "ch": 2
+    },
+    {
+      "c": "editor-header",
+      "v": true,
+      "ch": 3
+    },
+    {
+      "c": "editor-mode-badge",
+      "v": true,
+      "ch": 0
+    },
+    {
+      "c": "editor-title",
+      "v": true,
+      "ch": 0
+    },
+    {
+      "c": "editor-toolbar",
+      "v": true,
+      "ch": 8
+    },
+    {
+      "c": "editor-toolbar-group",
+      "v": true,
+      "ch": 2
+    },
+    {
+      "c": "editor-toolbar-group",
+      "v": true,
+      "ch": 2
+    },
+    {
+      "c": "editor-toolbar-group",
+      "v": true,
+      "ch": 1
+    },
+    {
+      "c": "editor-toolbar-group",
+      "v": true,
+      "ch": 1
+    },
+    {
+      "c": "editor-content",
+      "v": true,
+      "ch": 0
+    },
+    {
+      "c": "chat-panel",
+      "v": true,
+      "ch": 4
+    },
+    {
+      "c": "chat-header",
+      "v": true,
+      "ch": 3
+    },
+    {
+      "c": "chat-input-row",
+      "v": true,
+      "ch": 2
+    },
+    {
+      "c": "chat-input",
+      "v": true,
+      "ch": 0
+    },
+    {
+      "c": "agent-progress-panel collapsed",
+      "v": false,
+      "ch": 1
+    }
+  ],
+  "bodyText": "小说工坊\n默认\n自动\nx\n未打开项目\n生成\n项目\n点击右上角\"项目\"按钮\n创建或打开你的小说项目\n选择章节开始写作\nundo\nredo\n生成\n保存\n导出\n去AI味\n0 字\nAI 对话\n默认\n自动\n[edit]\n开始对话\n在下方输入框输入消息，与 AI 助手开始创作\nsend\n0 字 | 未配置 API | 点击设置配置\nAgent 进度\n>"
+}

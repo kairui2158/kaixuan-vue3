@@ -1,0 +1,116 @@
+[
+  {
+    "id": "agent-info-bar",
+    "tag": "div",
+    "cls": "skill-area-header",
+    "line": 163
+  },
+  {
+    "id": "agent-info-model",
+    "tag": "div",
+    "cls": "skill-area-header",
+    "line": 163
+  },
+  {
+    "id": "agent-info-name",
+    "tag": "div",
+    "cls": "skill-area-header",
+    "line": 163
+  },
+  {
+    "id": "agent-select-chat",
+    "tag": "div",
+    "cls": "chat-header",
+    "line": 151
+  },
+  {
+    "id": "btn-send",
+    "tag": "div",
+    "cls": "chat-input-row",
+    "line": 159
+  },
+  {
+    "id": "char-count",
+    "tag": "div",
+    "cls": "input-hint",
+    "line": 166
+  },
+  {
+    "id": "chat-context-bar",
+    "tag": "div",
+    "cls": "",
+    "line": 154
+  },
+  {
+    "id": "chat-empty-state",
+    "tag": "div",
+    "cls": "empty-state",
+    "line": 155
+  },
+  {
+    "id": "chat-panel",
+    "tag": "section",
+    "cls": "",
+    "line": 147
+  },
+  {
+    "id": "config-status",
+    "tag": "div",
+    "cls": "input-hint",
+    "line": 166
+  },
+  {
+    "id": "messages-container",
+    "tag": "div",
+    "cls": "empty-state",
+    "line": 155
+  },
+  {
+    "id": "messages-list",
+    "tag": "div",
+    "cls": "empty-state",
+    "line": 155
+  },
+  {
+    "id": "model-select-chat",
+    "tag": "div",
+    "cls": "chat-header",
+    "line": 151
+  },
+  {
+    "id": "skill-area",
+    "tag": "div",
+    "cls": "skill-area-header",
+    "line": 163
+  },
+  {
+    "id": "skill-area-arrow",
+    "tag": "div",
+    "cls": "skill-area-header",
+    "line": 163
+  },
+  {
+    "id": "skill-area-content",
+    "tag": "div",
+    "cls": "skill-area-header",
+    "line": 163
+  },
+  {
+    "id": "skill-area-toggle",
+    "tag": "div",
+    "cls": "skill-area-header",
+    "line": 163
+  },
+  {
+    "id": "skill-list",
+    "tag": "div",
+    "cls": "item-list card-grid",
+    "line": 313
+  },
+  {
+    "id": "skill-list-active",
+    "tag": "div",
+    "cls": "skill-area-header",
+    "line": 163
+  }
+]

@@ -31,3 +31,5 @@ _archive/
 
 # Temp working scripts in scripts/tmp/ (CDP probes, audit tools, not part of app)
 scripts/tmp/
+`n# Temp audit/debug dirs`n.codex_tmp/`n.agent-checkpoint/`n.claude/`n.cursor/`n_test_profile/`n_tools/`n_audit/`n*.bak
+`n_cdp_*.cjs`nfix_audit.js`n*.bak

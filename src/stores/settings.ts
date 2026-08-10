@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useSettingsStore = defineStore('settings', () => {
-  const activeTab = ref<'api' | 'skill' | 'agent' | 'appearance' | 'deai'>('api')
+  const activeTab = ref<'api' | 'skill' | 'agent' | 'appearance' | 'deai' | 'diag'>('api')
   const fontSize = ref(14)
   const theme = ref<'dark'>('dark')
   const editorFont = ref('serif')
@@ -10,12 +10,13 @@ export const useSettingsStore = defineStore('settings', () => {
   const maxTabs = ref(20)
   const cdpPort = ref(9223)
 
-  function loadSettings() {
-    const data = window.electronAPI.storageRead('appSettings')
-    if (data) {
-      fontSize.value = data.fontSize || 14
-      editorFont.value = data.editorFont || 'serif'
-      autoSaveInterval.value = data.autoSaveInterval || 30
+ function loadSettings() {
+    let data = window.electronAPI.storageRead('appSettings')
+    if (!data) data = window.electronAPI.storageRead('app-settings')
+   if (data) {
+     fontSize.value = data.fontSize || 14
+      editorFont.value = data.editorFont || data.editorFontSize || 'serif'
+     autoSaveInterval.value = data.autoSaveInterval || 30
       maxTabs.value = data.maxTabs || 20
       cdpPort.value = data.cdpPort || 9223
     }
@@ -31,7 +32,7 @@ export const useSettingsStore = defineStore('settings', () => {
     })
   }
 
-  function setActiveTab(tab: 'api' | 'skill' | 'agent' | 'appearance' | 'deai') {
+  function setActiveTab(tab: 'api' | 'skill' | 'agent' | 'appearance' | 'deai' | 'diag') {
     activeTab.value = tab
   }
 

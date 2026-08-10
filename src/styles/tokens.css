@@ -46,12 +46,111 @@
   --z-dropdown: 100;
   --z-overlay: 500;
   --z-modal: 1000;
+  --ls-tight: -0.01em;
+  --ls-normal: 0;
+  --ls-wide: 0.05em;
   --z-toast: 2000;
   --z-tooltip: 3000;
-  --transition-fast: 0.12s ease;
-  --transition: 0.2s ease;
-  --transition-slow: 0.3s ease;
-  color-scheme: dark;
+ --transition-fast: 0.12s ease;
+ --transition: 0.2s ease;
+ --transition-slow: 0.3s ease;
+  --space-xxs: 2px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --gap: 8px;
+  --btn-gap: 6px;
+  --toolbar-gap: 8px;
+  --btn-group-gap-standard: 4px;
+  --radius: 8px;
+  --radius-btn: 6px;
+  --font-size-xs: 10px;
+  --font-size-sm: 12px;
+  --font-size-md: 14px;
+  --font-size-md-lg: 15px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --lh-tight: 1.3;
+  --lh-normal: 1.5;
+  --lh-loose: 1.8;
+  --btn-sm-height: 28px;
+  --btn-md-height: 34px;
+  --btn-xs-height: 24px;
+  --btn-xs-padding: 4px 8px;
+  --btn-xxs-padding: 2px 6px;
+  --btn-medium-padding: 6px 14px;
+  --btn-wide-padding: 8px 20px;
+  --btn-tab-padding: 6px 12px;
+  --btn-tight-padding: 4px 10px;
+  --btn-chip-padding: 4px 12px;
+  --form-padding: 8px 12px;
+  --form-height: 34px;
+  --card-bg: var(--bg-elevated);
+  --card-border: 1px solid var(--border-color);
+  --card-radius: var(--radius);
+  --card-padding: var(--space-md);
+  --card-gap: var(--space-sm);
+  --card-font-weight-title: 600;
+  --card-font-size-lg: var(--font-size-md);
+  --card-font-size: var(--font-size-sm);
+  --card-text-color: var(--text-primary);
+  --card-text-secondary: var(--text-secondary);
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.15);
+  --shadow-xl: 0 16px 48px rgba(0,0,0,0.6);
+  --shadow-panel-sm: 0 2px 12px rgba(0,0,0,0.25);
+  --shadow-glow: 0 0 24px rgba(124, 140, 248, 0.15);
+  --shadow-focus: 0 0 0 3px rgba(124, 140, 248, 0.12);
+  --focus-glow: 0 0 0 2px var(--accent);
+  --shadow-accent-xs: 0 1px 3px rgba(124, 140, 248, 0.15);
+  --shadow-accent-sm: 0 2px 6px rgba(124, 140, 248, 0.2);
+  --shadow-glow-sm: 0 0 12px rgba(124, 140, 248, 0.1);
+  --shadow-border-accent: 0 0 0 1px var(--accent);
+  --transition-button: 0.15s ease;
+  --transition-card: 0.2s ease;
+  --transition-panel: 0.25s ease;
+  --transition-input: 0.12s ease;
+  --transition-tab: 0.15s ease;
+  --tf-none: none;
+  --tf-press: scale(0.97);
+  --accent-light: #7c8cf8;
+  --accent-lighter: #9da9fa;
+  --accent-dim: rgba(124, 140, 248, 0.12);
+  --accent-glow: rgba(124, 140, 248, 0.2);
+  --accent-soft: rgba(124, 140, 248, 0.12);
+  --accent-strong: #6b7af0;
+  --accent-gradient-hover: linear-gradient(135deg, #6b7af0 0%, #9da9fa 100%);
+  --danger-dim: rgba(224, 85, 106, 0.1);
+  --danger-hover: #c04050;
+  --danger-light: #f06070;
+  --success-dim: rgba(76, 175, 136, 0.1);
+  --success-light: #6dca9e;
+  --warning-dim: rgba(240, 160, 80, 0.1);
+  --warning-bright: #f0a050;
+  --info-dim: rgba(91, 156, 245, 0.1);
+  --info-light: #5b9cf5;
+  --bg-card: var(--bg-elevated);
+  --bg-sidebar: var(--bg-secondary);
+  --border-dark: var(--border-color);
+  --text-bright: #ffffff;
+  --blur: 8px;
+  --blur-sm: 4px;
+ --bg-overlay-strong: rgba(0, 0, 0, 0.7);
+ --bg-overlay-soft: rgba(0, 0, 0, 0.3);
+color-scheme: dark;
+ /* compat aliases - referenced by 55+ files */
+ --bg: var(--bg-primary);
+ --font-size: var(--font-size-sm);
+ --shadow: 0 4px 16px rgba(0,0,0,0.12);
+ --font-size-editor: 14px;
+ --line-height-editor: 1.6;
+ --space-12: 48px;
+ --accent-primary: #5b6bdb;
+ --error: var(--danger);
 }
 
 * {
@@ -73,3 +172,197 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+/* === Light Theme Overrides === */
+body.light-theme {
+  --bg-primary: #f5f5f7;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #eaeaef;
+  --bg-elevated: #ffffff;
+  --bg-input: #f0f0f5;
+  --bg-glass: rgba(255, 255, 255, 0.85);
+  --bg-hover: rgba(124, 140, 248, 0.08);
+  --bg-overlay: rgba(0, 0, 0, 0.3);
+  --text-primary: #1a1a2e;
+  --text-secondary: #555560;
+  --text-muted: #888894;
+  --text-on-accent: #ffffff;
+  --accent: #5b6bdb;
+  --accent-hover: #4a5ad0;
+  --accent-active: #3d4dc6;
+  --accent-gradient: linear-gradient(135deg, #5b6bdb 0%, #7b5cd0 100%);
+  --danger: #d04050;
+  --success: #2d9e68;
+  --warning: #d98030;
+  --info: #3090e0;
+  --user-bubble: #e0e8ff;
+  --ai-bubble: #f0f0f5;
+  --border-color: #d0d0d8;
+  --border-light: #c0c0c8;
+  --border-focus: #5b6bdb;
+ --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+ --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+ --shadow-lg: 0 8px 32px rgba(0,0,0,0.16);
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-xl: 0 16px 48px rgba(0,0,0,0.2);
+  --shadow-panel-sm: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-glow: 0 0 24px rgba(91, 107, 219, 0.12);
+  --shadow-focus: 0 0 0 3px rgba(91, 107, 219, 0.12);
+  --focus-glow: 0 0 0 2px var(--accent);
+  --shadow-accent-xs: 0 1px 3px rgba(91, 107, 219, 0.12);
+  --shadow-accent-sm: 0 2px 6px rgba(91, 107, 219, 0.16);
+  --shadow-glow-sm: 0 0 12px rgba(91, 107, 219, 0.08);
+  --shadow-border-accent: 0 0 0 1px var(--accent);
+  --accent-light: #7c8cf8;
+  --accent-lighter: #9da9fa;
+  --accent-dim: rgba(91, 107, 219, 0.12);
+  --accent-glow: rgba(91, 107, 219, 0.2);
+  --accent-soft: rgba(91, 107, 219, 0.12);
+  --accent-strong: #4a5ad0;
+  --accent-gradient-hover: linear-gradient(135deg, #4a5ad0 0%, #9da9fa 100%);
+  --danger-dim: rgba(208, 64, 80, 0.1);
+  --danger-hover: #b03040;
+  --danger-light: #e06070;
+  --success-dim: rgba(58, 154, 120, 0.1);
+  --success-light: #5dba9a;
+  --warning-dim: rgba(192, 128, 32, 0.1);
+  --warning-bright: #d09030;
+  --info-dim: rgba(80, 112, 208, 0.1);
+  --info-light: #5070d0;
+  --bg-card: #ffffff;
+  --bg-sidebar: #f0f0f2;
+  --border-dark: #d0d0d8;
+  --text-bright: #000000;
+  --bg-overlay-strong: rgba(0, 0, 0, 0.55);
+  --bg-overlay-soft: rgba(0, 0, 0, 0.06);
+ color-scheme: light;
+}
+
+/* === Responsive Breakpoints === */
+/* min1024 max1279 */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  body { font-size: clamp(12px, 0.9vw, 14px); }
+  .chapter-tree { min-width: 180px; max-width: 240px; }
+}
+/* min800 max1023 */
+@media (min-width: 800px) and (max-width: 1023px) {
+  body { font-size: clamp(11px, 1vw, 13px); }
+  .sidebar-nav { width: 48px !important; }
+  .sidebar-nav .nav-btn { width: 36px; height: 36px; }
+  .chapter-tree { min-width: 150px; max-width: 200px; }
+}
+/* max799 */
+@media (max-width: 799px) {
+  body { font-size: 12px; }
+  .sidebar-nav { width: 44px !important; }
+  .sidebar-nav .nav-btn { width: 32px; height: 32px; }
+  .chapter-tree { display: none; }
+
+/* ===== CSS Fix: Missing variables from old architecture ===== */
+:root {
+  --shadow-accent-md: 0 4px 16px rgba(124, 140, 248, 0.35);
+  --shadow-focus-accent: 0 0 0 1px var(--accent);
+  --shadow-focus-danger: 0 0 0 3px var(--danger-dim);
+  --blur-md: blur(8px);
+  --blur-lg: blur(16px);
+  --blur-xl: blur(24px);
+  --backdrop-blur-sm: blur(4px);
+  --backdrop-blur-md: blur(12px);
+  --backdrop-blur-lg: blur(20px);
+  --backdrop-saturate: saturate(1.2);
+  --opacity-disabled: 0.5;
+  --opacity-overlay: 0.85;
+  --opacity-overlay-strong: 0.95;
+  --opacity-placeholder: 0.4;
+  --opacity-50: 0.5;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-expo: cubic-bezier(0.87, 0, 0.13, 1);
+  --hover-lift: translateY(-1px);
+  --hover-lift-md: translateY(-2px);
+  --hover-press: scale(0.97);
+  --hover-press-sm: scale(0.98);
+  --btn-lg-height: 38px;
+  --btn-sm-padding: 4px 12px;
+  --btn-md-padding: 6px 16px;
+  --btn-lg-padding: 8px 20px;
+  --panel-header-padding: 8px 12px;
+  --panel-body-padding: 16px;
+  --modal-tab-padding: 0 14px;
+  --success-active: var(--success);
+  --user-bubble-gradient: linear-gradient(135deg, #1c2850 0%, #2a3870 100%);
+  --card-width: auto;
+  --card-min-width: 240px;
+  --card-max-width: 480px;
+  --card-padding-sm: 12px;
+  --card-padding-lg: 20px;
+  --card-shadow: var(--shadow-sm);
+  --card-shadow-hover: var(--shadow-md);
+  --card-font-size-sm: 12px;
+  --card-font-weight: 500;
+  --card-line-height: 1.5;
+  --modal-width-sm: 400px;
+  --modal-width: 512px;
+  --modal-width-lg: 640px;
+  --modal-width-xl: 800px;
+  --modal-radius: 12px;
+  --modal-padding: 24px;
+  --modal-header-padding: 16px 24px;
+  --modal-footer-padding: 12px 24px;
+  --modal-overlay-bg: var(--bg-overlay);
+  --modal-bg: var(--bg-elevated);
+  --modal-shadow: var(--shadow-xl);
+  --modal-anim-in: opacity 0.2s ease, transform 0.2s ease;
+  --modal-anim-scale: scale(1);
+  --modal-anim-scale-in: scale(0.95);
+  --panel-width: 320px;
+  --panel-width-sm: 280px;
+  --panel-width-lg: 400px;
+  --panel-radius: 8px;
+  --panel-padding: 16px;
+  --panel-header-height: 40px;
+  --panel-bg: var(--bg-secondary);
+  --btn-radius: 6px;
+  --btn-gap-sm: 4px;
+  --btn-gap-lg: 12px;
+  --btn-font-size-xs: 11px;
+  --btn-font-size-sm: 12px;
+  --btn-font-size-md: 13px;
+  --btn-font-size-lg: 15px;
+  --btn-transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  --space-0: 0px;
+  --space-7: 20px;
+  --fw-normal: 400;
+  --opacity-0: 0;
+  --opacity-30: 0.3;
+  --opacity-70: 0.7;
+  --opacity-100: 1;
+  --tf-lift: translateY(-1px);
+  --btn-icon-size: 28px;
+  --focus-ring: 2px solid var(--accent);
+  --cursor-pointer: pointer;
+  --cursor-default: default;
+  --cursor-grab: grab;
+  --cursor-grabbing: grabbing;
+  --cursor-text: text;
+  --cursor-not-allowed: not-allowed;
+  --cursor-help: help;
+  --cursor-move: move;
+  --font-smoothing: antialiased;
+  --font-smoothing-moz: grayscale;
+  --text-rendering: optimizeLegibility;
+  --user-select-none: none;
+  --user-select-text: text;
+  --user-select-all: all;
+  --grad-surface: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  --grad-elevated: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-tertiary) 100%);
+  --grad-accent-subtle: linear-gradient(135deg, rgba(124,140,248,0.08) 0%, rgba(155,108,248,0.08) 100%);
+  --grad-success: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
+  --grad-danger: linear-gradient(135deg, var(--danger) 0%, var(--danger-light) 100%);
+  --z-sticky: 10;
+  --z-sticky-header: 200;
+  --z-drawer: 600;
+  --z-modal-high: 1500;
+  --focus-ring-offset: 2px;
+}

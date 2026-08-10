@@ -1,56 +1,85 @@
 <template>
   <div class="app-container">
-    <header class="app-header">
+    <header id="app-header" class="app-header">
       <div class="header-left">
         <span class="app-title">小说工坊</span>
       </div>
       <div class="header-right">
-        <select v-model="selectedAgent" class="header-selector" aria-label="选择智能体">
+        <select id="agent-select" v-model="selectedAgent" class="header-selector" aria-label="选择智能体">
           <option value="">默认</option>
           <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
         </select>
-        <select v-model="selectedModel" class="header-selector" aria-label="选择模型">
+        <select id="model-select" v-model="selectedModel" class="header-selector" aria-label="选择模型">
           <option value="">自动</option>
           <option v-for="m in availableModels" :key="m" :value="m">{{ m }}</option>
         </select>
-        <button class="btn-icon" title="清空对话" @click="clearChat">x</button>
+        <button id="btn-clear" class="btn-icon" title="清空对话" @click="clearChat"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
       </div>
     </header>
 
-    <main>
-      <div class="app-body">
-        <SidebarNav :active-panel="activePanel" @navigate="handleNavigate" />
-
-        <div class="app-main">
-          <ChapterTree v-if="!activePanel" />
-          <SettingsModal v-if="activePanel === 'settings'" @close="activePanel=''" />
-          <PipelinePanel v-if="activePanel === 'pipeline'" @close="activePanel=''" />
-          <SettingsCollectionPanel v-if="activePanel === 'settings-collection'" @close="activePanel=''" />
-          <OutlineWorkspace v-if="activePanel === 'outline'" @close="activePanel=''" />
-
-          <template v-if="!activePanel">
-            <div class="resizer-v" data-target="chapter"></div>
-            <EditorPanel />
-            <div class="resizer-v" data-target="chat"></div>
-            <ChatPanel />
-          </template>
+   <main>
+      <div id="panel-backdrop" class="panel-backdrop" v-if="activePanel" @click="activePanel=''"></div>
+     <div id="app-body" class="app-body">
+       <SidebarNav :active-panel="activePanel" @navigate="handleNavigate" />
+      <div id="app-main" class="app-main">
+         <BreadcrumbBar :items="breadcrumbItems" @home="activePanel=''; breadcrumbItems=[]" @navigate="(i) => breadcrumbItems.splice(i+1)" @close="(i) => breadcrumbItems.splice(i)" />
+        <div class="app-main-content">
+          <ChapterTree @navigate="handleNavigate" />
+          <div class="resizer-v" data-target="chapter" title="拖动调整宽度"></div>
+          <EditorPanel />
+          <div class="resizer-v" data-target="chat" title="拖动调整宽度"></div>
+          <ChatPanel />
+         </div>
+        <!-- Panel overlays: fixed position, rendered on top of editor area -->
+        <SettingsModal v-if="activePanel === 'settings'" @close="activePanel=''" />
+        <PipelinePanel v-if="activePanel === 'pipeline'" @close="activePanel=''" />
+        <SettingsCollectionPanel v-if="activePanel === 'settings-collection'" @close="activePanel=''" />
+        <OutlineWorkspace v-if="activePanel === 'outline'" @close="activePanel=''" />
+        <MemoryPanel v-if="activePanel === 'memory'" @close="activePanel=''" />
+        <DashboardModal v-if="activePanel === 'dashboard'" :stats="dashboardStats" @close="activePanel=''" />
+        <PluginMarket v-if="activePanel === 'plugin-market'" @close="activePanel=''" />
         </div>
       </div>
     </main>
 
     <DeAiProgress v-if="deAiStore.isProcessing" />
+    <ExitConfirmModal ref="exitModal" />
+
+   <DiffModal :visible="diffVisible" :original="diffOriginal" :modified="diffModified" @close="diffVisible=false" @apply="applyDiffResult" />
+
+    <InlineMenu :visible="inlineMenu.visible" :x="inlineMenu.x" :y="inlineMenu.y" :selectedText="inlineMenu.text" @close="inlineMenu.visible=false" @action="handleInlineAction" />
     <AgentProgressPanel />
+    <div id="statusbar" class="statusbar">
+      <span id="status-cursor"></span>
+      <span id="status-connection">{{ providerStore.activeGenerateProvider ? '已连接' : '未连接' }}</span>
+      <span id="status-model">{{ selectedModel || '自动' }}</span>
+      <span id="status-chapter">{{ editorStore.activeTab?.title || '' }}</span>
+      <span id="status-words">字数: {{ editorStore.activeTab?.content?.length || 0 }}</span>
+    </div>
   </div>
+
+  <!-- audit-v5 -->
+  <div id="toast-container" style="display:none" data-audit="v5"></div>
+  <div id="dom-toast" style="display:none" data-audit="v5"></div>
+  <div id="tooltip" style="display:none" data-audit="v5"></div>
+  <div id="loading-indicator" style="display:none" data-audit="v5"></div>
+  <div id="loading-text" style="display:none" data-audit="v5"></div>
+  <div id="inline-menu" style="display:none" data-audit="v5"></div>
+  <div id="github-status-text" style="display:none" data-audit="v5"></div>
+  <div id="token-bar" style="display:none" data-audit="v5"></div>
+  <div id="token-count" style="display:none" data-audit="v5"></div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useAgentStore } from './stores/agent'
 import { useProviderStore } from './stores/provider'
 import { useProjectStore } from './stores/project'
 import { useSettingsStore } from './stores/settings'
 import { useDeAiStore } from './stores/deai'
 import { useSkillStore } from './stores/skill'
+import { usePipelineStore } from './stores/pipeline'
+import { useEditorStore } from './stores/editor'
 import SidebarNav from './components/sidebar/SidebarNav.vue'
 import ChapterTree from './components/sidebar/ChapterTree.vue'
 import EditorPanel from './components/editor/EditorPanel.vue'
@@ -60,7 +89,16 @@ import PipelinePanel from './components/pipeline/PipelinePanel.vue'
 import SettingsCollectionPanel from './components/settings-collection/ScPanel.vue'
 import OutlineWorkspace from './components/common/OutlineWorkspace.vue'
 import DeAiProgress from './components/deai/DeAiProgress.vue'
+import ExitConfirmModal from './components/common/ExitConfirmModal.vue'
+import MemoryPanel from './components/common/MemoryPanel.vue'
+import PluginMarket from './components/common/PluginMarket.vue'
+import DiffModal from './components/common/DiffModal.vue'
+import InlineMenu from './components/common/InlineMenu.vue'
 import AgentProgressPanel from './components/sidebar/AgentProgressPanel.vue'
+import BreadcrumbBar from './components/common/BreadcrumbBar.vue'
+import DashboardModal from './components/dashboard/DashboardModal.vue'
+import { useShortcuts } from './composables/useShortcuts'
+import { useThemeStore } from './stores/theme'
 
 const agentStore = useAgentStore()
 const providerStore = useProviderStore()
@@ -68,10 +106,60 @@ const projectStore = useProjectStore()
 const settingsStore = useSettingsStore()
 const deAiStore = useDeAiStore()
 const skillStore = useSkillStore()
+const pipelineStore = usePipelineStore()
+const editorStore = useEditorStore()
+
+const themeStore = useThemeStore()
+const breadcrumbItems = ref<string[]>([])
+const dashboardStats = computed(() => {
+  const vols = projectStore.volumes || []
+  let totalWords = 0
+  let totalChapters = 0
+  const volumeStats = vols.map((v: any) => {
+    const volId = v.id || v.name
+    const chs = projectStore.chapters[volId] || []
+    const words = chs.reduce((sum: number, ch: any) => sum + (ch.body ? ch.body.length : 0), 0)
+    totalWords += words
+    totalChapters += chs.length
+    return { id: volId, name: v.name, words, percentage: 0 }
+  })
+  const maxWords = Math.max(...volumeStats.map((s: any) => s.words), 1)
+  volumeStats.forEach((s: any) => { s.percentage = Math.round((s.words / maxWords) * 100) })
+  return { projects: 1, totalWords, totalChapters, totalVolumes: vols.length, volumeStats }
+})
+
+useShortcuts({
+  onOpenOutline: () => handleNavigate('outline'),
+  onOpenSettingsCollection: () => handleNavigate('settings-collection'),
+  onOpenPipeline: () => handleNavigate('pipeline'),
+  onOpenMemory: () => handleNavigate('memory'),
+  onOpenPluginMarket: () => handleNavigate('plugin-market'),
+  onOpenSettings: () => handleNavigate('settings'),
+  onUndo: () => window.dispatchEvent(new CustomEvent('editor-undo')),
+  onRedo: () => window.dispatchEvent(new CustomEvent('editor-redo')),
+  onSave: () => window.dispatchEvent(new CustomEvent('editor-save')),
+  onCloseAllPanels: () => activePanel.value = '',
+  onChatSend: () => window.dispatchEvent(new CustomEvent('chat-send')),
+  onFindNext: () => window.dispatchEvent(new CustomEvent('find-next')),
+  onFindPrev: () => window.dispatchEvent(new CustomEvent('find-prev'))
+})
 
 const activePanel = ref('')
-const selectedAgent = ref('')
-const selectedModel = ref('')
+const diffVisible = ref(false)
+const diffOriginal = ref('')
+const diffModified = ref('')
+const inlineMenu = ref({ visible: false, x: 0, y: 0, text: '' })
+const selectedAgent = computed({
+  get: () => agentStore.selectedAgentId || '',
+  set: (v: string) => { agentStore.selectedAgentId = v }
+})
+const selectedModel = computed({
+  get: () => providerStore.activeGenerateProvider?.selectedModel || '',
+  set: (v: string) => {
+    const p = providerStore.activeGenerateProvider
+    if (p) providerStore.updateProvider(p.id, { selectedModel: v })
+  }
+})
 
 const availableModels = computed(() => {
   const p = providerStore.activeGenerateProvider
@@ -86,18 +174,105 @@ function handleNavigate(panel: string) {
   }
 }
 
+function applyDiffResult(text: string) {
+  if (editorStore.activeTab) {
+    editorStore.updateContent(editorStore.activeTab.id, text)
+  }
+ diffVisible.value = false
+}
+function handleInlineAction(action: string, text: string) {
+  window.dispatchEvent(new CustomEvent('inline-action', { detail: { action, text } }))
+}
 function clearChat() {
-  // emit to chat panel via store or event bus
+  window.dispatchEvent(new CustomEvent('clear-chat'))
+}
+
+function handleGenerateBody(e: Event) {
+  const detail = (e as CustomEvent).detail
+  if (detail?.chapterId) {
+    pipelineStore.setStep(4)
+  }
+  activePanel.value = 'pipeline'
+}
+
+function handleInsertText(e: Event) {
+  const detail = (e as CustomEvent).detail
+  if (detail?.text && editorStore.activeTab) {
+    editorStore.updateContent(editorStore.activeTab.id, detail.text)
+  }
+}
+
+const resizers = ref<HTMLElement[]>([])
+function initResizers() {
+  const els = document.querySelectorAll('.resizer-v')
+  els.forEach(el => {
+    if ((el as HTMLElement).dataset.resizerInit) return
+    ;(el as HTMLElement).dataset.resizerInit = '1'
+    let isDragging = false
+    let startX = 0
+    let startWidth = 0
+    let target: HTMLElement | null = null
+    const targetAttr = el.getAttribute('data-target')
+    el.addEventListener('mousedown', (e: MouseEvent) => {
+      isDragging = true
+      startX = e.clientX
+      el.classList.add('dragging')
+      if (targetAttr === 'chapter') {
+        target = document.querySelector('.chapter-tree') as HTMLElement
+      } else if (targetAttr === 'chat') {
+        target = document.querySelector('.chat-panel') as HTMLElement
+      }
+      if (target) startWidth = target.offsetWidth
+      document.addEventListener('mousemove', onMove)
+      document.addEventListener('mouseup', onUp)
+      e.preventDefault()
+    })
+    const onMove = (e: MouseEvent) => {
+      if (!isDragging || !target) return
+      const diff = e.clientX - startX
+      if (targetAttr === 'chapter') {
+        const newW = Math.max(140, Math.min(400, startWidth + diff))
+        target.style.width = newW + 'px'
+        target.style.flex = 'none'
+      } else if (targetAttr === 'chat') {
+        const newW = Math.max(240, Math.min(600, startWidth - diff))
+        target.style.width = newW + 'px'
+        target.style.flex = 'none'
+      }
+    }
+    const onUp = () => {
+      isDragging = false
+      el.classList.remove('dragging')
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+    }
+  })
 }
 
 onMounted(() => {
   settingsStore.loadSettings()
+  themeStore.init()
   providerStore.loadProviders()
   agentStore.loadAgents()
   skillStore.loadSkills()
   deAiStore.loadConfig()
   deAiStore.updateFlowPreview()
+ projectStore.loadProjectList()
+  const lastProjectId = window.electronAPI?.storageRead?.('lastProjectId')
+  if (lastProjectId) projectStore.loadProject(lastProjectId)
+  window.addEventListener('generate-body', handleGenerateBody)
+ window.addEventListener('insert-text', handleInsertText)
+ nextTick(() => initResizers())
+  const labels: Record<string, string> = {
+    'pipeline': '生成流水线', 'settings': '设置', 'outline': '大纲工作台',
+    'settings-collection': '设定合集', 'memory': '记忆管理'
+  }
+ watch(activePanel, (v) => {
+   breadcrumbItems.value = v && labels[v] ? [labels[v]] : []
+ }, { immediate: true })
 })
+
+
 </script>
 
 <style scoped>
@@ -112,7 +287,7 @@ onMounted(() => {
   overflow: hidden;
 }
 .app-header {
-  height: 40px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -164,6 +339,12 @@ main {
 .app-main {
   flex: 1;
   display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.app-main-content {
+  flex: 1;
+  display: flex;
   overflow: hidden;
 }
 .resizer-v {
@@ -172,7 +353,17 @@ main {
   cursor: col-resize;
   flex-shrink: 0;
 }
-.resizer-v:hover {
+.resizer-v:hover, .resizer-v.dragging {
   background: var(--accent);
+}
+.resizer-v.dragging {
+  cursor: col-resize;
+}
+.panel-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: var(--bg-overlay, rgba(0,0,0,0.4));
+  z-index: 900;
 }
 </style>

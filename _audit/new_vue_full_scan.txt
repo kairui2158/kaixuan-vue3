@@ -1,0 +1,1005 @@
+=== NEW ARCHITECTURE VUE FULL SCAN ===
+Components scanned: 32
+
+=== SUMMARY ===
+Unique IDs: 12
+Unique Classes: 487
+Unique Refs: 9
+Unique Events: 8
+Unique Data Attrs: 2
+v-if/v-show entries: 88
+v-for entries: 67
+
+=== ALL IDS (sorted) ===
+bookid | src/components/editor/EditorPanel.vue:199 | var contentOpf = '<?xml version="1.0" encoding="UTF-8"?><package xmlns="http://www.idpf.org/2007/opf" version="3.0" uniq
+btn-de-ai | src/components/editor/EditorPanel.vue:27 | <button id="btn-de-ai" class="btn-sm btn-secondary" @click="triggerDeAi" :disabled="deAiStore.isProcessing">{{ deAiStore
+chapter1 | src/components/editor/EditorPanel.vue:199 | var contentOpf = '<?xml version="1.0" encoding="UTF-8"?><package xmlns="http://www.idpf.org/2007/opf" version="3.0" uniq
+ncx | src/components/editor/EditorPanel.vue:199 | var contentOpf = '<?xml version="1.0" encoding="UTF-8"?><package xmlns="http://www.idpf.org/2007/opf" version="3.0" uniq
+np1 | src/components/editor/EditorPanel.vue:200 | var tocNcx = '<?xml version="1.0" encoding="UTF-8"?><ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1"><
+status-chapter | src/App.vue:56 | <span id="status-chapter">{{ editorStore.activeTab?.title || '' }}</span>
+status-connection | src/App.vue:54 | <span id="status-connection">{{ providerStore.activeGenerateProvider ? '已连接' : '未连接' }}</span>
+status-cursor | src/App.vue:53 | <span id="status-cursor"></span>
+status-model | src/App.vue:55 | <span id="status-model">{{ selectedModel || '自动' }}</span>
+status-words | src/App.vue:57 | <span id="status-words">字数: {{ editorStore.activeTab?.content?.length || 0 }}</span>
+statusbar | src/App.vue:52 | <div id="statusbar" class="statusbar">
+user-input | src/components/chat/ChatPanel.vue:37 | id="user-input"
+
+=== ALL CLASSES (sorted) ===
+added | src/components/common/DiffModal.vue:26 | count 1
+agent-card | src/components/settings/AgentSettings.vue:5 | count 1
+agent-card-actions | src/components/settings/AgentSettings.vue:9 | count 1
+agent-card-body | src/components/settings/AgentSettings.vue:19 | count 1
+agent-card-header | src/components/settings/AgentSettings.vue:6 | count 1
+agent-card-meta | src/components/settings/AgentSettings.vue:15 | count 3
+agent-card-model | src/components/settings/AgentSettings.vue:8 | count 1
+agent-card-name | src/components/settings/AgentSettings.vue:7 | count 1
+agent-card-summary | src/components/settings/AgentSettings.vue:14 | count 1
+agent-fields | src/components/settings/AgentSettings.vue:20 | count 1
+agent-info-bar | src/components/chat/ChatPanel.vue:57 | count 1
+agent-info-label | src/components/chat/ChatPanel.vue:58 | count 1
+agent-info-model | src/components/chat/ChatPanel.vue:60 | count 1
+agent-info-name | src/components/chat/ChatPanel.vue:59 | count 1
+agent-list | src/components/settings/AgentSettings.vue:4 | count 1
+agent-progress-panel | src/components/sidebar/AgentProgressPanel.vue:2 | count 1
+agent-selector | src/components/chat/ChatPanel.vue:5 | count 2
+agent-settings | src/components/settings/AgentSettings.vue:2 | count 1
+agp-body | src/components/sidebar/AgentProgressPanel.vue:7 | count 1
+agp-empty | src/components/sidebar/AgentProgressPanel.vue:8 | count 1
+agp-header | src/components/sidebar/AgentProgressPanel.vue:3 | count 1
+agp-item | src/components/sidebar/AgentProgressPanel.vue:9 | count 1
+agp-mini-bar | src/components/sidebar/AgentProgressPanel.vue:12 | count 1
+agp-mini-fill | src/components/sidebar/AgentProgressPanel.vue:13 | count 1
+agp-name | src/components/sidebar/AgentProgressPanel.vue:11 | count 1
+agp-status-dot | src/components/sidebar/AgentProgressPanel.vue:10 | count 1
+agp-task | src/components/sidebar/AgentProgressPanel.vue:15 | count 1
+agp-title | src/components/sidebar/AgentProgressPanel.vue:4 | count 1
+agp-toggle | src/components/sidebar/AgentProgressPanel.vue:5 | count 1
+all | src/components/common/MemoryPanel.vue:10 | count 1
+api-settings | src/components/settings/ApiSettings.vue:2 | count 1
+app-body | src/App.vue:22 | count 1
+app-container | src/App.vue:2 | count 1
+app-header | src/App.vue:3 | count 1
+app-main | src/App.vue:24 | count 1
+app-main-content | src/App.vue:26 | count 1
+app-title | src/App.vue:5 | count 1
+appearance-divider | src/components/settings/AppearanceSettings.vue:56 | count 1
+appearance-settings | src/components/settings/AppearanceSettings.vue:2 | count 1
+bind-content | src/components/settings-collection/ScPanel.vue:60 | count 1
+bind-list | src/components/settings-collection/ScPanel.vue:62 | count 1
+bind-modal | src/components/settings-collection/ScPanel.vue:59 | count 1
+breadcrumb-bar | src/components/common/BreadcrumbBar.vue:2 | count 1
+breadcrumb-close | src/components/common/BreadcrumbBar.vue:8 | count 1
+breadcrumb-home | src/components/common/BreadcrumbBar.vue:3 | count 1
+breadcrumb-item | src/components/common/BreadcrumbBar.vue:6 | count 1
+breadcrumb-sep | src/components/common/BreadcrumbBar.vue:5 | count 1
+btn-add | src/components/settings/AgentSettings.vue:46 | count 3
+btn-add-ch | src/components/sidebar/ChapterTree.vue:92 | count 1
+btn-back | src/components/settings/ApiSettings.vue:53 | count 1
+btn-close | src/components/common/DiffModal.vue:7 | count 6
+btn-danger | src/components/common/MemoryPanel.vue:49 | count 7
+btn-icon | src/App.vue:16 | count 1
+btn-import | src/components/common/OutlineWorkspace.vue:60 | count 1
+btn-ml-4 | src/components/settings-collection/ScPanel.vue:20 | count 1
+btn-mr-4 | src/components/common/PluginMarket.vue:12 | count 1
+btn-outline | src/components/common/PluginMarket.vue:13 | count 1
+btn-primary | src/components/common/DiffModal.vue:13 | count 27
+btn-secondary | src/components/common/DiffModal.vue:11 | count 83
+btn-send | src/components/chat/ChatPanel.vue:43 | count 2
+btn-sm | src/components/common/DiffModal.vue:11 | count 73
+btn-test | src/components/settings/ApiSettings.vue:80 | count 1
+btn-toggle | src/components/settings/ApiSettings.vue:70 | count 2
+btn-var | src/components/settings/SkillSettings.vue:80 | count 1
+card-badge | src/components/deai/DeAiModeCard.vue:5 | count 1
+card-desc | src/components/deai/DeAiModeCard.vue:7 | count 1
+card-flow | src/components/deai/DeAiModeCard.vue:8 | count 1
+card-grid | src/components/common/MemoryPanel.vue:20 | count 1
+card-header | src/components/deai/DeAiModeCard.vue:3 | count 1
+card-name | src/components/deai/DeAiModeCard.vue:4 | count 1
+ch-title | src/components/pipeline/PipelinePanel.vue:88 | count 1
+chapter-item | src/components/sidebar/ChapterTree.vue:39 | count 2
+chapter-list | src/components/sidebar/ChapterTree.vue:73 | count 1
+chapter-tabs | src/components/editor/EditorPanel.vue:42 | count 1
+chapter-tree | src/components/sidebar/ChapterTree.vue:2 | count 1
+chat-context-bar | src/components/chat/ChatPanel.vue:15 | count 1
+chat-header | src/components/chat/ChatPanel.vue:3 | count 1
+chat-input | src/components/chat/ChatPanel.vue:36 | count 1
+chat-input-row | src/components/chat/ChatPanel.vue:33 | count 1
+chat-message | src/components/chat/ChatMessage.vue:2 | count 1
+chat-panel | src/components/chat/ChatPanel.vue:2 | count 1
+checkbox-label | src/components/settings/ApiSettings.vue:96 | count 1
+config-actions | src/components/settings/ApiSettings.vue:45 | count 1
+config-section | src/components/settings/DeAiSettings.vue:199 | count 1
+configured | src/components/settings/DeAiSettings.vue:200 | count 1
+context-menu | src/components/common/ContextMenu.vue:2 | count 1
+ctx-danger | src/components/sidebar/ContextMenu.vue:7 | count 1
+ctx-item | src/components/sidebar/ChapterTree.vue:135 | count 15
+ctx-menu | src/components/sidebar/ChapterTree.vue:133 | count 2
+ctx-menu-btn | src/components/common/ContextMenu.vue:3 | count 1
+ctx-sep | src/components/sidebar/ContextMenu.vue:6 | count 1
+danger | src/components/sidebar/ChapterTree.vue:139 | count 2
+dash-bar-chart | src/components/dashboard/DashboardModal.vue:17 | count 1
+dash-bar-fill | src/components/dashboard/DashboardModal.vue:20 | count 1
+dash-bar-label | src/components/dashboard/DashboardModal.vue:19 | count 1
+dash-bar-num | src/components/dashboard/DashboardModal.vue:21 | count 1
+dash-bar-row | src/components/dashboard/DashboardModal.vue:18 | count 1
+dash-bar-track | src/components/dashboard/DashboardModal.vue:20 | count 1
+dash-body | src/components/dashboard/DashboardModal.vue:8 | count 1
+dash-card | src/components/dashboard/DashboardModal.vue:10 | count 4
+dash-chart | src/components/dashboard/DashboardModal.vue:15 | count 1
+dash-chart-title | src/components/dashboard/DashboardModal.vue:16 | count 1
+dash-grid | src/components/dashboard/DashboardModal.vue:9 | count 1
+dash-header | src/components/dashboard/DashboardModal.vue:4 | count 1
+dash-label | src/components/dashboard/DashboardModal.vue:10 | count 4
+dash-modal | src/components/dashboard/DashboardModal.vue:3 | count 1
+dash-num | src/components/dashboard/DashboardModal.vue:10 | count 4
+dash-overlay | src/components/dashboard/DashboardModal.vue:2 | count 1
+deai-btn | src/components/deai/DeAiButton.vue:3 | count 1
+deai-btn-label | src/components/deai/DeAiButton.vue:8 | count 2
+deai-common-params | src/components/settings/DeAiSettings.vue:8 | count 1
+deai-flow-arrow | src/components/deai/DeAiFlowPreview.vue:6 | count 1
+deai-flow-preview | src/components/deai/DeAiFlowPreview.vue:2 | count 1
+deai-flow-section | src/components/settings/DeAiSettings.vue:62 | count 1
+deai-flow-step | src/components/deai/DeAiFlowPreview.vue:5 | count 2
+deai-flow-time | src/components/deai/DeAiFlowPreview.vue:9 | count 1
+deai-hardrule-item | src/components/settings/DeAiSettings.vue:184 | count 1
+deai-hardrule-toggle | src/components/settings/DeAiSettings.vue:181 | count 1
+deai-hardrules-list | src/components/settings/DeAiSettings.vue:183 | count 1
+deai-mode-card | src/components/settings/DeAiSettings.vue:72 | count 1
+deai-mode-card-body | src/components/settings/DeAiSettings.vue:86 | count 1
+deai-mode-card-desc | src/components/settings/DeAiSettings.vue:79 | count 1
+deai-mode-card-header | src/components/settings/DeAiSettings.vue:76 | count 1
+deai-mode-card-icon | src/components/settings/DeAiSettings.vue:77 | count 1
+deai-mode-card-title | src/components/settings/DeAiSettings.vue:78 | count 1
+deai-mode-cards | src/components/settings/DeAiSettings.vue:68 | count 1
+deai-param-item | src/components/settings/DeAiSettings.vue:10 | count 4
+deai-param-label | src/components/settings/DeAiSettings.vue:11 | count 4
+deai-param-row | src/components/settings/DeAiSettings.vue:9 | count 1
+deai-param-select | src/components/settings/DeAiSettings.vue:92 | count 6
+deai-percent | src/components/deai/DeAiProgress.vue:6 | count 1
+deai-progress-bar | src/components/deai/DeAiProgress.vue:8 | count 1
+deai-progress-fill | src/components/deai/DeAiProgress.vue:9 | count 1
+deai-progress-header | src/components/deai/DeAiProgress.vue:4 | count 1
+deai-progress-info | src/components/deai/DeAiProgress.vue:11 | count 1
+deai-progress-modal | src/components/deai/DeAiProgress.vue:3 | count 1
+deai-progress-overlay | src/components/deai/DeAiProgress.vue:2 | count 1
+deai-progress-step | src/components/deai/DeAiProgress.vue:12 | count 1
+deai-radio-group | src/components/settings/DeAiSettings.vue:20 | count 3
+deai-radio-option | src/components/settings/DeAiSettings.vue:21 | count 8
+deai-settings | src/components/settings/DeAiSettings.vue:2 | count 1
+deai-skill-bar | src/components/settings/DeAiSettings.vue:91 | count 3
+deai-skill-chip | src/components/settings/DeAiSettings.vue:99 | count 3
+deai-skill-remove | src/components/settings/DeAiSettings.vue:101 | count 3
+deai-skills-list | src/components/settings/DeAiSettings.vue:98 | count 3
+deai-split-input | src/components/settings/DeAiSettings.vue:118 | count 2
+deai-step-dot | src/components/deai/DeAiProgress.vue:22 | count 1
+deai-step-group | src/components/settings/DeAiSettings.vue:6 | count 3
+deai-step-item | src/components/deai/DeAiProgress.vue:19 | count 1
+deai-step-label | src/components/deai/DeAiProgress.vue:23 | count 1
+deai-step-list | src/components/deai/DeAiProgress.vue:15 | count 1
+deai-step-status | src/components/deai/DeAiProgress.vue:24 | count 1
+deai-step-title | src/components/settings/DeAiSettings.vue:7 | count 3
+deai-verify-hint | src/components/settings/DeAiSettings.vue:203 | count 1
+deai-verify-icon | src/components/settings/DeAiSettings.vue:201 | count 1
+deai-verify-name | src/components/settings/DeAiSettings.vue:202 | count 1
+deai-verify-status | src/components/settings/DeAiSettings.vue:200 | count 1
+diag-date-select | src/components/settings/DiagLogPanel.vue:8 | count 1
+diag-empty | src/components/settings/DiagLogPanel.vue:14 | count 1
+diag-log-item | src/components/settings/DiagLogPanel.vue:15 | count 1
+diag-log-level | src/components/settings/DiagLogPanel.vue:17 | count 1
+diag-log-list | src/components/settings/DiagLogPanel.vue:13 | count 1
+diag-log-msg | src/components/settings/DiagLogPanel.vue:18 | count 1
+diag-log-time | src/components/settings/DiagLogPanel.vue:16 | count 1
+diag-panel | src/components/settings/DiagLogPanel.vue:2 | count 1
+diag-toolbar | src/components/settings/DiagLogPanel.vue:4 | count 1
+diff-container | src/components/common/DiffModal.vue:16 | count 1
+diff-content | src/components/common/DiffModal.vue:19 | count 2
+diff-count | src/components/common/DiffModal.vue:6 | count 1
+diff-line | src/components/common/DiffModal.vue:20 | count 2
+diff-modal-body | src/components/common/DiffModal.vue:9 | count 1
+diff-modal-content | src/components/common/DiffModal.vue:3 | count 1
+diff-modified | src/components/common/DiffModal.vue:25 | count 1
+diff-original | src/components/common/DiffModal.vue:19 | count 1
+diff-pane | src/components/common/DiffModal.vue:17 | count 2
+diff-pane-label | src/components/common/DiffModal.vue:18 | count 2
+diff-toolbar | src/components/common/DiffModal.vue:10 | count 1
+dot | src/components/editor/EditorPanel.vue:51 | count 1
+drag-over | src/components/sidebar/ChapterTree.vue:39 | count 3
+editor-content | src/components/editor/EditorPanel.vue:68 | count 1
+editor-header | src/components/editor/EditorPanel.vue:3 | count 1
+editor-mode-badge | src/components/editor/EditorPanel.vue:4 | count 1
+editor-panel | src/components/editor/EditorPanel.vue:2 | count 1
+editor-title | src/components/editor/EditorPanel.vue:5 | count 1
+editor-toolbar | src/components/common/OutlineWorkspace.vue:12 | count 2
+editor-toolbar-group | src/components/common/OutlineWorkspace.vue:13 | count 6
+empty-desc | src/components/chat/ChatPanel.vue:21 | count 1
+empty-hint | src/components/common/MemoryPanel.vue:21 | count 3
+empty-icon | src/components/chat/ChatPanel.vue:19 | count 1
+empty-state | src/components/chat/ChatPanel.vue:18 | count 1
+empty-title | src/components/chat/ChatPanel.vue:20 | count 1
+exit-msg-primary | src/components/common/ExitConfirmModal.vue:9 | count 1
+exit-msg-secondary | src/components/common/ExitConfirmModal.vue:10 | count 2
+export-dropdown | src/components/editor/EditorPanel.vue:19 | count 1
+fetch-feedback | src/components/settings/ApiSettings.vue:84 | count 1
+find-bar | src/components/editor/EditorPanel.vue:56 | count 1
+find-close | src/components/editor/EditorPanel.vue:63 | count 1
+find-input | src/components/editor/EditorPanel.vue:57 | count 2
+flow-label | src/components/settings/DeAiSettings.vue:63 | count 1
+flow-step | src/components/deai/DeAiModeCard.vue:9 | count 1
+flow-steps | src/components/deai/DeAiFlowPreview.vue:3 | count 1
+footer-left | src/components/settings/SettingsModal.vue:28 | count 1
+footer-right | src/components/common/ExitConfirmModal.vue:15 | count 5
+form-actions | src/components/common/MemoryPanel.vue:38 | count 7
+form-group | src/components/common/MemoryPanel.vue:24 | count 23
+form-hint | src/components/settings/ApiSettings.vue:64 | count 2
+full-width | src/components/common/MemoryPanel.vue:13 | count 2
+gh-input | src/components/settings/AppearanceSettings.vue:52 | count 1
+github-status-actions | src/components/common/PluginMarket.vue:11 | count 1
+github-status-bar | src/components/common/PluginMarket.vue:9 | count 1
+github-status-text | src/components/common/PluginMarket.vue:10 | count 1
+header-left | src/App.vue:4 | count 1
+header-right | src/App.vue:7 | count 1
+header-selector | src/App.vue:8 | count 2
+inline-menu | src/components/common/InlineMenu.vue:2 | count 1
+inline-menu-btn | src/components/common/InlineMenu.vue:3 | count 1
+input-field | src/components/settings/AgentSettings.vue:22 | count 12
+input-hint | src/components/chat/ChatPanel.vue:66 | count 1
+input-w-120 | src/components/settings/ApiSettings.vue:110 | count 2
+is-active | src/components/settings/ApiSettings.vue:11 | count 1
+is-editing | src/components/settings/AgentSettings.vue:5 | count 1
+kbd | src/components/settings/AppearanceSettings.vue:59 | count 9
+kbd-row | src/components/settings/AppearanceSettings.vue:59 | count 9
+kbd-shortcuts | src/components/settings/AppearanceSettings.vue:58 | count 1
+market-category-select | src/components/common/PluginMarket.vue:33 | count 1
+market-empty | src/components/common/PluginMarket.vue:48 | count 1
+market-item | src/components/common/PluginMarket.vue:50 | count 1
+market-item-desc | src/components/common/PluginMarket.vue:55 | count 1
+market-item-header | src/components/common/PluginMarket.vue:51 | count 1
+market-item-lang | src/components/common/PluginMarket.vue:57 | count 1
+market-item-meta | src/components/common/PluginMarket.vue:56 | count 1
+market-item-name | src/components/common/PluginMarket.vue:52 | count 1
+market-item-stars | src/components/common/PluginMarket.vue:53 | count 1
+market-item-updated | src/components/common/PluginMarket.vue:58 | count 1
+market-loading | src/components/common/PluginMarket.vue:47 | count 1
+market-pagination | src/components/common/PluginMarket.vue:64 | count 1
+market-results-container | src/components/common/PluginMarket.vue:46 | count 1
+market-results-scroll | src/components/common/PluginMarket.vue:46 | count 1
+market-search | src/components/common/PluginMarket.vue:31 | count 1
+market-search-input | src/components/common/PluginMarket.vue:32 | count 1
+market-sort-select | src/components/common/PluginMarket.vue:39 | count 1
+market-status-text | src/components/common/PluginMarket.vue:45 | count 1
+mem-body | src/components/common/MemoryPanel.vue:7 | count 1
+mem-cat-btn | src/components/common/MemoryPanel.vue:10 | count 2
+mem-cat-list | src/components/common/MemoryPanel.vue:9 | count 1
+mem-content | src/components/common/MemoryPanel.vue:15 | count 1
+mem-content-header | src/components/common/MemoryPanel.vue:16 | count 1
+mem-form | src/components/common/MemoryPanel.vue:22 | count 1
+mem-header | src/components/common/MemoryPanel.vue:3 | count 1
+mem-item-actions | src/components/common/MemoryPanel.vue:47 | count 1
+mem-item-card | src/components/common/MemoryPanel.vue:43 | count 1
+mem-item-cat | src/components/common/MemoryPanel.vue:46 | count 1
+mem-item-content | src/components/common/MemoryPanel.vue:52 | count 1
+mem-item-date | src/components/common/MemoryPanel.vue:53 | count 1
+mem-item-header | src/components/common/MemoryPanel.vue:44 | count 1
+mem-item-key | src/components/common/MemoryPanel.vue:45 | count 1
+mem-list | src/components/common/MemoryPanel.vue:20 | count 1
+mem-sidebar | src/components/common/MemoryPanel.vue:8 | count 1
+memory-panel | src/components/common/MemoryPanel.vue:2 | count 1
+message-actions | src/components/chat/ChatMessage.vue:5 | count 1
+message-bubble | src/components/chat/ChatMessage.vue:3 | count 1
+message-content | src/components/chat/ChatMessage.vue:4 | count 1
+messages-container | src/components/chat/ChatPanel.vue:17 | count 1
+modal-backdrop | src/components/common/ExitConfirmModal.vue:2 | count 1
+modal-body | src/components/common/DiffModal.vue:9 | count 6
+modal-close | src/components/common/OutlineWorkspace.vue:6 | count 5
+modal-closing | src/components/settings/SettingsModal.vue:3 | count 1
+modal-content | src/components/common/DiffModal.vue:3 | count 6
+modal-content-sm | src/components/common/ExitConfirmModal.vue:3 | count 1
+modal-footer | src/components/common/DiffModal.vue:31 | count 6
+modal-header | src/components/common/DiffModal.vue:4 | count 6
+modal-input | src/components/sidebar/ChapterTree.vue:102 | count 4
+modal-lg | src/components/settings/SettingsModal.vue:3 | count 1
+modal-overlay | src/components/common/DiffModal.vue:2 | count 2
+mode-card | src/components/deai/DeAiModeCard.vue:2 | count 1
+mode-flow | src/components/settings/DeAiSettings.vue:82 | count 1
+mode-full-desc | src/components/settings/DeAiSettings.vue:81 | count 1
+model-fetch-row | src/components/settings/ApiSettings.vue:76 | count 1
+model-list-box | src/components/settings/ApiSettings.vue:91 | count 1
+model-select-row | src/components/settings/ApiSettings.vue:85 | count 1
+model-tag | src/components/settings/ApiSettings.vue:37 | count 2
+msg-btn | src/components/chat/ChatMessage.vue:6 | count 3
+not-configured | src/components/settings/DeAiSettings.vue:200 | count 1
+ow-body | src/components/common/OutlineWorkspace.vue:8 | count 1
+ow-bound-item | src/components/common/OutlineWorkspace.vue:51 | count 1
+ow-bound-list | src/components/common/OutlineWorkspace.vue:50 | count 1
+ow-chat | src/components/common/OutlineWorkspace.vue:26 | count 1
+ow-chat-header | src/components/common/OutlineWorkspace.vue:27 | count 1
+ow-content | src/components/common/OutlineWorkspace.vue:3 | count 1
+ow-editor | src/components/common/OutlineWorkspace.vue:9 | count 1
+ow-editor-header | src/components/common/OutlineWorkspace.vue:10 | count 1
+ow-empty-hint | src/components/common/OutlineWorkspace.vue:47 | count 2
+ow-export-btn | src/components/common/OutlineWorkspace.vue:14 | count 2
+ow-footer | src/components/common/OutlineWorkspace.vue:59 | count 1
+ow-header | src/components/common/OutlineWorkspace.vue:4 | count 1
+ow-input | src/components/common/OutlineWorkspace.vue:34 | count 1
+ow-input-row | src/components/common/OutlineWorkspace.vue:33 | count 1
+ow-messages | src/components/common/OutlineWorkspace.vue:28 | count 1
+ow-msg | src/components/common/OutlineWorkspace.vue:29 | count 1
+ow-msg-bubble | src/components/common/OutlineWorkspace.vue:30 | count 1
+ow-overlay | src/components/common/OutlineWorkspace.vue:2 | count 1
+ow-resize-handle | src/components/common/OutlineWorkspace.vue:66 | count 1
+ow-section | src/components/common/OutlineWorkspace.vue:40 | count 1
+ow-sidebar | src/components/common/OutlineWorkspace.vue:39 | count 1
+ow-skill-item | src/components/common/OutlineWorkspace.vue:44 | count 1
+ow-skill-suggestions | src/components/common/OutlineWorkspace.vue:43 | count 1
+ow-textarea | src/components/common/OutlineWorkspace.vue:22 | count 1
+page-info-text | src/components/common/PluginMarket.vue:66 | count 1
+panel-backdrop | src/App.vue:21 | count 1
+panel-resizer | src/components/common/PanelResizer.vue:2 | count 1
+password-row | src/components/settings/ApiSettings.vue:68 | count 1
+pl-actions | src/components/pipeline/PipelinePanel.vue:44 | count 5
+pl-attrs-input | src/components/pipeline/PipelinePanel.vue:56 | count 1
+pl-body | src/components/pipeline/PipelinePanel.vue:24 | count 1
+pl-body-config | src/components/pipeline/PipelinePanel.vue:99 | count 1
+pl-body-result | src/components/pipeline/PipelinePanel.vue:100 | count 1
+pl-body-text | src/components/pipeline/PipelinePanel.vue:100 | count 1
+pl-cfg-label | src/components/pipeline/PipelinePanel.vue:12 | count 2
+pl-cfg-row | src/components/pipeline/PipelinePanel.vue:11 | count 1
+pl-cfg-select | src/components/pipeline/PipelinePanel.vue:13 | count 1
+pl-cfg-select-sm | src/components/pipeline/PipelinePanel.vue:18 | count 1
+pl-ch-card | src/components/pipeline/PipelinePanel.vue:88 | count 1
+pl-ch-config | src/components/pipeline/PipelinePanel.vue:86 | count 1
+pl-ch-list | src/components/pipeline/PipelinePanel.vue:87 | count 1
+pl-content | src/components/pipeline/PipelinePanel.vue:3 | count 1
+pl-header | src/components/pipeline/PipelinePanel.vue:4 | count 1
+pl-input | src/components/pipeline/PipelinePanel.vue:54 | count 3
+pl-input-sm | src/components/pipeline/PipelinePanel.vue:55 | count 6
+pl-overlay | src/components/pipeline/PipelinePanel.vue:2 | count 1
+pl-setting-item | src/components/pipeline/PipelinePanel.vue:53 | count 1
+pl-settings-list | src/components/pipeline/PipelinePanel.vue:52 | count 1
+pl-step | src/components/pipeline/PipelinePanel.vue:6 | count 1
+pl-step-config | src/components/pipeline/PipelinePanel.vue:10 | count 1
+pl-step-panel | src/components/pipeline/PipelinePanel.vue:41 | count 5
+pl-steps | src/components/pipeline/PipelinePanel.vue:5 | count 1
+pl-textarea | src/components/pipeline/PipelinePanel.vue:43 | count 1
+pl-tool-loading | src/components/pipeline/PipelinePanel.vue:39 | count 1
+pl-tool-result | src/components/pipeline/PipelinePanel.vue:38 | count 1
+pl-tools-grid | src/components/pipeline/PipelinePanel.vue:27 | count 1
+pl-tools-section | src/components/pipeline/PipelinePanel.vue:25 | count 1
+pl-tools-title | src/components/pipeline/PipelinePanel.vue:26 | count 1
+pl-vol-card | src/components/pipeline/PipelinePanel.vue:70 | count 1
+pl-vol-config | src/components/pipeline/PipelinePanel.vue:68 | count 1
+pl-vol-header | src/components/pipeline/PipelinePanel.vue:71 | count 1
+pl-vol-list | src/components/pipeline/PipelinePanel.vue:69 | count 1
+pl-vol-outline | src/components/pipeline/PipelinePanel.vue:72 | count 1
+pm-body | src/components/common/PluginMarket.vue:8 | count 1
+pm-close | src/components/common/PluginMarket.vue:6 | count 1
+pm-content | src/components/common/PluginMarket.vue:3 | count 1
+pm-del-btn | src/components/sidebar/ChapterTree.vue:127 | count 1
+pm-empty | src/components/sidebar/ChapterTree.vue:124 | count 1
+pm-header | src/components/common/PluginMarket.vue:4 | count 1
+pm-overlay | src/components/common/PluginMarket.vue:2 | count 1
+pm-project-item | src/components/sidebar/ChapterTree.vue:125 | count 1
+pm-project-name | src/components/sidebar/ChapterTree.vue:126 | count 1
+pm-textarea | src/components/sidebar/ChapterTree.vue:115 | count 1
+project-modal-overlay | src/components/sidebar/ChapterTree.vue:98 | count 3
+project-name | src/components/sidebar/ChapterTree.vue:4 | count 1
+provider-badge-off | src/components/settings/ApiSettings.vue:16 | count 1
+provider-badge-on | src/components/settings/ApiSettings.vue:16 | count 1
+provider-card | src/components/settings/ApiSettings.vue:10 | count 1
+provider-card-actions | src/components/settings/ApiSettings.vue:24 | count 1
+provider-card-add | src/components/settings/ApiSettings.vue:41 | count 1
+provider-card-add-icon | src/components/settings/ApiSettings.vue:42 | count 1
+provider-card-add-text | src/components/settings/ApiSettings.vue:43 | count 1
+provider-card-header | src/components/settings/ApiSettings.vue:14 | count 1
+provider-card-info | src/components/settings/ApiSettings.vue:20 | count 1
+provider-card-model | src/components/settings/ApiSettings.vue:22 | count 1
+provider-card-models | src/components/settings/ApiSettings.vue:36 | count 1
+provider-card-name | src/components/settings/ApiSettings.vue:15 | count 1
+provider-card-status | src/components/settings/ApiSettings.vue:16 | count 1
+provider-card-url | src/components/settings/ApiSettings.vue:21 | count 1
+provider-conn-status | src/components/settings/ApiSettings.vue:55 | count 1
+provider-edit-header | src/components/settings/ApiSettings.vue:52 | count 1
+provider-edit-title-text | src/components/settings/ApiSettings.vue:54 | count 1
+provider-edit-view | src/components/settings/ApiSettings.vue:51 | count 1
+provider-list | src/components/settings/ApiSettings.vue:6 | count 1
+provider-list-view | src/components/settings/ApiSettings.vue:5 | count 1
+purpose-select | src/components/settings/ApiSettings.vue:26 | count 1
+range-flex | src/components/settings/ApiSettings.vue:104 | count 1
+range-val | src/components/settings/ApiSettings.vue:105 | count 1
+removed | src/components/common/DiffModal.vue:20 | count 1
+rename-input | src/components/sidebar/ChapterTree.vue:35 | count 4
+resizer-v | src/App.vue:28 | count 2
+save-feedback | src/components/common/OutlineWorkspace.vue:63 | count 1
+sc-body | src/components/settings-collection/ScPanel.vue:8 | count 1
+sc-card-cat | src/components/settings-collection/ScPanel.vue:25 | count 1
+sc-card-name | src/components/settings-collection/ScPanel.vue:24 | count 1
+sc-cat-item | src/components/settings-collection/ScPanel.vue:11 | count 1
+sc-content | src/components/settings-collection/ScPanel.vue:3 | count 1
+sc-current-cat | src/components/settings-collection/ScPanel.vue:18 | count 1
+sc-detail-area | src/components/settings-collection/ScPanel.vue:30 | count 1
+sc-detail-content | src/components/settings-collection/ScPanel.vue:37 | count 1
+sc-detail-header | src/components/settings-collection/ScPanel.vue:31 | count 1
+sc-detail-title | src/components/settings-collection/ScPanel.vue:32 | count 1
+sc-entries | src/components/settings-collection/ScPanel.vue:22 | count 1
+sc-header | src/components/settings-collection/ScPanel.vue:4 | count 1
+sc-input | src/components/settings-collection/ScPanel.vue:40 | count 2
+sc-item-card | src/components/settings-collection/ScPanel.vue:23 | count 1
+sc-items-area | src/components/settings-collection/ScPanel.vue:16 | count 1
+sc-items-header | src/components/settings-collection/ScPanel.vue:17 | count 1
+sc-main | src/components/settings-collection/ScPanel.vue:15 | count 1
+sc-overlay | src/components/settings-collection/ScPanel.vue:2 | count 1
+sc-sidebar | src/components/settings-collection/ScPanel.vue:9 | count 1
+sc-textarea | src/components/settings-collection/ScPanel.vue:50 | count 1
+sem-header | src/components/settings/SkillSettings.vue:43 | count 1
+sem-input | src/components/settings/SkillSettings.vue:45 | count 9
+sep | src/components/editor/EditorPanel.vue:11 | count 4
+settings-panel | src/components/settings/SettingsModal.vue:18 | count 1
+settings-row | src/components/settings/AppearanceSettings.vue:4 | count 9
+settings-section | src/components/settings/AppearanceSettings.vue:30 | count 3
+settings-tab | src/components/settings/SettingsModal.vue:13 | count 1
+settings-tabs | src/components/settings/SettingsModal.vue:9 | count 1
+sf-linked-item | src/components/settings/SkillSettings.vue:72 | count 1
+sf-linked-list | src/components/settings/SkillSettings.vue:71 | count 1
+sf-template-input | src/components/settings/SkillSettings.vue:85 | count 1
+sf-template-preview | src/components/settings/SkillSettings.vue:86 | count 1
+sf-template-wrapper | src/components/settings/SkillSettings.vue:84 | count 1
+sidebar-btn | src/components/sidebar/SidebarNav.vue:7 | count 2
+sidebar-divider | src/components/sidebar/SidebarNav.vue:4 | count 1
+sidebar-icon | src/components/sidebar/SidebarNav.vue:12 | count 2
+sidebar-nav | src/components/sidebar/SidebarNav.vue:2 | count 1
+skill-all-list | src/components/settings/SkillSettings.vue:18 | count 1
+skill-area | src/components/chat/ChatPanel.vue:51 | count 1
+skill-area-arrow | src/components/chat/ChatPanel.vue:54 | count 1
+skill-area-content | src/components/chat/ChatPanel.vue:56 | count 1
+skill-area-header | src/components/chat/ChatPanel.vue:52 | count 1
+skill-area-title | src/components/chat/ChatPanel.vue:53 | count 1
+skill-card | src/components/settings/SkillSettings.vue:19 | count 1
+skill-card-actions | src/components/settings/SkillSettings.vue:32 | count 1
+skill-card-badge | src/components/settings/SkillSettings.vue:22 | count 1
+skill-card-body | src/components/settings/SkillSettings.vue:24 | count 1
+skill-card-desc | src/components/settings/SkillSettings.vue:25 | count 2
+skill-card-header | src/components/settings/SkillSettings.vue:20 | count 1
+skill-card-info | src/components/settings/SkillSettings.vue:29 | count 2
+skill-card-meta | src/components/settings/SkillSettings.vue:28 | count 1
+skill-card-name | src/components/settings/SkillSettings.vue:21 | count 1
+skill-edit-modal | src/components/settings/SkillSettings.vue:42 | count 1
+skill-edit-overlay | src/components/settings/SkillSettings.vue:41 | count 1
+skill-idx | src/components/settings/SkillSettings.vue:8 | count 1
+skill-list-active | src/components/chat/ChatPanel.vue:62 | count 1
+skill-name | src/components/settings/SkillSettings.vue:9 | count 1
+skill-pipeline-item | src/components/settings/SkillSettings.vue:7 | count 1
+skill-pipeline-list | src/components/settings/SkillSettings.vue:6 | count 1
+skill-section | src/components/settings/SkillSettings.vue:4 | count 2
+skill-selector | src/components/deai/DeAiSkillSelector.vue:2 | count 1
+skill-settings | src/components/settings/SkillSettings.vue:2 | count 1
+ss-actions | src/components/deai/DeAiSkillSelector.vue:8 | count 1
+ss-btn | src/components/deai/DeAiSkillSelector.vue:9 | count 3
+ss-empty | src/components/deai/DeAiSkillSelector.vue:14 | count 1
+ss-header | src/components/deai/DeAiSkillSelector.vue:3 | count 1
+ss-idx | src/components/deai/DeAiSkillSelector.vue:6 | count 1
+ss-item | src/components/deai/DeAiSkillSelector.vue:5 | count 1
+ss-list | src/components/deai/DeAiSkillSelector.vue:4 | count 1
+ss-name | src/components/deai/DeAiSkillSelector.vue:7 | count 1
+ss-remove | src/components/deai/DeAiSkillSelector.vue:11 | count 1
+ss-select | src/components/deai/DeAiSkillSelector.vue:16 | count 1
+statusbar | src/App.vue:52 | count 1
+step-name | src/components/pipeline/PipelinePanel.vue:7 | count 1
+step-num | src/components/pipeline/PipelinePanel.vue:7 | count 1
+tab | src/components/editor/EditorPanel.vue:46 | count 1
+tab-close | src/components/editor/EditorPanel.vue:52 | count 1
+temp-row | src/components/settings/ApiSettings.vue:103 | count 1
+textarea-field | src/components/settings/AgentSettings.vue:37 | count 1
+theme-toggle | src/components/sidebar/SidebarNav.vue:16 | count 1
+toggle-btn | src/components/settings/DeAiSettings.vue:13 | count 1
+toggle-label | src/components/settings/DeAiSettings.vue:182 | count 1
+token-bar | src/components/chat/ChatPanel.vue:70 | count 1
+token-help-area | src/components/common/PluginMarket.vue:23 | count 1
+token-help-text | src/components/common/PluginMarket.vue:17 | count 1
+token-input-area | src/components/common/PluginMarket.vue:16 | count 1
+token-input-field | src/components/common/PluginMarket.vue:19 | count 1
+token-input-row | src/components/common/PluginMarket.vue:18 | count 1
+tree-body | src/components/sidebar/ChapterTree.vue:10 | count 1
+tree-header | src/components/sidebar/ChapterTree.vue:3 | count 1
+tree-list | src/components/sidebar/ChapterTree.vue:14 | count 1
+var-details | src/components/settings/SkillSettings.vue:77 | count 1
+var-tags | src/components/settings/SkillSettings.vue:79 | count 1
+virtual-tree | src/components/sidebar/ChapterTree.vue:21 | count 1
+vol-arrow | src/components/sidebar/ChapterTree.vue:32 | count 2
+vol-count | src/components/sidebar/ChapterTree.vue:37 | count 2
+vol-modal-body | src/components/sidebar/ChapterTree.vue:101 | count 3
+vol-name | src/components/sidebar/ChapterTree.vue:36 | count 2
+vol-words | src/components/pipeline/PipelinePanel.vue:71 | count 1
+volume-group | src/components/sidebar/ChapterTree.vue:55 | count 1
+volume-item | src/components/sidebar/ChapterTree.vue:23 | count 2
+word-count | src/components/common/OutlineWorkspace.vue:18 | count 2
+
+=== ALL REFS (sorted) ===
+chRenameInput | src/components/sidebar/ChapterTree.vue:48
+editorTextarea | src/components/editor/EditorPanel.vue:67
+exitModal | src/App.vue:46
+fileInput | src/components/common/OutlineWorkspace.vue:61
+logContainer | src/components/settings/DiagLogPanel.vue:13
+messagesContainer | src/components/chat/ChatPanel.vue:17
+msgContainer | src/components/common/OutlineWorkspace.vue:28
+treeList | src/components/sidebar/ChapterTree.vue:14
+volRenameInput | src/components/sidebar/ChapterTree.vue:33
+
+=== ALL EVENTS ===
+@click | src/components/chat/ChatMessage.vue:6 | $emit('copy', message.content)
+@click | src/components/chat/ChatMessage.vue:10 | $emit('regenerate')
+@click | src/components/chat/ChatMessage.vue:14 | $emit('apply', message.content)
+@click | src/components/chat/ChatPanel.vue:43 | sendMessage
+@click | src/components/chat/ChatPanel.vue:52 | skillAreaOpen = !skillAreaOpen
+@click | src/components/common/BreadcrumbBar.vue:3 | emit('home')
+@click | src/components/common/BreadcrumbBar.vue:6 | emit('navigate', i)
+@click | src/components/common/BreadcrumbBar.vue:8 | emit('close', i)
+@click | src/components/common/ContextMenu.vue:3 | handleClick(item.action)
+@click | src/components/common/DiffModal.vue:2 | $emit('close')
+@click | src/components/common/DiffModal.vue:7 | $emit('close')
+@click | src/components/common/DiffModal.vue:11 | navDiff(-1)
+@click | src/components/common/DiffModal.vue:12 | navDiff(1)
+@click | src/components/common/DiffModal.vue:13 | acceptAll
+@click | src/components/common/DiffModal.vue:14 | rejectAll
+@click | src/components/common/DiffModal.vue:32 | applyResult
+@click | src/components/common/DiffModal.vue:33 | $emit('close')
+@click | src/components/common/ExitConfirmModal.vue:2 | cancel
+@click | src/components/common/ExitConfirmModal.vue:6 | cancel
+@click | src/components/common/ExitConfirmModal.vue:14 | cancel
+@click | src/components/common/ExitConfirmModal.vue:16 | directExit
+@click | src/components/common/ExitConfirmModal.vue:17 | saveAndExit
+@click | src/components/common/InlineMenu.vue:3 | handleAction(action.key)
+@click | src/components/common/MemoryPanel.vue:5 | $emit('close')
+@click | src/components/common/MemoryPanel.vue:10 | selectedCat='all'
+@click | src/components/common/MemoryPanel.vue:11 | selectedCat=cat
+@click | src/components/common/MemoryPanel.vue:13 | addCategory
+@click | src/components/common/MemoryPanel.vue:18 | showForm(-1)
+@click | src/components/common/MemoryPanel.vue:39 | saveForm
+@click | src/components/common/MemoryPanel.vue:40 | cancelForm
+@click | src/components/common/MemoryPanel.vue:48 | showForm(getRealIndex(idx))
+@click | src/components/common/MemoryPanel.vue:49 | deleteItem(getRealIndex(idx))
+@click | src/components/common/OutlineWorkspace.vue:2 | $emit('close')
+@click | src/components/common/OutlineWorkspace.vue:6 | $emit('close')
+@click | src/components/common/OutlineWorkspace.vue:14 | exportMd
+@click | src/components/common/OutlineWorkspace.vue:15 | exportTxt
+@keydown | src/components/common/OutlineWorkspace.vue:34 | sendMessage
+@click | src/components/common/OutlineWorkspace.vue:35 | sendMessage
+@click | src/components/common/OutlineWorkspace.vue:42 | generateOutlineSkills
+@click | src/components/common/OutlineWorkspace.vue:44 | bindSkill(s)
+@click | src/components/common/OutlineWorkspace.vue:53 | unbindSkill(i)
+@click | src/components/common/OutlineWorkspace.vue:60 | triggerImport
+@change | src/components/common/OutlineWorkspace.vue:61 | handleImport
+@click | src/components/common/OutlineWorkspace.vue:62 | saveOutline
+@click | src/components/common/OutlineWorkspace.vue:64 | projectStore.lockOutline()
+@mousedown | src/components/common/PanelResizer.vue:2 | onMouseDown
+@click | src/components/common/PluginMarket.vue:2 | $emit('close')
+@click | src/components/common/PluginMarket.vue:6 | $emit('close')
+@click | src/components/common/PluginMarket.vue:12 | showTokenInput = !showTokenInput
+@click | src/components/common/PluginMarket.vue:13 | showTokenHelp = !showTokenHelp
+@click | src/components/common/PluginMarket.vue:20 | saveToken
+@keydown | src/components/common/PluginMarket.vue:32 | searchGitHub
+@click | src/components/common/PluginMarket.vue:38 | searchGitHub
+@click | src/components/common/PluginMarket.vue:59 | installFromMarket(item)
+@click | src/components/common/PluginMarket.vue:65 | goToPage(currentPage - 1)
+@click | src/components/common/PluginMarket.vue:67 | goToPage(currentPage + 1)
+@click | src/components/dashboard/DashboardModal.vue:2 | emit('close')
+@click | src/components/dashboard/DashboardModal.vue:6 | emit('close')
+@click | src/components/deai/DeAiButton.vue:6 | triggerDeAi
+@click | src/components/deai/DeAiModeCard.vue:2 | select
+@click | src/components/deai/DeAiProgress.vue:27 | cancelDeAi
+@click | src/components/deai/DeAiSkillSelector.vue:9 | moveUp(i)
+@click | src/components/deai/DeAiSkillSelector.vue:10 | moveDown(i)
+@click | src/components/deai/DeAiSkillSelector.vue:11 | remove(i)
+@change | src/components/deai/DeAiSkillSelector.vue:16 | add
+@click | src/components/editor/EditorPanel.vue:8 | undo
+@click | src/components/editor/EditorPanel.vue:9 | redo
+@click | src/components/editor/EditorPanel.vue:13 | generateContent
+@click | src/components/editor/EditorPanel.vue:14 | save
+@click | src/components/editor/EditorPanel.vue:18 | exportMenu = !exportMenu
+@click | src/components/editor/EditorPanel.vue:20 | exportChapter('md')
+@click | src/components/editor/EditorPanel.vue:21 | exportChapter('txt')
+@click | src/components/editor/EditorPanel.vue:22 | exportChapter('epub')
+@click | src/components/editor/EditorPanel.vue:27 | triggerDeAi
+@click | src/components/editor/EditorPanel.vue:31 | aiNames
+@click | src/components/editor/EditorPanel.vue:32 | writingRules
+@click | src/components/editor/EditorPanel.vue:33 | timeline
+@click | src/components/editor/EditorPanel.vue:34 | batchReview
+@click | src/components/editor/EditorPanel.vue:35 | revise
+@click | src/components/editor/EditorPanel.vue:36 | insertVar
+@click | src/components/editor/EditorPanel.vue:48 | editorStore.activeTabId = tab.id
+@click | src/components/editor/EditorPanel.vue:52 | editorStore.closeTab(tab.id)
+@click | src/components/editor/EditorPanel.vue:59 | findNext
+@click | src/components/editor/EditorPanel.vue:60 | findPrev
+@click | src/components/editor/EditorPanel.vue:61 | replaceOne
+@click | src/components/editor/EditorPanel.vue:62 | replaceAll
+@click | src/components/editor/EditorPanel.vue:63 | editorStore.toggleFind()
+@input | src/components/editor/EditorPanel.vue:70 | onInput
+@keydown | src/components/editor/EditorPanel.vue:73 | onKeydown
+@click | src/components/pipeline/PipelinePanel.vue:2 | $emit('close')
+@click | src/components/pipeline/PipelinePanel.vue:4 | $emit('close')
+@click | src/components/pipeline/PipelinePanel.vue:6 | pipelineStore.setStep(i)
+@change | src/components/pipeline/PipelinePanel.vue:13 | saveStepConfig
+@change | src/components/pipeline/PipelinePanel.vue:18 | saveStepConfig
+@click | src/components/pipeline/PipelinePanel.vue:28 | toolAction('names')
+@click | src/components/pipeline/PipelinePanel.vue:29 | toolAction('rules')
+@click | src/components/pipeline/PipelinePanel.vue:30 | toolAction('timeline')
+@click | src/components/pipeline/PipelinePanel.vue:31 | toolAction('review')
+@click | src/components/pipeline/PipelinePanel.vue:32 | toolAction('revise')
+@click | src/components/pipeline/PipelinePanel.vue:33 | toolAction('translate')
+@click | src/components/pipeline/PipelinePanel.vue:34 | toolAction('style')
+@click | src/components/pipeline/PipelinePanel.vue:35 | toolAction('regenerate')
+@click | src/components/pipeline/PipelinePanel.vue:36 | toolAction('modify')
+@click | src/components/pipeline/PipelinePanel.vue:45 | projectStore.setOutline(projectStore.outlineText)
+@click | src/components/pipeline/PipelinePanel.vue:46 | projectStore.lockOutline()
+@click | src/components/pipeline/PipelinePanel.vue:47 | nextStep
+@click | src/components/pipeline/PipelinePanel.vue:57 | projectStore.settings.splice(i, 1); projectStore.saveProject()
+@click | src/components/pipeline/PipelinePanel.vue:61 | addSetting
+@click | src/components/pipeline/PipelinePanel.vue:62 | genSettings
+@click | src/components/pipeline/PipelinePanel.vue:63 | confirmSettings
+@change | src/components/pipeline/PipelinePanel.vue:71 | projectStore.saveProject()
+@change | src/components/pipeline/PipelinePanel.vue:72 | projectStore.saveProject()
+@change | src/components/pipeline/PipelinePanel.vue:73 | projectStore.saveProject()
+@click | src/components/pipeline/PipelinePanel.vue:74 | genSingleVolume(i)
+@click | src/components/pipeline/PipelinePanel.vue:78 | genVolumes('auto')
+@click | src/components/pipeline/PipelinePanel.vue:79 | genVolumes('continue')
+@click | src/components/pipeline/PipelinePanel.vue:80 | genVolumes('resume')
+@click | src/components/pipeline/PipelinePanel.vue:81 | confirmVolumes
+@click | src/components/pipeline/PipelinePanel.vue:88 | genBody(i)
+@click | src/components/pipeline/PipelinePanel.vue:91 | genChapters
+@click | src/components/pipeline/PipelinePanel.vue:92 | genChaptersAuto
+@click | src/components/pipeline/PipelinePanel.vue:93 | resumeGen
+@click | src/components/pipeline/PipelinePanel.vue:94 | confirmChapters
+@click | src/components/pipeline/PipelinePanel.vue:102 | genBodyForSelected
+@click | src/components/pipeline/PipelinePanel.vue:103 | genBodyAuto
+@click | src/components/pipeline/PipelinePanel.vue:104 | insertToEditor
+@click | src/components/settings/AgentSettings.vue:10 | toggleEdit(a.id)
+@click | src/components/settings/AgentSettings.vue:11 | agentStore.removeAgent(a.id)
+@change | src/components/settings/AgentSettings.vue:22 | agentStore.saveAgents()
+@change | src/components/settings/AgentSettings.vue:24 | agentStore.saveAgents()
+@change | src/components/settings/AgentSettings.vue:26 | agentStore.saveAgents()
+@change | src/components/settings/AgentSettings.vue:28 | agentStore.saveAgents()
+@change | src/components/settings/AgentSettings.vue:33 | agentStore.saveAgents()
+@change | src/components/settings/AgentSettings.vue:35 | agentStore.saveAgents()
+@change | src/components/settings/AgentSettings.vue:37 | agentStore.saveAgents()
+@click | src/components/settings/AgentSettings.vue:40 | cancelEdit
+@click | src/components/settings/AgentSettings.vue:41 | saveAgent(a.id)
+@click | src/components/settings/AgentSettings.vue:46 | addAgent
+@click | src/components/settings/ApiSettings.vue:12 | enterProviderEdit(p.id)
+@change | src/components/settings/ApiSettings.vue:28 | setPurpose(p.id, ($event.target as HTMLSelectElement).value)
+@click | src/components/settings/ApiSettings.vue:33 | enterProviderEdit(p.id)
+@click | src/components/settings/ApiSettings.vue:34 | providerStore.removeProvider(p.id)
+@click | src/components/settings/ApiSettings.vue:41 | addProvider
+@click | src/components/settings/ApiSettings.vue:46 | exportConfig
+@click | src/components/settings/ApiSettings.vue:47 | importConfig
+@click | src/components/settings/ApiSettings.vue:53 | exitProviderEdit
+@click | src/components/settings/ApiSettings.vue:70 | showKey = !showKey
+@click | src/components/settings/ApiSettings.vue:77 | fetchModels
+@click | src/components/settings/ApiSettings.vue:80 | testConnection
+@click | src/components/settings/ApiSettings.vue:124 | saveAndExit
+@click | src/components/settings/ApiSettings.vue:125 | exitProviderEdit
+@change | src/components/settings/AppearanceSettings.vue:6 | settingsStore.saveSettings()
+@change | src/components/settings/AppearanceSettings.vue:11 | settingsStore.saveSettings()
+@change | src/components/settings/AppearanceSettings.vue:19 | settingsStore.saveSettings()
+@change | src/components/settings/AppearanceSettings.vue:24 | settingsStore.saveSettings()
+@change | src/components/settings/AppearanceSettings.vue:28 | settingsStore.saveSettings()
+@click | src/components/settings/AppearanceSettings.vue:34 | toggleTheme
+@click | src/components/settings/AppearanceSettings.vue:41 | exportData
+@click | src/components/settings/AppearanceSettings.vue:45 | importData
+@change | src/components/settings/AppearanceSettings.vue:52 | saveGithubToken
+@click | src/components/settings/AppearanceSettings.vue:53 | saveGithubToken
+@click | src/components/settings/AppearanceSettings.vue:71 | saveAll
+@click | src/components/settings/DeAiSettings.vue:15 | deAiStore.hardruleEnabled = !deAiStore.hardruleEnabled; deAiStore.saveConfig()
+@change | src/components/settings/DeAiSettings.vue:22 | deAiStore.saveConfig()
+@change | src/components/settings/DeAiSettings.vue:25 | deAiStore.saveConfig()
+@change | src/components/settings/DeAiSettings.vue:28 | deAiStore.saveConfig()
+@change | src/components/settings/DeAiSettings.vue:36 | deAiStore.saveConfig()
+@change | src/components/settings/DeAiSettings.vue:39 | deAiStore.saveConfig()
+@change | src/components/settings/DeAiSettings.vue:47 | deAiStore.saveConfig()
+@change | src/components/settings/DeAiSettings.vue:50 | deAiStore.saveConfig()
+@change | src/components/settings/DeAiSettings.vue:53 | deAiStore.saveConfig()
+@click | src/components/settings/DeAiSettings.vue:74 | selectMode(m.id)
+@change | src/components/settings/DeAiSettings.vue:92 | addDeAiSkill('chain')
+@click | src/components/settings/DeAiSettings.vue:96 | addDeAiSkill('chain')
+@click | src/components/settings/DeAiSettings.vue:101 | removeDeAiSkill(i)
+@change | src/components/settings/DeAiSettings.vue:107 | deAiStore.saveConfig()
+@change | src/components/settings/DeAiSettings.vue:118 | deAiStore.saveConfig()
+@change | src/components/settings/DeAiSettings.vue:123 | addDeAiSkill('split-merge')
+@click | src/components/settings/DeAiSettings.vue:131 | removeDeAiSkill(i)
+@change | src/components/settings/DeAiSettings.vue:137 | deAiStore.saveConfig()
+@change | src/components/settings/DeAiSettings.vue:148 | deAiStore.saveConfig()
+@change | src/components/settings/DeAiSettings.vue:153 | addDeAiSkill('multi-step')
+@click | src/components/settings/DeAiSettings.vue:157 | addDeAiSkill('multi-step')
+@click | src/components/settings/DeAiSettings.vue:162 | removeDeAiSkill(i)
+@change | src/components/settings/DeAiSettings.vue:168 | deAiStore.saveConfig()
+@change | src/components/settings/DeAiSettings.vue:188 | toggleHardRule(rule.id)
+@click | src/components/settings/DeAiSettings.vue:209 | resetConfig
+@click | src/components/settings/DeAiSettings.vue:210 | saveAllConfig
+@click | src/components/settings/DiagLogPanel.vue:5 | loadLogs
+@click | src/components/settings/DiagLogPanel.vue:6 | exportLogs
+@click | src/components/settings/DiagLogPanel.vue:7 | clearLogs
+@change | src/components/settings/DiagLogPanel.vue:8 | loadLogs
+@click | src/components/settings/SettingsModal.vue:2 | $emit('close')
+@click | src/components/settings/SettingsModal.vue:6 | handleClose
+@click | src/components/settings/SettingsModal.vue:15 | settingsStore.setActiveTab(tab.id)
+@click | src/components/settings/SettingsModal.vue:28 | handleClose
+@click | src/components/settings/SettingsModal.vue:29 | handleSave
+@click | src/components/settings/SkillSettings.vue:10 | skillStore.movePipelineSkillUp(i)
+@click | src/components/settings/SkillSettings.vue:11 | skillStore.movePipelineSkillDown(i)
+@click | src/components/settings/SkillSettings.vue:12 | removeFromPipeline(i)
+@click | src/components/settings/SkillSettings.vue:33 | editSkill(s.id)
+@click | src/components/settings/SkillSettings.vue:34 | addToPipeline(s.id)
+@click | src/components/settings/SkillSettings.vue:35 | skillStore.removeSkill(s.id)
+@click | src/components/settings/SkillSettings.vue:40 | addSkill
+@click | src/components/settings/SkillSettings.vue:41 | cancelEdit
+@click | src/components/settings/SkillSettings.vue:43 | cancelEdit
+@click | src/components/settings/SkillSettings.vue:80 | insertVar(v)
+@click | src/components/settings/SkillSettings.vue:100 | cancelEdit
+@click | src/components/settings/SkillSettings.vue:101 | saveEdit
+@click | src/components/settings-collection/ScPanel.vue:2 | $emit('close')
+@click | src/components/settings-collection/ScPanel.vue:6 | $emit('close')
+@click | src/components/settings-collection/ScPanel.vue:10 | addCategory
+@click | src/components/settings-collection/ScPanel.vue:11 | selectedCategory = cat
+@click | src/components/settings-collection/ScPanel.vue:19 | addEntry
+@click | src/components/settings-collection/ScPanel.vue:20 | aiGenerateEntry
+@click | src/components/settings-collection/ScPanel.vue:23 | selectedEntry = entry
+@click | src/components/settings-collection/ScPanel.vue:33 | bindEntry
+@click | src/components/settings-collection/ScPanel.vue:34 | deleteEntry
+@click | src/components/settings-collection/ScPanel.vue:35 | selectedEntry = null
+@click | src/components/settings-collection/ScPanel.vue:53 | saveEntry
+@click | src/components/settings-collection/ScPanel.vue:59 | showBindModal = false
+@click | src/components/settings-collection/ScPanel.vue:67 | confirmBind
+@click | src/components/sidebar/AgentProgressPanel.vue:3 | expanded = !expanded
+@click | src/components/sidebar/ChapterTree.vue:5 | $emit('navigate', 'pipeline')
+@click | src/components/sidebar/ChapterTree.vue:6 | openProjectList
+@click | src/components/sidebar/ChapterTree.vue:7 | treeGen
+@click | src/components/sidebar/ChapterTree.vue:8 | showVolumeForm()
+@click | src/components/sidebar/ChapterTree.vue:10 | closeCtxMenu
+@drop | src/components/sidebar/ChapterTree.vue:27 | onVolDrop($event, item.vol)
+@click | src/components/sidebar/ChapterTree.vue:28 | toggleVolume(item.vol)
+@contextmenu | src/components/sidebar/ChapterTree.vue:30 | showCtxMenu($event, 'volume', item.vol)
+@blur | src/components/sidebar/ChapterTree.vue:34 | commitRenameVol(item.vol)
+@keydown | src/components/sidebar/ChapterTree.vue:34 | commitRenameVol(item.vol)
+@keydown | src/components/sidebar/ChapterTree.vue:34 | cancelRename
+@drop | src/components/sidebar/ChapterTree.vue:43 | onChDrop($event, item.ch)
+@click | src/components/sidebar/ChapterTree.vue:44 | selectChapter(item.ch)
+@contextmenu | src/components/sidebar/ChapterTree.vue:46 | showCtxMenu($event, 'chapter', item.ch)
+@blur | src/components/sidebar/ChapterTree.vue:49 | commitRenameCh(item.ch)
+@keydown | src/components/sidebar/ChapterTree.vue:49 | commitRenameCh(item.ch)
+@keydown | src/components/sidebar/ChapterTree.vue:49 | cancelRename
+@drop | src/components/sidebar/ChapterTree.vue:60 | onVolDrop($event, vol)
+@click | src/components/sidebar/ChapterTree.vue:61 | toggleVolume(vol)
+@contextmenu | src/components/sidebar/ChapterTree.vue:63 | showCtxMenu($event, 'volume', vol)
+@blur | src/components/sidebar/ChapterTree.vue:68 | commitRenameVol(vol)
+@keydown | src/components/sidebar/ChapterTree.vue:68 | commitRenameVol(vol)
+@keydown | src/components/sidebar/ChapterTree.vue:68 | cancelRename
+@drop | src/components/sidebar/ChapterTree.vue:82 | onChDrop($event, ch)
+@click | src/components/sidebar/ChapterTree.vue:83 | selectChapter(ch)
+@contextmenu | src/components/sidebar/ChapterTree.vue:85 | showCtxMenu($event, 'chapter', ch)
+@blur | src/components/sidebar/ChapterTree.vue:88 | commitRenameCh(ch)
+@keydown | src/components/sidebar/ChapterTree.vue:88 | commitRenameCh(ch)
+@keydown | src/components/sidebar/ChapterTree.vue:88 | cancelRename
+@click | src/components/sidebar/ChapterTree.vue:92 | addChapter(vol)
+@click | src/components/sidebar/ChapterTree.vue:98 | showVolModal = false
+@click | src/components/sidebar/ChapterTree.vue:100 | showVolModal = false
+@click | src/components/sidebar/ChapterTree.vue:106 | saveVolume
+@click | src/components/sidebar/ChapterTree.vue:109 | showProjectModal = false
+@click | src/components/sidebar/ChapterTree.vue:111 | showProjectModal = false
+@click | src/components/sidebar/ChapterTree.vue:113 | showProjectModal = false; showProjectList = true
+@click | src/components/sidebar/ChapterTree.vue:117 | createNewProject
+@click | src/components/sidebar/ChapterTree.vue:120 | showProjectList = false
+@click | src/components/sidebar/ChapterTree.vue:122 | showProjectList = false
+@click | src/components/sidebar/ChapterTree.vue:125 | selectProject(p.id)
+@click | src/components/sidebar/ChapterTree.vue:127 | deleteProject(p.id)
+@click | src/components/sidebar/ChapterTree.vue:130 | showProjectList = false; showProjectModal = true
+@click | src/components/sidebar/ChapterTree.vue:135 | ctxAction('gen-chapters')
+@click | src/components/sidebar/ChapterTree.vue:136 | ctxAction('view-outline')
+@click | src/components/sidebar/ChapterTree.vue:137 | ctxAction('edit-vol')
+@click | src/components/sidebar/ChapterTree.vue:138 | ctxAction('bind-skill')
+@click | src/components/sidebar/ChapterTree.vue:139 | ctxAction('del-vol')
+@click | src/components/sidebar/ChapterTree.vue:142 | ctxAction('gen-body')
+@click | src/components/sidebar/ChapterTree.vue:143 | ctxAction('view-plot')
+@click | src/components/sidebar/ChapterTree.vue:144 | ctxAction('view-body')
+@click | src/components/sidebar/ChapterTree.vue:145 | ctxAction('rename')
+@click | src/components/sidebar/ChapterTree.vue:146 | ctxAction('bind-skill')
+@click | src/components/sidebar/ChapterTree.vue:147 | ctxAction('del-ch')
+@click | src/components/sidebar/ContextMenu.vue:3 | emit('gen-chapters')
+@click | src/components/sidebar/ContextMenu.vue:4 | emit('gen-body')
+@click | src/components/sidebar/ContextMenu.vue:5 | emit('bind-skill')
+@click | src/components/sidebar/ContextMenu.vue:7 | emit('delete')
+@click | src/components/sidebar/SidebarNav.vue:10 | $emit('navigate', item.id)
+@click | src/components/sidebar/SidebarNav.vue:18 | toggleTheme
+@click | src/App.vue:16 | clearChat
+@click | src/App.vue:21 | activePanel=''
+
+=== PER-COMPONENT BREAKDOWN ===
+
+--- src/components/chat/ChatMessage.vue (103 lines, 3248 bytes) ---
+  IDs: 
+  Classes: chat-message, message-bubble, message-content, message-actions, msg-btn
+  Refs: 
+  Events: click:$emit('copy', message.content), click:$emit('regenerate'), click:$emit('apply', message.content)
+
+--- src/components/chat/ChatPanel.vue (399 lines, 12491 bytes) ---
+  IDs: user-input
+  Classes: chat-panel, chat-header, agent-selector, chat-context-bar, messages-container, empty-state, empty-icon, empty-title, empty-desc, chat-input-row, chat-input, btn-send, skill-area, skill-area-header, skill-area-title, skill-area-arrow, skill-area-content, agent-info-bar, agent-info-label, agent-info-name, agent-info-model, skill-list-active, input-hint, token-bar
+  Refs: messagesContainer
+  Events: click:sendMessage, click:skillAreaOpen = !skillAreaOpen
+
+--- src/components/common/BreadcrumbBar.vue (55 lines, 1315 bytes) ---
+  IDs: 
+  Classes: breadcrumb-bar, breadcrumb-home, breadcrumb-sep, breadcrumb-item, breadcrumb-close
+  Refs: 
+  Events: click:emit('home'), click:emit('navigate', i), click:emit('close', i)
+
+--- src/components/common/ContextMenu.vue (54 lines, 1429 bytes) ---
+  IDs: 
+  Classes: context-menu, ctx-menu-btn
+  Refs: 
+  Events: click:handleClick(item.action)
+
+--- src/components/common/DiffModal.vue (81 lines, 2814 bytes) ---
+  IDs: 
+  Classes: modal-overlay, modal-content, diff-modal-content, modal-header, diff-count, btn-close, modal-body, diff-modal-body, diff-toolbar, btn-sm, btn-secondary, btn-primary, diff-container, diff-pane, diff-pane-label, diff-content, diff-original, diff-line, removed, diff-modified, added, modal-footer
+  Refs: 
+  Events: click:$emit('close'), click:$emit('close'), click:navDiff(-1), click:navDiff(1), click:acceptAll, click:rejectAll, click:applyResult, click:$emit('close')
+
+--- src/components/common/ExitConfirmModal.vue (77 lines, 2360 bytes) ---
+  IDs: 
+  Classes: modal-backdrop, modal-content, modal-content-sm, modal-header, btn-close, modal-body, exit-msg-primary, exit-msg-secondary, modal-footer, btn-secondary, footer-right, btn-primary
+  Refs: 
+  Events: click:cancel, click:cancel, click:cancel, click:directExit, click:saveAndExit
+
+--- src/components/common/InlineMenu.vue (68 lines, 1986 bytes) ---
+  IDs: 
+  Classes: inline-menu, inline-menu-btn
+  Refs: 
+  Events: click:handleAction(action.key)
+
+--- src/components/common/MemoryPanel.vue (195 lines, 7494 bytes) ---
+  IDs: 
+  Classes: memory-panel, mem-header, btn-close, mem-body, mem-sidebar, mem-cat-list, mem-cat-btn, all, btn-sm, btn-secondary, full-width, mem-content, mem-content-header, btn-primary, mem-list, card-grid, empty-hint, mem-form, form-group, form-actions, mem-item-card, mem-item-header, mem-item-key, mem-item-cat, mem-item-actions, btn-danger, mem-item-content, mem-item-date
+  Refs: 
+  Events: click:$emit('close'), click:selectedCat='all', click:selectedCat=cat, click:addCategory, click:showForm(-1), click:saveForm, click:cancelForm, click:showForm(getRealIndex(idx)), click:deleteItem(getRealIndex(idx))
+
+--- src/components/common/OutlineWorkspace.vue (241 lines, 12290 bytes) ---
+  IDs: 
+  Classes: ow-overlay, ow-content, ow-header, modal-close, ow-body, ow-editor, ow-editor-header, editor-toolbar, editor-toolbar-group, btn-sm, btn-secondary, ow-export-btn, word-count, ow-textarea, ow-chat, ow-chat-header, ow-messages, ow-msg, ow-msg-bubble, ow-input-row, ow-input, btn-send, ow-sidebar, ow-section, full-width, ow-skill-suggestions, ow-skill-item, ow-empty-hint, ow-bound-list, ow-bound-item, ow-footer, btn-import, btn-primary, save-feedback, ow-resize-handle
+  Refs: msgContainer, fileInput
+  Events: click:$emit('close'), click:$emit('close'), click:exportMd, click:exportTxt, keydown:sendMessage, click:sendMessage, click:generateOutlineSkills, click:bindSkill(s), click:unbindSkill(i), click:triggerImport, change:handleImport, click:saveOutline, click:projectStore.lockOutline()
+
+--- src/components/common/PanelResizer.vue (67 lines, 1565 bytes) ---
+  IDs: 
+  Classes: panel-resizer
+  Refs: 
+  Events: mousedown:onMouseDown
+
+--- src/components/common/PluginMarket.vue (210 lines, 11036 bytes) ---
+  IDs: 
+  Classes: pm-overlay, pm-content, pm-header, pm-close, pm-body, github-status-bar, github-status-text, github-status-actions, btn-sm, btn-mr-4, btn-outline, token-input-area, token-help-text, token-input-row, token-input-field, btn-primary, token-help-area, market-search, market-search-input, market-category-select, market-sort-select, market-status-text, market-results-container, market-results-scroll, market-loading, market-empty, market-item, market-item-header, market-item-name, market-item-stars, market-item-desc, market-item-meta, market-item-lang, market-item-updated, market-pagination, page-info-text
+  Refs: 
+  Events: click:$emit('close'), click:$emit('close'), click:showTokenInput = !showTokenInput, click:showTokenHelp = !showTokenHelp, click:saveToken, keydown:searchGitHub, click:searchGitHub, click:installFromMarket(item), click:goToPage(currentPage - 1), click:goToPage(currentPage + 1)
+
+--- src/components/dashboard/DashboardModal.vue (52 lines, 3852 bytes) ---
+  IDs: 
+  Classes: dash-overlay, dash-modal, dash-header, dash-body, dash-grid, dash-card, dash-num, dash-label, dash-chart, dash-chart-title, dash-bar-chart, dash-bar-row, dash-bar-label, dash-bar-track, dash-bar-fill, dash-bar-num
+  Refs: 
+  Events: click:emit('close'), click:emit('close')
+
+--- src/components/deai/DeAiButton.vue (64 lines, 1500 bytes) ---
+  IDs: 
+  Classes: deai-btn, deai-btn-label
+  Refs: 
+  Events: click:triggerDeAi
+
+--- src/components/deai/DeAiFlowPreview.vue (107 lines, 2975 bytes) ---
+  IDs: 
+  Classes: deai-flow-preview, flow-steps, deai-flow-step, deai-flow-arrow, deai-flow-time
+  Refs: 
+  Events: 
+
+--- src/components/deai/DeAiModeCard.vue (84 lines, 1859 bytes) ---
+  IDs: 
+  Classes: mode-card, card-header, card-name, card-badge, card-desc, card-flow, flow-step
+  Refs: 
+  Events: click:select
+
+--- src/components/deai/DeAiProgress.vue (196 lines, 5185 bytes) ---
+  IDs: 
+  Classes: deai-progress-overlay, deai-progress-modal, deai-progress-header, deai-percent, deai-progress-bar, deai-progress-fill, deai-progress-info, deai-progress-step, deai-step-list, deai-step-item, deai-step-dot, deai-step-label, deai-step-status, btn-secondary
+  Refs: 
+  Events: click:cancelDeAi
+
+--- src/components/deai/DeAiSkillSelector.vue (142 lines, 3371 bytes) ---
+  IDs: 
+  Classes: skill-selector, ss-header, ss-list, ss-item, ss-idx, ss-name, ss-actions, ss-btn, ss-remove, ss-empty, ss-select
+  Refs: 
+  Events: click:moveUp(i), click:moveDown(i), click:remove(i), change:add
+
+--- src/components/editor/EditorPanel.vue (531 lines, 19044 bytes) ---
+  IDs: btn-de-ai, bookid, chapter1, ncx, np1
+  Classes: editor-panel, editor-header, editor-mode-badge, editor-title, editor-toolbar, editor-toolbar-group, btn-sm, btn-secondary, sep, export-dropdown, word-count, chapter-tabs, tab, dot, tab-close, find-bar, find-input, find-close, editor-content
+  Refs: editorTextarea
+  Events: click:undo, click:redo, click:generateContent, click:save, click:exportMenu = !exportMenu, click:exportChapter('md'), click:exportChapter('txt'), click:exportChapter('epub'), click:triggerDeAi, click:aiNames, click:writingRules, click:timeline, click:batchReview, click:revise, click:insertVar, click:editorStore.activeTabId = tab.id, click:editorStore.closeTab(tab.id), click:findNext, click:findPrev, click:replaceOne, click:replaceAll, click:editorStore.toggleFind(), input:onInput, keydown:onKeydown
+
+--- src/components/pipeline/PipelinePanel.vue (521 lines, 37054 bytes) ---
+  IDs: 
+  Classes: pl-overlay, pl-content, pl-header, modal-close, pl-steps, pl-step, step-num, step-name, pl-step-config, pl-cfg-row, pl-cfg-label, pl-cfg-select, pl-cfg-select-sm, pl-body, pl-tools-section, pl-tools-title, pl-tools-grid, btn-sm, btn-secondary, pl-tool-result, pl-tool-loading, pl-step-panel, pl-textarea, pl-actions, btn-primary, pl-settings-list, pl-setting-item, pl-input, pl-input-sm, pl-attrs-input, btn-danger, pl-vol-config, pl-vol-list, pl-vol-card, pl-vol-header, vol-words, pl-vol-outline, pl-ch-config, pl-ch-list, pl-ch-card, ch-title, pl-body-config, pl-body-result, pl-body-text
+  Refs: 
+  Events: click:$emit('close'), click:$emit('close'), click:pipelineStore.setStep(i), change:saveStepConfig, change:saveStepConfig, click:toolAction('names'), click:toolAction('rules'), click:toolAction('timeline'), click:toolAction('review'), click:toolAction('revise'), click:toolAction('translate'), click:toolAction('style'), click:toolAction('regenerate'), click:toolAction('modify'), click:projectStore.setOutline(projectStore.outlineText), click:projectStore.lockOutline(), click:nextStep, click:projectStore.settings.splice(i, 1); projectStore.saveProject(), click:addSetting, click:genSettings, click:confirmSettings, change:projectStore.saveProject(), change:projectStore.saveProject(), change:projectStore.saveProject(), click:genSingleVolume(i), click:genVolumes('auto'), click:genVolumes('continue'), click:genVolumes('resume'), click:confirmVolumes, click:genBody(i), click:genChapters, click:genChaptersAuto, click:resumeGen, click:confirmChapters, click:genBodyForSelected, click:genBodyAuto, click:insertToEditor
+
+--- src/components/settings/AgentSettings.vue (108 lines, 5121 bytes) ---
+  IDs: 
+  Classes: agent-settings, agent-list, agent-card, is-editing, agent-card-header, agent-card-name, agent-card-model, agent-card-actions, btn-sm, btn-secondary, btn-danger, agent-card-summary, agent-card-meta, agent-card-body, agent-fields, input-field, textarea-field, form-actions, btn-primary, btn-add
+  Refs: 
+  Events: click:toggleEdit(a.id), click:agentStore.removeAgent(a.id), change:agentStore.saveAgents(), change:agentStore.saveAgents(), change:agentStore.saveAgents(), change:agentStore.saveAgents(), change:agentStore.saveAgents(), change:agentStore.saveAgents(), change:agentStore.saveAgents(), click:cancelEdit, click:saveAgent(a.id), click:addAgent
+
+--- src/components/settings/ApiSettings.vue (482 lines, 18518 bytes) ---
+  IDs: 
+  Classes: api-settings, provider-list-view, provider-list, provider-card, is-active, provider-card-header, provider-card-name, provider-card-status, provider-badge-on, provider-badge-off, provider-card-info, provider-card-url, provider-card-model, provider-card-actions, purpose-select, btn-sm, btn-secondary, btn-danger, provider-card-models, model-tag, provider-card-add, provider-card-add-icon, provider-card-add-text, config-actions, provider-edit-view, provider-edit-header, btn-back, provider-edit-title-text, provider-conn-status, form-group, input-field, form-hint, password-row, btn-toggle, model-fetch-row, btn-test, fetch-feedback, model-select-row, model-list-box, checkbox-label, temp-row, range-flex, range-val, input-w-120, form-actions, btn-primary
+  Refs: 
+  Events: click:enterProviderEdit(p.id), change:setPurpose(p.id, ($event.target as HTMLSelectElement).value), click:enterProviderEdit(p.id), click:providerStore.removeProvider(p.id), click:addProvider, click:exportConfig, click:importConfig, click:exitProviderEdit, click:showKey = !showKey, click:fetchModels, click:testConnection, click:saveAndExit, click:exitProviderEdit
+
+--- src/components/settings/AppearanceSettings.vue (157 lines, 7197 bytes) ---
+  IDs: 
+  Classes: appearance-settings, settings-row, settings-section, btn-toggle, btn-secondary, gh-input, appearance-divider, kbd-shortcuts, kbd-row, kbd, form-actions, btn-primary
+  Refs: 
+  Events: change:settingsStore.saveSettings(), change:settingsStore.saveSettings(), change:settingsStore.saveSettings(), change:settingsStore.saveSettings(), change:settingsStore.saveSettings(), click:toggleTheme, click:exportData, click:importData, change:saveGithubToken, click:saveGithubToken, click:saveAll
+
+--- src/components/settings/DeAiSettings.vue (512 lines, 18815 bytes) ---
+  IDs: 
+  Classes: deai-settings, deai-step-group, deai-step-title, deai-common-params, deai-param-row, deai-param-item, deai-param-label, toggle-btn, deai-radio-group, deai-radio-option, deai-flow-section, flow-label, deai-mode-cards, deai-mode-card, deai-mode-card-header, deai-mode-card-icon, deai-mode-card-title, deai-mode-card-desc, mode-full-desc, mode-flow, deai-flow-step, deai-mode-card-body, form-group, deai-skill-bar, deai-param-select, btn-primary, btn-sm, deai-skills-list, deai-skill-chip, deai-skill-remove, deai-split-input, deai-hardrule-toggle, toggle-label, deai-hardrules-list, deai-hardrule-item, config-section, deai-verify-status, configured, not-configured, deai-verify-icon, deai-verify-name, deai-verify-hint, form-actions, btn-secondary
+  Refs: 
+  Events: click:deAiStore.hardruleEnabled = !deAiStore.hardruleEnabled; deAiStore.saveConfig(), change:deAiStore.saveConfig(), change:deAiStore.saveConfig(), change:deAiStore.saveConfig(), change:deAiStore.saveConfig(), change:deAiStore.saveConfig(), change:deAiStore.saveConfig(), change:deAiStore.saveConfig(), change:deAiStore.saveConfig(), click:selectMode(m.id), change:addDeAiSkill('chain'), click:addDeAiSkill('chain'), click:removeDeAiSkill(i), change:deAiStore.saveConfig(), change:deAiStore.saveConfig(), change:addDeAiSkill('split-merge'), click:removeDeAiSkill(i), change:deAiStore.saveConfig(), change:deAiStore.saveConfig(), change:addDeAiSkill('multi-step'), click:addDeAiSkill('multi-step'), click:removeDeAiSkill(i), change:deAiStore.saveConfig(), change:toggleHardRule(rule.id), click:resetConfig, click:saveAllConfig
+
+--- src/components/settings/DiagLogPanel.vue (85 lines, 3360 bytes) ---
+  IDs: 
+  Classes: diag-panel, diag-toolbar, btn-sm, btn-secondary, diag-date-select, diag-log-list, diag-empty, diag-log-item, diag-log-time, diag-log-level, diag-log-msg
+  Refs: logContainer
+  Events: click:loadLogs, click:exportLogs, click:clearLogs, change:loadLogs
+
+--- src/components/settings/SettingsModal.vue (182 lines, 5218 bytes) ---
+  IDs: 
+  Classes: modal-overlay, modal-content, modal-lg, modal-closing, modal-header, modal-close, modal-body, settings-tabs, settings-tab, settings-panel, modal-footer, btn-secondary, footer-left, btn-primary, footer-right
+  Refs: 
+  Events: click:$emit('close'), click:handleClose, click:settingsStore.setActiveTab(tab.id), click:handleClose, click:handleSave
+
+--- src/components/settings/SkillSettings.vue (332 lines, 15305 bytes) ---
+  IDs: 
+  Classes: skill-settings, skill-section, skill-pipeline-list, skill-pipeline-item, skill-idx, skill-name, btn-sm, btn-secondary, btn-danger, skill-all-list, skill-card, skill-card-header, skill-card-name, skill-card-badge, skill-card-body, skill-card-desc, skill-card-meta, skill-card-info, skill-card-actions, btn-add, skill-edit-overlay, skill-edit-modal, sem-header, sem-input, sf-linked-list, sf-linked-item, var-details, var-tags, btn-var, sf-template-wrapper, sf-template-input, sf-template-preview, form-actions, btn-primary
+  Refs: 
+  Events: click:skillStore.movePipelineSkillUp(i), click:skillStore.movePipelineSkillDown(i), click:removeFromPipeline(i), click:editSkill(s.id), click:addToPipeline(s.id), click:skillStore.removeSkill(s.id), click:addSkill, click:cancelEdit, click:cancelEdit, click:insertVar(v), click:cancelEdit, click:saveEdit
+
+--- src/components/settings-collection/ScPanel.vue (242 lines, 12007 bytes) ---
+  IDs: 
+  Classes: sc-overlay, sc-content, sc-header, modal-close, sc-body, sc-sidebar, btn-add, sc-cat-item, sc-main, sc-items-area, sc-items-header, sc-current-cat, btn-primary, btn-sm, btn-secondary, btn-ml-4, sc-entries, sc-item-card, sc-card-name, sc-card-cat, empty-hint, sc-detail-area, sc-detail-header, sc-detail-title, btn-danger, sc-detail-content, form-group, sc-input, sc-textarea, form-actions, bind-modal, bind-content, bind-list
+  Refs: 
+  Events: click:$emit('close'), click:$emit('close'), click:addCategory, click:selectedCategory = cat, click:addEntry, click:aiGenerateEntry, click:selectedEntry = entry, click:bindEntry, click:deleteEntry, click:selectedEntry = null, click:saveEntry, click:showBindModal = false, click:confirmBind
+
+--- src/components/sidebar/AgentProgressPanel.vue (145 lines, 3367 bytes) ---
+  IDs: 
+  Classes: agent-progress-panel, agp-header, agp-title, agp-toggle, agp-body, agp-empty, agp-item, agp-status-dot, agp-name, agp-mini-bar, agp-mini-fill, agp-task
+  Refs: 
+  Events: click:expanded = !expanded
+
+--- src/components/sidebar/ChapterTree.vue (454 lines, 22354 bytes) ---
+  IDs: 
+  Classes: chapter-tree, tree-header, project-name, btn-sm, btn-secondary, tree-body, empty-hint, tree-list, virtual-tree, volume-item, vol-arrow, rename-input, vol-name, vol-count, chapter-item, drag-over, volume-group, chapter-list, btn-add-ch, project-modal-overlay, modal-content, modal-header, btn-close, modal-body, vol-modal-body, modal-input, modal-footer, footer-right, btn-primary, pm-textarea, pm-empty, pm-project-item, pm-project-name, pm-del-btn, ctx-menu, ctx-item, danger
+  Refs: treeList, volRenameInput, chRenameInput, volRenameInput, chRenameInput
+  Events: click:$emit('navigate', 'pipeline'), click:openProjectList, click:treeGen, click:showVolumeForm(), click:closeCtxMenu, drop:onVolDrop($event, item.vol), click:toggleVolume(item.vol), contextmenu:showCtxMenu($event, 'volume', item.vol), blur:commitRenameVol(item.vol), keydown:commitRenameVol(item.vol), keydown:cancelRename, drop:onChDrop($event, item.ch), click:selectChapter(item.ch), contextmenu:showCtxMenu($event, 'chapter', item.ch), blur:commitRenameCh(item.ch), keydown:commitRenameCh(item.ch), keydown:cancelRename, drop:onVolDrop($event, vol), click:toggleVolume(vol), contextmenu:showCtxMenu($event, 'volume', vol), blur:commitRenameVol(vol), keydown:commitRenameVol(vol), keydown:cancelRename, drop:onChDrop($event, ch), click:selectChapter(ch), contextmenu:showCtxMenu($event, 'chapter', ch), blur:commitRenameCh(ch), keydown:commitRenameCh(ch), keydown:cancelRename, click:addChapter(vol), click:showVolModal = false, click:showVolModal = false, click:saveVolume, click:showProjectModal = false, click:showProjectModal = false, click:showProjectModal = false; showProjectList = true, click:createNewProject, click:showProjectList = false, click:showProjectList = false, click:selectProject(p.id), click:deleteProject(p.id), click:showProjectList = false; showProjectModal = true, click:ctxAction('gen-chapters'), click:ctxAction('view-outline'), click:ctxAction('edit-vol'), click:ctxAction('bind-skill'), click:ctxAction('del-vol'), click:ctxAction('gen-body'), click:ctxAction('view-plot'), click:ctxAction('view-body'), click:ctxAction('rename'), click:ctxAction('bind-skill'), click:ctxAction('del-ch')
+
+--- src/components/sidebar/ContextMenu.vue (56 lines, 1587 bytes) ---
+  IDs: 
+  Classes: ctx-menu, ctx-item, ctx-sep, ctx-danger
+  Refs: 
+  Events: click:emit('gen-chapters'), click:emit('gen-body'), click:emit('bind-skill'), click:emit('delete')
+
+--- src/components/sidebar/SidebarNav.vue (121 lines, 6448 bytes) ---
+  IDs: 
+  Classes: sidebar-nav, sidebar-divider, sidebar-btn, sidebar-icon, theme-toggle
+  Refs: 
+  Events: click:$emit('navigate', item.id), click:toggleTheme
+
+--- src/App.vue (359 lines, 12965 bytes) ---
+  IDs: statusbar, status-cursor, status-connection, status-model, status-chapter, status-words
+  Classes: app-container, app-header, header-left, app-title, header-right, header-selector, btn-icon, panel-backdrop, app-body, app-main, app-main-content, resizer-v, statusbar
+  Refs: exitModal
+  Events: click:clearChat, click:activePanel=''

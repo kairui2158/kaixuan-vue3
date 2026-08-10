@@ -1,0 +1,116 @@
+{
+  "ts": "2026-08-09T16:23:59.471Z",
+  "passed": 13,
+  "failed": 5,
+  "total": 18,
+  "results": [
+    {
+      "name": "CDP: Vue app mounted",
+      "pass": true,
+      "detail": "title=Novel Workshop",
+      "ts": "2026-08-09T16:23:54.493Z"
+    },
+    {
+      "name": "CDP: Pinia available",
+      "pass": true,
+      "detail": "via __vue_app__",
+      "ts": "2026-08-09T16:23:54.494Z"
+    },
+    {
+      "name": "CDP: Editor area present",
+      "pass": false,
+      "detail": "",
+      "ts": "2026-08-09T16:23:54.494Z"
+    },
+    {
+      "name": "CDP: Chapter tree present",
+      "pass": true,
+      "detail": "",
+      "ts": "2026-08-09T16:23:54.494Z"
+    },
+    {
+      "name": "CDP: Pipeline present",
+      "pass": true,
+      "detail": "",
+      "ts": "2026-08-09T16:23:54.494Z"
+    },
+    {
+      "name": "CDP: Buttons rendered",
+      "pass": true,
+      "detail": "count=22",
+      "ts": "2026-08-09T16:23:54.494Z"
+    },
+    {
+      "name": "CDP: Selects rendered",
+      "pass": true,
+      "detail": "count=8",
+      "ts": "2026-08-09T16:23:54.494Z"
+    },
+    {
+      "name": "DOM: Pipeline steps visible",
+      "pass": true,
+      "detail": "count=5",
+      "ts": "2026-08-09T16:23:54.496Z"
+    },
+    {
+      "name": "DOM: Sidebar/navigation present",
+      "pass": true,
+      "detail": "",
+      "ts": "2026-08-09T16:23:54.496Z"
+    },
+    {
+      "name": "DOM: Skill slots present",
+      "pass": false,
+      "detail": "count=0",
+      "ts": "2026-08-09T16:23:54.496Z"
+    },
+    {
+      "name": "DOM: AI/generate buttons",
+      "pass": true,
+      "detail": "count=3",
+      "ts": "2026-08-09T16:23:54.496Z"
+    },
+    {
+      "name": "DOM: Breadcrumb present",
+      "pass": true,
+      "detail": "",
+      "ts": "2026-08-09T16:23:54.496Z"
+    },
+    {
+      "name": "HOOK: Provider purpose switch saves to storage",
+      "pass": false,
+      "detail": "no change detected",
+      "ts": "2026-08-09T16:23:56.594Z"
+    },
+    {
+      "name": "HOOK: DeAI mode card click saves to storage",
+      "pass": false,
+      "detail": "no change detected",
+      "ts": "2026-08-09T16:23:58.131Z"
+    },
+    {
+      "name": "HOOK: DeAI flow has cross-model",
+      "pass": true,
+      "detail": "",
+      "ts": "2026-08-09T16:23:58.133Z"
+    },
+    {
+      "name": "HOOK: DeAI flow has zhuque",
+      "pass": true,
+      "detail": "",
+      "ts": "2026-08-09T16:23:58.133Z"
+    },
+    {
+      "name": "HOOK: Hardrule toggle saves config",
+      "pass": false,
+      "detail": "no change",
+      "ts": "2026-08-09T16:23:58.646Z"
+    },
+    {
+      "name": "HOOK: Pipeline steps expandable",
+      "pass": true,
+      "detail": "steps=5",
+      "ts": "2026-08-09T16:23:59.471Z"
+    }
+  ]
+}

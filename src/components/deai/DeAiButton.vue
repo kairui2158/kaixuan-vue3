@@ -39,7 +39,7 @@ async function triggerDeAi() {
 
 <style scoped>
 .deai-btn {
-  background: var(--accent-gradient);
+  background: var(--accent);
   color: var(--text-on-accent);
   border: none;
   border-radius: 6px;

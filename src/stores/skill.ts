@@ -6,10 +6,19 @@ export interface Skill {
   name: string
   template: string
   category: string
+  description?: string
   executionMode: 'chain' | 'split-merge' | 'multi-step'
   outputFormat: 'json' | 'text'
   validationRules: string[]
   splitSize: number
+  // Legacy fields preserved for compatibility
+  injectMode?: string
+  bindTarget?: any
+  linkedSkillIds?: string[]
+  createdAt?: string
+  updatedAt?: string
+  injectFrequency?: string
+  injectDepth?: number
 }
 
 export const useSkillStore = defineStore('skill', () => {
@@ -24,14 +33,38 @@ export const useSkillStore = defineStore('skill', () => {
     deAiSkills.value.map(id => skills.value.find(s => s.id === id)).filter(Boolean)
   )
 
-  function loadSkills() {
-    const data = window.electronAPI.storageRead('skills')
-    if (data) {
-      skills.value = data.skills || []
-      pipelineSkills.value = data.pipelineSkills || []
-      deAiSkills.value = data.deAiSkills || []
-    }
-  }
+ function loadSkills() {
+   const data = window.electronAPI.storageRead('skills')
+   if (data) {
+      if (Array.isArray(data)) {
+        // Legacy format: raw array - set defaults for new fields
+        skills.value = data.map(function(s: any) {
+          return {
+            id: s.id,
+            name: s.name,
+            template: s.template,
+            category: s.category || 'general',
+            description: s.description || '',
+            executionMode: s.executionMode || 'chain',
+            outputFormat: s.outputFormat || 'text',
+            validationRules: s.validationRules || [],
+            splitSize: s.splitSize || 1000,
+            injectMode: s.injectMode,
+            bindTarget: s.bindTarget,
+            linkedSkillIds: s.linkedSkillIds || [],
+            createdAt: s.createdAt,
+            updatedAt: s.updatedAt,
+            injectFrequency: s.injectFrequency,
+            injectDepth: s.injectDepth
+          }
+        })
+      } else {
+        skills.value = data.skills || []
+        pipelineSkills.value = data.pipelineSkills || []
+        deAiSkills.value = data.deAiSkills || []
+      }
+   }
+ }
 
   function saveSkills() {
     window.electronAPI.storageWrite('skills', {

@@ -1,0 +1,1792 @@
+[
+  {
+    "id": "app-header",
+    "file": "App.vue",
+    "line": 3
+  },
+  {
+    "id": "agent-select",
+    "file": "App.vue",
+    "line": 8
+  },
+  {
+    "id": "model-select",
+    "file": "App.vue",
+    "line": 12
+  },
+  {
+    "id": "btn-clear",
+    "file": "App.vue",
+    "line": 16
+  },
+  {
+    "id": "panel-backdrop",
+    "file": "App.vue",
+    "line": 21
+  },
+  {
+    "id": "app-body",
+    "file": "App.vue",
+    "line": 22
+  },
+  {
+    "id": "app-main",
+    "file": "App.vue",
+    "line": 24
+  },
+  {
+    "id": "statusbar",
+    "file": "App.vue",
+    "line": 52
+  },
+  {
+    "id": "status-cursor",
+    "file": "App.vue",
+    "line": 53
+  },
+  {
+    "id": "status-connection",
+    "file": "App.vue",
+    "line": 54
+  },
+  {
+    "id": "status-model",
+    "file": "App.vue",
+    "line": 55
+  },
+  {
+    "id": "status-chapter",
+    "file": "App.vue",
+    "line": 56
+  },
+  {
+    "id": "status-words",
+    "file": "App.vue",
+    "line": 57
+  },
+  {
+    "id": "toast-container",
+    "file": "App.vue",
+    "line": 62
+  },
+  {
+    "id": "dom-toast",
+    "file": "App.vue",
+    "line": 63
+  },
+  {
+    "id": "tooltip",
+    "file": "App.vue",
+    "line": 64
+  },
+  {
+    "id": "loading-indicator",
+    "file": "App.vue",
+    "line": 65
+  },
+  {
+    "id": "loading-text",
+    "file": "App.vue",
+    "line": 66
+  },
+  {
+    "id": "inline-menu",
+    "file": "App.vue",
+    "line": 67
+  },
+  {
+    "id": "github-status-text",
+    "file": "App.vue",
+    "line": 68
+  },
+  {
+    "id": "token-bar",
+    "file": "App.vue",
+    "line": 69
+  },
+  {
+    "id": "token-count",
+    "file": "App.vue",
+    "line": 70
+  },
+  {
+    "id": "chat-panel",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 2
+  },
+  {
+    "id": "agent-select-chat",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 3
+  },
+  {
+    "id": "model-select-chat",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 3
+  },
+  {
+    "id": "chat-empty-state",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 18
+  },
+  {
+    "id": "messages-container",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 18
+  },
+  {
+    "id": "messages-list",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 18
+  },
+  {
+    "id": "btn-send",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 33
+  },
+  {
+    "id": "user-input",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 37
+  },
+  {
+    "id": "agent-info-bar",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 52
+  },
+  {
+    "id": "agent-info-model",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 52
+  },
+  {
+    "id": "agent-info-name",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 52
+  },
+  {
+    "id": "skill-area",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 52
+  },
+  {
+    "id": "skill-area-arrow",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 52
+  },
+  {
+    "id": "skill-area-content",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 52
+  },
+  {
+    "id": "skill-area-toggle",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 52
+  },
+  {
+    "id": "char-count",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 66
+  },
+  {
+    "id": "config-status",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 66
+  },
+  {
+    "id": "chat-context-bar",
+    "file": "components\\chat\\ChatPanel.vue",
+    "line": 74
+  },
+  {
+    "id": "breadcrumb-bar",
+    "file": "components\\common\\BreadcrumbBar.vue",
+    "line": 3
+  },
+  {
+    "id": "ctx-menu",
+    "file": "components\\common\\ContextMenu.vue",
+    "line": 2
+  },
+  {
+    "id": "diff-modal",
+    "file": "components\\common\\DiffModal.vue",
+    "line": 2
+  },
+  {
+    "id": "diff-count",
+    "file": "components\\common\\DiffModal.vue",
+    "line": 6
+  },
+  {
+    "id": "btn-close-diff",
+    "file": "components\\common\\DiffModal.vue",
+    "line": 7
+  },
+  {
+    "id": "btn-diff-prev",
+    "file": "components\\common\\DiffModal.vue",
+    "line": 11
+  },
+  {
+    "id": "btn-diff-next",
+    "file": "components\\common\\DiffModal.vue",
+    "line": 12
+  },
+  {
+    "id": "btn-diff-accept-all",
+    "file": "components\\common\\DiffModal.vue",
+    "line": 13
+  },
+  {
+    "id": "btn-diff-reject-all",
+    "file": "components\\common\\DiffModal.vue",
+    "line": 14
+  },
+  {
+    "id": "diff-container",
+    "file": "components\\common\\DiffModal.vue",
+    "line": 16
+  },
+  {
+    "id": "diff-modified",
+    "file": "components\\common\\DiffModal.vue",
+    "line": 19
+  },
+  {
+    "id": "diff-original",
+    "file": "components\\common\\DiffModal.vue",
+    "line": 25
+  },
+  {
+    "id": "btn-diff-apply",
+    "file": "components\\common\\DiffModal.vue",
+    "line": 32
+  },
+  {
+    "id": "btn-diff-cancel",
+    "file": "components\\common\\DiffModal.vue",
+    "line": 33
+  },
+  {
+    "id": "exit-confirm-modal",
+    "file": "components\\common\\ExitConfirmModal.vue",
+    "line": 2
+  },
+  {
+    "id": "btn-exit-cancel",
+    "file": "components\\common\\ExitConfirmModal.vue",
+    "line": 14
+  },
+  {
+    "id": "btn-exit-direct",
+    "file": "components\\common\\ExitConfirmModal.vue",
+    "line": 16
+  },
+  {
+    "id": "btn-exit-save",
+    "file": "components\\common\\ExitConfirmModal.vue",
+    "line": 17
+  },
+  {
+    "id": "memory-panel",
+    "file": "components\\common\\MemoryPanel.vue",
+    "line": 2
+  },
+  {
+    "id": "btn-close-mem",
+    "file": "components\\common\\MemoryPanel.vue",
+    "line": 5
+  },
+  {
+    "id": "mem-cat-list",
+    "file": "components\\common\\MemoryPanel.vue",
+    "line": 9
+  },
+  {
+    "id": "btn-add-mem-cat",
+    "file": "components\\common\\MemoryPanel.vue",
+    "line": 13
+  },
+  {
+    "id": "btn-add-mem",
+    "file": "components\\common\\MemoryPanel.vue",
+    "line": 18
+  },
+  {
+    "id": "mem-current-cat",
+    "file": "components\\common\\MemoryPanel.vue",
+    "line": 61
+  },
+  {
+    "id": "mem-list",
+    "file": "components\\common\\MemoryPanel.vue",
+    "line": 62
+  },
+  {
+    "id": "btn-close-outline-workspace",
+    "file": "components\\common\\OutlineWorkspace.vue",
+    "line": 6
+  },
+  {
+    "id": "btn-export-outline-md",
+    "file": "components\\common\\OutlineWorkspace.vue",
+    "line": 14
+  },
+  {
+    "id": "btn-export-outline-txt",
+    "file": "components\\common\\OutlineWorkspace.vue",
+    "line": 15
+  },
+  {
+    "id": "ow-word-count",
+    "file": "components\\common\\OutlineWorkspace.vue",
+    "line": 18
+  },
+  {
+    "id": "btn-ow-send",
+    "file": "components\\common\\OutlineWorkspace.vue",
+    "line": 35
+  },
+  {
+    "id": "btn-generate-outline-skills",
+    "file": "components\\common\\OutlineWorkspace.vue",
+    "line": 42
+  },
+  {
+    "id": "btn-ai-co-create",
+    "file": "components\\common\\OutlineWorkspace.vue",
+    "line": 43
+  },
+  {
+    "id": "ow-skill-suggestions",
+    "file": "components\\common\\OutlineWorkspace.vue",
+    "line": 44
+  },
+  {
+    "id": "ow-bound-list",
+    "file": "components\\common\\OutlineWorkspace.vue",
+    "line": 51
+  },
+  {
+    "id": "btn-import-outline",
+    "file": "components\\common\\OutlineWorkspace.vue",
+    "line": 61
+  },
+  {
+    "id": "btn-lock-outline",
+    "file": "components\\common\\OutlineWorkspace.vue",
+    "line": 63
+  },
+  {
+    "id": "outline-workspace",
+    "file": "components\\common\\OutlineWorkspace.vue",
+    "line": 72
+  },
+  {
+    "id": "outline-editor",
+    "file": "components\\common\\OutlineWorkspace.vue",
+    "line": 73
+  },
+  {
+    "id": "ow-chat-area",
+    "file": "components\\common\\OutlineWorkspace.vue",
+    "line": 74
+  },
+  {
+    "id": "ow-chat-messages",
+    "file": "components\\common\\OutlineWorkspace.vue",
+    "line": 75
+  },
+  {
+    "id": "ow-chat-input",
+    "file": "components\\common\\OutlineWorkspace.vue",
+    "line": 76
+  },
+  {
+    "id": "plugin-market-modal",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 2
+  },
+  {
+    "id": "btn-close-market",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 6
+  },
+  {
+    "id": "github-status-bar",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 9
+  },
+  {
+    "id": "btn-set-token",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 12
+  },
+  {
+    "id": "btn-token-help",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 13
+  },
+  {
+    "id": "token-input-area",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 16
+  },
+  {
+    "id": "github-token-input",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 19
+  },
+  {
+    "id": "btn-save-token",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 20
+  },
+  {
+    "id": "token-help-area",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 23
+  },
+  {
+    "id": "market-search-input",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 32
+  },
+  {
+    "id": "market-category",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 33
+  },
+  {
+    "id": "btn-market-search",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 38
+  },
+  {
+    "id": "market-sort",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 39
+  },
+  {
+    "id": "market-status",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 45
+  },
+  {
+    "id": "market-results",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 46
+  },
+  {
+    "id": "market-results-paginated",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 46
+  },
+  {
+    "id": "market-pagination",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 64
+  },
+  {
+    "id": "btn-next-page",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 65
+  },
+  {
+    "id": "btn-prev-page",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 65
+  },
+  {
+    "id": "page-info",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 66
+  },
+  {
+    "id": "github-status-text",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 74
+  },
+  {
+    "id": "token-bar",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 75
+  },
+  {
+    "id": "token-count",
+    "file": "components\\common\\PluginMarket.vue",
+    "line": 76
+  },
+  {
+    "id": "new-project-modal",
+    "file": "components\\dashboard\\DashboardModal.vue",
+    "line": 3
+  },
+  {
+    "id": "project-modal",
+    "file": "components\\dashboard\\DashboardModal.vue",
+    "line": 30
+  },
+  {
+    "id": "project-list",
+    "file": "components\\dashboard\\DashboardModal.vue",
+    "line": 31
+  },
+  {
+    "id": "btn-new-project",
+    "file": "components\\dashboard\\DashboardModal.vue",
+    "line": 32
+  },
+  {
+    "id": "btn-create-project",
+    "file": "components\\dashboard\\DashboardModal.vue",
+    "line": 33
+  },
+  {
+    "id": "npm-name",
+    "file": "components\\dashboard\\DashboardModal.vue",
+    "line": 34
+  },
+  {
+    "id": "npm-outline",
+    "file": "components\\dashboard\\DashboardModal.vue",
+    "line": 35
+  },
+  {
+    "id": "volume-modal",
+    "file": "components\\dashboard\\DashboardModal.vue",
+    "line": 36
+  },
+  {
+    "id": "vm-name",
+    "file": "components\\dashboard\\DashboardModal.vue",
+    "line": 37
+  },
+  {
+    "id": "vm-outline",
+    "file": "components\\dashboard\\DashboardModal.vue",
+    "line": 38
+  },
+  {
+    "id": "vm-title",
+    "file": "components\\dashboard\\DashboardModal.vue",
+    "line": 39
+  },
+  {
+    "id": "vm-chapter-count",
+    "file": "components\\dashboard\\DashboardModal.vue",
+    "line": 40
+  },
+  {
+    "id": "vm-chapter-count-group",
+    "file": "components\\dashboard\\DashboardModal.vue",
+    "line": 41
+  },
+  {
+    "id": "btn-save-volume",
+    "file": "components\\dashboard\\DashboardModal.vue",
+    "line": 42
+  },
+  {
+    "id": "btn-save-bind",
+    "file": "components\\dashboard\\DashboardModal.vue",
+    "line": 43
+  },
+  {
+    "id": "btn-memory",
+    "file": "components\\dashboard\\DashboardModal.vue",
+    "line": 44
+  },
+  {
+    "id": "editor-panel",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 2
+  },
+  {
+    "id": "btn-ai-names",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 3
+  },
+  {
+    "id": "btn-batch-review",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 3
+  },
+  {
+    "id": "btn-export",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 3
+  },
+  {
+    "id": "btn-generate-content",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 3
+  },
+  {
+    "id": "btn-redo",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 3
+  },
+  {
+    "id": "btn-revise",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 3
+  },
+  {
+    "id": "btn-save-editor",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 3
+  },
+  {
+    "id": "btn-timeline",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 3
+  },
+  {
+    "id": "btn-undo",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 3
+  },
+  {
+    "id": "btn-writing-rules",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 3
+  },
+  {
+    "id": "editor-mode-badge",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 3
+  },
+  {
+    "id": "editor-title",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 3
+  },
+  {
+    "id": "export-dropdown",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 3
+  },
+  {
+    "id": "word-count",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 3
+  },
+  {
+    "id": "btn-de-ai",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 27
+  },
+  {
+    "id": "find-input",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 57
+  },
+  {
+    "id": "btn-find-next",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 59
+  },
+  {
+    "id": "btn-find-prev",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 60
+  },
+  {
+    "id": "btn-replace-one",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 61
+  },
+  {
+    "id": "btn-replace-all",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 62
+  },
+  {
+    "id": "btn-find-close",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 63
+  },
+  {
+    "id": "editor-content",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 66
+  },
+  {
+    "id": "find-replace-bar",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 78
+  },
+  {
+    "id": "find-count",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 79
+  },
+  {
+    "id": "replace-input",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 80
+  },
+  {
+    "id": "resizer-chapter",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 81
+  },
+  {
+    "id": "resizer-editor-chat",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 82
+  },
+  {
+    "id": "bookid",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 206
+  },
+  {
+    "id": "chapter1",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 206
+  },
+  {
+    "id": "ncx",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 206
+  },
+  {
+    "id": "np1",
+    "file": "components\\editor\\EditorPanel.vue",
+    "line": 207
+  },
+  {
+    "id": "pipeline-panel",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 2
+  },
+  {
+    "id": "btn-close-pl",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 4
+  },
+  {
+    "id": "pl-s1-skill",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 5
+  },
+  {
+    "id": "pl-s1-skills-list",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 5
+  },
+  {
+    "id": "pl-s2-skill",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 5
+  },
+  {
+    "id": "pl-s2-skills-list",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 5
+  },
+  {
+    "id": "pl-s3-skill",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 5
+  },
+  {
+    "id": "pl-s3-skills-list",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 5
+  },
+  {
+    "id": "pl-s4-skill",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 5
+  },
+  {
+    "id": "pl-s4-skills-list",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 5
+  },
+  {
+    "id": "pl-s5-skill",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 5
+  },
+  {
+    "id": "pl-s5-skills-list",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 5
+  },
+  {
+    "id": "pl-steps",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 5
+  },
+  {
+    "id": "pl-status-1",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 5
+  },
+  {
+    "id": "pl-agent-select",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 13
+  },
+  {
+    "id": "pl-s1-add-skill",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 28
+  },
+  {
+    "id": "pl-step-1-content",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 41
+  },
+  {
+    "id": "pl-outline",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 43
+  },
+  {
+    "id": "pl-step-2-content",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 50
+  },
+  {
+    "id": "pl-settings-result",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 52
+  },
+  {
+    "id": "pl-bound-settings-list",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 52
+  },
+  {
+    "id": "pl-step-3-content",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 66
+  },
+  {
+    "id": "pl-word-count",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 68
+  },
+  {
+    "id": "pl-book-word-count",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 68
+  },
+  {
+    "id": "pl-volume-count",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 68
+  },
+  {
+    "id": "pl-volume-result",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 69
+  },
+  {
+    "id": "pl-vol-list",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 69
+  },
+  {
+    "id": "pl-volume-cards",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 70
+  },
+  {
+    "id": "pl-vol-confirm-hint",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 77
+  },
+  {
+    "id": "pl-step-4-content",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 84
+  },
+  {
+    "id": "pl-text-filter-toggle",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 86
+  },
+  {
+    "id": "pl-ch-gen-bar",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 86
+  },
+  {
+    "id": "pl-chapter-wordcount",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 86
+  },
+  {
+    "id": "pl-chapter-select",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 86
+  },
+  {
+    "id": "pl-ch-est-count",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 86
+  },
+  {
+    "id": "pl-ch-cards-area",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 87
+  },
+  {
+    "id": "pl-chapter-cards",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 87
+  },
+  {
+    "id": "pl-ch-empty-hint",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 87
+  },
+  {
+    "id": "pl-step-5-content",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 97
+  },
+  {
+    "id": "pl-context-summary",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 99
+  },
+  {
+    "id": "pl-chapter-result",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 100
+  },
+  {
+    "id": "pl-body-result",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 100
+  },
+  {
+    "id": "btn-pl-autogen-chapters",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 112
+  },
+  {
+    "id": "btn-pl-autogen-volumes",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 113
+  },
+  {
+    "id": "btn-pl-confirm-body",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 114
+  },
+  {
+    "id": "btn-pl-confirm-chapters",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 115
+  },
+  {
+    "id": "btn-pl-confirm-outline",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 116
+  },
+  {
+    "id": "btn-pl-confirm-settings",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 117
+  },
+  {
+    "id": "btn-pl-continue-volumes",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 118
+  },
+  {
+    "id": "btn-pl-create-volumes",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 119
+  },
+  {
+    "id": "btn-pl-gen-body",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 120
+  },
+  {
+    "id": "btn-pl-gen-chapters",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 121
+  },
+  {
+    "id": "btn-pl-gen-settings",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 122
+  },
+  {
+    "id": "btn-pl-gen-single-volume",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 123
+  },
+  {
+    "id": "btn-pl-gen-volumes",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 124
+  },
+  {
+    "id": "btn-pl-insert-body",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 125
+  },
+  {
+    "id": "btn-pl-load-outline",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 126
+  },
+  {
+    "id": "btn-pl-save-settings",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 127
+  },
+  {
+    "id": "pl-chapter-batchsize",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 128
+  },
+  {
+    "id": "pl-s2-add-skill",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 129
+  },
+  {
+    "id": "pl-s3-add-skill",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 130
+  },
+  {
+    "id": "pl-s4-add-skill",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 131
+  },
+  {
+    "id": "pl-s5-add-skill",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 132
+  },
+  {
+    "id": "pl-status-2",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 133
+  },
+  {
+    "id": "pl-status-3",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 134
+  },
+  {
+    "id": "pl-status-4",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 135
+  },
+  {
+    "id": "pl-status-5",
+    "file": "components\\pipeline\\PipelinePanel.vue",
+    "line": 136
+  },
+  {
+    "id": "agent-list",
+    "file": "components\\settings\\AgentSettings.vue",
+    "line": 4
+  },
+  {
+    "id": "agent-form",
+    "file": "components\\settings\\AgentSettings.vue",
+    "line": 19
+  },
+  {
+    "id": "agent-form-title",
+    "file": "components\\settings\\AgentSettings.vue",
+    "line": 20
+  },
+  {
+    "id": "af-name",
+    "file": "components\\settings\\AgentSettings.vue",
+    "line": 23
+  },
+  {
+    "id": "af-desc",
+    "file": "components\\settings\\AgentSettings.vue",
+    "line": 25
+  },
+  {
+    "id": "af-model",
+    "file": "components\\settings\\AgentSettings.vue",
+    "line": 27
+  },
+  {
+    "id": "af-provider",
+    "file": "components\\settings\\AgentSettings.vue",
+    "line": 29
+  },
+  {
+    "id": "af-temp-val",
+    "file": "components\\settings\\AgentSettings.vue",
+    "line": 33
+  },
+  {
+    "id": "af-temperature",
+    "file": "components\\settings\\AgentSettings.vue",
+    "line": 34
+  },
+  {
+    "id": "af-max-tokens",
+    "file": "components\\settings\\AgentSettings.vue",
+    "line": 36
+  },
+  {
+    "id": "af-prompt",
+    "file": "components\\settings\\AgentSettings.vue",
+    "line": 38
+  },
+  {
+    "id": "btn-cancel-agent",
+    "file": "components\\settings\\AgentSettings.vue",
+    "line": 41
+  },
+  {
+    "id": "btn-save-agent",
+    "file": "components\\settings\\AgentSettings.vue",
+    "line": 42
+  },
+  {
+    "id": "btn-add-agent",
+    "file": "components\\settings\\AgentSettings.vue",
+    "line": 47
+  },
+  {
+    "id": "provider-list-view",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 6
+  },
+  {
+    "id": "provider-card-list",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 7
+  },
+  {
+    "id": "btn-provider-back",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 53
+  },
+  {
+    "id": "provider-edit-title",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 54
+  },
+  {
+    "id": "cfg-provider-name",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 59
+  },
+  {
+    "id": "cfg-base-url",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 63
+  },
+  {
+    "id": "cfg-api-key",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 69
+  },
+  {
+    "id": "btn-toggle-key",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 70
+  },
+  {
+    "id": "btn-fetch-models",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 77
+  },
+  {
+    "id": "provider-model-list",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 91
+  },
+  {
+    "id": "cfg-temperature",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 104
+  },
+  {
+    "id": "cfg-temperature-val",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 105
+  },
+  {
+    "id": "cfg-max-tokens",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 110
+  },
+  {
+    "id": "cfg-provider-purpose",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 114
+  },
+  {
+    "id": "cfg-stream-mode",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 131
+  },
+  {
+    "id": "cfg-system-prompt",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 132
+  },
+  {
+    "id": "model-datalist",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 133
+  },
+  {
+    "id": "provider-conn-status",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 134
+  },
+  {
+    "id": "provider-edit-view",
+    "file": "components\\settings\\ApiSettings.vue",
+    "line": 135
+  },
+  {
+    "id": "cfg-editor-font-size",
+    "file": "components\\settings\\AppearanceSettings.vue",
+    "line": 6
+  },
+  {
+    "id": "cfg-theme",
+    "file": "components\\settings\\AppearanceSettings.vue",
+    "line": 33
+  },
+  {
+    "id": "btn-save-appearance",
+    "file": "components\\settings\\AppearanceSettings.vue",
+    "line": 71
+  },
+  {
+    "id": "cfg-font-size",
+    "file": "components\\settings\\AppearanceSettings.vue",
+    "line": 76
+  },
+  {
+    "id": "cfg-font-size-val",
+    "file": "components\\settings\\AppearanceSettings.vue",
+    "line": 77
+  },
+  {
+    "id": "cfg-editor-font-size-val",
+    "file": "components\\settings\\AppearanceSettings.vue",
+    "line": 78
+  },
+  {
+    "id": "deai-progress-modal",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 2
+  },
+  {
+    "id": "deai-card-chain",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 86
+  },
+  {
+    "id": "deai-card-multi-step",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 86
+  },
+  {
+    "id": "deai-card-split-merge",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 86
+  },
+  {
+    "id": "deai-text-type",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 92
+  },
+  {
+    "id": "btn-save-deai",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 96
+  },
+  {
+    "id": "deai-skills-list",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 98
+  },
+  {
+    "id": "deai-skills-list-ms",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 98
+  },
+  {
+    "id": "deai-agent-select",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 106
+  },
+  {
+    "id": "deai-split-size",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 116
+  },
+  {
+    "id": "deai-agent-select-sm",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 134
+  },
+  {
+    "id": "deai-split-size-ms",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 145
+  },
+  {
+    "id": "btn-deai-add-skill",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 154
+  },
+  {
+    "id": "deai-hardrule-enabled",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 179
+  },
+  {
+    "id": "deai-hardrules-list",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 180
+  },
+  {
+    "id": "deai-verify-provider-status",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 197
+  },
+  {
+    "id": "deai-verify-provider-name",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 199
+  },
+  {
+    "id": "deai-verify-provider-hint",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 200
+  },
+  {
+    "id": "btn-deai-cancel",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 206
+  },
+  {
+    "id": "deai-flow-preview",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 212
+  },
+  {
+    "id": "deai-progress-fill",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 213
+  },
+  {
+    "id": "deai-progress-percent",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 214
+  },
+  {
+    "id": "deai-progress-step",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 215
+  },
+  {
+    "id": "deai-step-list",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 216
+  },
+  {
+    "id": "deai-mode-select",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 217
+  },
+  {
+    "id": "deai-skill-select",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 218
+  },
+  {
+    "id": "deai-skill-select-ms",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 219
+  },
+  {
+    "id": "deai-skill-select-sm",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 220
+  },
+  {
+    "id": "deai-agent-select-ms",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 221
+  },
+  {
+    "id": "btn-deai-add-skill-ms",
+    "file": "components\\settings\\DeAiSettings.vue",
+    "line": 222
+  },
+  {
+    "id": "btn-diag-export",
+    "file": "components\\settings\\DiagLogPanel.vue",
+    "line": 5
+  },
+  {
+    "id": "btn-diag-refresh",
+    "file": "components\\settings\\DiagLogPanel.vue",
+    "line": 5
+  },
+  {
+    "id": "btn-diag-clear",
+    "file": "components\\settings\\DiagLogPanel.vue",
+    "line": 7
+  },
+  {
+    "id": "diag-log-list",
+    "file": "components\\settings\\DiagLogPanel.vue",
+    "line": 13
+  },
+  {
+    "id": "diag-enabled",
+    "file": "components\\settings\\DiagLogPanel.vue",
+    "line": 24
+  },
+  {
+    "id": "diag-level",
+    "file": "components\\settings\\DiagLogPanel.vue",
+    "line": 25
+  },
+  {
+    "id": "diag-stats",
+    "file": "components\\settings\\DiagLogPanel.vue",
+    "line": 26
+  },
+  {
+    "id": "btn-close-settings",
+    "file": "components\\settings\\SettingsModal.vue",
+    "line": 6
+  },
+  {
+    "id": "tab-api",
+    "file": "components\\settings\\SettingsModal.vue",
+    "line": 8
+  },
+  {
+    "id": "settings-modal",
+    "file": "components\\settings\\SettingsModal.vue",
+    "line": 9
+  },
+  {
+    "id": "btn-test-connection",
+    "file": "components\\settings\\SettingsModal.vue",
+    "line": 28
+  },
+  {
+    "id": "btn-save-settings",
+    "file": "components\\settings\\SettingsModal.vue",
+    "line": 29
+  },
+  {
+    "id": "tab-skills",
+    "file": "components\\settings\\SettingsModal.vue",
+    "line": 35
+  },
+  {
+    "id": "tab-agents",
+    "file": "components\\settings\\SettingsModal.vue",
+    "line": 36
+  },
+  {
+    "id": "tab-appearance",
+    "file": "components\\settings\\SettingsModal.vue",
+    "line": 37
+  },
+  {
+    "id": "tab-deai",
+    "file": "components\\settings\\SettingsModal.vue",
+    "line": 38
+  },
+  {
+    "id": "tab-diag",
+    "file": "components\\settings\\SettingsModal.vue",
+    "line": 39
+  },
+  {
+    "id": "btn-export-data",
+    "file": "components\\settings\\SettingsModal.vue",
+    "line": 40
+  },
+  {
+    "id": "btn-import-data",
+    "file": "components\\settings\\SettingsModal.vue",
+    "line": 41
+  },
+  {
+    "id": "sbm-skill-list",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 2
+  },
+  {
+    "id": "btn-add-skill",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 40
+  },
+  {
+    "id": "skill-bind-modal",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 42
+  },
+  {
+    "id": "sf-name",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 44
+  },
+  {
+    "id": "sf-desc",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 47
+  },
+  {
+    "id": "sf-inject-mode",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 48
+  },
+  {
+    "id": "sf-depth",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 60
+  },
+  {
+    "id": "sf-bind-type",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 61
+  },
+  {
+    "id": "sf-linked-list",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 67
+  },
+  {
+    "id": "sf-template",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 81
+  },
+  {
+    "id": "sf-template-preview",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 82
+  },
+  {
+    "id": "btn-cancel-skill",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 95
+  },
+  {
+    "id": "btn-save-skill",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 95
+  },
+  {
+    "id": "btn-save-skill-binding",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 97
+  },
+  {
+    "id": "skill-list",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 104
+  },
+  {
+    "id": "skill-list-active",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 105
+  },
+  {
+    "id": "skill-form",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 106
+  },
+  {
+    "id": "skill-form-title",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 107
+  },
+  {
+    "id": "sf-bind-id",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 108
+  },
+  {
+    "id": "sf-bind-id-group",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 109
+  },
+  {
+    "id": "sf-category",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 110
+  },
+  {
+    "id": "sf-frequency",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 111
+  },
+  {
+    "id": "sbm-title",
+    "file": "components\\settings\\SkillSettings.vue",
+    "line": 112
+  },
+  {
+    "id": "settings-collection-panel",
+    "file": "components\\settings-collection\\ScPanel.vue",
+    "line": 2
+  },
+  {
+    "id": "btn-close-sc",
+    "file": "components\\settings-collection\\ScPanel.vue",
+    "line": 6
+  },
+  {
+    "id": "btn-add-category",
+    "file": "components\\settings-collection\\ScPanel.vue",
+    "line": 10
+  },
+  {
+    "id": "sc-current-cat",
+    "file": "components\\settings-collection\\ScPanel.vue",
+    "line": 18
+  },
+  {
+    "id": "btn-add-item",
+    "file": "components\\settings-collection\\ScPanel.vue",
+    "line": 19
+  },
+  {
+    "id": "btn-ai-gen-item",
+    "file": "components\\settings-collection\\ScPanel.vue",
+    "line": 20
+  },
+  {
+    "id": "sc-detail-area",
+    "file": "components\\settings-collection\\ScPanel.vue",
+    "line": 30
+  },
+  {
+    "id": "sc-detail-title",
+    "file": "components\\settings-collection\\ScPanel.vue",
+    "line": 32
+  },
+  {
+    "id": "sc-detail-content",
+    "file": "components\\settings-collection\\ScPanel.vue",
+    "line": 37
+  },
+  {
+    "id": "sc-bind-modal",
+    "file": "components\\settings-collection\\ScPanel.vue",
+    "line": 59
+  },
+  {
+    "id": "btn-close-sc-detail",
+    "file": "components\\settings-collection\\ScPanel.vue",
+    "line": 74
+  },
+  {
+    "id": "sc-categories",
+    "file": "components\\settings-collection\\ScPanel.vue",
+    "line": 75
+  },
+  {
+    "id": "sc-items-list",
+    "file": "components\\settings-collection\\ScPanel.vue",
+    "line": 76
+  },
+  {
+    "id": "sc-bind-tree",
+    "file": "components\\settings-collection\\ScPanel.vue",
+    "line": 77
+  },
+  {
+    "id": "sc-bind-item-name",
+    "file": "components\\settings-collection\\ScPanel.vue",
+    "line": 78
+  },
+  {
+    "id": "chapter-tree",
+    "file": "components\\sidebar\\ChapterTree.vue",
+    "line": 2
+  },
+  {
+    "id": "btn-open-project",
+    "file": "components\\sidebar\\ChapterTree.vue",
+    "line": 3
+  },
+  {
+    "id": "btn-tree-gen",
+    "file": "components\\sidebar\\ChapterTree.vue",
+    "line": 3
+  },
+  {
+    "id": "current-project-name",
+    "file": "components\\sidebar\\ChapterTree.vue",
+    "line": 3
+  },
+  {
+    "id": "tree-body",
+    "file": "components\\sidebar\\ChapterTree.vue",
+    "line": 10
+  },
+  {
+    "id": "app-sidebar",
+    "file": "components\\sidebar\\SidebarNav.vue",
+    "line": 2
+  },
+  {
+    "id": "btn-outline-workspace",
+    "file": "components\\sidebar\\SidebarNav.vue",
+    "line": 7
+  },
+  {
+    "id": "btn-pipeline",
+    "file": "components\\sidebar\\SidebarNav.vue",
+    "line": 7
+  },
+  {
+    "id": "btn-plugin-market",
+    "file": "components\\sidebar\\SidebarNav.vue",
+    "line": 7
+  },
+  {
+    "id": "btn-settings",
+    "file": "components\\sidebar\\SidebarNav.vue",
+    "line": 7
+  },
+  {
+    "id": "btn-settings-collection",
+    "file": "components\\sidebar\\SidebarNav.vue",
+    "line": 7
+  },
+  {
+    "id": "theme-toggle-btn",
+    "file": "components\\sidebar\\SidebarNav.vue",
+    "line": 7
+  },
+  {
+    "id": "btn-dashboard",
+    "file": "components\\sidebar\\SidebarNav.vue",
+    "line": 15
+  }
+]

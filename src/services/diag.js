@@ -258,3 +258,6 @@ function diagRead(date) { return DiagLogger.read(date); }
 function diagClear() { return DiagLogger.clear(); }
 
 if (typeof module !== "undefined" && module.exports) module.exports = DiagLogger;
+
+// ESM export for Vite
+export { DiagLogger };

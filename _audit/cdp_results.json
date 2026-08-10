@@ -1,0 +1,226 @@
+{
+  "timestamp": "2026-08-10T09:54:11.799Z",
+  "summary": {
+    "total": 36,
+    "pass": 16,
+    "fail": 20,
+    "passRate": "44.4%"
+  },
+  "checks": [
+    {
+      "name": "app-header height 48px",
+      "status": "PASS",
+      "detail": "got: 48px"
+    },
+    {
+      "name": "no horizontal overflow",
+      "status": "PASS",
+      "detail": "got: no-overflow"
+    },
+    {
+      "name": "has resizers",
+      "status": "PASS",
+      "detail": "count: 2"
+    },
+    {
+      "name": "DOM: Editor Panel (.editor-panel)",
+      "status": "PASS",
+      "detail": "found"
+    },
+    {
+      "name": "DOM: Chat Panel (.chat-panel)",
+      "status": "PASS",
+      "detail": "found"
+    },
+    {
+      "name": "DOM: Chapter Tree (.chapter-tree)",
+      "status": "PASS",
+      "detail": "found"
+    },
+    {
+      "name": "DOM: App Header (.app-header)",
+      "status": "PASS",
+      "detail": "found"
+    },
+    {
+      "name": "DOM: Sidebar Nav (.sidebar-nav)",
+      "status": "PASS",
+      "detail": "found"
+    },
+    {
+      "name": "DOM: #app root (#app)",
+      "status": "PASS",
+      "detail": "found"
+    },
+    {
+      "name": "DOM: Main Layout (.main-layout)",
+      "status": "FAIL",
+      "detail": "NOT found"
+    },
+    {
+      "name": "DOM: Editor Area (.editor-area)",
+      "status": "FAIL",
+      "detail": "NOT found"
+    },
+    {
+      "name": "electronAPI exists",
+      "status": "PASS",
+      "detail": "yes"
+    },
+    {
+      "name": "electronAPI.saveContent is function",
+      "status": "FAIL",
+      "detail": "type: undefined"
+    },
+    {
+      "name": "electronAPI.loadContent is function",
+      "status": "FAIL",
+      "detail": "type: undefined"
+    },
+    {
+      "name": "electronAPI.showSaveDialog is function",
+      "status": "FAIL",
+      "detail": "type: undefined"
+    },
+    {
+      "name": "electronAPI.showOpenDialog is function",
+      "status": "FAIL",
+      "detail": "type: undefined"
+    },
+    {
+      "name": "electronAPI.readFile is function",
+      "status": "FAIL",
+      "detail": "type: undefined"
+    },
+    {
+      "name": "electronAPI.writeFile is function",
+      "status": "FAIL",
+      "detail": "type: undefined"
+    },
+    {
+      "name": "electronAPI.onMenuAction is function",
+      "status": "FAIL",
+      "detail": "type: undefined"
+    },
+    {
+      "name": "electronAPI.getAppVersion is function",
+      "status": "FAIL",
+      "detail": "type: undefined"
+    },
+    {
+      "name": "electronAPI.selectDirectory is function",
+      "status": "FAIL",
+      "detail": "type: undefined"
+    },
+    {
+      "name": "electronAPI.exportContent is function",
+      "status": "FAIL",
+      "detail": "type: undefined"
+    },
+    {
+      "name": "electronAPI.importFile is function",
+      "status": "FAIL",
+      "detail": "type: undefined"
+    },
+    {
+      "name": "settings button found",
+      "status": "FAIL",
+      "detail": "got: not-found"
+    },
+    {
+      "name": "outline button found",
+      "status": "PASS",
+      "detail": "got: found:26"
+    },
+    {
+      "name": "outline overlay visible",
+      "status": "FAIL",
+      "detail": "NO"
+    },
+    {
+      "name": "outline textarea exists",
+      "status": "FAIL",
+      "detail": "NO"
+    },
+    {
+      "name": "editor still in DOM after outline open",
+      "status": "PASS",
+      "detail": "yes"
+    },
+    {
+      "name": "collection button found",
+      "status": "PASS",
+      "detail": "got: found:26"
+    },
+    {
+      "name": "collection overlay visible",
+      "status": "FAIL",
+      "detail": "NO"
+    },
+    {
+      "name": "collection sidebar exists",
+      "status": "FAIL",
+      "detail": "NO"
+    },
+    {
+      "name": "collection main exists",
+      "status": "FAIL",
+      "detail": "NO"
+    },
+    {
+      "name": "editor still in DOM after collection open",
+      "status": "PASS",
+      "detail": "yes"
+    },
+    {
+      "name": "no text overflow in leaf elements",
+      "status": "FAIL",
+      "detail": "got: 1 overflow: SPAN.project-name sw=60 cw=0"
+    },
+    {
+      "name": "no console errors",
+      "status": "PASS",
+      "detail": "clean"
+    },
+    {
+      "name": "Vue app mounted",
+      "status": "PASS",
+      "detail": "v3.5.41"
+    }
+  ],
+  "cdpLogs": [
+    {
+      "ts": "2026-08-10T09:54:04.413Z",
+      "method": "Page.reload",
+      "params": {
+        "ignoreCache": true
+      },
+      "result": "ok"
+    }
+  ],
+  "indexedDB": [],
+  "localStorage": {},
+  "domStructure": {
+    "appChildren": [
+      "DIV.app-container",
+      "DIV.",
+      "DIV.",
+      "DIV.",
+      "DIV.",
+      "DIV.",
+      "DIV.",
+      "DIV.",
+      "DIV.",
+      "DIV."
+    ],
+    "inputCount": 0,
+    "textareaCount": 2,
+    "buttonCount": 26,
+    "totalElements": 221
+  },
+  "vueState": {
+    "hasVue": true,
+    "version": "3.5.41"
+  },
+  "consoleErrors": []
+}

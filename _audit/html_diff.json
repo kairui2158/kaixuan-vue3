@@ -1,0 +1,14 @@
+{
+  "oldCount": 351,
+  "newCount": 358,
+  "missingCount": 0,
+  "extraCount": 4,
+  "missing": [],
+  "extra": [
+    "bookid",
+    "chapter1",
+    "ncx",
+    "np1"
+  ],
+  "missingCtx": []
+}

@@ -1,0 +1,30 @@
+---
+description: Agent Checkpoint — save/resume AI coding work memory via acp CLI
+globs:
+alwaysApply: true
+---
+
+# Agent Checkpoint (Cursor)
+
+Use the `acp` CLI for work memory. Do not invent storage formats.
+
+## Triggers
+
+- User asks to checkpoint / save progress / resume / 保存进度
+- Before summarizing away details, clearing chat, or switching to another tool
+- After important design decisions (record why + rejected options)
+- Returning to a project after time away: `acp memory` then `acp resume`
+
+## Commands
+
+```bash
+acp init
+acp checkpoint --tool cursor --goal "..." --task "..." --decision "choice|why|rejected" --next "..."
+acp checkpoint --task "..." --next "..."   # incremental
+acp resume
+acp resume --copy
+acp memory
+acp list
+```
+
+Paste `acp resume` output into a new chat to continue. Honor decisions and constraints; do not redo completed tasks.

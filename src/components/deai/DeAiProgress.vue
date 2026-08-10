@@ -8,15 +8,23 @@
       <div class="deai-progress-bar">
         <div class="deai-progress-fill" :style="{ width: deAiStore.progress + '%' }"></div>
       </div>
-      <div class="deai-progress-step">{{ deAiStore.currentStep }}</div>
-      <div class="deai-flow-preview">
-        <span
+      <div class="deai-progress-info">
+        <span class="deai-progress-step">{{ deAiStore.currentStep }}</span>
+      </div>
+      <!-- step list with dot indicators -->
+      <div class="deai-step-list">
+        <div
           v-for="(step, i) in deAiStore.flowPreview"
           :key="i"
-          class="flow-step"
-          :class="{ active: isStepActive(i), done: isStepDone(i) }"
-        >{{ step }}</span>
+          class="deai-step-item"
+          :class="getStepClass(i)"
+        >
+          <span class="deai-step-dot"></span>
+          <span class="deai-step-label">{{ step }}</span>
+          <span class="deai-step-status">{{ getStepStatusText(i) }}</span>
+        </div>
       </div>
+      <button class="btn-secondary" @click="cancelDeAi">取消</button>
     </div>
   </div>
 </template>
@@ -26,16 +34,28 @@ import { useDeAiStore } from '../../stores/deai'
 
 const deAiStore = useDeAiStore()
 
-function isStepActive(index: number): boolean {
-  const total = deAiStore.flowPreview.length
-  const currentIdx = Math.floor((deAiStore.progress / 100) * total)
-  return index === currentIdx
+function cancelDeAi() {
+  window.dispatchEvent(new CustomEvent('deai-cancel'))
 }
 
-function isStepDone(index: number): boolean {
+function getCurrentIdx(): number {
   const total = deAiStore.flowPreview.length
-  const currentIdx = Math.floor((deAiStore.progress / 100) * total)
-  return index < currentIdx
+  return Math.floor((deAiStore.progress / 100) * total)
+}
+
+function getStepClass(index: number): string {
+  if (deAiStore.progress === 100) return 'done'
+  const currentIdx = getCurrentIdx()
+  if (index < currentIdx) return 'done'
+  if (index === currentIdx && deAiStore.isProcessing) return 'active'
+  return 'pending'
+}
+
+function getStepStatusText(index: number): string {
+  const cls = getStepClass(index)
+  if (cls === 'done') return '完成'
+  if (cls === 'active') return '处理中...'
+  return '等待'
 }
 </script>
 
@@ -43,70 +63,133 @@ function isStepDone(index: number): boolean {
 .deai-progress-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: var(--bg-overlay);
+  background: var(--bg-overlay, rgba(0,0,0,0.5));
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 }
 .deai-progress-modal {
-  width: 480px;
-  background: var(--bg-tertiary);
+  width: min(480px, 90vw);
+  background: var(--bg-elevated, var(--bg-tertiary));
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-md, 12px);
   padding: 24px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-lg, 0 8px 32px rgba(0,0,0,0.3));
 }
 .deai-progress-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-  font-size: 16px;
-  font-weight: 600;
+  margin-bottom: var(--space-md, 16px);
+  font-size: var(--font-size-lg, 16px);
+  font-weight: var(--fw-semibold, 600);
 }
 .deai-percent {
+  font-size: var(--font-size-lg, 16px);
+  font-weight: var(--fw-semibold, 600);
   color: var(--accent);
 }
+/* progress bar */
 .deai-progress-bar {
   width: 100%;
   height: 8px;
-  background: var(--bg-input);
-  border-radius: 4px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
   overflow: hidden;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-sm);
 }
 .deai-progress-fill {
   height: 100%;
+  width: 0%;
   background: var(--accent-gradient);
+  border-radius: var(--radius-sm);
   transition: width 0.3s ease;
 }
-.deai-progress-step {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-bottom: 16px;
-}
-.deai-flow-preview {
+.deai-progress-info {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md, 16px);
 }
-.flow-step {
-  padding: 3px 10px;
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 11px;
+.deai-progress-step {
+  font-size: var(--font-size-sm, 13px);
+  color: var(--text-secondary);
+}
+/* step list with dot indicators - matches old arch style.css L7370-7385 */
+.deai-step-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs, 4px);
+  margin-bottom: var(--space-md, 16px);
+}
+.deai-step-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm, 8px);
+  padding: var(--space-xs, 4px) var(--space-sm, 8px);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm, 13px);
+}
+.deai-step-item .deai-step-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid var(--border-color);
+  background: transparent;
+}
+.deai-step-item .deai-step-label {
+  flex: 1;
+  color: var(--text-secondary);
+}
+.deai-step-item .deai-step-status {
+  font-size: var(--font-size-xs, 12px);
   color: var(--text-muted);
 }
-.flow-step.active {
-  background: var(--accent);
-  color: var(--text-on-accent);
-  border-color: var(--accent);
+/* pending state */
+.deai-step-item.pending .deai-step-dot {
+  border-color: var(--border-color);
+  background: transparent;
 }
-.flow-step.done {
-  background: var(--success);
-  color: var(--text-on-accent);
+/* active state - pulse animation */
+.deai-step-item.active .deai-step-dot {
+  border-color: var(--accent);
+  background: var(--accent);
+  animation: deai-pulse 1s ease-in-out infinite;
+}
+.deai-step-item.active .deai-step-label {
+  color: var(--text-primary);
+  font-weight: var(--fw-medium, 500);
+}
+.deai-step-item.active .deai-step-status {
+  color: var(--accent);
+}
+/* done state */
+.deai-step-item.done .deai-step-dot {
   border-color: var(--success);
+  background: var(--success);
+}
+.deai-step-item.done .deai-step-label {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+.deai-step-item.done .deai-step-status {
+  color: var(--success);
+}
+/* failed state */
+.deai-step-item.failed .deai-step-dot {
+  border-color: var(--danger);
+  background: var(--danger);
+}
+.deai-step-item.failed .deai-step-label {
+  color: var(--danger);
+}
+.deai-step-item.failed .deai-step-status {
+  color: var(--danger);
+}
+@keyframes deai-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 </style>

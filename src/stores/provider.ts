@@ -11,6 +11,8 @@ export interface Provider {
   temperature: number
   maxTokens: number
   purpose: 'generate' | 'verify'
+  streamMode?: boolean
+  systemPrompt?: string
 }
 
 export const useProviderStore = defineStore('provider', () => {
@@ -25,22 +27,34 @@ export const useProviderStore = defineStore('provider', () => {
     providers.value.find(p => p.id === verifyProvider.value)
   )
 
-  function loadProviders() {
-    const data = window.electronAPI.storageRead('providers')
-    if (data) {
-      providers.value = data.providers || []
-      generateProvider.value = data.generateProvider || null
-      verifyProvider.value = data.verifyProvider || null
-    }
-  }
+ function loadProviders() {
+   const data = window.electronAPI.storageRead('providers')
+   if (data) {
+      if (Array.isArray(data)) {
+        // Legacy format: raw array with purpose field on each provider
+        providers.value = data
+        // Auto-set generateProvider/verifyProvider from purpose field
+        var gen = data.find(function(p) { return p.purpose === 'generate' })
+        var ver = data.find(function(p) { return p.purpose === 'verify' })
+        if (gen) generateProvider.value = gen.id
+        if (ver) verifyProvider.value = ver.id
+        // Fallback: if no purpose fields at all, set first as generate
+        if (!gen && !ver && data.length > 0) generateProvider.value = data[0].id
+      } else {
+        providers.value = data.providers || []
+        generateProvider.value = data.generateProvider || null
+        verifyProvider.value = data.verifyProvider || null
+      }
+   }
+ }
 
-  function saveProviders() {
-    window.electronAPI.storageWrite('providers', {
-      providers: providers.value,
-      generateProvider: generateProvider.value,
-      verifyProvider: verifyProvider.value
-    })
-  }
+ function saveProviders() {
+   window.electronAPI.storageWrite('providers', {
+     providers: JSON.parse(JSON.stringify(providers.value)),
+     generateProvider: generateProvider.value,
+     verifyProvider: verifyProvider.value
+   })
+ }
 
   function addProvider(provider: Provider) {
     providers.value.push(provider)
@@ -62,15 +76,17 @@ export const useProviderStore = defineStore('provider', () => {
     saveProviders()
   }
 
-  function setGenerateProvider(id: string) {
-    generateProvider.value = id
-    saveProviders()
-  }
+ function setGenerateProvider(id: string) {
+    if (verifyProvider.value === id) verifyProvider.value = null
+   generateProvider.value = id
+   saveProviders()
+ }
 
-  function setVerifyProvider(id: string) {
-    verifyProvider.value = id
-    saveProviders()
-  }
+ function setVerifyProvider(id: string) {
+    if (generateProvider.value === id) generateProvider.value = null
+   verifyProvider.value = id
+   saveProviders()
+ }
 
   async function fetchModels(providerId: string) {
     const p = providers.value.find(p => p.id === providerId)
@@ -80,10 +96,17 @@ export const useProviderStore = defineStore('provider', () => {
     return models
   }
 
+ async function testConnection(providerId: string) {
+   const p = providers.value.find(p => p.id === providerId)
+   if (!p) return { connected: false, error: 'Provider not found' }
+   return await window.electronAPI.providerTestConnection(p.baseUrl, p.apiKey)
+ }
+
   return {
     providers, generateProvider, verifyProvider,
     activeGenerateProvider, activeVerifyProvider,
     loadProviders, saveProviders, addProvider, updateProvider,
-    removeProvider, setGenerateProvider, setVerifyProvider, fetchModels
+    removeProvider, setGenerateProvider, setVerifyProvider, fetchModels,
+    testConnection
   }
 })

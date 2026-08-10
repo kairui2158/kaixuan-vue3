@@ -1,0 +1,38 @@
+[
+  {
+    "id": "provider-card-list",
+    "tag": "div",
+    "cls": "",
+    "line": 220
+  },
+  {
+    "id": "provider-conn-status",
+    "tag": "span",
+    "cls": "provider-conn-status-text",
+    "line": 229
+  },
+  {
+    "id": "provider-edit-title",
+    "tag": "span",
+    "cls": "provider-edit-title-text",
+    "line": 228
+  },
+  {
+    "id": "provider-edit-view",
+    "tag": "div",
+    "cls": "modal-hidden",
+    "line": 224
+  },
+  {
+    "id": "provider-list-view",
+    "tag": "div",
+    "cls": "",
+    "line": 219
+  },
+  {
+    "id": "provider-model-list",
+    "tag": "div",
+    "cls": "provider-model-list-box",
+    "line": 255
+  }
+]

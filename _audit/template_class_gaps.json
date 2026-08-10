@@ -1,0 +1,216 @@
+[
+  {
+    "f": "src\\components\\chat\\ChatMessage.vue",
+    "ms": [
+      "message.role"
+    ]
+  },
+  {
+    "f": "src\\components\\chat\\ChatPanel.vue",
+    "ms": [
+      "rotated:",
+      "!skillAreaOpen"
+    ]
+  },
+  {
+    "f": "src\\components\\common\\DiffModal.vue",
+    "ms": [
+      "diff-original",
+      "diff-modified"
+    ]
+  },
+  {
+    "f": "src\\components\\common\\MemoryPanel.vue",
+    "ms": [
+      "card-grid",
+      "all"
+    ]
+  },
+  {
+    "f": "src\\components\\common\\OutlineWorkspace.vue",
+    "ms": [
+      "msg.role"
+    ]
+  },
+  {
+    "f": "src\\components\\common\\PluginMarket.vue",
+    "ms": [
+      "plugin-market-content",
+      "plugin.installed",
+      "?",
+      "'btn-secondary'",
+      ":",
+      "'btn-primary'"
+    ]
+  },
+  {
+    "f": "src\\components\\dashboard\\DashboardModal.vue",
+    "ms": [
+      "dash-chart"
+    ]
+  },
+  {
+    "f": "src\\components\\deai\\DeAiButton.vue",
+    "ms": [
+      "processing:",
+      "deAiStore.isProcessing",
+      "deai-btn-label"
+    ]
+  },
+  {
+    "f": "src\\components\\deai\\DeAiFlowPreview.vue",
+    "ms": [
+      "active:",
+      "isCurrent(i),",
+      "done:",
+      "isDone(i)"
+    ]
+  },
+  {
+    "f": "src\\components\\deai\\DeAiModeCard.vue",
+    "ms": [
+      "active:",
+      "isActive"
+    ]
+  },
+  {
+    "f": "src\\components\\deai\\DeAiProgress.vue",
+    "ms": [
+      "getStepClass(i)"
+    ]
+  },
+  {
+    "f": "src\\components\\editor\\EditorPanel.vue",
+    "ms": [
+      "active:",
+      "tab.id",
+      "===",
+      "editorStore.activeTabId"
+    ]
+  },
+  {
+    "f": "src\\components\\pipeline\\PipelinePanel.vue",
+    "ms": [
+      "active:",
+      "pipelineStore.currentStep",
+      "===",
+      "i,",
+      "done:",
+      ">",
+      "i",
+      "step-name",
+      "pl-tools-section",
+      "pl-tools-title",
+      "pl-tools-grid",
+      "pl-tool-result",
+      "pl-tool-loading",
+      "confirmed:",
+      "vol.confirmed"
+    ]
+  },
+  {
+    "f": "src\\components\\settings\\AgentSettings.vue",
+    "ms": [
+      "'is-editing':",
+      "editingId",
+      "===",
+      "a.id"
+    ]
+  },
+  {
+    "f": "src\\components\\settings\\ApiSettings.vue",
+    "ms": [
+      "'is-active':",
+      "isProviderActive(p.id)",
+      "?",
+      "'provider-badge-on'",
+      ":",
+      "'provider-badge-off'",
+      "provider-card-name-input"
+    ]
+  },
+  {
+    "f": "src\\components\\settings\\AppearanceSettings.vue",
+    "ms": [
+      "active:",
+      "isDark"
+    ]
+  },
+  {
+    "f": "src\\components\\settings\\DeAiSettings.vue",
+    "ms": [
+      "on:",
+      "deAiStore.hardruleEnabled",
+      "active:",
+      "deAiStore.mode",
+      "===",
+      "m.id"
+    ]
+  },
+  {
+    "f": "src\\components\\settings\\DiagLogPanel.vue",
+    "ms": [
+      "log.level"
+    ]
+  },
+  {
+    "f": "src\\components\\settings\\SettingsModal.vue",
+    "ms": [
+      "'modal-closing':",
+      "closing",
+      "active:",
+      "settingsStore.activeTab",
+      "===",
+      "tab.id"
+    ]
+  },
+  {
+    "f": "src\\components\\settings-collection\\ScPanel.vue",
+    "ms": [
+      "active:",
+      "selectedCategory",
+      "===",
+      "cat",
+      "selectedEntry?.name",
+      "entry.name"
+    ]
+  },
+  {
+    "f": "src\\components\\sidebar\\AgentProgressPanel.vue",
+    "ms": [
+      "collapsed:",
+      "!expanded",
+      "agent.status"
+    ]
+  },
+  {
+    "f": "src\\components\\sidebar\\ChapterTree.vue",
+    "ms": [
+      "expanded:",
+      "expandedVolumes.has(item.vol.id",
+      "||",
+      "item.vol.name)",
+      "active:",
+      "item.ch.id",
+      "===",
+      "activeChapterId,",
+      "'drag-over':",
+      "dragOverChId",
+      "dragOverVolId",
+      "(vol.id",
+      "vol.name)",
+      "expandedVolumes.has(vol.id",
+      "ch.id"
+    ]
+  },
+  {
+    "f": "src\\components\\sidebar\\SidebarNav.vue",
+    "ms": [
+      "active:",
+      "activePanel",
+      "===",
+      "item.id",
+      "sidebar-icon"
+    ]
+  }
+]

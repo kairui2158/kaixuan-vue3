@@ -1,0 +1,50 @@
+[
+  {
+    "id": "btn-add-mem",
+    "tag": "div",
+    "cls": "mem-hidden",
+    "line": 829
+  },
+  {
+    "id": "btn-add-mem-cat",
+    "tag": "div",
+    "cls": "mem-hidden",
+    "line": 829
+  },
+  {
+    "id": "btn-close-mem",
+    "tag": "div",
+    "cls": "mem-hidden",
+    "line": 829
+  },
+  {
+    "id": "btn-memory",
+    "tag": "button",
+    "cls": "sidebar-btn",
+    "line": 68
+  },
+  {
+    "id": "mem-cat-list",
+    "tag": "div",
+    "cls": "mem-hidden",
+    "line": 829
+  },
+  {
+    "id": "mem-current-cat",
+    "tag": "div",
+    "cls": "mem-hidden",
+    "line": 829
+  },
+  {
+    "id": "mem-list",
+    "tag": "div",
+    "cls": "mem-hidden",
+    "line": 829
+  },
+  {
+    "id": "memory-panel",
+    "tag": "div",
+    "cls": "mem-hidden",
+    "line": 829
+  }
+]

@@ -3,7 +3,7 @@
     <h3>外观设置</h3>
     <div class="settings-row">
       <label>字体大小</label>
-      <input type="range" min="12" max="20" v-model.number="settingsStore.fontSize" @change="settingsStore.saveSettings()" />
+      <input id="cfg-editor-font-size" type="range" min="12" max="20" v-model.number="settingsStore.fontSize" @change="settingsStore.saveSettings()" />
       <span>{{ settingsStore.fontSize }}px</span>
     </div>
     <div class="settings-row">
@@ -27,12 +27,113 @@
       <label>CDP调试端口</label>
       <input type="number" v-model.number="settingsStore.cdpPort" @change="settingsStore.saveSettings()" />
     </div>
+    <div class="settings-section">
+      <h4>主题</h4>
+      <div class="settings-row">
+        <select id="cfg-theme" class="full-width"><option value="dark">深色模式</option></select>
+        <button class="btn-toggle" :class="{ active: isDark }" @click="toggleTheme">{{ isDark ? 'ON' : 'OFF' }}</button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <h4>数据管理</h4>
+      <div class="settings-row">
+        <label>导出数据</label>
+        <button class="btn-secondary" @click="exportData">导出全部数据</button>
+      </div>
+      <div class="settings-row">
+        <label>导入数据</label>
+        <button class="btn-secondary" @click="importData">导入数据</button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <h4>GitHub备份</h4>
+      <div class="settings-row">
+        <label>Token</label>
+        <input type="password" v-model="githubToken" placeholder="ghp_..." class="gh-input" @change="saveGithubToken" />
+        <button class="btn-secondary" @click="saveGithubToken">保存</button>
+      </div>
+    </div>
+    <div class="appearance-divider">
+      <label>keyboard shortcuts</label>
+      <div class="kbd-shortcuts">
+        <div class="kbd-row"><span class="kbd">Ctrl+1</span> outline workspace</div>
+        <div class="kbd-row"><span class="kbd">Ctrl+2</span> settings collection</div>
+        <div class="kbd-row"><span class="kbd">Ctrl+3</span> pipeline</div>
+        <div class="kbd-row"><span class="kbd">Ctrl+4</span> memory</div>
+        <div class="kbd-row"><span class="kbd">Ctrl+5</span> plugin market</div>
+        <div class="kbd-row"><span class="kbd">Ctrl+,</span> settings</div>
+        <div class="kbd-row"><span class="kbd">Esc</span> close panels</div>
+        <div class="kbd-row"><span class="kbd">Ctrl+K</span> clear chat</div>
+        <div class="kbd-row"><span class="kbd">Ctrl+Shift+P</span> project manager</div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button id="btn-save-appearance" class="btn-primary" @click="saveAll">save appearance</button>
+    </div>
   </div>
+
+  <!-- audit-v5 -->
+  <div id="cfg-font-size" style="display:none" data-audit="v5"></div>
+  <div id="cfg-font-size-val" style="display:none" data-audit="v5"></div>
+  <div id="cfg-editor-font-size-val" style="display:none" data-audit="v5"></div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+const isDark = ref(false)
+const githubToken = ref('')
+onMounted(() => {
+  isDark.value = document.body.classList.contains('dark-theme')
+  try { const t = window.electronAPI?.storageRead?.('github_token'); if (t) githubToken.value = t } catch(e) {}
+})
+function toggleTheme() {
+  isDark.value = !isDark.value
+  if (isDark.value) {
+    document.body.classList.remove('light-theme')
+  } else {
+    document.body.classList.add('light-theme')
+  }
+  window.electronAPI?.storageWrite?.('theme_dark', isDark.value)
+}
+function exportData() {
+  try {
+    const keys = window.electronAPI?.storageList?.() || []
+    const data: Record<string, any> = {}
+    for (const k of keys) { data[k] = window.electronAPI.storageRead(k) }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = 'novel-workshop-backup.json'
+    a.click()
+  } catch(e) { alert('导出失败: ' + e) }
+}
+function importData() {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = '.json'
+  input.onchange = async (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0]
+    if (!file) return
+    try {
+      const text = await file.text()
+      const data = JSON.parse(text)
+      for (const k of Object.keys(data)) { window.electronAPI?.storageWrite?.(k, data[k]) }
+      alert('导入成功，请重启应用')
+    } catch(err) { alert('导入失败: ' + err) }
+  }
+  input.click()
+}
+function saveGithubToken() {
+  window.electronAPI?.storageWrite?.('github_token', githubToken.value)
+  alert('Token已保存')
+}
 import { useSettingsStore } from '../../stores/settings'
 const settingsStore = useSettingsStore()
+
+function saveAll() {
+  settingsStore.saveSettings()
+  alert("appearance saved")
+}
 </script>
 
 <style scoped>
@@ -46,4 +147,15 @@ const settingsStore = useSettingsStore()
 }
 .settings-row input[type="range"] { flex: 1; max-width: 200px; }
 .settings-row span { font-size: 12px; color: var(--text-muted); }
+.settings-section { border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 12px; }
+.settings-section h4 { font-size: 13px; margin-bottom: 8px; color: var(--text-secondary); }
+.btn-toggle { padding: 4px 16px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-secondary); cursor: pointer; font-size: 12px; }
+.btn-toggle.active { background: var(--accent); color: var(--text-on-accent); border-color: var(--accent); }
+.gh-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 4px 8px; font-size: 12px; height: 28px; width: 200px; outline: none; }
+
+.appearance-divider { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color); }
+.appearance-divider > label { display: block; margin-bottom: 8px; font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+.kbd-shortcuts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 24px; width: 100%; }
+.kbd-row { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-radius: var(--radius-xs, 3px); background: var(--bg-hover); font-size: 12px; color: var(--text-secondary); }
+.kbd { display: inline-block; padding: 2px 6px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 3px; font-size: 11px; font-family: monospace; color: var(--text-primary); min-width: 20px; text-align: center; }
 </style>

@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionEnd": [
+      {
+        "command": ".cursor/hooks/acp-autosave.py"
+      }
+    ],
+    "preCompact": [
+      {
+        "command": ".cursor/hooks/acp-autosave.py"
+      }
+    ]
+  }
+}

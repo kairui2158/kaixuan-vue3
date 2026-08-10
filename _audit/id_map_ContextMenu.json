@@ -1,0 +1,14 @@
+[
+  {
+    "id": "ctx-menu",
+    "tag": "div",
+    "cls": "context-menu",
+    "line": 880
+  },
+  {
+    "id": "inline-menu",
+    "tag": "div",
+    "cls": "inline-menu-btn",
+    "line": 1026
+  }
+]

@@ -120,7 +120,7 @@ function moveDown(index: number) {
 }
 .ss-remove:hover {
   background: var(--danger);
-  color: #fff;
+  color: var(--text-on-accent);
 }
 .ss-empty {
   padding: 12px;

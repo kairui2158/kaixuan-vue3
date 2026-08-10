@@ -8,10 +8,15 @@ export interface Agent {
   temperature: number
   maxTokens: number
   systemPrompt: string
+  description?: string
+  provider?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export const useAgentStore = defineStore('agent', () => {
-  const agents = ref<Agent[]>([])
+const agents = ref<Agent[]>([])
+const selectedAgentId = ref<string>('')
 
   function loadAgents() {
     const data = window.electronAPI.storageRead('agents')
@@ -44,5 +49,5 @@ export const useAgentStore = defineStore('agent', () => {
     return agents.value.find(a => a.id === id)
   }
 
-  return { agents, loadAgents, saveAgents, addAgent, updateAgent, removeAgent, getAgent }
+  return { agents, selectedAgentId, loadAgents, saveAgents, addAgent, updateAgent, removeAgent, getAgent }
 })

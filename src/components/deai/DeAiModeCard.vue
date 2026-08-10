@@ -25,22 +25,25 @@ function select() {
 </script>
 
 <style scoped>
-.mode-card {
-  flex: 1;
-  padding: 16px;
-  background: var(--bg-tertiary);
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: var(--transition);
-}
-.mode-card:hover {
-  border-color: var(--border-light);
-}
-.mode-card.active {
-  border-color: var(--accent);
-  background: var(--bg-hover);
-}
+ .mode-card {
+   flex: 1;
+   padding: 16px;
+   background: var(--bg-tertiary);
+   border: 1px solid var(--border-color);
+   border-radius: var(--radius-md);
+   cursor: pointer;
+   transition: var(--transition);
+ }
+ .mode-card:hover {
+   border-color: var(--border-light);
+   box-shadow: var(--shadow-sm);
+   transform: translateY(-1px);
+ }
+ .mode-card.active {
+   border-color: var(--accent);
+   box-shadow: 0 0 0 1px var(--accent-glow, rgba(90,125,154,0.15));
+   background: var(--bg-hover);
+ }
 .card-header {
   display: flex;
   align-items: center;

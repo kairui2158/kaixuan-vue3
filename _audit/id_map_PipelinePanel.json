@@ -1,0 +1,398 @@
+[
+  {
+    "id": "btn-pl-autogen-chapters",
+    "tag": "div",
+    "cls": "pl-actions",
+    "line": 799
+  },
+  {
+    "id": "btn-pl-autogen-volumes",
+    "tag": "div",
+    "cls": "pl-actions",
+    "line": 773
+  },
+  {
+    "id": "btn-pl-confirm-body",
+    "tag": "div",
+    "cls": "pl-actions",
+    "line": 814
+  },
+  {
+    "id": "btn-pl-confirm-chapters",
+    "tag": "div",
+    "cls": "pl-actions",
+    "line": 799
+  },
+  {
+    "id": "btn-pl-confirm-outline",
+    "tag": "div",
+    "cls": "pl-actions",
+    "line": 739
+  },
+  {
+    "id": "btn-pl-confirm-settings",
+    "tag": "div",
+    "cls": "pl-actions",
+    "line": 757
+  },
+  {
+    "id": "btn-pl-continue-volumes",
+    "tag": "div",
+    "cls": "pl-actions",
+    "line": 773
+  },
+  {
+    "id": "btn-pl-create-volumes",
+    "tag": "div",
+    "cls": "pl-actions",
+    "line": 773
+  },
+  {
+    "id": "btn-pl-gen-body",
+    "tag": "div",
+    "cls": "pl-actions",
+    "line": 814
+  },
+  {
+    "id": "btn-pl-gen-chapters",
+    "tag": "div",
+    "cls": "pl-actions",
+    "line": 799
+  },
+  {
+    "id": "btn-pl-gen-settings",
+    "tag": "div",
+    "cls": "pl-actions",
+    "line": 757
+  },
+  {
+    "id": "btn-pl-gen-single-volume",
+    "tag": "div",
+    "cls": "pl-actions",
+    "line": 773
+  },
+  {
+    "id": "btn-pl-gen-volumes",
+    "tag": "div",
+    "cls": "pl-actions",
+    "line": 773
+  },
+  {
+    "id": "btn-pl-insert-body",
+    "tag": "div",
+    "cls": "pl-actions",
+    "line": 814
+  },
+  {
+    "id": "btn-pl-load-outline",
+    "tag": "div",
+    "cls": "pl-actions",
+    "line": 739
+  },
+  {
+    "id": "btn-pl-save-settings",
+    "tag": "div",
+    "cls": "pl-actions",
+    "line": 757
+  },
+  {
+    "id": "btn-plugin-market",
+    "tag": "button",
+    "cls": "sidebar-btn",
+    "line": 70
+  },
+  {
+    "id": "pl-agent-select",
+    "tag": "select",
+    "cls": "pl-select",
+    "line": 712
+  },
+  {
+    "id": "pl-body-result",
+    "tag": "div",
+    "cls": "pl-result pl-hidden",
+    "line": 813
+  },
+  {
+    "id": "pl-book-word-count",
+    "tag": "div",
+    "cls": "pl-gen-options",
+    "line": 738
+  },
+  {
+    "id": "pl-bound-settings-list",
+    "tag": "div",
+    "cls": "",
+    "line": 755
+  },
+  {
+    "id": "pl-ch-cards-area",
+    "tag": "div",
+    "cls": "",
+    "line": 792
+  },
+  {
+    "id": "pl-ch-empty-hint",
+    "tag": "p",
+    "cls": "empty-hint",
+    "line": 793
+  },
+  {
+    "id": "pl-ch-est-count",
+    "tag": "div",
+    "cls": "pl-gen-options",
+    "line": 785
+  },
+  {
+    "id": "pl-ch-gen-bar",
+    "tag": "div",
+    "cls": "pl-gen-options",
+    "line": 785
+  },
+  {
+    "id": "pl-chapter-batchsize",
+    "tag": "div",
+    "cls": "pl-gen-options",
+    "line": 785
+  },
+  {
+    "id": "pl-chapter-cards",
+    "tag": "div",
+    "cls": "pl-hidden",
+    "line": 795
+  },
+  {
+    "id": "pl-chapter-result",
+    "tag": "div",
+    "cls": "pl-result pl-hidden",
+    "line": 794
+  },
+  {
+    "id": "pl-chapter-select",
+    "tag": "div",
+    "cls": "pl-gen-options",
+    "line": 811
+  },
+  {
+    "id": "pl-chapter-wordcount",
+    "tag": "div",
+    "cls": "pl-gen-options",
+    "line": 785
+  },
+  {
+    "id": "pl-context-summary",
+    "tag": "div",
+    "cls": "pl-context-summary",
+    "line": 812
+  },
+  {
+    "id": "pl-outline",
+    "tag": "textarea",
+    "cls": "full-width",
+    "line": 737
+  },
+  {
+    "id": "pl-s1-add-skill",
+    "tag": "button",
+    "cls": "btn-sm",
+    "line": 734
+  },
+  {
+    "id": "pl-s1-skill",
+    "tag": "select",
+    "cls": "pl-select",
+    "line": 733
+  },
+  {
+    "id": "pl-s1-skills-list",
+    "tag": "div",
+    "cls": "pl-skills-list",
+    "line": 736
+  },
+  {
+    "id": "pl-s2-add-skill",
+    "tag": "button",
+    "cls": "btn-sm",
+    "line": 748
+  },
+  {
+    "id": "pl-s2-skill",
+    "tag": "select",
+    "cls": "pl-select",
+    "line": 747
+  },
+  {
+    "id": "pl-s2-skills-list",
+    "tag": "div",
+    "cls": "pl-skills-list",
+    "line": 750
+  },
+  {
+    "id": "pl-s3-add-skill",
+    "tag": "button",
+    "cls": "btn-sm",
+    "line": 766
+  },
+  {
+    "id": "pl-s3-skill",
+    "tag": "select",
+    "cls": "pl-select",
+    "line": 765
+  },
+  {
+    "id": "pl-s3-skills-list",
+    "tag": "div",
+    "cls": "pl-skills-list",
+    "line": 768
+  },
+  {
+    "id": "pl-s4-add-skill",
+    "tag": "button",
+    "cls": "btn-sm",
+    "line": 782
+  },
+  {
+    "id": "pl-s4-skill",
+    "tag": "select",
+    "cls": "pl-select",
+    "line": 781
+  },
+  {
+    "id": "pl-s4-skills-list",
+    "tag": "div",
+    "cls": "pl-skills-list",
+    "line": 784
+  },
+  {
+    "id": "pl-s5-add-skill",
+    "tag": "button",
+    "cls": "btn-sm",
+    "line": 808
+  },
+  {
+    "id": "pl-s5-skill",
+    "tag": "select",
+    "cls": "pl-select",
+    "line": 807
+  },
+  {
+    "id": "pl-s5-skills-list",
+    "tag": "div",
+    "cls": "pl-skills-list",
+    "line": 810
+  },
+  {
+    "id": "pl-settings-result",
+    "tag": "div",
+    "cls": "pl-result pl-hidden",
+    "line": 752
+  },
+  {
+    "id": "pl-status-1",
+    "tag": "div",
+    "cls": "pl-step active",
+    "line": 721
+  },
+  {
+    "id": "pl-status-2",
+    "tag": "div",
+    "cls": "pl-step",
+    "line": 722
+  },
+  {
+    "id": "pl-status-3",
+    "tag": "div",
+    "cls": "pl-step",
+    "line": 723
+  },
+  {
+    "id": "pl-status-4",
+    "tag": "div",
+    "cls": "pl-step",
+    "line": 724
+  },
+  {
+    "id": "pl-status-5",
+    "tag": "div",
+    "cls": "pl-step",
+    "line": 725
+  },
+  {
+    "id": "pl-step-1-content",
+    "tag": "div",
+    "cls": "pl-step-content active",
+    "line": 729
+  },
+  {
+    "id": "pl-step-2-content",
+    "tag": "div",
+    "cls": "pl-step-content pl-hidden",
+    "line": 743
+  },
+  {
+    "id": "pl-step-3-content",
+    "tag": "div",
+    "cls": "pl-step-content pl-hidden",
+    "line": 761
+  },
+  {
+    "id": "pl-step-4-content",
+    "tag": "div",
+    "cls": "pl-step-content pl-hidden",
+    "line": 777
+  },
+  {
+    "id": "pl-step-5-content",
+    "tag": "div",
+    "cls": "pl-step-content pl-hidden",
+    "line": 803
+  },
+  {
+    "id": "pl-steps",
+    "tag": "div",
+    "cls": "pl-steps",
+    "line": 720
+  },
+  {
+    "id": "pl-text-filter-toggle",
+    "tag": "input",
+    "cls": "pl-filter-toggle",
+    "line": 716
+  },
+  {
+    "id": "pl-vol-confirm-hint",
+    "tag": "div",
+    "cls": "pl-vol-confirm-hint",
+    "line": 772
+  },
+  {
+    "id": "pl-vol-list",
+    "tag": "div",
+    "cls": "",
+    "line": 789
+  },
+  {
+    "id": "pl-volume-cards",
+    "tag": "div",
+    "cls": "pl-hidden",
+    "line": 771
+  },
+  {
+    "id": "pl-volume-count",
+    "tag": "div",
+    "cls": "pl-gen-options",
+    "line": 769
+  },
+  {
+    "id": "pl-volume-result",
+    "tag": "div",
+    "cls": "pl-result pl-hidden",
+    "line": 770
+  },
+  {
+    "id": "pl-word-count",
+    "tag": "div",
+    "cls": "pl-gen-options",
+    "line": 811
+  }
+]

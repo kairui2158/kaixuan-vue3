@@ -1,0 +1,14 @@
+[
+  {
+    "id": "loading-indicator",
+    "tag": "div",
+    "cls": "loading-overlay",
+    "line": 1027
+  },
+  {
+    "id": "loading-text",
+    "tag": "div",
+    "cls": "loading-overlay",
+    "line": 1027
+  }
+]

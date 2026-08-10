@@ -1,0 +1,295 @@
+const http = require('http');
+const fs = require('fs');
+
+const CDP_PORT = 9224;
+const results = [];
+const ts = () => new Date().toISOString();
+
+function getTargets() {
+  return new Promise((resolve, reject) => {
+    http.get('http://127.0.0.1:' + CDP_PORT + '/json', (res) => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => resolve(JSON.parse(data)));
+    }).on('error', reject);
+  });
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function runVerify() {
+  const targets = await getTargets();
+  const page = targets.find(t => t.type === 'page' && t.url && t.url.includes('localhost:5173'));
+ if (!page) {
+   console.log('[ERR] No Novel Workshop page target found. Targets: ' + targets.map(t => t.url).join(', '));
+   process.exit(1);
+ }
+ console.log('[OK] Target: ' + page.url + ' @ ' + ts());
+
+  const ws = new WebSocket(page.webSocketDebuggerUrl);
+  let msgId = 1;
+  const pending = new Map();
+
+  ws.addEventListener('message', (event) => {
+    const msg = JSON.parse(event.data);
+    if (msg.id && pending.has(msg.id)) {
+      pending.get(msg.id)(msg);
+      pending.delete(msg.id);
+    }
+  });
+
+  function evalJS(expr) {
+    return new Promise((resolve) => {
+      const id = msgId++;
+      pending.set(id, resolve);
+      ws.send(JSON.stringify({ id, method: 'Runtime.evaluate', params: { expression: expr, returnByValue: true, awaitPromise: true } }));
+    });
+  }
+
+ function record(name, pass, detail) {
+   const status = pass ? 'PASS' : 'FAIL';
+   console.log('[' + status + '] ' + name + (detail ? ' -> ' + String(detail).slice(0,120) : ''));
+   results.push({ name, pass, detail: String(detail || '').slice(0,200), ts: ts() });
+ }
+
+  function safeVal(r) {
+    return (r && r.result && r.result.result && safeVal()) ? safeVal() : '{}';
+  }
+
+  ws.addEventListener('open', async () => {
+    console.log('=== TRIPLE VERIFICATION v2 START ===');
+    console.log('Time: ' + ts() + '\n');
+
+    // ===== FIX 1: Close all open panels before CDP checks =====
+    console.log('--- 0. Pre-check: Close all panels ---');
+    await evalJS(`
+      var app = document.querySelector('#app').__vue_app__;
+      var pinia = app.config.globalProperties.$pinia;
+      // Close any open panel by clicking backdrop if exists
+      var backdrop = document.querySelector('.panel-backdrop');
+      if (backdrop) backdrop.click();
+      'closed-backdrop'
+    `);
+    await sleep(500);
+    // Also try clicking the home/breadcrumb to reset
+    await evalJS(`
+      var app = document.querySelector('#app').__vue_app__;
+      // Try to find and click any active sidebar nav item to close panels
+      var navItems = document.querySelectorAll('.nav-item');
+      var activeNav = Array.from(navItems).find(n => n.classList.contains('active'));
+      if (activeNav) activeNav.click();
+      'nav-reset'
+    `);
+    await sleep(500);
+
+    // ===== 1. CDP: App structure & component rendering =====
+    console.log('\n--- 1. CDP: App Structure ---');
+    let r = await evalJS(`JSON.stringify({
+      hasVue: !!document.querySelector('#app'),
+      hasPinia: !!(document.querySelector('#app') && document.querySelector('#app').__vue_app__),
+      title: document.title,
+      btnCount: document.querySelectorAll('button').length,
+      selectCount: document.querySelectorAll('select').length,
+      hasEditor: !!document.querySelector('.editor-panel'),
+      hasChapterTree: !!document.querySelector('[class*=chapter]') || !!document.querySelector('[class*=tree]') || !!document.querySelector('[class*=sidebar]'),
+      hasPipeline: !!document.querySelector('[class*=pipeline]') || !!document.querySelector('[class*=pl-step]'),
+      bodyTextLen: document.body ? document.body.innerText.length : 0
+    })`);
+    let cdpRaw = (r.result && r.result.result && safeVal()) ? safeVal() : '{}';
+    let cdpData = JSON.parse(cdpRaw);
+    record('CDP: Vue app mounted', cdpData.hasVue, 'title=' + cdpData.title);
+    record('CDP: Pinia available', cdpData.hasPinia, 'via __vue_app__');
+    record('CDP: Editor area present', cdpData.hasEditor);
+    record('CDP: Chapter tree present', cdpData.hasChapterTree);
+    record('CDP: Pipeline present', cdpData.hasPipeline);
+    record('CDP: Buttons rendered', cdpData.btnCount > 5, 'count=' + cdpData.btnCount);
+    record('CDP: Selects rendered', cdpData.selectCount >= 2, 'count=' + cdpData.selectCount);
+
+    // ===== 2. DOM: Element existence & content =====
+    console.log('\n--- 2. DOM: Element Verification ---');
+    let domR = await evalJS(`try { JSON.stringify({
+      hasTextarea: !!document.querySelector('textarea'),
+      hasSidebar: !!document.querySelector('.sidebar-nav, [class*=sidebar]'),
+      hasBreadcrumb: !!document.querySelector('[class*=breadcrumb]'),
+      hasEditorPanel: !!document.querySelector('.editor-panel'),
+      editorBtnCount: document.querySelectorAll('.editor-toolbar button').length,
+      hasDeAiBtn: !!document.getElementById('btn-de-ai') || !!Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('\u53bbAI')),
+      bodyText: document.body.innerText.slice(0, 200)
+    }) } catch(e) { JSON.stringify({error: e.message}) }`);
+    let domRaw = (domR.result && domR.result.result && safeVal()) ? safeVal() : '{}';
+    let domData = JSON.parse(domRaw);
+    record('DOM: Textarea exists', domData.hasTextarea);
+    record('DOM: Sidebar nav exists', domData.hasSidebar);
+    record('DOM: Breadcrumb exists', domData.hasBreadcrumb);
+    record('DOM: Editor panel exists', domData.hasEditorPanel);
+    record('DOM: Editor toolbar buttons', domData.editorBtnCount > 3, 'count=' + domData.editorBtnCount);
+    record('DOM: De-AI button exists', domData.hasDeAiBtn);
+
+    // ===== FIX 2: Open pipeline panel and check .pl-cfg-select-sm =====
+    console.log('\n--- 2b. DOM: Pipeline skill slots ---');
+    // Open pipeline panel
+    let openPipe = await evalJS(`
+      var btns = document.querySelectorAll('button, [data-tooltip]');
+      var plBtn = Array.from(btns).find(b => b.getAttribute('data-tooltip') === '\u751f\u6210\u6d41\u6c34\u7ebf' || b.textContent.includes('\u6d41\u6c34\u7ebf'));
+      if (plBtn) { plBtn.click(); 'opened' } else 'not-found'
+    `);
+    console.log('  pipeline open: ' + safeVal());
+    await sleep(800);
+
+    // Click step 2 to show config with skill selects
+    await evalJS(`
+      var steps = document.querySelectorAll('.pl-step');
+      if (steps.length > 1) steps[1].click();
+      'step2-clicked'
+    `);
+    await sleep(500);
+
+    let skillR = await evalJS(`try { JSON.stringify({
+      plStepCount: document.querySelectorAll('.pl-step').length,
+      skillSelectCount: document.querySelectorAll('.pl-cfg-select-sm').length,
+      cfgSelectCount: document.querySelectorAll('.pl-cfg-select').length
+    }) } catch(e) { JSON.stringify({error: e.message}) }`);
+    let skillRaw = (skillR.result && skillR.result.result && safeVal()) ? safeVal() : '{}';
+    let skillData = JSON.parse(skillRaw);
+    record('DOM: Pipeline steps exist', skillData.plStepCount > 0, 'count=' + skillData.plStepCount);
+    record('DOM: Skill slots exist', skillData.skillSelectCount > 0, 'count=' + skillData.skillSelectCount);
+    record('DOM: Agent selects exist', skillData.cfgSelectCount > 0, 'count=' + skillData.cfgSelectCount);
+
+    // Close pipeline panel
+    await evalJS(`var backdrop = document.querySelector('.panel-backdrop'); if(backdrop) backdrop.click(); 'closed'`);
+    await sleep(500);
+
+    // ===== 3. HOOK: Behavioral verification via Pinia direct calls =====
+    console.log('\n--- 3. HOOK: Behavioral Verification (Pinia direct) ---');
+
+    // FIX 3: Provider purpose switch via Pinia store directly
+    console.log('\n  3a: Provider purpose switch');
+    let provBefore = await evalJS(`JSON.stringify(window.electronAPI.storageRead('providers') || null)`);
+    let provBeforeStr = safeVal();
+    console.log('  providers before: ' + provBeforeStr.slice(0, 150));
+
+    // Get provider store and call setGenerateProvider directly
+    let providerInfo = await evalJS(`
+      var app = document.querySelector('#app').__vue_app__;
+      var pinia = app.config.globalProperties.$pinia;
+      var providerStore = pinia._s.get('provider');
+      if (!providerStore) 'no-provider-store';
+      else {
+        var providers = providerStore.providers;
+        if (!providers || providers.length === 0) 'no-providers';
+        else {
+          var firstId = providers[0].id;
+          var currentGen = providerStore.generateProvider;
+          var currentVer = providerStore.verifyProvider;
+          // Switch generate provider
+          providerStore.setGenerateProvider(firstId);
+          JSON.stringify({ firstId: firstId, prevGen: currentGen, prevVer: currentVer, newGen: providerStore.generateProvider });
+        }
+      }
+    `);
+    console.log('  provider switch: ' + safeVal());
+    await sleep(500);
+
+    let provAfter = await evalJS(`JSON.stringify(window.electronAPI.storageRead('providers') || null)`);
+    let provAfterStr = safeVal();
+    console.log('  providers after: ' + provAfterStr.slice(0, 150));
+    let provChanged = provBeforeStr !== provAfterStr;
+    record('HOOK: Provider purpose switch saves to storage', provChanged, provChanged ? 'storage updated' : 'no change detected');
+
+    // FIX 4: DeAI mode switch via Pinia store directly
+    console.log('\n  3b: DeAI mode switch');
+    let deaiBefore = await evalJS(`JSON.stringify(window.electronAPI.storageRead('deAiConfig') || null)`);
+    let deaiBeforeStr = safeVal();
+    console.log('  deAiConfig before: ' + deaiBeforeStr.slice(0, 150));
+
+    let deaiInfo = await evalJS(`
+      var app = document.querySelector('#app').__vue_app__;
+      var pinia = app.config.globalProperties.$pinia;
+      var deaiStore = pinia._s.get('deai');
+      if (!deaiStore) 'no-deai-store';
+      else {
+        var curMode = deaiStore.mode;
+        var newMode = curMode === 'chain' ? 'split-merge' : 'chain';
+        deaiStore.setMode(newMode);
+        JSON.stringify({ prevMode: curMode, newMode: deaiStore.mode, flowPreview: deaiStore.flowPreview });
+      }
+    `);
+    console.log('  deai mode switch: ' + safeVal());
+    await sleep(500);
+
+    let deaiAfter = await evalJS(`JSON.stringify(window.electronAPI.storageRead('deAiConfig') || null)`);
+    let deaiAfterStr = safeVal();
+    console.log('  deAiConfig after: ' + deaiAfterStr.slice(0, 150));
+    let deaiChanged = deaiBeforeStr !== deaiAfterStr;
+    record('HOOK: DeAI mode switch saves to storage', deaiChanged, deaiChanged ? 'storage updated' : 'no change detected');
+
+    // Check flow preview content
+    let flowInfo = await evalJS(`
+      var app = document.querySelector('#app').__vue_app__;
+      var pinia = app.config.globalProperties.$pinia;
+      var deaiStore = pinia._s.get('deai');
+      if (!deaiStore || !deaiStore.flowPreview) JSON.stringify({ hasCross: false, hasZhuque: false });
+      else {
+        var fp = deaiStore.flowPreview;
+        var hasCross = fp.some(s => s.includes('cross'));
+        var hasZhuque = fp.some(s => s.includes('zhuque'));
+        JSON.stringify({ hasCross: hasCross, hasZhuque: hasZhuque, flow: fp.join(' > ') });
+      }
+    `);
+    let flowObj = JSON.parse(safeVal());
+    console.log('  flow preview: ' + JSON.stringify(flowObj).slice(0, 150));
+    record('HOOK: DeAI flow has cross-model', flowObj.hasCross);
+    record('HOOK: DeAI flow has zhuque', flowObj.hasZhuque);
+
+    // FIX 5: Hardrule toggle via Pinia store directly
+    console.log('\n  3c: Hardrule toggle');
+    let hardruleBefore = await evalJS(`JSON.stringify(window.electronAPI.storageRead('deAiConfig') || null)`);
+    let hardruleBeforeStr = safeVal();
+    console.log('  deAiConfig before toggle: ' + hardruleBeforeStr.slice(0, 150));
+
+    let hardruleInfo = await evalJS(`
+      var app = document.querySelector('#app').__vue_app__;
+      var pinia = app.config.globalProperties.$pinia;
+      var deaiStore = pinia._s.get('deai');
+      if (!deaiStore) 'no-deai-store';
+      else {
+        var prev = deaiStore.hardruleEnabled;
+        deaiStore.hardruleEnabled = !prev;
+        deaiStore.saveConfig();
+        JSON.stringify({ prev: prev, now: deaiStore.hardruleEnabled });
+      }
+    `);
+    console.log('  hardrule toggle: ' + safeVal());
+    await sleep(500);
+
+    let hardruleAfter = await evalJS(`JSON.stringify(window.electronAPI.storageRead('deAiConfig') || null)`);
+    let hardruleAfterStr = safeVal();
+    console.log('  deAiConfig after toggle: ' + hardruleAfterStr.slice(0, 150));
+    let hardruleChanged = hardruleBeforeStr !== hardruleAfterStr;
+    record('HOOK: Hardrule toggle saves config', hardruleChanged, hardruleChanged ? 'storage updated' : 'no change');
+
+    // ===== SUMMARY =====
+    console.log('\n=== TRIPLE VERIFICATION v2 SUMMARY ===');
+    const passed = results.filter(r => r.pass).length;
+    const failed = results.filter(r => !r.pass).length;
+    console.log('Passed: ' + passed + '/' + results.length);
+    console.log('Failed: ' + failed + '/' + results.length);
+    if (failed > 0) {
+      console.log('Failed items:');
+      results.filter(r => !r.pass).forEach(r => console.log('  - ' + r.name + (r.detail ? ' (' + r.detail + ')' : '')));
+    }
+    console.log('\nTime: ' + ts());
+
+    // Save JSON report
+    const report = { ts: ts(), passed, failed, total: results.length, results };
+    fs.writeFileSync('D:/codex/novel-workshop-vue3/_audit/triple_verify_report_v2.json', JSON.stringify(report, null, 2));
+    console.log('\nReport saved to _audit/triple_verify_report_v2.json');
+
+    ws.close();
+    process.exit(failed > 0 ? 1 : 0);
+  });
+
+  setTimeout(() => { console.log('[ERR] Timeout after 45s'); process.exit(1); }, 45000);
+}
+
+runVerify().catch(e => { console.log('[ERR] ' + e.message); process.exit(1); });

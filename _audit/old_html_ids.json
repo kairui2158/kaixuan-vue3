@@ -1,0 +1,2459 @@
+[
+  {
+    "id": "app-header",
+    "tag": "header",
+    "cls": "",
+    "line": 48,
+    "context": "f='node_modules/notyf/notyf.min.css'> </head> <body> <header id=\"app-header\"> <div class=\"header-left\"> <span class=\"app-title\">小说工坊</span>"
+  },
+  {
+    "id": "agent-select",
+    "tag": "select",
+    "cls": "header-selector",
+    "line": 53,
+    "context": "lass=\"app-title\">小说工坊</span> </div> <div class=\"header-right\"> <select id=\"agent-select\" aria-label=\"选择智能体\" tabindex=\"0\" class=\"header-selector\"><option value=\"\">默认</option></select> <select id=\"model-select\" aria-lab"
+  },
+  {
+    "id": "model-select",
+    "tag": "select",
+    "cls": "header-selector",
+    "line": 54,
+    "context": "bindex=\"0\" class=\"header-selector\"><option value=\"\">默认</option></select> <select id=\"model-select\" aria-label=\"选择模型\" tabindex=\"0\" class=\"header-selector\"><option value=\"\">自动</option></select> <button id=\"btn-clear\" aria-label="
+  },
+  {
+    "id": "btn-clear",
+    "tag": "button",
+    "cls": "btn-icon",
+    "line": 55,
+    "context": "bindex=\"0\" class=\"header-selector\"><option value=\"\">自动</option></select> <button id=\"btn-clear\" aria-label=\"清空对话\" tabindex=\"0\" class=\"btn-icon\" title=\"清空对话\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColo"
+  },
+  {
+    "id": "panel-backdrop",
+    "tag": "div",
+    "cls": "",
+    "line": 61,
+    "context": "\"11\" x2=\"14\" y2=\"17\"/></svg></button> </div> </header> <main> <div id=\"panel-backdrop\"></div> <div id=\"breadcrumb-bar\"><span class=\"breadcrumb-home\" onclick=\"windo"
+  },
+  {
+    "id": "breadcrumb-bar",
+    "tag": "div",
+    "cls": "",
+    "line": 62,
+    "context": "n> </div> </header> <main> <div id=\"panel-backdrop\"></div> <div id=\"breadcrumb-bar\"><span class=\"breadcrumb-home\" onclick=\"window._app && window._app.closeAllPanel"
+  },
+  {
+    "id": "app-body",
+    "tag": "div",
+    "cls": "",
+    "line": 63,
+    "context": "ome\" onclick=\"window._app && window._app.closeAllPanels()\">小说工坊</span></div> <div id=\"app-body\"> <aside id=\"app-sidebar\"> <button id=\"btn-outline-workspace\" aria-l"
+  },
+  {
+    "id": "app-sidebar",
+    "tag": "aside",
+    "cls": "",
+    "line": 64,
+    "context": "&& window._app.closeAllPanels()\">小说工坊</span></div> <div id=\"app-body\"> <aside id=\"app-sidebar\"> <button id=\"btn-outline-workspace\" aria-label=\"大纲工作台\" tabindex=\"0\" clas"
+  },
+  {
+    "id": "btn-outline-workspace",
+    "tag": "button",
+    "cls": "sidebar-btn",
+    "line": 65,
+    "context": "\">小说工坊</span></div> <div id=\"app-body\"> <aside id=\"app-sidebar\"> <button id=\"btn-outline-workspace\" aria-label=\"大纲工作台\" tabindex=\"0\" class=\"sidebar-btn\" tabindex=\"0\" aria-label=\"大纲工作台\" data-tooltip=\"大纲工作台\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"roun"
+  },
+  {
+    "id": "btn-settings-collection",
+    "tag": "button",
+    "cls": "sidebar-btn",
+    "line": 66,
+    "context": "3\" x2=\"8\" y2=\"13\"/><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"/></svg></button> <button id=\"btn-settings-collection\" aria-label=\"设定合集\" tabindex=\"0\" class=\"sidebar-btn\" tabindex=\"0\" aria-label=\"设定合集\" data-tooltip=\"设定合集\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"roun"
+  },
+  {
+    "id": "btn-pipeline",
+    "tag": "button",
+    "cls": "sidebar-btn",
+    "line": 67,
+    "context": "\"/><path d=\"M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z\"/></svg></button> <button id=\"btn-pipeline\" aria-label=\"生成流水线\" tabindex=\"0\" class=\"sidebar-btn\" tabindex=\"0\" aria-label=\"生成流水线\" data-tooltip=\"生成流水线\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"roun"
+  },
+  {
+    "id": "btn-memory",
+    "tag": "button",
+    "cls": "sidebar-btn",
+    "line": 68,
+    "context": "2 2h4\"/><rect width=\"8\" height=\"8\" x=\"13\" y=\"13\" rx=\"2\"/></svg></button> <button id=\"btn-memory\" aria-label=\"记忆面板\" tabindex=\"0\" class=\"sidebar-btn\" tabindex=\"0\" aria-label=\"记忆\" data-tooltip=\"记忆\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"roun"
+  },
+  {
+    "id": "btn-plugin-market",
+    "tag": "button",
+    "cls": "sidebar-btn",
+    "line": 70,
+    "context": "1 1 12 18Z\"/></svg></button> <div class=\"sidebar-divider\"></div> <button id=\"btn-plugin-market\" aria-label=\"插件市场\" tabindex=\"0\" class=\"sidebar-btn\" tabindex=\"0\" aria-label=\"插件市场\" data-tooltip=\"插件市场\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"roun"
+  },
+  {
+    "id": "btn-settings",
+    "tag": "button",
+    "cls": "sidebar-btn",
+    "line": 71,
+    "context": "16Z\"/><path d=\"m3.3 7 8.7 5 8.7-5\"/><path d=\"M12 22V12\"/></svg></button> <button id=\"btn-settings\" aria-label=\"设置\" tabindex=\"0\" class=\"sidebar-btn\" tabindex=\"0\" aria-label=\"设置\" data-tooltip=\"设置\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"roun"
+  },
+  {
+    "id": "btn-dashboard",
+    "tag": "button",
+    "cls": "sidebar-btn",
+    "line": 71,
+    "context": ".09a1.65 1.65 0 0 0-1.51 1z\"/></svg></button><div class=\"sidebar-divider\"></div><button id=\"btn-dashboard\" aria-label=\"仪表盘\" tabindex=\"0\" class=\"sidebar-btn\" data-tooltip=\"仪表盘\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><"
+  },
+  {
+    "id": "theme-toggle-btn",
+    "tag": "button",
+    "cls": "sidebar-btn theme-toggle",
+    "line": 71,
+    "context": "\" width=\"7\" height=\"9\"/><rect x=\"3\" y=\"16\" width=\"7\" height=\"5\"/></svg></button><button id=\"theme-toggle-btn\" aria-label=\"主题切换\" tabindex=\"0\" class=\"sidebar-btn theme-toggle\" data-tooltip=\"主题切换\">?</button> </aside> <!-- 消息区域 --> <div id=\"app-main\">"
+  },
+  {
+    "id": "app-main",
+    "tag": "div",
+    "cls": "",
+    "line": 77,
+    "context": "-toggle\" data-tooltip=\"主题切换\">?</button> </aside> <!-- 消息区域 --> <div id=\"app-main\"> <aside id=\"chapter-tree\"> <div class=\"tree-header\"><sp"
+  },
+  {
+    "id": "chapter-tree",
+    "tag": "aside",
+    "cls": "",
+    "line": 81,
+    "context": "/button> </aside> <!-- 消息区域 --> <div id=\"app-main\"> <aside id=\"chapter-tree\"> <div class=\"tree-header\"><span id=\"current-project-name\">未打开项目</s"
+  },
+  {
+    "id": "current-project-name",
+    "tag": "span",
+    "cls": "",
+    "line": 85,
+    "context": "in\"> <aside id=\"chapter-tree\"> <div class=\"tree-header\"><span id=\"current-project-name\">未打开项目</span><button id=\"btn-tree-gen\" aria-label=\"生成流水线\" tabindex=\"0\" class=\"bt"
+  },
+  {
+    "id": "btn-tree-gen",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 85,
+    "context": "<div class=\"tree-header\"><span id=\"current-project-name\">未打开项目</span><button id=\"btn-tree-gen\" aria-label=\"生成流水线\" tabindex=\"0\" class=\"btn-sm btn-secondary\" data-tooltip=\"生成流水线\">生成</button><button id=\"btn-open-project\" aria-label=\"项目管理\" tabindex=\"0\" class=\""
+  },
+  {
+    "id": "btn-open-project",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 85,
+    "context": "成流水线\" tabindex=\"0\" class=\"btn-sm btn-secondary\" data-tooltip=\"生成流水线\">生成</button><button id=\"btn-open-project\" aria-label=\"项目管理\" tabindex=\"0\" class=\"btn-sm btn-secondary\">项目</button></div> <div class=\"tree-body\" id=\"tree-body\"><p class=\""
+  },
+  {
+    "id": "tree-body",
+    "tag": "div",
+    "cls": "tree-body",
+    "line": 89,
+    "context": "\"项目管理\" tabindex=\"0\" class=\"btn-sm btn-secondary\">项目</button></div> <div class=\"tree-body\" id=\"tree-body\"><p class=\"empty-hint\">点击右上角\"项目\"按钮<br>创建或打开你的小说项目</p></div> </aside>"
+  },
+  {
+    "id": "resizer-chapter",
+    "tag": "div",
+    "cls": "resizer-v",
+    "line": 95,
+    "context": "lass=\"empty-hint\">点击右上角\"项目\"按钮<br>创建或打开你的小说项目</p></div> </aside> <div id=\"resizer-chapter\" class=\"resizer-v\" title=\"拖动调整宽度\"></div> <section id=\"editor-panel\"> <div class=\"editor-header\"><sp"
+  },
+  {
+    "id": "editor-panel",
+    "tag": "section",
+    "cls": "",
+    "line": 97,
+    "context": "/aside> <div id=\"resizer-chapter\" class=\"resizer-v\" title=\"拖动调整宽度\"></div> <section id=\"editor-panel\"> <div class=\"editor-header\"><span id=\"editor-mode-badge\"></span><s"
+  },
+  {
+    "id": "editor-mode-badge",
+    "tag": "span",
+    "cls": "",
+    "line": 101,
+    "context": "宽度\"></div> <section id=\"editor-panel\"> <div class=\"editor-header\"><span id=\"editor-mode-badge\"></span><span id=\"editor-title\">选择章节开始写作</span><div class=\"editor-toolbar\"><div"
+  },
+  {
+    "id": "editor-title",
+    "tag": "span",
+    "cls": "",
+    "line": 101,
+    "context": "l\"> <div class=\"editor-header\"><span id=\"editor-mode-badge\"></span><span id=\"editor-title\">选择章节开始写作</span><div class=\"editor-toolbar\"><div class=\"editor-toolbar-group\"><b"
+  },
+  {
+    "id": "btn-undo",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 101,
+    "context": "e\">选择章节开始写作</span><div class=\"editor-toolbar\"><div class=\"editor-toolbar-group\"><button id=\"btn-undo\" aria-label=\"撤销\" tabindex=\"0\" class=\"btn-sm btn-secondary\" title=\"Ctrl+Z\">←</button><button id=\"btn-redo\" aria-label=\"重做\" tabindex=\"0\" class=\"btn-sm btn-"
+  },
+  {
+    "id": "btn-redo",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 101,
+    "context": "a-label=\"撤销\" tabindex=\"0\" class=\"btn-sm btn-secondary\" title=\"Ctrl+Z\">←</button><button id=\"btn-redo\" aria-label=\"重做\" tabindex=\"0\" class=\"btn-sm btn-secondary\" title=\"Ctrl+Y\">→</button></div><span class=\"editor-toolbar-sep\"></span><div class=\"editor-tool"
+  },
+  {
+    "id": "btn-generate-content",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 101,
+    "context": "</div><span class=\"editor-toolbar-sep\"></span><div class=\"editor-toolbar-group\"><button id=\"btn-generate-content\" aria-label=\"AI生成内容\" tabindex=\"0\" class=\"btn-sm btn-secondary\">生成</button><button id=\"btn-save-editor\" aria-label=\"保存\" tabindex=\"0\" class=\"btn"
+  },
+  {
+    "id": "btn-save-editor",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 101,
+    "context": "ntent\" aria-label=\"AI生成内容\" tabindex=\"0\" class=\"btn-sm btn-secondary\">生成</button><button id=\"btn-save-editor\" aria-label=\"保存\" tabindex=\"0\" class=\"btn-sm btn-secondary\" title=\"Ctrl+S\">保存</button></div><span class=\"editor-toolbar-sep\"></span><div class=\"editor-too"
+  },
+  {
+    "id": "btn-export",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 101,
+    "context": "itor-toolbar-sep\"></span><div class=\"editor-toolbar-group export-dropdown-wrap\"><button id=\"btn-export\" aria-label=\"导出\" tabindex=\"0\" class=\"btn-sm btn-secondary\">导出</button><div class=\"export-dropdown\" id=\"export-dropdown\"><button data-forma"
+  },
+  {
+    "id": "export-dropdown",
+    "tag": "div",
+    "cls": "export-dropdown",
+    "line": 101,
+    "context": "tn-export\" aria-label=\"导出\" tabindex=\"0\" class=\"btn-sm btn-secondary\">导出</button><div class=\"export-dropdown\" id=\"export-dropdown\"><button data-format=\"md\">Markdown (.md)</button><button data-format=\"txt\">纯文本 ("
+  },
+  {
+    "id": "btn-ai-names",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 101,
+    "context": "</div><span class=\"editor-toolbar-sep\"></span><div class=\"editor-toolbar-group\"><button id=\"btn-ai-names\" aria-label=\"AI起名\" tabindex=\"0\" class=\"btn-sm btn-secondary\">AI起名</button><button id=\"btn-writing-rules\" aria-label=\"写作规则\" tabindex=\"0\" clas"
+  },
+  {
+    "id": "btn-writing-rules",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 101,
+    "context": "names\" aria-label=\"AI起名\" tabindex=\"0\" class=\"btn-sm btn-secondary\">AI起名</button><button id=\"btn-writing-rules\" aria-label=\"写作规则\" tabindex=\"0\" class=\"btn-sm btn-secondary\">写作规则</button></div><span class=\"editor-toolbar-sep\"></span><div class=\"editor-t"
+  },
+  {
+    "id": "btn-timeline",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 101,
+    "context": "</div><span class=\"editor-toolbar-sep\"></span><div class=\"editor-toolbar-group\"><button id=\"btn-timeline\" aria-label=\"时间线\" tabindex=\"0\" class=\"btn-sm btn-secondary\">时间线</button><button id=\"btn-batch-review\" aria-label=\"批量审阅\" tabindex=\"0\" class="
+  },
+  {
+    "id": "btn-batch-review",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 101,
+    "context": "imeline\" aria-label=\"时间线\" tabindex=\"0\" class=\"btn-sm btn-secondary\">时间线</button><button id=\"btn-batch-review\" aria-label=\"批量审阅\" tabindex=\"0\" class=\"btn-sm btn-secondary\">批量审阅</button><button id=\"btn-revise\" aria-label=\"章节修订\" tabindex=\"0\" class=\"btn-"
+  },
+  {
+    "id": "btn-revise",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 101,
+    "context": "eview\" aria-label=\"批量审阅\" tabindex=\"0\" class=\"btn-sm btn-secondary\">批量审阅</button><button id=\"btn-revise\" aria-label=\"章节修订\" tabindex=\"0\" class=\"btn-sm btn-secondary\">章节修订</button><button id=\"btn-de-ai\" aria-label=\"去AI味\" tabindex=\"0\" class=\"btn-s"
+  },
+  {
+    "id": "btn-de-ai",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 101,
+    "context": "evise\" aria-label=\"章节修订\" tabindex=\"0\" class=\"btn-sm btn-secondary\">章节修订</button><button id=\"btn-de-ai\" aria-label=\"去AI味\" tabindex=\"0\" class=\"btn-sm btn-secondary\" title=\"去除AI生成痕迹\">去AI味</button></div></div><span class=\"word-count\" id=\"word-count\">0 字</span></d"
+  },
+  {
+    "id": "word-count",
+    "tag": "span",
+    "cls": "word-count",
+    "line": 101,
+    "context": "ndex=\"0\" class=\"btn-sm btn-secondary\" title=\"去除AI生成痕迹\">去AI味</button></div></div><span class=\"word-count\" id=\"word-count\">0 字</span></div> <!-- 标签页栏 --><!-- 查找替换栏--> <div id=\"find-re"
+  },
+  {
+    "id": "find-replace-bar",
+    "tag": "div",
+    "cls": "",
+    "line": 108,
+    "context": "id=\"word-count\">0 字</span></div> <!-- 标签页栏 --><!-- 查找替换栏--> <div id=\"find-replace-bar\"> <input type=\"text\" id=\"find-input\" aria-label=\"查找内容\" tabindex=\"0\""
+  },
+  {
+    "id": "find-input",
+    "tag": "input",
+    "cls": "",
+    "line": 111,
+    "context": "<!-- 标签页栏 --><!-- 查找替换栏--> <div id=\"find-replace-bar\"> <input type=\"text\" id=\"find-input\" aria-label=\"查找内容\" tabindex=\"0\" placeholder=\"查找...\"> <input type=\"text\" id=\"replace-input\" aria-label=\"替换内容\" tabindex="
+  },
+  {
+    "id": "replace-input",
+    "tag": "input",
+    "cls": "",
+    "line": 114,
+    "context": "d=\"find-input\" aria-label=\"查找内容\" tabindex=\"0\" placeholder=\"查找...\"> <input type=\"text\" id=\"replace-input\" aria-label=\"替换内容\" tabindex=\"0\" placeholder=\"替换为...\"> <button id=\"btn-find-prev\" title=\"上一个\">上一个</button>"
+  },
+  {
+    "id": "btn-find-prev",
+    "tag": "button",
+    "cls": "",
+    "line": 117,
+    "context": "eplace-input\" aria-label=\"替换内容\" tabindex=\"0\" placeholder=\"替换为...\"> <button id=\"btn-find-prev\" title=\"上一个\">上一个</button> <button id=\"btn-find-next\" title=\"下一个\">下一个</button>"
+  },
+  {
+    "id": "btn-find-next",
+    "tag": "button",
+    "cls": "",
+    "line": 120,
+    "context": "> <button id=\"btn-find-prev\" title=\"上一个\">上一个</button> <button id=\"btn-find-next\" title=\"下一个\">下一个</button> <button id=\"btn-replace-one\" title=\"替换当前\">替换</button>"
+  },
+  {
+    "id": "btn-replace-one",
+    "tag": "button",
+    "cls": "",
+    "line": 123,
+    "context": "> <button id=\"btn-find-next\" title=\"下一个\">下一个</button> <button id=\"btn-replace-one\" title=\"替换当前\">替换</button> <button id=\"btn-replace-all\" title=\"全部替换\">全部替换</button"
+  },
+  {
+    "id": "btn-replace-all",
+    "tag": "button",
+    "cls": "",
+    "line": 126,
+    "context": "<button id=\"btn-replace-one\" title=\"替换当前\">替换</button> <button id=\"btn-replace-all\" title=\"全部替换\">全部替换</button> <span class=\"find-count\" id=\"find-count\"></span>"
+  },
+  {
+    "id": "find-count",
+    "tag": "span",
+    "cls": "find-count",
+    "line": 129,
+    "context": "<button id=\"btn-replace-all\" title=\"全部替换\">全部替换</button> <span class=\"find-count\" id=\"find-count\"></span> <button class=\"find-close\" id=\"btn-find-close\" title=\"关闭\">"
+  },
+  {
+    "id": "btn-find-close",
+    "tag": "button",
+    "cls": "find-close",
+    "line": 132,
+    "context": "ton> <span class=\"find-count\" id=\"find-count\"></span> <button class=\"find-close\" id=\"btn-find-close\" title=\"关闭\">&times;</button> </div> <textarea id=\"editor-content\" a"
+  },
+  {
+    "id": "editor-content",
+    "tag": "textarea",
+    "cls": "",
+    "line": 139,
+    "context": "id=\"btn-find-close\" title=\"关闭\">&times;</button> </div> <textarea id=\"editor-content\" aria-label=\"正文编辑器\" tabindex=\"0\" placeholder=\"请先创建或打开项目，然后选择左侧章节开始写作...\" disabled></textarea> </section> <div id=\"resizer-editor-chat\" class=\"res"
+  },
+  {
+    "id": "resizer-editor-chat",
+    "tag": "div",
+    "cls": "resizer-v",
+    "line": 145,
+    "context": "der=\"请先创建或打开项目，然后选择左侧章节开始写作...\" disabled></textarea> </section> <div id=\"resizer-editor-chat\" class=\"resizer-v\" title=\"拖动调整宽度\"></div> <section id=\"chat-panel\"> <div class=\"chat-header\"><span>A"
+  },
+  {
+    "id": "chat-panel",
+    "tag": "section",
+    "cls": "",
+    "line": 147,
+    "context": "on> <div id=\"resizer-editor-chat\" class=\"resizer-v\" title=\"拖动调整宽度\"></div> <section id=\"chat-panel\"> <div class=\"chat-header\"><span>AI 对话</span><select id=\"agent-sele"
+  },
+  {
+    "id": "agent-select-chat",
+    "tag": "select",
+    "cls": "agent-selector",
+    "line": 151,
+    "context": "ection id=\"chat-panel\"> <div class=\"chat-header\"><span>AI 对话</span><select id=\"agent-select-chat\" aria-label=\"对话区选择智能体\" tabindex=\"0\" class=\"agent-selector\"><option value=\"\">默认</option></select><select id=\"model-select-chat\" aria-label="
+  },
+  {
+    "id": "model-select-chat",
+    "tag": "select",
+    "cls": "agent-selector agent-selector-ml",
+    "line": 151,
+    "context": "选择智能体\" tabindex=\"0\" class=\"agent-selector\"><option value=\"\">默认</option></select><select id=\"model-select-chat\" aria-label=\"对话区选择模型\" tabindex=\"0\" class=\"agent-selector agent-selector-ml\"><option value=\"\">自动</option></select></div> <div id=\"chat-context-bar"
+  },
+  {
+    "id": "chat-context-bar",
+    "tag": "div",
+    "cls": "",
+    "line": 154,
+    "context": "lector agent-selector-ml\"><option value=\"\">自动</option></select></div> <div id=\"chat-context-bar\"></div> <div id=\"messages-container\"><div id=\"messages-list\"><div class=\"e"
+  },
+  {
+    "id": "messages-container",
+    "tag": "div",
+    "cls": "",
+    "line": 155,
+    "context": "\"\">自动</option></select></div> <div id=\"chat-context-bar\"></div> <div id=\"messages-container\"><div id=\"messages-list\"><div class=\"empty-state\" id=\"chat-empty-state\"><div cla"
+  },
+  {
+    "id": "messages-list",
+    "tag": "div",
+    "cls": "",
+    "line": 155,
+    "context": "<div id=\"chat-context-bar\"></div> <div id=\"messages-container\"><div id=\"messages-list\"><div class=\"empty-state\" id=\"chat-empty-state\"><div class=\"empty-state-icon\">&#"
+  },
+  {
+    "id": "chat-empty-state",
+    "tag": "div",
+    "cls": "empty-state",
+    "line": 155,
+    "context": "-context-bar\"></div> <div id=\"messages-container\"><div id=\"messages-list\"><div class=\"empty-state\" id=\"chat-empty-state\"><div class=\"empty-state-icon\">&#9997;&#65039;</div><div class=\"empty-state-titl"
+  },
+  {
+    "id": "user-input",
+    "tag": "textarea",
+    "cls": "",
+    "line": 159,
+    "context": "消息，与 AI 助手开始创作</div></div></div></div> <div class=\"chat-input-row\"><textarea id=\"user-input\" aria-label=\"对话输入框\" tabindex=\"0\" rows=\"1\" placeholder=\"输入消息...\"></textarea><button id=\"btn-send\" aria-label=\"发送消息\" tabindex=\"0\" class=\"btn-send"
+  },
+  {
+    "id": "btn-send",
+    "tag": "button",
+    "cls": "btn-send",
+    "line": 159,
+    "context": "nput\" aria-label=\"对话输入框\" tabindex=\"0\" rows=\"1\" placeholder=\"输入消息...\"></textarea><button id=\"btn-send\" aria-label=\"发送消息\" tabindex=\"0\" class=\"btn-send\" title=\"发送\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColo"
+  },
+  {
+    "id": "skill-area",
+    "tag": "div",
+    "cls": "",
+    "line": 163,
+    "context": "<polygon points=\"22 2 15 22 11 13 2 9 22 2\"/></svg></button></div> <div id=\"skill-area\"><div class=\"skill-area-header\" id=\"skill-area-toggle\"><span class=\"skill-area-t"
+  },
+  {
+    "id": "skill-area-toggle",
+    "tag": "div",
+    "cls": "skill-area-header",
+    "line": 163,
+    "context": "15 22 11 13 2 9 22 2\"/></svg></button></div> <div id=\"skill-area\"><div class=\"skill-area-header\" id=\"skill-area-toggle\"><span class=\"skill-area-title\">技能区</span><span id=\"skill-area-arrow\" class=\"ski"
+  },
+  {
+    "id": "skill-area-arrow",
+    "tag": "span",
+    "cls": "skill-area-arrow",
+    "line": 163,
+    "context": "ll-area-header\" id=\"skill-area-toggle\"><span class=\"skill-area-title\">技能区</span><span id=\"skill-area-arrow\" class=\"skill-area-arrow\">&#9660;</span></div><div id=\"skill-area-content\" class=\"skill-area-content\"><di"
+  },
+  {
+    "id": "skill-area-content",
+    "tag": "div",
+    "cls": "skill-area-content",
+    "line": 163,
+    "context": "</span><span id=\"skill-area-arrow\" class=\"skill-area-arrow\">&#9660;</span></div><div id=\"skill-area-content\" class=\"skill-area-content\"><div id=\"agent-info-bar\" class=\"agent-info-bar\"><span class=\"agent-info-label\">"
+  },
+  {
+    "id": "agent-info-bar",
+    "tag": "div",
+    "cls": "agent-info-bar",
+    "line": 163,
+    "context": "ow\">&#9660;</span></div><div id=\"skill-area-content\" class=\"skill-area-content\"><div id=\"agent-info-bar\" class=\"agent-info-bar\"><span class=\"agent-info-label\">AI</span> <span id=\"agent-info-name\" class=\"agen"
+  },
+  {
+    "id": "agent-info-name",
+    "tag": "span",
+    "cls": "agent-info-name",
+    "line": 163,
+    "context": "agent-info-bar\" class=\"agent-info-bar\"><span class=\"agent-info-label\">AI</span> <span id=\"agent-info-name\" class=\"agent-info-name\"></span> <span id=\"agent-info-model\" class=\"agent-info-model\"></span></div><div"
+  },
+  {
+    "id": "agent-info-model",
+    "tag": "span",
+    "cls": "agent-info-model",
+    "line": 163,
+    "context": "nfo-label\">AI</span> <span id=\"agent-info-name\" class=\"agent-info-name\"></span> <span id=\"agent-info-model\" class=\"agent-info-model\"></span></div><div id=\"skill-list-active\" class=\"skill-list-active\">暂无</div></di"
+  },
+  {
+    "id": "skill-list-active",
+    "tag": "div",
+    "cls": "skill-list-active",
+    "line": 163,
+    "context": "name\"></span> <span id=\"agent-info-model\" class=\"agent-info-model\"></span></div><div id=\"skill-list-active\" class=\"skill-list-active\">暂无</div></div></div> <div class=\"input-hint\"><span id=\"char-count\">0</"
+  },
+  {
+    "id": "char-count",
+    "tag": "span",
+    "cls": "",
+    "line": 166,
+    "context": "class=\"skill-list-active\">暂无</div></div></div> <div class=\"input-hint\"><span id=\"char-count\">0</span> 字 | <span id=\"config-status\">未配置 API | 点击设置配置</span></div> <div c"
+  },
+  {
+    "id": "config-status",
+    "tag": "span",
+    "cls": "",
+    "line": 166,
+    "context": "/div></div> <div class=\"input-hint\"><span id=\"char-count\">0</span> 字 | <span id=\"config-status\">未配置 API | 点击设置配置</span></div> <div class=\"input-hint token-bar-hidden\" id="
+  },
+  {
+    "id": "token-bar",
+    "tag": "div",
+    "cls": "input-hint token-bar-hidden",
+    "line": 167,
+    "context": "count\">0</span> 字 | <span id=\"config-status\">未配置 API | 点击设置配置</span></div> <div class=\"input-hint token-bar-hidden\" id=\"token-bar\">本次消耗: <span id=\"token-count\">0</span> tokens</div> </section>"
+  },
+  {
+    "id": "token-count",
+    "tag": "span",
+    "cls": "",
+    "line": 167,
+    "context": "/span></div> <div class=\"input-hint token-bar-hidden\" id=\"token-bar\">本次消耗: <span id=\"token-count\">0</span> tokens</div> </section> </div> <!-"
+  },
+  {
+    "id": "settings-modal",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 187,
+    "context": "v> </section> </div> <!-- 设置模态框 --> <div id=\"settings-modal\" class=\"modal modal-hidden\"> <div class=\"modal-backdrop\"></div> <div class=\"modal-content moda"
+  },
+  {
+    "id": "btn-close-settings",
+    "tag": "button",
+    "cls": "btn-close",
+    "line": 208,
+    "context": "on><button class=\"modal-tab\" data-tab=\"diag\">诊断日志</button></div> <button id=\"btn-close-settings\" aria-label=\"关闭设置\" tabindex=\"0\" class=\"btn-close\">&times;</button> </div> <div class=\"modal-body\"><div i"
+  },
+  {
+    "id": "tab-api",
+    "tag": "div",
+    "cls": "tab-content",
+    "line": 216,
+    "context": "close\">&times;</button> </div> <div class=\"modal-body\"><div id=\"tab-api\" class=\"tab-content\"> <!-- View 1: Provider List (default visible) --> <div id=\""
+  },
+  {
+    "id": "provider-list-view",
+    "tag": "div",
+    "cls": "",
+    "line": 219,
+    "context": "-content\"> <!-- View 1: Provider List (default visible) --> <div id=\"provider-list-view\"> <div id=\"provider-card-list\"></div> </div> <!--"
+  },
+  {
+    "id": "provider-card-list",
+    "tag": "div",
+    "cls": "",
+    "line": 220,
+    "context": "er List (default visible) --> <div id=\"provider-list-view\"> <div id=\"provider-card-list\"></div> </div> <!-- View 2: Provider Edit (hidden) -->"
+  },
+  {
+    "id": "provider-edit-view",
+    "tag": "div",
+    "cls": "modal-hidden",
+    "line": 224,
+    "context": "iv> </div> <!-- View 2: Provider Edit (hidden) --> <div id=\"provider-edit-view\" class=\"modal-hidden\"> <div class=\"provider-edit-header\"> <button id=\"btn-p"
+  },
+  {
+    "id": "btn-provider-back",
+    "tag": "button",
+    "cls": "btn-secondary btn-back-sm",
+    "line": 227,
+    "context": "ss=\"modal-hidden\"> <div class=\"provider-edit-header\"> <button id=\"btn-provider-back\" class=\"btn-secondary btn-back-sm\">← 返回</button> <span id=\"provider-edit-title\" class=\"provider-edit-"
+  },
+  {
+    "id": "provider-edit-title",
+    "tag": "span",
+    "cls": "provider-edit-title-text",
+    "line": 228,
+    "context": "btn-provider-back\" class=\"btn-secondary btn-back-sm\">← 返回</button> <span id=\"provider-edit-title\" class=\"provider-edit-title-text\">供应商编辑</span> <span id=\"provider-conn-status\" class=\"provider-conn-"
+  },
+  {
+    "id": "provider-conn-status",
+    "tag": "span",
+    "cls": "provider-conn-status-text",
+    "line": 229,
+    "context": "provider-edit-title\" class=\"provider-edit-title-text\">供应商编辑</span> <span id=\"provider-conn-status\" class=\"provider-conn-status-text\"></span> </div> <div class=\"form-group\"> <l"
+  },
+  {
+    "id": "cfg-provider-name",
+    "tag": "input",
+    "cls": "",
+    "line": 234,
+    "context": "-group\"> <label for=\"cfg-provider-name\">供应商名称</label> <input type=\"text\" id=\"cfg-provider-name\" placeholder=\"例如: CloudAI\"> </div> <div class=\"form-group\"> <label fo"
+  },
+  {
+    "id": "cfg-base-url",
+    "tag": "input",
+    "cls": "",
+    "line": 239,
+    "context": "=\"form-group\"> <label for=\"cfg-base-url\">接口地址</label> <input type=\"text\" id=\"cfg-base-url\" placeholder=\"例如: https://api.openai.com/v1\"> <small class=\"form-hint\">填写API服务商提供的接口URL</small> </di"
+  },
+  {
+    "id": "cfg-api-key",
+    "tag": "input",
+    "cls": "",
+    "line": 246,
+    "context": "g-api-key\">API密钥</label> <div class=\"password-row\"> <input type=\"password\" id=\"cfg-api-key\" placeholder=\"输入你的API密钥\"> <button id=\"btn-toggle-key\" class=\"btn-toggle\" title=\"显示/隐藏\">显示"
+  },
+  {
+    "id": "btn-toggle-key",
+    "tag": "button",
+    "cls": "btn-toggle",
+    "line": 247,
+    "context": "<input type=\"password\" id=\"cfg-api-key\" placeholder=\"输入你的API密钥\"> <button id=\"btn-toggle-key\" class=\"btn-toggle\" title=\"显示/隐藏\">显示</button> </div> <small class=\"form-hint\">从API服务商获取"
+  },
+  {
+    "id": "btn-fetch-models",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary mb-8",
+    "line": 254,
+    "context": "<div class=\"form-group\"> <label>模型列表</label> <button id=\"btn-fetch-models\" class=\"btn-sm btn-secondary mb-8\">获取模型列表</button> <div id=\"provider-model-list\" class=\"provider-mode"
+  },
+  {
+    "id": "provider-model-list",
+    "tag": "div",
+    "cls": "provider-model-list-box",
+    "line": 255,
+    "context": "tn-fetch-models\" class=\"btn-sm btn-secondary mb-8\">获取模型列表</button> <div id=\"provider-model-list\" class=\"provider-model-list-box\"></div> <datalist id=\"model-datalist\"></datalist> </div>"
+  },
+  {
+    "id": "model-datalist",
+    "tag": "datalist",
+    "cls": "",
+    "line": 256,
+    "context": "iv id=\"provider-model-list\" class=\"provider-model-list-box\"></div> <datalist id=\"model-datalist\"></datalist> </div> <div class=\"form-group\">"
+  },
+  {
+    "id": "cfg-stream-mode",
+    "tag": "input",
+    "cls": "",
+    "line": 261,
+    "context": "class=\"form-group\"> <label class=\"checkbox-label\"> <input type=\"checkbox\" id=\"cfg-stream-mode\"> <span>流式传输（打字机逐字显示效果）</span> </label> <"
+  },
+  {
+    "id": "cfg-temperature",
+    "tag": "input",
+    "cls": "range-flex",
+    "line": 269,
+    "context": "\"cfg-temperature\">温度</label> <div class=\"temp-row\"> <input type=\"range\" id=\"cfg-temperature\" min=\"0\" max=\"2\" step=\"0.1\" value=\"0.7\" class=\"range-flex\"> <span id=\"cfg-temperature-val\" class=\"range-val\">0.7</span>"
+  },
+  {
+    "id": "cfg-temperature-val",
+    "tag": "span",
+    "cls": "range-val",
+    "line": 270,
+    "context": "ture\" min=\"0\" max=\"2\" step=\"0.1\" value=\"0.7\" class=\"range-flex\"> <span id=\"cfg-temperature-val\" class=\"range-val\">0.7</span> </div> </div> <div class=\"form-"
+  },
+  {
+    "id": "cfg-max-tokens",
+    "tag": "input",
+    "cls": "input-w-120",
+    "line": 276,
+    "context": "group\"> <label for=\"cfg-max-tokens\">MaxTokens</label> <input type=\"number\" id=\"cfg-max-tokens\" value=\"128000\" min=\"1\" class=\"input-w-120\"> </div> <div class=\"form-group\"> <label fo"
+  },
+  {
+    "id": "cfg-provider-purpose",
+    "tag": "select",
+    "cls": "input-w-120",
+    "line": 281,
+    "context": "m-group\"> <label for=\"cfg-provider-purpose\">用途</label> <select id=\"cfg-provider-purpose\" class=\"input-w-120\"> <option value=\"generate\">生成（写作生成用）</option> <optio"
+  },
+  {
+    "id": "cfg-system-prompt",
+    "tag": "textarea",
+    "cls": "",
+    "line": 290,
+    "context": "up\"> <label for=\"cfg-system-prompt\">系统提示词（可选）</label> <textarea id=\"cfg-system-prompt\" rows=\"3\" placeholder=\"设定AI的角色和行为...\"></textarea> <small class=\"form-hint\">可选，定义AI助手的角色定位和写作风格</small>"
+  },
+  {
+    "id": "btn-test-connection",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 295,
+    "context": "</small> </div> <div class=\"form-actions\"> <button id=\"btn-test-connection\" class=\"btn-secondary\">测试连接</button> <button id=\"btn-save-settings\" class=\"btn-primary\">保"
+  },
+  {
+    "id": "btn-save-settings",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 296,
+    "context": "utton id=\"btn-test-connection\" class=\"btn-secondary\">测试连接</button> <button id=\"btn-save-settings\" class=\"btn-primary\">保存</button> <button id=\"btn-export-data\" class=\"btn-secondary\">导出"
+  },
+  {
+    "id": "btn-export-data",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 297,
+    "context": "<button id=\"btn-save-settings\" class=\"btn-primary\">保存</button> <button id=\"btn-export-data\" class=\"btn-secondary\">导出配置</button> <button id=\"btn-import-data\" class=\"btn-secondary\">"
+  },
+  {
+    "id": "btn-import-data",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 298,
+    "context": "<button id=\"btn-export-data\" class=\"btn-secondary\">导出配置</button> <button id=\"btn-import-data\" class=\"btn-secondary\">导入配置</button> </div> </div> </div> <div"
+  },
+  {
+    "id": "tab-skills",
+    "tag": "div",
+    "cls": "tab-content tab-hidden",
+    "line": 305,
+    "context": "ary\">导入配置</button> </div> </div> </div> <div id=\"tab-skills\" class=\"tab-content tab-hidden\"> <div class=\"section-header\"><span class=\"section-title\">技能列表</s"
+  },
+  {
+    "id": "btn-add-skill",
+    "tag": "button",
+    "cls": "btn-primary btn-sm",
+    "line": 309,
+    "context": "<div class=\"section-header\"><span class=\"section-title\">技能列表</span><button id=\"btn-add-skill\" class=\"btn-primary btn-sm\">+ 添加技能</button></div> <div id=\"skill-list\" class=\"item-list card"
+  },
+  {
+    "id": "skill-list",
+    "tag": "div",
+    "cls": "item-list card-grid",
+    "line": 313,
+    "context": "\"btn-add-skill\" class=\"btn-primary btn-sm\">+ 添加技能</button></div> <div id=\"skill-list\" class=\"item-list card-grid\"></div> <div id=\"skill-form\" class=\"modal-hidden\">"
+  },
+  {
+    "id": "skill-form",
+    "tag": "div",
+    "cls": "modal-hidden",
+    "line": 317,
+    "context": "<div id=\"skill-list\" class=\"item-list card-grid\"></div> <div id=\"skill-form\" class=\"modal-hidden\"> <h4 id=\"skill-form-title\">新建技能</h4> <div cla"
+  },
+  {
+    "id": "skill-form-title",
+    "tag": "h4",
+    "cls": "",
+    "line": 321,
+    "context": "div> <div id=\"skill-form\" class=\"modal-hidden\"> <h4 id=\"skill-form-title\">新建技能</h4> <div class=\"form-group\"><label for=\"sf-name\">名称</lab"
+  },
+  {
+    "id": "sf-name",
+    "tag": "input",
+    "cls": "full-width",
+    "line": 325,
+    "context": "技能</h4> <div class=\"form-group\"><label for=\"sf-name\">名称</label><input id=\"sf-name\" class=\"full-width\"></div> <div class=\"form-group\"><label for=\"sf-desc\">描述</label>"
+  },
+  {
+    "id": "sf-desc",
+    "tag": "input",
+    "cls": "full-width",
+    "line": 329,
+    "context": "></div> <div class=\"form-group\"><label for=\"sf-desc\">描述</label><input id=\"sf-desc\" class=\"full-width\"></div> <div class=\"form-group\"><label for=\"sf-category\">类别</la"
+  },
+  {
+    "id": "sf-category",
+    "tag": "input",
+    "cls": "full-width",
+    "line": 333,
+    "context": "iv> <div class=\"form-group\"><label for=\"sf-category\">类别</label><input id=\"sf-category\" class=\"full-width\" placeholder=\"如: 大纲、世界观、文体\"></div> <div class=\"form-group\"><label for=\"sf-inject-mode\">注入模"
+  },
+  {
+    "id": "sf-inject-mode",
+    "tag": "select",
+    "cls": "full-width",
+    "line": 337,
+    "context": "<div class=\"form-group\"><label for=\"sf-inject-mode\">注入模式</label><select id=\"sf-inject-mode\" class=\"full-width\"><option value=\"system_prefix\">系统前缀 - 追加到系统提示词之后</option><option value=\"user_pre"
+  },
+  {
+    "id": "sf-frequency",
+    "tag": "select",
+    "cls": "full-width",
+    "line": 341,
+    "context": "<div class=\"form-group\"><label for=\"sf-frequency\">绑定层级</label><select id=\"sf-frequency\" class=\"full-width\"><option value=\"every\">每轮 - 每条消息都注入</option><option value=\"every3\">每3轮 - 每3条用户消息"
+  },
+  {
+    "id": "sf-depth",
+    "tag": "input",
+    "cls": "full-width",
+    "line": 341,
+    "context": "ct></div><div class=\"form-group\"><label for=\"sf-depth\">上下文深度(最近消息数,0=不限)</label><input id=\"sf-depth\" class=\"full-width\" type=\"number\" min=\"0\" max=\"100\" value=\"0\" placeholder=\"0=不限制(默认无限)\"></div><div class=\"form-group\"><label for=\"sf-bind-type\">绑定层级</label><select id="
+  },
+  {
+    "id": "sf-bind-type",
+    "tag": "select",
+    "cls": "full-width",
+    "line": 341,
+    "context": "=不限制(默认无限)\"></div><div class=\"form-group\"><label for=\"sf-bind-type\">绑定层级</label><select id=\"sf-bind-type\" class=\"full-width\"><option value=\"project\">全书</option><option value=\"volume\">卷</option><option val"
+  },
+  {
+    "id": "sf-bind-id-group",
+    "tag": "div",
+    "cls": "form-group modal-hidden",
+    "line": 344,
+    "context": "olume\">卷</option><option value=\"chapter\">章</option></select></div> <div class=\"form-group modal-hidden\" id=\"sf-bind-id-group\"><label for=\"sf-bind-id\">绑定到</label><select id=\"sf-bind-id\" class=\"full-width\"><"
+  },
+  {
+    "id": "sf-bind-id",
+    "tag": "select",
+    "cls": "full-width",
+    "line": 344,
+    "context": "rm-group modal-hidden\" id=\"sf-bind-id-group\"><label for=\"sf-bind-id\">绑定到</label><select id=\"sf-bind-id\" class=\"full-width\"><option value=\"\">选择目标...</option></select></div> <div class=\"for"
+  },
+  {
+    "id": "sf-linked-list",
+    "tag": "div",
+    "cls": "checkbox-list",
+    "line": 347,
+    "context": "<div class=\"form-group\"><label for=\"sf-linked-list\">联动技能</label><div id=\"sf-linked-list\" class=\"checkbox-list\"></div></div> <details class=\"var-details\"><summary>可用变量</summa"
+  },
+  {
+    "id": "sf-template",
+    "tag": "textarea",
+    "cls": "sf-template-input",
+    "line": 355,
+    "context": "label for=\"sf-template\">模板 (支持Markdown)</label><div class=\"sf-template-wrapper\"><textarea id=\"sf-template\" rows=\"8\" class=\"sf-template-input\" placeholder=\"支持 Markdown 格式。使用 {{变量名}} 插入动态内容。使用 <script>output.push('...')</script> 添加动态逻辑。\"></textarea><div id=\"sf-template-preview\" c"
+  },
+  {
+    "id": "sf-template-preview",
+    "tag": "div",
+    "cls": "sf-template-preview",
+    "line": 355,
+    "context": "格式。使用 {{变量名}} 插入动态内容。使用 <script>output.push('...')</script> 添加动态逻辑。\"></textarea><div id=\"sf-template-preview\" class=\"sf-template-preview\"></div></div></div> <div class=\"form-actions\"><button id=\"btn-sa"
+  },
+  {
+    "id": "btn-save-skill",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 359,
+    "context": "-template-preview\"></div></div></div> <div class=\"form-actions\"><button id=\"btn-save-skill\" class=\"btn-primary\">保存</button><button id=\"btn-cancel-skill\" class=\"btn-secondary\">取消</button></div"
+  },
+  {
+    "id": "btn-cancel-skill",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 359,
+    "context": "class=\"form-actions\"><button id=\"btn-save-skill\" class=\"btn-primary\">保存</button><button id=\"btn-cancel-skill\" class=\"btn-secondary\">取消</button></div> </div> </div> <div i"
+  },
+  {
+    "id": "tab-agents",
+    "tag": "div",
+    "cls": "tab-content tab-hidden",
+    "line": 371,
+    "context": "ndary\">取消</button></div> </div> </div> <div id=\"tab-agents\" class=\"tab-content tab-hidden\"> <div class=\"section-header\"><span class=\"section-title\">智能体列表</"
+  },
+  {
+    "id": "btn-add-agent",
+    "tag": "button",
+    "cls": "btn-primary btn-sm",
+    "line": 375,
+    "context": "<div class=\"section-header\"><span class=\"section-title\">智能体列表</span><button id=\"btn-add-agent\" class=\"btn-primary btn-sm\">+ 添加智能体</button></div> <div id=\"agent-list\" class=\"item-list car"
+  },
+  {
+    "id": "agent-list",
+    "tag": "div",
+    "cls": "item-list card-grid",
+    "line": 379,
+    "context": "btn-add-agent\" class=\"btn-primary btn-sm\">+ 添加智能体</button></div> <div id=\"agent-list\" class=\"item-list card-grid\"> </div> <div id=\"agent-form\" class=\"modal-hidden\">"
+  },
+  {
+    "id": "agent-form",
+    "tag": "div",
+    "cls": "modal-hidden",
+    "line": 384,
+    "context": "iv id=\"agent-list\" class=\"item-list card-grid\"> </div> <div id=\"agent-form\" class=\"modal-hidden\"> <h4 id=\"agent-form-title\">新建智能体</h4> <div class=\"form-"
+  },
+  {
+    "id": "agent-form-title",
+    "tag": "h4",
+    "cls": "",
+    "line": 385,
+    "context": "</div> <div id=\"agent-form\" class=\"modal-hidden\"> <h4 id=\"agent-form-title\">新建智能体</h4> <div class=\"form-group\"><label for=\"af-name\">名称</label><"
+  },
+  {
+    "id": "af-name",
+    "tag": "input",
+    "cls": "full-width",
+    "line": 386,
+    "context": "\">新建智能体</h4> <div class=\"form-group\"><label for=\"af-name\">名称</label><input id=\"af-name\" class=\"full-width\" placeholder=\"例如: 大纲架构师\"></div> <div class=\"form-group\"><label for=\"af-desc\">描述</label><inpu"
+  },
+  {
+    "id": "af-desc",
+    "tag": "input",
+    "cls": "full-width",
+    "line": 387,
+    "context": "纲架构师\"></div> <div class=\"form-group\"><label for=\"af-desc\">描述</label><input id=\"af-desc\" class=\"full-width\" placeholder=\"简要描述智能体的用途...\"></div> <div class=\"form-group\"><label for=\"af-prompt\">系统提示词</label>"
+  },
+  {
+    "id": "af-prompt",
+    "tag": "textarea",
+    "cls": "full-width",
+    "line": 388,
+    "context": "></div> <div class=\"form-group\"><label for=\"af-prompt\">系统提示词</label><textarea id=\"af-prompt\" rows=\"6\" class=\"full-width\" placeholder=\"设定AI的角色、行为、语气...\"></textarea></div> <div class=\"form-group\"><label for=\"af-provider\">"
+  },
+  {
+    "id": "af-provider",
+    "tag": "select",
+    "cls": "full-width",
+    "line": 389,
+    "context": "/div> <div class=\"form-group\"><label for=\"af-provider\">绑定供应商</label><select id=\"af-provider\" class=\"full-width\"><option value=\"\">使用全局默认</option></select></div> <div class=\"form-gr"
+  },
+  {
+    "id": "af-model",
+    "tag": "input",
+    "cls": "full-width",
+    "line": 390,
+    "context": "elect></div> <div class=\"form-group\"><label>模型 (可选，留空使用全局设置)</label><input id=\"af-model\" class=\"full-width\" placeholder=\"例如: gpt-4o\" list=\"model-datalist\"></div> <div class=\"form-group\"><label>温度: <span id=\"af-temp-val\">0."
+  },
+  {
+    "id": "af-temp-val",
+    "tag": "span",
+    "cls": "",
+    "line": 391,
+    "context": "4o\" list=\"model-datalist\"></div> <div class=\"form-group\"><label>温度: <span id=\"af-temp-val\">0.7</span></label><input type=\"range\" id=\"af-temperature\" min=\"0\" max=\"2\" value"
+  },
+  {
+    "id": "af-temperature",
+    "tag": "input",
+    "cls": "range-full",
+    "line": 391,
+    "context": "<div class=\"form-group\"><label>温度: <span id=\"af-temp-val\">0.7</span></label><input type=\"range\" id=\"af-temperature\" min=\"0\" max=\"2\" value=\"0.7\" step=\"0.1\" class=\"range-full\"></div> <div class=\"form-group\"><label>最大 Token</label><input id=\"af"
+  },
+  {
+    "id": "af-max-tokens",
+    "tag": "input",
+    "cls": "full-width",
+    "line": 392,
+    "context": "=\"range-full\"></div> <div class=\"form-group\"><label>最大 Token</label><input id=\"af-max-tokens\" type=\"number\" min=\"1\" value=\"128000\" class=\"full-width\"></div> <div class=\"form-actions\"><button id=\"btn-save-agent\" class="
+  },
+  {
+    "id": "btn-save-agent",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 393,
+    "context": "value=\"128000\" class=\"full-width\"></div> <div class=\"form-actions\"><button id=\"btn-save-agent\" class=\"btn-primary\">保存</button><button id=\"btn-cancel-agent\" class=\"btn-secondary\">取消</button></div"
+  },
+  {
+    "id": "btn-cancel-agent",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 393,
+    "context": "class=\"form-actions\"><button id=\"btn-save-agent\" class=\"btn-primary\">保存</button><button id=\"btn-cancel-agent\" class=\"btn-secondary\">取消</button></div> </div> </div> <div id=\"tab-appe"
+  },
+  {
+    "id": "tab-appearance",
+    "tag": "div",
+    "cls": "tab-content tab-hidden",
+    "line": 399,
+    "context": "s=\"btn-secondary\">取消</button></div> </div> </div> <div id=\"tab-appearance\" class=\"tab-content tab-hidden\"> <div class=\"form-group\"> <label>界面字号</label> <i"
+  },
+  {
+    "id": "cfg-font-size",
+    "tag": "input",
+    "cls": "range-full",
+    "line": 402,
+    "context": "n\"> <div class=\"form-group\"> <label>界面字号</label> <input type=\"range\" id=\"cfg-font-size\" min=\"12\" max=\"20\" value=\"14\" step=\"1\" class=\"range-full\"> <span class=\"appearance-current-text\">当前: <span id=\"cfg-font-size-v"
+  },
+  {
+    "id": "cfg-font-size-val",
+    "tag": "span",
+    "cls": "",
+    "line": 403,
+    "context": "ep=\"1\" class=\"range-full\"> <span class=\"appearance-current-text\">当前: <span id=\"cfg-font-size-val\">14px</span></span> </div> <div class=\"form-group\">"
+  },
+  {
+    "id": "cfg-editor-font-size",
+    "tag": "input",
+    "cls": "range-full",
+    "line": 407,
+    "context": "v> <div class=\"form-group\"> <label>编辑器字号</label> <input type=\"range\" id=\"cfg-editor-font-size\" min=\"13\" max=\"22\" value=\"15\" step=\"1\" class=\"range-full\"> <span class=\"appearance-current-text\">当前: <span id=\"cfg-editor-font"
+  },
+  {
+    "id": "cfg-editor-font-size-val",
+    "tag": "span",
+    "cls": "",
+    "line": 408,
+    "context": "ep=\"1\" class=\"range-full\"> <span class=\"appearance-current-text\">当前: <span id=\"cfg-editor-font-size-val\">15px</span></span> </div> <div class=\"form-group\">"
+  },
+  {
+    "id": "cfg-theme",
+    "tag": "select",
+    "cls": "full-width",
+    "line": 412,
+    "context": "/div> <div class=\"form-group\"> <label>主题</label> <select id=\"cfg-theme\" class=\"full-width\"> <option value=\"dark\">深色</option> <option value=\"ligh"
+  },
+  {
+    "id": "btn-save-appearance",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 418,
+    "context": "</select> </div> <div class=\"form-actions\"> <button id=\"btn-save-appearance\" class=\"btn-primary\">保存外观设置</button> <div class=\"form-group appearance-divider\">"
+  },
+  {
+    "id": "tab-deai",
+    "tag": "div",
+    "cls": "tab-content tab-hidden",
+    "line": 436,
+    "context": "目管理</div> </div> </div> </div> </div> <div id=\"tab-deai\" class=\"tab-content tab-hidden\"> <div class=\"section-header\"><span class=\"section-title\">去AI味设置</span>"
+  },
+  {
+    "id": "deai-text-type",
+    "tag": "select",
+    "cls": "deai-param-select",
+    "line": 458,
+    "context": "<label class=\"deai-param-label\">文体类型</label> <select id=\"deai-text-type\" class=\"deai-param-select\"><option value=\"novel\" selected>小说</option><option value=\"script\">剧本</option><op"
+  },
+  {
+    "id": "deai-card-chain",
+    "tag": "div",
+    "cls": "deai-mode-card-body",
+    "line": 469,
+    "context": "i-mode-card-desc\">推荐新手，多SKILL依次执行</span> </div> <div class=\"deai-mode-card-body\" id=\"deai-card-chain\"> <div class=\"form-group\"> <label>SKILL链式顺"
+  },
+  {
+    "id": "deai-skill-select",
+    "tag": "select",
+    "cls": "full-width",
+    "line": 473,
+    "context": "</label> <div class=\"deai-skill-bar\"> <select id=\"deai-skill-select\" class=\"full-width\"><option value=\"\">选择技能...</option></select> <button id=\"bt"
+  },
+  {
+    "id": "btn-deai-add-skill",
+    "tag": "button",
+    "cls": "btn-primary btn-sm",
+    "line": 474,
+    "context": "s=\"full-width\"><option value=\"\">选择技能...</option></select> <button id=\"btn-deai-add-skill\" class=\"btn-primary btn-sm\">添加</button> </div> <div id=\"deai-skills"
+  },
+  {
+    "id": "deai-skills-list",
+    "tag": "div",
+    "cls": "deai-skills-list",
+    "line": 476,
+    "context": "\"btn-primary btn-sm\">添加</button> </div> <div id=\"deai-skills-list\" class=\"deai-skills-list\"></div> </div> <div class=\"form-group\">"
+  },
+  {
+    "id": "deai-agent-select",
+    "tag": "select",
+    "cls": "full-width",
+    "line": 480,
+    "context": "ss=\"form-group\"> <label>智能体（可选）</label> <select id=\"deai-agent-select\" class=\"full-width\"><option value=\"\">不使用智能体</option></select> </div>"
+  },
+  {
+    "id": "deai-card-split-merge",
+    "tag": "div",
+    "cls": "deai-mode-card-body",
+    "line": 490,
+    "context": "deai-mode-card-desc\">切分+并行+拼接，速度快</span> </div> <div class=\"deai-mode-card-body\" id=\"deai-card-split-merge\" style=\"display:none\"> <div class=\"form-group\"> <label>切分字数（500"
+  },
+  {
+    "id": "deai-split-size",
+    "tag": "input",
+    "cls": "full-width",
+    "line": 493,
+    "context": "p\"> <label>切分字数（500-3000，浮动10%）</label> <input type=\"number\" id=\"deai-split-size\" class=\"full-width\" value=\"1000\" min=\"500\" max=\"3000\"> </div> <div class=\"form-group\">"
+  },
+  {
+    "id": "deai-skill-select-sm",
+    "tag": "select",
+    "cls": "full-width",
+    "line": 498,
+    "context": "</label> <div class=\"deai-skill-bar\"> <select id=\"deai-skill-select-sm\" class=\"full-width\"><option value=\"\">选择技能...</option></select> </div>"
+  },
+  {
+    "id": "deai-agent-select-sm",
+    "tag": "select",
+    "cls": "full-width",
+    "line": 503,
+    "context": "orm-group\"> <label>智能体（用于切分和调度）</label> <select id=\"deai-agent-select-sm\" class=\"full-width\"><option value=\"\">不使用智能体</option></select> </div>"
+  },
+  {
+    "id": "deai-card-multi-step",
+    "tag": "div",
+    "cls": "deai-mode-card-body",
+    "line": 513,
+    "context": "-mode-card-desc\">代码控制三步流程，降AI效果最佳</span> </div> <div class=\"deai-mode-card-body\" id=\"deai-card-multi-step\" style=\"display:none\"> <div class=\"form-group\"> <label>切分字数（500"
+  },
+  {
+    "id": "deai-split-size-ms",
+    "tag": "input",
+    "cls": "full-width",
+    "line": 516,
+    "context": "p\"> <label>切分字数（500-3000，浮动10%）</label> <input type=\"number\" id=\"deai-split-size-ms\" class=\"full-width\" value=\"1000\" min=\"500\" max=\"3000\"> </div> <div class=\"form-group\">"
+  },
+  {
+    "id": "deai-skill-select-ms",
+    "tag": "select",
+    "cls": "full-width",
+    "line": 521,
+    "context": "</label> <div class=\"deai-skill-bar\"> <select id=\"deai-skill-select-ms\" class=\"full-width\"><option value=\"\">选择技能...</option></select> <button id=\"bt"
+  },
+  {
+    "id": "btn-deai-add-skill-ms",
+    "tag": "button",
+    "cls": "btn-primary btn-sm",
+    "line": 522,
+    "context": "s=\"full-width\"><option value=\"\">选择技能...</option></select> <button id=\"btn-deai-add-skill-ms\" class=\"btn-primary btn-sm\">添加</button> </div> <div id=\"deai-skills"
+  },
+  {
+    "id": "deai-skills-list-ms",
+    "tag": "div",
+    "cls": "deai-skills-list",
+    "line": 524,
+    "context": "\"btn-primary btn-sm\">添加</button> </div> <div id=\"deai-skills-list-ms\" class=\"deai-skills-list\"></div> </div> <div class=\"form-group\">"
+  },
+  {
+    "id": "deai-agent-select-ms",
+    "tag": "select",
+    "cls": "full-width",
+    "line": 528,
+    "context": "ss=\"form-group\"> <label>智能体（可选）</label> <select id=\"deai-agent-select-ms\" class=\"full-width\"><option value=\"\">不使用智能体</option></select> </div>"
+  },
+  {
+    "id": "deai-mode-select",
+    "tag": "input",
+    "cls": "",
+    "line": 533,
+    "context": "div> </div> </div> </div> <input type=\"hidden\" id=\"deai-mode-select\" value=\"chain\"> <div class=\"deai-step-group\"> <div class=\"deai-step-"
+  },
+  {
+    "id": "deai-verify-provider-status",
+    "tag": "div",
+    "cls": "deai-verify-status",
+    "line": 536,
+    "context": "\"> <div class=\"deai-step-title\">AI验证AI（跨模型审核）</div> <div id=\"deai-verify-provider-status\" class=\"deai-verify-status\"> <span class=\"deai-verify-icon\">[?]</span> <spa"
+  },
+  {
+    "id": "deai-verify-provider-name",
+    "tag": "span",
+    "cls": "deai-verify-name",
+    "line": 538,
+    "context": "tus\"> <span class=\"deai-verify-icon\">[?]</span> <span id=\"deai-verify-provider-name\" class=\"deai-verify-name\">检测中...</span> <span id=\"deai-verify-provider-hint\" class=\"deai-"
+  },
+  {
+    "id": "deai-verify-provider-hint",
+    "tag": "span",
+    "cls": "deai-verify-hint",
+    "line": 539,
+    "context": "ai-verify-provider-name\" class=\"deai-verify-name\">检测中...</span> <span id=\"deai-verify-provider-hint\" class=\"deai-verify-hint\"></span> </div> </div> <div class=\"deai-st"
+  },
+  {
+    "id": "deai-hardrule-enabled",
+    "tag": "input",
+    "cls": "",
+    "line": 546,
+    "context": "div class=\"deai-hardrule-toggle\"> <label class=\"toggle-label\"><input type=\"checkbox\" id=\"deai-hardrule-enabled\" checked> 启用硬规则（本地字符级处理）</label> </div> <div id=\"deai-ha"
+  },
+  {
+    "id": "deai-hardrules-list",
+    "tag": "div",
+    "cls": "deai-hardrules-list",
+    "line": 548,
+    "context": "enabled\" checked> 启用硬规则（本地字符级处理）</label> </div> <div id=\"deai-hardrules-list\" class=\"deai-hardrules-list\" style=\"display:none\"></div> </div> </div> <div class=\"deai-ste"
+  },
+  {
+    "id": "deai-flow-preview",
+    "tag": "div",
+    "cls": "deai-flow-preview",
+    "line": 553,
+    "context": "tep-group\"> <div class=\"deai-step-title\">流程预览</div> <div id=\"deai-flow-preview\" class=\"deai-flow-preview\"></div> </div> <div class=\"form-actions\">"
+  },
+  {
+    "id": "btn-save-deai",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 556,
+    "context": "></div> </div> <div class=\"form-actions\"> <button id=\"btn-save-deai\" class=\"btn-primary\">保存去AI味设置</button> </div> </div> <div id=\"tab-diag\""
+  },
+  {
+    "id": "tab-diag",
+    "tag": "div",
+    "cls": "tab-content tab-hidden",
+    "line": 560,
+    "context": "class=\"btn-primary\">保存去AI味设置</button> </div> </div> <div id=\"tab-diag\" class=\"tab-content tab-hidden\"> <div class=\"section-header\"> <span class=\"section-title\">诊断日"
+  },
+  {
+    "id": "btn-diag-refresh",
+    "tag": "button",
+    "cls": "btn-sm",
+    "line": 564,
+    "context": "on-title\">诊断日志</span> <div style=\"display:flex;gap:8px;\"> <button id=\"btn-diag-refresh\" class=\"btn-sm\">刷新</button> <button id=\"btn-diag-export\" class=\"btn-sm\">导出</button>"
+  },
+  {
+    "id": "btn-diag-export",
+    "tag": "button",
+    "cls": "btn-sm",
+    "line": 565,
+    "context": "<button id=\"btn-diag-refresh\" class=\"btn-sm\">刷新</button> <button id=\"btn-diag-export\" class=\"btn-sm\">导出</button> <button id=\"btn-diag-clear\" class=\"btn-sm btn-danger\">清"
+  },
+  {
+    "id": "btn-diag-clear",
+    "tag": "button",
+    "cls": "btn-sm btn-danger",
+    "line": 566,
+    "context": "<button id=\"btn-diag-export\" class=\"btn-sm\">导出</button> <button id=\"btn-diag-clear\" class=\"btn-sm btn-danger\">清空</button> </div> </div> <div class=\"form-group\">"
+  },
+  {
+    "id": "diag-enabled",
+    "tag": "input",
+    "cls": "",
+    "line": 570,
+    "context": "</div> <div class=\"form-group\"> <label class=\"toggle-label\"><input type=\"checkbox\" id=\"diag-enabled\" checked> 启用诊断检测</label> </div> <div class=\"form-group\"> <labe"
+  },
+  {
+    "id": "diag-level",
+    "tag": "select",
+    "cls": "full-width",
+    "line": 574,
+    "context": "iv class=\"form-group\"> <label for=\"diag-level\">日志级别</label> <select id=\"diag-level\" class=\"full-width\"> <option value=\"error\">仅错误</option> <option value=\"warn"
+  },
+  {
+    "id": "diag-stats",
+    "tag": "span",
+    "cls": "",
+    "line": 584,
+    "context": "<span style=\"font-size:13px;color:var(--text-muted);\">会话统计</span> <span id=\"diag-stats\" style=\"font-size:13px;color:var(--text-muted);\"></span> </div> </div> <div id=\"diag-log-list\" class=\""
+  },
+  {
+    "id": "diag-log-list",
+    "tag": "div",
+    "cls": "diag-log-list",
+    "line": 587,
+    "context": ":13px;color:var(--text-muted);\"></span> </div> </div> <div id=\"diag-log-list\" class=\"diag-log-list\" style=\"max-height:400px;overflow-y:auto;background:var(--bg-darker);border-radius:6px;padding:8px;font-size:12px;font-family:monospace;\"></div> </div> </div> </div> </div> </div>"
+  },
+  {
+    "id": "project-modal",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 617,
+    "context": "</div> </div> <!-- 项目管理模态框 --> <div id=\"project-modal\" class=\"modal modal-hidden\"><div class=\"modal-backdrop\"></div><div class=\"modal-content\"><div class=\"modal-"
+  },
+  {
+    "id": "btn-new-project",
+    "tag": "button",
+    "cls": "btn-primary btn-sm",
+    "line": 617,
+    "context": "\"modal-body\"><div class=\"section-header\"><span class=\"section-title\">所有项目</span><button id=\"btn-new-project\" aria-label=\"新建项目\" tabindex=\"0\" class=\"btn-primary btn-sm\">+ 新建</button></div><div id=\"project-list\" class=\"item-list\"></div></div></div><"
+  },
+  {
+    "id": "project-list",
+    "tag": "div",
+    "cls": "item-list",
+    "line": 617,
+    "context": "t\" aria-label=\"新建项目\" tabindex=\"0\" class=\"btn-primary btn-sm\">+ 新建</button></div><div id=\"project-list\" class=\"item-list\"></div></div></div></div> <div id=\"new-project-modal\" class=\"modal moda"
+  },
+  {
+    "id": "new-project-modal",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 621,
+    "context": "/div><div id=\"project-list\" class=\"item-list\"></div></div></div></div> <div id=\"new-project-modal\" class=\"modal modal-hidden\"><div class=\"modal-backdrop\"></div><div class=\"modal-content\"><div class=\"modal-"
+  },
+  {
+    "id": "npm-name",
+    "tag": "input",
+    "cls": "full-width",
+    "line": 621,
+    "context": "<div class=\"modal-body\"><div class=\"form-group\"><label for=\"npm-name\">书名</label><input id=\"npm-name\" class=\"full-width\" placeholder=\"输入书名\"></div><div class=\"form-group\"><label for=\"npm-outline\">全书大纲</label><textarea id"
+  },
+  {
+    "id": "npm-outline",
+    "tag": "textarea",
+    "cls": "full-width",
+    "line": 621,
+    "context": "older=\"输入书名\"></div><div class=\"form-group\"><label for=\"npm-outline\">全书大纲</label><textarea id=\"npm-outline\" rows=\"6\" class=\"full-width\" placeholder=\"写下全书的大纲...\"></textarea></div><div class=\"form-actions\"><button id=\"btn-create-project\" clas"
+  },
+  {
+    "id": "btn-create-project",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 621,
+    "context": "full-width\" placeholder=\"写下全书的大纲...\"></textarea></div><div class=\"form-actions\"><button id=\"btn-create-project\" class=\"btn-primary\">创建</button><button class=\"btn-secondary npm-close\">取消</button></div></div></div"
+  },
+  {
+    "id": "volume-modal",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 625,
+    "context": "on class=\"btn-secondary npm-close\">取消</button></div></div></div></div> <div id=\"volume-modal\" class=\"modal modal-hidden\"><div class=\"modal-backdrop\"></div><div class=\"modal-content\"><div class=\"modal-"
+  },
+  {
+    "id": "vm-title",
+    "tag": "h3",
+    "cls": "",
+    "line": 625,
+    "context": "ass=\"modal-backdrop\"></div><div class=\"modal-content\"><div class=\"modal-header\"><h3 id=\"vm-title\">新建卷</h3><button class=\"btn-close vm-close\">&times;</button></div><div class=\"mo"
+  },
+  {
+    "id": "vm-name",
+    "tag": "input",
+    "cls": "full-width",
+    "line": 625,
+    "context": "><div class=\"modal-body\"><div class=\"form-group\"><label for=\"vm-name\">名称</label><input id=\"vm-name\" class=\"full-width\"></div><div class=\"form-group\"><label for=\"vm-outline\">大纲</label><textarea id=\"v"
+  },
+  {
+    "id": "vm-outline",
+    "tag": "textarea",
+    "cls": "full-width",
+    "line": 625,
+    "context": "ss=\"full-width\"></div><div class=\"form-group\"><label for=\"vm-outline\">大纲</label><textarea id=\"vm-outline\" rows=\"4\" class=\"full-width\"></textarea></div><div class=\"form-group\" id=\"vm-chapter-count-group\"><label for"
+  },
+  {
+    "id": "vm-chapter-count-group",
+    "tag": "div",
+    "cls": "form-group",
+    "line": 625,
+    "context": "纲</label><textarea id=\"vm-outline\" rows=\"4\" class=\"full-width\"></textarea></div><div class=\"form-group\" id=\"vm-chapter-count-group\"><label for=\"vm-chapter-count\">章节数</label><input id=\"vm-chapter-count\" type=\"num"
+  },
+  {
+    "id": "vm-chapter-count",
+    "tag": "input",
+    "cls": "full-width",
+    "line": 625,
+    "context": "orm-group\" id=\"vm-chapter-count-group\"><label for=\"vm-chapter-count\">章节数</label><input id=\"vm-chapter-count\" type=\"number\" class=\"full-width\" value=\"10\" min=\"1\" max=\"200\"></div><div class=\"form-actions\"><button id=\"btn-save-volume\" class=\"btn-primary"
+  },
+  {
+    "id": "btn-save-volume",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 625,
+    "context": "class=\"full-width\" value=\"10\" min=\"1\" max=\"200\"></div><div class=\"form-actions\"><button id=\"btn-save-volume\" class=\"btn-primary\">保存</button><button class=\"btn-secondary vm-close\">取消</button></div></div></div>"
+  },
+  {
+    "id": "statusbar",
+    "tag": "div",
+    "cls": "",
+    "line": 633,
+    "context": "s=\"btn-secondary vm-close\">取消</button></div></div></div></div> <div id=\"statusbar\"><span id=\"status-cursor\"></span><span id=\"status-connection\">未连接</span><span id"
+  },
+  {
+    "id": "status-cursor",
+    "tag": "span",
+    "cls": "",
+    "line": 633,
+    "context": "close\">取消</button></div></div></div></div> <div id=\"statusbar\"><span id=\"status-cursor\"></span><span id=\"status-connection\">未连接</span><span id=\"status-model\"></span><s"
+  },
+  {
+    "id": "status-connection",
+    "tag": "span",
+    "cls": "",
+    "line": 633,
+    "context": "div></div> <div id=\"statusbar\"><span id=\"status-cursor\"></span><span id=\"status-connection\">未连接</span><span id=\"status-model\"></span><span id=\"status-chapter\"></span><span"
+  },
+  {
+    "id": "status-model",
+    "tag": "span",
+    "cls": "",
+    "line": 633,
+    "context": "atusbar\"><span id=\"status-cursor\"></span><span id=\"status-connection\">未连接</span><span id=\"status-model\"></span><span id=\"status-chapter\"></span><span id=\"status-words\">字数: 0</span></d"
+  },
+  {
+    "id": "status-chapter",
+    "tag": "span",
+    "cls": "",
+    "line": 633,
+    "context": "r\"></span><span id=\"status-connection\">未连接</span><span id=\"status-model\"></span><span id=\"status-chapter\"></span><span id=\"status-words\">字数: 0</span></div> <div id=\"outline-works"
+  },
+  {
+    "id": "status-words",
+    "tag": "span",
+    "cls": "",
+    "line": 633,
+    "context": "tion\">未连接</span><span id=\"status-model\"></span><span id=\"status-chapter\"></span><span id=\"status-words\">字数: 0</span></div> <div id=\"outline-workspace\" class=\"ow-hidden\"><div cl"
+  },
+  {
+    "id": "outline-workspace",
+    "tag": "div",
+    "cls": "ow-hidden",
+    "line": 635,
+    "context": "an id=\"status-chapter\"></span><span id=\"status-words\">字数: 0</span></div> <div id=\"outline-workspace\" class=\"ow-hidden\"><div class=\"ow-main\"><div class=\"ow-editor\"><div class=\"ow-editor-header\"><span"
+  },
+  {
+    "id": "btn-export-outline-md",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 635,
+    "context": "<span>大纲编辑器</span><div class=\"editor-toolbar\"><div class=\"editor-toolbar-group\"><button id=\"btn-export-outline-md\" class=\"btn-sm btn-secondary\">.md</button><button id=\"btn-export-outline-txt\" class=\"btn-sm btn-secondary\">.t"
+  },
+  {
+    "id": "btn-export-outline-txt",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 635,
+    "context": "up\"><button id=\"btn-export-outline-md\" class=\"btn-sm btn-secondary\">.md</button><button id=\"btn-export-outline-txt\" class=\"btn-sm btn-secondary\">.txt</button></div></div><span class=\"word-count\" id=\"ow-word-count\">0 字</span>"
+  },
+  {
+    "id": "ow-word-count",
+    "tag": "span",
+    "cls": "word-count",
+    "line": 635,
+    "context": "=\"btn-export-outline-txt\" class=\"btn-sm btn-secondary\">.txt</button></div></div><span class=\"word-count\" id=\"ow-word-count\">0 字</span><button class=\"btn-close\" id=\"btn-close-outline-workspace\">&times;</b"
+  },
+  {
+    "id": "btn-close-outline-workspace",
+    "tag": "button",
+    "cls": "btn-close",
+    "line": 635,
+    "context": ">.txt</button></div></div><span class=\"word-count\" id=\"ow-word-count\">0 字</span><button class=\"btn-close\" id=\"btn-close-outline-workspace\">&times;</button></div><textarea id=\"outline-editor\" placeholder=\"在此编写或粘贴你的小说大纲."
+  },
+  {
+    "id": "outline-editor",
+    "tag": "textarea",
+    "cls": "",
+    "line": 635,
+    "context": "button class=\"btn-close\" id=\"btn-close-outline-workspace\">&times;</button></div><textarea id=\"outline-editor\" placeholder=\"在此编写或粘贴你的小说大纲...\"></textarea></div><div class=\"ow-sidebar\"><div class=\"ow-section\"><h4>导入大纲</h4><"
+  },
+  {
+    "id": "btn-import-outline",
+    "tag": "button",
+    "cls": "btn-secondary full-width",
+    "line": 635,
+    "context": "\"></textarea></div><div class=\"ow-sidebar\"><div class=\"ow-section\"><h4>导入大纲</h4><button id=\"btn-import-outline\" class=\"btn-secondary full-width\">从文件导入(.txt/.md/.doc/.docx)</button></div><div class=\"ow-section\"><h4>AI 共创</h4>"
+  },
+  {
+    "id": "btn-ai-co-create",
+    "tag": "button",
+    "cls": "btn-secondary full-width",
+    "line": 635,
+    "context": ">从文件导入(.txt/.md/.doc/.docx)</button></div><div class=\"ow-section\"><h4>AI 共创</h4><button id=\"btn-ai-co-create\" class=\"btn-secondary full-width\">与 AI 共创大纲</button><div id=\"ow-chat-area\" class=\"ow-chat-hidden\"><div id=\"ow-cha"
+  },
+  {
+    "id": "ow-chat-area",
+    "tag": "div",
+    "cls": "ow-chat-hidden",
+    "line": 635,
+    "context": "button id=\"btn-ai-co-create\" class=\"btn-secondary full-width\">与 AI 共创大纲</button><div id=\"ow-chat-area\" class=\"ow-chat-hidden\"><div id=\"ow-chat-messages\"></div><div class=\"chat-input-row\"><textarea id=\"ow-c"
+  },
+  {
+    "id": "ow-chat-messages",
+    "tag": "div",
+    "cls": "",
+    "line": 635,
+    "context": "ary full-width\">与 AI 共创大纲</button><div id=\"ow-chat-area\" class=\"ow-chat-hidden\"><div id=\"ow-chat-messages\"></div><div class=\"chat-input-row\"><textarea id=\"ow-chat-input\" rows=\"1\" placeho"
+  },
+  {
+    "id": "ow-chat-input",
+    "tag": "textarea",
+    "cls": "",
+    "line": 635,
+    "context": "s=\"ow-chat-hidden\"><div id=\"ow-chat-messages\"></div><div class=\"chat-input-row\"><textarea id=\"ow-chat-input\" rows=\"1\" placeholder=\"讨论大纲...\"></textarea><button id=\"btn-ow-send\" class=\"btn-send\">发送</button></div></div></d"
+  },
+  {
+    "id": "btn-ow-send",
+    "tag": "button",
+    "cls": "btn-send",
+    "line": 635,
+    "context": "put-row\"><textarea id=\"ow-chat-input\" rows=\"1\" placeholder=\"讨论大纲...\"></textarea><button id=\"btn-ow-send\" class=\"btn-send\">发送</button></div></div></div><div class=\"ow-section\"><h4>Skill 功能区</h4><button"
+  },
+  {
+    "id": "btn-generate-outline-skills",
+    "tag": "button",
+    "cls": "btn-secondary full-width",
+    "line": 635,
+    "context": "tn-send\">发送</button></div></div></div><div class=\"ow-section\"><h4>Skill 功能区</h4><button id=\"btn-generate-outline-skills\" class=\"btn-secondary full-width\">自动生成大纲 Skill</button><div id=\"ow-skill-suggestions\"></div><h5>已绑定的大纲 Skill</h5>"
+  },
+  {
+    "id": "ow-skill-suggestions",
+    "tag": "div",
+    "cls": "",
+    "line": 635,
+    "context": "-generate-outline-skills\" class=\"btn-secondary full-width\">自动生成大纲 Skill</button><div id=\"ow-skill-suggestions\"></div><h5>已绑定的大纲 Skill</h5><div id=\"ow-bound-list\"></div></div></div></div><div"
+  },
+  {
+    "id": "ow-bound-list",
+    "tag": "div",
+    "cls": "",
+    "line": 635,
+    "context": ">自动生成大纲 Skill</button><div id=\"ow-skill-suggestions\"></div><h5>已绑定的大纲 Skill</h5><div id=\"ow-bound-list\"></div></div></div></div><div class=\"ow-footer\"><button id=\"btn-lock-outline\" cl"
+  },
+  {
+    "id": "btn-lock-outline",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 635,
+    "context": "kill</h5><div id=\"ow-bound-list\"></div></div></div></div><div class=\"ow-footer\"><button id=\"btn-lock-outline\" class=\"btn-primary\">确认大纲，锁定并进入创作</button></div><div class=\"ow-resize-handle\"></div> </div>"
+  },
+  {
+    "id": "settings-collection-panel",
+    "tag": "div",
+    "cls": "sc-hidden",
+    "line": 645,
+    "context": "<div class=\"ow-resize-handle\"></div> </div> <!-- 设定合集面板 --> <div id=\"settings-collection-panel\" class=\"sc-hidden\"><div class=\"sc-main\"><div class=\"sc-header\"><h3>设定合集</h3><button class=\"btn-clo"
+  },
+  {
+    "id": "btn-close-sc",
+    "tag": "button",
+    "cls": "btn-close",
+    "line": 645,
+    "context": "nel\" class=\"sc-hidden\"><div class=\"sc-main\"><div class=\"sc-header\"><h3>设定合集</h3><button class=\"btn-close\" id=\"btn-close-sc\">&times;</button></div><div class=\"sc-body\"><div class=\"sc-categories\" id=\"sc-ca"
+  },
+  {
+    "id": "sc-categories",
+    "tag": "div",
+    "cls": "sc-categories",
+    "line": 645,
+    "context": "class=\"btn-close\" id=\"btn-close-sc\">&times;</button></div><div class=\"sc-body\"><div class=\"sc-categories\" id=\"sc-categories\"><button class=\"sc-cat-btn sc-cat-add\" id=\"btn-add-category\">+ 新增分类</button></di"
+  },
+  {
+    "id": "btn-add-category",
+    "tag": "button",
+    "cls": "sc-cat-btn sc-cat-add",
+    "line": 645,
+    "context": "button></div><div class=\"sc-body\"><div class=\"sc-categories\" id=\"sc-categories\"><button class=\"sc-cat-btn sc-cat-add\" id=\"btn-add-category\">+ 新增分类</button></div><div class=\"sc-items-area\"><div class=\"sc-items-header\"><s"
+  },
+  {
+    "id": "sc-current-cat",
+    "tag": "span",
+    "cls": "",
+    "line": 645,
+    "context": "y\">+ 新增分类</button></div><div class=\"sc-items-area\"><div class=\"sc-items-header\"><span id=\"sc-current-cat\">角色设定</span><button id=\"btn-add-item\" class=\"btn-primary btn-sm\">+ 添加条目</button>"
+  },
+  {
+    "id": "btn-add-item",
+    "tag": "button",
+    "cls": "btn-primary btn-sm",
+    "line": 645,
+    "context": "c-items-area\"><div class=\"sc-items-header\"><span id=\"sc-current-cat\">角色设定</span><button id=\"btn-add-item\" class=\"btn-primary btn-sm\">+ 添加条目</button><button id=\"btn-ai-gen-item\" class=\"btn-secondary btn-sm btn-ml-"
+  },
+  {
+    "id": "btn-ai-gen-item",
+    "tag": "button",
+    "cls": "btn-secondary btn-sm btn-ml-4",
+    "line": 645,
+    "context": ">角色设定</span><button id=\"btn-add-item\" class=\"btn-primary btn-sm\">+ 添加条目</button><button id=\"btn-ai-gen-item\" class=\"btn-secondary btn-sm btn-ml-4\">AI 生成</button></div><div id=\"sc-items-list\" class=\"item-list\"><p class=\"empty-h"
+  },
+  {
+    "id": "sc-items-list",
+    "tag": "div",
+    "cls": "item-list",
+    "line": 645,
+    "context": "id=\"btn-ai-gen-item\" class=\"btn-secondary btn-sm btn-ml-4\">AI 生成</button></div><div id=\"sc-items-list\" class=\"item-list\"><p class=\"empty-hint\">选择分类后添加设定条目</p></div></div><div class=\"sc-detail-area\" id"
+  },
+  {
+    "id": "sc-detail-area",
+    "tag": "div",
+    "cls": "sc-detail-area",
+    "line": 645,
+    "context": "-items-list\" class=\"item-list\"><p class=\"empty-hint\">选择分类后添加设定条目</p></div></div><div class=\"sc-detail-area\" id=\"sc-detail-area\" style=\"display:none\"><div class=\"sc-detail-header\"><span id=\"sc-detail-title\">条目详情</span><button cla"
+  },
+  {
+    "id": "sc-detail-title",
+    "tag": "span",
+    "cls": "",
+    "line": 645,
+    "context": "il-area\" id=\"sc-detail-area\" style=\"display:none\"><div class=\"sc-detail-header\"><span id=\"sc-detail-title\">条目详情</span><button class=\"btn-close\" id=\"btn-close-sc-detail\">&times;</button><"
+  },
+  {
+    "id": "btn-close-sc-detail",
+    "tag": "button",
+    "cls": "btn-close",
+    "line": 645,
+    "context": "splay:none\"><div class=\"sc-detail-header\"><span id=\"sc-detail-title\">条目详情</span><button class=\"btn-close\" id=\"btn-close-sc-detail\">&times;</button></div><div id=\"sc-detail-content\" class=\"sc-detail-content\"></d"
+  },
+  {
+    "id": "sc-detail-content",
+    "tag": "div",
+    "cls": "sc-detail-content",
+    "line": 645,
+    "context": "</span><button class=\"btn-close\" id=\"btn-close-sc-detail\">&times;</button></div><div id=\"sc-detail-content\" class=\"sc-detail-content\"></div></div></div></div></div> <!-- 设定绑定模态框 --> <"
+  },
+  {
+    "id": "sc-bind-modal",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 658,
+    "context": "\"></div></div></div></div></div> <!-- 设定绑定模态框 --> <div id=\"sc-bind-modal\" class=\"modal modal-hidden\"> <div class=\"modal-backdrop\"></div> <div class=\"modal-content"
+  },
+  {
+    "id": "sc-bind-item-name",
+    "tag": "p",
+    "cls": "sc-bind-item-name-text",
+    "line": 673,
+    "context": "-close\">&times;</button></div> <div class=\"modal-body\"> <p id=\"sc-bind-item-name\" class=\"sc-bind-item-name-text\"></p> <div class=\"sc-bind-hint sc-bind-hint-text\">选择此设定要绑定到的目标章节（多选"
+  },
+  {
+    "id": "sc-bind-tree",
+    "tag": "div",
+    "cls": "sc-bind-tree-box",
+    "line": 679,
+    "context": "d-hint sc-bind-hint-text\">选择此设定要绑定到的目标章节（多选），绑定后在对应上下文中自动注入。</div> <div id=\"sc-bind-tree\" class=\"sc-bind-tree-box\"></div> </div> <div class=\"modal-footer\"><button class=\"bt"
+  },
+  {
+    "id": "btn-save-bind",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 685,
+    "context": "sc-bind-tree-box\"></div> </div> <div class=\"modal-footer\"><button class=\"btn-primary\" id=\"btn-save-bind\">保存绑定</button><button class=\"btn-secondary sc-bind-close\">取消</button></div>"
+  },
+  {
+    "id": "pipeline-panel",
+    "tag": "div",
+    "cls": "pl-hidden",
+    "line": 702,
+    "context": "on></div> </div> </div> <!-- 生成流水线面板--> <div id=\"pipeline-panel\" class=\"pl-hidden\"> <div class=\"pl-main\"> <div class=\"pl-header\"> <h3>生成流水线</"
+  },
+  {
+    "id": "btn-close-pl",
+    "tag": "button",
+    "cls": "btn-close",
+    "line": 706,
+    "context": "lass=\"pl-main\"> <div class=\"pl-header\"> <h3>生成流水线</h3> <button class=\"btn-close\" id=\"btn-close-pl\">&times;</button> </div> <div class=\"pl-body\"> <!-- Agent"
+  },
+  {
+    "id": "pl-agent-select",
+    "tag": "select",
+    "cls": "pl-select",
+    "line": 712,
+    "context": "iv class=\"pl-agent-bar\"> <span class=\"pl-label\">全局智能体:</span> <select id=\"pl-agent-select\" class=\"pl-select\"> <option value=\"\">不使用智能体</option> </select> <label"
+  },
+  {
+    "id": "pl-text-filter-toggle",
+    "tag": "input",
+    "cls": "pl-filter-toggle",
+    "line": 716,
+    "context": "toggle-wrap\" title=\"开启后，链式Skill执行时每步输出会自动修正段落开头句号和碎片短句（JSON输出自动跳过）\"> <input type=\"checkbox\" id=\"pl-text-filter-toggle\" class=\"pl-filter-toggle\"> <span class=\"pl-filter-label\">文本过滤</span> </label>"
+  },
+  {
+    "id": "pl-steps",
+    "tag": "div",
+    "cls": "pl-steps",
+    "line": 720,
+    "context": "pan class=\"pl-filter-label\">文本过滤</span> </label> </div> <div class=\"pl-steps\" id=\"pl-steps\"> <div class=\"pl-step active\" data-step=\"1\"><div class=\"pl-step-num\">"
+  },
+  {
+    "id": "pl-status-1",
+    "tag": "div",
+    "cls": "pl-step-status",
+    "line": 721,
+    "context": "ata-step=\"1\"><div class=\"pl-step-num\">1</div><div class=\"pl-step-label\">大纲</div><div class=\"pl-step-status\" id=\"pl-status-1\">待生成</div></div> <div class=\"pl-step\" data-step=\"2\"><div class=\"pl-st"
+  },
+  {
+    "id": "pl-status-2",
+    "tag": "div",
+    "cls": "pl-step-status",
+    "line": 722,
+    "context": "ata-step=\"2\"><div class=\"pl-step-num\">2</div><div class=\"pl-step-label\">设定</div><div class=\"pl-step-status\" id=\"pl-status-2\">等待大纲</div></div> <div class=\"pl-step\" data-step=\"3\"><div class=\"pl-s"
+  },
+  {
+    "id": "pl-status-3",
+    "tag": "div",
+    "cls": "pl-step-status",
+    "line": 723,
+    "context": "ata-step=\"3\"><div class=\"pl-step-num\">3</div><div class=\"pl-step-label\">卷纲</div><div class=\"pl-step-status\" id=\"pl-status-3\">等待设定</div></div> <div class=\"pl-step\" data-step=\"4\"><div class=\"pl-s"
+  },
+  {
+    "id": "pl-status-4",
+    "tag": "div",
+    "cls": "pl-step-status",
+    "line": 724,
+    "context": "ata-step=\"4\"><div class=\"pl-step-num\">4</div><div class=\"pl-step-label\">章节</div><div class=\"pl-step-status\" id=\"pl-status-4\">等待卷纲</div></div> <div class=\"pl-step\" data-step=\"5\"><div class=\"pl-s"
+  },
+  {
+    "id": "pl-status-5",
+    "tag": "div",
+    "cls": "pl-step-status",
+    "line": 725,
+    "context": "ata-step=\"5\"><div class=\"pl-step-num\">5</div><div class=\"pl-step-label\">正文</div><div class=\"pl-step-status\" id=\"pl-status-5\">等待章节</div></div> </div> <div class=\"pl-content\"> <"
+  },
+  {
+    "id": "pl-step-1-content",
+    "tag": "div",
+    "cls": "pl-step-content active",
+    "line": 729,
+    "context": "<div class=\"pl-content\"> <!-- Step 1: Outline --> <div id=\"pl-step-1-content\" class=\"pl-step-content active\"> <p class=\"pl-desc\">第一步：确认或编辑全书大纲。大纲将作为后续所有生成的基础。</p>"
+  },
+  {
+    "id": "pl-s1-skill",
+    "tag": "select",
+    "cls": "pl-select",
+    "line": 733,
+    "context": "-skill-bar\"> <span class=\"pl-label\">Skill:</span> <select id=\"pl-s1-skill\" class=\"pl-select\"><option value=\"\">无</option></select> <button class=\"btn-sm\" id=\""
+  },
+  {
+    "id": "pl-s1-add-skill",
+    "tag": "button",
+    "cls": "btn-sm",
+    "line": 734,
+    "context": "s1-skill\" class=\"pl-select\"><option value=\"\">无</option></select> <button class=\"btn-sm\" id=\"pl-s1-add-skill\" title=\"添加Skill\">+</button> </div> <div id=\"pl-s1-skills-list\" class=\""
+  },
+  {
+    "id": "pl-s1-skills-list",
+    "tag": "div",
+    "cls": "pl-skills-list",
+    "line": 736,
+    "context": "d=\"pl-s1-add-skill\" title=\"添加Skill\">+</button> </div> <div id=\"pl-s1-skills-list\" class=\"pl-skills-list\"></div> <textarea id=\"pl-outline\" rows=\"10\" class=\"full-width\" place"
+  },
+  {
+    "id": "pl-outline",
+    "tag": "textarea",
+    "cls": "full-width",
+    "line": 737,
+    "context": "<div id=\"pl-s1-skills-list\" class=\"pl-skills-list\"></div> <textarea id=\"pl-outline\" rows=\"10\" class=\"full-width\" placeholder=\"在此编写或粘贴你的小说大纲...\"></textarea> <div class=\"pl-gen-options\"><label>全书字数（万字）：</label><in"
+  },
+  {
+    "id": "pl-book-word-count",
+    "tag": "input",
+    "cls": "input-w-60",
+    "line": 738,
+    "context": "..\"></textarea> <div class=\"pl-gen-options\"><label>全书字数（万字）：</label><input id=\"pl-book-word-count\" type=\"number\" value=\"0\" min=\"0\" max=\"1000\" class=\"input-w-60\"></div> <div class=\"pl-actions\"><button class=\"btn-secondary\" id=\"btn"
+  },
+  {
+    "id": "btn-pl-load-outline",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 739,
+    "context": "min=\"0\" max=\"1000\" class=\"input-w-60\"></div> <div class=\"pl-actions\"><button class=\"btn-secondary\" id=\"btn-pl-load-outline\">加载当前大纲</button><button class=\"btn-primary\" id=\"btn-pl-confirm-outline\">确认大纲，保存并"
+  },
+  {
+    "id": "btn-pl-confirm-outline",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 739,
+    "context": "-actions\"><button class=\"btn-secondary\" id=\"btn-pl-load-outline\">加载当前大纲</button><button class=\"btn-primary\" id=\"btn-pl-confirm-outline\">确认大纲，保存并进入下一步</button></div> <div class=\"pl-nav\"><button class=\"pl-"
+  },
+  {
+    "id": "pl-step-2-content",
+    "tag": "div",
+    "cls": "pl-step-content pl-hidden",
+    "line": 743,
+    "context": "button></div> </div> <!-- Step 2: Settings --> <div id=\"pl-step-2-content\" class=\"pl-step-content pl-hidden\"> <p class=\"pl-desc\">第二步：基于大纲，AI自动生成设定合集（角色、世界观、物种、物资）。</p>"
+  },
+  {
+    "id": "pl-s2-skill",
+    "tag": "select",
+    "cls": "pl-select",
+    "line": 747,
+    "context": "-skill-bar\"> <span class=\"pl-label\">Skill:</span> <select id=\"pl-s2-skill\" class=\"pl-select\"><option value=\"\">无</option></select> <button class=\"btn-sm\" id=\""
+  },
+  {
+    "id": "pl-s2-add-skill",
+    "tag": "button",
+    "cls": "btn-sm",
+    "line": 748,
+    "context": "s2-skill\" class=\"pl-select\"><option value=\"\">无</option></select> <button class=\"btn-sm\" id=\"pl-s2-add-skill\" title=\"添加Skill\">+</button> </div> <div id=\"pl-s2-skills-list\" class=\""
+  },
+  {
+    "id": "pl-s2-skills-list",
+    "tag": "div",
+    "cls": "pl-skills-list",
+    "line": 750,
+    "context": "d=\"pl-s2-add-skill\" title=\"添加Skill\">+</button> </div> <div id=\"pl-s2-skills-list\" class=\"pl-skills-list\"></div> <div class=\"pl-gen-options\"><label>生成分类：</label><span class=\"pl-gen-hin"
+  },
+  {
+    "id": "pl-settings-result",
+    "tag": "div",
+    "cls": "pl-result pl-hidden",
+    "line": 752,
+    "context": "or:var(--text-dim,#888);font-size:13px;\">AI将根据大纲自动决定分类</span></div> <div id=\"pl-settings-result\" class=\"pl-result pl-hidden\"></div> <div class=\"pl-bound-settings-box\"> <p class=\""
+  },
+  {
+    "id": "pl-bound-settings-list",
+    "tag": "div",
+    "cls": "",
+    "line": 755,
+    "context": "> <p class=\"pl-bound-settings-title\">来自设定合集的绑定项</p> <div id=\"pl-bound-settings-list\"></div> </div> <div class=\"pl-actions\"><button class=\"b"
+  },
+  {
+    "id": "btn-pl-gen-settings",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 757,
+    "context": "d-settings-list\"></div> </div> <div class=\"pl-actions\"><button class=\"btn-primary\" id=\"btn-pl-gen-settings\">AI 生成设定</button><button class=\"btn-secondary\" id=\"btn-pl-save-settings\" class=\""
+  },
+  {
+    "id": "btn-pl-save-settings",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 757,
+    "context": "l-actions\"><button class=\"btn-primary\" id=\"btn-pl-gen-settings\">AI 生成设定</button><button class=\"btn-secondary\" id=\"btn-pl-save-settings\" class=\"pl-hidden\">保存设定到合集</button><button class=\"btn-secondary\" id=\"btn-pl-confirm-settings\">确认设定"
+  },
+  {
+    "id": "btn-pl-confirm-settings",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 757,
+    "context": "ass=\"btn-secondary\" id=\"btn-pl-save-settings\" class=\"pl-hidden\">保存设定到合集</button><button class=\"btn-secondary\" id=\"btn-pl-confirm-settings\">确认设定，保存并进入下一步</button></div> <div class=\"pl-nav\"><button class=\"pl"
+  },
+  {
+    "id": "pl-step-3-content",
+    "tag": "div",
+    "cls": "pl-step-content pl-hidden",
+    "line": 761,
+    "context": "/button></div> </div> <!-- Step 3: Volumes --> <div id=\"pl-step-3-content\" class=\"pl-step-content pl-hidden\"> <p class=\"pl-desc\">第三步：基于大纲和设定，AI自动生成卷纲。每卷的概要可编辑。</p>"
+  },
+  {
+    "id": "pl-s3-skill",
+    "tag": "select",
+    "cls": "pl-select",
+    "line": 765,
+    "context": "-skill-bar\"> <span class=\"pl-label\">Skill:</span> <select id=\"pl-s3-skill\" class=\"pl-select\"><option value=\"\">无</option></select> <button class=\"btn-sm\" id=\""
+  },
+  {
+    "id": "pl-s3-add-skill",
+    "tag": "button",
+    "cls": "btn-sm",
+    "line": 766,
+    "context": "s3-skill\" class=\"pl-select\"><option value=\"\">无</option></select> <button class=\"btn-sm\" id=\"pl-s3-add-skill\" title=\"添加Skill\">+</button> </div> <div id=\"pl-s3-skills-list\" class=\""
+  },
+  {
+    "id": "pl-s3-skills-list",
+    "tag": "div",
+    "cls": "pl-skills-list",
+    "line": 768,
+    "context": "d=\"pl-s3-add-skill\" title=\"添加Skill\">+</button> </div> <div id=\"pl-s3-skills-list\" class=\"pl-skills-list\"></div> <div class=\"pl-gen-options\"><label>期望卷数：</label><input id=\""
+  },
+  {
+    "id": "pl-volume-count",
+    "tag": "input",
+    "cls": "input-w-60",
+    "line": 769,
+    "context": "kills-list\"></div> <div class=\"pl-gen-options\"><label>期望卷数：</label><input id=\"pl-volume-count\" type=\"number\" value=\"3\" min=\"1\" max=\"20\" class=\"input-w-60\"></div> <div id=\"pl-volume-result\" class=\"pl-result pl-hidden\"></di"
+  },
+  {
+    "id": "pl-volume-result",
+    "tag": "div",
+    "cls": "pl-result pl-hidden",
+    "line": 770,
+    "context": "type=\"number\" value=\"3\" min=\"1\" max=\"20\" class=\"input-w-60\"></div> <div id=\"pl-volume-result\" class=\"pl-result pl-hidden\"></div> <div id=\"pl-volume-cards\" class=\"pl-hidden\"></div>"
+  },
+  {
+    "id": "pl-volume-cards",
+    "tag": "div",
+    "cls": "pl-hidden",
+    "line": 771,
+    "context": "<div id=\"pl-volume-result\" class=\"pl-result pl-hidden\"></div> <div id=\"pl-volume-cards\" class=\"pl-hidden\"></div> <div id=\"pl-vol-confirm-hint\" class=\"pl-vol-confirm-hint\">请确"
+  },
+  {
+    "id": "pl-vol-confirm-hint",
+    "tag": "div",
+    "cls": "pl-vol-confirm-hint",
+    "line": 772,
+    "context": "iv> <div id=\"pl-volume-cards\" class=\"pl-hidden\"></div> <div id=\"pl-vol-confirm-hint\" class=\"pl-vol-confirm-hint\">请确认所有卷纲后再进入下一步</div> <div class=\"pl-actions\"><button class=\"btn-pri"
+  },
+  {
+    "id": "btn-pl-gen-volumes",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 773,
+    "context": "=\"pl-vol-confirm-hint\">请确认所有卷纲后再进入下一步</div> <div class=\"pl-actions\"><button class=\"btn-primary\" id=\"btn-pl-gen-volumes\" title=\"按你指定的卷数一次性生成全部卷纲。如已填全书字数，AI会据此分配每卷字数。\">AI 生成卷纲</button><button class=\"btn-secondary\" id=\"btn-pl-autogen-volumes\" title"
+  },
+  {
+    "id": "btn-pl-autogen-volumes",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 773,
+    "context": "n-pl-gen-volumes\" title=\"按你指定的卷数一次性生成全部卷纲。如已填全书字数，AI会据此分配每卷字数。\">AI 生成卷纲</button><button class=\"btn-secondary\" id=\"btn-pl-autogen-volumes\" title=\"必须先填全书字数。AI根据字数自动决定拆几卷、每卷多少字，一次性生成全部卷纲。\">自动生成卷纲</button><button class=\"btn-secondary\" id=\"btn-pl-gen-single-volume\" titl"
+  },
+  {
+    "id": "btn-pl-gen-single-volume",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 773,
+    "context": "autogen-volumes\" title=\"必须先填全书字数。AI根据字数自动决定拆几卷、每卷多少字，一次性生成全部卷纲。\">自动生成卷纲</button><button class=\"btn-secondary\" id=\"btn-pl-gen-single-volume\" title=\"一次只生成一卷，每卷生成时传入上一卷蓝图和伏笔，确保卷间剧情衔接。适合逐卷精细控制。\">逐卷生成</button><button class=\"btn-secondary\" id=\"btn-pl-continue-volumes\" title=\""
+  },
+  {
+    "id": "btn-pl-continue-volumes",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 773,
+    "context": "-single-volume\" title=\"一次只生成一卷，每卷生成时传入上一卷蓝图和伏笔，确保卷间剧情衔接。适合逐卷精细控制。\">逐卷生成</button><button class=\"btn-secondary\" id=\"btn-pl-continue-volumes\" title=\"保留已有卷，只生成缺失的后续卷。每卷用上一卷纲要+所有前卷摘要作为上下文，确保剧情衔接。适合修改某卷后续生成后面的卷。\">批量续生成</button><button class=\"btn-secondary\" id=\"btn-pl-create-volumes\" style=\"d"
+  },
+  {
+    "id": "btn-pl-create-volumes",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 773,
+    "context": "tle=\"保留已有卷，只生成缺失的后续卷。每卷用上一卷纲要+所有前卷摘要作为上下文，确保剧情衔接。适合修改某卷后续生成后面的卷。\">批量续生成</button><button class=\"btn-secondary\" id=\"btn-pl-create-volumes\" style=\"display:none\">全部确认卷纲</button></div> <div class=\"pl-nav\"><button class=\"pl-nav-btn"
+  },
+  {
+    "id": "pl-step-4-content",
+    "tag": "div",
+    "cls": "pl-step-content pl-hidden",
+    "line": 777,
+    "context": "/button></div> </div> <!-- Step 4: Chapters --> <div id=\"pl-step-4-content\" class=\"pl-step-content pl-hidden\"> <p class=\"pl-desc\">第四步：为每个章节生成剧情点。剧情点可编辑。</p> <div c"
+  },
+  {
+    "id": "pl-s4-skill",
+    "tag": "select",
+    "cls": "pl-select",
+    "line": 781,
+    "context": "-skill-bar\"> <span class=\"pl-label\">Skill:</span> <select id=\"pl-s4-skill\" class=\"pl-select\"><option value=\"\">无</option></select> <button class=\"btn-sm\" id=\""
+  },
+  {
+    "id": "pl-s4-add-skill",
+    "tag": "button",
+    "cls": "btn-sm",
+    "line": 782,
+    "context": "s4-skill\" class=\"pl-select\"><option value=\"\">无</option></select> <button class=\"btn-sm\" id=\"pl-s4-add-skill\" title=\"添加Skill\">+</button> </div> <div id=\"pl-s4-skills-list\" class=\"p"
+  },
+  {
+    "id": "pl-s4-skills-list",
+    "tag": "div",
+    "cls": "pl-skills-list",
+    "line": 784,
+    "context": "id=\"pl-s4-add-skill\" title=\"添加Skill\">+</button> </div> <div id=\"pl-s4-skills-list\" class=\"pl-skills-list\"></div> <div class=\"pl-gen-options\" id=\"pl-ch-gen-bar\"><label>每章字数：<"
+  },
+  {
+    "id": "pl-ch-gen-bar",
+    "tag": "div",
+    "cls": "pl-gen-options",
+    "line": 785,
+    "context": "<div id=\"pl-s4-skills-list\" class=\"pl-skills-list\"></div> <div class=\"pl-gen-options\" id=\"pl-ch-gen-bar\"><label>每章字数：</label><input id=\"pl-chapter-wordcount\" type=\"number\" value=\"3000\""
+  },
+  {
+    "id": "pl-chapter-wordcount",
+    "tag": "input",
+    "cls": "input-w-80",
+    "line": 785,
+    "context": "<div class=\"pl-gen-options\" id=\"pl-ch-gen-bar\"><label>每章字数：</label><input id=\"pl-chapter-wordcount\" type=\"number\" value=\"3000\" min=\"500\" max=\"20000\" step=\"500\" class=\"input-w-80\"><span class=\"pl-gen-hint\" id=\"pl-ch-est-count\" style=\"color:var(--text-dim,#888"
+  },
+  {
+    "id": "pl-ch-est-count",
+    "tag": "span",
+    "cls": "pl-gen-hint",
+    "line": 785,
+    "context": "type=\"number\" value=\"3000\" min=\"500\" max=\"20000\" step=\"500\" class=\"input-w-80\"><span class=\"pl-gen-hint\" id=\"pl-ch-est-count\" style=\"color:var(--text-dim,#888);font-size:13px;\">选择卷纲后显示预计章节数</span><label style=\"margin-left:16px;\">每批次生成：</label><input id=\"pl"
+  },
+  {
+    "id": "pl-chapter-batchsize",
+    "tag": "input",
+    "cls": "input-w-80",
+    "line": 785,
+    "context": "t-size:13px;\">选择卷纲后显示预计章节数</span><label style=\"margin-left:16px;\">每批次生成：</label><input id=\"pl-chapter-batchsize\" type=\"number\" value=\"5\" min=\"1\" max=\"20\" step=\"1\" class=\"input-w-80\" title=\"每次API请求生成的章节数。数值越小越安全，断网时丢失越少。推荐3-5。\"><span style=\"color:var(--text-dim,#888);font-size:12px;\">章/批</span></div>"
+  },
+  {
+    "id": "pl-vol-list",
+    "tag": "div",
+    "cls": "",
+    "line": 789,
+    "context": "\"> <div class=\"pl-label pl-label-mb\">卷纲列表</div> <div id=\"pl-vol-list\"></div> </div> <div class=\"pl-ch-main\">"
+  },
+  {
+    "id": "pl-ch-cards-area",
+    "tag": "div",
+    "cls": "",
+    "line": 792,
+    "context": "iv> </div> <div class=\"pl-ch-main\"> <div id=\"pl-ch-cards-area\"> <p class=\"empty-hint\" id=\"pl-ch-empty-hint\">请在左侧选择一个卷纲，然后生成章"
+  },
+  {
+    "id": "pl-ch-empty-hint",
+    "tag": "p",
+    "cls": "empty-hint",
+    "line": 793,
+    "context": "ass=\"pl-ch-main\"> <div id=\"pl-ch-cards-area\"> <p class=\"empty-hint\" id=\"pl-ch-empty-hint\">请在左侧选择一个卷纲，然后生成章节</p> <div id=\"pl-chapter-result\" class=\"pl-r"
+  },
+  {
+    "id": "pl-chapter-result",
+    "tag": "div",
+    "cls": "pl-result pl-hidden",
+    "line": 794,
+    "context": "lass=\"empty-hint\" id=\"pl-ch-empty-hint\">请在左侧选择一个卷纲，然后生成章节</p> <div id=\"pl-chapter-result\" class=\"pl-result pl-hidden\"></div> <div id=\"pl-chapter-cards\" class=\"pl-hidden\"></div>"
+  },
+  {
+    "id": "pl-chapter-cards",
+    "tag": "div",
+    "cls": "pl-hidden",
+    "line": 795,
+    "context": "div id=\"pl-chapter-result\" class=\"pl-result pl-hidden\"></div> <div id=\"pl-chapter-cards\" class=\"pl-hidden\"></div> </div> </div> </div>"
+  },
+  {
+    "id": "btn-pl-gen-chapters",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 799,
+    "context": "iv> </div> </div> <div class=\"pl-actions\"><button class=\"btn-primary\" id=\"btn-pl-gen-chapters\">AI 生成章节剧情点</button><button class=\"btn-secondary\" id=\"btn-pl-autogen-chapters\">自"
+  },
+  {
+    "id": "btn-pl-autogen-chapters",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 799,
+    "context": "ctions\"><button class=\"btn-primary\" id=\"btn-pl-gen-chapters\">AI 生成章节剧情点</button><button class=\"btn-secondary\" id=\"btn-pl-autogen-chapters\">自动生成章节</button><button class=\"btn-secondary\" id=\"btn-pl-confirm-chapters\" class"
+  },
+  {
+    "id": "btn-pl-confirm-chapters",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 799,
+    "context": "utton><button class=\"btn-secondary\" id=\"btn-pl-autogen-chapters\">自动生成章节</button><button class=\"btn-secondary\" id=\"btn-pl-confirm-chapters\" class=\"pl-hidden\">全部确认章节</button></div> <div class=\"pl-nav\"><button class=\"pl-nav-btn"
+  },
+  {
+    "id": "pl-step-5-content",
+    "tag": "div",
+    "cls": "pl-step-content pl-hidden",
+    "line": 803,
+    "context": "下一步</button></div> </div> <!-- Step 5: Body --> <div id=\"pl-step-5-content\" class=\"pl-step-content pl-hidden\"> <p class=\"pl-desc\">第五步：选择章节，AI自动生成正文。</p> <div class"
+  },
+  {
+    "id": "pl-s5-skill",
+    "tag": "select",
+    "cls": "pl-select",
+    "line": 807,
+    "context": "-skill-bar\"> <span class=\"pl-label\">Skill:</span> <select id=\"pl-s5-skill\" class=\"pl-select\"><option value=\"\">无</option></select> <button class=\"btn-sm\" id=\""
+  },
+  {
+    "id": "pl-s5-add-skill",
+    "tag": "button",
+    "cls": "btn-sm",
+    "line": 808,
+    "context": "s5-skill\" class=\"pl-select\"><option value=\"\">无</option></select> <button class=\"btn-sm\" id=\"pl-s5-add-skill\" title=\"添加Skill\">+</button> </div> <div id=\"pl-s5-skills-list\" class=\""
+  },
+  {
+    "id": "pl-s5-skills-list",
+    "tag": "div",
+    "cls": "pl-skills-list",
+    "line": 810,
+    "context": "d=\"pl-s5-add-skill\" title=\"添加Skill\">+</button> </div> <div id=\"pl-s5-skills-list\" class=\"pl-skills-list\"></div> <div class=\"pl-gen-options\"><label>目标章节：</label><select id="
+  },
+  {
+    "id": "pl-chapter-select",
+    "tag": "select",
+    "cls": "",
+    "line": 811,
+    "context": "kills-list\"></div> <div class=\"pl-gen-options\"><label>目标章节：</label><select id=\"pl-chapter-select\"><option value=\"\">请选择章节</option></select> <label>目标字数：</label><input id=\"pl-word"
+  },
+  {
+    "id": "pl-word-count",
+    "tag": "input",
+    "cls": "input-w-80",
+    "line": 811,
+    "context": "pl-chapter-select\"><option value=\"\">请选择章节</option></select> <label>目标字数：</label><input id=\"pl-word-count\" type=\"number\" value=\"2000\" min=\"100\" max=\"20000\" step=\"100\" class=\"input-w-80\"></div> <div id=\"pl-context-summary\" class=\"pl-context-summary\"></di"
+  },
+  {
+    "id": "pl-context-summary",
+    "tag": "div",
+    "cls": "pl-context-summary",
+    "line": 812,
+    "context": "e=\"2000\" min=\"100\" max=\"20000\" step=\"100\" class=\"input-w-80\"></div> <div id=\"pl-context-summary\" class=\"pl-context-summary\"></div> <div id=\"pl-body-result\" class=\"pl-result pl-hidden\"></div>"
+  },
+  {
+    "id": "pl-body-result",
+    "tag": "div",
+    "cls": "pl-result pl-hidden",
+    "line": 813,
+    "context": "<div id=\"pl-context-summary\" class=\"pl-context-summary\"></div> <div id=\"pl-body-result\" class=\"pl-result pl-hidden\"></div> <div class=\"pl-actions\"><button class=\"btn-primary\" id=\"btn-"
+  },
+  {
+    "id": "btn-pl-gen-body",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 814,
+    "context": "-result\" class=\"pl-result pl-hidden\"></div> <div class=\"pl-actions\"><button class=\"btn-primary\" id=\"btn-pl-gen-body\">AI 生成正文</button><button class=\"btn-secondary\" id=\"btn-pl-insert-body\" class=\"pl"
+  },
+  {
+    "id": "btn-pl-insert-body",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 814,
+    "context": "s=\"pl-actions\"><button class=\"btn-primary\" id=\"btn-pl-gen-body\">AI 生成正文</button><button class=\"btn-secondary\" id=\"btn-pl-insert-body\" class=\"pl-hidden\">插入到编辑器</button><button class=\"btn-secondary\" id=\"btn-pl-confirm-body\" class=\"pl"
+  },
+  {
+    "id": "btn-pl-confirm-body",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 814,
+    "context": "class=\"btn-secondary\" id=\"btn-pl-insert-body\" class=\"pl-hidden\">插入到编辑器</button><button class=\"btn-secondary\" id=\"btn-pl-confirm-body\" class=\"pl-hidden\">确认正文</button></div> <div class=\"pl-nav\"><button class=\"pl-nav-btn p"
+  },
+  {
+    "id": "memory-panel",
+    "tag": "div",
+    "cls": "mem-hidden",
+    "line": 829,
+    "context": "</div> </div> </div> </div> <!-- 记忆面板 --> <div id=\"memory-panel\" class=\"mem-hidden\"><div class=\"mem-main\"><div class=\"mem-header\"><h3>记忆管理</h3><button class=\"btn-c"
+  },
+  {
+    "id": "btn-close-mem",
+    "tag": "button",
+    "cls": "btn-close",
+    "line": 829,
+    "context": "\" class=\"mem-hidden\"><div class=\"mem-main\"><div class=\"mem-header\"><h3>记忆管理</h3><button class=\"btn-close\" id=\"btn-close-mem\">&times;</button></div><div class=\"mem-body\"><div class=\"mem-sidebar\"><div class"
+  },
+  {
+    "id": "mem-cat-list",
+    "tag": "div",
+    "cls": "mem-cat-list",
+    "line": 829,
+    "context": "close-mem\">&times;</button></div><div class=\"mem-body\"><div class=\"mem-sidebar\"><div class=\"mem-cat-list\" id=\"mem-cat-list\"><button class=\"mem-cat-btn active\" data-cat=\"all\">全部</button></div><button clas"
+  },
+  {
+    "id": "btn-add-mem-cat",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary full-width",
+    "line": 829,
+    "context": "em-cat-list\"><button class=\"mem-cat-btn active\" data-cat=\"all\">全部</button></div><button class=\"btn-sm btn-secondary full-width\" id=\"btn-add-mem-cat\">+ 新增分类</button></div><div class=\"mem-content\"><div class=\"mem-content-header\"><"
+  },
+  {
+    "id": "mem-current-cat",
+    "tag": "span",
+    "cls": "",
+    "line": 829,
+    "context": "\">+ 新增分类</button></div><div class=\"mem-content\"><div class=\"mem-content-header\"><span id=\"mem-current-cat\">全部记忆</span><button id=\"btn-add-mem\" class=\"btn-primary btn-sm\">+ 添加记忆</button><"
+  },
+  {
+    "id": "btn-add-mem",
+    "tag": "button",
+    "cls": "btn-primary btn-sm",
+    "line": 829,
+    "context": "-content\"><div class=\"mem-content-header\"><span id=\"mem-current-cat\">全部记忆</span><button id=\"btn-add-mem\" class=\"btn-primary btn-sm\">+ 添加记忆</button></div><div id=\"mem-list\" class=\"item-list card-grid\"><p class=\"e"
+  },
+  {
+    "id": "mem-list",
+    "tag": "div",
+    "cls": "item-list card-grid",
+    "line": 829,
+    "context": "</span><button id=\"btn-add-mem\" class=\"btn-primary btn-sm\">+ 添加记忆</button></div><div id=\"mem-list\" class=\"item-list card-grid\"><p class=\"empty-hint\">暂无记忆条目</p></div></div></div></div></div> <!--"
+  },
+  {
+    "id": "ctx-menu",
+    "tag": "div",
+    "cls": "context-menu",
+    "line": 880,
+    "context": "src=\"panels.js\"></script> <!-- Context menu for chapter tree --> <div id=\"ctx-menu\" class=\"context-menu\" style=\"display:none\"> <div class=\"ctx-item\" data-a=\"ctx-bind-skill\">绑定 Skill <div class=\""
+  },
+  {
+    "id": "skill-bind-modal",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 902,
+    "context": "正文</div></div> </div> <!-- Skill binding modal --> <div id=\"skill-bind-modal\" class=\"modal modal-hidden\"> <div class=\"modal-backdrop\"></div> <div class=\"modal-content"
+  },
+  {
+    "id": "sbm-title",
+    "tag": "h3",
+    "cls": "",
+    "line": 918,
+    "context": "<div class=\"modal-content\"> <div class=\"modal-header\"> <h3 id=\"sbm-title\">绑定 Skill</h3> <button class=\"modal-close sbm-close\">&times;</butto"
+  },
+  {
+    "id": "sbm-skill-list",
+    "tag": "div",
+    "cls": "checkbox-list",
+    "line": 934,
+    "context": "es;</button> </div> <div class=\"modal-body\"> <div id=\"sbm-skill-list\" class=\"checkbox-list\"></div> <div class=\"modal-actions\"> <button id=\"btn-"
+  },
+  {
+    "id": "btn-save-skill-binding",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 942,
+    "context": "=\"checkbox-list\"></div> <div class=\"modal-actions\"> <button id=\"btn-save-skill-binding\" class=\"btn-primary\">保存</button> <button class=\"btn-secondary sbm-close\">取消</button>"
+  },
+  {
+    "id": "plugin-market-modal",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 967,
+    "context": "n> </div> </div> </div> </div> <div id=\"plugin-market-modal\" class=\"modal modal-hidden\"> <div class=\"modal-backdrop\"></div> <div class=\"modal-content market-moda"
+  },
+  {
+    "id": "btn-close-market",
+    "tag": "button",
+    "cls": "btn-close",
+    "line": 972,
+    "context": "ket-modal-content\"> <div class=\"modal-header\"> <h3>插件市场</h3> <button id=\"btn-close-market\" class=\"btn-close\">&times;</button> </div> <div class=\"modal-body market-body-scroll\">"
+  },
+  {
+    "id": "github-status-bar",
+    "tag": "div",
+    "cls": "github-status-bar",
+    "line": 975,
+    "context": "</button> </div> <div class=\"modal-body market-body-scroll\"> <div id=\"github-status-bar\" class=\"github-status-bar\"> <span id=\"github-status-text\">GitHub: 未登录</span> <span>"
+  },
+  {
+    "id": "github-status-text",
+    "tag": "span",
+    "cls": "",
+    "line": 976,
+    "context": "ll\"> <div id=\"github-status-bar\" class=\"github-status-bar\"> <span id=\"github-status-text\">GitHub: 未登录</span> <span> <button id=\"btn-set-token\" cl"
+  },
+  {
+    "id": "btn-set-token",
+    "tag": "button",
+    "cls": "btn-sm btn-mr-4",
+    "line": 978,
+    "context": "<span id=\"github-status-text\">GitHub: 未登录</span> <span> <button id=\"btn-set-token\" class=\"btn-sm btn-mr-4\">设置 Token</button> <button id=\"btn-token-help\" class=\"btn-sm btn-ou"
+  },
+  {
+    "id": "btn-token-help",
+    "tag": "button",
+    "cls": "btn-sm btn-outline",
+    "line": 979,
+    "context": "utton id=\"btn-set-token\" class=\"btn-sm btn-mr-4\">设置 Token</button> <button id=\"btn-token-help\" class=\"btn-sm btn-outline\">如何获取?</button> </span> </div> <div id=\"token-input"
+  },
+  {
+    "id": "token-input-area",
+    "tag": "div",
+    "cls": "token-input-area",
+    "line": 982,
+    "context": "\"btn-sm btn-outline\">如何获取?</button> </span> </div> <div id=\"token-input-area\" class=\"token-input-area\"> <div class=\"token-help-text\">请输入 GitHub Personal Access Token（需要 pu"
+  },
+  {
+    "id": "github-token-input",
+    "tag": "input",
+    "cls": "token-input-field",
+    "line": 985,
+    "context": "（需要 public_repo 权限）</div> <div class=\"token-input-row\"> <input type=\"password\" id=\"github-token-input\" placeholder=\"ghp_xxxxxxxxxxxx\" class=\"token-input-field\"> <button id=\"btn-save-token\" class=\"btn-primary btn-sm\">保存并验证</but"
+  },
+  {
+    "id": "btn-save-token",
+    "tag": "button",
+    "cls": "btn-primary btn-sm",
+    "line": 986,
+    "context": "n-input\" placeholder=\"ghp_xxxxxxxxxxxx\" class=\"token-input-field\"> <button id=\"btn-save-token\" class=\"btn-primary btn-sm\">保存并验证</button> </div> </div> <div id=\"token-help-a"
+  },
+  {
+    "id": "token-help-area",
+    "tag": "div",
+    "cls": "token-help-area",
+    "line": 989,
+    "context": "=\"btn-primary btn-sm\">保存并验证</button> </div> </div> <div id=\"token-help-area\" class=\"token-help-area\"> <strong>如何获取 GitHub Token？</strong><br> 1. 打开 github.com"
+  },
+  {
+    "id": "market-search-input",
+    "tag": "input",
+    "cls": "market-search-input",
+    "line": 998,
+    "context": "5. 粘贴到上方输入框 </div> <div class=\"market-search\"> <input type=\"text\" id=\"market-search-input\" placeholder=\"搜索 GitHub 仓库 (例如: novel writing agent)\" class=\"market-search-input\"> <select id=\"market-category\" class=\"market-category-select\">"
+  },
+  {
+    "id": "market-category",
+    "tag": "select",
+    "cls": "market-category-select",
+    "line": 999,
+    "context": "=\"搜索 GitHub 仓库 (例如: novel writing agent)\" class=\"market-search-input\"> <select id=\"market-category\" class=\"market-category-select\"> <option value=\"\">全部</option> <option value=\"agent\">Agent"
+  },
+  {
+    "id": "btn-market-search",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 1004,
+    "context": "on> <option value=\"skill\">Skill</option> </select> <button id=\"btn-market-search\" class=\"btn-primary\">搜索</button> <select id=\"market-sort\" class=\"market-sort-select\">"
+  },
+  {
+    "id": "market-sort",
+    "tag": "select",
+    "cls": "market-sort-select",
+    "line": 1005,
+    "context": "<button id=\"btn-market-search\" class=\"btn-primary\">搜索</button> <select id=\"market-sort\" class=\"market-sort-select\"> <option value=\"stars\">按星标</option> <option value=\"up"
+  },
+  {
+    "id": "market-status",
+    "tag": "div",
+    "cls": "market-status-text",
+    "line": 1011,
+    "context": "<option value=\"\">最佳匹配</option> </select> </div> <div id=\"market-status\" class=\"market-status-text\">输入关键词搜索 GitHub 上的 Agent 和 Skill</div> <div id=\"market-results\" class=\"ma"
+  },
+  {
+    "id": "market-results",
+    "tag": "div",
+    "cls": "market-results-container",
+    "line": 1012,
+    "context": "status\" class=\"market-status-text\">输入关键词搜索 GitHub 上的 Agent 和 Skill</div> <div id=\"market-results\" class=\"market-results-container\"></div><!-- 第二个 market-results 已合并 --><div id=\"market-results-paginated\" class=\""
+  },
+  {
+    "id": "market-results-paginated",
+    "tag": "div",
+    "cls": "market-results-container market-results-scroll",
+    "line": 1012,
+    "context": "-results\" class=\"market-results-container\"></div><!-- 第二个 market-results 已合并 --><div id=\"market-results-paginated\" class=\"market-results-container market-results-scroll\"></div> <div id=\"market-pagination\" class=\"market-pagination\">"
+  },
+  {
+    "id": "market-pagination",
+    "tag": "div",
+    "cls": "market-pagination",
+    "line": 1013,
+    "context": "ginated\" class=\"market-results-container market-results-scroll\"></div> <div id=\"market-pagination\" class=\"market-pagination\"> <button id=\"btn-prev-page\" class=\"btn-sm\">上一页</button> <"
+  },
+  {
+    "id": "btn-prev-page",
+    "tag": "button",
+    "cls": "btn-sm",
+    "line": 1014,
+    "context": "div> <div id=\"market-pagination\" class=\"market-pagination\"> <button id=\"btn-prev-page\" class=\"btn-sm\">上一页</button> <span id=\"page-info\" class=\"page-info-text\">第 1 页</span"
+  },
+  {
+    "id": "page-info",
+    "tag": "span",
+    "cls": "page-info-text",
+    "line": 1015,
+    "context": "\"> <button id=\"btn-prev-page\" class=\"btn-sm\">上一页</button> <span id=\"page-info\" class=\"page-info-text\">第 1 页</span> <button id=\"btn-next-page\" class=\"btn-sm\">下一页</button>"
+  },
+  {
+    "id": "btn-next-page",
+    "tag": "button",
+    "cls": "btn-sm",
+    "line": 1016,
+    "context": "<span id=\"page-info\" class=\"page-info-text\">第 1 页</span> <button id=\"btn-next-page\" class=\"btn-sm\">下一页</button> </div> </div> </div> </div> </main> <div id=\"to"
+  },
+  {
+    "id": "toast-container",
+    "tag": "div",
+    "cls": "",
+    "line": 1023,
+    "context": "ss=\"btn-sm\">下一页</button> </div> </div> </div> </div> </main> <div id=\"toast-container\"></div> <div id=\"tooltip\"></div> <div id=\"diff-modal\" class=\"modal modal-hidden\""
+  },
+  {
+    "id": "tooltip",
+    "tag": "div",
+    "cls": "",
+    "line": 1024,
+    "context": "</div> </div> </div> </div> </main> <div id=\"toast-container\"></div> <div id=\"tooltip\"></div> <div id=\"diff-modal\" class=\"modal modal-hidden\"><div class=\"modal-backdr"
+  },
+  {
+    "id": "diff-modal",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 1025,
+    "context": "</div> </main> <div id=\"toast-container\"></div> <div id=\"tooltip\"></div> <div id=\"diff-modal\" class=\"modal modal-hidden\"><div class=\"modal-backdrop\"></div><div class=\"modal-content diff-modal-content\""
+  },
+  {
+    "id": "diff-count",
+    "tag": "span",
+    "cls": "diff-count",
+    "line": 1025,
+    "context": "ss=\"modal-content diff-modal-content\"><div class=\"modal-header\"><h3>AI 修改对比</h3><span id=\"diff-count\" class=\"diff-count\">0 处变更</span><button class=\"btn-close\" id=\"btn-close-diff\">&times;</button></div"
+  },
+  {
+    "id": "btn-close-diff",
+    "tag": "button",
+    "cls": "btn-close",
+    "line": 1025,
+    "context": "al-header\"><h3>AI 修改对比</h3><span id=\"diff-count\" class=\"diff-count\">0 处变更</span><button class=\"btn-close\" id=\"btn-close-diff\">&times;</button></div><div class=\"modal-body diff-modal-body\"><div class=\"diff-"
+  },
+  {
+    "id": "btn-diff-prev",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 1025,
+    "context": "/button></div><div class=\"modal-body diff-modal-body\"><div class=\"diff-toolbar\"><button class=\"btn-sm btn-secondary\" id=\"btn-diff-prev\">上一处</button><button class=\"btn-sm btn-secondary\" id=\"btn-diff-next\">下一处</button"
+  },
+  {
+    "id": "btn-diff-next",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 1025,
+    "context": "ff-toolbar\"><button class=\"btn-sm btn-secondary\" id=\"btn-diff-prev\">上一处</button><button class=\"btn-sm btn-secondary\" id=\"btn-diff-next\">下一处</button><button class=\"btn-sm btn-primary\" id=\"btn-diff-accept-all\">全部接受</b"
+  },
+  {
+    "id": "btn-diff-accept-all",
+    "tag": "button",
+    "cls": "btn-sm btn-primary",
+    "line": 1025,
+    "context": "上一处</button><button class=\"btn-sm btn-secondary\" id=\"btn-diff-next\">下一处</button><button class=\"btn-sm btn-primary\" id=\"btn-diff-accept-all\">全部接受</button><button class=\"btn-sm btn-secondary\" id=\"btn-diff-reject-all\">全部拒绝"
+  },
+  {
+    "id": "btn-diff-reject-all",
+    "tag": "button",
+    "cls": "btn-sm btn-secondary",
+    "line": 1025,
+    "context": "button><button class=\"btn-sm btn-primary\" id=\"btn-diff-accept-all\">全部接受</button><button class=\"btn-sm btn-secondary\" id=\"btn-diff-reject-all\">全部拒绝</button></div><div class=\"diff-container\" id=\"diff-container\"><div class=\""
+  },
+  {
+    "id": "diff-container",
+    "tag": "div",
+    "cls": "diff-container",
+    "line": 1025,
+    "context": "button class=\"btn-sm btn-secondary\" id=\"btn-diff-reject-all\">全部拒绝</button></div><div class=\"diff-container\" id=\"diff-container\"><div class=\"diff-pane\"><div class=\"diff-pane-label\">原文</div><div class=\"diff-co"
+  },
+  {
+    "id": "diff-original",
+    "tag": "div",
+    "cls": "diff-content",
+    "line": 1025,
+    "context": "id=\"diff-container\"><div class=\"diff-pane\"><div class=\"diff-pane-label\">原文</div><div class=\"diff-content\" id=\"diff-original\"></div></div><div class=\"diff-pane\"><div class=\"diff-pane-label\">AI 修改</div><div"
+  },
+  {
+    "id": "diff-modified",
+    "tag": "div",
+    "cls": "diff-content",
+    "line": 1025,
+    "context": "nal\"></div></div><div class=\"diff-pane\"><div class=\"diff-pane-label\">AI 修改</div><div class=\"diff-content\" id=\"diff-modified\"></div></div></div></div><div class=\"modal-footer\"><button class=\"btn-primary\" i"
+  },
+  {
+    "id": "btn-diff-apply",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 1025,
+    "context": "f-content\" id=\"diff-modified\"></div></div></div></div><div class=\"modal-footer\"><button class=\"btn-primary\" id=\"btn-diff-apply\">应用结果到编辑器</button><button class=\"btn-secondary\" id=\"btn-diff-cancel\">取消</button>"
+  },
+  {
+    "id": "btn-diff-cancel",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 1025,
+    "context": "\"modal-footer\"><button class=\"btn-primary\" id=\"btn-diff-apply\">应用结果到编辑器</button><button class=\"btn-secondary\" id=\"btn-diff-cancel\">取消</button></div></div></div> <div id=\"inline-menu\"><button class=\"inline-menu-"
+  },
+  {
+    "id": "inline-menu",
+    "tag": "div",
+    "cls": "",
+    "line": 1026,
+    "context": "button class=\"btn-secondary\" id=\"btn-diff-cancel\">取消</button></div></div></div> <div id=\"inline-menu\"><button class=\"inline-menu-btn\" data-action=\"rewrite\">改写</button><div class=\"in"
+  },
+  {
+    "id": "loading-indicator",
+    "tag": "div",
+    "cls": "loading-overlay",
+    "line": 1027,
+    "context": "></div><button class=\"inline-menu-btn\" data-action=\"condense\">精简</button></div> <div id=\"loading-indicator\" class=\"loading-overlay\"><div class=\"loading-content\"><span class=\"spinner loading-spinner-inline\"></spa"
+  },
+  {
+    "id": "loading-text",
+    "tag": "span",
+    "cls": "loading-text-inline",
+    "line": 1027,
+    "context": "div class=\"loading-content\"><span class=\"spinner loading-spinner-inline\"></span><span id=\"loading-text\" class=\"loading-text-inline\">加载中...</span></div></div> <div id=\"deai-progress-modal\" class=\"modal modal-hidd"
+  },
+  {
+    "id": "deai-progress-modal",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 1028,
+    "context": "n><span id=\"loading-text\" class=\"loading-text-inline\">加载中...</span></div></div> <div id=\"deai-progress-modal\" class=\"modal modal-hidden\"><div class=\"modal-backdrop\"></div><div class=\"modal-content modal-content-sm\"><"
+  },
+  {
+    "id": "deai-progress-fill",
+    "tag": "div",
+    "cls": "deai-progress-fill",
+    "line": 1028,
+    "context": "r\"><h3>去AI味处理中</h3></div><div class=\"modal-body\"><div class=\"deai-progress-bar\"><div class=\"deai-progress-fill\" id=\"deai-progress-fill\"></div></div><div class=\"deai-progress-info\"><span id=\"deai-progress-percent\">0%"
+  },
+  {
+    "id": "deai-progress-percent",
+    "tag": "span",
+    "cls": "",
+    "line": 1028,
+    "context": "gress-fill\" id=\"deai-progress-fill\"></div></div><div class=\"deai-progress-info\"><span id=\"deai-progress-percent\">0%</span><span id=\"deai-progress-step\">准备中...</span></div><div class=\"deai-step"
+  },
+  {
+    "id": "deai-progress-step",
+    "tag": "span",
+    "cls": "",
+    "line": 1028,
+    "context": "</div><div class=\"deai-progress-info\"><span id=\"deai-progress-percent\">0%</span><span id=\"deai-progress-step\">准备中...</span></div><div class=\"deai-step-list\" id=\"deai-step-list\"></div></div>"
+  },
+  {
+    "id": "deai-step-list",
+    "tag": "div",
+    "cls": "deai-step-list",
+    "line": 1028,
+    "context": "eai-progress-percent\">0%</span><span id=\"deai-progress-step\">准备中...</span></div><div class=\"deai-step-list\" id=\"deai-step-list\"></div></div><div class=\"modal-footer\"><button id=\"btn-deai-cancel\" class=\"btn-s"
+  },
+  {
+    "id": "btn-deai-cancel",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 1028,
+    "context": "lass=\"deai-step-list\" id=\"deai-step-list\"></div></div><div class=\"modal-footer\"><button id=\"btn-deai-cancel\" class=\"btn-secondary\">取消</button></div></div></div> <div id=\"exit-confirm-modal\" class=\"modal modal-h"
+  },
+  {
+    "id": "exit-confirm-modal",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 1029,
+    "context": "button id=\"btn-deai-cancel\" class=\"btn-secondary\">取消</button></div></div></div> <div id=\"exit-confirm-modal\" class=\"modal modal-hidden\"><div class=\"modal-backdrop\"></div><div class=\"modal-content modal-content-sm\"><"
+  },
+  {
+    "id": "btn-exit-cancel",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 1029,
+    "context": "t-size-sm);color:var(--text-muted);\">确认退出应用？</p></div><div class=\"modal-footer\"><button id=\"btn-exit-cancel\" class=\"btn-secondary\">取消</button><div class=\"footer-right\" style=\"display:flex;gap:8px;\"><button id=\""
+  },
+  {
+    "id": "btn-exit-direct",
+    "tag": "button",
+    "cls": "btn-secondary",
+    "line": 1029,
+    "context": "n-secondary\">取消</button><div class=\"footer-right\" style=\"display:flex;gap:8px;\"><button id=\"btn-exit-direct\" class=\"btn-secondary\">直接退出</button><button id=\"btn-exit-save\" class=\"btn-primary\">保存并退出</button></div"
+  },
+  {
+    "id": "btn-exit-save",
+    "tag": "button",
+    "cls": "btn-primary",
+    "line": 1029,
+    "context": ":flex;gap:8px;\"><button id=\"btn-exit-direct\" class=\"btn-secondary\">直接退出</button><button id=\"btn-exit-save\" class=\"btn-primary\">保存并退出</button></div></div></div></div> <div id=\"dom-toast\" class=\"dom-toast-con"
+  },
+  {
+    "id": "dom-toast",
+    "tag": "div",
+    "cls": "dom-toast-container",
+    "line": 1030,
+    "context": "n id=\"btn-exit-save\" class=\"btn-primary\">保存并退出</button></div></div></div></div> <div id=\"dom-toast\" class=\"dom-toast-container\"></div> <script> window.addEventListener('error', function(e) { console.error("
+  }
+]

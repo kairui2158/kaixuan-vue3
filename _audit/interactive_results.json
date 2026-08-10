@@ -1,0 +1,34 @@
+[
+  {
+    "test": "settings",
+    "result": "{\"navBtns\":[{\"i\":0,\"cls\":\"sidebar-btn\",\"text\":\"\",\"vis\":true,\"x\":6,\"y\":48},{\"i\":1,\"cls\":\"sidebar-btn\",\"text\":\"\",\"vis\":true,\"x\":6,\"y\":88},{\"i\":2,\"cls\":\"sidebar-btn\",\"text\":\"\",\"vis\":true,\"x\":6,\"y\":128},{\"i\":3,\"cls\":\"sidebar-btn\",\"text\":\"\",\"vis\":true,\"x\":6,\"y\":168}]}"
+  },
+  {
+    "test": "pipeline",
+    "result": "{\"clicked\":true,\"count\":4}"
+  },
+  {
+    "test": "settings-collection",
+    "result": "{\"clicked\":true}"
+  },
+  {
+    "test": "outline",
+    "result": "{\"clicked\":true}"
+  },
+  {
+    "test": "chat",
+    "result": "{\"clicked\":true}"
+  },
+  {
+    "test": "deAI",
+    "result": "{\"sent\":false,\"noInput\":true}"
+  },
+  {
+    "test": "deAI-result",
+    "result": "{\"clicked\":true}"
+  },
+  {
+    "test": "undo-redo",
+    "result": "{\"undo\":false,\"redo\":false}"
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "id": "btn-create-project",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 621
+  },
+  {
+    "id": "btn-new-project",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 617
+  },
+  {
+    "id": "btn-open-project",
+    "tag": "div",
+    "cls": "tree-header",
+    "line": 85
+  },
+  {
+    "id": "btn-save-volume",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 625
+  },
+  {
+    "id": "btn-tree-gen",
+    "tag": "div",
+    "cls": "tree-header",
+    "line": 85
+  },
+  {
+    "id": "chapter-tree",
+    "tag": "aside",
+    "cls": "",
+    "line": 81
+  },
+  {
+    "id": "current-project-name",
+    "tag": "div",
+    "cls": "tree-header",
+    "line": 85
+  },
+  {
+    "id": "project-list",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 617
+  },
+  {
+    "id": "resizer-chapter",
+    "tag": "div",
+    "cls": "resizer-v",
+    "line": 95
+  },
+  {
+    "id": "tree-body",
+    "tag": "div",
+    "cls": "tree-body",
+    "line": 89
+  },
+  {
+    "id": "vm-chapter-count",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 625
+  },
+  {
+    "id": "vm-chapter-count-group",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 625
+  },
+  {
+    "id": "vm-name",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 625
+  },
+  {
+    "id": "vm-outline",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 625
+  },
+  {
+    "id": "vm-title",
+    "tag": "div",
+    "cls": "modal modal-hidden",
+    "line": 625
+  }
+]

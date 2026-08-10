@@ -1,0 +1,14 @@
+[
+  {
+    "id": "btn-close-pl",
+    "tag": "button",
+    "cls": "btn-close",
+    "line": 706
+  },
+  {
+    "id": "btn-dashboard",
+    "tag": "button",
+    "cls": "sidebar-btn",
+    "line": 71
+  }
+]

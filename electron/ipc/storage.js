@@ -4,11 +4,17 @@ const path = require('path')
 
 var dataDir = ''
 
+var legacyDir = ''
+
 function setDataDir(dir) {
   dataDir = dir
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true })
   }
+}
+
+function setLegacyDir(dir) {
+  legacyDir = dir
 }
 
 function getDataDir() {
@@ -22,9 +28,19 @@ function registerStorageHandlers() {
       if (fs.existsSync(filePath)) {
         var content = fs.readFileSync(filePath, 'utf8')
         event.returnValue = JSON.parse(content)
-      } else {
-        event.returnValue = null
+        return
       }
+      // Fallback to legacy format (wa_ prefix, raw string)
+      if (legacyDir) {
+        var safeKey = key.replace(/[^a-zA-Z0-9_-]/g, '_')
+        var legacyPath = path.join(legacyDir, 'wa_' + safeKey + '.json')
+        if (fs.existsSync(legacyPath)) {
+          var legacyContent = fs.readFileSync(legacyPath, 'utf8')
+          event.returnValue = JSON.parse(legacyContent)
+          return
+        }
+      }
+      event.returnValue = null
     } catch (e) {
       event.returnValue = null
     }
@@ -54,6 +70,14 @@ function registerStorageHandlers() {
     try {
       var files = fs.readdirSync(dataDir)
       var keys = files.filter(function(f) { return f.endsWith('.json') }).map(function(f) { return f.replace('.json', '') })
+      // Also include legacy keys (strip wa_ prefix)
+      if (legacyDir && fs.existsSync(legacyDir)) {
+        var legacyFiles = fs.readdirSync(legacyDir)
+        legacyFiles.filter(function(f) { return f.startsWith('wa_') && f.endsWith('.json') }).forEach(function(f) {
+          var lk = f.replace('wa_', '').replace('.json', '')
+          if (keys.indexOf(lk) === -1) keys.push(lk)
+        })
+      }
       event.returnValue = keys
     } catch (e) {
       event.returnValue = []
@@ -95,4 +119,4 @@ function registerStorageHandlers() {
   })
 }
 
-module.exports = { registerStorageHandlers, setDataDir, getDataDir }
+module.exports = { registerStorageHandlers, setDataDir, getDataDir, setLegacyDir }
