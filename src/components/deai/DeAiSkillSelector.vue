@@ -70,7 +70,7 @@ function moveDown(index: number) {
   gap: 8px;
 }
 .ss-header {
-  font-size: 13px;
+  font-size: var(--font-size-md);
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -86,8 +86,8 @@ function moveDown(index: number) {
   padding: 6px 10px;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
 }
 .ss-idx {
   color: var(--accent);
@@ -106,9 +106,9 @@ function moveDown(index: number) {
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   padding: 1px 6px;
-  font-size: 10px;
+  font-size: var(--font-size-xxs);
   cursor: pointer;
 }
 .ss-btn:hover {
@@ -126,15 +126,15 @@ function moveDown(index: number) {
   padding: 12px;
   text-align: center;
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 .ss-select {
   background: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 12px;
+  border-radius: var(--radius-xs);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
   height: 28px;
   outline: none;
 }

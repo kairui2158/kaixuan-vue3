@@ -61,9 +61,9 @@ const renderedContent = computed(() => {
 }
 .message-bubble {
   max-width: 80%;
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-size: 14px;
+  padding: var(--space-5) var(--space-6);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-md);
   line-height: 1.7;
   word-break: break-word;
 }
@@ -79,8 +79,8 @@ const renderedContent = computed(() => {
 .message-content :deep(code) {
   background: var(--bg-input);
   padding: 1px 4px;
-  border-radius: 3px;
-  font-size: 13px;
+  border-radius: var(--radius-xs);
+  font-size: var(--font-size-md);
 }
 .message-actions {
   display: flex;
@@ -96,9 +96,9 @@ const renderedContent = computed(() => {
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   padding: 4px 10px;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   cursor: pointer;
 }
 .msg-btn:hover {
@@ -112,8 +112,8 @@ const renderedContent = computed(() => {
 .message-content :deep(li) { margin: 4px 0; }
 .message-content :deep(pre) {
   background: var(--bg-primary); border: 1px solid var(--border-color);
-  border-radius: 6px; overflow-x: auto; margin: 8px 0;
-  padding: 12px; font-size: 13px; line-height: 1.6;
+  border-radius: var(--radius-sm); overflow-x: auto; margin: 8px 0;
+  padding: 12px; font-size: var(--font-size-md); line-height: 1.6;
 }
 .message-content :deep(pre code) {
   background: none; color: var(--text-primary); padding: 0; font-size: inherit;
@@ -124,7 +124,7 @@ const renderedContent = computed(() => {
   border-radius: 0 4px 4px 0;
 }
 .message-content :deep(table) {
-  border-collapse: collapse; margin: 8px 0; width: 100%; font-size: 13px;
+  border-collapse: collapse; margin: 8px 0; width: 100%; font-size: var(--font-size-md);
   display: block; overflow-x: auto; max-width: 100%;
 }
 .message-content :deep(th), .message-content :deep(td) {

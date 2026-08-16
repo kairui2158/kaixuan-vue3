@@ -320,7 +320,7 @@ function saveAllConfig() {
 
 <style scoped>
 /* === 通用参数区 === */
-.deai-settings h3 { font-size: 16px; margin-bottom: 16px; }
+.deai-settings h3 { font-size: var(--font-size-lg); margin-bottom: 16px; }
 .deai-common-params {
   background: var(--bg-tertiary);
   border-radius: var(--radius-sm);
@@ -329,10 +329,10 @@ function saveAllConfig() {
 }
 .deai-param-row { display: flex; flex-wrap: wrap; gap: var(--space-md); align-items: flex-end; }
 .deai-param-item { display: flex; flex-direction: column; gap: 4px; }
-.deai-param-label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+.deai-param-label { font-size: var(--font-size-md); color: var(--text-muted); font-weight: 500; }
 .deai-param-select {
   min-width: 100px;
-  padding: 4px 8px;
+  padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-color);
   background: var(--bg-elevated);
@@ -342,7 +342,7 @@ function saveAllConfig() {
 
 /* === 流程预览 === */
 .deai-flow-section { margin-bottom: 16px; }
-.flow-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+.flow-label { font-size: var(--font-size-md); color: var(--text-secondary); margin-bottom: 6px; }
 
 /* === 模式卡片 === */
 .deai-mode-cards { display: flex; gap: var(--space-sm); margin-bottom: var(--space-md); }
@@ -371,8 +371,8 @@ function saveAllConfig() {
 .deai-mode-card-icon { font-weight: 700; color: var(--text-muted); font-size: var(--font-size-sm); }
 .deai-mode-card.active .deai-mode-card-icon { color: var(--accent-color, var(--accent)); }
 .deai-mode-card-title { font-weight: 600; color: var(--text-primary); font-size: var(--font-size-sm); }
-.deai-mode-card-desc { font-size: 13px; color: var(--text-muted); margin-left: auto; }
-.mode-full-desc { font-size: 13px; color: var(--text-secondary); margin: 8px; line-height: 1.5; }
+.deai-mode-card-desc { font-size: var(--font-size-md); color: var(--text-muted); margin-left: auto; }
+.mode-full-desc { font-size: var(--font-size-md); color: var(--text-secondary); margin: 8px; line-height: 1.5; }
 .mode-flow { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 8px 8px; }
 .deai-flow-step {
   display: inline-block;
@@ -381,17 +381,17 @@ function saveAllConfig() {
   border-radius: var(--radius-sm);
   background: var(--bg-elevated);
   color: var(--text-primary);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 .deai-mode-card-body { padding: var(--space-sm) var(--space-md); }
 
 /* === 表单组 === */
 .form-group { margin-bottom: 12px; }
-.form-group label { display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 4px; }
+.form-group label { display: block; font-size: var(--font-size-md); color: var(--text-secondary); margin-bottom: 4px; }
 .deai-skill-bar { display: flex; gap: 8px; margin-bottom: 8px; }
 .deai-split-input {
   width: 100%;
-  padding: 4px 8px;
+  padding: var(--space-2) var(--space-4);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   background: var(--bg-input);
@@ -419,7 +419,7 @@ function saveAllConfig() {
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  font-size: 16px;
+  font-size: var(--font-size-lg);
   padding: 0 2px;
   line-height: 1;
 }
@@ -433,7 +433,7 @@ function saveAllConfig() {
   background: var(--bg-input);
   color: var(--text-muted);
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 .toggle-btn.on { background: var(--accent); color: var(--text-on-accent); border-color: var(--accent); }
 
@@ -444,7 +444,7 @@ function saveAllConfig() {
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--font-size-md);
   margin-bottom: 8px;
 }
 .deai-hardrules-list { margin-top: 8px; padding-left: 16px; }
@@ -453,7 +453,7 @@ function saveAllConfig() {
   align-items: center;
   gap: 6px;
   padding: 4px 0;
-  font-size: 13px;
+  font-size: var(--font-size-md);
   color: var(--text-primary);
   cursor: pointer;
 }
@@ -487,11 +487,11 @@ function saveAllConfig() {
 .deai-verify-status.configured .deai-verify-icon { color: var(--success); }
 .deai-verify-status.not-configured .deai-verify-icon { color: var(--text-muted); }
 .deai-verify-name { color: var(--text-primary); font-weight: 500; }
-.deai-verify-hint { color: var(--text-muted); font-size: 13px; }
+.deai-verify-hint { color: var(--text-muted); font-size: var(--font-size-md); }
 
 /* === 配置区 === */
 .config-section { margin-bottom: 16px; }
-.config-section h4 { font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; }
+.config-section h4 { font-size: var(--font-size-md); color: var(--text-secondary); margin-bottom: 8px; }
 
 /* === step group: border-left accent (old arch L7390-7391) === */
 .deai-step-group {

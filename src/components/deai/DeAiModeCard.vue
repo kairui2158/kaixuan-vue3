@@ -51,19 +51,19 @@ function select() {
   margin-bottom: 8px;
 }
 .card-name {
-  font-size: 14px;
+  font-size: var(--font-size-md);
   font-weight: 600;
   color: var(--text-primary);
 }
 .card-badge {
   background: var(--accent);
   color: var(--text-on-accent);
-  font-size: 10px;
+  font-size: var(--font-size-xxs);
   padding: 1px 6px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
 }
 .card-desc {
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
   margin-bottom: 8px;
   line-height: 1.5;
@@ -76,8 +76,8 @@ function select() {
 .flow-step {
   padding: 2px 8px;
   background: var(--bg-input);
-  border-radius: 3px;
-  font-size: 10px;
+  border-radius: var(--radius-xs);
+  font-size: var(--font-size-xxs);
   color: var(--text-muted);
 }
 </style>

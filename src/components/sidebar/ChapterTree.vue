@@ -276,28 +276,28 @@ function deleteVolume(vol: any) {
 
 <style scoped>
 .chapter-tree { width: 200px; min-width: 140px; max-width: 300px; background: var(--bg-secondary); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
-.tree-header { display: flex; align-items: center; gap: 4px; padding: 8px 10px; border-bottom: 1px solid var(--border-color); font-size: 12px; }
+.tree-header { display: flex; align-items: center; gap: 4px; padding: 8px 10px; border-bottom: 1px solid var(--border-color); font-size: var(--font-size-sm); }
 .project-name { flex: 1 1 auto; min-width: 0; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tree-header-actions { display: flex; gap: 4px; flex-shrink: 0; }
 .tree-body { flex: 1; overflow-y: auto; padding: 4px 0; }
-.empty-hint { padding: 24px 12px; text-align: center; color: var(--text-muted); font-size: 12px; line-height: 1.8; }
+.empty-hint { padding: 24px 12px; text-align: center; color: var(--text-muted); font-size: var(--font-size-sm); line-height: 1.8; }
 .tree-list { padding: 0 4px; }
 .volume-group { margin-bottom: 2px; }
-.volume-item { display: flex; align-items: center; gap: 4px; padding: 4px 8px; cursor: pointer; border-radius: 4px; font-size: 12px; color: var(--text-primary); }
+.volume-item { display: flex; align-items: center; gap: 4px; padding: var(--space-2) var(--space-4); cursor: pointer; border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-primary); }
 .volume-item:hover { background: var(--bg-hover); }
 .volume-item.drag-over { background: var(--accent); color: var(--text-on-accent); }
-.vol-arrow { font-size: 10px; color: var(--text-muted); transition: transform 0.2s; display: inline-block; }
+.vol-arrow { font-size: var(--font-size-xxs); color: var(--text-muted); transition: transform 0.2s; display: inline-block; }
 .vol-arrow.expanded { transform: rotate(90deg); }
 .vol-name { flex: 1; }
-.vol-count { font-size: 10px; color: var(--text-muted); }
+.vol-count { font-size: var(--font-size-xxs); color: var(--text-muted); }
 .chapter-list { padding-left: 20px; }
-.chapter-item { padding: 3px 8px; cursor: pointer; border-radius: 4px; font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chapter-item { padding: 3px 8px; cursor: pointer; border-radius: var(--radius-xs); font-size: var(--font-size-xs); color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .chapter-item:hover { background: var(--bg-hover); color: var(--text-primary); }
 .chapter-item.active { background: var(--accent-dim, rgba(99,102,241,0.15)); color: var(--accent); font-weight: 600; }
 .chapter-item.drag-over { background: var(--accent); color: var(--text-on-accent); }
-.rename-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--accent); border-radius: 3px; padding: 1px 4px; font-size: 11px; width: 100%; outline: none; }
-.ctx-menu { position: fixed; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 8px; padding: 4px; z-index: 3000; box-shadow: var(--shadow-lg); min-width: 140px; }
-.ctx-item { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--text-primary); padding: 6px 12px; font-size: 12px; border-radius: 4px; cursor: pointer; }
+.rename-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--accent); border-radius: var(--radius-xs); padding: 1px 4px; font-size: var(--font-size-xs); width: 100%; outline: none; }
+.ctx-menu { position: fixed; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 4px; z-index: 3000; box-shadow: var(--shadow-lg); min-width: 140px; }
+.ctx-item { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--text-primary); padding: 6px 12px; font-size: var(--font-size-sm); border-radius: var(--radius-xs); cursor: pointer; }
 .ctx-item:hover { background: var(--bg-hover); }
 .ctx-item.danger { color: var(--danger); }
 .ctx-item.danger:hover { background: var(--danger); color: var(--text-on-accent); }

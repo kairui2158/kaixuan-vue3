@@ -124,7 +124,7 @@ function closeModal() {
   flex-direction: column;
   background: var(--bg-glass, var(--bg-secondary));
   border: 1px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg, 0 8px 32px rgba(0,0,0,0.3));
   padding: 16px;
 }
@@ -137,14 +137,14 @@ function closeModal() {
 }
 .skill-bind-header h3 {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--font-size-lg);
   font-weight: 600;
 }
 .sbm-close {
   background: transparent;
   border: none;
   color: var(--text-secondary);
-  font-size: 18px;
+  font-size: var(--font-size-xl);
   line-height: 1;
   cursor: pointer;
   padding: 2px 6px;
@@ -157,18 +157,18 @@ function closeModal() {
   align-items: center;
   gap: 8px;
   padding: 8px 0;
-  font-size: 13px;
+  font-size: var(--font-size-md);
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-color);
 }
 .sbm-step-selector {
   flex: 1;
-  padding: 4px 8px;
+  padding: var(--space-2) var(--space-4);
   background: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 12px;
+  border-radius: var(--radius-xs);
+  font-size: var(--font-size-sm);
 }
 .sbm-skill-list {
   display: flex;
@@ -182,7 +182,7 @@ function closeModal() {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: var(--font-size-md);
   color: var(--text-primary);
   cursor: pointer;
 }
@@ -192,13 +192,13 @@ function closeModal() {
 }
 .sbm-skill-cat {
   color: var(--text-muted);
-  font-size: 11px;
+  font-size: var(--font-size-xs);
 }
 .empty-hint {
   padding: 20px 0;
   text-align: center;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: var(--font-size-md);
 }
 .sbm-actions {
   display: flex;

@@ -53,7 +53,7 @@ function handleAction(action: string) {
   position: fixed; z-index: 5000;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   padding: 4px;
   display: flex; flex-wrap: wrap; gap: 2px;
@@ -61,8 +61,8 @@ function handleAction(action: string) {
 }
 .inline-menu-btn {
   padding: 4px 10px; border: none; background: transparent;
-  color: var(--text-primary); cursor: pointer; font-size: 12px;
-  border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;
+  color: var(--text-primary); cursor: pointer; font-size: var(--font-size-sm);
+  border-radius: var(--radius-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;
 }
 .inline-menu-btn:hover { background: var(--bg-hover); color: var(--accent); }
 </style>

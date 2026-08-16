@@ -26,7 +26,7 @@
    align-items: center;
    gap: 4px;
   padding: 4px 12px;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
@@ -46,7 +46,7 @@
 }
 .breadcrumb-item:hover { color: var(--accent); }
 .breadcrumb-close {
-  font-size: 10px;
+  font-size: var(--font-size-xxs);
   opacity: 0.5;
   padding: 0 2px;
 }

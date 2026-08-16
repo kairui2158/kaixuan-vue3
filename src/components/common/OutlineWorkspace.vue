@@ -496,7 +496,7 @@ async function askAi(requestText: string) {
   max-height: 88vh;
   background: var(--bg-glass);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
@@ -516,7 +516,7 @@ async function askAi(requestText: string) {
   justify-content: space-between;
   padding: 14px 24px;
   border-bottom: 1px solid var(--border-color);
-  font-size: 16px;
+  font-size: var(--font-size-lg);
   font-weight: 600;
   flex-shrink: 0;
   gap: 12px;
@@ -534,7 +534,7 @@ async function askAi(requestText: string) {
   justify-content: center;
   background: transparent;
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   color: var(--text-secondary);
   cursor: pointer;
   padding: 0;
@@ -545,10 +545,10 @@ async function askAi(requestText: string) {
 }
 .ow-chat-toggle {
   padding: 6px 14px;
-  font-size: 13px;
+  font-size: var(--font-size-md);
   font-weight: 500;
   border: 1px solid var(--accent-color);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--accent-color);
   cursor: pointer;
@@ -556,7 +556,7 @@ async function askAi(requestText: string) {
 }
 .ow-chat-toggle:hover {
   background: var(--accent-color);
-  color: #fff;
+  color: var(--text-on-accent);
 }
 .ow-body {
   flex: 1;
@@ -576,14 +576,14 @@ async function askAi(requestText: string) {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 13px;
+  font-size: var(--font-size-md);
   font-weight: 600;
   color: var(--text-primary);
   flex-shrink: 0;
 }
 .ow-editor-header .word-count {
   margin-left: auto;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   font-weight: 400;
   color: var(--text-secondary);
   white-space: nowrap;
@@ -595,9 +595,9 @@ async function askAi(requestText: string) {
   background: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 16px;
-  font-size: 14px;
+  font-size: var(--font-size-md);
   line-height: 1.8;
   resize: none;
   outline: none;
@@ -625,9 +625,9 @@ async function askAi(requestText: string) {
 .ow-msg-bubble {
   display: inline-block;
   max-width: 85%;
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-size: 14px;
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-md);
   line-height: 1.6;
   text-align: left;
   word-break: break-word;
@@ -652,9 +652,9 @@ async function askAi(requestText: string) {
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   padding: 2px 8px;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   cursor: pointer;
   transition: var(--transition-fast);
 }
@@ -675,9 +675,9 @@ async function askAi(requestText: string) {
   background: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 4px 10px;
-  font-size: 13px;
+  font-size: var(--font-size-md);
   height: 28px;
   outline: none;
 }
@@ -685,11 +685,11 @@ async function askAi(requestText: string) {
   background: var(--accent);
   color: var(--text-on-accent);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 0 12px;
   height: 28px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
 }
 .ow-footer {
   display: flex;
@@ -702,7 +702,7 @@ async function askAi(requestText: string) {
   flex-wrap: wrap;
 }
 .save-feedback {
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: var(--success);
   padding: 0 8px;
 }

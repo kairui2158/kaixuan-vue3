@@ -49,8 +49,8 @@ onUnmounted(() => { if (unsub) unsub() })
 .log-toast {
   background: var(--bg-secondary, #1e1e22);
   border: 1px solid var(--border-color, #3a3a3e);
-  border-radius: 6px;
-  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  padding: var(--space-4) var(--space-6);
   font-size: var(--font-size-sm);
   display: flex;
   gap: 8px;
@@ -63,8 +63,8 @@ onUnmounted(() => { if (unsub) unsub() })
 .log-toast.error { border-left: 3px solid #dc3545; }
 .log-toast.warn { border-left: 3px solid #ffc107; }
 .toast-level { font-weight: 700; font-size: var(--font-size-xs); flex-shrink: 0; }
-.log-toast.error .toast-level { color: #dc3545; }
-.log-toast.warn .toast-level { color: #ffc107; }
+.log-toast.error .toast-level { color: var(--danger); }
+.log-toast.warn .toast-level { color: var(--warning); }
 .toast-msg { color: var(--text-secondary, #ccc); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .toast-enter-active, .toast-leave-active { transition: all 0.3s ease; }
 .toast-enter-from { opacity: 0; transform: translateX(20px); }

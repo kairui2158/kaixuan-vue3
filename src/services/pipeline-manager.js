@@ -2235,13 +2235,13 @@ App.prototype._plResumeChapterGen = async function(volIdx) {
       var sel = item && item.category === mem.categories[i] ? " selected" : "";
       catOpts += "<option value=\"" + mem.categories[i] + "\"" + sel + ">" + mem.categories[i] + "</option>";
     }
-    var html = "<div class=\"mem-form\"><h4>" + (item ? "编辑记忆" : "新增记忆") + "</h4><div class=\"form-group\"><label>键名</label><input id=\"mem-key\" value=\"" + (item ? this._escHtml(item.key) : "") + "\" placeholder=\"例如: 主角性格\"></div><div class=\"form-group\"><label>分类</label><select id=\"mem-cat\">" + catOpts + "</select></div><div class=\"form-group\"><label>内容</label><textarea id=\"mem-content\" rows=\"4\" placeholder=\"记忆内容...\">" + (item ? this._escHtml(item.content) : "") + "</textarea></div><div class=\"form-actions\"><button class=\"btn-primary\" id=\"btn-save-mem\">保存</button><button class=\"btn-secondary\" id=\"btn-cancel-mem\">取消</button></div></div>";
+    var html = "<div class=\"mem-form\"><h4>" + (item ? "编辑记忆" : "新增记忆") + "</h4><div class=\"form-group\"><label>键名</label><input id=\"mem-key\" value=\"" + (item ? this._escHtml(item.key) : "") + "\" placeholder=\"例如: 主角性格\"></div><div class=\"form-group\"><label>分类</label><select id=\"mem-cat\">" + catOpts + "</select></div><div class=\"form-group\"><label>内容</label><textarea id=\"mem-content\" rows=\"4\" placeholder=\"记忆内容...\">" + (item ? this._escHtml(item.content) : "") + "</textarea></div><div class=\"form-actions\"><button class=\"btn-primary\" id=\"btn-save-mem\">保存</button><button class=\"btn-secondary\" id=\"btn-secondary-mem\">取消</button></div></div>";
     var cat = document.querySelector(".mem-cat-btn.active");
     var currentCat = cat ? cat.dataset.cat : "all";
     document.getElementById("mem-list").insertAdjacentHTML("afterbegin", html);
     document.getElementById("btn-add-mem").disabled = true;
     document.getElementById("btn-save-mem").addEventListener("click", function() { self._saveMemory(idx, currentCat); });
-    document.getElementById("btn-cancel-mem").addEventListener("click", function() { self._renderMemories(currentCat); });
+    document.getElementById("btn-secondary-mem").addEventListener("click", function() { self._renderMemories(currentCat); });
   }
   App.prototype._saveMemory = function(idx, cat) {
     var p = this._getProjectData(); if (!p) return; if (!p.memories) p.memories = { categories: ["情节", "人物", "世界观", "伏笔"], items: [] }; var mem = p.memories;
@@ -2316,7 +2316,7 @@ App.prototype._plResumeChapterGen = async function(volIdx) {
 App.prototype._addSettingsItem = function(cat) {
   var self = this;
   var container = document.getElementById("sc-items-list");
-  var html = "<div class=\"sc-item-form\"><h4>\u65b0\u589e\u6761\u76ee</h4><div class=\"form-group\"><label>\u540d\u79f0</label><input id=\"sci-name\" placeholder=\"\u6761\u76ee\u540d\u79f0\"></div><div class=\"form-group\"><label>\u89e6\u53d1\u5173\u952e\u8bcd\uff08\u9017\u53f7\u5206\u9694\uff09</label><input id=\"sci-trigger-keys\" placeholder=\"\u5982: \u5f20\u4e09, \u5f20\u4e09\u51fa\u573a\"></div><div id=\"sci-attrs\"><div class=\"sc-attr-row\"><input placeholder=\"\u5c5e\u6027\u540d\" class=\"sci-attr-key\"><input placeholder=\"\u5c5e\u6027\u503c\" class=\"sci-attr-val\"><button class=\"btn-sm btn-secondary sc-attr-rm\" style=\"display:none\">-</button></div></div><button class=\"btn-sm btn-secondary\" id=\"btn-add-attr\">+ \u6dfb\u52a0\u5c5e\u6027</button><div class=\"form-actions\"><button class=\"btn-primary\" id=\"btn-save-item\">\u4fdd\u5b58</button><button class=\"btn-secondary\" id=\"btn-cancel-item\">\u53d6\u6d88</button></div></div>";
+  var html = "<div class=\"sc-item-form\"><h4>\u65b0\u589e\u6761\u76ee</h4><div class=\"form-group\"><label>\u540d\u79f0</label><input id=\"sci-name\" placeholder=\"\u6761\u76ee\u540d\u79f0\"></div><div class=\"form-group\"><label>\u89e6\u53d1\u5173\u952e\u8bcd\uff08\u9017\u53f7\u5206\u9694\uff09</label><input id=\"sci-trigger-keys\" placeholder=\"\u5982: \u5f20\u4e09, \u5f20\u4e09\u51fa\u573a\"></div><div id=\"sci-attrs\"><div class=\"sc-attr-row\"><input placeholder=\"\u5c5e\u6027\u540d\" class=\"sci-attr-key\"><input placeholder=\"\u5c5e\u6027\u503c\" class=\"sci-attr-val\"><button class=\"btn-sm btn-secondary sc-attr-rm\" style=\"display:none\">-</button></div></div><button class=\"btn-sm btn-secondary\" id=\"btn-add-attr\">+ \u6dfb\u52a0\u5c5e\u6027</button><div class=\"form-actions\"><button class=\"btn-primary\" id=\"btn-save-item\">\u4fdd\u5b58</button><button class=\"btn-secondary\" id=\"btn-secondary-item\">\u53d6\u6d88</button></div></div>";
   container.insertAdjacentHTML("afterbegin", html);
   container.querySelector(".sc-attr-row:first-child .sc-attr-rm").classList.remove("visible");
   document.getElementById("btn-add-item").disabled = true;
@@ -2328,7 +2328,7 @@ App.prototype._addSettingsItem = function(cat) {
     row.querySelector(".sc-attr-rm").addEventListener("click", function() { row.remove(); });
   });
   document.getElementById("btn-save-item").addEventListener("click", function() { self._saveSettingsItem(cat, -1); });
-  document.getElementById("btn-cancel-item").addEventListener("click", function() { self.renderSettingsItems(cat); });
+  document.getElementById("btn-secondary-item").addEventListener("click", function() { self.renderSettingsItems(cat); });
 }
 
 App.prototype.addSelectedSkills = function(skills) {

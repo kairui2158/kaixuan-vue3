@@ -590,16 +590,16 @@ function scrollToBottom() {
   padding: 0 12px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
-  font-size: 13px;
+  font-size: var(--font-size-md);
   font-weight: 600;
 }
 .agent-selector {
   background: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   padding: 4px 6px;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   height: 28px;
   outline: none;
 }
@@ -618,12 +618,12 @@ function scrollToBottom() {
   color: var(--text-muted);
 }
 .empty-icon { font-size: 32px; }
-.empty-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
-.empty-desc { font-size: 13px; text-align: center; }
+.empty-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-secondary); }
+.empty-desc { font-size: var(--font-size-md); text-align: center; }
 .chat-input-row {
   display: flex;
   gap: 8px;
-  padding: 8px 12px;
+  padding: var(--space-4) var(--space-6);
   border-top: 1px solid var(--border-color);
 }
 .chat-input {
@@ -631,9 +631,9 @@ function scrollToBottom() {
   background: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 7px 10px;
-  font-size: 14px;
+  font-size: var(--font-size-md);
   resize: none;
   outline: none;
   height: 36px;
@@ -646,7 +646,7 @@ function scrollToBottom() {
   background: var(--accent);
   color: var(--text-on-accent);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 0 var(--space-md);
   min-width: 48px;
   height: 32px;
@@ -672,23 +672,23 @@ function scrollToBottom() {
   gap: 6px;
   padding: 4px 12px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: var(--text-muted);
   user-select: none;
 }
 .skill-area-title { font-weight: 600; }
-.skill-area-arrow { font-size: 10px; transition: transform 0.2s; }
+.skill-area-arrow { font-size: var(--font-size-xxs); transition: transform 0.2s; }
 .skill-area-arrow.rotated { transform: rotate(-90deg); }
 .skill-area-content { padding: 4px 12px 8px; }
 .agent-info-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-.agent-info-label { font-size: 12px; background: var(--accent-dim); color: var(--accent-lighter); padding: 2px 6px; border-radius: 3px; font-weight: 600; }
-.agent-info-name { font-size: 13px; color: var(--text-primary); font-weight: 500; }
-.agent-info-model { font-size: 12px; color: var(--text-muted); margin-left: auto; }
-.skill-list-active { font-size: 12px; color: var(--text-secondary); }
-.token-bar { padding: 4px 12px 6px; font-size: 12px; color: var(--text-muted); }
+.agent-info-label { font-size: var(--font-size-sm); background: var(--accent-dim); color: var(--accent-lighter); padding: 2px 6px; border-radius: var(--radius-xs); font-weight: 600; }
+.agent-info-name { font-size: var(--font-size-md); color: var(--text-primary); font-weight: 500; }
+.agent-info-model { font-size: var(--font-size-sm); color: var(--text-muted); margin-left: auto; }
+.skill-list-active { font-size: var(--font-size-sm); color: var(--text-secondary); }
+.token-bar { padding: 4px 12px 6px; font-size: var(--font-size-sm); color: var(--text-muted); }
 .input-hint {
   padding: 4px 12px 8px;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: var(--text-muted);
 }
 </style>

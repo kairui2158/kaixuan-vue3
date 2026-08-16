@@ -37,7 +37,7 @@
   z-index: 10000;
   background: var(--bg-elevated);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 4px 0;
   min-width: 160px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.4);
@@ -45,7 +45,7 @@
 .ctx-item {
   padding: 6px 16px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--font-size-md);
   color: var(--text-primary);
 }
 .ctx-item:hover {

@@ -78,7 +78,7 @@ const navItems = [
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   transition: var(--transition-fast);
   position: relative;
 }
@@ -106,11 +106,11 @@ const navItems = [
   position: absolute;
   left: 100%;
   margin-left: 8px;
-  padding: 4px 8px;
+  padding: var(--space-2) var(--space-4);
   background: var(--bg-tertiary);
   color: var(--text-primary);
-  font-size: 12px;
-  border-radius: 4px;
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-xs);
   white-space: nowrap;
   z-index: 3000;
   pointer-events: none;

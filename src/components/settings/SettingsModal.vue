@@ -113,7 +113,7 @@ function handleSave() {
   height: var(--btn-md-height, 32px);
   min-width: 80px;
   padding: 0 var(--space-md, 16px);
-  font-size: 14px;
+  font-size: var(--font-size-md);
   border-radius: var(--radius-sm);
   cursor: pointer;
   border: none;
@@ -154,7 +154,7 @@ function handleSave() {
   color: var(--text-secondary);
   cursor: pointer;
   border-radius: var(--radius-sm, 6px);
-  font-size: 14px;
+  font-size: var(--font-size-md);
   position: relative;
   transition: background 0.12s ease, color 0.12s ease;
 }

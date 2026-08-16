@@ -59,8 +59,8 @@ onUnmounted(() => {
 }
 .log-indicator.has-error {
   background: #dc3545;
-  border-color: #dc3545;
-  color: #fff;
+  border-color: var(--danger);
+  color: var(--text-on-accent);
   animation: pulse 2s infinite;
 }
 @keyframes pulse {
@@ -72,12 +72,12 @@ onUnmounted(() => {
   top: -4px;
   right: -4px;
   background: #dc3545;
-  color: #fff;
+  color: var(--text-on-accent);
   font-size: var(--font-size-xs);
   font-weight: 700;
   min-width: 16px;
   height: 16px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;

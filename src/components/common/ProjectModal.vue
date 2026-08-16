@@ -91,17 +91,17 @@ function createNewProject() {
 </script>
 
 <style scoped>
-.modal-content.project-modal-content { position: relative; background: var(--bg-primary, #1e1e2e); border: 1px solid var(--border-color, #2d2d3f); border-radius: 8px; width: 560px; max-width: 92vw; max-height: 82vh; display: flex; flex-direction: column; z-index: 1001; }
+.modal-content.project-modal-content { position: relative; background: var(--bg-primary, #1e1e2e); border: 1px solid var(--border-color, #2d2d3f); border-radius: var(--radius-md); width: 560px; max-width: 92vw; max-height: 82vh; display: flex; flex-direction: column; z-index: 1001; }
 .project-list { margin-bottom: 12px; }
-.project-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 6px; margin-bottom: 4px; background: var(--bg-secondary, #2d2d3f); }
+.project-item { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-6); border-radius: var(--radius-sm); margin-bottom: 4px; background: var(--bg-secondary, #2d2d3f); }
 .project-item.active { border: 1px solid var(--accent, #6c5ce7); }
-.project-item-name { flex: 1; font-size: 13px; color: var(--text-primary, #eee); }
+.project-item-name { flex: 1; font-size: var(--font-size-md); color: var(--text-primary, #eee); }
 .project-item-actions { display: flex; gap: 6px; }
-.empty-hint { text-align: center; color: var(--text-muted, #888); font-size: 13px; padding: 24px 0; }
+.empty-hint { text-align: center; color: var(--text-muted, #888); font-size: var(--font-size-md); padding: 24px 0; }
 .new-project-section { border-top: 1px solid var(--border-color, #2d2d3f); padding-top: 12px; }
-.new-project-btn { width: 100%; padding: 8px; font-size: 13px; border-radius: 6px; border: none; cursor: pointer; }
+.new-project-btn { width: 100%; padding: 8px; font-size: var(--font-size-md); border-radius: var(--radius-sm); border: none; cursor: pointer; }
 .new-project-form { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
-.form-input { background: var(--bg-input, #1a1a2e); color: var(--text-primary, #eee); border: 1px solid var(--border-color, #3d3d4f); border-radius: 4px; padding: 8px 10px; font-size: 13px; outline: none; }
-.form-textarea { background: var(--bg-input, #1a1a2e); color: var(--text-primary, #eee); border: 1px solid var(--border-color, #3d3d4f); border-radius: 4px; padding: 8px 10px; font-size: 13px; outline: none; resize: vertical; font-family: inherit; }
+.form-input { background: var(--bg-input, #1a1a2e); color: var(--text-primary, #eee); border: 1px solid var(--border-color, #3d3d4f); border-radius: var(--radius-xs); padding: 8px 10px; font-size: var(--font-size-md); outline: none; }
+.form-textarea { background: var(--bg-input, #1a1a2e); color: var(--text-primary, #eee); border: 1px solid var(--border-color, #3d3d4f); border-radius: var(--radius-xs); padding: 8px 10px; font-size: var(--font-size-md); outline: none; resize: vertical; font-family: inherit; }
 .form-actions { display: flex; gap: 8px; justify-content: flex-end; }
 </style>

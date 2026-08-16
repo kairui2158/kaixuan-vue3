@@ -153,16 +153,16 @@ function saveAll() {
 </script>
 
 <style scoped>
-.appearance-settings h3 { font-size: 16px; margin-bottom: 16px; }
+.appearance-settings h3 { font-size: var(--font-size-lg); margin-bottom: 16px; }
 .settings-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-.settings-row label { width: 120px; font-size: 14px; color: var(--text-secondary); }
+.settings-row label { width: 120px; font-size: var(--font-size-md); color: var(--text-secondary); }
 .settings-row input[type="number"], .settings-row select {
   background: var(--bg-input); color: var(--text-primary);
-  border: 1px solid var(--border-color); border-radius: 4px;
-  padding: 6px 10px; font-size: 14px; height: 34px; outline: none; width: 84px;
+  border: 1px solid var(--border-color); border-radius: var(--radius-xs);
+  padding: 6px 10px; font-size: var(--font-size-md); height: 34px; outline: none; width: 84px;
 }
 .settings-row input[type="range"] { flex: 1; max-width: 200px; }
-.settings-row span { font-size: 13px; color: var(--text-muted); }
+.settings-row span { font-size: var(--font-size-md); color: var(--text-muted); }
 .data-dir-path {
   flex: 1;
   min-width: 0;
@@ -172,18 +172,18 @@ function saveAll() {
   font-family: monospace;
   background: var(--bg-tertiary, #1a1a1e);
   border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+  padding: var(--space-2) var(--space-4);
 }
 .settings-section { border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 12px; }
-.settings-section h4 { font-size: 14px; margin-bottom: 8px; color: var(--text-secondary); }
-.btn-toggle { padding: 5px 16px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-secondary); cursor: pointer; font-size: 13px; }
+.settings-section h4 { font-size: var(--font-size-md); margin-bottom: 8px; color: var(--text-secondary); }
+.btn-toggle { padding: 5px 16px; border-radius: var(--radius-xs); border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-secondary); cursor: pointer; font-size: var(--font-size-md); }
 .btn-toggle.active { background: var(--accent); color: var(--text-on-accent); border-color: var(--accent); }
-.gh-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 6px 10px; font-size: 14px; height: 34px; width: 220px; outline: none; }
+.gh-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: 6px 10px; font-size: var(--font-size-md); height: 34px; width: 220px; outline: none; }
 
 .appearance-divider { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color); }
-.appearance-divider > label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+.appearance-divider > label { display: block; margin-bottom: 8px; font-size: var(--font-size-md); color: var(--text-secondary); font-weight: 500; }
 .kbd-shortcuts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 24px; width: 100%; }
-.kbd-row { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: var(--radius-xs, 3px); background: var(--bg-hover); font-size: 13px; color: var(--text-secondary); }
-.kbd { display: inline-block; padding: 3px 6px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 3px; font-size: 12px; font-family: monospace; color: var(--text-primary); min-width: 20px; text-align: center; }
+.kbd-row { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: var(--radius-xs, 3px); background: var(--bg-hover); font-size: var(--font-size-md); color: var(--text-secondary); }
+.kbd { display: inline-block; padding: 3px 6px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); font-size: var(--font-size-sm); font-family: monospace; color: var(--text-primary); min-width: 20px; text-align: center; }
 </style>

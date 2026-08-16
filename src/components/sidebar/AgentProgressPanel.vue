@@ -73,17 +73,17 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: var(--space-4) var(--space-6);
   cursor: pointer;
   border-bottom: 1px solid var(--border-color);
 }
 .agp-title {
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--text-secondary);
 }
 .agp-toggle {
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: var(--text-muted);
 }
 .agp-body {
@@ -94,14 +94,14 @@ onUnmounted(() => {
   padding: 12px;
   text-align: center;
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 .agp-item {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
 }
 .agp-status-dot {
   width: 8px;
@@ -125,7 +125,7 @@ onUnmounted(() => {
   flex: 1;
   height: 4px;
   background: var(--bg-input);
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   overflow: hidden;
 }
 .agp-mini-fill {

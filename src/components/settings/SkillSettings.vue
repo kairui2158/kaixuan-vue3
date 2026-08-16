@@ -119,7 +119,7 @@
          <option value="text">纯文本</option>
          <option value="json">JSON数组</option>
        </select>
-        <div id="btn-cancel-skill" class="form-actions">
+        <div id="btn-secondary-skill" class="form-actions">
           <button class="btn-secondary" @click="cancelEdit">取消</button>
           <button id="btn-save-skill" class="btn-primary" @click="saveEdit">保存</button>
         </div>
@@ -400,9 +400,9 @@ function refreshPreview() {
 </script>
 
 <style scoped>
-.skill-settings h3 { font-size: 16px; margin-bottom: 16px; }
+.skill-settings h3 { font-size: var(--font-size-lg); margin-bottom: 16px; }
 .skill-section { margin-bottom: 20px; }
-.skill-section h4 { font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; }
+.skill-section h4 { font-size: var(--font-size-md); color: var(--text-secondary); margin-bottom: 8px; }
 .skill-pipeline-list { display: flex; flex-direction: column; gap: 6px; }
 .skill-all-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
 .skill-pipeline-item, .skill-card {
@@ -411,8 +411,8 @@ function refreshPreview() {
   gap: 6px;
   padding: 6px 10px;
   background: var(--bg-tertiary);
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
 }
 .skill-card {
   flex-direction: column;
@@ -435,9 +435,9 @@ function refreshPreview() {
   gap: 8px;
   margin-bottom: 4px;
 }
-.skill-card-name { font-weight: 600; font-size: 15px; color: var(--text-primary); flex: 1; }
+.skill-card-name { font-weight: 600; font-size: var(--font-size-lg); color: var(--text-primary); flex: 1; }
 .skill-card-badge {
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: var(--accent-lighter, var(--accent));
   background: var(--accent-dim, rgba(90,125,154,0.1));
   padding: 1px 6px;
@@ -445,13 +445,13 @@ function refreshPreview() {
   font-weight: 500;
 }
 .skill-card-body { margin-bottom: 4px; }
-.skill-card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.skill-card-desc { font-size: var(--font-size-md); color: var(--text-muted); line-height: 1.5; }
 .skill-card-meta {
   display: flex;
   gap: 12px;
   margin-bottom: 6px;
 }
-.skill-card-info { font-size: 12px; color: var(--text-muted); }
+.skill-card-info { font-size: var(--font-size-sm); color: var(--text-muted); }
 .skill-card-actions {
   display: flex;
   gap: 4px;
@@ -459,52 +459,52 @@ function refreshPreview() {
 }
 .skill-idx { color: var(--accent); font-weight: 600; min-width: 24px; }
 .skill-name { flex: 1; color: var(--text-primary); }
-.skill-cat { color: var(--text-muted); font-size: 13px; }
-.btn-add { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: 6px; padding: 9px 18px; cursor: pointer; font-size: 14px; }
+.skill-cat { color: var(--text-muted); font-size: var(--font-size-md); }
+.btn-add { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: var(--radius-sm); padding: 9px 18px; cursor: pointer; font-size: var(--font-size-md); }
 .skill-toolbar { display: flex; gap: 8px; margin-bottom: 12px; }
-.skill-ui-message { margin-bottom: 12px; padding: 9px 12px; border-radius: 6px; background: var(--accent-dim); border: 1px solid var(--border-color); font-size: 13px; color: var(--text-primary); }
-.st-test-error { margin-top: 10px; padding: 9px 12px; border-radius: 6px; background: rgba(220, 53, 69, 0.12); color: var(--danger, #dc3545); font-size: 13px; }
-.st-test-result { margin-top: 10px; padding: 12px; border-radius: 6px; background: var(--bg-tertiary); border: 1px solid var(--border-color); font-size: 14px; line-height: 1.7; white-space: pre-wrap; color: var(--text-primary); max-height: 240px; overflow-y: auto; }
+.skill-ui-message { margin-bottom: 12px; padding: 9px 12px; border-radius: var(--radius-sm); background: var(--accent-dim); border: 1px solid var(--border-color); font-size: var(--font-size-md); color: var(--text-primary); }
+.st-test-error { margin-top: 10px; padding: 9px 12px; border-radius: var(--radius-sm); background: rgba(220, 53, 69, 0.12); color: var(--danger, #dc3545); font-size: var(--font-size-md); }
+.st-test-result { margin-top: 10px; padding: 12px; border-radius: var(--radius-sm); background: var(--bg-tertiary); border: 1px solid var(--border-color); font-size: var(--font-size-md); line-height: 1.7; white-space: pre-wrap; color: var(--text-primary); max-height: 240px; overflow-y: auto; }
 .skill-edit-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-.skill-edit-modal { width: min(720px, 92vw); max-height: 84vh; background: var(--bg-glass); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
-.sem-header { display: flex; justify-content: space-between; font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-.sem-header button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; }
-.sem-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 7px 12px; font-size: 14px; }
-.sem-textarea { min-height: 300px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 9px 12px; font-size: 13px; resize: vertical; font-family: monospace; }
-.sem-btn { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: 6px; padding: 9px 24px; cursor: pointer; font-size: 14px; margin-top: 8px; }
+.skill-edit-modal { width: min(720px, 92vw); max-height: 84vh; background: var(--bg-glass); border-radius: var(--radius-lg); padding: 24px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+.sem-header { display: flex; justify-content: space-between; font-size: var(--font-size-lg); font-weight: 600; margin-bottom: 8px; }
+.sem-header button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: var(--font-size-xl); }
+.sem-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 7px 12px; font-size: var(--font-size-md); }
+.sem-textarea { min-height: 300px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 9px 12px; font-size: var(--font-size-md); resize: vertical; font-family: monospace; }
+.sem-btn { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: var(--radius-sm); padding: 9px 24px; cursor: pointer; font-size: var(--font-size-md); margin-top: 8px; }
 
 /* === 联动技能列表 === */
-.sf-linked-list { display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow-y: auto; padding: 8px; background: var(--bg-tertiary); border-radius: 6px; border: 1px solid var(--border-color); }
-.sf-linked-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-primary); cursor: pointer; }
+.sf-linked-list { display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow-y: auto; padding: 8px; background: var(--bg-tertiary); border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
+.sf-linked-item { display: flex; align-items: center; gap: 6px; font-size: var(--font-size-md); color: var(--text-primary); cursor: pointer; }
 .sf-linked-item input[type=checkbox] { margin: 0; cursor: pointer; }
 
 /* === 自定义变量 === */
-.sf-custom-vars { display: flex; flex-direction: column; gap: 6px; padding: 8px; background: var(--bg-tertiary); border-radius: 6px; border: 1px solid var(--border-color); }
+.sf-custom-vars { display: flex; flex-direction: column; gap: 6px; padding: 8px; background: var(--bg-tertiary); border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
 .sf-custom-var-row { display: flex; gap: 6px; align-items: center; }
 .sf-cv-key { flex: 1; min-width: 0; font-family: monospace; }
 .sf-cv-value { flex: 2; min-width: 0; }
 
 /* === 模板解析预览 === */
-.sf-resolved-preview { padding: 9px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-input); color: var(--text-primary); font-size: 13px; max-height: 220px; overflow-y: auto; margin-bottom: 4px; }
+.sf-resolved-preview { padding: 9px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: var(--font-size-md); max-height: 220px; overflow-y: auto; margin-bottom: 4px; }
 .sf-resolved-preview pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: monospace; line-height: 1.6; }
 
 /* === 变量详情 === */
-.var-details { margin: 8px 0; padding: 9px 12px; background: var(--accent-dim, rgba(90,125,154,0.1)); border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; color: var(--text-secondary); }
+.var-details { margin: 8px 0; padding: 9px 12px; background: var(--accent-dim, rgba(90,125,154,0.1)); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--font-size-md); color: var(--text-secondary); }
 .var-details summary { cursor: pointer; margin-bottom: 4px; font-weight: 500; }
 .var-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
-.btn-var { display: inline-block; padding: 3px 8px; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; color: var(--text-primary); cursor: pointer; font-family: monospace; }
+.btn-var { display: inline-block; padding: 3px 8px; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-primary); cursor: pointer; font-family: monospace; }
 .btn-var:hover { border-color: var(--accent); color: var(--accent); }
 
 /* === 双栏模板编辑器 === */
 .sf-template-wrapper { display: flex; gap: 8px; min-height: 280px; }
-.sf-template-input { flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-input); color: var(--text-primary); font-size: 13px; font-family: monospace; resize: vertical; line-height: 1.6; }
-.sf-template-preview { flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-tertiary); color: var(--text-primary); font-size: 13px; overflow-y: auto; max-height: 350px; line-height: 1.6; }
+.sf-template-input { flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: var(--font-size-md); font-family: monospace; resize: vertical; line-height: 1.6; }
+.sf-template-preview { flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary); font-size: var(--font-size-md); overflow-y: auto; max-height: 350px; line-height: 1.6; }
 .sf-template-preview:empty::before { content: 'Markdown 预览区（实时渲染）'; color: var(--text-muted); font-style: italic; }
 .sf-template-preview :deep(h1) { font-size: 1.3em; margin: 0.5em 0 0.3em; border-bottom: 1px solid var(--border-color); padding-bottom: 2px; }
 .sf-template-preview :deep(h2) { font-size: 1.15em; margin: 0.5em 0 0.3em; border-bottom: 1px solid var(--border-color); padding-bottom: 2px; }
 .sf-template-preview :deep(h3) { font-size: 1.05em; margin: 0.5em 0 0.3em; }
-.sf-template-preview :deep(code) { background: var(--bg-elevated); padding: 1px 4px; border-radius: 2px; font-family: monospace; font-size: 0.9em; }
-.sf-template-preview :deep(pre) { background: var(--bg-elevated); padding: 8px; border-radius: 4px; overflow-x: auto; margin: 0.5em 0; }
+.sf-template-preview :deep(code) { background: var(--bg-elevated); padding: 1px 4px; border-radius: var(--radius-xs); font-family: monospace; font-size: 0.9em; }
+.sf-template-preview :deep(pre) { background: var(--bg-elevated); padding: 8px; border-radius: var(--radius-xs); overflow-x: auto; margin: 0.5em 0; }
 .sf-template-preview :deep(pre code) { background: none; padding: 0; }
 .sf-template-preview :deep(ul) { margin: 0.3em 0; padding-left: 1.5em; }
 .sf-template-preview :deep(li) { margin: 0.15em 0; }

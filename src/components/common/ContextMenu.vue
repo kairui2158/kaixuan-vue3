@@ -39,7 +39,7 @@ function handleClick(action: string) {
   position: fixed; z-index: 5000;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   padding: 4px 0;
   min-width: 140px;
@@ -47,7 +47,7 @@ function handleClick(action: string) {
 .ctx-menu-btn {
   display: block; width: 100%; text-align: left;
   padding: 6px 16px; border: none; background: transparent;
-  color: var(--text-primary); cursor: pointer; font-size: 13px;
+  color: var(--text-primary); cursor: pointer; font-size: var(--font-size-md);
 }
 .ctx-menu-btn:hover { background: var(--bg-hover); }
 </style>

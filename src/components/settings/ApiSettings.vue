@@ -319,7 +319,7 @@ function importConfig() {
 
 <style scoped>
 /* === provider card: hover lift + active accent border (old arch L3064-3074) === */
-.api-settings h3 { font-size: 17px; margin-bottom: 16px; }
+.api-settings h3 { font-size: var(--font-size-lg); margin-bottom: 16px; }
 .api-settings { display: flex; flex-direction: column; gap: 12px; }
 .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .section-title { font-size: var(--font-size-lg, 16px); font-weight: 600; color: var(--text-primary); }
@@ -351,7 +351,7 @@ function importConfig() {
   gap: 8px;
   margin-bottom: 8px;
 }
-.provider-card-name { font-weight: 600; font-size: 15px; flex: 1; color: var(--text-primary); }
+.provider-card-name { font-weight: 600; font-size: var(--font-size-lg); flex: 1; color: var(--text-primary); }
 
 /* status badge - pill shape (old arch L3102-3120) */
 .provider-card-status {
@@ -379,19 +379,19 @@ function importConfig() {
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm, 4px);
-  padding: 4px 8px;
-  font-size: 13px;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-md);
   height: 32px;
 }
 .provider-fields { display: grid; grid-template-columns: 80px 1fr; gap: 4px 8px; align-items: center; }
-.provider-fields label { font-size: 12px; color: var(--text-secondary); }
+.provider-fields label { font-size: var(--font-size-sm); color: var(--text-secondary); }
 .input-field {
   background: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm, 4px);
   padding: 6px 12px;
-  font-size: 14px;
+  font-size: var(--font-size-md);
   height: 34px;
   outline: none;
 }
@@ -412,7 +412,7 @@ function importConfig() {
   padding: 2px 8px;
   border-radius: var(--radius-sm, 4px);
   background: var(--bg-input);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: var(--text-muted);
 }
 
@@ -424,7 +424,7 @@ function importConfig() {
   border-radius: var(--radius-sm, 6px);
   padding: 9px 18px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--font-size-md);
 }
 .btn-add:hover { transform: translateY(-1px); }
 /* dashed add card (old arch L6600) */
@@ -448,40 +448,40 @@ function importConfig() {
   border-color: var(--accent);
   color: var(--accent);
 }
-.provider-card-add-icon { font-size: 20px; font-weight: 300; }
-.provider-card-add-text { font-size: 14px; }
-.stream-toggle { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); cursor: pointer; }
+.provider-card-add-icon { font-size: var(--font-size-xxl); font-weight: 300; }
+.provider-card-add-text { font-size: var(--font-size-md); }
+.stream-toggle { display: flex; align-items: center; gap: 6px; font-size: var(--font-size-md); color: var(--text-secondary); cursor: pointer; }
 .stream-toggle input { cursor: pointer; }
 .config-actions { display: flex; gap: 8px; margin-bottom: 12px; }
 
 /* === Edit View === */
-.provider-edit-view { display: flex; flex-direction: column; gap: 16px; padding: 20px; background: var(--bg-card, var(--bg-elevated)); border: 1px solid var(--border-color); border-radius: 8px; }
+.provider-edit-view { display: flex; flex-direction: column; gap: 16px; padding: 20px; background: var(--bg-card, var(--bg-elevated)); border: 1px solid var(--border-color); border-radius: var(--radius-md); }
 .provider-edit-header { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); }
-.btn-back { padding: 5px 12px; font-size: 14px; }
-.provider-edit-title-text { font-size: 16px; font-weight: 600; color: var(--text-primary); flex: 1; }
-.provider-conn-status { font-size: 13px; padding: 3px 10px; border-radius: 99px; }
+.btn-back { padding: 5px 12px; font-size: var(--font-size-md); }
+.provider-edit-title-text { font-size: var(--font-size-lg); font-weight: 600; color: var(--text-primary); flex: 1; }
+.provider-conn-status { font-size: var(--font-size-md); padding: 3px 10px; border-radius: 99px; }
 .conn-ok { background: var(--success-dim, rgba(76,175,80,0.15)); color: var(--success); }
 .conn-fail { background: var(--danger-dim, rgba(244,67,54,0.15)); color: var(--danger); }
 .form-group { display: flex; flex-direction: column; gap: 4px; }
-.form-group label { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
-.form-hint { font-size: 13px; color: var(--text-muted); }
+.form-group label { font-size: var(--font-size-md); color: var(--text-secondary); font-weight: 500; }
+.form-hint { font-size: var(--font-size-md); color: var(--text-muted); }
 .password-row { display: flex; gap: 4px; }
-.btn-toggle { background: var(--bg-input); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm, 4px); padding: 5px 12px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.btn-toggle { background: var(--bg-input); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm, 4px); padding: 5px 12px; font-size: var(--font-size-md); cursor: pointer; white-space: nowrap; }
 .btn-toggle:hover { border-color: var(--accent); color: var(--accent); }
 .model-fetch-row { display: flex; gap: 8px; margin-bottom: 4px; }
-.fetch-feedback { font-size: 13px; padding: 4px 0; }
+.fetch-feedback { font-size: var(--font-size-md); padding: 4px 0; }
 .fetch-ok { color: var(--success); }
 .fetch-fail { color: var(--danger); }
 .model-select-row { margin-top: 8px; }
 .model-list-box { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; padding: 8px; background: var(--bg-input); border-radius: var(--radius-sm, 4px); max-height: 120px; overflow-y: auto; }
-.checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-primary); }
+.checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: var(--font-size-md); color: var(--text-primary); }
 .checkbox-label input { cursor: pointer; }
 .temp-row { display: flex; align-items: center; gap: 8px; }
 .range-flex { flex: 1; }
-.range-val { font-size: 12px; color: var(--text-secondary); min-width: 30px; text-align: right; }
+.range-val { font-size: var(--font-size-sm); color: var(--text-secondary); min-width: 30px; text-align: right; }
 .input-w-120 { width: 120px; }
 .form-actions { display: flex; gap: 8px; margin-top: 8px; }
 .provider-card-info { display: flex; flex-direction: column; gap: 2px; margin-bottom: 8px; }
-.provider-card-url { font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.provider-card-model { font-size: 11px; color: var(--accent); }
+.provider-card-url { font-size: var(--font-size-xs); color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.provider-card-model { font-size: var(--font-size-xs); color: var(--accent); }
 </style>

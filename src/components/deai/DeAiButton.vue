@@ -42,10 +42,10 @@ async function triggerDeAi() {
   background: var(--accent);
   color: var(--text-on-accent);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 4px 12px;
   height: 28px;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   cursor: pointer;
   transition: var(--transition-fast);
 }

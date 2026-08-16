@@ -558,7 +558,7 @@ function applyInlineAction(action: string, label: string) {
   flex-shrink: 0;
 }
 .editor-title {
-  font-size: 13px;
+  font-size: var(--font-size-md);
   color: var(--text-secondary);
   flex-shrink: 0;
   white-space: nowrap;
@@ -583,7 +583,7 @@ function applyInlineAction(action: string, label: string) {
   background: var(--border-color);
 }
 .word-count {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-muted);
   flex-shrink: 0;
 }
@@ -601,10 +601,10 @@ function applyInlineAction(action: string, label: string) {
   align-items: center;
   gap: 4px;
   padding: 4px 12px;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
   cursor: pointer;
-  border-radius: 6px 6px 0 0;
+  border-radius: var(--radius-sm) 6px 0 0;
   border: 1px solid transparent;
   border-bottom: none;
   white-space: nowrap;
@@ -625,7 +625,7 @@ function applyInlineAction(action: string, label: string) {
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  font-size: 10px;
+  font-size: var(--font-size-xxs);
   padding: 0 2px;
 }
 .tab-close:hover {
@@ -643,9 +643,9 @@ function applyInlineAction(action: string, label: string) {
   background: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   padding: 2px 8px;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   height: 24px;
   outline: none;
 }
@@ -654,7 +654,7 @@ function applyInlineAction(action: string, label: string) {
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  font-size: 16px;
+  font-size: var(--font-size-lg);
 }
 .editor-content {
   flex: 1;
@@ -664,7 +664,7 @@ function applyInlineAction(action: string, label: string) {
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--editor-font, serif);
-  font-size: 15px;
+  font-size: var(--font-size-lg);
   line-height: 1.8;
   padding: 24px 32px;
   resize: none;
@@ -679,7 +679,7 @@ function applyInlineAction(action: string, label: string) {
   right: 0;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 4px;
   z-index: 100;
   display: flex;
@@ -692,8 +692,8 @@ function applyInlineAction(action: string, label: string) {
   color: var(--text-secondary);
   text-align: left;
   padding: 4px 12px;
-  font-size: 12px;
-  border-radius: 4px;
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-xs);
   cursor: pointer;
 }
 .export-dropdown button:hover {
@@ -710,7 +710,7 @@ function applyInlineAction(action: string, label: string) {
   z-index: 10000;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 4px;
   display: flex;
   flex-wrap: wrap;
@@ -724,8 +724,8 @@ function applyInlineAction(action: string, label: string) {
   color: var(--text-secondary);
   text-align: left;
   padding: 4px 10px;
-  font-size: 12px;
-  border-radius: 4px;
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-xs);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -743,12 +743,12 @@ function applyInlineAction(action: string, label: string) {
  .var-dialog {
    background: var(--bg-secondary);
    border: 1px solid var(--border-color);
-   border-radius: 8px; padding: 16px;
+   border-radius: var(--radius-md); padding: 16px;
    min-width: 320px;
    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
  }
  .var-dialog-header {
-   font-size: 14px; font-weight: 600;
+   font-size: var(--font-size-md); font-weight: 600;
    margin-bottom: 12px;
    color: var(--text-primary);
  }
@@ -759,9 +759,9 @@ function applyInlineAction(action: string, label: string) {
    width: 100%; padding: 8px 10px;
    background: var(--bg-primary);
    border: 1px solid var(--border-color);
-   border-radius: 4px;
+   border-radius: var(--radius-xs);
    color: var(--text-primary);
-   font-size: 13px;
+   font-size: var(--font-size-md);
    box-sizing: border-box;
  }
  .var-dialog-input:focus {

@@ -25,16 +25,14 @@
 .btn-icon { width: var(--btn-icon-size, 28px); height: var(--btn-icon-size, 28px); padding: 0; font-size: var(--btn-font-size-sm); flex-shrink: 0; }
 .btn-ghost { background: transparent; color: var(--text-secondary); border: none; }
 .btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
-.btn-cancel { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-color); }
-.btn-cancel:hover { background: var(--bg-hover); color: var(--text-primary); }
-.btn-confirm { background: var(--accent-gradient); color: var(--text-on-accent); border: none; }
-.btn-confirm:hover { opacity: 0.9; }
-.btn-loading { opacity: 0.7; pointer-events: none; }
-.btn-disabled { opacity: var(--opacity-disabled, 0.5); cursor: not-allowed; pointer-events: none; }
+.btn-secondary { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-color); }
+.btn-secondary:hover { background: var(--bg-hover); color: var(--text-primary); }
+.btn-primary { background: var(--accent-gradient); color: var(--text-on-accent); border: none; }
+.btn-primary:hover { opacity: 0.9; }
 .btn-full-width { width: 100%; }
-.btn-stop { background: var(--danger); color: #fff; border: none; }
-.btn-stop:hover { background: var(--danger-hover); }
-.btn-back-sm { font-size: var(--font-size-xs); padding: 2px 8px; height: 24px; }
+.btn-danger { background: var(--danger); color: var(--text-on-accent); border: none; }
+.btn-danger:hover { background: var(--danger-hover); }
+.btn-sm btn-ghost { font-size: var(--font-size-xs); padding: var(--space-1) var(--space-4); height: var(--btn-xs-height); }
 
 /* ============================================================
  * CL-3: Card system
@@ -103,9 +101,9 @@
 .msg-label { font-size: var(--font-size-xs); color: var(--text-muted); margin-bottom: 2px; }
 .msg-time { font-size: var(--font-size-xs); color: var(--text-muted); margin-top: 4px; text-align: right; }
 .msg-actions { display: flex; gap: var(--space-xs); margin-top: 4px; }
-.msg-btn-apply { font-size: var(--font-size-xs); padding: 2px 8px; border-radius: var(--radius-xs); background: var(--accent-dim); color: var(--accent); border: none; cursor: pointer; }
-.msg-btn-copy { font-size: var(--font-size-xs); padding: 2px 8px; border-radius: var(--radius-xs); background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); cursor: pointer; }
-.msg-btn-regen { font-size: var(--font-size-xs); padding: 2px 8px; border-radius: var(--radius-xs); background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); cursor: pointer; }
+.msg-btn-apply { font-size: var(--font-size-xs); padding: var(--space-1) var(--space-4); border-radius: var(--radius-xs); background: var(--accent-dim); color: var(--accent); border: none; cursor: pointer; }
+.msg-btn-copy { font-size: var(--font-size-xs); padding: var(--space-1) var(--space-4); border-radius: var(--radius-xs); background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); cursor: pointer; }
+.msg-btn-regen { font-size: var(--font-size-xs); padding: var(--space-1) var(--space-4); border-radius: var(--radius-xs); background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); cursor: pointer; }
 .empty-sub { font-size: var(--font-size-sm); color: var(--text-muted); margin-top: var(--space-xs); }
 
 /* ============================================================

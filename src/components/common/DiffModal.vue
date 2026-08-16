@@ -195,7 +195,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
   z-index: 1001;
 }
 .diff-count {
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: var(--text-muted, #888);
 }
 .btn-close {
@@ -203,7 +203,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
   background: none;
   border: none;
   color: var(--text-secondary, #aaa);
-  font-size: 20px;
+  font-size: var(--font-size-xxl);
   cursor: pointer;
 }
 .diff-modal-body {
@@ -215,7 +215,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
 .diff-toolbar {
   display: flex;
   gap: 8px;
-  padding: 8px 16px;
+  padding: var(--space-4) var(--space-6);
   border-bottom: 1px solid var(--border-color, #2d2d3f);
 }
 .diff-container {
@@ -235,7 +235,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
 }
 .diff-pane-label {
   padding: 6px 12px;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-weight: 600;
   color: var(--text-muted, #888);
   background: var(--bg-secondary, #2d2d3f);
@@ -245,7 +245,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
   flex: 1;
   overflow-y: auto;
   font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   line-height: 1.6;
 }
 .diff-line {
@@ -259,26 +259,26 @@ watch(() => [props.visible, props.original, props.modified], () => {
 }
 .diff-line.removed {
   background: rgba(255, 80, 80, 0.1);
-  color: #ff6666;
+  color: var(--danger);
 }
 .diff-line.added {
   background: rgba(80, 200, 120, 0.1);
-  color: #50c878;
+  color: var(--success);
 }
 .diff-action {
   cursor: pointer;
   padding: 0 4px;
   font-weight: bold;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   flex-shrink: 0;
   width: 16px;
   text-align: center;
 }
 .diff-action.reject {
-  color: #ff4444;
+  color: var(--danger);
 }
 .diff-action.accept {
-  color: #44cc44;
+  color: var(--success);
 }
 .diff-line-text {
   white-space: pre-wrap;

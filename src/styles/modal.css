@@ -19,30 +19,30 @@
   border-radius: var(--radius-lg, 12px);
   box-shadow: var(--shadow-lg, 0 8px 32px rgba(0,0,0,0.3));
   max-width: 90vw; max-height: 85vh;
-  width: 720px; min-width: 420px;
+  width: var(--modal-width, 720px); min-width: 420px;
   margin: auto; overflow: hidden;
   opacity: 1; pointer-events: auto;
   z-index: var(--z-modal-high, 1500);
 }
-.modal-content-sm { max-width: 520px; width: 520px; }
+.modal-content-sm { max-width: var(--modal-width-sm, 520px); width: var(--modal-width-sm, 520px); }
 .modal-content.modal-lg { max-width: 92vw; width: 960px; }
 /* 3. Modal header */
 .modal-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 24px;
+  padding: var(--space-6) var(--space-8);
   border-bottom: 1px solid var(--border-color);
   background: var(--bg-elevated, var(--bg-secondary));
   flex-shrink: 0; min-height: 48px;
 }
 .modal-header h3 {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--text-primary);
 }
 /* 4. Modal body */
 .modal-body {
-  padding: 16px 24px;
+  padding: var(--space-6) var(--space-8);
   overflow-y: auto;
   flex: 1; min-height: 0;
   overscroll-behavior: contain;
@@ -51,7 +51,7 @@
 .modal-footer {
   display: flex; align-items: center; justify-content: flex-end;
   gap: 8px;
-  padding: 12px 24px;
+  padding: var(--space-5) var(--space-8);
   border-top: 1px solid var(--border-color);
   background: var(--bg-elevated, var(--bg-secondary));
   flex-shrink: 0; min-height: 52px;
