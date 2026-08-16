@@ -32,6 +32,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   dialogSaveFile: function(defaultName) { return ipcRenderer.sendSync('dialog:saveFile', defaultName) },
   dialogOpenFile: function() { return ipcRenderer.sendSync('dialog:openFile') },
   dialogReadFile: function(filePath) { return ipcRenderer.sendSync('dialog:readFile', filePath) },
+  dialogWriteFile: function(filePath, content) { return ipcRenderer.sendSync('dialog:writeFile', filePath, content) },
 
   // Lifecycle
   onFinalSave: function(callback) { ipcRenderer.on('app:finalSave', function() { callback() }) },

@@ -46,6 +46,19 @@ function registerDialogHandlers() {
       event.returnValue = null;
     }
   })
+
+  ipcMain.on('dialog:writeFile', function(event, filePath, content) {
+    try {
+      if (!filePath) {
+        event.returnValue = false;
+        return;
+      }
+      fs.writeFileSync(filePath, content, 'utf8');
+      event.returnValue = true;
+    } catch (e) {
+      event.returnValue = false;
+    }
+  })
 }
 
 module.exports = { registerDialogHandlers }
