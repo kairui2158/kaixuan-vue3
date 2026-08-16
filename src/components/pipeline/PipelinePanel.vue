@@ -4,6 +4,7 @@
       <div class="pl-header">
         <span>生成流水线</span>
         <button id="btn-close-pl" class="modal-close" @click="$emit('close')">&times;</button>
+        <button class="btn-sm btn-secondary" id="btn-exec-log" @click="showExecLog = !showExecLog">执行日志</button>
       </div>
       <div class="pl-body">
         <div class="pl-steps" id="pl-steps">
@@ -351,6 +352,44 @@
       </div>
     </div>
   </div>
+
+  <!-- 执行日志面板 -->
+  <div class="pl-exec-log" v-if="showExecLog">
+    <div class="pl-exec-log-header">
+      <span>执行日志</span>
+      <button class="btn-icon" @click="showExecLog = false">&times;</button>
+    </div>
+    <div class="pl-exec-log-body">
+      <div v-for="(log, i) in execLogStore.logs" :key="log.id" class="pl-exec-log-item" :class="'pl-exec-' + log.status">
+        <div class="pl-exec-log-top">
+          <span class="pl-exec-step">{{ log.stepName }}</span>
+          <span class="pl-exec-mode">{{ log.mode }}</span>
+          <span class="pl-exec-skills">{{ log.skillNames.join(', ') }}</span>
+          <span class="pl-exec-status" :class="'pl-exec-' + log.status">{{ log.status }}</span>
+          <span class="pl-exec-duration">{{ log.duration }}ms</span>
+          <button class="btn-icon" @click="execLogStore.removeLog(log.id)">&times;</button>
+        </div>
+        <div class="pl-exec-log-detail" v-if="expandedLog === log.id" @click="expandedLog = null">
+          <div class="pl-exec-section"><strong>Prompt:</strong><pre>{{ log.prompt }}</pre></div>
+          <div class="pl-exec-section"><strong>Result:</strong><pre>{{ log.result }}</pre></div>
+          <div class="pl-exec-feedback" v-if="log.status === 'success'">
+            <button class="btn-sm" @click.stop="execLogStore.setFeedback(log.id, 'up')" :class="{active: log.feedback === 'up'}">点赞</button>
+            <button class="btn-sm" @click.stop="execLogStore.setFeedback(log.id, 'down')" :class="{active: log.feedback === 'down'}">点踩</button>
+          </div>
+        </div>
+      </div>
+      <div v-if="execLogStore.logs.length === 0" class="pl-exec-empty">暂无执行日志</div>
+      <div class="pl-exec-actions" v-if="execLogStore.logs.length > 0">
+        <button class="btn-sm btn-secondary" @click="execLogStore.clearLogs()">清空日志</button>
+        <button class="btn-sm btn-secondary" @click="showSuggestions = !showSuggestions">优化建议 ({{ execLogStore.getSuggestions().length }})</button>
+      </div>
+      <div class="pl-exec-suggestions" v-if="showSuggestions && execLogStore.getSuggestions().length > 0">
+        <div v-for="(sg, si) in execLogStore.getSuggestions()" :key="si" class="pl-exec-suggestion">
+          {{ sg }}
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -361,17 +400,23 @@ import { useProviderStore } from "../../stores/provider"
 import { useSkillStore } from "../../stores/skill"
 import { useAgentStore } from "../../stores/agent"
 import { useEditorStore } from "../../stores/editor"
+import { useExecutionLogStore } from "../../stores/executionLog"
 import { useAiTools } from "../../composables/useAiTools"
 import { storageKey } from "../../utils/storage-key"
 
 defineEmits<{ close: [] }>()
 
+
+const showExecLog = ref(false)
+const showSuggestions = ref(false)
+const expandedLog = ref<string | null>(null)
 const pipelineStore = usePipelineStore()
 const projectStore = useProjectStore()
 const providerStore = useProviderStore()
 const skillStore = useSkillStore()
 const agentStore = useAgentStore()
 const editorStore = useEditorStore()
+const execLogStore = useExecutionLogStore()
 
 const { generateNames, generateWritingRules, extractTimeline, batchReviewChapters, reviseChapter, translateText, convertStyle, regenerateContent, modifyContent, isLoading: aiLoading, loadingText: aiLoadingText } = useAiTools()
 
@@ -817,7 +862,23 @@ async function callApiWithAgentTimeout(step: number, skillTemplate: string, prom
   return result
 }
 
-async function runStepSkills(step: number, prompt: string, timeoutMs?: number, fallbackTemplate?: string): Promise<string> {
+async function runStepSkills(step, prompt, timeoutMs, fallbackTemplate) {
+  const startTime = Date.now();
+  const stepName = "step-" + step;
+  const templates = getStepSkillTemplates(step)
+  const mode = getStepSkillMode(step)
+  const skillNames = templates.map((t) => t.name).filter(Boolean);
+  try {
+    const result = await _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate);
+    execLogStore.addLog({step,stepName,mode,skillNames,prompt:(prompt||"").substring(0,500),result:(result||"").substring(0,500),duration:Date.now()-startTime,status:"success"});
+    return result;
+  } catch (e) {
+    execLogStore.addLog({step,stepName,mode,skillNames,prompt:(prompt||"").substring(0,500),result:e.message || "unknown error",duration:Date.now()-startTime,status:"failed"});
+    throw e;
+  }
+}
+
+async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
   const templates = getStepSkillTemplates(step)
   const mode = getStepSkillMode(step)
   const baseCtx = buildTemplateContext(step, prompt)
@@ -904,9 +965,7 @@ function cancelAddSetting() {
 function removeSetting(index: number) {
   projectStore.settings.splice(index, 1)
   projectStore.saveProject()
-}
-
-async function genSettings() {
+}async function genSettings() {
   if (!projectStore.outlineText) return
   pipelineStore.startGeneration()
   pipelineStore.updateProgress(10, "AI生成设定中")
