@@ -1,0 +1,290 @@
+const { chromium } = require('playwright');
+const fs = require('fs');
+const path = require('path');
+
+const CDP = 'http://127.0.0.1:9227';
+const SS_DIR = path.join(__dirname, '..', 'screenshots');
+const REPORT_PATH = path.join(__dirname, '..', 'PHASEC_VERIFY_REPORT.md');
+const results = [];
+const cdpLog = [];
+let passed = 0;
+let failed = 0;
+
+function log(step, ok, detail) {
+  results.push({ step, ok, detail });
+  console.log('[' + (ok ? 'PASS' : 'FAIL') + '] ' + step + ': ' + detail);
+  if (ok) passed += 1; else failed += 1;
+}
+function opLog(line) {
+  cdpLog.push(line);
+  console.log('[CDP] ' + line);
+}
+async function shot(page, name) {
+  const p = path.join(SS_DIR, name);
+  try { await page.screenshot({ path: p, fullPage: false, timeout: 15000 }); }
+  catch(e) { await page.screenshot({ path: p, fullPage: false, timeout: 30000 }); }
+  opLog('Page.screenshot -> _audit/screenshots/' + name);
+}
+
+async function main() {
+  if (!fs.existsSync(SS_DIR)) fs.mkdirSync(SS_DIR, { recursive: true });
+  const browser = await chromium.connectOverCDP(CDP);
+  opLog('connectOverCDP http://127.0.0.1:9227');
+  const ctx = browser.contexts()[0];
+  const page = ctx.pages().find((p) => p.url().startsWith('file:'));
+  if (!page) throw new Error('file page not found');
+  await page.waitForSelector('#app', { timeout: 15000 });
+  await page.waitForTimeout(2000);
+  opLog('Page ready: ' + page.url());
+
+  // C1: Engine resolveTemplate
+  const e1 = await page.evaluate(() => {
+    const e = window.SkillExecutionEngine;
+    if (!e) return { ok: false, error: 'no engine' };
+    return { ok: typeof e.resolveTemplate === 'function', methods: Object.keys(e) };
+  });
+  log('C1.0 resolveTemplate函数', e1.ok, e1.ok ? 'methods=' + e1.methods.join(',') : e1.error);
+  await shot(page, 'phaseC_01_initial.png');
+
+  // C2: Basic variable
+  const e2 = await page.evaluate(() => {
+    const e = window.SkillExecutionEngine;
+    return e.resolveTemplate('请用{{tone}}的风格', { tone: '悬疑冷峻' }, { keepMissing: false });
+  });
+  log('C2.0 {{tone}}解析', e2 === '请用悬疑冷峻的风格', 'result=' + e2);
+
+  // C3: Default value
+  const e3 = await page.evaluate(() => {
+    const e = window.SkillExecutionEngine;
+    return e.resolveTemplate('风格：{{missing|默认风格}}', {}, { keepMissing: false });
+  });
+  log('C3.0 {{missing|默认}}', e3 === '风格：默认风格', 'result=' + e3);
+
+  // C4: if/else
+  const e4a = await page.evaluate(() => {
+    const e = window.SkillExecutionEngine;
+    return e.resolveTemplate('{{if tone}}有{{else}}无{{endif}}', { tone: 'x' }, { keepMissing: false });
+  });
+  log('C4.0 {{if tone}}真分支', e4a === '有', 'result=' + e4a);
+
+  const e4b = await page.evaluate(() => {
+    const e = window.SkillExecutionEngine;
+    return e.resolveTemplate('{{if missing}}有{{else}}无{{endif}}', {}, { keepMissing: false });
+  });
+  log('C4.1 {{else}}假分支', e4b === '无', 'result=' + e4b);
+
+  // C5: Negation
+  const e5 = await page.evaluate(() => {
+    const e = window.SkillExecutionEngine;
+    return e.resolveTemplate('{{if !missing}}无{{else}}有{{endif}}', {}, { keepMissing: false });
+  });
+  log('C5.0 {{if !missing}}', e5 === '无', 'result=' + e5);
+
+  // C6: Nested
+  const e6 = await page.evaluate(() => {
+    const e = window.SkillExecutionEngine;
+    return e.resolveTemplate('{{if tone}}{{if style}}都设{{else}}仅风格{{endif}}{{else}}无{{endif}}', { tone:'x', style:'y' }, { keepMissing: false });
+  });
+  log('C6.0 嵌套条件', e6 === '都设', 'result=' + e6);
+
+  // C7: prevResponse
+  const e7 = await page.evaluate(() => {
+    const e = window.SkillExecutionEngine;
+    return e.resolveTemplate('{{prevResponse}}', { prevResponse: '深夜的街道' }, { keepMissing: false });
+  });
+  log('C7.0 prevResponse', e7.indexOf('深夜') >= 0, 'result=' + e7);
+
+  // C8-10: SkillSettings customVars UI
+  await page.evaluate(() => {
+    const btn = document.querySelector('#btn-settings, .btn-settings, [data-action="settings"]');
+    if (btn) btn.click();
+  });
+  await page.waitForTimeout(1500);
+  await shot(page, 'phaseC_08_settings.png');
+
+  // Switch to skill tab first (default tab is 'api')
+  await page.evaluate(() => {
+    const tab = document.querySelector('#tab-skill');
+    if (tab) tab.click();
+  });
+  await page.waitForTimeout(800);
+
+  const editOpened = await page.evaluate(() => {
+    const btns = document.querySelectorAll('button');
+    for (const b of btns) {
+      if (b.textContent.trim() === '编辑') { b.click(); return 'ok'; }
+    }
+    return 'no-edit-btn';
+  });
+  opLog('editOpened=' + editOpened);
+  await page.waitForTimeout(500);
+  await shot(page, 'phaseC_08_edit_skill.png');
+  log('C8.0 打开技能编辑弹窗', editOpened === 'ok', 'editOpened=' + editOpened);
+
+  const ui = await page.evaluate(() => {
+    const cv = document.querySelector('#sf-custom-vars');
+    const add = document.querySelector('#btn-add-custom-var');
+    const ref = document.querySelector('#btn-refresh-preview');
+    return { cv: !!cv, add: !!add, ref: !!ref };
+  });
+  log('C8.1 自定义变量UI存在', ui.cv && ui.add && ui.ref, JSON.stringify(ui));
+
+  if (ui.add) {
+    await page.evaluate(() => {
+      document.querySelector('#btn-add-custom-var').click();
+    });
+    await page.waitForTimeout(300);
+    const addR = await page.evaluate(() => {
+      return document.querySelectorAll('.sf-custom-var-row').length;
+    });
+    const fillR = await page.evaluate(() => {
+      const k = document.querySelector('#sf-cv-key-0');
+      const v = document.querySelector('#sf-cv-value-0');
+      if (!k || !v) return 'no-inputs';
+      k.value = 'tone'; k.dispatchEvent(new Event('input', { bubbles: true }));
+      v.value = '悬疑冷峻'; v.dispatchEvent(new Event('input', { bubbles: true }));
+      return { key: k.value, val: v.value };
+    });
+    log('C9.0 添加自定义变量行', fillR !== 'no-inputs', JSON.stringify(fillR) + ' rows=' + addR);
+    await shot(page, 'phaseC_09_custom_var_filled.png');
+  } else {
+    log('C9.0 添加自定义变量行', false, 'skip-no-btn');
+  }
+
+  if (ui.ref) {
+    await page.evaluate(() => {
+      const ta = document.querySelector('#sf-template');
+      if (ta) {
+        ta.value = '风格：{{tone}}，结果：{{result|默认}}';
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+    await page.waitForTimeout(300);
+    await page.evaluate(() => {
+      const btn = document.querySelector('#btn-refresh-preview');
+      if (btn) btn.click();
+    });
+    await page.waitForTimeout(500);
+    const preview = await page.evaluate(() => {
+      const el = document.querySelector('#sf-resolved-preview pre');
+      return el ? el.textContent : 'not-found';
+    });
+    log('C10.0 刷新解析预览', preview.indexOf('悬疑冷峻') >= 0 && preview.indexOf('默认') >= 0, 'preview=' + preview);
+    await shot(page, 'phaseC_10_refresh_preview.png');
+  } else {
+    log('C10.0 刷新解析预览', false, 'skip-no-refresh-btn');
+  }
+
+  // C11: Pipeline integration
+  const pState = await page.evaluate(() => {
+    const app = document.querySelector('#app');
+    const pinia = app && app.__vue_app__ && app.__vue_app__.config.globalProperties.$pinia;
+    const ps = pinia && pinia._s && pinia._s.get('pipeline');
+    const ss = pinia && pinia._s && pinia._s.get('skill');
+    return { pipeline: !!ps, skill: !!ss, skillCount: ss ? ss.skills.length : 0 };
+  });
+  log('C11.0 流水线集成', pState.pipeline && pState.skill, JSON.stringify(pState));
+
+  // C12: Chain prevResponse (check result text)
+  const c12 = await page.evaluate(async () => {
+    const e = window.SkillExecutionEngine;
+    if (!e.chain) return { ok: false, error: 'no chain' };
+    let calls = 0;
+    let sysMsgs = [];
+    const r = await e.chain('initial', [
+      { name: 'S1', template: '处理{{tone}}' },
+      { name: 'S2', template: '上一步：{{prevResponse}}' }
+    ], {
+      templateContext: { tone: '悬疑' },
+      aiRequest: async (opts) => {
+        calls += 1;
+        const sys = opts.messages[0].content;
+        sysMsgs.push(sys);
+        return { text: sys };
+      }
+    });
+    const txt = r.text || '';
+    return { ok: txt.indexOf('上一步：') >= 0 && txt.indexOf('处理悬疑') >= 0, calls: calls, text: txt.substring(0, 120), sysMsgs: JSON.stringify(sysMsgs) };
+  });
+  log('C12.0 chain prevResponse传递', c12.ok, 'calls=' + c12.calls + ' text=' + c12.text);
+
+  // C13: Save and verify persistence
+  const saveR = await page.evaluate(() => {
+    const saveBtn = document.querySelector('#btn-save-skill');
+    if (saveBtn) { saveBtn.click(); return 'saved-btn-save-skill'; }
+    const btns = document.querySelectorAll('.sf-edit-form button, .sf-edit-form .btn-primary');
+    for (const b of btns) {
+      const t = (b.textContent || '').trim();
+      if (t === '保存' || t === '确定' || t === '✓') { b.click(); return 'saved-' + t; }
+    }
+    const form = document.querySelector('.sf-edit-form');
+    if (form) {
+      const allBtns = form.querySelectorAll('button');
+      for (const b of allBtns) {
+        const t = (b.textContent || '').trim();
+        if (t !== 'x' && t !== '关闭' && t !== '取消') { b.click(); return 'alt-' + t; }
+      }
+    }
+    return 'not-found';
+  });
+  opLog('saveR=' + JSON.stringify(saveR));
+  await page.waitForTimeout(500);
+
+  const persist = await page.evaluate(() => {
+    const app = document.querySelector('#app');
+    const pinia = app && app.__vue_app__ && app.__vue_app__.config.globalProperties.$pinia;
+    const ss = pinia && pinia._s && pinia._s.get('skill');
+    if (!ss || !ss.skills) return { ok: false, error: 'no store' };
+    const s = ss.skills.find((s) => s.customVars && Object.keys(s.customVars).length > 0);
+    return { ok: !!s, name: s ? s.name : null, vars: s ? JSON.stringify(s.customVars) : null };
+  });
+  log('C13.0 customVars持久化', persist.ok, JSON.stringify(persist));
+
+  // C14: Close settings
+  await page.evaluate(() => {
+    const btn = document.querySelector('#btn-close-settings');
+    if (btn) btn.click();
+  });
+  await page.waitForTimeout(500);
+  await shot(page, 'phaseC_14_final.png');
+
+  await browser.close();
+  opLog('Browser.close');
+
+  // Report
+  const lines = [];
+  lines.push('# Phase C 验证报告');
+  lines.push('');
+  lines.push(failed > 0 ? '**失败 ' + failed + ' 项**' : '**全部 ' + passed + ' 项通过**');
+  lines.push('');
+  lines.push('| 通过 | 失败 |');
+  lines.push('|------|------|');
+  lines.push('| ' + passed + ' | ' + failed + ' |');
+  lines.push('');
+  lines.push('## 逐项结果');
+  lines.push('');
+  lines.push('| 步骤 | 结果 | 详情 |');
+  lines.push('|------|------|------|');
+  for (const r of results) {
+    lines.push('| ' + r.step + ' | ' + (r.ok ? 'PASS' : 'FAIL') + ' | ' + String(r.detail).replace(/\|/g, '\\|') + ' |');
+  }
+  lines.push('');
+  lines.push('## CDP 操作日志');
+  lines.push('');
+  for (let i = 0; i < cdpLog.length; i += 1) {
+    lines.push(String(i + 1) + '. `' + cdpLog[i] + '`');
+  }
+  lines.push('');
+  lines.push('## 截图');
+  lines.push('');
+  const shots = fs.readdirSync(SS_DIR).filter((n) => n.startsWith('phaseC_') && n.endsWith('.png')).sort();
+  for (const n of shots) {
+    lines.push('- _audit/screenshots/' + n);
+  }
+  lines.push('');
+  fs.writeFileSync(REPORT_PATH, lines.join('\n'), 'utf-8');
+  console.log('\n[REPORT] ' + REPORT_PATH);
+  console.log('[RESULT] passed=' + passed + ' failed=' + failed);
+  process.exit(failed > 0 ? 1 : 0);
+}
+main().catch((e) => { console.error(e); process.exit(1); });

@@ -19,6 +19,7 @@ export interface Skill {
   updatedAt?: string
   injectFrequency?: string
   injectDepth?: number
+  customVars?: Record<string, string>
 }
 
 export const useSkillStore = defineStore('skill', () => {
@@ -58,7 +59,8 @@ export const useSkillStore = defineStore('skill', () => {
             createdAt: s.createdAt,
             updatedAt: s.updatedAt,
             injectFrequency: s.injectFrequency,
-            injectDepth: s.injectDepth
+            injectDepth: s.injectDepth,
+            customVars: s.customVars || {}
           }
         })
       } else {
@@ -113,6 +115,7 @@ export const useSkillStore = defineStore('skill', () => {
       'injectDepth: ' + (s.injectDepth ?? 0),
       'bindTarget: ' + (s.bindTarget || 'project'),
       'linkedSkillIds: ' + JSON.stringify(s.linkedSkillIds || []),
+      'customVars: ' + JSON.stringify(s.customVars || {}),
       'createdAt: ' + (s.createdAt || ''),
       'updatedAt: ' + (s.updatedAt || ''),
       '---',
@@ -162,7 +165,8 @@ export const useSkillStore = defineStore('skill', () => {
           createdAt: s.createdAt || new Date().toISOString(),
           updatedAt: s.updatedAt,
           injectFrequency: s.injectFrequency,
-          injectDepth: s.injectDepth
+          injectDepth: s.injectDepth,
+          customVars: s.customVars || {}
         })
         existingIds.add(s.id)
         result.added++

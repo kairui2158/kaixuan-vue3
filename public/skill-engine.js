@@ -91,9 +91,130 @@ var SkillExecutionEngine_IIFE = (function() {
     return m ? m[0] : firstLine.substring(0, 3);
   }
 
+  function _lookupPath(context, path) {
+    if (!context || !path) return undefined;
+    var parts = path.split(".");
+    var cur = context;
+    for (var i = 0; i < parts.length; i++) {
+      if (cur == null) return undefined;
+      cur = cur[parts[i]];
+    }
+    return cur;
+  }
+
+  function _valText(val) {
+    if (val === null || val === undefined) return "";
+    if (typeof val === "object") {
+      try { return JSON.stringify(val); } catch(e) { return String(val); }
+    }
+    return String(val);
+  }
+
+  function _isCondTrue(expr, context) {
+    expr = (expr || "").trim();
+    var negate = false;
+    if (expr.charAt(0) === "!") {
+      negate = true;
+      expr = expr.substring(1).trim();
+    }
+    if (expr === "") return false;
+    var val = _lookupPath(context, expr);
+    var truthy = !(val === undefined || val === null || val === "" || val === false || val === 0 ||
+      (typeof val === "object" && Object.keys(val).length === 0));
+    return negate ? !truthy : truthy;
+  }
+
+  function resolveTemplate(template, context, opts) {
+    template = template || "";
+    context = context || {};
+    opts = opts || {};
+    var missing = opts.keepMissing !== false;
+    var out = "";
+    var i = 0;
+    var len = template.length;
+    var guard = 0;
+    while (i < len && guard++ < 100000) {
+      var open = template.indexOf("{{", i);
+      if (open < 0) { out += template.substring(i); break; }
+      var close = template.indexOf("}}", open + 2);
+      if (close < 0) { out += template.substring(i); break; }
+      out += template.substring(i, open);
+      var raw = template.substring(open + 2, close).trim();
+      var lower = raw.toLowerCase();
+      if (lower.indexOf("if ") === 0) {
+        var condExpr = raw.substring(3).trim();
+        var scanPos = close + 2;
+        var depth = 1;
+        var elsePos = -1;
+       var elseClose = -1;
+        var endifOpen = -1;
+        var endPos = -1;
+        var scanGuard = 0;
+        while (scanPos < len && scanGuard++ < 100000) {
+          var nOpen = template.indexOf("{{", scanPos);
+          if (nOpen < 0) break;
+          var nClose = template.indexOf("}}", nOpen + 2);
+          if (nClose < 0) break;
+          var nTag = template.substring(nOpen + 2, nClose).trim();
+          var nLower = nTag.toLowerCase();
+          if (nLower.indexOf("if ") === 0) {
+            depth++;
+         } else if (nLower.indexOf("endif") === 0) {
+            depth--;
+            if (depth === 0) { endifOpen = nOpen; endPos = nClose + 2; break; }
+          } else if (nLower.indexOf("else") === 0 && depth === 1 && elsePos < 0) {
+            elsePos = nOpen;
+            elseClose = nClose;
+          }
+          scanPos = nClose + 2;
+        }
+        if (endPos < 0) {
+          out += template.substring(open);
+          break;
+        }
+        var sectionEnd = endPos - 2;
+        var condTrue = _isCondTrue(condExpr, context);
+        var trueBody = elsePos >= 0 ? template.substring(close + 2, elsePos) : template.substring(close + 2, endifOpen);
+        var falseBody = elsePos >= 0 ? template.substring(elseClose + 2, endifOpen) : "";
+        out += condTrue ? resolveTemplate(trueBody, context, opts) : resolveTemplate(falseBody, context, opts);
+        i = endPos;
+        continue;
+      }
+      if (lower.indexOf("else") === 0 || lower.indexOf("endif") === 0) {
+        out += template.substring(open, close + 2);
+        i = close + 2;
+        continue;
+      }
+      var pipeIdx = raw.indexOf("|");
+      var varPath = (pipeIdx >= 0 ? raw.substring(0, pipeIdx) : raw).trim();
+      var fallback = pipeIdx >= 0 ? raw.substring(pipeIdx + 1) : null;
+      var rawVal = _lookupPath(context, varPath);
+      if (rawVal === undefined || rawVal === null || rawVal === "") {
+        if (fallback !== null) out += fallback;
+        else if (missing) out += template.substring(open, close + 2);
+      } else {
+        out += _valText(rawVal);
+      }
+      i = close + 2;
+    }
+    return out;
+  }
+
   async function _callStep(skill, userInput, opts) {
     // Priority: opts.systemPrompt (from agent) > skill.template > default
-    var sysContent = (opts && opts.systemPrompt) || (skill && skill.template) || "你是专业的文本处理专家。只输出处理结果，不输出说明。";
+    var rawContent = (opts && opts.systemPrompt) || (skill && skill.template) || "你是专业的文本处理专家。只输出处理结果，不输出说明。";
+    var sysContent = rawContent;
+    if (opts && opts.templateContext) {
+      var skillCtx = opts.templateContext;
+      if (skill && skill.customVars && typeof skill.customVars === "object") {
+        var merged = {};
+        for (var mk in opts.templateContext) merged[mk] = opts.templateContext[mk];
+        for (var cvk in skill.customVars) merged[cvk] = skill.customVars[cvk];
+        skillCtx = merged;
+      }
+      try { sysContent = resolveTemplate(rawContent, skillCtx, { keepMissing: false }); }
+      catch(eT) { console.warn("[WARN] resolveTemplate failed, using raw template", eT); }
+    }
     var userContent = userInput;
     if (opts.paramPrefix) userContent = opts.paramPrefix + userContent;
     var result = await opts.aiRequest({
@@ -144,6 +265,7 @@ var SkillExecutionEngine_IIFE = (function() {
         var result = await _callStep(skill, chainPrompt, opts);
         text = result;
         if (!text) { console.warn("[WARN] Chain step " + (si + 1) + " returned empty, keeping previous"); text = prevText; }
+        if (opts.templateContext) opts.templateContext.prevResponse = text;
         if (opts.validators && opts.validators[si]) {
           var vResult = await _runValidator(opts.validators[si], text, prevText, opts);
           if (!vResult.ok) {
@@ -151,7 +273,10 @@ var SkillExecutionEngine_IIFE = (function() {
             if (opts.onProgress) opts.onProgress(si, skills.length, "retry");
             var retryPrompt = chainPrompt;
             if (vResult.hint) retryPrompt += NL + NL + "[validation feedback: " + vResult.hint + "]";
-            try { text = await _callStep(skill, retryPrompt, opts); }
+            try {
+              text = await _callStep(skill, retryPrompt, opts);
+              if (opts.templateContext) opts.templateContext.prevResponse = text;
+            }
             catch(eR) { console.warn("[WARN] retry failed for step " + (si + 1), eR); text = prevText; }
           }
         }
@@ -362,6 +487,7 @@ var SkillExecutionEngine_IIFE = (function() {
     chain: chain,
     splitMerge: splitMerge,
     multiStep: multiStep,
+    resolveTemplate: resolveTemplate,
     getAutoValidators: getAutoValidators,
     _splitText: _splitText,
     _parallelMap: _parallelMap,

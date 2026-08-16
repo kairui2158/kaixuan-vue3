@@ -85,6 +85,15 @@
             <span>{{ s.name }}</span>
           </label>
         </div>
+        <label>自定义变量</label>
+        <div id="sf-custom-vars" class="sf-custom-vars">
+          <div v-for="(v, i) in editingCustomVars" :key="i" class="sf-custom-var-row">
+            <input :id="'sf-cv-key-' + i" v-model="v.key" class="sem-input sf-cv-key" placeholder="变量名，如 tone" />
+            <input :id="'sf-cv-value-' + i" v-model="v.value" class="sem-input sf-cv-value" placeholder="变量值，如 悬疑冷峻" />
+            <button class="btn-danger btn-sm" @click="removeCustomVar(i)">x</button>
+          </div>
+          <button id="btn-add-custom-var" class="btn-sm btn-secondary" @click="addCustomVar">+ 添加变量</button>
+        </div>
         <details class="var-details">
           <summary>可用变量</summary>
           <div class="var-tags">
@@ -96,6 +105,9 @@
           <textarea id="sf-template" v-model="editingTemplate" class="sf-template-input" placeholder="支持 Markdown 格式。使用 {{变量名}} 插入动态内容。"></textarea>
           <div id="sf-template-preview" class="sf-template-preview" v-html="renderMarkdown(editingTemplate)"></div>
         </div>
+        <label>模板解析预览 (示例值)</label>
+        <div id="sf-resolved-preview" class="sf-resolved-preview"><pre>{{ resolvedPreviewText || '(输入模板后点击刷新预览)' }}</pre></div>
+        <button id="btn-refresh-preview" class="btn-sm btn-secondary" @click="refreshPreview">刷新解析预览</button>
        <label>执行模式</label>
        <select v-model="editingExecutionMode" class="sem-input">
          <option value="chain">串行链式</option>
@@ -236,6 +248,8 @@ function addSkill() {
   editingInjectDepth.value = 0;
   editingBindTarget.value = 'project';
   editingLinkedSkillIds.value = [];
+  editingCustomVars.value = [];
+  resolvedPreviewText.value = '';
   try {
     skillStore.addSkill({
       id: id,
@@ -266,6 +280,8 @@ const editingBindTarget = ref('project')
 const editingLinkedSkillIds = ref<string[]>([])
 const editingBindId = ref('')
 const bindTargetOptions = ref<{ id: string, name: string }[]>([])
+const editingCustomVars = ref<{ key: string, value: string }[]>([])
+const resolvedPreviewText = ref('')
 
 const availableVars = [
   'selectedText', 'outlineContent', 'chapterSummary',
@@ -314,6 +330,9 @@ function editSkill(id: string) {
   editingInjectDepth.value = s.injectDepth ?? 0
   editingBindTarget.value = s.bindTarget as string || 'project'
   editingLinkedSkillIds.value = [...(s.linkedSkillIds || [])]
+  const vars = (s.customVars || {}) as Record<string, string>
+  editingCustomVars.value = Object.keys(vars).map(k => ({ key: k, value: vars[k] || '' }))
+  refreshPreview()
 }
 
 function saveEdit() {
@@ -329,13 +348,54 @@ function saveEdit() {
     injectFrequency: editingInjectFrequency.value,
     injectDepth: editingInjectDepth.value,
     bindTarget: editingBindTarget.value,
-    linkedSkillIds: editingLinkedSkillIds.value
+    linkedSkillIds: editingLinkedSkillIds.value,
+    customVars: customVarsToRecord()
   })
   editingSkillId.value = ''
 }
 
 function cancelEdit() {
   editingSkillId.value = ''
+}
+
+function addCustomVar() {
+  editingCustomVars.value.push({ key: '', value: '' })
+}
+
+function removeCustomVar(index: number) {
+  editingCustomVars.value.splice(index, 1)
+}
+
+function customVarsToRecord(): Record<string, string> {
+  const rec: Record<string, string> = {}
+  for (const row of editingCustomVars.value) {
+    if (row.key && row.key.trim()) rec[row.key.trim()] = row.value || ''
+  }
+  return rec
+}
+
+function getPreviewDemoContext(): Record<string, any> {
+  return {
+    selectedText: '【示例】她推开锈蚀的铁门，风里传来旧书页的气息。',
+    outlineContent: '【示例】第一卷：少年在雨夜收到父亲失踪前的信。',
+    chapterSummary: '【示例】主角拆信后决定离开村子上路。',
+    prevChapterSummary: '【示例】主角与师父在村口告别。',
+    prevResponse: '【示例】上一轮 AI 输出结果。',
+    characters: '叶青：坚韧孤僻；林晚：温柔机敏',
+    chapterTitle: '第一章 雨夜来信',
+    novelTitle: '《神意》',
+    chapterPlot: '【示例】主角发现信中有第二张发黄的纸条。',
+    ...customVarsToRecord()
+  }
+}
+
+function refreshPreview() {
+  const engine = (window as any).SkillExecutionEngine
+  if (!engine || typeof engine.resolveTemplate !== 'function') {
+    resolvedPreviewText.value = '(引擎未加载，无法预览)'
+    return
+  }
+  resolvedPreviewText.value = engine.resolveTemplate(editingTemplate.value || '', getPreviewDemoContext(), { keepMissing: true })
 }
 </script>
 
@@ -417,6 +477,16 @@ function cancelEdit() {
 .sf-linked-list { display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow-y: auto; padding: 8px; background: var(--bg-tertiary); border-radius: 6px; border: 1px solid var(--border-color); }
 .sf-linked-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-primary); cursor: pointer; }
 .sf-linked-item input[type=checkbox] { margin: 0; cursor: pointer; }
+
+/* === 自定义变量 === */
+.sf-custom-vars { display: flex; flex-direction: column; gap: 6px; padding: 8px; background: var(--bg-tertiary); border-radius: 6px; border: 1px solid var(--border-color); }
+.sf-custom-var-row { display: flex; gap: 6px; align-items: center; }
+.sf-cv-key { flex: 1; min-width: 0; font-family: monospace; }
+.sf-cv-value { flex: 2; min-width: 0; }
+
+/* === 模板解析预览 === */
+.sf-resolved-preview { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-input); color: var(--text-primary); font-size: 12px; max-height: 220px; overflow-y: auto; margin-bottom: 4px; }
+.sf-resolved-preview pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: monospace; line-height: 1.6; }
 
 /* === 变量详情 === */
 .var-details { margin: 8px 0; padding: 8px 12px; background: var(--accent-dim, rgba(90,125,154,0.1)); border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; color: var(--text-secondary); }

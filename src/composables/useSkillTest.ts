@@ -38,11 +38,29 @@
      testResult.value = ''
      testError.value = ''
      
-     try {
-       const messages = [
-         { role: 'system', content: skill.template || '你是专业的文本处理专家。' },
-         { role: 'user', content: testText }
-       ]
+    try {
+      let systemContent = skill.template || '你是专业的文本处理专家。'
+      const engine = (window as any).SkillExecutionEngine
+      if (engine && typeof engine.resolveTemplate === 'function') {
+        const ctx: Record<string, any> = {
+          selectedText: testText,
+          userPrompt: testText,
+          outlineContent: '',
+          novelTitle: '',
+          prevResponse: '',
+          chapterTitle: '',
+          chapterSummary: '',
+          prevChapterSummary: '',
+          characters: '',
+          chapterPlot: '',
+          ...(skill.customVars || {})
+        }
+        try { systemContent = engine.resolveTemplate(systemContent, ctx, { keepMissing: false }) } catch (e) { /* keep raw */ }
+      }
+      const messages = [
+        { role: 'system', content: systemContent },
+        { role: 'user', content: testText }
+      ]
        const resp = await fetch(provider.baseUrl + '/chat/completions', {
          method: 'POST',
          headers: { 'Authorization': 'Bearer ' + provider.apiKey, 'Content-Type': 'application/json' },

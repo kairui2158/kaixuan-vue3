@@ -522,12 +522,12 @@ function getStepSkillIds(step: number): string[] {
   return []
 }
 
-function getStepSkillTemplates(step: number): Array<{ id: string; name: string; template: string }> {
+function getStepSkillTemplates(step: number): Array<{ id: string; name: string; template: string; customVars?: Record<string, string> }> {
   const ids = getStepSkillIds(step)
-  const templates: Array<{ id: string; name: string; template: string }> = []
+  const templates: Array<{ id: string; name: string; template: string; customVars?: Record<string, string> }> = []
   for (const sid of ids) {
     const s = skillStore.getSkill(sid)
-    if (s && s.template) templates.push({ id: s.id, name: s.name, template: s.template })
+    if (s && s.template) templates.push({ id: s.id, name: s.name, template: s.template, customVars: s.customVars || {} })
   }
   return templates
 }
@@ -543,6 +543,53 @@ function getStepAgentId(step: number): string {
 
 function getStepSkillMode(step: number): string {
   return stepSkillModes.value[step] || "compose"
+}
+
+function buildTemplateContext(step: number, prompt: string, prevResponse?: string): Record<string, any> {
+  const vol = projectStore.volumes[selectedVolumeIndex.value] || null
+  const volId = vol ? (vol.id || vol.name) : ""
+  const chs = volId ? (projectStore.chapters[volId] || []) : []
+  const selectedCh = chs[bodyChapterIndex.value] || chs[0] || null
+  const chIdx = selectedCh ? Math.max(0, chs.indexOf(selectedCh)) : -1
+  const prevCh = chIdx > 0 ? chs[chIdx - 1] : null
+  const characterSettings = projectStore.settings.filter((s: any) => String(s.category || "").includes("人物"))
+  const characters = characterSettings.map((s: any) => {
+    const attrs = s.attrs && typeof s.attrs === "object"
+      ? Object.keys(s.attrs).map((k: string) => k + ": " + String(s.attrs[k] ?? "")).join("; ")
+      : String(s.attrsText || "")
+    return (s.name || "") + (attrs ? "（" + attrs + "）" : "")
+  }).join("；")
+  return {
+    selectedText: prompt,
+    userPrompt: prompt,
+    outlineContent: projectStore.outlineText || "",
+    novelTitle: projectStore.projectName || "",
+    volumeCount: projectStore.volumes.length || volumeCount.value,
+    wordsPerVolume: volumeWords.value || "",
+    chapterCount: chs.length,
+    wordsPerChapter: chapterWords.value || "",
+    styleTags: styleTags.value || "",
+    pacingParams: pacingParams.value || "",
+    volumeOutline: vol ? (vol.outline || vol.summary || "") : "",
+    chapterTitle: selectedCh ? (selectedCh.title || "") : "",
+    chapterSummary: selectedCh ? (selectedCh.summary || selectedCh.plot || "") : "",
+    prevChapterSummary: prevCh ? (prevCh.summary || prevCh.plot || "") : "",
+    chapterPlot: selectedCh ? (selectedCh.plot || "") : "",
+    characters: characters,
+    prevResponse: prevResponse || ""
+  }
+}
+
+function resolveSkillTemplate(template: string, context: Record<string, any>): string {
+  const engine = (window as any).SkillExecutionEngine
+  if (engine && typeof engine.resolveTemplate === "function" && template && /\{\{/.test(template)) {
+    try {
+      return engine.resolveTemplate(template, context, { keepMissing: false })
+    } catch (e) {
+      console.warn("[PIPELINE] resolveTemplate failed, using raw template", e)
+    }
+  }
+  return template
 }
 
 function getBoundSettingsText(): string {
@@ -773,6 +820,7 @@ async function callApiWithAgentTimeout(step: number, skillTemplate: string, prom
 async function runStepSkills(step: number, prompt: string, timeoutMs?: number, fallbackTemplate?: string): Promise<string> {
   const templates = getStepSkillTemplates(step)
   const mode = getStepSkillMode(step)
+  const baseCtx = buildTemplateContext(step, prompt)
   // Use SkillExecutionEngine for split-merge / multi-step
   if ((mode === "split-merge" || mode === "multi-step") && templates.length > 0) {
     const engine = (window as any).SkillExecutionEngine
@@ -787,36 +835,43 @@ async function runStepSkills(step: number, prompt: string, timeoutMs?: number, f
         const result = await providerStore.callApi(activeProvider?.id || "", model, [{ role: "system", content: sysMsg }, { role: "user", content: userMsg }])
         return { text: result }
       }
-      const engineSkills = templates.map((t: any) => ({ name: t.name, template: t.template }))
+      const engineSkills = templates.map((t: any) => ({ name: t.name, template: t.template, customVars: t.customVars || {} }))
       let result: any
       if (mode === "split-merge") {
         console.log("[PIPELINE] split-merge mode, step=" + step + " skills=" + engineSkills.length)
-        result = await engine.splitMerge(prompt, engineSkills, { aiRequest, splitSize: 1000, stream: false })
+        result = await engine.splitMerge(prompt, engineSkills, { aiRequest, splitSize: 1000, stream: false, templateContext: baseCtx })
       } else {
         console.log("[PIPELINE] multi-step mode, step=" + step + " skills=" + engineSkills.length)
-        result = await engine.multiStep(prompt, engineSkills.slice(0, 4), { aiRequest, splitSize: 1500, stream: false })
+        result = await engine.multiStep(prompt, engineSkills.slice(0, 4), { aiRequest, splitSize: 1500, stream: false, templateContext: baseCtx })
       }
       return result?.text || prompt
     }
   }
   if (mode === "chain" && templates.length > 1) {
     let current = prompt
+    const chainCtx = { ...baseCtx }
     for (let si = 0; si < templates.length; si++) {
       const t = templates[si]
+      const ctxForSkill = { ...chainCtx, ...(t.customVars || {}) }
+      const resolvedTemplate = resolveSkillTemplate(t.template, ctxForSkill)
       const useOriginal = si === 0
       const nextPrompt = useOriginal
         ? prompt
-        : "以下是上一个Skill的输出结果，请根据当前Skill继续处理：\n\n【" + t.name + "】" + t.template + "\n\n--- 上一步输出 ---\n" + current
+        : "以下是上一个Skill的输出结果，请根据当前Skill继续处理：\n\n【" + t.name + "】" + resolvedTemplate + "\n\n--- 上一步输出 ---\n" + current
       console.log("[PIPELINE] chain step " + (si + 1) + "/" + templates.length + " = " + t.name)
       if (timeoutMs) {
-        current = await callApiWithAgentTimeout(step, t.template, nextPrompt, timeoutMs)
+        current = await callApiWithAgentTimeout(step, resolvedTemplate, nextPrompt, timeoutMs)
       } else {
-        current = await callApiWithAgent(step, t.template, nextPrompt)
+        current = await callApiWithAgent(step, resolvedTemplate, nextPrompt)
       }
+      chainCtx.prevResponse = current
     }
     return current
   }
-  const combined = templates.map((t) => t.template).filter(Boolean).join("\n\n") || fallbackTemplate || ""
+  const combined = templates.map((t) => {
+    const ctxForSkill = { ...baseCtx, ...(t.customVars || {}) }
+    return resolveSkillTemplate(t.template, ctxForSkill)
+  }).filter(Boolean).join("\n\n") || resolveSkillTemplate(fallbackTemplate || "", baseCtx)
   if (timeoutMs) {
     return await callApiWithAgentTimeout(step, combined, prompt, timeoutMs)
   }

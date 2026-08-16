@@ -98,6 +98,18 @@ const projectStore = useProjectStore()
 const pipelineStore = usePipelineStore()
 const settingsStore = useSettingsStore()
 
+function resolveSkillTemplate(template: string, context: Record<string, any>): string {
+  const engine = (window as any).SkillExecutionEngine
+  if (engine && typeof engine.resolveTemplate === "function" && template && /\{\{/.test(template)) {
+    try {
+      return engine.resolveTemplate(template, context, { keepMissing: false })
+    } catch (e) {
+      console.warn('[CHAT] resolveTemplate failed, using raw template', e)
+    }
+  }
+  return template
+}
+
 const projectId = computed(() => projectStore.currentProjectId || 'default')
 const messages = computed(() => chatStore.activeMessages)
 const inputText = ref('')
@@ -270,9 +282,36 @@ async function sendMessage() {
       }
     }
 
+    const chatCtx: Record<string, any> = {
+      selectedText: text,
+      userPrompt: text,
+      outlineContent: projectStore.outlineText || '',
+      novelTitle: projectStore.projectName || '',
+      prevResponse: '',
+      volumeCount: projectStore.volumes?.length || 0,
+      volumeOutline: '',
+      chapterCount: 0,
+      chapterTitle: editorStore.activeTab?.title || '',
+      chapterSummary: '',
+      prevChapterSummary: '',
+      chapterPlot: '',
+      characters: '',
+      wordsPerVolume: '',
+      wordsPerChapter: ''
+    }
+    for (let mi = messages.length - 1; mi >= 0; mi--) {
+      const mc = messages[mi]
+      if (mc.role === 'assistant' && mc.content && (mc.content as string).indexOf('请求失败') !== 0) {
+        chatCtx.prevResponse = mc.content
+        break
+      }
+    }
     const enabledSkills = skillStore.skills.filter((s: any) => s.enabled)
     if (enabledSkills.length > 0) {
-      const skillText = enabledSkills.map((s: any) => '【' + s.name + '】\n' + (s.template || '')).join('\n\n')
+      const skillText = enabledSkills.map((s: any) => {
+        const ctxForSkill = { ...chatCtx, ...(s.customVars || {}) }
+        return '【' + s.name + '】\n' + resolveSkillTemplate(s.template || '', ctxForSkill)
+      }).join('\n\n')
       systemParts.push('生效中的技能：\n' + skillText)
     }
 
@@ -287,20 +326,39 @@ async function sendMessage() {
         const volIdx = volumes.findIndex((v: any) => v.id === activeTab.chapterId || v.name === activeTab.title)
         const vol = volIdx >= 0 ? volumes[volIdx] : null
         ctxText = vol ? (vol.outline || vol.summary || '') : ''
+        chatCtx.volumeOutline = ctxText
+        chatCtx.volumeCount = volumes.length
         ctxSkillIds = skillStore.pipelineSkills.filter((id: string, i: number) => i === 2)
       } else if (activeTab.mode === 'ch-plot') {
         ctxLabel = '章节剧情梗概'
         for (let vi = 0; vi < volumes.length; vi++) {
           const chs = projectStore.chapters[volumes[vi].id] || []
           const ch = chs.find((c: any) => c.id === activeTab.chapterId)
-          if (ch) { ctxText = ch.plot || ''; break }
+          if (ch) {
+            ctxText = ch.plot || ''
+            chatCtx.chapterSummary = ch.summary || ch.plot || ''
+            chatCtx.chapterPlot = ch.plot || ''
+            chatCtx.chapterCount = chs.length
+            const chIdx = chs.indexOf(ch)
+            const prevCh = chIdx > 0 ? chs[chIdx - 1] : null
+            if (prevCh) chatCtx.prevChapterSummary = prevCh.summary || prevCh.plot || ''
+            break
+          }
         }
         ctxSkillIds = skillStore.pipelineSkills.filter((id: string, i: number) => i === 3)
       } else if (activeTab.mode === 'ch-body') {
         ctxLabel = '正文'
         ctxText = activeTab.content || ''
+        chatCtx.chapterPlot = ctxText
         ctxSkillIds = skillStore.pipelineSkills.filter((id: string, i: number) => i === 4)
       }
+      const characterSettings = projectStore.settings.filter((s: any) => String(s.category || '').includes('人物'))
+      chatCtx.characters = characterSettings.map((s: any) => {
+        const attrs = s.attrs && typeof s.attrs === 'object'
+          ? Object.keys(s.attrs).map((k: string) => k + ': ' + String(s.attrs[k] ?? '')).join('; ')
+          : String(s.attrsText || '')
+        return (s.name || '') + (attrs ? '（' + attrs + '）' : '')
+      }).join('；')
       if (ctxText) { systemParts.push('当前编辑内容（' + ctxLabel + '）：\n' + ctxText) }
       if (ctxSkillIds.length > 0) {
         const existingIds = new Set(enabledSkills.map(s => s.id))
@@ -308,7 +366,10 @@ async function sendMessage() {
         ctxSkillIds.forEach(sid => {
           if (existingIds.has(sid)) return
           const sObj = skillStore.skills.find(s => s.id === sid)
-          if (sObj && sObj.template) { ctxSkillText += '\n【' + sObj.name + '】\n' + sObj.template + '\n' }
+          if (sObj && sObj.template) {
+            const ctxForSkill = { ...chatCtx, ...(sObj.customVars || {}) }
+            ctxSkillText += '\n【' + sObj.name + '】\n' + resolveSkillTemplate(sObj.template, ctxForSkill) + '\n'
+          }
         })
         if (ctxSkillText) { systemParts.push('当前层级 Skill（' + ctxLabel + '）：' + ctxSkillText) }
       }
@@ -340,7 +401,8 @@ async function sendMessage() {
       name: s.name,
       template: s.template,
       executionMode: s.executionMode || 'chain',
-      validate: s.validationRules || []
+      validate: s.validationRules || [],
+      customVars: s.customVars || {}
     }))
 
     // 1) 有 engine 且选了明确 skill 时，先跑 engine 预加工
@@ -352,18 +414,21 @@ async function sendMessage() {
           engineResult = await engine.splitMerge(text, skillCtxSkills, {
             aiRequest,
             splitSize: 1000,
-            stream: false
+            stream: false,
+            templateContext: chatCtx
           })
         } else if (activeMode === 'multi-step') {
           engineResult = await engine.multiStep(text, skillCtxSkills.slice(0, 4), {
             aiRequest,
             splitSize: 1500,
-            stream: false
+            stream: false,
+            templateContext: chatCtx
           })
         } else {
           engineResult = await engine.chain(text, skillCtxSkills, {
             aiRequest,
-            stream: false
+            stream: false,
+            templateContext: chatCtx
           })
         }
         if (engineResult && engineResult.text) {
