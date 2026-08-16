@@ -31,6 +31,7 @@ const actions = [
   { key: 'inject', label: '上下文注入' },
   { key: 'continue', label: '续写' },
   { key: 'condense', label: '精简' },
+  { key: 'modify', label: '修改' },
   { key: 'summary', label: '概括' },
   { key: 'character', label: '角色描写' },
   { key: 'environment', label: '环境描写' },

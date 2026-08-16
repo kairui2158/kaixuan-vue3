@@ -42,7 +42,7 @@
        </div>
         <div class="deai-param-item">
           <span class="deai-param-label">文本类型</span>
-          <div class="deai-radio-group">
+          <div id="deai-text-type" class="deai-radio-group">
             <label class="deai-radio-option">
               <input type="radio" value="novel" v-model="deAiStore.textType" @change="deAiStore.saveConfig()"> 小说
             </label>
@@ -65,7 +65,7 @@
     </div>
 
     <!-- 模式卡片 -->
-    <div class="deai-mode-cards">
+    <div id="deai-mode-select" class="deai-mode-cards">
       <div
         v-for="m in modes"
         :key="m.id"
@@ -79,17 +79,17 @@
           <span class="deai-mode-card-desc">{{ m.shortDesc }}</span>
         </div>
         <p class="mode-full-desc">{{ m.desc }}</p>
-        <div class="mode-flow">
+        <div class="mode-flow" v-if="deAiStore.mode === m.id">
           <span v-for="(step, i) in m.flow" :key="i" class="deai-flow-step">{{ step }}</span>
         </div>
         <!-- 只有激活的卡片显示 body -->
-        <div v-if="deAiStore.mode === m.id" id="deai-card-chain" class="deai-mode-card-body">
+        <div v-if="deAiStore.mode === m.id" :id="`deai-card-${m.id}`" class="deai-mode-card-body">
           <!-- chain 模式配置 -->
           <template v-if="m.id === 'chain'">
             <div class="form-group">
               <label>SKILL链式顺序</label>
               <div class="deai-skill-bar">
-                <select v-model="selectedChainSkill" id="deai-text-type" class="deai-param-select" @change="addDeAiSkill('chain')">
+                <select v-model="selectedChainSkill" id="deai-skill-select" class="deai-param-select" @change="addDeAiSkill('chain')">
                   <option value="">选择技能...</option>
                   <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
                 </select>
@@ -118,12 +118,12 @@
             <div class="form-group">
               <label>输出技能（1个，所有段共用）</label>
               <div class="deai-skill-bar">
-                <select v-model="selectedSplitSkill" class="deai-param-select" @change="addDeAiSkill('split-merge')">
+                <select v-model="selectedSplitSkill" id="deai-skill-select-sm" class="deai-param-select" @change="addDeAiSkill('split-merge')">
                   <option value="">选择技能...</option>
                   <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
                 </select>
               </div>
-              <div class="deai-skills-list">
+              <div id="deai-skills-list-sm" class="deai-skills-list">
                 <span v-for="(id, i) in deAiStore.skillIds" :key="id" class="deai-skill-chip">
                   <span>{{ getSkillName(id) }}</span>
                   <button class="deai-skill-remove" @click="removeDeAiSkill(i)">&times;</button>
@@ -147,13 +147,13 @@
             <div class="form-group">
               <label>技能（需3个：S1A+S1B+S1C或S1+S2）</label>
               <div class="deai-skill-bar">
-                <select v-model="selectedMultiSkill" class="deai-param-select" @change="addDeAiSkill('multi-step')">
+                <select v-model="selectedMultiSkill" id="deai-skill-select-ms" class="deai-param-select" @change="addDeAiSkill('multi-step')">
                   <option value="">选择技能...</option>
                   <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
                 </select>
-                <button id="btn-deai-add-skill" class="btn-primary btn-sm" @click="addDeAiSkill('multi-step')">添加</button>
+                <button id="btn-deai-add-skill-ms" class="btn-primary btn-sm" @click="addDeAiSkill('multi-step')">添加</button>
               </div>
-              <div class="deai-skills-list">
+              <div id="deai-skills-list-ms" class="deai-skills-list">
                 <span v-for="(id, i) in deAiStore.skillIds" :key="id" class="deai-skill-chip">
                   <span>[{{ i + 1 }}] {{ getSkillName(id) }}</span>
                   <button class="deai-skill-remove" @click="removeDeAiSkill(i)">&times;</button>
@@ -162,7 +162,7 @@
             </div>
             <div class="form-group">
               <label>智能体（用于多步调度）</label>
-              <select v-model="deAiStore.agentId" class="deai-param-select" @change="deAiStore.saveConfig()">
+              <select id="deai-agent-select-ms" v-model="deAiStore.agentId" class="deai-param-select" @change="deAiStore.saveConfig()">
                 <option value="">不使用智能体</option>
                 <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
               </select>
@@ -208,18 +208,6 @@
     </div>
   </div>
 
-  <!-- audit-v5 -->
-  <div id="deai-flow-preview" style="display:none" data-audit="v5"></div>
-  <div id="deai-progress-fill" style="display:none" data-audit="v5"></div>
-  <div id="deai-progress-percent" style="display:none" data-audit="v5"></div>
-  <div id="deai-progress-step" style="display:none" data-audit="v5"></div>
-  <div id="deai-step-list" style="display:none" data-audit="v5"></div>
-  <div id="deai-mode-select" style="display:none" data-audit="v5"></div>
-  <div id="deai-skill-select" style="display:none" data-audit="v5"></div>
-  <div id="deai-skill-select-ms" style="display:none" data-audit="v5"></div>
-  <div id="deai-skill-select-sm" style="display:none" data-audit="v5"></div>
-  <div id="deai-agent-select-ms" style="display:none" data-audit="v5"></div>
-  <div id="btn-deai-add-skill-ms" style="display:none" data-audit="v5"></div>
 </template>
 
 <script setup lang="ts">

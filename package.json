@@ -1,7 +1,7 @@
 {
-  "name": "writing-assistant",
-  "version": "3.0.0",
-  "description": "Novel Workshop - AI-driven desktop novel writing app",
+  "name": "shenyi-assistant",
+  "version": "3.2.1",
+  "description": "神意助手 - AI驱动的桌面小说写作应用",
   "main": "electron/main.js",
   "scripts": {
     "start": "electron .",
@@ -16,6 +16,7 @@
   "author": "kaixuan",
   "license": "MIT",
   "dependencies": {
+    "electron-log": "^5.4.4",
     "hotkeys-js": "^4.0.4",
     "idb": "^8.0.3",
     "jschardet": "^3.1.4",
@@ -23,8 +24,8 @@
     "notyf": "^3.10.0",
     "pinia": "^4.0.2",
     "vue": "^3.5.41",
-    "vue-virtual-scroller": "^3.0.4",
-    "vue-router": "^4.6.4"
+    "vue-router": "^4.6.4",
+    "vue-virtual-scroller": "^3.0.4"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.2",
@@ -39,8 +40,8 @@
     "vue-tsc": "^3.3.9"
   },
   "build": {
-    "appId": "com.kaixuan.writing-assistant",
-    "productName": "写作助手",
+    "appId": "com.kaixuan.shenyi-assistant",
+    "productName": "神意助手",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -49,6 +50,30 @@
       "electron/**/*",
       "dist-renderer/**/*",
       "node_modules/**/*",
+      "!node_modules/**/.bin/**",
+      "!node_modules/**/.cache/**",
+      "!node_modules/**/@biomejs/**",
+      "!node_modules/**/@electron/asar/**",
+      "!node_modules/**/@electron/rebuild/**",
+      "!node_modules/**/@playwright/**",
+      "!node_modules/**/@playwright-test/**",
+      "!node_modules/**/@vitejs/**",
+      "!node_modules/**/@vue/**",
+      "!node_modules/**/electron-builder/**",
+      "!node_modules/**/electron-download/**",
+      "!node_modules/**/vue-tsc/**",
+      "!node_modules/**/typescript/**",
+      "!node_modules/**/vite/**",
+      "!node_modules/**/playwright/**",
+      "!node_modules/**/playwright-core/**",
+      "!node_modules/**/7zip-bin*/**",
+      "!node_modules/**/.app-builder-bin*/**",
+      "!node_modules/**/app-builder-lib/**",
+      "!node_modules/**/builder-util/**",
+      "!node_modules/**/dmg-builder/**",
+      "!node_modules/**/*.d.ts",
+      "!node_modules/**/*.md",
+      "!node_modules/**/*.map",
       "package.json"
     ],
     "win": {
@@ -61,7 +86,7 @@
           ]
         }
       ],
-      "artifactName": "写作助手-Setup-${version}.${ext}"
+      "artifactName": "神意助手-Setup-${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -71,8 +96,9 @@
       "installerHeaderIcon": "build/icon.ico",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "写作助手",
+      "shortcutName": "神意助手",
       "include": "build/installer.nsh"
-    }
+    },
+    "asarUnpack": []
   }
 }

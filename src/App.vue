@@ -2,7 +2,7 @@
   <div class="app-container">
     <header id="app-header" class="app-header">
       <div class="header-left">
-        <span class="app-title">小说工坊</span>
+        <span class="app-title">神意助手</span>
       </div>
       <div class="header-right">
         <select id="agent-select" v-model="selectedAgent" class="header-selector" aria-label="选择智能体">
@@ -25,21 +25,21 @@
          <BreadcrumbBar :items="breadcrumbItems" @home="activePanel=''; breadcrumbItems=[]" @navigate="(i) => breadcrumbItems.splice(i+1)" @close="(i) => breadcrumbItems.splice(i)" />
         <div class="app-main-content">
           <ChapterTree @navigate="handleNavigate" />
-          <div class="resizer-v" data-target="chapter" title="拖动调整宽度"></div>
+          <div id="resizer-chapter" class="resizer-v" data-target="chapter" title="拖动调整宽度"></div>
           <EditorPanel />
-          <div class="resizer-v" data-target="chat" title="拖动调整宽度"></div>
+          <div id="resizer-editor-chat" class="resizer-v" data-target="chat" title="拖动调整宽度"></div>
           <ChatPanel />
          </div>
-        <!-- Panel overlays: fixed position, rendered on top of editor area -->
-        <SettingsModal v-if="activePanel === 'settings'" @close="activePanel=''" />
+        </div>
+      </div>
+        <!-- Panel overlays: outside app-body to avoid overflow:hidden clipping -->
+        <SettingsModal v-if="activePanel === 'settings'" :visible="activePanel === 'settings'" @close="activePanel=''" />
         <PipelinePanel v-if="activePanel === 'pipeline'" @close="activePanel=''" />
         <SettingsCollectionPanel v-if="activePanel === 'settings-collection'" @close="activePanel=''" />
-        <OutlineWorkspace v-if="activePanel === 'outline'" @close="activePanel=''" />
+        <OutlineWorkspace v-if="activePanel === 'outline'" @close="activePanel=''" @navigate="handleNavigate" />
         <MemoryPanel v-if="activePanel === 'memory'" @close="activePanel=''" />
         <DashboardModal v-if="activePanel === 'dashboard'" :stats="dashboardStats" @close="activePanel=''" />
         <PluginMarket v-if="activePanel === 'plugin-market'" @close="activePanel=''" />
-        </div>
-      </div>
     </main>
 
     <DeAiProgress v-if="deAiStore.isProcessing" />
@@ -48,6 +48,7 @@
    <DiffModal :visible="diffVisible" :original="diffOriginal" :modified="diffModified" @close="diffVisible=false" @apply="applyDiffResult" />
 
     <InlineMenu :visible="inlineMenu.visible" :x="inlineMenu.x" :y="inlineMenu.y" :selectedText="inlineMenu.text" @close="inlineMenu.visible=false" @action="handleInlineAction" />
+    <SkillBindModal :visible="skillBindVisible" :type="skillBindType" :id="skillBindId" @close="skillBindVisible=false" />
     <AgentProgressPanel />
     <div id="statusbar" class="statusbar">
       <span id="status-cursor"></span>
@@ -94,6 +95,7 @@ import MemoryPanel from './components/common/MemoryPanel.vue'
 import PluginMarket from './components/common/PluginMarket.vue'
 import DiffModal from './components/common/DiffModal.vue'
 import InlineMenu from './components/common/InlineMenu.vue'
+import SkillBindModal from './components/common/SkillBindModal.vue'
 import AgentProgressPanel from './components/sidebar/AgentProgressPanel.vue'
 import BreadcrumbBar from './components/common/BreadcrumbBar.vue'
 import DashboardModal from './components/dashboard/DashboardModal.vue'
@@ -125,7 +127,11 @@ const dashboardStats = computed(() => {
   })
   const maxWords = Math.max(...volumeStats.map((s: any) => s.words), 1)
   volumeStats.forEach((s: any) => { s.percentage = Math.round((s.words / maxWords) * 100) })
-  return { projects: 1, totalWords, totalChapters, totalVolumes: vols.length, volumeStats }
+  const avgWords = totalChapters > 0 ? Math.round(totalWords / totalChapters) : 0
+  const completedChapters = projectStore.chapters ? Object.values(projectStore.chapters).flat().filter((ch) => ch.body && ch.body.length > 100).length : 0
+  const completionRate = totalChapters > 0 ? Math.round((completedChapters / totalChapters) * 100) : 0
+  volumeStats.forEach((s: any) => { s.barClass = s.percentage > 80 ? 'success' : s.percentage > 50 ? 'accent' : 'warning' })
+  return { projects: 1, totalWords, totalChapters, totalVolumes: vols.length, volumeStats, avgWords, completionRate, completedChapters }
 })
 
 useShortcuts({
@@ -148,6 +154,9 @@ const activePanel = ref('')
 const diffVisible = ref(false)
 const diffOriginal = ref('')
 const diffModified = ref('')
+const skillBindVisible = ref(false)
+const skillBindType = ref('')
+const skillBindId = ref('')
 const inlineMenu = ref({ visible: false, x: 0, y: 0, text: '' })
 const selectedAgent = computed({
   get: () => agentStore.selectedAgentId || '',
@@ -197,9 +206,31 @@ function handleGenerateBody(e: Event) {
 
 function handleInsertText(e: Event) {
   const detail = (e as CustomEvent).detail
-  if (detail?.text && editorStore.activeTab) {
+  if (!detail?.text) return
+  if (detail.chapterId) {
+    const tab = editorStore.tabs.find((t) => t.chapterId === detail.chapterId)
+    if (tab) {
+      editorStore.updateContent(tab.id, detail.text)
+    } else {
+      editorStore.openTab({
+        id: 'tab-' + detail.chapterId,
+        title: detail.title || '章节',
+        content: detail.text,
+        chapterId: detail.chapterId,
+        isDirty: true,
+        mode: 'ch-body'
+      })
+    }
+  } else if (editorStore.activeTab) {
     editorStore.updateContent(editorStore.activeTab.id, detail.text)
   }
+}
+
+function handleSkillBinding(e: Event) {
+  const detail = (e as CustomEvent).detail
+  skillBindType.value = detail?.type || 'chapter'
+  skillBindId.value = detail?.id || ''
+  skillBindVisible.value = true
 }
 
 const resizers = ref<HTMLElement[]>([])
@@ -258,18 +289,22 @@ onMounted(() => {
   deAiStore.loadConfig()
   deAiStore.updateFlowPreview()
  projectStore.loadProjectList()
-  const lastProjectId = window.electronAPI?.storageRead?.('lastProjectId')
+  const lastProjectId = window.electronAPI?.storageRead?.('wa_lastProjectId')
   if (lastProjectId) projectStore.loadProject(lastProjectId)
   window.addEventListener('generate-body', handleGenerateBody)
- window.addEventListener('insert-text', handleInsertText)
+  window.addEventListener('insert-text', handleInsertText)
+  window.addEventListener('show-skill-binding', handleSkillBinding)
  nextTick(() => initResizers())
   const labels: Record<string, string> = {
     'pipeline': '生成流水线', 'settings': '设置', 'outline': '大纲工作台',
     'settings-collection': '设定合集', 'memory': '记忆管理'
   }
- watch(activePanel, (v) => {
+  watch(activePanel, (v) => {
    breadcrumbItems.value = v && labels[v] ? [labels[v]] : []
  }, { immediate: true })
+  if (typeof window !== 'undefined') {
+    ;(window as any).__getActivePanel = () => activePanel.value
+  }
 })
 
 

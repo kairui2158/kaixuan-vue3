@@ -4,7 +4,12 @@
     <div class="settings-row">
       <label>字体大小</label>
       <input id="cfg-editor-font-size" type="range" min="12" max="20" v-model.number="settingsStore.fontSize" @change="settingsStore.saveSettings()" />
-      <span>{{ settingsStore.fontSize }}px</span>
+      <span id="cfg-editor-font-size-val">{{ settingsStore.fontSize }}px</span>
+    </div>
+    <div class="settings-row">
+      <label>界面字体</label>
+      <input id="cfg-font-size" type="range" min="13" max="16" v-model.number="uiFontSize" @change="saveUiFontSize" />
+      <span id="cfg-font-size-val">{{ uiFontSize }}px</span>
     </div>
     <div class="settings-row">
       <label>编辑器字体</label>
@@ -37,12 +42,17 @@
     <div class="settings-section">
       <h4>数据管理</h4>
       <div class="settings-row">
+        <label>数据目录</label>
+        <span id="data-dir-path" class="data-dir-path">{{ dataDirPath || '正在读取...' }}</span>
+        <button id="btn-open-data-dir" class="btn-secondary" @click="openDataDir">打开目录</button>
+      </div>
+      <div class="settings-row">
         <label>导出数据</label>
-        <button class="btn-secondary" @click="exportData">导出全部数据</button>
+        <button id="btn-export-data" class="btn-secondary" @click="exportData">导出全部数据</button>
       </div>
       <div class="settings-row">
         <label>导入数据</label>
-        <button class="btn-secondary" @click="importData">导入数据</button>
+        <button id="btn-import-data" class="btn-secondary" @click="importData">导入数据</button>
       </div>
     </div>
     <div class="settings-section">
@@ -72,10 +82,6 @@
     </div>
   </div>
 
-  <!-- audit-v5 -->
-  <div id="cfg-font-size" style="display:none" data-audit="v5"></div>
-  <div id="cfg-font-size-val" style="display:none" data-audit="v5"></div>
-  <div id="cfg-editor-font-size-val" style="display:none" data-audit="v5"></div>
 </template>
 
 <script setup lang="ts">
@@ -129,6 +135,16 @@ function saveGithubToken() {
 }
 import { useSettingsStore } from '../../stores/settings'
 const settingsStore = useSettingsStore()
+const dataDirPath = ref('')
+
+onMounted(() => {
+  dataDirPath.value = window.electronAPI?.storageGetDataDir?.() || ''
+})
+
+function openDataDir() {
+  const ok = window.electronAPI?.storageOpenDataDir?.()
+  if (!ok) alert('无法打开数据目录')
+}
 
 function saveAll() {
   settingsStore.saveSettings()
@@ -147,6 +163,18 @@ function saveAll() {
 }
 .settings-row input[type="range"] { flex: 1; max-width: 200px; }
 .settings-row span { font-size: 12px; color: var(--text-muted); }
+.data-dir-path {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: monospace;
+  background: var(--bg-tertiary, #1a1a1e);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 4px 8px;
+}
 .settings-section { border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 12px; }
 .settings-section h4 { font-size: 13px; margin-bottom: 8px; color: var(--text-secondary); }
 .btn-toggle { padding: 4px 16px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-secondary); cursor: pointer; font-size: 12px; }

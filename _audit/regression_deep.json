@@ -1,0 +1,297 @@
+{
+  "outlineResult": {
+    "tag": "DIV",
+    "classes": "ow-overlay",
+    "btnCount": 9,
+    "buttons": [
+      {
+        "text": "AI 共创大纲",
+        "visible": true,
+        "id": "btn-ai-co-create"
+      },
+      {
+        "text": "x",
+        "visible": true,
+        "id": "btn-close-outline-workspace"
+      },
+      {
+        "text": ".md",
+        "visible": true,
+        "id": "btn-export-outline-md"
+      },
+      {
+        "text": ".txt",
+        "visible": true,
+        "id": "btn-export-outline-txt"
+      },
+      {
+        "text": "send",
+        "visible": false,
+        "id": "btn-ow-send"
+      },
+      {
+        "text": "自动生成大纲 Skill",
+        "visible": true,
+        "id": "btn-generate-outline-skills"
+      },
+      {
+        "text": "从文件导入(.txt/.md/.doc/.docx",
+        "visible": true,
+        "id": "btn-import-outline"
+      },
+      {
+        "text": "保存大纲",
+        "visible": true,
+        "id": "btn-save-outline"
+      },
+      {
+        "text": "确认大纲，锁定并进入创作",
+        "visible": true,
+        "id": "btn-lock-outline"
+      }
+    ]
+  },
+  "pipelineResult": {
+    "tag": "DIV",
+    "classes": "pl-overlay",
+    "btnCount": 35,
+    "buttons": [
+      {
+        "text": "×",
+        "visible": true,
+        "id": "btn-close-pl"
+      },
+      {
+        "text": "AI起名",
+        "visible": true,
+        "id": "btn-ai-names"
+      },
+      {
+        "text": "写作规则",
+        "visible": true,
+        "id": "btn-writing-rules"
+      },
+      {
+        "text": "时间线",
+        "visible": true,
+        "id": "btn-timeline"
+      },
+      {
+        "text": "批量审阅",
+        "visible": true,
+        "id": "btn-batch-review"
+      },
+      {
+        "text": "章节修订",
+        "visible": true,
+        "id": "btn-revise"
+      },
+      {
+        "text": "翻译",
+        "visible": true,
+        "id": "btn-translate"
+      },
+      {
+        "text": "风格转换",
+        "visible": true,
+        "id": "btn-style-convert"
+      },
+      {
+        "text": "重新生成",
+        "visible": true,
+        "id": "btn-regenerate"
+      },
+      {
+        "text": "按指令修改",
+        "visible": true,
+        "id": "btn-modify"
+      },
+      {
+        "text": "+",
+        "visible": true,
+        "id": "pl-s1-add-skill"
+      },
+      {
+        "text": "保存大纲",
+        "visible": true,
+        "id": ""
+      },
+      {
+        "text": "锁定大纲",
+        "visible": true,
+        "id": ""
+      },
+      {
+        "text": "确认完成",
+        "visible": true,
+        "id": "btn-pl-confirm-outline"
+      },
+      {
+        "text": "+",
+        "visible": false,
+        "id": "pl-s2-add-skill"
+      },
+      {
+        "text": "+ 新增设定",
+        "visible": false,
+        "id": ""
+      },
+      {
+        "text": "AI生成设定",
+        "visible": false,
+        "id": "btn-pl-gen-settings"
+      },
+      {
+        "text": "保存设定到合集",
+        "visible": false,
+        "id": "btn-pl-save-settings"
+      },
+      {
+        "text": "确认完成",
+        "visible": false,
+        "id": "btn-pl-confirm-settings"
+      },
+      {
+        "text": "+",
+        "visible": false,
+        "id": "pl-s3-add-skill"
+      },
+      {
+        "text": "×",
+        "visible": false,
+        "id": ""
+      },
+      {
+        "text": "×",
+        "visible": false,
+        "id": ""
+      },
+      {
+        "text": "AI生成全卷",
+        "visible": false,
+        "id": "btn-pl-gen-volumes"
+      },
+      {
+        "text": "逐卷生成",
+        "visible": false,
+        "id": "btn-pl-gen-single-volume"
+      },
+      {
+        "text": "自动生成卷纲",
+        "visible": false,
+        "id": "btn-pl-create-volumes"
+      },
+      {
+        "text": "批量续生成",
+        "visible": false,
+        "id": "btn-pl-continue-volumes"
+      },
+      {
+        "text": "确认完成",
+        "visible": false,
+        "id": "btn-pl-confirm-volumes"
+      },
+      {
+        "text": "+",
+        "visible": false,
+        "id": "pl-s4-add-skill"
+      },
+      {
+        "text": "AI生成章节",
+        "visible": false,
+        "id": "btn-pl-gen-chapters"
+      },
+      {
+        "text": "自动生成章节",
+        "visible": false,
+        "id": "btn-pl-autogen-chapters"
+      },
+      {
+        "text": "确认完成",
+        "visible": false,
+        "id": "btn-pl-confirm-chapters"
+      },
+      {
+        "text": "+",
+        "visible": false,
+        "id": "pl-s5-add-skill"
+      },
+      {
+        "text": "AI生成正文",
+        "visible": false,
+        "id": "btn-pl-gen-body"
+      },
+      {
+        "text": "插入到编辑器",
+        "visible": false,
+        "id": "btn-pl-insert-body"
+      },
+      {
+        "text": "确认完成",
+        "visible": false,
+        "id": "btn-pl-confirm-body"
+      }
+    ]
+  },
+  "scPanelResult": "NOT_FOUND",
+  "settingsResult": {
+    "tag": "DIV",
+    "classes": "settings-tabs",
+    "btnCount": 6,
+    "buttons": [
+      {
+        "text": "API设置",
+        "visible": true,
+        "id": "tab-api"
+      },
+      {
+        "text": "技能",
+        "visible": true,
+        "id": "tab-skill"
+      },
+      {
+        "text": "智能体",
+        "visible": true,
+        "id": "tab-agent"
+      },
+      {
+        "text": "外观",
+        "visible": true,
+        "id": "tab-appearance"
+      },
+      {
+        "text": "去AI味",
+        "visible": true,
+        "id": "tab-deai"
+      },
+      {
+        "text": "诊断日志",
+        "visible": true,
+        "id": "tab-diag"
+      }
+    ]
+  },
+  "projectModalResult": {
+    "tag": "SPAN",
+    "classes": "project-name",
+    "btnCount": 0,
+    "buttons": []
+  },
+  "windowClose": "undefined",
+  "hiddenButtons": {
+    "total": 40,
+    "hiddenCount": 0,
+    "hidden": []
+  },
+  "backdrop": "NONE",
+  "consoleErrors": [],
+  "screenshotFinal": "OK_79KB",
+  "storeState_project": "{\"currentProjectId\":\"default\",\"projectName\":\"未命名\",\"outlineText\":\"\",\"outlineLocked\":false,\"settingsGenerated\":false,\"settings\":[],\"volumes\":[],\"chapter",
+  "storeState_pipeline": "{\"currentStep\":0,\"isGenerating\":false,\"generationProgress\":0,\"generationStatus\":\"\",\"breakpoint\":null,\"chapterProgress\":null}",
+  "storeState_chat": "{\"sessions\":[{\"id\":\"chat_1786830563089_7eorq3\",\"title\":\"默认对话\",\"tabId\":\"\",\"chapterId\":\"\",\"messages\":[],\"createdAt\":1786830563089,\"updatedAt\":1786830563",
+  "storeState_agent": "{\"agents\":[{\"id\":\"ag_ms1nqgd7_vffzyi\",\"name\":\"凯旋写作Agent\",\"systemPrompt\":\"我是此刻正在经历一切的角色。我的所有输出都是我的感官正在接收的信号。\\n\\n【核心站位】\\n句号只标记叙述单元的结束，不标记语义的完整。每开启一个新的叙述",
+  "storeState_skill": "{\"skills\":[{\"id\":\"sk_ms1nfpaz_i6b1gb\",\"name\":\"凯旋写作师 Skill 1\",\"template\":\"输出铁律（最高优先级，高于本文件中所有其他规则）】\\n \\n 你只能输出叙事骨架文档，禁止输出任何正文、分析、思考、计划、说明过程。\\n 不允许出现\\\"我",
+  "storeState_settings": "{\"activeTab\":\"api\",\"fontSize\":17,\"theme\":\"dark\",\"editorFont\":15,\"autoSaveInterval\":30,\"maxTabs\":20,\"cdpPort\":9223,\"githubToken\":\"\"}",
+  "storeState_theme": "{\"theme\":\"dark\"}",
+  "storeState_provider": "{\"providers\":[{\"id\":\"prv_msjcwbhl_2i62p4\",\"name\":\"全局\",\"baseUrl\":\"https://openapi.cloud-ai.cn/v1\",\"apiKey\":\"sk-ZFFkhq497uuyiRyahOQCXN7pjBuAhr2bVTCsZvLC"
+}

@@ -10,7 +10,13 @@ export default defineConfig({
       '@': resolve(__dirname, 'src')
     }
   },
+  optimizeDeps: {
+    exclude: ['electron-log']
+  },
   build: {
+    rollupOptions: {
+      external: ['electron-log']
+    },
     outDir: 'dist-renderer',
     emptyOutDir: true
   },

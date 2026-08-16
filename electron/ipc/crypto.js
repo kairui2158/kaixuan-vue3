@@ -8,7 +8,7 @@ function registerCryptoHandlers() {
         return
       }
       var buf = safeStorage.encryptString(text)
-      event.returnValue = buf.toString('base64')
+      event.returnValue = 'enc:' + buf.toString('base64')
     } catch (e) {
       event.returnValue = text
     }
@@ -16,11 +16,15 @@ function registerCryptoHandlers() {
 
   ipcMain.on('safe:decrypt', function(event, val) {
     try {
-      if (!safeStorage.isEncryptionAvailable()) {
+      if (!val || typeof val !== 'string' || val.indexOf('enc:') !== 0) {
         event.returnValue = val
         return
       }
-      var buf = Buffer.from(val, 'base64')
+      if (!safeStorage.isEncryptionAvailable()) {
+        event.returnValue = val.substring(4)
+        return
+      }
+      var buf = Buffer.from(val.substring(4), 'base64')
       event.returnValue = safeStorage.decryptString(buf)
     } catch (e) {
       event.returnValue = val

@@ -1,0 +1,50 @@
+{
+  "createdAt": "2026-08-13T08:47:53.779Z",
+  "root": "D:/codex/novel-workshop-vue3",
+  "screenshots": "D:\\codex\\novel-workshop-vue3\\_audit\\real-user-artifacts\\screens-2026-08-13T08-47-45-541Z",
+  "results": [
+    {
+      "name": "app-load",
+      "ok": true,
+      "detail": "窗口已加载: (no title)",
+      "at": "2026-08-13T08:47:53.130Z"
+    },
+    {
+      "name": "vue-mounted",
+      "ok": false,
+      "detail": "#app count=0",
+      "at": "2026-08-13T08:47:53.260Z"
+    },
+    {
+      "name": "open-settings",
+      "ok": false,
+      "detail": "未找到设置按钮",
+      "at": "2026-08-13T08:47:53.263Z"
+    },
+    {
+      "name": "chat-send",
+      "ok": false,
+      "detail": "chatInput=0, sendBtn=0",
+      "at": "2026-08-13T08:47:53.268Z"
+    },
+    {
+      "name": "open-pipeline",
+      "ok": false,
+      "detail": "未找到生成/流水线入口按钮",
+      "at": "2026-08-13T08:47:53.270Z"
+    },
+    {
+      "name": "sidebar-buttons",
+      "ok": false,
+      "detail": "sidebar buttons=0",
+      "at": "2026-08-13T08:47:53.272Z"
+    },
+    {
+      "name": "console-errors-snapshot",
+      "ok": true,
+      "detail": "errors=0",
+      "at": "2026-08-13T08:47:53.779Z",
+      "consoleErrors": []
+    }
+  ]
+}

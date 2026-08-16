@@ -1,0 +1,170 @@
+{
+  "consoleErrors": [],
+  "appHtml": "<div id=\"app\" data-v-app=\"\"><div data-v-3abc7399=\"\" class=\"app-container\"><header data-v-3abc7399=\"\" id=\"app-header\" class=\"app-header\"><div data-v-3abc7399=\"\" class=\"header-left\"><span data-v-3abc7399=\"\" class=\"app-title\">小说工坊</span></div><div data-v-3abc7399=\"\" class=\"header-right\"><select data-v-3abc7399=\"\" id=\"agent-select\" class=\"header-selector\" aria-label=\"选择智能体\"><option data-v-3abc7399=\"\" value=\"\">默认</option><option data-v-3abc7399=\"\" value=\"ag_ms1nqgd7_vffzyi\">凯旋写作Agent</option><option ",
+  "sidebarButtons": [
+    {
+      "text": "",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": "btn-clear"
+    },
+    {
+      "text": "",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": "btn-outline-workspace"
+    },
+    {
+      "text": "",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": "btn-settings-collection"
+    },
+    {
+      "text": "",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": "btn-pipeline"
+    },
+    {
+      "text": "",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": "btn-memory"
+    },
+    {
+      "text": "",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": "btn-plugin-market"
+    },
+    {
+      "text": "",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": "btn-settings"
+    },
+    {
+      "text": "",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": "btn-dashboard"
+    },
+    {
+      "text": "",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": "theme-toggle-btn"
+    },
+    {
+      "text": "生成",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": "btn-tree-gen"
+    },
+    {
+      "text": "项目",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": "btn-open-project"
+    },
+    {
+      "text": "×",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": ""
+    },
+    {
+      "text": "加载",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": ""
+    },
+    {
+      "text": "删除",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": ""
+    },
+    {
+      "text": "加载",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": ""
+    },
+    {
+      "text": "删除",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": ""
+    },
+    {
+      "text": "加载",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": ""
+    },
+    {
+      "text": "删除",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": ""
+    },
+    {
+      "text": "+ 新建项目",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": ""
+    },
+    {
+      "text": "",
+      "visible": true,
+      "tag": "BUTTON",
+      "id": "btn-undo"
+    }
+  ],
+  "outlineWorkspace": "NOT_FOUND",
+  "pipelinePanel": "NOT_FOUND",
+  "chapterTree": {
+    "tag": "ASIDE",
+    "classes": "chapter-tree",
+    "html": "<div data-v-64a6b60a=\"\" id=\"current-project-name\" class=\"tree-header\"><span data-v-64a6b60a=\"\" class=\"project-name\">未命名</span><div data-v-64a6b60a=\"\" class=\"tree-header-actions\"><button data-v-64a6b60a=\"\" id=\"btn-tree-gen\" class=\"btn-sm btn-secondary\" title=\"生成流水线\">生成</button><button data-v-64a6b60a"
+  },
+  "editorPanel": {
+    "tag": "SECTION",
+    "classes": "editor-panel",
+    "html": "<div data-v-b203f9a8=\"\" class=\"editor-header\"><!----><span data-v-b203f9a8=\"\" id=\"editor-title\" class=\"editor-title\">选择章节开始写作</span><div data-v-b203f9a8=\"\" class=\"editor-toolbar\"><div data-v-b203f9a8=\"\" class=\"editor-toolbar-group\"><button data-v-b203f9a8=\"\" id=\"btn-undo\" class=\"btn-sm btn-secondary"
+  },
+  "chatPanel": {
+    "tag": "SECTION",
+    "classes": "chat-panel",
+    "buttons": [
+      {
+        "text": "",
+        "visible": true
+      }
+    ]
+  },
+  "allButtons": {
+    "total": 40,
+    "hidden": []
+  },
+  "store_project": "{\"currentProjectId\":\"default\",\"projectName\":\"未命名\",\"outlineText\":\"\",\"outlineLocked\":false,\"settingsGenerated\":false,\"settings\":[],\"volumes\":[],\"chapters\":{},\"projectList\":[{\"id\":\"prj_msbtqnpe_q24wr3\",\"",
+  "store_pipeline": "{\"currentStep\":0,\"isGenerating\":false,\"generationProgress\":0,\"generationStatus\":\"\",\"breakpoint\":null,\"chapterProgress\":null}",
+  "store_chat": "{\"sessions\":[{\"id\":\"chat_1786830563089_7eorq3\",\"title\":\"默认对话\",\"tabId\":\"\",\"chapterId\":\"\",\"messages\":[],\"createdAt\":1786830563089,\"updatedAt\":1786830563089},{\"id\":\"chat_1786830615070_zz0h9e\",\"title\":\"测试",
+  "store_agent": "{\"agents\":[{\"id\":\"ag_ms1nqgd7_vffzyi\",\"name\":\"凯旋写作Agent\",\"systemPrompt\":\"我是此刻正在经历一切的角色。我的所有输出都是我的感官正在接收的信号。\\n\\n【核心站位】\\n句号只标记叙述单元的结束，不标记语义的完整。每开启一个新的叙述单元，第一个动作必须明确主语。段落开头第一句绝不以句号收尾。段落开头不使用第三人称客观陈述句式。我的",
+  "store_skill": "{\"skills\":[{\"id\":\"sk_ms1nfpaz_i6b1gb\",\"name\":\"凯旋写作师 Skill 1\",\"template\":\"输出铁律（最高优先级，高于本文件中所有其他规则）】\\n \\n 你只能输出叙事骨架文档，禁止输出任何正文、分析、思考、计划、说明过程。\\n 不允许出现\\\"我需要\\\"\\\"首先\\\"\\\"让我\\\"\\\"接下来\\\"\\\"现在\\\"\\\"根据\\\"等分析引导词。\\n 你的第一个",
+  "store_settings": "{\"activeTab\":\"api\",\"fontSize\":17,\"theme\":\"dark\",\"editorFont\":15,\"autoSaveInterval\":30,\"maxTabs\":20,\"cdpPort\":9223,\"githubToken\":\"\"}",
+  "store_theme": "{\"theme\":\"dark\"}",
+  "store_provider": "{\"providers\":[{\"id\":\"prv_msjcwbhl_2i62p4\",\"name\":\"全局\",\"baseUrl\":\"https://openapi.cloud-ai.cn/v1\",\"apiKey\":\"sk-ZFFkhq497uuyiRyahOQCXN7pjBuAhr2bVTCsZvLCNLhRfPdi\",\"models\":[\"deepseek-v4-flash\",\"deepseek-",
+  "windowCloseType": "undefined",
+  "screenshot": "FAILED",
+  "bodyFontSize": "14px",
+  "modalBackdrop": "FOUND",
+  "projectButton": {
+    "text": "项目",
+    "visible": true,
+    "id": "btn-open-project"
+  },
+  "pipelineButtons": "NO_PIPELINE"
+}

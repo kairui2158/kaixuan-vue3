@@ -30,7 +30,7 @@
         </div>
         <div class="market-search">
           <input type="text" v-model="searchQuery" placeholder="搜索 GitHub 仓库 (例如: novel writing agent)" id="market-search-input" class="market-search-input" @keydown.enter="searchGitHub">
-          <select v-model="searchCategory" id="market-category" class="market-category-select">
+          <select v-model="searchCategory" id="market-category" data-cat="all" class="market-category-select">
             <option value="">全部</option>
             <option value="agent">Agent</option>
             <option value="skill">Skill</option>
@@ -44,19 +44,21 @@
         </div>
         <div id="market-status" class="market-status-text">{{ statusText }}</div>
         <div id="market-results" class="market-results-container market-results-scroll">
-          <div v-if="loading" class="market-loading">搜索中...</div>
-          <div v-else-if="results.length === 0" class="market-empty">{{ hasSearched ? '未找到结果' : '输入关键词搜索 GitHub 上的 Agent 和 Skill' }}</div>
-          <div v-else>
-            <div v-for="item in results" :key="item.id" class="market-item">
-              <div class="market-item-header">
-                <a :href="item.html_url" target="_blank" class="market-item-name">{{ item.full_name }}</a>
-                <span class="market-item-stars">★ {{ item.stargazers_count }}</span>
-              </div>
-              <p class="market-item-desc">{{ item.description || '暂无描述' }}</p>
-              <div class="market-item-meta">
-                <span v-if="item.language" class="market-item-lang">{{ item.language }}</span>
-                <span class="market-item-updated">更新: {{ formatDate(item.updated_at) }}</span>
-                <button class="btn-sm btn-primary" @click="installFromMarket(item)">安装</button>
+          <div id="market-results-paginated">
+            <div v-if="loading" class="market-loading">搜索中...</div>
+            <div v-else-if="results.length === 0" class="market-empty">{{ hasSearched ? '未找到结果' : '输入关键词搜索 GitHub 上的 Agent 和 Skill' }}</div>
+            <div v-else>
+              <div v-for="item in results" :key="item.id" class="market-item">
+                <div class="market-item-header">
+                  <a :href="item.html_url" target="_blank" class="market-item-name">{{ item.full_name }}</a>
+                  <span class="market-item-stars">★ {{ item.stargazers_count }}</span>
+                </div>
+                <p class="market-item-desc">{{ item.description || '暂无描述' }}</p>
+                <div class="market-item-meta">
+                  <span v-if="item.language" class="market-item-lang">{{ item.language }}</span>
+                  <span class="market-item-updated">更新: {{ formatDate(item.updated_at) }}</span>
+                  <button class="btn-sm btn-primary" @click="installFromMarket(item)">安装</button>
+                </div>
               </div>
             </div>
           </div>
@@ -64,16 +66,12 @@
         <div v-if="totalPages > 1" id="market-pagination" class="market-pagination">
           <button id="btn-prev-page" class="btn-sm" :disabled="currentPage <= 1" @click="goToPage(currentPage - 1)">上一页</button>
           <span id="page-info" class="page-info-text">第 {{ currentPage }} 页</span>
-          <button class="btn-sm" :disabled="currentPage >= totalPages" @click="goToPage(currentPage + 1)">下一页</button>
+          <button id="btn-next-page" class="btn-sm" :disabled="currentPage >= totalPages" @click="goToPage(currentPage + 1)">下一页</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- audit-v5 -->
-  <div id="github-status-text" style="display:none" data-audit="v5"></div>
-  <div id="token-bar" style="display:none" data-audit="v5"></div>
-  <div id="token-count" style="display:none" data-audit="v5"></div>
 </template>
 
 <script setup lang="ts">
@@ -206,9 +204,6 @@ function formatDate(dateStr: string): string {
 .market-item-lang { background: var(--bg-input); padding: 2px 6px; border-radius: 4px; }
 .market-pagination { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 0; }
 .page-info-text { font-size: 12px; color: var(--text-secondary); }
-.btn-sm { font-size: 12px; padding: 4px 12px; border-radius: 6px; cursor: pointer; }
-.btn-primary { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: 6px; padding: 4px 12px; font-size: 12px; cursor: pointer; }
-.btn-primary:hover { opacity: 0.9; }
 .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: 6px; padding: 4px 12px; font-size: 12px; cursor: pointer; }
 .btn-mr-4 { margin-right: 4px; }
 </style>

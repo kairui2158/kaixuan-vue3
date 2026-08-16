@@ -1,0 +1,1133 @@
+{
+  "funcs": [
+    "constructor",
+    "catch",
+    "loadSettings",
+    "if",
+    "saveSettings",
+    "isConfigured",
+    "getConfigError",
+    "init",
+    "addEventListener",
+    "forEach",
+    "sort",
+    "find",
+    "for",
+    "onFinalSave",
+    "onCloseRequest",
+    "bindEvents",
+    "setTimeout",
+    "saveRename",
+    "onKey",
+    "filter",
+    "hotkeys",
+    "_syncDeAiConfigFromDOM",
+    "deAiProcess",
+    "_aiRequest",
+    "function",
+    "_showDeAiProgress",
+    "_updateDeAiProgress",
+    "_hideDeAiProgress",
+    "_splitText",
+    "while",
+    "log",
+    "_deAiMultiStep",
+    "map",
+    "phaseActive",
+    "phaseDone",
+    "updateProg",
+    "callStep",
+    "callStepWithTemp",
+    "parallelMap",
+    "worker",
+    "validateEventCores",
+    "validatePerspective",
+    "extractFirstSubject",
+    "_deAiSplitMerge",
+    "processSegment",
+    "Promise",
+    "then",
+    "schedule",
+    "_mergeSegments",
+    "renderDeAiSettings",
+    "_selectDeAiMode",
+    "_updateVerifyProviderStatus",
+    "_renderDeAiSkillList",
+    "_renderDeAiHardRules",
+    "_addDeAiSkill",
+    "_saveDeAiConfig",
+    "_getDeAiTemperature",
+    "_updateFlowPreview",
+    "fillSettingsForm",
+    "renderProfileList",
+    "onclick",
+    "enterProviderEdit",
+    "exitProviderEdit",
+    "renderProviderModelList",
+    "activateProviderModel",
+    "updateUIState",
+    "_updateCursorPos",
+    "toggleSettings",
+    "toggleApiKeyVisibility",
+    "saveSettingsFromForm",
+    "fetchModelList",
+    "testConnection",
+    "sendMessage",
+    "_looksLikeJSON",
+    "_applyTextFilter",
+    "apiGenerate",
+    "_checkInlineMenu",
+    "_hideInlineMenu",
+    "_applyInlineAction",
+    "streamChat",
+    "_updateTokenCount",
+    "_estimateTokens",
+    "buildMessages",
+    "addMessage",
+    "scrollToBottom",
+    "requestAnimationFrame",
+    "_getWordCount",
+    "_initPanelResizers",
+    "initResizer",
+    "onMove",
+    "onUp",
+    "clearChat",
+    "_updateBreadcrumb",
+    "autoResizeInput",
+    "setStreaming",
+    "_getSelectedModel",
+    "_getAgentTemperature",
+    "_getAgentMaxTokens",
+    "_autoSelectAgentModel",
+    "populateAgentSelect",
+    "populateModelSelect",
+    "switchTab",
+    "renderDiagPanel",
+    "onchange",
+    "_fillAppearanceForm",
+    "_applyAppearance",
+    "_saveAppearance",
+    "renderSkillList",
+    "showSkillForm",
+    "_initSkillTemplatePreview",
+    "renderPreview",
+    "hideSkillForm",
+    "toggleBindTarget",
+    "renderLinkedSkillList",
+    "saveSkill",
+    "deleteSkill",
+    "testSkill",
+    "_runSkillTest",
+    "pump",
+    "finally",
+    "renderAgentList",
+    "showAgentForm",
+    "hideAgentForm",
+    "saveAgent",
+    "deleteAgent",
+    "openProjectModal",
+    "closeProjectModal",
+    "openProject",
+    "deleteProject",
+    "showNewProjectForm",
+    "createProject",
+    "renderChapterTree",
+    "toggleVolume",
+    "openVolumeOutline",
+    "openChapterPlot",
+    "saveEditorContent",
+    "_updateEditorModeBadge",
+    "_updateToolbarVisibility",
+    "_updateChatContextBar",
+    "openChapter",
+    "deleteChapterFromTree",
+    "showVolumeForm",
+    "saveVolume",
+    "addChapter",
+    "updateWordCount",
+    "getSaveStatusInfo",
+    "autoSave",
+    "_startAutoSaveTimer",
+    "setInterval",
+    "_stopAutoSaveTimer",
+    "renderSkillArea",
+    "renderAgentInfo",
+    "_getBoundSettingsForContext",
+    "generateContent",
+    "exportChapter",
+    "_buildEpub",
+    "_escHtml",
+    "_waitIfPaused",
+    "_showDiffView",
+    "_closeDiffView",
+    "_aiInlineAction",
+    "_pushUndoState",
+    "_undo",
+    "_redo",
+    "_confirm",
+    "_repairJson",
+    "replace",
+    "_toast",
+    "_showLoading",
+    "_hideLoading",
+    "_setBtnLoading",
+    "_openFindBar",
+    "_closeFindBar",
+    "_doFind",
+    "_findNext",
+    "_findPrev",
+    "_selectMatch",
+    "_replaceOne",
+    "_replaceAll",
+    "_clearHighlights",
+    "_copyMessage",
+    "_regenerateMessage",
+    "_applyToEditor",
+    "_lcsDiff",
+    "_renderDiff",
+    "_acceptDiffLine",
+    "_rejectDiffLine",
+    "_buildDiffResult",
+    "_applyDiffResult",
+    "_closeDiff",
+    "populateAgentProviderSelect",
+    "openAgentTest",
+    "runAgentTest",
+    "searchGitHub",
+    "_installFromMarket",
+    "_goToPage",
+    "_buildSkillContext",
+    "_renderSkillTemplate",
+    "_callAiApi",
+    "decomposeOutline",
+    "extractForeshadowing",
+    "generateNames",
+    "generateWritingRules",
+    "extractTimeline",
+    "_renderTimelineCanvas",
+    "_toggleTheme",
+    "_loadTheme",
+    "showWritingDashboard",
+    "apply",
+    "showChapterOverview",
+    "_cleanupPanel",
+    "batchReviewChapters",
+    "_showBatchReviewResults",
+    "reviseChapter",
+    "showPromptModal",
+    "close",
+    "showToast",
+    "_initTooltips",
+    "_safeRender",
+    "showPluginMarket"
+  ],
+  "events": [
+    {
+      "event": "keydown",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "keydown",
+      "handler": "function"
+    },
+    {
+      "event": "input",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "input",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "keydown",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "contextmenu",
+      "handler": "function"
+    },
+    {
+      "event": "dblclick",
+      "handler": "function"
+    },
+    {
+      "event": "blur",
+      "handler": "saveRename"
+    },
+    {
+      "event": "keydown",
+      "handler": "onKey"
+    },
+    {
+      "event": "dragstart",
+      "handler": "function"
+    },
+    {
+      "event": "dragover",
+      "handler": "function"
+    },
+    {
+      "event": "dragleave",
+      "handler": "function"
+    },
+    {
+      "event": "drop",
+      "handler": "function"
+    },
+    {
+      "event": "dragend",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "input",
+      "handler": "function"
+    },
+    {
+      "event": "mouseup",
+      "handler": "function"
+    },
+    {
+      "event": "keyup",
+      "handler": "function"
+    },
+    {
+      "event": "mousedown",
+      "handler": "function"
+    },
+    {
+      "event": "change",
+      "handler": "function"
+    },
+    {
+      "event": "change",
+      "handler": "function"
+    },
+    {
+      "event": "change",
+      "handler": "function"
+    },
+    {
+      "event": "change",
+      "handler": "function"
+    },
+    {
+      "event": "change",
+      "handler": "function"
+    },
+    {
+      "event": "change",
+      "handler": "function"
+    },
+    {
+      "event": "change",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "keyup",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "input",
+      "handler": "function"
+    },
+    {
+      "event": "input",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "change",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "input",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "change",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "change",
+      "handler": "function"
+    },
+    {
+      "event": "change",
+      "handler": "function"
+    },
+    {
+      "event": "change",
+      "handler": "function"
+    },
+    {
+      "event": "change",
+      "handler": "function"
+    },
+    {
+      "event": "change",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "change",
+      "handler": "function"
+    },
+    {
+      "event": "mousedown",
+      "handler": "function"
+    },
+    {
+      "event": "mousemove",
+      "handler": "onMove"
+    },
+    {
+      "event": "mouseup",
+      "handler": "onUp"
+    },
+    {
+      "event": "input",
+      "handler": "renderPreview"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "input",
+      "handler": "function"
+    },
+    {
+      "event": "keydown",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "click",
+      "handler": "function"
+    },
+    {
+      "event": "keydown",
+      "handler": "function"
+    },
+    {
+      "event": "DOMContentLoaded",
+      "handler": "function"
+    },
+    {
+      "event": "mouseover",
+      "handler": "function"
+    },
+    {
+      "event": "mouseout",
+      "handler": "function"
+    },
+    {
+      "event": "beforeunload",
+      "handler": "function"
+    }
+  ],
+  "ipcCalls": [],
+  "geidCalls": [
+    "current-project-name",
+    "exit-confirm-modal",
+    "btn-exit-save",
+    "btn-exit-direct",
+    "btn-exit-cancel",
+    "messages-list",
+    "btn-send",
+    "user-input",
+    "char-count",
+    "btn-settings",
+    "btn-close-settings",
+    "btn-dashboard",
+    "btn-toggle-key",
+    "btn-provider-back",
+    "cfg-temperature",
+    "cfg-temperature-val",
+    "btn-test-connection",
+    "btn-save-settings",
+    "btn-export-data",
+    "btn-import-data",
+    "btn-clear",
+    "btn-outline-workspace",
+    "btn-settings-collection",
+    "btn-close-sc",
+    "btn-pipeline",
+    "btn-close-pl",
+    "btn-memory",
+    "btn-close-mem",
+    "btn-plugin-market",
+    "btn-close-market",
+    "btn-market-search",
+    "market-search-input",
+    "btn-set-token",
+    "btn-token-help",
+    "btn-save-token",
+    "btn-prev-page",
+    "btn-next-page",
+    "btn-open-project",
+    "btn-close-diff",
+    "btn-diff-apply",
+    "btn-diff-cancel",
+    "btn-diff-accept-all",
+    "btn-diff-reject-all",
+    "btn-diff-next",
+    "btn-diff-prev",
+    "project-modal",
+    "project-list",
+    "btn-new-project",
+    "btn-create-project",
+    "new-project-modal",
+    "btn-tree-gen",
+    "tree-body",
+    "skill-bind-modal",
+    "btn-save-skill-binding",
+    "ctx-menu",
+    "volume-modal",
+    "btn-save-volume",
+    "editor-content",
+    "inline-menu",
+    "agent-select",
+    "agent-select-chat",
+    "model-select-chat",
+    "model-select",
+    "cfg-font-size",
+    "cfg-font-size-val",
+    "cfg-editor-font-size",
+    "cfg-editor-font-size-val",
+    "btn-save-appearance",
+    "btn-add-skill",
+    "btn-cancel-skill",
+    "btn-save-skill",
+    "sf-bind-type",
+    "skill-list",
+    "btn-add-agent",
+    "btn-cancel-agent",
+    "btn-save-agent",
+    "af-temperature",
+    "af-temp-val",
+    "agent-list",
+    "find-replace-bar",
+    "sc-bind-modal",
+    "btn-fetch-models",
+    "btn-undo",
+    "btn-redo",
+    "btn-generate-content",
+    "btn-save-editor",
+    "btn-export",
+    "export-dropdown",
+    "btn-ai-names",
+    "btn-writing-rules",
+    "btn-timeline",
+    "btn-batch-review",
+    "btn-revise",
+    "btn-de-ai",
+    "btn-deai-add-skill",
+    "btn-save-deai",
+    "theme-toggle-btn",
+    "deai-mode-select",
+    "deai-hardrule-enabled",
+    "deai-text-type",
+    "btn-deai-cancel",
+    "deai-progress-step",
+    "deai-progress-modal",
+    "deai-progress-fill",
+    "deai-progress-percent",
+    "deai-step-list",
+    "deai-step-",
+    "deai-skill-select",
+    "btn-deai-add-skill-ms",
+    "deai-skill-select-ms",
+    "deai-verify-provider-status",
+    "deai-verify-provider-name",
+    "deai-verify-provider-hint",
+    "deai-skills-list",
+    "deai-skills-list-ms",
+    "deai-hardrules-list",
+    "deai-agent-select",
+    "deai-split-size",
+    "deai-flow-preview",
+    "provider-list-view",
+    "provider-edit-view",
+    "cfg-base-url",
+    "cfg-api-key",
+    "cfg-stream-mode",
+    "cfg-system-prompt",
+    "cfg-max-tokens",
+    "provider-card-list",
+    "provider-edit-title",
+    "cfg-provider-name",
+    "cfg-provider-purpose",
+    "provider-conn-status",
+    "provider-model-list",
+    "status-connection",
+    "status-model",
+    "status-words",
+    "config-status",
+    "status-cursor",
+    "settings-modal",
+    "plugin-market-modal",
+    "model-datalist",
+    "token-bar",
+    "token-count",
+    "messages-container",
+    "breadcrumb-bar",
+    "outline-workspace",
+    "settings-collection-panel",
+    "pipeline-panel",
+    "memory-panel",
+    "tab-",
+    "diag-stats",
+    "diag-enabled",
+    "diag-level",
+    "btn-diag-refresh",
+    "btn-diag-export",
+    "btn-diag-clear",
+    "diag-log-list",
+    "cfg-theme",
+    "skill-form",
+    "skill-form-title",
+    "sf-name",
+    "sf-desc",
+    "sf-category",
+    "sf-inject-mode",
+    "sf-frequency",
+    "sf-depth",
+    "sf-template",
+    "sf-bind-id",
+    "sf-template-preview",
+    "sf-bind-id-group",
+    "sf-linked-list",
+    "skill-test-modal",
+    "stm-close",
+    "btn-stm-run",
+    "stm-title",
+    "stm-input",
+    "stm-result",
+    "agent-form",
+    "agent-form-title",
+    "af-name",
+    "af-desc",
+    "af-prompt",
+    "af-provider",
+    "af-model",
+    "af-max-tokens",
+    "editor-title",
+    "npm-name",
+    "npm-outline",
+    "editor-mode-badge",
+    "chat-context-bar",
+    "vm-title",
+    "vm-name",
+    "vm-outline",
+    "vm-chapter-count",
+    "vm-chapter-count-group",
+    "word-count",
+    "skill-list-active",
+    "agent-info-bar",
+    "diff-modal",
+    "diff-original",
+    "diff-modified",
+    "diff-count",
+    "dom-toast",
+    "loading-indicator",
+    "loading-text",
+    "find-input",
+    "replace-input",
+    "find-count",
+    "btn-find-next",
+    "btn-find-prev",
+    "btn-replace-one",
+    "btn-replace-all",
+    "btn-find-close",
+    "agent-test-modal",
+    "atm-close",
+    "atm-title",
+    "atm-input",
+    "atm-result",
+    "btn-atm-run",
+    "market-category",
+    "market-status",
+    "market-results",
+    "market-sort",
+    "market-pagination",
+    "page-info",
+    "outline-editor",
+    "timeline-modal",
+    "dashboard-modal",
+    "chapter-overview-panel",
+    "chapter-overview-summary",
+    "btn-close-batch-review",
+    "toast-container",
+    "tooltip"
+  ],
+  "qsCalls": [
+    "#exit-confirm-modal .exit-close",
+    "#settings-modal .modal-backdrop",
+    "#plugin-market-modal .modal-backdrop",
+    ".diff-line[data-idx=",
+    "#diff-modal .modal-backdrop",
+    ".modal-backdrop",
+    ".pm-close",
+    ".npm-close",
+    "span:not(.tree-actions)",
+    "[draggable=true]",
+    ".sbm-close",
+    ".vm-close",
+    ".modal-tab",
+    "input[name=",
+    ".deai-step-status",
+    ".deai-mode-card",
+    ".deai-mode-card-body",
+    ".deai-verify-icon",
+    ".deai-skill-remove",
+    ".provider-card-edit",
+    ".provider-model-enable",
+    ".input-hint",
+    ".message-content",
+    "#pl-text-filter-toggle",
+    ".inline-menu-btn",
+    ".msg-actions",
+    "#messages-list #chat-empty-state",
+    "#messages-list .empty-state",
+    "#messages-list .chat-empty",
+    ".modal-tab[data-tab=",
+    ".tab-content",
+    "script",
+    ".var-tags",
+    "#sf-linked-list input:checked",
+    ".editor-toolbar-sep",
+    "[data-act=",
+    ".chapter-overview-close",
+    ".spinner",
+    ".progress-bar",
+    "input, textarea"
+  ],
+  "localStorageKeys": [],
+  "jsLength": 282427
+}

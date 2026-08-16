@@ -1,5 +1,6 @@
  import { defineStore } from 'pinia'
  import { ref } from 'vue'
+import { storageKey } from '../utils/storage-key'
  
  /**
   * 主题管理 — 从旧架构_toggleTheme迁移
@@ -9,7 +10,7 @@
    const theme = ref<'dark' | 'light'>('dark')
  
    function init() {
-     const saved = localStorage.getItem('wa-theme') as 'dark' | 'light' | null
+     const saved = window.electronAPI ? window.electronAPI.storageRead(storageKey('app-theme')) : localStorage.getItem('wa-theme') as 'dark' | 'light' | null
      if (saved) theme.value = saved
      applyTheme()
    }
@@ -24,13 +25,13 @@
  
    function toggle() {
      theme.value = theme.value === 'dark' ? 'light' : 'dark'
-     localStorage.setItem('wa-theme', theme.value)
+     if (window.electronAPI) { window.electronAPI.storageWrite(storageKey('app-theme'), theme.value) } else { localStorage.setItem('wa-theme', theme.value) }
      applyTheme()
    }
  
    function setTheme(t: 'dark' | 'light') {
      theme.value = t
-     localStorage.setItem('wa-theme', t)
+     if (window.electronAPI) { window.electronAPI.storageWrite(storageKey('app-theme'), t) } else { localStorage.setItem('wa-theme', t) }
      applyTheme()
    }
  

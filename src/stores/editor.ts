@@ -7,17 +7,20 @@ export interface EditorTab {
   content: string
   chapterId: string
   isDirty: boolean
+  mode?: 'ch-body' | 'vol-outline' | 'ch-plot'
 }
 
 export const useEditorStore = defineStore('editor', () => {
   const tabs = ref<EditorTab[]>([])
   const activeTabId = ref<string | null>(null)
   const autoSaveTimer = ref<number | null>(null)
-  const findVisible = ref(false)
-  const findQuery = ref('')
-  const replaceQuery = ref('')
+ const findVisible = ref(false)
+ const findQuery = ref('')
+ const replaceQuery = ref('')
+  const tabUndoStacks = ref<Record<string, string[]>>({})
+  const tabRedoStacks = ref<Record<string, string[]>>({})
 
-  const MAX_TABS = 20
+ const MAX_TABS = 20
   const activeTab = computed(() => tabs.value.find(t => t.id === activeTabId.value) || null)
   const tabCount = computed(() => tabs.value.length)
 
@@ -70,14 +73,52 @@ export const useEditorStore = defineStore('editor', () => {
     }
   }
 
-  function toggleFind() {
-    findVisible.value = !findVisible.value
+ function toggleFind() {
+   findVisible.value = !findVisible.value
+ }
+
+  function pushUndoState(tabId: string, content: string) {
+    if (!tabUndoStacks.value[tabId]) tabUndoStacks.value[tabId] = []
+    const stack = tabUndoStacks.value[tabId]
+    if (stack.length === 0 || stack[stack.length - 1] !== content) {
+      stack.push(content)
+      if (stack.length > 50) stack.shift()
+    }
+    tabRedoStacks.value[tabId] = []
   }
 
-  return {
-    tabs, activeTabId, findVisible, findQuery, replaceQuery,
-    activeTab, tabCount,
-    openTab, closeTab, updateContent, markSaved,
-    setAutoSaveTimer, clearAutoSaveTimer, toggleFind
+  function undoTab(tabId: string): string | null {
+    const undoStack = tabUndoStacks.value[tabId]
+    if (!undoStack || undoStack.length === 0) return null
+    const content = undoStack.pop()!
+    if (!tabRedoStacks.value[tabId]) tabRedoStacks.value[tabId] = []
+    tabRedoStacks.value[tabId].push(content)
+    return content
   }
+
+  function redoTab(tabId: string): string | null {
+    const redoStack = tabRedoStacks.value[tabId]
+    if (!redoStack || redoStack.length === 0) return null
+    const content = redoStack.pop()!
+    if (!tabUndoStacks.value[tabId]) tabUndoStacks.value[tabId] = []
+    tabUndoStacks.value[tabId].push(content)
+    return content
+  }
+
+  function canUndoTab(tabId: string): boolean {
+    return !!tabUndoStacks.value[tabId] && tabUndoStacks.value[tabId].length > 0
+  }
+
+  function canRedoTab(tabId: string): boolean {
+    return !!tabRedoStacks.value[tabId] && tabRedoStacks.value[tabId].length > 0
+  }
+
+ return {
+   tabs, activeTabId, findVisible, findQuery, replaceQuery,
+   activeTab, tabCount,
+   openTab, closeTab, updateContent, markSaved,
+    setAutoSaveTimer, clearAutoSaveTimer, toggleFind,
+    tabUndoStacks, tabRedoStacks,
+    pushUndoState, undoTab, redoTab, canUndoTab, canRedoTab
+ }
 })

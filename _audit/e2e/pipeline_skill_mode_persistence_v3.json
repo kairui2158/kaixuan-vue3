@@ -1,0 +1,9 @@
+{
+  "before": {},
+  "after": {
+    "s1": "compose",
+    "s5": "compose"
+  },
+  "persistencePassed": true,
+  "capturedAt": "2026-08-16T02:16:46.317Z"
+}

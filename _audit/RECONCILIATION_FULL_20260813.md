@@ -1,0 +1,382 @@
+# 旧架构（写作助手2.7.63） vs 神意（Vue3）功能对账清单
+
+生成时间: 2026-08-12T21:43:21.897Z
+
+旧架构源码: C:\Users\凯瑞\Documents\New project 2
+神意源码:   D:\codex\novel-workshop-vue3
+
+## 1. 设置 Tab 对比
+
+| 旧架构 Tab | 神意实现 | 状态 |
+|---|---|---|
+| tab-agents | 缺失 | [MISSING] |
+| tab-api | 有 | [OK] |
+| tab-appearance | 缺失 | [MISSING] |
+| tab-deai | 缺失 | [MISSING] |
+| tab-diag | 缺失 | [MISSING] |
+| tab-skills | 缺失 | [MISSING] |
+
+## 2. 功能按钮对比
+
+| 旧架构按钮 | 神意实现 | 状态 |
+|---|---|---|
+| btn-add-agent | 有 | [OK] |
+| btn-add-category | 有 | [OK] |
+| btn-add-item | 有 | [OK] |
+| btn-add-mem | 有 | [OK] |
+| btn-add-mem-cat | 有 | [OK] |
+| btn-add-skill | 有 | [OK] |
+| btn-ai-co-create | 缺失 | [MISSING] |
+| btn-ai-gen-item | 有 | [OK] |
+| btn-ai-names | 缺失 | [MISSING] |
+| btn-batch-review | 缺失 | [MISSING] |
+| btn-cancel-agent | 有 | [OK] |
+| btn-cancel-skill | 有 | [OK] |
+| btn-clear | 有 | [OK] |
+| btn-close-diff | 有 | [OK] |
+| btn-close-market | 有 | [OK] |
+| btn-close-mem | 有 | [OK] |
+| btn-close-outline-workspace | 有 | [OK] |
+| btn-close-pl | 有 | [OK] |
+| btn-close-sc | 有 | [OK] |
+| btn-close-sc-detail | 缺失 | [MISSING] |
+| btn-close-settings | 有 | [OK] |
+| btn-create-project | 缺失 | [MISSING] |
+| btn-dashboard | 缺失 | [MISSING] |
+| btn-de-ai | 有 | [OK] |
+| btn-deai-add-skill | 有 | [OK] |
+| btn-deai-add-skill-ms | 缺失 | [MISSING] |
+| btn-deai-cancel | 有 | [OK] |
+| btn-diag-clear | 缺失 | [MISSING] |
+| btn-diag-export | 缺失 | [MISSING] |
+| btn-diag-refresh | 缺失 | [MISSING] |
+| btn-diff-accept-all | 有 | [OK] |
+| btn-diff-apply | 有 | [OK] |
+| btn-diff-cancel | 有 | [OK] |
+| btn-diff-next | 有 | [OK] |
+| btn-diff-prev | 有 | [OK] |
+| btn-diff-reject-all | 有 | [OK] |
+| btn-exit-cancel | 有 | [OK] |
+| btn-exit-direct | 有 | [OK] |
+| btn-exit-save | 有 | [OK] |
+| btn-export | 有 | [OK] |
+| btn-export-data | 缺失 | [MISSING] |
+| btn-export-outline-md | 有 | [OK] |
+| btn-export-outline-txt | 有 | [OK] |
+| btn-fetch-models | 有 | [OK] |
+| btn-find-close | 有 | [OK] |
+| btn-find-next | 有 | [OK] |
+| btn-find-prev | 有 | [OK] |
+| btn-generate-content | 缺失 | [MISSING] |
+| btn-generate-outline-skills | 有 | [OK] |
+| btn-import-data | 缺失 | [MISSING] |
+| btn-import-outline | 有 | [OK] |
+| btn-lock-outline | 有 | [OK] |
+| btn-market-search | 有 | [OK] |
+| btn-memory | 有 | [OK] |
+| btn-new-project | 缺失 | [MISSING] |
+| btn-next-page | 缺失 | [MISSING] |
+| btn-open-project | 缺失 | [MISSING] |
+| btn-outline-workspace | 缺失 | [MISSING] |
+| btn-ow-send | 有 | [OK] |
+| btn-pipeline | 有 | [OK] |
+| btn-pl-autogen-chapters | 有 | [OK] |
+| btn-pl-autogen-volumes | 有 | [OK] |
+| btn-pl-confirm-body | 有 | [OK] |
+| btn-pl-confirm-chapters | 有 | [OK] |
+| btn-pl-confirm-outline | 有 | [OK] |
+| btn-pl-confirm-settings | 有 | [OK] |
+| btn-pl-continue-volumes | 有 | [OK] |
+| btn-pl-create-volumes | 有 | [OK] |
+| btn-pl-gen-body | 有 | [OK] |
+| btn-pl-gen-chapters | 有 | [OK] |
+| btn-pl-gen-settings | 有 | [OK] |
+| btn-pl-gen-single-volume | 有 | [OK] |
+| btn-pl-gen-volumes | 有 | [OK] |
+| btn-pl-insert-body | 有 | [OK] |
+| btn-pl-load-outline | 有 | [OK] |
+| btn-pl-save-settings | 有 | [OK] |
+| btn-plugin-market | 缺失 | [MISSING] |
+| btn-prev-page | 有 | [OK] |
+| btn-provider-back | 有 | [OK] |
+| btn-redo | 缺失 | [MISSING] |
+| btn-replace-all | 有 | [OK] |
+| btn-replace-one | 有 | [OK] |
+| btn-revise | 缺失 | [MISSING] |
+| btn-save-agent | 有 | [OK] |
+| btn-save-appearance | 有 | [OK] |
+| btn-save-bind | 缺失 | [MISSING] |
+| btn-save-deai | 有 | [OK] |
+| btn-save-editor | 缺失 | [MISSING] |
+| btn-save-settings | 有 | [OK] |
+| btn-save-skill | 有 | [OK] |
+| btn-save-skill-binding | 有 | [OK] |
+| btn-save-token | 有 | [OK] |
+| btn-save-volume | 缺失 | [MISSING] |
+| btn-send | 有 | [OK] |
+| btn-set-token | 有 | [OK] |
+| btn-settings | 缺失 | [MISSING] |
+| btn-settings-collection | 缺失 | [MISSING] |
+| btn-test-connection | 有 | [OK] |
+| btn-timeline | 缺失 | [MISSING] |
+| btn-toggle-key | 有 | [OK] |
+| btn-token-help | 有 | [OK] |
+| btn-tree-gen | 缺失 | [MISSING] |
+| btn-undo | 缺失 | [MISSING] |
+| btn-writing-rules | 缺失 | [MISSING] |
+
+## 3. 弹窗/Modal 对比
+
+| 旧架构 Modal | 神意实现 | 状态 |
+|---|---|---|
+| deai-progress-modal | 有 | [OK] |
+| diff-modal | 有 | [OK] |
+| exit-confirm-modal | 有 | [OK] |
+| new-project-modal | 有 | [OK] |
+| plugin-market-modal | 有 | [OK] |
+| project-modal | 有 | [OK] |
+| sc-bind-modal | 有 | [OK] |
+| settings-modal | 有 | [OK] |
+| skill-bind-modal | 有 | [OK] |
+| volume-modal | 缺失 | [MISSING] |
+
+## 4. 面板对比
+
+| 旧架构 Panel | 神意实现 | 状态 |
+|---|---|---|
+| chat-panel | 有 | [OK] |
+| editor-panel | 有 | [OK] |
+| memory-panel | 有 | [OK] |
+| pipeline-panel | 有 | [OK] |
+| settings-collection-panel | 有 | [OK] |
+
+## 5. 核心功能元素对比
+
+| 旧架构 ID | 神意实现 | 状态 |
+|---|---|---|
+| af-desc | 有 | [OK] |
+| af-max-tokens | 有 | [OK] |
+| af-model | 有 | [OK] |
+| af-name | 有 | [OK] |
+| af-prompt | 有 | [OK] |
+| af-provider | 有 | [OK] |
+| af-temp-val | 有 | [OK] |
+| af-temperature | 有 | [OK] |
+| agent-form | 有 | [OK] |
+| agent-form-title | 有 | [OK] |
+| agent-info-bar | 有 | [OK] |
+| agent-info-model | 有 | [OK] |
+| agent-info-name | 有 | [OK] |
+| agent-list | 有 | [OK] |
+| agent-select | 有 | [OK] |
+| agent-select-chat | 有 | [OK] |
+| breadcrumb-bar | 有 | [OK] |
+| cfg-api-key | 有 | [OK] |
+| cfg-base-url | 有 | [OK] |
+| cfg-editor-font-size | 有 | [OK] |
+| cfg-editor-font-size-val | 缺失 | [MISSING] |
+| cfg-font-size | 缺失 | [MISSING] |
+| cfg-font-size-val | 缺失 | [MISSING] |
+| cfg-max-tokens | 有 | [OK] |
+| cfg-provider-name | 有 | [OK] |
+| cfg-provider-purpose | 有 | [OK] |
+| cfg-stream-mode | 缺失 | [MISSING] |
+| cfg-system-prompt | 有 | [OK] |
+| cfg-temperature | 有 | [OK] |
+| cfg-temperature-val | 有 | [OK] |
+| cfg-theme | 有 | [OK] |
+| chapter-tree | 有 | [OK] |
+| char-count | 有 | [OK] |
+| chat-context-bar | 有 | [OK] |
+| chat-empty-state | 有 | [OK] |
+| config-status | 缺失 | [MISSING] |
+| ctx-menu | 有 | [OK] |
+| current-project-name | 有 | [OK] |
+| deai-agent-select | 有 | [OK] |
+| deai-agent-select-ms | 缺失 | [MISSING] |
+| deai-agent-select-sm | 有 | [OK] |
+| deai-card-chain | 缺失 | [MISSING] |
+| deai-card-multi-step | 缺失 | [MISSING] |
+| deai-card-split-merge | 缺失 | [MISSING] |
+| deai-flow-preview | 有 | [OK] |
+| deai-hardrule-enabled | 有 | [OK] |
+| deai-hardrules-list | 有 | [OK] |
+| deai-mode-select | 缺失 | [MISSING] |
+| deai-progress-fill | 有 | [OK] |
+| deai-progress-percent | 缺失 | [MISSING] |
+| deai-progress-step | 有 | [OK] |
+| deai-skill-select | 缺失 | [MISSING] |
+| deai-skill-select-ms | 缺失 | [MISSING] |
+| deai-skill-select-sm | 缺失 | [MISSING] |
+| deai-skills-list | 有 | [OK] |
+| deai-skills-list-ms | 缺失 | [MISSING] |
+| deai-split-size | 有 | [OK] |
+| deai-split-size-ms | 有 | [OK] |
+| deai-step-list | 有 | [OK] |
+| deai-text-type | 有 | [OK] |
+| deai-verify-provider-hint | 有 | [OK] |
+| deai-verify-provider-name | 有 | [OK] |
+| deai-verify-provider-status | 有 | [OK] |
+| diag-enabled | 有 | [OK] |
+| diag-level | 有 | [OK] |
+| diag-log-list | 有 | [OK] |
+| diag-stats | 缺失 | [MISSING] |
+| diff-container | 有 | [OK] |
+| diff-count | 有 | [OK] |
+| diff-modified | 有 | [OK] |
+| diff-original | 有 | [OK] |
+| dom-toast | 有 | [OK] |
+| editor-content | 有 | [OK] |
+| editor-mode-badge | 有 | [OK] |
+| editor-title | 有 | [OK] |
+| export-dropdown | 有 | [OK] |
+| find-count | 有 | [OK] |
+| find-input | 有 | [OK] |
+| find-replace-bar | 缺失 | [MISSING] |
+| github-status-bar | 有 | [OK] |
+| github-status-text | 有 | [OK] |
+| github-token-input | 有 | [OK] |
+| inline-menu | 有 | [OK] |
+| loading-indicator | 有 | [OK] |
+| loading-text | 有 | [OK] |
+| market-category | 有 | [OK] |
+| market-pagination | 有 | [OK] |
+| market-results | 有 | [OK] |
+| market-results-paginated | 缺失 | [MISSING] |
+| market-search-input | 有 | [OK] |
+| market-sort | 有 | [OK] |
+| market-status | 有 | [OK] |
+| mem-cat-list | 有 | [OK] |
+| mem-current-cat | 有 | [OK] |
+| mem-list | 有 | [OK] |
+| messages-container | 有 | [OK] |
+| messages-list | 缺失 | [MISSING] |
+| model-datalist | 有 | [OK] |
+| model-select | 有 | [OK] |
+| model-select-chat | 缺失 | [MISSING] |
+| npm-name | 缺失 | [MISSING] |
+| npm-outline | 缺失 | [MISSING] |
+| outline-editor | 有 | [OK] |
+| outline-workspace | 有 | [OK] |
+| ow-bound-list | 有 | [OK] |
+| ow-chat-area | 缺失 | [MISSING] |
+| ow-chat-input | 缺失 | [MISSING] |
+| ow-chat-messages | 缺失 | [MISSING] |
+| ow-skill-suggestions | 有 | [OK] |
+| ow-word-count | 有 | [OK] |
+| page-info | 有 | [OK] |
+| panel-backdrop | 有 | [OK] |
+| pl-agent-select | 有 | [OK] |
+| pl-body-result | 有 | [OK] |
+| pl-book-word-count | 有 | [OK] |
+| pl-bound-settings-list | 有 | [OK] |
+| pl-ch-cards-area | 有 | [OK] |
+| pl-ch-empty-hint | 有 | [OK] |
+| pl-ch-est-count | 有 | [OK] |
+| pl-ch-gen-bar | 有 | [OK] |
+| pl-chapter-batchsize | 有 | [OK] |
+| pl-chapter-cards | 有 | [OK] |
+| pl-chapter-result | 有 | [OK] |
+| pl-chapter-select | 有 | [OK] |
+| pl-chapter-wordcount | 有 | [OK] |
+| pl-context-summary | 有 | [OK] |
+| pl-outline | 有 | [OK] |
+| pl-s1-add-skill | 有 | [OK] |
+| pl-s1-skill | 缺失 | [MISSING] |
+| pl-s1-skills-list | 缺失 | [MISSING] |
+| pl-s2-add-skill | 缺失 | [MISSING] |
+| pl-s2-skill | 缺失 | [MISSING] |
+| pl-s2-skills-list | 缺失 | [MISSING] |
+| pl-s3-add-skill | 缺失 | [MISSING] |
+| pl-s3-skill | 缺失 | [MISSING] |
+| pl-s3-skills-list | 缺失 | [MISSING] |
+| pl-s4-add-skill | 缺失 | [MISSING] |
+| pl-s4-skill | 缺失 | [MISSING] |
+| pl-s4-skills-list | 缺失 | [MISSING] |
+| pl-s5-add-skill | 缺失 | [MISSING] |
+| pl-s5-skill | 缺失 | [MISSING] |
+| pl-s5-skills-list | 缺失 | [MISSING] |
+| pl-settings-result | 有 | [OK] |
+| pl-status-1 | 有 | [OK] |
+| pl-status-2 | 有 | [OK] |
+| pl-status-3 | 有 | [OK] |
+| pl-status-4 | 有 | [OK] |
+| pl-status-5 | 缺失 | [MISSING] |
+| pl-step-1-content | 有 | [OK] |
+| pl-step-2-content | 有 | [OK] |
+| pl-step-3-content | 有 | [OK] |
+| pl-step-4-content | 有 | [OK] |
+| pl-step-5-content | 有 | [OK] |
+| pl-steps | 有 | [OK] |
+| pl-text-filter-toggle | 有 | [OK] |
+| pl-vol-confirm-hint | 有 | [OK] |
+| pl-vol-list | 有 | [OK] |
+| pl-volume-cards | 有 | [OK] |
+| pl-volume-count | 有 | [OK] |
+| pl-volume-result | 有 | [OK] |
+| pl-word-count | 有 | [OK] |
+| project-list | 缺失 | [MISSING] |
+| provider-card-list | 有 | [OK] |
+| provider-conn-status | 有 | [OK] |
+| provider-edit-title | 有 | [OK] |
+| provider-edit-view | 有 | [OK] |
+| provider-list-view | 有 | [OK] |
+| provider-model-list | 有 | [OK] |
+| replace-input | 缺失 | [MISSING] |
+| sbm-skill-list | 有 | [OK] |
+| sbm-title | 缺失 | [MISSING] |
+| sc-bind-item-name | 缺失 | [MISSING] |
+| sc-bind-tree | 缺失 | [MISSING] |
+| sc-categories | 有 | [OK] |
+| sc-current-cat | 有 | [OK] |
+| sc-detail-area | 有 | [OK] |
+| sc-detail-content | 有 | [OK] |
+| sc-detail-title | 有 | [OK] |
+| sc-items-list | 有 | [OK] |
+| sf-bind-id | 缺失 | [MISSING] |
+| sf-bind-id-group | 缺失 | [MISSING] |
+| sf-bind-type | 有 | [OK] |
+| sf-category | 缺失 | [MISSING] |
+| sf-depth | 有 | [OK] |
+| sf-desc | 有 | [OK] |
+| sf-frequency | 缺失 | [MISSING] |
+| sf-inject-mode | 有 | [OK] |
+| sf-linked-list | 有 | [OK] |
+| sf-name | 有 | [OK] |
+| sf-template | 有 | [OK] |
+| sf-template-preview | 有 | [OK] |
+| skill-area | 有 | [OK] |
+| skill-area-arrow | 有 | [OK] |
+| skill-area-content | 有 | [OK] |
+| skill-area-toggle | 缺失 | [MISSING] |
+| skill-form | 缺失 | [MISSING] |
+| skill-form-title | 缺失 | [MISSING] |
+| skill-list | 有 | [OK] |
+| skill-list-active | 有 | [OK] |
+| status-chapter | 有 | [OK] |
+| status-connection | 有 | [OK] |
+| status-cursor | 有 | [OK] |
+| status-model | 有 | [OK] |
+| status-words | 有 | [OK] |
+| theme-toggle-btn | 缺失 | [MISSING] |
+| toast-container | 有 | [OK] |
+| token-bar | 有 | [OK] |
+| token-count | 有 | [OK] |
+| token-help-area | 有 | [OK] |
+| token-input-area | 有 | [OK] |
+| tooltip | 有 | [OK] |
+| tree-body | 有 | [OK] |
+| user-input | 有 | [OK] |
+| vm-chapter-count | 缺失 | [MISSING] |
+| vm-chapter-count-group | 缺失 | [MISSING] |
+| vm-name | 缺失 | [MISSING] |
+| vm-outline | 缺失 | [MISSING] |
+| vm-title | 缺失 | [MISSING] |
+| word-count | 有 | [OK] |
+
+## 6. 缺失统计
+
+- 按钮缺失: 29/104
+- Modal 缺失: 1/10
+- Panel 缺失: 0/5
+- 核心ID缺失: 58/219

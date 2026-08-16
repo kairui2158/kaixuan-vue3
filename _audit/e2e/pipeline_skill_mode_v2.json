@@ -1,0 +1,47 @@
+{
+  "cdpCommandLog": [
+    {
+      "idx": 1,
+      "method": "Runtime.evaluate",
+      "expression": "wait for readyState"
+    },
+    {
+      "idx": 2,
+      "method": "Runtime.evaluate",
+      "expression": "click #btn-pipeline"
+    },
+    {
+      "idx": 3,
+      "method": "Runtime.evaluate",
+      "expression": "wait 800ms"
+    },
+    {
+      "idx": 4,
+      "method": "Runtime.evaluate",
+      "expression": "check #pipeline-panel exists"
+    },
+    {
+      "idx": 5,
+      "method": "Runtime.evaluate",
+      "expression": "check controls: agent/mode/skill selects for steps 1-5"
+    },
+    {
+      "idx": 6,
+      "method": "Runtime.evaluate",
+      "expression": "check .pl-step-panel visibility"
+    }
+  ],
+  "controls": {
+    "result": {
+      "type": "string",
+      "value": "[{\"step\":1,\"agent\":\"\",\"agentExists\":true,\"mode\":\"chain\",\"modeExists\":true,\"skill\":\"\",\"skillExists\":true,\"skillListExists\":true},{\"step\":2,\"agent\":\"\",\"agentExists\":true,\"mode\":\"compose\",\"modeExists\":true,\"skill\":\"\",\"skillExists\":true,\"skillListExists\":true},{\"step\":3,\"agent\":\"\",\"agentExists\":true,\"mode\":\"chain\",\"modeExists\":true,\"skill\":\"\",\"skillExists\":true,\"skillListExists\":true},{\"step\":4,\"agent\":\"\",\"agentExists\":true,\"mode\":\"chain\",\"modeExists\":true,\"skill\":\"\",\"skillExists\":true,\"skillListExists\":true},{\"step\":5,\"agent\":\"\",\"agentExists\":true,\"mode\":\"chain\",\"modeExists\":true,\"skill\":\"\",\"skillExists\":true,\"skillListExists\":true}]"
+    }
+  },
+  "panelExists": {
+    "result": {
+      "type": "boolean",
+      "value": true
+    }
+  },
+  "capturedAt": "2026-08-16T02:10:13.564Z"
+}

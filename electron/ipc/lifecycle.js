@@ -15,9 +15,14 @@ function registerLifecycleHandlers(mainWindow) {
     ipcMain.removeAllListeners('app:closeChoice')
     ipcMain.once('app:closeChoice', function(event, choice) {
       if (choice === 'quit') {
+        // Save & quit: send finalSave, then close
         mainWindow.webContents.send('app:finalSave')
         isQuitting = true
         setTimeout(function() { mainWindow.close() }, 500)
+      } else if (choice === 'force-quit') {
+        // Direct quit: no finalSave needed
+        isQuitting = true
+        mainWindow.close()
       }
       // cancel: stay open
     })

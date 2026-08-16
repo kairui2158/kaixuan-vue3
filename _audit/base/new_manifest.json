@@ -1,0 +1,447 @@
+[
+  {
+    "path": "App.vue",
+    "size": 21626,
+    "mtime": "2026-08-13T20:36:01.195Z"
+  },
+  {
+    "path": "components\\chat\\ChatMessage.vue",
+    "size": 3264,
+    "mtime": "2026-08-11T16:56:43.134Z"
+  },
+  {
+    "path": "components\\chat\\ChatPanel.vue",
+    "size": 19290,
+    "mtime": "2026-08-13T19:09:00.085Z"
+  },
+  {
+    "path": "components\\common\\BreadcrumbBar.vue",
+    "size": 1343,
+    "mtime": "2026-08-13T21:52:25.625Z"
+  },
+  {
+    "path": "components\\common\\ContextMenu.vue",
+    "size": 1481,
+    "mtime": "2026-08-10T01:14:33.571Z"
+  },
+  {
+    "path": "components\\common\\DiffModal.vue",
+    "size": 3123,
+    "mtime": "2026-08-10T03:41:59.660Z"
+  },
+  {
+    "path": "components\\common\\ExitConfirmModal.vue",
+    "size": 3195,
+    "mtime": "2026-08-12T02:19:19.853Z"
+  },
+  {
+    "path": "components\\common\\InlineMenu.vue",
+    "size": 2150,
+    "mtime": "2026-08-12T12:43:02.263Z"
+  },
+  {
+    "path": "components\\common\\MemoryPanel.vue",
+    "size": 9246,
+    "mtime": "2026-08-13T18:56:22.782Z"
+  },
+  {
+    "path": "components\\common\\OutlineWorkspace.vue",
+    "size": 13576,
+    "mtime": "2026-08-13T20:04:18.105Z"
+  },
+  {
+    "path": "components\\common\\PanelResizer.vue",
+    "size": 1565,
+    "mtime": "2026-08-09T08:21:44.828Z"
+  },
+  {
+    "path": "components\\common\\PluginMarket.vue",
+    "size": 11856,
+    "mtime": "2026-08-13T23:17:28.290Z"
+  },
+  {
+    "path": "components\\common\\SkillBindModal.vue",
+    "size": 6302,
+    "mtime": "2026-08-13T19:52:03.401Z"
+  },
+  {
+    "path": "components\\dashboard\\DashboardModal.vue",
+    "size": 3920,
+    "mtime": "2026-08-10T21:12:14.097Z"
+  },
+  {
+    "path": "components\\deai\\DeAiButton.vue",
+    "size": 1550,
+    "mtime": "2026-08-09T06:19:49.516Z"
+  },
+  {
+    "path": "components\\deai\\DeAiFlowPreview.vue",
+    "size": 3016,
+    "mtime": "2026-08-13T18:40:10.651Z"
+  },
+  {
+    "path": "components\\deai\\DeAiModeCard.vue",
+    "size": 1863,
+    "mtime": "2026-08-09T09:16:34.589Z"
+  },
+  {
+    "path": "components\\deai\\DeAiProgress.vue",
+    "size": 5385,
+    "mtime": "2026-08-13T18:40:10.667Z"
+  },
+  {
+    "path": "components\\deai\\DeAiSkillSelector.vue",
+    "size": 3413,
+    "mtime": "2026-08-09T08:16:51.756Z"
+  },
+  {
+    "path": "components\\editor\\EditorPanel.vue",
+    "size": 28578,
+    "mtime": "2026-08-13T23:14:34.038Z"
+  },
+  {
+    "path": "components\\LogIndicator.vue",
+    "size": 2136,
+    "mtime": "2026-08-12T01:18:32.659Z"
+  },
+  {
+    "path": "components\\LogToast.vue",
+    "size": 2239,
+    "mtime": "2026-08-12T01:18:32.685Z"
+  },
+  {
+    "path": "components\\pipeline\\PipelinePanel.vue",
+    "size": 54816,
+    "mtime": "2026-08-13T23:19:01.416Z"
+  },
+  {
+    "path": "components\\pipeline\\PipelinePanel.vue.recovered",
+    "size": 53934,
+    "mtime": "2026-08-13T19:37:28.098Z"
+  },
+  {
+    "path": "components\\settings\\AgentSettings.vue",
+    "size": 6106,
+    "mtime": "2026-08-13T18:58:11.076Z"
+  },
+  {
+    "path": "components\\settings\\ApiSettings.vue",
+    "size": 19922,
+    "mtime": "2026-08-13T19:00:11.792Z"
+  },
+  {
+    "path": "components\\settings\\AppearanceSettings.vue",
+    "size": 7823,
+    "mtime": "2026-08-13T18:59:37.697Z"
+  },
+  {
+    "path": "components\\settings\\DeAiSettings.vue",
+    "size": 20378,
+    "mtime": "2026-08-13T18:57:12.824Z"
+  },
+  {
+    "path": "components\\settings\\DiagLogPanel.vue",
+    "size": 9741,
+    "mtime": "2026-08-13T18:40:58.413Z"
+  },
+  {
+    "path": "components\\settings\\SettingsModal.vue",
+    "size": 5400,
+    "mtime": "2026-08-13T18:39:21.905Z"
+  },
+  {
+    "path": "components\\settings\\SkillSettings.vue",
+    "size": 16648,
+    "mtime": "2026-08-13T19:16:09.829Z"
+  },
+  {
+    "path": "components\\settings-collection\\ScPanel.vue",
+    "size": 14620,
+    "mtime": "2026-08-13T19:05:30.884Z"
+  },
+  {
+    "path": "components\\sidebar\\AgentProgressPanel.vue",
+    "size": 3383,
+    "mtime": "2026-08-09T19:16:56.157Z"
+  },
+  {
+    "path": "components\\sidebar\\ChapterTree.vue",
+    "size": 25239,
+    "mtime": "2026-08-13T23:14:23.108Z"
+  },
+  {
+    "path": "components\\sidebar\\ContextMenu.vue",
+    "size": 1854,
+    "mtime": "2026-08-13T23:18:06.689Z"
+  },
+  {
+    "path": "components\\sidebar\\SidebarNav.vue",
+    "size": 6625,
+    "mtime": "2026-08-13T18:54:49.961Z"
+  },
+  {
+    "path": "composables\\useAiRequest.ts",
+    "size": 11839,
+    "mtime": "2026-08-12T03:17:51.214Z"
+  },
+  {
+    "path": "composables\\useAiTools.ts",
+    "size": 13364,
+    "mtime": "2026-08-08T22:43:48.449Z"
+  },
+  {
+    "path": "composables\\useDeAi.ts",
+    "size": 15959,
+    "mtime": "2026-08-12T06:02:31.774Z"
+  },
+  {
+    "path": "composables\\useExitConfirm.ts",
+    "size": 1027,
+    "mtime": "2026-08-08T22:11:34.210Z"
+  },
+  {
+    "path": "composables\\useFindReplace.ts",
+    "size": 3094,
+    "mtime": "2026-08-08T22:14:12.977Z"
+  },
+  {
+    "path": "composables\\useShortcuts.ts",
+    "size": 3292,
+    "mtime": "2026-08-12T12:48:40.230Z"
+  },
+  {
+    "path": "composables\\useSkillTest.ts",
+    "size": 3978,
+    "mtime": "2026-08-08T22:11:34.219Z"
+  },
+  {
+    "path": "composables\\useUndoRedo.ts",
+    "size": 1451,
+    "mtime": "2026-08-08T22:14:12.967Z"
+  },
+  {
+    "path": "main.ts",
+    "size": 3710,
+    "mtime": "2026-08-12T18:31:31.457Z"
+  },
+  {
+    "path": "services\\agent-manager.js",
+    "size": 2452,
+    "mtime": "2026-08-02T17:00:34.286Z"
+  },
+  {
+    "path": "services\\agent-scheduler.ts",
+    "size": 3147,
+    "mtime": "2026-08-08T01:42:41.304Z"
+  },
+  {
+    "path": "services\\chapter-manager.js",
+    "size": 7209,
+    "mtime": "2026-07-19T02:33:35.371Z"
+  },
+  {
+    "path": "services\\context-settings.js",
+    "size": 4727,
+    "mtime": "2026-08-10T07:22:01.636Z"
+  },
+  {
+    "path": "services\\de-ai-validators.js",
+    "size": 2013,
+    "mtime": "2026-08-10T07:01:09.491Z"
+  },
+  {
+    "path": "services\\de-ai.js",
+    "size": 114556,
+    "mtime": "2026-08-09T10:16:05.431Z"
+  },
+  {
+    "path": "services\\deai-samples.js",
+    "size": 6730,
+    "mtime": "2026-08-09T10:16:31.571Z"
+  },
+  {
+    "path": "services\\diag.js",
+    "size": 12597,
+    "mtime": "2026-08-12T12:17:42.223Z"
+  },
+  {
+    "path": "services\\diff-utils.js",
+    "size": 2831,
+    "mtime": "2026-08-10T06:58:59.437Z"
+  },
+  {
+    "path": "services\\file-import.js",
+    "size": 8445,
+    "mtime": "2026-08-10T09:53:29.081Z"
+  },
+  {
+    "path": "services\\file-import.ts",
+    "size": 4536,
+    "mtime": "2026-08-08T09:40:11.165Z"
+  },
+  {
+    "path": "services\\logger-shim.js",
+    "size": 3469,
+    "mtime": "2026-08-12T18:03:01.458Z"
+  },
+  {
+    "path": "services\\mcp-protocol.ts",
+    "size": 3007,
+    "mtime": "2026-08-08T01:42:41.315Z"
+  },
+  {
+    "path": "services\\persona-engine.js",
+    "size": 11400,
+    "mtime": "2026-08-06T19:58:13.140Z"
+  },
+  {
+    "path": "services\\pipeline-manager.js",
+    "size": 127641,
+    "mtime": "2026-08-10T07:43:10.736Z"
+  },
+  {
+    "path": "services\\project-manager.js",
+    "size": 3796,
+    "mtime": "2026-08-02T15:01:46.849Z"
+  },
+  {
+    "path": "services\\provider-manager.js",
+    "size": 7501,
+    "mtime": "2026-08-07T11:34:32.744Z"
+  },
+  {
+    "path": "services\\skill-engine.js",
+    "size": 19975,
+    "mtime": "2026-08-13T21:02:44.146Z"
+  },
+  {
+    "path": "services\\skill-manager.js",
+    "size": 4578,
+    "mtime": "2026-08-02T15:01:25.733Z"
+  },
+  {
+    "path": "services\\skill-template-engine.js",
+    "size": 5692,
+    "mtime": "2026-08-05T07:21:50.648Z"
+  },
+  {
+    "path": "services\\skill-validators.js",
+    "size": 12763,
+    "mtime": "2026-08-06T18:31:37.818Z"
+  },
+  {
+    "path": "services\\storage.js",
+    "size": 3575,
+    "mtime": "2026-07-14T17:14:10.840Z"
+  },
+  {
+    "path": "services\\tool-registry.ts",
+    "size": 4237,
+    "mtime": "2026-08-08T01:42:41.293Z"
+  },
+  {
+    "path": "services\\utils.js",
+    "size": 2310,
+    "mtime": "2026-08-10T07:20:52.535Z"
+  },
+  {
+    "path": "services\\zhuque-validator.js",
+    "size": 6490,
+    "mtime": "2026-08-06T19:58:43.675Z"
+  },
+  {
+    "path": "stores\\agent.ts",
+    "size": 1372,
+    "mtime": "2026-08-11T14:27:55.211Z"
+  },
+  {
+    "path": "stores\\chapter.ts",
+    "size": 1700,
+    "mtime": "2026-08-11T14:28:52.522Z"
+  },
+  {
+    "path": "stores\\deai.ts",
+    "size": 3275,
+    "mtime": "2026-08-11T14:27:55.209Z"
+  },
+  {
+    "path": "stores\\editor.ts",
+    "size": 3665,
+    "mtime": "2026-08-12T03:15:23.095Z"
+  },
+  {
+    "path": "stores\\pipeline.ts",
+    "size": 3054,
+    "mtime": "2026-08-13T19:28:14.347Z"
+  },
+  {
+    "path": "stores\\project.ts",
+    "size": 5452,
+    "mtime": "2026-08-13T20:04:03.972Z"
+  },
+  {
+    "path": "stores\\provider.ts",
+    "size": 4787,
+    "mtime": "2026-08-12T06:55:54.162Z"
+  },
+  {
+    "path": "stores\\settings.ts",
+    "size": 2148,
+    "mtime": "2026-08-12T18:29:10.645Z"
+  },
+  {
+    "path": "stores\\skill.ts",
+    "size": 3672,
+    "mtime": "2026-08-12T18:40:42.130Z"
+  },
+  {
+    "path": "stores\\theme.ts",
+    "size": 1311,
+    "mtime": "2026-08-11T14:27:55.216Z"
+  },
+  {
+    "path": "styles\\global.css",
+    "size": 3319,
+    "mtime": "2026-08-13T20:47:28.934Z"
+  },
+  {
+    "path": "styles\\modal.css",
+    "size": 2377,
+    "mtime": "2026-08-10T14:14:25.311Z"
+  },
+  {
+    "path": "styles\\tokens.css",
+    "size": 12257,
+    "mtime": "2026-08-13T20:49:11.675Z"
+  },
+  {
+    "path": "utils\\storage-key.ts",
+    "size": 301,
+    "mtime": "2026-08-11T14:22:40.278Z"
+  },
+  {
+    "path": "electron/main.js",
+    "size": 7389,
+    "mtime": "2026-08-13T23:04:07.159Z"
+  },
+  {
+    "path": "electron/preload.js",
+    "size": 3890,
+    "mtime": "2026-08-13T13:56:56.572Z"
+  },
+  {
+    "path": "start-electron.bat",
+    "size": 754,
+    "mtime": "2026-08-13T14:41:21.177Z"
+  },
+  {
+    "path": "package.json",
+    "size": 3069,
+    "mtime": "2026-08-12T19:00:06.179Z"
+  },
+  {
+    "path": "preload.js",
+    "size": 3791,
+    "mtime": "2026-08-12T14:04:46.288Z"
+  }
+]

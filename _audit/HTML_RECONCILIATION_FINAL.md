@@ -20,7 +20,13 @@
 
 | # | ID | 组件文件 | 标签 | 旧HTML行 | 匹配方式 | 修复状态 |
 |---|-----|---------|------|---------|---------|--------|
-| - | (等待Agent结果填充) | | | | | |
+| 1 | sf-category | src/components/settings/SkillSettings.vue | input | renderer.html L~910 | 分类输入框 | [OK] PASS - 新增 id="sf-category" |
+| 2 | market-results | src/components/common/PluginMarket.vue | div | renderer.html L~920 | 搜索结果容器 | [OK] PASS - 外层容器 id="market-results"，内层保留 market-results-paginated |
+| 3 | skill-bind-modal | src/components/common/SkillBindModal.vue | modal div | renderer.html L902 | 技能绑定弹窗 | [OK] PASS - 新增 SkillBindModal.vue，id="skill-bind-modal" |
+| 4 | sbm-title | src/components/common/SkillBindModal.vue | h3 | renderer.html L904 | 弹窗标题 | [OK] PASS - id="sbm-title" |
+| 5 | sbm-skill-list | src/components/common/SkillBindModal.vue | div | renderer.html L938 | 技能勾选列表 | [OK] PASS - id="sbm-skill-list" |
+| 6 | btn-save-skill-binding | src/components/common/SkillBindModal.vue | button | renderer.html L942 | 保存按钮 | [OK] PASS - id="btn-save-skill-binding" |
+| 7 | sbm-close | src/components/common/SkillBindModal.vue | button(class) | renderer.html L945 | 关闭按钮 | [OK] PASS - class="sbm-close" |
 
 ## 验证结果
 

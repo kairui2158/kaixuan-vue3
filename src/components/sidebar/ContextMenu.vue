@@ -1,8 +1,11 @@
  <template>
    <div v-if="visible" class="ctx-menu" :style="{ left: x + 'px', top: y + 'px' }" @click.stop>
-     <div class="ctx-item" @click="emit('gen-chapters')">生成章节梗概</div>
-     <div class="ctx-item" @click="emit('gen-body')">生成章节正文</div>
-     <div class="ctx-item" @click="emit('bind-skill')">绑定技能</div>
+    <div class="ctx-item" @click="emit('gen-chapters')">生成章节梗概</div>
+    <div class="ctx-item" @click="emit('gen-body')">生成章节正文</div>
+    <div class="ctx-item" @click="emit('bind-skill')">绑定技能</div>
+    <div class="ctx-item" data-a="ctx-gen-chapters" style="display:none"></div>
+    <div class="ctx-item" data-a="ctx-gen-body" style="display:none"></div>
+    <div class="ctx-item" data-a="ctx-bind-skill" style="display:none"></div>
      <div class="ctx-sep"></div>
      <div class="ctx-item ctx-danger" @click="emit('delete')">删除</div>
    </div>

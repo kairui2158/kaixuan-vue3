@@ -1,9 +1,0 @@
-{
-  "description": "",
-  "devtoolsFrontendUrl": "/devtools/inspector.html?ws=localhost:9223/devtools/page/10F1EF589CD777E375496D64EDADCAD8",
-  "id": "10F1EF589CD777E375496D64EDADCAD8",
-  "title": "Novel Workshop",
-  "type": "page",
-  "url": "http://localhost:5173/",
-  "webSocketDebuggerUrl": "ws://localhost:9223/devtools/page/10F1EF589CD777E375496D64EDADCAD8"
-}

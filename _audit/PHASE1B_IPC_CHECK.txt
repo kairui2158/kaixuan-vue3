@@ -1,0 +1,28 @@
+## Phase 1B IPC 序列化普查结果
+
+### 已做 JSON 序列化保护的 store
+| Store | 文件 | 序列化方式 | 安全？ |
+|-------|------|-----------|-------|
+| agent.ts | L28 | JSON.parse(JSON.stringify()) | ✅ |
+| chapter.ts | L35 | toPlain() 函数 | ✅ |
+| deai.ts | L40 | JSON.parse(JSON.stringify()) 对 skillIds/hardRules | ✅ |
+| project.ts | L78 | toPlain() 函数 | ✅ |
+| provider.ts | 需检查 | 需检查 | ❓ |
+| settings.ts | L29 | 原始 ref 值（基本类型） | ✅ 基本类型安全 |
+| skill.ts | L73 | 需检查 | ❓ |
+| theme.ts | L28 | 基本类型 | ✅ |
+
+### 需检查的 store
+- skill.ts:73 — 需要确认是否用 JSON.parse(JSON.stringify())
+- provider.ts:78 — 需要确认
+- pipeline.ts:75 — 未序列化（config 直接传）
+
+### 组件内 IPC 调用
+- PipelinePanel.vue:329 — 已修复（加 JSON.parse(JSON.stringify())）
+- AppearanceSettings.vue:103 — 只读，OK
+
+### 结论
+需要修复的：
+1. pipeline.ts:75 — config 直接传，未序列化
+2. skill.ts:73 — 需确认
+3. provider.ts:78 — 需确认

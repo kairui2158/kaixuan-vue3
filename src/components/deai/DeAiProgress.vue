@@ -6,13 +6,14 @@
         <span class="deai-percent">{{ deAiStore.progress }}%</span>
       </div>
       <div class="deai-progress-bar">
-        <div class="deai-progress-fill" :style="{ width: deAiStore.progress + '%' }"></div>
+        <div id="deai-progress-fill" class="deai-progress-fill" :style="{ width: deAiStore.progress + '%' }"></div>
       </div>
       <div class="deai-progress-info">
-        <span class="deai-progress-step">{{ deAiStore.currentStep }}</span>
+        <span id="deai-progress-percent" class="deai-progress-percent">{{ deAiStore.progress }}%</span>
+        <span id="deai-progress-step" class="deai-progress-step">{{ deAiStore.currentStep }}</span>
       </div>
       <!-- step list with dot indicators -->
-      <div class="deai-step-list">
+      <div id="deai-step-list" class="deai-step-list">
         <div
           v-for="(step, i) in deAiStore.flowPreview"
           :key="i"

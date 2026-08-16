@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="agent-settings">
     <h3>智能体管理</h3>
     <div id="agent-list" class="agent-list item-list card-grid">
@@ -45,6 +45,9 @@
       </div>
     </div>
     <button id="btn-add-agent" class="btn-add btn-primary btn-sm" @click="addAgent">+ 添加智能体</button>
+    <datalist id="model-datalist">
+      <option v-for="m in allModelOptions" :key="m" :value="m"></option>
+    </datalist>
   </div>
 </template>
 
@@ -56,6 +59,7 @@ import { useProviderStore } from '../../stores/provider'
 const agentStore = useAgentStore()
 const providerStore = useProviderStore()
 const editingId = ref('')
+const allModelOptions = ref<string[]>(['gpt-4o', 'gpt-4o-mini', 'claude-3-5-sonnet', 'claude-3-5-haiku', 'deepseek-chat', 'deepseek-reasoner', 'qwen-max', 'qwen-plus'])
 
 function toggleEdit(id: string) {
   editingId.value = editingId.value === id ? '' : id
@@ -71,16 +75,23 @@ function saveAgent(id: string) {
 }
 
 function addAgent() {
-  agentStore.addAgent({
-    id: 'agent-' + Date.now(),
-    name: '新智能体',
-    model: '',
-    temperature: 0.7,
-    maxTokens: 0,
-   systemPrompt: '',
-    description: '',
-    provider: ''
-  })
+  const id = 'agent-' + Date.now();
+  // 先设置 editingId，确保即使 storageWrite 异常也显示表单
+  editingId.value = id;
+  try {
+    agentStore.addAgent({
+      id: id,
+      name: '新智能体',
+      model: '',
+      temperature: 0.7,
+      maxTokens: 0,
+      systemPrompt: '',
+      description: '',
+      provider: ''
+    });
+  } catch (e) {
+    console.error('[AgentSettings] addAgent store error:', e);
+  }
 }
 </script>
 
@@ -106,3 +117,4 @@ function addAgent() {
 .textarea-field { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 6px 8px; font-size: 12px; outline: none; resize: vertical; grid-column: 2; }
 .btn-add { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: 6px; padding: 8px 16px; cursor: pointer; font-size: 13px; margin-top: 12px; }
 </style>
+

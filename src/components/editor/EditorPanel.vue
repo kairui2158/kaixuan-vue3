@@ -1,41 +1,41 @@
 <template>
   <section id="editor-panel" class="editor-panel">
     <div class="editor-header">
-      <span class="editor-mode-badge"></span>
-      <span class="editor-title">{{ activeTab ? activeTab.title : '选择章节开始写作' }}</span>
+      <span v-if="activeTab?.mode" id="editor-mode-badge" class="editor-mode-badge" :class="'mode-' + activeTab.mode">{{ modeLabel }}</span>
+      <span id="editor-title" class="editor-title">{{ activeTab ? activeTab.title : '选择章节开始写作' }}</span>
       <div class="editor-toolbar">
         <div class="editor-toolbar-group">
-          <button class="btn-sm btn-secondary" title="Ctrl+Z" @click="undo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg></button>
-          <button class="btn-sm btn-secondary" title="Ctrl+Y" @click="redo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg></button>
+          <button id="btn-undo" class="btn-sm btn-secondary" title="Ctrl+Z" @click="undo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg></button>
+          <button id="btn-redo" class="btn-sm btn-secondary" title="Ctrl+Y" @click="redo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg></button>
         </div>
         <span class="sep"></span>
-        <div class="editor-toolbar-group">
-          <button class="btn-sm btn-secondary" @click="generateContent">生成</button>
-          <button class="btn-sm btn-secondary" title="Ctrl+S" @click="save">保存</button>
+       <div class="editor-toolbar-group">
+          <button id="btn-generate-content" class="btn-sm btn-secondary" @click="generateContent">生成</button>
+          <button id="btn-save-editor" class="btn-sm btn-secondary" title="Ctrl+S" @click="save">保存</button>
         </div>
-        <span class="sep"></span>
-        <div class="editor-toolbar-group" style="position:relative">
-          <button class="btn-sm btn-secondary" @click="exportMenu = !exportMenu">导出</button>
-          <div v-if="exportMenu" class="export-dropdown">
-            <button @click="exportChapter('md')">Markdown (.md)</button>
-            <button @click="exportChapter('txt')">纯文本 (.txt)</button>
-            <button @click="exportChapter('epub')">EPUB (.epub)</button>
+       <span class="sep"></span>
+       <div class="editor-toolbar-group" style="position:relative">
+          <button id="btn-find" class="btn-sm btn-secondary" title="查找替换 (Ctrl+F)" @click="editorStore.toggleFind()">查找</button>
+          <button id="btn-export" class="btn-sm btn-secondary" @click="exportMenu = !exportMenu">导出</button>
+          <div v-if="exportMenu" id="export-dropdown" class="export-dropdown">
+            <button id="btn-export-md" data-format="md" @click="exportChapter('md')">Markdown (.md)</button>
+            <button id="btn-export-txt" data-format="txt" @click="exportChapter('txt')">纯文本 (.txt)</button>
+            <button id="btn-export-epub" data-format="epub" @click="exportChapter('epub')">EPUB (.epub)</button>
           </div>
         </div>
         <span class="sep"></span>
-        <div class="editor-toolbar-group">
+       <div class="editor-toolbar-group">
           <button id="btn-de-ai" class="btn-sm btn-secondary" @click="triggerDeAi" :disabled="deAiStore.isProcessing">{{ deAiStore.isProcessing ? '处理中 ' + deAiStore.progress + '%' : '去AI味' }}</button>
-        </div>
-        <span class="sep"></span>
-        <div class="editor-toolbar-group">
-          <button class="btn-sm btn-secondary" title="AI命名" @click="aiNames">AI命名</button>
-          <button class="btn-sm btn-secondary" title="写作规则" @click="writingRules">写作规则</button>
-          <button class="btn-sm btn-secondary" title="时间线" @click="timeline">时间线</button>
-          <button class="btn-sm btn-secondary" title="批量审阅" @click="batchReview">批量审阅</button>
-          <button class="btn-sm btn-secondary" title="修订" @click="revise">修订</button>
+       </div>
+       <div class="editor-toolbar-group">
+          <button id="btn-ai-names" class="btn-sm btn-secondary" title="AI命名" @click="aiNames">AI命名</button>
+          <button id="btn-writing-rules" class="btn-sm btn-secondary" title="写作规则" @click="writingRules">写作规则</button>
+          <button id="btn-timeline" class="btn-sm btn-secondary" title="时间线" @click="timeline">时间线</button>
+          <button id="btn-batch-review" class="btn-sm btn-secondary" title="批量审阅" @click="batchReview">批量审阅</button>
+          <button id="btn-revise" class="btn-sm btn-secondary" title="修订" @click="revise">修订</button>
           <button class="btn-sm btn-secondary" title="变量" @click="insertVar">变量</button>
-        </div>
-        <span class="word-count">{{ wordCount }} 字</span>
+       </div>
+        <span id="word-count" class="word-count">{{ wordCount }} 字</span>
       </div>
     </div>
 
@@ -53,13 +53,14 @@
       </div>
     </div>
 
-    <div class="find-bar" v-if="editorStore.findVisible">
-      <input id="find-input" v-model="editorStore.findQuery" placeholder="查找..." class="find-input" />
-      <input v-model="editorStore.replaceQuery" placeholder="替换为..." class="find-input" />
-      <button id="btn-find-next" class="btn-sm btn-secondary" @click="findNext">下一个</button>
+    <div id="find-replace-bar" class="find-bar" v-if="editorStore.findVisible">
+      <span id="find-count" class="find-count" v-if="findMatchCount > 0">{{ findMatchIndex + 1 }}/{{ findMatchCount }}</span>
+      <input id="find-input" v-model="editorStore.findQuery" placeholder="查找..." class="find-input" @keydown.enter.exact.prevent="findNext" @keydown.enter.shift.prevent="findPrev" />
+      <input id="replace-input" v-model="editorStore.replaceQuery" placeholder="替换为..." class="find-input" />
           <button id="btn-find-prev" class="btn-sm btn-secondary" @click="findPrev">上一个</button>
+      <button id="btn-find-next" class="btn-sm btn-secondary" @click="findNext">下一个</button>
           <button id="btn-replace-one" class="btn-sm btn-secondary" @click="replaceOne">替换</button>
-         <button id="btn-replace-all" class="btn-sm btn-secondary" @click="replaceAll">全部替换</button>
+          <button id="btn-replace-all" class="btn-sm btn-secondary" @click="replaceAll">全部替换</button>
       <button id="btn-find-close" class="find-close" @click="editorStore.toggleFind()">x</button>
     </div>
 
@@ -71,15 +72,27 @@
       placeholder="请先创建或打开项目，然后选择左侧章节开始写作..."
       :disabled="!activeTab"
       @keydown="onKeydown"
+      @mouseup="checkInlineMenu"
+      @blur="hideInlineMenu"
     ></textarea>
-  </section>
+   <div v-if="inlineMenuVisible" class="inline-menu" :style="{ left: inlineMenuPos.x + 'px', top: inlineMenuPos.y + 'px' }">
+     <button v-for="a in inlineActions" :key="a.key" class="inline-menu-btn" @mousedown.prevent="applyInlineAction(a.key, a.label)">{{ a.label }}</button>
+   </div>
+    <!-- 变量输入弹窗 -->
+    <div v-if="varDialogVisible" class="var-dialog-overlay" @click.self="varDialogVisible = false">
+      <div class="var-dialog">
+        <div class="var-dialog-header">插入变量</div>
+        <div class="var-dialog-body">
+          <input ref="varDialogInput" v-model="varNameInput" class="var-dialog-input" placeholder="输入变量名，如 character.name" @keydown.enter="confirmVar" @keydown.escape="varDialogVisible = false" />
+        </div>
+        <div class="var-dialog-footer">
+          <button class="btn-sm btn-secondary" @click="varDialogVisible = false">取消</button>
+          <button class="btn-sm btn-primary" @click="confirmVar">确定</button>
+        </div>
+      </div>
+    </div>
+ </section>
 
-  <!-- audit-v5 -->
-  <div id="find-replace-bar" style="display:none" data-audit="v5"></div>
-  <div id="find-count" style="display:none" data-audit="v5"></div>
-  <div id="replace-input" style="display:none" data-audit="v5"></div>
-  <div id="resizer-chapter" style="display:none" data-audit="v5"></div>
-  <div id="resizer-editor-chat" style="display:none" data-audit="v5"></div>
 </template>
 
 <script setup lang="ts">
@@ -101,7 +114,36 @@ const exportMenu = ref(false)
 const undoRedo = useUndoRedo(50)
 let autoSaveTimer: ReturnType<typeof setInterval> | null = null
 
-const activeTab = computed(() => editorStore.activeTab)
+const findMatchCount = ref(0)
+const findMatchIndex = ref(-1)
+
+const inlineActions = [
+  {key:'rewrite',label:'改写'},{key:'expand',label:'扩写'},
+  {key:'polish',label:'润色'},{key:'regenerate',label:'重写'},
+  {key:'translate',label:'翻译'},{key:'style',label:'风格'},
+  {key:'scene',label:'场景描写'},{key:'dialogue',label:'对话生成'},
+  {key:'plot',label:'情节推演'},{key:'inject',label:'上下文注入'},
+  {key:'continue',label:'续写'},{key:'condense',label:'精简'},{key:'modify',label:'修改'},
+  {key:'summary',label:'概括'},{key:'character',label:'角色描写'},
+  {key:'environment',label:'环境描写'},{key:'psychology',label:'心理描写'},
+  {key:'pacing',label:'节奏调整'},{key:'foreshadow',label:'伏笔铺垫'},
+  {key:'conflict',label:'冲突强化'},{key:'emotion',label:'情感强化'}
+]
+const inlineMenuVisible = ref(false)
+ const inlineMenuPos = ref({ x: 0, y: 0 })
+ const varDialogVisible = ref(false)
+ const varNameInput = ref('')
+ const varDialogInput = ref<HTMLInputElement | null>(null)
+
+ const activeTab = computed(() => editorStore.activeTab)
+const modeLabel = computed(() => {
+  const m = activeTab.value?.mode
+  if (m === 'vol-outline') return '卷纲层'
+  if (m === 'ch-plot') return '章节层'
+  if (m === 'ch-body') return '正文层'
+  return ''
+})
+const isBodyMode = computed(() => !activeTab.value?.mode || activeTab.value.mode === 'ch-body')
 const wordCount = computed(() => {
   if (!activeTab.value) return 0
   return (activeTab.value.content || '').length
@@ -110,7 +152,7 @@ const wordCount = computed(() => {
 function onInput(e: Event) {
   const target = e.target as HTMLTextAreaElement
   if (activeTab.value) {
-    undoRedo.pushState(activeTab.value.content)
+    undoRedo.pushState(target.value)
     editorStore.updateContent(activeTab.value.id, target.value)
   }
 }
@@ -127,6 +169,40 @@ function onKeydown(e: KeyboardEvent) {
 }
 
 function save() {
+  if (!activeTab.value) {
+    alert('请先选择或创建一个章节');
+    return;
+  }
+  // P3-FIX: Save to different fields based on editor mode (old framework saveEditorContent)
+  const mode = activeTab.value.mode || 'ch-body'
+  if (mode === 'vol-outline' && activeTab.value.chapterId === '') {
+    // Save volume outline
+    for (const vol of projectStore.volumes) {
+      const volId = vol.id || vol.name
+      if (('vol-outline-' + volId) === activeTab.value.id) {
+        vol.outline = activeTab.value.content
+        projectStore.saveProject()
+        break
+      }
+    }
+    editorStore.markSaved(activeTab.value.id)
+    return
+  }
+  if (mode === 'ch-plot' && activeTab.value.chapterId) {
+    // Save chapter plot
+    for (const volId of Object.keys(projectStore.chapters)) {
+      const chs = projectStore.chapters[volId]
+      const ch = chs.find((c: any) => c.id === activeTab.value!.chapterId)
+      if (ch) {
+        ch.plot = activeTab.value.content
+        projectStore.saveProject()
+        break
+      }
+    }
+    editorStore.markSaved(activeTab.value.id)
+    return
+  }
+  // ch-body mode: save body
   if (activeTab.value && activeTab.value.chapterId) {
     for (const volId of Object.keys(projectStore.chapters)) {
       const chs = projectStore.chapters[volId]
@@ -134,6 +210,7 @@ function save() {
       if (ch) {
         ch.body = activeTab.value.content
         projectStore.saveProject()
+        projectStore.refreshTree()
         break
       }
     }
@@ -236,7 +313,24 @@ function startAutoSave() {
 }
 
 onMounted(() => { startAutoSave() })
-onUnmounted(() => { if (autoSaveTimer) clearInterval(autoSaveTimer) })
+onUnmounted(() => {
+  if (autoSaveTimer) clearInterval(autoSaveTimer)
+  window.removeEventListener('editor-undo', handleUndoEvent)
+  window.removeEventListener('editor-redo', handleRedoEvent)
+  window.removeEventListener('editor-save', handleSaveEvent)
+  window.removeEventListener('toggle-find', handleToggleFindEvent)
+})
+function handleUndoEvent() { undo() }
+function handleRedoEvent() { redo() }
+function handleSaveEvent() { save() }
+function handleToggleFindEvent() { editorStore.toggleFind() }
+onMounted(() => {
+  startAutoSave()
+  window.addEventListener('editor-undo', handleUndoEvent)
+  window.addEventListener('editor-redo', handleRedoEvent)
+  window.addEventListener('editor-save', handleSaveEvent)
+  window.addEventListener('toggle-find', handleToggleFindEvent)
+})
 watch(activeTab, (newTab) => {
   if (newTab) undoRedo.reset(newTab.content)
 })
@@ -244,10 +338,28 @@ watch(activeTab, (newTab) => {
 function findNext() {
   if (!editorTextarea.value || !editorStore.findQuery) return
   const text = editorTextarea.value.value
-  const idx = text.indexOf(editorStore.findQuery, editorTextarea.value.selectionEnd)
-  if (idx >= 0) {
-    editorTextarea.value.setSelectionRange(idx, idx + editorStore.findQuery.length)
+  // P7: count all matches
+  findMatchCount.value = 0
+  findMatchIndex.value = -1
+  const matches = []
+  let si = 0
+  while ((si = text.indexOf(editorStore.findQuery, si)) !== -1) {
+    matches.push(si)
+    si += editorStore.findQuery.length
   }
+  findMatchCount.value = matches.length
+  if (matches.length === 0) return
+  // find current position
+ let curPos = editorTextarea.value.selectionEnd
+  let nextIdx = matches.findIndex(m => m >= curPos)
+  if (nextIdx < 0) nextIdx = 0
+  findMatchIndex.value = nextIdx
+  const idx = matches[nextIdx]
+  editorTextarea.value.setSelectionRange(idx, idx + editorStore.findQuery.length)
+  // P7: scroll to match
+  const lineHeight = 20
+  const linesBefore = text.substring(0, idx).split('\n').length
+  editorTextarea.value.scrollTop = Math.max(0, (linesBefore - 3) * lineHeight)
 }
 
 function buildEpubZip(files: any[]): Uint8Array {
@@ -317,25 +429,46 @@ function revise() {
 
 function insertVar() {
   if (!activeTab.value || !editorTextarea.value) return
+  varNameInput.value = 'character.name'
+  varDialogVisible.value = true
+  setTimeout(() => { if (varDialogInput.value) varDialogInput.value.focus() }, 50)
+ }
+ 
+ function confirmVar() {
+  if (!varNameInput.value || !activeTab.value || !editorTextarea.value) return
   const ta = editorTextarea.value
   const start = ta.selectionStart
   const end = ta.selectionEnd
-  const varName = prompt('输入变量名:', 'character.name')
-  if (varName) {
-    const insert = '{{' + varName + '}}'
-    const newContent = activeTab.value.content.substring(0, start) + insert + activeTab.value.content.substring(end)
-    editorStore.updateContent(activeTab.value.id, newContent)
-    setTimeout(() => ta.setSelectionRange(start + insert.length, start + insert.length), 0)
-  }
+  const insert = '{{' + varNameInput.value + '}}'
+  const newContent = activeTab.value.content.substring(0, start) + insert + activeTab.value.content.substring(end)
+  editorStore.updateContent(activeTab.value.id, newContent)
+  setTimeout(() => ta.setSelectionRange(start + insert.length, start + insert.length), 0)
+  varDialogVisible.value = false
 }
 
 function findPrev() {
   if (!editorTextarea.value || !editorStore.findQuery) return
   const text = editorTextarea.value.value
-  const idx = text.lastIndexOf(editorStore.findQuery, editorTextarea.value.selectionStart - 1)
-  if (idx >= 0) {
-    editorTextarea.value.setSelectionRange(idx, idx + editorStore.findQuery.length)
+  // P7: count all matches
+  const matches = []
+  let si = 0
+  while ((si = text.indexOf(editorStore.findQuery, si)) !== -1) {
+    matches.push(si)
+    si += editorStore.findQuery.length
   }
+  findMatchCount.value = matches.length
+  if (matches.length === 0) return
+  let curPos = editorTextarea.value.selectionStart
+  let prevIdx = matches.length - 1
+  for (let i = matches.length - 1; i >= 0; i--) {
+    if (matches[i] < curPos) { prevIdx = i; break }
+  }
+  findMatchIndex.value = prevIdx
+  const idx = matches[prevIdx]
+  editorTextarea.value.setSelectionRange(idx, idx + editorStore.findQuery.length)
+  const lineHeight = 20
+  const linesBefore = text.substring(0, idx).split('\n').length
+  editorTextarea.value.scrollTop = Math.max(0, (linesBefore - 3) * lineHeight)
 }
 
 function replaceOne() {
@@ -358,6 +491,43 @@ function replaceAll() {
   const content = activeTab.value.content
   const newContent = content.split(editorStore.findQuery).join(editorStore.replaceQuery)
   editorStore.updateContent(activeTab.value.id, newContent)
+}
+
+function checkInlineMenu() {
+  if (!editorTextarea.value) return
+  const ta = editorTextarea.value
+  const start = ta.selectionStart
+  const end = ta.selectionEnd
+  const text = ta.value.substring(start, end)
+  if (!text || text.length < 2) {
+    inlineMenuVisible.value = false
+    return
+  }
+  const rect = ta.getBoundingClientRect()
+  inlineMenuPos.value = {
+    x: rect.left + 20,
+    y: rect.top + 30
+  }
+  inlineMenuVisible.value = true
+}
+
+function hideInlineMenu() {
+  setTimeout(() => { inlineMenuVisible.value = false }, 200)
+}
+
+function applyInlineAction(action: string, label: string) {
+  inlineMenuVisible.value = false
+  if (!editorTextarea.value) return
+  const ta = editorTextarea.value
+  const selectedText = ta.value.substring(ta.selectionStart, ta.selectionEnd)
+  if (!selectedText) return
+  let prompt: string
+  if (action === 'inject') {
+    prompt = '请基于以下上下文继续写作：\n\n' + selectedText
+  } else {
+    prompt = '【' + label + '】请对以下选中文本进行' + label + '操作：\n\n' + selectedText
+  }
+  window.dispatchEvent(new CustomEvent('editor-action', { detail: { action: 'inline-ai', prompt } }))
 }
 </script>
 
@@ -534,4 +704,74 @@ function replaceAll() {
 #btn-de-ai { color: var(--warning); font-weight: 600; }
 #btn-de-ai:hover { background: var(--warning-dim, rgba(255,193,7,0.15)); }
 #btn-de-ai:disabled { color: var(--text-tertiary); font-weight: 400; }
+
+.inline-menu {
+  position: fixed;
+  z-index: 10000;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  max-width: 360px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.inline-menu-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  text-align: left;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.inline-menu-btn:hover {
+  background: var(--bg-hover);
+  color: var(--accent);
+ }
+ /* 变量输入弹窗 */
+ .var-dialog-overlay {
+   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+   background: rgba(0,0,0,0.5);
+   display: flex; align-items: center; justify-content: center;
+   z-index: 20000;
+ }
+ .var-dialog {
+   background: var(--bg-secondary);
+   border: 1px solid var(--border-color);
+   border-radius: 8px; padding: 16px;
+   min-width: 320px;
+   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+ }
+ .var-dialog-header {
+   font-size: 14px; font-weight: 600;
+   margin-bottom: 12px;
+   color: var(--text-primary);
+ }
+ .var-dialog-body {
+   margin-bottom: 12px;
+ }
+ .var-dialog-input {
+   width: 100%; padding: 8px 10px;
+   background: var(--bg-primary);
+   border: 1px solid var(--border-color);
+   border-radius: 4px;
+   color: var(--text-primary);
+   font-size: 13px;
+   box-sizing: border-box;
+ }
+ .var-dialog-input:focus {
+   outline: none;
+   border-color: var(--accent);
+ }
+ .var-dialog-footer {
+   display: flex; justify-content: flex-end; gap: 8px;
+ }
 </style>
+
+
+

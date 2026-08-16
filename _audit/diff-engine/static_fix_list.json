@@ -1,0 +1,1298 @@
+{
+  "total": 91,
+  "FALSE_POSITIVE": 54,
+  "REAL_DEFECT": 31,
+  "ACCEPTABLE": 6,
+  "items": [
+    {
+      "rule_id": "R014",
+      "layer": "T02",
+      "type": "existence",
+      "rule": "retryDelays数组: 20个值硬编码，提取为配置项或常量",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 46 hits in 46 files: ChatMessage.vue:20, ChatPanel.vue:20, InlineMenu.vue:20, OutlineWorkspace.vue:20, PluginMarket.vue:20",
+      "smart_keywords": [
+        "retryDelays",
+        "编码",
+        "20"
+      ],
+      "search_hits": 46
+    },
+    {
+      "rule_id": "R016",
+      "layer": "T02",
+      "type": "existence",
+      "rule": "400自适应减半: 保留逻辑，但注意减半后仍可能触发400(需设下限1024)",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 17 hits in 15 files: App.vue:400, App.vue.bak:400, ChatPanel.vue:400, OutlineWorkspace.vue:400, PluginMarket.vue:400",
+      "smart_keywords": [
+        "400",
+        "1024"
+      ],
+      "search_hits": 17
+    },
+    {
+      "rule_id": "R020",
+      "layer": "T02",
+      "type": "existence",
+      "rule": "消息按钮: Vue3改为组件化，3个按钮用lucide图标",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 1 hits in 1 files: main.js:ue3",
+      "smart_keywords": [
+        "ue3",
+        "lucide"
+      ],
+      "search_hits": 1
+    },
+    {
+      "rule_id": "R021",
+      "layer": "T02",
+      "type": "existence",
+      "rule": "fetchModels IPC: Vue3中preload.ts暴露fetchModels，主进程代理逻辑不变",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 8 hits in 6 files: ApiSettings.vue:fetchModels, main.ts:fetchModels, provider.ts:fetchModels, api.js:fetchModels, main.js:ue3",
+      "smart_keywords": [
+        "fetchModels",
+        "ue3",
+        "preload"
+      ],
+      "search_hits": 8
+    },
+    {
+      "rule_id": "R023",
+      "layer": "T02",
+      "type": "value",
+      "rule": "首次空闲15秒触发断流",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 28 hits in 27 files: ChatMessage.vue:15, ChatPanel.vue:15, ContextMenu.vue:15, InlineMenu.vue:15, OutlineWorkspace.vue:15",
+      "smart_keywords": [
+        "断流",
+        "空闲",
+        "15"
+      ],
+      "search_hits": 28
+    },
+    {
+      "rule_id": "R025",
+      "layer": "T02",
+      "type": "value",
+      "rule": "3次空闲后阈值降为10秒(更激进)",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 53 hits in 52 files: App.vue:10, App.vue.bak:10, ChatMessage.vue:10, ChatPanel.vue:10, BreadcrumbBar.vue:10",
+      "smart_keywords": [
+        "空闲",
+        "10"
+      ],
+      "search_hits": 53
+    },
+    {
+      "rule_id": "R027",
+      "layer": "T02",
+      "type": "value",
+      "rule": "生成唯一_diagKey = 'api-' + Date.now() + '-' + random",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 145 hits in 79 files: App.vue:api, App.vue:ate, App.vue.bak:api, App.vue.bak:ate, ChatMessage.vue:ate",
+      "smart_keywords": [
+        "diagKey",
+        "api",
+        "ate",
+        "now",
+        "random",
+        "_diagKey"
+      ],
+      "search_hits": 145
+    },
+    {
+      "rule_id": "R028",
+      "layer": "T02",
+      "type": "existence",
+      "rule": "DiagLogger.perfStart(_diagKey)开始计时",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 5 hits in 2 files: diag.js:iagLogger, diag.js:perfStart, diag.js:DiagLogger, pipeline-manager.js:iagLogger, pipeline-manager.js:DiagLogger",
+      "smart_keywords": [
+        "iagLogger",
+        "perfStart",
+        "diagKey",
+        "DiagLogger",
+        "_diagKey"
+      ],
+      "search_hits": 5
+    },
+    {
+      "rule_id": "R032",
+      "layer": "T03",
+      "type": "existence",
+      "rule": "5步流水线改Stepper组件",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: tepper, Stepper",
+      "smart_keywords": [
+        "tepper",
+        "Stepper"
+      ],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R033",
+      "layer": "T03",
+      "type": "existence",
+      "rule": "卷纲3模式改策略模式",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: 策略",
+      "smart_keywords": [
+        "策略"
+      ],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R037",
+      "layer": "T03",
+      "type": "existence",
+      "rule": "章节卡片改Vue组件",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R039",
+      "layer": "T03",
+      "type": "existence",
+      "rule": "切分算法保留为工具函数",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 60,
+      "evidence": "Must-keep rule not found in new arch. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R040",
+      "layer": "T03",
+      "type": "existence",
+      "rule": "验证器保留为工具函数",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 7 hits in 7 files: PluginMarket.vue:验证, ApiSettings.vue:验证, DeAiSettings.vue:验证, useSkillTest.ts:验证, de-ai.js:验证",
+      "smart_keywords": [
+        "验证"
+      ],
+      "search_hits": 7
+    },
+    {
+      "rule_id": "R041",
+      "layer": "T03",
+      "type": "existence",
+      "rule": "进度UI改Vue组件",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R042",
+      "layer": "T03",
+      "type": "existence",
+      "rule": "硬规则系统保留为独立模块",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 60,
+      "evidence": "Must-keep rule not found in new arch. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R044",
+      "layer": "T03",
+      "type": "existence",
+      "rule": "消息列表改v-for组件",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R049",
+      "layer": "T03",
+      "type": "existence",
+      "rule": "execCommand改编辑器API",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 1 hits in 1 files: useUndoRedo.ts:execCommand",
+      "smart_keywords": [
+        "execCommand"
+      ],
+      "search_hits": 1
+    },
+    {
+      "rule_id": "R050",
+      "layer": "T03",
+      "type": "existence",
+      "rule": "工具栏改Vue组件",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R052",
+      "layer": "T03",
+      "type": "existence",
+      "rule": "Diff改Vue组件",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 16 hits in 8 files: App.vue:iff, App.vue:Diff, App.vue.bak:iff, App.vue.bak:Diff, DiffModal.vue:iff",
+      "smart_keywords": [
+        "iff",
+        "Diff"
+      ],
+      "search_hits": 16
+    },
+    {
+      "rule_id": "R057",
+      "layer": "T03",
+      "type": "existence",
+      "rule": "6个tab改Vue Router式tab组件",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 17 hits in 15 files: App.vue:tab, App.vue.bak:tab, ChatPanel.vue:tab, DeAiButton.vue:tab, EditorPanel.vue:tab",
+      "smart_keywords": [
+        "tab",
+        "outer",
+        "Router"
+      ],
+      "search_hits": 17
+    },
+    {
+      "rule_id": "R058",
+      "layer": "T03",
+      "type": "existence",
+      "rule": "供应商卡片改Vue组件",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R059",
+      "layer": "T03",
+      "type": "existence",
+      "rule": "技能编辑器改Vue组件",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R060",
+      "layer": "T03",
+      "type": "existence",
+      "rule": "去AI味3卡片改Vue组件",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R061",
+      "layer": "T04",
+      "type": "existence",
+      "rule": "openOutlineWorkspace()",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: openOutlineWorkspace",
+      "smart_keywords": [
+        "openOutlineWorkspace"
+      ],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R062",
+      "layer": "T04",
+      "type": "existence",
+      "rule": "toggleVolume(id) — 展开/折叠卷",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 1 hits in 1 files: ChapterTree.vue:toggleVolume",
+      "smart_keywords": [
+        "toggleVolume"
+      ],
+      "search_hits": 1
+    },
+    {
+      "rule_id": "R063",
+      "layer": "T04",
+      "type": "existence",
+      "rule": "openVolumeOutline(id) — 在编辑器显示卷纲要",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 1 hits in 1 files: ChapterTree.vue:openVolumeOutline",
+      "smart_keywords": [
+        "openVolumeOutline"
+      ],
+      "search_hits": 1
+    },
+    {
+      "rule_id": "R064",
+      "layer": "T04",
+      "type": "existence",
+      "rule": "openChapterPlot(vid, cid) — 在编辑器显示章节梗概",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 29 hits in 27 files: App.vue:vid, App.vue.bak:vid, ChatPanel.vue:vid, ExitConfirmModal.vue:vid, OutlineWorkspace.vue:vid",
+      "smart_keywords": [
+        "openChapterPlot",
+        "vid",
+        "cid",
+        "openChapter"
+      ],
+      "search_hits": 29
+    },
+    {
+      "rule_id": "R065",
+      "layer": "T04",
+      "type": "existence",
+      "rule": "openChapter(vid, cid) — 在编辑器打开章节正文",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 28 hits in 27 files: App.vue:vid, App.vue.bak:vid, ChatPanel.vue:vid, ExitConfirmModal.vue:vid, OutlineWorkspace.vue:vid",
+      "smart_keywords": [
+        "openChapter",
+        "vid",
+        "cid"
+      ],
+      "search_hits": 28
+    },
+    {
+      "rule_id": "R066",
+      "layer": "T04",
+      "type": "existence",
+      "rule": "deleteChapterFromTree(vid, cid) — 删除章节（stopPropagation）",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 27 hits in 27 files: App.vue:vid, App.vue.bak:vid, ChatPanel.vue:vid, ExitConfirmModal.vue:vid, OutlineWorkspace.vue:vid",
+      "smart_keywords": [
+        "deleteChapterFromTree",
+        "vid",
+        "cid",
+        "stopPropagation"
+      ],
+      "search_hits": 27
+    },
+    {
+      "rule_id": "R067",
+      "layer": "T04",
+      "type": "existence",
+      "rule": "addChapter(vid) — 添加章节",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 27 hits in 27 files: App.vue:vid, App.vue.bak:vid, ChatPanel.vue:vid, ExitConfirmModal.vue:vid, OutlineWorkspace.vue:vid",
+      "smart_keywords": [
+        "addChapter",
+        "vid"
+      ],
+      "search_hits": 27
+    },
+    {
+      "rule_id": "R070",
+      "layer": "T04",
+      "type": "existence",
+      "rule": "showVolumeForm() — 显示添加卷表单",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 1 hits in 1 files: ChapterTree.vue:showVolumeForm",
+      "smart_keywords": [
+        "showVolumeForm"
+      ],
+      "search_hits": 1
+    },
+    {
+      "rule_id": "R074",
+      "layer": "T05",
+      "type": "value",
+      "rule": "暗色主题是默认值，不需要额外属性",
+      "original_status": "MISSING",
+      "classification": "ACCEPTABLE",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as ACCEPTABLE. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R075",
+      "layer": "T05",
+      "type": "existence",
+      "rule": "字体大小通过 CSS 变量动态设置，不依赖主题",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R085",
+      "layer": "T06",
+      "type": "existence",
+      "rule": "Vue组件 + getSelection API",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 1 hits in 1 files: PipelinePanel.vue:getSelection",
+      "smart_keywords": [
+        "getSelection"
+      ],
+      "search_hits": 1
+    },
+    {
+      "rule_id": "R086",
+      "layer": "T06",
+      "type": "existence",
+      "rule": "Vue组件 + Teleport",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: eleport, Teleport",
+      "smart_keywords": [
+        "eleport",
+        "Teleport"
+      ],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R090",
+      "layer": "T06",
+      "type": "existence",
+      "rule": "hotkeys-js可在Vue中继续使用，或迁移到Vue自定义指令",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 9 hits in 9 files: useAiRequest.ts:迁移, useAiTools.ts:迁移, useExitConfirm.ts:迁移, useFindReplace.ts:迁移, useShortcuts.ts:迁移",
+      "smart_keywords": [
+        "hotkeys",
+        "迁移"
+      ],
+      "search_hits": 9
+    },
+    {
+      "rule_id": "R107",
+      "layer": "T07",
+      "type": "existence",
+      "rule": "Vue组件 + IPC",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R123",
+      "layer": "T08",
+      "type": "value",
+      "rule": "### 2.2 存储键命名规范\n\n源码位置: js/storage.js L5-7\n\n所有存储键统一添加前缀wa_防止冲突：var PREFIX = \"wa_\"",
+      "original_status": "MISMATCH",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 93 hits in 73 files: App.vue:storage, App.vue:var, App.vue.bak:storage, App.vue.bak:var, ChatMessage.vue:var",
+      "smart_keywords": [
+        "storage",
+        "wa_",
+        "var"
+      ],
+      "search_hits": 93
+    },
+    {
+      "rule_id": "R130",
+      "layer": "T09",
+      "type": "existence",
+      "rule": "重试策略：8次递增重试+不重试客户端错误",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 8 hits in 7 files: PluginMarket.vue:重试, PipelinePanel.vue:重试, useAiRequest.ts:重试, useAiRequest.ts:递增, useDeAi.ts:重试",
+      "smart_keywords": [
+        "重试",
+        "策略",
+        "递增"
+      ],
+      "search_hits": 8
+    },
+    {
+      "rule_id": "R132",
+      "layer": "T09",
+      "type": "value",
+      "rule": "流式空闲检测：15秒超时+3次降为10秒",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 80 hits in 54 files: App.vue:10, App.vue.bak:10, ChatMessage.vue:15, ChatMessage.vue:10, ChatPanel.vue:15",
+      "smart_keywords": [
+        "空闲",
+        "15",
+        "10"
+      ],
+      "search_hits": 80
+    },
+    {
+      "rule_id": "R133",
+      "layer": "T09",
+      "type": "value",
+      "rule": "心跳重连：60秒间隔无限重试",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 41 hits in 35 files: App.vue:60, App.vue.bak:60, ChatPanel.vue:60, DiffModal.vue:60, InlineMenu.vue:60",
+      "smart_keywords": [
+        "心跳",
+        "重试",
+        "60"
+      ],
+      "search_hits": 41
+    },
+    {
+      "rule_id": "R135",
+      "layer": "T09",
+      "type": "existence",
+      "rule": "模型列表获取：主进程代理绕过CORS",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: CORS",
+      "smart_keywords": [
+        "CORS"
+      ],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R137",
+      "layer": "T09",
+      "type": "existence",
+      "rule": "重试参数可配置化（不硬编码8次和delay数组）",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 9 hits in 8 files: PluginMarket.vue:重试, PipelinePanel.vue:重试, useAiRequest.ts:delay, useAiRequest.ts:重试, useDeAi.ts:重试",
+      "smart_keywords": [
+        "delay",
+        "重试",
+        "编码"
+      ],
+      "search_hits": 9
+    },
+    {
+      "rule_id": "R138",
+      "layer": "T09",
+      "type": "existence",
+      "rule": "心跳重连可配置间隔和最大尝试次数",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 1 hits in 1 files: useAiRequest.ts:心跳",
+      "smart_keywords": [
+        "心跳"
+      ],
+      "search_hits": 1
+    },
+    {
+      "rule_id": "R159",
+      "layer": "T12",
+      "type": "existence",
+      "rule": "去AI味温度策略必须保持。",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 3 hits in 3 files: AgentSettings.vue:温度, ApiSettings.vue:温度, de-ai.js:温度",
+      "smart_keywords": [
+        "温度",
+        "策略"
+      ],
+      "search_hits": 3
+    },
+    {
+      "rule_id": "R162",
+      "layer": "T13",
+      "type": "existence",
+      "rule": "所有18个IPC通道名称不变",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 19 hits in 19 files: App.vue:18, ChatPanel.vue:18, OutlineWorkspace.vue:18, DashboardModal.vue:18, EditorPanel.vue:18",
+      "smart_keywords": [
+        "通道",
+        "18"
+      ],
+      "search_hits": 19
+    },
+    {
+      "rule_id": "R165",
+      "layer": "T13",
+      "type": "existence",
+      "rule": "api:fetchModels异步IPC不变。",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 41 hits in 36 files: App.vue:api, App.vue.bak:api, ChatPanel.vue:api, ExitConfirmModal.vue:api, OutlineWorkspace.vue:api",
+      "smart_keywords": [
+        "api",
+        "fetchModels"
+      ],
+      "search_hits": 41
+    },
+    {
+      "rule_id": "R166",
+      "layer": "T13",
+      "type": "value",
+      "rule": "可改进：存储IPC从sendSync改为invoke减少阻塞",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 2 hits in 1 files: preload.js:sendSync, preload.js:invoke",
+      "smart_keywords": [
+        "sendSync",
+        "invoke"
+      ],
+      "search_hits": 2
+    },
+    {
+      "rule_id": "R167",
+      "layer": "T13",
+      "type": "existence",
+      "rule": "增加IPC消息验证防止参数注入",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 14 hits in 11 files: InlineMenu.vue:注入, PluginMarket.vue:验证, EditorPanel.vue:注入, ApiSettings.vue:验证, DeAiSettings.vue:验证",
+      "smart_keywords": [
+        "验证",
+        "注入"
+      ],
+      "search_hits": 14
+    },
+    {
+      "rule_id": "R170",
+      "layer": "T13",
+      "type": "existence",
+      "rule": "IPC通道名称必须保持",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 60,
+      "evidence": "Must-keep rule not found in new arch. Smart keywords: 通道",
+      "smart_keywords": [
+        "通道"
+      ],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R171",
+      "layer": "T13",
+      "type": "existence",
+      "rule": "返回值类型必须保持",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 60,
+      "evidence": "Must-keep rule not found in new arch. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R175",
+      "layer": "T14",
+      "type": "existence",
+      "rule": "6个设置tab",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 14 hits in 14 files: App.vue:tab, App.vue.bak:tab, ChatPanel.vue:tab, DeAiButton.vue:tab, EditorPanel.vue:tab",
+      "smart_keywords": [
+        "tab"
+      ],
+      "search_hits": 14
+    },
+    {
+      "rule_id": "R176",
+      "layer": "T14",
+      "type": "existence",
+      "rule": "5个流水线阶段",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R177",
+      "layer": "T14",
+      "type": "existence",
+      "rule": "3种去AI味模式",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R179",
+      "layer": "T14",
+      "type": "existence",
+      "rule": "进度条取消功能",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R186",
+      "layer": "T14",
+      "type": "existence",
+      "rule": "设置6个tab必须保持",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 14 hits in 14 files: App.vue:tab, App.vue.bak:tab, ChatPanel.vue:tab, DeAiButton.vue:tab, EditorPanel.vue:tab",
+      "smart_keywords": [
+        "tab"
+      ],
+      "search_hits": 14
+    },
+    {
+      "rule_id": "R187",
+      "layer": "T14",
+      "type": "existence",
+      "rule": "流水线5阶段必须保持",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 60,
+      "evidence": "Must-keep rule not found in new arch. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R188",
+      "layer": "T14",
+      "type": "existence",
+      "rule": "去AI味3模式必须保持",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 60,
+      "evidence": "Must-keep rule not found in new arch. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R189",
+      "layer": "T14",
+      "type": "existence",
+      "rule": "断网续接必须保持。",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 2 hits in 2 files: useAiRequest.ts:断网, pipeline-manager.js:断网",
+      "smart_keywords": [
+        "断网",
+        "续接"
+      ],
+      "search_hits": 2
+    },
+    {
+      "rule_id": "R190",
+      "layer": "T15",
+      "type": "existence",
+      "rule": "必须保留：UTF-8无BOM编码",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 60,
+      "evidence": "Must-keep rule not found in new arch. Smart keywords: 编码",
+      "smart_keywords": [
+        "编码"
+      ],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R191",
+      "layer": "T15",
+      "type": "value",
+      "rule": "JSONL日志格式",
+      "original_status": "MISSING",
+      "classification": "ACCEPTABLE",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as ACCEPTABLE. Smart keywords: JSONL",
+      "smart_keywords": [
+        "JSONL"
+      ],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R192",
+      "layer": "T15",
+      "type": "existence",
+      "rule": "safeKey字符替换",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 1 hits in 1 files: storage.js:safeKey",
+      "smart_keywords": [
+        "safeKey"
+      ],
+      "search_hits": 1
+    },
+    {
+      "rule_id": "R194",
+      "layer": "T15",
+      "type": "existence",
+      "rule": "可改进：API请求URL拼接做斜杠处理",
+      "original_status": "MISSING",
+      "classification": "ACCEPTABLE",
+      "confidence": 70,
+      "evidence": "Suggestion/improvement item, not a hard requirement",
+      "smart_keywords": [
+        "斜杠"
+      ],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R197",
+      "layer": "T15",
+      "type": "existence",
+      "rule": "差异检测规则：文件编码UTF-8无BOM必须保持",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 60,
+      "evidence": "Must-keep rule not found in new arch. Smart keywords: 编码",
+      "smart_keywords": [
+        "编码"
+      ],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R198",
+      "layer": "T15",
+      "type": "value",
+      "rule": "JSONL格式必须保持",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 60,
+      "evidence": "Must-keep rule not found in new arch. Smart keywords: JSONL",
+      "smart_keywords": [
+        "JSONL"
+      ],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R199",
+      "layer": "T15",
+      "type": "existence",
+      "rule": "safeKey正则必须保持。",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 1 hits in 1 files: storage.js:safeKey",
+      "smart_keywords": [
+        "safeKey"
+      ],
+      "search_hits": 1
+    },
+    {
+      "rule_id": "R200",
+      "layer": "T16",
+      "type": "existence",
+      "rule": "safeStorage加密",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 1 hits in 1 files: crypto.js:safeStorage",
+      "smart_keywords": [
+        "safeStorage",
+        "加密"
+      ],
+      "search_hits": 1
+    },
+    {
+      "rule_id": "R201",
+      "layer": "T16",
+      "type": "value",
+      "rule": "safeKey路径遍历防护",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 1 hits in 1 files: storage.js:safeKey",
+      "smart_keywords": [
+        "safeKey",
+        "路径遍历"
+      ],
+      "search_hits": 1
+    },
+    {
+      "rule_id": "R202",
+      "layer": "T16",
+      "type": "existence",
+      "rule": "必须修复：marked输出做XSS sanitize（用DOMPurify）",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 3 hits in 3 files: ChatMessage.vue:marked, OutlineWorkspace.vue:marked, package.json:marked",
+      "smart_keywords": [
+        "marked",
+        "sanitize",
+        "urify",
+        "DOMPurify",
+        "XSS"
+      ],
+      "search_hits": 3
+    },
+    {
+      "rule_id": "R203",
+      "layer": "T16",
+      "type": "existence",
+      "rule": "IPC参数验证",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 7 hits in 7 files: PluginMarket.vue:验证, ApiSettings.vue:验证, DeAiSettings.vue:验证, useSkillTest.ts:验证, de-ai.js:验证",
+      "smart_keywords": [
+        "验证"
+      ],
+      "search_hits": 7
+    },
+    {
+      "rule_id": "R204",
+      "layer": "T16",
+      "type": "existence",
+      "rule": "编辑器内容sanitize",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: sanitize",
+      "smart_keywords": [
+        "sanitize"
+      ],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R210",
+      "layer": "T17",
+      "type": "value",
+      "rule": "新增字段默认值兼容。",
+      "original_status": "MISSING",
+      "classification": "ACCEPTABLE",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as ACCEPTABLE. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R211",
+      "layer": "T17",
+      "type": "existence",
+      "rule": "必须新增：数据版本字段（version: 1）",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 10 hits in 10 files: EditorPanel.vue:version, DeAiSettings.vue:version, de-ai-validators.js:version, de-ai.js:version, file-import.js:version",
+      "smart_keywords": [
+        "version"
+      ],
+      "search_hits": 10
+    },
+    {
+      "rule_id": "R212",
+      "layer": "T17",
+      "type": "existence",
+      "rule": "版本迁移函数（v1->v2转换）",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 8 hits in 8 files: useAiRequest.ts:迁移, useAiTools.ts:迁移, useExitConfirm.ts:迁移, useFindReplace.ts:迁移, useShortcuts.ts:迁移",
+      "smart_keywords": [
+        "迁移"
+      ],
+      "search_hits": 8
+    },
+    {
+      "rule_id": "R213",
+      "layer": "T17",
+      "type": "existence",
+      "rule": "迁移日志记录。",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 8 hits in 8 files: useAiRequest.ts:迁移, useAiTools.ts:迁移, useExitConfirm.ts:迁移, useFindReplace.ts:迁移, useShortcuts.ts:迁移",
+      "smart_keywords": [
+        "迁移"
+      ],
+      "search_hits": 8
+    },
+    {
+      "rule_id": "R214",
+      "layer": "T17",
+      "type": "existence",
+      "rule": "迁移逻辑必须保持",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 8 hits in 8 files: useAiRequest.ts:迁移, useAiTools.ts:迁移, useExitConfirm.ts:迁移, useFindReplace.ts:迁移, useShortcuts.ts:迁移",
+      "smart_keywords": [
+        "迁移"
+      ],
+      "search_hits": 8
+    },
+    {
+      "rule_id": "R215",
+      "layer": "T17",
+      "type": "existence",
+      "rule": "项目孤儿恢复必须保持",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 1 hits in 1 files: deai-samples.js:孤儿",
+      "smart_keywords": [
+        "孤儿"
+      ],
+      "search_hits": 1
+    },
+    {
+      "rule_id": "R216",
+      "layer": "T17",
+      "type": "value",
+      "rule": "默认值回退必须保持。",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 60,
+      "evidence": "Must-keep rule not found in new arch. Smart keywords: 回退",
+      "smart_keywords": [
+        "回退"
+      ],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R224",
+      "layer": "T18",
+      "type": "existence",
+      "rule": "章节树键盘导航",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 1 hits in 1 files: pipeline-manager.js:导航",
+      "smart_keywords": [
+        "导航"
+      ],
+      "search_hits": 1
+    },
+    {
+      "rule_id": "R232",
+      "layer": "T19",
+      "type": "existence",
+      "rule": "NSIS安装器",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 1 hits in 1 files: package.json:NSIS",
+      "smart_keywords": [
+        "NSIS"
+      ],
+      "search_hits": 1
+    },
+    {
+      "rule_id": "R233",
+      "layer": "T19",
+      "type": "value",
+      "rule": "安装包命名格式",
+      "original_status": "MISSING",
+      "classification": "ACCEPTABLE",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as ACCEPTABLE. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R234",
+      "layer": "T19",
+      "type": "existence",
+      "rule": "打包前语法检查和测试。",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: ",
+      "smart_keywords": [],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R235",
+      "layer": "T19",
+      "type": "existence",
+      "rule": "必须改进：打包前自动化测试集成CI",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 24 hits in 24 files: ChatMessage.vue:CI, BreadcrumbBar.vue:CI, InlineMenu.vue:CI, PluginMarket.vue:CI, DeAiButton.vue:CI",
+      "smart_keywords": [
+        "CI"
+      ],
+      "search_hits": 24
+    },
+    {
+      "rule_id": "R236",
+      "layer": "T19",
+      "type": "existence",
+      "rule": "版本号自动递增",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 1 hits in 1 files: useAiRequest.ts:递增",
+      "smart_keywords": [
+        "递增",
+        "版本号"
+      ],
+      "search_hits": 1
+    },
+    {
+      "rule_id": "R237",
+      "layer": "T19",
+      "type": "existence",
+      "rule": "安装包数字签名",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: 签名",
+      "smart_keywords": [
+        "签名"
+      ],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R243",
+      "layer": "T20",
+      "type": "existence",
+      "rule": "parallelMap可替换为p-limit等库",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 1 hits in 1 files: skill-engine.js:parallelMap",
+      "smart_keywords": [
+        "parallelMap",
+        "limit",
+        "p-limit"
+      ],
+      "search_hits": 1
+    },
+    {
+      "rule_id": "R252",
+      "layer": "T22",
+      "type": "existence",
+      "rule": "AI调用数据流封装到apiService composable",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 6 hits in 6 files: App.vue:composable, App.vue.bak:composable, DeAiButton.vue:composable, EditorPanel.vue:composable, PipelinePanel.vue:composable",
+      "smart_keywords": [
+        "apiService",
+        "composable"
+      ],
+      "search_hits": 6
+    },
+    {
+      "rule_id": "R254",
+      "layer": "T23",
+      "type": "existence",
+      "rule": "AI API服务封装为apiService模块",
+      "original_status": "MISSING",
+      "classification": "REAL_DEFECT",
+      "confidence": 50,
+      "evidence": "Ambiguous rule, classified as REAL_DEFECT. Smart keywords: apiService",
+      "smart_keywords": [
+        "apiService"
+      ],
+      "search_hits": 0
+    },
+    {
+      "rule_id": "R255",
+      "layer": "T23",
+      "type": "existence",
+      "rule": "GitHub API封装为githubService",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 3 hits in 3 files: App.vue:itHub, PluginMarket.vue:itHub, AppearanceSettings.vue:itHub",
+      "smart_keywords": [
+        "itHub",
+        "githubService"
+      ],
+      "search_hits": 3
+    },
+    {
+      "rule_id": "R256",
+      "layer": "T23",
+      "type": "existence",
+      "rule": "朱雀检测封装为可选验证器模块",
+      "original_status": "MISSING",
+      "classification": "FALSE_POSITIVE",
+      "confidence": 80,
+      "evidence": "Found 7 hits in 7 files: PluginMarket.vue:验证, ApiSettings.vue:验证, DeAiSettings.vue:验证, useSkillTest.ts:验证, de-ai.js:验证",
+      "smart_keywords": [
+        "验证"
+      ],
+      "search_hits": 7
+    },
+    {
+      "rule_id": "R258",
+      "layer": "T23",
+      "type": "existence",
+      "rule": "考虑添加更多AI供应商适配器",
+      "original_status": "MISSING",
+      "classification": "ACCEPTABLE",
+      "confidence": 70,
+      "evidence": "Suggestion/improvement item, not a hard requirement",
+      "smart_keywords": [],
+      "search_hits": 0
+    }
+  ]
+}

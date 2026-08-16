@@ -1,9 +1,12 @@
-﻿<template>
-  <div class="ow-overlay" @click.self="$emit('close')">
+<template>
+  <div id="outline-workspace" class="ow-overlay" @click.self="$emit('close')">
     <div class="ow-content">
       <div class="ow-header">
         <span>大纲工作台</span>
-        <button id="btn-close-outline-workspace" class="modal-close" @click="$emit('close')">x</button>
+        <div class="ow-header-right">
+          <button id="btn-ai-co-create" class="ow-chat-toggle" @click="chatAreaOpen = !chatAreaOpen">AI 共创大纲</button>
+          <button id="btn-close-outline-workspace" class="modal-close" @click="$emit('close')">x</button>
+        </div>
       </div>
       <div class="ow-body">
         <div class="ow-editor">
@@ -18,20 +21,20 @@
             <span id="ow-word-count" class="word-count">{{ (projectStore.outlineText || "").length }} 字</span>
           </div>
           <textarea
+            id="outline-editor"
             v-model="projectStore.outlineText"
-            class="ow-textarea"
+            class="ow-textarea" :readonly="projectStore.outlineLocked"
             placeholder="在此输入或编辑你的小说大纲..."
           ></textarea>
         </div>
-        <div class="ow-chat">
-          <div class="ow-chat-header">AI共创</div>
-          <div class="ow-messages" ref="msgContainer">
+        <div class="ow-chat" v-show="chatAreaOpen">
+          <div id="ow-chat-messages" class="ow-messages" ref="msgContainer">
             <div v-for="(msg, i) in messages" :key="i" class="ow-msg" :class="msg.role">
               <div class="ow-msg-bubble" v-html="renderMarkdown(msg.content)"></div>
             </div>
           </div>
           <div class="ow-input-row">
-            <input v-model="inputText" class="ow-input" placeholder="和AI讨论大纲..." @keydown.enter="sendMessage" />
+            <input id="ow-chat-input" v-model="inputText" class="ow-input" placeholder="和AI讨论大纲..." @keydown.enter="sendMessage" />
             <button id="btn-ow-send" class="btn-send" @click="sendMessage">send</button>
           </div>
         </div>
@@ -40,7 +43,6 @@
           <div class="ow-section">
             <h4>Skill 功能区</h4>
             <button id="btn-generate-outline-skills" class="btn-secondary full-width" @click="generateOutlineSkills">自动生成大纲 Skill</button>
-            <div id="btn-ai-co-create" style="display:none" data-audit="v5"></div>
             <div id="ow-skill-suggestions" class="">
               <div v-for="(s, i) in skillSuggestionsList" :key="i" class="ow-skill-item" @click="bindSkill(s)">
                 {{ s.name }}
@@ -58,44 +60,45 @@
           </div>
         </div>
       <div class="ow-footer">
-        <button id="btn-import-outline" class="btn-secondary btn-import" @click="triggerImport">导入文件</button>
+        <button id="btn-import-outline" class="btn-secondary btn-import" @click="triggerImport">从文件导入(.txt/.md/.doc/.docx)</button>
         <input ref="fileInput" type="file" accept=".txt,.md,.text,.rtf,.docx" style="display:none" @change="handleImport" />
-       <button id="btn-lock-outline" class="btn-primary" @click="saveOutline">保存大纲</button>
+        <button id="btn-save-outline" class="btn-primary" @click="saveOutline">保存大纲</button>
         <span v-if="saveFeedback" class="save-feedback">{{ saveFeedback }}</span>
-        <button class="btn-secondary" @click="projectStore.lockOutline()" :disabled="!projectStore.hasOutline">锁定大纲</button>
+        <button id="btn-lock-outline" class="btn-primary" @click="handleLockOutline()" :disabled="!projectStore.hasOutline">确认大纲，锁定并进入创作</button>
       </div>
       <div class="ow-resize-handle"></div>
     </div>
   </div>
-
-  <!-- audit-v5 -->
-  <div id="outline-workspace" style="display:none" data-audit="v5"></div>
-  <div id="outline-editor" style="display:none" data-audit="v5"></div>
-  <div id="ow-chat-area" style="display:none" data-audit="v5"></div>
-  <div id="ow-chat-messages" style="display:none" data-audit="v5"></div>
-  <div id="ow-chat-input" style="display:none" data-audit="v5"></div>
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { marked } from 'marked'
 import { useProjectStore } from '../../stores/project'
 import { useSkillStore } from '../../stores/skill'
 import { useProviderStore } from '../../stores/provider'
+import { usePipelineStore } from '../../stores/pipeline'
 import { importFile } from '../../services/file-import'
+import { useAiTools } from '../../composables/useAiTools'
 
-defineEmits<{ close: [] }>()
+const emit = defineEmits<{ close: []; navigate: [target: string] }>()
 
 const projectStore = useProjectStore()
 const providerStore = useProviderStore()
+const pipelineStore = usePipelineStore()
+const { callAi } = useAiTools()
 const messages = ref<any[]>([])
 const inputText = ref('')
 const msgContainer = ref<HTMLElement | null>(null)
 const fileInput = ref<HTMLElement | null>(null)
+const chatAreaOpen = ref(false)
 const saveFeedback = ref('')
 const skillStore = useSkillStore()
 const skillSuggestionsList = ref<any[]>([])
-const boundSkills = ref<string[]>([])
+const boundSkills = computed({
+  get: () => skillStore.pipelineSkills,
+  set: (v: string[]) => { skillStore.pipelineSkills = [...v]; skillStore.saveSkills() }
+})
 
 function generateOutlineSkills() {
   const outlineSkills = skillStore.skills.filter(function(s: any) { return s.category === 'outline' || s.category === '大纲' })
@@ -108,12 +111,14 @@ function generateOutlineSkills() {
 
 function bindSkill(skill: any) {
   if (skill.id && !boundSkills.value.includes(skill.id)) {
-    boundSkills.value.push(skill.id)
+    boundSkills.value = [...boundSkills.value, skill.id]
   }
 }
 
 function unbindSkill(index: number) {
-  boundSkills.value.splice(index, 1)
+  const arr = [...boundSkills.value]
+  arr.splice(index, 1)
+  boundSkills.value = arr
 }
 
 function getSkillName(id: string): string {
@@ -131,6 +136,10 @@ async function handleImport(e: Event) {
   try {
     const text = await importFile(target.files[0])
     if (text && text.length > 0) {
+      if (!projectStore.currentProjectId) {
+        projectStore.currentProjectId = 'proj-' + Date.now()
+      }
+      projectStore.projectName = target.files[0].name.replace(/\.(txt|md|rtf|docx)$/i, '').substring(0, 20) || projectStore.projectName || '新小说'
       projectStore.outlineText = text
       projectStore.setOutline(text)
     }
@@ -144,10 +153,135 @@ function renderMarkdown(text: string): string {
   return marked.parse(text || '', { breaks: true }) as string
 }
 
+async function handleLockOutline() {
+  const outline = projectStore.outlineText.trim()
+  if (!outline) {
+    saveFeedback.value = '[WARN] 大纲为空，请先输入内容'
+    setTimeout(function() { saveFeedback.value = '' }, 3000)
+    return
+  }
+
+  try {
+    if (!projectStore.currentProjectId) {
+      projectStore.currentProjectId = 'proj-' + Date.now()
+    }
+    projectStore.projectName = projectStore.projectName
+      || outline.split('\n')[0].replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim().substring(0, 20)
+      || '新小说'
+
+    projectStore.setOutline(outline)
+    projectStore.lockOutline()
+    projectStore.syncTreeToPipeline()
+    pipelineStore.setStep(0)
+
+    saveFeedback.value = '[OK] 大纲已锁定，正在同步到流水线...'
+    setTimeout(function() { saveFeedback.value = '' }, 3000)
+
+    emit('navigate', 'pipeline')
+
+    // 旧架构锁定后的自动拆解链路：设定 + 伏笔（异步执行，不阻塞导航）
+    autoDecompose(outline)
+  } catch (e: any) {
+    saveFeedback.value = '[锁定失败] ' + (e.message || String(e))
+    setTimeout(function() { saveFeedback.value = '' }, 3000)
+  }
+}
+
+async function autoDecompose(outline: string) {
+  if (!outline || outline.trim().length < 50) return
+  const provider = providerStore.activeGenerateProvider
+  if (!provider || !provider.apiKey) return
+
+  try {
+    const decomposePrompt = '请从以下小说大纲中提取设定信息，根据大纲内容自行决定需要哪些分类（如角色、世界观、物种、物品、势力、地理、魔法体系、技术、组织等），不要限定在固定分类里。\n返回JSON数组，每项包含 category、name、content 字段。只返回JSON数组，不要其他文字。\n\n大纲：\n' + outline
+    const decomposeResult = await callAi(decomposePrompt, '你是专业的小说设定编辑，擅长从大纲中提取各类设定信息，能根据大纲内容灵活判断需要哪些分类。')
+    parseDecomposedSettings(decomposeResult)
+  } catch (e) {
+    console.warn('[OutlineWorkspace] 设定自动拆解失败:', e)
+  }
+
+  try {
+    const foreshadowPrompt = '请从以下小说大纲中识别所有的伏笔（铺垫、暗示、悬念、未解之谜等）。\n返回JSON数组，每项包含 name、content 字段。只返回JSON数组，不要其他文字。\n\n大纲：\n' + outline
+    const foreshadowResult = await callAi(foreshadowPrompt, '你是专业的小说结构分析师，擅长识别伏笔和铺垫。')
+    parseForeshadows(foreshadowResult)
+  } catch (e) {
+    console.warn('[OutlineWorkspace] 伏笔提取失败:', e)
+  }
+}
+
+function parseDecomposedSettings(raw: string | null) {
+  if (!raw) return
+  const items = extractJsonArray(raw)
+  if (!items || items.length === 0) return
+
+  const newSettings = [...(projectStore.settings || [])]
+  let count = 0
+  for (const item of items) {
+    if (!item.name) continue
+    newSettings.push({
+      id: 'set_' + Date.now() + '_' + count,
+      name: item.name,
+      category: (item.category || '其他').toString(),
+      content: item.content || '',
+      attrs: item.attrs || { 描述: item.content || '' },
+      attrsText: JSON.stringify(item.attrs || { 描述: item.content || '' })
+    })
+    count++
+  }
+  if (count > 0) {
+    projectStore.setSettings(newSettings)
+  }
+}
+
+function parseForeshadows(raw: string | null) {
+  if (!raw) return
+  const items = extractJsonArray(raw)
+  if (!items || items.length === 0) return
+
+  const category = '伏笔'
+  const currentCats = projectStore.memories.categories.includes(category)
+    ? projectStore.memories.categories
+    : [...projectStore.memories.categories, category]
+  const currentItems = [...projectStore.memories.items]
+  for (const item of items) {
+    if (!item.name) continue
+    currentItems.push({
+      key: item.name,
+      category,
+      content: item.content || ''
+    })
+  }
+  projectStore.memories.categories = currentCats
+  projectStore.memories.items = currentItems
+  projectStore.saveProject()
+}
+
+function extractJsonArray(text: string): any[] | null {
+  if (!text) return null
+  let cleaned = text.trim()
+  const fenceMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)```/)
+  if (fenceMatch) cleaned = fenceMatch[1].trim()
+  try {
+    const d = JSON.parse(cleaned)
+    if (Array.isArray(d)) return d
+    if (d && typeof d === 'object') return [d]
+  } catch {}
+  const firstBracket = cleaned.indexOf('[')
+  const lastBracket = cleaned.lastIndexOf(']')
+  if (firstBracket >= 0 && lastBracket > firstBracket) {
+    const sub = cleaned.substring(firstBracket, lastBracket + 1)
+    try {
+      const v = JSON.parse(sub)
+      if (Array.isArray(v)) return v
+    } catch {}
+  }
+  return null
+}
+
 function saveOutline() {
   projectStore.setOutline(projectStore.outlineText)
   saveFeedback.value = '[OK] 已保存'
-  setTimeout(function() { saveFeedback.value = '' }, 2000)
+  setTimeout(function() { saveFeedback.value = '' }, 3000)
 }
 
 function exportMd() {
@@ -182,18 +316,18 @@ async function sendMessage() {
     }
     const baseUrl = provider.baseUrl.replace(/\/$/, '')
     const url = baseUrl.match(/\/v\d+$/) ? baseUrl + '/chat/completions' : baseUrl + '/v1/chat/completions'
-   const model = provider.selectedModel || 'gpt-4o'
+    const model = provider.selectedModel || 'gpt-4o'
     const systemPrompt = '你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。'
     let resp = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + provider.apiKey },
-      body: JSON.stringify({ model, messages: [{ role: 'system', content: systemPrompt }, ...messages.value.filter(m => m.content).map(m => ({ role: m.role, content: m.content })), { role: 'user', content: '当前大纲:\n' + projectStore.outlineText + '\n\n用户请求: ' + text }], stream: false })
+      body: JSON.stringify({ model, messages: [{ role: 'system', content: systemPrompt }, ...messages.value.filter(m => m.content).map(m => ({ role: m.role, content: m.content })), { role: 'user', content: '当前大纲:\n' + projectStore.outlineText + '\n\n用户请求: ' + text }], stream: false, max_tokens: 128000 })
     })
     if (resp.status === 429) {
       for (let attempt = 0; attempt < 8; attempt++) {
         const waitMs = [30000, 60000, 90000, 120000, 150000, 180000, 210000, 240000][attempt]
         await new Promise(r => setTimeout(r, waitMs))
-        resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + provider.apiKey }, body: JSON.stringify({ model, messages: [{ role: 'system', content: systemPrompt }, ...messages.value.filter(m => m.content).map(m => ({ role: m.role, content: m.content })), { role: 'user', content: '当前大纲:\n' + projectStore.outlineText + '\n\n用户请求: ' + text }], stream: false }) })
+        resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + provider.apiKey }, body: JSON.stringify({ model, messages: [{ role: 'system', content: systemPrompt }, ...messages.value.filter(m => m.content).map(m => ({ role: m.role, content: m.content })), { role: 'user', content: '当前大纲:\n' + projectStore.outlineText + '\n\n用户请求: ' + text }], stream: false, max_tokens: 128000 }) })
         if (resp.ok) break
         if (resp.status !== 429) throw new Error('API error: ' + resp.status)
       }
@@ -228,8 +362,6 @@ async function sendMessage() {
 .ow-input { flex: 1; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 10px; font-size: 12px; height: 28px; outline: none; }
 .btn-send { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: 6px; padding: 0 12px; height: 28px; cursor: pointer; font-size: 11px; }
 .ow-footer { display: flex; gap: 8px; padding: 12px 24px; border-top: 1px solid var(--border-color); justify-content: flex-end; }
-.btn-import { font-size: 12px; padding: 6px 14px; }
-.ow-export-btn { font-size: 11px; padding: 2px 8px; border-radius: 4px; height: 24px; cursor: pointer; }
 .save-feedback { font-size: 12px; color: var(--success); padding: 0 8px; }
 .ow-editor-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--border-color); font-size: 13px; }
 .ow-editor-header .word-count { margin-left: auto; font-size: 12px; color: var(--text-secondary); }
@@ -246,3 +378,8 @@ async function sendMessage() {
 .ow-resize-handle { height: 6px; cursor: ns-resize; background: var(--border-color); border-radius: 0 0 12px 12px; }
 .full-width { width: 100%; }
 </style>
+
+.ow-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--border-color); font-size: 16px; font-weight: 600; }
+.ow-header-right { display: flex; align-items: center; gap: 8px; }
+.ow-chat-toggle { padding: 6px 14px; font-size: 13px; font-weight: 500; border: 1px solid var(--accent-color); border-radius: 6px; background: transparent; color: var(--accent-color); cursor: pointer; white-space: nowrap; }
+.ow-chat-toggle:hover { background: var(--accent-color); color: #fff; }

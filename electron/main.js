@@ -2,9 +2,39 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const fs = require('fs')
 
+// electron-log: main process logging infrastructure
+const log = require('electron-log/main')
+log.initialize()
+log.transports.file.maxSize = 10 * 1024 * 1024  // 10MB per file
+log.transports.file.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}'
+log.errorHandler.startCatching()
+log.eventLogger.startLogging()
+
 // Enable GPU hardware acceleration
-app.disableHardwareAcceleration = false
-app.commandLine.appendSwitch('enable-gpu-rasterization')
+app.disableHardwareAcceleration = true
+  app.commandLine.appendSwitch('enable-gpu-rasterization')
+  app.commandLine.appendSwitch('remote-allow-origins', '*')
+
+// Single instance lock - must be before app.whenReady()
+var gotLock = app.requestSingleInstanceLock()
+if (!gotLock) {
+  app.quit()
+} else {
+  app.on('second-instance', function() {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+    }
+  })
+}
+
+// Error handlers
+process.on('uncaughtException', function(e) {
+  console.error('Uncaught:', e)
+})
+process.on('unhandledRejection', function(reason) {
+  console.error('Unhandled rejection:', reason)
+})
 
 // IPC handler modules
 const { registerCryptoHandlers } = require('./ipc/crypto')
@@ -12,23 +42,47 @@ const { registerDiagHandlers, setLogDir } = require('./ipc/diag')
 const { registerApiHandlers } = require('./ipc/api')
 const { registerDialogHandlers } = require('./ipc/dialog')
 const { registerLifecycleHandlers } = require('./ipc/lifecycle')
+const { registerStorageHandlers, setDataDir, getDataDir, setLegacyDir } = require('./ipc/storage')
 
 var mainWindow = null
 
+function getWindowStatePath() {
+  return path.join(app.getPath("userData"), "window-state.json")
+}
+function loadWindowState() {
+  try {
+    var p = getWindowStatePath()
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, "utf8"))
+  } catch(e) {}
+  return null
+}
+function saveWindowState() {
+  if (!mainWindow) return
+  try {
+    var bounds = mainWindow.getBounds()
+    var state = { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height, maximized: mainWindow.isMaximized() }
+    fs.writeFileSync(getWindowStatePath(), JSON.stringify(state), "utf8")
+  } catch(e) {}
+}
+
 function createWindow() {
-  var userDataDir = app.getPath('userData')
-  var dataDir = path.join(userDataDir, 'data')
-  var logDir = path.join(userDataDir, 'logs')
+  var docsDir = path.join(app.getPath('documents'), '神意助手数据')
+  var dataDir = docsDir
+  var logDir = path.join(app.getPath('userData'), 'logs')
 
   setDataDir(dataDir)
-  setLegacyDir(path.join(require('os').homedir(), 'Documents', '写作助手数据'))
+  setLegacyDir(path.join(app.getPath('documents'), '写作助手数据'))
   setLogDir(logDir)
 
+  var saved = loadWindowState()
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
+    width: saved ? saved.width : 1400,
+    height: saved ? saved.height : 900,
     minWidth: 1000,
     minHeight: 700,
+    x: saved && !saved.maximized ? saved.x : undefined,
+    y: saved && !saved.maximized ? saved.y : undefined,
+    show: true,
     backgroundColor: '#0a0a0c',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -37,6 +91,16 @@ function createWindow() {
       webSecurity: true
     }
   })
+
+  mainWindow.once('ready-to-show', function() {
+    mainWindow.show()
+    mainWindow.focus()
+    if (saved && saved.maximized) mainWindow.maximize()
+  })
+
+  mainWindow.on('close', function() { saveWindowState() })
+  mainWindow.on('resize', function() { if (!mainWindow.isMaximized()) saveWindowState() })
+  mainWindow.on('move', function() { if (!mainWindow.isMaximized()) saveWindowState() })
 
   // Register all IPC handlers
   registerCryptoHandlers()
@@ -159,24 +223,6 @@ app.on('window-all-closed', function() {
   if (process.platform !== 'darwin') app.quit()
 })
 
-// Single instance lock
-var gotLock = app.requestSingleInstanceLock()
-if (!gotLock) {
-  app.quit()
-} else {
-  app.on('second-instance', function() {
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore()
-      mainWindow.focus()
-    }
-  })
-}
-
-// Error handlers
-process.on('uncaughtException', function(e) {
-  console.error('Uncaught:', e)
+app.on('before-quit', function() {
+  saveWindowState()
 })
-process.on('unhandledRejection', function(reason) {
-  console.error('Unhandled rejection:', reason)
-})
-const { registerStorageHandlers, setDataDir, getDataDir, setLegacyDir } = require('./ipc/storage')

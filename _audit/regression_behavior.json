@@ -1,0 +1,2833 @@
+{
+  "startedAt": "2026-08-16T09:26:41.052Z",
+  "items": [
+    {
+      "id": "B01",
+      "title": "窗口标题",
+      "expected": "神意助手",
+      "actual": "神意助手",
+      "pass": true,
+      "extra": null
+    },
+    {
+      "id": "B02",
+      "title": "App根节点",
+      "expected": true,
+      "actual": true,
+      "pass": true,
+      "extra": null
+    },
+    {
+      "id": "B03",
+      "title": "Pinia stores",
+      "expected": ">=10",
+      "actual": [
+        "agent",
+        "provider",
+        "project",
+        "settings",
+        "deai",
+        "skill",
+        "pipeline",
+        "editor",
+        "theme",
+        "chat"
+      ],
+      "pass": true,
+      "extra": [
+        "agent",
+        "provider",
+        "project",
+        "settings",
+        "deai",
+        "skill",
+        "pipeline",
+        "editor",
+        "theme",
+        "chat"
+      ]
+    },
+    {
+      "id": "B04",
+      "title": "electronAPI",
+      "expected": "storage+pipeline",
+      "actual": "platform,version,encrypt,decrypt,storageRead,storageWrite,storageRemove,storageList,storageExport,storageImport,storageGetDataDir,storageOpenDataDir,dialogSaveFile,dialogOpenFile,dialogReadFile,onFinalSave,forceQuit,onCloseRequest,respondCloseChoice,diagWrite,diagRead,diagExport,diagClear,fetchModels,agentExecute,agentSpawn,agentStatus,agentCancel,pipelineGenerate,pipelineResume,deaiProcess,deaiCancel,skillExecute,skillValidate,providerTestConnection",
+      "pass": true,
+      "extra": "platform,version,encrypt,decrypt,storageRead,storageWrite,storageRemove,storageList,storageExport,storageImport,storageGetDataDir,storageOpenDataDir,dialogSaveFile,dialogOpenFile,dialogReadFile,onFinalSave,forceQuit,onCloseRequest,respondCloseChoice,diagWrite,diagRead,diagExport,diagClear,fetchModels,agentExecute,agentSpawn,agentStatus,agentCancel,pipelineGenerate,pipelineResume,deaiProcess,deaiCancel,skillExecute,skillValidate,providerTestConnection"
+    },
+    {
+      "id": "S03",
+      "title": "项目按钮弹出项目管理",
+      "expected": "可见弹窗",
+      "actual": {
+        "overlays": [
+          {
+            "cls": "modal-overlay",
+            "w": 1904,
+            "h": 975,
+            "text": "项目管理×未命名加载删除未命名加载删除第一卷加载删除+ 新建项目"
+          },
+          {
+            "cls": "modal-content project-modal-content",
+            "w": 480,
+            "h": 291,
+            "text": "项目管理×未命名加载删除未命名加载删除第一卷加载删除+ 新建项目"
+          },
+          {
+            "cls": "project-list",
+            "w": 430,
+            "h": 142,
+            "text": "未命名加载删除未命名加载删除第一卷加载删除"
+          }
+        ]
+      },
+      "pass": true,
+      "extra": {
+        "click": {
+          "clicked": true,
+          "id": "btn-open-project",
+          "text": "项目"
+        },
+        "modal": {
+          "overlays": [
+            {
+              "cls": "modal-overlay",
+              "w": 1904,
+              "h": 975,
+              "text": "项目管理×未命名加载删除未命名加载删除第一卷加载删除+ 新建项目"
+            },
+            {
+              "cls": "modal-content project-modal-content",
+              "w": 480,
+              "h": 291,
+              "text": "项目管理×未命名加载删除未命名加载删除第一卷加载删除+ 新建项目"
+            },
+            {
+              "cls": "project-list",
+              "w": 430,
+              "h": 142,
+              "text": "未命名加载删除未命名加载删除第一卷加载删除"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "S04",
+      "title": "项目弹窗可关闭无残留",
+      "expected": "leftover=0",
+      "actual": {
+        "leftover": 0
+      },
+      "pass": true,
+      "extra": {
+        "close": {
+          "closed": true,
+          "text": "×"
+        },
+        "after": {
+          "leftover": 0
+        }
+      }
+    },
+    {
+      "id": "O01",
+      "title": "打开大纲工作台且核心按钮可见",
+      "expected": "导入+锁定",
+      "actual": {
+        "candidates": [
+          {
+            "id": "outline-workspace",
+            "cls": "ow-overlay",
+            "w": 1904,
+            "h": 975
+          },
+          {
+            "id": "",
+            "cls": "ow-content",
+            "w": 1000,
+            "h": 700
+          },
+          {
+            "id": "",
+            "cls": "ow-body",
+            "w": 998,
+            "h": 382
+          },
+          {
+            "id": "",
+            "cls": "ow-editor",
+            "w": 998,
+            "h": 382
+          },
+          {
+            "id": "outline-editor",
+            "cls": "ow-textarea",
+            "w": 966,
+            "h": 350
+          },
+          {
+            "id": "",
+            "cls": "ow-sidebar",
+            "w": 240,
+            "h": 192
+          }
+        ],
+        "named": {
+          "从文件导入(.txt/.md/.": {
+            "id": "btn-import-outline",
+            "disabled": false,
+            "w": 215,
+            "h": 32
+          },
+          "保存大纲": {
+            "id": "btn-save-outline",
+            "disabled": false,
+            "w": 84,
+            "h": 32
+          },
+          "确认大纲，锁定并进入创作": {
+            "id": "btn-lock-outline",
+            "disabled": true,
+            "w": 188,
+            "h": 32
+          }
+        }
+      },
+      "pass": true,
+      "extra": {
+        "click": {
+          "opened": true,
+          "id": "btn-outline-workspace",
+          "text": ""
+        },
+        "state": {
+          "candidates": [
+            {
+              "id": "outline-workspace",
+              "cls": "ow-overlay",
+              "w": 1904,
+              "h": 975
+            },
+            {
+              "id": "",
+              "cls": "ow-content",
+              "w": 1000,
+              "h": 700
+            },
+            {
+              "id": "",
+              "cls": "ow-body",
+              "w": 998,
+              "h": 382
+            },
+            {
+              "id": "",
+              "cls": "ow-editor",
+              "w": 998,
+              "h": 382
+            },
+            {
+              "id": "outline-editor",
+              "cls": "ow-textarea",
+              "w": 966,
+              "h": 350
+            },
+            {
+              "id": "",
+              "cls": "ow-sidebar",
+              "w": 240,
+              "h": 192
+            }
+          ],
+          "named": {
+            "从文件导入(.txt/.md/.": {
+              "id": "btn-import-outline",
+              "disabled": false,
+              "w": 215,
+              "h": 32
+            },
+            "保存大纲": {
+              "id": "btn-save-outline",
+              "disabled": false,
+              "w": 84,
+              "h": 32
+            },
+            "确认大纲，锁定并进入创作": {
+              "id": "btn-lock-outline",
+              "disabled": true,
+              "w": 188,
+              "h": 32
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "O03",
+      "title": "锁定大纲点击有反馈",
+      "expected": "弹窗或状态变化",
+      "actual": {
+        "overlays": []
+      },
+      "pass": true,
+      "extra": {
+        "click": {
+          "clicked": true,
+          "id": "btn-lock-outline",
+          "disabled": true
+        },
+        "after": {
+          "overlays": []
+        }
+      }
+    },
+    {
+      "id": "P01",
+      "title": "打开生成流水线",
+      "expected": "面板可见",
+      "actual": {
+        "panel": true,
+        "layerTitles": [
+          "1大纲",
+          "2设定",
+          "3卷纲",
+          "4章节",
+          "5正文",
+          "大纲",
+          "设定",
+          "卷纲",
+          "章节",
+          "正文"
+        ],
+        "visibleButtons": [
+          {
+            "id": "btn-close-pl",
+            "text": "×",
+            "disabled": false,
+            "w": 25,
+            "h": 25
+          },
+          {
+            "id": "btn-ai-names",
+            "text": "AI起名",
+            "disabled": false,
+            "w": 61,
+            "h": 28
+          },
+          {
+            "id": "btn-writing-rules",
+            "text": "写作规则",
+            "disabled": false,
+            "w": 74,
+            "h": 28
+          },
+          {
+            "id": "btn-timeline",
+            "text": "时间线",
+            "disabled": false,
+            "w": 62,
+            "h": 28
+          },
+          {
+            "id": "btn-batch-review",
+            "text": "批量审阅",
+            "disabled": false,
+            "w": 74,
+            "h": 28
+          },
+          {
+            "id": "btn-revise",
+            "text": "章节修订",
+            "disabled": false,
+            "w": 74,
+            "h": 28
+          },
+          {
+            "id": "btn-translate",
+            "text": "翻译",
+            "disabled": false,
+            "w": 50,
+            "h": 28
+          },
+          {
+            "id": "btn-style-convert",
+            "text": "风格转换",
+            "disabled": false,
+            "w": 74,
+            "h": 28
+          },
+          {
+            "id": "btn-regenerate",
+            "text": "重新生成",
+            "disabled": false,
+            "w": 74,
+            "h": 28
+          },
+          {
+            "id": "btn-modify",
+            "text": "按指令修改",
+            "disabled": false,
+            "w": 86,
+            "h": 28
+          },
+          {
+            "id": "pl-s1-add-skill",
+            "text": "+",
+            "disabled": false,
+            "w": 28,
+            "h": 28
+          },
+          {
+            "id": "",
+            "text": "保存大纲",
+            "disabled": false,
+            "w": 86,
+            "h": 32
+          },
+          {
+            "id": "",
+            "text": "锁定大纲",
+            "disabled": true,
+            "w": 84,
+            "h": 32
+          },
+          {
+            "id": "btn-pl-confirm-outline",
+            "text": "确认完成",
+            "disabled": true,
+            "w": 86,
+            "h": 32
+          }
+        ]
+      },
+      "pass": true,
+      "extra": {
+        "click": {
+          "opened": true,
+          "id": "btn-pipeline"
+        },
+        "state": {
+          "panel": true,
+          "layerTitles": [
+            "1大纲",
+            "2设定",
+            "3卷纲",
+            "4章节",
+            "5正文",
+            "大纲",
+            "设定",
+            "卷纲",
+            "章节",
+            "正文"
+          ],
+          "visibleButtons": [
+            {
+              "id": "btn-close-pl",
+              "text": "×",
+              "disabled": false,
+              "w": 25,
+              "h": 25
+            },
+            {
+              "id": "btn-ai-names",
+              "text": "AI起名",
+              "disabled": false,
+              "w": 61,
+              "h": 28
+            },
+            {
+              "id": "btn-writing-rules",
+              "text": "写作规则",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "id": "btn-timeline",
+              "text": "时间线",
+              "disabled": false,
+              "w": 62,
+              "h": 28
+            },
+            {
+              "id": "btn-batch-review",
+              "text": "批量审阅",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "id": "btn-revise",
+              "text": "章节修订",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "id": "btn-translate",
+              "text": "翻译",
+              "disabled": false,
+              "w": 50,
+              "h": 28
+            },
+            {
+              "id": "btn-style-convert",
+              "text": "风格转换",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "id": "btn-regenerate",
+              "text": "重新生成",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "id": "btn-modify",
+              "text": "按指令修改",
+              "disabled": false,
+              "w": 86,
+              "h": 28
+            },
+            {
+              "id": "pl-s1-add-skill",
+              "text": "+",
+              "disabled": false,
+              "w": 28,
+              "h": 28
+            },
+            {
+              "id": "",
+              "text": "保存大纲",
+              "disabled": false,
+              "w": 86,
+              "h": 32
+            },
+            {
+              "id": "",
+              "text": "锁定大纲",
+              "disabled": true,
+              "w": 84,
+              "h": 32
+            },
+            {
+              "id": "btn-pl-confirm-outline",
+              "text": "确认完成",
+              "disabled": true,
+              "w": 86,
+              "h": 32
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "P02",
+      "title": "五层可切换并露出控件",
+      "expected": ">=4层有控件",
+      "actual": [
+        {
+          "layer": "大纲",
+          "visibleControls": [
+            {
+              "tag": "button",
+              "id": "btn-close-pl",
+              "text": "×",
+              "disabled": false,
+              "w": 25,
+              "h": 25
+            },
+            {
+              "tag": "button",
+              "id": "btn-ai-names",
+              "text": "AI起名",
+              "disabled": false,
+              "w": 61,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-writing-rules",
+              "text": "写作规则",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-timeline",
+              "text": "时间线",
+              "disabled": false,
+              "w": 62,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-batch-review",
+              "text": "批量审阅",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-revise",
+              "text": "章节修订",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-translate",
+              "text": "翻译",
+              "disabled": false,
+              "w": 50,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-style-convert",
+              "text": "风格转换",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-regenerate",
+              "text": "重新生成",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-modify",
+              "text": "按指令修改",
+              "disabled": false,
+              "w": 86,
+              "h": 28
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-agent",
+              "text": "不使用智能体凯旋写作Agent白虎新智能体",
+              "disabled": false,
+              "w": 364,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-mode",
+              "text": "组合（一次调用）串行（多次调用）",
+              "disabled": false,
+              "w": 354,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-skill",
+              "text": "无凯旋写作师 Skill 1凯旋写作师 Skil",
+              "disabled": false,
+              "w": 792,
+              "h": 30
+            },
+            {
+              "tag": "button",
+              "id": "pl-s1-add-skill",
+              "text": "+",
+              "disabled": false,
+              "w": 28,
+              "h": 28
+            },
+            {
+              "tag": "textarea",
+              "id": "pl-outline",
+              "text": "输入或粘贴大纲全文...",
+              "disabled": false,
+              "w": 888,
+              "h": 400
+            },
+            {
+              "tag": "input",
+              "id": "pl-book-word-count",
+              "text": "0",
+              "disabled": false,
+              "w": 60,
+              "h": 24
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "保存大纲",
+              "disabled": false,
+              "w": 86,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "锁定大纲",
+              "disabled": true,
+              "w": 84,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "btn-pl-confirm-outline",
+              "text": "确认完成",
+              "disabled": true,
+              "w": 86,
+              "h": 32
+            }
+          ]
+        },
+        {
+          "layer": "设定",
+          "visibleControls": [
+            {
+              "tag": "button",
+              "id": "btn-close-pl",
+              "text": "×",
+              "disabled": false,
+              "w": 25,
+              "h": 25
+            },
+            {
+              "tag": "button",
+              "id": "btn-ai-names",
+              "text": "AI起名",
+              "disabled": false,
+              "w": 61,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-writing-rules",
+              "text": "写作规则",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-timeline",
+              "text": "时间线",
+              "disabled": false,
+              "w": 62,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-batch-review",
+              "text": "批量审阅",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-revise",
+              "text": "章节修订",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-translate",
+              "text": "翻译",
+              "disabled": false,
+              "w": 50,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-style-convert",
+              "text": "风格转换",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-regenerate",
+              "text": "重新生成",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-modify",
+              "text": "按指令修改",
+              "disabled": false,
+              "w": 86,
+              "h": 28
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-agent",
+              "text": "不使用智能体凯旋写作Agent白虎新智能体",
+              "disabled": false,
+              "w": 364,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-mode",
+              "text": "组合（一次调用）串行（多次调用）",
+              "disabled": false,
+              "w": 354,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-skill",
+              "text": "无凯旋写作师 Skill 1凯旋写作师 Skil",
+              "disabled": false,
+              "w": 792,
+              "h": 30
+            },
+            {
+              "tag": "button",
+              "id": "pl-s1-add-skill",
+              "text": "+",
+              "disabled": false,
+              "w": 28,
+              "h": 28
+            },
+            {
+              "tag": "textarea",
+              "id": "pl-outline",
+              "text": "输入或粘贴大纲全文...",
+              "disabled": false,
+              "w": 888,
+              "h": 400
+            },
+            {
+              "tag": "input",
+              "id": "pl-book-word-count",
+              "text": "0",
+              "disabled": false,
+              "w": 60,
+              "h": 24
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "保存大纲",
+              "disabled": false,
+              "w": 86,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "锁定大纲",
+              "disabled": true,
+              "w": 84,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "btn-pl-confirm-outline",
+              "text": "确认完成",
+              "disabled": true,
+              "w": 86,
+              "h": 32
+            }
+          ]
+        },
+        {
+          "layer": "卷纲",
+          "visibleControls": [
+            {
+              "tag": "button",
+              "id": "btn-close-pl",
+              "text": "×",
+              "disabled": false,
+              "w": 25,
+              "h": 25
+            },
+            {
+              "tag": "button",
+              "id": "btn-ai-names",
+              "text": "AI起名",
+              "disabled": false,
+              "w": 61,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-writing-rules",
+              "text": "写作规则",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-timeline",
+              "text": "时间线",
+              "disabled": false,
+              "w": 62,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-batch-review",
+              "text": "批量审阅",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-revise",
+              "text": "章节修订",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-translate",
+              "text": "翻译",
+              "disabled": false,
+              "w": 50,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-style-convert",
+              "text": "风格转换",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-regenerate",
+              "text": "重新生成",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-modify",
+              "text": "按指令修改",
+              "disabled": false,
+              "w": 86,
+              "h": 28
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-agent",
+              "text": "不使用智能体凯旋写作Agent白虎新智能体",
+              "disabled": false,
+              "w": 364,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-mode",
+              "text": "组合（一次调用）串行（多次调用）",
+              "disabled": false,
+              "w": 354,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-skill",
+              "text": "无凯旋写作师 Skill 1凯旋写作师 Skil",
+              "disabled": false,
+              "w": 792,
+              "h": 30
+            },
+            {
+              "tag": "button",
+              "id": "pl-s1-add-skill",
+              "text": "+",
+              "disabled": false,
+              "w": 28,
+              "h": 28
+            },
+            {
+              "tag": "textarea",
+              "id": "pl-outline",
+              "text": "输入或粘贴大纲全文...",
+              "disabled": false,
+              "w": 888,
+              "h": 400
+            },
+            {
+              "tag": "input",
+              "id": "pl-book-word-count",
+              "text": "0",
+              "disabled": false,
+              "w": 60,
+              "h": 24
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "保存大纲",
+              "disabled": false,
+              "w": 86,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "锁定大纲",
+              "disabled": true,
+              "w": 84,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "btn-pl-confirm-outline",
+              "text": "确认完成",
+              "disabled": true,
+              "w": 86,
+              "h": 32
+            }
+          ]
+        },
+        {
+          "layer": "章节",
+          "visibleControls": [
+            {
+              "tag": "button",
+              "id": "btn-close-pl",
+              "text": "×",
+              "disabled": false,
+              "w": 25,
+              "h": 25
+            },
+            {
+              "tag": "button",
+              "id": "btn-ai-names",
+              "text": "AI起名",
+              "disabled": false,
+              "w": 61,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-writing-rules",
+              "text": "写作规则",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-timeline",
+              "text": "时间线",
+              "disabled": false,
+              "w": 62,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-batch-review",
+              "text": "批量审阅",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-revise",
+              "text": "章节修订",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-translate",
+              "text": "翻译",
+              "disabled": false,
+              "w": 50,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-style-convert",
+              "text": "风格转换",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-regenerate",
+              "text": "重新生成",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-modify",
+              "text": "按指令修改",
+              "disabled": false,
+              "w": 86,
+              "h": 28
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-agent",
+              "text": "不使用智能体凯旋写作Agent白虎新智能体",
+              "disabled": false,
+              "w": 364,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-mode",
+              "text": "组合（一次调用）串行（多次调用）",
+              "disabled": false,
+              "w": 354,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-skill",
+              "text": "无凯旋写作师 Skill 1凯旋写作师 Skil",
+              "disabled": false,
+              "w": 792,
+              "h": 30
+            },
+            {
+              "tag": "button",
+              "id": "pl-s1-add-skill",
+              "text": "+",
+              "disabled": false,
+              "w": 28,
+              "h": 28
+            },
+            {
+              "tag": "textarea",
+              "id": "pl-outline",
+              "text": "输入或粘贴大纲全文...",
+              "disabled": false,
+              "w": 888,
+              "h": 400
+            },
+            {
+              "tag": "input",
+              "id": "pl-book-word-count",
+              "text": "0",
+              "disabled": false,
+              "w": 60,
+              "h": 24
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "保存大纲",
+              "disabled": false,
+              "w": 86,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "锁定大纲",
+              "disabled": true,
+              "w": 84,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "btn-pl-confirm-outline",
+              "text": "确认完成",
+              "disabled": true,
+              "w": 86,
+              "h": 32
+            }
+          ]
+        },
+        {
+          "layer": "正文",
+          "visibleControls": [
+            {
+              "tag": "button",
+              "id": "btn-close-pl",
+              "text": "×",
+              "disabled": false,
+              "w": 25,
+              "h": 25
+            },
+            {
+              "tag": "button",
+              "id": "btn-ai-names",
+              "text": "AI起名",
+              "disabled": false,
+              "w": 61,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-writing-rules",
+              "text": "写作规则",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-timeline",
+              "text": "时间线",
+              "disabled": false,
+              "w": 62,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-batch-review",
+              "text": "批量审阅",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-revise",
+              "text": "章节修订",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-translate",
+              "text": "翻译",
+              "disabled": false,
+              "w": 50,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-style-convert",
+              "text": "风格转换",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-regenerate",
+              "text": "重新生成",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-modify",
+              "text": "按指令修改",
+              "disabled": false,
+              "w": 86,
+              "h": 28
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-agent",
+              "text": "不使用智能体凯旋写作Agent白虎新智能体",
+              "disabled": false,
+              "w": 364,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-mode",
+              "text": "组合（一次调用）串行（多次调用）",
+              "disabled": false,
+              "w": 354,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-skill",
+              "text": "无凯旋写作师 Skill 1凯旋写作师 Skil",
+              "disabled": false,
+              "w": 792,
+              "h": 30
+            },
+            {
+              "tag": "button",
+              "id": "pl-s1-add-skill",
+              "text": "+",
+              "disabled": false,
+              "w": 28,
+              "h": 28
+            },
+            {
+              "tag": "textarea",
+              "id": "pl-outline",
+              "text": "输入或粘贴大纲全文...",
+              "disabled": false,
+              "w": 888,
+              "h": 400
+            },
+            {
+              "tag": "input",
+              "id": "pl-book-word-count",
+              "text": "0",
+              "disabled": false,
+              "w": 60,
+              "h": 24
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "保存大纲",
+              "disabled": false,
+              "w": 86,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "锁定大纲",
+              "disabled": true,
+              "w": 84,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "btn-pl-confirm-outline",
+              "text": "确认完成",
+              "disabled": true,
+              "w": 86,
+              "h": 32
+            }
+          ]
+        }
+      ],
+      "pass": true,
+      "extra": [
+        {
+          "layer": "大纲",
+          "visibleControls": [
+            {
+              "tag": "button",
+              "id": "btn-close-pl",
+              "text": "×",
+              "disabled": false,
+              "w": 25,
+              "h": 25
+            },
+            {
+              "tag": "button",
+              "id": "btn-ai-names",
+              "text": "AI起名",
+              "disabled": false,
+              "w": 61,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-writing-rules",
+              "text": "写作规则",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-timeline",
+              "text": "时间线",
+              "disabled": false,
+              "w": 62,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-batch-review",
+              "text": "批量审阅",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-revise",
+              "text": "章节修订",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-translate",
+              "text": "翻译",
+              "disabled": false,
+              "w": 50,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-style-convert",
+              "text": "风格转换",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-regenerate",
+              "text": "重新生成",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-modify",
+              "text": "按指令修改",
+              "disabled": false,
+              "w": 86,
+              "h": 28
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-agent",
+              "text": "不使用智能体凯旋写作Agent白虎新智能体",
+              "disabled": false,
+              "w": 364,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-mode",
+              "text": "组合（一次调用）串行（多次调用）",
+              "disabled": false,
+              "w": 354,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-skill",
+              "text": "无凯旋写作师 Skill 1凯旋写作师 Skil",
+              "disabled": false,
+              "w": 792,
+              "h": 30
+            },
+            {
+              "tag": "button",
+              "id": "pl-s1-add-skill",
+              "text": "+",
+              "disabled": false,
+              "w": 28,
+              "h": 28
+            },
+            {
+              "tag": "textarea",
+              "id": "pl-outline",
+              "text": "输入或粘贴大纲全文...",
+              "disabled": false,
+              "w": 888,
+              "h": 400
+            },
+            {
+              "tag": "input",
+              "id": "pl-book-word-count",
+              "text": "0",
+              "disabled": false,
+              "w": 60,
+              "h": 24
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "保存大纲",
+              "disabled": false,
+              "w": 86,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "锁定大纲",
+              "disabled": true,
+              "w": 84,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "btn-pl-confirm-outline",
+              "text": "确认完成",
+              "disabled": true,
+              "w": 86,
+              "h": 32
+            }
+          ]
+        },
+        {
+          "layer": "设定",
+          "visibleControls": [
+            {
+              "tag": "button",
+              "id": "btn-close-pl",
+              "text": "×",
+              "disabled": false,
+              "w": 25,
+              "h": 25
+            },
+            {
+              "tag": "button",
+              "id": "btn-ai-names",
+              "text": "AI起名",
+              "disabled": false,
+              "w": 61,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-writing-rules",
+              "text": "写作规则",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-timeline",
+              "text": "时间线",
+              "disabled": false,
+              "w": 62,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-batch-review",
+              "text": "批量审阅",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-revise",
+              "text": "章节修订",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-translate",
+              "text": "翻译",
+              "disabled": false,
+              "w": 50,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-style-convert",
+              "text": "风格转换",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-regenerate",
+              "text": "重新生成",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-modify",
+              "text": "按指令修改",
+              "disabled": false,
+              "w": 86,
+              "h": 28
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-agent",
+              "text": "不使用智能体凯旋写作Agent白虎新智能体",
+              "disabled": false,
+              "w": 364,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-mode",
+              "text": "组合（一次调用）串行（多次调用）",
+              "disabled": false,
+              "w": 354,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-skill",
+              "text": "无凯旋写作师 Skill 1凯旋写作师 Skil",
+              "disabled": false,
+              "w": 792,
+              "h": 30
+            },
+            {
+              "tag": "button",
+              "id": "pl-s1-add-skill",
+              "text": "+",
+              "disabled": false,
+              "w": 28,
+              "h": 28
+            },
+            {
+              "tag": "textarea",
+              "id": "pl-outline",
+              "text": "输入或粘贴大纲全文...",
+              "disabled": false,
+              "w": 888,
+              "h": 400
+            },
+            {
+              "tag": "input",
+              "id": "pl-book-word-count",
+              "text": "0",
+              "disabled": false,
+              "w": 60,
+              "h": 24
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "保存大纲",
+              "disabled": false,
+              "w": 86,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "锁定大纲",
+              "disabled": true,
+              "w": 84,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "btn-pl-confirm-outline",
+              "text": "确认完成",
+              "disabled": true,
+              "w": 86,
+              "h": 32
+            }
+          ]
+        },
+        {
+          "layer": "卷纲",
+          "visibleControls": [
+            {
+              "tag": "button",
+              "id": "btn-close-pl",
+              "text": "×",
+              "disabled": false,
+              "w": 25,
+              "h": 25
+            },
+            {
+              "tag": "button",
+              "id": "btn-ai-names",
+              "text": "AI起名",
+              "disabled": false,
+              "w": 61,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-writing-rules",
+              "text": "写作规则",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-timeline",
+              "text": "时间线",
+              "disabled": false,
+              "w": 62,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-batch-review",
+              "text": "批量审阅",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-revise",
+              "text": "章节修订",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-translate",
+              "text": "翻译",
+              "disabled": false,
+              "w": 50,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-style-convert",
+              "text": "风格转换",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-regenerate",
+              "text": "重新生成",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-modify",
+              "text": "按指令修改",
+              "disabled": false,
+              "w": 86,
+              "h": 28
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-agent",
+              "text": "不使用智能体凯旋写作Agent白虎新智能体",
+              "disabled": false,
+              "w": 364,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-mode",
+              "text": "组合（一次调用）串行（多次调用）",
+              "disabled": false,
+              "w": 354,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-skill",
+              "text": "无凯旋写作师 Skill 1凯旋写作师 Skil",
+              "disabled": false,
+              "w": 792,
+              "h": 30
+            },
+            {
+              "tag": "button",
+              "id": "pl-s1-add-skill",
+              "text": "+",
+              "disabled": false,
+              "w": 28,
+              "h": 28
+            },
+            {
+              "tag": "textarea",
+              "id": "pl-outline",
+              "text": "输入或粘贴大纲全文...",
+              "disabled": false,
+              "w": 888,
+              "h": 400
+            },
+            {
+              "tag": "input",
+              "id": "pl-book-word-count",
+              "text": "0",
+              "disabled": false,
+              "w": 60,
+              "h": 24
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "保存大纲",
+              "disabled": false,
+              "w": 86,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "锁定大纲",
+              "disabled": true,
+              "w": 84,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "btn-pl-confirm-outline",
+              "text": "确认完成",
+              "disabled": true,
+              "w": 86,
+              "h": 32
+            }
+          ]
+        },
+        {
+          "layer": "章节",
+          "visibleControls": [
+            {
+              "tag": "button",
+              "id": "btn-close-pl",
+              "text": "×",
+              "disabled": false,
+              "w": 25,
+              "h": 25
+            },
+            {
+              "tag": "button",
+              "id": "btn-ai-names",
+              "text": "AI起名",
+              "disabled": false,
+              "w": 61,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-writing-rules",
+              "text": "写作规则",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-timeline",
+              "text": "时间线",
+              "disabled": false,
+              "w": 62,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-batch-review",
+              "text": "批量审阅",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-revise",
+              "text": "章节修订",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-translate",
+              "text": "翻译",
+              "disabled": false,
+              "w": 50,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-style-convert",
+              "text": "风格转换",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-regenerate",
+              "text": "重新生成",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-modify",
+              "text": "按指令修改",
+              "disabled": false,
+              "w": 86,
+              "h": 28
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-agent",
+              "text": "不使用智能体凯旋写作Agent白虎新智能体",
+              "disabled": false,
+              "w": 364,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-mode",
+              "text": "组合（一次调用）串行（多次调用）",
+              "disabled": false,
+              "w": 354,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-skill",
+              "text": "无凯旋写作师 Skill 1凯旋写作师 Skil",
+              "disabled": false,
+              "w": 792,
+              "h": 30
+            },
+            {
+              "tag": "button",
+              "id": "pl-s1-add-skill",
+              "text": "+",
+              "disabled": false,
+              "w": 28,
+              "h": 28
+            },
+            {
+              "tag": "textarea",
+              "id": "pl-outline",
+              "text": "输入或粘贴大纲全文...",
+              "disabled": false,
+              "w": 888,
+              "h": 400
+            },
+            {
+              "tag": "input",
+              "id": "pl-book-word-count",
+              "text": "0",
+              "disabled": false,
+              "w": 60,
+              "h": 24
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "保存大纲",
+              "disabled": false,
+              "w": 86,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "锁定大纲",
+              "disabled": true,
+              "w": 84,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "btn-pl-confirm-outline",
+              "text": "确认完成",
+              "disabled": true,
+              "w": 86,
+              "h": 32
+            }
+          ]
+        },
+        {
+          "layer": "正文",
+          "visibleControls": [
+            {
+              "tag": "button",
+              "id": "btn-close-pl",
+              "text": "×",
+              "disabled": false,
+              "w": 25,
+              "h": 25
+            },
+            {
+              "tag": "button",
+              "id": "btn-ai-names",
+              "text": "AI起名",
+              "disabled": false,
+              "w": 61,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-writing-rules",
+              "text": "写作规则",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-timeline",
+              "text": "时间线",
+              "disabled": false,
+              "w": 62,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-batch-review",
+              "text": "批量审阅",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-revise",
+              "text": "章节修订",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-translate",
+              "text": "翻译",
+              "disabled": false,
+              "w": 50,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-style-convert",
+              "text": "风格转换",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-regenerate",
+              "text": "重新生成",
+              "disabled": false,
+              "w": 74,
+              "h": 28
+            },
+            {
+              "tag": "button",
+              "id": "btn-modify",
+              "text": "按指令修改",
+              "disabled": false,
+              "w": 86,
+              "h": 28
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-agent",
+              "text": "不使用智能体凯旋写作Agent白虎新智能体",
+              "disabled": false,
+              "w": 364,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-mode",
+              "text": "组合（一次调用）串行（多次调用）",
+              "disabled": false,
+              "w": 354,
+              "h": 30
+            },
+            {
+              "tag": "select",
+              "id": "pl-s1-skill",
+              "text": "无凯旋写作师 Skill 1凯旋写作师 Skil",
+              "disabled": false,
+              "w": 792,
+              "h": 30
+            },
+            {
+              "tag": "button",
+              "id": "pl-s1-add-skill",
+              "text": "+",
+              "disabled": false,
+              "w": 28,
+              "h": 28
+            },
+            {
+              "tag": "textarea",
+              "id": "pl-outline",
+              "text": "输入或粘贴大纲全文...",
+              "disabled": false,
+              "w": 888,
+              "h": 400
+            },
+            {
+              "tag": "input",
+              "id": "pl-book-word-count",
+              "text": "0",
+              "disabled": false,
+              "w": 60,
+              "h": 24
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "保存大纲",
+              "disabled": false,
+              "w": 86,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "",
+              "text": "锁定大纲",
+              "disabled": true,
+              "w": 84,
+              "h": 32
+            },
+            {
+              "tag": "button",
+              "id": "btn-pl-confirm-outline",
+              "text": "确认完成",
+              "disabled": true,
+              "w": 86,
+              "h": 32
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P03",
+      "title": "新增设定弹出次级面板且有保存",
+      "expected": "弹窗+保存",
+      "actual": {
+        "overlays": [],
+        "hasSave": false,
+        "saveDisabled": null
+      },
+      "pass": false,
+      "extra": {
+        "click": {
+          "clicked": false,
+          "reason": "HIDDEN",
+          "info": {
+            "id": "",
+            "disabled": false,
+            "w": 0
+          }
+        },
+        "modal": {
+          "overlays": [],
+          "hasSave": false,
+          "saveDisabled": null
+        }
+      }
+    },
+    {
+      "id": "P04",
+      "title": "卷纲层生成按钮可见",
+      "expected": ">=3可见",
+      "actual": {
+        "AI生成全卷": null,
+        "逐卷生成": null,
+        "自动生成卷纲": null,
+        "批量续生成": null,
+        "确认完成": null
+      },
+      "pass": false,
+      "extra": {
+        "AI生成全卷": null,
+        "逐卷生成": null,
+        "自动生成卷纲": null,
+        "批量续生成": null,
+        "确认完成": null
+      }
+    },
+    {
+      "id": "P05",
+      "title": "章节层有卷选择或生成按钮",
+      "expected": "有控件",
+      "actual": {
+        "plotCount": 0,
+        "hasVolumeSelect": true,
+        "buttons": []
+      },
+      "pass": true,
+      "extra": {
+        "plotCount": 0,
+        "hasVolumeSelect": true,
+        "buttons": []
+      }
+    },
+    {
+      "id": "P06",
+      "title": "正文层按钮存在",
+      "expected": "生成/插入/确认",
+      "actual": {
+        "AI生成正文": null,
+        "插入到编辑器": null,
+        "确认完成": null
+      },
+      "pass": false,
+      "extra": {
+        "AI生成正文": null,
+        "插入到编辑器": null,
+        "确认完成": null
+      }
+    },
+    {
+      "id": "P07",
+      "title": "层内Skill/Agent/串并行UI",
+      "expected": "有skill或mode",
+      "actual": {
+        "skillLike": [
+          {
+            "tag": "SELECT",
+            "id": "agent-select",
+            "cls": "header-selector",
+            "w": 120
+          },
+          {
+            "tag": "SELECT",
+            "id": "model-select",
+            "cls": "header-selector",
+            "w": 180
+          },
+          {
+            "tag": "SELECT",
+            "id": "",
+            "cls": "agent-selector",
+            "w": 106
+          },
+          {
+            "tag": "SELECT",
+            "id": "model-select-chat",
+            "cls": "agent-selector",
+            "w": 169
+          },
+          {
+            "tag": "DIV",
+            "id": "skill-area",
+            "cls": "skill-area",
+            "w": 519
+          },
+          {
+            "tag": "DIV",
+            "id": "skill-area-toggle",
+            "cls": "skill-area-header",
+            "w": 519
+          },
+          {
+            "tag": "SPAN",
+            "id": "",
+            "cls": "skill-area-title",
+            "w": 33
+          },
+          {
+            "tag": "DIV",
+            "id": "skill-area-content",
+            "cls": "skill-area-content",
+            "w": 519
+          },
+          {
+            "tag": "DIV",
+            "id": "agent-info-bar",
+            "cls": "agent-info-bar",
+            "w": 495
+          },
+          {
+            "tag": "SPAN",
+            "id": "agent-info-name",
+            "cls": "agent-info-name",
+            "w": 22
+          },
+          {
+            "tag": "SPAN",
+            "id": "agent-info-model",
+            "cls": "agent-info-model",
+            "w": 75
+          },
+          {
+            "tag": "DIV",
+            "id": "skill-list-active",
+            "cls": "skill-list-active",
+            "w": 495
+          }
+        ],
+        "modeUi": []
+      },
+      "pass": true,
+      "extra": {
+        "skillLike": [
+          {
+            "tag": "SELECT",
+            "id": "agent-select",
+            "cls": "header-selector",
+            "w": 120
+          },
+          {
+            "tag": "SELECT",
+            "id": "model-select",
+            "cls": "header-selector",
+            "w": 180
+          },
+          {
+            "tag": "SELECT",
+            "id": "",
+            "cls": "agent-selector",
+            "w": 106
+          },
+          {
+            "tag": "SELECT",
+            "id": "model-select-chat",
+            "cls": "agent-selector",
+            "w": 169
+          },
+          {
+            "tag": "DIV",
+            "id": "skill-area",
+            "cls": "skill-area",
+            "w": 519
+          },
+          {
+            "tag": "DIV",
+            "id": "skill-area-toggle",
+            "cls": "skill-area-header",
+            "w": 519
+          },
+          {
+            "tag": "SPAN",
+            "id": "",
+            "cls": "skill-area-title",
+            "w": 33
+          },
+          {
+            "tag": "DIV",
+            "id": "skill-area-content",
+            "cls": "skill-area-content",
+            "w": 519
+          },
+          {
+            "tag": "DIV",
+            "id": "agent-info-bar",
+            "cls": "agent-info-bar",
+            "w": 495
+          },
+          {
+            "tag": "SPAN",
+            "id": "agent-info-name",
+            "cls": "agent-info-name",
+            "w": 22
+          },
+          {
+            "tag": "SPAN",
+            "id": "agent-info-model",
+            "cls": "agent-info-model",
+            "w": 75
+          },
+          {
+            "tag": "DIV",
+            "id": "skill-list-active",
+            "cls": "skill-list-active",
+            "w": 495
+          }
+        ],
+        "modeUi": []
+      }
+    },
+    {
+      "id": "C01",
+      "title": "设定合集可打开",
+      "expected": "面板或弹窗",
+      "actual": {
+        "panel": false,
+        "overlays": []
+      },
+      "pass": false,
+      "extra": {
+        "click": {
+          "opened": true,
+          "id": "btn-settings-collection"
+        },
+        "state": {
+          "panel": false,
+          "overlays": []
+        }
+      }
+    },
+    {
+      "id": "H01",
+      "title": "聊天面板+发送按钮",
+      "expected": "panel+send",
+      "actual": {
+        "panel": true,
+        "send": {
+          "id": "btn-send",
+          "w": 48
+        },
+        "input": true
+      },
+      "pass": true,
+      "extra": {
+        "panel": true,
+        "send": {
+          "id": "btn-send",
+          "w": 48
+        },
+        "input": true
+      }
+    },
+    {
+      "id": "H02",
+      "title": "chat store可读",
+      "expected": "ok",
+      "actual": {
+        "ok": true,
+        "keys": [
+          "sessions",
+          "activeSessionId",
+          "currentContext"
+        ]
+      },
+      "pass": true,
+      "extra": {
+        "ok": true,
+        "keys": [
+          "sessions",
+          "activeSessionId",
+          "currentContext"
+        ]
+      }
+    },
+    {
+      "id": "H03",
+      "title": "聊天输入可写",
+      "expected": "typed",
+      "actual": {
+        "typed": true,
+        "value": "回归测试输入"
+      },
+      "pass": true,
+      "extra": {
+        "typed": true,
+        "value": "回归测试输入"
+      }
+    },
+    {
+      "id": "E01",
+      "title": "编辑器渲染",
+      "expected": "exists",
+      "actual": {
+        "editor": true,
+        "tag": "SECTION",
+        "tabCount": 0
+      },
+      "pass": true,
+      "extra": {
+        "editor": true,
+        "tag": "SECTION",
+        "tabCount": 0
+      }
+    },
+    {
+      "id": "ST01",
+      "title": "设置面板6标签",
+      "expected": "6 tabs",
+      "actual": {
+        "tabs": [
+          {
+            "id": "tab-api",
+            "text": "API设置技能智能体外观去AI味诊断日志API供应商配置全局ONhttps://openapi.cloud-ai.cn/v1deepseek-v4-pro生成验证编辑删除deepseek-v4-flashdeepseek-v4-flash-freedeepseek-v4-flash-testdeepseek-v4-flash-xfdeepseek-v4-pro去AI味专用ONhttps://openapi.cloud-ai.cn/v1生成验证编辑删除deepseek-v4-flashdeepseek-v4-flash-testdeepseek-v4-flash-xfdeepseek-v4-prodeepseek-v4-pro-test+添加供应商导出配置导入配置",
+            "w": 798
+          },
+          {
+            "id": "tab-api",
+            "text": "API设置",
+            "w": 123
+          },
+          {
+            "id": "tab-skill",
+            "text": "技能",
+            "w": 123
+          },
+          {
+            "id": "tab-agent",
+            "text": "智能体",
+            "w": 123
+          },
+          {
+            "id": "tab-appearance",
+            "text": "外观",
+            "w": 123
+          },
+          {
+            "id": "tab-deai",
+            "text": "去AI味",
+            "w": 123
+          },
+          {
+            "id": "tab-diag",
+            "text": "诊断日志",
+            "w": 123
+          }
+        ]
+      },
+      "pass": true,
+      "extra": {
+        "click": {
+          "opened": true,
+          "id": "btn-settings"
+        },
+        "state": {
+          "tabs": [
+            {
+              "id": "tab-api",
+              "text": "API设置技能智能体外观去AI味诊断日志API供应商配置全局ONhttps://openapi.cloud-ai.cn/v1deepseek-v4-pro生成验证编辑删除deepseek-v4-flashdeepseek-v4-flash-freedeepseek-v4-flash-testdeepseek-v4-flash-xfdeepseek-v4-pro去AI味专用ONhttps://openapi.cloud-ai.cn/v1生成验证编辑删除deepseek-v4-flashdeepseek-v4-flash-testdeepseek-v4-flash-xfdeepseek-v4-prodeepseek-v4-pro-test+添加供应商导出配置导入配置",
+              "w": 798
+            },
+            {
+              "id": "tab-api",
+              "text": "API设置",
+              "w": 123
+            },
+            {
+              "id": "tab-skill",
+              "text": "技能",
+              "w": 123
+            },
+            {
+              "id": "tab-agent",
+              "text": "智能体",
+              "w": 123
+            },
+            {
+              "id": "tab-appearance",
+              "text": "外观",
+              "w": 123
+            },
+            {
+              "id": "tab-deai",
+              "text": "去AI味",
+              "w": 123
+            },
+            {
+              "id": "tab-diag",
+              "text": "诊断日志",
+              "w": 123
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ST02",
+      "title": "设置标签可点",
+      "expected": "6 exists",
+      "actual": [
+        {
+          "id": "tab-api",
+          "exists": true
+        },
+        {
+          "id": "tab-skill",
+          "exists": true
+        },
+        {
+          "id": "tab-agent",
+          "exists": true
+        },
+        {
+          "id": "tab-appearance",
+          "exists": true
+        },
+        {
+          "id": "tab-deai",
+          "exists": true
+        },
+        {
+          "id": "tab-diag",
+          "exists": true
+        }
+      ],
+      "pass": true,
+      "extra": [
+        {
+          "id": "tab-api",
+          "exists": true
+        },
+        {
+          "id": "tab-skill",
+          "exists": true
+        },
+        {
+          "id": "tab-agent",
+          "exists": true
+        },
+        {
+          "id": "tab-appearance",
+          "exists": true
+        },
+        {
+          "id": "tab-deai",
+          "exists": true
+        },
+        {
+          "id": "tab-diag",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "id": "D01",
+      "title": "关键store快照",
+      "expected": "project+pipeline",
+      "actual": {
+        "stores": [
+          "agent",
+          "provider",
+          "project",
+          "settings",
+          "deai",
+          "skill",
+          "pipeline",
+          "editor",
+          "theme",
+          "chat"
+        ],
+        "project": {
+          "currentProjectId": "default",
+          "projectName": "未命名",
+          "outlineText": "",
+          "outlineLocked": false,
+          "settingsGenerated": false,
+          "settings": "arr:0",
+          "volumes": "arr:0",
+          "chapters": "obj:",
+          "projectList": "arr:3",
+          "volumesConfirmed": false,
+          "chaptersConfirmed": false,
+          "settingBindings": "obj:",
+          "memories": "obj:categories,items"
+        },
+        "pipeline": {
+          "currentStep": 0,
+          "isGenerating": false,
+          "generationProgress": 0,
+          "generationStatus": "",
+          "breakpoint": null,
+          "chapterProgress": null
+        },
+        "editor": {
+          "tabs": "arr:0",
+          "activeTabId": null,
+          "findVisible": false,
+          "findQuery": "",
+          "replaceQuery": "",
+          "tabUndoStacks": "obj:",
+          "tabRedoStacks": "obj:"
+        },
+        "chat": {
+          "sessions": "arr:2",
+          "activeSessionId": "chat_1786830563089_7eorq3",
+          "currentContext": null
+        }
+      },
+      "pass": true,
+      "extra": {
+        "stores": [
+          "agent",
+          "provider",
+          "project",
+          "settings",
+          "deai",
+          "skill",
+          "pipeline",
+          "editor",
+          "theme",
+          "chat"
+        ],
+        "project": {
+          "currentProjectId": "default",
+          "projectName": "未命名",
+          "outlineText": "",
+          "outlineLocked": false,
+          "settingsGenerated": false,
+          "settings": "arr:0",
+          "volumes": "arr:0",
+          "chapters": "obj:",
+          "projectList": "arr:3",
+          "volumesConfirmed": false,
+          "chaptersConfirmed": false,
+          "settingBindings": "obj:",
+          "memories": "obj:categories,items"
+        },
+        "pipeline": {
+          "currentStep": 0,
+          "isGenerating": false,
+          "generationProgress": 0,
+          "generationStatus": "",
+          "breakpoint": null,
+          "chapterProgress": null
+        },
+        "editor": {
+          "tabs": "arr:0",
+          "activeTabId": null,
+          "findVisible": false,
+          "findQuery": "",
+          "replaceQuery": "",
+          "tabUndoStacks": "obj:",
+          "tabRedoStacks": "obj:"
+        },
+        "chat": {
+          "sessions": "arr:2",
+          "activeSessionId": "chat_1786830563089_7eorq3",
+          "currentContext": null
+        }
+      }
+    },
+    {
+      "id": "D02",
+      "title": "数据目录API",
+      "expected": "路径",
+      "actual": "C:\\Users\\凯瑞\\Documents\\神意助手数据",
+      "pass": true,
+      "extra": "C:\\Users\\凯瑞\\Documents\\神意助手数据"
+    },
+    {
+      "id": "D03",
+      "title": "无残留遮罩",
+      "expected": "0",
+      "actual": {
+        "leftover": 0,
+        "classes": []
+      },
+      "pass": true,
+      "extra": {
+        "leftover": 0,
+        "classes": []
+      }
+    },
+    {
+      "id": "D04",
+      "title": "控制台无error",
+      "expected": "0",
+      "actual": 0,
+      "pass": true,
+      "extra": []
+    }
+  ],
+  "issues": [
+    {
+      "id": "P03",
+      "title": "新增设定弹出次级面板且有保存",
+      "expected": "弹窗+保存",
+      "actual": {
+        "overlays": [],
+        "hasSave": false,
+        "saveDisabled": null
+      },
+      "extra": {
+        "click": {
+          "clicked": false,
+          "reason": "HIDDEN",
+          "info": {
+            "id": "",
+            "disabled": false,
+            "w": 0
+          }
+        },
+        "modal": {
+          "overlays": [],
+          "hasSave": false,
+          "saveDisabled": null
+        }
+      }
+    },
+    {
+      "id": "P04",
+      "title": "卷纲层生成按钮可见",
+      "expected": ">=3可见",
+      "actual": {
+        "AI生成全卷": null,
+        "逐卷生成": null,
+        "自动生成卷纲": null,
+        "批量续生成": null,
+        "确认完成": null
+      },
+      "extra": {
+        "AI生成全卷": null,
+        "逐卷生成": null,
+        "自动生成卷纲": null,
+        "批量续生成": null,
+        "确认完成": null
+      }
+    },
+    {
+      "id": "P06",
+      "title": "正文层按钮存在",
+      "expected": "生成/插入/确认",
+      "actual": {
+        "AI生成正文": null,
+        "插入到编辑器": null,
+        "确认完成": null
+      },
+      "extra": {
+        "AI生成正文": null,
+        "插入到编辑器": null,
+        "确认完成": null
+      }
+    },
+    {
+      "id": "C01",
+      "title": "设定合集可打开",
+      "expected": "面板或弹窗",
+      "actual": {
+        "panel": false,
+        "overlays": []
+      },
+      "extra": {
+        "click": {
+          "opened": true,
+          "id": "btn-settings-collection"
+        },
+        "state": {
+          "panel": false,
+          "overlays": []
+        }
+      }
+    }
+  ],
+  "shots": [
+    "00_base.png (54625 bytes)",
+    "01_project_modal.png (85377 bytes)",
+    "02_outline.png (85809 bytes)",
+    "03_outline_lock.png (85809 bytes)",
+    "04_pipeline.png (91909 bytes)",
+    "05_layer_1.png (91909 bytes)",
+    "05_layer_2.png (91909 bytes)",
+    "05_layer_3.png (91909 bytes)",
+    "05_layer_4.png (91909 bytes)",
+    "05_layer_5.png (91909 bytes)",
+    "06_add_setting.png (91909 bytes)",
+    "07_volume.png (54625 bytes)",
+    "08_chapter.png (54625 bytes)",
+    "09_body.png (54625 bytes)",
+    "10_sc.png (61675 bytes)",
+    "11_chat.png (54001 bytes)",
+    "12_editor.png (54001 bytes)",
+    "13_settings.png (91054 bytes)",
+    "14_final.png (54161 bytes)"
+  ],
+  "consoleErrors": [],
+  "finishedAt": "2026-08-16T09:26:53.710Z",
+  "passCount": 22,
+  "failCount": 4
+}

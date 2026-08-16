@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div id="sbm-skill-list" class="skill-settings">
     <h3>技能管理</h3>
     <div class="skill-section">
@@ -15,7 +15,7 @@
     </div>
     <div class="skill-section">
       <h4>所有技能</h4>
-      <div class="skill-all-list">
+      <div id="skill-list" class="skill-all-list">
        <div v-for="s in skillStore.skills" :key="s.id" class="skill-card">
           <div class="skill-card-header">
             <span class="skill-card-name">{{ s.name }}</span>
@@ -39,11 +39,11 @@
     </div>
     <button id="btn-add-skill" class="btn-add" @click="addSkill">+ 新建技能</button>
    <div v-if="editingSkillId" class="skill-edit-overlay" @click.self="cancelEdit">
-     <div id="skill-bind-modal" class="skill-edit-modal">
-       <div class="sem-header">编辑技能 <button @click="cancelEdit">x</button></div>
+     <div id="skill-form" class="skill-edit-modal">
+       <div class="sem-header"><h4 id="skill-form-title">编辑技能</h4><button @click="cancelEdit">x</button></div>
        <label>名称</label><input id="sf-name" v-model="editingName" class="sem-input" />
        <label>分类</label>
-       <input v-model="editingCategory" class="sem-input" />
+       <input id="sf-category" v-model="editingCategory" class="sem-input" />
         <label>描述</label><input id="sf-desc" v-model="editingDescription" class="sem-input" placeholder="技能用途简述" />
         <label>注入模式</label><select id="sf-inject-mode" v-model="editingInjectMode" class="sem-input">
           <option value="system_prefix">系统前缀 - 追加到系统提示词之后</option>
@@ -51,7 +51,7 @@
           <option value="user_suffix">用户后缀 - 添加到用户消息之后</option>
         </select>
         <label>注入频率</label>
-        <select v-model="editingInjectFrequency" class="sem-input">
+        <select id="sf-frequency" v-model="editingInjectFrequency" class="sem-input">
           <option value="every">每轮 - 每条消息都注入</option>
           <option value="every3">每3轮 - 每3条用户消息注入一次</option>
           <option value="every5">每5轮 - 每5条用户消息注入一次</option>
@@ -63,6 +63,14 @@
           <option value="volume">卷</option>
           <option value="chapter">章</option>
         </select>
+        <div id="sf-bind-id-group" class="sf-bind-id-group">
+          <label>绑定到</label>
+          <select id="sf-bind-id" v-model="editingBindId" class="sem-input">
+            <option value="">选择目标...</option>
+            <option v-if="editingBindTarget !== 'project'" v-for="t in bindTargetOptions" :key="t.id" :value="t.id">{{ t.name }}</option>
+            <option v-else value="project">全书</option>
+          </select>
+        </div>
         <label>联动技能</label>
         <div id="sf-linked-list" class="sf-linked-list">
           <label v-for="s in skillStore.skills.filter(s => s.id !== editingSkillId)" :key="s.id" class="sf-linked-item">
@@ -94,22 +102,12 @@
        </select>
         <div id="btn-cancel-skill" class="form-actions">
           <button class="btn-secondary" @click="cancelEdit">取消</button>
-          <button id="btn-save-skill-binding" class="btn-primary" @click="saveEdit">保存</button>
+          <button id="btn-save-skill" class="btn-primary" @click="saveEdit">保存</button>
         </div>
      </div>
    </div>
   </div>
 
-  <!-- audit-v5 -->
-  <div id="skill-list" style="display:none" data-audit="v5"></div>
-  <div id="skill-list-active" style="display:none" data-audit="v5"></div>
-  <div id="skill-form" style="display:none" data-audit="v5"></div>
-  <div id="skill-form-title" style="display:none" data-audit="v5"></div>
-  <div id="sf-bind-id" style="display:none" data-audit="v5"></div>
-  <div id="sf-bind-id-group" style="display:none" data-audit="v5"></div>
-  <div id="sf-category" style="display:none" data-audit="v5"></div>
-  <div id="sf-frequency" style="display:none" data-audit="v5"></div>
-  <div id="sbm-title" style="display:none" data-audit="v5"></div>
 </template>
 
 <script setup lang="ts">
@@ -135,16 +133,34 @@ function removeFromPipeline(index: number) {
 }
 
 function addSkill() {
-  skillStore.addSkill({
-    id: 'skill-' + Date.now(),
-    name: '新技能',
-    template: '',
-    category: 'general',
-    executionMode: 'chain',
-    outputFormat: 'text',
-    validationRules: [],
-    splitSize: 1000
-  })
+  const id = 'skill-' + Date.now();
+  // 先设置 editingSkillId，确保即使 storageWrite 异常也显示表单
+  editingSkillId.value = id;
+  editingName.value = '新技能';
+  editingTemplate.value = '';
+  editingCategory.value = 'general';
+  editingDescription.value = '';
+  editingExecutionMode.value = 'chain';
+  editingOutputFormat.value = 'text';
+  editingInjectMode.value = 'system_prefix';
+  editingInjectFrequency.value = 'every';
+  editingInjectDepth.value = 0;
+  editingBindTarget.value = 'project';
+  editingLinkedSkillIds.value = [];
+  try {
+    skillStore.addSkill({
+      id: id,
+      name: '新技能',
+      template: '',
+      category: 'general',
+      executionMode: 'chain',
+      outputFormat: 'text',
+      validationRules: [],
+      splitSize: 1000
+    });
+  } catch (e) {
+    console.error('[SkillSettings] addSkill store error:', e);
+  }
 }
 
 const editingSkillId = ref('')
@@ -159,6 +175,8 @@ const editingInjectFrequency = ref('every')
 const editingInjectDepth = ref(0)
 const editingBindTarget = ref('project')
 const editingLinkedSkillIds = ref<string[]>([])
+const editingBindId = ref('')
+const bindTargetOptions = ref<{ id: string, name: string }[]>([])
 
 const availableVars = [
   'selectedText', 'outlineContent', 'chapterSummary',
@@ -336,3 +354,4 @@ function cancelEdit() {
 
 /* === 表单操作区 === */
 </style>
+

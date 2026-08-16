@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { storageKey } from '../utils/storage-key'
 
 export const useDeAiStore = defineStore('deai', () => {
   const enabled = ref(false)
@@ -18,8 +19,8 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
   const flowPreview = ref<string[]>([])
 
  function loadConfig() {
-    let data = window.electronAPI.storageRead('deAiConfig')
-    if (!data) data = window.electronAPI.storageRead('app-deai-config')
+    let data = window.electronAPI.storageRead(storageKey('deAiConfig'))
+    if (!data) data = window.electronAPI.storageRead(storageKey('app-deai-config'))
    if (data) {
      enabled.value = data.enabled || false
       mode.value = data.mode || data.agentMode || 'chain'
@@ -36,7 +37,7 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
   }
 
  function saveConfig() {
-   window.electronAPI.storageWrite('deAiConfig', {
+   window.electronAPI.storageWrite(storageKey('deAiConfig'), {
      enabled: enabled.value,
      mode: mode.value,
      skillIds: JSON.parse(JSON.stringify(skillIds.value)),

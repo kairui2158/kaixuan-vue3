@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-overlay" @click.self="$emit('close')">
+  <div class="modal-overlay" :class="{ 'modal-hidden': !visible }" @click.self="$emit('close')">
     <div class="modal-content modal-lg" :class="{ 'modal-closing': closing }">
       <div class="modal-header">
         <h3>设置</h3>
@@ -10,6 +10,7 @@
           <button
             v-for="tab in tabs"
             :key="tab.id"
+            :id="'tab-' + tab.id"
             class="settings-tab"
             :class="{ active: settingsStore.activeTab === tab.id }"
             @click="settingsStore.setActiveTab(tab.id)"
@@ -31,14 +32,6 @@
     </div>
   </div>
 
-  <!-- audit-v5 -->
-  <div id="tab-skills" style="display:none" data-audit="v5"></div>
-  <div id="tab-agents" style="display:none" data-audit="v5"></div>
-  <div id="tab-appearance" style="display:none" data-audit="v5"></div>
-  <div id="tab-deai" style="display:none" data-audit="v5"></div>
-  <div id="tab-diag" style="display:none" data-audit="v5"></div>
-  <div id="btn-export-data" style="display:none" data-audit="v5"></div>
-  <div id="btn-import-data" style="display:none" data-audit="v5"></div>
 </template>
 
 <script setup lang="ts">
@@ -55,6 +48,7 @@ import DeAiSettings from './DeAiSettings.vue'
 import DiagLogPanel from './DiagLogPanel.vue'
 
 const emit = defineEmits<{ close: [] }>()
+const props = defineProps<{ visible: boolean }>()
 
 const settingsStore = useSettingsStore()
 const providerStore = useProviderStore()
@@ -100,7 +94,7 @@ function handleSave() {
   animation: modalOut 0.2s ease-in forwards;
 }
 /* modal-lg: settings modal size (old arch L4790) */
-.modal-lg { width: 900px; max-width: 90vw; min-height: 600px; max-height: 85vh; }
+.modal-lg { width: 800px; max-width: 90vw; min-height: 600px; max-height: 85vh; }
 
 /* modal-body override: flex layout for settings sidebar (old arch L2052) */
 .modal-body {
@@ -188,3 +182,4 @@ function handleSave() {
   overflow-y: auto;
 }
 </style>
+

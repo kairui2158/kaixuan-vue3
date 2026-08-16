@@ -1,0 +1,72 @@
+{
+  "startedAt": "2026-08-15T20:16:06.948Z",
+  "steps": [
+    {
+      "time": "2026-08-15T20:16:07.346Z",
+      "name": "open_pipeline",
+      "state": {
+        "active": "2\n设定\n✓",
+        "bodySample": "小说工坊\n默认\n凯旋写作Agent\n白虎\n自动\ndeepseek-v4-flash\ndeepseek-v4-flash-free\ndeepseek-v4-flash-test\ndeepseek-v4-flash-xf\ndeepseek-v4-pro\ndeepseek-v4-pro-test\ndeepseek-v4-pro-tg\ndoubao-seed-2.1-pro\ndoubao-seed-2.1-pro-test\ndoubao-seed-2.1-turbo\ndoubao-seed-2.1-turbo-test\nglm-5\nglm-5.1\nglm-5.1-test\nglm-5.2\nglm-5.2-test\nhy3\nkimi-k2.6\nkimi-k2.6-test\nkimi-k2.7-code\nkimi-k2.7-code-test\nkimi-k3\nkimi-k3-sp\nkimi-k3-te",
+        "hasAddModal": false,
+        "volCards": 0,
+        "chCards": 0,
+        "bodyResult": "",
+        "generating": false
+      }
+    },
+    {
+      "name": "outline_word_count_link",
+      "outlineLink": {
+        "book": "20",
+        "volumeWords": "50000",
+        "volCount": "4",
+        "hint": "全书 20 万字自动分配"
+      }
+    },
+    {
+      "time": "2026-08-15T20:16:08.276Z",
+      "name": "open_settings",
+      "state": {
+        "active": "2\n设定\n✓",
+        "bodySample": "小说工坊\n默认\n凯旋写作Agent\n白虎\n自动\ndeepseek-v4-flash\ndeepseek-v4-flash-free\ndeepseek-v4-flash-test\ndeepseek-v4-flash-xf\ndeepseek-v4-pro\ndeepseek-v4-pro-test\ndeepseek-v4-pro-tg\ndoubao-seed-2.1-pro\ndoubao-seed-2.1-pro-test\ndoubao-seed-2.1-turbo\ndoubao-seed-2.1-turbo-test\nglm-5\nglm-5.1\nglm-5.1-test\nglm-5.2\nglm-5.2-test\nhy3\nkimi-k2.6\nkimi-k2.6-test\nkimi-k2.7-code\nkimi-k2.7-code-test\nkimi-k3\nkimi-k3-sp\nkimi-k3-te",
+        "hasAddModal": false,
+        "volCards": 0,
+        "chCards": 0,
+        "bodyResult": "",
+        "generating": false
+      }
+    },
+    {
+      "name": "add_setting",
+      "addBtnDisabled": false,
+      "count": 2
+    },
+    {
+      "name": "ai_generate_settings",
+      "count": 7
+    },
+    {
+      "time": "2026-08-15T20:16:22.481Z",
+      "name": "confirm_settings",
+      "state": {
+        "active": "3\n卷纲",
+        "bodySample": "小说工坊\n默认\n凯旋写作Agent\n白虎\n自动\ndeepseek-v4-flash\ndeepseek-v4-flash-free\ndeepseek-v4-flash-test\ndeepseek-v4-flash-xf\ndeepseek-v4-pro\ndeepseek-v4-pro-test\ndeepseek-v4-pro-tg\ndoubao-seed-2.1-pro\ndoubao-seed-2.1-pro-test\ndoubao-seed-2.1-turbo\ndoubao-seed-2.1-turbo-test\nglm-5\nglm-5.1\nglm-5.1-test\nglm-5.2\nglm-5.2-test\nhy3\nkimi-k2.6\nkimi-k2.6-test\nkimi-k2.7-code\nkimi-k2.7-code-test\nkimi-k3\nkimi-k3-sp\nkimi-k3-te",
+        "hasAddModal": false,
+        "volCards": 0,
+        "chCards": 0,
+        "bodyResult": "",
+        "generating": false
+      }
+    },
+    {
+      "name": "volume_word_count_link",
+      "volLink": {
+        "volumeWords": "50000",
+        "volCount": "4",
+        "hint": "全书 20 万字自动分配"
+      }
+    }
+  ],
+  "url": "file:///D:/codex/novel-workshop-vue3/dist-renderer/index.html",
+  "error": "page.waitForFunction: Timeout 30000ms exceeded.\n    at waitNoGenerating (D:\\codex\\novel-workshop-vue3\\_audit\\e2e_pipeline_real_v2.cjs:33:14)\n    at main (D:\\codex\\novel-workshop-vue3\\_audit\\e2e_pipeline_real_v2.cjs:115:9)"
+}

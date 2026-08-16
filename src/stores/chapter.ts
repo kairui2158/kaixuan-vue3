@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { storageKey } from '../utils/storage-key'
 
 export interface Chapter {
   id: string
@@ -8,6 +9,10 @@ export interface Chapter {
   plot: string
   body: string
   order: number
+}
+
+function toPlain(value: unknown): unknown {
+  return JSON.parse(JSON.stringify(value))
 }
 
 export const useChapterStore = defineStore('chapter', () => {
@@ -22,12 +27,12 @@ export const useChapterStore = defineStore('chapter', () => {
   })
 
   function loadChapters(projectId: string) {
-    const data = window.electronAPI.storageRead('chapters_' + projectId)
+    const data = window.electronAPI.storageRead(storageKey('chapters_' + projectId))
     if (data) chapters.value = data.chapters || data || []
   }
 
   function saveChapters(projectId: string) {
-    window.electronAPI.storageWrite('chapters_' + projectId, { chapters: chapters.value })
+    window.electronAPI.storageWrite(storageKey('chapters_' + projectId), { chapters: toPlain(chapters.value) })
   }
 
   function addChapter(chapter: Chapter) {
@@ -59,3 +64,4 @@ export const useChapterStore = defineStore('chapter', () => {
     setVolume, getChapter
   }
 })
+

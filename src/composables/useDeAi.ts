@@ -15,12 +15,13 @@ export function useDeAi() {
   const skillStore = useSkillStore()
   const agentStore = useAgentStore()
 
-  async function callAiApi(systemPrompt: string, userText: string, useVerify?: boolean): Promise<string> {
+async function callAiApi(systemPrompt: string, userText: string, useVerify?: boolean): Promise<string> {
     const provider = useVerify
       ? (providerStore.activeVerifyProvider || providerStore.activeGenerateProvider)
       : providerStore.activeGenerateProvider
     if (!provider) throw new Error('未配置供应商，请在设置中添加API供应商')
-    const url = provider.baseUrl.replace(/\/$/, '') + '/v1/chat/completions'
+    const baseUrl = provider.baseUrl.replace(/\/$/, '')
+    const url = baseUrl.match(/\/v\d+$/) ? baseUrl + '/chat/completions' : baseUrl + '/v1/chat/completions'
     const model = provider.selectedModel || 'gpt-4o'
     const temperature = useVerify ? 0.3 : (provider.temperature ?? 0.7)
     const body: any = {
@@ -284,7 +285,60 @@ export function useDeAi() {
      } catch { return text }
    }
 
-  async function process(text: string): Promise<string> {
+function applyTextFilter(text        )         {
+    if (!text || typeof text !== 'string' || text.length === 0) return text
+    const aiWords = ['\u503c\u5f97\u6ce8\u610f\u7684\u662f','\u6b64\u5916','\u4e0e\u6b64\u540c\u65f6','\u7531\u6b64\u53ef\u89c1','\u7efc\u4e0a\u6240\u8ff0','\u603b\u4f53\u800c\u8a00','\u4ece\u67d0\u79cd\u7a0b\u5ea6\u6765\u8bf4','\u8fdb\u884c\u4e86','\u505a\u51fa\u4e86','\u5b58\u5728\u7740','\u53d1\u751f\u4e86','\u4ea7\u751f\u4e86','\u5f62\u6210\u4e86','\u6781\u5927\u7684','\u663e\u8457\u7684','\u6df1\u523b\u7684','\u5145\u5206\u7684','\u6709\u6548\u7684']
+    let result = text
+    for (const w of aiWords) {
+      while (result.indexOf(w) >= 0) { result = result.replace(w, '') }
+    }
+    const lines = result.split('\n')
+    for (let li = 0; li < lines.length; li++) {
+      const line = lines[li]
+      const trimmed = line.trim()
+      if (trimmed.length === 0) continue
+      if (/^[=\u2500\u2501\u2550\-]{3,}$/.test(trimmed)) continue
+      let firstPeriodIdx = -1
+      for (let ci = 0; ci < line.length; ci++) {
+        if (line.charAt(ci) === '\u3002' || line.charAt(ci) === '.') { firstPeriodIdx = ci; break }
+      }
+      if (firstPeriodIdx === -1) continue
+      const beforePeriod = line.substring(0, firstPeriodIdx).trim()
+      if (beforePeriod.length > 0 && beforePeriod.length <= 30) {
+        lines[li] = line.substring(0, firstPeriodIdx) + '\uff0c' + line.substring(firstPeriodIdx + 1)
+      }
+    }
+    result = lines.join('\n')
+    const periods           = []
+    for (let pi = 0; pi < result.length; pi++) {
+      if (result.charAt(pi) === '\u3002' || result.charAt(pi) === '.') { periods.push(pi) }
+    }
+    if (periods.length >= 3) {
+      let merged = result
+      let offset = 0
+      for (let pi2 = 0; pi2 < periods.length - 2; pi2++) {
+        const p1 = periods[pi2] + offset
+        const p2 = periods[pi2 + 1] + offset
+        const p3 = periods[pi2 + 2] + offset
+        if (p3 - p1 <= 50) {
+          const seg1 = merged.substring(p1 + 1, p2).trim()
+          const seg2 = merged.substring(p2 + 1, p3).trim()
+          if (seg1.length <= 15 && seg2.length <= 15) {
+            let seg0Start = 0
+            if (pi2 > 0) { seg0Start = periods[pi2 - 1] + offset + 1 }
+            const lineStart = merged.lastIndexOf('\n', p1)
+            if (lineStart >= 0 && lineStart + 1 > seg0Start) { seg0Start = lineStart + 1 }
+            const seg0 = merged.substring(seg0Start, p1).trim()
+            if (seg0.length <= 15) {
+              merged = merged.substring(0, p1) + '\uff0c' + merged.substring(p1 + 1)
+            }
+          }
+        }
+      }
+      result = merged
+    }
+    return result
+  }  async function process(text: string): Promise<string> {
   const cfg = {
     mode: deAiStore.mode,
     skillIds: deAiStore.skillIds,
@@ -313,6 +367,7 @@ export function useDeAi() {
        result = await crossModelCheck(text, result, cfg)
        result = await zhuqueCheck(result, cfg)
      }
+    result = applyTextFilter(result)
     deAiStore.finishProcessing()
     return result
   } catch (e: any) {

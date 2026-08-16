@@ -1,0 +1,257 @@
+{
+  "init_app": "OK",
+  "init_sidebar": "OK",
+  "init_chapter_tree": "OK",
+  "init_editor": "OK",
+  "init_chat": "OK",
+  "init_console_errors": "0",
+  "--": "=== 8. IPC 接口 ===",
+  "ow_visible": {
+    "ok": true,
+    "w": 1904,
+    "h": 975
+  },
+  "ow_buttons": [
+    {
+      "id": "btn-ai-co-create",
+      "t": "AI 共创大纲",
+      "d": "inline-block",
+      "w": 87,
+      "h": 28
+    },
+    {
+      "id": "btn-close-outline-workspace",
+      "t": "x",
+      "d": "inline-flex",
+      "w": 22,
+      "h": 25
+    },
+    {
+      "id": "btn-export-outline-md",
+      "t": ".md",
+      "d": "inline-block",
+      "w": 46,
+      "h": 28
+    },
+    {
+      "id": "btn-export-outline-txt",
+      "t": ".txt",
+      "d": "inline-block",
+      "w": 42,
+      "h": 28
+    },
+    {
+      "id": "btn-ow-send",
+      "t": "send",
+      "d": "block",
+      "w": 0,
+      "h": 0
+    },
+    {
+      "id": "btn-generate-outline-skills",
+      "t": "自动生成大纲 Skill",
+      "d": "inline-block",
+      "w": 215,
+      "h": 32
+    },
+    {
+      "id": "btn-import-outline",
+      "t": "从文件导入(.txt/.md/.doc/.docx)",
+      "d": "block",
+      "w": 215,
+      "h": 32
+    },
+    {
+      "id": "btn-save-outline",
+      "t": "保存大纲",
+      "d": "block",
+      "w": 84,
+      "h": 32
+    },
+    {
+      "id": "btn-lock-outline",
+      "t": "确认大纲，锁定并进入创作",
+      "d": "block",
+      "w": 188,
+      "h": 32
+    }
+  ],
+  "ow_hidden_buttons": [
+    "btn-ow-send:send"
+  ],
+  "sc_visible": {
+    "ok": true,
+    "w": 1904,
+    "h": 975
+  },
+  "sc_buttons": [
+    {
+      "id": "btn-close-sc",
+      "t": "x",
+      "d": "flex",
+      "w": 22,
+      "h": 25
+    },
+    {
+      "id": "btn-add-category",
+      "t": "+ 新建分类",
+      "d": "inline-block",
+      "w": 163,
+      "h": 29
+    },
+    {
+      "id": "btn-add-item",
+      "t": "+ 添加条目",
+      "d": "block",
+      "w": 84,
+      "h": 28
+    },
+    {
+      "id": "btn-ai-gen-item",
+      "t": "AI 生成",
+      "d": "block",
+      "w": 64,
+      "h": 28
+    }
+  ],
+  "pl_visible": {
+    "ok": true,
+    "w": 1904,
+    "h": 975
+  },
+  "pl_buttons_total": 35,
+  "pl_visible_buttons": 14,
+  "pl_hidden_buttons": "21 (pl-s2-add-skill, + 新增设定, btn-pl-gen-settings, btn-pl-save-settings, btn-pl-confirm-settings, pl-s3-add-skill, ×, ×...)",
+  "pl_step_tabs": "no step tabs found",
+  "pl_click_step2": "NO_S2_BTN",
+  "pl_s2_visible_after_click": [
+    "重新生成",
+    "保存大纲"
+  ],
+  "pm_visible": {
+    "ok": true,
+    "w": 480,
+    "h": 291
+  },
+  "pm_buttons": [
+    {
+      "id": "",
+      "t": "×",
+      "d": "flex",
+      "w": 25,
+      "h": 25
+    },
+    {
+      "id": "",
+      "t": "加载",
+      "d": "block",
+      "w": 48,
+      "h": 28
+    },
+    {
+      "id": "",
+      "t": "删除",
+      "d": "block",
+      "w": 48,
+      "h": 28
+    },
+    {
+      "id": "",
+      "t": "加载",
+      "d": "block",
+      "w": 48,
+      "h": 28
+    },
+    {
+      "id": "",
+      "t": "删除",
+      "d": "block",
+      "w": 48,
+      "h": 28
+    },
+    {
+      "id": "",
+      "t": "加载",
+      "d": "block",
+      "w": 48,
+      "h": 28
+    },
+    {
+      "id": "",
+      "t": "删除",
+      "d": "block",
+      "w": 48,
+      "h": 28
+    },
+    {
+      "id": "",
+      "t": "+ 新建项目",
+      "d": "inline-block",
+      "w": 430,
+      "h": 32
+    }
+  ],
+  "pm_click_new": "CLICKED_NEW",
+  "pm_new_form": {
+    "ok": true,
+    "w": 430
+  },
+  "sm_visible": {
+    "ok": true,
+    "w": 800,
+    "h": 829
+  },
+  "sm_tabs": [
+    {
+      "id": "tab-api",
+      "t": "API设置",
+      "d": "block"
+    },
+    {
+      "id": "tab-skill",
+      "t": "技能",
+      "d": "block"
+    },
+    {
+      "id": "tab-agent",
+      "t": "智能体",
+      "d": "block"
+    },
+    {
+      "id": "tab-appearance",
+      "t": "外观",
+      "d": "block"
+    },
+    {
+      "id": "tab-deai",
+      "t": "去AI味",
+      "d": "block"
+    },
+    {
+      "id": "tab-diag",
+      "t": "诊断日志",
+      "d": "block"
+    }
+  ],
+  "sm_tab_clicked_skill": "OK",
+  "sm_tab_clicked_agent": "OK",
+  "sm_tab_clicked_appearance": "OK",
+  "sm_tab_clicked_deai": "OK",
+  "sm_tab_clicked_diag": "OK",
+  "chat_buttons": [
+    {
+      "id": "btn-send",
+      "t": "",
+      "d": "block",
+      "w": 48,
+      "h": 32
+    }
+  ],
+  "ct_header": "OK",
+  "ct_project_btn": "OK",
+  "ct_gen_btn": "OK",
+  "electronAPI": "35 methods",
+  "pinia_stores": "agent, provider, project, settings, deai, skill, pipeline, editor, theme, chat",
+  "total_console_errors": "0",
+  "screenshot": "71KB"
+}

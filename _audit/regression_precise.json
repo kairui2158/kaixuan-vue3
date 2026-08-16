@@ -1,0 +1,331 @@
+{
+  "startedAt": "2026-08-16T09:32:53.532Z",
+  "pass": 11,
+  "fail": 7,
+  "items": [
+    {
+      "id": "T01",
+      "title": "document.title",
+      "actual": "神意助手",
+      "pass": true
+    },
+    {
+      "id": "T02",
+      "title": "页眉品牌名应为神意助手",
+      "actual": "小说工坊",
+      "pass": false
+    },
+    {
+      "id": "C01",
+      "title": "设定合集面板打开",
+      "actual": {
+        "found": true,
+        "display": "flex",
+        "w": 1904,
+        "h": 975,
+        "addCat": true,
+        "addItem": true,
+        "aiGen": true,
+        "active": "settings-collection"
+      },
+      "pass": true
+    },
+    {
+      "id": "C02",
+      "title": "设定合集新建分类弹出输入框",
+      "actual": {
+        "found": true,
+        "w": 360,
+        "h": 164,
+        "hasConfirm": true
+      },
+      "pass": true
+    },
+    {
+      "id": "P01",
+      "title": "生成流水线打开",
+      "actual": {
+        "found": true,
+        "w": 1904,
+        "h": 975,
+        "step": 0
+      },
+      "pass": true
+    },
+    {
+      "id": "P10",
+      "title": "流水线第1层控件可见",
+      "actual": {
+        "_exception": "SyntaxError: Invalid or unexpected token"
+      },
+      "pass": false
+    },
+    {
+      "id": "P11",
+      "title": "流水线第2层控件可见",
+      "actual": {
+        "_exception": "SyntaxError: Invalid or unexpected token"
+      },
+      "pass": false
+    },
+    {
+      "id": "P12",
+      "title": "流水线第3层控件可见",
+      "actual": {
+        "_exception": "SyntaxError: Invalid or unexpected token"
+      },
+      "pass": false
+    },
+    {
+      "id": "P13",
+      "title": "流水线第4层控件可见",
+      "actual": {
+        "_exception": "SyntaxError: Invalid or unexpected token"
+      },
+      "pass": false
+    },
+    {
+      "id": "P14",
+      "title": "流水线第5层控件可见",
+      "actual": {
+        "_exception": "SyntaxError: Invalid or unexpected token"
+      },
+      "pass": false
+    },
+    {
+      "id": "P20",
+      "title": "新增设定弹窗+保存按钮",
+      "actual": {
+        "addClick": {
+          "ok": true,
+          "w": 98
+        },
+        "addModal": {
+          "found": true,
+          "w": 1904,
+          "h": 975,
+          "hasSave": true,
+          "saveDisabled": true
+        }
+      },
+      "pass": true
+    },
+    {
+      "id": "P21",
+      "title": "卷纲层5按钮按ID可见",
+      "actual": [
+        {
+          "id": "btn-pl-gen-volumes",
+          "found": true,
+          "disabled": false,
+          "w": 96,
+          "h": 32
+        },
+        {
+          "id": "btn-pl-gen-single-volume",
+          "found": true,
+          "disabled": false,
+          "w": 86,
+          "h": 32
+        },
+        {
+          "id": "btn-pl-create-volumes",
+          "found": true,
+          "disabled": false,
+          "w": 112,
+          "h": 32
+        },
+        {
+          "id": "btn-pl-continue-volumes",
+          "found": true,
+          "disabled": false,
+          "w": 99,
+          "h": 32
+        },
+        {
+          "id": "btn-pl-confirm-volumes",
+          "found": true,
+          "disabled": true,
+          "w": 86,
+          "h": 32
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "P22",
+      "title": "正文层3按钮按ID可见",
+      "actual": [
+        {
+          "id": "btn-pl-gen-body",
+          "found": true,
+          "disabled": false,
+          "w": 96,
+          "h": 32,
+          "text": "AI生成正文"
+        },
+        {
+          "id": "btn-pl-insert-body",
+          "found": true,
+          "disabled": true,
+          "w": 112,
+          "h": 32,
+          "text": "插入到编辑器"
+        },
+        {
+          "id": "btn-pl-confirm-body",
+          "found": true,
+          "disabled": true,
+          "w": 86,
+          "h": 32,
+          "text": "确认完成"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "S01",
+      "title": "章节树存在",
+      "actual": {
+        "tree": true,
+        "projectBtn": false,
+        "buttons": [
+          {
+            "id": "btn-tree-gen",
+            "title": "生成流水线",
+            "text": "生成"
+          },
+          {
+            "id": "btn-open-project",
+            "title": "项目管理",
+            "text": "项目"
+          },
+          {
+            "id": "",
+            "title": "",
+            "text": "×"
+          },
+          {
+            "id": "",
+            "title": "",
+            "text": "加载"
+          },
+          {
+            "id": "",
+            "title": "",
+            "text": "删除"
+          },
+          {
+            "id": "",
+            "title": "",
+            "text": "加载"
+          },
+          {
+            "id": "",
+            "title": "",
+            "text": "删除"
+          },
+          {
+            "id": "",
+            "title": "",
+            "text": "加载"
+          },
+          {
+            "id": "",
+            "title": "",
+            "text": "删除"
+          },
+          {
+            "id": "",
+            "title": "",
+            "text": "+ 新建项目"
+          }
+        ]
+      },
+      "pass": true
+    },
+    {
+      "id": "S02",
+      "title": "项目弹窗",
+      "actual": {
+        "proj": {
+          "_exception": "ReferenceError: tree is not defined\n    at <anonymous>:3:16\n    at <anonymous>:10:5"
+        },
+        "projModal": {
+          "el": false,
+          "overlays": []
+        }
+      },
+      "pass": false
+    },
+    {
+      "id": "H10",
+      "title": "注入助手消息后出现复制/插入/替换",
+      "actual": {
+        "chatInject": {
+          "ok": true,
+          "before": 0,
+          "keys": [
+            "_p",
+            "$id",
+            "$onAction",
+            "$patch",
+            "$reset",
+            "$subscribe",
+            "$dispose",
+            "sessions",
+            "activeSessionId",
+            "activeSession",
+            "activeMessages",
+            "currentContext",
+            "loadSessions",
+            "saveSessions",
+            "ensureSession",
+            "addMessage",
+            "updateLastMessage",
+            "clearSession",
+            "removeSession",
+            "setCurrentContext"
+          ]
+        },
+        "chatBtns": [
+          {
+            "id": "",
+            "text": "复制",
+            "w": 50
+          },
+          {
+            "id": "",
+            "text": "重生成",
+            "w": 60
+          },
+          {
+            "id": "",
+            "text": "插入",
+            "w": 50
+          },
+          {
+            "id": "",
+            "text": "替换",
+            "w": 50
+          }
+        ]
+      },
+      "pass": true
+    },
+    {
+      "id": "Z01",
+      "title": "无残留大遮罩",
+      "actual": [],
+      "pass": true
+    },
+    {
+      "id": "Z02",
+      "title": "Skill绑定弹窗未自动弹出",
+      "actual": {
+        "visible": false
+      },
+      "pass": true
+    }
+  ]
+}

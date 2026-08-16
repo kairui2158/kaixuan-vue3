@@ -1,0 +1,29 @@
+{
+  "errors": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 400 ()"
+    }
+  ],
+  "networkErrors": [],
+  "steps": [
+    "goto_volume_step",
+    {
+      "before_click": false
+    },
+    "clicked_ai_generate_volumes",
+    "generation_timeout: page.waitForFunction: Timeout 30000ms exceeded."
+  ],
+  "state": {
+    "volumes": [],
+    "volCount": 0,
+    "toast": [
+      "生成",
+      "生成",
+      "生成",
+      "生成",
+      "生成"
+    ],
+    "progress": "Agent 进度>"
+  }
+}

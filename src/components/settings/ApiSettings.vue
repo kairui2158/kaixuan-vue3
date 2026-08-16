@@ -48,11 +48,11 @@
       </div>
     </div>
     <!-- View 2: Provider Edit -->
-    <div v-else class="provider-edit-view">
+    <div v-else id="provider-edit-view" class="provider-edit-view">
       <div class="provider-edit-header">
         <button id="btn-provider-back" class="btn-sm btn-secondary btn-back" @click="exitProviderEdit">← 返回</button>
         <span id="provider-edit-title" class="provider-edit-title-text">{{ editingProvider.name || '新供应商' }}</span>
-        <span class="provider-conn-status" :class="connStatusClass" v-if="connStatus">{{ connStatus }}</span>
+        <span id="provider-conn-status" class="provider-conn-status" :class="connStatusClass" v-if="connStatus">{{ connStatus }}</span>
       </div>
       <div class="form-group">
         <label>供应商名称</label>
@@ -94,7 +94,7 @@
       </div>
       <div class="form-group">
         <label class="checkbox-label">
-          <input type="checkbox" v-model="editingProvider.streamMode" />
+          <input id="cfg-stream-mode" type="checkbox" v-model="editingProvider.streamMode" />
           <span>流式传输（打字机逐字显示效果）</span>
         </label>
       </div>
@@ -118,7 +118,7 @@
       </div>
       <div class="form-group">
         <label>系统提示词</label>
-        <textarea v-model="editingProvider.systemPrompt" class="input-field" rows="3" placeholder="可选"></textarea>
+        <textarea id="cfg-system-prompt" v-model="editingProvider.systemPrompt" class="input-field" rows="3" placeholder="可选"></textarea>
       </div>
       <div class="form-actions">
         <button class="btn-primary" @click="saveAndExit">保存</button>
@@ -127,12 +127,6 @@
     </div>
   </div>
 
-  <!-- audit-v5 -->
-  <div id="cfg-stream-mode" style="display:none" data-audit="v5"></div>
-  <div id="cfg-system-prompt" style="display:none" data-audit="v5"></div>
-  <div id="model-datalist" style="display:none" data-audit="v5"></div>
-  <div id="provider-conn-status" style="display:none" data-audit="v5"></div>
-  <div id="provider-edit-view" style="display:none" data-audit="v5"></div>
 </template>
 
 <script setup lang="ts">
@@ -172,9 +166,23 @@ function getPurpose(id: string): string {
 
 function setPurpose(id: string, purpose: string) {
   if (purpose === 'generate') {
+    if (providerStore.verifyProvider === id) {
+      providerStore.setVerifyProvider('')
+    }
+    const prevGen = providerStore.generateProvider
     providerStore.setGenerateProvider(id)
+    if (prevGen && prevGen !== id && !providerStore.verifyProvider) {
+      providerStore.setVerifyProvider(prevGen)
+    }
   } else {
+    if (providerStore.generateProvider === id) {
+      providerStore.setGenerateProvider('')
+    }
+    const prevVer = providerStore.verifyProvider
     providerStore.setVerifyProvider(id)
+    if (prevVer && prevVer !== id && !providerStore.generateProvider) {
+      providerStore.setGenerateProvider(prevVer)
+    }
   }
 }
 
@@ -473,15 +481,6 @@ function importConfig() {
 .range-val { font-size: 12px; color: var(--text-secondary); min-width: 30px; text-align: right; }
 .input-w-120 { width: 120px; }
 .form-actions { display: flex; gap: 8px; margin-top: 8px; }
-.btn-primary { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: var(--radius-sm, 6px); padding: 8px 20px; cursor: pointer; font-size: 13px; }
-.btn-primary:hover { background: var(--accent-hover, var(--accent)); }
-.btn-secondary { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm, 6px); padding: 8px 16px; cursor: pointer; font-size: 13px; }
-.btn-secondary:hover { border-color: var(--accent); }
-.btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
-.btn-danger:hover { background: var(--danger-dim, rgba(244,67,54,0.1)); }
-.btn-sm { padding: 4px 10px; font-size: 12px; border-radius: var(--radius-sm, 4px); cursor: pointer; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); }
-.btn-sm:hover { border-color: var(--accent); }
-.btn-sm:disabled { opacity: 0.5; cursor: not-allowed; }
 .provider-card-info { display: flex; flex-direction: column; gap: 2px; margin-bottom: 8px; }
 .provider-card-url { font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .provider-card-model { font-size: 11px; color: var(--accent); }

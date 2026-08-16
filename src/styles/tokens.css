@@ -66,11 +66,10 @@
   --btn-group-gap-standard: 4px;
   --radius: 8px;
   --radius-btn: 6px;
-  --font-size-xs: 10px;
+  --font-size-xs: 11px;
   --font-size-sm: 12px;
-  --font-size-md: 14px;
-  --font-size-md-lg: 15px;
-  --font-size-lg: 16px;
+  --font-size-md: 13px;
+  --font-size-lg: 15px;
   --font-size-xl: 18px;
   --fw-medium: 500;
   --fw-semibold: 600;
@@ -79,7 +78,7 @@
   --lh-normal: 1.5;
   --lh-loose: 1.8;
   --btn-sm-height: 28px;
-  --btn-md-height: 34px;
+  --btn-md-height: 32px;
   --btn-xs-height: 24px;
   --btn-xs-padding: 4px 8px;
   --btn-xxs-padding: 2px 6px;
@@ -256,7 +255,8 @@ body.light-theme {
   body { font-size: 12px; }
   .sidebar-nav { width: 44px !important; }
   .sidebar-nav .nav-btn { width: 32px; height: 32px; }
-  .chapter-tree { display: none; }
+ .chapter-tree { display: none; }
+}
 
 /* ===== CSS Fix: Missing variables from old architecture ===== */
 :root {
@@ -365,4 +365,18 @@ body.light-theme {
   --z-drawer: 600;
   --z-modal-high: 1500;
   --focus-ring-offset: 2px;
+}
+/* === Missing media queries from old architecture === */
+@media (min-width: 1920px) {
+  body { font-size: clamp(14px, 0.8vw, 18px); }
+  .editor-panel { max-width: 1200px; }
+  .app-main { max-width: 2400px; margin: 0 auto; }
+}
+@media (prefers-contrast: high) {
+  :root {
+    --border-color: var(--text-muted);
+    --text-secondary: var(--text-primary);
+    --bg-hover: var(--bg-tertiary);
+  }
+  button, .btn, select, input, textarea { border-width: 2px; }
 }

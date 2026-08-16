@@ -1,0 +1,56 @@
+{
+  "tests": [
+    {
+      "test": "P1-tokens.css",
+      "status": "PASS",
+      "detail": "body font-size=14px (expected 14px)"
+    },
+    {
+      "test": "P1-accent-var",
+      "status": "PASS",
+      "detail": "--accent=#7c8cf8"
+    },
+    {
+      "test": "P2-settings-visible",
+      "status": "PASS",
+      "detail": "modal overlay visible"
+    },
+    {
+      "test": "P2-settings-tabs",
+      "status": "PASS",
+      "detail": "found 4+ tabs"
+    },
+    {
+      "test": "P3-pipeline-visible",
+      "status": "PASS",
+      "detail": "pipeline overlay visible"
+    },
+    {
+      "test": "P3-step-bar-visible",
+      "status": "PASS",
+      "detail": "step bar visible"
+    },
+    {
+      "test": "P3-step-count",
+      "status": "PASS",
+      "detail": "found 5 steps (expected 3+)"
+    },
+    {
+      "test": "P3-step1-content",
+      "status": "PASS",
+      "detail": "step 1 content visible"
+    },
+    {
+      "test": "P3-no-pl-hidden",
+      "status": "PASS",
+      "detail": "pl-hidden on active: absent"
+    },
+    {
+      "test": "P4-save-feedback",
+      "status": "PASS",
+      "detail": "alert shown when no active tab"
+    }
+  ],
+  "pass": 10,
+  "fail": 0
+}

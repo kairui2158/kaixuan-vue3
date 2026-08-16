@@ -1,5 +1,6 @@
-import { defineStore } from 'pinia'
+﻿import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { storageKey } from '../utils/storage-key'
 
 export interface Agent {
   id: string
@@ -10,6 +11,7 @@ export interface Agent {
   systemPrompt: string
   description?: string
   provider?: string
+  tools?: string[]
   createdAt?: string
   updatedAt?: string
 }
@@ -19,12 +21,12 @@ const agents = ref<Agent[]>([])
 const selectedAgentId = ref<string>('')
 
   function loadAgents() {
-    const data = window.electronAPI.storageRead('agents')
+    const data = window.electronAPI.storageRead(storageKey('agents'))
     if (data) agents.value = data.agents || data || []
   }
 
   function saveAgents() {
-    window.electronAPI.storageWrite('agents', { agents: agents.value })
+    window.electronAPI.storageWrite(storageKey('agents'), { agents: JSON.parse(JSON.stringify(agents.value)) })
   }
 
   function addAgent(agent: Agent) {

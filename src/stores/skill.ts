@@ -1,5 +1,6 @@
-import { defineStore } from 'pinia'
+﻿import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { storageKey } from '../utils/storage-key'
 
 export interface Skill {
   id: string
@@ -11,7 +12,6 @@ export interface Skill {
   outputFormat: 'json' | 'text'
   validationRules: string[]
   splitSize: number
-  // Legacy fields preserved for compatibility
   injectMode?: string
   bindTarget?: any
   linkedSkillIds?: string[]
@@ -23,8 +23,8 @@ export interface Skill {
 
 export const useSkillStore = defineStore('skill', () => {
   const skills = ref<Skill[]>([])
-  const pipelineSkills = ref<string[]>([])  // ordered skill IDs for pipeline
-  const deAiSkills = ref<string[]>([])  // ordered skill IDs for de-AI
+  const pipelineSkills = ref<string[]>([])
+  const deAiSkills = ref<string[]>([])
 
   const orderedPipelineSkills = computed(() =>
     pipelineSkills.value.map(id => skills.value.find(s => s.id === id)).filter(Boolean)
@@ -33,11 +33,14 @@ export const useSkillStore = defineStore('skill', () => {
     deAiSkills.value.map(id => skills.value.find(s => s.id === id)).filter(Boolean)
   )
 
- function loadSkills() {
-   const data = window.electronAPI.storageRead('skills')
-   if (data) {
+  function getSkill(id: string) {
+    return skills.value.find(s => s.id === id)
+  }
+
+  function loadSkills() {
+    const data = window.electronAPI.storageRead(storageKey('skills'))
+    if (data) {
       if (Array.isArray(data)) {
-        // Legacy format: raw array - set defaults for new fields
         skills.value = data.map(function(s: any) {
           return {
             id: s.id,
@@ -63,14 +66,14 @@ export const useSkillStore = defineStore('skill', () => {
         pipelineSkills.value = data.pipelineSkills || []
         deAiSkills.value = data.deAiSkills || []
       }
-   }
- }
+    }
+  }
 
   function saveSkills() {
-    window.electronAPI.storageWrite('skills', {
-      skills: skills.value,
-      pipelineSkills: pipelineSkills.value,
-      deAiSkills: deAiSkills.value
+    window.electronAPI.storageWrite(storageKey('skills'), {
+      skills: JSON.parse(JSON.stringify(skills.value)),
+      pipelineSkills: JSON.parse(JSON.stringify(pipelineSkills.value)),
+      deAiSkills: JSON.parse(JSON.stringify(deAiSkills.value))
     })
   }
 
@@ -115,7 +118,7 @@ export const useSkillStore = defineStore('skill', () => {
   return {
     skills, pipelineSkills, deAiSkills,
     orderedPipelineSkills, orderedDeAiSkills,
-    loadSkills, saveSkills, addSkill, updateSkill, removeSkill,
+    getSkill, loadSkills, saveSkills, addSkill, updateSkill, removeSkill,
     movePipelineSkillUp, movePipelineSkillDown
   }
 })

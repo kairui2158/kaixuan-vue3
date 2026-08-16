@@ -1,0 +1,69 @@
+{
+  "steps": [
+    {
+      "name": "read original lastProjectId",
+      "ok": true,
+      "detail": "prj_msbtqnpe_q24wr3"
+    },
+    {
+      "name": "pinia exposed after reload",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "autosave patched to 24h",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "outline workspace opened",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "outline input set",
+      "ok": true,
+      "detail": "chars=52"
+    },
+    {
+      "name": "lock clicked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "pipeline opened after lock",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "new temp project id captured",
+      "ok": true,
+      "detail": "proj-1786828143728"
+    },
+    {
+      "name": "chapter clicked",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "editor ready",
+      "ok": true,
+      "detail": "disabled=false"
+    },
+    {
+      "name": "body text set (not saved)",
+      "ok": true,
+      "detail": "chars=55"
+    },
+    {
+      "name": "body NOT written to store before exit",
+      "ok": true,
+      "detail": "confirmed not saved"
+    }
+  ],
+  "marker": "DIRECT_EXIT_E2E_MARKER_1786828141505",
+  "projectId": "proj-1786828143728",
+  "originalLastProjectId": "prj_msbtqnpe_q24wr3",
+  "stepsOk": 12,
+  "stepsTotal": 12
+}

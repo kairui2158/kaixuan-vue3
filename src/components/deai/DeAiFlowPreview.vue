@@ -1,5 +1,5 @@
 <template>
-  <div class="deai-flow-preview">
+  <div id="deai-flow-preview" class="deai-flow-preview">
     <div class="flow-steps">
       <template v-for="(step, i) in steps" :key="i">
         <span class="deai-flow-step" :class="{ active: isCurrent(i), done: isDone(i) }">{{ step }}</span>

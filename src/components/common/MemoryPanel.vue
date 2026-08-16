@@ -10,14 +10,14 @@
           <button class="mem-cat-btn" :class="{active: selectedCat==='all'}" @click="selectedCat='all'">全部</button>
           <button v-for="cat in projectStore.memories.categories" :key="cat" class="mem-cat-btn" :class="{active: selectedCat===cat}" @click="selectedCat=cat">{{ cat }}</button>
         </div>
-        <button id="btn-add-mem-cat" class="btn-sm btn-secondary full-width" @click="addCategory">+ 新增分类</button>
+        <button id="btn-add-mem-cat" class="btn-sm btn-secondary full-width" @click="showCatInput = true">+ 新增分类</button>
       </div>
       <div class="mem-content">
         <div class="mem-content-header">
-          <span>{{ selectedCat==='all' ? '全部记忆' : selectedCat }}</span>
+          <span id="mem-current-cat">{{ selectedCat==='all' ? '全部记忆' : selectedCat }}</span>
           <button id="btn-add-mem" class="btn-primary btn-sm" @click="showForm(-1)">+ 添加记忆</button>
         </div>
-        <div class="mem-list card-grid">
+        <div id="mem-list" class="mem-list card-grid">
           <div v-if="filteredItems.length===0 && !showingForm" class="empty-hint">暂无记忆条目</div>
           <div v-if="showingForm" class="mem-form">
             <h4>{{ editingIdx>=0 ? '编辑记忆' : '新增记忆' }}</h4>
@@ -55,15 +55,22 @@
         </div>
       </div>
     </div>
+    <!-- 内联输入框弹窗替代 prompt -->
+    <div v-if="showCatInput" class="mem-overlay" @click.self="showCatInput = false">
+      <div class="mem-inline-box">
+        <h3>新增分类</h3>
+        <input ref="catInputRef" v-model="newCatName" class="mem-input" placeholder="输入新分类名称" @keyup.enter="confirmAddCat" />
+        <div class="mem-inline-actions">
+          <button class="btn-secondary" @click="showCatInput = false">取消</button>
+          <button class="btn-primary" @click="confirmAddCat">确认</button>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <!-- audit-v5 -->
-  <div id="mem-current-cat" style="display:none" data-audit="v5"></div>
-  <div id="mem-list" style="display:none" data-audit="v5"></div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useProjectStore } from '../../stores/project'
 
 const projectStore = useProjectStore()
@@ -73,6 +80,9 @@ const selectedCat = ref('all')
 const showingForm = ref(false)
 const editingIdx = ref(-1)
 const formData = ref({ key: '', category: '', content: '' })
+const showCatInput = ref(false)
+const newCatName = ref('')
+const catInputRef = ref<HTMLInputElement | null>(null)
 
 const filteredItems = computed(() => {
   const items = projectStore.memories.items
@@ -123,11 +133,13 @@ function deleteItem(idx: number) {
   }
 }
 
-function addCategory() {
-  const name = prompt('输入新分类名称:', '')
-  if (name && name.trim()) {
-    projectStore.addMemoryCategory(name.trim())
+function confirmAddCat() {
+  const name = newCatName.value.trim()
+  if (name) {
+    projectStore.addMemoryCategory(name)
   }
+  showCatInput.value = false
+  newCatName.value = ''
 }
 </script>
 
@@ -171,7 +183,6 @@ function addCategory() {
 }
 .mem-list { display: flex; flex-direction: column; gap: 8px; }
 .empty-hint { color: var(--text-secondary); text-align: center; padding: 24px; font-size: 13px; }
-/* .mem-item-card base in global.css L651-669 */
 .mem-item-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
 .mem-item-key { font-weight: 600; font-size: 13px; }
 .mem-item-cat {
@@ -195,4 +206,11 @@ function addCategory() {
 }
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
   border-color: var(--accent);
-}</style>
+}
+.mem-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+.mem-inline-box { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; width: min(360px, 80vw); display: flex; flex-direction: column; gap: 12px; }
+.mem-inline-box h3 { margin: 0; font-size: 16px; }
+.mem-input { width: 100%; padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-primary); color: var(--text-primary); font-size: 13px; outline: none; box-sizing: border-box; }
+.mem-input:focus { border-color: var(--accent); }
+.mem-inline-actions { display: flex; gap: 8px; justify-content: flex-end; }
+</style>

@@ -6,8 +6,8 @@
         <button id="btn-close-sc" class="modal-close" @click="$emit('close')">x</button>
       </div>
      <div class="sc-body">
-       <div class="sc-sidebar">
-         <button id="btn-add-category" class="btn-add" @click="addCategory">+ 新建分类</button>
+       <div id="sc-categories" class="sc-sidebar">
+         <button id="btn-add-category" class="btn-add" @click="showCategoryInput = true">+ 新建分类</button>
          <div v-for="cat in categories" :key="cat" class="sc-cat-item" :class="{ active: selectedCategory === cat }" @click="selectedCategory = cat">
            {{ cat }}
          </div>
@@ -19,7 +19,7 @@
             <button id="btn-add-item" class="btn-primary btn-sm" @click="addEntry">+ 添加条目</button>
             <button id="btn-ai-gen-item" class="btn-secondary btn-sm btn-ml-4" @click="aiGenerateEntry">AI 生成</button>
           </div>
-           <div class="sc-entries">
+           <div id="sc-items-list" class="sc-entries">
              <div v-for="entry in filteredEntries" :key="entry.name" class="sc-item-card" :class="{ active: selectedEntry?.name === entry.name }" @click="selectedEntry = entry">
                <div class="sc-card-name">{{ entry.name }}</div>
                <div class="sc-card-cat">{{ entry.category }}</div>
@@ -32,7 +32,7 @@
              <span id="sc-detail-title" class="sc-detail-title">条目详情</span>
              <button class="btn-secondary btn-sm" @click="bindEntry">绑定章节</button>
              <button class="btn-danger btn-sm" @click="deleteEntry">删除</button>
-             <button class="modal-close" @click="selectedEntry = null">x</button>
+             <button id="btn-close-sc-detail" class="modal-close" @click="selectedEntry = null">x</button>
            </div>
            <div id="sc-detail-content" class="sc-detail-content">
              <div class="form-group">
@@ -56,30 +56,41 @@
          </div>
         </div>
       </div>
+      <!-- 内联输入框弹窗替代 prompt -->
+      <div v-if="showCategoryInput" class="sc-inline-input-overlay" @click.self="showCategoryInput = false">
+        <div class="sc-inline-input-box">
+          <h3>新建分类</h3>
+          <input ref="catInputRef" v-model="newCategoryName" class="sc-input" placeholder="输入分类名称" @keyup.enter="confirmAddCategory" />
+          <div class="sc-inline-actions">
+            <button class="btn-secondary" @click="showCategoryInput = false">取消</button>
+            <button class="btn-primary" @click="confirmAddCategory">确认</button>
+          </div>
+        </div>
+      </div>
+      <!-- 加载提示 -->
+      <div v-if="aiLoading" class="sc-inline-input-overlay">
+        <div class="sc-inline-input-box">
+          <p>AI 生成中...</p>
+        </div>
+      </div>
       <div id="sc-bind-modal" v-if="showBindModal" class="bind-modal" @click.self="showBindModal = false">
         <div class="bind-content">
           <h3>绑定到章节</h3>
-          <div class="bind-list">
+          <div id="sc-bind-tree" class="bind-list">
+            <div id="sc-bind-item-name" class="bind-entry-name">{{ currentBindEntryName }}</div>
             <label v-for="ch in allChapters" :key="ch.id">
               <input type="checkbox" :value="ch.id" v-model="bindTargets" /> {{ ch.title }}
             </label>
           </div>
-          <button class="btn-primary" @click="confirmBind">确认绑定</button>
+          <button id="btn-save-bind" class="btn-primary" @click="confirmBind">确认绑定</button>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- audit-v5 -->
-  <div id="btn-close-sc-detail" style="display:none" data-audit="v5"></div>
-  <div id="sc-categories" style="display:none" data-audit="v5"></div>
-  <div id="sc-items-list" style="display:none" data-audit="v5"></div>
-  <div id="sc-bind-tree" style="display:none" data-audit="v5"></div>
-  <div id="sc-bind-item-name" style="display:none" data-audit="v5"></div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useProjectStore } from '../../stores/project'
 import { useProviderStore } from '../../stores/provider'
 
@@ -92,6 +103,10 @@ const selectedEntry = ref<any>(null)
 const showBindModal = ref(false)
 const bindTargets = ref<string[]>([])
 const currentBindEntryName = ref('')
+const showCategoryInput = ref(false)
+const newCategoryName = ref('')
+const catInputRef = ref<HTMLInputElement | null>(null)
+const aiLoading = ref(false)
 
 const categories = computed(() => {
   const cats = new Set<string>()
@@ -124,13 +139,15 @@ const attrsText = computed({
   }
 })
 
-function addCategory() {
-  const name = prompt('分类名称')
+function confirmAddCategory() {
+  const name = newCategoryName.value.trim()
   if (name) {
     projectStore.settings.push({ name: '新条目', category: name, attrs: {} })
     projectStore.saveProject()
     selectedCategory.value = name
   }
+  showCategoryInput.value = false
+  newCategoryName.value = ''
 }
 
 function addEntry() {
@@ -178,6 +195,7 @@ async function aiGenerateEntry() {
     alert('请先配置API供应商')
     return
   }
+  aiLoading.value = true
   const cat = selectedCategory.value || '其他'
   try {
     const baseUrl = provider.baseUrl.replace(/\/$/, '')
@@ -188,7 +206,7 @@ async function aiGenerateEntry() {
     const resp = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + provider.apiKey },
-      body: JSON.stringify({ model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], stream: false })
+      body: JSON.stringify({ model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], stream: false, max_tokens: 128000 })
     })
     if (!resp.ok) throw new Error('API error: ' + resp.status)
     const data = await resp.json()
@@ -200,6 +218,8 @@ async function aiGenerateEntry() {
     projectStore.saveProject()
   } catch (e: any) {
     alert('AI生成失败: ' + e.message)
+  } finally {
+    aiLoading.value = false
   }
 }
 </script>
@@ -233,14 +253,15 @@ async function aiGenerateEntry() {
 .form-group label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
 .sc-editor { flex: 1; display: flex; flex-direction: column; gap: 8px; }
 .sc-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 6px 10px; font-size: 13px; height: 32px; outline: none; }
+.sc-input:focus { border-color: var(--accent); }
 .sc-textarea { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 8px; font-size: 12px; resize: vertical; outline: none; flex: 1; }
+.sc-textarea:focus { border-color: var(--accent); }
 .form-actions { display: flex; gap: 8px; margin-top: 8px; }
-.btn-primary { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: 6px; padding: 6px 16px; cursor: pointer; font-size: 12px; }
-.btn-secondary { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 12px; }
-.btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 12px; }
-.btn-sm { padding: 4px 10px; font-size: 11px; border-radius: 4px; }
-.modal-close { background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; padding: 2px 6px; }
-.modal-close:hover { color: var(--text-primary); }
+.sc-inline-input-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: 3000; }
+.sc-inline-input-box { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; width: min(360px, 80vw); display: flex; flex-direction: column; gap: 12px; }
+.sc-inline-input-box h3 { margin: 0; font-size: 16px; }
+.sc-inline-input-box p { margin: 0; font-size: 14px; color: var(--text-secondary); text-align: center; }
+.sc-inline-actions { display: flex; gap: 8px; justify-content: flex-end; }
 .bind-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: 2000; }
 .bind-content { background: var(--bg-tertiary); border-radius: 12px; padding: 24px; width: min(400px, 80vw); }
 .bind-list { display: flex; flex-direction: column; gap: 4px; max-height: 300px; overflow-y: auto; margin: 16px 0; }

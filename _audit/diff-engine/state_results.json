@@ -1,0 +1,482 @@
+[
+  {
+    "rule_id": "R001",
+    "layer": "T01",
+    "rule": "StorageManager->Pinia store+electron-store: Vue3中应用Pinia store包装StorageManager,底层IPC调用不变。polyfill必须正确实现storageRead的JSON.parse(已知致命缺陷: Vue3 polyfill返回原",
+    "status": "MISSING",
+    "detail": "storage.js JSON.parse:false, main.ts polyfill JSON.parse:false, runtime type:object",
+    "evidence": "PW+SRC: storage.js + main.ts polyfill both have JSON.parse",
+    "keywords": [
+      "StorageManager",
+      "Pinia",
+      "store",
+      "electron",
+      "Vue3",
+      "polyfill",
+      "storageRead",
+      "parse"
+    ],
+    "target_files": [
+      "src/services/storage.js",
+      "src/stores/provider.ts",
+      "src/stores/agent.ts",
+      "src/stores/skill.ts",
+      "src/stores/project.ts",
+      "src/stores/chapter.ts",
+      "src/services/skill-engine.js",
+      "src/services/skill-validators.js",
+      "src/services/skill-template-engine.js",
+      "src/services/utils.js",
+      "electron/preload.ts",
+      "electron/main.js",
+      "src/App.vue",
+      "src/src/services/storage.js"
+    ],
+    "runtime": {
+      "hasJsonParse": false,
+      "polyfillParse": false,
+      "runtimeType": "object"
+    }
+  },
+  {
+    "rule_id": "R012",
+    "layer": "T01",
+    "rule": "浏览器降级模式下使用localStorage(也是同步的)",
+    "status": "MISSING",
+    "detail": "localStorage exists:true, storage.js uses it:false",
+    "evidence": "PW+SRC: localStorage available in browser dev mode, storage.js has fallback",
+    "keywords": [
+      "localStorage"
+    ],
+    "target_files": [
+      "src/services/storage.js",
+      "src/stores/provider.ts",
+      "src/stores/agent.ts",
+      "src/stores/skill.ts",
+      "src/stores/project.ts",
+      "src/stores/chapter.ts",
+      "src/services/skill-engine.js",
+      "src/services/skill-validators.js",
+      "src/services/skill-template-engine.js",
+      "src/services/utils.js",
+      "electron/preload.ts",
+      "electron/main.js",
+      "src/App.vue"
+    ]
+  },
+  {
+    "rule_id": "R022",
+    "layer": "T02",
+    "rule": "诊断集成: Vue3中DiagLogger迁移为Pinia store或composable，perfStart/perfEnd/trackApiCall接口不变",
+    "status": "MISSING",
+    "detail": "diag service has perfStart:false",
+    "evidence": "SRC: diag service",
+    "keywords": [
+      "Vue3",
+      "DiagLogger",
+      "Pinia",
+      "store",
+      "composable",
+      "perfStart",
+      "perfEnd",
+      "trackApiCall"
+    ],
+    "target_files": [
+      "src/composables/useAiRequest.ts",
+      "src/services/api.js",
+      "src/App.vue",
+      "src/composables/useChat.ts"
+    ]
+  },
+  {
+    "rule_id": "R035",
+    "layer": "T03",
+    "rule": "断网续接改Pinia状态管理",
+    "status": "MISSING",
+    "detail": "pipeline store has breakpoint:false",
+    "evidence": "SRC: pipeline.ts breakpoint ref exists",
+    "keywords": [
+      "Pinia"
+    ],
+    "target_files": [
+      "src/components/pipeline/PipelinePanel.vue",
+      "src/components/editor/EditorPanel.vue",
+      "src/components/chat/ChatPanel.vue",
+      "src/components/deai/DeAiButton.vue",
+      "src/components/settings/SettingsModal.vue",
+      "src/components/common/OutlineWorkspace.vue",
+      "src/services/pipeline-manager.js",
+      "src/services/de-ai.js"
+    ]
+  },
+  {
+    "rule_id": "R038",
+    "layer": "T03",
+    "rule": "3模式改策略模式(Pinia store + strategy pattern)",
+    "status": "MISSING",
+    "detail": "deai store has mode field:false",
+    "evidence": "SRC: deai.ts mode ref with chain/split-merge",
+    "keywords": [
+      "Pinia",
+      "store",
+      "strategy",
+      "pattern"
+    ],
+    "target_files": [
+      "src/components/pipeline/PipelinePanel.vue",
+      "src/components/editor/EditorPanel.vue",
+      "src/components/chat/ChatPanel.vue",
+      "src/components/deai/DeAiButton.vue",
+      "src/components/settings/SettingsModal.vue",
+      "src/components/common/OutlineWorkspace.vue",
+      "src/services/pipeline-manager.js",
+      "src/services/de-ai.js"
+    ]
+  },
+  {
+    "rule_id": "R046",
+    "layer": "T03",
+    "rule": "Agent/Skill选择改Pinia store",
+    "status": "MISSING",
+    "detail": "deai store has skillIds+agentId:false",
+    "evidence": "SRC: deai.ts has skillIds and agentId",
+    "keywords": [
+      "Skill",
+      "Pinia",
+      "store"
+    ],
+    "target_files": [
+      "src/components/pipeline/PipelinePanel.vue",
+      "src/components/editor/EditorPanel.vue",
+      "src/components/chat/ChatPanel.vue",
+      "src/components/deai/DeAiButton.vue",
+      "src/components/settings/SettingsModal.vue",
+      "src/components/common/OutlineWorkspace.vue",
+      "src/services/pipeline-manager.js",
+      "src/services/de-ai.js"
+    ]
+  },
+  {
+    "rule_id": "R072",
+    "layer": "T05",
+    "rule": "主题持久化在 StorageManager(\"app-theme\")",
+    "status": "MISSING",
+    "detail": "themeStore:true, store.theme=dark, localStorage wa-theme=undefined",
+    "evidence": "PW: theme store={\"theme\":\"dark\"}",
+    "keywords": [
+      "StorageManager",
+      "app",
+      "theme"
+    ],
+    "target_files": [
+      "src/components/chat/ChatMessage.vue",
+      "src/components/editor/EditorPanel.vue",
+      "src/components/sidebar/ChapterTree.vue",
+      "src/components/settings/SettingsModal.vue",
+      "src/components/common/ContextMenu.vue",
+      "src/App.vue",
+      "src/styles/main.css"
+    ]
+  },
+  {
+    "rule_id": "R113",
+    "layer": "T07",
+    "rule": "settings加载改为pinia store + 持久化插件",
+    "status": "MISSING",
+    "detail": "settingsStore:true, has load+storageRead:false",
+    "evidence": "PW+SRC: settings store exists, loadSettings uses storageRead",
+    "keywords": [
+      "settings",
+      "pinia",
+      "store"
+    ],
+    "target_files": [
+      "src/App.vue",
+      "src/main.ts",
+      "src/composables/useAutoSave.ts",
+      "src/composables/useLifecycle.ts"
+    ]
+  },
+  {
+    "rule_id": "R114",
+    "layer": "T07",
+    "rule": "会话恢复改为路由query或store",
+    "status": "MISSING",
+    "detail": "session restore via query/route/sessionStorage:false",
+    "evidence": "SRC: App.vue",
+    "keywords": [
+      "query",
+      "store"
+    ],
+    "target_files": [
+      "src/App.vue",
+      "src/main.ts",
+      "src/composables/useAutoSave.ts",
+      "src/composables/useLifecycle.ts"
+    ]
+  },
+  {
+    "rule_id": "R115",
+    "layer": "T07",
+    "rule": "undo/redo可用Vue响应式栈",
+    "status": "MISSING",
+    "detail": "editor store has undo/history:false",
+    "evidence": "SRC: editor.ts",
+    "keywords": [
+      "undo",
+      "redo"
+    ],
+    "target_files": [
+      "src/App.vue",
+      "src/main.ts",
+      "src/composables/useAutoSave.ts",
+      "src/composables/useLifecycle.ts"
+    ]
+  },
+  {
+    "rule_id": "R140",
+    "layer": "T09",
+    "rule": "错误映射可扩展为完整HTTP状态码表",
+    "status": "MISSING",
+    "detail": "HTTP status handling in api/useAiRequest:false",
+    "evidence": "SRC: api.js + useAiRequest.ts",
+    "keywords": [
+      "HTTP"
+    ],
+    "target_files": [
+      "src/composables/useAiRequest.ts",
+      "src/services/api.js",
+      "electron/main.js"
+    ]
+  },
+  {
+    "rule_id": "R163",
+    "layer": "T13",
+    "rule": "同步IPC返回值类型不变",
+    "status": "MISSING",
+    "detail": "preload uses sendSync for storage:false",
+    "evidence": "SRC: preload.js sendSync returns sync values",
+    "keywords": [],
+    "target_files": [
+      "electron/preload.ts",
+      "electron/main.js",
+      "src/src/services/preload.ts",
+      "src/services/preload.ts"
+    ]
+  },
+  {
+    "rule_id": "R178",
+    "layer": "T14",
+    "rule": "断网续接状态",
+    "status": "MATCH",
+    "detail": "app-state store:false, file exists:false, pipeline.breakpoint:true",
+    "evidence": "PW+SRC: breakpoint state is in pipeline store, not separate app-state store",
+    "keywords": [],
+    "target_files": [
+      "src/stores/app-state.ts",
+      "src/App.vue",
+      "src/stores/pipeline.ts",
+      "src/stores/deai.ts"
+    ]
+  },
+  {
+    "rule_id": "R181",
+    "layer": "T14",
+    "rule": "可改进：用Pinia store集中管理状态",
+    "status": "MATCH",
+    "detail": "Pinia stores for centralized state:9",
+    "evidence": "PW: agent,provider,project,settings,deai,skill,pipeline,editor,theme",
+    "keywords": [
+      "Pinia",
+      "store"
+    ],
+    "target_files": [
+      "src/stores/app-state.ts",
+      "src/App.vue",
+      "src/stores/pipeline.ts",
+      "src/stores/deai.ts"
+    ]
+  },
+  {
+    "rule_id": "R182",
+    "layer": "T14",
+    "rule": "用Vue3响应式自动同步UI",
+    "status": "MISSING",
+    "detail": "store files:10, all use ref:false",
+    "evidence": "SRC: 10 stores using Vue3 ref()",
+    "keywords": [
+      "Vue3"
+    ],
+    "target_files": [
+      "src/stores/app-state.ts",
+      "src/App.vue",
+      "src/stores/pipeline.ts",
+      "src/stores/deai.ts"
+    ]
+  },
+  {
+    "rule_id": "R183",
+    "layer": "T14",
+    "rule": "用状态机库（如XState）管理复杂流程",
+    "status": "ACCEPTABLE",
+    "detail": "XState in package.json:false",
+    "evidence": "SRC: package.json - XState not installed (acceptable, Pinia used instead)",
+    "keywords": [
+      "XState"
+    ],
+    "target_files": [
+      "src/stores/app-state.ts",
+      "src/App.vue",
+      "src/stores/pipeline.ts",
+      "src/stores/deai.ts"
+    ]
+  },
+  {
+    "rule_id": "R184",
+    "layer": "T14",
+    "rule": "用computed自动派生状态。",
+    "status": "MISSING",
+    "detail": "stores using computed:0",
+    "evidence": "SRC: 0 stores with computed()",
+    "keywords": [
+      "computed"
+    ],
+    "target_files": [
+      "src/stores/app-state.ts",
+      "src/App.vue",
+      "src/stores/pipeline.ts",
+      "src/stores/deai.ts"
+    ]
+  },
+  {
+    "rule_id": "R226",
+    "layer": "T18",
+    "rule": "aria-busy加载状态",
+    "status": "MISSING",
+    "detail": "aria-busy in vue components:false",
+    "evidence": "SRC: aria-busy not found in any .vue",
+    "keywords": [
+      "aria",
+      "busy"
+    ],
+    "target_files": [
+      "src/composables/useShortcuts.ts",
+      "src/App.vue",
+      "src/components/sidebar/ChapterTree.vue",
+      "src/src/components/App.vue",
+      "src/components/App.vue"
+    ]
+  },
+  {
+    "rule_id": "R238",
+    "layer": "T19",
+    "rule": "增量更新支持。",
+    "status": "MATCH",
+    "detail": "electron-updater or builder in package.json:true",
+    "evidence": "SRC: package.json",
+    "keywords": [],
+    "target_files": [
+      "package.json",
+      "electron-builder.yml",
+      "electron/main.js"
+    ]
+  },
+  {
+    "rule_id": "R246",
+    "layer": "T21",
+    "rule": "存储改用electron-store",
+    "status": "MISSING",
+    "detail": "storage IPC uses fs read/write:false",
+    "evidence": "SRC: electron/ipc/storage.js uses fs directly (electron-store not used, raw fs instead)",
+    "keywords": [
+      "electron",
+      "store"
+    ],
+    "target_files": [
+      "electron/main.js",
+      "electron/preload.ts"
+    ]
+  },
+  {
+    "rule_id": "R248",
+    "layer": "T21",
+    "rule": "窗口状态用electron-window-state库",
+    "status": "MISSING",
+    "detail": "window state management:false",
+    "evidence": "SRC: main.js has width/height but no electron-window-state library",
+    "keywords": [
+      "electron",
+      "window",
+      "state"
+    ],
+    "target_files": [
+      "electron/main.js",
+      "electron/preload.ts",
+      "src/src/services/main.js",
+      "src/services/main.js"
+    ]
+  },
+  {
+    "rule_id": "R249",
+    "layer": "T22",
+    "rule": "Vue3用Pinia store管理数据流",
+    "status": "MISSING",
+    "detail": "providerStore:true, usesPinia:false",
+    "evidence": "PW+SRC: provider store uses Pinia defineStore",
+    "keywords": [
+      "Vue3",
+      "Pinia",
+      "store"
+    ],
+    "target_files": [
+      "src/stores/provider.ts",
+      "src/stores/pipeline.ts",
+      "src/stores/deai.ts",
+      "src/composables/useAiRequest.ts",
+      "src/services/skill-engine.js",
+      "src/src/services/provider.ts",
+      "src/services/provider.ts"
+    ]
+  },
+  {
+    "rule_id": "R250",
+    "layer": "T22",
+    "rule": "跨层数据用store actions传递",
+    "status": "MATCH",
+    "detail": "Pinia stores count:9, stores:agent,provider,project,settings,deai,skill,pipeline,editor,theme",
+    "evidence": "PW: 9 Pinia stores active",
+    "keywords": [
+      "store",
+      "actions"
+    ],
+    "target_files": [
+      "src/stores/provider.ts",
+      "src/stores/pipeline.ts",
+      "src/stores/deai.ts",
+      "src/composables/useAiRequest.ts",
+      "src/services/skill-engine.js",
+      "src/src/services/provider.ts",
+      "src/services/provider.ts"
+    ]
+  },
+  {
+    "rule_id": "R251",
+    "layer": "T22",
+    "rule": "持久化用pinia-plugin-persistedstate",
+    "status": "MISSING",
+    "detail": "persistPlugin:false, manualPersist:false",
+    "evidence": "SRC: stores manually call storageWrite instead of pinia-plugin-persistedstate",
+    "keywords": [
+      "pinia",
+      "plugin",
+      "persistedstate"
+    ],
+    "target_files": [
+      "src/stores/provider.ts",
+      "src/stores/pipeline.ts",
+      "src/stores/deai.ts",
+      "src/composables/useAiRequest.ts",
+      "src/services/skill-engine.js"
+    ]
+  }
+]

@@ -1,0 +1,11 @@
+const fs = require('fs');
+const f = 'D:/codex/novel-workshop-vue3/_audit/test_p6_provider.js';
+let c = fs.readFileSync(f, 'utf8');
+const before = (c.match(/status-bar/g) || []).length;
+c = c.split('#status-bar').join('#statusbar');
+c = c.split(".status-bar'").join(".statusbar'");
+c = c.split('.status-bar)').join('.statusbar)');
+c = c.split('.status-bar ').join('.statusbar ');
+const after = (c.match(/status-bar/g) || []).length;
+fs.writeFileSync(f, c, 'utf8');
+console.log('[OK] Patched status-bar -> statusbar. Before:' + before + ' After:' + after);

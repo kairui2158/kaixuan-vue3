@@ -1,0 +1,47 @@
+{
+  "01_main": {
+    "opened": true,
+    "total": 25,
+    "problems": []
+  },
+  "02_project": {
+    "opened": true,
+    "total": 33,
+    "problems": []
+  },
+  "03_outline": {
+    "opened": true,
+    "total": 33,
+    "problems": []
+  },
+  "04_sc": {
+    "opened": true,
+    "total": 37,
+    "problems": []
+  },
+  "05_pipeline": {
+    "opened": true,
+    "total": 47,
+    "problems": []
+  },
+  "06_memory": {
+    "opened": true,
+    "total": 41,
+    "problems": []
+  },
+  "07_settings": {
+    "opened": true,
+    "total": 37,
+    "problems": []
+  },
+  "08_plugin": {
+    "opened": true,
+    "total": 37,
+    "problems": []
+  },
+  "09_dashboard": {
+    "opened": true,
+    "total": 34,
+    "problems": []
+  }
+}
