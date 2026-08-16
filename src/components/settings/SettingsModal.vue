@@ -5,7 +5,7 @@
         <h3>设置</h3>
         <button id="btn-close-settings" class="modal-close" @click="handleClose">x</button>
       </div>
-      <div id="tab-api" class="modal-body">
+      <div id="settings-modal-body" class="modal-body">
         <div id="settings-modal" class="settings-tabs">
           <button
             v-for="tab in tabs"
@@ -97,7 +97,7 @@ function handleSave() {
   animation: modalOut 0.2s ease-in forwards;
 }
 /* modal-lg: settings modal size (old arch L4790) */
-.modal-lg { width: 800px; max-width: 90vw; min-height: 600px; max-height: 85vh; }
+.modal-content.modal-lg { width: 960px; max-width: 92vw; min-height: 640px; max-height: 88vh; }
 
 /* modal-body override: flex layout for settings sidebar (old arch L2052) */
 .modal-body {
@@ -113,7 +113,7 @@ function handleSave() {
   height: var(--btn-md-height, 32px);
   min-width: 80px;
   padding: 0 var(--space-md, 16px);
-  font-size: var(--font-size-sm, 13px);
+  font-size: 14px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   border: none;
@@ -138,7 +138,7 @@ function handleSave() {
 
 /* === settings tabs === */
 .settings-tabs {
-  width: 140px;
+  width: 160px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -148,13 +148,13 @@ function handleSave() {
 }
 .settings-tab {
   text-align: left;
-  padding: 8px 12px;
+  padding: 10px 14px;
   background: transparent;
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
   border-radius: var(--radius-sm, 6px);
-  font-size: var(--font-size-sm, 13px);
+  font-size: 14px;
   position: relative;
   transition: background 0.12s ease, color 0.12s ease;
 }
@@ -181,7 +181,7 @@ function handleSave() {
 
 .settings-panel {
   flex: 1;
-  padding: var(--space-md, 16px) var(--space-lg, 24px);
+  padding: 20px 28px;
   overflow-y: auto;
 }
 </style>

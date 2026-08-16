@@ -71,7 +71,7 @@ function getStepStatusText(index: number): string {
   z-index: 1000;
 }
 .deai-progress-modal {
-  width: min(480px, 90vw);
+  width: min(540px, 92vw);
   background: var(--bg-elevated, var(--bg-tertiary));
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md, 12px);

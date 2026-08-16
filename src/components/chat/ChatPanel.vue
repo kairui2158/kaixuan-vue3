@@ -598,9 +598,9 @@ function scrollToBottom() {
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  padding: 1px 4px;
-  font-size: 11px;
-  height: 24px;
+  padding: 4px 6px;
+  font-size: 12px;
+  height: 28px;
   outline: none;
 }
 .messages-container {
@@ -619,7 +619,7 @@ function scrollToBottom() {
 }
 .empty-icon { font-size: 32px; }
 .empty-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
-.empty-desc { font-size: 12px; text-align: center; }
+.empty-desc { font-size: 13px; text-align: center; }
 .chat-input-row {
   display: flex;
   gap: 8px;
@@ -632,11 +632,11 @@ function scrollToBottom() {
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 13px;
+  padding: 7px 10px;
+  font-size: 14px;
   resize: none;
   outline: none;
-  height: 32px;
+  height: 36px;
   max-height: 100px;
 }
 .chat-input:focus {
@@ -672,23 +672,23 @@ function scrollToBottom() {
   gap: 6px;
   padding: 4px 12px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
   user-select: none;
 }
 .skill-area-title { font-weight: 600; }
-.skill-area-arrow { font-size: 9px; transition: transform 0.2s; }
+.skill-area-arrow { font-size: 10px; transition: transform 0.2s; }
 .skill-area-arrow.rotated { transform: rotate(-90deg); }
 .skill-area-content { padding: 4px 12px 8px; }
 .agent-info-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-.agent-info-label { font-size: 10px; background: var(--accent-dim); color: var(--accent-lighter); padding: 1px 4px; border-radius: 3px; font-weight: 600; }
-.agent-info-name { font-size: 11px; color: var(--text-primary); font-weight: 500; }
-.agent-info-model { font-size: 10px; color: var(--text-muted); margin-left: auto; }
-.skill-list-active { font-size: 11px; color: var(--text-secondary); }
-.token-bar { padding: 2px 12px 6px; font-size: 10px; color: var(--text-muted); }
+.agent-info-label { font-size: 12px; background: var(--accent-dim); color: var(--accent-lighter); padding: 2px 6px; border-radius: 3px; font-weight: 600; }
+.agent-info-name { font-size: 13px; color: var(--text-primary); font-weight: 500; }
+.agent-info-model { font-size: 12px; color: var(--text-muted); margin-left: auto; }
+.skill-list-active { font-size: 12px; color: var(--text-secondary); }
+.token-bar { padding: 4px 12px 6px; font-size: 12px; color: var(--text-muted); }
 .input-hint {
   padding: 4px 12px 8px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
 }
 </style>

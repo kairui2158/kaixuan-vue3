@@ -61,10 +61,10 @@ const renderedContent = computed(() => {
 }
 .message-bubble {
   max-width: 80%;
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: 12px;
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.7;
   word-break: break-word;
 }
 .message-bubble.user {
@@ -80,7 +80,7 @@ const renderedContent = computed(() => {
   background: var(--bg-input);
   padding: 1px 4px;
   border-radius: 3px;
-  font-size: 12px;
+  font-size: 13px;
 }
 .message-actions {
   display: flex;
@@ -97,8 +97,8 @@ const renderedContent = computed(() => {
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
   border-radius: 4px;
-  padding: 2px 8px;
-  font-size: 10px;
+  padding: 4px 10px;
+  font-size: 12px;
   cursor: pointer;
 }
 .msg-btn:hover {
@@ -113,7 +113,7 @@ const renderedContent = computed(() => {
 .message-content :deep(pre) {
   background: var(--bg-primary); border: 1px solid var(--border-color);
   border-radius: 6px; overflow-x: auto; margin: 8px 0;
-  padding: 12px; font-size: 12px; line-height: 1.5;
+  padding: 12px; font-size: 13px; line-height: 1.6;
 }
 .message-content :deep(pre code) {
   background: none; color: var(--text-primary); padding: 0; font-size: inherit;
@@ -124,7 +124,7 @@ const renderedContent = computed(() => {
   border-radius: 0 4px 4px 0;
 }
 .message-content :deep(table) {
-  border-collapse: collapse; margin: 8px 0; width: 100%; font-size: 12px;
+  border-collapse: collapse; margin: 8px 0; width: 100%; font-size: 13px;
   display: block; overflow-x: auto; max-width: 100%;
 }
 .message-content :deep(th), .message-content :deep(td) {

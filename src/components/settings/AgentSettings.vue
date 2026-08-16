@@ -105,16 +105,16 @@ function addAgent() {
   box-shadow: 0 0 0 1px var(--accent), 0 4px 16px var(--accent-glow, rgba(90,125,154,0.15));
 }
 .agent-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-.agent-card-name { font-weight: 600; font-size: 14px; color: var(--text-primary); flex: 1; }
-.agent-card-model { font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 1px 6px; border-radius: 99px; }
+.agent-card-name { font-weight: 600; font-size: 15px; color: var(--text-primary); flex: 1; }
+.agent-card-model { font-size: 12px; color: var(--text-muted); background: var(--bg-input); padding: 2px 8px; border-radius: 99px; }
 .agent-card-actions { display: flex; gap: 4px; }
 .agent-card-summary { display: flex; gap: 12px; padding: 2px 0; }
-.agent-card-meta { font-size: 11px; color: var(--text-muted); }
+.agent-card-meta { font-size: 12px; color: var(--text-muted); }
 .agent-card-body { margin-top: 8px; }
 .agent-fields { display: grid; grid-template-columns: 80px 1fr; gap: 4px 8px; align-items: center; margin-bottom: 8px; }
-.agent-fields label { font-size: 12px; color: var(--text-secondary); }
-.input-field { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 4px 8px; font-size: 12px; height: 28px; outline: none; }
-.textarea-field { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 6px 8px; font-size: 12px; outline: none; resize: vertical; grid-column: 2; }
-.btn-add { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: 6px; padding: 8px 16px; cursor: pointer; font-size: 13px; margin-top: 12px; }
+.agent-fields label { font-size: 14px; color: var(--text-secondary); }
+.input-field { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 6px 12px; font-size: 14px; height: 34px; outline: none; }
+.textarea-field { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 8px 12px; font-size: 14px; outline: none; resize: vertical; grid-column: 2; }
+.btn-add { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: 6px; padding: 9px 18px; cursor: pointer; font-size: 14px; margin-top: 12px; }
 </style>
 

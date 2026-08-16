@@ -91,7 +91,7 @@ function createNewProject() {
 </script>
 
 <style scoped>
-.modal-content.project-modal-content { position: relative; background: var(--bg-primary, #1e1e2e); border: 1px solid var(--border-color, #2d2d3f); border-radius: 8px; width: 480px; max-width: 90vw; max-height: 80vh; display: flex; flex-direction: column; z-index: 1001; }
+.modal-content.project-modal-content { position: relative; background: var(--bg-primary, #1e1e2e); border: 1px solid var(--border-color, #2d2d3f); border-radius: 8px; width: 560px; max-width: 92vw; max-height: 82vh; display: flex; flex-direction: column; z-index: 1001; }
 .project-list { margin-bottom: 12px; }
 .project-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 6px; margin-bottom: 4px; background: var(--bg-secondary, #2d2d3f); }
 .project-item.active { border: 1px solid var(--accent, #6c5ce7); }

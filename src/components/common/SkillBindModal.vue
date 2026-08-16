@@ -118,7 +118,7 @@ function closeModal() {
   background: var(--bg-overlay, rgba(0,0,0,0.4));
 }
 .skill-bind-content {
-  width: min(440px, 86vw);
+  width: min(520px, 90vw);
   max-height: 75vh;
   display: flex;
   flex-direction: column;

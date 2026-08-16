@@ -1408,7 +1408,7 @@ function toolAction(action: string) {
 .pl-tool-loading { margin-top: 4px; font-size: 12px; color: var(--accent); }
 
 .pl-add-setting-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 1100; }
-.pl-add-setting-modal { width: min(560px, 92vw); background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: 10px; box-shadow: var(--shadow-lg); overflow: hidden; }
+.pl-add-setting-modal { width: min(640px, 94vw); background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: 10px; box-shadow: var(--shadow-lg); overflow: hidden; }
 .pl-add-setting-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border-color); font-size: 16px; font-weight: 600; }
 .pl-add-setting-body { display: flex; flex-direction: column; gap: 8px; padding: 20px; }
 .pl-add-setting-body label { font-size: 13px; color: var(--text-secondary); }

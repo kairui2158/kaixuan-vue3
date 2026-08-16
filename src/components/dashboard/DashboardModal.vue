@@ -67,7 +67,7 @@ const emit = defineEmits<{ close: [] }>()
 .dash-modal {
   background: var(--bg-secondary); border: 1px solid var(--border-color);
   border-radius: var(--radius-md); box-shadow: var(--shadow-lg);
-  width: 90vw; max-width: 600px; max-height: 85vh; overflow: auto;
+  width: 92vw; max-width: 680px; max-height: 86vh; overflow: auto;
 }
 .dash-header {
   display: flex; justify-content: space-between; align-items: center;

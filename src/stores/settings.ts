@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { storageKey } from '../utils/storage-key'
 
 export const useSettingsStore = defineStore('settings', () => {
-  const activeTab = ref<'api' | 'skill' | 'agent' | 'appearance' | 'deai' | 'diag'>('api')
+  const activeTab = ref<'api' | 'skill' | 'agent' | 'appearance' | 'deai' | 'diag' | 'mcp'>('api')
   const fontSize = ref(14)
   const theme = ref<'dark'>('dark')
   const editorFont = ref('serif')
@@ -46,7 +46,7 @@ export const useSettingsStore = defineStore('settings', () => {
     saveSettings()
   }
 
-  function setActiveTab(tab: 'api' | 'skill' | 'agent' | 'appearance' | 'deai' | 'diag') {
+  function setActiveTab(tab: 'api' | 'skill' | 'agent' | 'appearance' | 'deai' | 'diag' | 'mcp') {
     activeTab.value = tab
   }
 
