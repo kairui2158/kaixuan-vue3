@@ -101,7 +101,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
 }
 .agp-status-dot {
   width: 8px;

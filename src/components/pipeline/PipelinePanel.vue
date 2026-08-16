@@ -2,10 +2,12 @@
   <div id="pipeline-panel" class="pl-overlay" @click.self="$emit('close')">
     <div class="pl-content">
       <div class="pl-header">
-        <span>生成流水线</span>
-        <button id="btn-close-pl" class="modal-close" @click="$emit('close')">&times;</button>
-        <button class="btn-sm btn-secondary" id="btn-exec-log" @click="showExecLog = !showExecLog">执行日志</button>
-        <button class="btn-sm btn-secondary" id="btn-flow-toggle" @click="showFlowView = !showFlowView">{{ showFlowView ? '步骤视图' : '流程视图' }}</button>
+        <span class="pl-header-title">生成流水线</span>
+        <div class="pl-header-actions">
+          <button class="btn-sm btn-secondary" id="btn-exec-log" @click="showExecLog = !showExecLog">执行日志</button>
+          <button class="btn-sm btn-secondary" id="btn-flow-toggle" @click="showFlowView = !showFlowView">{{ showFlowView ? '步骤视图' : '流程视图' }}</button>
+          <button id="btn-close-pl" class="modal-close" @click="$emit('close')">&times;</button>
+        </div>
       </div>
       <div class="pl-body">
         <div class="pl-steps" id="pl-steps">
@@ -27,8 +29,8 @@
 
         <div class="pl-content-right">
 
-        <div class="pl-tools-section" style="padding: 8px 0; margin-bottom: 12px; border-bottom: 1px solid var(--border-color);">
-          <div class="pl-tools-grid" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+        <div class="pl-tools-section">
+          <div class="pl-tools-grid">
             <span class="pl-label pl-tools-label">AI工具:</span>
             <button id="btn-ai-names" class="btn-sm btn-secondary" @click="toolAction('names')" :disabled="aiLoading">AI起名</button>
             <button id="btn-writing-rules" class="btn-sm btn-secondary" @click="toolAction('rules')" :disabled="aiLoading">写作规则</button>
@@ -40,8 +42,8 @@
             <button id="btn-regenerate" class="btn-sm btn-secondary" @click="toolAction('regenerate')" :disabled="aiLoading">重新生成</button>
             <button id="btn-modify" class="btn-sm btn-secondary" @click="toolAction('modify')" :disabled="aiLoading">按指令修改</button>
           </div>
-          <div class="pl-tool-result" v-if="toolResult" style="margin-top: 6px; padding: 6px 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--font-size-sm); color: var(--text-primary); max-height: 60px; overflow-y: auto;">{{ toolResult }}</div>
-          <div class="pl-tool-loading" v-if="aiLoading" style="margin-top: 4px; font-size: var(--font-size-sm); color: var(--accent);">{{ aiLoadingText }}</div>
+          <div class="pl-tool-result" v-if="toolResult">{{ toolResult }}</div>
+          <div class="pl-tool-loading" v-if="aiLoading">{{ aiLoadingText }}</div>
         </div>
           <PipelineFlow v-if="showFlowView" :steps-with-ids="stepsWithIds" :step-agents="stepAgents" :step-skills="stepSkills" :step-skill-modes="stepSkillModes" @toggle-view="showFlowView = false" />
           <div v-show="!showFlowView">
@@ -1332,9 +1334,11 @@ function toolAction(action: string) {
 </script>
 
 <style scoped>
-.pl-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.pl-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal); }
 .pl-content { width: min(1200px, 95vw); height: min(850px, 92vh); max-width: 1200px; max-height: 92vh; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; }
-.pl-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 32px; border-bottom: 1px solid var(--border-color); font-size: var(--font-size-xl); font-weight: 600; }
+.pl-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-5) var(--space-8); border-bottom: 1px solid var(--border-color); font-size: var(--font-size-xl); font-weight: 600; }
+.pl-header-title { }
+.pl-header-actions { display: flex; align-items: center; gap: var(--space-2); }
 .pl-body { display: flex; flex: 1; overflow: hidden; }
 /* 左侧五层步骤导航 - 竖排 */
 .pl-steps { width: clamp(180px, 16vw, 240px); background: var(--bg-secondary); border-right: 1px solid var(--border-color); padding: 16px 8px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
@@ -1353,7 +1357,7 @@ function toolAction(action: string) {
 .pl-desc { font-size: var(--font-size-lg); color: var(--text-secondary); margin-bottom: 20px; padding: 14px; background: var(--bg-secondary); border-radius: var(--radius-lg); line-height: 1.6; }
 .pl-textarea { width: 100%; min-height: 400px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px; font-size: var(--font-size-lg); line-height: 1.8; resize: vertical; outline: none; }
 .pl-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px 12px; font-size: var(--font-size-md); height: 36px; outline: none; flex: 1; }
-.pl-input-sm { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px 10px; font-size: var(--font-size-md); height: 32px; outline: none; }
+.pl-input-sm { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px 10px; font-size: var(--font-size-md); height: var(--input-height, 34px); outline: none; }
 .pl-settings-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
 .pl-setting-item { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--bg-tertiary); border-radius: var(--radius-md); flex-wrap: wrap; }
 .pl-attrs-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-4) var(--space-6); font-size: var(--font-size-md); min-height: 80px; flex: 1; resize: vertical; outline: none; }
@@ -1389,12 +1393,12 @@ function toolAction(action: string) {
 .pl-step-tools { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
 .pl-agent-mode-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: var(--space-4) var(--space-6); background: var(--bg-elevated, var(--bg-secondary)); border: 1px solid var(--border-color); border-radius: var(--radius-md); }
 .pl-agent-mode-bar .pl-label, .pl-agent-mode-bar .pl-mode-label { font-size: var(--font-size-md); color: var(--text-secondary); white-space: nowrap; }
-.pl-agent-mode-bar .pl-select { height: 30px; padding: 0 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; }
+.pl-agent-mode-bar .pl-select { height: var(--input-height, 34px); padding: 0 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; }
 .pl-agent-select { flex: 1 1 160px; min-width: 160px; }
 .pl-mode-select { flex: 1 1 150px; min-width: 150px; }
 .pl-skill-bar { display: flex; align-items: center; gap: 8px; padding: var(--space-4) var(--space-6); margin-bottom: 12px; background: var(--bg-elevated, var(--bg-secondary)); border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: var(--font-size-md); color: var(--text-primary); }
 .pl-skill-bar .pl-label { font-size: var(--font-size-md); color: var(--text-secondary); white-space: nowrap; }
-.pl-skill-bar .pl-select { flex: 1; height: 30px; padding: 0 8px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; min-width: 100px; }
+.pl-skill-bar .pl-select { flex: 1; height: var(--input-height, 34px); padding: 0 8px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; min-width: 100px; }
 .pl-skill-bar .btn-icon { height: 28px; width: 28px; padding: 0; font-size: var(--font-size-lg); line-height: 1; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); border-radius: var(--radius-xs); background: var(--bg-input); color: var(--text-primary); cursor: pointer; }
 .pl-skill-bar .btn-icon:hover { background: var(--accent-dim); color: var(--accent); }
 .pl-chip-close { height: 28px; width: 28px; padding: 0; font-size: var(--font-size-lg); line-height: 1; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); border-radius: var(--radius-xs); background: var(--bg-input); color: var(--text-primary); cursor: pointer; }
@@ -1407,7 +1411,7 @@ function toolAction(action: string) {
 .pl-tool-result { margin-top: 6px; padding: 6px 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--font-size-sm); color: var(--text-primary); max-height: 60px; overflow-y: auto; }
 .pl-tool-loading { margin-top: 4px; font-size: var(--font-size-sm); color: var(--accent); }
 
-.pl-add-setting-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 1100; }
+.pl-add-setting-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: calc(var(--z-modal) + 100); }
 .pl-add-setting-modal { width: min(640px, 94vw); background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; }
 .pl-add-setting-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border-color); font-size: var(--font-size-lg); font-weight: 600; }
 .pl-add-setting-body { display: flex; flex-direction: column; gap: 8px; padding: 20px; }

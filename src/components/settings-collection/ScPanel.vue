@@ -252,7 +252,7 @@ async function aiGenerateEntry() {
 .form-group { display: flex; flex-direction: column; gap: 4px; }
 .form-group label { font-size: var(--font-size-sm); color: var(--text-secondary); font-weight: 500; }
 .sc-editor { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-.sc-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: 6px 10px; font-size: var(--font-size-md); height: 32px; outline: none; }
+.sc-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: 6px 10px; font-size: var(--font-size-md); height: var(--input-height, 34px); outline: none; }
 .sc-input:focus { border-color: var(--accent); }
 .sc-textarea { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: 8px; font-size: var(--font-size-sm); resize: vertical; outline: none; flex: 1; }
 .sc-textarea:focus { border-color: var(--accent); }

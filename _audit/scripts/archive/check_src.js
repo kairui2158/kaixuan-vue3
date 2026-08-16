@@ -1,0 +1,10 @@
+const fs = require('fs');
+const file = 'D:/codex/novel-workshop-vue3/src/components/pipeline/PipelinePanel.vue';
+let c = fs.readFileSync(file, 'utf8');
+const headerIdx = c.indexOf('<div class="pl-header">');
+console.log('header index:', headerIdx);
+console.log('around header:');
+console.log(c.substring(headerIdx, headerIdx + 400));
+console.log('---CSS---');
+const cssIdx = c.indexOf('.pl-header {');
+console.log(c.substring(cssIdx, cssIdx + 200));

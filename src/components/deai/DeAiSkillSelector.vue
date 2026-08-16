@@ -67,7 +67,7 @@ function moveDown(index: number) {
 .skill-selector {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 .ss-header {
   font-size: var(--font-size-md);
@@ -77,13 +77,13 @@ function moveDown(index: number) {
 .ss-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
 }
 .ss-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
@@ -100,14 +100,14 @@ function moveDown(index: number) {
 }
 .ss-actions {
   display: flex;
-  gap: 2px;
+  gap: var(--space-1);
 }
 .ss-btn {
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
   border-radius: var(--radius-xs);
-  padding: 1px 6px;
+  padding: 1px var(--space-2);
   font-size: var(--font-size-xxs);
   cursor: pointer;
 }
@@ -123,7 +123,7 @@ function moveDown(index: number) {
   color: var(--text-on-accent);
 }
 .ss-empty {
-  padding: 12px;
+  padding: var(--space-4);
   text-align: center;
   color: var(--text-muted);
   font-size: var(--font-size-sm);

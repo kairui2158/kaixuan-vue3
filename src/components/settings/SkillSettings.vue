@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div id="sbm-skill-list" class="skill-settings">
     <h3>技能管理</h3>
     <div class="skill-toolbar">
@@ -465,7 +465,7 @@ function refreshPreview() {
 .skill-ui-message { margin-bottom: 12px; padding: 9px 12px; border-radius: var(--radius-sm); background: var(--accent-dim); border: 1px solid var(--border-color); font-size: var(--font-size-md); color: var(--text-primary); }
 .st-test-error { margin-top: 10px; padding: 9px 12px; border-radius: var(--radius-sm); background: rgba(220, 53, 69, 0.12); color: var(--danger, #dc3545); font-size: var(--font-size-md); }
 .st-test-result { margin-top: 10px; padding: 12px; border-radius: var(--radius-sm); background: var(--bg-tertiary); border: 1px solid var(--border-color); font-size: var(--font-size-md); line-height: 1.7; white-space: pre-wrap; color: var(--text-primary); max-height: 240px; overflow-y: auto; }
-.skill-edit-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+.skill-edit-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal-high); }
 .skill-edit-modal { width: min(720px, 92vw); max-height: 84vh; background: var(--bg-glass); border-radius: var(--radius-lg); padding: 24px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
 .sem-header { display: flex; justify-content: space-between; font-size: var(--font-size-lg); font-weight: 600; margin-bottom: 8px; }
 .sem-header button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: var(--font-size-xl); }

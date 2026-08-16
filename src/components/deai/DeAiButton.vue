@@ -43,7 +43,7 @@ async function triggerDeAi() {
   color: var(--text-on-accent);
   border: none;
   border-radius: var(--radius-sm);
-  padding: 4px 12px;
+  padding: var(--space-1) var(--space-3);
   height: 28px;
   font-size: var(--font-size-xs);
   cursor: pointer;

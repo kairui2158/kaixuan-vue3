@@ -1,9 +1,9 @@
-﻿<template>
+<template>
   <div class="api-settings">
     <h3>API供应商配置</h3>
     <!-- View 1: Provider List -->
     <div v-if="!editingProvider" class="provider-list-view">
-      <div id="provider-list-view" class="">
+      <div id="provider-list-view" class="provider-list">
         <div id="provider-card-list"
           v-for="p in providerStore.providers"
           :key="p.id"
@@ -323,11 +323,10 @@ function importConfig() {
 .api-settings { display: flex; flex-direction: column; gap: 12px; }
 .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .section-title { font-size: var(--font-size-lg, 16px); font-weight: 600; color: var(--text-primary); }
-.provider-list { display: flex; flex-wrap: wrap; gap: 12px; }
+.provider-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-md); align-items: stretch; }
 .provider-card {
-  flex: 1 1 300px;
-  min-width: 300px;
-  max-width: 460px;
+  min-width: 0;
+  max-width: none;
   background: var(--bg-card, var(--bg-elevated));
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg, 8px);
@@ -381,7 +380,7 @@ function importConfig() {
   border-radius: var(--radius-sm, 4px);
   padding: var(--space-2) var(--space-4);
   font-size: var(--font-size-md);
-  height: 32px;
+  height: var(--input-height, 34px);
 }
 .provider-fields { display: grid; grid-template-columns: 80px 1fr; gap: 4px 8px; align-items: center; }
 .provider-fields label { font-size: var(--font-size-sm); color: var(--text-secondary); }

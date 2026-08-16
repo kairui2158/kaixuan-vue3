@@ -345,7 +345,7 @@ function saveAllConfig() {
 .flow-label { font-size: var(--font-size-md); color: var(--text-secondary); margin-bottom: 6px; }
 
 /* === 模式卡片 === */
-.deai-mode-cards { display: flex; gap: var(--space-sm); margin-bottom: var(--space-md); }
+.deai-mode-cards { display: flex; gap: var(--space-3); margin-bottom: var(--space-md); }
 .deai-mode-card {
   flex: 1;
   border: 2px solid var(--border-color);
@@ -363,8 +363,8 @@ function saveAllConfig() {
 .deai-mode-card-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: var(--space-sm) var(--space-md);
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
   border-bottom: 1px solid var(--border-color);
 }
 .deai-mode-card.active .deai-mode-card-header { background: var(--bg-tertiary); }
@@ -372,8 +372,8 @@ function saveAllConfig() {
 .deai-mode-card.active .deai-mode-card-icon { color: var(--accent-color, var(--accent)); }
 .deai-mode-card-title { font-weight: 600; color: var(--text-primary); font-size: var(--font-size-sm); }
 .deai-mode-card-desc { font-size: var(--font-size-md); color: var(--text-muted); margin-left: auto; }
-.mode-full-desc { font-size: var(--font-size-md); color: var(--text-secondary); margin: 8px; line-height: 1.5; }
-.mode-flow { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 8px 8px; }
+.mode-full-desc { font-size: var(--font-size-md); color: var(--text-secondary); margin: var(--space-3); line-height: var(--lh-normal); }
+.mode-flow { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: 0 var(--space-3) var(--space-3); }
 .deai-flow-step {
   display: inline-block;
   padding: 2px 8px;

@@ -27,7 +27,7 @@ function select() {
 <style scoped>
  .mode-card {
    flex: 1;
-   padding: 16px;
+   padding: var(--space-5);
    background: var(--bg-tertiary);
    border: 1px solid var(--border-color);
    border-radius: var(--radius-md);
@@ -47,8 +47,8 @@ function select() {
 .card-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
 }
 .card-name {
   font-size: var(--font-size-md);
@@ -65,13 +65,13 @@ function select() {
 .card-desc {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
-  margin-bottom: 8px;
-  line-height: 1.5;
+  margin-bottom: var(--space-3);
+  line-height: var(--lh-normal);
 }
 .card-flow {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--space-2);
 }
 .flow-step {
   padding: 2px 8px;
