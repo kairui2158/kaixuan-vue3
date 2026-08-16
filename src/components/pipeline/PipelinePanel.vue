@@ -54,6 +54,8 @@
               <select id="pl-s1-mode" v-model="stepSkillModes[0]" class="pl-select pl-mode-select" @change="saveStepConfig">
                 <option value="compose">组合（一次调用）</option>
                 <option value="chain">串行（多次调用）</option>
+                <option value="split-merge">拆分合并（分块处理）</option>
+                <option value="multi-step">多步（3-4步多阶段）</option>
               </select>
             </div>
             <div class="pl-skill-bar">
@@ -98,6 +100,8 @@
               <select id="pl-s2-mode" v-model="stepSkillModes[1]" class="pl-select pl-mode-select" @change="saveStepConfig">
                 <option value="compose">组合（一次调用）</option>
                 <option value="chain">串行（多次调用）</option>
+                <option value="split-merge">拆分合并（分块处理）</option>
+                <option value="multi-step">多步（3-4步多阶段）</option>
               </select>
             </div>
             <div class="pl-skill-bar">
@@ -151,6 +155,8 @@
               <span class="pl-mode-label">Skill模式:</span>
               <select id="pl-s3-mode" v-model="stepSkillModes[2]" class="pl-select pl-mode-select" @change="saveStepConfig">
                 <option value="chain">串行（多次调用）</option>
+                <option value="split-merge">拆分合并（分块处理）</option>
+                <option value="multi-step">多步（3-4步多阶段）</option>
                 <option value="compose">组合（一次调用）</option>
               </select>
             </div>
@@ -209,6 +215,8 @@
               <span class="pl-mode-label">Skill模式:</span>
               <select id="pl-s4-mode" v-model="stepSkillModes[3]" class="pl-select pl-mode-select" @change="saveStepConfig">
                 <option value="chain">串行（多次调用）</option>
+                <option value="split-merge">拆分合并（分块处理）</option>
+                <option value="multi-step">多步（3-4步多阶段）</option>
                 <option value="compose">组合（一次调用）</option>
               </select>
             </div>
@@ -271,6 +279,8 @@
               <select id="pl-s5-mode" v-model="stepSkillModes[4]" class="pl-select pl-mode-select" @change="saveStepConfig">
                 <option value="compose">组合（一次调用）</option>
                 <option value="chain">串行（多次调用）</option>
+                <option value="split-merge">拆分合并（分块处理）</option>
+                <option value="multi-step">多步（3-4步多阶段）</option>
               </select>
             </div>
             <div class="pl-skill-bar">
@@ -763,6 +773,32 @@ async function callApiWithAgentTimeout(step: number, skillTemplate: string, prom
 async function runStepSkills(step: number, prompt: string, timeoutMs?: number, fallbackTemplate?: string): Promise<string> {
   const templates = getStepSkillTemplates(step)
   const mode = getStepSkillMode(step)
+  // Use SkillExecutionEngine for split-merge / multi-step
+  if ((mode === "split-merge" || mode === "multi-step") && templates.length > 0) {
+    const engine = (window as any).SkillExecutionEngine
+    if (engine) {
+      const aiRequest = async (opts: any) => {
+        const provider = providerStore.getProvider("")
+        const preferredProvider = providerStore.preferredGenerateProvider
+        const activeProvider = provider || preferredProvider
+        const model = activeProvider?.selectedModel || activeProvider?.models?.[0] || ""
+        const sysMsg = opts.messages?.find((m: any) => m.role === "system")?.content || ""
+        const userMsg = opts.messages?.find((m: any) => m.role === "user")?.content || ""
+        const result = await providerStore.callApi(activeProvider?.id || "", model, [{ role: "system", content: sysMsg }, { role: "user", content: userMsg }])
+        return { text: result }
+      }
+      const engineSkills = templates.map((t: any) => ({ name: t.name, template: t.template }))
+      let result: any
+      if (mode === "split-merge") {
+        console.log("[PIPELINE] split-merge mode, step=" + step + " skills=" + engineSkills.length)
+        result = await engine.splitMerge(prompt, engineSkills, { aiRequest, splitSize: 1000, stream: false })
+      } else {
+        console.log("[PIPELINE] multi-step mode, step=" + step + " skills=" + engineSkills.length)
+        result = await engine.multiStep(prompt, engineSkills.slice(0, 4), { aiRequest, splitSize: 1500, stream: false })
+      }
+      return result?.text || prompt
+    }
+  }
   if (mode === "chain" && templates.length > 1) {
     let current = prompt
     for (let si = 0; si < templates.length; si++) {
