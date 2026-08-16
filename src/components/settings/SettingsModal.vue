@@ -23,6 +23,7 @@
           <AppearanceSettings v-else-if="settingsStore.activeTab === 'appearance'" />
           <DeAiSettings v-else-if="settingsStore.activeTab === 'deai'" />
           <DiagLogPanel v-else-if="settingsStore.activeTab === 'diag'" />
+          <McpSettings v-else-if="settingsStore.activeTab === 'mcp'" />
         </div>
       </div>
       <div class="modal-footer">
@@ -46,6 +47,7 @@ import AgentSettings from './AgentSettings.vue'
 import AppearanceSettings from './AppearanceSettings.vue'
 import DeAiSettings from './DeAiSettings.vue'
 import DiagLogPanel from './DiagLogPanel.vue'
+import McpSettings from './McpSettings.vue'
 
 const emit = defineEmits<{ close: [] }>()
 const props = defineProps<{ visible: boolean }>()
@@ -63,6 +65,7 @@ const tabs = [
   { id: 'appearance' as const, label: '外观' },
   { id: 'deai' as const, label: '去AI味' },
   { id: 'diag' as const, label: '诊断日志' },
+  { id: 'mcp' as const, label: 'MCP' },
 ]
 
 function handleClose() {

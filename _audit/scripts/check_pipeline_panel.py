@@ -1,0 +1,8 @@
+c = open('src/components/pipeline/PipelinePanel.vue', 'r', encoding='utf-8').read()
+print('stepAgents:', 'stepAgents' in c)
+print('stepSkills:', 'stepSkills' in c)
+print('stepSkillModes:', 'stepSkillModes' in c)
+print('stepAgents[0]:', 'stepAgents[0]' in c)
+print('stepSkills[0]:', 'stepSkills[0]' in c)
+print('mcp:', 'mcp' in c.lower())
+print('MCP:', 'MCP' in c)
