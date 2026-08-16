@@ -5,6 +5,7 @@
         <span>生成流水线</span>
         <button id="btn-close-pl" class="modal-close" @click="$emit('close')">&times;</button>
         <button class="btn-sm btn-secondary" id="btn-exec-log" @click="showExecLog = !showExecLog">执行日志</button>
+        <button class="btn-sm btn-secondary" id="btn-flow-toggle" @click="showFlowView = !showFlowView">{{ showFlowView ? '步骤视图' : '流程视图' }}</button>
       </div>
       <div class="pl-body">
         <div class="pl-steps" id="pl-steps">
@@ -42,6 +43,8 @@
           <div class="pl-tool-result" v-if="toolResult" style="margin-top: 6px; padding: 6px 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px; font-size: 12px; color: var(--text-primary); max-height: 60px; overflow-y: auto;">{{ toolResult }}</div>
           <div class="pl-tool-loading" v-if="aiLoading" style="margin-top: 4px; font-size: 12px; color: var(--accent);">{{ aiLoadingText }}</div>
         </div>
+          <PipelineFlow v-if="showFlowView" :steps-with-ids="stepsWithIds" :step-agents="stepAgents" :step-skills="stepSkills" :step-skill-modes="stepSkillModes" @toggle-view="showFlowView = false" />
+          <div v-show="!showFlowView">
           <div v-show="pipelineStore.currentStep === 0" id="pl-step-1-content" class="pl-step-panel">
             <h3>大纲</h3>
           <div class="pl-step-tools">
@@ -323,6 +326,7 @@
               <button id="btn-pl-confirm-body" class="btn-secondary" @click="confirmStep(4)" :disabled="!(currentBodyContent || bodyResult)">确认完成</button>
             </div>
           </div>
+          </div>
         </div>
       </div>
     </div>
@@ -403,11 +407,13 @@ import { useEditorStore } from "../../stores/editor"
 import { useExecutionLogStore } from "../../stores/executionLog"
 import { useAiTools } from "../../composables/useAiTools"
 import { storageKey } from "../../utils/storage-key"
+import PipelineFlow from "./PipelineFlow.vue"
 
 defineEmits<{ close: [] }>()
 
 
 const showExecLog = ref(false)
+const showFlowView = ref(false)
 const showSuggestions = ref(false)
 const expandedLog = ref<string | null>(null)
 const pipelineStore = usePipelineStore()
