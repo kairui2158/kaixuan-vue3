@@ -10,6 +10,7 @@ function registerDialogHandlers() {
         filters: [
           { name: 'Text', extensions: ['txt'] },
           { name: 'Markdown', extensions: ['md'] },
+          { name: 'JSON', extensions: ['json'] },
           { name: 'All Files', extensions: ['*'] }
         ]
       })

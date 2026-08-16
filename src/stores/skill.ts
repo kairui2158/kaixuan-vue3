@@ -97,6 +97,83 @@ export const useSkillStore = defineStore('skill', () => {
     saveSkills()
   }
 
+  /** 将单个 SKILL 导出为 Markdown 格式（含 YAML 元信息头） */
+  function exportSkillToMD(skillId: string): string {
+    const s = skills.value.find(sk => sk.id === skillId)
+    if (!s) return ''
+    const meta = [
+      '---',
+      'name: ' + s.name,
+      'category: ' + (s.category || 'general'),
+      'description: ' + (s.description || ''),
+      'executionMode: ' + (s.executionMode || 'chain'),
+      'outputFormat: ' + (s.outputFormat || 'text'),
+      'injectMode: ' + (s.injectMode || 'system_prefix'),
+      'injectFrequency: ' + (s.injectFrequency || 'every'),
+      'injectDepth: ' + (s.injectDepth ?? 0),
+      'bindTarget: ' + (s.bindTarget || 'project'),
+      'linkedSkillIds: ' + JSON.stringify(s.linkedSkillIds || []),
+      'createdAt: ' + (s.createdAt || ''),
+      'updatedAt: ' + (s.updatedAt || ''),
+      '---',
+      ''
+    ].join('\n')
+    return meta + (s.template || '')
+  }
+
+  /** 全量导出所有 SKILL 为 JSON */
+  function exportAllToJSON(): string {
+    return JSON.stringify({
+      exportVersion: '1.0',
+      exportedAt: new Date().toISOString(),
+      skills: JSON.parse(JSON.stringify(skills.value)),
+      pipelineSkills: JSON.parse(JSON.stringify(pipelineSkills.value)),
+      deAiSkills: JSON.parse(JSON.stringify(deAiSkills.value))
+    }, null, 2)
+  }
+
+  /** 从 JSON 导入 SKILL */
+  function importFromJSON(jsonStr: string): { added: number; skipped: number } {
+    let result = { added: 0, skipped: 0 }
+    try {
+      const data = JSON.parse(jsonStr)
+      const incoming: any[] = data.skills || data || []
+      if (!Array.isArray(incoming)) return result
+      const existingIds = new Set(skills.value.map(s => s.id))
+      for (const s of incoming) {
+        if (!s.id || !s.name) continue
+        if (existingIds.has(s.id)) {
+          result.skipped++
+          continue
+        }
+        skills.value.push({
+          id: s.id,
+          name: s.name,
+          template: s.template || '',
+          category: s.category || 'general',
+          description: s.description || '',
+          executionMode: s.executionMode || 'chain',
+          outputFormat: s.outputFormat || 'text',
+          validationRules: s.validationRules || [],
+          splitSize: s.splitSize || 1000,
+          injectMode: s.injectMode,
+          bindTarget: s.bindTarget,
+          linkedSkillIds: s.linkedSkillIds || [],
+          createdAt: s.createdAt || new Date().toISOString(),
+          updatedAt: s.updatedAt,
+          injectFrequency: s.injectFrequency,
+          injectDepth: s.injectDepth
+        })
+        existingIds.add(s.id)
+        result.added++
+      }
+      if (result.added > 0) saveSkills()
+      return result
+    } catch {
+      return result
+    }
+  }
+
   function movePipelineSkillUp(index: number) {
     if (index > 0) {
       const arr = [...pipelineSkills.value]
@@ -119,6 +196,7 @@ export const useSkillStore = defineStore('skill', () => {
     skills, pipelineSkills, deAiSkills,
     orderedPipelineSkills, orderedDeAiSkills,
     getSkill, loadSkills, saveSkills, addSkill, updateSkill, removeSkill,
-    movePipelineSkillUp, movePipelineSkillDown
+    movePipelineSkillUp, movePipelineSkillDown,
+    exportSkillToMD, exportAllToJSON, importFromJSON
   }
 })

@@ -1,6 +1,11 @@
 ﻿<template>
   <div id="sbm-skill-list" class="skill-settings">
     <h3>技能管理</h3>
+    <div class="skill-toolbar">
+      <button id="btn-import-skills" class="btn-sm btn-secondary" @click="importSkills">导入 JSON</button>
+      <button id="btn-export-all-skills" class="btn-sm btn-secondary" @click="exportAll">导出全部</button>
+    </div>
+    <div v-if="uiMessage" id="skill-ui-message" class="skill-ui-message">{{ uiMessage }}</div>
     <div class="skill-section">
       <h4>流水线技能 (按顺序执行)</h4>
       <div class="skill-pipeline-list">
@@ -32,6 +37,8 @@
           <div class="skill-card-actions">
             <button class="btn-sm btn-secondary" @click="editSkill(s.id)">编辑</button>
             <button class="btn-sm btn-secondary" @click="addToPipeline(s.id)">加入流水线</button>
+            <button class="btn-sm btn-secondary" @click="exportSkill(s.id)">导出</button>
+            <button class="btn-sm btn-secondary" @click="openTest(s.id)">测试</button>
             <button class="btn-danger btn-sm" @click="skillStore.removeSkill(s.id)">删除</button>
           </div>
       </div>
@@ -106,6 +113,19 @@
         </div>
      </div>
    </div>
+   <div v-if="testSkillId" class="skill-edit-overlay" @click.self="closeTest">
+     <div id="skill-test-modal" class="skill-edit-modal">
+       <div class="sem-header"><h4 id="skill-test-title">技能测试: {{ getSkillName(testSkillId) }}</h4><button @click="closeTest">x</button></div>
+       <label>测试文本</label>
+       <textarea id="st-test-input" v-model="testText" class="sem-textarea" style="min-height: 120px;" placeholder="输入示例文本，用于验证技能输出"></textarea>
+       <div class="form-actions">
+         <button id="btn-run-skill-test" class="btn-primary" @click="runTest" :disabled="isTesting">{{ isTesting ? '测试中...' : '运行测试' }}</button>
+         <button class="btn-secondary" @click="closeTest">关闭</button>
+       </div>
+       <div v-if="testError" id="st-test-error" class="st-test-error">{{ testError }}</div>
+       <div v-if="testResult" id="st-test-result" class="st-test-result">{{ testResult }}</div>
+     </div>
+   </div>
   </div>
 
 </template>
@@ -113,8 +133,77 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useSkillStore } from '../../stores/skill'
+import { useSkillTest } from '../../composables/useSkillTest'
 
 const skillStore = useSkillStore()
+const { testResult, isTesting, testError, runSkillTest } = useSkillTest()
+const uiMessage = ref('')
+const testSkillId = ref('')
+const testText = ref('')
+
+function showMessage(msg: string) {
+  uiMessage.value = msg
+  window.setTimeout(() => {
+    if (uiMessage.value === msg) uiMessage.value = ''
+  }, 5000)
+}
+
+function importSkills() {
+  const path = window.electronAPI.dialogOpenFile()
+  if (!path) return
+  const read = window.electronAPI.dialogReadFile(path)
+  if (!read || !read.content) {
+    showMessage('读取文件失败')
+    return
+  }
+  const result = skillStore.importFromJSON(read.content)
+  if (result.added > 0) {
+    showMessage('导入成功 ' + result.added + ' 个，跳过 ' + result.skipped + ' 个')
+  } else if (result.skipped > 0) {
+    showMessage('全部跳过，已存在 ' + result.skipped + ' 个同名技能')
+  } else {
+    showMessage('未找到有效技能数据')
+  }
+}
+
+function exportSkill(id: string) {
+  const s = skillStore.getSkill(id)
+  if (!s) return
+  const md = skillStore.exportSkillToMD(id)
+  const safeName = (s.name || 'skill').replace(/[\\/:*?"<>|]/g, '_')
+  const filePath = window.electronAPI.dialogSaveFile(safeName + '.skill.md')
+  if (!filePath) return
+  const ok = window.electronAPI.dialogWriteFile(filePath, md)
+  showMessage(ok ? '导出成功: ' + filePath : '导出失败')
+}
+
+function exportAll() {
+  if (skillStore.skills.length === 0) {
+    showMessage('暂无技能可导出')
+    return
+  }
+  const json = skillStore.exportAllToJSON()
+  const filePath = window.electronAPI.dialogSaveFile('skills-export.json')
+  if (!filePath) return
+  const ok = window.electronAPI.dialogWriteFile(filePath, json)
+  showMessage(ok ? '导出成功: ' + filePath : '导出失败')
+}
+
+function openTest(id: string) {
+  testSkillId.value = id
+  testText.value = '这是一段测试文本，用于验证技能的输出效果。'
+  testResult.value = ''
+  testError.value = ''
+}
+
+function runTest() {
+  if (!testSkillId.value) return
+  runSkillTest(testSkillId.value, testText.value).then(() => {})
+}
+
+function closeTest() {
+  testSkillId.value = ''
+}
 
 function getSkillName(id: string) {
   return skillStore.skills.find(s => s.id === id)?.name || id
@@ -312,6 +401,10 @@ function cancelEdit() {
 .skill-name { flex: 1; color: var(--text-primary); }
 .skill-cat { color: var(--text-muted); font-size: 11px; }
 .btn-add { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: 6px; padding: 8px 16px; cursor: pointer; font-size: 13px; }
+.skill-toolbar { display: flex; gap: 8px; margin-bottom: 12px; }
+.skill-ui-message { margin-bottom: 12px; padding: 8px 12px; border-radius: 6px; background: var(--accent-dim); border: 1px solid var(--border-color); font-size: 12px; color: var(--text-primary); }
+.st-test-error { margin-top: 10px; padding: 8px 12px; border-radius: 6px; background: rgba(220, 53, 69, 0.12); color: var(--danger, #dc3545); font-size: 12px; }
+.st-test-result { margin-top: 10px; padding: 12px; border-radius: 6px; background: var(--bg-tertiary); border: 1px solid var(--border-color); font-size: 13px; line-height: 1.7; white-space: pre-wrap; color: var(--text-primary); max-height: 240px; overflow-y: auto; }
 .skill-edit-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: 2000; }
 .skill-edit-modal { width: min(600px, 90vw); max-height: 80vh; background: var(--bg-glass); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
 .sem-header { display: flex; justify-content: space-between; font-size: 16px; font-weight: 600; margin-bottom: 8px; }
