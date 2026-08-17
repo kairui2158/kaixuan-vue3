@@ -705,12 +705,28 @@ function getStepSkillIds(step: number): string[] {
   return []
 }
 
-function getStepSkillTemplates(step: number): Array<{ id: string; name: string; template: string; customVars?: Record<string, string> }> {
+type PipelineSkillTemplate = {
+  id: string
+  name: string
+  template: string
+  customVars?: Record<string, string>
+  injectMode?: string
+  validationRules?: string[]
+}
+
+function getStepSkillTemplates(step: number): PipelineSkillTemplate[] {
   const ids = getStepSkillIds(step)
-  const templates: Array<{ id: string; name: string; template: string; customVars?: Record<string, string> }> = []
+  const templates: PipelineSkillTemplate[] = []
   for (const sid of ids) {
     const s = skillStore.getSkill(sid)
-    if (s && s.template) templates.push({ id: s.id, name: s.name, template: s.template, customVars: s.customVars || {} })
+    if (s && s.template) templates.push({
+      id: s.id,
+      name: s.name,
+      template: s.template,
+      customVars: s.customVars || {},
+      injectMode: s.injectMode || "system_prefix",
+      validationRules: s.validationRules || []
+    })
   }
   return templates
 }
@@ -734,6 +750,26 @@ function getStepSkillOutputFormat(step: number, si: number): string {
   if (!sid) return "text"
   const s = skillStore.getSkill(sid)
   return (s as any)?.outputFormat || "text"
+}
+
+type PromptParts = {
+  systemSkill?: string
+  userPrefix?: string
+  userSuffix?: string
+}
+
+function getPromptParts(template: string, mode: string): PromptParts {
+  if (mode === "user_prefix") return { userPrefix: template }
+  if (mode === "user_suffix") return { userSuffix: template }
+  return { systemSkill: template }
+}
+
+function mergePromptParts(parts: PromptParts[]): PromptParts {
+  return {
+    systemSkill: parts.map((p) => p.systemSkill).filter(Boolean).join("\n\n"),
+    userPrefix: parts.map((p) => p.userPrefix).filter(Boolean).join("\n\n"),
+    userSuffix: parts.map((p) => p.userSuffix).filter(Boolean).join("\n\n")
+  }
 }
 
 function tryParseJson(text: string): { ok: boolean; data?: any } {
@@ -1023,23 +1059,24 @@ async function analyzeOutline() {
   }
 }
 
-async function callApiWithAgent(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string): Promise<string> {
+async function callApiWithAgent(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string, promptParts?: PromptParts): Promise<string> {
   const agentId = skillAgentOverride || getStepAgentId(step)
   const agentConfig = agentId ? (agentStore.getAgent(agentId) || null) : getStepAgentConfig(step)
   const provider = providerStore.getProvider(agentConfig?.provider || "")
   const preferredProvider = providerStore.preferredGenerateProvider
   const activeProvider = provider || preferredProvider
   const model = agentConfig?.model || activeProvider?.selectedModel || activeProvider?.models?.[0] || ""
-  const skillPart = skillTemplate || ""
+  const skillPart = promptParts?.systemSkill ?? skillTemplate ?? ""
   const agentPart = agentConfig?.systemPrompt || ""
   const systemPrompt = [skillPart, agentPart].filter(Boolean).join("\n\n") || "你是专业小说创作助手。"
-  const messages = [{ role: "system", content: systemPrompt }, { role: "user", content: prompt }]
+  const userPrompt = [promptParts?.userPrefix, prompt, promptParts?.userSuffix].filter(Boolean).join("\n\n")
+  const messages = [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }]
   return await providerStore.callApi(activeProvider?.id || "", model, messages)
 }
 
-async function callApiWithAgentTimeout(step: number, skillTemplate: string, prompt: string, timeoutMs: number, skillAgentOverride?: string): Promise<string> {
+async function callApiWithAgentTimeout(step: number, skillTemplate: string, prompt: string, timeoutMs: number, skillAgentOverride?: string, promptParts?: PromptParts): Promise<string> {
   const result = await Promise.race([
-    callApiWithAgent(step, skillTemplate, prompt, skillAgentOverride),
+    callApiWithAgent(step, skillTemplate, prompt, skillAgentOverride, promptParts),
     new Promise<string>((_, reject) => setTimeout(() => reject(new Error("API超时")), timeoutMs))
   ])
   return result
@@ -1110,14 +1147,15 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
       const useOriginal = si === 0 && startSi === 0
       const nextPrompt = useOriginal
         ? prompt
-        : "以下是上一个Skill的输出结果，请根据当前Skill继续处理：\n\n【" + t.name + "】" + resolvedTemplate + "\n\n--- 上一步输出 ---\n" + current
+        : "以下是上一个Skill的输出结果，请根据当前Skill继续处理：\n\n--- 上一步输出 ---\n" + current
       console.log("[PIPELINE] chain step " + (si + 1) + "/" + templates.length + " = " + t.name)
       // Need 1: per-skill agent override
       const skillAgentId = getStepSkillAgentId(step, si)
+      const injection = getPromptParts(resolvedTemplate, t.injectMode || "system_prefix")
       if (timeoutMs) {
-        current = await callApiWithAgentTimeout(step, resolvedTemplate, nextPrompt, timeoutMs, skillAgentId)
+        current = await callApiWithAgentTimeout(step, injection.systemSkill || "", nextPrompt, timeoutMs, skillAgentId, injection)
       } else {
-        current = await callApiWithAgent(step, resolvedTemplate, nextPrompt, skillAgentId)
+        current = await callApiWithAgent(step, injection.systemSkill || "", nextPrompt, skillAgentId, injection)
       }
       chainCtx.prevResponse = current
       // Need 2: save breakpoint after each successful step
@@ -1130,9 +1168,9 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
           console.warn("[PIPELINE] JSON parse failed for chain step " + (si + 1) + ", retrying")
           const retryPrompt = nextPrompt + "\n\n[注意] 上次输出不是合法JSON，请严格返回JSON格式，不要包含markdown代码块标记。"
           if (timeoutMs) {
-            current = await callApiWithAgentTimeout(step, resolvedTemplate, retryPrompt, timeoutMs, skillAgentId)
+            current = await callApiWithAgentTimeout(step, injection.systemSkill || "", retryPrompt, timeoutMs, skillAgentId, injection)
           } else {
-            current = await callApiWithAgent(step, resolvedTemplate, retryPrompt, skillAgentId)
+            current = await callApiWithAgent(step, injection.systemSkill || "", retryPrompt, skillAgentId, injection)
           }
           chainCtx.prevResponse = current
           pipelineStore.saveBreakpoint({ step, lastSuccessChainIndex: si, lastOutput: current, volumeIndex: selectedVolumeIndex.value })
@@ -1142,15 +1180,18 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
     pipelineStore.clearBreakpoint()
     return current
   }
-  const combined = templates.map((t) => {
+  const resolvedParts = templates.map((t) => {
     const ctxForSkill = { ...baseCtx, ...(t.customVars || {}) }
-    return resolveSkillTemplate(t.template, ctxForSkill)
-  }).filter(Boolean).join("\n\n") || resolveSkillTemplate(fallbackTemplate || "", baseCtx)
+    return getPromptParts(resolveSkillTemplate(t.template, ctxForSkill), t.injectMode || "system_prefix")
+  })
+  const merged = mergePromptParts(resolvedParts)
+  const combined = merged.systemSkill || resolveSkillTemplate(fallbackTemplate || "", baseCtx)
+  const composePrompt = prompt
   let result: string
   if (timeoutMs) {
-    result = await callApiWithAgentTimeout(step, combined, prompt, timeoutMs)
+    result = await callApiWithAgentTimeout(step, combined, composePrompt, timeoutMs, undefined, merged)
   } else {
-    result = await callApiWithAgent(step, combined, prompt)
+    result = await callApiWithAgent(step, combined, composePrompt, undefined, merged)
   }
   // Need 4: outputFormat JSON validation for compose
   const firstFmt = getStepSkillOutputFormat(step, 0)
@@ -1160,9 +1201,9 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
       console.warn("[PIPELINE] JSON parse failed for compose step " + step + ", retrying")
       const retryPrompt = prompt + "\n\n[注意] 上次输出不是合法JSON，请严格返回JSON格式。"
       if (timeoutMs) {
-        result = await callApiWithAgentTimeout(step, combined, retryPrompt, timeoutMs)
+        result = await callApiWithAgentTimeout(step, combined, retryPrompt, timeoutMs, undefined, merged)
       } else {
-        result = await callApiWithAgent(step, combined, retryPrompt)
+        result = await callApiWithAgent(step, combined, retryPrompt, undefined, merged)
       }
     }
   }
