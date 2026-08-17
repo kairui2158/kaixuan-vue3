@@ -77,6 +77,10 @@
             <template v-for="(sid, si) in stepSkills[0]" :key="si">
               <span v-if="sid" class="pl-skill-chip">
                 <span>{{ getSkillName(sid) }}</span>
+                <select v-if="stepSkillModes[0] === 'chain'" v-model="stepSkillAgents['0-' + si]" class="pl-select pl-chip-agent" @change="saveStepConfig">
+                  <option value="">默认</option>
+                  <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
+                </select>
                 <button class="btn-icon pl-chip-close" title="移除" @click="removeStepSkill(1, si)">&times;</button>
               </span>
             </template>
@@ -123,6 +127,10 @@
             <template v-for="(sid, si) in stepSkills[1]" :key="si">
               <span v-if="sid" class="pl-skill-chip">
                 <span>{{ getSkillName(sid) }}</span>
+                <select v-if="stepSkillModes[1] === 'chain'" v-model="stepSkillAgents['1-' + si]" class="pl-select pl-chip-agent" @change="saveStepConfig">
+                  <option value="">默认</option>
+                  <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
+                </select>
                 <button class="btn-icon pl-chip-close" title="移除" @click="removeStepSkill(2, si)">&times;</button>
               </span>
             </template>
@@ -204,6 +212,10 @@
             <template v-for="(sid, si) in stepSkills[2]" :key="si">
               <span v-if="sid" class="pl-skill-chip">
                 <span>{{ getSkillName(sid) }}</span>
+                <select v-if="stepSkillModes[2] === 'chain'" v-model="stepSkillAgents['2-' + si]" class="pl-select pl-chip-agent" @change="saveStepConfig">
+                  <option value="">默认</option>
+                  <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
+                </select>
                 <button class="btn-icon pl-chip-close" title="移除" @click="removeStepSkill(3, si)">&times;</button>
               </span>
             </template>
@@ -264,6 +276,10 @@
             <template v-for="(sid, si) in stepSkills[3]" :key="si">
               <span v-if="sid" class="pl-skill-chip">
                 <span>{{ getSkillName(sid) }}</span>
+                <select v-if="stepSkillModes[3] === 'chain'" v-model="stepSkillAgents['3-' + si]" class="pl-select pl-chip-agent" @change="saveStepConfig">
+                  <option value="">默认</option>
+                  <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
+                </select>
                 <button class="btn-icon pl-chip-close" title="移除" @click="removeStepSkill(4, si)">&times;</button>
               </span>
             </template>
@@ -327,6 +343,10 @@
             <template v-for="(sid, si) in stepSkills[4]" :key="si">
               <span v-if="sid" class="pl-skill-chip">
                 <span>{{ getSkillName(sid) }}</span>
+                <select v-if="stepSkillModes[4] === 'chain'" v-model="stepSkillAgents['4-' + si]" class="pl-select pl-chip-agent" @change="saveStepConfig">
+                  <option value="">默认</option>
+                  <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
+                </select>
                 <button class="btn-icon pl-chip-close" title="移除" @click="removeStepSkill(5, si)">&times;</button>
               </span>
             </template>
@@ -539,6 +559,7 @@ const stepAgents = ref<Record<number, string>>({ 0: "", 1: "", 2: "", 3: "", 4: 
 const stepSkills = ref<Record<number, string[]>>({ 0: ["", "", "", "", ""], 1: ["", "", "", "", ""], 2: ["", "", "", "", ""], 3: ["", "", "", "", ""], 4: ["", "", "", "", ""] })
 const stepSkillSelect = ref<Record<number, string>>({ 1: "", 2: "", 3: "", 4: "", 5: "" })
 const stepSkillModes = ref<Record<number, string>>({ 0: "compose", 1: "compose", 2: "chain", 3: "chain", 4: "compose" })
+const stepSkillAgents = ref<Record<string, string>>({})
 
 const steps = ref([
   { name: "大纲", completed: false },
@@ -637,7 +658,8 @@ function saveStepConfig() {
   window.electronAPI.storageWrite(storageKey("pipeline_step_config"), {
     agents: JSON.parse(JSON.stringify(stepAgents.value)),
     skills: JSON.parse(JSON.stringify(stepSkills.value)),
-    modes: JSON.parse(JSON.stringify(stepSkillModes.value))
+    modes: JSON.parse(JSON.stringify(stepSkillModes.value)),
+    skillAgents: JSON.parse(JSON.stringify(stepSkillAgents.value))
   })
 }
 
@@ -700,6 +722,30 @@ function getStepSkillTemplate(step: number): string {
 
 function getStepAgentId(step: number): string {
   return stepAgents.value[step] || ""
+}
+
+function getStepSkillAgentId(step: number, si: number): string {
+  return stepSkillAgents.value[step + "-" + si] || ""
+}
+
+function getStepSkillOutputFormat(step: number, si: number): string {
+  const ids = getStepSkillIds(step)
+  const sid = ids[si]
+  if (!sid) return "text"
+  const s = skillStore.getSkill(sid)
+  return (s as any)?.outputFormat || "text"
+}
+
+function tryParseJson(text: string): { ok: boolean; data?: any } {
+  try {
+    const jsonMatch = text.match(/```json?\s*([\s\S]*?)```/)
+    if (jsonMatch) {
+      return { ok: true, data: JSON.parse(jsonMatch[1].trim()) }
+    }
+    return { ok: true, data: JSON.parse(text.trim()) }
+  } catch {
+    return { ok: false }
+  }
 }
 
 function getStepSkillMode(step: number): string {
@@ -977,8 +1023,9 @@ async function analyzeOutline() {
   }
 }
 
-async function callApiWithAgent(step: number, skillTemplate: string, prompt: string): Promise<string> {
-  const agentConfig = getStepAgentConfig(step)
+async function callApiWithAgent(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string): Promise<string> {
+  const agentId = skillAgentOverride || getStepAgentId(step)
+  const agentConfig = agentId ? (agentStore.getAgent(agentId) || null) : getStepAgentConfig(step)
   const provider = providerStore.getProvider(agentConfig?.provider || "")
   const preferredProvider = providerStore.preferredGenerateProvider
   const activeProvider = provider || preferredProvider
@@ -990,9 +1037,9 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
   return await providerStore.callApi(activeProvider?.id || "", model, messages)
 }
 
-async function callApiWithAgentTimeout(step: number, skillTemplate: string, prompt: string, timeoutMs: number): Promise<string> {
+async function callApiWithAgentTimeout(step: number, skillTemplate: string, prompt: string, timeoutMs: number, skillAgentOverride?: string): Promise<string> {
   const result = await Promise.race([
-    callApiWithAgent(step, skillTemplate, prompt),
+    callApiWithAgent(step, skillTemplate, prompt, skillAgentOverride),
     new Promise<string>((_, reject) => setTimeout(() => reject(new Error("API超时")), timeoutMs))
   ])
   return result
@@ -1045,34 +1092,81 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
     }
   }
   if (mode === "chain" && templates.length > 1) {
-    let current = prompt
     const chainCtx = { ...baseCtx }
-    for (let si = 0; si < templates.length; si++) {
+    // Need 2: chain breakpoint resume
+    const bp = pipelineStore.breakpoint
+    let startSi = 0
+    let current = prompt
+    if (bp && bp.step === step && bp.lastSuccessChainIndex !== undefined && bp.lastOutput) {
+      startSi = bp.lastSuccessChainIndex + 1
+      current = bp.lastOutput
+      chainCtx.prevResponse = current
+      console.log("[PIPELINE] chain resumed from step " + (startSi + 1) + "/" + templates.length)
+    }
+    for (let si = startSi; si < templates.length; si++) {
       const t = templates[si]
       const ctxForSkill = { ...chainCtx, ...(t.customVars || {}) }
       const resolvedTemplate = resolveSkillTemplate(t.template, ctxForSkill)
-      const useOriginal = si === 0
+      const useOriginal = si === 0 && startSi === 0
       const nextPrompt = useOriginal
         ? prompt
         : "以下是上一个Skill的输出结果，请根据当前Skill继续处理：\n\n【" + t.name + "】" + resolvedTemplate + "\n\n--- 上一步输出 ---\n" + current
       console.log("[PIPELINE] chain step " + (si + 1) + "/" + templates.length + " = " + t.name)
+      // Need 1: per-skill agent override
+      const skillAgentId = getStepSkillAgentId(step, si)
       if (timeoutMs) {
-        current = await callApiWithAgentTimeout(step, resolvedTemplate, nextPrompt, timeoutMs)
+        current = await callApiWithAgentTimeout(step, resolvedTemplate, nextPrompt, timeoutMs, skillAgentId)
       } else {
-        current = await callApiWithAgent(step, resolvedTemplate, nextPrompt)
+        current = await callApiWithAgent(step, resolvedTemplate, nextPrompt, skillAgentId)
       }
       chainCtx.prevResponse = current
+      // Need 2: save breakpoint after each successful step
+      pipelineStore.saveBreakpoint({ step, lastSuccessChainIndex: si, lastOutput: current, volumeIndex: selectedVolumeIndex.value })
+      // Need 4: outputFormat JSON validation
+      const fmt = getStepSkillOutputFormat(step, si)
+      if (fmt === "json") {
+        const parsed = tryParseJson(current)
+        if (!parsed.ok) {
+          console.warn("[PIPELINE] JSON parse failed for chain step " + (si + 1) + ", retrying")
+          const retryPrompt = nextPrompt + "\n\n[注意] 上次输出不是合法JSON，请严格返回JSON格式，不要包含markdown代码块标记。"
+          if (timeoutMs) {
+            current = await callApiWithAgentTimeout(step, resolvedTemplate, retryPrompt, timeoutMs, skillAgentId)
+          } else {
+            current = await callApiWithAgent(step, resolvedTemplate, retryPrompt, skillAgentId)
+          }
+          chainCtx.prevResponse = current
+          pipelineStore.saveBreakpoint({ step, lastSuccessChainIndex: si, lastOutput: current, volumeIndex: selectedVolumeIndex.value })
+        }
+      }
     }
+    pipelineStore.clearBreakpoint()
     return current
   }
   const combined = templates.map((t) => {
     const ctxForSkill = { ...baseCtx, ...(t.customVars || {}) }
     return resolveSkillTemplate(t.template, ctxForSkill)
   }).filter(Boolean).join("\n\n") || resolveSkillTemplate(fallbackTemplate || "", baseCtx)
+  let result: string
   if (timeoutMs) {
-    return await callApiWithAgentTimeout(step, combined, prompt, timeoutMs)
+    result = await callApiWithAgentTimeout(step, combined, prompt, timeoutMs)
+  } else {
+    result = await callApiWithAgent(step, combined, prompt)
   }
-  return await callApiWithAgent(step, combined, prompt)
+  // Need 4: outputFormat JSON validation for compose
+  const firstFmt = getStepSkillOutputFormat(step, 0)
+  if (firstFmt === "json") {
+    const parsed = tryParseJson(result)
+    if (!parsed.ok) {
+      console.warn("[PIPELINE] JSON parse failed for compose step " + step + ", retrying")
+      const retryPrompt = prompt + "\n\n[注意] 上次输出不是合法JSON，请严格返回JSON格式。"
+      if (timeoutMs) {
+        result = await callApiWithAgentTimeout(step, combined, retryPrompt, timeoutMs)
+      } else {
+        result = await callApiWithAgent(step, combined, retryPrompt)
+      }
+    }
+  }
+  return result
 }
 
 function openAddSettingModal() {
@@ -1289,6 +1383,29 @@ async function genChapters() {
         pipelineStore.saveBreakpoint({ volumeIndex: selectedVolumeIndex.value, chapterCount: collected.length, total: totalChapters })
       }
     }
+    // Need 3: supplement generation for insufficient chapters
+    let supplementRetry = 0
+    while (collected.length < totalChapters && supplementRetry < 3) {
+      supplementRetry++
+      const remain = totalChapters - collected.length
+      const supplementPrompt = "[卷纲]\n" + vol.name + " - " + (vol.outline || vol.summary || "") + "\n\n[本卷总章数]\n" + totalChapters + "\n\n[单章字数]\n" + chapterWords.value + "\n\n已有" + collected.length + "章，继续从第" + (collected.length + 1) + "章生成到第" + totalChapters + "章。输出JSON数组，每项含title/plot字段。不要重复已有章节。数组长度必须恰好等于" + remain + "。"
+      try {
+        const result = await runStepSkills(3, supplementPrompt, 120000, "你是章节规划师。")
+        const supplement = extractJsonArray(result)
+        const existingTitles = new Set(collected.map(c => c.title))
+        for (const c of supplement) {
+          if (c.title && !existingTitles.has(c.title)) {
+            c.id = "ch-" + String(volId).replace(/[^a-zA-Z0-9_-]/g, "-") + "-" + String(collected.length + 1).padStart(3, "0")
+            collected.push(c)
+            existingTitles.add(c.title)
+          }
+        }
+        projectStore.setChapters(volId, [...collected])
+        pipelineStore.saveBreakpoint({ volumeIndex: selectedVolumeIndex.value, chapterCount: collected.length, total: totalChapters })
+      } catch (e: any) {
+        console.warn("[PIPELINE] supplement generation " + supplementRetry + " failed:", e)
+      }
+    }
     if (collected.length > 0) {
       const vr = validateChapters(collected)
       if (!vr.valid) {
@@ -1380,6 +1497,7 @@ onMounted(() => {
   if (saved) {
     if (saved.agents) {
       stepAgents.value = { 0: "", 1: "", 2: "", 3: "", 4: "" }
+      stepSkillAgents.value = {}
       let a = saved.agents
       for (let i = 0; i < 5; i++) {
         if (a[i] !== undefined) stepAgents.value[i] = a[i]
@@ -1393,6 +1511,9 @@ onMounted(() => {
         if (Array.isArray(s[i])) stepSkills.value[i] = s[i].filter(Boolean)
         else if (Array.isArray(s[i + 1])) stepSkills.value[i] = s[i + 1].filter(Boolean)
       }
+    }
+    if (saved.skillAgents) {
+      stepSkillAgents.value = saved.skillAgents
     }
     if (saved.modes) {
       stepSkillModes.value = { 0: "compose", 1: "compose", 2: "chain", 3: "chain", 4: "compose" }
@@ -1596,6 +1717,7 @@ function toolAction(action: string) {
 .pl-tool-result { margin-top: 6px; padding: 6px 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--font-size-sm); color: var(--text-primary); max-height: 60px; overflow-y: auto; }
 .pl-tool-loading { margin-top: 4px; font-size: var(--font-size-sm); color: var(--accent); }
 
+.pl-chip-agent { height: 22px; padding: 0 6px; font-size: 10px; min-width: 60px; width: auto; border-radius: var(--radius-sm); background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; }
 .pl-add-setting-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: calc(var(--z-modal) + 100); }
 .pl-add-setting-modal { width: min(640px, 94vw); background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; }
 .pl-add-setting-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border-color); font-size: var(--font-size-lg); font-weight: 600; }
