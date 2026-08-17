@@ -35,7 +35,6 @@
         <!-- Panel overlays: outside app-body to avoid overflow:hidden clipping -->
         <SettingsModal v-if="activePanel === 'settings'" :visible="activePanel === 'settings'" @close="activePanel=''" />
         <PipelinePanel v-if="activePanel === 'pipeline'" @close="activePanel=''" />
-        <SettingsCollectionPanel v-if="activePanel === 'settings-collection'" @close="activePanel=''" />
         <OutlineWorkspace v-if="activePanel === 'outline'" @close="activePanel=''" @navigate="handleNavigate" />
         <MemoryPanel v-if="activePanel === 'memory'" @close="activePanel=''" />
         <DashboardModal v-if="activePanel === 'dashboard'" :stats="dashboardStats" @close="activePanel=''" />
@@ -87,7 +86,6 @@ import EditorPanel from './components/editor/EditorPanel.vue'
 import ChatPanel from './components/chat/ChatPanel.vue'
 import SettingsModal from './components/settings/SettingsModal.vue'
 import PipelinePanel from './components/pipeline/PipelinePanel.vue'
-import SettingsCollectionPanel from './components/settings-collection/ScPanel.vue'
 import OutlineWorkspace from './components/common/OutlineWorkspace.vue'
 import DeAiProgress from './components/deai/DeAiProgress.vue'
 import ExitConfirmModal from './components/common/ExitConfirmModal.vue'
@@ -136,7 +134,6 @@ const dashboardStats = computed(() => {
 
 useShortcuts({
   onOpenOutline: () => handleNavigate('outline'),
-  onOpenSettingsCollection: () => handleNavigate('settings-collection'),
   onOpenPipeline: () => handleNavigate('pipeline'),
   onOpenMemory: () => handleNavigate('memory'),
   onOpenPluginMarket: () => handleNavigate('plugin-market'),
@@ -297,7 +294,7 @@ onMounted(() => {
  nextTick(() => initResizers())
   const labels: Record<string, string> = {
     'pipeline': '生成流水线', 'settings': '设置', 'outline': '大纲工作台',
-    'settings-collection': '设定合集', 'memory': '记忆管理'
+    'memory': '记忆管理'
   }
   watch(activePanel, (v) => {
    breadcrumbItems.value = v && labels[v] ? [labels[v]] : []

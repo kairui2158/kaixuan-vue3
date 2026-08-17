@@ -258,22 +258,28 @@ function parseDecomposedSettings(raw: string | null) {
   const items = extractJsonArray(raw)
   if (!items || items.length === 0) return
 
-  const newSettings = [...(projectStore.settings || [])]
+  const sc = projectStore.getSettingsCollection()
   let count = 0
   for (const item of items) {
     if (!item.name) continue
-    newSettings.push({
+    const cat = (item.category || '其他').toString()
+    if (!sc.categories.includes(cat)) sc.categories.push(cat)
+    if (!sc.items[cat]) sc.items[cat] = []
+    sc.items[cat].push({
       id: 'set_' + Date.now() + '_' + count,
       name: item.name,
-      category: (item.category || '其他').toString(),
+      category: cat,
       content: item.content || '',
       attrs: item.attrs || { 描述: item.content || '' },
-      attrsText: JSON.stringify(item.attrs || { 描述: item.content || '' })
+      isBound: false,
+      boundTo: [],
+      createdAt: Date.now(),
+      updatedAt: Date.now()
     })
     count++
   }
   if (count > 0) {
-    projectStore.setSettings(newSettings)
+    projectStore.saveProject()
   }
 }
 

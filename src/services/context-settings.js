@@ -111,3 +111,34 @@ App.prototype.getContextSettings = function() {
   }
   return results;
 }
+
+// Ported from panels.js:645 - Get settingsCollection data, init if missing
+App.prototype._scData = function() {
+  var self = this;
+  if (!this.currentProjectId) return null;
+  var p = this._getProjectData();
+  if (!p.settingsCollection) p.settingsCollection = { categories: [], items: {} };
+  this._saveProjectData(p);
+  return p.settingsCollection;
+}
+
+// Ported from panels.js:1047 - Get text of all enabled bound settings for prompt injection
+App.prototype._getBoundSettingsText = function() {
+  var p = this._getProjectData();
+  if (!p || !p._pipeline || !p._pipeline.boundSettings) return "";
+  var bound = p._pipeline.boundSettings;
+  var lines = [];
+  for (var i = 0; i < bound.length; i++) {
+    if (bound[i].enabled) {
+      var desc = "";
+      if (bound[i].attrs) {
+        var keys = Object.keys(bound[i].attrs);
+        for (var k = 0; k < keys.length; k++) {
+          desc += keys[k] + ": " + bound[i].attrs[keys[k]] + "; ";
+        }
+      }
+      lines.push(bound[i].cat + " - " + bound[i].name + (desc ? " (" + desc + ")" : ""));
+    }
+  }
+  return lines.join("\n");
+}

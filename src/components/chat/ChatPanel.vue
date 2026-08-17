@@ -243,15 +243,22 @@ async function sendMessage() {
       if (toolText) systemParts.push('可用工具（调用格式：@工具名 {参数JSON}）：\n' + toolText)
     }
 
-    const boundSettings = projectStore.settings.filter((s: any) => s.isBound)
-    if (boundSettings.length > 0) {
+    const sc = projectStore.getSettingsCollection()
+    if (sc && sc.categories && sc.categories.length > 0) {
       let setText = '当前上下文设定：'
-      boundSettings.forEach((cs: any) => {
-        setText += '\n【' + (cs.name || '') + '】(' + (cs.category || '通用') + ')'
-        const attrs = cs.attrs || {}
-        Object.keys(attrs).forEach(k => { setText += '\n  ' + k + ': ' + attrs[k] })
-      })
-      systemParts.push(setText)
+      for (const cat of sc.categories) {
+        const items = sc.items[cat] || []
+        for (const item of items) {
+          if (item.isBound) {
+            setText += '\n【' + (item.name || '') + '】(' + (item.category || cat || '通用') + ')'
+            const attrs = item.attrs || {}
+            Object.keys(attrs).forEach(k => { setText += '\n  ' + k + ': ' + attrs[k] })
+          }
+        }
+      }
+      if (setText !== '当前上下文设定：') {
+        systemParts.push(setText)
+      }
     }
 
     const recentUserMsgs: string[] = []
@@ -261,15 +268,21 @@ async function sendMessage() {
     if (recentUserMsgs.length > 0) {
       const combined = recentUserMsgs.join(' ')
       const matched: any[] = []
-      projectStore.settings.forEach((item: any) => {
-        const tkw = item.triggerKeywords || []
-        for (let k = 0; k < tkw.length; k++) {
-          if (tkw[k] && combined.indexOf(tkw[k].toLowerCase()) >= 0) {
-            matched.push(item)
-            break
+      const sc2 = projectStore.getSettingsCollection()
+      if (sc2 && sc2.categories) {
+        for (const cat of sc2.categories) {
+          const items = sc2.items[cat] || []
+          for (const item of items) {
+            const tkw = item.triggerKeywords || item.keywords || []
+            for (let k = 0; k < tkw.length; k++) {
+              if (tkw[k] && combined.indexOf(tkw[k].toLowerCase()) >= 0) {
+                matched.push(item)
+                break
+              }
+            }
           }
         }
-      })
+      }
       if (matched.length > 0) {
         let trigText = '触发匹配的设定条目：'
         matched.forEach(mi => {
@@ -352,13 +365,22 @@ async function sendMessage() {
         chatCtx.chapterPlot = ctxText
         ctxSkillIds = skillStore.pipelineSkills.filter((id: string, i: number) => i === 4)
       }
-      const characterSettings = projectStore.settings.filter((s: any) => String(s.category || '').includes('人物'))
-      chatCtx.characters = characterSettings.map((s: any) => {
-        const attrs = s.attrs && typeof s.attrs === 'object'
-          ? Object.keys(s.attrs).map((k: string) => k + ': ' + String(s.attrs[k] ?? '')).join('; ')
-          : String(s.attrsText || '')
-        return (s.name || '') + (attrs ? '（' + attrs + '）' : '')
-      }).join('；')
+      const sc3 = projectStore.getSettingsCollection()
+      if (sc3 && sc3.categories) {
+        const charNames: string[] = []
+        for (const cat of sc3.categories) {
+          const items = sc3.items[cat] || []
+          for (const item of items) {
+            if (String(item.category || cat).includes('人物')) {
+              const attrsStr = item.attrs && typeof item.attrs === 'object'
+                ? Object.keys(item.attrs).map((k: string) => k + ': ' + String(item.attrs[k] ?? '')).join('; ')
+                : String(item.content || '')
+              charNames.push((item.name || '') + (attrsStr ? '（' + attrsStr + '）' : ''))
+            }
+          }
+        }
+        chatCtx.characters = charNames.join('；')
+      }
       if (ctxText) { systemParts.push('当前编辑内容（' + ctxLabel + '）：\n' + ctxText) }
       if (ctxSkillIds.length > 0) {
         const existingIds = new Set(enabledSkills.map(s => s.id))

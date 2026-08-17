@@ -128,16 +128,41 @@
             </template>
           </div>
             <p class="pl-desc">第二步：基于大纲，AI自动生成设定。设定可编辑和新增。</p>
-            <div id="pl-bound-settings-list" class="pl-settings-list">
-              <div v-for="(s, i) in projectStore.settings" :key="i" class="pl-setting-item">
-                <input v-model="s.name" class="pl-input" placeholder="名称" />
-                <select v-model="s.category" class="pl-input-sm">
-                  <option>世界观规则</option><option>地理环境</option><option>势力阵营</option>
-                  <option>技术体系</option><option>魔法体系</option><option>社会结构</option>
-                  <option>物品道具</option><option>历史事件</option><option>其他</option>
-                </select>
-                <textarea v-model="s.attrsText" class="pl-attrs-input" placeholder="属性内容"></textarea>
-                <button class="btn-danger btn-sm" @click="removeSetting(i)">删除</button>
+            <div class="pl-sc-layout">
+              <div class="pl-sc-categories" id="pl-sc-categories">
+                <div class="pl-sc-cat-header">
+                  <span class="pl-sc-cat-title">分类</span>
+                  <button class="btn-icon btn-sm" id="btn-pl-add-cat" title="新增分类" @click="showAddCategory = true">+</button>
+                </div>
+                <div v-if="showAddCategory" class="pl-sc-add-cat-row">
+                  <input v-model="newCategoryName" class="pl-input-sm" placeholder="分类名" @keyup.enter="addCategory" />
+                  <button class="btn-sm btn-primary" @click="addCategory">确定</button>
+                  <button class="btn-sm btn-secondary" @click="showAddCategory = false; newCategoryName = ''">取消</button>
+                </div>
+                <div
+                  v-for="cat in settingCategories"
+                  :key="cat"
+                  class="pl-sc-cat-item"
+                  :class="{ active: selectedSettingCategory === cat }"
+                  @click="selectedSettingCategory = cat"
+                >
+                  <span class="pl-sc-cat-label">{{ cat }}</span>
+                  <button class="btn-icon pl-sc-cat-del" title="删除分类" @click.stop="deleteCategory(cat)">&times;</button>
+                </div>
+              </div>
+              <div class="pl-sc-items-area">
+                <div id="pl-bound-settings-list" class="pl-settings-list">
+                  <div v-for="(s, i) in filteredSettings" :key="i" class="pl-setting-item">
+                    <input v-model="s.name" class="pl-input" placeholder="名称" />
+                    <select :value="s.category" class="pl-input-sm" @change="changeItemCategory(s, ($event.target as any).value)">
+                      <option v-for="cat in settingCategories" :key="cat" :value="cat">{{ cat }}</option>
+                    </select>
+                    <textarea v-model="s.content" class="pl-attrs-input" placeholder="属性内容"></textarea>
+                    <button class="btn-sm" :class="s.isBound ? 'btn-primary' : 'btn-secondary'" @click="toggleItemBinding(s)" :title="s.isBound ? '已绑定到流水线' : '未绑定'">{{ s.isBound ? '已绑定' : '绑定' }}</button>
+                    <button class="btn-danger btn-sm" @click="removeSetting(i)">删除</button>
+                  </div>
+                  <p v-if="filteredSettings.length === 0" class="empty-hint">选择分类后添加设定条目</p>
+                </div>
               </div>
             </div>
     <div class="pl-actions">
@@ -146,7 +171,7 @@
         {{ pipelineStore.isGenerating ? 'AI生成中...' : 'AI生成设定' }}
       </button>
               <button id="btn-pl-save-settings" class="btn-secondary" @click="projectStore.saveProject()">保存设定到合集</button>
-              <button id="btn-pl-confirm-settings" class="btn-secondary" @click="confirmStep(1)" :disabled="projectStore.settings.length === 0">确认完成</button>
+              <button id="btn-pl-confirm-settings" class="btn-secondary" @click="confirmStep(1)" :disabled="currentSettings.length === 0">确认完成</button>
             </div>
           </div>
           <div v-show="pipelineStore.currentStep === 2" id="pl-step-3-content" class="pl-step-panel">
@@ -345,9 +370,7 @@
         <input v-model="newSettingName" class="pl-input" placeholder="设定名称" />
         <label>分类</label>
         <select v-model="newSettingCategory" class="pl-input-sm">
-          <option>世界观规则</option><option>地理环境</option><option>势力阵营</option>
-          <option>技术体系</option><option>魔法体系</option><option>社会结构</option>
-          <option>物品道具</option><option>历史事件</option><option>其他</option>
+          <option v-for="cat in settingCategoryOptions" :key="cat" :value="cat">{{ cat }}</option>
         </select>
         <label>属性内容</label>
         <textarea v-model="newSettingAttrs" class="pl-attrs-input" placeholder="输入设定属性内容"></textarea>
@@ -433,6 +456,73 @@ const showAddSettingModal = ref(false)
 const newSettingName = ref("")
 const newSettingCategory = ref("其他")
 const newSettingAttrs = ref("")
+const showAddCategory = ref(false)
+const newCategoryName = ref("")
+const selectedSettingCategory = ref("")
+
+const settingCategories = computed(() => {
+  const sc = projectStore.getSettingsCollection()
+  return sc.categories || []
+})
+
+const settingCategoryOptions = computed(() => {
+  const defaults = ["世界观规则", "地理环境", "势力阵营", "技术体系", "魔法体系", "社会结构", "物品道具", "历史事件", "其他"]
+  const cats = projectStore.getSettingsCollection().categories || []
+  return Array.from(new Set([...defaults, ...cats]))
+})
+
+const filteredSettings = computed(() => {
+  const sc = projectStore.getSettingsCollection()
+  const cat = selectedSettingCategory.value
+  if (!cat) return []
+  return (sc.items[cat] || []).slice()
+})
+
+function addCategory() {
+  const name = newCategoryName.value.trim()
+  if (!name) return
+  const sc = projectStore.getSettingsCollection()
+  if (!sc.categories.includes(name)) {
+    sc.categories.push(name)
+    if (!sc.items[name]) sc.items[name] = []
+    projectStore.saveProject()
+  }
+  showAddCategory.value = false
+  newCategoryName.value = ""
+  selectedSettingCategory.value = name
+}
+
+function deleteCategory(cat: string) {
+  const sc = projectStore.getSettingsCollection()
+  const idx = sc.categories.indexOf(cat)
+  if (idx >= 0) {
+    sc.categories.splice(idx, 1)
+    delete sc.items[cat]
+    projectStore.saveProject()
+    if (selectedSettingCategory.value === cat) {
+      selectedSettingCategory.value = sc.categories[0] || ""
+    }
+  }
+}
+
+function changeItemCategory(item: any, newCat: string) {
+  if (!item || !newCat || item.category === newCat) return
+  const sc = projectStore.getSettingsCollection()
+  const oldCat = item.category
+  if (!sc.categories.includes(newCat)) sc.categories.push(newCat)
+  if (!sc.items[newCat]) sc.items[newCat] = []
+  const oldArr = sc.items[oldCat] || []
+  const idx = oldArr.findIndex((x: any) => x.id === item.id)
+  if (idx >= 0) {
+    const moved = oldArr.splice(idx, 1)[0]
+    if (moved) {
+      moved.category = newCat
+      sc.items[newCat].push(moved)
+      selectedSettingCategory.value = newCat
+      projectStore.saveProject()
+    }
+  }
+}
 const volumeWords = ref(100000)
 const chapterWords = ref(3500)
 const bookWordCount = ref(0)
@@ -473,7 +563,17 @@ const estimatedChapters = computed(() => {
   return Math.ceil(words / chapterWords.value)
 })
 
-const currentVolumeChapters = computed(() => {
+const currentSettings = computed(() => {
+    const sc = projectStore.getSettingsCollection()
+    const allItems: any[] = []
+    for (const cat of sc.categories) {
+      const items = sc.items[cat] || []
+      allItems.push(...items.map((item: any) => ({ ...item, category: cat })))
+    }
+    return allItems
+  })
+
+  const currentVolumeChapters = computed(() => {
   const vol = projectStore.volumes[selectedVolumeIndex.value]
   if (!vol) return []
   const volId = vol.id || vol.name
@@ -499,6 +599,14 @@ function syncVolumeCount(e: any) {
 }
 
 // Auto-sync volume count whenever book word count or per-volume words change.
+watch(settingCategories, (cats) => {
+  if (cats.length > 0 && !selectedSettingCategory.value) {
+    selectedSettingCategory.value = cats[0]
+  } else if (cats.length === 0) {
+    selectedSettingCategory.value = ""
+  }
+})
+
 watch(
   () => [bookWordCount.value, volumeWords.value],
   () => {
@@ -605,7 +713,12 @@ function buildTemplateContext(step: number, prompt: string, prevResponse?: strin
   const selectedCh = chs[bodyChapterIndex.value] || chs[0] || null
   const chIdx = selectedCh ? Math.max(0, chs.indexOf(selectedCh)) : -1
   const prevCh = chIdx > 0 ? chs[chIdx - 1] : null
-  const characterSettings = projectStore.settings.filter((s: any) => String(s.category || "").includes("人物"))
+  const characterSettings: any[] = []
+  const __sc = projectStore.getSettingsCollection()
+  for (const __cat of __sc.categories) {
+    const __items = __sc.items[__cat] || []
+    characterSettings.push(...__items.filter((s: any) => String(__cat || "").includes("人物")))
+  }
   const characters = characterSettings.map((s: any) => {
     const attrs = s.attrs && typeof s.attrs === "object"
       ? Object.keys(s.attrs).map((k: string) => k + ": " + String(s.attrs[k] ?? "")).join("; ")
@@ -646,13 +759,28 @@ function resolveSkillTemplate(template: string, context: Record<string, any>): s
 }
 
 function getBoundSettingsText(): string {
-  const bindings = projectStore.settingBindings || {}
+  const bindings: Record<string, string[]> = {}
+  const __sc2 = projectStore.getSettingsCollection()
+  for (const __cat of __sc2.categories) {
+    const __items = __sc2.items[__cat] || []
+    for (const __item of __items) {
+      if (__item.isBound && __item.name) {
+        bindings[__item.name] = __item.boundTo || []
+      }
+    }
+  }
   const lines: string[] = []
   const seen = new Set<string>()
   for (const bKey of Object.keys(bindings)) {
     if (seen.has(bKey)) continue
     seen.add(bKey)
-    const s = projectStore.settings.find((x: any) => x.name === bKey)
+    const __sc3 = projectStore.getSettingsCollection()
+      let s: any = null
+      for (const __cat of __sc3.categories) {
+        const __items = __sc3.items[__cat] || []
+        s = __items.find((x: any) => x.name === bKey)
+        if (s) break
+      }
     if (!s) continue
     const attrs =
       s.attrs && typeof s.attrs === "object"
@@ -739,7 +867,7 @@ function syncChapterManager(volId: string, ch: any, text: string) {
 
 function invalidateDownstream(fromStep: number) {
   if (fromStep <= 0) {
-    projectStore.settings = []
+    projectStore.settingsCollection = { categories: [], items: {} }
     projectStore.settingsGenerated = false
     projectStore.volumesConfirmed = false
     projectStore.chaptersConfirmed = false
@@ -949,18 +1077,30 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
 
 function openAddSettingModal() {
   showAddSettingModal.value = true
+  const sc = projectStore.getSettingsCollection()
+  const currentCat = selectedSettingCategory.value
+  const validCat = currentCat && sc.categories.includes(currentCat) ? currentCat : "其他"
   newSettingName.value = ""
-  newSettingCategory.value = "其他"
+  newSettingCategory.value = validCat
   newSettingAttrs.value = ""
 }
 
 function confirmAddSetting() {
   if (!newSettingName.value.trim()) return
-  projectStore.settings.push({
+  const sc = projectStore.getSettingsCollection()
+  const cat = newSettingCategory.value
+  if (!sc.categories.includes(cat)) sc.categories.push(cat)
+  if (!sc.items[cat]) sc.items[cat] = []
+  sc.items[cat].push({
+    id: "set_" + Date.now() + "_" + Math.random().toString(36).substr(2,6),
     name: newSettingName.value.trim(),
-    category: newSettingCategory.value,
-    attrs: {},
-    attrsText: newSettingAttrs.value
+    category: cat,
+    content: newSettingAttrs.value,
+    attrs: { desc: newSettingAttrs.value },
+    isBound: false,
+    boundTo: [],
+    createdAt: Date.now(),
+    updatedAt: Date.now()
   })
   projectStore.saveProject()
   showAddSettingModal.value = false
@@ -970,9 +1110,25 @@ function cancelAddSetting() {
   showAddSettingModal.value = false
 }
 
-function removeSetting(index: number) {
-  projectStore.settings.splice(index, 1)
+function toggleItemBinding(item: any) {
+  if (!item) return
+  item.isBound = !item.isBound
+  if (item.isBound && (!item.boundTo || item.boundTo.length === 0)) {
+    item.boundTo = ['pipeline']
+  } else if (!item.isBound) {
+    item.boundTo = []
+  }
   projectStore.saveProject()
+}
+
+function removeSetting(index: number) {
+  const sc = projectStore.getSettingsCollection()
+  const cat = selectedSettingCategory.value
+  const arr = sc.items[cat] || []
+  if (index >= 0 && index < arr.length) {
+    arr.splice(index, 1)
+    projectStore.saveProject()
+  }
 }async function genSettings() {
   if (!projectStore.outlineText) return
   pipelineStore.startGeneration()
@@ -984,13 +1140,30 @@ function removeSetting(index: number) {
     if (settings.length > 0) {
       const valid = settings.filter((s: any) => s.name)
       if (valid.length > 0) {
-        projectStore.settings = valid.map((s: any) => ({
-          name: s.name,
-          category: s.category || "其他",
-          attrs: s.attrs || {},
-          attrsText: s.attrsText || JSON.stringify(s.attrs || {})
-        }))
+        const sc2 = projectStore.getSettingsCollection()
+        for (const item of valid) {
+          const cat = (item.category || "其他")
+          const name = (item.name || "")
+          const existingArr = sc2.items[cat] || []
+          if (existingArr.some((e: any) => e.name === name)) continue
+          if (!sc2.categories.includes(cat)) sc2.categories.push(cat)
+          if (!sc2.items[cat]) sc2.items[cat] = []
+          sc2.items[cat].push({
+            id: "set_" + Date.now() + "_" + Math.random().toString(36).substr(2,6),
+            name: name,
+            category: cat,
+            content: (item.attrsText || (item.attrs ? JSON.stringify(item.attrs) : "")),
+            attrs: item.attrs || { desc: (item.attrsText || "") },
+            isBound: false,
+            boundTo: [],
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+          })
+        }
         projectStore.saveProject()
+        if (!selectedSettingCategory.value && sc2.categories.length > 0) {
+          selectedSettingCategory.value = sc2.categories[0]
+        }
         pipelineStore.updateProgress(100, "设定生成完成")
       } else {
         pipelineStore.failGeneration("未能解析设定内容")
@@ -1009,7 +1182,13 @@ async function genVolumes(mode: string) {
   pipelineStore.startGeneration()
   pipelineStore.updateProgress(10, "AI生成卷纲中")
   try {
-    const settingsText = projectStore.settings.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)).join("\n")
+    const sc = projectStore.getSettingsCollection()
+    const allItems: any[] = []
+    for (const cat of sc.categories) {
+      const items = sc.items[cat] || []
+      allItems.push(...items)
+    }
+    const settingsText = allItems.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)).join("\n")
     const boundText = getBoundSettingsText()
     const distanceFromWords = bookWordCount.value > 0 ? Math.floor(linkedVolumeCount.value / Math.max(volumeCount.value, 1)) : 1
     const effectiveVolumes = Math.max(1, volumeCount.value)
@@ -1143,7 +1322,13 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
   pipelineStore.startGeneration()
   pipelineStore.updateProgress(10, "AI生成正文中")
   try {
-    const settingsText = projectStore.settings.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)).join("\n")
+    const sc = projectStore.getSettingsCollection()
+    const allItems: any[] = []
+    for (const cat of sc.categories) {
+      const items = sc.items[cat] || []
+      allItems.push(...items)
+    }
+    const settingsText = allItems.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)).join("\n")
     const boundText = getBoundSettingsText()
     const volOutline = vol.outline || vol.summary || ""
     const styleCtx = getStyleContext()
@@ -1419,5 +1604,100 @@ function toolAction(action: string) {
 .pl-add-setting-body .pl-input-sm { width: 100%; }
 .pl-add-setting-body .pl-attrs-input { min-height: 140px; }
 .pl-add-setting-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border-color); }
+
+
+.pl-sc-layout {
+  display: flex;
+  gap: 12px;
+  min-height: 200px;
+}
+.pl-sc-categories {
+  width: 140px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border-color, #ddd);
+  padding-right: 8px;
+  overflow-y: auto;
+}
+.pl-sc-cat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-color, #ddd);
+}
+.pl-sc-cat-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-color, #333);
+}
+.pl-sc-cat-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--text-color, #333);
+  transition: background 0.15s;
+}
+.pl-sc-cat-item:hover {
+  background: var(--bg-hover, #f0f0f0);
+}
+.pl-sc-cat-item.active {
+  background: var(--primary-light, #e3f2fd);
+  color: var(--primary-color, #1976d2);
+  font-weight: 600;
+}
+.pl-sc-cat-del {
+  opacity: 0;
+  transition: opacity 0.15s;
+  font-size: 14px;
+  padding: 0 4px;
+  color: var(--text-dim, #999);
+}
+.pl-sc-cat-item:hover .pl-sc-cat-del {
+  opacity: 1;
+}
+.pl-sc-add-cat-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.pl-sc-items-area {
+  flex: 1;
+  overflow-y: auto;
+}
+.pl-settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pl-setting-item {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 8px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 6px;
+  background: var(--bg-card, #fafafa);
+}
+.pl-setting-item input.pl-input {
+  flex: 1;
+  min-width: 80px;
+}
+.pl-setting-item select.pl-input-sm {
+  width: 100px;
+}
+.pl-setting-item textarea.pl-attrs-input {
+  flex: 2;
+  min-height: 40px;
+  font-size: var(--font-size-sm);
+}
+.pl-btn-bound {
+  min-width: 52px;
+}
 
 </style>

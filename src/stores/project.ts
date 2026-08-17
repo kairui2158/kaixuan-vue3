@@ -18,6 +18,7 @@ export const useProjectStore = defineStore('project', () => {
   const volumes = ref<any[]>([])
   const chapters = ref<Record<string, any[]>>({})
   const projectList = ref<any[]>([])
+  const settingsCollection = ref<{ categories: string[]; items: Record<string, any[]> }>({ categories: [], items: {} })
   const settingBindings = ref<Record<string, string[]>>({})
   const memories = ref<{ categories: string[]; items: any[] }>({ categories: ['情节', '人物', '世界观', '伏笔'], items: [] })
 
@@ -63,6 +64,7 @@ export const useProjectStore = defineStore('project', () => {
       settings.value = data.settings || []
       volumes.value = data.volumes || []
       chapters.value = data.chapters || {}
+      settingsCollection.value = data.settingsCollection || { categories: [], items: {} }
       settingBindings.value = data.settingBindings || {}
       memories.value = data.memories || { categories: ['情节', '人物', '世界观', '伏笔'], items: [] }
       if (!data.projectName && projectName.value) {
@@ -87,6 +89,7 @@ export const useProjectStore = defineStore('project', () => {
       volumes: toPlain(volumes.value),
       chapters: toPlain(chapters.value),
       settingBindings: toPlain(settingBindings.value),
+      settingsCollection: toPlain(settingsCollection.value),
       memories: toPlain(memories.value)
     }
     window.electronAPI.storageWrite(storageKey('project_' + currentProjectId.value), data)
@@ -180,12 +183,6 @@ export const useProjectStore = defineStore('project', () => {
     chapters.value = parsedChapters
   }
 
-  function setSettings(newSettings: any[]) {
-    settings.value = newSettings
-    settingsGenerated.value = true
-    saveProject()
-  }
-
   function setVolumes(newVolumes: any[]) {
     volumes.value = newVolumes
     saveProject()
@@ -237,6 +234,92 @@ export const useProjectStore = defineStore('project', () => {
     triggerRef(chapters)
   }
 
+  
+  function migrateSettingsToCollection() {
+    if (settings.value.length > 0 && Object.keys(settingsCollection.value.items).length === 0) {
+      for (const s of settings.value) {
+        const cat = s.category || '\u5176\u4ed6'
+        if (!settingsCollection.value.categories.includes(cat)) {
+          settingsCollection.value.categories.push(cat)
+        }
+        if (!settingsCollection.value.items[cat]) {
+          settingsCollection.value.items[cat] = []
+        }
+        const attrsMig = (s.attrs && typeof s.attrs === 'object' && !Array.isArray(s.attrs)) ? s.attrs : {}
+        const contentMig = s.attrsText || (Object.keys(attrsMig).length > 0 ? JSON.stringify(attrsMig) : '')
+        if (Object.keys(attrsMig).length === 0 && contentMig) {
+          attrsMig['\u63cf\u8ff0'] = contentMig
+        }
+        settingsCollection.value.items[cat].push({
+          id: 'set_' + Date.now() + '_' + Math.random().toString(36).substr(2,6),
+          name: s.name || '\u672a\u547d\u540d',
+          category: cat,
+          content: contentMig,
+          attrs: attrsMig,
+          isBound: !!s.isBound || (s.settingBindings && s.settingBindings.length > 0) || false,
+          boundTo: (s.boundTo && s.boundTo.length) ? s.boundTo : (s.isBound ? ['pipeline'] : []),
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        })
+      }
+      settings.value = []
+      saveProject()
+    }
+  }
+
+  function ensureSettingsCollection() {
+    if (!settingsCollection.value.categories) settingsCollection.value.categories = []
+    if (!settingsCollection.value.items) settingsCollection.value.items = {}
+    for (const cat of settingsCollection.value.categories) {
+      const arr = settingsCollection.value.items[cat] || []
+      for (const it of arr) {
+        if (it.category !== cat) it.category = cat
+        if (it.isBound === undefined) it.isBound = false
+        if (!it.boundTo) it.boundTo = []
+      }
+    }
+    migrateSettingsToCollection()
+  }
+
+  function getSettingsCollection() {
+    ensureSettingsCollection()
+    return settingsCollection.value
+  }
+
+  function appendSettingsToCollection(items: any[]) {
+    ensureSettingsCollection()
+    let count = 0
+    for (const item of items) {
+      if (!item || !item.name) continue
+      const cat = (item.category || '其他').toString()
+      const name = item.name.toString()
+      const existing = settingsCollection.value.items[cat] || []
+      if (existing.some((e: any) => e.name === name)) continue
+      if (!settingsCollection.value.categories.includes(cat)) {
+        settingsCollection.value.categories.push(cat)
+      }
+      if (!settingsCollection.value.items[cat]) settingsCollection.value.items[cat] = []
+      settingsCollection.value.items[cat].push({
+        id: 'set_' + Date.now() + '_' + Math.random().toString(36).substr(2,6),
+        name: name,
+        category: cat,
+        content: item.attrsText || item.content || '',
+        attrs: item.attrs && typeof item.attrs === 'object' && !Array.isArray(item.attrs)
+          ? item.attrs
+          : { '描述': item.attrsText || item.content || '' },
+        isBound: false,
+        boundTo: [],
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      })
+      count++
+    }
+    if (count > 0) {
+      settingsGenerated.value = true
+      saveProject()
+    }
+  }
+
   function clearCurrent() {
     currentProjectId.value = null
     projectName.value = ''
@@ -248,6 +331,7 @@ export const useProjectStore = defineStore('project', () => {
     settings.value = []
     volumes.value = []
     chapters.value = {}
+    settingsCollection.value = { categories: [], items: {} }
     settingBindings.value = {}
     memories.value = { categories: ['情节', '人物', '世界观', '伏笔'], items: [] }
   }
@@ -283,10 +367,10 @@ export const useProjectStore = defineStore('project', () => {
     volumesConfirmed, chaptersConfirmed,
     loadProject, loadProjectList, saveProject, setOutline, lockOutline,
     clearCurrent, createProject, deleteProject, selectProject,
-    syncTreeToPipeline, refreshTree, setSettings, setVolumes, setChapters, updateVolume,
+    syncTreeToPipeline, refreshTree, setVolumes, setChapters, updateVolume,
     confirmVolumes() { volumesConfirmed.value = true; saveProject() },
     confirmChapters() { chaptersConfirmed.value = true; saveProject() },
-    settingBindings,
+    settingsCollection, getSettingsCollection, ensureSettingsCollection, appendSettingsToCollection, settingBindings,
     memories, addMemoryCategory, addMemory, updateMemory, deleteMemory
   }
 })

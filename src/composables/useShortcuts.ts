@@ -2,7 +2,6 @@ import { onMounted, onUnmounted } from 'vue'
 
 interface ShortcutCallbacks {
   onOpenOutline?: () => void
-  onOpenSettingsCollection?: () => void
   onOpenPipeline?: () => void
   onOpenMemory?: () => void
   onOpenPluginMarket?: () => void
@@ -41,7 +40,6 @@ export function useShortcuts(cb: ShortcutCallbacks) {
     // Ctrl+1~5: panel shortcuts
     if (ctrl && !e.shiftKey && !e.altKey) {
       if (e.key === '1') { e.preventDefault(); cb.onOpenOutline?.(); return }
-      if (e.key === '2') { e.preventDefault(); cb.onOpenSettingsCollection?.(); return }
       if (e.key === '3') { e.preventDefault(); cb.onOpenPipeline?.(); return }
       if (e.key === '4') { e.preventDefault(); cb.onOpenMemory?.(); return }
       if (e.key === '5') { e.preventDefault(); cb.onOpenPluginMarket?.(); return }
