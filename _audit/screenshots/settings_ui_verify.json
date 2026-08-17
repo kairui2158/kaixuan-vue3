@@ -1,0 +1,528 @@
+{
+  "url": "file:///D:/codex/novel-workshop-vue3/dist-renderer/index.html",
+  "title": "神意助手",
+  "steps": [
+    {
+      "name": "visible-navigation",
+      "value": [
+        {
+          "tag": "BUTTON",
+          "id": "btn-clear",
+          "text": "",
+          "aria": null,
+          "title": "清空对话"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-outline-workspace",
+          "text": "",
+          "aria": "大纲工作台",
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-pipeline",
+          "text": "",
+          "aria": "生成流水线",
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-memory",
+          "text": "",
+          "aria": "记忆",
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-plugin-market",
+          "text": "",
+          "aria": "插件市场",
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-settings",
+          "text": "",
+          "aria": "设置",
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-dashboard",
+          "text": "",
+          "aria": "写作仪表盘",
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "theme-toggle-btn",
+          "text": "",
+          "aria": "主题切换",
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-tree-gen",
+          "text": "生成",
+          "aria": null,
+          "title": "生成流水线"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-open-project",
+          "text": "项目",
+          "aria": null,
+          "title": "项目管理"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-undo",
+          "text": "",
+          "aria": null,
+          "title": "Ctrl+Z"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-redo",
+          "text": "",
+          "aria": null,
+          "title": "Ctrl+Y"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-generate-content",
+          "text": "生成",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-save-editor",
+          "text": "保存",
+          "aria": null,
+          "title": "Ctrl+S"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-find",
+          "text": "查找",
+          "aria": null,
+          "title": "查找替换 (Ctrl+F)"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-export",
+          "text": "导出",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-de-ai",
+          "text": "去AI味",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-ai-names",
+          "text": "AI命名",
+          "aria": null,
+          "title": "AI命名"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-writing-rules",
+          "text": "写作规则",
+          "aria": null,
+          "title": "写作规则"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-timeline",
+          "text": "时间线",
+          "aria": null,
+          "title": "时间线"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-batch-review",
+          "text": "批量审阅",
+          "aria": null,
+          "title": "批量审阅"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-revise",
+          "text": "修订",
+          "aria": null,
+          "title": "修订"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "text": "变量",
+          "aria": null,
+          "title": "变量"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "text": "复制",
+          "aria": null,
+          "title": "复制"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "text": "重生成",
+          "aria": null,
+          "title": "重新生成"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "text": "插入",
+          "aria": null,
+          "title": "插入到光标处"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "text": "替换",
+          "aria": null,
+          "title": "整章替换为消息内容"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-send",
+          "text": "",
+          "aria": null,
+          "title": "发送"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-exec-log",
+          "text": "执行日志",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-flow-toggle",
+          "text": "流程视图",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-close-pl",
+          "text": "×",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-ai-names",
+          "text": "AI起名",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-writing-rules",
+          "text": "写作规则",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-timeline",
+          "text": "时间线",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-batch-review",
+          "text": "批量审阅",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-revise",
+          "text": "章节修订",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-translate",
+          "text": "翻译",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-style-convert",
+          "text": "风格转换",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-regenerate",
+          "text": "重新生成",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-modify",
+          "text": "按指令修改",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "pl-s2-add-skill",
+          "text": "+",
+          "aria": null,
+          "title": "添加Skill"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-pl-add-cat",
+          "text": "+",
+          "aria": null,
+          "title": "新增分类"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "text": "确定",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "text": "取消",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "text": "×",
+          "aria": null,
+          "title": "删除分类"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "text": "+ 新增设定",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-pl-gen-settings",
+          "text": "AI生成设定",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-pl-save-settings",
+          "text": "保存设定到合集",
+          "aria": null,
+          "title": null
+        },
+        {
+          "tag": "BUTTON",
+          "id": "btn-pl-confirm-settings",
+          "text": "确认完成",
+          "aria": null,
+          "title": null
+        }
+      ]
+    },
+    {
+      "name": "settings-layout-before",
+      "state": {
+        "layout": {
+          "x": 625,
+          "y": 498.1875,
+          "width": 894,
+          "height": 220
+        },
+        "categories": {
+          "x": 625,
+          "y": 498.1875,
+          "width": 200,
+          "height": 220
+        },
+        "list": {
+          "x": 845,
+          "y": 498.1875,
+          "width": 674,
+          "height": 85.890625
+        },
+        "item": null,
+        "itemCount": 0
+      }
+    },
+    {
+      "name": "add-setting-button-visible",
+      "value": true
+    },
+    {
+      "name": "add-setting-modal-visible",
+      "value": true
+    },
+    {
+      "name": "add-setting-modal-controls",
+      "value": [
+        {
+          "tag": "BUTTON",
+          "type": null,
+          "text": "×",
+          "placeholder": null,
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "text": "",
+          "placeholder": "设定名称",
+          "value": ""
+        },
+        {
+          "tag": "SELECT",
+          "type": null,
+          "text": "世界观规则地理环境势力阵营技术体系魔法体系社会结构物品道具历史事件其他",
+          "placeholder": null,
+          "value": "其他"
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "text": "",
+          "placeholder": "输入设定属性内容",
+          "value": ""
+        },
+        {
+          "tag": "BUTTON",
+          "type": null,
+          "text": "取消",
+          "placeholder": null,
+          "value": ""
+        },
+        {
+          "tag": "BUTTON",
+          "type": null,
+          "text": "保存",
+          "placeholder": null,
+          "value": ""
+        }
+      ]
+    },
+    {
+      "name": "add-setting-modal-closed-after-save",
+      "value": true
+    },
+    {
+      "name": "settings-layout-after",
+      "state": {
+        "item": {
+          "width": 668,
+          "height": 162
+        },
+        "itemCount": 4,
+        "controls": [
+          {
+            "input": {
+              "width": 330,
+              "height": 36
+            },
+            "select": {
+              "width": 180,
+              "height": 34
+            },
+            "textarea": {
+              "width": 638,
+              "height": 86
+            },
+            "bind": {
+              "width": 50,
+              "height": 28
+            },
+            "delete": {
+              "width": 48,
+              "height": 28
+            }
+          },
+          {
+            "input": {
+              "width": 330,
+              "height": 36
+            },
+            "select": {
+              "width": 180,
+              "height": 34
+            },
+            "textarea": {
+              "width": 638,
+              "height": 86
+            },
+            "bind": {
+              "width": 50,
+              "height": 28
+            },
+            "delete": {
+              "width": 48,
+              "height": 28
+            }
+          },
+          {
+            "input": {
+              "width": 330,
+              "height": 36
+            },
+            "select": {
+              "width": 180,
+              "height": 34
+            },
+            "textarea": {
+              "width": 638,
+              "height": 86
+            },
+            "bind": {
+              "width": 50,
+              "height": 28
+            },
+            "delete": {
+              "width": 48,
+              "height": 28
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "temporary-setting-created",
+      "value": false,
+      "state": {
+        "visibleItemCount": 4,
+        "storageMatches": []
+      }
+    },
+    {
+      "name": "temporary-setting-removed",
+      "value": true
+    }
+  ]
+}

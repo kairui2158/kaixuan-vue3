@@ -1705,8 +1705,6 @@ function toolAction(action: string) {
 .pl-textarea { width: 100%; min-height: 400px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px; font-size: var(--font-size-lg); line-height: 1.8; resize: vertical; outline: none; }
 .pl-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px 12px; font-size: var(--font-size-md); height: 36px; outline: none; flex: 1; }
 .pl-input-sm { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px 10px; font-size: var(--font-size-md); height: var(--input-height, 34px); outline: none; }
-.pl-settings-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
-.pl-setting-item { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--bg-tertiary); border-radius: var(--radius-md); flex-wrap: wrap; }
 .pl-attrs-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-4) var(--space-6); font-size: var(--font-size-md); min-height: 80px; flex: 1; resize: vertical; outline: none; }
 .pl-vol-config { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: var(--font-size-lg); flex-wrap: wrap; }
 .pl-vol-config label { color: var(--text-secondary); }
@@ -1770,15 +1768,17 @@ function toolAction(action: string) {
 
 
 .pl-sc-layout {
-  display: flex;
-  gap: 12px;
-  min-height: 200px;
+  display: grid;
+  grid-template-columns: minmax(168px, 200px) minmax(0, 1fr);
+  gap: 20px;
+  min-height: 220px;
+  align-items: stretch;
 }
 .pl-sc-categories {
-  width: 140px;
-  flex-shrink: 0;
+  width: auto;
+  min-width: 0;
   border-right: 1px solid var(--border-color, #ddd);
-  padding-right: 8px;
+  padding: 0 16px 0 2px;
   overflow-y: auto;
 }
 .pl-sc-cat-header {
@@ -1830,37 +1830,75 @@ function toolAction(action: string) {
   margin-bottom: 8px;
 }
 .pl-sc-items-area {
-  flex: 1;
+  min-width: 0;
   overflow-y: auto;
 }
 .pl-settings-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 .pl-setting-item {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-  padding: 8px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(140px, 180px) auto auto;
+  grid-template-areas:
+    "name category bind delete"
+    "attrs attrs attrs attrs";
+  gap: 10px;
+  align-items: center;
+  padding: 14px;
   border: 1px solid var(--border-color, #ddd);
-  border-radius: 6px;
-  background: var(--bg-card, #fafafa);
+  border-radius: var(--radius-md, 8px);
+  background: var(--bg-tertiary, #fafafa);
 }
 .pl-setting-item input.pl-input {
-  flex: 1;
-  min-width: 80px;
+  grid-area: name;
+  min-width: 0;
 }
 .pl-setting-item select.pl-input-sm {
-  width: 100px;
+  grid-area: category;
+  width: 100%;
+  min-width: 0;
 }
 .pl-setting-item textarea.pl-attrs-input {
-  flex: 2;
-  min-height: 40px;
-  font-size: var(--font-size-sm);
+  grid-area: attrs;
+  width: 100%;
+  min-width: 0;
+  min-height: 86px;
+  font-size: var(--font-size-md);
+  line-height: 1.55;
+  box-sizing: border-box;
+}
+.pl-setting-item > button:nth-of-type(1) {
+  grid-area: bind;
+}
+.pl-setting-item > button:nth-of-type(2) {
+  grid-area: delete;
 }
 .pl-btn-bound {
-  min-width: 52px;
+  min-width: 64px;
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .pl-sc-layout {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .pl-sc-categories {
+    border-right: 0;
+    border-bottom: 1px solid var(--border-color, #ddd);
+    padding: 0 0 12px;
+    max-height: 180px;
+  }
+  .pl-setting-item {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "name bind delete"
+      "category category category"
+      "attrs attrs attrs";
+  }
 }
 
 </style>
