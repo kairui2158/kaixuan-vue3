@@ -46,7 +46,7 @@
           <div class="pl-tool-loading" v-if="aiLoading">{{ aiLoadingText }}</div>
         </div>
           <PipelineFlow v-if="showFlowView" :steps-with-ids="stepsWithIds" :step-agents="stepAgents" :step-skills="stepSkills" :step-skill-modes="stepSkillModes" @toggle-view="showFlowView = false" />
-          <div v-show="!showFlowView">
+          <div v-show="!showFlowView" class="pl-step-view">
           <div v-show="pipelineStore.currentStep === 0" id="pl-step-1-content" class="pl-step-panel">
             <h3>大纲</h3>
           <div class="pl-step-tools">
@@ -135,7 +135,6 @@
               </span>
             </template>
           </div>
-            <p class="pl-desc">第二步：基于大纲，AI自动生成设定。设定可编辑和新增。</p>
             <div class="pl-settings-workspace" id="pl-settings-workspace">
               <div class="pl-settings-navigation">
                 <div class="pl-settings-navigation-label">设定分类</div>
@@ -164,33 +163,35 @@
                 <button type="button" class="btn-sm btn-secondary" @click="showAddCategory = false; newCategoryName = ''">取消</button>
               </div>
 
-              <section v-if="selectedSettingCategory && projectStore.hasOutline" class="pl-sc-editor" aria-live="polite">
-                <div class="pl-sc-editor-heading">
-                  <div>
-                    <span class="pl-sc-editor-kicker">当前分类</span>
-                    <h4>{{ selectedSettingCategory }}</h4>
-                  </div>
-                  <span class="pl-sc-editor-count">{{ filteredSettings.length }} 项设定</span>
-                </div>
-
-                <div id="pl-bound-settings-list" class="pl-settings-list">
-                  <article v-for="(s, i) in filteredSettings" :key="s.id || i" class="pl-setting-item">
-                    <div class="pl-setting-item-main">
-                      <input v-model="s.name" class="pl-input" placeholder="设定名称" @change="saveSettingItem(s)" />
-                      <button type="button" class="btn-sm" :class="s.isBound ? 'btn-primary' : 'btn-secondary'" @click="toggleItemBinding(s)" :title="s.isBound ? '已绑定到流水线' : '绑定到流水线'">{{ s.isBound ? '已绑定' : '绑定' }}</button>
-                      <button type="button" class="btn-danger btn-sm" @click="removeSetting(i)">删除</button>
+              <div v-if="selectedSettingCategory && projectStore.hasOutline" class="pl-sc-content-frame">
+                <section class="pl-sc-editor" aria-live="polite">
+                  <div class="pl-sc-editor-heading">
+                    <div>
+                      <span class="pl-sc-editor-kicker">当前分类</span>
+                      <h4>{{ selectedSettingCategory }}</h4>
                     </div>
-                    <textarea v-model="s.content" class="pl-attrs-input" placeholder="输入该设定的属性内容" @change="saveSettingItem(s)"></textarea>
-                  </article>
-                  <p v-if="filteredSettings.length === 0" class="empty-hint">该分类还没有设定内容</p>
-                </div>
+                    <span class="pl-sc-editor-count">{{ filteredSettings.length }} 项设定</span>
+                  </div>
 
-                <div class="pl-sc-category-actions">
-                  <button type="button" class="btn-secondary" @click="openAddSettingModalForCategory">+ 该类新增</button>
-                  <button type="button" class="btn-secondary" @click="bindCategorySettings">一键绑定到全局</button>
-                  <button type="button" class="btn-primary" @click="confirmSettingCategory">{{ isCategoryConfirmed(selectedSettingCategory) ? '已完成' : '确认该类' }}</button>
-                </div>
-              </section>
+                  <div id="pl-bound-settings-list" class="pl-settings-list">
+                    <article v-for="(s, i) in filteredSettings" :key="s.id || i" class="pl-setting-item">
+                      <div class="pl-setting-item-main">
+                        <input v-model="s.name" class="pl-input" placeholder="设定名称" @change="saveSettingItem(s)" />
+                        <button type="button" class="btn-sm" :class="s.isBound ? 'btn-primary' : 'btn-secondary'" @click="toggleItemBinding(s)" :title="s.isBound ? '已绑定到流水线' : '绑定到流水线'">{{ s.isBound ? '已绑定' : '绑定' }}</button>
+                        <button type="button" class="btn-danger btn-sm" @click="removeSetting(i)">删除</button>
+                      </div>
+                      <textarea v-model="s.content" class="pl-attrs-input" placeholder="输入该设定的属性内容" @change="saveSettingItem(s)"></textarea>
+                    </article>
+                    <p v-if="filteredSettings.length === 0" class="empty-hint">该分类还没有设定内容</p>
+                  </div>
+
+                  <div class="pl-sc-category-actions">
+                    <button type="button" class="btn-secondary" @click="openAddSettingModalForCategory">+ 该类新增</button>
+                    <button type="button" class="btn-secondary" @click="bindCategorySettings">一键绑定到全局</button>
+                    <button type="button" class="btn-primary" @click="confirmSettingCategory">{{ isCategoryConfirmed(selectedSettingCategory) ? '已完成' : '确认该类' }}</button>
+                  </div>
+                </section>
+              </div>
               <p v-else class="empty-hint">解析大纲后，分类和设定内容会显示在这里</p>
             </div>
             <div class="pl-actions pl-settings-footer-actions">
@@ -1764,7 +1765,7 @@ function toolAction(action: string) {
 
 <style scoped>
 .pl-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal); }
-.pl-content { width: min(1200px, 95vw); height: min(850px, 92vh); max-width: 1200px; max-height: 92vh; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; }
+.pl-content { width: min(1200px, 95vw); height: min(900px, 96vh); max-width: 1200px; max-height: 96vh; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; }
 .pl-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-5) var(--space-8); border-bottom: 1px solid var(--border-color); font-size: var(--font-size-xl); font-weight: 600; }
 .pl-header-title { }
 .pl-header-actions { display: flex; align-items: center; gap: var(--space-2); }
@@ -1781,7 +1782,7 @@ function toolAction(action: string) {
 .pl-step-label { font-size: var(--font-size-lg); color: var(--text-primary); font-weight: 500; }
 .pl-step-check { margin-left: auto; color: var(--success); font-size: var(--font-size-xl); }
 /* 右侧内容区 */
-.pl-content-right { flex: 1; padding: 32px; overflow-y: auto; min-width: 0; }
+.pl-content-right { display: flex; flex-direction: column; flex: 1; padding: 24px 16px 32px; overflow-y: auto; min-width: 0; }
 .pl-step-panel h3 { font-size: var(--font-size-xxl); margin-bottom: 20px; }
 .pl-desc { font-size: var(--font-size-lg); color: var(--text-secondary); margin-bottom: 20px; padding: 14px; background: var(--bg-secondary); border-radius: var(--radius-lg); line-height: 1.6; }
 .pl-textarea { width: 100%; min-height: 400px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px; font-size: var(--font-size-lg); line-height: 1.8; resize: vertical; outline: none; }
@@ -1849,38 +1850,51 @@ function toolAction(action: string) {
 .pl-add-setting-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border-color); }
 
 
+.pl-step-view {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+.pl-step-panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
 .pl-settings-workspace {
-  display: grid;
-  grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
-  grid-template-areas:
-    "navigation add-category"
-    "navigation editor";
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
   gap: var(--space-4);
-  min-height: 260px;
-  padding: var(--space-4);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  background: var(--bg-secondary);
+  flex: 1 1 auto;
+  min-height: 0;
 }
 .pl-settings-navigation {
-  grid-area: navigation;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
   min-width: 0;
-  padding-right: var(--space-4);
-  border-right: 1px solid var(--border-color);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-color);
 }
 .pl-settings-navigation-label {
-  margin-bottom: var(--space-3);
+  margin: 0;
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
   font-weight: 600;
+  white-space: nowrap;
 }
 .pl-sc-categories {
   display: flex;
-  flex-direction: column;
+  flex: 1 1 auto;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-2);
   min-width: 0;
-  max-height: 320px;
-  overflow-y: auto;
 }
 .pl-sc-cat-item,
 .pl-sc-add-cat {
@@ -1888,7 +1902,8 @@ function toolAction(action: string) {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   min-height: var(--input-height);
   padding: 0 var(--space-3);
   border: 1px solid transparent;
@@ -1896,7 +1911,7 @@ function toolAction(action: string) {
   color: var(--text-primary);
   background: transparent;
   font-size: var(--font-size-md);
-  text-align: left;
+  text-align: center;
   cursor: pointer;
 }
 .pl-sc-cat-item:hover,
@@ -1923,17 +1938,28 @@ function toolAction(action: string) {
   background: var(--bg-input);
 }
 .pl-sc-add-cat-row {
-  grid-area: add-category;
   display: flex;
   align-items: center;
   gap: var(--space-2);
   min-width: 0;
 }
 .pl-sc-add-cat-row .pl-input-sm { min-width: 0; flex: 1; }
-.pl-sc-editor {
-  grid-area: editor;
+.pl-sc-content-frame {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+}
+.pl-sc-editor {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
   min-width: 0;
 }
 .pl-sc-editor-heading {
@@ -1957,10 +1983,11 @@ function toolAction(action: string) {
 .pl-sc-editor-count { color: var(--text-muted); font-size: var(--font-size-sm); white-space: nowrap; }
 .pl-settings-list {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   gap: var(--space-3);
   min-width: 0;
-  max-height: 360px;
+  min-height: 0;
   overflow-y: auto;
 }
 .pl-setting-item {
@@ -2000,19 +2027,13 @@ function toolAction(action: string) {
 
 @media (max-width: 760px) {
   .pl-settings-workspace {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "navigation"
-      "add-category"
-      "editor";
+    gap: var(--space-3);
   }
   .pl-settings-navigation {
     padding-right: 0;
-    padding-bottom: var(--space-3);
-    border-right: 0;
-    border-bottom: 1px solid var(--border-color);
+    align-items: flex-start;
   }
-  .pl-sc-categories { max-height: 180px; }
+  .pl-sc-categories { flex-basis: 100%; }
   .pl-setting-item-main { grid-template-columns: minmax(0, 1fr) auto; }
   .pl-setting-item-main .btn-danger { grid-column: 2; grid-row: 1; }
 }

@@ -1,0 +1,150 @@
+{
+  "url": "file:///D:/codex/novel-workshop-vue3/dist-renderer/index.html",
+  "pipelineVisible": true,
+  "settingsVisible": true,
+  "workspace": {
+    "x": 609,
+    "y": 465,
+    "width": 926,
+    "height": 399,
+    "display": "flex",
+    "flexDirection": "column",
+    "flexWrap": "nowrap",
+    "gridTemplateColumns": "none"
+  },
+  "navigation": {
+    "x": 618,
+    "y": 474,
+    "width": 908,
+    "height": 28,
+    "display": "flex",
+    "flexDirection": "row",
+    "flexWrap": "wrap",
+    "gridTemplateColumns": "none"
+  },
+  "categories": {
+    "x": 670,
+    "y": 474,
+    "width": 856,
+    "height": 21,
+    "display": "flex",
+    "flexDirection": "row",
+    "flexWrap": "wrap",
+    "gridTemplateColumns": "none"
+  },
+  "addCategory": {
+    "x": 727,
+    "y": 474,
+    "width": 78,
+    "height": 21,
+    "display": "flex",
+    "flexDirection": "row",
+    "flexWrap": "nowrap",
+    "gridTemplateColumns": "none"
+  },
+  "editor": {
+    "x": 618,
+    "y": 510,
+    "width": 908,
+    "height": 345,
+    "display": "flex",
+    "flexDirection": "column",
+    "flexWrap": "nowrap",
+    "gridTemplateColumns": "none"
+  },
+  "footer": {
+    "x": 609,
+    "y": 873,
+    "width": 926,
+    "height": 32,
+    "display": "flex",
+    "flexDirection": "row",
+    "flexWrap": "wrap",
+    "gridTemplateColumns": "none"
+  },
+  "categoryRects": [
+    {
+      "text": "设定类",
+      "x": 670,
+      "y": 474,
+      "width": 53,
+      "height": 21
+    },
+    {
+      "text": "+ 新增分类",
+      "x": 727,
+      "y": 474,
+      "width": 78,
+      "height": 21
+    }
+  ],
+  "rowYs": [
+    219,
+    391,
+    474,
+    510,
+    873
+  ],
+  "rowsNonDecreasing": true,
+  "visibleChildren": [
+    {
+      "className": "",
+      "y": 167,
+      "height": 32,
+      "bottom": 199,
+      "display": "block",
+      "flex": "0 1 auto",
+      "marginBottom": "20px"
+    },
+    {
+      "className": "pl-step-tools",
+      "y": 219,
+      "height": 124,
+      "bottom": 343,
+      "display": "flex",
+      "flex": "0 1 auto",
+      "marginBottom": "14px"
+    },
+    {
+      "className": "pl-skills-list",
+      "y": 357,
+      "height": 24,
+      "bottom": 381,
+      "display": "flex",
+      "flex": "0 1 auto",
+      "marginBottom": "10px"
+    },
+    {
+      "className": "pl-desc",
+      "y": 391,
+      "height": 54,
+      "bottom": 445,
+      "display": "block",
+      "flex": "0 1 auto",
+      "marginBottom": "20px"
+    },
+    {
+      "className": "pl-settings-workspace",
+      "y": 465,
+      "height": 399,
+      "bottom": 865,
+      "display": "flex",
+      "flex": "1 1 auto",
+      "marginBottom": "0px"
+    },
+    {
+      "className": "pl-actions pl-settings-footer-actions",
+      "y": 873,
+      "height": 32,
+      "bottom": 905,
+      "display": "flex",
+      "flex": "0 1 auto",
+      "marginBottom": "0px"
+    }
+  ],
+  "oldLayoutNodes": 0,
+  "workspaceGridColumns": "none",
+  "workspaceFlexDirection": "column",
+  "categoriesFlexDirection": "row",
+  "categoriesFlexWrap": "wrap"
+}
