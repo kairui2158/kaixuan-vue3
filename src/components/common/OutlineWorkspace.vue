@@ -726,4 +726,4 @@ async function askAi(requestText: string) {
   display: flex;
   gap: 4px;
 }
-</style>
+.btn-import { background: var(--accent-dim, rgba(99,102,241,0.15)); color: var(--accent, #6c5ce7); border: 1px solid var(--accent, #6c5ce7); font-weight: 500; padding: 6px 16px; border-radius: var(--radius-sm, 4px); cursor: pointer; transition: all 0.15s ease; } .btn-import:hover { background: var(--accent, #6c5ce7); color: var(--text-on-accent, #fff); } .btn-import:active { transform: scale(0.97); } </style>
