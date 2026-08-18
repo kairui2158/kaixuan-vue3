@@ -1,2 +1,0 @@
-const { chromium } = require('playwright')
-;(async()=>{const b=await chromium.connectOverCDP('http://127.0.0.1:9227');const p=b.contexts()[0].pages()[0];console.log(await p.evaluate(()=>{const raw=window.electronAPI.storageRead('wa_providers');const d=raw?.providers?raw:{providers:raw};return {providerCount:d.providers?.length||0, providers:(d.providers||[]).map(x=>({id:x.id,name:x.name,baseUrl:x.baseUrl,hasKey:!!x.apiKey,model:x.selectedModel,purpose:x.purpose}),),generate:d.generateProvider||null}}));await b.close()})().catch(e=>{console.error(e);process.exit(1)})
