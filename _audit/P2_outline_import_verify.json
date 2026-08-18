@@ -1,0 +1,77 @@
+{
+  "name": "P2 大纲文件导入闭环",
+  "generatedAt": "2026-08-18T11:45:24.042Z",
+  "passed": true,
+  "results": [
+    {
+      "name": "大纲工作台可打开",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "name": "导入按钮真实可见可用",
+      "pass": true,
+      "detail": "{\"disabled\":false,\"display\":\"block\",\"visibility\":\"visible\",\"opacity\":\"1\",\"width\":207.1875,\"height\":32,\"color\":\"rgb(160, 162, 172)\",\"backgroundColor\":\"rgba(0, 0, 0, 0)\"}"
+    },
+    {
+      "name": "文件选择器接受 TXT/MD/RTF/DOCX",
+      "pass": true,
+      "detail": "\".txt,.md,.text,.rtf,.docx\""
+    },
+    {
+      "name": "导入按钮文案支持 .rtf",
+      "pass": true,
+      "detail": "\"从文件导入(.txt/.md/.rtf/.docx)\""
+    },
+    {
+      "name": "导入按钮文案不再显示旧式 .doc",
+      "pass": true,
+      "detail": "\"从文件导入(.txt/.md/.rtf/.docx)\""
+    },
+    {
+      "name": "TXT 导入内容包含文件特征",
+      "pass": true,
+      "detail": "\"## 《绿潮》大纲总纲 V20.0\\n\\n绿潮概要\\n\\n四亿年前，一株不属于植物、真菌、动物任何一界的古老生命体在竞争中落败，将自身封存于深根大陆地下深处，进入完全代\""
+    },
+    {
+      "name": "TXT 导入后编辑器内容更新",
+      "pass": true,
+      "detail": "before=15 after=61155"
+    },
+    {
+      "name": "TXT 导入内容写入项目存储",
+      "pass": true,
+      "detail": "key=wa_project_proj-1787018619240, length=62822"
+    },
+    {
+      "name": "MD 导入内容包含文件特征",
+      "pass": true,
+      "detail": "\"# 生成流水线结构导向图\\n\\n## 一、整体流程总览\\n\\n```mermaid\\ngraph TB\\n    subgraph 入口[\\\"入口\\\"]\\n        OE[\""
+    },
+    {
+      "name": "MD 导入后编辑器内容更新",
+      "pass": true,
+      "detail": "before=61155 after=12529"
+    },
+    {
+      "name": "MD 导入内容写入项目存储",
+      "pass": true,
+      "detail": "key=wa_project_proj-1787018619240, length=12529"
+    },
+    {
+      "name": "RTF 点击导入后内容可解析",
+      "pass": true,
+      "detail": "\"P2 RTF 大纲测试\\n 第二行\""
+    },
+    {
+      "name": "DOCX 点击导入后内容可解析",
+      "pass": true,
+      "detail": "\"P2 DOCX 大纲测试第二行\""
+    },
+    {
+      "name": "导入验证清理后重载不残留临时数据",
+      "pass": true,
+      "detail": "{\"last\":\"proj-1787018619240\",\"projects\":2}"
+    }
+  ]
+}
