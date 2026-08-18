@@ -106,6 +106,11 @@ function registerStorageHandlers() {
       migrateOldDataIfNeeded()
       var filePath = path.join(dataDir, safeKey(key) + '.json')
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath)
+      // Also remove from legacy directory if it exists
+      if (legacyDir) {
+        var legacyPath = path.join(legacyDir, safeKey(key) + '.json')
+        if (fs.existsSync(legacyPath)) fs.unlinkSync(legacyPath)
+      }
       event.returnValue = true
     } catch (e) {
       event.returnValue = false

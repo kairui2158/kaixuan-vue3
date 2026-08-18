@@ -33,6 +33,7 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   function loadProjectList() {
+    projectList.value = []
     const data = window.electronAPI.storageList()
     if (data) {
       const seen = new Set<string>()
@@ -40,8 +41,11 @@ export const useProjectStore = defineStore('project', () => {
         .filter((key: string) => key.startsWith(storageKey('project_')) || key.startsWith('wa_project-'))
         .map((key: string) => {
           const proj = window.electronAPI.storageRead(key)
-          return { id: key.replace(/^wa_project[-_]/, ''), name: readProjectName(proj) }
+          if (!proj) return null
+          const id = key.replace(/^wa_project[-_]/, '')
+          return { id, name: readProjectName(proj) }
         })
+        .filter((proj: any) => proj !== null)
         .filter((proj: any) => {
           if (seen.has(proj.id)) return false
           seen.add(proj.id)
@@ -357,11 +361,14 @@ export const useProjectStore = defineStore('project', () => {
     loadProjectList()
     return id
   }
-
   function deleteProject(id: string) {
     // Remove both storage formats used by current and legacy project records.
+    window.electronAPI.storageRemove('wa_project_' + id)
     window.electronAPI.storageRemove(storageKey('project_' + id))
     window.electronAPI.storageRemove('wa_project-' + id)
+    // Also remove old ProjectManager formats that could trigger recovery
+    window.electronAPI.storageRemove('project-' + id)
+    window.electronAPI.storageRemove('wa_projects')
     if (currentProjectId.value === id) {
       clearCurrent()
       window.electronAPI.storageRemove(storageKey('lastProjectId'))
@@ -369,8 +376,20 @@ export const useProjectStore = defineStore('project', () => {
     loadProjectList()
     if (projectList.value.length === 0) {
       window.electronAPI.storageRemove(storageKey('lastProjectId'))
+      // Force clean all legacy project keys to prevent ghost projects
+      const allKeys = window.electronAPI.storageList()
+      if (allKeys) {
+        allKeys.forEach((k) => {
+          if (k.startsWith('wa_project-') || k.startsWith('wa_project_')) {
+            window.electronAPI.storageRemove(k)
+          }
+        })
+      }
+      window.electronAPI.storageRemove('wa_projects')
+      loadProjectList()
     }
   }
+
 
   function selectProject(id: string) {
     loadProject(id)
