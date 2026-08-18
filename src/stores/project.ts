@@ -35,11 +35,17 @@ export const useProjectStore = defineStore('project', () => {
   function loadProjectList() {
     const data = window.electronAPI.storageList()
     if (data) {
+      const seen = new Set<string>()
       projectList.value = data
         .filter((key: string) => key.startsWith(storageKey('project_')) || key.startsWith('wa_project-'))
         .map((key: string) => {
           const proj = window.electronAPI.storageRead(key)
           return { id: key.replace(/^wa_project[-_]/, ''), name: readProjectName(proj) }
+        })
+        .filter((proj: any) => {
+          if (seen.has(proj.id)) return false
+          seen.add(proj.id)
+          return true
         })
     }
   }
@@ -348,12 +354,17 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   function deleteProject(id: string) {
+    // Remove both storage formats used by current and legacy project records.
     window.electronAPI.storageRemove(storageKey('project_' + id))
+    window.electronAPI.storageRemove('wa_project-' + id)
     if (currentProjectId.value === id) {
       clearCurrent()
       window.electronAPI.storageRemove(storageKey('lastProjectId'))
     }
     loadProjectList()
+    if (projectList.value.length === 0) {
+      window.electronAPI.storageRemove(storageKey('lastProjectId'))
+    }
   }
 
   function selectProject(id: string) {

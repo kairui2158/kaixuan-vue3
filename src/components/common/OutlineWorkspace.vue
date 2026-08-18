@@ -95,7 +95,7 @@
       </div>
       <div class="ow-footer">
         <button id="btn-import-outline" class="btn-secondary btn-import" @click="triggerImport">
-          从文件导入(.txt/.md/.doc/.docx)
+          从文件导入(.txt/.md/.rtf/.docx)
         </button>
         <input
           ref="fileInput"

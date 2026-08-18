@@ -1,0 +1,19 @@
+{
+  "requests": [
+    {
+      "url": "https://openapi.cloud-ai.cn/v1/chat/completions",
+      "method": "POST",
+      "model": "deepseek-v4-pro",
+      "messageCount": 3,
+      "containsOutline": true
+    }
+  ],
+  "responses": [
+    {
+      "url": "https://openapi.cloud-ai.cn/v1/chat/completions",
+      "status": 200,
+      "hasChoice": true
+    }
+  ],
+  "assistantPreview": "已读到大纲：主角在雾港发现一枚会发光的旧钥匙。\n\n复制\n替换\n重生成\n插入"
+}

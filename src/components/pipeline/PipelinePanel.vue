@@ -92,9 +92,7 @@
               <input id="pl-book-word-count" type="number" v-model.number="bookWordCount" min="0" max="1000" class="input-w-60" @change="saveBookWordCount" />
             </div>
             <div class="pl-actions">
-              <button class="btn-secondary" @click="saveOutline" :disabled="projectStore.outlineLocked">保存大纲</button>
-              <button class="btn-primary" @click="lockOutline" :disabled="!projectStore.hasOutline">锁定大纲</button>
-              <button id="btn-pl-confirm-outline" class="btn-secondary" @click="confirmStep(0)" :disabled="!projectStore.hasOutline">确认完成</button>
+              <button id="btn-pl-confirm-outline" class="btn-primary" @click="confirmStep(0)" :disabled="!projectStore.hasOutline || bookWordCount <= 0">确认字数并进入下一步</button>
             </div>
           </div>
           <div v-show="pipelineStore.currentStep === 1" id="pl-step-2-content" class="pl-step-panel">
@@ -200,6 +198,28 @@
               </button>
               <button id="btn-pl-confirm-settings" class="btn-primary" @click="confirmSettingsLayer" :disabled="currentSettings.length === 0">确认/保存设定层</button>
             </div>
+            <div
+              v-if="settingsGenerationFeedbackVisible"
+              id="pl-settings-generation-feedback"
+              class="pl-generation-feedback"
+              role="status"
+              aria-live="polite"
+            >
+              <div class="pl-generation-feedback-header">
+                <strong>设定层 AI 生成进度</strong>
+                <span>{{ pipelineStore.generationProgress }}%</span>
+              </div>
+              <div class="pl-generation-progress-track" aria-label="设定生成进度">
+                <div class="pl-generation-progress-value" :style="{ width: pipelineStore.generationProgress + '%' }"></div>
+              </div>
+              <div id="pl-settings-api-log" class="pl-generation-log" aria-label="API工作信息">
+                <div v-for="(line, index) in settingsGenerationLogs" :key="index" class="pl-generation-log-line">
+                  <span class="pl-generation-log-dot" aria-hidden="true"></span>
+                  <span>{{ line }}</span>
+                </div>
+              </div>
+              <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
+            </div>
           </div>
           <div v-show="pipelineStore.currentStep === 2" id="pl-step-3-content" class="pl-step-panel">
             <h3>卷纲</h3>
@@ -248,6 +268,28 @@
               <span v-if="bookWordCount > 0" class="pl-gen-hint">全书 {{ bookWordCount }} 万字自动分配</span>
             </div>
             <div id="pl-vol-list" class="pl-vol-list">
+              <div
+                v-if="volumeGenerationFeedbackVisible && (activeVolumeGenerationIndex < 0 || activeVolumeGenerationIndex >= projectStore.volumes.length)"
+                id="pl-volume-generation-feedback"
+                class="pl-vol-card pl-vol-generation-card"
+                role="status"
+                aria-live="polite"
+              >
+                <div class="pl-vol-generation-header">
+                  <strong>卷纲 AI 生成进度</strong>
+                  <span>{{ pipelineStore.generationProgress }}%</span>
+                </div>
+                <div class="pl-generation-progress-track" aria-label="卷纲生成进度">
+                  <div class="pl-generation-progress-value" :style="{ width: pipelineStore.generationProgress + '%' }"></div>
+                </div>
+                <div id="pl-volume-api-log" class="pl-generation-log" aria-label="卷纲 API 工作信息">
+                  <div v-for="(line, index) in volumeGenerationLogs" :key="index" class="pl-generation-log-line">
+                    <span class="pl-generation-log-dot" aria-hidden="true"></span>
+                    <span>{{ line }}</span>
+                  </div>
+                </div>
+                <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
+              </div>
               <div v-for="(vol, i) in projectStore.volumes" :key="i" class="pl-vol-card" :class="{ confirmed: vol.confirmed }">
                 <div class="pl-vol-header">
                   <input v-model="vol.name" class="pl-input" placeholder="卷名" @change="projectStore.saveProject()" />
@@ -255,6 +297,27 @@
                 </div>
                 <textarea v-model="vol.outline" class="pl-vol-outline" placeholder="卷纲要" @change="projectStore.saveProject()"></textarea>
                 <input v-model="vol.summary" class="pl-input" placeholder="摘要" @change="projectStore.saveProject()" />
+                <div
+                  v-if="volumeGenerationFeedbackVisible && activeVolumeGenerationIndex === i"
+                  class="pl-vol-generation-feedback"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <div class="pl-vol-generation-header">
+                    <strong>卷纲 AI 生成进度</strong>
+                    <span>{{ pipelineStore.generationProgress }}%</span>
+                  </div>
+                  <div class="pl-generation-progress-track" aria-label="卷纲生成进度">
+                    <div class="pl-generation-progress-value" :style="{ width: pipelineStore.generationProgress + '%' }"></div>
+                  </div>
+                  <div class="pl-volume-api-log pl-generation-log" aria-label="卷纲 API 工作信息">
+                    <div v-for="(line, index) in volumeGenerationLogs" :key="index" class="pl-generation-log-line">
+                      <span class="pl-generation-log-dot" aria-hidden="true"></span>
+                      <span>{{ line }}</span>
+                    </div>
+                  </div>
+                  <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
+                </div>
               </div>
             </div>
             <div class="pl-actions">
@@ -499,6 +562,11 @@ const showAddCategory = ref(false)
 const newCategoryName = ref("")
 const selectedSettingCategory = ref("")
 const confirmedSettingCategories = ref<string[]>([])
+const settingsGenerationLogs = ref<string[]>([])
+const settingsGenerationFeedbackVisible = computed(() => pipelineStore.isGenerating || settingsGenerationLogs.value.length > 0)
+const volumeGenerationLogs = ref<string[]>([])
+const activeVolumeGenerationIndex = ref(-1)
+const volumeGenerationFeedbackVisible = computed(() => pipelineStore.isGenerating || volumeGenerationLogs.value.length > 0)
 
 const settingCategories = computed(() => {
   const sc = projectStore.getSettingsCollection()
@@ -1108,38 +1176,6 @@ function prevStep() {
   }
 }
 
-function saveOutline() {
-  projectStore.setOutline(projectStore.outlineText)
-  invalidateDownstream(0)
-}
-
-function lockOutline() {
-  if (!projectStore.hasOutline) return
-  projectStore.setOutline(projectStore.outlineText)
-  projectStore.lockOutline()
-  steps.value[0].completed = true
-  window.dispatchEvent(new CustomEvent("outline-locked", { detail: { text: projectStore.outlineText } }))
-  pipelineStore.setStep(1)
-  invalidateDownstream(0)
-  analyzeOutline()
-}
-
-async function analyzeOutline() {
-  if (!projectStore.outlineText || projectStore.outlineText.length < 50) return
-  try {
-    const prompt = "[大纲]\n" + projectStore.outlineText.slice(0, 2000) + "\n\n请分析这篇文章的风格标签和节奏参数。输出JSON格式：{ \"styleTags\": \"string\", \"pacingParams\": \"string\" }"
-    const result = await runStepSkills(0, prompt, undefined, "你是小说分析专家。分析大纲并提取风格标签、节奏参数。")
-    const parsed = extractJsonObject(result)
-    if (parsed) {
-      styleTags.value = parsed.styleTags || ""
-      pacingParams.value = parsed.pacingParams || ""
-      outlineAnalyzed.value = true
-    }
-  } catch (e: any) {
-    console.warn("Outline analysis failed:", e)
-  }
-}
-
 async function callApiWithAgent(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string, promptParts?: PromptParts): Promise<string> {
   const agentId = skillAgentOverride || getStepAgentId(step)
   const agentConfig = agentId ? (agentStore.getAgent(agentId) || null) : getStepAgentConfig(step)
@@ -1349,11 +1385,15 @@ function removeSetting(index: number) {
 
 async function genSettings() {
   if (!projectStore.hasOutline || !projectStore.outlineLocked) return
+  settingsGenerationLogs.value = ["已读取大纲锁定状态，准备构造设定生成请求"]
   pipelineStore.startGeneration()
   pipelineStore.updateProgress(10, "正在读取已确认大纲并生成设定")
   try {
     const prompt = "[已确认大纲]\n" + projectStore.outlineText + "\n\n请基于这份已确认的大纲，提取并生成设定项。根据内容自动分配category；没有合适分类时使用设定类。输出JSON数组，每项含name/category/attrsText字段。"
+    settingsGenerationLogs.value.push("请求已发送：正在等待 API 返回设定内容")
     const result = await runStepSkills(1, prompt, undefined, "你是设定生成专家。基于小说大纲生成详细设定。")
+    settingsGenerationLogs.value.push("API 已返回：正在解析设定 JSON 并检查设定名称")
+    pipelineStore.updateProgress(70, "正在解析设定内容")
     const settings = extractJsonArray(result)
     if (settings.length > 0) {
       const valid = settings.filter((s: any) => s.name)
@@ -1382,21 +1422,30 @@ async function genSettings() {
         if (!selectedSettingCategory.value && sc2.categories.length > 0) {
           selectedSettingCategory.value = sc2.categories[0]
         }
+        settingsGenerationLogs.value.push("设定已写入分类并保存到当前项目")
         pipelineStore.updateProgress(100, "设定生成完成")
       } else {
+        settingsGenerationLogs.value.push("API 返回内容缺少有效设定名称")
         pipelineStore.failGeneration("未能解析设定内容")
       }
     } else {
+      settingsGenerationLogs.value.push("API 返回内容不是可用的设定数组")
       pipelineStore.failGeneration("未能解析设定JSON")
     }
     pipelineStore.finishGeneration()
   } catch (e: any) {
+    settingsGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
     pipelineStore.failGeneration(e.message)
   }
 }
 
 async function genVolumes(mode: string) {
   if (!projectStore.outlineText) return
+  const existingCountBeforeGeneration = projectStore.volumes.length
+  activeVolumeGenerationIndex.value = mode === "auto" ? 0 : existingCountBeforeGeneration
+  volumeGenerationLogs.value = [
+    mode === "single" ? "已选择逐卷生成，准备生成下一卷" : mode === "continue" ? "已选择续生成，准备补齐后续卷纲" : "已选择 AI 生成全卷，准备分析大纲和字数"
+  ]
   pipelineStore.startGeneration()
   pipelineStore.updateProgress(10, "AI生成卷纲中")
   try {
@@ -1411,6 +1460,7 @@ async function genVolumes(mode: string) {
     const distanceFromWords = bookWordCount.value > 0 ? Math.floor(linkedVolumeCount.value / Math.max(volumeCount.value, 1)) : 1
     const effectiveVolumes = Math.max(1, volumeCount.value)
     const existingCount = projectStore.volumes.length
+    volumeGenerationLogs.value.push("已读取大纲、设定和全书字数，正在构造卷纲请求")
     let prompt: string
     if (mode === "continue" && existingCount > 0) {
       const lastVol = projectStore.volumes[existingCount - 1]
@@ -1421,7 +1471,10 @@ async function genVolumes(mode: string) {
     } else {
       prompt = "[大纲]\n" + projectStore.outlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[每卷字数]\n" + volumeWords.value + "\n\n全书计划字数：" + (bookWordCount.value * 10000) + "字。请生成" + effectiveVolumes + "卷的卷纲。输出JSON数组，每项含name/outline/summary/suggestedWords字段。"
     }
-    const result = await runStepSkills(2, prompt, undefined, "你是卷纲生成专家。基于大纲和设定生成卷纲。")
+    volumeGenerationLogs.value.push("请求已发送：正在等待 API 返回卷纲内容")
+    const result = await runStepSkills(2, prompt, 120000, "你是卷纲生成专家。基于大纲和设定生成卷纲。")
+    volumeGenerationLogs.value.push("API 已返回：正在解析卷纲 JSON 并校验卷数")
+    pipelineStore.updateProgress(70, "正在解析卷纲内容")
     const volumes = extractJsonArray(result)
     if (volumes.length > 0) {
       const vr = validateVolumes(volumes)
@@ -1447,12 +1500,15 @@ async function genVolumes(mode: string) {
         }))
       }
       projectStore.saveProject()
+      volumeGenerationLogs.value.push("卷纲已写入卷框并保存到当前项目")
       pipelineStore.updateProgress(100, "卷纲生成完成")
     } else {
+      volumeGenerationLogs.value.push("API 返回内容不是可用的卷纲数组")
       pipelineStore.failGeneration("未能解析卷纲JSON")
     }
     pipelineStore.finishGeneration()
   } catch (e: any) {
+    volumeGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
     pipelineStore.failGeneration(e.message)
   }
 }
@@ -1651,10 +1707,9 @@ onMounted(() => {
     if (saved.volumeWords) volumeWords.value = saved.volumeWords
     if (saved.chapterWords) chapterWords.value = saved.chapterWords
   }
-  // 从 store 恢复步骤状态
+  // 恢复已完成标记，但保留大纲层作为进入流水线后的首个确认入口。
   if (projectStore.outlineLocked) {
     steps.value[0].completed = true
-    if (pipelineStore.currentStep === 0) pipelineStore.setStep(1)
   }
   if (projectStore.settingsGenerated) steps.value[1].completed = true
   if (projectStore.volumesConfirmed) steps.value[2].completed = true
@@ -1805,9 +1860,86 @@ function toolAction(action: string) {
 .pl-body-text { font-size: var(--font-size-lg); line-height: 1.8; white-space: pre-wrap; color: var(--text-primary); }
 .pl-gen-options { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: var(--font-size-lg); color: var(--text-secondary); flex-wrap: wrap; }
 .pl-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+.pl-generation-feedback {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+}
+.pl-generation-feedback-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+}
+.pl-generation-progress-track {
+  width: 100%;
+  height: 8px;
+  margin-top: var(--space-3);
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+}
+.pl-generation-progress-value {
+  height: 100%;
+  min-width: 0;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 180ms ease;
+}
+.pl-generation-log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 132px;
+  margin-top: var(--space-3);
+  overflow-y: auto;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+.pl-generation-log-line {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+.pl-generation-log-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  margin-top: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.pl-generation-status {
+  margin-top: var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
 .pl-result { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; margin: 20px 0; max-height: 450px; overflow-y: auto; white-space: pre-wrap; font-size: var(--font-size-lg); color: var(--text-primary); }
 .pl-gen-hint { color: var(--text-muted); font-size: var(--font-size-md); }
 .pl-vol-card.confirmed { border-color: var(--success); }
+.pl-vol-generation-card,
+.pl-vol-generation-feedback {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border-color: var(--accent);
+  background: var(--bg-secondary);
+}
+.pl-vol-generation-card { padding: var(--space-4); }
+.pl-vol-generation-feedback { margin-top: var(--space-3); padding: var(--space-3); }
+.pl-vol-generation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+}
 .pl-ch-card { display: flex; align-items: center; padding: var(--space-5) var(--space-6); background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); }
 .pl-ch-card-main { width: 100%; }
 .pl-ch-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }

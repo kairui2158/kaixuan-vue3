@@ -1,0 +1,58 @@
+{
+  "original": {
+    "activePanel": "",
+    "pipelineOpen": false,
+    "step": "",
+    "outline": "",
+    "wordCount": ""
+  },
+  "stateAfter": {
+    "activeStep": "2设定",
+    "settingsVisible": true,
+    "outlineReadonly": true,
+    "project": {
+      "outlineLocked": true,
+      "outlineLength": 12529
+    },
+    "config": {
+      "agents": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": "",
+        "4": ""
+      },
+      "skills": {
+        "0": [],
+        "1": [],
+        "2": [
+          "sk_ms4v1r5k_im2adh",
+          "sk_ms6ct2o9_916h7r",
+          "sk_ms6ctyoc_hpnbi8",
+          "sk_ms4v1agw_jm2xl4"
+        ],
+        "3": [
+          "sk_ms4v2cmf_98qjms",
+          ""
+        ],
+        "4": []
+      },
+      "modes": {
+        "0": "compose",
+        "1": "compose",
+        "2": "chain",
+        "3": "chain",
+        "4": "compose"
+      },
+      "skillAgents": {
+        "3-0": "ag_ms1nqgd7_vffzyi",
+        "3-1": "ag_mse7m9oh_b0xyrc"
+      },
+      "bookWordCount": 600000,
+      "volumeWords": 100000,
+      "chapterWords": 3500
+    }
+  },
+  "projectKey": "wa_project_proj-1787018619240",
+  "passed": true
+}

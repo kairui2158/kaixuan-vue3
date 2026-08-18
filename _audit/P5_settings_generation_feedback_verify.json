@@ -1,0 +1,155 @@
+{
+  "requests": [
+    {
+      "url": "https://openapi.cloud-ai.cn/v1/chat/completions",
+      "method": "POST"
+    }
+  ],
+  "responses": [
+    {
+      "url": "https://openapi.cloud-ai.cn/v1/chat/completions",
+      "status": 200
+    }
+  ],
+  "immediate": {
+    "visible": true,
+    "progress": "10%",
+    "logs": [
+      "已读取大纲锁定状态，准备构造设定生成请求",
+      "请求已发送：正在等待 API 返回设定内容"
+    ],
+    "status": "正在读取已确认大纲并生成设定"
+  },
+  "final": {
+    "phase": "poll",
+    "visible": true,
+    "progress": "100%",
+    "logs": [
+      "已读取大纲锁定状态，准备构造设定生成请求",
+      "请求已发送：正在等待 API 返回设定内容",
+      "API 已返回：正在解析设定 JSON 并检查设定名称",
+      "设定已写入分类并保存到当前项目"
+    ],
+    "status": "done",
+    "items": 0,
+    "generating": false
+  },
+  "projectAfter": {
+    "categories": [
+      "事件",
+      "物种",
+      "现象",
+      "人物",
+      "物品",
+      "设定",
+      "组织",
+      "地点",
+      "文明",
+      "技术",
+      "概念"
+    ],
+    "itemCount": 69,
+    "settingsGenerated": false
+  },
+  "feedbackSnapshots": [
+    {
+      "phase": "poll",
+      "visible": true,
+      "progress": "10%",
+      "logs": [
+        "已读取大纲锁定状态，准备构造设定生成请求",
+        "请求已发送：正在等待 API 返回设定内容"
+      ],
+      "status": "正在读取已确认大纲并生成设定",
+      "items": 0,
+      "generating": true
+    },
+    {
+      "phase": "poll",
+      "visible": true,
+      "progress": "10%",
+      "logs": [
+        "已读取大纲锁定状态，准备构造设定生成请求",
+        "请求已发送：正在等待 API 返回设定内容"
+      ],
+      "status": "正在读取已确认大纲并生成设定",
+      "items": 0,
+      "generating": true
+    },
+    {
+      "phase": "poll",
+      "visible": true,
+      "progress": "10%",
+      "logs": [
+        "已读取大纲锁定状态，准备构造设定生成请求",
+        "请求已发送：正在等待 API 返回设定内容"
+      ],
+      "status": "正在读取已确认大纲并生成设定",
+      "items": 0,
+      "generating": true
+    },
+    {
+      "phase": "poll",
+      "visible": true,
+      "progress": "10%",
+      "logs": [
+        "已读取大纲锁定状态，准备构造设定生成请求",
+        "请求已发送：正在等待 API 返回设定内容"
+      ],
+      "status": "正在读取已确认大纲并生成设定",
+      "items": 0,
+      "generating": true
+    },
+    {
+      "phase": "poll",
+      "visible": true,
+      "progress": "10%",
+      "logs": [
+        "已读取大纲锁定状态，准备构造设定生成请求",
+        "请求已发送：正在等待 API 返回设定内容"
+      ],
+      "status": "正在读取已确认大纲并生成设定",
+      "items": 0,
+      "generating": true
+    },
+    {
+      "phase": "poll",
+      "visible": true,
+      "progress": "10%",
+      "logs": [
+        "已读取大纲锁定状态，准备构造设定生成请求",
+        "请求已发送：正在等待 API 返回设定内容"
+      ],
+      "status": "正在读取已确认大纲并生成设定",
+      "items": 0,
+      "generating": true
+    },
+    {
+      "phase": "poll",
+      "visible": true,
+      "progress": "10%",
+      "logs": [
+        "已读取大纲锁定状态，准备构造设定生成请求",
+        "请求已发送：正在等待 API 返回设定内容"
+      ],
+      "status": "正在读取已确认大纲并生成设定",
+      "items": 0,
+      "generating": true
+    },
+    {
+      "phase": "poll",
+      "visible": true,
+      "progress": "100%",
+      "logs": [
+        "已读取大纲锁定状态，准备构造设定生成请求",
+        "请求已发送：正在等待 API 返回设定内容",
+        "API 已返回：正在解析设定 JSON 并检查设定名称",
+        "设定已写入分类并保存到当前项目"
+      ],
+      "status": "done",
+      "items": 0,
+      "generating": false
+    }
+  ],
+  "passed": true
+}
