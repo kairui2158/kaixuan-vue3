@@ -1,0 +1,37 @@
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vite.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+vite v8.2.1 building client environment for production...
+[2K
+transforming...✓ 151 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-renderer/index.html                   0.68 kB │ gzip:   0.40 kB
+dist-renderer/assets/index-DGsIyW_s.css  157.03 kB │ gzip:  23.75 kB
+dist-renderer/assets/index-CJiTWAJo.js   488.19 kB │ gzip: 162.12 kB
+
+[COMMONJS_VARIABLE_IN_ESM] The CommonJS `module` variable is treated as a global variable in an ECMAScript module and may not work as expected
+    ╭─[ src/services/deai-samples.js:58:56 ]
+    │
+ 58 │ if (typeof module !== 'undefined' && module.exports) { module.exports = { DeAiSamples: DeAiSamples }; }
+    │                                                        ───┬──  
+    │                                                           ╰──── 
+    │ 
+ 61 │ export { DeAiSamples };
+    │ ───┬──  
+    │    ╰──── This file is considered to be an ECMAScript module because of the `export` keyword here:
+────╯
+
+[COMMONJS_VARIABLE_IN_ESM] The CommonJS `module` variable is treated as a global variable in an ECMAScript module and may not work as expected
+      ╭─[ src/services/de-ai.js:2339:49 ]
+      │
+ 2339 │ if(typeof module!=="undefined"&&module.exports){module.exports={DeAiProcessor:DeAiProcessor,DEAI_METHODOLOGY_PROMPT:DEAI_METHODOLOGY_PROMPT};}
+      │                                                 ───┬──  
+      │                                                    ╰──── 
+      │ 
+ 2342 │ export { DeAiProcessor, DEAI_METHODOLOGY_PROMPT };
+      │ ───┬──  
+      │    ╰──── This file is considered to be an ECMAScript module because of the `export` keyword here:
+──────╯
+
+✓ built in 1.38s

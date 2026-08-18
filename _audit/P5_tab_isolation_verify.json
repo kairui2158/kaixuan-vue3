@@ -1,0 +1,66 @@
+{
+  "name": "P5 多标签页隔离真实行为验证",
+  "passed": true,
+  "results": [
+    {
+      "id": "P5-1",
+      "pass": true,
+      "detail": "{\"title\":\"神意助手\",\"project\":\"P6回归项目\\n生成\\n项目\",\"volumes\":1,\"chapters\":1}"
+    },
+    {
+      "id": "P5-2",
+      "pass": true,
+      "detail": "{\"title\":\"神意助手\",\"project\":\"P6回归项目\\n生成\\n项目\",\"volumes\":1,\"chapters\":1}"
+    },
+    {
+      "id": "P5-3",
+      "pass": true,
+      "detail": "volume context menu visible"
+    },
+    {
+      "id": "P5-4",
+      "pass": true,
+      "detail": "tabCount=2"
+    },
+    {
+      "id": "P5-5",
+      "pass": true,
+      "detail": "{\"outlineAfterEdit\":\"P5_ISOLATION_MARKER\",\"tabLabels\":[\"P6回归章x\",\"P6回归卷 - 卷纲*x\"],\"activeIndex\":1}"
+    },
+    {
+      "id": "P5-6",
+      "pass": true,
+      "detail": "{\"bodyBefore\":\"\",\"bodyAfterSwitch\":\"\"}"
+    },
+    {
+      "id": "P5-7",
+      "pass": true,
+      "detail": "{\"outlineAfterEdit\":\"P5_ISOLATION_MARKER\",\"outlineAfterSwitch\":\"P5_ISOLATION_MARKER\"}"
+    },
+    {
+      "id": "P5-8",
+      "pass": true,
+      "detail": "{\"tabs\":[{\"index\":0,\"text\":\"P6回归章x\"},{\"index\":1,\"text\":\"P6回归卷 - 卷纲*x\"}],\"editorText\":\"P5_ISOLATION_MARKER\",\"storageKeys\":[\"wa_chat_default\",\"wa_chat_p1786951368120\",\"wa_chat_prj_msbtqnpe_q24wr3\",\"wa_chat___audit_temp_project__\"]}"
+    }
+  ],
+  "storeState": {
+    "tabs": [
+      {
+        "index": 0,
+        "text": "P6回归章x"
+      },
+      {
+        "index": 1,
+        "text": "P6回归卷 - 卷纲*x"
+      }
+    ],
+    "editorText": "P5_ISOLATION_MARKER",
+    "storageKeys": [
+      "wa_chat_default",
+      "wa_chat_p1786951368120",
+      "wa_chat_prj_msbtqnpe_q24wr3",
+      "wa_chat___audit_temp_project__"
+    ]
+  },
+  "timestamp": "2026-08-18T15:46:33.329Z"
+}

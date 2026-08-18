@@ -55,7 +55,4 @@ var DeAiSamples = (function() {
     getSampleText: function() { return SAMPLES.join('\n'); }
   };
 })();
-if (typeof module !== 'undefined' && module.exports) { module.exports = { DeAiSamples: DeAiSamples }; }
-
-// ESM export for Vite
 export { DeAiSamples };
