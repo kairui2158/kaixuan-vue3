@@ -260,13 +260,17 @@
             </template>
           </div>
             <p class="pl-desc">第三步：基于大纲和设定，AI自动生成卷纲。每卷的概要可编辑。</p>
-            <div id="pl-volume-config" class="pl-vol-config">
-              <label>每卷字数</label>
-              <input type="number" v-model.number="volumeWords" class="pl-input-sm" min="10000" step="10000" @change="saveVolumeConfig" />
-              <label>卷数</label>
-              <input id="pl-volume-count" type="number" :value="linkedVolumeCount" class="input-w-60" min="1" max="20" :readonly="bookWordCount > 0" @change="syncVolumeCount($event)" />
-              <span v-if="bookWordCount > 0" class="pl-gen-hint">全书 {{ bookWordCount }} 万字自动分配</span>
-            </div>
+             <div id="pl-volume-config" class="pl-vol-config">
+               <div v-if="bookWordCount > 0" id="pl-volume-linked-book-words" class="pl-volume-linked-book-words" role="status" aria-live="polite">
+                 <span class="pl-volume-linked-book-words-label">大纲已锁定全书字数</span>
+                 <strong>{{ bookWordCount }} 万字</strong>
+               </div>
+               <label>每卷字数</label>
+               <input type="number" v-model.number="volumeWords" class="pl-input-sm" min="10000" step="10000" @change="saveVolumeConfig" />
+               <label>卷数</label>
+               <input id="pl-volume-count" type="number" :value="linkedVolumeCount" class="input-w-60" min="1" max="20" :readonly="bookWordCount > 0" @change="syncVolumeCount($event)" />
+               <span v-if="bookWordCount > 0" id="pl-volume-linked-count-hint" class="pl-gen-hint">按每卷 {{ Math.round(volumeWords / 10000) }} 万字自动分配 {{ linkedVolumeCount }} 卷</span>
+             </div>
             <div id="pl-vol-list" class="pl-vol-list">
               <div
                 v-if="volumeGenerationFeedbackVisible && (activeVolumeGenerationIndex < 0 || activeVolumeGenerationIndex >= projectStore.volumes.length)"
@@ -1846,6 +1850,8 @@ function toolAction(action: string) {
 .pl-attrs-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-4) var(--space-6); font-size: var(--font-size-md); min-height: 80px; flex: 1; resize: vertical; outline: none; }
 .pl-vol-config { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: var(--font-size-lg); flex-wrap: wrap; }
 .pl-vol-config label { color: var(--text-secondary); }
+.pl-volume-linked-book-words { display: inline-flex; align-items: baseline; gap: 8px; width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-secondary); }
+.pl-volume-linked-book-words strong { color: var(--text-primary); font-size: var(--font-size-lg); }
 .pl-vol-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 16px; }
 .pl-vol-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .vol-words { font-size: var(--font-size-md); color: var(--text-muted); flex-shrink: 0; }
