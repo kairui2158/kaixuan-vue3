@@ -1757,13 +1757,17 @@ onMounted(() => {
         else if (m[i + 1] !== undefined) stepSkillModes.value[i] = m[i + 1]
       }
     }
-    if (saved.bookWordCount) bookWordCount.value = Math.round(saved.bookWordCount / 10000)
-    if (saved.volumeWords) volumeWords.value = saved.volumeWords
-    if (saved.chapterWords) chapterWords.value = saved.chapterWords
-  }
-  // 恢复已完成标记，但保留大纲层作为进入流水线后的首个确认入口。
-  if (projectStore.outlineLocked) {
-    steps.value[0].completed = true
+     if (saved.bookWordCount) bookWordCount.value = Math.round(saved.bookWordCount / 10000)
+     if (saved.volumeWords) volumeWords.value = saved.volumeWords
+     if (saved.chapterWords) chapterWords.value = saved.chapterWords
+   }
+   // 当大纲已锁定但字数未设置时，自动填入默认值
+   if (bookWordCount.value <= 0 && projectStore.outlineLocked && projectStore.outlineText) {
+     bookWordCount.value = 10
+   }
+   // 恢复已完成标记，但保留大纲层作为进入流水线后的首个确认入口。
+   if (projectStore.outlineLocked) {
+     steps.value[0].completed = true
   }
   if (projectStore.settingsGenerated) steps.value[1].completed = true
   if (projectStore.volumesConfirmed) steps.value[2].completed = true
