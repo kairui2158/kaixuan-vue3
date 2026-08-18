@@ -387,7 +387,7 @@
               <label>预计章数</label>
               <span id="pl-ch-est-count" class="pl-gen-hint">{{ estimatedChapters }}</span>
             </div>
-            <div id="pl-ch-cards-area" class="pl-ch-list">
+            <div v-if="confirmedVolumes.length > 0" id="pl-ch-cards-area" class="pl-ch-list">
               <div v-for="(ch, i) in currentVolumeChapters" :key="i" class="pl-ch-card">
                 <div class="pl-ch-card-main">
                   <div class="pl-ch-card-head">
@@ -397,9 +397,9 @@
                   <textarea v-model="ch.plot" class="pl-ch-plot" placeholder="本章剧情点概要"></textarea>
                 </div>
               </div>
-              <p id="pl-ch-empty-hint" v-if="confirmedVolumes.length === 0" class="empty-hint">暂无已锁定卷纲，请先在卷纲层保存并锁定本卷</p>
-              <p id="pl-ch-empty-hint" v-else-if="currentVolumeChapters.length === 0" class="empty-hint">暂无章节，请先生成</p>
             </div>
+            <p id="pl-ch-empty-no-volume" v-if="confirmedVolumes.length === 0" class="empty-hint">暂无已锁定卷纲，请先在卷纲层保存并锁定本卷</p>
+            <p id="pl-ch-empty-no-chapters" v-else-if="currentVolumeChapters.length === 0" class="empty-hint">暂无章节，请先生成</p>
             <div class="pl-actions">
               <button id="btn-pl-gen-chapters" class="btn-primary" @click="genChapters" :disabled="pipelineStore.isGenerating">AI生成章节</button>
               <button id="btn-pl-autogen-chapters" class="btn-secondary" @click="genChapters" :disabled="pipelineStore.isGenerating">自动生成章节</button>
