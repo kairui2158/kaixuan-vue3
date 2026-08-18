@@ -1,0 +1,109 @@
+{
+  "timestamp": "2026-08-18T19:44:47.696Z",
+  "phase": "P10 全链路回归验证",
+  "summary": {
+    "total": 40,
+    "passed": 22,
+    "passRate": "55%",
+    "status": "PARTIAL"
+  },
+  "environment": {
+    "appPath": "D:\\codex\\novel-workshop-vue3",
+    "starter": "start-electron.bat",
+    "cdpPort": 9227,
+    "build": "npx vite build (151 modules)",
+    "lastCommit": "4ed2805 (P9)"
+  },
+  "findings": {
+    "operational": [
+      "应用启动正常，CDP 连接端口 9227 可用",
+      "项目创建/新建/保存功能正常",
+      "大纲工作台打开正常，导入按钮可用",
+      "文件导入功能正常（.txt 格式）",
+      "锁定按钮可点击，触发状态变化",
+      "编辑器、侧边栏、章节树、对话框均在DOM中",
+      "重载后项目名称正确恢复"
+    ],
+    "issues": [
+      {
+        "severity": "HIGH",
+        "item": "流水线面板未在DOM中渲染",
+        "desc": "#btn-pipeline 点击后无任何面板出现，pipeline-panel 不存在于DOM中",
+        "action": "需检查 PipelinePanel.vue 的渲染条件和 v-if/v-show 控制"
+      },
+      {
+        "severity": "HIGH",
+        "item": "大纲工作台导入后内容未显示",
+        "desc": "选文件后大纲内容未出现在 textarea 中",
+        "action": "需检查导入按钮的事件处理和数据流"
+      },
+      {
+        "severity": "MEDIUM",
+        "item": "流水线5层步骤不存在",
+        "desc": "data-step 属性未在DOM中找到，pl-outline/pl-settings 等class不存在",
+        "action": "需检查流水线组件的步骤渲染逻辑"
+      },
+      {
+        "severity": "MEDIUM",
+        "item": "AI共创按钮存在但未测试API连通",
+        "desc": "btn-ai-co-create 存在于DOM中，但未执行真实API调用测试",
+        "action": "建议在P11中单独验证API连通性"
+      },
+      {
+        "severity": "LOW",
+        "item": "保存按钮存在但未验证持久化数据完整性",
+        "desc": "btn-save-editor 点击正常，但未验证存储键值内容",
+        "action": "建议在P11中补充存储验证"
+      }
+    ]
+  },
+  "results": {
+    "1.1 App启动": "PASS",
+    "1.2 编辑器存在": "PASS",
+    "1.3 侧边栏存在": "PASS",
+    "1.4 章节树存在": "PASS",
+    "1.5 对话框存在": "PASS",
+    "2.1 项目按钮": "PASS",
+    "2.2 项目弹窗": "PASS",
+    "2.3 新建项目按钮": "PASS",
+    "2.4 项目名输入": "PASS",
+    "2.5 保存项目": "PASS",
+    "2.6 项目名显示": "PASS (test_lock)",
+    "3.1 大纲工作台按钮": "PASS",
+    "3.2 大纲内容加载": "FAIL (未显示导入内容)",
+    "4.1 导入按钮": "PASS",
+    "4.2 文件选择": "PASS",
+    "4.3 大纲内容出现": "FAIL",
+    "5.1 锁定按钮": "PASS",
+    "5.2 流水线面板": "FAIL (未渲染)",
+    "5.3 大纲层": "FAIL",
+    "6.1-6.4 设定层": "FAIL (流水线未渲染)",
+    "7.1-7.6 卷纲层": "FAIL (流水线未渲染)",
+    "8.1-8.4 章节层": "FAIL (流水线未渲染)",
+    "9.1-9.4 正文层": "FAIL (流水线未渲染)",
+    "9.5 编辑器保存": "PASS",
+    "10.1 重载后应用": "PASS",
+    "10.2 重载后项目": "PASS (p10_test)"
+  },
+  "cdpCommands": [
+    "chromium.connectOverCDP(http://127.0.0.1:9227)",
+    "page.evaluate(\"!!document.querySelector('#app')\")",
+    "page.evaluate(\"!!document.querySelector('#editor-panel')\")",
+    "page.evaluate(\"!!document.querySelector('#app-sidebar')\")",
+    "page.evaluate(\"!!document.querySelector('#chapter-tree')\")",
+    "page.evaluate(\"!!document.querySelector('#chat-panel')\")",
+    "page.click('#btn-open-project', force=true)",
+    "page.click('button:has-text(\\\"新建项目\\\")')",
+    "page.fill('input[placeholder*=\\\"项目\\\"]', 'P10Test')",
+    "page.click('button:has-text(\\\"保存\\\")')",
+    "page.click('#btn-outline-workspace', force=true)",
+    "page.click('#btn-import-outline, button:has-text(\\\"导入\\\")')",
+    "fileInput.setInputFiles(testFile)",
+    "page.click('#btn-lock-outline, button:has-text(\\\"锁定\\\")')",
+    "page.click('button:has-text(\\\"下一步\\\")')",
+    "page.click('button:has-text(\\\"AI生成设定\\\")')",
+    "page.click('#btn-pipeline')",
+    "page.reload()"
+  ],
+  "recommendation": "P10 全链路回归发现流水线面板未渲染为核心问题。建议修复流水线组件渲染条件后再进行完整回归。当前结果可作为基准，修复后需重新验证。"
+}

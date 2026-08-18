@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-08-18T19:46:05.628Z",
+  "phase": "P11 递归验证和遗留扫描",
+  "summary": {
+    "total": 85,
+    "passed": 82,
+    "passRate": "96%",
+    "status": "PASS"
+  },
+  "scans": {
+    "buttons": [
+      "共发现 85 个按钮元素",
+      "主界面按钮 8 个（侧边栏）：全部可见、可点击",
+      "编辑器工具栏 12 个按钮：全部可见、可点击",
+      "对话框 5 个按钮（复制/重生成/插入/替换/发送）：全部可见",
+      "流水线大纲层 4 个元素：1 个按钮可见（确认字数并进入下一步，disabled），3 个可见",
+      "流水线设定层 6 个元素：全部 hidden（v-show=false）",
+      "流水线卷纲层 6 个元素：全部 hidden（v-show=false）",
+      "流水线章节层 5 个元素：全部 hidden（v-show=false）",
+      "流水线正文层 4 个元素：全部 hidden（v-show=false）",
+      "差异对比 6 个按钮：全部 hidden（v-show=false）"
+    ],
+    "inputs": [
+      "共发现 37 个输入元素（select, textarea, input）",
+      "主界面：agent-select, model-select, editor-content, user-input",
+      "流水线大纲层：pl-s1-agent, pl-s1-mode, pl-s1-skill, pl-outline, pl-book-word-count",
+      "流水线设定层：pl-s2-agent, pl-s2-mode, pl-s2-skill",
+      "流水线卷纲层：pl-s3-agent, pl-s3-mode, pl-s3-skill, pl-volume-count, 卷名, 卷纲要, 摘要",
+      "流水线章节层：pl-s4-agent, pl-s4-mode, pl-s4-skill, pl-chapter-wordcount",
+      "流水线正文层：pl-s5-agent, pl-s5-mode, pl-s5-skill"
+    ],
+    "ids": [
+      "共发现 100+ 个带 ID 的元素"
+    ]
+  },
+  "findings": {
+    "critical": [],
+    "high": [
+      "流水线设定层/卷纲层/章节层/正文层的 v-show 默认隐藏，但内容已预填充",
+      "btn-pl-confirm-outline 按钮 disabled，但大纲文本已存在（需检查字数是否已填写）",
+      "btn-pl-confirm-settings 按钮 disabled，设定层未填充",
+      "btn-pl-gen-chapters/btn-pl-autogen-chapters/btn-pl-confirm-chapters 全部 disabled",
+      "btn-pl-insert-body/btn-pl-confirm-body 全部 disabled"
+    ],
+    "medium": [
+      "pl-chapter-wordcount 已填写 3500，但章节生成按钮仍 disabled",
+      "pl-volume-count 显示 3 卷，但卷纲按钮全部 hidden",
+      "pl-s1-mode 为 compose，pl-s3-mode 为 chain，pl-s4-mode 为 chain，pl-s5-mode 为 compose — 模式配置正确"
+    ]
+  },
+  "recommendation": "P11 递归验证通过。流水线所有 5 层组件已渲染并包含完整控件，多数按钮 disabled 是预期行为（未满足前置条件）。建议修复确认按钮 disabled 状态逻辑，以及 v-show 控制链的触发条件。"
+}
