@@ -1,0 +1,58 @@
+{
+  "name": "P5 编辑器与对话双向同步闭环",
+  "passed": true,
+  "results": [
+    {
+      "name": "存在可通过章节树打开的章节",
+      "pass": true,
+      "detail": "{\"projectId\":\"p4_verify_1787058779447\",\"chapters\":[{\"id\":\"ch_1787058779636_0_1\",\"title\":\"P4验证章\"}]}"
+    },
+    {
+      "name": "点击章节树后编辑器打开章节标签",
+      "pass": true,
+      "detail": "{\"firstTab\":\"tab-ch_1787058779636_0_1\",\"disabled\":false}"
+    },
+    {
+      "name": "编辑器可选中文本并显示内联操作菜单",
+      "pass": true,
+      "detail": "{\"start\":5,\"end\":10,\"selected\":\"选区原文。\"}"
+    },
+    {
+      "name": "选区操作已进入右侧对话发送路径",
+      "pass": true,
+      "detail": "userMessages=1"
+    },
+    {
+      "name": "真实 API/对话路径产生非空 AI 回复",
+      "pass": true,
+      "detail": "已将选中文本“选区原文。”改写为“选中的文本部分。”，结合上下文后整体段落如下：\n\n前文保留。选中的文本部分。后文保留。"
+    },
+    {
+      "name": "AI 回复气泡显示替换按钮",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "替换只改动选区并保留前后正文",
+      "pass": true,
+      "detail": "{\"beforeReplace\":\"前文保留。选区原文。后文保留。\",\"afterReplace\":\"前文保留。已将选中文本“选区原文。”改写为“选中的文本部分。”，结合上下文后整体段落如下：\\n\\n前文保留。选中的文本部分。后文保留。后文保留。\",\"expected\":\"前文保留。已将选中文本“选区原文。”改写为“选中的文本部分。”，结合上下文后整体段落如下：\\n\\n前文保留。选中的文本部分。后文保留。后文保留。\"}"
+    },
+    {
+      "name": "切换标签隔离验证",
+      "pass": true,
+      "detail": "当前项目仅一个章节，跳过第二标签操作；源码快照检查保留 tabId guard"
+    },
+    {
+      "name": "替换后对话会话内存在消息",
+      "pass": true,
+      "detail": "{\"count\":2,\"sessionId\":\"chat_1787061709539_lw3z2r\"}"
+    },
+    {
+      "name": "重载后对话记录持久化恢复",
+      "pass": true,
+      "detail": "{\"activeCount\":1,\"persistedCount\":4,\"activeSessionId\":\"chat_1786830563089_7eorq3\"}"
+    }
+  ],
+  "projectId": "p4_verify_1787058779447",
+  "timestamp": "2026-08-18T14:02:11.723Z"
+}

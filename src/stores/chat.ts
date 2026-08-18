@@ -83,6 +83,7 @@ export const useChatStore = defineStore('chat', () => {
       if (last.role === 'assistant') {
         last.content = content
         session.updatedAt = Date.now()
+        saveSessions()
       }
     }
   }

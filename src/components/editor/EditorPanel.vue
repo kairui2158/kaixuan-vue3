@@ -527,7 +527,16 @@ function applyInlineAction(action: string, label: string) {
   } else {
     prompt = '【' + label + '】请对以下选中文本进行' + label + '操作：\n\n' + selectedText
   }
-  window.dispatchEvent(new CustomEvent('editor-action', { detail: { action: 'inline-ai', prompt } }))
+  window.dispatchEvent(new CustomEvent('editor-action', {
+    detail: {
+      action: 'inline-ai',
+      prompt,
+      tabId: activeTab.value?.id || '',
+      selectionStart: ta.selectionStart,
+      selectionEnd: ta.selectionEnd,
+      selectedText
+    }
+  }))
 }
 </script>
 

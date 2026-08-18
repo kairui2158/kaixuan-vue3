@@ -114,6 +114,7 @@ const projectId = computed(() => projectStore.currentProjectId || 'default')
 const messages = computed(() => chatStore.activeMessages)
 const inputText = ref('')
 const _pendingInlineOriginal = ref('')
+const _pendingInlineSelection = ref<{ tabId: string; start: number; end: number } | null>(null)
 const selectedChatAgent = computed({
   get: () => agentStore.selectedAgentId || '',
   set: (v: string) => { agentStore.selectedAgentId = v }
@@ -172,7 +173,7 @@ watch(() => editorStore.activeTab?.content, (content) => {
   }
 })
 
-onMounted(() => {
+function syncChatProject() {
   chatStore.loadSessions(projectId.value)
   const tab = editorStore.activeTab
   if (tab) {
@@ -187,6 +188,14 @@ onMounted(() => {
   } else {
     chatStore.ensureSession('', '', '默认对话', projectId.value)
   }
+}
+
+watch(projectId, (nextId, previousId) => {
+  if (nextId && nextId !== previousId) syncChatProject()
+})
+
+onMounted(() => {
+  syncChatProject()
   window.addEventListener('editor-action', handleEditorAction)
 })
 
@@ -194,12 +203,16 @@ function handleEditorAction(e: any) {
   const detail = e.detail
   if (detail && detail.action === 'inline-ai' && detail.prompt) {
     _pendingInlineOriginal.value = detail.prompt;
+    _pendingInlineSelection.value = detail.tabId
+      ? { tabId: detail.tabId, start: Number(detail.selectionStart) || 0, end: Number(detail.selectionEnd) || 0 }
+      : null
     inputText.value = detail.prompt;
     nextTick(() => {
       sendMessage();
     });
   } else if (detail && detail.action === 'revise' && detail.chapterId) {
     _pendingInlineOriginal.value = editorStore.activeTab?.content || "";
+    _pendingInlineSelection.value = null
     const prompt = "请对以下章节内容进行修订，优化文笔、修复逻辑问题、提升可读性：\n\n" + _pendingInlineOriginal.value;
     inputText.value = prompt;
     nextTick(() => { sendMessage(); });
@@ -262,8 +275,8 @@ async function sendMessage() {
     }
 
     const recentUserMsgs: string[] = []
-    for (let i = messages.length - 1; i >= 0 && recentUserMsgs.length < 3; i--) {
-      if (messages[i].role === 'user') recentUserMsgs.push((messages[i].content || '').toLowerCase())
+    for (let i = messages.value.length - 1; i >= 0 && recentUserMsgs.length < 3; i--) {
+      if (messages.value[i].role === 'user') recentUserMsgs.push((messages.value[i].content || '').toLowerCase())
     }
     if (recentUserMsgs.length > 0) {
       const combined = recentUserMsgs.join(' ')
@@ -312,8 +325,8 @@ async function sendMessage() {
       wordsPerVolume: '',
       wordsPerChapter: ''
     }
-    for (let mi = messages.length - 1; mi >= 0; mi--) {
-      const mc = messages[mi]
+    for (let mi = messages.value.length - 1; mi >= 0; mi--) {
+      const mc = messages.value[mi]
       if (mc.role === 'assistant' && mc.content && (mc.content as string).indexOf('请求失败') !== 0) {
         chatCtx.prevResponse = mc.content
         break
@@ -480,7 +493,7 @@ async function sendMessage() {
       response = await callApi(provider, model, systemPrompt, text, maxDepth, projId)
     }
     if (response) {
-      if (messages.length === 0 || messages[messages.length - 1].role !== 'assistant') {
+      if (messages.value.length === 0 || messages.value[messages.value.length - 1].role !== 'assistant') {
         chatStore.addMessage({ role: 'assistant', content: response, tabId: chatStore.currentContext?.tabId || '' }, projId)
       }
     }
@@ -575,10 +588,18 @@ function insertToEditor(content: string) {
 }
 
 function replaceWhole(content: string) {
-  if (editorStore.activeTab) {
-    if (confirm('将替换整章内容，确认继续？')) {
-      editorStore.updateContent(editorStore.activeTab.id, content)
-    }
+  const pending = _pendingInlineSelection.value
+  const tab = editorStore.activeTab
+  if (pending && tab && pending.tabId === tab.id && pending.end > pending.start) {
+    const original = tab.content || ''
+    const start = Math.max(0, Math.min(pending.start, original.length))
+    const end = Math.max(start, Math.min(pending.end, original.length))
+    editorStore.updateContent(tab.id, original.substring(0, start) + content + original.substring(end))
+    _pendingInlineSelection.value = null
+    return
+  }
+  if (tab && confirm('当前没有可用选区，将替换整章内容，确认继续？')) {
+    editorStore.updateContent(tab.id, content)
   }
 }
 
