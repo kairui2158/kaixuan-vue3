@@ -1,0 +1,54 @@
+{
+  "name": "P4 大纲工作台闭环",
+  "passed": true,
+  "results": [
+    {
+      "name": "大纲工作台可打开",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "大纲编辑器初始载入项目内容",
+      "pass": true,
+      "detail": "# P4验证卷\n\n## P4验证章\n\n用户编辑后的大纲内容。"
+    },
+    {
+      "name": "大纲编辑器可自由编辑",
+      "pass": true,
+      "detail": "length=51"
+    },
+    {
+      "name": "保存大纲到本地文件（直接IPC）",
+      "pass": true,
+      "detail": "{\"writeOk\":true,\"exists\":true,\"length\":51}"
+    },
+    {
+      "name": "保存大纲按钮可点击",
+      "pass": true,
+      "detail": "btn-primary"
+    },
+    {
+      "name": "确认大纲后项目状态锁定",
+      "pass": true,
+      "detail": "{\"locked\":true,\"length\":51}"
+    },
+    {
+      "name": "锁定后自动进入生成流水线",
+      "pass": true,
+      "detail": "神意助手\n默认\n凯旋写作Agent\n白虎\n新智能体\n新智能体\n自动\ndeepseek-v4-flash\ndeepseek-v4-flash-free\ndeepseek-v4-flash-test\ndeepseek-v4-flash-xf\ndeepseek-v4-pro\ndeepseek-v4-pro-test\ndeepseek-v4-pro-tg\ndoubao-seed-2.1-pro\ndoubao-seed-2.1-pro-test\n"
+    },
+    {
+      "name": "生成流水线读取锁定后的同一份大纲",
+      "pass": true,
+      "detail": "length=51"
+    },
+    {
+      "name": "重载后锁定状态和大纲持久化",
+      "pass": true,
+      "detail": "{\"locked\":true,\"length\":51}"
+    }
+  ],
+  "tempId": "p4_verify_1787059694763",
+  "tempFile": "D:/codex/novel-workshop-vue3/_audit/.p4_outline_saved.md",
+  "timestamp": "2026-08-18T13:28:18.184Z"
+}
