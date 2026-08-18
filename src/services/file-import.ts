@@ -1,5 +1,22 @@
 // File import utilities: smartDecode + parseDocx (ported from old source panels.js)
 
+/**
+ * RTF 的 \\'hh 转义按原始字节（0-255）解释，
+ * 必须先把字节转成 Latin-1 式字符串再交给 RTF 解析器，
+ * 不能先用 smartDecode 把 GBK 字节提前解码成 Unicode。
+ */
+function bytesToRaw(buf: Uint8Array): string {
+  let out = ''
+  const chunk = 8192
+  for (let i = 0; i < buf.length; i += chunk) {
+    const end = Math.min(i + chunk, buf.length)
+    for (let j = i; j < end; j++) {
+      out += String.fromCharCode(buf[j])
+    }
+  }
+  return out
+}
+
 export function smartDecode(buf: Uint8Array): string {
   const utf8 = new TextDecoder('utf-8', { fatal: false }).decode(buf)
   if (utf8.indexOf('�') === -1) return utf8
@@ -221,7 +238,7 @@ export async function importFile(file: File): Promise<string> {
     return smartDecode(buf)
   }
   if (fileName.endsWith('.rtf')) {
-    return parseRtfText(smartDecode(buf))
+    return parseRtfText(bytesToRaw(buf))
   }
   if (fileName.endsWith('.docx')) {
     return await parseDocx(buf)
