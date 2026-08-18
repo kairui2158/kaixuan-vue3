@@ -58,10 +58,8 @@
               </select>
               <span class="pl-mode-label">Skill模式:</span>
               <select id="pl-s1-mode" v-model="stepSkillModes[0]" class="pl-select pl-mode-select" @change="saveStepConfig">
-                <option value="compose">组合（一次调用）</option>
-                <option value="chain">串行（多次调用）</option>
-                <option value="split-merge">拆分合并（分块处理）</option>
-                <option value="multi-step">多步（3-4步多阶段）</option>
+                <option value="compose">并行</option>
+                <option value="chain">串行</option>
               </select>
             </div>
             <div class="pl-skill-bar">
@@ -106,10 +104,8 @@
               </select>
               <span class="pl-mode-label">Skill模式:</span>
               <select id="pl-s2-mode" v-model="stepSkillModes[1]" class="pl-select pl-mode-select" @change="saveStepConfig">
-                <option value="compose">组合（一次调用）</option>
-                <option value="chain">串行（多次调用）</option>
-                <option value="split-merge">拆分合并（分块处理）</option>
-                <option value="multi-step">多步（3-4步多阶段）</option>
+                <option value="compose">并行</option>
+                <option value="chain">串行</option>
               </select>
             </div>
             <div class="pl-skill-bar">
@@ -232,10 +228,8 @@
               </select>
               <span class="pl-mode-label">Skill模式:</span>
               <select id="pl-s3-mode" v-model="stepSkillModes[2]" class="pl-select pl-mode-select" @change="saveStepConfig">
-                <option value="chain">串行（多次调用）</option>
-                <option value="split-merge">拆分合并（分块处理）</option>
-                <option value="multi-step">多步（3-4步多阶段）</option>
-                <option value="compose">组合（一次调用）</option>
+                <option value="compose">并行</option>
+                <option value="chain">串行</option>
               </select>
             </div>
             <div class="pl-skill-bar">
@@ -347,10 +341,8 @@
               </select>
               <span class="pl-mode-label">Skill模式:</span>
               <select id="pl-s4-mode" v-model="stepSkillModes[3]" class="pl-select pl-mode-select" @change="saveStepConfig">
-                <option value="chain">串行（多次调用）</option>
-                <option value="split-merge">拆分合并（分块处理）</option>
-                <option value="multi-step">多步（3-4步多阶段）</option>
-                <option value="compose">组合（一次调用）</option>
+                <option value="compose">并行</option>
+                <option value="chain">串行</option>
               </select>
             </div>
             <div class="pl-skill-bar">
@@ -418,10 +410,8 @@
               </select>
               <span class="pl-mode-label">Skill模式:</span>
               <select id="pl-s5-mode" v-model="stepSkillModes[4]" class="pl-select pl-mode-select" @change="saveStepConfig">
-                <option value="compose">组合（一次调用）</option>
-                <option value="chain">串行（多次调用）</option>
-                <option value="split-merge">拆分合并（分块处理）</option>
-                <option value="multi-step">多步（3-4步多阶段）</option>
+                <option value="compose">并行</option>
+                <option value="chain">串行</option>
               </select>
             </div>
             <div class="pl-skill-bar">
