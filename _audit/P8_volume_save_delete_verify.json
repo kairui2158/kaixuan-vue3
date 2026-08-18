@@ -1,0 +1,177 @@
+{
+  "results": [
+    {
+      "name": "项目快照已保存",
+      "pass": true,
+      "detail": "wa_project_proj-1787018619240"
+    },
+    {
+      "name": "上游大纲已锁定",
+      "pass": true,
+      "detail": "{\"locked\":true,\"outlineLength\":12529}"
+    },
+    {
+      "name": "进入卷纲层",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "找到可验证的未锁定卷",
+      "pass": true,
+      "detail": "{\"index\":0,\"name\":\"第一卷\"}"
+    },
+    {
+      "name": "未锁定卷显示保存按钮",
+      "pass": true,
+      "detail": "保存并锁定本卷"
+    },
+    {
+      "name": "未锁定卷编辑字段可写",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "保存后卷状态已锁定",
+      "pass": true,
+      "detail": "{\"id\":\"vol_1787018711018_1\",\"name\":\"第一卷\",\"outline\":\"\",\"summary\":\"\",\"suggestedWords\":0,\"confirmed\":true,\"locked\":true,\"bodyGenerated\":false}"
+    },
+    {
+      "name": "保存后卷输入变为只读",
+      "pass": true,
+      "detail": "[{\"placeholder\":\"卷名\",\"readOnly\":true},{\"placeholder\":\"卷纲要\",\"readOnly\":true},{\"placeholder\":\"摘要\",\"readOnly\":true}]"
+    },
+    {
+      "name": "保存按钮进入已锁定状态",
+      "pass": true,
+      "detail": "已锁定"
+    },
+    {
+      "name": "锁定卷在章节层可选择",
+      "pass": true,
+      "detail": "第一卷"
+    },
+    {
+      "name": "删除后卷从 store 移除",
+      "pass": true,
+      "detail": "{\"deletedCardPresent\":false,\"remainingCards\":0,\"persisted\":{\"deletedFromStorage\":true,\"chaptersDeleted\":true}}"
+    },
+    {
+      "name": "删除后对应章节映射移除",
+      "pass": true,
+      "detail": "{\"deletedCardPresent\":false,\"remainingCards\":0,\"persisted\":{\"deletedFromStorage\":true,\"chaptersDeleted\":true}}"
+    },
+    {
+      "name": "删除后卷从持久化数据移除",
+      "pass": true,
+      "detail": "{\"deletedFromStorage\":true,\"chaptersDeleted\":true}"
+    },
+    {
+      "name": "删除后卷卡片不再显示",
+      "pass": true,
+      "detail": "{\"deletedCardPresent\":false,\"remainingCards\":0,\"persisted\":{\"deletedFromStorage\":true,\"chaptersDeleted\":true}}"
+    }
+  ],
+  "selectedIndex": 0,
+  "originalVolume": {
+    "id": "vol_1787018711018_1",
+    "name": "第一卷",
+    "outline": "",
+    "summary": "",
+    "suggestedWords": 0,
+    "confirmed": false,
+    "locked": false,
+    "bodyGenerated": false
+  },
+  "stateAfterLock": {
+    "chapterKey": "第一卷",
+    "saveText": "已锁定",
+    "readOnly": [
+      {
+        "placeholder": "卷名",
+        "readOnly": true
+      },
+      {
+        "placeholder": "卷纲要",
+        "readOnly": true
+      },
+      {
+        "placeholder": "摘要",
+        "readOnly": true
+      }
+    ],
+    "cardClass": "pl-vol-card confirmed",
+    "storedVolume": {
+      "id": "vol_1787018711018_1",
+      "name": "第一卷",
+      "outline": "",
+      "summary": "",
+      "suggestedWords": 0,
+      "confirmed": true,
+      "locked": true,
+      "bodyGenerated": false
+    },
+    "storedChapters": {
+      "vol_1787018711018_1": [
+        {
+          "id": "ch_1787018711018_0_1",
+          "title": "《绿潮》大纲总纲 V20.0",
+          "plot": "",
+          "wordCount": 0,
+          "confirm": false,
+          "body": "",
+          "bodyGenerated": false,
+          "confirmed": false
+        },
+        {
+          "id": "ch_1787018711019_1_1",
+          "title": "卷一：基石设定层",
+          "plot": "",
+          "wordCount": 0,
+          "confirm": false,
+          "body": "",
+          "bodyGenerated": false,
+          "confirmed": false
+        },
+        {
+          "id": "ch_1787018711019_2_1",
+          "title": "卷二：核心人物群像",
+          "plot": "",
+          "wordCount": 0,
+          "confirm": false,
+          "body": "",
+          "bodyGenerated": false,
+          "confirmed": false
+        },
+        {
+          "id": "ch_1787018711019_3_1",
+          "title": "卷三：势力与格局层",
+          "plot": "",
+          "wordCount": 0,
+          "confirm": false,
+          "body": "",
+          "bodyGenerated": false,
+          "confirmed": false
+        },
+        {
+          "id": "ch_1787018711019_4_1",
+          "title": "卷四：叙事工具箱层",
+          "plot": "",
+          "wordCount": 0,
+          "confirm": false,
+          "body": "",
+          "bodyGenerated": false,
+          "confirmed": false
+        }
+      ]
+    }
+  },
+  "stateAfterDelete": {
+    "deletedCardPresent": false,
+    "remainingCards": 0,
+    "persisted": {
+      "deletedFromStorage": true,
+      "chaptersDeleted": true
+    }
+  },
+  "passed": true
+}

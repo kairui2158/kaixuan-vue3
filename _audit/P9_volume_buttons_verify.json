@@ -1,0 +1,87 @@
+{
+  "results": [
+    {
+      "name": "项目快照已保存",
+      "passed": true,
+      "detail": "wa_project_proj-1787018619240"
+    },
+    {
+      "name": "流水线面板已打开",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "卷纲层已显示",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "AI生成全卷按钮可见",
+      "passed": true,
+      "detail": "{\"present\":true,\"visible\":true,\"text\":\"AI生成全卷\",\"disabled\":false}"
+    },
+    {
+      "name": "逐卷生成按钮可见",
+      "passed": true,
+      "detail": "{\"present\":true,\"visible\":true,\"text\":\"逐卷生成\",\"disabled\":false}"
+    },
+    {
+      "name": "确认完成下一步按钮可见",
+      "passed": true,
+      "detail": "{\"present\":true,\"visible\":true,\"text\":\"确认完成下一步\",\"disabled\":false}"
+    },
+    {
+      "name": "自动生成卷纲旧按钮已删除",
+      "passed": true,
+      "detail": "{\"present\":false,\"visible\":false,\"text\":\"\",\"disabled\":false}"
+    },
+    {
+      "name": "批量续生成旧按钮已删除",
+      "passed": true,
+      "detail": "{\"present\":false,\"visible\":false,\"text\":\"\",\"disabled\":false}"
+    },
+    {
+      "name": "当前项目存在卷纲内容可推进",
+      "passed": true,
+      "detail": "volumeCards=1"
+    },
+    {
+      "name": "确认完成下一步推进到章节层",
+      "passed": true,
+      "detail": "{\"currentStep\":3,\"chapterVisible\":true}"
+    }
+  ],
+  "buttons": {
+    "btn-pl-gen-volumes": {
+      "present": true,
+      "visible": true,
+      "text": "AI生成全卷",
+      "disabled": false
+    },
+    "btn-pl-gen-single-volume": {
+      "present": true,
+      "visible": true,
+      "text": "逐卷生成",
+      "disabled": false
+    },
+    "btn-pl-confirm-volumes": {
+      "present": true,
+      "visible": true,
+      "text": "确认完成下一步",
+      "disabled": false
+    },
+    "btn-pl-create-volumes": {
+      "present": false,
+      "visible": false,
+      "text": "",
+      "disabled": false
+    },
+    "btn-pl-continue-volumes": {
+      "present": false,
+      "visible": false,
+      "text": "",
+      "disabled": false
+    }
+  },
+  "passed": true
+}

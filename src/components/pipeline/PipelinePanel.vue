@@ -294,13 +294,13 @@
                 </div>
                 <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
               </div>
-              <div v-for="(vol, i) in projectStore.volumes" :key="i" class="pl-vol-card" :class="{ confirmed: vol.confirmed }">
+              <div v-for="(vol, i) in projectStore.volumes" :key="vol.id || i" :id="'pl-volume-card-' + i" class="pl-vol-card" :class="{ confirmed: vol.confirmed }">
                 <div class="pl-vol-header">
-                  <input v-model="vol.name" class="pl-input" placeholder="卷名" @change="projectStore.saveProject()" />
+                  <input v-model="vol.name" class="pl-input" placeholder="卷名" :readonly="vol.confirmed" @change="projectStore.saveProject()" />
                   <span class="vol-words">{{ vol.suggestedWords || '?' }} 字</span>
                 </div>
-                <textarea v-model="vol.outline" class="pl-vol-outline" placeholder="卷纲要" @change="projectStore.saveProject()"></textarea>
-                <input v-model="vol.summary" class="pl-input" placeholder="摘要" @change="projectStore.saveProject()" />
+                <textarea v-model="vol.outline" class="pl-vol-outline" placeholder="卷纲要" :readonly="vol.confirmed" @change="projectStore.saveProject()"></textarea>
+                <input v-model="vol.summary" class="pl-input" placeholder="摘要" :readonly="vol.confirmed" @change="projectStore.saveProject()" />
                 <div
                   v-if="volumeGenerationFeedbackVisible && activeVolumeGenerationIndex === i"
                   class="pl-vol-generation-feedback"
@@ -322,14 +322,18 @@
                   </div>
                   <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
                 </div>
+                <div class="pl-volume-card-actions">
+                  <button :id="'btn-pl-save-volume-' + i" class="btn-sm btn-primary" @click="saveVolume(i)" :disabled="vol.confirmed || !vol.name.trim()">
+                    {{ vol.confirmed ? '已锁定' : '保存并锁定本卷' }}
+                  </button>
+                  <button :id="'btn-pl-delete-volume-' + i" class="btn-sm btn-danger" @click="deleteVolume(i)">删除本卷</button>
+                </div>
               </div>
             </div>
             <div class="pl-actions">
               <button id="btn-pl-gen-volumes" class="btn-primary" @click="genVolumes('auto')" :disabled="pipelineStore.isGenerating">AI生成全卷</button>
               <button id="btn-pl-gen-single-volume" class="btn-secondary" @click="genVolumes('single')" :disabled="pipelineStore.isGenerating">逐卷生成</button>
-              <button id="btn-pl-create-volumes" class="btn-secondary" @click="genVolumes('auto')" :disabled="pipelineStore.isGenerating">自动生成卷纲</button>
-              <button id="btn-pl-continue-volumes" class="btn-secondary" @click="genVolumes('continue')" :disabled="pipelineStore.isGenerating">批量续生成</button>
-              <button id="btn-pl-confirm-volumes" class="btn-secondary" @click="confirmStep(2)" :disabled="projectStore.volumes.length === 0">确认完成</button>
+              <button id="btn-pl-confirm-volumes" class="btn-secondary" @click="confirmStep(2)" :disabled="projectStore.volumes.length === 0">确认完成下一步</button>
             </div>
           </div>
           <div v-show="pipelineStore.currentStep === 3" id="pl-step-4-content" class="pl-step-panel">
@@ -375,8 +379,10 @@
               <label>每章字数</label>
               <input id="pl-chapter-wordcount" type="number" class="input-w-80" v-model.number="chapterWords" min="1000" step="500" @change="saveVolumeConfig" />
               <label>选择卷</label>
-              <select v-model.number="selectedVolumeIndex" class="pl-input-sm">
-                <option v-for="(vol, i) in projectStore.volumes" :key="i" :value="i">{{ vol.name }}</option>
+              <select v-model.number="selectedVolumeIndex" class="pl-input-sm" :disabled="confirmedVolumes.length === 0">
+                <template v-for="(vol, i) in projectStore.volumes" :key="vol.id || i">
+                  <option v-if="vol.confirmed" :value="i">{{ vol.name }}</option>
+                </template>
               </select>
               <label>预计章数</label>
               <span id="pl-ch-est-count" class="pl-gen-hint">{{ estimatedChapters }}</span>
@@ -391,7 +397,8 @@
                   <textarea v-model="ch.plot" class="pl-ch-plot" placeholder="本章剧情点概要"></textarea>
                 </div>
               </div>
-              <p id="pl-ch-empty-hint" v-if="currentVolumeChapters.length === 0" class="empty-hint">暂无章节，请先生成</p>
+              <p id="pl-ch-empty-hint" v-if="confirmedVolumes.length === 0" class="empty-hint">暂无已锁定卷纲，请先在卷纲层保存并锁定本卷</p>
+              <p id="pl-ch-empty-hint" v-else-if="currentVolumeChapters.length === 0" class="empty-hint">暂无章节，请先生成</p>
             </div>
             <div class="pl-actions">
               <button id="btn-pl-gen-chapters" class="btn-primary" @click="genChapters" :disabled="pipelineStore.isGenerating">AI生成章节</button>
@@ -741,9 +748,11 @@ const currentSettings = computed(() => {
     return allItems
   })
 
+const confirmedVolumes = computed(() => projectStore.volumes.filter((vol: any) => vol.confirmed))
+
   const currentVolumeChapters = computed(() => {
-  const vol = projectStore.volumes[selectedVolumeIndex.value]
-  if (!vol) return []
+    const vol = projectStore.volumes[selectedVolumeIndex.value]
+  if (!vol || !vol.confirmed) return []
   const volId = vol.id || vol.name
   return projectStore.chapters[volId] || []
 })
@@ -1166,6 +1175,29 @@ function confirmSettingsLayer() {
   if (currentSettings.value.length === 0) return
   projectStore.saveProject()
   confirmStep(1)
+}
+
+function saveVolume(index: number) {
+  const vol = projectStore.volumes[index]
+  if (!vol || !vol.name.trim()) return
+  vol.confirmed = true
+  vol.locked = true
+  projectStore.volumesConfirmed = false
+  if (!projectStore.chapters[vol.id || vol.name]) projectStore.chapters[vol.id || vol.name] = []
+  if (!projectStore.volumes[selectedVolumeIndex.value]?.confirmed) selectedVolumeIndex.value = index
+  projectStore.saveProject()
+}
+
+function deleteVolume(index: number) {
+  const vol = projectStore.volumes[index]
+  if (!vol) return
+  const volId = vol.id || vol.name
+  delete projectStore.chapters[volId]
+  projectStore.volumes.splice(index, 1)
+  if (selectedVolumeIndex.value >= projectStore.volumes.length) selectedVolumeIndex.value = Math.max(0, projectStore.volumes.length - 1)
+  projectStore.volumesConfirmed = false
+  projectStore.chaptersConfirmed = false
+  projectStore.saveProject()
 }
 
 function nextStep() {
@@ -1856,6 +1888,7 @@ function toolAction(action: string) {
 .pl-vol-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .vol-words { font-size: var(--font-size-md); color: var(--text-muted); flex-shrink: 0; }
 .pl-vol-outline { width: 100%; min-height: 100px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px; font-size: var(--font-size-md); resize: vertical; outline: none; margin-bottom: 10px; }
+.pl-volume-card-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding-top: 4px; }
 .pl-ch-config { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: var(--font-size-lg); flex-wrap: wrap; }
 .pl-ch-config label { color: var(--text-secondary); }
 .pl-ch-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; max-height: 350px; overflow-y: auto; }
