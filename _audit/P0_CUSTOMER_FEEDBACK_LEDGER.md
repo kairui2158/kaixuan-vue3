@@ -15,7 +15,7 @@ Git：`7a6df94`（P10 修复）
 | 2 | 大纲文件导入按钮无亮度、仅 TXT | 大纲工作台可打开；导入按钮/accept 需在 P2 实测 | P2 阶段验证记录 | 待验证 |
 | 3 | 大纲 AI 共创未连通 API | 真实 POST /chat/completions 捕获；AI 回复 OK；复制/插入/替换/重生成全部生效；outlineChat storeLen=2=storedLen 持久化成功 | `_audit/tmp/p3_ui_verify_result.json` + `_audit/tmp/p3_chat_reply.png` + `_audit/tmp/p3_chat_final.png` | ✅ PASS |
 | 4 | 锁定后跳转流水线大纲层+按钮重复 | 锁定后 currentStep=0 自动进入流水线大纲层；大纲层 actions 只有 1 个按钮 `确认字数并进入下一步`；字数 88 万→store bookWordCountChars=880000→设定层显示 `88 万字`→存储持久化 | `_audit/tmp/p4_ui_verify_result.json` + `_audit/tmp/p4_after_confirm.png` | ✅ PASS |
-| 5 | 设定层无 API 滚动/进度条 | 设定工作台存在：设定类/+ 新增分类/AI设定生成/确认保存（disabled） | P5 阶段验证记录 | 待验证 |
+| 5 | 设定层无 API 滚动/进度条 | 点击 AI设定生成：反馈面板可见，进度 10→100，API 日志 4 条实时滚动；AI 返回生成 5 个动态分类（角色/异能/组织/地点/设定类）、10 个设定项；绑定生效并持久化 `isBound=true`；确认该类→`settingsGenerated=true`；确认/保存→`currentStep=2` 卷纲层、步骤 2 完成；项目存储含完整 `settingsCollection` | `_audit/tmp/p5_ui_verify_result.json` + `_audit/tmp/p5_after_generation.png` + `_audit/tmp/p5_after_confirm.png` | ✅ PASS |
 | 6 | 卷纲层无卷框内滚动 | 卷框按钮存在：保存并锁定本卷/删除本卷/AI生成全卷/逐卷生成/确认完成下一步 | P6 阶段验证记录 | 待验证 |
 | 7 | 卷纲层无字数联动 | 卷纲层当前显示 1 卷；大纲字数联动需 P6 验证 | P6 阶段验证记录 | 待验证 |
 | 8 | 卷框无保存/删除 | `btn-pl-save-volume-0`、`btn-pl-delete-volume-0` 存在且 enabled | P6 阶段验证记录 | 待验证 |
