@@ -21,6 +21,7 @@ export const useProjectStore = defineStore('project', () => {
   const settingsCollection = ref<{ categories: string[]; items: Record<string, any[]> }>({ categories: [], items: {} })
   const settingBindings = ref<Record<string, string[]>>({})
   const memories = ref<{ categories: string[]; items: any[] }>({ categories: ['情节', '人物', '世界观', '伏笔'], items: [] })
+  const outlineChat = ref<any[]>([])
 
   function nameFromOutline(text: string): string {
     const raw = text || ''
@@ -77,6 +78,7 @@ export const useProjectStore = defineStore('project', () => {
       settingsCollection.value = data.settingsCollection || { categories: [], items: {} }
       settingBindings.value = data.settingBindings || {}
       memories.value = data.memories || { categories: ['情节', '人物', '世界观', '伏笔'], items: [] }
+      outlineChat.value = data.outlineChat || []
       if (volumes.value.length === 0 && outlineText.value.trim()) {
         ensureVolumesFromOutline()
         saveProject()
@@ -104,9 +106,22 @@ export const useProjectStore = defineStore('project', () => {
       chapters: toPlain(chapters.value),
       settingBindings: toPlain(settingBindings.value),
       settingsCollection: toPlain(settingsCollection.value),
-      memories: toPlain(memories.value)
+      memories: toPlain(memories.value),
+      outlineChat: toPlain(outlineChat.value)
     }
     window.electronAPI.storageWrite(storageKey('project_' + currentProjectId.value), data)
+  }
+
+  function appendOutlineChat(msg: any) {
+    outlineChat.value.push(msg)
+    saveProject()
+  }
+
+  function removeOutlineChatAt(index: number) {
+    if (index >= 0 && index < outlineChat.value.length) {
+      outlineChat.value.splice(index, 1)
+      saveProject()
+    }
   }
 
   function setOutline(text: string) {
@@ -348,6 +363,7 @@ export const useProjectStore = defineStore('project', () => {
     settingsCollection.value = { categories: [], items: {} }
     settingBindings.value = {}
     memories.value = { categories: ['情节', '人物', '世界观', '伏笔'], items: [] }
+    outlineChat.value = []
   }
 
   function createProject(name: string, outline: string) {
@@ -406,6 +422,7 @@ export const useProjectStore = defineStore('project', () => {
     confirmVolumes() { volumesConfirmed.value = true; saveProject() },
     confirmChapters() { chaptersConfirmed.value = true; saveProject() },
     settingsCollection, getSettingsCollection, ensureSettingsCollection, appendSettingsToCollection, settingBindings,
-    memories, addMemoryCategory, addMemory, updateMemory, deleteMemory
+    memories, addMemoryCategory, addMemory, updateMemory, deleteMemory,
+    outlineChat, appendOutlineChat, removeOutlineChatAt
   }
 })

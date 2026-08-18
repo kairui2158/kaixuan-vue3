@@ -121,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue'
+import { ref, computed, nextTick, watch } from 'vue'
 import { marked } from 'marked'
 import { useProjectStore } from '../../stores/project'
 import { useProviderStore } from '../../stores/provider'
@@ -136,7 +136,7 @@ const providerStore = useProviderStore()
 const pipelineStore = usePipelineStore()
 const { callAi } = useAiTools()
 
-const messages = ref<any[]>([])
+const messages = computed(() => projectStore.outlineChat)
 const inputText = ref('')
 const msgContainer = ref<HTMLElement | null>(null)
 const fileInput = ref<HTMLElement | null>(null)
@@ -406,7 +406,7 @@ function insertAtCursor(text: string) {
 async function sendMessage() {
   const text = inputText.value.trim()
   if (!text) return
-  messages.value.push({ role: 'user', content: text })
+  projectStore.appendOutlineChat({ role: 'user', content: text })
   inputText.value = ''
   lastUserRequest.value = text
   await scrollToBottom()
@@ -416,7 +416,7 @@ async function sendMessage() {
 async function regenerateMsg(index: number) {
   const target = messages.value[index]
   if (!target || target.role !== 'assistant') return
-  messages.value.splice(index, 1)
+  projectStore.removeOutlineChatAt(index)
   const requestText = lastUserRequest.value ||
     [...messages.value].reverse().find(function(m) { return m.role === 'user' })?.content || ''
   if (!requestText) return
@@ -432,13 +432,13 @@ async function scrollToBottom() {
 async function askAi(requestText: string) {
   const provider = providerStore.activeGenerateProvider
   if (!provider) {
-    messages.value.push({ role: 'assistant', content: '请先配置API供应商' })
+    projectStore.appendOutlineChat({ role: 'assistant', content: '请先配置API供应商' })
     await scrollToBottom()
     return
   }
   const baseUrl = provider.baseUrl.replace(/\/$/, '')
   const url = baseUrl.match(/\/v\d+$/) ? baseUrl + '/chat/completions' : baseUrl + '/v1/chat/completions'
-  const model = provider.selectedModel || 'gpt-4o'
+  const model = provider.selectedModel || provider.models?.[0] || 'gpt-4o'
   const systemPrompt = '你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。'
   const payload = {
     model,
@@ -448,7 +448,7 @@ async function askAi(requestText: string) {
       { role: 'user', content: '当前大纲:\n' + projectStore.outlineText + '\n\n用户请求: ' + requestText }
     ],
     stream: false,
-    max_tokens: 128000
+    max_tokens: provider.maxTokens || 8192
   }
   try {
     let resp = await fetch(url, {
@@ -471,12 +471,12 @@ async function askAi(requestText: string) {
     }
     if (!resp.ok) throw new Error('API error: ' + resp.status)
     const data = await resp.json()
-    messages.value.push({
+    projectStore.appendOutlineChat({
       role: 'assistant',
       content: data.choices?.[0]?.message?.content || data.choices?.[0]?.message?.reasoning_content || ''
     })
   } catch (e: any) {
-    messages.value.push({ role: 'assistant', content: 'Error: ' + e.message })
+    projectStore.appendOutlineChat({ role: 'assistant', content: 'Error: ' + e.message })
   }
   await scrollToBottom()
 }

@@ -13,7 +13,7 @@ Git：`7a6df94`（P10 修复）
 |---|------|---------------------|---------|------|
 | 1 | 项目管理无法全部删除，存在占位项目 | 删除全部项目→列表为空→`暂无项目`→lastProjectId=null→项目键全清→重启无占位，PASS（新建/列出/删除当前/删除最后一个/新旧格式键全清/重启不占位均实测） | `_p1_verify.cjs` 输出 + `_p1_restart.cjs` 输出（verdict: PASS） | ✅ PASS |
 | 2 | 大纲文件导入按钮无亮度、仅 TXT | 大纲工作台可打开；导入按钮/accept 需在 P2 实测 | P2 阶段验证记录 | 待验证 |
-| 3 | 大纲 AI 共创未连通 API | 聊天面板存在，Agent/模型列表可见；真实请求待 P3 验证 | P3 阶段验证记录 | 待验证 |
+| 3 | 大纲 AI 共创未连通 API | 真实 POST /chat/completions 捕获；AI 回复 OK；复制/插入/替换/重生成全部生效；outlineChat storeLen=2=storedLen 持久化成功 | `_audit/tmp/p3_ui_verify_result.json` + `_audit/tmp/p3_chat_reply.png` + `_audit/tmp/p3_chat_final.png` | ✅ PASS |
 | 4 | 锁定后跳转流水线大纲层+按钮重复 | 流水线大纲层（step1）有 `确认字数并进入下一步`，当前 enabled | P4 阶段验证记录 | 待验证 |
 | 5 | 设定层无 API 滚动/进度条 | 设定工作台存在：设定类/+ 新增分类/AI设定生成/确认保存（disabled） | P5 阶段验证记录 | 待验证 |
 | 6 | 卷纲层无卷框内滚动 | 卷框按钮存在：保存并锁定本卷/删除本卷/AI生成全卷/逐卷生成/确认完成下一步 | P6 阶段验证记录 | 待验证 |
