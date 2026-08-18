@@ -81,21 +81,136 @@ export async function parseDocx(buf: Uint8Array): Promise<string> {
     const blob = new Blob([docEntry.data])
     const reader = blob.stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader()
     const chunks: Uint8Array[] = []
-    while (true) {
-      const r = await reader.read()
-      if (r.done) {
-        let totalLen = 0
-        for (const c of chunks) totalLen += c.length
-        const merged = new Uint8Array(totalLen)
-        let pos = 0
-        for (const c of chunks) { merged.set(c, pos); pos += c.length }
-        return extractText(new TextDecoder().decode(merged))
+    const decompress = (async () => {
+      while (true) {
+        const r = await reader.read()
+        if (r.done) break
+        chunks.push(r.value)
       }
-      chunks.push(r.value)
-    }
+      let totalLen = 0
+      for (const c of chunks) totalLen += c.length
+      const merged = new Uint8Array(totalLen)
+      let pos = 0
+      for (const c of chunks) { merged.set(c, pos); pos += c.length }
+      return extractText(new TextDecoder().decode(merged))
+    })()
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('DOCX_DECOMPRESS_TIMEOUT')), 5000)
+    )
+    return await Promise.race([decompress, timeout])
   } else {
     throw new Error('DOCX_UNSUPPORTED_METHOD_' + docEntry.method)
   }
+}
+
+function parseRtfText(raw: string): string {
+  const SKIP_WORDS = new Set([
+    '*', 'fonttbl', 'colortbl', 'stylesheet', 'info', 'filetbl', 'listtable',
+    'listoverridetable', 'revtbl', 'rsidtbl', 'generator', 'pict', 'object',
+    'header', 'headerl', 'headerr', 'footer', 'footerl', 'footerr', 'footnote',
+    'nonshppict', 'data', 'result', 'xe', 'tc', 'fldinst', 'fldrslt', 'upr', 'ud'
+  ]);
+  const cp936 = /\\ansicpg936/.test(raw);
+  let out = '';
+  let pending: number[] = [];
+  let skip = false;
+  const stack: boolean[] = [];
+  let i = 0;
+
+  const flush = () => {
+    if (!pending.length) return;
+    if (cp936) {
+      try {
+        out += new TextDecoder('gbk').decode(new Uint8Array(pending));
+      } catch {
+        out += String.fromCharCode(...pending);
+      }
+    } else {
+      out += String.fromCharCode(...pending);
+    }
+    pending = [];
+  };
+
+  const readControl = (): { name: string; value: number } => {
+    i += 1;
+    let name = '';
+    while (i < raw.length && /[a-zA-Z]/.test(raw[i])) name += raw[i++];
+    let sign = 1;
+    if (raw[i] === '-') { sign = -1; i += 1; }
+    else if (raw[i] === '+') { i += 1; }
+    let digits = '';
+    while (i < raw.length && /[0-9]/.test(raw[i])) digits += raw[i++];
+    if (raw[i] === ' ') i += 1;
+    return { name, value: digits ? sign * Number(digits) : 0 };
+  };
+
+  while (i < raw.length) {
+    const ch = raw[i];
+    if (ch === '\\') {
+      if (raw[i + 1] === '*') {
+        skip = true;
+        i += 2;
+        continue;
+      }
+      if (raw[i + 1] === "'") {
+        i += 2;
+        const hex = raw.slice(i, i + 2);
+        if (/^[0-9a-fA-F]{2}$/.test(hex)) {
+          pending.push(parseInt(hex, 16));
+          i += 2;
+          continue;
+        }
+        i += 1;
+        continue;
+      }
+      const cw = readControl();
+      flush();
+      if (skip) continue;
+      if (cw.name === 'par' || cw.name === 'line') {
+        out += '\n';
+        continue;
+      }
+      if (cw.name === 'tab') {
+        out += '\t';
+        continue;
+      }
+      if (cw.name === 'u') {
+        let code = cw.value;
+        if (code < 0) code += 65536;
+        if (code > 0 && code <= 0xffff) out += String.fromCharCode(code);
+        if (i < raw.length && raw[i] !== '\\' && raw[i] !== '{' && raw[i] !== '}' && raw[i] !== '\r' && raw[i] !== '\n') {
+          i += 1;
+        }
+        continue;
+      }
+      if (SKIP_WORDS.has(cw.name)) {
+        skip = true;
+        continue;
+      }
+      continue;
+    }
+    if (ch === '{') {
+      flush();
+      stack.push(skip);
+      i += 1;
+      continue;
+    }
+    if (ch === '}') {
+      flush();
+      skip = stack.pop() || false;
+      i += 1;
+      continue;
+    }
+    if (ch === '\r' || ch === '\n') {
+      flush();
+      i += 1;
+      continue;
+    }
+    if (!skip) pending.push(ch.charCodeAt(0));
+    i += 1;
+  }
+  flush();
+  return out.split('\n').map(line => line.trim()).join('\n').trim();
 }
 
 export async function importFile(file: File): Promise<string> {
@@ -106,16 +221,13 @@ export async function importFile(file: File): Promise<string> {
     return smartDecode(buf)
   }
   if (fileName.endsWith('.rtf')) {
-    const raw = smartDecode(buf)
-    const text = raw.replace(/\\[a-z]+-?\d*\s?/g, '').replace(/[{}]/g, '').replace(/\\\\/g, '\\').replace(/\\'/g, "'").trim()
-    if (!text || text.length < 5) throw new Error('RTF_EMPTY')
-    return text
+    return parseRtfText(smartDecode(buf))
   }
   if (fileName.endsWith('.docx')) {
     return await parseDocx(buf)
   }
   if (fileName.endsWith('.doc')) {
-    throw new Error('DOC_LEGACY_NOT_SUPPORTED')
+    throw new Error('.doc 旧版格式不支持，请另存为 .docx、.txt 或 .md')
   }
   return smartDecode(buf)
 }
