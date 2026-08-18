@@ -1,0 +1,42 @@
+{
+  "phase": "P1",
+  "timestamp": "2026-08-18T23:31:10.381Z",
+  "pass": true,
+  "results": {
+    "initial": {
+      "items": 1,
+      "empty": false
+    },
+    "empty": true,
+    "created": {
+      "count": 1,
+      "name": "P1验证项目"
+    },
+    "deleted": true,
+    "restart": true,
+    "pass": true
+  },
+  "log": [
+    "[23:30:55] BACKUP fresh backup done",
+    "[23:30:56] KILL: no electron.exe process",
+    "[23:30:57] LAUNCH start-electron.bat (detached, minimized)",
+    "[23:30:59] CDP_CONNECTED target=file:///D:/codex/novel-workshop-vue3/dist-renderer/index.html",
+    "[23:31:00] SHOT p1_modal_initial.png",
+    "[23:31:01] DELETE_ALL count=1",
+    "[23:31:01] STEP delete-all items=0 empty=true badKeys=[] => PASS",
+    "[23:31:01] SHOT p1_after_delete_all.png",
+    "[23:31:03] STEP create => {\"count\":1,\"name\":\"P1验证项目\"}",
+    "[23:31:03] SHOT p1_created.png",
+    "[23:31:03] DELETE_ALL count=1",
+    "[23:31:03] STEP delete-created items=0 empty=true badKeys=[] => PASS",
+    "[23:31:04] SHOT p1_deleted.png",
+    "[23:31:04] RESTART app for ghost check",
+    "[23:31:04] KILL electron.exe",
+    "[23:31:05] LAUNCH start-electron.bat (detached, minimized)",
+    "[23:31:08] STEP restart-ghost items=0 empty=true badKeys=[] => PASS",
+    "[23:31:09] SHOT p1_after_restart.png",
+    "[23:31:09] P1 PASS",
+    "[23:31:09] RESTORE user data after test",
+    "[23:31:10] KILL electron.exe"
+  ]
+}
