@@ -204,6 +204,7 @@ function handleGenerateBody(e: Event) {
 function handleInsertText(e: Event) {
   const detail = (e as CustomEvent).detail
   if (!detail?.text) return
+  if (detail.openEditor) activePanel.value = ''
   if (detail.chapterId) {
     const tab = editorStore.tabs.find((t) => t.chapterId === detail.chapterId)
     if (tab) {

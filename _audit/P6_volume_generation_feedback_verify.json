@@ -3,12 +3,12 @@
     {
       "name": "项目快照已保存",
       "pass": true,
-      "detail": "wa_project_proj-1787018619240"
+      "detail": "wa_project_p6_verify_1787062494850"
     },
     {
       "name": "已确认大纲可作为卷纲输入",
       "pass": true,
-      "detail": "{\"outlineLength\":12529,\"locked\":true}"
+      "detail": "{\"outlineLength\":27,\"locked\":true}"
     },
     {
       "name": "真实路径进入卷纲层",
@@ -38,7 +38,7 @@
     {
       "name": "实际 API 请求已发出",
       "pass": true,
-      "detail": "[{\"url\":\"https://openapi.cloud-ai.cn/v1/chat/completions\",\"at\":\"2026-08-18T04:54:10.784Z\"}]"
+      "detail": "[{\"url\":\"https://openapi.cloud-ai.cn/v1/chat/completions\",\"at\":\"2026-08-18T14:16:20.630Z\"},{\"url\":\"https://openapi.cloud-ai.cn/v1/chat/completions\",\"at\":\"2026-08-18T14:16:56.428Z\"}]"
     },
     {
       "name": "反馈记录 API 返回或失败",
@@ -53,16 +53,26 @@
     {
       "name": "API 结果进入卷纲卷框",
       "pass": true,
-      "detail": "{\"before\":{\"volumes\":0,\"domVolumes\":1},\"after\":{\"domVolumes\":1,\"names\":[\"第一卷\"]}}"
+      "detail": "{\"before\":{\"volumes\":0,\"domVolumes\":1},\"after\":{\"domVolumes\":1,\"names\":[\"P6回归卷\"]}}"
     }
   ],
   "requests": [
     {
       "url": "https://openapi.cloud-ai.cn/v1/chat/completions",
-      "at": "2026-08-18T04:54:10.784Z"
+      "at": "2026-08-18T14:16:20.630Z"
+    },
+    {
+      "url": "https://openapi.cloud-ai.cn/v1/chat/completions",
+      "at": "2026-08-18T14:16:56.428Z"
     }
   ],
-  "responses": [],
+  "responses": [
+    {
+      "url": "https://openapi.cloud-ai.cn/v1/chat/completions",
+      "status": 200,
+      "at": "2026-08-18T14:16:56.423Z"
+    }
+  ],
   "immediate": {
     "emptyVisible": true,
     "cardVisible": false,
@@ -99,7 +109,7 @@
   "after": {
     "domVolumes": 1,
     "names": [
-      "第一卷"
+      "P6回归卷"
     ]
   },
   "passed": true

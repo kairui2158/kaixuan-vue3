@@ -14,7 +14,7 @@
     {
       "name": "新建项目后当前项目切换",
       "pass": true,
-      "detail": "{\"id\":\"p1787055191678\",\"name\":\"p3_verify_A\"}"
+      "detail": "{\"id\":\"p1787062365201\",\"name\":\"p3_verify_A\"}"
     },
     {
       "name": "新建项目后大纲进入当前状态",
@@ -34,12 +34,12 @@
     {
       "name": "新建项目保存后继续",
       "pass": true,
-      "detail": "{\"projectId\":\"p1787055192776\",\"projectName\":\"p3_verify_B\",\"outlineText\":\"# B卷\\n## B章\\nB项目大纲\",\"volumes\":[{\"id\":\"vol_1787055192777_1\",\"name\":\"B卷\",\"outline\":\"\",\"summary\":\"\",\"suggestedWords\":0,\"confirmed\":false,\"locked\":false}],\"chapters\":{\"vol_1787055192777_1\":[{\"id\":\"ch_1787055192777_0_1\",\"title\":\"B章\",\"plot\":\"\",\"wordCount\":0,\"confirm\":false,\"body\":\"\",\"bodyGenerated\":false}]},\"pipelineStep\":0,\"bodyText\":\"神意助手\\n默认\\n凯旋写作Agent\\n白虎\\n新智能体\\n新智能体\\n自动\\ndeepseek-v4-flash\\ndeepseek-v4-flash-free\\ndeepseek-v4-flash-test\\ndeepseek-v4-flash-xf\\ndeepseek-v4-pro\\ndeepseek-v4-pro-test\\ndeepseek-v4-pro-tg\\ndoubao-seed-2.1-pro\\ndoubao-seed-2.1-pro-test\\ndoubao-seed-2.1-turbo\\ndoubao-seed-2.1-turbo-test\\nglm-5\\nglm-5.1\\nglm-5.1-test\\nglm-5.2\\nglm-5.2-test\\nhy3\\nkimi-k2.6\\nkimi-k2.6-test\\nkimi-k2.7-code\\nkimi-k2.7-code-test\\nkimi-k3\\nkimi-k3-sp\\nkimi-k3-test\\nminimax-m3\\nminimax-m3-test\\nqwen-3.7-plus\\nqwen-3.7-plus-test\\nqwen-3.8-max-sp\\n神意助手\\np3_verify_B\\n生成\\n项目\\n>\\nB卷\\n1章\\nB章\\n选择章节开始写作\\n生成\\n保存\\n查找\\n导出\\n去AI味\\nAI命名\\n写作规则\\n时间线\\n批量审阅\\n修订\\n变量\\n0 字\\nAI 对话\\n默认\\n凯旋写作Agent\\n白虎\\n新智能体\\n新智能体\\n自动\\ndeepseek-v4-flash\\ndeepseek-v4-flash-free\\ndeepseek-v4-flash-test\\ndeepseek-v4-flash-xf\\ndeepseek-v4-pro\\ndeepseek-v4-pro-test\\ndeepseek-v4-pro-tg\\ndoubao-seed-2.1-pro\\ndoubao-seed-2.1-pro-test\\ndoubao-seed-2.1-turbo\\ndoubao-seed-2.1-turbo-test\\nglm-5\\nglm-5.1\\nglm-5.1-test\\nglm-5.2\\nglm-5.2-test\\nhy3\\nkimi-k2.6\\nkimi-k2.6-test\\nkimi-k2.7-code\\nkimi-k2.7-code-test\\nkimi-k3\\nkimi-k3-sp\\nkimi-k3-test\\nminimax-m3\\nminimax-m3-test\\nqwen-3.7-plus\\nqwen-3.7-plus-test\\nqwen-3.8-max-sp\\n\\n回归测试回复内容\\n\\n复制\\n重生成\\n插入\\n替换\\n技能区\\n▼\\nAI\\n默认\\ndeepseek-v4-pro\\n暂无\\n0 字 | API 已配置\\nAgent 进度\\n>\\n已连接\\ndeepseek-v4-pro\\n字数: 0\"}"
+      "detail": "{\"projectId\":\"p1787062366076\",\"projectName\":\"p3_verify_B\",\"outlineText\":\"# B卷\\n## B章\\nB项目大纲\",\"volumes\":[{\"id\":\"vol_1787062366076_1\",\"name\":\"B卷\",\"outline\":\"\",\"summary\":\"\",\"suggestedWords\":0,\"confirmed\":false,\"locked\":false}],\"chapters\":{\"vol_1787062366076_1\":[{\"id\":\"ch_1787062366076_0_1\",\"title\":\"B章\",\"plot\":\"\",\"wordCount\":0,\"confirm\":false,\"body\":\"\",\"bodyGenerated\":false}]},\"pipelineStep\":0,\"bodyText\":\"神意助手\\n默认\\n凯旋写作Agent\\n白虎\\n新智能体\\n新智能体\\n自动\\ndeepseek-v4-flash\\ndeepseek-v4-flash-free\\ndeepseek-v4-flash-test\\ndeepseek-v4-flash-xf\\ndeepseek-v4-pro\\ndeepseek-v4-pro-test\\ndeepseek-v4-pro-tg\\ndoubao-seed-2.1-pro\\ndoubao-seed-2.1-pro-test\\ndoubao-seed-2.1-turbo\\ndoubao-seed-2.1-turbo-test\\nglm-5\\nglm-5.1\\nglm-5.1-test\\nglm-5.2\\nglm-5.2-test\\nhy3\\nkimi-k2.6\\nkimi-k2.6-test\\nkimi-k2.7-code\\nkimi-k2.7-code-test\\nkimi-k3\\nkimi-k3-sp\\nkimi-k3-test\\nminimax-m3\\nminimax-m3-test\\nqwen-3.7-plus\\nqwen-3.7-plus-test\\nqwen-3.8-max-sp\\n神意助手\\np3_verify_B\\n生成\\n项目\\n>\\nB卷\\n1章\\nB章\\n选择章节开始写作\\n生成\\n保存\\n查找\\n导出\\n去AI味\\nAI命名\\n写作规则\\n时间线\\n批量审阅\\n修订\\n变量\\n0 字\\nAI 对话\\n默认\\n凯旋写作Agent\\n白虎\\n新智能体\\n新智能体\\n自动\\ndeepseek-v4-flash\\ndeepseek-v4-flash-free\\ndeepseek-v4-flash-test\\ndeepseek-v4-flash-xf\\ndeepseek-v4-pro\\ndeepseek-v4-pro-test\\ndeepseek-v4-pro-tg\\ndoubao-seed-2.1-pro\\ndoubao-seed-2.1-pro-test\\ndoubao-seed-2.1-turbo\\ndoubao-seed-2.1-turbo-test\\nglm-5\\nglm-5.1\\nglm-5.1-test\\nglm-5.2\\nglm-5.2-test\\nhy3\\nkimi-k2.6\\nkimi-k2.6-test\\nkimi-k2.7-code\\nkimi-k2.7-code-test\\nkimi-k3\\nkimi-k3-sp\\nkimi-k3-test\\nminimax-m3\\nminimax-m3-test\\nqwen-3.7-plus\\nqwen-3.7-plus-test\\nqwen-3.8-max-sp\\n\\n回归测试回复内容\\n\\n复制\\n重生成\\n插入\\n替换\\n技能区\\n▼\\nAI\\n默认\\ndeepseek-v4-pro\\n暂无\\n0 字 | API 已配置\\nAgent 进度\\n>\\n已连接\\ndeepseek-v4-pro\\n字数: 0\"}"
     },
     {
       "name": "第二项目成为当前项目",
       "pass": true,
-      "detail": "{\"id\":\"p1787055192776\",\"name\":\"p3_verify_B\"}"
+      "detail": "{\"id\":\"p1787062366076\",\"name\":\"p3_verify_B\"}"
     },
     {
       "name": "切换前显示保存/删除/取消选择",
@@ -54,12 +54,12 @@
     {
       "name": "切换项目保存后继续",
       "pass": true,
-      "detail": "{\"projectId\":\"p1787055191678\",\"projectName\":\"p3_verify_A\",\"outlineText\":\"# A卷\\n## A章\\nA项目大纲\",\"volumes\":[{\"id\":\"vol_1787055191679_1\",\"name\":\"A卷\",\"outline\":\"\",\"summary\":\"\",\"suggestedWords\":0,\"confirmed\":false,\"locked\":false}],\"chapters\":{\"vol_1787055191679_1\":[{\"id\":\"ch_1787055191679_0_1\",\"title\":\"A章\",\"plot\":\"\",\"wordCount\":0,\"confirm\":false,\"body\":\"\",\"bodyGenerated\":false}]},\"pipelineStep\":0,\"bodyText\":\"神意助手\\n默认\\n凯旋写作Agent\\n白虎\\n新智能体\\n新智能体\\n自动\\ndeepseek-v4-flash\\ndeepseek-v4-flash-free\\ndeepseek-v4-flash-test\\ndeepseek-v4-flash-xf\\ndeepseek-v4-pro\\ndeepseek-v4-pro-test\\ndeepseek-v4-pro-tg\\ndoubao-seed-2.1-pro\\ndoubao-seed-2.1-pro-test\\ndoubao-seed-2.1-turbo\\ndoubao-seed-2.1-turbo-test\\nglm-5\\nglm-5.1\\nglm-5.1-test\\nglm-5.2\\nglm-5.2-test\\nhy3\\nkimi-k2.6\\nkimi-k2.6-test\\nkimi-k2.7-code\\nkimi-k2.7-code-test\\nkimi-k3\\nkimi-k3-sp\\nkimi-k3-test\\nminimax-m3\\nminimax-m3-test\\nqwen-3.7-plus\\nqwen-3.7-plus-test\\nqwen-3.8-max-sp\\n神意助手\\np3_verify_A\\n生成\\n项目\\n>\\nA卷\\n1章\\nA章\\n选择章节开始写作\\n生成\\n保存\\n查找\\n导出\\n去AI味\\nAI命名\\n写作规则\\n时间线\\n批量审阅\\n修订\\n变量\\n0 字\\nAI 对话\\n默认\\n凯旋写作Agent\\n白虎\\n新智能体\\n新智能体\\n自动\\ndeepseek-v4-flash\\ndeepseek-v4-flash-free\\ndeepseek-v4-flash-test\\ndeepseek-v4-flash-xf\\ndeepseek-v4-pro\\ndeepseek-v4-pro-test\\ndeepseek-v4-pro-tg\\ndoubao-seed-2.1-pro\\ndoubao-seed-2.1-pro-test\\ndoubao-seed-2.1-turbo\\ndoubao-seed-2.1-turbo-test\\nglm-5\\nglm-5.1\\nglm-5.1-test\\nglm-5.2\\nglm-5.2-test\\nhy3\\nkimi-k2.6\\nkimi-k2.6-test\\nkimi-k2.7-code\\nkimi-k2.7-code-test\\nkimi-k3\\nkimi-k3-sp\\nkimi-k3-test\\nminimax-m3\\nminimax-m3-test\\nqwen-3.7-plus\\nqwen-3.7-plus-test\\nqwen-3.8-max-sp\\n\\n回归测试回复内容\\n\\n复制\\n重生成\\n插入\\n替换\\n技能区\\n▼\\nAI\\n默认\\ndeepseek-v4-pro\\n暂无\\n0 字 | API 已配置\\nAgent 进度\\n>\\n已连接\\ndeepseek-v4-pro\\n字数: 0\"}"
+      "detail": "{\"projectId\":\"p1787062365201\",\"projectName\":\"p3_verify_A\",\"outlineText\":\"# A卷\\n## A章\\nA项目大纲\",\"volumes\":[{\"id\":\"vol_1787062365201_1\",\"name\":\"A卷\",\"outline\":\"\",\"summary\":\"\",\"suggestedWords\":0,\"confirmed\":false,\"locked\":false}],\"chapters\":{\"vol_1787062365201_1\":[{\"id\":\"ch_1787062365201_0_1\",\"title\":\"A章\",\"plot\":\"\",\"wordCount\":0,\"confirm\":false,\"body\":\"\",\"bodyGenerated\":false}]},\"pipelineStep\":0,\"bodyText\":\"神意助手\\n默认\\n凯旋写作Agent\\n白虎\\n新智能体\\n新智能体\\n自动\\ndeepseek-v4-flash\\ndeepseek-v4-flash-free\\ndeepseek-v4-flash-test\\ndeepseek-v4-flash-xf\\ndeepseek-v4-pro\\ndeepseek-v4-pro-test\\ndeepseek-v4-pro-tg\\ndoubao-seed-2.1-pro\\ndoubao-seed-2.1-pro-test\\ndoubao-seed-2.1-turbo\\ndoubao-seed-2.1-turbo-test\\nglm-5\\nglm-5.1\\nglm-5.1-test\\nglm-5.2\\nglm-5.2-test\\nhy3\\nkimi-k2.6\\nkimi-k2.6-test\\nkimi-k2.7-code\\nkimi-k2.7-code-test\\nkimi-k3\\nkimi-k3-sp\\nkimi-k3-test\\nminimax-m3\\nminimax-m3-test\\nqwen-3.7-plus\\nqwen-3.7-plus-test\\nqwen-3.8-max-sp\\n神意助手\\np3_verify_A\\n生成\\n项目\\n>\\nA卷\\n1章\\nA章\\n选择章节开始写作\\n生成\\n保存\\n查找\\n导出\\n去AI味\\nAI命名\\n写作规则\\n时间线\\n批量审阅\\n修订\\n变量\\n0 字\\nAI 对话\\n默认\\n凯旋写作Agent\\n白虎\\n新智能体\\n新智能体\\n自动\\ndeepseek-v4-flash\\ndeepseek-v4-flash-free\\ndeepseek-v4-flash-test\\ndeepseek-v4-flash-xf\\ndeepseek-v4-pro\\ndeepseek-v4-pro-test\\ndeepseek-v4-pro-tg\\ndoubao-seed-2.1-pro\\ndoubao-seed-2.1-pro-test\\ndoubao-seed-2.1-turbo\\ndoubao-seed-2.1-turbo-test\\nglm-5\\nglm-5.1\\nglm-5.1-test\\nglm-5.2\\nglm-5.2-test\\nhy3\\nkimi-k2.6\\nkimi-k2.6-test\\nkimi-k2.7-code\\nkimi-k2.7-code-test\\nkimi-k3\\nkimi-k3-sp\\nkimi-k3-test\\nminimax-m3\\nminimax-m3-test\\nqwen-3.7-plus\\nqwen-3.7-plus-test\\nqwen-3.8-max-sp\\n\\n回归测试回复内容\\n\\n复制\\n重生成\\n插入\\n替换\\n技能区\\n▼\\nAI\\n默认\\ndeepseek-v4-pro\\n暂无\\n0 字 | API 已配置\\nAgent 进度\\n>\\n已连接\\ndeepseek-v4-pro\\n字数: 0\"}"
     },
     {
       "name": "加载后当前项目为 A",
       "pass": true,
-      "detail": "{\"id\":\"p1787055191678\",\"name\":\"p3_verify_A\"}"
+      "detail": "{\"id\":\"p1787062365201\",\"name\":\"p3_verify_A\"}"
     },
     {
       "name": "加载后大纲与项目 A 一致",
@@ -99,8 +99,8 @@
     }
   ],
   "createdIds": [
-    "p1787055191678",
-    "p1787055192776"
+    "p1787062365201",
+    "p1787062366076"
   ],
-  "timestamp": "2026-08-18T12:13:15.445Z"
+  "timestamp": "2026-08-18T14:12:48.191Z"
 }

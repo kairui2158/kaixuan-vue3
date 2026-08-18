@@ -377,7 +377,8 @@
             <p class="pl-desc">第四步：为每个章节生成剧情点。剧情点可编辑。</p>
             <div id="pl-ch-gen-bar" class="pl-ch-config">
               <label>每章字数</label>
-              <input id="pl-chapter-wordcount" type="number" class="input-w-80" v-model.number="chapterWords" min="1000" step="500" @change="saveVolumeConfig" />
+              <input id="pl-chapter-wordcount" type="number" class="input-w-80" v-model.number="selectedVolumeChapterWords" min="1000" step="500" @change="lockChapterConfig" :readonly="selectedVolumeChapterLocked" />
+              <span id="pl-chapter-config-status" class="pl-gen-hint">{{ selectedVolumeChapterLocked ? '本卷字数已锁定' : '填写后自动锁定' }}</span>
               <label>选择卷</label>
               <select v-model.number="selectedVolumeIndex" class="pl-input-sm" :disabled="confirmedVolumes.length === 0">
                 <template v-for="(vol, i) in projectStore.volumes" :key="vol.id || i">
@@ -401,8 +402,8 @@
             <p id="pl-ch-empty-no-volume" v-if="confirmedVolumes.length === 0" class="empty-hint">暂无已锁定卷纲，请先在卷纲层保存并锁定本卷</p>
             <p id="pl-ch-empty-no-chapters" v-else-if="currentVolumeChapters.length === 0" class="empty-hint">暂无章节，请先生成</p>
             <div class="pl-actions">
-              <button id="btn-pl-gen-chapters" class="btn-primary" @click="genChapters" :disabled="pipelineStore.isGenerating">AI生成章节</button>
-              <button id="btn-pl-autogen-chapters" class="btn-secondary" @click="genChapters" :disabled="pipelineStore.isGenerating">自动生成章节</button>
+              <button id="btn-pl-gen-chapters" class="btn-primary" @click="genChapters" :disabled="pipelineStore.isGenerating || !selectedVolumeChapterLocked">AI生成章节</button>
+              <button id="btn-pl-autogen-chapters" class="btn-secondary" @click="genChapters" :disabled="pipelineStore.isGenerating || !selectedVolumeChapterLocked">自动生成章节</button>
               <button id="btn-pl-confirm-chapters" class="btn-secondary" @click="confirmStep(3)" :disabled="currentVolumeChapters.length === 0">确认完成</button>
             </div>
           </div>
@@ -715,6 +716,17 @@ const stepSkillSelect = ref<Record<number, string>>({ 1: "", 2: "", 3: "", 4: ""
 const stepSkillModes = ref<Record<number, string>>({ 0: "compose", 1: "compose", 2: "chain", 3: "chain", 4: "compose" })
 const stepSkillAgents = ref<Record<string, string>>({})
 
+const selectedVolume = computed(() => projectStore.volumes[selectedVolumeIndex.value] || null)
+const selectedVolumeChapterWords = computed({
+  get: () => Number(selectedVolume.value?.wordsPerChapter || chapterWords.value || 3500),
+  set: (value: number) => {
+    const normalized = Math.max(1000, Number(value) || 3500)
+    chapterWords.value = normalized
+    if (selectedVolume.value) selectedVolume.value.wordsPerChapter = normalized
+  }
+})
+const selectedVolumeChapterLocked = computed(() => Boolean(selectedVolume.value?.chapterConfigLocked))
+
 const steps = ref([
   { name: "大纲", completed: false },
   { name: "设定", completed: false },
@@ -732,10 +744,11 @@ const stepsWithIds = computed(() => {
 })
 
 const estimatedChapters = computed(() => {
-  const vol = projectStore.volumes[selectedVolumeIndex.value]
+  const vol = selectedVolume.value
   if (!vol) return 0
   const words = vol.suggestedWords || volumeWords.value
-  return Math.ceil(words / chapterWords.value)
+  const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
+  return Math.ceil(words / wordsPerChapter)
 })
 
 const currentSettings = computed(() => {
@@ -843,6 +856,19 @@ function saveVolumeConfig() {
       }
     )
   )
+}
+
+function lockChapterConfig() {
+  const vol = selectedVolume.value
+  if (!vol) return
+  const wordsPerChapter = Math.max(1000, Number(vol.wordsPerChapter || chapterWords.value) || 3500)
+  const words = Math.max(0, Number(vol.suggestedWords || volumeWords.value) || 0)
+  vol.wordsPerChapter = wordsPerChapter
+  vol.chapterCount = words > 0 ? Math.ceil(words / wordsPerChapter) : 0
+  vol.chapterConfigLocked = true
+  chapterWords.value = wordsPerChapter
+  saveVolumeConfig()
+  projectStore.saveProject()
 }
 
 function getStepSkillIds(step: number): string[] {
@@ -1555,10 +1581,11 @@ async function loadOutline() {
 }
 
 async function genChapters() {
-  const vol = projectStore.volumes[selectedVolumeIndex.value]
+  const vol = selectedVolume.value
   if (!vol) return
   const volId = vol.id || vol.name
-  const totalChapters = Math.ceil((vol.suggestedWords || volumeWords.value) / chapterWords.value)
+  const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
+  const totalChapters = Number(vol.chapterCount) || Math.ceil((vol.suggestedWords || volumeWords.value) / wordsPerChapter)
   pipelineStore.startGeneration()
   pipelineStore.saveBreakpoint({ volumeIndex: selectedVolumeIndex.value, chapterCount: 0, total: totalChapters })
   const collected: any[] = []
@@ -1568,7 +1595,7 @@ async function genChapters() {
     for (let start = 0; start < totalChapters; start += batch) {
       const end = Math.min(start + batch, totalChapters)
       pipelineStore.updateProgress(Math.round((start / totalChapters) * 100), "生成 " + (start + 1) + "-" + end + "/" + totalChapters)
-      const prompt = "[卷纲]\n" + vol.name + " - " + volOutline + "\n\n[本卷总章数]\n" + totalChapters + "\n\n[单章字数]\n" + chapterWords.value + "\n\n请生成第" + (start + 1) + "章到第" + end + "章的章节列表。输出JSON数组，每项含title/plot字段。数组长度必须恰好等于" + (end - start) + "。"
+      const prompt = "[卷纲]\n" + vol.name + " - " + volOutline + "\n\n[本卷总章数]\n" + totalChapters + "\n\n[单章字数]\n" + wordsPerChapter + "\n\n请生成第" + (start + 1) + "章到第" + end + "章的章节列表。输出JSON数组，每项含title/plot字段。数组长度必须恰好等于" + (end - start) + "。"
       let batchResult: any[] = []
       let batchSuccess = false
       for (let retry = 0; retry < 5 && !batchSuccess; retry++) {
@@ -1604,7 +1631,7 @@ async function genChapters() {
     while (collected.length < totalChapters && supplementRetry < 3) {
       supplementRetry++
       const remain = totalChapters - collected.length
-      const supplementPrompt = "[卷纲]\n" + vol.name + " - " + (vol.outline || vol.summary || "") + "\n\n[本卷总章数]\n" + totalChapters + "\n\n[单章字数]\n" + chapterWords.value + "\n\n已有" + collected.length + "章，继续从第" + (collected.length + 1) + "章生成到第" + totalChapters + "章。输出JSON数组，每项含title/plot字段。不要重复已有章节。数组长度必须恰好等于" + remain + "。"
+      const supplementPrompt = "[卷纲]\n" + vol.name + " - " + (vol.outline || vol.summary || "") + "\n\n[本卷总章数]\n" + totalChapters + "\n\n[单章字数]\n" + wordsPerChapter + "\n\n已有" + collected.length + "章，继续从第" + (collected.length + 1) + "章生成到第" + totalChapters + "章。输出JSON数组，每项含title/plot字段。不要重复已有章节。数组长度必须恰好等于" + remain + "。"
       try {
         const result = await runStepSkills(3, supplementPrompt, 120000, "你是章节规划师。")
         const supplement = extractJsonArray(result)
@@ -1678,7 +1705,8 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       detail: {
         text: result,
         chapterId: ch.id || '',
-        title: ch.title || '章节'
+        title: ch.title || '章节',
+        openEditor: true
       }
     }))
     pipelineStore.updateProgress(100, "正文生成完成")

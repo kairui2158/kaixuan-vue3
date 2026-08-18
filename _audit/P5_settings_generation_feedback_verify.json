@@ -31,24 +31,14 @@
       "设定已写入分类并保存到当前项目"
     ],
     "status": "done",
-    "items": 0,
+    "items": 6,
     "generating": false
   },
   "projectAfter": {
     "categories": [
-      "事件",
-      "物种",
-      "现象",
-      "人物",
-      "物品",
-      "设定",
-      "组织",
-      "地点",
-      "文明",
-      "技术",
-      "概念"
+      "设定类"
     ],
-    "itemCount": 69,
+    "itemCount": 6,
     "settingsGenerated": false
   },
   "feedbackSnapshots": [
@@ -147,7 +137,7 @@
         "设定已写入分类并保存到当前项目"
       ],
       "status": "done",
-      "items": 0,
+      "items": 6,
       "generating": false
     }
   ],

@@ -1,0 +1,37 @@
+{
+  "report": "神意助手 P6 全功能回归总报告",
+  "date": "2026-08-18",
+  "launcher": "start-electron.bat",
+  "cdp": "http://127.0.0.1:9227",
+  "verificationMode": "CDP真实页面操作 + Pinia状态 + DOM + 持久化重载",
+  "stages": [
+    { "stage": "P1", "name": "项目删除", "evidence": "_audit/P1_project_delete_verify.json", "result": "PASS", "checks": "8/8" },
+    { "stage": "P2", "name": "大纲文件导入", "evidence": "_audit/P2_outline_import_verify.json", "result": "PASS", "checks": "16/16" },
+    { "stage": "P3", "name": "项目管理", "evidence": "_audit/P3_project_management_verify.json", "result": "PASS", "checks": "18/18" },
+    { "stage": "P4", "name": "大纲工作台", "evidence": "_audit/P4_outline_workspace_verify.json", "result": "PASS", "checks": "9/9" },
+    { "stage": "P5", "name": "编辑器与对话同步", "evidence": "_audit/P5_editor_chat_verify.json", "result": "PASS", "checks": "11/11" },
+    { "stage": "P6", "name": "卷纲反馈", "evidence": "_audit/P6_volume_generation_feedback_verify.json", "result": "PASS", "checks": "11/11" },
+    { "stage": "P7", "name": "卷纲字数联动", "evidence": "_audit/P7_volume_word_link_verify.json", "result": "PASS", "checks": "11/11" },
+    { "stage": "P8", "name": "卷保存与删除", "evidence": "_audit/P8_volume_save_delete_verify.json", "result": "PASS", "checks": "12/12" },
+    { "stage": "P9", "name": "卷纲按钮收敛", "evidence": "_audit/P9_volume_buttons_verify.json", "result": "PASS", "checks": "10/10" },
+    { "stage": "P10", "name": "章节空状态", "evidence": "_audit/P10_chapter_empty_state_verify.json", "result": "PASS", "checks": "6/6" },
+    { "stage": "P11", "name": "章节字数联动", "evidence": "_audit/P11_chapter_word_link_verify.json", "result": "PASS", "checks": "22/22" },
+    { "stage": "P12", "name": "正文生成到编辑器", "evidence": "_audit/P12_body_editor_verify.json", "result": "PASS", "checks": "13/13" }
+  ],
+  "p12Fix": {
+    "files": ["src/App.vue", "src/components/pipeline/PipelinePanel.vue"],
+    "behavior": "正文生成后关闭流水线覆盖层并打开主页编辑器",
+    "evidence": ["章节store正文", "editor tab", "#editor-content", "项目持久化", "重载恢复"]
+  },
+  "verificationBoundaries": [
+    "本轮外部API质量未验证；生成验证使用受控fetch响应，仅验证应用链路。",
+    "P4原生保存对话框的网页层与IPC写入已验证，CDP无法控制的原生路径选择未写成PASS。",
+    "历史报告存在不同JSON字段结构，汇总按各报告schema读取，不以单一字段强行判定。"
+  ],
+  "cleanup": {
+    "temporaryProject": "已由验证器finally恢复",
+    "temporaryScripts": "已删除",
+    "verificationScripts": "已归档到 _audit/scripts/archive/"
+  },
+  "result": "PASS"
+}

@@ -3,12 +3,12 @@
     {
       "name": "项目快照已保存",
       "pass": true,
-      "detail": "wa_project_proj-1787018619240"
+      "detail": "wa_project_p6_verify_1787062494850"
     },
     {
       "name": "上游大纲已锁定",
       "pass": true,
-      "detail": "{\"locked\":true,\"outlineLength\":12529}"
+      "detail": "{\"locked\":true,\"outlineLength\":27}"
     },
     {
       "name": "进入卷纲层",
@@ -18,7 +18,7 @@
     {
       "name": "找到可验证的未锁定卷",
       "pass": true,
-      "detail": "{\"index\":0,\"name\":\"第一卷\"}"
+      "detail": "{\"index\":0,\"name\":\"P6回归卷\"}"
     },
     {
       "name": "未锁定卷显示保存按钮",
@@ -33,7 +33,7 @@
     {
       "name": "保存后卷状态已锁定",
       "pass": true,
-      "detail": "{\"id\":\"vol_1787018711018_1\",\"name\":\"第一卷\",\"outline\":\"\",\"summary\":\"\",\"suggestedWords\":0,\"confirmed\":true,\"locked\":true,\"bodyGenerated\":false}"
+      "detail": "{\"id\":\"vol_1787062495420_1\",\"name\":\"P6回归卷\",\"outline\":\"\",\"summary\":\"\",\"suggestedWords\":0,\"confirmed\":true,\"locked\":true}"
     },
     {
       "name": "保存后卷输入变为只读",
@@ -48,7 +48,7 @@
     {
       "name": "锁定卷在章节层可选择",
       "pass": true,
-      "detail": "第一卷"
+      "detail": "P6回归卷"
     },
     {
       "name": "删除后卷从 store 移除",
@@ -73,17 +73,16 @@
   ],
   "selectedIndex": 0,
   "originalVolume": {
-    "id": "vol_1787018711018_1",
-    "name": "第一卷",
+    "id": "vol_1787062495420_1",
+    "name": "P6回归卷",
     "outline": "",
     "summary": "",
     "suggestedWords": 0,
     "confirmed": false,
-    "locked": false,
-    "bodyGenerated": false
+    "locked": false
   },
   "stateAfterLock": {
-    "chapterKey": "第一卷",
+    "chapterKey": "P6回归卷",
     "saveText": "已锁定",
     "readOnly": [
       {
@@ -101,66 +100,24 @@
     ],
     "cardClass": "pl-vol-card confirmed",
     "storedVolume": {
-      "id": "vol_1787018711018_1",
-      "name": "第一卷",
+      "id": "vol_1787062495420_1",
+      "name": "P6回归卷",
       "outline": "",
       "summary": "",
       "suggestedWords": 0,
       "confirmed": true,
-      "locked": true,
-      "bodyGenerated": false
+      "locked": true
     },
     "storedChapters": {
-      "vol_1787018711018_1": [
+      "vol_1787062495420_1": [
         {
-          "id": "ch_1787018711018_0_1",
-          "title": "《绿潮》大纲总纲 V20.0",
+          "id": "ch_1787062495420_0_1",
+          "title": "P6回归章",
           "plot": "",
           "wordCount": 0,
           "confirm": false,
           "body": "",
-          "bodyGenerated": false,
-          "confirmed": false
-        },
-        {
-          "id": "ch_1787018711019_1_1",
-          "title": "卷一：基石设定层",
-          "plot": "",
-          "wordCount": 0,
-          "confirm": false,
-          "body": "",
-          "bodyGenerated": false,
-          "confirmed": false
-        },
-        {
-          "id": "ch_1787018711019_2_1",
-          "title": "卷二：核心人物群像",
-          "plot": "",
-          "wordCount": 0,
-          "confirm": false,
-          "body": "",
-          "bodyGenerated": false,
-          "confirmed": false
-        },
-        {
-          "id": "ch_1787018711019_3_1",
-          "title": "卷三：势力与格局层",
-          "plot": "",
-          "wordCount": 0,
-          "confirm": false,
-          "body": "",
-          "bodyGenerated": false,
-          "confirmed": false
-        },
-        {
-          "id": "ch_1787018711019_4_1",
-          "title": "卷四：叙事工具箱层",
-          "plot": "",
-          "wordCount": 0,
-          "confirm": false,
-          "body": "",
-          "bodyGenerated": false,
-          "confirmed": false
+          "bodyGenerated": false
         }
       ]
     }
