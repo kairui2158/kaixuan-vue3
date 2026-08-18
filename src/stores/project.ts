@@ -11,6 +11,7 @@ export const useProjectStore = defineStore('project', () => {
   const projectName = ref('')
   const outlineText = ref('')
   const outlineLocked = ref(false)
+  const bookWordCountChars = ref(0)
   const settingsGenerated = ref(false)
   const volumesConfirmed = ref(false)
   const chaptersConfirmed = ref(false)
@@ -69,6 +70,7 @@ export const useProjectStore = defineStore('project', () => {
       projectName.value = readProjectName(data)
       outlineText.value = data.outlineText || ''
       outlineLocked.value = data.outlineLocked || false
+      bookWordCountChars.value = Number(data.bookWordCount) || 0
       volumesConfirmed.value = data.volumesConfirmed || false
       chaptersConfirmed.value = data.chaptersConfirmed || false
       settingsGenerated.value = data.settingsGenerated || false
@@ -98,6 +100,7 @@ export const useProjectStore = defineStore('project', () => {
       projectName: projectName.value,
       outlineText: outlineText.value,
       outlineLocked: outlineLocked.value,
+      bookWordCount: Number(bookWordCountChars.value) || 0,
       volumesConfirmed: volumesConfirmed.value,
       chaptersConfirmed: chaptersConfirmed.value,
       settingsGenerated: settingsGenerated.value,
@@ -354,6 +357,7 @@ export const useProjectStore = defineStore('project', () => {
     projectName.value = ''
     outlineText.value = ''
     outlineLocked.value = false
+    bookWordCountChars.value = 0
     settingsGenerated.value = false
     volumesConfirmed.value = false
     chaptersConfirmed.value = false
@@ -412,7 +416,7 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   return {
-    currentProjectId, projectName, outlineText, outlineLocked,
+    currentProjectId, projectName, outlineText, outlineLocked, bookWordCountChars,
     settingsGenerated, settings, volumes, chapters, projectList,
     hasOutline, volumeCount, totalChapters,
     volumesConfirmed, chaptersConfirmed,

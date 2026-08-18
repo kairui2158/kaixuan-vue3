@@ -95,6 +95,7 @@
           </div>
           <div v-show="pipelineStore.currentStep === 1" id="pl-step-2-content" class="pl-step-panel">
             <h3>设定</h3>
+            <div v-if="projectStore.bookWordCountChars > 0" id="pl-settings-linked-book-words" class="pl-gen-hint">全书已确认字数：{{ projectStore.bookWordCountChars / 10000 }} 万字</div>
           <div class="pl-step-tools">
             <div class="pl-agent-mode-bar">
               <span class="pl-label">本层智能体:</span>
@@ -1161,6 +1162,8 @@ function invalidateDownstream(fromStep: number) {
 
 function confirmStep(stepIndex: number) {
   if (stepIndex === 0) {
+    projectStore.bookWordCountChars = Math.round(bookWordCount.value * 10000)
+    projectStore.saveProject()
     saveBookWordCount()
     saveVolumeConfig()
   }
@@ -1760,6 +1763,12 @@ onMounted(() => {
      if (saved.bookWordCount) bookWordCount.value = Math.round(saved.bookWordCount / 10000)
      if (saved.volumeWords) volumeWords.value = saved.volumeWords
      if (saved.chapterWords) chapterWords.value = saved.chapterWords
+   }
+   if (projectStore.bookWordCountChars > 0 && bookWordCount.value <= 0) {
+     bookWordCount.value = Math.round(projectStore.bookWordCountChars / 10000)
+   } else if (projectStore.bookWordCountChars <= 0 && bookWordCount.value > 0) {
+     projectStore.bookWordCountChars = Math.round(bookWordCount.value * 10000)
+     projectStore.saveProject()
    }
    // 当大纲已锁定但字数未设置时，自动填入默认值
    if (bookWordCount.value <= 0 && projectStore.outlineLocked && projectStore.outlineText) {
