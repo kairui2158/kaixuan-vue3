@@ -73,6 +73,10 @@ export const useProjectStore = defineStore('project', () => {
       settingsCollection.value = data.settingsCollection || { categories: [], items: {} }
       settingBindings.value = data.settingBindings || {}
       memories.value = data.memories || { categories: ['情节', '人物', '世界观', '伏笔'], items: [] }
+      if (volumes.value.length === 0 && outlineText.value.trim()) {
+        ensureVolumesFromOutline()
+        saveProject()
+      }
       if (!data.projectName && projectName.value) {
         saveProject()
       }
@@ -348,6 +352,7 @@ export const useProjectStore = defineStore('project', () => {
     currentProjectId.value = id
     projectName.value = name || nameFromOutline(outline) || '未命名'
     outlineText.value = outline || ''
+    ensureVolumesFromOutline()
     saveProject()
     loadProjectList()
     return id

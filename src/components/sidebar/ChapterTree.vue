@@ -73,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, nextTick, watch } from 'vue'
 import { useProjectStore } from '../../stores/project'
 import { useEditorStore } from '../../stores/editor'
 import ProjectModal from '../common/ProjectModal.vue'
@@ -96,6 +96,13 @@ const renameValue = ref('')
 const volRenameInput = ref<HTMLInputElement | null>(null)
 const chRenameInput = ref<HTMLInputElement | null>(null)
 const ctxMenu = ref({ visible: false, x: 0, y: 0, type: '', vol: null as any, ch: null as any })
+
+watch(() => projectStore.currentProjectId, () => {
+  expandedVolumes.value = new Set()
+  const first = projectStore.volumes?.[0]
+  if (first) expandedVolumes.value.add(first.id || first.name)
+  activeChapterId.value = null
+})
 
 const volumes = computed(() => {
   const vols = projectStore.volumes || []

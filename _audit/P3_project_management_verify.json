@@ -1,0 +1,106 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "name": "项目管理弹窗可打开",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "新建项目表单可展开",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "新建项目后当前项目切换",
+      "pass": true,
+      "detail": "{\"id\":\"p1787055191678\",\"name\":\"p3_verify_A\"}"
+    },
+    {
+      "name": "新建项目后大纲进入当前状态",
+      "pass": true,
+      "detail": "# A卷\n## A章\nA项目大纲"
+    },
+    {
+      "name": "新建前显示保存/删除/取消选择",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "新建取消后不继续创建",
+      "pass": true,
+      "detail": "{\"projectName\":\"p3_verify_A\",\"outlineText\":\"# A卷\\n## A章\\nA项目大纲\"}"
+    },
+    {
+      "name": "新建项目保存后继续",
+      "pass": true,
+      "detail": "{\"projectId\":\"p1787055192776\",\"projectName\":\"p3_verify_B\",\"outlineText\":\"# B卷\\n## B章\\nB项目大纲\",\"volumes\":[{\"id\":\"vol_1787055192777_1\",\"name\":\"B卷\",\"outline\":\"\",\"summary\":\"\",\"suggestedWords\":0,\"confirmed\":false,\"locked\":false}],\"chapters\":{\"vol_1787055192777_1\":[{\"id\":\"ch_1787055192777_0_1\",\"title\":\"B章\",\"plot\":\"\",\"wordCount\":0,\"confirm\":false,\"body\":\"\",\"bodyGenerated\":false}]},\"pipelineStep\":0,\"bodyText\":\"神意助手\\n默认\\n凯旋写作Agent\\n白虎\\n新智能体\\n新智能体\\n自动\\ndeepseek-v4-flash\\ndeepseek-v4-flash-free\\ndeepseek-v4-flash-test\\ndeepseek-v4-flash-xf\\ndeepseek-v4-pro\\ndeepseek-v4-pro-test\\ndeepseek-v4-pro-tg\\ndoubao-seed-2.1-pro\\ndoubao-seed-2.1-pro-test\\ndoubao-seed-2.1-turbo\\ndoubao-seed-2.1-turbo-test\\nglm-5\\nglm-5.1\\nglm-5.1-test\\nglm-5.2\\nglm-5.2-test\\nhy3\\nkimi-k2.6\\nkimi-k2.6-test\\nkimi-k2.7-code\\nkimi-k2.7-code-test\\nkimi-k3\\nkimi-k3-sp\\nkimi-k3-test\\nminimax-m3\\nminimax-m3-test\\nqwen-3.7-plus\\nqwen-3.7-plus-test\\nqwen-3.8-max-sp\\n神意助手\\np3_verify_B\\n生成\\n项目\\n>\\nB卷\\n1章\\nB章\\n选择章节开始写作\\n生成\\n保存\\n查找\\n导出\\n去AI味\\nAI命名\\n写作规则\\n时间线\\n批量审阅\\n修订\\n变量\\n0 字\\nAI 对话\\n默认\\n凯旋写作Agent\\n白虎\\n新智能体\\n新智能体\\n自动\\ndeepseek-v4-flash\\ndeepseek-v4-flash-free\\ndeepseek-v4-flash-test\\ndeepseek-v4-flash-xf\\ndeepseek-v4-pro\\ndeepseek-v4-pro-test\\ndeepseek-v4-pro-tg\\ndoubao-seed-2.1-pro\\ndoubao-seed-2.1-pro-test\\ndoubao-seed-2.1-turbo\\ndoubao-seed-2.1-turbo-test\\nglm-5\\nglm-5.1\\nglm-5.1-test\\nglm-5.2\\nglm-5.2-test\\nhy3\\nkimi-k2.6\\nkimi-k2.6-test\\nkimi-k2.7-code\\nkimi-k2.7-code-test\\nkimi-k3\\nkimi-k3-sp\\nkimi-k3-test\\nminimax-m3\\nminimax-m3-test\\nqwen-3.7-plus\\nqwen-3.7-plus-test\\nqwen-3.8-max-sp\\n\\n回归测试回复内容\\n\\n复制\\n重生成\\n插入\\n替换\\n技能区\\n▼\\nAI\\n默认\\ndeepseek-v4-pro\\n暂无\\n0 字 | API 已配置\\nAgent 进度\\n>\\n已连接\\ndeepseek-v4-pro\\n字数: 0\"}"
+    },
+    {
+      "name": "第二项目成为当前项目",
+      "pass": true,
+      "detail": "{\"id\":\"p1787055192776\",\"name\":\"p3_verify_B\"}"
+    },
+    {
+      "name": "切换前显示保存/删除/取消选择",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "切换取消后保持当前项目",
+      "pass": true,
+      "detail": "{\"projectName\":\"p3_verify_B\",\"outlineText\":\"# B卷\\n## B章\\nB项目大纲\"}"
+    },
+    {
+      "name": "切换项目保存后继续",
+      "pass": true,
+      "detail": "{\"projectId\":\"p1787055191678\",\"projectName\":\"p3_verify_A\",\"outlineText\":\"# A卷\\n## A章\\nA项目大纲\",\"volumes\":[{\"id\":\"vol_1787055191679_1\",\"name\":\"A卷\",\"outline\":\"\",\"summary\":\"\",\"suggestedWords\":0,\"confirmed\":false,\"locked\":false}],\"chapters\":{\"vol_1787055191679_1\":[{\"id\":\"ch_1787055191679_0_1\",\"title\":\"A章\",\"plot\":\"\",\"wordCount\":0,\"confirm\":false,\"body\":\"\",\"bodyGenerated\":false}]},\"pipelineStep\":0,\"bodyText\":\"神意助手\\n默认\\n凯旋写作Agent\\n白虎\\n新智能体\\n新智能体\\n自动\\ndeepseek-v4-flash\\ndeepseek-v4-flash-free\\ndeepseek-v4-flash-test\\ndeepseek-v4-flash-xf\\ndeepseek-v4-pro\\ndeepseek-v4-pro-test\\ndeepseek-v4-pro-tg\\ndoubao-seed-2.1-pro\\ndoubao-seed-2.1-pro-test\\ndoubao-seed-2.1-turbo\\ndoubao-seed-2.1-turbo-test\\nglm-5\\nglm-5.1\\nglm-5.1-test\\nglm-5.2\\nglm-5.2-test\\nhy3\\nkimi-k2.6\\nkimi-k2.6-test\\nkimi-k2.7-code\\nkimi-k2.7-code-test\\nkimi-k3\\nkimi-k3-sp\\nkimi-k3-test\\nminimax-m3\\nminimax-m3-test\\nqwen-3.7-plus\\nqwen-3.7-plus-test\\nqwen-3.8-max-sp\\n神意助手\\np3_verify_A\\n生成\\n项目\\n>\\nA卷\\n1章\\nA章\\n选择章节开始写作\\n生成\\n保存\\n查找\\n导出\\n去AI味\\nAI命名\\n写作规则\\n时间线\\n批量审阅\\n修订\\n变量\\n0 字\\nAI 对话\\n默认\\n凯旋写作Agent\\n白虎\\n新智能体\\n新智能体\\n自动\\ndeepseek-v4-flash\\ndeepseek-v4-flash-free\\ndeepseek-v4-flash-test\\ndeepseek-v4-flash-xf\\ndeepseek-v4-pro\\ndeepseek-v4-pro-test\\ndeepseek-v4-pro-tg\\ndoubao-seed-2.1-pro\\ndoubao-seed-2.1-pro-test\\ndoubao-seed-2.1-turbo\\ndoubao-seed-2.1-turbo-test\\nglm-5\\nglm-5.1\\nglm-5.1-test\\nglm-5.2\\nglm-5.2-test\\nhy3\\nkimi-k2.6\\nkimi-k2.6-test\\nkimi-k2.7-code\\nkimi-k2.7-code-test\\nkimi-k3\\nkimi-k3-sp\\nkimi-k3-test\\nminimax-m3\\nminimax-m3-test\\nqwen-3.7-plus\\nqwen-3.7-plus-test\\nqwen-3.8-max-sp\\n\\n回归测试回复内容\\n\\n复制\\n重生成\\n插入\\n替换\\n技能区\\n▼\\nAI\\n默认\\ndeepseek-v4-pro\\n暂无\\n0 字 | API 已配置\\nAgent 进度\\n>\\n已连接\\ndeepseek-v4-pro\\n字数: 0\"}"
+    },
+    {
+      "name": "加载后当前项目为 A",
+      "pass": true,
+      "detail": "{\"id\":\"p1787055191678\",\"name\":\"p3_verify_A\"}"
+    },
+    {
+      "name": "加载后大纲与项目 A 一致",
+      "pass": true,
+      "detail": "# A卷\n## A章\nA项目大纲"
+    },
+    {
+      "name": "加载后章节树同步项目 A",
+      "pass": true,
+      "detail": "p3_verify_A\n生成\n项目\n>\nA卷\n1章\nA章"
+    },
+    {
+      "name": "项目按钮加载后可进入生成流水线",
+      "pass": true,
+      "detail": "生成流水线\n执行日志\n流程视图\n×\n1\n大纲\n2\n设定\n3\n卷纲\n4\n章节\n5\n正文\nAI工具:\nAI起名\n写作规则\n时间线\n批量审阅\n章节修订\n翻译\n风格转换\n重新生成\n按指令修改\n大纲\n本层智能体:\n不使用智能体\n凯旋写作Agent\n白虎\n新智能体\n新智能体\nSkill模式:\n组合（一次调用）\n串行（多次调用）\n拆"
+    },
+    {
+      "name": "流水线读取项目 A 大纲",
+      "pass": true,
+      "detail": "outline=# A卷\n## A章\nA项目大纲"
+    },
+    {
+      "name": "删除项目出现确认对话框",
+      "pass": true,
+      "detail": "[{\"type\":\"confirm\",\"message\":\"确定删除该项目？此操作不可恢复\"}]"
+    },
+    {
+      "name": "删除后项目 B 从列表移除",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "dialogs": [
+    {
+      "type": "confirm",
+      "message": "确定删除该项目？此操作不可恢复"
+    }
+  ],
+  "createdIds": [
+    "p1787055191678",
+    "p1787055192776"
+  ],
+  "timestamp": "2026-08-18T12:13:15.445Z"
+}

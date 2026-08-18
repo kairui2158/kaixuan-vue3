@@ -31,6 +31,16 @@
             </div>
           </div>
         </div>
+
+        <div v-if="transitionConfirmVisible" class="project-transition-confirm" role="dialog" aria-modal="true">
+          <div class="project-transition-confirm__title">{{ transitionConfirmTitle }}</div>
+          <div class="project-transition-confirm__text">当前项目还有内容，继续前请选择如何处理当前项目。</div>
+          <div class="project-transition-confirm__actions">
+            <button class="btn-primary" @click="continueTransition('save')">保存并继续</button>
+            <button class="btn-danger" @click="continueTransition('delete')">删除并继续</button>
+            <button class="btn-secondary" @click="cancelTransition">取消</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -48,6 +58,9 @@ const projectStore = useProjectStore()
 const showNewForm = ref(false)
 const newName = ref('')
 const newOutline = ref('')
+const transitionConfirmVisible = ref(false)
+const transitionConfirmTitle = ref('')
+const pendingTransition = ref<{ type: 'load' | 'create'; id?: string } | null>(null)
 
 const projectList = computed(() => projectStore.projectList || [])
 
@@ -58,11 +71,12 @@ onMounted(() => {
 function loadProject(id: string) {
   const currentId = projectStore.currentProjectId
   if (currentId && projectStore.projectName) {
-    const ok = confirm('切换项目前是否保存当前项目？')
-    if (ok) projectStore.saveProject()
+    transitionConfirmTitle.value = '切换项目'
+    pendingTransition.value = { type: 'load', id }
+    transitionConfirmVisible.value = true
+    return
   }
-  projectStore.selectProject(id)
-  emit('close')
+  finishLoad(id)
 }
 
 function deleteProject(id: string) {
@@ -73,9 +87,37 @@ function deleteProject(id: string) {
 function createNewProject() {
   const currentId = projectStore.currentProjectId
   if (currentId && projectStore.projectName) {
-    const ok = confirm('新建前是否保存当前项目？')
-    if (ok) projectStore.saveProject()
+    transitionConfirmTitle.value = '新建项目'
+    pendingTransition.value = { type: 'create' }
+    transitionConfirmVisible.value = true
+    return
   }
+  finishCreate()
+}
+
+function continueTransition(action: 'save' | 'delete') {
+  const pending = pendingTransition.value
+  if (!pending) return
+  const currentId = projectStore.currentProjectId
+  if (action === 'save') projectStore.saveProject()
+  if (action === 'delete' && currentId) projectStore.deleteProject(currentId)
+  transitionConfirmVisible.value = false
+  pendingTransition.value = null
+  if (pending.type === 'load' && pending.id) finishLoad(pending.id)
+  else finishCreate()
+}
+
+function cancelTransition() {
+  transitionConfirmVisible.value = false
+  pendingTransition.value = null
+}
+
+function finishLoad(id: string) {
+  projectStore.selectProject(id)
+  emit('close')
+}
+
+function finishCreate() {
   const name = newName.value.trim()
   const outline = newOutline.value.trim()
   if (!name && !outline) {
@@ -104,4 +146,8 @@ function createNewProject() {
 .form-input { background: var(--bg-input, #1a1a2e); color: var(--text-primary, #eee); border: 1px solid var(--border-color, #3d3d4f); border-radius: var(--radius-xs); padding: 8px 10px; font-size: var(--font-size-md); outline: none; }
 .form-textarea { background: var(--bg-input, #1a1a2e); color: var(--text-primary, #eee); border: 1px solid var(--border-color, #3d3d4f); border-radius: var(--radius-xs); padding: 8px 10px; font-size: var(--font-size-md); outline: none; resize: vertical; font-family: inherit; }
 .form-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.project-transition-confirm { margin-top: 12px; padding: 14px; border: 1px solid var(--accent, #6c5ce7); border-radius: var(--radius-sm); background: var(--bg-tertiary, #242438); }
+.project-transition-confirm__title { color: var(--text-primary, #eee); font-size: var(--font-size-md); font-weight: 600; }
+.project-transition-confirm__text { margin-top: 6px; color: var(--text-secondary, #aaa); font-size: var(--font-size-sm); line-height: 1.5; }
+.project-transition-confirm__actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; }
 </style>
