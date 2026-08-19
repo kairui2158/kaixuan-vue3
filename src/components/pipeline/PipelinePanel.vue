@@ -83,7 +83,6 @@
               </span>
             </template>
           </div>
-            <p class="pl-desc">第一步：输入或粘贴小说大纲全文。AI将基于此生成后续内容。</p>
             <textarea id="pl-outline" v-model="projectStore.outlineText" class="pl-textarea" placeholder="输入或粘贴大纲全文..." :readonly="projectStore.outlineLocked" :class="{ &apos;pl-readonly&apos;: projectStore.outlineLocked }"></textarea>
             <div class="pl-gen-options">
               <label>全书字数（万字）：</label>
@@ -254,7 +253,6 @@
               </span>
             </template>
           </div>
-            <p class="pl-desc">第三步：基于大纲和设定，AI自动生成卷纲。每卷的概要可编辑。</p>
              <div id="pl-volume-config" class="pl-vol-config">
                <div v-if="bookWordCount > 0" id="pl-volume-linked-book-words" class="pl-volume-linked-book-words" role="status" aria-live="polite">
                  <span class="pl-volume-linked-book-words-label">大纲已锁定全书字数</span>
@@ -367,7 +365,22 @@
               </span>
             </template>
           </div>
-            <p class="pl-desc">第四步：为每个章节生成剧情点。剧情点可编辑。</p>
+            <div id="pl-ch-gen-feedback" v-if="chapterGenerationFeedbackVisible" class="pl-ch-generation-feedback" role="status" aria-live="polite">
+              <div class="pl-ch-generation-header">
+                <strong>章节 AI 生成进度</strong>
+                <span>{{ pipelineStore.generationProgress }}%</span>
+              </div>
+              <div class="pl-generation-progress-track" aria-label="章节生成进度">
+                <div class="pl-generation-progress-value" :style="{ width: pipelineStore.generationProgress + '%' }"></div>
+              </div>
+              <div id="pl-ch-api-log" class="pl-generation-log" aria-label="章节 API 工作信息">
+                <div v-for="(line, index) in chapterGenerationLogs" :key="index" class="pl-generation-log-line">
+                  <span class="pl-generation-log-dot" aria-hidden="true"></span>
+                  <span>{{ line }}</span>
+                </div>
+              </div>
+              <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
+            </div>
             <div id="pl-ch-gen-bar" class="pl-ch-config">
               <label>每章字数</label>
               <input id="pl-chapter-wordcount" type="number" class="input-w-80" v-model.number="selectedVolumeChapterWords" min="1000" step="500" @change="lockChapterConfig" :readonly="selectedVolumeChapterLocked" />
@@ -381,19 +394,19 @@
               <label>预计章数</label>
               <span id="pl-ch-est-count" class="pl-gen-hint">{{ estimatedChapters }}</span>
             </div>
-            <div v-if="confirmedVolumes.length > 0" id="pl-ch-cards-area" class="pl-ch-list">
+            <p id="pl-ch-empty-no-volume" v-if="confirmedVolumes.length === 0" class="empty-hint">暂无已锁定卷纲，请先在卷纲层保存并锁定本卷</p>
+            <p id="pl-ch-empty-no-chapters" v-else-if="currentVolumeChapters.length === 0" class="empty-hint">暂无章节，请先生成</p>
+            <div v-if="currentVolumeChapters.length > 0" id="pl-ch-cards-area" class="pl-ch-list">
               <div v-for="(ch, i) in currentVolumeChapters" :key="i" class="pl-ch-card">
                 <div class="pl-ch-card-main">
                   <div class="pl-ch-card-head">
                     <span class="ch-title">{{ ch.title }}</span>
                     <button class="btn-sm btn-secondary" @click="genBody(selectedVolumeIndex, i)" :disabled="pipelineStore.isGenerating">生成正文</button>
                   </div>
-                  <textarea v-model="ch.plot" class="pl-ch-plot" placeholder="本章剧情点概要"></textarea>
+                  <textarea v-model="ch.plot" class="pl-ch-plot" placeholder="本章剧情点概要" @change="saveChapterPlot"></textarea>
                 </div>
               </div>
             </div>
-            <p id="pl-ch-empty-no-volume" v-if="confirmedVolumes.length === 0" class="empty-hint">暂无已锁定卷纲，请先在卷纲层保存并锁定本卷</p>
-            <p id="pl-ch-empty-no-chapters" v-else-if="currentVolumeChapters.length === 0" class="empty-hint">暂无章节，请先生成</p>
             <div class="pl-actions">
               <button id="btn-pl-gen-chapters" class="btn-primary" @click="genChapters" :disabled="pipelineStore.isGenerating || !selectedVolumeChapterLocked">AI生成章节</button>
               <button id="btn-pl-autogen-chapters" class="btn-secondary" @click="genChapters" :disabled="pipelineStore.isGenerating || !selectedVolumeChapterLocked">自动生成章节</button>
@@ -436,7 +449,6 @@
               </span>
             </template>
           </div>
-            <p class="pl-desc">第五步：选择章节，AI自动生成正文。</p>
             <div id="pl-context-summary" class="pl-body-config">
               <label>选择卷</label>
                 <select v-model.number="bodyVolumeIndex" class="pl-input-sm" @change="bodyChapterIndex = 0">
@@ -568,8 +580,10 @@ const confirmedSettingCategories = ref<string[]>([])
 const settingsGenerationLogs = ref<string[]>([])
 const settingsGenerationFeedbackVisible = computed(() => pipelineStore.isGenerating || settingsGenerationLogs.value.length > 0)
 const volumeGenerationLogs = ref<string[]>([])
+const chapterGenerationLogs = ref<string[]>([])
 const activeVolumeGenerationIndex = ref(-1)
 const volumeGenerationFeedbackVisible = computed(() => pipelineStore.isGenerating || volumeGenerationLogs.value.length > 0)
+const chapterGenerationFeedbackVisible = computed(() => pipelineStore.isGenerating || chapterGenerationLogs.value.length > 0)
 
 const settingCategories = computed(() => {
   const sc = projectStore.getSettingsCollection()
@@ -754,11 +768,25 @@ const currentSettings = computed(() => {
 
 const confirmedVolumes = computed(() => projectStore.volumes.filter((vol: any) => vol.confirmed))
 
-  const currentVolumeChapters = computed(() => {
+// Chapters can only operate on a locked volume. Keep the index used by the
+// chapter controls aligned with the filtered volume options after load,
+// locking, deletion, or project switching.
+watch(
+  () => projectStore.volumes.map((vol: any) => Boolean(vol.confirmed)),
+  () => {
+    const current = projectStore.volumes[selectedVolumeIndex.value]
+    if (current?.confirmed) return
+    const firstConfirmed = projectStore.volumes.findIndex((vol: any) => vol.confirmed)
+    selectedVolumeIndex.value = firstConfirmed >= 0 ? firstConfirmed : 0
+  },
+  { immediate: true }
+)
+
+const currentVolumeChapters = computed(() => {
     const vol = projectStore.volumes[selectedVolumeIndex.value]
   if (!vol || !vol.confirmed) return []
   const volId = vol.id || vol.name
-  return projectStore.chapters[volId] || []
+  return (projectStore.chapters[volId] || []).filter((chapter: any) => chapter.pipelineGenerated === true)
 })
 
 // Book word count (wan) x 10000 / per-volume words => volume count, auto-linked
@@ -862,6 +890,11 @@ function lockChapterConfig() {
   projectStore.saveProject()
 }
 
+function saveChapterPlot() {
+  projectStore.saveProject()
+  projectStore.refreshTree()
+}
+
 function getStepSkillIds(step: number): string[] {
   const stepSlot = stepSkills.value[step]
   if (stepSlot && stepSlot.length > 0) {
@@ -957,8 +990,33 @@ function tryParseJson(text: string): { ok: boolean; data?: any } {
   }
 }
 
+async function ensureJsonParsed(
+  step: number,
+  si: number,
+  current: string,
+  injection: PromptParts,
+  nextPrompt: string,
+  timeoutMs?: number,
+  skillAgentId?: string
+): Promise<string> {
+  const fmt = getStepSkillOutputFormat(step, si)
+  if (fmt !== "json") return current
+  if (tryParseJson(current).ok) return current
+
+  const retryPrompt = nextPrompt + "\n\n[注意] 上次输出不是合法JSON，请严格返回JSON格式，不要包含markdown代码块标记。"
+  const retried = timeoutMs
+    ? await callApiWithAgentTimeout(step, injection.systemSkill || "", retryPrompt, timeoutMs, skillAgentId, injection)
+    : await callApiWithAgent(step, injection.systemSkill || "", retryPrompt, skillAgentId, injection)
+  if (!tryParseJson(retried).ok) {
+    const skillName = getStepSkillTemplates(step)[si]?.name || "Skill"
+    throw new Error("「" + skillName + "」JSON校验失败：重试一次后仍不是合法JSON")
+  }
+  return retried
+}
+
 function getStepSkillMode(step: number): string {
-  return stepSkillModes.value[step] || "compose"
+  const mode = stepSkillModes.value[step]
+  return mode === "chain" ? "chain" : "compose"
 }
 
 function buildTemplateContext(step: number, prompt: string, prevResponse?: string): Record<string, any> {
@@ -1088,10 +1146,14 @@ function validateVolumes(vols: any[]): { valid: boolean; errors: string[] } {
   return { valid: errors.length === 0, errors }
 }
 
-function validateChapters(chs: any[]): { valid: boolean; errors: string[] } {
+function validateChapters(chs: any[], expectedCount?: number): { valid: boolean; errors: string[] } {
   const errors: string[] = []
+  if (expectedCount !== undefined && chs.length !== expectedCount) {
+    errors.push("章节数量不足：当前 " + chs.length + " 章，目标 " + expectedCount + " 章")
+  }
   for (const c of chs) {
     if (!c.title) errors.push("章节缺少标题")
+    if (!c.plot) errors.push("章节「" + (c.title || "?") + "」缺少剧情点")
   }
   return { valid: errors.length === 0, errors }
 }
@@ -1201,6 +1263,10 @@ function saveVolume(index: number) {
   if (!vol || !vol.name.trim()) return
   vol.confirmed = true
   vol.locked = true
+  // 锁卷时继承每卷字数，使章节层能正确计算章数
+  if ((!vol.suggestedWords || vol.suggestedWords <= 0) && volumeWords.value > 0) {
+    vol.suggestedWords = volumeWords.value
+  }
   projectStore.volumesConfirmed = false
   if (!projectStore.chapters[vol.id || vol.name]) projectStore.chapters[vol.id || vol.name] = []
   if (!projectStore.volumes[selectedVolumeIndex.value]?.confirmed) selectedVolumeIndex.value = index
@@ -1243,7 +1309,10 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
   const systemPrompt = [skillPart, agentPart].filter(Boolean).join("\n\n") || "你是专业小说创作助手。"
   const userPrompt = [promptParts?.userPrefix, prompt, promptParts?.userSuffix].filter(Boolean).join("\n\n")
   const messages = [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }]
-  return await providerStore.callApi(activeProvider?.id || "", model, messages)
+  return await providerStore.callApi(activeProvider?.id || "", model, messages, {
+    temperature: agentConfig?.temperature,
+    maxTokens: agentConfig?.maxTokens
+  })
 }
 
 async function callApiWithAgentTimeout(step: number, skillTemplate: string, prompt: string, timeoutMs: number, skillAgentOverride?: string, promptParts?: PromptParts): Promise<string> {
@@ -1306,10 +1375,21 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
     const bp = pipelineStore.breakpoint
     let startSi = 0
     let current = prompt
-    if (bp && bp.step === step && bp.lastSuccessChainIndex !== undefined && bp.lastOutput) {
+    if (
+      bp &&
+      bp.step === step &&
+      bp.projectId === projectStore.currentProjectId &&
+      bp.lastSuccessChainIndex !== undefined &&
+      bp.lastOutput
+    ) {
       startSi = bp.lastSuccessChainIndex + 1
       current = bp.lastOutput
       chainCtx.prevResponse = current
+      if (step === 2) {
+        volumeGenerationLogs.value.push(
+          "检测到卷纲断点：已完成第" + (bp.lastSuccessChainIndex + 1) + "步，将从第" + (startSi + 1) + "步继续"
+        )
+      }
       console.log("[PIPELINE] chain resumed from step " + (startSi + 1) + "/" + templates.length)
     }
     for (let si = startSi; si < templates.length; si++) {
@@ -1321,6 +1401,15 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
         ? prompt
         : "以下是上一个Skill的输出结果，请根据当前Skill继续处理：\n\n--- 上一步输出 ---\n" + current
       console.log("[PIPELINE] chain step " + (si + 1) + "/" + templates.length + " = " + t.name)
+      if (step === 2) {
+        volumeGenerationLogs.value.push("卷纲链式步骤 " + (si + 1) + "/" + templates.length + "：正在执行「" + (t.name || "未命名Skill") + "」")
+      }
+      if (step >= 2 && step <= 3) {
+        pipelineStore.updateProgress(
+          Math.min(65, 15 + Math.round(((si + 1) / templates.length) * 50)),
+          "链式生成中：" + (si + 1) + "/" + templates.length
+        )
+      }
       // Need 1: per-skill agent override
       const skillAgentId = getStepSkillAgentId(step, si)
       const injection = getPromptParts(resolvedTemplate, t.injectMode || "system_prefix")
@@ -1329,25 +1418,17 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
       } else {
         current = await callApiWithAgent(step, injection.systemSkill || "", nextPrompt, skillAgentId, injection)
       }
+      // Need 4: outputFormat JSON validation (valid -> no retry; invalid -> once, then fail)
+      current = await ensureJsonParsed(step, si, current, injection, nextPrompt, timeoutMs, skillAgentId)
       chainCtx.prevResponse = current
       // Need 2: save breakpoint after each successful step
-      pipelineStore.saveBreakpoint({ step, lastSuccessChainIndex: si, lastOutput: current, volumeIndex: selectedVolumeIndex.value })
-      // Need 4: outputFormat JSON validation
-      const fmt = getStepSkillOutputFormat(step, si)
-      if (fmt === "json") {
-        const parsed = tryParseJson(current)
-        if (!parsed.ok) {
-          console.warn("[PIPELINE] JSON parse failed for chain step " + (si + 1) + ", retrying")
-          const retryPrompt = nextPrompt + "\n\n[注意] 上次输出不是合法JSON，请严格返回JSON格式，不要包含markdown代码块标记。"
-          if (timeoutMs) {
-            current = await callApiWithAgentTimeout(step, injection.systemSkill || "", retryPrompt, timeoutMs, skillAgentId, injection)
-          } else {
-            current = await callApiWithAgent(step, injection.systemSkill || "", retryPrompt, skillAgentId, injection)
-          }
-          chainCtx.prevResponse = current
-          pipelineStore.saveBreakpoint({ step, lastSuccessChainIndex: si, lastOutput: current, volumeIndex: selectedVolumeIndex.value })
-        }
-      }
+      pipelineStore.saveBreakpoint({
+        step,
+        projectId: projectStore.currentProjectId,
+        lastSuccessChainIndex: si,
+        lastOutput: current,
+        volumeIndex: selectedVolumeIndex.value
+      })
     }
     pipelineStore.clearBreakpoint()
     return current
@@ -1366,19 +1447,7 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
     result = await callApiWithAgent(step, combined, composePrompt, undefined, merged)
   }
   // Need 4: outputFormat JSON validation for compose
-  const firstFmt = getStepSkillOutputFormat(step, 0)
-  if (firstFmt === "json") {
-    const parsed = tryParseJson(result)
-    if (!parsed.ok) {
-      console.warn("[PIPELINE] JSON parse failed for compose step " + step + ", retrying")
-      const retryPrompt = prompt + "\n\n[注意] 上次输出不是合法JSON，请严格返回JSON格式。"
-      if (timeoutMs) {
-        result = await callApiWithAgentTimeout(step, combined, retryPrompt, timeoutMs, undefined, merged)
-      } else {
-        result = await callApiWithAgent(step, combined, retryPrompt, undefined, merged)
-      }
-    }
-  }
+  result = await ensureJsonParsed(step, 0, result, merged, prompt, timeoutMs, undefined)
   return result
 }
 
@@ -1527,7 +1596,7 @@ async function genVolumes(mode: string) {
       prompt = "[大纲]\n" + projectStore.outlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[每卷字数]\n" + volumeWords.value + "\n\n全书计划字数：" + (bookWordCount.value * 10000) + "字。请生成" + effectiveVolumes + "卷的卷纲。输出JSON数组，每项含name/outline/summary/suggestedWords字段。"
     }
     volumeGenerationLogs.value.push("请求已发送：正在等待 API 返回卷纲内容")
-    const result = await runStepSkills(2, prompt, 120000, "你是卷纲生成专家。基于大纲和设定生成卷纲。")
+    const result = await runStepSkills(2, prompt, 600000, "你是卷纲生成专家。基于大纲和设定生成卷纲。")
     volumeGenerationLogs.value.push("API 已返回：正在解析卷纲 JSON 并校验卷数")
     pipelineStore.updateProgress(70, "正在解析卷纲内容")
     const volumes = extractJsonArray(result)
@@ -1563,7 +1632,14 @@ async function genVolumes(mode: string) {
     }
     pipelineStore.finishGeneration()
   } catch (e: any) {
-    volumeGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
+    const bp = pipelineStore.breakpoint
+    if (bp && bp.step === 2 && bp.lastSuccessChainIndex !== undefined) {
+      volumeGenerationLogs.value.push(
+        "API 调用失败：" + (e.message || "未知错误") + "；已保留断点，下次将从第" + (bp.lastSuccessChainIndex + 2) + "步继续"
+      )
+    } else {
+      volumeGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
+    }
     pipelineStore.failGeneration(e.message)
   }
 }
@@ -1573,12 +1649,25 @@ async function loadOutline() {
   projectStore.saveProject()
 }
 
+async function callChapterApi(prompt: string): Promise<string> {
+  const provider = providerStore.preferredGenerateProvider
+  if (!provider?.id) throw new Error("未配置生成 API")
+  const model = provider.selectedModel || provider.models?.[0] || ""
+  if (!model) throw new Error("生成 API 未选择模型")
+  chapterGenerationLogs.value.push("已连接生成 API：" + (provider.name || provider.id) + " / " + model)
+  return await providerStore.callApi(provider.id, model, [
+    { role: "system", content: "你是章节规划师。请严格按照用户要求输出合法 JSON 数组，每项必须包含 title 和 plot 字段。不要输出 Markdown 或解释文字。" },
+    { role: "user", content: prompt }
+  ])
+}
+
 async function genChapters() {
   const vol = selectedVolume.value
   if (!vol) return
   const volId = vol.id || vol.name
   const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
   const totalChapters = Number(vol.chapterCount) || Math.ceil((vol.suggestedWords || volumeWords.value) / wordsPerChapter)
+  chapterGenerationLogs.value = ["已选择卷「" + vol.name + "」，目标章数：" + totalChapters + "，单章字数：" + wordsPerChapter]
   pipelineStore.startGeneration()
   pipelineStore.saveBreakpoint({ volumeIndex: selectedVolumeIndex.value, chapterCount: 0, total: totalChapters })
   const collected: any[] = []
@@ -1588,12 +1677,13 @@ async function genChapters() {
     for (let start = 0; start < totalChapters; start += batch) {
       const end = Math.min(start + batch, totalChapters)
       pipelineStore.updateProgress(Math.round((start / totalChapters) * 100), "生成 " + (start + 1) + "-" + end + "/" + totalChapters)
+      chapterGenerationLogs.value.push("正在生成第" + (start + 1) + "章到第" + end + "章（共" + totalChapters + "章）")
       const prompt = "[卷纲]\n" + vol.name + " - " + volOutline + "\n\n[本卷总章数]\n" + totalChapters + "\n\n[单章字数]\n" + wordsPerChapter + "\n\n请生成第" + (start + 1) + "章到第" + end + "章的章节列表。输出JSON数组，每项含title/plot字段。数组长度必须恰好等于" + (end - start) + "。"
       let batchResult: any[] = []
       let batchSuccess = false
       for (let retry = 0; retry < 5 && !batchSuccess; retry++) {
         try {
-          const result = await runStepSkills(3, prompt, 120000, "你是章节规划师。将卷纲拆解为逐章剧情梗概。")
+          const result = await callChapterApi(prompt)
           const chapters = extractJsonArray(result)
           if (chapters.length > 0) {
             batchResult = chapters
@@ -1613,50 +1703,68 @@ async function genChapters() {
       if (batchSuccess && batchResult.length > 0) {
         batchResult.forEach((c: any, idx: number) => {
           if (!c.id) c.id = "ch-" + String(volId).replace(/[^a-zA-Z0-9_-]/g, "-") + "-" + String(collected.length + idx + 1).padStart(3, "0")
+          c.pipelineGenerated = true
+          if (c.body === undefined) c.body = ""
+          if (c.bodyGenerated === undefined) c.bodyGenerated = false
+          if (c.wordCount === undefined) c.wordCount = 0
         })
         collected.push(...batchResult)
         projectStore.setChapters(volId, [...collected])
+        projectStore.refreshTree()
         pipelineStore.saveBreakpoint({ volumeIndex: selectedVolumeIndex.value, chapterCount: collected.length, total: totalChapters })
+        chapterGenerationLogs.value.push("已生成 " + collected.length + "/" + totalChapters + " 章")
       }
     }
     // Need 3: supplement generation for insufficient chapters
     let supplementRetry = 0
     while (collected.length < totalChapters && supplementRetry < 3) {
       supplementRetry++
+      chapterGenerationLogs.value.push("章节不足，开始补充生成（第" + supplementRetry + "次）：当前" + collected.length + "/" + totalChapters)
       const remain = totalChapters - collected.length
       const supplementPrompt = "[卷纲]\n" + vol.name + " - " + (vol.outline || vol.summary || "") + "\n\n[本卷总章数]\n" + totalChapters + "\n\n[单章字数]\n" + wordsPerChapter + "\n\n已有" + collected.length + "章，继续从第" + (collected.length + 1) + "章生成到第" + totalChapters + "章。输出JSON数组，每项含title/plot字段。不要重复已有章节。数组长度必须恰好等于" + remain + "。"
       try {
-        const result = await runStepSkills(3, supplementPrompt, 120000, "你是章节规划师。")
+        const result = await callChapterApi(supplementPrompt)
         const supplement = extractJsonArray(result)
         const existingTitles = new Set(collected.map(c => c.title))
         for (const c of supplement) {
           if (c.title && !existingTitles.has(c.title)) {
             c.id = "ch-" + String(volId).replace(/[^a-zA-Z0-9_-]/g, "-") + "-" + String(collected.length + 1).padStart(3, "0")
+            c.pipelineGenerated = true
+            if (c.body === undefined) c.body = ""
+            if (c.bodyGenerated === undefined) c.bodyGenerated = false
+            if (c.wordCount === undefined) c.wordCount = 0
             collected.push(c)
             existingTitles.add(c.title)
           }
         }
         projectStore.setChapters(volId, [...collected])
+        projectStore.refreshTree()
         pipelineStore.saveBreakpoint({ volumeIndex: selectedVolumeIndex.value, chapterCount: collected.length, total: totalChapters })
+        chapterGenerationLogs.value.push("补充生成完成：当前已有 " + collected.length + "/" + totalChapters + " 章")
       } catch (e: any) {
         console.warn("[PIPELINE] supplement generation " + supplementRetry + " failed:", e)
+        chapterGenerationLogs.value.push("补充生成失败（第" + supplementRetry + "次）：" + (e.message || "未知错误"))
       }
     }
     if (collected.length > 0) {
-      const vr = validateChapters(collected)
+      const vr = validateChapters(collected, totalChapters)
       if (!vr.valid) {
         pipelineStore.failGeneration(vr.errors.join("; "))
         pipelineStore.finishGeneration()
+        chapterGenerationLogs.value.push("章节校验失败：" + vr.errors.join("; "))
         return
       }
       pipelineStore.updateProgress(100, "章节生成完成")
+      chapterGenerationLogs.value.push("章节生成完成，共 " + collected.length + " 章")
     } else {
       pipelineStore.failGeneration("未能解析章节JSON")
+      chapterGenerationLogs.value.push("AI 返回内容不是可用的章节 JSON")
     }
     pipelineStore.finishGeneration()
   } catch (e: any) {
     pipelineStore.saveBreakpoint({ volumeIndex: selectedVolumeIndex.value, chapterCount: collected.length, total: totalChapters })
     pipelineStore.failGeneration(e.message)
+    chapterGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
   }
 }
 
@@ -1756,8 +1864,10 @@ onMounted(() => {
       stepSkillModes.value = { 0: "compose", 1: "compose", 2: "chain", 3: "chain", 4: "compose" }
       let m = saved.modes
       for (let i = 0; i < 5; i++) {
-        if (m[i] !== undefined) stepSkillModes.value[i] = m[i]
-        else if (m[i + 1] !== undefined) stepSkillModes.value[i] = m[i + 1]
+        const savedMode = m[i] !== undefined ? m[i] : m[i + 1]
+        if (savedMode !== undefined) {
+          stepSkillModes.value[i] = savedMode === "chain" ? "chain" : "compose"
+        }
       }
     }
      if (saved.bookWordCount) bookWordCount.value = Math.round(saved.bookWordCount / 10000)
@@ -1906,7 +2016,6 @@ function toolAction(action: string) {
 /* 右侧内容区 */
 .pl-content-right { display: flex; flex-direction: column; flex: 1; padding: 24px 16px 32px; overflow-y: auto; min-width: 0; }
 .pl-step-panel h3 { font-size: var(--font-size-xxl); margin-bottom: 20px; }
-.pl-desc { font-size: var(--font-size-lg); color: var(--text-secondary); margin-bottom: 20px; padding: 14px; background: var(--bg-secondary); border-radius: var(--radius-lg); line-height: 1.6; }
 .pl-textarea { width: 100%; min-height: 400px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px; font-size: var(--font-size-lg); line-height: 1.8; resize: vertical; outline: none; }
 .pl-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px 12px; font-size: var(--font-size-md); height: 36px; outline: none; flex: 1; }
 .pl-input-sm { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px 10px; font-size: var(--font-size-md); height: var(--input-height, 34px); outline: none; }
@@ -1930,6 +2039,22 @@ function toolAction(action: string) {
 .pl-body-text { font-size: var(--font-size-lg); line-height: 1.8; white-space: pre-wrap; color: var(--text-primary); }
 .pl-gen-options { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: var(--font-size-lg); color: var(--text-secondary); flex-wrap: wrap; }
 .pl-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+.pl-ch-generation-feedback {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+}
+.pl-ch-generation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+}
 .pl-generation-feedback {
   margin-top: var(--space-4);
   padding: var(--space-4);

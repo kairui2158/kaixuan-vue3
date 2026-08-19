@@ -7,7 +7,7 @@ export const usePipelineStore = defineStore('pipeline', () => {
   const isGenerating = ref(false)
   const generationProgress = ref(0)
   const generationStatus = ref('')
-  const breakpoint = ref<any>(null)
+  const breakpoint = ref<any>(window.electronAPI.storageRead(storageKey('pipeline_breakpoint')) || null)
   const chapterProgress = ref<{ volumeIndex: number; chapterIndex: number; total: number } | null>(null)
 
   const stepNames = ['outline', 'settings', 'volumes', 'chapters', 'body']
@@ -41,6 +41,7 @@ export const usePipelineStore = defineStore('pipeline', () => {
 
   function saveBreakpoint(data: any) {
     breakpoint.value = data
+    window.electronAPI.storageWrite(storageKey('pipeline_breakpoint'), data)
     if (data && data.volumeIndex !== undefined) {
       chapterProgress.value = {
         volumeIndex: data.volumeIndex,
@@ -63,6 +64,7 @@ export const usePipelineStore = defineStore('pipeline', () => {
   function clearBreakpoint() {
     breakpoint.value = null
     chapterProgress.value = null
+    window.electronAPI.storageRemove(storageKey('pipeline_breakpoint'))
   }
 
   function setStepSkills(step: number, skillIds: string[]) {

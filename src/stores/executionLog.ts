@@ -85,7 +85,7 @@ export const useExecutionLogStore = defineStore("executionLog", () => {
       acc[l.mode] = (acc[l.mode] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
-    const unusedModes = ["chain", "split-merge", "multi-step", "compose"].filter(
+    const unusedModes = ["chain", "compose"].filter(
       (m) => !modeUsage[m]
     );
     if (unusedModes.length > 0) {

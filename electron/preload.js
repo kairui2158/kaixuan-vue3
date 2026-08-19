@@ -34,6 +34,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   dialogReadFile: function(filePath) { return ipcRenderer.sendSync('dialog:readFile', filePath) },
   dialogWriteFile: function(filePath, content) { return ipcRenderer.sendSync('dialog:writeFile', filePath, content) },
 
+  // Native clipboard bridge for Electron context isolation.
+  clipboardWrite: function(text) { return ipcRenderer.sendSync('clipboard:write', String(text || '')) },
+  clipboardRead: function() { return ipcRenderer.sendSync('clipboard:read') },
+
   // Lifecycle
   onFinalSave: function(callback) { ipcRenderer.on('app:finalSave', function() { callback() }) },
   forceQuit: function() { ipcRenderer.send('app:quit') },

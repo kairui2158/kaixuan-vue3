@@ -78,7 +78,7 @@
        messages: cfg.messages,
        stream: cfg.stream !== false
      }
-let _mt = cfg.maxTokens && cfg.maxTokens > 0 ? cfg.maxTokens : 128000
+let _mt = cfg.maxTokens && cfg.maxTokens > 0 ? cfg.maxTokens : 8192
 reqBody.max_tokens = _mt
      if (cfg.temperature != null) reqBody.temperature = cfg.temperature
  

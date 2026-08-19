@@ -1,7 +1,7 @@
-# P0 — 客户反馈对账表（重建，2026-08-19）
+# P0 客户反馈对账表（当前执行周期）
 
-启用时间：2026-08-19
-状态：13 项全部登记，按 P1→P12 顺序逐项亲自执行验证
+建立日期：2026-08-19
+状态：P0 审计完成，业务代码未在 P0 修改
 规则引用：
 - J15 原生对话框阻塞验证 → 原生窗口需 CDP 句柄 + 控件识别 + 截图三类证据
 - J16 构建警告逐条审计
@@ -12,8 +12,8 @@
 - C3 旧证据归零，本轮证据必须本轮产生
 - C4 一次只修一个闭环，不批量改无关功能
 
-Git：`538675e`（P5 提交，本周期从头验证不沿用结论）
-构建：`npx vite build` 通过（151 modules，built in 1.38s）
+Git：当前工作区存在未提交改动，本周期不把旧提交当作当前证据
+构建：本轮执行 `npx vite build`，输出 `151 modules transformed`、`✓ built`；Vite 配置格式警告待后续审计
 启动器：`start-electron.bat`（CDP 9227）
 数据目录：`%USERPROFILE%\Documents\神意助手数据`
 
@@ -21,21 +21,41 @@ Git：`538675e`（P5 提交，本周期从头验证不沿用结论）
 
 | # | 问题 | 本周期现状 | 证据位置 | 结论 |
 |---|------|-----------|---------|------|
-| 1 | 项目管理无法全部删除，存在占位项目 | 本轮 CDP 实测通过：全删→空列表→新建→再删→重启无占位，无旧/新格式键残留 | `_audit/tmp/p1_verify_result.json` + `p1_*.png` | ✅ PASS |
-| 2 | 大纲文件导入按钮无亮度、仅 TXT | 本轮 CDP 实测：按钮可见有亮度；TXT/MD/RTF/DOCX stored/DOCX deflate + 2 个真实 Word .docx 全部导入成功，编辑器/store/项目存储同步；.doc 中文拒绝 | `_audit/tmp/p2_verify_result.json` + `p2_*.png` | ✅ PASS |
-| 3 | 大纲 AI 共创未连通 API | 本轮 CDP 实测：真实 API 200×2；回复 OK；复制/替换/插入/重生成全 PASS；Pinia outlineChat 与项目存储 outlineChat 均=2 且一致 | `_audit/tmp/p3_verify_result.json` + `p3_chat_reply.png` + `p3_chat_regenerate.png` + `p3_chat_final.png` | ✅ PASS |
-| 4 | 锁定后跳转流水线大纲层+按钮重复 | 本轮 CDP 实测通过：锁定→自动跳转流水线大纲层；大纲层仅 1 个动作按钮 btn-pl-confirm-outline；填 66 万字后确认按钮解除禁用；确认后 currentStep=1、bookWordCountChars=660000、设定层显示 全书已确认字数：66 万字；项目存储 outlineLocked=true、bookWordCount=660000；测试项目已清理并恢复原数据 | _audit/tmp/p4_verify_result.json + p4_*.png | ✅ PASS |
-| 5 | 设定层无 API 滚动/进度条 | 本轮 CDP 实测通过：点击 AI 设定生成后反馈面板即时可见，进度 10→100，API 日志 4 条完整，动态生成 12 个分类、33 个设定项，一键绑定到全局 isBound=true，确认/保存后 currentStep=2、settingsGenerated=true，项目存储 settingsCollection+settingsGenerated 完整；测试项目已清理并恢复原数据 | _audit/tmp/p5_verify_result.json + p5_*.png | ✅ PASS |
-| 6 | 卷纲层无卷框内滚动 | 待实测 AI生成全卷/逐卷、卷框 API 日志与进度 | P6 验证结果 | 待验证 |
-| 7 | 卷纲层无字数联动 | 待实测大纲字数→卷数自动分配 | P6 验证结果 | 待验证 |
-| 8 | 卷框无保存/删除 | 待实测每卷锁定/删除及章节清理 | P6 验证结果 | 待验证 |
-| 9 | 卷纲层按钮冗余 | 底部按钮当前为 AI生成全卷/逐卷生成/确认完成下一步，待实测行为 | P6 验证结果 | 待验证 |
-| 10 | 章节层无生成时无章节框 | 待实测选中锁定卷+单章字数→章节数计算→生成→剧情点 | P7 验证结果 | 待验证 |
-| 11 | 章节层字数→章节数联动 | 待实测章节数与章节树/存储同步 | P7 验证结果 | 待验证 |
-| 12 | 正文层生成→编辑器 | 待实测生成→跳转主页编辑器→插入/保存/tab/章节树同步 | P8 验证结果 | 待验证 |
-| 13 | SKILL 模式只留串行/并行 | 各层模式当前为 compose=并行、chain=串行，待确认执行语义并清废弃入口 | P9 验证结果 | 待验证 |
+| 1 | 项目管理无法全部删除，存在占位项目 | 当前轮已实测新建、逐项删除、清空项目键、清空 `wa_lastProjectId`、源启动器重启复核 | `_audit/p1_after_restart.png`、当前轮 CDP 输出 | 已验证，待阶段提交 |
+| 2 | 大纲文件导入按钮无亮度、仅 TXT | 本轮重新验证：按钮 visible=true、disabled=false、opacity=1、cursor=pointer；TXT、MD、RTF、真实归档 DOCX 均从同一用户入口进入编辑器且编辑器/项目存储一致；.doc 显示中文不支持提示；验证后恢复原项目并重载 | `_audit/p2_import_fresh.json`、`_audit/p2_import_fresh.png`；本轮命令输出 `P2_FRESH={total:5,passed:5,pass:true}` | 本轮验证通过，待阶段提交 |
+| 3 | 大纲 AI 共创未连通 API | 需当前周期重新实测真实请求、气泡操作和持久化 | 当前轮待生成 | 待验证 |
+| 4 | 锁定后跳转流水线大纲层+按钮重复 | 需当前周期重新实测字数 store、设定层联动和重启 | 当前轮待生成 | 待验证 |
+| 5 | 设定层无 API 滚动/进度条 | 需当前周期重新实测动态分类、绑定、确认和存储 | 当前轮待生成 | 待验证 |
+| 6 | 卷纲层无卷框内滚动 | 需实测自动/逐卷生成、卷框日志和进度 | 当前轮待生成 | 未完成 |
+| 7 | 卷纲层无字数联动 | 需实测大纲字数→卷数/每卷字数→章节层 | 当前轮待生成 | 未完成 |
+| 8 | 卷框无保存/删除 | 需实测锁定/删除及章节清理 | 当前轮待生成 | 未完成 |
+| 9 | 卷纲层按钮冗余 | 需实测三按钮行为并清除废入口 | 当前轮待生成 | 未完成 |
+| 10 | 章节层无生成时无章节框 | 当前项目没有已锁定卷，不能伪造后半段验证 | CDP 当前 store：无 locked volume | 未完成 |
+| 11 | 章节层字数→章节数联动 | 需从真实锁定卷进入；章节直接 API 改动已存在但行为证据缺失 | `PipelinePanel.vue:1637` | 未完成 |
+| 12 | 正文层生成→编辑器 | 依赖章节真实生成和同步，尚未进入 | 当前轮待生成 | 未完成 |
+| 13 | SKILL 模式只留串行/并行 | 按用户决定，SKILL 不纳入本轮章节闭环；仍需独立 P9 验证 | 当前轮待生成 | 未完成 |
+
+## P3 本轮复测记录（2026-08-19）
+
+本轮按用户最新要求只走已配置供应商 API，不选择、不注入、不测试 SKILL。执行顺序为：源启动器 `start-electron.bat` → CDP 9227 → 快照原项目 → 打开大纲工作台 → 真实发送 → 递归按钮操作 → Page.reload → 读取存储 → finally 恢复快照 → 杀 Electron 进程。
+
+| 检查项 | 用户操作 | 预期 | 实测结果 | 证据 |
+|---|---|---|---|---|
+| API 入口 | 打开大纲工作台，打开 AI 共创，输入“只回复OK”，点击发送 | 读取当前供应商并发送真实请求 | POST 到 `https://openapi.cloud-ai.cn/v1/chat/completions`，模型 `deepseek-v4-pro`，请求包含当前大纲 | `_audit/tmp/p3_verify_current.json` requests |
+| 响应气泡 | 等待 API 返回 | assistant 气泡出现响应文本 | 气泡出现 `OK` | `_audit/tmp/p3_verify_current.json` check: API response |
+| 复制 | 点击复制 | 剪贴板得到气泡正文 | 本轮按钮存在且递归操作链通过 | `_audit/tmp/p3_verify_current.json` |
+| 插入 | 光标置于大纲第 2 位，点击插入 | 正文插入光标处 | `P3临时大纲` → `P3OK临时大纲` | `_audit/tmp/p3_verify_current.json` |
+| 替换 | 点击替换 | 大纲整体替换为气泡正文 | 大纲变为 `OK` | `_audit/tmp/p3_verify_current.json` |
+| 重生成 | 点击重生成 | 再次真实调用 API 并产生新回复 | 请求数 `1 → 2` | `_audit/tmp/p3_verify_current.json` requests |
+| 持久化 | 重新加载应用并打开 AI 共创 | 对话记录和项目存储一致 | DOM 气泡 `2` 条，存储 `outlineChat` `2` 条 | `_audit/tmp/p3_verify_current.json` |
+
+P3 结果：12/12 检查通过。此结论仅覆盖大纲 AI 共创 API 闭环；SKILL 方案保留到独立 P9 专项。
 
 ---
+
+## P0 结论
+
+P0 审计完成。P0 未修改业务代码；历史 PASS 仅作为定位线索，不作为当前周期通过证据。下一阶段从 P1 开始，任何前置闭环未取得当前轮证据，不进入后续闭环。
 
 ## 执行纪律
 

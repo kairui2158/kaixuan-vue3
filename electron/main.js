@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, clipboard } = require('electron')
 const path = require('path')
 const fs = require('fs')
 
@@ -109,6 +109,14 @@ function createWindow() {
   registerApiHandlers()
   registerDialogHandlers()
   registerLifecycleHandlers(mainWindow)
+
+  ipcMain.on('clipboard:write', function(event, text) {
+    clipboard.writeText(String(text || ''))
+    event.returnValue = true
+  })
+  ipcMain.on('clipboard:read', function(event) {
+    event.returnValue = clipboard.readText()
+  })
 
  // New IPC channels for Vue 3 migration
   // These features are handled in renderer process via composables

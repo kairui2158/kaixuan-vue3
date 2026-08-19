@@ -367,6 +367,12 @@ function exportTxt() {
 }
 
 function copyMsg(text: string) {
+  try {
+    if (window.electronAPI && typeof window.electronAPI.clipboardWrite === 'function') {
+      window.electronAPI.clipboardWrite(text)
+      return
+    }
+  } catch {}
   navigator.clipboard.writeText(text).catch(() => {
     const tmp = document.createElement('textarea')
     tmp.value = text

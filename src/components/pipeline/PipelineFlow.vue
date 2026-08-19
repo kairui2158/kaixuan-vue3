@@ -116,10 +116,8 @@ const stepSkills = computed(() => props.stepSkills)
 const stepSkillModes = computed(() => props.stepSkillModes)
 
 const modeLabels: Record<string, string> = {
-  compose: '组合',
+  compose: '并行',
   chain: '串行',
-  'split-merge': '拆分合并',
-  'multi-step': '多步'
 }
 
 // Version management
@@ -172,7 +170,7 @@ function loadVersion(index: number) {
   if (modes) {
     for (const k of Object.keys(modes)) {
       const i = parseInt(k)
-      if (!isNaN(i)) props.stepSkillModes[i] = modes[k]
+      if (!isNaN(i)) props.stepSkillModes[i] = modes[k] === 'chain' ? 'chain' : 'compose'
     }
   }
   showLoadDialog.value = false

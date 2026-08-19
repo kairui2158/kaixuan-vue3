@@ -133,13 +133,20 @@ function getProvider(id: string): Provider | undefined {
 
 const preferredGenerateProvider = computed(() => activeGenerateProvider.value)
 
-async function callApi(providerId: string, model: string, messages: Array<{ role: string; content: string }>): Promise<string> {
+async function callApi(
+  providerId: string,
+  model: string,
+  messages: Array<{ role: string; content: string }>,
+  options?: { temperature?: number; maxTokens?: number }
+): Promise<string> {
   const p = providers.value.find(p => p.id === providerId)
   if (!p) throw new Error('Provider not found: ' + providerId)
+  const temperature = options?.temperature ?? p.temperature ?? 0.7
+  const maxTokens = Math.min(options?.maxTokens ?? p.maxTokens ?? 8192, 16384)
   const resp = await fetch(p.baseUrl + '/chat/completions', {
     method: 'POST',
     headers: { 'Authorization': 'Bearer ' + p.apiKey, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model, messages, temperature: p.temperature || 0.7, max_tokens: p.maxTokens || 8192, stream: false })
+    body: JSON.stringify({ model, messages, temperature, max_tokens: maxTokens, stream: false })
   })
   if (!resp.ok) throw new Error('API error: ' + resp.status)
   const data = await resp.json()
