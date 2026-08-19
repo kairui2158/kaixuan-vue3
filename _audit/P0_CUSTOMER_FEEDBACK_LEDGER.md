@@ -24,7 +24,7 @@ Git：`538675e`（P5 提交，本周期从头验证不沿用结论）
 | 1 | 项目管理无法全部删除，存在占位项目 | 本轮 CDP 实测通过：全删→空列表→新建→再删→重启无占位，无旧/新格式键残留 | `_audit/tmp/p1_verify_result.json` + `p1_*.png` | ✅ PASS |
 | 2 | 大纲文件导入按钮无亮度、仅 TXT | 本轮 CDP 实测：按钮可见有亮度；TXT/MD/RTF/DOCX stored/DOCX deflate + 2 个真实 Word .docx 全部导入成功，编辑器/store/项目存储同步；.doc 中文拒绝 | `_audit/tmp/p2_verify_result.json` + `p2_*.png` | ✅ PASS |
 | 3 | 大纲 AI 共创未连通 API | 本轮 CDP 实测：真实 API 200×2；回复 OK；复制/替换/插入/重生成全 PASS；Pinia outlineChat 与项目存储 outlineChat 均=2 且一致 | `_audit/tmp/p3_verify_result.json` + `p3_chat_reply.png` + `p3_chat_regenerate.png` + `p3_chat_final.png` | ✅ PASS |
-| 4 | 锁定后跳转流水线大纲层+按钮重复 | 待实测锁定跳转、单按钮、字数入 store、进设定层 | P4 验证结果 | 待验证 |
+| 4 | 锁定后跳转流水线大纲层+按钮重复 | 本轮 CDP 实测通过：锁定→自动跳转流水线大纲层；大纲层仅 1 个动作按钮 btn-pl-confirm-outline；填 66 万字后确认按钮解除禁用；确认后 currentStep=1、bookWordCountChars=660000、设定层显示 全书已确认字数：66 万字；项目存储 outlineLocked=true、bookWordCount=660000；测试项目已清理并恢复原数据 | _audit/tmp/p4_verify_result.json + p4_*.png | ✅ PASS |
 | 5 | 设定层无 API 滚动/进度条 | 待实测生成反馈、动态分类、保存/绑定/确认、store 持久化 | P5 验证结果 | 待验证 |
 | 6 | 卷纲层无卷框内滚动 | 待实测 AI生成全卷/逐卷、卷框 API 日志与进度 | P6 验证结果 | 待验证 |
 | 7 | 卷纲层无字数联动 | 待实测大纲字数→卷数自动分配 | P6 验证结果 | 待验证 |
