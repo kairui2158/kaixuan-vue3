@@ -468,7 +468,7 @@
                 {{ pipelineStore.isGenerating ? '生成中...' : 'AI生成正文' }}
               </button>
               <button id="btn-pl-insert-body" class="btn-secondary" @click="insertToEditor" :disabled="!(currentBodyContent || bodyResult)">插入到编辑器</button>
-              <button id="btn-pl-confirm-body" class="btn-secondary" @click="confirmStep(4)" :disabled="!(currentBodyContent || bodyResult)">确认完成</button>
+              <button id="btn-pl-confirm-body" class="btn-secondary" @click="confirmBodyWithMemory" :disabled="!(currentBodyContent || bodyResult) || memoryPreviewLoading">确认完成</button>
             </div>
           </div>
           </div>
@@ -498,6 +498,38 @@
         <button class="btn-primary" @click="confirmAddSetting" :disabled="!newSettingName.trim()">保存</button>
       </div>
     </div>
+  </div>
+
+  <div v-if="memoryPreviewVisible" class="pl-memory-preview-overlay" @click.self="closeMemoryPreview">
+    <section class="pl-memory-preview-modal" role="dialog" aria-modal="true" aria-labelledby="pl-memory-preview-title">
+      <header class="pl-memory-preview-header">
+        <div>
+          <strong id="pl-memory-preview-title">记忆变更预览</strong>
+          <span class="pl-memory-preview-subtitle">正文已保存，确认后才写入记忆库</span>
+        </div>
+        <button type="button" class="modal-close" title="关闭" @click="closeMemoryPreview">&times;</button>
+      </header>
+      <div class="pl-memory-preview-body">
+        <p v-if="memoryPreviewChanges.length === 0" class="empty-hint">本章没有检测到新的记忆变更。</p>
+        <ul v-else class="pl-memory-change-list">
+          <li v-for="(change, index) in memoryPreviewChanges" :key="index" class="pl-memory-change-item">
+            <span class="pl-memory-change-kind">{{ change.kind }}</span>
+            <strong>{{ change.name || change.id || '未命名条目' }}</strong>
+            <span>{{ change.action === 'added' ? '新增' : change.action === 'updated' ? '更新' : '跳过' }}</span>
+            <small v-if="change.reason">{{ change.reason }}</small>
+            <div class="pl-memory-change-actions">
+              <button type="button" class="btn-sm btn-secondary" @click="rejectMemoryPreviewItem(index)" :disabled="change.review === 'rejected'">拒绝</button>
+              <button type="button" class="btn-sm btn-secondary" @click="toggleMemoryPreviewLock(index)">{{ change.review === 'locked' ? '取消锁定' : '锁定' }}</button>
+            </div>
+          </li>
+        </ul>
+        <p v-if="memoryPreviewError" class="pl-memory-preview-error">{{ memoryPreviewError }}</p>
+      </div>
+      <footer class="pl-memory-preview-footer">
+        <button type="button" class="btn-secondary" @click="closeMemoryPreview">关闭，不写入</button>
+        <button type="button" class="btn-primary" @click="confirmMemoryPreview" :disabled="memoryPreviewSaving">{{ memoryPreviewSaving ? '写入中...' : '确认写入记忆' }}</button>
+      </footer>
+    </section>
   </div>
 
   <!-- 执行日志面板 -->
@@ -551,6 +583,10 @@ import { useExecutionLogStore } from "../../stores/executionLog"
 import { useAiTools } from "../../composables/useAiTools"
 import { storageKey } from "../../utils/storage-key"
 import PipelineFlow from "./PipelineFlow.vue"
+import { extractMemory } from "../../services/memoryExtractor"
+import { mergeMemory } from "../../services/memoryMerger"
+import type { ExtractedMemoryData } from "../../services/memoryExtractor"
+import { retrieveContext } from "../../services/memoryRetriever"
 
 defineEmits<{ close: [] }>()
 
@@ -585,6 +621,24 @@ const chapterGenerationLogs = ref<string[]>([])
 const activeVolumeGenerationIndex = ref(-1)
 const volumeGenerationFeedbackVisible = computed(() => pipelineStore.isGenerating || volumeGenerationLogs.value.length > 0)
 const chapterGenerationFeedbackVisible = computed(() => pipelineStore.isGenerating || chapterGenerationLogs.value.length > 0)
+
+type MemoryPreviewItem = {
+  key: string
+  kind: string
+  name?: string
+  id?: string
+  action: "pending" | "rejected" | "locked"
+  value: any
+}
+
+const memoryPreviewVisible = ref(false)
+const memoryPreviewLoading = ref(false)
+const memoryPreviewSaving = ref(false)
+const memoryPreviewError = ref("")
+const memoryPreviewChanges = ref<any[]>([])
+const memoryPreviewItems = ref<MemoryPreviewItem[]>([])
+const memoryPreviewExtracted = ref<ExtractedMemoryData | null>(null)
+const memoryPreviewChapter = ref<{ id: string; index: number; title: string; content: string } | null>(null)
 
 const settingCategories = computed(() => {
   const sc = projectStore.getSettingsCollection()
@@ -1056,7 +1110,14 @@ function buildTemplateContext(step: number, prompt: string, prevResponse?: strin
     prevChapterSummary: prevCh ? (prevCh.summary || prevCh.plot || "") : "",
     chapterPlot: selectedCh ? (selectedCh.plot || "") : "",
     characters: characters,
-    prevResponse: prevResponse || ""
+    prevResponse: prevResponse || "",
+    memoryContext: retrieveContext(projectStore.memories, {
+      chapterId: selectedCh ? String(selectedCh.id || "") : undefined,
+      chapterIndex: chIdx >= 0 ? chIdx : undefined,
+      query: `${prompt} ${selectedCh?.title || ""} ${selectedCh?.plot || ""}`,
+      previousChapterSummary: prevCh ? (prevCh.summary || prevCh.plot || "") : "",
+      maxChars: 2000
+    }).text
   }
 }
 
@@ -1344,6 +1405,10 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
   const templates = getStepSkillTemplates(step)
   const mode = getStepSkillMode(step)
   const baseCtx = buildTemplateContext(step, prompt)
+  const memoryPrompt = baseCtx.memoryContext
+    ? "\n\n[相关记忆]\n" + baseCtx.memoryContext
+    : ""
+  const generationPrompt = prompt + memoryPrompt
   // Use SkillExecutionEngine for split-merge / multi-step
   if ((mode === "split-merge" || mode === "multi-step") && templates.length > 0) {
     const engine = (window as any).SkillExecutionEngine
@@ -1362,10 +1427,10 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
       let result: any
       if (mode === "split-merge") {
         console.log("[PIPELINE] split-merge mode, step=" + step + " skills=" + engineSkills.length)
-        result = await engine.splitMerge(prompt, engineSkills, { aiRequest, splitSize: 1000, stream: false, templateContext: baseCtx })
+        result = await engine.splitMerge(generationPrompt, engineSkills, { aiRequest, splitSize: 1000, stream: false, templateContext: baseCtx })
       } else {
         console.log("[PIPELINE] multi-step mode, step=" + step + " skills=" + engineSkills.length)
-        result = await engine.multiStep(prompt, engineSkills.slice(0, 4), { aiRequest, splitSize: 1500, stream: false, templateContext: baseCtx })
+        result = await engine.multiStep(generationPrompt, engineSkills.slice(0, 4), { aiRequest, splitSize: 1500, stream: false, templateContext: baseCtx })
       }
       return result?.text || prompt
     }
@@ -1399,8 +1464,8 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
       const resolvedTemplate = resolveSkillTemplate(t.template, ctxForSkill)
       const useOriginal = si === 0 && startSi === 0
       const nextPrompt = useOriginal
-        ? prompt
-        : "以下是上一个Skill的输出结果，请根据当前Skill继续处理：\n\n--- 上一步输出 ---\n" + current
+        ? generationPrompt
+        : "以下是上一个Skill的输出结果，请根据当前Skill继续处理：\n\n--- 上一步输出 ---\n" + current + memoryPrompt
       console.log("[PIPELINE] chain step " + (si + 1) + "/" + templates.length + " = " + t.name)
       if (step === 2) {
         volumeGenerationLogs.value.push("卷纲链式步骤 " + (si + 1) + "/" + templates.length + "：正在执行「" + (t.name || "未命名Skill") + "」")
@@ -1440,7 +1505,7 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
   })
   const merged = mergePromptParts(resolvedParts)
   const combined = merged.systemSkill || resolveSkillTemplate(fallbackTemplate || "", baseCtx)
-  const composePrompt = prompt
+  const composePrompt = generationPrompt
   let result: string
   if (timeoutMs) {
     result = await callApiWithAgentTimeout(step, combined, composePrompt, timeoutMs, undefined, merged)
@@ -1846,6 +1911,179 @@ function insertToEditor() {
   }))
 }
 
+function currentBodyChapter() {
+  const vol = projectStore.volumes[bodyVolumeIndex.value]
+  const volId = vol?.id || vol?.name
+  const chs = volId ? (projectStore.chapters[volId] || []) : []
+  const ch = chs[bodyChapterIndex.value]
+  if (!ch || !volId) return null
+  return {
+    id: String(ch.id || `${volId}-chapter-${bodyChapterIndex.value + 1}`),
+    index: bodyChapterIndex.value,
+    title: String(ch.title || "未命名章节"),
+    content: String(ch.body || currentBodyContent.value || bodyResult.value || "")
+  }
+}
+
+function memoryChangeKey(change: any): string {
+  return [change.kind || "", change.id || "", change.name || ""].join("\u0000")
+}
+
+function memoryEntryMatches(change: any, value: any): boolean {
+  if (!value || typeof value !== "object") return false
+  if (change.id && value.id === change.id) return true
+  if (change.name && value.name === change.name) return true
+  if (change.kind === "event" && change.name && value.title === change.name) return true
+  return false
+}
+
+function markMemoryReview(change: any, review: "rejected" | "locked" | "pending") {
+  const key = memoryChangeKey(change)
+  const current = memoryPreviewChanges.value.find((item: any) => memoryChangeKey(item) === key)
+  if (current) current.review = review
+}
+
+function rejectMemoryPreviewItem(index: number) {
+  const change = memoryPreviewChanges.value[index]
+  if (!change) return
+  markMemoryReview(change, "rejected")
+}
+
+function toggleMemoryPreviewLock(index: number) {
+  const change = memoryPreviewChanges.value[index]
+  if (!change || change.review === "rejected") return
+  markMemoryReview(change, change.review === "locked" ? "pending" : "locked")
+}
+
+function filterReviewedMemory(extracted: ExtractedMemoryData): ExtractedMemoryData {
+  const rejected = new Set(
+    memoryPreviewChanges.value
+      .filter((change: any) => change.review === "rejected")
+      .map((change: any) => memoryChangeKey(change))
+  )
+  const locked = memoryPreviewChanges.value.filter((change: any) => change.review === "locked")
+  const filterList = (kind: string, values: any[]) => values.filter((value: any) => {
+    const change = memoryPreviewChanges.value.find((item: any) => item.kind === kind && memoryEntryMatches(item, value))
+    return !change || !rejected.has(memoryChangeKey(change))
+  })
+  const lockList = (kind: string, values: any[]) => values.map((value: any) => {
+    const change = locked.find((item: any) => item.kind === kind && memoryEntryMatches(item, value))
+    if (!change) return value
+    const next = JSON.parse(JSON.stringify(value))
+    if (kind === "entity") {
+      next.lockedFields = Array.from(new Set([
+        ...(Array.isArray(next.lockedFields) ? next.lockedFields : []),
+        "description", "status", "notes"
+      ]))
+    } else {
+      next.locked = true
+    }
+    return next
+  })
+  return {
+    entities: lockList("entity", filterList("entity", extracted.entities || [])),
+    relations: lockList("relation", filterList("relation", extracted.relations || [])),
+    events: lockList("event", filterList("event", extracted.events || [])),
+    world: lockList("world", filterList("world", extracted.world || [])),
+    foreshadowing: lockList("foreshadowing", filterList("foreshadowing", extracted.foreshadowing || []))
+  }
+}
+
+async function callMemoryApi(prompt: string, systemPrompt: string): Promise<string | null> {
+  try {
+    return await callApiWithAgent(4, systemPrompt, prompt)
+  } catch (error) {
+    console.warn("[PIPELINE] memory extraction API failed:", error)
+    return null
+  }
+}
+
+async function confirmBodyWithMemory() {
+  const chapter = currentBodyChapter()
+  if (!chapter || !chapter.content.trim()) return
+
+  // 正文先落盘；记忆抽取失败不能回滚正文。
+  const vol = projectStore.volumes[bodyVolumeIndex.value]
+  const volId = vol?.id || vol?.name
+  const ch = volId ? (projectStore.chapters[volId] || [])[bodyChapterIndex.value] : null
+  if (ch) {
+    ch.body = chapter.content
+    ch.bodyGenerated = true
+    projectStore.saveProject()
+    projectStore.refreshTree()
+  }
+
+  memoryPreviewLoading.value = true
+  memoryPreviewError.value = ""
+  memoryPreviewVisible.value = true
+  memoryPreviewChanges.value = []
+  memoryPreviewExtracted.value = null
+  memoryPreviewChapter.value = chapter
+  try {
+    const result = await extractMemory({
+      chapterId: chapter.id,
+      chapterIndex: chapter.index,
+      chapterTitle: chapter.title,
+      content: chapter.content
+    }, callMemoryApi, 30000)
+    if (!result.success) {
+      memoryPreviewError.value = `记忆抽取失败：${result.error || "未知错误"}。正文已保存。`
+      return
+    }
+    memoryPreviewExtracted.value = result.data
+    const merged = mergeMemory(projectStore.memories, result.data, {
+      chapterId: chapter.id,
+      chapterIndex: chapter.index,
+      blacklist: projectStore.memoryBlacklist
+    })
+    memoryPreviewChanges.value = merged.changes.map((change: any) => ({ ...change, review: "pending" }))
+  } catch (error: any) {
+    memoryPreviewError.value = `记忆抽取失败：${error?.message || "未知错误"}。正文已保存。`
+  } finally {
+    memoryPreviewLoading.value = false
+  }
+}
+
+function closeMemoryPreview() {
+  if (memoryPreviewSaving.value) return
+  memoryPreviewVisible.value = false
+  memoryPreviewError.value = ""
+  memoryPreviewChanges.value = []
+  memoryPreviewExtracted.value = null
+  memoryPreviewChapter.value = null
+}
+
+function confirmMemoryPreview() {
+  const chapter = memoryPreviewChapter.value
+  const extracted = memoryPreviewExtracted.value
+  if (!chapter || !extracted) {
+    closeMemoryPreview()
+    return
+  }
+  memoryPreviewSaving.value = true
+  let written = false
+  try {
+    const reviewed = filterReviewedMemory(extracted)
+    const merged = mergeMemory(projectStore.memories, reviewed, {
+      chapterId: chapter.id,
+      chapterIndex: chapter.index,
+      blacklist: projectStore.memoryBlacklist
+    })
+    projectStore.recordMemoryChange(merged.data, {
+      chapterId: chapter.id,
+      chapterIndex: chapter.index,
+      reason: `确认正文后写入记忆：${chapter.title}`
+    })
+    confirmStep(4)
+    written = true
+  } catch (error: any) {
+    memoryPreviewError.value = `记忆写入失败：${error?.message || "未知错误"}`
+  } finally {
+    memoryPreviewSaving.value = false
+  }
+  if (written) closeMemoryPreview()
+}
+
 onMounted(() => {
   const saved = window.electronAPI.storageRead(storageKey("pipeline_step_config"))
   if (saved) {
@@ -2006,6 +2244,19 @@ function toolAction(action: string) {
 
 <style scoped>
 .pl-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal); }
+.pl-memory-preview-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--bg-overlay); z-index: calc(var(--z-modal) + 1); pointer-events: auto; }
+.pl-memory-preview-modal { position: relative; z-index: 1; width: min(720px, 100%); max-height: min(720px, calc(100vh - 48px)); display: flex; flex-direction: column; overflow: hidden; background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: var(--shadow-lg); pointer-events: auto; }
+.pl-memory-preview-header, .pl-memory-preview-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; }
+.pl-memory-preview-header { border-bottom: 1px solid var(--border-color); }
+.pl-memory-preview-subtitle { display: block; margin-top: 4px; color: var(--text-secondary); font-size: 12px; }
+.pl-memory-preview-body { min-height: 120px; overflow: auto; padding: 16px 20px; }
+.pl-memory-preview-footer { justify-content: flex-end; border-top: 1px solid var(--border-color); }
+.pl-memory-change-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.pl-memory-change-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px 12px; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; }
+.pl-memory-change-kind { color: var(--text-secondary); font-size: 12px; }
+.pl-memory-change-item small { grid-column: 1 / -1; color: var(--text-secondary); }
+.pl-memory-change-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; }
+.pl-memory-preview-error { color: var(--color-danger, #c0392b); }
 .pl-content { width: min(1200px, 95vw); height: min(900px, 96vh); max-width: 1200px; max-height: 96vh; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; }
 .pl-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-5) var(--space-8); border-bottom: 1px solid var(--border-color); font-size: var(--font-size-xl); font-weight: 600; }
 .pl-header-title { }

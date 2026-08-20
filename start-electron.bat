@@ -22,7 +22,7 @@ echo [OK] dist-renderer found
 echo [OK] Starting application...
 echo.
 
-start "" "%~dp0node_modules\electron\dist\electron.exe" --remote-debugging-port=9227 --remote-allow-origins=* "%~dp0."
+ start "" "%~dp0node_modules\electron\dist\electron.exe" --remote-debugging-port=9227 --remote-allow-origins=* --no-sandbox --disable-gpu "%~dp0."
 
 echo [OK] Application started
 echo.

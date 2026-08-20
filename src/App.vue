@@ -406,7 +406,6 @@ main {
 :deep(.outline-workspace),
 :deep(.dashboard-modal),
 :deep(.plugin-market) {
-  position: relative;
   z-index: 901;
 }
 </style>

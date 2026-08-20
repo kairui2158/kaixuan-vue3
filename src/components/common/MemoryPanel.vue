@@ -4,6 +4,9 @@
       <h4>记忆管理</h4>
       <div class="mem-header-actions">
         <button id="btn-memory-relation-graph" class="btn-sm btn-secondary" type="button" @click="showRelationGraph = showRelationGraph === 'graph' ? 'analysis' : showRelationGraph === 'analysis' ? 'mind' : showRelationGraph === 'mind' ? 'timeline' : showRelationGraph === 'timeline' ? false : 'graph'">{{ showRelationGraph === 'analysis' ? '思维导图' : showRelationGraph === 'mind' ? '时间线' : showRelationGraph === 'timeline' ? '记忆列表' : showRelationGraph === 'graph' ? '图谱分析' : '关系图' }}</button>
+        <button id="btn-export-memory" class="btn-sm btn-secondary" @click="exportMemory">导出 JSON</button>
+        <button id="btn-import-memory" class="btn-sm btn-secondary" @click="importMemory">导入 JSON</button>
+        <button id="btn-import-character-card" class="btn-sm btn-secondary" @click="importCharacterCard">导入角色卡</button>
         <button id="btn-close-mem" class="btn-close" @click="$emit('close')">&times;</button>
       </div>
     </div>
@@ -44,6 +47,13 @@
             </div>
           </div>
           <div v-for="(item, idx) in filteredItems" :key="idx" class="mem-item-card">
+            <CharacterCard
+              v-if="item.source === 'entity' && item.entity"
+              :entity="item.entity"
+              @open-source="openMemorySource"
+              @export="exportEntityCard(item)"
+            />
+            <template v-if="item.source !== 'entity'">
             <div class="mem-item-header">
               <span class="mem-item-key">{{ item.key }}</span>
               <span class="mem-item-cat">{{ item.category }}</span>
@@ -52,10 +62,14 @@
                   <button class="btn-sm btn-secondary" @click="showForm(item.legacyIndex)">编辑</button>
                   <button class="btn-sm btn-danger" @click="deleteItem(item.legacyIndex)">删除</button>
                 </template>
+                <template v-else-if="item.source === 'entity'">
+                  <button class="btn-sm btn-secondary" @click="exportEntityCard(item)">导出角色卡</button>
+                </template>
               </div>
             </div>
             <div class="mem-item-content">{{ item.content }}</div>
             <div class="mem-item-date">{{ item.created || '' }}</div>
+            </template>
           </div>
         </div>
       </div>
@@ -88,6 +102,8 @@ import RelationGraph from '../memory/RelationGraph.vue'
 import GraphAnalysis from '../memory/GraphAnalysis.vue'
 import MindMap from '../memory/MindMap.vue'
 import TimelineView from '../memory/TimelineView.vue'
+import CharacterCard from '../memory/CharacterCard.vue'
+import { exportFullJSON, importFullJSON, exportCharacterCardV3, importCharacterCardV3 } from '../../services/memoryIO'
 
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
@@ -109,6 +125,7 @@ type MemoryDisplayItem = {
   created?: string
   source: 'legacy' | 'entity' | 'relation' | 'event' | 'world' | 'foreshadowing'
   legacyIndex: number
+  entity?: import('../../types/memory').MemoryEntity
 }
 
 const memoryCategories = computed(() => {
@@ -136,7 +153,8 @@ const memoryDisplayItems = computed<MemoryDisplayItem[]>(() => {
     content: [item.description, item.status && `状态：${item.status}`, item.notes].filter(Boolean).join('\n'),
     created: item.updatedAt || item.createdAt,
     source: 'entity' as const,
-    legacyIndex: -1
+    legacyIndex: -1,
+    entity: item
   }))
   const relations = projectStore.memories.relations.map((item: any) => ({
     key: item.id,
@@ -222,6 +240,64 @@ function confirmAddCat() {
   }
   showCatInput.value = false
   newCatName.value = ''
+}
+
+function exportMemory() {
+  const json = exportFullJSON(projectStore.memories, '神意助手记忆导出')
+  const filePath = window.electronAPI.dialogSaveFile('memory-export.json')
+  if (!filePath) return
+  const ok = window.electronAPI.dialogWriteFile(filePath, json)
+  alert(ok ? '记忆导出成功：' + filePath : '记忆导出失败')
+}
+
+function importMemory() {
+  const path = window.electronAPI.dialogOpenFile()
+  if (!path) return
+  const read = window.electronAPI.dialogReadFile(path)
+  if (!read || !read.content) {
+    alert('读取文件失败')
+    return
+  }
+  const result = importFullJSON(read.content)
+  if (!result.success || !result.memory) {
+    alert('导入失败：' + (result.error || '未知错误'))
+    return
+  }
+  if (!confirm('导入将覆盖当前记忆数据，确认继续？')) return
+  projectStore.memories = result.memory
+  projectStore.saveProject()
+  alert('记忆导入成功')
+}
+
+function importCharacterCard() {
+  const path = window.electronAPI.dialogOpenFile()
+  if (!path) return
+  const read = window.electronAPI.dialogReadFile(path)
+  if (!read || !read.content) {
+    alert('读取文件失败')
+    return
+  }
+  const result = importCharacterCardV3(read.content)
+  if (!result.success || !result.entity) {
+    alert('角色卡导入失败：' + (result.error || '未知错误'))
+    return
+  }
+  projectStore.addEntity(result.entity)
+  alert('角色卡导入成功：' + result.entity.name)
+}
+
+function exportEntityCard(item: any) {
+  const entity = projectStore.memories.entities.find((e: any) => e.name === item.key || e.id === item.key)
+  if (!entity) {
+    alert('未找到对应实体数据')
+    return
+  }
+  const json = exportCharacterCardV3(entity)
+  const safeName = (entity.name || '角色卡').replace(/[\\/:*?"<>|]/g, '_')
+  const filePath = window.electronAPI.dialogSaveFile(safeName + '.chara-card-v3.json')
+  if (!filePath) return
+  const ok = window.electronAPI.dialogWriteFile(filePath, json)
+  alert(ok ? '角色卡导出成功：' + filePath : '角色卡导出失败')
 }
 
 function findChapter(chapterId: string) {

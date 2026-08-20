@@ -90,6 +90,7 @@ import { useSkillStore } from '../../stores/skill'
 import { useChatStore } from '../../stores/chat'
 import { useAiRequest } from '../../composables/useAiRequest'
 import { MCPProtocol } from '../../services/mcp-protocol'
+import { retrieveContext } from '../../services/memoryRetriever'
 
 const { aiRequest } = useAiRequest()
 const agentStore = useAgentStore()
@@ -455,17 +456,13 @@ async function sendMessage() {
       }
     }
 
-    const mem = projectStore.memories
-    if (mem && mem.items && mem.items.length > 0) {
-      const recentMem = mem.items.slice(-10)
-      let memText = '相关记忆：'
-      for (let m = 0; m < recentMem.length; m++) {
-        const mi = recentMem[m]
-        memText += '\n- [' + (mi.category || '') + '] ' + (mi.key || mi.title || mi.name || '')
-        if (mi.content) memText += ': ' + mi.content
-      }
-      systemParts.push(memText)
-    }
+    const memoryContext = retrieveContext(projectStore.memories, {
+      chapterId: editorStore.activeTab?.chapterId,
+      query: `${text} ${editorStore.activeTab?.title || ''}`,
+      previousChapterSummary: chatCtx.prevChapterSummary,
+      maxChars: 2000
+    })
+    if (memoryContext.text) systemParts.push(`相关记忆：\n${memoryContext.text}`)
 
     const systemPrompt = systemParts.join('\n\n---\n\n')
     const model = selectedChatModel.value || provider.selectedModel || 'gpt-4o'

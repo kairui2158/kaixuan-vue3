@@ -17,8 +17,8 @@ export default defineConfig({
     rollupOptions: {
       external: ['electron-log']
     },
-    outDir: 'dist-renderer',
-    emptyOutDir: true
+     outDir: 'dist-renderer',
+     emptyOutDir: false
   },
   server: {
     port: 5173,

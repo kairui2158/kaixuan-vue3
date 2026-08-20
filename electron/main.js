@@ -11,9 +11,10 @@ log.errorHandler.startCatching()
 log.eventLogger.startLogging()
 
 // Enable GPU hardware acceleration
-app.disableHardwareAcceleration = true
-  app.commandLine.appendSwitch('enable-gpu-rasterization')
-  app.commandLine.appendSwitch('remote-allow-origins', '*')
+ app.disableHardwareAcceleration = true
+   app.commandLine.appendSwitch('disable-gpu')
+   app.commandLine.appendSwitch('no-sandbox')
+   app.commandLine.appendSwitch('remote-allow-origins', '*')
 
 // Single instance lock - must be before app.whenReady()
 var gotLock = app.requestSingleInstanceLock()
