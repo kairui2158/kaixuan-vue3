@@ -569,11 +569,11 @@ function applyInlineAction(action: string, label: string) {
 .editor-title {
   font-size: var(--font-size-md);
   color: var(--text-secondary);
-  flex-shrink: 0;
+  flex: 1 1 auto;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
 }
 .editor-toolbar {
   display: flex;

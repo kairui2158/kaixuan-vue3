@@ -10,6 +10,9 @@
         <option value="">自动</option>
         <option v-for="m in availableModels" :key="m" :value="m">{{ m }}</option>
       </select>
+      <span v-if="syncedStepLabel" class="chat-sync-label">{{ syncedStepLabel }}</span>
+      <span v-if="syncedAgentName" class="chat-sync-agent">Agent: {{ syncedAgentName }}</span>
+      <span v-if="syncedSkillNames" class="chat-sync-skills">Skill: {{ syncedSkillNames }}</span>
    </div>
 
     <div id="chat-context-bar" class="chat-context-bar"></div>
@@ -150,6 +153,48 @@ const configStatus = computed(() => {
   const p = providerStore.activeGenerateProvider
   if (p && p.apiKey) return 'API 已配置'
   return '未配置 API | 点击设置配置'
+})
+const syncedStepLabel = computed(() => {
+  const tab = editorStore.activeTab
+  if (!tab || !tab.mode) return ''
+  const modeMap: Record<string, string> = {
+    'vol-outline': '卷纲层',
+    'ch-plot': '章节概要',
+    'ch-body': '正文层'
+  }
+  return modeMap[tab.mode] || ''
+})
+const syncedAgentName = computed(() => {
+  const tab = editorStore.activeTab
+  if (!tab || !tab.mode) return ''
+  const stepMap: Record<string, number> = {
+    'vol-outline': 2,
+    'ch-plot': 3,
+    'ch-body': 4
+  }
+  const step = stepMap[tab.mode]
+  if (step === undefined) return ''
+  const agentId = pipelineStore.getStepAgents(step)
+  if (!agentId) return ''
+  const a = agentStore.getAgent(agentId)
+  return a?.name || ''
+})
+const syncedSkillNames = computed(() => {
+  const tab = editorStore.activeTab
+  if (!tab || !tab.mode) return ''
+  const stepMap: Record<string, number> = {
+    'vol-outline': 2,
+    'ch-plot': 3,
+    'ch-body': 4
+  }
+  const step = stepMap[tab.mode]
+  if (step === undefined) return ''
+  const skillIds = pipelineStore.getStepSkills(step)
+  if (!skillIds || skillIds.length === 0) return ''
+  return skillIds.map((sid: string) => {
+    const s = skillStore.skills.find((sk: any) => sk.id === sid)
+    return s?.name || sid
+  }).join(', ')
 })
 
 // Editor -> chat context binding. 《行为等价》：切换标签/内容变化时，对话会话跟着上下文走。

@@ -402,6 +402,7 @@
                   <div class="pl-ch-card-head">
                     <span class="ch-title">{{ ch.title }}</span>
                     <button class="btn-sm btn-secondary" @click="genBody(selectedVolumeIndex, i)" :disabled="pipelineStore.isGenerating">生成正文</button>
+                    <button :id="'btn-pl-del-ch-' + i" class="btn-sm btn-danger" @click="deleteChapterCard(selectedVolumeIndex, i)" title="删除此章">删除</button>
                   </div>
                   <textarea v-model="ch.plot" class="pl-ch-plot" placeholder="本章剧情点概要" @change="saveChapterPlot"></textarea>
                 </div>
@@ -1818,6 +1819,14 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
 }
 
 async function genBodyForSelected() {
+function deleteChapterCard(volumeIndex: number, chapterIndex: number) {
+  const volId = confirmedVolumes.value[volumeIndex]?.id || confirmedVolumes.value[volumeIndex]?.name
+  if (!volId) return
+  const chs = projectStore.chapters[volId]
+  if (!chs || chs.length <= chapterIndex) return
+  chs.splice(chapterIndex, 1)
+  projectStore.saveProject()
+}
   await genBody(bodyVolumeIndex.value, bodyChapterIndex.value)
 }
 

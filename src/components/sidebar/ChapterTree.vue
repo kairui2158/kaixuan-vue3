@@ -29,6 +29,7 @@
                 v-model="renameValue" @blur="commitRenameVol(vol)" @keydown.enter="commitRenameVol(vol)" @keydown.esc="cancelRename"
                 class="rename-input" />
               <span v-else class="vol-name">{{ vol.name }}</span>
+              <button class="btn-tree-vol-outline" :id="'btn-tree-vol-outline-' + (vol.id || vol.name)" title="查看卷纲" @click.stop="openVolumeOutline(vol)">纲</button>
               <span class="vol-count">{{ getVolChapters(vol).length }}章</span>
             </div>
             <div v-if="expandedVolumes.has(vol.id || vol.name)" class="chapter-list">
@@ -47,6 +48,7 @@
                   v-model="renameValue" @blur="commitRenameCh(ch)" @keydown.enter="commitRenameCh(ch)" @keydown.esc="cancelRename"
                   class="rename-input" />
                 <span v-else>{{ ch.title }}</span>
+                <button class="btn-tree-ch-plot" :id="'btn-tree-ch-plot-' + ch.id" title="查看章节概要" @click.stop="openChapterPlot(ch)">概</button>
               </div>
             </div>
           </div>
