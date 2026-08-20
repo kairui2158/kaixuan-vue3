@@ -74,6 +74,7 @@
           <div id="pl-s1-skills-list" class="pl-skills-list">
             <template v-for="(sid, si) in stepSkills[0]" :key="si">
               <span v-if="sid" class="pl-skill-chip">
+                <span class="pl-chip-seq">{{ si + 1 }}</span>
                 <span>{{ getSkillName(sid) }}</span>
                 <select v-if="stepSkillModes[0] === 'chain'" v-model="stepSkillAgents['0-' + si]" class="pl-select pl-chip-agent" @change="saveStepConfig">
                   <option value="">默认</option>
@@ -120,6 +121,7 @@
           <div id="pl-s2-skills-list" class="pl-skills-list">
             <template v-for="(sid, si) in stepSkills[1]" :key="si">
               <span v-if="sid" class="pl-skill-chip">
+                <span class="pl-chip-seq">{{ si + 1 }}</span>
                 <span>{{ getSkillName(sid) }}</span>
                 <select v-if="stepSkillModes[1] === 'chain'" v-model="stepSkillAgents['1-' + si]" class="pl-select pl-chip-agent" @change="saveStepConfig">
                   <option value="">默认</option>
@@ -244,6 +246,7 @@
           <div id="pl-s3-skills-list" class="pl-skills-list">
             <template v-for="(sid, si) in stepSkills[2]" :key="si">
               <span v-if="sid" class="pl-skill-chip">
+                <span class="pl-chip-seq">{{ si + 1 }}</span>
                 <span>{{ getSkillName(sid) }}</span>
                 <select v-if="stepSkillModes[2] === 'chain'" v-model="stepSkillAgents['2-' + si]" class="pl-select pl-chip-agent" @change="saveStepConfig">
                   <option value="">默认</option>
@@ -356,6 +359,7 @@
           <div id="pl-s4-skills-list" class="pl-skills-list">
             <template v-for="(sid, si) in stepSkills[3]" :key="si">
               <span v-if="sid" class="pl-skill-chip">
+                <span class="pl-chip-seq">{{ si + 1 }}</span>
                 <span>{{ getSkillName(sid) }}</span>
                 <select v-if="stepSkillModes[3] === 'chain'" v-model="stepSkillAgents['3-' + si]" class="pl-select pl-chip-agent" @change="saveStepConfig">
                   <option value="">默认</option>
@@ -441,6 +445,7 @@
           <div id="pl-s5-skills-list" class="pl-skills-list">
             <template v-for="(sid, si) in stepSkills[4]" :key="si">
               <span v-if="sid" class="pl-skill-chip">
+                <span class="pl-chip-seq">{{ si + 1 }}</span>
                 <span>{{ getSkillName(sid) }}</span>
                 <select v-if="stepSkillModes[4] === 'chain'" v-model="stepSkillAgents['4-' + si]" class="pl-select pl-chip-agent" @change="saveStepConfig">
                   <option value="">默认</option>
@@ -2421,6 +2426,7 @@ function toolAction(action: string) {
 .pl-tools-label { font-size: var(--font-size-sm); color: var(--text-muted); white-space: nowrap; }
 .pl-skills-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; min-height: 24px; }
 .pl-skill-chip { padding: 2px 8px; border-radius: var(--radius-lg); font-size: var(--font-size-xs); background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-glow, transparent); display: inline-flex; align-items: center; gap: 4px; }
+.pl-chip-seq { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .pl-tools-section { padding: 6px 0; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); }
 .pl-tools-grid { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .pl-tool-result { margin-top: 6px; padding: 6px 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--font-size-sm); color: var(--text-primary); max-height: 60px; overflow-y: auto; }
