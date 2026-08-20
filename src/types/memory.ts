@@ -28,6 +28,7 @@ export interface MemoryEntity {
   appearance: string
   background: string
   status: string
+  statusHistory?: Array<{ chapterId: string; value: string; recordedAt: string }>
   possessions: string[]
   skills: string[]
   relationships: string[]
