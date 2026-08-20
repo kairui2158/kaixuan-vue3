@@ -320,32 +320,41 @@ onMounted(() => {
   overflow: hidden;
 }
 .app-header {
-  height: 48px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 12px;
+  padding: 0 16px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
 }
 .header-left .app-title {
-  font-size: 14px;
+  font-size: var(--font-size-lg);
   font-weight: 600;
+  white-space: nowrap;
 }
 .header-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  min-width: 0;
+  overflow: hidden;
 }
 .header-selector {
   background: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 2px 8px;
-  font-size: 12px;
-  height: 28px;
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: var(--font-size-sm);
+  height: 32px;
+  max-width: 140px;
+  min-width: 60px;
+  flex: 0 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   outline: none;
 }
 .btn-icon {

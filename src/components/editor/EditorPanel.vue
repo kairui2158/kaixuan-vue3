@@ -550,18 +550,18 @@ function applyInlineAction(action: string, label: string) {
   min-width: 0;
 }
 .editor-header {
-  height: 48px;
+  height: 56px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 12px;
+  gap: 12px;
+  padding: 0 16px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
 }
 .editor-mode-badge {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--accent);
   flex-shrink: 0;
@@ -569,7 +569,8 @@ function applyInlineAction(action: string, label: string) {
 .editor-title {
   font-size: var(--font-size-md);
   color: var(--text-secondary);
-  flex: 1 1 auto;
+  flex: 0 1 auto;
+  max-width: 200px;
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -578,18 +579,22 @@ function applyInlineAction(action: string, label: string) {
 .editor-toolbar {
   display: flex;
   align-items: center;
-  gap: 4px;
-  flex: 1;
+  gap: 6px;
+  flex: 1 1 auto;
   overflow-x: auto;
+  overflow-y: hidden;
+  min-width: 0;
 }
 .editor-toolbar-group {
   display: flex;
-  gap: 4px;
+  gap: 6px;
+  flex-shrink: 0;
 }
 .sep {
   width: 1px;
-  height: 16px;
+  height: 20px;
   background: var(--border-color);
+  flex-shrink: 0;
 }
 .word-count {
   font-size: var(--font-size-xs);

@@ -45,6 +45,26 @@ STEP2: {"panelExists":true,"panelWidth":1856,"panelHeight":975,
 - ✓ 开发日志已更新
 - ⏳ Git 提交待执行
 
+### 编辑器顶层与导航栏修复
+
+用户反馈主页面编辑器顶层文字溢出边框。CDP 实测发现：
+- editor-header 高度 48px，toolbar 内容 scrollWidth=620 > offsetWidth=508，溢出
+- editor-toolbar 没有 overflow-y:hidden，导致高度撑到 53px
+- app-header 下拉选择器文字溢出
+- breadcrumb 字号 12px 过小
+
+修复：
+- editor-header 48->56px、gap 8->12px、padding 12->16px
+- editor-title flex:1->flex:0 1 auto + max-width:200px（给 toolbar 让空间）
+- editor-toolbar 加 overflow-y:hidden + min-width:0
+- toolbar-group gap 4->6px + flex-shrink:0
+- sep height 16->20px + flex-shrink:0
+- app-header 48->56px、padding 12->16px
+- header-selector 加 max-width:140px + overflow:hidden + text-overflow:ellipsis
+- breadcrumb padding 4px 12px->6px 16px、字号 sm->md、加 overflow:hidden
+
+CDP 复测：editorHeader h=56px、toolbar w=972px scrollW=972（无溢出）、所有 group 高度 30px 统一。
+
 ### 下一步
 
 Git 提交并推送本次变更。

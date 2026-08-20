@@ -21,15 +21,17 @@
  </script>
  
  <style scoped>
- .breadcrumb-bar {
-   display: flex;
-   align-items: center;
-   gap: 4px;
-  padding: 4px 12px;
-  font-size: var(--font-size-sm);
+.breadcrumb-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  font-size: var(--font-size-md);
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
+  overflow: hidden;
+  white-space: nowrap;
 }
 .breadcrumb-home {
   cursor: pointer;
