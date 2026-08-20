@@ -560,10 +560,17 @@ function applyInlineAction(action: string, label: string) {
   flex-shrink: 0;
 }
 .editor-mode-badge {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 11px;
   background: var(--accent);
+  color: #fff;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
   flex-shrink: 0;
 }
 .editor-title {
