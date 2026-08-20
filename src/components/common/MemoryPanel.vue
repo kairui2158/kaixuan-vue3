@@ -357,20 +357,21 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
   flex-direction: column;
 }
 .mem-header {
-  height: 40px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 20px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
 }
-.mem-header h3 { font-size: var(--font-size-md); font-weight: 600; margin: 0; }
-.mem-header-actions { display: flex; align-items: center; gap: 8px; }
-.mem-view-tabs { display: flex; align-items: center; gap: 2px; }
+.mem-header h4 { font-size: var(--font-size-md); font-weight: 600; margin: 0; }
+.mem-header-actions { display: flex; align-items: center; gap: 12px; flex: 1; }
+.mem-view-tabs { display: flex; align-items: center; gap: 8px; flex: 1; }
 .mem-tab-btn {
-  padding: 4px 10px; border: none; background: transparent;
+  padding: 7px 22px; border: none; background: transparent;
+  flex: 1; text-align: center;
   color: var(--text-secondary); cursor: pointer; border-radius: var(--radius-xs);
   font-size: var(--font-size-sm); white-space: nowrap; transition: all 0.15s;
 }
@@ -390,7 +391,7 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
 .mem-header-divider { width: 1px; height: 20px; background: var(--border-color); flex-shrink: 0; }
 .mem-more-menu { position: relative; flex-shrink: 0; }
 .mem-more-btn {
-  padding: 4px 10px; border: none; background: transparent;
+  padding: 7px 16px; border: none; background: transparent;
   color: var(--text-secondary); cursor: pointer; border-radius: var(--radius-xs);
   font-size: var(--font-size-sm); white-space: nowrap; transition: all 0.15s;
 }
