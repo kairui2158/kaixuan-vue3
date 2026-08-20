@@ -2257,14 +2257,14 @@ function toolAction(action: string) {
 .pl-memory-change-item small { grid-column: 1 / -1; color: var(--text-secondary); }
 .pl-memory-change-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; }
 .pl-memory-preview-error { color: var(--color-danger, #c0392b); }
-.pl-content { width: min(1200px, 95vw); height: min(900px, 96vh); max-width: 1200px; max-height: 96vh; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; }
+.pl-content { width: min(1400px, 96vw); height: min(920px, 96vh); max-width: 1400px; max-height: 96vh; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; }
 .pl-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-5) var(--space-8); border-bottom: 1px solid var(--border-color); font-size: var(--font-size-xl); font-weight: 600; }
 .pl-header-title { }
 .pl-header-actions { display: flex; align-items: center; gap: var(--space-2); }
 .pl-body { display: flex; flex: 1; overflow: hidden; }
 /* 左侧五层步骤导航 - 竖排 */
-.pl-steps { width: clamp(180px, 16vw, 240px); background: var(--bg-secondary); border-right: 1px solid var(--border-color); padding: 16px 8px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
-.pl-step { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; border-radius: var(--radius-lg); opacity: 0.5; transition: opacity 0.15s ease, background 0.15s ease; }
+.pl-steps { width: clamp(200px, 18vw, 280px); background: var(--bg-secondary); border-right: 1px solid var(--border-color); padding: 16px 8px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+.pl-step { display: flex; align-items: center; gap: 12px; padding: 16px 18px; cursor: pointer; border-radius: var(--radius-lg); opacity: 0.5; transition: opacity 0.15s ease, background 0.15s ease; }
 .pl-step:hover { opacity: 0.8; background: var(--bg-hover); }
 .pl-step.active { opacity: 1; background: var(--accent-dim); }
 .pl-step.completed { opacity: 1; }
@@ -2274,7 +2274,7 @@ function toolAction(action: string) {
 .pl-step-label { font-size: var(--font-size-lg); color: var(--text-primary); font-weight: 500; }
 .pl-step-check { margin-left: auto; color: var(--success); font-size: var(--font-size-xl); }
 /* 右侧内容区 */
-.pl-content-right { display: flex; flex-direction: column; flex: 1; padding: 24px 16px 32px; overflow-y: auto; min-width: 0; }
+.pl-content-right { display: flex; flex-direction: column; flex: 1; padding: 24px 24px 32px; overflow-y: auto; min-width: 0; }
 .pl-step-panel h3 { font-size: var(--font-size-xxl); margin-bottom: 20px; }
 .pl-textarea { width: 100%; min-height: 400px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px; font-size: var(--font-size-lg); line-height: 1.8; resize: vertical; outline: none; }
 .pl-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px 12px; font-size: var(--font-size-md); height: 36px; outline: none; flex: 1; }

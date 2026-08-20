@@ -3,12 +3,12 @@
     <div class="mem-header">
       <h4>记忆管理</h4>
        <div class="mem-header-actions">
-         <div class="mem-view-tabs">
-           <button class="mem-tab-btn" :class="{active: showRelationGraph === false}" @click="showRelationGraph = false">记忆列表</button>
-           <button class="mem-tab-btn" :class="{active: showRelationGraph === 'graph'}" @click="showRelationGraph = 'graph'">关系图</button>
-           <button class="mem-tab-btn" :class="{active: showRelationGraph === 'analysis'}" @click="showRelationGraph = 'analysis'">图谱分析</button>
-           <button class="mem-tab-btn" :class="{active: showRelationGraph === 'mind'}" @click="showRelationGraph = 'mind'">思维导图</button>
-         <button class="mem-tab-btn" :class="{active: showRelationGraph === 'timeline'}" @click="showRelationGraph = 'timeline'">时间线</button>
+        <div class="mem-view-tabs">
+          <button class="mem-tab-btn" :class="{active: showRelationGraph === false}" @click="showRelationGraph = false">记忆列表</button>
+          <button class="mem-tab-btn" :class="{active: showRelationGraph === 'graph'}" @click="showRelationGraph = 'graph'">关系图</button>
+          <button class="mem-tab-btn" :class="{active: showRelationGraph === 'analysis'}" @click="showRelationGraph = 'analysis'">图谱分析</button>
+          <button class="mem-tab-btn" :class="{active: showRelationGraph === 'mind'}" @click="showRelationGraph = 'mind'">思维导图</button>
+          <button class="mem-tab-btn" :class="{active: showRelationGraph === 'timeline'}" @click="showRelationGraph = 'timeline'">时间线</button>
         </div>
         <span class="mem-header-divider"></span>
         <div class="mem-more-menu">
@@ -357,23 +357,24 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
   flex-direction: column;
 }
 .mem-header {
-  height: 44px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 16px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
 }
 .mem-header h4 { font-size: var(--font-size-md); font-weight: 600; margin: 0; }
-.mem-header-actions { display: flex; align-items: center; gap: 12px; flex: 1; }
-.mem-view-tabs { display: flex; align-items: center; gap: 8px; flex: 1; }
+.mem-header h4 { white-space: nowrap; flex-shrink: 0; margin-right: 12px; }
+.mem-header-actions { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.mem-view-tabs { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
 .mem-tab-btn {
-  padding: 7px 22px; border: none; background: transparent;
+  padding: 10px 24px; border: none; background: transparent;
   flex: 1; text-align: center;
-  color: var(--text-secondary); cursor: pointer; border-radius: var(--radius-xs);
-  font-size: var(--font-size-sm); white-space: nowrap; transition: all 0.15s;
+  color: var(--text-secondary); cursor: pointer; border-radius: var(--radius-sm);
+  font-size: var(--font-size-md); white-space: nowrap; transition: all 0.15s;
 }
 .mem-tab-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
 .mem-tab-btn.active { background: var(--accent); color: #fff; font-weight: 500; }
@@ -391,9 +392,9 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
 .mem-header-divider { width: 1px; height: 20px; background: var(--border-color); flex-shrink: 0; }
 .mem-more-menu { position: relative; flex-shrink: 0; }
 .mem-more-btn {
-  padding: 7px 16px; border: none; background: transparent;
+  padding: 10px 18px; border: none; background: transparent;
   color: var(--text-secondary); cursor: pointer; border-radius: var(--radius-xs);
-  font-size: var(--font-size-sm); white-space: nowrap; transition: all 0.15s;
+  font-size: var(--font-size-md); white-space: nowrap; transition: all 0.15s;
 }
 .mem-more-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
 .mem-more-dropdown {
@@ -403,9 +404,9 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
   display: flex; flex-direction: column; gap: 2px; padding: 4px; z-index: 2000; min-width: 120px;
 }
 .mem-more-dropdown button {
-  padding: 6px 12px; border: none; background: transparent;
+  padding: 8px 14px; border: none; background: transparent;
   color: var(--text-primary); cursor: pointer; border-radius: var(--radius-xs);
-  font-size: var(--font-size-sm); text-align: left; white-space: nowrap;
+  font-size: var(--font-size-md); text-align: left; white-space: nowrap;
 }
 .mem-more-dropdown button:hover { background: var(--bg-hover); color: var(--accent); }
 .mem-body { flex: 1; display: flex; overflow: hidden; }
