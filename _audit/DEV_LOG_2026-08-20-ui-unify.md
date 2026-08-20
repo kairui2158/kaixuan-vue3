@@ -68,3 +68,26 @@ CDP 复测：editorHeader h=56px、toolbar w=972px scrollW=972（无溢出）、
 ### 下一步
 
 Git 提交并推送本次变更。
+Git 提交并推送本次变更。
+
+### SKILL 序列号添加
+
+用户提问：chain 模式下 SKILL 执行顺序如何决定？是否应该在 SKILL 旁加序列号（L1-L2-L3-L4）？
+
+回答：
+- chain 模式下 SKILL 执行顺序 = stepSkills[step] 数组顺序（v-for 的 si 索引）
+- 用户添加 SKILL 的顺序就是执行顺序，第一个添加的先执行
+- 应用已实现 per-skill Agent 绑定（getStepSkillAgentId(step, si)），每个 SKILL 可独立设置 model/temperature/maxTokens
+
+实现：
+- PipelinePanel.vue 5 层 SKILL chip 都加了序列号 span
+- CSS: 18x18px 圆形, accent背景(7c8cf8), 白字, font-size 10px, font-weight 700
+
+CDP 验证（step 2 = 卷纲层）：
+- seqCount: 2, 两个序列号 1 和 2
+- 每个 18x18px, bg=rgb(124,140,248), color=rgb(255,255,255), fontSize=10px
+- chipCount: 2, chip w=273px h=34px, 各有4个子元素
+
+Commit: 669ed45, pushed to GitHub.
+
+经验：验证流水线时必须切换到有数据的 step 才能看到 chip。step 0（大纲层）无 SKILL → seqCount=0，切到 step 2（卷纲层）有 2 个 SKILL → 序列号正确渲染。
