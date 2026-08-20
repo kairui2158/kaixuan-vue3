@@ -113,6 +113,17 @@ export interface MemoryMeta {
   }
 }
 
+/** 记忆数据的单次变更审计记录。快照不包含 history，避免版本递归膨胀。 */
+export interface MemoryChangeRecord {
+  id: string
+  chapterId: string
+  chapterIndex?: number
+  timestamp: string
+  reason?: string
+  before: Omit<MemoryData, 'history'>
+  after: Omit<MemoryData, 'history'>
+}
+
 /** 顶层记忆数据 */
 export interface MemoryData {
   version: 1
@@ -122,6 +133,7 @@ export interface MemoryData {
   world: WorldEntry[]
   foreshadowing: Foreshadowing[]
   meta: MemoryMeta
+  history?: MemoryChangeRecord[]
   categories: string[]
   items: MemoryItem[]
 }

@@ -9,8 +9,10 @@ import type {
   WorldEntry,
   Foreshadowing,
   MemoryItem,
-  MemoryMeta
+  MemoryMeta,
+  MemoryChangeRecord
 } from '../types/memory'
+import { getChangeHistory, rollbackByChapter, rollbackTo, saveChangeRecord } from '../services/memoryVersion'
 
 function toPlain(value: unknown): unknown {
   return JSON.parse(JSON.stringify(value))
@@ -35,6 +37,7 @@ function createDefaultMemories(): MemoryData {
     world: [],
     foreshadowing: [],
     meta: createDefaultMemoryMeta(),
+    history: [],
     categories: ['情节', '人物', '世界观', '伏笔'],
     items: []
   }
@@ -52,6 +55,7 @@ function normalizeMemories(raw: any): MemoryData {
     world: Array.isArray(raw.world) ? raw.world : [],
     foreshadowing: Array.isArray(raw.foreshadowing) ? raw.foreshadowing : [],
     meta: { ...base.meta, ...(raw.meta || {}) },
+    history: Array.isArray(raw.history) ? raw.history : [],
     categories: Array.isArray(raw.categories) && raw.categories.length > 0
       ? raw.categories
       : base.categories,
@@ -501,6 +505,36 @@ export const useProjectStore = defineStore('project', () => {
     }
     saveProject()
   }
+
+  function recordMemoryChange(nextData: MemoryData, options: { chapterId: string; chapterIndex?: number; reason?: string; timestamp?: string }) {
+    const before = memories.value
+    const next = normalizeMemories(nextData)
+    const record = saveChangeRecord(before.history, before, next, options)
+    next.history = [...(before.history || []), record]
+    memories.value = next
+    saveProject()
+    return record.id
+  }
+
+  function getMemoryChangeHistory(): MemoryChangeRecord[] {
+    return getChangeHistory(memories.value.history)
+  }
+
+  function rollbackMemoryTo(versionId: string, reason?: string) {
+    const result = rollbackTo(memories.value, memories.value.history, versionId, { chapterId: 'rollback', reason })
+    if (!result) return false
+    memories.value = result.data
+    saveProject()
+    return true
+  }
+
+  function rollbackMemoryByChapter(chapterId: string, chapterIndex?: number, reason?: string) {
+    const result = rollbackByChapter(memories.value, memories.value.history, chapterId, chapterIndex, { chapterId: 'rollback', reason })
+    if (!result) return false
+    memories.value = result.data
+    saveProject()
+    return true
+  }
   function syncTreeToPipeline() {
     const chaptersByVol = chapters.value || {}
     const vols = volumes.value || []
@@ -684,7 +718,8 @@ export const useProjectStore = defineStore('project', () => {
     addWorldEntry, updateWorldEntry, deleteWorldEntry,
     addForeshadowing, updateForeshadowing, deleteForeshadowing,
     memoryBlacklist, addToBlacklist, removeFromBlacklist, isBlacklisted,
-    updateMemoryMeta, recalculateMemoryTotals,
+    updateMemoryMeta, recalculateMemoryTotals, recordMemoryChange, getMemoryChangeHistory,
+    rollbackMemoryTo, rollbackMemoryByChapter,
     outlineChat, appendOutlineChat, removeOutlineChatAt
   }
 })
