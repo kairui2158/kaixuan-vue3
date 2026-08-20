@@ -1,9 +1,71 @@
 import { defineStore } from 'pinia'
 import { ref, computed, triggerRef } from 'vue'
 import { storageKey } from '../utils/storage-key'
+import type {
+  MemoryData,
+  MemoryEntity,
+  MemoryRelation,
+  MemoryEvent,
+  WorldEntry,
+  Foreshadowing,
+  MemoryItem,
+  MemoryMeta
+} from '../types/memory'
 
 function toPlain(value: unknown): unknown {
   return JSON.parse(JSON.stringify(value))
+}
+
+function createDefaultMemoryMeta(): MemoryMeta {
+  return {
+    extractionCount: 0,
+    lastExtractedAt: null,
+    lastFullRebuildAt: null,
+    pendingCount: 0,
+    totals: { entities: 0, relations: 0, events: 0, world: 0, foreshadowing: 0 }
+  }
+}
+
+function createDefaultMemories(): MemoryData {
+  return {
+    version: 1,
+    entities: [],
+    relations: [],
+    events: [],
+    world: [],
+    foreshadowing: [],
+    meta: createDefaultMemoryMeta(),
+    categories: ['情节', '人物', '世界观', '伏笔'],
+    items: []
+  }
+}
+
+/** 兼容旧数据：将旧 { categories, items } 结构补齐为完整 MemoryData */
+function normalizeMemories(raw: any): MemoryData {
+  const base = createDefaultMemories()
+  if (!raw || typeof raw !== 'object') return base
+  const out: MemoryData = {
+    version: 1,
+    entities: Array.isArray(raw.entities) ? raw.entities : [],
+    relations: Array.isArray(raw.relations) ? raw.relations : [],
+    events: Array.isArray(raw.events) ? raw.events : [],
+    world: Array.isArray(raw.world) ? raw.world : [],
+    foreshadowing: Array.isArray(raw.foreshadowing) ? raw.foreshadowing : [],
+    meta: { ...base.meta, ...(raw.meta || {}) },
+    categories: Array.isArray(raw.categories) && raw.categories.length > 0
+      ? raw.categories
+      : base.categories,
+    items: Array.isArray(raw.items) ? raw.items : []
+  }
+  // 未写入 totals 时重新计算，保证 meta 恒准
+  out.meta.totals = {
+    entities: out.entities.length,
+    relations: out.relations.length,
+    events: out.events.length,
+    world: out.world.length,
+    foreshadowing: out.foreshadowing.length
+  }
+  return out
 }
 
 export const useProjectStore = defineStore('project', () => {
@@ -21,7 +83,7 @@ export const useProjectStore = defineStore('project', () => {
   const projectList = ref<any[]>([])
   const settingsCollection = ref<{ categories: string[]; items: Record<string, any[]> }>({ categories: [], items: {} })
   const settingBindings = ref<Record<string, string[]>>({})
-  const memories = ref<{ categories: string[]; items: any[] }>({ categories: ['情节', '人物', '世界观', '伏笔'], items: [] })
+  const memories = ref<MemoryData>(createDefaultMemories())
   const outlineChat = ref<any[]>([])
 
   function nameFromOutline(text: string): string {
@@ -79,7 +141,8 @@ export const useProjectStore = defineStore('project', () => {
       chapters.value = data.chapters || {}
       settingsCollection.value = data.settingsCollection || { categories: [], items: {} }
       settingBindings.value = data.settingBindings || {}
-      memories.value = data.memories || { categories: ['情节', '人物', '世界观', '伏笔'], items: [] }
+      memories.value = normalizeMemories(data.memories)
+      memoryBlacklist.value = Array.isArray(data.memoryBlacklist) ? data.memoryBlacklist : []
       outlineChat.value = data.outlineChat || []
       if (volumes.value.length === 0 && outlineText.value.trim()) {
         ensureVolumesFromOutline()
@@ -110,6 +173,7 @@ export const useProjectStore = defineStore('project', () => {
       settingBindings: toPlain(settingBindings.value),
       settingsCollection: toPlain(settingsCollection.value),
       memories: toPlain(memories.value),
+      memoryBlacklist: toPlain(memoryBlacklist.value),
       outlineChat: toPlain(outlineChat.value)
     }
     window.electronAPI.storageWrite(storageKey('project_' + currentProjectId.value), data)
@@ -232,25 +296,211 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
-  function addMemoryCategory(name: string) {
-    memories.value.categories.push(name)
-    saveProject()
-  }
-  function addMemory(item: any) {
-    memories.value.items.push({ ...item, created: new Date().toISOString().slice(0, 10) })
-    saveProject()
-  }
-  function updateMemory(index: number, item: any) {
-    if (memories.value.items[index]) {
-      memories.value.items[index] = { ...item, created: memories.value.items[index].created || new Date().toISOString().slice(0, 10) }
-      saveProject()
+ function addMemoryCategory(name: string) {
+   memories.value.categories.push(name)
+   saveProject()
+ }
+ function addMemory(item: any) {
+   memories.value.items.push({ ...item, created: new Date().toISOString().slice(0, 10) })
+   saveProject()
+ }
+ function updateMemory(index: number, item: any) {
+   if (memories.value.items[index]) {
+     memories.value.items[index] = { ...item, created: memories.value.items[index].created || new Date().toISOString().slice(0, 10) }
+     saveProject()
+   }
+ }
+ function deleteMemory(index: number) {
+   memories.value.items.splice(index, 1)
+   saveProject()
+ }
+
+  // ===== 实体操作 =====
+  function addEntity(entity: Omit<MemoryEntity, 'id' | 'createdAt' | 'updatedAt'>) {
+    const now = new Date().toISOString()
+    const newEntity: MemoryEntity = {
+      ...entity,
+      id: 'ent_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+      createdAt: now,
+      updatedAt: now
     }
+    memories.value.entities.push(newEntity)
+    memories.value.meta.totals.entities++
+    saveProject()
+    return newEntity.id
   }
-  function deleteMemory(index: number) {
-    memories.value.items.splice(index, 1)
+  function updateEntity(id: string, patch: Partial<MemoryEntity>) {
+    const idx = memories.value.entities.findIndex(e => e.id === id)
+    if (idx === -1) return
+    const existing = memories.value.entities[idx]
+    // 锁定字段保护
+    for (const field of existing.lockedFields) {
+      if (field in patch) delete (patch as any)[field]
+    }
+    memories.value.entities[idx] = { ...existing, ...patch, updatedAt: new Date().toISOString() }
+    saveProject()
+  }
+  function deleteEntity(id: string) {
+    const idx = memories.value.entities.findIndex(e => e.id === id)
+    if (idx === -1) return
+    memories.value.entities.splice(idx, 1)
+    memories.value.meta.totals.entities--
+    // 清理关联的关系
+    memories.value.relations = memories.value.relations.filter(r => r.sourceId !== id && r.targetId !== id)
+    saveProject()
+  }
+  function lockEntityField(entityId: string, field: string) {
+    const ent = memories.value.entities.find(e => e.id === entityId)
+    if (!ent) return
+    if (!ent.lockedFields.includes(field)) ent.lockedFields.push(field)
+    ent.updatedAt = new Date().toISOString()
+    saveProject()
+  }
+  function unlockEntityField(entityId: string, field: string) {
+    const ent = memories.value.entities.find(e => e.id === entityId)
+    if (!ent) return
+    ent.lockedFields = ent.lockedFields.filter(f => f !== field)
+    ent.updatedAt = new Date().toISOString()
     saveProject()
   }
 
+  // ===== 关系操作 =====
+  function addRelation(rel: Omit<MemoryRelation, 'id' | 'createdAt' | 'updatedAt'>) {
+    const now = new Date().toISOString()
+    const newRel: MemoryRelation = {
+      ...rel,
+      id: 'rel_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+      createdAt: now,
+      updatedAt: now
+    }
+    memories.value.relations.push(newRel)
+    saveProject()
+    return newRel.id
+  }
+  function updateRelation(id: string, patch: Partial<MemoryRelation>) {
+    const idx = memories.value.relations.findIndex(r => r.id === id)
+    if (idx === -1) return
+    if (memories.value.relations[idx].locked) return
+    memories.value.relations[idx] = { ...memories.value.relations[idx], ...patch, updatedAt: new Date().toISOString() }
+    saveProject()
+  }
+  function deleteRelation(id: string) {
+    const idx = memories.value.relations.findIndex(r => r.id === id)
+    if (idx === -1) return
+    memories.value.relations.splice(idx, 1)
+    saveProject()
+  }
+  function lockRelation(id: string) {
+    const r = memories.value.relations.find(rel => rel.id === id)
+    if (r) { r.locked = true; r.updatedAt = new Date().toISOString(); saveProject() }
+  }
+
+  // ===== 事件操作 =====
+  function addEvent(evt: Omit<MemoryEvent, 'id' | 'createdAt'>) {
+    const newEvent: MemoryEvent = {
+      ...evt,
+      id: 'evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+      createdAt: new Date().toISOString()
+    }
+    memories.value.events.push(newEvent)
+    saveProject()
+    return newEvent.id
+  }
+  function updateEvent(id: string, patch: Partial<MemoryEvent>) {
+    const idx = memories.value.events.findIndex(e => e.id === id)
+    if (idx === -1) return
+    if (memories.value.events[idx].locked) return
+    memories.value.events[idx] = { ...memories.value.events[idx], ...patch }
+    saveProject()
+  }
+  function deleteEvent(id: string) {
+    const idx = memories.value.events.findIndex(e => e.id === id)
+    if (idx === -1) return
+    memories.value.events.splice(idx, 1)
+    saveProject()
+  }
+
+  // ===== 世界观操作 =====
+  function addWorldEntry(entry: Omit<WorldEntry, 'id' | 'createdAt'>) {
+    const newEntry: WorldEntry = {
+      ...entry,
+      id: 'wld_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+      createdAt: new Date().toISOString()
+    }
+    memories.value.world.push(newEntry)
+    saveProject()
+    return newEntry.id
+  }
+  function updateWorldEntry(id: string, patch: Partial<WorldEntry>) {
+    const idx = memories.value.world.findIndex(w => w.id === id)
+    if (idx === -1) return
+    if (memories.value.world[idx].locked) return
+    memories.value.world[idx] = { ...memories.value.world[idx], ...patch }
+    saveProject()
+  }
+  function deleteWorldEntry(id: string) {
+    const idx = memories.value.world.findIndex(w => w.id === id)
+    if (idx === -1) return
+    memories.value.world.splice(idx, 1)
+    saveProject()
+  }
+
+  // ===== 伏笔操作 =====
+  function addForeshadowing(fs: Omit<Foreshadowing, 'id' | 'createdAt'>) {
+    const newFs: Foreshadowing = {
+      ...fs,
+      id: 'fsh_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+      createdAt: new Date().toISOString()
+    }
+    memories.value.foreshadowing.push(newFs)
+    saveProject()
+    return newFs.id
+  }
+  function updateForeshadowing(id: string, patch: Partial<Foreshadowing>) {
+    const idx = memories.value.foreshadowing.findIndex(f => f.id === id)
+    if (idx === -1) return
+    if (memories.value.foreshadowing[idx].locked) return
+    memories.value.foreshadowing[idx] = { ...memories.value.foreshadowing[idx], ...patch }
+    saveProject()
+  }
+  function deleteForeshadowing(id: string) {
+    const idx = memories.value.foreshadowing.findIndex(f => f.id === id)
+    if (idx === -1) return
+    memories.value.foreshadowing.splice(idx, 1)
+    saveProject()
+  }
+
+  // ===== 黑名单操作 =====
+  const memoryBlacklist = ref<string[]>([])
+  function addToBlacklist(entityId: string) {
+    if (!memoryBlacklist.value.includes(entityId)) {
+      memoryBlacklist.value.push(entityId)
+      saveProject()
+    }
+  }
+  function removeFromBlacklist(entityId: string) {
+    memoryBlacklist.value = memoryBlacklist.value.filter(id => id !== entityId)
+    saveProject()
+  }
+  function isBlacklisted(entityId: string): boolean {
+    return memoryBlacklist.value.includes(entityId)
+  }
+
+  // ===== 元数据操作 =====
+  function updateMemoryMeta(patch: Partial<MemoryMeta>) {
+    memories.value.meta = { ...memories.value.meta, ...patch }
+    saveProject()
+  }
+  function recalculateMemoryTotals() {
+    memories.value.meta.totals = {
+      entities: memories.value.entities.length,
+      relations: memories.value.relations.length,
+      events: memories.value.events.length,
+      world: memories.value.world.length,
+      foreshadowing: memories.value.foreshadowing.length
+    }
+    saveProject()
+  }
   function syncTreeToPipeline() {
     const chaptersByVol = chapters.value || {}
     const vols = volumes.value || []
@@ -366,7 +616,8 @@ export const useProjectStore = defineStore('project', () => {
     chapters.value = {}
     settingsCollection.value = { categories: [], items: {} }
     settingBindings.value = {}
-    memories.value = { categories: ['情节', '人物', '世界观', '伏笔'], items: [] }
+    memories.value = createDefaultMemories()
+    memoryBlacklist.value = []
     outlineChat.value = []
   }
 
@@ -427,6 +678,13 @@ export const useProjectStore = defineStore('project', () => {
     confirmChapters() { chaptersConfirmed.value = true; saveProject() },
     settingsCollection, getSettingsCollection, ensureSettingsCollection, appendSettingsToCollection, settingBindings,
     memories, addMemoryCategory, addMemory, updateMemory, deleteMemory,
+    addEntity, updateEntity, deleteEntity, lockEntityField, unlockEntityField,
+    addRelation, updateRelation, deleteRelation, lockRelation,
+    addEvent, updateEvent, deleteEvent,
+    addWorldEntry, updateWorldEntry, deleteWorldEntry,
+    addForeshadowing, updateForeshadowing, deleteForeshadowing,
+    memoryBlacklist, addToBlacklist, removeFromBlacklist, isBlacklisted,
+    updateMemoryMeta, recalculateMemoryTotals,
     outlineChat, appendOutlineChat, removeOutlineChatAt
   }
 })

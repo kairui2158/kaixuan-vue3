@@ -399,4 +399,14 @@ main {
   background: var(--bg-overlay, rgba(0,0,0,0.4));
   z-index: 900;
 }
+/* The active panel is rendered after the backdrop and must remain interactive. */
+:deep(.memory-panel),
+:deep(.settings-modal),
+:deep(.pipeline-panel),
+:deep(.outline-workspace),
+:deep(.dashboard-modal),
+:deep(.plugin-market) {
+  position: relative;
+  z-index: 901;
+}
 </style>
