@@ -2,17 +2,20 @@
   <div id="memory-panel" class="memory-panel">
     <div class="mem-header">
       <h4>记忆管理</h4>
-      <button id="btn-close-mem" class="btn-close" @click="$emit('close')">&times;</button>
+      <div class="mem-header-actions">
+        <button id="btn-memory-relation-graph" class="btn-sm btn-secondary" type="button" @click="showRelationGraph = showRelationGraph === 'graph' ? 'analysis' : showRelationGraph === 'analysis' ? 'mind' : showRelationGraph === 'mind' ? 'timeline' : showRelationGraph === 'timeline' ? false : 'graph'">{{ showRelationGraph === 'analysis' ? '思维导图' : showRelationGraph === 'mind' ? '时间线' : showRelationGraph === 'timeline' ? '记忆列表' : showRelationGraph === 'graph' ? '图谱分析' : '关系图' }}</button>
+        <button id="btn-close-mem" class="btn-close" @click="$emit('close')">&times;</button>
+      </div>
     </div>
     <div class="mem-body">
-      <div class="mem-sidebar">
+      <div v-if="!showRelationGraph" class="mem-sidebar">
         <div id="mem-cat-list" class="mem-cat-list">
           <button class="mem-cat-btn" :class="{active: selectedCat==='all'}" @click="selectedCat='all'">全部</button>
-          <button v-for="cat in projectStore.memories.categories" :key="cat" class="mem-cat-btn" :class="{active: selectedCat===cat}" @click="selectedCat=cat">{{ cat }}</button>
+          <button v-for="cat in memoryCategories" :key="cat" class="mem-cat-btn" :class="{active: selectedCat===cat}" @click="selectedCat=cat">{{ cat }}</button>
         </div>
         <button id="btn-add-mem-cat" class="btn-sm btn-secondary full-width" @click="showCatInput = true">+ 新增分类</button>
       </div>
-      <div class="mem-content">
+      <div v-if="!showRelationGraph" class="mem-content">
         <div class="mem-content-header">
           <span id="mem-current-cat">{{ selectedCat==='all' ? '全部记忆' : selectedCat }}</span>
           <button id="btn-add-mem" class="btn-primary btn-sm" @click="showForm(-1)">+ 添加记忆</button>
@@ -28,7 +31,7 @@
             <div class="form-group">
               <label>分类</label>
               <select v-model="formData.category">
-                <option v-for="cat in projectStore.memories.categories" :key="cat" :value="cat">{{ cat }}</option>
+                <option v-for="cat in memoryCategories" :key="cat" :value="cat">{{ cat }}</option>
               </select>
             </div>
             <div class="form-group">
@@ -45,14 +48,22 @@
               <span class="mem-item-key">{{ item.key }}</span>
               <span class="mem-item-cat">{{ item.category }}</span>
               <div class="mem-item-actions">
-                <button class="btn-sm btn-secondary" @click="showForm(getRealIndex(idx))">编辑</button>
-                <button class="btn-sm btn-danger" @click="deleteItem(getRealIndex(idx))">删除</button>
+                <template v-if="item.source === 'legacy'">
+                  <button class="btn-sm btn-secondary" @click="showForm(item.legacyIndex)">编辑</button>
+                  <button class="btn-sm btn-danger" @click="deleteItem(item.legacyIndex)">删除</button>
+                </template>
               </div>
             </div>
             <div class="mem-item-content">{{ item.content }}</div>
             <div class="mem-item-date">{{ item.created || '' }}</div>
           </div>
         </div>
+      </div>
+      <div v-else class="mem-graph-content">
+        <RelationGraph v-if="showRelationGraph === 'graph'" :memories="projectStore.memories" @open-source="openMemorySource" />
+        <GraphAnalysis v-else-if="showRelationGraph === 'analysis'" :memories="projectStore.memories" @open-source="openMemorySource" />
+        <MindMap v-else-if="showRelationGraph === 'mind'" :memories="projectStore.memories" :volumes="projectStore.volumes" :chapters="projectStore.chapters" @open-source="openMemorySource" />
+        <TimelineView v-else :memories="projectStore.memories" @open-source="openMemorySource" />
       </div>
     </div>
     <!-- 内联输入框弹窗替代 prompt -->
@@ -72,9 +83,15 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
 import { useProjectStore } from '../../stores/project'
+import { useEditorStore } from '../../stores/editor'
+import RelationGraph from '../memory/RelationGraph.vue'
+import GraphAnalysis from '../memory/GraphAnalysis.vue'
+import MindMap from '../memory/MindMap.vue'
+import TimelineView from '../memory/TimelineView.vue'
 
 const projectStore = useProjectStore()
-defineEmits<{ close: [] }>()
+const editorStore = useEditorStore()
+const emit = defineEmits<{ close: [] }>()
 
 const selectedCat = ref('all')
 const showingForm = ref(false)
@@ -83,18 +100,83 @@ const formData = ref({ key: '', category: '', content: '' })
 const showCatInput = ref(false)
 const newCatName = ref('')
 const catInputRef = ref<HTMLInputElement | null>(null)
+const showRelationGraph = ref<false | 'graph' | 'analysis' | 'mind' | 'timeline'>(false)
 
-const filteredItems = computed(() => {
-  const items = projectStore.memories.items
-  if (selectedCat.value === 'all') return items
-  return items.filter((it: any) => it.category === selectedCat.value)
+type MemoryDisplayItem = {
+  key: string
+  category: string
+  content: string
+  created?: string
+  source: 'legacy' | 'entity' | 'relation' | 'event' | 'world' | 'foreshadowing'
+  legacyIndex: number
+}
+
+const memoryCategories = computed(() => {
+  const categories = [...projectStore.memories.categories]
+  const modelCategories = projectStore.memories.entities.length > 0 ? ['实体'] : []
+  if (projectStore.memories.relations.length > 0) modelCategories.push('关系')
+  if (projectStore.memories.events.length > 0) modelCategories.push('事件')
+  if (projectStore.memories.world.length > 0) modelCategories.push('世界观')
+  if (projectStore.memories.foreshadowing.length > 0) modelCategories.push('伏笔')
+  return [...new Set([...categories, ...modelCategories])]
 })
 
-function getRealIndex(filteredIdx: number): number {
-  if (selectedCat.value === 'all') return filteredIdx
-  const item = filteredItems.value[filteredIdx]
-  return projectStore.memories.items.indexOf(item)
-}
+const memoryDisplayItems = computed<MemoryDisplayItem[]>(() => {
+  const legacy = projectStore.memories.items.map((item: any, legacyIndex: number) => ({
+    key: item.key,
+    category: item.category,
+    content: item.content,
+    created: item.created,
+    source: 'legacy' as const,
+    legacyIndex
+  }))
+  const entities = projectStore.memories.entities.map((item: any) => ({
+    key: item.name || item.id,
+    category: '实体',
+    content: [item.description, item.status && `状态：${item.status}`, item.notes].filter(Boolean).join('\n'),
+    created: item.updatedAt || item.createdAt,
+    source: 'entity' as const,
+    legacyIndex: -1
+  }))
+  const relations = projectStore.memories.relations.map((item: any) => ({
+    key: item.id,
+    category: '关系',
+    content: [item.type, item.detail].filter(Boolean).join('：'),
+    created: item.updatedAt || item.createdAt,
+    source: 'relation' as const,
+    legacyIndex: -1
+  }))
+  const events = projectStore.memories.events.map((item: any) => ({
+    key: item.title || item.id,
+    category: '事件',
+    content: item.summary || '',
+    created: item.createdAt,
+    source: 'event' as const,
+    legacyIndex: -1
+  }))
+  const world = projectStore.memories.world.map((item: any) => ({
+    key: item.name || item.id,
+    category: '世界观',
+    content: item.description || '',
+    created: item.createdAt,
+    source: 'world' as const,
+    legacyIndex: -1
+  }))
+  const foreshadowing = projectStore.memories.foreshadowing.map((item: any) => ({
+    key: item.title || item.id,
+    category: '伏笔',
+    content: item.description || '',
+    created: item.createdAt,
+    source: 'foreshadowing' as const,
+    legacyIndex: -1
+  }))
+  return [...legacy, ...entities, ...relations, ...events, ...world, ...foreshadowing]
+})
+
+const filteredItems = computed(() => {
+  if (selectedCat.value === 'all') return memoryDisplayItems.value
+  return memoryDisplayItems.value.filter(item => item.category === selectedCat.value)
+})
 
 function showForm(idx: number) {
   editingIdx.value = idx
@@ -102,7 +184,7 @@ function showForm(idx: number) {
     const item = projectStore.memories.items[idx]
     formData.value = { key: item.key, category: item.category, content: item.content }
   } else {
-    formData.value = { key: '', category: projectStore.memories.categories[0] || '', content: '' }
+    formData.value = { key: '', category: memoryCategories.value[0] || '', content: '' }
   }
   showingForm.value = true
 }
@@ -141,6 +223,39 @@ function confirmAddCat() {
   showCatInput.value = false
   newCatName.value = ''
 }
+
+function findChapter(chapterId: string) {
+  for (const volume of projectStore.volumes || []) {
+    const volumeId = volume.id || volume.name
+    const chapter = (projectStore.chapters[volumeId] || []).find((item: any) => item.id === chapterId)
+    if (chapter) return chapter
+  }
+  return null
+}
+
+function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
+  const chapterId = payload.kind === 'event'
+    ? projectStore.memories.events.find(item => item.id === payload.id)?.chapterId
+    : projectStore.memories.entities.find(item => item.id === payload.id)?.evidence?.[0]?.chapterId
+  if (!chapterId) {
+    alert('该记忆暂无对应正文来源')
+    return
+  }
+  const chapter = findChapter(chapterId)
+  if (!chapter) {
+    alert('未找到该记忆对应的章节')
+    return
+  }
+  editorStore.openTab({
+    id: 'tab-' + chapter.id,
+    title: chapter.title,
+    content: chapter.body || '',
+    chapterId: chapter.id,
+    isDirty: false,
+    mode: 'ch-body'
+  })
+  emit('close')
+}
 </script>
 
 <style scoped>
@@ -163,7 +278,9 @@ function confirmAddCat() {
   flex-shrink: 0;
 }
 .mem-header h3 { font-size: var(--font-size-md); font-weight: 600; margin: 0; }
+.mem-header-actions { display: flex; align-items: center; gap: 8px; }
 .mem-body { flex: 1; display: flex; overflow: hidden; }
+.mem-graph-content { flex: 1; min-width: 0; min-height: 0; padding: 12px 16px; overflow: hidden; }
 .mem-sidebar {
   width: 160px; border-right: 1px solid var(--border-color);
   padding: 8px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto;
