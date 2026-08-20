@@ -2,13 +2,25 @@
   <div id="memory-panel" class="memory-panel">
     <div class="mem-header">
       <h4>记忆管理</h4>
-      <div class="mem-header-actions">
-        <button id="btn-memory-relation-graph" class="btn-sm btn-secondary" type="button" @click="showRelationGraph = showRelationGraph === 'graph' ? 'analysis' : showRelationGraph === 'analysis' ? 'mind' : showRelationGraph === 'mind' ? 'timeline' : showRelationGraph === 'timeline' ? false : 'graph'">{{ showRelationGraph === 'analysis' ? '思维导图' : showRelationGraph === 'mind' ? '时间线' : showRelationGraph === 'timeline' ? '记忆列表' : showRelationGraph === 'graph' ? '图谱分析' : '关系图' }}</button>
-        <button id="btn-export-memory" class="btn-sm btn-secondary" @click="exportMemory">导出 JSON</button>
-        <button id="btn-import-memory" class="btn-sm btn-secondary" @click="importMemory">导入 JSON</button>
-        <button id="btn-import-character-card" class="btn-sm btn-secondary" @click="importCharacterCard">导入角色卡</button>
+       <div class="mem-header-actions">
+         <div class="mem-view-tabs">
+           <button class="mem-tab-btn" :class="{active: showRelationGraph === false}" @click="showRelationGraph = false">记忆列表</button>
+           <button class="mem-tab-btn" :class="{active: showRelationGraph === 'graph'}" @click="showRelationGraph = 'graph'">关系图</button>
+           <button class="mem-tab-btn" :class="{active: showRelationGraph === 'analysis'}" @click="showRelationGraph = 'analysis'">图谱分析</button>
+           <button class="mem-tab-btn" :class="{active: showRelationGraph === 'mind'}" @click="showRelationGraph = 'mind'">思维导图</button>
+         <button class="mem-tab-btn" :class="{active: showRelationGraph === 'timeline'}" @click="showRelationGraph = 'timeline'">时间线</button>
+        </div>
+        <span class="mem-header-divider"></span>
+        <div class="mem-more-menu">
+          <button class="mem-more-btn" @click="showMoreMenu = !showMoreMenu">更多 ▾</button>
+          <div class="mem-more-dropdown" v-if="showMoreMenu">
+            <button id="btn-export-memory" @click="showMoreMenu=false; exportMemory()">导出 JSON</button>
+            <button id="btn-import-memory" @click="showMoreMenu=false; importMemory()">导入 JSON</button>
+            <button id="btn-import-character-card" @click="showMoreMenu=false; importCharacterCard()">导入角色卡</button>
+          </div>
+        </div>
         <button id="btn-close-mem" class="btn-close" @click="$emit('close')">&times;</button>
-      </div>
+       </div>
     </div>
     <div class="mem-body">
       <div v-if="!showRelationGraph" class="mem-sidebar">
@@ -117,6 +129,7 @@ const showCatInput = ref(false)
 const newCatName = ref('')
 const catInputRef = ref<HTMLInputElement | null>(null)
 const showRelationGraph = ref<false | 'graph' | 'analysis' | 'mind' | 'timeline'>(false)
+const showMoreMenu = ref(false)
 
 type MemoryDisplayItem = {
   key: string
@@ -355,6 +368,45 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
 }
 .mem-header h3 { font-size: var(--font-size-md); font-weight: 600; margin: 0; }
 .mem-header-actions { display: flex; align-items: center; gap: 8px; }
+.mem-view-tabs { display: flex; align-items: center; gap: 2px; }
+.mem-tab-btn {
+  padding: 4px 10px; border: none; background: transparent;
+  color: var(--text-secondary); cursor: pointer; border-radius: var(--radius-xs);
+  font-size: var(--font-size-sm); white-space: nowrap; transition: all 0.15s;
+}
+.mem-tab-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.mem-tab-btn.active { background: var(--accent); color: #fff; font-weight: 500; }
+.mem-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+.mem-tab-btn { position: relative; }
+.mem-header-divider { width: 1px; height: 20px; background: var(--border-color); flex-shrink: 0; }
+.mem-more-menu { position: relative; flex-shrink: 0; }
+.mem-more-btn {
+  padding: 4px 10px; border: none; background: transparent;
+  color: var(--text-secondary); cursor: pointer; border-radius: var(--radius-xs);
+  font-size: var(--font-size-sm); white-space: nowrap; transition: all 0.15s;
+}
+.mem-more-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.mem-more-dropdown {
+  position: absolute; top: 100%; right: 0; margin-top: 4px;
+  background: var(--bg-tertiary); border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm); box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: flex; flex-direction: column; gap: 2px; padding: 4px; z-index: 2000; min-width: 120px;
+}
+.mem-more-dropdown button {
+  padding: 6px 12px; border: none; background: transparent;
+  color: var(--text-primary); cursor: pointer; border-radius: var(--radius-xs);
+  font-size: var(--font-size-sm); text-align: left; white-space: nowrap;
+}
+.mem-more-dropdown button:hover { background: var(--bg-hover); color: var(--accent); }
 .mem-body { flex: 1; display: flex; overflow: hidden; }
 .mem-graph-content { flex: 1; min-width: 0; min-height: 0; padding: 12px 16px; overflow: hidden; }
 .mem-sidebar {
