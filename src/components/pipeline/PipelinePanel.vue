@@ -1,9 +1,10 @@
 <template>
-  <div id="pipeline-panel" class="pl-overlay" @click.self="$emit('close')">
-    <div class="pl-content">
+  <div id="pipeline-panel" class="pl-overlay pl-fullscreen" @click.self="$emit('close')">
+    <div class="pl-content pl-content-fullscreen">
       <div class="pl-header">
         <span class="pl-header-title">生成流水线</span>
         <div class="pl-header-actions">
+          <button class="btn-sm btn-secondary" id="btn-pl-minimize" title="缩小到顶栏" @click="$emit('minimize')">缩小</button>
           <button class="btn-sm btn-secondary" id="btn-exec-log" @click="showExecLog = !showExecLog">执行日志</button>
           <button class="btn-sm btn-secondary" id="btn-flow-toggle" @click="showFlowView = !showFlowView">{{ showFlowView ? '步骤视图' : '流程视图' }}</button>
           <button id="btn-close-pl" class="modal-close" @click="$emit('close')">&times;</button>
@@ -593,7 +594,7 @@ import { mergeMemory } from "../../services/memoryMerger"
 import type { ExtractedMemoryData } from "../../services/memoryExtractor"
 import { retrieveContext } from "../../services/memoryRetriever"
 
-defineEmits<{ close: [] }>()
+defineEmits<{ close: [], minimize: [] }>()
 
 
 const showExecLog = ref(false)
@@ -2249,6 +2250,8 @@ function toolAction(action: string) {
 
 <style scoped>
 .pl-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal); }
+.pl-overlay.pl-fullscreen { align-items: stretch; justify-content: stretch; }
+.pl-content-fullscreen { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; border-radius: 0 !important; border: none !important; }
 .pl-memory-preview-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--bg-overlay); z-index: calc(var(--z-modal) + 1); pointer-events: auto; }
 .pl-memory-preview-modal { position: relative; z-index: 1; width: min(720px, 100%); max-height: min(720px, calc(100vh - 48px)); display: flex; flex-direction: column; overflow: hidden; background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: var(--shadow-lg); pointer-events: auto; }
 .pl-memory-preview-header, .pl-memory-preview-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; }
