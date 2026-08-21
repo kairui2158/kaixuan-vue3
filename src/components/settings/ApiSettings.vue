@@ -22,14 +22,15 @@
             <span class="provider-card-model" v-if="p.selectedModel">{{ p.selectedModel }}</span>
           </div>
           <div class="provider-card-actions" @click.stop>
-            <select
-              class="purpose-select"
-              :value="getPurpose(p.id)"
-              @change="setPurpose(p.id, ($event.target as HTMLSelectElement).value)"
-            >
-              <option value="generate">生成</option>
-              <option value="verify">验证</option>
-            </select>
+            <div class="purpose-toggle-group">
+              <button
+                v-for="pu in purposeOptions"
+                :key="pu.value"
+                class="purpose-toggle-btn"
+                :class="{ 'is-on': hasPurpose(p.id, pu.value) }"
+                @click="togglePurpose(p.id, pu.value)"
+              >{{ pu.label }}</button>
+            </div>
             <button class="btn-sm btn-secondary" @click="enterProviderEdit(p.id)">编辑</button>
             <button class="btn-danger btn-sm" @click="providerStore.removeProvider(p.id)">删除</button>
           </div>
@@ -111,10 +112,17 @@
       </div>
       <div class="form-group">
         <label>用途</label>
-        <select id="cfg-provider-purpose" v-model="editingProvider.purpose" class="input-field input-w-120">
-          <option value="generate">生成（写小说）</option>
-          <option value="verify">验证（去AI味检测）</option>
-        </select>
+        <div id="cfg-provider-purpose" class="purpose-checkbox-group">
+          <label v-for="pu in purposeOptions" :key="pu.value" class="purpose-checkbox-label">
+            <input
+              type="checkbox"
+              :value="pu.value"
+              :checked="editingProviderPurposeArray.includes(pu.value)"
+              @change="toggleEditingPurpose(pu.value)"
+            />
+            <span>{{ pu.label }}</span>
+          </label>
+        </div>
       </div>
       <div class="form-group">
         <label>系统提示词</label>
@@ -154,34 +162,61 @@ const fetchMsgClass = computed(() => {
   return ''
 })
 
-function isProviderActive(id: string): boolean {
-  return providerStore.generateProvider === id || providerStore.verifyProvider === id
-}
+const purposeOptions = [
+  { value: 'generate', label: '生成' },
+  { value: 'verify', label: '验证' },
+  { value: 'detect', label: '检测' },
+  { value: 'image', label: '图片' },
+  { value: 'video', label: '视频' },
+]
 
-function getPurpose(id: string): string {
-  if (providerStore.generateProvider === id) return 'generate'
-  if (providerStore.verifyProvider === id) return 'verify'
-  return 'generate'
-}
+const editingProviderPurposeArray = computed(() => {
+  if (!editingProvider.value) return []
+  const pu = editingProvider.value.purpose
+  if (typeof pu === 'string') return [pu]
+  if (Array.isArray(pu)) return pu
+  return []
+})
 
-function setPurpose(id: string, purpose: string) {
-  if (purpose === 'generate') {
-    if (providerStore.verifyProvider === id) {
-      providerStore.setVerifyProvider('')
-    }
-    const prevGen = providerStore.generateProvider
-    providerStore.setGenerateProvider(id)
-    if (prevGen && prevGen !== id && !providerStore.verifyProvider) {
-      providerStore.setVerifyProvider(prevGen)
-    }
+function toggleEditingPurpose(value: string) {
+  if (!editingProvider.value) return
+  const cur = editingProviderPurposeArray.value
+  const idx = cur.indexOf(value)
+  if (idx >= 0) {
+    editingProvider.value.purpose = cur.filter(v => v !== value) as any
   } else {
-    if (providerStore.generateProvider === id) {
-      providerStore.setGenerateProvider('')
-    }
-    const prevVer = providerStore.verifyProvider
-    providerStore.setVerifyProvider(id)
-    if (prevVer && prevVer !== id && !providerStore.generateProvider) {
-      providerStore.setGenerateProvider(prevVer)
+    editingProvider.value.purpose = [...cur, value] as any
+  }
+}
+
+function isProviderActive(id: string): boolean {
+  return providerStore.generateProvider === id ||
+         providerStore.verifyProvider === id ||
+         providerStore.detectProvider === id
+}
+
+function hasPurpose(id: string, purpose: string): boolean {
+  if (purpose === 'generate') return providerStore.generateProvider === id
+  if (purpose === 'verify') return providerStore.verifyProvider === id
+  if (purpose === 'detect') return providerStore.detectProvider === id
+  return false
+}
+
+function togglePurpose(id: string, purpose: string) {
+  if (purpose === 'generate') {
+    providerStore.setGenerateProvider(providerStore.generateProvider === id ? '' : id)
+  } else if (purpose === 'verify') {
+    providerStore.setVerifyProvider(providerStore.verifyProvider === id ? '' : id)
+  } else if (purpose === 'detect') {
+    providerStore.setDetectProvider(providerStore.detectProvider === id ? '' : id)
+  } else {
+    const p = providerStore.providers.find(item => item.id === id)
+    if (p) {
+      const arr = Array.isArray(p.purpose) ? [...p.purpose] : []
+      const idx = arr.indexOf(purpose)
+      if (idx >= 0) arr.splice(idx, 1)
+      else arr.push(purpose as any)
+      providerStore.updateProvider(id, { purpose: arr as any })
     }
   }
 }
@@ -208,7 +243,7 @@ function enterProviderEdit(id: string | null) {
       maxTokens: 0,
       streamMode: false,
       systemPrompt: '',
-      purpose: 'generate'
+      purpose: ['generate'] as any
     }
   }
   showKey.value = false
@@ -373,14 +408,46 @@ function importConfig() {
   color: var(--text-muted);
 }
 
-.purpose-select {
+.purpose-toggle-group {
+  display: inline-flex;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+.purpose-toggle-btn {
   background: var(--bg-input);
-  color: var(--text-primary);
+  color: var(--text-muted);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm, 4px);
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--font-size-md);
-  height: var(--input-height, 34px);
+  padding: 2px 8px;
+  font-size: var(--font-size-xs, 12px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.purpose-toggle-btn:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+.purpose-toggle-btn.is-on {
+  background: var(--accent-dim, rgba(90,125,154,0.15));
+  color: var(--accent);
+  border-color: var(--accent);
+  font-weight: 500;
+}
+.purpose-checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.purpose-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+.purpose-checkbox-label input[type="checkbox"] {
+  margin: 0;
 }
 .provider-fields { display: grid; grid-template-columns: 80px 1fr; gap: 4px 8px; align-items: center; }
 .provider-fields label { font-size: var(--font-size-sm); color: var(--text-secondary); }
