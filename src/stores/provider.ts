@@ -11,7 +11,7 @@ export interface Provider {
   selectedModel: string
   temperature: number
   maxTokens: number
-  purpose: 'generate' | 'verify'
+  purpose: ('generate' | 'rewrite' | 'verify' | 'detect' | 'image' | 'video')[]
   streamMode?: boolean
   systemPrompt?: string
 }
@@ -20,12 +20,16 @@ export const useProviderStore = defineStore('provider', () => {
   const providers = ref<Provider[]>([])
   const generateProvider = ref<string | null>(null)
   const verifyProvider = ref<string | null>(null)
+  const detectProvider = ref<string | null>(null)
 
   const activeGenerateProvider = computed(() =>
     providers.value.find(p => p.id === generateProvider.value)
   )
   const activeVerifyProvider = computed(() =>
     providers.value.find(p => p.id === verifyProvider.value)
+  )
+  const activeDetectProvider = computed(() =>
+    providers.value.find(p => p.id === detectProvider.value)
   )
 
 function loadProviders() {
@@ -42,9 +46,14 @@ function loadProviders() {
           }
         })
       }
-      // Auto-set generateProvider/verifyProvider from purpose field
-      var gen = data.find(function(p) { return p.purpose === 'generate' })
-      var ver = data.find(function(p) { return p.purpose === 'verify' })
+     // Auto-set generateProvider/verifyProvider from purpose field
+      // Normalize legacy purpose string to array
+      providers.value.forEach(function(p) {
+        if (typeof p.purpose === 'string') p.purpose = [p.purpose]
+        if (!Array.isArray(p.purpose) || p.purpose.length === 0) p.purpose = ['generate']
+      })
+      var gen = data.find(function(p) { return p.purpose.indexOf('generate') >= 0 })
+      var ver = data.find(function(p) { return p.purpose.indexOf('verify') >= 0 })
       if (gen) generateProvider.value = gen.id
       if (ver) verifyProvider.value = ver.id
       // Fallback: if no purpose fields at all, set first as generate
@@ -59,8 +68,14 @@ function loadProviders() {
           }
         })
       }
-      generateProvider.value = data.generateProvider || null
-      verifyProvider.value = data.verifyProvider || null
+     generateProvider.value = data.generateProvider || null
+     verifyProvider.value = data.verifyProvider || null
+      detectProvider.value = data.detectProvider || null
+      // Normalize legacy purpose string to array
+      providers.value.forEach(function(p) {
+        if (typeof p.purpose === 'string') p.purpose = [p.purpose]
+        if (!Array.isArray(p.purpose) || p.purpose.length === 0) p.purpose = ['generate']
+      })
     }
   }
 }
@@ -78,7 +93,8 @@ function saveProviders() {
   window.electronAPI.storageWrite(storageKey('providers'), {
     providers: copy,
     generateProvider: generateProvider.value,
-    verifyProvider: verifyProvider.value
+    verifyProvider: verifyProvider.value,
+    detectProvider: detectProvider.value
   })
 }
 
@@ -99,6 +115,7 @@ function saveProviders() {
     providers.value = providers.value.filter(p => p.id !== id)
     if (generateProvider.value === id) generateProvider.value = null
     if (verifyProvider.value === id) verifyProvider.value = null
+    if (detectProvider.value === id) detectProvider.value = null
     saveProviders()
   }
 
@@ -107,8 +124,12 @@ function setGenerateProvider(id: string) {
    saveProviders()
  }
 
- function setVerifyProvider(id: string) {
+function setVerifyProvider(id: string) {
    verifyProvider.value = id
+   saveProviders()
+ }
+function setDetectProvider(id: string) {
+   detectProvider.value = id
    saveProviders()
  }
 
@@ -132,6 +153,19 @@ function getProvider(id: string): Provider | undefined {
 }
 
 const preferredGenerateProvider = computed(() => activeGenerateProvider.value)
+function getGenerateProvider(): Provider | undefined {
+  return activeGenerateProvider.value
+}
+function getVerifyProvider(): Provider | undefined {
+  return activeVerifyProvider.value
+}
+function getDetectProvider(): Provider | undefined {
+  return activeDetectProvider.value
+}
+function getActiveProviders(): Provider[] {
+  const ids = new Set([generateProvider.value, verifyProvider.value, detectProvider.value].filter(Boolean) as string[])
+  return providers.value.filter(p => ids.has(p.id))
+}
 
 async function callApi(
   providerId: string,
@@ -154,10 +188,11 @@ async function callApi(
 }
 
   return {
-    providers, generateProvider, verifyProvider,
-    activeGenerateProvider, activeVerifyProvider,
+    providers, generateProvider, verifyProvider, detectProvider,
+    activeGenerateProvider, activeVerifyProvider, activeDetectProvider,
     loadProviders, saveProviders, addProvider, updateProvider,
-    removeProvider, setGenerateProvider, setVerifyProvider, fetchModels,
-    testConnection, getProvider, preferredGenerateProvider, callApi
+    removeProvider, setGenerateProvider, setVerifyProvider, setDetectProvider, fetchModels,
+    testConnection, getProvider, preferredGenerateProvider, callApi,
+    getGenerateProvider, getVerifyProvider, getDetectProvider, getActiveProviders
   }
 })
