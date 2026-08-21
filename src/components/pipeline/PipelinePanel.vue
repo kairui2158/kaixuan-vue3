@@ -97,6 +97,66 @@
           <div v-show="pipelineStore.currentStep === 1" id="pl-step-2-content" class="pl-step-panel">
             <h3>设定</h3>
             <div v-if="projectStore.bookWordCountChars > 0" id="pl-settings-linked-book-words" class="pl-gen-hint">全书已确认字数：{{ projectStore.bookWordCountChars / 10000 }} 万字</div>
+            <div id="pl-style-card" class="pl-style-card" v-if="true">
+              <div class="pl-style-card-header" @click="styleCardExpanded = !styleCardExpanded">
+                <span class="pl-style-card-title">创作风格</span>
+                <span class="pl-style-card-summary" v-if="styleTags || pacingParams">{{ styleTags }} | {{ pacingParams }}</span>
+                <span class="pl-style-card-summary" v-else>待 AI 分析</span>
+                <span class="pl-style-card-toggle">{{ styleCardExpanded ? '收起' : '展开' }}</span>
+              </div>
+              <div class="pl-style-card-body" v-show="styleCardExpanded">
+                <div class="pl-style-tags-section">
+                  <span class="pl-style-section-label">叙事风格</span>
+                  <div class="pl-style-tag-pool">
+                    <label v-for="chip in styleTagChips" :key="chip.label" class="pl-style-tag-chip" :class="{active: chip.active}">
+                      <input type="checkbox" :checked="chip.active" @change="toggleStyleTag(chip.label, $event.target.checked)" />
+                      <span>{{ chip.label }}</span>
+                    </label>
+                  </div>
+                  <div class="pl-style-tag-add">
+                    <input v-model="newCustomTag" class="pl-input-sm" placeholder="添加自定义标签" @keyup.enter="addCustomTag" />
+                    <button class="btn-sm btn-secondary" @click="addCustomTag">+</button>
+                  </div>
+                </div>
+                <div class="pl-style-pacing-section">
+                  <span class="pl-style-section-label">剧情节奏</span>
+                  <div class="pl-pacing-grid">
+                    <div class="pl-pacing-item">
+                      <label>叙事速度</label>
+                      <select v-model="pacingParamsObj.speed" class="pl-input-sm" @change="syncPacingToString">
+                        <option v-for="o in pacingSpeedOptions" :key="o" :value="o">{{ o }}</option>
+                      </select>
+                    </div>
+                    <div class="pl-pacing-item">
+                      <label>紧张度</label>
+                      <div class="pl-pacing-slider">
+                        <input type="range" min="1" max="5" v-model.number="pacingParamsObj.tension" @input="syncPacingToString" />
+                        <span>{{ pacingParamsObj.tension }}/5</span>
+                      </div>
+                    </div>
+                    <div class="pl-pacing-item">
+                      <label>信息密度</label>
+                      <select v-model="pacingParamsObj.density" class="pl-input-sm" @change="syncPacingToString">
+                        <option v-for="o in pacingDensityOptions" :key="o" :value="o">{{ o }}</option>
+                      </select>
+                    </div>
+                    <div class="pl-pacing-item">
+                      <label>视角风格</label>
+                      <select v-model="pacingParamsObj.perspective" class="pl-input-sm" @change="syncPacingToString">
+                        <option v-for="o in pacingPerspectiveOptions" :key="o" :value="o">{{ o }}</option>
+                      </select>
+                    </div>
+                    <div class="pl-pacing-item">
+                      <label>情感基调</label>
+                      <select v-model="pacingParamsObj.tone" class="pl-input-sm" @change="syncPacingToString">
+                        <option v-for="o in pacingToneOptions" :key="o" :value="o">{{ o }}</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button class="btn-sm btn-secondary pl-pacing-restore" @click="restoreAiPacing">恢复AI建议</button>
+                </div>
+              </div>
+            </div>
           <div class="pl-step-tools">
             <div class="pl-agent-mode-bar">
               <span class="pl-label">本层智能体:</span>
@@ -1178,6 +1238,155 @@ function getStyleContext(): string {
   return styleTags.value || ""
 }
 
+// Analyze outline for narrative style and pacing parameters.
+// Equivalent to old architecture _plAnalyzeOutline: independent API call,
+// empty skillIds, returns {styleTags, pacingParams} JSON.
+async function analyzeOutline() {
+  if (!projectStore.outlineText) return
+  if (outlineAnalyzed.value && styleTags.value) return
+  const provider = providerStore.preferredGenerateProvider
+  if (!provider?.id) {
+    console.warn("[WARN] No provider configured, skipping outline analysis")
+    return
+  }
+  const model = provider.selectedModel || provider.models?.[0] || ""
+  if (!model) {
+    console.warn("[WARN] No model selected, skipping outline analysis")
+    return
+  }
+  const prompt = "请分析以下小说大纲的写作风格和节奏特征。返回JSON对象：{styleTags:\"风格标签以逗号分隔\", pacingParams:\"节奏参数描述\"}\n\n大纲：\n" + projectStore.outlineText
+  try {
+    const text = await providerStore.callApi(provider.id, model, [
+      { role: "system", content: "你是小说风格分析专家。分析大纲的写作风格和节奏特征，返回JSON。" },
+      { role: "user", content: prompt }
+    ])
+    if (!text) { console.warn("[WARN] Outline analysis returned empty"); return }
+    let data: any = null
+    try {
+      const m = text.match(/\{[\s\S]*\}/)
+      if (m) data = JSON.parse(m[0])
+    } catch(e) { console.warn("[WARN] Outline analysis parse failed:", e) }
+    if (data) {
+      styleTags.value = data.styleTags || data.style || ""
+      pacingParams.value = data.pacingParams || data.pacing || ""
+      outlineAnalyzed.value = true
+      await new Promise(r => setTimeout(r, 100))
+      saveAiPacingSnapshot()
+      console.log("[OK] Outline analyzed: styleTags=" + (styleTags.value||"").substring(0,50) + ", pacing=" + (pacingParams.value||"").substring(0,50))
+    } else {
+      styleTags.value = text.substring(0, 200)
+      outlineAnalyzed.value = true
+      console.log("[OK] Outline analyzed (raw text fallback)")
+    }
+  } catch(e: any) {
+    console.warn("[WARN] Outline analysis failed (non-blocking):", e.message)
+  }
+}
+
+function getStyleTagsValue(): string {
+  if (!styleTags.value) return ""
+  const tags = (styleTags.value || "").split(/[,，、]/).map(t => t.trim()).filter(Boolean)
+  return tags.join(", ")
+}
+
+function getPacingParamsValue(): string {
+  return pacingParams.value || ""
+}
+
+// Toggle a style tag on/off
+function toggleStyleTag(tag: string, on: boolean) {
+  const tags = (styleTags.value || "").split(/[,，、]/).map(t => t.trim()).filter(Boolean)
+  const idx = tags.indexOf(tag)
+  if (on && idx === -1) tags.push(tag)
+  if (!on && idx >= 0) tags.splice(idx, 1)
+  styleTags.value = tags.join(", ")
+}
+
+// Compute the style tags as toggleable chips
+const styleTagChips = computed(() => {
+  const raw = (styleTags.value || "").split(/[,，、]/).map(t => t.trim()).filter(Boolean)
+  const custom = customStyleTags.value
+  const all = [...new Set([...raw, ...custom])]
+  return all.map(tag => ({
+    label: tag,
+    active: raw.includes(tag)
+  }))
+})
+
+// Pacing params as structured object
+const pacingParamsObj = ref({
+  speed: "均衡",
+  tension: 3,
+  density: "均衡",
+  perspective: "第一人称",
+  tone: "暗黑"
+})
+
+const pacingSpeedOptions = ["慢热", "均衡", "快节奏"]
+const pacingDensityOptions = ["稀疏", "均衡", "密集"]
+const pacingPerspectiveOptions = ["第一人称", "第三人称限知", "第三人称全知"]
+const pacingToneOptions = ["暗黑", "温暖", "苦涩", "热血", "悲壮"]
+
+// Sync pacingParamsObj from raw string when analysis completes
+watch(outlineAnalyzed, (val) => {
+  if (val && pacingParams.value) {
+    const lower = pacingParams.value.toLowerCase()
+    if (/慢热/.test(pacingParams.value)) pacingParamsObj.value.speed = "慢热"
+    else if (/快/.test(pacingParams.value)) pacingParamsObj.value.speed = "快节奏"
+    else pacingParamsObj.value.speed = "均衡"
+    const tMatch = pacingParams.value.match(/紧张[度:]?(\d)/)
+    if (tMatch) pacingParamsObj.value.tension = parseInt(tMatch[1])
+    if (/稀疏/.test(pacingParams.value)) pacingParamsObj.value.density = "稀疏"
+    else if (/密集/.test(pacingParams.value)) pacingParamsObj.value.density = "密集"
+    else pacingParamsObj.value.density = "均衡"
+    if (/第三人称全知/.test(pacingParams.value)) pacingParamsObj.value.perspective = "第三人称全知"
+    else if (/第三人称限知|第三人称/.test(pacingParams.value)) pacingParamsObj.value.perspective = "第三人称限知"
+    else if (/第一人称/.test(pacingParams.value)) pacingParamsObj.value.perspective = "第一人称"
+    for (const tone of pacingToneOptions) {
+      if (pacingParams.value.includes(tone)) { pacingParamsObj.value.tone = tone; break }
+    }
+    syncPacingToString()
+  }
+})
+
+function syncPacingToString() {
+  const p = pacingParamsObj.value
+  pacingParams.value = "速度:" + p.speed + ", 紧张度:" + p.tension + ", 密度:" + p.density + ", 视角:" + p.perspective + ", 基调:" + p.tone
+}
+
+// Save AI-suggested pacing values for restore
+const aiPacingSnapshot = ref<Record<string, any>>({})
+
+function saveAiPacingSnapshot() {
+  aiPacingSnapshot.value = JSON.parse(JSON.stringify(pacingParamsObj.value))
+}
+
+function restoreAiPacing() {
+  if (Object.keys(aiPacingSnapshot.value).length > 0) {
+    pacingParamsObj.value = JSON.parse(JSON.stringify(aiPacingSnapshot.value))
+    syncPacingToString()
+  }
+}
+
+// Custom style tags added by user
+const customStyleTags = ref<string[]>([])
+const newCustomTag = ref("")
+
+function addCustomTag() {
+  const tag = newCustomTag.value.trim()
+  if (!tag) return
+  if (!customStyleTags.value.includes(tag)) customStyleTags.value.push(tag)
+  const tags = (styleTags.value || "").split(/[,，、]/).map(t => t.trim()).filter(Boolean)
+  if (!tags.includes(tag)) {
+    tags.push(tag)
+    styleTags.value = tags.join(", ")
+  }
+  newCustomTag.value = ""
+}
+
+// Style card expand/collapse state
+const styleCardExpanded = ref(false)
+
 function getStepAgentConfig(step: number) {
   const agentId = getStepAgentId(step)
   if (!agentId) return null
@@ -1260,6 +1469,7 @@ function invalidateDownstream(fromStep: number) {
     clearChapterGenerationFlags()
     styleTags.value = ""
     pacingParams.value = ""
+    pacingParamsObj.value = { speed: "均衡", tension: 3, density: "均衡", perspective: "第一人称", tone: "暗黑" }
     outlineAnalyzed.value = false
     for (let i = 1; i < 5; i++) steps.value[i].completed = false
   }
@@ -1302,6 +1512,7 @@ function confirmStep(stepIndex: number) {
     projectStore.setOutline(projectStore.outlineText)
     projectStore.lockOutline()
     window.dispatchEvent(new CustomEvent("outline-locked", { detail: { text: projectStore.outlineText } }))
+    analyzeOutline()
   }
   if (stepIndex >= 1) {
     projectStore.settingsGenerated = true
@@ -1620,6 +1831,7 @@ async function genSettings() {
         }
         settingsGenerationLogs.value.push("设定已写入分类并保存到当前项目")
         pipelineStore.updateProgress(100, "设定生成完成")
+        styleCardExpanded.value = true
       } else {
         settingsGenerationLogs.value.push("API 返回内容缺少有效设定名称")
         pipelineStore.failGeneration("未能解析设定内容")
@@ -2250,6 +2462,29 @@ function toolAction(action: string) {
 
 <style scoped>
 .pl-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal); }
+.pl-style-card { margin-bottom: var(--space-4); border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-input); overflow: hidden; }
+.pl-style-card-header { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-4); cursor: pointer; user-select: none; }
+.pl-style-card-title { font-weight: 600; font-size: var(--font-size-sm); white-space: nowrap; }
+.pl-style-card-summary { flex: 1; min-width: 0; font-size: var(--font-size-xs); color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pl-style-card-toggle { font-size: var(--font-size-xs); color: var(--text-secondary); white-space: nowrap; flex-shrink: 0; }
+.pl-style-card-body { display: flex; gap: var(--space-4); padding: var(--space-3) var(--space-4); border-top: 1px solid var(--border-color); }
+.pl-style-tags-section { flex: 1; min-width: 0; }
+.pl-style-pacing-section { flex: 1; min-width: 0; }
+.pl-style-section-label { display: block; font-size: var(--font-size-xs); font-weight: 600; color: var(--text-secondary); margin-bottom: var(--space-2); }
+.pl-style-tag-pool { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-2); }
+.pl-style-tag-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: var(--font-size-xs); cursor: pointer; user-select: none; }
+.pl-style-tag-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
+.pl-style-tag-chip input { width: 12px; height: 12px; margin: 0; }
+.pl-style-tag-add { display: flex; gap: var(--space-1); }
+.pl-style-tag-add input { flex: 1; min-width: 0; }
+.pl-pacing-grid { display: flex; flex-direction: column; gap: var(--space-2); }
+.pl-pacing-item { display: flex; align-items: center; gap: var(--space-2); }
+.pl-pacing-item label { font-size: var(--font-size-xs); white-space: nowrap; min-width: 70px; }
+.pl-pacing-item select { flex: 1; min-width: 0; }
+.pl-pacing-slider { display: flex; align-items: center; gap: var(--space-2); flex: 1; }
+.pl-pacing-slider input[type=range] { flex: 1; }
+.pl-pacing-slider span { font-size: var(--font-size-xs); white-space: nowrap; }
+.pl-pacing-restore { margin-top: var(--space-2); }
 .pl-overlay.pl-fullscreen { align-items: stretch; justify-content: stretch; }
 .pl-content-fullscreen { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; border-radius: 0 !important; border: none !important; }
 .pl-memory-preview-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--bg-overlay); z-index: calc(var(--z-modal) + 1); pointer-events: auto; }
