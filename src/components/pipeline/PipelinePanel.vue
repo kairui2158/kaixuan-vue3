@@ -85,7 +85,7 @@
               </span>
             </template>
           </div>
-            <textarea id="pl-outline" v-model="projectStore.outlineText" class="pl-textarea" placeholder="输入或粘贴大纲全文..." :readonly="projectStore.outlineLocked" :class="{ &apos;pl-readonly&apos;: projectStore.outlineLocked }"></textarea>
+            <textarea id="pl-outline" v-model="projectStore.outlineText" class="pl-textarea" placeholder="输入或粘贴大纲全文..." :readonly="projectStore.outlineLocked" :class="{ 'pl-readonly': projectStore.outlineLocked }"></textarea>
             <div class="pl-gen-options">
               <label>全书字数（万字）：</label>
               <input id="pl-book-word-count" type="number" v-model.number="bookWordCount" min="0" max="1000" class="input-w-60" @change="saveBookWordCount" />

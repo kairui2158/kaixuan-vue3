@@ -61,3 +61,26 @@
 ### 收尾规则
 
 本轮没有新增临时脚本；历史 `_audit/*.png` 为正式证据，不删除。报告保留“PASS / 部分完成 / 未完成”三态，禁止用静态代码、DOM 存在或受控响应替代真实用户证据。
+
+## 2026-08-22 目标模式最终收尾
+
+### 原生文件对话框真实核验
+
+- 使用源文件启动器启动，并通过真实 Electron IPC 从记忆面板点击“导出 JSON”。
+- 桌面窗口枚举确认出现原生窗口“导出配置”，无障碍树包含文件名控件、保存按钮和取消按钮。
+- 尝试写入隔离路径 `test_evidence/native-memory-export.json` 时，桌面 UIA 返回 `coordinate input geometry is unavailable` 和 `read UIA value read-only state`；截图接口还返回 `SetIsBorderRequired failed`。
+- 结论：真实打开窗口是 PASS；文件实际落盘不是 PASS。没有落盘文件，就不能继续声称导入合并或损坏文件场景已通过。
+- 证据：`test_evidence/native-memory-dialog-attempt.json`。
+
+### 类型检查状态更正
+
+- 将开发依赖固定为 `typescript@5.7.3` 后，`vue-tsc` 已能进入源码检查；修复了 `PipelinePanel.vue:88` 的模板表达式语法错误。
+- 源码检查仍因既有 `window.electronAPI` 声明缺失、旧 JS 模块声明缺失、组件接口和 store 字段债务失败；本轮不批量修改无关类型系统。
+- 结论：工具启动阻断已解决；全项目类型检查仍未核销。错误已登记在 `lessons/ERROR_LOG.md`。
+
+### 目标模式收尾判定
+
+- 已核销：源启动器构建/加载、四视图递归、本地持久化恢复、受控错误路径、聊天与正文同源请求、原生导出窗口打开。
+- 部分完成：真实供应商完整生成、真实应用超时文案、原生文件导入/导出结果、全链路客户级实测。
+- 未接入：动画/短剧板块读取记忆。
+- 不得写成“两个板块整合全部完工”；第三方交付报告已明确证据边界。

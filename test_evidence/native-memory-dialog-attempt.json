@@ -1,0 +1,24 @@
+{
+  "date": "2026-08-22",
+  "launcher": "start-electron.bat",
+  "window": "神意助手",
+  "action": "记忆面板 -> 更多 -> 导出 JSON",
+  "result": "partial",
+  "observed": {
+    "nativeWindowTitle": "导出配置",
+    "fileNameControl": true,
+    "saveButton": true,
+    "cancelButton": true,
+    "dialogOpenedByRealElectronIPC": true,
+    "fileWritten": false
+  },
+  "failure": {
+    "stage": "native filename control input",
+    "errors": [
+      "coordinate input geometry is unavailable",
+      "read UIA value read-only state: 所需属性不在 CacheRequest 中 (0x80070057)",
+      "screenshot capture: SetIsBorderRequired failed: 不支持此接口 (0x80004002)"
+    ]
+  },
+  "verdict": "原生窗口打开已证明；导出落盘、导入合并和损坏文件边界未核销"
+}
