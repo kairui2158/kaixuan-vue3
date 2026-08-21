@@ -1,0 +1,78 @@
+{
+  "base": {
+    "panel": true,
+    "projectId": "p1787324980714",
+    "entityCount": 3,
+    "historyCount": 1,
+    "visibleTabs": [
+      {
+        "text": "记忆列表",
+        "visible": true
+      },
+      {
+        "text": "关系图",
+        "visible": true
+      },
+      {
+        "text": "图谱分析",
+        "visible": true
+      },
+      {
+        "text": "思维导图",
+        "visible": true
+      },
+      {
+        "text": "时间线",
+        "visible": true
+      }
+    ],
+    "closeVisible": true
+  },
+  "views": [
+    {
+      "view": "关系图",
+      "graphContent": true,
+      "text": "关系图节点 3 · 关系 0重置沈岚蓝色戒指北境王室"
+    },
+    {
+      "view": "图谱分析",
+      "graphContent": true,
+      "text": "图谱分析节点 3 · 关系 0最核心实体北境王室0 条关系孤立实体3没有任何关系连接关系类型0已识别关系类别实体中心性北境王室0蓝色戒指0沈岚0关系检查当前没有发现孤立关系或自指关系"
+    },
+    {
+      "view": "思维导图",
+      "graphContent": true,
+      "text": "思维导图卷 1 · 事件 0全部展开全部收起+卷1"
+    },
+    {
+      "view": "时间线",
+      "graphContent": true,
+      "text": "时间线事件 0/0全部类型暂无符合条件的事件"
+    }
+  ],
+  "more": {
+    "menu": true,
+    "buttons": [
+      {
+        "id": "btn-export-memory",
+        "text": "导出 JSON",
+        "visible": true
+      },
+      {
+        "id": "btn-import-memory",
+        "text": "导入 JSON（合并）",
+        "visible": true
+      },
+      {
+        "id": "btn-import-memory-overwrite",
+        "text": "覆盖导入 JSON",
+        "visible": true
+      },
+      {
+        "id": "btn-import-character-card",
+        "text": "导入角色卡",
+        "visible": true
+      }
+    ]
+  }
+}

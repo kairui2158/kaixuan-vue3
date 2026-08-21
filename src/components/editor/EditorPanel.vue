@@ -12,6 +12,9 @@
        <div class="editor-toolbar-group">
           <button id="btn-generate-content" class="btn-sm btn-secondary" @click="generateContent">生成</button>
           <button id="btn-save-editor" class="btn-sm btn-secondary" title="Ctrl+S" @click="save">保存</button>
+          <button v-if="isBodyMode" id="btn-extract-memory" class="btn-sm btn-secondary" :disabled="memoryExtraction.loading || !activeTab?.content?.trim()" @click="extractCurrentMemory">
+            {{ memoryExtraction.loading ? '抽取中...' : '提取记忆' }}
+          </button>
         </div>
        <span class="sep"></span>
        <div class="editor-toolbar-group" style="position:relative">
@@ -90,25 +93,57 @@
           <button class="btn-sm btn-primary" @click="confirmVar">确定</button>
         </div>
       </div>
+   </div>
+    <div v-if="memoryExtraction.previewVisible" class="editor-memory-overlay" @click.self="closeMemoryPreview">
+      <section class="editor-memory-modal" role="dialog" aria-modal="true" aria-labelledby="editor-memory-title">
+        <header class="editor-memory-header"><strong id="editor-memory-title">记忆变更预览</strong><button class="modal-close" type="button" @click.stop="closeMemoryPreview">&times;</button></header>
+        <div class="editor-memory-body">
+          <p class="editor-memory-hint">正文已经保存。确认后才会写入记忆库，可逐条拒绝或锁定。</p>
+          <p v-if="memoryExtraction.loading">正在提取正文中的人物、事件、关系和世界观...</p>
+          <p v-else-if="memoryExtraction.error" class="editor-memory-error">{{ memoryExtraction.error }}</p>
+          <p v-else-if="memoryExtraction.changes.length === 0">本章没有检测到新的记忆变更。</p>
+          <ul v-else class="editor-memory-list">
+            <li v-for="(change, index) in memoryExtraction.changes" :key="index" :class="{ rejected: change.review === 'rejected', locked: change.review === 'locked' }">
+              <span>{{ change.kind }} · {{ change.name || change.id || '未命名条目' }} · {{ change.action }}</span>
+              <span class="editor-memory-actions"><button class="btn-sm btn-secondary" @click="memoryExtraction.toggleReview(index)">{{ change.review === 'rejected' ? '恢复' : '拒绝' }}</button><button class="btn-sm btn-secondary" @click="memoryExtraction.toggleLock(index)">{{ change.review === 'locked' ? '解锁' : '锁定' }}</button></span>
+            </li>
+          </ul>
+        </div>
+        <footer class="editor-memory-footer"><button class="btn-sm btn-secondary" type="button" @click="closeMemoryPreview">取消</button><button class="btn-sm btn-primary" type="button" :disabled="memoryExtraction.loading || memoryExtraction.saving || !!memoryExtraction.error" @click="memoryExtraction.confirm">确认写入记忆</button></footer>
+      </section>
     </div>
  </section>
 
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useUndoRedo } from '../../composables/useUndoRedo'
 import { useDeAi } from '../../composables/useDeAi'
 import { useEditorStore } from '../../stores/editor'
 import { useProjectStore } from '../../stores/project'
 import { useDeAiStore } from '../../stores/deai'
 import { useSettingsStore } from '../../stores/settings'
+import { useMemoryExtraction } from '../../composables/useMemoryExtraction'
+import { createAiService } from '../../services/aiService'
+import { useProviderStore } from '../../stores/provider'
+import { useExecutionLogStore } from '../../stores/executionLog'
 
 const editorStore = useEditorStore()
 const projectStore = useProjectStore()
 const deAiStore = useDeAiStore()
 const settingsStore = useSettingsStore()
+const providerStore = useProviderStore()
+const executionLogStore = useExecutionLogStore()
 const { process: deAiProcess } = useDeAi()
+const memoryExtraction = reactive(useMemoryExtraction(async (prompt, systemPrompt) => {
+  const service = createAiService(providerStore as any, executionLogStore as any)
+  // memoryExtractor owns the two-attempt JSON contract; do not add the
+  // general-purpose network retry loop here or malformed output can keep the
+  // review modal in a loading state for minutes.
+  const result = await service.callAi({ purpose: 'generate', messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: prompt }], jsonMode: true, stream: false, retry: false, meta: { source: 'EditorPanel.memory-extraction' } })
+  return result.text || null
+}))
 const editorTextarea = ref<HTMLTextAreaElement | null>(null)
 const exportMenu = ref(false)
 const undoRedo = useUndoRedo(50)
@@ -218,6 +253,18 @@ function save() {
   if (activeTab.value) {
     editorStore.markSaved(activeTab.value.id)
   }
+}
+
+async function extractCurrentMemory() {
+  const tab = activeTab.value
+  if (!tab || !tab.chapterId || !tab.content.trim()) return
+  save()
+  const index = Object.values(projectStore.chapters).flat().findIndex((item: any) => item.id === tab.chapterId)
+  await memoryExtraction.start({ id: tab.chapterId, index: Math.max(0, index), title: tab.title, content: tab.content })
+}
+
+function closeMemoryPreview() {
+  memoryExtraction.close()
 }
 
 function undo() {
@@ -792,6 +839,46 @@ function applyInlineAction(action: string, label: string) {
  .var-dialog-footer {
    display: flex; justify-content: flex-end; gap: 8px;
  }
+
+ .editor-memory-overlay {
+   position: fixed;
+   inset: 0;
+   z-index: calc(var(--z-modal, 1000) + 1);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 24px;
+   background: var(--bg-overlay, rgba(0, 0, 0, 0.58));
+ }
+ .editor-memory-modal {
+   width: min(720px, 100%);
+   max-height: min(720px, calc(100vh - 48px));
+   display: flex;
+   flex-direction: column;
+   overflow: hidden;
+   background: var(--bg-panel, var(--bg-secondary));
+   border: 1px solid var(--border-color);
+   border-radius: var(--radius-md, 8px);
+   box-shadow: var(--shadow-lg, 0 16px 44px rgba(0,0,0,.35));
+ }
+ .editor-memory-header,
+ .editor-memory-footer {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   gap: 16px;
+   padding: 16px 20px;
+ }
+ .editor-memory-header { border-bottom: 1px solid var(--border-color); }
+ .editor-memory-body { min-height: 140px; overflow: auto; padding: 16px 20px; color: var(--text-primary); }
+ .editor-memory-hint { color: var(--text-secondary); }
+ .editor-memory-error { color: var(--color-danger, #d66); }
+ .editor-memory-list { display: flex; flex-direction: column; gap: 8px; padding: 0; margin: 12px 0 0; list-style: none; }
+ .editor-memory-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm, 6px); }
+ .editor-memory-list li.rejected { opacity: .55; text-decoration: line-through; }
+ .editor-memory-list li.locked { border-color: var(--accent); }
+ .editor-memory-actions { display: flex; flex: 0 0 auto; gap: 6px; }
+ .editor-memory-footer { justify-content: flex-end; border-top: 1px solid var(--border-color); }
 </style>
 
 

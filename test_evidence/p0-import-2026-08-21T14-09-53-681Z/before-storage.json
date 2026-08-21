@@ -1,0 +1,77 @@
+{
+  "lastId": "default",
+  "data": {
+    "projectName": "未命名",
+    "outlineText": "",
+    "outlineLocked": false,
+    "bookWordCount": 0,
+    "volumesConfirmed": false,
+    "chaptersConfirmed": false,
+    "settingsGenerated": false,
+    "settings": [],
+    "volumes": [],
+    "chapters": {},
+    "settingBindings": {},
+    "settingsCollection": {
+      "categories": [],
+      "items": {}
+    },
+    "memories": {
+      "version": 1,
+      "entities": [],
+      "relations": [],
+      "events": [],
+      "world": [],
+      "foreshadowing": [],
+      "meta": {
+        "extractionCount": 0,
+        "lastExtractedAt": null,
+        "lastFullRebuildAt": null,
+        "pendingCount": 0,
+        "totals": {
+          "entities": 0,
+          "relations": 0,
+          "events": 0,
+          "world": 0,
+          "foreshadowing": 0
+        }
+      },
+      "history": [],
+      "categories": [
+        "情节",
+        "人物",
+        "世界观",
+        "伏笔"
+      ],
+      "items": []
+    },
+    "memoryBlacklist": [],
+    "outlineChat": []
+  },
+  "keys": [
+    "wa_active-profile",
+    "wa_agents",
+    "wa_app-deai-config",
+    "wa_app-settings",
+    "wa_app-theme",
+    "wa_appSettings",
+    "wa_chapters_prj_msbtqnpe_q24wr3",
+    "wa_chat_default",
+    "wa_chat_p1786951368120",
+    "wa_chat_p1787124580014",
+    "wa_chat_prj_msbtqnpe_q24wr3",
+    "wa_chat_proj-1787080239265",
+    "wa_deAiConfig",
+    "wa_diag-enabled",
+    "wa_lastProjectId",
+    "wa_lastSession",
+    "wa_pipeline_breakpoint",
+    "wa_pipeline_step_config",
+    "wa_project_default",
+    "wa_providers",
+    "wa_skills",
+    "wa_test-key",
+    "wa__test_save_tracking",
+    "_test_key"
+  ]
+}

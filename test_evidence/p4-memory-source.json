@@ -1,0 +1,75 @@
+{
+  "projectId": "p1787324980714",
+  "memoryNames": [
+    "沈岚",
+    "蓝色戒指",
+    "北境王室"
+  ],
+  "pipelineDom": {
+    "panel": true,
+    "bodyButton": true,
+    "bodyDisabled": false,
+    "text": "生成流水线缩小执行日志流程视图×1大纲2设定3卷纲4章节5正文AI工具:AI起名写作规则时间线批量审阅章节修订翻译风格转换重新生成按指令修改大纲本层智能体:不使用智能体凯旋写作Agent白虎新智能体新智能体Skill模式:并行串行Skill:无凯旋写作师 Skill 1凯旋写作师 Skill 2凯旋写作师 Skill 3大纲SKILL 1大纲SKILL 2设定层SKILL设定SKILL 2卷纲SKILL 1卷纲SKILL 2章节SKILL 1章节SKILL 2卷纲SKILL 3卷纲SKILL 4章节SKILL 3章节SKILL 4白虎SKILL A白虎SKILL B新技能+全书字数（万字）：确认字数并进入下一步设定创作风格待 AI 分析展开叙事风格+剧情节奏叙事速度慢热均衡快节奏紧张度3/5信息密度稀疏均衡密集视角风格第一人称第三人称限知第三人称全知情感基调暗黑温暖苦涩热血悲壮恢复AI建议本层智能体:不使用智能体凯旋写作Agent白虎新智能体新智能体Skill模式:并行串行Skill:无凯旋写作师 Skill 1凯旋写作师 Skill 2凯旋写作师 Skill 3大纲SKILL 1大纲SKILL 2设定层SKILL设定SKILL 2卷纲SKILL 1卷纲SKILL 2章节SKILL 1章节SKILL 2卷纲SKILL 3卷纲SKILL 4章节SKILL 3章节SKILL 4白虎SKILL A白虎SKILL B新技能+设定分类设定类+ 新增分类当前分类设定类0 项设定该分类还没有设定内容+ 该类新增一键绑定到全局确认该类AI设定生成 / 解析大纲确认/保存设定层卷纲本层智能体:不使用智能体凯旋写作Agent白虎新智能体新智能体Skill模式:并行串行Skill:无凯旋写作师 Skill 1凯旋写作师 Skill 2凯旋写作师 Skill 3大纲SKILL 1大纲SKILL 2设定层SKILL设定SKILL 2卷纲SKILL 1卷纲SKILL 2章节SKILL 1章节SKILL 2卷纲SKILL 3卷纲SKILL 4章节SKILL 3章节SKILL 4白虎SKILL A白虎SKILL B新技能+每卷字数卷数? 字保存并锁定本卷删除本卷AI生成全卷逐卷生成确认完成下一步章节本层智能体:不使用智能体凯旋写作Agent白虎新智能体新智能体Skill模式:并行串行Skill:无凯旋写作师 Skill 1凯旋写作师 Skill 2凯旋写作师 Skill 3大纲SKILL 1大纲SKILL 2设定层SKILL设定SKILL 2卷纲SKILL 1卷纲SKILL 2章节SKILL 1章节SKILL 2卷纲SKILL 3卷纲SKILL 4章节SKILL 3章节SKILL 4白虎SKILL A白虎SKILL B新技能+1章节SKILL 1默认凯旋写作Agent白虎新智能体新智能体×每章字数填写后自动锁定选择卷预计章数29暂无已锁定卷纲，请先在卷纲层保存并锁定本卷AI生成章节自动生成章节确认完成正文本层智能体:不使用智能体凯旋写作Agent白虎新智能体新智能体Skill模式:并行串行Skill:无凯旋写作师 Skill 1凯旋写作师 Skill 2凯旋写作师 Skill 3大纲SKILL 1大纲SKILL 2设定层SKILL设定SKILL 2卷纲SKILL 1卷纲SKILL "
+  },
+  "captured": {
+    "chat": [
+      {
+        "url": "https://openapi.cloud-ai.cn/v1/chat/completions",
+        "model": "deepseek-v4-pro",
+        "messages": [
+          {
+            "role": "system",
+            "content": "你是写作助手。\n\n---\n\n相关记忆：\n当前相关人物与实体：\n- 沈岚；青石城的守门人，知道戒指属于北境王室。\n- 蓝色戒指；一枚蓝色戒指，属于北境王室。\n- 北境王室；蓝色戒指的归属者，暗示存在北境王室势力。"
+          },
+          {
+            "role": "assistant",
+            "content": "回归测试回复内容"
+          },
+          {
+            "role": "user",
+            "content": "请结合沈岚说明他的身份。"
+          },
+          {
+            "role": "user",
+            "content": "请结合沈岚说明他的身份。"
+          }
+        ],
+        "hasMemoryMarker": false,
+        "memoryNames": [
+          "沈岚",
+          "蓝色戒指",
+          "北境王室"
+        ]
+      }
+    ],
+    "pipeline": [
+      {
+        "url": "https://openapi.cloud-ai.cn/v1/chat/completions",
+        "model": "deepseek-v4-pro",
+        "messages": [
+          {
+            "role": "system",
+            "content": "你是专业小说创作助手。"
+          },
+          {
+            "role": "user",
+            "content": "[全书大纲]\n# 第一卷\n\n## 第一章 记忆验证\n林澈在青石城找到一枚蓝色戒指，守门人沈岚告诉他这枚戒指属于北境王室。\n\n[设定摘要]\n\n\n[当前卷概要]\n卷1 - \n\n[当前章节剧情点]\n记忆验证 - \n\n请为本章节生成约3500字的正文内容。\n\n[相关记忆]\n当前相关人物与实体：\n- 沈岚；青石城的守门人，知道戒指属于北境王室。\n- 蓝色戒指；一枚蓝色戒指，属于北境王室。\n- 北境王室；蓝色戒指的归属者，暗示存在北境王室势力。"
+          }
+        ],
+        "hasMemoryMarker": true,
+        "memoryNames": [
+          "沈岚",
+          "蓝色戒指",
+          "北境王室"
+        ]
+      }
+    ]
+  },
+  "chatPass": false,
+  "pipelinePass": true,
+  "sameSourceNames": [
+    "沈岚",
+    "蓝色戒指",
+    "北境王室"
+  ]
+}

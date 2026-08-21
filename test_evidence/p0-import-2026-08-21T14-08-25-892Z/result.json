@@ -1,0 +1,48 @@
+{
+  "stamp": "2026-08-21T14-08-25-892Z",
+  "evidenceDir": "D:\\codex\\novel-workshop-vue3\\test_evidence\\p0-import-2026-08-21T14-08-25-892Z",
+  "steps": [
+    {
+      "name": "当前项目存储快照存在",
+      "pass": true,
+      "actual": {
+        "lastId": "default",
+        "hasData": true
+      },
+      "expected": "lastId 和项目数据均存在"
+    },
+    {
+      "name": "CDP 文件读取替身注入",
+      "pass": true,
+      "actual": {
+        "openType": "function",
+        "readType": "function"
+      },
+      "expected": "两个函数可调用"
+    },
+    {
+      "name": "记忆面板打开",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "导入菜单显示合并与覆盖入口",
+      "pass": [],
+      "actual": [
+        "导出 JSON",
+        "导入 JSON（合并）",
+        "覆盖导入 JSON",
+        "导入角色卡"
+      ]
+    }
+  ],
+  "dialogs": [],
+  "errors": [
+    {
+      "name": "script",
+      "message": "page.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#btn-import-memory')\u001b[22m\n",
+      "stack": "page.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#btn-import-memory')\u001b[22m\n\n    at D:\\codex\\novel-workshop-vue3\\scripts\\tmp-p0-cdp-import.cjs:66:14"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "stamp": "2026-08-21T14-06-46-039Z",
+  "evidenceDir": "D:\\codex\\novel-workshop-vue3\\test_evidence\\p0-import-2026-08-21T14-06-46-039Z",
+  "steps": [
+    {
+      "name": "当前项目存储快照存在",
+      "pass": true,
+      "actual": {
+        "lastId": "default",
+        "hasData": true
+      },
+      "expected": "lastId 和项目数据均存在"
+    },
+    {
+      "name": "CDP 文件读取替身注入",
+      "pass": true,
+      "actual": {
+        "openType": "function",
+        "readType": "function"
+      },
+      "expected": "两个函数可调用"
+    }
+  ],
+  "dialogs": [],
+  "errors": [
+    {
+      "name": "script",
+      "message": "page.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#btn-memory')\u001b[22m\n\u001b[2m    - locator resolved to <button tabindex=\"0\" id=\"btn-memory\" aria-label=\"记忆\" data-tooltip=\"记忆\" data-v-b1ebd700=\"\" class=\"sidebar-btn active\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div data-v-a531ec4d=\"\" id=\"panel-backdrop\" class=\"panel-backdrop\"></div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div data-v-a531ec4d=\"\" id=\"panel-backdrop\" class=\"panel-backdrop\"></div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    56 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div data-v-a531ec4d=\"\" id=\"panel-backdrop\" class=\"panel-backdrop\"></div> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+      "stack": "page.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#btn-memory')\u001b[22m\n\u001b[2m    - locator resolved to <button tabindex=\"0\" id=\"btn-memory\" aria-label=\"记忆\" data-tooltip=\"记忆\" data-v-b1ebd700=\"\" class=\"sidebar-btn active\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div data-v-a531ec4d=\"\" id=\"panel-backdrop\" class=\"panel-backdrop\"></div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div data-v-a531ec4d=\"\" id=\"panel-backdrop\" class=\"panel-backdrop\"></div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    56 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div data-v-a531ec4d=\"\" id=\"panel-backdrop\" class=\"panel-backdrop\"></div> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at D:\\codex\\novel-workshop-vue3\\scripts\\tmp-p0-cdp-import.cjs:55:14"
+    }
+  ]
+}

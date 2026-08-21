@@ -1,0 +1,54 @@
+{
+  "saved": {
+    "id": "p1787324980714",
+    "savedBody": "林澈在青石城找到一枚蓝色戒指。守门人沈岚告诉他，这枚戒指属于北境王室。",
+    "chapterId": "ch_1787324980715_0_1"
+  },
+  "extractVisible": true,
+  "extractDisabled": false,
+  "requests": [
+    {
+      "url": "https://openapi.cloud-ai.cn/v1/chat/completions",
+      "postData": "{\"model\":\"deepseek-v4-pro\",\"messages\":[{\"role\":\"system\",\"content\":\"你是小说记忆抽取器。只返回合法 JSON，不要 Markdown、解释或额外文字。\"},{\"role\":\"user\",\"content\":\"请从下面第 0 章（chapterId: ch_1787324980715_0_1）正文中提取可长期复用的小说记忆。\\n\\n要求：\\n1. 只保留正文明确出现或明确推断的内容，不要臆造。\\n2. 每个条目必须有 evidence 数组，数组至少一项；每项包含 chapterId（必须填 ch_1787324980715_0_1）和正文原文 snippet。\\n3. 没有内容的类别返回空数组。\\n4. 返回对象必须包含 entities、relations、events、world、foreshadowing 五个数组。\\n\\nJSON 结构示例：\\n{\\n  \\\"entities\\\": [{\\\"name\\\":\\\"角色名\\\",\\\"type\\\":\\\"character\\\",\\\"description\\\":\\\"...\\\",\\\"evidence\\\":[{\\\"chapterId\\\":\\\"ch_1787324980715_0_1\\\",\\\"snippet\\\":\\\"原文片段\\\"}]}],\\n  \\\"relations\\\": [],\\n  \\\"events\\\": [],\\n  \\\"world\\\": [],\\n  \\\"foreshadowing\\\": []\\n}\\n\\n章节标题：记忆验证\\n章节正文：\\n林澈在青石城找到一枚蓝色戒指。守门人沈岚告诉他，这枚戒指属于北境王室。\"}],\"stream\":false,\"temperature\":0.7,\"max_tokens\":8192}"
+    },
+    {
+      "url": "https://openapi.cloud-ai.cn/v1/chat/completions",
+      "postData": "{\"model\":\"deepseek-v4-pro\",\"messages\":[{\"role\":\"system\",\"content\":\"你是小说记忆抽取器。只返回合法 JSON，不要 Markdown、解释或额外文字。\"},{\"role\":\"user\",\"content\":\"请从下面第 0 章（chapterId: ch_1787324980715_0_1）正文中提取可长期复用的小说记忆。\\n上次输出无法解析。请重新输出严格合法的 JSON，不要使用 Markdown 代码围栏。\\n\\n要求：\\n1. 只保留正文明确出现或明确推断的内容，不要臆造。\\n2. 每个条目必须有 evidence 数组，数组至少一项；每项包含 chapterId（必须填 ch_1787324980715_0_1）和正文原文 snippet。\\n3. 没有内容的类别返回空数组。\\n4. 返回对象必须包含 entities、relations、events、world、foreshadowing 五个数组。\\n\\nJSON 结构示例：\\n{\\n  \\\"entities\\\": [{\\\"name\\\":\\\"角色名\\\",\\\"type\\\":\\\"character\\\",\\\"description\\\":\\\"...\\\",\\\"evidence\\\":[{\\\"chapterId\\\":\\\"ch_1787324980715_0_1\\\",\\\"snippet\\\":\\\"原文片段\\\"}]}],\\n  \\\"relations\\\": [],\\n  \\\"events\\\": [],\\n  \\\"world\\\": [],\\n  \\\"foreshadowing\\\": []\\n}\\n\\n章节标题：记忆验证\\n章节正文：\\n林澈在青石城找到一枚蓝色戒指。守门人沈岚告诉他，这枚戒指属于北境王室。\"}],\"stream\":false,\"temperature\":0.7,\"max_tokens\":8192}"
+    }
+  ],
+  "result": {
+    "bodySaved": true,
+    "overlayVisible": true,
+    "overlayText": "记忆变更预览×正文已经保存。确认后才会写入记忆库，可逐条拒绝或锁定。正在提取正文中的人物、事件、关系和世界观...取消确认写入记忆",
+    "memory": {
+      "version": 1,
+      "entities": [],
+      "relations": [],
+      "events": [],
+      "world": [],
+      "foreshadowing": [],
+      "meta": {
+        "extractionCount": 0,
+        "lastExtractedAt": null,
+        "lastFullRebuildAt": null,
+        "pendingCount": 0,
+        "totals": {
+          "entities": 0,
+          "relations": 0,
+          "events": 0,
+          "world": 0,
+          "foreshadowing": 0
+        }
+      },
+      "history": [],
+      "categories": [
+        "情节",
+        "人物",
+        "世界观",
+        "伏笔"
+      ],
+      "items": []
+    },
+    "editorMode": null
+  }
+}

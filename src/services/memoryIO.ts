@@ -15,12 +15,18 @@ import type { MemoryData, MemoryEntity } from '../types/memory'
    memory: MemoryData
  }
  
- export interface ImportResult {
-   success: boolean
-   error?: string
-   memory?: MemoryData
-   entity?: MemoryEntity
- }
+export interface ImportResult {
+  success: boolean
+  error?: string
+  memory?: MemoryData
+  entity?: MemoryEntity
+}
+
+export interface MemoryImportMergeResult {
+  memory: MemoryData
+  added: number
+  skipped: number
+}
  
  // ---- 全量导出 ----
  
@@ -37,45 +43,96 @@ import type { MemoryData, MemoryEntity } from '../types/memory'
  
  // ---- 全量导入 ----
  
- export function importFullJSON(raw: string): ImportResult {
-   try {
-     const parsed = JSON.parse(raw)
- 
-     // 支持包装格式和裸 MemoryData
-     let memory: MemoryData
-     if (parsed && typeof parsed === 'object' && parsed.format === 'shenyi-memory' && parsed.memory) {
-       memory = parsed.memory
-     } else if (parsed && typeof parsed === 'object' && 'entities' in parsed) {
-       memory = parsed
-     } else {
-       return { success: false, error: '无法识别的记忆数据格式：缺少 memory 字段或 entities 数组' }
-     }
- 
-     // 校验核心字段
-     if (!Array.isArray(memory.entities)) {
-       return { success: false, error: '记忆数据格式无效：entities 必须是数组' }
-     }
-     if (!Array.isArray(memory.relations)) {
-       return { success: false, error: '记忆数据格式无效：relations 必须是数组' }
-     }
-     if (!Array.isArray(memory.events)) {
-       return { success: false, error: '记忆数据格式无效：events 必须是数组' }
-     }
-     if (!Array.isArray(memory.world)) {
-       return { success: false, error: '记忆数据格式无效：world 必须是数组' }
-     }
-     if (!Array.isArray(memory.foreshadowing)) {
-       return { success: false, error: '记忆数据格式无效：foreshadowing 必须是数组' }
-     }
- 
-     // 补齐缺失字段
-     const normalized = normalizeMemoryData(memory)
- 
-     return { success: true, memory: normalized }
-   } catch (e) {
-     return { success: false, error: `JSON 解析失败：${e instanceof Error ? e.message : '未知错误'}` }
-   }
- }
+export function importFullJSON(raw: string): ImportResult {
+  try {
+    const parsed = JSON.parse(raw)
+
+    // 支持包装格式和裸 MemoryData
+    let memory: MemoryData
+    if (parsed && typeof parsed === 'object' && parsed.format === 'shenyi-memory' && parsed.memory) {
+      memory = parsed.memory
+    } else if (parsed && typeof parsed === 'object' && 'entities' in parsed) {
+      memory = parsed
+    } else {
+      return { success: false, error: '无法识别的记忆数据格式：缺少 memory 字段或 entities 数组' }
+    }
+
+    // 校验核心字段
+    if (!Array.isArray(memory.entities)) return { success: false, error: '记忆数据格式无效：entities 必须是数组' }
+    if (!Array.isArray(memory.relations)) return { success: false, error: '记忆数据格式无效：relations 必须是数组' }
+    if (!Array.isArray(memory.events)) return { success: false, error: '记忆数据格式无效：events 必须是数组' }
+    if (!Array.isArray(memory.world)) return { success: false, error: '记忆数据格式无效：world 必须是数组' }
+    if (!Array.isArray(memory.foreshadowing)) return { success: false, error: '记忆数据格式无效：foreshadowing 必须是数组' }
+
+    return { success: true, memory: normalizeMemoryData(memory) }
+  } catch (e) {
+    return { success: false, error: `JSON 解析失败：${e instanceof Error ? e.message : '未知错误'}` }
+  }
+}
+
+/**
+ * 合并完整记忆快照。导入不是正文抽取，不应伪造章节证据或递增抽取计数。
+ * 已存在的条目保留当前项目版本，新条目才追加；调用方负责记录项目变更历史。
+ */
+export function mergeImportedMemory(current: MemoryData, incoming: MemoryData): MemoryImportMergeResult {
+  const memory = JSON.parse(JSON.stringify(current)) as MemoryData
+  const source = JSON.parse(JSON.stringify(incoming)) as MemoryData
+  let added = 0
+  let skipped = 0
+
+  const normalized = (value: unknown) => typeof value === 'string' ? value.trim().toLocaleLowerCase() : ''
+  const key = (prefix: string, value: unknown) => {
+    const normalizedValue = normalized(value)
+    return normalizedValue ? `${prefix}:${normalizedValue}` : ''
+  }
+  const appendUnique = <T>(target: T[], values: T[], keysOf: (value: T) => string[]) => {
+    const keys = new Set(target.flatMap(keysOf).filter(Boolean))
+    for (const value of values) {
+      const valueKeys = keysOf(value).filter(Boolean)
+      if (valueKeys.length === 0 || valueKeys.some(key => keys.has(key))) {
+        skipped += 1
+        continue
+      }
+      target.push(value)
+      valueKeys.forEach(key => keys.add(key))
+      added += 1
+    }
+  }
+
+  appendUnique(memory.entities, source.entities, value => {
+    const item = value as MemoryEntity
+    return [key('id', item.id), key('name', item.name)]
+  })
+  appendUnique(memory.relations, source.relations, value => {
+    const item = value as MemoryData['relations'][number]
+    return [key('id', item.id), key('link', `${normalized(item.sourceId)}|${normalized(item.targetId)}|${normalized(item.type)}`)]
+  })
+  appendUnique(memory.events, source.events, value => {
+    const item = value as MemoryData['events'][number]
+    return [key('id', item.id), key('event', `${normalized(item.chapterId)}|${normalized(item.title)}`)]
+  })
+  appendUnique(memory.world, source.world, value => {
+    const item = value as MemoryData['world'][number]
+    return [key('id', item.id), key('name', item.name)]
+  })
+  appendUnique(memory.foreshadowing, source.foreshadowing, value => {
+    const item = value as MemoryData['foreshadowing'][number]
+    return [key('id', item.id), key('title', item.title)]
+  })
+  memory.categories = [...new Set([...(memory.categories || []), ...(source.categories || [])])]
+  appendUnique(memory.items, source.items, value => {
+    const item = value as MemoryData['items'][number]
+    return [key('item', `${normalized(item.category)}|${normalized(item.key)}`)]
+  })
+  memory.meta.totals = {
+    entities: memory.entities.length,
+    relations: memory.relations.length,
+    events: memory.events.length,
+    world: memory.world.length,
+    foreshadowing: memory.foreshadowing.length
+  }
+  return { memory, added, skipped }
+}
  
  function normalizeMemoryData(raw: any): MemoryData {
    const base = {

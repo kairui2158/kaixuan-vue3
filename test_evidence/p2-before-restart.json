@@ -1,0 +1,280 @@
+{
+  "id": "p1787324980714",
+  "projectName": null,
+  "body": "林澈在青石城找到一枚蓝色戒指。守门人沈岚告诉他，这枚戒指属于北境王室。",
+  "memories": {
+    "version": 1,
+    "entities": [
+      {
+        "id": "ent_沈岚_1787326346532",
+        "name": "沈岚",
+        "type": "character",
+        "aliases": [],
+        "firstAppearance": "ch_1787324980715_0_1",
+        "lastAppearance": "ch_1787324980715_0_1",
+        "appearances": [],
+        "description": "青石城的守门人，知道戒指属于北境王室。",
+        "personality": "",
+        "appearance": "",
+        "background": "",
+        "status": "",
+        "possessions": [],
+        "skills": [],
+        "relationships": [],
+        "notes": "",
+        "lockedFields": [
+          "description",
+          "status",
+          "notes"
+        ],
+        "evidence": [
+          {
+            "chapterId": "ch_1787324980715_0_1",
+            "snippet": "守门人沈岚告诉他，这枚戒指属于北境王室。"
+          }
+        ],
+        "createdAt": "2026-08-21T15:32:26.532Z",
+        "updatedAt": "2026-08-21T15:32:26.532Z"
+      },
+      {
+        "id": "ent_蓝色戒指_1787326346532",
+        "name": "蓝色戒指",
+        "type": "item",
+        "aliases": [],
+        "firstAppearance": "ch_1787324980715_0_1",
+        "lastAppearance": "ch_1787324980715_0_1",
+        "appearances": [],
+        "description": "一枚蓝色戒指，属于北境王室。",
+        "personality": "",
+        "appearance": "",
+        "background": "",
+        "status": "",
+        "possessions": [],
+        "skills": [],
+        "relationships": [],
+        "notes": "",
+        "lockedFields": [],
+        "evidence": [
+          {
+            "chapterId": "ch_1787324980715_0_1",
+            "snippet": "林澈在青石城找到一枚蓝色戒指。"
+          },
+          {
+            "chapterId": "ch_1787324980715_0_1",
+            "snippet": "这枚戒指属于北境王室。"
+          }
+        ],
+        "createdAt": "2026-08-21T15:32:26.532Z",
+        "updatedAt": "2026-08-21T15:32:26.532Z"
+      },
+      {
+        "id": "ent_北境王室_1787326346532",
+        "name": "北境王室",
+        "type": "organization",
+        "aliases": [],
+        "firstAppearance": "ch_1787324980715_0_1",
+        "lastAppearance": "ch_1787324980715_0_1",
+        "appearances": [],
+        "description": "蓝色戒指的归属者，暗示存在北境王室势力。",
+        "personality": "",
+        "appearance": "",
+        "background": "",
+        "status": "",
+        "possessions": [],
+        "skills": [],
+        "relationships": [],
+        "notes": "",
+        "lockedFields": [],
+        "evidence": [
+          {
+            "chapterId": "ch_1787324980715_0_1",
+            "snippet": "这枚戒指属于北境王室。"
+          }
+        ],
+        "createdAt": "2026-08-21T15:32:26.532Z",
+        "updatedAt": "2026-08-21T15:32:26.532Z"
+      }
+    ],
+    "relations": [],
+    "events": [],
+    "world": [],
+    "foreshadowing": [],
+    "meta": {
+      "extractionCount": 1,
+      "lastExtractedAt": "2026-08-21T15:32:26.532Z",
+      "lastFullRebuildAt": null,
+      "pendingCount": 0,
+      "totals": {
+        "entities": 3,
+        "relations": 0,
+        "events": 0,
+        "world": 0,
+        "foreshadowing": 0
+      }
+    },
+    "history": [
+      {
+        "id": "memv_1787326346532_fpl7fh",
+        "chapterId": "ch_1787324980715_0_1",
+        "chapterIndex": 0,
+        "timestamp": "2026-08-21T15:32:26.532Z",
+        "reason": "确认正文后写入记忆：记忆验证",
+        "before": {
+          "version": 1,
+          "entities": [],
+          "relations": [],
+          "events": [],
+          "world": [],
+          "foreshadowing": [],
+          "meta": {
+            "extractionCount": 0,
+            "lastExtractedAt": null,
+            "lastFullRebuildAt": null,
+            "pendingCount": 0,
+            "totals": {
+              "entities": 0,
+              "relations": 0,
+              "events": 0,
+              "world": 0,
+              "foreshadowing": 0
+            }
+          },
+          "categories": [
+            "情节",
+            "人物",
+            "世界观",
+            "伏笔"
+          ],
+          "items": []
+        },
+        "after": {
+          "version": 1,
+          "entities": [
+            {
+              "id": "ent_沈岚_1787326346532",
+              "name": "沈岚",
+              "type": "character",
+              "aliases": [],
+              "firstAppearance": "ch_1787324980715_0_1",
+              "lastAppearance": "ch_1787324980715_0_1",
+              "appearances": [],
+              "description": "青石城的守门人，知道戒指属于北境王室。",
+              "personality": "",
+              "appearance": "",
+              "background": "",
+              "status": "",
+              "possessions": [],
+              "skills": [],
+              "relationships": [],
+              "notes": "",
+              "lockedFields": [
+                "description",
+                "status",
+                "notes"
+              ],
+              "evidence": [
+                {
+                  "chapterId": "ch_1787324980715_0_1",
+                  "snippet": "守门人沈岚告诉他，这枚戒指属于北境王室。"
+                }
+              ],
+              "createdAt": "2026-08-21T15:32:26.532Z",
+              "updatedAt": "2026-08-21T15:32:26.532Z"
+            },
+            {
+              "id": "ent_蓝色戒指_1787326346532",
+              "name": "蓝色戒指",
+              "type": "item",
+              "aliases": [],
+              "firstAppearance": "ch_1787324980715_0_1",
+              "lastAppearance": "ch_1787324980715_0_1",
+              "appearances": [],
+              "description": "一枚蓝色戒指，属于北境王室。",
+              "personality": "",
+              "appearance": "",
+              "background": "",
+              "status": "",
+              "possessions": [],
+              "skills": [],
+              "relationships": [],
+              "notes": "",
+              "lockedFields": [],
+              "evidence": [
+                {
+                  "chapterId": "ch_1787324980715_0_1",
+                  "snippet": "林澈在青石城找到一枚蓝色戒指。"
+                },
+                {
+                  "chapterId": "ch_1787324980715_0_1",
+                  "snippet": "这枚戒指属于北境王室。"
+                }
+              ],
+              "createdAt": "2026-08-21T15:32:26.532Z",
+              "updatedAt": "2026-08-21T15:32:26.532Z"
+            },
+            {
+              "id": "ent_北境王室_1787326346532",
+              "name": "北境王室",
+              "type": "organization",
+              "aliases": [],
+              "firstAppearance": "ch_1787324980715_0_1",
+              "lastAppearance": "ch_1787324980715_0_1",
+              "appearances": [],
+              "description": "蓝色戒指的归属者，暗示存在北境王室势力。",
+              "personality": "",
+              "appearance": "",
+              "background": "",
+              "status": "",
+              "possessions": [],
+              "skills": [],
+              "relationships": [],
+              "notes": "",
+              "lockedFields": [],
+              "evidence": [
+                {
+                  "chapterId": "ch_1787324980715_0_1",
+                  "snippet": "这枚戒指属于北境王室。"
+                }
+              ],
+              "createdAt": "2026-08-21T15:32:26.532Z",
+              "updatedAt": "2026-08-21T15:32:26.532Z"
+            }
+          ],
+          "relations": [],
+          "events": [],
+          "world": [],
+          "foreshadowing": [],
+          "meta": {
+            "extractionCount": 1,
+            "lastExtractedAt": "2026-08-21T15:32:26.532Z",
+            "lastFullRebuildAt": null,
+            "pendingCount": 0,
+            "totals": {
+              "entities": 3,
+              "relations": 0,
+              "events": 0,
+              "world": 0,
+              "foreshadowing": 0
+            }
+          },
+          "categories": [
+            "情节",
+            "人物",
+            "世界观",
+            "伏笔"
+          ],
+          "items": []
+        }
+      }
+    ],
+    "categories": [
+      "情节",
+      "人物",
+      "世界观",
+      "伏笔"
+    ],
+    "items": []
+  },
+  "treeChapterCount": 1,
+  "memoryPanelOpen": false
+}

@@ -15,7 +15,8 @@
           <button class="mem-more-btn" @click="showMoreMenu = !showMoreMenu">更多 ▾</button>
           <div class="mem-more-dropdown" v-if="showMoreMenu">
             <button id="btn-export-memory" @click="showMoreMenu=false; exportMemory()">导出 JSON</button>
-            <button id="btn-import-memory" @click="showMoreMenu=false; importMemory()">导入 JSON</button>
+            <button id="btn-import-memory" @click="showMoreMenu=false; importMemory('merge')">导入 JSON（合并）</button>
+            <button id="btn-import-memory-overwrite" @click="showMoreMenu=false; importMemory('replace')">覆盖导入 JSON</button>
             <button id="btn-import-character-card" @click="showMoreMenu=false; importCharacterCard()">导入角色卡</button>
           </div>
         </div>
@@ -115,7 +116,7 @@ import GraphAnalysis from '../memory/GraphAnalysis.vue'
 import MindMap from '../memory/MindMap.vue'
 import TimelineView from '../memory/TimelineView.vue'
 import CharacterCard from '../memory/CharacterCard.vue'
-import { exportFullJSON, importFullJSON, exportCharacterCardV3, importCharacterCardV3 } from '../../services/memoryIO'
+import { exportFullJSON, importFullJSON, mergeImportedMemory, importCharacterCardV3 } from '../../services/memoryIO'
 
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
@@ -263,7 +264,7 @@ function exportMemory() {
   alert(ok ? '记忆导出成功：' + filePath : '记忆导出失败')
 }
 
-function importMemory() {
+function importMemory(mode: 'merge' | 'replace' = 'merge') {
   const path = window.electronAPI.dialogOpenFile()
   if (!path) return
   const read = window.electronAPI.dialogReadFile(path)
@@ -276,10 +277,22 @@ function importMemory() {
     alert('导入失败：' + (result.error || '未知错误'))
     return
   }
-  if (!confirm('导入将覆盖当前记忆数据，确认继续？')) return
-  projectStore.memories = result.memory
-  projectStore.saveProject()
-  alert('记忆导入成功')
+  if (mode === 'replace') {
+    if (!confirm('覆盖导入会删除当前项目已有记忆，只保留文件内容。确认覆盖？')) return
+    projectStore.recordMemoryChange(result.memory, {
+      chapterId: 'memory-import-replace',
+      reason: '用户主动选择覆盖导入记忆'
+    })
+    alert('记忆覆盖导入成功')
+    return
+  }
+  if (!confirm('导入将合并到当前记忆，已有条目不会被覆盖。确认继续？')) return
+  const merged = mergeImportedMemory(projectStore.memories, result.memory)
+  projectStore.recordMemoryChange(merged.memory, {
+    chapterId: 'memory-import-merge',
+    reason: `合并导入记忆：新增 ${merged.added} 项，跳过 ${merged.skipped} 项`
+  })
+  alert(`记忆合并导入成功：新增 ${merged.added} 项，跳过 ${merged.skipped} 项`)
 }
 
 function importCharacterCard() {

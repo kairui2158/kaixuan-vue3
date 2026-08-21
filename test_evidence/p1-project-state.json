@@ -1,0 +1,73 @@
+{
+  "id": "p1787324980714",
+  "project": {
+    "projectName": "P1隔离验收项目",
+    "outlineText": "# 第一卷\n\n## 第一章 记忆验证\n林澈在青石城找到一枚蓝色戒指，守门人沈岚告诉他这枚戒指属于北境王室。",
+    "outlineLocked": false,
+    "bookWordCount": 0,
+    "volumesConfirmed": false,
+    "chaptersConfirmed": false,
+    "settingsGenerated": false,
+    "settings": [],
+    "volumes": [
+      {
+        "id": "vol_1787324980714_1",
+        "name": "卷1",
+        "outline": "",
+        "summary": "",
+        "suggestedWords": 0,
+        "confirmed": false,
+        "locked": false
+      }
+    ],
+    "chapters": {
+      "vol_1787324980714_1": [
+        {
+          "id": "ch_1787324980715_0_1",
+          "title": "记忆验证",
+          "plot": "",
+          "wordCount": 0,
+          "confirm": false,
+          "body": "",
+          "bodyGenerated": false
+        }
+      ]
+    },
+    "settingBindings": {},
+    "settingsCollection": {
+      "categories": [],
+      "items": {}
+    },
+    "memories": {
+      "version": 1,
+      "entities": [],
+      "relations": [],
+      "events": [],
+      "world": [],
+      "foreshadowing": [],
+      "meta": {
+        "extractionCount": 0,
+        "lastExtractedAt": null,
+        "lastFullRebuildAt": null,
+        "pendingCount": 0,
+        "totals": {
+          "entities": 0,
+          "relations": 0,
+          "events": 0,
+          "world": 0,
+          "foreshadowing": 0
+        }
+      },
+      "history": [],
+      "categories": [
+        "情节",
+        "人物",
+        "世界观",
+        "伏笔"
+      ],
+      "items": []
+    },
+    "memoryBlacklist": [],
+    "outlineChat": []
+  }
+}
