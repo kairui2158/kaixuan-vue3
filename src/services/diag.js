@@ -73,6 +73,15 @@ function _push(level, cat, msg, detail) {
     traceId: _currentTraceId,
     userAction: _currentUserAction
   };
+  // Spread detail fields to top-level for UI access (providerId, purpose, model, durationMs)
+  if (detail && typeof detail === "object" && !Array.isArray(detail)) {
+    var keys = Object.keys(detail);
+    for (var k = 0; k < keys.length; k++) {
+      if (keys[k] === "providerId" || keys[k] === "purpose" || keys[k] === "model" || keys[k] === "durationMs") {
+        entry[keys[k]] = detail[keys[k]];
+      }
+    }
+  }
 
   // Delegate to electron-log (console already covered by Object.assign in main.ts)
   try {

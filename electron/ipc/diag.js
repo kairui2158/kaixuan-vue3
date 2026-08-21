@@ -75,6 +75,17 @@ function _buildMeta() {
 }
 
 function registerDiagHandlers() {
+  // diag:refresh: re-read logs from file and return to renderer
+  ipcMain.handle('diag:refresh', async function() {
+    try {
+      var entries = _readElectronLog()
+      var oldEntries = _readOldFormatLogs()
+      return oldEntries.concat(entries)
+    } catch (e) {
+      return []
+    }
+  })
+
   // diag:write: renderer forwards logs to main for file persistence
   ipcMain.on('diag:write', function(event, entries) {
     try {

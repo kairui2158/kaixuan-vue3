@@ -8,6 +8,8 @@ export interface ExecLogEntry {
   stepName: string;
   mode: string;
   skillNames: string[];
+  providerId?: string;
+  model?: string;
   prompt: string;
   result: string;
   duration: number;

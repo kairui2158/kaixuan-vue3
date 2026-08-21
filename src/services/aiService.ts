@@ -211,6 +211,8 @@ export interface DiagnosticLogLike {
     stepName: string
     mode: string
     skillNames: string[]
+    providerId?: string
+    model?: string
     prompt: string
     result: string
     duration: number
@@ -223,6 +225,8 @@ function logRequest(
   params: {
     step?: number
     purpose: ProviderPurpose
+    providerId?: string
+    model?: string
     prompt: string
     result: string
     durationMs: number
@@ -231,16 +235,30 @@ function logRequest(
   }
 ) {
   if (!logger) return
+
   logger.addLog({
     step: params.step ?? -1,
     stepName: params.purpose,
     mode: params.skillId || 'default',
     skillNames: params.skillId ? [params.skillId] : [],
+    providerId: params.providerId || '',
+    model: params.model || '',
     prompt: params.prompt.slice(0, 500),
     result: params.result.slice(0, 500),
     duration: params.durationMs,
     status: params.success ? 'success' : 'failed',
   })
+ // Push to DiagLogger for real-time DiagLogPanel display (single write path)
+  const _diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+  if (_diag && typeof _diag.log === 'function') {
+    _diag.log(params.success ? 'info' : 'error', 'ai-service',
+      'AI call: purpose=' + params.purpose + ' provider=' + (params.providerId || '?') + ' model=' + (params.model || '?') + ' ' + params.durationMs + 'ms ' + (params.success ? 'OK' : 'FAIL'),
+      { providerId: params.providerId, purpose: params.purpose, model: params.model, durationMs: params.durationMs, skillId: params.skillId, result: params.result.slice(0, 300) }
+    )
+    if (typeof _diag.trackApiCall === 'function') {
+      _diag.trackApiCall(params.model || '?', 0, params.durationMs, params.success ? 'ok' : 'error', params.success ? '' : params.result.slice(0, 200))
+    }
+  }
 }
 
 // ── Main: createAiService ───────────────────────────────────────────
@@ -304,8 +322,9 @@ export function createAiService(
           finalText = await tryJsonParse(finalText, () => _rawCall(provider, { ...params, jsonMode: false }, timeoutMs).then(r => r.text))
         }
         const durationMs = Date.now() - startTime
-        logRequest(log, { step: params.meta?.step, purpose: params.purpose, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId })
-        return { text: finalText, reasoning: result.reasoning, providerId, model: resolveModel(provider, params.model), durationMs, usage: result.usage }
+        const _model = resolveModel(provider, params.model)
+        logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _model, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId })
+        return { text: finalText, reasoning: result.reasoning, providerId, model: _model, durationMs, usage: result.usage }
       } catch (e: any) {
         // Canceled by user?
         if (params.signal?.aborted) {
@@ -360,7 +379,8 @@ export function createAiService(
             finalText = await tryJsonParse(finalText, () => _rawCall(provider, { ...params, jsonMode: false }, timeoutMs).then(r => r.text))
           }
           const durationMs = Date.now() - startTime
-          logRequest(log, { step: params.meta?.step, purpose: params.purpose, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId })
+          const _hbModel = resolveModel(provider, params.model)
+          logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _hbModel, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId })
           return { text: finalText, reasoning: result.reasoning, providerId, model: resolveModel(provider, params.model), durationMs, usage: result.usage }
         } catch (hbErr: any) {
           console.warn('[HEARTBEAT] Probe ' + hbAttempt + ' failed: ' + hbErr.message)
@@ -369,7 +389,7 @@ export function createAiService(
     }
 
     const durationMs = Date.now() - startTime
-    logRequest(log, { step: params.meta?.step, purpose: params.purpose, prompt: promptPreview, result: lastErr?.message || 'unknown', durationMs, success: false, skillId: params.meta?.skillId })
+    logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: resolveModel(provider, params.model), prompt: promptPreview, result: lastErr?.message || 'unknown', durationMs, success: false, skillId: params.meta?.skillId })
     throw lastErr || new AiServiceErrorImpl({ kind: 'network', message: 'unknown error', providerId, purpose: params.purpose })
   }
 

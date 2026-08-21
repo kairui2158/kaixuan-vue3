@@ -49,6 +49,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   diagRead: function(date) { return ipcRenderer.invoke('diag:read', date || '') },
   diagExport: function(options) { return ipcRenderer.invoke('diag:export', options || {}) },
   diagClear: function() { return ipcRenderer.invoke('diag:clear') },
+  diagRefresh: function() { return ipcRenderer.invoke('diag:refresh') },
 
  // API
   fetchModels: function(baseUrl, apiKey) {

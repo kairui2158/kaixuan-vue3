@@ -18,6 +18,10 @@
         <option value="">全部分类</option>
         <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
       </select>
+      <select id="diag-purpose" v-model="purposeFilter" class="diag-select">
+        <option value="">全部用途</option>
+        <option v-for="p in purposes" :key="p" :value="p">{{ p }}</option>
+      </select>
       <input id="diag-search-input" v-model="searchQuery" class="diag-search" placeholder="搜索..." type="text">
      <button id="btn-diag-refresh" class="btn-sm" @click="refreshLogs">刷新</button>
      <button id="btn-diag-export" class="btn-sm" @click="exportLogs">导出</button>
@@ -33,6 +37,10 @@
         <span class="diag-log-time">{{ log.ts || '' }}</span>
         <span class="diag-log-level">{{ (log.level || 'info').toUpperCase() }}</span>
         <span class="diag-log-cat">[{{ log.cat || 'general' }}]</span>
+        <span v-if="log.providerId" class="diag-log-provider">{{ log.providerId }}</span>
+        <span v-if="log.purpose" class="diag-log-purpose">{{ log.purpose }}</span>
+        <span v-if="log.model" class="diag-log-model">{{ log.model }}</span>
+        <span v-if="log.durationMs" class="diag-log-duration">{{ log.durationMs }}ms</span>
         <span class="diag-log-msg">{{ log.msg || '' }}</span>
         <span v-if="log.traceId" class="diag-log-trace">#{{ log.traceId.slice(-6) }}</span>
       </div>
@@ -58,6 +66,7 @@ const liveLogs = ref<any[]>([])
 const levelFilter = ref('')
 const catFilter = ref('')
 const searchQuery = ref('')
+const purposeFilter = ref('')
 const autoScroll = ref(true)
 const exportStatus = ref('')
 const logContainer = ref<HTMLElement | null>(null)
@@ -73,10 +82,17 @@ const categories = computed(() => {
   return Array.from(set).sort()
 })
 
+const purposes = computed(() => {
+  const set = new Set<string>()
+  liveLogs.value.forEach(l => { if (l.purpose) set.add(l.purpose) })
+  return Array.from(set).sort()
+})
+
 const filteredLogs = computed(() => {
   return liveLogs.value.filter(l => {
     if (levelFilter.value && l.level !== levelFilter.value) return false
     if (catFilter.value && l.cat !== catFilter.value) return false
+    if (purposeFilter.value && l.purpose !== purposeFilter.value) return false
     if (searchQuery.value) {
       const q = searchQuery.value.toLowerCase()
       const text = (l.msg + ' ' + (l.detail || '') + ' ' + (l.cat || '')).toLowerCase()
@@ -140,7 +156,19 @@ function refreshLogs() {
   pendingEntries = []
   liveLogs.value = []
   stats.value = { errorCount: 0, warnCount: 0 }
-  try { window.electronAPI?.diagRefresh?.() } catch {}
+  try {
+    window.electronAPI?.diagRefresh?.().then((entries: any[]) => {
+      if (entries && entries.length > 0) {
+        liveLogs.value = entries.slice(-500)
+        let errs = 0, warns = 0
+        entries.forEach(l => {
+          if (l.level === 'error') errs++
+          if (l.level === 'warn') warns++
+        })
+        stats.value = { errorCount: errs, warnCount: warns }
+      }
+    })
+  } catch {}
 }
 
 onMounted(() => {
@@ -212,6 +240,10 @@ onUnmounted(() => {
 .diag-log-cat { color: var(--text-muted, #888); flex-shrink: 0; font-size: var(--font-size-xxs); }
 .diag-log-msg { flex: 1; color: var(--text-secondary, #ccc); word-break: break-all; }
 .diag-log-trace { color: var(--text-muted, #666); font-size: var(--font-size-xxs); flex-shrink: 0; font-family: monospace; }
+.diag-log-provider { color: var(--accent, #5a7d9a); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
+.diag-log-purpose { color: var(--text-secondary, #999); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
+.diag-log-model { color: var(--text-muted, #666); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
+.diag-log-duration { color: var(--text-muted, #666); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
 .diag-footer { display: flex; justify-content: space-between; align-items: center; padding: 6px 14px; border-top: 1px solid var(--border-color, #3a3a3e); font-size: var(--font-size-xxs); color: var(--text-muted, #888); }
 .diag-autoscroll { display: flex; align-items: center; gap: 4px; cursor: pointer; }
 .diag-autoscroll input { cursor: pointer; }
@@ -228,5 +260,17 @@ onUnmounted(() => {
   right: auto !important;
 }
 
+.settings-panel .diag-panel {
+  position: relative !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: 400px !important;
+  max-height: 50vh !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  box-shadow: none !important;
+  bottom: auto !important;
+  right: auto !important;
+}
 .diag-export-status { font-size: var(--font-size-xxs); color: var(--text-muted, #888); flex-shrink: 0; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>
