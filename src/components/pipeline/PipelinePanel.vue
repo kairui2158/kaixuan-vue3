@@ -647,6 +647,7 @@ import { useAgentStore } from "../../stores/agent"
 import { useEditorStore } from "../../stores/editor"
 import { useExecutionLogStore } from "../../stores/executionLog"
 import { useAiTools } from "../../composables/useAiTools"
+import { createAiService } from "../../services/aiService"
 import { storageKey } from "../../utils/storage-key"
 import PipelineFlow from "./PipelineFlow.vue"
 import { extractMemory } from "../../services/memoryExtractor"
@@ -1583,15 +1584,26 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
   const preferredProvider = providerStore.preferredGenerateProvider
   const activeProvider = provider || preferredProvider
   const model = agentConfig?.model || activeProvider?.selectedModel || activeProvider?.models?.[0] || ""
+  const temperature = agentConfig?.temperature ?? activeProvider?.temperature ?? 0.7
+  const maxTokens = agentConfig?.maxTokens || activeProvider?.maxTokens || 8192
   const skillPart = promptParts?.systemSkill ?? skillTemplate ?? ""
   const agentPart = agentConfig?.systemPrompt || ""
   const systemPrompt = [skillPart, agentPart].filter(Boolean).join("\n\n") || "你是专业小说创作助手。"
   const userPrompt = [promptParts?.userPrefix, prompt, promptParts?.userSuffix].filter(Boolean).join("\n\n")
   const messages = [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }]
-  return await providerStore.callApi(activeProvider?.id || "", model, messages, {
-    temperature: agentConfig?.temperature,
-    maxTokens: agentConfig?.maxTokens
+  const logStore = useExecutionLogStore()
+  const aiService = createAiService(providerStore as any, logStore as any)
+  const result = await aiService.callAi({
+    purpose: 'generate',
+    messages,
+    model,
+    temperature,
+    maxTokens,
+    stream: false,
+    retry: true,
+    meta: { source: 'PipelinePanel.callApiWithAgent', step, skillId: skillAgentOverride }
   })
+  return result.text || ""
 }
 
 async function callApiWithAgentTimeout(step: number, skillTemplate: string, prompt: string, timeoutMs: number, skillAgentOverride?: string, promptParts?: PromptParts): Promise<string> {

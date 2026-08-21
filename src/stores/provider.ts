@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { storageKey } from '../utils/storage-key'
+import { createAiService } from '../services/aiService'
+import { useExecutionLogStore } from './executionLog'
 
 export interface Provider {
   id: string
@@ -173,18 +175,19 @@ async function callApi(
   messages: Array<{ role: string; content: string }>,
   options?: { temperature?: number; maxTokens?: number }
 ): Promise<string> {
-  const p = providers.value.find(p => p.id === providerId)
-  if (!p) throw new Error('Provider not found: ' + providerId)
-  const temperature = options?.temperature ?? p.temperature ?? 0.7
-  const maxTokens = Math.min(options?.maxTokens ?? p.maxTokens ?? 8192, 16384)
-  const resp = await fetch(p.baseUrl + '/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + p.apiKey, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model, messages, temperature, max_tokens: maxTokens, stream: false })
+  const logStore = useExecutionLogStore()
+  const aiService = createAiService(useProviderStore() as any, logStore as any)
+  const result = await aiService.callAi({
+    purpose: 'generate',
+    messages,
+    model,
+    temperature: options?.temperature,
+    maxTokens: options?.maxTokens,
+    stream: false,
+    retry: true,
+    meta: { source: 'provider.callApi', agentId: providerId }
   })
-  if (!resp.ok) throw new Error('API error: ' + resp.status)
-  const data = await resp.json()
-  return data.choices?.[0]?.message?.content || ''
+  return result.text || ''
 }
 
   return {

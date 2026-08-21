@@ -4,6 +4,8 @@ import { useSkillStore } from '../stores/skill'
 import { useAgentStore } from '../stores/agent'
 import { DeAiProcessor } from '../services/de-ai.js'
 import { DeAiSamples } from '../services/deai-samples.js'
+import { createAiService } from '../services/aiService'
+import { useExecutionLogStore } from '../stores/executionLog'
 
 /**
  * Renderer-process bridge for DeAI processing.
@@ -16,47 +18,28 @@ export function useDeAi() {
   const agentStore = useAgentStore()
 
 async function callAiApi(systemPrompt: string, userText: string, useVerify?: boolean): Promise<string> {
-    const provider = useVerify
-      ? (providerStore.activeVerifyProvider || providerStore.activeGenerateProvider)
-      : providerStore.activeGenerateProvider
-    if (!provider) throw new Error('未配置供应商，请在设置中添加API供应商')
-    const baseUrl = provider.baseUrl.replace(/\/$/, '')
-    const url = baseUrl.match(/\/v\d+$/) ? baseUrl + '/chat/completions' : baseUrl + '/v1/chat/completions'
-    const model = provider.selectedModel || 'gpt-4o'
-    const temperature = useVerify ? 0.3 : (provider.temperature ?? 0.7)
-    const body: any = {
-      model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userText }
-      ],
-      stream: false,
-      temperature
-    }
-    let resp: Response
-    for (let attempt = 0; attempt < 8; attempt++) {
-      resp = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + provider.apiKey
-        },
-        body: JSON.stringify(body)
+    const purpose = useVerify ? 'verify' as const : 'rewrite' as const
+    const logStore = useExecutionLogStore()
+    const aiService = createAiService(providerStore as any, logStore as any)
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userText }
+    ]
+    try {
+      const result = await aiService.callAi({
+        purpose,
+        messages,
+        stream: false,
+        retry: true,
+        meta: { source: 'useDeAi.callAiApi' }
       })
-      if (resp.ok) break
-      if (resp.status === 429) {
-        deAiStore.updateProgress(0, 'API限流，第' + (attempt + 1) + '次重试...')
-        const waitMs = [30000, 60000, 90000, 120000, 150000, 180000, 210000, 240000][attempt]
-        await new Promise(r => setTimeout(r, waitMs))
-        continue
+      return result.text || ''
+    } catch (e: any) {
+      if (e.message?.includes('未配置') || e.message?.includes('Provider')) {
+        throw new Error('未配置供应商，请在设置中添加API供应商')
       }
-      const errText = await resp.text().catch(() => '')
-      throw new Error('API ' + resp.status + ': ' + errText.slice(0, 200))
+      throw e
     }
-    if (!resp!.ok) throw new Error('API限流，8次重试后仍失败')
-    const data = await resp!.json()
-    const content = data.choices?.[0]?.message?.content || data.choices?.[0]?.message?.reasoning_content || ''
-    return content
   }
 
   function getSkillTemplate(skillId: string): string {

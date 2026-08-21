@@ -89,6 +89,8 @@ import ChatMessage from './ChatMessage.vue'
 import { useSkillStore } from '../../stores/skill'
 import { useChatStore } from '../../stores/chat'
 import { useAiRequest } from '../../composables/useAiRequest'
+import { createAiService } from '../../services/aiService'
+import { useExecutionLogStore } from '../../stores/executionLog'
 import { MCPProtocol } from '../../services/mcp-protocol'
 import { retrieveContext } from '../../services/memoryRetriever'
 
@@ -561,20 +563,20 @@ async function callApi(provider: any, model: string, systemPrompt: string, userT
 
   chatStore.addMessage({ role: 'assistant', content: '', tabId: chatStore.currentContext?.tabId || '' }, projId)
 
-  const baseUrl = provider.baseUrl.replace(/\/$/, '')
-  const url = baseUrl.match(/\/v\d+$/) ? baseUrl : baseUrl + '/v1'
-
-  const result = await aiRequest({
-    baseUrl: url,
-    apiKey: provider.apiKey,
-    model,
+  const logStore = useExecutionLogStore()
+  const aiService = createAiService(providerStore as any, logStore as any)
+  const result = await aiService.callAi({
+    purpose: 'generate',
     messages: [
       { role: 'system', content: systemPrompt },
       ...histMsgs
     ],
-    stream: true,
-    maxTokens: 128000,
+    model,
     temperature: provider.temperature ?? 0.7,
+    maxTokens: 128000,
+    stream: true,
+    retry: true,
+    meta: { source: 'ChatPanel.callApi' },
     onChunk: (text) => {
       chatStore.updateLastMessage(text)
       nextTick().then(() => scrollToBottom())

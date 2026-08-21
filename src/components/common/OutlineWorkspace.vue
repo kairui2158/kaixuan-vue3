@@ -128,6 +128,8 @@ import { useProviderStore } from '../../stores/provider'
 import { usePipelineStore } from '../../stores/pipeline'
 import { importFile } from '../../services/file-import'
 import { useAiTools } from '../../composables/useAiTools'
+import { createAiService } from '../../services/aiService'
+import { useExecutionLogStore } from '../../stores/executionLog'
 
 const emit = defineEmits<{ close: []; navigate: [target: string] }>()
 
@@ -442,44 +444,28 @@ async function askAi(requestText: string) {
     await scrollToBottom()
     return
   }
-  const baseUrl = provider.baseUrl.replace(/\/$/, '')
-  const url = baseUrl.match(/\/v\d+$/) ? baseUrl + '/chat/completions' : baseUrl + '/v1/chat/completions'
   const model = provider.selectedModel || provider.models?.[0] || 'gpt-4o'
   const systemPrompt = '你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。'
-  const payload = {
-    model,
-    messages: [
-      { role: 'system', content: systemPrompt },
-      ...messages.value.filter(function(m) { return m.content }).map(function(m) { return { role: m.role, content: m.content } }),
-      { role: 'user', content: '当前大纲:\n' + projectStore.outlineText + '\n\n用户请求: ' + requestText }
-    ],
-    stream: false,
-    max_tokens: provider.maxTokens || 8192
-  }
+  const aiMessages = [
+    { role: 'system', content: systemPrompt },
+    ...messages.value.filter(function(m) { return m.content }).map(function(m) { return { role: m.role, content: m.content } }),
+    { role: 'user', content: '当前大纲:\n' + projectStore.outlineText + '\n\n用户请求: ' + requestText }
+  ]
   try {
-    let resp = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + provider.apiKey },
-      body: JSON.stringify(payload)
+    const logStore = useExecutionLogStore()
+    const aiService = createAiService(providerStore as any, logStore as any)
+    const result = await aiService.callAi({
+      purpose: 'generate',
+      messages: aiMessages,
+      model,
+      maxTokens: provider.maxTokens || 8192,
+      stream: false,
+      retry: true,
+      meta: { source: 'OutlineWorkspace.askAi' }
     })
-    if (resp.status === 429) {
-      const waits = [30000, 60000, 90000, 120000, 150000, 180000, 210000, 240000]
-      for (let attempt = 0; attempt < waits.length; attempt++) {
-        await new Promise(function(r) { setTimeout(r, waits[attempt]) })
-        resp = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + provider.apiKey },
-          body: JSON.stringify(payload)
-        })
-        if (resp.ok) break
-        if (resp.status !== 429) throw new Error('API error: ' + resp.status)
-      }
-    }
-    if (!resp.ok) throw new Error('API error: ' + resp.status)
-    const data = await resp.json()
     projectStore.appendOutlineChat({
       role: 'assistant',
-      content: data.choices?.[0]?.message?.content || data.choices?.[0]?.message?.reasoning_content || ''
+      content: result.text || ''
     })
   } catch (e: any) {
     projectStore.appendOutlineChat({ role: 'assistant', content: 'Error: ' + e.message })

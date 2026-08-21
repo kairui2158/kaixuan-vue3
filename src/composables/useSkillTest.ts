@@ -1,10 +1,12 @@
- import { ref } from 'vue'
- import { useProviderStore } from '../stores/provider'
- import { useAgentStore } from '../stores/agent'
- import { useSkillStore } from '../stores/skill'
- 
- /**
-  * 技能测试 — 从旧架构_runSkillTest迁移
+import { ref } from 'vue'
+import { useProviderStore } from '../stores/provider'
+import { useAgentStore } from '../stores/agent'
+import { useSkillStore } from '../stores/skill'
+import { createAiService } from '../services/aiService'
+import { useExecutionLogStore } from '../stores/executionLog'
+
+/**
+ * 技能测试 — 从旧架构_runSkillTest迁移
   * 模拟selectedText注入，测试技能输出
   */
  export function useSkillTest() {
@@ -34,47 +36,49 @@
      const temperature = agent?.temperature ?? 0.7
      const maxTokens = agent?.maxTokens || 8192
      
-     isTesting.value = true
-     testResult.value = ''
-     testError.value = ''
-     
-    try {
-      let systemContent = skill.template || '你是专业的文本处理专家。'
-      const engine = (window as any).SkillExecutionEngine
-      if (engine && typeof engine.resolveTemplate === 'function') {
-        const ctx: Record<string, any> = {
-          selectedText: testText,
-          userPrompt: testText,
-          outlineContent: '',
-          novelTitle: '',
-          prevResponse: '',
-          chapterTitle: '',
-          chapterSummary: '',
-          prevChapterSummary: '',
-          characters: '',
-          chapterPlot: '',
-          ...(skill.customVars || {})
-        }
-        try { systemContent = engine.resolveTemplate(systemContent, ctx, { keepMissing: false }) } catch (e) { /* keep raw */ }
-      }
-      const messages = [
-        { role: 'system', content: systemContent },
-        { role: 'user', content: testText }
-      ]
-       const resp = await fetch(provider.baseUrl + '/chat/completions', {
-         method: 'POST',
-         headers: { 'Authorization': 'Bearer ' + provider.apiKey, 'Content-Type': 'application/json' },
-         body: JSON.stringify({ model, messages, temperature, max_tokens: maxTokens, stream: false })
-       })
-       if (!resp.ok) {
-         testError.value = 'HTTP ' + resp.status
-         return
+    isTesting.value = true
+    testResult.value = ''
+    testError.value = ''
+
+   try {
+     let systemContent = skill.template || '你是专业的文本处理专家。'
+     const engine = (window as any).SkillExecutionEngine
+     if (engine && typeof engine.resolveTemplate === 'function') {
+       const ctx: Record<string, any> = {
+         selectedText: testText,
+         userPrompt: testText,
+         outlineContent: '',
+         novelTitle: '',
+         prevResponse: '',
+         chapterTitle: '',
+         chapterSummary: '',
+         prevChapterSummary: '',
+         characters: '',
+         chapterPlot: '',
+         ...(skill.customVars || {})
        }
-       const data = await resp.json()
-       testResult.value = data.choices?.[0]?.message?.content || ''
-     } catch (e: any) {
-       testError.value = e.message || '测试失败'
-     } finally {
+       try { systemContent = engine.resolveTemplate(systemContent, ctx, { keepMissing: false }) } catch (e) { /* keep raw */ }
+     }
+     const messages = [
+       { role: 'system', content: systemContent },
+       { role: 'user', content: testText }
+     ]
+      const logStore = useExecutionLogStore()
+      const aiService = createAiService(providerStore as any, logStore as any)
+      const result = await aiService.callAi({
+        purpose: 'generate',
+        messages,
+        model,
+        temperature,
+        maxTokens,
+        stream: false,
+        retry: true,
+        meta: { source: 'useSkillTest.runSkillTest', skillId: skillId }
+      })
+      testResult.value = result.text || ''
+    } catch (e: any) {
+      testError.value = e.message || '测试失败'
+    } finally {
        isTesting.value = false
      }
    }
@@ -98,29 +102,31 @@
      
      const model = agent.model || provider.models?.[0] || provider.selectedModel || ''
      
-     isTesting.value = true
-     testResult.value = ''
-     testError.value = ''
-     
-     try {
-       const messages = [
-         { role: 'system', content: agent.systemPrompt || '你是助手。' },
-         { role: 'user', content: testText }
-       ]
-       const resp = await fetch(provider.baseUrl + '/chat/completions', {
-         method: 'POST',
-         headers: { 'Authorization': 'Bearer ' + provider.apiKey, 'Content-Type': 'application/json' },
-         body: JSON.stringify({ model, messages, temperature: agent.temperature ?? 0.7, max_tokens: agent.maxTokens || 8192, stream: false })
-       })
-       if (!resp.ok) {
-         testError.value = 'HTTP ' + resp.status
-         return
-       }
-       const data = await resp.json()
-       testResult.value = data.choices?.[0]?.message?.content || ''
-     } catch (e: any) {
-       testError.value = e.message || '测试失败'
-     } finally {
+    isTesting.value = true
+    testResult.value = ''
+    testError.value = ''
+
+    try {
+      const messages = [
+        { role: 'system', content: agent.systemPrompt || '你是助手。' },
+        { role: 'user', content: testText }
+      ]
+      const logStore = useExecutionLogStore()
+      const aiService = createAiService(providerStore as any, logStore as any)
+      const result = await aiService.callAi({
+        purpose: 'generate',
+        messages,
+        model,
+        temperature: agent.temperature ?? 0.7,
+        maxTokens: agent.maxTokens || 8192,
+        stream: false,
+        retry: true,
+        meta: { source: 'useSkillTest.runAgentTest', agentId: agentId }
+      })
+      testResult.value = result.text || ''
+    } catch (e: any) {
+      testError.value = e.message || '测试失败'
+    } finally {
        isTesting.value = false
      }
    }

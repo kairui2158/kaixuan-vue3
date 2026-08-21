@@ -1,9 +1,11 @@
- import { ref } from 'vue'
- import { useEditorStore } from '../stores/editor'
- import { useProjectStore } from '../stores/project'
- import { useProviderStore } from '../stores/provider'
- import { useSkillStore } from '../stores/skill'
- import { useAgentStore } from '../stores/agent'
+import { ref } from 'vue'
+import { useEditorStore } from '../stores/editor'
+import { useProjectStore } from '../stores/project'
+import { useProviderStore } from '../stores/provider'
+import { useSkillStore } from '../stores/skill'
+import { useAgentStore } from '../stores/agent'
+import { createAiService } from '../services/aiService'
+import { useExecutionLogStore } from '../stores/executionLog'
  
  interface AiRequestConfig {
    baseUrl: string
@@ -33,60 +35,55 @@
    const batchReviewResults = ref<any[]>([])
    const batchReviewAborted = ref(false)
  
-   /** 底层AI请求 */
-   async function callAi(prompt: string, systemPrompt: string, skillIds: string[] = []): Promise<string | null> {
-     const providerStore = useProviderStore()
-     const agentStore = useAgentStore()
-     const skillStore = useSkillStore()
-     const provider = providerStore.activeGenerateProvider
-     if (!provider || !provider.apiKey) {
-       return null
-     }
-     const agent = agentStore.activeAgent
-     const model = agent?.model || provider.models?.[0] || provider.selectedModel || ''
-     const temperature = agent?.temperature ?? 0.7
-     const maxTokens = agent?.maxTokens || 8192
-     
-     let messages: Array<{ role: string; content: string }> = [
-       { role: 'system', content: systemPrompt },
-       { role: 'user', content: prompt }
-     ]
-     
-     // 技能链执行
-     if (skillIds.length > 0) {
-       const skills = skillIds.map(id => skillStore.getSkill(id)).filter(Boolean)
-       for (const skill of skills) {
-         messages = [
-           { role: 'system', content: skill.template || systemPrompt },
-           { role: 'user', content: prompt }
-         ]
-       }
-     }
-     
-     try {
-       const resp = await fetch(provider.baseUrl + '/chat/completions', {
-         method: 'POST',
-         headers: {
-           'Authorization': 'Bearer ' + provider.apiKey,
-           'Content-Type': 'application/json'
-         },
-         body: JSON.stringify({
-           model,
-           messages,
-           temperature,
-           max_tokens: maxTokens,
-           stream: false
-         })
-       })
-       if (!resp.ok) return null
-       const data = await resp.json()
-       const content = data.choices?.[0]?.message?.content || ''
-       return content
-     } catch (e) {
-       console.error('[AiTools] callAi error:', e)
-       return null
-     }
-   }
+  /** 底层AI请求 — 通过统一 aiService 调用 */
+  async function callAi(prompt: string, systemPrompt: string, skillIds: string[] = []): Promise<string | null> {
+    const providerStore = useProviderStore()
+    const agentStore = useAgentStore()
+    const skillStore = useSkillStore()
+    const provider = providerStore.activeGenerateProvider
+    if (!provider || !provider.apiKey) {
+      return null
+    }
+    const agent = agentStore.activeAgent
+    const model = agent?.model || provider.selectedModel || ''
+    const temperature = agent?.temperature ?? 0.7
+    const maxTokens = agent?.maxTokens || 8192
+
+    let messages: Array<{ role: string; content: string }> = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: prompt }
+    ]
+
+    // 技能链执行：覆盖 system prompt
+    if (skillIds.length > 0) {
+      const skills = skillIds.map(id => skillStore.getSkill(id)).filter(Boolean)
+      for (const skill of skills) {
+        messages = [
+          { role: 'system', content: skill.template || systemPrompt },
+          { role: 'user', content: prompt }
+        ]
+      }
+    }
+
+    try {
+      const logStore = useExecutionLogStore()
+      const aiService = createAiService(providerStore as any, logStore as any)
+      const result = await aiService.callAi({
+        purpose: 'generate',
+        messages,
+        model,
+        temperature,
+        maxTokens,
+        stream: false,
+        retry: true,
+        meta: { source: 'useAiTools.callAi' }
+      })
+      return result.text || null
+    } catch (e) {
+      console.error('[AiTools] callAi error:', e)
+      return null
+    }
+  }
  
    /** JSON修复 — 从旧架构_repairJson迁移 */
    function repairJson(text: string): any | null {
