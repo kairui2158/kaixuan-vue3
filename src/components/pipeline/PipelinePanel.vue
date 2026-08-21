@@ -1642,24 +1642,30 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
   if ((mode === "split-merge" || mode === "multi-step") && templates.length > 0) {
     const engine = (window as any).SkillExecutionEngine
     if (engine) {
-      const aiRequest = async (opts: any) => {
-        const provider = providerStore.getProvider("")
-        const preferredProvider = providerStore.preferredGenerateProvider
-        const activeProvider = provider || preferredProvider
-        const model = activeProvider?.selectedModel || activeProvider?.models?.[0] || ""
-        const sysMsg = opts.messages?.find((m: any) => m.role === "system")?.content || ""
-        const userMsg = opts.messages?.find((m: any) => m.role === "user")?.content || ""
-        const result = await providerStore.callApi(activeProvider?.id || "", model, [{ role: "system", content: sysMsg }, { role: "user", content: userMsg }])
-        return { text: result }
+      const _engineAiRequest = async (opts: any) => {
+        const logStore = useExecutionLogStore()
+        const aiSvc = createAiService(providerStore as any, logStore as any)
+        const result = await aiSvc.callAi({
+          purpose: 'generate',
+          messages: opts.messages || [],
+          model: opts.model || undefined,
+          temperature: opts.temperature != null ? opts.temperature : undefined,
+          maxTokens: opts.maxTokens || 128000,
+          stream: opts.stream !== false,
+          retry: true,
+          meta: { source: 'PipelinePanel.engine' },
+          onChunk: opts.onChunk
+        })
+        return { text: result.text, reasoning: result.reasoning }
       }
       const engineSkills = templates.map((t: any) => ({ name: t.name, template: t.template, customVars: t.customVars || {} }))
       let result: any
       if (mode === "split-merge") {
         console.log("[PIPELINE] split-merge mode, step=" + step + " skills=" + engineSkills.length)
-        result = await engine.splitMerge(generationPrompt, engineSkills, { aiRequest, splitSize: 1000, stream: false, templateContext: baseCtx })
+        result = await engine.splitMerge(generationPrompt, engineSkills, { aiRequest: _engineAiRequest, splitSize: 1000, stream: false, templateContext: baseCtx })
       } else {
         console.log("[PIPELINE] multi-step mode, step=" + step + " skills=" + engineSkills.length)
-        result = await engine.multiStep(generationPrompt, engineSkills.slice(0, 4), { aiRequest, splitSize: 1500, stream: false, templateContext: baseCtx })
+        result = await engine.multiStep(generationPrompt, engineSkills.slice(0, 4), { aiRequest: _engineAiRequest, splitSize: 1500, stream: false, templateContext: baseCtx })
       }
       return result?.text || prompt
     }

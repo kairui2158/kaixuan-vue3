@@ -88,13 +88,11 @@ import { useSettingsStore } from '../../stores/settings'
 import ChatMessage from './ChatMessage.vue'
 import { useSkillStore } from '../../stores/skill'
 import { useChatStore } from '../../stores/chat'
-import { useAiRequest } from '../../composables/useAiRequest'
 import { createAiService } from '../../services/aiService'
 import { useExecutionLogStore } from '../../stores/executionLog'
 import { MCPProtocol } from '../../services/mcp-protocol'
 import { retrieveContext } from '../../services/memoryRetriever'
 
-const { aiRequest } = useAiRequest()
 const agentStore = useAgentStore()
 const providerStore = useProviderStore()
 const editorStore = useEditorStore()
@@ -488,24 +486,40 @@ async function sendMessage() {
     if (engine && skillCtxSkills.length > 0) {
       const activeMode = skillCtxSkills[0].executionMode
       try {
+        const _engineAiRequest = async (opts: any) => {
+          const logStore = useExecutionLogStore()
+          const aiSvc = createAiService(providerStore as any, logStore as any)
+          const result = await aiSvc.callAi({
+            purpose: 'generate',
+            messages: opts.messages || [],
+            model: opts.model || undefined,
+            temperature: opts.temperature != null ? opts.temperature : undefined,
+            maxTokens: opts.maxTokens || 128000,
+            stream: opts.stream !== false,
+            retry: true,
+            meta: { source: 'ChatPanel.engine' },
+            onChunk: opts.onChunk
+          })
+          return { text: result.text, reasoning: result.reasoning }
+        }
         let engineResult: any = null
         if (activeMode === 'split-merge') {
           engineResult = await engine.splitMerge(text, skillCtxSkills, {
-            aiRequest,
+            aiRequest: _engineAiRequest,
             splitSize: 1000,
             stream: false,
             templateContext: chatCtx
           })
         } else if (activeMode === 'multi-step') {
           engineResult = await engine.multiStep(text, skillCtxSkills.slice(0, 4), {
-            aiRequest,
+            aiRequest: _engineAiRequest,
             splitSize: 1500,
             stream: false,
             templateContext: chatCtx
           })
         } else {
           engineResult = await engine.chain(text, skillCtxSkills, {
-            aiRequest,
+            aiRequest: _engineAiRequest,
             stream: false,
             templateContext: chatCtx
           })
