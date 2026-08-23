@@ -95,6 +95,7 @@ const MAX_RETRIES = 8
 const IDLE_THRESHOLD = 15_000
 const IDLE_THRESHOLD_LOW = 10_000
 const HEARTBEAT_INTERVAL = 60_000
+const MAX_HEARTBEAT_ATTEMPTS = 3
 
 // ── Thinking-tag filter ─────────────────────────────────────────────
 
@@ -201,6 +202,25 @@ function combineSignals(...signals: (AbortSignal | undefined)[]): AbortSignal {
   if (valid.length === 0) throw new Error('no signals')
   if (valid.length === 1) return valid[0]
   return AbortSignal.any(valid)
+}
+
+function waitWithSignal(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new DOMException('The operation was aborted', 'AbortError'))
+      return
+    }
+    const timer = setTimeout(() => {
+      signal?.removeEventListener('abort', onAbort)
+      resolve()
+    }, ms)
+    const onAbort = () => {
+      clearTimeout(timer)
+      signal?.removeEventListener('abort', onAbort)
+      reject(new DOMException('The operation was aborted', 'AbortError'))
+    }
+    signal?.addEventListener('abort', onAbort, { once: true })
+  })
 }
 
 // ── Diagnostic Logger ───────────────────────────────────────────────
@@ -312,6 +332,11 @@ export function createAiService(
     let lastErr: any = null
     let lastResp: { text: string; reasoning: string; usage?: any } | null = null
     const promptPreview = params.messages.map(m => m.content).join(' ').slice(0, 200)
+    const throwCanceled = (): never => {
+      const durationMs = Date.now() - startTime
+      logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: resolveModel(provider, params.model), prompt: promptPreview, result: '用户取消', durationMs, success: false, skillId: params.meta?.skillId })
+      throw new AiServiceErrorImpl({ kind: 'canceled', message: '用户取消', providerId, purpose: params.purpose })
+    }
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
@@ -328,12 +353,26 @@ export function createAiService(
       } catch (e: any) {
         // Canceled by user?
         if (params.signal?.aborted) {
-          throw new AiServiceErrorImpl({ kind: 'canceled', message: '用户取消', providerId, purpose: params.purpose })
+          return throwCanceled()
+        }
+        // A malformed structured response is an application-level terminal
+        // error, not a transient network failure. Do not send it through the
+        // long network retry and heartbeat recovery path.
+        if (e?.kind === 'json') {
+          lastErr = e
+          break
         }
         // Timeout?
         if (e.name === 'TimeoutError' || e.name === 'AbortError') {
           lastErr = new AiServiceErrorImpl({ kind: 'timeout', message: '请求超时', providerId, purpose: params.purpose })
-          if (doRetry && attempt < maxRetries) { await new Promise(r => setTimeout(r, RETRY_DELAYS[attempt])); continue }
+          if (doRetry && attempt < maxRetries) {
+            try { await waitWithSignal(RETRY_DELAYS[attempt], params.signal) }
+            catch (ce: any) {
+              if (params.signal?.aborted) return throwCanceled()
+              throw ce
+            }
+            continue
+          }
           break
         }
         // HTTP error (resp object thrown)
@@ -341,7 +380,12 @@ export function createAiService(
           const status = e.status
           if (doRetry && (status === 429 || status === 502 || status === 503) && attempt < maxRetries) {
             lastErr = new AiServiceErrorImpl({ kind: 'http', message: 'HTTP ' + status, providerId, purpose: params.purpose, statusCode: status })
-            await new Promise(r => setTimeout(r, RETRY_DELAYS[attempt])); continue
+            try { await waitWithSignal(RETRY_DELAYS[attempt], params.signal) }
+            catch (ce: any) {
+              if (params.signal?.aborted) return throwCanceled()
+              throw ce
+            }
+            continue
           }
           if (status === 400 && doRetry && attempt < maxRetries) {
             // 400 adaptive: halve max_tokens
@@ -353,25 +397,46 @@ export function createAiService(
             throw new AiServiceErrorImpl({ kind: 'auth', message: status === 401 ? 'API Key 无效' : '访问被禁止', providerId, purpose: params.purpose, statusCode: status })
           }
           lastErr = new AiServiceErrorImpl({ kind: 'http', message: 'HTTP ' + status, providerId, purpose: params.purpose, statusCode: status })
-          if (doRetry && attempt < maxRetries) { await new Promise(r => setTimeout(r, RETRY_DELAYS[attempt])); continue }
+          if (doRetry && attempt < maxRetries) {
+            try { await waitWithSignal(RETRY_DELAYS[attempt], params.signal) }
+            catch (ce: any) {
+              if (params.signal?.aborted) return throwCanceled()
+              throw ce
+            }
+            continue
+          }
           break
         }
         // Network error
         lastErr = new AiServiceErrorImpl({ kind: 'network', message: e.message || '网络错误', providerId, purpose: params.purpose })
         const noRetry = e.message?.includes('API Key') || e.message?.includes('访问被禁止') || e.message?.includes('接口不存在')
-        if (doRetry && attempt < maxRetries && !noRetry) { await new Promise(r => setTimeout(r, RETRY_DELAYS[attempt])); continue }
+        if (doRetry && attempt < maxRetries && !noRetry) {
+          try { await waitWithSignal(RETRY_DELAYS[attempt], params.signal) }
+          catch (ce: any) {
+            if (params.signal?.aborted) return throwCanceled()
+            throw ce
+          }
+          continue
+        }
         break
       }
     }
 
     // Heartbeat reconnection (from useAiRequest Layer 5)
-    if (doRetry && lastErr) {
+    if (doRetry && lastErr && lastErr.kind !== 'json') {
       let hbAttempt = 0
-      while (true) {
+      while (hbAttempt < MAX_HEARTBEAT_ATTEMPTS) {
         hbAttempt++
-        await new Promise(r => setTimeout(r, HEARTBEAT_INTERVAL))
         try {
-          const hbSignal = makeTimeoutSignal(timeoutMs)
+          await waitWithSignal(HEARTBEAT_INTERVAL, params.signal)
+        } catch (e: any) {
+          if (params.signal?.aborted || e.name === 'AbortError') {
+            return throwCanceled()
+          }
+          throw e
+        }
+        try {
+          const hbSignal = combineSignals(params.signal, makeTimeoutSignal(timeoutMs))
           const hbParams = { ...params, signal: hbSignal }
           const result = await _rawCall(provider, hbParams, timeoutMs)
           let finalText = filterThinkingTags(result.text)
@@ -383,6 +448,9 @@ export function createAiService(
           logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _hbModel, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId })
           return { text: finalText, reasoning: result.reasoning, providerId, model: resolveModel(provider, params.model), durationMs, usage: result.usage }
         } catch (hbErr: any) {
+          if (params.signal?.aborted) {
+            return throwCanceled()
+          }
           console.warn('[HEARTBEAT] Probe ' + hbAttempt + ' failed: ' + hbErr.message)
         }
       }
