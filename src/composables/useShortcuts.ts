@@ -37,6 +37,12 @@ export function useShortcuts(cb: ShortcutCallbacks) {
     const target = e.target as HTMLElement
     const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA'
 
+    // Text editors own native clipboard/undo/redo/save-key behavior. Global
+    // panel shortcuts must not prevent the browser from editing their value.
+    if (isInput && target.id !== 'chat-input' && target.id !== 'find-input' && target.id !== 'find-query') {
+      return
+    }
+
     // Ctrl+1~5: panel shortcuts
     if (ctrl && !e.shiftKey && !e.altKey) {
       if (e.key === '1') { e.preventDefault(); cb.onOpenOutline?.(); return }

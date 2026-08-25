@@ -4,8 +4,7 @@ import { useProjectStore } from '../stores/project'
 import { useProviderStore } from '../stores/provider'
 import { useSkillStore } from '../stores/skill'
 import { useAgentStore } from '../stores/agent'
-import { createAiService } from '../services/aiService'
-import { useExecutionLogStore } from '../stores/executionLog'
+import { getAiService } from '../services/aiService'
  
  interface AiRequestConfig {
    baseUrl: string
@@ -66,8 +65,7 @@ import { useExecutionLogStore } from '../stores/executionLog'
     }
 
     try {
-      const logStore = useExecutionLogStore()
-      const aiService = createAiService(providerStore as any, logStore as any)
+      const aiService = await getAiService()
       const result = await aiService.callAi({
         purpose: 'generate',
         messages,

@@ -87,16 +87,16 @@ function registerDiagHandlers() {
   })
 
   // diag:write: renderer forwards logs to main for file persistence
-  ipcMain.on('diag:write', function(event, entries) {
+  ipcMain.handle('diag:write', function(event, entries) {
     try {
-      if (!entries || !Array.isArray(entries) || entries.length === 0) { event.returnValue = false; return; }
+      if (!entries || !Array.isArray(entries) || entries.length === 0) { return false; }
       var today = new Date().toISOString().slice(0, 10)
       var logFile = path.join(logDir, 'renderer-' + today + '.jsonl')
       var lines = entries.map(function(e) { return JSON.stringify(e) }).join('\n') + '\n'
       fs.appendFileSync(logFile, lines, 'utf8')
-      event.returnValue = true
+      return true
     } catch(e) {
-      event.returnValue = false
+      return false
     }
   })
 
@@ -166,3 +166,5 @@ function registerDiagHandlers() {
 }
 
 module.exports = { registerDiagHandlers, setLogDir }
+
+

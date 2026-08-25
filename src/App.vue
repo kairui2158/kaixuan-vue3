@@ -208,17 +208,20 @@ function handleInsertText(e: Event) {
   if (!detail?.text) return
   if (detail.openEditor) activePanel.value = ''
   if (detail.chapterId) {
-    const tab = editorStore.tabs.find((t) => t.chapterId === detail.chapterId)
+    const mode = detail.mode || 'ch-body'
+    const tab = detail.tabId
+      ? editorStore.tabs.find((t) => t.id === detail.tabId)
+      : editorStore.tabs.find((t) => t.chapterId === detail.chapterId && t.mode === mode)
     if (tab) {
       editorStore.updateContent(tab.id, detail.text)
     } else {
       editorStore.openTab({
-        id: 'tab-' + detail.chapterId,
+        id: detail.tabId || `tab-${detail.mode || 'ch-body'}-${detail.chapterId}`,
         title: detail.title || '章节',
         content: detail.text,
         chapterId: detail.chapterId,
         isDirty: true,
-        mode: 'ch-body'
+        mode
       })
     }
   } else if (editorStore.activeTab) {
@@ -280,17 +283,20 @@ function initResizers() {
   })
 }
 
-onMounted(() => {
-  settingsStore.loadSettings()
-  themeStore.init()
-  providerStore.loadProviders()
-  agentStore.loadAgents()
-  skillStore.loadSkills()
-  deAiStore.loadConfig()
+onMounted(async () => {
+  // Fire all independent store loads in parallel for startup speed
+  await Promise.all([
+    settingsStore.loadSettings(),
+    themeStore.init(),
+    providerStore.loadProviders(),
+    agentStore.loadAgents(),
+    skillStore.loadSkills(),
+    deAiStore.loadConfig(),
+    projectStore.loadProjectList(),
+  ])
   deAiStore.updateFlowPreview()
- projectStore.loadProjectList()
-  const lastProjectId = window.electronAPI?.storageRead?.('wa_lastProjectId')
-  if (lastProjectId) projectStore.loadProject(lastProjectId)
+  const lastProjectId = await (window.electronAPI?.storageRead?.('wa_lastProjectId') ?? null)
+  if (lastProjectId) await projectStore.loadProject(lastProjectId)
   window.addEventListener('generate-body', handleGenerateBody)
   window.addEventListener('insert-text', handleInsertText)
   window.addEventListener('show-skill-binding', handleSkillBinding)
@@ -380,6 +386,7 @@ main {
 .app-body {
   display: flex;
   height: 100%;
+  min-width: 0;
 }
 .app-main {
   flex: 1;
@@ -391,6 +398,7 @@ main {
   flex: 1;
   display: flex;
   overflow: hidden;
+  min-width: 0;
 }
 .resizer-v {
   width: 4px;
@@ -421,3 +429,5 @@ main {
   z-index: 901;
 }
 </style>
+
+

@@ -2,8 +2,7 @@ import { ref } from 'vue'
 import { useProviderStore } from '../stores/provider'
 import { useAgentStore } from '../stores/agent'
 import { useSkillStore } from '../stores/skill'
-import { createAiService } from '../services/aiService'
-import { useExecutionLogStore } from '../stores/executionLog'
+import { getAiService } from '../services/aiService'
 
 /**
  * 技能测试 — 从旧架构_runSkillTest迁移
@@ -63,8 +62,7 @@ import { useExecutionLogStore } from '../stores/executionLog'
        { role: 'system', content: systemContent },
        { role: 'user', content: testText }
      ]
-      const logStore = useExecutionLogStore()
-      const aiService = createAiService(providerStore as any, logStore as any)
+      const aiService = await getAiService()
       const result = await aiService.callAi({
         purpose: 'generate',
         messages,
@@ -111,8 +109,7 @@ import { useExecutionLogStore } from '../stores/executionLog'
         { role: 'system', content: agent.systemPrompt || '你是助手。' },
         { role: 'user', content: testText }
       ]
-      const logStore = useExecutionLogStore()
-      const aiService = createAiService(providerStore as any, logStore as any)
+      const aiService = await getAiService()
       const result = await aiService.callAi({
         purpose: 'generate',
         messages,

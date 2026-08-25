@@ -90,8 +90,8 @@ export interface AiService {
 
 const DEFAULT_NON_STREAM_TIMEOUT = 60_000
 const DEFAULT_STREAM_TIMEOUT = 600_000
-const RETRY_DELAYS = [2000, 4000, 6000, 8000, 10000, 12000, 15000, 20000]
-const MAX_RETRIES = 8
+const RETRY_DELAYS = [1000, 2000, 3000]
+const MAX_RETRIES = 3
 const IDLE_THRESHOLD = 15_000
 const IDLE_THRESHOLD_LOW = 10_000
 const HEARTBEAT_INTERVAL = 60_000
@@ -105,7 +105,7 @@ const THINKING_PATTERNS = [
   /<think>[\s\S]*?<\/think>/gi,
 ]
 
-function filterThinkingTags(text: string): string {
+export function filterThinkingTags(text: string): string {
   let out = text
   for (const re of THINKING_PATTERNS) out = out.replace(re, '')
   return out
@@ -302,7 +302,7 @@ export function createAiService(
     const model = resolveModel(provider, params.model)
     const temperature = resolveTemperature(provider, params.temperature)
     const maxTokens = resolveMaxTokens(provider, params.maxTokens)
-    const wantStream = params.stream !== false
+    const wantStream = params.stream ?? (params.purpose === 'generate' || params.purpose === 'rewrite')
     const signal = combineSignals(params.signal, makeTimeoutSignal(timeoutMs))
     const body: Record<string, unknown> = { model, messages: params.messages, stream: wantStream, temperature, max_tokens: maxTokens }
     const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal })
@@ -325,7 +325,9 @@ export function createAiService(
   async function callAi(params: CallAiParams): Promise<CallAiResult> {
     const startTime = Date.now()
     const { provider, providerId } = resolveProvider(providerStore, params.purpose)
-    const wantStream = params.stream !== false
+    // Default stream: true for generate/rewrite (long text), false for others (short/JSON)
+    const defaultStream = (params.purpose === 'generate' || params.purpose === 'rewrite')
+    const wantStream = params.stream ?? defaultStream
     const timeoutMs = params.timeoutMs ?? (wantStream ? DEFAULT_STREAM_TIMEOUT : DEFAULT_NON_STREAM_TIMEOUT)
     const doRetry = params.retry !== false
     const maxRetries = doRetry ? MAX_RETRIES : 0
@@ -483,4 +485,25 @@ export function createAiService(
   }
 
   return { callAi, fetchModels, testConnection }
+}
+
+// ── Singleton ───────────────────────────────────────────────────────
+
+let _aiServiceInstance: AiService | null = null
+
+/**
+ * Returns the singleton AiService instance.
+ * Lazily created on first call using dynamic imports to avoid circular deps.
+ * All callers should use this instead of createAiService() directly.
+ */
+export async function getAiService(): Promise<AiService> {
+  if (!_aiServiceInstance) {
+    const { useProviderStore } = await import('../stores/provider')
+    const { useExecutionLogStore } = await import('../stores/executionLog')
+    _aiServiceInstance = createAiService(
+      useProviderStore() as any,
+      useExecutionLogStore() as any
+    )
+  }
+  return _aiServiceInstance
 }

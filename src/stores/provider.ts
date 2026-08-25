@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { storageKey } from '../utils/storage-key'
-import { createAiService } from '../services/aiService'
-import { useExecutionLogStore } from './executionLog'
 
 export interface Provider {
   id: string
@@ -34,21 +32,21 @@ export const useProviderStore = defineStore('provider', () => {
     providers.value.find(p => p.id === detectProvider.value)
   )
 
-function loadProviders() {
-  const data = window.electronAPI.storageRead(storageKey('providers'))
+async function loadProviders() {
+  const data = await window.electronAPI.storageRead(storageKey('providers'))
   if (data) {
     if (Array.isArray(data)) {
       // Legacy format: raw array with purpose field on each provider
       providers.value = data
-      // Decrypt API keys on load (migrated from old architecture renderer_v2.js L28-29)
+      // Decrypt API keys on load - use for...of for async
       if (window.electronAPI && typeof window.electronAPI.decrypt === 'function') {
-        providers.value.forEach(function(p) {
+        for (const p of providers.value) {
           if (p.apiKey && p.apiKey.indexOf('enc:') === 0) {
-            try { p.apiKey = window.electronAPI.decrypt(p.apiKey) } catch(e) { /* keep encrypted form */ }
+            try { p.apiKey = await window.electronAPI.decrypt(p.apiKey) } catch(e) { /* keep encrypted form */ }
           }
-        })
+        }
       }
-     // Auto-set generateProvider/verifyProvider from purpose field
+      // Auto-set generateProvider/verifyProvider from purpose field
       // Normalize legacy purpose string to array
       providers.value.forEach(function(p) {
         if (typeof p.purpose === 'string') p.purpose = [p.purpose]
@@ -62,15 +60,15 @@ function loadProviders() {
       if (!gen && !ver && data.length > 0) generateProvider.value = data[0].id
     } else {
       providers.value = data.providers || []
-      // Decrypt API keys on load (migrated from old architecture renderer_v2.js L28-29)
+      // Decrypt API keys on load - use for...of for async
       if (window.electronAPI && typeof window.electronAPI.decrypt === 'function') {
-        providers.value.forEach(function(p) {
+        for (const p of providers.value) {
           if (p.apiKey && p.apiKey.indexOf('enc:') === 0) {
-            try { p.apiKey = window.electronAPI.decrypt(p.apiKey) } catch(e) { /* keep encrypted form */ }
+            try { p.apiKey = await window.electronAPI.decrypt(p.apiKey) } catch(e) { /* keep encrypted form */ }
           }
-        })
+        }
       }
-     generateProvider.value = data.generateProvider || null
+      generateProvider.value = data.generateProvider || null
      verifyProvider.value = data.verifyProvider || null
       detectProvider.value = data.detectProvider || null
       // Normalize legacy purpose string to array
@@ -82,17 +80,17 @@ function loadProviders() {
   }
 }
 
-function saveProviders() {
+async function saveProviders() {
   // Encrypt API keys before saving (migrated from old architecture renderer_v2.js L40-42)
   var copy = JSON.parse(JSON.stringify(providers.value))
   if (window.electronAPI && typeof window.electronAPI.encrypt === 'function') {
-    copy.forEach(function(p) {
+    for (const p of copy) {
       if (p.apiKey && p.apiKey.indexOf('enc:') !== 0) {
-        try { p.apiKey = window.electronAPI.encrypt(p.apiKey) } catch(e) { /* keep plaintext */ }
+        try { p.apiKey = await window.electronAPI.encrypt(p.apiKey) } catch(e) { /* keep plaintext */ }
       }
-    })
+    }
   }
-  window.electronAPI.storageWrite(storageKey('providers'), {
+  await window.electronAPI.storageWrite(storageKey('providers'), {
     providers: copy,
     generateProvider: generateProvider.value,
     verifyProvider: verifyProvider.value,
@@ -169,33 +167,14 @@ function getActiveProviders(): Provider[] {
   return providers.value.filter(p => ids.has(p.id))
 }
 
-async function callApi(
-  providerId: string,
-  model: string,
-  messages: Array<{ role: string; content: string }>,
-  options?: { temperature?: number; maxTokens?: number }
-): Promise<string> {
-  const logStore = useExecutionLogStore()
-  const aiService = createAiService(useProviderStore() as any, logStore as any)
-  const result = await aiService.callAi({
-    purpose: 'generate',
-    messages,
-    model,
-    temperature: options?.temperature,
-    maxTokens: options?.maxTokens,
-    stream: false,
-    retry: true,
-    meta: { source: 'provider.callApi', agentId: providerId }
-  })
-  return result.text || ''
-}
-
   return {
     providers, generateProvider, verifyProvider, detectProvider,
     activeGenerateProvider, activeVerifyProvider, activeDetectProvider,
     loadProviders, saveProviders, addProvider, updateProvider,
     removeProvider, setGenerateProvider, setVerifyProvider, setDetectProvider, fetchModels,
-    testConnection, getProvider, preferredGenerateProvider, callApi,
+    testConnection, getProvider, preferredGenerateProvider,
     getGenerateProvider, getVerifyProvider, getDetectProvider, getActiveProviders
   }
 })
+
+

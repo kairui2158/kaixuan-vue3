@@ -1,4 +1,4 @@
-﻿import { defineStore } from 'pinia'
+import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { storageKey } from '../utils/storage-key'
 
@@ -38,8 +38,8 @@ export const useSkillStore = defineStore('skill', () => {
     return skills.value.find(s => s.id === id)
   }
 
-  function loadSkills() {
-    const data = window.electronAPI.storageRead(storageKey('skills'))
+  async function loadSkills() {
+    const data = await window.electronAPI.storageRead(storageKey('skills'))
     if (data) {
       if (Array.isArray(data)) {
         skills.value = data.map(function(s: any) {
@@ -71,8 +71,8 @@ export const useSkillStore = defineStore('skill', () => {
     }
   }
 
-  function saveSkills() {
-    window.electronAPI.storageWrite(storageKey('skills'), {
+  async function saveSkills() {
+    await window.electronAPI.storageWrite(storageKey('skills'), {
       skills: JSON.parse(JSON.stringify(skills.value)),
       pipelineSkills: JSON.parse(JSON.stringify(pipelineSkills.value)),
       deAiSkills: JSON.parse(JSON.stringify(deAiSkills.value))
@@ -204,3 +204,5 @@ export const useSkillStore = defineStore('skill', () => {
     exportSkillToMD, exportAllToJSON, importFromJSON
   }
 })
+
+

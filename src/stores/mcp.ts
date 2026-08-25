@@ -17,9 +17,9 @@ export const useMcpStore = defineStore('mcp', () => {
   const servers = ref<McpServer[]>([])
   const connectedServers = ref<Set<string>>(new Set())
 
-  function loadServers() {
+  async function loadServers() {
     try {
-      const data = window.electronAPI.storageRead(storageKey('mcp_servers'))
+      const data = await window.electronAPI.storageRead(storageKey('mcp_servers'))
       if (data && Array.isArray(data)) {
         servers.value = data.map((s: any) => ({
           id: s.id,
@@ -37,9 +37,9 @@ export const useMcpStore = defineStore('mcp', () => {
     }
   }
 
-  function saveServers() {
+  async function saveServers() {
     try {
-      window.electronAPI.storageWrite(storageKey('mcp_servers'), JSON.parse(JSON.stringify(servers.value)))
+      await window.electronAPI.storageWrite(storageKey('mcp_servers'), JSON.parse(JSON.stringify(servers.value)))
     } catch(e) {
       console.warn('[mcp] saveServers failed:', e)
     }
@@ -119,3 +119,5 @@ export const useMcpStore = defineStore('mcp', () => {
     testConnection, callTool
   }
 })
+
+

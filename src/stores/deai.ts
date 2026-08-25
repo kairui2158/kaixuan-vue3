@@ -18,9 +18,9 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
   const currentStep = ref('')
   const flowPreview = ref<string[]>([])
 
- function loadConfig() {
-    let data = window.electronAPI.storageRead(storageKey('deAiConfig'))
-    if (!data) data = window.electronAPI.storageRead(storageKey('app-deai-config'))
+ async function loadConfig() {
+    let data = await window.electronAPI.storageRead(storageKey('deAiConfig'))
+    if (!data) data = await window.electronAPI.storageRead(storageKey('app-deai-config'))
    if (data) {
      enabled.value = data.enabled || false
       mode.value = data.mode || data.agentMode || 'chain'
@@ -36,8 +36,8 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
     updateFlowPreview()
   }
 
- function saveConfig() {
-   window.electronAPI.storageWrite(storageKey('deAiConfig'), {
+ async function saveConfig() {
+   await window.electronAPI.storageWrite(storageKey('deAiConfig'), {
      enabled: enabled.value,
      mode: mode.value,
      skillIds: JSON.parse(JSON.stringify(skillIds.value)),
@@ -92,3 +92,5 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
     startProcessing, updateProgress, finishProcessing
   }
 })
+
+

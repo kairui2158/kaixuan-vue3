@@ -77,6 +77,7 @@ export const useProjectStore = defineStore('project', () => {
   const projectName = ref('')
   const outlineText = ref('')
   const outlineLocked = ref(false)
+  const outlineLockedText = ref('')
   const bookWordCountChars = ref(0)
   const settingsGenerated = ref(false)
   const volumesConfirmed = ref(false)
@@ -100,25 +101,22 @@ export const useProjectStore = defineStore('project', () => {
     return nameFromOutline(data && data.outlineText)
   }
 
-  function loadProjectList() {
+  async function loadProjectList() {
     projectList.value = []
-    const data = window.electronAPI.storageList()
+    const data = await window.electronAPI.storageList()
     if (data) {
       const seen = new Set<string>()
-      projectList.value = data
-        .filter((key: string) => key.startsWith(storageKey('project_')) || key.startsWith('wa_project-'))
-        .map((key: string) => {
-          const proj = window.electronAPI.storageRead(key)
-          if (!proj) return null
-          const id = key.replace(/^wa_project[-_]/, '')
-          return { id, name: readProjectName(proj) }
-        })
-        .filter((proj: any) => proj !== null)
-        .filter((proj: any) => {
-          if (seen.has(proj.id)) return false
-          seen.add(proj.id)
-          return true
-        })
+      const list: Array<{ id: string; name: string }> = []
+      for (const key of data) {
+        if (!(key.startsWith(storageKey('project_')) || key.startsWith('wa_project-'))) continue
+        const proj = await window.electronAPI.storageRead(key)
+        if (!proj) continue
+        const id = key.replace(/^wa_project[-_]/, '')
+        if (seen.has(id)) continue
+        seen.add(id)
+        list.push({ id, name: readProjectName(proj) })
+      }
+      projectList.value = list
     }
   }
 
@@ -128,14 +126,15 @@ export const useProjectStore = defineStore('project', () => {
     return Object.values(chapters.value).reduce((sum, chs) => sum + chs.length, 0)
   })
 
-  function loadProject(id: string) {
+  async function loadProject(id: string) {
     currentProjectId.value = id
-    let data = window.electronAPI.storageRead(storageKey('project_' + id))
-    if (!data) data = window.electronAPI.storageRead(storageKey('project-' + id))
+    let data = await window.electronAPI.storageRead(storageKey('project_' + id))
+    if (!data) data = await window.electronAPI.storageRead(storageKey('project-' + id))
     if (data) {
       projectName.value = readProjectName(data)
       outlineText.value = data.outlineText || ''
       outlineLocked.value = data.outlineLocked || false
+      outlineLockedText.value = data.outlineLockedText || (outlineLocked.value ? outlineText.value : '')
       bookWordCountChars.value = Number(data.bookWordCount) || 0
       volumesConfirmed.value = data.volumesConfirmed || false
       chaptersConfirmed.value = data.chaptersConfirmed || false
@@ -158,15 +157,16 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
-  function saveProject() {
+  async function saveProject() {
     if (!currentProjectId.value) {
       currentProjectId.value = 'default'
     }
-    window.electronAPI.storageWrite(storageKey('lastProjectId'), currentProjectId.value)
+    await window.electronAPI.storageWrite(storageKey('lastProjectId'), currentProjectId.value)
     const data = {
       projectName: projectName.value,
       outlineText: outlineText.value,
       outlineLocked: outlineLocked.value,
+      outlineLockedText: outlineLockedText.value,
       bookWordCount: Number(bookWordCountChars.value) || 0,
       volumesConfirmed: volumesConfirmed.value,
       chaptersConfirmed: chaptersConfirmed.value,
@@ -180,7 +180,7 @@ export const useProjectStore = defineStore('project', () => {
       memoryBlacklist: toPlain(memoryBlacklist.value),
       outlineChat: toPlain(outlineChat.value)
     }
-    window.electronAPI.storageWrite(storageKey('project_' + currentProjectId.value), data)
+    await window.electronAPI.storageWrite(storageKey('project_' + currentProjectId.value), data)
   }
 
   function appendOutlineChat(msg: any) {
@@ -201,10 +201,22 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   function lockOutline() {
+    outlineLockedText.value = outlineText.value
     outlineLocked.value = true
     ensureVolumesFromOutline()
     saveProject()
   }
+
+  function unlockOutline() {
+    outlineLocked.value = false
+    saveProject()
+  }
+
+  const pipelineOutlineText = computed(() => {
+    return outlineLocked.value && outlineLockedText.value
+      ? outlineLockedText.value
+      : outlineText.value
+  })
 
   function ensureVolumesFromOutline() {
     if (!outlineText.value.trim()) return
@@ -641,6 +653,7 @@ export const useProjectStore = defineStore('project', () => {
     projectName.value = ''
     outlineText.value = ''
     outlineLocked.value = false
+    outlineLockedText.value = ''
     bookWordCountChars.value = 0
     settingsGenerated.value = false
     volumesConfirmed.value = false
@@ -666,31 +679,31 @@ export const useProjectStore = defineStore('project', () => {
     loadProjectList()
     return id
   }
-  function deleteProject(id: string) {
+  async function deleteProject(id: string) {
     // Remove both storage formats used by current and legacy project records.
-    window.electronAPI.storageRemove('wa_project_' + id)
-    window.electronAPI.storageRemove(storageKey('project_' + id))
-    window.electronAPI.storageRemove('wa_project-' + id)
+    await window.electronAPI.storageRemove('wa_project_' + id)
+    await window.electronAPI.storageRemove(storageKey('project_' + id))
+    await window.electronAPI.storageRemove('wa_project-' + id)
     // Also remove old ProjectManager formats that could trigger recovery
-    window.electronAPI.storageRemove('project-' + id)
-    window.electronAPI.storageRemove('wa_projects')
+    await window.electronAPI.storageRemove('project-' + id)
+    await window.electronAPI.storageRemove('wa_projects')
     if (currentProjectId.value === id) {
       clearCurrent()
-      window.electronAPI.storageRemove(storageKey('lastProjectId'))
+      await window.electronAPI.storageRemove(storageKey('lastProjectId'))
     }
     loadProjectList()
     if (projectList.value.length === 0) {
-      window.electronAPI.storageRemove(storageKey('lastProjectId'))
+      await window.electronAPI.storageRemove(storageKey('lastProjectId'))
       // Force clean all legacy project keys to prevent ghost projects
-      const allKeys = window.electronAPI.storageList()
+      const allKeys = await window.electronAPI.storageList()
       if (allKeys) {
-        allKeys.forEach((k) => {
+        for (const k of allKeys) {
           if (k.startsWith('wa_project-') || k.startsWith('wa_project_')) {
-            window.electronAPI.storageRemove(k)
+            await window.electronAPI.storageRemove(k)
           }
-        })
+        }
       }
-      window.electronAPI.storageRemove('wa_projects')
+      await window.electronAPI.storageRemove('wa_projects')
       loadProjectList()
     }
   }
@@ -701,11 +714,11 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   return {
-    currentProjectId, projectName, outlineText, outlineLocked, bookWordCountChars,
+    currentProjectId, projectName, outlineText, outlineLocked, outlineLockedText, pipelineOutlineText, bookWordCountChars,
     settingsGenerated, settings, volumes, chapters, projectList,
     hasOutline, volumeCount, totalChapters,
     volumesConfirmed, chaptersConfirmed,
-    loadProject, loadProjectList, saveProject, setOutline, lockOutline,
+    loadProject, loadProjectList, saveProject, setOutline, lockOutline, unlockOutline,
     clearCurrent, createProject, deleteProject, selectProject,
     syncTreeToPipeline, refreshTree, setVolumes, setChapters, updateVolume,
     confirmVolumes() { volumesConfirmed.value = true; saveProject() },
@@ -723,3 +736,5 @@ export const useProjectStore = defineStore('project', () => {
     outlineChat, appendOutlineChat, removeOutlineChatAt
   }
 })
+
+

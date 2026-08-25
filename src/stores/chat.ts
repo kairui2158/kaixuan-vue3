@@ -22,26 +22,31 @@ export interface ChatSession {
   updatedAt: number
 }
 
+export type ChatGenerationStatus = 'idle' | 'preparing' | 'streaming' | 'retrying' | 'canceled' | 'error'
+
 export const useChatStore = defineStore('chat', () => {
   const sessions = ref<ChatSession[]>([])
   const activeSessionId = ref<string | null>(null)
   const currentProjectId = ref<string>('default')
   const currentContext = ref<{ tabId: string; chapterId: string; title: string; content: string; mode: string } | null>(null)
+  const generationStatus = ref<ChatGenerationStatus>('idle')
+  const generationMessage = ref('')
+  const generationStartedAt = ref<number | null>(null)
 
   const activeSession = computed(() => sessions.value.find(s => s.id === activeSessionId.value) || null)
   const activeMessages = computed(() => activeSession.value?.messages || [])
 
-  function loadSessions(projectId: string) {
+  async function loadSessions(projectId: string) {
     const id = projectId || currentProjectId.value || 'default'
-    const data = window.electronAPI.storageRead(storageKey('chat_' + id))
+    const data = await window.electronAPI.storageRead(storageKey('chat_' + id))
     if (data && Array.isArray(data)) {
       sessions.value = data
     }
   }
 
-  function saveSessions(projectId?: string) {
+  async function saveSessions(projectId?: string) {
     const id = projectId || currentProjectId.value || 'default'
-    window.electronAPI.storageWrite(storageKey('chat_' + id), JSON.parse(JSON.stringify(sessions.value)))
+    await window.electronAPI.storageWrite(storageKey('chat_' + id), JSON.parse(JSON.stringify(sessions.value)))
   }
 
   function ensureSession(tabId: string, chapterId: string, title: string, projectId?: string) {
@@ -88,6 +93,29 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  function replaceMessagePair(userIndex: number, projectId?: string): string | null {
+    const session = activeSession.value
+    if (!session) return null
+    const user = session.messages[userIndex]
+    const assistant = session.messages[userIndex + 1]
+    if (!user || user.role !== 'user' || !assistant || assistant.role !== 'assistant') return null
+    const content = user.content
+    session.messages.splice(userIndex, 2)
+    session.updatedAt = Date.now()
+    saveSessions(projectId)
+    return content
+  }
+
+  function setGenerationState(status: ChatGenerationStatus, message = '') {
+    generationStatus.value = status
+    generationMessage.value = message
+    if (status === 'preparing' || status === 'streaming' || status === 'retrying') {
+      generationStartedAt.value ||= Date.now()
+    } else if (status === 'idle') {
+      generationStartedAt.value = null
+    }
+  }
+
   function clearSession() {
     const session = activeSession.value
     if (session) {
@@ -114,6 +142,10 @@ export const useChatStore = defineStore('chat', () => {
 
   return {
     sessions, activeSessionId, activeSession, activeMessages, currentContext,
-    loadSessions, saveSessions, ensureSession, addMessage, updateLastMessage, clearSession, removeSession, setCurrentContext
+    generationStatus, generationMessage, generationStartedAt,
+    loadSessions, saveSessions, ensureSession, addMessage, updateLastMessage, replaceMessagePair, setGenerationState,
+    clearSession, removeSession, setCurrentContext
   }
 })
+
+

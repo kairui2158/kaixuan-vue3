@@ -1,5 +1,5 @@
 const { ipcMain, app, shell } = require('electron')
-const fs = require('fs')
+const fs = require('fs').promises
 const path = require('path')
 const os = require('os')
 
@@ -14,37 +14,42 @@ function safeKey(key) {
   return key.replace(/[^a-zA-Z0-9_-]/g, '_')
 }
 
-function migrateOldDataIfNeeded() {
+async function migrateOldDataIfNeeded() {
   try {
     var targetDir = getPrimaryDataDir()
     var markerFile = path.join(targetDir, '.migrated')
-    if (fs.existsSync(markerFile)) return
+    try { await fs.access(markerFile); return } catch(e) { /* marker not found */ }
     var candidateDirs = [
       path.join(app.getPath('userData'), 'data'),
       path.join(app.getPath('documents'), '写作助手数据')
     ]
     var copied = 0
-    candidateDirs.forEach(function(oldDir) {
-      if (!fs.existsSync(oldDir)) return
-      var files = fs.readdirSync(oldDir)
-      files.forEach(function(f) {
-        if (!f.endsWith('.json')) return
-        var src = path.join(oldDir, f)
-        var dst = path.join(targetDir, f)
-        if (!fs.existsSync(dst)) {
-          fs.copyFileSync(src, dst)
-          copied++
+    for (var oldDir of candidateDirs) {
+      try {
+        await fs.access(oldDir)
+        var files = await fs.readdir(oldDir)
+        for (var f of files) {
+          if (!f.endsWith('.json')) continue
+          var src = path.join(oldDir, f)
+          var dst = path.join(targetDir, f)
+          try { await fs.access(dst) } catch(e) {
+            await fs.copyFile(src, dst)
+            copied++
+          }
         }
-      })
-    })
-    fs.writeFileSync(markerFile, 'migrated-' + copied + '-' + new Date().toISOString(), 'utf8')
+      } catch(e) { /* dir not accessible */ }
+    }
+    await fs.writeFile(markerFile, 'migrated-' + copied + '-' + new Date().toISOString(), 'utf8')
   } catch (e) {}
 }
 
 function setDataDir(dir) {
   dataDir = dir
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true })
+  try {
+    fs.mkdir(dataDir, { recursive: true })
+  } catch(e) {
+    const fsSync = require('fs')
+    if (!fsSync.existsSync(dataDir)) fsSync.mkdirSync(dataDir, { recursive: true })
   }
 }
 
@@ -56,10 +61,10 @@ function getDataDir() {
   return dataDir
 }
 
-function openDataDir() {
+async function openDataDir() {
   try {
-    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true })
-    shell.openPath(dataDir)
+    try { await fs.access(dataDir) } catch(e) { await fs.mkdir(dataDir, { recursive: true }) }
+    await shell.openPath(dataDir)
     return true
   } catch (e) {
     return false
@@ -67,113 +72,113 @@ function openDataDir() {
 }
 
 function registerStorageHandlers() {
-  ipcMain.on('storage:read', function(event, key) {
+  ipcMain.handle('storage:read', async function(event, key) {
     try {
-      migrateOldDataIfNeeded()
+      await migrateOldDataIfNeeded()
       var filePath = path.join(dataDir, safeKey(key) + '.json')
-      if (fs.existsSync(filePath)) {
-        var content = fs.readFileSync(filePath, 'utf8')
-        event.returnValue = JSON.parse(content)
-        return
-      }
+      try {
+        await fs.access(filePath)
+        var content = await fs.readFile(filePath, 'utf8')
+        return JSON.parse(content)
+      } catch(e) { /* not found */ }
       if (legacyDir) {
         var legacyPath = path.join(legacyDir, safeKey(key) + '.json')
-        if (fs.existsSync(legacyPath)) {
-          var legacyContent = fs.readFileSync(legacyPath, 'utf8')
-          event.returnValue = JSON.parse(legacyContent)
-          return
-        }
+        try {
+          await fs.access(legacyPath)
+          var legacyContent = await fs.readFile(legacyPath, 'utf8')
+          return JSON.parse(legacyContent)
+        } catch(e) { /* not found */ }
       }
-      event.returnValue = null
+      return null
     } catch (e) {
-      event.returnValue = null
+      return null
     }
   })
 
-  ipcMain.on('storage:write', function(event, key, data) {
+  ipcMain.handle('storage:write', async function(event, key, data) {
     try {
-      migrateOldDataIfNeeded()
+      await migrateOldDataIfNeeded()
       var filePath = path.join(dataDir, safeKey(key) + '.json')
-      fs.writeFileSync(filePath, JSON.stringify(data), 'utf8')
-      event.returnValue = true
+      await fs.writeFile(filePath, JSON.stringify(data), 'utf8')
+      return true
     } catch (e) {
-      event.returnValue = false
+      return false
     }
   })
 
-  ipcMain.on('storage:remove', function(event, key) {
+  ipcMain.handle('storage:remove', async function(event, key) {
     try {
-      migrateOldDataIfNeeded()
+      await migrateOldDataIfNeeded()
       var filePath = path.join(dataDir, safeKey(key) + '.json')
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath)
-      // Also remove from legacy directory if it exists
+      try { await fs.unlink(filePath) } catch(e) { /* not found */ }
       if (legacyDir) {
         var legacyPath = path.join(legacyDir, safeKey(key) + '.json')
-        if (fs.existsSync(legacyPath)) fs.unlinkSync(legacyPath)
+        try { await fs.unlink(legacyPath) } catch(e) { /* not found */ }
       }
-      event.returnValue = true
+      return true
     } catch (e) {
-      event.returnValue = false
+      return false
     }
   })
 
-  ipcMain.on('storage:list', function(event) {
+  ipcMain.handle('storage:list', async function(event) {
     try {
-      migrateOldDataIfNeeded()
-      var files = fs.readdirSync(dataDir)
+      await migrateOldDataIfNeeded()
+      var files = await fs.readdir(dataDir)
       var keys = files.filter(function(f) { return f.endsWith('.json') }).map(function(f) { return f.replace(/\.json$/, '') })
-      if (legacyDir && fs.existsSync(legacyDir)) {
-        var legacyFiles = fs.readdirSync(legacyDir)
-        legacyFiles.filter(function(f) { return f.endsWith('.json') }).forEach(function(f) {
-          var lk = f.replace(/\.json$/, '')
-          if (keys.indexOf(lk) === -1) keys.push(lk)
-        })
+      if (legacyDir) {
+        try {
+          var legacyFiles = await fs.readdir(legacyDir)
+          legacyFiles.filter(function(f) { return f.endsWith('.json') }).forEach(function(f) {
+            var lk = f.replace(/\.json$/, '')
+            if (keys.indexOf(lk) === -1) keys.push(lk)
+          })
+        } catch(e) { /* legacy dir not accessible */ }
       }
-      event.returnValue = keys
+      return keys
     } catch (e) {
-      event.returnValue = []
+      return []
     }
   })
 
-  ipcMain.on('storage:export', function(event, exportPath) {
+  ipcMain.handle('storage:export', async function(event, exportPath) {
     try {
-      migrateOldDataIfNeeded()
-      var files = fs.readdirSync(dataDir)
+      await migrateOldDataIfNeeded()
+      var files = await fs.readdir(dataDir)
       var data = {}
-      files.forEach(function(f) {
-        if (f.endsWith('.json')) {
-          var key = f.replace(/\.json$/, '')
-          data[key] = JSON.parse(fs.readFileSync(path.join(dataDir, f), 'utf8'))
-        }
-      })
-      fs.writeFileSync(exportPath, JSON.stringify(data, null, 2), 'utf8')
-      event.returnValue = true
+      for (var f of files) {
+        if (!f.endsWith('.json')) continue
+        var key = f.replace(/\.json$/, '')
+        data[key] = JSON.parse(await fs.readFile(path.join(dataDir, f), 'utf8'))
+      }
+      await fs.writeFile(exportPath, JSON.stringify(data, null, 2), 'utf8')
+      return true
     } catch (e) {
-      event.returnValue = false
+      return false
     }
   })
 
-  ipcMain.on('storage:import', function(event, importPath) {
+  ipcMain.handle('storage:import', async function(event, importPath) {
     try {
-      migrateOldDataIfNeeded()
-      var content = fs.readFileSync(importPath, 'utf8')
+      await migrateOldDataIfNeeded()
+      var content = await fs.readFile(importPath, 'utf8')
       var data = JSON.parse(content)
-      Object.keys(data).forEach(function(key) {
-        fs.writeFileSync(path.join(dataDir, safeKey(key) + '.json'), JSON.stringify(data[key]), 'utf8')
-      })
-      event.returnValue = true
+      for (var key of Object.keys(data)) {
+        await fs.writeFile(path.join(dataDir, safeKey(key) + '.json'), JSON.stringify(data[key]), 'utf8')
+      }
+      return true
     } catch (e) {
-      event.returnValue = false
+      return false
     }
   })
 
-  ipcMain.on('storage:getDataDir', function(event) {
-    migrateOldDataIfNeeded()
-    event.returnValue = dataDir
+  ipcMain.handle('storage:getDataDir', async function(event) {
+    await migrateOldDataIfNeeded()
+    return dataDir
   })
 
-  ipcMain.on('storage:openDataDir', function(event) {
-    event.returnValue = openDataDir()
+  ipcMain.handle('storage:openDataDir', async function(event) {
+    return await openDataDir()
   })
 }
 

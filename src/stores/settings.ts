@@ -12,9 +12,9 @@ export const useSettingsStore = defineStore('settings', () => {
   const cdpPort = ref(9223)
   const githubToken = ref('')
 
- function loadSettings() {
-    let data = window.electronAPI.storageRead(storageKey('appSettings'))
-    if (!data) data = window.electronAPI.storageRead(storageKey('app-settings'))
+ async function loadSettings() {
+    let data = await window.electronAPI.storageRead(storageKey('appSettings'))
+    if (!data) data = await window.electronAPI.storageRead(storageKey('app-settings'))
    if (data) {
      fontSize.value = data.fontSize || 14
       editorFont.value = data.editorFont || data.editorFontSize || 'serif'
@@ -25,8 +25,8 @@ export const useSettingsStore = defineStore('settings', () => {
     }
   }
 
-  function saveSettings() {
-    window.electronAPI.storageWrite(storageKey('appSettings'), {
+  async function saveSettings() {
+    await window.electronAPI.storageWrite(storageKey('appSettings'), {
       fontSize: fontSize.value,
       editorFont: editorFont.value,
       autoSaveInterval: autoSaveInterval.value,
@@ -55,3 +55,5 @@ export const useSettingsStore = defineStore('settings', () => {
     loadSettings, saveSettings, updateSettings, setActiveTab
   }
 })
+
+

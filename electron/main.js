@@ -111,12 +111,12 @@ function createWindow() {
   registerDialogHandlers()
   registerLifecycleHandlers(mainWindow)
 
-  ipcMain.on('clipboard:write', function(event, text) {
+  ipcMain.handle('clipboard:write', function(event, text) {
     clipboard.writeText(String(text || ''))
-    event.returnValue = true
+    return true
   })
-  ipcMain.on('clipboard:read', function(event) {
-    event.returnValue = clipboard.readText()
+  ipcMain.handle('clipboard:read', function(event) {
+    return clipboard.readText()
   })
 
  // New IPC channels for Vue 3 migration
@@ -235,3 +235,5 @@ app.on('window-all-closed', function() {
 app.on('before-quit', function() {
   saveWindowState()
 })
+
+

@@ -1,33 +1,30 @@
 const { ipcMain, safeStorage } = require('electron')
 
 function registerCryptoHandlers() {
-  ipcMain.on('safe:encrypt', function(event, text) {
+  ipcMain.handle('safe:encrypt', function(event, text) {
     try {
       if (!safeStorage.isEncryptionAvailable()) {
-        event.returnValue = text
-        return
+        return text
       }
-      var buf = safeStorage.encryptString(text)
-      event.returnValue = 'enc:' + buf.toString('base64')
+      var buf = safeStorage.encryptString(String(text))
+      return 'enc:' + buf.toString('base64')
     } catch (e) {
-      event.returnValue = text
+      return text
     }
   })
 
-  ipcMain.on('safe:decrypt', function(event, val) {
+  ipcMain.handle('safe:decrypt', function(event, val) {
     try {
       if (!val || typeof val !== 'string' || val.indexOf('enc:') !== 0) {
-        event.returnValue = val
-        return
+        return val
       }
       if (!safeStorage.isEncryptionAvailable()) {
-        event.returnValue = val.substring(4)
-        return
+        return val.substring(4)
       }
       var buf = Buffer.from(val.substring(4), 'base64')
-      event.returnValue = safeStorage.decryptString(buf)
+      return safeStorage.decryptString(buf)
     } catch (e) {
-      event.returnValue = val
+      return val
     }
   })
 }

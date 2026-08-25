@@ -1,4 +1,4 @@
-﻿const { contextBridge, ipcRenderer } = require('electron')
+const { contextBridge, ipcRenderer } = require('electron')
 
 // Backward-compatible API (matches original preload.js)
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -6,37 +6,40 @@ contextBridge.exposeInMainWorld('electronAPI', {
   version: process.versions.electron,
 
   // Crypto
-  encrypt: function(text) { return ipcRenderer.sendSync('safe:encrypt', text) },
-  decrypt: function(val) { return ipcRenderer.sendSync('safe:decrypt', val) },
+  encrypt: function(text) { return ipcRenderer.invoke('safe:encrypt', text) },
+  decrypt: function(val) { return ipcRenderer.invoke('safe:decrypt', val) },
 
- // Storage
+  // Storage
   storageRead: function(key) {
     if (typeof key !== 'string') throw new TypeError('storageRead: key must be string')
-    return ipcRenderer.sendSync('storage:read', key)
+    return ipcRenderer.invoke('storage:read', key)
   },
   storageWrite: function(key, data) {
     if (typeof key !== 'string') throw new TypeError('storageWrite: key must be string')
-    return ipcRenderer.sendSync('storage:write', key, data)
+    return ipcRenderer.invoke('storage:write', key, data)
   },
   storageRemove: function(key) {
     if (typeof key !== 'string') throw new TypeError('storageRemove: key must be string')
-    return ipcRenderer.sendSync('storage:remove', key)
+    return ipcRenderer.invoke('storage:remove', key)
   },
- storageList: function() { return ipcRenderer.sendSync('storage:list') },
-  storageExport: function(filePath) { return ipcRenderer.sendSync('storage:export', filePath) },
-  storageImport: function(filePath) { return ipcRenderer.sendSync('storage:import', filePath) },
-  storageGetDataDir: function() { return ipcRenderer.sendSync('storage:getDataDir') },
-  storageOpenDataDir: function() { return ipcRenderer.sendSync('storage:openDataDir') },
+  storageList: function() { return ipcRenderer.invoke('storage:list') },
+  storageExport: function(filePath) { return ipcRenderer.invoke('storage:export', filePath) },
+  storageImport: function(filePath) { return ipcRenderer.invoke('storage:import', filePath) },
+  storageGetDataDir: function() { return ipcRenderer.invoke('storage:getDataDir') },
+  storageOpenDataDir: function() { return ipcRenderer.invoke('storage:openDataDir') },
 
   // Dialog
-  dialogSaveFile: function(defaultName) { return ipcRenderer.sendSync('dialog:saveFile', defaultName) },
-  dialogOpenFile: function() { return ipcRenderer.sendSync('dialog:openFile') },
-  dialogReadFile: function(filePath) { return ipcRenderer.sendSync('dialog:readFile', filePath) },
-  dialogWriteFile: function(filePath, content) { return ipcRenderer.sendSync('dialog:writeFile', filePath, content) },
+  dialogSaveFile: function(defaultName) { return ipcRenderer.invoke('dialog:saveFileAsync', defaultName) },
+  dialogOpenFile: function() { return ipcRenderer.invoke('dialog:openFileAsync') },
+  dialogReadFile: function(filePath) { return ipcRenderer.invoke('dialog:readFileAsync', filePath) },
+  dialogSaveFileAsync: function(defaultName) { return ipcRenderer.invoke('dialog:saveFileAsync', defaultName) },
+  dialogOpenFileAsync: function() { return ipcRenderer.invoke('dialog:openFileAsync') },
+  dialogReadFileAsync: function(filePath) { return ipcRenderer.invoke('dialog:readFileAsync', filePath) },
+  dialogWriteFile: function(filePath, content) { return ipcRenderer.invoke('dialog:writeFile', filePath, content) },
 
   // Native clipboard bridge for Electron context isolation.
-  clipboardWrite: function(text) { return ipcRenderer.sendSync('clipboard:write', String(text || '')) },
-  clipboardRead: function() { return ipcRenderer.sendSync('clipboard:read') },
+  clipboardWrite: function(text) { return ipcRenderer.invoke('clipboard:write', String(text || '')) },
+  clipboardRead: function() { return ipcRenderer.invoke('clipboard:read') },
 
   // Lifecycle
   onFinalSave: function(callback) { ipcRenderer.on('app:finalSave', function() { callback() }) },
@@ -44,14 +47,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onCloseRequest: function(callback) { ipcRenderer.on('app:requestClose', function() { callback() }) },
   respondCloseChoice: function(choice) { ipcRenderer.send('app:closeChoice', choice) },
 
- // Diag
-  diagWrite: function(entries) { return ipcRenderer.sendSync('diag:write', entries) },
+  // Diag
+  diagWrite: function(entries) { return ipcRenderer.invoke('diag:write', entries) },
   diagRead: function(date) { return ipcRenderer.invoke('diag:read', date || '') },
   diagExport: function(options) { return ipcRenderer.invoke('diag:export', options || {}) },
   diagClear: function() { return ipcRenderer.invoke('diag:clear') },
   diagRefresh: function() { return ipcRenderer.invoke('diag:refresh') },
 
- // API
+  // API
   fetchModels: function(baseUrl, apiKey) {
     if (typeof baseUrl !== 'string' || typeof apiKey !== 'string')
       throw new TypeError('fetchModels: baseUrl and apiKey must be strings')
@@ -77,7 +80,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   skillExecute: function(config) { return ipcRenderer.invoke('skill:execute', config) },
   skillValidate: function(output, rules) { return ipcRenderer.invoke('skill:validate', output, rules) },
 
- // Provider
+  // Provider
   providerTestConnection: function(baseUrl, apiKey) {
     if (typeof baseUrl !== 'string' || typeof apiKey !== 'string')
       throw new TypeError('providerTestConnection: baseUrl and apiKey must be strings')

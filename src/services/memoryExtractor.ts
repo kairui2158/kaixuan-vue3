@@ -127,7 +127,7 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T
 export async function extractMemory(
   input: ExtractionInput,
   callAi: MemoryAiCall,
-  timeoutMs = 30_000
+  timeoutMs = 300_000
 ): Promise<ExtractionResult> {
   if (!input.content.trim() || !input.chapterId.trim()) {
     return { success: false, data: EMPTY_RESULT, error: '章节正文或章节标识为空', retried: false }

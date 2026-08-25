@@ -4,8 +4,7 @@ import { useSkillStore } from '../stores/skill'
 import { useAgentStore } from '../stores/agent'
 import { DeAiProcessor } from '../services/de-ai.js'
 import { DeAiSamples } from '../services/deai-samples.js'
-import { createAiService } from '../services/aiService'
-import { useExecutionLogStore } from '../stores/executionLog'
+import { getAiService } from '../services/aiService'
 
 /**
  * Renderer-process bridge for DeAI processing.
@@ -19,8 +18,7 @@ export function useDeAi() {
 
 async function callAiApi(systemPrompt: string, userText: string, useVerify?: boolean): Promise<string> {
     const purpose = useVerify ? 'verify' as const : 'rewrite' as const
-    const logStore = useExecutionLogStore()
-    const aiService = createAiService(providerStore as any, logStore as any)
+    const aiService = await getAiService()
     const messages = [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userText }

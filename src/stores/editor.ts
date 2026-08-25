@@ -28,7 +28,7 @@ export const useEditorStore = defineStore('editor', () => {
     if (tabs.value.length >= MAX_TABS) {
       closeTab(tabs.value[0].id)
     }
-    const existing = tabs.value.find(t => t.chapterId === tab.chapterId)
+    const existing = tabs.value.find(t => t.chapterId === tab.chapterId && t.mode === tab.mode)
     if (existing) {
       activeTabId.value = existing.id
     } else {
@@ -122,3 +122,4 @@ export const useEditorStore = defineStore('editor', () => {
     pushUndoState, undoTab, redoTab, canUndoTab, canRedoTab
  }
 })
+
