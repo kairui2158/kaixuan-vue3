@@ -7,6 +7,7 @@
           <button class="btn-sm btn-secondary" id="btn-pl-minimize" title="缩小到顶栏" @click="$emit('minimize')">缩小</button>
           <button class="btn-sm btn-secondary" id="btn-exec-log" @click="showExecLog = !showExecLog">执行日志</button>
           <button class="btn-sm btn-secondary" id="btn-flow-toggle" @click="showFlowView = !showFlowView">{{ showFlowView ? '步骤视图' : '流程视图' }}</button>
+          <button v-if="pipelineStore.isGenerating" id="btn-pl-cancel-generation" class="btn-sm btn-danger" @click="pipelineStore.cancelGeneration()">取消生成</button>
           <button id="btn-close-pl" class="modal-close" @click="$emit('close')">&times;</button>
         </div>
       </div>
@@ -85,7 +86,7 @@
               </span>
             </template>
           </div>
-            <textarea id="pl-outline" v-model="projectStore.outlineText" class="pl-textarea" placeholder="输入或粘贴大纲全文..." :readonly="projectStore.outlineLocked" :class="{ 'pl-readonly': projectStore.outlineLocked }"></textarea>
+            <textarea id="pl-outline" :value="projectStore.pipelineOutlineText" class="pl-textarea" placeholder="输入或粘贴大纲全文..." :readonly="projectStore.outlineLocked" :class="{ 'pl-readonly': projectStore.outlineLocked }" @input="projectStore.setOutline(($event.target as HTMLTextAreaElement).value)"></textarea>
             <div class="pl-gen-options">
               <label>全书字数（万字）：</label>
               <input id="pl-book-word-count" type="number" v-model.number="bookWordCount" min="0" max="1000" class="input-w-60" @change="saveBookWordCount" />
@@ -231,15 +232,36 @@
                   </div>
 
                   <div id="pl-bound-settings-list" class="pl-settings-list">
-                    <article v-for="(s, i) in filteredSettings" :key="s.id || i" class="pl-setting-item">
-                      <div class="pl-setting-item-main">
-                        <input v-model="s.name" class="pl-input" placeholder="设定名称" @change="saveSettingItem(s)" />
-                        <button type="button" class="btn-sm" :class="s.isBound ? 'btn-primary' : 'btn-secondary'" @click="toggleItemBinding(s)" :title="s.isBound ? '已绑定到流水线' : '绑定到流水线'">{{ s.isBound ? '已绑定' : '绑定' }}</button>
-                        <button type="button" class="btn-danger btn-sm" @click="removeSetting(i)">删除</button>
-                      </div>
-                      <textarea v-model="s.content" class="pl-attrs-input" placeholder="输入该设定的属性内容" @change="saveSettingItem(s)"></textarea>
-                    </article>
+                    <button
+                      v-for="(s, i) in filteredSettings"
+                      :key="s.id || i"
+                      type="button"
+                      class="pl-setting-item"
+                      :class="{ active: selectedSettingId === s.id }"
+                      @click="selectedSettingId = s.id"
+                    >
+                      <span class="pl-setting-item-name">{{ s.name || '未命名设定' }}</span>
+                      <span class="pl-setting-item-summary">{{ s.content || '暂无属性内容' }}</span>
+                      <span class="pl-setting-item-state">{{ s.isBound ? '已绑定' : '未绑定' }}</span>
+                      <span class="pl-setting-item-index">{{ i + 1 }}</span>
+                    </button>
                     <p v-if="filteredSettings.length === 0" class="empty-hint">该分类还没有设定内容</p>
+                  </div>
+
+                  <div v-if="selectedSettingItem" class="pl-setting-detail" aria-label="当前设定编辑区">
+                    <div class="pl-setting-detail-heading">
+                      <span>当前设定</span>
+                      <span class="pl-setting-detail-status">{{ selectedSettingItem.isBound ? '已绑定到流水线' : '未绑定' }}</span>
+                    </div>
+                    <div class="pl-setting-detail-fields">
+                      <input v-model="selectedSettingItem.name" class="pl-input" placeholder="设定名称" @change="saveSettingItem(selectedSettingItem)" />
+                      <textarea v-model="selectedSettingItem.content" class="pl-attrs-input" placeholder="输入该设定的属性内容" @change="saveSettingItem(selectedSettingItem)"></textarea>
+                    </div>
+                    <div class="pl-setting-detail-actions">
+                      <button type="button" class="btn-sm" :class="selectedSettingItem.isBound ? 'btn-primary' : 'btn-secondary'" @click="toggleItemBinding(selectedSettingItem)">{{ selectedSettingItem.isBound ? '解除绑定' : '绑定到流水线' }}</button>
+                      <button type="button" class="btn-danger btn-sm" @click="removeSetting(filteredSettings.findIndex((item) => item.id === selectedSettingItem?.id))">删除当前设定</button>
+                      <button type="button" class="btn-primary btn-sm" @click="saveSettingItem(selectedSettingItem)">保存当前设定</button>
+                    </div>
                   </div>
 
                   <div class="pl-sc-category-actions">
@@ -647,7 +669,7 @@ import { useAgentStore } from "../../stores/agent"
 import { useEditorStore } from "../../stores/editor"
 import { useExecutionLogStore } from "../../stores/executionLog"
 import { useAiTools } from "../../composables/useAiTools"
-import { createAiService } from "../../services/aiService"
+import { getAiService } from "../../services/aiService"
 import { storageKey } from "../../utils/storage-key"
 import PipelineFlow from "./PipelineFlow.vue"
 import { extractMemory } from "../../services/memoryExtractor"
@@ -680,6 +702,7 @@ const newSettingAttrs = ref("")
 const showAddCategory = ref(false)
 const newCategoryName = ref("")
 const selectedSettingCategory = ref("")
+const selectedSettingId = ref("")
 const confirmedSettingCategories = ref<string[]>([])
 const settingsGenerationLogs = ref<string[]>([])
 const settingsGenerationFeedbackVisible = computed(() => pipelineStore.isGenerating || settingsGenerationLogs.value.length > 0)
@@ -688,6 +711,18 @@ const chapterGenerationLogs = ref<string[]>([])
 const activeVolumeGenerationIndex = ref(-1)
 const volumeGenerationFeedbackVisible = computed(() => pipelineStore.isGenerating || volumeGenerationLogs.value.length > 0)
 const chapterGenerationFeedbackVisible = computed(() => pipelineStore.isGenerating || chapterGenerationLogs.value.length > 0)
+
+function appendPipelineStream(step: number, text: string) {
+  const logs = step === 1 ? settingsGenerationLogs : step === 2 ? volumeGenerationLogs : chapterGenerationLogs
+  const clean = (text || '').trim()
+  if (!clean) return
+  const preview = clean.length > 500 ? clean.slice(-500) : clean
+  const marker = 'API实时输出：'
+  const index = logs.value.findIndex(line => line.startsWith(marker))
+  const line = marker + preview
+  if (index >= 0) logs.value[index] = line
+  else logs.value.push(line)
+}
 
 type MemoryPreviewItem = {
   key: string
@@ -730,6 +765,15 @@ const filteredSettings = computed(() => {
   if (!cat) return []
   return sc.items[cat] || []
 })
+
+const selectedSettingItem = computed(() =>
+  filteredSettings.value.find((item: any) => item.id === selectedSettingId.value) || null
+)
+
+function firstCategoryWithSettings(categories = settingNavigationCategories.value) {
+  const sc = projectStore.getSettingsCollection()
+  return categories.find((category) => (sc.items[category] || []).length > 0) || categories[0] || ""
+}
 
 function addCategory() {
   const name = newCategoryName.value.trim()
@@ -931,10 +975,17 @@ function syncVolumeCount(e: any) {
 
 // Auto-sync volume count whenever book word count or per-volume words change.
 watch(settingNavigationCategories, (categories) => {
-  if (categories.length > 0 && !categories.includes(selectedSettingCategory.value)) {
-    selectedSettingCategory.value = categories[0]
+  const selectedItems = projectStore.getSettingsCollection().items[selectedSettingCategory.value] || []
+  if (categories.length > 0 && (!categories.includes(selectedSettingCategory.value) || selectedItems.length === 0)) {
+    selectedSettingCategory.value = firstCategoryWithSettings(categories)
   } else if (categories.length === 0) {
     selectedSettingCategory.value = ""
+  }
+}, { immediate: true })
+
+watch([selectedSettingCategory, filteredSettings], () => {
+  if (!filteredSettings.value.some((item: any) => item.id === selectedSettingId.value)) {
+    selectedSettingId.value = filteredSettings.value[0]?.id || ""
   }
 }, { immediate: true })
 
@@ -964,8 +1015,8 @@ const currentBodyContent = computed(() => {
   return ch?.body || ''
 })
 
-function saveStepConfig() {
-  window.electronAPI.storageWrite(storageKey("pipeline_step_config"), {
+async function saveStepConfig() {
+  await window.electronAPI.storageWrite(storageKey("pipeline_step_config"), {
     agents: JSON.parse(JSON.stringify(stepAgents.value)),
     skills: JSON.parse(JSON.stringify(stepSkills.value)),
     modes: JSON.parse(JSON.stringify(stepSkillModes.value)),
@@ -973,24 +1024,24 @@ function saveStepConfig() {
   })
 }
 
-function saveBookWordCount() {
+async function saveBookWordCount() {
   const wan = Number(bookWordCount.value)
   if (!isNaN(wan) && wan > 0) {
-    window.electronAPI.storageWrite(
+    await window.electronAPI.storageWrite(
       storageKey("pipeline_step_config"),
       Object.assign(
-        window.electronAPI.storageRead(storageKey("pipeline_step_config")) || {},
+        await window.electronAPI.storageRead(storageKey("pipeline_step_config")) || {},
         { bookWordCount: Math.round(wan * 10000) }
       )
     )
   }
 }
 
-function saveVolumeConfig() {
-  window.electronAPI.storageWrite(
+async function saveVolumeConfig() {
+  await window.electronAPI.storageWrite(
     storageKey("pipeline_step_config"),
     Object.assign(
-      window.electronAPI.storageRead(storageKey("pipeline_step_config")) || {},
+      await window.electronAPI.storageRead(storageKey("pipeline_step_config")) || {},
       {
         volumeWords: Number(volumeWords.value) || 0,
         chapterWords: Number(chapterWords.value) || 0
@@ -1163,7 +1214,7 @@ function buildTemplateContext(step: number, prompt: string, prevResponse?: strin
   return {
     selectedText: prompt,
     userPrompt: prompt,
-    outlineContent: projectStore.outlineText || "",
+    outlineContent: projectStore.pipelineOutlineText || "",
     novelTitle: projectStore.projectName || "",
     volumeCount: projectStore.volumes.length || volumeCount.value,
     wordsPerVolume: volumeWords.value || "",
@@ -1243,7 +1294,7 @@ function getStyleContext(): string {
 // Equivalent to old architecture _plAnalyzeOutline: independent API call,
 // empty skillIds, returns {styleTags, pacingParams} JSON.
 async function analyzeOutline() {
-  if (!projectStore.outlineText) return
+  if (!projectStore.pipelineOutlineText) return
   if (outlineAnalyzed.value && styleTags.value) return
   const provider = providerStore.preferredGenerateProvider
   if (!provider?.id) {
@@ -1255,12 +1306,20 @@ async function analyzeOutline() {
     console.warn("[WARN] No model selected, skipping outline analysis")
     return
   }
-  const prompt = "请分析以下小说大纲的写作风格和节奏特征。返回JSON对象：{styleTags:\"风格标签以逗号分隔\", pacingParams:\"节奏参数描述\"}\n\n大纲：\n" + projectStore.outlineText
+  const prompt = "请分析以下小说大纲的写作风格和节奏特征。返回JSON对象：{styleTags:\"风格标签以逗号分隔\", pacingParams:\"节奏参数描述\"}\n\n大纲：\n" + projectStore.pipelineOutlineText
   try {
-    const text = await providerStore.callApi(provider.id, model, [
-      { role: "system", content: "你是小说风格分析专家。分析大纲的写作风格和节奏特征，返回JSON。" },
-      { role: "user", content: prompt }
-    ])
+    const aiService = await getAiService()
+    const callResult = await aiService.callAi({
+      purpose: 'generate',
+      messages: [
+        { role: "system", content: "你是小说风格分析专家。分析大纲的写作风格和节奏特征，返回JSON。" },
+        { role: "user", content: prompt }
+      ],
+      model,
+      retry: true,
+      meta: { source: 'PipelinePanel.outline-analysis' }
+    })
+    const text = callResult.text || ''
     if (!text) { console.warn("[WARN] Outline analysis returned empty"); return }
     let data: any = null
     try {
@@ -1591,15 +1650,15 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
   const systemPrompt = [skillPart, agentPart].filter(Boolean).join("\n\n") || "你是专业小说创作助手。"
   const userPrompt = [promptParts?.userPrefix, prompt, promptParts?.userSuffix].filter(Boolean).join("\n\n")
   const messages = [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }]
-  const logStore = useExecutionLogStore()
-  const aiService = createAiService(providerStore as any, logStore as any)
+  const aiService = await getAiService()
   const result = await aiService.callAi({
     purpose: 'generate',
     messages,
     model,
     temperature,
     maxTokens,
-    stream: false,
+    onChunk: (text: string) => appendPipelineStream(step, text),
+    signal: pipelineStore.getGenerationSignal(),
     retry: true,
     meta: { source: 'PipelinePanel.callApiWithAgent', step, skillId: skillAgentOverride }
   })
@@ -1643,8 +1702,7 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
     const engine = (window as any).SkillExecutionEngine
     if (engine) {
       const _engineAiRequest = async (opts: any) => {
-        const logStore = useExecutionLogStore()
-        const aiSvc = createAiService(providerStore as any, logStore as any)
+        const aiSvc = await getAiService()
         const result = await aiSvc.callAi({
           purpose: 'generate',
           messages: opts.messages || [],
@@ -1653,6 +1711,7 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
           maxTokens: opts.maxTokens || 128000,
           stream: opts.stream !== false,
           retry: true,
+          signal: pipelineStore.getGenerationSignal(),
           meta: { source: 'PipelinePanel.engine' },
           onChunk: opts.onChunk
         })
@@ -1662,10 +1721,10 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
       let result: any
       if (mode === "split-merge") {
         console.log("[PIPELINE] split-merge mode, step=" + step + " skills=" + engineSkills.length)
-        result = await engine.splitMerge(generationPrompt, engineSkills, { aiRequest: _engineAiRequest, splitSize: 1000, stream: false, templateContext: baseCtx })
+          result = await engine.splitMerge(generationPrompt, engineSkills, { aiRequest: _engineAiRequest, splitSize: 1000, stream: true, templateContext: baseCtx })
       } else {
         console.log("[PIPELINE] multi-step mode, step=" + step + " skills=" + engineSkills.length)
-        result = await engine.multiStep(generationPrompt, engineSkills.slice(0, 4), { aiRequest: _engineAiRequest, splitSize: 1500, stream: false, templateContext: baseCtx })
+        result = await engine.multiStep(generationPrompt, engineSkills.slice(0, 4), { aiRequest: _engineAiRequest, splitSize: 1500, stream: true, templateContext: baseCtx })
       }
       return result?.text || prompt
     }
@@ -1673,7 +1732,7 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
   if (mode === "chain" && templates.length > 1) {
     const chainCtx = { ...baseCtx }
     // Need 2: chain breakpoint resume
-    const bp = pipelineStore.breakpoint
+    const bp = pipelineStore.refreshBreakpoint()
     let startSi = 0
     let current = prompt
     if (
@@ -1803,7 +1862,11 @@ function removeSetting(index: number) {
   const cat = selectedSettingCategory.value
   const arr = sc.items[cat] || []
   if (index >= 0 && index < arr.length) {
+    const removedId = arr[index]?.id
     arr.splice(index, 1)
+    if (selectedSettingId.value === removedId) {
+      selectedSettingId.value = arr[index]?.id || arr[index - 1]?.id || ""
+    }
     projectStore.saveProject()
   }
 }
@@ -1814,7 +1877,7 @@ async function genSettings() {
   pipelineStore.startGeneration()
   pipelineStore.updateProgress(10, "正在读取已确认大纲并生成设定")
   try {
-    const prompt = "[已确认大纲]\n" + projectStore.outlineText + "\n\n请基于这份已确认的大纲，提取并生成设定项。根据内容自动分配category；没有合适分类时使用设定类。输出JSON数组，每项含name/category/attrsText字段。"
+    const prompt = "[已确认大纲]\n" + projectStore.pipelineOutlineText + "\n\n请基于这份已确认的大纲，提取并生成设定项。根据内容自动分配category；没有合适分类时使用设定类。输出JSON数组，每项含name/category/attrsText字段。"
     settingsGenerationLogs.value.push("请求已发送：正在等待 API 返回设定内容")
     const result = await runStepSkills(1, prompt, undefined, "你是设定生成专家。基于小说大纲生成详细设定。")
     settingsGenerationLogs.value.push("API 已返回：正在解析设定 JSON 并检查设定名称")
@@ -1844,8 +1907,8 @@ async function genSettings() {
           })
         }
         projectStore.saveProject()
-        if (!selectedSettingCategory.value && sc2.categories.length > 0) {
-          selectedSettingCategory.value = sc2.categories[0]
+        if (sc2.categories.length > 0) {
+          selectedSettingCategory.value = firstCategoryWithSettings(["设定类", ...sc2.categories])
         }
         settingsGenerationLogs.value.push("设定已写入分类并保存到当前项目")
         pipelineStore.updateProgress(100, "设定生成完成")
@@ -1866,7 +1929,7 @@ async function genSettings() {
 }
 
 async function genVolumes(mode: string) {
-  if (!projectStore.outlineText) return
+  if (!projectStore.pipelineOutlineText) return
   const existingCountBeforeGeneration = projectStore.volumes.length
   activeVolumeGenerationIndex.value = mode === "auto" ? 0 : existingCountBeforeGeneration
   volumeGenerationLogs.value = [
@@ -1890,12 +1953,12 @@ async function genVolumes(mode: string) {
     let prompt: string
     if (mode === "continue" && existingCount > 0) {
       const lastVol = projectStore.volumes[existingCount - 1]
-      prompt = "[大纲]\n" + projectStore.outlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[每卷字数]\n" + volumeWords.value + "\n\n已生成" + existingCount + "卷，上一卷为：" + lastVol.name + " - " + (lastVol.outline || lastVol.summary || "") + "。请继续生成第" + (existingCount + 1) + "卷到第" + effectiveVolumes + "卷的卷纲。输出JSON数组，每项含name/outline/summary/suggestedWords字段。"
+      prompt = "[大纲]\n" + projectStore.pipelineOutlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[每卷字数]\n" + volumeWords.value + "\n\n已生成" + existingCount + "卷，上一卷为：" + lastVol.name + " - " + (lastVol.outline || lastVol.summary || "") + "。请继续生成第" + (existingCount + 1) + "卷到第" + effectiveVolumes + "卷的卷纲。输出JSON数组，每项含name/outline/summary/suggestedWords字段。"
     } else if (mode === "single" && existingCount > 0) {
       const lastVol = projectStore.volumes[existingCount - 1]
-      prompt = "[大纲]\n" + projectStore.outlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[每卷字数]\n" + volumeWords.value + "\n\n已生成" + existingCount + "卷，上一卷为：" + lastVol.name + " - " + (lastVol.outline || lastVol.summary || "") + "。请只生成第" + (existingCount + 1) + "卷的卷纲。输出JSON数组（正好1项），每项含name/outline/summary/suggestedWords字段。"
+      prompt = "[大纲]\n" + projectStore.pipelineOutlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[每卷字数]\n" + volumeWords.value + "\n\n已生成" + existingCount + "卷，上一卷为：" + lastVol.name + " - " + (lastVol.outline || lastVol.summary || "") + "。请只生成第" + (existingCount + 1) + "卷的卷纲。输出JSON数组（正好1项），每项含name/outline/summary/suggestedWords字段。"
     } else {
-      prompt = "[大纲]\n" + projectStore.outlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[每卷字数]\n" + volumeWords.value + "\n\n全书计划字数：" + (bookWordCount.value * 10000) + "字。请生成" + effectiveVolumes + "卷的卷纲。输出JSON数组，每项含name/outline/summary/suggestedWords字段。"
+      prompt = "[大纲]\n" + projectStore.pipelineOutlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[每卷字数]\n" + volumeWords.value + "\n\n全书计划字数：" + (bookWordCount.value * 10000) + "字。请生成" + effectiveVolumes + "卷的卷纲。输出JSON数组，每项含name/outline/summary/suggestedWords字段。"
     }
     volumeGenerationLogs.value.push("请求已发送：正在等待 API 返回卷纲内容")
     const result = await runStepSkills(2, prompt, 600000, "你是卷纲生成专家。基于大纲和设定生成卷纲。")
@@ -1957,10 +2020,20 @@ async function callChapterApi(prompt: string): Promise<string> {
   const model = provider.selectedModel || provider.models?.[0] || ""
   if (!model) throw new Error("生成 API 未选择模型")
   chapterGenerationLogs.value.push("已连接生成 API：" + (provider.name || provider.id) + " / " + model)
-  return await providerStore.callApi(provider.id, model, [
-    { role: "system", content: "你是章节规划师。请严格按照用户要求输出合法 JSON 数组，每项必须包含 title 和 plot 字段。不要输出 Markdown 或解释文字。" },
-    { role: "user", content: prompt }
-  ])
+  const aiService = await getAiService()
+  const callResult = await aiService.callAi({
+    purpose: 'generate',
+    messages: [
+      { role: "system", content: "你是章节规划师。请严格按照用户要求输出合法 JSON 数组，每项必须包含 title 和 plot 字段。不要输出 Markdown 或解释文字。" },
+      { role: "user", content: prompt }
+    ],
+    model,
+    signal: pipelineStore.getGenerationSignal(),
+    onChunk: (text: string) => appendPipelineStream(3, text),
+    retry: true,
+    meta: { source: 'PipelinePanel.callChapterApi' }
+  })
+  return callResult.text || ""
 }
 
 async function genChapters() {
@@ -1969,90 +2042,98 @@ async function genChapters() {
   const volId = vol.id || vol.name
   const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
   const totalChapters = Number(vol.chapterCount) || Math.ceil((vol.suggestedWords || volumeWords.value) / wordsPerChapter)
+  const projectId = projectStore.currentProjectId
+  const savedBreakpoint = pipelineStore.refreshBreakpoint()
+  const matchingBreakpoint = savedBreakpoint && savedBreakpoint.kind === 'chapters'
+    && savedBreakpoint.projectId === projectId
+    && savedBreakpoint.volumeId === volId
+    && Number(savedBreakpoint.total) === totalChapters
+    ? savedBreakpoint
+    : null
+  const persistedChapters = (projectStore.chapters[volId] || [])
+    .filter((chapter: any) => chapter.pipelineGenerated === true)
+  const untouchedChapters = (projectStore.chapters[volId] || [])
+    .filter((chapter: any) => chapter.pipelineGenerated !== true)
+  // Existing generated chapters are never discarded merely because the
+  // breakpoint is missing or belongs to another run. A fresh run starts
+  // after the existing chapter list and only appends new, de-duplicated data.
+  const existingChapters = persistedChapters.slice()
   chapterGenerationLogs.value = ["已选择卷「" + vol.name + "」，目标章数：" + totalChapters + "，单章字数：" + wordsPerChapter]
+  if (matchingBreakpoint && persistedChapters.length > 0 && persistedChapters.length < totalChapters) {
+    chapterGenerationLogs.value.push(
+      "检测到章节断点：已保存 " + persistedChapters.length + "/" + totalChapters + " 章，将从第" + (persistedChapters.length + 1) + "章继续"
+    )
+  }
   pipelineStore.startGeneration()
-  pipelineStore.saveBreakpoint({ volumeIndex: selectedVolumeIndex.value, chapterCount: 0, total: totalChapters })
-  const collected: any[] = []
+  const resumeCount = matchingBreakpoint
+    ? Math.min(Math.max(Number(matchingBreakpoint.chapterCount) || 0, existingChapters.length), totalChapters)
+    : Math.min(existingChapters.length, totalChapters)
+  const collected: any[] = existingChapters.slice(0, resumeCount)
+  const saveChapterBreakpoint = (phase: string) => {
+    pipelineStore.saveBreakpoint({
+      kind: 'chapters',
+      step: 3,
+      projectId,
+      volumeId: volId,
+      volumeIndex: selectedVolumeIndex.value,
+      chapterCount: collected.length,
+      nextChapterIndex: collected.length,
+      total: totalChapters,
+      phase
+    })
+  }
+  saveChapterBreakpoint(collected.length > 0 ? 'resume-ready' : 'started')
   try {
     const volOutline = vol.outline || vol.summary || ""
     const batch = Math.max(1, Math.min(chapterBatchSize.value || 5, 20))
-    for (let start = 0; start < totalChapters; start += batch) {
-      const end = Math.min(start + batch, totalChapters)
+    while (collected.length < totalChapters) {
+      const start = collected.length
+      const requested = Math.min(batch, totalChapters - start)
+      const end = start + requested
+      const phase = start > 0 ? 'supplement' : 'batch'
       pipelineStore.updateProgress(Math.round((start / totalChapters) * 100), "生成 " + (start + 1) + "-" + end + "/" + totalChapters)
-      chapterGenerationLogs.value.push("正在生成第" + (start + 1) + "章到第" + end + "章（共" + totalChapters + "章）")
-      const prompt = "[卷纲]\n" + vol.name + " - " + volOutline + "\n\n[本卷总章数]\n" + totalChapters + "\n\n[单章字数]\n" + wordsPerChapter + "\n\n请生成第" + (start + 1) + "章到第" + end + "章的章节列表。输出JSON数组，每项含title/plot字段。数组长度必须恰好等于" + (end - start) + "。"
-      let batchResult: any[] = []
-      let batchSuccess = false
-      for (let retry = 0; retry < 5 && !batchSuccess; retry++) {
+      chapterGenerationLogs.value.push(
+        (phase === 'supplement' ? "补充生成" : "正在生成") + "第" + (start + 1) + "章到第" + end + "章（共" + totalChapters + "章）"
+      )
+      const prompt = "[卷纲]\n" + vol.name + " - " + volOutline + "\n\n[本卷总章数]\n" + totalChapters + "\n\n[单章字数]\n" + wordsPerChapter + "\n\n已有" + start + "章，" + (phase === 'supplement' ? "继续" : "请") + "生成第" + (start + 1) + "章到第" + end + "章的章节列表。不要重复已有章节。输出JSON数组，每项含title/plot字段。数组长度应为" + requested + "。"
+      let added: any[] = []
+      let lastError: any = null
+      for (let retry = 0; retry < 5 && added.length === 0; retry++) {
         try {
           const result = await callChapterApi(prompt)
-          const chapters = extractJsonArray(result)
-          if (chapters.length > 0) {
-            batchResult = chapters
-            batchSuccess = true
-          } else if (retry < 4) {
-            await new Promise((r) => setTimeout(r, 5000))
+          const existingTitles = new Set(collected.map(c => c.title))
+          const chapters = extractJsonArray(result).slice(0, requested)
+          added = chapters.filter((c: any) => c && c.title && !existingTitles.has(c.title))
+          if (added.length === 0) {
+            lastError = new Error("API 返回空章节或重复章节")
+            if (retry < 4) await new Promise((r) => setTimeout(r, 5000))
           }
         } catch (retryErr: any) {
-          if (retry < 4) {
-            pipelineStore.saveBreakpoint({ volumeIndex: selectedVolumeIndex.value, chapterCount: collected.length, total: totalChapters })
-            await new Promise((r) => setTimeout(r, 10000))
-          } else {
-            throw retryErr
-          }
+          if (pipelineStore.isGenerationCanceled()) throw retryErr
+          lastError = retryErr
+          saveChapterBreakpoint('retry-wait')
+          if (retry < 4) await new Promise((r) => setTimeout(r, 10000))
         }
       }
-      if (batchSuccess && batchResult.length > 0) {
-        batchResult.forEach((c: any, idx: number) => {
-          if (!c.id) c.id = "ch-" + String(volId).replace(/[^a-zA-Z0-9_-]/g, "-") + "-" + String(collected.length + idx + 1).padStart(3, "0")
-          c.pipelineGenerated = true
-          if (c.body === undefined) c.body = ""
-          if (c.bodyGenerated === undefined) c.bodyGenerated = false
-          if (c.wordCount === undefined) c.wordCount = 0
-        })
-        collected.push(...batchResult)
-        projectStore.setChapters(volId, [...collected])
-        projectStore.refreshTree()
-        pipelineStore.saveBreakpoint({ volumeIndex: selectedVolumeIndex.value, chapterCount: collected.length, total: totalChapters })
-        chapterGenerationLogs.value.push("已生成 " + collected.length + "/" + totalChapters + " 章")
-      }
-    }
-    // Need 3: supplement generation for insufficient chapters
-    let supplementRetry = 0
-    while (collected.length < totalChapters && supplementRetry < 3) {
-      supplementRetry++
-      chapterGenerationLogs.value.push("章节不足，开始补充生成（第" + supplementRetry + "次）：当前" + collected.length + "/" + totalChapters)
-      const remain = totalChapters - collected.length
-      const supplementPrompt = "[卷纲]\n" + vol.name + " - " + (vol.outline || vol.summary || "") + "\n\n[本卷总章数]\n" + totalChapters + "\n\n[单章字数]\n" + wordsPerChapter + "\n\n已有" + collected.length + "章，继续从第" + (collected.length + 1) + "章生成到第" + totalChapters + "章。输出JSON数组，每项含title/plot字段。不要重复已有章节。数组长度必须恰好等于" + remain + "。"
-      try {
-        const result = await callChapterApi(supplementPrompt)
-        const supplement = extractJsonArray(result)
-        const existingTitles = new Set(collected.map(c => c.title))
-        for (const c of supplement) {
-          if (c.title && !existingTitles.has(c.title)) {
-            c.id = "ch-" + String(volId).replace(/[^a-zA-Z0-9_-]/g, "-") + "-" + String(collected.length + 1).padStart(3, "0")
-            c.pipelineGenerated = true
-            if (c.body === undefined) c.body = ""
-            if (c.bodyGenerated === undefined) c.bodyGenerated = false
-            if (c.wordCount === undefined) c.wordCount = 0
-            collected.push(c)
-            existingTitles.add(c.title)
-          }
-        }
-        projectStore.setChapters(volId, [...collected])
-        projectStore.refreshTree()
-        pipelineStore.saveBreakpoint({ volumeIndex: selectedVolumeIndex.value, chapterCount: collected.length, total: totalChapters })
-        chapterGenerationLogs.value.push("补充生成完成：当前已有 " + collected.length + "/" + totalChapters + " 章")
-      } catch (e: any) {
-        console.warn("[PIPELINE] supplement generation " + supplementRetry + " failed:", e)
-        chapterGenerationLogs.value.push("补充生成失败（第" + supplementRetry + "次）：" + (e.message || "未知错误"))
-      }
+      if (added.length === 0) throw lastError || new Error("未能生成新的章节")
+      added.forEach((c: any, idx: number) => {
+        if (!c.id) c.id = "ch-" + String(volId).replace(/[^a-zA-Z0-9_-]/g, "-") + "-" + String(collected.length + idx + 1).padStart(3, "0")
+        c.pipelineGenerated = true
+        if (c.body === undefined) c.body = ""
+        if (c.bodyGenerated === undefined) c.bodyGenerated = false
+        if (c.wordCount === undefined) c.wordCount = 0
+      })
+      collected.push(...added)
+      projectStore.setChapters(volId, [...untouchedChapters, ...collected])
+      projectStore.refreshTree()
+      saveChapterBreakpoint('progress')
+      chapterGenerationLogs.value.push("已生成 " + collected.length + "/" + totalChapters + " 章")
     }
     if (collected.length > 0) {
       const vr = validateChapters(collected, totalChapters)
       if (!vr.valid) {
+        saveChapterBreakpoint('failed-validation')
         pipelineStore.failGeneration(vr.errors.join("; "))
-        pipelineStore.finishGeneration()
         chapterGenerationLogs.value.push("章节校验失败：" + vr.errors.join("; "))
         return
       }
@@ -2062,9 +2143,10 @@ async function genChapters() {
       pipelineStore.failGeneration("未能解析章节JSON")
       chapterGenerationLogs.value.push("AI 返回内容不是可用的章节 JSON")
     }
+    pipelineStore.clearBreakpoint()
     pipelineStore.finishGeneration()
   } catch (e: any) {
-    pipelineStore.saveBreakpoint({ volumeIndex: selectedVolumeIndex.value, chapterCount: collected.length, total: totalChapters })
+    saveChapterBreakpoint('failed')
     pipelineStore.failGeneration(e.message)
     chapterGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
   }
@@ -2095,7 +2177,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     const boundText = getBoundSettingsText()
     const volOutline = vol.outline || vol.summary || ""
     const styleCtx = getStyleContext()
-    const prompt = "[全书大纲]\n" + projectStore.outlineText + "\n\n[设定摘要]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + (styleCtx ? "\n\n[风格与节奏分析]\n" + styleCtx + "\n" : "") + "\n\n[当前卷概要]\n" + vol.name + " - " + volOutline + "\n\n[当前章节剧情点]\n" + ch.title + " - " + (ch.plot || "") + "\n\n请为本章节生成约" + chapterWords.value + "字的正文内容。"
+    const prompt = "[全书大纲]\n" + projectStore.pipelineOutlineText + "\n\n[设定摘要]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + (styleCtx ? "\n\n[风格与节奏分析]\n" + styleCtx + "\n" : "") + "\n\n[当前卷概要]\n" + vol.name + " - " + volOutline + "\n\n[当前章节剧情点]\n" + ch.title + " - " + (ch.plot || "") + "\n\n请为本章节生成约" + chapterWords.value + "字的正文内容。"
     const result = await runStepSkills(4, prompt, undefined, "你是小说写作专家。请基于章节剧情点生成正文。")
     bodyResult.value = result
     ch.body = result
@@ -2109,6 +2191,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
         text: result,
         chapterId: ch.id || '',
         title: ch.title || '章节',
+        mode: 'ch-body',
         openEditor: true
       }
     }))
@@ -2142,7 +2225,8 @@ function insertToEditor() {
     detail: {
       text: content,
       chapterId: ch?.id || '',
-      title: ch?.title || '章节'
+      title: ch?.title || '章节',
+      mode: 'ch-body'
     }
   }))
 }
@@ -2320,8 +2404,8 @@ function confirmMemoryPreview() {
   if (written) closeMemoryPreview()
 }
 
-onMounted(() => {
-  const saved = window.electronAPI.storageRead(storageKey("pipeline_step_config"))
+  onMounted(async () => {
+  const saved = await window.electronAPI.storageRead(storageKey("pipeline_step_config"))
   if (saved) {
     if (saved.agents) {
       stepAgents.value = { 0: "", 1: "", 2: "", 3: "", 4: "" }
@@ -2374,6 +2458,9 @@ onMounted(() => {
   if (projectStore.settingsGenerated) steps.value[1].completed = true
   if (projectStore.volumesConfirmed) steps.value[2].completed = true
   if (projectStore.chaptersConfirmed) steps.value[3].completed = true
+  if (settingNavigationCategories.value.length > 0) {
+    selectedSettingCategory.value = firstCategoryWithSettings()
+  }
 })
 
 function getSkillName(id: string): string {
@@ -2420,7 +2507,8 @@ function insertBody() {
       detail: {
         text: bodyResult.value,
         chapterId: ch?.id || "",
-        title: ch?.title || "章节"
+        title: ch?.title || "章节",
+        mode: 'ch-body'
       }
     }));
     toolResult.value = "正文已插入到编辑器";
@@ -2505,8 +2593,8 @@ function toolAction(action: string) {
 .pl-pacing-restore { margin-top: var(--space-2); }
 .pl-overlay.pl-fullscreen { align-items: stretch; justify-content: stretch; }
 .pl-content-fullscreen { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; border-radius: 0 !important; border: none !important; }
-.pl-memory-preview-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--bg-overlay); z-index: calc(var(--z-modal) + 1); pointer-events: auto; }
-.pl-memory-preview-modal { position: relative; z-index: 1; width: min(720px, 100%); max-height: min(720px, calc(100vh - 48px)); display: flex; flex-direction: column; overflow: hidden; background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: var(--shadow-lg); pointer-events: auto; }
+.pl-memory-preview-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: var(--modal-gutter); background: var(--bg-overlay); z-index: var(--z-modal-nested); pointer-events: auto; }
+.pl-memory-preview-modal { position: relative; z-index: var(--z-modal-nested-content); width: min(var(--modal-width-lg), 100%); max-height: var(--modal-max-height); min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); pointer-events: auto; }
 .pl-memory-preview-header, .pl-memory-preview-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; }
 .pl-memory-preview-header { border-bottom: 1px solid var(--border-color); }
 .pl-memory-preview-subtitle { display: block; margin-top: 4px; color: var(--text-secondary); font-size: 12px; }
@@ -2517,25 +2605,31 @@ function toolAction(action: string) {
 .pl-memory-change-kind { color: var(--text-secondary); font-size: 12px; }
 .pl-memory-change-item small { grid-column: 1 / -1; color: var(--text-secondary); }
 .pl-memory-change-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; }
-.pl-memory-preview-error { color: var(--color-danger, #c0392b); }
+.pl-memory-preview-error { color: var(--danger); }
 .pl-content { width: min(1400px, 96vw); height: min(920px, 96vh); max-width: 1400px; max-height: 96vh; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; }
 .pl-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-5) var(--space-8); border-bottom: 1px solid var(--border-color); font-size: var(--font-size-xl); font-weight: 600; }
 .pl-header-title { }
 .pl-header-actions { display: flex; align-items: center; gap: var(--space-2); }
 .pl-body { display: flex; flex: 1; overflow: hidden; }
 /* 左侧五层步骤导航 - 竖排 */
-.pl-steps { width: clamp(200px, 18vw, 280px); background: var(--bg-secondary); border-right: 1px solid var(--border-color); padding: 16px 8px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+.pl-steps { width: clamp(200px, 18vw, 280px); background: var(--pipeline-step-bg); border-right: 1px solid var(--border-color); padding: 16px 8px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
 .pl-step { display: flex; align-items: center; gap: 12px; padding: 16px 18px; cursor: pointer; border-radius: var(--radius-lg); opacity: 0.5; transition: opacity 0.15s ease, background 0.15s ease; }
 .pl-step:hover { opacity: 0.8; background: var(--bg-hover); }
-.pl-step.active { opacity: 1; background: var(--accent-dim); }
+.pl-step.active { opacity: 1; background: var(--pipeline-step-active-bg); border: 1px solid var(--pipeline-step-active-border); }
 .pl-step.completed { opacity: 1; }
 .pl-step-num { width: 34px; height: 34px; border-radius: 50%; background: var(--bg-tertiary); color: var(--text-primary); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-lg); font-weight: bold; flex-shrink: 0; transition: background 0.15s ease; }
 .pl-step.active .pl-step-num { background: var(--accent); color: var(--text-on-accent); }
-.pl-step.completed .pl-step-num { background: var(--success); color: var(--text-on-accent); }
+.pl-step.completed { background: var(--pipeline-step-complete-bg); border-color: var(--pipeline-step-complete-border); }
+.pl-step.completed .pl-step-num { background: var(--pipeline-step-complete-border); color: var(--text-on-accent); }
 .pl-step-label { font-size: var(--font-size-lg); color: var(--text-primary); font-weight: 500; }
 .pl-step-check { margin-left: auto; color: var(--success); font-size: var(--font-size-xl); }
 /* 右侧内容区 */
 .pl-content-right { display: flex; flex-direction: column; flex: 1; padding: 24px 24px 32px; overflow-y: auto; min-width: 0; }
+#pl-step-2-content {
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
 .pl-step-panel h3 { font-size: var(--font-size-xxl); margin-bottom: 20px; }
 .pl-textarea { width: 100%; min-height: 400px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px; font-size: var(--font-size-lg); line-height: 1.8; resize: vertical; outline: none; }
 .pl-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px 12px; font-size: var(--font-size-md); height: 36px; outline: none; flex: 1; }
@@ -2566,7 +2660,7 @@ function toolAction(action: string) {
   padding: var(--space-4);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  background: var(--bg-secondary);
+  background: var(--pipeline-feedback-bg);
 }
 .pl-ch-generation-header {
   display: flex;
@@ -2581,7 +2675,7 @@ function toolAction(action: string) {
   padding: var(--space-4);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  background: var(--bg-secondary);
+  background: var(--pipeline-feedback-bg);
 }
 .pl-generation-feedback-header {
   display: flex;
@@ -2597,13 +2691,13 @@ function toolAction(action: string) {
   margin-top: var(--space-3);
   overflow: hidden;
   border-radius: var(--radius-sm);
-  background: var(--bg-tertiary);
+  background: var(--pipeline-progress-track);
 }
 .pl-generation-progress-value {
   height: 100%;
   min-width: 0;
   border-radius: inherit;
-  background: var(--accent);
+  background: var(--pipeline-progress-value);
   transition: width 180ms ease;
 }
 .pl-generation-log {
@@ -2644,7 +2738,7 @@ function toolAction(action: string) {
   flex-direction: column;
   gap: var(--space-2);
   border-color: var(--accent);
-  background: var(--bg-secondary);
+  background: var(--pipeline-feedback-bg);
 }
 .pl-vol-generation-card { padding: var(--space-4); }
 .pl-vol-generation-feedback { margin-top: var(--space-3); padding: var(--space-3); }
@@ -2682,15 +2776,15 @@ function toolAction(action: string) {
 .pl-tools-label { font-size: var(--font-size-sm); color: var(--text-muted); white-space: nowrap; }
 .pl-skills-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; min-height: 24px; }
 .pl-skill-chip { padding: 2px 8px; border-radius: var(--radius-lg); font-size: var(--font-size-xs); background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-glow, transparent); display: inline-flex; align-items: center; gap: 4px; }
-.pl-chip-seq { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pl-chip-seq { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: var(--text-on-accent); font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .pl-tools-section { padding: 6px 0; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); }
 .pl-tools-grid { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .pl-tool-result { margin-top: 6px; padding: 6px 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--font-size-sm); color: var(--text-primary); max-height: 60px; overflow-y: auto; }
 .pl-tool-loading { margin-top: 4px; font-size: var(--font-size-sm); color: var(--accent); }
 
 .pl-chip-agent { height: 22px; padding: 0 6px; font-size: 10px; min-width: 60px; width: auto; border-radius: var(--radius-sm); background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; }
-.pl-add-setting-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: calc(var(--z-modal) + 100); }
-.pl-add-setting-modal { width: min(640px, 94vw); background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; }
+.pl-add-setting-overlay { position: fixed; inset: 0; padding: var(--modal-gutter); background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal-nested); }
+.pl-add-setting-modal { width: min(var(--modal-width), 100%); max-height: var(--modal-max-height); min-height: 0; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; }
 .pl-add-setting-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border-color); font-size: var(--font-size-lg); font-weight: 600; }
 .pl-add-setting-body { display: flex; flex-direction: column; gap: 8px; padding: 20px; }
 .pl-add-setting-body label { font-size: var(--font-size-md); color: var(--text-secondary); }
@@ -2719,6 +2813,8 @@ function toolAction(action: string) {
   gap: var(--space-4);
   flex: 1 1 auto;
   min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 .pl-settings-navigation {
   display: flex;
@@ -2797,12 +2893,15 @@ function toolAction(action: string) {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
-  min-height: 0;
+  min-height: 220px;
   min-width: 0;
   padding: var(--space-4);
+  max-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  background: var(--bg-secondary);
+  background: var(--pipeline-feedback-bg);
 }
 .pl-sc-editor {
   display: flex;
@@ -2832,37 +2931,46 @@ function toolAction(action: string) {
 .pl-sc-editor-count { color: var(--text-muted); font-size: var(--font-size-sm); white-space: nowrap; }
 .pl-settings-list {
   display: flex;
-  flex: 1 1 auto;
+  flex: 0 1 220px;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-1);
   min-width: 0;
   min-height: 0;
+  max-height: 220px;
   overflow-y: auto;
 }
 .pl-setting-item {
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(120px, 0.4fr) minmax(0, 1fr) auto;
+  align-items: center;
   gap: var(--space-3);
+  width: 100%;
   min-width: 0;
-  padding: var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   background: var(--bg-tertiary);
 }
-.pl-setting-item-main {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: 0;
+.pl-setting-item.active {
+  border-color: var(--accent-color);
+  background: var(--bg-secondary);
 }
-.pl-setting-item-main .pl-input { min-width: 0; }
-.pl-setting-item .pl-attrs-input {
-  width: 100%;
-  min-height: 86px;
-  box-sizing: border-box;
-  line-height: 1.55;
-}
+.pl-setting-item-name,
+.pl-setting-item-summary,
+.pl-setting-item-state { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pl-setting-item-name { color: var(--text-primary); font-weight: 600; }
+.pl-setting-item-summary { color: var(--text-secondary); }
+.pl-setting-item-state { color: var(--text-muted); font-size: var(--font-size-sm); }
+.pl-setting-item-index { position: absolute; left: 4px; top: 2px; color: var(--text-muted); font-size: 10px; }
+.pl-setting-detail { display: flex; flex-direction: column; gap: var(--space-2); min-height: 0; padding-top: var(--space-3); }
+.pl-setting-detail-heading, .pl-setting-detail-actions { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
+.pl-setting-detail-heading { color: var(--text-primary); font-weight: 600; }
+.pl-setting-detail-status { color: var(--text-muted); font-size: var(--font-size-sm); font-weight: 400; }
+.pl-setting-detail-fields { display: grid; grid-template-columns: minmax(160px, 0.4fr) minmax(0, 1fr); gap: var(--space-2); min-height: 0; }
+.pl-setting-detail-fields .pl-attrs-input { min-height: 88px; resize: vertical; }
+.pl-setting-detail-actions { justify-content: flex-end; }
 .pl-sc-category-actions {
   display: flex;
   flex-wrap: wrap;
@@ -2883,8 +2991,8 @@ function toolAction(action: string) {
     align-items: flex-start;
   }
   .pl-sc-categories { flex-basis: 100%; }
-  .pl-setting-item-main { grid-template-columns: minmax(0, 1fr) auto; }
-  .pl-setting-item-main .btn-danger { grid-column: 2; grid-row: 1; }
+  .pl-setting-detail-fields { grid-template-columns: 1fr; }
 }
 
 </style>
+
