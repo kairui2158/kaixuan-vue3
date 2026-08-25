@@ -37,57 +37,11 @@ function registerDialogHandlers() {
       return result.canceled || !result.filePaths.length ? null : result.filePaths[0]
     } catch (e) { console.error('[dialog:openFileAsync]', e); return null }
   })
-  ipcMain.handle('dialog:readFileAsync', async function(event, filePath) {
-    try { return filePath ? { path: filePath, content: await fs.promises.readFile(filePath, 'utf8') } : null }
-    catch (e) { return null }
-  })
-  ipcMain.on('dialog:saveFile', function(event, defaultName) {
-    try {
-     var result = dialog.showSaveDialogSync({
-        title: '导出配置',
-       defaultPath: defaultName || 'export.txt',
-        filters: [
-          { name: 'Text', extensions: ['txt'] },
-          { name: 'Markdown', extensions: ['md'] },
-          { name: 'JSON', extensions: ['json'] },
-          { name: 'All Files', extensions: ['*'] }
-        ]
-      })
-      event.returnValue = result
-    } catch (e) {
-      event.returnValue = null
-    }
-  })
-
-  ipcMain.on('dialog:openFile', function(event) {
-    try {
-     var result = dialog.showOpenDialogSync({
-        title: '导入配置',
-       properties: ['openFile'],
-        filters: [
-          { name: 'Text', extensions: ['txt', 'md', 'json'] },
-          { name: 'All Files', extensions: ['*'] }
-        ]
-      })
-      event.returnValue = result && result.length > 0 ? result[0] : null
-    } catch (e) {
-      event.returnValue = null
-    }
-  })
-  ipcMain.on('dialog:readFile', function(event, filePath) {
-    try {
-      if (!filePath) {
-        event.returnValue = null;
-        return;
-      }
-      var content = fs.readFileSync(filePath, 'utf8');
-      event.returnValue = { path: filePath, content: content };
-    } catch (e) {
-      event.returnValue = null;
-    }
-  })
-
-  ipcMain.handle('dialog:writeFile', async function(event, filePath, content) {
+ ipcMain.handle('dialog:readFileAsync', async function(event, filePath) {
+   try { return filePath ? { path: filePath, content: await fs.promises.readFile(filePath, 'utf8') } : null }
+   catch (e) { return null }
+ })
+ ipcMain.handle('dialog:writeFile', async function(event, filePath, content) {
     try {
       if (!filePath) {
         return false;
