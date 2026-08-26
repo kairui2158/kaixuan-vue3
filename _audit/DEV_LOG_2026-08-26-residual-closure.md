@@ -89,6 +89,14 @@
 - 该结果只能核销页面入口存在，不能核销 Windows 原生打开对话框、导入后合并差异、项目落盘或重启恢复。状态保持 `PARTIAL / UNVERIFIED`。
 - 本轮未修改业务代码、未覆盖客户数据、未产生临时文件。
 
+### 全应用 AI 入口与错误边界续验
+
+- 新鲜源码扫描确认业务生成/改写/验证/检测调用点均通过 `getAiService().callAi`；`ChatPanel`、`PipelinePanel`、`OutlineWorkspace`、`EditorPanel`、`useAiTools`、`useDeAi` 和 `useSkillTest` 没有新增独立 HTTP 生成入口。
+- `src/services/aiService.ts` 是业务 AI 请求的统一 HTTP 入口，统一承载流式解析、超时、重试、JSON 解析、取消和诊断日志；`src/main.ts`/`electron/ipc/api.js` 的模型列表请求、`PluginMarket.vue` 的 GitHub API、`stores/mcp.ts` 的 MCP 协议属于不同网络语义，保留且不计入生成入口分散。
+- 新鲜自动化门：`npm run test:services` 为 1 个文件、35/35 测试通过；`npm run type-check` 退出 0；`npm run build:vue` 成功并转换 176 个模块。
+- 构建仍有三类已知警告：Vite `configLoader: native`、provider/executionLog 无效动态导入、主 chunk 超过 500 kB。它们已记录但未被错误写成“无警告”。
+- 本轮证据尚未覆盖真实供应商断网、HTTP 错误、UI 错误提示和取消按钮的全应用逐点操作，因此该遗留项保持 `PARTIAL`，不得标记全量回归通过。
+
 - 真实数据目录只读检查：未发现 `wa_project_*.json` 可恢复项目快照；存在历史记忆导出 `p710-memory-export.json`（1 个实体），但它不能证明项目重启恢复。
 - 安装版 `http://127.0.0.1:9228/json` 返回 `resources/app.asar` 页面，标题“神意助手”；当前存在多个同路径产品进程，Playwright 浏览器级 CDP 握手在 30 秒观察窗内超时。该结果是验证载体边界，不是业务导入失败证据。
 - 本轮未覆盖客户数据、未注入项目、未执行覆盖导入；临时探针自动删除并复核，未保留中间数据。
