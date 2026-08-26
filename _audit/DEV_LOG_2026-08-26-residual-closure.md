@@ -47,6 +47,16 @@
 
 ## 2026-08-26 当前轮次独立复核
 
+### 续验记录（本轮）
+
+- 重新读取经验文件后继续遗留队列，未回跳 V2 配色等已核销阶段。
+- 数据目录仍无 `wa_project_*.json`，因此没有制造项目数据来冒充关闭重启恢复证据。
+- `npm run test:services`：Vitest 1 file / 38 tests passed；`npm run type-check`：退出 0；`npm run build:vue`：176 modules transformed，构建成功。
+- 源文件启动器 `start-electron.bat` 本轮成功监听 `127.0.0.1:9227`；CDP 页面标题为“神意助手”，URL 为 `file:///D:/codex/novel-workshop-vue3/dist-renderer/index.html`。验证完成后已通过 `taskkill /f /im electron.exe` 关闭全部本轮 Electron 进程。
+- 构建仍原样出现 Vite `configLoader: native`、provider/executionLog `INEFFECTIVE_DYNAMIC_IMPORT` 和主 chunk 超过 500 kB 三类警告；未为消警告扩大重构范围。
+- 记忆导入页面的两个入口、IPC `{ path, content }` 契约、服务层 JSON 合并去重和 `recordMemoryChange` 持久化调用均已复核；因没有真实项目快照且本轮没有可观测原生打开窗口，页面导入后的客户数据落盘与重启恢复继续为 `UNVERIFIED`。
+- 本轮未修改业务代码、未覆盖客户数据、未产生临时探针；因此不存在需要清理的本轮证据文件。
+
 ### 自动化门
 
 - `npm run test:services`：Vitest `1 passed`，`35 passed`。
