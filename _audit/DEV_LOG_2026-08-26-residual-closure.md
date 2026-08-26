@@ -104,6 +104,13 @@
 - 旧架构兼容服务 `src/services/skill-manager.js`、`provider-manager.js`、`project-manager.js`、`chapter-manager.js`、`agent-manager.js` 仍引用 `StorageManager` 名称，并被历史架构文档记录；在没有隔离/迁移等价性证据前不删除。
 - 本轮未执行死代码删除；构建警告仍保持记录状态，避免把“没有找到可安全删除项”误写成清理完成。
 
+### 统一 AI 服务错误边界回归
+
+- 新增 `aiService.callAi` 运行时回归：401 认证错误不重试、已取消请求不发起网络请求、JSON 首次解析失败后只进行一次结构化重试。
+- 首轮测试发现真实缺陷：调用方的 `AbortSignal` 已经 aborted 时，统一入口仍会先进入 `_rawCall` 并调用一次 `fetch`，虽然最终会分类为取消，但会产生不必要的网络请求。
+- 最小修复：`src/services/aiService.ts` 在定义取消错误处理后、重试循环前立即检查 `params.signal?.aborted`，直接返回取消错误。
+- 修复后 `npm run test:services`：1 个测试文件、38/38 通过；`npm run type-check` 退出 0。该证据只覆盖服务层边界，不替代真实供应商断网和全 UI 错误路径回归。
+
 - 真实数据目录只读检查：未发现 `wa_project_*.json` 可恢复项目快照；存在历史记忆导出 `p710-memory-export.json`（1 个实体），但它不能证明项目重启恢复。
 - 安装版 `http://127.0.0.1:9228/json` 返回 `resources/app.asar` 页面，标题“神意助手”；当前存在多个同路径产品进程，Playwright 浏览器级 CDP 握手在 30 秒观察窗内超时。该结果是验证载体边界，不是业务导入失败证据。
 - 本轮未覆盖客户数据、未注入项目、未执行覆盖导入；临时探针自动删除并复核，未保留中间数据。

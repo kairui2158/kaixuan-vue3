@@ -340,6 +340,9 @@ export function createAiService(
       throw new AiServiceErrorImpl({ kind: 'canceled', message: '用户取消', providerId, purpose: params.purpose })
     }
 
+    // Do not even open a network request when the caller has already canceled.
+    if (params.signal?.aborted) return throwCanceled()
+
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         const result = await _rawCall(provider, params, timeoutMs)
