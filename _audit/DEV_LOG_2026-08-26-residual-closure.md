@@ -44,3 +44,29 @@
 - 证明安装包页面实际加载 `resources/app.asar`，不是开发服务器；本次没有重复启动进程。
 - `_audit/tmp_final_package_probe.cjs` 已删除；本轮临时探针未留存。
 - 该证据只核销安装包启动与页面载体边界；Windows 原生选择器完整用户路径、真实项目关闭重启恢复、真实 JSON 导入合并仍未核销。
+
+## 2026-08-26 当前轮次独立复核
+
+### 自动化门
+
+- `npm run test:services`：Vitest `1 passed`，`35 passed`。
+- `npm run type-check`：进程退出 `0`，本轮未出现类型错误。
+- `npm run build:vue`：`176 modules transformed`，构建成功；仍输出 Vite `configLoader: native`、`INEFFECTIVE_DYNAMIC_IMPORT`（provider/executionLog）和 chunk size 三类警告。
+- 生产 AI 入口扫描：业务生成调用集中在 `src/services/aiService.ts`；`src/main.ts` 模型获取、`PluginMarket.vue` GitHub API、`stores/mcp.ts` MCP 协议保留为非生成用途，未误删。
+
+### 原生导出边界
+
+- 安装版记忆面板真实可打开，真实可见“更多”菜单和“导出 JSON”入口。
+- 触发导出后，当前安装版没有出现可观测 Windows 保存窗口；CDP 探针在同步等待阶段超时，桌面窗口枚举没有出现 `#32770` 保存对话框。
+- 该结果只能记录为原生选择器验证载体/同步 IPC 可观测性阻断，不能扩大为导出成功或导入成功。
+- 本轮没有写入客户项目数据，没有执行覆盖导入，没有伪造文件路径；临时探针 `_audit/tmp_native_export_probe.cjs` 已删除并复核。
+
+### 当前状态调整
+
+| 遗留项 | 本轮状态 | 结论 |
+|---|---|---|
+| V2 配色 P6-P8 | PASS（已有新鲜证据） | 不回滚重做 |
+| 记忆异常路径与 JSON/视图边界 | PARTIAL | 异常/视图证据存在，原生完整文件路径与真实恢复仍缺 |
+| 全应用 AI/错误路径回归 | PARTIAL | 服务测试通过，外部真实网络错误/所有 UI 错误路径未形成全量证据 |
+| 安装包与原生导入导出 | PARTIAL/BLOCKED | 安装包页面通过，原生保存窗口未观测 |
+| 死代码与构建警告清理 | PARTIAL | 明确不可达分支已清理；动态导入和历史兼容模块因等价性风险保留 |
