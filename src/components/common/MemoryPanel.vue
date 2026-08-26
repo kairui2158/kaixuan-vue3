@@ -75,9 +75,6 @@
                   <button class="btn-sm btn-secondary" @click="showForm(item.legacyIndex)">编辑</button>
                   <button class="btn-sm btn-danger" @click="deleteItem(item.legacyIndex)">删除</button>
                 </template>
-                <template v-else-if="item.source === 'entity'">
-                  <button class="btn-sm btn-secondary" @click="exportEntityCard(item)">导出角色卡</button>
-                </template>
               </div>
             </div>
             <div class="mem-item-content">{{ item.content }}</div>
@@ -116,7 +113,7 @@ import GraphAnalysis from '../memory/GraphAnalysis.vue'
 import MindMap from '../memory/MindMap.vue'
 import TimelineView from '../memory/TimelineView.vue'
 import CharacterCard from '../memory/CharacterCard.vue'
-import { exportFullJSON, importFullJSON, mergeImportedMemory, importCharacterCardV3 } from '../../services/memoryIO'
+import { exportFullJSON, importFullJSON, mergeImportedMemory, exportCharacterCardV3, importCharacterCardV3 } from '../../services/memoryIO'
 
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
@@ -256,18 +253,18 @@ function confirmAddCat() {
   newCatName.value = ''
 }
 
-function exportMemory() {
+async function exportMemory() {
   const json = exportFullJSON(projectStore.memories, '神意助手记忆导出')
-  const filePath = window.electronAPI.dialogSaveFile('memory-export.json')
+  const filePath = await (window.electronAPI.dialogSaveFileAsync?.('memory-export.json') ?? window.electronAPI.dialogSaveFile('memory-export.json'))
   if (!filePath) return
-  const ok = window.electronAPI.dialogWriteFile(filePath, json)
+  const ok = await window.electronAPI.dialogWriteFile(filePath, json)
   alert(ok ? '记忆导出成功：' + filePath : '记忆导出失败')
 }
 
-function importMemory(mode: 'merge' | 'replace' = 'merge') {
-  const path = window.electronAPI.dialogOpenFile()
+async function importMemory(mode: 'merge' | 'replace' = 'merge') {
+  const path = await (window.electronAPI.dialogOpenFileAsync?.() ?? window.electronAPI.dialogOpenFile())
   if (!path) return
-  const read = window.electronAPI.dialogReadFile(path)
+  const read = await (window.electronAPI.dialogReadFileAsync?.(path) ?? window.electronAPI.dialogReadFile(path))
   if (!read || !read.content) {
     alert('读取文件失败')
     return
@@ -279,7 +276,7 @@ function importMemory(mode: 'merge' | 'replace' = 'merge') {
   }
   if (mode === 'replace') {
     if (!confirm('覆盖导入会删除当前项目已有记忆，只保留文件内容。确认覆盖？')) return
-    projectStore.recordMemoryChange(result.memory, {
+    await projectStore.recordMemoryChange(result.memory, {
       chapterId: 'memory-import-replace',
       reason: '用户主动选择覆盖导入记忆'
     })
@@ -288,17 +285,17 @@ function importMemory(mode: 'merge' | 'replace' = 'merge') {
   }
   if (!confirm('导入将合并到当前记忆，已有条目不会被覆盖。确认继续？')) return
   const merged = mergeImportedMemory(projectStore.memories, result.memory)
-  projectStore.recordMemoryChange(merged.memory, {
+  await projectStore.recordMemoryChange(merged.memory, {
     chapterId: 'memory-import-merge',
     reason: `合并导入记忆：新增 ${merged.added} 项，跳过 ${merged.skipped} 项`
   })
   alert(`记忆合并导入成功：新增 ${merged.added} 项，跳过 ${merged.skipped} 项`)
 }
 
-function importCharacterCard() {
-  const path = window.electronAPI.dialogOpenFile()
+async function importCharacterCard() {
+  const path = await (window.electronAPI.dialogOpenFileAsync?.() ?? window.electronAPI.dialogOpenFile())
   if (!path) return
-  const read = window.electronAPI.dialogReadFile(path)
+  const read = await (window.electronAPI.dialogReadFileAsync?.(path) ?? window.electronAPI.dialogReadFile(path))
   if (!read || !read.content) {
     alert('读取文件失败')
     return
@@ -312,7 +309,7 @@ function importCharacterCard() {
   alert('角色卡导入成功：' + result.entity.name)
 }
 
-function exportEntityCard(item: any) {
+async function exportEntityCard(item: any) {
   const entity = projectStore.memories.entities.find((e: any) => e.name === item.key || e.id === item.key)
   if (!entity) {
     alert('未找到对应实体数据')
@@ -320,9 +317,9 @@ function exportEntityCard(item: any) {
   }
   const json = exportCharacterCardV3(entity)
   const safeName = (entity.name || '角色卡').replace(/[\\/:*?"<>|]/g, '_')
-  const filePath = window.electronAPI.dialogSaveFile(safeName + '.chara-card-v3.json')
+  const filePath = await (window.electronAPI.dialogSaveFileAsync?.(safeName + '.chara-card-v3.json') ?? window.electronAPI.dialogSaveFile(safeName + '.chara-card-v3.json'))
   if (!filePath) return
-  const ok = window.electronAPI.dialogWriteFile(filePath, json)
+  const ok = await window.electronAPI.dialogWriteFile(filePath, json)
   alert(ok ? '角色卡导出成功：' + filePath : '角色卡导出失败')
 }
 
@@ -364,7 +361,7 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
 .memory-panel {
   position: absolute;
   top: 0; left: 48px; right: 0; bottom: 0;
-  background: var(--bg-primary);
+  background: var(--memory-panel-bg);
   z-index: 100;
   display: flex;
   flex-direction: column;
@@ -375,14 +372,14 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  background: var(--bg-secondary);
+  background: var(--memory-panel-header-bg);
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
 }
 .mem-header h4 { font-size: var(--font-size-md); font-weight: 600; margin: 0; }
 .mem-header h4 { white-space: nowrap; flex-shrink: 0; margin-right: 12px; }
 .mem-header-actions { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
-.mem-view-tabs { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
+ .mem-view-tabs { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
 .mem-tab-btn {
   padding: 10px 24px; border: none; background: transparent;
   flex: 1; text-align: center;
@@ -390,7 +387,7 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
   font-size: var(--font-size-md); white-space: nowrap; transition: all 0.15s;
 }
 .mem-tab-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
-.mem-tab-btn.active { background: var(--accent); color: #fff; font-weight: 500; }
+.mem-tab-btn.active { background: var(--memory-card-active-bg); color: var(--memory-card-active-border); box-shadow: inset 0 -2px 0 var(--memory-card-active-border); font-weight: 600; }
 .mem-tab-btn.active::after {
   content: '';
   position: absolute;
@@ -398,7 +395,7 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
   left: 8px;
   right: 8px;
   height: 2px;
-  background: var(--accent);
+  background: var(--memory-card-active-border);
   border-radius: 1px;
 }
 .mem-tab-btn { position: relative; }
@@ -412,8 +409,8 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
 .mem-more-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
 .mem-more-dropdown {
   position: absolute; top: 100%; right: 0; margin-top: 4px;
-  background: var(--bg-tertiary); border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm); box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  background: var(--memory-card-bg); border: 1px solid var(--memory-card-border);
+  border-radius: var(--radius-sm); box-shadow: var(--shadow-panel-sm);
   display: flex; flex-direction: column; gap: 2px; padding: 4px; z-index: 2000; min-width: 120px;
 }
 .mem-more-dropdown button {
@@ -434,7 +431,7 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
   color: var(--text-secondary); cursor: pointer; border-radius: var(--radius-xs); font-size: var(--font-size-md);
 }
 .mem-cat-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
-.mem-cat-btn.active { background: var(--bg-hover); color: var(--accent); font-weight: 500; }
+.mem-cat-btn.active { background: var(--memory-card-active-bg); color: var(--memory-card-active-border); font-weight: 500; }
 .full-width { width: 100%; }
 .mem-content { flex: 1; overflow-y: auto; padding: 8px; }
 .mem-content-header {
@@ -442,7 +439,7 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
   margin-bottom: 8px; font-size: var(--font-size-md); color: var(--text-secondary);
 }
 .mem-list { display: flex; flex-direction: column; gap: 8px; }
-.empty-hint { color: var(--text-secondary); text-align: center; padding: 24px; font-size: var(--font-size-md); }
+.empty-hint { color: var(--memory-empty-text); text-align: center; padding: 24px; font-size: var(--font-size-md); }
 .mem-item-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
 .mem-item-key { font-weight: 600; font-size: var(--font-size-md); }
 .mem-item-cat {
@@ -473,4 +470,15 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
 .mem-input { width: 100%; padding: 6px 10px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-primary); color: var(--text-primary); font-size: var(--font-size-md); outline: none; box-sizing: border-box; }
 .mem-input:focus { border-color: var(--accent); }
 .mem-inline-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.mem-view-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; scrollbar-width: thin; }
+.mem-view-tabs::-webkit-scrollbar { height: 2px; }
+.mem-view-tabs::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+.mem-tab-btn { white-space: nowrap; flex-shrink: 0; padding: 6px 10px; font-size: var(--font-size-sm); }
+.mem-header { overflow: hidden; }
+@media (max-width: 760px) {
+  .mem-view-tabs { gap: 4px; }
+  .mem-tab-btn { padding: 5px 8px; font-size: var(--font-size-xs); }
+  .mem-header-actions { gap: 4px; }
+}
 </style>
+

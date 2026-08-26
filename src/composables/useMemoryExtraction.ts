@@ -104,7 +104,7 @@ export function useMemoryExtraction(callAi: MemoryAiCall) {
     chapter.value = null
   }
 
-  function confirm() {
+  async function confirm() {
     if (!chapter.value || !extracted.value || saving.value) return false
     saving.value = true
     try {
@@ -114,7 +114,7 @@ export function useMemoryExtraction(callAi: MemoryAiCall) {
         chapterIndex: chapter.value.index,
         blacklist: projectStore.memoryBlacklist
       })
-      projectStore.recordMemoryChange(merged.data, {
+      await projectStore.recordMemoryChange(merged.data, {
         chapterId: chapter.value.id,
         chapterIndex: chapter.value.index,
         reason: `确认正文后写入记忆：${chapter.value.title}`

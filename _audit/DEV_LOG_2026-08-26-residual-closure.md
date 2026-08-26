@@ -146,3 +146,28 @@
 - 使用真实历史文件 `C:/Users/凯瑞/Documents/神意助手数据/p710-memory-export.json`，通过临时 Vitest 载体调用生产 `importFullJSON` 与 `mergeImportedMemory`。
 - 结果：包装格式解析成功，真实文件包含 1 个实体；已有项目实体保留，重复导入不增加实体且 `skipped > 0`；临时测试文件已删除并复核不存在。
 - 该证据核销的是服务层 JSON 解析、非覆盖合并和重复去重边界；不扩大为 Windows 原生打开窗口、页面按钮、项目落盘或重启恢复 PASS。
+
+## 2026-08-26 记忆导入落盘时序修复
+
+### 根因
+
+`projectStore.recordMemoryChange()` 原先同步返回，但内部未等待异步 `saveProject()`。记忆导入和正文审核确认可能在项目 JSON 写入完成前显示成功或推进流程。
+
+### 最小修复
+
+- `src/stores/project.ts`：将 `recordMemoryChange` 改为 async，并等待 `saveProject()`。
+- `src/components/common/MemoryPanel.vue`：合并/覆盖导入等待记忆变更落盘。
+- `src/composables/useMemoryExtraction.ts`：正文编辑器审核确认等待落盘。
+- `src/components/pipeline/PipelinePanel.vue`：流水线正文记忆确认等待落盘。
+
+### 本轮证据
+
+- `npm run type-check`：exit 0。
+- `npm run test:services`：2 个测试文件，41/41 通过。
+- `npm run build:vue`：176 modules transformed，构建成功。
+- 构建警告仍为 Vite native config、两个无效动态导入和主 chunk 体积警告，未误写成零警告。
+- 源文件 Electron：CDP 9227 页面标题“神意助手”，URL 为 `file:///D:/codex/novel-workshop-vue3/dist-renderer/index.html`；验证后已关闭 Electron 进程。
+
+### 边界
+
+真实 `wa_project_*.json` 项目快照仍不存在，因此原生导入后的项目差异核对和关闭重启恢复保持 `UNVERIFIED`；本轮未注入假项目数据。

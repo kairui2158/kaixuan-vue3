@@ -110,7 +110,7 @@
                   <span class="pl-style-section-label">叙事风格</span>
                   <div class="pl-style-tag-pool">
                     <label v-for="chip in styleTagChips" :key="chip.label" class="pl-style-tag-chip" :class="{active: chip.active}">
-                      <input type="checkbox" :checked="chip.active" @change="toggleStyleTag(chip.label, $event.target.checked)" />
+                      <input type="checkbox" :checked="chip.active" @change="toggleStyleTag(chip.label, ($event.target as HTMLInputElement).checked)" />
                       <span>{{ chip.label }}</span>
                     </label>
                   </div>
@@ -349,12 +349,12 @@
                <label>卷数</label>
                <input id="pl-volume-count" type="number" :value="linkedVolumeCount" class="input-w-60" min="1" max="20" :readonly="bookWordCount > 0" @change="syncVolumeCount($event)" />
                <span v-if="bookWordCount > 0" id="pl-volume-linked-count-hint" class="pl-gen-hint">按每卷 {{ Math.round(volumeWords / 10000) }} 万字自动分配 {{ linkedVolumeCount }} 卷</span>
-             </div>
+            </div>
             <div id="pl-vol-list" class="pl-vol-list">
               <div
                 v-if="volumeGenerationFeedbackVisible && (activeVolumeGenerationIndex < 0 || activeVolumeGenerationIndex >= projectStore.volumes.length)"
                 id="pl-volume-generation-feedback"
-                class="pl-vol-card pl-vol-generation-card"
+                class="pl-vol-generation-card"
                 role="status"
                 aria-live="polite"
               >
@@ -373,41 +373,72 @@
                 </div>
                 <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
               </div>
-              <div v-for="(vol, i) in projectStore.volumes" :key="vol.id || i" :id="'pl-volume-card-' + i" class="pl-vol-card" :class="{ confirmed: vol.confirmed }">
-                <div class="pl-vol-header">
-                  <input v-model="vol.name" class="pl-input" placeholder="卷名" :readonly="vol.confirmed" @change="projectStore.saveProject()" />
-                  <span class="vol-words">{{ vol.suggestedWords || '?' }} 字</span>
-                </div>
-                <textarea v-model="vol.outline" class="pl-vol-outline" placeholder="卷纲要" :readonly="vol.confirmed" @change="projectStore.saveProject()"></textarea>
-                <input v-model="vol.summary" class="pl-input" placeholder="摘要" :readonly="vol.confirmed" @change="projectStore.saveProject()" />
-                <div
-                  v-if="volumeGenerationFeedbackVisible && activeVolumeGenerationIndex === i"
-                  class="pl-vol-generation-feedback"
-                  role="status"
-                  aria-live="polite"
-                >
-                  <div class="pl-vol-generation-header">
-                    <strong>卷纲 AI 生成进度</strong>
-                    <span>{{ pipelineStore.generationProgress }}%</span>
-                  </div>
-                  <div class="pl-generation-progress-track" aria-label="卷纲生成进度">
-                    <div class="pl-generation-progress-value" :style="{ width: pipelineStore.generationProgress + '%' }"></div>
-                  </div>
-                  <div class="pl-volume-api-log pl-generation-log" aria-label="卷纲 API 工作信息">
-                    <div v-for="(line, index) in volumeGenerationLogs" :key="index" class="pl-generation-log-line">
-                      <span class="pl-generation-log-dot" aria-hidden="true"></span>
-                      <span>{{ line }}</span>
-                    </div>
-                  </div>
-                  <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
-                </div>
-                <div class="pl-volume-card-actions">
-                  <button :id="'btn-pl-save-volume-' + i" class="btn-sm btn-primary" @click="saveVolume(i)" :disabled="vol.confirmed || !vol.name.trim()">
-                    {{ vol.confirmed ? '已锁定' : '保存并锁定本卷' }}
+              <div v-if="projectStore.volumes.length > 0" class="pl-volume-workspace">
+                <div id="pl-volume-select-list" class="pl-object-select-list" role="listbox" aria-label="卷纲列表">
+                  <button
+                    v-for="(vol, i) in projectStore.volumes"
+                    :key="vol.id || i"
+                    :id="'pl-volume-select-' + i"
+                    type="button"
+                    class="pl-object-select-item"
+                    :class="{ active: selectedVolumeIndex === i, confirmed: vol.confirmed }"
+                    :aria-selected="selectedVolumeIndex === i"
+                    @click="selectedVolumeIndex = i"
+                  >
+                    <span class="pl-object-select-index">{{ i + 1 }}</span>
+                    <span class="pl-object-select-copy">
+                      <strong>{{ vol.name || '未命名卷' }}</strong>
+                      <small>{{ vol.suggestedWords || '?' }} 字 · {{ vol.confirmed ? '已锁定' : '编辑中' }}</small>
+                    </span>
+                    <span v-if="vol.confirmed" class="pl-object-select-state" aria-label="已锁定">✓</span>
                   </button>
-                  <button :id="'btn-pl-delete-volume-' + i" class="btn-sm btn-danger" @click="deleteVolume(i)">删除本卷</button>
                 </div>
+                <section v-if="selectedVolume" id="pl-volume-editor" class="pl-object-editor" aria-label="当前卷编辑区">
+                  <div class="pl-object-editor-heading">
+                    <div>
+                      <span class="pl-editor-kicker">当前卷</span>
+                      <h4>{{ selectedVolume.name || '未命名卷' }}</h4>
+                    </div>
+                    <span class="pl-object-editor-status" :class="{ locked: selectedVolume.confirmed }">
+                      {{ selectedVolume.confirmed ? '已锁定' : '编辑中' }}
+                    </span>
+                  </div>
+                  <div class="pl-vol-header">
+                    <input v-model="selectedVolume.name" class="pl-input" placeholder="卷名" :readonly="selectedVolume.confirmed" @change="projectStore.saveProject()" />
+                    <span class="vol-words">{{ selectedVolume.suggestedWords || '?' }} 字</span>
+                  </div>
+                  <textarea v-model="selectedVolume.outline" class="pl-vol-outline" placeholder="卷纲要" :readonly="selectedVolume.confirmed" @change="projectStore.saveProject()"></textarea>
+                  <input v-model="selectedVolume.summary" class="pl-input" placeholder="摘要" :readonly="selectedVolume.confirmed" @change="projectStore.saveProject()" />
+                  <div
+                    v-if="volumeGenerationFeedbackVisible && activeVolumeGenerationIndex === selectedVolumeIndex"
+                    class="pl-vol-generation-feedback"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <div class="pl-vol-generation-header">
+                      <strong>卷纲 AI 生成进度</strong>
+                      <span>{{ pipelineStore.generationProgress }}%</span>
+                    </div>
+                    <div class="pl-generation-progress-track" aria-label="卷纲生成进度">
+                      <div class="pl-generation-progress-value" :style="{ width: pipelineStore.generationProgress + '%' }"></div>
+                    </div>
+                    <div class="pl-volume-api-log pl-generation-log" aria-label="卷纲 API 工作信息">
+                      <div v-for="(line, index) in volumeGenerationLogs" :key="index" class="pl-generation-log-line">
+                        <span class="pl-generation-log-dot" aria-hidden="true"></span>
+                        <span>{{ line }}</span>
+                      </div>
+                    </div>
+                    <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
+                  </div>
+                  <div class="pl-volume-card-actions">
+                    <button :id="'btn-pl-save-volume-' + selectedVolumeIndex" class="btn-sm btn-primary" @click="saveVolume(selectedVolumeIndex)" :disabled="selectedVolume.confirmed || !selectedVolume.name.trim()">
+                      {{ selectedVolume.confirmed ? '已锁定' : '保存并锁定本卷' }}
+                    </button>
+                    <button :id="'btn-pl-delete-volume-' + selectedVolumeIndex" class="btn-sm btn-danger" @click="deleteVolume(selectedVolumeIndex)">删除本卷</button>
+                  </div>
+                </section>
               </div>
+              <p v-else class="empty-hint">暂无卷纲，请先生成或确认大纲字数</p>
             </div>
             <div class="pl-actions">
               <button id="btn-pl-gen-volumes" class="btn-primary" @click="genVolumes('auto')" :disabled="pipelineStore.isGenerating">AI生成全卷</button>
@@ -483,17 +514,43 @@
             </div>
             <p id="pl-ch-empty-no-volume" v-if="confirmedVolumes.length === 0" class="empty-hint">暂无已锁定卷纲，请先在卷纲层保存并锁定本卷</p>
             <p id="pl-ch-empty-no-chapters" v-else-if="currentVolumeChapters.length === 0" class="empty-hint">暂无章节，请先生成</p>
-            <div v-if="currentVolumeChapters.length > 0" id="pl-ch-cards-area" class="pl-ch-list">
-              <div v-for="(ch, i) in currentVolumeChapters" :key="i" class="pl-ch-card">
-                <div class="pl-ch-card-main">
-                  <div class="pl-ch-card-head">
-                    <span class="ch-title">{{ ch.title }}</span>
-                    <button class="btn-sm btn-secondary" @click="genBody(selectedVolumeIndex, i)" :disabled="pipelineStore.isGenerating">生成正文</button>
-                    <button :id="'btn-pl-del-ch-' + i" class="btn-sm btn-danger" @click="deleteChapterCard(selectedVolumeIndex, i)" title="删除此章">删除</button>
-                  </div>
-                  <textarea v-model="ch.plot" class="pl-ch-plot" placeholder="本章剧情点概要" @change="saveChapterPlot"></textarea>
-                </div>
+            <div v-if="currentVolumeChapters.length > 0" id="pl-ch-cards-area" class="pl-ch-workspace">
+              <div id="pl-ch-select-list" class="pl-object-select-list" role="listbox" aria-label="章节列表">
+                <button
+                  v-for="(ch, i) in currentVolumeChapters"
+                  :key="ch.id || i"
+                  :id="'pl-ch-select-' + i"
+                  type="button"
+                  class="pl-object-select-item"
+                  :class="{ active: selectedChapterIndex === i, confirmed: ch.confirmed }"
+                  :aria-selected="selectedChapterIndex === i"
+                  @click="selectedChapterIndex = i"
+                >
+                  <span class="pl-object-select-index">{{ i + 1 }}</span>
+                  <span class="pl-object-select-copy">
+                    <strong>{{ ch.title || '未命名章节' }}</strong>
+                    <small>{{ ch.confirmed ? '已锁定' : '编辑中' }}</small>
+                  </span>
+                  <span v-if="ch.confirmed" class="pl-object-select-state" aria-label="已锁定">✓</span>
+                </button>
               </div>
+              <section v-if="selectedChapter" id="pl-chapter-editor" class="pl-object-editor" aria-label="当前章节编辑区">
+                <div class="pl-object-editor-heading">
+                  <div>
+                    <span class="pl-editor-kicker">当前章节</span>
+                    <h4>{{ selectedChapter.title || '未命名章节' }}</h4>
+                  </div>
+                  <span class="pl-object-editor-status" :class="{ locked: selectedChapter.confirmed }">
+                    {{ selectedChapter.confirmed ? '已锁定' : '编辑中' }}
+                  </span>
+                </div>
+                <div class="pl-ch-card-head">
+                  <span class="ch-title">{{ selectedChapter.title || '未命名章节' }}</span>
+                  <button class="btn-sm btn-secondary" @click="genBody(selectedVolumeIndex, selectedChapterIndex)" :disabled="pipelineStore.isGenerating">生成正文</button>
+                  <button id="btn-pl-del-ch-current" class="btn-sm btn-danger" @click="deleteChapterCard(selectedVolumeIndex, selectedChapterIndex)" title="删除此章">删除</button>
+                </div>
+                <textarea v-model="selectedChapter.plot" class="pl-ch-plot" placeholder="本章剧情点概要" @change="saveChapterPlot"></textarea>
+              </section>
             </div>
             <div class="pl-actions">
               <button id="btn-pl-gen-chapters" class="btn-primary" @click="genChapters" :disabled="pipelineStore.isGenerating || !selectedVolumeChapterLocked">AI生成章节</button>
@@ -875,6 +932,7 @@ const bookWordCount = ref(0)
 const volumeCount = ref(3)
 const chapterBatchSize = ref(5)
 const selectedVolumeIndex = ref(0)
+const selectedChapterIndex = ref(0)
 const bodyVolumeIndex = ref(0)
 const bodyChapterIndex = ref(0)
 const bodyResult = ref("")
@@ -934,16 +992,15 @@ const currentSettings = computed(() => {
 
 const confirmedVolumes = computed(() => projectStore.volumes.filter((vol: any) => vol.confirmed))
 
-// Chapters can only operate on a locked volume. Keep the index used by the
-// chapter controls aligned with the filtered volume options after load,
-// locking, deletion, or project switching.
+// The volume editor may select both draft and locked volumes. Only the
+// chapter workspace is gated by `confirmed`, so do not force the editor back
+// to the first locked volume when a draft volume is selected.
 watch(
-  () => projectStore.volumes.map((vol: any) => Boolean(vol.confirmed)),
+  () => projectStore.volumes.length,
   () => {
-    const current = projectStore.volumes[selectedVolumeIndex.value]
-    if (current?.confirmed) return
-    const firstConfirmed = projectStore.volumes.findIndex((vol: any) => vol.confirmed)
-    selectedVolumeIndex.value = firstConfirmed >= 0 ? firstConfirmed : 0
+    if (selectedVolumeIndex.value >= projectStore.volumes.length) {
+      selectedVolumeIndex.value = Math.max(0, projectStore.volumes.length - 1)
+    }
   },
   { immediate: true }
 )
@@ -1002,17 +1059,33 @@ const bodyVolumeChapters = computed(() => {
   const vol = projectStore.volumes[bodyVolumeIndex.value]
   if (!vol || !vol.name) return []
   const volId = vol.id || vol.name
-  return (projectStore.chapters && projectStore.chapters[volId]) || []
+  return ((projectStore.chapters && projectStore.chapters[volId]) || [])
+    .filter((chapter: any) => chapter.pipelineGenerated === true)
 })
+
+function getVisibleChaptersForVolume(volumeIndex: number) {
+  const vol = projectStore.volumes[volumeIndex]
+  const volId = vol?.id || vol?.name
+  const chapters = volId ? (projectStore.chapters[volId] || []) : []
+  return chapters.filter((chapter: any) => chapter.pipelineGenerated === true)
+}
+
+function getBodyChapterByVisibleIndex(volumeIndex: number, chapterIndex: number) {
+  const vol = projectStore.volumes[volumeIndex]
+  const volId = vol?.id || vol?.name
+  const chapters = volId ? (projectStore.chapters[volId] || []) : []
+  const visible = getVisibleChaptersForVolume(volumeIndex)
+  const candidate = visible[chapterIndex]
+  if (!candidate) return { vol, volId, chapters, chapter: null }
+  const chapter = candidate.id
+    ? chapters.find((item: any) => item.id === candidate.id)
+    : candidate
+  return { vol, volId, chapters, chapter: chapter || null }
+}
 
 // Persistent body text for the currently selected chapter in the body stage.
 const currentBodyContent = computed(() => {
-  const vol = projectStore.volumes[bodyVolumeIndex.value]
-  if (!vol) return ''
-  const volId = vol.id || vol.name
-  const chs = projectStore.chapters[volId] || []
-  const ch = chs[bodyChapterIndex.value]
-  return ch?.body || ''
+  return getBodyChapterByVisibleIndex(bodyVolumeIndex.value, bodyChapterIndex.value).chapter?.body || ''
 })
 
 async function saveStepConfig() {
@@ -1074,7 +1147,7 @@ function getStepSkillIds(step: number): string[] {
     const ids = stepSlot.filter(Boolean)
     if (ids.length > 0) return ids
   }
-  const stored = pipelineStore.getStepSkills(step)
+  const stored = pipelineStore.getStepSkills(step) as unknown as string[]
   if (stored && stored.length > 0) return [...stored]
   const fallback = skillStore.orderedPipelineSkills
   const idx = step
@@ -1193,10 +1266,11 @@ function getStepSkillMode(step: number): string {
 }
 
 function buildTemplateContext(step: number, prompt: string, prevResponse?: string): Record<string, any> {
-  const vol = projectStore.volumes[selectedVolumeIndex.value] || null
+  const contextVolumeIndex = bodyVolumeIndex.value
+  const vol = projectStore.volumes[contextVolumeIndex] || null
   const volId = vol ? (vol.id || vol.name) : ""
   const chs = volId ? (projectStore.chapters[volId] || []) : []
-  const selectedCh = chs[bodyChapterIndex.value] || chs[0] || null
+  const selectedCh = getBodyChapterByVisibleIndex(contextVolumeIndex, bodyChapterIndex.value).chapter || getVisibleChaptersForVolume(contextVolumeIndex)[0] || null
   const chIdx = selectedCh ? Math.max(0, chs.indexOf(selectedCh)) : -1
   const prevCh = chIdx > 0 ? chs[chIdx - 1] : null
   const characterSettings: any[] = []
@@ -1673,7 +1747,7 @@ async function callApiWithAgentTimeout(step: number, skillTemplate: string, prom
   return result
 }
 
-async function runStepSkills(step, prompt, timeoutMs, fallbackTemplate) {
+async function runStepSkills(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string) {
   const startTime = Date.now();
   const stepName = "step-" + step;
   const templates = getStepSkillTemplates(step)
@@ -1684,12 +1758,13 @@ async function runStepSkills(step, prompt, timeoutMs, fallbackTemplate) {
     execLogStore.addLog({step,stepName,mode,skillNames,prompt:(prompt||"").substring(0,500),result:(result||"").substring(0,500),duration:Date.now()-startTime,status:"success"});
     return result;
   } catch (e) {
-    execLogStore.addLog({step,stepName,mode,skillNames,prompt:(prompt||"").substring(0,500),result:e.message || "unknown error",duration:Date.now()-startTime,status:"failed"});
+    const message = e instanceof Error ? e.message : String(e)
+    execLogStore.addLog({step,stepName,mode,skillNames,prompt:(prompt||"").substring(0,500),result:message || "unknown error",duration:Date.now()-startTime,status:"failed"});
     throw e;
   }
 }
 
-async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
+async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string) {
   const templates = getStepSkillTemplates(step)
   const mode = getStepSkillMode(step)
   const baseCtx = buildTemplateContext(step, prompt)
@@ -1732,7 +1807,7 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
   if (mode === "chain" && templates.length > 1) {
     const chainCtx = { ...baseCtx }
     // Need 2: chain breakpoint resume
-    const bp = pipelineStore.refreshBreakpoint()
+    const bp = await pipelineStore.refreshBreakpoint()
     let startSi = 0
     let current = prompt
     if (
@@ -1782,7 +1857,7 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
       current = await ensureJsonParsed(step, si, current, injection, nextPrompt, timeoutMs, skillAgentId)
       chainCtx.prevResponse = current
       // Need 2: save breakpoint after each successful step
-      pipelineStore.saveBreakpoint({
+      await pipelineStore.saveBreakpoint({
         step,
         projectId: projectStore.currentProjectId,
         lastSuccessChainIndex: si,
@@ -1790,7 +1865,7 @@ async function _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate) {
         volumeIndex: selectedVolumeIndex.value
       })
     }
-    pipelineStore.clearBreakpoint()
+    await pipelineStore.clearBreakpoint()
     return current
   }
   const resolvedParts = templates.map((t) => {
@@ -2043,7 +2118,7 @@ async function genChapters() {
   const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
   const totalChapters = Number(vol.chapterCount) || Math.ceil((vol.suggestedWords || volumeWords.value) / wordsPerChapter)
   const projectId = projectStore.currentProjectId
-  const savedBreakpoint = pipelineStore.refreshBreakpoint()
+  const savedBreakpoint = await pipelineStore.refreshBreakpoint()
   const matchingBreakpoint = savedBreakpoint && savedBreakpoint.kind === 'chapters'
     && savedBreakpoint.projectId === projectId
     && savedBreakpoint.volumeId === volId
@@ -2069,8 +2144,8 @@ async function genChapters() {
     ? Math.min(Math.max(Number(matchingBreakpoint.chapterCount) || 0, existingChapters.length), totalChapters)
     : Math.min(existingChapters.length, totalChapters)
   const collected: any[] = existingChapters.slice(0, resumeCount)
-  const saveChapterBreakpoint = (phase: string) => {
-    pipelineStore.saveBreakpoint({
+  const saveChapterBreakpoint = async (phase: string) => {
+    await pipelineStore.saveBreakpoint({
       kind: 'chapters',
       step: 3,
       projectId,
@@ -2082,7 +2157,7 @@ async function genChapters() {
       phase
     })
   }
-  saveChapterBreakpoint(collected.length > 0 ? 'resume-ready' : 'started')
+  await saveChapterBreakpoint(collected.length > 0 ? 'resume-ready' : 'started')
   try {
     const volOutline = vol.outline || vol.summary || ""
     const batch = Math.max(1, Math.min(chapterBatchSize.value || 5, 20))
@@ -2111,7 +2186,7 @@ async function genChapters() {
         } catch (retryErr: any) {
           if (pipelineStore.isGenerationCanceled()) throw retryErr
           lastError = retryErr
-          saveChapterBreakpoint('retry-wait')
+          await saveChapterBreakpoint('retry-wait')
           if (retry < 4) await new Promise((r) => setTimeout(r, 10000))
         }
       }
@@ -2126,13 +2201,13 @@ async function genChapters() {
       collected.push(...added)
       projectStore.setChapters(volId, [...untouchedChapters, ...collected])
       projectStore.refreshTree()
-      saveChapterBreakpoint('progress')
+      await saveChapterBreakpoint('progress')
       chapterGenerationLogs.value.push("已生成 " + collected.length + "/" + totalChapters + " 章")
     }
     if (collected.length > 0) {
       const vr = validateChapters(collected, totalChapters)
       if (!vr.valid) {
-        saveChapterBreakpoint('failed-validation')
+        await saveChapterBreakpoint('failed-validation')
         pipelineStore.failGeneration(vr.errors.join("; "))
         chapterGenerationLogs.value.push("章节校验失败：" + vr.errors.join("; "))
         return
@@ -2143,21 +2218,17 @@ async function genChapters() {
       pipelineStore.failGeneration("未能解析章节JSON")
       chapterGenerationLogs.value.push("AI 返回内容不是可用的章节 JSON")
     }
-    pipelineStore.clearBreakpoint()
+    await pipelineStore.clearBreakpoint()
     pipelineStore.finishGeneration()
   } catch (e: any) {
-    saveChapterBreakpoint('failed')
+    await saveChapterBreakpoint('failed')
     pipelineStore.failGeneration(e.message)
     chapterGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
   }
 }
 
 async function genBody(volumeIndex: number, chapterIndex: number) {
-  const vol = projectStore.volumes[volumeIndex]
-  if (!vol) return
-  const volId = vol.id || vol.name
-  const chs = projectStore.chapters[volId] || []
-  const ch = chs[chapterIndex]
+  const { vol, volId, chapter: ch } = getBodyChapterByVisibleIndex(volumeIndex, chapterIndex)
   if (!ch) return
 
   // Sync the body-stage selectors to the chapter we are generating from.
@@ -2203,24 +2274,39 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
 }
 
 async function genBodyForSelected() {
+  await genBody(bodyVolumeIndex.value, bodyChapterIndex.value)
+}
+
 function deleteChapterCard(volumeIndex: number, chapterIndex: number) {
-  const volId = confirmedVolumes.value[volumeIndex]?.id || confirmedVolumes.value[volumeIndex]?.name
+  const vol = projectStore.volumes[volumeIndex]
+  const volId = vol?.id || vol?.name
   if (!volId) return
   const chs = projectStore.chapters[volId]
-  if (!chs || chs.length <= chapterIndex) return
-  chs.splice(chapterIndex, 1)
+  const visibleChapters = (chs || []).filter((chapter: any) => chapter.pipelineGenerated === true)
+  const target = visibleChapters[chapterIndex]
+  const targetIndex = target?.id
+    ? chs.findIndex((chapter: any) => chapter.id === target.id)
+    : chapterIndex
+  if (!chs || targetIndex < 0 || targetIndex >= chs.length) return
+  chs.splice(targetIndex, 1)
+  if (selectedChapterIndex.value >= visibleChapters.length - 1) {
+    selectedChapterIndex.value = Math.max(0, visibleChapters.length - 2)
+  }
+  if (bodyVolumeIndex.value === volumeIndex) {
+    const nextVisibleLength = visibleChapters.length - 1
+    if (bodyChapterIndex.value >= nextVisibleLength) {
+      bodyChapterIndex.value = Math.max(0, nextVisibleLength - 1)
+    }
+    bodyResult.value = ""
+  }
+  projectStore.refreshTree()
   projectStore.saveProject()
-}
-  await genBody(bodyVolumeIndex.value, bodyChapterIndex.value)
 }
 
 function insertToEditor() {
   const content = currentBodyContent.value || bodyResult.value
   if (!content) return
-  const vol = projectStore.volumes[bodyVolumeIndex.value]
-  const volId = vol?.id || vol?.name
-  const chs = projectStore.chapters[volId] || []
-  const ch = chs[bodyChapterIndex.value]
+  const { chapter: ch } = getBodyChapterByVisibleIndex(bodyVolumeIndex.value, bodyChapterIndex.value)
   window.dispatchEvent(new CustomEvent("insert-text", {
     detail: {
       text: content,
@@ -2232,10 +2318,7 @@ function insertToEditor() {
 }
 
 function currentBodyChapter() {
-  const vol = projectStore.volumes[bodyVolumeIndex.value]
-  const volId = vol?.id || vol?.name
-  const chs = volId ? (projectStore.chapters[volId] || []) : []
-  const ch = chs[bodyChapterIndex.value]
+  const { volId, chapter: ch } = getBodyChapterByVisibleIndex(bodyVolumeIndex.value, bodyChapterIndex.value)
   if (!ch || !volId) return null
   return {
     id: String(ch.id || `${volId}-chapter-${bodyChapterIndex.value + 1}`),
@@ -2323,9 +2406,7 @@ async function confirmBodyWithMemory() {
   if (!chapter || !chapter.content.trim()) return
 
   // 正文先落盘；记忆抽取失败不能回滚正文。
-  const vol = projectStore.volumes[bodyVolumeIndex.value]
-  const volId = vol?.id || vol?.name
-  const ch = volId ? (projectStore.chapters[volId] || [])[bodyChapterIndex.value] : null
+  const { volId, chapter: ch } = getBodyChapterByVisibleIndex(bodyVolumeIndex.value, bodyChapterIndex.value)
   if (ch) {
     ch.body = chapter.content
     ch.bodyGenerated = true
@@ -2373,7 +2454,7 @@ function closeMemoryPreview() {
   memoryPreviewChapter.value = null
 }
 
-function confirmMemoryPreview() {
+async function confirmMemoryPreview() {
   const chapter = memoryPreviewChapter.value
   const extracted = memoryPreviewExtracted.value
   if (!chapter || !extracted) {
@@ -2389,7 +2470,7 @@ function confirmMemoryPreview() {
       chapterIndex: chapter.index,
       blacklist: projectStore.memoryBlacklist
     })
-    projectStore.recordMemoryChange(merged.data, {
+    await projectStore.recordMemoryChange(merged.data, {
       chapterId: chapter.id,
       chapterIndex: chapter.index,
       reason: `确认正文后写入记忆：${chapter.title}`
@@ -2463,6 +2544,18 @@ function confirmMemoryPreview() {
   }
 })
 
+const selectedChapter = computed(() => currentVolumeChapters.value[selectedChapterIndex.value] || null)
+
+watch(
+  () => [selectedVolumeIndex.value, currentVolumeChapters.value.length],
+  () => {
+    if (selectedChapterIndex.value >= currentVolumeChapters.value.length) {
+      selectedChapterIndex.value = Math.max(0, currentVolumeChapters.value.length - 1)
+    }
+  },
+  { immediate: true }
+)
+
 function getSkillName(id: string): string {
   const s = skillStore.getSkill(id);
   return s ? s.name : id;
@@ -2499,10 +2592,7 @@ function removeStepSkill(step: number, index: number) {
 
 function insertBody() {
   if (bodyResult.value) {
-    const vol = projectStore.volumes[bodyVolumeIndex.value];
-    const volId = vol?.id || vol?.name;
-    const chs = projectStore.chapters[volId] || [];
-    const ch = chs[bodyChapterIndex.value];
+    const { chapter: ch } = getBodyChapterByVisibleIndex(bodyVolumeIndex.value, bodyChapterIndex.value)
     window.dispatchEvent(new CustomEvent("insert-text", {
       detail: {
         text: bodyResult.value,
@@ -2639,21 +2729,153 @@ function toolAction(action: string) {
 .pl-vol-config label { color: var(--text-secondary); }
 .pl-volume-linked-book-words { display: inline-flex; align-items: baseline; gap: 8px; width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-secondary); }
 .pl-volume-linked-book-words strong { color: var(--text-primary); font-size: var(--font-size-lg); }
-.pl-vol-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 16px; }
+.pl-vol-list,
+.pl-ch-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  min-height: 0;
+  margin-bottom: var(--space-4);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.pl-vol-list { max-height: min(56vh, 620px); }
+.pl-volume-workspace {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.28fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: 0;
+}
+.pl-ch-workspace {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.28fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: 0;
+}
+.pl-object-select-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  min-height: 0;
+  max-height: min(56vh, 620px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.pl-object-select-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-width: 0;
+  min-height: 54px;
+  padding: var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+.pl-object-select-item:hover { background: var(--bg-hover); }
+.pl-object-select-item.active {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+.pl-object-select-item.confirmed { border-left: 3px solid var(--success); }
+.pl-object-select-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+.pl-object-select-copy {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+.pl-object-select-copy strong,
+.pl-object-select-copy small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pl-object-select-copy strong { font-size: var(--font-size-md); }
+.pl-object-select-copy small { color: var(--text-muted); font-size: var(--font-size-sm); }
+.pl-object-select-state { flex: 0 0 auto; color: var(--success); font-weight: 700; }
+.pl-object-editor {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 260px;
+  padding: var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--pipeline-feedback-bg);
+  overflow: hidden;
+}
+.pl-object-editor-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-color);
+}
+.pl-editor-kicker { color: var(--text-muted); font-size: var(--font-size-sm); }
+.pl-object-editor-heading h4 {
+  min-width: 0;
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+  color: var(--text-primary);
+  font-size: var(--font-size-lg);
+}
+.pl-object-editor-status {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: var(--font-size-sm);
+}
+.pl-object-editor-status.locked { color: var(--success); }
 .pl-vol-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .vol-words { font-size: var(--font-size-md); color: var(--text-muted); flex-shrink: 0; }
 .pl-vol-outline { width: 100%; min-height: 100px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px; font-size: var(--font-size-md); resize: vertical; outline: none; margin-bottom: 10px; }
 .pl-volume-card-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding-top: 4px; }
 .pl-ch-config { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: var(--font-size-lg); flex-wrap: wrap; }
 .pl-ch-config label { color: var(--text-secondary); }
-.pl-ch-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; max-height: 350px; overflow-y: auto; }
 .ch-title { flex: 1; font-size: var(--font-size-md); color: var(--text-primary); }
 .pl-body-config { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: var(--font-size-lg); flex-wrap: wrap; }
 .pl-body-config label { color: var(--text-secondary); }
 .pl-body-result { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; max-height: 400px; overflow-y: auto; }
 .pl-body-text { font-size: var(--font-size-lg); line-height: 1.8; white-space: pre-wrap; color: var(--text-primary); }
 .pl-gen-options { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: var(--font-size-lg); color: var(--text-secondary); flex-wrap: wrap; }
-.pl-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+.pl-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  flex: 0 0 auto;
+  margin-top: auto;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-color);
+}
 .pl-ch-generation-feedback {
   margin-top: var(--space-4);
   margin-bottom: var(--space-4);
@@ -2732,6 +2954,18 @@ function toolAction(action: string) {
 .pl-result { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; margin: 20px 0; max-height: 450px; overflow-y: auto; white-space: pre-wrap; font-size: var(--font-size-lg); color: var(--text-primary); }
 .pl-gen-hint { color: var(--text-muted); font-size: var(--font-size-md); }
 .pl-vol-card.confirmed { border-color: var(--success); }
+.pl-vol-card,
+.pl-ch-card {
+  min-width: 0;
+  box-sizing: border-box;
+}
+.pl-vol-card input,
+.pl-vol-card textarea,
+.pl-ch-card textarea {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
 .pl-vol-generation-card,
 .pl-vol-generation-feedback {
   display: flex;
@@ -2804,6 +3038,8 @@ function toolAction(action: string) {
   flex: 1;
   flex-direction: column;
   min-height: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 .pl-settings-workspace {
   display: flex;

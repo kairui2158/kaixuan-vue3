@@ -518,13 +518,13 @@ export const useProjectStore = defineStore('project', () => {
     saveProject()
   }
 
-  function recordMemoryChange(nextData: MemoryData, options: { chapterId: string; chapterIndex?: number; reason?: string; timestamp?: string }) {
+  async function recordMemoryChange(nextData: MemoryData, options: { chapterId: string; chapterIndex?: number; reason?: string; timestamp?: string }) {
     const before = memories.value
     const next = normalizeMemories(nextData)
     const record = saveChangeRecord(before.history, before, next, options)
     next.history = [...(before.history || []), record]
     memories.value = next
-    saveProject()
+    await saveProject()
     return record.id
   }
 
