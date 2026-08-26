@@ -78,3 +78,16 @@
 | 全应用 AI/错误路径回归 | PARTIAL | 服务测试通过，外部真实网络错误/所有 UI 错误路径未形成全量证据 |
 | 安装包与原生导入导出 | PARTIAL | 安装包页面与原生导出通过；原生导入、合并差异和重启恢复仍缺真实证据 |
 | 死代码与构建警告清理 | PARTIAL | 明确不可达分支已清理；动态导入和历史兼容模块因等价性风险保留 |
+
+## 2026-08-26 当前续验
+
+- 真实数据目录只读检查：未发现 `wa_project_*.json` 可恢复项目快照；存在历史记忆导出 `p710-memory-export.json`（1 个实体），但它不能证明项目重启恢复。
+- 安装版 `http://127.0.0.1:9228/json` 返回 `resources/app.asar` 页面，标题“神意助手”；当前存在多个同路径产品进程，Playwright 浏览器级 CDP 握手在 30 秒观察窗内超时。该结果是验证载体边界，不是业务导入失败证据。
+- 本轮未覆盖客户数据、未注入项目、未执行覆盖导入；临时探针自动删除并复核，未保留中间数据。
+- `npm run test:services`：Vitest 1 file / 35 tests passed。
+- `npm run type-check`：退出 0。
+- `npm run build:vue`：176 modules transformed，构建成功；保留 Vite native config、provider/executionLog 无效动态导入、chunk 超过 500 kB 三类警告。
+
+### 本轮结论
+
+原生导入合并、重复项/锁定字段的客户路径、关闭重启恢复仍为 `UNVERIFIED`；不能以既有原生导出 PASS、IPC 文件桥 PASS 或自动化测试 PASS 扩大解释。下一次必须先确认唯一安装版进程，再使用真实可恢复样本走 Windows 原生打开窗口；没有样本时继续保持未核销。
