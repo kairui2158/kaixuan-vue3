@@ -57,6 +57,7 @@
 - 记忆导入页面的两个入口、IPC `{ path, content }` 契约、服务层 JSON 合并去重和 `recordMemoryChange` 持久化调用均已复核；因没有真实项目快照且本轮没有可观测原生打开窗口，页面导入后的客户数据落盘与重启恢复继续为 `UNVERIFIED`。
 - 本轮未修改业务代码、未覆盖客户数据、未产生临时探针；因此不存在需要清理的本轮证据文件。
 - 新增正式服务回归 `src/services/memoryIO.spec.ts`，覆盖导出包装往返、损坏 JSON/核心数组校验、重复实体去重与当前版本不覆盖；与 AI 服务测试合并运行结果为 2 files / 41 tests passed。
+- `package.json` 的 `test:services` 已纳入 AI 与记忆两组正式测试，后续固定服务门不会漏跑记忆导入边界。
 
 ### 自动化门
 

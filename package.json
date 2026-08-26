@@ -11,7 +11,8 @@
     "build:vue": "vite build",
     "build": "npm run build:vue && electron-builder --win",
     "build:portable": "npm run build:vue && electron-builder --win portable",
-    "type-check": "vue-tsc --noEmit"
+    "type-check": "vue-tsc --noEmit",
+    "test:services": "vitest run src/services/aiService.spec.ts src/services/memoryIO.spec.ts"
   },
   "author": "kaixuan",
   "license": "MIT",
@@ -37,6 +38,7 @@
     "playwright": "^1.61.1",
     "typescript": "5.7.3",
     "vite": "^8.2.1",
+    "vitest": "^4.1.11",
     "vue-tsc": "^3.3.9"
   },
   "build": {
