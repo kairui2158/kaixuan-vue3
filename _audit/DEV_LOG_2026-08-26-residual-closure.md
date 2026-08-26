@@ -97,6 +97,13 @@
 - 构建仍有三类已知警告：Vite `configLoader: native`、provider/executionLog 无效动态导入、主 chunk 超过 500 kB。它们已记录但未被错误写成“无警告”。
 - 本轮证据尚未覆盖真实供应商断网、HTTP 错误、UI 错误提示和取消按钮的全应用逐点操作，因此该遗留项保持 `PARTIAL`，不得标记全量回归通过。
 
+### 死代码引用闭包复核
+
+- 当前工作树中不存在 `src/services/storage.js`；历史日志中关于该文件“可删除”的记录与当前仓库状态不一致，不能据此执行删除。
+- `src/services/diag.js` 仍被 `src/components/settings/DiagLogPanel.vue` 直接导入，不能认定为死代码。
+- 旧架构兼容服务 `src/services/skill-manager.js`、`provider-manager.js`、`project-manager.js`、`chapter-manager.js`、`agent-manager.js` 仍引用 `StorageManager` 名称，并被历史架构文档记录；在没有隔离/迁移等价性证据前不删除。
+- 本轮未执行死代码删除；构建警告仍保持记录状态，避免把“没有找到可安全删除项”误写成清理完成。
+
 - 真实数据目录只读检查：未发现 `wa_project_*.json` 可恢复项目快照；存在历史记忆导出 `p710-memory-export.json`（1 个实体），但它不能证明项目重启恢复。
 - 安装版 `http://127.0.0.1:9228/json` 返回 `resources/app.asar` 页面，标题“神意助手”；当前存在多个同路径产品进程，Playwright 浏览器级 CDP 握手在 30 秒观察窗内超时。该结果是验证载体边界，不是业务导入失败证据。
 - 本轮未覆盖客户数据、未注入项目、未执行覆盖导入；临时探针自动删除并复核，未保留中间数据。
