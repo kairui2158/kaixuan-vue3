@@ -203,3 +203,24 @@
 - `EditorPanel.vue`：记忆抽取失败显示 `.editor-memory-error`，确认写入按钮在错误时禁用；去 AI 味失败用 `alert('去AI味处理失败: ...')`。
 - `useSkillTest.ts`：两处 `aiService.callAi(..., retry: true)` 均带 catch 处理。
 - 结论：这些入口的错误提示、取消与重试接线存在静态证据；因为它们都位于编辑器/去 AI 味弹窗等需要项目和正文上下文的位置，空闲态无法真实触发，所以真实错误展示、取消与恢复仍为 `UNVERIFIED`。本轮不启动额外 Electron 探针，避免在无上下文时制造伪证据。
+
+## 2026-08-26 遗留队列目标重建与收尾核销
+
+### CLEAN-1：死代码引用闭包
+
+- 对 `src/services/agent-manager.js`、`skill-manager.js`、`provider-manager.js`、`project-manager.js`、`chapter-manager.js` 做了生产源码、测试/脚本、历史资料三面引用扫描。
+- 结果：当前 `src/` 与测试/脚本没有这些文件名或模块路径的生产引用；唯一命中为 `docs/ARCHITECTURE_V2.6.md` 中的旧架构图。
+- 处理：五个文件暂不删除。它们仍是历史行为等价基准，当前没有迁移/隔离证明可以证明删除不会破坏旧行为参考，符合“先做引用闭包，历史兼容模块不得误删”的经验规则。
+- 新鲜验证：`npm run test:services` 为 2 个测试文件、41/41 通过；`npm run type-check` 退出 0；`npm run build:vue` 成功并转换 176 个模块。构建仍有 Vite native config、provider/executionLog 无效动态导入、chunk 超过 500 kB 三类已知警告。
+
+### MEM-1/MEM-2/PKG-1：真实数据与封装边界
+
+- 只读检查 `C:/Users/凯瑞/Documents/神意助手数据/`：`wa_project_*.json` 数量为 0；存在历史 `p710-memory-export.json`（4959 bytes）以及章节、聊天和供应商等数据文件。
+- 由于没有真实项目快照，本轮没有注入项目、没有覆盖客户数据，也没有把记忆导出文件当作项目恢复样本。
+- 封装产物检查确认存在 `dist/win-unpacked/神意助手.exe`（189111296 bytes）和 `dist/神意助手-Setup-3.2.1.exe`（90387435 bytes）。产物存在只证明已生成，不证明客户路径、原生选择器或关闭重启恢复。
+- 准确结论：记忆导出文件和封装产物可见；原生导入合并、项目 JSON 差异、关闭重启恢复、客户路径仍为 `UNVERIFIED`。下一次需先取得可恢复的真实 `wa_project_*` 样本，再逐项核验页面入口、原生文件选择器、落盘差异和重启恢复。
+
+### 本轮边界
+
+- 本轮未修改业务代码；未删除用户历史文件；未新增临时探针；没有可删除的本轮临时文件。
+- `git status` 显示工作区存在大量既有用户/历史改动，本轮不全局清理、不 reset、不代替用户处理这些文件。
