@@ -45,7 +45,6 @@ function registerDialogHandlers() {
     try {
       if (!filePath) {
         return false;
-        return;
       }
       await fs.promises.writeFile(filePath, content, 'utf8');
       return true;
