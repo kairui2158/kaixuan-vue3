@@ -180,3 +180,11 @@
 - 源码接线（静态）：`ChatPanel.vue` 的 `activeAbortController`、`cancelGeneration()` 调 `abort()`、catch 分支区分 `e.kind === 'canceled'` 置“已取消生成”与错误置“生成失败”。
 - 结论：空闲态隐藏与接线存在证据；真正在途请求中点击取消并验证 Abort、日志写入和恢复仍为 `UNVERIFIED`，因为当前无项目且无真实供应商在途请求，不能注入假请求制造通过证据。
 - 临时探针 `_audit/tmp_ai_ui_chat_probe.cjs` 已用 `fs.rmSync` 删除并复核 `exists=false`；本轮 Electron 进程已关闭。
+
+## 2026-08-26 AI-UI-2 大纲工作台取消/错误针对性核验
+
+- 源文件启动器真实运行：CDP `127.0.0.1:9227`，页面为 `dist-renderer/index.html`，标题“神意助手”。
+- 针对性 CDP 探针：未打开项目时，`#ow-chat-messages`、`#btn-ow-cancel-generation`、`#btn-ow-cancel-edit` 均不存在，页面上没有大纲工作台入口，符合组件未挂载状态。
+- 源码接线（静态）：`OutlineWorkspace.vue` 的 `generationController`、`callAi(..., signal: generationController.signal)`、`cancelGeneration()` 调用 `abort()`，catch 分支区分 `AbortError/canceled` 置“已取消生成”与其它错误置“生成失败”。
+- 结论：空闲/未挂载状态与接线存在证据；真实在途请求点击取消和网络错误 UI 提示仍为 `UNVERIFIED`，因为没有项目前置和真实供应商请求，不能注入假项目/假响应制造通过证据。
+- 临时探针 `_audit/tmp_ai_ui_outline_probe.cjs` 已删除并复核 `PROBE_DELETED`；本轮 Electron 进程已关闭。
