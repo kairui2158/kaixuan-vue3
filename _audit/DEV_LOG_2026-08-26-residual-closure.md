@@ -171,3 +171,12 @@
 ### 边界
 
 真实 `wa_project_*.json` 项目快照仍不存在，因此原生导入后的项目差异核对和关闭重启恢复保持 `UNVERIFIED`；本轮未注入假项目数据。
+
+## 2026-08-26 AI-UI-1 Chat 取消生成针对性核验
+
+- 采用单项针对性测试（非批量）：先跑服务层取消用例 `vitest -t "classifies an already-aborted request as canceled"`，结果 `1 passed | 37 skipped`，证明已取消请求 `kind: canceled` 且 `fetch` 调用次数为 0。
+- 源文件启动器真实运行：进程路径 `node_modules/electron/dist/electron.exe`，CDP `127.0.0.1:9227`，页面 `file:///D:/codex/novel-workshop-vue3/dist-renderer/index.html`，标题“神意助手”。
+- 针对性 CDP 探针：`#btn-cancel-generation` 在空闲态数量为 0（与 `ChatPanel.vue` 的 `v-if="isStreaming"` 一致），`#btn-retry-generation` 同样为 0；这是空闲态正确隐藏证据。
+- 源码接线（静态）：`ChatPanel.vue` 的 `activeAbortController`、`cancelGeneration()` 调 `abort()`、catch 分支区分 `e.kind === 'canceled'` 置“已取消生成”与错误置“生成失败”。
+- 结论：空闲态隐藏与接线存在证据；真正在途请求中点击取消并验证 Abort、日志写入和恢复仍为 `UNVERIFIED`，因为当前无项目且无真实供应商在途请求，不能注入假请求制造通过证据。
+- 临时探针 `_audit/tmp_ai_ui_chat_probe.cjs` 已用 `fs.rmSync` 删除并复核 `exists=false`；本轮 Electron 进程已关闭。
