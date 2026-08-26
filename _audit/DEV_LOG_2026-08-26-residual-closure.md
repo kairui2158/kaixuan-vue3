@@ -35,3 +35,12 @@
 - 修改后 `npm run build:vue`：exit `0`，`176 modules transformed`，仍原样出现 native config、两个 `INEFFECTIVE_DYNAMIC_IMPORT` 和 chunk size 警告。
 - 修改后源文件启动器真实运行：`file:///D:/codex/novel-workshop-vue3/dist-renderer/index.html`、标题“神意助手”、`window.electronAPI=true`；空路径写入返回 `false`。
 - `_audit/tmp_source_probe.cjs` 已删除。
+
+## 2026-08-26 最终安装版续验
+
+- 安装版进程：`dist/win-unpacked/神意助手.exe`。
+- CDP：`127.0.0.1:9228` 监听，页面标题为“神意助手”。
+- 页面 URL：`file:///D:/codex/novel-workshop-vue3/dist/win-unpacked/resources/app.asar/dist-renderer/index.html`。
+- 证明安装包页面实际加载 `resources/app.asar`，不是开发服务器；本次没有重复启动进程。
+- `_audit/tmp_final_package_probe.cjs` 已删除；本轮临时探针未留存。
+- 该证据只核销安装包启动与页面载体边界；Windows 原生选择器完整用户路径、真实项目关闭重启恢复、真实 JSON 导入合并仍未核销。
