@@ -196,3 +196,10 @@
 - 源码接线（静态）：`PipelinePanel.vue` 取消按钮由 `v-if="pipelineStore.isGenerating"` 控制；`_runStepSkillsInner` 失败时写入 `execLogStore.addLog(..., status:"failed")`；卷纲/章节失败分别调用 `pipelineStore.failGeneration(e.message)` 并记录断点“下次将从第 N 步继续”。
 - 结论：未挂载状态、取消按钮条件渲染、失败日志与断点接线存在证据；真实在途请求点击取消、断网/HTTP 错误 UI 提示和从断点恢复仍为 `UNVERIFIED`，因为没有项目前置和真实供应商请求，不能注入假项目/假响应制造通过证据。
 - 临时探针 `_audit/tmp_ai_ui_pipeline_probe.cjs` 已用 `fs.rmSync` 删除并复核 `probe_exists=false`；本轮 Electron 进程已关闭。
+
+## 2026-08-26 AI-UI-4 编辑器/去AI味/SKILL测试错误处理针对性核验
+
+- `useDeAi.ts`：`callAiApi` 对“未配置/Provider”错误转成中文“未配置供应商，请在设置中添加API供应商”；`process` 内建 `AbortController` 并监听 `deai-cancel` 事件，取消后 `finally` 移除监听。
+- `EditorPanel.vue`：记忆抽取失败显示 `.editor-memory-error`，确认写入按钮在错误时禁用；去 AI 味失败用 `alert('去AI味处理失败: ...')`。
+- `useSkillTest.ts`：两处 `aiService.callAi(..., retry: true)` 均带 catch 处理。
+- 结论：这些入口的错误提示、取消与重试接线存在静态证据；因为它们都位于编辑器/去 AI 味弹窗等需要项目和正文上下文的位置，空闲态无法真实触发，所以真实错误展示、取消与恢复仍为 `UNVERIFIED`。本轮不启动额外 Electron 探针，避免在无上下文时制造伪证据。
