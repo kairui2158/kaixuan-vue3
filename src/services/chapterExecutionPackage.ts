@@ -72,7 +72,7 @@ export function createChapterExecutionPackage(input: ChapterExecutionPackageInpu
       name: text(volume.name),
       outline: volumeOutline,
       summary: text(volume.summary || volumeOutline),
-      suggestedWords: number(volume.suggestedWords)
+      suggestedWords: number(volume.allocatedWords || volume.suggestedWords)
     },
     chapter: {
       id: chapterId,

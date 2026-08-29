@@ -1108,7 +1108,7 @@ const stepsWithIds = computed(() => {
 const estimatedChapters = computed(() => {
   const vol = selectedVolume.value
   if (!vol) return 0
-  const words = vol.suggestedWords || volumeWords.value
+  const words = vol.allocatedWords || vol.suggestedWords || volumeWords.value
   const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
   return Math.ceil(words / wordsPerChapter)
 })
@@ -1291,7 +1291,7 @@ function lockChapterConfig() {
   const vol = selectedVolume.value
   if (!vol) return
   const wordsPerChapter = Math.max(1000, Number(vol.wordsPerChapter || chapterWords.value) || 3500)
-  const words = Math.max(0, Number(vol.suggestedWords || volumeWords.value) || 0)
+  const words = Math.max(0, Number(vol.allocatedWords || vol.suggestedWords || volumeWords.value) || 0)
   vol.wordsPerChapter = wordsPerChapter
   vol.chapterCount = words > 0 ? Math.ceil(words / wordsPerChapter) : 0
   vol.chapterConfigLocked = true
@@ -1471,7 +1471,7 @@ function buildTemplateContext(step: number, prompt: string, prevResponse?: strin
     outlineContent: projectStore.pipelineOutlineText || "",
     novelTitle: projectStore.projectName || "",
     volumeCount: projectStore.volumes.length || volumeCount.value,
-    wordsPerVolume: volumeWords.value || "",
+    wordsPerVolume: (vol ? Number(vol.allocatedWords || vol.suggestedWords) || 0 : 0) || volumeWords.value || "",
     chapterCount: chs.length,
     wordsPerChapter: chapterWords.value || "",
     styleTags: styleTags.value || "",
@@ -1845,10 +1845,11 @@ function saveVolume(index: number) {
   if (!vol || !vol.name.trim()) return
   vol.confirmed = true
   vol.locked = true
-  // 锁卷时继承每卷字数，使章节层能正确计算章数
-  if ((!vol.suggestedWords || vol.suggestedWords <= 0) && volumeWords.value > 0) {
-    vol.suggestedWords = volumeWords.value
-  }
+  // 锁卷时回填字数预算（AI 分配 > 旧建议字数 > 全局兜底），保证章节层章数计算可用
+  const budget = Math.max(0, Math.round(Number(vol.allocatedWords) || 0))
+    || Math.max(0, Math.round(Number(vol.suggestedWords) || 0))
+    || Math.max(0, Math.round(Number(volumeWords.value) || 0))
+  if (budget > 0) vol.allocatedWords = budget
   projectStore.volumesConfirmed = false
   if (!projectStore.chapters[vol.id || vol.name]) projectStore.chapters[vol.id || vol.name] = []
   if (!projectStore.volumes[selectedVolumeIndex.value]?.confirmed) selectedVolumeIndex.value = index
@@ -2227,21 +2228,33 @@ async function genVolumes(mode: string) {
     const effectiveVolumes = Math.max(1, volumeCount.value)
     const existingCount = projectStore.volumes.length
     volumeGenerationLogs.value.push("已读取大纲、设定和全书字数，正在构造卷纲请求")
+    const totalWords = Math.max(0, Math.round(bookWordCount.value * 10000))
+    const allocatedSum = projectStore.volumes.reduce(
+      (sum: number, v: any) => sum + Math.max(0, Math.round(Number(v.allocatedWords || v.suggestedWords) || 0)),
+      0
+    )
+    const remainingWords = Math.max(0, totalWords - allocatedSum)
     let prompt: string
     if (mode === "continue" && existingCount > 0) {
       const lastVol = projectStore.volumes[existingCount - 1]
-      prompt = "[大纲]\n" + projectStore.pipelineOutlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[每卷字数]\n" + volumeWords.value + "\n\n已生成" + existingCount + "卷，上一卷为：" + lastVol.name + " - " + (lastVol.outline || lastVol.summary || "") + "。请继续生成第" + (existingCount + 1) + "卷到第" + effectiveVolumes + "卷的卷纲。输出JSON数组，每项含name/outline/summary/suggestedWords字段。"
+      prompt = "[大纲]\n" + projectStore.pipelineOutlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[全书总字数]\n" + totalWords + "字\n\n[剩余待分配字数]\n" + remainingWords + "字\n\n已生成" + existingCount + "卷，上一卷为：" + lastVol.name + " - " + (lastVol.outline || lastVol.summary || "") + "。请继续生成第" + (existingCount + 1) + "卷到第" + effectiveVolumes + "卷的卷纲。输出JSON数组，每项含name/outline/summary/allocatedWords字段，allocatedWords为该卷分配字数（整数），本次生成各卷的allocatedWords之和应约等于剩余待分配字数。"
     } else if (mode === "single" && existingCount > 0) {
       const lastVol = projectStore.volumes[existingCount - 1]
-      prompt = "[大纲]\n" + projectStore.pipelineOutlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[每卷字数]\n" + volumeWords.value + "\n\n已生成" + existingCount + "卷，上一卷为：" + lastVol.name + " - " + (lastVol.outline || lastVol.summary || "") + "。请只生成第" + (existingCount + 1) + "卷的卷纲。输出JSON数组（正好1项），每项含name/outline/summary/suggestedWords字段。"
+      prompt = "[大纲]\n" + projectStore.pipelineOutlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[全书总字数]\n" + totalWords + "字\n\n[剩余待分配字数]\n" + remainingWords + "字\n\n已生成" + existingCount + "卷，上一卷为：" + lastVol.name + " - " + (lastVol.outline || lastVol.summary || "") + "。请只生成第" + (existingCount + 1) + "卷的卷纲。输出JSON数组（正好1项），每项含name/outline/summary/allocatedWords字段，allocatedWords为该卷分配字数（整数）。"
     } else {
-      prompt = "[大纲]\n" + projectStore.pipelineOutlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[每卷字数]\n" + volumeWords.value + "\n\n全书计划字数：" + (bookWordCount.value * 10000) + "字。请生成" + effectiveVolumes + "卷的卷纲。输出JSON数组，每项含name/outline/summary/suggestedWords字段。"
+      prompt = "[大纲]\n" + projectStore.pipelineOutlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[全书总字数]\n" + totalWords + "字\n\n请生成" + effectiveVolumes + "卷的卷纲。输出JSON数组，每项含name/outline/summary/allocatedWords字段，allocatedWords为该卷分配字数（整数），各卷allocatedWords之和应等于全书总字数。"
     }
     volumeGenerationLogs.value.push("请求已发送：正在等待 API 返回卷纲内容")
     const result = await runStepSkills(2, prompt, 600000, "你是卷纲生成专家。基于大纲和设定生成卷纲。")
     volumeGenerationLogs.value.push("API 已返回：正在解析卷纲 JSON 并校验卷数")
     pipelineStore.updateProgress(70, "正在解析卷纲内容")
-    const volumes = extractJsonArray(result)
+    let volumes = extractJsonArray(result)
+    if (volumes.length === 0) {
+      volumeGenerationLogs.value.push("卷纲解析失败，正在重试一次")
+      pipelineStore.updateProgress(75, "卷纲解析失败，重试中")
+      const retryResult = await runStepSkills(2, prompt + "\n\n注意：上一次输出无法解析为JSON数组。请严格只输出JSON数组，每项含name/outline/summary/allocatedWords字段，不要输出解释文字。", 600000, "你是卷纲生成专家。基于大纲和设定生成卷纲。")
+      volumes = extractJsonArray(retryResult)
+    }
     if (volumes.length > 0) {
       const vr = validateVolumes(volumes)
       if (!vr.valid) {
@@ -2320,7 +2333,7 @@ async function genChapters() {
   if (!vol) return
   const volId = vol.id || vol.name
   const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
-  const totalChapters = Number(vol.chapterCount) || Math.ceil((vol.suggestedWords || volumeWords.value) / wordsPerChapter)
+  const totalChapters = Number(vol.chapterCount) || Math.ceil((Number(vol.allocatedWords) || Number(vol.suggestedWords) || Number(volumeWords.value) || 0) / wordsPerChapter)
   const projectId = projectStore.currentProjectId
   const savedBreakpoint = await pipelineStore.refreshBreakpoint()
   const matchingBreakpoint = savedBreakpoint && savedBreakpoint.kind === 'chapters'

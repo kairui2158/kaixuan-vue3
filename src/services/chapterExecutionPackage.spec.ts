@@ -42,6 +42,13 @@ describe("chapter execution package", () => {
     expect(JSON.stringify(pkg)).not.toContain("不应进入")
   })
 
+  it("prefers the AI-allocated volume budget over the legacy suggestion", () => {
+    const pkg = createChapterExecutionPackage({
+      volume: { id: "v1", name: "第一卷", outline: "卷纲", allocatedWords: 700000, suggestedWords: 100000 }
+    })
+    expect(pkg.volume.suggestedWords).toBe(700000)
+  })
+
   it("renders the package as the single body-generation prompt", () => {
     const pkg = createChapterExecutionPackage({
       volume: { name: "第一卷", outline: "卷纲" },
