@@ -188,38 +188,37 @@ const syncedStepLabel = computed(() => {
   }
   return modeMap[tab.mode] || ''
 })
-const syncedAgentName = computed(() => {
+const syncedAgentName = ref('')
+const syncedSkillNames = ref('')
+let syncedInfoToken = 0
+async function refreshSyncedPipelineInfo() {
   const tab = editorStore.activeTab
-  if (!tab || !tab.mode) return ''
+  if (!tab || !tab.mode) {
+    syncedAgentName.value = ''
+    syncedSkillNames.value = ''
+    return
+  }
   const stepMap: Record<string, number> = {
     'vol-outline': 2,
     'ch-plot': 3,
     'ch-body': 4
   }
   const step = stepMap[tab.mode]
-  if (step === undefined) return ''
-  const agentId = pipelineStore.getStepAgents(step) as unknown as string
-  if (!agentId) return ''
-  const a = agentStore.getAgent(agentId)
-  return a?.name || ''
-})
-const syncedSkillNames = computed(() => {
-  const tab = editorStore.activeTab
-  if (!tab || !tab.mode) return ''
-  const stepMap: Record<string, number> = {
-    'vol-outline': 2,
-    'ch-plot': 3,
-    'ch-body': 4
-  }
-  const step = stepMap[tab.mode]
-  if (step === undefined) return ''
-  const skillIds = pipelineStore.getStepSkills(step) as unknown as string[]
-  if (!skillIds || skillIds.length === 0) return ''
-  return skillIds.map((sid: string) => {
+  if (step === undefined) return
+  const token = ++syncedInfoToken
+  const [agentId, skillIds] = await Promise.all([
+    pipelineStore.getStepAgents(step),
+    pipelineStore.getStepSkills(step)
+  ])
+  if (token !== syncedInfoToken) return
+  syncedAgentName.value = agentId ? agentStore.getAgent(agentId)?.name || '' : ''
+  syncedSkillNames.value = (skillIds || []).map((sid: string) => {
     const s = skillStore.skills.find((sk: any) => sk.id === sid)
     return s?.name || sid
   }).join(', ')
-})
+}
+watch(() => editorStore.activeTab?.mode, () => { void refreshSyncedPipelineInfo() }, { immediate: true })
+watch(() => [agentStore.agents.length, skillStore.skills.length], () => { void refreshSyncedPipelineInfo() })
 
 // Editor -> chat context binding. 《行为等价》：切换标签/内容变化时，对话会话跟着上下文走。
 watch(() => editorStore.activeTab, (tab) => {

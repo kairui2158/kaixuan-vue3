@@ -417,3 +417,11 @@
 3. 生成弹窗的关闭按钮只在取消完成后渲染；探针应在取消后的状态断言关闭按钮，不能在生成中断言。
 4. `page.route` 可能因取消、重复 handler 或既有连接产生 `Route is already handled`；临时探针要捕获清理竞态并在 `finally` 中移除路由。
 5. 完成后立即删除探针、诊断脚本和截图，并用 `fs.existsSync` 逐项复核；只提交经验与日志文档，不提交临时验证载体。
+
+## 2026-08-29 主页对话栏异步崩溃
+
+1. store 中走 `window.electronAPI.storageRead` 的 async 方法绝不能在同步 `computed` 里直接调用后 `.map()` / `.length`：Promise 没有 `.map`，TypeError 会让 Vue 整个组件卸载而不是局部失败，用户看到的是"面板消失"而不是报错。
+2. 正确模式：`ref` + 异步函数 + `Promise.all` 等待结果 + token 计数器防竞态 + watch 监听触发条件（标签切换、配置长度变化）。
+3. "面板消失"类问题先区分三种可能：条件渲染改变、DOM 被 CSS 隐藏、Vue 渲染崩溃卸载。本轮属于第三种，源码 diff 看不出来，必须用 CDP 运行态对照（点击前后 DOM 存在性 + console 错误）才能定位。
+4. 构建产物中 `n.map is not a function` 这类 TypeError 可以直接从压缩 JS 提取，比猜源码更快锁定崩溃点。
+5. 同类隐患排查：搜索所有 `getStepSkills(` / `getStepAgents(` 的同步消费点。`PipelinePanel.vue:1412` 仍有同步调用 async 函数的静默失效分支（Promise truthy 但 `.length` undefined），已记录待决策，不能当作已闭环。
