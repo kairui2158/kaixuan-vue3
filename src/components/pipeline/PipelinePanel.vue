@@ -6,12 +6,26 @@
         <div class="pl-header-actions">
           <button class="btn-sm btn-secondary" id="btn-pl-minimize" title="缩小到顶栏" @click="$emit('minimize')">缩小</button>
           <button class="btn-sm btn-secondary" id="btn-exec-log" @click="showExecLog = !showExecLog">执行日志</button>
+          <button class="btn-sm btn-secondary" id="btn-export-pipeline-bindings" @click="exportPipelineBindings">导出绑定</button>
+          <button class="btn-sm btn-secondary" id="btn-import-pipeline-bindings" @click="importPipelineBindings">导入绑定</button>
           <button class="btn-sm btn-secondary" id="btn-flow-toggle" @click="showFlowView = !showFlowView">{{ showFlowView ? '步骤视图' : '流程视图' }}</button>
           <button v-if="pipelineStore.isGenerating" id="btn-pl-cancel-generation" class="btn-sm btn-danger" @click="pipelineStore.cancelGeneration()">取消生成</button>
           <button id="btn-close-pl" class="modal-close" @click="$emit('close')">&times;</button>
         </div>
       </div>
       <div class="pl-body">
+        <div v-if="bindingImportPreview" id="pl-binding-import-preview" class="pl-binding-import-preview" role="dialog" aria-modal="true">
+          <div class="pl-binding-import-card">
+            <h3>确认导入流水线绑定</h3>
+            <p class="pl-binding-import-source">来源：{{ bindingImportPreview.source || '未知文件' }}</p>
+            <p>层级智能体 {{ Object.keys(bindingImportPreview.bindings.agents).length }} 项，Skill {{ Object.values(bindingImportPreview.bindings.skills).flat().length }} 项，Skill-Agent {{ Object.keys(bindingImportPreview.bindings.skillAgents).length }} 项，模式 {{ Object.keys(bindingImportPreview.bindings.modes).length }} 项。</p>
+            <p v-if="bindingImportPreview.issues.length" class="pl-binding-import-warnings">解析提示：{{ bindingImportPreview.issues.map(issue => issue.message).join('；') }}</p>
+            <div class="pl-actions">
+              <button id="btn-confirm-import-pipeline-bindings" class="btn-primary" :disabled="!bindingImportPreview.ok" @click="applyPipelineBindings">确认应用</button>
+              <button id="btn-cancel-import-pipeline-bindings" class="btn-secondary" @click="bindingImportPreview = null">取消</button>
+            </div>
+          </div>
+        </div>
         <div class="pl-steps" id="pl-steps">
           <div
             v-for="(step, i) in stepsWithIds"
@@ -74,11 +88,11 @@
             </div>
           </div>
           <div id="pl-s1-skills-list" class="pl-skills-list">
-            <template v-for="(sid, si) in stepSkills[0]" :key="si">
+            <template v-for="(sid, si) in stepSkills[0]" :key="'0-' + sid">
               <span v-if="sid" class="pl-skill-chip">
                 <span class="pl-chip-seq">{{ si + 1 }}</span>
                 <span>{{ getSkillName(sid) }}</span>
-                <select v-if="stepSkillModes[0] === 'chain'" v-model="stepSkillAgents['0-' + si]" class="pl-select pl-chip-agent" @change="saveStepConfig">
+                <select v-if="stepSkillModes[0] === 'chain'" v-model="stepSkillAgents[getSkillAgentKey(0, sid)]" class="pl-select pl-chip-agent" @change="saveStepConfig">
                   <option value="">默认</option>
                   <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
                 </select>
@@ -98,6 +112,39 @@
           <div v-show="pipelineStore.currentStep === 1" id="pl-step-2-content" class="pl-step-panel">
             <h3>设定</h3>
             <div v-if="projectStore.bookWordCountChars > 0" id="pl-settings-linked-book-words" class="pl-gen-hint">全书已确认字数：{{ projectStore.bookWordCountChars / 10000 }} 万字</div>
+          <div class="pl-step-tools pl-settings-tools">
+            <div id="pl-settings-control-row" class="pl-settings-control-row">
+              <span class="pl-label">本层智能体:</span>
+              <select id="pl-s2-agent" v-model="stepAgents[1]" class="pl-select pl-agent-select" @change="saveStepConfig">
+                <option value="">不使用智能体</option>
+                <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
+              </select>
+              <span class="pl-label">Skill:</span>
+              <select id="pl-s2-skill" v-model="stepSkillSelect[2]" class="pl-select pl-skill-select" @change="addStepSkill(2)">
+                <option value="">无</option>
+                <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
+              </select>
+              <button class="btn-icon" id="pl-s2-add-skill" title="添加Skill" @click="addStepSkill(2)">+</button>
+              <span class="pl-mode-label">Skill模式:</span>
+              <select id="pl-s2-mode" v-model="stepSkillModes[1]" class="pl-select pl-mode-select" @change="saveStepConfig">
+                <option value="compose">并行</option>
+                <option value="chain">串行</option>
+              </select>
+            </div>
+            <div id="pl-s2-skills-list" class="pl-skills-list pl-selected-skills-row">
+              <template v-for="(sid, si) in stepSkills[1]" :key="'1-' + sid">
+                <span v-if="sid" class="pl-skill-chip">
+                  <span class="pl-chip-seq">{{ si + 1 }}</span>
+                  <span>{{ getSkillName(sid) }}</span>
+                  <select v-if="stepSkillModes[1] === 'chain'" v-model="stepSkillAgents[getSkillAgentKey(1, sid)]" class="pl-select pl-chip-agent" @change="saveStepConfig">
+                    <option value="">默认</option>
+                    <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
+                  </select>
+                  <button class="btn-icon pl-chip-close" title="移除" @click="removeStepSkill(2, si)">&times;</button>
+                </span>
+              </template>
+            </div>
+          </div>
             <div id="pl-style-card" class="pl-style-card" v-if="true">
               <div class="pl-style-card-header" @click="styleCardExpanded = !styleCardExpanded">
                 <span class="pl-style-card-title">创作风格</span>
@@ -158,41 +205,6 @@
                 </div>
               </div>
             </div>
-          <div class="pl-step-tools">
-            <div class="pl-agent-mode-bar">
-              <span class="pl-label">本层智能体:</span>
-              <select id="pl-s2-agent" v-model="stepAgents[1]" class="pl-select pl-agent-select" @change="saveStepConfig">
-                <option value="">不使用智能体</option>
-                <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
-              </select>
-              <span class="pl-mode-label">Skill模式:</span>
-              <select id="pl-s2-mode" v-model="stepSkillModes[1]" class="pl-select pl-mode-select" @change="saveStepConfig">
-                <option value="compose">并行</option>
-                <option value="chain">串行</option>
-              </select>
-            </div>
-            <div class="pl-skill-bar">
-              <span class="pl-label">Skill:</span>
-              <select id="pl-s2-skill" v-model="stepSkillSelect[2]" class="pl-select" @change="addStepSkill(2)">
-                <option value="">无</option>
-                <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
-              </select>
-              <button class="btn-icon" id="pl-s2-add-skill" title="添加Skill" @click="addStepSkill(2)">+</button>
-            </div>
-          </div>
-          <div id="pl-s2-skills-list" class="pl-skills-list">
-            <template v-for="(sid, si) in stepSkills[1]" :key="si">
-              <span v-if="sid" class="pl-skill-chip">
-                <span class="pl-chip-seq">{{ si + 1 }}</span>
-                <span>{{ getSkillName(sid) }}</span>
-                <select v-if="stepSkillModes[1] === 'chain'" v-model="stepSkillAgents['1-' + si]" class="pl-select pl-chip-agent" @change="saveStepConfig">
-                  <option value="">默认</option>
-                  <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
-                </select>
-                <button class="btn-icon pl-chip-close" title="移除" @click="removeStepSkill(2, si)">&times;</button>
-              </span>
-            </template>
-          </div>
             <div class="pl-settings-workspace" id="pl-settings-workspace">
               <div class="pl-settings-navigation">
                 <div class="pl-settings-navigation-label">设定分类</div>
@@ -327,11 +339,11 @@
             </div>
           </div>
           <div id="pl-s3-skills-list" class="pl-skills-list">
-            <template v-for="(sid, si) in stepSkills[2]" :key="si">
+            <template v-for="(sid, si) in stepSkills[2]" :key="'2-' + sid">
               <span v-if="sid" class="pl-skill-chip">
                 <span class="pl-chip-seq">{{ si + 1 }}</span>
                 <span>{{ getSkillName(sid) }}</span>
-                <select v-if="stepSkillModes[2] === 'chain'" v-model="stepSkillAgents['2-' + si]" class="pl-select pl-chip-agent" @change="saveStepConfig">
+                <select v-if="stepSkillModes[2] === 'chain'" v-model="stepSkillAgents[getSkillAgentKey(2, sid)]" class="pl-select pl-chip-agent" @change="saveStepConfig">
                   <option value="">默认</option>
                   <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
                 </select>
@@ -471,11 +483,11 @@
             </div>
           </div>
           <div id="pl-s4-skills-list" class="pl-skills-list">
-            <template v-for="(sid, si) in stepSkills[3]" :key="si">
+            <template v-for="(sid, si) in stepSkills[3]" :key="'3-' + sid">
               <span v-if="sid" class="pl-skill-chip">
                 <span class="pl-chip-seq">{{ si + 1 }}</span>
                 <span>{{ getSkillName(sid) }}</span>
-                <select v-if="stepSkillModes[3] === 'chain'" v-model="stepSkillAgents['3-' + si]" class="pl-select pl-chip-agent" @change="saveStepConfig">
+                <select v-if="stepSkillModes[3] === 'chain'" v-model="stepSkillAgents[getSkillAgentKey(3, sid)]" class="pl-select pl-chip-agent" @change="saveStepConfig">
                   <option value="">默认</option>
                   <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
                 </select>
@@ -583,11 +595,11 @@
             </div>
           </div>
           <div id="pl-s5-skills-list" class="pl-skills-list">
-            <template v-for="(sid, si) in stepSkills[4]" :key="si">
+            <template v-for="(sid, si) in stepSkills[4]" :key="'4-' + sid">
               <span v-if="sid" class="pl-skill-chip">
                 <span class="pl-chip-seq">{{ si + 1 }}</span>
                 <span>{{ getSkillName(sid) }}</span>
-                <select v-if="stepSkillModes[4] === 'chain'" v-model="stepSkillAgents['4-' + si]" class="pl-select pl-chip-agent" @change="saveStepConfig">
+                <select v-if="stepSkillModes[4] === 'chain'" v-model="stepSkillAgents[getSkillAgentKey(4, sid)]" class="pl-select pl-chip-agent" @change="saveStepConfig">
                   <option value="">默认</option>
                   <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
                 </select>
@@ -727,12 +739,21 @@ import { useEditorStore } from "../../stores/editor"
 import { useExecutionLogStore } from "../../stores/executionLog"
 import { useAiTools } from "../../composables/useAiTools"
 import { getAiService } from "../../services/aiService"
+import { getSkillAgentKey, migrateSkillAgentBindings, normalizeSkillAgentBindings } from "../../services/skillAgentBinding"
+import { useConfigExchange } from "../../composables/useConfigExchange"
+import type { PipelineBindingRecord } from "../../services/configExchange"
 import { storageKey } from "../../utils/storage-key"
 import PipelineFlow from "./PipelineFlow.vue"
 import { extractMemory } from "../../services/memoryExtractor"
 import { mergeMemory } from "../../services/memoryMerger"
 import type { ExtractedMemoryData } from "../../services/memoryExtractor"
 import { retrieveContext } from "../../services/memoryRetriever"
+import { parseGenerationResult } from "../../services/generationResult"
+import { buildChapterExecutionPrompt, createChapterExecutionPackage } from "../../services/chapterExecutionPackage"
+import { buildChainSkillPrompt } from "../../services/chainExecution"
+import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from "../../services/skillValidation"
+import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from "../../services/chainBreakpoint"
+import { selectCompleteChapters, validateChapterNarrative, validateVolumeNarrative } from "../../services/narrativeValidation"
 
 defineEmits<{ close: [], minimize: [] }>()
 
@@ -748,6 +769,13 @@ const skillStore = useSkillStore()
 const agentStore = useAgentStore()
 const editorStore = useEditorStore()
 const execLogStore = useExecutionLogStore()
+const { importBindingsFromFile, exportBindingsJSON } = useConfigExchange()
+const bindingImportPreview = ref<{
+  ok: boolean
+  issues: Array<{ message: string }>
+  bindings: PipelineBindingRecord
+  source: string
+} | null>(null)
 
 const { generateNames, generateWritingRules, extractTimeline, batchReviewChapters, reviseChapter, translateText, convertStyle, regenerateContent, modifyContent, isLoading: aiLoading, loadingText: aiLoadingText } = useAiTools()
 
@@ -942,7 +970,7 @@ const outlineAnalyzed = ref(false)
 const stepAgents = ref<Record<number, string>>({ 0: "", 1: "", 2: "", 3: "", 4: "" })
 const stepSkills = ref<Record<number, string[]>>({ 0: ["", "", "", "", ""], 1: ["", "", "", "", ""], 2: ["", "", "", "", ""], 3: ["", "", "", "", ""], 4: ["", "", "", "", ""] })
 const stepSkillSelect = ref<Record<number, string>>({ 1: "", 2: "", 3: "", 4: "", 5: "" })
-const stepSkillModes = ref<Record<number, string>>({ 0: "compose", 1: "compose", 2: "chain", 3: "chain", 4: "compose" })
+const stepSkillModes = ref<Record<number, string>>({ 0: "compose", 1: "compose", 2: "chain", 3: "chain", 4: "chain" })
 const stepSkillAgents = ref<Record<string, string>>({})
 
 const selectedVolume = computed(() => projectStore.volumes[selectedVolumeIndex.value] || null)
@@ -1097,6 +1125,52 @@ async function saveStepConfig() {
   })
 }
 
+function getCurrentPipelineBindings(): PipelineBindingRecord {
+  return {
+    agents: JSON.parse(JSON.stringify(stepAgents.value)),
+    skills: JSON.parse(JSON.stringify(stepSkills.value)),
+    modes: JSON.parse(JSON.stringify(stepSkillModes.value)),
+    skillAgents: normalizeSkillAgentBindings(
+      JSON.parse(JSON.stringify(stepSkillAgents.value)),
+      JSON.parse(JSON.stringify(stepSkills.value)),
+    ),
+  }
+}
+
+async function exportPipelineBindings() {
+  try {
+    const written = await exportBindingsJSON(getCurrentPipelineBindings())
+    if (!written) return
+    execLogStore.addLog({ step: 0, stepName: "配置交换", mode: "binding-export", skillNames: [], prompt: "", result: "流水线绑定已导出", duration: 0, status: "success" })
+  } catch (error: any) {
+    execLogStore.addLog({ step: 0, stepName: "配置交换", mode: "binding-export", skillNames: [], prompt: "", result: error?.message || "绑定导出失败", duration: 0, status: "failed" })
+  }
+}
+
+async function importPipelineBindings() {
+  const result = await importBindingsFromFile()
+  if (result) bindingImportPreview.value = result
+}
+
+async function applyPipelineBindings() {
+  const preview = bindingImportPreview.value
+  if (!preview?.ok) return
+  const current = await window.electronAPI.storageRead(storageKey("pipeline_step_config")) || {}
+  const next = {
+    ...current,
+    agents: JSON.parse(JSON.stringify(preview.bindings.agents)),
+    skills: JSON.parse(JSON.stringify(preview.bindings.skills)),
+    modes: JSON.parse(JSON.stringify(preview.bindings.modes)),
+    skillAgents: JSON.parse(JSON.stringify(preview.bindings.skillAgents)),
+  }
+  await window.electronAPI.storageWrite(storageKey("pipeline_step_config"), next)
+  stepAgents.value = { 0: "", 1: "", 2: "", 3: "", 4: "", ...preview.bindings.agents } as Record<number, string>
+  stepSkills.value = { 0: [], 1: [], 2: [], 3: [], 4: [], ...preview.bindings.skills } as Record<number, string[]>
+  stepSkillModes.value = { 0: "compose", 1: "compose", 2: "chain", 3: "chain", 4: "chain", ...preview.bindings.modes }
+  stepSkillAgents.value = { ...preview.bindings.skillAgents }
+  bindingImportPreview.value = null
+}
+
 async function saveBookWordCount() {
   const wan = Number(bookWordCount.value)
   if (!isNaN(wan) && wan > 0) {
@@ -1163,7 +1237,11 @@ type PipelineSkillTemplate = {
   template: string
   customVars?: Record<string, string>
   injectMode?: string
+  outputFormat?: 'json' | 'text'
   validationRules?: string[]
+  inputSchema?: any
+  outputSchema?: any
+  retryPolicy?: any
 }
 
 function getStepSkillTemplates(step: number): PipelineSkillTemplate[] {
@@ -1177,7 +1255,11 @@ function getStepSkillTemplates(step: number): PipelineSkillTemplate[] {
       template: s.template,
       customVars: s.customVars || {},
       injectMode: s.injectMode || "system_prefix",
-      validationRules: s.validationRules || []
+      outputFormat: s.outputFormat || "text",
+      validationRules: s.validationRules || [],
+      inputSchema: s.inputSchema,
+      outputSchema: s.outputSchema,
+      retryPolicy: s.retryPolicy
     })
   }
   return templates
@@ -1192,8 +1274,8 @@ function getStepAgentId(step: number): string {
   return stepAgents.value[step] || ""
 }
 
-function getStepSkillAgentId(step: number, si: number): string {
-  return stepSkillAgents.value[step + "-" + si] || ""
+function getStepSkillAgentId(step: number, skillId: string): string {
+  return stepSkillAgents.value[getSkillAgentKey(step, skillId)] || ""
 }
 
 function getStepSkillOutputFormat(step: number, si: number): string {
@@ -1224,40 +1306,48 @@ function mergePromptParts(parts: PromptParts[]): PromptParts {
   }
 }
 
-function tryParseJson(text: string): { ok: boolean; data?: any } {
-  try {
-    const jsonMatch = text.match(/```json?\s*([\s\S]*?)```/)
-    if (jsonMatch) {
-      return { ok: true, data: JSON.parse(jsonMatch[1].trim()) }
-    }
-    return { ok: true, data: JSON.parse(text.trim()) }
-  } catch {
-    return { ok: false }
-  }
+function validateSkillInputOrThrow(template: PipelineSkillTemplate, input: unknown) {
+  if (!template.inputSchema) return
+  const result = validateSkillInput(input, template)
+  if (!result.valid) throw new Error("「" + template.name + "」输入校验失败：" + result.errors.join("；"))
 }
 
-async function ensureJsonParsed(
-  step: number,
-  si: number,
-  current: string,
-  injection: PromptParts,
-  nextPrompt: string,
-  timeoutMs?: number,
-  skillAgentId?: string
-): Promise<string> {
-  const fmt = getStepSkillOutputFormat(step, si)
-  if (fmt !== "json") return current
-  if (tryParseJson(current).ok) return current
+function validateSkillOutputOrThrow(template: PipelineSkillTemplate, output: string) {
+  const structured = validateSkillOutput(output, template)
+  if (!structured.valid) throw new Error("「" + template.name + "」输出校验失败：" + structured.errors.join("；"))
+  const rules = validateSkillRules(structured.value ?? output, template.validationRules)
+  if (!rules.valid) throw new Error("「" + template.name + "」规则校验失败：" + rules.errors.join("；"))
+}
 
-  const retryPrompt = nextPrompt + "\n\n[注意] 上次输出不是合法JSON，请严格返回JSON格式，不要包含markdown代码块标记。"
-  const retried = timeoutMs
-    ? await callApiWithAgentTimeout(step, injection.systemSkill || "", retryPrompt, timeoutMs, skillAgentId, injection)
-    : await callApiWithAgent(step, injection.systemSkill || "", retryPrompt, skillAgentId, injection)
-  if (!tryParseJson(retried).ok) {
-    const skillName = getStepSkillTemplates(step)[si]?.name || "Skill"
-    throw new Error("「" + skillName + "」JSON校验失败：重试一次后仍不是合法JSON")
+async function callValidatedSkill(
+  step: number,
+  template: PipelineSkillTemplate,
+  injection: PromptParts,
+  prompt: string,
+  inputContext: unknown,
+  timeoutMs: number | undefined,
+  skillAgentId: string | undefined
+): Promise<string> {
+  validateSkillInputOrThrow(template, inputContext)
+  // Preserve the legacy outputFormat contract: malformed JSON gets one repair attempt.
+  const maxAttempts = template.retryPolicy
+    ? getSkillMaxAttempts(template.retryPolicy)
+    : template.outputFormat === "json" ? 2 : 1
+  let currentError: unknown = null
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const attemptPrompt = attempt === 1 ? prompt : prompt + "\n\n[校验重试] 上次输出未满足 Skill 的结构化约束，请只返回符合要求的结果。"
+    const output = timeoutMs
+      ? await callApiWithAgentTimeout(step, injection.systemSkill || "", attemptPrompt, timeoutMs, skillAgentId, injection)
+      : await callApiWithAgent(step, injection.systemSkill || "", attemptPrompt, skillAgentId, injection)
+    try {
+      validateSkillOutputOrThrow(template, output)
+      return output
+    } catch (error) {
+      currentError = error
+      if (attempt === maxAttempts) throw error
+    }
   }
-  return retried
+  throw currentError instanceof Error ? currentError : new Error("Skill 输出校验失败")
 }
 
 function getStepSkillMode(step: number): string {
@@ -1549,24 +1639,13 @@ function extractJsonObject(text: string): any {
 }
 
 function validateVolumes(vols: any[]): { valid: boolean; errors: string[] } {
-  const errors: string[] = []
-  for (const v of vols) {
-    if (!v.name) errors.push("卷缺少名称")
-    if (!v.outline && !v.summary) errors.push("卷 '" + (v.name || "?") + "' 缺少内容")
-  }
-  return { valid: errors.length === 0, errors }
+  const result = validateVolumeNarrative(vols)
+  return { valid: result.valid, errors: result.errors }
 }
 
 function validateChapters(chs: any[], expectedCount?: number): { valid: boolean; errors: string[] } {
-  const errors: string[] = []
-  if (expectedCount !== undefined && chs.length !== expectedCount) {
-    errors.push("章节数量不足：当前 " + chs.length + " 章，目标 " + expectedCount + " 章")
-  }
-  for (const c of chs) {
-    if (!c.title) errors.push("章节缺少标题")
-    if (!c.plot) errors.push("章节「" + (c.title || "?") + "」缺少剧情点")
-  }
-  return { valid: errors.length === 0, errors }
+  const result = validateChapterNarrative(chs, expectedCount)
+  return { valid: result.valid, errors: result.errors }
 }
 
 function clearChapterGenerationFlags() {
@@ -1710,7 +1789,7 @@ function prevStep() {
   }
 }
 
-async function callApiWithAgent(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string, promptParts?: PromptParts): Promise<string> {
+async function callApiWithAgent(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string, promptParts?: PromptParts, signal?: AbortSignal, timeoutMs?: number): Promise<string> {
   const agentId = skillAgentOverride || getStepAgentId(step)
   const agentConfig = agentId ? (agentStore.getAgent(agentId) || null) : getStepAgentConfig(step)
   const provider = providerStore.getProvider(agentConfig?.provider || "")
@@ -1732,7 +1811,8 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
     temperature,
     maxTokens,
     onChunk: (text: string) => appendPipelineStream(step, text),
-    signal: pipelineStore.getGenerationSignal(),
+    signal: signal || pipelineStore.getGenerationSignal(),
+    timeoutMs,
     retry: true,
     meta: { source: 'PipelinePanel.callApiWithAgent', step, skillId: skillAgentOverride }
   })
@@ -1740,11 +1820,8 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
 }
 
 async function callApiWithAgentTimeout(step: number, skillTemplate: string, prompt: string, timeoutMs: number, skillAgentOverride?: string, promptParts?: PromptParts): Promise<string> {
-  const result = await Promise.race([
-    callApiWithAgent(step, skillTemplate, prompt, skillAgentOverride, promptParts),
-    new Promise<string>((_, reject) => setTimeout(() => reject(new Error("API超时")), timeoutMs))
-  ])
-  return result
+  const parentSignal = pipelineStore.getGenerationSignal()
+  return await callApiWithAgent(step, skillTemplate, prompt, skillAgentOverride, promptParts, parentSignal, timeoutMs)
 }
 
 async function runStepSkills(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string) {
@@ -1806,23 +1883,24 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
   }
   if (mode === "chain" && templates.length > 1) {
     const chainCtx = { ...baseCtx }
+    const checkpointProjectId = String(projectStore.currentProjectId || "")
+    const fallbackAgentId = (skillAgentId: string) => skillAgentId || getStepAgentId(step) || ""
     // Need 2: chain breakpoint resume
     const bp = await pipelineStore.refreshBreakpoint()
-    let startSi = 0
-    let current = prompt
-    if (
-      bp &&
-      bp.step === step &&
-      bp.projectId === projectStore.currentProjectId &&
-      bp.lastSuccessChainIndex !== undefined &&
-      bp.lastOutput
-    ) {
-      startSi = bp.lastSuccessChainIndex + 1
-      current = bp.lastOutput
+    const skillSequence = templates.map((t) => t.id)
+    const resumePoint = getChainResumePoint({
+      breakpoint: bp,
+      step,
+      projectId: checkpointProjectId,
+      skillSequence
+    })
+    let startSi = resumePoint.startIndex
+    let current = resumePoint.previousOutput || prompt
+    if (resumePoint.resumed) {
       chainCtx.prevResponse = current
       if (step === 2) {
         volumeGenerationLogs.value.push(
-          "检测到卷纲断点：已完成第" + (bp.lastSuccessChainIndex + 1) + "步，将从第" + (startSi + 1) + "步继续"
+          "检测到卷纲断点：将从第" + (startSi + 1) + "步继续（失败步骤会重试）"
         )
       }
       console.log("[PIPELINE] chain resumed from step " + (startSi + 1) + "/" + templates.length)
@@ -1832,9 +1910,12 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       const ctxForSkill = { ...chainCtx, ...(t.customVars || {}) }
       const resolvedTemplate = resolveSkillTemplate(t.template, ctxForSkill)
       const useOriginal = si === 0 && startSi === 0
-      const nextPrompt = useOriginal
-        ? generationPrompt
-        : "以下是上一个Skill的输出结果，请根据当前Skill继续处理：\n\n--- 上一步输出 ---\n" + current + memoryPrompt
+      const nextPrompt = buildChainSkillPrompt({
+        initialPrompt: generationPrompt,
+        previousOutput: current,
+        memoryPrompt,
+        isFirst: useOriginal
+      })
       console.log("[PIPELINE] chain step " + (si + 1) + "/" + templates.length + " = " + t.name)
       if (step === 2) {
         volumeGenerationLogs.value.push("卷纲链式步骤 " + (si + 1) + "/" + templates.length + "：正在执行「" + (t.name || "未命名Skill") + "」")
@@ -1846,24 +1927,52 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         )
       }
       // Need 1: per-skill agent override
-      const skillAgentId = getStepSkillAgentId(step, si)
+      const skillAgentId = getStepSkillAgentId(step, t.id)
       const injection = getPromptParts(resolvedTemplate, t.injectMode || "system_prefix")
-      if (timeoutMs) {
-        current = await callApiWithAgentTimeout(step, injection.systemSkill || "", nextPrompt, timeoutMs, skillAgentId, injection)
-      } else {
-        current = await callApiWithAgent(step, injection.systemSkill || "", nextPrompt, skillAgentId, injection)
+      try {
+        const previousOutput = si === 0 ? "" : current
+        current = await callValidatedSkill(
+          step,
+          t,
+          injection,
+          nextPrompt,
+          { ...ctxForSkill, previousOutput },
+          timeoutMs,
+          skillAgentId
+        )
+        chainCtx.prevResponse = current
+        // Persist a complete success checkpoint immediately after each Skill.
+        await pipelineStore.saveBreakpoint(createChainSuccessBreakpoint({
+          step,
+          projectId: checkpointProjectId,
+          skillIndex: si,
+          skillId: t.id,
+          skillSequence,
+          lastSuccessChainIndex: si,
+          lastOutput: current,
+          inputPrompt: nextPrompt,
+          agentId: fallbackAgentId(skillAgentId),
+          retryCount: 0,
+          volumeIndex: selectedVolumeIndex.value
+        }))
+      } catch (error) {
+        // A failed Skill is a terminal chain state for this run; never pass stale output onward.
+        await pipelineStore.saveBreakpoint(createChainFailureBreakpoint({
+          step,
+          projectId: checkpointProjectId,
+          skillIndex: si,
+          skillId: t.id,
+          skillSequence,
+          lastSuccessChainIndex: si - 1,
+          lastOutput: si === 0 ? "" : current,
+          inputPrompt: nextPrompt,
+          agentId: fallbackAgentId(skillAgentId),
+          retryCount: Number(bp?.skillId === t.id ? bp.retryCount || 0 : 0) + 1,
+          volumeIndex: selectedVolumeIndex.value,
+          error: error instanceof Error ? error.message : String(error)
+        }))
+        throw error
       }
-      // Need 4: outputFormat JSON validation (valid -> no retry; invalid -> once, then fail)
-      current = await ensureJsonParsed(step, si, current, injection, nextPrompt, timeoutMs, skillAgentId)
-      chainCtx.prevResponse = current
-      // Need 2: save breakpoint after each successful step
-      await pipelineStore.saveBreakpoint({
-        step,
-        projectId: projectStore.currentProjectId,
-        lastSuccessChainIndex: si,
-        lastOutput: current,
-        volumeIndex: selectedVolumeIndex.value
-      })
     }
     await pipelineStore.clearBreakpoint()
     return current
@@ -1873,16 +1982,20 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     return getPromptParts(resolveSkillTemplate(t.template, ctxForSkill), t.injectMode || "system_prefix")
   })
   const merged = mergePromptParts(resolvedParts)
+  templates.forEach((template) => validateSkillInputOrThrow(template, baseCtx))
   const combined = merged.systemSkill || resolveSkillTemplate(fallbackTemplate || "", baseCtx)
   const composePrompt = generationPrompt
   let result: string
-  if (timeoutMs) {
-    result = await callApiWithAgentTimeout(step, combined, composePrompt, timeoutMs, undefined, merged)
-  } else {
-    result = await callApiWithAgent(step, combined, composePrompt, undefined, merged)
+  const composeTemplate: PipelineSkillTemplate = {
+    id: "compose",
+    name: templates.map(t => t.name).filter(Boolean).join(" + ") || "Compose",
+    template: combined,
+    outputFormat: templates.some(t => t.outputFormat === "json") ? "json" : "text",
+    outputSchema: templates.find(t => t.outputSchema)?.outputSchema,
+    validationRules: templates.flatMap(t => t.validationRules || []),
+    retryPolicy: templates.reduce((max, t) => Math.max(max, getSkillMaxAttempts(t.retryPolicy)), 1)
   }
-  // Need 4: outputFormat JSON validation for compose
-  result = await ensureJsonParsed(step, 0, result, merged, prompt, timeoutMs, undefined)
+  result = await callValidatedSkill(step, composeTemplate, merged, composePrompt, baseCtx, timeoutMs, undefined)
   return result
 }
 
@@ -2177,8 +2290,8 @@ async function genChapters() {
         try {
           const result = await callChapterApi(prompt)
           const existingTitles = new Set(collected.map(c => c.title))
-          const chapters = extractJsonArray(result).slice(0, requested)
-          added = chapters.filter((c: any) => c && c.title && !existingTitles.has(c.title))
+          const chapters = selectCompleteChapters(extractJsonArray(result).slice(0, requested * 2))
+          added = chapters.filter((c: any) => !existingTitles.has(String(c.title).trim())).slice(0, requested)
           if (added.length === 0) {
             lastError = new Error("API 返回空章节或重复章节")
             if (retry < 4) await new Promise((r) => setTimeout(r, 5000))
@@ -2246,20 +2359,45 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     }
     const settingsText = allItems.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)).join("\n")
     const boundText = getBoundSettingsText()
-    const volOutline = vol.outline || vol.summary || ""
     const styleCtx = getStyleContext()
-    const prompt = "[全书大纲]\n" + projectStore.pipelineOutlineText + "\n\n[设定摘要]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + (styleCtx ? "\n\n[风格与节奏分析]\n" + styleCtx + "\n" : "") + "\n\n[当前卷概要]\n" + vol.name + " - " + volOutline + "\n\n[当前章节剧情点]\n" + ch.title + " - " + (ch.plot || "") + "\n\n请为本章节生成约" + chapterWords.value + "字的正文内容。"
-    const result = await runStepSkills(4, prompt, undefined, "你是小说写作专家。请基于章节剧情点生成正文。")
-    bodyResult.value = result
-    ch.body = result
+    const executionPackage = createChapterExecutionPackage({
+      projectId: projectStore.currentProjectId,
+      volume: vol,
+      volumeIndex,
+      chapter: ch,
+      chapterIndex,
+      outlineContent: projectStore.pipelineOutlineText,
+      settings: allItems.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)),
+      boundSettings: boundText,
+      styleContext: styleCtx,
+      pacingContext: pacingParams.value,
+      memoryContext: retrieveContext(projectStore.memories, {
+        chapterId: String(ch.id || ""),
+        chapterIndex,
+        query: `${ch.title || ""} ${ch.plot || ""}`,
+        maxChars: 2000
+      }).text,
+      sourceRefs: [
+        projectStore.outlineLocked ? "outline:locked" : "outline:working",
+        "volume:" + String(vol.id || vol.name),
+        "chapter:" + String(ch.id || "")
+      ]
+    })
+    ch.chapterExecutionPackage = executionPackage
+    const prompt = buildChapterExecutionPrompt(executionPackage, chapterWords.value)
+    const rawResult = await runStepSkills(4, prompt, undefined, "你是小说写作专家。请基于章节剧情点生成正文。")
+    const generationResult = parseGenerationResult(rawResult)
+    bodyResult.value = generationResult.body
+    ch.body = generationResult.body
+    ch.generationMetadata = generationResult.metadata
     ch.bodyGenerated = true
     projectStore.saveProject()
     projectStore.refreshTree()
-    syncChapterManager(volId, ch, result)
+    syncChapterManager(volId, ch, generationResult.body)
     // Insert into the editor automatically (same link as old architecture).
     window.dispatchEvent(new CustomEvent("insert-text", {
       detail: {
-        text: result,
+        text: generationResult.body,
         chapterId: ch.id || '',
         title: ch.title || '章节',
         mode: 'ch-body',
@@ -2506,10 +2644,10 @@ async function confirmMemoryPreview() {
       }
     }
     if (saved.skillAgents) {
-      stepSkillAgents.value = saved.skillAgents
+      stepSkillAgents.value = migrateSkillAgentBindings(saved.skillAgents, stepSkills.value)
     }
     if (saved.modes) {
-      stepSkillModes.value = { 0: "compose", 1: "compose", 2: "chain", 3: "chain", 4: "compose" }
+      stepSkillModes.value = { 0: "compose", 1: "compose", 2: "chain", 3: "chain", 4: "chain" }
       let m = saved.modes
       for (let i = 0; i < 5; i++) {
         const savedMode = m[i] !== undefined ? m[i] : m[i + 1]
@@ -2995,6 +3133,29 @@ function toolAction(action: string) {
 .pl-tools-title { font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
 .pl-readonly { opacity: 0.7; cursor: default; }
 .pl-step-tools { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.pl-settings-tools { flex: 0 0 auto; }
+.pl-settings-control-row {
+  display: grid;
+  grid-template-columns: auto minmax(170px, 1.1fr) auto minmax(130px, 0.9fr) 28px auto minmax(120px, 0.7fr);
+  align-items: center;
+  gap: 10px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-elevated, var(--bg-secondary));
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+.pl-settings-control-row .pl-label,
+.pl-settings-control-row .pl-mode-label { font-size: var(--font-size-md); color: var(--text-secondary); white-space: nowrap; }
+.pl-settings-control-row .pl-select { min-width: 0; height: var(--input-height, 34px); padding: 0 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; }
+.pl-selected-skills-row {
+  align-items: center;
+  min-height: 34px;
+  padding: 4px var(--space-2);
+  margin-bottom: 0;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated, var(--bg-secondary));
+}
 .pl-agent-mode-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: var(--space-4) var(--space-6); background: var(--bg-elevated, var(--bg-secondary)); border: 1px solid var(--border-color); border-radius: var(--radius-md); }
 .pl-agent-mode-bar .pl-label, .pl-agent-mode-bar .pl-mode-label { font-size: var(--font-size-md); color: var(--text-secondary); white-space: nowrap; }
 .pl-agent-mode-bar .pl-select { height: var(--input-height, 34px); padding: 0 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; }
@@ -3222,6 +3383,13 @@ function toolAction(action: string) {
   .pl-settings-workspace {
     gap: var(--space-3);
   }
+  .pl-settings-control-row {
+    grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-auto-rows: minmax(34px, auto);
+  }
+  .pl-settings-control-row .btn-icon { justify-self: start; }
+  .pl-settings-control-row .pl-mode-label,
+  .pl-settings-control-row .pl-mode-select { grid-column: auto / span 1; }
   .pl-settings-navigation {
     padding-right: 0;
     align-items: flex-start;
