@@ -110,7 +110,6 @@
             </div>
           </div>
           <div v-show="pipelineStore.currentStep === 1" id="pl-step-2-content" class="pl-step-panel">
-            <h3>设定</h3>
             <div v-if="projectStore.bookWordCountChars > 0" id="pl-settings-linked-book-words" class="pl-gen-hint">全书已确认字数：{{ projectStore.bookWordCountChars / 10000 }} 万字</div>
           <div class="pl-step-tools pl-settings-tools">
             <div id="pl-settings-control-row" class="pl-settings-control-row">
