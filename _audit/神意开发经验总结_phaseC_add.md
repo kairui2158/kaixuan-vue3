@@ -29,3 +29,11 @@
 | 08-19 | 验证脚本选择器使用#btn-project而非#btn-open-project | 项目按钮点击失败 | 修正为#btn-open-project |
 | 08-19 | 未检查pipeline-panel的computed style | 误判流水线不存在 | 增加getComputedStyle检查，确认display:flex,visibility:visible |
 | 08-19 | 验证脚本超时（120s） | 全链路验证被中断 | 增加3s超时限制，失败时继续下一项 |
+
+### 错误类型 J：脚本态 Promise 与启动器生命周期
+
+| # | 错误操作 | 根因 | 改正措施 | 避免再犯 |
+|---|---------|------|---------|---------|
+| J1 | `page.evaluate` 里直接引用 `window.electronAPI.storageRead(...)` 后把返回值拼进键名 | Electron bridge 返回 Promise，脚本没有 `await`，实际键名变成 `[object Promise]` | evaluate 内统一声明 `async`，所有 bridge 调用都 `await`；断言必须同时核对应用状态与数据内容 | 写脚本前先识别每个 API 的返回类型；持久化断言必须读真实业务字段，不能只看脚本不报错 |
+| J2 | 用 Ctrl+C 结束 `start-electron.bat` 会话 | 启动器 PTY 会话和 Electron 进程树存在父子关系，结束会话会把 Electron 连带带走 | 启动器用管道 stdin 执行后让它自然退出；验证脚本只主动 `process.exit(0)`；杀应用单独执行进程清理 | 启动器会话不是普通可随意中断的命令；每次切换会话前先确认 Electron/CDP 仍存活 |
+| J3 | 选择器歧义导致下拉命中错误控件 | `#pl-step-4-content select` 会同时匹配智能体和卷下拉 | 关键业务下拉补稳定业务 id，如 `#pl-ch-volume-select` | 复杂步骤面板内的同名控件优先补唯一 ID，再写验证选择器 |

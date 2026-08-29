@@ -2281,6 +2281,8 @@ async function genVolumes(mode: string) {
             ...v,
             allocatedWords: Math.max(0, Math.round(Number(v.allocatedWords) || 0)),
             confirmed: false,
+            isBound: false,
+            boundTo: [],
             bodyGenerated: false
           }))
         ]
@@ -2289,6 +2291,8 @@ async function genVolumes(mode: string) {
           ...v,
           allocatedWords: Math.max(0, Math.round(Number(v.allocatedWords) || 0)),
           confirmed: false,
+          isBound: false,
+          boundTo: [],
           bodyGenerated: false
         }))
       }
