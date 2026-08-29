@@ -392,11 +392,9 @@
                  <span class="pl-volume-linked-book-words-label">大纲已锁定全书字数</span>
                  <strong>{{ bookWordCount }} 万字</strong>
                </div>
-               <label>每卷字数</label>
-               <input type="number" v-model.number="volumeWords" class="pl-input-sm" min="10000" step="10000" @change="saveVolumeConfig" />
                <label>卷数</label>
-               <input id="pl-volume-count" type="number" :value="linkedVolumeCount" class="input-w-60" min="1" max="20" :readonly="bookWordCount > 0" @change="syncVolumeCount($event)" />
-               <span v-if="bookWordCount > 0" id="pl-volume-linked-count-hint" class="pl-gen-hint">按每卷 {{ Math.round(volumeWords / 10000) }} 万字自动分配 {{ linkedVolumeCount }} 卷</span>
+               <input id="pl-volume-count" type="number" :value="volumeCount" class="input-w-60" min="1" max="20" @change="syncVolumeCount($event)" />
+               <span v-if="volumeCountHint" id="pl-volume-count-hint" class="pl-gen-hint" role="alert">{{ volumeCountHint }}</span>
             </div>
             <div id="pl-vol-list" class="pl-vol-list">
               <div
@@ -436,7 +434,7 @@
                     <span class="pl-object-select-index">{{ i + 1 }}</span>
                     <span class="pl-object-select-copy">
                       <strong>{{ vol.name || '未命名卷' }}</strong>
-                      <small>{{ vol.suggestedWords || '?' }} 字 · {{ vol.confirmed ? '已锁定' : '编辑中' }}</small>
+                      <small>{{ vol.allocatedWords || vol.suggestedWords || '待分配' }} 字 · {{ vol.confirmed ? '已锁定' : '编辑中' }}</small>
                     </span>
                     <span v-if="vol.confirmed" class="pl-object-select-state" aria-label="已锁定">✓</span>
                   </button>
@@ -453,7 +451,7 @@
                   </div>
                   <div class="pl-vol-header">
                     <input v-model="selectedVolume.name" class="pl-input" placeholder="卷名" :readonly="selectedVolume.confirmed" @change="projectStore.saveProject()" />
-                    <span class="vol-words">{{ selectedVolume.suggestedWords || '?' }} 字</span>
+                    <span class="vol-words">{{ selectedVolume.allocatedWords || selectedVolume.suggestedWords || '待分配' }} 字</span>
                   </div>
                   <textarea v-model="selectedVolume.outline" class="pl-vol-outline" placeholder="卷纲要" :readonly="selectedVolume.confirmed" @change="projectStore.saveProject()"></textarea>
                   <input v-model="selectedVolume.summary" class="pl-input" placeholder="摘要" :readonly="selectedVolume.confirmed" @change="projectStore.saveProject()" />
@@ -1064,6 +1062,7 @@ const volumeWords = ref(100000)
 const chapterWords = ref(3500)
 const bookWordCount = ref(0)
 const volumeCount = ref(3)
+const volumeCountHint = ref("")
 const chapterBatchSize = ref(5)
 const selectedVolumeIndex = ref(0)
 const selectedChapterIndex = ref(0)
@@ -1146,25 +1145,18 @@ const currentVolumeChapters = computed(() => {
   return (projectStore.chapters[volId] || []).filter((chapter: any) => chapter.pipelineGenerated === true)
 })
 
-// Book word count (wan) x 10000 / per-volume words => volume count, auto-linked
-const linkedVolumeCount = computed(() => {
-  const totalWords = Math.max(bookWordCount.value * 10000, 0)
-  const perVol = Math.max(volumeWords.value, 10000)
-  if (totalWords <= 0) return volumeCount.value
-  const result = Math.ceil(totalWords / perVol)
-  return Math.max(1, Math.min(20, result))
-})
-
 function syncVolumeCount(e: any) {
-  const val = Number(e.target.value)
+  const val = Math.floor(Number(e.target.value))
   if (!isNaN(val) && val >= 1 && val <= 20) {
     volumeCount.value = val
+    volumeCountHint.value = ""
   } else {
-    e.target.value = linkedVolumeCount.value
+    e.target.value = volumeCount.value
+    volumeCountHint.value = "卷数需在 1-20 之间，已恢复为 " + volumeCount.value
   }
+  saveVolumeConfig()
 }
 
-// Auto-sync volume count whenever book word count or per-volume words change.
 watch(settingNavigationCategories, (categories) => {
   const selectedItems = projectStore.getSettingsCollection().items[selectedSettingCategory.value] || []
   if (categories.length > 0 && (!categories.includes(selectedSettingCategory.value) || selectedItems.length === 0)) {
@@ -1179,15 +1171,6 @@ watch([selectedSettingCategory, filteredSettings], () => {
     selectedSettingId.value = filteredSettings.value[0]?.id || ""
   }
 }, { immediate: true })
-
-watch(
-  () => [bookWordCount.value, volumeWords.value],
-  () => {
-    if (bookWordCount.value > 0) {
-      volumeCount.value = linkedVolumeCount.value
-    }
-  }
-)
 
 const bodyVolumeChapters = computed(() => {
   const vol = projectStore.volumes[bodyVolumeIndex.value]
@@ -1297,6 +1280,7 @@ async function saveVolumeConfig() {
       await window.electronAPI.storageRead(storageKey("pipeline_step_config")) || {},
       {
         volumeWords: Number(volumeWords.value) || 0,
+        volumeCount: Number(volumeCount.value) || 0,
         chapterWords: Number(chapterWords.value) || 0
       }
     )
@@ -2240,7 +2224,6 @@ async function genVolumes(mode: string) {
     }
     const settingsText = allItems.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)).join("\n")
     const boundText = getBoundSettingsText()
-    const distanceFromWords = bookWordCount.value > 0 ? Math.floor(linkedVolumeCount.value / Math.max(volumeCount.value, 1)) : 1
     const effectiveVolumes = Math.max(1, volumeCount.value)
     const existingCount = projectStore.volumes.length
     volumeGenerationLogs.value.push("已读取大纲、设定和全书字数，正在构造卷纲请求")
@@ -2271,6 +2254,7 @@ async function genVolumes(mode: string) {
           ...projectStore.volumes,
           ...volumes.map((v: any) => ({
             ...v,
+            allocatedWords: Math.max(0, Math.round(Number(v.allocatedWords) || 0)),
             confirmed: false,
             bodyGenerated: false
           }))
@@ -2278,6 +2262,7 @@ async function genVolumes(mode: string) {
       } else {
         projectStore.volumes = volumes.map((v: any) => ({
           ...v,
+          allocatedWords: Math.max(0, Math.round(Number(v.allocatedWords) || 0)),
           confirmed: false,
           bodyGenerated: false
         }))
@@ -2764,6 +2749,7 @@ async function confirmMemoryPreview() {
     }
      if (saved.bookWordCount) bookWordCount.value = Math.round(saved.bookWordCount / 10000)
      if (saved.volumeWords) volumeWords.value = saved.volumeWords
+     if (saved.volumeCount) volumeCount.value = saved.volumeCount
      if (saved.chapterWords) chapterWords.value = saved.chapterWords
    }
    if (projectStore.bookWordCountChars > 0 && bookWordCount.value <= 0) {

@@ -25,11 +25,21 @@ _electron_*.log
 analysis/writerhelper/
 
 dist/
+dist-renderer/
 
 # Archived temp scripts (historical, not tracked)
 _archive/
 
 # Temp working scripts in scripts/tmp/ (CDP probes, audit tools, not part of app)
 scripts/tmp/
-`n# Temp audit/debug dirs`n.codex_tmp/`n.agent-checkpoint/`n.claude/`n.cursor/`n_test_profile/`n_tools/`n_audit/`n*.bak
-`n_cdp_*.cjs`nfix_audit.js`n*.bak
+# Temp audit/debug dirs
+.codex_tmp/
+.agent-checkpoint/
+.claude/
+.cursor/
+_test_profile/
+_tools/
+# _audit/ stays tracked: evidence and experience files are committed by process
+*.bak
+_cdp_*.cjs
+fix_audit.js
