@@ -351,30 +351,26 @@
             </div>
           </div>
           <div v-show="pipelineStore.currentStep === 2" id="pl-step-3-content" class="pl-step-panel">
-            <h3>卷纲</h3>
-          <div class="pl-step-tools">
-            <div class="pl-agent-mode-bar">
+          <div class="pl-step-tools pl-settings-tools">
+            <div id="pl-volume-control-row" class="pl-settings-control-row">
               <span class="pl-label">本层智能体:</span>
               <select id="pl-s3-agent" v-model="stepAgents[2]" class="pl-select pl-agent-select" @change="saveStepConfig">
                 <option value="">不使用智能体</option>
                 <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
               </select>
+              <span class="pl-label">Skill:</span>
+              <select id="pl-s3-skill" v-model="stepSkillSelect[3]" class="pl-select pl-skill-select" @change="addStepSkill(3)">
+                <option value="">无</option>
+                <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
+              </select>
+              <button class="btn-icon" id="pl-s3-add-skill" title="添加Skill" @click="addStepSkill(3)">+</button>
               <span class="pl-mode-label">Skill模式:</span>
               <select id="pl-s3-mode" v-model="stepSkillModes[2]" class="pl-select pl-mode-select" @change="saveStepConfig">
                 <option value="compose">并行</option>
                 <option value="chain">串行</option>
               </select>
             </div>
-            <div class="pl-skill-bar">
-              <span class="pl-label">Skill:</span>
-              <select id="pl-s3-skill" v-model="stepSkillSelect[3]" class="pl-select" @change="addStepSkill(3)">
-                <option value="">无</option>
-                <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
-              </select>
-              <button class="btn-icon" id="pl-s3-add-skill" title="添加Skill" @click="addStepSkill(3)">+</button>
-            </div>
-          </div>
-          <div id="pl-s3-skills-list" class="pl-skills-list">
+            <div id="pl-s3-skills-list" class="pl-skills-list pl-selected-skills-row">
             <template v-for="(sid, si) in stepSkills[2]" :key="'2-' + sid">
               <span v-if="sid" class="pl-skill-chip">
                 <span class="pl-chip-seq">{{ si + 1 }}</span>
@@ -386,6 +382,7 @@
                 <button class="btn-icon pl-chip-close" title="移除" @click="removeStepSkill(3, si)">&times;</button>
               </span>
             </template>
+          </div>
           </div>
              <div id="pl-volume-config" class="pl-vol-config">
                <div v-if="bookWordCount > 0" id="pl-volume-linked-book-words" class="pl-volume-linked-book-words" role="status" aria-live="polite">
