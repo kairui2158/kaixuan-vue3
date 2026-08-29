@@ -310,25 +310,45 @@
             </div>
             <div
               v-if="settingsGenerationFeedbackVisible"
-              id="pl-settings-generation-feedback"
-              class="pl-generation-feedback"
-              role="status"
-              aria-live="polite"
+              id="pl-settings-generation-overlay"
+              class="pl-generation-feedback-overlay"
+              @click.self="closeSettingsGenerationFeedback"
             >
-              <div class="pl-generation-feedback-header">
-                <strong>设定层 AI 生成进度</strong>
-                <span>{{ pipelineStore.generationProgress }}%</span>
-              </div>
-              <div class="pl-generation-progress-track" aria-label="设定生成进度">
-                <div class="pl-generation-progress-value" :style="{ width: pipelineStore.generationProgress + '%' }"></div>
-              </div>
-              <div id="pl-settings-api-log" class="pl-generation-log" aria-label="API工作信息">
-                <div v-for="(line, index) in settingsGenerationLogs" :key="index" class="pl-generation-log-line">
-                  <span class="pl-generation-log-dot" aria-hidden="true"></span>
-                  <span>{{ line }}</span>
+              <section
+                id="pl-settings-generation-feedback"
+                class="pl-generation-feedback-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="pl-settings-generation-title"
+              >
+                <div class="pl-generation-feedback-header">
+                  <strong id="pl-settings-generation-title">设定层 AI 生成进度</strong>
+                  <span>{{ pipelineStore.generationProgress }}%</span>
                 </div>
-              </div>
-              <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
+                <div class="pl-generation-progress-track" aria-label="设定生成进度">
+                  <div class="pl-generation-progress-value" :style="{ width: pipelineStore.generationProgress + '%' }"></div>
+                </div>
+                <div id="pl-settings-api-log" class="pl-generation-log" aria-label="API工作信息">
+                  <div v-for="(line, index) in settingsGenerationLogs" :key="index" class="pl-generation-log-line">
+                    <span class="pl-generation-log-dot" aria-hidden="true"></span>
+                    <span>{{ line }}</span>
+                  </div>
+                </div>
+                <div class="pl-generation-modal-footer">
+                  <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
+                  <div class="pl-generation-modal-actions">
+                    <button
+                      v-if="pipelineStore.isGenerating"
+                      id="pl-settings-cancel-generation"
+                      class="btn-danger"
+                      @click="pipelineStore.cancelGeneration()"
+                    >
+                      取消生成
+                    </button>
+                    <button v-else class="btn-secondary" @click="closeSettingsGenerationFeedback">关闭</button>
+                  </div>
+                </div>
+              </section>
             </div>
           </div>
           <div v-show="pipelineStore.currentStep === 2" id="pl-step-3-content" class="pl-step-panel">
@@ -839,6 +859,10 @@ const selectedSettingId = ref("")
 const confirmedSettingCategories = ref<string[]>([])
 const settingsGenerationLogs = ref<string[]>([])
 const settingsGenerationFeedbackVisible = computed(() => pipelineStore.isGenerating || settingsGenerationLogs.value.length > 0)
+
+function closeSettingsGenerationFeedback() {
+  settingsGenerationLogs.value = []
+}
 const volumeGenerationLogs = ref<string[]>([])
 const chapterGenerationLogs = ref<string[]>([])
 const activeVolumeGenerationIndex = ref(-1)
@@ -3120,6 +3144,28 @@ function toolAction(action: string) {
   border-radius: var(--radius-md);
   background: var(--pipeline-feedback-bg);
 }
+.pl-generation-feedback-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal-nested);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--modal-gutter);
+  background: var(--bg-overlay);
+}
+.pl-generation-feedback-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(620px, 100%);
+  max-height: min(76vh, 640px);
+  padding: var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--bg-glass);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
 .pl-generation-feedback-header {
   display: flex;
   align-items: center;
@@ -3154,6 +3200,11 @@ function toolAction(action: string) {
   font-size: var(--font-size-sm);
   line-height: 1.5;
 }
+.pl-generation-feedback-modal .pl-generation-log {
+  flex: 1 1 auto;
+  min-height: 120px;
+  max-height: min(40vh, 340px);
+}
 .pl-generation-log-line {
   display: flex;
   align-items: flex-start;
@@ -3171,6 +3222,23 @@ function toolAction(action: string) {
   margin-top: var(--space-3);
   color: var(--text-muted);
   font-size: var(--font-size-sm);
+}
+.pl-generation-modal-footer {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+.pl-generation-modal-footer .pl-generation-status {
+  margin-top: 0;
+  min-width: 0;
+}
+.pl-generation-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 .pl-result { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; margin: 20px 0; max-height: 450px; overflow-y: auto; white-space: pre-wrap; font-size: var(--font-size-lg); color: var(--text-primary); }
 .pl-gen-hint { color: var(--text-muted); font-size: var(--font-size-md); }
