@@ -267,7 +267,7 @@
                           class="btn-sm btn-secondary pl-setting-info-btn"
                           :aria-label="`查看${s.name || '未命名设定'}信息`"
                           title="查看信息"
-                          @click.stop="selectedSettingId = s.id"
+                          @click.stop="openSettingDetailModal(s)"
                         >
                           信息
                         </button>
@@ -674,6 +674,33 @@
     </div>
   </div>
 
+  <div
+    v-if="showSettingDetailModal && editingSettingItem"
+    id="pl-setting-detail-overlay"
+    class="pl-add-setting-overlay"
+    @click.self="closeSettingDetailModal"
+  >
+    <section id="pl-setting-detail-modal" class="pl-add-setting-modal" role="dialog" aria-modal="true" aria-labelledby="pl-setting-detail-title">
+      <div class="pl-add-setting-header">
+        <span id="pl-setting-detail-title">{{ editingSettingItem.name || '未命名设定' }}</span>
+        <button type="button" class="modal-close" title="关闭" @click="closeSettingDetailModal">&times;</button>
+      </div>
+      <div class="pl-add-setting-body">
+        <label for="pl-setting-detail-name-input">名称</label>
+        <input id="pl-setting-detail-name-input" v-model="editingSettingName" class="pl-input" placeholder="设定名称" />
+        <label for="pl-setting-detail-content-input">属性内容</label>
+        <textarea id="pl-setting-detail-content-input" v-model="editingSettingContent" class="pl-attrs-input" placeholder="输入该设定的属性内容"></textarea>
+      </div>
+      <div class="pl-add-setting-footer pl-setting-detail-modal-footer">
+        <button type="button" class="btn-danger btn-sm" @click="removeSettingDetailModal">删除</button>
+        <div class="pl-setting-detail-modal-actions">
+          <button type="button" class="btn-secondary" @click="closeSettingDetailModal">关闭</button>
+          <button type="button" class="btn-primary" @click="saveSettingDetailModal">保存</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <div v-if="memoryPreviewVisible" class="pl-memory-preview-overlay" @click.self="closeMemoryPreview">
     <section class="pl-memory-preview-modal" role="dialog" aria-modal="true" aria-labelledby="pl-memory-preview-title">
       <header class="pl-memory-preview-header">
@@ -801,6 +828,10 @@ const showAddSettingModal = ref(false)
 const newSettingName = ref("")
 const newSettingCategory = ref("其他")
 const newSettingAttrs = ref("")
+const showSettingDetailModal = ref(false)
+const editingSettingId = ref("")
+const editingSettingName = ref("")
+const editingSettingContent = ref("")
 const showAddCategory = ref(false)
 const newCategoryName = ref("")
 const selectedSettingCategory = ref("")
@@ -872,6 +903,10 @@ const selectedSettingItem = computed(() =>
   filteredSettings.value.find((item: any) => item.id === selectedSettingId.value) || null
 )
 
+const editingSettingItem = computed(() =>
+  filteredSettings.value.find((item: any) => item.id === editingSettingId.value) || null
+)
+
 function firstCategoryWithSettings(categories = settingNavigationCategories.value) {
   const sc = projectStore.getSettingsCollection()
   return categories.find((category) => (sc.items[category] || []).length > 0) || categories[0] || ""
@@ -906,6 +941,37 @@ function saveSettingItem(item: any) {
   item.attrs.desc = item.content || ""
   item.updatedAt = Date.now()
   projectStore.saveProject()
+}
+
+function openSettingDetailModal(item: any) {
+  if (!item) return
+  selectedSettingId.value = item.id
+  editingSettingId.value = item.id
+  editingSettingName.value = item.name || ""
+  editingSettingContent.value = item.content || ""
+  showSettingDetailModal.value = true
+}
+
+function saveSettingDetailModal() {
+  const item = editingSettingItem.value
+  if (!item) return
+  const nextName = editingSettingName.value.trim()
+  if (nextName) item.name = nextName
+  item.content = editingSettingContent.value
+  saveSettingItem(item)
+  showSettingDetailModal.value = false
+}
+
+function removeSettingDetailModal() {
+  const item = editingSettingItem.value
+  if (!item) return
+  const index = filteredSettings.value.findIndex((entry: any) => entry.id === item.id)
+  showSettingDetailModal.value = false
+  removeSetting(index)
+}
+
+function closeSettingDetailModal() {
+  showSettingDetailModal.value = false
 }
 
 function openAddSettingModalForCategory() {
@@ -3203,6 +3269,8 @@ function toolAction(action: string) {
 .pl-add-setting-body .pl-input-sm { width: 100%; }
 .pl-add-setting-body .pl-attrs-input { min-height: 140px; }
 .pl-add-setting-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border-color); }
+.pl-setting-detail-modal-footer { justify-content: space-between; }
+.pl-setting-detail-modal-actions { display: flex; align-items: center; gap: 10px; }
 
 
 .pl-step-view {
