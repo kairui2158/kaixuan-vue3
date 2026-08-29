@@ -140,7 +140,12 @@ export const useProjectStore = defineStore('project', () => {
       chaptersConfirmed.value = data.chaptersConfirmed || false
       settingsGenerated.value = data.settingsGenerated || false
       settings.value = data.settings || []
-      volumes.value = data.volumes || []
+      volumes.value = (data.volumes || []).map((vol: any) => {
+        // 旧格式无 isBound：已锁定卷自动视为已绑定，保持升级前行为等价
+        const isBound = vol.isBound === undefined ? !!vol.confirmed : !!vol.isBound
+        const boundTo = Array.isArray(vol.boundTo) && vol.boundTo.length > 0 ? vol.boundTo : (isBound ? ['chapter-layer'] : [])
+        return { ...vol, isBound, boundTo }
+      })
       chapters.value = data.chapters || {}
       settingsCollection.value = data.settingsCollection || { categories: [], items: {} }
       settingBindings.value = data.settingBindings || {}

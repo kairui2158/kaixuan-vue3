@@ -431,7 +431,7 @@
                     <span class="pl-object-select-index">{{ i + 1 }}</span>
                     <span class="pl-object-select-copy">
                       <strong>{{ vol.name || '未命名卷' }}</strong>
-                      <small>{{ vol.allocatedWords || vol.suggestedWords || '待分配' }} 字 · {{ vol.confirmed ? '已锁定' : '编辑中' }}</small>
+                      <small>{{ vol.allocatedWords || vol.suggestedWords || '待分配' }} 字 · {{ vol.confirmed ? '已锁定' : '编辑中' }} · {{ vol.isBound ? '已绑定' : '未绑定' }}</small>
                     </span>
                     <span v-if="vol.confirmed" class="pl-object-select-state" aria-label="已锁定">✓</span>
                   </button>
@@ -476,6 +476,9 @@
                   <div class="pl-volume-card-actions">
                     <button :id="'btn-pl-save-volume-' + selectedVolumeIndex" class="btn-sm btn-primary" @click="saveVolume(selectedVolumeIndex)" :disabled="selectedVolume.confirmed || !selectedVolume.name.trim()">
                       {{ selectedVolume.confirmed ? '已锁定' : '保存并锁定本卷' }}
+                    </button>
+                    <button :id="'btn-pl-bind-volume-' + selectedVolumeIndex" class="btn-sm" :class="selectedVolume.isBound ? 'btn-secondary' : 'btn-primary'" @click="toggleVolumeBinding(selectedVolumeIndex)" :disabled="!selectedVolume.confirmed" :title="selectedVolume.confirmed ? '' : '请先保存并锁定本卷'">
+                      {{ selectedVolume.isBound ? '解除绑定' : '绑定到章节层' }}
                     </button>
                     <button :id="'btn-pl-delete-volume-' + selectedVolumeIndex" class="btn-sm btn-danger" @click="deleteVolume(selectedVolumeIndex)">删除本卷</button>
                   </div>
@@ -547,15 +550,15 @@
               <input id="pl-chapter-wordcount" type="number" class="input-w-80" v-model.number="selectedVolumeChapterWords" min="1000" step="500" @change="lockChapterConfig" :readonly="selectedVolumeChapterLocked" />
               <span id="pl-chapter-config-status" class="pl-gen-hint">{{ selectedVolumeChapterLocked ? '本卷字数已锁定' : '填写后自动锁定' }}</span>
               <label>选择卷</label>
-              <select v-model.number="selectedVolumeIndex" class="pl-input-sm" :disabled="confirmedVolumes.length === 0">
+              <select id="pl-ch-volume-select" v-model.number="selectedVolumeIndex" class="pl-input-sm" :disabled="boundVolumes.length === 0">
                 <template v-for="(vol, i) in projectStore.volumes" :key="vol.id || i">
-                  <option v-if="vol.confirmed" :value="i">{{ vol.name }}</option>
+                  <option v-if="vol.isBound" :value="i">{{ vol.name }}</option>
                 </template>
               </select>
               <label>预计章数</label>
               <span id="pl-ch-est-count" class="pl-gen-hint">{{ estimatedChapters }}</span>
             </div>
-            <p id="pl-ch-empty-no-volume" v-if="confirmedVolumes.length === 0" class="empty-hint">暂无已锁定卷纲，请先在卷纲层保存并锁定本卷</p>
+            <p id="pl-ch-empty-no-volume" v-if="boundVolumes.length === 0" class="empty-hint">暂无已绑定卷纲，请先在卷纲层保存并锁定本卷，再点击「绑定到章节层」</p>
             <p id="pl-ch-empty-no-chapters" v-else-if="currentVolumeChapters.length === 0" class="empty-hint">暂无章节，请先生成</p>
             <div v-if="currentVolumeChapters.length > 0" id="pl-ch-cards-area" class="pl-ch-workspace">
               <div id="pl-ch-select-list" class="pl-object-select-list" role="listbox" aria-label="章节列表">
@@ -1120,10 +1123,10 @@ const currentSettings = computed(() => {
     return allItems
   })
 
-const confirmedVolumes = computed(() => projectStore.volumes.filter((vol: any) => vol.confirmed))
+const boundVolumes = computed(() => projectStore.volumes.filter((vol: any) => vol.isBound))
 
 // The volume editor may select both draft and locked volumes. Only the
-// chapter workspace is gated by `confirmed`, so do not force the editor back
+// chapter workspace is gated by `isBound`, so do not force the editor back
 // to the first locked volume when a draft volume is selected.
 watch(
   () => projectStore.volumes.length,
@@ -1137,7 +1140,7 @@ watch(
 
 const currentVolumeChapters = computed(() => {
     const vol = projectStore.volumes[selectedVolumeIndex.value]
-  if (!vol || !vol.confirmed) return []
+  if (!vol || !vol.isBound) return []
   const volId = vol.id || vol.name
   return (projectStore.chapters[volId] || []).filter((chapter: any) => chapter.pipelineGenerated === true)
 })
@@ -1765,7 +1768,7 @@ function invalidateDownstream(fromStep: number) {
     projectStore.settingsGenerated = false
     projectStore.volumesConfirmed = false
     projectStore.chaptersConfirmed = false
-    projectStore.volumes.forEach((v: any) => { v.confirmed = false; v.bodyGenerated = false })
+    projectStore.volumes.forEach((v: any) => { v.confirmed = false; v.isBound = false; v.boundTo = []; v.bodyGenerated = false })
     clearChapterGenerationFlags()
     styleTags.value = ""
     pacingParams.value = ""
@@ -1776,13 +1779,13 @@ function invalidateDownstream(fromStep: number) {
   if (fromStep <= 1) {
     projectStore.volumesConfirmed = false
     projectStore.chaptersConfirmed = false
-    projectStore.volumes.forEach((v: any) => { v.confirmed = false; v.bodyGenerated = false })
+    projectStore.volumes.forEach((v: any) => { v.confirmed = false; v.isBound = false; v.boundTo = []; v.bodyGenerated = false })
     clearChapterGenerationFlags()
     for (let i = 2; i < 5; i++) steps.value[i].completed = false
   }
   if (fromStep <= 2) {
     projectStore.chaptersConfirmed = false
-    projectStore.volumes.forEach((v: any) => { v.confirmed = false; v.bodyGenerated = false })
+    projectStore.volumes.forEach((v: any) => { v.confirmed = false; v.isBound = false; v.boundTo = []; v.bodyGenerated = false })
     for (const volId of Object.keys(projectStore.chapters)) {
       const chs = projectStore.chapters[volId]
       if (chs) chs.forEach((c: any) => { c.bodyGenerated = false; c.confirmed = false })
@@ -1850,6 +1853,18 @@ function saveVolume(index: number) {
   projectStore.volumesConfirmed = false
   if (!projectStore.chapters[vol.id || vol.name]) projectStore.chapters[vol.id || vol.name] = []
   if (!projectStore.volumes[selectedVolumeIndex.value]?.confirmed) selectedVolumeIndex.value = index
+  projectStore.saveProject()
+}
+
+function toggleVolumeBinding(index: number) {
+  const vol = projectStore.volumes[index]
+  if (!vol || !vol.confirmed) return
+  vol.isBound = !vol.isBound
+  if (vol.isBound && (!Array.isArray(vol.boundTo) || vol.boundTo.length === 0)) {
+    vol.boundTo = ['chapter-layer']
+  } else if (!vol.isBound) {
+    vol.boundTo = []
+  }
   projectStore.saveProject()
 }
 
