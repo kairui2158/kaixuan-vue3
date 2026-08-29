@@ -3233,10 +3233,13 @@ function toolAction(action: string) {
   display: flex;
   flex: 1 1 auto;
   flex-direction: row;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: var(--space-2);
   min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
 }
 .pl-sc-cat-item,
 .pl-sc-add-cat {
@@ -3246,6 +3249,7 @@ function toolAction(action: string) {
   gap: var(--space-2);
   width: auto;
   max-width: 100%;
+  flex-shrink: 0;
   min-height: var(--input-height);
   padding: 0 var(--space-3);
   border: 1px solid transparent;
