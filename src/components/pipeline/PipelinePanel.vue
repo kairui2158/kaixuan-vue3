@@ -503,28 +503,26 @@
               <button id="btn-pl-confirm-volumes" class="btn-secondary" @click="confirmStep(2)" :disabled="projectStore.volumes.length === 0">确认完成下一步</button>
             </div>
           </div>
-          <div v-show="pipelineStore.currentStep === 3" id="pl-step-4-content" class="pl-step-panel">
-            <h3>章节</h3>
-          <div class="pl-step-tools">
-            <div class="pl-agent-mode-bar">
+         <div v-show="pipelineStore.currentStep === 3" id="pl-step-4-content" class="pl-step-panel">
+           <h3 class="pl-sr-only">章节</h3>
+          <div class="pl-step-tools pl-settings-tools">
+            <div id="pl-chapter-control-row" class="pl-settings-control-row">
               <span class="pl-label">本层智能体:</span>
               <select id="pl-s4-agent" v-model="stepAgents[3]" class="pl-select pl-agent-select" @change="saveStepConfig">
                 <option value="">不使用智能体</option>
                 <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
               </select>
+              <span class="pl-label">Skill:</span>
+              <select id="pl-s4-skill" v-model="stepSkillSelect[4]" class="pl-select pl-skill-select" @change="addStepSkill(4)">
+                <option value="">无</option>
+                <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
+              </select>
+              <button class="btn-icon" id="pl-s4-add-skill" title="添加Skill" @click="addStepSkill(4)">+</button>
               <span class="pl-mode-label">Skill模式:</span>
               <select id="pl-s4-mode" v-model="stepSkillModes[3]" class="pl-select pl-mode-select" @change="saveStepConfig">
                 <option value="compose">并行</option>
                 <option value="chain">串行</option>
               </select>
-            </div>
-            <div class="pl-skill-bar">
-              <span class="pl-label">Skill:</span>
-              <select id="pl-s4-skill" v-model="stepSkillSelect[4]" class="pl-select" @change="addStepSkill(4)">
-                <option value="">无</option>
-                <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
-              </select>
-              <button class="btn-icon" id="pl-s4-add-skill" title="添加Skill" @click="addStepSkill(4)">+</button>
             </div>
           </div>
           <div id="pl-s4-skills-list" class="pl-skills-list">
@@ -540,23 +538,7 @@
               </span>
             </template>
           </div>
-            <div id="pl-ch-gen-feedback" v-if="chapterGenerationFeedbackVisible" class="pl-ch-generation-feedback" role="status" aria-live="polite">
-              <div class="pl-ch-generation-header">
-                <strong>章节 AI 生成进度</strong>
-                <span>{{ pipelineStore.generationProgress }}%</span>
-              </div>
-              <div class="pl-generation-progress-track" aria-label="章节生成进度">
-                <div class="pl-generation-progress-value" :style="{ width: pipelineStore.generationProgress + '%' }"></div>
-              </div>
-              <div id="pl-ch-api-log" class="pl-generation-log" aria-label="章节 API 工作信息">
-                <div v-for="(line, index) in chapterGenerationLogs" :key="index" class="pl-generation-log-line">
-                  <span class="pl-generation-log-dot" aria-hidden="true"></span>
-                  <span>{{ line }}</span>
-                </div>
-              </div>
-              <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
-            </div>
-            <div id="pl-ch-gen-bar" class="pl-ch-config">
+           <div id="pl-ch-gen-bar" class="pl-ch-config">
               <label>每章字数</label>
               <input id="pl-chapter-wordcount" type="number" class="input-w-80" v-model.number="selectedVolumeChapterWords" min="1000" step="500" @change="lockChapterConfig" :readonly="selectedVolumeChapterLocked" />
               <span id="pl-chapter-config-status" class="pl-gen-hint">{{ selectedVolumeChapterLocked ? '本卷字数已锁定' : '填写后自动锁定' }}</span>
@@ -572,49 +554,113 @@
             <p id="pl-ch-empty-no-volume" v-if="boundVolumes.length === 0" class="empty-hint">暂无已绑定卷纲，请先在卷纲层保存并锁定本卷，再点击「绑定到章节层」</p>
             <p id="pl-ch-empty-no-chapters" v-else-if="currentVolumeChapters.length === 0" class="empty-hint">暂无章节，请先生成</p>
             <div v-if="currentVolumeChapters.length > 0" id="pl-ch-cards-area" class="pl-ch-workspace">
-              <div id="pl-ch-select-list" class="pl-object-select-list" role="listbox" aria-label="章节列表">
-                <button
-                  v-for="(ch, i) in currentVolumeChapters"
-                  :key="ch.id || i"
-                  :id="'pl-ch-select-' + i"
-                  type="button"
-                  class="pl-object-select-item"
-                  :class="{ active: selectedChapterIndex === i, confirmed: ch.confirmed }"
-                  :aria-selected="selectedChapterIndex === i"
-                  @click="selectedChapterIndex = i"
-                >
-                  <span class="pl-object-select-index">{{ i + 1 }}</span>
-                  <span class="pl-object-select-copy">
-                    <strong>{{ ch.title || '未命名章节' }}</strong>
-                    <small>{{ ch.confirmed ? '已锁定' : '编辑中' }}</small>
-                  </span>
-                  <span v-if="ch.confirmed" class="pl-object-select-state" aria-label="已锁定">✓</span>
-                </button>
-              </div>
-              <section v-if="selectedChapter" id="pl-chapter-editor" class="pl-object-editor" aria-label="当前章节编辑区">
-                <div class="pl-object-editor-heading">
-                  <div>
-                    <span class="pl-editor-kicker">当前章节</span>
-                    <h4>{{ selectedChapter.title || '未命名章节' }}</h4>
+              <div class="pl-ch-table-wrap">
+                <div class="pl-ch-thead">
+                  <span class="pl-ch-col-idx">序号</span>
+                  <span class="pl-ch-col-title">章节标题</span>
+                  <span class="pl-ch-col-plot">剧情点摘要</span>
+                  <span class="pl-ch-col-state">状态</span>
+                  <span class="pl-ch-col-ops">操作</span>
+                </div>
+                <div class="pl-ch-tbody">
+                  <div
+                    v-for="(ch, i) in currentVolumeChapters"
+                    :key="ch.id || i"
+                    :id="'pl-ch-row-' + i"
+                    class="pl-ch-tr"
+                    :class="{ active: selectedChapterIndex === i, confirmed: ch.confirmed }"
+                    @click="selectedChapterIndex = i"
+                  >
+                    <span class="pl-ch-col-idx pl-ch-cell-idx">{{ i + 1 }}</span>
+                    <span class="pl-ch-col-title pl-ch-cell-title">{{ ch.title || '未命名章节' }}</span>
+                    <span class="pl-ch-col-plot pl-ch-cell-plot">{{ ch.plot || '—' }}</span>
+                    <span class="pl-ch-col-state">
+                      <span class="pl-ch-state-tag" :class="ch.confirmed ? 'locked' : 'editing'">
+                        {{ ch.confirmed ? '已锁定' : '编辑中' }}
+                      </span>
+                    </span>
+                    <span class="pl-ch-col-ops pl-ch-cell-ops">
+                      <button class="btn-sm btn-secondary" :id="'pl-ch-edit-' + i" title="编辑" @click.stop="openChapterDetail(i)">编辑</button>
+                      <button class="btn-sm btn-secondary" :id="'pl-ch-body-' + i" title="生成正文" :disabled="pipelineStore.isGenerating" @click.stop="genBody(selectedVolumeIndex, i)">正文</button>
+                      <button class="btn-sm btn-danger" :id="'pl-ch-del-' + i" title="删除此章" @click.stop="deleteChapterCard(selectedVolumeIndex, i)">删除</button>
+                    </span>
                   </div>
-                  <span class="pl-object-editor-status" :class="{ locked: selectedChapter.confirmed }">
-                    {{ selectedChapter.confirmed ? '已锁定' : '编辑中' }}
-                  </span>
                 </div>
-                <div class="pl-ch-card-head">
-                  <span class="ch-title">{{ selectedChapter.title || '未命名章节' }}</span>
-                  <button class="btn-sm btn-secondary" @click="genBody(selectedVolumeIndex, selectedChapterIndex)" :disabled="pipelineStore.isGenerating">生成正文</button>
-                  <button id="btn-pl-del-ch-current" class="btn-sm btn-danger" @click="deleteChapterCard(selectedVolumeIndex, selectedChapterIndex)" title="删除此章">删除</button>
-                </div>
-                <textarea v-model="selectedChapter.plot" class="pl-ch-plot" placeholder="本章剧情点概要" @change="saveChapterPlot"></textarea>
-              </section>
-            </div>
-            <div class="pl-actions">
+              </div>
+           </div>
+           <div class="pl-actions">
               <button id="btn-pl-gen-chapters" class="btn-primary" @click="genChapters" :disabled="pipelineStore.isGenerating || !selectedVolumeChapterLocked">AI生成章节</button>
               <button id="btn-pl-autogen-chapters" class="btn-secondary" @click="genChapters" :disabled="pipelineStore.isGenerating || !selectedVolumeChapterLocked">自动生成章节</button>
-              <button id="btn-pl-confirm-chapters" class="btn-secondary" @click="confirmStep(3)" :disabled="currentVolumeChapters.length === 0">确认完成</button>
+             <button id="btn-pl-confirm-chapters" class="btn-secondary" @click="confirmStep(3)" :disabled="currentVolumeChapters.length === 0">确认完成</button>
+           </div>
+            <div v-if="chapterDetailVisible" id="pl-chapter-detail-overlay" class="pl-ch-detail-overlay" @click.self="closeChapterDetail">
+              <section id="pl-chapter-detail-modal" class="pl-ch-detail-modal" role="dialog" aria-modal="true" aria-labelledby="pl-chapter-detail-title">
+                <div class="pl-ch-detail-header">
+                  <strong id="pl-chapter-detail-title">{{ chapterDetailEditTitle || '未命名章节' }}</strong>
+                  <button type="button" class="modal-close" title="关闭" @click="closeChapterDetail">&times;</button>
+                </div>
+                <div class="pl-ch-detail-content">
+                  <div class="pl-ch-detail-meta">
+                    <span>状态：{{ selectedChapter?.confirmed ? '已锁定' : '编辑中' }}</span>
+                    <span>所属卷：{{ selectedVolume?.name || '—' }}</span>
+                  </div>
+                  <label class="pl-ch-detail-label">章节标题</label>
+                  <input v-model="chapterDetailEditTitle" class="pl-input pl-ch-detail-input" placeholder="章节标题" />
+                  <label class="pl-ch-detail-label">剧情点概要</label>
+                  <textarea v-model="chapterDetailEditPlot" class="pl-ch-detail-plot" placeholder="本章剧情点概要"></textarea>
+                </div>
+                <div class="pl-ch-detail-footer">
+                  <span class="pl-ch-detail-hint">编辑只修改当前章节；保存后写入项目 JSON</span>
+                  <div class="pl-ch-detail-actions">
+                    <button class="btn-secondary btn-sm" @click="closeChapterDetail">取消</button>
+                    <button class="btn-primary btn-sm" @click="saveChapterDetail">保存章节</button>
+                  </div>
+                </div>
+              </section>
             </div>
-          </div>
+         </div>
+            <div
+              v-if="chapterGenerationFeedbackVisible"
+              id="pl-chapter-generation-overlay"
+              class="pl-generation-feedback-overlay"
+              @click.self="closeChapterGenerationFeedback"
+            >
+              <section
+                id="pl-chapter-generation-feedback"
+                class="pl-generation-feedback-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="pl-chapter-generation-title"
+              >
+                <div class="pl-generation-feedback-header">
+                  <strong id="pl-chapter-generation-title">章节 AI 生成进度</strong>
+                  <span>{{ pipelineStore.generationProgress }}%</span>
+                </div>
+                <div class="pl-generation-progress-track" aria-label="章节生成进度">
+                  <div class="pl-generation-progress-value" :style="{ width: pipelineStore.generationProgress + '%' }"></div>
+                </div>
+                <div id="pl-ch-api-log" class="pl-generation-log" aria-label="章节 API 工作信息">
+                  <div v-for="(line, index) in chapterGenerationLogs" :key="index" class="pl-generation-log-line">
+                    <span class="pl-generation-log-dot" aria-hidden="true"></span>
+                    <span>{{ line }}</span>
+                  </div>
+                </div>
+                <div class="pl-generation-modal-footer">
+                  <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
+                  <div class="pl-generation-modal-actions">
+                    <button
+                      v-if="pipelineStore.isGenerating"
+                      id="pl-chapter-cancel-generation"
+                      class="btn-danger"
+                      @click="pipelineStore.cancelGeneration()"
+                    >
+                      取消生成
+                    </button>
+                    <button v-else class="btn-secondary" @click="closeChapterGenerationFeedback">关闭</button>
+                  </div>
+                </div>
+              </section>
+            </div>
           <div v-show="pipelineStore.currentStep === 4" id="pl-step-5-content" class="pl-step-panel">
             <h3>正文</h3>
           <div class="pl-step-tools">
@@ -873,6 +919,10 @@ function closeSettingsGenerationFeedback() {
 }
 function closeVolumeGenerationFeedback() {
   volumeGenerationLogs.value = []
+}
+
+function closeChapterGenerationFeedback() {
+  chapterGenerationLogs.value = []
 }
 
 const expandedVolumeIndex = ref(-1)
@@ -2856,6 +2906,32 @@ async function confirmMemoryPreview() {
 
 const selectedChapter = computed(() => currentVolumeChapters.value[selectedChapterIndex.value] || null)
 
+const chapterDetailVisible = ref(false)
+const chapterDetailEditTitle = ref('')
+const chapterDetailEditPlot = ref('')
+
+function openChapterDetail(index: number) {
+  const ch = currentVolumeChapters.value[index]
+  if (!ch) return
+  selectedChapterIndex.value = index
+  chapterDetailEditTitle.value = ch.title || ''
+  chapterDetailEditPlot.value = ch.plot || ''
+  chapterDetailVisible.value = true
+}
+
+function closeChapterDetail() {
+  chapterDetailVisible.value = false
+}
+
+function saveChapterDetail() {
+  const ch = selectedChapter.value
+  if (!ch) return
+  ch.title = chapterDetailEditTitle.value
+  ch.plot = chapterDetailEditPlot.value
+  chapterDetailVisible.value = false
+  saveChapterPlot()
+}
+
 watch(
   () => [selectedVolumeIndex.value, currentVolumeChapters.value.length],
   () => {
@@ -3039,8 +3115,7 @@ function toolAction(action: string) {
 .pl-vol-config label { color: var(--text-secondary); }
 .pl-volume-linked-book-words { display: inline-flex; align-items: baseline; gap: 8px; width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-secondary); }
 .pl-volume-linked-book-words strong { color: var(--text-primary); font-size: var(--font-size-lg); }
-.pl-vol-list,
-.pl-ch-list {
+.pl-vol-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -3117,9 +3192,8 @@ function toolAction(action: string) {
   min-height: 0;
 }
 .pl-ch-workspace {
-  display: grid;
-  grid-template-columns: minmax(190px, 0.28fr) minmax(0, 1fr);
-  gap: var(--space-4);
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   min-height: 0;
 }
@@ -3226,6 +3300,160 @@ function toolAction(action: string) {
 .pl-volume-card-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding-top: 4px; }
 .pl-ch-config { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: var(--font-size-lg); flex-wrap: wrap; }
 .pl-ch-config label { color: var(--text-secondary); }
+.pl-ch-table-wrap {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  overflow: hidden;
+}
+.pl-ch-thead,
+.pl-ch-tr {
+  display: grid;
+  grid-template-columns: 48px minmax(120px, 0.9fr) minmax(0, 2fr) 72px minmax(160px, auto);
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+}
+.pl-ch-thead {
+  height: 38px;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  background: var(--bg-elevated, var(--bg-tertiary));
+  border-bottom: 1px solid var(--border-color);
+}
+.pl-ch-tbody {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-height: min(52vh, 520px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.pl-ch-tr {
+  min-height: 46px;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+}
+.pl-ch-tr:hover { background: var(--bg-hover); }
+.pl-ch-tr.active { background: var(--accent-dim); }
+.pl-ch-tr.confirmed { border-left: 3px solid var(--success); }
+.pl-ch-tr:last-child { border-bottom: 0; }
+.pl-ch-cell-idx { color: var(--text-muted); text-align: center; }
+.pl-ch-cell-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pl-ch-cell-plot {
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pl-ch-state-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 11px;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+.pl-ch-state-tag.locked { color: var(--success); background: rgba(76,175,136,.1); }
+.pl-ch-state-tag.editing { color: var(--text-muted); background: rgba(255,255,255,.04); }
+.pl-ch-cell-ops {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.pl-ch-detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal-nested);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--modal-gutter);
+  background: var(--bg-overlay);
+}
+.pl-ch-detail-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(680px, 100%);
+  max-height: min(76vh, 640px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--bg-glass);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.pl-ch-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-elevated, var(--bg-secondary));
+}
+.pl-ch-detail-header strong { font-size: var(--font-size-md); color: var(--text-primary); }
+.pl-ch-detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  overflow-y: auto;
+}
+.pl-ch-detail-meta {
+  display: flex;
+  gap: var(--space-4);
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-2);
+}
+.pl-ch-detail-label { color: var(--text-secondary); font-size: var(--font-size-sm); }
+.pl-ch-detail-input {
+  width: 100%;
+  height: var(--input-height, 34px);
+  padding: 0 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+  outline: none;
+}
+.pl-ch-detail-plot {
+  width: 100%;
+  min-height: 180px;
+  padding: 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+  line-height: 1.7;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+}
+.pl-ch-detail-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-elevated, var(--bg-secondary));
+}
+.pl-ch-detail-hint { color: var(--text-muted); font-size: var(--font-size-sm); }
+.pl-ch-detail-actions { display: flex; gap: var(--space-2); }
 .ch-title { flex: 1; font-size: var(--font-size-md); color: var(--text-primary); }
 .pl-body-config { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: var(--font-size-lg); flex-wrap: wrap; }
 .pl-body-config label { color: var(--text-secondary); }
@@ -3242,29 +3470,6 @@ function toolAction(action: string) {
   margin-top: auto;
   padding-top: var(--space-4);
   border-top: 1px solid var(--border-color);
-}
-.pl-ch-generation-feedback {
-  margin-top: var(--space-4);
-  margin-bottom: var(--space-4);
-  padding: var(--space-4);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  background: var(--pipeline-feedback-bg);
-}
-.pl-ch-generation-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  color: var(--text-primary);
-  font-size: var(--font-size-md);
-}
-.pl-generation-feedback {
-  margin-top: var(--space-4);
-  padding: var(--space-4);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  background: var(--pipeline-feedback-bg);
 }
 .pl-generation-feedback-overlay {
   position: fixed;
@@ -3366,13 +3571,9 @@ function toolAction(action: string) {
 .pl-gen-hint { color: var(--text-muted); font-size: var(--font-size-md); }
 .pl-vol-card.confirmed { border-color: var(--success); }
 .pl-vol-card,
-.pl-ch-card {
-  min-width: 0;
-  box-sizing: border-box;
-}
 .pl-vol-card input,
 .pl-vol-card textarea,
-.pl-ch-card textarea {
+.pl-vol-card input {
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
@@ -3395,10 +3596,6 @@ function toolAction(action: string) {
   color: var(--text-primary);
   font-size: var(--font-size-md);
 }
-.pl-ch-card { display: flex; align-items: center; padding: var(--space-5) var(--space-6); background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); }
-.pl-ch-card-main { width: 100%; }
-.pl-ch-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-.pl-ch-plot { width: 100%; min-height: 54px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 8px 10px; font-size: var(--font-size-md); line-height: 1.6; resize: vertical; outline: none; }
 .empty-hint { color: var(--text-muted); font-size: var(--font-size-lg); text-align: center; padding: 30px; }
 .input-w-60 { width: 60px; }
 .input-w-80 { width: 80px; }
@@ -3708,5 +3905,16 @@ function toolAction(action: string) {
   .pl-setting-detail-fields { grid-template-columns: 1fr; }
 }
 
+.pl-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 </style>
 
