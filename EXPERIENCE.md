@@ -367,3 +367,9 @@
 3. 流水线是 `position: fixed` overlay，关键节点的 `offsetParent` 恒为 `null`；可见性要用 computed `display` 或 Playwright `isVisible()` 判断，不要用 offsetParent。
 4. 隐藏窗口启动 `start-electron.bat` 出现过一次失败，改用可见 `Start-Process cmd.exe /c start-electron.bat`；启动后仍要分别核对进程、9227 监听和页面 URL。
 5. Windows 策略会拦截本轮临时文件删除时，改用 Node `fs.rmSync(..., { force: true })`，删除后再次列目录确认。
+
+## 2026-08-29 设定层 UI P3 高级设置内滚
+
+1. 折叠开关文案必须表达“高级设置”语义：未展开为“展开高级设置”，展开后为“收起高级设置”；不能沿用短词“展开/收起”让用户误以为只是整卡折叠。
+2. `#pl-style-card-body` 使用 `max-height: min(46vh, 420px)` 加 `overflow-y: auto`，保证展开内容在卡片内部滚动，不改变下方设定工作区高度。
+3. 内滚验证要制造真实可滚条件：确认 `clientHeight` 小于 `scrollHeight`、设置 `scrollTop` 后读取新滚动位置、再恢复原值；纯样式存在不是行为证据。

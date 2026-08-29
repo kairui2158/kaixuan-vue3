@@ -150,7 +150,7 @@
                 <span class="pl-style-card-title">创作风格</span>
                 <span class="pl-style-card-summary" v-if="styleTags || pacingParams">{{ styleTags }} | {{ pacingParams }}</span>
                 <span class="pl-style-card-summary" v-else>待 AI 分析</span>
-                <span class="pl-style-card-toggle">{{ styleCardExpanded ? '收起' : '展开' }}</span>
+                <span class="pl-style-card-toggle">{{ styleCardExpanded ? '收起高级设置' : '展开高级设置' }}</span>
               </div>
               <div class="pl-style-card-body" v-show="styleCardExpanded">
                 <div class="pl-style-tags-section">
@@ -2801,7 +2801,7 @@ function toolAction(action: string) {
 .pl-style-card-title { font-weight: 600; font-size: var(--font-size-sm); white-space: nowrap; }
 .pl-style-card-summary { flex: 1; min-width: 0; font-size: var(--font-size-xs); color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pl-style-card-toggle { font-size: var(--font-size-xs); color: var(--text-secondary); white-space: nowrap; flex-shrink: 0; }
-.pl-style-card-body { display: flex; gap: var(--space-4); padding: var(--space-3) var(--space-4); border-top: 1px solid var(--border-color); }
+.pl-style-card-body { display: flex; gap: var(--space-4); padding: var(--space-3) var(--space-4); border-top: 1px solid var(--border-color); max-height: min(46vh, 420px); overflow-y: auto; }
 .pl-style-tags-section { flex: 1; min-width: 0; }
 .pl-style-pacing-section { flex: 1; min-width: 0; }
 .pl-style-section-label { display: block; font-size: var(--font-size-xs); font-weight: 600; color: var(--text-secondary); margin-bottom: var(--space-2); }
