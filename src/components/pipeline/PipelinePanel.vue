@@ -244,19 +244,36 @@
                   </div>
 
                   <div id="pl-bound-settings-list" class="pl-settings-list">
-                    <button
+                    <article
                       v-for="(s, i) in filteredSettings"
                       :key="s.id || i"
-                      type="button"
-                      class="pl-setting-item"
+                      class="pl-setting-card"
                       :class="{ active: selectedSettingId === s.id }"
                       @click="selectedSettingId = s.id"
                     >
                       <span class="pl-setting-item-name">{{ s.name || '未命名设定' }}</span>
                       <span class="pl-setting-item-summary">{{ s.content || '暂无属性内容' }}</span>
-                      <span class="pl-setting-item-state">{{ s.isBound ? '已绑定' : '未绑定' }}</span>
-                      <span class="pl-setting-item-index">{{ i + 1 }}</span>
-                    </button>
+                      <div class="pl-setting-card-actions">
+                        <button
+                          type="button"
+                          class="btn-sm"
+                          :class="s.isBound ? 'btn-primary' : 'btn-secondary'"
+                          @click.stop="toggleItemBinding(s)"
+                        >
+                          {{ s.isBound ? '解除绑定' : '绑定' }}
+                        </button>
+                        <button
+                          type="button"
+                          class="btn-sm btn-secondary pl-setting-info-btn"
+                          :aria-label="`查看${s.name || '未命名设定'}信息`"
+                          title="查看信息"
+                          @click.stop="selectedSettingId = s.id"
+                        >
+                          信息
+                        </button>
+                      </div>
+                      <span class="pl-setting-item-index" aria-hidden="true">{{ i + 1 }}</span>
+                    </article>
                     <p v-if="filteredSettings.length === 0" class="empty-hint">该分类还没有设定内容</p>
                   </div>
 
@@ -3331,39 +3348,63 @@ function toolAction(action: string) {
 }
 .pl-sc-editor-count { color: var(--text-muted); font-size: var(--font-size-sm); white-space: nowrap; }
 .pl-settings-list {
-  display: flex;
-  flex: 0 1 220px;
-  flex-direction: column;
-  gap: var(--space-1);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-content: start;
+  gap: var(--space-3);
   min-width: 0;
   min-height: 0;
-  max-height: 220px;
+  flex: 0 1 auto;
+  max-height: min(52vh, 360px);
   overflow-y: auto;
 }
-.pl-setting-item {
+.pl-setting-card {
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(120px, 0.4fr) minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
   width: 100%;
   min-width: 0;
-  padding: var(--space-2) var(--space-3);
-  text-align: left;
+  height: 100%;
+  padding: var(--space-3);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   background: var(--bg-tertiary);
+  cursor: pointer;
 }
-.pl-setting-item.active {
-  border-color: var(--accent-color);
+.pl-setting-card.active {
+  border-color: var(--accent);
   background: var(--bg-secondary);
 }
 .pl-setting-item-name,
-.pl-setting-item-summary,
-.pl-setting-item-state { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pl-setting-item-summary {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .pl-setting-item-name { color: var(--text-primary); font-weight: 600; }
-.pl-setting-item-summary { color: var(--text-secondary); }
-.pl-setting-item-state { color: var(--text-muted); font-size: var(--font-size-sm); }
+.pl-setting-item-summary {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.45;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.pl-setting-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: auto;
+}
+.pl-setting-card-actions .btn-sm {
+  min-width: 62px;
+  padding: 2px var(--space-2);
+}
+.pl-setting-info-btn { flex-shrink: 0; }
 .pl-setting-item-index { position: absolute; left: 4px; top: 2px; color: var(--text-muted); font-size: 10px; }
 .pl-setting-detail { display: flex; flex-direction: column; gap: var(--space-2); min-height: 0; padding-top: var(--space-3); }
 .pl-setting-detail-heading, .pl-setting-detail-actions { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
@@ -3383,6 +3424,12 @@ function toolAction(action: string) {
 .pl-sc-category-actions button { min-width: 120px; }
 .pl-settings-footer-actions { margin-top: var(--space-4); }
 
+@media (max-width: 1200px) {
+  .pl-settings-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 760px) {
   .pl-settings-workspace {
     gap: var(--space-3);
@@ -3399,6 +3446,7 @@ function toolAction(action: string) {
     align-items: flex-start;
   }
   .pl-sc-categories { flex-basis: 100%; }
+  .pl-settings-list { grid-template-columns: 1fr; }
   .pl-setting-detail-fields { grid-template-columns: 1fr; }
 }
 
