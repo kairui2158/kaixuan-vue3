@@ -394,15 +394,82 @@
                <span v-if="volumeCountHint" id="pl-volume-count-hint" class="pl-gen-hint" role="alert">{{ volumeCountHint }}</span>
             </div>
             <div id="pl-vol-list" class="pl-vol-list">
-              <div
-                v-if="volumeGenerationFeedbackVisible && (activeVolumeGenerationIndex < 0 || activeVolumeGenerationIndex >= projectStore.volumes.length)"
+              <div v-if="projectStore.volumes.length > 0" id="pl-volume-select-list" class="pl-volume-table" role="table" aria-label="卷纲列表">
+                <div class="pl-volume-table-head" role="row">
+                  <span class="pl-volume-col pl-volume-col-index">序号</span>
+                  <span class="pl-volume-col pl-volume-col-name">卷名</span>
+                  <span class="pl-volume-col pl-volume-col-outline">纲要摘要</span>
+                  <span class="pl-volume-col pl-volume-col-words">AI分配字数</span>
+                  <span class="pl-volume-col pl-volume-col-status">状态</span>
+                  <span class="pl-volume-col pl-volume-col-actions">操作</span>
+                </div>
+                <template v-for="(vol, i) in projectStore.volumes" :key="vol.id || i">
+                  <div
+                    :id="'pl-volume-select-' + i"
+                    class="pl-volume-row"
+                    :class="{ active: selectedVolumeIndex === i, expanded: expandedVolumeIndex === i }"
+                    role="row"
+                    @click="selectedVolumeIndex = i"
+                  >
+                    <span class="pl-volume-col pl-volume-col-index">{{ i + 1 }}</span>
+                    <span class="pl-volume-col pl-volume-col-name" :title="vol.name">{{ vol.name || '未命名卷' }}</span>
+                    <span class="pl-volume-col pl-volume-col-outline" :title="vol.outline || ''">{{ volumeOutlineExcerpt(vol.outline) }}</span>
+                    <span class="pl-volume-col pl-volume-col-words">{{ formatVolumeWords(vol) }}</span>
+                    <span class="pl-volume-col pl-volume-col-status" :class="volumeStatusClass(vol)">{{ volumeStatusText(vol) }}</span>
+                    <span class="pl-volume-col pl-volume-col-actions" @click.stop>
+                      <button
+                        :id="'btn-pl-bind-volume-' + i"
+                        class="btn-sm"
+                        :class="vol.isBound ? 'btn-secondary' : 'btn-primary'"
+                        :disabled="!vol.confirmed"
+                        :title="vol.confirmed ? '' : '请先保存并锁定本卷'"
+                        @click="toggleVolumeBinding(i)"
+                      >
+                        {{ vol.isBound ? '解除绑定' : '绑定到章节层' }}
+                      </button>
+                      <button :id="'btn-pl-edit-volume-' + i" class="btn-sm" @click="toggleVolumeExpand(i)">
+                        {{ expandedVolumeIndex === i ? '收起' : '编辑' }}
+                      </button>
+                      <button :id="'btn-pl-delete-volume-' + i" class="btn-sm btn-danger" @click="deleteVolume(i)">删除</button>
+                    </span>
+                  </div>
+                  <section v-if="expandedVolumeIndex === i" :id="'pl-volume-editor-' + i" class="pl-volume-row-editor" :aria-label="(vol.name || '未命名卷') + ' 编辑区'">
+                    <div class="pl-volume-editor-grid">
+                      <input v-model="vol.name" class="pl-input" placeholder="卷名" :readonly="vol.confirmed" @change="projectStore.saveProject()" />
+                      <input v-model="vol.summary" class="pl-input" placeholder="摘要" :readonly="vol.confirmed" @change="projectStore.saveProject()" />
+                    </div>
+                    <textarea v-model="vol.outline" class="pl-vol-outline" placeholder="卷纲要" :readonly="vol.confirmed" @change="projectStore.saveProject()"></textarea>
+                    <div class="pl-volume-card-actions">
+                      <button
+                        :id="'btn-pl-save-volume-' + i"
+                        class="btn-sm btn-primary"
+                        :disabled="vol.confirmed || !vol.name.trim()"
+                        @click="saveVolume(i)"
+                      >
+                        {{ vol.confirmed ? '已锁定' : '保存并锁定本卷' }}
+                      </button>
+                      <span class="pl-volume-editor-words">{{ formatVolumeWords(vol) }}</span>
+                    </div>
+                  </section>
+                </template>
+              </div>
+              <p v-else class="empty-hint">暂无卷纲，请先生成或确认大纲字数</p>
+            </div>
+            <div
+              v-if="volumeGenerationFeedbackVisible"
+              id="pl-volume-generation-overlay"
+              class="pl-generation-feedback-overlay"
+              @click.self="closeVolumeGenerationFeedback"
+            >
+              <section
                 id="pl-volume-generation-feedback"
-                class="pl-vol-generation-card"
-                role="status"
-                aria-live="polite"
+                class="pl-generation-feedback-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="pl-volume-generation-title"
               >
-                <div class="pl-vol-generation-header">
-                  <strong>卷纲 AI 生成进度</strong>
+                <div class="pl-generation-feedback-header">
+                  <strong id="pl-volume-generation-title">卷纲层 AI 生成进度</strong>
                   <span>{{ pipelineStore.generationProgress }}%</span>
                 </div>
                 <div class="pl-generation-progress-track" aria-label="卷纲生成进度">
@@ -414,77 +481,21 @@
                     <span>{{ line }}</span>
                   </div>
                 </div>
-                <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
-              </div>
-              <div v-if="projectStore.volumes.length > 0" class="pl-volume-workspace">
-                <div id="pl-volume-select-list" class="pl-object-select-list" role="listbox" aria-label="卷纲列表">
-                  <button
-                    v-for="(vol, i) in projectStore.volumes"
-                    :key="vol.id || i"
-                    :id="'pl-volume-select-' + i"
-                    type="button"
-                    class="pl-object-select-item"
-                    :class="{ active: selectedVolumeIndex === i, confirmed: vol.confirmed }"
-                    :aria-selected="selectedVolumeIndex === i"
-                    @click="selectedVolumeIndex = i"
-                  >
-                    <span class="pl-object-select-index">{{ i + 1 }}</span>
-                    <span class="pl-object-select-copy">
-                      <strong>{{ vol.name || '未命名卷' }}</strong>
-                      <small>{{ vol.allocatedWords || vol.suggestedWords || '待分配' }} 字 · {{ vol.confirmed ? '已锁定' : '编辑中' }} · {{ vol.isBound ? '已绑定' : '未绑定' }}</small>
-                    </span>
-                    <span v-if="vol.confirmed" class="pl-object-select-state" aria-label="已锁定">✓</span>
-                  </button>
+                <div class="pl-generation-modal-footer">
+                  <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
+                  <div class="pl-generation-modal-actions">
+                    <button
+                      v-if="pipelineStore.isGenerating"
+                      id="pl-volume-cancel-generation"
+                      class="btn-danger"
+                      @click="pipelineStore.cancelGeneration()"
+                    >
+                      取消生成
+                    </button>
+                    <button v-else class="btn-secondary" @click="closeVolumeGenerationFeedback">关闭</button>
+                  </div>
                 </div>
-                <section v-if="selectedVolume" id="pl-volume-editor" class="pl-object-editor" aria-label="当前卷编辑区">
-                  <div class="pl-object-editor-heading">
-                    <div>
-                      <span class="pl-editor-kicker">当前卷</span>
-                      <h4>{{ selectedVolume.name || '未命名卷' }}</h4>
-                    </div>
-                    <span class="pl-object-editor-status" :class="{ locked: selectedVolume.confirmed }">
-                      {{ selectedVolume.confirmed ? '已锁定' : '编辑中' }}
-                    </span>
-                  </div>
-                  <div class="pl-vol-header">
-                    <input v-model="selectedVolume.name" class="pl-input" placeholder="卷名" :readonly="selectedVolume.confirmed" @change="projectStore.saveProject()" />
-                    <span class="vol-words">{{ selectedVolume.allocatedWords || selectedVolume.suggestedWords || '待分配' }} 字</span>
-                  </div>
-                  <textarea v-model="selectedVolume.outline" class="pl-vol-outline" placeholder="卷纲要" :readonly="selectedVolume.confirmed" @change="projectStore.saveProject()"></textarea>
-                  <input v-model="selectedVolume.summary" class="pl-input" placeholder="摘要" :readonly="selectedVolume.confirmed" @change="projectStore.saveProject()" />
-                  <div
-                    v-if="volumeGenerationFeedbackVisible && activeVolumeGenerationIndex === selectedVolumeIndex"
-                    class="pl-vol-generation-feedback"
-                    role="status"
-                    aria-live="polite"
-                  >
-                    <div class="pl-vol-generation-header">
-                      <strong>卷纲 AI 生成进度</strong>
-                      <span>{{ pipelineStore.generationProgress }}%</span>
-                    </div>
-                    <div class="pl-generation-progress-track" aria-label="卷纲生成进度">
-                      <div class="pl-generation-progress-value" :style="{ width: pipelineStore.generationProgress + '%' }"></div>
-                    </div>
-                    <div class="pl-volume-api-log pl-generation-log" aria-label="卷纲 API 工作信息">
-                      <div v-for="(line, index) in volumeGenerationLogs" :key="index" class="pl-generation-log-line">
-                        <span class="pl-generation-log-dot" aria-hidden="true"></span>
-                        <span>{{ line }}</span>
-                      </div>
-                    </div>
-                    <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
-                  </div>
-                  <div class="pl-volume-card-actions">
-                    <button :id="'btn-pl-save-volume-' + selectedVolumeIndex" class="btn-sm btn-primary" @click="saveVolume(selectedVolumeIndex)" :disabled="selectedVolume.confirmed || !selectedVolume.name.trim()">
-                      {{ selectedVolume.confirmed ? '已锁定' : '保存并锁定本卷' }}
-                    </button>
-                    <button :id="'btn-pl-bind-volume-' + selectedVolumeIndex" class="btn-sm" :class="selectedVolume.isBound ? 'btn-secondary' : 'btn-primary'" @click="toggleVolumeBinding(selectedVolumeIndex)" :disabled="!selectedVolume.confirmed" :title="selectedVolume.confirmed ? '' : '请先保存并锁定本卷'">
-                      {{ selectedVolume.isBound ? '解除绑定' : '绑定到章节层' }}
-                    </button>
-                    <button :id="'btn-pl-delete-volume-' + selectedVolumeIndex" class="btn-sm btn-danger" @click="deleteVolume(selectedVolumeIndex)">删除本卷</button>
-                  </div>
-                </section>
-              </div>
-              <p v-else class="empty-hint">暂无卷纲，请先生成或确认大纲字数</p>
+              </section>
             </div>
             <div class="pl-actions">
               <button id="btn-pl-gen-volumes" class="btn-primary" @click="genVolumes('auto')" :disabled="pipelineStore.isGenerating">AI生成全卷</button>
@@ -859,6 +870,43 @@ const settingsGenerationFeedbackVisible = computed(() => pipelineStore.isGenerat
 
 function closeSettingsGenerationFeedback() {
   settingsGenerationLogs.value = []
+}
+function closeVolumeGenerationFeedback() {
+  volumeGenerationLogs.value = []
+}
+
+const expandedVolumeIndex = ref(-1)
+
+function toggleVolumeExpand(index: number) {
+  expandedVolumeIndex.value = expandedVolumeIndex.value === index ? -1 : index
+}
+
+function volumeOutlineExcerpt(outline: unknown) {
+  const text = String(outline || '').replace(/\s+/g, ' ').trim()
+  if (!text) return '暂无纲要'
+  return text.length > 42 ? text.slice(0, 42) + '…' : text
+}
+
+function formatVolumeWords(vol: any) {
+  const words = Math.max(0, Math.round(Number(vol?.allocatedWords || vol?.suggestedWords) || 0))
+  if (!words) return '—'
+  if (words >= 10000) {
+    const wan = Math.round((words / 10000) * 10) / 10
+    return wan + ' 万字'
+  }
+  return words + ' 字'
+}
+
+function volumeStatusText(vol: any) {
+  if (vol?.isBound) return '已绑定 ✓'
+  if (vol?.confirmed) return '已锁定'
+  return '编辑中'
+}
+
+function volumeStatusClass(vol: any) {
+  if (vol?.isBound) return 'bound'
+  if (vol?.confirmed) return 'locked'
+  return 'editing'
 }
 const volumeGenerationLogs = ref<string[]>([])
 const chapterGenerationLogs = ref<string[]>([])
@@ -1853,6 +1901,7 @@ function saveVolume(index: number) {
   projectStore.volumesConfirmed = false
   if (!projectStore.chapters[vol.id || vol.name]) projectStore.chapters[vol.id || vol.name] = []
   if (!projectStore.volumes[selectedVolumeIndex.value]?.confirmed) selectedVolumeIndex.value = index
+  expandedVolumeIndex.value = -1
   projectStore.saveProject()
 }
 
@@ -1875,6 +1924,8 @@ function deleteVolume(index: number) {
   delete projectStore.chapters[volId]
   projectStore.volumes.splice(index, 1)
   if (selectedVolumeIndex.value >= projectStore.volumes.length) selectedVolumeIndex.value = Math.max(0, projectStore.volumes.length - 1)
+  if (expandedVolumeIndex.value === index) expandedVolumeIndex.value = -1
+  else if (expandedVolumeIndex.value > index) expandedVolumeIndex.value -= 1
   projectStore.volumesConfirmed = false
   projectStore.chaptersConfirmed = false
   projectStore.saveProject()
@@ -3001,6 +3052,63 @@ function toolAction(action: string) {
   overscroll-behavior: contain;
 }
 .pl-vol-list { max-height: min(56vh, 620px); }
+.pl-volume-table {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.pl-volume-table-head,
+.pl-volume-row {
+  display: grid;
+  grid-template-columns: 44px minmax(120px, 0.8fr) minmax(0, 2.2fr) 96px 84px minmax(220px, auto);
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.pl-volume-table-head {
+  padding: var(--space-2) var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  border-bottom: 1px solid var(--border-color);
+}
+.pl-volume-row {
+  padding: var(--space-2) var(--space-3);
+  min-height: 48px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+.pl-volume-row:hover { background: var(--bg-secondary); }
+.pl-volume-row.active,
+.pl-volume-row.expanded { background: var(--accent-dim); }
+.pl-volume-col { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pl-volume-col-index { text-align: center; color: var(--text-secondary); }
+.pl-volume-col-name { font-weight: 600; }
+.pl-volume-col-outline { color: var(--text-secondary); }
+.pl-volume-col-words { text-align: right; white-space: nowrap; }
+.pl-volume-col-status { text-align: center; font-weight: 600; white-space: nowrap; }
+.pl-volume-col-status.bound { color: var(--success); }
+.pl-volume-col-status.locked { color: var(--warning); }
+.pl-volume-col-status.editing { color: var(--text-muted); font-weight: 400; }
+.pl-volume-col-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-1); overflow: visible; }
+.pl-volume-row-editor {
+  padding: var(--space-3) var(--space-3) var(--space-4);
+  margin: 0 0 var(--space-2);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  background: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.pl-volume-editor-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--space-2);
+}
+.pl-volume-editor-words { color: var(--text-secondary); font-size: var(--font-size-sm); }
 .pl-volume-workspace {
   display: grid;
   grid-template-columns: minmax(190px, 0.28fr) minmax(0, 1fr);
