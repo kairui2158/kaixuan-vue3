@@ -31,3 +31,20 @@
 
 ## 遗留风险
 `PipelinePanel.vue:1412` `getStepSkillIds()` 内 `pipelineStore.getStepSkills(step) as unknown as string[]` 也是同步调用 async 函数的同类隐患：Promise 是 truthy 但 `.length` 为 undefined，该 fallback 分支静默失效（不崩溃但存储配置可能被忽略）。本次未修，待用户决策是否另开任务。
+
+## 后续闭环：PipelinePanel 同步 async 隐患
+
+用户确认修复上述遗留风险。
+
+### 修改
+`src/components/pipeline/PipelinePanel.vue` 的 `getStepSkillIds()` 删除同步调用 async `pipelineStore.getStepSkills(step)` 并强转数组的两行死代码。保留两条有效兜底：组件 `onMounted` 已异步加载的 `stepSkills`，以及 `skillStore.orderedPipelineSkills`。
+
+### 验证证据
+1. `npm run build:vue` 通过，981ms，仅保留既有 chunk/动态导入警告。
+2. 杀 Electron 进程 → `start-electron.bat` 重启 → CDP 连接 9227 成功。
+3. 点击/进入生成流水线后：`#pipeline-panel` 存在，22 个技能相关 select 可见，`consoleErrors=[]`；截图为 `_audit/tmp/step_skill_fix_verify.png`。
+4. 同类同步消费复查：`rg "getStepSkills\(" src` 仅剩 `pipeline.ts` 定义处和 `ChatPanel.vue` 的 `Promise.all` 异步消费点。
+5. 存储链对照：运行态读取 `wa_pipeline_step_config`，当前无该存储对象；DOM 五层已选 Skill 均为空，五层模式为 `compose/compose/chain/chain/chain`，与源码默认加载行为一致。
+
+### 证据清理
+本轮只读/临时验证产物 `_audit/tmp/` 在提交前删除，不保留探针脚本和截图。

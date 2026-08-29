@@ -1409,8 +1409,6 @@ function getStepSkillIds(step: number): string[] {
     const ids = stepSlot.filter(Boolean)
     if (ids.length > 0) return ids
   }
-  const stored = pipelineStore.getStepSkills(step) as unknown as string[]
-  if (stored && stored.length > 0) return [...stored]
   const fallback = skillStore.orderedPipelineSkills
   const idx = step
   if (fallback.length > 0 && idx >= 0 && idx < fallback.length && fallback[idx]) {

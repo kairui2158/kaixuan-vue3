@@ -424,4 +424,5 @@
 2. 正确模式：`ref` + 异步函数 + `Promise.all` 等待结果 + token 计数器防竞态 + watch 监听触发条件（标签切换、配置长度变化）。
 3. "面板消失"类问题先区分三种可能：条件渲染改变、DOM 被 CSS 隐藏、Vue 渲染崩溃卸载。本轮属于第三种，源码 diff 看不出来，必须用 CDP 运行态对照（点击前后 DOM 存在性 + console 错误）才能定位。
 4. 构建产物中 `n.map is not a function` 这类 TypeError 可以直接从压缩 JS 提取，比猜源码更快锁定崩溃点。
-5. 同类隐患排查：搜索所有 `getStepSkills(` / `getStepAgents(` 的同步消费点。`PipelinePanel.vue:1412` 仍有同步调用 async 函数的静默失效分支（Promise truthy 但 `.length` undefined），已记录待决策，不能当作已闭环。
+5. 同类隐患排查：搜索所有 `getStepSkills(` / `getStepAgents(` 的同步消费点。`PipelinePanel.vue` 里同步调用 async `getStepSkills` 后强转数组的死代码分支已删除；删除前确认 `onMounted` 已异步加载同一份 `stepSkills`，删除后用“构建 → Electron → CDP → 存储/DOM 对照”复核。
+6. 删除“Promise truthy 但 `.length` undefined”这类死代码兜底的条件是：先证明该分支从未有效生效，再证明调用链上存在异步等价数据源；如果缺少等价数据源，应改造成异步加载，而不是静默删除。
