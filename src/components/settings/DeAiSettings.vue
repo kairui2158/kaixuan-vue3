@@ -388,7 +388,27 @@ function saveAllConfig() {
 /* === 表单组 === */
 .form-group { margin-bottom: 12px; }
 .form-group label { display: block; font-size: var(--font-size-md); color: var(--text-secondary); margin-bottom: 4px; }
-.deai-skill-bar { display: flex; gap: 8px; margin-bottom: 8px; }
+.deai-skill-bar {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+.deai-skill-bar > select,
+.deai-skill-bar > input {
+  flex: 1 1 220px;
+  min-width: 0;
+  max-width: 100%;
+}
+.deai-skill-bar > button {
+  flex: 0 0 auto;
+  min-width: 48px;
+  min-height: 30px;
+  line-height: 1.25;
+}
 .deai-split-input {
   width: 100%;
   padding: var(--space-2) var(--space-4);
@@ -422,6 +442,8 @@ function saveAllConfig() {
   font-size: var(--font-size-lg);
   padding: 0 2px;
   line-height: 1;
+  min-width: 22px;
+  min-height: 22px;
 }
 .deai-skill-remove:hover { color: var(--danger-hover); }
 

@@ -1,18 +1,30 @@
 <template>
   <section id="chat-panel" class="chat-panel">
     <div id="agent-select-chat" class="chat-header">
-      <span>AI 对话</span>
-      <select v-model="selectedChatAgent" class="agent-selector">
-        <option value="">默认</option>
-        <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
-      </select>
-      <select id="model-select-chat" v-model="selectedChatModel" class="agent-selector">
-        <option value="">自动</option>
-        <option v-for="m in availableModels" :key="m" :value="m">{{ m }}</option>
-      </select>
-      <span v-if="syncedStepLabel" class="chat-sync-label">{{ syncedStepLabel }}</span>
-      <span v-if="syncedAgentName" class="chat-sync-agent">Agent: {{ syncedAgentName }}</span>
-      <span v-if="syncedSkillNames" class="chat-sync-skills">Skill: {{ syncedSkillNames }}</span>
+      <div class="chat-header-title-row">
+        <span class="chat-header-title">AI 对话</span>
+        <span v-if="syncedStepLabel" class="chat-sync-label">{{ syncedStepLabel }}</span>
+      </div>
+      <div class="chat-header-controls">
+        <label class="chat-control-group">
+          <span class="chat-control-label">Agent</span>
+          <select v-model="selectedChatAgent" class="agent-selector" :title="currentAgentName">
+            <option value="">默认</option>
+            <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
+          </select>
+        </label>
+        <label class="chat-control-group">
+          <span class="chat-control-label">模型</span>
+          <select id="model-select-chat" v-model="selectedChatModel" class="agent-selector" :title="selectedChatModel || '自动'">
+            <option value="">自动</option>
+            <option v-for="m in availableModels" :key="m" :value="m">{{ m }}</option>
+          </select>
+        </label>
+      </div>
+      <div v-if="syncedAgentName || syncedSkillNames" class="chat-context-summary">
+        <span v-if="syncedAgentName" class="chat-context-chip chat-sync-agent" :title="`Agent: ${syncedAgentName}`">Agent: {{ syncedAgentName }}</span>
+        <span v-if="syncedSkillNames" class="chat-context-chip chat-sync-skills" :title="`Skill: ${syncedSkillNames}`">Skill: {{ syncedSkillNames }}</span>
+      </div>
    </div>
 
     <div id="chat-context-bar" class="chat-context-bar"></div>
@@ -28,6 +40,7 @@
           v-for="(msg, i) in messages"
           :key="i"
           :message="msg"
+          :busy="isStreaming"
           @copy="copyMessage"
           @regenerate="regenerateMessage(i)"
           @apply="insertToEditor(msg.content)" @replace="replaceWhole(msg.content)"
@@ -35,6 +48,12 @@
       </div>
     </div>
 
+    <div v-if="isStreaming || generationMessage" id="chat-generation-status" class="chat-generation-status" :class="generationStatus">
+      <span class="generation-status-dot" aria-hidden="true"></span>
+      <span class="generation-status-text">{{ generationMessage || (isStreaming ? '正在生成…' : '') }}</span>
+      <button v-if="isStreaming" id="btn-cancel-generation" class="generation-action generation-cancel" type="button" @click="cancelGeneration">取消生成</button>
+      <button v-if="generationStatus === 'error' && lastFailedText" id="btn-retry-generation" class="generation-action" type="button" @click="retryLastRequest">重试</button>
+    </div>
     <div id="chat-input-row" class="chat-input-row">
      <textarea
        v-model="inputText"
@@ -45,11 +64,12 @@
        @keydown.enter.exact.prevent="sendMessage"
        @keydown.enter.shift.exact="inputText += '\n'"
     ></textarea>
-      <button id="btn-send" class="btn-send" @click="sendMessage" title="发送">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button id="btn-send" class="btn-send" :disabled="isStreaming" @click="() => sendMessage()" :title="isStreaming ? '生成中' : '发送'">
+        <svg v-if="!isStreaming" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="22" y1="2" x2="11" y2="13"></line>
           <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
         </svg>
+        <span v-else class="send-busy-label">生成中</span>
       </button>
     </div>
 
@@ -88,8 +108,7 @@ import { useSettingsStore } from '../../stores/settings'
 import ChatMessage from './ChatMessage.vue'
 import { useSkillStore } from '../../stores/skill'
 import { useChatStore } from '../../stores/chat'
-import { createAiService } from '../../services/aiService'
-import { useExecutionLogStore } from '../../stores/executionLog'
+import { getAiService } from '../../services/aiService'
 import { MCPProtocol } from '../../services/mcp-protocol'
 import { retrieveContext } from '../../services/memoryRetriever'
 
@@ -131,7 +150,11 @@ const selectedChatModel = computed({
   }
 })
 const messagesContainer = ref<HTMLElement | null>(null)
-const isStreaming = ref(false)
+const isStreaming = computed(() => chatStore.generationStatus === 'preparing' || chatStore.generationStatus === 'streaming' || chatStore.generationStatus === 'retrying')
+const generationStatus = computed(() => chatStore.generationStatus)
+const generationMessage = computed(() => chatStore.generationMessage)
+const lastFailedText = ref('')
+let activeAbortController: AbortController | null = null
 const skillAreaOpen = ref(true)
 const tokenCount = ref(0)
 
@@ -175,7 +198,7 @@ const syncedAgentName = computed(() => {
   }
   const step = stepMap[tab.mode]
   if (step === undefined) return ''
-  const agentId = pipelineStore.getStepAgents(step)
+  const agentId = pipelineStore.getStepAgents(step) as unknown as string
   if (!agentId) return ''
   const a = agentStore.getAgent(agentId)
   return a?.name || ''
@@ -190,7 +213,7 @@ const syncedSkillNames = computed(() => {
   }
   const step = stepMap[tab.mode]
   if (step === undefined) return ''
-  const skillIds = pipelineStore.getStepSkills(step)
+  const skillIds = pipelineStore.getStepSkills(step) as unknown as string[]
   if (!skillIds || skillIds.length === 0) return ''
   return skillIds.map((sid: string) => {
     const s = skillStore.skills.find((sk: any) => sk.id === sid)
@@ -265,10 +288,12 @@ function handleEditorAction(e: any) {
   }
 }
 
-async function sendMessage() {
+async function sendMessage(requestText?: string) {
   const projId = projectId.value
-  let text = inputText.value.trim()
+  let text = (requestText ?? inputText.value).trim()
   if (!text || isStreaming.value) return
+  activeAbortController?.abort()
+  activeAbortController = new AbortController()
   const pendingOriginal = _pendingInlineOriginal.value
   _pendingInlineOriginal.value = ''
 
@@ -277,7 +302,7 @@ async function sendMessage() {
   await nextTick()
   scrollToBottom()
 
-  isStreaming.value = true
+  chatStore.setGenerationState('preparing', '正在准备请求…')
   let response = ''
   try {
     const provider = providerStore.activeGenerateProvider
@@ -487,8 +512,7 @@ async function sendMessage() {
       const activeMode = skillCtxSkills[0].executionMode
       try {
         const _engineAiRequest = async (opts: any) => {
-          const logStore = useExecutionLogStore()
-          const aiSvc = createAiService(providerStore as any, logStore as any)
+          const aiSvc = await getAiService()
           const result = await aiSvc.callAi({
             purpose: 'generate',
             messages: opts.messages || [],
@@ -498,7 +522,8 @@ async function sendMessage() {
             stream: opts.stream !== false,
             retry: true,
             meta: { source: 'ChatPanel.engine' },
-            onChunk: opts.onChunk
+            onChunk: opts.onChunk,
+            signal: activeAbortController?.signal
           })
           return { text: result.text, reasoning: result.reasoning }
         }
@@ -561,11 +586,32 @@ async function sendMessage() {
         }));
     }
  } catch (e: any) {
-   chatStore.addMessage({ role: 'assistant', content: '请求失败：' + (e?.message || String(e)), tabId: chatStore.currentContext?.tabId || '' }, projId)
+   if (e?.kind === 'canceled' || activeAbortController?.signal.aborted) {
+     removeEmptyAssistantMessage()
+     chatStore.setGenerationState('canceled', '已取消生成')
+   } else {
+     removeEmptyAssistantMessage()
+     lastFailedText.value = text
+     chatStore.setGenerationState('error', '生成失败：' + (e?.message || String(e)))
+     chatStore.addMessage({ role: 'assistant', content: '请求失败：' + (e?.message || String(e)), tabId: chatStore.currentContext?.tabId || '' }, projId)
+   }
  } finally {
-    isStreaming.value = false
+    activeAbortController = null
+    if (chatStore.generationStatus === 'preparing' || chatStore.generationStatus === 'streaming' || chatStore.generationStatus === 'retrying') {
+      chatStore.setGenerationState('idle')
+    }
     await nextTick()
     scrollToBottom()
+  }
+}
+
+function removeEmptyAssistantMessage() {
+  const session = chatStore.activeSession
+  const last = session?.messages[session.messages.length - 1]
+  if (session && last?.role === 'assistant' && !last.content) {
+    session.messages.pop()
+    session.updatedAt = Date.now()
+    chatStore.saveSessions(projectId.value)
   }
 }
 
@@ -577,8 +623,7 @@ async function callApi(provider: any, model: string, systemPrompt: string, userT
 
   chatStore.addMessage({ role: 'assistant', content: '', tabId: chatStore.currentContext?.tabId || '' }, projId)
 
-  const logStore = useExecutionLogStore()
-  const aiService = createAiService(providerStore as any, logStore as any)
+  const aiService = await getAiService()
   const result = await aiService.callAi({
     purpose: 'generate',
     messages: [
@@ -588,10 +633,11 @@ async function callApi(provider: any, model: string, systemPrompt: string, userT
     model,
     temperature: provider.temperature ?? 0.7,
     maxTokens: 128000,
-    stream: true,
     retry: true,
+    signal: activeAbortController?.signal,
     meta: { source: 'ChatPanel.callApi' },
     onChunk: (text) => {
+      chatStore.setGenerationState('streaming', '正在接收 AI 输出…')
       chatStore.updateLastMessage(text)
       nextTick().then(() => scrollToBottom())
     }
@@ -603,22 +649,30 @@ async function callApi(provider: any, model: string, systemPrompt: string, userT
   return result.text || ''
 }
 
+function cancelGeneration() {
+  activeAbortController?.abort()
+}
+
+function retryLastRequest() {
+  if (!lastFailedText.value || isStreaming.value) return
+  const failed = chatStore.activeSession?.messages[chatStore.activeSession.messages.length - 1]
+  if (failed?.role === 'assistant' && failed.content.startsWith('请求失败：')) {
+    chatStore.activeSession?.messages.pop()
+  }
+  inputText.value = lastFailedText.value
+  lastFailedText.value = ''
+  nextTick(() => sendMessage())
+}
+
 function copyMessage(content: string) {
   navigator.clipboard.writeText(content)
 }
 
 function regenerateMessage(index: number) {
-  const msgs = chatStore.activeSession?.messages
-  if (!msgs) return
-  const msg = msgs[index]
-  if (!msg || msg.role !== 'assistant') return
-  msgs.splice(index, 1)
-  const prevUser = msgs[index - 1]
-  if (prevUser && prevUser.role === 'user') {
-    inputText.value = prevUser.content
-    msgs.splice(index - 1, 1)
-    sendMessage()
-  }
+  if (isStreaming.value) return
+  const previousText = chatStore.replaceMessagePair(index - 1, projectId.value)
+  if (!previousText) return
+  void nextTick().then(() => sendMessage(previousText))
 }
 
 function insertToEditor(content: string) {
@@ -684,17 +738,65 @@ function scrollToBottom() {
   overflow: hidden;
 }
 .chat-header {
-  height: 40px;
+  min-height: 112px;
+  box-sizing: border-box;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: 8px;
-  padding: 0 12px;
+  padding: 10px 12px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   font-size: var(--font-size-md);
   font-weight: 600;
 }
+.chat-header-title-row,
+.chat-header-controls,
+.chat-context-summary {
+  min-width: 0;
+}
+.chat-header-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.chat-header-title {
+  flex: 0 0 auto;
+}
+.chat-sync-label {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-header-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+}
+.chat-control-group {
+  display: flex;
+  flex: 1 1 120px;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+}
+.chat-control-label {
+  line-height: 1.2;
+}
 .agent-selector {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   background: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
@@ -703,6 +805,30 @@ function scrollToBottom() {
   font-size: var(--font-size-sm);
   height: 28px;
   outline: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-context-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+}
+.chat-context-chip {
+  display: inline-block;
+  min-width: 0;
+  max-width: 100%;
+  padding: 2px 7px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xs);
+  background: var(--bg-input);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .messages-container {
   flex: 1;
@@ -727,6 +853,45 @@ function scrollToBottom() {
   padding: var(--space-4) var(--space-6);
   border-top: 1px solid var(--border-color);
 }
+.chat-generation-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 6px 12px;
+  border-top: 1px solid var(--border-color);
+  background: var(--chat-status-bg);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+.generation-status-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+  background: var(--chat-status-active);
+}
+.chat-generation-status.error .generation-status-dot { background: var(--chat-status-error); }
+.chat-generation-status.canceled .generation-status-dot { background: var(--chat-status-canceled); }
+.generation-status-text {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow-wrap: anywhere;
+}
+.generation-action {
+  flex: 0 0 auto;
+  min-height: 28px;
+  padding: 3px 9px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xs);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+.generation-action:hover { background: var(--bg-hover); }
+.generation-cancel { color: var(--accent-lighter, var(--accent)); }
 .chat-input {
   flex: 1;
   background: var(--bg-input);
@@ -744,7 +909,7 @@ function scrollToBottom() {
   border-color: var(--accent);
 }
 .btn-send {
-  background: var(--accent);
+  background: var(--control-primary-bg);
   color: var(--text-on-accent);
   border: none;
   border-radius: var(--radius-sm);
@@ -754,8 +919,13 @@ function scrollToBottom() {
   cursor: pointer;
   font-size: var(--btn-font-size-md);
 }
+.btn-send:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+.send-busy-label { font-size: var(--font-size-sm); white-space: nowrap; }
 #btn-send:hover {
-  background: var(--accent-hover);
+  background: var(--control-primary-bg-hover);
 }
 #btn-send:active {
   transform: var(--tf-press);
@@ -766,6 +936,14 @@ function scrollToBottom() {
 }
 .skill-area {
   border-top: 1px solid var(--border-color);
+}
+@media (max-width: 520px) {
+  .chat-header {
+    min-height: 144px;
+  }
+  .chat-control-group {
+    flex-basis: 100%;
+  }
 }
 .skill-area-header {
   display: flex;

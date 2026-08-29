@@ -59,7 +59,7 @@ function openSource() {
 </script>
 
 <style scoped>
-.character-card { display:flex; flex-direction:column; gap:10px; padding:14px; border:1px solid var(--border-color); border-radius:var(--radius-sm); background:var(--bg-secondary); }
+.character-card { display:flex; flex-direction:column; gap:10px; padding:14px; border:1px solid var(--memory-card-border); border-radius:var(--radius-sm); background:var(--memory-card-bg); }
 .character-card-header,.character-card-title,.character-card-footer,.character-card-row { display:flex; align-items:center; gap:8px; }
 .character-card-header { justify-content:space-between; align-items:flex-start; }
 .character-card-title { min-width:0; }

@@ -105,6 +105,7 @@ export const useExecutionLogStore = defineStore("executionLog", () => {
     logs,
     addLog,
     setFeedback,
+    removeLog,
     clearLogs,
     getStats,
     getSuggestions,

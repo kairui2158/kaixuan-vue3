@@ -40,7 +40,7 @@ function normalized(value: unknown): string {
 
 function uniqueStrings(values: unknown): string[] {
   if (!Array.isArray(values)) return []
-  return [...new Set(values.filter((value): value is string => typeof value === 'string' && value.trim()).map(value => value.trim()))]
+  return [...new Set(values.filter((value): value is string => typeof value === 'string' && Boolean(value.trim())).map(value => value.trim()))]
 }
 
 function isBlacklisted(value: unknown, blacklist: Set<string>): boolean {

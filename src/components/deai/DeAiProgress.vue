@@ -12,6 +12,10 @@
         <span id="deai-progress-percent" class="deai-progress-percent">{{ deAiStore.progress }}%</span>
         <span id="deai-progress-step" class="deai-progress-step">{{ deAiStore.currentStep }}</span>
       </div>
+      <div v-if="deAiStore.errorMessage" id="deai-error" class="deai-error" role="alert">
+        <strong>处理未完成</strong>
+        <span>{{ deAiStore.errorMessage }}</span>
+      </div>
       <!-- step list with dot indicators -->
       <div id="deai-step-list" class="deai-step-list">
         <div
@@ -25,7 +29,7 @@
           <span class="deai-step-status">{{ getStepStatusText(i) }}</span>
         </div>
       </div>
-      <button class="btn-secondary" @click="cancelDeAi">取消</button>
+      <button class="btn-secondary" @click="closeProgress">{{ deAiStore.errorMessage ? '关闭' : '取消' }}</button>
     </div>
   </div>
 </template>
@@ -39,12 +43,25 @@ function cancelDeAi() {
   window.dispatchEvent(new CustomEvent('deai-cancel'))
 }
 
+function closeProgress() {
+  if (deAiStore.errorMessage) {
+    deAiStore.clearError()
+    return
+  }
+  cancelDeAi()
+}
+
 function getCurrentIdx(): number {
   const total = deAiStore.flowPreview.length
   return Math.floor((deAiStore.progress / 100) * total)
 }
 
 function getStepClass(index: number): string {
+  if (deAiStore.errorMessage) {
+    const failedIndex = deAiStore.flowPreview.findIndex(step => deAiStore.lastFailedStep.includes(step))
+    if (failedIndex === index) return 'failed'
+    if (failedIndex >= 0 && index > failedIndex) return 'pending'
+  }
   if (deAiStore.progress === 100) return 'done'
   const currentIdx = getCurrentIdx()
   if (index < currentIdx) return 'done'
@@ -64,7 +81,7 @@ function getStepStatusText(index: number): string {
 .deai-progress-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: var(--bg-overlay, rgba(0,0,0,0.5));
+  background: var(--bg-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -76,7 +93,7 @@ function getStepStatusText(index: number): string {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md, 12px);
   padding: 24px;
-  box-shadow: var(--shadow-lg, 0 8px 32px rgba(0,0,0,0.3));
+  box-shadow: var(--shadow-lg);
 }
 .deai-progress-header {
   display: flex;
@@ -117,6 +134,20 @@ function getStepStatusText(index: number): string {
   font-size: var(--font-size-sm, 13px);
   color: var(--text-secondary);
 }
+.deai-error {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 var(--space-md, 16px);
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  border-radius: var(--radius-sm, 6px);
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  color: var(--danger);
+  font-size: var(--font-size-sm, 13px);
+  line-height: 1.5;
+}
+.deai-error strong { font-weight: var(--fw-semibold, 600); }
 /* step list with dot indicators - matches old arch style.css L7370-7385 */
 .deai-step-list {
   display: flex;

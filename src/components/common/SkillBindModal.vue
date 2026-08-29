@@ -115,7 +115,7 @@ function closeModal() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-overlay, rgba(0,0,0,0.4));
+  background: var(--bg-overlay);
 }
 .skill-bind-content {
   width: min(520px, 90vw);
@@ -125,7 +125,7 @@ function closeModal() {
   background: var(--bg-glass, var(--bg-secondary));
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg, 0 8px 32px rgba(0,0,0,0.3));
+  box-shadow: var(--shadow-lg);
   padding: 16px;
 }
 .skill-bind-header {

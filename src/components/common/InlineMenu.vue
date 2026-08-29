@@ -54,7 +54,7 @@ function handleAction(action: string) {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-panel-sm);
   padding: 4px;
   display: flex; flex-wrap: wrap; gap: 2px;
   max-width: 360px;

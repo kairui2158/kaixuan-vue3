@@ -55,7 +55,7 @@ import { getAiService } from '../services/aiService'
 
     // 技能链执行：覆盖 system prompt
     if (skillIds.length > 0) {
-      const skills = skillIds.map(id => skillStore.getSkill(id)).filter(Boolean)
+      const skills = skillIds.map(id => skillStore.getSkill(id)).filter((skill): skill is NonNullable<typeof skill> => Boolean(skill))
       for (const skill of skills) {
         messages = [
           { role: 'system', content: skill.template || systemPrompt },
@@ -287,6 +287,7 @@ import { getAiService } from '../services/aiService'
     isLoading,
     loadingText,
     batchReviewResults,
+     callAi,
      generateNames,
      generateWritingRules,
      extractTimeline,

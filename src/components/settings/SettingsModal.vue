@@ -183,6 +183,43 @@ function handleSave() {
   flex: 1;
   padding: 20px 28px;
   overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Settings content must fit its track; controls may wrap, but text may not escape. */
+.settings-panel :deep(*) { box-sizing: border-box; }
+.settings-panel :deep(h3),
+.settings-panel :deep(label),
+.settings-panel :deep(.form-hint),
+.settings-panel :deep(.agent-card),
+.settings-panel :deep(.skill-card),
+.settings-panel :deep(.skill-pipeline-item),
+.settings-panel :deep(.agent-card-header),
+.settings-panel :deep(.skill-card-header),
+.settings-panel :deep(.agent-card-actions),
+.settings-panel :deep(.skill-card-actions),
+.settings-panel :deep(.provider-card-name),
+.settings-panel :deep(.provider-card-model),
+.settings-panel :deep(.provider-card-url) {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.settings-panel :deep(button),
+.settings-panel :deep(input),
+.settings-panel :deep(select),
+.settings-panel :deep(textarea) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 560px) {
+  .modal-content.modal-lg { width: 100%; max-width: 100vw; min-width: 0; }
+  .modal-body { padding: var(--space-sm, 8px); }
+  .settings-tabs { width: 132px; }
+  .settings-panel { padding: 16px; }
 }
 </style>
 

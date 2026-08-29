@@ -140,6 +140,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useProviderStore, type Provider } from '../../stores/provider'
+import { getAiService } from '../../services/aiService'
 
 const providerStore = useProviderStore()
 
@@ -162,7 +163,7 @@ const fetchMsgClass = computed(() => {
   return ''
 })
 
-const purposeOptions = [
+const purposeOptions: { value: Provider['purpose'][number]; label: string }[] = [
   { value: 'generate', label: '生成' },
   { value: 'verify', label: '验证' },
   { value: 'detect', label: '检测' },
@@ -178,7 +179,7 @@ const editingProviderPurposeArray = computed(() => {
   return []
 })
 
-function toggleEditingPurpose(value: string) {
+function toggleEditingPurpose(value: Provider['purpose'][number]) {
   if (!editingProvider.value) return
   const cur = editingProviderPurposeArray.value
   const idx = cur.indexOf(value)
@@ -195,14 +196,14 @@ function isProviderActive(id: string): boolean {
          providerStore.detectProvider === id
 }
 
-function hasPurpose(id: string, purpose: string): boolean {
+function hasPurpose(id: string, purpose: Provider['purpose'][number]): boolean {
   if (purpose === 'generate') return providerStore.generateProvider === id
   if (purpose === 'verify') return providerStore.verifyProvider === id
   if (purpose === 'detect') return providerStore.detectProvider === id
   return false
 }
 
-function togglePurpose(id: string, purpose: string) {
+function togglePurpose(id: string, purpose: Provider['purpose'][number]) {
   if (purpose === 'generate') {
     providerStore.setGenerateProvider(providerStore.generateProvider === id ? '' : id)
   } else if (purpose === 'verify') {
@@ -280,10 +281,8 @@ async function fetchModels() {
   fetchingModels.value = true
   fetchMsg.value = ''
   try {
-    const models = await window.electronAPI.fetchModels(
-      editingProvider.value.baseUrl,
-      editingProvider.value.apiKey
-    )
+    const service = await getAiService()
+    const models = await service.fetchModelsForProvider(editingProvider.value)
     if (models && models.length > 0) {
       editingProvider.value.models = [...models]
       fetchMsg.value = '成功获取 ' + models.length + ' 个模型'
@@ -306,10 +305,8 @@ async function testConnection() {
   testingConn.value = true
   connStatus.value = ''
   try {
-    const result = await window.electronAPI.providerTestConnection(
-      editingProvider.value.baseUrl,
-      editingProvider.value.apiKey
-    )
+    const service = await getAiService()
+    const result = await service.testConnectionForProvider(editingProvider.value)
     if (result && result.connected) {
       connStatus.value = '连接成功'
     } else {
@@ -338,7 +335,7 @@ function importConfig() {
   input.type = "file"
   input.accept = ".json"
   input.onchange = async (e) => {
-    const file = e.target.files[0]
+    const file = (e.target as HTMLInputElement | null)?.files?.[0]
     if (!file) return
     const text = await file.text()
     try {
@@ -362,7 +359,7 @@ function importConfig() {
 .provider-card {
   min-width: 0;
   max-width: none;
-  background: var(--bg-card, var(--bg-elevated));
+  background: var(--settings-card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg, 8px);
   padding: var(--space-md, 12px);
@@ -372,11 +369,11 @@ function importConfig() {
 .provider-card:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-md, 0 4px 16px rgba(0,0,0,0.15));
-  border-color: var(--accent);
+  border-color: var(--settings-card-hover-border);
 }
 .provider-card.is-active,
 .provider-card:focus-within {
-  border-color: var(--accent);
+  border-color: var(--settings-card-active-border);
   box-shadow: var(--shadow-accent-sm, 0 2px 8px var(--accent-glow, rgba(90,125,154,0.2)));
 }
 .provider-card-header {
@@ -398,20 +395,22 @@ function importConfig() {
   line-height: 1.4;
 }
 /* card actions row */
-.provider-card-actions { display: flex; gap: 4px; align-items: center; }
+.provider-card-actions { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; min-width: 0; }
 .provider-badge-on {
-  background: var(--success-dim, rgba(76,175,80,0.15));
-  color: var(--success);
+  background: var(--settings-card-badge-on-bg);
+  color: var(--settings-card-badge-on-text);
 }
 .provider-badge-off {
-  background: var(--bg-input);
-  color: var(--text-muted);
+  background: var(--settings-card-badge-bg);
+  color: var(--settings-card-badge-off-text);
 }
 
 .purpose-toggle-group {
   display: inline-flex;
   gap: 2px;
   flex-wrap: wrap;
+  min-width: 0;
+  max-width: 100%;
 }
 .purpose-toggle-btn {
   background: var(--bg-input);
@@ -421,6 +420,10 @@ function importConfig() {
   padding: 2px 8px;
   font-size: var(--font-size-xs, 12px);
   cursor: pointer;
+  box-sizing: border-box;
+  line-height: 18px;
+  min-height: 23px;
+  white-space: nowrap;
   transition: all 0.15s ease;
 }
 .purpose-toggle-btn:hover {
@@ -428,7 +431,7 @@ function importConfig() {
   color: var(--text-primary);
 }
 .purpose-toggle-btn.is-on {
-  background: var(--accent-dim, rgba(90,125,154,0.15));
+  background: var(--settings-card-active-bg);
   color: var(--accent);
   border-color: var(--accent);
   font-weight: 500;
@@ -462,7 +465,7 @@ function importConfig() {
   outline: none;
 }
 .provider-card-url:hover { color: var(--accent-hover, var(--accent)); }
-.provider-card-url-input { font-size: var(--font-size-xs, 12px); color: var(--text-muted); }
+.provider-card-url-input { font-size: var(--font-size-sm); color: var(--text-muted); }
 .model-row { display: flex; gap: 4px; }
 .btn-test { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
 .btn-test:hover { background: var(--accent-dim); }
@@ -498,7 +501,7 @@ function importConfig() {
   flex: 1 1 300px;
   min-width: 300px;
   max-width: 460px;
-  border: 2px dashed var(--border-color);
+  border: 2px dashed var(--settings-card-add-border);
   border-radius: var(--radius-md, 8px);
   padding: 24px 12px;
   display: flex;
@@ -507,7 +510,7 @@ function importConfig() {
   gap: 8px;
   cursor: pointer;
   color: var(--text-muted);
-  background: transparent;
+  background: var(--settings-card-add-bg);
   transition: border-color 0.2s, color 0.2s;
 }
 .provider-card-add:hover {
@@ -521,7 +524,7 @@ function importConfig() {
 .config-actions { display: flex; gap: 8px; margin-bottom: 12px; }
 
 /* === Edit View === */
-.provider-edit-view { display: flex; flex-direction: column; gap: 16px; padding: 20px; background: var(--bg-card, var(--bg-elevated)); border: 1px solid var(--border-color); border-radius: var(--radius-md); }
+.provider-edit-view { display: flex; flex-direction: column; gap: 16px; padding: 20px; background: var(--settings-card-bg); border: 1px solid var(--settings-card-border); border-radius: var(--radius-md); }
 .provider-edit-header { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); }
 .btn-back { padding: 5px 12px; font-size: var(--font-size-md); }
 .provider-edit-title-text { font-size: var(--font-size-lg); font-weight: 600; color: var(--text-primary); flex: 1; }
@@ -548,6 +551,9 @@ function importConfig() {
 .input-w-120 { width: 120px; }
 .form-actions { display: flex; gap: 8px; margin-top: 8px; }
 .provider-card-info { display: flex; flex-direction: column; gap: 2px; margin-bottom: 8px; }
-.provider-card-url { font-size: var(--font-size-xs); color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.provider-card-model { font-size: var(--font-size-xs); color: var(--accent); }
+.provider-card-url { font-size: var(--font-size-sm); color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.provider-card-model { font-size: var(--font-size-sm); color: var(--accent); overflow-wrap: anywhere; }
+.provider-card-actions :deep(.btn-sm),
+.provider-card-actions .btn-sm { box-sizing: border-box; line-height: 18px; min-height: 30px; height: 30px; white-space: nowrap; }
+.provider-card-add { box-sizing: border-box; min-width: 0; max-width: 100%; }
 </style>

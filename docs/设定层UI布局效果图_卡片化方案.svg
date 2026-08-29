@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1080" viewBox="0 0 1680 1080">
+  <defs>
+    <style>
+      .bg { fill: #f4f7f9; }
+      .panel { fill: #ffffff; stroke: #d6dee6; stroke-width: 2; }
+      .top { fill: #263342; }
+      .title { fill: #ffffff; font: 700 24px Arial, "Microsoft YaHei", sans-serif; }
+      .h1 { fill: #1e2a38; font: 700 25px Arial, "Microsoft YaHei", sans-serif; }
+      .h2 { fill: #253445; font: 700 18px Arial, "Microsoft YaHei", sans-serif; }
+      .text { fill: #526274; font: 400 16px Arial, "Microsoft YaHei", sans-serif; }
+      .small { fill: #667587; font: 400 14px Arial, "Microsoft YaHei", sans-serif; }
+      .tiny { fill: #718093; font: 400 12px Arial, "Microsoft YaHei", sans-serif; }
+      .control { fill: #f7fafc; stroke: #cbd6e0; stroke-width: 2; }
+      .selected { fill: #e8f2f8; stroke: #a9c8dd; stroke-width: 2; }
+      .section { fill: #f8fafb; stroke: #d8e0e7; stroke-width: 2; }
+      .card { fill: #ffffff; stroke: #cbd8d2; stroke-width: 2; }
+      .active { fill: #2e7d63; }
+      .activeText { fill: #ffffff; font: 700 14px Arial, "Microsoft YaHei", sans-serif; }
+      .outlineBtn { fill: #ffffff; stroke: #9fb7c8; stroke-width: 2; }
+      .infoBtn { fill: #eff4f7; stroke: #b9cbd7; stroke-width: 2; }
+      .modal { fill: #ffffff; stroke: #9aabba; stroke-width: 2; }
+      .shadow { fill: #152333; opacity: .13; }
+      .divider { stroke: #e0e6eb; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1680" height="1080"/>
+  <text x="70" y="55" class="h1">生成流水线 · 设定层布局效果图</text>
+  <text x="70" y="84" class="text">审核重点：五段信息层次连续，分类对象以小卡片横向排列，每行 4 个</text>
+
+  <rect x="70" y="116" width="1540" height="870" rx="8" class="panel"/>
+  <rect x="70" y="116" width="1540" height="58" rx="8" class="top"/>
+  <text x="98" y="153" class="title">设定层</text>
+  <text x="1480" y="153" class="small" fill="#dbe5ee">生成状态：待机</text>
+
+  <!-- row 1 -->
+  <text x="100" y="213" class="h2">本层控制</text>
+  <rect x="228" y="184" width="285" height="46" rx="5" class="control"/>
+  <text x="248" y="213" class="small">智能体选择</text>
+  <text x="390" y="213" class="text">设定架构师⌄</text>
+  <rect x="535" y="184" width="390" height="46" rx="5" class="control"/>
+  <text x="555" y="213" class="small">SKILL 选择</text>
+  <text x="705" y="213" class="text">添加设定提取 SKILL⌄</text>
+  <rect x="947" y="184" width="255" height="46" rx="5" class="control"/>
+  <text x="967" y="213" class="small">模式</text>
+  <text x="1065" y="213" class="text">串行 chain⌄</text>
+  <rect x="1225" y="184" width="150" height="46" rx="5" class="active"/>
+  <text x="1257" y="213" class="activeText">生成设定</text>
+
+  <!-- row 2 -->
+  <rect x="100" y="250" width="1478" height="54" rx="5" class="selected"/>
+  <text x="124" y="283" class="h2">已选择 SKILL</text>
+  <rect x="308" y="264" width="220" height="28" rx="14" fill="#d4e8f4" stroke="#a2c6dc"/>
+  <text x="327" y="283" class="small">设定提取 · ×</text>
+  <rect x="542" y="264" width="220" height="28" rx="14" fill="#d4e8f4" stroke="#a2c6dc"/>
+  <text x="561" y="283" class="small">角色关系 · ×</text>
+  <rect x="776" y="264" width="220" height="28" rx="14" fill="#d4e8f4" stroke="#a2c6dc"/>
+  <text x="795" y="283" class="small">世界观整理 · ×</text>
+  <text x="1260" y="283" class="tiny">可拖动排序 · 每个 SKILL 可绑定独立智能体</text>
+
+  <!-- row 3 -->
+  <rect x="100" y="324" width="1478" height="76" rx="5" class="section"/>
+  <text x="124" y="356" class="h2">创作风格区</text>
+  <text x="124" y="382" class="small">统一控制本层生成语言和表达倾向</text>
+  <rect x="420" y="340" width="226" height="40" rx="5" class="control"/>
+  <text x="440" y="365" class="small">风格：东方奇幻⌄</text>
+  <rect x="666" y="340" width="226" height="40" rx="5" class="control"/>
+  <text x="686" y="365" class="small">叙事：克制沉浸⌄</text>
+  <rect x="912" y="340" width="226" height="40" rx="5" class="control"/>
+  <text x="932" y="365" class="small">密度：中高⌄</text>
+  <text x="1170" y="365" class="tiny">可扩展为高级风格设置</text>
+
+  <!-- category -->
+  <rect x="100" y="420" width="1478" height="82" rx="5" class="section"/>
+  <text x="124" y="453" class="h2">设定分类区</text>
+  <text x="124" y="480" class="small">选择分类后，仅显示当前分类中的设定卡片</text>
+  <rect x="500" y="437" width="122" height="42" rx="5" class="active"/>
+  <text x="542" y="463" class="activeText">世界观</text>
+  <rect x="632" y="437" width="122" height="42" rx="5" class="control"/><text x="674" y="463" class="text">角色</text>
+  <rect x="764" y="437" width="122" height="42" rx="5" class="control"/><text x="806" y="463" class="text">势力</text>
+  <rect x="896" y="437" width="122" height="42" rx="5" class="control"/><text x="938" y="463" class="text">物品</text>
+  <rect x="1028" y="437" width="122" height="42" rx="5" class="control"/><text x="1070" y="463" class="text">地点</text>
+  <rect x="1160" y="437" width="122" height="42" rx="5" class="control"/><text x="1202" y="463" class="text">其他</text>
+
+  <!-- current category -->
+  <rect x="100" y="522" width="1478" height="424" rx="5" class="section"/>
+  <text x="124" y="559" class="h2">当前分类：物品</text>
+  <text x="124" y="585" class="small">共 8 项 · 每张卡片可独立绑定到章节或查看详细信息</text>
+  <line x1="124" y1="606" x2="1552" y2="606" class="divider"/>
+
+  <!-- cards row 1 -->
+  <rect x="124" y="630" width="334" height="128" rx="6" class="card"/>
+  <text x="148" y="662" class="h2">XXX 装甲</text>
+  <text x="148" y="690" class="small">古代遗物 · 防御型装备</text>
+  <rect x="148" y="711" width="110" height="29" rx="4" class="active"/><text x="178" y="731" class="activeText">绑定</text>
+  <rect x="270" y="711" width="110" height="29" rx="4" class="infoBtn"/><text x="299" y="731" class="small">信息</text>
+
+  <rect x="478" y="630" width="334" height="128" rx="6" class="card"/>
+  <text x="502" y="662" class="h2">渡鸦钥匙</text>
+  <text x="502" y="690" class="small">开启禁库 · 一次性道具</text>
+  <rect x="502" y="711" width="110" height="29" rx="4" class="active"/><text x="532" y="731" class="activeText">绑定</text>
+  <rect x="624" y="711" width="110" height="29" rx="4" class="infoBtn"/><text x="653" y="731" class="small">信息</text>
+
+  <rect x="832" y="630" width="334" height="128" rx="6" class="card"/>
+  <text x="856" y="662" class="h2">回声罗盘</text>
+  <text x="856" y="690" class="small">定位记忆 · 传承类物品</text>
+  <rect x="856" y="711" width="110" height="29" rx="4" class="active"/><text x="886" y="731" class="activeText">绑定</text>
+  <rect x="978" y="711" width="110" height="29" rx="4" class="infoBtn"/><text x="1007" y="731" class="small">信息</text>
+
+  <rect x="1186" y="630" width="334" height="128" rx="6" class="card"/>
+  <text x="1210" y="662" class="h2">无名徽章</text>
+  <text x="1210" y="690" class="small">身份凭证 · 来源未知</text>
+  <rect x="1210" y="711" width="110" height="29" rx="4" class="active"/><text x="1240" y="731" class="activeText">绑定</text>
+  <rect x="1332" y="711" width="110" height="29" rx="4" class="infoBtn"/><text x="1361" y="731" class="small">信息</text>
+
+  <!-- row 2 -->
+  <rect x="124" y="782" width="334" height="128" rx="6" class="card"/>
+  <text x="148" y="814" class="h2">霜火灯</text><text x="148" y="842" class="small">照明与警戒 · 消耗品</text>
+  <rect x="148" y="863" width="110" height="29" rx="4" class="active"/><text x="178" y="883" class="activeText">绑定</text><rect x="270" y="863" width="110" height="29" rx="4" class="infoBtn"/><text x="299" y="883" class="small">信息</text>
+  <rect x="478" y="782" width="334" height="128" rx="6" class="card"/>
+  <text x="502" y="814" class="h2">静默书页</text><text x="502" y="842" class="small">记录秘术 · 可读写</text>
+  <rect x="502" y="863" width="110" height="29" rx="4" class="active"/><text x="532" y="883" class="activeText">绑定</text><rect x="624" y="863" width="110" height="29" rx="4" class="infoBtn"/><text x="653" y="883" class="small">信息</text>
+  <rect x="832" y="782" width="334" height="128" rx="6" class="card"/>
+  <text x="856" y="814" class="h2">赤铜令</text><text x="856" y="842" class="small">势力信物 · 可转移</text>
+  <rect x="856" y="863" width="110" height="29" rx="4" class="active"/><text x="886" y="883" class="activeText">绑定</text><rect x="978" y="863" width="110" height="29" rx="4" class="infoBtn"/><text x="1007" y="883" class="small">信息</text>
+  <rect x="1186" y="782" width="334" height="128" rx="6" class="card"/>
+  <text x="1210" y="814" class="h2">空白名册</text><text x="1210" y="842" class="small">待补充 · 状态草稿</text>
+  <rect x="1210" y="863" width="110" height="29" rx="4" class="active"/><text x="1240" y="883" class="activeText">绑定</text><rect x="1332" y="863" width="110" height="29" rx="4" class="infoBtn"/><text x="1361" y="883" class="small">信息</text>
+
+  <!-- info modal callout -->
+  <rect x="1280" y="40" width="300" height="42" rx="5" fill="#ffffff" stroke="#b7c7d5"/>
+  <text x="1300" y="67" class="small">点击“信息” → 详情/编辑弹窗</text>
+
+  <text x="70" y="1030" class="text">交互意图：控制项保持紧凑，已选 SKILL 单独成行，风格独立成区；分类切换后卡片按 4 列排列，信息编辑不离开当前工作台。</text>
+</svg>

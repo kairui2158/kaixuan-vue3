@@ -119,14 +119,14 @@ function endPan() { draggingNode.value = ''; draggingPan.value = false }
 .graph-toolbar { display: flex; align-items: center; gap: 10px; min-height: 38px; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); }
 .graph-title { color: var(--text-primary); font-weight: 600; }
 .graph-hint { flex: 1; font-size: var(--font-size-sm); }
-.graph-canvas { width: 100%; min-height: 280px; flex: 1; background: var(--bg-secondary); cursor: grab; touch-action: none; }
-.graph-edge { stroke: var(--border-color); stroke-width: 2; }
-.graph-edge-label { fill: var(--text-muted); font-size: 12px; text-anchor: middle; }
+.graph-canvas { width: 100%; min-height: 280px; flex: 1; background: var(--memory-card-bg); cursor: grab; touch-action: none; }
+.graph-edge { stroke: var(--memory-edge); stroke-width: 2; }
+.graph-edge-label { fill: var(--memory-edge-label); font-size: 12px; text-anchor: middle; }
 .graph-node { cursor: pointer; }
-.graph-node circle { fill: var(--accent); stroke: var(--bg-primary); stroke-width: 3; }
-.graph-node.selected circle { fill: var(--warning); }
-.graph-node text { fill: #fff; font-size: 12px; pointer-events: none; }
-.graph-empty { display: grid; place-items: center; flex: 1; color: var(--text-secondary); }
+.graph-node circle { fill: var(--memory-node-bg); stroke: var(--memory-node-border); stroke-width: 3; }
+.graph-node.selected circle { fill: var(--memory-node-selected-bg); }
+.graph-node text { fill: var(--memory-node-text); font-size: 12px; pointer-events: none; }
+.graph-empty { display: grid; place-items: center; flex: 1; color: var(--memory-empty-text); }
 .graph-selection { display: flex; gap: 10px; padding: 8px 0 0; color: var(--text-secondary); }
 .graph-selection strong { color: var(--text-primary); }
 </style>

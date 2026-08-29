@@ -76,7 +76,9 @@
           <div class="pf-node-skills">
             <span class="pf-node-tag">Skill</span>
             <div class="pf-node-skill-chips">
-              <span v-for="(sid, ski) in stepSkills[si]" :key="ski" v-if="sid" class="pf-skill-chip">{{ getSkillName(sid) }}</span>
+              <template v-for="(sid, ski) in stepSkills[si]" :key="ski">
+                <span v-if="sid" class="pf-skill-chip">{{ getSkillName(sid) }}</span>
+              </template>
               <span v-if="!stepSkills[si] || stepSkills[si].filter(Boolean).length === 0" class="pf-node-empty">未配置</span>
             </div>
           </div>
@@ -126,15 +128,15 @@ const showLoadDialog = ref(false)
 const saveVersionName = ref('')
 const versions = ref<{ name: string; savedAt: string; config: any }[]>([])
 
-function loadVersions() {
+  async function loadVersions() {
   try {
-    const data = window.electronAPI.storageRead(storageKey('pipeline_versions'))
+    const data = await window.electronAPI.storageRead(storageKey('pipeline_versions'))
     if (Array.isArray(data)) versions.value = data
   } catch(e) { versions.value = [] }
 }
 
-function saveVersions() {
-  window.electronAPI.storageWrite(storageKey('pipeline_versions'), versions.value)
+  async function saveVersions() {
+  await window.electronAPI.storageWrite(storageKey('pipeline_versions'), versions.value)
 }
 
 function saveVersion() {
@@ -200,14 +202,14 @@ loadVersions()
 .pf-flow-title { font-size: var(--font-size-lg); font-weight: 600; color: var(--text-primary); }
 .pf-flow-actions { display: flex; gap: 8px; }
 .pf-graph { display: flex; flex-direction: column; gap: 0; align-items: center; }
-.pf-node { width: 100%; max-width: 480px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
-.pf-node:hover { border-color: var(--accent-dim); }
-.pf-node-active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
-.pf-node-completed { border-color: var(--success); }
+.pf-node { width: 100%; max-width: 480px; background: var(--pipeline-step-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+.pf-node:hover { border-color: var(--pipeline-step-active-border); }
+.pf-node-active { border-color: var(--pipeline-step-active-border); background: var(--pipeline-step-active-bg); box-shadow: 0 0 0 2px var(--accent-dim); }
+.pf-node-completed { border-color: var(--pipeline-step-complete-border); background: var(--pipeline-step-complete-bg); }
 .pf-node-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .pf-node-num { width: 28px; height: 28px; border-radius: 50%; background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-md); font-weight: bold; color: var(--text-primary); flex-shrink: 0; }
-.pf-node-active .pf-node-num { background: var(--accent); color: var(--text-on-accent); }
-.pf-node-completed .pf-node-num { background: var(--success); color: var(--text-on-accent); }
+.pf-node-active .pf-node-num { background: var(--pipeline-step-active-border); color: var(--text-on-accent); }
+.pf-node-completed .pf-node-num { background: var(--pipeline-step-complete-border); color: var(--text-on-accent); }
 .pf-node-label { font-size: var(--font-size-lg); font-weight: 500; color: var(--text-primary); }
 .pf-node-check { margin-left: auto; color: var(--success); font-size: var(--font-size-lg); }
 .pf-node-body { display: flex; flex-direction: column; gap: 8px; padding-left: 38px; }
@@ -218,7 +220,7 @@ loadVersions()
 .pf-skill-chip { padding: 1px 8px; border-radius: var(--radius-lg); font-size: var(--font-size-xs); background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-glow, transparent); }
 .pf-node-empty { font-size: var(--font-size-sm); color: var(--text-muted); font-style: italic; }
 .pf-arrow { display: flex; justify-content: center; padding: 2px 0; color: var(--text-muted); }
-.pf-dialog-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1200; }
+.pf-dialog-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal-nested); }
 .pf-dialog { background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); width: min(400px, 92vw); box-shadow: var(--shadow-lg); }
 .pf-dialog-wide { width: min(500px, 92vw); }
 .pf-dialog-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--border-color); font-size: var(--font-size-lg); font-weight: 600; }
@@ -233,3 +235,4 @@ loadVersions()
 .pf-version-time { font-size: var(--font-size-xs); color: var(--text-muted); }
 .pf-version-actions { display: flex; gap: 6px; }
 </style>
+

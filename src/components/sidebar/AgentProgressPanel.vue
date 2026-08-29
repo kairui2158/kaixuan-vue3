@@ -62,12 +62,20 @@ onUnmounted(() => {
   z-index: 100;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
   transition: var(--transition);
 }
 .agent-progress-panel.collapsed {
   width: 0;
   overflow: hidden;
   border: none;
+}
+.agent-progress-panel.collapsed .agp-header {
+  width: 0;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  overflow: hidden;
 }
 .agp-header {
   display: flex;

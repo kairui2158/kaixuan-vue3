@@ -26,13 +26,13 @@ export const useChapterStore = defineStore('chapter', () => {
       .sort((a, b) => a.order - b.order)
   })
 
-  function loadChapters(projectId: string) {
-    const data = window.electronAPI.storageRead(storageKey('chapters_' + projectId))
+  async function loadChapters(projectId: string) {
+    const data = await window.electronAPI.storageRead(storageKey('chapters_' + projectId))
     if (data) chapters.value = data.chapters || data || []
   }
 
-  function saveChapters(projectId: string) {
-    window.electronAPI.storageWrite(storageKey('chapters_' + projectId), { chapters: toPlain(chapters.value) })
+  async function saveChapters(projectId: string) {
+    await window.electronAPI.storageWrite(storageKey('chapters_' + projectId), { chapters: toPlain(chapters.value) })
   }
 
   function addChapter(chapter: Chapter) {
@@ -64,4 +64,6 @@ export const useChapterStore = defineStore('chapter', () => {
     setVolume, getChapter
   }
 })
+
+
 

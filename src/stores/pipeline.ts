@@ -118,7 +118,7 @@ export const usePipelineStore = defineStore('pipeline', () => {
     }
   }
 
-  async function getStepSkills(step: number): string[] {
+  async function getStepSkills(step: number): Promise<string[]> {
     try {
       const key = 'pipeline_step_config'
       const saved = await window.electronAPI.storageRead(storageKey(key))
@@ -141,7 +141,7 @@ export const usePipelineStore = defineStore('pipeline', () => {
     }
   }
 
-  async function getStepAgents(step: number): string {
+  async function getStepAgents(step: number): Promise<string> {
     try {
       const saved = await window.electronAPI.storageRead(storageKey('pipeline_step_config'))
       if (saved && saved.agents && saved.agents[step]) return saved.agents[step]
@@ -161,7 +161,7 @@ export const usePipelineStore = defineStore('pipeline', () => {
     }
   }
 
-  async function getStepModes(step: number): 'chain' | 'compose' {
+  async function getStepModes(step: number): Promise<'chain' | 'compose'> {
     try {
       const saved = await window.electronAPI.storageRead(storageKey('pipeline_step_config'))
       if (saved && saved.modes && saved.modes[step]) return saved.modes[step] === 'chain' ? 'chain' : 'compose'

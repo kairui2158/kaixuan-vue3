@@ -17,6 +17,8 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
   const progress = ref(0)
   const currentStep = ref('')
   const flowPreview = ref<string[]>([])
+  const errorMessage = ref('')
+  const lastFailedStep = ref('')
 
  async function loadConfig() {
     let data = await window.electronAPI.storageRead(storageKey('deAiConfig'))
@@ -70,6 +72,8 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
   function startProcessing() {
     isProcessing.value = true
     progress.value = 0
+    errorMessage.value = ''
+    lastFailedStep.value = ''
   }
 
   function updateProgress(percent: number, step: string) {
@@ -83,13 +87,24 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
     currentStep.value = 'done'
   }
 
+  function setError(message: string, step = '') {
+    errorMessage.value = message || '处理失败，请重试'
+    lastFailedStep.value = step || currentStep.value
+    currentStep.value = lastFailedStep.value ? `${lastFailedStep.value}失败` : '处理失败'
+  }
+
+  function clearError() {
+    errorMessage.value = ''
+    lastFailedStep.value = ''
+  }
+
   return {
   enabled, mode, skillIds, agentId, hardruleEnabled, level, splitSize,
   hardRules, version,
     textType,
-   isProcessing, progress, currentStep, flowPreview,
+    isProcessing, progress, currentStep, flowPreview, errorMessage, lastFailedStep,
     loadConfig, saveConfig, setMode, updateFlowPreview,
-    startProcessing, updateProgress, finishProcessing
+    startProcessing, updateProgress, finishProcessing, setError, clearError
   }
 })
 

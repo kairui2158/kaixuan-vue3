@@ -11,11 +11,29 @@
 
 /* Focus outline */
 *:focus { outline: none; }
-*:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
+*:focus-visible { outline: 2px solid var(--control-focus-ring); outline-offset: -1px; }
 
 /* Input reset */
 input, textarea, select, button { font-family: inherit; font-size: inherit; }
 input, textarea { user-select: text; }
+
+/* V1-P1: shared layout guards keep labels and controls inside their tracks. */
+.app-main, .panel, .modal-content, .modal-body, .editor-panel, .chat-panel,
+.pipeline-panel, .settings-panel, .outline-workspace, .memory-panel {
+  min-width: 0;
+}
+.panel-header, .modal-header, .modal-footer, .editor-toolbar, .pl-agent-bar {
+  min-width: 0;
+}
+.panel-header > *, .modal-header > *, .modal-footer > *, .editor-toolbar > *, .pl-agent-bar > * {
+  min-width: 0;
+}
+.panel-title, .modal-header h3, .app-title, .pl-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* Transition utilities */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
@@ -27,7 +45,7 @@ input, textarea { user-select: text; }
 
 /* Common button styles */
 .btn-primary {
-  background: var(--accent-gradient);
+  background: var(--control-primary-bg);
   color: var(--text-on-accent);
   border: none;
   border-radius: var(--btn-radius);
@@ -37,12 +55,13 @@ input, textarea { user-select: text; }
   font-size: var(--btn-font-size-md);
   transition: var(--btn-transition);
 }
-.btn-primary:hover { opacity: 0.9; }
+.btn-primary:hover { background: var(--control-primary-bg-hover); }
+.btn-primary:active { background: var(--control-primary-bg-active); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn:disabled, .btn-primary:disabled, .btn-secondary:disabled, .btn-danger:disabled, .btn-sm:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
 
 .btn-secondary {
-  background: transparent;
+  background: var(--control-secondary-bg);
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--btn-radius);
@@ -53,12 +72,12 @@ input, textarea { user-select: text; }
   transition: var(--btn-transition);
 }
 .btn-secondary:hover {
-  background: var(--bg-hover);
+  background: var(--control-secondary-bg-hover);
   color: var(--text-primary);
 }
 
 .btn-danger {
-  background: var(--danger);
+  background: var(--control-danger-bg);
   color: var(--text-on-accent);
   border: none;
   border-radius: var(--btn-radius);
@@ -68,6 +87,7 @@ input, textarea { user-select: text; }
   font-size: var(--btn-font-size-md);
   transition: var(--btn-transition);
 }
+.btn-danger:hover { background: var(--control-danger-bg-hover); }
 
 /* Card hover effect */
 .card-hover {
@@ -230,8 +250,9 @@ input, textarea { user-select: text; }
     --font-size: clamp(11px, 1.2vw, 13px);
     --font-size-editor: clamp(12px, 1.4vw, 15px);
   }
-  .chapter-tree { width: clamp(140px, 16vw, 180px); min-width: 120px; }
-  .editor-panel { min-width: 200px; }
+  .chapter-tree { width: clamp(140px, 16vw, 180px) !important; min-width: 140px !important; }
+  .editor-panel { min-width: 0 !important; flex: 1 1 auto; }
+  .chat-panel { width: clamp(280px, 30vw, 340px) !important; min-width: 280px; }
   .sc-categories { width: 120px !important; }
   .sc-detail-area { width: clamp(180px, 22vw, 240px) !important; }
   .pl-steps { width: 130px !important; }
@@ -241,7 +262,7 @@ input, textarea { user-select: text; }
 /* MQ-2: max-width 1024px */
 @media (max-width: 1024px) {
   #editor-content { max-width: 100%; padding: var(--space-md); }
-  .chapter-tree { min-width: 140px; }
+  .chapter-tree { min-width: 140px !important; }
 }
 /* MQ-3: max-width 1280px */
 @media (max-width: 1280px) {
@@ -256,6 +277,42 @@ input, textarea { user-select: text; }
 @media (max-width: 600px) {
   :root { --font-size: var(--font-size-sm); --font-size-editor: 14px; }
 }
+
+/* Narrow windows use a vertical work area instead of compressing the editor
+   into an unusable flex track. The same panels remain available by scrolling. */
+@media (max-width: 760px) {
+  .app-main-content {
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .app-main-content > .chapter-tree {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 180px;
+    min-height: 180px;
+    flex: 0 0 180px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .app-main-content > .editor-panel {
+    width: 100%;
+    min-width: 0 !important;
+    min-height: 460px;
+    flex: 0 0 460px;
+  }
+  .app-main-content > .chat-panel {
+    width: 100% !important;
+    min-width: 0;
+    min-height: 420px;
+    flex: 0 0 420px;
+    border-left: 0;
+    border-top: 1px solid var(--border-color);
+  }
+  .app-main-content > .resizer-v { display: none; }
+  .editor-toolbar { overflow-x: auto; max-width: 100%; }
+}
 /* MQ-6: min-width 1280px to max-width 1599px */
 @media (min-width: 1280px) and (max-width: 1599px) {
   :root {
@@ -269,7 +326,9 @@ input, textarea { user-select: text; }
   :root {
     --font-size: clamp(14px, 0.75vw, 18px);
     --font-size-editor: clamp(15px, 0.9vw, 20px);
-    --font-size-sm: clamp(11px, 0.6vw, 14px);
+    /* Keep dense metadata readable on wide displays; viewport scaling must not
+       reduce API controls and settings hints below the desktop baseline. */
+    --font-size-sm: clamp(13px, 0.6vw, 14px);
     --font-size-lg: clamp(16px, 0.85vw, 22px);
   }
   .chapter-tree { width: clamp(200px, 14vw, 300px); }
@@ -561,6 +620,9 @@ input, textarea { user-select: text; }
 .editor-toolbar { display: flex; align-items: center; gap: var(--toolbar-gap, 4px); padding: var(--space-sm) var(--space-md); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
 .select-all { width: 100%; }
 .header-selector { max-width: 180px; }
+.header-left, .header-right { min-width: 0; }
+.header-right { flex-wrap: wrap; justify-content: flex-end; }
+.header-selector { min-width: 0; text-overflow: ellipsis; }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 .status-dot.connected { background: var(--success); }
 .status-dot.disconnected { background: var(--text-muted); }

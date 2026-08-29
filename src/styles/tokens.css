@@ -25,6 +25,72 @@
   --border-color: #25252e;
   --border-light: #35353f;
   --border-focus: #4a4a58;
+  /* V2-P1 semantic control colors: keep component states on one palette. */
+  --control-primary-bg: var(--accent);
+  --control-primary-bg-hover: var(--accent-hover);
+  --control-primary-bg-active: var(--accent-active);
+  --control-secondary-bg: transparent;
+  --control-secondary-bg-hover: var(--bg-hover);
+  --control-danger-bg: var(--danger);
+  --control-danger-bg-hover: var(--danger-hover);
+  --control-focus-ring: var(--accent);
+  --control-selected-bg: var(--accent-dim);
+  --control-selected-border: var(--accent);
+  --chat-status-bg: var(--bg-tertiary);
+  --chat-status-active: var(--accent);
+  --chat-status-error: var(--danger);
+  --chat-status-canceled: var(--text-muted);
+  --chat-action-bg: var(--bg-input);
+  --chat-action-bg-hover: var(--bg-hover);
+  /* V2-P4 pipeline semantics: layer navigation and generation feedback. */
+  --pipeline-step-bg: var(--bg-secondary);
+  --pipeline-step-active-bg: var(--accent-dim);
+  --pipeline-step-active-border: var(--accent);
+  --pipeline-step-complete-bg: var(--success-dim);
+  --pipeline-step-complete-border: var(--success);
+  --pipeline-card-bg: var(--bg-tertiary);
+  --pipeline-feedback-bg: var(--bg-secondary);
+  --pipeline-progress-track: var(--bg-tertiary);
+  --pipeline-progress-value: var(--accent);
+  --settings-card-bg: var(--bg-elevated);
+  --settings-card-border: var(--border-color);
+  --settings-card-hover-border: var(--border-light);
+  --settings-card-active-border: var(--accent);
+  --settings-card-active-bg: var(--accent-dim);
+  --settings-card-badge-bg: var(--bg-input);
+  --settings-card-badge-on-bg: var(--success-dim);
+  --settings-card-badge-on-text: var(--success);
+  --settings-card-badge-off-text: var(--text-muted);
+  --settings-card-model-bg: var(--bg-input);
+  --settings-card-model-text: var(--accent);
+  --settings-card-add-bg: transparent;
+  --settings-card-add-border: var(--border-color);
+  --memory-panel-bg: var(--bg-primary);
+  --memory-panel-header-bg: var(--bg-secondary);
+  --memory-card-bg: var(--bg-tertiary);
+  --memory-card-border: var(--border-color);
+  --memory-card-hover-border: var(--border-light);
+  --memory-card-active-bg: var(--accent-dim);
+  --memory-card-active-border: var(--accent);
+  --memory-node-bg: var(--accent);
+  --memory-node-selected-bg: var(--warning);
+  --memory-node-border: var(--bg-primary);
+  --memory-node-text: var(--text-on-accent);
+  --memory-edge: var(--border-light);
+  --memory-edge-label: var(--text-muted);
+  --memory-state-locked: var(--success);
+  --memory-state-pending: var(--warning);
+  --memory-state-rejected: var(--danger);
+  --memory-state-error: var(--danger);
+  --memory-empty-text: var(--text-secondary);
+  --diff-remove-bg: rgba(224, 85, 106, 0.1);
+  --diff-add-bg: rgba(76, 175, 136, 0.1);
+  --diagnostic-divider: rgba(255, 255, 255, 0.03);
+  --diagnostic-provider: var(--info);
+  --diagnostic-trace: var(--text-muted);
+  --diagnostic-model: var(--text-muted);
+  --diagnostic-duration: var(--text-muted);
+  --diagnostic-error-bg: var(--danger-dim);
   --space-1: 2px;
   --space-2: 4px;
   --space-3: 6px;
@@ -46,6 +112,9 @@
   --z-dropdown: 100;
   --z-overlay: 500;
   --z-modal: 1000;
+  --z-modal-content: 1001;
+  --z-modal-nested: 1100;
+  --z-modal-nested-content: 1101;
   --ls-tight: -0.01em;
   --ls-normal: 0;
   --ls-wide: 0.05em;
@@ -201,6 +270,70 @@ body.light-theme {
   --border-color: #d0d0d8;
   --border-light: #c0c0c8;
   --border-focus: #5b6bdb;
+  --control-primary-bg: var(--accent);
+  --control-primary-bg-hover: var(--accent-hover);
+  --control-primary-bg-active: var(--accent-active);
+  --control-secondary-bg: transparent;
+  --control-secondary-bg-hover: var(--bg-hover);
+  --control-danger-bg: var(--danger);
+  --control-danger-bg-hover: var(--danger-hover);
+  --control-focus-ring: var(--accent);
+  --control-selected-bg: var(--accent-dim);
+  --control-selected-border: var(--accent);
+  --chat-status-bg: var(--bg-tertiary);
+  --chat-status-active: var(--accent);
+  --chat-status-error: var(--danger);
+  --chat-status-canceled: var(--text-muted);
+  --chat-action-bg: var(--bg-input);
+  --chat-action-bg-hover: var(--bg-hover);
+  --pipeline-step-bg: var(--bg-secondary);
+  --pipeline-step-active-bg: var(--accent-dim);
+  --pipeline-step-active-border: var(--accent);
+  --pipeline-step-complete-bg: var(--success-dim);
+  --pipeline-step-complete-border: var(--success);
+  --pipeline-card-bg: var(--bg-tertiary);
+  --pipeline-feedback-bg: var(--bg-secondary);
+  --pipeline-progress-track: var(--bg-tertiary);
+  --pipeline-progress-value: var(--accent);
+  --settings-card-bg: var(--bg-elevated);
+  --settings-card-border: var(--border-color);
+  --settings-card-hover-border: var(--border-light);
+  --settings-card-active-border: var(--accent);
+  --settings-card-active-bg: var(--accent-dim);
+  --settings-card-badge-bg: var(--bg-input);
+  --settings-card-badge-on-bg: var(--success-dim);
+  --settings-card-badge-on-text: var(--success);
+  --settings-card-badge-off-text: var(--text-muted);
+  --settings-card-model-bg: var(--bg-input);
+  --settings-card-model-text: var(--accent);
+  --settings-card-add-bg: transparent;
+  --settings-card-add-border: var(--border-color);
+  --memory-panel-bg: var(--bg-primary);
+  --memory-panel-header-bg: var(--bg-secondary);
+  --memory-card-bg: var(--bg-tertiary);
+  --memory-card-border: var(--border-color);
+  --memory-card-hover-border: var(--border-light);
+  --memory-card-active-bg: var(--accent-dim);
+  --memory-card-active-border: var(--accent);
+  --memory-node-bg: var(--accent);
+  --memory-node-selected-bg: var(--warning);
+  --memory-node-border: var(--bg-primary);
+  --memory-node-text: var(--text-on-accent);
+  --memory-edge: var(--border-light);
+  --memory-edge-label: var(--text-muted);
+  --memory-state-locked: var(--success);
+  --memory-state-pending: var(--warning);
+  --memory-state-rejected: var(--danger);
+  --memory-state-error: var(--danger);
+  --memory-empty-text: var(--text-secondary);
+  --diff-remove-bg: rgba(208, 64, 80, 0.1);
+  --diff-add-bg: rgba(45, 158, 104, 0.1);
+  --diagnostic-divider: rgba(0, 0, 0, 0.06);
+  --diagnostic-provider: var(--info);
+  --diagnostic-trace: var(--text-muted);
+  --diagnostic-model: var(--text-muted);
+  --diagnostic-duration: var(--text-muted);
+  --diagnostic-error-bg: var(--danger-dim);
  --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
  --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
  --shadow-lg: 0 8px 32px rgba(0,0,0,0.16);
@@ -247,14 +380,14 @@ body.light-theme {
 }
 /* min800 max1023 */
 @media (min-width: 800px) and (max-width: 1023px) {
-  body { font-size: 13px; }
+  body { font-size: 14px; }
   .sidebar-nav { width: 48px !important; }
   .sidebar-nav .nav-btn { width: 36px; height: 36px; }
   .chapter-tree { min-width: 150px; max-width: 200px; }
 }
 /* max799 */
 @media (max-width: 799px) {
-  body { font-size: 12px; }
+  body { font-size: 14px; }
   .sidebar-nav { width: 44px !important; }
   .sidebar-nav .nav-btn { width: 32px; height: 32px; }
  .chapter-tree { display: none; }
@@ -308,6 +441,8 @@ body.light-theme {
   --modal-width: 512px;
   --modal-width-lg: 640px;
   --modal-width-xl: 800px;
+  --modal-max-height: min(85vh, 900px);
+  --modal-gutter: clamp(12px, 3vw, 32px);
   --modal-radius: 12px;
   --modal-padding: 24px;
   --modal-header-padding: 16px 24px;

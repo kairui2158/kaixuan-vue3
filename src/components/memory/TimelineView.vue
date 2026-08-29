@@ -65,6 +65,6 @@ function openSource() {
 .timeline-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .timeline-meta, .timeline-characters { color: var(--text-secondary); font-size: var(--font-size-sm); }
 .timeline-summary { color: var(--text-primary); line-height: 1.5; }
-.timeline-empty { padding: 22px; color: var(--text-secondary); }
+.timeline-empty { padding: 22px; color: var(--memory-empty-text); }
 .timeline-selection { border-top: 1px solid var(--border-color); padding-top: 10px; color: var(--accent); }
 </style>

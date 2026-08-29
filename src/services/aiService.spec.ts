@@ -178,6 +178,21 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   });
 
+  it('aborts an in-flight request and classifies the timeout separately', async () => {
+    const fetchMock = vi.fn((_url: string, init: RequestInit) => new Promise<Response>((_resolve, reject) => {
+      init.signal?.addEventListener('abort', () => reject(new DOMException('The operation timed out', 'AbortError')), { once: true });
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    await expect(service.callAi({
+      purpose: 'generate', messages: [{ role: 'user', content: 'test' }],
+      stream: false, retry: false, timeoutMs: 10,
+    })).rejects.toMatchObject({ kind: 'timeout' });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect((fetchMock.mock.calls[0][1] as RequestInit).signal?.aborted).toBe(true);
+    vi.unstubAllGlobals();
+  });
+
   it('rejects malformed JSON after one structured retry', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({ choices: [{ message: { content: 'not json' } }] }), { status: 200 }))
@@ -192,3 +207,23 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   });
 });
+
+describe('createAiService.fetchModels', () => {
+  it('returns models and records a diagnostic entry', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ data: [{ id: 'model-a' }] }), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+    const entries: any[] = []
+    const service = createAiService(runtimeStore(), { addLog: (entry) => entries.push(entry) })
+    await expect(service.fetchModels('runtime')).resolves.toEqual(['model-a'])
+    expect(entries.at(-1)).toMatchObject({ providerId: 'runtime', status: 'success' })
+    vi.unstubAllGlobals()
+  })
+
+  it('classifies model-list auth failures', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response('', { status: 401 }))
+    vi.stubGlobal('fetch', fetchMock)
+    const service = createAiService(runtimeStore())
+    await expect(service.fetchModels('runtime')).rejects.toMatchObject({ kind: 'auth', statusCode: 401 })
+    vi.unstubAllGlobals()
+  })
+})

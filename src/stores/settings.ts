@@ -5,6 +5,7 @@ import { storageKey } from '../utils/storage-key'
 export const useSettingsStore = defineStore('settings', () => {
   const activeTab = ref<'api' | 'skill' | 'agent' | 'appearance' | 'deai' | 'diag' | 'mcp'>('api')
   const fontSize = ref(14)
+  const uiFontSize = ref(14)
   const theme = ref<'dark'>('dark')
   const editorFont = ref('serif')
   const autoSaveInterval = ref(30)
@@ -17,6 +18,7 @@ export const useSettingsStore = defineStore('settings', () => {
     if (!data) data = await window.electronAPI.storageRead(storageKey('app-settings'))
    if (data) {
      fontSize.value = data.fontSize || 14
+      uiFontSize.value = data.uiFontSize || data.fontSize || 14
       editorFont.value = data.editorFont || data.editorFontSize || 'serif'
      autoSaveInterval.value = data.autoSaveInterval || 30
       maxTabs.value = data.maxTabs || 20
@@ -28,6 +30,7 @@ export const useSettingsStore = defineStore('settings', () => {
   async function saveSettings() {
     await window.electronAPI.storageWrite(storageKey('appSettings'), {
       fontSize: fontSize.value,
+      uiFontSize: uiFontSize.value,
       editorFont: editorFont.value,
       autoSaveInterval: autoSaveInterval.value,
       maxTabs: maxTabs.value,
@@ -39,6 +42,7 @@ export const useSettingsStore = defineStore('settings', () => {
   function updateSettings(data: Record<string, any>) {
     if (data.githubToken !== undefined) githubToken.value = data.githubToken
     if (data.fontSize !== undefined) fontSize.value = data.fontSize
+    if (data.uiFontSize !== undefined) uiFontSize.value = data.uiFontSize
     if (data.editorFont !== undefined) editorFont.value = data.editorFont
     if (data.autoSaveInterval !== undefined) autoSaveInterval.value = data.autoSaveInterval
     if (data.maxTabs !== undefined) maxTabs.value = data.maxTabs
@@ -51,7 +55,7 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   return {
-    activeTab, fontSize, theme, editorFont, autoSaveInterval, maxTabs, cdpPort, githubToken,
+    activeTab, fontSize, uiFontSize, theme, editorFont, autoSaveInterval, maxTabs, cdpPort, githubToken,
     loadSettings, saveSettings, updateSettings, setActiveTab
   }
 })

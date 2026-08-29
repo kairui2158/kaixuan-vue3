@@ -55,11 +55,24 @@
             <span>大纲编辑器</span>
             <div class="editor-toolbar">
               <div class="editor-toolbar-group">
+                <button id="btn-ow-undo" class="btn-sm btn-secondary" title="撤销" @click="editCommand('undo')">撤销</button>
+                <button id="btn-ow-redo" class="btn-sm btn-secondary" title="重做" @click="editCommand('redo')">重做</button>
+                <button id="btn-ow-copy" class="btn-sm btn-secondary" title="复制选中文本" @click="copySelection">复制</button>
+                <button id="btn-ow-cut" class="btn-sm btn-secondary" title="剪切选中文本" @click="editCommand('cut')">剪切</button>
+                <button id="btn-ow-paste" class="btn-sm btn-secondary" title="粘贴剪贴板文本" @click="pasteText">粘贴</button>
+                <button id="btn-ow-find" class="btn-sm btn-secondary" title="查找正文" @click="findOpen = !findOpen">查找</button>
                 <button id="btn-export-outline-md" class="btn-sm btn-secondary ow-export-btn" @click="exportMd">.md</button>
                 <button id="btn-export-outline-txt" class="btn-sm btn-secondary ow-export-btn" @click="exportTxt">.txt</button>
               </div>
             </div>
             <span id="ow-word-count" class="word-count">{{ (projectStore.outlineText || '').length }} 字</span>
+          </div>
+          <div v-if="findOpen" id="ow-find-bar" class="ow-find-bar">
+            <input id="ow-find-input" ref="findRef" v-model="findQuery" class="ow-find-input" placeholder="查找正文..." @keydown.enter="findNext" />
+            <span id="ow-find-result" class="ow-find-result">{{ findResult }}</span>
+            <button id="btn-ow-find-prev" class="btn-sm btn-secondary" title="上一个匹配" @click="findPrevious">上一个</button>
+            <button id="btn-ow-find-next" class="btn-sm btn-secondary" title="下一个匹配" @click="findNext">下一个</button>
+            <button id="btn-ow-find-close" class="btn-sm btn-secondary" title="关闭查找" @click="closeFind">关闭</button>
           </div>
           <textarea
             id="outline-editor"
@@ -67,18 +80,37 @@
             v-model="projectStore.outlineText"
             class="ow-textarea"
             placeholder="在此输入或编辑你的小说大纲..."
+            :readonly="projectStore.outlineLocked"
+            :class="{ 'ow-readonly': projectStore.outlineLocked }"
           ></textarea>
         </div>
         <div v-show="chatAreaOpen" class="ow-chat">
           <div id="ow-chat-messages" ref="msgContainer" class="ow-messages">
             <div v-for="(msg, i) in messages" :key="i" class="ow-msg" :class="msg.role">
               <div class="ow-msg-bubble" v-html="renderMarkdown(msg.content)"></div>
+              <div v-if="msg.role === 'assistant' && msg.outlineEdit" class="ow-edit-command" title="已识别为待确认的大纲编辑指令">
+                已识别编辑指令：{{ msg.outlineEdit.operation }}<span v-if="msg.outlineEdit.target"> · {{ msg.outlineEdit.target }}</span>
+                <button class="msg-btn" @click="previewCommand(msg.outlineEdit)">预览修改</button>
+              </div>
               <div v-if="msg.role === 'assistant'" class="ow-msg-actions">
                 <button class="msg-btn" title="复制" @click="copyMsg(msg.content)">复制</button>
                 <button class="msg-btn" title="替换整个大纲" @click="replaceOutline(msg.content)">替换</button>
                 <button class="msg-btn" title="重新生成该回复" @click="regenerateMsg(i)">重生成</button>
                 <button class="msg-btn" title="插入到光标处" @click="insertAtCursor(msg.content)">插入</button>
               </div>
+            </div>
+            <div v-if="isGenerating" id="ow-streaming-message" class="ow-msg assistant ow-msg-streaming">
+              <div class="ow-streaming-status">{{ generationStatus }}<span v-if="streamingContent"> · {{ streamingContent.length }} 字</span></div>
+              <div class="ow-msg-bubble" v-html="renderMarkdown(streamingContent || '正在等待 API 返回...')"></div>
+            </div>
+          </div>
+          <div v-if="pendingEdit" id="ow-edit-preview" class="ow-edit-preview">
+            <div class="ow-edit-preview-title">待确认的大纲修改</div>
+            <div class="ow-edit-preview-meta">{{ pendingEdit.operation }}<span v-if="pendingEdit.target"> · 目标：{{ pendingEdit.target }}</span></div>
+            <pre class="ow-edit-preview-content">{{ previewText }}</pre>
+            <div class="ow-edit-preview-actions">
+              <button id="btn-ow-apply-edit" class="btn-sm btn-primary" @click="applyPendingEdit">确认修改</button>
+              <button id="btn-ow-cancel-edit" class="btn-sm btn-secondary" @click="pendingEdit = null">取消</button>
             </div>
           </div>
           <div class="ow-input-row">
@@ -89,7 +121,14 @@
               placeholder="和AI讨论大纲..."
               @keydown.enter="sendMessage"
             />
-            <button id="btn-ow-send" class="btn-send" @click="sendMessage">send</button>
+            <button
+              v-if="isGenerating"
+              id="btn-ow-cancel-generation"
+              class="btn-send btn-cancel"
+              title="取消当前生成"
+              @click="cancelGeneration"
+            >取消生成</button>
+            <button v-else id="btn-ow-send" class="btn-send" @click="sendMessage">发送</button>
           </div>
         </div>
       </div>
@@ -112,7 +151,16 @@
           :disabled="!projectStore.hasOutline"
           @click="handleLockOutline()"
         >
-          确认大纲，锁定并进入创作
+          {{ projectStore.outlineLocked ? '已锁定大纲' : '确认大纲，锁定并进入创作' }}
+        </button>
+        <button
+          v-if="projectStore.outlineLocked"
+          id="btn-unlock-outline"
+          class="btn-secondary"
+          title="解锁后可继续编辑，修改内容需要重新确认才能进入流水线"
+          @click="handleUnlockOutline"
+        >
+          解锁编辑
         </button>
       </div>
       <div class="ow-resize-handle"></div>
@@ -128,8 +176,7 @@ import { useProviderStore } from '../../stores/provider'
 import { usePipelineStore } from '../../stores/pipeline'
 import { importFile } from '../../services/file-import'
 import { useAiTools } from '../../composables/useAiTools'
-import { createAiService } from '../../services/aiService'
-import { useExecutionLogStore } from '../../stores/executionLog'
+import { getAiService } from '../../services/aiService'
 
 const emit = defineEmits<{ close: []; navigate: [target: string] }>()
 
@@ -141,12 +188,42 @@ const { callAi } = useAiTools()
 const messages = computed(() => projectStore.outlineChat)
 const inputText = ref('')
 const msgContainer = ref<HTMLElement | null>(null)
-const fileInput = ref<HTMLElement | null>(null)
+const fileInput = ref<HTMLInputElement | null>(null)
 const editorRef = ref<HTMLTextAreaElement | null>(null)
 const chatAreaOpen = ref(false)
 const isFullscreen = ref(false)
 const saveFeedback = ref('')
 const lastUserRequest = ref('')
+const findOpen = ref(false)
+const findQuery = ref('')
+const findIndex = ref(-1)
+const findRef = ref<HTMLInputElement | null>(null)
+const pendingEdit = ref<OutlineEditCommand | null>(null)
+const undoStack = ref<string[]>([])
+const redoStack = ref<string[]>([])
+const isGenerating = ref(false)
+const generationStatus = ref('')
+const streamingContent = ref('')
+let generationController: AbortController | null = null
+
+type OutlineEditOperation = 'insert' | 'replace_selection' | 'replace_section' | 'append' | 'delete' | 'rewrite'
+interface OutlineEditCommand {
+  type: 'outline_edit'
+  operation: OutlineEditOperation
+  content?: string
+  target?: string
+  position?: string
+  reason?: string
+}
+
+const outlineEditOperations = new Set<OutlineEditOperation>([
+  'insert', 'replace_selection', 'replace_section', 'append', 'delete', 'rewrite'
+])
+
+const findResult = computed(() => {
+  if (!findQuery.value) return ''
+  return findIndex.value >= 0 ? '已定位' : '未找到'
+})
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null
 watch(
@@ -161,6 +238,111 @@ watch(
 
 function triggerImport() {
   fileInput.value?.click()
+}
+
+function editCommand(command: 'undo' | 'redo' | 'cut') {
+  const ta = editorRef.value
+  if (!ta || projectStore.outlineLocked) return
+  if (command === 'undo') {
+    if (undoStack.value.length === 0) return
+    redoStack.value.push(projectStore.outlineText)
+    const previous = undoStack.value.pop() || ''
+    projectStore.outlineText = previous
+    projectStore.setOutline(previous)
+    return
+  }
+  if (command === 'redo') {
+    if (redoStack.value.length === 0) return
+    undoStack.value.push(projectStore.outlineText)
+    const next = redoStack.value.pop() || ''
+    projectStore.outlineText = next
+    projectStore.setOutline(next)
+    return
+  }
+  ta.focus()
+  document.execCommand(command)
+}
+
+function commitOutlineChange(next: string) {
+  const current = projectStore.outlineText || ''
+  if (next === current || projectStore.outlineLocked) return false
+  undoStack.value.push(current)
+  if (undoStack.value.length > 50) undoStack.value.shift()
+  redoStack.value = []
+  projectStore.outlineText = next
+  projectStore.setOutline(next)
+  return true
+}
+
+async function copySelection() {
+  const ta = editorRef.value
+  if (!ta || ta.selectionStart === ta.selectionEnd) return
+  const selected = ta.value.slice(ta.selectionStart, ta.selectionEnd)
+  try {
+    if (window.electronAPI && typeof window.electronAPI.clipboardWrite === 'function') {
+      await window.electronAPI.clipboardWrite(selected)
+    } else {
+      await navigator.clipboard.writeText(selected)
+    }
+    saveFeedback.value = '[OK] 已复制选中文本'
+  } catch {
+    saveFeedback.value = '[失败] 无法写入剪贴板'
+  }
+  setTimeout(() => { saveFeedback.value = '' }, 2000)
+}
+
+async function pasteText() {
+  const ta = editorRef.value
+  if (!ta || projectStore.outlineLocked) return
+  try {
+    const text = await navigator.clipboard.readText()
+    const start = ta.selectionStart
+    const end = ta.selectionEnd
+    const next = ta.value.slice(0, start) + text + ta.value.slice(end)
+    commitOutlineChange(next)
+    await nextTick()
+    ta.focus()
+    ta.selectionStart = ta.selectionEnd = start + text.length
+  } catch {
+    saveFeedback.value = '[提示] 请使用系统粘贴快捷键或授予剪贴板权限'
+    setTimeout(() => { saveFeedback.value = '' }, 2500)
+  }
+}
+
+function closeFind() {
+  findOpen.value = false
+  findQuery.value = ''
+  findIndex.value = -1
+  editorRef.value?.focus()
+}
+
+function findNext() {
+  const ta = editorRef.value
+  const query = findQuery.value
+  if (!ta || !query) return
+  const text = ta.value
+  const from = ta.selectionEnd > ta.selectionStart ? ta.selectionEnd : ta.selectionStart
+  const found = text.indexOf(query, from >= text.length ? 0 : from)
+  findIndex.value = found
+  if (found >= 0) {
+    ta.focus()
+    ta.selectionStart = found
+    ta.selectionEnd = found + query.length
+  }
+}
+
+function findPrevious() {
+  const ta = editorRef.value
+  const query = findQuery.value
+  if (!ta || !query) return
+  const from = Math.max(0, ta.selectionStart - 1)
+  const found = ta.value.lastIndexOf(query, from)
+  findIndex.value = found
+  if (found >= 0) {
+    ta.focus()
+    ta.selectionStart = found
+    ta.selectionEnd = found + query.length
+  }
 }
 
 async function handleImport(e: Event) {
@@ -189,7 +371,91 @@ function renderMarkdown(text: string): string {
   return marked.parse(text || '', { breaks: true }) as string
 }
 
+function parseOutlineEditCommand(raw: string): OutlineEditCommand | null {
+  if (!raw || raw.length > 20000) return null
+  let candidate = raw.trim()
+  const fence = candidate.match(/```(?:json)?\s*([\s\S]*?)```/i)
+  if (fence) candidate = fence[1].trim()
+  const start = candidate.indexOf('{')
+  const end = candidate.lastIndexOf('}')
+  if (start < 0 || end <= start) return null
+  try {
+    const parsed = JSON.parse(candidate.slice(start, end + 1)) as Partial<OutlineEditCommand>
+    if (parsed.type !== 'outline_edit' || !outlineEditOperations.has(parsed.operation as OutlineEditOperation)) return null
+    const needsContent = parsed.operation !== 'delete'
+    if ((needsContent && typeof parsed.content !== 'string') || (typeof parsed.content === 'string' && parsed.content.length > 20000)) return null
+    if (['replace_section', 'delete'].includes(parsed.operation as string) && !parsed.target?.trim()) return null
+    return {
+      type: 'outline_edit',
+      operation: parsed.operation as OutlineEditOperation,
+      content: typeof parsed.content === 'string' ? parsed.content : undefined,
+      target: typeof parsed.target === 'string' ? parsed.target.trim() : undefined,
+      position: typeof parsed.position === 'string' ? parsed.position : undefined,
+      reason: typeof parsed.reason === 'string' ? parsed.reason : undefined
+    }
+  } catch {
+    return null
+  }
+}
+
+const previewText = computed(() => {
+  if (!pendingEdit.value) return ''
+  const command = pendingEdit.value
+  if (command.operation === 'delete') return `删除目标：${command.target}`
+  return command.content || ''
+})
+
+function previewCommand(command: OutlineEditCommand) {
+  pendingEdit.value = command
+}
+
+function applyPendingEdit() {
+  const command = pendingEdit.value
+  const current = projectStore.outlineText || ''
+  if (!command || projectStore.outlineLocked) return
+  let next = current
+  if (command.operation === 'append') {
+    next = current + (current ? '\n' : '') + (command.content || '')
+  } else if (command.operation === 'insert') {
+    insertAtCursor(command.content || '')
+    pendingEdit.value = null
+    return
+  } else if (command.operation === 'replace_selection') {
+    const ta = editorRef.value
+    if (!ta || ta.selectionStart === ta.selectionEnd) {
+      saveFeedback.value = '[提示] 请先在编辑器中框选要替换的内容'
+      setTimeout(() => { saveFeedback.value = '' }, 2500)
+      return
+    }
+    next = current.slice(0, ta.selectionStart) + (command.content || '') + current.slice(ta.selectionEnd)
+  } else if (command.operation === 'replace_section' || command.operation === 'rewrite') {
+    if (!command.target) return
+    if (!current.includes(command.target)) {
+      saveFeedback.value = '[提示] 未找到目标内容，未执行修改'
+      setTimeout(() => { saveFeedback.value = '' }, 2500)
+      return
+    }
+    next = current.replace(command.target, command.content || '')
+  } else if (command.operation === 'delete') {
+    if (!command.target || !current.includes(command.target)) {
+      saveFeedback.value = '[提示] 未找到删除目标，未执行修改'
+      setTimeout(() => { saveFeedback.value = '' }, 2500)
+      return
+    }
+    next = current.replace(command.target, '')
+  }
+  if (!commitOutlineChange(next)) return
+  pendingEdit.value = null
+  saveFeedback.value = '[OK] 已应用大纲修改'
+  setTimeout(() => { saveFeedback.value = '' }, 2500)
+}
+
 async function handleLockOutline() {
+  if (projectStore.outlineLocked) {
+    saveFeedback.value = '[提示] 大纲已锁定，如需修改请先解锁编辑'
+    setTimeout(function() { saveFeedback.value = '' }, 3000)
+    return
+  }
   const outline = projectStore.outlineText.trim()
   if (!outline) {
     saveFeedback.value = '[WARN] 大纲为空，请先输入内容'
@@ -330,7 +596,7 @@ function extractJsonArray(text: string): any[] | null {
   return null
 }
 
-function saveOutline() {
+async function saveOutline() {
   const text = projectStore.outlineText || ''
   if (!text.trim()) {
     saveFeedback.value = '[WARN] 大纲为空，无法保存'
@@ -339,13 +605,13 @@ function saveOutline() {
   }
   projectStore.setOutline(text)
   const defaultName = (projectStore.projectName || '大纲') + '.md'
-  const filePath = window.electronAPI.dialogSaveFile(defaultName)
+  const filePath = await window.electronAPI.dialogSaveFile(defaultName)
   if (!filePath) {
     saveFeedback.value = '已取消保存'
     setTimeout(function() { saveFeedback.value = '' }, 2000)
     return
   }
-  const ok = window.electronAPI.dialogWriteFile(filePath, text)
+  const ok = await window.electronAPI.dialogWriteFile(filePath, text)
   saveFeedback.value = ok ? '[OK] 已保存到本地' : '[失败] 无法写入文件'
   setTimeout(function() { saveFeedback.value = '' }, 3000)
 }
@@ -368,10 +634,10 @@ function exportTxt() {
   a.click()
 }
 
-function copyMsg(text: string) {
+async function copyMsg(text: string) {
   try {
     if (window.electronAPI && typeof window.electronAPI.clipboardWrite === 'function') {
-      window.electronAPI.clipboardWrite(text)
+      await window.electronAPI.clipboardWrite(text)
       return
     }
   } catch {}
@@ -386,8 +652,7 @@ function copyMsg(text: string) {
 }
 
 function replaceOutline(text: string) {
-  projectStore.outlineText = text
-  projectStore.setOutline(text)
+  commitOutlineChange(text)
   saveFeedback.value = '[OK] 大纲已替换'
   setTimeout(function() { saveFeedback.value = '' }, 3000)
 }
@@ -402,8 +667,7 @@ function insertAtCursor(text: string) {
   }
   const start = ta.selectionStart ?? current.length
   const end = ta.selectionEnd ?? current.length
-  projectStore.outlineText = current.slice(0, start) + text + current.slice(end)
-  projectStore.setOutline(projectStore.outlineText)
+  commitOutlineChange(current.slice(0, start) + text + current.slice(end))
   requestAnimationFrame(() => {
     ta.focus()
     const pos = start + text.length
@@ -413,7 +677,7 @@ function insertAtCursor(text: string) {
 
 async function sendMessage() {
   const text = inputText.value.trim()
-  if (!text) return
+  if (!text || isGenerating.value) return
   projectStore.appendOutlineChat({ role: 'user', content: text })
   inputText.value = ''
   lastUserRequest.value = text
@@ -422,6 +686,7 @@ async function sendMessage() {
 }
 
 async function regenerateMsg(index: number) {
+  if (isGenerating.value) return
   const target = messages.value[index]
   if (!target || target.role !== 'assistant') return
   projectStore.removeOutlineChatAt(index)
@@ -438,6 +703,7 @@ async function scrollToBottom() {
 }
 
 async function askAi(requestText: string) {
+  if (isGenerating.value) return
   const provider = providerStore.activeGenerateProvider
   if (!provider) {
     projectStore.appendOutlineChat({ role: 'assistant', content: '请先配置API供应商' })
@@ -451,26 +717,68 @@ async function askAi(requestText: string) {
     ...messages.value.filter(function(m) { return m.content }).map(function(m) { return { role: m.role, content: m.content } }),
     { role: 'user', content: '当前大纲:\n' + projectStore.outlineText + '\n\n用户请求: ' + requestText }
   ]
+  generationController = new AbortController()
+  isGenerating.value = true
+  generationStatus.value = '正在连接 API...'
+  streamingContent.value = ''
+  const startedAt = performance.now()
+  let firstChunkSeen = false
   try {
-    const logStore = useExecutionLogStore()
-    const aiService = createAiService(providerStore as any, logStore as any)
+    const aiService = await getAiService()
     const result = await aiService.callAi({
       purpose: 'generate',
       messages: aiMessages,
       model,
       maxTokens: provider.maxTokens || 8192,
-      stream: false,
+      signal: generationController.signal,
+      onChunk: (text: string) => {
+        if (!firstChunkSeen) {
+          firstChunkSeen = true
+          generationStatus.value = `已收到内容 · 首字节 ${Math.round(performance.now() - startedAt)}ms`
+        } else {
+          generationStatus.value = '正在生成...'
+        }
+        // aiService sends cumulative filtered text, so replace rather than append.
+        streamingContent.value = text
+        void scrollToBottom()
+      },
       retry: true,
       meta: { source: 'OutlineWorkspace.askAi' }
     })
+    const responseText = result.text || ''
+    if (!responseText.trim()) throw new Error('API 返回为空')
+    const editCommand = parseOutlineEditCommand(responseText)
     projectStore.appendOutlineChat({
       role: 'assistant',
-      content: result.text || ''
+      content: responseText,
+      ...(editCommand ? { outlineEdit: editCommand } : {})
     })
   } catch (e: any) {
-    projectStore.appendOutlineChat({ role: 'assistant', content: 'Error: ' + e.message })
+    if (generationController?.signal.aborted || e?.name === 'AbortError' || e?.code === 'canceled') {
+      generationStatus.value = '已取消生成'
+    } else {
+      projectStore.appendOutlineChat({ role: 'assistant', content: '生成失败：' + (e.message || '未知错误') })
+    }
+  } finally {
+    generationController = null
+    isGenerating.value = false
+    if (generationStatus.value !== '已取消生成') generationStatus.value = ''
+    streamingContent.value = ''
   }
   await scrollToBottom()
+}
+
+function cancelGeneration() {
+  if (!generationController) return
+  generationStatus.value = '正在取消...'
+  generationController.abort()
+}
+
+function handleUnlockOutline() {
+  projectStore.unlockOutline()
+  saveFeedback.value = '[OK] 已解锁，现在可以编辑大纲；修改后需重新确认才能进入流水线'
+  nextTick(() => editorRef.value?.focus())
+  setTimeout(function() { saveFeedback.value = '' }, 3000)
 }
 </script>
 
@@ -600,6 +908,45 @@ async function askAi(requestText: string) {
   resize: none;
   outline: none;
 }
+.ow-textarea.ow-readonly {
+  background: var(--bg-panel);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+}
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  margin-left: auto;
+}
+.editor-toolbar-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.ow-find-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  flex-shrink: 0;
+}
+.ow-find-input {
+  width: min(260px, 35%);
+  min-width: 120px;
+  height: 30px;
+  padding: 4px 8px;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+.ow-find-result {
+  min-width: 48px;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
 .ow-chat {
   flex: 1;
   min-width: 340px;
@@ -637,11 +984,29 @@ async function askAi(requestText: string) {
   background: var(--ai-bubble);
   border: 1px solid var(--border-color);
 }
+.ow-msg-streaming .ow-streaming-status {
+  margin: 0 0 4px 2px;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+}
+.ow-msg-streaming .ow-msg-bubble {
+  min-height: 24px;
+}
 .ow-msg-actions {
   display: flex;
   gap: 4px;
   margin-top: 6px;
   padding-left: 2px;
+}
+.ow-edit-command {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 8px;
+  color: var(--accent-color);
+  background: var(--accent-dim);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
 }
 .ow-msg.user .ow-msg-actions {
   justify-content: flex-end;
@@ -689,6 +1054,13 @@ async function askAi(requestText: string) {
   cursor: pointer;
   font-size: var(--font-size-xs);
 }
+.btn-send:disabled,
+.btn-cancel {
+  opacity: 0.9;
+}
+.btn-cancel {
+  background: var(--danger);
+}
 .ow-footer {
   display: flex;
   align-items: center;
@@ -718,4 +1090,5 @@ async function askAi(requestText: string) {
   display: flex;
   gap: 4px;
 }
-.btn-import { background: var(--accent-dim, rgba(99,102,241,0.15)); color: var(--accent, #6c5ce7); border: 1px solid var(--accent, #6c5ce7); font-weight: 500; padding: 6px 16px; border-radius: var(--radius-sm, 4px); cursor: pointer; transition: all 0.15s ease; } .btn-import:hover { background: var(--accent, #6c5ce7); color: var(--text-on-accent, #fff); } .btn-import:active { transform: scale(0.97); } </style>
+.btn-import { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); font-weight: 500; padding: 6px 16px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s ease; } .btn-import:hover { background: var(--accent); color: var(--text-on-accent); } .btn-import:active { transform: scale(0.97); } </style>
+

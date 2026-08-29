@@ -4,12 +4,12 @@
       <div v-if="item.type === 'divider'" class="sidebar-divider"></div>
       <button
         v-else
-        :id="item.id === 'outline' ? 'btn-outline-workspace' : 'btn-' + item.id" class="sidebar-btn"
+        :id="item.id === 'outline' ? 'btn-outline-workspace' : 'btn-' + (item.id || '')" class="sidebar-btn"
         :class="{ active: activePanel === item.id }"
         :data-tooltip="item.label"
         :aria-label="item.label"
         tabindex="0"
-        @click="$emit('navigate', item.id)"
+        @click="$emit('navigate', item.id || '')"
       >
         <span class="sidebar-icon" v-html="item.icon"></span>
       </button>

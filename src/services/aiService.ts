@@ -83,7 +83,9 @@ export interface CallAiResult {
 export interface AiService {
   callAi(params: CallAiParams): Promise<CallAiResult>
   fetchModels(providerId: string): Promise<string[]>
+  fetchModelsForProvider(provider: ProviderLike): Promise<string[]>
   testConnection(providerId: string): Promise<{ connected: boolean; error?: string }>
+  testConnectionForProvider(provider: ProviderLike): Promise<{ connected: boolean; error?: string }>
 }
 
 // ── Constants ──────────────────────────────────────────────────────
@@ -466,16 +468,56 @@ export function createAiService(
     throw lastErr || new AiServiceErrorImpl({ kind: 'network', message: 'unknown error', providerId, purpose: params.purpose })
   }
 
-  async function fetchModels(providerId: string): Promise<string[]> {
-    const p = providerStore.providers.find(x => x.id === providerId)
-    if (!p) throw new Error('Provider not found: ' + providerId)
+  async function fetchModelsForProvider(p: ProviderLike): Promise<string[]> {
+    const startTime = Date.now()
+    const providerId = p.id
     const url = buildModelsUrl(p.baseUrl)
     const headers = buildAuthHeaders(p)
-    const resp = await fetch(url, { method: 'GET', headers, signal: makeTimeoutSignal(30_000) })
-    if (!resp.ok) throw new Error('Failed to fetch models: HTTP ' + resp.status)
-    const data = await resp.json()
-    const models = Array.isArray(data) ? data.map((m: any) => m.id || m.name).filter(Boolean) : (data.data?.map((m: any) => m.id).filter(Boolean) || [])
-    return models
+    try {
+      const resp = await fetch(url, { method: 'GET', headers, signal: makeTimeoutSignal(30_000) })
+      if (!resp.ok) {
+        const status = resp.status
+        const kind = status === 401 || status === 403 ? 'auth' : 'http'
+        throw new AiServiceErrorImpl({
+          kind,
+          message: kind === 'auth' ? '模型列表鉴权失败' : '获取模型列表失败：HTTP ' + status,
+          providerId,
+          purpose: 'generate',
+          statusCode: status,
+        })
+      }
+      const data = await resp.json()
+      const models = Array.isArray(data) ? data.map((m: any) => m.id || m.name).filter(Boolean) : (data.data?.map((m: any) => m.id).filter(Boolean) || [])
+      logRequest(log, {
+        purpose: 'generate', providerId, model: p.selectedModel,
+        prompt: '获取模型列表', result: models.join(', '),
+        durationMs: Date.now() - startTime, success: true,
+      })
+      return models
+    } catch (e: any) {
+      const error = e?.kind ? e : new AiServiceErrorImpl({
+        kind: e?.name === 'TimeoutError' || e?.name === 'AbortError' ? 'timeout' : 'network',
+        message: e?.name === 'TimeoutError' || e?.name === 'AbortError' ? '获取模型列表超时' : (e?.message || '获取模型列表失败'),
+        providerId,
+        purpose: 'generate',
+      })
+      logRequest(log, {
+        purpose: 'generate', providerId, model: p.selectedModel,
+        prompt: '获取模型列表', result: error.message,
+        durationMs: Date.now() - startTime, success: false,
+      })
+      throw error
+    }
+  }
+
+  async function fetchModels(providerId: string): Promise<string[]> {
+    const p = providerStore.providers.find(x => x.id === providerId)
+    if (!p) {
+      const error = new AiServiceErrorImpl({ kind: 'http', message: '未找到供应商：' + providerId, providerId, purpose: 'generate' })
+      logRequest(log, { purpose: 'generate', providerId, prompt: '获取模型列表', result: error.message, durationMs: 0, success: false })
+      throw error
+    }
+    return fetchModelsForProvider(p)
   }
 
   async function testConnection(providerId: string): Promise<{ connected: boolean; error?: string }> {
@@ -487,7 +529,16 @@ export function createAiService(
     }
   }
 
-  return { callAi, fetchModels, testConnection }
+  async function testConnectionForProvider(provider: ProviderLike): Promise<{ connected: boolean; error?: string }> {
+    try {
+      await fetchModelsForProvider(provider)
+      return { connected: true }
+    } catch (e: any) {
+      return { connected: false, error: e?.message || '连接失败' }
+    }
+  }
+
+  return { callAi, fetchModels, fetchModelsForProvider, testConnection, testConnectionForProvider }
 }
 
 // ── Singleton ───────────────────────────────────────────────────────

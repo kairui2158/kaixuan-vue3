@@ -169,7 +169,7 @@ async function callAiApi(systemPrompt: string, userText: string, useVerify?: boo
           'rewrite segment ' + (i + 1) + '/' + segments.length
         )
         return result
-      }).catch(() => seg)
+      })
     })
     const results = await Promise.all(promises)
 
@@ -245,7 +245,9 @@ async function callAiApi(systemPrompt: string, userText: string, useVerify?: boo
          return verifyResult
        }
        return processedText
-     } catch { return processedText }
+     } catch (error) {
+       throw new Error(`跨模型验证失败：${error instanceof Error ? error.message : '供应商请求未完成'}`)
+     }
    }
 
    async function zhuqueCheck(text: string, cfg: any): Promise<string> {
@@ -263,10 +265,12 @@ async function callAiApi(systemPrompt: string, userText: string, useVerify?: boo
          if (rewriteResult && rewriteResult.length > 100) return rewriteResult
        }
        return text
-     } catch { return text }
+     } catch (error) {
+       throw new Error(`AI 检测验证失败：${error instanceof Error ? error.message : '供应商请求未完成'}`)
+     }
    }
 
-function applyTextFilter(text        )         {
+function applyTextFilter(text: string): string {
     if (!text || typeof text !== 'string' || text.length === 0) return text
     const aiWords = ['\u503c\u5f97\u6ce8\u610f\u7684\u662f','\u6b64\u5916','\u4e0e\u6b64\u540c\u65f6','\u7531\u6b64\u53ef\u89c1','\u7efc\u4e0a\u6240\u8ff0','\u603b\u4f53\u800c\u8a00','\u4ece\u67d0\u79cd\u7a0b\u5ea6\u6765\u8bf4','\u8fdb\u884c\u4e86','\u505a\u51fa\u4e86','\u5b58\u5728\u7740','\u53d1\u751f\u4e86','\u4ea7\u751f\u4e86','\u5f62\u6210\u4e86','\u6781\u5927\u7684','\u663e\u8457\u7684','\u6df1\u523b\u7684','\u5145\u5206\u7684','\u6709\u6548\u7684']
     let result = text
@@ -352,7 +356,9 @@ function applyTextFilter(text        )         {
     deAiStore.finishProcessing()
     return result
   } catch (e: any) {
+    const failedStep = deAiStore.currentStep
     deAiStore.finishProcessing()
+    deAiStore.setError(e?.message || '去AI味处理失败', failedStep)
     throw e
   } finally {
     window.removeEventListener('deai-cancel', cancelHandler)

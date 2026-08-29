@@ -136,7 +136,9 @@ function setDetectProvider(id: string) {
   async function fetchModels(providerId: string) {
     const p = providers.value.find(p => p.id === providerId)
     if (!p) return
-    const models = await window.electronAPI.fetchModels(p.baseUrl, p.apiKey)
+    const { getAiService } = await import('../services/aiService')
+    const service = await getAiService()
+    const models = await service.fetchModelsForProvider(p)
     updateProvider(providerId, { models })
     return models
   }
@@ -144,7 +146,9 @@ function setDetectProvider(id: string) {
  async function testConnection(providerId: string) {
    const p = providers.value.find(p => p.id === providerId)
    if (!p) return { connected: false, error: 'Provider not found' }
-   return await window.electronAPI.providerTestConnection(p.baseUrl, p.apiKey)
+   const { getAiService } = await import('../services/aiService')
+   const service = await getAiService()
+   return await service.testConnectionForProvider(p)
  }
 
 

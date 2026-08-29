@@ -97,7 +97,7 @@ const totalPages = ref(1)
 const perPage = 10
 
 onMounted(() => {
-  const saved = settingsStore.settings?.githubToken || ''
+  const saved = settingsStore.githubToken || ''
   if (saved) {
     tokenInput.value = saved
     hasToken.value = true
@@ -132,7 +132,7 @@ async function searchGitHub() {
     const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&page=${currentPage.value}&per_page=${perPage}${sortParam}`
     const resp = await fetch(url, {
       headers: {
-        'Authorization': `token ${settingsStore.settings?.githubToken || ''}`,
+        'Authorization': `token ${settingsStore.githubToken || ''}`,
         'Accept': 'application/vnd.github.v3+json'
       }
     })
@@ -172,8 +172,8 @@ function formatDate(dateStr: string): string {
 </script>
 
 <style scoped>
-.pm-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay, rgba(0,0,0,0.4)); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.pm-content { width: min(800px, 92vw); max-height: 84vh; background: var(--bg-glass, var(--bg-secondary)); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg, 0 8px 32px rgba(0,0,0,0.3)); display: flex; flex-direction: column; }
+.pm-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.pm-content { width: min(800px, 92vw); max-height: 84vh; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; }
 .pm-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-6) var(--space-8); border-bottom: 1px solid var(--border-color); }
 .pm-header h3 { font-size: var(--font-size-lg); font-weight: 600; margin: 0; }
 .pm-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: var(--font-size-xxl); padding: 4px; }

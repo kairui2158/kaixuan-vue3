@@ -185,8 +185,8 @@ watch(() => [props.visible, props.original, props.modified], () => {
 <style scoped>
 .modal-content.diff-modal-content {
   position: relative;
-  background: var(--bg-primary, #1e1e2e);
-  border: 1px solid var(--border-color, #2d2d3f);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   width: 90vw;
   max-width: 1000px;
   max-height: 80vh;
@@ -196,13 +196,13 @@ watch(() => [props.visible, props.original, props.modified], () => {
 }
 .diff-count {
   font-size: var(--font-size-sm);
-  color: var(--text-muted, #888);
+  color: var(--text-muted);
 }
 .btn-close {
   margin-left: auto;
   background: none;
   border: none;
-  color: var(--text-secondary, #aaa);
+  color: var(--text-secondary);
   font-size: var(--font-size-xxl);
   cursor: pointer;
 }
@@ -216,7 +216,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
   display: flex;
   gap: 8px;
   padding: var(--space-4) var(--space-6);
-  border-bottom: 1px solid var(--border-color, #2d2d3f);
+  border-bottom: 1px solid var(--border-color);
 }
 .diff-container {
   flex: 1;
@@ -228,7 +228,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-right: 1px solid var(--border-color, #2d2d3f);
+  border-right: 1px solid var(--border-color);
 }
 .diff-pane:last-child {
   border-right: none;
@@ -237,9 +237,9 @@ watch(() => [props.visible, props.original, props.modified], () => {
   padding: 6px 12px;
   font-size: var(--font-size-xs);
   font-weight: 600;
-  color: var(--text-muted, #888);
-  background: var(--bg-secondary, #2d2d3f);
-  border-bottom: 1px solid var(--border-color, #2d2d3f);
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
 }
 .diff-content {
   flex: 1;
@@ -255,14 +255,14 @@ watch(() => [props.visible, props.original, props.modified], () => {
   min-height: 20px;
 }
 .diff-line.unchanged {
-  color: var(--text-primary, #eee);
+  color: var(--text-primary);
 }
 .diff-line.removed {
-  background: rgba(255, 80, 80, 0.1);
+  background: var(--diff-remove-bg);
   color: var(--danger);
 }
 .diff-line.added {
-  background: rgba(80, 200, 120, 0.1);
+  background: var(--diff-add-bg);
   color: var(--success);
 }
 .diff-action {

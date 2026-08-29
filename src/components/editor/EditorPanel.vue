@@ -32,11 +32,6 @@
        </div>
        <div class="editor-toolbar-group">
           <button id="btn-ai-names" class="btn-sm btn-secondary" title="AI命名" @click="aiNames">AI命名</button>
-          <button id="btn-writing-rules" class="btn-sm btn-secondary" title="写作规则" @click="writingRules">写作规则</button>
-          <button id="btn-timeline" class="btn-sm btn-secondary" title="时间线" @click="timeline">时间线</button>
-          <button id="btn-batch-review" class="btn-sm btn-secondary" title="批量审阅" @click="batchReview">批量审阅</button>
-          <button id="btn-revise" class="btn-sm btn-secondary" title="修订" @click="revise">修订</button>
-          <button class="btn-sm btn-secondary" title="变量" @click="insertVar">变量</button>
        </div>
         <span id="word-count" class="word-count">{{ wordCount }} 字</span>
       </div>
@@ -81,19 +76,6 @@
    <div v-if="inlineMenuVisible" class="inline-menu" :style="{ left: inlineMenuPos.x + 'px', top: inlineMenuPos.y + 'px' }">
      <button v-for="a in inlineActions" :key="a.key" class="inline-menu-btn" @mousedown.prevent="applyInlineAction(a.key, a.label)">{{ a.label }}</button>
    </div>
-    <!-- 变量输入弹窗 -->
-    <div v-if="varDialogVisible" class="var-dialog-overlay" @click.self="varDialogVisible = false">
-      <div class="var-dialog">
-        <div class="var-dialog-header">插入变量</div>
-        <div class="var-dialog-body">
-          <input ref="varDialogInput" v-model="varNameInput" class="var-dialog-input" placeholder="输入变量名，如 character.name" @keydown.enter="confirmVar" @keydown.escape="varDialogVisible = false" />
-        </div>
-        <div class="var-dialog-footer">
-          <button class="btn-sm btn-secondary" @click="varDialogVisible = false">取消</button>
-          <button class="btn-sm btn-primary" @click="confirmVar">确定</button>
-        </div>
-      </div>
-   </div>
     <div v-if="memoryExtraction.previewVisible" class="editor-memory-overlay" @click.self="closeMemoryPreview">
       <section class="editor-memory-modal" role="dialog" aria-modal="true" aria-labelledby="editor-memory-title">
         <header class="editor-memory-header"><strong id="editor-memory-title">记忆变更预览</strong><button class="modal-close" type="button" @click.stop="closeMemoryPreview">&times;</button></header>
@@ -125,23 +107,21 @@ import { useProjectStore } from '../../stores/project'
 import { useDeAiStore } from '../../stores/deai'
 import { useSettingsStore } from '../../stores/settings'
 import { useMemoryExtraction } from '../../composables/useMemoryExtraction'
-import { createAiService } from '../../services/aiService'
+import { getAiService } from '../../services/aiService'
 import { useProviderStore } from '../../stores/provider'
-import { useExecutionLogStore } from '../../stores/executionLog'
 
 const editorStore = useEditorStore()
 const projectStore = useProjectStore()
 const deAiStore = useDeAiStore()
 const settingsStore = useSettingsStore()
 const providerStore = useProviderStore()
-const executionLogStore = useExecutionLogStore()
 const { process: deAiProcess } = useDeAi()
 const memoryExtraction = reactive(useMemoryExtraction(async (prompt, systemPrompt) => {
-  const service = createAiService(providerStore as any, executionLogStore as any)
-  // memoryExtractor owns the two-attempt JSON contract; do not add the
-  // general-purpose network retry loop here or malformed output can keep the
-  // review modal in a loading state for minutes.
-  const result = await service.callAi({ purpose: 'generate', messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: prompt }], jsonMode: true, stream: false, retry: false, meta: { source: 'EditorPanel.memory-extraction' } })
+  const service = await getAiService()
+  // memoryExtractor owns the two-attempt JSON contract. Do not add the
+  // service-level network retry here: otherwise one failed extraction can
+  // multiply into four long requests before the review modal becomes usable.
+  const result = await service.callAi({ purpose: 'generate', messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: prompt }], jsonMode: true, stream: false, retry: false, timeoutMs: 300_000, meta: { source: 'EditorPanel.memory-extraction' } })
   return result.text || null
 }))
 const editorTextarea = ref<HTMLTextAreaElement | null>(null)
@@ -166,9 +146,6 @@ const inlineActions = [
 ]
 const inlineMenuVisible = ref(false)
  const inlineMenuPos = ref({ x: 0, y: 0 })
- const varDialogVisible = ref(false)
- const varNameInput = ref('')
- const varDialogInput = ref<HTMLInputElement | null>(null)
 
  const activeTab = computed(() => editorStore.activeTab)
 const modeLabel = computed(() => {
@@ -193,11 +170,12 @@ function onInput(e: Event) {
 }
 
 function onKeydown(e: KeyboardEvent) {
-  if (e.ctrlKey && e.key === 's') {
+  const key = e.key.toLowerCase()
+  if (e.ctrlKey && key === 's') {
     e.preventDefault()
     save()
   }
-  if (e.ctrlKey && e.key === 'f') {
+  if (e.ctrlKey && key === 'f') {
     e.preventDefault()
     editorStore.toggleFind()
   }
@@ -317,7 +295,7 @@ function exportChapter(format: string) {
   const title = activeTab.value.title || 'untitled'
   let mime = 'text/plain'
   let ext = 'txt'
-  let body = content
+  let body: string | Uint8Array = content
   if (format === 'md') { mime = 'text/markdown'; ext = 'md' }
   else if (format === 'txt') { mime = 'text/plain'; ext = 'txt' }
  else if (format === 'epub') { mime = 'application/epub+zip'; ext = 'epub' }
@@ -454,45 +432,6 @@ function aiNames() {
   window.dispatchEvent(new CustomEvent('editor-action', { detail: { action: 'ai-names', chapterId: activeTab.value.chapterId } }))
 }
 
-function writingRules() {
-  if (!activeTab.value) return
-  window.dispatchEvent(new CustomEvent('editor-action', { detail: { action: 'writing-rules' } }))
-}
-
-function timeline() {
-  if (!activeTab.value) return
-  window.dispatchEvent(new CustomEvent('editor-action', { detail: { action: 'timeline', chapterId: activeTab.value.chapterId } }))
-}
-
-function batchReview() {
-  if (!activeTab.value) return
-  window.dispatchEvent(new CustomEvent('editor-action', { detail: { action: 'batch-review' } }))
-}
-
-function revise() {
-  if (!activeTab.value) return
-  window.dispatchEvent(new CustomEvent('editor-action', { detail: { action: 'revise', chapterId: activeTab.value.chapterId } }))
-}
-
-function insertVar() {
-  if (!activeTab.value || !editorTextarea.value) return
-  varNameInput.value = 'character.name'
-  varDialogVisible.value = true
-  setTimeout(() => { if (varDialogInput.value) varDialogInput.value.focus() }, 50)
- }
- 
- function confirmVar() {
-  if (!varNameInput.value || !activeTab.value || !editorTextarea.value) return
-  const ta = editorTextarea.value
-  const start = ta.selectionStart
-  const end = ta.selectionEnd
-  const insert = '{{' + varNameInput.value + '}}'
-  const newContent = activeTab.value.content.substring(0, start) + insert + activeTab.value.content.substring(end)
-  editorStore.updateContent(activeTab.value.id, newContent)
-  setTimeout(() => ta.setSelectionRange(start + insert.length, start + insert.length), 0)
-  varDialogVisible.value = false
-}
-
 function findPrev() {
   if (!editorTextarea.value || !editorStore.findQuery) return
   const text = editorTextarea.value.value
@@ -597,9 +536,11 @@ function applyInlineAction(action: string, label: string) {
   min-width: 0;
 }
 .editor-header {
-  height: 56px;
+  min-height: 56px;
+  height: auto;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
   padding: 0 16px;
   background: var(--bg-secondary);
@@ -611,8 +552,8 @@ function applyInlineAction(action: string, label: string) {
   padding: 0 10px;
   border-radius: 11px;
   background: var(--accent);
-  color: #fff;
-  font-size: var(--font-size-xs);
+  color: var(--text-on-accent);
+  font-size: var(--font-size-sm);
   font-weight: 500;
   display: inline-flex;
   align-items: center;
@@ -635,9 +576,12 @@ function applyInlineAction(action: string, label: string) {
   align-items: center;
   gap: 6px;
   flex: 1 1 auto;
-  overflow-x: auto;
-  overflow-y: hidden;
-  min-width: 0;
+ flex-wrap: wrap;
+  overflow: hidden;
+ overflow-y: hidden;
+ min-width: 0;
+  min-height: 46px;
+  padding: 5px 0;
 }
 .editor-toolbar-group {
   display: flex;
@@ -654,6 +598,23 @@ function applyInlineAction(action: string, label: string) {
   font-size: var(--font-size-xs);
   color: var(--text-muted);
   flex-shrink: 0;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 1279px) {
+  .editor-header { align-items: flex-start; gap: 6px 10px; padding: 6px 12px; }
+  .editor-title { flex: 1 1 180px; max-width: none; }
+  .editor-toolbar { flex: 1 1 100%; width: 100%; overflow: hidden; }
+  .editor-toolbar-group { flex: 1 1 auto; min-width: 0; max-width: 100%; flex-wrap: wrap; gap: 3px; }
+  .editor-toolbar .sep { display: none; }
+  .word-count { margin-left: auto; }
+}
+
+@media (max-width: 760px) {
+  .editor-toolbar { gap: 5px; }
+  .editor-toolbar-group { gap: 5px; }
+  .word-count { flex-basis: 100%; margin-left: 0; }
 }
 .chapter-tabs {
   display: flex;
@@ -680,6 +641,7 @@ function applyInlineAction(action: string, label: string) {
   text-overflow: ellipsis;
   max-width: 160px;
 }
+.tab > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .tab.active {
   background: var(--bg-primary);
   color: var(--text-primary);
@@ -770,7 +732,7 @@ function applyInlineAction(action: string, label: string) {
 }
 
 #btn-de-ai { color: var(--warning); font-weight: 600; }
-#btn-de-ai:hover { background: var(--warning-dim, rgba(255,193,7,0.15)); }
+#btn-de-ai:hover { background: var(--warning-dim); }
 #btn-de-ai:disabled { color: var(--text-tertiary); font-weight: 400; }
 
 .inline-menu {
@@ -801,45 +763,6 @@ function applyInlineAction(action: string, label: string) {
   background: var(--bg-hover);
   color: var(--accent);
  }
- /* 变量输入弹窗 */
- .var-dialog-overlay {
-   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-   background: rgba(0,0,0,0.5);
-   display: flex; align-items: center; justify-content: center;
-   z-index: 20000;
- }
- .var-dialog {
-   background: var(--bg-secondary);
-   border: 1px solid var(--border-color);
-   border-radius: var(--radius-md); padding: 16px;
-   min-width: 320px;
-   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
- }
- .var-dialog-header {
-   font-size: var(--font-size-md); font-weight: 600;
-   margin-bottom: 12px;
-   color: var(--text-primary);
- }
- .var-dialog-body {
-   margin-bottom: 12px;
- }
- .var-dialog-input {
-   width: 100%; padding: 8px 10px;
-   background: var(--bg-primary);
-   border: 1px solid var(--border-color);
-   border-radius: var(--radius-xs);
-   color: var(--text-primary);
-   font-size: var(--font-size-md);
-   box-sizing: border-box;
- }
- .var-dialog-input:focus {
-   outline: none;
-   border-color: var(--accent);
- }
- .var-dialog-footer {
-   display: flex; justify-content: flex-end; gap: 8px;
- }
-
  .editor-memory-overlay {
    position: fixed;
    inset: 0;
@@ -848,7 +771,7 @@ function applyInlineAction(action: string, label: string) {
    align-items: center;
    justify-content: center;
    padding: 24px;
-   background: var(--bg-overlay, rgba(0, 0, 0, 0.58));
+  background: var(--bg-overlay);
  }
  .editor-memory-modal {
    width: min(720px, 100%);
@@ -872,7 +795,7 @@ function applyInlineAction(action: string, label: string) {
  .editor-memory-header { border-bottom: 1px solid var(--border-color); }
  .editor-memory-body { min-height: 140px; overflow: auto; padding: 16px 20px; color: var(--text-primary); }
  .editor-memory-hint { color: var(--text-secondary); }
- .editor-memory-error { color: var(--color-danger, #d66); }
+ .editor-memory-error { color: var(--danger); }
  .editor-memory-list { display: flex; flex-direction: column; gap: 8px; padding: 0; margin: 12px 0 0; list-style: none; }
  .editor-memory-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm, 6px); }
  .editor-memory-list li.rejected { opacity: .55; text-decoration: line-through; }

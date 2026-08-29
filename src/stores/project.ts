@@ -691,7 +691,7 @@ export const useProjectStore = defineStore('project', () => {
       clearCurrent()
       await window.electronAPI.storageRemove(storageKey('lastProjectId'))
     }
-    loadProjectList()
+    await loadProjectList()
     if (projectList.value.length === 0) {
       await window.electronAPI.storageRemove(storageKey('lastProjectId'))
       // Force clean all legacy project keys to prevent ghost projects
@@ -704,7 +704,7 @@ export const useProjectStore = defineStore('project', () => {
         }
       }
       await window.electronAPI.storageRemove('wa_projects')
-      loadProjectList()
+      await loadProjectList()
     }
   }
 

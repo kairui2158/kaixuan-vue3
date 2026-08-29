@@ -300,9 +300,10 @@ function deleteVolume(vol: any) {
 .vol-name { flex: 1; }
 .vol-count { font-size: var(--font-size-xxs); color: var(--text-muted); }
 .chapter-list { padding-left: 20px; }
-.chapter-item { padding: 3px 8px; cursor: pointer; border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chapter-item { display: flex; align-items: center; gap: 4px; min-width: 0; padding: 3px 8px; cursor: pointer; border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-secondary); white-space: nowrap; overflow: hidden; }
+.chapter-item > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .chapter-item:hover { background: var(--bg-hover); color: var(--text-primary); }
-.chapter-item.active { background: var(--accent-dim, rgba(99,102,241,0.15)); color: var(--accent); font-weight: 600; }
+.chapter-item.active { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
 .chapter-item.drag-over { background: var(--accent); color: var(--text-on-accent); }
 .rename-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--accent); border-radius: var(--radius-xs); padding: 1px 4px; font-size: var(--font-size-xs); width: 100%; outline: none; }
 .ctx-menu { position: fixed; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 4px; z-index: 3000; box-shadow: var(--shadow-lg); min-width: 140px; }

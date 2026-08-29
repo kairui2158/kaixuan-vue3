@@ -141,7 +141,8 @@ async function exportLogs() {
     }
     setTimeout(() => { exportStatus.value = '' }, 3000)
   } catch(e) {
-    exportStatus.value = '导出异常: ' + (e.message || e)
+    const message = e instanceof Error ? e.message : String(e)
+    exportStatus.value = '导出异常: ' + message
     setTimeout(() => { exportStatus.value = '' }, 3000)
   }
 }
@@ -198,13 +199,13 @@ onUnmounted(() => {
   max-width: calc(100vw - 32px);
   height: 400px;
   max-height: 60vh;
-  background: var(--bg-secondary, #1e1e22);
-  border: 1px solid var(--border-color, #3a3a3e);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
   z-index: 9997;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  box-shadow: var(--shadow-lg);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
@@ -218,33 +219,33 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  border-bottom: 1px solid var(--border-color, #3a3a3e);
+  border-bottom: 1px solid var(--border-color);
 }
-.diag-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary, #e0e0e0); }
+.diag-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); }
 .diag-error-count { font-size: var(--font-size-xs); color: var(--danger); font-weight: 600; background: var(--danger-dim); padding: 2px 8px; border-radius: var(--radius-lg); }
-.btn-close { margin-left: auto; background: none; border: none; color: var(--text-muted, #888); font-size: var(--font-size-xxl); cursor: pointer; padding: 0 4px; line-height: 1; }
-.btn-close:hover { color: var(--text-primary, #e0e0e0); }
-.diag-toolbar { display: flex; gap: 6px; padding: 8px 14px; border-bottom: 1px solid var(--border-color, #3a3a3e); align-items: center; }
-.diag-select { background: var(--bg-input, #2a2a2e); color: var(--text-primary, #e0e0e0); border: 1px solid var(--border-color, #3a3a3e); border-radius: var(--radius-xs); padding: 3px 6px; font-size: var(--font-size-xs); height: 26px; }
-.diag-search { flex: 1; background: var(--bg-input, #2a2a2e); color: var(--text-primary, #e0e0e0); border: 1px solid var(--border-color, #3a3a3e); border-radius: var(--radius-xs); padding: 3px 8px; font-size: var(--font-size-xs); height: 26px; }
+.btn-close { margin-left: auto; background: none; border: none; color: var(--text-muted); font-size: var(--font-size-xxl); cursor: pointer; padding: 0 4px; line-height: 1; }
+.btn-close:hover { color: var(--text-primary); }
+.diag-toolbar { display: flex; gap: 6px; padding: 8px 14px; border-bottom: 1px solid var(--border-color); align-items: center; }
+.diag-select { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: 3px 6px; font-size: var(--font-size-xs); height: 26px; }
+.diag-search { flex: 1; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: 3px 8px; font-size: var(--font-size-xs); height: 26px; }
 .diag-log-list { flex: 1; overflow-y: auto; padding: 6px; }
-.diag-empty { padding: 24px; text-align: center; color: var(--text-muted, #888); font-size: var(--font-size-sm); }
-.diag-log-item { display: flex; gap: 6px; padding: 3px 6px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: var(--font-size-xs); line-height: 1.4; align-items: baseline; }
+.diag-empty { padding: 24px; text-align: center; color: var(--text-muted); font-size: var(--font-size-sm); }
+.diag-log-item { display: flex; gap: 6px; padding: 3px 6px; border-bottom: 1px solid var(--diagnostic-divider); font-size: var(--font-size-xs); line-height: 1.4; align-items: baseline; }
 .diag-log-item:last-child { border-bottom: none; }
-.diag-log-time { color: var(--text-muted, #888); flex-shrink: 0; font-family: monospace; }
+.diag-log-time { color: var(--text-muted); flex-shrink: 0; font-family: monospace; }
 .diag-log-level { min-width: 40px; flex-shrink: 0; font-weight: 600; font-size: var(--font-size-xxs); }
 .diag-log-item.error .diag-log-level { color: var(--danger); }
 .diag-log-item.warn .diag-log-level { color: var(--warning); }
 .diag-log-item.info .diag-log-level { color: var(--info); }
 .diag-log-item.debug .diag-log-level { color: var(--text-muted); }
-.diag-log-cat { color: var(--text-muted, #888); flex-shrink: 0; font-size: var(--font-size-xxs); }
-.diag-log-msg { flex: 1; color: var(--text-secondary, #ccc); word-break: break-all; }
-.diag-log-trace { color: var(--text-muted, #666); font-size: var(--font-size-xxs); flex-shrink: 0; font-family: monospace; }
-.diag-log-provider { color: var(--accent, #5a7d9a); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
-.diag-log-purpose { color: var(--text-secondary, #999); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
-.diag-log-model { color: var(--text-muted, #666); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
-.diag-log-duration { color: var(--text-muted, #666); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
-.diag-footer { display: flex; justify-content: space-between; align-items: center; padding: 6px 14px; border-top: 1px solid var(--border-color, #3a3a3e); font-size: var(--font-size-xxs); color: var(--text-muted, #888); }
+.diag-log-cat { color: var(--text-muted); flex-shrink: 0; font-size: var(--font-size-xxs); }
+.diag-log-msg { flex: 1; color: var(--text-secondary); word-break: break-all; }
+.diag-log-trace { color: var(--diagnostic-trace); font-size: var(--font-size-xxs); flex-shrink: 0; font-family: monospace; }
+.diag-log-provider { color: var(--diagnostic-provider); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
+.diag-log-purpose { color: var(--text-secondary); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
+.diag-log-model { color: var(--diagnostic-model); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
+.diag-log-duration { color: var(--diagnostic-duration); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
+.diag-footer { display: flex; justify-content: space-between; align-items: center; padding: 6px 14px; border-top: 1px solid var(--border-color); font-size: var(--font-size-xxs); color: var(--text-muted); }
 .diag-autoscroll { display: flex; align-items: center; gap: 4px; cursor: pointer; }
 .diag-autoscroll input { cursor: pointer; }
 .diag-panel-inline {
@@ -272,5 +273,5 @@ onUnmounted(() => {
   bottom: auto !important;
   right: auto !important;
 }
-.diag-export-status { font-size: var(--font-size-xxs); color: var(--text-muted, #888); flex-shrink: 0; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.diag-export-status { font-size: var(--font-size-xxs); color: var(--text-muted); flex-shrink: 0; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>

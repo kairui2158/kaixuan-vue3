@@ -22,7 +22,9 @@
   width: var(--modal-width, 720px); min-width: 420px;
   margin: auto; overflow: hidden;
   opacity: 1; pointer-events: auto;
-  z-index: var(--z-modal-high, 1500);
+  z-index: var(--z-modal-content, 1001);
+  max-height: var(--modal-max-height, min(85vh, 900px));
+  min-height: 0;
 }
 .modal-content-sm { max-width: var(--modal-width-sm, 520px); width: var(--modal-width-sm, 520px); }
 .modal-content.modal-lg { max-width: 92vw; width: 960px; }
@@ -57,6 +59,10 @@
   flex-shrink: 0; min-height: 52px;
 }
 .modal-footer button { min-width: 64px; }
+
+@media (max-width: 560px) {
+  .modal-content { min-width: 0; width: calc(100vw - 16px); max-width: calc(100vw - 16px); }
+}
 /* 6. Close button */
 .modal-close, .btn-close {
   display: inline-flex; align-items: center; justify-content: center;
@@ -71,4 +77,19 @@
 .modal-close:hover, .btn-close:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
+}
+
+/* P3: nested dialogs must form a predictable layer above their owner. */
+.modal-overlay.modal-nested,
+.modal-nested-overlay {
+  z-index: var(--z-modal-nested, 1100);
+  padding: var(--modal-gutter, 24px);
+}
+.modal-nested-content,
+.modal-overlay.modal-nested > .modal-content {
+  z-index: var(--z-modal-nested-content, 1101);
+  width: min(var(--modal-width, 720px), 100%);
+  max-width: 100%;
+  max-height: var(--modal-max-height, min(85vh, 900px));
+  min-width: 0;
 }

@@ -42,7 +42,7 @@
         <PluginMarket v-if="activePanel === 'plugin-market'" @close="activePanel=''" />
     </main>
 
-    <DeAiProgress v-if="deAiStore.isProcessing" />
+    <DeAiProgress v-if="deAiStore.isProcessing || deAiStore.errorMessage" />
     <ExitConfirmModal ref="exitModal" />
 
    <DiffModal :visible="diffVisible" :original="diffOriginal" :modified="diffModified" @close="diffVisible=false" @apply="applyDiffResult" />
@@ -247,7 +247,8 @@ function initResizers() {
     let startWidth = 0
     let target: HTMLElement | null = null
     const targetAttr = el.getAttribute('data-target')
-    el.addEventListener('mousedown', (e: MouseEvent) => {
+    el.addEventListener('mousedown', (event) => {
+      const e = event as MouseEvent
       isDragging = true
       startX = e.clientX
       el.classList.add('dragging')

@@ -101,11 +101,11 @@ function toggleTheme() {
   }
   window.electronAPI?.storageWrite?.('theme_dark', isDark.value)
 }
-function exportData() {
+async function exportData() {
   try {
     const keys = window.electronAPI?.storageList?.() || []
     const data: Record<string, any> = {}
-    for (const k of keys) { data[k] = window.electronAPI.storageRead(k) }
+    for (const k of keys) { data[k] = await window.electronAPI.storageRead(k) }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
@@ -135,6 +135,8 @@ function saveGithubToken() {
 }
 import { useSettingsStore } from '../../stores/settings'
 const settingsStore = useSettingsStore()
+const uiFontSize = settingsStore.uiFontSize
+function saveUiFontSize() { settingsStore.saveSettings() }
 const dataDirPath = ref('')
 
 onMounted(() => {
@@ -170,7 +172,7 @@ function saveAll() {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: monospace;
-  background: var(--bg-tertiary, #1a1a1e);
+  background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xs);
   padding: var(--space-2) var(--space-4);
@@ -187,3 +189,4 @@ function saveAll() {
 .kbd-row { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: var(--radius-xs, 3px); background: var(--bg-hover); font-size: var(--font-size-md); color: var(--text-secondary); }
 .kbd { display: inline-block; padding: 3px 6px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); font-size: var(--font-size-sm); font-family: monospace; color: var(--text-primary); min-width: 20px; text-align: center; }
 </style>
+

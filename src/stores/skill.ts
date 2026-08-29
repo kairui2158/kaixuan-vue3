@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { storageKey } from '../utils/storage-key'
+import type { JsonSchema, SkillRetryPolicy } from '../services/skillValidation'
+import { serializeSkillMd } from '../services/configExchange/markdown'
+import { toSkillRecord } from '../services/configExchange'
 
 export interface Skill {
   id: string
@@ -20,6 +23,9 @@ export interface Skill {
   injectFrequency?: string
   injectDepth?: number
   customVars?: Record<string, string>
+  inputSchema?: JsonSchema | string
+  outputSchema?: JsonSchema | string
+  retryPolicy?: SkillRetryPolicy | string
 }
 
 export const useSkillStore = defineStore('skill', () => {
@@ -36,6 +42,49 @@ export const useSkillStore = defineStore('skill', () => {
 
   function getSkill(id: string) {
     return skills.value.find(s => s.id === id)
+  }
+
+  async function importSkills(
+    list: Skill[],
+    options: {
+      strategy?: 'skip' | 'overwrite'
+      pipelineSkills?: string[]
+      deAiSkills?: string[]
+    } = {},
+  ): Promise<{ added: number; updated: number; skipped: number }> {
+    const strategy = options.strategy || 'skip'
+    const existing = new Map(skills.value.map(s => [s.id, s]))
+    let added = 0
+    let updated = 0
+    let skipped = 0
+    const now = new Date().toISOString()
+
+    for (const skill of list) {
+      const current = existing.get(skill.id)
+      if (current) {
+        if (strategy === 'overwrite') {
+          Object.assign(current, skill, { updatedAt: now })
+          updated++
+        } else {
+          skipped++
+        }
+      } else {
+        skills.value.push(skill)
+        existing.set(skill.id, skill)
+        added++
+      }
+    }
+
+    for (const id of options.pipelineSkills || []) {
+      if (existing.has(id) && !pipelineSkills.value.includes(id)) pipelineSkills.value.push(id)
+    }
+    for (const id of options.deAiSkills || []) {
+      if (existing.has(id) && !deAiSkills.value.includes(id)) deAiSkills.value.push(id)
+    }
+    if (added > 0 || updated > 0 || (options.pipelineSkills || []).length > 0 || (options.deAiSkills || []).length > 0) {
+      await saveSkills()
+    }
+    return { added, updated, skipped }
   }
 
   async function loadSkills() {
@@ -60,7 +109,10 @@ export const useSkillStore = defineStore('skill', () => {
             updatedAt: s.updatedAt,
             injectFrequency: s.injectFrequency,
             injectDepth: s.injectDepth,
-            customVars: s.customVars || {}
+            customVars: s.customVars || {},
+            inputSchema: s.inputSchema,
+            outputSchema: s.outputSchema,
+            retryPolicy: s.retryPolicy
           }
         })
       } else {
@@ -103,25 +155,7 @@ export const useSkillStore = defineStore('skill', () => {
   function exportSkillToMD(skillId: string): string {
     const s = skills.value.find(sk => sk.id === skillId)
     if (!s) return ''
-    const meta = [
-      '---',
-      'name: ' + s.name,
-      'category: ' + (s.category || 'general'),
-      'description: ' + (s.description || ''),
-      'executionMode: ' + (s.executionMode || 'chain'),
-      'outputFormat: ' + (s.outputFormat || 'text'),
-      'injectMode: ' + (s.injectMode || 'system_prefix'),
-      'injectFrequency: ' + (s.injectFrequency || 'every'),
-      'injectDepth: ' + (s.injectDepth ?? 0),
-      'bindTarget: ' + (s.bindTarget || 'project'),
-      'linkedSkillIds: ' + JSON.stringify(s.linkedSkillIds || []),
-      'customVars: ' + JSON.stringify(s.customVars || {}),
-      'createdAt: ' + (s.createdAt || ''),
-      'updatedAt: ' + (s.updatedAt || ''),
-      '---',
-      ''
-    ].join('\n')
-    return meta + (s.template || '')
+    return serializeSkillMd(toSkillRecord(s))
   }
 
   /** 全量导出所有 SKILL 为 JSON */
@@ -166,7 +200,10 @@ export const useSkillStore = defineStore('skill', () => {
           updatedAt: s.updatedAt,
           injectFrequency: s.injectFrequency,
           injectDepth: s.injectDepth,
-          customVars: s.customVars || {}
+          customVars: s.customVars || {},
+          inputSchema: s.inputSchema,
+          outputSchema: s.outputSchema,
+          retryPolicy: s.retryPolicy
         })
         existingIds.add(s.id)
         result.added++
@@ -201,7 +238,7 @@ export const useSkillStore = defineStore('skill', () => {
     orderedPipelineSkills, orderedDeAiSkills,
     getSkill, loadSkills, saveSkills, addSkill, updateSkill, removeSkill,
     movePipelineSkillUp, movePipelineSkillDown,
-    exportSkillToMD, exportAllToJSON, importFromJSON
+    exportSkillToMD, exportAllToJSON, importFromJSON, importSkills
   }
 })
 

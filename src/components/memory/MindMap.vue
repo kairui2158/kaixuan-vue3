@@ -72,6 +72,6 @@ function openSource() {
 .mind-event { padding: 5px 8px; color: var(--text-primary); }
 .event-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
 .mind-event small { color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mind-no-event, .mind-empty { display: block; padding: 20px; color: var(--text-secondary); }
+.mind-no-event, .mind-empty { display: block; padding: 20px; color: var(--memory-empty-text); }
 .mind-selection { border-top: 1px solid var(--border-color); padding-top: 10px; color: var(--accent); }
 </style>

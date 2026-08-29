@@ -64,8 +64,8 @@ const pendingTransition = ref<{ type: 'load' | 'create'; id?: string } | null>(n
 
 const projectList = computed(() => projectStore.projectList || [])
 
-onMounted(() => {
-  projectStore.loadProjectList()
+onMounted(async () => {
+  await projectStore.loadProjectList()
 })
 
 function loadProject(id: string) {
@@ -79,9 +79,9 @@ function loadProject(id: string) {
   finishLoad(id)
 }
 
-function deleteProject(id: string) {
+async function deleteProject(id: string) {
   if (!confirm('确定删除该项目？此操作不可恢复')) return
-  projectStore.deleteProject(id)
+  await projectStore.deleteProject(id)
 }
 
 function createNewProject() {
@@ -95,12 +95,12 @@ function createNewProject() {
   finishCreate()
 }
 
-function continueTransition(action: 'save' | 'delete') {
+async function continueTransition(action: 'save' | 'delete') {
   const pending = pendingTransition.value
   if (!pending) return
   const currentId = projectStore.currentProjectId
-  if (action === 'save') projectStore.saveProject()
-  if (action === 'delete' && currentId) projectStore.deleteProject(currentId)
+  if (action === 'save') await projectStore.saveProject()
+  if (action === 'delete' && currentId) await projectStore.deleteProject(currentId)
   transitionConfirmVisible.value = false
   pendingTransition.value = null
   if (pending.type === 'load' && pending.id) finishLoad(pending.id)
@@ -133,21 +133,22 @@ function finishCreate() {
 </script>
 
 <style scoped>
-.modal-content.project-modal-content { position: relative; background: var(--bg-primary, #1e1e2e); border: 1px solid var(--border-color, #2d2d3f); border-radius: var(--radius-md); width: 560px; max-width: 92vw; max-height: 82vh; display: flex; flex-direction: column; z-index: 1001; }
+.modal-content.project-modal-content { position: relative; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); width: min(560px, 100%); max-width: 100%; max-height: var(--modal-max-height); min-height: 0; display: flex; flex-direction: column; z-index: var(--z-modal-content); }
 .project-list { margin-bottom: 12px; }
-.project-item { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-6); border-radius: var(--radius-sm); margin-bottom: 4px; background: var(--bg-secondary, #2d2d3f); }
-.project-item.active { border: 1px solid var(--accent, #6c5ce7); }
-.project-item-name { flex: 1; font-size: var(--font-size-md); color: var(--text-primary, #eee); }
+.project-item { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-6); border-radius: var(--radius-sm); margin-bottom: 4px; background: var(--bg-secondary); }
+.project-item.active { border: 1px solid var(--accent); }
+.project-item-name { flex: 1; font-size: var(--font-size-md); color: var(--text-primary); }
 .project-item-actions { display: flex; gap: 6px; }
-.empty-hint { text-align: center; color: var(--text-muted, #888); font-size: var(--font-size-md); padding: 24px 0; }
-.new-project-section { border-top: 1px solid var(--border-color, #2d2d3f); padding-top: 12px; }
+.empty-hint { text-align: center; color: var(--text-muted); font-size: var(--font-size-md); padding: 24px 0; }
+.new-project-section { border-top: 1px solid var(--border-color); padding-top: 12px; }
 .new-project-btn { width: 100%; padding: 8px; font-size: var(--font-size-md); border-radius: var(--radius-sm); border: none; cursor: pointer; }
 .new-project-form { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
-.form-input { background: var(--bg-input, #1a1a2e); color: var(--text-primary, #eee); border: 1px solid var(--border-color, #3d3d4f); border-radius: var(--radius-xs); padding: 8px 10px; font-size: var(--font-size-md); outline: none; }
-.form-textarea { background: var(--bg-input, #1a1a2e); color: var(--text-primary, #eee); border: 1px solid var(--border-color, #3d3d4f); border-radius: var(--radius-xs); padding: 8px 10px; font-size: var(--font-size-md); outline: none; resize: vertical; font-family: inherit; }
+.form-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: 8px 10px; font-size: var(--font-size-md); outline: none; }
+.form-textarea { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: 8px 10px; font-size: var(--font-size-md); outline: none; resize: vertical; font-family: inherit; }
 .form-actions { display: flex; gap: 8px; justify-content: flex-end; }
-.project-transition-confirm { margin-top: 12px; padding: 14px; border: 1px solid var(--accent, #6c5ce7); border-radius: var(--radius-sm); background: var(--bg-tertiary, #242438); }
-.project-transition-confirm__title { color: var(--text-primary, #eee); font-size: var(--font-size-md); font-weight: 600; }
-.project-transition-confirm__text { margin-top: 6px; color: var(--text-secondary, #aaa); font-size: var(--font-size-sm); line-height: 1.5; }
+.project-transition-confirm { margin-top: 12px; padding: 14px; border: 1px solid var(--accent); border-radius: var(--radius-sm); background: var(--bg-tertiary); position: relative; z-index: 1; }
+.project-transition-confirm__title { color: var(--text-primary); font-size: var(--font-size-md); font-weight: 600; }
+.project-transition-confirm__text { margin-top: 6px; color: var(--text-secondary); font-size: var(--font-size-sm); line-height: 1.5; }
 .project-transition-confirm__actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; }
 </style>
+

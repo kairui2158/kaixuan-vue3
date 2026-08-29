@@ -61,7 +61,7 @@ const emit = defineEmits<{ close: [] }>()
 <style scoped>
 .dash-overlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.6); z-index: 10000;
+  background: var(--bg-overlay-strong); z-index: var(--z-modal);
   display: flex; align-items: center; justify-content: center;
 }
 .dash-modal {
