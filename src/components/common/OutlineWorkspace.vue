@@ -1429,6 +1429,8 @@ function handleUnlockOutline() {
   line-height: 1.6;
   text-align: left;
   word-break: break-word;
+  user-select: text;
+  cursor: text;
 }
 .ow-msg.user .ow-msg-bubble {
   background: var(--user-bubble);

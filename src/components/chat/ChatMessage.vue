@@ -183,6 +183,8 @@ const renderedContent = computed(() => {
   overflow: visible;
   word-break: break-word;
   overflow-wrap: anywhere;
+  user-select: text;
+  cursor: text;
 }
 .message-content :deep(a) {
   overflow-wrap: anywhere;

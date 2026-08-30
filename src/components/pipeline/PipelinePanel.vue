@@ -3440,7 +3440,7 @@ function toolAction(action: string) {
 .pl-body-config { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: var(--font-size-lg); flex-wrap: wrap; }
 .pl-body-config label { color: var(--text-secondary); }
 .pl-body-result { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; max-height: 400px; overflow-y: auto; }
-.pl-body-text { font-size: var(--font-size-lg); line-height: 1.8; white-space: pre-wrap; color: var(--text-primary); }
+.pl-body-text { font-size: var(--font-size-lg); line-height: 1.8; white-space: pre-wrap; color: var(--text-primary); user-select: text; cursor: text; }
 .pl-gen-options { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: var(--font-size-lg); color: var(--text-secondary); flex-wrap: wrap; }
 .pl-actions {
   display: flex;
@@ -3549,7 +3549,7 @@ function toolAction(action: string) {
   align-items: center;
   gap: var(--space-2);
 }
-.pl-result { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; margin: 20px 0; max-height: 450px; overflow-y: auto; white-space: pre-wrap; font-size: var(--font-size-lg); color: var(--text-primary); }
+.pl-result { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; margin: 20px 0; max-height: 450px; overflow-y: auto; white-space: pre-wrap; font-size: var(--font-size-lg); color: var(--text-primary); user-select: text; cursor: text; }
 .pl-gen-hint { color: var(--text-muted); font-size: var(--font-size-md); }
 .pl-vol-card.confirmed { border-color: var(--success); }
 .pl-vol-card,

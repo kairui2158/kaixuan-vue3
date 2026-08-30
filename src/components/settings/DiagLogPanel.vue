@@ -250,7 +250,7 @@ onUnmounted(() => {
 .diag-toolbar { display: flex; gap: 6px; padding: 8px 14px; border-bottom: 1px solid var(--border-color); align-items: center; }
 .diag-select { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: 3px 6px; font-size: var(--font-size-xs); height: 26px; }
 .diag-search { flex: 1; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: 3px 8px; font-size: var(--font-size-xs); height: 26px; }
-.diag-log-list { flex: 1; overflow-y: auto; padding: 6px; }
+.diag-log-list { flex: 1; overflow-y: auto; padding: 6px; user-select: text; cursor: text; }
 .diag-empty { padding: 24px; text-align: center; color: var(--text-muted); font-size: var(--font-size-sm); }
 .diag-log-item { display: flex; gap: 6px; padding: 3px 6px; border-bottom: 1px solid var(--diagnostic-divider); font-size: var(--font-size-xs); line-height: 1.4; align-items: baseline; }
 .diag-log-item:last-child { border-bottom: none; }
