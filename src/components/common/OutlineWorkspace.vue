@@ -119,7 +119,7 @@
             </div>
             <div v-if="isGenerating" id="ow-streaming-message" class="ow-msg assistant ow-msg-streaming">
               <div class="ow-streaming-status">{{ generationStatus }}<span v-if="streamingContent"> · {{ streamingContent.length }} 字</span></div>
-              <div class="ow-msg-bubble" v-html="renderMarkdown(streamingContent || '正在等待 API 返回...')"></div>
+              <div class="ow-msg-bubble" v-html="streamingRenderedContent || '正在等待 API 返回...'"></div>
             </div>
           </div>
           <div v-if="pendingEdit" id="ow-edit-preview" class="ow-edit-preview">
@@ -225,6 +225,7 @@ import { useAiTools } from '../../composables/useAiTools'
 import { useAppConfirm } from '../../composables/useAppConfirm'
 import { getAiService } from '../../services/aiService'
 import { enhanceCodeBlocks, renderMarkdown as renderMarkdownText } from '../../utils/markdownService'
+import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
 
 const emit = defineEmits<{ close: []; navigate: [target: string] }>()
 
@@ -255,6 +256,7 @@ const redoStack = ref<string[]>([])
 const isGenerating = ref(false)
 const generationStatus = ref('')
 const streamingContent = ref('')
+const { content: streamingRenderedContent, flush: flushStreamingRender } = useThrottledMarkdown(streamingContent)
 let generationController: AbortController | null = null
 let lastEditorHistoryAt = 0
 const workspaceAgentId = ref('')
@@ -1030,6 +1032,7 @@ async function askAi(requestText: string) {
       )
     }
     if (!responseText.trim()) throw new Error('API 返回为空')
+    flushStreamingRender()
     const editCommand = parseOutlineEditCommand(responseText)
     projectStore.appendOutlineChat({
       role: 'assistant',
@@ -1188,6 +1191,7 @@ async function askPlainAi(requestText: string) {
     })
     const responseText = result.text || ''
     if (!responseText.trim()) throw new Error('API 返回为空')
+    flushStreamingRender()
     projectStore.appendOutlineChat({ role: 'assistant', content: responseText })
   } catch (error: any) {
     if (generationController?.signal.aborted || error?.name === 'AbortError' || error?.code === 'canceled') {

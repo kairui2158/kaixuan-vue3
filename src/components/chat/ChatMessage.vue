@@ -29,7 +29,8 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
-import { enhanceCodeBlocks, renderMarkdown } from '../../utils/markdownService'
+import { enhanceCodeBlocks } from '../../utils/markdownService'
+import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
 
 const props = defineProps<{ message: { role: string; content: string }; busy?: boolean }>()
 const actionFeedback = ref('')
@@ -51,15 +52,17 @@ function runAction(action: 'copy' | 'regenerate' | 'apply' | 'replace', content?
   else emit('replace', content || '')
 }
 
-const renderedContent = computed(() => {
-  const content = props.message.content || ''
-  return renderMarkdown(content)
-})
+const messageSource = computed(() => props.message.content || '')
+const { content: renderedContent, flush: flushRenderedContent } = useThrottledMarkdown(messageSource)
 
 watch(renderedContent, async () => {
   await nextTick()
   await enhanceCodeBlocks(contentRef.value)
 }, { immediate: true })
+
+watch(() => props.busy, (busy, previousBusy) => {
+  if (previousBusy && !busy) flushRenderedContent()
+})
 </script>
 
 <style scoped>
