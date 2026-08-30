@@ -5,6 +5,7 @@ const os = require('os')
 
 var dataDir = ''
 var legacyDir = ''
+var writeQueues = new Map()
 
 function getPrimaryDataDir() {
   return path.join(os.homedir(), 'Documents', '神意助手数据')
@@ -12,6 +13,13 @@ function getPrimaryDataDir() {
 
 function safeKey(key) {
   return key.replace(/[^a-zA-Z0-9_-]/g, '_')
+}
+
+function enqueueWrite(key, task) {
+  var prev = writeQueues.get(key) || Promise.resolve()
+  var next = prev.then(task, task)
+  writeQueues.set(key, next.catch(function() { /* keep chain alive */ }))
+  return next
 }
 
 async function appendCorruptionLog(key, err, restored) {
@@ -119,28 +127,30 @@ function registerStorageHandlers() {
   })
 
   ipcMain.handle('storage:write', async function(event, key, data) {
-    var tmpPath = null
-    try {
-      await migrateOldDataIfNeeded()
-      var filePath = path.join(dataDir, safeKey(key) + '.json')
-      var bakPath = filePath + '.bak'
-      tmpPath = filePath + '.tmp'
-      await fs.writeFile(tmpPath, JSON.stringify(data), 'utf8')
+    return enqueueWrite(key, async function() {
+      var tmpPath = null
       try {
-        await fs.access(filePath)
-        await fs.rename(filePath, bakPath)
-      } catch (e) { /* target absent, nothing to back up */ }
-      try {
-        await fs.rename(tmpPath, filePath)
-      } catch (renameErr) {
-        try { await fs.access(bakPath); await fs.rename(bakPath, filePath) } catch (e2) { /* nothing to restore */ }
-        throw renameErr
+        await migrateOldDataIfNeeded()
+        var filePath = path.join(dataDir, safeKey(key) + '.json')
+        var bakPath = filePath + '.bak'
+        tmpPath = filePath + '.' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.tmp'
+        await fs.writeFile(tmpPath, JSON.stringify(data), 'utf8')
+        try {
+          await fs.access(filePath)
+          await fs.rename(filePath, bakPath)
+        } catch (e) { /* target absent, nothing to back up */ }
+        try {
+          await fs.rename(tmpPath, filePath)
+        } catch (renameErr) {
+          try { await fs.access(bakPath); await fs.rename(bakPath, filePath) } catch (e2) { /* nothing to restore */ }
+          throw renameErr
+        }
+        return true
+      } catch (e) {
+        if (tmpPath) { try { await fs.unlink(tmpPath) } catch (e2) { /* ignore */ } }
+        return false
       }
-      return true
-    } catch (e) {
-      if (tmpPath) { try { await fs.unlink(tmpPath) } catch (e2) { /* ignore */ } }
-      return false
-    }
+    })
   })
 
   ipcMain.handle('storage:corruptionLog', async function() {
