@@ -58,7 +58,9 @@
             <button id="btn-regenerate" class="btn-sm btn-secondary" @click="toolAction('regenerate')" :disabled="aiLoading">重新生成</button>
             <button id="btn-modify" class="btn-sm btn-secondary" @click="toolAction('modify')" :disabled="aiLoading">按指令修改</button>
           </div>
-          <div class="pl-tool-result" v-if="toolResult">{{ toolResult }}</div>
+          <div class="pl-tool-result" v-if="toolResult">
+            <div class="message-content" v-html="toolResultHtml"></div>
+          </div>
           <div class="pl-tool-loading" v-if="aiLoading">{{ aiLoadingText }}</div>
         </div>
           <PipelineFlow v-if="showFlowView" :steps-with-ids="stepsWithIds" :step-agents="stepAgents" :step-skills="stepSkills" :step-skill-modes="stepSkillModes" @toggle-view="showFlowView = false" />
@@ -834,6 +836,7 @@ import { useEditorStore } from "../../stores/editor"
 import { useExecutionLogStore } from "../../stores/executionLog"
 import { useAiTools } from "../../composables/useAiTools"
 import { getAiService } from "../../services/aiService"
+import { renderMarkdown } from "../../utils/markdownService"
 import { getSkillAgentKey, migrateSkillAgentBindings, normalizeSkillAgentBindings } from "../../services/skillAgentBinding"
 import { useConfigExchange } from "../../composables/useConfigExchange"
 import type { PipelineBindingRecord } from "../../services/configExchange"
@@ -875,6 +878,7 @@ const bindingImportPreview = ref<{
 const { generateNames, generateWritingRules, extractTimeline, batchReviewChapters, reviseChapter, translateText, convertStyle, regenerateContent, modifyContent, isLoading: aiLoading, loadingText: aiLoadingText } = useAiTools()
 
 const toolResult = ref("")
+const toolResultHtml = computed(() => renderMarkdown(toolResult.value))
 const showAddSettingModal = ref(false)
 const newSettingName = ref("")
 const newSettingCategory = ref("其他")
@@ -3626,7 +3630,8 @@ function toolAction(action: string) {
 .pl-chip-seq { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: var(--text-on-accent); font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .pl-tools-section { padding: 6px 0; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); }
 .pl-tools-grid { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.pl-tool-result { margin-top: 6px; padding: 6px 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--font-size-sm); color: var(--text-primary); max-height: 60px; overflow-y: auto; }
+.pl-tool-result { margin-top: 6px; padding: 6px 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--font-size-sm); color: var(--text-primary); max-height: 180px; overflow-y: auto; user-select: text; cursor: text; }
+.pl-tool-result .message-content { font-size: inherit; }
 .pl-tool-loading { margin-top: 4px; font-size: var(--font-size-sm); color: var(--accent); }
 
 .pl-chip-agent { height: 22px; padding: 0 6px; font-size: 10px; min-width: 60px; width: auto; border-radius: var(--radius-sm); background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; }

@@ -1,0 +1,63 @@
+{
+  "ui": {
+    "renderedDirect": true,
+    "tableRows": 3,
+    "badges": {
+      "success": 1,
+      "warning": 1,
+      "danger": 1
+    },
+    "safeHtml": "<h2>巡航报告</h2>\n<table>\n<thead>\n<tr>\n<th>项目</th>\n<th>状态</th>\n</tr>\n</thead>\n<tbody><tr>\n<td>存储</td>\n<td><span class=\"md-status is-success\">正常</span></td>\n</tr>\n<tr>\n<td>校验</td>\n<td><span class=\"md-status is-warning\">警告</span></td>\n</tr>\n<tr>\n<td>来源</td>\n<td><span class=\"md-status is-danger\">缺失</span></td>\n</tr>\n</tbody></table>\n\n<img src=\"x\">\n[bad](javascript:alert(1))<div class=\"code-block\">\n      <div class=\"code-chrome\">\n        <span class=\"code-lang\">JSON</span>\n        <button type=\"button\" class=\"code-copy\">复制</button>\n      </div>\n      <pre class=\"shiki shiki-themes github-light github-dark\" style=\"--shiki-light:#24292e;--shiki-dark:#e1e4e8;--shiki-light-bg:#fff;--shiki-dark-bg:#24292e\" data-code-enhanced=\"true\"><code><span class=\"line\"><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">{</span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">\"ok\"</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">:</span><span style=\"--shiki-light:#005CC5;--shiki-dark:#79B8FF\">true</span><span style=\"--shiki-light:#24292E;--shiki-dark:#E1E4E8\">}</span></span>\n<span class=\"line\"></span></code></pre>\n    </div>\n",
+    "xssSafe": true,
+    "selectable": "text",
+    "selectedText": "\n项目\t状态\n存储\t正常\n校验\t警告\n来源\t缺失\n",
+    "selectionCopyOk": true,
+    "selectionClipboard": "\r\n项目\t状态\r\n存储\t正常\r\n校验\t警告\r\n来源\t缺失\r\n",
+    "contrast": {
+      "dark": [
+        {
+          "kind": "success",
+          "ratio": 5.02
+        },
+        {
+          "kind": "warning",
+          "ratio": 6.37
+        },
+        {
+          "kind": "danger",
+          "ratio": 6.8
+        }
+      ],
+      "light": [
+        {
+          "kind": "success",
+          "ratio": 5.02
+        },
+        {
+          "kind": "warning",
+          "ratio": 6.37
+        },
+        {
+          "kind": "danger",
+          "ratio": 6.8
+        }
+      ]
+    },
+    "streaming": {
+      "duringLength": 132,
+      "finalLength": 1525,
+      "finalHasLastRow": true,
+      "durationMs": 406
+    }
+  },
+  "sourceChecks": {
+    "skillBindIsBindingOnly": true,
+    "outlineUsesService": true,
+    "outlineSelectable": true,
+    "skillPreviewUsesService": true,
+    "pipelineReportOptIn": true,
+    "pipelineSelectable": true,
+    "noDeadAiMarkdownHook": true
+  },
+  "codeCopied": "{\"ok\":true}\r\n```| 流式0 | 通过 |\r\n| 流式1 | 通过 |\r\n| 流式2 | 通过 |\r\n| 流式3 | 通过 |\r\n| 流式4 | "
+}
