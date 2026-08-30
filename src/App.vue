@@ -35,7 +35,7 @@
       </div>
         <!-- Panel overlays: outside app-body to avoid overflow:hidden clipping -->
         <SettingsModal v-if="activePanel === 'settings'" :visible="activePanel === 'settings'" @close="activePanel=''" />
-        <PipelinePanel v-if="activePanel === 'pipeline' && !pipelineMinimized" @close="activePanel=''; pipelineMinimized = false" @minimize="pipelineMinimized = true" />
+        <PipelinePanel v-if="activePanel === 'pipeline' && !pipelineMinimized" @close="activePanel=''; pipelineMinimized = false" @minimize="pipelineMinimized = true" @open-outline="handleNavigate('outline')" />
         <OutlineWorkspace v-if="activePanel === 'outline'" @close="activePanel=''" @navigate="handleNavigate" />
         <MemoryPanel v-if="activePanel === 'memory'" @close="activePanel=''" />
         <DashboardModal v-if="activePanel === 'dashboard'" :stats="dashboardStats" @close="activePanel=''" />

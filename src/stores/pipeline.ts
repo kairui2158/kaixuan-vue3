@@ -169,12 +169,61 @@ export const usePipelineStore = defineStore('pipeline', () => {
     return 'compose'
   }
 
+  async function updateStepConfig(step: number, patch: {
+    agentId?: string
+    skillIds?: string[]
+    mode?: 'chain' | 'compose'
+    skillAgentId?: string
+    skillId?: string
+  }) {
+    try {
+      const saved = await window.electronAPI.storageRead(storageKey('pipeline_step_config')) || {}
+      const config = JSON.parse(JSON.stringify(saved)) || {}
+      config.agents = config.agents || {}
+      config.skills = config.skills || {}
+      config.modes = config.modes || {}
+      config.skillAgents = config.skillAgents || {}
+      if (patch.agentId !== undefined) config.agents[step] = patch.agentId || ''
+      if (patch.skillIds) config.skills[step] = patch.skillIds.filter(Boolean)
+      if (patch.mode) config.modes[step] = patch.mode
+      if (patch.skillId && patch.skillAgentId !== undefined) {
+        const key = `${step}-${patch.skillId}`
+        if (patch.skillAgentId) config.skillAgents[key] = patch.skillAgentId
+        else delete config.skillAgents[key]
+      }
+      await window.electronAPI.storageWrite(storageKey('pipeline_step_config'), config)
+    } catch(e) {
+      console.warn('[pipeline] updateStepConfig failed:', e)
+    }
+  }
+
+  async function readStepConfig(step: number): Promise<{
+    agentId: string
+    skillIds: string[]
+    mode: 'chain' | 'compose'
+    skillAgents: Record<string, string>
+  }> {
+    try {
+      const saved = await window.electronAPI.storageRead(storageKey('pipeline_step_config')) || {}
+      return {
+        agentId: saved?.agents?.[step] || '',
+        skillIds: Array.isArray(saved?.skills?.[step]) ? saved.skills[step].filter(Boolean) : [],
+        mode: saved?.modes?.[step] === 'chain' ? 'chain' : 'compose',
+        skillAgents: saved?.skillAgents || {}
+      }
+    } catch(e) {
+      console.warn('[pipeline] readStepConfig failed:', e)
+      return { agentId: '', skillIds: [], mode: 'compose', skillAgents: {} }
+    }
+  }
+
   return {
     currentStep, isGenerating, generationProgress, generationStatus, breakpoint, chapterProgress,
     currentStepName,
     setStep, startGeneration, updateProgress, finishGeneration, failGeneration, cancelGeneration, getGenerationSignal, isGenerationCanceled,
     saveBreakpoint, refreshBreakpoint, clearBreakpoint, updateChapterProgress, clearChapterProgress,
-    setStepSkills, getStepSkills, setStepAgents, getStepAgents, setStepModes, getStepModes
+    setStepSkills, getStepSkills, setStepAgents, getStepAgents, setStepModes, getStepModes,
+    updateStepConfig, readStepConfig
   }
 })
 

@@ -65,41 +65,18 @@
           <div v-show="!showFlowView" class="pl-step-view">
           <div v-show="pipelineStore.currentStep === 0" id="pl-step-1-content" class="pl-step-panel">
             <h3>大纲</h3>
-          <div class="pl-step-tools">
-            <div class="pl-agent-mode-bar">
-              <span class="pl-label">本层智能体:</span>
-              <select id="pl-s1-agent" v-model="stepAgents[0]" class="pl-select pl-agent-select" @change="saveStepConfig">
-                <option value="">不使用智能体</option>
-                <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
-              </select>
-              <span class="pl-mode-label">Skill模式:</span>
-              <select id="pl-s1-mode" v-model="stepSkillModes[0]" class="pl-select pl-mode-select" @change="saveStepConfig">
-                <option value="compose">并行</option>
-                <option value="chain">串行</option>
-              </select>
+            <div id="pl-outline-info" class="pl-outline-info">
+              <div class="pl-outline-info-main">
+                <div class="pl-outline-info-title">Agent / Skill 配置已迁移到大纲工作台</div>
+                <div class="pl-outline-info-meta">
+                  <span>智能体：{{ getStepAgentName(0) || '不使用' }}</span>
+                  <span>Skill：{{ (stepSkills[0] || []).length }} 个</span>
+                  <span>模式：{{ stepSkillModes[0] === 'chain' ? '串行' : '并行' }}</span>
+                  <span>大纲：{{ projectStore.outlineLocked ? '已锁定' : '编辑中' }}</span>
+                </div>
+              </div>
+              <button id="btn-open-outline-workspace" class="btn-sm btn-secondary" @click="$emit('openOutline')">前往工作台配置</button>
             </div>
-            <div class="pl-skill-bar">
-              <span class="pl-label">Skill:</span>
-              <select id="pl-s1-skill" v-model="stepSkillSelect[1]" class="pl-select" @change="addStepSkill(1)">
-                <option value="">无</option>
-                <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
-              </select>
-              <button class="btn-icon" id="pl-s1-add-skill" title="添加Skill" @click="addStepSkill(1)">+</button>
-            </div>
-          </div>
-          <div id="pl-s1-skills-list" class="pl-skills-list">
-            <template v-for="(sid, si) in stepSkills[0]" :key="'0-' + sid">
-              <span v-if="sid" class="pl-skill-chip">
-                <span class="pl-chip-seq">{{ si + 1 }}</span>
-                <span>{{ getSkillName(sid) }}</span>
-                <select v-if="stepSkillModes[0] === 'chain'" v-model="stepSkillAgents[getSkillAgentKey(0, sid)]" class="pl-select pl-chip-agent" @change="saveStepConfig">
-                  <option value="">默认</option>
-                  <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
-                </select>
-                <button class="btn-icon pl-chip-close" title="移除" @click="removeStepSkill(1, si)">&times;</button>
-              </span>
-            </template>
-          </div>
             <textarea id="pl-outline" :value="projectStore.pipelineOutlineText" class="pl-textarea" placeholder="输入或粘贴大纲全文..." :readonly="projectStore.outlineLocked" :class="{ 'pl-readonly': projectStore.outlineLocked }" @input="projectStore.setOutline(($event.target as HTMLTextAreaElement).value)"></textarea>
             <div class="pl-gen-options">
               <label>全书字数（万字）：</label>
@@ -873,7 +850,7 @@ import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateS
 import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from "../../services/chainBreakpoint"
 import { selectCompleteChapters, validateChapterNarrative, validateVolumeNarrative } from "../../services/narrativeValidation"
 
-defineEmits<{ close: [], minimize: [] }>()
+defineEmits<{ close: [], minimize: [], openOutline: [] }>()
 
 
 const showExecLog = ref(false)
@@ -1496,6 +1473,11 @@ function validateSkillInputOrThrow(template: PipelineSkillTemplate, input: unkno
   if (!template.inputSchema) return
   const result = validateSkillInput(input, template)
   if (!result.valid) throw new Error("「" + template.name + "」输入校验失败：" + result.errors.join("；"))
+}
+
+function getStepAgentName(step: number): string {
+  const id = stepAgents.value[step]
+  return id ? agentStore.getAgent(id)?.name || '' : ''
 }
 
 function validateSkillOutputOrThrow(template: PipelineSkillTemplate, output: string) {
@@ -3671,6 +3653,34 @@ function toolAction(action: string) {
   min-height: 0;
   min-width: 0;
   overflow: hidden;
+}
+.pl-outline-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-width: 0;
+  margin-bottom: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  background: var(--bg-elevated, var(--bg-secondary));
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+.pl-outline-info-main {
+  min-width: 0;
+}
+.pl-outline-info-title {
+  margin-bottom: 4px;
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+.pl-outline-info-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
 }
 .pl-settings-workspace {
   display: flex;

@@ -3,6 +3,23 @@
     <div class="ow-content" :class="{ 'ows-fullscreen': isFullscreen }">
       <div class="ow-header">
         <span>大纲工作台</span>
+        <div class="ow-config-bar">
+          <label class="ow-config-label" for="ow-agent-select">智能体</label>
+          <select id="ow-agent-select" v-model="workspaceAgentId" class="ow-config-select" @change="handleAgentChange">
+            <option value="">不使用</option>
+            <option v-for="agent in agentStore.agents" :key="agent.id" :value="agent.id">{{ agent.name }}</option>
+          </select>
+          <label class="ow-config-label" for="ow-skill-select">Skill</label>
+          <select id="ow-skill-select" v-model="selectedSkillId" class="ow-config-select ow-skill-select" @change="addSelectedSkill">
+            <option value="">无</option>
+            <option v-for="skill in skillStore.skills" :key="skill.id" :value="skill.id">{{ skill.name }}</option>
+          </select>
+          <label class="ow-config-label" for="ow-skill-mode">模式</label>
+          <select id="ow-skill-mode" v-model="workspaceSkillMode" class="ow-config-select ow-mode-select" @change="handleModeChange">
+            <option value="compose">并行</option>
+            <option value="chain">串行</option>
+          </select>
+        </div>
         <div class="ow-header-right">
           <button
             id="btn-ow-zoom"
@@ -82,6 +99,7 @@
             placeholder="在此输入或编辑你的小说大纲..."
             :readonly="projectStore.outlineLocked"
             :class="{ 'ow-readonly': projectStore.outlineLocked }"
+            @beforeinput="handleEditorBeforeInput"
           ></textarea>
         </div>
         <div v-show="chatAreaOpen" class="ow-chat">
@@ -133,9 +151,32 @@
         </div>
       </div>
       <div class="ow-footer">
-        <button id="btn-import-outline" class="btn-secondary btn-import" @click="triggerImport">
-          从文件导入(.txt/.md/.rtf/.docx)
-        </button>
+        <div class="ow-footer-config">
+          <div v-if="selectedWorkspaceSkills.length" id="ow-selected-skills" class="ow-selected-skills">
+            <span
+              v-for="(skill, index) in selectedWorkspaceSkills"
+              :key="skill.id"
+              class="ow-skill-chip"
+            >
+              <span class="ow-skill-seq">{{ index + 1 }}</span>
+              <span class="ow-skill-name">{{ skill.name }}</span>
+              <select
+                v-if="workspaceSkillMode === 'chain'"
+                v-model="workspaceSkillAgents[`0-${skill.id}`]"
+                class="ow-chip-agent"
+                title="当前 Skill 智能体"
+                @change="handleSkillAgentChange(skill.id, ($event.target as HTMLSelectElement).value)"
+              >
+                <option value="">默认</option>
+                <option v-for="agent in agentStore.agents" :key="agent.id" :value="agent.id">{{ agent.name }}</option>
+              </select>
+              <button class="ow-chip-close" title="移除 Skill" @click="removeSelectedSkill(index)">&times;</button>
+            </span>
+          </div>
+          <button id="btn-import-outline" class="btn-secondary btn-import" @click="triggerImport">
+            从文件导入(.txt/.md/.rtf/.docx)
+          </button>
+        </div>
         <input
           ref="fileInput"
           type="file"
@@ -169,11 +210,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, watch } from 'vue'
+import { ref, computed, nextTick, onMounted, watch } from 'vue'
 import { marked } from 'marked'
 import { useProjectStore } from '../../stores/project'
 import { useProviderStore } from '../../stores/provider'
 import { usePipelineStore } from '../../stores/pipeline'
+import { useSkillStore } from '../../stores/skill'
+import { useAgentStore } from '../../stores/agent'
+import { migrateSkillAgentBindings } from '../../services/skillAgentBinding'
+import { buildChainSkillPrompt } from '../../services/chainExecution'
+import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from '../../services/chainBreakpoint'
+import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from '../../services/skillValidation'
 import { importFile } from '../../services/file-import'
 import { useAiTools } from '../../composables/useAiTools'
 import { getAiService } from '../../services/aiService'
@@ -183,6 +230,8 @@ const emit = defineEmits<{ close: []; navigate: [target: string] }>()
 const projectStore = useProjectStore()
 const providerStore = useProviderStore()
 const pipelineStore = usePipelineStore()
+const skillStore = useSkillStore()
+const agentStore = useAgentStore()
 const { callAi } = useAiTools()
 
 const messages = computed(() => projectStore.outlineChat)
@@ -205,6 +254,12 @@ const isGenerating = ref(false)
 const generationStatus = ref('')
 const streamingContent = ref('')
 let generationController: AbortController | null = null
+let lastEditorHistoryAt = 0
+const workspaceAgentId = ref('')
+const selectedSkillId = ref('')
+const workspaceSkillIds = ref<string[]>([])
+const workspaceSkillMode = ref<'chain' | 'compose'>('compose')
+const workspaceSkillAgents = ref<Record<string, string>>({})
 
 type OutlineEditOperation = 'insert' | 'replace_selection' | 'replace_section' | 'append' | 'delete' | 'rewrite'
 interface OutlineEditCommand {
@@ -220,10 +275,201 @@ const outlineEditOperations = new Set<OutlineEditOperation>([
   'insert', 'replace_selection', 'replace_section', 'append', 'delete', 'rewrite'
 ])
 
+type WorkspaceSkillTemplate = {
+  id: string
+  name: string
+  template: string
+  customVars?: Record<string, string>
+  injectMode?: string
+  outputFormat?: 'json' | 'text'
+  validationRules?: string[]
+  inputSchema?: any
+  outputSchema?: any
+  retryPolicy?: any
+}
+
+type WorkspacePromptParts = {
+  systemSkill?: string
+  userPrefix?: string
+  userSuffix?: string
+}
+
 const findResult = computed(() => {
   if (!findQuery.value) return ''
   return findIndex.value >= 0 ? '已定位' : '未找到'
 })
+
+const selectedWorkspaceSkills = computed(() => {
+  return workspaceSkillIds.value
+    .flatMap(id => {
+      const skill = skillStore.getSkill(id)
+      return skill ? [skill] : []
+    })
+})
+
+function getWorkspaceTemplates(): WorkspaceSkillTemplate[] {
+  return selectedWorkspaceSkills.value
+    .filter(skill => skill && skill.template)
+    .map(skill => ({
+      id: skill.id,
+      name: skill.name,
+      template: skill.template,
+      customVars: skill.customVars || {},
+      injectMode: skill.injectMode || 'system_prefix',
+      outputFormat: skill.outputFormat || 'text',
+      validationRules: skill.validationRules || [],
+      inputSchema: skill.inputSchema,
+      outputSchema: skill.outputSchema,
+      retryPolicy: skill.retryPolicy
+    }))
+}
+
+function getPromptParts(template: string, mode: string): WorkspacePromptParts {
+  if (mode === 'user_prefix') return { userPrefix: template }
+  if (mode === 'user_suffix') return { userSuffix: template }
+  return { systemSkill: template }
+}
+
+function mergePromptParts(parts: WorkspacePromptParts[]): WorkspacePromptParts {
+  return {
+    systemSkill: parts.map(part => part.systemSkill).filter(Boolean).join('\n\n'),
+    userPrefix: parts.map(part => part.userPrefix).filter(Boolean).join('\n\n'),
+    userSuffix: parts.map(part => part.userSuffix).filter(Boolean).join('\n\n')
+  }
+}
+
+function resolveWorkspaceTemplate(template: string, context: Record<string, any>): string {
+  const engine = (window as any).SkillExecutionEngine
+  if (engine && typeof engine.resolveTemplate === 'function' && template && /\{\{/.test(template)) {
+    try {
+      return engine.resolveTemplate(template, context, { keepMissing: false })
+    } catch (error) {
+      console.warn('[OUTLINE_WORKSPACE] resolveTemplate failed, using raw template', error)
+    }
+  }
+  return template
+}
+
+function getWorkspaceAgentConfig(agentId: string) {
+  if (!agentId) return null
+  const agent = agentStore.getAgent(agentId)
+  if (!agent) throw new Error('绑定的智能体不存在：' + agentId)
+  return agent
+}
+
+function validateWorkspaceSkillInput(template: WorkspaceSkillTemplate, input: unknown) {
+  if (!template.inputSchema) return
+  const result = validateSkillInput(input, template)
+  if (!result.valid) {
+    throw new Error('「' + template.name + '」输入校验失败：' + result.errors.join('；'))
+  }
+}
+
+function validateWorkspaceSkillOutput(template: WorkspaceSkillTemplate, output: string) {
+  const structured = validateSkillOutput(output, template)
+  if (!structured.valid) {
+    throw new Error('「' + template.name + '」输出校验失败：' + structured.errors.join('；'))
+  }
+  const rules = validateSkillRules(structured.value ?? output, template.validationRules)
+  if (!rules.valid) {
+    throw new Error('「' + template.name + '」规则校验失败：' + rules.errors.join('；'))
+  }
+}
+
+async function callWorkspaceSkill(
+  template: WorkspaceSkillTemplate,
+  injection: WorkspacePromptParts,
+  userPrompt: string,
+  inputContext: unknown,
+  onProgress?: (status: string) => void
+): Promise<string> {
+  validateWorkspaceSkillInput(template, inputContext)
+  const maxAttempts = template.retryPolicy
+    ? getSkillMaxAttempts(template.retryPolicy)
+    : template.outputFormat === 'json' ? 2 : 1
+  const agentId = workspaceSkillAgents.value[`0-${template.id}`] || workspaceAgentId.value
+  const agentConfig = getWorkspaceAgentConfig(agentId)
+  const provider = agentConfig?.provider ? providerStore.getProvider(agentConfig.provider) : providerStore.activeGenerateProvider
+  const activeProvider = provider || providerStore.activeGenerateProvider
+  if (!activeProvider) throw new Error('请先配置API供应商')
+  const model = agentConfig?.model || activeProvider.selectedModel || activeProvider.models?.[0] || 'gpt-4o'
+  const temperature = agentConfig?.temperature ?? activeProvider.temperature ?? 0.7
+  const maxTokens = agentConfig?.maxTokens || activeProvider.maxTokens || 8192
+  const systemPrompt = [injection.systemSkill, agentConfig?.systemPrompt].filter(Boolean).join('\n\n')
+    || '你是小说大纲创作助手。'
+  const userPromptParts = [injection.userPrefix, userPrompt, injection.userSuffix].filter(Boolean)
+  const aiService = await getAiService()
+  let lastError: unknown = null
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const attemptPrompt = attempt === 1
+      ? userPromptParts.join('\n\n')
+      : userPromptParts.join('\n\n') + '\n\n[校验重试] 上次输出未满足 Skill 的结构化约束，请只返回符合要求的结果。'
+    try {
+      const result = await aiService.callAi({
+        purpose: 'generate',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: attemptPrompt }
+        ],
+        model,
+        temperature,
+        maxTokens,
+        signal: generationController?.signal,
+        onChunk: (text: string) => {
+          streamingContent.value = text
+          onProgress?.('正在生成...')
+        },
+        retry: true,
+        meta: { source: 'OutlineWorkspace.skill', skillId: template.id, agentId: agentId || undefined }
+      })
+      const output = result.text || ''
+      if (!output.trim()) throw new Error('API 返回为空')
+      validateWorkspaceSkillOutput(template, output)
+      return output
+    } catch (error) {
+      lastError = error
+      if (attempt === maxAttempts) throw error
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error('Skill 输出校验失败')
+}
+
+onMounted(async () => {
+  const config = await pipelineStore.readStepConfig(0)
+  workspaceAgentId.value = config.agentId
+  workspaceSkillIds.value = config.skillIds
+  workspaceSkillMode.value = config.mode
+  workspaceSkillAgents.value = migrateSkillAgentBindings(config.skillAgents, { 0: config.skillIds })
+})
+
+async function handleAgentChange() {
+  await pipelineStore.updateStepConfig(0, { agentId: workspaceAgentId.value })
+}
+
+async function addSelectedSkill() {
+  const id = selectedSkillId.value
+  if (!id || workspaceSkillIds.value.includes(id)) {
+    selectedSkillId.value = ''
+    return
+  }
+  workspaceSkillIds.value.push(id)
+  selectedSkillId.value = ''
+  await pipelineStore.updateStepConfig(0, { skillIds: workspaceSkillIds.value })
+}
+
+async function removeSelectedSkill(index: number) {
+  workspaceSkillIds.value.splice(index, 1)
+  await pipelineStore.updateStepConfig(0, { skillIds: workspaceSkillIds.value })
+}
+
+async function handleModeChange() {
+  await pipelineStore.updateStepConfig(0, { mode: workspaceSkillMode.value })
+}
+
+async function handleSkillAgentChange(skillId: string, agentId: string) {
+  workspaceSkillAgents.value[`0-${skillId}`] = agentId
+  await pipelineStore.updateStepConfig(0, { skillId, skillAgentId: agentId })
+}
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null
 watch(
@@ -269,6 +515,7 @@ function commitOutlineChange(next: string) {
   undoStack.value.push(current)
   if (undoStack.value.length > 50) undoStack.value.shift()
   redoStack.value = []
+  lastEditorHistoryAt = Date.now()
   projectStore.outlineText = next
   projectStore.setOutline(next)
   return true
@@ -704,6 +951,11 @@ async function scrollToBottom() {
 
 async function askAi(requestText: string) {
   if (isGenerating.value) return
+  const templates = getWorkspaceTemplates()
+  if (templates.length === 0) {
+    await askPlainAi(requestText)
+    return
+  }
   const provider = providerStore.activeGenerateProvider
   if (!provider) {
     projectStore.appendOutlineChat({ role: 'assistant', content: '请先配置API供应商' })
@@ -725,27 +977,45 @@ async function askAi(requestText: string) {
   let firstChunkSeen = false
   try {
     const aiService = await getAiService()
-    const result = await aiService.callAi({
-      purpose: 'generate',
-      messages: aiMessages,
-      model,
-      maxTokens: provider.maxTokens || 8192,
-      signal: generationController.signal,
-      onChunk: (text: string) => {
-        if (!firstChunkSeen) {
+    let responseText = ''
+    if (workspaceSkillMode.value === 'chain' && templates.length > 1) {
+      responseText = await runWorkspaceChain(requestText, templates, aiService, {
+        onFirstChunk: () => {
           firstChunkSeen = true
           generationStatus.value = `已收到内容 · 首字节 ${Math.round(performance.now() - startedAt)}ms`
-        } else {
-          generationStatus.value = '正在生成...'
         }
-        // aiService sends cumulative filtered text, so replace rather than append.
-        streamingContent.value = text
-        void scrollToBottom()
-      },
-      retry: true,
-      meta: { source: 'OutlineWorkspace.askAi' }
-    })
-    const responseText = result.text || ''
+      })
+    } else {
+      const context = buildWorkspaceSkillContext(requestText)
+      const parts = mergePromptParts(templates.map(template => {
+        const templateContext = { ...context, ...(template.customVars || {}) }
+        return getPromptParts(resolveWorkspaceTemplate(template.template, templateContext), template.injectMode || 'system_prefix')
+      }))
+      templates.forEach(template => validateWorkspaceSkillInput(template, context))
+      const combinedTemplate: WorkspaceSkillTemplate = {
+        id: 'compose',
+        name: templates.map(template => template.name).join(' + '),
+        template: '',
+        outputFormat: templates.some(template => template.outputFormat === 'json') ? 'json' : 'text',
+        validationRules: templates.flatMap(template => template.validationRules || []),
+        outputSchema: templates.find(template => template.outputSchema)?.outputSchema,
+        retryPolicy: templates.reduce((max, template) => Math.max(max, getSkillMaxAttempts(template.retryPolicy)), 1)
+      }
+      responseText = await callWorkspaceSkill(
+        combinedTemplate,
+        parts,
+        `当前大纲:\n${projectStore.outlineText}\n\n用户请求: ${requestText}`,
+        context,
+        () => {
+          if (!firstChunkSeen) {
+            firstChunkSeen = true
+            generationStatus.value = `已收到内容 · 首字节 ${Math.round(performance.now() - startedAt)}ms`
+          } else {
+            generationStatus.value = '正在生成...'
+          }
+        }
+      )
+    }
     if (!responseText.trim()) throw new Error('API 返回为空')
     const editCommand = parseOutlineEditCommand(responseText)
     projectStore.appendOutlineChat({
@@ -758,6 +1028,159 @@ async function askAi(requestText: string) {
       generationStatus.value = '已取消生成'
     } else {
       projectStore.appendOutlineChat({ role: 'assistant', content: '生成失败：' + (e.message || '未知错误') })
+    }
+  } finally {
+    generationController = null
+    isGenerating.value = false
+    if (generationStatus.value !== '已取消生成') generationStatus.value = ''
+    streamingContent.value = ''
+  }
+  await scrollToBottom()
+}
+
+function handleEditorBeforeInput() {
+  if (projectStore.outlineLocked) return
+  const now = Date.now()
+  if (now - lastEditorHistoryAt < 800) return
+  const current = projectStore.outlineText || ''
+  if (undoStack.value[undoStack.value.length - 1] === current) return
+  undoStack.value.push(current)
+  if (undoStack.value.length > 50) undoStack.value.shift()
+  redoStack.value = []
+  lastEditorHistoryAt = now
+}
+
+function buildWorkspaceSkillContext(requestText: string, previousOutput?: string): Record<string, any> {
+  return {
+    userPrompt: requestText,
+    selectedText: requestText,
+    outlineContent: projectStore.outlineText || '',
+    novelTitle: projectStore.projectName || '',
+    prevResponse: previousOutput || ''
+  }
+}
+
+async function runWorkspaceChain(
+  requestText: string,
+  templates: WorkspaceSkillTemplate[],
+  aiService: Awaited<ReturnType<typeof getAiService>>,
+  hooks: { onFirstChunk: () => void }
+): Promise<string> {
+  const projectId = String(projectStore.currentProjectId || '')
+  const skillSequence = templates.map(template => template.id)
+  const breakpoint = await pipelineStore.refreshBreakpoint()
+  const resumePoint = getChainResumePoint({
+    breakpoint,
+    step: 0,
+    projectId,
+    skillSequence
+  })
+  let current = resumePoint.previousOutput || requestText
+  let startIndex = resumePoint.startIndex
+  if (resumePoint.resumed) {
+    generationStatus.value = `从第 ${startIndex + 1} 步继续`
+  }
+  for (let index = startIndex; index < templates.length; index++) {
+    const template = templates[index]
+    const context = buildWorkspaceSkillContext(requestText, index === 0 ? '' : current)
+    const templateContext = { ...context, ...(template.customVars || {}) }
+    const resolvedTemplate = resolveWorkspaceTemplate(template.template, templateContext)
+    const injection = getPromptParts(resolvedTemplate, template.injectMode || 'system_prefix')
+    const userPrompt = buildChainSkillPrompt({
+      initialPrompt: `当前大纲:\n${projectStore.outlineText}\n\n用户请求: ${requestText}`,
+      previousOutput: index === 0 ? '' : current,
+      isFirst: index === 0
+    })
+    generationStatus.value = `Skill ${index + 1}/${templates.length}：${template.name || template.id}`
+    const previousOutput = index === 0 ? '' : current
+    try {
+      current = await callWorkspaceSkill(template, injection, userPrompt, { ...templateContext, previousOutput }, () => {
+        hooks.onFirstChunk()
+        generationStatus.value = `Skill ${index + 1}/${templates.length}：正在生成...`
+      })
+      await pipelineStore.saveBreakpoint(createChainSuccessBreakpoint({
+        step: 0,
+        projectId,
+        skillIndex: index,
+        skillId: template.id,
+        skillSequence,
+        lastSuccessChainIndex: index,
+        lastOutput: current,
+        inputPrompt: userPrompt,
+        agentId: workspaceSkillAgents.value[`0-${template.id}`] || workspaceAgentId.value,
+        retryCount: 0
+      }))
+    } catch (error) {
+      await pipelineStore.saveBreakpoint(createChainFailureBreakpoint({
+        step: 0,
+        projectId,
+        skillIndex: index,
+        skillId: template.id,
+        skillSequence,
+        lastSuccessChainIndex: index - 1,
+        lastOutput: previousOutput,
+        inputPrompt: userPrompt,
+        agentId: workspaceSkillAgents.value[`0-${template.id}`] || workspaceAgentId.value,
+        retryCount: Number(breakpoint?.skillId === template.id ? breakpoint.retryCount || 0 : 0) + 1,
+        error: error instanceof Error ? error.message : String(error)
+      }))
+      throw error
+    }
+    streamingContent.value = current
+    void scrollToBottom()
+  }
+  await pipelineStore.clearBreakpoint()
+  return current
+}
+
+async function askPlainAi(requestText: string) {
+  const provider = providerStore.activeGenerateProvider
+  if (!provider) {
+    projectStore.appendOutlineChat({ role: 'assistant', content: '请先配置API供应商' })
+    await scrollToBottom()
+    return
+  }
+  const model = provider.selectedModel || provider.models?.[0] || 'gpt-4o'
+  const systemPrompt = '你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。'
+  const aiMessages = [
+    { role: 'system', content: systemPrompt },
+    ...messages.value.filter(item => item.content).map(item => ({ role: item.role, content: item.content })),
+    { role: 'user', content: '当前大纲:\n' + (projectStore.outlineText || '') + '\n\n用户请求: ' + requestText }
+  ]
+  generationController = new AbortController()
+  isGenerating.value = true
+  generationStatus.value = '正在连接 API...'
+  streamingContent.value = ''
+  const startedAt = performance.now()
+  let firstChunkSeen = false
+  try {
+    const aiService = await getAiService()
+    const result = await aiService.callAi({
+      purpose: 'generate',
+      messages: aiMessages,
+      model,
+      signal: generationController.signal,
+      onChunk: (text: string) => {
+        streamingContent.value = text
+        if (!firstChunkSeen) {
+          firstChunkSeen = true
+          generationStatus.value = `已收到内容 · 首字节 ${Math.round(performance.now() - startedAt)}ms`
+        } else {
+          generationStatus.value = '正在生成...'
+        }
+        void scrollToBottom()
+      },
+      retry: true,
+      meta: { source: 'OutlineWorkspace.askAi' }
+    })
+    const responseText = result.text || ''
+    if (!responseText.trim()) throw new Error('API 返回为空')
+    projectStore.appendOutlineChat({ role: 'assistant', content: responseText })
+  } catch (error: any) {
+    if (generationController?.signal.aborted || error?.name === 'AbortError' || error?.code === 'canceled') {
+      generationStatus.value = '已取消生成'
+    } else {
+      projectStore.appendOutlineChat({ role: 'assistant', content: '生成失败：' + (error.message || '未知错误') })
     }
   } finally {
     generationController = null
@@ -826,6 +1249,34 @@ function handleUnlockOutline() {
   font-weight: 600;
   flex-shrink: 0;
   gap: 12px;
+}
+.ow-config-bar {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+}
+.ow-config-label {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.ow-config-select {
+  min-width: 0;
+  height: 28px;
+  padding: 2px 8px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+.ow-config-select.ow-skill-select {
+  flex: 1 1 140px;
+}
+.ow-config-select.ow-mode-select {
+  flex: 0 1 92px;
 }
 .ow-header-right {
   display: flex;
@@ -1070,6 +1521,73 @@ function handleUnlockOutline() {
   justify-content: flex-end;
   flex-shrink: 0;
   flex-wrap: wrap;
+}
+.ow-footer-config {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ow-selected-skills {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+}
+.ow-skill-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 220px;
+  height: 28px;
+  padding: 0 6px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+}
+.ow-skill-seq {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: var(--font-size-xs);
+}
+.ow-skill-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ow-chip-agent {
+  max-width: 92px;
+  height: 24px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xs);
+}
+.ow-chip-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.ow-chip-close:hover {
+  color: var(--danger);
 }
 .save-feedback {
   font-size: var(--font-size-sm);
