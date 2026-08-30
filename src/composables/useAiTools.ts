@@ -106,7 +106,11 @@ import { getAiService } from '../services/aiService'
      return null
    }
  
-   /** 1. AI起名 — 从旧架构generateNames迁移 (L5036) */
+   /**
+    * @deprecated 已迁移至命名工作台 src/services/namingService.ts + src/composables/useAiNaming.ts
+    * 新代码请使用 namingService.generateNames + useAiNaming composable
+    * 此函数保留仅供流水线旧代码兼容，后续应移除
+    */
    async function generateNames(type: string = 'character', context: string = ''): Promise<AiToolResult> {
      const typeMap: Record<string, string> = {
        character: '角色名', location: '地点名', faction: '门派/势力名', item: '物品名'

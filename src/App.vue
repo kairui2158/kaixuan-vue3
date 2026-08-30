@@ -50,6 +50,7 @@
     <InlineMenu :visible="inlineMenu.visible" :x="inlineMenu.x" :y="inlineMenu.y" :selectedText="inlineMenu.text" @close="inlineMenu.visible=false" @action="handleInlineAction" />
     <SkillBindModal :visible="skillBindVisible" :type="skillBindType" :id="skillBindId" @close="skillBindVisible=false" />
     <AgentProgressPanel />
+    <AiNamingModal />
     <div id="statusbar" class="statusbar">
       <span id="status-cursor"></span>
       <span id="status-connection">{{ providerStore.activeGenerateProvider ? '已连接' : '未连接' }}</span>
@@ -96,6 +97,7 @@ import DiffModal from './components/common/DiffModal.vue'
 import InlineMenu from './components/common/InlineMenu.vue'
 import SkillBindModal from './components/common/SkillBindModal.vue'
 import AgentProgressPanel from './components/sidebar/AgentProgressPanel.vue'
+import AiNamingModal from './components/naming/AiNamingModal.vue'
 import BreadcrumbBar from './components/common/BreadcrumbBar.vue'
 import DashboardModal from './components/dashboard/DashboardModal.vue'
 import { useShortcuts } from './composables/useShortcuts'
@@ -236,6 +238,26 @@ function handleSkillBinding(e: Event) {
   skillBindVisible.value = true
 }
 
+function handleAiNamingInsert(e: Event) {
+  const detail = (e as CustomEvent).detail
+  if (!detail?.text) return
+  const target = detail.target
+  if (target && target.tabId) {
+    const tab = editorStore.tabs.find((t) => t.id === target.tabId)
+    if (tab) {
+      if (detail.mode === 'replace' && target.selectionStart !== undefined && target.selectionEnd !== undefined && target.selectionStart !== target.selectionEnd) {
+        const content = tab.content || ''
+        const newContent = content.substring(0, target.selectionStart) + detail.text + content.substring(target.selectionEnd)
+        editorStore.updateContent(tab.id, newContent)
+      } else {
+        editorStore.updateContent(tab.id, detail.text)
+      }
+    }
+  } else if (editorStore.activeTab) {
+    editorStore.updateContent(editorStore.activeTab.id, detail.text)
+  }
+}
+
 const resizers = ref<HTMLElement[]>([])
 function initResizers() {
   const els = document.querySelectorAll('.resizer-v')
@@ -301,6 +323,7 @@ onMounted(async () => {
   window.addEventListener('generate-body', handleGenerateBody)
   window.addEventListener('insert-text', handleInsertText)
   window.addEventListener('show-skill-binding', handleSkillBinding)
+  window.addEventListener('ai-naming-insert', handleAiNamingInsert)
  nextTick(() => initResizers())
   const labels: Record<string, string> = {
     'pipeline': '生成流水线', 'settings': '设置', 'outline': '大纲工作台',

@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed, triggerRef } from 'vue'
+import type { AiNamingData, NamingResult, NamingHistoryRecord } from '../types/aiNaming'
+import { createDefaultAiNamingData, normalizeAiNaming, MAX_HISTORY, MAX_FAVORITES } from '../types/aiNaming'
 import { storageKey } from '../utils/storage-key'
 import type {
   MemoryData,
@@ -89,6 +91,7 @@ export const useProjectStore = defineStore('project', () => {
   const settingsCollection = ref<{ categories: string[]; items: Record<string, any[]> }>({ categories: [], items: {} })
   const settingBindings = ref<Record<string, string[]>>({})
   const memories = ref<MemoryData>(createDefaultMemories())
+  const aiNaming = ref<AiNamingData>(createDefaultAiNamingData())
   const outlineChat = ref<any[]>([])
 
   function nameFromOutline(text: string): string {
@@ -151,6 +154,7 @@ export const useProjectStore = defineStore('project', () => {
       settingBindings.value = data.settingBindings || {}
       memories.value = normalizeMemories(data.memories)
       memoryBlacklist.value = Array.isArray(data.memoryBlacklist) ? data.memoryBlacklist : []
+      aiNaming.value = normalizeAiNaming(data.aiNaming)
       outlineChat.value = data.outlineChat || []
       if (volumes.value.length === 0 && outlineText.value.trim()) {
         ensureVolumesFromOutline()
@@ -183,6 +187,7 @@ export const useProjectStore = defineStore('project', () => {
       settingsCollection: toPlain(settingsCollection.value),
       memories: toPlain(memories.value),
       memoryBlacklist: toPlain(memoryBlacklist.value),
+      aiNaming: toPlain(aiNaming.value),
       outlineChat: toPlain(outlineChat.value)
     }
     await window.electronAPI.storageWrite(storageKey('project_' + currentProjectId.value), data)
@@ -198,6 +203,32 @@ export const useProjectStore = defineStore('project', () => {
       outlineChat.value.splice(index, 1)
       saveProject()
     }
+  }
+
+  function addNamingFavorite(item: NamingResult) {
+    aiNaming.value.favorites.push(item)
+    if (aiNaming.value.favorites.length > MAX_FAVORITES) {
+      aiNaming.value.favorites.shift()
+    }
+    saveProject()
+  }
+
+  function removeNamingFavorite(id: string) {
+    aiNaming.value.favorites = aiNaming.value.favorites.filter(f => f.id !== id)
+    saveProject()
+  }
+
+  function addNamingHistory(record: NamingHistoryRecord) {
+    aiNaming.value.history.unshift(record)
+    if (aiNaming.value.history.length > MAX_HISTORY) {
+      aiNaming.value.history.length = MAX_HISTORY
+    }
+    saveProject()
+  }
+
+  function clearNamingHistory() {
+    aiNaming.value.history = []
+    saveProject()
   }
 
   function setOutline(text: string) {
@@ -738,7 +769,8 @@ export const useProjectStore = defineStore('project', () => {
     memoryBlacklist, addToBlacklist, removeFromBlacklist, isBlacklisted,
     updateMemoryMeta, recalculateMemoryTotals, recordMemoryChange, getMemoryChangeHistory,
     rollbackMemoryTo, rollbackMemoryByChapter,
-    outlineChat, appendOutlineChat, removeOutlineChatAt
+    outlineChat, appendOutlineChat, removeOutlineChatAt,
+    aiNaming, addNamingFavorite, removeNamingFavorite, addNamingHistory, clearNamingHistory
   }
 })
 

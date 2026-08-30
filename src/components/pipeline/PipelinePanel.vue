@@ -48,7 +48,7 @@
         <div class="pl-tools-section">
           <div class="pl-tools-grid">
             <span class="pl-label pl-tools-label">AI工具:</span>
-            <button id="btn-ai-names" class="btn-sm btn-secondary" @click="toolAction('names')" :disabled="aiLoading">AI起名</button>
+            <button id="btn-ai-names" class="btn-sm btn-secondary" @click="openNaming" :disabled="aiLoading">AI起名</button>
             <button id="btn-writing-rules" class="btn-sm btn-secondary" @click="toolAction('rules')" :disabled="aiLoading">写作规则</button>
             <button id="btn-timeline" class="btn-sm btn-secondary" @click="toolAction('timeline')" :disabled="aiLoading">时间线</button>
             <button id="btn-batch-review" class="btn-sm btn-secondary" @click="toolAction('review')" :disabled="aiLoading">批量审阅</button>
@@ -2971,14 +2971,16 @@ function insertBody() {
   }
 }
 
+function openNaming() {
+  window.dispatchEvent(new CustomEvent('open-ai-naming', {
+    detail: { source: 'pipeline', pipelineContext: projectStore.outlineText.slice(0, 500) }
+  }))
+}
+
 function toolAction(action: string) {
   toolResult.value = "";
   try {
-    if (action === "names") {
-      generateNames("character", projectStore.outlineText.slice(0, 500)).then(r => {
-        if (r.success) toolResult.value = r.data.map((n: any) => n.name + " - " + (n.meaning || "")).join("; ");
-      });
-    } else if (action === "rules") {
+    if (action === "rules") {
       generateWritingRules(projectStore.outlineText).then(r => {
         if (r.success) toolResult.value = r.data.map((r: any) => "[" + r.category + "] " + r.rule).join("; ");
       });

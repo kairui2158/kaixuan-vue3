@@ -269,7 +269,11 @@ onMounted(() => {
 
 function handleEditorAction(e: any) {
   const detail = e.detail
-  if (detail && detail.action === 'inline-ai' && detail.prompt) {
+  if (detail && detail.action === 'ai-names' && detail.chapterId) {
+    window.dispatchEvent(new CustomEvent('open-ai-naming', {
+      detail: { source: 'editor', target: { chapterId: detail.chapterId } }
+    }))
+  } else if (detail && detail.action === 'inline-ai' && detail.prompt) {
     _pendingInlineOriginal.value = detail.prompt;
     _pendingInlineSelection.value = detail.tabId
       ? { tabId: detail.tabId, start: Number(detail.selectionStart) || 0, end: Number(detail.selectionEnd) || 0 }

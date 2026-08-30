@@ -1,3 +1,13 @@
+# 2026-08-30 AI 命名工作台经验
+
+1. **禁止跨分支整文件复制**：worktree 独有提交中的功能代码不能整文件复制到主分支，否则会带入无关功能（如写作规则、时间线、批量审阅、修订、变量等）。必须用 apply_patch 逐文件精确编辑，只改任务相关的行。
+2. **composable ref 在模板中的解包**：从 composable 返回的 ref 在 `<script setup>` 中使用时，模板内需要 `.value` 访问，因为它是通过解构返回的，Vue 不会自动解包顶层属性中的嵌套 ref。
+3. **Electron 下的 confirm**：`confirm()` 在 contextIsolation 下可能失效，统一使用 `window.confirm()`。
+4. **Node.js 原生 WebSocket**：Node 24 的 `WebSocket` 是全局对象，使用 `addEventListener` 而非 `on` 事件 API；不要依赖 `undici` 或 `ws` 库做 CDP 验证。
+5. **事件路由模式**：编辑器按钮 dispatch `open-ai-naming` CustomEvent，App.vue 挂载的 AiNamingModal 监听该事件并打开；插入结果通过 `ai-naming-insert` CustomEvent 回到 App.vue 操作 editorStore。ChatPanel 的 `handleEditorAction` 只做转发，不直接处理命名逻辑。
+6. **PipelinePanel 复用**：流水线 AI 起名按钮改为 dispatch 同一 `open-ai-naming` 事件，不再走 `toolAction('names')` 旧路径，确保两处入口复用同一套系统。
+7. **项目级持久化**：收藏和历史数据存在 `project.ts` 的 `aiNaming` ref 中，随 `saveProject` 一同写入 `wa_project_*` storage，不引入额外存储键，避免与角色卡/记忆板块冲突。
+
 # 2026-08-16 经验记录
 # 次级栏章节树链路验证
 

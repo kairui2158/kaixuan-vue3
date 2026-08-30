@@ -428,8 +428,26 @@ function buildEpubZip(files: any[]): Uint8Array {
 
 
 function aiNames() {
-  if (!activeTab.value) return
-  window.dispatchEvent(new CustomEvent('editor-action', { detail: { action: 'ai-names', chapterId: activeTab.value.chapterId } }))
+  const tab = activeTab.value
+  const ta = editorTextarea.value
+  const selectionStart = ta ? ta.selectionStart : 0
+  const selectionEnd = ta ? ta.selectionEnd : 0
+  const content = tab ? (tab.content || '') : ''
+  const selectedText = content.substring(selectionStart, selectionEnd)
+  window.dispatchEvent(new CustomEvent('open-ai-naming', {
+    detail: {
+      source: 'editor',
+      target: tab ? {
+        tabId: tab.id,
+        chapterId: tab.chapterId,
+        mode: tab.mode,
+        selectionStart,
+        selectionEnd,
+        selectedText,
+        contentSnapshot: content,
+      } : undefined,
+    },
+  }))
 }
 
 function findPrev() {
