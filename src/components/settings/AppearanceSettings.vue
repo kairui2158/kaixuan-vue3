@@ -90,7 +90,12 @@ const isDark = ref(false)
 const githubToken = ref('')
 onMounted(() => {
   isDark.value = document.body.classList.contains('dark-theme')
-  try { const t = window.electronAPI?.storageRead?.('github_token'); if (t) githubToken.value = t } catch(e) {}
+  void (async () => {
+    try {
+      const t = await window.electronAPI?.storageRead?.('github_token')
+      if (typeof t === 'string' && t) githubToken.value = t
+    } catch(e) {}
+  })()
 })
 function toggleTheme() {
   isDark.value = !isDark.value
@@ -103,7 +108,8 @@ function toggleTheme() {
 }
 async function exportData() {
   try {
-    const keys = window.electronAPI?.storageList?.() || []
+    const listed = await window.electronAPI?.storageList?.()
+    const keys = Array.isArray(listed) ? listed : []
     const data: Record<string, any> = {}
     for (const k of keys) { data[k] = await window.electronAPI.storageRead(k) }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
@@ -123,15 +129,25 @@ function importData() {
     try {
       const text = await file.text()
       const data = JSON.parse(text)
-      for (const k of Object.keys(data)) { window.electronAPI?.storageWrite?.(k, data[k]) }
-      alert('导入成功，请重启应用')
+      const failedKeys: string[] = []
+      for (const k of Object.keys(data)) {
+        const ok = await window.electronAPI?.storageWrite?.(k, data[k])
+        if (ok !== true) failedKeys.push(k)
+      }
+      const total = Object.keys(data).length
+      if (failedKeys.length === 0) {
+        alert('导入成功（' + total + ' 项全部写入）。请重启应用使全部设置生效。')
+      } else {
+        alert('导入完成：成功 ' + (total - failedKeys.length) + ' 项，失败 ' + failedKeys.length + ' 项（' + failedKeys.join('、') + '）。失败项未写入磁盘，请重启应用后重试。')
+      }
     } catch(err) { alert('导入失败: ' + err) }
   }
   input.click()
 }
-function saveGithubToken() {
-  window.electronAPI?.storageWrite?.('github_token', githubToken.value)
-  alert('Token已保存')
+async function saveGithubToken() {
+  const token = typeof githubToken.value === 'string' ? githubToken.value.trim() : ''
+  const ok = await window.electronAPI?.storageWrite?.('github_token', token)
+  if (ok === true) { alert('Token已保存') } else { alert('Token保存失败：磁盘写入未成功，请检查磁盘空间或权限后重试。') }
 }
 import { useSettingsStore } from '../../stores/settings'
 const settingsStore = useSettingsStore()

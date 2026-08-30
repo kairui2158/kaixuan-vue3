@@ -717,6 +717,7 @@ export const useProjectStore = defineStore('project', () => {
     settingBindings.value = {}
     memories.value = createDefaultMemories()
     memoryBlacklist.value = []
+    aiNaming.value = createDefaultAiNamingData()
     outlineChat.value = []
   }
 

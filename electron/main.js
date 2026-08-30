@@ -129,6 +129,21 @@ function createWindow() {
     if (isMainFrame) log.error('did-fail-load: code=' + code + ' desc=' + desc + ' url=' + url)
   })
 
+  // Take over downloads so renderer exports land in Downloads with a real
+  // filename instead of Chromium's unnamed GUID ".tmp" intermediate.
+  mainWindow.webContents.session.on('will-download', function(_event, item) {
+    var downloadsDir = app.getPath('downloads')
+    var filePath = path.join(downloadsDir, item.getFilename())
+    if (fs.existsSync(filePath)) {
+      var ext = path.extname(filePath)
+      var base = path.basename(filePath, ext)
+      var n = 1
+      while (fs.existsSync(path.join(downloadsDir, base + ' (' + n + ')' + ext))) n++
+      filePath = path.join(downloadsDir, base + ' (' + n + ')' + ext)
+    }
+    item.setSavePath(filePath)
+  })
+
   // Register all IPC handlers
   registerCryptoHandlers()
   registerApplicationMenu()

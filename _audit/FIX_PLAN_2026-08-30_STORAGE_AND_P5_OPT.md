@@ -43,31 +43,32 @@
 - 证据：`src/components/settings/AppearanceSettings.vue:93`；探针 p4_storage_promise_test.cjs 证明 Promise 被赋给 token、写盘触发 "An object could not be cloned."。
 - 改动：`await storageRead(...)`，仅接受 string 类型，非 string 一律置空；写入前同样校验。
 - 验收：
-  - [ ] 探针复跑：readType=string / isPromise=false。
-  - [ ] Token 保存→重载→回显一致。
+  - [x] 探针复跑：readType=string / isPromise=false。
+  - [x] Token 保存→重载→回显一致（真实 UI 断言 `"ghp_probe_token_abc"` 回显、`"ghp_trim_test"` 落盘）。
 
 ### B2. 全量备份导出未 await storageList()
 
 - 证据：`AppearanceSettings.vue:106`；Promise 不可迭代，实际走 catch 报"导出失败"。
 - 改动：`await storageList()`；导出前校验返回为数组。
+- 追加修复：真实验证发现 `electron/main.js` 无 `will-download` 处理器，Chromium 默认下载把导出文件留在 Downloads 的 GUID `.tmp` 中转名，客户拿不到 `novel-workshop-backup.json`。已在 main.js `createWindow` 接管下载：固定保存到 Downloads、使用下载属性文件名、重名自动加 ` (n)` 序号不覆盖旧备份。
 - 验收：
-  - [ ] 真实导出备份文件成功，文件可被导入流程读回。
+  - [x] 真实导出备份文件成功，文件可被导入流程读回（`novel-workshop-backup.json` 338490 字节、合法 JSON 36 key；重复导出生成 `novel-workshop-backup (1).json` 不覆盖；导入路径读回由 B4 探针覆盖）。
 
 ### B3. clearCurrent() 重置 aiNaming
 
 - 证据：`src/stores/project.ts:690-712` 未重置 `aiNaming`；探针 p4_clearcurrent_naming_test.cjs 证明新建项目继承上一项目收藏与历史。
 - 改动：clearCurrent 将 `aiNaming` 重置为类型默认值（复用 `src/types/aiNaming.ts` 归一化默认；若无默认工厂则先补一个）。
 - 验收：
-  - [ ] 探针复跑：clearCurrent 后 favorites=0、history=0。
-  - [ ] 现有项目重载后 aiNaming 数据不受影响（不误伤）。
+  - [x] 探针复跑：clearCurrent 后 favorites=0、history=0。
+  - [x] 现有项目重载后 aiNaming 数据不受影响（不误伤）：`clearCurrent` 仅被 `createProject`（project.ts:726）与删除当前项目（project.ts:744）调用，加载/重载路径不经过它。
 
 ### B4. 全量导入逐 key await + 结果汇总
 
 - 证据：`AppearanceSettings.vue:123-128` 循环未 await；单 key 失败不可感知。
 - 改动：逐 key `await storageWrite` 并收集失败列表；完成后统一中文提示"成功 N 项 / 失败 M 项（列出 key）"；成功仍提示重启生效。
 - 验收：
-  - [ ] 导入 10 个 key 全部落盘（探针断言逐 key 读取值）。
-  - [ ] 人为制造 1 个失败（只读目录模拟），提示中列出该 key 且不影响其余 9 个。
+  - [x] 导入 10 个 key 全部落盘（探针断言逐 key 读取值）。
+  - [x] 人为制造 1 个失败（预建 `<key>.json.tmp` 目录使该 key tmp 写入 EISDIR），提示"成功 9 项，失败 1 项（b4_probe_key_3）"，该 key 磁盘内容保持 `{"old":true}` 未被改动，其余 9 个全部落盘。
 
 ---
 
