@@ -67,7 +67,7 @@
             <h3>大纲</h3>
             <div id="pl-outline-info" class="pl-outline-info">
               <div class="pl-outline-info-main">
-                <div class="pl-outline-info-title">Agent / Skill 配置已迁移到大纲工作台</div>
+                <div class="pl-outline-info-title">智能体/技能配置已迁移到大纲工作台</div>
                 <div class="pl-outline-info-meta">
                   <span>智能体：{{ getStepAgentName(0) || '不使用' }}</span>
                   <span>Skill：{{ (stepSkills[0] || []).length }} 个</span>
@@ -95,13 +95,13 @@
                 <option value="">不使用智能体</option>
                 <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
               </select>
-              <span class="pl-label">Skill:</span>
+              <span class="pl-label">技能:</span>
               <select id="pl-s2-skill" v-model="stepSkillSelect[2]" class="pl-select pl-skill-select" @change="addStepSkill(2)">
                 <option value="">无</option>
                 <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
               </select>
-              <button class="btn-icon" id="pl-s2-add-skill" title="添加Skill" @click="addStepSkill(2)">+</button>
-              <span class="pl-mode-label">Skill模式:</span>
+              <button class="btn-icon" id="pl-s2-add-skill" title="添加技能" @click="addStepSkill(2)">+</button>
+              <span class="pl-mode-label">技能模式:</span>
               <select id="pl-s2-mode" v-model="stepSkillModes[1]" class="pl-select pl-mode-select" @change="saveStepConfig">
                 <option value="compose">并行</option>
                 <option value="chain">串行</option>
@@ -335,13 +335,13 @@
                 <option value="">不使用智能体</option>
                 <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
               </select>
-              <span class="pl-label">Skill:</span>
+              <span class="pl-label">技能:</span>
               <select id="pl-s3-skill" v-model="stepSkillSelect[3]" class="pl-select pl-skill-select" @change="addStepSkill(3)">
                 <option value="">无</option>
                 <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
               </select>
-              <button class="btn-icon" id="pl-s3-add-skill" title="添加Skill" @click="addStepSkill(3)">+</button>
-              <span class="pl-mode-label">Skill模式:</span>
+              <button class="btn-icon" id="pl-s3-add-skill" title="添加技能" @click="addStepSkill(3)">+</button>
+              <span class="pl-mode-label">技能模式:</span>
               <select id="pl-s3-mode" v-model="stepSkillModes[2]" class="pl-select pl-mode-select" @change="saveStepConfig">
                 <option value="compose">并行</option>
                 <option value="chain">串行</option>
@@ -489,13 +489,13 @@
                 <option value="">不使用智能体</option>
                 <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
               </select>
-              <span class="pl-label">Skill:</span>
+              <span class="pl-label">技能:</span>
               <select id="pl-s4-skill" v-model="stepSkillSelect[4]" class="pl-select pl-skill-select" @change="addStepSkill(4)">
                 <option value="">无</option>
                 <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
               </select>
-              <button class="btn-icon" id="pl-s4-add-skill" title="添加Skill" @click="addStepSkill(4)">+</button>
-              <span class="pl-mode-label">Skill模式:</span>
+              <button class="btn-icon" id="pl-s4-add-skill" title="添加技能" @click="addStepSkill(4)">+</button>
+              <span class="pl-mode-label">技能模式:</span>
               <select id="pl-s4-mode" v-model="stepSkillModes[3]" class="pl-select pl-mode-select" @change="saveStepConfig">
                 <option value="compose">并行</option>
                 <option value="chain">串行</option>
@@ -647,19 +647,19 @@
                 <option value="">不使用智能体</option>
                 <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
               </select>
-              <span class="pl-mode-label">Skill模式:</span>
+              <span class="pl-mode-label">技能模式:</span>
               <select id="pl-s5-mode" v-model="stepSkillModes[4]" class="pl-select pl-mode-select" @change="saveStepConfig">
                 <option value="compose">并行</option>
                 <option value="chain">串行</option>
               </select>
             </div>
             <div class="pl-skill-bar">
-              <span class="pl-label">Skill:</span>
+              <span class="pl-label">技能:</span>
               <select id="pl-s5-skill" v-model="stepSkillSelect[5]" class="pl-select" @change="addStepSkill(5)">
                 <option value="">无</option>
                 <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
               </select>
-              <button class="btn-icon" id="pl-s5-add-skill" title="添加Skill" @click="addStepSkill(5)">+</button>
+              <button class="btn-icon" id="pl-s5-add-skill" title="添加技能" @click="addStepSkill(5)">+</button>
             </div>
           </div>
           <div id="pl-s5-skills-list" class="pl-skills-list">
@@ -801,8 +801,8 @@
           <button class="btn-icon" @click="execLogStore.removeLog(log.id)">&times;</button>
         </div>
         <div class="pl-exec-log-detail" v-if="expandedLog === log.id" @click="expandedLog = null">
-          <div class="pl-exec-section"><strong>Prompt:</strong><pre>{{ log.prompt }}</pre></div>
-          <div class="pl-exec-section"><strong>Result:</strong><pre>{{ log.result }}</pre></div>
+          <div class="pl-exec-section"><strong>提示词:</strong><pre>{{ log.prompt }}</pre></div>
+          <div class="pl-exec-section"><strong>结果:</strong><pre>{{ log.result }}</pre></div>
           <div class="pl-exec-feedback" v-if="log.status === 'success'">
             <button class="btn-sm" @click.stop="execLogStore.setFeedback(log.id, 'up')" :class="{active: log.feedback === 'up'}">点赞</button>
             <button class="btn-sm" @click.stop="execLogStore.setFeedback(log.id, 'down')" :class="{active: log.feedback === 'down'}">点踩</button>
@@ -1503,7 +1503,7 @@ async function callValidatedSkill(
     : template.outputFormat === "json" ? 2 : 1
   let currentError: unknown = null
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const attemptPrompt = attempt === 1 ? prompt : prompt + "\n\n[校验重试] 上次输出未满足 Skill 的结构化约束，请只返回符合要求的结果。"
+    const attemptPrompt = attempt === 1 ? prompt : prompt + "\n\n[校验重试] 上次输出未满足技能的结构化约束，请只返回符合要求的结果。"
     const output = timeoutMs
       ? await callApiWithAgentTimeout(step, injection.systemSkill || "", attemptPrompt, timeoutMs, skillAgentId, injection)
       : await callApiWithAgent(step, injection.systemSkill || "", attemptPrompt, skillAgentId, injection)
@@ -1515,7 +1515,7 @@ async function callValidatedSkill(
       if (attempt === maxAttempts) throw error
     }
   }
-  throw currentError instanceof Error ? currentError : new Error("Skill 输出校验失败")
+  throw currentError instanceof Error ? currentError : new Error("技能输出校验失败")
 }
 
 function getStepSkillMode(step: number): string {
@@ -2102,7 +2102,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       })
       console.log("[PIPELINE] chain step " + (si + 1) + "/" + templates.length + " = " + t.name)
       if (step === 2) {
-        volumeGenerationLogs.value.push("卷纲链式步骤 " + (si + 1) + "/" + templates.length + "：正在执行「" + (t.name || "未命名Skill") + "」")
+        volumeGenerationLogs.value.push("卷纲链式步骤 " + (si + 1) + "/" + templates.length + "：正在执行「" + (t.name || "未命名技能") + "」")
       }
       if (step >= 2 && step <= 3) {
         pipelineStore.updateProgress(

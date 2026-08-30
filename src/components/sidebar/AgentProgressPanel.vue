@@ -1,11 +1,11 @@
 <template>
   <div class="agent-progress-panel" :class="{ collapsed: !expanded }">
     <div class="agp-header" @click="expanded = !expanded">
-      <span class="agp-title">Agent 进度</span>
+      <span class="agp-title">智能体进度</span>
       <span class="agp-toggle">{{ expanded ? '<' : '>' }}</span>
     </div>
     <div v-if="expanded" class="agp-body">
-      <div v-if="agents.length === 0" class="agp-empty">暂无运行中的Agent</div>
+      <div v-if="agents.length === 0" class="agp-empty">暂无运行中的智能体</div>
       <div v-for="agent in agents" :key="agent.id" class="agp-item">
         <span class="agp-status-dot" :class="agent.status"></span>
         <span class="agp-name">{{ agent.name }}</span>

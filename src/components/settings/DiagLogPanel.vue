@@ -9,10 +9,10 @@
       <label class="diag-toggle-label"><input id="diag-enabled" type="checkbox" checked> 启用诊断</label>
       <select id="diag-level" v-model="levelFilter" class="diag-select">
         <option value="">全部级别</option>
-        <option value="error">Error</option>
-        <option value="warn">Warn</option>
-        <option value="info">Info</option>
-        <option value="debug">Debug</option>
+        <option value="error">错误</option>
+        <option value="warn">警告</option>
+        <option value="info">信息</option>
+        <option value="debug">调试</option>
       </select>
       <select id="diag-category" v-model="catFilter" class="diag-select">
         <option value="">全部分类</option>
@@ -35,8 +35,8 @@
       <div v-if="filteredLogs.length === 0" class="diag-empty">暂无日志记录</div>
       <div v-for="(log, i) in filteredLogs" :key="log.tsMs + '-' + i" class="diag-log-item" :class="log.level">
         <span class="diag-log-time">{{ log.ts || '' }}</span>
-        <span class="diag-log-level">{{ (log.level || 'info').toUpperCase() }}</span>
-        <span class="diag-log-cat">[{{ log.cat || 'general' }}]</span>
+        <span class="diag-log-level">{{ levelLabel(log.level) }}</span>
+        <span class="diag-log-cat">[{{ catLabel(log.cat) }}]</span>
         <span v-if="log.providerId" class="diag-log-provider">{{ log.providerId }}</span>
         <span v-if="log.purpose" class="diag-log-purpose">{{ log.purpose }}</span>
         <span v-if="log.model" class="diag-log-model">{{ log.model }}</span>
@@ -71,6 +71,17 @@ const autoScroll = ref(true)
 const exportStatus = ref('')
 const logContainer = ref<HTMLElement | null>(null)
 const stats = ref({ errorCount: 0, warnCount: 0 })
+
+const levelLabels: Record<string, string> = { error: '错误', warn: '警告', info: '信息', debug: '调试' }
+function levelLabel(level?: string): string {
+  const key = (level || 'info').toLowerCase()
+  return levelLabels[key] || key
+}
+const catLabels: Record<string, string> = { general: '通用' }
+function catLabel(cat?: string): string {
+  const key = cat || 'general'
+  return catLabels[key] || key
+}
 
 let unsub: (() => void) | null = null
 let throttleTimer: number | null = null

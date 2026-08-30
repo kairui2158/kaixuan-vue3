@@ -29,11 +29,11 @@
           5. 粘贴到上方输入框
         </div>
         <div class="market-search">
-          <input type="text" v-model="searchQuery" placeholder="搜索 GitHub 仓库 (例如: novel writing agent)" id="market-search-input" class="market-search-input" @keydown.enter="searchGitHub">
+          <input type="text" v-model="searchQuery" placeholder="搜索 GitHub 仓库（例如：小说创作智能体）" id="market-search-input" class="market-search-input" @keydown.enter="searchGitHub">
           <select v-model="searchCategory" id="market-category" data-cat="all" class="market-category-select">
             <option value="">全部</option>
-            <option value="agent">Agent</option>
-            <option value="skill">Skill</option>
+            <option value="agent">智能体</option>
+            <option value="skill">技能</option>
           </select>
           <button id="btn-market-search" class="btn-primary" @click="searchGitHub">搜索</button>
           <select v-model="searchSort" id="market-sort" class="market-sort-select">
@@ -46,7 +46,7 @@
         <div id="market-results" class="market-results-container market-results-scroll">
           <div id="market-results-paginated">
             <div v-if="loading" class="market-loading">搜索中...</div>
-            <div v-else-if="results.length === 0" class="market-empty">{{ hasSearched ? '未找到结果' : '输入关键词搜索 GitHub 上的 Agent 和 Skill' }}</div>
+            <div v-else-if="results.length === 0" class="market-empty">{{ hasSearched ? '未找到结果' : '输入关键词搜索 GitHub 上的智能体和技能' }}</div>
             <div v-else>
               <div v-for="item in results" :key="item.id" class="market-item">
                 <div class="market-item-header">
@@ -88,7 +88,7 @@ const showTokenHelp = ref(false)
 const searchQuery = ref('')
 const searchCategory = ref('')
 const searchSort = ref('stars')
-const statusText = ref('输入关键词搜索 GitHub 上的 Agent 和 Skill')
+const statusText = ref('输入关键词搜索 GitHub 上的智能体和技能')
 const results = ref<any[]>([])
 const loading = ref(false)
 const hasSearched = ref(false)
@@ -141,7 +141,7 @@ async function searchGitHub() {
       loading.value = false
       return
     }
-    if (!resp.ok) throw new Error('API error: ' + resp.status)
+    if (!resp.ok) throw new Error('API 请求失败: ' + resp.status)
     const data = await resp.json()
     results.value = data.items || []
     totalPages.value = Math.min(Math.ceil((data.total_count || 0) / perPage), 10)

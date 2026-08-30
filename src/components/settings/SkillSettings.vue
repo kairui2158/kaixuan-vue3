@@ -13,9 +13,9 @@
         <div v-for="(id, i) in skillStore.pipelineSkills" :key="id" class="skill-pipeline-item">
           <span class="skill-idx">[{{ i + 1 }}]</span>
           <span class="skill-name">{{ getSkillName(id) }}</span>
-          <button class="btn-sm btn-secondary" @click="skillStore.movePipelineSkillUp(i)" :disabled="i === 0">up</button>
-          <button class="btn-sm btn-secondary" @click="skillStore.movePipelineSkillDown(i)" :disabled="i === skillStore.pipelineSkills.length - 1">down</button>
-          <button class="btn-danger btn-sm" @click="removeFromPipeline(i)">x</button>
+          <button class="btn-sm btn-secondary" @click="skillStore.movePipelineSkillUp(i)" :disabled="i === 0">上移</button>
+          <button class="btn-sm btn-secondary" @click="skillStore.movePipelineSkillDown(i)" :disabled="i === skillStore.pipelineSkills.length - 1">下移</button>
+          <button class="btn-danger btn-sm" title="移出流水线" @click="removeFromPipeline(i)">×</button>
         </div>
       </div>
     </div>
@@ -25,7 +25,7 @@
        <div v-for="s in skillStore.skills" :key="s.id" class="skill-card">
           <div class="skill-card-header">
             <span class="skill-card-name">{{ s.name }}</span>
-            <span class="skill-card-badge">{{ s.category }}</span>
+            <span class="skill-card-badge">{{ s.category === 'general' ? '通用' : s.category }}</span>
           </div>
           <div class="skill-card-body">
             <span class="skill-card-desc" v-if="s.template">{{ s.template.substring(0, 60) }}...</span>
@@ -48,7 +48,7 @@
     <button id="btn-add-skill" class="btn-add" @click="addSkill">+ 新建技能</button>
    <div v-if="editingSkillId" class="skill-edit-overlay" @click.self="cancelEdit">
      <div id="skill-form" class="skill-edit-modal">
-       <div class="sem-header"><h4 id="skill-form-title">编辑技能</h4><button @click="cancelEdit">x</button></div>
+       <div class="sem-header"><h4 id="skill-form-title">编辑技能</h4><button title="关闭" @click="cancelEdit">×</button></div>
        <label>名称</label><input id="sf-name" v-model="editingName" class="sem-input" />
        <label>分类</label>
        <input id="sf-category" v-model="editingCategory" class="sem-input" />
@@ -91,7 +91,7 @@
           <div v-for="(v, i) in editingCustomVars" :key="i" class="sf-custom-var-row">
             <input :id="'sf-cv-key-' + i" v-model="v.key" class="sem-input sf-cv-key" placeholder="变量名，如 tone" />
             <input :id="'sf-cv-value-' + i" v-model="v.value" class="sem-input sf-cv-value" placeholder="变量值，如 悬疑冷峻" />
-            <button class="btn-danger btn-sm" @click="removeCustomVar(i)">x</button>
+            <button class="btn-danger btn-sm" title="删除变量" @click="removeCustomVar(i)">×</button>
           </div>
           <button id="btn-add-custom-var" class="btn-sm btn-secondary" @click="addCustomVar">+ 添加变量</button>
         </div>
@@ -128,7 +128,7 @@
    </div>
    <div v-if="importPreviewVisible" class="skill-import-overlay" @click.self="cancelImport">
      <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="skill-import-title">
-       <div class="sem-header"><h4 id="skill-import-title">导入预览</h4><button type="button" @click="cancelImport">x</button></div>
+       <div class="sem-header"><h4 id="skill-import-title">导入预览</h4><button type="button" title="关闭" @click="cancelImport">×</button></div>
        <p class="skill-import-source" :title="importSource">{{ importSource || '配置文件' }}</p>
        <div v-if="importSourceInfo" class="skill-import-origin" aria-label="导入来源与协议状态">
          <span class="skill-import-chip">来源：{{ formatSource(importSourceInfo) }}</span>
@@ -168,7 +168,7 @@
    </div>
    <div v-if="testSkillId" class="skill-edit-overlay" @click.self="closeTest">
      <div id="skill-test-modal" class="skill-edit-modal">
-       <div class="sem-header"><h4 id="skill-test-title">技能测试: {{ getSkillName(testSkillId) }}</h4><button @click="closeTest">x</button></div>
+       <div class="sem-header"><h4 id="skill-test-title">技能测试: {{ getSkillName(testSkillId) }}</h4><button title="关闭" @click="closeTest">×</button></div>
        <label>测试文本</label>
        <textarea id="st-test-input" v-model="testText" class="sem-textarea" style="min-height: 120px;" placeholder="输入示例文本，用于验证技能输出"></textarea>
        <div class="form-actions">

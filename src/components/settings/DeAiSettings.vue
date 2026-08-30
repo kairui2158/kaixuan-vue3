@@ -87,7 +87,7 @@
           <!-- chain 模式配置 -->
           <template v-if="m.id === 'chain'">
             <div class="form-group">
-              <label>SKILL链式顺序</label>
+              <label>技能链式顺序</label>
               <div class="deai-skill-bar">
                 <select v-model="selectedChainSkill" id="deai-skill-select" class="deai-param-select" @change="addDeAiSkill('chain')">
                   <option value="">选择技能...</option>
@@ -265,15 +265,15 @@ const modes = [
   {
     idx: 2,
     id: 'split-merge' as const,
-    name: 'Agent调度',
+    name: '智能体调度',
     shortDesc: '速度快',
-    desc: '本地切分 -> Promise.all并行重述 -> 拼接。适合速度优先的长文本。',
+    desc: '本地切分 -> 并行重述 -> 拼接。适合速度优先的长文本。',
     flow: ['split', 'parallel', 'join', 'done']
   },
   {
     idx: 3,
     id: 'multi-step' as const,
-    name: 'Multi-step',
+    name: '多步控制',
     shortDesc: '代码控制',
     desc: '事件核提取 -> 视角偏转 -> 重组输出 -> 验证。代码控制每步，模型无法跳步。',
     flow: ['extract', 'perspective', 'reconstruct', 'verify', 'done']

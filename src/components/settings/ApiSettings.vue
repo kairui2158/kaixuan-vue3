@@ -14,7 +14,7 @@
           <div class="provider-card-header">
             <span class="provider-card-name">{{ p.name }}</span>
             <span class="provider-card-status" :class="isProviderActive(p.id) ? 'provider-badge-on' : 'provider-badge-off'">
-              {{ isProviderActive(p.id) ? 'ON' : 'OFF' }}
+              {{ isProviderActive(p.id) ? '启用' : '停用' }}
             </span>
           </div>
           <div class="provider-card-info">

@@ -74,7 +74,7 @@
             <span class="pf-node-value">{{ getAgentName(stepAgents[si]) }}</span>
           </div>
           <div class="pf-node-skills">
-            <span class="pf-node-tag">Skill</span>
+            <span class="pf-node-tag">技能</span>
             <div class="pf-node-skill-chips">
               <template v-for="(sid, ski) in stepSkills[si]" :key="ski">
                 <span v-if="sid" class="pf-skill-chip">{{ getSkillName(sid) }}</span>

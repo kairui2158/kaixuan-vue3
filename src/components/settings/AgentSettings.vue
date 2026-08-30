@@ -24,8 +24,8 @@
         </div>
         <div v-if="editingId !== a.id" class="agent-card-summary">
           <span class="agent-card-meta">温度: {{ a.temperature }}</span>
-          <span class="agent-card-meta" v-if="a.maxTokens > 0">maxTokens: {{ a.maxTokens }}</span>
-          <span class="agent-card-meta" v-else>maxTokens: 无上限</span>
+          <span class="agent-card-meta" v-if="a.maxTokens > 0">输出上限: {{ a.maxTokens }}</span>
+          <span class="agent-card-meta" v-else>输出上限: 无上限</span>
         </div>
         <div v-if="editingId === a.id" id="agent-form" class="agent-card-body">
           <h4 id="agent-form-title">智能体设置</h4>
@@ -43,7 +43,7 @@
            </select>
             <label>温度: <span id="af-temp-val">{{ a.temperature }}</span></label>
             <input type="range" id="af-temperature" min="0" max="2" step="0.1" v-model.number="a.temperature" class="range-full" @change="agentStore.saveAgents()" />
-            <label>maxTokens</label>
+            <label>输出上限（maxTokens）</label>
             <input id="af-max-tokens" type="number" v-model.number="a.maxTokens" class="input-field full-width" @change="agentStore.saveAgents()" />
             <label>系统提示词</label>
             <textarea id="af-prompt" v-model="a.systemPrompt" class="textarea-field full-width" rows="6" placeholder="设定AI的角色、行为、语气..." @change="agentStore.saveAgents()"></textarea>

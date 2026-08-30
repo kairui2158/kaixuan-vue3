@@ -9,7 +9,7 @@
             <option value="">不使用</option>
             <option v-for="agent in agentStore.agents" :key="agent.id" :value="agent.id">{{ agent.name }}</option>
           </select>
-          <label class="ow-config-label" for="ow-skill-select">Skill</label>
+          <label class="ow-config-label" for="ow-skill-select">技能</label>
           <select id="ow-skill-select" v-model="selectedSkillId" class="ow-config-select ow-skill-select" @change="addSelectedSkill">
             <option value="">无</option>
             <option v-for="skill in skillStore.skills" :key="skill.id" :value="skill.id">{{ skill.name }}</option>
@@ -164,13 +164,13 @@
                 v-if="workspaceSkillMode === 'chain'"
                 v-model="workspaceSkillAgents[`0-${skill.id}`]"
                 class="ow-chip-agent"
-                title="当前 Skill 智能体"
+                title="当前技能绑定的智能体"
                 @change="handleSkillAgentChange(skill.id, ($event.target as HTMLSelectElement).value)"
               >
                 <option value="">默认</option>
                 <option v-for="agent in agentStore.agents" :key="agent.id" :value="agent.id">{{ agent.name }}</option>
               </select>
-              <button class="ow-chip-close" title="移除 Skill" @click="removeSelectedSkill(index)">&times;</button>
+              <button class="ow-chip-close" title="移除技能" @click="removeSelectedSkill(index)">&times;</button>
             </span>
           </div>
           <button id="btn-import-outline" class="btn-secondary btn-import" @click="triggerImport">
@@ -403,7 +403,7 @@ async function callWorkspaceSkill(
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const attemptPrompt = attempt === 1
       ? userPromptParts.join('\n\n')
-      : userPromptParts.join('\n\n') + '\n\n[校验重试] 上次输出未满足 Skill 的结构化约束，请只返回符合要求的结果。'
+      : userPromptParts.join('\n\n') + '\n\n[校验重试] 上次输出未满足技能的结构化约束，请只返回符合要求的结果。'
     try {
       const result = await aiService.callAi({
         purpose: 'generate',
@@ -431,7 +431,7 @@ async function callWorkspaceSkill(
       if (attempt === maxAttempts) throw error
     }
   }
-  throw lastError instanceof Error ? lastError : new Error('Skill 输出校验失败')
+  throw lastError instanceof Error ? lastError : new Error('技能输出校验失败')
 }
 
 onMounted(async () => {

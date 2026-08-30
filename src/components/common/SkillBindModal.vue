@@ -2,17 +2,17 @@
   <div v-if="props.visible" id="skill-bind-modal" class="skill-bind-overlay" @click.self="closeModal">
     <div class="skill-bind-content">
       <div class="skill-bind-header">
-        <h3 id="sbm-title">绑定 Skill</h3>
+        <h3 id="sbm-title">绑定技能</h3>
         <button class="sbm-close" @click="closeModal">&times;</button>
       </div>
       <div class="sbm-step-select">
         <label>绑定到流水线步骤：</label>
         <select v-model.number="selectedStep" class="sbm-step-selector">
-          <option :value="1">Step 1 大纲</option>
-          <option :value="2">Step 2 设定</option>
-          <option :value="3">Step 3 卷纲</option>
-          <option :value="4">Step 4 章节</option>
-          <option :value="5">Step 5 正文</option>
+          <option :value="1">第1步 大纲</option>
+          <option :value="2">第2步 设定</option>
+          <option :value="3">第3步 卷纲</option>
+          <option :value="4">第4步 章节</option>
+          <option :value="5">第5步 正文</option>
         </select>
       </div>
       <div id="sbm-skill-list" class="sbm-skill-list">

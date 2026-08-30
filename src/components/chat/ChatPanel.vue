@@ -7,7 +7,7 @@
       </div>
       <div class="chat-header-controls">
         <label class="chat-control-group">
-          <span class="chat-control-label">Agent</span>
+          <span class="chat-control-label">智能体</span>
           <select v-model="selectedChatAgent" class="agent-selector" :title="currentAgentName">
             <option value="">默认</option>
             <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
@@ -22,8 +22,8 @@
         </label>
       </div>
       <div v-if="syncedAgentName || syncedSkillNames" class="chat-context-summary">
-        <span v-if="syncedAgentName" class="chat-context-chip chat-sync-agent" :title="`Agent: ${syncedAgentName}`">Agent: {{ syncedAgentName }}</span>
-        <span v-if="syncedSkillNames" class="chat-context-chip chat-sync-skills" :title="`Skill: ${syncedSkillNames}`">Skill: {{ syncedSkillNames }}</span>
+        <span v-if="syncedAgentName" class="chat-context-chip chat-sync-agent" :title="`智能体: ${syncedAgentName}`">智能体: {{ syncedAgentName }}</span>
+        <span v-if="syncedSkillNames" class="chat-context-chip chat-sync-skills" :title="`技能: ${syncedSkillNames}`">技能: {{ syncedSkillNames }}</span>
       </div>
    </div>
 
@@ -92,7 +92,7 @@
       <span>{{ inputText.length }}</span> 字 |
         <span id="config-status">{{ configStatus }}</span>
     </div>
-    <div class="token-bar" v-show="tokenCount > 0">本次消耗: <span>{{ tokenCount }}</span> tokens</div>
+    <div class="token-bar" v-show="tokenCount > 0">本次消耗: <span>{{ tokenCount }}</span> 个 Token</div>
   </section>
 
 </template>
@@ -480,7 +480,7 @@ async function sendMessage(requestText?: string) {
             ctxSkillText += '\n【' + sObj.name + '】\n' + resolveSkillTemplate(sObj.template, ctxForSkill) + '\n'
           }
         })
-        if (ctxSkillText) { systemParts.push('当前层级 Skill（' + ctxLabel + '）：' + ctxSkillText) }
+        if (ctxSkillText) { systemParts.push('当前层级技能（' + ctxLabel + '）：' + ctxSkillText) }
       }
     }
 

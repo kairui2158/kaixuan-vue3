@@ -36,7 +36,7 @@
       <h4>主题</h4>
       <div class="settings-row">
         <select id="cfg-theme" class="full-width"><option value="dark">深色模式</option></select>
-        <button class="btn-toggle" :class="{ active: isDark }" @click="toggleTheme">{{ isDark ? 'ON' : 'OFF' }}</button>
+        <button class="btn-toggle" :class="{ active: isDark }" @click="toggleTheme">{{ isDark ? '开' : '关' }}</button>
       </div>
     </div>
     <div class="settings-section">
@@ -64,21 +64,21 @@
       </div>
     </div>
     <div class="appearance-divider">
-      <label>keyboard shortcuts</label>
+      <label>快捷键</label>
       <div class="kbd-shortcuts">
-        <div class="kbd-row"><span class="kbd">Ctrl+1</span> outline workspace</div>
-        <div class="kbd-row"><span class="kbd">Ctrl+2</span> settings collection</div>
-        <div class="kbd-row"><span class="kbd">Ctrl+3</span> pipeline</div>
-        <div class="kbd-row"><span class="kbd">Ctrl+4</span> memory</div>
-        <div class="kbd-row"><span class="kbd">Ctrl+5</span> plugin market</div>
-        <div class="kbd-row"><span class="kbd">Ctrl+,</span> settings</div>
-        <div class="kbd-row"><span class="kbd">Esc</span> close panels</div>
-        <div class="kbd-row"><span class="kbd">Ctrl+K</span> clear chat</div>
-        <div class="kbd-row"><span class="kbd">Ctrl+Shift+P</span> project manager</div>
+        <div class="kbd-row"><span class="kbd">Ctrl+1</span> 大纲工作台</div>
+        <div class="kbd-row"><span class="kbd">Ctrl+2</span> 设定层</div>
+        <div class="kbd-row"><span class="kbd">Ctrl+3</span> 生成流水线</div>
+        <div class="kbd-row"><span class="kbd">Ctrl+4</span> 记忆面板</div>
+        <div class="kbd-row"><span class="kbd">Ctrl+5</span> 插件市场</div>
+        <div class="kbd-row"><span class="kbd">Ctrl+,</span> 设置</div>
+        <div class="kbd-row"><span class="kbd">Esc</span> 关闭面板</div>
+        <div class="kbd-row"><span class="kbd">Ctrl+K</span> 清空对话</div>
+        <div class="kbd-row"><span class="kbd">Ctrl+Shift+P</span> 项目管理器</div>
       </div>
     </div>
     <div class="form-actions">
-      <button id="btn-save-appearance" class="btn-primary" @click="saveAll">save appearance</button>
+      <button id="btn-save-appearance" class="btn-primary" @click="saveAll">保存外观设置</button>
     </div>
   </div>
 
@@ -150,7 +150,7 @@ function openDataDir() {
 
 function saveAll() {
   settingsStore.saveSettings()
-  alert("appearance saved")
+  alert('外观设置已保存')
 }
 </script>
 
