@@ -86,6 +86,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useAppConfirm } from '../../composables/useAppConfirm'
+
+const appConfirm = useAppConfirm()
 const isDark = ref(false)
 const githubToken = ref('')
 onMounted(() => {
@@ -117,7 +120,7 @@ async function exportData() {
     a.href = URL.createObjectURL(blob)
     a.download = 'novel-workshop-backup.json'
     a.click()
-  } catch(e) { alert('导出失败: ' + e) }
+  } catch(e) { void appConfirm.alert('导出失败: ' + e) }
 }
 function importData() {
   const input = document.createElement('input')
@@ -136,18 +139,18 @@ function importData() {
       }
       const total = Object.keys(data).length
       if (failedKeys.length === 0) {
-        alert('导入成功（' + total + ' 项全部写入）。请重启应用使全部设置生效。')
+        await appConfirm.alert('导入成功（' + total + ' 项全部写入）。请重启应用使全部设置生效。')
       } else {
-        alert('导入完成：成功 ' + (total - failedKeys.length) + ' 项，失败 ' + failedKeys.length + ' 项（' + failedKeys.join('、') + '）。失败项未写入磁盘，请重启应用后重试。')
+        await appConfirm.alert('导入完成：成功 ' + (total - failedKeys.length) + ' 项，失败 ' + failedKeys.length + ' 项（' + failedKeys.join('、') + '）。失败项未写入磁盘，请重启应用后重试。')
       }
-    } catch(err) { alert('导入失败: ' + err) }
+    } catch(err) { await appConfirm.alert('导入失败: ' + err) }
   }
   input.click()
 }
 async function saveGithubToken() {
   const token = typeof githubToken.value === 'string' ? githubToken.value.trim() : ''
   const ok = await window.electronAPI?.storageWrite?.('github_token', token)
-  if (ok === true) { alert('Token已保存') } else { alert('Token保存失败：磁盘写入未成功，请检查磁盘空间或权限后重试。') }
+  if (ok === true) { await appConfirm.alert('Token已保存') } else { await appConfirm.alert('Token保存失败：磁盘写入未成功，请检查磁盘空间或权限后重试。') }
 }
 import { useSettingsStore } from '../../stores/settings'
 const settingsStore = useSettingsStore()
@@ -161,12 +164,12 @@ onMounted(() => {
 
 function openDataDir() {
   const ok = window.electronAPI?.storageOpenDataDir?.()
-  if (!ok) alert('无法打开数据目录')
+  if (!ok) void appConfirm.alert('无法打开数据目录')
 }
 
-function saveAll() {
+async function saveAll() {
   settingsStore.saveSettings()
-  alert('外观设置已保存')
+  await appConfirm.alert('外观设置已保存')
 }
 </script>
 

@@ -102,6 +102,7 @@
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useUndoRedo } from '../../composables/useUndoRedo'
 import { useDeAi } from '../../composables/useDeAi'
+import { useAppConfirm } from '../../composables/useAppConfirm'
 import { useEditorStore } from '../../stores/editor'
 import { useProjectStore } from '../../stores/project'
 import { useDeAiStore } from '../../stores/deai'
@@ -112,6 +113,7 @@ import { useProviderStore } from '../../stores/provider'
 
 const editorStore = useEditorStore()
 const projectStore = useProjectStore()
+const appConfirm = useAppConfirm()
 const deAiStore = useDeAiStore()
 const settingsStore = useSettingsStore()
 const providerStore = useProviderStore()
@@ -183,7 +185,7 @@ function onKeydown(e: KeyboardEvent) {
 
 function save() {
   if (!activeTab.value) {
-    alert('请先选择或创建一个章节');
+    void appConfirm.alert('请先选择或创建一个章节');
     return;
   }
   // P3-FIX: Save to different fields based on editor mode (old framework saveEditorContent)
@@ -263,7 +265,7 @@ function redo() {
 
 function generateContent() {
   if (!activeTab.value || !activeTab.value.chapterId) {
-    alert('请先选择一个章节');
+    void appConfirm.alert('请先选择一个章节');
     return;
   }
   // Emit event to parent to open pipeline at body step
@@ -274,7 +276,7 @@ function generateContent() {
 async function triggerDeAi() {
   if (!activeTab.value) return
   if (deAiStore.skillIds.length === 0) {
-    alert('请先在设置-去AI味页面配置技能')
+    void appConfirm.alert('请先在设置-去AI味页面配置技能')
     return
   }
   try {
@@ -284,7 +286,7 @@ async function triggerDeAi() {
       editorStore.updateContent(activeTab.value.id, result)
     }
   } catch (e: any) {
-    alert('去AI味处理失败: ' + (e.message || String(e)))
+    void appConfirm.alert('去AI味处理失败: ' + (e.message || String(e)))
   }
 }
 

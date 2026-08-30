@@ -223,11 +223,13 @@ import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainRes
 import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from '../../services/skillValidation'
 import { importFile } from '../../services/file-import'
 import { useAiTools } from '../../composables/useAiTools'
+import { useAppConfirm } from '../../composables/useAppConfirm'
 import { getAiService } from '../../services/aiService'
 
 const emit = defineEmits<{ close: []; navigate: [target: string] }>()
 
 const projectStore = useProjectStore()
+const appConfirm = useAppConfirm()
 const providerStore = useProviderStore()
 const pipelineStore = usePipelineStore()
 const skillStore = useSkillStore()
@@ -609,7 +611,7 @@ async function handleImport(e: Event) {
       projectStore.setOutline(text)
     }
   } catch (err: any) {
-    alert('导入失败: ' + (err.message || String(err)))
+    void appConfirm.alert('导入失败: ' + (err.message || String(err)))
   }
   target.value = ''
 }

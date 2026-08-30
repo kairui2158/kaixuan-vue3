@@ -139,9 +139,13 @@
 - E1 ChapterTree(2) + ProjectModal(2)：删除卷/章节/项目（含已实测的删除卷路径回归）。
   - 验证：[x] 删除卷确认 Esc 关闭且卷保留；[x] 取消按钮关闭且卷保留；[x] 确认删除后 DOM/store 均移除；[x] 空表单创建 alert 出现，真实 Enter 键关闭；[x] E1 原生 `javascriptDialogOpening` 事件 0 次。
 - E2 MemoryPanel(15)：删除/导入/导出/表单校验提示。
+- 验证：[x] 全部替换为 `appConfirm`；[x] 空表单 alert 通过 CDP 真实打开/关闭，`javascriptDialogOpening` 0 次。
 - E3 ChatPanel(1) + EditorPanel(4)：AI 操作确认、保存/生成类提示。
+- 验证：[x] 全部替换为 `appConfirm`；[x] 归零复核通过。
 - E4 AiNamingModal(3) + AppearanceSettings(6)：注意 :127 "导入成功请重启"语义与 B4 结果联动。
+- 验证：[x] 全部替换为 `appConfirm`；[x] 归零复核通过。
 - E5 OutlineWorkspace(1) + P2 清单复核：`rg` 确认 src 内原生 confirm/alert 归零（`useMemoryExtraction.ts:107` 的同名 async 函数为白名单）。
+- 验证：[x] 全部替换为 `appConfirm`；[x] `window.confirm/window.alert` 归零，原生同名函数白名单外无残留。
 - E-S 存储并发写加固（E 探针期间发现的真实缺陷）：探针项目 JSON 出现"前缀+旧尾"残留（JSON.parse 在 position 711 后非法）。根因：并发 `storage:write` 共享同一 `.tmp` 路径，交错时短写截断后长写 fd 续写产生残留。修复：每键写队列串行化 + 每次写唯一 tmp 文件名。验收：[x] 并发双写探针（不同长度载荷、同一 key、不 await）读取结果等于最后一次写入且 JSON 完整（20/20 pass）；[x] 无 `.tmp` 残留文件。
 - 每批验收：[ ] CDP `Page.javascriptDialogOpening` 事件 0 次；[ ] 应用内弹窗可取消/确认且行为与原 confirm 等价；[ ] 该批相关既有测试全绿。
 

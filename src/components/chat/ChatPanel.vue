@@ -100,6 +100,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useAgentStore } from '../../stores/agent'
+import { useAppConfirm } from '../../composables/useAppConfirm'
 import { useProviderStore } from '../../stores/provider'
 import { useEditorStore } from '../../stores/editor'
 import { useProjectStore } from '../../stores/project'
@@ -115,6 +116,7 @@ import { retrieveContext } from '../../services/memoryRetriever'
 const agentStore = useAgentStore()
 const providerStore = useProviderStore()
 const editorStore = useEditorStore()
+const appConfirm = useAppConfirm()
 const skillStore = useSkillStore()
 const chatStore = useChatStore()
 const projectStore = useProjectStore()
@@ -702,7 +704,7 @@ function insertToEditor(content: string) {
   }
 }
 
-function replaceWhole(content: string) {
+async function replaceWhole(content: string) {
   const pending = _pendingInlineSelection.value
   const tab = editorStore.activeTab
   if (pending && tab && pending.tabId === tab.id && pending.end > pending.start) {
@@ -713,7 +715,7 @@ function replaceWhole(content: string) {
     _pendingInlineSelection.value = null
     return
   }
-  if (tab && confirm('当前没有可用选区，将替换整章内容，确认继续？')) {
+  if (tab && await appConfirm.confirm({ title: '替换整章', message: '当前没有可用选区，将替换整章内容，确认继续？', confirmText: '替换', danger: true })) {
     editorStore.updateContent(tab.id, content)
   }
 }

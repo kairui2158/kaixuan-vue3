@@ -113,10 +113,12 @@ import GraphAnalysis from '../memory/GraphAnalysis.vue'
 import MindMap from '../memory/MindMap.vue'
 import TimelineView from '../memory/TimelineView.vue'
 import CharacterCard from '../memory/CharacterCard.vue'
+import { useAppConfirm } from '../../composables/useAppConfirm'
 import { exportFullJSON, importFullJSON, mergeImportedMemory, exportCharacterCardV3, importCharacterCardV3 } from '../../services/memoryIO'
 
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
+const appConfirm = useAppConfirm()
 const emit = defineEmits<{ close: [] }>()
 
 const selectedCat = ref('all')
@@ -225,7 +227,7 @@ function cancelForm() {
 
 function saveForm() {
   if (!formData.value.key.trim() || !formData.value.content.trim()) {
-    alert('键名和内容不能为空')
+    void appConfirm.alert('键名和内容不能为空')
     return
   }
   const item = { key: formData.value.key.trim(), category: formData.value.category, content: formData.value.content.trim() }
@@ -238,8 +240,8 @@ function saveForm() {
   editingIdx.value = -1
 }
 
-function deleteItem(idx: number) {
-  if (confirm('确定删除此记忆？')) {
+async function deleteItem(idx: number) {
+  if (await appConfirm.confirm({ title: '删除记忆', message: '确定删除此记忆？', confirmText: '删除', danger: true })) {
     projectStore.deleteMemory(idx)
   }
 }
@@ -258,7 +260,7 @@ async function exportMemory() {
   const filePath = await (window.electronAPI.dialogSaveFileAsync?.('memory-export.json') ?? window.electronAPI.dialogSaveFile('memory-export.json'))
   if (!filePath) return
   const ok = await window.electronAPI.dialogWriteFile(filePath, json)
-  alert(ok ? '记忆导出成功：' + filePath : '记忆导出失败')
+  void appConfirm.alert(ok ? '记忆导出成功：' + filePath : '记忆导出失败')
 }
 
 async function importMemory(mode: 'merge' | 'replace' = 'merge') {
@@ -266,30 +268,30 @@ async function importMemory(mode: 'merge' | 'replace' = 'merge') {
   if (!path) return
   const read = await (window.electronAPI.dialogReadFileAsync?.(path) ?? window.electronAPI.dialogReadFile(path))
   if (!read || !read.content) {
-    alert('读取文件失败')
+    void appConfirm.alert('读取文件失败')
     return
   }
   const result = importFullJSON(read.content)
   if (!result.success || !result.memory) {
-    alert('导入失败：' + (result.error || '未知错误'))
+    void appConfirm.alert('导入失败：' + (result.error || '未知错误'))
     return
   }
   if (mode === 'replace') {
-    if (!confirm('覆盖导入会删除当前项目已有记忆，只保留文件内容。确认覆盖？')) return
+    if (!await appConfirm.confirm({ title: '覆盖导入记忆', message: '覆盖导入会删除当前项目已有记忆，只保留文件内容。确认覆盖？', confirmText: '覆盖', danger: true })) return
     await projectStore.recordMemoryChange(result.memory, {
       chapterId: 'memory-import-replace',
       reason: '用户主动选择覆盖导入记忆'
     })
-    alert('记忆覆盖导入成功')
+    void appConfirm.alert('记忆覆盖导入成功')
     return
   }
-  if (!confirm('导入将合并到当前记忆，已有条目不会被覆盖。确认继续？')) return
+  if (!await appConfirm.confirm('导入将合并到当前记忆，已有条目不会被覆盖。确认继续？')) return
   const merged = mergeImportedMemory(projectStore.memories, result.memory)
   await projectStore.recordMemoryChange(merged.memory, {
     chapterId: 'memory-import-merge',
     reason: `合并导入记忆：新增 ${merged.added} 项，跳过 ${merged.skipped} 项`
   })
-  alert(`记忆合并导入成功：新增 ${merged.added} 项，跳过 ${merged.skipped} 项`)
+  void appConfirm.alert(`记忆合并导入成功：新增 ${merged.added} 项，跳过 ${merged.skipped} 项`)
 }
 
 async function importCharacterCard() {
@@ -297,22 +299,22 @@ async function importCharacterCard() {
   if (!path) return
   const read = await (window.electronAPI.dialogReadFileAsync?.(path) ?? window.electronAPI.dialogReadFile(path))
   if (!read || !read.content) {
-    alert('读取文件失败')
+    void appConfirm.alert('读取文件失败')
     return
   }
   const result = importCharacterCardV3(read.content)
   if (!result.success || !result.entity) {
-    alert('角色卡导入失败：' + (result.error || '未知错误'))
+    void appConfirm.alert('角色卡导入失败：' + (result.error || '未知错误'))
     return
   }
   projectStore.addEntity(result.entity)
-  alert('角色卡导入成功：' + result.entity.name)
+  void appConfirm.alert('角色卡导入成功：' + result.entity.name)
 }
 
 async function exportEntityCard(item: any) {
   const entity = projectStore.memories.entities.find((e: any) => e.name === item.key || e.id === item.key)
   if (!entity) {
-    alert('未找到对应实体数据')
+    void appConfirm.alert('未找到对应实体数据')
     return
   }
   const json = exportCharacterCardV3(entity)
@@ -320,7 +322,7 @@ async function exportEntityCard(item: any) {
   const filePath = await (window.electronAPI.dialogSaveFileAsync?.(safeName + '.chara-card-v3.json') ?? window.electronAPI.dialogSaveFile(safeName + '.chara-card-v3.json'))
   if (!filePath) return
   const ok = await window.electronAPI.dialogWriteFile(filePath, json)
-  alert(ok ? '角色卡导出成功：' + filePath : '角色卡导出失败')
+  void appConfirm.alert(ok ? '角色卡导出成功：' + filePath : '角色卡导出失败')
 }
 
 function findChapter(chapterId: string) {
@@ -337,12 +339,12 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
     ? projectStore.memories.events.find(item => item.id === payload.id)?.chapterId
     : projectStore.memories.entities.find(item => item.id === payload.id)?.evidence?.[0]?.chapterId
   if (!chapterId) {
-    alert('该记忆暂无对应正文来源')
+    void appConfirm.alert('该记忆暂无对应正文来源')
     return
   }
   const chapter = findChapter(chapterId)
   if (!chapter) {
-    alert('未找到该记忆对应的章节')
+    void appConfirm.alert('未找到该记忆对应的章节')
     return
   }
   editorStore.openTab({

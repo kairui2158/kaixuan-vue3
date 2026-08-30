@@ -253,9 +253,11 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useAiNaming } from '../../composables/useAiNaming'
+import { useAppConfirm } from '../../composables/useAppConfirm'
 import { NAMING_TYPE_LABELS, type NamingType } from '../../types/aiNaming'
 
 const naming = useAiNaming()
+const appConfirm = useAppConfirm()
 
 const subTab = ref<'generate' | 'favorites' | 'history'>('generate')
 
@@ -293,22 +295,22 @@ function restoreHistory(id: string) {
   subTab.value = 'generate'
 }
 
-function confirmClearHistory() {
-  if (window.confirm('确定清空所有历史记录？此操作不可恢复。')) {
+async function confirmClearHistory() {
+  if (await appConfirm.confirm({ title: '清空历史', message: '确定清空所有历史记录？此操作不可恢复。', confirmText: '清空', danger: true })) {
     naming.clearHistory()
   }
 }
 
-function handleOverlayClick() {
+async function handleOverlayClick() {
   if (naming.hasUnsavedChanges.value && naming.isLoading.value) return
   if (naming.hasUnsavedChanges.value) {
-    if (!window.confirm('有未使用的结果，确定关闭？')) return
+    if (!await appConfirm.confirm({ title: '关闭起名器', message: '有未使用的结果，确定关闭？', confirmText: '关闭', danger: true })) return
   }
   naming.closeNaming()
 }
 
-function handleClose() {
-  if (naming.hasUnsavedChanges.value && !window.confirm('有未使用的结果，确定关闭？')) return
+async function handleClose() {
+  if (naming.hasUnsavedChanges.value && !await appConfirm.confirm({ title: '关闭起名器', message: '有未使用的结果，确定关闭？', confirmText: '关闭', danger: true })) return
   naming.closeNaming()
 }
 
