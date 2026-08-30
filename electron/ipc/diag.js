@@ -1,6 +1,7 @@
 const { ipcMain, app, dialog } = require('electron')
 const fs = require('fs')
 const path = require('path')
+const os = require('os')
 
 var logDir = ''
 
@@ -15,7 +16,30 @@ function setLogDir(dir) {
 function _parseLogLine(line) {
   var m = line.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\] \[(\w+)\] (.*)$/)
   if (!m) return null
-  return { ts: m[1], level: m[2].toLowerCase(), msg: m[3], cat: 'general' }
+  var ts = m[1]
+  try {
+    var d = new Date(m[1].replace(' ', 'T'))
+    if (!isNaN(d.getTime())) ts = d.toISOString()
+  } catch (e) {}
+  return { ts: ts, level: m[2].toLowerCase(), msg: m[3], cat: 'general' }
+}
+
+// Providers live in per-key files since the storage rework; the old single
+// storage.json is kept as a legacy fallback.
+function _readProviderList() {
+  var candidates = [
+    path.join(os.homedir(), 'Documents', '神意助手数据', 'wa_providers.json'),
+    path.join(app.getPath('userData'), 'storage.json')
+  ]
+  for (var i = 0; i < candidates.length; i++) {
+    try {
+      if (!fs.existsSync(candidates[i])) continue
+      var data = JSON.parse(fs.readFileSync(candidates[i], 'utf8'))
+      var list = Array.isArray(data) ? data : (data.providers || [])
+      if (list && list.length) return list
+    } catch (e) {}
+  }
+  return []
 }
 
 function _readElectronLog() {
@@ -59,17 +83,9 @@ function _buildMeta() {
   }
   try { meta.appVersion = app.getVersion() } catch(e) {}
   try {
-    var userData = app.getPath('userData')
-    var storageFile = path.join(userData, 'storage.json')
-    if (fs.existsSync(storageFile)) {
-      var raw = fs.readFileSync(storageFile, 'utf8')
-      var storage = JSON.parse(raw)
-      if (storage.providers) {
-        meta.providers = storage.providers.map(function(p) {
-          return { name: p.name || 'unknown', purpose: p.purpose || 'generate', model: p.model || '', active: !!p.active }
-        })
-      }
-    }
+    meta.providers = _readProviderList().map(function(p) {
+      return { name: p.name || 'unknown', purpose: p.purpose || 'generate', model: p.model || '', active: !!p.active }
+    })
   } catch(e) {}
   return meta
 }
@@ -106,7 +122,17 @@ function registerDiagHandlers() {
       var oldEntries = _readOldFormatLogs()
       var all = oldEntries.concat(entries)
       if (dateStr) {
-        all = all.filter(function(e) { return (e.ts || '').indexOf(dateStr) === 0 })
+        all = all.filter(function(e) {
+          try {
+            var d = new Date(e.ts)
+            if (!isNaN(d.getTime())) {
+              var mo = d.getMonth() + 1, day = d.getDate()
+              var local = d.getFullYear() + '-' + (mo < 10 ? '0' + mo : mo) + '-' + (day < 10 ? '0' + day : day)
+              return local === dateStr
+            }
+          } catch (err) {}
+          return (e.ts || '').indexOf(dateStr) === 0
+        })
       }
       return all
     } catch (e) {

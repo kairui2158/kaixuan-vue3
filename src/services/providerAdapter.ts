@@ -19,6 +19,7 @@ export interface ProviderLike {
   selectedModel: string
   temperature: number
   maxTokens: number
+  timeoutMs?: number
   streamMode?: boolean
   systemPrompt?: string
 }

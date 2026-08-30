@@ -14,6 +14,7 @@ export interface ExecLogEntry {
   result: string;
   duration: number;
   status: "success" | "failed";
+  usage?: any;
   feedback?: "up" | "down";
 }
 

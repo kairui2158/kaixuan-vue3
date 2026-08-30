@@ -90,7 +90,7 @@ export interface AiService {
 
 // ── Constants ──────────────────────────────────────────────────────
 
-const DEFAULT_NON_STREAM_TIMEOUT = 60_000
+const DEFAULT_NON_STREAM_TIMEOUT = 300_000
 const DEFAULT_STREAM_TIMEOUT = 600_000
 const RETRY_DELAYS = [1000, 2000, 3000]
 const MAX_RETRIES = 3
@@ -239,6 +239,7 @@ export interface DiagnosticLogLike {
     result: string
     duration: number
     status: 'success' | 'failed'
+    usage?: any
   }): void
 }
 
@@ -254,6 +255,7 @@ function logRequest(
     durationMs: number
     success: boolean
     skillId?: string
+    usage?: any
   }
 ) {
   if (!logger) return
@@ -269,16 +271,18 @@ function logRequest(
     result: params.result.slice(0, 500),
     duration: params.durationMs,
     status: params.success ? 'success' : 'failed',
+    usage: params.usage,
   })
  // Push to DiagLogger for real-time DiagLogPanel display (single write path)
   const _diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
   if (_diag && typeof _diag.log === 'function') {
     _diag.log(params.success ? 'info' : 'error', 'ai-service',
       'AI call: purpose=' + params.purpose + ' provider=' + (params.providerId || '?') + ' model=' + (params.model || '?') + ' ' + params.durationMs + 'ms ' + (params.success ? 'OK' : 'FAIL'),
-      { providerId: params.providerId, purpose: params.purpose, model: params.model, durationMs: params.durationMs, skillId: params.skillId, result: params.result.slice(0, 300) }
+      { providerId: params.providerId, purpose: params.purpose, model: params.model, durationMs: params.durationMs, skillId: params.skillId, result: params.result.slice(0, 300), usage: params.usage || undefined }
     )
     if (typeof _diag.trackApiCall === 'function') {
-      _diag.trackApiCall(params.model || '?', 0, params.durationMs, params.success ? 'ok' : 'error', params.success ? '' : params.result.slice(0, 200))
+      const totalTokens = params.usage ? (params.usage.total_tokens ?? params.usage.totalTokens ?? 0) : 0
+      _diag.trackApiCall(params.model || '?', totalTokens, params.durationMs, params.success ? 'ok' : 'error', params.success ? '' : params.result.slice(0, 200))
     }
   }
 }
@@ -311,8 +315,16 @@ export function createAiService(
     if (!resp.ok) throw resp
     if (wantStream) {
       const reader = resp.body!.getReader()
-      const result = await parseSSEStream(reader, { onChunk: params.onChunk, onReasoning: params.onReasoning, onUsage: params.onUsage })
-      return { ...result, usage: undefined }
+      let streamUsage: any
+      const result = await parseSSEStream(reader, {
+        onChunk: params.onChunk,
+        onReasoning: params.onReasoning,
+        onUsage: (u: any) => {
+          streamUsage = u
+          if (params.onUsage) params.onUsage(u)
+        },
+      })
+      return { ...result, usage: streamUsage }
     } else {
       const data = await resp.json()
       const extracted = extractNonStreamText(data)
@@ -330,7 +342,7 @@ export function createAiService(
     // Default stream: true for generate/rewrite (long text), false for others (short/JSON)
     const defaultStream = (params.purpose === 'generate' || params.purpose === 'rewrite')
     const wantStream = params.stream ?? defaultStream
-    const timeoutMs = params.timeoutMs ?? (wantStream ? DEFAULT_STREAM_TIMEOUT : DEFAULT_NON_STREAM_TIMEOUT)
+    const timeoutMs = params.timeoutMs ?? provider.timeoutMs ?? (wantStream ? DEFAULT_STREAM_TIMEOUT : DEFAULT_NON_STREAM_TIMEOUT)
     const doRetry = params.retry !== false
     const maxRetries = doRetry ? MAX_RETRIES : 0
     let lastErr: any = null
@@ -355,7 +367,7 @@ export function createAiService(
         }
         const durationMs = Date.now() - startTime
         const _model = resolveModel(provider, params.model)
-        logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _model, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId })
+        logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _model, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, usage: result.usage })
         return { text: finalText, reasoning: result.reasoning, providerId, model: _model, durationMs, usage: result.usage }
       } catch (e: any) {
         // Canceled by user?
@@ -452,13 +464,13 @@ export function createAiService(
           }
           const durationMs = Date.now() - startTime
           const _hbModel = resolveModel(provider, params.model)
-          logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _hbModel, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId })
+          logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _hbModel, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, usage: result.usage })
           return { text: finalText, reasoning: result.reasoning, providerId, model: resolveModel(provider, params.model), durationMs, usage: result.usage }
         } catch (hbErr: any) {
           if (params.signal?.aborted) {
             return throwCanceled()
           }
-          console.warn('[HEARTBEAT] Probe ' + hbAttempt + ' failed: ' + hbErr.message)
+          console.warn('[HEARTBEAT] Probe ' + hbAttempt + ' failed: ' + ((hbErr && (hbErr.message || String(hbErr))) || 'unknown'))
         }
       }
     }

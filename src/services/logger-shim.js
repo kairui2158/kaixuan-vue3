@@ -23,11 +23,25 @@ function _flushBuffer() {
   } catch(e) {}
 }
 
+// Error objects serialize to "{}" via JSON.stringify (message/stack are
+// non-enumerable), so they must be handled explicitly.
+function _serializeArg(a) {
+  if (typeof a === 'string') return a;
+  if (a instanceof Error) {
+    var parts = [(a.name || 'Error') + ': ' + (a.message || '')];
+    if (a.stack) parts.push(a.stack);
+    if (a.cause) parts.push('cause: ' + _serializeArg(a.cause));
+    return parts.join('\n');
+  }
+  try {
+    var s = JSON.stringify(a);
+    if (s === undefined || s === '{}') return String(a);
+    return s;
+  } catch (e) { return String(a); }
+}
+
 function _queueLog(level, args) {
-  var msg = Array.prototype.slice.call(args).map(function(a) {
-    if (typeof a === 'string') return a;
-    try { return JSON.stringify(a) } catch(e) { return String(a) }
-  }).join(' ');
+  var msg = Array.prototype.slice.call(args).map(_serializeArg).join(' ');
   _buffer.push({ ts: new Date().toISOString(), level: level, msg: msg, cat: 'renderer' });
   if (_flushTimer) clearTimeout(_flushTimer);
   _flushTimer = setTimeout(_flushBuffer, 2000);

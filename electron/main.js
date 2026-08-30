@@ -103,6 +103,18 @@ function createWindow() {
   mainWindow.on('resize', function() { if (!mainWindow.isMaximized()) saveWindowState() })
   mainWindow.on('move', function() { if (!mainWindow.isMaximized()) saveWindowState() })
 
+  // Structured crash/load-failure logging; electron-log eventLogger alone
+  // serializes these event details as "{}".
+  mainWindow.webContents.on('render-process-gone', function(_event, details) {
+    log.error('render-process-gone: reason=' + details.reason + ' exitCode=' + details.exitCode)
+  })
+  mainWindow.webContents.on('child-process-gone', function(_event, details) {
+    log.error('child-process-gone: type=' + details.type + ' reason=' + details.reason + ' exitCode=' + details.exitCode)
+  })
+  mainWindow.webContents.on('did-fail-load', function(_event, code, desc, url, isMainFrame) {
+    if (isMainFrame) log.error('did-fail-load: code=' + code + ' desc=' + desc + ' url=' + url)
+  })
+
   // Register all IPC handlers
   registerCryptoHandlers()
   registerStorageHandlers()
