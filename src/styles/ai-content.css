@@ -1,0 +1,175 @@
+/* Shared typography for AI surfaces rendered through markdownService. */
+:is(.message-content, .ow-msg-bubble) {
+  font-size: var(--font-size-lg);
+  line-height: 1.75;
+}
+
+:is(.message-content, .ow-msg-bubble) h1,
+:is(.message-content, .ow-msg-bubble) h2,
+:is(.message-content, .ow-msg-bubble) h3,
+:is(.message-content, .ow-msg-bubble) h4,
+:is(.message-content, .ow-msg-bubble) h5,
+:is(.message-content, .ow-msg-bubble) h6 {
+  color: var(--text-primary);
+  font-weight: 650;
+  line-height: 1.35;
+  margin: 1.25em 0 0.55em;
+}
+
+:is(.message-content, .ow-msg-bubble) h1 {
+  font-size: 1.45em;
+}
+:is(.message-content, .ow-msg-bubble) h2 {
+  font-size: 1.25em;
+}
+:is(.message-content, .ow-msg-bubble) h3 {
+  font-size: 1.1em;
+}
+:is(.message-content, .ow-msg-bubble) h4,
+:is(.message-content, .ow-msg-bubble) h5,
+:is(.message-content, .ow-msg-bubble) h6 {
+  font-size: 1em;
+}
+
+:is(.message-content, .ow-msg-bubble) h1:first-child,
+:is(.message-content, .ow-msg-bubble) h2:first-child,
+:is(.message-content, .ow-msg-bubble) h3:first-child,
+:is(.message-content, .ow-msg-bubble) h4:first-child,
+:is(.message-content, .ow-msg-bubble) h5:first-child,
+:is(.message-content, .ow-msg-bubble) h6:first-child,
+:is(.message-content, .ow-msg-bubble) p:first-child,
+:is(.message-content, .ow-msg-bubble) ul:first-child,
+:is(.message-content, .ow-msg-bubble) ol:first-child,
+:is(.message-content, .ow-msg-bubble) table:first-child,
+:is(.message-content, .ow-msg-bubble) pre:first-child {
+  margin-top: 0;
+}
+
+:is(.message-content, .ow-msg-bubble) p {
+  margin: 0.75em 0;
+}
+
+:is(.message-content, .ow-msg-bubble) ul,
+:is(.message-content, .ow-msg-bubble) ol {
+  margin: 0.7em 0;
+  padding-left: 1.5em;
+}
+:is(.message-content, .ow-msg-bubble) li {
+  margin: 0.3em 0;
+}
+:is(.message-content, .ow-msg-bubble) li > ul,
+:is(.message-content, .ow-msg-bubble) li > ol {
+  margin: 0.25em 0;
+}
+
+:is(.message-content, .ow-msg-bubble) code {
+  background: var(--chat-action-bg);
+  border-radius: var(--radius-xs);
+  font-size: 0.94em;
+  overflow-wrap: anywhere;
+  padding: 0.1em 0.35em;
+}
+
+:is(.message-content, .ow-msg-bubble) pre {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  box-sizing: border-box;
+  font-size: var(--font-size-md);
+  line-height: 1.65;
+  margin: 0.95em 0;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 0.85em 1em;
+}
+:is(.message-content, .ow-msg-bubble) pre code {
+  background: none;
+  font-size: inherit;
+  padding: 0;
+}
+
+:is(.message-content, .ow-msg-bubble) blockquote {
+  background: var(--bg-tertiary);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--text-secondary);
+  margin: 0.9em 0;
+  padding: 0.45em 1em;
+}
+
+:is(.message-content, .ow-msg-bubble) table {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-collapse: separate;
+  border-radius: var(--radius-sm);
+  border-spacing: 0;
+  display: block;
+  font-size: var(--font-size-md);
+  margin: 1em 0;
+  max-width: 100%;
+  overflow-x: auto;
+  width: 100%;
+}
+:is(.message-content, .ow-msg-bubble) th,
+:is(.message-content, .ow-msg-bubble) td {
+  border-bottom: 1px solid var(--border-color);
+  min-width: 88px;
+  padding: 0.6em 0.8em;
+  text-align: left;
+  vertical-align: top;
+}
+:is(.message-content, .ow-msg-bubble) th {
+  background: var(--bg-tertiary);
+  font-weight: 650;
+}
+:is(.message-content, .ow-msg-bubble) td:nth-child(even),
+:is(.message-content, .ow-msg-bubble) th:nth-child(even) {
+  background: color-mix(in srgb, var(--bg-tertiary) 45%, transparent);
+}
+:is(.message-content, .ow-msg-bubble) tr:last-child td {
+  border-bottom: none;
+}
+:is(.message-content, .ow-msg-bubble) .md-status {
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: var(--font-size-sm);
+  font-weight: 650;
+  line-height: 1.2;
+  min-height: 24px;
+  padding: 0.15em 0.55em;
+  white-space: nowrap;
+}
+:is(.message-content, .ow-msg-bubble) .md-status.is-success {
+  background: #d1fae5;
+  color: #067647;
+}
+:is(.message-content, .ow-msg-bubble) .md-status.is-warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+:is(.message-content, .ow-msg-bubble) .md-status.is-danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+:is(.message-content, .ow-msg-bubble) strong {
+  color: var(--text-primary);
+}
+:is(.message-content, .ow-msg-bubble) em {
+  color: var(--text-secondary);
+}
+:is(.message-content, .ow-msg-bubble) a {
+  color: var(--accent);
+  overflow-wrap: anywhere;
+  text-decoration: none;
+  word-break: break-word;
+}
+:is(.message-content, .ow-msg-bubble) a:hover {
+  text-decoration: underline;
+}
+:is(.message-content, .ow-msg-bubble) hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 1.25em 0;
+}

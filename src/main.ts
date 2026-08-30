@@ -5,6 +5,7 @@ import './styles/tokens.css'
 import './styles/global.css'
 import './styles/base-components.css'
 import './styles/modal.css'
+import './styles/ai-content.css'
 import VueVirtualScroller from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
