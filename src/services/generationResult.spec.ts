@@ -38,4 +38,32 @@ describe('parseGenerationResult', () => {
     expect(result.body).toContain('"body": 42')
     expect(result.metadata).toEqual({})
   })
+
+  it('moves whitelisted line-start metadata sections out of plain text', () => {
+    const result = parseGenerationResult(
+      '夜雨敲窗。她收起了伞。\n【来源覆盖】\nE-01 全书大纲\nE-02 当前卷\n【来源覆盖结束】'
+    )
+    expect(result.body).toBe('夜雨敲窗。她收起了伞。')
+    expect(result.body).not.toContain('来源覆盖')
+    expect(result.metadata.extractedMeta).toEqual([
+      '【来源覆盖】\nE-01 全书大纲\nE-02 当前卷\n【来源覆盖结束】'
+    ])
+  })
+
+  it('keeps bracketed markers that are not line-start section headings', () => {
+    const source = '她说：【来源覆盖】只是台词的一部分。\n夜色更深了。'
+    const result = parseGenerationResult(source)
+    expect(result.body).toBe(source)
+    expect(result.metadata).toEqual({})
+  })
+
+  it('still separates metadata sections embedded in a JSON envelope body', () => {
+    const result = parseGenerationResult(JSON.stringify({
+      body: '正文一句。\n【输出末尾元数据】\nrunId: r-1',
+      metadata: { status: 'success' }
+    }))
+    expect(result.body).toBe('正文一句。')
+    expect(result.metadata.status).toBe('success')
+    expect(result.metadata.extractedMeta).toEqual(['【输出末尾元数据】\nrunId: r-1'])
+  })
 })

@@ -233,6 +233,7 @@ export interface DiagnosticLogLike {
     stepName: string
     mode: string
     skillNames: string[]
+    agentId?: string
     providerId?: string
     model?: string
     prompt: string
@@ -255,30 +256,34 @@ function logRequest(
     durationMs: number
     success: boolean
     skillId?: string
+    agentId?: string
     usage?: any
   }
 ) {
-  if (!logger) return
-
-  logger.addLog({
-    step: params.step ?? -1,
-    stepName: params.purpose,
-    mode: params.skillId || 'default',
-    skillNames: params.skillId ? [params.skillId] : [],
-    providerId: params.providerId || '',
-    model: params.model || '',
-    prompt: params.prompt.slice(0, 500),
-    result: params.result.slice(0, 500),
-    duration: params.durationMs,
-    status: params.success ? 'success' : 'failed',
-    usage: params.usage,
-  })
- // Push to DiagLogger for real-time DiagLogPanel display (single write path)
+  if (logger) {
+    logger.addLog({
+      step: params.step ?? -1,
+      stepName: params.purpose,
+      mode: params.skillId || 'default',
+      skillNames: params.skillId ? [params.skillId] : [],
+      agentId: params.agentId || '',
+      providerId: params.providerId || '',
+      model: params.model || '',
+      prompt: params.prompt.slice(0, 500),
+      result: params.result.slice(0, 500),
+      duration: params.durationMs,
+      status: params.success ? 'success' : 'failed',
+      usage: params.usage,
+    })
+  }
+  // Push to DiagLogger for real-time DiagLogPanel display.
+  // Must run even when the caller passes no pipeline logger:
+  // diagnostics are a cross-cutting concern of the unified AI entry.
   const _diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
   if (_diag && typeof _diag.log === 'function') {
     _diag.log(params.success ? 'info' : 'error', 'ai-service',
       'AI call: purpose=' + params.purpose + ' provider=' + (params.providerId || '?') + ' model=' + (params.model || '?') + ' ' + params.durationMs + 'ms ' + (params.success ? 'OK' : 'FAIL'),
-      { providerId: params.providerId, purpose: params.purpose, model: params.model, durationMs: params.durationMs, skillId: params.skillId, result: params.result.slice(0, 300), usage: params.usage || undefined }
+      { providerId: params.providerId, purpose: params.purpose, model: params.model, durationMs: params.durationMs, skillId: params.skillId, agentId: params.agentId, result: params.result.slice(0, 300), usage: params.usage || undefined }
     )
     if (typeof _diag.trackApiCall === 'function') {
       const totalTokens = params.usage ? (params.usage.total_tokens ?? params.usage.totalTokens ?? 0) : 0
@@ -350,7 +355,7 @@ export function createAiService(
     const promptPreview = params.messages.map(m => m.content).join(' ').slice(0, 200)
     const throwCanceled = (): never => {
       const durationMs = Date.now() - startTime
-      logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: resolveModel(provider, params.model), prompt: promptPreview, result: '用户取消', durationMs, success: false, skillId: params.meta?.skillId })
+      logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: resolveModel(provider, params.model), prompt: promptPreview, result: '用户取消', durationMs, success: false, skillId: params.meta?.skillId, agentId: params.meta?.agentId })
       throw new AiServiceErrorImpl({ kind: 'canceled', message: '用户取消', providerId, purpose: params.purpose })
     }
 
@@ -367,7 +372,7 @@ export function createAiService(
         }
         const durationMs = Date.now() - startTime
         const _model = resolveModel(provider, params.model)
-        logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _model, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, usage: result.usage })
+        logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _model, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, agentId: params.meta?.agentId, usage: result.usage })
         return { text: finalText, reasoning: result.reasoning, providerId, model: _model, durationMs, usage: result.usage }
       } catch (e: any) {
         // Canceled by user?
@@ -464,7 +469,7 @@ export function createAiService(
           }
           const durationMs = Date.now() - startTime
           const _hbModel = resolveModel(provider, params.model)
-          logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _hbModel, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, usage: result.usage })
+          logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _hbModel, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, agentId: params.meta?.agentId, usage: result.usage })
           return { text: finalText, reasoning: result.reasoning, providerId, model: resolveModel(provider, params.model), durationMs, usage: result.usage }
         } catch (hbErr: any) {
           if (params.signal?.aborted) {
@@ -476,7 +481,7 @@ export function createAiService(
     }
 
     const durationMs = Date.now() - startTime
-    logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: resolveModel(provider, params.model), prompt: promptPreview, result: lastErr?.message || 'unknown', durationMs, success: false, skillId: params.meta?.skillId })
+    logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: resolveModel(provider, params.model), prompt: promptPreview, result: lastErr?.message || 'unknown', durationMs, success: false, skillId: params.meta?.skillId, agentId: params.meta?.agentId })
     throw lastErr || new AiServiceErrorImpl({ kind: 'network', message: 'unknown error', providerId, purpose: params.purpose })
   }
 

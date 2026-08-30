@@ -2,6 +2,7 @@
   <div id="diag-panel" class="diag-panel" :class="{ 'diag-panel-visible': visible !== false, 'diag-panel-inline': isInline }">
     <div class="diag-header">
       <span class="diag-title">诊断日志</span>
+      <span v-if="appVersion" class="diag-version">应用版本 {{ appVersion }}</span>
       <span v-if="stats.errorCount > 0" class="diag-error-count">{{ stats.errorCount }} 错误</span>
       <button class="btn-close" @click="$emit('close')">&times;</button>
     </div>
@@ -40,6 +41,8 @@
         <span v-if="log.providerId" class="diag-log-provider">{{ log.providerId }}</span>
         <span v-if="log.purpose" class="diag-log-purpose">{{ log.purpose }}</span>
         <span v-if="log.model" class="diag-log-model">{{ log.model }}</span>
+        <span v-if="log.agentId" class="diag-log-agent">{{ log.agentId }}</span>
+        <span v-if="log.skillId" class="diag-log-skill">{{ log.skillId }}</span>
         <span v-if="log.durationMs" class="diag-log-duration">{{ log.durationMs }}ms</span>
         <span class="diag-log-msg">{{ log.msg || '' }}</span>
         <span v-if="log.traceId" class="diag-log-trace">#{{ log.traceId.slice(-6) }}</span>
@@ -71,6 +74,7 @@ const autoScroll = ref(true)
 const exportStatus = ref('')
 const logContainer = ref<HTMLElement | null>(null)
 const stats = ref({ errorCount: 0, warnCount: 0 })
+const appVersion = ref('')
 
 const levelLabels: Record<string, string> = { error: '错误', warn: '警告', info: '信息', debug: '调试' }
 function levelLabel(level?: string): string {
@@ -184,6 +188,12 @@ function refreshLogs() {
 }
 
 onMounted(() => {
+  refreshLogs()
+  try {
+    window.electronAPI?.getAppVersion?.()?.then((version: unknown) => {
+      if (typeof version === 'string' && version) appVersion.value = version
+    })
+  } catch {}
   unsub = subscribe((entry: any) => {
     pendingEntries.push(entry)
     if (!throttleTimer) {
@@ -233,6 +243,7 @@ onUnmounted(() => {
   border-bottom: 1px solid var(--border-color);
 }
 .diag-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); }
+.diag-version { font-size: var(--font-size-xs); color: var(--text-muted); }
 .diag-error-count { font-size: var(--font-size-xs); color: var(--danger); font-weight: 600; background: var(--danger-dim); padding: 2px 8px; border-radius: var(--radius-lg); }
 .btn-close { margin-left: auto; background: none; border: none; color: var(--text-muted); font-size: var(--font-size-xl, 18px); cursor: pointer; padding: 0 4px; height: var(--space-lg, 24px); line-height: var(--space-lg, 24px); }
 .btn-close:hover { color: var(--text-primary); }
@@ -255,6 +266,8 @@ onUnmounted(() => {
 .diag-log-provider { color: var(--diagnostic-provider); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
 .diag-log-purpose { color: var(--text-secondary); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
 .diag-log-model { color: var(--diagnostic-model); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
+.diag-log-agent { color: var(--info); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
+.diag-log-skill { color: var(--diagnostic-trace); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; font-family: monospace; }
 .diag-log-duration { color: var(--diagnostic-duration); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
 .diag-footer { display: flex; justify-content: space-between; align-items: center; padding: 6px 14px; border-top: 1px solid var(--border-color); font-size: var(--font-size-xxs); color: var(--text-muted); }
 .diag-autoscroll { display: flex; align-items: center; gap: 4px; cursor: pointer; }

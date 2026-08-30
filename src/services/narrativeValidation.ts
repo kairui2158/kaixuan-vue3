@@ -59,6 +59,88 @@ export function validateChapterNarrative(chapters: any[], expectedCount?: number
   return { valid: errors.length === 0, errors, missingCount: Math.max(0, (expectedCount || 0) - list.length) }
 }
 
+function checkSourceRefNumbering(refs: string[]): string[] {
+  const groups = new Map<string, number[]>()
+  for (const ref of refs) {
+    // Only "prefix-N" style refs carry a sequence; semantic refs like
+    // "outline:locked" have nothing to check.
+    const match = ref.match(/^(.+?)[-\s](\d+)$/)
+    if (!match) continue
+    const num = Number(match[2])
+    if (!Number.isInteger(num) || num <= 0) continue
+    const list = groups.get(match[1]) || []
+    list.push(num)
+    groups.set(match[1], list)
+  }
+  const errors: string[] = []
+  for (const [prefix, numbers] of groups) {
+    // A sequence is only enforced when it starts at 1; otherwise the number
+    // may be an id suffix (e.g. "volume:vol-2") rather than an ordinal.
+    if (!numbers.includes(1)) continue
+    const sorted = [...new Set(numbers)].sort((a, b) => a - b)
+    for (let i = 0; i < sorted.length; i++) {
+      if (sorted[i] !== i + 1) {
+        errors.push(`来源编号断档：「${prefix}」组第 ${i + 1} 个编号应为 ${i + 1}，实际为 ${sorted[i]}`)
+        break
+      }
+    }
+  }
+  return errors
+}
+
+export function validateChapterExecutionPackage(
+  pkg: any,
+  options?: { expectedSceneCount?: number }
+): NarrativeValidationResult {
+  if (!pkg || typeof pkg !== 'object' || Array.isArray(pkg)) {
+    return { valid: false, errors: ['章节执行包缺失'], missingCount: 1 }
+  }
+  const errors: string[] = []
+  let missingCount = 0
+  const require = (value: string, message: string) => {
+    if (!value) {
+      errors.push(message)
+      missingCount++
+    }
+  }
+  if (pkg.version !== 1) errors.push(`章节执行包版本不支持：${String(pkg.version ?? '?')}`)
+  const volume = pkg.volume && typeof pkg.volume === 'object' ? pkg.volume : {}
+  const chapter = pkg.chapter && typeof pkg.chapter === 'object' ? pkg.chapter : {}
+  require(text(volume.id), '执行包缺少卷 ID')
+  require(text(volume.name), '执行包缺少卷名')
+  require(text(volume.outline) || text(volume.summary), '执行包缺少卷纲内容')
+  require(text(chapter.id), '执行包缺少章节 ID')
+  require(text(chapter.title), '执行包缺少章节标题')
+  require(text(chapter.plot), '执行包缺少章节剧情点')
+  require(text(pkg.outlineContent), '执行包缺少全书大纲内容')
+  const sourceRefs = Array.isArray(pkg.sourceRefs) ? pkg.sourceRefs.map((ref: unknown) => String(ref || '').trim()).filter(Boolean) : []
+  if (sourceRefs.length === 0) {
+    errors.push('执行包缺少来源编号')
+    missingCount++
+  } else {
+    for (const name of duplicateLabels(sourceRefs, (ref) => ref)) {
+      errors.push(`来源编号重复：「${name}」`)
+    }
+    errors.push(...checkSourceRefNumbering(sourceRefs))
+  }
+  const expectedSceneCount = options?.expectedSceneCount
+  const scenes = Array.isArray(pkg.scenes) ? pkg.scenes : null
+  if (scenes) {
+    scenes.forEach((scene: any, index: number) => {
+      const name = text(scene?.name) || text(scene?.title) || text(scene?.id)
+      const desc = text(scene?.description) || text(scene?.content) || text(scene?.summary) || text(scene?.plot)
+      if (!name) errors.push(`第 ${index + 1} 个场景缺少场景名`)
+      if (!desc) errors.push(`场景「${name || index + 1}」缺少场景内容`)
+    })
+    if (expectedSceneCount !== undefined && scenes.length !== expectedSceneCount) {
+      errors.push(`场景数量不一致：执行包含 ${scenes.length} 个场景，预期 ${expectedSceneCount} 个`)
+    }
+  } else if (expectedSceneCount !== undefined && expectedSceneCount > 0) {
+    errors.push(`执行包缺少场景列表，预期 ${expectedSceneCount} 个场景`)
+  }
+  return { valid: errors.length === 0, errors, missingCount }
+}
+
 export function selectCompleteChapters(chapters: any[]): any[] {
   if (!Array.isArray(chapters)) return []
   const titles = new Set<string>()

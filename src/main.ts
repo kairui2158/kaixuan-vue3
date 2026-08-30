@@ -12,6 +12,10 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import log from './services/logger-shim.js'
 Object.assign(console, log.functions)
 
+// 诊断日志：重建 window.DiagLogger（写盘 + 实时订阅 + 全局错误捕获）
+import { DiagLogger } from './services/diag.js'
+DiagLogger.init()
+
 // MCP protocol adapter: enable tool execution from renderer/window scope
 import { MCPProtocol } from './services/mcp-protocol'
 import { ToolRegistry } from './services/tool-registry'

@@ -101,34 +101,34 @@
 - 证据：`generationResult.ts:39-41` 无 JSON envelope 时整段当 body；P5 #7/#8：`【来源覆盖】`等段落在纯文本模式会进入正文。
 - 方案（边界严格）：在 `generationResult.ts` 增加 fallback 解析——仅识别"行首整段标题"白名单（【来源覆盖】【状态变化】【交接清单】等，白名单从现行 SKILL 输出段收集并常量化），命中的整段移入 `generationMetadata.extractedMeta`，其余留在 body。不修改任何 SKILL 文件；正文句中合法【】不受影响。
 - 验收：
-  - [ ] 单测：纯文本含【来源覆盖】段 → body 无该段、metadata 有；
-  - [ ] 单测：正文正常使用【】（非行首标题）→ body 原样保留；
-  - [ ] JSON envelope 路径行为不变（现有 13 个测试全绿）。
+  - [x] 单测：纯文本含【来源覆盖】段 → body 无该段、metadata 有；
+  - [x] 单测：正文正常使用【】（非行首标题）→ body 原样保留；
+  - [x] JSON envelope 路径行为不变（现有 13 个测试全绿）。
 
 ### D2. 诊断日志字段语义修正
 
 - 证据：`PipelinePanel.vue:2001` `meta.skillId` 实际传的是 `skillAgentOverride`（Agent ID）。
 - 改动：改为 `meta.agentId = skillAgentOverride`，另传真实 `meta.skillId`；同步更新日志展示与导出列。
-- 验收：[ ] 触发一次 chain 生成，诊断日志该条同时含 agentId 与 skillId 且值正确。
+- 验收：[x] 触发一次 chain 生成，诊断日志该条同时含 agentId 与 skillId 且值正确。
 
 ### D3. 叙事校验粒度（明确边界）
 
 - 证据：`narrativeValidation.ts:14-41,44-66` 仅校验名称/内容/数量/重复；执行包 `chapterExecutionPackage.ts` 已有 version 1 结构。
 - 本期只做机械校验：① 章节执行包字段完整性（scenes 非空、每 scene 关键字段齐全）② 来源编号连续性 ③ 场景数量与执行包一致。明确不做事件覆盖/伏笔连续的语义级 AI 判断（列为未来项）。
 - 验收：
-  - [ ] 单测：缺字段执行包、编号断档、场景数不符 3 类各自报错且中文提示。
-  - [ ] 合法执行包不误报。
+  - [x] 单测：缺字段执行包、编号断档、场景数不符 3 类各自报错且中文提示。
+  - [x] 合法执行包不误报。
 
 ### D4. 帮助指南补 3 个章节
 
 - 证据：`HelpGuide.vue:137-146` 现有 8 章，缺 AI 命名 / 插件市场 / 外观设置。
-- 验收：[ ] 帮助内 3 章可打开、内容与实际功能一致（CDP DOM 断言 + 人工过目）。
+- 验收：[x] 帮助内 3 章可打开、内容与实际功能一致（CDP DOM 断言 + 人工过目）。
 
 ### D5. 用户可见版本入口
 
 - 证据：`electron/preload.js:6` 只暴露 Electron 版本；`electron/ipc/diag.js:84` 有 `app.getVersion()` 但仅诊断用。
 - 改动：main 加 `app:version` IPC + preload `getAppVersion`，设置页"诊断日志"标签顶部显示"应用版本 x.y.z"。
-- 验收：[ ] 设置页显示的版本号与 package.json 一致；升级后自动跟随。
+- 验收：[x] 设置页显示的版本号与 package.json 一致；升级后自动跟随。
 
 ---
 

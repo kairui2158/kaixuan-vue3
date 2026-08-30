@@ -43,6 +43,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   clipboardRead: function() { return ipcRenderer.invoke('clipboard:read') },
 
   // Lifecycle
+  getAppVersion: function() { return ipcRenderer.invoke('app:getVersion') },
   onFinalSave: function(callback) { ipcRenderer.on('app:finalSave', function() { callback() }) },
   forceQuit: function() { ipcRenderer.send('app:quit') },
   onCloseRequest: function(callback) { ipcRenderer.on('app:requestClose', function() { callback() }) },

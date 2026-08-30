@@ -55,6 +55,7 @@ var consoleInfo = function() { _origConsole.info.apply(console, arguments); _que
 var consoleDebug = function() { _origConsole.debug.apply(console, arguments); _queueLog('debug', arguments) };
 
 var shimLog = {
+  raw: _origConsole,
   functions: { log: consoleLog, error: consoleError, warn: consoleWarn, info: consoleInfo, debug: consoleDebug, verbose: consoleDebug, silly: consoleDebug },
   scope: function(name) {
     var prefix = '[' + name + ']';
@@ -76,3 +77,4 @@ if (typeof window !== 'undefined') { window.addEventListener('beforeunload', fun
 
 export default shimLog;
 export var functions = shimLog.functions;
+export var raw = _origConsole;

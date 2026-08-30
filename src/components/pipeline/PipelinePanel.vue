@@ -1505,8 +1505,8 @@ async function callValidatedSkill(
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const attemptPrompt = attempt === 1 ? prompt : prompt + "\n\n[校验重试] 上次输出未满足技能的结构化约束，请只返回符合要求的结果。"
     const output = timeoutMs
-      ? await callApiWithAgentTimeout(step, injection.systemSkill || "", attemptPrompt, timeoutMs, skillAgentId, injection)
-      : await callApiWithAgent(step, injection.systemSkill || "", attemptPrompt, skillAgentId, injection)
+      ? await callApiWithAgentTimeout(step, injection.systemSkill || "", attemptPrompt, timeoutMs, skillAgentId, injection, template.id)
+      : await callApiWithAgent(step, injection.systemSkill || "", attemptPrompt, skillAgentId, injection, undefined, undefined, template.id)
     try {
       validateSkillOutputOrThrow(template, output)
       return output
@@ -1973,7 +1973,7 @@ function prevStep() {
   }
 }
 
-async function callApiWithAgent(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string, promptParts?: PromptParts, signal?: AbortSignal, timeoutMs?: number): Promise<string> {
+async function callApiWithAgent(step: number, skillTemplate: string, prompt: string, skillAgentOverride?: string, promptParts?: PromptParts, signal?: AbortSignal, timeoutMs?: number, skillId?: string): Promise<string> {
   const agentId = skillAgentOverride || getStepAgentId(step)
   const agentConfig = agentId ? (agentStore.getAgent(agentId) || null) : getStepAgentConfig(step)
   const provider = providerStore.getProvider(agentConfig?.provider || "")
@@ -1998,14 +1998,14 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
     signal: signal || pipelineStore.getGenerationSignal(),
     timeoutMs,
     retry: true,
-    meta: { source: 'PipelinePanel.callApiWithAgent', step, skillId: skillAgentOverride }
+    meta: { source: 'PipelinePanel.callApiWithAgent', step, agentId: agentId || undefined, skillId: skillId || undefined }
   })
   return result.text || ""
 }
 
-async function callApiWithAgentTimeout(step: number, skillTemplate: string, prompt: string, timeoutMs: number, skillAgentOverride?: string, promptParts?: PromptParts): Promise<string> {
+async function callApiWithAgentTimeout(step: number, skillTemplate: string, prompt: string, timeoutMs: number, skillAgentOverride?: string, promptParts?: PromptParts, skillId?: string): Promise<string> {
   const parentSignal = pipelineStore.getGenerationSignal()
-  return await callApiWithAgent(step, skillTemplate, prompt, skillAgentOverride, promptParts, parentSignal, timeoutMs)
+  return await callApiWithAgent(step, skillTemplate, prompt, skillAgentOverride, promptParts, parentSignal, timeoutMs, skillId)
 }
 
 async function runStepSkills(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string) {
