@@ -211,7 +211,6 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, watch } from 'vue'
-import { marked } from 'marked'
 import { useProjectStore } from '../../stores/project'
 import { useProviderStore } from '../../stores/provider'
 import { usePipelineStore } from '../../stores/pipeline'
@@ -225,6 +224,7 @@ import { importFile } from '../../services/file-import'
 import { useAiTools } from '../../composables/useAiTools'
 import { useAppConfirm } from '../../composables/useAppConfirm'
 import { getAiService } from '../../services/aiService'
+import { renderMarkdown as renderMarkdownText } from '../../utils/markdownService'
 
 const emit = defineEmits<{ close: []; navigate: [target: string] }>()
 
@@ -617,7 +617,7 @@ async function handleImport(e: Event) {
 }
 
 function renderMarkdown(text: string): string {
-  return marked.parse(text || '', { breaks: true }) as string
+  return renderMarkdownText(text)
 }
 
 function parseOutlineEditCommand(raw: string): OutlineEditCommand | null {

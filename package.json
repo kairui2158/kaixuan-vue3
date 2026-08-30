@@ -17,6 +17,7 @@
   "author": "kaixuan",
   "license": "MIT",
   "dependencies": {
+    "dompurify": "^3.4.14",
     "electron-log": "^5.4.4",
     "hotkeys-js": "^4.0.4",
     "idb": "^8.0.3",

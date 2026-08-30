@@ -189,6 +189,7 @@ import { useSkillStore } from '../../stores/skill'
 import { useSkillTest } from '../../composables/useSkillTest'
 import { useConfigExchange } from '../../composables/useConfigExchange'
 import { buildImportPlan } from '../../services/configExchange'
+import { renderMarkdown as renderMarkdownService } from '../../utils/markdownService'
 import type { ConfigDiagnostic, ConfigFieldTrace, ConfigIssue, ConfigSourceInfo, ImportPlanItem, ImportStrategy, SkillRecord } from '../../services/configExchange'
 
 const skillStore = useSkillStore()
@@ -395,26 +396,7 @@ function insertVar(varName: string) {
 }
 
 function renderMarkdown(text: string): string {
-  if (!text) return ''
-  let html = text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-  html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
-  html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
-  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>')
-  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>')
-  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>')
-  html = html.replace(/^\> (.+)$/gm, '<blockquote>$1</blockquote>')
-  html = html.replace(/^- (.+)$/gm, '<li>$1</li>')
-  html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>')
-  html = html.replace(/\n\n/g, '</p><p>')
-  html = html.replace(/\n/g, '<br>')
-  html = '<p>' + html + '</p>'
-  html = html.replace(/<p><\/p>/g, '')
-  return html
+  return renderMarkdownService(text)
 }
 
 function editSkill(id: string) {

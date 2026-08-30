@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { marked } from 'marked'
+import { renderMarkdown } from '../../utils/markdownService'
 
 const props = defineProps<{ message: { role: string; content: string }; busy?: boolean }>()
 const actionFeedback = ref('')
@@ -52,11 +52,7 @@ function runAction(action: 'copy' | 'regenerate' | 'apply' | 'replace', content?
 
 const renderedContent = computed(() => {
   const content = props.message.content || ''
-  const html = marked.parse(content, { breaks: true }) as string
-  return html
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-    .replace(/on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
-    .replace(/javascript:/gi, '')
+  return renderMarkdown(content)
 })
 </script>
 
