@@ -1,8 +1,8 @@
 {
   "original": {
-    "lastProjectId": "p1788090207705",
-    "projectName": "未命名",
-    "projectCount": 2
+    "lastProjectId": "p1788105013227",
+    "projectName": "E1探针项目",
+    "projectCount": 3
   },
   "steps": [
     {
@@ -11,9 +11,9 @@
       "value": {
         "mounted": true,
         "original": {
-          "lastProjectId": "p1788090207705",
-          "projectName": "未命名",
-          "projectCount": 2
+          "lastProjectId": "p1788105013227",
+          "projectName": "E1探针项目",
+          "projectCount": 3
         },
         "bodyOverflowX": false
       }
@@ -212,7 +212,7 @@
           "exists": true,
           "visible": true,
           "width": 958,
-          "height": 519,
+          "height": 737,
           "bodyOverflowX": false
         },
         "tabs": [
@@ -305,7 +305,7 @@
         "clicked": "CLICKED",
         "deleted": "DELETE_CLICKED",
         "currentProjectName": "未命名",
-        "projectNameRestored": true
+        "projectNameRestored": false
       }
     },
     {
@@ -320,7 +320,7 @@
           "naming": false
         },
         "bodyOverflowX": false,
-        "projectCount": 2,
+        "projectCount": 4,
         "persistedCleanup": {
           "fixtureKeys": [],
           "remaining": 0
@@ -328,6 +328,8 @@
       }
     }
   ],
-  "runtimeErrors": [],
+  "runtimeErrors": [
+    "检测到存储损坏并已从备份恢复，最近记录: [2026-08-30T14:57:44.245Z] key=wa_project_p1788101837759 restored=no error=Unexpected non-whitespace character after JSON at position 711 (line 1 column 712) | [2026-08-30T15:07:14.323Z] key=wa_project_p1788101837759 restored=no error=Unexpected non-whitespace character after JSON at position 711 (line 1 column 712) | [2026-08-30T15:07:14.322Z] key=wa_project_p1788101837759 restored=no error=Unexpected non-whitespace character after JSON at position 711 (line 1 column 712)"
+  ],
   "allStepsOk": true
 }

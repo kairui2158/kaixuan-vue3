@@ -153,14 +153,14 @@
 
 ## 阶段 F：回归验证与收尾
 
-- [ ] `npm run type-check` 0 错误。
-- [ ] `npx vitest run` 全绿（含新增 A2/D1/D3 单测）。
-- [ ] `npm run build:vue` 成功。
-- [ ] 复跑 `_audit/tmp/p8_smoke.cjs` 8 步全绿 + 复跑 p4 存储三探针（promise/write-failure/clearcurrent）。
-- [ ] 杀进程 → 源文件启动 → 真实操作：保存退出重开、损坏 JSON 恢复、导入导出备份。
-- [ ] 版本号 3.8.3 → 3.9.0（含 P0 数据安全修复，按改动等级升 minor）；package.json 与 package-lock 同步。
-- [ ] 经验回写：原子写盘 tmp+rename+bak 模式、monkey-patch 返回值验证法、"原生对话框替换必须验证 javascriptDialogOpening 归零"。
-- [ ] 新 DEV_LOG、逐阶段 commit + 最终 push、工作区干净核销。
+- [x] `npm run type-check` 0 错误。
+- [x] `npx vitest run` 全绿（含新增 A2/D1/D3 单测）。
+- [x] `npm run build:vue` 成功。
+- [x] 复跑 `_audit/tmp/p8_smoke.cjs` 8 步全绿 + 复跑 p4 存储三探针（promise/write-failure/clearcurrent）。
+- [x] 杀进程 → 源文件启动 → 真实操作：保存退出重开、损坏 JSON 恢复、导入导出备份。
+- [x] 版本号 3.8.3 → 3.9.0（含 P0 数据安全修复，按改动等级升 minor）；package.json 与 package-lock 同步。
+- [x] 经验回写：原子写盘 tmp+rename+bak 模式、monkey-patch 返回值验证法、"原生对话框替换必须验证 javascriptDialogOpening 归零"。
+- [x] 新 DEV_LOG、逐阶段 commit + 最终 push、工作区干净核销。
 
 ## 执行顺序与依赖
 
