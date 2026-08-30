@@ -51,6 +51,7 @@
     <SkillBindModal :visible="skillBindVisible" :type="skillBindType" :id="skillBindId" @close="skillBindVisible=false" />
     <AgentProgressPanel />
     <AiNamingModal />
+    <HelpGuide />
     <div id="statusbar" class="statusbar">
       <span id="status-cursor"></span>
       <span id="status-connection">{{ providerStore.activeGenerateProvider ? '已连接' : '未连接' }}</span>
@@ -98,6 +99,7 @@ import InlineMenu from './components/common/InlineMenu.vue'
 import SkillBindModal from './components/common/SkillBindModal.vue'
 import AgentProgressPanel from './components/sidebar/AgentProgressPanel.vue'
 import AiNamingModal from './components/naming/AiNamingModal.vue'
+import HelpGuide from './components/common/HelpGuide.vue'
 import BreadcrumbBar from './components/common/BreadcrumbBar.vue'
 import DashboardModal from './components/dashboard/DashboardModal.vue'
 import { useShortcuts } from './composables/useShortcuts'

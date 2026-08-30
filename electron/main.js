@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, clipboard } = require('electron')
+const { app, BrowserWindow, Menu, ipcMain, clipboard } = require('electron')
 const path = require('path')
 const fs = require('fs')
 
@@ -46,6 +46,20 @@ const { registerLifecycleHandlers } = require('./ipc/lifecycle')
 const { registerStorageHandlers, setDataDir, getDataDir, setLegacyDir } = require('./ipc/storage')
 
 var mainWindow = null
+
+function registerApplicationMenu() {
+  Menu.setApplicationMenu(Menu.buildFromTemplate([
+    {
+      label: '帮助',
+      submenu: [
+        {
+          label: '应用教学指南',
+          click: () => mainWindow?.webContents.send('app:openHelpGuide')
+        }
+      ]
+    }
+  ]))
+}
 
 function getWindowStatePath() {
   return path.join(app.getPath("userData"), "window-state.json")
@@ -117,6 +131,7 @@ function createWindow() {
 
   // Register all IPC handlers
   registerCryptoHandlers()
+  registerApplicationMenu()
   registerStorageHandlers()
   registerDiagHandlers()
   registerApiHandlers()
