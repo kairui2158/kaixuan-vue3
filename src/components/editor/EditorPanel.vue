@@ -151,7 +151,7 @@ const inlineMenuVisible = ref(false)
 const modeLabel = computed(() => {
   const m = activeTab.value?.mode
   if (m === 'vol-outline') return '卷纲层'
-  if (m === 'ch-plot') return '章节层'
+  if (m === 'ch-plot') return '剧情/概要'
   if (m === 'ch-body') return '正文层'
   return ''
 })

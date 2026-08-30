@@ -234,7 +234,7 @@ onUnmounted(() => {
 }
 .diag-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); }
 .diag-error-count { font-size: var(--font-size-xs); color: var(--danger); font-weight: 600; background: var(--danger-dim); padding: 2px 8px; border-radius: var(--radius-lg); }
-.btn-close { margin-left: auto; background: none; border: none; color: var(--text-muted); font-size: var(--font-size-xxl); cursor: pointer; padding: 0 4px; line-height: 1; }
+.btn-close { margin-left: auto; background: none; border: none; color: var(--text-muted); font-size: var(--font-size-xl, 18px); cursor: pointer; padding: 0 4px; height: var(--space-lg, 24px); line-height: var(--space-lg, 24px); }
 .btn-close:hover { color: var(--text-primary); }
 .diag-toolbar { display: flex; gap: 6px; padding: 8px 14px; border-bottom: 1px solid var(--border-color); align-items: center; }
 .diag-select { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: 3px 6px; font-size: var(--font-size-xs); height: 26px; }

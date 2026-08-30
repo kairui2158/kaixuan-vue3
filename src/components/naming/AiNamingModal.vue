@@ -282,7 +282,7 @@ async function handleCopy(item: { name: string; meaning: string }) {
     // 简单 toast 提示
     const el = document.createElement('div')
     el.textContent = '已复制'
-    el.style.cssText = 'position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:#4caf88;color:#fff;padding:6px 16px;border-radius:6px;z-index:9999;font-size:13px;pointer-events:none;opacity:1;transition:opacity .3s'
+    el.style.cssText = 'position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:var(--success, #4caf88);color:#fff;padding:6px 16px;border-radius:6px;z-index:9999;font-size:13px;pointer-events:none;opacity:1;transition:opacity .3s'
     document.body.appendChild(el)
     setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300) }, 1200)
   }

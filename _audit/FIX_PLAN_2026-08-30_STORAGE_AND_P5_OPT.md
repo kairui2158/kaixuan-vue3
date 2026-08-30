@@ -78,19 +78,19 @@
 
 - 证据：`EditorPanel.vue:151-157` modeLabel 硬编码，ch-plot 显示"章节层"与 ch-body 冲突。
 - 改动：ch-plot 徽标文案改为"剧情/概要"。
-- 验收：[ ] 章节树点概要按钮 → 标签徽标显示"剧情/概要"，无遮字。
+- 验收：[x] 章节树点概要按钮 → 标签徽标显示"剧情/概要"，无遮字。（真实 UI 探针 `_audit/tmp/c1_badge_test.cjs`：先处理"保存并继续"切换确认，创建带章节的测试项目并点击 `btn-tree-ch-plot-*`，断言 `editor-mode-badge` = `剧情/概要`；测试项目已清理。）
 
 ### C2. 设置诊断页关闭按钮 3px 纵向溢出
 
 - 证据：p6_ui_scan.json label=settings-diag `button.btn-close` rect h=20 / scroll h=23。
 - 改动：`.btn-close` 固定高度 + line-height（走主题令牌，不引入新硬编码值）。
-- 验收：[ ] 复跑 p6_ui_scan.cjs：settings-diag 无 visible-vertical-overflow。
+- 验收：[x] 复跑 p6_ui_scan.cjs：settings-diag 无 visible-vertical-overflow。（1366x768 与 1920x1080 两轮全页扫描，`settings-diag` issues.total 均为 0。）
 
 ### C3. AI 命名弹窗硬编码色值
 
 - 证据：`src/components/naming/AiNamingModal.vue:285` toast `background:#4caf88`。
 - 改动：改用主题成功色 CSS 变量（与外观设置令牌一致；动态 style 中用 `var(--...)`）。
-- 验收：[ ] 复制成功 toast 显示主题色；`rg "#4caf88" src` 0 结果。
+- 验收：[x] 复制成功 toast 显示主题色；`rg "#4caf88" src` 仅剩令牌定义与 `var(--success, #4caf88)` 回退值，无独立硬编码样式。
 
 ---
 
