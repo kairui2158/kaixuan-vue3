@@ -347,7 +347,10 @@ onUnmounted(() => {
 })
 function handleUndoEvent() { undo() }
 function handleRedoEvent() { redo() }
-function handleSaveEvent() { save() }
+function handleSaveEvent() {
+  // 退出前的最终保存走此事件：无打开标签时静默跳过，避免弹窗阻断退出
+  if (activeTab.value) save()
+}
 function handleToggleFindEvent() { editorStore.toggleFind() }
 onMounted(() => {
   startAutoSave()
