@@ -161,13 +161,30 @@ const renderedContent = computed(() => {
   border-radius: 0 4px 4px 0;
 }
 .message-content :deep(table) {
-  border-collapse: collapse; margin: 8px 0; width: 100%; font-size: var(--font-size-lg);
+  border-collapse: separate; border-spacing: 0;
+  border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+  margin: 10px 0; width: 100%; font-size: var(--font-size-lg);
   display: block; overflow-x: auto; max-width: 100%;
+  background: var(--bg-secondary);
 }
 .message-content :deep(th), .message-content :deep(td) {
-  border: 1px solid var(--border-color); padding: 6px 14px; text-align: left;
+  border-bottom: 1px solid var(--border-color); padding: 8px 12px; text-align: left;
+  vertical-align: top; min-width: 84px;
 }
 .message-content :deep(th) { background: var(--bg-tertiary); font-weight: 600; }
+.message-content :deep(td:nth-child(even)), .message-content :deep(th:nth-child(even)) {
+  background: color-mix(in srgb, var(--bg-tertiary) 45%, transparent);
+}
+.message-content :deep(tr:last-child td) { border-bottom: none; }
+.message-content :deep(.md-status) {
+  display: inline-flex; align-items: center;
+  min-height: 24px; padding: 2px 8px; border-radius: 999px;
+  font-size: var(--font-size-sm); font-weight: 600; line-height: 1.2;
+  white-space: nowrap;
+}
+.message-content :deep(.md-status.is-success) { color: #067647; background: #d1fae5; }
+.message-content :deep(.md-status.is-warning) { color: #92400e; background: #fef3c7; }
+.message-content :deep(.md-status.is-danger) { color: #991b1b; background: #fee2e2; }
 .message-content :deep(strong) { color: var(--text-primary); }
 .message-content :deep(a) { color: var(--accent); text-decoration: none; }
 .message-content :deep(a:hover) { text-decoration: underline; }

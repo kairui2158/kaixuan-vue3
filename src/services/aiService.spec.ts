@@ -206,6 +206,38 @@ describe('createAiService.callAi', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
     vi.unstubAllGlobals();
   });
+
+  it('injects the table output guideline once for normal calls but not JSON mode', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ choices: [{ message: { content: 'ok' } }] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ choices: [{ message: { content: '{"ok":true}' } }] }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    await service.callAi({
+      purpose: 'verify',
+      messages: [{ role: 'system', content: '你是写作助手' }, { role: 'user', content: 'test' }],
+      stream: false,
+      retry: false
+    });
+    let body = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);
+    expect(body.messages[0].role).toBe('system');
+    expect(body.messages[0].content).toContain('GFM 标准表格');
+    expect(body.messages[0].content.match(/GFM 标准表格/g)).toHaveLength(1);
+
+    await service.callAi({
+      purpose: 'verify',
+      messages: [{ role: 'system', content: '{"ok":true}' }, { role: 'user', content: 'test' }],
+      stream: false,
+      retry: false,
+      jsonMode: true
+    });
+    body = JSON.parse((fetchMock.mock.calls[1][1] as RequestInit).body as string);
+    expect(body.messages).toEqual([
+      { role: 'system', content: '{"ok":true}' },
+      { role: 'user', content: 'test' }
+    ]);
+    vi.unstubAllGlobals();
+  });
 });
 
 describe('createAiService.fetchModels', () => {

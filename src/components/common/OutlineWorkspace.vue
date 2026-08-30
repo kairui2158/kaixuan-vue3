@@ -1447,6 +1447,51 @@ function handleUnlockOutline() {
 .ow-msg-streaming .ow-msg-bubble {
   min-height: 24px;
 }
+.ow-msg-bubble :deep(table) {
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  overflow-x: auto;
+  max-width: 100%;
+  background: var(--bg-secondary);
+}
+.ow-msg-bubble :deep(th),
+.ow-msg-bubble :deep(td) {
+  border-bottom: 1px solid var(--border-color);
+  min-width: 84px;
+  padding: 7px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+.ow-msg-bubble :deep(th) {
+  background: var(--bg-tertiary);
+  font-weight: 600;
+}
+.ow-msg-bubble :deep(td:nth-child(even)),
+.ow-msg-bubble :deep(th:nth-child(even)) {
+  background: color-mix(in srgb, var(--bg-tertiary) 45%, transparent);
+}
+.ow-msg-bubble :deep(tr:last-child td) {
+  border-bottom: none;
+}
+.ow-msg-bubble :deep(.md-status) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.ow-msg-bubble :deep(.md-status.is-success) { color: #067647; background: #d1fae5; }
+.ow-msg-bubble :deep(.md-status.is-warning) { color: #92400e; background: #fef3c7; }
+.ow-msg-bubble :deep(.md-status.is-danger) { color: #991b1b; background: #fee2e2; }
 .ow-msg-actions {
   display: flex;
   gap: 4px;

@@ -99,6 +99,29 @@ const IDLE_THRESHOLD_LOW = 10_000
 const HEARTBEAT_INTERVAL = 60_000
 const MAX_HEARTBEAT_ATTEMPTS = 3
 
+const TABLE_OUTPUT_GUIDELINE = [
+  '如果本次回答需要展示表格，必须使用 GFM 标准表格：',
+  '首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；',
+  '每个单元格使用半角 | 分隔，单元格内不换行。',
+  '如果没有表格内容，不要输出空表或伪造表格。'
+].join('\n')
+
+function withTableOutputGuideline(
+  messages: CallAiParams['messages'],
+  jsonMode: boolean
+): CallAiParams['messages'] {
+  if (jsonMode) return messages
+  const hasSystem = messages.some(message => message.role === 'system')
+  if (hasSystem) {
+    return messages.map(message => message.role === 'system'
+      ? { ...message, content: `${message.content}\n\n${TABLE_OUTPUT_GUIDELINE}` }
+      : message
+    )
+  }
+  return [{ role: 'system', content: TABLE_OUTPUT_GUIDELINE }, ...messages]
+}
+
+
 // ── Thinking-tag filter ─────────────────────────────────────────────
 
 const THINKING_PATTERNS = [
@@ -315,7 +338,13 @@ export function createAiService(
     const maxTokens = resolveMaxTokens(provider, params.maxTokens)
     const wantStream = params.stream ?? (params.purpose === 'generate' || params.purpose === 'rewrite')
     const signal = combineSignals(params.signal, makeTimeoutSignal(timeoutMs))
-    const body: Record<string, unknown> = { model, messages: params.messages, stream: wantStream, temperature, max_tokens: maxTokens }
+    const body: Record<string, unknown> = {
+      model,
+      messages: withTableOutputGuideline(params.messages, params.jsonMode === true),
+      stream: wantStream,
+      temperature,
+      max_tokens: maxTokens
+    }
     const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal })
     if (!resp.ok) throw resp
     if (wantStream) {
