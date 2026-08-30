@@ -21,3 +21,9 @@ FIX_PLAN_2026-08-30_STORAGE_AND_P5_OPT 阶段 A-F：A1/A2 存储数据安全双�
 ## 版本与记录
 1. 版本号 3.8.3 → 3.9.0（P0 数据安全修复按改动等级升 minor；package.json 与 package-lock 同步）。
 2. 经验已回写 `_audit/神意开发经验总结.md`：原子写盘四步模式、monkey-patch 返回值验证法、`javascriptDialogOpening` 归零验证铁律、三段式真实操作探针、脚本载体教训。
+
+## 封装交付（2026-08-31 00:20）
+1. `npm run build`（vite build + electron-builder --win NSIS）exit:0；vite 202 模块转换，仅既有 INEFFECTIVE_DYNAMIC_IMPORT / 大 chunk 警告（非阻断）。
+2. 产物：`dist/神意助手-Setup-3.9.0.exe`，96,907,105 字节（约 92.4 MB）。
+3. SHA256：`CC1A710E84AE0B69B6A7117EC57EEA23E52D86B546E7119C92BBC5D5425B787C`。
+4. 未配置签名信息，signtool 跳过（与 3.8.0 一致的既有边界）。
