@@ -90,7 +90,7 @@ async function saveProviders() {
       }
     }
   }
-  await window.electronAPI.storageWrite(storageKey('providers'), {
+  return await window.electronAPI.storageWrite(storageKey('providers'), {
     providers: copy,
     generateProvider: generateProvider.value,
     verifyProvider: verifyProvider.value,

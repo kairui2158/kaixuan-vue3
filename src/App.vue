@@ -44,6 +44,10 @@
 
     <DeAiProgress v-if="deAiStore.isProcessing || deAiStore.errorMessage" />
     <ExitConfirmModal ref="exitModal" />
+    <div v-if="projectStore.lastSaveError" id="save-error-banner" class="save-error-banner" role="alert">
+      <span>项目保存失败（{{ projectStore.lastSaveError.keys.join('、') }}）：数据可能未写入磁盘，请检查磁盘空间或权限后重试保存。</span>
+      <button class="save-error-dismiss" @click="projectStore.lastSaveError = null">知道了</button>
+    </div>
 
    <DiffModal :visible="diffVisible" :original="diffOriginal" :modified="diffModified" @close="diffVisible=false" @apply="applyDiffResult" />
 
@@ -322,6 +326,15 @@ onMounted(async () => {
   deAiStore.updateFlowPreview()
   const lastProjectId = await (window.electronAPI?.storageRead?.('wa_lastProjectId') ?? null)
   if (lastProjectId) await projectStore.loadProject(lastProjectId)
+  try {
+    const corruption = await (window as any).electronAPI?.storageCorruptionLog?.()
+    if (corruption?.hasEntries) {
+      const diag = (window as any).DiagLogger
+      if (diag && typeof diag.log === 'function') {
+        diag.log('error', 'storage', '检测到存储损坏并已从备份恢复，最近记录: ' + corruption.entries.slice(-3).join(' | '))
+      }
+    }
+  } catch (e) { /* corruption check is optional */ }
   window.addEventListener('generate-body', handleGenerateBody)
   window.addEventListener('insert-text', handleInsertText)
   window.addEventListener('show-skill-binding', handleSkillBinding)
@@ -453,6 +466,20 @@ main {
 :deep(.dashboard-modal),
 :deep(.plugin-market) {
   z-index: 901;
+}
+
+.save-error-banner {
+  position: fixed; top: 48px; right: 16px; z-index: var(--z-toast);
+  display: flex; align-items: center; gap: 12px;
+  background: var(--danger); color: var(--text-on-accent);
+  padding: 10px 14px; border-radius: 8px; max-width: 520px;
+  font-size: var(--font-size-sm); line-height: 1.5;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+.save-error-dismiss {
+  background: transparent; border: 1px solid var(--text-on-accent);
+  color: var(--text-on-accent); border-radius: 6px;
+  padding: 2px 10px; cursor: pointer; flex-shrink: 0;
 }
 </style>
 

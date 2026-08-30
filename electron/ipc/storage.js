@@ -14,6 +14,13 @@ function safeKey(key) {
   return key.replace(/[^a-zA-Z0-9_-]/g, '_')
 }
 
+async function appendCorruptionLog(key, err, restored) {
+  try {
+    var line = '[' + new Date().toISOString() + '] key=' + key + ' restored=' + (restored ? 'yes' : 'no') + ' error=' + (err && err.message ? err.message : String(err)) + '\n'
+    await fs.appendFile(path.join(dataDir, 'storage-corruption.log'), line, 'utf8')
+  } catch (e) { /* logging must never break read/write */ }
+}
+
 async function migrateOldDataIfNeeded() {
   try {
     var targetDir = getPrimaryDataDir()
@@ -76,11 +83,27 @@ function registerStorageHandlers() {
     try {
       await migrateOldDataIfNeeded()
       var filePath = path.join(dataDir, safeKey(key) + '.json')
+      var raw = null
       try {
         await fs.access(filePath)
-        var content = await fs.readFile(filePath, 'utf8')
-        return JSON.parse(content)
+        raw = await fs.readFile(filePath, 'utf8')
       } catch(e) { /* not found */ }
+      if (raw !== null) {
+        try {
+          return JSON.parse(raw)
+        } catch (parseErr) {
+          var restoredValue = null
+          var restored = false
+          try {
+            var bakRaw = await fs.readFile(filePath + '.bak', 'utf8')
+            restoredValue = JSON.parse(bakRaw)
+            await fs.rename(filePath + '.bak', filePath)
+            restored = true
+          } catch (bakErr) { restored = false }
+          await appendCorruptionLog(key, parseErr, restored)
+          return restored ? restoredValue : null
+        }
+      }
       if (legacyDir) {
         var legacyPath = path.join(legacyDir, safeKey(key) + '.json')
         try {
@@ -96,13 +119,37 @@ function registerStorageHandlers() {
   })
 
   ipcMain.handle('storage:write', async function(event, key, data) {
+    var tmpPath = null
     try {
       await migrateOldDataIfNeeded()
       var filePath = path.join(dataDir, safeKey(key) + '.json')
-      await fs.writeFile(filePath, JSON.stringify(data), 'utf8')
+      var bakPath = filePath + '.bak'
+      tmpPath = filePath + '.tmp'
+      await fs.writeFile(tmpPath, JSON.stringify(data), 'utf8')
+      try {
+        await fs.access(filePath)
+        await fs.rename(filePath, bakPath)
+      } catch (e) { /* target absent, nothing to back up */ }
+      try {
+        await fs.rename(tmpPath, filePath)
+      } catch (renameErr) {
+        try { await fs.access(bakPath); await fs.rename(bakPath, filePath) } catch (e2) { /* nothing to restore */ }
+        throw renameErr
+      }
       return true
     } catch (e) {
+      if (tmpPath) { try { await fs.unlink(tmpPath) } catch (e2) { /* ignore */ } }
       return false
+    }
+  })
+
+  ipcMain.handle('storage:corruptionLog', async function() {
+    try {
+      var raw = await fs.readFile(path.join(dataDir, 'storage-corruption.log'), 'utf8')
+      var lines = raw.split('\n').filter(function(l) { return l.trim() })
+      return { hasEntries: lines.length > 0, entries: lines.slice(-50) }
+    } catch (e) {
+      return { hasEntries: false, entries: [] }
     }
   })
 

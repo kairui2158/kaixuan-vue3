@@ -76,6 +76,7 @@ function normalizeMemories(raw: any): MemoryData {
 
 export const useProjectStore = defineStore('project', () => {
   const currentProjectId = ref<string | null>(null)
+  const lastSaveError = ref<{ time: string; keys: string[] } | null>(null)
   const projectName = ref('')
   const outlineText = ref('')
   const outlineLocked = ref(false)
@@ -166,11 +167,10 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
-  async function saveProject() {
+  async function saveProject(): Promise<{ ok: boolean; failedKeys: string[] }> {
     if (!currentProjectId.value) {
       currentProjectId.value = 'default'
     }
-    await window.electronAPI.storageWrite(storageKey('lastProjectId'), currentProjectId.value)
     const data = {
       projectName: projectName.value,
       outlineText: outlineText.value,
@@ -190,7 +190,23 @@ export const useProjectStore = defineStore('project', () => {
       aiNaming: toPlain(aiNaming.value),
       outlineChat: toPlain(outlineChat.value)
     }
-    await window.electronAPI.storageWrite(storageKey('project_' + currentProjectId.value), data)
+    const failedKeys: string[] = []
+    const lastProjectOk = await window.electronAPI.storageWrite(storageKey('lastProjectId'), currentProjectId.value)
+    if (!lastProjectOk) failedKeys.push('lastProjectId')
+    const projectOk = await window.electronAPI.storageWrite(storageKey('project_' + currentProjectId.value), data)
+    if (!projectOk) failedKeys.push('project')
+    if (failedKeys.length > 0) {
+      lastSaveError.value = { time: new Date().toISOString(), keys: failedKeys }
+      try {
+        const diag = (window as any).DiagLogger
+        if (diag && typeof diag.log === 'function') {
+          diag.log('error', 'storage', '项目写盘失败: ' + failedKeys.join(', '))
+        }
+      } catch (e) { /* diag is optional */ }
+      return { ok: false, failedKeys }
+    }
+    lastSaveError.value = null
+    return { ok: true, failedKeys: [] }
   }
 
   function appendOutlineChat(msg: any) {
@@ -751,6 +767,7 @@ export const useProjectStore = defineStore('project', () => {
 
   return {
     currentProjectId, projectName, outlineText, outlineLocked, outlineLockedText, pipelineOutlineText, bookWordCountChars,
+    lastSaveError,
     settingsGenerated, settings, volumes, chapters, projectList,
     hasOutline, volumeCount, totalChapters,
     volumesConfirmed, chaptersConfirmed,

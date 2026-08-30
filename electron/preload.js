@@ -23,6 +23,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return ipcRenderer.invoke('storage:remove', key)
   },
   storageList: function() { return ipcRenderer.invoke('storage:list') },
+  storageCorruptionLog: function() { return ipcRenderer.invoke('storage:corruptionLog') },
   storageExport: function(filePath) { return ipcRenderer.invoke('storage:export', filePath) },
   storageImport: function(filePath) { return ipcRenderer.invoke('storage:import', filePath) },
   storageGetDataDir: function() { return ipcRenderer.invoke('storage:getDataDir') },
