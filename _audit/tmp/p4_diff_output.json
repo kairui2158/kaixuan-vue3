@@ -1,0 +1,947 @@
+{
+  "result": {
+    "setup": {
+      "projectName": "P4差异测试",
+      "chapters": 1,
+      "memoryEntities": 1
+    },
+    "merge": {
+      "addedEntity": 2,
+      "changedKeys": [
+        "memories"
+      ],
+      "historyReason": "测试合并导入",
+      "nonMemoryUntouched": true
+    },
+    "replace": {
+      "entities": 1,
+      "changedKeys": [
+        "memories"
+      ],
+      "historyReason": "测试覆盖导入",
+      "nonMemoryUntouched": true
+    },
+    "body": {
+      "changedKeys": [
+        "chapters"
+      ],
+      "newBody": "新正文",
+      "nonChapterUntouched": true
+    },
+    "exit": {
+      "changedKeys": [
+        "outlineText"
+      ],
+      "newOutline": "退出保存后的最新大纲",
+      "nonOutlineUntouched": true
+    },
+    "before1": {
+      "projectName": "P4差异测试",
+      "outlineText": "第一卷\n第一章",
+      "outlineLocked": false,
+      "outlineLockedText": "",
+      "bookWordCount": 100000,
+      "volumesConfirmed": false,
+      "chaptersConfirmed": false,
+      "settingsGenerated": false,
+      "settings": [],
+      "volumes": [
+        {
+          "id": "volD",
+          "name": "第一卷",
+          "summary": "",
+          "outline": "",
+          "isBound": true,
+          "boundTo": [
+            "chapter-layer"
+          ]
+        }
+      ],
+      "chapters": {
+        "volD": [
+          {
+            "id": "chD",
+            "title": "第一章",
+            "body": "旧正文",
+            "plot": "旧剧情"
+          }
+        ]
+      },
+      "settingBindings": {},
+      "settingsCollection": {
+        "categories": [],
+        "items": {}
+      },
+      "memories": {
+        "version": 1,
+        "entities": [
+          {
+            "id": "old1",
+            "name": "旧角色",
+            "type": "character"
+          }
+        ],
+        "relations": [],
+        "events": [],
+        "world": [],
+        "foreshadowing": [],
+        "meta": {
+          "extractionCount": 0,
+          "lastExtractedAt": null,
+          "lastFullRebuildAt": null,
+          "pendingCount": 0,
+          "totals": {
+            "entities": 1,
+            "relations": 0,
+            "events": 0,
+            "world": 0,
+            "foreshadowing": 0
+          }
+        },
+        "history": [],
+        "categories": [
+          "情节"
+        ],
+        "items": []
+      },
+      "memoryBlacklist": [],
+      "aiNaming": {
+        "version": 1,
+        "favorites": [],
+        "history": []
+      },
+      "outlineChat": []
+    },
+    "after1": {
+      "projectName": "P4差异测试",
+      "outlineText": "第一卷\n第一章",
+      "outlineLocked": false,
+      "outlineLockedText": "",
+      "bookWordCount": 100000,
+      "volumesConfirmed": false,
+      "chaptersConfirmed": false,
+      "settingsGenerated": false,
+      "settings": [],
+      "volumes": [
+        {
+          "id": "volD",
+          "name": "第一卷",
+          "summary": "",
+          "outline": "",
+          "isBound": true,
+          "boundTo": [
+            "chapter-layer"
+          ]
+        }
+      ],
+      "chapters": {
+        "volD": [
+          {
+            "id": "chD",
+            "title": "第一章",
+            "body": "旧正文",
+            "plot": "旧剧情"
+          }
+        ]
+      },
+      "settingBindings": {},
+      "settingsCollection": {
+        "categories": [],
+        "items": {}
+      },
+      "memories": {
+        "version": 1,
+        "entities": [
+          {
+            "id": "old1",
+            "name": "旧角色",
+            "type": "character"
+          },
+          {
+            "id": "new1",
+            "name": "新角色",
+            "type": "character"
+          }
+        ],
+        "relations": [],
+        "events": [],
+        "world": [],
+        "foreshadowing": [],
+        "meta": {
+          "extractionCount": 0,
+          "lastExtractedAt": null,
+          "lastFullRebuildAt": null,
+          "pendingCount": 0,
+          "totals": {
+            "entities": 2,
+            "relations": 0,
+            "events": 0,
+            "world": 0,
+            "foreshadowing": 0
+          }
+        },
+        "history": [
+          {
+            "id": "memv_1788087440289_rfuct4",
+            "chapterId": "memory-import-merge",
+            "timestamp": "2026-08-30T10:57:20.289Z",
+            "reason": "测试合并导入",
+            "before": {
+              "version": 1,
+              "entities": [
+                {
+                  "id": "old1",
+                  "name": "旧角色",
+                  "type": "character"
+                }
+              ],
+              "relations": [],
+              "events": [],
+              "world": [],
+              "foreshadowing": [],
+              "meta": {
+                "extractionCount": 0,
+                "lastExtractedAt": null,
+                "lastFullRebuildAt": null,
+                "pendingCount": 0,
+                "totals": {
+                  "entities": 1,
+                  "relations": 0,
+                  "events": 0,
+                  "world": 0,
+                  "foreshadowing": 0
+                }
+              },
+              "categories": [
+                "情节"
+              ],
+              "items": []
+            },
+            "after": {
+              "version": 1,
+              "entities": [
+                {
+                  "id": "old1",
+                  "name": "旧角色",
+                  "type": "character"
+                },
+                {
+                  "id": "new1",
+                  "name": "新角色",
+                  "type": "character"
+                }
+              ],
+              "relations": [],
+              "events": [],
+              "world": [],
+              "foreshadowing": [],
+              "meta": {
+                "extractionCount": 0,
+                "lastExtractedAt": null,
+                "lastFullRebuildAt": null,
+                "pendingCount": 0,
+                "totals": {
+                  "entities": 2,
+                  "relations": 0,
+                  "events": 0,
+                  "world": 0,
+                  "foreshadowing": 0
+                }
+              },
+              "categories": [
+                "情节"
+              ],
+              "items": []
+            }
+          }
+        ],
+        "categories": [
+          "情节"
+        ],
+        "items": []
+      },
+      "memoryBlacklist": [],
+      "aiNaming": {
+        "version": 1,
+        "favorites": [],
+        "history": []
+      },
+      "outlineChat": []
+    },
+    "after2": {
+      "projectName": "P4差异测试",
+      "outlineText": "第一卷\n第一章",
+      "outlineLocked": false,
+      "outlineLockedText": "",
+      "bookWordCount": 100000,
+      "volumesConfirmed": false,
+      "chaptersConfirmed": false,
+      "settingsGenerated": false,
+      "settings": [],
+      "volumes": [
+        {
+          "id": "volD",
+          "name": "第一卷",
+          "summary": "",
+          "outline": "",
+          "isBound": true,
+          "boundTo": [
+            "chapter-layer"
+          ]
+        }
+      ],
+      "chapters": {
+        "volD": [
+          {
+            "id": "chD",
+            "title": "第一章",
+            "body": "旧正文",
+            "plot": "旧剧情"
+          }
+        ]
+      },
+      "settingBindings": {},
+      "settingsCollection": {
+        "categories": [],
+        "items": {}
+      },
+      "memories": {
+        "version": 1,
+        "entities": [
+          {
+            "id": "only1",
+            "name": "覆盖角色",
+            "type": "character"
+          }
+        ],
+        "relations": [],
+        "events": [],
+        "world": [],
+        "foreshadowing": [],
+        "meta": {
+          "extractionCount": 0,
+          "lastExtractedAt": null,
+          "lastFullRebuildAt": null,
+          "pendingCount": 0,
+          "totals": {
+            "entities": 1,
+            "relations": 0,
+            "events": 0,
+            "world": 0,
+            "foreshadowing": 0
+          }
+        },
+        "history": [
+          {
+            "id": "memv_1788087440289_rfuct4",
+            "chapterId": "memory-import-merge",
+            "timestamp": "2026-08-30T10:57:20.289Z",
+            "reason": "测试合并导入",
+            "before": {
+              "version": 1,
+              "entities": [
+                {
+                  "id": "old1",
+                  "name": "旧角色",
+                  "type": "character"
+                }
+              ],
+              "relations": [],
+              "events": [],
+              "world": [],
+              "foreshadowing": [],
+              "meta": {
+                "extractionCount": 0,
+                "lastExtractedAt": null,
+                "lastFullRebuildAt": null,
+                "pendingCount": 0,
+                "totals": {
+                  "entities": 1,
+                  "relations": 0,
+                  "events": 0,
+                  "world": 0,
+                  "foreshadowing": 0
+                }
+              },
+              "categories": [
+                "情节"
+              ],
+              "items": []
+            },
+            "after": {
+              "version": 1,
+              "entities": [
+                {
+                  "id": "old1",
+                  "name": "旧角色",
+                  "type": "character"
+                },
+                {
+                  "id": "new1",
+                  "name": "新角色",
+                  "type": "character"
+                }
+              ],
+              "relations": [],
+              "events": [],
+              "world": [],
+              "foreshadowing": [],
+              "meta": {
+                "extractionCount": 0,
+                "lastExtractedAt": null,
+                "lastFullRebuildAt": null,
+                "pendingCount": 0,
+                "totals": {
+                  "entities": 2,
+                  "relations": 0,
+                  "events": 0,
+                  "world": 0,
+                  "foreshadowing": 0
+                }
+              },
+              "categories": [
+                "情节"
+              ],
+              "items": []
+            }
+          },
+          {
+            "id": "memv_1788087440306_wlo0bz",
+            "chapterId": "memory-import-replace",
+            "timestamp": "2026-08-30T10:57:20.306Z",
+            "reason": "测试覆盖导入",
+            "before": {
+              "version": 1,
+              "entities": [
+                {
+                  "id": "old1",
+                  "name": "旧角色",
+                  "type": "character"
+                },
+                {
+                  "id": "new1",
+                  "name": "新角色",
+                  "type": "character"
+                }
+              ],
+              "relations": [],
+              "events": [],
+              "world": [],
+              "foreshadowing": [],
+              "meta": {
+                "extractionCount": 0,
+                "lastExtractedAt": null,
+                "lastFullRebuildAt": null,
+                "pendingCount": 0,
+                "totals": {
+                  "entities": 2,
+                  "relations": 0,
+                  "events": 0,
+                  "world": 0,
+                  "foreshadowing": 0
+                }
+              },
+              "categories": [
+                "情节"
+              ],
+              "items": []
+            },
+            "after": {
+              "version": 1,
+              "entities": [
+                {
+                  "id": "only1",
+                  "name": "覆盖角色",
+                  "type": "character"
+                }
+              ],
+              "relations": [],
+              "events": [],
+              "world": [],
+              "foreshadowing": [],
+              "meta": {
+                "extractionCount": 0,
+                "lastExtractedAt": null,
+                "lastFullRebuildAt": null,
+                "pendingCount": 0,
+                "totals": {
+                  "entities": 1,
+                  "relations": 0,
+                  "events": 0,
+                  "world": 0,
+                  "foreshadowing": 0
+                }
+              },
+              "categories": [
+                "情节"
+              ],
+              "items": []
+            }
+          }
+        ],
+        "categories": [
+          "情节"
+        ],
+        "items": []
+      },
+      "memoryBlacklist": [],
+      "aiNaming": {
+        "version": 1,
+        "favorites": [],
+        "history": []
+      },
+      "outlineChat": []
+    },
+    "after3": {
+      "projectName": "P4差异测试",
+      "outlineText": "第一卷\n第一章",
+      "outlineLocked": false,
+      "outlineLockedText": "",
+      "bookWordCount": 100000,
+      "volumesConfirmed": false,
+      "chaptersConfirmed": false,
+      "settingsGenerated": false,
+      "settings": [],
+      "volumes": [
+        {
+          "id": "volD",
+          "name": "第一卷",
+          "summary": "",
+          "outline": "",
+          "isBound": true,
+          "boundTo": [
+            "chapter-layer"
+          ]
+        }
+      ],
+      "chapters": {
+        "volD": [
+          {
+            "id": "chD",
+            "title": "第一章",
+            "body": "新正文",
+            "plot": "旧剧情"
+          }
+        ]
+      },
+      "settingBindings": {},
+      "settingsCollection": {
+        "categories": [],
+        "items": {}
+      },
+      "memories": {
+        "version": 1,
+        "entities": [
+          {
+            "id": "only1",
+            "name": "覆盖角色",
+            "type": "character"
+          }
+        ],
+        "relations": [],
+        "events": [],
+        "world": [],
+        "foreshadowing": [],
+        "meta": {
+          "extractionCount": 0,
+          "lastExtractedAt": null,
+          "lastFullRebuildAt": null,
+          "pendingCount": 0,
+          "totals": {
+            "entities": 1,
+            "relations": 0,
+            "events": 0,
+            "world": 0,
+            "foreshadowing": 0
+          }
+        },
+        "history": [
+          {
+            "id": "memv_1788087440289_rfuct4",
+            "chapterId": "memory-import-merge",
+            "timestamp": "2026-08-30T10:57:20.289Z",
+            "reason": "测试合并导入",
+            "before": {
+              "version": 1,
+              "entities": [
+                {
+                  "id": "old1",
+                  "name": "旧角色",
+                  "type": "character"
+                }
+              ],
+              "relations": [],
+              "events": [],
+              "world": [],
+              "foreshadowing": [],
+              "meta": {
+                "extractionCount": 0,
+                "lastExtractedAt": null,
+                "lastFullRebuildAt": null,
+                "pendingCount": 0,
+                "totals": {
+                  "entities": 1,
+                  "relations": 0,
+                  "events": 0,
+                  "world": 0,
+                  "foreshadowing": 0
+                }
+              },
+              "categories": [
+                "情节"
+              ],
+              "items": []
+            },
+            "after": {
+              "version": 1,
+              "entities": [
+                {
+                  "id": "old1",
+                  "name": "旧角色",
+                  "type": "character"
+                },
+                {
+                  "id": "new1",
+                  "name": "新角色",
+                  "type": "character"
+                }
+              ],
+              "relations": [],
+              "events": [],
+              "world": [],
+              "foreshadowing": [],
+              "meta": {
+                "extractionCount": 0,
+                "lastExtractedAt": null,
+                "lastFullRebuildAt": null,
+                "pendingCount": 0,
+                "totals": {
+                  "entities": 2,
+                  "relations": 0,
+                  "events": 0,
+                  "world": 0,
+                  "foreshadowing": 0
+                }
+              },
+              "categories": [
+                "情节"
+              ],
+              "items": []
+            }
+          },
+          {
+            "id": "memv_1788087440306_wlo0bz",
+            "chapterId": "memory-import-replace",
+            "timestamp": "2026-08-30T10:57:20.306Z",
+            "reason": "测试覆盖导入",
+            "before": {
+              "version": 1,
+              "entities": [
+                {
+                  "id": "old1",
+                  "name": "旧角色",
+                  "type": "character"
+                },
+                {
+                  "id": "new1",
+                  "name": "新角色",
+                  "type": "character"
+                }
+              ],
+              "relations": [],
+              "events": [],
+              "world": [],
+              "foreshadowing": [],
+              "meta": {
+                "extractionCount": 0,
+                "lastExtractedAt": null,
+                "lastFullRebuildAt": null,
+                "pendingCount": 0,
+                "totals": {
+                  "entities": 2,
+                  "relations": 0,
+                  "events": 0,
+                  "world": 0,
+                  "foreshadowing": 0
+                }
+              },
+              "categories": [
+                "情节"
+              ],
+              "items": []
+            },
+            "after": {
+              "version": 1,
+              "entities": [
+                {
+                  "id": "only1",
+                  "name": "覆盖角色",
+                  "type": "character"
+                }
+              ],
+              "relations": [],
+              "events": [],
+              "world": [],
+              "foreshadowing": [],
+              "meta": {
+                "extractionCount": 0,
+                "lastExtractedAt": null,
+                "lastFullRebuildAt": null,
+                "pendingCount": 0,
+                "totals": {
+                  "entities": 1,
+                  "relations": 0,
+                  "events": 0,
+                  "world": 0,
+                  "foreshadowing": 0
+                }
+              },
+              "categories": [
+                "情节"
+              ],
+              "items": []
+            }
+          }
+        ],
+        "categories": [
+          "情节"
+        ],
+        "items": []
+      },
+      "memoryBlacklist": [],
+      "aiNaming": {
+        "version": 1,
+        "favorites": [],
+        "history": []
+      },
+      "outlineChat": []
+    },
+    "after4": {
+      "projectName": "P4差异测试",
+      "outlineText": "退出保存后的最新大纲",
+      "outlineLocked": false,
+      "outlineLockedText": "",
+      "bookWordCount": 100000,
+      "volumesConfirmed": false,
+      "chaptersConfirmed": false,
+      "settingsGenerated": false,
+      "settings": [],
+      "volumes": [
+        {
+          "id": "volD",
+          "name": "第一卷",
+          "summary": "",
+          "outline": "",
+          "isBound": true,
+          "boundTo": [
+            "chapter-layer"
+          ]
+        }
+      ],
+      "chapters": {
+        "volD": [
+          {
+            "id": "chD",
+            "title": "第一章",
+            "body": "新正文",
+            "plot": "旧剧情"
+          }
+        ]
+      },
+      "settingBindings": {},
+      "settingsCollection": {
+        "categories": [],
+        "items": {}
+      },
+      "memories": {
+        "version": 1,
+        "entities": [
+          {
+            "id": "only1",
+            "name": "覆盖角色",
+            "type": "character"
+          }
+        ],
+        "relations": [],
+        "events": [],
+        "world": [],
+        "foreshadowing": [],
+        "meta": {
+          "extractionCount": 0,
+          "lastExtractedAt": null,
+          "lastFullRebuildAt": null,
+          "pendingCount": 0,
+          "totals": {
+            "entities": 1,
+            "relations": 0,
+            "events": 0,
+            "world": 0,
+            "foreshadowing": 0
+          }
+        },
+        "history": [
+          {
+            "id": "memv_1788087440289_rfuct4",
+            "chapterId": "memory-import-merge",
+            "timestamp": "2026-08-30T10:57:20.289Z",
+            "reason": "测试合并导入",
+            "before": {
+              "version": 1,
+              "entities": [
+                {
+                  "id": "old1",
+                  "name": "旧角色",
+                  "type": "character"
+                }
+              ],
+              "relations": [],
+              "events": [],
+              "world": [],
+              "foreshadowing": [],
+              "meta": {
+                "extractionCount": 0,
+                "lastExtractedAt": null,
+                "lastFullRebuildAt": null,
+                "pendingCount": 0,
+                "totals": {
+                  "entities": 1,
+                  "relations": 0,
+                  "events": 0,
+                  "world": 0,
+                  "foreshadowing": 0
+                }
+              },
+              "categories": [
+                "情节"
+              ],
+              "items": []
+            },
+            "after": {
+              "version": 1,
+              "entities": [
+                {
+                  "id": "old1",
+                  "name": "旧角色",
+                  "type": "character"
+                },
+                {
+                  "id": "new1",
+                  "name": "新角色",
+                  "type": "character"
+                }
+              ],
+              "relations": [],
+              "events": [],
+              "world": [],
+              "foreshadowing": [],
+              "meta": {
+                "extractionCount": 0,
+                "lastExtractedAt": null,
+                "lastFullRebuildAt": null,
+                "pendingCount": 0,
+                "totals": {
+                  "entities": 2,
+                  "relations": 0,
+                  "events": 0,
+                  "world": 0,
+                  "foreshadowing": 0
+                }
+              },
+              "categories": [
+                "情节"
+              ],
+              "items": []
+            }
+          },
+          {
+            "id": "memv_1788087440306_wlo0bz",
+            "chapterId": "memory-import-replace",
+            "timestamp": "2026-08-30T10:57:20.306Z",
+            "reason": "测试覆盖导入",
+            "before": {
+              "version": 1,
+              "entities": [
+                {
+                  "id": "old1",
+                  "name": "旧角色",
+                  "type": "character"
+                },
+                {
+                  "id": "new1",
+                  "name": "新角色",
+                  "type": "character"
+                }
+              ],
+              "relations": [],
+              "events": [],
+              "world": [],
+              "foreshadowing": [],
+              "meta": {
+                "extractionCount": 0,
+                "lastExtractedAt": null,
+                "lastFullRebuildAt": null,
+                "pendingCount": 0,
+                "totals": {
+                  "entities": 2,
+                  "relations": 0,
+                  "events": 0,
+                  "world": 0,
+                  "foreshadowing": 0
+                }
+              },
+              "categories": [
+                "情节"
+              ],
+              "items": []
+            },
+            "after": {
+              "version": 1,
+              "entities": [
+                {
+                  "id": "only1",
+                  "name": "覆盖角色",
+                  "type": "character"
+                }
+              ],
+              "relations": [],
+              "events": [],
+              "world": [],
+              "foreshadowing": [],
+              "meta": {
+                "extractionCount": 0,
+                "lastExtractedAt": null,
+                "lastFullRebuildAt": null,
+                "pendingCount": 0,
+                "totals": {
+                  "entities": 1,
+                  "relations": 0,
+                  "events": 0,
+                  "world": 0,
+                  "foreshadowing": 0
+                }
+              },
+              "categories": [
+                "情节"
+              ],
+              "items": []
+            }
+          }
+        ],
+        "categories": [
+          "情节"
+        ],
+        "items": []
+      },
+      "memoryBlacklist": [],
+      "aiNaming": {
+        "version": 1,
+        "favorites": [],
+        "history": []
+      },
+      "outlineChat": []
+    }
+  },
+  "cleanup": {
+    "removed": true
+  }
+}

@@ -1,0 +1,333 @@
+{
+  "original": {
+    "lastProjectId": "p1788090207705",
+    "projectName": "未命名",
+    "projectCount": 2
+  },
+  "steps": [
+    {
+      "name": "baseline",
+      "ok": true,
+      "value": {
+        "mounted": true,
+        "original": {
+          "lastProjectId": "p1788090207705",
+          "projectName": "未命名",
+          "projectCount": 2
+        },
+        "bodyOverflowX": false
+      }
+    },
+    {
+      "name": "create-fixture-project",
+      "ok": true,
+      "value": {
+        "projectName": "深度扫描冒烟项目",
+        "volumeCount": 1,
+        "chapterCount": 1
+      }
+    },
+    {
+      "name": "outline-workspace",
+      "ok": true,
+      "value": {
+        "panel": {
+          "exists": true,
+          "visible": true,
+          "width": 1904,
+          "height": 975,
+          "bodyOverflowX": false
+        },
+        "controls": {
+          "editorValueLength": 57,
+          "agentSelect": true,
+          "skillSelect": true,
+          "modeSelect": true,
+          "selectedSkills": 0,
+          "footerImport": true,
+          "footerSave": true,
+          "footerLock": true
+        },
+        "chatVisible": true,
+        "lockState": {
+          "lockedText": "",
+          "editorReadonly": false,
+          "outlineInfo": "智能体/技能配置已迁移到大纲工作台"
+        },
+        "afterLockPipeline": {
+          "pipelineVisible": true,
+          "pipelineOutlineReadonly": true,
+          "pipelineOutlineLength": 57,
+          "infoTitle": "智能体/技能配置已迁移到大纲工作台",
+          "outlineStatus": [
+            "智能体：不使用",
+            "Skill：0 个",
+            "模式：并行",
+            "大纲：已锁定"
+          ]
+        },
+        "autoNavigatedToPipeline": true
+      }
+    },
+    {
+      "name": "pipeline-five-steps",
+      "ok": true,
+      "value": {
+        "labels": [
+          "大纲",
+          "设定",
+          "卷纲",
+          "章节",
+          "正文"
+        ],
+        "perStep": [
+          {
+            "index": 0,
+            "labels": "大纲",
+            "visiblePanel": [
+              "pl-step-1-content"
+            ],
+            "step": 0,
+            "overflowX": false,
+            "visibleCount": 5
+          },
+          {
+            "index": 1,
+            "labels": "设定",
+            "visiblePanel": [
+              "pl-step-2-content"
+            ],
+            "step": 1,
+            "overflowX": false,
+            "visibleCount": 5
+          },
+          {
+            "index": 2,
+            "labels": "卷纲",
+            "visiblePanel": [
+              "pl-step-3-content"
+            ],
+            "step": 2,
+            "overflowX": false,
+            "visibleCount": 5
+          },
+          {
+            "index": 3,
+            "labels": "章节",
+            "visiblePanel": [
+              "pl-step-4-content"
+            ],
+            "step": 3,
+            "overflowX": false,
+            "visibleCount": 5
+          },
+          {
+            "index": 4,
+            "labels": "正文",
+            "visiblePanel": [
+              "pl-step-5-content"
+            ],
+            "step": 4,
+            "overflowX": false,
+            "visibleCount": 5
+          }
+        ],
+        "naming": {
+          "panel": {
+            "exists": true,
+            "visible": true,
+            "width": 1904,
+            "height": 975,
+            "bodyOverflowX": false
+          },
+          "tabs": [
+            "角色",
+            "地点",
+            "城市",
+            "势力",
+            "物品",
+            "功法技能",
+            "自定义"
+          ],
+          "subTabs": [
+            "生成",
+            "收藏",
+            "历史"
+          ]
+        }
+      }
+    },
+    {
+      "name": "memory-views",
+      "ok": true,
+      "value": {
+        "panel": {
+          "exists": true,
+          "visible": true,
+          "width": 1856,
+          "height": 975,
+          "bodyOverflowX": false
+        },
+        "tabTexts": [
+          "记忆列表",
+          "关系图",
+          "图谱分析",
+          "思维导图",
+          "时间线"
+        ],
+        "tabResults": [
+          {
+            "tab": "记忆列表",
+            "active": true,
+            "overflowX": false
+          },
+          {
+            "tab": "关系图",
+            "active": true,
+            "overflowX": false
+          },
+          {
+            "tab": "图谱分析",
+            "active": true,
+            "overflowX": false
+          },
+          {
+            "tab": "思维导图",
+            "active": true,
+            "overflowX": false
+          },
+          {
+            "tab": "时间线",
+            "active": true,
+            "overflowX": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "settings-tabs",
+      "ok": true,
+      "value": {
+        "panel": {
+          "exists": true,
+          "visible": true,
+          "width": 958,
+          "height": 519,
+          "bodyOverflowX": false
+        },
+        "tabs": [
+          {
+            "id": "tab-api",
+            "text": "API设置"
+          },
+          {
+            "id": "tab-skill",
+            "text": "技能"
+          },
+          {
+            "id": "tab-agent",
+            "text": "智能体"
+          },
+          {
+            "id": "tab-appearance",
+            "text": "外观"
+          },
+          {
+            "id": "tab-deai",
+            "text": "去AI味"
+          },
+          {
+            "id": "tab-diag",
+            "text": "诊断日志"
+          },
+          {
+            "id": "tab-mcp",
+            "text": "MCP"
+          }
+        ],
+        "tabResults": [
+          {
+            "id": "tab-api",
+            "text": "API设置",
+            "active": true,
+            "contentHeight": 726,
+            "overflowX": false
+          },
+          {
+            "id": "tab-skill",
+            "text": "技能",
+            "active": true,
+            "contentHeight": 2029,
+            "overflowX": false
+          },
+          {
+            "id": "tab-agent",
+            "text": "智能体",
+            "active": true,
+            "contentHeight": 939,
+            "overflowX": false
+          },
+          {
+            "id": "tab-appearance",
+            "text": "外观",
+            "active": true,
+            "contentHeight": 1046,
+            "overflowX": false
+          },
+          {
+            "id": "tab-deai",
+            "text": "去AI味",
+            "active": true,
+            "contentHeight": 1735,
+            "overflowX": false
+          },
+          {
+            "id": "tab-diag",
+            "text": "诊断日志",
+            "active": true,
+            "contentHeight": 487,
+            "overflowX": false
+          },
+          {
+            "id": "tab-mcp",
+            "text": "MCP",
+            "active": true,
+            "contentHeight": 487,
+            "overflowX": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "restore-original-project",
+      "ok": true,
+      "value": {
+        "clicked": "CLICKED",
+        "deleted": "DELETE_CLICKED",
+        "currentProjectName": "未命名",
+        "projectNameRestored": true
+      }
+    },
+    {
+      "name": "final-state",
+      "ok": true,
+      "value": {
+        "activePanels": {
+          "settings": false,
+          "pipeline": false,
+          "outline": false,
+          "memory": false,
+          "naming": false
+        },
+        "bodyOverflowX": false,
+        "projectCount": 2,
+        "persistedCleanup": {
+          "fixtureKeys": [],
+          "remaining": 0
+        }
+      }
+    }
+  ],
+  "runtimeErrors": [],
+  "allStepsOk": true
+}
