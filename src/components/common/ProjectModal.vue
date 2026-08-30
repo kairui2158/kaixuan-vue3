@@ -49,11 +49,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useProjectStore } from '../../stores/project'
+import { useAppConfirm } from '../../composables/useAppConfirm'
 
 const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits<{ close: [] }>()
 
 const projectStore = useProjectStore()
+const appConfirm = useAppConfirm()
 
 const showNewForm = ref(false)
 const newName = ref('')
@@ -80,7 +82,13 @@ function loadProject(id: string) {
 }
 
 async function deleteProject(id: string) {
-  if (!confirm('确定删除该项目？此操作不可恢复')) return
+  const ok = await appConfirm.confirm({
+    title: '删除项目',
+    message: '确定删除该项目？此操作不可恢复。',
+    confirmText: '删除',
+    danger: true,
+  })
+  if (!ok) return
   await projectStore.deleteProject(id)
 }
 
@@ -121,7 +129,7 @@ function finishCreate() {
   const name = newName.value.trim()
   const outline = newOutline.value.trim()
   if (!name && !outline) {
-    alert('请输入项目名称或大纲内容')
+    void appConfirm.alert({ title: '新建项目', message: '请输入项目名称或大纲内容' })
     return
   }
   projectStore.createProject(name, outline)

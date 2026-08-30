@@ -78,10 +78,12 @@
 import { ref, computed, nextTick, watch } from 'vue'
 import { useProjectStore } from '../../stores/project'
 import { useEditorStore } from '../../stores/editor'
+import { useAppConfirm } from '../../composables/useAppConfirm'
 import ProjectModal from '../common/ProjectModal.vue'
 
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
+const appConfirm = useAppConfirm()
 const emit = defineEmits<{ navigate: [string] }>()
 
 const projectModalVisible = ref(false)
@@ -249,9 +251,29 @@ function ctxAction(action: string) {
     case 'bind-skill':
       window.dispatchEvent(new CustomEvent('show-skill-binding', { detail: { type: ctxMenu.value.type, id: ch?.id || (vol?.id || vol?.name) } }))
       break
-    case 'del-vol': if (vol && confirm('确认删除卷「' + vol.name + '」及其所有章节？')) deleteVolume(vol); break
-    case 'del-ch': if (ch && confirm('确认删除章节「' + ch.title + '」？')) deleteChapter(ch); break
+    case 'del-vol': if (vol) void confirmDeleteVolume(vol); break
+    case 'del-ch': if (ch) void confirmDeleteChapter(ch); break
   }
+}
+
+async function confirmDeleteVolume(vol: any) {
+  const ok = await appConfirm.confirm({
+    title: '删除卷',
+    message: '确认删除卷「' + vol.name + '」及其所有章节？此操作不可恢复。',
+    confirmText: '删除',
+    danger: true,
+  })
+  if (ok) deleteVolume(vol)
+}
+
+async function confirmDeleteChapter(ch: any) {
+  const ok = await appConfirm.confirm({
+    title: '删除章节',
+    message: '确认删除章节「' + ch.title + '」？此操作不可恢复。',
+    confirmText: '删除',
+    danger: true,
+  })
+  if (ok) deleteChapter(ch)
 }
 
 function deleteChapter(ch: any) {

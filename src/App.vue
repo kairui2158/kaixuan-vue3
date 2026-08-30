@@ -44,6 +44,7 @@
 
     <DeAiProgress v-if="deAiStore.isProcessing || deAiStore.errorMessage" />
     <ExitConfirmModal ref="exitModal" />
+    <AppConfirmModal />
     <div v-if="projectStore.lastSaveError" id="save-error-banner" class="save-error-banner" role="alert">
       <span>项目保存失败（{{ projectStore.lastSaveError.keys.join('、') }}）：数据可能未写入磁盘，请检查磁盘空间或权限后重试保存。</span>
       <button class="save-error-dismiss" @click="projectStore.lastSaveError = null">知道了</button>
@@ -96,6 +97,7 @@ import PipelinePanel from './components/pipeline/PipelinePanel.vue'
 import OutlineWorkspace from './components/common/OutlineWorkspace.vue'
 import DeAiProgress from './components/deai/DeAiProgress.vue'
 import ExitConfirmModal from './components/common/ExitConfirmModal.vue'
+import AppConfirmModal from './components/common/AppConfirmModal.vue'
 import MemoryPanel from './components/common/MemoryPanel.vue'
 import PluginMarket from './components/common/PluginMarket.vue'
 import DiffModal from './components/common/DiffModal.vue'
