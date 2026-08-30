@@ -104,7 +104,7 @@
         <label>模板 (支持Markdown)</label>
         <div class="sf-template-wrapper">
           <textarea id="sf-template" v-model="editingTemplate" class="sf-template-input" placeholder="支持 Markdown 格式。使用 {{变量名}} 插入动态内容。"></textarea>
-          <div id="sf-template-preview" class="sf-template-preview" v-html="renderMarkdown(editingTemplate)"></div>
+          <div id="sf-template-preview" ref="previewRef" class="sf-template-preview" v-html="renderMarkdown(editingTemplate)"></div>
         </div>
         <label>模板解析预览 (示例值)</label>
         <div id="sf-resolved-preview" class="sf-resolved-preview"><pre>{{ resolvedPreviewText || '(输入模板后点击刷新预览)' }}</pre></div>
@@ -184,12 +184,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useSkillStore } from '../../stores/skill'
 import { useSkillTest } from '../../composables/useSkillTest'
 import { useConfigExchange } from '../../composables/useConfigExchange'
 import { buildImportPlan } from '../../services/configExchange'
-import { renderMarkdown as renderMarkdownService } from '../../utils/markdownService'
+import { enhanceCodeBlocks, renderMarkdown as renderMarkdownService } from '../../utils/markdownService'
 import type { ConfigDiagnostic, ConfigFieldTrace, ConfigIssue, ConfigSourceInfo, ImportPlanItem, ImportStrategy, SkillRecord } from '../../services/configExchange'
 
 const skillStore = useSkillStore()
@@ -385,6 +385,12 @@ const editingBindId = ref('')
 const bindTargetOptions = ref<{ id: string, name: string }[]>([])
 const editingCustomVars = ref<{ key: string, value: string }[]>([])
 const resolvedPreviewText = ref('')
+const previewRef = ref<HTMLElement | null>(null)
+
+watch(editingTemplate, async () => {
+  await nextTick()
+  await enhanceCodeBlocks(previewRef.value)
+}, { immediate: true })
 
 const availableVars = [
   'selectedText', 'outlineContent', 'chapterSummary',

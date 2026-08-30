@@ -17,6 +17,8 @@
   "author": "kaixuan",
   "license": "MIT",
   "dependencies": {
+    "@shikijs/langs": "^4.4.3",
+    "@shikijs/themes": "^4.4.3",
     "dompurify": "^3.4.14",
     "electron-log": "^5.4.4",
     "hotkeys-js": "^4.0.4",
@@ -25,6 +27,7 @@
     "marked": "^18.0.5",
     "notyf": "^3.10.0",
     "pinia": "^4.0.2",
+    "shiki": "^4.4.3",
     "vue": "^3.5.41",
     "vue-router": "^4.6.4",
     "vue-virtual-scroller": "^3.0.4"

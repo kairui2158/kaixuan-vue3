@@ -224,7 +224,7 @@ import { importFile } from '../../services/file-import'
 import { useAiTools } from '../../composables/useAiTools'
 import { useAppConfirm } from '../../composables/useAppConfirm'
 import { getAiService } from '../../services/aiService'
-import { renderMarkdown as renderMarkdownText } from '../../utils/markdownService'
+import { enhanceCodeBlocks, renderMarkdown as renderMarkdownText } from '../../utils/markdownService'
 
 const emit = defineEmits<{ close: []; navigate: [target: string] }>()
 
@@ -619,6 +619,17 @@ async function handleImport(e: Event) {
 function renderMarkdown(text: string): string {
   return renderMarkdownText(text)
 }
+
+watch(messages, async () => {
+  await nextTick()
+  await enhanceCodeBlocks(msgContainer.value)
+}, { immediate: true })
+
+watch(streamingContent, async () => {
+  await nextTick()
+  const streamingMessage = document.getElementById('ow-streaming-message')
+  await enhanceCodeBlocks(streamingMessage?.querySelector('.ow-msg-bubble') || null)
+})
 
 function parseOutlineEditCommand(raw: string): OutlineEditCommand | null {
   if (!raw || raw.length > 20000) return null

@@ -1,5 +1,7 @@
 import { Marked } from 'marked'
 import DOMPurify from 'dompurify'
+import { createHighlighterCore, type HighlighterCore } from 'shiki/core'
+import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 
 const marked = new Marked({ gfm: true, breaks: true, async: false })
 
@@ -45,6 +47,146 @@ const statusBadges: Record<string, 'is-success' | 'is-warning' | 'is-danger'> = 
 
 export interface MarkdownRenderOptions {
   allowTables?: boolean
+}
+
+type ShikiHighlighter = HighlighterCore
+
+const supportedCodeLanguages = new Set(['json', 'javascript', 'js', 'typescript', 'ts', 'bash', 'sh', 'shell', 'markdown', 'md'])
+
+let highlighterPromise: Promise<ShikiHighlighter> | null = null
+let highlighterUnavailable = false
+const codeHighlightCache = new Map<string, string>()
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function normalizeCodeLanguage(value: string | null): string {
+  const language = (value || '').toLowerCase()
+  if (!language) return 'text'
+  if (language === 'js') return 'javascript'
+  if (language === 'ts') return 'typescript'
+  if (language === 'sh' || language === 'shell') return 'bash'
+  if (language === 'md') return 'markdown'
+  return language
+}
+
+function codeLanguageLabel(language: string): string {
+  const labels: Record<string, string> = {
+    json: 'JSON',
+    javascript: 'JavaScript',
+    typescript: 'TypeScript',
+    bash: 'Bash',
+    markdown: 'Markdown'
+  }
+  return labels[language] || '文本'
+}
+
+function loadHighlighter(): Promise<ShikiHighlighter> {
+  highlighterPromise ||= Promise.all([
+    import('@shikijs/langs/json'),
+    import('@shikijs/langs/javascript'),
+    import('@shikijs/langs/typescript'),
+    import('@shikijs/langs/bash'),
+    import('@shikijs/langs/markdown'),
+    import('@shikijs/themes/github-light'),
+    import('@shikijs/themes/github-dark')
+  ]).then(([json, javascript, typescript, bash, markdown, githubLight, githubDark]) =>
+    createHighlighterCore({
+      langs: [json.default, javascript.default, typescript.default, bash.default, markdown.default],
+      themes: [githubLight.default, githubDark.default],
+      engine: createJavaScriptRegexEngine({ forgiving: true })
+    })
+  )
+  return highlighterPromise
+}
+
+async function highlightCode(code: string, language: string): Promise<string | null> {
+  if (highlighterUnavailable) return null
+  const cacheKey = `${language}:${code}`
+  const cached = codeHighlightCache.get(cacheKey)
+  if (cached) return cached
+
+  try {
+    const highlighter = await loadHighlighter()
+    const html = highlighter.codeToHtml(code, {
+      lang: language as Parameters<ShikiHighlighter['codeToHtml']>[1] extends any ? any : never,
+      themes: { light: 'github-light', dark: 'github-dark' },
+      defaultColor: false
+    })
+    codeHighlightCache.set(cacheKey, html)
+    return html
+  } catch {
+    highlighterUnavailable = true
+    return null
+  }
+}
+
+async function copyCodeText(value: string): Promise<void> {
+  try {
+    if (window.electronAPI?.platform && window.electronAPI?.clipboardWrite) {
+      await window.electronAPI.clipboardWrite(value)
+      return
+    }
+    await navigator.clipboard.writeText(value)
+  } catch {
+    const textarea = document.createElement('textarea')
+    textarea.value = value
+    textarea.setAttribute('readonly', 'true')
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    textarea.remove()
+  }
+}
+
+export async function enhanceCodeBlocks(root: ParentNode | null): Promise<void> {
+  if (!root || !('querySelectorAll' in root)) return
+  const codeBlocks = Array.from(root.querySelectorAll('pre > code'))
+    .filter(code => !code.closest('pre')?.hasAttribute('data-code-enhanced'))
+  if (codeBlocks.length === 0) return
+
+  for (const codeElement of codeBlocks) {
+    const preElement = codeElement.closest('pre')
+    if (!preElement || preElement.hasAttribute('data-code-enhanced')) continue
+    const classMatch = codeElement.className.match(/language-([\w+-]+)/)
+    const language = normalizeCodeLanguage(classMatch?.[1] || null)
+    const sourceText = codeElement.textContent || ''
+    const highlighted = supportedCodeLanguages.has(language)
+      ? await highlightCode(sourceText, language)
+      : null
+    const codeHtml = highlighted || `<code>${escapeHtml(sourceText)}</code>`
+    const wrapper = document.createElement('div')
+    wrapper.className = 'code-block'
+    wrapper.innerHTML = `
+      <div class="code-chrome">
+        <span class="code-lang">${escapeHtml(codeLanguageLabel(language))}</span>
+        <button type="button" class="code-copy">复制</button>
+      </div>
+      ${sanitizer.sanitize(codeHtml, {
+        ALLOWED_TAGS: ['pre', 'code', 'span'],
+        ALLOWED_ATTR: ['class', 'style']
+      })}
+    `
+    wrapper.querySelector('.code-copy')?.addEventListener('click', event => {
+      void copyCodeText(sourceText)
+      const button = event.currentTarget
+      if (button instanceof HTMLElement) {
+        button.textContent = '已复制'
+        window.setTimeout(() => { button.textContent = '复制' }, 1400)
+      }
+    })
+    preElement.replaceWith(wrapper)
+    const replacedPre = wrapper.querySelector('pre')
+    if (replacedPre) replacedPre.setAttribute('data-code-enhanced', 'true')
+  }
 }
 
 function isTableSeparator(line: string): boolean {

@@ -173,3 +173,60 @@
   border-top: 1px solid var(--border-color);
   margin: 1.25em 0;
 }
+
+.code-block {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: text;
+  margin: 0.95em 0;
+  overflow: hidden;
+  user-select: text;
+}
+
+.code-block .code-chrome {
+  align-items: center;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  display: flex;
+  font-size: var(--font-size-xs);
+  justify-content: space-between;
+  line-height: 1.2;
+  padding: 6px 10px;
+}
+
+.code-block .code-lang {
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.code-block .code-copy {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.code-block .code-copy:hover {
+  color: var(--text-primary);
+}
+
+.code-block pre {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+}
+
+.shiki,
+.shiki span {
+  color: var(--shiki-dark);
+}
+
+body.light-theme .shiki,
+body.light-theme .shiki span {
+  color: var(--shiki-light);
+}
