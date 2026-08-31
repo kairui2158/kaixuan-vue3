@@ -393,6 +393,16 @@
                       <button :id="'btn-pl-edit-volume-' + i" class="btn-sm" @click="toggleVolumeExpand(i)">
                         {{ expandedVolumeIndex === i ? '收起' : '编辑' }}
                       </button>
+                      <button
+                        v-if="i === projectStore.volumes.length - 1 && projectStore.volumes.length < Math.max(1, volumeCount)"
+                        :id="'btn-pl-continue-volume-' + i"
+                        class="btn-sm btn-secondary"
+                        :disabled="pipelineStore.isGenerating"
+                        title="以上一卷为记忆基准生成下一卷"
+                        @click="genVolumes('continue')"
+                      >
+                        续生成
+                      </button>
                       <button :id="'btn-pl-delete-volume-' + i" class="btn-sm btn-danger" @click="deleteVolume(i)">删除</button>
                     </span>
                   </div>
@@ -836,6 +846,8 @@ import { buildChainSkillPrompt } from "../../services/chainExecution"
 import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from "../../services/skillValidation"
 import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from "../../services/chainBreakpoint"
 import { selectCompleteChapters, validateChapterNarrative, validateVolumeNarrative } from "../../services/narrativeValidation"
+import { buildVolumePrompt, clampGeneratedVolumes } from "../../services/volumeGeneration"
+import type { VolumeGenerateMode } from "../../services/volumeGeneration"
 
 defineEmits<{ close: [], minimize: [], openOutline: [] }>()
 
@@ -2325,17 +2337,16 @@ async function genVolumes(mode: string) {
       (sum: number, v: any) => sum + Math.max(0, Math.round(Number(v.allocatedWords || v.suggestedWords) || 0)),
       0
     )
-    const remainingWords = Math.max(0, totalWords - allocatedSum)
-    let prompt: string
-    if (mode === "continue" && existingCount > 0) {
-      const lastVol = projectStore.volumes[existingCount - 1]
-      prompt = "[大纲]\n" + projectStore.pipelineOutlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[全书总字数]\n" + totalWords + "字\n\n[剩余待分配字数]\n" + remainingWords + "字\n\n已生成" + existingCount + "卷，上一卷为：" + lastVol.name + " - " + (lastVol.outline || lastVol.summary || "") + "。请继续生成第" + (existingCount + 1) + "卷到第" + effectiveVolumes + "卷的卷纲。输出JSON数组，每项含name/outline/summary/allocatedWords字段，allocatedWords为该卷分配字数（整数），本次生成各卷的allocatedWords之和应约等于剩余待分配字数。"
-    } else if (mode === "single" && existingCount > 0) {
-      const lastVol = projectStore.volumes[existingCount - 1]
-      prompt = "[大纲]\n" + projectStore.pipelineOutlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[全书总字数]\n" + totalWords + "字\n\n[剩余待分配字数]\n" + remainingWords + "字\n\n已生成" + existingCount + "卷，上一卷为：" + lastVol.name + " - " + (lastVol.outline || lastVol.summary || "") + "。请只生成第" + (existingCount + 1) + "卷的卷纲。输出JSON数组（正好1项），每项含name/outline/summary/allocatedWords字段，allocatedWords为该卷分配字数（整数）。"
-    } else {
-      prompt = "[大纲]\n" + projectStore.pipelineOutlineText + "\n\n[设定]\n" + settingsText + (boundText ? "\n\n[绑定设定]\n" + boundText : "") + "\n\n[卷数]\n" + effectiveVolumes + "\n\n[全书总字数]\n" + totalWords + "字\n\n请生成" + effectiveVolumes + "卷的卷纲。输出JSON数组，每项含name/outline/summary/allocatedWords字段，allocatedWords为该卷分配字数（整数），各卷allocatedWords之和应等于全书总字数。"
-    }
+    const prompt = buildVolumePrompt({
+      mode: mode as VolumeGenerateMode,
+      outlineText: projectStore.pipelineOutlineText,
+      settingsText,
+      boundText,
+      effectiveVolumes,
+      totalWords,
+      allocatedSum,
+      existingVolumes: projectStore.volumes
+    })
     volumeGenerationLogs.value.push("请求已发送：正在等待 API 返回卷纲内容")
     const result = await runStepSkills(2, prompt, 600000, "你是卷纲生成专家。基于大纲和设定生成卷纲。")
     volumeGenerationLogs.value.push("API 已返回：正在解析卷纲 JSON 并校验卷数")
@@ -2347,6 +2358,12 @@ async function genVolumes(mode: string) {
       const retryResult = await runStepSkills(2, prompt + "\n\n注意：上一次输出无法解析为JSON数组。请严格只输出JSON数组，每项含name/outline/summary/allocatedWords字段，不要输出解释文字。", 600000, "你是卷纲生成专家。基于大纲和设定生成卷纲。")
       volumes = extractJsonArray(retryResult)
     }
+    const clamped = clampGeneratedVolumes(mode as VolumeGenerateMode, volumes, existingCount, effectiveVolumes)
+    if (clamped.truncated) {
+      const modeLabel = mode === "single" ? "逐卷" : "续生成"
+      volumeGenerationLogs.value.push("模型返回 " + volumes.length + " 项，已按" + modeLabel + "模式截取前 " + clamped.volumes.length + " 项")
+    }
+    volumes = clamped.volumes
     if (volumes.length > 0) {
       const vr = validateVolumes(volumes)
       if (!vr.valid) {
@@ -2354,7 +2371,7 @@ async function genVolumes(mode: string) {
         pipelineStore.finishGeneration()
         return
       }
-      if ((mode === "continue" || mode === "single") && existingCount > 0) {
+      if (mode === "continue" || mode === "single") {
         projectStore.volumes = [
           ...projectStore.volumes,
           ...volumes.map((v: any) => ({

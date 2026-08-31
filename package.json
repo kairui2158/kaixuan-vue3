@@ -12,7 +12,7 @@
     "build": "npm run build:vue && electron-builder --win",
     "build:portable": "npm run build:vue && electron-builder --win portable",
     "type-check": "vue-tsc --noEmit",
-    "test:services": "vitest run src/services/aiService.spec.ts src/services/memoryIO.spec.ts"
+    "test:services": "vitest run src/services/aiService.spec.ts src/services/memoryIO.spec.ts src/services/volumeGeneration.spec.ts"
   },
   "author": "kaixuan",
   "license": "MIT",
