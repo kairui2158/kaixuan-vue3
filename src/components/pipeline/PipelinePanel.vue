@@ -893,7 +893,12 @@ const selectedSettingCategory = ref("")
 const selectedSettingId = ref("")
 const confirmedSettingCategories = ref<string[]>([])
 const settingsGenerationLogs = ref<string[]>([])
-const settingsGenerationFeedbackVisible = computed(() => pipelineStore.isGenerating || settingsGenerationLogs.value.length > 0)
+const activeGenerationFeedbackStep = ref<1 | 2 | 3 | null>(null)
+const settingsGenerationFeedbackVisible = computed(() =>
+  pipelineStore.isGenerating
+    ? activeGenerationFeedbackStep.value === 1
+    : settingsGenerationLogs.value.length > 0
+)
 
 function closeSettingsGenerationFeedback() {
   settingsGenerationLogs.value = []
@@ -942,8 +947,16 @@ function volumeStatusClass(vol: any) {
 const volumeGenerationLogs = ref<string[]>([])
 const chapterGenerationLogs = ref<string[]>([])
 const activeVolumeGenerationIndex = ref(-1)
-const volumeGenerationFeedbackVisible = computed(() => pipelineStore.isGenerating || volumeGenerationLogs.value.length > 0)
-const chapterGenerationFeedbackVisible = computed(() => pipelineStore.isGenerating || chapterGenerationLogs.value.length > 0)
+const volumeGenerationFeedbackVisible = computed(() =>
+  pipelineStore.isGenerating
+    ? activeGenerationFeedbackStep.value === 2
+    : volumeGenerationLogs.value.length > 0
+)
+const chapterGenerationFeedbackVisible = computed(() =>
+  pipelineStore.isGenerating
+    ? activeGenerationFeedbackStep.value === 3
+    : chapterGenerationLogs.value.length > 0
+)
 
 function appendPipelineStream(step: number, text: string) {
   const logs = step === 1 ? settingsGenerationLogs : step === 2 ? volumeGenerationLogs : chapterGenerationLogs
@@ -2249,6 +2262,7 @@ function removeSetting(index: number) {
 
 async function genSettings() {
   if (!projectStore.hasOutline || !projectStore.outlineLocked) return
+  activeGenerationFeedbackStep.value = 1
   settingsGenerationLogs.value = ["已读取大纲锁定状态，准备构造设定生成请求"]
   pipelineStore.startGeneration()
   pipelineStore.updateProgress(10, "正在读取已确认大纲并生成设定")
@@ -2306,6 +2320,7 @@ async function genSettings() {
 
 async function genVolumes(mode: string) {
   if (!projectStore.pipelineOutlineText) return
+  activeGenerationFeedbackStep.value = 2
   const existingCountBeforeGeneration = projectStore.volumes.length
   activeVolumeGenerationIndex.value = mode === "auto" ? 0 : existingCountBeforeGeneration
   volumeGenerationLogs.value = [
@@ -2432,6 +2447,7 @@ async function callChapterApi(prompt: string): Promise<string> {
 async function genChapters() {
   const vol = selectedVolume.value
   if (!vol) return
+  activeGenerationFeedbackStep.value = 3
   const volId = vol.id || vol.name
   const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
   const totalChapters = Number(vol.chapterCount) || Math.ceil((Number(vol.allocatedWords) || Number(vol.suggestedWords) || Number(volumeWords.value) || 0) / wordsPerChapter)

@@ -1,0 +1,46 @@
+{
+  "cases": [
+    {
+      "step": 1,
+      "visible": [
+        "pl-settings-generation-overlay"
+      ],
+      "passed": true
+    },
+    {
+      "step": 1,
+      "phase": "completed-no-logs",
+      "visible": [],
+      "passed": true
+    },
+    {
+      "step": 2,
+      "visible": [
+        "pl-volume-generation-overlay"
+      ],
+      "passed": true
+    },
+    {
+      "step": 2,
+      "phase": "completed-no-logs",
+      "visible": [],
+      "passed": true
+    },
+    {
+      "step": 3,
+      "visible": [
+        "pl-chapter-generation-overlay"
+      ],
+      "passed": true
+    },
+    {
+      "step": 3,
+      "phase": "completed-no-logs",
+      "visible": [],
+      "passed": true
+    }
+  ],
+  "idle": [],
+  "allPassed": true,
+  "pageErrors": []
+}
