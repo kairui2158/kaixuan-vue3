@@ -255,22 +255,6 @@
                     <p v-if="filteredSettings.length === 0" class="empty-hint">该分类还没有设定内容</p>
                   </div>
 
-                  <div v-if="selectedSettingItem" class="pl-setting-detail" aria-label="当前设定编辑区">
-                    <div class="pl-setting-detail-heading">
-                      <span>当前设定</span>
-                      <span class="pl-setting-detail-status">{{ selectedSettingItem.isBound ? '已绑定到流水线' : '未绑定' }}</span>
-                    </div>
-                    <div class="pl-setting-detail-fields">
-                      <input v-model="selectedSettingItem.name" class="pl-input" placeholder="设定名称" @change="saveSettingItem(selectedSettingItem)" />
-                      <textarea v-model="selectedSettingItem.content" class="pl-attrs-input" placeholder="输入该设定的属性内容" @change="saveSettingItem(selectedSettingItem)"></textarea>
-                    </div>
-                    <div class="pl-setting-detail-actions">
-                      <button type="button" class="btn-sm" :class="selectedSettingItem.isBound ? 'btn-primary' : 'btn-secondary'" @click="toggleItemBinding(selectedSettingItem)">{{ selectedSettingItem.isBound ? '解除绑定' : '绑定到流水线' }}</button>
-                      <button type="button" class="btn-danger btn-sm" @click="removeSetting(filteredSettings.findIndex((item) => item.id === selectedSettingItem?.id))">删除当前设定</button>
-                      <button type="button" class="btn-primary btn-sm" @click="saveSettingItem(selectedSettingItem)">保存当前设定</button>
-                    </div>
-                  </div>
-
                   <div class="pl-sc-category-actions">
                     <button type="button" class="btn-secondary" @click="openAddSettingModalForCategory">+ 该类新增</button>
                     <button type="button" class="btn-secondary" @click="bindCategorySettings">一键绑定到全局</button>
@@ -1011,10 +995,6 @@ const filteredSettings = computed(() => {
   if (!cat) return []
   return sc.items[cat] || []
 })
-
-const selectedSettingItem = computed(() =>
-  filteredSettings.value.find((item: any) => item.id === selectedSettingId.value) || null
-)
 
 const editingSettingItem = computed(() =>
   filteredSettings.value.find((item: any) => item.id === editingSettingId.value) || null
@@ -3892,13 +3872,6 @@ function toolAction(action: string) {
 }
 .pl-setting-info-btn { flex-shrink: 0; }
 .pl-setting-item-index { position: absolute; left: 4px; top: 2px; color: var(--text-muted); font-size: 10px; }
-.pl-setting-detail { display: flex; flex-direction: column; gap: var(--space-2); min-height: 0; padding-top: var(--space-3); }
-.pl-setting-detail-heading, .pl-setting-detail-actions { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
-.pl-setting-detail-heading { color: var(--text-primary); font-weight: 600; }
-.pl-setting-detail-status { color: var(--text-muted); font-size: var(--font-size-sm); font-weight: 400; }
-.pl-setting-detail-fields { display: grid; grid-template-columns: minmax(160px, 0.4fr) minmax(0, 1fr); gap: var(--space-2); min-height: 0; }
-.pl-setting-detail-fields .pl-attrs-input { min-height: 88px; resize: vertical; }
-.pl-setting-detail-actions { justify-content: flex-end; }
 .pl-sc-category-actions {
   display: flex;
   flex-wrap: wrap;
@@ -3933,7 +3906,6 @@ function toolAction(action: string) {
   }
   .pl-sc-categories { flex-basis: 100%; }
   .pl-settings-list { grid-template-columns: 1fr; }
-  .pl-setting-detail-fields { grid-template-columns: 1fr; }
 }
 
 .pl-sr-only {
