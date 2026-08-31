@@ -846,7 +846,7 @@ import { buildChainSkillPrompt } from "../../services/chainExecution"
 import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from "../../services/skillValidation"
 import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from "../../services/chainBreakpoint"
 import { selectCompleteChapters, validateChapterNarrative, validateVolumeNarrative } from "../../services/narrativeValidation"
-import { buildVolumePrompt, clampGeneratedVolumes } from "../../services/volumeGeneration"
+import { buildVolumePrompt, clampGeneratedVolumes, hasVolumeContent } from "../../services/volumeGeneration"
 import type { VolumeGenerateMode } from "../../services/volumeGeneration"
 
 defineEmits<{ close: [], minimize: [], openOutline: [] }>()
@@ -2313,7 +2313,9 @@ async function genSettings() {
 async function genVolumes(mode: string) {
   if (!projectStore.pipelineOutlineText) return
   activeGenerationFeedbackStep.value = 2
-  const existingCountBeforeGeneration = projectStore.volumes.length
+  // 新项目会从大纲自动生成占位卷；占位卷没有纲要/摘要，不能作为上一卷记忆。
+  const previousVolumes = projectStore.volumes.filter(hasVolumeContent)
+  const existingCountBeforeGeneration = previousVolumes.length
   activeVolumeGenerationIndex.value = mode === "auto" ? 0 : existingCountBeforeGeneration
   volumeGenerationLogs.value = [
     mode === "single" ? "已选择逐卷生成，准备生成下一卷" : mode === "continue" ? "已选择续生成，准备补齐后续卷纲" : "已选择 AI 生成全卷，准备分析大纲和字数"
@@ -2330,10 +2332,10 @@ async function genVolumes(mode: string) {
     const settingsText = allItems.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)).join("\n")
     const boundText = getBoundSettingsText()
     const effectiveVolumes = Math.max(1, volumeCount.value)
-    const existingCount = projectStore.volumes.length
+    const existingCount = previousVolumes.length
     volumeGenerationLogs.value.push("已读取大纲、设定和全书字数，正在构造卷纲请求")
     const totalWords = Math.max(0, Math.round(bookWordCount.value * 10000))
-    const allocatedSum = projectStore.volumes.reduce(
+    const allocatedSum = previousVolumes.reduce(
       (sum: number, v: any) => sum + Math.max(0, Math.round(Number(v.allocatedWords || v.suggestedWords) || 0)),
       0
     )
@@ -2345,7 +2347,7 @@ async function genVolumes(mode: string) {
       effectiveVolumes,
       totalWords,
       allocatedSum,
-      existingVolumes: projectStore.volumes
+      existingVolumes: previousVolumes
     })
     volumeGenerationLogs.value.push("请求已发送：正在等待 API 返回卷纲内容")
     const result = await runStepSkills(2, prompt, 600000, "你是卷纲生成专家。基于大纲和设定生成卷纲。")
@@ -2373,7 +2375,7 @@ async function genVolumes(mode: string) {
       }
       if (mode === "continue" || mode === "single") {
         projectStore.volumes = [
-          ...projectStore.volumes,
+          ...previousVolumes,
           ...volumes.map((v: any) => ({
             ...v,
             allocatedWords: Math.max(0, Math.round(Number(v.allocatedWords) || 0)),

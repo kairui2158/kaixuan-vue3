@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildVolumePrompt, clampGeneratedVolumes } from './volumeGeneration'
+import { buildVolumePrompt, clampGeneratedVolumes, hasVolumeContent } from './volumeGeneration'
 
 const base = {
   outlineText: 'OUTLINE',
@@ -72,5 +72,17 @@ describe('clampGeneratedVolumes', () => {
     const r = clampGeneratedVolumes('single', [], 0, 5)
     expect(r.volumes).toHaveLength(0)
     expect(r.truncated).toBe(false)
+  })
+})
+
+describe('hasVolumeContent', () => {
+  it('treats outline scaffold volumes as placeholders', () => {
+    expect(hasVolumeContent({ name: '第一卷' })).toBe(false)
+    expect(hasVolumeContent({ name: '第一卷', outline: '  ' })).toBe(false)
+  })
+
+  it('treats generated or edited volumes as memory anchors', () => {
+    expect(hasVolumeContent({ name: '第一卷', outline: '开局' })).toBe(true)
+    expect(hasVolumeContent({ name: '第一卷', summary: '开局' })).toBe(true)
   })
 })

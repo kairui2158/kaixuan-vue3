@@ -17,6 +17,10 @@ export interface VolumePromptInput {
   existingVolumes: ExistingVolumeRef[]
 }
 
+export function hasVolumeContent(volume: ExistingVolumeRef): boolean {
+  return Boolean(String(volume?.outline || '').trim() || String(volume?.summary || '').trim())
+}
+
 function volumeRefText(vol: ExistingVolumeRef): string {
   return (vol.name || '未命名卷') + ' - ' + (vol.outline || vol.summary || '')
 }
