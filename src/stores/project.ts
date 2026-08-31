@@ -157,10 +157,6 @@ export const useProjectStore = defineStore('project', () => {
       memoryBlacklist.value = Array.isArray(data.memoryBlacklist) ? data.memoryBlacklist : []
       aiNaming.value = normalizeAiNaming(data.aiNaming)
       outlineChat.value = data.outlineChat || []
-      if (volumes.value.length === 0 && outlineText.value.trim()) {
-        ensureVolumesFromOutline()
-        saveProject()
-      }
       if (!data.projectName && projectName.value) {
         saveProject()
       }
