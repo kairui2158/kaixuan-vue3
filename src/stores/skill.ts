@@ -22,6 +22,11 @@ export interface Skill {
   updatedAt?: string
   injectFrequency?: string
   injectDepth?: number
+  contextPolicy?: {
+    chatHistory?: 'none' | 'recent' | 'summary' | 'full'
+    includeOutline?: boolean
+    includeMemory?: boolean
+  }
   customVars?: Record<string, string>
   inputSchema?: JsonSchema | string
   outputSchema?: JsonSchema | string
@@ -109,6 +114,7 @@ export const useSkillStore = defineStore('skill', () => {
             updatedAt: s.updatedAt,
             injectFrequency: s.injectFrequency,
             injectDepth: s.injectDepth,
+            contextPolicy: s.contextPolicy,
             customVars: s.customVars || {},
             inputSchema: s.inputSchema,
             outputSchema: s.outputSchema,

@@ -112,6 +112,8 @@ import { useChatStore } from '../../stores/chat'
 import { getAiService } from '../../services/aiService'
 import { MCPProtocol } from '../../services/mcp-protocol'
 import { retrieveContext } from '../../services/memoryRetriever'
+import { conversationContextService } from '../../services/conversationContextService'
+import type { ContextMessage } from '../../types/context'
 
 const agentStore = useAgentStore()
 const providerStore = useProviderStore()
@@ -159,6 +161,15 @@ const lastFailedText = ref('')
 let activeAbortController: AbortController | null = null
 const skillAreaOpen = ref(true)
 const tokenCount = ref(0)
+const maxDepthRef = ref(21)
+
+function getChatContextMessages(currentRequest: string): ContextMessage[] {
+  return chatStore.activeMessages
+    .filter(message => (message.role === 'user' || message.role === 'assistant') && message.content?.trim())
+    .filter(message => !(message.role === 'user' && message.content === currentRequest))
+    .slice(-maxDepthRef.value * 2)
+    .map(message => ({ role: message.role, content: message.content }))
+}
 
 const currentAgentName = computed(() => {
   const a = agentStore.getAgent(selectedChatAgent.value)
@@ -296,6 +307,7 @@ function handleEditorAction(e: any) {
 async function sendMessage(requestText?: string) {
   const projId = projectId.value
   let text = (requestText ?? inputText.value).trim()
+  const originalRequest = text
   if (!text || isStreaming.value) return
   activeAbortController?.abort()
   activeAbortController = new AbortController()
@@ -497,10 +509,12 @@ async function sendMessage(requestText?: string) {
     const systemPrompt = systemParts.join('\n\n---\n\n')
     const model = selectedChatModel.value || provider.selectedModel || 'gpt-4o'
     let maxDepth = 21
+    maxDepthRef.value = 21
     for (let s = 0; s < enabledSkills.length; s++) {
       const d = enabledSkills[s].injectDepth
       if (d && d > 0 && d < maxDepth) maxDepth = d
     }
+    maxDepthRef.value = maxDepth
 
     // Skill/MCP/Agent 真实执行：调用本机 skill engine 做预加工，再用 MCP 暴露本地工具
     const engine = (window as any).SkillExecutionEngine
@@ -516,9 +530,9 @@ async function sendMessage(requestText?: string) {
     if (engine && skillCtxSkills.length > 0) {
       const activeMode = skillCtxSkills[0].executionMode
       try {
+        const aiService = await getAiService()
         const _engineAiRequest = async (opts: any) => {
-          const aiSvc = await getAiService()
-          const result = await aiSvc.callAi({
+          const result = await aiService.callAi({
             purpose: 'generate',
             messages: opts.messages || [],
             model: opts.model || undefined,
@@ -554,13 +568,16 @@ async function sendMessage(requestText?: string) {
             templateContext: chatCtx
           })
         }
+        const engineFailed = engineResult?.reports?.some((report: any) => report.status === 'failed' || report.status === 'skipped')
+        if (engineFailed) throw new Error('技能预加工失败：存在失败或跳过的 SKILL 步骤')
         if (engineResult && engineResult.text) {
           // engine 给的是加工后的输入，交给 AI 做最终生成
           text = engineResult.text
           console.log('[CHAT] SkillExecutionEngine 预加工完成，链上步骤: ' + (engineResult.reports?.length || 1))
         }
       } catch (engineErr) {
-        console.warn('[CHAT] SkillExecutionEngine 预加工失败，回退直连', engineErr)
+        console.error('[CHAT] SkillExecutionEngine 预加工失败', engineErr)
+        throw engineErr
       }
     }
 
@@ -578,7 +595,18 @@ async function sendMessage(requestText?: string) {
       }
     } else {
       // 3) 常规对话走 callApi
-      response = await callApi(provider, model, systemPrompt, text, maxDepth, projId)
+      response = await callApi(provider, model, systemPrompt, originalRequest, maxDepth, projId, text)
+      if (response?.trim()) {
+        await conversationContextService.recordTurn({
+          projectId: projId,
+          workspace: 'main',
+          purpose: 'generate'
+        }, {
+          user: originalRequest,
+          assistant: response,
+          meta: { source: 'ChatPanel.callApi', model, agentId: selectedChatAgent.value || undefined }
+        })
+      }
     }
     if (response) {
       if (messages.value.length === 0 || messages.value[messages.value.length - 1].role !== 'assistant') {
@@ -620,28 +648,43 @@ function removeEmptyAssistantMessage() {
   }
 }
 
-async function callApi(provider: any, model: string, systemPrompt: string, userText: string, maxDepth: number, projId: string): Promise<string> {
-  const histMsgs = chatStore.activeMessages
-    .filter(m => m.role === 'user' || (m.role === 'assistant' && m.content))
-    .slice(-maxDepth)
-    .map(m => ({ role: m.role, content: m.content }))
-
+async function callApi(provider: any, model: string, systemPrompt: string, userText: string, maxDepth: number, projId: string, engineInput = userText): Promise<string> {
   chatStore.addMessage({ role: 'assistant', content: '', tabId: chatStore.currentContext?.tabId || '' }, projId)
 
-  const aiService = await getAiService()
-  const result = await aiService.callAi({
+  const contextBundle = await conversationContextService.buildContextBundle({
+    projectId: projId,
+    workspace: 'main',
     purpose: 'generate',
-    messages: [
+    legacyMessages: getChatContextMessages(userText)
+  })
+  const contextPolicy = conversationContextService.getPolicy('generate')
+  const messages = conversationContextService.assembleMessages(
+    contextBundle,
+    {
+      ...contextPolicy,
+      includeOutline: false,
+      includeSettings: false,
+      includeMemory: false,
+      recentTurns: Math.max(1, Math.floor(maxDepth / 2))
+    },
+    [
       { role: 'system', content: systemPrompt },
-      ...histMsgs
-    ],
+      { role: 'user', content: engineInput }
+    ]
+  )
+  const ctxTurns = messages.filter(message => message.role === 'user' || message.role === 'assistant').length / 2
+
+  const service = await getAiService()
+  const result = await service.callAi({
+    purpose: 'generate',
+    messages,
     model,
     temperature: provider.temperature ?? 0.7,
     maxTokens: 128000,
     retry: true,
     signal: activeAbortController?.signal,
-    meta: { source: 'ChatPanel.callApi' },
-    onChunk: (text) => {
+    meta: { source: 'ChatPanel.callApi', ctxTurns: Math.round(ctxTurns) },
+    onChunk: (text: string) => {
       chatStore.setGenerationState('streaming', '正在接收 AI 输出…')
       chatStore.updateLastMessage(text)
       nextTick().then(() => scrollToBottom())

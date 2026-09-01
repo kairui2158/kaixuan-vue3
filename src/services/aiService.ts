@@ -64,6 +64,7 @@ export interface CallAiParams {
     step?: number
     skillId?: string
     agentId?: string
+    ctxTurns?: number
   }
   onChunk?: (text: string) => void
   onReasoning?: (text: string) => void
@@ -280,6 +281,7 @@ function logRequest(
     success: boolean
     skillId?: string
     agentId?: string
+    ctxTurns?: number
     usage?: any
   }
 ) {
@@ -306,7 +308,7 @@ function logRequest(
   if (_diag && typeof _diag.log === 'function') {
     _diag.log(params.success ? 'info' : 'error', 'ai-service',
       'AI call: purpose=' + params.purpose + ' provider=' + (params.providerId || '?') + ' model=' + (params.model || '?') + ' ' + params.durationMs + 'ms ' + (params.success ? 'OK' : 'FAIL'),
-      { providerId: params.providerId, purpose: params.purpose, model: params.model, durationMs: params.durationMs, skillId: params.skillId, agentId: params.agentId, result: params.result.slice(0, 300), usage: params.usage || undefined }
+      { providerId: params.providerId, purpose: params.purpose, model: params.model, durationMs: params.durationMs, skillId: params.skillId, agentId: params.agentId, ctxTurns: params.ctxTurns, result: params.result.slice(0, 300), usage: params.usage || undefined }
     )
     if (typeof _diag.trackApiCall === 'function') {
       const totalTokens = params.usage ? (params.usage.total_tokens ?? params.usage.totalTokens ?? 0) : 0

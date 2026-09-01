@@ -66,6 +66,17 @@
         </select>
         <label>上下文深度 (最近消息数, 0=不限)</label>
         <input id="sf-depth" v-model.number="editingInjectDepth" type="number" min="0" max="100" class="sem-input" placeholder="0=不限制" />
+        <label>上下文策略</label>
+        <div class="sf-context-policy">
+          <select id="sf-context-history" v-model="editingContextHistory" class="sem-input">
+            <option value="recent">最近对话</option>
+            <option value="none">关闭历史</option>
+            <option value="summary">摘要模式</option>
+            <option value="full">完整历史</option>
+          </select>
+          <label class="sf-context-toggle"><input id="sf-context-outline" type="checkbox" v-model="editingContextOutline" />包含大纲</label>
+          <label class="sf-context-toggle"><input id="sf-context-memory" type="checkbox" v-model="editingContextMemory" />包含记忆</label>
+        </div>
         <label>绑定层级</label><select id="sf-bind-type" v-model="editingBindTarget" class="sem-input">
           <option value="project">全书</option>
           <option value="volume">卷</option>
@@ -349,6 +360,9 @@ function addSkill() {
   editingInjectMode.value = 'system_prefix';
   editingInjectFrequency.value = 'every';
   editingInjectDepth.value = 0;
+  editingContextHistory.value = 'recent';
+  editingContextOutline.value = true;
+  editingContextMemory.value = true;
   editingBindTarget.value = 'project';
   editingLinkedSkillIds.value = [];
   editingCustomVars.value = [];
@@ -379,6 +393,9 @@ const editingOutputFormat = ref('text')
 const editingInjectMode = ref('system_prefix')
 const editingInjectFrequency = ref('every')
 const editingInjectDepth = ref(0)
+const editingContextHistory = ref<'none' | 'recent' | 'summary' | 'full'>('recent')
+const editingContextOutline = ref(true)
+const editingContextMemory = ref(true)
 const editingBindTarget = ref('project')
 const editingLinkedSkillIds = ref<string[]>([])
 const editingBindId = ref('')
@@ -418,6 +435,9 @@ function editSkill(id: string) {
   editingInjectMode.value = s.injectMode || 'system_prefix'
   editingInjectFrequency.value = s.injectFrequency || 'every'
   editingInjectDepth.value = s.injectDepth ?? 0
+  editingContextHistory.value = s.contextPolicy?.chatHistory || 'recent'
+  editingContextOutline.value = s.contextPolicy?.includeOutline ?? true
+  editingContextMemory.value = s.contextPolicy?.includeMemory ?? true
   editingBindTarget.value = s.bindTarget as string || 'project'
   editingLinkedSkillIds.value = [...(s.linkedSkillIds || [])]
   const vars = (s.customVars || {}) as Record<string, string>
@@ -437,6 +457,11 @@ function saveEdit() {
     injectMode: editingInjectMode.value,
     injectFrequency: editingInjectFrequency.value,
     injectDepth: editingInjectDepth.value,
+    contextPolicy: {
+      chatHistory: editingContextHistory.value,
+      includeOutline: editingContextOutline.value,
+      includeMemory: editingContextMemory.value
+    },
     bindTarget: editingBindTarget.value,
     linkedSkillIds: editingLinkedSkillIds.value,
     customVars: customVarsToRecord()

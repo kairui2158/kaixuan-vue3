@@ -839,6 +839,7 @@ import PipelineFlow from "./PipelineFlow.vue"
 import { extractMemory } from "../../services/memoryExtractor"
 import { mergeMemory } from "../../services/memoryMerger"
 import type { ExtractedMemoryData } from "../../services/memoryExtractor"
+import { conversationContextService } from "../../services/conversationContextService"
 import { retrieveContext } from "../../services/memoryRetriever"
 import { parseGenerationResult } from "../../services/generationResult"
 import { buildChapterExecutionPrompt, createChapterExecutionPackage } from "../../services/chapterExecutionPackage"
@@ -1570,13 +1571,13 @@ function buildTemplateContext(step: number, prompt: string, prevResponse?: strin
     chapterPlot: selectedCh ? (selectedCh.plot || "") : "",
     characters: characters,
     prevResponse: prevResponse || "",
-    memoryContext: retrieveContext(projectStore.memories, {
+    memoryContext: memoryTextForPipeline({
       chapterId: selectedCh ? String(selectedCh.id || "") : undefined,
       chapterIndex: chIdx >= 0 ? chIdx : undefined,
       query: `${prompt} ${selectedCh?.title || ""} ${selectedCh?.plot || ""}`,
       previousChapterSummary: prevCh ? (prevCh.summary || prevCh.plot || "") : "",
       maxChars: 2000
-    }).text
+    })
   }
 }
 
@@ -2591,12 +2592,12 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       boundSettings: boundText,
       styleContext: styleCtx,
       pacingContext: pacingParams.value,
-      memoryContext: retrieveContext(projectStore.memories, {
+      memoryContext: memoryTextForPipeline({
         chapterId: String(ch.id || ""),
         chapterIndex,
         query: `${ch.title || ""} ${ch.plot || ""}`,
         maxChars: 2000
-      }).text,
+      }),
       sourceRefs: [
         projectStore.outlineLocked ? "outline:locked" : "outline:working",
         "volume:" + String(vol.id || vol.name),
@@ -2994,6 +2995,28 @@ function openNaming() {
   window.dispatchEvent(new CustomEvent('open-ai-naming', {
     detail: { source: 'pipeline', pipelineContext: projectStore.outlineText.slice(0, 500) }
   }))
+}
+
+function memoryTextForPipeline(options: {
+  chapterId?: string
+  chapterIndex?: number
+  query: string
+  previousChapterSummary?: string
+  maxChars?: number
+}): string {
+  const memory = retrieveContext(projectStore.memories, options).text
+  const messages = conversationContextService.assembleMessages(
+    {
+      session: { id: `pipeline-${options.chapterId || "default"}`, projectId: String(projectStore.currentProjectId || ""), recentMessages: [] },
+      workspace: { memories: memory },
+      execution: { purpose: "generate" }
+    },
+    { chatHistory: "none", recentTurns: 0, includeOutline: false, includeSettings: false, includeMemory: true },
+    []
+  )
+  return messages.length > 0
+    ? messages[messages.length - 1].content.replace(/^\[工作区上下文\]\n相关记忆：\n/, "").slice(0, options.maxChars || 2000)
+    : ""
 }
 
 function toolAction(action: string) {

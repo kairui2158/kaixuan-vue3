@@ -67,11 +67,15 @@ var SkillExecutionEngine_IIFE = (function() {
     var idx = 0;
     var completed = 0;
     var cancelled = false;
+    var firstError = null;
     async function worker() {
       while (idx < items.length && !cancelled) {
         var myIdx = idx++;
         try { results[myIdx] = await fn(items[myIdx], myIdx); }
-        catch(e) { console.warn("[WARN] parallelMap item " + myIdx + " failed", e); results[myIdx] = items[myIdx].text || items[myIdx] || ""; }
+        catch(e) {
+          if (!firstError) firstError = e;
+          console.warn("[WARN] parallelMap item " + myIdx + " failed", e);
+        }
         completed++;
         if (onProgress) onProgress(completed / items.length);
       }
@@ -79,6 +83,7 @@ var SkillExecutionEngine_IIFE = (function() {
     var workers = [];
     for (var w = 0; w < Math.min(concurrency, items.length); w++) workers.push(worker());
     await Promise.all(workers);
+    if (firstError) throw firstError;
     return results;
   }
 
@@ -217,8 +222,22 @@ var SkillExecutionEngine_IIFE = (function() {
     }
     var userContent = userInput;
     if (opts.paramPrefix) userContent = opts.paramPrefix + userContent;
+    var messages = [{ role: "system", content: sysContent }];
+    // Optional context is supplied by the caller's context service. Keep it
+    // out of the skill template so history/workspace state has one boundary.
+    if (opts && Array.isArray(opts.contextMessages)) {
+      for (var ci = 0; ci < opts.contextMessages.length; ci++) {
+        var contextMessage = opts.contextMessages[ci];
+        if (!contextMessage || !contextMessage.role || typeof contextMessage.content !== "string") continue;
+        if (contextMessage.content.trim()) messages.push({ role: contextMessage.role, content: contextMessage.content });
+      }
+    }
+    if (opts && typeof opts.contextBlock === "string" && opts.contextBlock.trim()) {
+      messages.push({ role: "system", content: opts.contextBlock });
+    }
+    messages.push({ role: "user", content: userContent });
     var result = await opts.aiRequest({
-      messages: [{ role: "system", content: sysContent }, { role: "user", content: userContent }],
+      messages: messages,
       model: opts.model || null,
       temperature: opts.temperature != null ? opts.temperature : null,
       maxTokens: opts.maxTokens || 128000,
@@ -250,7 +269,13 @@ var SkillExecutionEngine_IIFE = (function() {
     var reports = [];
     for (var si = 0; si < skills.length; si++) {
       var skill = skills[si];
-      if (!skill) { reports.push({ step: si + 1, totalSteps: skills.length, skillName: "(missing)", text: text, error: "skill not found" }); continue; }
+      if (!skill) {
+        reports.push({ step: si + 1, totalSteps: skills.length, skillName: "(missing)", text: "", status: "failed", error: "skill not found" });
+        for (var missingTail = si + 1; missingTail < skills.length; missingTail++) {
+          reports.push({ step: missingTail + 1, totalSteps: skills.length, skillName: skills[missingTail] && skills[missingTail].name || "(unknown)", text: "", status: "skipped", reason: "前置 SKILL 缺失" });
+        }
+        break;
+      }
       var prevText = text;
       var stepLabel = "[Skill " + (si + 1) + "/" + skills.length + ": " + skill.name + "]";
       console.log("[ENGINE] Chain step " + (si + 1) + "/" + skills.length + ": " + skill.name);
@@ -264,7 +289,15 @@ var SkillExecutionEngine_IIFE = (function() {
       try {
         var result = await _callStep(skill, chainPrompt, opts);
         text = result;
-        if (!text) { console.warn("[WARN] Chain step " + (si + 1) + " returned empty, keeping previous"); text = prevText; }
+        if (!text) {
+          console.warn("[WARN] Chain step " + (si + 1) + " returned empty");
+          reports.push({ step: si + 1, totalSteps: skills.length, skillName: skill.name, text: "", status: "failed", error: "empty output" });
+          for (var emptyTail = si + 1; emptyTail < skills.length; emptyTail++) {
+            reports.push({ step: emptyTail + 1, totalSteps: skills.length, skillName: skills[emptyTail] && skills[emptyTail].name || "(unknown)", text: "", status: "skipped", reason: "前置 SKILL 输出为空" });
+          }
+          text = prevText;
+          break;
+        }
         if (opts.templateContext) opts.templateContext.prevResponse = text;
         if (opts.validators && opts.validators[si]) {
           var vResult = await _runValidator(opts.validators[si], text, prevText, opts);
@@ -275,19 +308,35 @@ var SkillExecutionEngine_IIFE = (function() {
             if (vResult.hint) retryPrompt += NL + NL + "[validation feedback: " + vResult.hint + "]";
             try {
               text = await _callStep(skill, retryPrompt, opts);
+              if (!text) throw new Error("empty output");
+              var retryValidation = await _runValidator(opts.validators[si], text, prevText, opts);
+              if (!retryValidation.ok) throw new Error(retryValidation.hint || "validation retry failed");
               if (opts.templateContext) opts.templateContext.prevResponse = text;
             }
-            catch(eR) { console.warn("[WARN] retry failed for step " + (si + 1), eR); text = prevText; }
+            catch(eR) {
+              console.warn("[WARN] retry failed for step " + (si + 1), eR);
+              reports.push({ step: si + 1, totalSteps: skills.length, skillName: skill.name, text: "", status: "failed", error: eR && eR.message || String(eR), reason: "validation retry failed" });
+              for (var retryTail = si + 1; retryTail < skills.length; retryTail++) {
+                reports.push({ step: retryTail + 1, totalSteps: skills.length, skillName: skills[retryTail] && skills[retryTail].name || "(unknown)", text: "", status: "skipped", reason: "前置 SKILL 校验重试失败" });
+              }
+              text = "";
+              break;
+            }
           }
         }
-        reports.push({ step: si + 1, totalSteps: skills.length, skillName: skill.name, text: text, validation: vResult || { ok: true } });
+        reports.push({ step: si + 1, totalSteps: skills.length, skillName: skill.name, text: text, status: "success", validation: vResult || { ok: true } });
       } catch(stepErr) {
         console.error("[ERR] Chain step " + (si + 1) + " failed: " + stepErr.message);
-        text = prevText;
-        reports.push({ step: si + 1, totalSteps: skills.length, skillName: skill.name, text: text, error: stepErr.message });
+        text = "";
+        reports.push({ step: si + 1, totalSteps: skills.length, skillName: skill.name, text: "", status: "failed", error: stepErr.message });
+        for (var failedTail = si + 1; failedTail < skills.length; failedTail++) {
+          reports.push({ step: failedTail + 1, totalSteps: skills.length, skillName: skills[failedTail] && skills[failedTail].name || "(unknown)", text: "", status: "skipped", reason: "前置 SKILL 失败" });
+        }
+        break;
       }
      if (opts.onProgress) opts.onProgress(si + 1, skills.length, "done");
    }
+    var finalValidationFailed = false;
     if (opts.finalValidators && opts.finalValidators.length > 0 && skills.length > 0) {
       var lastSkill = skills[skills.length - 1];
       for (var fvi = 0; fvi < opts.finalValidators.length; fvi++) {
@@ -299,13 +348,23 @@ var SkillExecutionEngine_IIFE = (function() {
             var fvRetryPrompt = "以下是上一个skill的输出结果，请根据当前skill进行处理：" + NL + NL + "[Skill " + skills.length + "/" + skills.length + ": " + (lastSkill.name || "") + "]" + NL + (lastSkill.template || "") + NL + NL + "--- previous output ---" + NL + text + NL + NL + "[validation feedback: " + (fvResult.hint || "") + "]";
             try {
               var fvRetryResult = await _callStep(lastSkill, fvRetryPrompt, opts);
-              if (fvRetryResult) text = fvRetryResult;
+              if (fvRetryResult) {
+                var fvRetryValidation = await _runValidator(fvConfig, fvRetryResult, input, opts);
+                if (fvRetryValidation.ok) text = fvRetryResult;
+                else finalValidationFailed = true;
+              }
             } catch(eFV) { console.warn("[WARN] Final validation retry failed", eFV); }
+          } else {
+            finalValidationFailed = true;
           }
         }
       }
     }
-    return { text: text, reports: reports };
+    if (finalValidationFailed) {
+      text = "";
+      reports.push({ step: skills.length, totalSteps: skills.length, skillName: (lastSkill && lastSkill.name) || "(unknown)", text: "", status: "failed", error: "final validation failed" });
+    }
+    return { text: text, reports: reports, status: reports.some(function(r) { return r.status === "failed"; }) ? "failed" : "success" };
   }
 
   async function splitMerge(input, skills, opts) {
