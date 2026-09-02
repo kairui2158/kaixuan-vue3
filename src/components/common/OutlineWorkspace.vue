@@ -719,7 +719,19 @@ onMounted(async () => {
   workspaceSkillIds.value = config.skillIds
   workspaceSkillMode.value = config.mode
   workspaceSkillAgents.value = migrateSkillAgentBindings(config.skillAgents, { 0: config.skillIds })
+  window.addEventListener('diff-locate', handleDiffLocate)
 })
+
+function handleDiffLocate(event: Event) {
+  const detail = (event as CustomEvent).detail
+  if (!detail || detail.workspace !== 'outline' || !editorRef.value) return
+  const start = Math.max(0, Number(detail.range?.start) || 0)
+  const end = Math.max(start, Number(detail.range?.end) || start)
+  editorRef.value.focus()
+  editorRef.value.setSelectionRange(start, end)
+  const linesBefore = editorRef.value.value.substring(0, start).split('\n').length
+  editorRef.value.scrollTop = Math.max(0, (linesBefore - 3) * 29)
+}
 
 async function handleAgentChange() {
   await pipelineStore.updateStepConfig(0, { agentId: workspaceAgentId.value })
@@ -954,6 +966,8 @@ function previewOutlineBatch(batch: EditorEditBatchCommand, targetMeta?: Outline
         original: projectStore.outlineText || '',
         modified: projectStore.outlineText || '',
         editMeta: {
+          workspace: 'outline',
+          targetId: 'outline',
           targetLabel: '大纲编辑器',
           operationLabel: `大纲批量编辑（${batch.commands.length} 项）`,
           failureReason: 'version_changed',
@@ -992,6 +1006,8 @@ function previewOutlineBatch(batch: EditorEditBatchCommand, targetMeta?: Outline
       original: plan.original,
       modified: plan.ok ? plan.next : plan.original,
       editMeta: {
+        workspace: 'outline',
+        targetId: 'outline',
         targetLabel: '大纲编辑器',
         operationLabel: `大纲批量编辑（${batch.commands.length} 项）`,
         failureReason: plan.ok ? undefined : plan.failureReason,
@@ -1000,7 +1016,8 @@ function previewOutlineBatch(batch: EditorEditBatchCommand, targetMeta?: Outline
           index: item.index,
           label: item.command.operation + (item.command.target ? `：${item.command.target}` : ''),
           reason: item.command.reason,
-          dangerous: item.command.operation === 'rewrite' || item.command.operation === 'delete'
+          dangerous: item.command.operation === 'rewrite' || item.command.operation === 'delete',
+          range: item.plan.range
         }))
       }
     }

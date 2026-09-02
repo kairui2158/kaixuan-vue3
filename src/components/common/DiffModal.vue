@@ -21,25 +21,33 @@
         <div v-if="batchItems.length" class="batch-toolbar" id="diff-batch-items">
           <div class="batch-title">编辑批次</div>
           <div class="batch-items">
-            <button
-              v-for="item in batchItems"
-              :key="item.index"
-              class="batch-item"
-              :class="{ 'is-danger': item.dangerous, 'is-excluded': !batchAccepted[item.index] }"
-              type="button"
-              :title="item.reason || item.label"
-              @click="toggleBatchItem(item.index)"
-            >
-              <span class="batch-item-index">{{ item.index + 1 }}</span>
-              <span class="batch-item-label">{{ item.label }}</span>
-            </button>
+            <span v-for="item in batchItems" :key="item.index" class="batch-item-group">
+              <button
+                class="batch-item"
+                :class="{ 'is-danger': item.dangerous, 'is-excluded': !batchAccepted[item.index] }"
+                type="button"
+                :title="item.reason || item.label"
+                @click="toggleBatchItem(item.index)"
+              >
+                <span class="batch-item-index">{{ item.index + 1 }}</span>
+                <span class="batch-item-label">{{ item.label }}</span>
+              </button>
+              <button
+                v-if="item.range"
+                class="batch-item batch-item-locate"
+                type="button"
+                title="定位到编辑器"
+                @click.stop="locateBatchItem(item)"
+              >定位</button>
+            </span>
           </div>
         </div>
         <div class="diff-container" id="diff-container">
           <div class="diff-pane">
             <div class="diff-pane-label">原文</div>
             <div class="diff-content" id="diff-original">
-              <div v-for="(line, idx) in originalLines" :key="'o-' + idx"
+              <div v-if="windowStart > 0" class="diff-window-hint" @click="windowStart = Math.max(0, windowStart - windowSize)">向上加载</div>
+              <div v-for="(line, idx) in visibleOriginalLines" :key="'o-' + (idx + windowStart)"
                 class="diff-line"
                 :class="lineClass(line)"
                 :data-idx="line.changeIdx !== undefined ? line.changeIdx : undefined"
@@ -47,12 +55,14 @@
                 <span class="diff-action reject" v-if="line.type === 'removed'" @click="rejectLine(line.changeIdx)">x</span>
                 <span class="diff-line-text">{{ line.text }}</span>
               </div>
+              <div v-if="windowStart + windowSize < originalLines.length" class="diff-window-hint" @click="windowStart += windowSize">向下加载</div>
             </div>
           </div>
           <div class="diff-pane">
             <div class="diff-pane-label">AI 修改</div>
             <div class="diff-content" id="diff-modified">
-              <div v-for="(line, idx) in modifiedLines" :key="'m-' + idx"
+              <div v-if="windowStart > 0" class="diff-window-hint" @click="windowStart = Math.max(0, windowStart - windowSize)">向上加载</div>
+              <div v-for="(line, idx) in visibleModifiedLines" :key="'m-' + (idx + windowStart)"
                 class="diff-line"
                 :class="lineClass(line)"
                 :data-idx="line.changeIdx !== undefined ? line.changeIdx : undefined"
@@ -60,6 +70,7 @@
                 <span class="diff-action accept" v-if="line.type === 'added'" @click="acceptLine(line.changeIdx)">v</span>
                 <span class="diff-line-text">{{ line.text }}</span>
               </div>
+              <div v-if="windowStart + windowSize < modifiedLines.length" class="diff-window-hint" @click="windowStart += windowSize">向下加载</div>
             </div>
           </div>
         </div>
@@ -87,6 +98,8 @@ const emit = defineEmits(['close', 'apply'])
 
 const diffChanges = ref([])
 const diffAccepted = ref({})
+const windowStart = ref(0)
+const windowSize = ref(400)
 const currentIdx = ref(0)
 const changeCount = ref(0)
 
@@ -124,6 +137,9 @@ const modifiedLines = computed(() => {
   }
   return lines
 })
+
+const visibleOriginalLines = computed(() => originalLines.value.slice(windowStart.value, windowStart.value + windowSize.value))
+const visibleModifiedLines = computed(() => modifiedLines.value.slice(windowStart.value, windowStart.value + windowSize.value))
 
 function lineClass(line) {
   if (line.type === 'removed') return 'removed'
@@ -184,6 +200,16 @@ function navDiff(dir) {
   })
 }
 
+function updateWindow() {
+  const firstChanged = diffChanges.value.findIndex(change => change.type !== 'unchanged')
+  if (firstChanged < 0) {
+    windowStart.value = 0
+    return
+  }
+  const half = Math.floor(windowSize.value / 2)
+  windowStart.value = Math.max(0, firstChanged - half)
+}
+
 function applyResult() {
   const result = buildDiffResult(diffChanges.value, diffAccepted.value)
   if (batchItems.value.length > 0) {
@@ -203,6 +229,13 @@ function toggleBatchItem(index) {
   batchAccepted.value = { ...batchAccepted.value, [index]: !batchAccepted.value[index] }
 }
 
+function locateBatchItem(item) {
+  if (!item?.range) return
+  window.dispatchEvent(new CustomEvent('diff-locate', {
+    detail: { workspace: props.editMeta?.workspace || 'main', targetId: props.editMeta?.targetId, range: item.range }
+  }))
+}
+
 watch(() => [props.visible, props.original, props.modified], () => {
   if (props.visible && props.original !== undefined && props.modified !== undefined) {
     const changes = lcsDiff(props.original, props.modified)
@@ -215,6 +248,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
     changeCount.value = cnt
     diffAccepted.value = {}
     currentIdx.value = 0
+    updateWindow()
     const accepted = {}
     for (const item of batchItems.value) accepted[item.index] = true
     batchAccepted.value = accepted
@@ -411,5 +445,24 @@ watch(() => [props.visible, props.original, props.modified], () => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.batch-item-group {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 3px;
+}
+.batch-item-locate {
+  padding: 3px 7px;
+}
+.diff-window-hint {
+  padding: 6px 10px;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: center;
+}
+.diff-window-hint:hover {
+  color: var(--text-primary);
 }
 </style>

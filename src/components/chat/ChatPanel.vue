@@ -754,6 +754,8 @@ async function sendMessage(requestText?: string) {
           original: batchPlan.original,
           modified: batchPlan.ok ? batchPlan.next : batchPlan.original,
           editMeta: {
+            workspace: 'main',
+            targetId: requestTarget.targetId,
             targetLabel: requestTarget.label,
             operationLabel: `批量编辑（${batchPlan.items.length} 项）`,
             failureReason: batchPlan.ok ? undefined : batchPlan.failureReason,
@@ -763,6 +765,7 @@ async function sendMessage(requestText?: string) {
               label: item.command.operation + (item.command.target ? `：${item.command.target}` : ''),
               reason: item.command.reason,
               dangerous: item.command.operation === 'rewrite' || item.command.operation === 'delete',
+              range: item.plan.range
             })),
           }
         }
@@ -1015,6 +1018,8 @@ async function insertToEditor(content: string) {
       original: plan.original,
       modified: plan.next,
       editMeta: {
+        workspace: 'main',
+        targetId: target.targetId,
         targetLabel: target.label,
         operationLabel: plan.operation,
         dangerous: selectionStart < selectionEnd
@@ -1101,6 +1106,8 @@ function previewEditorBatch(message: ChatMessage) {
       original: batchPlan.original,
       modified: batchPlan.ok ? batchPlan.next : batchPlan.original,
       editMeta: {
+        workspace: 'main',
+        targetId: target.targetId,
         targetLabel: target.label,
         operationLabel: `批量编辑（${batchPlan.items.length} 项）`,
         failureReason: batchPlan.ok ? undefined : batchPlan.failureReason,
@@ -1109,7 +1116,8 @@ function previewEditorBatch(message: ChatMessage) {
           index: item.index,
           label: item.command.operation + (item.command.target ? `：${item.command.target}` : ''),
           reason: item.command.reason,
-          dangerous: item.command.operation === 'rewrite' || item.command.operation === 'delete'
+          dangerous: item.command.operation === 'rewrite' || item.command.operation === 'delete',
+          range: item.plan.range
         }))
       }
     }

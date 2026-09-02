@@ -356,7 +356,22 @@ onMounted(() => {
   window.addEventListener('editor-redo', handleRedoEvent)
   window.addEventListener('editor-save', handleSaveEvent)
   window.addEventListener('toggle-find', handleToggleFindEvent)
+  window.addEventListener('diff-locate', handleDiffLocate)
 })
+
+function handleDiffLocate(event: Event) {
+  const detail = (event as CustomEvent).detail
+  if (!detail || detail.workspace !== 'main' || !editorTextarea.value) return
+  if (detail.targetId && editorStore.activeTabId !== detail.targetId) {
+    editorStore.activeTabId = detail.targetId
+  }
+  const start = Math.max(0, Number(detail.range?.start) || 0)
+  const end = Math.max(start, Number(detail.range?.end) || start)
+  editorTextarea.value.focus()
+  editorTextarea.value.setSelectionRange(start, end)
+  const linesBefore = editorTextarea.value.value.substring(0, start).split('\n').length
+  editorTextarea.value.scrollTop = Math.max(0, (linesBefore - 3) * 20)
+}
 watch(activeTab, (newTab) => {
   if (newTab) undoRedo.reset(newTab.content)
 })
