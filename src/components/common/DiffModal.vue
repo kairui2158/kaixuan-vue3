@@ -18,6 +18,23 @@
           <button class="btn-sm btn-primary" id="btn-diff-accept-all" @click="acceptAll">全部接受</button>
           <button class="btn-sm btn-secondary" id="btn-diff-reject-all" @click="rejectAll">全部拒绝</button>
         </div>
+        <div v-if="batchItems.length" class="batch-toolbar" id="diff-batch-items">
+          <div class="batch-title">编辑批次</div>
+          <div class="batch-items">
+            <button
+              v-for="item in batchItems"
+              :key="item.index"
+              class="batch-item"
+              :class="{ 'is-danger': item.dangerous, 'is-excluded': !batchAccepted[item.index] }"
+              type="button"
+              :title="item.reason || item.label"
+              @click="toggleBatchItem(item.index)"
+            >
+              <span class="batch-item-index">{{ item.index + 1 }}</span>
+              <span class="batch-item-label">{{ item.label }}</span>
+            </button>
+          </div>
+        </div>
         <div class="diff-container" id="diff-container">
           <div class="diff-pane">
             <div class="diff-pane-label">原文</div>
@@ -169,7 +186,21 @@ function navDiff(dir) {
 
 function applyResult() {
   const result = buildDiffResult(diffChanges.value, diffAccepted.value)
+  if (batchItems.value.length > 0) {
+    emit('apply', result, Object.keys(batchAccepted.value).filter(index => batchAccepted.value[index]).map(Number))
+    return
+  }
   emit('apply', result)
+}
+
+const batchItems = computed(() => {
+  const items = props.editMeta?.batchItems
+  return Array.isArray(items) ? items : []
+})
+const batchAccepted = ref({})
+
+function toggleBatchItem(index) {
+  batchAccepted.value = { ...batchAccepted.value, [index]: !batchAccepted.value[index] }
 }
 
 watch(() => [props.visible, props.original, props.modified], () => {
@@ -184,6 +215,9 @@ watch(() => [props.visible, props.original, props.modified], () => {
     changeCount.value = cnt
     diffAccepted.value = {}
     currentIdx.value = 0
+    const accepted = {}
+    for (const item of batchItems.value) accepted[item.index] = true
+    batchAccepted.value = accepted
   }
 })
 </script>
@@ -323,5 +357,59 @@ watch(() => [props.visible, props.original, props.modified], () => {
 }
 .edit-meta-failure {
   color: var(--danger);
+}
+.batch-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+.batch-title {
+  flex: 0 0 auto;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.batch-items {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 6px;
+  overflow-x: auto;
+}
+.batch-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: 180px;
+  padding: 3px 7px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xs);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+.batch-item.is-danger {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.batch-item.is-excluded {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+.batch-item-index {
+  color: var(--text-muted);
+}
+.batch-item-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

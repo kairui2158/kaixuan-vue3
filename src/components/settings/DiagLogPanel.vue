@@ -110,7 +110,7 @@ const filteredLogs = computed(() => {
     if (purposeFilter.value && l.purpose !== purposeFilter.value) return false
     if (searchQuery.value) {
       const q = searchQuery.value.toLowerCase()
-      const text = (l.msg + ' ' + (l.detail || '') + ' ' + (l.cat || '')).toLowerCase()
+      const text = (l.msg + ' ' + (l.detail || '') + ' ' + (l.cat || '') + ' ' + (l.batchId || '') + ' ' + (l.detail?.batchId || '')).toLowerCase()
       if (!text.includes(q)) return false
     }
     return true

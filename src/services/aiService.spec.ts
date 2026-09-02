@@ -463,6 +463,140 @@ describe('createAiService.callAi', () => {
   });
 });
 
+describe('createAiService.callAi tools', () => {
+  const tool = {
+    name: 'editor.get_state',
+    description: '读取编辑目标摘要',
+    policy: 'read' as const,
+    inputSchema: { type: 'object' as const, properties: {} },
+    async execute() {
+      return { ok: true, data: { contentLength: 10 } }
+    },
+  }
+
+  it('executes native tool calls and returns the final answer', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        choices: [{ message: { content: '', tool_calls: [{ id: 'call_1', type: 'function', function: { name: 'editor.get_state', arguments: '{}' } }] } }],
+      }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        choices: [{ message: { content: '已完成' } }],
+      }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '读取编辑区' }],
+      tools: [tool],
+      stream: false,
+      retry: false,
+    });
+    expect(result.text).toBe('已完成');
+    expect(result.toolCalls).toEqual([{ id: 'call_1', name: 'editor.get_state', input: {} }]);
+    expect(result.toolResults?.[0].result.data).toEqual({ contentLength: 10 });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const firstBody = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);
+    expect(firstBody.tools[0].function.name).toBe('editor.get_state');
+    expect(firstBody.stream).toBe(false);
+    vi.unstubAllGlobals();
+  });
+
+  it('stops at the configured tool iteration limit', async () => {
+    const loopTool = {
+      ...tool,
+      name: 'editor.search',
+      async execute() {
+        return { ok: true, data: { total: 1 } }
+      },
+    }
+    const toolResponse = () => new Response(JSON.stringify({
+      choices: [{ message: { content: '', tool_calls: [{ id: 'call_loop', type: 'function', function: { name: 'editor.search', arguments: '{"query":"x"}' } }] } }],
+    }), { status: 200 });
+    const fetchMock = vi.fn().mockImplementation(async () => toolResponse());
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '搜索' }],
+      tools: [loopTool],
+      toolPolicy: { maxToolIterations: 2 },
+      retry: false,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(result.finishReason).toBe('tool_loop_limit');
+    expect(result.toolCalls).toHaveLength(2);
+    vi.unstubAllGlobals();
+  });
+
+  it('enforces the write-proposal limit and reports compatibility mode', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.propose_edits',
+      policy: 'write' as const,
+      async execute() {
+        return { ok: true, data: { status: 'pending_user_confirmation' } }
+      },
+    }
+    const response = () => new Response(JSON.stringify({
+      choices: [{ message: { content: '', tool_calls: [{ id: 'call_write', type: 'function', function: { name: 'editor.propose_edits', arguments: '{"commands":[{"operation":"append","content":"x"}]}' } }] } }],
+    }), { status: 200 });
+    const fetchMock = vi.fn().mockImplementation(async () => response());
+    vi.stubGlobal('fetch', fetchMock);
+    const compatibilityEvents: string[] = [];
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '提交两个写入提案' }],
+      tools: [writeTool],
+      toolPolicy: {
+        maxToolIterations: 2,
+        maxWriteProposals: 1,
+        onCompatibilityMode: reason => compatibilityEvents.push(reason),
+      },
+      retry: false,
+    });
+    expect(result.toolResults ?? []).toHaveLength(2);
+    expect(result.toolResults?.[0].result.ok).toBe(true);
+    expect(result.toolResults?.[1].result.ok).toBe(false);
+    expect(result.toolResults?.[1].result.error?.code).toBe('write_proposal_limit');
+    expect(compatibilityEvents).toEqual([]);
+    vi.unstubAllGlobals();
+  });
+
+  it('degrades a rejected native-tools request to the JSON protocol', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.propose_edits',
+      policy: 'write' as const,
+      async execute() {
+        return { ok: true, data: { status: 'pending_user_confirmation' } }
+      },
+    }
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ error: { message: 'tools unsupported' } }), { status: 400 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        choices: [{ message: { content: '```json\n{"type":"editor_edit","version":1,"operation":"append","content":"尾声"}\n```' } }],
+      }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '修改正文' }],
+      tools: [writeTool],
+      stream: false,
+      retry: false,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(result.toolsDowngraded).toBe('json-protocol');
+    expect(result.text).toContain('editor_edit');
+    const firstBody = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);
+    const secondBody = JSON.parse((fetchMock.mock.calls[1][1] as RequestInit).body as string);
+    expect(firstBody.tools).toBeDefined();
+    expect(secondBody.tools).toBeUndefined();
+    vi.unstubAllGlobals();
+  });
+});
+
 describe('createAiService.fetchModels', () => {
   it('returns models and records a diagnostic entry', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ data: [{ id: 'model-a' }] }), { status: 200 }))

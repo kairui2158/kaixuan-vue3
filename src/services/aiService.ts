@@ -34,6 +34,15 @@ import {
   normalizeProviderType,
 } from './providerProtocols'
 import { resolveProvider, type ProviderStoreLike } from './providerRouter'
+import type { AgentToolDefinition, ToolResult } from './editorTools'
+import {
+  buildProviderTools,
+  buildToolResultChatMessages,
+  extractProviderToolCalls,
+  supportsNativeTools,
+  type NormalizedToolCall,
+  type ProviderToolMessage,
+} from './providerTools'
 
 // ── Types (carried from Step 2 interface) ──────────────────────────
 
@@ -67,13 +76,27 @@ export class AiServiceErrorImpl extends Error implements AiServiceError {
 
 export interface CallAiParams {
   purpose: ProviderPurpose
-  messages: Array<{ role: string; content: string }>
+  messages: Array<ProviderToolMessage>
   model?: string
   temperature?: number
   maxTokens?: number
   jsonMode?: boolean
   stream?: boolean
   signal?: AbortSignal
+  tools?: AgentToolDefinition[]
+  toolPolicy?: {
+    maxToolIterations?: number
+    maxWriteProposals?: number
+    onCompatibilityMode?: (reason: 'provider_not_supported') => void
+    onToolCall?: (event: {
+      toolName: string
+      policy: 'read' | 'write'
+      iteration: number
+      input: unknown
+      result: ToolResult
+      durationMs: number
+    }) => void
+  }
   timeoutMs?: number
   retry?: boolean
   meta?: {
@@ -87,6 +110,7 @@ export interface CallAiParams {
   onReasoning?: (text: string) => void
   onUsage?: (usage: any) => void
   onProgress?: (percent: number, label: string) => void
+  /** @internal Keep the legacy public path clean; P6 callers receive a typed helper instead. */
 }
 
 export interface CallAiResult {
@@ -97,6 +121,14 @@ export interface CallAiResult {
   durationMs?: number
   usage?: any
   finishReason?: string
+  toolCalls?: NormalizedToolCall[]
+  toolResults?: Array<{ call: NormalizedToolCall; result: ToolResult }>
+  /** Present when the provider does not support native tools and the JSON protocol path was used. */
+  compatibilityMode?: 'json-protocol'
+  /** Present when a provider with declared native-tool support rejected tools at request time. */
+  toolsDowngraded?: 'json-protocol'
+  /** @internal Raw provider payload; needed to continue native tool-call loops. */
+  raw?: any
 }
 
 export interface AiService {
@@ -395,6 +427,53 @@ function logRequest(
   }
 }
 
+function logToolRequest(
+  logger: DiagnosticLogLike | null,
+  params: {
+    purpose: ProviderPurpose
+    providerId?: string
+    model?: string
+    toolName: string
+    iteration: number
+    input: unknown
+    result: ToolResult
+    durationMs: number
+  }
+) {
+  const resultPreview = JSON.stringify(params.result).slice(0, 500)
+  if (logger) {
+    logger.addLog({
+      step: -1,
+      stepName: 'tool-call',
+      mode: params.toolName,
+      skillNames: [],
+      agentId: '',
+      providerId: params.providerId || '',
+      model: params.model || '',
+      prompt: JSON.stringify(params.input).slice(0, 500),
+      result: resultPreview,
+      duration: params.durationMs,
+      status: params.result.ok ? 'success' : 'failed',
+    })
+  }
+  const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+  if (diag && typeof diag.log === 'function') {
+    diag.log(params.result.ok ? 'info' : 'error', 'ai-service/tool-call',
+      `Tool call: ${params.toolName} iteration=${params.iteration} ${params.durationMs}ms ${params.result.ok ? 'OK' : 'FAIL'}`,
+      {
+        providerId: params.providerId,
+        purpose: params.purpose,
+        model: params.model,
+        toolName: params.toolName,
+        iteration: params.iteration,
+        durationMs: params.durationMs,
+        input: params.input,
+        result: params.result,
+      }
+    )
+  }
+}
+
 // ── Main-process network transport ──────────────────────────────────
 
 interface MainNetResult {
@@ -614,7 +693,7 @@ export function createAiService(
     provider: ProviderLike,
     params: CallAiParams,
     timeoutMs: number
-  ): Promise<{ text: string; reasoning: string; usage?: any; finishReason?: string }> {
+  ): Promise<{ text: string; reasoning: string; usage?: any; finishReason?: string; raw?: any }> {
     const model = resolveModel(provider, params.model)
     const providerType = normalizeProviderType(provider.providerType)
     const url = buildProviderChatUrl({
@@ -629,15 +708,20 @@ export function createAiService(
     const headers = buildProviderHeaders(providerType, provider.apiKey)
     const temperature = resolveTemperature(provider, params.temperature)
     const maxTokens = resolveMaxTokens(provider, params.maxTokens)
-    const wantStream = params.stream ?? (params.purpose === 'generate' || params.purpose === 'rewrite')
     const signal = combineSignals(params.signal, makeTimeoutSignal(timeoutMs))
     const protocol = getProviderProtocol(providerType)
+      const nativeTools = params.tools && params.tools.length > 0 && supportsNativeTools(providerType)
+      ? buildProviderTools(providerType, params.tools)
+      : undefined
+    const requestParams = nativeTools ? { ...params, stream: false } : params
+    const wantStream = requestParams.stream ?? (params.purpose === 'generate' || params.purpose === 'rewrite')
     const body = protocol.buildRequestBody({
       model,
       messages: withTableOutputGuideline(params.messages, params.jsonMode === true),
       stream: wantStream,
       temperature,
       maxTokens,
+      tools: nativeTools,
     })
     const useMainNet = hasMainNet()
     let resp: Response | null = null
@@ -663,11 +747,11 @@ export function createAiService(
         result = await mainNetStream(
           { url, headers, body },
           {
-            onChunk: params.onChunk,
-            onReasoning: params.onReasoning,
+            onChunk: requestParams.onChunk,
+            onReasoning: requestParams.onReasoning,
             onUsage: (u: any) => {
               streamUsage = u
-              if (params.onUsage) params.onUsage(u)
+              if (requestParams.onUsage) requestParams.onUsage(u)
             },
           },
           providerType,
@@ -678,11 +762,11 @@ export function createAiService(
         result = await parseSSEStream(
           reader,
           {
-            onChunk: params.onChunk,
-            onReasoning: params.onReasoning,
+            onChunk: requestParams.onChunk,
+            onReasoning: requestParams.onReasoning,
             onUsage: (u: any) => {
               streamUsage = u
-              if (params.onUsage) params.onUsage(u)
+              if (requestParams.onUsage) requestParams.onUsage(u)
             },
           },
           providerType
@@ -696,9 +780,9 @@ export function createAiService(
       const reasoning = protocol.extractReasoning(data)
       const usage = protocol.extractUsage(data)
       const rawFinishReason = protocol.extractFinishReason(data)
-      if (usage && params.onUsage) params.onUsage(usage)
+      if (usage && requestParams.onUsage) requestParams.onUsage(usage)
       const finishReason = resolveFinishReason(rawFinishReason, usage, maxTokens, Boolean(text))
-      return { text, reasoning, usage, finishReason }
+      return { text, reasoning, usage, finishReason, raw: data }
     }
   }
 
@@ -706,6 +790,171 @@ export function createAiService(
    * The unified callAi entry point.
    */
   async function callAi(params: CallAiParams): Promise<CallAiResult> {
+    if (!params.tools || params.tools.length === 0) return callAiWithoutTools(params)
+    return callAiWithToolFallback(params)
+  }
+
+  async function callAiWithTools(params: CallAiParams): Promise<CallAiResult> {
+    const startTime = Date.now()
+    const { provider, providerId } = resolveProvider(providerStore, params.purpose)
+    const providerType = normalizeProviderType(provider.providerType)
+    const compatibleMode = !supportsNativeTools(providerType)
+    const maxWriteProposals = Math.max(1, params.toolPolicy?.maxWriteProposals ?? 1)
+    const model = resolveModel(provider, params.model)
+    const maxIterations = Math.max(1, params.toolPolicy?.maxToolIterations ?? 6)
+    let messages: CallAiParams['messages'] = params.messages.map(message => ({ ...message }))
+    const allToolCalls: NormalizedToolCall[] = []
+    const allToolResults: Array<{ call: NormalizedToolCall; result: ToolResult }> = []
+    let writeProposals = 0
+    let lastResult: CallAiResult | null = null
+    let lastRawResponse: any = null
+    let hitToolLoopLimit = false
+
+    if (compatibleMode) {
+      const compatibility: CallAiResult['compatibilityMode'] = 'json-protocol'
+      params.toolPolicy?.onCompatibilityMode?.('provider_not_supported')
+      logRequest(log, {
+        purpose: params.purpose,
+        providerId,
+        model,
+        prompt: params.messages.map(message => message.content).join(' ').slice(0, 200),
+        result: '当前供应商未启用原生工具调用，已使用兼容模式',
+        durationMs: 0,
+        success: true,
+        providerType,
+      })
+      const response = await callAiWithoutTools({
+        ...params,
+        tools: undefined,
+        toolPolicy: undefined,
+      })
+      return { ...response, compatibilityMode: compatibility }
+    }
+
+    for (let iteration = 1; iteration <= maxIterations; iteration++) {
+      const response = await callAiWithoutTools({
+        ...params,
+        stream: false,
+        messages,
+        retry: params.retry,
+        jsonMode: false,
+      })
+      lastResult = response
+      lastRawResponse = response.raw ?? null
+
+      const calls = extractProviderToolCallsFromResponse(providerType, response)
+      if (calls.length === 0) {
+        return {
+          ...response,
+          toolCalls: allToolCalls,
+          toolResults: allToolResults,
+        }
+      }
+      const toolResults: Array<{ call: NormalizedToolCall; result: ToolResult }> = []
+      for (const call of calls) {
+        allToolCalls.push(call)
+        const tool = params.tools?.find(item => item.name === call.name)
+        if (!tool) {
+          const result: ToolResult = { ok: false, error: { code: 'tool_not_found', message: `工具不存在：${call.name}` } }
+          toolResults.push({ call, result })
+          allToolResults.push({ call, result })
+          params.toolPolicy?.onToolCall?.({ toolName: call.name, policy: 'read', iteration, input: call.input, result, durationMs: 0 })
+          continue
+        }
+        if (tool.policy === 'write' && writeProposals >= maxWriteProposals) {
+          const result: ToolResult = {
+            ok: false,
+            error: {
+              code: 'write_proposal_limit',
+              message: `本次任务只允许 ${maxWriteProposals} 个写入提案，请直接结束请求`,
+            },
+          }
+          toolResults.push({ call, result })
+          allToolResults.push({ call, result })
+          params.toolPolicy?.onToolCall?.({ toolName: tool.name, policy: tool.policy, iteration, input: call.input, result, durationMs: 0 })
+          continue
+        }
+        const started = Date.now()
+        const result = await tool.execute(call.input, {
+          projectId: params.meta?.source || 'unknown-project',
+          workspace: 'main',
+          targetId: params.meta?.source || 'unknown-target',
+          sessionId: params.meta?.source || 'unknown-session',
+          iteration,
+          abortSignal: params.signal,
+        })
+        const durationMs = Date.now() - started
+        toolResults.push({ call, result })
+        allToolResults.push({ call, result })
+        if (tool.policy === 'write' && result.ok) writeProposals += 1
+        params.toolPolicy?.onToolCall?.({ toolName: tool.name, policy: tool.policy, iteration, input: call.input, result, durationMs })
+        logToolRequest(log, {
+          purpose: params.purpose,
+          providerId,
+          model,
+          toolName: tool.name,
+          iteration,
+          input: call.input,
+          result,
+          durationMs,
+        })
+      }
+
+      messages = buildToolResultChatMessages(
+        providerType,
+        messages,
+        lastRawResponse,
+        toolResults
+      )
+      if (iteration === maxIterations) hitToolLoopLimit = true
+    }
+
+    return {
+      text: lastResult?.text || '',
+      reasoning: lastResult?.reasoning || '',
+      usage: lastResult?.usage,
+      providerId,
+      model,
+      durationMs: Date.now() - startTime,
+      toolCalls: allToolCalls,
+      toolResults: allToolResults,
+      finishReason: hitToolLoopLimit ? 'tool_loop_limit' : (lastResult?.finishReason || 'tool_loop_limit'),
+    }
+  }
+
+  /**
+   * One-request degradation: retry once without tools when a provider with
+   * declared native-tool support rejects the tools request with a client error.
+   */
+  async function callAiWithToolFallback(params: CallAiParams): Promise<CallAiResult> {
+    try {
+      return await callAiWithTools(params)
+    } catch (error: any) {
+      const isClientError = error?.statusCode === 400 || error?.statusCode === 422
+      const requestedTools = Boolean(params.tools?.length)
+      if (!isClientError || !requestedTools || params.signal?.aborted) throw error
+
+      const downgradeParams: CallAiParams = {
+        ...params,
+        tools: undefined,
+        toolPolicy: undefined,
+      }
+      const response = await callAiWithoutTools(downgradeParams)
+      return { ...response, toolsDowngraded: 'json-protocol' }
+    }
+  }
+
+  function extractProviderToolCallsFromResponse(
+    providerType: string,
+    response: CallAiResult
+  ): NormalizedToolCall[] {
+    if (!supportsNativeTools(providerType)) return []
+    if (response.toolCalls && response.toolCalls.length > 0) return response.toolCalls
+    if (!response.raw) return []
+    return extractProviderToolCalls(providerType, response.raw)
+  }
+
+  async function callAiWithoutTools(params: CallAiParams): Promise<CallAiResult> {
     const startTime = Date.now()
     const { provider, providerId } = resolveProvider(providerStore, params.purpose)
     // Default stream: true for generate/rewrite (long text), false for others (short/JSON)
@@ -754,7 +1003,7 @@ export function createAiService(
         const durationMs = Date.now() - startTime
         const _model = resolveModel(provider, params.model)
         logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _model, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, agentId: params.meta?.agentId, usage: result.usage, providerType, transport, finalUrl })
-        return { text: finalText, reasoning: result.reasoning, providerId, model: _model, durationMs, usage: result.usage, finishReason: result.finishReason }
+        return { text: finalText, reasoning: result.reasoning, providerId, model: _model, durationMs, usage: result.usage, finishReason: result.finishReason, raw: result.raw }
       } catch (e: any) {
         // Canceled by user?
         if (params.signal?.aborted) {

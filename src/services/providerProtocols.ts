@@ -1,3 +1,5 @@
+import type { ProviderToolMessage } from './providerTools'
+
 export type ProviderType =
   | 'openai-compatible'
   | 'deepseek'
@@ -28,10 +30,11 @@ export interface ProviderProtocol {
   buildHeaders(config: { apiKey: string }): Record<string, string>
   buildRequestBody(config: {
     model: string
-    messages: Array<{ role: string; content: string }>
+    messages: Array<ProviderToolMessage>
     stream: boolean
     temperature: number
     maxTokens: number
+    tools?: unknown
   }): Record<string, unknown>
   extractText(data: any): string
   extractReasoning(data: any): string
@@ -108,13 +111,24 @@ const openAICompatibleProtocol: ProviderProtocol = {
     }
   },
   buildRequestBody(config) {
-    return {
+    const messages = config.messages.map(message => {
+      const wireMessage: Record<string, unknown> = {
+        role: message.role,
+        content: message.content ?? '',
+      }
+      if (message.toolCalls) wireMessage.tool_calls = message.toolCalls
+      if (message.toolCallId) wireMessage.tool_call_id = message.toolCallId
+      return wireMessage
+    })
+    const body: Record<string, unknown> = {
       model: config.model,
-      messages: config.messages,
+      messages,
       stream: config.stream,
       temperature: config.temperature,
       max_tokens: config.maxTokens,
     }
+    if (config.tools !== undefined) body.tools = config.tools
+    return body
   },
   extractText(data) {
     return data?.choices?.[0]?.message?.content || ''
@@ -187,7 +201,12 @@ const anthropicProtocol: ProviderProtocol = {
   },
   buildRequestBody(config) {
     const system = config.messages.filter(m => m.role === 'system').map(m => m.content).join('\n')
-    const messages = config.messages.filter(m => m.role !== 'system')
+    const messages = config.messages
+      .filter(m => m.role !== 'system')
+      .map(message => ({
+        role: message.role,
+        content: message.anthropicContent ?? message.content ?? '',
+      }))
     const body: Record<string, unknown> = {
       model: config.model,
       messages,
@@ -196,6 +215,7 @@ const anthropicProtocol: ProviderProtocol = {
       max_tokens: Math.max(1, config.maxTokens || 8192),
     }
     if (system) body.system = system
+    if (config.tools !== undefined) body.tools = config.tools
     return body
   },
   extractText(data) {
@@ -247,7 +267,10 @@ const geminiProtocol: ProviderProtocol = {
     const system = config.messages.filter(m => m.role === 'system').map(m => m.content).join('\n')
     const contents = config.messages
       .filter(m => m.role !== 'system')
-      .map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }))
+      .map(message => ({
+        role: message.role === 'assistant' ? 'model' : 'user',
+        parts: message.geminiParts ?? [{ text: message.content ?? '' }],
+      }))
     const body: Record<string, unknown> = {
       contents,
       generationConfig: {
@@ -256,6 +279,7 @@ const geminiProtocol: ProviderProtocol = {
       },
     }
     if (system) body.systemInstruction = { parts: [{ text: system }] }
+    if (config.tools !== undefined) body.tools = [{ functionDeclarations: config.tools }]
     return body
   },
   extractText(data) {

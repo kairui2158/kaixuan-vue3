@@ -9,6 +9,7 @@ export type EditorEditResult =
 
 export interface EditorEditLogParams {
   requestId: string
+  batchId?: string
   workspace: 'main' | 'outline'
   tabId: string
   operation?: string
@@ -29,6 +30,7 @@ export function logEditorEdit(params: EditorEditLogParams): void {
   const summary = [
     'Editor edit:',
     'request=' + params.requestId,
+    params.batchId ? 'batch=' + params.batchId : '',
     'workspace=' + params.workspace,
     'tab=' + params.tabId,
     'operation=' + (params.operation || '-'),
@@ -41,6 +43,7 @@ export function logEditorEdit(params: EditorEditLogParams): void {
     purpose,
     editorEdit: true,
     requestId: params.requestId,
+    batchId: params.batchId,
     workspace: params.workspace,
     tabId: params.tabId,
     operation: params.operation,

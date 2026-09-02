@@ -201,8 +201,8 @@ function handleNavigate(panel: string) {
   }
 }
 
-function applyDiffResult(text: string) {
-  window.dispatchEvent(new CustomEvent('diff-applied', { detail: { text } }))
+function applyDiffResult(text: string, acceptedIndexes?: number[]) {
+  window.dispatchEvent(new CustomEvent('diff-applied', { detail: { text, acceptedIndexes } }))
  diffVisible.value = false
  diffEditMeta.value = null
 }

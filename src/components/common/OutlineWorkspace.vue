@@ -104,6 +104,9 @@
         </div>
         <div v-show="chatAreaOpen" class="ow-chat">
           <div id="ow-chat-messages" ref="msgContainer" class="ow-messages">
+            <div v-if="compatibilityNotice" id="ow-compatibility-notice" class="ow-msg assistant">
+              <div class="ow-msg-bubble">{{ compatibilityNotice }}</div>
+            </div>
             <div v-for="(msg, i) in messages" :key="i" class="ow-msg" :class="msg.role">
               <div class="ow-msg-bubble" v-html="renderMarkdown(msg.content)"></div>
               <div v-if="msg.role === 'assistant' && msg.outlineEdit" class="ow-edit-command" title="已识别为待确认的大纲编辑指令">
@@ -154,6 +157,15 @@
               @click="cancelGeneration"
             >取消生成</button>
             <button v-else id="btn-ow-send" class="btn-send" @click="sendMessage">发送</button>
+          </div>
+          <div
+            v-for="msg in outlineBatchMessages"
+            :key="'batch-' + msg.index"
+            class="ow-edit-command"
+            title="已识别为待确认的大纲批量编辑"
+          >
+            已识别批量编辑：{{ msg.outlineBatch.commands.length }} 条
+            <button class="msg-btn" @click="previewOutlineBatch(msg.outlineBatch, msg.outlineBatchTarget)">预览修改</button>
           </div>
         </div>
       </div>
@@ -235,9 +247,11 @@ import { conversationContextService } from '../../services/conversationContextSe
 import { canContinue, continuationStatusFor, type ContinuationSnapshot } from '../../services/continuation'
 import { continueSnapshot } from '../../services/continuationService'
 import { saveContinuation, loadContinuation, removeContinuation } from '../../services/continuationStorage'
-import { parseEditorEditCommand } from '../../services/editorEditProtocol'
 import { logEditorEdit } from '../../services/editorEditDiagnostics'
-import { buildEditorEditPrompt } from '../../services/editorEditProtocol'
+import { buildEditorEditPrompt, parseEditorEditBatch, parseEditorEditCommand, type EditorEditBatchCommand, type EditorEditCommand } from '../../services/editorEditProtocol'
+import { applyAcceptedItems, planEditorEditBatch, type EditorEditBatchPlan } from '../../services/editorEditBatch'
+import { createEditorTargetSnapshot, validateEditorTarget } from '../../services/editorTarget'
+import { createEditorTools } from '../../services/editorTools'
 import type { ContextMessage, ContextPolicy } from '../../types/context'
 import { enhanceCodeBlocks, renderMarkdown as renderMarkdownText } from '../../utils/markdownService'
 import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
@@ -253,6 +267,12 @@ const agentStore = useAgentStore()
 const { callAi } = useAiTools()
 
 const messages = computed(() => projectStore.outlineChat)
+type OutlineBatchTargetMeta = {
+  workspace: 'outline'
+  targetId: 'outline'
+  contentHash: string
+}
+
 const inputText = ref('')
 const msgContainer = ref<HTMLElement | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -261,6 +281,7 @@ const chatAreaOpen = ref(false)
 const isFullscreen = ref(false)
 const saveFeedback = ref('')
 const lastUserRequest = ref('')
+const compatibilityNotice = ref('')
 
 const OUTLINE_WORKSPACE_ID = 'outline'
 const OUTLINE_SESSION_ID = 'outline'
@@ -298,6 +319,37 @@ function buildOutlineSystemPrompt() {
       selectedText: getCurrentOutlineSelection()
     })
   ].join('\n\n')
+}
+
+function createOutlineRequestTarget() {
+  const editor = editorRef.value
+  const start = editor?.selectionStart ?? (projectStore.outlineText || '').length
+  const end = editor?.selectionEnd ?? start
+  return createEditorTargetSnapshot({
+    workspace: 'outline',
+    targetId: 'outline',
+    label: '大纲编辑器',
+    content: projectStore.outlineText || '',
+    selectionStart: start,
+    selectionEnd: end
+  })
+}
+
+function extractOutlineToolEditBatch(toolCalls: Array<{ name: string; input: unknown }> | undefined): EditorEditBatchCommand | null {
+  if (!toolCalls?.length) return null
+  for (let index = toolCalls.length - 1; index >= 0; index--) {
+    const call = toolCalls[index]
+    if (call.name !== 'editor.propose_edits') continue
+    const input = call.input as { commands?: unknown; reason?: unknown }
+    if (!Array.isArray(input?.commands) || input.commands.length === 0) continue
+    return {
+      type: 'editor_edit_batch',
+      version: 1,
+      commands: input.commands as EditorEditCommand[],
+      reason: typeof input.reason === 'string' ? input.reason : undefined
+    }
+  }
+  return null
 }
 
 function createOutlineSnapshot(options: {
@@ -342,6 +394,7 @@ const findQuery = ref('')
 const findIndex = ref(-1)
 const findRef = ref<HTMLInputElement | null>(null)
 const pendingEdit = ref<OutlineEditCommand | null>(null)
+const pendingBatch = ref<EditorEditBatchPlan | null>(null)
 const undoStack = ref<string[]>([])
 const redoStack = ref<string[]>([])
 const isGenerating = ref(false)
@@ -406,6 +459,37 @@ const selectedWorkspaceSkills = computed(() => {
       return skill ? [skill] : []
     })
 })
+
+const outlineBatchMessages = computed(() => messages.value
+  .map((message, index) => ({ message, index }))
+  .filter(item => item.message.role === 'assistant' && item.message.outlineBatch)
+  .map(item => ({
+    index: item.index,
+    outlineBatch: item.message.outlineBatch as EditorEditBatchCommand,
+    outlineBatchTarget: item.message.outlineBatchTarget as OutlineBatchTargetMeta | undefined
+  })))
+
+function hashOutlineContent(content: string): string {
+  let hash = 0x811c9dc5
+  for (let index = 0; index < content.length; index++) {
+    hash ^= content.charCodeAt(index)
+    hash = Math.imul(hash, 0x01000193) >>> 0
+  }
+  return 'fnv1a32_' + hash.toString(16).padStart(8, '0')
+}
+
+function createOutlineBatchTargetMeta(): OutlineBatchTargetMeta {
+  return {
+    workspace: 'outline',
+    targetId: 'outline',
+    contentHash: hashOutlineContent(projectStore.outlineText || '')
+  }
+}
+
+function isOutlineTargetChanged(meta: OutlineBatchTargetMeta | undefined): boolean {
+  if (!meta) return false
+  return meta.contentHash !== hashOutlineContent(projectStore.outlineText || '')
+}
 
 function getWorkspaceTemplates(): WorkspaceSkillTemplate[] {
   return selectedWorkspaceSkills.value
@@ -823,6 +907,79 @@ function previewCommand(command: OutlineEditCommand) {
   pendingEdit.value = command
 }
 
+function previewOutlineBatch(batch: EditorEditBatchCommand, targetMeta?: OutlineBatchTargetMeta) {
+  if (isOutlineTargetChanged(targetMeta)) {
+    pendingBatch.value = null
+    pendingEdit.value = null
+    logEditorEdit({
+      requestId: `outline-edit_${Date.now()}`,
+      batchId: `outline-batch_${Date.now()}`,
+      workspace: 'outline',
+      tabId: 'outline',
+      operation: 'editor_edit_batch',
+      result: 'rejected',
+      targetLength: (projectStore.outlineText || '').length,
+      contentLength: batch.commands.reduce((sum, command) => sum + (command.content?.length || 0), 0),
+      failureReason: 'version_changed',
+      durationMs: 0,
+      detail: '大纲批次生成后内容已手动修改，请重新生成编辑建议'
+    })
+    window.dispatchEvent(new CustomEvent('show-diff', {
+      detail: {
+        original: projectStore.outlineText || '',
+        modified: projectStore.outlineText || '',
+        editMeta: {
+          targetLabel: '大纲编辑器',
+          operationLabel: `大纲批量编辑（${batch.commands.length} 项）`,
+          failureReason: 'version_changed',
+          dangerous: false,
+          batchItems: []
+        }
+      }
+    }))
+    void appConfirm.alert('大纲内容已手动修改，请重新生成编辑建议')
+    return
+  }
+  const target = createOutlineRequestTarget()
+  const plan = planEditorEditBatch(batch, target, {
+    content: projectStore.outlineText || '',
+    locked: projectStore.outlineLocked
+  })
+  pendingBatch.value = plan
+  pendingEdit.value = null
+  logEditorEdit({
+    requestId: `outline-edit_${Date.now()}`,
+    batchId: plan.batchId,
+    workspace: 'outline',
+    tabId: 'outline',
+    operation: 'editor_edit_batch',
+    result: plan.ok ? 'parsed' : 'rejected',
+    targetLength: target.content.length,
+    contentLength: plan.items.reduce((sum, item) => sum + (item.command.content?.length || 0), 0),
+    failureReason: plan.failureReason,
+    durationMs: 0,
+    detail: plan.ok ? `大纲批次包含 ${plan.items.length} 条编辑，等待用户预览确认` : '大纲批次规划失败：' + plan.failureReason
+  })
+  window.dispatchEvent(new CustomEvent('show-diff', {
+    detail: {
+      original: plan.original,
+      modified: plan.ok ? plan.next : plan.original,
+      editMeta: {
+        targetLabel: '大纲编辑器',
+        operationLabel: `大纲批量编辑（${batch.commands.length} 项）`,
+        failureReason: plan.ok ? undefined : plan.failureReason,
+        dangerous: plan.items.some(item => item.command.operation === 'rewrite' || item.command.operation === 'delete'),
+        batchItems: plan.items.map(item => ({
+          index: item.index,
+          label: item.command.operation + (item.command.target ? `：${item.command.target}` : ''),
+          reason: item.command.reason,
+          dangerous: item.command.operation === 'rewrite' || item.command.operation === 'delete'
+        }))
+      }
+    }
+  }))
+}
+
 function applyPendingEdit() {
   const command = pendingEdit.value
   const current = projectStore.outlineText || ''
@@ -1209,21 +1366,30 @@ async function askAi(requestText: string) {
     }
     if (!responseText.trim()) throw new Error('API 返回为空')
     flushStreamingRender()
+    const requestTarget = createOutlineRequestTarget()
+    const outlineBatchTarget = createOutlineBatchTargetMeta()
     const editCommand = parseOutlineEditCommand(responseText)
+    const editBatch = parseEditorEditBatch(responseText)
     logEditorEdit({
       requestId: `outline-edit_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       workspace: 'outline',
       tabId: 'outline',
-      operation: editCommand?.operation,
-      result: editCommand ? 'parsed' : 'no_edit',
+      operation: editBatch ? 'editor_edit_batch' : editCommand?.operation,
+      result: editBatch || editCommand ? 'parsed' : 'no_edit',
       targetLength: (projectStore.outlineText || '').length,
-      contentLength: editCommand?.content?.length,
+      contentLength: editBatch
+        ? editBatch.commands.reduce((sum, command) => sum + (command.content?.length || 0), 0)
+        : editCommand?.content?.length,
       durationMs: Math.round(performance.now() - startedAt),
-      detail: editCommand ? '大纲响应已解析为编辑指令，等待用户预览确认' : '普通大纲响应，未识别编辑指令'
+      detail: editBatch
+        ? `大纲响应已解析为 ${editBatch.commands.length} 条批量编辑指令，等待用户预览确认`
+        : editCommand ? '大纲响应已解析为编辑指令，等待用户预览确认' : '普通大纲响应，未识别编辑指令'
     })
     projectStore.appendOutlineChat({
       role: 'assistant',
       content: responseText,
+      ...(editBatch ? { outlineBatch: editBatch } : {}),
+      ...(editBatch ? { outlineBatchTarget } : {}),
       ...(editCommand ? { outlineEdit: editCommand } : {})
     })
     const meta = lastWorkspaceSkillMeta
@@ -1280,6 +1446,66 @@ function handleEditorBeforeInput() {
   redoStack.value = []
   lastEditorHistoryAt = now
 }
+
+let applyingOutlineBatch = false
+window.addEventListener('diff-applied', (event: Event) => {
+  const detail = (event as CustomEvent).detail
+  const plan = pendingBatch.value
+  if (applyingOutlineBatch || !plan || typeof detail?.text !== 'string') return
+  const validation = validateEditorTarget(plan.snapshot, {
+    content: projectStore.outlineText || '',
+    locked: projectStore.outlineLocked
+  })
+  if (!validation.valid) {
+    pendingBatch.value = null
+    logEditorEdit({
+      requestId: `outline-edit_${Date.now()}`,
+      workspace: 'outline',
+      tabId: 'outline',
+      result: 'rejected',
+      targetLength: plan.original.length,
+      failureReason: validation.reason,
+      durationMs: 0,
+      detail: '大纲批次确认时目标已变化，拒绝写入'
+    })
+    void appConfirm.alert('大纲目标已变化，请重新生成或预览编辑批次')
+    return
+  }
+
+  applyingOutlineBatch = true
+  try {
+    let nextText = detail.text
+    if (Array.isArray(detail.acceptedIndexes)) {
+      const replanned = applyAcceptedItems(plan, detail.acceptedIndexes)
+      if (!replanned.ok) {
+        pendingBatch.value = null
+        void appConfirm.alert('部分大纲命令被拒绝后无法重新规划，请重新发起编辑请求')
+        return
+      }
+      nextText = replanned.next
+    }
+    if (!commitOutlineChange(nextText)) {
+      pendingBatch.value = null
+      return
+    }
+    pendingBatch.value = null
+    logEditorEdit({
+      requestId: `outline-edit_${Date.now()}`,
+      workspace: 'outline',
+      tabId: 'outline',
+      operation: 'editor_edit_batch',
+      result: 'applied',
+      targetLength: plan.original.length,
+      contentLength: Math.max(0, nextText.length - plan.original.length),
+      durationMs: 0,
+      detail: '用户确认后已按批次写入大纲编辑器'
+    })
+    saveFeedback.value = '[OK] 已应用大纲批量修改'
+    setTimeout(() => { saveFeedback.value = '' }, 2500)
+  } finally {
+    applyingOutlineBatch = false
+  }
+})
 
 function buildWorkspaceSkillContext(requestText: string, previousOutput?: string): Record<string, any> {
   return {
@@ -1425,6 +1651,11 @@ async function askPlainAi(requestText: string) {
         { role: 'user', content: '用户请求: ' + requestText }
       ]
     )
+    const requestTarget = createOutlineRequestTarget()
+    const outlineBatchTarget = createOutlineBatchTargetMeta()
+    const tools = requestTarget.content
+      ? createEditorTools({ getSnapshot: () => (pendingBatch.value ? pendingBatch.value.snapshot : requestTarget) })
+      : undefined
     const result = await aiService.callAi({
       purpose: 'generate',
       messages: requestMessages,
@@ -1441,17 +1672,37 @@ async function askPlainAi(requestText: string) {
         void scrollToBottom()
       },
       retry: true,
+      tools,
+      toolPolicy: tools ? {
+        maxToolIterations: 6,
+        maxWriteProposals: 1,
+        onCompatibilityMode: () => {
+          compatibilityNotice.value = '当前供应商未启用原生工具调用，已使用兼容模式'
+        }
+      } : undefined,
       meta: { source: 'OutlineWorkspace.askAi' }
     })
     const responseText = result.text || ''
     if (!responseText.trim()) throw new Error('API 返回为空')
+    const editBatch = extractOutlineToolEditBatch(result.toolCalls) || parseEditorEditBatch(responseText)
     await conversationContextService.recordTurn(contextRef, {
       user: requestText,
       assistant: responseText,
-      meta: { source: 'OutlineWorkspace.askPlainAi' }
+      meta: {
+        source: 'OutlineWorkspace.askPlainAi',
+        model: result.model || model,
+        providerId: result.providerId,
+        toolCalls: result.toolCalls?.length ? result.toolCalls.map(call => call.name).join(' → ') : undefined,
+        editorBatch: editBatch ? { commandCount: editBatch.commands.length, reason: editBatch.reason } : undefined
+      }
     })
     flushStreamingRender()
-    projectStore.appendOutlineChat({ role: 'assistant', content: responseText })
+    projectStore.appendOutlineChat({
+      role: 'assistant',
+      content: responseText,
+      ...(editBatch ? { outlineBatch: editBatch } : {}),
+      ...(editBatch ? { outlineBatchTarget } : {})
+    })
     if (result.finishReason && isTruncationReason(result.finishReason)) {
       const snapshot = createOutlineSnapshot({
         requestMessages,

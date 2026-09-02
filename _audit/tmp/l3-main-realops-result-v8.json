@@ -1,0 +1,29 @@
+{
+  "id": 1,
+  "result": {
+    "result": {
+      "type": "object",
+      "value": {
+        "runtimeErrors": [],
+        "steps": [
+          {
+            "name": "before-unchanged",
+            "ok": true,
+            "before": "主编辑底稿\n第二行"
+          },
+          {
+            "name": "batch-preview-opened",
+            "ok": true,
+            "items": 2
+          },
+          {
+            "name": "cancel-keeps-content",
+            "ok": true,
+            "afterCancel": "主编辑底稿\n第二行"
+          }
+        ],
+        "restored": true
+      }
+    }
+  }
+}

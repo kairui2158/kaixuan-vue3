@@ -118,10 +118,13 @@ import type { ContextMessage } from '../../types/context'
 import { continueSnapshot } from '../../services/continuationService'
 import { canContinue, continuationStatusFor, type ContinuationSnapshot } from '../../services/continuation'
 import { saveContinuation, removeContinuation } from '../../services/continuationStorage'
-import { buildEditorEditPrompt, parseEditorEditCommand, type EditorEditCommand } from '../../services/editorEditProtocol'
+import { buildEditorEditPrompt, parseEditorEditBatch, parseEditorEditCommand, type EditorEditCommand } from '../../services/editorEditProtocol'
 import { createEditorTargetSnapshot, validateEditorTarget, type EditorTargetSnapshot } from '../../services/editorTarget'
 import { buildEditPlan } from '../../services/editorEditService'
+import { applyAcceptedItems, planEditorEditBatch, type EditorEditBatchPlan } from '../../services/editorEditBatch'
 import { logEditorEdit } from '../../services/editorEditDiagnostics'
+import { createEditorTools } from '../../services/editorTools'
+import type { EditorEditBatchCommand } from '../../services/editorEditProtocol'
 
 const agentStore = useAgentStore()
 const providerStore = useProviderStore()
@@ -151,6 +154,9 @@ const inputText = ref('')
 const _pendingInlineOriginal = ref('')
 const _pendingInlineSelection = ref<{ tabId: string; start: number; end: number } | null>(null)
 const pendingEditorTarget = ref<EditorTargetSnapshot | null>(null)
+const pendingEditorBatchPlan = ref<EditorEditBatchPlan | null>(null)
+let pendingToolEditBatch: EditorEditBatchCommand | null = null
+let lastToolCallSummary: string | null = null
 const selectedChatAgent = computed({
   get: () => agentStore.selectedAgentId || '',
   set: (v: string) => { agentStore.selectedAgentId = v }
@@ -335,6 +341,8 @@ async function sendMessage(requestText?: string) {
   activeAbortController = new AbortController()
   const pendingOriginal = _pendingInlineOriginal.value
   _pendingInlineOriginal.value = ''
+  pendingToolEditBatch = null
+  lastToolCallSummary = null
   const requestTarget = createEditorTargetSnapshot({
     workspace: 'main',
     targetId: editorStore.activeTab?.id || 'main',
@@ -635,7 +643,20 @@ async function sendMessage(requestText?: string) {
       }
     } else {
       // 3) 常规对话走 callApi
-      response = await callApi(provider, model, systemPrompt, originalRequest, maxDepth, projId, text)
+      const useTools = Boolean(requestTarget.content)
+      const toolEditBatch = await callApi(
+        provider,
+        model,
+        systemPrompt,
+        originalRequest,
+        maxDepth,
+        projId,
+        text,
+        useTools ? buildChatEditorTools(requestTarget) : undefined
+      )
+      response = toolEditBatch.text
+      pendingToolEditBatch = toolEditBatch.toolEditBatch
+      lastToolCallSummary = toolEditBatch.toolCallSummary
       if (response?.trim()) {
         await conversationContextService.recordTurn({
           projectId: projId,
@@ -644,7 +665,15 @@ async function sendMessage(requestText?: string) {
         }, {
           user: originalRequest,
           assistant: response,
-          meta: { source: 'ChatPanel.callApi', model, agentId: selectedChatAgent.value || undefined }
+          meta: {
+            source: 'ChatPanel.callApi',
+            model,
+            agentId: selectedChatAgent.value || undefined,
+            toolCalls: toolEditBatch.toolCallSummary,
+            editorBatch: toolEditBatch.toolEditBatch
+              ? { commandCount: toolEditBatch.toolEditBatch.commands.length, reason: toolEditBatch.toolEditBatch.reason }
+              : undefined
+          }
         })
       }
     }
@@ -654,7 +683,8 @@ async function sendMessage(requestText?: string) {
         chatStore.addMessage({ role: 'assistant', content: response, tabId: chatStore.currentContext?.tabId || '' }, projId)
       }
     }
-    const editCommand = parseEditorEditCommand(response)
+    const editBatch = pendingToolEditBatch || parseEditorEditBatch(response)
+    const editCommand = editBatch ? null : parseEditorEditCommand(response)
     logEditorEdit({
       requestId: editRequestId,
       workspace: 'main',
@@ -671,7 +701,44 @@ async function sendMessage(requestText?: string) {
           detail: { original: pendingOriginal, modified: response }
         }));
     }
-    if (editCommand && requestTarget.content) {
+    if (editBatch && requestTarget.content) {
+      const currentContent = editorStore.activeTab?.id === requestTarget.targetId
+        ? editorStore.activeTab?.content || ''
+        : requestTarget.content
+      const batchPlan = planEditorEditBatch(editBatch, requestTarget, { content: currentContent })
+      logEditorEdit({
+        requestId: editRequestId,
+        workspace: 'main',
+        tabId: requestTarget.targetId,
+        operation: 'editor_edit_batch',
+        result: batchPlan.ok ? 'parsed' : 'rejected',
+        targetLength: requestTarget.content.length,
+        contentLength: batchPlan.items.reduce((sum, item) => sum + (item.command.content?.length || 0), 0),
+        failureReason: batchPlan.failureReason,
+        durationMs: Math.round(performance.now() - editStartedAt),
+        detail: batchPlan.ok ? `批次包含 ${batchPlan.items.length} 条编辑，等待用户预览确认` : '批次规划失败：' + batchPlan.failureReason
+      })
+      pendingEditorTarget.value = requestTarget
+      pendingEditorBatchPlan.value = batchPlan
+      window.dispatchEvent(new CustomEvent('show-diff', {
+        detail: {
+          original: batchPlan.original,
+          modified: batchPlan.ok ? batchPlan.next : batchPlan.original,
+          editMeta: {
+            targetLabel: requestTarget.label,
+            operationLabel: `批量编辑（${batchPlan.items.length} 项）`,
+            failureReason: batchPlan.ok ? undefined : batchPlan.failureReason,
+            dangerous: batchPlan.items.some(item => item.command.operation === 'rewrite' || item.command.operation === 'delete'),
+            batchItems: batchPlan.items.map(item => ({
+              index: item.index,
+              label: item.command.operation + (item.command.target ? `：${item.command.target}` : ''),
+              reason: item.command.reason,
+              dangerous: item.command.operation === 'rewrite' || item.command.operation === 'delete',
+            })),
+          }
+        }
+      }))
+    } else if (editCommand && requestTarget.content) {
       const currentContent = editorStore.activeTab?.id === requestTarget.targetId
         ? editorStore.activeTab?.content || ''
         : requestTarget.content
@@ -689,6 +756,7 @@ async function sendMessage(requestText?: string) {
       detail: plan.ok ? '编辑计划已生成，等待用户预览确认' : '编辑计划失败：' + plan.failureReason
     })
       pendingEditorTarget.value = requestTarget
+      pendingEditorBatchPlan.value = null
       window.dispatchEvent(new CustomEvent('show-diff', {
         detail: {
           original: plan.original,
@@ -732,7 +800,20 @@ function removeEmptyAssistantMessage() {
   }
 }
 
-async function callApi(provider: any, model: string, systemPrompt: string, userText: string, maxDepth: number, projId: string, engineInput = userText): Promise<string> {
+async function callApi(
+  provider: any,
+  model: string,
+  systemPrompt: string,
+  userText: string,
+  maxDepth: number,
+  projId: string,
+  engineInput = userText,
+  tools?: ReturnType<typeof createEditorTools>
+): Promise<{
+  text: string
+  toolEditBatch: EditorEditBatchCommand | null
+  toolCallSummary: string | null
+}> {
   chatStore.addMessage({ role: 'assistant', content: '', tabId: chatStore.currentContext?.tabId || '' }, projId)
 
   const contextBundle = await conversationContextService.buildContextBundle({
@@ -767,6 +848,8 @@ async function callApi(provider: any, model: string, systemPrompt: string, userT
     maxTokens: 128000,
     retry: true,
     signal: activeAbortController?.signal,
+    tools,
+    toolPolicy: tools ? { maxToolIterations: 6 } : undefined,
     meta: { source: 'ChatPanel.callApi', ctxTurns: Math.round(ctxTurns) },
     onChunk: (text: string) => {
       chatStore.setGenerationState('streaming', '正在接收 AI 输出…')
@@ -778,6 +861,25 @@ async function callApi(provider: any, model: string, systemPrompt: string, userT
   if (result.text) {
     chatStore.updateLastMessage(result.text)
   }
+  let toolEditBatch: EditorEditBatchCommand | null = null
+  if (result.toolCalls?.length) {
+    for (let index = result.toolCalls.length - 1; index >= 0; index--) {
+      const call = result.toolCalls[index]
+      if (call.name !== 'editor.propose_edits') continue
+      const input = call.input as { commands?: unknown; reason?: unknown }
+      if (!Array.isArray(input?.commands) || input.commands.length === 0) continue
+      toolEditBatch = {
+        type: 'editor_edit_batch',
+        version: 1,
+        commands: input.commands as EditorEditCommand[],
+        reason: typeof input.reason === 'string' ? input.reason : undefined
+      }
+      break
+    }
+  }
+  const toolCallSummary = result.toolCalls?.length
+    ? result.toolCalls.map(call => call.name).join(' → ')
+    : null
   const finishReason = result.finishReason || 'unknown'
   const continuationStatus = finishReason === 'length' || finishReason === 'timeout' || finishReason === 'network_error' || finishReason === 'canceled'
     ? continuationStatusFor(finishReason as any, Boolean(result.text))
@@ -793,7 +895,7 @@ async function callApi(provider: any, model: string, systemPrompt: string, userT
     chatStore.updateMessageContinuation(activeMessage.id, snapshot, chatStore.activeSession?.id || 'main')
     await saveContinuation(snapshot, chatStore.activeSession?.id || 'main')
   }
-  return result.text || ''
+  return { text: result.text || '', toolEditBatch, toolCallSummary }
 }
 
 function cancelGeneration() {
@@ -877,6 +979,7 @@ async function insertToEditor(content: string) {
     return
   }
   pendingEditorTarget.value = target
+  pendingEditorBatchPlan.value = null
   window.dispatchEvent(new CustomEvent('show-diff', {
     detail: {
       original: plan.original,
@@ -890,6 +993,14 @@ async function insertToEditor(content: string) {
   }))
 }
 
+function buildChatEditorTools(requestTarget: EditorTargetSnapshot) {
+  return createEditorTools({
+    getSnapshot: () => (pendingEditorTarget.value && pendingEditorTarget.value.targetId === requestTarget.targetId
+      ? pendingEditorTarget.value
+      : requestTarget)
+  })
+}
+
 let applyingEditorEdit = false
 window.addEventListener('diff-applied', (event: Event) => {
   const detail = (event as CustomEvent).detail
@@ -901,6 +1012,7 @@ window.addEventListener('diff-applied', (event: Event) => {
   const validation = validateEditorTarget(target, { content: tab.content || '' })
   if (!validation.valid) {
     pendingEditorTarget.value = null
+    pendingEditorBatchPlan.value = null
     logEditorEdit({
       requestId: `chat-edit_${Date.now()}`,
       workspace: 'main',
@@ -916,18 +1028,32 @@ window.addEventListener('diff-applied', (event: Event) => {
   }
   applyingEditorEdit = true
   try {
+    const wasBatch = Boolean(pendingEditorBatchPlan.value)
+    const acceptedIndexes = detail?.acceptedIndexes
+    let finalText = text
+    if (wasBatch && Array.isArray(acceptedIndexes)) {
+      const replanned = applyAcceptedItems(pendingEditorBatchPlan.value!, acceptedIndexes)
+      if (!replanned.ok) {
+        pendingEditorTarget.value = null
+        pendingEditorBatchPlan.value = null
+        void appConfirm.alert('部分命令被拒绝后批次无法重新规划，请重新发起编辑请求')
+        return
+      }
+      finalText = replanned.next
+    }
     editorStore.pushUndoState(tab.id, tab.content || '')
-    editorStore.updateContent(tab.id, text)
+    editorStore.updateContent(tab.id, finalText)
     _pendingInlineSelection.value = null
     pendingEditorTarget.value = null
+    pendingEditorBatchPlan.value = null
     logEditorEdit({
       requestId: `chat-edit_${Date.now()}`,
       workspace: 'main',
       tabId: target.targetId,
-      operation: target.selectedText ? 'replace_selection' : 'insert',
+      operation: wasBatch ? 'editor_edit_batch' : (target.selectedText ? 'replace_selection' : 'insert'),
       result: 'applied',
       targetLength: target.content.length,
-      contentLength: Math.max(0, text.length - target.content.length),
+      contentLength: Math.max(0, finalText.length - target.content.length),
       durationMs: 0,
       detail: '用户确认后已写入主页编辑器'
     })
