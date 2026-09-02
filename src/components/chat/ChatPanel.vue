@@ -118,6 +118,10 @@ import type { ContextMessage } from '../../types/context'
 import { continueSnapshot } from '../../services/continuationService'
 import { canContinue, continuationStatusFor, type ContinuationSnapshot } from '../../services/continuation'
 import { saveContinuation, removeContinuation } from '../../services/continuationStorage'
+import { buildEditorEditPrompt, parseEditorEditCommand, type EditorEditCommand } from '../../services/editorEditProtocol'
+import { createEditorTargetSnapshot, validateEditorTarget, type EditorTargetSnapshot } from '../../services/editorTarget'
+import { buildEditPlan } from '../../services/editorEditService'
+import { logEditorEdit } from '../../services/editorEditDiagnostics'
 
 const agentStore = useAgentStore()
 const providerStore = useProviderStore()
@@ -146,6 +150,7 @@ const messages = computed(() => chatStore.activeMessages)
 const inputText = ref('')
 const _pendingInlineOriginal = ref('')
 const _pendingInlineSelection = ref<{ tabId: string; start: number; end: number } | null>(null)
+const pendingEditorTarget = ref<EditorTargetSnapshot | null>(null)
 const selectedChatAgent = computed({
   get: () => agentStore.selectedAgentId || '',
   set: (v: string) => { agentStore.selectedAgentId = v }
@@ -320,6 +325,8 @@ function handleEditorAction(e: any) {
 }
 
 async function sendMessage(requestText?: string) {
+  const editRequestId = `chat-edit_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+  const editStartedAt = performance.now()
   const projId = projectId.value
   let text = (requestText ?? inputText.value).trim()
   const originalRequest = text
@@ -328,6 +335,16 @@ async function sendMessage(requestText?: string) {
   activeAbortController = new AbortController()
   const pendingOriginal = _pendingInlineOriginal.value
   _pendingInlineOriginal.value = ''
+  const requestTarget = createEditorTargetSnapshot({
+    workspace: 'main',
+    targetId: editorStore.activeTab?.id || 'main',
+    label: editorStore.activeTab?.title || '主页编辑器',
+    chapterId: editorStore.activeTab?.chapterId,
+    mode: editorStore.activeTab?.mode,
+    content: editorStore.activeTab?.content || '',
+    selectionStart: _pendingInlineSelection.value?.start,
+    selectionEnd: _pendingInlineSelection.value?.end
+  })
 
   chatStore.addMessage({ role: 'user', content: text, tabId: chatStore.currentContext?.tabId || '' }, projId)
   inputText.value = ''
@@ -520,6 +537,14 @@ async function sendMessage(requestText?: string) {
       maxChars: 2000
     })
     if (memoryContext.text) systemParts.push(`相关记忆：\n${memoryContext.text}`)
+    if (requestTarget.content) {
+      systemParts.push(buildEditorEditPrompt({
+        workspace: 'main',
+        label: requestTarget.label,
+        content: requestTarget.content,
+        selectedText: requestTarget.selectedText
+      }))
+    }
 
     const systemPrompt = systemParts.join('\n\n---\n\n')
     const model = selectedChatModel.value || provider.selectedModel || 'gpt-4o'
@@ -623,15 +648,59 @@ async function sendMessage(requestText?: string) {
         })
       }
     }
+
     if (response) {
       if (messages.value.length === 0 || messages.value[messages.value.length - 1].role !== 'assistant') {
         chatStore.addMessage({ role: 'assistant', content: response, tabId: chatStore.currentContext?.tabId || '' }, projId)
       }
     }
-    if (pendingOriginal && response && pendingOriginal !== response) {
+    const editCommand = parseEditorEditCommand(response)
+    logEditorEdit({
+      requestId: editRequestId,
+      workspace: 'main',
+      tabId: requestTarget.targetId,
+      operation: editCommand?.operation,
+      result: editCommand ? 'parsed' : 'no_edit',
+      targetLength: requestTarget.content.length,
+      contentLength: editCommand?.content?.length,
+      durationMs: Math.round(performance.now() - editStartedAt),
+      detail: editCommand ? '已解析为编辑指令，等待用户预览确认' : '普通对话响应，未识别编辑指令'
+    })
+    if (pendingOriginal && response && pendingOriginal !== response && !editCommand) {
         window.dispatchEvent(new CustomEvent('show-diff', {
           detail: { original: pendingOriginal, modified: response }
         }));
+    }
+    if (editCommand && requestTarget.content) {
+      const currentContent = editorStore.activeTab?.id === requestTarget.targetId
+        ? editorStore.activeTab?.content || ''
+        : requestTarget.content
+    const plan = buildEditPlan(requestTarget, editCommand, { content: currentContent })
+    logEditorEdit({
+      requestId: editRequestId,
+      workspace: 'main',
+      tabId: requestTarget.targetId,
+      operation: editCommand.operation,
+      result: plan.ok ? 'parsed' : 'rejected',
+      targetLength: requestTarget.content.length,
+      contentLength: editCommand.content?.length,
+      failureReason: plan.ok ? undefined : plan.failureReason,
+      durationMs: Math.round(performance.now() - editStartedAt),
+      detail: plan.ok ? '编辑计划已生成，等待用户预览确认' : '编辑计划失败：' + plan.failureReason
+    })
+      pendingEditorTarget.value = requestTarget
+      window.dispatchEvent(new CustomEvent('show-diff', {
+        detail: {
+          original: plan.original,
+          modified: plan.ok ? plan.next : plan.original,
+          editMeta: {
+            targetLabel: requestTarget.label,
+            operationLabel: plan.operation,
+            failureReason: plan.ok ? undefined : plan.failureReason,
+            dangerous: plan.ok && (plan.operation === 'rewrite' || plan.operation === 'delete')
+          }
+        }
+      }))
     }
  } catch (e: any) {
    if (e?.kind === 'canceled' || activeAbortController?.signal.aborted) {
@@ -779,29 +848,93 @@ function regenerateMessage(index: number) {
   void nextTick().then(() => sendMessage(previousText))
 }
 
-function insertToEditor(content: string) {
+async function insertToEditor(content: string) {
+  const tab = editorStore.activeTab
+  if (!tab) return
   const editor = document.getElementById('editor-content') as HTMLTextAreaElement | null
-  if (editor && editorStore.activeTab) {
-    const start = editor.selectionStart
-    const end = editor.selectionEnd
-    if (start !== end) {
-      // 有选中：替换选中区间（插入语义）
-      const val = editor.value
-      editor.value = val.substring(0, start) + content + val.substring(end)
-      editor.selectionStart = editor.selectionEnd = start + content.length
-      editor.dispatchEvent(new Event('input', { bubbles: true }))
-    } else {
-      // 无选中：在光标处插入，不破坏原正文
-      const val = editor.value
-      editor.value = val.substring(0, start) + content + val.substring(end)
-      editor.selectionStart = editor.selectionEnd = start + content.length
-      editor.dispatchEvent(new Event('input', { bubbles: true }))
-    }
-  } else if (editorStore.activeTab) {
-    // 编辑器 DOM 不可用时，退回 store 更新（追加到末尾）
-    editorStore.updateContent(editorStore.activeTab.id, content)
+  const selectionStart = editor?.selectionStart ?? (tab.content || '').length
+  const selectionEnd = editor?.selectionEnd ?? selectionStart
+  const target = createEditorTargetSnapshot({
+    workspace: 'main',
+    targetId: tab.id,
+    label: tab.title,
+    chapterId: tab.chapterId,
+    mode: tab.mode,
+    content: tab.content || '',
+    selectionStart,
+    selectionEnd
+  })
+  const command: EditorEditCommand = {
+    type: 'editor_edit',
+    version: 1,
+    operation: selectionStart < selectionEnd ? 'replace_selection' : 'insert',
+    content,
+    position: 'cursor'
   }
+  const plan = buildEditPlan(target, command, { content: tab.content || '' })
+  if (!plan.ok) {
+    await appConfirm.alert('无法插入：' + (plan.failureReason || '编辑目标不可用'))
+    return
+  }
+  pendingEditorTarget.value = target
+  window.dispatchEvent(new CustomEvent('show-diff', {
+    detail: {
+      original: plan.original,
+      modified: plan.next,
+      editMeta: {
+        targetLabel: target.label,
+        operationLabel: plan.operation,
+        dangerous: selectionStart < selectionEnd
+      }
+    }
+  }))
 }
+
+let applyingEditorEdit = false
+window.addEventListener('diff-applied', (event: Event) => {
+  const detail = (event as CustomEvent).detail
+  const target = pendingEditorTarget.value
+  const text = detail?.text
+  if (applyingEditorEdit || !target || typeof text !== 'string') return
+  const tab = editorStore.tabs.find(item => item.id === target.targetId)
+  if (!tab) return
+  const validation = validateEditorTarget(target, { content: tab.content || '' })
+  if (!validation.valid) {
+    pendingEditorTarget.value = null
+    logEditorEdit({
+      requestId: `chat-edit_${Date.now()}`,
+      workspace: 'main',
+      tabId: target.targetId,
+      result: 'rejected',
+      targetLength: target.content.length,
+      failureReason: validation.reason,
+      durationMs: 0,
+      detail: '请求返回后编辑目标内容已变化，拒绝写入'
+    })
+    void appConfirm.alert('编辑目标已变化，请重新发起编辑请求')
+    return
+  }
+  applyingEditorEdit = true
+  try {
+    editorStore.pushUndoState(tab.id, tab.content || '')
+    editorStore.updateContent(tab.id, text)
+    _pendingInlineSelection.value = null
+    pendingEditorTarget.value = null
+    logEditorEdit({
+      requestId: `chat-edit_${Date.now()}`,
+      workspace: 'main',
+      tabId: target.targetId,
+      operation: target.selectedText ? 'replace_selection' : 'insert',
+      result: 'applied',
+      targetLength: target.content.length,
+      contentLength: Math.max(0, text.length - target.content.length),
+      durationMs: 0,
+      detail: '用户确认后已写入主页编辑器'
+    })
+  } finally {
+    applyingEditorEdit = false
+  }
+})
 
 async function replaceWhole(content: string) {
   const pending = _pendingInlineSelection.value

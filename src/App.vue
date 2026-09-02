@@ -50,7 +50,7 @@
       <button class="save-error-dismiss" @click="projectStore.lastSaveError = null">知道了</button>
     </div>
 
-   <DiffModal :visible="diffVisible" :original="diffOriginal" :modified="diffModified" @close="diffVisible=false" @apply="applyDiffResult" />
+   <DiffModal :visible="diffVisible" :original="diffOriginal" :modified="diffModified" :edit-meta="diffEditMeta" @close="closeDiffModal" @apply="applyDiffResult" />
 
     <InlineMenu :visible="inlineMenu.visible" :x="inlineMenu.x" :y="inlineMenu.y" :selectedText="inlineMenu.text" @close="inlineMenu.visible=false" @action="handleInlineAction" />
     <SkillBindModal :visible="skillBindVisible" :type="skillBindType" :id="skillBindId" @close="skillBindVisible=false" />
@@ -163,6 +163,7 @@ const pipelineMinimized = ref(false)
 const diffVisible = ref(false)
 const diffOriginal = ref('')
 const diffModified = ref('')
+const diffEditMeta = ref<{ targetLabel: string; operationLabel: string; failureReason?: string; dangerous?: boolean } | null>(null)
 const skillBindVisible = ref(false)
 const skillBindType = ref('')
 const skillBindId = ref('')
@@ -170,6 +171,14 @@ const inlineMenu = ref({ visible: false, x: 0, y: 0, text: '' })
 const selectedAgent = computed({
   get: () => agentStore.selectedAgentId || '',
   set: (v: string) => { agentStore.selectedAgentId = v }
+})
+
+window.addEventListener('show-diff', (e: Event) => {
+  const detail = (e as CustomEvent).detail
+  diffOriginal.value = detail?.original || ''
+  diffModified.value = detail?.modified || ''
+  diffEditMeta.value = detail?.editMeta || null
+  diffVisible.value = true
 })
 const selectedModel = computed({
   get: () => providerStore.activeGenerateProvider?.selectedModel || '',
@@ -193,10 +202,13 @@ function handleNavigate(panel: string) {
 }
 
 function applyDiffResult(text: string) {
-  if (editorStore.activeTab) {
-    editorStore.updateContent(editorStore.activeTab.id, text)
-  }
+  window.dispatchEvent(new CustomEvent('diff-applied', { detail: { text } }))
  diffVisible.value = false
+ diffEditMeta.value = null
+}
+function closeDiffModal() {
+  diffVisible.value = false
+  diffEditMeta.value = null
 }
 function handleInlineAction(action: string, text: string) {
   window.dispatchEvent(new CustomEvent('inline-action', { detail: { action, text } }))

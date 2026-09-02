@@ -235,6 +235,9 @@ import { conversationContextService } from '../../services/conversationContextSe
 import { canContinue, continuationStatusFor, type ContinuationSnapshot } from '../../services/continuation'
 import { continueSnapshot } from '../../services/continuationService'
 import { saveContinuation, loadContinuation, removeContinuation } from '../../services/continuationStorage'
+import { parseEditorEditCommand } from '../../services/editorEditProtocol'
+import { logEditorEdit } from '../../services/editorEditDiagnostics'
+import { buildEditorEditPrompt } from '../../services/editorEditProtocol'
 import type { ContextMessage, ContextPolicy } from '../../types/context'
 import { enhanceCodeBlocks, renderMarkdown as renderMarkdownText } from '../../utils/markdownService'
 import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
@@ -280,9 +283,21 @@ function isTruncationReason(reason?: string) {
 
 function buildOutlineFallbackMessages(requestText: string) {
   return [
-    { role: 'system', content: '你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。' },
+    { role: 'system', content: buildOutlineSystemPrompt() },
     { role: 'user', content: '当前大纲:\n' + (projectStore.outlineText || '') + '\n\n用户请求: ' + requestText }
   ]
+}
+
+function buildOutlineSystemPrompt() {
+  return [
+    '你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。',
+    buildEditorEditPrompt({
+      workspace: 'outline',
+      label: '大纲编辑器',
+      content: projectStore.outlineText || '',
+      selectedText: getCurrentOutlineSelection()
+    })
+  ].join('\n\n')
 }
 
 function createOutlineSnapshot(options: {
@@ -351,9 +366,6 @@ interface OutlineEditCommand {
   reason?: string
 }
 
-const outlineEditOperations = new Set<OutlineEditOperation>([
-  'insert', 'replace_selection', 'replace_section', 'append', 'delete', 'rewrite'
-])
 
 type WorkspaceSkillTemplate = {
   id: string
@@ -788,29 +800,15 @@ watch(streamingContent, async () => {
 })
 
 function parseOutlineEditCommand(raw: string): OutlineEditCommand | null {
-  if (!raw || raw.length > 20000) return null
-  let candidate = raw.trim()
-  const fence = candidate.match(/```(?:json)?\s*([\s\S]*?)```/i)
-  if (fence) candidate = fence[1].trim()
-  const start = candidate.indexOf('{')
-  const end = candidate.lastIndexOf('}')
-  if (start < 0 || end <= start) return null
-  try {
-    const parsed = JSON.parse(candidate.slice(start, end + 1)) as Partial<OutlineEditCommand>
-    if (parsed.type !== 'outline_edit' || !outlineEditOperations.has(parsed.operation as OutlineEditOperation)) return null
-    const needsContent = parsed.operation !== 'delete'
-    if ((needsContent && typeof parsed.content !== 'string') || (typeof parsed.content === 'string' && parsed.content.length > 20000)) return null
-    if (['replace_section', 'delete'].includes(parsed.operation as string) && !parsed.target?.trim()) return null
-    return {
-      type: 'outline_edit',
-      operation: parsed.operation as OutlineEditOperation,
-      content: typeof parsed.content === 'string' ? parsed.content : undefined,
-      target: typeof parsed.target === 'string' ? parsed.target.trim() : undefined,
-      position: typeof parsed.position === 'string' ? parsed.position : undefined,
-      reason: typeof parsed.reason === 'string' ? parsed.reason : undefined
-    }
-  } catch {
-    return null
+  const command = parseEditorEditCommand(raw)
+  if (!command) return null
+  return {
+    type: 'outline_edit',
+    operation: command.operation === 'replace_match' ? 'replace_section' : command.operation,
+    content: command.content,
+    target: command.target,
+    position: command.position,
+    reason: command.reason
   }
 }
 
@@ -828,7 +826,22 @@ function previewCommand(command: OutlineEditCommand) {
 function applyPendingEdit() {
   const command = pendingEdit.value
   const current = projectStore.outlineText || ''
-  if (!command || projectStore.outlineLocked) return
+  if (!command) return
+  if (projectStore.outlineLocked) {
+    logEditorEdit({
+      requestId: `outline-edit_${Date.now()}`,
+      workspace: 'outline',
+      tabId: 'outline',
+      operation: command.operation,
+      result: 'rejected',
+      targetLength: current.length,
+      contentLength: command.content?.length,
+      failureReason: 'locked',
+      durationMs: 0,
+      detail: '大纲已锁定，编辑指令未写入'
+    })
+    return
+  }
   let next = current
   if (command.operation === 'append') {
     next = current + (current ? '\n' : '') + (command.content || '')
@@ -862,6 +875,17 @@ function applyPendingEdit() {
   }
   if (!commitOutlineChange(next)) return
   pendingEdit.value = null
+  logEditorEdit({
+    requestId: `outline-edit_${Date.now()}`,
+    workspace: 'outline',
+    tabId: 'outline',
+    operation: command.operation,
+    result: 'applied',
+    targetLength: current.length,
+    contentLength: command.content?.length,
+    durationMs: 0,
+    detail: '用户确认后已写入大纲编辑器'
+  })
   saveFeedback.value = '[OK] 已应用大纲修改'
   setTimeout(() => { saveFeedback.value = '' }, 2500)
 }
@@ -1133,7 +1157,7 @@ async function askAi(requestText: string) {
     return
   }
   const model = provider.selectedModel || provider.models?.[0] || 'gpt-4o'
-  const systemPrompt = '你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。'
+  const systemPrompt = buildOutlineSystemPrompt()
   const fallbackMessages = buildOutlineFallbackMessages(requestText)
   generationController = new AbortController()
   isGenerating.value = true
@@ -1186,6 +1210,17 @@ async function askAi(requestText: string) {
     if (!responseText.trim()) throw new Error('API 返回为空')
     flushStreamingRender()
     const editCommand = parseOutlineEditCommand(responseText)
+    logEditorEdit({
+      requestId: `outline-edit_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      workspace: 'outline',
+      tabId: 'outline',
+      operation: editCommand?.operation,
+      result: editCommand ? 'parsed' : 'no_edit',
+      targetLength: (projectStore.outlineText || '').length,
+      contentLength: editCommand?.content?.length,
+      durationMs: Math.round(performance.now() - startedAt),
+      detail: editCommand ? '大纲响应已解析为编辑指令，等待用户预览确认' : '普通大纲响应，未识别编辑指令'
+    })
     projectStore.appendOutlineChat({
       role: 'assistant',
       content: responseText,
@@ -1350,7 +1385,7 @@ async function askPlainAi(requestText: string) {
     return
   }
   const model = provider.selectedModel || provider.models?.[0] || 'gpt-4o'
-  const systemPrompt = '你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。'
+  const systemPrompt = buildOutlineSystemPrompt()
   const aiMessages = [
     { role: 'system', content: systemPrompt },
     ...messages.value.filter(item => item.content).map(item => ({ role: item.role, content: item.content })),

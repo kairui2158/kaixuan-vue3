@@ -3,6 +3,11 @@
     <div class="modal-content diff-modal-content">
       <div class="modal-header">
         <h3>AI 修改对比</h3>
+        <div v-if="editMeta" class="edit-meta">
+          <span class="edit-meta-target">{{ editMeta.targetLabel }}</span>
+          <span class="edit-meta-operation" :class="{ 'is-danger': editMeta.dangerous }">{{ editMeta.operationLabel }}</span>
+          <span v-if="editMeta.failureReason" class="edit-meta-failure">{{ editMeta.failureReason }}</span>
+        </div>
         <span id="diff-count" class="diff-count">{{ changeCount }} 处变更</span>
         <button class="btn-close" id="btn-close-diff" @click="$emit('close')">&times;</button>
       </div>
@@ -57,7 +62,8 @@ import { lcsDiff, buildDiffResult, acceptDiffLine, rejectDiffLine } from '../../
 const props = defineProps({
   visible: { type: Boolean, default: false },
   original: { type: String, default: '' },
-  modified: { type: String, default: '' }
+  modified: { type: String, default: '' },
+  editMeta: { type: Object, default: null }
 })
 
 const emit = defineEmits(['close', 'apply'])
@@ -283,5 +289,39 @@ watch(() => [props.visible, props.original, props.modified], () => {
 .diff-line-text {
   white-space: pre-wrap;
   word-break: break-all;
+}
+.edit-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin-left: 12px;
+  overflow: hidden;
+}
+.edit-meta-target,
+.edit-meta-operation,
+.edit-meta-failure {
+  min-width: 0;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size-xs);
+}
+.edit-meta-target {
+  color: var(--text-secondary);
+}
+.edit-meta-operation {
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+}
+.edit-meta-operation.is-danger {
+  background: var(--danger-dim);
+  color: var(--danger);
+}
+.edit-meta-failure {
+  color: var(--danger);
 }
 </style>
