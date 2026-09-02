@@ -21,6 +21,18 @@ import {
   isSSEDone,
   type ProviderLike,
 } from './providerAdapter'
+import {
+  buildProviderChatUrl,
+  buildProviderHeaders,
+  buildProviderModelsUrl,
+  buildProviderModelsHeaders,
+  getProviderProtocol,
+  httpErrorMessage,
+  extractProviderErrorSummary,
+  readErrorBody,
+  sanitizeUrlForLog,
+  normalizeProviderType,
+} from './providerProtocols'
 import { resolveProvider, type ProviderStoreLike } from './providerRouter'
 
 // ── Types (carried from Step 2 interface) ──────────────────────────
@@ -33,6 +45,7 @@ export interface AiServiceError {
   providerId?: string
   purpose?: ProviderPurpose
   statusCode?: number
+  providerErrorSummary?: string
 }
 
 export class AiServiceErrorImpl extends Error implements AiServiceError {
@@ -40,6 +53,7 @@ export class AiServiceErrorImpl extends Error implements AiServiceError {
   providerId?: string
   purpose?: ProviderPurpose
   statusCode?: number
+  providerErrorSummary?: string
   constructor(params: AiServiceError) {
     super(params.message)
     this.name = 'AiServiceError'
@@ -47,6 +61,7 @@ export class AiServiceErrorImpl extends Error implements AiServiceError {
     this.providerId = params.providerId
     this.purpose = params.purpose
     this.statusCode = params.statusCode
+    this.providerErrorSummary = params.providerErrorSummary
   }
 }
 
@@ -88,8 +103,8 @@ export interface AiService {
   callAi(params: CallAiParams): Promise<CallAiResult>
   fetchModels(providerId: string): Promise<string[]>
   fetchModelsForProvider(provider: ProviderLike): Promise<string[]>
-  testConnection(providerId: string): Promise<{ connected: boolean; error?: string }>
-  testConnectionForProvider(provider: ProviderLike): Promise<{ connected: boolean; error?: string }>
+  testConnection(providerId: string): Promise<{ connected: boolean; error?: string; note?: string }>
+  testConnectionForProvider(provider: ProviderLike): Promise<{ connected: boolean; error?: string; note?: string }>
 }
 
 // ── Constants ──────────────────────────────────────────────────────
@@ -154,7 +169,8 @@ interface StreamCallbacks {
  */
 async function parseSSEStream(
   reader: ReadableStreamDefaultReader<Uint8Array>,
-  cb: StreamCallbacks
+  cb: StreamCallbacks,
+  protocolName: string = 'openai-compatible'
 ): Promise<{ text: string; reasoning: string; finishReason?: string }> {
   const decoder = new TextDecoder()
   let fullText = ''
@@ -175,17 +191,44 @@ async function parseSSEStream(
       if (isSSEDone(payload)) continue
       try {
         const json = JSON.parse(payload)
-        const delta = extractStreamDelta(json)
-        finishReason = extractFinishReason(json) || finishReason
-        if (delta.reasoning) {
-          reasoningText += delta.reasoning
-          cb.onReasoning?.(filterThinkingTags(reasoningText))
+        if (protocolName === 'gemini') {
+          const text = (json?.candidates?.[0]?.content?.parts || []).map((part: any) => part?.text || '').join('')
+          if (text) {
+            fullText += text
+            cb.onChunk?.(filterThinkingTags(fullText))
+          }
+          finishReason = json?.candidates?.[0]?.finishReason || finishReason
+          if (json?.usageMetadata && cb.onUsage) cb.onUsage(json.usageMetadata)
+        } else if (protocolName === 'anthropic') {
+          if (json?.type === 'content_block_delta') {
+            const text = json?.delta?.text || ''
+            const thinking = json?.delta?.thinking || ''
+            if (thinking) {
+              reasoningText += thinking
+              cb.onReasoning?.(filterThinkingTags(reasoningText))
+            }
+            if (text) {
+              fullText += text
+              cb.onChunk?.(filterThinkingTags(fullText))
+            }
+          }
+          if (json?.type === 'message_delta') {
+            finishReason = json?.delta?.stop_reason || finishReason
+            if (json?.usage && cb.onUsage) cb.onUsage(json.usage)
+          }
+        } else {
+          const delta = extractStreamDelta(json)
+          finishReason = extractFinishReason(json) || finishReason
+          if (delta.reasoning) {
+            reasoningText += delta.reasoning
+            cb.onReasoning?.(filterThinkingTags(reasoningText))
+          }
+          if (delta.content) {
+            fullText += delta.content
+            cb.onChunk?.(filterThinkingTags(fullText))
+          }
+          if (json.usage && cb.onUsage) cb.onUsage(json.usage)
         }
-        if (delta.content) {
-          fullText += delta.content
-          cb.onChunk?.(filterThinkingTags(fullText))
-        }
-        if (json.usage && cb.onUsage) cb.onUsage(json.usage)
       } catch { /* skip non-JSON lines */ }
     }
   }
@@ -270,6 +313,11 @@ export interface DiagnosticLogLike {
     duration: number
     status: 'success' | 'failed'
     usage?: any
+    providerType?: string
+    transport?: 'main-process' | 'renderer-fetch'
+    finalUrl?: string
+    statusCode?: number
+    providerErrorSummary?: string
   }): void
 }
 
@@ -288,6 +336,11 @@ function logRequest(
     agentId?: string
     ctxTurns?: number
     usage?: any
+    providerType?: string
+    transport?: 'main-process' | 'renderer-fetch'
+    finalUrl?: string
+    statusCode?: number
+    providerErrorSummary?: string
   }
 ) {
   if (logger) {
@@ -304,6 +357,11 @@ function logRequest(
       duration: params.durationMs,
       status: params.success ? 'success' : 'failed',
       usage: params.usage,
+      providerType: params.providerType,
+      transport: params.transport,
+      finalUrl: params.finalUrl,
+      statusCode: params.statusCode,
+      providerErrorSummary: params.providerErrorSummary,
     })
   }
   // Push to DiagLogger for real-time DiagLogPanel display.
@@ -313,12 +371,231 @@ function logRequest(
   if (_diag && typeof _diag.log === 'function') {
     _diag.log(params.success ? 'info' : 'error', 'ai-service',
       'AI call: purpose=' + params.purpose + ' provider=' + (params.providerId || '?') + ' model=' + (params.model || '?') + ' ' + params.durationMs + 'ms ' + (params.success ? 'OK' : 'FAIL'),
-      { providerId: params.providerId, purpose: params.purpose, model: params.model, durationMs: params.durationMs, skillId: params.skillId, agentId: params.agentId, ctxTurns: params.ctxTurns, result: params.result.slice(0, 300), usage: params.usage || undefined }
+      {
+        providerId: params.providerId,
+        purpose: params.purpose,
+        model: params.model,
+        durationMs: params.durationMs,
+        skillId: params.skillId,
+        agentId: params.agentId,
+        ctxTurns: params.ctxTurns,
+        result: params.result.slice(0, 300),
+        usage: params.usage || undefined,
+        providerType: params.providerType,
+        transport: params.transport,
+        finalUrl: params.finalUrl,
+        statusCode: params.statusCode,
+        providerErrorSummary: params.providerErrorSummary,
+      }
     )
     if (typeof _diag.trackApiCall === 'function') {
       const totalTokens = params.usage ? (params.usage.total_tokens ?? params.usage.totalTokens ?? 0) : 0
       _diag.trackApiCall(params.model || '?', totalTokens, params.durationMs, params.success ? 'ok' : 'error', params.success ? '' : params.result.slice(0, 200))
     }
+  }
+}
+
+// ── Main-process network transport ──────────────────────────────────
+
+interface MainNetResult {
+  ok: boolean
+  kind?: 'network' | 'timeout' | 'http' | 'json' | 'auth' | 'canceled'
+  message?: string
+  statusCode?: number
+  providerErrorSummary?: string
+  data?: any
+  text?: string
+}
+
+function mainNetError(
+  result: MainNetResult,
+  provider: ProviderLike,
+  purpose: ProviderPurpose
+): AiServiceErrorImpl {
+  const kind = result.kind === 'auth'
+    ? 'auth'
+    : result.kind === 'timeout'
+      ? 'timeout'
+      : result.kind === 'network'
+        ? 'network'
+        : 'http'
+  return new AiServiceErrorImpl({
+    kind,
+    message: result.message || httpErrorMessage(result.statusCode || 0),
+    providerId: provider.id,
+    purpose,
+    statusCode: result.statusCode,
+    providerErrorSummary: result.providerErrorSummary,
+  })
+}
+
+function hasMainNet(): boolean {
+  return typeof window !== 'undefined' &&
+    typeof (window as any).electronAPI?.providerNetRequest === 'function' &&
+    typeof (window as any).electronAPI?.providerNetStream === 'function'
+}
+
+function isMainNetCanceled(result: MainNetResult): boolean {
+  return result.kind === 'canceled'
+}
+
+async function mainNetRequest(request: {
+  url: string
+  method?: string
+  headers: Record<string, string>
+  body?: unknown
+}, externalSignal?: AbortSignal): Promise<Response | { __mainNetError: true; result: MainNetResult }> {
+  const signalId = 'provider-net-request-' + Date.now() + '-' + Math.random().toString(36).slice(2)
+  const abortHandler = () => {
+    ;(window as any).electronAPI.providerNetAbort(signalId).catch(() => {})
+  }
+  externalSignal?.addEventListener('abort', abortHandler, { once: true })
+  let result: MainNetResult
+  try {
+    result = await (window as any).electronAPI.providerNetRequest({
+      ...request,
+      method: request.method || 'GET',
+      signalId,
+    })
+  } finally {
+    externalSignal?.removeEventListener('abort', abortHandler)
+  }
+  if (!result.ok) return { __mainNetError: true, result }
+  return new Response(result.text || '', {
+    status: result.statusCode || 200,
+    headers: { 'Content-Type': 'application/json' },
+  })
+}
+
+function extractProtocolStreamDelta(json: any, protocol: ReturnType<typeof getProviderProtocol>) {
+  const openAIDelta = extractStreamDelta(json)
+  if (openAIDelta.content || openAIDelta.reasoning) return openAIDelta
+  if (json?.type === 'content_block_delta') {
+    return {
+      content: json.delta?.text ?? null,
+      reasoning: json.delta?.thinking ?? null,
+      finishReason: undefined,
+    }
+  }
+  if (json?.type === 'message_delta') {
+    return { content: null, reasoning: null, finishReason: json.delta?.stop_reason }
+  }
+  if (Array.isArray(json?.candidates?.[0]?.content?.parts)) {
+    return {
+      content: protocol.extractText(json),
+      reasoning: null,
+      finishReason: protocol.extractFinishReason(json),
+    }
+  }
+  return { content: null, reasoning: null, finishReason: protocol.extractFinishReason(json) }
+}
+
+async function mainNetStream(
+  request: { url: string; headers: Record<string, string>; body: Record<string, unknown> },
+  callbacks: StreamCallbacks,
+  protocolName: string,
+  externalSignal?: AbortSignal
+): Promise<{ text: string; reasoning: string; finishReason?: string }> {
+  const signalId = 'provider-net-' + Date.now() + '-' + Math.random().toString(36).slice(2)
+  const chunkQueue: string[] = []
+  let resolveChunk: (() => void) | null = null
+  let ended = false
+  let streamError: string | null = null
+  let canceled = false
+
+  const offChunk = (window as any).electronAPI.onProviderNetStreamChunk((payload: any) => {
+    if (payload.signalId !== signalId) return
+    if (payload.event === 'chunk' && payload.text) chunkQueue.push(payload.text)
+    if (payload.event === 'end') ended = true
+    if (payload.event === 'canceled') {
+      canceled = true
+      ended = true
+    }
+    if (payload.event === 'error') {
+      streamError = payload.message || '主进程流式请求失败'
+      ended = true
+    }
+    if (resolveChunk) {
+      const resolve = resolveChunk
+      resolveChunk = null
+      resolve()
+    }
+  })
+
+  const invoke = (window as any).electronAPI.providerNetStream({
+    ...request,
+    signalId,
+  })
+
+  const abortHandler = () => {
+    ;(window as any).electronAPI.providerNetAbort(signalId)
+  }
+  externalSignal?.addEventListener('abort', abortHandler, { once: true })
+
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let fullText = ''
+  let reasoningText = ''
+  let finishReason: string | undefined
+  let sawFirstByte = false
+  const protocol = getProviderProtocol(protocolName)
+
+  try {
+    while (!ended || chunkQueue.length > 0) {
+      if (chunkQueue.length === 0 && !ended) {
+        await new Promise<void>(resolve => {
+          resolveChunk = resolve
+          setTimeout(resolve, 100)
+        })
+        continue
+      }
+      const text = chunkQueue.shift()
+      if (text == null) continue
+      if (!sawFirstByte) {
+        sawFirstByte = true
+      }
+      buffer += text
+      const lines = buffer.split('\n')
+      buffer = lines.pop() || ''
+      for (const line of lines) {
+        const trimmed = line.trim()
+        if (!trimmed || !isSSEDataLine(trimmed)) continue
+        const payload = trimmed.slice(6)
+        if (isSSEDone(payload)) continue
+        try {
+          const json = JSON.parse(payload)
+          const delta = extractProtocolStreamDelta(json, protocol)
+          finishReason = delta.finishReason || finishReason
+          if (delta.reasoning) {
+            reasoningText += delta.reasoning
+            callbacks.onReasoning?.(filterThinkingTags(reasoningText))
+          }
+          if (delta.content) {
+            fullText += delta.content
+            callbacks.onChunk?.(filterThinkingTags(fullText))
+          }
+          const usage = protocol.extractUsage(json)
+          if (usage && callbacks.onUsage) callbacks.onUsage(usage)
+        } catch { /* skip non-JSON lines */ }
+      }
+    }
+    const invokeResult = await invoke
+    if (!invokeResult.ok) {
+      if (invokeResult.kind === 'canceled') {
+        throw new DOMException('The operation was aborted', 'AbortError')
+      }
+      throw new AiServiceErrorImpl({
+        message: invokeResult.message || '主进程网络请求失败',
+        kind: invokeResult.kind === 'auth' ? 'auth' : invokeResult.kind === 'timeout' ? 'timeout' : 'http',
+        statusCode: invokeResult.statusCode,
+        providerErrorSummary: invokeResult.providerErrorSummary,
+      })
+    }
+    return { text: fullText, reasoning: reasoningText, finishReason }
+  } finally {
+    externalSignal?.removeEventListener('abort', abortHandler)
+    if (typeof offChunk === 'function') offChunk()
+    ;(window as any).electronAPI.providerNetAbort(signalId).catch(() => {})
   }
 }
 
@@ -338,41 +615,90 @@ export function createAiService(
     params: CallAiParams,
     timeoutMs: number
   ): Promise<{ text: string; reasoning: string; usage?: any; finishReason?: string }> {
-    const url = buildChatUrl(provider.baseUrl)
-    const headers = buildAuthHeaders(provider)
     const model = resolveModel(provider, params.model)
+    const providerType = normalizeProviderType(provider.providerType)
+    const url = buildProviderChatUrl({
+      baseUrl: provider.baseUrl,
+      providerType,
+      endpointMode: provider.endpointMode,
+      chatPath: provider.chatPath,
+      deployment: provider.deployment,
+      apiVersion: provider.apiVersion,
+      model,
+    })
+    const headers = buildProviderHeaders(providerType, provider.apiKey)
     const temperature = resolveTemperature(provider, params.temperature)
     const maxTokens = resolveMaxTokens(provider, params.maxTokens)
     const wantStream = params.stream ?? (params.purpose === 'generate' || params.purpose === 'rewrite')
     const signal = combineSignals(params.signal, makeTimeoutSignal(timeoutMs))
-    const body: Record<string, unknown> = {
+    const protocol = getProviderProtocol(providerType)
+    const body = protocol.buildRequestBody({
       model,
       messages: withTableOutputGuideline(params.messages, params.jsonMode === true),
       stream: wantStream,
       temperature,
-      max_tokens: maxTokens
+      maxTokens,
+    })
+    const useMainNet = hasMainNet()
+    let resp: Response | null = null
+    if (useMainNet && !wantStream) {
+      const mainResult = await mainNetRequest({ url, method: 'POST', headers, body }, signal)
+      if ('__mainNetError' in mainResult) {
+        const result = mainResult.result
+        if (isMainNetCanceled(result) || params.signal?.aborted) {
+          throw new DOMException('The operation was aborted', 'AbortError')
+        }
+        throw mainNetError(result, provider, params.purpose)
+      }
+      resp = mainResult
+    } else if (!useMainNet) {
+      resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal })
     }
-    const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal })
-    if (!resp.ok) throw resp
+    if (resp && !resp.ok) throw resp
+    if (!wantStream && !resp) throw new Error('网络传输初始化失败')
     if (wantStream) {
-      const reader = resp.body!.getReader()
+      let result: { text: string; reasoning: string; finishReason?: string }
       let streamUsage: any
-      const result = await parseSSEStream(reader, {
-        onChunk: params.onChunk,
-        onReasoning: params.onReasoning,
-        onUsage: (u: any) => {
-          streamUsage = u
-          if (params.onUsage) params.onUsage(u)
-        },
-      })
+      if (useMainNet) {
+        result = await mainNetStream(
+          { url, headers, body },
+          {
+            onChunk: params.onChunk,
+            onReasoning: params.onReasoning,
+            onUsage: (u: any) => {
+              streamUsage = u
+              if (params.onUsage) params.onUsage(u)
+            },
+          },
+          providerType,
+          signal
+        )
+      } else {
+        const reader = resp!.body!.getReader()
+        result = await parseSSEStream(
+          reader,
+          {
+            onChunk: params.onChunk,
+            onReasoning: params.onReasoning,
+            onUsage: (u: any) => {
+              streamUsage = u
+              if (params.onUsage) params.onUsage(u)
+            },
+          },
+          providerType
+        )
+      }
       const finishReason = resolveFinishReason(result.finishReason, streamUsage, maxTokens, Boolean(result.text))
       return { ...result, usage: streamUsage, finishReason }
     } else {
-      const data = await resp.json()
-      const extracted = extractNonStreamText(data)
-      if (extracted.usage && params.onUsage) params.onUsage(extracted.usage)
-      const finishReason = resolveFinishReason(extracted.finishReason, extracted.usage, maxTokens, Boolean(extracted.text))
-      return { ...extracted, finishReason }
+      const data = await resp!.json()
+      const text = protocol.extractText(data)
+      const reasoning = protocol.extractReasoning(data)
+      const usage = protocol.extractUsage(data)
+      const rawFinishReason = protocol.extractFinishReason(data)
+      if (usage && params.onUsage) params.onUsage(usage)
+      const finishReason = resolveFinishReason(rawFinishReason, usage, maxTokens, Boolean(text))
+      return { text, reasoning, usage, finishReason }
     }
   }
 
@@ -388,12 +714,29 @@ export function createAiService(
     const timeoutMs = params.timeoutMs ?? provider.timeoutMs ?? (wantStream ? DEFAULT_STREAM_TIMEOUT : DEFAULT_NON_STREAM_TIMEOUT)
     const doRetry = params.retry !== false
     const maxRetries = doRetry ? MAX_RETRIES : 0
+    const providerType = normalizeProviderType(provider.providerType)
+    const finalUrl = (() => {
+      try {
+        return sanitizeUrlForLog(buildProviderChatUrl({
+          baseUrl: provider.baseUrl,
+          providerType,
+          endpointMode: provider.endpointMode,
+          chatPath: provider.chatPath,
+          deployment: provider.deployment,
+          apiVersion: provider.apiVersion,
+          model: resolveModel(provider, params.model),
+        }))
+      } catch {
+        return '[invalid-url]'
+      }
+    })()
+    const transport: 'main-process' | 'renderer-fetch' = hasMainNet() ? 'main-process' : 'renderer-fetch'
     let lastErr: any = null
     let lastResp: { text: string; reasoning: string; usage?: any } | null = null
     const promptPreview = params.messages.map(m => m.content).join(' ').slice(0, 200)
     const throwCanceled = (): never => {
       const durationMs = Date.now() - startTime
-      logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: resolveModel(provider, params.model), prompt: promptPreview, result: '用户取消', durationMs, success: false, skillId: params.meta?.skillId, agentId: params.meta?.agentId })
+      logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: resolveModel(provider, params.model), prompt: promptPreview, result: '用户取消', durationMs, success: false, skillId: params.meta?.skillId, agentId: params.meta?.agentId, providerType, transport, finalUrl })
       throw new AiServiceErrorImpl({ kind: 'canceled', message: '用户取消', providerId, purpose: params.purpose })
     }
 
@@ -410,7 +753,7 @@ export function createAiService(
         }
         const durationMs = Date.now() - startTime
         const _model = resolveModel(provider, params.model)
-        logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _model, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, agentId: params.meta?.agentId, usage: result.usage })
+        logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _model, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, agentId: params.meta?.agentId, usage: result.usage, providerType, transport, finalUrl })
         return { text: finalText, reasoning: result.reasoning, providerId, model: _model, durationMs, usage: result.usage, finishReason: result.finishReason }
       } catch (e: any) {
         // Canceled by user?
@@ -437,11 +780,24 @@ export function createAiService(
           }
           break
         }
-        // HTTP error (resp object thrown)
-        if (e instanceof Response) {
-          const status = e.status
+        // HTTP error. Renderer fetch throws a Response; the Electron main
+        // bridge throws an already-classified AiServiceError.
+        const httpError = e instanceof Response
+          ? {
+              status: e.status,
+              providerSummary: e.clone().text().then((text: string) => {
+                try { return extractProviderErrorSummary(JSON.parse(text)) }
+                catch { return String(text || '').slice(0, 500) }
+              }),
+            }
+          : (e?.kind === 'http' || e?.kind === 'auth')
+            ? { status: e.statusCode, providerSummary: Promise.resolve(e.providerErrorSummary || '') }
+            : null
+        if (httpError) {
+          const status = httpError.status
+          const providerMessage = await httpError.providerSummary
           if (doRetry && (status === 429 || status === 502 || status === 503) && attempt < maxRetries) {
-            lastErr = new AiServiceErrorImpl({ kind: 'http', message: 'HTTP ' + status, providerId, purpose: params.purpose, statusCode: status })
+            lastErr = new AiServiceErrorImpl({ kind: 'http', message: httpErrorMessage(status, providerMessage), providerId, purpose: params.purpose, statusCode: status })
             try { await waitWithSignal(RETRY_DELAYS[attempt], params.signal) }
             catch (ce: any) {
               if (params.signal?.aborted) return throwCanceled()
@@ -456,9 +812,9 @@ export function createAiService(
             continue
           }
           if (status === 401 || status === 403) {
-            throw new AiServiceErrorImpl({ kind: 'auth', message: status === 401 ? 'API Key 无效' : '访问被禁止', providerId, purpose: params.purpose, statusCode: status })
+            throw new AiServiceErrorImpl({ kind: 'auth', message: httpErrorMessage(status, providerMessage), providerId, purpose: params.purpose, statusCode: status })
           }
-          lastErr = new AiServiceErrorImpl({ kind: 'http', message: 'HTTP ' + status, providerId, purpose: params.purpose, statusCode: status })
+          lastErr = new AiServiceErrorImpl({ kind: 'http', message: httpErrorMessage(status, providerMessage), providerId, purpose: params.purpose, statusCode: status })
           if (doRetry && attempt < maxRetries) {
             try { await waitWithSignal(RETRY_DELAYS[attempt], params.signal) }
             catch (ce: any) {
@@ -519,34 +875,60 @@ export function createAiService(
     }
 
     const durationMs = Date.now() - startTime
-    logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: resolveModel(provider, params.model), prompt: promptPreview, result: lastErr?.message || 'unknown', durationMs, success: false, skillId: params.meta?.skillId, agentId: params.meta?.agentId })
+    logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: resolveModel(provider, params.model), prompt: promptPreview, result: lastErr?.message || 'unknown', durationMs, success: false, skillId: params.meta?.skillId, agentId: params.meta?.agentId, providerType, transport, finalUrl, statusCode: lastErr?.statusCode, providerErrorSummary: lastErr?.providerErrorSummary })
     throw lastErr || new AiServiceErrorImpl({ kind: 'network', message: 'unknown error', providerId, purpose: params.purpose })
   }
 
   async function fetchModelsForProvider(p: ProviderLike): Promise<string[]> {
     const startTime = Date.now()
     const providerId = p.id
-    const url = buildModelsUrl(p.baseUrl)
-    const headers = buildAuthHeaders(p)
+    const providerType = normalizeProviderType(p.providerType)
+    const transport: 'main-process' | 'renderer-fetch' = hasMainNet() ? 'main-process' : 'renderer-fetch'
+    const url = buildProviderModelsUrl({
+      baseUrl: p.baseUrl,
+      providerType,
+      endpointMode: p.endpointMode,
+      modelsPath: p.modelsPath,
+    })
+        const headers = buildProviderModelsHeaders(providerType, p.apiKey)
     try {
-      const resp = await fetch(url, { method: 'GET', headers, signal: makeTimeoutSignal(30_000) })
+      let resp: Response
+      if (hasMainNet()) {
+        const mainResult = await mainNetRequest({ url, method: 'GET', headers }, makeTimeoutSignal(30_000))
+        if ('__mainNetError' in mainResult) {
+          const result = mainResult.result
+          throw new AiServiceErrorImpl({
+            kind: result.kind === 'auth' ? 'auth' : result.kind === 'timeout' ? 'timeout' : 'http',
+            message: '获取模型列表失败：' + (result.message || httpErrorMessage(result.statusCode || 0)),
+            providerId,
+            purpose: 'generate',
+            statusCode: result.statusCode,
+          })
+        }
+        resp = mainResult
+      } else {
+        resp = await fetch(url, { method: 'GET', headers, signal: makeTimeoutSignal(30_000) })
+      }
       if (!resp.ok) {
         const status = resp.status
+        const errorBody = await readErrorBody(resp)
+        const providerMessage = extractProviderErrorSummary(errorBody)
         const kind = status === 401 || status === 403 ? 'auth' : 'http'
         throw new AiServiceErrorImpl({
           kind,
-          message: kind === 'auth' ? '模型列表鉴权失败' : '获取模型列表失败：HTTP ' + status,
+          message: (kind === 'auth' ? '模型列表鉴权失败：' + providerMessage : '获取模型列表失败：' + httpErrorMessage(status, providerMessage)),
           providerId,
           purpose: 'generate',
           statusCode: status,
         })
       }
       const data = await resp.json()
-      const models = Array.isArray(data) ? data.map((m: any) => m.id || m.name).filter(Boolean) : (data.data?.map((m: any) => m.id).filter(Boolean) || [])
+      const models = getProviderProtocol(p.providerType).extractModels(data)
       logRequest(log, {
         purpose: 'generate', providerId, model: p.selectedModel,
         prompt: '获取模型列表', result: models.join(', '),
         durationMs: Date.now() - startTime, success: true,
+        providerType, transport, finalUrl: sanitizeUrlForLog(url),
       })
       return models
     } catch (e: any) {
@@ -560,6 +942,8 @@ export function createAiService(
         purpose: 'generate', providerId, model: p.selectedModel,
         prompt: '获取模型列表', result: error.message,
         durationMs: Date.now() - startTime, success: false,
+        providerType, transport, finalUrl: sanitizeUrlForLog(url),
+        statusCode: error.statusCode, providerErrorSummary: error.providerErrorSummary,
       })
       throw error
     }
@@ -575,7 +959,7 @@ export function createAiService(
     return fetchModelsForProvider(p)
   }
 
-  async function testConnection(providerId: string): Promise<{ connected: boolean; error?: string }> {
+  async function testConnection(providerId: string): Promise<{ connected: boolean; error?: string; note?: string }> {
     try {
       await fetchModels(providerId)
       return { connected: true }
@@ -584,11 +968,31 @@ export function createAiService(
     }
   }
 
-  async function testConnectionForProvider(provider: ProviderLike): Promise<{ connected: boolean; error?: string }> {
+  async function testConnectionForProvider(provider: ProviderLike): Promise<{ connected: boolean; error?: string; note?: string }> {
     try {
       await fetchModelsForProvider(provider)
       return { connected: true }
     } catch (e: any) {
+      const status = e?.statusCode
+      const modelsEndpointUnsupported = status === 404 || status === 405
+      if (modelsEndpointUnsupported) {
+        try {
+          await _rawCall(provider, {
+            purpose: 'generate',
+            messages: [{ role: 'user', content: '连接测试' }],
+            stream: false,
+            retry: false,
+            timeoutMs: 30_000,
+            maxTokens: 1,
+          }, 30_000)
+          return {
+            connected: true,
+            note: '该供应商未提供模型列表接口，已用最小对话请求验证连接（会消耗极小 token）',
+          }
+        } catch (chatError: any) {
+          return { connected: false, error: chatError?.message || '连接失败' }
+        }
+      }
       return { connected: false, error: e?.message || '连接失败' }
     }
   }

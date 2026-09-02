@@ -13,6 +13,7 @@
         >
           <div class="provider-card-header">
             <span class="provider-card-name">{{ p.name }}</span>
+            <span class="provider-type-badge">{{ providerTypeLabel(p.providerType) }}</span>
             <span class="provider-card-status" :class="isProviderActive(p.id) ? 'provider-badge-on' : 'provider-badge-off'">
               {{ isProviderActive(p.id) ? '启用' : '停用' }}
             </span>
@@ -125,6 +126,42 @@
         </div>
       </div>
       <div class="form-group">
+        <label>供应商类型</label>
+        <select id="cfg-provider-type" v-model="editingProvider.providerType" class="input-field">
+          <option v-for="type in providerTypeOptions" :key="type.value" :value="type.value">{{ type.label }}</option>
+        </select>
+        <small class="form-hint">选择 API 服务商的协议类型；旧配置默认为 OpenAI 兼容</small>
+      </div>
+      <details class="provider-advanced">
+        <summary>高级接口设置</summary>
+        <div class="advanced-grid">
+          <div class="form-group">
+            <label>地址模式</label>
+            <select id="cfg-endpoint-mode" v-model="editingProvider.endpointMode" class="input-field">
+              <option value="auto">自动识别</option>
+              <option value="base">基础地址</option>
+              <option value="full">完整接口地址</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>对话接口路径</label>
+            <input id="cfg-chat-path" v-model="editingProvider.chatPath" class="input-field" placeholder="默认自动" />
+          </div>
+          <div class="form-group">
+            <label>模型接口路径</label>
+            <input id="cfg-models-path" v-model="editingProvider.modelsPath" class="input-field" placeholder="默认自动" />
+          </div>
+          <div class="form-group" v-if="editingProvider.providerType === 'azure-openai'">
+            <label>部署名称</label>
+            <input id="cfg-deployment" v-model="editingProvider.deployment" class="input-field" placeholder="Azure 部署名" />
+          </div>
+          <div class="form-group" v-if="editingProvider.providerType === 'azure-openai'">
+            <label>API 版本</label>
+            <input id="cfg-api-version" v-model="editingProvider.apiVersion" class="input-field" placeholder="2024-02-01" />
+          </div>
+        </div>
+      </details>
+      <div class="form-group">
         <label>系统提示词</label>
         <textarea id="cfg-system-prompt" v-model="editingProvider.systemPrompt" class="input-field" rows="3" placeholder="可选"></textarea>
       </div>
@@ -170,6 +207,19 @@ const purposeOptions: { value: Provider['purpose'][number]; label: string }[] = 
   { value: 'image', label: '图片' },
   { value: 'video', label: '视频' },
 ]
+
+const providerTypeOptions: { value: Provider['providerType']; label: string }[] = [
+  { value: 'openai-compatible', label: 'OpenAI 兼容' },
+  { value: 'deepseek', label: 'DeepSeek' },
+  { value: 'anthropic', label: 'Anthropic' },
+  { value: 'gemini', label: 'Google Gemini' },
+  { value: 'azure-openai', label: 'Azure OpenAI' },
+]
+
+function providerTypeLabel(value?: string): string {
+  const found = providerTypeOptions.find(type => type.value === value)
+  return found ? found.label : 'OpenAI 兼容'
+}
 
 const editingProviderPurposeArray = computed(() => {
   if (!editingProvider.value) return []
@@ -244,6 +294,8 @@ function enterProviderEdit(id: string | null) {
       maxTokens: 0,
       streamMode: false,
       systemPrompt: '',
+      providerType: 'openai-compatible',
+      endpointMode: 'auto',
       purpose: ['generate'] as any
     }
   }
@@ -308,7 +360,7 @@ async function testConnection() {
     const service = await getAiService()
     const result = await service.testConnectionForProvider(editingProvider.value)
     if (result && result.connected) {
-      connStatus.value = '连接成功'
+      connStatus.value = result.note ? '连接成功（' + result.note + '）' : '连接成功'
     } else {
       connStatus.value = '连接失败: ' + (result?.error || '未知错误')
     }
@@ -383,6 +435,14 @@ function importConfig() {
   margin-bottom: 8px;
 }
 .provider-card-name { font-weight: 600; font-size: var(--font-size-lg); flex: 1; color: var(--text-primary); }
+.provider-type-badge {
+  padding: 2px 6px;
+  border-radius: var(--radius-sm, 4px);
+  background: var(--bg-input);
+  color: var(--text-muted);
+  font-size: var(--font-size-xs, 12px);
+  white-space: nowrap;
+}
 
 /* status badge - pill shape (old arch L3102-3120) */
 .provider-card-status {
@@ -451,6 +511,24 @@ function importConfig() {
 }
 .purpose-checkbox-label input[type="checkbox"] {
   margin: 0;
+}
+.provider-advanced {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm, 4px);
+  padding: 8px 12px;
+  background: var(--bg-input);
+}
+.provider-advanced summary {
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  user-select: none;
+}
+.advanced-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
 }
 .provider-fields { display: grid; grid-template-columns: 80px 1fr; gap: 4px 8px; align-items: center; }
 .provider-fields label { font-size: var(--font-size-sm); color: var(--text-secondary); }

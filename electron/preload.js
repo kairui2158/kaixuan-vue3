@@ -89,5 +89,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
     if (typeof baseUrl !== 'string' || typeof apiKey !== 'string')
       throw new TypeError('providerTestConnection: baseUrl and apiKey must be strings')
     return ipcRenderer.invoke('provider:testConnection', baseUrl, apiKey)
+  },
+
+  providerNetRequest: function(request) {
+    return ipcRenderer.invoke('providerNet:request', request)
+  },
+  providerNetStream: function(request) {
+    return ipcRenderer.invoke('providerNet:stream', request)
+  },
+  providerNetAbort: function(signalId) {
+    return ipcRenderer.invoke('providerNet:abort', signalId)
+  },
+  onProviderNetStreamChunk: function(callback) {
+    const listener = function(event, payload) { callback(payload) }
+    ipcRenderer.on('providerNet:streamChunk', listener)
+    return function() { ipcRenderer.removeListener('providerNet:streamChunk', listener) }
   }
 })

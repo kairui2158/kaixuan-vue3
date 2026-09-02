@@ -20,6 +20,7 @@ DiagLogger.init()
 // MCP protocol adapter: enable tool execution from renderer/window scope
 import { MCPProtocol } from './services/mcp-protocol'
 import { ToolRegistry } from './services/tool-registry'
+import { buildProviderModelsUrl, buildProviderHeaders } from './services/providerProtocols'
 ;(globalThis as any).MCPProtocol = MCPProtocol
 ;(globalThis as any).ToolRegistry = ToolRegistry
 
@@ -56,8 +57,8 @@ if (!(window as any).electronAPI) {
     // API mocks for dev mode
     fetchModels: async (baseUrl: string, apiKey: string) => {
       try {
-        const url = baseUrl.endsWith('/v1') ? baseUrl + '/models' : baseUrl + '/v1/models'
-        const resp = await fetch(url, { headers: { 'Authorization': 'Bearer ' + apiKey } })
+        const url = buildProviderModelsUrl({ baseUrl, providerType: 'openai-compatible' })
+        const resp = await fetch(url, { headers: buildProviderHeaders('openai-compatible', apiKey) })
         if (!resp.ok) throw new Error('HTTP ' + resp.status)
         const json = await resp.json()
         const models = (json.data || []).map((m: any) => m.id)
@@ -72,8 +73,8 @@ if (!(window as any).electronAPI) {
     diagClear: async () => false,
     providerTestConnection: async (baseUrl: string, apiKey: string) => {
       try {
-        const url = baseUrl.endsWith('/v1') ? baseUrl + '/models' : baseUrl + '/v1/models'
-        const resp = await fetch(url, { headers: { 'Authorization': 'Bearer ' + apiKey } })
+        const url = buildProviderModelsUrl({ baseUrl, providerType: 'openai-compatible' })
+        const resp = await fetch(url, { headers: buildProviderHeaders('openai-compatible', apiKey) })
         if (!resp.ok) return { connected: false, error: 'HTTP ' + resp.status }
         return { connected: true, error: null }
       } catch (e) {

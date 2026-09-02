@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { buildChatUrl, buildModelsUrl, extractNonStreamText, extractStreamDelta, isSSEDataLine, isSSEDone, normalizeFinishReason, resolveFinishReason, resolveModel, resolveTemperature, resolveMaxTokens } from './providerAdapter';
+import { buildProviderChatUrl, buildProviderModelsUrl, buildProviderHeaders, buildProviderModelsHeaders, getProviderProtocol, httpErrorMessage, sanitizeUrlForLog } from './providerProtocols';
 import { resolveProvider, tryResolveProvider } from './providerRouter';
 import { createAiService, filterThinkingTags, AiServiceErrorImpl } from './aiService';
 
@@ -26,6 +27,51 @@ describe('buildModelsUrl', () => {
   });
   it('preserves existing version', () => {
     expect(buildModelsUrl('https://api.example.com/v1')).toBe('https://api.example.com/v1/models');
+  });
+});
+
+describe('provider protocol endpoints', () => {
+  it('does not double-append a full chat endpoint', () => {
+    expect(buildProviderChatUrl({ baseUrl: 'https://api.example.com/v1/chat/completions' }))
+      .toBe('https://api.example.com/v1/chat/completions');
+  });
+
+  it('derives the models endpoint from a full chat endpoint without double paths', () => {
+    expect(buildProviderModelsUrl({ baseUrl: 'https://api.example.com/v1/chat/completions' }))
+      .toBe('https://api.example.com/v1/models');
+  });
+
+  it('keeps versioned base URLs for OpenAI-compatible providers', () => {
+    expect(buildProviderChatUrl({ baseUrl: 'https://api.example.com/v2' }))
+      .toBe('https://api.example.com/v2/chat/completions');
+  });
+
+  it('uses DeepSeek official non-v1 chat path', () => {
+    expect(buildProviderChatUrl({ baseUrl: 'https://api.deepseek.com', providerType: 'deepseek' }))
+      .toBe('https://api.deepseek.com/chat/completions');
+  });
+
+  it('builds Anthropic message and auth headers', () => {
+    expect(buildProviderChatUrl({ baseUrl: 'https://api.anthropic.com', providerType: 'anthropic' }))
+      .toBe('https://api.anthropic.com/v1/messages');
+    expect(buildProviderHeaders('anthropic', 'test-key')['x-api-key']).toBe('test-key');
+    expect(buildProviderModelsHeaders('gemini', 'test-key')['x-goog-api-key']).toBe('test-key');
+  });
+
+  it('builds Gemini endpoints and sanitizes keys in logs', () => {
+    expect(buildProviderChatUrl({ baseUrl: 'https://generativelanguage.googleapis.com', providerType: 'gemini', model: 'gemini-2.0-flash' }))
+      .toBe('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent');
+    expect(sanitizeUrlForLog('https://example.com/v1beta/models?key=secret'))
+      .not.toContain('secret');
+  });
+
+  it('builds Azure deployment URLs', () => {
+    expect(buildProviderChatUrl({ baseUrl: 'https://example.openai.azure.com', providerType: 'azure-openai', deployment: 'dep', apiVersion: '2024-02-01' }))
+      .toBe('https://example.openai.azure.com/openai/deployments/dep/chat/completions?api-version=2024-02-01');
+  });
+
+  it('returns Chinese error messages for provider failures', () => {
+    expect(httpErrorMessage(402, 'Insufficient Balance')).toContain('余额不足');
   });
 });
 
@@ -281,6 +327,63 @@ describe('createAiService.callAi', () => {
       stream: false, retry: false,
     })).rejects.toMatchObject({ kind: 'auth', statusCode: 401 });
     expect(fetchMock).toHaveBeenCalledTimes(1);
+    vi.unstubAllGlobals();
+  });
+
+  it('classifies main-process HTTP auth failures without retrying', async () => {
+    const requestMock = vi.fn().mockResolvedValue({
+      ok: false,
+      kind: 'auth',
+      statusCode: 401,
+      message: 'API Key 无效或未授权：invalid key',
+    });
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: requestMock,
+        providerNetStream: vi.fn(),
+        providerNetAbort: vi.fn(),
+        onProviderNetStreamChunk: vi.fn(() => () => {}),
+      },
+    });
+    const service = createAiService(runtimeStore());
+    await expect(service.callAi({
+      purpose: 'generate', messages: [{ role: 'user', content: 'test' }],
+      stream: false, retry: false,
+    })).rejects.toMatchObject({ kind: 'auth', statusCode: 401, providerId: 'runtime' });
+    expect(requestMock).toHaveBeenCalledTimes(1);
+    vi.unstubAllGlobals();
+  });
+
+  it('retries main-process HTTP 429 failures and preserves status diagnostics', async () => {
+    const requestMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        kind: 'http',
+        statusCode: 429,
+        message: '请求过于频繁，已被供应商限流：rate limited',
+        providerErrorSummary: 'rate limited',
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        statusCode: 200,
+        text: JSON.stringify({ choices: [{ message: { content: 'ok' } }] }),
+      });
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: requestMock,
+        providerNetStream: vi.fn(),
+        providerNetAbort: vi.fn(),
+        onProviderNetStreamChunk: vi.fn(() => () => {}),
+      },
+    });
+    const entries: any[] = [];
+    const service = createAiService(runtimeStore(), { addLog: (entry) => entries.push(entry) });
+    await expect(service.callAi({
+      purpose: 'generate', messages: [{ role: 'user', content: 'test' }],
+      stream: false, timeoutMs: 100,
+    })).resolves.toMatchObject({ text: 'ok' });
+    expect(requestMock).toHaveBeenCalledTimes(2);
+    expect(entries.at(-1)).toMatchObject({ status: 'success' });
     vi.unstubAllGlobals();
   });
 

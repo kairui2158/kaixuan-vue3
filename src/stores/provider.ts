@@ -1,6 +1,16 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { storageKey } from '../utils/storage-key'
+import { normalizeProviderType } from '../services/providerProtocols'
+
+export type ProviderProtocolType =
+  | 'openai-compatible'
+  | 'deepseek'
+  | 'anthropic'
+  | 'gemini'
+  | 'azure-openai'
+
+export type ProviderEndpointMode = 'auto' | 'base' | 'full'
 
 export interface Provider {
   id: string
@@ -15,6 +25,12 @@ export interface Provider {
   purpose: ('generate' | 'rewrite' | 'verify' | 'detect' | 'image' | 'video')[]
   streamMode?: boolean
   systemPrompt?: string
+  providerType: ProviderProtocolType
+  endpointMode?: ProviderEndpointMode
+  chatPath?: string
+  modelsPath?: string
+  deployment?: string
+  apiVersion?: string
 }
 
 export const useProviderStore = defineStore('provider', () => {
@@ -52,6 +68,7 @@ async function loadProviders() {
       providers.value.forEach(function(p) {
         if (typeof p.purpose === 'string') p.purpose = [p.purpose]
         if (!Array.isArray(p.purpose) || p.purpose.length === 0) p.purpose = ['generate']
+        p.providerType = normalizeProviderType(p.providerType)
       })
       var gen = data.find(function(p) { return p.purpose.indexOf('generate') >= 0 })
       var ver = data.find(function(p) { return p.purpose.indexOf('verify') >= 0 })
@@ -76,6 +93,7 @@ async function loadProviders() {
       providers.value.forEach(function(p) {
         if (typeof p.purpose === 'string') p.purpose = [p.purpose]
         if (!Array.isArray(p.purpose) || p.purpose.length === 0) p.purpose = ['generate']
+        p.providerType = normalizeProviderType(p.providerType)
       })
     }
   }

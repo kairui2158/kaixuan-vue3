@@ -208,36 +208,29 @@ function saveWindowState() {
  })
 
 ipcMain.handle('provider:testConnection', async function(event, baseUrl, apiKey) {
-  return await new Promise(function(resolve) {
-    var trimmed = baseUrl.replace(/\/+$/, '')
-    var tUrl = trimmed.match(/\/v\d+$/) ? trimmed + '/models' : trimmed + '/v1/models'
-    var parsed = new URL(tUrl)
-    var isHttps = parsed.protocol === 'https:'
-    var https = require('https')
-    var http = require('http')
-    var mod = isHttps ? https : http
-    var options = {
-      hostname: parsed.hostname,
-      port: parsed.port || (isHttps ? 443 : 80),
-      path: parsed.pathname + parsed.search,
+  try {
+    var protocols = require('./dist-renderer/providerProtocols.cjs')
+    var url = protocols.buildProviderModelsUrl({ baseUrl: baseUrl, providerType: 'openai-compatible' })
+    var response = await fetch(url, {
       method: 'GET',
-      headers: { 'Authorization': 'Bearer ' + apiKey },
-      timeout: 15000
-    }
-    var req = mod.request(options, function(res) {
-      res.on('data', function() {})
-      res.on('end', function() {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-          resolve({ connected: true })
-        } else {
-          resolve({ connected: false, error: 'HTTP ' + res.statusCode })
-        }
-      })
+      headers: protocols.buildProviderHeaders('openai-compatible', apiKey),
+      signal: AbortSignal.timeout(15000),
     })
-    req.on('error', function(e) { resolve({ connected: false, error: e.message }) })
-    req.on('timeout', function() { req.destroy(); resolve({ connected: false, error: 'Request timeout after 15s' }) })
-    req.end()
-  })
+    if (response.ok) return { connected: true }
+    var body = await response.arrayBuffer()
+    var text = Buffer.from(body).toString('utf8')
+    var providerMessage = ''
+    try {
+      var parsed = JSON.parse(text)
+      providerMessage = (parsed && parsed.error && parsed.error.message) || (parsed && parsed.message) || ''
+    } catch (e) {}
+    return { connected: false, error: protocols.httpErrorMessage(response.status, providerMessage) }
+  } catch (e) {
+    if (e && (e.name === 'TimeoutError' || e.name === 'AbortError')) {
+      return { connected: false, error: '供应商响应超时' }
+    }
+    return { connected: false, error: (e && e.message) || '连接失败' }
+  }
 })
 
   // Load the app

@@ -5,6 +5,13 @@
  *   useDeAi.ts L24, OutlineWorkspace.vue L446, provider.ts L180
  */
 
+import {
+  buildProviderChatUrl,
+  buildProviderHeaders,
+  buildProviderModelsUrl,
+  getProviderProtocol,
+} from './providerProtocols'
+
 export interface NormalizedRequest {
   url: string
   headers: Record<string, string>
@@ -22,6 +29,12 @@ export interface ProviderLike {
   timeoutMs?: number
   streamMode?: boolean
   systemPrompt?: string
+  providerType?: string
+  endpointMode?: 'auto' | 'base' | 'full'
+  chatPath?: string
+  modelsPath?: string
+  deployment?: string
+  apiVersion?: string
 }
 
 /**
@@ -32,28 +45,21 @@ export interface ProviderLike {
  *   https://api.example.com/v1/     -> .../v1/chat/completions  (trim trailing slash)
  */
 export function buildChatUrl(baseUrl: string): string {
-  let base = baseUrl.replace(/\/+$/, '')
-  if (!/\/v\d+$/.test(base)) base += '/v1'
-  return base + '/chat/completions'
+  return buildProviderChatUrl({ baseUrl, providerType: 'openai-compatible' })
 }
 
 /**
  * Builds the models list URL (for GET /models or equivalent).
  */
 export function buildModelsUrl(baseUrl: string): string {
-  let base = baseUrl.replace(/\/+$/, '')
-  if (!/\/v\d+$/.test(base)) base += '/v1'
-  return base + '/models'
+  return buildProviderModelsUrl({ baseUrl, providerType: 'openai-compatible' })
 }
 
 /**
  * Creates auth headers for a provider.
  */
 export function buildAuthHeaders(provider: ProviderLike): Record<string, string> {
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + provider.apiKey,
-  }
+  return buildProviderHeaders(provider.providerType, provider.apiKey)
 }
 
 /**

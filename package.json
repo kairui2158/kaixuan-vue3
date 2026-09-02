@@ -1,6 +1,6 @@
 {
   "name": "shenyi-assistant",
-  "version": "3.13.1",
+  "version": "3.14.0",
   "description": "神意助手 - AI驱动的桌面小说写作应用",
   "main": "electron/main.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "dev": "electron . --dev",
     "dev:vue": "vite",
     "dev:electron": "electron . --dev",
-    "build:vue": "vite build",
+    "build:vue": "vite build && vite build --config vite.protocols.config.ts",
     "build": "npm run build:vue && electron-builder --win",
     "build:portable": "npm run build:vue && electron-builder --win portable",
     "type-check": "vue-tsc --noEmit",
