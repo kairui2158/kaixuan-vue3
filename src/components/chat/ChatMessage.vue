@@ -9,6 +9,14 @@
       >
         已识别批量编辑：{{ message.editorBatch.commands.length }} 条
         <button class="msg-btn" :disabled="busy" type="button" @click="$emit('preview')">预览修改</button>
+        <button
+          v-if="canRollbackBatch"
+          class="msg-btn"
+          :disabled="busy"
+          type="button"
+          title="恢复该批次应用前的内容"
+          @click="$emit('rollback')"
+        >回滚此批次</button>
       </div>
       <div class="message-actions" v-if="message.role === 'assistant'">
         <button class="msg-btn" :disabled="busy" title="复制" @click="runAction('copy', message.content)">
@@ -42,8 +50,9 @@ import { enhanceCodeBlocks } from '../../utils/markdownService'
 import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
 import { canContinue as isContinuationAvailable } from '../../services/continuation'
 import type { EditorEditBatchCommand } from '../../services/editorEditProtocol'
+import type { EditorBatchRecord } from '../../services/editorBatchRecord'
 
-const props = defineProps<{ message: { role: string; content: string; continuation?: unknown; editorBatch?: EditorEditBatchCommand }; busy?: boolean }>()
+const props = defineProps<{ message: { role: string; content: string; continuation?: unknown; editorBatch?: EditorEditBatchCommand; editorBatchRecord?: EditorBatchRecord }; busy?: boolean }>()
 const actionFeedback = ref('')
 
 function canContinueSnapshot(value: unknown) {
@@ -59,7 +68,10 @@ const emit = defineEmits<{
   apply: [string]
   continue: []
   preview: []
+  rollback: []
 }>()
+
+const canRollbackBatch = computed(() => props.message.editorBatchRecord?.status === 'applied' && props.message.editorBatchRecord?.undoAvailable === true)
 
 function runAction(action: 'copy' | 'regenerate' | 'apply' | 'replace' | 'continue', content?: string) {
   if (props.busy) return

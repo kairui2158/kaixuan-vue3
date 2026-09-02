@@ -46,6 +46,7 @@
           @apply="insertToEditor(msg.content)" @replace="replaceWhole(msg.content)"
           @continue="continueMessage(msg)"
           @preview="previewEditorBatch(msg)"
+          @rollback="rollbackEditorBatch(msg)"
         />
       </div>
     </div>
@@ -123,7 +124,7 @@ import { buildEditorEditPrompt, parseEditorEditBatch, parseEditorEditCommand, ty
 import { createEditorTargetSnapshot, hashEditorContent, validateEditorTarget, type EditorTargetSnapshot } from '../../services/editorTarget'
 import { buildEditPlan } from '../../services/editorEditService'
 import { applyAcceptedItems, planEditorEditBatch, type EditorEditBatchPlan } from '../../services/editorEditBatch'
-import { createEditorBatchRecord, normalizeEditorBatchRecord, updateEditorBatchRecord } from '../../services/editorBatchRecord'
+import { canRollbackEditorBatch, createEditorBatchRecord, findEditorBatchUndoContent, normalizeEditorBatchRecord, updateEditorBatchRecord } from '../../services/editorBatchRecord'
 import { logEditorEdit } from '../../services/editorEditDiagnostics'
 import { createEditorTools } from '../../services/editorTools'
 import type { EditorEditBatchCommand } from '../../services/editorEditProtocol'
@@ -1107,6 +1108,75 @@ function previewEditorBatch(message: ChatMessage) {
       }
     }
   }))
+}
+
+function rollbackEditorBatch(message: ChatMessage) {
+  if (isStreaming.value) return
+  const record = normalizeEditorBatchRecord(message.editorBatchRecord)
+  const tab = record ? editorStore.tabs.find(item => item.id === record.targetId) : null
+  if (!record || !tab) {
+    void appConfirm.alert('编辑目标已关闭，无法回滚此批次')
+    return
+  }
+  const currentContent = tab.content || ''
+  if (!canRollbackEditorBatch(record, currentContent)) {
+    logEditorEdit({
+      requestId: `chat-edit_${Date.now()}`,
+      batchId: record.batchId,
+      workspace: 'main',
+      tabId: record.targetId,
+      operation: 'editor_edit_batch',
+      result: 'rejected',
+      targetLength: currentContent.length,
+      failureReason: 'version_changed',
+      durationMs: 0,
+      detail: '批次应用后编辑器内容已变化，拒绝自动回滚'
+    })
+    void appConfirm.alert('编辑器内容在批次应用后已有修改，请使用对比预览手动处理')
+    return
+  }
+  const undoContent = findEditorBatchUndoContent(editorStore.tabUndoStacks[record.targetId] || [], record)
+  if (!undoContent) {
+    logEditorEdit({
+      requestId: `chat-edit_${Date.now()}`,
+      batchId: record.batchId,
+      workspace: 'main',
+      tabId: record.targetId,
+      operation: 'editor_edit_batch',
+      result: 'rejected',
+      targetLength: currentContent.length,
+      failureReason: 'version_changed',
+      durationMs: 0,
+      detail: '撤销栈中找不到批次应用前内容，拒绝自动回滚'
+    })
+    void appConfirm.alert('撤销历史不足，无法自动回滚此批次')
+    return
+  }
+  editorStore.pushUndoState(tab.id, currentContent)
+  editorStore.updateContent(tab.id, undoContent.content)
+  chatStore.updateMessageEditorBatch(
+    message.id,
+    undefined,
+    undefined,
+    updateEditorBatchRecord(record, {
+      status: 'rolled_back',
+      rolledBackAt: Date.now(),
+      undoAvailable: false
+    }),
+    chatStore.activeSession?.id
+  )
+  logEditorEdit({
+    requestId: `chat-edit_${Date.now()}`,
+    batchId: record.batchId,
+    workspace: 'main',
+    tabId: record.targetId,
+    operation: 'editor_edit_batch',
+    result: 'applied',
+    targetLength: currentContent.length,
+    contentLength: undoContent.content.length,
+    durationMs: 0,
+    detail: `已回滚 AI 批次，消耗 ${undoContent.consumed} 条撤销历史；可用撤销恢复`
+  })
 }
 
 let applyingEditorEdit = false

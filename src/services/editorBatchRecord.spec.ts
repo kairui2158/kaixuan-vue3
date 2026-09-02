@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import type { EditorEditBatchCommand } from './editorEditProtocol'
 import { hashEditorContent } from './editorTarget'
 import {
-  canRollbackEditorBatch,
   createEditorBatchRecord,
+  canRollbackEditorBatch,
   findEditorBatchUndoContent,
   normalizeEditorBatchRecord,
   updateEditorBatchRecord

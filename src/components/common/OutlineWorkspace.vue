@@ -166,6 +166,13 @@
           >
             已识别批量编辑：{{ msg.outlineBatch.commands.length }} 条
             <button class="msg-btn" @click="previewOutlineBatch(msg.outlineBatch, msg.outlineBatchTarget)">预览修改</button>
+            <button
+              v-if="canRollbackOutlineBatch(msg.outlineBatchRecord)"
+              class="msg-btn"
+              :disabled="isGenerating"
+              title="恢复该批次应用前的大纲"
+              @click="rollbackOutlineBatch(msg.index)"
+            >回滚此批次</button>
           </div>
         </div>
       </div>
@@ -250,7 +257,7 @@ import { saveContinuation, loadContinuation, removeContinuation } from '../../se
 import { logEditorEdit } from '../../services/editorEditDiagnostics'
 import { buildEditorEditPrompt, parseEditorEditBatch, parseEditorEditCommand, type EditorEditBatchCommand, type EditorEditCommand } from '../../services/editorEditProtocol'
 import { applyAcceptedItems, planEditorEditBatch, type EditorEditBatchPlan } from '../../services/editorEditBatch'
-import { createEditorBatchRecord, normalizeEditorBatchRecord, updateEditorBatchRecord } from '../../services/editorBatchRecord'
+import { canRollbackEditorBatch, createEditorBatchRecord, findEditorBatchUndoContent, normalizeEditorBatchRecord, updateEditorBatchRecord } from '../../services/editorBatchRecord'
 import { createEditorTargetSnapshot, validateEditorTarget } from '../../services/editorTarget'
 import { createEditorTools } from '../../services/editorTools'
 import type { ContextMessage, ContextPolicy } from '../../types/context'
@@ -492,6 +499,11 @@ function createOutlineBatchTargetMeta(): OutlineBatchTargetMeta {
 function isOutlineTargetChanged(meta: OutlineBatchTargetMeta | undefined): boolean {
   if (!meta) return false
   return meta.contentHash !== hashOutlineContent(projectStore.outlineText || '')
+}
+
+function canRollbackOutlineBatch(record: unknown) {
+  const normalized = normalizeEditorBatchRecord(record)
+  return !!normalized && normalized.status === 'applied' && normalized.undoAvailable === true
 }
 
 function getWorkspaceTemplates(): WorkspaceSkillTemplate[] {
@@ -983,6 +995,91 @@ function previewOutlineBatch(batch: EditorEditBatchCommand, targetMeta?: Outline
       }
     }
   }))
+}
+
+function rollbackOutlineBatch(messageIndex: number) {
+  if (isGenerating.value) return
+  const record = normalizeEditorBatchRecord(messages.value[messageIndex]?.outlineBatchRecord)
+  const currentContent = projectStore.outlineText || ''
+  if (!record) {
+    void appConfirm.alert('批次记录不可用，无法回滚')
+    return
+  }
+  if (projectStore.outlineLocked) {
+    logEditorEdit({
+      requestId: `outline-edit_${Date.now()}`,
+      batchId: record.batchId,
+      workspace: 'outline',
+      tabId: 'outline',
+      operation: 'editor_edit_batch',
+      result: 'rejected',
+      targetLength: currentContent.length,
+      failureReason: 'locked',
+      durationMs: 0,
+      detail: '大纲已锁定，拒绝自动回滚批次'
+    })
+    void appConfirm.alert('大纲已锁定，请先解锁再回滚批次')
+    return
+  }
+  if (!canRollbackEditorBatch(record, currentContent)) {
+    logEditorEdit({
+      requestId: `outline-edit_${Date.now()}`,
+      batchId: record.batchId,
+      workspace: 'outline',
+      tabId: 'outline',
+      operation: 'editor_edit_batch',
+      result: 'rejected',
+      targetLength: currentContent.length,
+      failureReason: 'version_changed',
+      durationMs: 0,
+      detail: '批次应用后大纲内容已变化，拒绝自动回滚'
+    })
+    void appConfirm.alert('大纲内容在批次应用后已有修改，请使用对比预览手动处理')
+    return
+  }
+  const undoContent = findEditorBatchUndoContent(undoStack.value, record)
+  if (!undoContent) {
+    logEditorEdit({
+      requestId: `outline-edit_${Date.now()}`,
+      batchId: record.batchId,
+      workspace: 'outline',
+      tabId: 'outline',
+      operation: 'editor_edit_batch',
+      result: 'rejected',
+      targetLength: currentContent.length,
+      failureReason: 'version_changed',
+      durationMs: 0,
+      detail: '撤销栈中找不到批次应用前内容，拒绝自动回滚'
+    })
+    void appConfirm.alert('撤销历史不足，无法自动回滚此批次')
+    return
+  }
+  redoStack.value = []
+  if (!commitOutlineChange(undoContent.content)) {
+    void appConfirm.alert('回滚批次失败，请手动处理大纲内容')
+    return
+  }
+  projectStore.updateOutlineChatAt(messageIndex, {
+    outlineBatchRecord: updateEditorBatchRecord(record, {
+      status: 'rolled_back',
+      rolledBackAt: Date.now(),
+      undoAvailable: false
+    })
+  })
+  logEditorEdit({
+    requestId: `outline-edit_${Date.now()}`,
+    batchId: record.batchId,
+    workspace: 'outline',
+    tabId: 'outline',
+    operation: 'editor_edit_batch',
+    result: 'applied',
+    targetLength: currentContent.length,
+    contentLength: undoContent.content.length,
+    durationMs: 0,
+    detail: `已回滚大纲 AI 批次，消耗 ${undoContent.consumed} 条撤销历史；可用撤销恢复`
+  })
+  saveFeedback.value = '[OK] 已回滚大纲批次，可撤销恢复'
+  setTimeout(() => { saveFeedback.value = '' }, 2500)
 }
 
 function applyPendingEdit() {
