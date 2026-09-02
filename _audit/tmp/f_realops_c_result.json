@@ -1,16 +1,16 @@
 {
   "recovered": {
     "projectName": "F阶段验证项目",
-    "marker": 0,
+    "marker": 4321,
     "readBackValid": true
   },
   "corruptionLogTail": [
-    "[2026-08-30T15:07:14.322Z] key=wa_project_p1788101837759 restored=no error=Unexpected non-whitespace character after JSON at position 711 (line 1 column 712)",
     "[2026-08-30T16:13:11.281Z] key=wa_project_p1788106336488 restored=yes error=Expected ',' or '}' after property value in JSON at position 19 (line 1 column 20)",
-    "[2026-08-30T16:13:11.282Z] key=wa_project_p1788106336488 restored=yes error=Expected ',' or '}' after property value in JSON at position 19 (line 1 column 20)"
+    "[2026-08-30T16:13:11.282Z] key=wa_project_p1788106336488 restored=yes error=Expected ',' or '}' after property value in JSON at position 19 (line 1 column 20)",
+    "[2026-09-01T12:52:48.166Z] key=wa_project_p1788267167001 restored=yes error=Expected ',' or '}' after property value in JSON at position 19 (line 1 column 20)"
   ],
   "imported": {
-    "total": 39,
+    "total": 40,
     "failedCount": 0
   },
   "cleanup": {
