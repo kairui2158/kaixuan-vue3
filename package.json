@@ -1,6 +1,6 @@
 {
   "name": "shenyi-assistant",
-  "version": "3.13.0",
+  "version": "3.13.1",
   "description": "神意助手 - AI驱动的桌面小说写作应用",
   "main": "electron/main.js",
   "scripts": {

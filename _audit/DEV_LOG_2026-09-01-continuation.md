@@ -37,3 +37,18 @@
 - 已从源目录杀进程并重启 Electron；未将进程存在当作真实 UI 功能证据。
 - 四种流水线模式仍使用既有 pipeline breakpoint，未宣称已接入聊天 continuation storage。
 - 真实供应商截断、关闭重启后点击续生成的 UI 操作尚未核销。
+
+## 大纲工作台续生成收口（2026-09-02）
+
+### 实现
+- `OutlineWorkspace.vue` 接入续生成底座：截断/中断/取消生成快照，气泡按钮，重启按文本匹配恢复，续写合并与快照清理，重生成时同步清理旧快照。
+- `projectStore` 新增 `updateOutlineChatAt()`，用于把续生成元数据写回单条大纲消息，避免重建整段聊天。
+
+### 验证
+- `npm run type-check` 通过。
+- `npx vitest run src/services/continuation.spec.ts src/services/continuationService.spec.ts src/services/continuationStorage.spec.ts`：3 个文件、9 个用例通过。
+- `npm run build:vue` 通过。
+- 大纲工作台真实 UI 探针 `_audit/tmp/outline_continuation_realops.mjs` 8/8 PASS：截断按钮、快照写入、项目 JSON 持久化、关闭重启恢复、续写合并、快照清理、项目 JSON 最终文本、恰好 2 次 API 请求全部核销。
+
+### 边界
+- 本轮覆盖大纲工作台的 plain / compose / chain 消息链路；四种流水线模式仍按既有 breakpoint 语义，不宣称接入聊天 continuation。

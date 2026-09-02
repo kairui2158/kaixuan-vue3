@@ -115,6 +115,13 @@
                 <button class="msg-btn" title="替换整个大纲" @click="replaceOutline(msg.content)">替换</button>
                 <button class="msg-btn" title="重新生成该回复" @click="regenerateMsg(i)">重生成</button>
                 <button class="msg-btn" title="插入到光标处" @click="insertAtCursor(msg.content)">插入</button>
+                <button
+                  v-if="msg.continuation && canContinue(msg.continuation)"
+                  class="msg-btn"
+                  :disabled="isGenerating"
+                  title="从中断位置继续生成"
+                  @click="continueOutlineMessage(i)"
+                >续生成</button>
               </div>
             </div>
             <div v-if="isGenerating" id="ow-streaming-message" class="ow-msg assistant ow-msg-streaming">
@@ -225,6 +232,9 @@ import { useAiTools } from '../../composables/useAiTools'
 import { useAppConfirm } from '../../composables/useAppConfirm'
 import { getAiService } from '../../services/aiService'
 import { conversationContextService } from '../../services/conversationContextService'
+import { canContinue, continuationStatusFor, type ContinuationSnapshot } from '../../services/continuation'
+import { continueSnapshot } from '../../services/continuationService'
+import { saveContinuation, loadContinuation, removeContinuation } from '../../services/continuationStorage'
 import type { ContextMessage, ContextPolicy } from '../../types/context'
 import { enhanceCodeBlocks, renderMarkdown as renderMarkdownText } from '../../utils/markdownService'
 import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
@@ -248,6 +258,70 @@ const chatAreaOpen = ref(false)
 const isFullscreen = ref(false)
 const saveFeedback = ref('')
 const lastUserRequest = ref('')
+
+const OUTLINE_WORKSPACE_ID = 'outline'
+const OUTLINE_SESSION_ID = 'outline'
+let lastWorkspaceSkillMeta: {
+  finishReason?: string
+  requestMessages: Array<{ role: string; content: string }>
+  providerId?: string
+  model: string
+  agentId?: string
+  skillId: string
+} | null = null
+
+function outlineProjectId() {
+  return String(projectStore.currentProjectId || 'default')
+}
+
+function isTruncationReason(reason?: string) {
+  return reason === 'length' || reason === 'timeout' || reason === 'network_error' || reason === 'canceled'
+}
+
+function buildOutlineFallbackMessages(requestText: string) {
+  return [
+    { role: 'system', content: '你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。' },
+    { role: 'user', content: '当前大纲:\n' + (projectStore.outlineText || '') + '\n\n用户请求: ' + requestText }
+  ]
+}
+
+function createOutlineSnapshot(options: {
+  requestMessages: Array<{ role: string; content: string }>
+  text: string
+  finishReason: string
+  model: string
+  providerId?: string
+  skillIds?: string[]
+  agentIds?: string[]
+  mode?: ContinuationSnapshot['mode']
+}): ContinuationSnapshot | null {
+  if (!isTruncationReason(options.finishReason)) return null
+  const status = continuationStatusFor(options.finishReason as ContinuationSnapshot['finishReason'], Boolean(options.text))
+  if (status === 'failed') return null
+  return JSON.parse(JSON.stringify({
+    requestId: `outline_${Date.now()}`,
+    projectId: outlineProjectId(),
+    workspace: OUTLINE_WORKSPACE_ID,
+    purpose: 'generate' as const,
+    providerId: options.providerId,
+    model: options.model,
+    skillIds: options.skillIds || [],
+    agentIds: options.agentIds || [],
+    mode: options.mode || 'single',
+    originalMessages: options.requestMessages,
+    accumulatedText: options.text || '',
+    continuationCount: 0,
+    status,
+    finishReason: options.finishReason,
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  })) as ContinuationSnapshot
+}
+
+async function attachOutlineSnapshot(index: number, snapshot: ContinuationSnapshot) {
+  projectStore.updateOutlineChatAt(index, { continuation: JSON.parse(JSON.stringify(snapshot)) })
+  await saveContinuation(snapshot, OUTLINE_SESSION_ID)
+}
 const findOpen = ref(false)
 const findQuery = ref('')
 const findIndex = ref(-1)
@@ -474,12 +548,13 @@ async function callWorkspaceSkill(
       ? userPromptParts.join('\n\n')
       : userPromptParts.join('\n\n') + '\n\n[校验重试] 上次输出未满足技能的结构化约束，请只返回符合要求的结果。'
     try {
+      const requestMessages = conversationContextService.assembleMessages(contextBundle, contextPolicy, [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: attemptPrompt }
+      ])
       const result = await aiService.callAi({
         purpose: 'generate',
-        messages: conversationContextService.assembleMessages(contextBundle, contextPolicy, [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: attemptPrompt }
-        ]),
+        messages: requestMessages,
         model,
         temperature,
         maxTokens,
@@ -499,6 +574,14 @@ async function callWorkspaceSkill(
         assistant: output,
         meta: { source: 'OutlineWorkspace.skill', skillId: template.id, agentId: agentId || undefined }
       })
+      lastWorkspaceSkillMeta = {
+        finishReason: result.finishReason,
+        requestMessages,
+        providerId: result.providerId,
+        model,
+        agentId: agentId || undefined,
+        skillId: template.id
+      }
       return output
     } catch (error) {
       lastError = error
@@ -509,6 +592,7 @@ async function callWorkspaceSkill(
 }
 
 onMounted(async () => {
+  await restoreOutlineContinuation()
   const config = await pipelineStore.readStepConfig(0)
   workspaceAgentId.value = config.agentId
   workspaceSkillIds.value = config.skillIds
@@ -1021,6 +1105,7 @@ async function regenerateMsg(index: number) {
   if (isGenerating.value) return
   const target = messages.value[index]
   if (!target || target.role !== 'assistant') return
+  if (target.continuation) await removeContinuation(outlineProjectId(), OUTLINE_WORKSPACE_ID, OUTLINE_SESSION_ID)
   projectStore.removeOutlineChatAt(index)
   const requestText = lastUserRequest.value ||
     [...messages.value].reverse().find(function(m) { return m.role === 'user' })?.content || ''
@@ -1049,6 +1134,7 @@ async function askAi(requestText: string) {
   }
   const model = provider.selectedModel || provider.models?.[0] || 'gpt-4o'
   const systemPrompt = '你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。'
+  const fallbackMessages = buildOutlineFallbackMessages(requestText)
   generationController = new AbortController()
   isGenerating.value = true
   generationStatus.value = '正在连接 API...'
@@ -1105,9 +1191,37 @@ async function askAi(requestText: string) {
       content: responseText,
       ...(editCommand ? { outlineEdit: editCommand } : {})
     })
+    const meta = lastWorkspaceSkillMeta
+    if (meta && meta.finishReason && isTruncationReason(meta.finishReason)) {
+      const snapshot = createOutlineSnapshot({
+        requestMessages: meta.requestMessages,
+        text: responseText,
+        finishReason: meta.finishReason,
+        model: meta.model || model,
+        providerId: meta.providerId,
+        skillIds: templates.map(template => template.id),
+        agentIds: meta.agentId ? [meta.agentId] : [],
+        mode: workspaceSkillMode.value === 'chain' ? 'chain' : 'compose'
+      })
+      if (snapshot) await attachOutlineSnapshot(messages.value.length - 1, snapshot)
+    }
   } catch (e: any) {
     if (generationController?.signal.aborted || e?.name === 'AbortError' || e?.code === 'canceled') {
       generationStatus.value = '已取消生成'
+      if (streamingContent.value.trim()) {
+        const snapshot = createOutlineSnapshot({
+          requestMessages: lastWorkspaceSkillMeta?.requestMessages || fallbackMessages,
+          text: streamingContent.value,
+          finishReason: 'canceled',
+          model: lastWorkspaceSkillMeta?.model || model,
+          providerId: lastWorkspaceSkillMeta?.providerId,
+          skillIds: templates.map(template => template.id),
+          agentIds: lastWorkspaceSkillMeta?.agentId ? [lastWorkspaceSkillMeta.agentId] : [],
+          mode: workspaceSkillMode.value === 'chain' ? 'chain' : 'compose'
+        })
+        projectStore.appendOutlineChat({ role: 'assistant', content: streamingContent.value })
+        if (snapshot) await attachOutlineSnapshot(messages.value.length - 1, snapshot)
+      }
     } else {
       projectStore.appendOutlineChat({ role: 'assistant', content: '生成失败：' + (e.message || '未知错误') })
     }
@@ -1242,6 +1356,7 @@ async function askPlainAi(requestText: string) {
     ...messages.value.filter(item => item.content).map(item => ({ role: item.role, content: item.content })),
     { role: 'user', content: '当前大纲:\n' + (projectStore.outlineText || '') + '\n\n用户请求: ' + requestText }
   ]
+  let requestMessages: Array<{ role: string; content: string }> = []
   generationController = new AbortController()
   isGenerating.value = true
   generationStatus.value = '正在连接 API...'
@@ -1267,16 +1382,17 @@ async function askPlainAi(requestText: string) {
       },
       legacyMessages: getOutlineContextMessages(requestText)
     })
+    requestMessages = conversationContextService.assembleMessages(
+      contextBundle,
+      conversationContextService.getPolicy('generate'),
+      [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: '用户请求: ' + requestText }
+      ]
+    )
     const result = await aiService.callAi({
       purpose: 'generate',
-      messages: conversationContextService.assembleMessages(
-        contextBundle,
-        conversationContextService.getPolicy('generate'),
-        [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: '用户请求: ' + requestText }
-        ]
-      ),
+      messages: requestMessages,
       model,
       signal: generationController.signal,
       onChunk: (text: string) => {
@@ -1301,9 +1417,29 @@ async function askPlainAi(requestText: string) {
     })
     flushStreamingRender()
     projectStore.appendOutlineChat({ role: 'assistant', content: responseText })
+    if (result.finishReason && isTruncationReason(result.finishReason)) {
+      const snapshot = createOutlineSnapshot({
+        requestMessages,
+        text: responseText,
+        finishReason: result.finishReason,
+        model: result.model || model,
+        providerId: result.providerId
+      })
+      if (snapshot) await attachOutlineSnapshot(messages.value.length - 1, snapshot)
+    }
   } catch (error: any) {
     if (generationController?.signal.aborted || error?.name === 'AbortError' || error?.code === 'canceled') {
       generationStatus.value = '已取消生成'
+      if (streamingContent.value.trim()) {
+        const snapshot = createOutlineSnapshot({
+          requestMessages,
+          text: streamingContent.value,
+          finishReason: 'canceled',
+          model
+        })
+        projectStore.appendOutlineChat({ role: 'assistant', content: streamingContent.value })
+        if (snapshot) await attachOutlineSnapshot(messages.value.length - 1, snapshot)
+      }
     } else {
       projectStore.appendOutlineChat({ role: 'assistant', content: '生成失败：' + (error.message || '未知错误') })
     }
@@ -1314,6 +1450,74 @@ async function askPlainAi(requestText: string) {
     streamingContent.value = ''
   }
   await scrollToBottom()
+}
+
+async function continueOutlineMessage(index: number) {
+  const msg = messages.value[index]
+  const snapshot = msg?.continuation as ContinuationSnapshot | undefined
+  if (!snapshot || !canContinue(snapshot) || isGenerating.value) return
+  isGenerating.value = true
+  generationStatus.value = '正在续生成…'
+  streamingContent.value = snapshot.accumulatedText
+  generationController = new AbortController()
+  try {
+    const aiService = await getAiService()
+    const result = await continueSnapshot(aiService, snapshot, {
+      signal: generationController.signal,
+      onChunk: (text: string) => {
+        streamingContent.value = snapshot.accumulatedText + text
+        void scrollToBottom()
+      }
+    })
+    const nextReason = result.finishReason || 'unknown'
+    if (isTruncationReason(nextReason) && Boolean(result.text)) {
+      const nextStatus = continuationStatusFor(nextReason as ContinuationSnapshot['finishReason'], true)
+      const nextSnapshot = JSON.parse(JSON.stringify({
+        ...snapshot,
+        accumulatedText: result.text,
+        continuationCount: snapshot.continuationCount + 1,
+        status: nextStatus,
+        finishReason: nextReason,
+        updatedAt: Date.now()
+      })) as ContinuationSnapshot
+      projectStore.updateOutlineChatAt(index, { content: result.text, continuation: nextSnapshot })
+      await saveContinuation(nextSnapshot, OUTLINE_SESSION_ID)
+    } else {
+      projectStore.updateOutlineChatAt(index, { content: result.text, continuation: undefined })
+      await removeContinuation(snapshot.projectId, OUTLINE_WORKSPACE_ID, OUTLINE_SESSION_ID)
+    }
+  } catch (e: any) {
+    if (generationController?.signal.aborted || e?.name === 'AbortError' || e?.code === 'canceled') {
+      generationStatus.value = '已取消续生成'
+    } else {
+      generationStatus.value = '续生成失败：' + (e?.message || String(e))
+    }
+  } finally {
+    generationController = null
+    isGenerating.value = false
+    if (!String(generationStatus.value || '').startsWith('已取消')) generationStatus.value = ''
+    streamingContent.value = ''
+  }
+  await scrollToBottom()
+}
+
+async function restoreOutlineContinuation() {
+  try {
+    const stored = await loadContinuation(outlineProjectId(), OUTLINE_WORKSPACE_ID, OUTLINE_SESSION_ID)
+    if (!stored || !canContinue(stored)) return
+    const list = projectStore.outlineChat
+    for (let i = list.length - 1; i >= 0; i--) {
+      const item = list[i]
+      if (item?.role !== 'assistant') continue
+      if (item.continuation) return
+      if (String(item.content || '').trim() === String(stored.accumulatedText || '').trim()) {
+        projectStore.updateOutlineChatAt(i, { continuation: JSON.parse(JSON.stringify(stored)) })
+      }
+      return
+    }
+  } catch {
+    // 恢复失败不阻断工作台打开
+  }
 }
 
 function cancelGeneration() {

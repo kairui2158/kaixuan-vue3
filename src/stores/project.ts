@@ -255,6 +255,13 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  function updateOutlineChatAt(index: number, patch: Record<string, any>) {
+    if (index >= 0 && index < outlineChat.value.length) {
+      outlineChat.value[index] = { ...outlineChat.value[index], ...patch }
+      saveProject()
+    }
+  }
+
   function addNamingFavorite(item: NamingResult) {
     aiNaming.value.favorites.push(item)
     if (aiNaming.value.favorites.length > MAX_FAVORITES) {
@@ -844,7 +851,7 @@ export const useProjectStore = defineStore('project', () => {
     memoryBlacklist, addToBlacklist, removeFromBlacklist, isBlacklisted,
     updateMemoryMeta, recalculateMemoryTotals, recordMemoryChange, recordSourceVersion, getMemoryChangeHistory,
     rollbackMemoryTo, rollbackMemoryByChapter,
-    outlineChat, appendOutlineChat, removeOutlineChatAt,
+    outlineChat, appendOutlineChat, removeOutlineChatAt, updateOutlineChatAt,
     aiNaming, addNamingFavorite, removeNamingFavorite, addNamingHistory, clearNamingHistory
   }
 })
