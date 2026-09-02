@@ -1,0 +1,37 @@
+
+> shenyi-assistant@3.12.0 build:vue
+> vite build
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vite.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+vite v8.2.1 building client environment for production...
+[2K
+transforming...✓ 291 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-renderer/index.html                         0.68 kB │ gzip:   0.40 kB
+dist-renderer/assets/index-C07KAeW6.css        238.02 kB │ gzip:  34.87 kB
+dist-renderer/assets/json-qhed-kSA.js            2.81 kB │ gzip:   0.77 kB
+dist-renderer/assets/github-light-EUqPIrTm.js   11.18 kB │ gzip:   2.49 kB
+dist-renderer/assets/github-dark-C-LZuMrd.js    11.40 kB │ gzip:   2.53 kB
+dist-renderer/assets/bash-CLZ0U2zV.js           41.47 kB │ gzip:   6.07 kB
+dist-renderer/assets/markdown-BYOwaDjH.js       59.32 kB │ gzip:   5.66 kB
+dist-renderer/assets/javascript-BgS3c2Ky.js    174.82 kB │ gzip:  16.62 kB
+dist-renderer/assets/typescript-bsJCZSQ-.js    181.07 kB │ gzip:  16.23 kB
+dist-renderer/assets/index-CRSm6Cdq.js         895.36 kB │ gzip: 292.25 kB
+
+[INEFFECTIVE_DYNAMIC_IMPORT] src/stores/provider.ts is dynamically imported by src/services/aiService.ts but also statically imported by src/App.vue?vue&type=script&setup=true&lang.ts, src/components/chat/ChatPanel.vue?vue&type=script&setup=true&lang.ts, src/components/common/ExitConfirmModal.vue?vue&type=script&setup=true&lang.ts, src/components/common/OutlineWorkspace.vue?vue&type=script&setup=true&lang.ts, src/components/editor/EditorPanel.vue?vue&type=script&setup=true&lang.ts, ..., dynamic import will not move module into another chunk.
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[INEFFECTIVE_DYNAMIC_IMPORT] src/services/aiService.ts is dynamically imported by src/stores/provider.ts but also statically imported by src/components/chat/ChatPanel.vue?vue&type=script&setup=true&lang.ts, src/components/common/OutlineWorkspace.vue?vue&type=script&setup=true&lang.ts, src/components/editor/EditorPanel.vue?vue&type=script&setup=true&lang.ts, src/components/pipeline/PipelinePanel.vue?vue&type=script&setup=true&lang.ts, src/components/settings/ApiSettings.vue?vue&type=script&setup=true&lang.ts, ..., dynamic import will not move module into another chunk.
+
+[INEFFECTIVE_DYNAMIC_IMPORT] src/services/continuationStorage.ts is dynamically imported by src/components/chat/ChatPanel.vue?vue&type=script&setup=true&lang.ts but also statically imported by src/components/chat/ChatPanel.vue?vue&type=script&setup=true&lang.ts, dynamic import will not move module into another chunk.
+
+[INEFFECTIVE_DYNAMIC_IMPORT] src/stores/executionLog.ts is dynamically imported by src/services/aiService.ts but also statically imported by src/components/pipeline/PipelinePanel.vue?vue&type=script&setup=true&lang.ts, dynamic import will not move module into another chunk.
+
+✓ built in 3.06s

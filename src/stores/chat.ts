@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { storageKey } from '../utils/storage-key'
+import type { ContinuationSnapshot } from '../services/continuation'
 
 export interface ChatMessage {
   id: string
@@ -10,6 +11,7 @@ export interface ChatMessage {
   model?: string
   agentId?: string
   tabId?: string
+  continuation?: ContinuationSnapshot
 }
 
 export interface ChatSession {
@@ -93,6 +95,25 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  function updateMessageContent(messageId: string, content: string, sessionId?: string) {
+    const session = sessions.value.find(item => item.id === (sessionId || activeSessionId.value))
+    const message = session?.messages.find(item => item.id === messageId)
+    if (!session || !message || message.role !== 'assistant') return false
+    message.content = content
+    session.updatedAt = Date.now()
+    void saveSessions(currentProjectId.value)
+    return true
+  }
+  function updateMessageContinuation(messageId: string, continuation?: ContinuationSnapshot, sessionId?: string) {
+    const session = sessions.value.find(item => item.id === (sessionId || activeSessionId.value))
+    const message = session?.messages.find(item => item.id === messageId)
+    if (!session || !message) return false
+    message.continuation = continuation
+    session.updatedAt = Date.now()
+    void saveSessions(currentProjectId.value)
+    return true
+  }
+
   function replaceMessagePair(userIndex: number, projectId?: string): string | null {
     const session = activeSession.value
     if (!session) return null
@@ -143,9 +164,8 @@ export const useChatStore = defineStore('chat', () => {
   return {
     sessions, activeSessionId, activeSession, activeMessages, currentContext,
     generationStatus, generationMessage, generationStartedAt,
-    loadSessions, saveSessions, ensureSession, addMessage, updateLastMessage, replaceMessagePair, setGenerationState,
-    clearSession, removeSession, setCurrentContext
+    loadSessions, saveSessions, ensureSession, addMessage, updateLastMessage, updateMessageContent, replaceMessagePair, setGenerationState,
+    clearSession, removeSession, setCurrentContext, updateMessageContinuation
   }
 })
-
 

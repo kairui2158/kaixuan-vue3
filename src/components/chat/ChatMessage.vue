@@ -7,6 +7,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           <span>复制</span>
         </button>
+        <button v-if="canContinue(message.continuation)" class="msg-btn continuation-btn" :disabled="busy" title="继续生成" @click="runAction('continue')">续 <span>续生成</span></button>
         <button class="msg-btn" :disabled="busy" title="重新生成" @click="runAction('regenerate')">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
           <span>重生成</span>
@@ -31,24 +32,33 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import { enhanceCodeBlocks } from '../../utils/markdownService'
 import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
+import { canContinue as isContinuationAvailable } from '../../services/continuation'
 
-const props = defineProps<{ message: { role: string; content: string }; busy?: boolean }>()
+const props = defineProps<{ message: { role: string; content: string; continuation?: unknown }; busy?: boolean }>()
 const actionFeedback = ref('')
+
+function canContinueSnapshot(value: unknown) {
+  return Boolean(value && typeof value === 'object' && isContinuationAvailable(value as { status: 'none' | 'generating' | 'completed' | 'possibly_truncated' | 'interrupted' | 'failed' | 'user_stopped' | 'continuing'; accumulatedText: string }))
+}
+
+const canContinue = canContinueSnapshot
 const contentRef = ref<HTMLElement | null>(null)
 const emit = defineEmits<{
   copy: [string]
   regenerate: []
   replace: [string]
   apply: [string]
+  continue: []
 }>()
 
-function runAction(action: 'copy' | 'regenerate' | 'apply' | 'replace', content?: string) {
+function runAction(action: 'copy' | 'regenerate' | 'apply' | 'replace' | 'continue', content?: string) {
   if (props.busy) return
   actionFeedback.value = action === 'copy' ? '已复制' : action === 'apply' ? '已插入' : action === 'replace' ? '已替换' : '生成中'
   window.setTimeout(() => { actionFeedback.value = '' }, 1400)
   if (action === 'copy') emit('copy', content || '')
   else if (action === 'regenerate') emit('regenerate')
   else if (action === 'apply') emit('apply', content || '')
+  else if (action === 'continue') emit('continue')
   else emit('replace', content || '')
 }
 

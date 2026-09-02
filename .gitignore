@@ -45,3 +45,6 @@ _cdp_*.cjs
 fix_audit.js
 # full-storage probe backups contain real tokens; never commit
 _audit/tmp/*backup*.json
+
+# Local app data dir contains user's encrypted API keys; never commit
+_data/

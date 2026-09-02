@@ -44,6 +44,7 @@
           @copy="copyMessage"
           @regenerate="regenerateMessage(i)"
           @apply="insertToEditor(msg.content)" @replace="replaceWhole(msg.content)"
+          @continue="continueMessage(msg)"
         />
       </div>
     </div>
@@ -114,6 +115,9 @@ import { MCPProtocol } from '../../services/mcp-protocol'
 import { retrieveContext } from '../../services/memoryRetriever'
 import { conversationContextService } from '../../services/conversationContextService'
 import type { ContextMessage } from '../../types/context'
+import { continueSnapshot } from '../../services/continuationService'
+import { canContinue, continuationStatusFor, type ContinuationSnapshot } from '../../services/continuation'
+import { saveContinuation, removeContinuation } from '../../services/continuationStorage'
 
 const agentStore = useAgentStore()
 const providerStore = useProviderStore()
@@ -254,11 +258,21 @@ watch(() => editorStore.activeTab?.content, (content) => {
   }
 })
 
-function syncChatProject() {
-  chatStore.loadSessions(projectId.value)
+async function restoreContinuation(sessionId: string) {
+  const snapshot = await (await import('../../services/continuationStorage')).loadContinuation(projectId.value, 'main', sessionId)
+  if (!snapshot) return
+  const messageId = snapshot.requestId.replace(/^chat_/, '')
+  if (chatStore.activeSession?.messages.some(message => message.id === messageId)) {
+    chatStore.updateMessageContinuation(messageId, snapshot, sessionId)
+  }
+}
+
+async function syncChatProject() {
+  await chatStore.loadSessions(projectId.value)
   const tab = editorStore.activeTab
   if (tab) {
     chatStore.ensureSession(tab.id, tab.chapterId, tab.title, projectId.value)
+    void restoreContinuation(chatStore.activeSession?.id || 'main')
     chatStore.setCurrentContext({
       tabId: tab.id,
       chapterId: tab.chapterId,
@@ -268,6 +282,7 @@ function syncChatProject() {
     })
   } else {
     chatStore.ensureSession('', '', '默认对话', projectId.value)
+    void restoreContinuation(chatStore.activeSession?.id || 'main')
   }
 }
 
@@ -694,6 +709,21 @@ async function callApi(provider: any, model: string, systemPrompt: string, userT
   if (result.text) {
     chatStore.updateLastMessage(result.text)
   }
+  const finishReason = result.finishReason || 'unknown'
+  const continuationStatus = finishReason === 'length' || finishReason === 'timeout' || finishReason === 'network_error' || finishReason === 'canceled'
+    ? continuationStatusFor(finishReason as any, Boolean(result.text))
+    : 'completed'
+  const activeMessage = chatStore.activeSession?.messages[chatStore.activeSession.messages.length - 1]
+  if (activeMessage?.role === 'assistant' && continuationStatus !== 'completed') {
+    const snapshot: ContinuationSnapshot = {
+      requestId: `chat_${activeMessage.id}`, projectId: projId, workspace: 'main', purpose: 'generate',
+      providerId: result.providerId || provider.id, model: result.model || model, skillIds: [], agentIds: selectedChatAgent.value ? [selectedChatAgent.value] : [],
+      mode: 'single', originalMessages: messages, accumulatedText: result.text || '', continuationCount: 0, status: continuationStatus,
+      finishReason: finishReason as any, createdAt: Date.now(), updatedAt: Date.now()
+    }
+    chatStore.updateMessageContinuation(activeMessage.id, snapshot, chatStore.activeSession?.id || 'main')
+    await saveContinuation(snapshot, chatStore.activeSession?.id || 'main')
+  }
   return result.text || ''
 }
 
@@ -710,6 +740,32 @@ function retryLastRequest() {
   inputText.value = lastFailedText.value
   lastFailedText.value = ''
   nextTick(() => sendMessage())
+}
+
+async function continueMessage(message: any) {
+  const snapshot = message?.continuation as ContinuationSnapshot | undefined
+  if (!snapshot || !canContinue(snapshot) || isStreaming.value) return
+  chatStore.setGenerationState('streaming', '正在续生成…')
+  const targetSessionId = chatStore.activeSession?.id || 'main'
+  const targetMessageId = message.id
+  activeAbortController = new AbortController()
+  try {
+    const result = await continueSnapshot(await getAiService(), snapshot, { signal: activeAbortController?.signal, onChunk: text => chatStore.updateMessageContent(targetMessageId, snapshot.accumulatedText + text, targetSessionId) })
+    chatStore.updateMessageContent(targetMessageId, result.text, targetSessionId)
+    const nextReason = result.finishReason || 'unknown'
+    if (nextReason === 'length' || nextReason === 'timeout' || nextReason === 'network_error' || nextReason === 'canceled') {
+      const nextSnapshot = { ...snapshot, accumulatedText: result.text, continuationCount: snapshot.continuationCount + 1, status: continuationStatusFor(nextReason as any, Boolean(result.text)), finishReason: nextReason as any, updatedAt: Date.now() }
+      chatStore.updateMessageContinuation(targetMessageId, nextSnapshot, targetSessionId)
+      await saveContinuation(nextSnapshot, targetSessionId)
+    } else {
+      await removeContinuation(snapshot.projectId, snapshot.workspace, targetSessionId)
+      chatStore.updateMessageContinuation(targetMessageId, undefined, targetSessionId)
+    }
+  } catch (error: any) {
+    chatStore.setGenerationState('error', '续生成失败：' + (error?.message || String(error)))
+  } finally {
+    chatStore.setGenerationState('idle')
+  }
 }
 
 function copyMessage(content: string) {
@@ -763,9 +819,18 @@ async function replaceWhole(content: string) {
   }
 }
 
-function clearMessages() { chatStore.clearSession() }
+async function clearMessages() {
+  chatStore.clearSession()
+  await conversationContextService.clearSession({
+    projectId: projectId.value,
+    workspace: 'main',
+    purpose: 'generate'
+  })
+}
 
-const handleClearChat = () => clearMessages()
+const handleClearChat = () => {
+  void clearMessages().catch(error => console.error('[CHAT] 清空上下文失败', error))
+}
 window.addEventListener('clear-chat', handleClearChat)
 
 function scrollToBottom() {

@@ -15,6 +15,8 @@ import {
   resolveMaxTokens,
   extractNonStreamText,
   extractStreamDelta,
+  extractFinishReason,
+  resolveFinishReason,
   isSSEDataLine,
   isSSEDone,
   type ProviderLike,
@@ -79,6 +81,7 @@ export interface CallAiResult {
   model?: string
   durationMs?: number
   usage?: any
+  finishReason?: string
 }
 
 export interface AiService {
@@ -152,10 +155,11 @@ interface StreamCallbacks {
 async function parseSSEStream(
   reader: ReadableStreamDefaultReader<Uint8Array>,
   cb: StreamCallbacks
-): Promise<{ text: string; reasoning: string }> {
+): Promise<{ text: string; reasoning: string; finishReason?: string }> {
   const decoder = new TextDecoder()
   let fullText = ''
   let reasoningText = ''
+  let finishReason: string | undefined
   let buffer = ''
 
   while (true) {
@@ -172,6 +176,7 @@ async function parseSSEStream(
       try {
         const json = JSON.parse(payload)
         const delta = extractStreamDelta(json)
+        finishReason = extractFinishReason(json) || finishReason
         if (delta.reasoning) {
           reasoningText += delta.reasoning
           cb.onReasoning?.(filterThinkingTags(reasoningText))
@@ -185,7 +190,7 @@ async function parseSSEStream(
     }
   }
   if (!fullText && reasoningText) fullText = reasoningText
-  return { text: fullText, reasoning: reasoningText }
+  return { text: fullText, reasoning: reasoningText, finishReason }
 }
 
 // ── JSON Repair ─────────────────────────────────────────────────────
@@ -332,7 +337,7 @@ export function createAiService(
     provider: ProviderLike,
     params: CallAiParams,
     timeoutMs: number
-  ): Promise<{ text: string; reasoning: string; usage?: any }> {
+  ): Promise<{ text: string; reasoning: string; usage?: any; finishReason?: string }> {
     const url = buildChatUrl(provider.baseUrl)
     const headers = buildAuthHeaders(provider)
     const model = resolveModel(provider, params.model)
@@ -360,12 +365,14 @@ export function createAiService(
           if (params.onUsage) params.onUsage(u)
         },
       })
-      return { ...result, usage: streamUsage }
+      const finishReason = resolveFinishReason(result.finishReason, streamUsage, maxTokens, Boolean(result.text))
+      return { ...result, usage: streamUsage, finishReason }
     } else {
       const data = await resp.json()
       const extracted = extractNonStreamText(data)
       if (extracted.usage && params.onUsage) params.onUsage(extracted.usage)
-      return extracted
+      const finishReason = resolveFinishReason(extracted.finishReason, extracted.usage, maxTokens, Boolean(extracted.text))
+      return { ...extracted, finishReason }
     }
   }
 
@@ -404,7 +411,7 @@ export function createAiService(
         const durationMs = Date.now() - startTime
         const _model = resolveModel(provider, params.model)
         logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _model, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, agentId: params.meta?.agentId, usage: result.usage })
-        return { text: finalText, reasoning: result.reasoning, providerId, model: _model, durationMs, usage: result.usage }
+        return { text: finalText, reasoning: result.reasoning, providerId, model: _model, durationMs, usage: result.usage, finishReason: result.finishReason }
       } catch (e: any) {
         // Canceled by user?
         if (params.signal?.aborted) {

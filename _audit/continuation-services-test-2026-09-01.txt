@@ -1,0 +1,254 @@
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vite.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.11 D:/codex/novel-workshop-vue3
+
+stdout | src/services/skillEngineFailure.spec.ts > skill engine failure contract > does not turn a failed chain step into the previous output
+[OK] SkillExecutionEngine loaded
+[ENGINE] Chain step 1/2: 第一步
+
+stderr | src/services/skillEngineFailure.spec.ts > skill engine failure contract > does not turn a failed chain step into the previous output
+[ERR] Chain step 1 failed: fixture failure
+
+stdout | src/services/skillEngineFailure.spec.ts > skill engine failure contract > does not report success when validation retry still fails
+[OK] SkillExecutionEngine loaded
+[ENGINE] Chain step 1/1: 校验步骤
+
+stderr | src/services/skillEngineFailure.spec.ts > skill engine failure contract > does not report success when validation retry still fails
+[WARN] Chain step 1 validation failed, retrying
+
+stderr | src/services/skillEngineFailure.spec.ts > skill engine failure contract > does not report success when validation retry still fails
+[WARN] retry failed for step 1 Error: 长度不足
+    at Object.chain (eval at loadEngine (D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:15:15), <anonymous>:315:46)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:39:20
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | src/services/skillEngineFailure.spec.ts > skill engine failure contract > does not report success when validation retry still fails
+[WARN] Final validation 0 failed: 最终校验失败
+
+stdout | src/services/skillEngineFailure.spec.ts > skill engine failure contract > rejects split-merge when a segment request fails
+[OK] SkillExecutionEngine loaded
+[ENGINE] splitMerge: 1 segments, splitSize=1000
+
+stderr | src/services/skillEngineFailure.spec.ts > skill engine failure contract > rejects split-merge when a segment request fails
+[WARN] parallelMap item 0 failed Error: segment fixture failure
+    at Object.aiRequest (D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:59:38)
+    at _callStep (eval at loadEngine (D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:15:15), <anonymous>:241:29)
+    at results (eval at loadEngine (D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:15:15), <anonymous>:388:14)
+    at worker (eval at loadEngine (D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:15:15), <anonymous>:76:38)
+    at _parallelMap (eval at loadEngine (D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:15:15), <anonymous>:86:80)
+    at Object.splitMerge (eval at loadEngine (D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:15:15), <anonymous>:386:25)
+    at D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:56:25
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+
+stdout | src/services/skillEngineFailure.spec.ts > skill engine failure contract > rejects multi-step when a phase request fails
+[OK] SkillExecutionEngine loaded
+[ENGINE] multiStep: 1 segments, 3 skills
+
+stderr | src/services/skillEngineFailure.spec.ts > skill engine failure contract > rejects multi-step when a phase request fails
+[WARN] parallelMap item 0 failed Error: phase fixture failure
+    at Object.aiRequest (D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:71:38)
+    at _callStep (eval at loadEngine (D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:15:15), <anonymous>:241:29)
+    at step1Outputs (eval at loadEngine (D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:15:15), <anonymous>:429:14)
+    at worker (eval at loadEngine (D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:15:15), <anonymous>:76:38)
+    at _parallelMap (eval at loadEngine (D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:15:15), <anonymous>:86:80)
+    at Object.multiStep (eval at loadEngine (D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:15:15), <anonymous>:428:30)
+    at D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:66:25
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+
+stdout | src/services/skillEngineFailure.spec.ts > skill engine failure contract > propagates parallel worker failures instead of using the input as output
+[OK] SkillExecutionEngine loaded
+
+stderr | src/services/skillEngineFailure.spec.ts > skill engine failure contract > propagates parallel worker failures instead of using the input as output
+[WARN] parallelMap item 0 failed Error: parallel fixture failure
+    at D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:79:31
+    at worker (eval at loadEngine (D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:15:15), <anonymous>:76:38)
+    at Object._parallelMap (eval at loadEngine (D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:15:15), <anonymous>:86:80)
+    at D:/codex/novel-workshop-vue3/src/services/skillEngineFailure.spec.ts:78:25
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+
+ ✓ src/services/skillEngineFailure.spec.ts > skill engine failure contract > does not turn a failed chain step into the previous output 15ms
+ ✓ src/services/skillEngineFailure.spec.ts > skill engine failure contract > does not report success when validation retry still fails 21ms
+ ✓ src/services/skillEngineFailure.spec.ts > skill engine failure contract > rejects split-merge when a segment request fails 8ms
+ ✓ src/services/skillEngineFailure.spec.ts > skill engine failure contract > rejects multi-step when a phase request fails 9ms
+ ✓ src/services/skillEngineFailure.spec.ts > skill engine failure contract > propagates parallel worker failures instead of using the input as output 4ms
+ ✓ src/services/narrativeValidation.spec.ts > narrative completeness validation > detects missing and duplicate volume structure 6ms
+ ✓ src/services/narrativeValidation.spec.ts > narrative completeness validation > requires chapter title and plot and rejects duplicate titles 3ms
+ ✓ src/services/narrativeValidation.spec.ts > narrative completeness validation > selects only complete, de-duplicated chapters for a supplement batch 2ms
+ ✓ src/services/narrativeValidation.spec.ts > narrative completeness validation > reports missing fields in a chapter execution package 2ms
+ ✓ src/services/narrativeValidation.spec.ts > narrative completeness validation > detects numbering gaps in sequence-style source refs 1ms
+ ✓ src/services/narrativeValidation.spec.ts > narrative completeness validation > reports scene count mismatch against the expected scene count 1ms
+ ✓ src/services/narrativeValidation.spec.ts > narrative completeness validation > accepts a complete package without false positives 2ms
+stderr | src/services/logger-shim.spec.ts > logger-shim error serialization > serializes Error with name/message instead of "{}"
+[Test] 失败: Error: boom
+    at D:/codex/novel-workshop-vue3/src/services/logger-shim.spec.ts:24:30
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+stderr | src/services/logger-shim.spec.ts > logger-shim error serialization > serializes error stack when present
+[Test] TypeError: bad type
+    at D:/codex/novel-workshop-vue3/src/services/logger-shim.spec.ts:31:26
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///D:/codex/novel-workshop-vue3/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+stderr | src/services/logger-shim.spec.ts > logger-shim error serialization > keeps plain objects as JSON
+[Test] { a: 1 }
+
+stderr | src/services/logger-shim.spec.ts > logger-shim error serialization > falls back to String() for values that stringify to "{}"
+[Test] [Function: markerFn]
+
+ ✓ src/services/logger-shim.spec.ts > logger-shim error serialization > serializes Error with name/message instead of "{}" 16ms
+ ✓ src/services/logger-shim.spec.ts > logger-shim error serialization > serializes error stack when present 2ms
+ ✓ src/services/logger-shim.spec.ts > logger-shim error serialization > keeps plain objects as JSON 1ms
+ ✓ src/services/logger-shim.spec.ts > logger-shim error serialization > falls back to String() for values that stringify to "{}" 3ms
+ ✓ src/services/memoryIO.spec.ts > memoryIO boundaries > round-trips the export wrapper and recalculates totals 12ms
+ ✓ src/services/memoryIO.spec.ts > memoryIO boundaries > rejects malformed JSON and missing core arrays 1ms
+ ✓ src/services/memoryIO.spec.ts > memoryIO boundaries > keeps current records and skips duplicate incoming records 4ms
+ ✓ src/services/conversationContextService.spec.ts > ConversationContextService > 按 none/recent/summary/full 裁剪会话，而不改写当前请求 11ms
+ ✓ src/services/conversationContextService.spec.ts > ConversationContextService > summary 策略只注入摘要，chain 上一步输出独立于聊天历史保留 1ms
+ ✓ src/services/conversationContextService.spec.ts > ConversationContextService > 当前请求只进入消息一次，旧聊天中的同文请求不会重复注入 1ms
+ ✓ src/services/conversationContextService.spec.ts > ConversationContextService > chain 后续步骤只保留完整上一步输出，不注入聊天历史和工作区大纲 1ms
+ ✓ src/services/conversationContextService.spec.ts > ConversationContextService > 只组装上下文不会写入 assistant 轮次，失败路径必须由调用方显式 recordTurn 4ms
+ ✓ src/services/conversationContextService.spec.ts > ConversationContextService > 按项目和工作区隔离会话，写回后能从 wa_ctx 键读回 3ms
+ ✓ src/services/conversationContextService.spec.ts > ConversationContextService > 失败请求不由服务伪造 assistant 轮次，clearSession 只清空目标 scope 1ms
+ ✓ src/services/conversationContextService.spec.ts > ConversationContextService > 切换同一 SKILL 的 Agent 不会切断既有会话 1ms
+ ✓ src/services/conversationContextService.spec.ts > ConversationContextService > 单例代理调用实例方法时保持服务上下文 1ms
+ ✓ src/services/aiService.spec.ts > buildChatUrl > appends /v1/chat/completions when baseUrl has no version 7ms
+ ✓ src/services/aiService.spec.ts > buildChatUrl > appends /chat/completions when baseUrl already ends with /v1 1ms
+ ✓ src/services/aiService.spec.ts > buildChatUrl > strips trailing slash and appends 1ms
+ ✓ src/services/aiService.spec.ts > buildChatUrl > preserves /v2 version prefix 3ms
+ ✓ src/services/aiService.spec.ts > buildModelsUrl > appends /v1/models 1ms
+ ✓ src/services/aiService.spec.ts > buildModelsUrl > preserves existing version 0ms
+ ✓ src/services/aiService.spec.ts > extractNonStreamText > extracts from choices[0].message.content 1ms
+ ✓ src/services/aiService.spec.ts > extractNonStreamText > falls back to reasoning_content 2ms
+ ✓ src/services/aiService.spec.ts > extractNonStreamText > returns empty string when no content 1ms
+ ✓ src/services/aiService.spec.ts > extractNonStreamText > extracts usage 2ms
+ ✓ src/services/aiService.spec.ts > extractStreamDelta > extracts content from delta 1ms
+ ✓ src/services/aiService.spec.ts > extractStreamDelta > extracts reasoning_content 1ms
+ ✓ src/services/aiService.spec.ts > extractStreamDelta > returns null for missing delta 1ms
+ ✓ src/services/aiService.spec.ts > isSSEDataLine > matches data: prefix 5ms
+ ✓ src/services/aiService.spec.ts > isSSEDataLine > rejects plain text 1ms
+ ✓ src/services/aiService.spec.ts > isSSEDataLine > rejects event: line 0ms
+ ✓ src/services/aiService.spec.ts > isSSEDone > matches [DONE] 0ms
+ ✓ src/services/aiService.spec.ts > isSSEDone > rejects other values 0ms
+ ✓ src/services/aiService.spec.ts > resolveModel > uses override when provided 0ms
+ ✓ src/services/aiService.spec.ts > resolveModel > falls back to provider selectedModel 0ms
+ ✓ src/services/aiService.spec.ts > resolveModel > defaults to gpt-4o when nothing is set 0ms
+ ✓ src/services/aiService.spec.ts > resolveTemperature > uses override when provided 0ms
+ ✓ src/services/aiService.spec.ts > resolveTemperature > falls back to provider temperature 0ms
+ ✓ src/services/aiService.spec.ts > resolveTemperature > defaults to 0.7 0ms
+ ✓ src/services/aiService.spec.ts > resolveMaxTokens > uses override when provided 0ms
+ ✓ src/services/aiService.spec.ts > resolveMaxTokens > caps at 16384 0ms
+ ✓ src/services/aiService.spec.ts > resolveMaxTokens > falls back to provider maxTokens 0ms
+ ✓ src/services/aiService.spec.ts > resolveProvider > resolves generate provider 1ms
+ ✓ src/services/aiService.spec.ts > resolveProvider > resolves verify provider 1ms
+ ✓ src/services/aiService.spec.ts > resolveProvider > rewrite falls back to generate provider 0ms
+ ✓ src/services/aiService.spec.ts > resolveProvider > throws when no provider for purpose 2ms
+ ✓ src/services/aiService.spec.ts > tryResolveProvider > returns null when no provider 0ms
+ ✓ src/services/aiService.spec.ts > filterThinkingTags > removes <thinking> tags 1ms
+ ✓ src/services/aiService.spec.ts > filterThinkingTags > removes <reasoning> tags 1ms
+ ✓ src/services/aiService.spec.ts > filterThinkingTags > returns original text when no tags 1ms
+ ✓ src/services/aiService.spec.ts > createAiService.callAi > classifies network failures without retry when retry is disabled 106ms
+ ✓ src/services/aiService.spec.ts > createAiService.callAi > does not silently fall back when the requested purpose has no provider 2ms
+ ✓ src/services/aiService.spec.ts > createAiService.callAi > classifies HTTP auth failures without retrying 6ms
+ ✓ src/services/aiService.spec.ts > createAiService.callAi > classifies an already-aborted request as canceled 2ms
+ ✓ src/services/aiService.spec.ts > createAiService.callAi > aborts an in-flight request and classifies the timeout separately 28ms
+ ✓ src/services/aiService.spec.ts > createAiService.callAi > rejects malformed JSON after one structured retry 18ms
+ ✓ src/services/aiService.spec.ts > createAiService.callAi > injects the table output guideline once for normal calls but not JSON mode 4ms
+ ✓ src/services/aiService.spec.ts > createAiService.fetchModels > returns models and records a diagnostic entry 5ms
+ ✓ src/services/aiService.spec.ts > createAiService.fetchModels > classifies model-list auth failures 4ms
+ ✓ src/services/configExchange.spec.ts > config exchange agents > parses versioned agent JSON and reports unknown fields 8ms
+ ✓ src/services/configExchange.spec.ts > config exchange agents > rejects higher protocol versions and malformed JSON 1ms
+ ✓ src/services/configExchange.spec.ts > config exchange agents > accepts legacy agent arrays with a compatibility warning 1ms
+ ✓ src/services/configExchange.spec.ts > config exchange agents > round-trips agent markdown including tools and prompt body 4ms
+ ✓ src/services/configExchange.spec.ts > config exchange agents > classifies BOM-prefixed plain Markdown as plain Markdown 3ms
+ ✓ src/services/configExchange.spec.ts > config exchange agents > infers Agent id and name from a plain Markdown heading 3ms
+ ✓ src/services/configExchange.spec.ts > config exchange agents > navigates away from third-party agentId as the primary key 1ms
+ ✓ src/services/configExchange.spec.ts > config exchange agents > maps common third-party Agent aliases while preserving standard-field priority 2ms
+ ✓ src/services/configExchange.spec.ts > config exchange agents > keeps a front-matter Agent body separate and warns when schema is missing 1ms
+ ✓ src/services/configExchange.spec.ts > config exchange protocol metadata > defines one source contract for front matter and plain Markdown 1ms
+ ✓ src/services/configExchange.spec.ts > config exchange skills > round-trips versioned skill JSON with pipeline and de-ai lists 14ms
+ ✓ src/services/configExchange.spec.ts > config exchange skills > round-trips skill markdown without losing validation, split, vars or template 4ms
+ ✓ src/services/configExchange.spec.ts > config exchange skills > classifies BOM-prefixed CRLF Front Matter as formal Markdown 3ms
+ ✓ src/services/configExchange.spec.ts > config exchange skills > infers Skill id and name from the file name when no heading exists 1ms
+ ✓ src/services/configExchange.spec.ts > config exchange skills > skips skill items that miss required id or name 1ms
+ ✓ src/services/configExchange.spec.ts > config exchange skills > maps common third-party Skill aliases 1ms
+ ✓ src/services/configExchange.spec.ts > config exchange skills > keeps a front-matter Skill body separate and reports missing advanced fields 1ms
+ ✓ src/services/configExchange.spec.ts > config exchange skills > reports unknown front-matter fields instead of silently treating them as standard fields 1ms
+ ✓ src/services/configExchange.spec.ts > config exchange bindings and bundle > round-trips bindings and migrates legacy index keys 2ms
+ ✓ src/services/configExchange.spec.ts > config exchange bindings and bundle > keeps stable binding when a legacy index collides with it 1ms
+ ✓ src/services/configExchange.spec.ts > config exchange bindings and bundle > round-trips a full bundle across the native file boundary 5ms
+ ✓ src/services/configExchange.spec.ts > config exchange bindings and bundle > keeps agent exports stable and versioned 1ms
+ ✓ src/services/configExchange.spec.ts > import planning > builds add/skip/update plans without mutating existing ids 1ms
+ ✓ src/services/volumeGeneration.spec.ts > buildVolumePrompt > single mode with no volumes asks for exactly volume 1 6ms
+ ✓ src/services/volumeGeneration.spec.ts > buildVolumePrompt > single mode anchors memory to the previous volume 1ms
+ ✓ src/services/volumeGeneration.spec.ts > buildVolumePrompt > continue mode generates the remaining range only 0ms
+ ✓ src/services/volumeGeneration.spec.ts > buildVolumePrompt > auto mode keeps full-volume semantics 0ms
+ ✓ src/services/volumeGeneration.spec.ts > clampGeneratedVolumes > single mode keeps exactly one item even when the model returns more 2ms
+ ✓ src/services/volumeGeneration.spec.ts > clampGeneratedVolumes > continue mode clamps to the remaining volume count 1ms
+ ✓ src/services/volumeGeneration.spec.ts > clampGeneratedVolumes > auto mode passes everything through 1ms
+ ✓ src/services/volumeGeneration.spec.ts > clampGeneratedVolumes > empty input is reported without truncation 2ms
+ ✓ src/services/volumeGeneration.spec.ts > hasVolumeContent > treats outline scaffold volumes as placeholders 1ms
+ ✓ src/services/volumeGeneration.spec.ts > hasVolumeContent > treats generated or edited volumes as memory anchors 1ms
+ ✓ src/services/generationResult.spec.ts > parseGenerationResult > keeps ordinary prose unchanged 7ms
+ ✓ src/services/generationResult.spec.ts > parseGenerationResult > separates metadata from a JSON envelope 1ms
+ ✓ src/services/generationResult.spec.ts > parseGenerationResult > accepts a fenced JSON envelope 0ms
+ ✓ src/services/generationResult.spec.ts > parseGenerationResult > removes thinking tags from the body only 0ms
+ ✓ src/services/generationResult.spec.ts > parseGenerationResult > treats invalid envelopes as legacy plain text 1ms
+ ✓ src/services/generationResult.spec.ts > parseGenerationResult > moves whitelisted line-start metadata sections out of plain text 2ms
+ ✓ src/services/generationResult.spec.ts > parseGenerationResult > keeps bracketed markers that are not line-start section headings 1ms
+ ✓ src/services/generationResult.spec.ts > parseGenerationResult > still separates metadata sections embedded in a JSON envelope body 1ms
+ ✓ src/services/chapterExecutionPackage.spec.ts > chapter execution package > keeps the complete Xuanwu chapter inputs in stable fields 7ms
+ ✓ src/services/chapterExecutionPackage.spec.ts > chapter execution package > uses empty values for missing optional inputs and never includes body text 2ms
+ ✓ src/services/chapterExecutionPackage.spec.ts > chapter execution package > prefers the AI-allocated volume budget over the legacy suggestion 1ms
+ ✓ src/services/chapterExecutionPackage.spec.ts > chapter execution package > renders the package as the single body-generation prompt 1ms
+ ✓ src/services/skillAgentBinding.spec.ts > skill agent bindings > uses a stable key based on skill id 4ms
+ ✓ src/services/skillAgentBinding.spec.ts > skill agent bindings > migrates legacy index keys to the matching skill id 3ms
+ ✓ src/services/skillAgentBinding.spec.ts > skill agent bindings > prefers an existing stable key and ignores empty slots 4ms
+ ✓ src/services/skillAgentBinding.spec.ts > skill agent bindings > exports only canonical keys and gives stable keys priority 2ms
+ ✓ src/services/chainBreakpoint.spec.ts > chain breakpoint state machine > resumes after the last successful skill 12ms
+ ✓ src/services/chainBreakpoint.spec.ts > chain breakpoint state machine > retries the failed skill instead of skipping to the next skill 1ms
+ ✓ src/services/chainBreakpoint.spec.ts > chain breakpoint state machine > starts fresh when the saved skill sequence changed 0ms
+ ✓ src/services/continuationService.spec.ts > continuation service > keeps the original request context and adds a bounded continuation turn 5ms
+ ✓ src/services/continuationService.spec.ts > continuation service > reuses provider model and merges without duplicating overlap 2ms
+ ✓ src/services/chainExecution.spec.ts > body chain execution contract > keeps the selected skill order 5ms
+ ✓ src/services/chainExecution.spec.ts > body chain execution contract > uses the original prompt for S1 and the complete prior output thereafter 2ms
+ ✓ src/services/skillValidation.spec.ts > skill structured validation > validates input schema before a call 7ms
+ ✓ src/services/skillValidation.spec.ts > skill structured validation > parses fenced JSON and validates output schema 2ms
+ ✓ src/services/skillValidation.spec.ts > skill structured validation > reports malformed JSON and rule failures 2ms
+ ✓ src/services/skillValidation.spec.ts > skill structured validation > clamps invalid retry policy to one attempt 1ms
+ ✓ src/services/continuation.spec.ts > continuation protocol > marks length-limited output as resumable 6ms
+ ✓ src/services/continuation.spec.ts > continuation protocol > does not expose an empty failed response as resumable 1ms
+ ✓ src/services/continuation.spec.ts > continuation protocol > deduplicates an overlapping continuation boundary 1ms
+ ✓ src/services/continuation.spec.ts > finish reason boundaries > does not mark unknown finish reason as resumable 0ms
+
+ Test Files  16 passed (16)
+      Tests  136 passed (136)
+   Start at  19:07:44
+   Duration  4.02s (transform 2.72s, setup 0ms, import 3.66s, tests 715ms, environment 21ms)
+
