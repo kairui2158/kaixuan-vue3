@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { buildChatUrl, buildModelsUrl, extractNonStreamText, extractStreamDelta, isSSEDataLine, isSSEDone, resolveModel, resolveTemperature, resolveMaxTokens } from './providerAdapter';
+import { buildChatUrl, buildModelsUrl, extractNonStreamText, extractStreamDelta, isSSEDataLine, isSSEDone, normalizeFinishReason, resolveFinishReason, resolveModel, resolveTemperature, resolveMaxTokens } from './providerAdapter';
 import { resolveProvider, tryResolveProvider } from './providerRouter';
 import { createAiService, filterThinkingTags, AiServiceErrorImpl } from './aiService';
 
@@ -59,6 +59,21 @@ describe('extractStreamDelta', () => {
   it('returns null for missing delta', () => {
     const json = { choices: [{}] };
     expect(extractStreamDelta(json).content).toBeNull();
+  });
+});
+
+describe('cross-provider finish reason resolution', () => {
+  it('normalizes provider-specific length markers', () => {
+    expect(normalizeFinishReason('max_tokens')).toBe('length');
+    expect(normalizeFinishReason('END_TURN')).toBe('stop');
+    expect(normalizeFinishReason(undefined)).toBeUndefined();
+  });
+  it('treats completion tokens near max_tokens as truncation', () => {
+    expect(resolveFinishReason(undefined, { completion_tokens: 979 }, 1000, true)).toBe('length');
+  });
+  it('does not invent truncation without token evidence', () => {
+    expect(resolveFinishReason(undefined, { completion_tokens: 500 }, 1000, true)).toBe('stop');
+    expect(resolveFinishReason(undefined, undefined, 1000, true)).toBe('stop');
   });
 });
 
@@ -152,6 +167,111 @@ function runtimeStore() {
 }
 
 describe('createAiService.callAi', () => {
+  it('propagates finish_reason from a non-streaming response', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      choices: [{ message: { content: 'partial' }, finish_reason: 'length' }],
+    }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    await expect(service.callAi({
+      purpose: 'generate', messages: [{ role: 'user', content: 'test' }],
+      stream: false, retry: false,
+    })).resolves.toMatchObject({ text: 'partial', finishReason: 'length' });
+    vi.unstubAllGlobals();
+  });
+
+  it('defaults a normal SSE EOF to finish_reason=stop and preserves length', async () => {
+    const sse = [
+      'data: {"choices":[{"delta":{"content":"first"}}]}\n\n',
+      'data: {"choices":[{"delta":{"content":"second"}}]}\n\n',
+      'data: {"choices":[{"delta":{},"finish_reason":"length"}]}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(sse));
+        controller.close();
+      },
+    });
+    const fetchMock = vi.fn().mockResolvedValue(new Response(stream, { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    await expect(service.callAi({
+      purpose: 'generate', messages: [{ role: 'user', content: 'test' }],
+      retry: false,
+    })).resolves.toMatchObject({ text: 'firstsecond', finishReason: 'length' });
+    vi.unstubAllGlobals();
+  });
+
+  it('defaults a normal SSE EOF without finish_reason to stop', async () => {
+    const sse = [
+      'data: {"choices":[{"delta":{"content":"complete"}}]}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(sse));
+        controller.close();
+      },
+    });
+    const fetchMock = vi.fn().mockResolvedValue(new Response(stream, { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    await expect(service.callAi({
+      purpose: 'generate', messages: [{ role: 'user', content: 'test' }],
+      retry: false,
+    })).resolves.toMatchObject({ text: 'complete', finishReason: 'stop' });
+    vi.unstubAllGlobals();
+  });
+
+  it('infers streaming truncation from usage when finish_reason is missing', async () => {
+    const sse = [
+      'data: {"choices":[{"delta":{"content":"long"}}]}\n\n',
+      'data: {"choices":[{"delta":{}}],"usage":{"completion_tokens":1023}}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(sse));
+        controller.close();
+      },
+    });
+    const fetchMock = vi.fn().mockResolvedValue(new Response(stream, { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService({ ...runtimeStore(), providers: [{ ...runtimeProvider, maxTokens: 1024 }] });
+    await expect(service.callAi({
+      purpose: 'generate', messages: [{ role: 'user', content: 'test' }],
+      retry: false,
+    })).resolves.toMatchObject({ text: 'long', finishReason: 'length', usage: { completion_tokens: 1023 } });
+    vi.unstubAllGlobals();
+  });
+
+  it('classifies network failures without retry when retry is disabled', async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new TypeError('网络不可用'));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    await expect(service.callAi({
+      purpose: 'generate', messages: [{ role: 'user', content: 'test' }],
+      stream: false, retry: false,
+    })).rejects.toMatchObject({ kind: 'network', message: '网络不可用', providerId: 'runtime' });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    vi.unstubAllGlobals();
+  });
+
+  it('does not silently fall back when the requested purpose has no provider', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const store = runtimeStore();
+    store.getVerifyProvider = () => undefined;
+    store.verifyProvider = null;
+    const service = createAiService(store);
+    await expect(service.callAi({
+      purpose: 'verify', messages: [{ role: 'user', content: 'test' }],
+      stream: false, retry: false,
+    })).rejects.toThrow('未配置验证用途供应商');
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
   it('classifies HTTP auth failures without retrying', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response('', { status: 401 }));
     vi.stubGlobal('fetch', fetchMock);
