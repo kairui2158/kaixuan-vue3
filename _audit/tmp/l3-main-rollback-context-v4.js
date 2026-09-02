@@ -135,6 +135,12 @@
 
     const contextService = globalThis.__conversationContextService;
     if (!contextService?.buildContextBundle) throw new Error('conversation context service unavailable');
+    const appliedRecord = await waitFor(() => {
+      const message = [...(chat.activeMessages || [])].reverse()
+        .find(item => item.role === 'assistant' && item.editorBatchRecord?.targetId === 'l3-main-rollback-v1');
+      const record = message?.editorBatchRecord;
+      return record?.status === 'applied' ? { messageId: message.id, record } : null;
+    }, 8000, 100);
     const appliedEvent = await waitFor(async () => {
       const bundle = await contextService.buildContextBundle({
         projectId,
@@ -142,16 +148,22 @@
         purpose: 'generate'
       });
       const events = bundle.session.recentMessages.filter(message => message.content === '[AI 编辑] 已应用 AI 编辑批次');
-      return events[events.length - 1] || null;
+      return events.find(message => message.meta?.batchId === appliedRecord?.record?.batchId) || null;
     }, 8000, 100);
     result.steps.push({
       name: 'applied-context-event',
-      ok: Boolean(appliedEvent?.meta?.batchId),
-      meta: appliedEvent?.meta
+      ok: Boolean(appliedEvent?.meta?.batchId)
+        && appliedEvent?.meta?.batchId === appliedRecord?.record?.batchId
+        && appliedEvent?.meta?.targetId === 'l3-main-rollback-v1',
+      meta: appliedEvent?.meta,
+      record: appliedRecord?.record
     });
 
     const rollback = await waitFor(() => {
-      const button = [...document.querySelectorAll('.chat-edit-command .msg-btn')]
+      const messageIndex = [...(chat.activeMessages || [])]
+        .findIndex(item => item.id === appliedRecord.messageId);
+      const messageNode = document.querySelectorAll('#messages-list > .chat-message')[messageIndex];
+      const button = messageNode && [...messageNode.querySelectorAll('.chat-edit-command .msg-btn')]
         .find(item => item.textContent.includes('回滚此批次'));
       return button && button.offsetParent !== null ? button : null;
     }, 8000);

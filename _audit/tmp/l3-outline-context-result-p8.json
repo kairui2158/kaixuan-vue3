@@ -1,0 +1,58 @@
+{
+  "runtimeErrors": [],
+  "steps": [
+    {
+      "name": "outline-batch-applied",
+      "ok": true,
+      "before": "测试底稿\n第二行",
+      "after": "测试底稿（已更新）\n第二行\n\n[测试] 第二条插入内容。",
+      "record": {
+        "status": "applied",
+        "batchId": "ai-batch-mtkqutln-1",
+        "undoAvailable": true
+      },
+      "target": {
+        "workspace": "outline",
+        "targetId": "outline",
+        "hasContentHash": true
+      }
+    },
+    {
+      "name": "outline-applied-context-event",
+      "ok": true,
+      "meta": {
+        "batchId": "ai-batch-mtkqutln-1",
+        "commandCount": 2,
+        "targetId": "outline",
+        "status": "applied",
+        "acceptedIndexes": [
+          0,
+          1
+        ],
+        "rejectedIndexes": []
+      }
+    },
+    {
+      "name": "outline-batch-rolled-back",
+      "ok": true,
+      "after": "测试底稿\n第二行",
+      "record": {
+        "status": "rolled_back",
+        "batchId": "ai-batch-mtkqutln-1",
+        "undoAvailable": false
+      }
+    },
+    {
+      "name": "outline-rollback-context-event",
+      "ok": true,
+      "meta": {
+        "batchId": "ai-batch-mtkqutln-1",
+        "commandCount": 2,
+        "targetId": "outline",
+        "status": "rolled_back"
+      }
+    }
+  ],
+  "allStepsOk": true,
+  "restored": true
+}

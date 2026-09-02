@@ -72,3 +72,42 @@
 - 源码应用主编辑器复测：`_audit/tmp/l3-main-realops-result-v11.json`，`allStepsOk: true`，取消不修改正文、取消后可重新预览、部分接受只应用第二条、恢复成功。
 - 源码应用大纲复测：`_audit/tmp/l3-outline-realops-result-v14.json`，`allStepsOk: true`，部分接受、锁定拒绝、目标变化拒绝、恢复成功。
 - 构建后源码应用复测：`_audit/tmp/l3-main-realops-result-v12.json`、`_audit/tmp/l3-outline-realops-result-v15.json`，两者 `allStepsOk: true`，无 runtime errors。
+
+## 追加收尾：P8 回归闭环（2026-09-03）
+
+### 根因
+
+1. 主编辑回滚探针按 `.chat-edit-command .msg-btn` 全局查找“回滚此批次”，命中了其他用例残留的 applied 批次按钮；实际回滚了错误批次，导致上下文事件断言拿不到本用例的 rolled_back 事件。
+2. `chatStore.replaceMessagePair()` 在重生成前未清理 assistant 消息上的批次元数据，异步保存的旧对象存在把待确认批次回填到新消息的风险。
+3. 跨用例 reload 后仅等待 Vue 根节点，异步 store 初始化可能覆盖探针注入的项目、供应商、会话与编辑器状态。
+
+### 修复
+
+1. `_audit/tmp/l3-main-rollback-context-v4.js`
+   - 先从 `chat.activeMessages` 反向锁定 `targetId === 'l3-main-rollback-v1'` 且 `status === 'applied'` 的批次记录。
+   - 应用/回滚上下文断言必须匹配该记录的 `batchId`。
+   - DOM 回滚按钮按消息索引定位到本消息节点后再查找，避免跨用例按钮污染。
+2. `_audit/tmp/run-l3-p8-regression.mjs`
+   - reload 初始化门等待项目 ID、供应商 ID、provider 列表稳定，并额外等待 1500ms，防止异步 store 加载覆盖探针状态。
+3. `src/stores/chat.ts`
+   - `replaceMessagePair()` 在移除旧 assistant 消息前删除 `editorBatch`、`editorBatchTarget`、`editorBatchRecord`、`editorToolPlan`，防止重生成时旧批次元数据复活。
+
+### P8 验证证据
+
+- `_audit/tmp/l3-p8-regression-summary.json`：`allStepsOk: true`
+  - 主编辑真实操作 4/4 通过：before 不变、批次预览打开、取消不写正文、部分接受。
+  - 大纲工作台真实操作 4/4 通过：技能区恢复、部分接受、锁定拒绝、目标变化拒绝。
+  - 主编辑批次上下文 4/4 通过：应用、应用上下文、回滚、回滚上下文。
+  - 大纲批次上下文 4/4 通过：应用、应用上下文、回滚、回滚上下文。
+- `npm run type-check`：通过。
+- `npm run test:services`：78 项通过。
+- `npx vitest run src/services/editorBatchRecord.spec.ts src/services/editorEditProtocol.spec.ts src/services/conversationContext.spec.ts`：通过。
+- `npm run build:vue`：通过；构建后源码 Electron + CDP 复跑 P8 四用例，`allStepsOk: true`。
+
+### 经验回写
+
+已更新 `_audit/神意开发经验总结_v2.md` 的“原生工具调用协议经验（2026-09-03）”：
+
+1. 批次探针必须锁定本用例 `targetId + batchId`。
+2. `replaceMessagePair()` 必须清理编辑批次元数据。
+3. reload 初始化门必须等待异步 store 稳定。

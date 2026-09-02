@@ -28,21 +28,14 @@ var _minLevel = 2;
 var _sessionStart = Date.now();
 
 function _ts() {
-  var d = new Date();
-  return d.getFullYear() + '-' +
-    String(d.getMonth() + 1).padStart(2, '0') + '-' +
-    String(d.getDate()).padStart(2, '0') + ' ' +
-    String(d.getHours()).padStart(2, '0') + ':' +
-    String(d.getMinutes()).padStart(2, '0') + ':' +
-    String(d.getSeconds()).padStart(2, '0') + '.' +
-    String(d.getMilliseconds()).padStart(3, '0');
+  return new Date().toISOString();
 }
 
 function _levelNum(lv) { return _levels[lv] !== undefined ? _levels[lv] : 2; }
 function _shouldLog(lv) { return _enabled && _levelNum(lv) <= _minLevel; }
 
 // detail 顶层白名单：DiagLogPanel 列直接读取这些字段
-var _topLevelKeys = ['providerId', 'purpose', 'model', 'durationMs', 'skillId', 'agentId'];
+var _topLevelKeys = ['providerId', 'purpose', 'model', 'durationMs', 'skillId', 'agentId', 'batchId', 'toolName', 'toolCapability', 'downgradeReason'];
 
 function _push(level, cat, msg, detail) {
   if (!_shouldLog(level)) return;

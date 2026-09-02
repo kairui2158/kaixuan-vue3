@@ -1,0 +1,105 @@
+{
+  "allStepsOk": true,
+  "cases": [
+    {
+      "sourceFile": "l3-main-realops-v3.js",
+      "resultFile": "l3-main-realops-result-p8.json",
+      "allStepsOk": true,
+      "runtimeErrors": [],
+      "restored": true,
+      "steps": [
+        {
+          "name": "before-unchanged",
+          "ok": true
+        },
+        {
+          "name": "batch-preview-opened",
+          "ok": true
+        },
+        {
+          "name": "cancel-keeps-content",
+          "ok": true
+        },
+        {
+          "name": "batch-partial-apply",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "sourceFile": "l3-outline-realops-v3.js",
+      "resultFile": "l3-outline-realops-result-p8.json",
+      "allStepsOk": true,
+      "runtimeErrors": [],
+      "restored": true,
+      "steps": [
+        {
+          "name": "workspace-skills-cleared",
+          "ok": true
+        },
+        {
+          "name": "outline-batch-partial-apply",
+          "ok": true
+        },
+        {
+          "name": "outline-locked-reject",
+          "ok": true
+        },
+        {
+          "name": "outline-target-changed-reject",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "sourceFile": "l3-main-rollback-context-v4.js",
+      "resultFile": "l3-main-rollback-context-result-p8.json",
+      "allStepsOk": true,
+      "runtimeErrors": [],
+      "restored": true,
+      "steps": [
+        {
+          "name": "batch-applied",
+          "ok": true
+        },
+        {
+          "name": "applied-context-event",
+          "ok": true
+        },
+        {
+          "name": "batch-rolled-back",
+          "ok": true
+        },
+        {
+          "name": "rollback-context-event",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "sourceFile": "l3-outline-context-v1.js",
+      "resultFile": "l3-outline-context-result-p8.json",
+      "allStepsOk": true,
+      "runtimeErrors": [],
+      "restored": true,
+      "steps": [
+        {
+          "name": "outline-batch-applied",
+          "ok": true
+        },
+        {
+          "name": "outline-applied-context-event",
+          "ok": true
+        },
+        {
+          "name": "outline-batch-rolled-back",
+          "ok": true
+        },
+        {
+          "name": "outline-rollback-context-event",
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

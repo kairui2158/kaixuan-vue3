@@ -55,6 +55,7 @@ function registerProviderNetHandlers() {
           kind: errorKindForStatus(response.status),
           statusCode: response.status,
           message: parseErrorBody(body),
+          providerErrorSummary: parseErrorBody(body),
         }
       }
       return {

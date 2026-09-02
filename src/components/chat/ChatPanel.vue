@@ -57,6 +57,10 @@
       <button v-if="isStreaming" id="btn-cancel-generation" class="generation-action generation-cancel" type="button" @click="cancelGeneration">取消生成</button>
       <button v-if="generationStatus === 'error' && lastFailedText" id="btn-retry-generation" class="generation-action" type="button" @click="retryLastRequest">重试</button>
     </div>
+    <div v-else-if="compatibilityNotice" id="chat-compatibility-notice" class="chat-compatibility-notice">
+      <span>{{ compatibilityNotice }}</span>
+      <button type="button" @click="compatibilityNotice = ''">知道了</button>
+    </div>
     <div id="chat-input-row" class="chat-input-row">
      <textarea
        v-model="inputText"
@@ -178,6 +182,7 @@ const isStreaming = computed(() => chatStore.generationStatus === 'preparing' ||
 const generationStatus = computed(() => chatStore.generationStatus)
 const generationMessage = computed(() => chatStore.generationMessage)
 const lastFailedText = ref('')
+const compatibilityNotice = ref('')
 let activeAbortController: AbortController | null = null
 const skillAreaOpen = ref(true)
 const tokenCount = ref(0)
@@ -735,8 +740,11 @@ async function sendMessage(requestText?: string) {
         ? editorStore.activeTab?.content || ''
         : requestTarget.content
       const batchPlan = planEditorEditBatch(editBatch, requestTarget, { content: currentContent })
+      const lastBatchMessage = messages.value[messages.value.length - 1]
+      const pendingRecord = normalizeEditorBatchRecord(lastBatchMessage?.editorBatchRecord)
       logEditorEdit({
         requestId: editRequestId,
+        batchId: pendingRecord?.batchId,
         workspace: 'main',
         tabId: requestTarget.targetId,
         operation: 'editor_edit_batch',
@@ -749,7 +757,6 @@ async function sendMessage(requestText?: string) {
       })
       pendingEditorTarget.value = requestTarget
       pendingEditorBatchPlan.value = batchPlan
-      const lastBatchMessage = messages.value[messages.value.length - 1]
       if (lastBatchMessage?.role === 'assistant') {
         pendingEditorBatchMessage.value = {
           messageId: lastBatchMessage.id,
@@ -888,7 +895,13 @@ async function callApi(
     retry: true,
     signal: activeAbortController?.signal,
     tools,
-    toolPolicy: tools ? { maxToolIterations: 6 } : undefined,
+    toolPolicy: tools ? {
+      maxToolIterations: 6,
+      maxWriteProposals: 1,
+      onCompatibilityMode: () => {
+        compatibilityNotice.value = '当前供应商未启用原生工具调用，已使用 JSON 兼容模式'
+      }
+    } : undefined,
     meta: { source: 'ChatPanel.callApi', ctxTurns: Math.round(ctxTurns) },
     onChunk: (text: string) => {
       chatStore.setGenerationState('streaming', '正在接收 AI 输出…')
@@ -896,8 +909,15 @@ async function callApi(
       nextTick().then(() => scrollToBottom())
     }
   })
+  if (result.toolsDowngraded === 'json-protocol' && !compatibilityNotice.value) {
+    compatibilityNotice.value = '供应商拒绝原生工具调用，已降级为 JSON 兼容模式'
+  }
 
   let toolEditBatch: EditorEditBatchCommand | null = null
+  const compatibilityBatch = parseEditorEditBatch(result.text)
+  if (!result.toolCalls?.length && compatibilityBatch) {
+    toolEditBatch = compatibilityBatch
+  }
   if (result.toolCalls?.length) {
     for (let index = result.toolCalls.length - 1; index >= 0; index--) {
       const call = result.toolCalls[index]
@@ -1062,8 +1082,10 @@ function previewEditorBatch(message: ChatMessage) {
     return
   }
   if (targetMeta && targetMeta.contentHash !== hashEditorContent(tab.content || '')) {
+    const previewRecord = normalizeEditorBatchRecord(message.editorBatchRecord)
     logEditorEdit({
       requestId: `chat-edit_${Date.now()}`,
+      batchId: previewRecord?.batchId,
       workspace: 'main',
       tabId: targetMeta.targetId,
       operation: 'editor_edit_batch',
@@ -1096,8 +1118,10 @@ function previewEditorBatch(message: ChatMessage) {
     messageId: message.id,
     sessionId: chatStore.activeSession?.id
   }
+  const previewRecord = normalizeEditorBatchRecord(message.editorBatchRecord)
   logEditorEdit({
     requestId: `chat-edit_${Date.now()}`,
+    batchId: previewRecord?.batchId,
     workspace: 'main',
     tabId: tab.id,
     operation: 'editor_edit_batch',
@@ -1287,6 +1311,7 @@ window.addEventListener('diff-applied', (event: Event) => {
     pendingEditorBatchMessage.value = null
     logEditorEdit({
       requestId: `chat-edit_${Date.now()}`,
+      batchId: pendingRecord?.batchId,
       workspace: 'main',
       tabId: target.targetId,
       operation: wasBatch ? 'editor_edit_batch' : (target.selectedText ? 'replace_selection' : 'insert'),
@@ -1502,6 +1527,32 @@ function scrollToBottom() {
   min-width: 0;
   flex: 1 1 auto;
   overflow-wrap: anywhere;
+}
+.chat-compatibility-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 6px 12px;
+  border-top: 1px solid var(--border-color);
+  background: var(--chat-status-bg);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+.chat-compatibility-notice span {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow-wrap: anywhere;
+}
+.chat-compatibility-notice button {
+  flex: 0 0 auto;
+  min-height: 28px;
+  padding: 3px 9px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xs);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  cursor: pointer;
 }
 .generation-action {
   flex: 0 0 auto;

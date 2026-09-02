@@ -138,6 +138,10 @@
     provider.generateProvider = mockProvider.id;
 
     let input = await openWorkspace();
+    // Close any modal left from a previous case before generating this one.
+    const staleCancel = document.getElementById('btn-diff-cancel');
+    if (staleCancel && staleCancel.offsetParent !== null) staleCancel.click();
+    await sleep(100);
 
     // Real user path: remove all workspace skills so askAi uses the plain path.
     while (document.querySelector('#ow-selected-skills .ow-chip-close')) {
@@ -161,7 +165,8 @@
     if (!apply) throw new Error('outline diff modal not opened');
 
     const before = project.outlineText || '';
-    const batchItems = [...document.querySelectorAll('#diff-batch-items .batch-item')];
+    const batchItems = [...document.querySelectorAll('#diff-batch-items .batch-item')]
+      .filter(item => !item.classList.contains('batch-item-locate'));
     if (batchItems.length !== 2) throw new Error('expected 2 outline batch items, got ' + batchItems.length);
     batchItems[0].click();
     apply.click();

@@ -1,0 +1,59 @@
+{
+  "runtimeErrors": [],
+  "steps": [
+    {
+      "name": "batch-applied",
+      "ok": true,
+      "before": "主编辑底稿\n第二行",
+      "afterApply": "主编辑底稿（已更新）\n第二行\n\n[测试] 第二条插入内容。"
+    },
+    {
+      "name": "applied-context-event",
+      "ok": true,
+      "meta": {
+        "batchId": "ai-batch-mtkqure9-1",
+        "commandCount": 2,
+        "targetId": "l3-main-rollback-v1",
+        "status": "applied",
+        "acceptedIndexes": [
+          0,
+          1
+        ],
+        "rejectedIndexes": []
+      },
+      "record": {
+        "version": 1,
+        "batchId": "ai-batch-mtkqure9-1",
+        "workspace": "main",
+        "targetId": "l3-main-rollback-v1",
+        "status": "applied",
+        "commandCount": 2,
+        "reason": "按用户请求插入测试批次",
+        "createdAt": 1788392726577,
+        "updatedAt": 1788392726653,
+        "sourceContentHash": "fnv1a32_b3d23305",
+        "appliedContentHash": "fnv1a32_dccd2258",
+        "acceptedIndexes": [
+          0,
+          1
+        ],
+        "rejectedIndexes": [],
+        "appliedAt": 1788392726652,
+        "undoAvailable": true
+      }
+    },
+    {
+      "name": "batch-rolled-back",
+      "ok": true,
+      "afterRollback": "主编辑底稿\n第二行"
+    },
+    {
+      "name": "rollback-context-event",
+      "ok": true,
+      "appliedBatchId": "ai-batch-mtkqure9-1",
+      "rollbackBatchId": "ai-batch-mtkqure9-1"
+    }
+  ],
+  "allStepsOk": true,
+  "restored": true
+}

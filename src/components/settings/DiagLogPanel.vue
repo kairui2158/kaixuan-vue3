@@ -43,6 +43,9 @@
         <span v-if="log.model" class="diag-log-model">{{ log.model }}</span>
         <span v-if="log.agentId" class="diag-log-agent">{{ log.agentId }}</span>
         <span v-if="log.skillId" class="diag-log-skill">{{ log.skillId }}</span>
+        <span v-if="log.toolCapability" class="diag-log-capability">{{ capabilityLabel(log.toolCapability) }}</span>
+        <span v-if="log.batchId" class="diag-log-batch">#{{ log.batchId }}</span>
+        <span v-if="log.downgradeReason" class="diag-log-downgrade">降级：{{ log.downgradeReason }}</span>
         <span v-if="log.durationMs" class="diag-log-duration">{{ log.durationMs }}ms</span>
         <span class="diag-log-msg">{{ log.msg || '' }}</span>
         <span v-if="log.traceId" class="diag-log-trace">#{{ log.traceId.slice(-6) }}</span>
@@ -110,7 +113,7 @@ const filteredLogs = computed(() => {
     if (purposeFilter.value && l.purpose !== purposeFilter.value) return false
     if (searchQuery.value) {
       const q = searchQuery.value.toLowerCase()
-      const text = (l.msg + ' ' + (l.detail || '') + ' ' + (l.cat || '') + ' ' + (l.batchId || '') + ' ' + (l.detail?.batchId || '')).toLowerCase()
+    const text = (l.msg + ' ' + (l.detail || '') + ' ' + (l.cat || '') + ' ' + (l.batchId || '') + ' ' + (l.detail?.batchId || '')).toLowerCase()
       if (!text.includes(q)) return false
     }
     return true
@@ -142,6 +145,12 @@ function flushPending() {
     if (l.level === 'warn') warns++
   })
   stats.value = { errorCount: errs, warnCount: warns }
+}
+
+function capabilityLabel(value?: string) {
+  if (value === 'native_tools') return '原生工具'
+  if (value === 'json_protocol') return 'JSON 协议'
+  return ''
 }
 
 async function exportLogs() {
@@ -268,6 +277,9 @@ onUnmounted(() => {
 .diag-log-model { color: var(--diagnostic-model); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
 .diag-log-agent { color: var(--info); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
 .diag-log-skill { color: var(--diagnostic-trace); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; font-family: monospace; }
+.diag-log-capability { color: var(--info); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
+.diag-log-batch { color: var(--text-muted); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; font-family: monospace; }
+.diag-log-downgrade { color: var(--warning); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
 .diag-log-duration { color: var(--diagnostic-duration); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
 .diag-footer { display: flex; justify-content: space-between; align-items: center; padding: 6px 14px; border-top: 1px solid var(--border-color); font-size: var(--font-size-xxs); color: var(--text-muted); }
 .diag-autoscroll { display: flex; align-items: center; gap: 4px; cursor: pointer; }

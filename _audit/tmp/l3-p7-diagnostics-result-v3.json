@@ -1,0 +1,71 @@
+{
+  "runtimeErrors": [],
+  "steps": [
+    {
+      "name": "tool-call-restorable",
+      "ok": true,
+      "count": 1,
+      "sample": [
+        {
+          "cat": "ai-service/tool-call",
+          "toolName": "editor.propose_edits",
+          "toolCapability": "native_tools",
+          "purpose": "generate",
+          "providerId": "l3-p7-diagnostics-1788390044996",
+          "model": "mock-model"
+        }
+      ]
+    },
+    {
+      "name": "editor-batch-category",
+      "ok": true,
+      "count": 2,
+      "sample": [
+        {
+          "cat": "ai-service/editor-batch",
+          "batchId": "ai-batch-mtkp9ack-4",
+          "level": "info",
+          "purpose": "main-edit",
+          "detail": "{\"purpose\":\"main-edit\",\"editorEdit\":true,\"requestId\":\"chat-edit_1788390045123\",\"batchId\":\"ai-batch-mtkp9ack-4\",\"workspace\":\"main\",\"tabId\":\"l3-p7-diagnostics\",\"operation\":\"editor_edit_batch\",\"result\":\"applied\",\"targetLength\":9,\"contentLength\":20,\"durationMs\":0,\"detail\":\"用户确认后已写入主页编辑器\"}"
+        }
+      ]
+    },
+    {
+      "name": "batch-id-links-preview-apply",
+      "ok": true,
+      "batchId": "ai-batch-mtkp9ack-4",
+      "afterApply": "主编辑底稿（已更新）\n第二行\n\n[测试] 第二条插入内容。"
+    },
+    {
+      "name": "downgrade-reason-visible",
+      "ok": true,
+      "count": 1,
+      "sample": [
+        {
+          "cat": "ai-service/tool-capability",
+          "toolCapability": "json_protocol",
+          "providerId": "l3-p7-diagnostics-1788390044996",
+          "downgradeReason": "http_400"
+        }
+      ]
+    },
+    {
+      "name": "compatible-mode-json-protocol",
+      "ok": true,
+      "notice": "当前供应商未启用原生工具调用，已使用 JSON 兼容模式知道了",
+      "previewItems": 2,
+      "batchId": "ai-batch-mtkp9ai6-5",
+      "downgradeEntries": [
+        {
+          "cat": "ai-service/tool-capability",
+          "toolCapability": "json_protocol",
+          "downgradeReason": "http_400",
+          "providerId": "l3-p7-diagnostics-1788390044996",
+          "model": "mock-model"
+        }
+      ]
+    }
+  ],
+  "allStepsOk": true,
+  "restored": true
+}

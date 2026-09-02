@@ -74,6 +74,10 @@
 
     const input = document.getElementById('user-input');
     if (!input || input.offsetParent === null) throw new Error('main chat input unavailable');
+    // Close any modal left from a previous case before starting this one.
+    const staleCancel = document.getElementById('btn-diff-cancel');
+    if (staleCancel && staleCancel.offsetParent !== null) staleCancel.click();
+    await sleep(100);
     input.value = 'L3_MAIN_TOOL_APPLY_' + Date.now();
     input.dispatchEvent(new Event('input', { bubbles: true }));
     document.getElementById('btn-send').click();
@@ -81,10 +85,30 @@
     const ready = await waitFor(() => {
       const filled = (chat.activeMessages || [])
         .filter(message => message.role === 'assistant' && typeof message.content === 'string' && message.content.trim().length > 0);
-      const previewItems = document.querySelectorAll('#diff-batch-items .batch-item').length;
+      const previewItems = [...document.querySelectorAll('#diff-batch-items .batch-item')]
+        .filter(item => !item.classList.contains('batch-item-locate')).length;
       return filled.length > 0 && previewItems === 2 ? { filled, previewItems } : null;
     }, 30000);
-    if (!ready) throw new Error('main assistant response or batch preview timeout');
+    if (!ready) {
+      result.diagnostics = {
+        activeTabId: editor.activeTabId,
+        activeTabContent: editor.activeTab?.content,
+        messageCount: chat.activeMessages?.length || 0,
+        messages: (chat.activeMessages || []).slice(-4).map(message => ({
+          role: message.role,
+          content: message.content,
+          hasEditorBatch: Boolean(message.editorBatch),
+          commandCount: message.editorBatch?.commands?.length || 0,
+          hasEditorBatchRecord: Boolean(message.editorBatchRecord),
+          hasEditorToolPlan: Boolean(message.editorToolPlan)
+        })),
+        diffApplyVisible: Boolean(document.getElementById('btn-diff-apply')?.offsetParent),
+        diffBatchItems: document.querySelectorAll('#diff-batch-items .batch-item').length,
+        editCommandCount: document.querySelectorAll('.chat-edit-command').length,
+        bodyTail: document.body.innerText.slice(-600)
+      };
+      throw new Error('main assistant response or batch preview timeout');
+    }
 
     const before = editor.activeTab?.content || '';
     result.steps.push({
@@ -118,7 +142,8 @@
       const button = document.getElementById('btn-diff-apply');
       return button && button.offsetParent !== null ? button : null;
     }, 8000);
-    const batchItems = [...document.querySelectorAll('#diff-batch-items .batch-item')];
+    const batchItems = [...document.querySelectorAll('#diff-batch-items .batch-item')]
+      .filter(item => !item.classList.contains('batch-item-locate'));
     if (batchItems.length !== 2) throw new Error('expected 2 main batch items, got ' + batchItems.length);
     batchItems[0].click();
     document.getElementById('btn-diff-apply').click();

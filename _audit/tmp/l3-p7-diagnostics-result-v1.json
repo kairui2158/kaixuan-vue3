@@ -1,0 +1,16 @@
+{
+  "id": 1,
+  "result": {
+    "result": {
+      "type": "object",
+      "value": {
+        "runtimeErrors": [
+          "Error: diagnostic entries timeout\n    at <anonymous>:106:25"
+        ],
+        "steps": [],
+        "allStepsOk": false,
+        "restored": true
+      }
+    }
+  }
+}

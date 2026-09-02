@@ -172,6 +172,10 @@ export const useChatStore = defineStore('chat', () => {
     const assistant = session.messages[userIndex + 1]
     if (!user || user.role !== 'user' || !assistant || assistant.role !== 'assistant') return null
     const content = user.content
+    delete assistant.editorBatch
+    delete assistant.editorBatchTarget
+    delete assistant.editorBatchRecord
+    delete assistant.editorToolPlan
     session.messages.splice(userIndex, 2)
     session.updatedAt = Date.now()
     saveSessions(projectId)

@@ -87,7 +87,7 @@ export interface CallAiParams {
   toolPolicy?: {
     maxToolIterations?: number
     maxWriteProposals?: number
-    onCompatibilityMode?: (reason: 'provider_not_supported') => void
+    onCompatibilityMode?: (reason: string) => void
     onToolCall?: (event: {
       toolName: string
       policy: 'read' | 'write'
@@ -350,6 +350,8 @@ export interface DiagnosticLogLike {
     finalUrl?: string
     statusCode?: number
     providerErrorSummary?: string
+    toolCapability?: 'native_tools' | 'json_protocol'
+    downgradeReason?: string
   }): void
 }
 
@@ -373,6 +375,8 @@ function logRequest(
     finalUrl?: string
     statusCode?: number
     providerErrorSummary?: string
+    toolCapability?: 'native_tools' | 'json_protocol'
+    downgradeReason?: string
   }
 ) {
   if (logger) {
@@ -394,6 +398,8 @@ function logRequest(
       finalUrl: params.finalUrl,
       statusCode: params.statusCode,
       providerErrorSummary: params.providerErrorSummary,
+      toolCapability: params.toolCapability,
+      downgradeReason: params.downgradeReason,
     })
   }
   // Push to DiagLogger for real-time DiagLogPanel display.
@@ -418,6 +424,8 @@ function logRequest(
         finalUrl: params.finalUrl,
         statusCode: params.statusCode,
         providerErrorSummary: params.providerErrorSummary,
+        toolCapability: params.toolCapability,
+        downgradeReason: params.downgradeReason,
       }
     )
     if (typeof _diag.trackApiCall === 'function') {
@@ -465,6 +473,7 @@ function logToolRequest(
         purpose: params.purpose,
         model: params.model,
         toolName: params.toolName,
+        toolCapability: 'native_tools',
         iteration: params.iteration,
         durationMs: params.durationMs,
         input: params.input,
@@ -822,13 +831,33 @@ export function createAiService(
         durationMs: 0,
         success: true,
         providerType,
+        toolCapability: 'json_protocol',
+        downgradeReason: 'provider_not_supported',
       })
+      const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+      if (diag && typeof diag.log === 'function') {
+        diag.log('info', 'ai-service/tool-capability',
+          `Tool capability: provider=${providerId || '?'} type=${providerType} capability=json_protocol reason=provider_not_supported`,
+          {
+            providerId,
+            purpose: params.purpose,
+            model,
+            toolCapability: 'json_protocol',
+            downgradeReason: 'provider_not_supported',
+          })
+      }
       const response = await callAiWithoutTools({
         ...params,
         tools: undefined,
         toolPolicy: undefined,
       })
-      return { ...response, compatibilityMode: compatibility }
+      const compatibilityResponse: CallAiResult = {
+        ...response,
+        compatibilityMode: compatibility,
+        text: response.text || '',
+        reasoning: response.reasoning || '',
+      }
+      return compatibilityResponse
     }
 
     for (let iteration = 1; iteration <= maxIterations; iteration++) {
@@ -932,15 +961,51 @@ export function createAiService(
     } catch (error: any) {
       const isClientError = error?.statusCode === 400 || error?.statusCode === 422
       const requestedTools = Boolean(params.tools?.length)
-      if (!isClientError || !requestedTools || params.signal?.aborted) throw error
+      const toolsRejected = requestedTools && (Boolean(error?.providerErrorSummary?.includes('tools unsupported')) || error?.message?.includes('tools unsupported'))
+      if (!isClientError || !requestedTools || params.signal?.aborted || !toolsRejected) throw error
 
       const downgradeParams: CallAiParams = {
         ...params,
         tools: undefined,
         toolPolicy: undefined,
       }
+      const { provider: downgradeProvider, providerId: downgradeProviderId } = resolveProvider(providerStore, params.purpose)
+      const downgradeProviderType = normalizeProviderType(downgradeProvider.providerType)
+      const downgradeModel = resolveModel(downgradeProvider, params.model)
       const response = await callAiWithoutTools(downgradeParams)
-      return { ...response, toolsDowngraded: 'json-protocol' }
+      logRequest(log, {
+        purpose: params.purpose,
+        providerId: downgradeProviderId,
+        model: downgradeModel,
+        prompt: params.messages.map(message => message.content).join(' ').slice(0, 200),
+        result: '供应商拒绝原生工具调用，已降级为 JSON 协议模式',
+        durationMs: 0,
+        success: true,
+        providerType: downgradeProviderType,
+        toolCapability: 'json_protocol',
+        downgradeReason: `http_${error?.statusCode || 'client_error'}`,
+      })
+      const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+      if (diag && typeof diag.log === 'function') {
+        diag.log('warn', 'ai-service/tool-capability',
+          `Tool capability: provider=${downgradeProviderId || '?'} type=${downgradeProviderType} capability=json_protocol reason=http_${error?.statusCode || 'client_error'}`,
+          {
+            providerId: downgradeProviderId,
+            purpose: params.purpose,
+            model: downgradeModel,
+            toolCapability: 'json_protocol',
+            downgradeReason: `http_${error?.statusCode || 'client_error'}`,
+          })
+      }
+      const downgradeReason = `http_${error?.statusCode || 'client_error'}`
+      params.toolPolicy?.onCompatibilityMode?.(downgradeReason)
+      const downgradedResponse: CallAiResult = {
+        ...response,
+        toolsDowngraded: 'json-protocol',
+        text: response.text || '',
+        reasoning: response.reasoning || '',
+      }
+      return downgradedResponse
     }
   }
 
@@ -963,6 +1028,7 @@ export function createAiService(
     const timeoutMs = params.timeoutMs ?? provider.timeoutMs ?? (wantStream ? DEFAULT_STREAM_TIMEOUT : DEFAULT_NON_STREAM_TIMEOUT)
     const doRetry = params.retry !== false
     const maxRetries = doRetry ? MAX_RETRIES : 0
+    const requestedTools = Boolean(params.tools?.length)
     const providerType = normalizeProviderType(provider.providerType)
     const finalUrl = (() => {
       try {
@@ -1046,13 +1112,27 @@ export function createAiService(
           const status = httpError.status
           const providerMessage = await httpError.providerSummary
           if (doRetry && (status === 429 || status === 502 || status === 503) && attempt < maxRetries) {
-            lastErr = new AiServiceErrorImpl({ kind: 'http', message: httpErrorMessage(status, providerMessage), providerId, purpose: params.purpose, statusCode: status })
+            lastErr = new AiServiceErrorImpl({ kind: 'http', message: httpErrorMessage(status, providerMessage), providerId, purpose: params.purpose, statusCode: status, providerErrorSummary: providerMessage })
             try { await waitWithSignal(RETRY_DELAYS[attempt], params.signal) }
             catch (ce: any) {
               if (params.signal?.aborted) return throwCanceled()
               throw ce
             }
             continue
+          }
+          const toolsRejected = status === 400 && requestedTools &&
+            providerMessage.toLowerCase().includes('tools unsupported')
+          if (toolsRejected) {
+            // A rejected tools request must reach the tool fallback immediately;
+            // halving max_tokens cannot fix an unsupported tools parameter.
+            throw new AiServiceErrorImpl({
+              kind: 'http',
+              message: httpErrorMessage(status, providerMessage),
+              providerId,
+              purpose: params.purpose,
+              statusCode: status,
+              providerErrorSummary: providerMessage,
+            })
           }
           if (status === 400 && doRetry && attempt < maxRetries) {
             // 400 adaptive: halve max_tokens

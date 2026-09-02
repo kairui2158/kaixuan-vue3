@@ -39,7 +39,7 @@ export function logEditorEdit(params: EditorEditLogParams): void {
     params.durationMs + 'ms'
   ].filter(Boolean).join(' ')
 
-  diag.log(level, 'ai-service', summary, {
+  diag.log(level, 'ai-service/editor-batch', summary, {
     purpose,
     editorEdit: true,
     requestId: params.requestId,
