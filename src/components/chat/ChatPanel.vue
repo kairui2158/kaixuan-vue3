@@ -36,7 +36,7 @@
         <div class="empty-desc">在下方输入框输入消息，与 AI 助手开始创作</div>
       </div>
       <div id="messages-list" class="messages-list">
-        <ChatMessage
+        <ChatMessageComponent
           v-for="(msg, i) in messages"
           :key="i"
           :message="msg"
@@ -45,6 +45,7 @@
           @regenerate="regenerateMessage(i)"
           @apply="insertToEditor(msg.content)" @replace="replaceWhole(msg.content)"
           @continue="continueMessage(msg)"
+          @preview="previewEditorBatch(msg)"
         />
       </div>
     </div>
@@ -107,7 +108,7 @@ import { useEditorStore } from '../../stores/editor'
 import { useProjectStore } from '../../stores/project'
 import { usePipelineStore } from '../../stores/pipeline'
 import { useSettingsStore } from '../../stores/settings'
-import ChatMessage from './ChatMessage.vue'
+import ChatMessageComponent from './ChatMessage.vue'
 import { useSkillStore } from '../../stores/skill'
 import { useChatStore } from '../../stores/chat'
 import { getAiService } from '../../services/aiService'
@@ -119,12 +120,13 @@ import { continueSnapshot } from '../../services/continuationService'
 import { canContinue, continuationStatusFor, type ContinuationSnapshot } from '../../services/continuation'
 import { saveContinuation, removeContinuation } from '../../services/continuationStorage'
 import { buildEditorEditPrompt, parseEditorEditBatch, parseEditorEditCommand, type EditorEditCommand } from '../../services/editorEditProtocol'
-import { createEditorTargetSnapshot, validateEditorTarget, type EditorTargetSnapshot } from '../../services/editorTarget'
+import { createEditorTargetSnapshot, hashEditorContent, validateEditorTarget, type EditorTargetSnapshot } from '../../services/editorTarget'
 import { buildEditPlan } from '../../services/editorEditService'
 import { applyAcceptedItems, planEditorEditBatch, type EditorEditBatchPlan } from '../../services/editorEditBatch'
 import { logEditorEdit } from '../../services/editorEditDiagnostics'
 import { createEditorTools } from '../../services/editorTools'
 import type { EditorEditBatchCommand } from '../../services/editorEditProtocol'
+import type { ChatMessage } from '../../stores/chat'
 
 const agentStore = useAgentStore()
 const providerStore = useProviderStore()
@@ -685,6 +687,21 @@ async function sendMessage(requestText?: string) {
     }
     const editBatch = pendingToolEditBatch || parseEditorEditBatch(response)
     const editCommand = editBatch ? null : parseEditorEditCommand(response)
+    if (editBatch && requestTarget.content) {
+      const lastMessage = messages.value[messages.value.length - 1]
+      if (lastMessage?.role === 'assistant') {
+        chatStore.updateMessageEditorBatch(
+          lastMessage.id,
+          editBatch,
+          {
+            workspace: 'main',
+            targetId: requestTarget.targetId,
+            contentHash: hashEditorContent(requestTarget.content)
+          },
+          chatStore.activeSessionId || undefined
+        )
+      }
+    }
     logEditorEdit({
       requestId: editRequestId,
       workspace: 'main',
@@ -858,9 +875,6 @@ async function callApi(
     }
   })
 
-  if (result.text) {
-    chatStore.updateLastMessage(result.text)
-  }
   let toolEditBatch: EditorEditBatchCommand | null = null
   if (result.toolCalls?.length) {
     for (let index = result.toolCalls.length - 1; index >= 0; index--) {
@@ -877,6 +891,10 @@ async function callApi(
       break
     }
   }
+  const responseText = result.text || (toolEditBatch
+    ? `已生成 ${toolEditBatch.commands.length} 条编辑建议，请预览确认。`
+    : '')
+  if (responseText) chatStore.updateLastMessage(responseText)
   const toolCallSummary = result.toolCalls?.length
     ? result.toolCalls.map(call => call.name).join(' → ')
     : null
@@ -895,7 +913,7 @@ async function callApi(
     chatStore.updateMessageContinuation(activeMessage.id, snapshot, chatStore.activeSession?.id || 'main')
     await saveContinuation(snapshot, chatStore.activeSession?.id || 'main')
   }
-  return { text: result.text || '', toolEditBatch, toolCallSummary }
+  return { text: responseText, toolEditBatch, toolCallSummary }
 }
 
 function cancelGeneration() {
@@ -999,6 +1017,79 @@ function buildChatEditorTools(requestTarget: EditorTargetSnapshot) {
       ? pendingEditorTarget.value
       : requestTarget)
   })
+}
+
+function previewEditorBatch(message: ChatMessage) {
+  if (isStreaming.value) return
+  const batch = message.editorBatch
+  const targetMeta = message.editorBatchTarget
+  if (!batch) return
+  const tab = targetMeta
+    ? editorStore.tabs.find(item => item.id === targetMeta.targetId)
+    : editorStore.activeTab
+  if (!tab) {
+    void appConfirm.alert('编辑目标已关闭，请重新发起编辑请求')
+    return
+  }
+  if (targetMeta && targetMeta.contentHash !== hashEditorContent(tab.content || '')) {
+    logEditorEdit({
+      requestId: `chat-edit_${Date.now()}`,
+      workspace: 'main',
+      tabId: targetMeta.targetId,
+      operation: 'editor_edit_batch',
+      result: 'rejected',
+      targetLength: (tab.content || '').length,
+      contentLength: batch.commands.reduce((sum, command) => sum + (command.content?.length || 0), 0),
+      failureReason: 'version_changed',
+      durationMs: 0,
+      detail: '主编辑器批次生成后内容已手动修改，请重新生成编辑建议'
+    })
+    void appConfirm.alert('编辑器内容已手动修改，请重新生成编辑建议')
+    return
+  }
+  const target = createEditorTargetSnapshot({
+    workspace: 'main',
+    targetId: tab.id,
+    label: tab.title,
+    chapterId: tab.chapterId,
+    mode: tab.mode,
+    content: tab.content || '',
+    selectionStart: tab.content?.length,
+    selectionEnd: tab.content?.length
+  })
+  const batchPlan = planEditorEditBatch(batch, target, { content: tab.content || '' })
+  pendingEditorTarget.value = target
+  pendingEditorBatchPlan.value = batchPlan
+  logEditorEdit({
+    requestId: `chat-edit_${Date.now()}`,
+    workspace: 'main',
+    tabId: tab.id,
+    operation: 'editor_edit_batch',
+    result: batchPlan.ok ? 'parsed' : 'rejected',
+    targetLength: (tab.content || '').length,
+    contentLength: batchPlan.items.reduce((sum, item) => sum + (item.command.content?.length || 0), 0),
+    failureReason: batchPlan.failureReason,
+    durationMs: 0,
+    detail: batchPlan.ok ? `重新预览批次包含 ${batchPlan.items.length} 条编辑` : '重新预览批次规划失败：' + batchPlan.failureReason
+  })
+  window.dispatchEvent(new CustomEvent('show-diff', {
+    detail: {
+      original: batchPlan.original,
+      modified: batchPlan.ok ? batchPlan.next : batchPlan.original,
+      editMeta: {
+        targetLabel: target.label,
+        operationLabel: `批量编辑（${batchPlan.items.length} 项）`,
+        failureReason: batchPlan.ok ? undefined : batchPlan.failureReason,
+        dangerous: batchPlan.items.some(item => item.command.operation === 'rewrite' || item.command.operation === 'delete'),
+        batchItems: batchPlan.items.map(item => ({
+          index: item.index,
+          label: item.command.operation + (item.command.target ? `：${item.command.target}` : ''),
+          reason: item.command.reason,
+          dangerous: item.command.operation === 'rewrite' || item.command.operation === 'delete'
+        }))
+      }
+    }
+  }))
 }
 
 let applyingEditorEdit = false

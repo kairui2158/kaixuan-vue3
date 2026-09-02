@@ -37,6 +37,12 @@ const server = http.createServer((req, res) => {
     const hasToolResult = Array.isArray(body?.messages)
       && body.messages.some(message => message.role === 'tool');
     const shouldCallTool = !hasToolResult;
+    const lastUserMessage = Array.isArray(body?.messages)
+      ? [...body.messages].reverse().find(message => message.role === 'user')
+      : null;
+    const outlineMode = typeof lastUserMessage?.content === 'string'
+      && lastUserMessage.content.includes('L3_OUTLINE');
+    const targetText = outlineMode ? '测试底稿' : '主编辑底稿';
     const lastMessages = Array.isArray(body?.messages) ? body.messages.slice(-2) : [];
     appendLog({
       phase,
@@ -69,7 +75,7 @@ const server = http.createServer((req, res) => {
                 arguments: JSON.stringify({
                   reason: '按用户请求插入测试批次',
                   commands: [
-                    { operation: 'replace_match', target: '主编辑底稿', content: '主编辑底稿（已更新）' },
+                    { operation: 'replace_match', target: targetText, content: targetText + '（已更新）' },
                     { operation: 'append', content: '\n[测试] 第二条插入内容。' }
                   ]
                 })

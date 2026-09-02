@@ -2,6 +2,14 @@
   <div class="chat-message" :class="message.role">
     <div class="message-bubble" :class="message.role">
       <div ref="contentRef" class="message-content" v-html="renderedContent"></div>
+      <div
+        v-if="message.role === 'assistant' && message.editorBatch"
+        class="chat-edit-command"
+        title="已识别为待确认的批量编辑"
+      >
+        已识别批量编辑：{{ message.editorBatch.commands.length }} 条
+        <button class="msg-btn" :disabled="busy" type="button" @click="$emit('preview')">预览修改</button>
+      </div>
       <div class="message-actions" v-if="message.role === 'assistant'">
         <button class="msg-btn" :disabled="busy" title="复制" @click="runAction('copy', message.content)">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -33,8 +41,9 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { enhanceCodeBlocks } from '../../utils/markdownService'
 import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
 import { canContinue as isContinuationAvailable } from '../../services/continuation'
+import type { EditorEditBatchCommand } from '../../services/editorEditProtocol'
 
-const props = defineProps<{ message: { role: string; content: string; continuation?: unknown }; busy?: boolean }>()
+const props = defineProps<{ message: { role: string; content: string; continuation?: unknown; editorBatch?: EditorEditBatchCommand }; busy?: boolean }>()
 const actionFeedback = ref('')
 
 function canContinueSnapshot(value: unknown) {
@@ -49,6 +58,7 @@ const emit = defineEmits<{
   replace: [string]
   apply: [string]
   continue: []
+  preview: []
 }>()
 
 function runAction(action: 'copy' | 'regenerate' | 'apply' | 'replace' | 'continue', content?: string) {
@@ -158,5 +168,15 @@ watch(() => props.busy, (busy, previousBusy) => {
   word-break: break-word;
   user-select: text;
   cursor: text;
+}
+
+.chat-edit-command {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
 }
 </style>

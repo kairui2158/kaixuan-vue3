@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { storageKey } from '../utils/storage-key'
 import type { ContinuationSnapshot } from '../services/continuation'
+import type { EditorEditBatchCommand } from '../services/editorEditProtocol'
 
 export interface ChatMessage {
   id: string
@@ -12,6 +13,12 @@ export interface ChatMessage {
   agentId?: string
   tabId?: string
   continuation?: ContinuationSnapshot
+  editorBatch?: EditorEditBatchCommand
+  editorBatchTarget?: {
+    workspace: 'main'
+    targetId: string
+    contentHash: string
+  }
 }
 
 export interface ChatSession {
@@ -114,6 +121,24 @@ export const useChatStore = defineStore('chat', () => {
     return true
   }
 
+  function updateMessageEditorBatch(
+    messageId: string,
+    editorBatch?: EditorEditBatchCommand,
+    editorBatchTarget?: ChatMessage['editorBatchTarget'],
+    sessionId?: string
+  ) {
+    const session = sessions.value.find(item => item.id === (sessionId || activeSessionId.value))
+    const message = session?.messages.find(item => item.id === messageId)
+    if (!session || !message || message.role !== 'assistant') return false
+    if (editorBatch) message.editorBatch = editorBatch
+    else delete message.editorBatch
+    if (editorBatchTarget) message.editorBatchTarget = editorBatchTarget
+    else delete message.editorBatchTarget
+    session.updatedAt = Date.now()
+    void saveSessions(currentProjectId.value)
+    return true
+  }
+
   function replaceMessagePair(userIndex: number, projectId?: string): string | null {
     const session = activeSession.value
     if (!session) return null
@@ -165,7 +190,7 @@ export const useChatStore = defineStore('chat', () => {
     sessions, activeSessionId, activeSession, activeMessages, currentContext,
     generationStatus, generationMessage, generationStartedAt,
     loadSessions, saveSessions, ensureSession, addMessage, updateLastMessage, updateMessageContent, replaceMessagePair, setGenerationState,
-    clearSession, removeSession, setCurrentContext, updateMessageContinuation
+    clearSession, removeSession, setCurrentContext, updateMessageContinuation, updateMessageEditorBatch
   }
 })
 

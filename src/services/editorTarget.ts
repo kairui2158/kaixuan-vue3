@@ -22,6 +22,15 @@ export interface EditorTargetLike {
   selectionEnd?: number
 }
 
+export function hashEditorContent(content: string): string {
+  let hash = 0x811c9dc5
+  for (let index = 0; index < content.length; index++) {
+    hash ^= content.charCodeAt(index)
+    hash = Math.imul(hash, 0x01000193) >>> 0
+  }
+  return 'fnv1a32_' + hash.toString(16).padStart(8, '0')
+}
+
 let nextVersion = 1
 
 export function createEditorTargetSnapshot(source: EditorTargetLike): EditorTargetSnapshot {

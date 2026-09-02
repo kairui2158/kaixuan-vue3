@@ -118,9 +118,7 @@
     originalStep0 = await pipeline.readStepConfig(0);
 
     if (project.outlineLocked) project.outlineLocked = false;
-    if (!originalOutline.includes('测试底稿')) {
-      project.outlineText = '测试底稿\n第二行';
-    }
+    project.outlineText = '测试底稿\n第二行';
 
     const mockProvider = {
       id: 'l3-outline-mock-' + Date.now(),

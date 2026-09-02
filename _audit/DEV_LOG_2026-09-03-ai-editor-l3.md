@@ -46,3 +46,29 @@
 3. 测试脚本禁止伪造元数据兜底
 4. assistant 占位消息导致的轮询误判
 5. `target_not_found` 时先对账测试底稿与工具命令
+
+## 追加收尾：主编辑器取消后可再入（2026-09-03）
+
+### 根因
+
+1. 主编辑器批量编辑生成后，批次只保存在 `pendingEditorBatchPlan` 内存态里。用户点击“取消”后计划被丢弃，assistant 气泡没有重新预览入口，只能重新发请求。
+2. 纯工具调用的最终文本为空时，占位 assistant 消息仍是空 content，只挂元数据，用户可见反馈不足。
+3. 复测脚本使用通用 `.msg-btn` 查找“预览修改”，被消息操作区的其他按钮干扰。
+4. Mock 服务把主编辑器 target 返回给大纲场景，导致大纲批次规划 `target_not_found`。
+
+### 修复
+
+1. `src/stores/chat.ts`：`ChatMessage` 新增 `editorBatch` / `editorBatchTarget`，新增 `updateMessageEditorBatch()`。
+2. `src/services/editorTarget.ts`：新增 `hashEditorContent()`，用于批次生成时的内容版本校验。
+3. `src/components/chat/ChatMessage.vue`：assistant 消息携带 `editorBatch` 时显示“已识别批量编辑：N 条 + 预览修改”。
+4. `src/components/chat/ChatPanel.vue`：批次生成后写入消息元数据；新增 `previewEditorBatch()`，目标页签关闭或内容 hash 变化时拒绝，通过后重新规划并打开确认弹窗；纯工具批次生成可见提示文案。
+5. `_audit/tmp/l3-mock-server.cjs`：按 `L3_OUTLINE` 标记动态区分主编辑器和大纲命令 target。
+
+### 追加验证
+
+- `npm run type-check`：通过。
+- `npm run test:services`：3 个文件 78 项通过。
+- `npm run build:vue`：通过。
+- 源码应用主编辑器复测：`_audit/tmp/l3-main-realops-result-v11.json`，`allStepsOk: true`，取消不修改正文、取消后可重新预览、部分接受只应用第二条、恢复成功。
+- 源码应用大纲复测：`_audit/tmp/l3-outline-realops-result-v14.json`，`allStepsOk: true`，部分接受、锁定拒绝、目标变化拒绝、恢复成功。
+- 构建后源码应用复测：`_audit/tmp/l3-main-realops-result-v12.json`、`_audit/tmp/l3-outline-realops-result-v15.json`，两者 `allStepsOk: true`，无 runtime errors。
