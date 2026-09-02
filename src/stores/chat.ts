@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { storageKey } from '../utils/storage-key'
 import type { ContinuationSnapshot } from '../services/continuation'
 import type { EditorEditBatchCommand } from '../services/editorEditProtocol'
+import type { EditorBatchRecord } from '../services/editorBatchRecord'
 
 export interface ChatMessage {
   id: string
@@ -19,6 +20,7 @@ export interface ChatMessage {
     targetId: string
     contentHash: string
   }
+  editorBatchRecord?: EditorBatchRecord
 }
 
 export interface ChatSession {
@@ -125,6 +127,7 @@ export const useChatStore = defineStore('chat', () => {
     messageId: string,
     editorBatch?: EditorEditBatchCommand,
     editorBatchTarget?: ChatMessage['editorBatchTarget'],
+    editorBatchRecord?: EditorBatchRecord,
     sessionId?: string
   ) {
     const session = sessions.value.find(item => item.id === (sessionId || activeSessionId.value))
@@ -134,6 +137,8 @@ export const useChatStore = defineStore('chat', () => {
     else delete message.editorBatch
     if (editorBatchTarget) message.editorBatchTarget = editorBatchTarget
     else delete message.editorBatchTarget
+    if (editorBatchRecord) message.editorBatchRecord = editorBatchRecord
+    else delete message.editorBatchRecord
     session.updatedAt = Date.now()
     void saveSessions(currentProjectId.value)
     return true

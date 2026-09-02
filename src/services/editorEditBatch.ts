@@ -22,11 +22,12 @@ export interface EditorEditBatchPlan {
 export function planEditorEditBatch(
   batch: EditorEditBatchCommand,
   target: EditorTargetSnapshot,
-  current: { content: string; locked?: boolean }
+  current: { content: string; locked?: boolean },
+  options: { batchId?: string } = {}
 ): EditorEditBatchPlan {
   const failed = (reason: EditorEditFailureReason): EditorEditBatchPlan => ({
     ok: false,
-    batchId: createBatchId(),
+    batchId: options.batchId || createBatchId(),
     snapshot: target,
     original: target.content,
     next: target.content,
@@ -67,7 +68,7 @@ export function planEditorEditBatch(
 
   return {
     ok: true,
-    batchId: createBatchId(),
+    batchId: options.batchId || createBatchId(),
     snapshot: target,
     original: target.content,
     next: working,
@@ -97,12 +98,12 @@ export function applyAcceptedItems(
   }
   return planEditorEditBatch(batch, batchPlan.snapshot, {
     content: batchPlan.snapshot.content,
-  })
+  }, { batchId: batchPlan.batchId })
 }
 
 let batchSequence = 0
 
-function createBatchId(): string {
+export function createBatchId(): string {
   batchSequence += 1
   return `ai-edit-${Date.now().toString(36)}-${batchSequence.toString(36)}`
 }

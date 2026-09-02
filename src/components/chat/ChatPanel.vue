@@ -123,6 +123,7 @@ import { buildEditorEditPrompt, parseEditorEditBatch, parseEditorEditCommand, ty
 import { createEditorTargetSnapshot, hashEditorContent, validateEditorTarget, type EditorTargetSnapshot } from '../../services/editorTarget'
 import { buildEditPlan } from '../../services/editorEditService'
 import { applyAcceptedItems, planEditorEditBatch, type EditorEditBatchPlan } from '../../services/editorEditBatch'
+import { createEditorBatchRecord, normalizeEditorBatchRecord, updateEditorBatchRecord } from '../../services/editorBatchRecord'
 import { logEditorEdit } from '../../services/editorEditDiagnostics'
 import { createEditorTools } from '../../services/editorTools'
 import type { EditorEditBatchCommand } from '../../services/editorEditProtocol'
@@ -157,6 +158,7 @@ const _pendingInlineOriginal = ref('')
 const _pendingInlineSelection = ref<{ tabId: string; start: number; end: number } | null>(null)
 const pendingEditorTarget = ref<EditorTargetSnapshot | null>(null)
 const pendingEditorBatchPlan = ref<EditorEditBatchPlan | null>(null)
+const pendingEditorBatchMessage = ref<{ messageId: string; sessionId?: string } | null>(null)
 let pendingToolEditBatch: EditorEditBatchCommand | null = null
 let lastToolCallSummary: string | null = null
 const selectedChatAgent = computed({
@@ -687,6 +689,14 @@ async function sendMessage(requestText?: string) {
     }
     const editBatch = pendingToolEditBatch || parseEditorEditBatch(response)
     const editCommand = editBatch ? null : parseEditorEditCommand(response)
+    const editorBatchRecord = editBatch && requestTarget.content
+      ? createEditorBatchRecord({
+        workspace: 'main',
+        targetId: requestTarget.targetId,
+        batch: editBatch,
+        sourceContent: requestTarget.content
+      })
+      : undefined
     if (editBatch && requestTarget.content) {
       const lastMessage = messages.value[messages.value.length - 1]
       if (lastMessage?.role === 'assistant') {
@@ -698,6 +708,7 @@ async function sendMessage(requestText?: string) {
             targetId: requestTarget.targetId,
             contentHash: hashEditorContent(requestTarget.content)
           },
+          editorBatchRecord,
           chatStore.activeSessionId || undefined
         )
       }
@@ -1057,9 +1068,15 @@ function previewEditorBatch(message: ChatMessage) {
     selectionStart: tab.content?.length,
     selectionEnd: tab.content?.length
   })
-  const batchPlan = planEditorEditBatch(batch, target, { content: tab.content || '' })
+  const batchPlan = planEditorEditBatch(batch, target, { content: tab.content || '' }, {
+    batchId: normalizeEditorBatchRecord(message.editorBatchRecord)?.batchId
+  })
   pendingEditorTarget.value = target
   pendingEditorBatchPlan.value = batchPlan
+  pendingEditorBatchMessage.value = {
+    messageId: message.id,
+    sessionId: chatStore.activeSession?.id
+  }
   logEditorEdit({
     requestId: `chat-edit_${Date.now()}`,
     workspace: 'main',
@@ -1100,6 +1117,14 @@ window.addEventListener('diff-applied', (event: Event) => {
   if (applyingEditorEdit || !target || typeof text !== 'string') return
   const tab = editorStore.tabs.find(item => item.id === target.targetId)
   if (!tab) return
+  const pendingBatchMessage = pendingEditorBatchMessage.value
+  const pendingRecord = pendingBatchMessage
+    ? normalizeEditorBatchRecord(
+      chatStore.sessions
+        .find(session => session.id === (pendingBatchMessage.sessionId || chatStore.activeSessionId))
+        ?.messages.find(message => message.id === pendingBatchMessage.messageId)?.editorBatchRecord
+    )
+    : null
   const validation = validateEditorTarget(target, { content: tab.content || '' })
   if (!validation.valid) {
     pendingEditorTarget.value = null
@@ -1134,9 +1159,31 @@ window.addEventListener('diff-applied', (event: Event) => {
     }
     editorStore.pushUndoState(tab.id, tab.content || '')
     editorStore.updateContent(tab.id, finalText)
+    if (pendingRecord) {
+      const rejectedIndexes = Array.isArray(acceptedIndexes)
+        ? pendingEditorBatchPlan.value!.items
+          .map(item => item.index)
+          .filter(index => !(acceptedIndexes as number[]).includes(index))
+        : undefined
+      chatStore.updateMessageEditorBatch(
+        pendingBatchMessage!.messageId,
+        undefined,
+        undefined,
+        updateEditorBatchRecord(pendingRecord, {
+          status: 'applied',
+          appliedContentHash: hashEditorContent(finalText),
+          appliedAt: Date.now(),
+          undoAvailable: true,
+          acceptedIndexes: Array.isArray(acceptedIndexes) ? [...acceptedIndexes] : undefined,
+          rejectedIndexes
+        }),
+        pendingBatchMessage!.sessionId
+      )
+    }
     _pendingInlineSelection.value = null
     pendingEditorTarget.value = null
     pendingEditorBatchPlan.value = null
+    pendingEditorBatchMessage.value = null
     logEditorEdit({
       requestId: `chat-edit_${Date.now()}`,
       workspace: 'main',

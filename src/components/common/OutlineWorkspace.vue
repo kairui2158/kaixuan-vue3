@@ -250,6 +250,7 @@ import { saveContinuation, loadContinuation, removeContinuation } from '../../se
 import { logEditorEdit } from '../../services/editorEditDiagnostics'
 import { buildEditorEditPrompt, parseEditorEditBatch, parseEditorEditCommand, type EditorEditBatchCommand, type EditorEditCommand } from '../../services/editorEditProtocol'
 import { applyAcceptedItems, planEditorEditBatch, type EditorEditBatchPlan } from '../../services/editorEditBatch'
+import { createEditorBatchRecord, normalizeEditorBatchRecord, updateEditorBatchRecord } from '../../services/editorBatchRecord'
 import { createEditorTargetSnapshot, validateEditorTarget } from '../../services/editorTarget'
 import { createEditorTools } from '../../services/editorTools'
 import type { ContextMessage, ContextPolicy } from '../../types/context'
@@ -282,6 +283,7 @@ const isFullscreen = ref(false)
 const saveFeedback = ref('')
 const lastUserRequest = ref('')
 const compatibilityNotice = ref('')
+const pendingOutlineBatchMessage = ref<number | null>(null)
 
 const OUTLINE_WORKSPACE_ID = 'outline'
 const OUTLINE_SESSION_ID = 'outline'
@@ -466,7 +468,8 @@ const outlineBatchMessages = computed(() => messages.value
   .map(item => ({
     index: item.index,
     outlineBatch: item.message.outlineBatch as EditorEditBatchCommand,
-    outlineBatchTarget: item.message.outlineBatchTarget as OutlineBatchTargetMeta | undefined
+    outlineBatchTarget: item.message.outlineBatchTarget as OutlineBatchTargetMeta | undefined,
+    outlineBatchRecord: item.message.outlineBatchRecord
   })))
 
 function hashOutlineContent(content: string): string {
@@ -941,12 +944,14 @@ function previewOutlineBatch(batch: EditorEditBatchCommand, targetMeta?: Outline
     return
   }
   const target = createOutlineRequestTarget()
+  const record = normalizeEditorBatchRecord(outlineBatchMessages.value.find(item => item.outlineBatch === batch)?.outlineBatchRecord)
   const plan = planEditorEditBatch(batch, target, {
     content: projectStore.outlineText || '',
     locked: projectStore.outlineLocked
-  })
+  }, { batchId: record?.batchId })
   pendingBatch.value = plan
   pendingEdit.value = null
+  pendingOutlineBatchMessage.value = outlineBatchMessages.value.find(item => item.outlineBatch === batch)?.index ?? null
   logEditorEdit({
     requestId: `outline-edit_${Date.now()}`,
     batchId: plan.batchId,
@@ -1390,6 +1395,14 @@ async function askAi(requestText: string) {
       content: responseText,
       ...(editBatch ? { outlineBatch: editBatch } : {}),
       ...(editBatch ? { outlineBatchTarget } : {}),
+      ...(editBatch ? {
+        outlineBatchRecord: createEditorBatchRecord({
+          workspace: 'outline',
+          targetId: 'outline',
+          batch: editBatch,
+          sourceContent: projectStore.outlineText || ''
+        })
+      } : {}),
       ...(editCommand ? { outlineEdit: editCommand } : {})
     })
     const meta = lastWorkspaceSkillMeta
@@ -1451,6 +1464,10 @@ let applyingOutlineBatch = false
 window.addEventListener('diff-applied', (event: Event) => {
   const detail = (event as CustomEvent).detail
   const plan = pendingBatch.value
+  const messageIndex = pendingOutlineBatchMessage.value
+  const pendingRecord = messageIndex !== null
+    ? normalizeEditorBatchRecord(messages.value[messageIndex]?.outlineBatchRecord)
+    : null
   if (applyingOutlineBatch || !plan || typeof detail?.text !== 'string') return
   const validation = validateEditorTarget(plan.snapshot, {
     content: projectStore.outlineText || '',
@@ -1486,9 +1503,28 @@ window.addEventListener('diff-applied', (event: Event) => {
     }
     if (!commitOutlineChange(nextText)) {
       pendingBatch.value = null
+      pendingOutlineBatchMessage.value = null
       return
     }
+    if (pendingRecord && messageIndex !== null) {
+      const rejectedIndexes = Array.isArray(detail.acceptedIndexes)
+        ? plan.items
+          .map(item => item.index)
+          .filter(index => !(detail.acceptedIndexes as number[]).includes(index))
+        : undefined
+      projectStore.updateOutlineChatAt(messageIndex, {
+        outlineBatchRecord: updateEditorBatchRecord(pendingRecord, {
+          status: 'applied',
+          appliedContentHash: hashOutlineContent(nextText),
+          appliedAt: Date.now(),
+          undoAvailable: true,
+          acceptedIndexes: Array.isArray(detail.acceptedIndexes) ? [...detail.acceptedIndexes] : undefined,
+          rejectedIndexes
+        })
+      })
+    }
     pendingBatch.value = null
+    pendingOutlineBatchMessage.value = null
     logEditorEdit({
       requestId: `outline-edit_${Date.now()}`,
       workspace: 'outline',
@@ -1701,7 +1737,15 @@ async function askPlainAi(requestText: string) {
       role: 'assistant',
       content: responseText,
       ...(editBatch ? { outlineBatch: editBatch } : {}),
-      ...(editBatch ? { outlineBatchTarget } : {})
+      ...(editBatch ? { outlineBatchTarget } : {}),
+      ...(editBatch ? {
+        outlineBatchRecord: createEditorBatchRecord({
+          workspace: 'outline',
+          targetId: 'outline',
+          batch: editBatch,
+          sourceContent: projectStore.outlineText || ''
+        })
+      } : {})
     })
     if (result.finishReason && isTruncationReason(result.finishReason)) {
       const snapshot = createOutlineSnapshot({
