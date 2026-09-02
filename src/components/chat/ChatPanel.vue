@@ -1191,6 +1191,16 @@ function rollbackEditorBatch(message: ChatMessage) {
     durationMs: 0,
     detail: `已回滚 AI 批次，消耗 ${undoContent.consumed} 条撤销历史；可用撤销恢复`
   })
+  void conversationContextService.recordEditorEvent({
+    projectId: projectId.value,
+    workspace: 'main',
+    purpose: 'generate'
+  }, `已回滚 AI 编辑批次，恢复 ${undoContent.content.length} 字符`, {
+    batchId: record.batchId,
+    commandCount: record.commandCount,
+    targetId: record.targetId,
+    status: 'rolled_back'
+  }).catch(error => console.error('[CHAT] 记录 AI 批次回滚上下文失败', error))
 }
 
 let applyingEditorEdit = false
@@ -1243,12 +1253,12 @@ window.addEventListener('diff-applied', (event: Event) => {
     }
     editorStore.pushUndoState(tab.id, tab.content || '')
     editorStore.updateContent(tab.id, finalText)
+    const rejectedIndexes = Array.isArray(acceptedIndexes)
+      ? pendingEditorBatchPlan.value!.items
+        .map(item => item.index)
+        .filter(index => !(acceptedIndexes as number[]).includes(index))
+      : undefined
     if (pendingRecord) {
-      const rejectedIndexes = Array.isArray(acceptedIndexes)
-        ? pendingEditorBatchPlan.value!.items
-          .map(item => item.index)
-          .filter(index => !(acceptedIndexes as number[]).includes(index))
-        : undefined
       chatStore.updateMessageEditorBatch(
         pendingBatchMessage!.messageId,
         undefined,
@@ -1279,6 +1289,20 @@ window.addEventListener('diff-applied', (event: Event) => {
       durationMs: 0,
       detail: '用户确认后已写入主页编辑器'
     })
+    if (pendingRecord) {
+      void conversationContextService.recordEditorEvent({
+        projectId: projectId.value,
+        workspace: 'main',
+        purpose: 'generate'
+      }, '已应用 AI 编辑批次', {
+        batchId: pendingRecord.batchId,
+        commandCount: pendingRecord.commandCount,
+        targetId: target.targetId,
+        status: 'applied',
+        acceptedIndexes: Array.isArray(acceptedIndexes) ? [...acceptedIndexes] : undefined,
+        rejectedIndexes
+      }).catch(error => console.error('[CHAT] 记录 AI 批次应用上下文失败', error))
+    }
   } finally {
     applyingEditorEdit = false
   }

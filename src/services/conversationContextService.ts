@@ -345,6 +345,38 @@ export class ConversationContextService {
     if (result === false) throw new Error(`上下文写盘失败：${this.contextKey(ref.projectId)}`)
   }
 
+  async recordEditorEvent(ref: ContextRef, text: string, meta?: Record<string, unknown>): Promise<void> {
+    const state = await this.readState(ref.projectId)
+    const id = sessionIdFor(ref)
+    const now = Date.now()
+    let session = state.sessions.find(item => item.id === id && sameScope(item, ref))
+    if (!session) {
+      session = {
+        id,
+        scope: {
+          projectId: ref.projectId,
+          workspace: ref.workspace,
+          purpose: ref.purpose,
+          ...(ref.skillId ? { skillId: ref.skillId } : {})
+        },
+        messages: [],
+        createdAt: now,
+        updatedAt: now
+      }
+      state.sessions.push(session)
+    }
+    session.messages.push({
+      role: 'assistant',
+      content: `[AI 编辑] ${text}`,
+      ts: now,
+      ...(meta ? { meta: clone(meta) } : {})
+    })
+    session.messages = session.messages.slice(-MAX_STORED_MESSAGES)
+    session.updatedAt = now
+    const result = await this.storage.write(this.contextKey(ref.projectId), state)
+    if (result === false) throw new Error(`上下文写盘失败：${this.contextKey(ref.projectId)}`)
+  }
+
   async clearSession(ref: ContextRef): Promise<void> {
     const state = await this.readState(ref.projectId)
     const session = state.sessions.find(item => item.id === sessionIdFor(ref) && sameScope(item, ref))

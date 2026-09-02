@@ -89,6 +89,29 @@ describe('ConversationContextService', () => {
     expect(assembled.some(message => message.content === '历史回答')).toBe(false)
   })
 
+  it('AI 编辑事件进入同范围上下文，并保留批次元数据', async () => {
+    const storage = createStorage()
+    const service = new ConversationContextService({
+      storage,
+      projectReader: async () => ({ outline: '', settings: {}, memories: null })
+    })
+    const ref = { projectId: 'p-editor-event', workspace: 'outline' as const, purpose: 'generate' as const }
+
+    await service.recordTurn(ref, { user: '请修改第二幕', assistant: '已生成编辑批次' })
+    await service.recordEditorEvent(ref, '已应用大纲 AI 编辑批次', {
+      batchId: 'batch-1',
+      commandCount: 2,
+      rejectedIndexes: [1]
+    })
+
+    const bundle = await service.buildContextBundle(ref)
+    const event = bundle.session.recentMessages.at(-1)
+    expect(event?.role).toBe('assistant')
+    expect(event?.content).toBe('[AI 编辑] 已应用大纲 AI 编辑批次')
+    expect(event?.meta).toEqual({ batchId: 'batch-1', commandCount: 2, rejectedIndexes: [1] })
+    expect(bundle.session.recentMessages).toHaveLength(3)
+  })
+
   it('当前请求只进入消息一次，旧聊天中的同文请求不会重复注入', async () => {
     const storage = createStorage()
     const service = new ConversationContextService({

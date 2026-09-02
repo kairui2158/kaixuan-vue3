@@ -1105,6 +1105,16 @@ function rollbackOutlineBatch(messageIndex: number) {
     durationMs: 0,
     detail: `已回滚大纲 AI 批次，消耗 ${undoContent.consumed} 条撤销历史；可用撤销恢复`
   })
+  void conversationContextService.recordEditorEvent({
+    projectId: String(projectStore.currentProjectId || 'default'),
+    workspace: 'outline',
+    purpose: 'generate'
+  }, `已回滚大纲 AI 编辑批次，恢复 ${undoContent.content.length} 字符`, {
+    batchId: record.batchId,
+    commandCount: record.commandCount,
+    targetId: record.targetId,
+    status: 'rolled_back'
+  }).catch(error => console.error('[OUTLINE] 记录 AI 批次回滚上下文失败', error))
   saveFeedback.value = '[OK] 已回滚大纲批次，可撤销恢复'
   setTimeout(() => { saveFeedback.value = '' }, 2500)
 }
@@ -1630,12 +1640,12 @@ window.addEventListener('diff-applied', (event: Event) => {
       pendingOutlineBatchMessage.value = null
       return
     }
+    const rejectedIndexes = Array.isArray(detail.acceptedIndexes)
+      ? plan.items
+        .map(item => item.index)
+        .filter(index => !(detail.acceptedIndexes as number[]).includes(index))
+      : undefined
     if (pendingRecord && messageIndex !== null) {
-      const rejectedIndexes = Array.isArray(detail.acceptedIndexes)
-        ? plan.items
-          .map(item => item.index)
-          .filter(index => !(detail.acceptedIndexes as number[]).includes(index))
-        : undefined
       projectStore.updateOutlineChatAt(messageIndex, {
         outlineBatchRecord: updateEditorBatchRecord(pendingRecord, {
           status: 'applied',
@@ -1660,6 +1670,20 @@ window.addEventListener('diff-applied', (event: Event) => {
       durationMs: 0,
       detail: '用户确认后已按批次写入大纲编辑器'
     })
+    if (pendingRecord) {
+      void conversationContextService.recordEditorEvent({
+        projectId: String(projectStore.currentProjectId || 'default'),
+        workspace: 'outline',
+        purpose: 'generate'
+      }, '已应用大纲 AI 编辑批次', {
+        batchId: pendingRecord.batchId,
+        commandCount: pendingRecord.commandCount,
+        targetId: 'outline',
+        status: 'applied',
+        acceptedIndexes: Array.isArray(detail.acceptedIndexes) ? [...detail.acceptedIndexes] : undefined,
+        rejectedIndexes
+      }).catch(error => console.error('[OUTLINE] 记录 AI 批次应用上下文失败', error))
+    }
     saveFeedback.value = '[OK] 已应用大纲批量修改'
     setTimeout(() => { saveFeedback.value = '' }, 2500)
   } finally {
