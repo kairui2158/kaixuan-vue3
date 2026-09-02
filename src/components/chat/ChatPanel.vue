@@ -1027,7 +1027,13 @@ function buildChatEditorTools(requestTarget: EditorTargetSnapshot) {
   return createEditorTools({
     getSnapshot: () => (pendingEditorTarget.value && pendingEditorTarget.value.targetId === requestTarget.targetId
       ? pendingEditorTarget.value
-      : requestTarget)
+      : requestTarget),
+    onPlanUpdate: (plan) => {
+      const activeMessage = chatStore.activeSession?.messages[chatStore.activeSession.messages.length - 1]
+      if (activeMessage?.role === 'assistant') {
+        chatStore.updateMessageEditorToolPlan(activeMessage.id, plan, chatStore.activeSession?.id)
+      }
+    }
   })
 }
 

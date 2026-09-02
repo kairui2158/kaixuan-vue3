@@ -5,6 +5,11 @@ import type { ContinuationSnapshot } from '../services/continuation'
 import type { EditorEditBatchCommand } from '../services/editorEditProtocol'
 import type { EditorBatchRecord } from '../services/editorBatchRecord'
 
+export interface EditorToolPlan {
+  stage: string
+  steps: string[]
+}
+
 export interface ChatMessage {
   id: string
   role: 'user' | 'assistant' | 'system'
@@ -21,6 +26,7 @@ export interface ChatMessage {
     contentHash: string
   }
   editorBatchRecord?: EditorBatchRecord
+  editorToolPlan?: EditorToolPlan
 }
 
 export interface ChatSession {
@@ -144,6 +150,17 @@ export const useChatStore = defineStore('chat', () => {
     return true
   }
 
+  function updateMessageEditorToolPlan(messageId: string, plan?: EditorToolPlan, sessionId?: string) {
+    const session = sessions.value.find(item => item.id === (sessionId || activeSessionId.value))
+    const message = session?.messages.find(item => item.id === messageId)
+    if (!session || !message || message.role !== 'assistant') return false
+    if (plan) message.editorToolPlan = plan
+    else delete message.editorToolPlan
+    session.updatedAt = Date.now()
+    void saveSessions(currentProjectId.value)
+    return true
+  }
+
   function replaceMessagePair(userIndex: number, projectId?: string): string | null {
     const session = activeSession.value
     if (!session) return null
@@ -195,7 +212,7 @@ export const useChatStore = defineStore('chat', () => {
     sessions, activeSessionId, activeSession, activeMessages, currentContext,
     generationStatus, generationMessage, generationStartedAt,
     loadSessions, saveSessions, ensureSession, addMessage, updateLastMessage, updateMessageContent, replaceMessagePair, setGenerationState,
-    clearSession, removeSession, setCurrentContext, updateMessageContinuation, updateMessageEditorBatch
+    clearSession, removeSession, setCurrentContext, updateMessageContinuation, updateMessageEditorBatch, updateMessageEditorToolPlan
   }
 })
 

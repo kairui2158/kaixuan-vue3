@@ -18,6 +18,15 @@
           @click="$emit('rollback')"
         >回滚此批次</button>
       </div>
+      <div
+        v-if="message.role === 'assistant' && message.editorToolPlan?.steps?.length"
+        class="chat-tool-plan"
+      >
+        <div class="chat-tool-plan-title">AI 执行计划：{{ message.editorToolPlan.stage }}</div>
+        <ol class="chat-tool-plan-steps">
+          <li v-for="(step, index) in message.editorToolPlan.steps" :key="index">{{ step }}</li>
+        </ol>
+      </div>
       <div class="message-actions" v-if="message.role === 'assistant'">
         <button class="msg-btn" :disabled="busy" title="复制" @click="runAction('copy', message.content)">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -51,8 +60,9 @@ import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
 import { canContinue as isContinuationAvailable } from '../../services/continuation'
 import type { EditorEditBatchCommand } from '../../services/editorEditProtocol'
 import type { EditorBatchRecord } from '../../services/editorBatchRecord'
+import type { EditorToolPlan } from '../../stores/chat'
 
-const props = defineProps<{ message: { role: string; content: string; continuation?: unknown; editorBatch?: EditorEditBatchCommand; editorBatchRecord?: EditorBatchRecord }; busy?: boolean }>()
+const props = defineProps<{ message: { role: string; content: string; continuation?: unknown; editorBatch?: EditorEditBatchCommand; editorBatchRecord?: EditorBatchRecord; editorToolPlan?: EditorToolPlan }; busy?: boolean }>()
 const actionFeedback = ref('')
 
 function canContinueSnapshot(value: unknown) {
@@ -190,5 +200,27 @@ watch(() => props.busy, (busy, previousBusy) => {
   margin-top: 8px;
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
+}
+
+.chat-tool-plan {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.chat-tool-plan-title {
+  margin-bottom: 4px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.chat-tool-plan-steps {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 2px;
 }
 </style>

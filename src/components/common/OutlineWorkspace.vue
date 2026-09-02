@@ -109,6 +109,15 @@
             </div>
             <div v-for="(msg, i) in messages" :key="i" class="ow-msg" :class="msg.role">
               <div class="ow-msg-bubble" v-html="renderMarkdown(msg.content)"></div>
+              <div
+                v-if="msg.role === 'assistant' && msg.outlineToolPlan?.steps?.length"
+                class="ow-tool-plan"
+              >
+                <div class="ow-tool-plan-title">AI 执行计划：{{ msg.outlineToolPlan.stage }}</div>
+                <ol class="ow-tool-plan-steps">
+                  <li v-for="(step, stepIndex) in msg.outlineToolPlan.steps" :key="stepIndex">{{ step }}</li>
+                </ol>
+              </div>
               <div v-if="msg.role === 'assistant' && msg.outlineEdit" class="ow-edit-command" title="已识别为待确认的大纲编辑指令">
                 已识别编辑指令：{{ msg.outlineEdit.operation }}<span v-if="msg.outlineEdit.target"> · {{ msg.outlineEdit.target }}</span>
                 <button class="msg-btn" @click="previewCommand(msg.outlineEdit)">预览修改</button>
@@ -260,6 +269,7 @@ import { applyAcceptedItems, planEditorEditBatch, type EditorEditBatchPlan } fro
 import { canRollbackEditorBatch, createEditorBatchRecord, findEditorBatchUndoContent, normalizeEditorBatchRecord, updateEditorBatchRecord } from '../../services/editorBatchRecord'
 import { createEditorTargetSnapshot, validateEditorTarget } from '../../services/editorTarget'
 import { createEditorTools } from '../../services/editorTools'
+import type { EditorToolPlan } from '../../stores/chat'
 import type { ContextMessage, ContextPolicy } from '../../types/context'
 import { enhanceCodeBlocks, renderMarkdown as renderMarkdownText } from '../../utils/markdownService'
 import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
@@ -1757,6 +1767,7 @@ async function askPlainAi(requestText: string) {
   streamingContent.value = ''
   const startedAt = performance.now()
   let firstChunkSeen = false
+  let latestOutlineToolPlan: EditorToolPlan | null = null
   try {
     const aiService = await getAiService()
     const projectId = String(projectStore.currentProjectId || 'default')
@@ -1787,7 +1798,12 @@ async function askPlainAi(requestText: string) {
     const requestTarget = createOutlineRequestTarget()
     const outlineBatchTarget = createOutlineBatchTargetMeta()
     const tools = requestTarget.content
-      ? createEditorTools({ getSnapshot: () => (pendingBatch.value ? pendingBatch.value.snapshot : requestTarget) })
+      ? createEditorTools({
+        getSnapshot: () => (pendingBatch.value ? pendingBatch.value.snapshot : requestTarget),
+        onPlanUpdate: (plan) => {
+          latestOutlineToolPlan = plan
+        }
+      })
       : undefined
     const result = await aiService.callAi({
       purpose: 'generate',
@@ -1833,6 +1849,7 @@ async function askPlainAi(requestText: string) {
     projectStore.appendOutlineChat({
       role: 'assistant',
       content: responseText,
+      ...(latestOutlineToolPlan ? { outlineToolPlan: latestOutlineToolPlan } : {}),
       ...(editBatch ? { outlineBatch: editBatch } : {}),
       ...(editBatch ? { outlineBatchTarget } : {}),
       ...(editBatch ? {
@@ -2119,6 +2136,28 @@ function handleUnlockOutline() {
   background: var(--bg-panel);
   color: var(--text-secondary);
   cursor: not-allowed;
+}
+
+.ow-tool-plan {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.ow-tool-plan-title {
+  margin-bottom: 4px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ow-tool-plan-steps {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 2px;
 }
 .editor-toolbar {
   display: flex;
