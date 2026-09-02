@@ -1,0 +1,25 @@
+{
+  "id": 1,
+  "result": {
+    "result": {
+      "type": "object",
+      "value": {
+        "runtimeErrors": [],
+        "steps": [
+          {
+            "name": "outline-batch-applied",
+            "ok": false,
+            "before": "测试底稿\n第二行",
+            "after": "测试底稿\n第二行"
+          },
+          {
+            "name": "outline-applied-context-event",
+            "ok": false
+          }
+        ],
+        "allStepsOk": false,
+        "restored": true
+      }
+    }
+  }
+}

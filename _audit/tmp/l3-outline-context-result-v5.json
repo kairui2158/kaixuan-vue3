@@ -1,0 +1,29 @@
+{
+  "id": 1,
+  "result": {
+    "result": {
+      "type": "object",
+      "value": {
+        "runtimeErrors": [
+          "Error: outline rollback button timeout\n    at <anonymous>:165:32"
+        ],
+        "steps": [
+          {
+            "name": "outline-batch-applied",
+            "ok": false,
+            "before": "测试底稿\n第二行",
+            "after": "测试底稿（已更新）\n第二行\n\n[测试] 第二条插入内容。",
+            "record": {},
+            "target": {}
+          },
+          {
+            "name": "outline-applied-context-event",
+            "ok": false
+          }
+        ],
+        "allStepsOk": false,
+        "restored": true
+      }
+    }
+  }
+}

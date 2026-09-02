@@ -131,20 +131,24 @@ export const useChatStore = defineStore('chat', () => {
 
   function updateMessageEditorBatch(
     messageId: string,
-    editorBatch?: EditorEditBatchCommand,
-    editorBatchTarget?: ChatMessage['editorBatchTarget'],
-    editorBatchRecord?: EditorBatchRecord,
+    editorBatch?: EditorEditBatchCommand | null,
+    editorBatchTarget?: ChatMessage['editorBatchTarget'] | null,
+    editorBatchRecord?: EditorBatchRecord | null,
     sessionId?: string
   ) {
     const session = sessions.value.find(item => item.id === (sessionId || activeSessionId.value))
     const message = session?.messages.find(item => item.id === messageId)
     if (!session || !message || message.role !== 'assistant') return false
-    if (editorBatch) message.editorBatch = editorBatch
-    else delete message.editorBatch
-    if (editorBatchTarget) message.editorBatchTarget = editorBatchTarget
-    else delete message.editorBatchTarget
-    if (editorBatchRecord) message.editorBatchRecord = editorBatchRecord
-    else delete message.editorBatchRecord
+    // undefined means "leave this field unchanged"; null means "explicitly clear it".
+    if (editorBatch !== undefined && editorBatch !== null) {
+      message.editorBatch = editorBatch
+    } else if (editorBatch === null) {
+      delete message.editorBatch
+    }
+    if (editorBatchTarget !== undefined && editorBatchTarget !== null) message.editorBatchTarget = editorBatchTarget
+    else if (editorBatchTarget === null) delete message.editorBatchTarget
+    if (editorBatchRecord !== undefined && editorBatchRecord !== null) message.editorBatchRecord = editorBatchRecord
+    else if (editorBatchRecord === null) delete message.editorBatchRecord
     session.updatedAt = Date.now()
     void saveSessions(currentProjectId.value)
     return true

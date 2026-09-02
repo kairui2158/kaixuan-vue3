@@ -130,7 +130,8 @@ function legacyMessages(raw: unknown): ContextMessage[] {
     ts: Number(message.ts) || Date.now(),
     model: message.model,
     agentId: message.agentId,
-    tabId: message.tabId
+    tabId: message.tabId,
+    ...(message.meta && typeof message.meta === 'object' ? { meta: message.meta as Record<string, unknown> } : {})
   }))
 }
 

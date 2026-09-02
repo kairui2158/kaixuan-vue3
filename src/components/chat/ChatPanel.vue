@@ -749,6 +749,13 @@ async function sendMessage(requestText?: string) {
       })
       pendingEditorTarget.value = requestTarget
       pendingEditorBatchPlan.value = batchPlan
+      const lastBatchMessage = messages.value[messages.value.length - 1]
+      if (lastBatchMessage?.role === 'assistant') {
+        pendingEditorBatchMessage.value = {
+          messageId: lastBatchMessage.id,
+          sessionId: chatStore.activeSession?.id
+        }
+      }
       window.dispatchEvent(new CustomEvent('show-diff', {
         detail: {
           original: batchPlan.original,

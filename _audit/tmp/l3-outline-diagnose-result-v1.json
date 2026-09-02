@@ -1,0 +1,63 @@
+{
+  "id": 1,
+  "result": {
+    "result": {
+      "type": "object",
+      "value": {
+        "outlineText": "协议验证底稿\n第二行",
+        "outlineLocked": false,
+        "messageCount": 9,
+        "lastMessages": [
+          {
+            "role": "assistant",
+            "content": "已生成 2 条编辑建议，请确认后应用。",
+            "hasOutlineBatch": true,
+            "hasOutlineBatchTarget": false,
+            "batchRecord": null
+          },
+          {
+            "role": "user",
+            "content": "L3_OUTLINE_LOCK_1788369537131 请更新测试底稿并追加一条内容。",
+            "hasOutlineBatch": false,
+            "hasOutlineBatchTarget": false,
+            "batchRecord": null
+          },
+          {
+            "role": "assistant",
+            "content": "已生成 2 条编辑建议，请确认后应用。",
+            "hasOutlineBatch": true,
+            "hasOutlineBatchTarget": false,
+            "batchRecord": null
+          },
+          {
+            "role": "assistant",
+            "content": "目标变更验证：已生成 2 条编辑建议。",
+            "hasOutlineBatch": true,
+            "hasOutlineBatchTarget": true,
+            "batchRecord": null
+          },
+          {
+            "role": "user",
+            "content": "L3_PROTOCOL_TOOL_ID_1788371315274",
+            "hasOutlineBatch": false,
+            "hasOutlineBatchTarget": false,
+            "batchRecord": null
+          },
+          {
+            "role": "assistant",
+            "content": "已生成 2 条编辑建议，请确认后应用。",
+            "hasOutlineBatch": true,
+            "hasOutlineBatchTarget": true,
+            "batchRecord": null
+          }
+        ],
+        "diffModal": {
+          "applyVisible": false,
+          "batchItems": 0
+        },
+        "outlineCommandButtons": [],
+        "bodyTail": "\n自动\ndeepseek-v4-flash\ndeepseek-v4-flash-auto\ndeepseek-v4-flash-test\ndeepseek-v4-pro\ndeepseek-v4-pro-test\ndeepseek-v4-pro-tg\ndoubao-seed-2.1-pro\ndoubao-seed-2.1-pro-test\ndoubao-seed-2.1-turbo\ndoubao-seed-2.1-turbo-test\nglm-5\nglm-5-test\nglm-5.1\nglm-5.1-test\nglm-5.2\nglm-5.2-test\nglm-5.3-flash-2x\nglm-5.3-sp\nhy3\nhy4-preview\nkimi-k2.6\nkimi-k2.6-test\nkimi-k2.7-code\nkimi-k2.7-code-test\nkimi-k3\nkimi-k3-sp\nkimi-k3-test\nminimax-m3\nminimax-m3-test\nqwen-3.7-plus\nqwen-3.7-plus-test\nqwen-3.8-flash\nqwen-3.8-max\n\nprovider-rootfix-probe\n\n连接正常\n\n复制\n重生成\n插入\n替换\n\nL3_MAIN_TOOL_ID_1788371368396\n\n复制\n重生成\n插入\n替换\n\nL3_MAIN_TOOL_ID_1788371436408\n\n技能区\n▼\nAI\n默认\ndeepseek-v4-pro\n暂无\n0 字 | API 已配置\n智能体进度\n>\n已连接\ndeepseek-v4-pro\n字数: 0"
+      }
+    }
+  }
+}

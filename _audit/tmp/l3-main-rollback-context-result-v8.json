@@ -1,0 +1,60 @@
+{
+  "id": 1,
+  "result": {
+    "result": {
+      "type": "object",
+      "value": {
+        "runtimeErrors": [
+          "Error: rollback button unavailable\n    at <anonymous>:159:13"
+        ],
+        "steps": [
+          {
+            "name": "batch-applied",
+            "ok": true,
+            "before": "主编辑底稿\n第二行",
+            "afterApply": "主编辑底稿（已更新）\n第二行\n\n[测试] 第二条插入内容。"
+          },
+          {
+            "name": "applied-context-event",
+            "ok": true,
+            "meta": {
+              "batchId": "ai-batch-mtkkpfo8-1",
+              "commandCount": 2,
+              "targetId": "l3-main-rollback-v1",
+              "status": "applied",
+              "acceptedIndexes": [
+                0,
+                1
+              ],
+              "rejectedIndexes": []
+            }
+          }
+        ],
+        "diagnostics": {
+          "activeTabId": "l3-main-rollback-v1",
+          "activeTabContent": "主编辑底稿（已更新）\n第二行\n\n[测试] 第二条插入内容。",
+          "messageCount": 7,
+          "lastAssistant": {
+            "content": "已生成 2 条编辑建议，请确认后应用。",
+            "hasEditorBatch": false,
+            "commandCount": 0,
+            "hasEditorBatchTarget": false,
+            "hasEditorBatchRecord": true,
+            "hasEditorToolPlan": false
+          },
+          "diffApplyVisible": false,
+          "diffBatchItems": 0,
+          "editCommandCount": 0,
+          "rollbackRecord": {
+            "status": "applied",
+            "undoAvailable": true,
+            "hasEditorBatch": false
+          },
+          "bodyTail": "神意助手\n默认\n凯旋写作Agent\n白虎\n自动\nmock-model\n神意助手\n第一幕：主角登场。\n生成\n项目\n请先通过大纲工作台导入小说项目\n等级三回滚实测\n生成\n保存\n查找\n导出\n去AI味\nAI命名\n29 字\n等级三回滚实测\n*\nx\nAI 对话\n智能体\n默认\n凯旋写作Agent\n白虎\n模型\n自动\nmock-model\n\nprovider-rootfix-probe\n\n连接正常\n\n复制\n重生成\n插入\n替换\n\nL3_MAIN_TOOL_ID_1788371368396\n\n复制\n重生成\n插入\n替换\n\nL3_MAIN_TOOL_ID_1788371436408\n\nL3_MAIN_ROLLBACK_CONTEXT_1788382555236\n\n已生成 2 条编辑建议，请确认后应用。\n\n复制\n重生成\n插入\n替换\n技能区\n▼\nAI\n默认\nmock-model\n暂无\n0 字 | API 已配置\n智能体进度\n>\n已连接\nmock-model\n等级三回滚实测\n字数: 29"
+        },
+        "allStepsOk": false,
+        "restored": true
+      }
+    }
+  }
+}
