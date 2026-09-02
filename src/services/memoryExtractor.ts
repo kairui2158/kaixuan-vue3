@@ -1,3 +1,4 @@
+import { getAiService } from './aiService'
 import type {
   Foreshadowing,
   MemoryEntity,
@@ -11,6 +12,7 @@ export interface ExtractionInput {
   chapterIndex?: number
   chapterTitle?: string
   content: string
+  sourceVersionId?: string
 }
 
 export interface ExtractedMemoryData {
@@ -30,6 +32,28 @@ export interface ExtractionResult {
 
 export type MemoryAiCall = (prompt: string, systemPrompt: string) => Promise<string | null>
 
+export async function unifiedMemoryAiCall(prompt: string, systemPrompt: string): Promise<string | null> {
+  const service = await getAiService()
+  const call = service.callAi({
+    purpose: 'generate',
+    messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: prompt }],
+    jsonMode: true,
+    stream: false,
+    retry: false,
+    timeoutMs: 300_000,
+    meta: { source: 'memory-extraction.unified' }
+  })
+  try {
+    const result = await call
+    return result.text || null
+  } catch (error: any) {
+    if (error?.kind === 'timeout' || error?.message === '请求超时') {
+      throw new Error('记忆抽取超时')
+    }
+    throw error
+  }
+}
+
 const EMPTY_RESULT: ExtractedMemoryData = {
   entities: [],
   relations: [],
@@ -40,7 +64,7 @@ const EMPTY_RESULT: ExtractedMemoryData = {
 
 const SYSTEM_PROMPT = '你是小说记忆抽取器。只返回合法 JSON，不要 Markdown、解释或额外文字。'
 
-function hasEvidence(value: unknown, chapterId: string): value is { evidence: Array<{ chapterId: string; snippet: string }> } {
+function hasEvidence(value: unknown, chapterId: string): value is { evidence: Array<{ chapterId: string; snippet: string; verified?: boolean }> } {
   if (!value || typeof value !== 'object') return false
   const evidence = (value as { evidence?: unknown }).evidence
   return Array.isArray(evidence) && evidence.some(item => {
@@ -51,7 +75,12 @@ function hasEvidence(value: unknown, chapterId: string): value is { evidence: Ar
   })
 }
 
-function parseJson(text: string, chapterId: string): ExtractedMemoryData | null {
+export function verifySnippet(snippet: string, content: string): boolean {
+  const normalizedSnippet = snippet.trim()
+  return Boolean(normalizedSnippet) && content.includes(normalizedSnippet)
+}
+
+function parseJson(text: string, chapterId: string, originalContent: string): ExtractedMemoryData | null {
   const trimmed = text.trim()
   const candidates = [trimmed]
   const fence = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i)
@@ -70,12 +99,16 @@ function parseJson(text: string, chapterId: string): ExtractedMemoryData | null 
       const foreshadowing = parsed.foreshadowing
       if (!Array.isArray(entities) || !Array.isArray(relations) || !Array.isArray(events)
         || !Array.isArray(world) || !Array.isArray(foreshadowing)) continue
+      const verifyItems = (values: unknown[]) => values.filter(value => hasEvidence(value, chapterId)).map(value => {
+        const item = value as { evidence: Array<{ chapterId: string; snippet: string; verified?: boolean }> }
+        return { ...item, evidence: item.evidence.map(evidence => ({ ...evidence, verified: verifySnippet(evidence.snippet, originalContent) })) }
+      })
       return {
-        entities: entities.filter(value => hasEvidence(value, chapterId)),
-        relations: relations.filter(value => hasEvidence(value, chapterId)),
-        events: events.filter(value => hasEvidence(value, chapterId)),
-        world: world.filter(value => hasEvidence(value, chapterId)),
-        foreshadowing: foreshadowing.filter(value => hasEvidence(value, chapterId))
+        entities: verifyItems(entities),
+        relations: verifyItems(relations),
+        events: verifyItems(events),
+        world: verifyItems(world),
+        foreshadowing: verifyItems(foreshadowing)
       }
     } catch {
       // 交给一次重试处理，避免在服务层猜测或改写模型输出。
@@ -138,7 +171,7 @@ export async function extractMemory(
     retried = attempt === 1
     try {
       const raw = await withTimeout(callAi(buildPrompt(input, retried), SYSTEM_PROMPT), timeoutMs)
-      const data = raw ? parseJson(raw, input.chapterId.trim()) : null
+      const data = raw ? parseJson(raw, input.chapterId.trim(), input.content) : null
       if (data) return { success: true, data, retried }
     } catch (error) {
       if (attempt === 1) {

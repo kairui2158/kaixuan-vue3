@@ -108,7 +108,7 @@ import { useProjectStore } from '../../stores/project'
 import { useDeAiStore } from '../../stores/deai'
 import { useSettingsStore } from '../../stores/settings'
 import { useMemoryExtraction } from '../../composables/useMemoryExtraction'
-import { getAiService } from '../../services/aiService'
+import { unifiedMemoryAiCall } from '../../services/memoryExtractor'
 import { useProviderStore } from '../../stores/provider'
 
 const editorStore = useEditorStore()
@@ -118,14 +118,7 @@ const deAiStore = useDeAiStore()
 const settingsStore = useSettingsStore()
 const providerStore = useProviderStore()
 const { process: deAiProcess } = useDeAi()
-const memoryExtraction = reactive(useMemoryExtraction(async (prompt, systemPrompt) => {
-  const service = await getAiService()
-  // memoryExtractor owns the two-attempt JSON contract. Do not add the
-  // service-level network retry here: otherwise one failed extraction can
-  // multiply into four long requests before the review modal becomes usable.
-  const result = await service.callAi({ purpose: 'generate', messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: prompt }], jsonMode: true, stream: false, retry: false, timeoutMs: 300_000, meta: { source: 'EditorPanel.memory-extraction' } })
-  return result.text || null
-}))
+const memoryExtraction = reactive(useMemoryExtraction(unifiedMemoryAiCall))
 const editorTextarea = ref<HTMLTextAreaElement | null>(null)
 const exportMenu = ref(false)
 const undoRedo = useUndoRedo(50)
@@ -183,7 +176,7 @@ function onKeydown(e: KeyboardEvent) {
   }
 }
 
-function save() {
+async function save() {
   if (!activeTab.value) {
     void appConfirm.alert('请先选择或创建一个章节');
     return;
@@ -224,7 +217,9 @@ function save() {
       const ch = chs.find((c: any) => c.id === activeTab.value!.chapterId)
       if (ch) {
         ch.body = activeTab.value.content
-        projectStore.saveProject()
+        const chapterIndex = ch.index ?? Object.values(projectStore.chapters).flat().findIndex((item: any) => item.id === ch.id)
+        await projectStore.recordSourceVersion(ch.id, Math.max(0, chapterIndex), activeTab.value.content)
+        await projectStore.saveProject()
         projectStore.refreshTree()
         break
       }
@@ -240,7 +235,8 @@ async function extractCurrentMemory() {
   if (!tab || !tab.chapterId || !tab.content.trim()) return
   save()
   const index = Object.values(projectStore.chapters).flat().findIndex((item: any) => item.id === tab.chapterId)
-  await memoryExtraction.start({ id: tab.chapterId, index: Math.max(0, index), title: tab.title, content: tab.content })
+  const sourceVersionId = await projectStore.recordSourceVersion(tab.chapterId, Math.max(0, index), tab.content)
+  await memoryExtraction.start({ id: tab.chapterId, index: Math.max(0, index), title: tab.title, content: tab.content, sourceVersionId })
 }
 
 function closeMemoryPreview() {

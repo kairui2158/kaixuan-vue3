@@ -48,6 +48,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   forceQuit: function() { ipcRenderer.send('app:quit') },
   onCloseRequest: function(callback) { ipcRenderer.on('app:requestClose', function() { callback() }) },
   respondCloseChoice: function(choice) { ipcRenderer.send('app:closeChoice', choice) },
+  sendSaveComplete: function() { ipcRenderer.send('app:saveComplete') },
   onOpenHelpGuide: function(callback) { ipcRenderer.on('app:openHelpGuide', function() { callback() }) },
 
   // Diag

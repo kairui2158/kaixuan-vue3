@@ -836,7 +836,7 @@ import { useConfigExchange } from "../../composables/useConfigExchange"
 import type { PipelineBindingRecord } from "../../services/configExchange"
 import { storageKey } from "../../utils/storage-key"
 import PipelineFlow from "./PipelineFlow.vue"
-import { extractMemory } from "../../services/memoryExtractor"
+import { extractMemory, unifiedMemoryAiCall } from "../../services/memoryExtractor"
 import { mergeMemory } from "../../services/memoryMerger"
 import type { ExtractedMemoryData } from "../../services/memoryExtractor"
 import { conversationContextService } from "../../services/conversationContextService"
@@ -980,6 +980,43 @@ const memoryPreviewVisible = ref(false)
 const memoryPreviewLoading = ref(false)
 const memoryPreviewSaving = ref(false)
 const memoryPreviewError = ref("")
+const memoryPreviewLogs = ref<Array<{
+  timestamp: string
+  durationMs: number
+  projectId: string
+  chapterId: string
+  phase: "start" | "request" | "parse" | "complete" | "failed"
+  status: "started" | "success" | "failed"
+  errorKind?: "timeout" | "network" | "invalid_json" | "canceled" | "unknown"
+}>>([])
+const MEMORY_LOG_STEP_NAME = "记忆抽取"
+
+function addMemoryExecutionLog(entry: {
+  phase: "start" | "complete" | "failed"
+  status: "started" | "success" | "failed"
+  durationMs: number
+  projectId: string
+  chapterId: string
+  errorKind?: string
+  message?: string
+}) {
+  execLogStore.addLog({
+    step: 0,
+    stepName: MEMORY_LOG_STEP_NAME,
+    mode: `memory-extraction:${entry.phase}`,
+    skillNames: [],
+    prompt: "",
+    result: entry.message || "",
+    duration: entry.durationMs,
+    status: entry.status === "success" ? "success" : "failed",
+    providerId: providerStore.preferredGenerateProvider?.id,
+    usage: {
+      projectId: entry.projectId,
+      chapterId: entry.chapterId,
+      errorKind: entry.errorKind
+    }
+  })
+}
 const memoryPreviewChanges = ref<any[]>([])
 const memoryPreviewItems = ref<MemoryPreviewItem[]>([])
 const memoryPreviewExtracted = ref<ExtractedMemoryData | null>(null)
@@ -1138,7 +1175,6 @@ function changeItemCategory(item: any, newCat: string) {
     if (moved) {
       moved.category = newCat
       sc.items[newCat].push(moved)
-      selectedSettingCategory.value = newCat
       projectStore.saveProject()
     }
   }
@@ -2612,7 +2648,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     ch.body = generationResult.body
     ch.generationMetadata = generationResult.metadata
     ch.bodyGenerated = true
-    projectStore.saveProject()
+    await projectStore.saveProject()
     projectStore.refreshTree()
     syncChapterManager(volId, ch, generationResult.body)
     // Insert into the editor automatically (same link as old architecture).
@@ -2753,19 +2789,23 @@ function filterReviewedMemory(extracted: ExtractedMemoryData): ExtractedMemoryDa
 
 async function callMemoryApi(prompt: string, systemPrompt: string): Promise<string | null> {
   try {
-    return await callApiWithAgent(4, systemPrompt, prompt)
+    return await unifiedMemoryAiCall(prompt, systemPrompt)
   } catch (error) {
+    if ((error as any)?.message === "记忆抽取超时" || (error as any)?.kind === "timeout") throw error
     console.warn("[PIPELINE] memory extraction API failed:", error)
     return null
   }
 }
 
 async function confirmBodyWithMemory() {
+  const projectIdAtCall = projectStore.currentProjectId
   const chapter = currentBodyChapter()
   if (!chapter || !chapter.content.trim()) return
 
   // 正文先落盘；记忆抽取失败不能回滚正文。
   const { volId, chapter: ch } = getBodyChapterByVisibleIndex(bodyVolumeIndex.value, bodyChapterIndex.value)
+  const sourceVersionId = await projectStore.recordSourceVersion(chapter.id, chapter.index, chapter.content)
+  if (projectStore.currentProjectId !== projectIdAtCall) return
   if (ch) {
     ch.body = chapter.content
     ch.bodyGenerated = true
@@ -2776,6 +2816,35 @@ async function confirmBodyWithMemory() {
   memoryPreviewLoading.value = true
   memoryPreviewError.value = ""
   memoryPreviewVisible.value = true
+  const startedAt = Date.now()
+  const log = (phase: "start" | "request" | "parse" | "complete" | "failed", status: "started" | "success" | "failed", errorKind?: "timeout" | "network" | "invalid_json" | "canceled" | "unknown") => {
+    const structured = {
+      phase,
+      status,
+      errorKind,
+      timestamp: new Date().toISOString(),
+      durationMs: Date.now() - startedAt,
+      projectId: projectStore.currentProjectId || "",
+      chapterId: chapter.id
+    }
+    memoryPreviewLogs.value.push(structured)
+    if (phase === "start" || phase === "complete" || phase === "failed") {
+      addMemoryExecutionLog({
+        phase,
+        status,
+        durationMs: structured.durationMs,
+        projectId: structured.projectId,
+        chapterId: structured.chapterId,
+        errorKind,
+        message: phase === "start"
+          ? `开始记忆抽取：${structured.projectId}/${structured.chapterId}`
+          : phase === "complete"
+            ? `记忆抽取完成：${structured.projectId}/${structured.chapterId}`
+            : `记忆抽取失败：${structured.projectId}/${structured.chapterId}${errorKind ? ` (${errorKind})` : ""}`
+      })
+    }
+  }
+  log("start", "started")
   memoryPreviewChanges.value = []
   memoryPreviewExtracted.value = null
   memoryPreviewChapter.value = chapter
@@ -2783,13 +2852,17 @@ async function confirmBodyWithMemory() {
     const result = await extractMemory({
       chapterId: chapter.id,
       chapterIndex: chapter.index,
+      sourceVersionId,
       chapterTitle: chapter.title,
       content: chapter.content
     }, callMemoryApi, 30000)
+    if (projectStore.currentProjectId !== projectIdAtCall) return
     if (!result.success) {
+      log("failed", "failed", result.error?.includes("超时") ? "timeout" : "invalid_json")
       memoryPreviewError.value = `记忆抽取失败：${result.error || "未知错误"}。正文已保存。`
       return
     }
+    log("complete", "success")
     memoryPreviewExtracted.value = result.data
     const merged = mergeMemory(projectStore.memories, result.data, {
       chapterId: chapter.id,
@@ -2798,6 +2871,7 @@ async function confirmBodyWithMemory() {
     })
     memoryPreviewChanges.value = merged.changes.map((change: any) => ({ ...change, review: "pending" }))
   } catch (error: any) {
+    log("failed", "failed", "unknown")
     memoryPreviewError.value = `记忆抽取失败：${error?.message || "未知错误"}。正文已保存。`
   } finally {
     memoryPreviewLoading.value = false
@@ -2824,7 +2898,8 @@ async function confirmMemoryPreview() {
   let written = false
   try {
     const reviewed = filterReviewedMemory(extracted)
-    const merged = mergeMemory(projectStore.memories, reviewed, {
+    const confirmed = Object.fromEntries(Object.entries(reviewed).map(([kind, values]) => [kind, (values as any[]).map(item => ({ ...item, factStatus: 'confirmed' }))])) as any
+      const merged = mergeMemory(projectStore.memories, confirmed, {
       chapterId: chapter.id,
       chapterIndex: chapter.index,
       blacklist: projectStore.memoryBlacklist

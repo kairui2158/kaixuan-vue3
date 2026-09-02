@@ -48,3 +48,12 @@
 1. 上下文服务的单测只能证明消息组装与隔离协议，不能证明调用点已接入；每个调用点必须在请求参数、成功写回和失败副作用三处分别核销。
 2. 多轮探针必须用最后一条 user 消息判定 phase，mock 响应按 phase 映射；否则测试历史会污染断言造成假失败。
 3. CDP 长事务要给 aiService 心跳重试留足时间，本轮采用 360s 超时。
+
+## 2026-09-01 续验记录
+
+- 修复 `ChatPanel.vue:766-776`：清空主页会话同步调用 `conversationContextService.clearSession`。
+- 源应用复测前先加载真实默认项目，清空结果：`oldChatMessages: 0`、`contextMessages: 0`、`visibleMessages: 0`，两类清理均为 true；第一次假阴性根因为页面仍在测试 projectId，脚本读取了错误 key。
+- 新增 `aiService.spec.ts` 两个精准错误路径：断网 `kind: network` 且 `fetch` 1 次；验证供应商缺失时中文错误且 `fetch` 0 次。专项输出 `44 passed`。
+- 真实默认项目读取到 38 条记忆，首条为“菌膜的试探”；当前上下文消息未出现该键名，故“真实记忆已注入 API outgoing messages”仍不宣称通过。
+- 设置页保存链路确认：`SkillSettings.vue:448-460` -> `skillStore.updateSkill` -> `skill.ts:132-149`；异步写盘必须等待后再验。实时 DOM 发现 messages 容器/气泡存在滚动内容，未据此判为布局缺陷。
+- 本轮不验证安装包客户路径，安装包门保持边界状态。

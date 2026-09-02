@@ -337,6 +337,10 @@ onMounted(async () => {
       }
     }
   } catch (e) { /* corruption check is optional */ }
+  window.electronAPI?.onFinalSave?.(async () => {
+    await projectStore.saveProject()
+    window.electronAPI?.sendSaveComplete?.()
+  })
   window.addEventListener('generate-body', handleGenerateBody)
   window.addEventListener('insert-text', handleInsertText)
   window.addEventListener('show-skill-binding', handleSkillBinding)

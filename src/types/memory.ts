@@ -14,6 +14,27 @@ export interface MemoryItem {
   locked?: boolean
 }
 
+export interface SourceVersion {
+  id: string
+  chapterId: string
+  chapterIndex: number
+  contentHash: string
+  savedAt: string
+  wordCount: number
+}
+
+export interface FactSource {
+  sourceVersionId: string
+  chapterId: string
+  chapterIndex: number
+  snippet: string
+  rangeStart?: number
+  rangeEnd?: number
+  verified: boolean
+}
+
+export type FactStatus = 'confirmed' | 'pending' | 'stale' | 'conflicted' | 'rejected'
+
 /** 实体（人物/组织/地点等） */
 export interface MemoryEntity {
   id: string
@@ -36,6 +57,10 @@ export interface MemoryEntity {
   lockedFields: string[]
   evidence: Array<{ chapterId: string; snippet: string }>
   createdAt: string
+  factStatus?: FactStatus
+  supersedesId?: string
+  conflictsWithIds?: string[]
+  factSource?: FactSource
   updatedAt: string
 }
 
@@ -50,6 +75,10 @@ export interface MemoryRelation {
   evidence: Array<{ chapterId: string; snippet: string }>
   locked: boolean
   createdAt: string
+  factStatus?: FactStatus
+  supersedesId?: string
+  conflictsWithIds?: string[]
+  factSource?: FactSource
   updatedAt: string
 }
 
@@ -67,6 +96,10 @@ export interface MemoryEvent {
   locked: boolean
   evidence: Array<{ chapterId: string; snippet: string }>
   createdAt: string
+  factStatus?: FactStatus
+  supersedesId?: string
+  conflictsWithIds?: string[]
+  factSource?: FactSource
 }
 
 /** 世界观条目 */
@@ -80,6 +113,10 @@ export interface WorldEntry {
   locked: boolean
   evidence: Array<{ chapterId: string; snippet: string }>
   createdAt: string
+  factStatus?: FactStatus
+  supersedesId?: string
+  conflictsWithIds?: string[]
+  factSource?: FactSource
 }
 
 /** 伏笔 */
@@ -96,6 +133,10 @@ export interface Foreshadowing {
   locked: boolean
   evidence: Array<{ chapterId: string; snippet: string }>
   createdAt: string
+  factStatus?: FactStatus
+  supersedesId?: string
+  conflictsWithIds?: string[]
+  factSource?: FactSource
 }
 
 /** 记忆元数据 */
@@ -136,4 +177,5 @@ export interface MemoryData {
   history?: MemoryChangeRecord[]
   categories: string[]
   items: MemoryItem[]
+  sourceVersions?: SourceVersion[]
 }

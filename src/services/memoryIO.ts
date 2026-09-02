@@ -27,6 +27,22 @@ export interface MemoryImportMergeResult {
   added: number
   skipped: number
 }
+
+export interface MemoryBackup { createdAt: string; memory: MemoryData }
+
+export function createMemoryBackup(memory: MemoryData): string {
+  return JSON.stringify({ createdAt: new Date().toISOString(), memory: JSON.parse(JSON.stringify(memory)) })
+}
+
+export function recoverFromBackup(raw: string): ImportResult {
+  try {
+    const parsed = JSON.parse(raw) as Partial<MemoryBackup>
+    if (!parsed || typeof parsed !== "object" || !parsed.memory) return { success: false, error: "备份格式无效" }
+    return importFullJSON(JSON.stringify(parsed.memory))
+  } catch (error) {
+    return { success: false, error: "备份解析失败：" + (error instanceof Error ? error.message : "未知错误") }
+  }
+}
  
  // ---- 全量导出 ----
  

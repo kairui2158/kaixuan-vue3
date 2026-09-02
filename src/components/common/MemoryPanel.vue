@@ -62,20 +62,37 @@
           <div v-for="(item, idx) in filteredItems" :key="idx" class="mem-item-card">
             <CharacterCard
               v-if="item.source === 'entity' && item.entity"
-              :entity="item.entity"
-              @open-source="openMemorySource"
-              @export="exportEntityCard(item)"
-            />
+             :entity="item.entity"
+             @open-source="openMemorySource"
+             @edit="editEntity(item.entity.id)"
+             @export="exportEntityCard(item)"
+           />
             <template v-if="item.source !== 'entity'">
             <div class="mem-item-header">
               <span class="mem-item-key">{{ item.key }}</span>
               <span class="mem-item-cat">{{ item.category }}</span>
-              <div class="mem-item-actions">
-                <template v-if="item.source === 'legacy'">
-                  <button class="btn-sm btn-secondary" @click="showForm(item.legacyIndex)">编辑</button>
-                  <button class="btn-sm btn-danger" @click="deleteItem(item.legacyIndex)">删除</button>
-                </template>
-              </div>
+             <div class="mem-item-actions">
+               <template v-if="item.source === 'legacy'">
+                 <button class="btn-sm btn-secondary" @click="showForm(item.legacyIndex)">编辑</button>
+                 <button class="btn-sm btn-danger" @click="deleteItem(item.legacyIndex)">删除</button>
+               </template>
+               <template v-else-if="item.source === 'event' && item.event">
+                 <button class="btn-sm btn-secondary" @click="editEvent(item.event.id)">编辑</button>
+                 <button class="btn-sm btn-danger" @click="deleteEvent(item.event.id)">删除</button>
+               </template>
+               <template v-else-if="item.source === 'world' && item.world">
+                 <button class="btn-sm btn-secondary" @click="editWorld(item.world.id)">编辑</button>
+                 <button class="btn-sm btn-danger" @click="deleteWorld(item.world.id)">删除</button>
+               </template>
+               <template v-else-if="item.source === 'relation' && item.relation">
+                 <button class="btn-sm btn-secondary" @click="editRelation(item.relation.id)">编辑</button>
+                 <button class="btn-sm btn-danger" @click="deleteRelation(item.relation.id)">删除</button>
+               </template>
+               <template v-else-if="item.source === 'foreshadowing' && item.foreshadowing">
+                 <button class="btn-sm btn-secondary" @click="editForeshadowing(item.foreshadowing.id)">编辑</button>
+                 <button class="btn-sm btn-danger" @click="deleteForeshadowing(item.foreshadowing.id)">删除</button>
+               </template>
+             </div>
             </div>
             <div class="mem-item-content">{{ item.content }}</div>
             <div class="mem-item-date">{{ item.created || '' }}</div>
@@ -101,6 +118,25 @@
         </div>
       </div>
     </div>
+    <div v-if="editDialogVisible" class="mem-overlay" @click.self="closeEditDialog">
+      <div class="mem-edit-dialog">
+        <h3>{{ editDialogTitle }}</h3>
+        <div class="mem-edit-scroll">
+          <div v-for="field in editDialog.fields" :key="field.name" class="form-group">
+            <label>{{ field.label }}</label>
+            <select v-if="field.options" v-model="editDialog.values[field.name]">
+              <option v-for="option in field.options" :key="option.value" :value="option.value">{{ option.label }}</option>
+            </select>
+            <textarea v-else-if="field.multiline" v-model="editDialog.values[field.name]" rows="3"></textarea>
+            <input v-else v-model="editDialog.values[field.name]" />
+          </div>
+        </div>
+        <div class="mem-inline-actions">
+          <button class="btn-secondary" @click="closeEditDialog">取消</button>
+          <button class="btn-primary" @click="saveEditDialog">保存</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -113,8 +149,10 @@ import GraphAnalysis from '../memory/GraphAnalysis.vue'
 import MindMap from '../memory/MindMap.vue'
 import TimelineView from '../memory/TimelineView.vue'
 import CharacterCard from '../memory/CharacterCard.vue'
+import type { MemoryEntity, MemoryRelation, MemoryEvent, WorldEntry, Foreshadowing } from '../../types/memory'
 import { useAppConfirm } from '../../composables/useAppConfirm'
-import { exportFullJSON, importFullJSON, mergeImportedMemory, exportCharacterCardV3, importCharacterCardV3 } from '../../services/memoryIO'
+import { storageKey } from '../../utils/storage-key'
+import { exportFullJSON, importFullJSON, mergeImportedMemory, createMemoryBackup, exportCharacterCardV3, importCharacterCardV3 } from '../../services/memoryIO'
 
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
@@ -131,6 +169,25 @@ const catInputRef = ref<HTMLInputElement | null>(null)
 const showRelationGraph = ref<false | 'graph' | 'analysis' | 'mind' | 'timeline'>(false)
 const showMoreMenu = ref(false)
 
+type EditableKind = 'entity' | 'relation' | 'event' | 'world' | 'foreshadowing'
+type EditableRecord = MemoryEntity | MemoryRelation | MemoryEvent | WorldEntry | Foreshadowing
+type EditDialogField = {
+  name: string
+  label: string
+  multiline?: boolean
+  options?: Array<{ label: string; value: string }>
+}
+type EditDialog = {
+  kind: EditableKind
+  id: string
+  title: string
+  fields: EditDialogField[]
+  values: Record<string, string>
+}
+const emptyEditDialog: EditDialog = { kind: 'entity', id: '', title: '', fields: [], values: {} }
+const editDialog = ref<EditDialog>(emptyEditDialog)
+const editDialogVisible = ref(false)
+
 type MemoryDisplayItem = {
   key: string
   category: string
@@ -139,6 +196,10 @@ type MemoryDisplayItem = {
   source: 'legacy' | 'entity' | 'relation' | 'event' | 'world' | 'foreshadowing'
   legacyIndex: number
   entity?: import('../../types/memory').MemoryEntity
+  relation?: import('../../types/memory').MemoryRelation
+  event?: import('../../types/memory').MemoryEvent
+  world?: import('../../types/memory').WorldEntry
+  foreshadowing?: import('../../types/memory').Foreshadowing
 }
 
 const memoryCategories = computed(() => {
@@ -175,7 +236,8 @@ const memoryDisplayItems = computed<MemoryDisplayItem[]>(() => {
     content: [item.type, item.detail].filter(Boolean).join('：'),
     created: item.updatedAt || item.createdAt,
     source: 'relation' as const,
-    legacyIndex: -1
+    legacyIndex: -1,
+    relation: item
   }))
   const events = projectStore.memories.events.map((item: any) => ({
     key: item.title || item.id,
@@ -183,7 +245,8 @@ const memoryDisplayItems = computed<MemoryDisplayItem[]>(() => {
     content: item.summary || '',
     created: item.createdAt,
     source: 'event' as const,
-    legacyIndex: -1
+    legacyIndex: -1,
+    event: item
   }))
   const world = projectStore.memories.world.map((item: any) => ({
     key: item.name || item.id,
@@ -191,7 +254,8 @@ const memoryDisplayItems = computed<MemoryDisplayItem[]>(() => {
     content: item.description || '',
     created: item.createdAt,
     source: 'world' as const,
-    legacyIndex: -1
+    legacyIndex: -1,
+    world: item
   }))
   const foreshadowing = projectStore.memories.foreshadowing.map((item: any) => ({
     key: item.title || item.id,
@@ -199,7 +263,8 @@ const memoryDisplayItems = computed<MemoryDisplayItem[]>(() => {
     content: item.description || '',
     created: item.createdAt,
     source: 'foreshadowing' as const,
-    legacyIndex: -1
+    legacyIndex: -1,
+    foreshadowing: item
   }))
   return [...legacy, ...entities, ...relations, ...events, ...world, ...foreshadowing]
 })
@@ -246,6 +311,179 @@ async function deleteItem(idx: number) {
   }
 }
 
+
+// D3: CRUD functions for new memory model
+const entityFields: EditDialogField[] = [
+  { name: 'name', label: '名称' },
+  { name: 'type', label: '类型', options: [
+    { label: '人物', value: 'character' }, { label: '组织', value: 'organization' },
+    { label: '地点', value: 'location' }, { label: '物品', value: 'item' },
+    { label: '概念', value: 'concept' }, { label: '其他', value: 'other' }
+  ] },
+  { name: 'status', label: '状态' },
+  { name: 'description', label: '描述', multiline: true },
+  { name: 'personality', label: '性格', multiline: true },
+  { name: 'appearance', label: '外貌', multiline: true },
+  { name: 'background', label: '身世', multiline: true },
+  { name: 'notes', label: '备注', multiline: true }
+]
+const relationFields: EditDialogField[] = [
+  { name: 'type', label: '关系类型' },
+  { name: 'strength', label: '强度（0-10）' },
+  { name: 'detail', label: '详情', multiline: true }
+]
+const eventFields: EditDialogField[] = [
+  { name: 'title', label: '标题' },
+  { name: 'type', label: '类型' },
+  { name: 'chapterId', label: '章节 ID' },
+  { name: 'chapterIndex', label: '章节序号' },
+  { name: 'summary', label: '摘要', multiline: true }
+]
+const worldFields: EditDialogField[] = [
+  { name: 'name', label: '名称' },
+  { name: 'category', label: '分类', options: [
+    { label: '地理', value: '地理' }, { label: '政治', value: '政治' }, { label: '经济', value: '经济' },
+    { label: '文化', value: '文化' }, { label: '魔法', value: '魔法' }, { label: '科技', value: '科技' },
+    { label: '历史', value: '历史' }, { label: '其他', value: '其他' }
+  ] },
+  { name: 'description', label: '描述', multiline: true }
+]
+const foreshadowingFields: EditDialogField[] = [
+  { name: 'title', label: '标题' },
+  { name: 'description', label: '描述', multiline: true },
+  { name: 'plantedChapterId', label: '埋设章节 ID' },
+  { name: 'plantedChapterIndex', label: '埋设章节序号' },
+  { name: 'status', label: '状态', options: [
+    { label: '已埋设', value: 'planted' }, { label: '推进中', value: 'active' },
+    { label: '已回收', value: 'resolved' }, { label: '已放弃', value: 'abandoned' }
+  ] }
+]
+const editDialogTitles: Record<EditableKind, string> = {
+  entity: '编辑实体', relation: '编辑关系', event: '编辑事件',
+  world: '编辑世界观', foreshadowing: '编辑伏笔'
+}
+const editDialogFieldSets: Record<EditableKind, EditDialogField[]> = {
+  entity: entityFields, relation: relationFields, event: eventFields,
+  world: worldFields, foreshadowing: foreshadowingFields
+}
+
+function findEditable(kind: EditableKind, id: string): EditableRecord | undefined {
+  if (kind === 'entity') return projectStore.memories.entities.find(item => item.id === id)
+  if (kind === 'relation') return projectStore.memories.relations.find(item => item.id === id)
+  if (kind === 'event') return projectStore.memories.events.find(item => item.id === id)
+  if (kind === 'world') return projectStore.memories.world.find(item => item.id === id)
+  return projectStore.memories.foreshadowing.find(item => item.id === id)
+}
+
+function openEditDialog(kind: EditableKind, id: string) {
+  const record = findEditable(kind, id)
+  if (!record) return
+  const fields = editDialogFieldSets[kind]
+  editDialog.value = {
+    kind,
+    id,
+    title: editDialogTitles[kind],
+    fields,
+    values: Object.fromEntries(fields.map(field => [field.name, String((record as any)[field.name] ?? '')]))
+  }
+  editDialogVisible.value = true
+}
+
+function closeEditDialog() {
+  editDialogVisible.value = false
+  editDialog.value = emptyEditDialog
+}
+
+const editDialogTitle = computed(() => editDialog.value.title)
+
+function saveEditDialog() {
+  const dialog = editDialog.value
+  if (!dialog) return
+  const record = findEditable(dialog.kind, dialog.id)
+  if (!record) {
+    closeEditDialog()
+    return
+  }
+  const locked = dialog.kind === 'entity'
+    ? (record as MemoryEntity).lockedFields
+    : (record as MemoryRelation | MemoryEvent | WorldEntry | Foreshadowing).locked
+      ? ['*']
+      : []
+  const patch: Record<string, string> = {}
+  for (const field of dialog.fields) {
+    if (locked.includes(field.name) || locked.includes('*')) continue
+    const value = dialog.values[field.name]?.trim() ?? ''
+    if (!value) continue
+    if (field.name === 'strength' || field.name.endsWith('Index')) {
+      const parsed = Number(value)
+      if (!Number.isFinite(parsed)) continue
+      patch[field.name] = String(parsed)
+      continue
+    }
+    patch[field.name] = value
+  }
+  if (!Object.keys(patch).length) {
+    void appConfirm.alert('没有可保存的更改')
+    return
+  }
+  if (dialog.kind === 'entity') projectStore.updateEntity(dialog.id, patch as Partial<MemoryEntity>)
+  else if (dialog.kind === 'relation') projectStore.updateRelation(dialog.id, patch as Partial<MemoryRelation>)
+  else if (dialog.kind === 'event') projectStore.updateEvent(dialog.id, patch as Partial<MemoryEvent>)
+  else if (dialog.kind === 'world') projectStore.updateWorldEntry(dialog.id, patch as Partial<WorldEntry>)
+  else projectStore.updateForeshadowing(dialog.id, patch as Partial<Foreshadowing>)
+  closeEditDialog()
+}
+
+function editEntity(id: string) {
+  openEditDialog('entity', id)
+}
+
+async function deleteEntity(id: string) {
+  if (await appConfirm.confirm({ title: '删除实体', message: '确定删除此实体？', confirmText: '删除', danger: true })) {
+    projectStore.deleteEntity(id)
+  }
+}
+
+function editEvent(id: string) {
+  openEditDialog('event', id)
+}
+
+async function deleteEvent(id: string) {
+  if (await appConfirm.confirm({ title: '删除事件', message: '确定删除此事件？', confirmText: '删除', danger: true })) {
+    projectStore.deleteEvent(id)
+  }
+}
+
+function editWorld(id: string) {
+  openEditDialog('world', id)
+}
+
+async function deleteWorld(id: string) {
+  if (await appConfirm.confirm({ title: '删除世界观', message: '确定删除此世界观条目？', confirmText: '删除', danger: true })) {
+    projectStore.deleteWorldEntry(id)
+  }
+}
+
+function editRelation(id: string) {
+  openEditDialog('relation', id)
+}
+
+async function deleteRelation(id: string) {
+  if (await appConfirm.confirm({ title: '删除关系', message: '确定删除此关系？', confirmText: '删除', danger: true })) {
+    projectStore.deleteRelation(id)
+  }
+}
+
+function editForeshadowing(id: string) {
+  openEditDialog('foreshadowing', id)
+}
+
+async function deleteForeshadowing(id: string) {
+  if (await appConfirm.confirm({ title: '删除伏笔', message: '确定删除此伏笔？', confirmText: '删除', danger: true })) {
+    projectStore.deleteForeshadowing(id)
+  }
+}
+
 function confirmAddCat() {
   const name = newCatName.value.trim()
   if (name) {
@@ -277,6 +515,8 @@ async function importMemory(mode: 'merge' | 'replace' = 'merge') {
     return
   }
   if (mode === 'replace') {
+    const backupKey = storageKey('memoryBackup_' + projectStore.currentProjectId)
+    await window.electronAPI.storageWrite(backupKey, createMemoryBackup(projectStore.memories))
     if (!await appConfirm.confirm({ title: '覆盖导入记忆', message: '覆盖导入会删除当前项目已有记忆，只保留文件内容。确认覆盖？', confirmText: '覆盖', danger: true })) return
     await projectStore.recordMemoryChange(result.memory, {
       chapterId: 'memory-import-replace',
@@ -471,6 +711,10 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
 .mem-inline-box h3 { margin: 0; font-size: var(--font-size-lg); }
 .mem-input { width: 100%; padding: 6px 10px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-primary); color: var(--text-primary); font-size: var(--font-size-md); outline: none; box-sizing: border-box; }
 .mem-input:focus { border-color: var(--accent); }
+.mem-edit-dialog { display:flex; flex-direction:column; gap:14px; width:min(520px,88vw); max-height:82vh; padding:22px; background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:var(--radius-lg); }
+.mem-edit-dialog h3 { margin:0; font-size:var(--font-size-lg); }
+.mem-edit-scroll { overflow:auto; min-height:0; }
+.mem-inline-actions { display:flex; justify-content:flex-end; gap:8px; }
 .mem-inline-actions { display: flex; gap: 8px; justify-content: flex-end; }
 .mem-view-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; scrollbar-width: thin; }
 .mem-view-tabs::-webkit-scrollbar { height: 2px; }

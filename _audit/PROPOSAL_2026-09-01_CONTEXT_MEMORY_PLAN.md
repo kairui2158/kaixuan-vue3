@@ -1,6 +1,6 @@
 # 上下文记忆缺陷修复方案（V2 全对齐版）
 
-> 状态：**已执行，P0-P6 完成** —— 最终结论以 `CONTEXT_MEMORY_FINAL_REPORT_2026-09-01.md` 和本轮验证输出为准
+> 状态：**P0-P5 已完成；P6 真实错误路径与客户安装包门仍按本报告标注** —— 最终结论以 `CONTEXT_MEMORY_FINAL_REPORT_2026-09-01.md` 和本轮验证输出为准
 > 生成日期：2026-09-01
 > 经验依据：`_audit/神意开发经验总结_v2.md`（下称 V2）
 > 结论先行：SKILL 调用无会话上下文是应用层协议缺失，不是供应商或模型问题
@@ -144,48 +144,48 @@ getPolicy(purpose: string, skillId?: string): ContextPolicy
 
 ### P0 协议冻结与影响圈（V2 §1 M1/M3）
 
-- [ ] 新增 `src/types/context.ts`：ContextBundle / ContextPolicy / ContextRef / ChatMessage 归一化。
-- [ ] rg 产出影响圈清单：OutlineWorkspace.vue、ChatPanel.vue、chat store、skill-engine.js 的引用关系。
-- [ ] 类型编译通过（vue-tsc / build），零行为变化。
+- [x] 新增 `src/types/context.ts`：ContextBundle / ContextPolicy / ContextRef / ChatMessage 归一化。
+- [x] rg 产出影响圈清单：OutlineWorkspace.vue、ChatPanel.vue、chat store、skill-engine.js 的引用关系。
+- [x] 类型编译通过（vue-tsc / build），零行为变化。
 
 验证：`npx vue-tsc --noEmit` 原始输出 + 影响圈清单写入阶段报告。
 
 ### P1 ConversationContextService（V2 §1 规则 5、§8 规则 1）
 
-- [ ] 新增 `src/services/conversationContextService.ts`：buildContextBundle / assembleMessages / recordTurn / clearSession / getPolicy。
-- [ ] 数据只读自 store/storage，不新建事实来源；不新建 HTTP 入口，最终仍走 aiService.callAi。
-- [ ] 脚本验证四种 policy 输出形状（none/recent/summary/full），不发真实请求。
+- [x] 新增 `src/services/conversationContextService.ts`：buildContextBundle / assembleMessages / recordTurn / clearSession / getPolicy。
+- [x] 数据只读自 store/storage，不新建事实来源；不新建 HTTP 入口，最终仍走 aiService.callAi。
+- [x] 脚本验证四种 policy 输出形状（none/recent/summary/full），不发真实请求。
 
 验证：复杂脚本写 .cjs 文件执行（V2 §2 规则 2），输出各 policy 的 messages 结构对比表。
 
 ### P2 SKILL 执行链接入（V2 §8 规则 3/7/9）
 
-- [ ] common/OutlineWorkspace.vue:412 处改经 ContextService 组装 messages。
-- [ ] public/skill-engine.js:221 支持注入 context block + history 参数（保持向后兼容默认）。
-- [ ] chain 语义：第一步 = 原始请求 + recent + workspace；后续 = 原始请求 + 上一步完整输出。
-- [ ] recordTurn 写回；失败区分 failed/skipped/fallback，不伪装完成。
-- [ ] 诊断日志 detail 增 ctxTurns 字段（V2 §8 规则 7：detail 必含既有字段）。
+- [x] common/OutlineWorkspace.vue:412 处改经 ContextService 组装 messages。
+- [x] public/skill-engine.js:221 支持注入 context block + history 参数（保持向后兼容默认）。
+- [x] chain 语义：第一步 = 原始请求 + recent + workspace；后续 = 原始请求 + 上一步完整输出。
+- [x] recordTurn 写回；失败区分 failed/skipped/fallback，不伪装完成。
+- [x] 诊断日志 detail 增 ctxTurns 字段（V2 §8 规则 7：detail 必含既有字段）。
 
 验证：monkey-patch 记录 aiService 入参断言历史存在（V2 §2 规则 15）；再真实 Electron CDP 两轮 SKILL 对话，第二轮日志含第一轮内容。
 
 ### P3 流水线归一化（V2 §9 防回滚铁律）
 
-- [ ] PipelinePanel.vue:1573/2594 的 memoryContext 改经 ContextBundle 形状。
-- [ ] 不重做已闭环记忆逻辑，只统一消息拼装入口。
+- [x] PipelinePanel.vue:1573/2594 的 memoryContext 改经 ContextBundle 形状。
+- [x] 不重做已闭环记忆逻辑，只统一消息拼装入口。
 
 验证：对比接入前后 messages 数组与请求次数，一章生成仍 = 1 次请求；服务层测试不当 UI 证据（V2 §3 规则 4）。
 
 ### P4 UI 策略配置（V2 §5 规则 1/6/9）
 
-- [ ] 设置页 SKILL/Agent 面板新增"上下文策略"：历史模式（关闭/最近 5/10/20/摘要）+ 大纲/记忆开关。
-- [ ] 默认 recent 10 + outline + memory；颜色字号走 tokens.css，禁硬编码。
+- [x] 设置页 SKILL/Agent 面板新增"上下文策略"：历史模式（关闭/最近 5/10/20/摘要）+ 大纲/记忆开关。
+- [x] 默认 recent 10 + outline + memory；颜色字号走 tokens.css，禁硬编码。
 
 验证：CDP 逐弹窗溢出扫描（V2 §5 规则 6/9）；配置保存 → 重启 → 恢复断言。
 
 ### P5 持久化与兼容（V2 §7 规则 1/2/6/15）
 
-- [ ] wa_ctx_<projectId> 落地，写盘走现有加固层。
-- [ ] 旧 chat 数据只读；导入不含 ctx 状态的项目不预建。
+- [x] wa_ctx_<projectId> 落地，写盘走现有加固层。
+- [x] 旧 chat 数据只读；导入不含 ctx 状态的项目不预建。
 
 验证：三段式 A/B/C 跨重启脚本（V2 §7 规则 12）；真实磁盘损坏 JSON → .bak 恢复断言（V2 §7 规则 4）。
 

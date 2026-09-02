@@ -80,10 +80,14 @@ function saveWindowState() {
   } catch(e) {}
 }
 
-function createWindow() {
-  var docsDir = path.join(app.getPath('documents'), '神意助手数据')
-  var dataDir = docsDir
-  var logDir = path.join(app.getPath('userData'), 'logs')
+ function createWindow() {
+   // Use workspace directory for development/testing to avoid permission issues
+   var isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
+   var docsDir = isDev
+     ? path.join(process.cwd(), '_data')
+     : path.join(app.getPath('documents'), '神意助手数据')
+   var dataDir = docsDir
+   var logDir = path.join(app.getPath('userData'), 'logs')
 
   setDataDir(dataDir)
   setLegacyDir(path.join(app.getPath('documents'), '写作助手数据'))

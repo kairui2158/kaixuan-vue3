@@ -18,7 +18,16 @@ function registerLifecycleHandlers(mainWindow) {
         // Save & quit: send finalSave, then close
         mainWindow.webContents.send('app:finalSave')
         isQuitting = true
-        setTimeout(function() { mainWindow.close() }, 500)
+        var finished = false
+        var finish = function() {
+          if (finished) return
+          finished = true
+          clearTimeout(timeout)
+          ipcMain.removeListener('app:saveComplete', finish)
+          mainWindow.close()
+        }
+        var timeout = setTimeout(finish, 5000)
+        ipcMain.once('app:saveComplete', finish)
       } else if (choice === 'force-quit') {
         // Direct quit: no finalSave needed
         isQuitting = true

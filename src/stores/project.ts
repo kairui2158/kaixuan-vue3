@@ -41,7 +41,8 @@ function createDefaultMemories(): MemoryData {
     meta: createDefaultMemoryMeta(),
     history: [],
     categories: ['情节', '人物', '世界观', '伏笔'],
-    items: []
+    items: [],
+    sourceVersions: []
   }
 }
 
@@ -61,7 +62,13 @@ function normalizeMemories(raw: any): MemoryData {
     categories: Array.isArray(raw.categories) && raw.categories.length > 0
       ? raw.categories
       : base.categories,
-    items: Array.isArray(raw.items) ? raw.items : []
+    items: Array.isArray(raw.items) ? raw.items : [],
+    sourceVersions: Array.isArray(raw.sourceVersions) ? raw.sourceVersions : []
+  }
+  for (const entries of [out.entities, out.relations, out.events, out.world, out.foreshadowing]) {
+    for (const entry of entries) {
+      if (!entry.factStatus) entry.factStatus = 'confirmed'
+    }
   }
   // 未写入 totals 时重新计算，保证 meta 恒准
   out.meta.totals = {
@@ -130,40 +137,55 @@ export const useProjectStore = defineStore('project', () => {
     return Object.values(chapters.value).reduce((sum, chs) => sum + chs.length, 0)
   })
 
-  async function loadProject(id: string) {
-    currentProjectId.value = id
-    let data = await window.electronAPI.storageRead(storageKey('project_' + id))
-    if (!data) data = await window.electronAPI.storageRead(storageKey('project-' + id))
-    if (data) {
-      projectName.value = readProjectName(data)
-      outlineText.value = data.outlineText || ''
-      outlineLocked.value = data.outlineLocked || false
-      outlineLockedText.value = data.outlineLockedText || (outlineLocked.value ? outlineText.value : '')
-      bookWordCountChars.value = Number(data.bookWordCount) || 0
-      volumesConfirmed.value = data.volumesConfirmed || false
-      chaptersConfirmed.value = data.chaptersConfirmed || false
-      settingsGenerated.value = data.settingsGenerated || false
-      settings.value = data.settings || []
-      volumes.value = (data.volumes || []).map((vol: any) => {
-        // 旧格式无 isBound：已锁定卷自动视为已绑定，保持升级前行为等价
-        const isBound = vol.isBound === undefined ? !!vol.confirmed : !!vol.isBound
-        const boundTo = Array.isArray(vol.boundTo) && vol.boundTo.length > 0 ? vol.boundTo : (isBound ? ['chapter-layer'] : [])
-        return { ...vol, isBound, boundTo }
-      })
-      chapters.value = data.chapters || {}
-      settingsCollection.value = data.settingsCollection || { categories: [], items: {} }
-      settingBindings.value = data.settingBindings || {}
-      memories.value = normalizeMemories(data.memories)
-      memoryBlacklist.value = Array.isArray(data.memoryBlacklist) ? data.memoryBlacklist : []
-      aiNaming.value = normalizeAiNaming(data.aiNaming)
-      outlineChat.value = data.outlineChat || []
-      if (!data.projectName && projectName.value) {
-        saveProject()
-      }
+ async function loadProject(id: string) {
+   currentProjectId.value = id
+   let data = await window.electronAPI.storageRead(storageKey('project_' + id))
+   if (!data) data = await window.electronAPI.storageRead(storageKey('project-' + id))
+   if (data) {
+     // D2: Check if project switched during async load
+     if (currentProjectId.value !== id) {
+       return // Another project was loaded while we were reading, discard this data
+     }
+     projectName.value = readProjectName(data)
+     outlineText.value = data.outlineText || ''
+     outlineLocked.value = data.outlineLocked || false
+     outlineLockedText.value = data.outlineLockedText || (outlineLocked.value ? outlineText.value : '')
+     bookWordCountChars.value = Number(data.bookWordCount) || 0
+     volumesConfirmed.value = data.volumesConfirmed || false
+     chaptersConfirmed.value = data.chaptersConfirmed || false
+     settingsGenerated.value = data.settingsGenerated || false
+     settings.value = data.settings || []
+     volumes.value = (data.volumes || []).map((vol: any) => {
+       // 旧格式无 isBound：已锁定卷自动视为已绑定，保持升级前行为等价
+       const isBound = vol.isBound === undefined ? !!vol.confirmed : !!vol.isBound
+       const boundTo = Array.isArray(vol.boundTo) && vol.boundTo.length > 0 ? vol.boundTo : (isBound ? ['chapter-layer'] : [])
+       return { ...vol, isBound, boundTo }
+     })
+     chapters.value = data.chapters || {}
+     settingsCollection.value = data.settingsCollection || { categories: [], items: {} }
+     settingBindings.value = data.settingBindings || {}
+     memories.value = normalizeMemories(data.memories)
+     memoryBlacklist.value = Array.isArray(data.memoryBlacklist) ? data.memoryBlacklist : []
+    aiNaming.value = normalizeAiNaming(data.aiNaming)
+     outlineChat.value = data.outlineChat || []
+     const rawMemories = data.memories || {}
+     const needsMemoryUpgrade =
+       !Array.isArray(rawMemories.sourceVersions) ||
+       [rawMemories.entities, rawMemories.relations, rawMemories.events, rawMemories.world, rawMemories.foreshadowing]
+         .some((entries: any) => Array.isArray(entries) && entries.some((entry: any) => !entry.factStatus))
+     if (needsMemoryUpgrade) {
+       saveProject()
+     }
+     if (!data.projectName && projectName.value) {
+       saveProject()
+     }
     }
   }
 
-  async function saveProject(): Promise<{ ok: boolean; failedKeys: string[] }> {
+  let saveQueue: Promise<{ ok: boolean; failedKeys: string[] }> | null = null
+  let saveQueued = false
+
+  async function persistProject(): Promise<{ ok: boolean; failedKeys: string[] }> {
     if (!currentProjectId.value) {
       currentProjectId.value = 'default'
     }
@@ -203,6 +225,22 @@ export const useProjectStore = defineStore('project', () => {
     }
     lastSaveError.value = null
     return { ok: true, failedKeys: [] }
+  }
+
+  function saveProject(): Promise<{ ok: boolean; failedKeys: string[] }> {
+    if (!saveQueue) {
+      saveQueue = new Promise(resolve => {
+        if (saveQueued) return
+        saveQueued = true
+        queueMicrotask(async () => {
+          saveQueued = false
+          const result = await persistProject()
+          saveQueue = null
+          resolve(result)
+        })
+      })
+    }
+    return saveQueue
   }
 
   function appendOutlineChat(msg: any) {
@@ -566,6 +604,29 @@ export const useProjectStore = defineStore('project', () => {
     saveProject()
   }
 
+  function simpleHash(text: string): string {
+    let hash = 0
+    for (let index = 0; index < text.length; index++) {
+      hash = ((hash << 5) - hash + text.charCodeAt(index)) | 0
+    }
+    return 'h' + (hash >>> 0).toString(36)
+  }
+
+  async function recordSourceVersion(chapterId: string, chapterIndex: number, content: string): Promise<string> {
+    if (!content.trim()) return ''
+    if (!memories.value.sourceVersions) memories.value.sourceVersions = []
+    const contentHash = simpleHash(content)
+    const existing = memories.value.sourceVersions.find(version => version.chapterId === chapterId && version.contentHash === contentHash)
+    if (existing) return existing.id
+    const version = {
+      id: 'sv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+      chapterId, chapterIndex, contentHash, savedAt: new Date().toISOString(), wordCount: content.length
+    }
+    memories.value.sourceVersions.push(version)
+    await saveProject()
+    return version.id
+  }
+
   async function recordMemoryChange(nextData: MemoryData, options: { chapterId: string; chapterIndex?: number; reason?: string; timestamp?: string }) {
     const before = memories.value
     const next = normalizeMemories(nextData)
@@ -781,7 +842,7 @@ export const useProjectStore = defineStore('project', () => {
     addWorldEntry, updateWorldEntry, deleteWorldEntry,
     addForeshadowing, updateForeshadowing, deleteForeshadowing,
     memoryBlacklist, addToBlacklist, removeFromBlacklist, isBlacklisted,
-    updateMemoryMeta, recalculateMemoryTotals, recordMemoryChange, getMemoryChangeHistory,
+    updateMemoryMeta, recalculateMemoryTotals, recordMemoryChange, recordSourceVersion, getMemoryChangeHistory,
     rollbackMemoryTo, rollbackMemoryByChapter,
     outlineChat, appendOutlineChat, removeOutlineChatAt,
     aiNaming, addNamingFavorite, removeNamingFavorite, addNamingHistory, clearNamingHistory

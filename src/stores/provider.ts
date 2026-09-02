@@ -11,6 +11,7 @@ export interface Provider {
   selectedModel: string
   temperature: number
   maxTokens: number
+  timeoutMs?: number
   purpose: ('generate' | 'rewrite' | 'verify' | 'detect' | 'image' | 'video')[]
   streamMode?: boolean
   systemPrompt?: string

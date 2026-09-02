@@ -66,7 +66,7 @@ function evidenceFor(value: { evidence?: unknown }, chapterId: string): MemoryEn
 function sameEntity(entity: MemoryEntity, incoming: Partial<MemoryEntity>): boolean {
   const incomingName = normalized(incoming.name)
   if (!incomingName) return false
-  const names = [entity.name, ...entity.aliases].map(normalized)
+  const names = [entity.name, ...(entity.aliases || [])].map(normalized)
   return names.includes(incomingName) || (typeof incoming.id === 'string' && entity.id === incoming.id)
 }
 
@@ -84,6 +84,7 @@ function appendEvidence<T extends { evidence: Array<{ chapterId: string; snippet
 function mergeEntity(target: MemoryEntity, incoming: Partial<MemoryEntity>, options: Required<Pick<MemoryMergeOptions, 'chapterId' | 'now'>>, changes: MemoryChange[]) {
   const locked = new Set(target.lockedFields || [])
   const incomingEvidence = evidenceFor(incoming, options.chapterId)
+  if (target.factStatus === 'confirmed' && incoming.factStatus === 'pending') target.factStatus = 'conflicted'
   appendEvidence(target, incomingEvidence)
   target.aliases = uniqueStrings([...target.aliases, ...uniqueStrings(incoming.aliases), incoming.name])
     .filter(alias => normalized(alias) !== normalized(target.name))
@@ -178,7 +179,15 @@ function mergeEvents(data: MemoryData, values: Array<Partial<MemoryEvent>>, chap
     if (target) {
       if (target.locked) changes.push({ kind: 'event', action: 'skipped', id: target.id, reason: '事件已锁定' })
       else {
-        Object.assign(target, incoming, { updatedAt: now })
+        if (target.factStatus === 'confirmed' && incoming.factStatus === 'pending') target.factStatus = 'conflicted'
+        if (incoming.type) target.type = incoming.type
+        if (Array.isArray(incoming.characters)) target.characters = uniqueStrings([...(target.characters || []), ...incoming.characters])
+        if (incoming.location) target.location = incoming.location
+        if (incoming.summary) target.summary = incoming.summary
+        if (Array.isArray(incoming.consequences)) target.consequences = uniqueStrings([...(target.consequences || []), ...incoming.consequences])
+        if (incoming.chapterIndex !== undefined) target.chapterIndex = incoming.chapterIndex
+        if (incoming.factStatus) target.factStatus = incoming.factStatus
+        if (incoming.factSource) target.factSource = incoming.factSource
         appendEvidence(target, evidenceFor(incoming, chapterId))
         changes.push({ kind: 'event', action: 'updated', id: target.id })
       }
@@ -196,7 +205,15 @@ function mergeWorld(data: MemoryData, values: Array<Partial<WorldEntry>>, chapte
     const target = data.world.find(item => normalized(item.name) === normalized(incoming.name))
     if (target) {
       if (target.locked) changes.push({ kind: 'world', action: 'skipped', id: target.id, reason: '世界观条目已锁定' })
-      else { Object.assign(target, incoming, { updatedAt: now }); appendEvidence(target, evidenceFor(incoming, chapterId)); changes.push({ kind: 'world', action: 'updated', id: target.id }) }
+      else {
+        if (target.factStatus === 'confirmed' && incoming.factStatus === 'pending') target.factStatus = 'conflicted'
+        if (incoming.category) target.category = incoming.category
+        if (incoming.description) target.description = incoming.description
+        if (incoming.established !== undefined) target.established = incoming.established
+        if (incoming.factStatus) target.factStatus = incoming.factStatus
+        if (incoming.factSource) target.factSource = incoming.factSource
+        appendEvidence(target, evidenceFor(incoming, chapterId)); changes.push({ kind: 'world', action: 'updated', id: target.id })
+      }
     } else {
       const item: WorldEntry = { ...incoming, id: incoming.id || newId('wld', incoming.name, now), category: incoming.category || '其他', description: incoming.description || '', established: Boolean(incoming.established), locked: Boolean(incoming.locked), evidence: evidenceFor(incoming, chapterId), createdAt: now } as WorldEntry
       data.world.push(item)
@@ -211,7 +228,15 @@ function mergeForeshadowing(data: MemoryData, values: Array<Partial<Foreshadowin
     const target = data.foreshadowing.find(item => normalized(item.title) === normalized(incoming.title))
     if (target) {
       if (target.locked) changes.push({ kind: 'foreshadowing', action: 'skipped', id: target.id, reason: '伏笔已锁定' })
-      else { Object.assign(target, incoming, { updatedAt: now }); appendEvidence(target, evidenceFor(incoming, chapterId)); changes.push({ kind: 'foreshadowing', action: 'updated', id: target.id }) }
+      else {
+        if (target.factStatus === 'confirmed' && incoming.factStatus === 'pending') target.factStatus = 'conflicted'
+        if (incoming.description) target.description = incoming.description
+        if (incoming.status) target.status = incoming.status
+        if (incoming.resolved !== undefined) target.resolved = incoming.resolved
+        if (incoming.factStatus) target.factStatus = incoming.factStatus
+        if (incoming.factSource) target.factSource = incoming.factSource
+        appendEvidence(target, evidenceFor(incoming, chapterId)); changes.push({ kind: 'foreshadowing', action: 'updated', id: target.id })
+      }
     } else {
       const item: Foreshadowing = { ...incoming, id: incoming.id || newId('fsh', incoming.title, now), plantedChapterId: incoming.plantedChapterId || chapterId, plantedChapterIndex: incoming.plantedChapterIndex ?? chapterIndex, description: incoming.description || '', status: incoming.status || 'planted', resolved: Boolean(incoming.resolved), locked: Boolean(incoming.locked), evidence: evidenceFor(incoming, chapterId), createdAt: now } as Foreshadowing
       data.foreshadowing.push(item)

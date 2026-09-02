@@ -60,3 +60,25 @@ P6 原始台账：`_audit/tmp/context_memory_p6_result.json`（收尾删除临�
 | SHA256 | `Get-FileHash -Algorithm SHA256` | `CF8F488E57F642C160BF51C52E5E64D1DF8E18D5EA79D0B40A4F82F9EECAE7ED` | 已记录 |
 
 构建输出中的动态导入与 chunk 大小提示为既有非阻断 warning；本轮未做无关重构。安装包构建日志显示 `no signing info identified, signing is skipped`，因此安装包为未签名状态。
+
+## 本轮续验校准（16:25-16:27）
+
+### 已新增的精准证据
+
+- `src/services/aiService.spec.ts` 新增断网错误路径：`fetch` 抛出 `TypeError('网络不可用')`，使用 `retry:false`，断言 `kind: network`、`providerId: runtime`、请求次数为 1。
+- 新增用途供应商缺失路径：验证用途无 provider 时断言中文错误“未配置验证用途供应商”，且网络请求次数为 0，证明没有静默回退到生成供应商。
+- 当前命令输出：`Test Files 3 passed (3)`、`Tests 58 passed (58)`；其中 `aiService.spec.ts` 为 `44 passed (44)`。
+- 源应用 CDP 连通性：`127.0.0.1:9227 TcpTestSucceeded=True`；页面为 `file:///D:/codex/novel-workshop-vue3/dist-renderer/index.html`。
+- 真实项目 `default` 读取到 38 条记忆，首条真实记忆键为“菌膜的试探”，没有写入探针数据。
+
+### 仍未核销的事项
+
+- 取消路径本轮只有源码已有单测与此前源应用清空回归证据，尚未新增一次独立的真实 UI 取消操作证据。
+- 断网和无供应商本轮为真实服务入口的精准测试，不等同于真实界面操作；因此不把它们标为客户 UI 已验收。
+- 当前真实上下文会话消息未包含“菌膜的试探”键名，不能证明真实记忆已经进入某次 outgoing API 消息；只证明真实记忆来源存在。
+- 设置页上下文策略本轮已完成源码链路核对，但未完成完整的“修改 → 等待异步落盘 → 杀源应用 → 源应用重启 → 读回”新鲜操作台账。
+- 安装包客户路径按本方案边界未执行，不得标记安装包门通过。
+
+### 结论修正
+
+代码层 P0-P5 和服务层错误分类回归有新鲜证据；P6 真实闭环仍为部分完成，不能写成全部 12/12 已覆盖本轮剩余目标。客户交付时应按“已完成 / 部分完成 / 未核销”区分。

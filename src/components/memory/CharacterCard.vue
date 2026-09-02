@@ -28,6 +28,7 @@
     <footer class="character-card-footer">
       <span class="character-card-source-count">来源 {{ entity.evidence.length }} 条</span>
       <button v-if="entity.evidence.length" class="btn-sm btn-secondary" type="button" @click="openSource">打开首个来源</button>
+      <button class="btn-sm btn-secondary" type="button" @click="$emit('edit')">编辑</button>
       <button class="btn-sm btn-secondary" type="button" @click="$emit('export')">导出角色卡</button>
     </footer>
   </article>
@@ -40,6 +41,7 @@ import type { MemoryEntity } from '../../types/memory'
 const props = defineProps<{ entity: MemoryEntity }>()
 const emit = defineEmits<{
   openSource: [payload: { kind: 'entity'; id: string }]
+  edit: []
   export: []
 }>()
 const typeLabels: Record<MemoryEntity['type'], string> = {
