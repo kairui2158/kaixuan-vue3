@@ -1,26 +1,11 @@
-import { customRef, onScopeDispose, watch, type Ref } from 'vue'
+import { ref, onScopeDispose, watch, type Ref } from 'vue'
 import { renderMarkdown } from './markdownService'
 
 export function useThrottledMarkdown(source: Ref<string>, intervalMs = 120) {
-  let currentSource = source.value || ''
-  let currentValue = renderMarkdown(currentSource)
-  let pendingSource = currentSource
-  let hasPendingSource = false
+  const output = ref(renderMarkdown(source.value || ''))
   let lastPaintAt = 0
   let trailingTimer: number | null = null
   let frameId: number | null = null
-
-  const output = customRef<string>((track, trigger) => ({
-    get() {
-      track()
-      return currentValue
-    },
-    set(value: string) {
-      if (value === currentValue) return
-      currentValue = value
-      trigger()
-    }
-  }))
 
   function cancelPendingPaint() {
     if (trailingTimer !== null) {
@@ -37,11 +22,8 @@ export function useThrottledMarkdown(source: Ref<string>, intervalMs = 120) {
     if (frameId !== null) return
     frameId = window.requestAnimationFrame(() => {
       frameId = null
-      if (!hasPendingSource) return
-      currentSource = pendingSource
-      hasPendingSource = false
       lastPaintAt = performance.now()
-      output.value = renderMarkdown(currentSource)
+      output.value = renderMarkdown(source.value || '')
     })
   }
 
@@ -56,22 +38,17 @@ export function useThrottledMarkdown(source: Ref<string>, intervalMs = 120) {
 
   function flush() {
     cancelPendingPaint()
-    const nextSource = source.value || ''
-    if (nextSource === currentSource && !hasPendingSource) return
-    pendingSource = nextSource
-    hasPendingSource = true
-    paint()
+    output.value = renderMarkdown(source.value || '')
+    lastPaintAt = performance.now()
   }
 
-  watch(source, (nextSource: string) => {
-    pendingSource = nextSource || ''
-    hasPendingSource = true
+  watch(source, () => {
     if (performance.now() - lastPaintAt >= intervalMs) {
       paint()
     } else {
       schedulePaint()
     }
-  }, { immediate: false })
+  }, { immediate: true })
 
   onScopeDispose(cancelPendingPaint)
 

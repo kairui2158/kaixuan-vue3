@@ -116,7 +116,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import { useAiTaskStore } from '../../stores/aiTaskStore'
 import { enhanceCodeBlocks } from '../../utils/markdownService'
-import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
+import { renderMarkdown } from '../../utils/markdownService'
 import { canContinue as isContinuationAvailable } from '../../services/continuation'
 import type { EditorEditBatchCommand } from '../../services/editorEditProtocol'
 import type { EditorBatchRecord } from '../../services/editorBatchRecord'
@@ -193,7 +193,7 @@ function runAction(action: 'copy' | 'regenerate' | 'apply' | 'replace' | 'contin
 }
 
 const messageSource = computed(() => props.message.content || '')
-const { content: renderedContent, flush: flushRenderedContent } = useThrottledMarkdown(messageSource)
+const renderedContent = computed(() => renderMarkdown(messageSource.value))
 
 watch(renderedContent, async () => {
   await nextTick()
@@ -201,7 +201,9 @@ watch(renderedContent, async () => {
 }, { immediate: true })
 
 watch(() => props.busy, (busy, previousBusy) => {
-  if (previousBusy && !busy) flushRenderedContent()
+  if (previousBusy && !busy) {
+    nextTick().then(() => enhanceCodeBlocks(contentRef.value))
+  }
 })
 </script>
 
