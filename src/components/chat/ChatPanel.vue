@@ -45,7 +45,7 @@
         id="user-input"
        placeholder="输入消息..."
        rows="1"
-       @keydown.enter.exact.prevent="sendMessage"
+     @keydown.enter.exact.prevent="() => sendMessage()"
        @keydown.enter.shift.exact="inputText += '\n'"
     ></textarea>
       <button id="btn-send" class="btn-send" :disabled="isStreaming" @click="() => sendMessage()" :title="isStreaming ? '生成中' : '发送'">
@@ -495,7 +495,7 @@ async function sendMessage(requestText?: string) {
   const editRequestId = `chat-edit_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
   const editStartedAt = performance.now()
   const projId = projectId.value
-  let text = (requestText ?? inputText.value).trim()
+  let text = (typeof requestText === 'string' ? requestText : inputText.value).trim()
   const originalRequest = text
   if (!text || isStreaming.value) return
   if (!chatStore.activeSession) {
