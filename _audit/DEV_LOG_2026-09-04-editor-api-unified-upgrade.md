@@ -53,3 +53,28 @@
 - §2 规则 37：CDP 假死降级
 - §3 规则 1：构建 != 功能
 - §8 规则 45-57：本次新增 13 条经验
+
+## 运行时验证补充（2026-09-04 续）
+
+### Bug 修复：sendMessage TypeError
+
+**根因：** Vue 模板事件绑定 @keydown.enter.exact.prevent="sendMessage" 会把 KeyboardEvent 对象作为第一个位置参数传入 sendMessage(requestText?: string)。当 requestText 是 Event 对象时，(requestText ?? inputText.value).trim() 抛出 TypeError: trim is not a function。
+
+**修复：**
+- ChatPanel.vue L48: @keydown.enter.exact.prevent="sendMessage" 改为 @keydown.enter.exact.prevent="() => sendMessage()"
+- ChatPanel.vue L498: (requestText ?? inputText.value).trim() 改为 (typeof requestText === "string" ? requestText : inputText.value).trim()
+- 提交: 5ea50c5
+
+### 验证结果
+
+使用真实供应商（新供应商 / deepseek-v4-pro / openapi.cloud-ai.cn）验证：
+- 文本输入: PASS
+- 消息发送: PASS（store 2 条消息）
+- AI 回复: PASS（4秒，内容：晨光初透，薄雾如纱...）
+- DOM 渲染: PASS（.message-content 有 p 标签，内容匹配）
+- P6-P10 元素: PASS（msgBtns: 4）
+- 应用响应: PASS（无死锁，1.2ms）
+
+### 经验新增
+- §8 规则 58: Vue 事件绑定 Event 对象传递陷阱
+- §8 规则 59: CDP Runtime.enable 历史消息刷新陷阱
