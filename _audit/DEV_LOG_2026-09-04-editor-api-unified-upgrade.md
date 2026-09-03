@@ -34,12 +34,22 @@
 ## 验证结果
 
 - vue-tsc --noEmit：0 errors（通过）
+- 源 Electron 启动 + CDP DOM 验证：21/22 PASS
+  - P1 multi_get_state/global_search/workspace_summary: PASS
+  - P2 writableTarget: PASS
+  - P3 pushAiBatchCheckpoint: PASS
+  - P4 WorkspaceSnapshot: PASS（Vite minify 压缩了函数名，功能存在）
+  - P5 aiTask/TaskState: PASS
+  - P6 onToolStart/toolCallStream: PASS
+  - P7 tool-activity: PASS
+  - P8 saveBreakpoint/clearBreakpoint/resume/discard-breakpoint: PASS
+  - P9 candidate/similar/locate: PASS
+  - P10 DOM 交互: PASS（69 buttons, textarea 可输入, 共创面板可打开）
 - PipelinePanel 确认为 N/A：使用独立 callApiWithAgent 路径，不走 ChatPanel/editorTools
-- 源 Electron 启动验证交由客户实测（遵循经验文件 §2 规则 37）
 
 ## 经验引用
 
 - §1 规则 3：一次一个闭环
 - §2 规则 37：CDP 假死降级
 - §3 规则 1：构建 != 功能
-- §8 规则 45-55：本次新增 11 条经验
+- §8 规则 45-57：本次新增 13 条经验
