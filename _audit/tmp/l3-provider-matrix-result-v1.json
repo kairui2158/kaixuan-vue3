@@ -1,0 +1,256 @@
+{
+  "runtimeErrors": [],
+  "steps": [
+    {
+      "name": "openai-native-tools",
+      "ok": true,
+      "requestCount": 2,
+      "generationStatus": "idle",
+      "messageCountAfter": 2,
+      "lastMessagePreview": "已生成 2 条编辑建议，请确认后应用。",
+      "logs": [
+        {
+          "url": "/v1/chat/completions",
+          "providerType": "openai-compatible",
+          "hasTools": true,
+          "stream": false,
+          "wireTail": [
+            {
+              "role": "assistant",
+              "contentType": "string"
+            },
+            {
+              "role": "user",
+              "contentType": "string"
+            }
+          ]
+        },
+        {
+          "url": "/v1/chat/completions",
+          "providerType": "openai-compatible",
+          "hasTools": true,
+          "stream": false,
+          "wireTail": [
+            {
+              "role": "assistant",
+              "contentType": "string"
+            },
+            {
+              "role": "tool",
+              "contentType": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "anthropic-native-tools",
+      "ok": true,
+      "requestCount": 6,
+      "generationStatus": "idle",
+      "messageCountAfter": 4,
+      "lastMessagePreview": "已生成 10 条编辑建议，请预览确认。",
+      "logs": [
+        {
+          "url": "/v1/messages",
+          "providerType": "anthropic",
+          "hasTools": true,
+          "stream": false,
+          "wireTail": [
+            {
+              "role": "assistant",
+              "contentType": "string"
+            },
+            {
+              "role": "user",
+              "contentType": "string"
+            }
+          ]
+        },
+        {
+          "url": "/v1/messages",
+          "providerType": "anthropic",
+          "hasTools": true,
+          "stream": false,
+          "wireTail": [
+            {
+              "role": "assistant",
+              "contentType": "object"
+            },
+            {
+              "role": "user",
+              "contentType": "object"
+            }
+          ]
+        },
+        {
+          "url": "/v1/messages",
+          "providerType": "anthropic",
+          "hasTools": true,
+          "stream": false,
+          "wireTail": [
+            {
+              "role": "assistant",
+              "contentType": "object"
+            },
+            {
+              "role": "user",
+              "contentType": "object"
+            }
+          ]
+        },
+        {
+          "url": "/v1/messages",
+          "providerType": "anthropic",
+          "hasTools": true,
+          "stream": false,
+          "wireTail": [
+            {
+              "role": "assistant",
+              "contentType": "object"
+            },
+            {
+              "role": "user",
+              "contentType": "object"
+            }
+          ]
+        },
+        {
+          "url": "/v1/messages",
+          "providerType": "anthropic",
+          "hasTools": true,
+          "stream": false,
+          "wireTail": [
+            {
+              "role": "assistant",
+              "contentType": "object"
+            },
+            {
+              "role": "user",
+              "contentType": "object"
+            }
+          ]
+        },
+        {
+          "url": "/v1/messages",
+          "providerType": "anthropic",
+          "hasTools": true,
+          "stream": false,
+          "wireTail": [
+            {
+              "role": "assistant",
+              "contentType": "object"
+            },
+            {
+              "role": "user",
+              "contentType": "object"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gemini-native-tools",
+      "ok": true,
+      "requestCount": 1,
+      "generationStatus": "idle",
+      "messageCountAfter": 6,
+      "lastMessagePreview": "",
+      "logs": [
+        {
+          "url": "/v1beta/models/mock-model:generateContent",
+          "providerType": "gemini",
+          "hasTools": true,
+          "stream": false,
+          "wireTail": []
+        }
+      ]
+    },
+    {
+      "name": "azure-native-tools",
+      "ok": true,
+      "requestCount": 2,
+      "generationStatus": "idle",
+      "messageCountAfter": 8,
+      "lastMessagePreview": "已生成 2 条编辑建议，请确认后应用。",
+      "logs": [
+        {
+          "url": "/openai/deployments/l3-deployment/chat/completions?api-version=2026-02-01",
+          "providerType": "azure-openai",
+          "hasTools": true,
+          "stream": false,
+          "wireTail": [
+            {
+              "role": "assistant",
+              "contentType": "string"
+            },
+            {
+              "role": "user",
+              "contentType": "string"
+            }
+          ]
+        },
+        {
+          "url": "/openai/deployments/l3-deployment/chat/completions?api-version=2026-02-01",
+          "providerType": "azure-openai",
+          "hasTools": true,
+          "stream": false,
+          "wireTail": [
+            {
+              "role": "assistant",
+              "contentType": "string"
+            },
+            {
+              "role": "tool",
+              "contentType": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "mock-json-degradation",
+      "ok": true,
+      "requestCount": 2,
+      "generationStatus": "idle",
+      "messageCountAfter": 10,
+      "lastMessagePreview": "```json\n{\"type\":\"editor_edit_batch\",\"version\":1,\"commands\":[{\"operation\":\"replace_match\",\"target\":\"主编辑底稿\",\"content\":\"主编辑",
+      "logs": [
+        {
+          "url": "/v1/chat/completions",
+          "providerType": "openai-compatible",
+          "hasTools": true,
+          "stream": false,
+          "wireTail": [
+            {
+              "role": "assistant",
+              "contentType": "string"
+            },
+            {
+              "role": "user",
+              "contentType": "string"
+            }
+          ]
+        },
+        {
+          "url": "/v1/chat/completions",
+          "providerType": "openai-compatible",
+          "hasTools": false,
+          "stream": true,
+          "wireTail": [
+            {
+              "role": "assistant",
+              "contentType": "string"
+            },
+            {
+              "role": "user",
+              "contentType": "string"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "allStepsOk": true,
+  "restored": true
+}

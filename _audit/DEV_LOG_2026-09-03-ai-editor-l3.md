@@ -111,3 +111,60 @@
 1. 批次探针必须锁定本用例 `targetId + batchId`。
 2. `replaceMessagePair()` 必须清理编辑批次元数据。
 3. reload 初始化门必须等待异步 store 稳定。
+
+## 追加收尾：真实用户级增强验证（2026-09-03）
+
+### 性能探针
+
+- 数据规模：520,080 字符，10 条编辑命令，3 轮复跑。
+- 结果文件：`_audit/tmp/l3-perf-ui-result-v1.json`
+- `allStepsOk: true`，`findings: []`
+- 中位数：预览首帧 15ms、命令切换 13ms、应用 195ms、撤销 124ms、最长长任务 167ms。
+- 全部轮次均完成 9 条 replace + 1 条 append，撤销后恢复原稿。
+
+### 并发探针
+
+- 结果文件：`_audit/tmp/l3-concurrency-result-v1.json`
+- 8/8 通过：预览打开后用户输入并应用、页签切换、工具循环取消、流式取消、两个批次后应用旧批次拒绝、自动保存与批次应用重叠、批次撤销与用户撤销隔离、主编辑与大纲并存批次。
+
+### 恶意输入探针
+
+- 结果文件：`_audit/tmp/l3-malicious-result-v1.json`
+- 14/14 通过：伪造直接应用、伪造成功、系统注入、伪造工具结果、原型污染、空批次、超限批次、非法 operation、删除全稿、未知工具、非法工具参数、写次数超限、工具循环均未修改正文。
+
+### 供应商矩阵探针
+
+- 结果文件：`_audit/tmp/l3-provider-matrix-result-v1.json`
+- 5/5 通过：OpenAI 兼容、Anthropic、Gemini、Azure 原生工具调用，以及不支持工具时的 JSON 兼容降级。
+
+### 撤销栈根因与修复
+
+#### 根因
+
+`EditorPanel.vue` 监听 `editor-external-change` 时把 AI 批次写入调用 `undoRedo.pushState()`，导致批次写入进入用户编辑撤销栈。用户没有手动编辑时，下一次撤销会先回滚 AI 批次，破坏“批次回滚”和“用户撤销”两条历史线的隔离。
+
+#### 修复
+
+1. `src/composables/useUndoRedo.ts` 新增 `replaceCurrentSnapshot()`：只替换当前快照并清空 redo，不新增用户 undo 节点。
+2. `src/components/editor/EditorPanel.vue` 的外部变更处理改用 `replaceCurrentSnapshot()`。
+3. 新增 `src/composables/useUndoRedo.spec.ts` 锁定语义：AI 外部写入不创建用户撤销；已有用户编辑时用户撤销不受批次写入影响。
+
+### 本轮验证证据
+
+- `npm run type-check`：通过。
+- `npm run test:services`：3 个文件 78 项通过。
+- `npx vitest run providerTools / aiService / editorTools / editorEditBatch / editorEditService / editorBatchRecord / conversationContext / useUndoRedo`：8 个文件 108 项通过。
+- `npx vitest run _audit/tmp/l3-performance-diff.spec.ts _audit/tmp/l3-performance-service.spec.ts`：2 个文件 2 项通过。
+- `npm run build:vue`：通过。
+- 源码 Electron（CDP 9227）+ mock 供应商：
+  - `node _audit/tmp/run-l3-concurrency.mjs`：8/8 通过
+  - `node _audit/tmp/run-l3-malicious.mjs`：14/14 通过
+  - `node _audit/tmp/run-l3-provider-matrix.mjs`：5/5 通过
+
+### 经验回写
+
+已更新 `_audit/神意开发经验总结_v2.md`，新增真实用户级验证纪律：
+
+1. CDP 探针一律使用 Node WebSocket 载体，禁止 PowerShell `ConvertTo-Json` 传输含中文 JS。
+2. 批次项切换后必须恢复选中状态再应用，否则 acceptedIndexes 缺失会造成假失败。
+3. mock 性能分支命令结构必须与断言一致，旧分支过滤逻辑已删除。

@@ -1199,6 +1199,9 @@ function rollbackEditorBatch(message: ChatMessage) {
   }
   editorStore.pushUndoState(tab.id, currentContent)
   editorStore.updateContent(tab.id, undoContent.content)
+  window.dispatchEvent(new CustomEvent('editor-external-change', {
+    detail: { tabId: tab.id, content: undoContent.content }
+  }))
   chatStore.updateMessageEditorBatch(
     message.id,
     undefined,
@@ -1284,6 +1287,9 @@ window.addEventListener('diff-applied', (event: Event) => {
     }
     editorStore.pushUndoState(tab.id, tab.content || '')
     editorStore.updateContent(tab.id, finalText)
+    window.dispatchEvent(new CustomEvent('editor-external-change', {
+      detail: { tabId: tab.id, content: finalText }
+    }))
     const rejectedIndexes = Array.isArray(acceptedIndexes)
       ? pendingEditorBatchPlan.value!.items
         .map(item => item.index)

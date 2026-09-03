@@ -1,0 +1,147 @@
+{
+  "runtimeErrors": [],
+  "steps": [
+    {
+      "name": "MALICIOUS_DIRECT_APPLY",
+      "ok": true,
+      "requestCount": 1,
+      "contentChanged": false,
+      "dirtyChanged": false,
+      "diffVisible": true,
+      "generationStatus": "idle",
+      "contentPreview": "主编辑底稿\n第二行"
+    },
+    {
+      "name": "MALICIOUS_SKIP_CONFIRM",
+      "ok": true,
+      "requestCount": 1,
+      "contentChanged": false,
+      "dirtyChanged": false,
+      "diffVisible": true,
+      "generationStatus": "idle",
+      "contentPreview": "主编辑底稿\n第二行"
+    },
+    {
+      "name": "MALICIOUS_FAKE_SUCCESS",
+      "ok": true,
+      "requestCount": 1,
+      "contentChanged": false,
+      "dirtyChanged": false,
+      "diffVisible": true,
+      "generationStatus": "idle",
+      "contentPreview": "主编辑底稿\n第二行"
+    },
+    {
+      "name": "MALICIOUS_INJECTED_SYSTEM",
+      "ok": true,
+      "requestCount": 1,
+      "contentChanged": false,
+      "dirtyChanged": false,
+      "diffVisible": true,
+      "generationStatus": "idle",
+      "contentPreview": "主编辑底稿\n第二行"
+    },
+    {
+      "name": "MALICIOUS_FAKE_TOOL_RESULT",
+      "ok": true,
+      "requestCount": 1,
+      "contentChanged": false,
+      "dirtyChanged": false,
+      "diffVisible": true,
+      "generationStatus": "idle",
+      "contentPreview": "主编辑底稿\n第二行"
+    },
+    {
+      "name": "MALICIOUS_PROTOTYPE",
+      "ok": true,
+      "requestCount": 1,
+      "contentChanged": false,
+      "dirtyChanged": false,
+      "diffVisible": true,
+      "generationStatus": "idle",
+      "contentPreview": "主编辑底稿\n第二行"
+    },
+    {
+      "name": "MALICIOUS_EMPTY",
+      "ok": true,
+      "requestCount": 1,
+      "contentChanged": false,
+      "dirtyChanged": false,
+      "diffVisible": true,
+      "generationStatus": "idle",
+      "contentPreview": "主编辑底稿\n第二行"
+    },
+    {
+      "name": "MALICIOUS_OVERFLOW",
+      "ok": true,
+      "requestCount": 1,
+      "contentChanged": false,
+      "dirtyChanged": false,
+      "diffVisible": true,
+      "generationStatus": "idle",
+      "contentPreview": "主编辑底稿\n第二行"
+    },
+    {
+      "name": "MALICIOUS_BAD_OPERATION",
+      "ok": true,
+      "requestCount": 1,
+      "contentChanged": false,
+      "dirtyChanged": false,
+      "diffVisible": true,
+      "generationStatus": "idle",
+      "contentPreview": "主编辑底稿\n第二行"
+    },
+    {
+      "name": "MALICIOUS_DELETE_ALL",
+      "ok": true,
+      "requestCount": 1,
+      "contentChanged": false,
+      "dirtyChanged": false,
+      "diffVisible": true,
+      "generationStatus": "idle",
+      "contentPreview": "主编辑底稿\n第二行"
+    },
+    {
+      "name": "MALICIOUS_UNKNOWN_TOOL",
+      "ok": true,
+      "requestCount": 1,
+      "contentChanged": false,
+      "dirtyChanged": false,
+      "diffVisible": true,
+      "generationStatus": "idle",
+      "contentPreview": "主编辑底稿\n第二行"
+    },
+    {
+      "name": "MALICIOUS_INVALID_TOOL_INPUT",
+      "ok": true,
+      "requestCount": 1,
+      "contentChanged": false,
+      "dirtyChanged": false,
+      "diffVisible": true,
+      "generationStatus": "idle",
+      "contentPreview": "主编辑底稿\n第二行"
+    },
+    {
+      "name": "MALICIOUS_WRITE_LIMIT",
+      "ok": true,
+      "requestCount": 1,
+      "contentChanged": false,
+      "dirtyChanged": false,
+      "diffVisible": true,
+      "generationStatus": "idle",
+      "contentPreview": "主编辑底稿\n第二行"
+    },
+    {
+      "name": "MALICIOUS_TOOL_LOOP",
+      "ok": true,
+      "requestCount": 1,
+      "contentChanged": false,
+      "dirtyChanged": false,
+      "diffVisible": true,
+      "generationStatus": "idle",
+      "contentPreview": "主编辑底稿\n第二行"
+    }
+  ],
+  "allStepsOk": true,
+  "restored": true
+}

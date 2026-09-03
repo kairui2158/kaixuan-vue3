@@ -1,0 +1,68 @@
+{
+  "runtimeErrors": [],
+  "steps": [
+    {
+      "name": "preview-open-user-typing-apply",
+      "ok": true,
+      "content": "主编辑底稿（已更新）\n第二行\n\n[测试] 第二条插入内容。",
+      "undoDepth": 1,
+      "inputPreserved": true
+    },
+    {
+      "name": "preview-tab-switch-return-apply",
+      "ok": true,
+      "content": "主编辑底稿（已更新）\n第二行\n\n[测试] 第二条插入内容。",
+      "otherTabUnchanged": true
+    },
+    {
+      "name": "cancel-during-tool-loop",
+      "ok": true,
+      "status": "canceled",
+      "lastContent": "已生成 2 条编辑建议，请确认后应用。",
+      "contentUnchanged": true
+    },
+    {
+      "name": "stream-cancel-no-bubble-delete-control",
+      "ok": true,
+      "status": "canceled",
+      "hasBubbleDeleteControl": false,
+      "lastContent": "已生成 2 条编辑建议，请确认后应用。",
+      "contentUnchanged": true
+    },
+    {
+      "name": "two-batches-apply-later-earlier-stale",
+      "ok": true,
+      "appliedOnce": true,
+      "capturedAfterApply": true,
+      "appliedBatchId": "ai-batch-mtl1vcs8-4",
+      "staleBatchId": "ai-batch-mtl1vck6-3",
+      "staleModalDidNotOpen": true,
+      "content": "主编辑底稿（已更新）\n第二行\n\n[测试] 第二条插入内容。"
+    },
+    {
+      "name": "autosave-overlaps-batch-apply",
+      "ok": true,
+      "content": "主编辑底稿（已更新）\n第二行\n\n[测试] 第二条插入内容。",
+      "saveResult": {
+        "ok": true,
+        "failedKeys": []
+      }
+    },
+    {
+      "name": "batch-undo-separate-from-user-edit-undo",
+      "ok": true,
+      "beforeUndoDepth": 1,
+      "afterUndoDepth": 1,
+      "userUndoKeptBatch": true,
+      "userRedoKeptBatch": true
+    },
+    {
+      "name": "main-and-outline-pending-batches",
+      "ok": true,
+      "mainContent": "主编辑底稿（已更新）\n第二行\n\n[测试] 第二条插入内容。",
+      "outlineContent": "测试底稿（已更新）\n第二行\n\n[测试] 第二条插入内容。"
+    }
+  ],
+  "allStepsOk": true,
+  "restored": true
+}

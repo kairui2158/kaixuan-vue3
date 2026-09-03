@@ -340,11 +340,20 @@ onUnmounted(() => {
   if (autoSaveTimer) clearInterval(autoSaveTimer)
   window.removeEventListener('editor-undo', handleUndoEvent)
   window.removeEventListener('editor-redo', handleRedoEvent)
+  window.removeEventListener('editor-external-change', handleExternalChangeEvent)
   window.removeEventListener('editor-save', handleSaveEvent)
   window.removeEventListener('toggle-find', handleToggleFindEvent)
 })
 function handleUndoEvent() { undo() }
 function handleRedoEvent() { redo() }
+function handleExternalChangeEvent(event: Event) {
+  const detail = (event as CustomEvent).detail
+  if (!activeTab.value || detail?.tabId !== activeTab.value.id || typeof detail?.content !== 'string') return
+  undoRedo.replaceCurrentSnapshot(detail.content)
+  if (editorTextarea.value && editorTextarea.value.value !== detail.content) {
+    editorTextarea.value.value = detail.content
+  }
+}
 function handleSaveEvent() {
   // 退出前的最终保存走此事件：无打开标签时静默跳过，避免弹窗阻断退出
   if (activeTab.value) save()
@@ -354,6 +363,7 @@ onMounted(() => {
   startAutoSave()
   window.addEventListener('editor-undo', handleUndoEvent)
   window.addEventListener('editor-redo', handleRedoEvent)
+  window.addEventListener('editor-external-change', handleExternalChangeEvent)
   window.addEventListener('editor-save', handleSaveEvent)
   window.addEventListener('toggle-find', handleToggleFindEvent)
   window.addEventListener('diff-locate', handleDiffLocate)

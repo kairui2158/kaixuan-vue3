@@ -13,13 +13,20 @@
    const canUndo = computed(() => undoStack.value.length > 0)
    const canRedo = computed(() => redoStack.value.length > 0)
  
-   function pushState(currentValue: string) {
-     if (currentValue === lastSnapshot) return
-     undoStack.value.push(lastSnapshot)
+  function pushState(currentValue: string) {
+    if (currentValue === lastSnapshot) return
+    undoStack.value.push(lastSnapshot)
      if (undoStack.value.length > maxDepth) undoStack.value.shift()
      redoStack.value = []
-     lastSnapshot = currentValue
-   }
+    lastSnapshot = currentValue
+  }
+
+  // External writes (AI batches) replace the current snapshot without adding
+  // a user-edit undo entry. Batch rollback has its own dedicated stack.
+  function replaceCurrentSnapshot(currentValue: string) {
+    redoStack.value = []
+    lastSnapshot = currentValue
+  }
  
    function undo(): string | null {
      if (undoStack.value.length === 0) return null
@@ -45,5 +52,5 @@
      lastSnapshot = value
    }
  
-   return { pushState, undo, redo, reset, canUndo, canRedo }
- }
+  return { pushState, replaceCurrentSnapshot, undo, redo, reset, canUndo, canRedo }
+}
