@@ -1,7 +1,0 @@
-{
-  "allStepsOk": false,
-  "runtimeErrors": [
-    "CDP timeout: Runtime.enable"
-  ],
-  "steps": []
-}
