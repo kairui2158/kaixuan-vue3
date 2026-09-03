@@ -168,3 +168,56 @@
 1. CDP 探针一律使用 Node WebSocket 载体，禁止 PowerShell `ConvertTo-Json` 传输含中文 JS。
 2. 批次项切换后必须恢复选中状态再应用，否则 acceptedIndexes 缺失会造成假失败。
 3. mock 性能分支命令结构必须与断言一致，旧分支过滤逻辑已删除。
+
+## 追加收尾：等级1/2/3按钮失效复核（2026-09-03）
+
+### 用户反馈
+
+客户在源码应用实操后发现等级1/2/3相关的多个按钮“按了没有反应”。复核确认此前验证存在两类问题：一是 CDP 探针曾把 `wa_lastProjectId` 写成探针项目，导致启动后进入错误项目、编辑器无活动页签；二是多个失败分支只 `return`，没有用户可见反馈，形成“按钮存在但点击无结果”的体验。
+
+### 根因
+
+1. `ChatMessage.vue` 在插入/替换前就显示“已插入/已替换”的假成功反馈，真实失败时用户反而被误导。
+2. `ChatPanel.vue` 与 `OutlineWorkspace.vue` 的插入、替换、重生成、续生成、回滚、无会话等失败分支静默返回。
+3. `regenerateMessage(index)` 使用渲染索引推断 user/assistant 消息对，残留消息或索引错位时会弹“未找到原始请求”。
+4. 空内容但存在活动页签时，编辑协议未注入，用户请求“修改编辑器”会退化为普通回答。
+5. `chatStore.addMessage()` 无会话时静默失败；`saveSessions()` 无参会把当前项目会话写入 `default` 项目。
+6. Diff 弹窗关闭后 pending 批次状态不清理，后续点击可能继续消费过期目标。
+
+### 修复
+
+1. `src/App.vue`：关闭 DiffModal 时广播 `diff-closed`。
+2. `src/components/chat/ChatMessage.vue`：删除插入/替换的假成功反馈；复制失败改为可见错误提示。
+3. `src/components/chat/ChatPanel.vue`：
+   - `continueMessage`、`regenerateMessage`、`insertToEditor`、`replaceWhole` 的失败分支改为明确 alert。
+   - `regenerateMessage` 在 store 调用前校验 user/assistant 消息对。
+   - `sendMessage` 无 activeSession 时提示用户；`callApi` 的 assistant 占位消息写入失败时抛错。
+   - 空内容但有活动页签时注入 `buildEditorReadonlyPrompt`，保留“讨论可读、写入受限”的边界。
+   - `useTools` 改为按 `editorStore.activeTab` 判定，页签存在即可进入工具链路。
+   - 监听 `diff-closed`，清理 pending 编辑目标与批次计划。
+4. `src/components/common/OutlineWorkspace.vue`：回滚、重生成、续生成的失败分支补提示；监听 `diff-closed` 清理大纲 pending 批次。
+5. `src/services/editorEditProtocol.ts`：新增 `buildEditorReadonlyPrompt()`。
+6. `src/stores/chat.ts`：`addMessage()` 返回消息对象；`updateLastMessage()`、`clearSession()`、`removeSession()` 保存时显式传 `currentProjectId`，避免写入 `default` 项目。
+
+### 真实操作验证
+
+验证方式：源码 Electron（`node_modules/electron/dist/electron.exe . --remote-debugging-port=9227`）+ CDP 真实点击，不使用浏览器模式、开发者模式或安装版。
+
+结果文件（验证后清理）：`_audit/tmp/verify-real-buttons-v1-result.json`
+
+- `allStepsOk: true`
+- `runtimeErrors: []`
+- 发送消息：真实生成 user + assistant 消息对，消息数 2。
+- 复制：按钮操作区显示“已复制”。
+- 无页签插入：弹出“请先打开或创建一个章节，再插入到编辑器”。
+- 无页签替换：弹出“请先打开或创建一个章节，再替换编辑器内容”。
+- 重生成：成功找到原始请求并重新生成 2 条消息。
+- 清理：探针对话清空，alert/Diff 均无可见残留。
+- 收尾数据核验：`wa_lastProjectId = null`；`wa_chat_default.json` 仅保留空的“默认对话”会话，消息数 0。
+- 复跑过程中脚本修正两点：等待按钮从 disabled 恢复可用后再断言复制/插入；重生成断言不得依赖模型必须输出英文 `API`。脚本问题不改变业务修复结论。
+
+### 未验证项
+
+1. 批量编辑“预览/部分接受/回滚”的完整真实消息流程本轮未重测；此前 P8 回归已覆盖主编辑器与大纲工作台 8 个用例。
+2. 真实供应商流式中断后的续生成按钮本轮未重测；本轮只验证按钮反馈与守卫路径。
+3. 本轮为缺陷修复，未升级版本号、未生成安装包。

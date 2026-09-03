@@ -6,6 +6,8 @@ export interface AgentToolContext {
   projectId: string
   workspace: 'main' | 'outline'
   targetId: string
+  readableTargets?: string[]
+  writableTarget?: string
   sessionId: string
   iteration: number
   abortSignal?: AbortSignal
@@ -66,14 +68,52 @@ function findMatches(content: string, query: string, caseSensitive: boolean): Ar
   const matches: Array<{ start: number; end: number }> = []
   let index = haystack.indexOf(needle)
   while (index >= 0 && matches.length <= MAX_SEARCH_RESULTS) {
-    matches.push({ start: index, end: index + query.length })
-    index = haystack.indexOf(needle, index + Math.max(1, needle.length))
+    matches.push({ start: index, end: index + needle.length })
+    index = haystack.indexOf(needle, index + 1)
   }
   return matches
 }
 
+function levenshtein(a: string, b: string): number {
+  const m = a.length, n = b.length
+  if (!m) return n; if (!n) return m
+  const dp = new Array(n + 1).fill(0).map((_, j) => j)
+  for (let i = 1; i <= m; i++) {
+    let prev = dp[0]
+    dp[0] = i
+    for (let j = 1; j <= n; j++) {
+      const tmp = dp[j]
+      dp[j] = Math.min(dp[j] + 1, dp[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1))
+      prev = tmp
+    }
+  }
+  return dp[n]
+}
+
+function fuzzyLocate(content: string, query: string, maxCandidates = 3): Array<{ start: number; end: number; similarity: number; context: string }> {
+  const queryLower = query.toLowerCase()
+  const contentLower = content.toLowerCase()
+  const queryLen = query.length
+  if (!queryLen) return []
+  const candidates: Array<{ start: number; end: number; similarity: number; context: string }> = []
+  const windowSize = Math.min(queryLen + 40, 200)
+  const step = Math.max(1, Math.floor(windowSize / 4))
+  for (let i = 0; i < contentLower.length; i += step) {
+    const end = Math.min(i + windowSize, contentLower.length)
+    const slice = contentLower.slice(i, end)
+    const dist = levenshtein(slice.slice(0, queryLen), queryLower)
+    const similarity = 1 - dist / queryLen
+    if (similarity >= 0.6) {
+      candidates.push({ start: i, end: i + queryLen, similarity, context: contextWindow(content, i, i + queryLen) })
+    }
+  }
+  candidates.sort((a, b) => b.similarity - a.similarity)
+  return candidates.slice(0, maxCandidates)
+}
+
 export function createEditorTools(options: {
   getSnapshot: () => EditorTargetSnapshot | null
+  getAllSnapshots?: () => EditorTargetSnapshot[]
   onPlanUpdate?: (plan: { stage: string; steps: string[] }) => void
 }): AgentToolDefinition[] {
   const getState: AgentToolDefinition = {
@@ -141,7 +181,7 @@ export function createEditorTools(options: {
 
   const locate: AgentToolDefinition = {
     name: 'editor.locate',
-    description: '验证候选片段是否唯一存在，并返回位置。用于编辑前定位。',
+    description: '验证候选片段是否唯一存在，并返回位置。精确匹配失败时返回Top-3模糊候选。',
     policy: 'read',
     inputSchema: {
       type: 'object',
@@ -155,8 +195,27 @@ export function createEditorTools(options: {
       if (typeof params.fragment !== 'string' || !params.fragment) {
         return toolError('invalid_input', 'fragment 必须是非空字符串')
       }
-      const matches = findMatches(snapshot.content, params.fragment, true)
-      if (matches.length === 0) return toolError('target_not_found', '片段不存在，请重新复制原文')
+    const matches = findMatches(snapshot.content, params.fragment, true)
+      if (matches.length === 0) {
+        const candidates = fuzzyLocate(snapshot.content, params.fragment, 3)
+        if (candidates.length > 0) {
+          return {
+            ok: true,
+            data: {
+              unique: false,
+              fuzzy: true,
+              candidates: candidates.map(c => ({
+                start: c.start,
+                end: c.end,
+                similarity: Math.round(c.similarity * 100) / 100,
+                context: c.context,
+              })),
+              hint: '精确匹配失败，以下为相似度最高的候选位置，请选择一个并重新定位',
+            },
+          }
+        }
+        return toolError('target_not_found', '片段不存在，请重新复制原文')
+      }
       if (matches.length > 1) {
         return toolError('ambiguous_target', '片段出现多次，必须扩展片段使其唯一')
       }
@@ -165,6 +224,7 @@ export function createEditorTools(options: {
         ok: true,
         data: {
           unique: true,
+          fuzzy: false,
           start: match.start,
           end: match.end,
           context: contextWindow(snapshot.content, match.start, match.end),
@@ -199,15 +259,25 @@ export function createEditorTools(options: {
       },
       required: ['commands'],
     },
-    async execute(input) {
-      const params = input as { commands?: unknown }
-      if (!Array.isArray(params.commands) || params.commands.length === 0) {
-        return toolError('invalid_input', 'commands 必须是非空数组')
+    async execute(input, context) {
+     const params = input as { commands?: unknown }
+     if (!Array.isArray(params.commands) || params.commands.length === 0) {
+       return toolError('invalid_input', 'commands 必须是非空数组')
+     }
+     if (params.commands.length > 10) {
+       return toolError('too_many_commands', '单批最多 10 条编辑命令')
+     }
+      // P2: 写入安全边界 — 校验 writableTarget 与 context.targetId 一致
+      if (context.writableTarget && context.writableTarget !== context.targetId) {
+        return toolError('write_target_mismatch', '写入目标与当前编辑目标不一致，禁止跨目标写入')
       }
-      if (params.commands.length > 10) {
-        return toolError('too_many_commands', '单批最多 10 条编辑命令')
+      // 验证每条命令的 target 字段不跨目标
+      for (const cmd of params.commands as Array<{ target?: string }>) {
+        if (cmd.target && context.writableTarget && cmd.target !== context.writableTarget) {
+          return toolError('cross_target_write', `命令目标 ${cmd.target} 与可写目标 ${context.writableTarget} 不一致`)
+        }
       }
-      const totalLength = params.commands.reduce((sum, command) => {
+     const totalLength = params.commands.reduce((sum, command) => {
         const item = command as { content?: unknown; target?: unknown }
         return sum + (typeof item?.content === 'string' ? item.content.length : 0) +
           (typeof item?.target === 'string' ? item.target.length : 0)
@@ -248,12 +318,132 @@ export function createEditorTools(options: {
       }
       const steps = params.steps.slice(0, MAX_PLAN_STEPS)
       options.onPlanUpdate?.({ stage: params.stage, steps })
-      return { ok: true, data: { stage: params.stage, steps } }
+     return { ok: true, data: { stage: params.stage, steps } }
+   },
+ }
+
+  const multiGetState: AgentToolDefinition = {
+    name: 'editor.multi_get_state',
+    description: '获取多个编辑目标的摘要（最多 5 个）。用于跨目标读取上下文。',
+    policy: 'read',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        targetIds: {
+          type: 'array',
+          description: '目标 ID 列表，空数组则返回全部 tab',
+          items: { type: 'string' },
+        },
+      },
+    },
+    async execute(input) {
+      if (!options.getAllSnapshots) return toolError('not_available', '当前工作区不支持多目标读取')
+      const allSnapshots = options.getAllSnapshots()
+      const params = input as { targetIds?: unknown }
+      let requestedIds: string[] = []
+      if (Array.isArray(params.targetIds)) {
+        requestedIds = (params.targetIds as unknown[]).filter(
+          (v): v is string => typeof v === 'string'
+        )
+      }
+      const filtered = requestedIds.length > 0
+        ? allSnapshots.filter(s => requestedIds.includes(s.targetId))
+        : allSnapshots
+      const capped = filtered.slice(0, MAX_READABLE_TARGETS)
+      if (capped.length === 0) return toolError('no_targets', '没有可读取的编辑目标')
+      return {
+        ok: true,
+        data: {
+          total: capped.length,
+          truncated: filtered.length > MAX_READABLE_TARGETS,
+          targets: capped.map(s => ({
+            workspace: s.workspace,
+            targetId: s.targetId,
+            label: s.label,
+            contentLength: s.content.length,
+            contentPreview: s.content.slice(0, 240),
+            mode: s.mode,
+          })),
+        },
+      }
     },
   }
 
-  return [getState, search, locate, proposeEdits, updatePlan]
+  const globalSearch: AgentToolDefinition = {
+    name: 'editor.global_search',
+    description: '跨所有编辑目标搜索关键词，返回每个目标中的匹配位置和上下文。',
+    policy: 'read',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: '搜索文本' },
+        caseSensitive: { type: 'boolean', description: '是否区分大小写，默认 false' },
+      },
+      required: ['query'],
+    },
+    async execute(input) {
+      if (!options.getAllSnapshots) return toolError('not_available', '当前工作区不支持全局搜索')
+      const params = input as { query?: unknown; caseSensitive?: unknown }
+      if (typeof params.query !== 'string' || !params.query.trim()) {
+        return toolError('invalid_input', 'query 必须是非空字符串')
+      }
+      const caseSensitive = params.caseSensitive === true
+      const allSnapshots = options.getAllSnapshots()
+      const results = allSnapshots.map(s => {
+        const matches = findMatches(s.content, params.query as string, caseSensitive)
+        return {
+          targetId: s.targetId,
+          label: s.label,
+          workspace: s.workspace,
+          matchCount: matches.length,
+          matches: matches.slice(0, 5).map(m => ({
+            start: m.start,
+            end: m.end,
+            context: contextWindow(s.content, m.start, m.end),
+          })),
+        }
+      }).filter(r => r.matchCount > 0)
+      return {
+        ok: true,
+        data: {
+          totalTargets: results.length,
+          totalMatches: results.reduce((sum, r) => sum + r.matchCount, 0),
+          results: results.slice(0, MAX_READABLE_TARGETS),
+        },
+      }
+    },
+  }
+
+  const workspaceSummary: AgentToolDefinition = {
+    name: 'editor.workspace_summary',
+    description: '获取整个工作区结构概览：所有打开的编辑目标列表及摘要。',
+    policy: 'read',
+    inputSchema: { type: 'object', properties: {} },
+    async execute() {
+      if (!options.getAllSnapshots) return toolError('not_available', '当前工作区不支持多目标概览')
+      const allSnapshots = options.getAllSnapshots()
+      if (allSnapshots.length === 0) return toolError('no_targets', '工作区没有打开的编辑目标')
+      return {
+        ok: true,
+        data: {
+          totalTargets: allSnapshots.length,
+          targets: allSnapshots.map(s => ({
+            workspace: s.workspace,
+            targetId: s.targetId,
+            label: s.label,
+            contentLength: s.content.length,
+            mode: s.mode,
+            hasSelection: s.selectedText.length > 0,
+          })),
+        },
+      }
+    },
+  }
+
+  return [getState, search, locate, proposeEdits, updatePlan, multiGetState, globalSearch, workspaceSummary]
 }
+
+const MAX_READABLE_TARGETS = 5
 
 function isAbortError(error: unknown): boolean {
   return error instanceof DOMException
@@ -333,3 +523,4 @@ export class ToolGateway {
     }
   }
 }
+

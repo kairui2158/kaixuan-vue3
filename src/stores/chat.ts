@@ -10,6 +10,17 @@ export interface EditorToolPlan {
   steps: string[]
 }
 
+export interface ToolCallStreamEvent {
+  type: 'tool_start' | 'tool_progress' | 'tool_result' | 'tool_error'
+  toolName: string
+  stepDescription: string
+  targetId?: string
+  iteration: number
+  timestamp: number
+  ok: boolean
+  error?: string
+}
+
 export interface ChatMessage {
   id: string
   role: 'user' | 'assistant' | 'system'
@@ -27,6 +38,7 @@ export interface ChatMessage {
   }
   editorBatchRecord?: EditorBatchRecord
   editorToolPlan?: EditorToolPlan
+  toolCallStream?: ToolCallStreamEvent[]
 }
 
 export interface ChatSession {
@@ -87,7 +99,7 @@ export const useChatStore = defineStore('chat', () => {
 
   function addMessage(msg: Omit<ChatMessage, 'id' | 'ts'>, projectId?: string) {
     const session = activeSession.value
-    if (!session) return
+    if (!session) return null
     const full: ChatMessage = {
       id: 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
       ts: Date.now(),
@@ -96,6 +108,7 @@ export const useChatStore = defineStore('chat', () => {
     session.messages.push(full)
     session.updatedAt = Date.now()
     saveSessions(projectId)
+    return full
   }
 
   function updateLastMessage(content: string) {
@@ -105,7 +118,7 @@ export const useChatStore = defineStore('chat', () => {
       if (last.role === 'assistant') {
         last.content = content
         session.updatedAt = Date.now()
-        saveSessions()
+        saveSessions(currentProjectId.value)
       }
     }
   }
@@ -158,8 +171,20 @@ export const useChatStore = defineStore('chat', () => {
     const session = sessions.value.find(item => item.id === (sessionId || activeSessionId.value))
     const message = session?.messages.find(item => item.id === messageId)
     if (!session || !message || message.role !== 'assistant') return false
-    if (plan) message.editorToolPlan = plan
-    else delete message.editorToolPlan
+  if (plan) message.editorToolPlan = plan
+  else delete message.editorToolPlan
+  if (message.toolCallStream === undefined) message.toolCallStream = []
+  session.updatedAt = Date.now()
+  void saveSessions(currentProjectId.value)
+  return true
+  }
+
+  function appendToolCallStream(messageId: string, event: ToolCallStreamEvent, sessionId?: string) {
+    const session = sessions.value.find(item => item.id === (sessionId || activeSessionId.value))
+    const message = session?.messages.find(item => item.id === messageId)
+    if (!session || !message || message.role !== 'assistant') return false
+    if (!message.toolCallStream) message.toolCallStream = []
+    message.toolCallStream.push(event)
     session.updatedAt = Date.now()
     void saveSessions(currentProjectId.value)
     return true
@@ -176,6 +201,7 @@ export const useChatStore = defineStore('chat', () => {
     delete assistant.editorBatchTarget
     delete assistant.editorBatchRecord
     delete assistant.editorToolPlan
+    delete assistant.toolCallStream
     session.messages.splice(userIndex, 2)
     session.updatedAt = Date.now()
     saveSessions(projectId)
@@ -197,7 +223,7 @@ export const useChatStore = defineStore('chat', () => {
     if (session) {
       session.messages = []
       session.updatedAt = Date.now()
-      saveSessions()
+      saveSessions(currentProjectId.value)
     }
   }
 
@@ -208,7 +234,7 @@ export const useChatStore = defineStore('chat', () => {
       if (activeSessionId.value === id) {
         activeSessionId.value = sessions.value[Math.max(0, idx - 1)]?.id || null
       }
-      saveSessions()
+      saveSessions(currentProjectId.value)
     }
   }
 
@@ -221,6 +247,7 @@ export const useChatStore = defineStore('chat', () => {
     generationStatus, generationMessage, generationStartedAt,
     loadSessions, saveSessions, ensureSession, addMessage, updateLastMessage, updateMessageContent, replaceMessagePair, setGenerationState,
     clearSession, removeSession, setCurrentContext, updateMessageContinuation, updateMessageEditorBatch, updateMessageEditorToolPlan
+    , appendToolCallStream
   }
 })
 

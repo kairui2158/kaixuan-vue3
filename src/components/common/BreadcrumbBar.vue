@@ -1,6 +1,5 @@
  <template>
 <div class="breadcrumb-bar">
-    <span id="breadcrumb-bar" class="breadcrumb-home" @click="emit('home')">神意助手</span>
      <template v-for="(item, i) in items" :key="i">
        <span class="breadcrumb-sep">/</span>
        <span class="breadcrumb-item" @click="emit('navigate', i)">
@@ -31,13 +30,8 @@
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
   overflow: hidden;
-  white-space: nowrap;
+ white-space: nowrap;
 }
-.breadcrumb-home {
-  cursor: pointer;
-  color: var(--accent);
-}
-.breadcrumb-home:hover { text-decoration: underline; }
 .breadcrumb-sep { opacity: 0.5; }
 .breadcrumb-item {
   cursor: pointer;

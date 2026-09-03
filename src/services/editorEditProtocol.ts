@@ -186,3 +186,17 @@ export function buildEditorEditPrompt(target: {
     `当前编辑内容：\n${target.content}`
   ].join('\n') + selection
 }
+
+export function buildEditorReadonlyPrompt(target: {
+  workspace: string
+  label: string
+  content: string
+}): string {
+  if (!target.content) return '当前编辑器页签为空，请直接回答用户问题；如需写入编辑器，请让用户先输入正文内容。'
+  return [
+    '当前编辑器页签没有可写目标快照，本轮禁止使用编辑协议或编辑工具。',
+    '你可以把当前内容作为讨论参考，但如需修改编辑器，请先说明建议，等待应用生成可用目标后再执行。',
+    `目标：${target.label}`,
+    `当前编辑内容：\n${target.content}`
+  ].join('\n')
+}

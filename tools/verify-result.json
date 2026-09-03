@@ -1,0 +1,47 @@
+{
+  "allStepsOk": false,
+  "runtimeErrors": [],
+  "steps": [
+    {
+      "step": "screenshot",
+      "ok": false,
+      "detail": {
+        "error": "Page.captureScreenshot timeout 30000ms"
+      },
+      "t": 1788432765847
+    },
+    {
+      "step": "dom-get-document",
+      "ok": false,
+      "detail": {
+        "error": "DOM.getDocument timeout 15000ms"
+      },
+      "t": 1788432780859
+    },
+    {
+      "step": "runtime-eval-dom",
+      "ok": false,
+      "detail": {
+        "error": "Runtime.enable timeout 15000ms"
+      },
+      "t": 1788432795869
+    },
+    {
+      "step": "storage-co-creation-config",
+      "ok": false,
+      "detail": {
+        "error": "Runtime.evaluate timeout 30000ms"
+      },
+      "t": 1788432825890
+    },
+    {
+      "step": "no-pipeline-sync",
+      "ok": false,
+      "detail": {
+        "error": "Runtime.evaluate timeout 15000ms"
+      },
+      "t": 1788432840894
+    }
+  ],
+  "timestamp": "2026-09-03T10:54:00.901Z"
+}

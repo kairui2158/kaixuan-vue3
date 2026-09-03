@@ -4,6 +4,15 @@ export function getSkillAgentKey(step: number, skillId: string): string {
   return `${step}-${skillId}`
 }
 
+/**
+ * Workspace-scoped binding key. `home` keeps home co-creation bindings apart
+ * from pipeline's numeric step keys without changing the legacy format.
+ */
+export function getWorkspaceSkillAgentKey(workspace: string, skillId: string): string {
+  if (!workspace || !skillId) return ''
+  return `${workspace}-${skillId}`
+}
+
 export function getSkillAgentId(
   bindings: SkillAgentBindings,
   step: number,

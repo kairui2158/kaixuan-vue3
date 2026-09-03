@@ -88,6 +88,12 @@ export interface CallAiParams {
     maxToolIterations?: number
     maxWriteProposals?: number
     onCompatibilityMode?: (reason: string) => void
+    onToolStart?: (event: {
+      toolName: string
+      policy: 'read' | 'write'
+      iteration: number
+      input: unknown
+    }) => void
     onToolCall?: (event: {
       toolName: string
       policy: 'read' | 'write'
@@ -101,6 +107,7 @@ export interface CallAiParams {
   retry?: boolean
   meta?: {
     source?: string
+    targetId?: string
     step?: number
     skillId?: string
     agentId?: string
@@ -887,6 +894,7 @@ export function createAiService(
           const result: ToolResult = { ok: false, error: { code: 'tool_not_found', message: `工具不存在：${call.name}` } }
           toolResults.push({ call, result })
           allToolResults.push({ call, result })
+          params.toolPolicy?.onToolStart?.({ toolName: call.name, policy: 'read', iteration, input: call.input })
           params.toolPolicy?.onToolCall?.({ toolName: call.name, policy: 'read', iteration, input: call.input, result, durationMs: 0 })
           continue
         }
@@ -900,14 +908,18 @@ export function createAiService(
           }
           toolResults.push({ call, result })
           allToolResults.push({ call, result })
+          params.toolPolicy?.onToolStart?.({ toolName: tool.name, policy: tool.policy, iteration, input: call.input })
           params.toolPolicy?.onToolCall?.({ toolName: tool.name, policy: tool.policy, iteration, input: call.input, result, durationMs: 0 })
           continue
         }
         const started = Date.now()
+        params.toolPolicy?.onToolStart?.({ toolName: tool.name, policy: tool.policy, iteration, input: call.input })
         const result = await tool.execute(call.input, {
           projectId: params.meta?.source || 'unknown-project',
           workspace: 'main',
-          targetId: params.meta?.source || 'unknown-target',
+          targetId: params.meta?.targetId || params.meta?.source || 'unknown-target',
+          readableTargets: [],
+          writableTarget: params.meta?.targetId || params.meta?.source || 'unknown-target',
           sessionId: params.meta?.source || 'unknown-session',
           iteration,
           abortSignal: params.signal,

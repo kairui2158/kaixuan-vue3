@@ -1,23 +1,5 @@
 <template>
   <div class="app-container">
-    <header id="app-header" class="app-header">
-      <div class="header-left">
-        <span class="app-title">神意助手</span>
-      </div>
-      <div class="header-right">
-        <select id="agent-select" v-model="selectedAgent" class="header-selector" aria-label="选择智能体">
-          <option value="">默认</option>
-          <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
-        </select>
-        <select id="model-select" v-model="selectedModel" class="header-selector" aria-label="选择模型">
-          <option value="">自动</option>
-          <option v-for="m in availableModels" :key="m" :value="m">{{ m }}</option>
-        </select>
-        <button v-if="pipelineMinimized" id="btn-restore-pipeline" class="btn-sm btn-secondary header-restore-btn" title="恢复生成流水线" @click="pipelineMinimized = false">流水线</button>
-        <button id="btn-clear" class="btn-icon" title="清空对话" @click="clearChat"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
-      </div>
-    </header>
-
    <main>
       <div id="panel-backdrop" class="panel-backdrop" v-if="activePanel" @click="activePanel=''"></div>
      <div id="app-body" class="app-body">
@@ -168,11 +150,6 @@ const skillBindVisible = ref(false)
 const skillBindType = ref('')
 const skillBindId = ref('')
 const inlineMenu = ref({ visible: false, x: 0, y: 0, text: '' })
-const selectedAgent = computed({
-  get: () => agentStore.selectedAgentId || '',
-  set: (v: string) => { agentStore.selectedAgentId = v }
-})
-
 window.addEventListener('show-diff', (e: Event) => {
   const detail = (e as CustomEvent).detail
   diffOriginal.value = detail?.original || ''
@@ -186,11 +163,6 @@ const selectedModel = computed({
     const p = providerStore.activeGenerateProvider
     if (p) providerStore.updateProvider(p.id, { selectedModel: v })
   }
-})
-
-const availableModels = computed(() => {
-  const p = providerStore.activeGenerateProvider
-  return p ? p.models : []
 })
 
 function handleNavigate(panel: string) {
@@ -209,14 +181,11 @@ function applyDiffResult(text: string, acceptedIndexes?: number[]) {
 function closeDiffModal() {
   diffVisible.value = false
   diffEditMeta.value = null
+  window.dispatchEvent(new CustomEvent('diff-closed'))
 }
 function handleInlineAction(action: string, text: string) {
   window.dispatchEvent(new CustomEvent('inline-action', { detail: { action, text } }))
 }
-function clearChat() {
-  window.dispatchEvent(new CustomEvent('clear-chat'))
-}
-
 function handleGenerateBody(e: Event) {
   const detail = (e as CustomEvent).detail
   if (detail?.chapterId) {
@@ -383,45 +352,6 @@ onMounted(async () => {
   color: var(--text-primary);
   font-family: var(--font-family);
   overflow: hidden;
-}
-.app-header {
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
-  flex-shrink: 0;
-}
-.header-left .app-title {
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  white-space: nowrap;
-}
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-  overflow: hidden;
-}
-.header-restore-btn { font-size: var(--font-size-xs); padding: 4px 12px; white-space: nowrap; flex-shrink: 0; }
-.header-selector {
-  background: var(--bg-input);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: 4px 10px;
-  font-size: var(--font-size-sm);
-  height: 32px;
-  max-width: 140px;
-  min-width: 60px;
-  flex: 0 1 auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  outline: none;
 }
 .btn-icon {
   background: transparent;

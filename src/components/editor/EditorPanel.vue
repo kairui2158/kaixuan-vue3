@@ -1,5 +1,6 @@
 <template>
   <section id="editor-panel" class="editor-panel">
+    <div v-if="flashClass" :class="flashClass" class="tool-flash-overlay"></div>
     <div class="editor-header">
       <span v-if="activeTab?.mode" id="editor-mode-badge" class="editor-mode-badge" :class="'mode-' + activeTab.mode">{{ modeLabel }}</span>
       <span id="editor-title" class="editor-title">{{ activeTab ? activeTab.title : '选择章节开始写作' }}</span>
@@ -343,6 +344,9 @@ onUnmounted(() => {
   window.removeEventListener('editor-external-change', handleExternalChangeEvent)
   window.removeEventListener('editor-save', handleSaveEvent)
   window.removeEventListener('toggle-find', handleToggleFindEvent)
+  window.removeEventListener('diff-locate', handleDiffLocate)
+  window.removeEventListener('editor-ai-batch-checkpoint', handleAiBatchCheckpoint)
+  window.removeEventListener('tool-activity', handleToolActivity)
 })
 function handleUndoEvent() { undo() }
 function handleRedoEvent() { redo() }
@@ -367,7 +371,43 @@ onMounted(() => {
   window.addEventListener('editor-save', handleSaveEvent)
   window.addEventListener('toggle-find', handleToggleFindEvent)
   window.addEventListener('diff-locate', handleDiffLocate)
+  window.addEventListener('editor-ai-batch-checkpoint', handleAiBatchCheckpoint)
+  window.addEventListener('tool-activity', handleToolActivity)
 })
+
+function handleAiBatchCheckpoint(event: Event) {
+  const detail = (event as CustomEvent).detail
+  if (!detail || !detail.tabId || !detail.batchId) return
+  // P3: AI 批次以 checkpoint 进入 undo 栈
+  // 经验引用: §1 规则6（不得重新赋值）、§7 规则19（AI 批次专用回滚栈）
+  if (detail.tabId !== activeTab.value?.id) return
+  undoRedo.pushAiBatchCheckpoint(detail.content, detail.batchId)
+}
+
+// P7: 编辑器实时反馈 — AI 读写时高亮/闪烁/滚动
+// 经验引用: §1 M4（隐藏状态保护）闪烁标记是临时状态，不改 tab.isDirty
+let flashTimer: ReturnType<typeof setTimeout> | null = null
+function handleToolActivity(event: Event) {
+  const detail = (event as CustomEvent).detail as {
+    type: 'tool_start' | 'tool_result' | 'tool_error'
+    toolName: string
+    targetId?: string
+    policy: 'read' | 'write'
+  }
+  if (!detail) return
+  // 如果指定了 targetId 且不是当前 tab，切换到该 tab
+  if (detail.targetId && detail.targetId !== editorStore.activeTabId) {
+    editorStore.activeTabId = detail.targetId
+  }
+  // 清除之前的闪烁
+  if (flashTimer) { clearTimeout(flashTimer); flashTimer = null }
+  // 设置闪烁标记
+  flashClass.value = 'tool-flash-' + detail.policy
+  // 1.5 秒后自动移除
+  flashTimer = setTimeout(() => { flashClass.value = '' }, 1500)
+}
+
+const flashClass = ref('')
 
 function handleDiffLocate(event: Event) {
   const detail = (event as CustomEvent).detail
@@ -846,6 +886,12 @@ function applyInlineAction(action: string, label: string) {
  .editor-memory-list li.locked { border-color: var(--accent); }
  .editor-memory-actions { display: flex; flex: 0 0 auto; gap: 6px; }
  .editor-memory-footer { justify-content: flex-end; border-top: 1px solid var(--border-color); }
+</style>
+<style>
+.tool-flash-overlay { position: absolute; top: 0; left: 0; right: 0; height: 3px; z-index: 10; pointer-events: none; }
+.tool-flash-read { background: var(--accent, #4a9); animation: flash-fade 1.5s ease-out; }
+.tool-flash-write { background: var(--chat-status-error, #e54); animation: flash-fade 1.5s ease-out; }
+@keyframes flash-fade { 0% { opacity: 1; } 100% { opacity: 0; } }
 </style>
 
 

@@ -125,9 +125,24 @@
               <div v-if="msg.role === 'assistant'" class="ow-msg-actions">
                 <button class="msg-btn" title="复制" @click="copyMsg(msg.content)">复制</button>
                 <button class="msg-btn" title="替换整个大纲" @click="replaceOutline(msg.content)">替换</button>
-                <button class="msg-btn" title="重新生成该回复" @click="regenerateMsg(i)">重生成</button>
-                <button class="msg-btn" title="插入到光标处" @click="insertAtCursor(msg.content)">插入</button>
-                <button
+              <button class="msg-btn" title="重新生成该回复" @click="regenerateMsg(i)">重生成</button>
+              <button class="msg-btn" title="插入到光标处" @click="insertAtCursor(msg.content)">插入</button>
+              <button
+                v-if="msg.outlineBatchRecord?.status === 'applied' && msg.outlineBatchRecord?.undoAvailable === true"
+                class="msg-btn"
+                :disabled="isGenerating"
+                title="恢复该批次应用前的大纲内容"
+                @click="rollbackOutlineBatch(i)"
+              >回滚批次</button>
+              <span v-if="msg.outlineToolCallStream?.length" class="ow-tool-stream-toggle" @click="toggleToolStream(i)">工具过程 ({{ msg.outlineToolCallStream.length }})</span>
+              <div v-if="msg.outlineToolCallStream?.length && toolStreamOpen[i]" class="ow-tool-stream">
+                <div v-for="(ev, idx) in msg.outlineToolCallStream" :key="idx" class="ow-tool-stream-item" :class="ev.type">
+                  <span class="ow-tool-stream-icon">{{ ev.ok ? '✓' : '✗' }}</span>
+                  <span class="ow-tool-stream-name">{{ ev.toolName }}</span>
+                  <span class="ow-tool-stream-desc">{{ ev.stepDescription }}</span>
+                </div>
+              </div>
+              <button
                   v-if="msg.continuation && canContinue(msg.continuation)"
                   class="msg-btn"
                   :disabled="isGenerating"
@@ -252,9 +267,7 @@ import { usePipelineStore } from '../../stores/pipeline'
 import { useSkillStore } from '../../stores/skill'
 import { useAgentStore } from '../../stores/agent'
 import { migrateSkillAgentBindings } from '../../services/skillAgentBinding'
-import { buildChainSkillPrompt } from '../../services/chainExecution'
-import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from '../../services/chainBreakpoint'
-import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from '../../services/skillValidation'
+import { runWorkspaceSkills, type WorkspaceSkillEngineAdapter, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
 import { importFile } from '../../services/file-import'
 import { useAiTools } from '../../composables/useAiTools'
 import { useAppConfirm } from '../../composables/useAppConfirm'
@@ -270,7 +283,7 @@ import { canRollbackEditorBatch, createEditorBatchRecord, findEditorBatchUndoCon
 import { createEditorTargetSnapshot, validateEditorTarget } from '../../services/editorTarget'
 import { createEditorTools } from '../../services/editorTools'
 import type { EditorToolPlan } from '../../stores/chat'
-import type { ContextMessage, ContextPolicy } from '../../types/context'
+import type { ContextMessage } from '../../types/context'
 import { enhanceCodeBlocks, renderMarkdown as renderMarkdownText } from '../../utils/markdownService'
 import { useThrottledMarkdown } from '../../utils/throttledMarkdown'
 
@@ -419,6 +432,11 @@ const redoStack = ref<string[]>([])
 const isGenerating = ref(false)
 const generationStatus = ref('')
 const streamingContent = ref('')
+const toolStreamOpen = ref<Record<number, boolean>>({})
+
+function toggleToolStream(index: number) {
+  toolStreamOpen.value[index] = !toolStreamOpen.value[index]
+}
 const { content: streamingRenderedContent, flush: flushStreamingRender } = useThrottledMarkdown(streamingContent)
 let generationController: AbortController | null = null
 let lastEditorHistoryAt = 0
@@ -438,31 +456,6 @@ interface OutlineEditCommand {
   reason?: string
 }
 
-
-type WorkspaceSkillTemplate = {
-  id: string
-  name: string
-  template: string
-  customVars?: Record<string, string>
-  injectMode?: string
-  outputFormat?: 'json' | 'text'
-  validationRules?: string[]
-  inputSchema?: any
-  outputSchema?: any
-  retryPolicy?: any
-}
-
-type WorkspacePromptParts = {
-  systemSkill?: string
-  userPrefix?: string
-  userSuffix?: string
-}
-
-type WorkspaceContextOptions = {
-  requestText: string
-  previousSkillOutput?: string
-  includeHistory?: boolean
-}
 
 const DEFAULT_SKILL_HISTORY_TURNS = 10
 
@@ -533,39 +526,6 @@ function getWorkspaceTemplates(): WorkspaceSkillTemplate[] {
     }))
 }
 
-function getPromptParts(template: string, mode: string): WorkspacePromptParts {
-  if (mode === 'user_prefix') return { userPrefix: template }
-  if (mode === 'user_suffix') return { userSuffix: template }
-  return { systemSkill: template }
-}
-
-function mergePromptParts(parts: WorkspacePromptParts[]): WorkspacePromptParts {
-  return {
-    systemSkill: parts.map(part => part.systemSkill).filter(Boolean).join('\n\n'),
-    userPrefix: parts.map(part => part.userPrefix).filter(Boolean).join('\n\n'),
-    userSuffix: parts.map(part => part.userSuffix).filter(Boolean).join('\n\n')
-  }
-}
-
-function resolveWorkspaceTemplate(template: string, context: Record<string, any>): string {
-  const engine = (window as any).SkillExecutionEngine
-  if (engine && typeof engine.resolveTemplate === 'function' && template && /\{\{/.test(template)) {
-    try {
-      return engine.resolveTemplate(template, context, { keepMissing: false })
-    } catch (error) {
-      console.warn('[OUTLINE_WORKSPACE] resolveTemplate failed, using raw template', error)
-    }
-  }
-  return template
-}
-
-function getWorkspaceAgentConfig(agentId: string) {
-  if (!agentId) return null
-  const agent = agentStore.getAgent(agentId)
-  if (!agent) throw new Error('绑定的智能体不存在：' + agentId)
-  return agent
-}
-
 function getOutlineContextMessages(currentRequest: string): ContextMessage[] {
   const source = messages.value
     .filter(message => (message.role === 'user' || message.role === 'assistant') && typeof message.content === 'string' && message.content.trim())
@@ -584,132 +544,47 @@ function getCurrentOutlineSelection(): string {
   return start < end ? (projectStore.outlineText || '').slice(start, end) : ''
 }
 
-function getWorkspaceContextPolicy(template: WorkspaceSkillTemplate, previousSkillOutput?: string): ContextPolicy {
-  const skillPolicy = skillStore.skills.find(skill => skill.id === template.id)?.contextPolicy
-  const policy = conversationContextService.getPolicy('generate', template.id, skillPolicy)
-  if (previousSkillOutput === undefined) return policy
+function createWorkspaceSkillAdapter(): WorkspaceSkillEngineAdapter {
   return {
-    ...policy,
-    chatHistory: 'none',
-    includeOutline: false,
-    includeSettings: false,
-    includeMemory: false
-  }
-}
-
-function validateWorkspaceSkillInput(template: WorkspaceSkillTemplate, input: unknown) {
-  if (!template.inputSchema) return
-  const result = validateSkillInput(input, template)
-  if (!result.valid) {
-    throw new Error('「' + template.name + '」输入校验失败：' + result.errors.join('；'))
-  }
-}
-
-function validateWorkspaceSkillOutput(template: WorkspaceSkillTemplate, output: string) {
-  const structured = validateSkillOutput(output, template)
-  if (!structured.valid) {
-    throw new Error('「' + template.name + '」输出校验失败：' + structured.errors.join('；'))
-  }
-  const rules = validateSkillRules(structured.value ?? output, template.validationRules)
-  if (!rules.valid) {
-    throw new Error('「' + template.name + '」规则校验失败：' + rules.errors.join('；'))
-  }
-}
-
-async function callWorkspaceSkill(
-  template: WorkspaceSkillTemplate,
-  injection: WorkspacePromptParts,
-  userPrompt: string,
-  inputContext: unknown,
-  onProgress?: (status: string) => void,
-  contextOptions: WorkspaceContextOptions = { requestText: userPrompt }
-): Promise<string> {
-  validateWorkspaceSkillInput(template, inputContext)
-  const maxAttempts = template.retryPolicy
-    ? getSkillMaxAttempts(template.retryPolicy)
-    : template.outputFormat === 'json' ? 2 : 1
-  const agentId = workspaceSkillAgents.value[`0-${template.id}`] || workspaceAgentId.value
-  const agentConfig = getWorkspaceAgentConfig(agentId)
-  const provider = agentConfig?.provider ? providerStore.getProvider(agentConfig.provider) : providerStore.activeGenerateProvider
-  const activeProvider = provider || providerStore.activeGenerateProvider
-  if (!activeProvider) throw new Error('请先配置API供应商')
-  const model = agentConfig?.model || activeProvider.selectedModel || activeProvider.models?.[0] || 'gpt-4o'
-  const temperature = agentConfig?.temperature ?? activeProvider.temperature ?? 0.7
-  const maxTokens = agentConfig?.maxTokens || activeProvider.maxTokens || 8192
-  const systemPrompt = [injection.systemSkill, agentConfig?.systemPrompt].filter(Boolean).join('\n\n')
-    || '你是小说大纲创作助手。'
-  const userPromptParts = [injection.userPrefix, userPrompt, injection.userSuffix].filter(Boolean)
-  const aiService = await getAiService()
-  const projectId = String(projectStore.currentProjectId || 'default')
-  const contextRef = {
-    projectId,
-    workspace: 'outline' as const,
-    purpose: 'generate' as const,
-    skillId: template.id,
-    agentId: agentId || undefined
-  }
-  const contextBundle = await conversationContextService.buildContextBundle({
-    ...contextRef,
-    previousSkillOutput: contextOptions.previousSkillOutput,
-    workspaceState: {
+    workspace: 'outline',
+    source: 'OutlineWorkspace.skill',
+    projectId: outlineProjectId(),
+    step: 0,
+    defaultSystemPrompt: '你是小说大纲创作助手。',
+    getBaseAgentId: () => workspaceAgentId.value,
+    getSkillAgentId: skillId => workspaceSkillAgents.value[`0-${skillId}`] || '',
+    getAgent: agentId => {
+      if (!agentId) return null
+      const agent = agentStore.getAgent(agentId)
+      if (!agent) throw new Error('绑定的智能体不存在：' + agentId)
+      return agent
+    },
+    getProvider: agent => {
+      const provider = agent?.provider
+        ? providerStore.getProvider(agent.provider)
+        : providerStore.activeGenerateProvider
+      return provider || providerStore.activeGenerateProvider || null
+    },
+    getSkillPolicy: template => skillStore.skills.find(skill => skill.id === template.id)?.contextPolicy,
+    buildTemplateContext: (requestText, previousOutput) => ({
+      userPrompt: requestText,
+      selectedText: requestText,
+      outlineContent: projectStore.outlineText || '',
+      novelTitle: projectStore.projectName || '',
+      prevResponse: previousOutput || ''
+    }),
+    getWorkspaceState: () => ({
       outline: projectStore.outlineText || '',
       selectedText: getCurrentOutlineSelection(),
       activeTab: '大纲编辑器',
       settings: projectStore.settingsCollection,
       memories: JSON.stringify(projectStore.memories)
-    },
-    legacyMessages: contextOptions.includeHistory === false
-      ? []
-      : getOutlineContextMessages(contextOptions.requestText).slice(-DEFAULT_SKILL_HISTORY_TURNS * 2)
-  })
-  const contextPolicy = getWorkspaceContextPolicy(template, contextOptions.previousSkillOutput)
-  let lastError: unknown = null
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const attemptPrompt = attempt === 1
-      ? userPromptParts.join('\n\n')
-      : userPromptParts.join('\n\n') + '\n\n[校验重试] 上次输出未满足技能的结构化约束，请只返回符合要求的结果。'
-    try {
-      const requestMessages = conversationContextService.assembleMessages(contextBundle, contextPolicy, [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: attemptPrompt }
-      ])
-      const result = await aiService.callAi({
-        purpose: 'generate',
-        messages: requestMessages,
-        model,
-        temperature,
-        maxTokens,
-        signal: generationController?.signal,
-        onChunk: (text: string) => {
-          streamingContent.value = text
-          onProgress?.('正在生成...')
-        },
-        retry: true,
-        meta: { source: 'OutlineWorkspace.skill', skillId: template.id, agentId: agentId || undefined }
-      })
-      const output = result.text || ''
-      if (!output.trim()) throw new Error('API 返回为空')
-      validateWorkspaceSkillOutput(template, output)
-      await conversationContextService.recordTurn(contextRef, {
-        user: contextOptions.requestText,
-        assistant: output,
-        meta: { source: 'OutlineWorkspace.skill', skillId: template.id, agentId: agentId || undefined }
-      })
-      lastWorkspaceSkillMeta = {
-        finishReason: result.finishReason,
-        requestMessages,
-        providerId: result.providerId,
-        model,
-        agentId: agentId || undefined,
-        skillId: template.id
-      }
-      return output
-    } catch (error) {
-      lastError = error
-      if (attempt === maxAttempts) throw error
-    }
+    }),
+    getLegacyMessages: requestText => getOutlineContextMessages(requestText).slice(-DEFAULT_SKILL_HISTORY_TURNS * 2),
+    loadBreakpoint: () => pipelineStore.refreshBreakpoint(),
+    saveBreakpoint: breakpoint => pipelineStore.saveBreakpoint(breakpoint),
+    clearBreakpoint: () => pipelineStore.clearBreakpoint()
   }
-  throw lastError instanceof Error ? lastError : new Error('技能输出校验失败')
 }
 
 onMounted(async () => {
@@ -1025,7 +900,10 @@ function previewOutlineBatch(batch: EditorEditBatchCommand, targetMeta?: Outline
 }
 
 function rollbackOutlineBatch(messageIndex: number) {
-  if (isGenerating.value) return
+  if (isGenerating.value) {
+    void appConfirm.alert('正在生成中，请等待当前回复完成后再回滚批次')
+    return
+  }
   const record = normalizeEditorBatchRecord(messages.value[messageIndex]?.outlineBatchRecord)
   const currentContent = projectStore.outlineText || ''
   if (!record) {
@@ -1118,6 +996,11 @@ function rollbackOutlineBatch(messageIndex: number) {
   saveFeedback.value = '[OK] 已回滚大纲批次，可撤销恢复'
   setTimeout(() => { saveFeedback.value = '' }, 2500)
 }
+
+window.addEventListener('diff-closed', () => {
+  pendingBatch.value = null
+  pendingOutlineBatchMessage.value = null
+})
 
 function applyPendingEdit() {
   const command = pendingEdit.value
@@ -1422,14 +1305,23 @@ async function sendMessage() {
 }
 
 async function regenerateMsg(index: number) {
-  if (isGenerating.value) return
+  if (isGenerating.value) {
+    await appConfirm.alert('正在生成中，请等待当前回复完成后再重生成')
+    return
+  }
   const target = messages.value[index]
-  if (!target || target.role !== 'assistant') return
+  if (!target || target.role !== 'assistant') {
+    await appConfirm.alert('未找到这条回复，无法重生成')
+    return
+  }
   if (target.continuation) await removeContinuation(outlineProjectId(), OUTLINE_WORKSPACE_ID, OUTLINE_SESSION_ID)
   projectStore.removeOutlineChatAt(index)
   const requestText = lastUserRequest.value ||
     [...messages.value].reverse().find(function(m) { return m.role === 'user' })?.content || ''
-  if (!requestText) return
+  if (!requestText) {
+    await appConfirm.alert('未找到这条回复对应的原始请求，无法重生成')
+    return
+  }
   await scrollToBottom()
   await askAi(requestText)
 }
@@ -1464,45 +1356,30 @@ async function askAi(requestText: string) {
   try {
     const aiService = await getAiService()
     let responseText = ''
-    if (workspaceSkillMode.value === 'chain' && templates.length > 1) {
-      responseText = await runWorkspaceChain(requestText, templates, aiService, {
+    const result = await runWorkspaceSkills({
+      requestText,
+      templates,
+      mode: workspaceSkillMode.value,
+      aiService,
+      contextService: conversationContextService,
+      adapter: createWorkspaceSkillAdapter(),
+      signal: generationController?.signal,
+      callbacks: {
         onFirstChunk: () => {
           firstChunkSeen = true
           generationStatus.value = `已收到内容 · 首字节 ${Math.round(performance.now() - startedAt)}ms`
-        }
-      })
-    } else {
-      const context = buildWorkspaceSkillContext(requestText)
-      const parts = mergePromptParts(templates.map(template => {
-        const templateContext = { ...context, ...(template.customVars || {}) }
-        return getPromptParts(resolveWorkspaceTemplate(template.template, templateContext), template.injectMode || 'system_prefix')
-      }))
-      templates.forEach(template => validateWorkspaceSkillInput(template, context))
-      const combinedTemplate: WorkspaceSkillTemplate = {
-        id: 'compose',
-        name: templates.map(template => template.name).join(' + '),
-        template: '',
-        outputFormat: templates.some(template => template.outputFormat === 'json') ? 'json' : 'text',
-        validationRules: templates.flatMap(template => template.validationRules || []),
-        outputSchema: templates.find(template => template.outputSchema)?.outputSchema,
-        retryPolicy: templates.reduce((max, template) => Math.max(max, getSkillMaxAttempts(template.retryPolicy)), 1)
-      }
-      responseText = await callWorkspaceSkill(
-        combinedTemplate,
-        parts,
-        `用户请求: ${requestText}`,
-        context,
-        () => {
-          if (!firstChunkSeen) {
-            firstChunkSeen = true
-            generationStatus.value = `已收到内容 · 首字节 ${Math.round(performance.now() - startedAt)}ms`
-          } else {
-            generationStatus.value = '正在生成...'
-          }
         },
-        { requestText, includeHistory: true }
-      )
-    }
+        onStatus: status => {
+          if (!firstChunkSeen) generationStatus.value = status
+        },
+        onChunk: text => {
+          streamingContent.value = text
+          void scrollToBottom()
+        }
+      }
+    })
+    responseText = result.text
+    lastWorkspaceSkillMeta = result.meta
     if (!responseText.trim()) throw new Error('API 返回为空')
     flushStreamingRender()
     const requestTarget = createOutlineRequestTarget()
@@ -1691,102 +1568,6 @@ window.addEventListener('diff-applied', (event: Event) => {
   }
 })
 
-function buildWorkspaceSkillContext(requestText: string, previousOutput?: string): Record<string, any> {
-  return {
-    userPrompt: requestText,
-    selectedText: requestText,
-    outlineContent: projectStore.outlineText || '',
-    novelTitle: projectStore.projectName || '',
-    prevResponse: previousOutput || ''
-  }
-}
-
-async function runWorkspaceChain(
-  requestText: string,
-  templates: WorkspaceSkillTemplate[],
-  aiService: Awaited<ReturnType<typeof getAiService>>,
-  hooks: { onFirstChunk: () => void }
-): Promise<string> {
-  const projectId = String(projectStore.currentProjectId || '')
-  const skillSequence = templates.map(template => template.id)
-  const breakpoint = await pipelineStore.refreshBreakpoint()
-  const resumePoint = getChainResumePoint({
-    breakpoint,
-    step: 0,
-    projectId,
-    skillSequence
-  })
-  let current = resumePoint.previousOutput || requestText
-  let startIndex = resumePoint.startIndex
-  if (resumePoint.resumed) {
-    generationStatus.value = `从第 ${startIndex + 1} 步继续`
-  }
-  for (let index = startIndex; index < templates.length; index++) {
-    const template = templates[index]
-    const context = buildWorkspaceSkillContext(requestText, index === 0 ? '' : current)
-    const templateContext = { ...context, ...(template.customVars || {}) }
-    const resolvedTemplate = resolveWorkspaceTemplate(template.template, templateContext)
-    const injection = getPromptParts(resolvedTemplate, template.injectMode || 'system_prefix')
-    const userPrompt = index === 0
-      ? buildChainSkillPrompt({
-        initialPrompt: `用户请求: ${requestText}\n\n请执行当前 SKILL：${template.name || template.id}`,
-        previousOutput: '',
-        isFirst: true
-      })
-      : `原始用户请求: ${requestText}\n\n请执行当前 SKILL：${template.name || template.id}。请严格基于上下文中的“上一步 SKILL 完整输出”继续处理。`
-    generationStatus.value = `Skill ${index + 1}/${templates.length}：${template.name || template.id}`
-    const previousOutput = index === 0 ? '' : current
-    try {
-      current = await callWorkspaceSkill(
-        template,
-        injection,
-        userPrompt,
-        { ...templateContext, previousOutput },
-        () => {
-          hooks.onFirstChunk()
-          generationStatus.value = `Skill ${index + 1}/${templates.length}：正在生成...`
-        },
-        {
-          requestText,
-          previousSkillOutput: index === 0 ? undefined : current,
-          includeHistory: index === 0
-        }
-      )
-      await pipelineStore.saveBreakpoint(createChainSuccessBreakpoint({
-        step: 0,
-        projectId,
-        skillIndex: index,
-        skillId: template.id,
-        skillSequence,
-        lastSuccessChainIndex: index,
-        lastOutput: current,
-        inputPrompt: userPrompt,
-        agentId: workspaceSkillAgents.value[`0-${template.id}`] || workspaceAgentId.value,
-        retryCount: 0
-      }))
-    } catch (error) {
-      await pipelineStore.saveBreakpoint(createChainFailureBreakpoint({
-        step: 0,
-        projectId,
-        skillIndex: index,
-        skillId: template.id,
-        skillSequence,
-        lastSuccessChainIndex: index - 1,
-        lastOutput: previousOutput,
-        inputPrompt: userPrompt,
-        agentId: workspaceSkillAgents.value[`0-${template.id}`] || workspaceAgentId.value,
-        retryCount: Number(breakpoint?.skillId === template.id ? breakpoint.retryCount || 0 : 0) + 1,
-        error: error instanceof Error ? error.message : String(error)
-      }))
-      throw error
-    }
-    streamingContent.value = current
-    void scrollToBottom()
-  }
-  await pipelineStore.clearBreakpoint()
-  return current
-}
-
 async function askPlainAi(requestText: string) {
   const provider = providerStore.activeGenerateProvider
   if (!provider) {
@@ -1809,6 +1590,7 @@ async function askPlainAi(requestText: string) {
   const startedAt = performance.now()
   let firstChunkSeen = false
   let latestOutlineToolPlan: EditorToolPlan | null = null
+  const latestOutlineToolCallStream: Array<{ type: string; toolName: string; stepDescription: string; targetId?: string; iteration: number; ok: boolean }> = []
   try {
     const aiService = await getAiService()
     const projectId = String(projectStore.currentProjectId || 'default')
@@ -1866,6 +1648,17 @@ async function askPlainAi(requestText: string) {
       toolPolicy: tools ? {
         maxToolIterations: 6,
         maxWriteProposals: 1,
+        onToolStart: (event) => {
+          window.dispatchEvent(new CustomEvent('tool-activity', { detail: { type: 'tool_start', toolName: event.toolName, targetId: 'outline', policy: event.policy } }))
+          latestOutlineToolCallStream.push({
+            type: 'tool_start',
+            toolName: event.toolName,
+            stepDescription: `正在执行 ${event.toolName}…`,
+            targetId: 'outline',
+            iteration: event.iteration,
+            ok: true,
+          })
+        },
         onCompatibilityMode: () => {
           compatibilityNotice.value = '当前供应商未启用原生工具调用，已使用兼容模式'
         }
@@ -1891,6 +1684,7 @@ async function askPlainAi(requestText: string) {
       role: 'assistant',
       content: responseText,
       ...(latestOutlineToolPlan ? { outlineToolPlan: latestOutlineToolPlan } : {}),
+      ...(latestOutlineToolCallStream.length ? { outlineToolCallStream: [...latestOutlineToolCallStream] } : {}),
       ...(editBatch ? { outlineBatch: editBatch } : {}),
       ...(editBatch ? { outlineBatchTarget } : {}),
       ...(editBatch ? {
@@ -1940,7 +1734,14 @@ async function askPlainAi(requestText: string) {
 async function continueOutlineMessage(index: number) {
   const msg = messages.value[index]
   const snapshot = msg?.continuation as ContinuationSnapshot | undefined
-  if (!snapshot || !canContinue(snapshot) || isGenerating.value) return
+  if (isGenerating.value) {
+    await appConfirm.alert('正在生成中，请等待当前回复完成后再续生成')
+    return
+  }
+  if (!snapshot || !canContinue(snapshot)) {
+    await appConfirm.alert('当前消息没有可续生成的中断状态')
+    return
+  }
   isGenerating.value = true
   generationStatus.value = '正在续生成…'
   streamingContent.value = snapshot.accumulatedText
@@ -2444,5 +2245,13 @@ function handleUnlockOutline() {
   display: flex;
   gap: 4px;
 }
-.btn-import { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); font-weight: 500; padding: 6px 16px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s ease; } .btn-import:hover { background: var(--accent); color: var(--text-on-accent); } .btn-import:active { transform: scale(0.97); } </style>
+.btn-import { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); font-weight: 500; padding: 6px 16px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s ease; } .btn-import:hover { background: var(--accent); color: var(--text-on-accent); } .btn-import:active { transform: scale(0.97); }
+.ow-tool-stream-toggle { cursor: pointer; color: var(--text-muted); font-size: var(--font-size-xs); margin-left: 4px; }
+.ow-tool-stream { margin-top: 4px; padding: 4px 8px; border-left: 2px solid var(--accent, #4a9); background: var(--bg-secondary); }
+.ow-tool-stream-item { display: flex; align-items: center; gap: 4px; font-size: var(--font-size-sm); }
+.ow-tool-stream-item.tool_error { color: var(--chat-status-error, #e54); }
+.ow-tool-stream-icon { flex: 0 0 auto; }
+.ow-tool-stream-name { font-weight: 500; }
+.ow-tool-stream-desc { color: var(--text-muted); flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>
 
