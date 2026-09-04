@@ -48,3 +48,5 @@ _audit/tmp/*backup*.json
 
 # Local app data dir contains user's encrypted API keys; never commit
 _data/
+
+.userdata/

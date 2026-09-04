@@ -374,7 +374,7 @@
                     role="row"
                     @click="selectedVolumeIndex = i"
                   >
-                    <span class="pl-volume-col pl-volume-col-index">{{ i + 1 }}</span>
+                    <span class="pl-volume-col pl-volume-col-index">{{ volumeCount }}/{{ i + 1 }}</span>
                     <span class="pl-volume-col pl-volume-col-name" :title="vol.name">{{ vol.name || '未命名卷' }}</span>
                     <span class="pl-volume-col pl-volume-col-outline" :title="vol.outline || ''">{{ volumeOutlineExcerpt(vol.outline) }}</span>
                     <span class="pl-volume-col pl-volume-col-words">{{ formatVolumeWords(vol) }}</span>
@@ -1460,7 +1460,7 @@ async function saveVolumeConfig() {
       {
         volumeWords: Number(volumeWords.value) || 0,
         volumeCount: Number(volumeCount.value) || 0,
-        chapterWords: Number(chapterWords.value) || 0
+        chapterWords: Number(selectedVolume.value?.wordsPerChapter || chapterWords.value) || 0
       }
     )
   )
@@ -1653,7 +1653,7 @@ function buildTemplateContext(step: number, prompt: string, prevResponse?: strin
     volumeCount: projectStore.volumes.length || volumeCount.value,
     wordsPerVolume: (vol ? Number(vol.allocatedWords || vol.suggestedWords) || 0 : 0) || volumeWords.value || "",
     chapterCount: chs.length,
-    wordsPerChapter: chapterWords.value || "",
+    wordsPerChapter: Number(vol?.wordsPerChapter || chapterWords.value || 3500) || "",
     styleTags: styleTags.value || "",
     pacingParams: pacingParams.value || "",
     volumeOutline: vol ? (vol.outline || vol.summary || "") : "",
@@ -2664,7 +2664,8 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
   pipelineStore.startGeneration()
   pipelineStore.updateProgress(10, "AI生成正文中")
   activeGenerationFeedbackStep.value = 4
-  bodyGenerationLogs.value = ["已选择卷「" + (vol.name || "未命名") + "」，章节：「" + (ch.title || "未命名") + "」，目标字数：" + chapterWords.value]
+  const _bodyWordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
+  bodyGenerationLogs.value = ["已选择卷「" + (vol.name || "未命名") + "」，章节：「" + (ch.title || "未命名") + "」，目标字数：" + _bodyWordsPerChapter]
   try {
     const sc = projectStore.getSettingsCollection()
     const allItems: any[] = []
@@ -2699,7 +2700,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       ]
     })
     ch.chapterExecutionPackage = executionPackage
-    const prompt = buildChapterExecutionPrompt(executionPackage, chapterWords.value)
+    const prompt = buildChapterExecutionPrompt(executionPackage, _bodyWordsPerChapter)
     const rawResult = await runStepSkills(4, prompt, undefined, "你是小说写作专家。请基于章节剧情点生成正文。")
     bodyGenerationLogs.value.push("API 已返回，正在解析正文内容")
     const generationResult = parseGenerationResult(rawResult)
