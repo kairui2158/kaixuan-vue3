@@ -188,8 +188,9 @@
 | 135 | 2026-09-03 | AI 编辑器 L3 | 等级三左右手协同与按钮复核 | 深化 API 与编辑器双向操作能力 | [DEV_LOG_2026-09-03-ai-editor-l3.md](DEV_LOG_2026-09-03-ai-editor-l3.md) |
 | 136 | 2026-09-03 | 主页共创 SKILL/AGENT | 主页编辑器独立 SKILL/AGENT 共创配置 | 主页 API 对话支持独立技能链与流水线切断 | [DEV_LOG_2026-09-03-home-co-creation.md](DEV_LOG_2026-09-03-home-co-creation.md) |
 | 137 | 2026-09-04 | 编辑器-API 统一升级 L4/L5 | 多目标读取、写入安全、AI 批次回滚、工作区快照、任务状态机、工具过程流、编辑器高亮、chain 断点续跑、语义定位 | AI 可同时读取多目标且安全写入、长事务任务可续跑、工具调用过程可视化 | [DEV_LOG_2026-09-04-editor-api-unified-upgrade.md](DEV_LOG_2026-09-04-editor-api-unified-upgrade.md) |
-
 | 139 | 2026-09-04 | 正文字数+卷标号 | genBody字数修复+卷标号显示 | 正文层字数不再乱跳，卷标号显示总卷数/序号 | [DEV_LOG_2026-09-04-body-words-fix.md](DEV_LOG_2026-09-04-body-words-fix.md) |
+
+| 140 | 2026-09-04 | 三UI修复 | 设定风格遮挡+正文插入失效+记忆弹窗透明锁死 | 修复创作风格展开遮挡、插入到编辑器按钮跳转、记忆预览弹窗背景和确认锁死 | [DEV_LOG_2026-09-04-three-ui-fixes.md](DEV_LOG_2026-09-04-three-ui-fixes.md) |
 
 ## 维护要求
 
