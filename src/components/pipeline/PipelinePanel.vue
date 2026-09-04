@@ -513,8 +513,8 @@
           </div>
            <div id="pl-ch-gen-bar" class="pl-ch-config">
               <label>每章字数</label>
-              <input id="pl-chapter-wordcount" type="number" class="input-w-80" v-model.number="selectedVolumeChapterWords" min="1000" step="500" @change="lockChapterConfig" :readonly="selectedVolumeChapterLocked" />
-              <span id="pl-chapter-config-status" class="pl-gen-hint">{{ selectedVolumeChapterLocked ? '本卷字数已锁定' : '填写后自动锁定' }}</span>
+              <input id="pl-chapter-wordcount" type="number" class="input-w-80" v-model.number="selectedVolumeChapterWords" min="1000" step="500" @change="saveChapterConfig" />
+              <span id="pl-chapter-config-status" class="pl-gen-hint">每章字数</span>
               <label>选择卷</label>
               <select id="pl-ch-volume-select" v-model.number="selectedVolumeIndex" class="pl-input-sm" :disabled="boundVolumes.length === 0">
                 <template v-for="(vol, i) in projectStore.volumes" :key="vol.id || i">
@@ -1201,14 +1201,19 @@ const stepSkillAgents = ref<Record<string, string>>({})
 
 const selectedVolume = computed(() => projectStore.volumes[selectedVolumeIndex.value] || null)
 const selectedVolumeChapterWords = computed({
-  get: () => Number(selectedVolume.value?.wordsPerChapter || chapterWords.value || 3500),
+  get: () => {
+    const v = Number(selectedVolume.value?.wordsPerChapter || chapterWords.value || 0)
+    return v > 0 ? v : 3500
+  },
   set: (value: number) => {
-    const normalized = Math.max(1000, Number(value) || 3500)
-    chapterWords.value = normalized
-    if (selectedVolume.value) selectedVolume.value.wordsPerChapter = normalized
+    const v = Number(value) || 0
+    if (v >= 500) {
+      chapterWords.value = v
+      if (selectedVolume.value) selectedVolume.value.wordsPerChapter = v
+    }
   }
 })
-const selectedVolumeChapterLocked = computed(() => Boolean(selectedVolume.value?.chapterConfigLocked))
+const selectedVolumeChapterLocked = computed(() => true)
 
 const steps = ref([
   { name: "大纲", completed: false },
@@ -1408,15 +1413,13 @@ async function saveVolumeConfig() {
   )
 }
 
-function lockChapterConfig() {
+function saveChapterConfig() {
   const vol = selectedVolume.value
   if (!vol) return
-  const wordsPerChapter = Math.max(1000, Number(vol.wordsPerChapter || chapterWords.value) || 3500)
+  const wpc = Number(vol.wordsPerChapter || chapterWords.value || 3500)
   const words = Math.max(0, Number(vol.allocatedWords || vol.suggestedWords || volumeWords.value) || 0)
-  vol.wordsPerChapter = wordsPerChapter
-  vol.chapterCount = words > 0 ? Math.ceil(words / wordsPerChapter) : 0
-  vol.chapterConfigLocked = true
-  chapterWords.value = wordsPerChapter
+  if (wpc > 0) chapterWords.value = wpc
+  vol.chapterCount = (wpc > 0 && words > 0) ? Math.ceil(words / wpc) : 0
   saveVolumeConfig()
   projectStore.saveProject()
 }
