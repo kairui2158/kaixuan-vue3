@@ -96,16 +96,8 @@
             <option value="chain">串行</option>
           </select>
         </label>
-        <button
-          id="btn-home-co-create"
-          class="co-creation-action"
-          type="button"
-          :disabled="isStreaming"
-          title="使用当前配置发起共创"
-          @click="() => sendMessage()"
-        >共创</button>
       </div>
-      <div id="co-skill-list" class="co-skill-list">
+      <div id="co-skill-list" class="co-skill-list" v-if="selectedCoCreationSkills.length > 0">
         <span
           v-for="(skill, index) in selectedCoCreationSkills"
           :key="skill.id"
@@ -126,7 +118,6 @@
           </select>
           <button class="co-skill-close" type="button" title="移除技能" @click="removeCoCreationSkill(skill.id)">&times;</button>
         </span>
-        <span v-if="selectedCoCreationSkills.length === 0" class="co-skill-empty">未选择技能</span>
       </div>
     </div>
 
@@ -307,15 +298,44 @@ function createHomeSkillAdapter(): WorkspaceSkillEngineAdapter {
     getSkillPolicy: template => skillStore.skills.find(skill => skill.id === template.id)?.contextPolicy,
     buildTemplateContext: (requestText, previousOutput) => {
       const activeTab = editorStore.activeTab
+      const tabMode = activeTab?.mode
+      const volumes = projectStore.volumes || []
+      let outlineContent = projectStore.outlineText || ''
+      let chapterSummary = ''
+      if (tabMode === 'vol-outline') {
+        const volIdx = volumes.findIndex((v: any) => v.id === activeTab!.chapterId || v.name === activeTab!.title)
+        const vol = volIdx >= 0 ? volumes[volIdx] : null
+        outlineContent = vol ? (vol.outline || vol.summary || '') : ''
+      } else if (tabMode === 'ch-plot') {
+        for (let vi = 0; vi < volumes.length; vi++) {
+          const chs = projectStore.chapters[volumes[vi].id] || []
+          const ch = chs.find((c: any) => c.id === activeTab!.chapterId)
+          if (ch) {
+            outlineContent = volumes[vi].outline || volumes[vi].summary || ''
+            chapterSummary = ch.summary || ch.plot || ''
+            break
+          }
+        }
+      } else if (tabMode === 'ch-body') {
+        for (let vi = 0; vi < volumes.length; vi++) {
+          const chs = projectStore.chapters[volumes[vi].id] || []
+          const ch = chs.find((c: any) => c.id === activeTab!.chapterId)
+          if (ch) {
+            outlineContent = ch.plot || ch.summary || ''
+            chapterSummary = ch.summary || ch.plot || ''
+            break
+          }
+        }
+      }
       return {
         userPrompt: requestText,
         selectedText: requestTargetFromEditor().selectedText || requestText,
-        outlineContent: projectStore.outlineText || '',
+        outlineContent,
         novelTitle: projectStore.projectName || '',
         prevResponse: previousOutput || '',
-        volumeCount: projectStore.volumes?.length || 0,
+        volumeCount: volumes.length,
         chapterTitle: activeTab?.title || '',
-        chapterSummary: activeTab?.mode === 'ch-plot' ? (activeTab.content || '') : ''
+        chapterSummary
       }
     },
     getWorkspaceState: () => ({
@@ -601,6 +621,7 @@ async function sendMessage(requestText?: string) {
       }
     }
 
+    const activeTabForCtx = editorStore.activeTab
     const chatCtx: Record<string, any> = {
       selectedText: text,
       userPrompt: text,
@@ -638,6 +659,7 @@ async function sendMessage(requestText?: string) {
         ctxText = vol ? (vol.outline || vol.summary || '') : ''
         chatCtx.volumeOutline = ctxText
         chatCtx.volumeCount = volumes.length
+        chatCtx.outlineContent = ctxText
       } else if (activeTab.mode === 'ch-plot') {
         ctxLabel = '章节剧情梗概'
         for (let vi = 0; vi < volumes.length; vi++) {
@@ -645,6 +667,7 @@ async function sendMessage(requestText?: string) {
           const ch = chs.find((c: any) => c.id === activeTab.chapterId)
           if (ch) {
             ctxText = ch.plot || ''
+            chatCtx.outlineContent = volumes[vi].outline || volumes[vi].summary || ''
             chatCtx.chapterSummary = ch.summary || ch.plot || ''
             chatCtx.chapterPlot = ch.plot || ''
             chatCtx.chapterCount = chs.length
@@ -658,6 +681,15 @@ async function sendMessage(requestText?: string) {
         ctxLabel = '正文'
         ctxText = activeTab.content || ''
         chatCtx.chapterPlot = ctxText
+        for (let vi2 = 0; vi2 < volumes.length; vi2++) {
+          const chs2 = projectStore.chapters[volumes[vi2].id] || []
+          const ch2 = chs2.find((c: any) => c.id === activeTab.chapterId)
+          if (ch2) {
+            chatCtx.outlineContent = ch2.plot || ch2.summary || ''
+            chatCtx.chapterSummary = ch2.summary || ch2.plot || ''
+            break
+          }
+        }
       }
       const sc3 = projectStore.getSettingsCollection()
       if (sc3 && sc3.categories) {
