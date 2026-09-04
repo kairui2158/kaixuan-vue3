@@ -178,3 +178,40 @@
 ### P7: 经验文件更新
 - 规则 64: disableHardwareAcceleration 生产代码禁留调试配置
 - 规则 65: 高频交互元素 GPU 合成层优化（will-change/contain）
+
+## 正文层进度弹窗修复 + 主页编辑器上下文优先级重构（2026-09-04 续6）
+
+### 问题一：正文层切换章节后进度条弹窗不显示
+
+**根因**：PipelinePanel.vue 中设定层/卷纲层/章节层各有独立的 FeedbackVisible computed（绑定 activeGenerationFeedbackStep === 1/2/3），但正文层（step 4）没有对应的 bodyGenerationFeedbackVisible 和 overlay 模板。genBody() 从未设置 activeGenerationFeedbackStep.value = 4。第一次正常只是恰好章节层弹窗残留未关闭，切章节后状态重置就消失了。
+
+**修复**：
+- activeGenerationFeedbackStep 类型扩展为 1 | 2 | 3 | 4 | null
+- 新增 bodyGenerationLogs ref + bodyGenerationFeedbackVisible computed + closeBodyGenerationFeedback 函数
+- genBody() 在 startGeneration() 后设置 activeGenerationFeedbackStep.value = 4 + 初始化 bodyGenerationLogs
+- 新增正文层 progress overlay HTML 结构（id 前缀 pl-body-，结构与章节层一致）
+- appendPipelineStream 的 step===4 分支推送到 bodyGenerationLogs
+- genBody 成功/失败时 push 状态日志到 bodyGenerationLogs
+
+### 问题二：主页编辑器 API 识别大纲为主上下文而非编辑器内容
+
+**根因**：ChatPanel.vue 的 sendMessage 构建 chatCtx 时 outlineContent 初始值写死 projectStore.outlineText（完整大纲），系统提示里大纲和编辑器内容平级注入。模型分不清主次。
+
+**修复**：
+- chatCtx.outlineContent 改名为 referenceOutline（语义降级为参考资料），新增 editorContent 字段
+- 按页签模式填充：编辑器内容为主，大纲截断 500 字为参考
+- 系统提示注入顺序重构：agentPrompt -> 编辑器内容 -> 设定 -> 记忆 -> 参考大纲
+- buildTemplateContext 同步重构（outlineContent 保留兼容，新增 referenceOutline/editorContent）
+- getWorkspaceState 新增 editorContent 字段
+
+### 验证
+
+- npm run build:vue -> 0 errors
+- 源 Electron 启动成功，CDP 连接成功
+- 控制台无运行时错误
+- 正文层弹窗模板已编译进 dist-renderer 产物（rg 搜索确认 pl-body-generation-overlay 存在）
+- ChatPanel DOM 结构正常
+
+### 经验规则
+- 规则 66: 流水线每层进度弹窗必须绑定独立 activeGenerationFeedbackStep 值和 overlay 模板
+- 规则 67: 主页编辑器 API 上下文优先级必须以编辑器内容为主、大纲为参考资料

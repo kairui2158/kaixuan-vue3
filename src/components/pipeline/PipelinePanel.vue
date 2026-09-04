@@ -692,6 +692,48 @@
               <button id="btn-pl-confirm-body" class="btn-secondary" @click="confirmBodyWithMemory" :disabled="!(currentBodyContent || bodyResult) || memoryPreviewLoading">确认完成</button>
             </div>
           </div>
+            <div
+              v-if="bodyGenerationFeedbackVisible"
+              id="pl-body-generation-overlay"
+              class="pl-generation-feedback-overlay"
+              @click.self="closeBodyGenerationFeedback"
+            >
+              <section
+                id="pl-body-generation-feedback"
+                class="pl-generation-feedback-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="pl-body-generation-title"
+              >
+                <div class="pl-generation-feedback-header">
+                  <strong id="pl-body-generation-title">正文 AI 生成进度</strong>
+                  <span>{{ pipelineStore.generationProgress }}%</span>
+                </div>
+                <div class="pl-generation-progress-track" aria-label="正文生成进度">
+                  <div class="pl-generation-progress-value" :style="{ width: pipelineStore.generationProgress + '%' }"></div>
+                </div>
+                <div id="pl-body-api-log" class="pl-generation-log" aria-label="正文 API 工作信息">
+                  <div v-for="(line, index) in bodyGenerationLogs" :key="index" class="pl-generation-log-line">
+                    <span class="pl-generation-log-dot" aria-hidden="true"></span>
+                    <span>{{ line }}</span>
+                  </div>
+                </div>
+                <div class="pl-generation-modal-footer">
+                  <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
+                  <div class="pl-generation-modal-actions">
+                    <button
+                      v-if="pipelineStore.isGenerating"
+                      id="pl-body-cancel-generation"
+                      class="btn-danger"
+                      @click="pipelineStore.cancelGeneration()"
+                    >
+                      取消生成
+                    </button>
+                    <button v-else class="btn-secondary" @click="closeBodyGenerationFeedback">关闭</button>
+                  </div>
+                </div>
+              </section>
+            </div>
           </div>
         </div>
       </div>
@@ -890,7 +932,7 @@ const selectedSettingCategory = ref("")
 const selectedSettingId = ref("")
 const confirmedSettingCategories = ref<string[]>([])
 const settingsGenerationLogs = ref<string[]>([])
-const activeGenerationFeedbackStep = ref<1 | 2 | 3 | null>(null)
+const activeGenerationFeedbackStep = ref<1 | 2 | 3 | 4 | null>(null)
 const settingsGenerationFeedbackVisible = computed(() =>
   pipelineStore.isGenerating
     ? activeGenerationFeedbackStep.value === 1
@@ -943,6 +985,7 @@ function volumeStatusClass(vol: any) {
 }
 const volumeGenerationLogs = ref<string[]>([])
 const chapterGenerationLogs = ref<string[]>([])
+const bodyGenerationLogs = ref<string[]>([])
 const activeVolumeGenerationIndex = ref(-1)
 const volumeGenerationFeedbackVisible = computed(() =>
   pipelineStore.isGenerating
@@ -955,8 +998,18 @@ const chapterGenerationFeedbackVisible = computed(() =>
     : chapterGenerationLogs.value.length > 0
 )
 
+const bodyGenerationFeedbackVisible = computed(() =>
+  pipelineStore.isGenerating
+    ? activeGenerationFeedbackStep.value === 4
+    : bodyGenerationLogs.value.length > 0
+)
+
+function closeBodyGenerationFeedback() {
+  bodyGenerationLogs.value = []
+}
+
 function appendPipelineStream(step: number, text: string) {
-  const logs = step === 1 ? settingsGenerationLogs : step === 2 ? volumeGenerationLogs : chapterGenerationLogs
+  const logs = step === 1 ? settingsGenerationLogs : step === 2 ? volumeGenerationLogs : step === 3 ? chapterGenerationLogs : bodyGenerationLogs
   const clean = (text || '').trim()
   if (!clean) return
   const preview = clean.length > 500 ? clean.slice(-500) : clean
@@ -2610,6 +2663,8 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
 
   pipelineStore.startGeneration()
   pipelineStore.updateProgress(10, "AI生成正文中")
+  activeGenerationFeedbackStep.value = 4
+  bodyGenerationLogs.value = ["已选择卷「" + (vol.name || "未命名") + "」，章节：「" + (ch.title || "未命名") + "」，目标字数：" + chapterWords.value]
   try {
     const sc = projectStore.getSettingsCollection()
     const allItems: any[] = []
@@ -2646,6 +2701,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     ch.chapterExecutionPackage = executionPackage
     const prompt = buildChapterExecutionPrompt(executionPackage, chapterWords.value)
     const rawResult = await runStepSkills(4, prompt, undefined, "你是小说写作专家。请基于章节剧情点生成正文。")
+    bodyGenerationLogs.value.push("API 已返回，正在解析正文内容")
     const generationResult = parseGenerationResult(rawResult)
     bodyResult.value = generationResult.body
     ch.body = generationResult.body
@@ -2654,6 +2710,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     await projectStore.saveProject()
     projectStore.refreshTree()
     syncChapterManager(volId, ch, generationResult.body)
+    bodyGenerationLogs.value.push("正文生成完成，字数：" + (generationResult.body || "").length)
     // Insert into the editor automatically (same link as old architecture).
     window.dispatchEvent(new CustomEvent("insert-text", {
       detail: {
@@ -2668,6 +2725,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     pipelineStore.finishGeneration()
   } catch (e: any) {
     pipelineStore.failGeneration(e.message)
+    bodyGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
   }
 }
 

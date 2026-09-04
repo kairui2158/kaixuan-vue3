@@ -301,17 +301,20 @@ function createHomeSkillAdapter(): WorkspaceSkillEngineAdapter {
       const tabMode = activeTab?.mode
       const volumes = projectStore.volumes || []
       let outlineContent = projectStore.outlineText || ''
+      let editorContent = ''
       let chapterSummary = ''
       if (tabMode === 'vol-outline') {
         const volIdx = volumes.findIndex((v: any) => v.id === activeTab!.chapterId || v.name === activeTab!.title)
         const vol = volIdx >= 0 ? volumes[volIdx] : null
-        outlineContent = vol ? (vol.outline || vol.summary || '') : ''
+        editorContent = vol ? (vol.outline || vol.summary || '') : ''
+        outlineContent = (projectStore.outlineText || '').slice(0, 500)
       } else if (tabMode === 'ch-plot') {
         for (let vi = 0; vi < volumes.length; vi++) {
           const chs = projectStore.chapters[volumes[vi].id] || []
           const ch = chs.find((c: any) => c.id === activeTab!.chapterId)
           if (ch) {
-            outlineContent = volumes[vi].outline || volumes[vi].summary || ''
+            outlineContent = (volumes[vi].outline || volumes[vi].summary || '').slice(0, 500)
+            editorContent = ch.plot || ''
             chapterSummary = ch.summary || ch.plot || ''
             break
           }
@@ -321,7 +324,8 @@ function createHomeSkillAdapter(): WorkspaceSkillEngineAdapter {
           const chs = projectStore.chapters[volumes[vi].id] || []
           const ch = chs.find((c: any) => c.id === activeTab!.chapterId)
           if (ch) {
-            outlineContent = ch.plot || ch.summary || ''
+            outlineContent = (ch.plot || ch.summary || '').slice(0, 500)
+            editorContent = activeTab!.content || ''
             chapterSummary = ch.summary || ch.plot || ''
             break
           }
@@ -330,7 +334,9 @@ function createHomeSkillAdapter(): WorkspaceSkillEngineAdapter {
       return {
         userPrompt: requestText,
         selectedText: requestTargetFromEditor().selectedText || requestText,
-        outlineContent,
+        referenceOutline: outlineContent,
+        outlineContent: outlineContent,
+        editorContent,
         novelTitle: projectStore.projectName || '',
         prevResponse: previousOutput || '',
         volumeCount: volumes.length,
@@ -340,6 +346,7 @@ function createHomeSkillAdapter(): WorkspaceSkillEngineAdapter {
     },
     getWorkspaceState: () => ({
       outline: projectStore.outlineText || '',
+      editorContent: editorStore.activeTab?.content || '',
       selectedText: requestTargetFromEditor().selectedText,
       activeTab: editorStore.activeTab?.title || '',
       settings: projectStore.getSettingsCollection(),
@@ -625,7 +632,8 @@ async function sendMessage(requestText?: string) {
     const chatCtx: Record<string, any> = {
       selectedText: text,
       userPrompt: text,
-      outlineContent: projectStore.outlineText || '',
+      referenceOutline: '',
+      editorContent: '',
       novelTitle: projectStore.projectName || '',
       prevResponse: '',
       volumeCount: projectStore.volumes?.length || 0,
@@ -659,7 +667,8 @@ async function sendMessage(requestText?: string) {
         ctxText = vol ? (vol.outline || vol.summary || '') : ''
         chatCtx.volumeOutline = ctxText
         chatCtx.volumeCount = volumes.length
-        chatCtx.outlineContent = ctxText
+        chatCtx.editorContent = ctxText
+        chatCtx.referenceOutline = (projectStore.outlineText || '').slice(0, 500)
       } else if (activeTab.mode === 'ch-plot') {
         ctxLabel = '章节剧情梗概'
         for (let vi = 0; vi < volumes.length; vi++) {
@@ -667,7 +676,8 @@ async function sendMessage(requestText?: string) {
           const ch = chs.find((c: any) => c.id === activeTab.chapterId)
           if (ch) {
             ctxText = ch.plot || ''
-            chatCtx.outlineContent = volumes[vi].outline || volumes[vi].summary || ''
+            chatCtx.referenceOutline = (volumes[vi].outline || volumes[vi].summary || '').slice(0, 500)
+            chatCtx.editorContent = ctxText
             chatCtx.chapterSummary = ch.summary || ch.plot || ''
             chatCtx.chapterPlot = ch.plot || ''
             chatCtx.chapterCount = chs.length
@@ -685,7 +695,8 @@ async function sendMessage(requestText?: string) {
           const chs2 = projectStore.chapters[volumes[vi2].id] || []
           const ch2 = chs2.find((c: any) => c.id === activeTab.chapterId)
           if (ch2) {
-            chatCtx.outlineContent = ch2.plot || ch2.summary || ''
+            chatCtx.referenceOutline = (ch2.plot || ch2.summary || '').slice(0, 500)
+            chatCtx.editorContent = ctxText
             chatCtx.chapterSummary = ch2.summary || ch2.plot || ''
             break
           }
@@ -707,8 +718,16 @@ async function sendMessage(requestText?: string) {
         }
         chatCtx.characters = charNames.join('；')
       }
-      if (ctxText) { systemParts.push('当前编辑内容（' + ctxLabel + '）：\n' + ctxText) }
+      // Editor content is injected below as "主创作上下文" with priority over reference outline
     }
+    if (!chatCtx.editorContent && editorStore.activeTab) {
+      chatCtx.editorContent = editorStore.activeTab.content || ''
+    }
+    if (!chatCtx.referenceOutline) {
+      chatCtx.referenceOutline = projectStore.outlineText || ''
+    }
+    if (chatCtx.editorContent) { systemParts.push('主创作上下文（编辑器内容）：\n' + chatCtx.editorContent) }
+    if (chatCtx.referenceOutline) { systemParts.push('参考资料-大纲概要：\n' + chatCtx.referenceOutline) }
 
     const memoryContext = retrieveContext(projectStore.memories, {
       chapterId: editorStore.activeTab?.chapterId,
