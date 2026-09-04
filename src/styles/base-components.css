@@ -16,7 +16,7 @@
 /* ============================================================
  * CL-2: Button system
  * ============================================================ */
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); user-select: none; white-space: nowrap; cursor: pointer; line-height: var(--lh-tight); font-weight: var(--fw-medium); border-radius: var(--btn-radius); height: var(--btn-md-height); padding: var(--btn-md-padding); font-size: var(--btn-font-size-md); transition: var(--btn-transition); outline: none; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); user-select: none; white-space: nowrap; cursor: pointer; line-height: var(--lh-tight); font-weight: var(--fw-medium); border-radius: var(--btn-radius); height: var(--btn-md-height); padding: var(--btn-md-padding); font-size: var(--btn-font-size-md); transition: var(--btn-transition); outline: none; will-change: transform; }
 .btn-group { display: inline-flex; gap: var(--btn-group-gap-standard); }
 .btn-lg { height: var(--btn-lg-height, 38px); padding: var(--btn-lg-padding, 8px 20px); font-size: var(--btn-font-size-lg); }
 .btn-md { height: var(--btn-md-height); padding: var(--btn-md-padding); font-size: var(--btn-font-size-md); }
@@ -44,7 +44,7 @@
 .card-content { flex: 1; min-width: 0; }
 .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-md); }
 .grid-card { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: var(--space-md); }
-.card-item { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: var(--space-sm) var(--space-md); transition: var(--transition-card); }
+.card-item { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: var(--space-sm) var(--space-md); transition: var(--transition-card); will-change: transform; }
 .card-item:hover { border-color: var(--border-light); box-shadow: var(--shadow-sm); }
 .card-grid-item { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: var(--space-md); }
 .card-menu { position: absolute; right: var(--space-sm); top: var(--space-sm); }
@@ -56,11 +56,11 @@
 /* ============================================================
  * CL-4: Panel system
  * ============================================================ */
-.panel { display: flex; flex-direction: column; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); overflow: hidden; }
+.panel { display: flex; flex-direction: column; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); overflow: hidden; contain: var(--contain-layout); }
 .panel-actions { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); }
 .panel-body { flex: 1; overflow-y: auto; padding: var(--panel-body-padding, var(--space-md)); min-height: 0; }
 .panel-header { display: flex; align-items: center; justify-content: space-between; padding: var(--panel-header-padding, var(--space-sm) var(--space-md)); border-bottom: 1px solid var(--border-color); flex-shrink: 0; min-height: 40px; }
-.panel-overlay { position: absolute; inset: 0; background: var(--bg-glass); backdrop-filter: var(--blur-sm); display: flex; align-items: center; justify-content: center; z-index: var(--z-overlay); border-radius: inherit; }
+.panel-overlay { position: absolute; inset: 0; background: var(--bg-glass); backdrop-filter: var(--blur-sm); display: flex; align-items: center; justify-content: center; z-index: var(--z-overlay); border-radius: inherit; will-change: opacity; }
 .panel-scroll { flex: 1; overflow-y: auto; min-height: 0; }
 .panel-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); margin: 0; }
 .overlay-panel { position: fixed; inset: 0; z-index: var(--z-overlay); display: flex; align-items: center; justify-content: center; }
@@ -151,7 +151,7 @@
 .empty-state-desc { font-size: var(--font-size-sm); color: var(--text-muted); max-width: 280px; line-height: 1.6; }
 .empty-state-icon { font-size: var(--font-size-lg); opacity: 0.3; margin-bottom: var(--space-xs); }
 .empty-state-title { font-size: var(--font-size-md); color: var(--text-secondary); font-weight: 500; }
-.loading-overlay { position: absolute; inset: 0; background: var(--bg-glass); backdrop-filter: var(--blur-sm); display: flex; align-items: center; justify-content: center; z-index: var(--z-overlay); border-radius: inherit; }
+.loading-overlay { position: absolute; inset: 0; background: var(--bg-glass); backdrop-filter: var(--blur-sm); display: flex; align-items: center; justify-content: center; z-index: var(--z-overlay); border-radius: inherit; will-change: opacity; }
 .spinner { width: 32px; height: 32px; border: 3px solid var(--border-color); border-top-color: var(--accent); border-radius: 50%; animation: wh-spin 0.6s linear infinite; }
 .loading-spinner-inline { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border-color); border-top-color: var(--accent); border-radius: 50%; animation: wh-spin 0.6s linear infinite; vertical-align: middle; }
 .loading-text-inline { font-size: var(--font-size-sm); color: var(--text-muted); margin-left: var(--space-xs); }

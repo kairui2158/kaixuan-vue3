@@ -130,3 +130,51 @@
   - 主编辑器: projectStore.outlineText
 - 版本: v3.19.3
 - 经验文件: 规则62-63 已写入
+
+## GPU 硬件加速恢复 + CSS 渲染优化（2026-09-04 续5）
+
+### 问题: 客户反馈应用运行有迟滞感/卡顿
+- 根因: electron/main.js 硬编码 `disableHardwareAcceleration = true` + `--disable-gpu`，完全关闭 GPU 渲染
+- 社区调研: VSCode/Slack/Discord/Notion 无一默认关闭 GPU，关闭 GPU 是调试临时配置而非生产标配
+
+### P0: 移除 GPU 禁用配置
+- electron/main.js 删除 `app.disableHardwareAcceleration = true` 和 `app.commandLine.appendSwitch('disable-gpu')`
+- 保留 `--no-sandbox` 和 `--remote-allow-origins`
+- 注释修正为 "GPU hardware acceleration enabled by default"
+
+### P1: tokens.css 补 GPU 合成层变量
+- 新增 `--will-change-transform: transform;`
+- 新增 `--will-change-opacity: opacity;`
+- 新增 `--contain-layout: layout style paint;`
+
+### P2: base-components.css 追加 will-change/contain
+- `.btn` 加 `will-change: transform`
+- `.card-item` 加 `will-change: transform`
+- `.panel` 加 `contain: var(--contain-layout)`
+- `.panel-overlay` 加 `will-change: opacity`
+- `.loading-overlay` 加 `will-change: opacity`
+
+### P3: global.css 追加 will-change/contain
+- `.pl-card` 加 `will-change: transform`
+- `.statusbar` 加 `contain: var(--contain-layout)`
+- `.scroll-area` 加 `contain: layout style`
+
+### P4: 构建验证
+- `npm run build:vue` → 0 errors，305 modules transformed，CSS 246.87 kB
+
+### P5: 源 Electron 启动验证
+- 使用 `--user-data-dir=.userdata` 和 `--gpu-cache-dir=.userdata/gpucache` 绕过系统缓存权限问题
+- Electron 进程存活、窗口正常显示、CDP 连接成功
+- 控制台无运行时错误（仅有 libpng warning 和 GPU cache 权限 warning）
+- CSS 规则验证: 8 条 will-change 规则生效，.pl-card 和 .btn 的 will-change:transform 在 computed style 中可查
+- GPU cache 错误为 LOCALAPPDATA 权限问题，不影响应用功能
+
+### P6: 封装
+- 版本号: v3.19.3 → v3.19.4
+- NSIS 安装器: 神意助手-Setup-3.19.4.exe (87.3 MB)
+- 清理旧安装包 v3.19.3
+- 清理临时脚本和调试文件
+
+### P7: 经验文件更新
+- 规则 64: disableHardwareAcceleration 生产代码禁留调试配置
+- 规则 65: 高频交互元素 GPU 合成层优化（will-change/contain）

@@ -502,6 +502,9 @@ body.light-theme {
   --z-drawer: 600;
   --z-modal-high: 1500;
   --focus-ring-offset: 2px;
+  --will-change-transform: transform;
+  --will-change-opacity: opacity;
+  --contain-layout: layout style paint;
 }
 /* === Missing media queries from old architecture === */
 @media (min-width: 1920px) {
