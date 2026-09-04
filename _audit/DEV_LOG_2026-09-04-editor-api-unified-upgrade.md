@@ -96,3 +96,20 @@
 - build（默认）生成 NSIS 安装器，有安装向导、目录选择、快捷方式创建
 - package.json build.win.target 决定默认格式，build:portable 脚本覆盖为 portable
 - 交付客户时优先使用 NSIS 安装器（build），非 portable
+
+## 章节层字数锁定和按钮锁死修复（2026-09-04 续3）
+
+### Bug：每章字数被锁死3500 + AI生成章节/自动生成/确认完成按钮全部disabled
+
+根因：
+- chapterConfigLocked 字段作为 selectedVolumeChapterLocked computed 的返回值
+- selectedVolumeChapterLocked 同时绑定到 AI生成章节、自动生成章节按钮的 :disabled
+- lockChapterConfig 函数设置 chapterConfigLocked=true 后输入框变 readonly
+- selectedVolumeChapterWords 的 set 用 Math.max(1000, value || 3500) 强制兜底，删除值后回跳 3500
+
+修复：
+- selectedVolumeChapterLocked computed 恒返回 true（不再依赖 chapterConfigLocked）
+- 输入框去掉 :readonly 绑定，用户始终可编辑
+- lockChapterConfig 改名为 saveChapterConfig，不再设置 chapterConfigLocked
+- selectedVolumeChapterWords 的 set 不再强制 Math.max(1000,...)，允许用户自由输入
+- 提交: f4b3803
