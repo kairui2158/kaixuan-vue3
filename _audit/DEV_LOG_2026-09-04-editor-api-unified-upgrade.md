@@ -113,3 +113,20 @@
 - lockChapterConfig 改名为 saveChapterConfig，不再设置 chapterConfigLocked
 - selectedVolumeChapterWords 的 set 不再强制 Math.max(1000,...)，允许用户自由输入
 - 提交: f4b3803
+
+## 共创按钮删除和API链路上下文修复（2026-09-04 续4）
+
+### Bug1: 主页API对话框多余的共创按钮
+- 根因: sendMessage() 已检测 selectedCoCreationSkills.length > 0 自动走SKILL流程，共创按钮是冗余入口
+- 修复: 删除 btn-home-co-create 按钮元素和对应事件函数，已选SKILL列表加 v-if 守卫避免空占位
+- 提交: 0432ab7
+
+### Bug2: API链接大纲内容而非卷纲纲要
+- 根因: outlineContent 字段在 buildTemplateContext 和 sendMessage chatCtx 两处恒取 projectStore.outlineText，不区分当前页签
+- 修复: 按 activeTab.mode 区分取值:
+  - vol-outline: vol.outline || vol.summary
+  - ch-plot: 所属卷的 vol.outline || vol.summary
+  - ch-body: 当前章节的 ch.plot || ch.summary
+  - 主编辑器: projectStore.outlineText
+- 版本: v3.19.3
+- 经验文件: 规则62-63 已写入
