@@ -273,6 +273,71 @@ function getHomeSkillMaxDepth(): number {
   return depths.length > 0 ? Math.min(...depths, 21) : 21
 }
 
+/**
+ * buildSOI - Structured Outline Index replacing 500-char truncation
+ * Ref: Agent-Skills-for-Context-Engineering
+ * Exp: S8 rule62/67
+ */
+function buildSOI(mode: string | undefined, activeTab: any): string {
+  const volumes = projectStore.volumes || []
+  const volumeOverview = volumes
+    .map((v) => (v.name || v.title || '未命名') + '：' + (v.summary || v.outline || '').slice(0, 100))
+    .join('\n')
+
+  if (!mode || mode === 'main') {
+    return projectStore.outlineText || ''
+  }
+
+  if (mode === 'vol-outline') {
+    const volIdx = volumes.findIndex((v) => v.id === activeTab?.chapterId || v.name === activeTab?.title)
+    const vol = volIdx >= 0 ? volumes[volIdx] : null
+    if (!vol) return volumeOverview ? '【全局卷概览】\n' + volumeOverview : ''
+    const chs = projectStore.chapters[vol.id] || []
+    const chapterList = chs.length > 0
+      ? chs.map((ch, i) => '  ' + (i + 1) + '. ' + (ch.title || ch.name || '未命名') + (ch.summary ? ' — ' + ch.summary.slice(0, 50) : '')).join('\n')
+      : '  （本卷暂无章节）'
+    const parts = []
+    if (volumeOverview) parts.push('【全局卷概览】\n' + volumeOverview)
+    parts.push('【当前上下文锚点】\n' + (vol.name || vol.title || '未命名') + ' 的卷纲要：\n' + (vol.outline || vol.summary || '（空）') + '\n\n本卷包含 ' + chs.length + ' 章：\n' + chapterList)
+    return parts.join('\n\n')
+  }
+
+  if (mode === 'ch-plot') {
+    for (let vi = 0; vi < volumes.length; vi++) {
+      const chs = projectStore.chapters[volumes[vi].id] || []
+      const chIdx = chs.findIndex((c) => c.id === activeTab?.chapterId)
+      if (chIdx >= 0) {
+        const ch = chs[chIdx]
+        const prevCh = chIdx > 0 ? chs[chIdx - 1] : null
+        const nextCh = chIdx < chs.length - 1 ? chs[chIdx + 1] : null
+        const parts = []
+        if (volumeOverview) parts.push('【全局卷概览】\n' + volumeOverview)
+        parts.push('【当前上下文锚点】\n' + (volumes[vi].name || volumes[vi].title || '未命名') + '（第' + (vi + 1) + '卷）\n本卷纲要：' + (volumes[vi].outline || volumes[vi].summary || '').slice(0, 500) + '\n\n当前章节：' + (ch.title || ch.name || '未命名') + '\n\n前后章节：\n  前一章：' + (prevCh?.title || '无') + '\n  后一章：' + (nextCh?.title || '无'))
+        return parts.join('\n\n')
+      }
+    }
+    return volumeOverview ? '【全局卷概览】\n' + volumeOverview : ''
+  }
+
+  if (mode === 'ch-body') {
+    for (let vi = 0; vi < volumes.length; vi++) {
+      const chs = projectStore.chapters[volumes[vi].id] || []
+      const chIdx = chs.findIndex((c) => c.id === activeTab?.chapterId)
+      if (chIdx >= 0) {
+        const ch = chs[chIdx]
+        const prevCh = chIdx > 0 ? chs[chIdx - 1] : null
+        const parts = []
+        if (volumeOverview) parts.push('【全局卷概览】\n' + volumeOverview)
+        parts.push('【当前上下文锚点】\n' + (volumes[vi].name || volumes[vi].title || '未命名') + '（第' + (vi + 1) + '卷）\n本卷纲要：' + (volumes[vi].outline || volumes[vi].summary || '').slice(0, 300) + '\n\n当前章节：' + (ch.title || ch.name || '未命名') + '\n章节剧情：' + (ch.plot || ch.summary || '').slice(0, 500) + '\n\n前一章摘要：' + (prevCh ? (prevCh.summary || prevCh.plot || '').slice(0, 200) : '无'))
+        return parts.join('\n\n')
+      }
+    }
+    return volumeOverview ? '【全局卷概览】\n' + volumeOverview : ''
+  }
+
+  return volumeOverview ? '【全局卷概览】\n' + volumeOverview : ''
+}
+
 function createHomeSkillAdapter(): WorkspaceSkillEngineAdapter {
   return {
     workspace: 'main',
@@ -307,13 +372,13 @@ function createHomeSkillAdapter(): WorkspaceSkillEngineAdapter {
         const volIdx = volumes.findIndex((v: any) => v.id === activeTab!.chapterId || v.name === activeTab!.title)
         const vol = volIdx >= 0 ? volumes[volIdx] : null
         editorContent = vol ? (vol.outline || vol.summary || '') : ''
-        outlineContent = (projectStore.outlineText || '').slice(0, 500)
+        outlineContent = buildSOI(tabMode, activeTab)
       } else if (tabMode === 'ch-plot') {
         for (let vi = 0; vi < volumes.length; vi++) {
           const chs = projectStore.chapters[volumes[vi].id] || []
           const ch = chs.find((c: any) => c.id === activeTab!.chapterId)
           if (ch) {
-            outlineContent = (volumes[vi].outline || volumes[vi].summary || '').slice(0, 500)
+            outlineContent = buildSOI(tabMode, activeTab)
             editorContent = ch.plot || ''
             chapterSummary = ch.summary || ch.plot || ''
             break
@@ -324,7 +389,7 @@ function createHomeSkillAdapter(): WorkspaceSkillEngineAdapter {
           const chs = projectStore.chapters[volumes[vi].id] || []
           const ch = chs.find((c: any) => c.id === activeTab!.chapterId)
           if (ch) {
-            outlineContent = (ch.plot || ch.summary || '').slice(0, 500)
+            outlineContent = buildSOI(tabMode, activeTab)
             editorContent = activeTab!.content || ''
             chapterSummary = ch.summary || ch.plot || ''
             break
@@ -668,7 +733,7 @@ async function sendMessage(requestText?: string) {
         chatCtx.volumeOutline = ctxText
         chatCtx.volumeCount = volumes.length
         chatCtx.editorContent = ctxText
-        chatCtx.referenceOutline = (projectStore.outlineText || '').slice(0, 500)
+        chatCtx.referenceOutline = buildSOI('vol-outline', activeTab)
       } else if (activeTab.mode === 'ch-plot') {
         ctxLabel = '章节剧情梗概'
         for (let vi = 0; vi < volumes.length; vi++) {
@@ -676,7 +741,7 @@ async function sendMessage(requestText?: string) {
           const ch = chs.find((c: any) => c.id === activeTab.chapterId)
           if (ch) {
             ctxText = ch.plot || ''
-            chatCtx.referenceOutline = (volumes[vi].outline || volumes[vi].summary || '').slice(0, 500)
+            chatCtx.referenceOutline = buildSOI('ch-plot', activeTab)
             chatCtx.editorContent = ctxText
             chatCtx.chapterSummary = ch.summary || ch.plot || ''
             chatCtx.chapterPlot = ch.plot || ''
@@ -695,7 +760,7 @@ async function sendMessage(requestText?: string) {
           const chs2 = projectStore.chapters[volumes[vi2].id] || []
           const ch2 = chs2.find((c: any) => c.id === activeTab.chapterId)
           if (ch2) {
-            chatCtx.referenceOutline = (ch2.plot || ch2.summary || '').slice(0, 500)
+            chatCtx.referenceOutline = buildSOI('ch-body', activeTab)
             chatCtx.editorContent = ctxText
             chatCtx.chapterSummary = ch2.summary || ch2.plot || ''
             break
@@ -727,7 +792,7 @@ async function sendMessage(requestText?: string) {
       chatCtx.referenceOutline = projectStore.outlineText || ''
     }
     if (chatCtx.editorContent) { systemParts.push('主创作上下文（编辑器内容）：\n' + chatCtx.editorContent) }
-    if (chatCtx.referenceOutline) { systemParts.push('参考资料-大纲概要：\n' + chatCtx.referenceOutline) }
+    if (chatCtx.referenceOutline) { systemParts.push('参考资料-大纲索引：\n' + chatCtx.referenceOutline) }
 
     const memoryContext = retrieveContext(projectStore.memories, {
       chapterId: editorStore.activeTab?.chapterId,

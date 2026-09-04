@@ -189,6 +189,8 @@
 | 136 | 2026-09-03 | 主页共创 SKILL/AGENT | 主页编辑器独立 SKILL/AGENT 共创配置 | 主页 API 对话支持独立技能链与流水线切断 | [DEV_LOG_2026-09-03-home-co-creation.md](DEV_LOG_2026-09-03-home-co-creation.md) |
 | 137 | 2026-09-04 | 编辑器-API 统一升级 L4/L5 | 多目标读取、写入安全、AI 批次回滚、工作区快照、任务状态机、工具过程流、编辑器高亮、chain 断点续跑、语义定位 | AI 可同时读取多目标且安全写入、长事务任务可续跑、工具调用过程可视化 | [DEV_LOG_2026-09-04-editor-api-unified-upgrade.md](DEV_LOG_2026-09-04-editor-api-unified-upgrade.md) |
 
+| 138 | 2026-09-04 | SOI 结构化大纲索引 | ChatPanel.vue 6处500字截断替换为 buildSOI 分层结构化索引 | API 对话讨论卷/章节时能看到全局卷架构、当前卷纲要、章节列表和前后章节，信息密度提升3-5倍 | [DEV_LOG_2026-09-04-soi-reference-outline.md](DEV_LOG_2026-09-04-soi-reference-outline.md) |
+
 ## 维护要求
 
 - 新开发日志必须追加到所属阶段末尾，并递增全局序号。
