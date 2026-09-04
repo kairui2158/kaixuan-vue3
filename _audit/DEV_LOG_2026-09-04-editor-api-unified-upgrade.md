@@ -78,3 +78,21 @@
 ### 经验新增
 - §8 规则 58: Vue 事件绑定 Event 对象传递陷阱
 - §8 规则 59: CDP Runtime.enable 历史消息刷新陷阱
+
+## 封装补充（2026-09-04 续2）
+
+### 安装包格式修正：portable -> NSIS
+
+初次封装使用了 `npm run build:portable`（portable 格式），生成 79MB 的单文件 exe，双击即可直接运行，无需安装。
+客户反馈需要正式安装器模式，重新使用 `npm run build`（NSIS target）封装：
+- oneClick: false（非一键安装，可选择安装目录）
+- createDesktopShortcut + createStartMenuShortcut
+- 生成 `神意助手-Setup-3.19.1.exe`（83MB）
+- 旧 portable 包已清理
+- 工作区干净，仅保留当前版本安装包
+
+### 经验补充
+- build:portable 生成单文件 exe，双击直接运行，不需要安装向导
+- build（默认）生成 NSIS 安装器，有安装向导、目录选择、快捷方式创建
+- package.json build.win.target 决定默认格式，build:portable 脚本覆盖为 portable
+- 交付客户时优先使用 NSIS 安装器（build），非 portable
