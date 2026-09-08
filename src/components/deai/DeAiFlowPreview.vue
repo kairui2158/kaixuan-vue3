@@ -63,7 +63,7 @@ function isDone(index: number): boolean {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  padding: var(--space-sm, 8px);
+  padding: var(--space-sm, var(--space-4));
   font-size: var(--font-size-sm, 13px);
   color: var(--text-secondary);
   line-height: 1.8;
@@ -71,13 +71,13 @@ function isDone(index: number): boolean {
 .flow-steps {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--space-1);
   flex-wrap: wrap;
 }
 .deai-flow-step {
   display: inline-block;
-  padding: 2px 8px;
-  margin: 2px;
+  padding: var(--space-1) var(--space-4);
+  margin: var(--space-1);
   border-radius: var(--radius-sm);
   background: var(--bg-elevated);
   color: var(--text-primary);
@@ -93,7 +93,7 @@ function isDone(index: number): boolean {
 }
 .deai-flow-arrow {
   color: var(--text-muted);
-  margin: 0 2px;
+  margin: 0 var(--space-1);
   font-size: var(--font-size-sm, 13px);
 }
 /* time estimate - matches old arch .deai-flow-time */

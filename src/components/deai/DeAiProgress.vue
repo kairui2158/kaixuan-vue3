@@ -92,7 +92,7 @@ function getStepStatusText(index: number): string {
   background: var(--bg-elevated, var(--bg-tertiary));
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md, 12px);
-  padding: 24px;
+  padding: var(--space-8);
   box-shadow: var(--shadow-lg);
 }
 .deai-progress-header {
@@ -122,7 +122,7 @@ function getStepStatusText(index: number): string {
   width: 0%;
   background: var(--accent-gradient);
   border-radius: var(--radius-sm);
-  transition: width 0.3s ease;
+  transition: width var(--duration-normal) var(--ease-standard);
 }
 .deai-progress-info {
   display: flex;
@@ -137,9 +137,9 @@ function getStepStatusText(index: number): string {
 .deai-error {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin: 0 0 var(--space-md, 16px);
-  padding: 10px 12px;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-md, var(--space-6));
+  padding: var(--space-5) var(--space-5);
   border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
   border-radius: var(--radius-sm, 6px);
   background: color-mix(in srgb, var(--danger) 10%, transparent);
@@ -152,14 +152,14 @@ function getStepStatusText(index: number): string {
 .deai-step-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs, 4px);
+  gap: var(--space-xs, var(--space-2));
   margin-bottom: var(--space-md, 16px);
 }
 .deai-step-item {
   display: flex;
   align-items: center;
-  gap: var(--space-sm, 8px);
-  padding: var(--space-xs, 4px) var(--space-sm, 8px);
+  gap: var(--space-sm, var(--space-4));
+  padding: var(--space-xs, var(--space-2)) var(--space-sm, var(--space-4));
   border-radius: var(--radius-sm);
   font-size: var(--font-size-sm, 13px);
 }
