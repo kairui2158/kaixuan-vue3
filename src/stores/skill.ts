@@ -8,6 +8,13 @@ import { toSkillRecord } from '../services/configExchange'
 export interface Skill {
   id: string
   name: string
+  format?: 'text' | 'folder'
+  /** 文件夹技能的来源 ID，即 SKILL.md 中声明的原始 id */
+  sourceId?: string
+  folderPath?: string
+  version?: string
+  source?: 'package' | 'external' | 'legacy'
+  packageHash?: string
   template: string
   category: string
   description?: string
@@ -49,6 +56,15 @@ export const useSkillStore = defineStore('skill', () => {
     return skills.value.find(s => s.id === id)
   }
 
+  /** 文件夹技能使用独立命名空间，允许与同 ID 文本技能共存 */
+  function normalizeSkillId(id: string, format?: 'text' | 'folder') {
+    return format === 'folder' ? `folder:${id.replace(/^folder:/, '')}` : id
+  }
+
+  function displaySkillName(skill: Pick<Skill, 'name' | 'format'>) {
+    return skill.format === 'folder' ? `${skill.name}（文件夹）` : `${skill.name}（文本）`
+  }
+
   async function importSkills(
     list: Skill[],
     options: {
@@ -65,26 +81,29 @@ export const useSkillStore = defineStore('skill', () => {
     const now = new Date().toISOString()
 
     for (const skill of list) {
-      const current = existing.get(skill.id)
+      const normalized = { ...skill, id: normalizeSkillId(skill.id, skill.format) }
+      const current = existing.get(normalized.id)
       if (current) {
         if (strategy === 'overwrite') {
-          Object.assign(current, skill, { updatedAt: now })
+          Object.assign(current, normalized, { updatedAt: now })
           updated++
         } else {
           skipped++
         }
       } else {
-        skills.value.push(skill)
-        existing.set(skill.id, skill)
+        skills.value.push(normalized)
+        existing.set(normalized.id, normalized)
         added++
       }
     }
 
     for (const id of options.pipelineSkills || []) {
-      if (existing.has(id) && !pipelineSkills.value.includes(id)) pipelineSkills.value.push(id)
+      const normalizedId = existing.has(id) ? id : normalizeSkillId(id, 'folder')
+      if (existing.has(normalizedId) && !pipelineSkills.value.includes(normalizedId)) pipelineSkills.value.push(normalizedId)
     }
     for (const id of options.deAiSkills || []) {
-      if (existing.has(id) && !deAiSkills.value.includes(id)) deAiSkills.value.push(id)
+      const normalizedId = existing.has(id) ? id : normalizeSkillId(id, 'folder')
+      if (existing.has(normalizedId) && !deAiSkills.value.includes(normalizedId)) deAiSkills.value.push(normalizedId)
     }
     if (added > 0 || updated > 0 || (options.pipelineSkills || []).length > 0 || (options.deAiSkills || []).length > 0) {
       await saveSkills()
@@ -100,6 +119,12 @@ export const useSkillStore = defineStore('skill', () => {
           return {
             id: s.id,
             name: s.name,
+            format: s.format || 'text',
+            sourceId: s.sourceId || (s.format === 'folder' ? s.id.replace(/^folder:/, '') : ''),
+            folderPath: s.folderPath || '',
+            version: s.version || '',
+            source: s.source || 'legacy',
+            packageHash: s.packageHash || '',
             template: s.template,
             category: s.category || 'general',
             description: s.description || '',
@@ -192,6 +217,11 @@ export const useSkillStore = defineStore('skill', () => {
         skills.value.push({
           id: s.id,
           name: s.name,
+          format: s.format || 'text',
+          folderPath: s.folderPath || '',
+          version: s.version || '',
+          source: s.source || 'legacy',
+          packageHash: s.packageHash || '',
           template: s.template || '',
           category: s.category || 'general',
           description: s.description || '',
@@ -242,7 +272,7 @@ export const useSkillStore = defineStore('skill', () => {
   return {
     skills, pipelineSkills, deAiSkills,
     orderedPipelineSkills, orderedDeAiSkills,
-    getSkill, loadSkills, saveSkills, addSkill, updateSkill, removeSkill,
+    getSkill, normalizeSkillId, displaySkillName, loadSkills, saveSkills, addSkill, updateSkill, removeSkill,
     movePipelineSkillUp, movePipelineSkillDown,
     exportSkillToMD, exportAllToJSON, importFromJSON, importSkills
   }

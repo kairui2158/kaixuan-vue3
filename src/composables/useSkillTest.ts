@@ -3,6 +3,7 @@ import { useProviderStore } from '../stores/provider'
 import { useAgentStore } from '../stores/agent'
 import { useSkillStore } from '../stores/skill'
 import { getAiService } from '../services/aiService'
+import { runFolderSkillTest, type FolderSkillTestResult } from '../services/folderSkillTest'
 
 /**
  * 技能测试 — 从旧架构_runSkillTest迁移
@@ -12,6 +13,7 @@ import { getAiService } from '../services/aiService'
    const testResult = ref('')
    const isTesting = ref(false)
    const testError = ref('')
+   const folderTestReport = ref<FolderSkillTestResult | null>(null)
    
    async function runSkillTest(skillId: string, testText: string = '这是一段测试文本，用于验证技能的输出效果。风吹过山岗，树叶沙沙作响，远处的山峰在夕阳下泛着金光。') {
      const skillStore = useSkillStore()
@@ -38,6 +40,33 @@ import { getAiService } from '../services/aiService'
     isTesting.value = true
     testResult.value = ''
     testError.value = ''
+    folderTestReport.value = null
+
+    if (skill.format === 'folder' && skill.folderPath) {
+      const folderAgent = agent
+        ? {
+            id: agent.id,
+            systemPrompt: agent.systemPrompt,
+            model: agent.model || model,
+            temperature,
+            maxTokens
+          }
+        : null
+      const report = await runFolderSkillTest({
+        skillId: skill.id,
+        folderPath: skill.folderPath,
+        input: testText,
+        agent: folderAgent
+      })
+      folderTestReport.value = report
+      if (report.status === 'success' || report.status === 'degraded') {
+        testResult.value = report.output
+      }
+      if (report.status !== 'success' || report.errors.length > 0) {
+        testError.value = report.errors[0] || `文件夹技能测试状态：${report.status}`
+      }
+      return
+    }
 
    try {
      let systemContent = skill.template || '你是专业的文本处理专家。'
@@ -128,5 +157,5 @@ import { getAiService } from '../services/aiService'
      }
    }
    
-   return { testResult, isTesting, testError, runSkillTest, runAgentTest }
- }
+   return { testResult, isTesting, testError, folderTestReport, runSkillTest, runAgentTest }
+}

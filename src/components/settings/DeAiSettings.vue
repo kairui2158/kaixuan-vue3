@@ -89,9 +89,9 @@
             <div class="form-group">
               <label>技能链式顺序</label>
               <div class="deai-skill-bar">
-                <select v-model="selectedChainSkill" id="deai-skill-select" class="deai-param-select" @change="addDeAiSkill('chain')">
+                <select v-model="selectedChainSkill" id="deai-skill-select" class="select-standard" @change="addDeAiSkill('chain')">
                   <option value="">选择技能...</option>
-                  <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
+                  <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ skillStore.displaySkillName(s) }}</option>
                 </select>
                 <button id="btn-save-deai" class="btn-primary btn-sm" @click="addDeAiSkill('chain')">添加</button>
               </div>
@@ -103,7 +103,7 @@
               </div>
             </div>
             <div class="form-group">
-              <label>智能体（可选）</label><select id="deai-agent-select" v-model="deAiStore.agentId" class="deai-param-select" @change="deAiStore.saveConfig()">
+              <label>智能体（可选）</label><select id="deai-agent-select" v-model="deAiStore.agentId" class="select-standard" @change="deAiStore.saveConfig()">
                 <option value="">不使用智能体</option>
                 <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
               </select>
@@ -118,9 +118,9 @@
             <div class="form-group">
               <label>输出技能（1个，所有段共用）</label>
               <div class="deai-skill-bar">
-                <select v-model="selectedSplitSkill" id="deai-skill-select-sm" class="deai-param-select" @change="addDeAiSkill('split-merge')">
+                <select v-model="selectedSplitSkill" id="deai-skill-select-sm" class="select-standard" @change="addDeAiSkill('split-merge')">
                   <option value="">选择技能...</option>
-                  <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
+                  <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ skillStore.displaySkillName(s) }}</option>
                 </select>
               </div>
               <div id="deai-skills-list-sm" class="deai-skills-list">
@@ -131,7 +131,7 @@
               </div>
             </div>
             <div class="form-group">
-              <label>智能体（用于切分和调度）</label><select id="deai-agent-select-sm" v-model="deAiStore.agentId" class="deai-param-select" @change="deAiStore.saveConfig()">
+              <label>智能体（用于切分和调度）</label><select id="deai-agent-select-sm" v-model="deAiStore.agentId" class="select-standard" @change="deAiStore.saveConfig()">
                 <option value="">不使用智能体</option>
                 <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
               </select>
@@ -147,9 +147,9 @@
             <div class="form-group">
               <label>技能（需3个：S1A+S1B+S1C或S1+S2）</label>
               <div class="deai-skill-bar">
-                <select v-model="selectedMultiSkill" id="deai-skill-select-ms" class="deai-param-select" @change="addDeAiSkill('multi-step')">
+                <select v-model="selectedMultiSkill" id="deai-skill-select-ms" class="select-standard" @change="addDeAiSkill('multi-step')">
                   <option value="">选择技能...</option>
-                  <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
+                  <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ skillStore.displaySkillName(s) }}</option>
                 </select>
                 <button id="btn-deai-add-skill-ms" class="btn-primary btn-sm" @click="addDeAiSkill('multi-step')">添加</button>
               </div>
@@ -162,7 +162,7 @@
             </div>
             <div class="form-group">
               <label>智能体（用于多步调度）</label>
-              <select id="deai-agent-select-ms" v-model="deAiStore.agentId" class="deai-param-select" @change="deAiStore.saveConfig()">
+              <select id="deai-agent-select-ms" v-model="deAiStore.agentId" class="select-standard" @change="deAiStore.saveConfig()">
                 <option value="">不使用智能体</option>
                 <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
               </select>
@@ -285,7 +285,8 @@ function selectMode(mode: 'chain' | 'split-merge' | 'multi-step') {
 }
 
 function getSkillName(id: string) {
-  return skillStore.skills.find(s => s.id === id)?.name || id
+  const skill = skillStore.skills.find(s => s.id === id)
+  return skill ? skillStore.displaySkillName(skill) : id
 }
 
 function addDeAiSkill(mode: 'chain' | 'split-merge' | 'multi-step') {
@@ -328,9 +329,9 @@ function saveAllConfig() {
   margin-bottom: var(--space-md);
 }
 .deai-param-row { display: flex; flex-wrap: wrap; gap: var(--space-md); align-items: flex-end; }
-.deai-param-item { display: flex; flex-direction: column; gap: 4px; }
+.deai-param-item { display: flex; flex-direction: column; gap: var(--space-2); }
 .deai-param-label { font-size: var(--font-size-md); color: var(--text-muted); font-weight: 500; }
-.deai-param-select {
+.select-standard {
   min-width: 100px;
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-sm);
@@ -352,13 +353,13 @@ function saveAllConfig() {
   border-radius: var(--radius-sm);
   overflow: hidden;
   cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
   background: var(--bg-elevated);
 }
 .deai-mode-card:hover { border-color: var(--accent-color, var(--accent)); }
 .deai-mode-card.active {
   border-color: var(--accent-color, var(--accent));
-  box-shadow: 0 0 0 1px var(--accent-color, var(--accent));
+  box-shadow: var(--shadow-focus-accent);
 }
 .deai-mode-card-header {
   display: flex;
@@ -376,8 +377,8 @@ function saveAllConfig() {
 .mode-flow { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: 0 var(--space-3) var(--space-3); }
 .deai-flow-step {
   display: inline-block;
-  padding: 2px 8px;
-  margin: 2px;
+  padding: var(--space-1) var(--space-4);
+  margin: var(--space-1);
   border-radius: var(--radius-sm);
   background: var(--bg-elevated);
   color: var(--text-primary);
@@ -392,7 +393,7 @@ function saveAllConfig() {
   display: flex;
   align-items: flex-start;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-4);
   margin-bottom: 8px;
   min-width: 0;
   max-width: 100%;
@@ -424,12 +425,12 @@ function saveAllConfig() {
 .deai-skill-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-3);
   background: var(--accent-dim);
   border: 1px solid var(--accent-glow);
   border-radius: var(--radius-lg);
-  padding: var(--btn-xs-padding, 2px 8px);
-  margin: 2px;
+  padding: var(--btn-xs-padding, var(--space-1) var(--space-4));
+  margin: var(--space-1);
   font-size: var(--font-size-sm);
   color: var(--accent-lighter);
 }
@@ -440,7 +441,7 @@ function saveAllConfig() {
   color: var(--text-secondary);
   cursor: pointer;
   font-size: var(--font-size-lg);
-  padding: 0 2px;
+  padding: 0 var(--space-1);
   line-height: 1;
   min-width: 22px;
   min-height: 22px;
@@ -449,7 +450,7 @@ function saveAllConfig() {
 
 /* === 开关按钮 === */
 .toggle-btn {
-  padding: 4px 16px;
+  padding: var(--space-2) var(--space-6);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-color);
   background: var(--bg-input);
@@ -460,11 +461,11 @@ function saveAllConfig() {
 .toggle-btn.on { background: var(--accent); color: var(--text-on-accent); border-color: var(--accent); }
 
 /* === 硬规则细项 === */
-.deai-hardrule-toggle { margin: 8px 0; }
+.deai-hardrule-toggle { margin: var(--space-4) 0; }
 .deai-hardrule-toggle .toggle-label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-4);
   cursor: pointer;
   font-size: var(--font-size-md);
   margin-bottom: 8px;
@@ -473,8 +474,8 @@ function saveAllConfig() {
 .deai-hardrule-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 0;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
   font-size: var(--font-size-md);
   color: var(--text-primary);
   cursor: pointer;
@@ -487,7 +488,7 @@ function saveAllConfig() {
 .deai-radio-option {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-2);
   cursor: pointer;
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
@@ -498,7 +499,7 @@ function saveAllConfig() {
 .deai-verify-status {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-4);
   padding: var(--space-sm);
   border-radius: var(--radius-sm);
   background: var(--bg-tertiary);

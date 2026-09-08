@@ -19,7 +19,7 @@
         <div v-if="skillStore.skills.length === 0" class="empty-hint">暂无可用技能，请先在设置中添加</div>
         <label v-for="s in skillStore.skills" :key="s.id" class="sbm-skill-item">
           <input type="checkbox" :value="s.id" v-model="selectedIds" />
-          <span>{{ s.name }}</span>
+          <span>{{ skillStore.displaySkillName(s) }}</span>
           <span class="sbm-skill-cat">({{ s.category || '未分类' }})</span>
         </label>
       </div>
@@ -126,7 +126,7 @@ function closeModal() {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
-  padding: 16px;
+  padding: var(--space-6);
 }
 .skill-bind-header {
   display: flex;
@@ -147,7 +147,7 @@ function closeModal() {
   font-size: var(--font-size-xl);
   line-height: 1;
   cursor: pointer;
-  padding: 2px 6px;
+  padding: var(--space-1) var(--space-3);
 }
 .sbm-close:hover {
   color: var(--text-primary);
@@ -155,8 +155,8 @@ function closeModal() {
 .sbm-step-select {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 0;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
   font-size: var(--font-size-md);
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-color);
@@ -173,15 +173,15 @@ function closeModal() {
 .sbm-skill-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-3);
   max-height: 300px;
   overflow-y: auto;
-  padding: 12px 0;
+  padding: var(--space-5) 0;
 }
 .sbm-skill-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-3);
   font-size: var(--font-size-md);
   color: var(--text-primary);
   cursor: pointer;
@@ -195,7 +195,7 @@ function closeModal() {
   font-size: var(--font-size-xs);
 }
 .empty-hint {
-  padding: 20px 0;
+  padding: var(--space-7) 0;
   text-align: center;
   color: var(--text-secondary);
   font-size: var(--font-size-md);
@@ -203,7 +203,7 @@ function closeModal() {
 .sbm-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--space-4);
   padding-top: 10px;
   border-top: 1px solid var(--border-color);
 }

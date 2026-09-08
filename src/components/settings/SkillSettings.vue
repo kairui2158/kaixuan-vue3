@@ -3,8 +3,11 @@
     <h3>技能管理</h3>
     <div class="skill-toolbar">
       <button id="btn-import-skills" class="btn-sm btn-secondary" :disabled="exchangeLoading" @click="importSkills">{{ exchangeLoading ? '读取中...' : '导入配置' }}</button>
+      <button id="btn-import-folder-skill" class="btn-sm btn-secondary" :disabled="folderImporting" @click="importFolderSkill">{{ folderImporting ? '读取中...' : '导入文件夹技能' }}</button>
+      <button id="btn-batch-import-folder-skills" class="btn-sm btn-secondary" :disabled="folderBatchImporting" @click="importFolderSkillBatch">{{ folderBatchImporting ? '读取中...' : '批量导入文件夹技能' }}</button>
+      <button id="btn-import-skill-package" class="btn-sm btn-secondary" :disabled="packageLoading" @click="importSkillPackage">{{ packageLoading ? '读取中...' : '导入技能包' }}</button>
       <button id="btn-export-all-skills" class="btn-sm btn-secondary" :disabled="exchangeLoading || skillStore.skills.length === 0" @click="exportAll">导出 JSON</button>
-      <span class="skill-toolbar-hint">支持 JSON / Markdown</span>
+      <span class="skill-toolbar-hint">支持 JSON / Markdown / 文件夹 / ZIP 技能包</span>
     </div>
     <div v-if="uiMessage" id="skill-ui-message" class="skill-ui-message">{{ uiMessage }}</div>
     <div class="skill-section">
@@ -26,26 +29,84 @@
           <div class="skill-card-header">
             <span class="skill-card-name">{{ s.name }}</span>
             <span class="skill-card-badge">{{ s.category === 'general' ? '通用' : s.category }}</span>
+            <span v-if="s.format !== 'folder'" class="skill-card-badge">文本</span>
+            <span v-if="s.format === 'folder'" class="skill-card-badge is-folder">文件夹</span>
+            <span v-if="s.format === 'folder' && s.sourceId" class="skill-card-info">来源 ID：{{ s.sourceId }}</span>
+          </div>
+          <div v-if="s.format === 'folder'" class="skill-folder-status" :class="{ 'is-invalid': !folderStatusMap[s.id]?.valid }">
+            <span class="skill-folder-path" :title="s.folderPath">{{ s.folderPath || '未记录路径' }}</span>
+            <span class="skill-folder-state">{{ folderStatusMap[s.id]?.valid ? '路径有效' : '路径失效' }}</span>
+            <button v-if="!folderStatusMap[s.id]?.valid" class="btn-sm btn-secondary" @click="reselectFolderSkill(s.id)">重新选择文件夹</button>
           </div>
           <div class="skill-card-body">
-            <span class="skill-card-desc" v-if="s.template">{{ s.template.substring(0, 60) }}...</span>
+            <span class="skill-card-desc" v-if="s.format === 'folder'">{{ getFolderTemplatePreview(s.id) }}</span>
+            <span class="skill-card-desc" v-else-if="s.template">{{ s.template.substring(0, 60) }}...</span>
             <span class="skill-card-desc" v-else>无模板内容</span>
           </div>
           <div class="skill-card-meta">
             <span class="skill-card-info">模式: {{ s.executionMode || 'chain' }}</span>
             <span class="skill-card-info">输出: {{ s.outputFormat || 'text' }}</span>
+            <span
+              v-for="capability in folderStatusMap[s.id]?.capabilities || []"
+              :key="capability"
+              class="skill-card-badge is-capability"
+            >{{ capability }}</span>
+          </div>
+          <div v-if="s.format === 'folder'" class="skill-folder-boundary" :title="getFolderBoundaryText(s)">
+            <span class="skill-folder-boundary-label">执行边界：</span>
+            <span>{{ getFolderBoundarySummary(s) }}</span>
           </div>
           <div class="skill-card-actions">
-            <button class="btn-sm btn-secondary" @click="editSkill(s.id)">编辑</button>
+            <button v-if="s.format === 'folder'" class="btn-sm btn-secondary" @click="openFolderSkill(s.id)">打开文件夹</button>
+            <button v-else class="btn-sm btn-secondary" @click="editSkill(s.id)">编辑</button>
+            <button class="btn-sm btn-secondary" @click="openHealthReport(s.id)">体检</button>
             <button class="btn-sm btn-secondary" @click="addToPipeline(s.id)">加入流水线</button>
-            <button class="btn-sm btn-secondary" @click="exportSkill(s.id)">导出 MD</button>
+            <button v-if="s.format !== 'folder'" class="btn-sm btn-secondary" @click="exportSkill(s.id)">导出 MD</button>
+            <button class="btn-sm btn-secondary" @click="exportSkillPackage(s.id)">导出 ZIP</button>
+            <button class="btn-sm btn-secondary" @click="openVersionRollback(s.id)">版本回退</button>
             <button class="btn-sm btn-secondary" @click="openTest(s.id)">测试</button>
             <button class="btn-danger btn-sm" @click="skillStore.removeSkill(s.id)">删除</button>
           </div>
       </div>
       </div>
-    </div>
-    <button id="btn-add-skill" class="btn-add" @click="addSkill">+ 新建技能</button>
+   </div>
+   <div v-if="healthReportSkillId" class="skill-import-overlay" @click.self="closeHealthReport">
+     <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="skill-health-title">
+       <div class="sem-header"><h4 id="skill-health-title">技能体检报告</h4><button type="button" title="关闭" @click="closeHealthReport">×</button></div>
+       <div class="skill-import-summary">{{ getSkillName(healthReportSkillId) }}</div>
+       <div class="skill-import-plan">
+         <div v-if="!healthReport">正在读取技能文件...</div>
+         <div v-else-if="healthReport.issues.length === 0" class="skill-import-diagnostic is-success">
+           <strong>通过</strong><span>未发现异常。</span>
+         </div>
+         <div v-else v-for="issue in healthReport.issues" :key="issue.field + issue.message" class="skill-import-plan-item">
+           <span :class="'is-' + issue.level">{{ levelLabel(issue.level) }}</span>
+           <span class="skill-import-id">{{ issue.field }}</span>
+           <span>{{ issue.message }}</span>
+         </div>
+       </div>
+       <div class="form-actions"><button class="btn-secondary" type="button" @click="closeHealthReport">关闭</button></div>
+     </div>
+   </div>
+   <div v-if="versionRollbackSkillId" class="skill-import-overlay" @click.self="closeVersionRollback">
+     <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="skill-version-title">
+       <div class="sem-header"><h4 id="skill-version-title">技能版本回退</h4><button type="button" title="关闭" @click="closeVersionRollback">×</button></div>
+       <div class="skill-import-summary">{{ getSkillName(versionRollbackSkillId) }}</div>
+       <div class="skill-import-plan">
+         <div v-if="versionRollbackLoading">正在读取技能版本...</div>
+         <div v-else-if="versionRollbackVersions.length === 0" class="skill-import-diagnostic is-warning">
+           <strong>提示</strong><span>当前技能库中没有可回退的本地版本。</span>
+         </div>
+         <div v-else v-for="version in versionRollbackVersions" :key="version" class="skill-import-plan-item">
+           <span :class="{ 'is-success': version === versionRollbackCurrent }">{{ version }}</span>
+           <span>{{ version === versionRollbackCurrent ? '当前版本' : '本地版本' }}</span>
+           <button v-if="version !== versionRollbackCurrent" class="btn-sm btn-primary" @click="applyVersionRollback(version)">回退到此版本</button>
+         </div>
+       </div>
+       <div class="form-actions"><button class="btn-secondary" type="button" @click="closeVersionRollback">关闭</button></div>
+     </div>
+   </div>
+   <button id="btn-add-skill" class="btn-add" @click="addSkill">+ 新建技能</button>
    <div v-if="editingSkillId" class="skill-edit-overlay" @click.self="cancelEdit">
      <div id="skill-form" class="skill-edit-modal">
        <div class="sem-header"><h4 id="skill-form-title">编辑技能</h4><button title="关闭" @click="cancelEdit">×</button></div>
@@ -177,6 +238,104 @@
        <div class="form-actions"><button class="btn-secondary" type="button" @click="cancelImport">取消</button><button class="btn-primary" type="button" :disabled="importPlan.length === 0 || exchangeLoading" @click="confirmImport">确认导入</button></div>
      </div>
    </div>
+   <div v-if="folderBatchPreviewVisible" class="skill-import-overlay" @click.self="closeFolderBatchPreview">
+     <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="folder-batch-title">
+       <div class="sem-header"><h4 id="folder-batch-title">批量导入文件夹技能</h4><button type="button" title="关闭" @click="closeFolderBatchPreview">×</button></div>
+       <p class="skill-import-source" :title="folderBatchRoot">{{ folderBatchRoot || '未选择根目录' }}</p>
+       <div class="skill-import-summary">
+         共扫描 {{ folderBatchItems.length }} 个候选文件夹，可导入 {{ folderBatchItems.filter(item => item.action === 'add' || item.action === 'overwrite').length }} 个
+       </div>
+       <div class="skill-import-plan">
+         <div v-for="item in folderBatchItems" :key="item.folderPath" class="skill-import-plan-item">
+           <span>{{ item.name }}</span>
+           <span class="skill-import-id" :title="item.folderPath">{{ item.id || item.folderName }}</span>
+           <span :class="'is-' + item.action">{{ folderBatchActionText(item.action) }}</span>
+         </div>
+         <p v-if="folderBatchItems.length === 0">根目录下没有包含 SKILL.md 的一级子文件夹。</p>
+       </div>
+       <label class="skill-import-strategy">
+         <span>重复技能处理</span>
+         <select v-model="folderBatchStrategy" class="sem-input" @change="refreshFolderBatchPlan">
+           <option value="skip">跳过重复（推荐）</option>
+           <option value="overwrite">覆盖已有技能</option>
+         </select>
+       </label>
+       <div class="form-actions">
+         <button class="btn-secondary" type="button" @click="closeFolderBatchPreview">取消</button>
+         <button id="btn-confirm-folder-batch" class="btn-primary" type="button" :disabled="folderBatchImporting || folderBatchItems.length === 0" @click="confirmFolderBatchImport">
+           {{ folderBatchImporting ? '导入中...' : '确认导入' }}
+         </button>
+       </div>
+     </div>
+   </div>
+   <div v-if="folderImportPreviewVisible" class="skill-import-overlay" @click.self="closeFolderImportPreview">
+     <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="folder-import-title">
+       <div class="sem-header"><h4 id="folder-import-title">导入文件夹技能</h4><button type="button" title="关闭" @click="closeFolderImportPreview">×</button></div>
+       <p class="skill-import-source" :title="folderImportPreview?.folderPath">{{ folderImportPreview?.folderPath || '未选择文件夹' }}</p>
+       <div v-if="folderImportPreview" class="skill-import-summary">
+         {{ folderImportPreview.name }} 将{{ folderImportPreview.action === 'add' ? '新增到技能库' : folderImportPreview.action === 'overwrite' ? '覆盖已有文件夹技能' : '按策略跳过' }}
+       </div>
+       <div v-if="folderImportPreview" class="skill-import-plan">
+         <div class="skill-import-plan-item">
+           <span>{{ folderImportPreview.name }}</span>
+           <span class="skill-import-id">{{ folderImportPreview.id }}</span>
+           <span :class="'is-' + folderImportPreview.action">{{ folderImportPreview.message }}</span>
+         </div>
+       </div>
+       <label class="skill-import-strategy">
+         <span>重复技能处理</span>
+         <select v-model="folderImportStrategy" class="sem-input" @change="refreshFolderImportPlan">
+           <option value="skip">跳过重复（推荐）</option>
+           <option value="overwrite">覆盖已有技能</option>
+         </select>
+       </label>
+       <div class="form-actions">
+         <button class="btn-secondary" type="button" @click="closeFolderImportPreview">取消</button>
+         <button id="btn-confirm-folder-import" class="btn-primary" type="button" :disabled="folderImporting || !folderImportPreview || folderImportPreview.action === 'skip'" @click="confirmFolderImport">
+           {{ folderImporting ? '导入中...' : '确认导入' }}
+         </button>
+       </div>
+     </div>
+   </div>
+   <div v-if="packagePreview" class="skill-import-overlay" @click.self="closePackagePreview">
+     <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="skill-package-title">
+       <div class="sem-header"><h4 id="skill-package-title">技能包预览</h4><button type="button" title="关闭" @click="closePackagePreview">×</button></div>
+       <p class="skill-import-source" :title="packagePreview.zipPath">{{ packagePreview.zipPath }}</p>
+       <div class="skill-import-origin">
+         <span class="skill-import-chip" :class="packagePreview.compatible ? 'is-compatible' : 'is-standard'">
+           {{ packagePreview.compatible ? '兼容包：缺少 skill-package.json' : '标准技能包' }}
+         </span>
+         <span class="skill-import-chip">文件 {{ packagePreview.entries.length }} 个</span>
+         <span class="skill-import-chip">大小 {{ formatPackageSize(packagePreview.totalBytes) }}</span>
+       </div>
+       <div v-if="packagePreview.compatible" class="skill-import-diagnostics">
+         <div class="skill-import-diagnostic is-warning"><strong>警告</strong><span>该包没有版本声明和完整性清单，安装后无法参与版本管理与回滚。</span></div>
+       </div>
+       <div v-if="packageIssues.length" class="skill-import-issues">
+         <div v-for="(issue, index) in packageIssues" :key="issue.field + '-' + index">{{ issue.field }}：{{ issue.message }}</div>
+       </div>
+      <div class="skill-import-summary">
+        {{ packagePreview.manifest ? `将安装：${packageInstallName} v${packageInstallVersion}` : '将按兼容包安装，版本记为 0.0.0' }}
+      </div>
+      <div class="skill-import-summary">安装策略：{{ packageActionLabel }}</div>
+      <label v-if="packageInstallAction === 'downgrade' || packageInstallAction === 'same'" class="skill-import-strategy">
+        <input v-model="packageInstallApproved" type="checkbox">
+        <span>{{ packageInstallAction === 'downgrade' ? '我确认降级覆盖当前版本' : '我确认覆盖相同版本' }}</span>
+      </label>
+       <div class="skill-import-plan">
+         <div v-for="file in packagePreview.entries" :key="file.path" class="skill-import-plan-item">
+           <span>{{ file.path }}</span><span class="skill-import-id">{{ formatPackageSize(file.size) }}</span>
+         </div>
+         <p v-if="packagePreview.entries.length === 0">压缩包内没有可安装文件。</p>
+       </div>
+       <div class="form-actions">
+         <button class="btn-secondary" type="button" @click="closePackagePreview">取消</button>
+         <button id="btn-confirm-skill-package" class="btn-primary" type="button" :disabled="packageInstalling || packagePreview.entries.length === 0 || packageIssues.length > 0" @click="confirmSkillPackage">
+           {{ packageInstalling ? '安装中...' : '安装到技能库' }}
+         </button>
+       </div>
+     </div>
+   </div>
    <div v-if="testSkillId" class="skill-edit-overlay" @click.self="closeTest">
      <div id="skill-test-modal" class="skill-edit-modal">
        <div class="sem-header"><h4 id="skill-test-title">技能测试: {{ getSkillName(testSkillId) }}</h4><button title="关闭" @click="closeTest">×</button></div>
@@ -188,6 +347,33 @@
        </div>
        <div v-if="testError" id="st-test-error" class="st-test-error">{{ testError }}</div>
        <div v-if="testResult" id="st-test-result" class="st-test-result">{{ testResult }}</div>
+       <div v-if="folderTestReport" id="st-folder-report" class="st-folder-report">
+         <RealSkillDiagnosticsPanel
+           :status="folderTestReport.status"
+           :diagnostics="folderTestReport.diagnostics"
+           :request-messages="folderTestReport.requestMessages"
+           :budget="folderTestReport.budget"
+           :from-cache="folderTestReport.fromCache"
+         />
+         <div class="st-folder-report-row">
+           <span class="st-folder-status" :class="`is-${folderTestReport.status}`">状态：{{ folderStatusText }}</span>
+           <span>磁盘加载：{{ folderTestReport.fromCache ? '使用 5 秒缓存' : '实时读取' }}</span>
+           <span>API 预算：{{ folderTestReport.budget.used }}/{{ folderTestReport.budget.limit }}</span>
+         </div>
+         <div v-if="folderDiagnostics.length > 0" class="st-folder-diagnostics">
+           <div v-for="(item, index) in folderDiagnostics" :key="`${item.code}-${index}`" class="st-folder-diagnostic" :class="`is-${item.type}`">
+             {{ item.message }}
+           </div>
+         </div>
+         <details class="st-folder-request">
+           <summary>查看最终请求内容</summary>
+           <div v-for="(message, index) in folderTestReport.requestMessages" :key="`request-${index}`" class="st-folder-request-message">
+             <span>{{ message.role }}</span>
+             <pre>{{ message.content }}</pre>
+           </div>
+           <p v-if="folderTestReport.requestMessages.length === 0">本次没有可展示的请求内容。</p>
+         </details>
+       </div>
      </div>
    </div>
   </div>
@@ -199,13 +385,42 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useSkillStore } from '../../stores/skill'
 import { useSkillTest } from '../../composables/useSkillTest'
 import { useConfigExchange } from '../../composables/useConfigExchange'
+import { useSkillPackageInstall } from '../../composables/useSkillPackageInstall'
 import { buildImportPlan } from '../../services/configExchange'
 import { enhanceCodeBlocks, renderMarkdown as renderMarkdownService } from '../../utils/markdownService'
+import { onMounted } from 'vue'
 import type { ConfigDiagnostic, ConfigFieldTrace, ConfigIssue, ConfigSourceInfo, ImportPlanItem, ImportStrategy, SkillRecord } from '../../services/configExchange'
+import type { FolderSkillStatus } from '../../services/realSkillLoader'
+import { loadRealSkill } from '../../services/realSkillLoader'
+import { formatFolderSkillBoundary, type FolderSkillBoundaryMode } from '../../services/folderSkillBoundary'
+import { analyzeSkillHealth, type SkillHealthReport, type SkillHealthLevel } from '../../services/skillHealth'
+import RealSkillDiagnosticsPanel from '../common/RealSkillDiagnosticsPanel.vue'
+import {
+  previewFolderSkill,
+  refreshFolderSkillPlan,
+  previewFolderSkillBatch,
+  refreshFolderSkillBatchPlan,
+  summarizeFolderSkillBatch,
+  type FolderSkillBatchItem,
+  type FolderSkillBatchResultItem,
+  type FolderSkillBatchStrategy
+} from '../../services/folderSkillBatchImport'
 
 const skillStore = useSkillStore()
-const { testResult, isTesting, testError, runSkillTest } = useSkillTest()
+const { testResult, isTesting, testError, folderTestReport, runSkillTest } = useSkillTest()
 const { exchangeLoading, importSkillsFromFile, applySkillImport, exportAllSkillsJSON, exportSkillMarkdown } = useConfigExchange()
+const {
+  packageLoading,
+  packageInstalling,
+  packagePreview,
+  packageIssues,
+  packageMessage,
+  packageInstallAction,
+  packageInstallApproved,
+  openPackagePreview,
+  confirmPackageInstall,
+  closePackagePreview,
+} = useSkillPackageInstall()
 const uiMessage = ref('')
 const importPreviewVisible = ref(false)
 const importPlan = ref<ImportPlanItem[]>([])
@@ -223,6 +438,227 @@ const importAddCount = computed(() => importPlan.value.filter(item => item.actio
 const importConflictCount = computed(() => importPlan.value.filter(item => item.action !== 'add').length)
 const testSkillId = ref('')
 const testText = ref('')
+const folderDiagnostics = computed(() => folderTestReport.value?.diagnostics || [])
+const folderStatusText = computed(() => {
+  const status = folderTestReport.value?.status
+  if (status === 'success') return '成功'
+  if (status === 'degraded') return '降级完成'
+  if (status === 'blocked') return '预算阻断'
+  if (status === 'load-failed') return '磁盘加载失败'
+  return '失败'
+})
+const folderImporting = ref(false)
+const folderStatusMap = ref<Record<string, FolderSkillStatus>>({})
+const folderImportPreviewVisible = ref(false)
+const folderImportPreview = ref<FolderSkillBatchItem | null>(null)
+const folderImportStrategy = ref<FolderSkillBatchStrategy>('skip')
+const folderBatchImporting = ref(false)
+const folderBatchPreviewVisible = ref(false)
+const folderBatchRoot = ref('')
+const folderBatchItems = ref<FolderSkillBatchItem[]>([])
+const folderBatchStrategy = ref<FolderSkillBatchStrategy>('skip')
+const healthReportSkillId = ref('')
+const healthReport = ref<SkillHealthReport | null>(null)
+const versionRollbackSkillId = ref('')
+const versionRollbackVersions = ref<string[]>([])
+const versionRollbackCurrent = ref('')
+const versionRollbackLoading = ref(false)
+
+const packageActionLabel = computed(() => {
+  const labels: Record<typeof packageInstallAction.value, string> = {
+    add: '新增技能',
+    upgrade: '升级技能',
+    downgrade: '降级技能，需要确认',
+    same: '版本相同，需要确认',
+    unknown: '当前记录未标注版本，导入时可选择覆盖',
+  }
+  return labels[packageInstallAction.value]
+})
+
+const packageInstallName = computed(() => String((packagePreview.value?.manifest as any)?.name || ''))
+const packageInstallVersion = computed(() => String((packagePreview.value?.manifest as any)?.version || ''))
+
+async function importSkillPackage() {
+  const opened = await openPackagePreview()
+  if (!opened) {
+    showMessage(packageMessage.value || '技能包读取失败')
+  }
+}
+
+async function confirmSkillPackage() {
+  const message = await confirmPackageInstall()
+  showMessage(message || packageMessage.value || '技能包安装失败')
+  if (message) {
+    closePackagePreview()
+    await refreshFolderStatuses()
+  }
+}
+
+function formatPackageSize(size: number) {
+  if (size >= 1024 * 1024) return (size / 1024 / 1024).toFixed(1) + ' MB'
+  if (size >= 1024) return (size / 1024).toFixed(1) + ' KB'
+  return size + ' B'
+}
+
+function levelLabel(level: SkillHealthLevel) {
+  if (level === 'error') return '错误'
+  if (level === 'warning') return '警告'
+  return '提示'
+}
+
+async function openHealthReport(id: string) {
+  healthReportSkillId.value = id
+  healthReport.value = null
+  const skill = skillStore.getSkill(id)
+  if (!skill) {
+    healthReport.value = { skillId: id, healthy: false, issues: [{ level: 'error', field: 'skill', message: '技能记录不存在' }] }
+    return
+  }
+  if (skill.format !== 'folder') {
+    healthReport.value = analyzeSkillHealth({
+      skillId: id,
+      format: 'text',
+      template: skill.template,
+    })
+    return
+  }
+  const loaded = await loadRealSkill(skill.folderPath || '')
+  healthReport.value = analyzeSkillHealth({
+    skillId: id,
+    format: 'folder',
+    folderPath: skill.folderPath,
+    loadError: loaded.error || undefined,
+    package: loaded.package,
+  })
+}
+
+function closeHealthReport() {
+  healthReportSkillId.value = ''
+  healthReport.value = null
+}
+
+async function openVersionRollback(id: string) {
+  const api = window.electronAPI as any
+  if (!api?.skillPackageListVersions) {
+    showMessage('当前运行环境不支持技能版本回退')
+    return
+  }
+  const skill = skillStore.getSkill(id)
+  if (!skill) {
+    showMessage('技能记录不存在')
+    return
+  }
+  versionRollbackSkillId.value = id
+  versionRollbackVersions.value = []
+  versionRollbackCurrent.value = skill.version || ''
+  versionRollbackLoading.value = true
+  try {
+    const result = await api.skillPackageListVersions(id)
+    if (!result?.ok) {
+      showMessage(result?.message || '技能版本读取失败')
+      return
+    }
+    versionRollbackVersions.value = (result.versions || []).slice().sort(compareVersions)
+  } catch (error: any) {
+    showMessage(error?.message || '技能版本读取异常')
+  } finally {
+    versionRollbackLoading.value = false
+  }
+}
+
+function compareVersions(a: string, b: string) {
+  const pa = a.split('.').map(Number)
+  const pb = b.split('.').map(Number)
+  for (let index = 0; index < 3; index++) {
+    if (pa[index] !== pb[index]) return (pb[index] || 0) - (pa[index] || 0)
+  }
+  return 0
+}
+
+function closeVersionRollback() {
+  versionRollbackSkillId.value = ''
+  versionRollbackVersions.value = []
+  versionRollbackCurrent.value = ''
+}
+
+async function applyVersionRollback(version: string) {
+  const id = versionRollbackSkillId.value
+  if (!id || !version) return
+  const skill = skillStore.getSkill(id)
+  if (!skill || !skill.folderPath) {
+    showMessage('该技能不是本地包技能，无法回退')
+    return
+  }
+  const targetPath = skill.folderPath.replace(/[\\/][^\\/]+$/, '') + '\\' + version
+  const loaded = await window.electronAPI.skillLoadFolder(targetPath)
+  if (!loaded?.ok || !loaded.skill) {
+    showMessage(loaded?.message || '目标版本读取失败')
+    return
+  }
+  await skillStore.updateSkill(id, {
+    format: 'folder',
+    folderPath: loaded.folderPath,
+    version,
+    name: loaded.skill.name,
+    template: loaded.skill.template || '',
+  })
+  await refreshFolderStatuses()
+  showMessage(`已回退到版本 ${version}`)
+  closeVersionRollback()
+}
+
+async function exportSkillPackage(id: string) {
+  const api = window.electronAPI as any
+  if (!api?.skillPackageExport || !api?.dialogSaveFileAsync) {
+    showMessage('当前运行环境不支持技能包导出')
+    return
+  }
+  const skill = skillStore.getSkill(id)
+  if (!skill) {
+    showMessage('技能记录不存在')
+    return
+  }
+  const targetPath = await api.dialogSaveFileAsync(`${skill.id || 'skill'}.zip`)
+  if (!targetPath) return
+  const result = await api.skillPackageExport(id, targetPath)
+  showMessage(result?.ok ? `技能包已导出：${targetPath}` : (result?.message || '技能包导出失败'))
+}
+
+function folderCapabilities(meta: Record<string, unknown> | undefined): FolderSkillStatus['capabilities'] {
+  if (!meta) return []
+  return [
+    meta.executionMode === 'multi-pass' ? 'multi-pass' : null,
+    meta.retryPolicy ? 'retry' : null,
+    meta.dynamicTemplate ? 'dynamic template' : null,
+    meta.smartSamples === true ? 'smart samples' : null
+  ].filter(Boolean) as NonNullable<FolderSkillStatus['capabilities']>
+}
+
+function getFolderBoundaryMode(skill: SkillRecord): FolderSkillBoundaryMode {
+  return (skill as any).meta?.executionMode === 'composite' ? 'composite' : 'chain'
+}
+
+function getFolderBoundaryText(skill: SkillRecord): string {
+  return formatFolderSkillBoundary(getFolderBoundaryMode(skill))
+}
+
+function getFolderBoundarySummary(skill: SkillRecord): string {
+  return formatFolderSkillBoundary(getFolderBoundaryMode(skill)).split('\n')[0]
+}
+
+function templatePreview(template: string | undefined): string {
+  const text = (template || '').trim()
+  if (!text) return '无模板内容'
+  return text.length > 60 ? text.substring(0, 60) + '...' : text
+}
+
+function getFolderTemplatePreview(id: string): string {
+  const skill = skillStore.getSkill(id)
+  if (!skill) return '无模板内容'
+  const preview = folderStatusMap.value[id]?.templatePreview
+  if (preview === undefined) return '正在读取模板...'
+  return preview
+}
 
 function showMessage(msg: string) {
   uiMessage.value = msg
@@ -250,6 +686,253 @@ async function importSkills() {
   importPlan.value = result.plan
   importStrategy.value = 'skip'
   importPreviewVisible.value = true
+}
+
+async function loadFolderSkill(folderPath: string, overwrite = false) {
+  const loaded = await window.electronAPI.skillLoadFolder(folderPath)
+  if (!loaded?.ok || !loaded.skill) {
+    showMessage(loaded?.message || '文件夹技能读取失败')
+    return false
+  }
+
+  const skill = loaded.skill
+  const now = new Date().toISOString()
+  const record = {
+    id: skill.id,
+    sourceId: skill.id,
+    name: skill.name,
+    format: 'folder' as const,
+    folderPath: loaded.folderPath,
+    template: skill.template,
+    category: 'folder',
+    description: skill.description || '',
+    executionMode: 'chain' as const,
+    outputFormat: 'text' as const,
+    validationRules: [],
+    splitSize: 1000,
+    injectMode: 'system_prefix',
+    bindTarget: 'project',
+    linkedSkillIds: [],
+    createdAt: now,
+    updatedAt: now,
+    customVars: {},
+    inputSchema: '' as string,
+    outputSchema: '' as string,
+    retryPolicy: '' as string
+  }
+
+  const result = await skillStore.importSkills([record], { strategy: overwrite ? 'overwrite' : 'skip' })
+  const normalizedFolderId = skillStore.normalizeSkillId(record.id, 'folder')
+  folderStatusMap.value[normalizedFolderId] = {
+    valid: true,
+    message: '路径有效',
+    capabilities: folderCapabilities(skill.meta),
+    templatePreview: templatePreview(skill.template)
+  }
+  showMessage(`文件夹技能导入完成：新增 ${result.added} 个，更新 ${result.updated} 个，跳过 ${result.skipped} 个`)
+  return true
+}
+
+async function importFolderSkill() {
+  folderImporting.value = true
+  try {
+    const folderPath = await window.electronAPI.dialogOpenDirectoryAsync?.()
+    if (!folderPath) return
+    const preview = await previewFolderSkill(
+      folderPath,
+      skillStore.skills.map(skill => skill.id)
+    )
+    if (!preview.ok || !preview.item) {
+      showMessage(preview.message)
+      return
+    }
+    folderImportPreview.value = preview.item
+    folderImportStrategy.value = 'skip'
+    folderImportPreviewVisible.value = true
+  } finally {
+    folderImporting.value = false
+  }
+}
+
+function refreshFolderImportPlan() {
+  folderImportPreview.value = refreshFolderSkillPlan(folderImportPreview.value, folderImportStrategy.value)
+}
+
+function closeFolderImportPreview() {
+  if (folderImporting.value) return
+  folderImportPreviewVisible.value = false
+  folderImportPreview.value = null
+}
+
+async function confirmFolderImport() {
+  const preview = folderImportPreview.value
+  if (!preview || !preview.valid) return
+  folderImporting.value = true
+  try {
+    const imported = await loadFolderSkill(preview.folderPath, folderImportStrategy.value === 'overwrite')
+    if (imported) {
+      folderImportPreviewVisible.value = false
+      folderImportPreview.value = null
+    }
+  } finally {
+    folderImporting.value = false
+  }
+}
+
+function folderBatchActionText(action: FolderSkillBatchItem['action']) {
+  if (action === 'add') return '新增'
+  if (action === 'overwrite') return '覆盖'
+  if (action === 'skip') return '跳过重复'
+  return `无效：${folderBatchItems.value.find(item => item.action === 'invalid')?.message || '结构不完整'}`
+}
+
+function refreshFolderBatchPlan() {
+  folderBatchItems.value = refreshFolderSkillBatchPlan(folderBatchItems.value, folderBatchStrategy.value)
+}
+
+function closeFolderBatchPreview() {
+  if (folderBatchImporting.value) return
+  folderBatchPreviewVisible.value = false
+  folderBatchItems.value = []
+  folderBatchRoot.value = ''
+}
+
+async function importFolderSkillBatch() {
+  folderBatchImporting.value = true
+  try {
+    const rootPath = await window.electronAPI.dialogOpenDirectoryAsync?.()
+    if (!rootPath) return
+    const preview = await previewFolderSkillBatch(
+      rootPath,
+      skillStore.skills.map(skill => skill.id)
+    )
+    if (!preview.ok) {
+      showMessage(preview.message)
+      return
+    }
+    folderBatchRoot.value = rootPath
+    folderBatchItems.value = preview.items
+    folderBatchStrategy.value = 'skip'
+    folderBatchPreviewVisible.value = true
+  } finally {
+    folderBatchImporting.value = false
+  }
+}
+
+async function confirmFolderBatchImport() {
+  folderBatchImporting.value = true
+  const results: FolderSkillBatchResultItem[] = []
+  try {
+    for (const item of folderBatchItems.value) {
+      if (!item.valid) {
+        results.push({ ...item, status: 'failed', message: item.message })
+        continue
+      }
+      if (item.action === 'skip') {
+        results.push({ ...item, status: 'skipped', message: '已存在，按策略跳过' })
+        continue
+      }
+      const loaded = await window.electronAPI.skillLoadFolder(item.folderPath)
+      if (!loaded?.ok || !loaded.skill) {
+        results.push({ ...item, status: 'failed', message: loaded?.message || '读取失败' })
+        continue
+      }
+      const skill = loaded.skill
+      const now = new Date().toISOString()
+      const record = {
+        id: skill.id,
+        sourceId: skill.id,
+        name: skill.name,
+        format: 'folder' as const,
+        folderPath: loaded.folderPath,
+        template: skill.template,
+        category: 'folder',
+        description: skill.description || '',
+        executionMode: 'chain' as const,
+        outputFormat: 'text' as const,
+        validationRules: [],
+        splitSize: 1000,
+        injectMode: 'system_prefix',
+        bindTarget: 'project',
+        linkedSkillIds: [],
+        createdAt: now,
+        updatedAt: now,
+        customVars: {},
+        inputSchema: '' as string,
+        outputSchema: '' as string,
+        retryPolicy: '' as string
+      }
+      const result = await skillStore.importSkills([record], { strategy: item.action === 'overwrite' ? 'overwrite' : 'skip' })
+      folderStatusMap.value[skillStore.normalizeSkillId(record.id, 'folder')] = {
+        valid: true,
+        message: '路径有效',
+        capabilities: folderCapabilities(skill.meta),
+        templatePreview: templatePreview(skill.template)
+      }
+      results.push({
+        ...item,
+        status: 'success',
+        message: result.updated > 0 ? '已存在并覆盖' : '新增成功'
+      })
+    }
+    const summary = summarizeFolderSkillBatch(results)
+    const failureText = results
+      .filter(result => result.status === 'failed')
+      .map(result => `${result.name}：${result.message}`)
+      .join('；')
+    showMessage(`批量导入完成：新增 ${summary.added} 个，覆盖 ${summary.updated} 个，跳过 ${summary.skipped} 个，失败 ${summary.failed} 个${failureText ? `。失败项：${failureText}` : ''}`)
+    folderBatchPreviewVisible.value = false
+    folderBatchItems.value = []
+    folderBatchRoot.value = ''
+  } finally {
+    folderBatchImporting.value = false
+  }
+}
+
+async function reselectFolderSkill(id: string) {
+  const current = skillStore.getSkill(id)
+  if (!current) return
+  folderImporting.value = true
+  try {
+    const folderPath = await window.electronAPI.dialogOpenDirectoryAsync?.()
+    if (!folderPath) return
+    const loaded = await window.electronAPI.skillLoadFolder(folderPath)
+    if (!loaded?.ok) {
+      showMessage(loaded?.message || '重新选择的路径无效')
+      return
+    }
+    await skillStore.updateSkill(id, { format: 'folder', folderPath: loaded.folderPath, name: loaded.skill.name, template: loaded.skill.template })
+    folderStatusMap.value[id] = {
+      valid: true,
+      message: '路径有效',
+      capabilities: folderCapabilities(loaded.skill.meta),
+      templatePreview: templatePreview(loaded.skill.template)
+    }
+    showMessage('文件夹路径已恢复')
+  } finally {
+    folderImporting.value = false
+  }
+}
+
+async function openFolderSkill(id: string) {
+  const api = window.electronAPI as any
+  if (!api?.skillOpenFolder) {
+    showMessage('当前运行环境不支持打开文件夹')
+    return
+  }
+  const skill = skillStore.getSkill(id)
+  if (!skill) {
+    showMessage('技能记录不存在')
+    return
+  }
+  if (!skill.folderPath) {
+    showMessage('该技能未记录文件夹路径')
+    return
+  }
+  const result = await api.skillOpenFolder(skill.folderPath)
+  if (!result?.ok) {
+    showMessage(result?.message || '打开文件夹失败')
+  }
 }
 
 async function confirmImport() {
@@ -332,7 +1015,8 @@ function closeTest() {
 }
 
 function getSkillName(id: string) {
-  return skillStore.skills.find(s => s.id === id)?.name || id
+  const skill = skillStore.skills.find(s => s.id === id)
+  return skill ? skillStore.displaySkillName(skill) : id
 }
 
 function addToPipeline(id: string) {
@@ -408,6 +1092,27 @@ watch(editingTemplate, async () => {
   await nextTick()
   await enhanceCodeBlocks(previewRef.value)
 }, { immediate: true })
+
+async function refreshFolderStatuses() {
+  const folderSkills = skillStore.skills.filter(skill => skill.format === 'folder')
+  for (const skill of folderSkills) {
+    if (!skill.folderPath) {
+      folderStatusMap.value[skill.id] = { valid: false, message: '未记录路径' }
+      continue
+    }
+    const loaded = await window.electronAPI?.skillLoadFolder?.(skill.folderPath)
+    folderStatusMap.value[skill.id] = loaded?.ok
+      ? {
+          valid: true,
+          message: '路径有效',
+          capabilities: folderCapabilities(loaded.skill?.meta),
+          templatePreview: templatePreview(loaded.skill?.template)
+        }
+      : { valid: false, message: loaded?.message || '路径失效', templatePreview: '无模板内容' }
+  }
+}
+
+onMounted(refreshFolderStatuses)
 
 const availableVars = [
   'selectedText', 'outlineContent', 'chapterSummary',
@@ -518,14 +1223,14 @@ function refreshPreview() {
 .skill-settings h3 { font-size: var(--font-size-lg); margin-bottom: 16px; }
 .skill-section { margin-bottom: 20px; }
 .skill-section h4 { font-size: var(--font-size-md); color: var(--text-secondary); margin-bottom: 8px; }
-.skill-pipeline-list { display: flex; flex-direction: column; gap: 6px; }
-.skill-all-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.skill-pipeline-list { display: flex; flex-direction: column; gap: var(--space-3); }
+.skill-all-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-5); }
 .skill-pipeline-item, .skill-card {
   display: flex;
   align-items: center;
   min-width: 0;
-  gap: 6px;
-  padding: 6px 10px;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
   background: var(--bg-tertiary);
   border-radius: var(--radius-sm);
   font-size: var(--font-size-sm);
@@ -533,12 +1238,12 @@ function refreshPreview() {
 .skill-card {
   flex-direction: column;
   align-items: stretch;
-  padding: var(--space-md, 14px);
+  padding: var(--space-md, var(--space-5));
   background: var(--bg-card, var(--bg-elevated));
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg, 8px);
   box-shadow: var(--shadow-sm);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 .skill-card:hover {
   transform: translateY(-1px);
@@ -549,7 +1254,7 @@ function refreshPreview() {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-4);
   margin-bottom: 4px;
   min-width: 0;
 }
@@ -558,16 +1263,41 @@ function refreshPreview() {
   font-size: var(--font-size-sm);
   color: var(--accent-lighter, var(--accent));
   background: var(--accent-dim);
-  padding: 1px 6px;
-  border-radius: 99px;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
   font-weight: 500;
 }
+.skill-card-badge.is-folder { color: var(--accent); border-color: var(--accent); }
+.skill-folder-status {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: var(--space-3);
+  align-items: center;
+  margin-bottom: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xs);
+  background: var(--bg-tertiary);
+  font-size: var(--font-size-sm);
+}
+.skill-folder-status.is-invalid { border-color: var(--danger); }
+.skill-folder-path { min-width: 0; color: var(--text-secondary); overflow-wrap: anywhere; word-break: break-word; }
+.skill-folder-state { color: var(--text-muted); white-space: nowrap; }
+.skill-folder-boundary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+.skill-folder-boundary-label { color: var(--text-muted); white-space: nowrap; }
 .skill-card-body { margin-bottom: 4px; min-width: 0; }
 .skill-card-desc { min-width: 0; max-width: 100%; font-size: var(--font-size-md); color: var(--text-muted); line-height: 1.5; overflow-wrap: anywhere; word-break: break-word; }
 .skill-card-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--space-5);
   margin-bottom: 6px;
   min-width: 0;
 }
@@ -575,98 +1305,112 @@ function refreshPreview() {
 .skill-card-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--space-2);
   align-items: center;
   min-width: 0;
 }
 .skill-idx { color: var(--accent); font-weight: 600; min-width: 24px; }
 .skill-name { flex: 1 1 160px; min-width: 0; color: var(--text-primary); overflow-wrap: anywhere; word-break: break-word; }
 .skill-cat { min-width: 0; max-width: 100%; color: var(--text-muted); font-size: var(--font-size-md); overflow-wrap: anywhere; word-break: break-word; }
-.btn-add { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: var(--radius-sm); padding: 9px 18px; cursor: pointer; font-size: var(--font-size-md); }
-.skill-toolbar { display: flex; gap: 8px; margin-bottom: 12px; }
+.btn-add { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: var(--radius-sm); padding: var(--space-4) 1var(--space-4); cursor: pointer; font-size: var(--font-size-md); }
+.skill-toolbar { display: flex; gap: var(--space-4); margin-bottom: 12px; }
 .skill-toolbar { align-items: center; flex-wrap: wrap; }
 .skill-toolbar-hint { color: var(--text-muted); font-size: var(--font-size-sm); }
-.skill-ui-message { margin-bottom: 12px; padding: 9px 12px; border-radius: var(--radius-sm); background: var(--accent-dim); border: 1px solid var(--border-color); font-size: var(--font-size-md); color: var(--text-primary); }
-.st-test-error { margin-top: 10px; padding: 9px 12px; border-radius: var(--radius-sm); background: var(--diagnostic-error-bg); color: var(--danger); font-size: var(--font-size-md); }
-.st-test-result { margin-top: 10px; padding: 12px; border-radius: var(--radius-sm); background: var(--bg-tertiary); border: 1px solid var(--border-color); font-size: var(--font-size-md); line-height: 1.7; white-space: pre-wrap; color: var(--text-primary); max-height: 240px; overflow-y: auto; }
+.skill-ui-message { margin-bottom: 12px; padding: var(--space-4) var(--space-5); border-radius: var(--radius-sm); background: var(--accent-dim); border: 1px solid var(--border-color); font-size: var(--font-size-md); color: var(--text-primary); }
+.st-test-error { margin-top: 10px; padding: var(--space-4) var(--space-5); border-radius: var(--radius-sm); background: var(--diagnostic-error-bg); color: var(--danger); font-size: var(--font-size-md); }
+.st-test-result { margin-top: 10px; padding: var(--space-5); border-radius: var(--radius-sm); background: var(--bg-tertiary); border: 1px solid var(--border-color); font-size: var(--font-size-md); line-height: 1.7; white-space: pre-wrap; color: var(--text-primary); max-height: 240px; overflow-y: auto; }
+.st-folder-report { margin-top: 10px; padding: var(--space-4); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-elevated); display: flex; flex-direction: column; gap: var(--space-3); }
+.st-folder-report-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); font-size: var(--font-size-sm); color: var(--text-secondary); }
+.st-folder-status { font-weight: 600; color: var(--text-primary); }
+.st-folder-status.is-success { color: var(--success); }
+.st-folder-status.is-degraded { color: var(--warning); }
+.st-folder-status.is-blocked, .st-folder-status.is-failed, .st-folder-status.is-load-failed { color: var(--danger); }
+.st-folder-diagnostics { display: flex; flex-direction: column; gap: var(--space-2); max-height: 150px; overflow-y: auto; }
+.st-folder-diagnostic { padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-secondary); font-size: var(--font-size-sm); line-height: 1.5; overflow-wrap: anywhere; }
+.st-folder-diagnostic.is-warning { background: var(--diagnostic-warning-bg); color: var(--warning); }
+.st-folder-diagnostic.is-error { background: var(--diagnostic-error-bg); color: var(--danger); }
+.st-folder-request summary { cursor: pointer; color: var(--text-secondary); font-size: var(--font-size-sm); }
+.st-folder-request-message { margin-top: var(--space-2); }
+.st-folder-request-message span { display: block; margin-bottom: var(--space-1); color: var(--text-secondary); font-size: var(--font-size-sm); }
+.st-folder-request-message pre { margin: 0; padding: var(--space-3); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary); font-size: var(--font-size-sm); line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 160px; overflow-y: auto; }
 .skill-edit-overlay { position: fixed; inset: 0; padding: var(--modal-gutter); background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal-nested); }
-.skill-edit-modal { position: relative; z-index: var(--z-modal-nested-content); width: min(var(--modal-width-lg), 100%); max-height: var(--modal-max-height); min-height: 0; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--modal-padding); display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+.skill-edit-modal { position: relative; z-index: var(--z-modal-nested-content); width: min(var(--modal-width-lg), 100%); max-height: var(--modal-max-height); min-height: 0; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--modal-padding); display: flex; flex-direction: column; gap: var(--space-4); overflow-y: auto; }
 .sem-header { display: flex; justify-content: space-between; font-size: var(--font-size-lg); font-weight: 600; margin-bottom: 8px; }
 .sem-header button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: var(--font-size-xl); }
-.sem-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 7px 12px; font-size: var(--font-size-md); }
-.sem-textarea { min-height: 300px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 9px 12px; font-size: var(--font-size-md); resize: vertical; font-family: monospace; }
-.sem-btn { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: var(--radius-sm); padding: 9px 24px; cursor: pointer; font-size: var(--font-size-md); margin-top: 8px; }
+.sem-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-3) var(--space-5); font-size: var(--font-size-md); }
+.sem-textarea { min-height: 300px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-4) var(--space-5); font-size: var(--font-size-md); resize: vertical; font-family: monospace; }
+.sem-btn { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: var(--radius-sm); padding: var(--space-4) var(--space-8); cursor: pointer; font-size: var(--font-size-md); margin-top: 8px; }
 .skill-import-overlay { position: fixed; inset: 0; padding: var(--modal-gutter); background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal-nested); }
 .skill-import-modal { width: min(680px, 100%); max-width: 100%; min-width: 0; max-height: var(--modal-max-height); overflow-y: auto; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--modal-padding); color: var(--text-primary); box-shadow: var(--shadow-lg); }
-.skill-import-source { margin: 0 0 12px; color: var(--text-muted); font-size: var(--font-size-sm); overflow-wrap: anywhere; }
-.skill-import-origin { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 12px; min-width: 0; }
-.skill-import-chip { min-width: 0; max-width: 100%; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: var(--radius-xs); color: var(--text-secondary); background: var(--bg-tertiary); font-size: var(--font-size-sm); overflow-wrap: anywhere; }
+.skill-import-source { margin: 0 0 var(--space-5); color: var(--text-muted); font-size: var(--font-size-sm); overflow-wrap: anywhere; }
+.skill-import-origin { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: -var(--space-2) 0 var(--space-5); min-width: 0; }
+.skill-import-chip { min-width: 0; max-width: 100%; padding: var(--space-2) var(--space-4); border: 1px solid var(--border-color); border-radius: var(--radius-xs); color: var(--text-secondary); background: var(--bg-tertiary); font-size: var(--font-size-sm); overflow-wrap: anywhere; }
 .skill-import-chip.is-standard { border-color: var(--success); color: var(--success); }
 .skill-import-chip.is-compatible { border-color: var(--warning); color: var(--warning); }
 .skill-import-section-title { margin-bottom: 6px; color: var(--text-secondary); font-size: var(--font-size-sm); font-weight: 600; }
-.skill-import-fields { display: grid; gap: 4px; margin-bottom: 12px; padding: 9px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-tertiary); }
-.skill-import-field { display: grid; grid-template-columns: minmax(90px, 0.8fr) minmax(70px, 0.55fr) minmax(0, 1.4fr); gap: 8px; min-width: 0; font-size: var(--font-size-sm); }
+.skill-import-fields { display: grid; gap: var(--space-2); margin-bottom: 12px; padding: var(--space-4) var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-tertiary); }
+.skill-import-field { display: grid; grid-template-columns: minmax(90px, 0.8fr) minmax(70px, 0.55fr) minmax(0, 1.4fr); gap: var(--space-4); min-width: 0; font-size: var(--font-size-sm); }
 .skill-import-field > * { min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
 .skill-import-field-name { color: var(--text-primary); }
 .skill-import-field-origin { color: var(--accent); }
 .skill-import-field-source { color: var(--text-muted); }
-.skill-import-diagnostics { display: grid; gap: 4px; margin-bottom: 12px; }
-.skill-import-diagnostic { display: flex; gap: 6px; min-width: 0; padding: 6px 8px; border-left: 3px solid var(--border-color); background: var(--bg-tertiary); font-size: var(--font-size-sm); overflow-wrap: anywhere; }
+.skill-import-diagnostics { display: grid; gap: var(--space-2); margin-bottom: 12px; }
+.skill-import-diagnostic { display: flex; gap: var(--space-3); min-width: 0; padding: var(--space-3) var(--space-4); border-left: 3px solid var(--border-color); background: var(--bg-tertiary); font-size: var(--font-size-sm); overflow-wrap: anywhere; }
 .skill-import-diagnostic span { min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
 .skill-import-diagnostic.is-info { border-color: var(--accent); }
 .skill-import-diagnostic.is-warning { border-color: var(--warning); }
 .skill-import-diagnostic.is-error { border-color: var(--danger); }
-.skill-import-unknown { margin-bottom: 12px; padding: 8px 10px; border: 1px solid var(--warning); border-radius: var(--radius-sm); color: var(--warning); background: var(--bg-tertiary); font-size: var(--font-size-sm); overflow-wrap: anywhere; }
-.skill-import-issues { display: grid; gap: 6px; margin-bottom: 12px; padding: 9px 12px; border: 1px solid var(--danger); border-radius: var(--radius-sm); background: var(--diagnostic-error-bg); }
+.skill-import-unknown { margin-bottom: 12px; padding: var(--space-4) var(--space-5); border: 1px solid var(--warning); border-radius: var(--radius-sm); color: var(--warning); background: var(--bg-tertiary); font-size: var(--font-size-sm); overflow-wrap: anywhere; }
+.skill-import-issues { display: grid; gap: var(--space-3); margin-bottom: 12px; padding: var(--space-4) var(--space-5); border: 1px solid var(--danger); border-radius: var(--radius-sm); background: var(--diagnostic-error-bg); }
 .skill-import-summary { margin-bottom: 8px; color: var(--text-secondary); font-size: var(--font-size-md); }
-.skill-import-plan { display: grid; gap: 6px; max-height: 260px; overflow-y: auto; padding: 8px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-input); }
-.skill-import-plan-item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, auto); align-items: center; gap: 8px; min-width: 0; padding: 7px 8px; border-bottom: 1px solid var(--border-color); }
+.skill-import-plan { display: grid; gap: var(--space-3); max-height: 260px; overflow-y: auto; padding: var(--space-4); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-input); }
+.skill-import-plan-item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, auto); align-items: center; gap: var(--space-4); min-width: 0; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border-color); }
 .skill-import-plan-item:last-child { border-bottom: 0; }
 .skill-import-plan-item > * { min-width: 0; overflow-wrap: anywhere; }
 .skill-import-id { color: var(--text-muted); font-family: monospace; font-size: var(--font-size-sm); }
 .skill-import-plan-item .is-add { color: var(--success); }
 .skill-import-plan-item .is-update { color: var(--warning); }
 .skill-import-plan-item .is-skip { color: var(--text-muted); }
-.skill-import-strategy { display: grid; grid-template-columns: minmax(0, 120px) minmax(0, 1fr); align-items: center; gap: 8px; margin-top: 12px; min-width: 0; }
+.skill-import-strategy { display: grid; grid-template-columns: minmax(0, 120px) minmax(0, 1fr); align-items: center; gap: var(--space-4); margin-top: 12px; min-width: 0; }
 .skill-import-strategy select { width: 100%; min-width: 0; }
 @media (max-width: 560px) {
-  .skill-import-plan-item { grid-template-columns: 1fr; gap: 3px; }
+  .skill-import-plan-item { grid-template-columns: 1fr; gap: var(--space-3); }
   .skill-import-strategy { grid-template-columns: 1fr; }
-  .skill-import-field { grid-template-columns: 1fr; gap: 2px; }
+  .skill-import-field { grid-template-columns: 1fr; gap: var(--space-1); }
 }
 
 /* === 联动技能列表 === */
-.sf-linked-list { display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow-y: auto; padding: 8px; background: var(--bg-tertiary); border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
-.sf-linked-item { display: flex; align-items: center; gap: 6px; font-size: var(--font-size-md); color: var(--text-primary); cursor: pointer; }
+.sf-linked-list { display: flex; flex-direction: column; gap: var(--space-2); max-height: 120px; overflow-y: auto; padding: var(--space-4); background: var(--bg-tertiary); border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
+.sf-linked-item { display: flex; align-items: center; gap: var(--space-3); font-size: var(--font-size-md); color: var(--text-primary); cursor: pointer; }
 .sf-linked-item input[type=checkbox] { margin: 0; cursor: pointer; }
 
 /* === 自定义变量 === */
-.sf-custom-vars { display: flex; flex-direction: column; gap: 6px; padding: 8px; background: var(--bg-tertiary); border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
-.sf-custom-var-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-width: 0; }
+.sf-custom-vars { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); background: var(--bg-tertiary); border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
+.sf-custom-var-row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; min-width: 0; }
 .sf-cv-key { flex: 1; min-width: 0; font-family: monospace; }
 .sf-cv-value { flex: 2; min-width: 0; }
 
 /* === 模板解析预览 === */
-.sf-resolved-preview { padding: 9px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: var(--font-size-md); max-height: 220px; overflow-y: auto; margin-bottom: 4px; }
+.sf-resolved-preview { padding: var(--space-4) var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: var(--font-size-md); max-height: 220px; overflow-y: auto; margin-bottom: 4px; }
 .sf-resolved-preview pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: monospace; line-height: 1.6; }
 
 /* === 变量详情 === */
-.var-details { margin: 8px 0; padding: 9px 12px; background: var(--accent-dim); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--font-size-md); color: var(--text-secondary); }
+.var-details { margin: var(--space-4) 0; padding: var(--space-4) var(--space-5); background: var(--accent-dim); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--font-size-md); color: var(--text-secondary); }
 .var-details summary { cursor: pointer; margin-bottom: 4px; font-weight: 500; }
-.var-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
-.btn-var { display: inline-block; padding: 3px 8px; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-primary); cursor: pointer; font-family: monospace; }
+.var-tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: 4px; }
+.btn-var { display: inline-block; padding: var(--space-3) var(--space-4); background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-primary); cursor: pointer; font-family: monospace; }
 .btn-var:hover { border-color: var(--accent); color: var(--accent); }
 
 /* === 双栏模板编辑器 === */
-.sf-template-wrapper { display: flex; gap: 8px; min-height: 280px; }
-.sf-template-input { flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: var(--font-size-md); font-family: monospace; resize: vertical; line-height: 1.6; }
-.sf-template-preview { flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary); font-size: var(--font-size-md); overflow-y: auto; max-height: 350px; line-height: 1.6; }
+.sf-template-wrapper { display: flex; gap: var(--space-4); min-height: 280px; }
+.sf-template-input { flex: 1; min-width: 0; padding: var(--space-4) var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: var(--font-size-md); font-family: monospace; resize: vertical; line-height: 1.6; }
+.sf-template-preview { flex: 1; min-width: 0; padding: var(--space-4) var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary); font-size: var(--font-size-md); overflow-y: auto; max-height: 350px; line-height: 1.6; }
 .sf-template-preview:empty::before { content: 'Markdown 预览区（实时渲染）'; color: var(--text-muted); font-style: italic; }
 .sf-template-preview :deep(h1) { font-size: 1.3em; margin: 0.5em 0 0.3em; border-bottom: 1px solid var(--border-color); padding-bottom: 2px; }
 .sf-template-preview :deep(h2) { font-size: 1.15em; margin: 0.5em 0 0.3em; border-bottom: 1px solid var(--border-color); padding-bottom: 2px; }
 .sf-template-preview :deep(h3) { font-size: 1.05em; margin: 0.5em 0 0.3em; }
-.sf-template-preview :deep(code) { background: var(--bg-elevated); padding: 1px 4px; border-radius: var(--radius-xs); font-family: monospace; font-size: 0.9em; }
-.sf-template-preview :deep(pre) { background: var(--bg-elevated); padding: 8px; border-radius: var(--radius-xs); overflow-x: auto; margin: 0.5em 0; }
+.sf-template-preview :deep(code) { background: var(--bg-elevated); padding: var(--space-1) var(--space-2); border-radius: var(--radius-xs); font-family: monospace; font-size: 0.9em; }
+.sf-template-preview :deep(pre) { background: var(--bg-elevated); padding: var(--space-4); border-radius: var(--radius-xs); overflow-x: auto; margin: 0.5em 0; }
 .sf-template-preview :deep(pre code) { background: none; padding: 0; }
 .sf-template-preview :deep(ul) { margin: 0.3em 0; padding-left: 1.5em; }
 .sf-template-preview :deep(li) { margin: 0.15em 0; }

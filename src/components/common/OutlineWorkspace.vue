@@ -5,17 +5,17 @@
         <span>大纲工作台</span>
         <div class="ow-config-bar">
           <label class="ow-config-label" for="ow-agent-select">智能体</label>
-          <select id="ow-agent-select" v-model="workspaceAgentId" class="ow-config-select" @change="handleAgentChange">
+          <select id="ow-agent-select" v-model="workspaceAgentId" class="select-standard" @change="handleAgentChange">
             <option value="">不使用</option>
             <option v-for="agent in agentStore.agents" :key="agent.id" :value="agent.id">{{ agent.name }}</option>
           </select>
           <label class="ow-config-label" for="ow-skill-select">技能</label>
-          <select id="ow-skill-select" v-model="selectedSkillId" class="ow-config-select ow-skill-select" @change="addSelectedSkill">
+          <select id="ow-skill-select" v-model="selectedSkillId" class="select-standard ow-skill-select" @change="addSelectedSkill">
             <option value="">无</option>
-            <option v-for="skill in skillStore.skills" :key="skill.id" :value="skill.id">{{ skill.name }}</option>
+            <option v-for="skill in skillStore.skills" :key="skill.id" :value="skill.id">{{ skillStore.displaySkillName(skill) }}</option>
           </select>
           <label class="ow-config-label" for="ow-skill-mode">模式</label>
-          <select id="ow-skill-mode" v-model="workspaceSkillMode" class="ow-config-select ow-mode-select" @change="handleModeChange">
+          <select id="ow-skill-mode" v-model="workspaceSkillMode" class="select-standard ow-mode-select" @change="handleModeChange">
             <option value="compose">并行</option>
             <option value="chain">串行</option>
           </select>
@@ -109,6 +109,14 @@
             </div>
             <div v-for="(msg, i) in messages" :key="i" class="ow-msg" :class="msg.role">
               <div class="ow-msg-bubble" v-html="renderMarkdown(msg.content)"></div>
+              <RealSkillDiagnosticsPanel
+                v-if="msg.role === 'assistant' && msg.skillRunDiagnostics"
+                :status="msg.skillRunDiagnostics.status"
+                :diagnostics="msg.skillRunDiagnostics.diagnostics"
+                :request-messages="msg.skillRunDiagnostics.requestMessages"
+                :budget="msg.skillRunDiagnostics.budget"
+                :from-cache="msg.skillRunDiagnostics.fromCache"
+              />
               <div
                 v-if="msg.role === 'assistant' && msg.outlineToolPlan?.steps?.length"
                 class="ow-tool-plan"
@@ -209,7 +217,7 @@
               class="ow-skill-chip"
             >
               <span class="ow-skill-seq">{{ index + 1 }}</span>
-              <span class="ow-skill-name">{{ skill.name }}</span>
+              <span class="ow-skill-name">{{ skillStore.displaySkillName(skill) }}</span>
               <select
                 v-if="workspaceSkillMode === 'chain'"
                 v-model="workspaceSkillAgents[`0-${skill.id}`]"
@@ -260,14 +268,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted, watch } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useProjectStore } from '../../stores/project'
 import { useProviderStore } from '../../stores/provider'
 import { usePipelineStore } from '../../stores/pipeline'
 import { useSkillStore } from '../../stores/skill'
 import { useAgentStore } from '../../stores/agent'
 import { migrateSkillAgentBindings } from '../../services/skillAgentBinding'
-import { runWorkspaceSkills, type WorkspaceSkillEngineAdapter, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
+import { runWorkspaceSkills, type WorkspaceSkillEngineAdapter, type WorkspaceSkillRunMeta, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
+import RealSkillDiagnosticsPanel from './RealSkillDiagnosticsPanel.vue'
+import { createApiCallBudget } from '../../services/apiCallBudget'
 import { importFile } from '../../services/file-import'
 import { useAiTools } from '../../composables/useAiTools'
 import { useAppConfirm } from '../../composables/useAppConfirm'
@@ -317,14 +327,7 @@ const pendingOutlineBatchMessage = ref<number | null>(null)
 
 const OUTLINE_WORKSPACE_ID = 'outline'
 const OUTLINE_SESSION_ID = 'outline'
-let lastWorkspaceSkillMeta: {
-  finishReason?: string
-  requestMessages: Array<{ role: string; content: string }>
-  providerId?: string
-  model: string
-  agentId?: string
-  skillId: string
-} | null = null
+let lastWorkspaceSkillMeta: WorkspaceSkillRunMeta | null = null
 
 function outlineProjectId() {
   return String(projectStore.currentProjectId || 'default')
@@ -511,11 +514,12 @@ function canRollbackOutlineBatch(record: unknown) {
 
 function getWorkspaceTemplates(): WorkspaceSkillTemplate[] {
   return selectedWorkspaceSkills.value
-    .filter(skill => skill && skill.template)
+    .filter(skill => skill && (skill.template || (skill.format === 'folder' && skill.folderPath)))
     .map(skill => ({
       id: skill.id,
-      name: skill.name,
+      name: skillStore.displaySkillName(skill),
       template: skill.template,
+      skill,
       customVars: skill.customVars || {},
       injectMode: skill.injectMode || 'system_prefix',
       outputFormat: skill.outputFormat || 'text',
@@ -595,6 +599,14 @@ onMounted(async () => {
   workspaceSkillMode.value = config.mode
   workspaceSkillAgents.value = migrateSkillAgentBindings(config.skillAgents, { 0: config.skillIds })
   window.addEventListener('diff-locate', handleDiffLocate)
+  window.addEventListener('diff-closed', handleDiffClosed)
+  window.addEventListener('diff-applied', handleDiffApplied)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('diff-locate', handleDiffLocate)
+  window.removeEventListener('diff-closed', handleDiffClosed)
+  window.removeEventListener('diff-applied', handleDiffApplied)
 })
 
 function handleDiffLocate(event: Event) {
@@ -997,10 +1009,10 @@ function rollbackOutlineBatch(messageIndex: number) {
   setTimeout(() => { saveFeedback.value = '' }, 2500)
 }
 
-window.addEventListener('diff-closed', () => {
+function handleDiffClosed() {
   pendingBatch.value = null
   pendingOutlineBatchMessage.value = null
-})
+}
 
 function applyPendingEdit() {
   const command = pendingEdit.value
@@ -1364,6 +1376,7 @@ async function askAi(requestText: string) {
       contextService: conversationContextService,
       adapter: createWorkspaceSkillAdapter(),
       signal: generationController?.signal,
+      apiBudget: createApiCallBudget(8),
       callbacks: {
         onFirstChunk: () => {
           firstChunkSeen = true
@@ -1380,6 +1393,15 @@ async function askAi(requestText: string) {
     })
     responseText = result.text
     lastWorkspaceSkillMeta = result.meta
+    const skillRunDiagnostics = result.meta && (result.meta.diagnostics?.length || result.meta.status === 'degraded')
+      ? {
+          status: result.meta.status || 'success',
+          diagnostics: result.meta.diagnostics || [],
+          requestMessages: result.meta.requestMessages,
+          budget: result.meta.budget,
+          fromCache: result.meta.fromCache
+        }
+      : null
     if (!responseText.trim()) throw new Error('API 返回为空')
     flushStreamingRender()
     const requestTarget = createOutlineRequestTarget()
@@ -1404,6 +1426,7 @@ async function askAi(requestText: string) {
     projectStore.appendOutlineChat({
       role: 'assistant',
       content: responseText,
+      ...(skillRunDiagnostics ? { skillRunDiagnostics } : {}),
       ...(editBatch ? { outlineBatch: editBatch } : {}),
       ...(editBatch ? { outlineBatchTarget } : {}),
       ...(editBatch ? {
@@ -1472,7 +1495,7 @@ function handleEditorBeforeInput() {
 }
 
 let applyingOutlineBatch = false
-window.addEventListener('diff-applied', (event: Event) => {
+function handleDiffApplied(event: Event) {
   const detail = (event as CustomEvent).detail
   const plan = pendingBatch.value
   const messageIndex = pendingOutlineBatchMessage.value
@@ -1566,7 +1589,7 @@ window.addEventListener('diff-applied', (event: Event) => {
   } finally {
     applyingOutlineBatch = false
   }
-})
+}
 
 async function askPlainAi(requestText: string) {
   const provider = providerStore.activeGenerateProvider
@@ -1844,7 +1867,7 @@ function handleUnlockOutline() {
   box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
-  transition: width 0.18s ease, height 0.18s ease, border-radius 0.18s ease;
+  transition: width var(--duration-fast) var(--ease-standard), height var(--duration-fast) var(--ease-standard), border-radius var(--duration-fast) var(--ease-standard);
 }
 .ow-content.ows-fullscreen {
   width: 100vw;
@@ -1858,19 +1881,19 @@ function handleUnlockOutline() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 24px;
+  padding: var(--space-5) var(--space-8);
   border-bottom: 1px solid var(--border-color);
   font-size: var(--font-size-lg);
   font-weight: 600;
   flex-shrink: 0;
-  gap: 12px;
+  gap: var(--space-5);
 }
 .ow-config-bar {
   flex: 1 1 auto;
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-4);
   font-size: var(--font-size-sm);
   font-weight: 400;
 }
@@ -1878,25 +1901,25 @@ function handleUnlockOutline() {
   color: var(--text-secondary);
   white-space: nowrap;
 }
-.ow-config-select {
+.select-standard {
   min-width: 0;
   height: 28px;
-  padding: 2px 8px;
+  padding: var(--space-1) var(--space-4);
   background: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
 }
-.ow-config-select.ow-skill-select {
+.select-standard.ow-skill-select {
   flex: 1 1 140px;
 }
-.ow-config-select.ow-mode-select {
+.select-standard.ow-mode-select {
   flex: 0 1 92px;
 }
 .ow-header-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-4);
 }
 .ow-icon-btn {
   width: 30px;
@@ -1916,7 +1939,7 @@ function handleUnlockOutline() {
   color: var(--text-primary);
 }
 .ow-chat-toggle {
-  padding: 6px 14px;
+  padding: var(--space-3) var(--space-5);
   font-size: var(--font-size-md);
   font-weight: 500;
   border: 1px solid var(--accent-color);
@@ -1939,15 +1962,15 @@ function handleUnlockOutline() {
 .ow-editor {
   flex: 1.2;
   min-width: 0;
-  padding: 16px;
+  padding: var(--space-6);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-5);
 }
 .ow-editor-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-5);
   font-size: var(--font-size-md);
   font-weight: 600;
   color: var(--text-primary);
@@ -1968,7 +1991,7 @@ function handleUnlockOutline() {
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: var(--space-6);
   font-size: var(--font-size-md);
   line-height: 1.8;
   resize: none;
@@ -1982,7 +2005,7 @@ function handleUnlockOutline() {
 
 .ow-tool-plan {
   margin-top: 8px;
-  padding: 8px 10px;
+  padding: var(--space-4) var(--space-5);
   border-left: 3px solid var(--border-color);
   background: var(--bg-secondary);
   color: var(--text-secondary);
@@ -1999,7 +2022,7 @@ function handleUnlockOutline() {
   margin: 0;
   padding-left: 18px;
   display: grid;
-  gap: 2px;
+  gap: var(--space-1);
 }
 .editor-toolbar {
   display: flex;
@@ -2011,20 +2034,20 @@ function handleUnlockOutline() {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--space-2);
 }
 .ow-find-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 0;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
   flex-shrink: 0;
 }
 .ow-find-input {
   width: min(260px, 35%);
   min-width: 120px;
   height: 30px;
-  padding: 4px 8px;
+  padding: var(--space-2) var(--space-4);
   color: var(--text-primary);
   background: var(--bg-input);
   border: 1px solid var(--border-color);
@@ -2046,7 +2069,7 @@ function handleUnlockOutline() {
 .ow-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 12px;
+  padding: var(--space-5);
   min-height: 0;
 }
 .ow-msg {
@@ -2073,7 +2096,7 @@ function handleUnlockOutline() {
   border: 1px solid var(--border-color);
 }
 .ow-msg-streaming .ow-streaming-status {
-  margin: 0 0 4px 2px;
+  margin: 0 0 var(--space-2) var(--space-1);
   color: var(--text-secondary);
   font-size: var(--font-size-xs);
 }
@@ -2082,14 +2105,14 @@ function handleUnlockOutline() {
 }
 .ow-msg-actions {
   display: flex;
-  gap: 4px;
+  gap: var(--space-2);
   margin-top: 6px;
   padding-left: 2px;
 }
 .ow-edit-command {
   display: inline-block;
   margin-top: 6px;
-  padding: 4px 8px;
+  padding: var(--space-2) var(--space-4);
   color: var(--accent-color);
   background: var(--accent-dim);
   border: 1px solid var(--border-color);
@@ -2104,7 +2127,7 @@ function handleUnlockOutline() {
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
   border-radius: var(--radius-xs);
-  padding: 2px 8px;
+  padding: var(--space-1) var(--space-4);
   font-size: var(--font-size-sm);
   cursor: pointer;
   transition: var(--transition-fast);
@@ -2115,8 +2138,8 @@ function handleUnlockOutline() {
 }
 .ow-input-row {
   display: flex;
-  gap: 6px;
-  padding: 10px 12px;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-5);
   border-top: 1px solid var(--border-color);
   flex-shrink: 0;
 }
@@ -2127,7 +2150,7 @@ function handleUnlockOutline() {
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  padding: 4px 10px;
+  padding: var(--space-2) var(--space-5);
   font-size: var(--font-size-md);
   height: 28px;
   outline: none;
@@ -2137,7 +2160,7 @@ function handleUnlockOutline() {
   color: var(--text-on-accent);
   border: none;
   border-radius: var(--radius-sm);
-  padding: 0 12px;
+  padding: 0 var(--space-5);
   height: 28px;
   cursor: pointer;
   font-size: var(--font-size-xs);
@@ -2152,8 +2175,8 @@ function handleUnlockOutline() {
 .ow-footer {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-8);
   border-top: 1px solid var(--border-color);
   justify-content: flex-end;
   flex-shrink: 0;
@@ -2164,23 +2187,23 @@ function handleUnlockOutline() {
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-4);
 }
 .ow-selected-skills {
   flex: 1 1 auto;
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-3);
   overflow: hidden;
 }
 .ow-skill-chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--space-2);
   max-width: 220px;
   height: 28px;
-  padding: 0 6px;
+  padding: 0 var(--space-3);
   background: var(--bg-panel);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
@@ -2229,7 +2252,7 @@ function handleUnlockOutline() {
 .save-feedback {
   font-size: var(--font-size-sm);
   color: var(--success);
-  padding: 0 8px;
+  padding: 0 var(--space-4);
 }
 .ow-resize-handle {
   height: 6px;
@@ -2243,13 +2266,13 @@ function handleUnlockOutline() {
 }
 .editor-toolbar-group {
   display: flex;
-  gap: 4px;
+  gap: var(--space-2);
 }
-.btn-import { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); font-weight: 500; padding: 6px 16px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s ease; } .btn-import:hover { background: var(--accent); color: var(--text-on-accent); } .btn-import:active { transform: scale(0.97); }
+.btn-import { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); font-weight: 500; padding: var(--space-3) var(--space-6); border-radius: var(--radius-sm); cursor: pointer; transition: all var(--duration-fast) var(--ease-standard); } .btn-import:hover { background: var(--accent); color: var(--text-on-accent); } .btn-import:active { transform: scale(0.97); }
 .ow-tool-stream-toggle { cursor: pointer; color: var(--text-muted); font-size: var(--font-size-xs); margin-left: 4px; }
-.ow-tool-stream { margin-top: 4px; padding: 4px 8px; border-left: 2px solid var(--accent, #4a9); background: var(--bg-secondary); }
-.ow-tool-stream-item { display: flex; align-items: center; gap: 4px; font-size: var(--font-size-sm); }
-.ow-tool-stream-item.tool_error { color: var(--chat-status-error, #e54); }
+.ow-tool-stream { margin-top: 4px; padding: var(--space-2) var(--space-4); border-left: 2px solid var(--accent); background: var(--bg-secondary); }
+.ow-tool-stream-item { display: flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); }
+.ow-tool-stream-item.tool_error { color: var(--chat-status-error); }
 .ow-tool-stream-icon { flex: 0 0 auto; }
 .ow-tool-stream-name { font-weight: 500; }
 .ow-tool-stream-desc { color: var(--text-muted); flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

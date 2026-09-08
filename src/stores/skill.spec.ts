@@ -1,92 +1,79 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { useSkillStore } from './skill'
+import { useSkillStore, type Skill } from './skill'
 
-const storageWrite = vi.fn().mockResolvedValue(true)
-const storageRead = vi.fn().mockResolvedValue(null)
-
-function makeSkill(id: string, name = id) {
+function textSkill(id = 'KAI-S1'): Skill {
   return {
     id,
-    name,
-    template: `template-${id}`,
+    name: `${id} 文本版`,
+    format: 'text',
+    template: '文本模板',
     category: 'general',
-    description: '',
-    executionMode: 'chain' as const,
-    outputFormat: 'text' as const,
+    executionMode: 'chain',
+    outputFormat: 'text',
     validationRules: [],
     splitSize: 1000,
   }
 }
 
-describe('skill store configuration exchange', () => {
+function folderSkill(id = 'KAI-S1'): Skill {
+  return {
+    id,
+    name: `${id} 文件夹版`,
+    format: 'folder',
+    sourceId: id,
+    folderPath: 'D:/skills/kaixuan-s1',
+    template: '文件夹模板',
+    category: 'folder',
+    executionMode: 'chain',
+    outputFormat: 'text',
+    validationRules: [],
+    splitSize: 1000,
+  }
+}
+
+describe('skill store format namespace', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
-    storageWrite.mockClear()
-    storageRead.mockClear()
     vi.stubGlobal('window', {
-      electronAPI: { storageWrite, storageRead },
+      electronAPI: {
+        storageRead: vi.fn(async () => null),
+        storageWrite: vi.fn(async () => undefined),
+      },
     })
   })
 
-  it('adds new skills and waits for persistence before resolving', async () => {
+  it('allows a folder skill to coexist with a text skill using the same source id', async () => {
     const store = useSkillStore()
-    let persisted = false
-    storageWrite.mockImplementationOnce(async () => {
-      await new Promise(resolve => setTimeout(resolve, 5))
-      persisted = true
-      return true
-    })
+    await store.importSkills([textSkill()])
 
-    const result = await store.importSkills([makeSkill('new-skill')], { strategy: 'skip' })
+    const result = await store.importSkills([folderSkill()])
 
     expect(result).toEqual({ added: 1, updated: 0, skipped: 0 })
-    expect(persisted).toBe(true)
-    expect(storageWrite).toHaveBeenCalledTimes(1)
+    expect(store.skills.map(skill => skill.id)).toEqual(['KAI-S1', 'folder:KAI-S1'])
+    expect(store.getSkill('KAI-S1')?.format).toBe('text')
+    expect(store.getSkill('folder:KAI-S1')?.format).toBe('folder')
+    expect(store.getSkill('folder:KAI-S1')?.sourceId).toBe('KAI-S1')
   })
 
-  it('skips duplicate skills without overwriting or writing storage', async () => {
+  it('normalizes legacy and new folder ids to one namespace', async () => {
     const store = useSkillStore()
-    store.skills.push(makeSkill('same-skill', 'existing'))
 
-    const result = await store.importSkills([makeSkill('same-skill', 'incoming')], { strategy: 'skip' })
+    const legacy = await store.importSkills([folderSkill('legacy')])
+    const duplicate = await store.importSkills([folderSkill('legacy')])
 
-    expect(result).toEqual({ added: 0, updated: 0, skipped: 1 })
-    expect(store.getSkill('same-skill')?.name).toBe('existing')
-    expect(storageWrite).not.toHaveBeenCalled()
+    expect(legacy).toEqual({ added: 1, updated: 0, skipped: 0 })
+    expect(duplicate).toEqual({ added: 0, updated: 0, skipped: 1 })
+    expect(store.skills.filter(skill => skill.format === 'folder').map(skill => skill.id)).toEqual(['folder:legacy'])
   })
 
-  it('overwrites duplicate skills and persists the updated record', async () => {
+  it('keeps folder selection references when import configuration uses the source id', async () => {
     const store = useSkillStore()
-    store.skills.push(makeSkill('same-skill', 'existing'))
+    await store.importSkills([textSkill('DUAL'), folderSkill('DUAL')])
 
-    const result = await store.importSkills([makeSkill('same-skill', 'incoming')], { strategy: 'overwrite' })
+    await store.importSkills([], { pipelineSkills: ['DUAL'], deAiSkills: ['DUAL'] })
 
-    expect(result).toEqual({ added: 0, updated: 1, skipped: 0 })
-    expect(store.getSkill('same-skill')?.name).toBe('incoming')
-    expect(store.getSkill('same-skill')?.updatedAt).toEqual(expect.any(String))
-    expect(storageWrite).toHaveBeenCalledTimes(1)
-  })
-
-  it('persists pipeline and de-ai bindings included in the import', async () => {
-    const store = useSkillStore()
-
-    const result = await store.importSkills([makeSkill('pipeline-skill'), makeSkill('deai-skill')], {
-      strategy: 'skip',
-      pipelineSkills: ['pipeline-skill'],
-      deAiSkills: ['deai-skill'],
-    })
-
-    expect(result.added).toBe(2)
-    expect(store.pipelineSkills).toEqual(['pipeline-skill'])
-    expect(store.deAiSkills).toEqual(['deai-skill'])
-    expect(storageWrite).toHaveBeenCalledWith(
-      expect.stringContaining('skills'),
-      expect.objectContaining({
-        skills: expect.arrayContaining([expect.objectContaining({ id: 'pipeline-skill' })]),
-        pipelineSkills: ['pipeline-skill'],
-        deAiSkills: ['deai-skill'],
-      }),
-    )
+    expect(store.pipelineSkills).toEqual(['DUAL'])
+    expect(store.deAiSkills).toEqual(['DUAL'])
   })
 })

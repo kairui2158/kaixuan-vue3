@@ -5,6 +5,9 @@ import { useAgentStore } from '../stores/agent'
 import { DeAiProcessor } from '../services/de-ai.js'
 import { DeAiSamples } from '../services/deai-samples.js'
 import { getAiService } from '../services/aiService'
+import { routeSkill } from '../services/skillRouter'
+import { createApiCallBudget } from '../services/apiCallBudget'
+import type { RealSkillAgentContext } from '../services/realSkillTypes'
 
 /**
  * Renderer-process bridge for DeAI processing.
@@ -16,7 +19,12 @@ export function useDeAi() {
   const skillStore = useSkillStore()
   const agentStore = useAgentStore()
 
-async function callAiApi(systemPrompt: string, userText: string, useVerify?: boolean): Promise<string> {
+async function callAiApi(
+    systemPrompt: string,
+    userText: string,
+    useVerify?: boolean,
+    agent?: RealSkillAgentContext | null
+  ): Promise<string> {
     const purpose = useVerify ? 'verify' as const : 'rewrite' as const
     const aiService = await getAiService()
     const messages = [
@@ -29,6 +37,9 @@ async function callAiApi(systemPrompt: string, userText: string, useVerify?: boo
         messages,
         stream: false,
         retry: true,
+        model: agent?.model || undefined,
+        temperature: agent?.temperature,
+        maxTokens: agent?.maxTokens,
         meta: { source: 'useDeAi.callAiApi' }
       })
       return result.text || ''
@@ -51,6 +62,58 @@ async function callAiApi(systemPrompt: string, userText: string, useVerify?: boo
     return agent || null
   }
 
+  function getSkillAgentConfig(agentId: string | null): RealSkillAgentContext | null {
+    const agent = getAgentConfig(agentId)
+    if (!agent) return null
+    return {
+      id: agent.id,
+      systemPrompt: agent.systemPrompt,
+      model: agent.model,
+      temperature: agent.temperature,
+      maxTokens: agent.maxTokens
+    }
+  }
+
+  async function runSkillStep(
+    skillId: string,
+    text: string,
+    agentId: string | null,
+    budget: ReturnType<typeof createApiCallBudget>,
+    useVerify = false
+  ): Promise<string> {
+    const skill = skillStore.skills.find(s => s.id === skillId)
+    if (!skill) return text
+    const agent = getSkillAgentConfig(agentId)
+
+    if (skill.format === 'folder' && skill.folderPath) {
+      const result = await routeSkill(skill, {
+        input: text,
+        agent,
+        purpose: useVerify ? 'verify' : 'rewrite',
+        budget,
+        skillId: skill.id
+      })
+      if (result.mode === 'folder' && result.folderResult) {
+        if (result.folderResult.status === 'degraded') {
+          const warning = result.folderResult.diagnostics
+            .map(item => item.message)
+            .filter(Boolean)
+            .join('；')
+          deAiStore.updateProgress(
+            Math.min(88, Math.max(1, deAiStore.progress)),
+            `${skill.name || skill.id} 校验重试后降级${warning ? '：' + warning.slice(0, 120) : ''}`
+          )
+        }
+        return result.folderResult.output
+      }
+      const folderError = result.folderResult?.errors?.[0] || result.fallbackReason || '文件夹技能执行失败'
+      throw new Error(folderError)
+    }
+
+    const systemPrompt = [agent?.systemPrompt?.trim(), skill.template.trim()].filter(Boolean).join('\n\n')
+    return await callAiApi(systemPrompt || skill.template, text, useVerify, agent)
+  }
+
   function extractFirstSubject(text: string): string {
     if (!text) return ''
     const firstSentence = text.split(/[。！？\n]/)[0] || text.slice(0, 50)
@@ -66,9 +129,10 @@ async function callAiApi(systemPrompt: string, userText: string, useVerify?: boo
     let stepIdx = 0
 
     // GATE-10: S1 runs first on original text, then hardrule, then S2
+    const budget = createApiCallBudget(8)
+    const agentId = cfg.agentId || null
     if (skills.length > 0) {
       deAiStore.updateProgress(Math.round((stepIdx / totalSteps) * 100), 'S1 rewrite')
-      const s1Template = getSkillTemplate(skills[0])
       let s1Input = current
       // GATE-11: style samples injected to S1 (rewrite main), not S2
       try {
@@ -78,12 +142,12 @@ async function callAiApi(systemPrompt: string, userText: string, useVerify?: boo
           s1Input = '[style reference]\n' + selectedSamples.join('\n') + '\n\n--- text ---\n' + current
         }
       } catch {}
-      const s1Result = await callAiApi(s1Template, s1Input)
+      const s1Result = await runSkillStep(skills[0], s1Input, agentId, budget)
       // first_subject_different validator: if S1 first subject matches original, retry once
       const origSubj = extractFirstSubject(text)
       const s1Subj = extractFirstSubject(s1Result)
       if (origSubj && s1Subj && origSubj === s1Subj) {
-        const retryResult = await callAiApi(s1Template, s1Input)
+        const retryResult = await runSkillStep(skills[0], s1Input, agentId, budget)
         const retrySubj = extractFirstSubject(retryResult)
         if (retrySubj !== origSubj) {
           current = retryResult
@@ -107,8 +171,7 @@ async function callAiApi(systemPrompt: string, userText: string, useVerify?: boo
 
     if (skills.length > 1) {
       deAiStore.updateProgress(Math.round((stepIdx / totalSteps) * 100), 'S2 verify')
-      const s2Template = getSkillTemplate(skills[1])
-      const s2Result = await callAiApi(s2Template, current, true)
+      const s2Result = await runSkillStep(skills[1], current, agentId, budget, true)
       current = s2Result
       stepIdx++
     }
@@ -129,7 +192,8 @@ async function callAiApi(systemPrompt: string, userText: string, useVerify?: boo
   async function processSplitMerge(text: string, cfg: any): Promise<string> {
     const splitSize = cfg.splitSize || 1000
     const skills = cfg.skillIds || []
-    const outputTemplate = skills.length > 0 ? getSkillTemplate(skills[0]) : '你是文本重写专家。重写以下文本，保持原意不变。'
+    const budget = createApiCallBudget(8)
+    const agentId = cfg.agentId || null
 
     deAiStore.updateProgress(5, 'splitting')
     const segments: string[] = []
@@ -163,7 +227,7 @@ async function callAiApi(systemPrompt: string, userText: string, useVerify?: boo
     deAiStore.updateProgress(10, 'parallel rewrite ' + segments.length + ' segments')
 
     const promises = segments.map((seg, i) => {
-      return callAiApi(outputTemplate, seg).then(result => {
+      return runSkillStep(skills[0], seg, agentId, budget).then(result => {
         deAiStore.updateProgress(
           Math.round(10 + (i + 1) / segments.length * 80),
           'rewrite segment ' + (i + 1) + '/' + segments.length
@@ -189,8 +253,10 @@ async function callAiApi(systemPrompt: string, userText: string, useVerify?: boo
 
   async function processMultiStep(text: string, cfg: any): Promise<string> {
     const skills = cfg.skillIds || []
-    const s1Template = skills.length > 0 ? getSkillTemplate(skills[0]) : '你是文本分析专家。提取以下文本的事件核心。'
-    const verifyTemplate = skills.length > 1 ? getSkillTemplate(skills[1]) : '你是文本校验专家。对以下文本做最小修正。'
+    const budget = createApiCallBudget(8)
+    const agentId = cfg.agentId || null
+    const fallbackTemplate = '你是文本分析专家。提取以下文本的事件核心。'
+    const fallbackVerifyTemplate = '你是文本校验专家。对以下文本做最小修正。'
 
     deAiStore.updateProgress(15, 'extract event core')
     let s1Input = text
@@ -201,10 +267,12 @@ async function callAiApi(systemPrompt: string, userText: string, useVerify?: boo
         s1Input = '[style reference]\n' + selectedSamples.join('\n') + '\n\n--- text ---\n' + text
       }
     } catch {}
-    const eventCore = await callAiApi(
-      s1Template + '\n\n提取事件核心，输出结构化的事件列表。',
-      s1Input
-    )
+    let eventCore: string
+    if (skills.length > 0) {
+      eventCore = await runSkillStep(skills[0], s1Input, agentId, budget)
+    } else {
+      eventCore = await callAiApi(fallbackTemplate + '\n\n提取事件核心，输出结构化的事件列表。', s1Input)
+    }
 
     deAiStore.updateProgress(35, 'select perspective')
     const perspectiveResult = await callAiApi(
@@ -227,7 +295,12 @@ async function callAiApi(systemPrompt: string, userText: string, useVerify?: boo
     }
 
     deAiStore.updateProgress(86, 'S2 verify')
-    const verified = await callAiApi(verifyTemplate, reconstructed, true)
+    let verified: string
+    if (skills.length > 1) {
+      verified = await runSkillStep(skills[1], reconstructed, agentId, budget, true)
+    } else {
+      verified = await callAiApi(fallbackVerifyTemplate, reconstructed, true)
+    }
 
     deAiStore.updateProgress(88, 'multi-step complete')
     return verified

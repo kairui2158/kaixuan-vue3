@@ -1347,7 +1347,7 @@ let _aiServiceInstance: AiService | null = null
 
 /**
  * Returns the singleton AiService instance.
- * Lazily created on first call using dynamic imports to avoid circular deps.
+ * Lazily created on first call. Imports stay local to defer store creation until first use.
  * All callers should use this instead of createAiService() directly.
  */
 export async function getAiService(): Promise<AiService> {

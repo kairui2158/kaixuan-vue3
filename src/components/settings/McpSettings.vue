@@ -101,23 +101,23 @@ function removeServer(id: string) {
 </script>
 
 <style scoped>
-.mcp-settings { padding: 12px; }
+.mcp-settings { padding: var(--space-5); }
 .mcp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .mcp-header h4 { margin: 0; font-size: var(--font-size-lg); }
-.mcp-form { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px; }
-.mcp-form-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.mcp-form { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-5); margin-bottom: 12px; }
+.mcp-form-row { display: flex; align-items: center; gap: var(--space-5); margin-bottom: 10px; }
 .mcp-form-row label { width: 96px; font-size: var(--font-size-md); flex-shrink: 0; }
-.mcp-form-row input { flex: 1; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: var(--radius-xs); font-size: var(--font-size-md); }
-.mcp-form-actions { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.mcp-form-row input { flex: 1; padding: var(--space-4) var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-xs); font-size: var(--font-size-md); }
+.mcp-form-actions { display: flex; align-items: center; gap: var(--space-4); margin-top: 8px; }
 .mcp-test-ok { color: var(--success); font-size: var(--font-size-md); }
 .mcp-test-fail { color: var(--danger); font-size: var(--font-size-md); }
-.mcp-server-list { display: flex; flex-direction: column; gap: 8px; }
-.mcp-server-item { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px; }
-.mcp-server-header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.mcp-server-list { display: flex; flex-direction: column; gap: var(--space-4); }
+.mcp-server-item { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-5); }
+.mcp-server-header { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; }
 .mcp-server-name { font-weight: 600; font-size: var(--font-size-md); }
 .mcp-server-url { font-size: var(--font-size-md); color: var(--text-secondary); }
-.mcp-toggle { font-size: var(--font-size-md); display: flex; align-items: center; gap: 5px; }
-.mcp-server-tools { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-.mcp-tool-tag { background: var(--accent); color: var(--text-on-accent); padding: 3px 9px; border-radius: var(--radius-xs); font-size: var(--font-size-sm); }
-.mcp-empty { text-align: center; color: var(--text-secondary); font-size: var(--font-size-md); padding: 24px; }
+.mcp-toggle { font-size: var(--font-size-md); display: flex; align-items: center; gap: var(--space-2); }
+.mcp-server-tools { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: 6px; }
+.mcp-tool-tag { background: var(--accent); color: var(--text-on-accent); padding: var(--space-3) var(--space-4); border-radius: var(--radius-xs); font-size: var(--font-size-sm); }
+.mcp-empty { text-align: center; color: var(--text-secondary); font-size: var(--font-size-md); padding: var(--space-8); }
 </style>

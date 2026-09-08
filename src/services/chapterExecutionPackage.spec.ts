@@ -15,6 +15,7 @@ describe("chapter execution package", () => {
       styleContext: "克制",
       pacingContext: "三段递进",
       memoryContext: "已埋下纸条伏笔",
+      prevChapterSummary: "",
       sourceRefs: ["outline:1", "volume:v1", "chapter:c1"]
     })
 
@@ -29,6 +30,7 @@ describe("chapter execution package", () => {
       styleContext: "克制",
       pacingContext: "三段递进",
       memoryContext: "已埋下纸条伏笔",
+      prevChapterSummary: "",
       sourceRefs: ["outline:1", "volume:v1", "chapter:c1"]
     })
     expect(JSON.parse(JSON.stringify(pkg))).toEqual(pkg)
@@ -64,5 +66,23 @@ describe("chapter execution package", () => {
     expect(prompt).toContain("[当前章节剧情点]\n雨夜 - 发现纸条")
     expect(prompt).toContain("[相关记忆]\n纸条伏笔")
     expect(prompt).toContain("约3000字")
+  })
+
+  it("renders the previous chapter summary only when it exists", () => {
+    const base = {
+      volume: { name: "第一卷", outline: "卷纲" },
+      chapter: { title: "雨夜", plot: "发现纸条" },
+      outlineContent: "全书大纲"
+    }
+    const withPrev = buildChapterExecutionPrompt(
+      createChapterExecutionPackage({ ...base, prevChapterSummary: "主角逃离旧宅" }),
+      3000
+    )
+    expect(withPrev).toContain("[上一章概要]\n主角逃离旧宅")
+    expect(withPrev.indexOf("[当前卷概要]")).toBeLessThan(withPrev.indexOf("[上一章概要]"))
+    expect(withPrev.indexOf("[上一章概要]")).toBeLessThan(withPrev.indexOf("[当前章节剧情点]"))
+
+    const firstChapter = buildChapterExecutionPrompt(createChapterExecutionPackage(base), 3000)
+    expect(firstChapter).not.toContain("[上一章概要]")
   })
 })

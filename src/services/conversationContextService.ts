@@ -192,6 +192,7 @@ function recentMessages(messages: ContextMessage[], turns: number): ContextMessa
 export class ConversationContextService {
   private readonly storage: ContextStorage
   private readonly projectReader: (projectId: string) => Promise<ContextProjectSnapshot> | ContextProjectSnapshot
+  private readonly writeQueues = new Map<string, Promise<unknown>>()
 
   constructor(options: ConversationContextServiceOptions = {}) {
     this.storage = options.storage || defaultStorage()
@@ -200,6 +201,13 @@ export class ConversationContextService {
 
   private contextKey(projectId: string): string {
     return storageKey(`ctx_${projectId}`)
+  }
+
+  private enqueueWrite(key: string, task: () => Promise<unknown>): Promise<unknown> {
+    const previous = this.writeQueues.get(key) || Promise.resolve()
+    const next = previous.then(task, task)
+    this.writeQueues.set(key, next.catch(() => undefined))
+    return next
   }
 
   private legacyKey(projectId: string): string {
@@ -342,7 +350,23 @@ export class ConversationContextService {
     )
     session.messages = session.messages.slice(-MAX_STORED_MESSAGES)
     session.updatedAt = now
-    const result = await this.storage.write(this.contextKey(ref.projectId), state)
+    const result = await this.enqueueWrite(this.contextKey(ref.projectId), async () => {
+      const latest = await this.readState(ref.projectId)
+      const id = sessionIdFor(ref)
+      const existing = latest.sessions.find(item => item.id === id && sameScope(item, ref))
+      if (existing) {
+        const kept = existing.updatedAt
+        const incoming = state.sessions.find(item => item.id === id && sameScope(item, ref))
+        if (!incoming || incoming.updatedAt < kept) return true
+        existing.messages = incoming.messages
+        existing.summary = incoming.summary
+        existing.updatedAt = incoming.updatedAt
+        state.sessions = latest.sessions
+      } else {
+        state.sessions = latest.sessions
+      }
+      return this.storage.write(this.contextKey(ref.projectId), state)
+    })
     if (result === false) throw new Error(`上下文写盘失败：${this.contextKey(ref.projectId)}`)
   }
 
@@ -374,18 +398,34 @@ export class ConversationContextService {
     })
     session.messages = session.messages.slice(-MAX_STORED_MESSAGES)
     session.updatedAt = now
-    const result = await this.storage.write(this.contextKey(ref.projectId), state)
+    const result = await this.enqueueWrite(this.contextKey(ref.projectId), async () => {
+      const latest = await this.readState(ref.projectId)
+      const id = sessionIdFor(ref)
+      const existing = latest.sessions.find(item => item.id === id && sameScope(item, ref))
+      const incoming = state.sessions.find(item => item.id === id && sameScope(item, ref))
+      if (existing && incoming) {
+        if (incoming.updatedAt < existing.updatedAt) return true
+        existing.messages = incoming.messages
+        delete existing.summary
+        existing.updatedAt = incoming.updatedAt
+      }
+      return this.storage.write(this.contextKey(ref.projectId), latest)
+    })
     if (result === false) throw new Error(`上下文写盘失败：${this.contextKey(ref.projectId)}`)
   }
 
   async clearSession(ref: ContextRef): Promise<void> {
-    const state = await this.readState(ref.projectId)
-    const session = state.sessions.find(item => item.id === sessionIdFor(ref) && sameScope(item, ref))
-    if (!session) return
-    session.messages = []
-    delete session.summary
-    session.updatedAt = Date.now()
-    const result = await this.storage.write(this.contextKey(ref.projectId), state)
+    const id = sessionIdFor(ref)
+    const now = Date.now()
+    const result = await this.enqueueWrite(this.contextKey(ref.projectId), async () => {
+      const latest = await this.readState(ref.projectId)
+      const session = latest.sessions.find(item => item.id === id && sameScope(item, ref))
+      if (!session) return true
+      session.messages = []
+      delete session.summary
+      session.updatedAt = now
+      return this.storage.write(this.contextKey(ref.projectId), latest)
+    })
     if (result === false) throw new Error(`上下文写盘失败：${this.contextKey(ref.projectId)}`)
   }
 }

@@ -23,6 +23,7 @@ export interface ChapterExecutionPackage {
   styleContext: string
   pacingContext: string
   memoryContext: string
+  prevChapterSummary: string
   sourceRefs: string[]
 }
 
@@ -38,6 +39,7 @@ export interface ChapterExecutionPackageInput {
   styleContext?: unknown
   pacingContext?: unknown
   memoryContext?: unknown
+  prevChapterSummary?: unknown
   sourceRefs?: unknown[]
 }
 
@@ -88,6 +90,7 @@ export function createChapterExecutionPackage(input: ChapterExecutionPackageInpu
     styleContext: text(input.styleContext),
     pacingContext: text(input.pacingContext),
     memoryContext: text(input.memoryContext),
+    prevChapterSummary: text(input.prevChapterSummary),
     sourceRefs: list(input.sourceRefs)
   }
 }
@@ -99,9 +102,11 @@ export function buildChapterExecutionPrompt(pkg: ChapterExecutionPackage, target
     ? "\n\n[风格与节奏分析]\n" + [pkg.styleContext, pkg.pacingContext].filter(Boolean).join("\n")
     : ""
   const memory = pkg.memoryContext ? "\n\n[相关记忆]\n" + pkg.memoryContext : ""
+  const prevChapter = pkg.prevChapterSummary ? "\n\n[上一章概要]\n" + pkg.prevChapterSummary : ""
   return "[全书大纲]\n" + pkg.outlineContent
     + "\n\n[设定摘要]\n" + settings + bound + style
     + "\n\n[当前卷概要]\n" + pkg.volume.name + " - " + pkg.volume.outline
+    + prevChapter
     + "\n\n[当前章节剧情点]\n" + pkg.chapter.title + " - " + pkg.chapter.plot
     + memory
     + "\n\n请为本章节生成约" + text(targetWords) + "字的正文内容。"

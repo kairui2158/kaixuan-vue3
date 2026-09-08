@@ -24,6 +24,8 @@ import {
   type JsonSchema,
   type SkillRetryPolicy,
 } from './skillValidation'
+import { routeSkill, type RoutedSkill } from './skillRouter'
+import { createApiCallBudget, type ApiCallBudget } from './apiCallBudget'
 
 export type WorkspaceSkillMode = 'chain' | 'compose'
 
@@ -31,6 +33,7 @@ export type WorkspaceSkillTemplate = {
   id: string
   name: string
   template: string
+  skill?: RoutedSkill
   customVars?: Record<string, unknown>
   injectMode?: string
   outputFormat?: 'json' | 'text'
@@ -75,6 +78,10 @@ export type WorkspaceSkillRunMeta = {
   model: string
   agentId?: string
   skillId: string
+  status?: 'success' | 'degraded'
+  diagnostics?: Array<{ type: 'info' | 'warning' | 'error'; code: string; message: string; at?: string }>
+  budget?: { used: number; limit: number }
+  fromCache?: boolean
 }
 
 export type WorkspaceSkillRunResult = {
@@ -128,6 +135,7 @@ export interface RunWorkspaceSkillsInput {
   contextService: WorkspaceContextServiceLike
   adapter: WorkspaceSkillEngineAdapter
   signal?: AbortSignal
+  apiBudget?: ApiCallBudget
   callbacks?: WorkspaceSkillEngineCallbacks
 }
 
@@ -177,6 +185,16 @@ function validateOutput(template: WorkspaceSkillTemplate, output: string): void 
 }
 
 function combineComposeTemplate(templates: WorkspaceSkillTemplate[]): WorkspaceSkillTemplate {
+  const folderTemplate = templates.find(template => template.skill)
+  if (folderTemplate) {
+    return {
+      ...folderTemplate,
+      template: templates.map(template => template.template).filter(Boolean).join('\n\n'),
+      validationRules: templates.flatMap(template => template.validationRules || []),
+      outputSchema: templates.find(template => template.outputSchema)?.outputSchema,
+      retryPolicy: JSON.stringify({ maxAttempts: templates.reduce((max, template) => Math.max(max, getSkillMaxAttempts(template.retryPolicy)), 1) }),
+    }
+  }
   return {
     id: 'compose',
     name: templates.map(template => template.name).join(' + '),
@@ -216,6 +234,83 @@ async function callWorkspaceSkill(
 ): Promise<string> {
   const { adapter, aiService, contextService } = input
   validateInput(template, inputContext)
+  if (template.skill) {
+    const previousOutput = (inputContext as { previousOutput?: unknown }).previousOutput
+    const folderInput = typeof previousOutput === 'string' && previousOutput.trim()
+      ? `原始用户请求: ${contextOptions.requestText}\n\n请继续处理上一步 SKILL 输出：\n${previousOutput}`
+      : contextOptions.requestText
+    const agentId = adapter.getSkillAgentId(template.id) || adapter.getBaseAgentId()
+    const agentConfig = agentId ? adapter.getAgent(agentId) : null
+    if (agentId && !agentConfig) throw new Error('绑定的智能体不存在：' + agentId)
+    const budget = input.apiBudget || createApiCallBudget(8)
+    const contextRef: ContextRef = {
+      projectId: adapter.projectId,
+      workspace: adapter.workspace,
+      purpose: 'generate',
+      skillId: template.id,
+      agentId: agentId || undefined
+    }
+    const contextBundle = await contextService.buildContextBundle({
+      ...contextRef,
+      previousSkillOutput: contextOptions.previousSkillOutput,
+      workspaceState: adapter.getWorkspaceState(),
+      legacyMessages: contextOptions.includeHistory === false
+        ? []
+        : adapter.getLegacyMessages(contextOptions.requestText)
+    })
+    const policy = contextPolicy(contextService, adapter, template, contextOptions.previousSkillOutput)
+    const route = await routeSkill(template.skill, {
+      input: folderInput,
+      agent: agentConfig ? {
+        id: agentId,
+        model: agentConfig.model,
+        temperature: agentConfig.temperature,
+        maxTokens: agentConfig.maxTokens,
+        systemPrompt: agentConfig.systemPrompt
+      } : null,
+      purpose: 'generate',
+      budget,
+      skillId: template.id,
+      aiService,
+      stream: true,
+      signal: input.signal,
+      onChunk: text => {
+        input.callbacks?.onChunk?.(text)
+        onProgress?.('正在生成...')
+      },
+      messageBuilder: (systemPrompt, userPrompt) => {
+        return contextService.assembleMessages(contextBundle, policy, [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ])
+      }
+    })
+    if (route.mode === 'folder' && route.folderResult) {
+      const folderResult = route.folderResult
+      const output = folderResult.output || ''
+      if (!output.trim()) throw new Error('API 返回为空')
+      await contextService.recordTurn(contextRef, {
+        user: contextOptions.requestText,
+        assistant: output,
+        meta: { source: adapter.source, skillId: template.id, agentId: agentId || undefined }
+      })
+      lastRunMeta.set(input, {
+        finishReason: folderResult.apiMeta?.finishReason,
+        requestMessages: folderResult.apiMeta?.requestMessages as ContextMessage[] || [],
+        providerId: folderResult.apiMeta?.providerId,
+        model: agentConfig?.model || 'folder-skill',
+        agentId: agentId || undefined,
+        skillId: template.id,
+        status: folderResult.status === 'degraded' ? 'degraded' : 'success',
+        diagnostics: folderResult.diagnostics,
+        budget: budget.snapshot(),
+        fromCache: folderResult.fromCache
+      })
+      return output
+    }
+    if (!route.fallbackReason) throw new Error('folder SKILL 配置不完整')
+    // Only a load failure may fall through to the text path; execution failures already returned text mode with diagnostics.
+  }
   const maxAttempts = template.retryPolicy
     ? getSkillMaxAttempts(template.retryPolicy)
     : template.outputFormat === 'json' ? 2 : 1
