@@ -12,6 +12,7 @@
             <span class="project-item-name">{{ proj.name }}</span>
             <div class="project-item-actions">
               <button class="btn-sm btn-primary" @click="loadProject(proj.id)">加载</button>
+              <button class="btn-sm btn-secondary" @click="openInNewWindow(proj.id)" title="在新窗口打开">新窗口</button>
               <button class="btn-sm btn-danger" @click="deleteProject(proj.id)">删除</button>
             </div>
           </div>
@@ -125,6 +126,11 @@ function finishLoad(id: string) {
   emit('close')
 }
 
+function openInNewWindow(id: string) {
+  ;(window as any).electronAPI?.windowOpenProject?.(id)
+  emit('close')
+}
+
 function finishCreate() {
   const name = newName.value.trim()
   const outline = newOutline.value.trim()
@@ -146,17 +152,17 @@ function finishCreate() {
 .project-item { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-6); border-radius: var(--radius-sm); margin-bottom: 4px; background: var(--bg-secondary); }
 .project-item.active { border: 1px solid var(--accent); }
 .project-item-name { flex: 1; font-size: var(--font-size-md); color: var(--text-primary); }
-.project-item-actions { display: flex; gap: 6px; }
-.empty-hint { text-align: center; color: var(--text-muted); font-size: var(--font-size-md); padding: 24px 0; }
+.project-item-actions { display: flex; gap: var(--space-3); }
+.empty-hint { text-align: center; color: var(--text-muted); font-size: var(--font-size-md); padding: var(--space-8) 0; }
 .new-project-section { border-top: 1px solid var(--border-color); padding-top: 12px; }
-.new-project-btn { width: 100%; padding: 8px; font-size: var(--font-size-md); border-radius: var(--radius-sm); border: none; cursor: pointer; }
-.new-project-form { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
-.form-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: 8px 10px; font-size: var(--font-size-md); outline: none; }
-.form-textarea { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: 8px 10px; font-size: var(--font-size-md); outline: none; resize: vertical; font-family: inherit; }
-.form-actions { display: flex; gap: 8px; justify-content: flex-end; }
-.project-transition-confirm { margin-top: 12px; padding: 14px; border: 1px solid var(--accent); border-radius: var(--radius-sm); background: var(--bg-tertiary); position: relative; z-index: 1; }
+.new-project-btn { width: 100%; padding: var(--space-4); font-size: var(--font-size-md); border-radius: var(--radius-sm); border: none; cursor: pointer; }
+.new-project-form { margin-top: 12px; display: flex; flex-direction: column; gap: var(--space-4); }
+.form-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: var(--space-4) var(--space-5); font-size: var(--font-size-md); outline: none; }
+.form-textarea { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: var(--space-4) var(--space-5); font-size: var(--font-size-md); outline: none; resize: vertical; font-family: inherit; }
+.form-actions { display: flex; gap: var(--space-4); justify-content: flex-end; }
+.project-transition-confirm { margin-top: 12px; padding: var(--space-5); border: 1px solid var(--accent); border-radius: var(--radius-sm); background: var(--bg-tertiary); position: relative; z-index: 1; }
 .project-transition-confirm__title { color: var(--text-primary); font-size: var(--font-size-md); font-weight: 600; }
 .project-transition-confirm__text { margin-top: 6px; color: var(--text-secondary); font-size: var(--font-size-sm); line-height: 1.5; }
-.project-transition-confirm__actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; }
+.project-transition-confirm__actions { display: flex; gap: var(--space-4); justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; }
 </style>
 

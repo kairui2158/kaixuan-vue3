@@ -86,6 +86,31 @@ async function openDataDir() {
   }
 }
 
+async function atomicWriteJson(key, data) {
+  var tmpPath = null
+  try {
+    await migrateOldDataIfNeeded()
+    var filePath = path.join(dataDir, safeKey(key) + '.json')
+    var bakPath = filePath + '.bak'
+    tmpPath = filePath + '.' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.tmp'
+    await fs.writeFile(tmpPath, JSON.stringify(data), 'utf8')
+    try {
+      await fs.access(filePath)
+      await fs.rename(filePath, bakPath)
+    } catch (e) { /* target absent, nothing to back up */ }
+    try {
+      await fs.rename(tmpPath, filePath)
+    } catch (renameErr) {
+      try { await fs.access(bakPath); await fs.rename(bakPath, filePath) } catch (e2) { /* nothing to restore */ }
+      throw renameErr
+    }
+    return true
+  } catch (e) {
+    if (tmpPath) { try { await fs.unlink(tmpPath) } catch (e2) { /* ignore */ } }
+    throw e
+  }
+}
+
 function registerStorageHandlers() {
   ipcMain.handle('storage:read', async function(event, key) {
     try {
@@ -128,26 +153,10 @@ function registerStorageHandlers() {
 
   ipcMain.handle('storage:write', async function(event, key, data) {
     return enqueueWrite(key, async function() {
-      var tmpPath = null
       try {
-        await migrateOldDataIfNeeded()
-        var filePath = path.join(dataDir, safeKey(key) + '.json')
-        var bakPath = filePath + '.bak'
-        tmpPath = filePath + '.' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.tmp'
-        await fs.writeFile(tmpPath, JSON.stringify(data), 'utf8')
-        try {
-          await fs.access(filePath)
-          await fs.rename(filePath, bakPath)
-        } catch (e) { /* target absent, nothing to back up */ }
-        try {
-          await fs.rename(tmpPath, filePath)
-        } catch (renameErr) {
-          try { await fs.access(bakPath); await fs.rename(bakPath, filePath) } catch (e2) { /* nothing to restore */ }
-          throw renameErr
-        }
+        await atomicWriteJson(key, data)
         return true
       } catch (e) {
-        if (tmpPath) { try { await fs.unlink(tmpPath) } catch (e2) { /* ignore */ } }
         return false
       }
     })
@@ -221,7 +230,9 @@ function registerStorageHandlers() {
       var content = await fs.readFile(importPath, 'utf8')
       var data = JSON.parse(content)
       for (var key of Object.keys(data)) {
-        await fs.writeFile(path.join(dataDir, safeKey(key) + '.json'), JSON.stringify(data[key]), 'utf8')
+        await enqueueWrite(key, function() {
+          return atomicWriteJson(key, data[key])
+        })
       }
       return true
     } catch (e) {

@@ -1,22 +1,33 @@
 const { ipcMain, app } = require('electron')
 var isQuitting = false
+var registered = false
+var closeChoiceHandlers = new Map() // webContents.id -> handler
 
-function registerLifecycleHandlers(mainWindow) {
+function registerLifecycleHandlers() {
+  if (registered) return
+  registered = true
   ipcMain.handle('app:getVersion', () => app.getVersion())
   ipcMain.on('app:quit', () => {
     isQuitting = true
     app.quit()
   })
+}
 
-  mainWindow.on('close', function(e) {
+function registerWindowCloseHandler(win) {
+  win.on('close', function(e) {
     if (isQuitting) return
     e.preventDefault()
-    mainWindow.webContents.send('app:requestClose')
-    ipcMain.removeAllListeners('app:closeChoice')
-    ipcMain.once('app:closeChoice', function(event, choice) {
+    win.webContents.send('app:requestClose')
+    var webContentsId = win.webContents.id
+    var previous = closeChoiceHandlers.get(webContentsId)
+    if (previous) ipcMain.removeListener('app:closeChoice', previous)
+
+    function onChoice(event, choice) {
+      if (!event.sender.isDestroyed() && event.sender.id !== webContentsId) return
+      ipcMain.removeListener('app:closeChoice', onChoice)
+      closeChoiceHandlers.delete(webContentsId)
       if (choice === 'quit') {
-        // Save & quit: send finalSave, then close
-        mainWindow.webContents.send('app:finalSave')
+        win.webContents.send('app:finalSave')
         isQuitting = true
         var finished = false
         var finish = function() {
@@ -24,18 +35,19 @@ function registerLifecycleHandlers(mainWindow) {
           finished = true
           clearTimeout(timeout)
           ipcMain.removeListener('app:saveComplete', finish)
-          mainWindow.close()
+          win.close()
         }
-        var timeout = setTimeout(finish, 5000)
+        var timeout = setTimeout(finish, 15000)
         ipcMain.once('app:saveComplete', finish)
       } else if (choice === 'force-quit') {
-        // Direct quit: no finalSave needed
         isQuitting = true
-        mainWindow.close()
+        win.close()
       }
-      // cancel: stay open
-    })
+    }
+
+    closeChoiceHandlers.set(webContentsId, onChoice)
+    ipcMain.on('app:closeChoice', onChoice)
   })
 }
 
-module.exports = { registerLifecycleHandlers }
+module.exports = { registerLifecycleHandlers, registerWindowCloseHandler }

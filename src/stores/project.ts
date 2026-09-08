@@ -17,7 +17,37 @@ import type {
 import { getChangeHistory, rollbackByChapter, rollbackTo, saveChangeRecord } from '../services/memoryVersion'
 
 function toPlain(value: unknown): unknown {
+  try {
+    if (typeof structuredClone === 'function') return structuredClone(value)
+  } catch (e) { /* fallback to JSON */ }
   return JSON.parse(JSON.stringify(value))
+}
+
+// P0-2: 项目数据版本号 + 链式迁移
+const CURRENT_SCHEMA_VERSION = 3
+
+function migrateProjectData(data: any): any {
+  let v = data.schemaVersion || 0
+  if (v < 1) {
+    if (!data.pipelineConfig) data.pipelineConfig = { volumeCount: 3, volumeWords: 100000, chapterWords: 3500 }
+    v = 1
+  }
+  if (v < 2) {
+    data.volumes = (data.volumes || []).map((vol: any) => ({
+      ...vol,
+      isBound: vol.isBound === undefined ? !!vol.confirmed : !!vol.isBound,
+      boundTo: Array.isArray(vol.boundTo) && vol.boundTo.length > 0 ? vol.boundTo : (vol.isBound ? ['chapter-layer'] : [])
+    }))
+    v = 2
+  }
+  if (v < 3) {
+    if (!data.memories) data.memories = {}
+    if (!Array.isArray(data.memories.sourceVersions)) data.memories.sourceVersions = []
+    data.memories = normalizeMemories(data.memories)
+    v = 3
+  }
+  data.schemaVersion = v
+  return data
 }
 
 function createDefaultMemoryMeta(): MemoryMeta {
@@ -82,8 +112,9 @@ function normalizeMemories(raw: any): MemoryData {
 }
 
 export const useProjectStore = defineStore('project', () => {
-  const currentProjectId = ref<string | null>(null)
-  const lastSaveError = ref<{ time: string; keys: string[] } | null>(null)
+ const currentProjectId = ref<string | null>(null)
+ const pendingLoadId = ref<string | null>(null)
+ const lastSaveError = ref<{ time: string; keys: string[] } | null>(null)
   const projectName = ref('')
   const outlineText = ref('')
   const outlineLocked = ref(false)
@@ -98,6 +129,7 @@ export const useProjectStore = defineStore('project', () => {
   const projectList = ref<any[]>([])
   const settingsCollection = ref<{ categories: string[]; items: Record<string, any[]> }>({ categories: [], items: {} })
   const settingBindings = ref<Record<string, string[]>>({})
+  const pipelineConfig = ref<{ volumeCount: number; volumeWords: number; chapterWords: number }>({ volumeCount: 3, volumeWords: 100000, chapterWords: 3500 })
   const memories = ref<MemoryData>(createDefaultMemories())
   const aiNaming = ref<AiNamingData>(createDefaultAiNamingData())
   const outlineChat = ref<any[]>([])
@@ -137,30 +169,35 @@ export const useProjectStore = defineStore('project', () => {
     return Object.values(chapters.value).reduce((sum, chs) => sum + chs.length, 0)
   })
 
- async function loadProject(id: string) {
-   currentProjectId.value = id
-   let data = await window.electronAPI.storageRead(storageKey('project_' + id))
-   if (!data) data = await window.electronAPI.storageRead(storageKey('project-' + id))
-   if (data) {
-     // D2: Check if project switched during async load
-     if (currentProjectId.value !== id) {
-       return // Another project was loaded while we were reading, discard this data
-     }
-     projectName.value = readProjectName(data)
+async function loadProject(id: string) {
+  pendingLoadId.value = id
+  let data = await window.electronAPI.storageRead(storageKey('project_' + id))
+  if (!data) data = await window.electronAPI.storageRead(storageKey('project-' + id))
+  // P1-3: 期间如果用户又切了别的项目，丢弃本次结果
+  if (pendingLoadId.value !== id) return
+  currentProjectId.value = id
+  pendingLoadId.value = null
+  if (data) {
+    data = migrateProjectData(data)
+    projectName.value = readProjectName(data)
      outlineText.value = data.outlineText || ''
      outlineLocked.value = data.outlineLocked || false
      outlineLockedText.value = data.outlineLockedText || (outlineLocked.value ? outlineText.value : '')
      bookWordCountChars.value = Number(data.bookWordCount) || 0
      volumesConfirmed.value = data.volumesConfirmed || false
+    if (data.pipelineConfig) {
+      pipelineConfig.value = {
+        volumeCount: Number(data.pipelineConfig.volumeCount) || 3,
+        volumeWords: Number(data.pipelineConfig.volumeWords) || 100000,
+        chapterWords: Number(data.pipelineConfig.chapterWords) || 3500
+      }
+    }
      chaptersConfirmed.value = data.chaptersConfirmed || false
      settingsGenerated.value = data.settingsGenerated || false
      settings.value = data.settings || []
-     volumes.value = (data.volumes || []).map((vol: any) => {
-       // 旧格式无 isBound：已锁定卷自动视为已绑定，保持升级前行为等价
-       const isBound = vol.isBound === undefined ? !!vol.confirmed : !!vol.isBound
-       const boundTo = Array.isArray(vol.boundTo) && vol.boundTo.length > 0 ? vol.boundTo : (isBound ? ['chapter-layer'] : [])
-       return { ...vol, isBound, boundTo }
-     })
+    volumes.value = (data.volumes || []).map((vol: any) => {
+      return vol
+    })
      chapters.value = data.chapters || {}
      settingsCollection.value = data.settingsCollection || { categories: [], items: {} }
      settingBindings.value = data.settingBindings || {}
@@ -182,20 +219,26 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
-  let saveQueue: Promise<{ ok: boolean; failedKeys: string[] }> | null = null
-  let saveQueued = false
+ let saveQueue: Promise<{ ok: boolean; failedKeys: string[] }> | null = null
+ let saveQueued = false
+ // P1-4: dirty 标记，避免无变更时重复写盘
+ const dirtyFields = ref(false)
+ // P3-8: 项目 store 独立自动保存
+ let projectAutoSaveTimer: ReturnType<typeof setInterval> | null = null
 
-  async function persistProject(): Promise<{ ok: boolean; failedKeys: string[] }> {
+ async function persistProject(): Promise<{ ok: boolean; failedKeys: string[] }> {
     if (!currentProjectId.value) {
       currentProjectId.value = 'default'
     }
-    const data = {
-      projectName: projectName.value,
+   const data = {
+     schemaVersion: CURRENT_SCHEMA_VERSION,
+     projectName: projectName.value,
       outlineText: outlineText.value,
       outlineLocked: outlineLocked.value,
       outlineLockedText: outlineLockedText.value,
       bookWordCount: Number(bookWordCountChars.value) || 0,
       volumesConfirmed: volumesConfirmed.value,
+      pipelineConfig: { ...pipelineConfig.value },
       chaptersConfirmed: chaptersConfirmed.value,
       settingsGenerated: settingsGenerated.value,
       settings: toPlain(settings.value),
@@ -208,11 +251,14 @@ export const useProjectStore = defineStore('project', () => {
       aiNaming: toPlain(aiNaming.value),
       outlineChat: toPlain(outlineChat.value)
     }
-    const failedKeys: string[] = []
-    const lastProjectOk = await window.electronAPI.storageWrite(storageKey('lastProjectId'), currentProjectId.value)
-    if (!lastProjectOk) failedKeys.push('lastProjectId')
+   const failedKeys: string[] = []
     const projectOk = await window.electronAPI.storageWrite(storageKey('project_' + currentProjectId.value), data)
     if (!projectOk) failedKeys.push('project')
+    // P2-7: 主数据写成功后才写辅助索引
+    if (projectOk) {
+      const lastProjectOk = await window.electronAPI.storageWrite(storageKey('lastProjectId'), currentProjectId.value)
+      if (!lastProjectOk) failedKeys.push('lastProjectId')
+    }
     if (failedKeys.length > 0) {
       lastSaveError.value = { time: new Date().toISOString(), keys: failedKeys }
       try {
@@ -227,21 +273,29 @@ export const useProjectStore = defineStore('project', () => {
     return { ok: true, failedKeys: [] }
   }
 
-  function saveProject(): Promise<{ ok: boolean; failedKeys: string[] }> {
-    if (!saveQueue) {
-      saveQueue = new Promise(resolve => {
-        if (saveQueued) return
-        saveQueued = true
-        queueMicrotask(async () => {
-          saveQueued = false
-          const result = await persistProject()
-          saveQueue = null
-          resolve(result)
-        })
-      })
-    }
-    return saveQueue
-  }
+ function saveProject(): Promise<{ ok: boolean; failedKeys: string[] }> {
+  dirtyFields.value = true
+  if (!saveQueue) {
+     saveQueue = new Promise(resolve => {
+       if (saveQueued) return
+       saveQueued = true
+       queueMicrotask(async () => {
+         saveQueued = false
+         if (dirtyFields.value && currentProjectId.value) {
+           const result = await persistProject()
+           dirtyFields.value = false
+           saveQueue = null
+           resolve(result)
+         } else {
+           dirtyFields.value = false
+           saveQueue = null
+          resolve({ ok: true, failedKeys: [] })
+        }
+       })
+     })
+   }
+   return saveQueue
+ }
 
   function appendOutlineChat(msg: any) {
     outlineChat.value.push(msg)
@@ -457,6 +511,37 @@ export const useProjectStore = defineStore('project', () => {
     // 清理关联的关系
     memories.value.relations = memories.value.relations.filter(r => r.sourceId !== id && r.targetId !== id)
     saveProject()
+  }
+
+  function mergeEntities(sourceId: string, targetId: string) {
+    if (sourceId === targetId) return false
+    const source = memories.value.entities.find(entity => entity.id === sourceId)
+    const target = memories.value.entities.find(entity => entity.id === targetId)
+    if (!source || !target) return false
+    const unique = (values: string[]) => [...new Set(values.filter(Boolean))]
+    target.aliases = unique([...target.aliases, source.name, ...source.aliases]).filter(alias => alias !== target.name)
+    target.appearances = unique([...target.appearances, ...source.appearances])
+    target.possessions = unique([...target.possessions, ...source.possessions])
+    target.skills = unique([...target.skills, ...source.skills])
+    target.relationships = unique([...target.relationships, ...source.relationships])
+    target.evidence = [...target.evidence, ...source.evidence]
+    for (const field of ['description', 'personality', 'appearance', 'background', 'status', 'notes'] as const) {
+      if (!target[field] && source[field]) target[field] = source[field]
+    }
+    for (const relation of memories.value.relations) {
+      if (relation.sourceId === sourceId) relation.sourceId = targetId
+      if (relation.targetId === sourceId) relation.targetId = targetId
+    }
+    for (const event of memories.value.events) {
+      const sourceName = source.name
+      if (event.characters.includes(sourceName)) {
+        event.characters = event.characters.map(name => name === sourceName ? target.name : name)
+      }
+    }
+    target.updatedAt = new Date().toISOString()
+    deleteEntity(sourceId)
+    recalculateMemoryTotals()
+    return true
   }
   function lockEntityField(entityId: string, field: string) {
     const ent = memories.value.entities.find(e => e.id === entityId)
@@ -779,6 +864,7 @@ export const useProjectStore = defineStore('project', () => {
     chapters.value = {}
     settingsCollection.value = { categories: [], items: {} }
     settingBindings.value = {}
+    pipelineConfig.value = { volumeCount: 3, volumeWords: 100000, chapterWords: 3500 }
     memories.value = createDefaultMemories()
     memoryBlacklist.value = []
     aiNaming.value = createDefaultAiNamingData()
@@ -826,11 +912,28 @@ export const useProjectStore = defineStore('project', () => {
   }
 
 
-  function selectProject(id: string) {
-    loadProject(id)
-  }
+ function selectProject(id: string) {
+   loadProject(id)
+ }
 
-  return {
+ // P3-8: 项目 store 独立自动保存
+ function startProjectAutoSave(intervalSeconds: number = 30) {
+   if (projectAutoSaveTimer) clearInterval(projectAutoSaveTimer)
+   projectAutoSaveTimer = setInterval(() => {
+     if (currentProjectId.value) {
+       saveProject()
+     }
+   }, intervalSeconds * 1000)
+ }
+
+ function stopProjectAutoSave() {
+   if (projectAutoSaveTimer) {
+     clearInterval(projectAutoSaveTimer)
+     projectAutoSaveTimer = null
+   }
+ }
+
+ return {
     currentProjectId, projectName, outlineText, outlineLocked, outlineLockedText, pipelineOutlineText, bookWordCountChars,
     lastSaveError,
     settingsGenerated, settings, volumes, chapters, projectList,
@@ -842,8 +945,9 @@ export const useProjectStore = defineStore('project', () => {
     confirmVolumes() { volumesConfirmed.value = true; saveProject() },
     confirmChapters() { chaptersConfirmed.value = true; saveProject() },
     settingsCollection, getSettingsCollection, ensureSettingsCollection, appendSettingsToCollection, settingBindings,
+    pipelineConfig,
     memories, addMemoryCategory, addMemory, updateMemory, deleteMemory,
-    addEntity, updateEntity, deleteEntity, lockEntityField, unlockEntityField,
+    addEntity, updateEntity, deleteEntity, mergeEntities, lockEntityField, unlockEntityField,
     addRelation, updateRelation, deleteRelation, lockRelation,
     addEvent, updateEvent, deleteEvent,
     addWorldEntry, updateWorldEntry, deleteWorldEntry,
@@ -852,8 +956,9 @@ export const useProjectStore = defineStore('project', () => {
     updateMemoryMeta, recalculateMemoryTotals, recordMemoryChange, recordSourceVersion, getMemoryChangeHistory,
     rollbackMemoryTo, rollbackMemoryByChapter,
     outlineChat, appendOutlineChat, removeOutlineChatAt, updateOutlineChatAt,
-    aiNaming, addNamingFavorite, removeNamingFavorite, addNamingHistory, clearNamingHistory
-  }
+   aiNaming, addNamingFavorite, removeNamingFavorite, addNamingHistory, clearNamingHistory
+   ,startProjectAutoSave, stopProjectAutoSave
+ }
 })
 
 

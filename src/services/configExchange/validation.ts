@@ -39,6 +39,12 @@ const SKILL_ALLOWED_KEYS = new Set([
   'instruction',
   'category',
   'description',
+  'format',
+  'sourceId',
+  'folderPath',
+  'version',
+  'source',
+  'packageHash',
   'executionMode',
   'mode',
   'outputFormat',
@@ -65,6 +71,7 @@ const EXECUTION_MODES = new Set<ExchangeExecutionMode>([
   'split-merge',
   'multi-step',
 ])
+const SKILL_FORMATS = new Set<'text' | 'folder'>(['text', 'folder'])
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value)
@@ -298,6 +305,19 @@ export function normalizeSkillItem(
     return null
   }
 
+  const formatSource = firstValue(raw, ['format'])
+  const format = toOptionalString(formatSource.value)
+  if (format !== undefined && !SKILL_FORMATS.has(format as 'text' | 'folder')) {
+    issues.push({ code: 'field', field: `${field}.format`, message: '仅支持 text/folder' })
+    return null
+  }
+  const folderPath = toOptionalString(raw.folderPath) ?? ''
+  if (format === 'folder' && !folderPath.trim()) {
+    issues.push({ code: 'field', field: `${field}.folderPath`, message: 'folder 技能必须提供 folderPath' })
+    return null
+  }
+  const sourceId = toOptionalString(raw.sourceId) ?? ''
+
   const splitSize = toInteger(raw.splitSize, 1000)
   if (!splitSize.valid || splitSize.value < 1) {
     issues.push({ code: 'field', field: `${field}.splitSize`, message: '必须是不小于 1 的整数' })
@@ -333,6 +353,12 @@ export function normalizeSkillItem(
   return {
     id: id.trim(),
     name: name.trim(),
+    format: (format as 'text' | 'folder') ?? 'text',
+    sourceId,
+    folderPath,
+    version: toOptionalString(raw.version) ?? '',
+    source: (toOptionalString(raw.source) as SkillRecord['source']) ?? 'legacy',
+    packageHash: toOptionalString(raw.packageHash) ?? '',
     template: toOptionalString(firstValue(raw, ['template', 'prompt', 'instruction']).value) ?? '',
     category: toOptionalString(raw.category) ?? 'general',
     description: toOptionalString(raw.description) ?? '',

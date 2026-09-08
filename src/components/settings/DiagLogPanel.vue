@@ -8,18 +8,18 @@
     </div>
     <div class="diag-toolbar">
       <label class="diag-toggle-label"><input id="diag-enabled" type="checkbox" checked> 启用诊断</label>
-      <select id="diag-level" v-model="levelFilter" class="diag-select">
+      <select id="diag-level" v-model="levelFilter" class="select-standard">
         <option value="">全部级别</option>
         <option value="error">错误</option>
         <option value="warn">警告</option>
         <option value="info">信息</option>
         <option value="debug">调试</option>
       </select>
-      <select id="diag-category" v-model="catFilter" class="diag-select">
+      <select id="diag-category" v-model="catFilter" class="select-standard">
         <option value="">全部分类</option>
         <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
       </select>
-      <select id="diag-purpose" v-model="purposeFilter" class="diag-select">
+      <select id="diag-purpose" v-model="purposeFilter" class="select-standard">
         <option value="">全部用途</option>
         <option v-for="p in purposes" :key="p" :value="p">{{ p }}</option>
       </select>
@@ -238,7 +238,7 @@ onUnmounted(() => {
   box-shadow: var(--shadow-lg);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-fast) var(--ease-standard);
 }
 .diag-panel-visible {
   opacity: 1;
@@ -247,21 +247,21 @@ onUnmounted(() => {
 .diag-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-5);
   border-bottom: 1px solid var(--border-color);
 }
 .diag-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); }
 .diag-version { font-size: var(--font-size-xs); color: var(--text-muted); }
-.diag-error-count { font-size: var(--font-size-xs); color: var(--danger); font-weight: 600; background: var(--danger-dim); padding: 2px 8px; border-radius: var(--radius-lg); }
-.btn-close { margin-left: auto; background: none; border: none; color: var(--text-muted); font-size: var(--font-size-xl, 18px); cursor: pointer; padding: 0 4px; height: var(--space-lg, 24px); line-height: var(--space-lg, 24px); }
+.diag-error-count { font-size: var(--font-size-xs); color: var(--danger); font-weight: 600; background: var(--danger-dim); padding: var(--space-1) var(--space-4); border-radius: var(--radius-lg); }
+.btn-close { margin-left: auto; background: none; border: none; color: var(--text-muted); font-size: var(--font-size-xl, 18px); cursor: pointer; padding: 0 var(--space-2); height: var(--space-lg, 24px); line-height: var(--space-lg, 24px); }
 .btn-close:hover { color: var(--text-primary); }
-.diag-toolbar { display: flex; gap: 6px; padding: 8px 14px; border-bottom: 1px solid var(--border-color); align-items: center; }
-.diag-select { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: 3px 6px; font-size: var(--font-size-xs); height: 26px; }
-.diag-search { flex: 1; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: 3px 8px; font-size: var(--font-size-xs); height: 26px; }
-.diag-log-list { flex: 1; overflow-y: auto; padding: 6px; user-select: text; cursor: text; }
-.diag-empty { padding: 24px; text-align: center; color: var(--text-muted); font-size: var(--font-size-sm); }
-.diag-log-item { display: flex; gap: 6px; padding: 3px 6px; border-bottom: 1px solid var(--diagnostic-divider); font-size: var(--font-size-xs); line-height: 1.4; align-items: baseline; }
+.diag-toolbar { display: flex; gap: var(--space-3); padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border-color); align-items: center; }
+.select-standard { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: var(--space-3) var(--space-3); font-size: var(--font-size-xs); height: 26px; }
+.diag-search { flex: 1; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: var(--space-3) var(--space-4); font-size: var(--font-size-xs); height: 26px; }
+.diag-log-list { flex: 1; overflow-y: auto; padding: var(--space-3); user-select: text; cursor: text; }
+.diag-empty { padding: var(--space-8); text-align: center; color: var(--text-muted); font-size: var(--font-size-sm); }
+.diag-log-item { display: flex; gap: var(--space-3); padding: var(--space-3) var(--space-3); border-bottom: 1px solid var(--diagnostic-divider); font-size: var(--font-size-xs); line-height: 1.4; align-items: baseline; }
 .diag-log-item:last-child { border-bottom: none; }
 .diag-log-time { color: var(--text-muted); flex-shrink: 0; font-family: monospace; }
 .diag-log-level { min-width: 40px; flex-shrink: 0; font-weight: 600; font-size: var(--font-size-xxs); }
@@ -281,8 +281,8 @@ onUnmounted(() => {
 .diag-log-batch { color: var(--text-muted); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; font-family: monospace; }
 .diag-log-downgrade { color: var(--warning); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
 .diag-log-duration { color: var(--diagnostic-duration); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
-.diag-footer { display: flex; justify-content: space-between; align-items: center; padding: 6px 14px; border-top: 1px solid var(--border-color); font-size: var(--font-size-xxs); color: var(--text-muted); }
-.diag-autoscroll { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.diag-footer { display: flex; justify-content: space-between; align-items: center; padding: var(--space-3) var(--space-5); border-top: 1px solid var(--border-color); font-size: var(--font-size-xxs); color: var(--text-muted); }
+.diag-autoscroll { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; }
 .diag-autoscroll input { cursor: pointer; }
 .diag-panel-inline {
   position: relative !important;

@@ -4,6 +4,7 @@ import { storageKey } from '../utils/storage-key'
 import type { ContinuationSnapshot } from '../services/continuation'
 import type { EditorEditBatchCommand } from '../services/editorEditProtocol'
 import type { EditorBatchRecord } from '../services/editorBatchRecord'
+import type { WorkspaceSkillRunMeta } from '../services/workspaceSkillEngine'
 
 export interface EditorToolPlan {
   stage: string
@@ -39,6 +40,7 @@ export interface ChatMessage {
   editorBatchRecord?: EditorBatchRecord
   editorToolPlan?: EditorToolPlan
   toolCallStream?: ToolCallStreamEvent[]
+  skillRunDiagnostics?: Pick<WorkspaceSkillRunMeta, 'status' | 'diagnostics' | 'requestMessages' | 'budget' | 'fromCache'>
 }
 
 export interface ChatSession {
@@ -121,6 +123,22 @@ export const useChatStore = defineStore('chat', () => {
         saveSessions(currentProjectId.value)
       }
     }
+  }
+
+  function updateLastMessageSkillDiagnostics(meta: WorkspaceSkillRunMeta) {
+    const session = activeSession.value
+    const last = session?.messages[session.messages.length - 1]
+    if (!session || !last || last.role !== 'assistant') return false
+    last.skillRunDiagnostics = {
+      status: meta.status,
+      diagnostics: meta.diagnostics,
+      requestMessages: meta.requestMessages,
+      budget: meta.budget,
+      fromCache: meta.fromCache
+    }
+    session.updatedAt = Date.now()
+    saveSessions(currentProjectId.value)
+    return true
   }
 
   function updateMessageContent(messageId: string, content: string, sessionId?: string) {
@@ -245,7 +263,7 @@ export const useChatStore = defineStore('chat', () => {
   return {
     sessions, activeSessionId, activeSession, activeMessages, currentContext,
     generationStatus, generationMessage, generationStartedAt,
-    loadSessions, saveSessions, ensureSession, addMessage, updateLastMessage, updateMessageContent, replaceMessagePair, setGenerationState,
+    loadSessions, saveSessions, ensureSession, addMessage, updateLastMessage, updateLastMessageSkillDiagnostics, updateMessageContent, replaceMessagePair, setGenerationState,
     clearSession, removeSession, setCurrentContext, updateMessageContinuation, updateMessageEditorBatch, updateMessageEditorToolPlan
     , appendToolCallStream
   }

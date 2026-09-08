@@ -64,6 +64,12 @@ export interface AgentRecord {
 export interface SkillRecord {
   id: string
   name: string
+  format?: 'text' | 'folder'
+  sourceId?: string
+  folderPath?: string
+  version?: string
+  source?: 'package' | 'external' | 'legacy'
+  packageHash?: string
   template: string
   category: string
   description?: string

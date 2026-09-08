@@ -33,6 +33,12 @@ export function toSkillRecord(skill: Skill): SkillRecord {
     {
       id: skill.id,
       name: skill.name,
+      format: skill.format || 'text',
+      sourceId: skill.sourceId || (skill.format === 'folder' ? skill.id.replace(/^folder:/, '') : ''),
+      folderPath: skill.folderPath || '',
+      version: skill.version || '',
+      source: skill.source || 'legacy',
+      packageHash: skill.packageHash || '',
       template: skill.template,
       category: skill.category,
       description: skill.description,
@@ -63,6 +69,12 @@ function fromStoreSkill(skill: Skill): SkillRecord {
   return {
     id: skill.id,
     name: skill.name,
+    format: skill.format || 'text',
+    sourceId: skill.sourceId || (skill.format === 'folder' ? skill.id.replace(/^folder:/, '') : ''),
+    folderPath: skill.folderPath || '',
+    version: skill.version || '',
+    source: skill.source || 'legacy',
+    packageHash: skill.packageHash || '',
     template: skill.template,
     category: skill.category || 'general',
     description: skill.description || '',
@@ -104,6 +116,12 @@ export function fromSkillRecord(record: SkillRecord): Skill {
   return {
     id: record.id,
     name: record.name,
+    format: record.format || 'text',
+    sourceId: record.sourceId || (record.format === 'folder' ? record.id.replace(/^folder:/, '') : ''),
+    folderPath: record.folderPath || '',
+    version: record.version || '',
+    source: record.source || 'legacy',
+    packageHash: record.packageHash || '',
     template: record.template,
     category: record.category,
     description: record.description,
@@ -131,9 +149,12 @@ export function buildImportPlan(
   strategy: ImportStrategy = 'skip',
 ): ImportPlanItem[] {
   const known = new Set(existingIds)
+  const folderKnown = new Set(existingIds.filter(id => id.startsWith('folder:')))
   return incoming.map(item => {
-    if (!known.has(item.id)) {
+    const incomingFolderId = item.id.startsWith('folder:') ? item.id : `folder:${item.id}`
+    if (!known.has(item.id) && !folderKnown.has(incomingFolderId)) {
       known.add(item.id)
+      folderKnown.add(incomingFolderId)
       return { id: item.id, name: item.name || item.id, action: 'add', reason: '新增' }
     }
     if (strategy === 'overwrite') {

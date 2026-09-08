@@ -7,10 +7,12 @@ export const useSettingsStore = defineStore('settings', () => {
   const fontSize = ref(14)
   const uiFontSize = ref(14)
   const theme = ref<'dark'>('dark')
-  const editorFont = ref('serif')
+  const editorFont = ref('lxgw-wenkai')
   const autoSaveInterval = ref(30)
   const maxTabs = ref(20)
   const cdpPort = ref(9223)
+  const memoryExtractionTimeoutSeconds = ref(300)
+  const autoExtractMemory = ref(true)
   const githubToken = ref('')
 
  async function loadSettings() {
@@ -19,10 +21,14 @@ export const useSettingsStore = defineStore('settings', () => {
    if (data) {
      fontSize.value = data.fontSize || 14
       uiFontSize.value = data.uiFontSize || data.fontSize || 14
-      editorFont.value = data.editorFont || data.editorFontSize || 'serif'
+      editorFont.value = data.editorFont || data.editorFontSize || 'lxgw-wenkai'
      autoSaveInterval.value = data.autoSaveInterval || 30
       maxTabs.value = data.maxTabs || 20
-      cdpPort.value = data.cdpPort || 9223
+    cdpPort.value = data.cdpPort || 9223
+      autoExtractMemory.value = data.autoExtractMemory !== false
+      if (typeof data.memoryExtractionTimeoutSeconds === 'number') {
+        memoryExtractionTimeoutSeconds.value = Math.min(600, Math.max(60, Math.round(data.memoryExtractionTimeoutSeconds)))
+      }
       if (data.githubToken) githubToken.value = data.githubToken
     }
   }
@@ -35,6 +41,8 @@ export const useSettingsStore = defineStore('settings', () => {
       autoSaveInterval: autoSaveInterval.value,
       maxTabs: maxTabs.value,
       cdpPort: cdpPort.value,
+      memoryExtractionTimeoutSeconds: memoryExtractionTimeoutSeconds.value,
+      autoExtractMemory: autoExtractMemory.value,
       githubToken: githubToken.value
     })
   }
@@ -47,6 +55,10 @@ export const useSettingsStore = defineStore('settings', () => {
     if (data.autoSaveInterval !== undefined) autoSaveInterval.value = data.autoSaveInterval
     if (data.maxTabs !== undefined) maxTabs.value = data.maxTabs
     if (data.cdpPort !== undefined) cdpPort.value = data.cdpPort
+    if (data.autoExtractMemory !== undefined) autoExtractMemory.value = Boolean(data.autoExtractMemory)
+    if (data.memoryExtractionTimeoutSeconds !== undefined) {
+      memoryExtractionTimeoutSeconds.value = Math.min(600, Math.max(60, Math.round(Number(data.memoryExtractionTimeoutSeconds) || 300)))
+    }
     saveSettings()
   }
 
@@ -55,7 +67,7 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   return {
-    activeTab, fontSize, uiFontSize, theme, editorFont, autoSaveInterval, maxTabs, cdpPort, githubToken,
+    activeTab, fontSize, uiFontSize, theme, editorFont, autoSaveInterval, maxTabs, cdpPort, memoryExtractionTimeoutSeconds, autoExtractMemory, githubToken,
     loadSettings, saveSettings, updateSettings, setActiveTab
   }
 })

@@ -36,18 +36,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { defineAsyncComponent, ref } from 'vue'
 import { useSettingsStore } from '../../stores/settings'
 import { useProviderStore } from '../../stores/provider'
 import { useSkillStore } from '../../stores/skill'
 import { useAgentStore } from '../../stores/agent'
-import ApiSettings from './ApiSettings.vue'
-import SkillSettings from './SkillSettings.vue'
-import AgentSettings from './AgentSettings.vue'
-import AppearanceSettings from './AppearanceSettings.vue'
-import DeAiSettings from './DeAiSettings.vue'
-import DiagLogPanel from './DiagLogPanel.vue'
-import McpSettings from './McpSettings.vue'
+const ApiSettings = defineAsyncComponent(() => import('./ApiSettings.vue'))
+const SkillSettings = defineAsyncComponent(() => import('./SkillSettings.vue'))
+const AgentSettings = defineAsyncComponent(() => import('./AgentSettings.vue'))
+const AppearanceSettings = defineAsyncComponent(() => import('./AppearanceSettings.vue'))
+const DeAiSettings = defineAsyncComponent(() => import('./DeAiSettings.vue'))
+const DiagLogPanel = defineAsyncComponent(() => import('./DiagLogPanel.vue'))
+const McpSettings = defineAsyncComponent(() => import('./McpSettings.vue'))
 
 const emit = defineEmits<{ close: [] }>()
 const props = defineProps<{ visible: boolean }>()
@@ -94,14 +94,14 @@ function handleSave() {
 }
 
 .modal-content.modal-closing {
-  animation: modalOut 0.2s ease-in forwards;
+  animation: modalOut var(--duration-fast) var(--ease-standard)-in forwards;
 }
 /* modal-lg: settings modal size (old arch L4790) */
 .modal-content.modal-lg { width: 960px; max-width: 92vw; min-height: 640px; max-height: 88vh; }
 
 /* modal-body override: flex layout for settings sidebar (old arch L2052) */
 .modal-body {
-  padding: var(--space-md, 16px);
+  padding: var(--space-md, var(--space-6));
   overflow: hidden;
   flex: 1;
   min-height: 0;
@@ -112,7 +112,7 @@ function handleSave() {
 .modal-footer button {
   height: var(--btn-md-height, 32px);
   min-width: 80px;
-  padding: 0 var(--space-md, 16px);
+  padding: 0 var(--space-md, var(--space-6));
   font-size: var(--font-size-md);
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -141,14 +141,14 @@ function handleSave() {
   width: 160px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: var(--space-sm, 8px);
+  gap: var(--space-1);
+  padding: var(--space-sm, var(--space-4));
   border-right: 1px solid var(--border-color);
   flex-shrink: 0;
 }
 .settings-tab {
   text-align: left;
-  padding: 10px 14px;
+  padding: var(--space-5) var(--space-5);
   background: transparent;
   border: none;
   color: var(--text-secondary);
@@ -156,7 +156,7 @@ function handleSave() {
   border-radius: var(--radius-sm, 6px);
   font-size: var(--font-size-md);
   position: relative;
-  transition: background 0.12s ease, color 0.12s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 .settings-tab:hover {
   background: var(--bg-hover);
@@ -181,7 +181,7 @@ function handleSave() {
 
 .settings-panel {
   flex: 1;
-  padding: 20px 28px;
+  padding: var(--space-7) 2var(--space-4);
   overflow-y: auto;
   overflow-x: hidden;
   min-width: 0;
@@ -217,9 +217,9 @@ function handleSave() {
 
 @media (max-width: 560px) {
   .modal-content.modal-lg { width: 100%; max-width: 100vw; min-width: 0; }
-  .modal-body { padding: var(--space-sm, 8px); }
+  .modal-body { padding: var(--space-sm, var(--space-4)); }
   .settings-tabs { width: 132px; }
-  .settings-panel { padding: 16px; }
+  .settings-panel { padding: var(--space-6); }
 }
 </style>
 
