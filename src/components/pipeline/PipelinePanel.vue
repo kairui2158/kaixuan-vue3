@@ -5,7 +5,7 @@
         <span class="pl-header-title">生成流水线</span>
         <div class="pl-header-actions">
           <button class="btn-sm btn-secondary" id="btn-pl-minimize" title="缩小到顶栏" @click="$emit('minimize')">缩小</button>
-          <button class="btn-sm btn-secondary" id="btn-exec-log" @click="showExecLog = !showExecLog">执行日志</button>
+          <button class="btn-sm btn-secondary" id="btn-run-trace" @click="openRunTracePanel">运行记录</button>
           <button class="btn-sm btn-secondary" id="btn-export-pipeline-bindings" @click="exportPipelineBindings">导出绑定</button>
           <button class="btn-sm btn-secondary" id="btn-import-pipeline-bindings" @click="importPipelineBindings">导入绑定</button>
           <button class="btn-sm btn-secondary" id="btn-flow-toggle" @click="showFlowView = !showFlowView">{{ showFlowView ? '步骤视图' : '流程视图' }}</button>
@@ -93,28 +93,28 @@
           <div class="pl-step-tools pl-settings-tools">
             <div id="pl-settings-control-row" class="pl-settings-control-row">
               <span class="pl-label">本层智能体:</span>
-              <select id="pl-s2-agent" v-model="stepAgents[1]" class="pl-select pl-agent-select" @change="saveStepConfig">
+              <select id="pl-s2-agent" v-model="stepAgents[1]" class="select-standard pl-agent-select" @change="saveStepConfig">
                 <option value="">不使用智能体</option>
                 <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
               </select>
               <span class="pl-label">技能:</span>
-              <select id="pl-s2-skill" v-model="stepSkillSelect[2]" class="pl-select pl-skill-select" @change="addStepSkill(2)">
+              <select id="pl-s2-skill" v-model="stepSkillSelect[2]" class="select-standard pl-skill-select" @change="addStepSkill(2)">
                 <option value="">无</option>
-                <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
+                <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ skillStore.displaySkillName(s) }}</option>
               </select>
               <button class="btn-icon" id="pl-s2-add-skill" title="添加技能" @click="addStepSkill(2)">+</button>
               <span class="pl-mode-label">技能模式:</span>
-              <select id="pl-s2-mode" v-model="stepSkillModes[1]" class="pl-select pl-mode-select" @change="saveStepConfig">
+              <select id="pl-s2-mode" v-model="stepSkillModes[1]" class="select-standard pl-mode-select" @change="saveStepConfig">
                 <option value="compose">并行</option>
                 <option value="chain">串行</option>
               </select>
             </div>
             <div id="pl-s2-skills-list" class="pl-skills-list pl-selected-skills-row">
               <template v-for="(sid, si) in stepSkills[1]" :key="'1-' + sid">
-                <span v-if="sid" class="pl-skill-chip">
+                <span v-if="sid" class="pl-skill-chip" draggable="true" @dragstart="onSkillDragStart($event, si)" @dragover.prevent="onSkillDragOver($event, si)" @drop="onSkillDrop($event, si, 1)" @dragend="onSkillDragEnd">
                   <span class="pl-chip-seq">{{ si + 1 }}</span>
                   <span>{{ getSkillName(sid) }}</span>
-                  <select v-if="stepSkillModes[1] === 'chain'" v-model="stepSkillAgents[getSkillAgentKey(1, sid)]" class="pl-select pl-chip-agent" @change="saveStepConfig">
+                  <select v-if="stepSkillModes[1] === 'chain'" v-model="stepSkillAgents[getSkillAgentKey(1, sid)]" class="select-standard pl-chip-agent" @change="saveStepConfig">
                     <option value="">默认</option>
                     <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
                   </select>
@@ -270,75 +270,46 @@
               </button>
               <button id="btn-pl-confirm-settings" class="btn-primary" @click="confirmSettingsLayer" :disabled="currentSettings.length === 0">确认/保存设定层</button>
             </div>
-            <div
-              v-if="settingsGenerationFeedbackVisible"
-              id="pl-settings-generation-overlay"
-              class="pl-generation-feedback-overlay"
-              @click.self="closeSettingsGenerationFeedback"
-            >
-              <section
-                id="pl-settings-generation-feedback"
-                class="pl-generation-feedback-modal"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="pl-settings-generation-title"
-              >
-                <div class="pl-generation-feedback-header">
-                  <strong id="pl-settings-generation-title">设定层 AI 生成进度</strong>
-                  <span>{{ pipelineStore.generationProgress }}%</span>
-                </div>
-                <div class="pl-generation-progress-track" aria-label="设定生成进度">
-                  <div class="pl-generation-progress-value" :style="{ width: pipelineStore.generationProgress + '%' }"></div>
-                </div>
-                <div id="pl-settings-api-log" class="pl-generation-log" aria-label="API工作信息">
-                  <div v-for="(line, index) in settingsGenerationLogs" :key="index" class="pl-generation-log-line">
-                    <span class="pl-generation-log-dot" aria-hidden="true"></span>
-                    <span>{{ line }}</span>
-                  </div>
-                </div>
-                <div class="pl-generation-modal-footer">
-                  <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
-                  <div class="pl-generation-modal-actions">
-                    <button
-                      v-if="pipelineStore.isGenerating"
-                      id="pl-settings-cancel-generation"
-                      class="btn-danger"
-                      @click="pipelineStore.cancelGeneration()"
-                    >
-                      取消生成
-                    </button>
-                    <button v-else class="btn-secondary" @click="closeSettingsGenerationFeedback">关闭</button>
-                  </div>
-                </div>
-              </section>
-            </div>
+<GenerationProgressBar
+  v-if="settingsGenerationFeedbackVisible"
+  :step="1"
+  :visible="settingsGenerationFeedbackVisible"
+  :progress="pipelineStore.generationProgress"
+  :status="pipelineStore.generationStatus"
+  :logs="settingsGenerationLogs"
+  :skill-steps="activeGenerationFeedbackStep === 1 ? skillStepStates : []"
+  :isGenerating="pipelineStore.isGenerating"
+  logContainerId="pl-settings-api-log"
+  @cancel="pipelineStore.cancelGeneration()"
+  @close="closeSettingsGenerationFeedback"
+/>
           </div>
           <div v-show="pipelineStore.currentStep === 2" id="pl-step-3-content" class="pl-step-panel">
           <div class="pl-step-tools pl-settings-tools">
             <div id="pl-volume-control-row" class="pl-settings-control-row">
               <span class="pl-label">本层智能体:</span>
-              <select id="pl-s3-agent" v-model="stepAgents[2]" class="pl-select pl-agent-select" @change="saveStepConfig">
+              <select id="pl-s3-agent" v-model="stepAgents[2]" class="select-standard pl-agent-select" @change="saveStepConfig">
                 <option value="">不使用智能体</option>
                 <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
               </select>
               <span class="pl-label">技能:</span>
-              <select id="pl-s3-skill" v-model="stepSkillSelect[3]" class="pl-select pl-skill-select" @change="addStepSkill(3)">
+              <select id="pl-s3-skill" v-model="stepSkillSelect[3]" class="select-standard pl-skill-select" @change="addStepSkill(3)">
                 <option value="">无</option>
-                <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
+                <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ skillStore.displaySkillName(s) }}</option>
               </select>
               <button class="btn-icon" id="pl-s3-add-skill" title="添加技能" @click="addStepSkill(3)">+</button>
               <span class="pl-mode-label">技能模式:</span>
-              <select id="pl-s3-mode" v-model="stepSkillModes[2]" class="pl-select pl-mode-select" @change="saveStepConfig">
+              <select id="pl-s3-mode" v-model="stepSkillModes[2]" class="select-standard pl-mode-select" @change="saveStepConfig">
                 <option value="compose">并行</option>
                 <option value="chain">串行</option>
               </select>
             </div>
             <div id="pl-s3-skills-list" class="pl-skills-list pl-selected-skills-row">
             <template v-for="(sid, si) in stepSkills[2]" :key="'2-' + sid">
-              <span v-if="sid" class="pl-skill-chip">
+              <span v-if="sid" class="pl-skill-chip" draggable="true" @dragstart="onSkillDragStart($event, si)" @dragover.prevent="onSkillDragOver($event, si)" @drop="onSkillDrop($event, si, 2)" @dragend="onSkillDragEnd">
                 <span class="pl-chip-seq">{{ si + 1 }}</span>
                 <span>{{ getSkillName(sid) }}</span>
-                <select v-if="stepSkillModes[2] === 'chain'" v-model="stepSkillAgents[getSkillAgentKey(2, sid)]" class="pl-select pl-chip-agent" @change="saveStepConfig">
+                <select v-if="stepSkillModes[2] === 'chain'" v-model="stepSkillAgents[getSkillAgentKey(2, sid)]" class="select-standard pl-chip-agent" @change="saveStepConfig">
                   <option value="">默认</option>
                   <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
                 </select>
@@ -428,48 +399,19 @@
               </div>
               <p v-else class="empty-hint">暂无卷纲，请先生成或确认大纲字数</p>
             </div>
-            <div
-              v-if="volumeGenerationFeedbackVisible"
-              id="pl-volume-generation-overlay"
-              class="pl-generation-feedback-overlay"
-              @click.self="closeVolumeGenerationFeedback"
-            >
-              <section
-                id="pl-volume-generation-feedback"
-                class="pl-generation-feedback-modal"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="pl-volume-generation-title"
-              >
-                <div class="pl-generation-feedback-header">
-                  <strong id="pl-volume-generation-title">卷纲层 AI 生成进度</strong>
-                  <span>{{ pipelineStore.generationProgress }}%</span>
-                </div>
-                <div class="pl-generation-progress-track" aria-label="卷纲生成进度">
-                  <div class="pl-generation-progress-value" :style="{ width: pipelineStore.generationProgress + '%' }"></div>
-                </div>
-                <div id="pl-volume-api-log" class="pl-generation-log" aria-label="卷纲 API 工作信息">
-                  <div v-for="(line, index) in volumeGenerationLogs" :key="index" class="pl-generation-log-line">
-                    <span class="pl-generation-log-dot" aria-hidden="true"></span>
-                    <span>{{ line }}</span>
-                  </div>
-                </div>
-                <div class="pl-generation-modal-footer">
-                  <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
-                  <div class="pl-generation-modal-actions">
-                    <button
-                      v-if="pipelineStore.isGenerating"
-                      id="pl-volume-cancel-generation"
-                      class="btn-danger"
-                      @click="pipelineStore.cancelGeneration()"
-                    >
-                      取消生成
-                    </button>
-                    <button v-else class="btn-secondary" @click="closeVolumeGenerationFeedback">关闭</button>
-                  </div>
-                </div>
-              </section>
-            </div>
+<GenerationProgressBar
+  v-if="volumeGenerationFeedbackVisible"
+  :step="2"
+  :visible="volumeGenerationFeedbackVisible"
+  :progress="pipelineStore.generationProgress"
+  :status="pipelineStore.generationStatus"
+  :logs="volumeGenerationLogs"
+  :skill-steps="activeGenerationFeedbackStep === 2 ? skillStepStates : []"
+  :isGenerating="pipelineStore.isGenerating"
+  logContainerId="pl-volume-api-log"
+  @cancel="pipelineStore.cancelGeneration()"
+  @close="closeVolumeGenerationFeedback"
+/>
             <div class="pl-actions">
               <button id="btn-pl-gen-volumes" class="btn-primary" @click="genVolumes('auto')" :disabled="pipelineStore.isGenerating">AI生成全卷</button>
               <button id="btn-pl-gen-single-volume" class="btn-secondary" @click="genVolumes('single')" :disabled="pipelineStore.isGenerating">逐卷生成</button>
@@ -481,18 +423,18 @@
           <div class="pl-step-tools pl-settings-tools">
             <div id="pl-chapter-control-row" class="pl-settings-control-row">
               <span class="pl-label">本层智能体:</span>
-              <select id="pl-s4-agent" v-model="stepAgents[3]" class="pl-select pl-agent-select" @change="saveStepConfig">
+              <select id="pl-s4-agent" v-model="stepAgents[3]" class="select-standard pl-agent-select" @change="saveStepConfig">
                 <option value="">不使用智能体</option>
                 <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
               </select>
               <span class="pl-label">技能:</span>
-              <select id="pl-s4-skill" v-model="stepSkillSelect[4]" class="pl-select pl-skill-select" @change="addStepSkill(4)">
+              <select id="pl-s4-skill" v-model="stepSkillSelect[4]" class="select-standard pl-skill-select" @change="addStepSkill(4)">
                 <option value="">无</option>
-                <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
+                <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ skillStore.displaySkillName(s) }}</option>
               </select>
               <button class="btn-icon" id="pl-s4-add-skill" title="添加技能" @click="addStepSkill(4)">+</button>
               <span class="pl-mode-label">技能模式:</span>
-              <select id="pl-s4-mode" v-model="stepSkillModes[3]" class="pl-select pl-mode-select" @change="saveStepConfig">
+              <select id="pl-s4-mode" v-model="stepSkillModes[3]" class="select-standard pl-mode-select" @change="saveStepConfig">
                 <option value="compose">并行</option>
                 <option value="chain">串行</option>
               </select>
@@ -500,10 +442,10 @@
           </div>
           <div id="pl-s4-skills-list" class="pl-skills-list">
             <template v-for="(sid, si) in stepSkills[3]" :key="'3-' + sid">
-              <span v-if="sid" class="pl-skill-chip">
+              <span v-if="sid" class="pl-skill-chip" draggable="true" @dragstart="onSkillDragStart($event, si)" @dragover.prevent="onSkillDragOver($event, si)" @drop="onSkillDrop($event, si, 3)" @dragend="onSkillDragEnd">
                 <span class="pl-chip-seq">{{ si + 1 }}</span>
                 <span>{{ getSkillName(sid) }}</span>
-                <select v-if="stepSkillModes[3] === 'chain'" v-model="stepSkillAgents[getSkillAgentKey(3, sid)]" class="pl-select pl-chip-agent" @change="saveStepConfig">
+                <select v-if="stepSkillModes[3] === 'chain'" v-model="stepSkillAgents[getSkillAgentKey(3, sid)]" class="select-standard pl-chip-agent" @change="saveStepConfig">
                   <option value="">默认</option>
                   <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
                 </select>
@@ -592,78 +534,49 @@
               </section>
             </div>
          </div>
-            <div
-              v-if="chapterGenerationFeedbackVisible"
-              id="pl-chapter-generation-overlay"
-              class="pl-generation-feedback-overlay"
-              @click.self="closeChapterGenerationFeedback"
-            >
-              <section
-                id="pl-chapter-generation-feedback"
-                class="pl-generation-feedback-modal"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="pl-chapter-generation-title"
-              >
-                <div class="pl-generation-feedback-header">
-                  <strong id="pl-chapter-generation-title">章节 AI 生成进度</strong>
-                  <span>{{ pipelineStore.generationProgress }}%</span>
-                </div>
-                <div class="pl-generation-progress-track" aria-label="章节生成进度">
-                  <div class="pl-generation-progress-value" :style="{ width: pipelineStore.generationProgress + '%' }"></div>
-                </div>
-                <div id="pl-ch-api-log" class="pl-generation-log" aria-label="章节 API 工作信息">
-                  <div v-for="(line, index) in chapterGenerationLogs" :key="index" class="pl-generation-log-line">
-                    <span class="pl-generation-log-dot" aria-hidden="true"></span>
-                    <span>{{ line }}</span>
-                  </div>
-                </div>
-                <div class="pl-generation-modal-footer">
-                  <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
-                  <div class="pl-generation-modal-actions">
-                    <button
-                      v-if="pipelineStore.isGenerating"
-                      id="pl-chapter-cancel-generation"
-                      class="btn-danger"
-                      @click="pipelineStore.cancelGeneration()"
-                    >
-                      取消生成
-                    </button>
-                    <button v-else class="btn-secondary" @click="closeChapterGenerationFeedback">关闭</button>
-                  </div>
-                </div>
-              </section>
-            </div>
+<GenerationProgressBar
+  v-if="chapterGenerationFeedbackVisible"
+  :step="3"
+  :visible="chapterGenerationFeedbackVisible"
+  :progress="pipelineStore.generationProgress"
+  :status="pipelineStore.generationStatus"
+  :logs="chapterGenerationLogs"
+  :skill-steps="activeGenerationFeedbackStep === 3 ? skillStepStates : []"
+  :isGenerating="pipelineStore.isGenerating"
+  logContainerId="pl-ch-api-log"
+  @cancel="pipelineStore.cancelGeneration()"
+  @close="closeChapterGenerationFeedback"
+/>
           <div v-show="pipelineStore.currentStep === 4" id="pl-step-5-content" class="pl-step-panel">
             <h3>正文</h3>
           <div class="pl-step-tools">
             <div class="pl-agent-mode-bar">
               <span class="pl-label">本层智能体:</span>
-              <select id="pl-s5-agent" v-model="stepAgents[4]" class="pl-select pl-agent-select" @change="saveStepConfig">
+              <select id="pl-s5-agent" v-model="stepAgents[4]" class="select-standard pl-agent-select" @change="saveStepConfig">
                 <option value="">不使用智能体</option>
                 <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
               </select>
               <span class="pl-mode-label">技能模式:</span>
-              <select id="pl-s5-mode" v-model="stepSkillModes[4]" class="pl-select pl-mode-select" @change="saveStepConfig">
+              <select id="pl-s5-mode" v-model="stepSkillModes[4]" class="select-standard pl-mode-select" @change="saveStepConfig">
                 <option value="compose">并行</option>
                 <option value="chain">串行</option>
               </select>
             </div>
             <div class="pl-skill-bar">
               <span class="pl-label">技能:</span>
-              <select id="pl-s5-skill" v-model="stepSkillSelect[5]" class="pl-select" @change="addStepSkill(5)">
+              <select id="pl-s5-skill" v-model="stepSkillSelect[5]" class="select-standard" @change="addStepSkill(5)">
                 <option value="">无</option>
-                <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ s.name }}</option>
+                <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ skillStore.displaySkillName(s) }}</option>
               </select>
               <button class="btn-icon" id="pl-s5-add-skill" title="添加技能" @click="addStepSkill(5)">+</button>
             </div>
           </div>
           <div id="pl-s5-skills-list" class="pl-skills-list">
             <template v-for="(sid, si) in stepSkills[4]" :key="'4-' + sid">
-              <span v-if="sid" class="pl-skill-chip">
+              <span v-if="sid" class="pl-skill-chip" draggable="true" @dragstart="onSkillDragStart($event, si)" @dragover.prevent="onSkillDragOver($event, si)" @drop="onSkillDrop($event, si, 4)" @dragend="onSkillDragEnd">
                 <span class="pl-chip-seq">{{ si + 1 }}</span>
                 <span>{{ getSkillName(sid) }}</span>
-                <select v-if="stepSkillModes[4] === 'chain'" v-model="stepSkillAgents[getSkillAgentKey(4, sid)]" class="pl-select pl-chip-agent" @change="saveStepConfig">
+                <select v-if="stepSkillModes[4] === 'chain'" v-model="stepSkillAgents[getSkillAgentKey(4, sid)]" class="select-standard pl-chip-agent" @change="saveStepConfig">
                   <option value="">默认</option>
                   <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
                 </select>
@@ -688,52 +601,24 @@
               <button id="btn-pl-gen-body" class="btn-primary" @click="genBodyForSelected" :disabled="pipelineStore.isGenerating">
                 {{ pipelineStore.isGenerating ? '生成中...' : 'AI生成正文' }}
               </button>
+              <span class="pl-deai-badge" title="本层已内嵌降AI方法论（17条前置约束 + 硬规则后处理），生成时自动执行">已内嵌降AI</span>
               <button id="btn-pl-insert-body" class="btn-secondary" @click="insertToEditor" :disabled="!(currentBodyContent || bodyResult)">插入到编辑器</button>
               <button id="btn-pl-confirm-body" class="btn-secondary" @click="confirmBodyWithMemory" :disabled="!(currentBodyContent || bodyResult) || memoryPreviewLoading">确认完成</button>
             </div>
           </div>
-            <div
-              v-if="bodyGenerationFeedbackVisible"
-              id="pl-body-generation-overlay"
-              class="pl-generation-feedback-overlay"
-              @click.self="closeBodyGenerationFeedback"
-            >
-              <section
-                id="pl-body-generation-feedback"
-                class="pl-generation-feedback-modal"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="pl-body-generation-title"
-              >
-                <div class="pl-generation-feedback-header">
-                  <strong id="pl-body-generation-title">正文 AI 生成进度</strong>
-                  <span>{{ pipelineStore.generationProgress }}%</span>
-                </div>
-                <div class="pl-generation-progress-track" aria-label="正文生成进度">
-                  <div class="pl-generation-progress-value" :style="{ width: pipelineStore.generationProgress + '%' }"></div>
-                </div>
-                <div id="pl-body-api-log" class="pl-generation-log" aria-label="正文 API 工作信息">
-                  <div v-for="(line, index) in bodyGenerationLogs" :key="index" class="pl-generation-log-line">
-                    <span class="pl-generation-log-dot" aria-hidden="true"></span>
-                    <span>{{ line }}</span>
-                  </div>
-                </div>
-                <div class="pl-generation-modal-footer">
-                  <div class="pl-generation-status">{{ pipelineStore.generationStatus || '准备开始' }}</div>
-                  <div class="pl-generation-modal-actions">
-                    <button
-                      v-if="pipelineStore.isGenerating"
-                      id="pl-body-cancel-generation"
-                      class="btn-danger"
-                      @click="pipelineStore.cancelGeneration()"
-                    >
-                      取消生成
-                    </button>
-                    <button v-else class="btn-secondary" @click="closeBodyGenerationFeedback">关闭</button>
-                  </div>
-                </div>
-              </section>
-            </div>
+<GenerationProgressBar
+  v-if="bodyGenerationFeedbackVisible"
+  :step="4"
+  :visible="bodyGenerationFeedbackVisible"
+  :progress="pipelineStore.generationProgress"
+  :status="pipelineStore.generationStatus"
+  :logs="bodyGenerationLogs"
+  :skill-steps="activeGenerationFeedbackStep === 4 ? skillStepStates : []"
+  :isGenerating="pipelineStore.isGenerating"
+  logContainerId="pl-body-api-log"
+  @cancel="pipelineStore.cancelGeneration()"
+  @close="closeBodyGenerationFeedback"
+/>
           </div>
         </div>
       </div>
@@ -822,62 +707,176 @@
     </section>
   </div>
 
-  <!-- 执行日志面板 -->
-  <div class="pl-exec-log" v-if="showExecLog">
-    <div class="pl-exec-log-header">
-      <span>执行日志</span>
-      <button class="btn-icon" @click="showExecLog = false">&times;</button>
-    </div>
-    <div class="pl-exec-log-body">
-      <div v-for="(log, i) in execLogStore.logs" :key="log.id" class="pl-exec-log-item" :class="'pl-exec-' + log.status">
-        <div class="pl-exec-log-top">
-          <span class="pl-exec-step">{{ log.stepName }}</span>
-          <span class="pl-exec-mode">{{ log.mode }}</span>
-          <span class="pl-exec-skills">{{ log.skillNames.join(', ') }}</span>
-          <span class="pl-exec-status" :class="'pl-exec-' + log.status">{{ log.status }}</span>
-          <span class="pl-exec-duration">{{ log.duration }}ms</span>
-          <button class="btn-icon" @click="execLogStore.removeLog(log.id)">&times;</button>
+  <div v-if="showRunTracePanel" id="pl-run-trace-overlay" class="pl-run-trace-overlay" @click.self="closeRunTracePanel">
+    <section id="pl-run-trace-panel" class="pl-run-trace-panel" role="dialog" aria-modal="true" aria-labelledby="pl-run-trace-title">
+      <header class="pl-run-trace-header">
+        <div>
+          <strong id="pl-run-trace-title">运行记录</strong>
+          <span>仅保留最近 20 次运行，每次运行完整记录全过程</span>
         </div>
-        <div class="pl-exec-log-detail" v-if="expandedLog === log.id" @click="expandedLog = null">
-          <div class="pl-exec-section"><strong>提示词:</strong><pre>{{ log.prompt }}</pre></div>
-          <div class="pl-exec-section"><strong>结果:</strong><pre>{{ log.result }}</pre></div>
-          <div class="pl-exec-feedback" v-if="log.status === 'success'">
-            <button class="btn-sm" @click.stop="execLogStore.setFeedback(log.id, 'up')" :class="{active: log.feedback === 'up'}">点赞</button>
-            <button class="btn-sm" @click.stop="execLogStore.setFeedback(log.id, 'down')" :class="{active: log.feedback === 'down'}">点踩</button>
+        <button type="button" class="modal-close" title="关闭" @click="closeRunTracePanel">&times;</button>
+      </header>
+
+      <div class="pl-run-trace-layout">
+        <aside class="pl-run-trace-list" aria-label="运行列表">
+          <div
+            v-for="run in runTraceStore.sortedRuns"
+            :key="run.id"
+            class="pl-run-trace-run"
+            :class="{ active: run.id === selectedRunTraceId }"
+            @click="selectedRunTraceId = run.id"
+          >
+            <div class="pl-run-trace-run-main">
+              <strong>{{ run.stepName }}</strong>
+              <span>{{ formatRunTraceTime(run.startedAt) }}</span>
+            </div>
+            <div class="pl-run-trace-run-meta">
+              <span :class="'is-' + run.status">{{ runTraceStatusText(run.status) }}</span>
+              <span>{{ run.mode }}</span>
+              <span>{{ run.durationMs ? run.durationMs + 'ms' : '进行中' }}</span>
+            </div>
           </div>
-        </div>
+          <div v-if="runTraceStore.sortedRuns.length === 0" class="pl-run-trace-empty">还没有运行记录。生成一次设定、卷纲、章节或正文后会出现在这里。</div>
+        </aside>
+
+        <section v-if="selectedRunTrace" class="pl-run-trace-detail">
+          <div class="pl-run-trace-summary">
+            <span>层级：{{ selectedRunTrace.stepName }}</span>
+            <span>项目：{{ selectedRunTrace.projectName || selectedRunTrace.projectId || '未命名' }}</span>
+            <span>供应商：{{ selectedRunTrace.providerName || selectedRunTrace.providerId || '未记录' }}</span>
+            <span>模型：{{ selectedRunTrace.model || '未记录' }}</span>
+            <span>技能：{{ selectedRunTrace.skillNames.join('、') || '未使用' }}</span>
+            <span>技能模式：{{ selectedRunTrace.skillMode || '直接生成' }}</span>
+          </div>
+
+          <nav class="pl-run-trace-tabs" role="tablist" aria-label="运行记录视图">
+            <button type="button" :class="{ active: activeRunTraceTab === 'timeline' }" @click="activeRunTraceTab = 'timeline'">时间线</button>
+            <button type="button" :class="{ active: activeRunTraceTab === 'api' }" @click="activeRunTraceTab = 'api'">API 调用</button>
+            <button type="button" :class="{ active: activeRunTraceTab === 'skill' }" @click="activeRunTraceTab = 'skill'">技能诊断</button>
+            <button type="button" :class="{ active: activeRunTraceTab === 'export' }" @click="activeRunTraceTab = 'export'">导出/复制</button>
+          </nav>
+
+          <div class="pl-run-trace-body">
+            <div v-if="activeRunTraceTab === 'timeline'" class="pl-run-trace-section">
+              <div v-for="event in selectedRunTrace.events" :key="event.id" class="pl-run-trace-event" :class="'is-' + event.level">
+                <span>{{ formatRunTraceTime(event.ts) }}</span>
+                <strong>{{ event.label }}</strong>
+                <pre v-if="event.detail">{{ event.detail }}</pre>
+              </div>
+              <div v-if="selectedRunTrace.error" class="pl-run-trace-error">{{ selectedRunTrace.error }}</div>
+            </div>
+
+            <div v-else-if="activeRunTraceTab === 'api'" class="pl-run-trace-section">
+              <div v-for="call in selectedRunTrace.apiCalls" :key="call.id" class="pl-run-trace-api">
+                <div class="pl-run-trace-api-head">
+                  <strong>第 {{ call.seq }} 次调用</strong>
+                  <span :class="'is-' + call.status">{{ runTraceStatusText(call.status) }}</span>
+                  <span>{{ call.skillName || call.skillId || '无技能' }}</span>
+                  <span>{{ call.model || '未记录模型' }}</span>
+                  <span>{{ call.durationMs ? call.durationMs + 'ms' : '未记录耗时' }}</span>
+                </div>
+                <details>
+                  <summary>请求消息</summary>
+                  <pre v-for="(message, index) in call.requestMessages" :key="index">[{{ message.role }}]\n{{ message.content }}</pre>
+                </details>
+                <details>
+                  <summary>流式输出</summary>
+                  <pre>{{ call.streamText || '本次没有流式内容。' }}</pre>
+                </details>
+                <details>
+                  <summary>完整返回</summary>
+                  <pre>{{ call.responseText || '本次没有返回内容。' }}</pre>
+                </details>
+                <div v-if="call.error" class="pl-run-trace-error">{{ call.error }}</div>
+              </div>
+              <div v-if="selectedRunTrace.apiCalls.length === 0" class="pl-run-trace-empty">本次运行没有 API 调用。</div>
+            </div>
+
+            <div v-else-if="activeRunTraceTab === 'skill'" class="pl-run-trace-section">
+              <div v-if="selectedRunTrace.folderDiagnostics?.length" class="pl-run-trace-folders">
+                <RealSkillDiagnosticsPanel
+                  v-for="(item, index) in selectedRunTraceFolderDiagnostics"
+                  :key="index"
+                  :status="item.status"
+                  :diagnostics="item.diagnostics"
+                  :request-messages="item.apiMeta?.requestMessages || []"
+                  :from-cache="item.fromCache"
+                />
+              </div>
+
+              <div class="pl-run-trace-legacy">
+                <div class="pl-run-trace-legacy-head">
+                  <strong>技能执行摘要</strong>
+                  <button type="button" class="btn-sm btn-secondary" @click="showSuggestions = !showSuggestions">优化建议</button>
+                </div>
+                <div v-for="log in selectedRunTraceLegacyLogs" :key="log.id" class="pl-run-trace-legacy-item" :class="'is-' + log.status">
+                  <div class="pl-run-trace-legacy-top">
+                    <span>{{ log.stepName }}</span>
+                    <span>{{ log.mode }}</span>
+                    <span>{{ log.skillNames.join('、') }}</span>
+                    <span>{{ log.duration }}ms</span>
+                    <button type="button" class="btn-icon" title="删除摘要" @click="execLogStore.removeLog(log.id)">&times;</button>
+                  </div>
+                  <details>
+                    <summary>查看提示词与结果</summary>
+                    <pre>提示词：{{ log.prompt }}</pre>
+                    <pre>结果：{{ log.result }}</pre>
+                  </details>
+                  <div v-if="log.status === 'success'" class="pl-run-trace-feedback">
+                    <button type="button" class="btn-sm btn-secondary" @click="execLogStore.setFeedback(log.id, 'up')" :class="{ active: log.feedback === 'up' }">点赞</button>
+                    <button type="button" class="btn-sm btn-secondary" @click="execLogStore.setFeedback(log.id, 'down')" :class="{ active: log.feedback === 'down' }">点踩</button>
+                  </div>
+                </div>
+                <div v-if="selectedRunTraceLegacyLogs.length === 0" class="pl-run-trace-empty">本层级暂无技能执行摘要。</div>
+                <div v-if="showSuggestions" class="pl-run-trace-suggestions">
+                  <p v-for="(sg, si) in execLogStore.getSuggestions()" :key="si">{{ sg }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div v-else class="pl-run-trace-section">
+              <div class="pl-run-trace-export">
+                <button type="button" class="btn-primary" @click="exportSelectedRunTrace">导出本次 JSON</button>
+                <button type="button" class="btn-secondary" @click="copySelectedRunTrace">复制完整文本</button>
+              </div>
+              <p class="pl-run-trace-export-tip">JSON 会保存请求、流式输出、返回、usage、诊断和运行错误，导出前自动隐藏 API Key。</p>
+            </div>
+          </div>
+        </section>
+
+        <section v-else class="pl-run-trace-detail pl-run-trace-detail-empty">
+          请选择左侧任意一次运行查看详情。
+        </section>
       </div>
-      <div v-if="execLogStore.logs.length === 0" class="pl-exec-empty">暂无执行日志</div>
-      <div class="pl-exec-actions" v-if="execLogStore.logs.length > 0">
-        <button class="btn-sm btn-secondary" @click="execLogStore.clearLogs()">清空日志</button>
-        <button class="btn-sm btn-secondary" @click="showSuggestions = !showSuggestions">优化建议 ({{ execLogStore.getSuggestions().length }})</button>
-      </div>
-      <div class="pl-exec-suggestions" v-if="showSuggestions && execLogStore.getSuggestions().length > 0">
-        <div v-for="(sg, si) in execLogStore.getSuggestions()" :key="si" class="pl-exec-suggestion">
-          {{ sg }}
-        </div>
-      </div>
-    </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from "vue"
+import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, nextTick } from "vue"
 import { usePipelineStore } from "../../stores/pipeline"
 import { useProjectStore } from "../../stores/project"
 import { useProviderStore } from "../../stores/provider"
-import { useSkillStore } from "../../stores/skill"
+import { useSkillStore, type Skill } from "../../stores/skill"
 import { useAgentStore } from "../../stores/agent"
 import { useEditorStore } from "../../stores/editor"
 import { useExecutionLogStore } from "../../stores/executionLog"
+import { useRunTraceStore } from "../../stores/runTrace"
+import { useSettingsStore } from "../../stores/settings"
 import { useAiTools } from "../../composables/useAiTools"
 import { getAiService } from "../../services/aiService"
+import { routeSkill } from "../../services/skillRouter"
+import { createApiCallBudget } from "../../services/apiCallBudget"
+import { formatFolderSkillBoundary } from "../../services/folderSkillBoundary"
 import { renderMarkdown } from "../../utils/markdownService"
 import { getSkillAgentKey, migrateSkillAgentBindings, normalizeSkillAgentBindings } from "../../services/skillAgentBinding"
+import { loadRealSkill } from "../../services/realSkillLoader"
 import { useConfigExchange } from "../../composables/useConfigExchange"
 import type { PipelineBindingRecord } from "../../services/configExchange"
 import { storageKey } from "../../utils/storage-key"
 import PipelineFlow from "./PipelineFlow.vue"
+import GenerationProgressBar from "./GenerationProgressBar.vue"
+import { useDragSort } from "../../composables/useDragSort"
 import { extractMemory, unifiedMemoryAiCall } from "../../services/memoryExtractor"
 import { mergeMemory } from "../../services/memoryMerger"
 import type { ExtractedMemoryData } from "../../services/memoryExtractor"
@@ -885,20 +884,29 @@ import { conversationContextService } from "../../services/conversationContextSe
 import { retrieveContext } from "../../services/memoryRetriever"
 import { parseGenerationResult } from "../../services/generationResult"
 import { buildChapterExecutionPrompt, createChapterExecutionPackage } from "../../services/chapterExecutionPackage"
-import { buildChainSkillPrompt } from "../../services/chainExecution"
+import { appendMemoryPromptOnce, buildChainSkillPrompt, formatMemoryPrompt } from "../../services/chainExecution"
 import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from "../../services/skillValidation"
 import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from "../../services/chainBreakpoint"
 import { selectCompleteChapters, validateChapterNarrative, validateVolumeNarrative } from "../../services/narrativeValidation"
 import { buildVolumePrompt, clampGeneratedVolumes, hasVolumeContent } from "../../services/volumeGeneration"
 import type { VolumeGenerateMode } from "../../services/volumeGeneration"
+import { DeAiProcessor, DEAI_METHODOLOGY_PROMPT } from "../../services/de-ai"
+import type { RealSkillExecutionResult } from "../../services/realSkillTypes"
+import RealSkillDiagnosticsPanel from "../common/RealSkillDiagnosticsPanel.vue"
 
 defineEmits<{ close: [], minimize: [], openOutline: [] }>()
 
 
-const showExecLog = ref(false)
 const showFlowView = ref(false)
 const showSuggestions = ref(false)
 const expandedLog = ref<string | null>(null)
+const showRunTracePanel = ref(false)
+const selectedRunTraceId = ref<string | null>(null)
+const activeRunTraceTab = ref<'timeline' | 'api' | 'skill' | 'export'>('timeline')
+const selectedRunTrace = computed(() => selectedRunTraceId.value ? runTraceStore.getRun(selectedRunTraceId.value) : null)
+const selectedRunTraceFolderDiagnostics = computed(() => (selectedRunTrace.value?.folderDiagnostics || []) as RealSkillExecutionResult[])
+const selectedRunTraceLegacyLogs = computed(() => selectedRunTrace.value ? execLogStore.logs.filter(item => item.step === selectedRunTrace.value?.step) : [])
+const lastFolderSkillDiagnostics = ref<RealSkillExecutionResult | null>(null)
 const pipelineStore = usePipelineStore()
 const projectStore = useProjectStore()
 const providerStore = useProviderStore()
@@ -906,6 +914,8 @@ const skillStore = useSkillStore()
 const agentStore = useAgentStore()
 const editorStore = useEditorStore()
 const execLogStore = useExecutionLogStore()
+const runTraceStore = useRunTraceStore()
+const settingsStore = useSettingsStore()
 const { importBindingsFromFile, exportBindingsJSON } = useConfigExchange()
 const bindingImportPreview = ref<{
   ok: boolean
@@ -939,15 +949,67 @@ const settingsGenerationFeedbackVisible = computed(() =>
     : settingsGenerationLogs.value.length > 0
 )
 
+function openRunTracePanel() {
+  if (!selectedRunTraceId.value && runTraceStore.sortedRuns.length > 0) {
+    selectedRunTraceId.value = runTraceStore.sortedRuns[0].id
+  }
+  showRunTracePanel.value = true
+}
+
+function closeRunTracePanel() {
+  showRunTracePanel.value = false
+}
+
+function formatRunTraceTime(ts: number) {
+  const d = new Date(ts)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+}
+
+function runTraceStatusText(status: string) {
+  if (status === 'running') return '进行中'
+  if (status === 'success') return '成功'
+  if (status === 'canceled') return '已取消'
+  return '失败'
+}
+
+async function copySelectedRunTrace() {
+  const run = selectedRunTrace.value
+  if (!run) return
+  try {
+    await navigator.clipboard.writeText(runTraceStore.exportRunToText(run))
+  } catch {
+    await window.electronAPI?.clipboardWrite(runTraceStore.exportRunToText(run))
+  }
+}
+
+async function exportSelectedRunTrace() {
+  const run = selectedRunTrace.value
+  if (!run) return
+  const exportData = {
+    schema: 'shenyi.run-trace',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    run: runTraceStore.exportRunToJson(run)
+  }
+  const result = await window.electronAPI?.runTraceExport(exportData)
+  if (result && !result.success) {
+    appendStepLog(run.step, '运行记录导出失败：' + (result.reason || '未知错误'))
+  }
+}
+
 function closeSettingsGenerationFeedback() {
   settingsGenerationLogs.value = []
+  if (activeGenerationFeedbackStep.value === 1) activeGenerationFeedbackStep.value = null
 }
 function closeVolumeGenerationFeedback() {
   volumeGenerationLogs.value = []
+  if (activeGenerationFeedbackStep.value === 2) activeGenerationFeedbackStep.value = null
 }
 
 function closeChapterGenerationFeedback() {
   chapterGenerationLogs.value = []
+  if (activeGenerationFeedbackStep.value === 3) activeGenerationFeedbackStep.value = null
 }
 
 const expandedVolumeIndex = ref(-1)
@@ -986,6 +1048,56 @@ function volumeStatusClass(vol: any) {
 const volumeGenerationLogs = ref<string[]>([])
 const chapterGenerationLogs = ref<string[]>([])
 const bodyGenerationLogs = ref<string[]>([])
+
+interface SkillStepState {
+  skillId: string
+  index: number
+  status: 'running' | 'done' | 'failed' | 'skipped'
+  attempts?: number
+}
+const skillStepStates = ref<SkillStepState[]>([])
+
+function handleRealSkillPass(event: Event) {
+  const detail = (event as CustomEvent<{
+    skillId: string
+    index: number
+    total: number
+    name: string
+    status: 'running' | 'done' | 'failed' | 'skipped'
+  }>).detail
+  if (!detail?.skillId) return
+  const stepId = `${detail.skillId} · ${detail.name || `第 ${detail.index + 1} 步`}（第 ${detail.index + 1}/${detail.total} 步）`
+  const existing = skillStepStates.value.find(item => item.skillId === stepId)
+  if (existing) {
+    existing.status = detail.status
+    return
+  }
+  skillStepStates.value.push({
+    skillId: stepId,
+    index: detail.index,
+    status: detail.status
+  })
+}
+
+function handleRealSkillStep(event: Event) {
+  const detail = (event as CustomEvent<SkillStepState>).detail
+  if (!detail?.skillId) return
+  const existing = skillStepStates.value.find(item => item.skillId === detail.skillId)
+  if (existing) {
+    Object.assign(existing, detail)
+    return
+  }
+  skillStepStates.value.push({ ...detail })
+}
+
+onMounted(() => {
+  window.addEventListener('real-skill:step', handleRealSkillStep)
+  window.addEventListener('real-skill:pass', handleRealSkillPass)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('real-skill:step', handleRealSkillStep)
+  window.removeEventListener('real-skill:pass', handleRealSkillPass)
+})
 const activeVolumeGenerationIndex = ref(-1)
 const volumeGenerationFeedbackVisible = computed(() =>
   pipelineStore.isGenerating
@@ -1006,20 +1118,51 @@ const bodyGenerationFeedbackVisible = computed(() =>
 
 function closeBodyGenerationFeedback() {
   bodyGenerationLogs.value = []
+  if (activeGenerationFeedbackStep.value === 4) activeGenerationFeedbackStep.value = null
 }
 
 function appendPipelineStream(step: number, text: string) {
   const logs = step === 1 ? settingsGenerationLogs : step === 2 ? volumeGenerationLogs : step === 3 ? chapterGenerationLogs : bodyGenerationLogs
   const clean = (text || '').trim()
   if (!clean) return
+  if (runTraceStore.currentRunId && runTraceStore.currentApiCallId) {
+    runTraceStore.appendStream(runTraceStore.currentRunId, runTraceStore.currentApiCallId, text)
+  }
   const preview = clean.length > 500 ? clean.slice(-500) : clean
   const marker = 'API实时输出：'
   const index = logs.value.findIndex(line => line.startsWith(marker))
   const line = marker + preview
   if (index >= 0) logs.value[index] = line
   else logs.value.push(line)
+  autoScrollLog(step)
 }
 
+function appendStepLog(step: number, line: string) {
+  const logs = step === 1 ? settingsGenerationLogs : step === 2 ? volumeGenerationLogs : step === 3 ? chapterGenerationLogs : bodyGenerationLogs
+  const clean = (line || '').trim()
+  if (!clean) return
+  logs.value.push(clean)
+  autoScrollLog(step)
+}
+
+const LOG_CONTAINER_IDS: Record<number, string> = {
+  1: 'pl-settings-api-log',
+  2: 'pl-volume-api-log',
+  3: 'pl-ch-api-log',
+  4: 'pl-body-api-log',
+}
+
+function autoScrollLog(step: number) {
+  nextTick(() => {
+    const el = document.getElementById(LOG_CONTAINER_IDS[step])
+    if (el) el.scrollTop = el.scrollHeight
+  })
+}
+
+watch(() => settingsGenerationLogs.value.length, () => autoScrollLog(1))
+watch(() => volumeGenerationLogs.value.length, () => autoScrollLog(2))
+watch(() => chapterGenerationLogs.value.length, () => autoScrollLog(3))
+watch(() => bodyGenerationLogs.value.length, () => autoScrollLog(4))
 type MemoryPreviewItem = {
   key: string
   kind: string
@@ -1385,7 +1528,9 @@ const currentBodyContent = computed(() => {
 })
 
 async function saveStepConfig() {
+  const existing = await window.electronAPI.storageRead(storageKey("pipeline_step_config")) || {}
   await window.electronAPI.storageWrite(storageKey("pipeline_step_config"), {
+    ...existing,
     agents: JSON.parse(JSON.stringify(stepAgents.value)),
     skills: JSON.parse(JSON.stringify(stepSkills.value)),
     modes: JSON.parse(JSON.stringify(stepSkillModes.value)),
@@ -1442,6 +1587,8 @@ async function applyPipelineBindings() {
 async function saveBookWordCount() {
   const wan = Number(bookWordCount.value)
   if (!isNaN(wan) && wan > 0) {
+    projectStore.bookWordCountChars = Math.round(wan * 10000)
+    projectStore.saveProject()
     await window.electronAPI.storageWrite(
       storageKey("pipeline_step_config"),
       Object.assign(
@@ -1453,6 +1600,12 @@ async function saveBookWordCount() {
 }
 
 async function saveVolumeConfig() {
+  projectStore.pipelineConfig = {
+    volumeCount: Number(volumeCount.value) || 3,
+    volumeWords: Number(volumeWords.value) || 100000,
+    chapterWords: Number(selectedVolume.value?.wordsPerChapter || chapterWords.value) || 3500
+  }
+  projectStore.saveProject()
   await window.electronAPI.storageWrite(
     storageKey("pipeline_step_config"),
     Object.assign(
@@ -1500,6 +1653,7 @@ type PipelineSkillTemplate = {
   id: string
   name: string
   template: string
+  skill?: Skill
   customVars?: Record<string, string>
   injectMode?: string
   outputFormat?: 'json' | 'text'
@@ -1514,10 +1668,11 @@ function getStepSkillTemplates(step: number): PipelineSkillTemplate[] {
   const templates: PipelineSkillTemplate[] = []
   for (const sid of ids) {
     const s = skillStore.getSkill(sid)
-    if (s && s.template) templates.push({
+    if (s && (s.template || (s.format === "folder" && s.folderPath))) templates.push({
       id: s.id,
-      name: s.name,
+      name: skillStore.displaySkillName(s),
       template: s.template,
+      skill: s,
       customVars: s.customVars || {},
       injectMode: s.injectMode || "system_prefix",
       outputFormat: s.outputFormat || "text",
@@ -1528,6 +1683,15 @@ function getStepSkillTemplates(step: number): PipelineSkillTemplate[] {
     })
   }
   return templates
+}
+
+async function hydrateFolderTemplates(templates: PipelineSkillTemplate[]) {
+  for (const t of templates) {
+    if (t.skill?.format !== 'folder' || !t.skill.folderPath) continue
+    if (t.template && t.template.trim()) continue
+    const loaded = await loadRealSkill(t.skill.folderPath)
+    if (loaded.package?.template) t.template = loaded.package.template
+  }
 }
 
 function getStepSkillTemplate(step: number): string {
@@ -1596,9 +1760,75 @@ async function callValidatedSkill(
   prompt: string,
   inputContext: unknown,
   timeoutMs: number | undefined,
-  skillAgentId: string | undefined
+  skillAgentId: string | undefined,
+  baseTemplateOverride: string | undefined = undefined,
+  resolvedTemplate: string | undefined = undefined
 ): Promise<string> {
   validateSkillInputOrThrow(template, inputContext)
+  if (template.skill && template.skill.format === "folder" && template.skill.folderPath) {
+    const agentId = skillAgentId || getStepAgentId(step)
+    const agentConfig = agentId ? (agentStore.getAgent(agentId) || null) : getStepAgentConfig(step)
+    const agentSource = skillAgentId ? "user-binding" : agentId ? "step-default" : "none"
+    const route = await routeSkill(template.skill, {
+      input: prompt,
+      agent: agentConfig ? {
+        id: agentId,
+        model: agentConfig.model,
+        temperature: agentConfig.temperature,
+        maxTokens: agentConfig.maxTokens,
+        systemPrompt: agentConfig.systemPrompt
+      } : null,
+      agentSource,
+      systemPromptSuffix: step === 4 ? DEAI_METHODOLOGY_PROMPT : "",
+      baseTemplateOverride,
+      resolvedTemplate,
+      purpose: "generate",
+      budget: createApiCallBudget(8),
+      skillId: template.id,
+      aiService: await getAiService(),
+      stream: true,
+      signal: pipelineStore.getGenerationSignal(),
+      timeoutMs,
+      onChunk: (text: string) => appendPipelineStream(step, text)
+    })
+    if (route.mode === "folder" && route.folderResult) {
+      const folderStatus = route.folderResult.status
+      lastFolderSkillDiagnostics.value = route.folderResult
+      const traceRunId = runTraceStore.currentRunId
+      if (traceRunId) {
+        runTraceStore.appendFolderDiagnostics(traceRunId, {
+          ...route.folderResult,
+          output: route.folderResult.output
+        })
+        const apiMeta = route.folderResult.apiMeta
+        if (apiMeta?.requestMessages?.length) {
+          const apiCallId = runTraceStore.currentApiCallId
+            || runTraceStore.startApiCall(traceRunId, {
+              step,
+              skillId: template.id,
+              skillName: template.name,
+              agentId: agentId || undefined,
+              agentName: agentConfig?.name || agentId || undefined,
+              providerId: apiMeta.providerId || activeProviderId(),
+              providerName: providerStore.getProvider(apiMeta.providerId || activeProviderId())?.name,
+              model: agentConfig?.model || activeProviderModel(),
+              requestMessages: apiMeta.requestMessages
+            })
+          if (!runTraceStore.currentApiCallId) runTraceStore.setApiCallRequest(traceRunId, apiCallId, apiMeta.requestMessages)
+        }
+      }
+      if (folderStatus === "degraded") {
+        const warnings = route.folderResult.diagnostics
+          .map(item => item.message)
+          .filter(Boolean)
+          .join("；")
+        if (warnings) appendStepLog(step, `「${template.name}」降级完成：${warnings}`)
+      }
+      return route.folderResult.output
+    }
+    if (route.fallbackReason) throw new Error(route.fallbackReason)
+    throw new Error("folder SKILL 执行失败")
+  }
   // Preserve the legacy outputFormat contract: malformed JSON gets one repair attempt.
   const maxAttempts = template.retryPolicy
     ? getSkillMaxAttempts(template.retryPolicy)
@@ -1618,6 +1848,17 @@ async function callValidatedSkill(
     }
   }
   throw currentError instanceof Error ? currentError : new Error("技能输出校验失败")
+}
+
+function activeProviderId(): string {
+  const agentConfig = getStepAgentConfig(0)
+  return agentConfig?.provider || providerStore.preferredGenerateProvider?.id || ''
+}
+
+function activeProviderModel(): string {
+  const agentConfig = getStepAgentConfig(0)
+  const provider = providerStore.getProvider(agentConfig?.provider || "") || providerStore.preferredGenerateProvider
+  return agentConfig?.model || provider?.selectedModel || provider?.models?.[0] || ''
 }
 
 function getStepSkillMode(step: number): string {
@@ -2084,13 +2325,30 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
   const model = agentConfig?.model || activeProvider?.selectedModel || activeProvider?.models?.[0] || ""
   const temperature = agentConfig?.temperature ?? activeProvider?.temperature ?? 0.7
   const maxTokens = agentConfig?.maxTokens || activeProvider?.maxTokens || 8192
-  const skillPart = promptParts?.systemSkill ?? skillTemplate ?? ""
-  const agentPart = agentConfig?.systemPrompt || ""
-  const systemPrompt = [skillPart, agentPart].filter(Boolean).join("\n\n") || "你是专业小说创作助手。"
+ const skillPart = promptParts?.systemSkill ?? skillTemplate ?? ""
+ const agentPart = agentConfig?.systemPrompt || ""
+ // P1: 正文层注入降AI方法论（17条生成阶段约束）
+ const deaiPrompt = step === 4 ? DEAI_METHODOLOGY_PROMPT : ""
+ const systemPrompt = [skillPart, agentPart, deaiPrompt].filter(Boolean).join("\n\n") || "你是专业小说创作助手。"
   const userPrompt = [promptParts?.userPrefix, prompt, promptParts?.userSuffix].filter(Boolean).join("\n\n")
   const messages = [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }]
   const aiService = await getAiService()
-  const result = await aiService.callAi({
+  const runId = runTraceStore.currentRunId
+  const apiCallId = runId ? runTraceStore.startApiCall(runId, {
+    step,
+    skillId: skillId || undefined,
+    skillName: skillId ? (skillStore.skills.find(s => s.id === skillId)?.name || skillId) : undefined,
+    agentId: agentId || undefined,
+    agentName: agentId ? (agentStore.getAgent(agentId)?.name || agentId) : undefined,
+    providerId: activeProvider?.id,
+    providerName: activeProvider?.name,
+    model,
+    temperature,
+    maxTokens,
+    requestMessages: messages
+  }) : ""
+  try {
+    const result = await aiService.callAi({
     purpose: 'generate',
     messages,
     model,
@@ -2101,8 +2359,27 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
     timeoutMs,
     retry: true,
     meta: { source: 'PipelinePanel.callApiWithAgent', step, agentId: agentId || undefined, skillId: skillId || undefined }
-  })
-  return result.text || ""
+    })
+    if (runId && apiCallId) {
+      runTraceStore.finishApiCall(runId, apiCallId, {
+        status: "success",
+        responseText: result.text || "",
+        finishReason: result.finishReason,
+        usage: result.usage,
+        durationMs: result.durationMs
+      })
+    }
+    return result.text || ""
+  } catch (e) {
+    if (runId && apiCallId) {
+      const canceled = signal?.aborted || pipelineStore.isGenerationCanceled()
+      runTraceStore.finishApiCall(runId, apiCallId, {
+        status: canceled ? "canceled" : "failed",
+        error: e instanceof Error ? e.message : String(e)
+      })
+    }
+    throw e
+  }
 }
 
 async function callApiWithAgentTimeout(step: number, skillTemplate: string, prompt: string, timeoutMs: number, skillAgentOverride?: string, promptParts?: PromptParts, skillId?: string): Promise<string> {
@@ -2114,10 +2391,11 @@ async function runStepSkills(step: number, prompt: string, timeoutMs: number | u
   const startTime = Date.now();
   const stepName = "step-" + step;
   const templates = getStepSkillTemplates(step)
+  await hydrateFolderTemplates(templates)
   const mode = getStepSkillMode(step)
   const skillNames = templates.map((t) => t.name).filter(Boolean);
   try {
-    const result = await _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate);
+    const result = await _runStepSkillsInner(step, prompt, timeoutMs, fallbackTemplate, templates);
     execLogStore.addLog({step,stepName,mode,skillNames,prompt:(prompt||"").substring(0,500),result:(result||"").substring(0,500),duration:Date.now()-startTime,status:"success"});
     return result;
   } catch (e) {
@@ -2127,21 +2405,43 @@ async function runStepSkills(step: number, prompt: string, timeoutMs: number | u
   }
 }
 
-async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string) {
-  const templates = getStepSkillTemplates(step)
+async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, hydratedTemplates: PipelineSkillTemplate[]) {
+  const templates = hydratedTemplates
   const mode = getStepSkillMode(step)
   const baseCtx = buildTemplateContext(step, prompt)
-  const memoryPrompt = baseCtx.memoryContext
-    ? "\n\n[相关记忆]\n" + baseCtx.memoryContext
-    : ""
-  const generationPrompt = prompt + memoryPrompt
+  const memoryPrompt = formatMemoryPrompt(baseCtx.memoryContext)
+  const generationPrompt = appendMemoryPromptOnce(prompt, baseCtx.memoryContext)
   // Use SkillExecutionEngine for split-merge / multi-step
   if ((mode === "split-merge" || mode === "multi-step") && templates.length > 0) {
     const engine = (window as any).SkillExecutionEngine
     if (engine) {
+      if (runTraceStore.currentRunId) {
+        runTraceStore.addEvent(runTraceStore.currentRunId, {
+          type: "engine-start",
+          level: "info",
+          label: mode === "split-merge" ? "分合执行引擎开始" : "多步执行引擎开始",
+          detail: templates.map(t => t.name || t.id).join("、")
+        })
+      }
       const _engineAiRequest = async (opts: any) => {
+        const traceRunId = runTraceStore.currentRunId
+        const traceCallId = traceRunId ? runTraceStore.startApiCall(traceRunId, {
+          step,
+          skillId: opts.skillId || templates[0]?.id,
+          skillName: opts.skillName || templates[0]?.name,
+          agentName: getStepAgentName(step) || undefined,
+          providerId: activeProviderId() || undefined,
+          providerName: providerStore.getProvider(activeProviderId())?.name,
+          model: opts.model || activeProviderModel(),
+          temperature: opts.temperature,
+          maxTokens: opts.maxTokens,
+          requestMessages: opts.messages || []
+        }) : ''
+        const startedAt = Date.now()
         const aiSvc = await getAiService()
-        const result = await aiSvc.callAi({
+        let result: Awaited<ReturnType<typeof aiSvc.callAi>>
+        try {
+          result = await aiSvc.callAi({
           purpose: 'generate',
           messages: opts.messages || [],
           model: opts.model || undefined,
@@ -2152,7 +2452,26 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           signal: pipelineStore.getGenerationSignal(),
           meta: { source: 'PipelinePanel.engine' },
           onChunk: opts.onChunk
-        })
+          })
+        } catch (error) {
+          if (traceRunId && traceCallId) {
+            const canceled = pipelineStore.isGenerationCanceled()
+            runTraceStore.finishApiCall(traceRunId, traceCallId, {
+              status: canceled ? 'canceled' : 'failed',
+              error: error instanceof Error ? error.message : String(error)
+            })
+          }
+          throw error
+        }
+        if (traceRunId && traceCallId) {
+          runTraceStore.finishApiCall(traceRunId, traceCallId, {
+            status: 'success',
+            responseText: result.text || '',
+            finishReason: result.finishReason,
+            usage: result.usage,
+            durationMs: result.durationMs ?? (Date.now() - startedAt)
+          })
+        }
         return { text: result.text, reasoning: result.reasoning }
       }
       const engineSkills = templates.map((t: any) => ({ name: t.name, template: t.template, customVars: t.customVars || {} }))
@@ -2163,6 +2482,14 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       } else {
         console.log("[PIPELINE] multi-step mode, step=" + step + " skills=" + engineSkills.length)
         result = await engine.multiStep(generationPrompt, engineSkills.slice(0, 4), { aiRequest: _engineAiRequest, splitSize: 1500, stream: true, templateContext: baseCtx })
+      }
+      if (runTraceStore.currentRunId) {
+        runTraceStore.addEvent(runTraceStore.currentRunId, {
+          type: "engine-finished",
+          level: "info",
+          label: "执行引擎完成",
+          detail: "返回 " + String(result?.text || '').length + " 字"
+        })
       }
       return result?.text || prompt
     }
@@ -2206,12 +2533,20 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       if (step === 2) {
         volumeGenerationLogs.value.push("卷纲链式步骤 " + (si + 1) + "/" + templates.length + "：正在执行「" + (t.name || "未命名技能") + "」")
       }
-      if (step >= 2 && step <= 3) {
+  if (step >= 2 && step <= 3) {
         pipelineStore.updateProgress(
           Math.min(65, 15 + Math.round(((si + 1) / templates.length) * 50)),
           "链式生成中：" + (si + 1) + "/" + templates.length
-        )
-      }
+      )
+    }
+    if (runTraceStore.currentRunId) {
+      runTraceStore.addEvent(runTraceStore.currentRunId, {
+      type: "chain-step",
+      level: "info",
+      label: `链式步骤 ${si + 1}/${templates.length}`,
+      detail: `${t.name || t.id}${resumePoint.resumed ? '（断点续跑）' : ''}`
+      })
+    }
       // Need 1: per-skill agent override
       const skillAgentId = getStepSkillAgentId(step, t.id)
       const injection = getPromptParts(resolvedTemplate, t.injectMode || "system_prefix")
@@ -2224,7 +2559,9 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           nextPrompt,
           { ...ctxForSkill, previousOutput },
           timeoutMs,
-          skillAgentId
+          skillAgentId,
+          undefined,
+          resolvedTemplate
         )
         chainCtx.prevResponse = current
         // Persist a complete success checkpoint immediately after each Skill.
@@ -2270,18 +2607,26 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
   const merged = mergePromptParts(resolvedParts)
   templates.forEach((template) => validateSkillInputOrThrow(template, baseCtx))
   const combined = merged.systemSkill || resolveSkillTemplate(fallbackTemplate || "", baseCtx)
+  const folderSkills = templates.filter((t) => t.skill?.format === "folder" && t.skill.folderPath)
+  if (folderSkills.length > 1) {
+    appendStepLog(step, `compose 提示：${formatFolderSkillBoundary('compose-multi')}`)
+  } else if (folderSkills.length === 1 && templates.some((t) => getStepSkillAgentId(step, t.id))) {
+    appendStepLog(step, "compose 提示：并行模式下技能级智能体不会生效，本层将使用智能体配置执行文件夹技能")
+  }
   const composePrompt = generationPrompt
   let result: string
   const composeTemplate: PipelineSkillTemplate = {
     id: "compose",
     name: templates.map(t => t.name).filter(Boolean).join(" + ") || "Compose",
     template: combined,
+    // Keep the folder skill reference so compose cannot silently discard real-skill execution.
+    skill: templates.find(t => t.skill?.format === "folder" && t.skill.folderPath)?.skill,
     outputFormat: templates.some(t => t.outputFormat === "json") ? "json" : "text",
     outputSchema: templates.find(t => t.outputSchema)?.outputSchema,
     validationRules: templates.flatMap(t => t.validationRules || []),
     retryPolicy: templates.reduce((max, t) => Math.max(max, getSkillMaxAttempts(t.retryPolicy)), 1)
   }
-  result = await callValidatedSkill(step, composeTemplate, merged, composePrompt, baseCtx, timeoutMs, undefined)
+  result = await callValidatedSkill(step, composeTemplate, merged, composePrompt, baseCtx, timeoutMs, undefined, combined)
   return result
 }
 
@@ -2347,11 +2692,22 @@ function removeSetting(index: number) {
 
 async function genSettings() {
   if (!projectStore.hasOutline || !projectStore.outlineLocked) return
+  const traceRunId = runTraceStore.startRun({
+    step: 1,
+    stepName: "设定层",
+    mode: "settings",
+    projectId: projectStore.currentProjectId || undefined,
+    projectName: projectStore.projectName,
+    skillNames: getStepSkillTemplates(1).map(t => t.name).filter(Boolean),
+    skillMode: getStepSkillMode(1)
+  })
   activeGenerationFeedbackStep.value = 1
+  skillStepStates.value = []
   settingsGenerationLogs.value = ["已读取大纲锁定状态，准备构造设定生成请求"]
   pipelineStore.startGeneration()
   pipelineStore.updateProgress(10, "正在读取已确认大纲并生成设定")
   try {
+    runTraceStore.addEvent(traceRunId, { type: "prompt-built", level: "info", label: "设定层提示词已构建" })
     const prompt = "[已确认大纲]\n" + projectStore.pipelineOutlineText + "\n\n请基于这份已确认的大纲，提取并生成设定项。根据内容自动分配category；没有合适分类时使用设定类。输出JSON数组，每项含name/category/attrsText字段。"
     settingsGenerationLogs.value.push("请求已发送：正在等待 API 返回设定内容")
     const result = await runStepSkills(1, prompt, undefined, "你是设定生成专家。基于小说大纲生成详细设定。")
@@ -2386,6 +2742,7 @@ async function genSettings() {
           selectedSettingCategory.value = firstCategoryWithSettings(["设定类", ...sc2.categories])
         }
         settingsGenerationLogs.value.push("设定已写入分类并保存到当前项目")
+        runTraceStore.addEvent(traceRunId, { type: "write", level: "info", label: "设定已写入项目", detail: "新增 " + valid.length + " 项" })
         pipelineStore.updateProgress(100, "设定生成完成")
         styleCardExpanded.value = true
       } else {
@@ -2400,12 +2757,25 @@ async function genSettings() {
   } catch (e: any) {
     settingsGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
     pipelineStore.failGeneration(e.message)
+  } finally {
+    const status = pipelineStore.generationStatus === "canceled" ? "canceled" : pipelineStore.generationStatus.startsWith("failed") ? "failed" : "success"
+    runTraceStore.finishRun(traceRunId, status)
   }
 }
 
 async function genVolumes(mode: string) {
   if (!projectStore.pipelineOutlineText) return
+  const traceRunId = runTraceStore.startRun({
+    step: 2,
+    stepName: "卷纲层",
+    mode,
+    projectId: projectStore.currentProjectId || undefined,
+    projectName: projectStore.projectName,
+    skillNames: getStepSkillTemplates(2).map(t => t.name).filter(Boolean),
+    skillMode: getStepSkillMode(2)
+  })
   activeGenerationFeedbackStep.value = 2
+  skillStepStates.value = []
   // 新项目会从大纲自动生成占位卷；占位卷没有纲要/摘要，不能作为上一卷记忆。
   const previousVolumes = projectStore.volumes.filter(hasVolumeContent)
   const existingCountBeforeGeneration = previousVolumes.length
@@ -2428,6 +2798,12 @@ async function genVolumes(mode: string) {
     const existingCount = previousVolumes.length
     volumeGenerationLogs.value.push("已读取大纲、设定和全书字数，正在构造卷纲请求")
     const totalWords = Math.max(0, Math.round(bookWordCount.value * 10000))
+    runTraceStore.addEvent(traceRunId, {
+      type: "prompt-built",
+      level: "info",
+      label: "卷纲层提示词已构建",
+      detail: JSON.stringify({ effectiveVolumes, totalWords, existingCount, mode })
+    })
     const allocatedSum = previousVolumes.reduce(
       (sum: number, v: any) => sum + Math.max(0, Math.round(Number(v.allocatedWords || v.suggestedWords) || 0)),
       0
@@ -2457,6 +2833,12 @@ async function genVolumes(mode: string) {
     if (clamped.truncated) {
       const modeLabel = mode === "single" ? "逐卷" : "续生成"
       volumeGenerationLogs.value.push("模型返回 " + volumes.length + " 项，已按" + modeLabel + "模式截取前 " + clamped.volumes.length + " 项")
+      runTraceStore.addEvent(traceRunId, {
+        type: "parse",
+        level: "warn",
+        label: "卷纲数量已按模式截取",
+        detail: `返回 ${volumes.length} 项，截取 ${clamped.volumes.length} 项`
+      })
     }
     volumes = clamped.volumes
     if (volumes.length > 0) {
@@ -2490,6 +2872,7 @@ async function genVolumes(mode: string) {
       }
       projectStore.saveProject()
       volumeGenerationLogs.value.push("卷纲已写入卷框并保存到当前项目")
+      runTraceStore.addEvent(traceRunId, { type: "write", level: "info", label: "卷纲已写入项目", detail: "写入 " + volumes.length + " 卷" })
       pipelineStore.updateProgress(100, "卷纲生成完成")
     } else {
       volumeGenerationLogs.value.push("API 返回内容不是可用的卷纲数组")
@@ -2506,6 +2889,10 @@ async function genVolumes(mode: string) {
       volumeGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
     }
     pipelineStore.failGeneration(e.message)
+    runTraceStore.addEvent(traceRunId, { type: "failed", level: "error", label: "卷纲运行失败", detail: e.message || "未知错误" })
+  } finally {
+    const status = pipelineStore.generationStatus === "canceled" ? "canceled" : pipelineStore.generationStatus.startsWith("failed") ? "failed" : "success"
+    runTraceStore.finishRun(traceRunId, status)
   }
 }
 
@@ -2521,25 +2908,64 @@ async function callChapterApi(prompt: string): Promise<string> {
   if (!model) throw new Error("生成 API 未选择模型")
   chapterGenerationLogs.value.push("已连接生成 API：" + (provider.name || provider.id) + " / " + model)
   const aiService = await getAiService()
-  const callResult = await aiService.callAi({
+  const messages = [
+    { role: "system", content: "你是章节规划师。请严格按照用户要求输出合法 JSON 数组，每项必须包含 title 和 plot 字段。不要输出 Markdown 或解释文字。" },
+    { role: "user", content: prompt }
+  ]
+  const runId = runTraceStore.currentRunId
+  const apiCallId = runId ? runTraceStore.startApiCall(runId, {
+    step: 3,
+    providerId: provider.id,
+    providerName: provider.name,
+    model,
+    requestMessages: messages
+  }) : ""
+  try {
+    const callResult = await aiService.callAi({
     purpose: 'generate',
-    messages: [
-      { role: "system", content: "你是章节规划师。请严格按照用户要求输出合法 JSON 数组，每项必须包含 title 和 plot 字段。不要输出 Markdown 或解释文字。" },
-      { role: "user", content: prompt }
-    ],
+    messages,
     model,
     signal: pipelineStore.getGenerationSignal(),
     onChunk: (text: string) => appendPipelineStream(3, text),
     retry: true,
     meta: { source: 'PipelinePanel.callChapterApi' }
-  })
-  return callResult.text || ""
+    })
+    if (runId && apiCallId) {
+        runTraceStore.finishApiCall(runId, apiCallId, {
+        status: "success",
+        responseText: callResult.text || "",
+        finishReason: callResult.finishReason,
+        usage: callResult.usage,
+        durationMs: callResult.durationMs
+      })
+    }
+    return callResult.text || ""
+  } catch (e) {
+    if (runId && apiCallId) {
+      const canceled = pipelineStore.isGenerationCanceled()
+      runTraceStore.finishApiCall(runId, apiCallId, {
+        status: canceled ? "canceled" : "failed",
+        error: e instanceof Error ? e.message : String(e)
+      })
+    }
+    throw e
+  }
 }
 
 async function genChapters() {
   const vol = selectedVolume.value
   if (!vol) return
+  const traceRunId = runTraceStore.startRun({
+    step: 3,
+    stepName: "章节层",
+    mode: "chapters",
+    projectId: projectStore.currentProjectId || undefined,
+    projectName: projectStore.projectName,
+    skillNames: [],
+    skillMode: "direct"
+  })
   activeGenerationFeedbackStep.value = 3
+  skillStepStates.value = []
   const volId = vol.id || vol.name
   const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
   const totalChapters = Number(vol.chapterCount) || Math.ceil((Number(vol.allocatedWords) || Number(vol.suggestedWords) || Number(volumeWords.value) || 0) / wordsPerChapter)
@@ -2585,6 +3011,12 @@ async function genChapters() {
   }
   await saveChapterBreakpoint(collected.length > 0 ? 'resume-ready' : 'started')
   try {
+    runTraceStore.addEvent(traceRunId, {
+      type: "prompt-built",
+      level: "info",
+      label: "章节层执行参数已构建",
+      detail: JSON.stringify({ volume: vol.name, totalChapters, wordsPerChapter, resumeCount })
+    })
     const volOutline = vol.outline || vol.summary || ""
     const batch = Math.max(1, Math.min(chapterBatchSize.value || 5, 20))
     while (collected.length < totalChapters) {
@@ -2629,6 +3061,7 @@ async function genChapters() {
       projectStore.refreshTree()
       await saveChapterBreakpoint('progress')
       chapterGenerationLogs.value.push("已生成 " + collected.length + "/" + totalChapters + " 章")
+      runTraceStore.addEvent(traceRunId, { type: "write", level: "info", label: "章节批次已写入", detail: `已生成 ${collected.length}/${totalChapters} 章` })
     }
     if (collected.length > 0) {
       const vr = validateChapters(collected, totalChapters)
@@ -2650,12 +3083,25 @@ async function genChapters() {
     await saveChapterBreakpoint('failed')
     pipelineStore.failGeneration(e.message)
     chapterGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
+    runTraceStore.addEvent(traceRunId, { type: "failed", level: "error", label: "章节运行失败", detail: e.message || "未知错误" })
+  } finally {
+    const status = pipelineStore.generationStatus === "canceled" ? "canceled" : pipelineStore.generationStatus.startsWith("failed") ? "failed" : "success"
+    runTraceStore.finishRun(traceRunId, status)
   }
 }
 
 async function genBody(volumeIndex: number, chapterIndex: number) {
   const { vol, volId, chapter: ch } = getBodyChapterByVisibleIndex(volumeIndex, chapterIndex)
   if (!ch) return
+  const traceRunId = runTraceStore.startRun({
+    step: 4,
+    stepName: "正文层",
+    mode: "body",
+    projectId: projectStore.currentProjectId || undefined,
+    projectName: projectStore.projectName,
+    skillNames: getStepSkillTemplates(4).map(t => t.name).filter(Boolean),
+    skillMode: getStepSkillMode(4)
+  })
 
   // Sync the body-stage selectors to the chapter we are generating from.
   bodyVolumeIndex.value = volumeIndex
@@ -2664,18 +3110,28 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
   pipelineStore.startGeneration()
   pipelineStore.updateProgress(10, "AI生成正文中")
   activeGenerationFeedbackStep.value = 4
+  skillStepStates.value = []
   const _bodyWordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
-  bodyGenerationLogs.value = ["已选择卷「" + (vol.name || "未命名") + "」，章节：「" + (ch.title || "未命名") + "」，目标字数：" + _bodyWordsPerChapter]
+    bodyGenerationLogs.value = ["已选择卷「" + (vol.name || "未命名") + "」，章节：「" + (ch.title || "未命名") + "」，目标字数：" + _bodyWordsPerChapter]
   try {
+    bodyGenerationLogs.value.push("正在构建章节执行包…")
     const sc = projectStore.getSettingsCollection()
     const allItems: any[] = []
     for (const cat of sc.categories) {
       const items = sc.items[cat] || []
       allItems.push(...items)
     }
+    bodyGenerationLogs.value.push("已加载设定 " + allItems.length + " 项，准备调用 API")
+    bodyGenerationLogs.value.push("降AI方法论已注入（17条生成约束，仅正文层生效）")
+    pipelineStore.updateProgress(20, "API 生成正文中（已注入降AI约束）")
     const settingsText = allItems.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)).join("\n")
     const boundText = getBoundSettingsText()
     const styleCtx = getStyleContext()
+    const bodyVolId = volId ?? (vol.id || vol.name)
+    const bodyChs = bodyVolId ? (projectStore.chapters[bodyVolId] || []) : []
+    const currentBodyChapterIndex = bodyChs.indexOf(ch)
+    const prevChapter = currentBodyChapterIndex > 0 ? bodyChs[currentBodyChapterIndex - 1] : null
+    const prevChapterSummary = prevChapter ? (prevChapter.summary || prevChapter.plot || "") : ""
     const executionPackage = createChapterExecutionPackage({
       projectId: projectStore.currentProjectId,
       volume: vol,
@@ -2693,6 +3149,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
         query: `${ch.title || ""} ${ch.plot || ""}`,
         maxChars: 2000
       }),
+      prevChapterSummary,
       sourceRefs: [
         projectStore.outlineLocked ? "outline:locked" : "outline:working",
         "volume:" + String(vol.id || vol.name),
@@ -2701,21 +3158,49 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     })
     ch.chapterExecutionPackage = executionPackage
     const prompt = buildChapterExecutionPrompt(executionPackage, _bodyWordsPerChapter)
+    runTraceStore.addEvent(traceRunId, {
+      type: "prompt-built",
+      level: "info",
+      label: "正文层执行包已构建",
+      detail: JSON.stringify({ volume: vol.name, chapter: ch.title, targetWords: _bodyWordsPerChapter })
+    })
     const rawResult = await runStepSkills(4, prompt, undefined, "你是小说写作专家。请基于章节剧情点生成正文。")
+    pipelineStore.updateProgress(80, "API 返回完成，正在解析正文")
     bodyGenerationLogs.value.push("API 已返回，正在解析正文内容")
     const generationResult = parseGenerationResult(rawResult)
-    bodyResult.value = generationResult.body
-    ch.body = generationResult.body
+    // P2: 后处理层 — 自动降AI清洗
+    let finalBody = generationResult.body || ""
+    if (finalBody.length > 0) {
+      bodyGenerationLogs.value.push("开始降AI硬规则清洗（255禁用词+34禁用句式+句长修复）…")
+      pipelineStore.updateProgress(90, "降AI后处理中")
+    }
+    try {
+      const deaiResult = DeAiProcessor.process(finalBody, null)
+      if (deaiResult && deaiResult.text && deaiResult.text.length > 0) {
+        bodyGenerationLogs.value.push(
+          "降AI后处理完成：" +
+          (deaiResult.stats?.total || 0) + " 处修正" +
+          (deaiResult.detections?.length ? "，" + deaiResult.detections.length + " 项检测" : "")
+        )
+        finalBody = deaiResult.text
+      }
+    } catch (deaiErr: any) {
+      console.warn("[DEAI] post-process failed, using raw body:", deaiErr)
+      bodyGenerationLogs.value.push("降AI后处理跳过：" + (deaiErr?.message || "未知错误"))
+    }
+    bodyResult.value = finalBody
+    ch.body = finalBody
     ch.generationMetadata = generationResult.metadata
     ch.bodyGenerated = true
     await projectStore.saveProject()
     projectStore.refreshTree()
-    syncChapterManager(volId, ch, generationResult.body)
-    bodyGenerationLogs.value.push("正文生成完成，字数：" + (generationResult.body || "").length)
+    syncChapterManager(volId, ch, finalBody)
+    bodyGenerationLogs.value.push("正文生成完成，字数：" + (finalBody || "").length)
+    runTraceStore.addEvent(traceRunId, { type: "write", level: "info", label: "正文已写入项目", detail: "字数 " + (finalBody || "").length })
     // Insert into the editor automatically (same link as old architecture).
     window.dispatchEvent(new CustomEvent("insert-text", {
       detail: {
-        text: generationResult.body,
+        text: finalBody,
         chapterId: ch.id || '',
         title: ch.title || '章节',
         mode: 'ch-body',
@@ -2727,6 +3212,10 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
   } catch (e: any) {
     pipelineStore.failGeneration(e.message)
     bodyGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
+    runTraceStore.addEvent(traceRunId, { type: "failed", level: "error", label: "正文运行失败", detail: e.message || "未知错误" })
+  } finally {
+    const status = pipelineStore.generationStatus === "canceled" ? "canceled" : pipelineStore.generationStatus.startsWith("failed") ? "failed" : "success"
+    runTraceStore.finishRun(traceRunId, status)
   }
 }
 
@@ -2876,6 +3365,8 @@ async function confirmBodyWithMemory() {
     projectStore.refreshTree()
   }
 
+  if (!settingsStore.autoExtractMemory) return
+
   memoryPreviewLoading.value = true
   memoryPreviewError.value = ""
   memoryPreviewVisible.value = true
@@ -2918,7 +3409,7 @@ async function confirmBodyWithMemory() {
       sourceVersionId,
       chapterTitle: chapter.title,
       content: chapter.content
-    }, callMemoryApi, 30000)
+    }, callMemoryApi, settingsStore.memoryExtractionTimeoutSeconds * 1000)
     if (projectStore.currentProjectId !== projectIdAtCall) return
     if (!result.success) {
       log("failed", "failed", result.error?.includes("超时") ? "timeout" : "invalid_json")
@@ -3016,11 +3507,16 @@ async function confirmMemoryPreview() {
         }
       }
     }
-     if (saved.bookWordCount) bookWordCount.value = Math.round(saved.bookWordCount / 10000)
-     if (saved.volumeWords) volumeWords.value = saved.volumeWords
-     if (saved.volumeCount) volumeCount.value = saved.volumeCount
-     if (saved.chapterWords) chapterWords.value = saved.chapterWords
-   }
+    if (saved.bookWordCount) bookWordCount.value = Math.round(saved.bookWordCount / 10000)
+    if (saved.volumeWords) volumeWords.value = saved.volumeWords
+    if (saved.volumeCount) volumeCount.value = saved.volumeCount
+    if (saved.chapterWords) chapterWords.value = saved.chapterWords
+    if (projectStore.pipelineConfig) {
+      volumeCount.value = projectStore.pipelineConfig.volumeCount || volumeCount.value
+      volumeWords.value = projectStore.pipelineConfig.volumeWords || volumeWords.value
+      chapterWords.value = projectStore.pipelineConfig.chapterWords || chapterWords.value
+    }
+  }
    if (projectStore.bookWordCountChars > 0 && bookWordCount.value <= 0) {
      bookWordCount.value = Math.round(projectStore.bookWordCountChars / 10000)
    } else if (projectStore.bookWordCountChars <= 0 && bookWordCount.value > 0) {
@@ -3042,6 +3538,25 @@ async function confirmMemoryPreview() {
     selectedSettingCategory.value = firstCategoryWithSettings()
   }
 })
+
+// 切换项目时恢复 pipeline 配置
+watch(() => projectStore.currentProjectId, (newId, oldId) => {
+  if (newId && newId !== oldId) {
+    if (projectStore.pipelineConfig) {
+      volumeCount.value = projectStore.pipelineConfig.volumeCount || volumeCount.value
+      volumeWords.value = projectStore.pipelineConfig.volumeWords || volumeWords.value
+      chapterWords.value = projectStore.pipelineConfig.chapterWords || chapterWords.value
+    }
+    if (projectStore.bookWordCountChars > 0) {
+      bookWordCount.value = Math.round(projectStore.bookWordCountChars / 10000)
+    }
+    selectedVolumeIndex.value = 0
+    selectedChapterIndex.value = 0
+    bodyVolumeIndex.value = 0
+    bodyChapterIndex.value = 0
+  }
+}, { immediate: false })
+
 
 const selectedChapter = computed(() => currentVolumeChapters.value[selectedChapterIndex.value] || null)
 
@@ -3083,7 +3598,7 @@ watch(
 
 function getSkillName(id: string): string {
   const s = skillStore.getSkill(id);
-  return s ? s.name : id;
+  return s ? skillStore.displaySkillName(s) : id;
 }
 
 
@@ -3114,6 +3629,36 @@ function removeStepSkill(step: number, index: number) {
     saveStepConfig();
   }
 }
+// === SKILL drag sort handlers ===
+function onSkillDragStart(e: DragEvent, index: number) {
+  skillDragState.dragIndex = index
+  if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
+}
+function onSkillDragOver(e: DragEvent, index: number) {
+  e.preventDefault()
+  if (e.dataTransfer) e.dataTransfer.dropEffect = 'move'
+  if (skillDragState.dragIndex !== index) skillDragState.overIndex = index
+}
+function onSkillDrop(e: DragEvent, index: number, internalStep: number) {
+  e.preventDefault()
+  const from = skillDragState.dragIndex
+  const to = index
+  if (from < 0 || from === to) { skillDragState.dragIndex = -1; skillDragState.overIndex = -1; return }
+  const arr = [...(stepSkills.value[internalStep] || [])]
+  if (from < arr.length && to < arr.length) {
+    const [moved] = arr.splice(from, 1)
+    arr.splice(to, 0, moved)
+    stepSkills.value[internalStep] = arr
+    saveStepConfig()
+  }
+  skillDragState.dragIndex = -1
+  skillDragState.overIndex = -1
+}
+function onSkillDragEnd() {
+  skillDragState.dragIndex = -1
+  skillDragState.overIndex = -1
+}
+const skillDragState = reactive({ dragIndex: -1, overIndex: -1 })
 
 function insertBody() {
   if (bodyResult.value) {
@@ -3206,7 +3751,64 @@ function toolAction(action: string) {
 </script>
 
 <style scoped>
+.pl-run-trace-overlay { position: fixed; inset: 0; z-index: 2600; display: flex; align-items: center; justify-content: center; padding: var(--space-6); background: rgba(15, 23, 42, .58); backdrop-filter: blur(2px); }
+.pl-run-trace-panel { display: flex; flex-direction: column; width: min(1180px, 100%); height: min(820px, calc(100vh - 96px)); overflow: hidden; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-primary); box-shadow: var(--shadow-lg); }
+.pl-run-trace-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border-color); }
+.pl-run-trace-header div { display: flex; align-items: baseline; gap: var(--space-3); min-width: 0; }
+.pl-run-trace-header strong { color: var(--text-primary); font-size: 1.05rem; }
+.pl-run-trace-header span { color: var(--text-secondary); font-size: var(--font-size-sm); }
+.pl-run-trace-layout { display: grid; grid-template-columns: minmax(240px, 300px) minmax(0, 1fr); flex: 1; min-height: 0; }
+.pl-run-trace-list { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border-right: 1px solid var(--border-color); background: var(--bg-secondary); overflow-y: auto; }
+.pl-run-trace-run { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-3); border: 1px solid transparent; border-radius: var(--radius-sm); background: var(--bg-elevated); cursor: pointer; }
+.pl-run-trace-run:hover { border-color: var(--border-color); }
+.pl-run-trace-run.active { border-color: var(--primary); }
+.pl-run-trace-run-main { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); color: var(--text-primary); font-size: var(--font-size-sm); }
+.pl-run-trace-run-meta { display: flex; flex-wrap: wrap; gap: var(--space-2); color: var(--text-secondary); font-size: 12px; }
+.pl-run-trace-run-meta .is-success { color: var(--success); }
+.pl-run-trace-run-meta .is-failed { color: var(--danger); }
+.pl-run-trace-run-meta .is-canceled { color: var(--warning); }
+.pl-run-trace-run-meta .is-running { color: var(--primary); }
+.pl-run-trace-detail { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.pl-run-trace-detail-empty { align-items: center; justify-content: center; color: var(--text-secondary); }
+.pl-run-trace-summary { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); padding: var(--space-3) var(--space-5); border-bottom: 1px solid var(--border-color); color: var(--text-secondary); font-size: var(--font-size-sm); }
+.pl-run-trace-tabs { display: flex; gap: var(--space-1); padding: var(--space-3) var(--space-5) 0; border-bottom: 1px solid var(--border-color); }
+.pl-run-trace-tabs button { padding: var(--space-2) var(--space-3); border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: var(--font-size-sm); }
+.pl-run-trace-tabs button.active { border-bottom-color: var(--primary); color: var(--text-primary); font-weight: 600; }
+.pl-run-trace-body { flex: 1; min-height: 0; overflow: hidden; }
+.pl-run-trace-section { display: flex; flex-direction: column; gap: var(--space-3); height: 100%; padding: var(--space-4) var(--space-5) var(--space-5); overflow-y: auto; }
+.pl-run-trace-event { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: var(--space-2); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--bg-secondary); }
+.pl-run-trace-event span { color: var(--text-secondary); font-size: 12px; }
+.pl-run-trace-event strong { color: var(--text-primary); font-size: var(--font-size-sm); }
+.pl-run-trace-event pre { grid-column: 1 / -1; margin: 0; max-height: 180px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text-secondary); font-size: 12px; line-height: 1.5; user-select: text; }
+.pl-run-trace-error { padding: var(--space-3); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--danger); overflow-wrap: anywhere; }
+.pl-run-trace-api { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-secondary); }
+.pl-run-trace-api-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); color: var(--text-secondary); font-size: var(--font-size-sm); }
+.pl-run-trace-api-head strong { color: var(--text-primary); }
+.pl-run-trace-api-head .is-success { color: var(--success); }
+.pl-run-trace-api-head .is-failed { color: var(--danger); }
+.pl-run-trace-api-head .is-canceled { color: var(--warning); }
+.pl-run-trace-api-head .is-running { color: var(--primary); }
+.pl-run-trace-api details { color: var(--text-secondary); font-size: var(--font-size-sm); }
+.pl-run-trace-api summary { cursor: pointer; }
+.pl-run-trace-api pre { margin: var(--space-2) 0 0; padding: var(--space-3); max-height: 360px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary); font-size: 12px; line-height: 1.6; user-select: text; }
+.pl-run-trace-folders { display: flex; flex-direction: column; gap: var(--space-3); }
+.pl-run-trace-legacy { display: flex; flex-direction: column; gap: var(--space-3); }
+.pl-run-trace-legacy-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); color: var(--text-primary); }
+.pl-run-trace-legacy-item { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-secondary); }
+.pl-run-trace-legacy-top { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); color: var(--text-secondary); font-size: var(--font-size-sm); }
+.pl-run-trace-legacy-item details { color: var(--text-secondary); font-size: var(--font-size-sm); }
+.pl-run-trace-legacy-item summary { cursor: pointer; }
+.pl-run-trace-legacy-item pre { margin: var(--space-2) 0 0; padding: var(--space-3); max-height: 260px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary); font-size: 12px; line-height: 1.6; user-select: text; }
+.pl-run-trace-feedback { display: flex; gap: var(--space-2); }
+.pl-run-trace-feedback .active { border-color: var(--primary); color: var(--primary); }
+.pl-run-trace-suggestions { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-secondary); font-size: var(--font-size-sm); }
+.pl-run-trace-suggestions p { margin: 0; }
+.pl-run-trace-export { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.pl-run-trace-export-tip { margin: 0; color: var(--text-secondary); font-size: var(--font-size-sm); line-height: 1.6; }
+.pl-run-trace-empty { padding: var(--space-4); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-secondary); font-size: var(--font-size-sm); line-height: 1.6; }
+@media (max-width: 900px) { .pl-run-trace-layout { grid-template-columns: 1fr; } .pl-run-trace-list { max-height: 220px; border-right: 0; border-bottom: 1px solid var(--border-color); } }
 .pl-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal); }
+.pl-deai-badge { display: inline-flex; align-items: center; padding: var(--space-1) var(--space-4); font-size: var(--font-size-xs, 12px); color: var(--color-success, #4caf50); background: var(--color-success-surface, rgba(76,175,80,0.12)); border-radius: var(--radius-sm, 4px); white-space: nowrap; }
 .pl-style-card { margin-bottom: var(--space-4); border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-input); overflow: visible; }
 .pl-style-card-header { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-4); cursor: pointer; user-select: none; }
 .pl-style-card-title { font-weight: 600; font-size: var(--font-size-sm); white-space: nowrap; }
@@ -3217,7 +3819,7 @@ function toolAction(action: string) {
 .pl-style-pacing-section { flex: 1; min-width: 0; }
 .pl-style-section-label { display: block; font-size: var(--font-size-xs); font-weight: 600; color: var(--text-secondary); margin-bottom: var(--space-2); }
 .pl-style-tag-pool { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-2); }
-.pl-style-tag-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: var(--font-size-xs); cursor: pointer; user-select: none; }
+.pl-style-tag-chip { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-5); border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: var(--font-size-xs); cursor: pointer; user-select: none; }
 .pl-style-tag-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
 .pl-style-tag-chip input { width: 12px; height: 12px; margin: 0; }
 .pl-style-tag-add { display: flex; gap: var(--space-1); }
@@ -3234,16 +3836,16 @@ function toolAction(action: string) {
 .pl-content-fullscreen { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; border-radius: 0 !important; border: none !important; }
 .pl-memory-preview-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: var(--modal-gutter); background: var(--bg-overlay); z-index: var(--z-modal-nested); pointer-events: auto; }
 .pl-memory-preview-modal { position: relative; z-index: var(--z-modal-nested-content); width: min(var(--modal-width-lg), 100%); max-height: var(--modal-max-height); min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); pointer-events: auto; }
-.pl-memory-preview-header, .pl-memory-preview-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; }
+.pl-memory-preview-header, .pl-memory-preview-footer { display: flex; align-items: center; justify-content: space-between; gap: var(--space-6); padding: var(--space-6) var(--space-7); }
 .pl-memory-preview-header { border-bottom: 1px solid var(--border-color); }
 .pl-memory-preview-subtitle { display: block; margin-top: 4px; color: var(--text-secondary); font-size: 12px; }
-.pl-memory-preview-body { min-height: 120px; overflow: auto; padding: 16px 20px; }
+.pl-memory-preview-body { min-height: 120px; overflow: auto; padding: var(--space-6) var(--space-7); }
 .pl-memory-preview-footer { justify-content: flex-end; border-top: 1px solid var(--border-color); }
-.pl-memory-change-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
-.pl-memory-change-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px 12px; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; }
+.pl-memory-change-list { display: grid; gap: var(--space-5); margin: 0; padding: 0; list-style: none; }
+.pl-memory-change-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-4) var(--space-5); padding: var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); }
 .pl-memory-change-kind { color: var(--text-secondary); font-size: 12px; }
 .pl-memory-change-item small { grid-column: 1 / -1; color: var(--text-secondary); }
-.pl-memory-change-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; }
+.pl-memory-change-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: var(--space-4); }
 .pl-memory-preview-error { color: var(--danger); }
 .pl-content { width: min(1400px, 96vw); height: min(920px, 96vh); max-width: 1400px; max-height: 96vh; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; }
 .pl-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-5) var(--space-8); border-bottom: 1px solid var(--border-color); font-size: var(--font-size-xl); font-weight: 600; }
@@ -3251,32 +3853,32 @@ function toolAction(action: string) {
 .pl-header-actions { display: flex; align-items: center; gap: var(--space-2); }
 .pl-body { display: flex; flex: 1; overflow: hidden; }
 /* 左侧五层步骤导航 - 竖排 */
-.pl-steps { width: clamp(200px, 18vw, 280px); background: var(--pipeline-step-bg); border-right: 1px solid var(--border-color); padding: 16px 8px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
-.pl-step { display: flex; align-items: center; gap: 12px; padding: 16px 18px; cursor: pointer; border-radius: var(--radius-lg); opacity: 0.5; transition: opacity 0.15s ease, background 0.15s ease; }
+.pl-steps { width: clamp(200px, 18vw, 280px); background: var(--pipeline-step-bg); border-right: 1px solid var(--border-color); padding: var(--space-6) var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); flex-shrink: 0; }
+.pl-step { display: flex; align-items: center; gap: var(--space-5); padding: var(--space-6) 1var(--space-4); cursor: pointer; border-radius: var(--radius-lg); opacity: 0.5; transition: opacity var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard); }
 .pl-step:hover { opacity: 0.8; background: var(--bg-hover); }
 .pl-step.active { opacity: 1; background: var(--pipeline-step-active-bg); border: 1px solid var(--pipeline-step-active-border); }
 .pl-step.completed { opacity: 1; }
-.pl-step-num { width: 34px; height: 34px; border-radius: 50%; background: var(--bg-tertiary); color: var(--text-primary); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-lg); font-weight: bold; flex-shrink: 0; transition: background 0.15s ease; }
+.pl-step-num { width: 34px; height: 34px; border-radius: 50%; background: var(--bg-tertiary); color: var(--text-primary); display: flex; align-items: center; justify-content: center; font-size: var(--font-size-lg); font-weight: bold; flex-shrink: 0; transition: background var(--duration-fast) var(--ease-standard); }
 .pl-step.active .pl-step-num { background: var(--accent); color: var(--text-on-accent); }
 .pl-step.completed { background: var(--pipeline-step-complete-bg); border-color: var(--pipeline-step-complete-border); }
 .pl-step.completed .pl-step-num { background: var(--pipeline-step-complete-border); color: var(--text-on-accent); }
 .pl-step-label { font-size: var(--font-size-lg); color: var(--text-primary); font-weight: 500; }
 .pl-step-check { margin-left: auto; color: var(--success); font-size: var(--font-size-xl); }
 /* 右侧内容区 */
-.pl-content-right { display: flex; flex-direction: column; flex: 1; padding: 24px 24px 32px; overflow-y: auto; min-width: 0; }
+.pl-content-right { display: flex; flex-direction: column; flex: 1; padding: var(--space-8) var(--space-8) var(--space-10); overflow-y: auto; min-width: 0; }
 #pl-step-2-content {
   min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
 }
 .pl-step-panel h3 { font-size: var(--font-size-xxl); margin-bottom: 20px; }
-.pl-textarea { width: 100%; min-height: 400px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px; font-size: var(--font-size-lg); line-height: 1.8; resize: vertical; outline: none; }
-.pl-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px 12px; font-size: var(--font-size-md); height: 36px; outline: none; flex: 1; }
-.pl-input-sm { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px 10px; font-size: var(--font-size-md); height: var(--input-height, 34px); outline: none; }
+.pl-textarea { width: 100%; min-height: 400px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--space-6); font-size: var(--font-size-lg); line-height: 1.8; resize: vertical; outline: none; }
+.pl-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-3) var(--space-5); font-size: var(--font-size-md); height: 36px; outline: none; flex: 1; }
+.pl-input-sm { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-3) var(--space-5); font-size: var(--font-size-md); height: var(--input-height, 34px); outline: none; }
 .pl-attrs-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-4) var(--space-6); font-size: var(--font-size-md); min-height: 80px; flex: 1; resize: vertical; outline: none; }
-.pl-vol-config { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: var(--font-size-lg); flex-wrap: wrap; }
+.pl-vol-config { display: flex; align-items: center; gap: var(--space-5); margin-bottom: 20px; font-size: var(--font-size-lg); flex-wrap: wrap; }
 .pl-vol-config label { color: var(--text-secondary); }
-.pl-volume-linked-book-words { display: inline-flex; align-items: baseline; gap: 8px; width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-secondary); }
+.pl-volume-linked-book-words { display: inline-flex; align-items: baseline; gap: var(--space-4); width: 100%; padding: var(--space-4) var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-secondary); }
 .pl-volume-linked-book-words strong { color: var(--text-primary); font-size: var(--font-size-lg); }
 .pl-vol-list {
   display: flex;
@@ -3410,7 +4012,7 @@ function toolAction(action: string) {
   flex: 1 1 auto;
   flex-direction: column;
   min-width: 0;
-  gap: 2px;
+  gap: var(--space-1);
 }
 .pl-object-select-copy strong,
 .pl-object-select-copy small {
@@ -3446,7 +4048,7 @@ function toolAction(action: string) {
 .pl-editor-kicker { color: var(--text-muted); font-size: var(--font-size-sm); }
 .pl-object-editor-heading h4 {
   min-width: 0;
-  margin: 2px 0 0;
+  margin: var(--space-1) 0 0;
   overflow-wrap: anywhere;
   color: var(--text-primary);
   font-size: var(--font-size-lg);
@@ -3457,11 +4059,11 @@ function toolAction(action: string) {
   font-size: var(--font-size-sm);
 }
 .pl-object-editor-status.locked { color: var(--success); }
-.pl-vol-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.pl-vol-header { display: flex; align-items: center; gap: var(--space-4); margin-bottom: 8px; }
 .vol-words { font-size: var(--font-size-md); color: var(--text-muted); flex-shrink: 0; }
-.pl-vol-outline { width: 100%; min-height: 100px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px; font-size: var(--font-size-md); resize: vertical; outline: none; margin-bottom: 10px; }
-.pl-volume-card-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding-top: 4px; }
-.pl-ch-config { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: var(--font-size-lg); flex-wrap: wrap; }
+.pl-vol-outline { width: 100%; min-height: 100px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-5); font-size: var(--font-size-md); resize: vertical; outline: none; margin-bottom: 10px; }
+.pl-volume-card-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-4); padding-top: 4px; }
+.pl-ch-config { display: flex; align-items: center; gap: var(--space-5); margin-bottom: 20px; font-size: var(--font-size-lg); flex-wrap: wrap; }
 .pl-ch-config label { color: var(--text-secondary); }
 .pl-ch-table-wrap {
   display: flex;
@@ -3524,8 +4126,8 @@ function toolAction(action: string) {
   align-items: center;
   justify-content: center;
   height: 22px;
-  padding: 0 8px;
-  border-radius: 11px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-lg);
   font-size: var(--font-size-sm);
   white-space: nowrap;
 }
@@ -3534,7 +4136,7 @@ function toolAction(action: string) {
 .pl-ch-cell-ops {
   display: flex;
   justify-content: flex-end;
-  gap: 4px;
+  gap: var(--space-2);
 }
 .pl-ch-detail-overlay {
   position: fixed;
@@ -3584,7 +4186,7 @@ function toolAction(action: string) {
 .pl-ch-detail-input {
   width: 100%;
   height: var(--input-height, 34px);
-  padding: 0 10px;
+  padding: 0 var(--space-5);
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
@@ -3595,7 +4197,7 @@ function toolAction(action: string) {
 .pl-ch-detail-plot {
   width: 100%;
   min-height: 180px;
-  padding: 10px;
+  padding: var(--space-5);
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
@@ -3604,7 +4206,7 @@ function toolAction(action: string) {
   line-height: 1.7;
   resize: vertical;
   outline: none;
-  font-family: inherit;
+  font-family: var(--font-family-editor);
 }
 .pl-ch-detail-footer {
   display: flex;
@@ -3618,11 +4220,11 @@ function toolAction(action: string) {
 .pl-ch-detail-hint { color: var(--text-muted); font-size: var(--font-size-sm); }
 .pl-ch-detail-actions { display: flex; gap: var(--space-2); }
 .ch-title { flex: 1; font-size: var(--font-size-md); color: var(--text-primary); }
-.pl-body-config { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: var(--font-size-lg); flex-wrap: wrap; }
+.pl-body-config { display: flex; align-items: center; gap: var(--space-5); margin-bottom: 20px; font-size: var(--font-size-lg); flex-wrap: wrap; }
 .pl-body-config label { color: var(--text-secondary); }
-.pl-body-result { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; max-height: 400px; overflow-y: auto; }
+.pl-body-result { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: var(--space-6); margin-bottom: 12px; max-height: 400px; overflow-y: auto; }
 .pl-body-text { font-size: var(--font-size-lg); line-height: 1.8; white-space: pre-wrap; color: var(--text-primary); user-select: text; cursor: text; }
-.pl-gen-options { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: var(--font-size-lg); color: var(--text-secondary); flex-wrap: wrap; }
+.pl-gen-options { display: flex; align-items: center; gap: var(--space-5); margin-bottom: 20px; font-size: var(--font-size-lg); color: var(--text-secondary); flex-wrap: wrap; }
 .pl-actions {
   display: flex;
   align-items: center;
@@ -3634,103 +4236,7 @@ function toolAction(action: string) {
   padding-top: var(--space-4);
   border-top: 1px solid var(--border-color);
 }
-.pl-generation-feedback-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-modal-nested);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--modal-gutter);
-  background: var(--bg-overlay);
-}
-.pl-generation-feedback-modal {
-  display: flex;
-  flex-direction: column;
-  width: min(620px, 100%);
-  max-height: min(76vh, 640px);
-  padding: var(--space-4);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  background: var(--bg-glass);
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
-}
-.pl-generation-feedback-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  color: var(--text-primary);
-  font-size: var(--font-size-md);
-}
-.pl-generation-progress-track {
-  width: 100%;
-  height: 8px;
-  margin-top: var(--space-3);
-  overflow: hidden;
-  border-radius: var(--radius-sm);
-  background: var(--pipeline-progress-track);
-}
-.pl-generation-progress-value {
-  height: 100%;
-  min-width: 0;
-  border-radius: inherit;
-  background: var(--pipeline-progress-value);
-  transition: width 180ms ease;
-}
-.pl-generation-log {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  max-height: 132px;
-  margin-top: var(--space-3);
-  overflow-y: auto;
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  line-height: 1.5;
-}
-.pl-generation-feedback-modal .pl-generation-log {
-  flex: 1 1 auto;
-  min-height: 120px;
-  max-height: min(40vh, 340px);
-}
-.pl-generation-log-line {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
-}
-.pl-generation-log-dot {
-  width: 6px;
-  height: 6px;
-  flex: 0 0 6px;
-  margin-top: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-}
-.pl-generation-status {
-  margin-top: var(--space-3);
-  color: var(--text-muted);
-  font-size: var(--font-size-sm);
-}
-.pl-generation-modal-footer {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  margin-top: var(--space-3);
-}
-.pl-generation-modal-footer .pl-generation-status {
-  margin-top: 0;
-  min-width: 0;
-}
-.pl-generation-modal-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-.pl-result { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; margin: 20px 0; max-height: 450px; overflow-y: auto; white-space: pre-wrap; font-size: var(--font-size-lg); color: var(--text-primary); user-select: text; cursor: text; }
+.pl-result { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--space-7); margin: var(--space-7) 0; max-height: 450px; overflow-y: auto; white-space: pre-wrap; font-size: var(--font-size-lg); color: var(--text-primary); user-select: text; cursor: text; }
 .pl-gen-hint { color: var(--text-muted); font-size: var(--font-size-md); }
 .pl-vol-card.confirmed { border-color: var(--success); }
 .pl-vol-card,
@@ -3759,19 +4265,19 @@ function toolAction(action: string) {
   color: var(--text-primary);
   font-size: var(--font-size-md);
 }
-.empty-hint { color: var(--text-muted); font-size: var(--font-size-lg); text-align: center; padding: 30px; }
+.empty-hint { color: var(--text-muted); font-size: var(--font-size-lg); text-align: center; padding: var(--space-10); }
 .input-w-60 { width: 60px; }
 .input-w-80 { width: 80px; }
 
 .pl-tools-title { font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
 .pl-readonly { opacity: 0.7; cursor: default; }
-.pl-step-tools { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.pl-step-tools { display: flex; flex-direction: column; gap: var(--space-4); margin-bottom: 14px; }
 .pl-settings-tools { flex: 0 0 auto; }
 .pl-settings-control-row {
   display: grid;
   grid-template-columns: auto minmax(170px, 1.1fr) auto minmax(130px, 0.9fr) 28px auto minmax(120px, 0.7fr);
   align-items: center;
-  gap: 10px;
+  gap: var(--space-5);
   padding: var(--space-3) var(--space-4);
   background: var(--bg-elevated, var(--bg-secondary));
   border: 1px solid var(--border-color);
@@ -3779,49 +4285,52 @@ function toolAction(action: string) {
 }
 .pl-settings-control-row .pl-label,
 .pl-settings-control-row .pl-mode-label { font-size: var(--font-size-md); color: var(--text-secondary); white-space: nowrap; }
-.pl-settings-control-row .pl-select { min-width: 0; height: var(--input-height, 34px); padding: 0 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; }
+.pl-settings-control-row .select-standard { min-width: 0; height: var(--input-height, 34px); padding: 0 var(--space-5); background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; }
 .pl-selected-skills-row {
   align-items: center;
   min-height: 34px;
-  padding: 4px var(--space-2);
+  padding: var(--space-2) var(--space-2);
   margin-bottom: 0;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   background: var(--bg-elevated, var(--bg-secondary));
 }
-.pl-agent-mode-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: var(--space-4) var(--space-6); background: var(--bg-elevated, var(--bg-secondary)); border: 1px solid var(--border-color); border-radius: var(--radius-md); }
+.pl-agent-mode-bar { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); padding: var(--space-4) var(--space-6); background: var(--bg-elevated, var(--bg-secondary)); border: 1px solid var(--border-color); border-radius: var(--radius-md); }
 .pl-agent-mode-bar .pl-label, .pl-agent-mode-bar .pl-mode-label { font-size: var(--font-size-md); color: var(--text-secondary); white-space: nowrap; }
-.pl-agent-mode-bar .pl-select { height: var(--input-height, 34px); padding: 0 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; }
+.pl-agent-mode-bar .select-standard { height: var(--input-height, 34px); padding: 0 var(--space-5); background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; }
 .pl-agent-select { flex: 1 1 160px; min-width: 160px; }
 .pl-mode-select { flex: 1 1 150px; min-width: 150px; }
-.pl-skill-bar { display: flex; align-items: center; gap: 8px; padding: var(--space-4) var(--space-6); margin-bottom: 12px; background: var(--bg-elevated, var(--bg-secondary)); border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: var(--font-size-md); color: var(--text-primary); }
+.pl-skill-bar { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4) var(--space-6); margin-bottom: 12px; background: var(--bg-elevated, var(--bg-secondary)); border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: var(--font-size-md); color: var(--text-primary); }
 .pl-skill-bar .pl-label { font-size: var(--font-size-md); color: var(--text-secondary); white-space: nowrap; }
-.pl-skill-bar .pl-select { flex: 1; height: var(--input-height, 34px); padding: 0 8px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; min-width: 100px; }
+.pl-skill-bar .select-standard { flex: 1; height: var(--input-height, 34px); padding: 0 var(--space-4); background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; min-width: 100px; }
 .pl-skill-bar .btn-icon { height: 28px; width: 28px; padding: 0; font-size: var(--font-size-lg); line-height: 1; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); border-radius: var(--radius-xs); background: var(--bg-input); color: var(--text-primary); cursor: pointer; }
 .pl-skill-bar .btn-icon:hover { background: var(--accent-dim); color: var(--accent); }
 .pl-chip-close { height: 28px; width: 28px; padding: 0; font-size: var(--font-size-lg); line-height: 1; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); border-radius: var(--radius-xs); background: var(--bg-input); color: var(--text-primary); cursor: pointer; }
 .pl-chip-close:hover { background: var(--accent-dim); color: var(--accent); }
 .pl-tools-label { font-size: var(--font-size-sm); color: var(--text-muted); white-space: nowrap; }
-.pl-skills-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; min-height: 24px; }
-.pl-skill-chip { padding: 2px 8px; border-radius: var(--radius-lg); font-size: var(--font-size-xs); background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-glow, transparent); display: inline-flex; align-items: center; gap: 4px; }
+.pl-skills-list { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-bottom: 10px; min-height: 24px; }
+.pl-skill-chip { padding: var(--space-1) var(--space-4); border-radius: var(--radius-lg); font-size: var(--font-size-xs); background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-glow, transparent); display: inline-flex; align-items: center; gap: var(--space-2); }
+.pl-skill-chip[draggable="true"] { cursor: grab; position: relative; }
+.pl-skill-chip[draggable="true"]:active { cursor: grabbing; }
+.pl-skill-chip.drag-over::before { content: ''; position: absolute; left: 0; top: -2px; width: 100%; height: 2px; background: var(--accent); border-radius: 1px; }
 .pl-chip-seq { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: var(--text-on-accent); font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.pl-tools-section { padding: 6px 0; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); }
-.pl-tools-grid { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.pl-tool-result { margin-top: 6px; padding: 6px 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--font-size-sm); color: var(--text-primary); max-height: 180px; overflow-y: auto; user-select: text; cursor: text; }
+.pl-tools-section { padding: var(--space-3) 0; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); }
+.pl-tools-grid { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.pl-tool-result { margin-top: 6px; padding: var(--space-3) var(--space-5); background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--font-size-sm); color: var(--text-primary); max-height: 180px; overflow-y: auto; user-select: text; cursor: text; }
 .pl-tool-result .message-content { font-size: inherit; }
 .pl-tool-loading { margin-top: 4px; font-size: var(--font-size-sm); color: var(--accent); }
 
-.pl-chip-agent { height: 22px; padding: 0 6px; font-size: 10px; min-width: 60px; width: auto; border-radius: var(--radius-sm); background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; }
+.pl-chip-agent { height: 22px; padding: 0 var(--space-3); font-size: 10px; min-width: 60px; width: auto; border-radius: var(--radius-sm); background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; }
 .pl-add-setting-overlay { position: fixed; inset: 0; padding: var(--modal-gutter); background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal-nested); }
 .pl-add-setting-modal { width: min(var(--modal-width), 100%); max-height: var(--modal-max-height); min-height: 0; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; }
-.pl-add-setting-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border-color); font-size: var(--font-size-lg); font-weight: 600; }
-.pl-add-setting-body { display: flex; flex-direction: column; gap: 8px; padding: 20px; }
+.pl-add-setting-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-6) var(--space-7); border-bottom: 1px solid var(--border-color); font-size: var(--font-size-lg); font-weight: 600; }
+.pl-add-setting-body { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-7); }
 .pl-add-setting-body label { font-size: var(--font-size-md); color: var(--text-secondary); }
 .pl-add-setting-body .pl-input-sm { width: 100%; }
 .pl-add-setting-body .pl-attrs-input { min-height: 140px; }
-.pl-add-setting-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border-color); }
+.pl-add-setting-footer { display: flex; justify-content: flex-end; gap: var(--space-5); padding: var(--space-5) var(--space-7); border-top: 1px solid var(--border-color); }
 .pl-setting-detail-modal-footer { justify-content: space-between; }
-.pl-setting-detail-modal-actions { display: flex; align-items: center; gap: 10px; }
+.pl-setting-detail-modal-actions { display: flex; align-items: center; gap: var(--space-5); }
 
 
 .pl-step-view {
@@ -3862,7 +4371,7 @@ function toolAction(action: string) {
 .pl-outline-info-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: var(--space-5);
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
 }
@@ -4049,7 +4558,7 @@ function toolAction(action: string) {
 }
 .pl-setting-card-actions .btn-sm {
   min-width: 62px;
-  padding: 2px var(--space-2);
+  padding: var(--space-1) var(--space-2);
 }
 .pl-setting-info-btn { flex-shrink: 0; }
 .pl-setting-item-index { position: absolute; left: 4px; top: 2px; color: var(--text-muted); font-size: 10px; }
