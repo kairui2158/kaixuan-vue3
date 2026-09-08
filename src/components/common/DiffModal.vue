@@ -288,7 +288,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
 }
 .diff-toolbar {
   display: flex;
-  gap: 8px;
+  gap: var(--space-4);
   padding: var(--space-4) var(--space-6);
   border-bottom: 1px solid var(--border-color);
 }
@@ -308,7 +308,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
   border-right: none;
 }
 .diff-pane-label {
-  padding: 6px 12px;
+  padding: var(--space-3) var(--space-5);
   font-size: var(--font-size-xs);
   font-weight: 600;
   color: var(--text-muted);
@@ -325,7 +325,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
 .diff-line {
   display: flex;
   align-items: flex-start;
-  padding: 1px 8px;
+  padding: var(--space-1) var(--space-4);
   min-height: 20px;
 }
 .diff-line.unchanged {
@@ -341,7 +341,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
 }
 .diff-action {
   cursor: pointer;
-  padding: 0 4px;
+  padding: 0 var(--space-2);
   font-weight: bold;
   font-size: var(--font-size-sm);
   flex-shrink: 0;
@@ -361,7 +361,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
 .edit-meta {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-3);
   min-width: 0;
   margin-left: 12px;
   overflow: hidden;
@@ -380,7 +380,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
   color: var(--text-secondary);
 }
 .edit-meta-operation {
-  padding: 2px 6px;
+  padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-xs);
   background: var(--bg-input);
   color: var(--text-secondary);
@@ -395,9 +395,9 @@ watch(() => [props.visible, props.original, props.modified], () => {
 .batch-toolbar {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-4);
   min-width: 0;
-  padding: 6px 12px;
+  padding: var(--space-3) var(--space-5);
   border-bottom: 1px solid var(--border-color);
   background: var(--bg-secondary);
 }
@@ -411,17 +411,17 @@ watch(() => [props.visible, props.original, props.modified], () => {
   display: flex;
   flex: 1 1 auto;
   min-width: 0;
-  gap: 6px;
+  gap: var(--space-3);
   overflow-x: auto;
 }
 .batch-item {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--space-2);
   flex: 0 0 auto;
   min-width: 0;
   max-width: 180px;
-  padding: 3px 7px;
+  padding: var(--space-3) var(--space-3);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xs);
   background: var(--bg-input);
@@ -450,13 +450,13 @@ watch(() => [props.visible, props.original, props.modified], () => {
   display: inline-flex;
   align-items: center;
   flex: 0 0 auto;
-  gap: 3px;
+  gap: var(--space-3);
 }
 .batch-item-locate {
-  padding: 3px 7px;
+  padding: var(--space-3) var(--space-3);
 }
 .diff-window-hint {
-  padding: 6px 10px;
+  padding: var(--space-3) var(--space-5);
   font-size: var(--font-size-xs);
   color: var(--text-muted);
   cursor: pointer;

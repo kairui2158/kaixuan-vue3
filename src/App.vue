@@ -6,7 +6,7 @@
        <SidebarNav :active-panel="activePanel" @navigate="handleNavigate" />
       <div id="app-main" class="app-main">
          <BreadcrumbBar :items="breadcrumbItems" @home="activePanel=''; breadcrumbItems=[]" @navigate="(i) => breadcrumbItems.splice(i+1)" @close="(i) => breadcrumbItems.splice(i)" />
-        <div class="app-main-content">
+        <div ref="appMainRef" class="app-main-content">
           <ChapterTree @navigate="handleNavigate" />
           <div id="resizer-chapter" class="resizer-v" data-target="chapter" title="拖动调整宽度"></div>
           <EditorPanel />
@@ -25,11 +25,17 @@
     </main>
 
     <DeAiProgress v-if="deAiStore.isProcessing || deAiStore.errorMessage" />
+    <div v-if="isResizing" class="resizer-overlay"></div>
+    <div v-if="resizerTooltip" class="drag-tooltip" :style="{ left: resizerTooltip.x + 'px' }">{{ resizerTooltip.text }}</div>
     <ExitConfirmModal ref="exitModal" />
     <AppConfirmModal />
     <div v-if="projectStore.lastSaveError" id="save-error-banner" class="save-error-banner" role="alert">
       <span>项目保存失败（{{ projectStore.lastSaveError.keys.join('、') }}）：数据可能未写入磁盘，请检查磁盘空间或权限后重试保存。</span>
       <button class="save-error-dismiss" @click="projectStore.lastSaveError = null">知道了</button>
+    </div>
+    <div v-if="rendererRecoveryNotice" id="renderer-recovery-banner" class="save-error-banner renderer-recovery-banner" role="status">
+      <span>{{ rendererRecoveryNotice }}</span>
+      <button class="save-error-dismiss" @click="rendererRecoveryNotice = ''">知道了</button>
     </div>
 
    <DiffModal :visible="diffVisible" :original="diffOriginal" :modified="diffModified" :edit-meta="diffEditMeta" @close="closeDiffModal" @apply="applyDiffResult" />
@@ -61,7 +67,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { useResizers } from './composables/useResizers'
 import { useAgentStore } from './stores/agent'
 import { useProviderStore } from './stores/provider'
 import { useProjectStore } from './stores/project'
@@ -150,6 +157,7 @@ const skillBindVisible = ref(false)
 const skillBindType = ref('')
 const skillBindId = ref('')
 const inlineMenu = ref({ visible: false, x: 0, y: 0, text: '' })
+const rendererRecoveryNotice = ref('')
 window.addEventListener('show-diff', (e: Event) => {
   const detail = (e as CustomEvent).detail
   diffOriginal.value = detail?.original || ''
@@ -247,53 +255,17 @@ function handleAiNamingInsert(e: Event) {
   }
 }
 
-const resizers = ref<HTMLElement[]>([])
-function initResizers() {
-  const els = document.querySelectorAll('.resizer-v')
-  els.forEach(el => {
-    if ((el as HTMLElement).dataset.resizerInit) return
-    ;(el as HTMLElement).dataset.resizerInit = '1'
-    let isDragging = false
-    let startX = 0
-    let startWidth = 0
-    let target: HTMLElement | null = null
-    const targetAttr = el.getAttribute('data-target')
-    el.addEventListener('mousedown', (event) => {
-      const e = event as MouseEvent
-      isDragging = true
-      startX = e.clientX
-      el.classList.add('dragging')
-      if (targetAttr === 'chapter') {
-        target = document.querySelector('.chapter-tree') as HTMLElement
-      } else if (targetAttr === 'chat') {
-        target = document.querySelector('.chat-panel') as HTMLElement
-      }
-      if (target) startWidth = target.offsetWidth
-      document.addEventListener('mousemove', onMove)
-      document.addEventListener('mouseup', onUp)
-      e.preventDefault()
-    })
-    const onMove = (e: MouseEvent) => {
-      if (!isDragging || !target) return
-      const diff = e.clientX - startX
-      if (targetAttr === 'chapter') {
-        const newW = Math.max(140, Math.min(400, startWidth + diff))
-        target.style.width = newW + 'px'
-        target.style.flex = 'none'
-      } else if (targetAttr === 'chat') {
-        const newW = Math.max(240, Math.min(600, startWidth - diff))
-        target.style.width = newW + 'px'
-        target.style.flex = 'none'
-      }
-    }
-    const onUp = () => {
-      isDragging = false
-      el.classList.remove('dragging')
-      document.removeEventListener('mousemove', onMove)
-      document.removeEventListener('mouseup', onUp)
-    }
-  })
-}
+const appMainRef = ref<HTMLElement | null>(null)
+const {
+  widths: resizerWidths,
+  dragging: isResizing,
+  dragTooltip: resizerTooltip,
+  init: initResizers,
+  rebind: rebindResizers,
+} = useResizers(appMainRef, [
+  { selector: '.chapter-tree', storageKey: 'shenyi_resizer_chapter', minPercent: 10, maxPercent: 30, defaultPercent: 18 },
+  { selector: '.chat-panel', storageKey: 'shenyi_resizer_chat', minPercent: 15, maxPercent: 45, defaultPercent: 28 },
+])
 
 onMounted(async () => {
   // Fire all independent store loads in parallel for startup speed
@@ -307,9 +279,23 @@ onMounted(async () => {
     projectStore.loadProjectList(),
   ])
   deAiStore.updateFlowPreview()
-  const lastProjectId = await (window.electronAPI?.storageRead?.('wa_lastProjectId') ?? null)
-  if (lastProjectId) await projectStore.loadProject(lastProjectId)
-  try {
+ const lastProjectId = await (window.electronAPI?.storageRead?.('wa_lastProjectId') ?? null)
+ if (lastProjectId) await projectStore.loadProject(lastProjectId)
+ // P0-1: 恢复上次编辑位置（卷/章节）
+ if (lastProjectId) {
+   try {
+     const session = await (window.electronAPI?.storageRead?.('wa_lastSession') ?? null)
+     if (session && session.pid === lastProjectId && session.ts) {
+       // 7 天时效检查
+       if (Date.now() - session.ts <= 7 * 24 * 3600 * 1000) {
+         if (session.vid || session.cid) {
+           window.dispatchEvent(new CustomEvent('restore-session', { detail: { vid: session.vid || null, cid: session.cid || null } }))
+         }
+       }
+     }
+   } catch (e) { /* lastSession 是辅助功能，失败不阻塞启动 */ }
+ }
+ try {
     const corruption = await (window as any).electronAPI?.storageCorruptionLog?.()
     if (corruption?.hasEntries) {
       const diag = (window as any).DiagLogger
@@ -318,15 +304,30 @@ onMounted(async () => {
       }
     }
   } catch (e) { /* corruption check is optional */ }
-  window.electronAPI?.onFinalSave?.(async () => {
-    await projectStore.saveProject()
-    window.electronAPI?.sendSaveComplete?.()
-  })
-  window.addEventListener('generate-body', handleGenerateBody)
+ window.addEventListener('generate-body', handleGenerateBody)
   window.addEventListener('insert-text', handleInsertText)
   window.addEventListener('show-skill-binding', handleSkillBinding)
   window.addEventListener('ai-naming-insert', handleAiNamingInsert)
  nextTick(() => initResizers())
+ // Rebind splitters when panels toggle via v-if
+ const observer = new MutationObserver(() => {
+   nextTick(() => rebindResizers())
+ })
+let removeRendererRecoveryNotice: (() => void) | null = null
+if (typeof window !== 'undefined' && (window as any).electronAPI?.onRendererRecoveryNotice) {
+  removeRendererRecoveryNotice = (window as any).electronAPI.onRendererRecoveryNotice((detail: { message?: string }) => {
+    rendererRecoveryNotice.value = detail?.message || '窗口页面进程异常退出，请检查未保存内容。'
+  })
+}
+onUnmounted(() => {
+  window.removeEventListener('generate-body', handleGenerateBody)
+  window.removeEventListener('insert-text', handleInsertText)
+  window.removeEventListener('show-skill-binding', handleSkillBinding)
+  window.removeEventListener('ai-naming-insert', handleAiNamingInsert)
+  removeRendererRecoveryNotice?.()
+})
+ const appMainEl = document.querySelector('.app-main-content')
+ if (appMainEl) observer.observe(appMainEl, { childList: true, subtree: false })
   const labels: Record<string, string> = {
     'pipeline': '生成流水线', 'settings': '设置', 'outline': '大纲工作台',
     'memory': '记忆管理'
@@ -334,9 +335,43 @@ onMounted(async () => {
   watch(activePanel, (v) => {
    breadcrumbItems.value = v && labels[v] ? [labels[v]] : []
  }, { immediate: true })
-  if (typeof window !== 'undefined') {
-    ;(window as any).__getActivePanel = () => activePanel.value
-  }
+  // P3: editorFont -> CSS variable bridge (fixes broken font selection chain)
+  watch(() => settingsStore.editorFont, (font) => {
+    const fontMap: Record<string, string> = {
+      'lxgw-wenkai': '"LXGW WenKai", KaiTi, serif',
+      'source-han-serif': '"Source Han Serif SC", SimSun, serif',
+      'source-han-sans': '"Source Han Sans SC", SimHei, sans-serif',
+      'kaiti': 'KaiTi, serif',
+      'simsun': 'SimSun, serif',
+      'simhei': 'SimHei, sans-serif',
+      'fangsong': 'FangSong, serif',
+      'microsoft-yahei': '"Microsoft YaHei", sans-serif',
+      'serif': 'serif',
+      'sans-serif': 'sans-serif',
+      'monospace': 'monospace'
+    }
+    const value = fontMap[font] || fontMap['lxgw-wenkai']
+    document.documentElement.style.setProperty('--editor-font', value)
+    document.documentElement.style.setProperty('--font-family-editor', value)
+  }, { immediate: true })
+if (typeof window !== 'undefined') {
+   ;(window as any).__getActivePanel = () => activePanel.value
+ }
+
+ // Multi-window: respond to main process requesting current project ID (for "open in new window")
+ if (typeof window !== 'undefined' && (window as any).electronAPI?.onGetCurrentProjectId) {
+   ;(window as any).electronAPI.onGetCurrentProjectId(() => {
+     const pid = projectStore.currentProjectId || null
+     ;(window as any).electronAPI.windowSetCurrentProject(pid)
+   })
+ }
+
+ // Multi-window: on startup, check if main process assigned us a specific project
+ ;(window as any).electronAPI?.windowGetInitialProjectId?.().then((pid: string | null) => {
+   if (pid && pid !== projectStore.currentProjectId) {
+     projectStore.loadProject(pid)
+   }
+ })
 })
 
 
@@ -358,8 +393,8 @@ onMounted(async () => {
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
   font-size: 16px;
 }
 .btn-icon:hover {
@@ -388,13 +423,55 @@ main {
   min-width: 0;
 }
 .resizer-v {
-  width: 4px;
+  width: 6px;
   background: var(--border-color);
   cursor: col-resize;
   flex-shrink: 0;
+  position: relative;
+  z-index: 5;
+}
+.resizer-v::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 30px;
+  border-radius: 1px;
+  background: transparent;
+  transition: background 150ms ease;
+}
+.resizer-v:hover::before, .resizer-v.dragging::before {
+  background: var(--text-secondary, rgba(255,255,255,0.3));
 }
 .resizer-v:hover, .resizer-v.dragging {
   background: var(--accent);
+  cursor: col-resize;
+}
+.resizer-v.dragging {
+  cursor: col-resize;
+}
+.drag-tooltip {
+  position: fixed;
+  top: 50px;
+  transform: translateX(-50%);
+  background: var(--bg-elevated, #1a1a2e);
+  color: var(--text-primary, #e0e0e0);
+  border: 1px solid var(--accent, #4a9);
+  border-radius: 6px;
+  padding: var(--space-2) var(--space-5);
+  font-size: 12px;
+  z-index: 10000;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.resizer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  cursor: col-resize;
+  user-select: none;
 }
 .resizer-v.dragging {
   cursor: col-resize;
@@ -418,16 +495,16 @@ main {
 
 .save-error-banner {
   position: fixed; top: 48px; right: 16px; z-index: var(--z-toast);
-  display: flex; align-items: center; gap: 12px;
+  display: flex; align-items: center; gap: var(--space-5);
   background: var(--danger); color: var(--text-on-accent);
-  padding: 10px 14px; border-radius: 8px; max-width: 520px;
+  padding: var(--space-5) var(--space-5); border-radius: var(--radius-md); max-width: 520px;
   font-size: var(--font-size-sm); line-height: 1.5;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-md);
 }
 .save-error-dismiss {
   background: transparent; border: 1px solid var(--text-on-accent);
-  color: var(--text-on-accent); border-radius: 6px;
-  padding: 2px 10px; cursor: pointer; flex-shrink: 0;
+  color: var(--text-on-accent); border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-5); cursor: pointer; flex-shrink: 0;
 }
 </style>
 

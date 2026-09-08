@@ -55,12 +55,12 @@ function handleAction(action: string) {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-panel-sm);
-  padding: 4px;
-  display: flex; flex-wrap: wrap; gap: 2px;
+  padding: var(--space-2);
+  display: flex; flex-wrap: wrap; gap: var(--space-1);
   max-width: 360px;
 }
 .inline-menu-btn {
-  padding: 4px 10px; border: none; background: transparent;
+  padding: var(--space-2) var(--space-5); border: none; background: transparent;
   color: var(--text-primary); cursor: pointer; font-size: var(--font-size-sm);
   border-radius: var(--radius-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;
 }

@@ -14,9 +14,23 @@
     <div class="settings-row">
       <label>编辑器字体</label>
       <select v-model="settingsStore.editorFont" @change="settingsStore.saveSettings()">
-        <option value="serif">衬线 (Serif)</option>
-        <option value="sans-serif">无衬线 (Sans-serif)</option>
-        <option value="monospace">等宽 (Monospace)</option>
+        <optgroup label="打包字体">
+          <option value="lxgw-wenkai">霞鹜文楷</option>
+          <option value="source-han-serif">思源宋体</option>
+          <option value="source-han-sans">思源黑体</option>
+        </optgroup>
+        <optgroup label="系统字体">
+          <option value="kaiti">楷体</option>
+          <option value="simsun">宋体</option>
+          <option value="simhei">黑体</option>
+          <option value="fangsong">仿宋</option>
+          <option value="microsoft-yahei">微软雅黑</option>
+        </optgroup>
+        <optgroup label="通用类别">
+          <option value="serif">衬线</option>
+          <option value="sans-serif">无衬线</option>
+          <option value="monospace">等宽</option>
+        </optgroup>
       </select>
     </div>
     <div class="settings-row">
@@ -32,11 +46,34 @@
       <label>CDP调试端口</label>
       <input type="number" v-model.number="settingsStore.cdpPort" @change="settingsStore.saveSettings()" />
     </div>
+    <div class="settings-row">
+      <label>记忆抽取超时</label>
+      <input id="cfg-memory-extraction-timeout" type="number" min="60" max="600" step="10" v-model.number="settingsStore.memoryExtractionTimeoutSeconds" @change="saveMemoryTimeout" />
+      <span id="cfg-memory-extraction-timeout-val">{{ settingsStore.memoryExtractionTimeoutSeconds }}秒</span>
+    </div>
+    <div class="settings-row">
+      <label>正文确认后自动抽取记忆</label>
+      <input id="cfg-auto-extract-memory" type="checkbox" v-model="settingsStore.autoExtractMemory" @change="settingsStore.saveSettings()" />
+    </div>
     <div class="settings-section">
       <h4>主题</h4>
       <div class="settings-row">
-        <select id="cfg-theme" class="full-width"><option value="dark">深色模式</option></select>
+        <select id="cfg-theme" class="full-width" v-model="themeMode" @change="onThemeChange">
+          <option value="light">亮色模式</option>
+          <option value="dark">深色模式</option>
+        </select>
         <button class="btn-toggle" :class="{ active: isDark }" @click="toggleTheme">{{ isDark ? '开' : '关' }}</button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <h4>界面密度</h4>
+      <div class="settings-row">
+        <label>密度模式</label>
+       <select id="cfg-density" class="full-width" v-model="densityMode" @change="onDensityChange">
+          <option value="default">默认</option>
+          <option value="comfortable">舒适</option>
+          <option value="compact">紧凑</option>
+        </select>
       </div>
     </div>
     <div class="settings-section">
@@ -90,9 +127,20 @@ import { useAppConfirm } from '../../composables/useAppConfirm'
 
 const appConfirm = useAppConfirm()
 const isDark = ref(false)
+const themeMode = ref<'light' | 'dark'>('light')
+const densityMode = ref<'default' | 'comfortable' | 'compact'>('default')
 const githubToken = ref('')
 onMounted(() => {
   isDark.value = document.body.classList.contains('dark-theme')
+  themeMode.value = isDark.value ? 'dark' : 'light'
+ const savedDensity = localStorage.getItem('wa-density')
+  if (savedDensity === 'default' || savedDensity === 'compact' || savedDensity === 'comfortable') {
+    densityMode.value = savedDensity
+    document.documentElement.setAttribute('data-density', savedDensity)
+  } else {
+    densityMode.value = 'default'
+    document.documentElement.setAttribute('data-density', 'default')
+  }
   void (async () => {
     try {
       const t = await window.electronAPI?.storageRead?.('github_token')
@@ -100,6 +148,22 @@ onMounted(() => {
     } catch(e) {}
   })()
 })
+function onThemeChange() {
+  if (themeMode.value === 'dark') {
+    document.body.classList.add('dark-theme')
+    document.body.classList.remove('light-theme')
+    isDark.value = true
+  } else {
+    document.body.classList.add('light-theme')
+    document.body.classList.remove('dark-theme')
+    isDark.value = false
+  }
+  window.electronAPI?.storageWrite?.('theme_dark', isDark.value)
+}
+function onDensityChange() {
+  document.documentElement.setAttribute('data-density', densityMode.value)
+  localStorage.setItem('wa-density', densityMode.value)
+}
 function toggleTheme() {
   isDark.value = !isDark.value
   if (isDark.value) {
@@ -156,6 +220,10 @@ import { useSettingsStore } from '../../stores/settings'
 const settingsStore = useSettingsStore()
 const uiFontSize = settingsStore.uiFontSize
 function saveUiFontSize() { settingsStore.saveSettings() }
+function saveMemoryTimeout() {
+  settingsStore.memoryExtractionTimeoutSeconds = Math.min(600, Math.max(60, Math.round(settingsStore.memoryExtractionTimeoutSeconds) || 300))
+  settingsStore.saveSettings()
+}
 const dataDirPath = ref('')
 
 onMounted(() => {
@@ -175,12 +243,12 @@ async function saveAll() {
 
 <style scoped>
 .appearance-settings h3 { font-size: var(--font-size-lg); margin-bottom: 16px; }
-.settings-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.settings-row { display: flex; align-items: center; gap: var(--space-5); margin-bottom: 16px; }
 .settings-row label { width: 120px; font-size: var(--font-size-md); color: var(--text-secondary); }
 .settings-row input[type="number"], .settings-row select {
   background: var(--bg-input); color: var(--text-primary);
   border: 1px solid var(--border-color); border-radius: var(--radius-xs);
-  padding: 6px 10px; font-size: var(--font-size-md); height: 34px; outline: none; width: 84px;
+  padding: var(--space-3) var(--space-5); font-size: var(--font-size-md); height: 34px; outline: none; width: 84px;
 }
 .settings-row input[type="range"] { flex: 1; max-width: 200px; }
 .settings-row span { font-size: var(--font-size-md); color: var(--text-muted); }
@@ -198,14 +266,14 @@ async function saveAll() {
 }
 .settings-section { border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 12px; }
 .settings-section h4 { font-size: var(--font-size-md); margin-bottom: 8px; color: var(--text-secondary); }
-.btn-toggle { padding: 5px 16px; border-radius: var(--radius-xs); border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-secondary); cursor: pointer; font-size: var(--font-size-md); }
+.btn-toggle { padding: var(--space-2) var(--space-6); border-radius: var(--radius-xs); border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-secondary); cursor: pointer; font-size: var(--font-size-md); }
 .btn-toggle.active { background: var(--accent); color: var(--text-on-accent); border-color: var(--accent); }
-.gh-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: 6px 10px; font-size: var(--font-size-md); height: 34px; width: 220px; outline: none; }
+.gh-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: var(--space-3) var(--space-5); font-size: var(--font-size-md); height: 34px; width: 220px; outline: none; }
 
 .appearance-divider { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color); }
 .appearance-divider > label { display: block; margin-bottom: 8px; font-size: var(--font-size-md); color: var(--text-secondary); font-weight: 500; }
-.kbd-shortcuts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 24px; width: 100%; }
-.kbd-row { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: var(--radius-xs, 3px); background: var(--bg-hover); font-size: var(--font-size-md); color: var(--text-secondary); }
-.kbd { display: inline-block; padding: 3px 6px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); font-size: var(--font-size-sm); font-family: monospace; color: var(--text-primary); min-width: 20px; text-align: center; }
+.kbd-shortcuts { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4) var(--space-8); width: 100%; }
+.kbd-row { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-2) var(--space-4); border-radius: var(--radius-xs, 3px); background: var(--bg-hover); font-size: var(--font-size-md); color: var(--text-secondary); }
+.kbd { display: inline-block; padding: var(--space-3) var(--space-3); background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); font-size: var(--font-size-sm); font-family: monospace; color: var(--text-primary); min-width: 20px; text-align: center; }
 </style>
 

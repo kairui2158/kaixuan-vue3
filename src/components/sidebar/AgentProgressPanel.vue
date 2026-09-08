@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, watch, onUnmounted } from 'vue'
 
 const expanded = ref(false)
 const agents = reactive<any[]>([])
@@ -39,13 +39,28 @@ async function pollAgentStatus() {
   }
 }
 
-onMounted(() => {
+function startPolling() {
+  stopPolling()
   pollTimer = window.setInterval(pollAgentStatus, 2000)
-})
+  void pollAgentStatus()
+}
+
+function stopPolling() {
+  if (pollTimer !== null) {
+    window.clearInterval(pollTimer)
+    pollTimer = null
+  }
+}
+
+watch(expanded, (value) => {
+  if (value) startPolling()
+  else stopPolling()
+}, { immediate: true })
 
 onUnmounted(() => {
-  if (pollTimer) clearInterval(pollTimer)
+  stopPolling()
 })
+
 </script>
 
 <style scoped>
@@ -96,10 +111,10 @@ onUnmounted(() => {
 }
 .agp-body {
   overflow-y: auto;
-  padding: 4px 0;
+  padding: var(--space-2) 0;
 }
 .agp-empty {
-  padding: 12px;
+  padding: var(--space-5);
   text-align: center;
   color: var(--text-muted);
   font-size: var(--font-size-sm);
@@ -107,8 +122,8 @@ onUnmounted(() => {
 .agp-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
   font-size: var(--font-size-sm);
 }
 .agp-status-dot {
@@ -139,7 +154,7 @@ onUnmounted(() => {
 .agp-mini-fill {
   height: 100%;
   background: var(--accent);
-  transition: width 0.3s ease;
+  transition: width var(--duration-normal) var(--ease-standard);
 }
 .agp-task {
   color: var(--text-muted);

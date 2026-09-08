@@ -7,13 +7,17 @@ import { storageKey } from '../utils/storage-key'
   * dark/light切换，持久化到localStorage
   */
  export const useThemeStore = defineStore('theme', () => {
-   const theme = ref<'dark' | 'light'>('dark')
+  const theme = ref<'dark' | 'light'>('light')
  
-   async function init() {
-     const saved = window.electronAPI ? await window.electronAPI.storageRead(storageKey('app-theme')) : localStorage.getItem('wa-theme') as 'dark' | 'light' | null
-     if (saved) theme.value = saved
-     applyTheme()
-   }
+  async function init() {
+    const saved = window.electronAPI ? await window.electronAPI.storageRead(storageKey('app-theme')) : localStorage.getItem('wa-theme') as 'dark' | 'light' | null
+    if (saved) theme.value = saved
+    applyTheme()
+    // Density: ensure default on first launch, restore saved preference
+    const savedDensity = localStorage.getItem('wa-density')
+    const densityVal = (savedDensity === 'default' || savedDensity === 'comfortable' || savedDensity === 'compact') ? savedDensity : 'default'
+    document.documentElement.setAttribute('data-density', densityVal)
+  }
  
    function applyTheme() {
      if (theme.value === 'light') {

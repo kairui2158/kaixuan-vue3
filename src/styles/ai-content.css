@@ -131,7 +131,7 @@
 }
 :is(.message-content, .ow-msg-bubble) .md-status {
   align-items: center;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   display: inline-flex;
   font-size: var(--font-size-sm);
   font-weight: 650;
@@ -193,7 +193,7 @@
   font-size: var(--font-size-xs);
   justify-content: space-between;
   line-height: 1.2;
-  padding: 6px 10px;
+  padding: var(--space-3) var(--space-5);
 }
 
 .code-block .code-lang {

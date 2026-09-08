@@ -1,0 +1,9 @@
+{
+  "plugins": ["stylelint-declaration-strict-value"],
+  "rules": {
+    "scale-unlimited/declaration-strict-value": [["padding", "gap", "margin"], {
+      "ignoreKeywords": ["0", "auto", "inherit", "initial", "unset", "var"],
+      "severity": "warning"
+    }]
+  }
+}

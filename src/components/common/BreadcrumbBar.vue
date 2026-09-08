@@ -23,8 +23,8 @@
 .breadcrumb-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-6);
   font-size: var(--font-size-md);
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border-color);
@@ -37,14 +37,14 @@
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-2);
   color: var(--text-secondary);
 }
 .breadcrumb-item:hover { color: var(--accent); }
 .breadcrumb-close {
   font-size: var(--font-size-xxs);
   opacity: 0.5;
-  padding: 0 2px;
+  padding: 0 var(--space-1);
 }
 .breadcrumb-close:hover { opacity: 1; color: var(--danger); }
 </style>

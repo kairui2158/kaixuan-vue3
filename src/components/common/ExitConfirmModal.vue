@@ -84,7 +84,9 @@ window.electronAPI?.onFinalSave?.(() => {
     cid: _cid,
     ts: Date.now()
   })
-  window.dispatchEvent(new CustomEvent('editor-save'))
+ window.dispatchEvent(new CustomEvent('editor-save'))
+ // P2-6: 收敛退出保存逻辑到唯一入口，并通知主进程保存完成
+ window.electronAPI?.sendSaveComplete?.()
 })
 function cancel() {
   saveFailed.value = false
@@ -133,11 +135,11 @@ defineExpose({ show, hide })
 
 <style scoped>
 .exit-msg-primary {
-  margin: 0 0 8px 0; font-size: var(--font-size-md); color: var(--text-primary);
+  margin: 0 0 var(--space-4) 0; font-size: var(--font-size-md); color: var(--text-primary);
 }
 .exit-msg-error { color: var(--danger); }
 .exit-msg-secondary {
   margin: 0; font-size: var(--font-size-sm); color: var(--text-muted); line-height: 1.6;
 }
-.footer-right { display: flex; gap: 8px; }
+.footer-right { display: flex; gap: var(--space-4); }
 </style>

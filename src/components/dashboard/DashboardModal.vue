@@ -97,7 +97,7 @@ const emit = defineEmits<{ close: [] }>()
 .dash-bar-row { display: flex; align-items: center; gap: var(--space-sm); }
 .dash-bar-label { width: 80px; font-size: var(--font-size-sm); color: var(--text-secondary); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dash-bar-track { flex: 1; height: 20px; background: var(--bg-input); border-radius: var(--radius-sm); overflow: hidden; }
-.dash-bar-fill { height: 100%; border-radius: var(--radius-sm); transition: width 0.3s ease; }
+.dash-bar-fill { height: 100%; border-radius: var(--radius-sm); transition: width var(--duration-normal) var(--ease-standard); }
 .dash-bar-fill.accent { background: var(--accent); }
 .dash-bar-fill.success { background: var(--success); }
 .dash-bar-fill.warning { background: var(--warning); }

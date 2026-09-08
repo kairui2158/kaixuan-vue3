@@ -64,12 +64,12 @@
           <select
             id="co-skill-select"
             v-model="coCreationSkillToAdd"
-            class="co-creation-select"
+            class="select-standard"
             title="选择后添加到主页共创"
             @change="addCoCreationSkill"
           >
             <option value="">添加技能</option>
-            <option v-for="skill in availableCoCreationSkills" :key="skill.id" :value="skill.id">{{ skill.name }}</option>
+            <option v-for="skill in availableCoCreationSkills" :key="skill.id" :value="skill.id">{{ skillStore.displaySkillName(skill) }}</option>
           </select>
         </label>
         <label class="co-creation-field">
@@ -77,7 +77,7 @@
           <select
             id="co-agent-select"
             v-model="coCreationAgentId"
-            class="co-creation-select"
+            class="select-standard"
             title="主页共创默认智能体"
           >
             <option value="">默认</option>
@@ -89,7 +89,7 @@
           <select
             id="co-mode-select"
             v-model="coCreationMode"
-            class="co-creation-select"
+            class="select-standard"
             title="串行逐步传递，并行合并请求"
           >
             <option value="compose">并行</option>
@@ -102,10 +102,10 @@
           v-for="(skill, index) in selectedCoCreationSkills"
           :key="skill.id"
           class="co-skill-chip"
-          :title="skill.name"
+          :title="skillStore.displaySkillName(skill)"
         >
           <span class="co-skill-seq">{{ index + 1 }}</span>
-          <span class="co-skill-name">{{ skill.name }}</span>
+          <span class="co-skill-name">{{ skillStore.displaySkillName(skill) }}</span>
           <select
             v-if="coCreationMode === 'chain'"
             :value="coCreation.config.skillAgents[homeSkillAgentKey(skill.id)] || ''"
@@ -145,6 +145,7 @@ import { useCoCreationStore } from '../../stores/coCreation'
 import { useAiTaskStore } from '../../stores/aiTaskStore'
 import { getAiService } from '../../services/aiService'
 import { runWorkspaceSkills, type WorkspaceSkillEngineAdapter, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
+import { createApiCallBudget } from '../../services/apiCallBudget'
 import { getWorkspaceSkillAgentKey } from '../../services/skillAgentBinding'
 import { MCPProtocol } from '../../services/mcp-protocol'
 import { retrieveContext } from '../../services/memoryRetriever'
@@ -152,7 +153,7 @@ import { conversationContextService } from '../../services/conversationContextSe
 import type { ContextMessage } from '../../types/context'
 import { continueSnapshot } from '../../services/continuationService'
 import { canContinue, continuationStatusFor, type ContinuationSnapshot } from '../../services/continuation'
-import { saveContinuation, removeContinuation } from '../../services/continuationStorage'
+import { saveContinuation, loadContinuation, removeContinuation } from '../../services/continuationStorage'
 import { buildEditorEditPrompt, buildEditorReadonlyPrompt, parseEditorEditBatch, parseEditorEditCommand, type EditorEditCommand } from '../../services/editorEditProtocol'
 import { createEditorTargetSnapshot, hashEditorContent, validateEditorTarget, type EditorTargetSnapshot } from '../../services/editorTarget'
 import { buildEditPlan } from '../../services/editorEditService'
@@ -251,11 +252,12 @@ function handleCoSkillAgentChange(skillId: string, agentId: string) {
 
 function getHomeSkillTemplates(): WorkspaceSkillTemplate[] {
   return selectedCoCreationSkills.value
-    .filter(skill => skill && skill.template)
+    .filter(skill => skill && (skill.template || (skill.format === 'folder' && skill.folderPath)))
     .map(skill => ({
       id: skill.id,
-      name: skill.name,
+      name: skillStore.displaySkillName(skill),
       template: skill.template,
+      skill,
       customVars: skill.customVars || {},
       injectMode: skill.injectMode || 'system_prefix',
       outputFormat: skill.outputFormat || 'text',
@@ -450,6 +452,7 @@ async function runHomeCoCreationSkills(requestText: string): Promise<string> {
     contextService: conversationContextService,
     adapter: createHomeSkillAdapter(),
     signal: activeAbortController?.signal,
+    apiBudget: createApiCallBudget(8),
     callbacks: {
       onFirstChunk: () => {
         firstChunkSeen = true
@@ -467,6 +470,9 @@ async function runHomeCoCreationSkills(requestText: string): Promise<string> {
   })
 
   if (result.text.trim()) chatStore.updateLastMessage(result.text)
+  if (result.meta && (result.meta.diagnostics?.length || result.meta.status === 'degraded')) {
+    chatStore.updateLastMessageSkillDiagnostics(result.meta)
+  }
   void loadChainBreakpointStatus()
   if (result.mode) {
     await conversationContextService.recordTurn({
@@ -520,7 +526,7 @@ watch(() => editorStore.activeTab?.content, (content) => {
 })
 
 async function restoreContinuation(sessionId: string) {
-  const snapshot = await (await import('../../services/continuationStorage')).loadContinuation(projectId.value, 'main', sessionId)
+  const snapshot = await loadContinuation(projectId.value, 'main', sessionId)
   if (!snapshot) return
   const messageId = snapshot.requestId.replace(/^chat_/, '')
   if (chatStore.activeSession?.messages.some(message => message.id === messageId)) {
@@ -1773,8 +1779,8 @@ function scrollToBottom() {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-5);
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   font-size: var(--font-size-md);
@@ -1784,7 +1790,7 @@ function scrollToBottom() {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 8px;
+  gap: var(--space-4);
   min-width: 0;
 }
 .chat-header-title {
@@ -1793,7 +1799,7 @@ function scrollToBottom() {
 .messages-container {
   flex: 1;
   overflow-y: auto;
-  padding: 12px;
+  padding: var(--space-5);
 }
 .empty-state {
   display: flex;
@@ -1801,7 +1807,7 @@ function scrollToBottom() {
   align-items: center;
   justify-content: center;
   height: 100%;
-  gap: 8px;
+  gap: var(--space-4);
   color: var(--text-muted);
 }
 .empty-icon { font-size: 32px; }
@@ -1809,16 +1815,16 @@ function scrollToBottom() {
 .empty-desc { font-size: var(--font-size-md); text-align: center; }
 .chat-input-row {
   display: flex;
-  gap: 8px;
+  gap: var(--space-4);
   padding: var(--space-4) var(--space-6);
   border-top: 1px solid var(--border-color);
 }
 .chat-generation-status {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-4);
   min-height: 34px;
-  padding: 6px 12px;
+  padding: var(--space-3) var(--space-5);
   border-top: 1px solid var(--border-color);
   background: var(--chat-status-bg);
   color: var(--text-secondary);
@@ -1841,9 +1847,9 @@ function scrollToBottom() {
 .chat-compatibility-notice {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-4);
   min-height: 34px;
-  padding: 6px 12px;
+  padding: var(--space-3) var(--space-5);
   border-top: 1px solid var(--border-color);
   background: var(--chat-status-bg);
   color: var(--text-secondary);
@@ -1857,7 +1863,7 @@ function scrollToBottom() {
 .chat-compatibility-notice button {
   flex: 0 0 auto;
   min-height: 28px;
-  padding: 3px 9px;
+  padding: var(--space-3) var(--space-4);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xs);
   background: var(--bg-input);
@@ -1867,7 +1873,7 @@ function scrollToBottom() {
 .generation-action {
   flex: 0 0 auto;
   min-height: 28px;
-  padding: 3px 9px;
+  padding: var(--space-3) var(--space-4);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xs);
   background: var(--bg-input);
@@ -1884,7 +1890,7 @@ function scrollToBottom() {
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  padding: 7px 10px;
+  padding: var(--space-3) var(--space-5);
   font-size: var(--font-size-md);
   resize: none;
   outline: none;
@@ -1927,9 +1933,9 @@ function scrollToBottom() {
   display: flex;
   flex-wrap: wrap;
   align-items: end;
-  gap: 6px;
+  gap: var(--space-3);
   box-sizing: border-box;
-  padding: 6px 12px;
+  padding: var(--space-3) var(--space-5);
   background: var(--bg-secondary);
 }
 .co-creation-field {
@@ -1937,7 +1943,7 @@ function scrollToBottom() {
   flex: 1 1 92px;
   min-width: 0;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-1);
   color: var(--text-muted);
   font-size: var(--font-size-xs);
   font-weight: 500;
@@ -1948,7 +1954,7 @@ function scrollToBottom() {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.co-creation-select {
+.select-standard {
   width: 100%;
   min-width: 0;
   max-width: 100%;
@@ -1958,20 +1964,20 @@ function scrollToBottom() {
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xs);
-  padding: 2px 5px;
+  padding: var(--space-1) var(--space-2);
   font-size: var(--font-size-sm);
   outline: none;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.co-creation-select:focus {
+.select-standard:focus {
   border-color: var(--accent);
 }
 .co-creation-action {
   flex: 0 0 auto;
   min-height: 26px;
-  padding: 3px 12px;
+  padding: var(--space-3) var(--space-5);
   border: none;
   border-radius: var(--radius-xs);
   background: var(--control-primary-bg);
@@ -1989,18 +1995,18 @@ function scrollToBottom() {
 .co-skill-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: var(--space-2);
   box-sizing: border-box;
-  padding: 0 12px 8px;
+  padding: 0 var(--space-5) var(--space-4);
   background: var(--bg-secondary);
 }
 .co-skill-chip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-2);
   min-width: 0;
   max-width: 100%;
-  padding: 2px 4px 2px 6px;
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-3);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xs);
   background: var(--bg-input);
@@ -2023,7 +2029,7 @@ function scrollToBottom() {
   max-width: 96px;
   min-width: 0;
   height: 20px;
-  padding: 0 3px;
+  padding: 0 var(--space-3);
   background: var(--bg-secondary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
@@ -2054,9 +2060,9 @@ function scrollToBottom() {
   color: var(--text-muted);
   font-size: var(--font-size-xs);
 }
-.token-bar { padding: 4px 12px 6px; font-size: var(--font-size-sm); color: var(--text-muted); }
+.token-bar { padding: var(--space-2) var(--space-5) var(--space-3); font-size: var(--font-size-sm); color: var(--text-muted); }
 .input-hint {
-  padding: 4px 12px 8px;
+  padding: var(--space-2) var(--space-5) var(--space-4);
   font-size: var(--font-size-sm);
   color: var(--text-muted);
 }

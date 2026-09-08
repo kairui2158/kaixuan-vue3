@@ -2,10 +2,29 @@
   <div id="plugin-market-modal" class="pm-overlay" @click.self="$emit('close')">
     <div class="pm-content">
       <div class="pm-header">
-        <h3>插件市场</h3>
+        <h3>技能市场</h3>
         <button id="btn-close-market" class="pm-close" @click="$emit('close')">&times;</button>
       </div>
       <div class="pm-body">
+        <div class="market-tabs" role="tablist">
+          <button id="btn-market-local" :class="{ active: activeTab === 'local' }" type="button" @click="activeTab = 'local'">本地技能</button>
+          <button id="btn-market-github" :class="{ active: activeTab === 'github' }" type="button" @click="activeTab = 'github'">GitHub 搜索</button>
+        </div>
+        <div v-if="activeTab === 'local'" id="local-skill-list" class="market-results-container market-results-scroll">
+          <div v-if="localSkills.length === 0" class="market-empty">本机还没有安装技能</div>
+          <div v-for="skill in localSkills" :key="skill.id" class="market-item">
+            <div class="market-item-header">
+              <span class="market-item-name">{{ skillStore.displaySkillName(skill) }}</span>
+              <span class="market-item-stars">{{ skill.version || '未标注版本' }}</span>
+            </div>
+            <p class="market-item-desc">{{ skill.description || '暂无描述' }}</p>
+            <div class="market-item-meta">
+              <span class="market-item-lang">{{ sourceLabel(skill.source) }}</span>
+              <span class="market-item-updated">{{ skill.updatedAt ? '更新: ' + formatDate(skill.updatedAt) : '未记录更新时间' }}</span>
+            </div>
+          </div>
+        </div>
+        <template v-else>
         <div id="github-status-bar" class="github-status-bar">
           <span class="github-status-text">GitHub: {{ hasToken ? '已登录' : '未登录' }}</span>
           <span class="github-status-actions">
@@ -30,7 +49,7 @@
         </div>
         <div class="market-search">
           <input type="text" v-model="searchQuery" placeholder="搜索 GitHub 仓库（例如：小说创作智能体）" id="market-search-input" class="market-search-input" @keydown.enter="searchGitHub">
-          <select v-model="searchCategory" id="market-category" data-cat="all" class="market-category-select">
+          <select v-model="searchCategory" id="market-category" data-cat="all" class="select-standard">
             <option value="">全部</option>
             <option value="agent">智能体</option>
             <option value="skill">技能</option>
@@ -57,12 +76,13 @@
                 <div class="market-item-meta">
                   <span v-if="item.language" class="market-item-lang">{{ item.language }}</span>
                   <span class="market-item-updated">更新: {{ formatDate(item.updated_at) }}</span>
-                  <button class="btn-sm btn-primary" @click="installFromMarket(item)">安装</button>
+                  <button class="btn-sm btn-primary" @click="openRepository(item)">打开仓库</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        </template>
         <div v-if="totalPages > 1" id="market-pagination" class="market-pagination">
           <button id="btn-prev-page" class="btn-sm" :disabled="currentPage <= 1" @click="goToPage(currentPage - 1)">上一页</button>
           <span id="page-info" class="page-info-text">第 {{ currentPage }} 页</span>
@@ -75,8 +95,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useSettingsStore } from '../../stores/settings'
+import { useSkillStore } from '../../stores/skill'
 
 defineEmits<{ close: [] }>()
 
@@ -88,13 +109,22 @@ const showTokenHelp = ref(false)
 const searchQuery = ref('')
 const searchCategory = ref('')
 const searchSort = ref('stars')
-const statusText = ref('输入关键词搜索 GitHub 上的智能体和技能')
+const statusText = ref('输入关键词搜索 GitHub 仓库')
 const results = ref<any[]>([])
 const loading = ref(false)
 const hasSearched = ref(false)
 const currentPage = ref(1)
 const totalPages = ref(1)
 const perPage = 10
+const activeTab = ref<'local' | 'github'>('local')
+const skillStore = useSkillStore()
+const localSkills = computed(() => skillStore.skills)
+
+function sourceLabel(source?: string) {
+  if (source === 'package') return '技能包'
+  if (source === 'external') return '外部文件夹'
+  return '本机导入'
+}
 
 onMounted(() => {
   const saved = settingsStore.githubToken || ''
@@ -158,10 +188,8 @@ function goToPage(page: number) {
   searchGitHub()
 }
 
-function installFromMarket(item: any) {
-  const name = item.full_name || item.name || 'unknown'
-  statusText.value = `[OK] 开始安装: ${name}`
-  window.dispatchEvent(new CustomEvent('plugin-install', { detail: { url: item.html_url, name } }))
+function openRepository(item: any) {
+  window.open(item.html_url, '_blank', 'noopener')
 }
 
 function formatDate(dateStr: string): string {
@@ -176,34 +204,37 @@ function formatDate(dateStr: string): string {
 .pm-content { width: min(800px, 92vw); max-height: 84vh; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; }
 .pm-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-6) var(--space-8); border-bottom: 1px solid var(--border-color); }
 .pm-header h3 { font-size: var(--font-size-lg); font-weight: 600; margin: 0; }
-.pm-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: var(--font-size-xxl); padding: 4px; }
+.pm-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: var(--font-size-xxl); padding: var(--space-2); }
 .pm-close:hover { color: var(--text-primary); }
 .pm-body { flex: 1; overflow-y: auto; padding: var(--space-6) var(--space-8); }
 .github-status-bar { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-6); background: var(--bg-input, var(--bg-tertiary)); border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 12px; }
+.market-tabs { display: flex; gap: var(--space-3); margin-bottom: 12px; }
+.market-tabs button { border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-secondary); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-5); cursor: pointer; }
+.market-tabs button.active { color: var(--accent); border-color: var(--accent); font-weight: 600; }
 .github-status-text { font-size: var(--font-size-md); color: var(--text-secondary); }
-.github-status-actions { display: flex; gap: 8px; }
-.token-input-area { padding: 12px; background: var(--bg-input, var(--bg-tertiary)); border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 12px; }
+.github-status-actions { display: flex; gap: var(--space-4); }
+.token-input-area { padding: var(--space-5); background: var(--bg-input, var(--bg-tertiary)); border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 12px; }
 .token-help-text { font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: 8px; }
-.token-input-row { display: flex; gap: 8px; }
-.token-input-field { flex: 1; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 4px 10px; font-size: var(--font-size-md); height: 28px; outline: none; }
-.token-help-area { padding: 12px; background: var(--bg-input, var(--bg-tertiary)); border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 12px; font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.8; }
-.market-search { display: flex; gap: 8px; margin-bottom: 12px; }
-.market-search-input { flex: 1; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 4px 10px; font-size: var(--font-size-md); height: 28px; outline: none; }
-.market-category-select, .market-sort-select { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0 8px; font-size: var(--font-size-sm); height: 28px; outline: none; }
+.token-input-row { display: flex; gap: var(--space-4); }
+.token-input-field { flex: 1; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-5); font-size: var(--font-size-md); height: 28px; outline: none; }
+.token-help-area { padding: var(--space-5); background: var(--bg-input, var(--bg-tertiary)); border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 12px; font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.8; }
+.market-search { display: flex; gap: var(--space-4); margin-bottom: 12px; }
+.market-search-input { flex: 1; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-5); font-size: var(--font-size-md); height: 28px; outline: none; }
+.select-standard, .market-sort-select { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0 var(--space-4); font-size: var(--font-size-sm); height: 28px; outline: none; }
 .market-status-text { font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: 8px; }
 .market-results-container { min-height: 200px; }
 .market-results-scroll { max-height: 400px; overflow-y: auto; }
-.market-loading, .market-empty { text-align: center; padding: 40px; color: var(--text-secondary); font-size: var(--font-size-md); }
-.market-item { padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 8px; }
+.market-loading, .market-empty { text-align: center; padding: var(--space-10); color: var(--text-secondary); font-size: var(--font-size-md); }
+.market-item { padding: var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 8px; }
 .market-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
 .market-item-name { font-size: var(--font-size-md); font-weight: 600; color: var(--accent); text-decoration: none; }
 .market-item-name:hover { text-decoration: underline; }
 .market-item-stars { font-size: var(--font-size-sm); color: var(--text-secondary); }
-.market-item-desc { font-size: var(--font-size-sm); color: var(--text-secondary); margin: 4px 0; line-height: 1.5; }
-.market-item-meta { display: flex; align-items: center; gap: 12px; font-size: var(--font-size-xs); color: var(--text-tertiary); }
-.market-item-lang { background: var(--bg-input); padding: 2px 6px; border-radius: var(--radius-xs); }
-.market-pagination { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 0; }
+.market-item-desc { font-size: var(--font-size-sm); color: var(--text-secondary); margin: var(--space-2) 0; line-height: 1.5; }
+.market-item-meta { display: flex; align-items: center; gap: var(--space-5); font-size: var(--font-size-xs); color: var(--text-tertiary); }
+.market-item-lang { background: var(--bg-input); padding: var(--space-1) var(--space-3); border-radius: var(--radius-xs); }
+.market-pagination { display: flex; align-items: center; justify-content: center; gap: var(--space-5); padding: var(--space-5) 0; }
 .page-info-text { font-size: var(--font-size-sm); color: var(--text-secondary); }
-.btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: var(--radius-sm); padding: 4px 12px; font-size: var(--font-size-sm); cursor: pointer; }
+.btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-5); font-size: var(--font-size-sm); cursor: pointer; }
 .btn-mr-4 { margin-right: 4px; }
 </style>

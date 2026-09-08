@@ -3,7 +3,7 @@
 .modal-overlay {
   position: fixed; inset: 0;
   background: var(--bg-overlay, rgba(0,0,0,0.4));
-  backdrop-filter: blur(4px);
+  backdrop-filter: var(--glass-blur) var(--glass-saturate); -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
   z-index: var(--z-modal, 1000);
   display: flex; align-items: center; justify-content: center;
   pointer-events: auto;
@@ -52,7 +52,7 @@
 /* 5. Modal footer */
 .modal-footer {
   display: flex; align-items: center; justify-content: flex-end;
-  gap: 8px;
+  gap: var(--space-4);
   padding: var(--space-5) var(--space-8);
   border-top: 1px solid var(--border-color);
   background: var(--bg-elevated, var(--bg-secondary));
@@ -70,9 +70,9 @@
   color: var(--text-secondary);
   font-size: var(--font-size-md, 14px);
   cursor: pointer;
-  padding: var(--space-xs, 4px) var(--space-sm, 8px);
+  padding: var(--space-xs, var(--space-2)) var(--space-sm, var(--space-4));
   border-radius: var(--radius-sm, 6px);
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 .modal-close:hover, .btn-close:hover {
   background: var(--bg-hover);
@@ -83,7 +83,7 @@
 .modal-overlay.modal-nested,
 .modal-nested-overlay {
   z-index: var(--z-modal-nested, 1100);
-  padding: var(--modal-gutter, 24px);
+  padding: var(--modal-gutter, var(--space-8));
 }
 .modal-nested-content,
 .modal-overlay.modal-nested > .modal-content {

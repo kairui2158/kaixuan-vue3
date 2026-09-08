@@ -55,7 +55,7 @@
         </template>
       </div>
     </div>
-    <div v-if="ctxMenu.visible" class="ctx-menu" :style="{ left: ctxMenu.x + 'px', top: ctxMenu.y + 'px' }" @click.stop>
+    <TopSheet :visible="ctxMenu.visible" :title="ctxMenu.type === 'volume' ? '卷操作' : '章节操作'" @close="closeCtxMenu">
       <template v-if="ctxMenu.type === 'volume'">
         <button class="ctx-item" @click="ctxAction('view-outline')">查看卷纲</button>
         <button class="ctx-item" @click="ctxAction('edit-vol')">编辑卷</button>
@@ -69,16 +69,18 @@
         <button class="ctx-item" @click="ctxAction('bind-skill')">绑定技能</button>
         <button class="ctx-item danger" @click="ctxAction('del-ch')">删除章节</button>
       </template>
-    </div>
+    </TopSheet>
     <ProjectModal :visible="projectModalVisible" @close="projectModalVisible=false" />
   </aside>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, nextTick, watch } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { useProjectStore } from '../../stores/project'
 import { useEditorStore } from '../../stores/editor'
 import { useAppConfirm } from '../../composables/useAppConfirm'
+import TopSheet from '../common/TopSheet.vue'
 import ProjectModal from '../common/ProjectModal.vue'
 
 const projectStore = useProjectStore()
@@ -100,6 +102,28 @@ const renameValue = ref('')
 const volRenameInput = ref<HTMLInputElement | null>(null)
 const chRenameInput = ref<HTMLInputElement | null>(null)
 const ctxMenu = ref({ visible: false, x: 0, y: 0, type: '', vol: null as any, ch: null as any })
+
+// P0-1: 监听 restore-session 事件，恢复上次展开的卷
+function handleRestoreSession(event: Event) {
+  const detail = (event as CustomEvent).detail
+  if (!detail) return
+  if (detail.vid) {
+    // 展开对应卷
+    const vid = detail.vid
+    let found = false
+    for (const vol of (projectStore.volumes || [])) {
+      const volId = vol.id || vol.name
+      if (volId === vid) {
+        if (!expandedVolumes.value.has(vid)) expandedVolumes.value.add(vid)
+        found = true
+        break
+      }
+    }
+    if (!found && (projectStore.volumes || []).length > 0) {
+      expandedVolumes.value.add((projectStore.volumes[0].id || projectStore.volumes[0].name))
+    }
+  }
+}
 
 watch(() => projectStore.currentProjectId, () => {
   expandedVolumes.value = new Set()
@@ -303,33 +327,39 @@ function deleteVolume(vol: any) {
     }
   }
 }
+
+onMounted(() => {
+  window.addEventListener('restore-session', handleRestoreSession)
+})
+onUnmounted(() => {
+  window.removeEventListener('restore-session', handleRestoreSession)
+})
 </script>
 
 <style scoped>
 .chapter-tree { width: 200px; min-width: 140px; max-width: 300px; background: var(--bg-secondary); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
-.tree-header { display: flex; align-items: center; gap: 4px; padding: 8px 10px; border-bottom: 1px solid var(--border-color); font-size: var(--font-size-sm); }
+.tree-header { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border-color); font-size: var(--font-size-sm); }
 .project-name { flex: 1 1 auto; min-width: 0; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tree-header-actions { display: flex; gap: 4px; flex-shrink: 0; }
-.tree-body { flex: 1; overflow-y: auto; padding: 4px 0; }
-.empty-hint { padding: 24px 12px; text-align: center; color: var(--text-muted); font-size: var(--font-size-sm); line-height: 1.8; }
-.tree-list { padding: 0 4px; }
+.tree-header-actions { display: flex; gap: var(--space-2); flex-shrink: 0; }
+.tree-body { flex: 1; overflow-y: auto; padding: var(--space-2) 0; }
+.empty-hint { padding: var(--space-8) var(--space-5); text-align: center; color: var(--text-muted); font-size: var(--font-size-sm); line-height: 1.8; }
+.tree-list { padding: 0 var(--space-2); }
 .volume-group { margin-bottom: 2px; }
-.volume-item { display: flex; align-items: center; gap: 4px; padding: var(--space-2) var(--space-4); cursor: pointer; border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-primary); }
+.volume-item { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); cursor: pointer; border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-primary); }
 .volume-item:hover { background: var(--bg-hover); }
 .volume-item.drag-over { background: var(--accent); color: var(--text-on-accent); }
-.vol-arrow { font-size: var(--font-size-xxs); color: var(--text-muted); transition: transform 0.2s; display: inline-block; }
+.vol-arrow { font-size: var(--font-size-xxs); color: var(--text-muted); transition: transform var(--duration-fast); display: inline-block; }
 .vol-arrow.expanded { transform: rotate(90deg); }
 .vol-name { flex: 1; }
 .vol-count { font-size: var(--font-size-xxs); color: var(--text-muted); }
 .chapter-list { padding-left: 20px; }
-.chapter-item { display: flex; align-items: center; gap: 4px; min-width: 0; padding: 3px 8px; cursor: pointer; border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-secondary); white-space: nowrap; overflow: hidden; }
+.chapter-item { display: flex; align-items: center; gap: var(--space-2); min-width: 0; padding: var(--space-3) var(--space-4); cursor: pointer; border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-secondary); white-space: nowrap; overflow: hidden; }
 .chapter-item > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .chapter-item:hover { background: var(--bg-hover); color: var(--text-primary); }
 .chapter-item.active { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
 .chapter-item.drag-over { background: var(--accent); color: var(--text-on-accent); }
-.rename-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--accent); border-radius: var(--radius-xs); padding: 1px 4px; font-size: var(--font-size-xs); width: 100%; outline: none; }
-.ctx-menu { position: fixed; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 4px; z-index: 3000; box-shadow: var(--shadow-lg); min-width: 140px; }
-.ctx-item { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--text-primary); padding: 6px 12px; font-size: var(--font-size-sm); border-radius: var(--radius-xs); cursor: pointer; }
+.rename-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--accent); border-radius: var(--radius-xs); padding: var(--space-1) var(--space-2); font-size: var(--font-size-xs); width: 100%; outline: none; }
+.ctx-item { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--text-primary); padding: var(--space-3) var(--space-5); font-size: var(--font-size-sm); border-radius: var(--radius-xs); cursor: pointer; }
 .ctx-item:hover { background: var(--bg-hover); }
 .ctx-item.danger { color: var(--danger); }
 .ctx-item.danger:hover { background: var(--danger); color: var(--text-on-accent); }

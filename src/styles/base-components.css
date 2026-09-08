@@ -17,11 +17,12 @@
  * CL-2: Button system
  * ============================================================ */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); user-select: none; white-space: nowrap; cursor: pointer; line-height: var(--lh-tight); font-weight: var(--fw-medium); border-radius: var(--btn-radius); height: var(--btn-md-height); padding: var(--btn-md-padding); font-size: var(--btn-font-size-md); transition: var(--btn-transition); outline: none; will-change: transform; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); user-select: none; white-space: nowrap; cursor: pointer; line-height: var(--lh-tight); font-weight: var(--fw-medium); border-radius: var(--btn-radius); height: var(--density-btn-md-height); padding: var(--btn-md-padding); font-size: var(--btn-font-size-md); transition: var(--btn-transition); outline: none; will-change: transform; }
 .btn-group { display: inline-flex; gap: var(--btn-group-gap-standard); }
-.btn-lg { height: var(--btn-lg-height, 38px); padding: var(--btn-lg-padding, 8px 20px); font-size: var(--btn-font-size-lg); }
-.btn-md { height: var(--btn-md-height); padding: var(--btn-md-padding); font-size: var(--btn-font-size-md); }
-.btn-sm { height: var(--btn-sm-height, 28px); padding: var(--btn-sm-padding, 4px 12px); font-size: var(--btn-font-size-sm); }
-.btn-xs { height: var(--btn-xs-height, 24px); padding: var(--btn-xs-padding, 4px 8px); font-size: var(--btn-font-size-xs); }
+.btn-lg { height: var(--density-btn-lg-height); padding: var(--btn-lg-padding, var(--space-4) var(--space-7)); font-size: var(--btn-font-size-lg); }
+.btn-md { height: var(--density-btn-md-height); padding: var(--btn-md-padding); font-size: var(--btn-font-size-md); }
+.btn-sm { height: var(--density-btn-sm-height); padding: var(--btn-sm-padding, var(--space-2) var(--space-5)); font-size: var(--btn-font-size-sm); }
+.btn-xs { height: var(--density-btn-xs-height); padding: var(--btn-xs-padding, var(--space-2) var(--space-4)); font-size: var(--btn-font-size-xs); }
 .btn-icon { width: var(--btn-icon-size, 28px); height: var(--btn-icon-size, 28px); padding: 0; font-size: var(--btn-font-size-sm); flex-shrink: 0; }
 .btn-ghost { background: transparent; color: var(--text-secondary); border: none; }
 .btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
@@ -38,7 +39,7 @@
 /* ============================================================
  * CL-3: Card system
  * ============================================================ */
-.card { background: var(--card-bg, var(--bg-elevated)); border: var(--card-border, 1px solid var(--border-color)); border-radius: var(--card-radius, var(--radius)); padding: var(--card-padding, var(--space-md)); }
+.card { background: var(--card-bg, var(--bg-elevated-1)); border: var(--card-border, 1px solid var(--border-color)); border-radius: var(--card-radius, var(--radius)); padding: var(--density-card-padding); }
 .card-actions { display: flex; align-items: center; gap: var(--space-sm); margin-top: var(--space-sm); }
 .card-close { margin-left: auto; }
 .card-content { flex: 1; min-width: 0; }
@@ -56,7 +57,7 @@
 /* ============================================================
  * CL-4: Panel system
  * ============================================================ */
-.panel { display: flex; flex-direction: column; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); overflow: hidden; contain: var(--contain-layout); }
+.panel { display: flex; flex-direction: column; background: var(--bg-elevated-1); border: 1px solid var(--border-color); border-radius: var(--radius-md); overflow: hidden; contain: var(--contain-layout); }
 .panel-actions { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); }
 .panel-body { flex: 1; overflow-y: auto; padding: var(--panel-body-padding, var(--space-md)); min-height: 0; }
 .panel-header { display: flex; align-items: center; justify-content: space-between; padding: var(--panel-header-padding, var(--space-sm) var(--space-md)); border-bottom: 1px solid var(--border-color); flex-shrink: 0; min-height: 40px; }
@@ -70,14 +71,14 @@
  * ============================================================ */
 .modal { position: fixed; inset: 0; z-index: var(--z-modal); display: flex; align-items: center; justify-content: center; }
 .modal-actions { display: flex; align-items: center; gap: var(--space-sm); margin-top: var(--space-md); }
-.modal-tab { padding: var(--modal-tab-padding, 0 14px); height: 36px; display: inline-flex; align-items: center; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; transition: var(--transition-tab); font-size: var(--font-size-sm); }
+.modal-tab { padding: var(--modal-tab-padding, 0 var(--space-5)); height: 36px; display: inline-flex; align-items: center; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; transition: var(--transition-tab); font-size: var(--font-size-sm); }
 .modal-tab:hover { color: var(--text-secondary); }
 .modal-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 .modal-tabs { display: flex; border-bottom: 1px solid var(--border-color); padding: 0 var(--space-md); flex-shrink: 0; }
 .modal-title-bar { display: flex; align-items: center; justify-content: space-between; padding: var(--space-md); border-bottom: 1px solid var(--border-color); }
 .confirm-actions { display: flex; justify-content: flex-end; gap: var(--space-sm); margin-top: var(--space-md); }
 .confirm-backdrop { position: fixed; inset: 0; background: var(--bg-overlay); z-index: calc(var(--z-modal) - 1); }
-.confirm-dialog { background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--space-lg); max-width: 420px; width: 90vw; box-shadow: var(--shadow-lg); }
+.confirm-dialog { background: var(--bg-elevated-2); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--space-lg); max-width: 420px; width: 90vw; box-shadow: var(--shadow-lg); }
 .confirm-message { font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--space-md); }
 .confirm-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-sm); }
 
@@ -89,6 +90,18 @@
 .checkbox-item { display: inline-flex; align-items: center; gap: var(--gap); cursor: pointer; font-size: var(--font-size-sm); color: var(--text-primary); }
 .checkbox-list { display: flex; flex-direction: column; gap: var(--space-sm); }
 .dialog-footer { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); border-top: 1px solid var(--border-color); }
+/* ============================================================
+ * CL-6.1: Shared form component classes (P1 spacing unification)
+ * ============================================================ */
+.select-standard { height: var(--density-form-height); padding: var(--select-padding); background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; outline: none; transition: var(--transition-input); }
+.select-standard:focus { border-color: var(--border-focus); box-shadow: var(--shadow-focus); }
+.select-standard-sm { height: var(--btn-sm-height); padding: var(--select-padding-sm); font-size: var(--font-size-sm); }
+option { padding: var(--select-option-padding); color: var(--text-primary); background: var(--bg-elevated-2); }
+optgroup { font-weight: var(--fw-medium); color: var(--text-secondary); }
+.form-row { display: flex; align-items: center; gap: var(--form-row-gap); padding: var(--form-row-padding); }
+.input-field { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--input-padding); font-size: var(--font-size-md); outline: none; transition: var(--transition-input); }
+.input-field:focus { border-color: var(--border-focus); box-shadow: var(--shadow-focus); }
+.input-field-sm { padding: var(--input-padding-sm); font-size: var(--font-size-sm); }
 
 /* ============================================================
  * CL-7: Chat messages
@@ -110,8 +123,8 @@
 /* ============================================================
  * CL-8: Context menu
  * ============================================================ */
-.custom-context-menu { position: fixed; min-width: 160px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); box-shadow: var(--shadow-md); padding: var(--space-xs); z-index: var(--z-tooltip); animation: menuFadeIn 0.12s ease-out; }
-.ctx-menu-item { padding: var(--form-padding); border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-secondary); cursor: pointer; transition: background 0.12s; }
+.custom-context-menu { position: fixed; min-width: 160px; background: var(--bg-elevated-3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); box-shadow: var(--shadow-md); padding: var(--space-xs); z-index: var(--z-tooltip); animation: menuFadeIn var(--duration-fast) var(--ease-standard)-out; }
+.ctx-menu-item { padding: var(--form-padding); border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-secondary); cursor: pointer; transition: background var(--duration-fast); }
 .ctx-menu-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
 .ctx-menu-divider { height: 1px; background: var(--border-color); margin: var(--space-xs) 0; }
 .ctx-content { padding: var(--space-sm); }
@@ -121,14 +134,14 @@
 .ctx-skills { display: flex; flex-wrap: wrap; gap: var(--space-xs); padding: var(--space-xs) var(--space-sm); }
 .ctx-skills-label { font-size: var(--font-size-xs); color: var(--text-muted); width: 100%; margin-bottom: 2px; }
 .ctx-target { cursor: pointer; }
-.menu-item { padding: var(--form-padding); border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-secondary); cursor: pointer; transition: background 0.12s; }
+.menu-item { padding: var(--form-padding); border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-secondary); cursor: pointer; transition: background var(--duration-fast); }
 .menu-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
 
 /* ============================================================
  * CL-9: Item list
  * ============================================================ */
 .item-list { display: flex; flex-direction: column; gap: var(--space-xs); }
-.item-row { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); border-radius: var(--radius-xs); transition: background 0.12s; }
+.item-row { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); border-radius: var(--radius-xs); transition: background var(--duration-fast); }
 .item-row:hover { background: var(--bg-hover); }
 .item-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: var(--space-sm) var(--space-md); transition: var(--transition-card); }
 .item-card:hover { border-color: var(--border-light); box-shadow: var(--shadow-sm); }
@@ -140,7 +153,7 @@
 .item-name { font-size: var(--font-size-sm); font-weight: 500; color: var(--text-primary); }
 .item-info { flex: 1; min-width: 0; }
 .item-footer { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-sm); padding-top: var(--space-xs); }
-.list-item { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); border-radius: var(--radius-xs); cursor: pointer; transition: background 0.12s; }
+.list-item { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); border-radius: var(--radius-xs); cursor: pointer; transition: background var(--duration-fast); }
 .list-item:hover { background: var(--bg-hover); }
 
 /* ============================================================
@@ -157,3 +170,147 @@
 .loading-text-inline { font-size: var(--font-size-sm); color: var(--text-muted); margin-left: var(--space-xs); }
 .loading-content { display: flex; align-items: center; justify-content: center; gap: var(--space-sm); padding: var(--space-lg); color: var(--text-muted); }
 .no-data { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--space-lg); color: var(--text-muted); text-align: center; }
+
+/* ============================================================
+ * P6: State Layer System (::before + color-mix(currentColor))
+ * CSS-only, no DOM changes. position:relative + overflow:hidden
+ * are the only layout properties added (P6 exception).
+ * ============================================================ */
+.btn-secondary, .btn-ghost, .modal-tab, .list-item, .item-row,
+.card-item, .menu-item, .ctx-menu-item {
+  position: relative;
+  overflow: hidden;
+}
+.btn-secondary::before, .btn-ghost::before, .modal-tab::before,
+.list-item::before, .item-row::before, .card-item::before,
+.menu-item::before, .ctx-menu-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--state-layer-hover);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+  border-radius: inherit;
+}
+.btn-secondary:hover::before, .btn-ghost:hover::before,
+.modal-tab:hover::before, .list-item:hover::before,
+.item-row:hover::before, .card-item:hover::before,
+.menu-item:hover::before, .ctx-menu-item:hover::before {
+  opacity: 1;
+}
+.btn-secondary:active::before, .btn-ghost:active::before,
+.list-item:active::before, .item-row:active::before,
+.card-item:active::before, .menu-item:active::before,
+.ctx-menu-item:active::before {
+  background: var(--state-layer-pressed);
+  opacity: 1;
+}
+.btn-secondary:focus-visible::before, .btn-ghost:focus-visible::before,
+.modal-tab:focus-visible::before, .list-item:focus-visible::before,
+.item-row:focus-visible::before, .card-item:focus-visible::before,
+.menu-item:focus-visible::before, .ctx-menu-item:focus-visible::before {
+  background: var(--state-layer-focus);
+  opacity: 1;
+}
+
+/* ============================================================
+ * P7: Micro-interaction Animations
+ * CSS-only, no DOM changes. Transform only (no layout shift).
+ * ============================================================ */
+.btn:active { transform: var(--press-scale); }
+.btn-sm:active { transform: var(--press-scale-sm); }
+
+.card-item:hover, .grid-card:hover, .item-card:hover {
+  transform: var(--lift-hover);
+  box-shadow: var(--shadow-md);
+}
+.card-item, .grid-card, .item-card {
+  transition: transform var(--duration-fast) var(--ease-accelerated), box-shadow var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
+}
+
+/* Modal spring entrance */
+@keyframes modal-spring-in {
+  0% { opacity: 0; transform: var(--modal-scale-in); }
+  60% { opacity: 1; transform: scale(1.01); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes modal-spring-in-sm {
+  0% { opacity: 0; transform: var(--modal-scale-in-sm); }
+  60% { opacity: 1; transform: scale(1.005); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.confirm-dialog { animation: modal-spring-in var(--duration-normal) var(--ease-decelerated); }
+
+/* ============================================================
+ * P8: Glassmorphism (backdrop-filter blur + saturate)
+ * CSS-only. Applied to overlays and elevated surfaces.
+ * ============================================================ */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  border: var(--glass-border);
+}
+.panel-overlay,
+.loading-overlay {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+}
+
+/* ============================================================
+ * P9: Skeleton Shimmer Loading
+ * CSS-only skeleton loading with shimmer animation.
+ * ============================================================ */
+.skeleton {
+  background: var(--skeleton-bg);
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-xs);
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--shimmer-bg);
+  background-size: 200% 100%;
+  background-position: -100% 0;
+  animation: skeleton-shimmer var(--shimmer-duration) infinite var(--ease-standard);
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton-text {
+  height: 14px;
+  border-radius: var(--radius-xs);
+  margin-bottom: 6px;
+}
+.skeleton-text:last-child { margin-bottom: 0; width: 60%; }
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+.skeleton-card {
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-sm);
+}
+
+/* ============================================================
+ * P10: Gradient System Application
+ * CSS-only. Replaces solid backgrounds with gradient tokens.
+ * ============================================================ */
+.btn-primary {
+  background: var(--grad-accent);
+  border: none;
+}
+.card-item:hover {
+  background: var(--grad-card-hover);
+}
+.modal-tab.active {
+  border-bottom-color: transparent;
+  background-image: linear-gradient(to bottom, var(--state-layer-hover), transparent);
+}

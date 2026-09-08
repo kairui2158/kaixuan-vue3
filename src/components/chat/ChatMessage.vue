@@ -108,6 +108,14 @@
         </button>
         <span v-if="actionFeedback" class="action-feedback" role="status">{{ actionFeedback }}</span>
       </div>
+      <RealSkillDiagnosticsPanel
+        v-if="message.role === 'assistant' && message.skillRunDiagnostics && (message.skillRunDiagnostics.diagnostics?.length || message.skillRunDiagnostics.status === 'degraded')"
+        :status="message.skillRunDiagnostics.status || 'success'"
+        :diagnostics="message.skillRunDiagnostics.diagnostics"
+        :request-messages="message.skillRunDiagnostics.requestMessages"
+        :budget="message.skillRunDiagnostics.budget"
+        :from-cache="message.skillRunDiagnostics.fromCache"
+      />
     </div>
   </div>
 </template>
@@ -122,9 +130,11 @@ import type { EditorEditBatchCommand } from '../../services/editorEditProtocol'
 import type { EditorBatchRecord } from '../../services/editorBatchRecord'
 import type { EditorToolPlan } from '../../stores/chat'
 import type { ToolCallStreamEvent } from '../../stores/chat'
+import type { ChatMessage } from '../../stores/chat'
+import RealSkillDiagnosticsPanel from '../common/RealSkillDiagnosticsPanel.vue'
 
 const props = defineProps<{
-  message: { role: string; content: string; continuation?: unknown; editorBatch?: EditorEditBatchCommand; editorBatchRecord?: EditorBatchRecord; editorToolPlan?: EditorToolPlan; toolCallStream?: ToolCallStreamEvent[] }
+  message: { role: string; content: string; continuation?: unknown; editorBatch?: EditorEditBatchCommand; editorBatchRecord?: EditorBatchRecord; editorToolPlan?: EditorToolPlan; toolCallStream?: ToolCallStreamEvent[]; skillRunDiagnostics?: ChatMessage['skillRunDiagnostics'] }
   busy?: boolean
   chainBreakpoint?: { skillId: string; step: number; error: string; retryCount: number } | null
 }>()
@@ -245,7 +255,7 @@ watch(() => props.busy, (busy, previousBusy) => {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-2);
   margin-top: 8px;
   opacity: 0.6;
   transition: var(--transition-fast);
@@ -257,13 +267,13 @@ watch(() => props.busy, (busy, previousBusy) => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: var(--space-2);
   min-height: 30px;
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
   border-radius: var(--radius-xs);
-  padding: 4px 10px;
+  padding: var(--space-2) var(--space-5);
   font-size: var(--font-size-sm);
   line-height: 1.3;
   white-space: nowrap;
@@ -290,13 +300,14 @@ watch(() => props.busy, (busy, previousBusy) => {
   word-break: break-word;
   user-select: text;
   cursor: text;
+  font-family: var(--font-family-editor);
 }
 
 .chat-edit-command {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--space-3);
   margin-top: 8px;
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
@@ -304,7 +315,7 @@ watch(() => props.busy, (busy, previousBusy) => {
 
 .chat-tool-plan {
   margin-top: 8px;
-  padding: 8px 10px;
+  padding: var(--space-4) var(--space-5);
   border-left: 3px solid var(--border-color);
   background: var(--bg-secondary);
   color: var(--text-secondary);
@@ -321,19 +332,19 @@ watch(() => props.busy, (busy, previousBusy) => {
   margin: 0;
   padding-left: 18px;
   display: grid;
-  gap: 2px;
+  gap: var(--space-1);
 }
 .chat-tool-stream {
   margin-top: 8px;
-  padding: 6px 10px;
-  border-left: 3px solid var(--accent, #4a9);
+  padding: var(--space-3) var(--space-5);
+  border-left: 3px solid var(--accent);
   background: var(--bg-secondary);
   font-size: var(--font-size-sm);
 }
 .chat-tool-stream-title {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-3);
   cursor: pointer;
   font-weight: 600;
   color: var(--text-primary);
@@ -343,43 +354,43 @@ watch(() => props.busy, (busy, previousBusy) => {
   font-weight: 400;
 }
 .chat-tool-stream-list {
-  margin: 4px 0 0;
+  margin: var(--space-2) 0 0;
   padding-left: 18px;
   display: grid;
-  gap: 2px;
+  gap: var(--space-1);
 }
 .tool-stream-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-3);
 }
-.tool-stream-item.tool_error { color: var(--chat-status-error, #e54); }
+.tool-stream-item.tool_error { color: var(--chat-status-error); }
 .tool-stream-icon { flex: 0 0 auto; }
 .tool-stream-name { font-weight: 500; }
 .tool-stream-desc { color: var(--text-muted); flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tool-stream-time { color: var(--text-muted); font-size: var(--font-size-xs); flex: 0 0 auto; }
 /* task status */
-.chat-task-status { margin-top: 8px; padding: 8px 10px; border-left: 3px solid var(--accent, #4a9); background: var(--bg-secondary); font-size: var(--font-size-sm); }
-.chat-task-title { display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--text-primary); }
+.chat-task-status { margin-top: 8px; padding: var(--space-4) var(--space-5); border-left: 3px solid var(--accent); background: var(--bg-secondary); font-size: var(--font-size-sm); }
+.chat-task-title { display: flex; align-items: center; gap: var(--space-3); font-weight: 600; color: var(--text-primary); }
 .chat-task-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chat-task-state { flex: 0 0 auto; font-weight: 400; font-size: var(--font-size-xs); }
-.chat-task-state.acting { color: var(--accent, #4a9); }
-.chat-task-state.completed { color: var(--chat-status-success, #4a9); }
-.chat-task-state.failed { color: var(--chat-status-error, #e54); }
+.chat-task-state.acting { color: var(--accent); }
+.chat-task-state.completed { color: var(--chat-status-success); }
+.chat-task-state.failed { color: var(--chat-status-error); }
 .chat-task-state.paused { color: var(--text-muted); }
-.chat-task-steps { display: flex; flex-wrap: wrap; gap: 4px 8px; margin: 4px 0; }
+.chat-task-steps { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin: var(--space-2) 0; }
 .chat-task-step { font-size: var(--font-size-xs); color: var(--text-muted); }
-.chat-task-step.done { color: var(--chat-status-success, #4a9); }
-.chat-task-step.failed { color: var(--chat-status-error, #e54); }
-.chat-task-step.running { color: var(--accent, #4a9); font-weight: 500; }
-.chat-task-actions { display: flex; gap: 4px; margin-top: 4px; }
-.chat-breakpoint-status { margin-top: 8px; padding: 8px 10px; border-left: 3px solid var(--chat-status-error, #e54); background: var(--bg-secondary); font-size: var(--font-size-sm); }
-.chat-breakpoint-title { display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--chat-status-error, #e54); }
-.chat-breakpoint-error { margin: 4px 0; color: var(--text-muted); font-size: var(--font-size-xs); }
-.chat-breakpoint-actions { display: flex; gap: 4px; }
-.chat-locate-candidates { margin-top: 8px; padding: 6px 10px; border-left: 3px solid var(--accent, #4a9); background: var(--bg-secondary); font-size: var(--font-size-sm); }
+.chat-task-step.done { color: var(--chat-status-success); }
+.chat-task-step.failed { color: var(--chat-status-error); }
+.chat-task-step.running { color: var(--accent); font-weight: 500; }
+.chat-task-actions { display: flex; gap: var(--space-2); margin-top: 4px; }
+.chat-breakpoint-status { margin-top: 8px; padding: var(--space-4) var(--space-5); border-left: 3px solid var(--chat-status-error); background: var(--bg-secondary); font-size: var(--font-size-sm); }
+.chat-breakpoint-title { display: flex; align-items: center; gap: var(--space-3); font-weight: 600; color: var(--chat-status-error); }
+.chat-breakpoint-error { margin: var(--space-2) 0; color: var(--text-muted); font-size: var(--font-size-xs); }
+.chat-breakpoint-actions { display: flex; gap: var(--space-2); }
+.chat-locate-candidates { margin-top: 8px; padding: var(--space-3) var(--space-5); border-left: 3px solid var(--accent); background: var(--bg-secondary); font-size: var(--font-size-sm); }
 .chat-locate-candidates-title { font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
-.chat-locate-candidate { display: flex; align-items: center; gap: 6px; padding: 2px 0; cursor: pointer; }
-.chat-locate-candidate:hover { color: var(--accent, #4a9); }
+.chat-locate-candidate { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-1) 0; cursor: pointer; }
+.chat-locate-candidate:hover { color: var(--accent); }
 .chat-locate-candidate-similarity { color: var(--text-muted); font-size: var(--font-size-xs); flex: 0 0 auto; }
 </style>

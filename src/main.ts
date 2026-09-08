@@ -46,6 +46,7 @@ if (!(window as any).electronAPI) {
     clipboardWrite: () => {},
     clipboardRead: () => '',
     showItemInFolder: () => {},
+    skillOpenFolder: async () => ({ ok: false, code: 'browser-unsupported', message: '当前环境不支持打开文件夹' }),
     openFileDialog: async () => null,
     saveFileDialog: async () => null,
     windowMinimize: () => {},

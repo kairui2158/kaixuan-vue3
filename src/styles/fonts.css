@@ -1,0 +1,28 @@
+/* ===== 打包中文字体 @font-face 声明 ===== */
+
+/* 霞鹜文楷 — OFL, 楷体书卷气 */
+@font-face {
+  font-family: 'LXGW WenKai';
+  src: local('LXGW WenKai'), local('霞鹜文楷'), url('../assets/fonts/LXGWWenKai-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 思源宋体 — OFL, 衬线体 */
+@font-face {
+  font-family: 'Source Han Serif SC';
+  src: local('Source Han Serif SC'), local('思源宋体'), url('../assets/fonts/SourceHanSerifSC-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 思源黑体 — OFL, 无衬线 */
+@font-face {
+  font-family: 'Source Han Sans SC';
+  src: local('Source Han Sans SC'), local('思源黑体'), url('../assets/fonts/SourceHanSansSC-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}

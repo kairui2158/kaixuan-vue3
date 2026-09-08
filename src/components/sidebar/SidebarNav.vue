@@ -61,8 +61,8 @@ const navItems = [
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 8px 0;
+  gap: var(--space-2);
+  padding: var(--space-4) 0;
   background: var(--bg-secondary);
   border-right: 1px solid var(--border-color);
   flex-shrink: 0;
@@ -118,6 +118,6 @@ const navItems = [
   width: 32px;
   height: 1px;
   background: var(--border-color);
-  margin: 4px 0;
+  margin: var(--space-2) 0;
 }
 </style>

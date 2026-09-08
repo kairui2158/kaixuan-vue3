@@ -337,8 +337,10 @@ function startAutoSave() {
 }
 
 onMounted(() => { startAutoSave() })
+projectStore.startProjectAutoSave(settingsStore.autoSaveInterval || 30)
 onUnmounted(() => {
   if (autoSaveTimer) clearInterval(autoSaveTimer)
+  projectStore.stopProjectAutoSave()
   window.removeEventListener('editor-undo', handleUndoEvent)
   window.removeEventListener('editor-redo', handleRedoEvent)
   window.removeEventListener('editor-external-change', handleExternalChangeEvent)
@@ -347,6 +349,7 @@ onUnmounted(() => {
   window.removeEventListener('diff-locate', handleDiffLocate)
   window.removeEventListener('editor-ai-batch-checkpoint', handleAiBatchCheckpoint)
   window.removeEventListener('tool-activity', handleToolActivity)
+  window.removeEventListener('restore-session', handleRestoreSession)
 })
 function handleUndoEvent() { undo() }
 function handleRedoEvent() { redo() }
@@ -362,6 +365,25 @@ function handleSaveEvent() {
   // 退出前的最终保存走此事件：无打开标签时静默跳过，避免弹窗阻断退出
   if (activeTab.value) save()
 }
+function handleRestoreSession(event: Event) {
+  const detail = (event as CustomEvent).detail
+  if (!detail || !detail.cid) return
+  for (const volId of Object.keys(projectStore.chapters)) {
+    const chs = projectStore.chapters[volId]
+    const ch = chs.find((c: any) => c.id === detail.cid)
+    if (ch) {
+      editorStore.openTab({
+        id: 'ch-body-' + ch.id,
+        title: ch.title || '未命名',
+        content: ch.body || '',
+        chapterId: ch.id,
+        isDirty: false,
+        mode: 'ch-body'
+      })
+      break
+    }
+  }
+}
 function handleToggleFindEvent() { editorStore.toggleFind() }
 onMounted(() => {
   startAutoSave()
@@ -373,6 +395,7 @@ onMounted(() => {
   window.addEventListener('diff-locate', handleDiffLocate)
   window.addEventListener('editor-ai-batch-checkpoint', handleAiBatchCheckpoint)
   window.addEventListener('tool-activity', handleToolActivity)
+  window.addEventListener('restore-session', handleRestoreSession)
 })
 
 function handleAiBatchCheckpoint(event: Event) {
@@ -625,16 +648,16 @@ function applyInlineAction(action: string, label: string) {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
-  padding: 0 16px;
+  gap: var(--space-5);
+  padding: 0 var(--space-6);
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
 }
 .editor-mode-badge {
   height: 22px;
-  padding: 0 10px;
-  border-radius: 11px;
+  padding: 0 var(--space-5);
+  border-radius: var(--radius-lg);
   background: var(--accent);
   color: var(--text-on-accent);
   font-size: var(--font-size-sm);
@@ -658,18 +681,18 @@ function applyInlineAction(action: string, label: string) {
 .editor-toolbar {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-3);
   flex: 1 1 auto;
  flex-wrap: wrap;
   overflow: hidden;
  overflow-y: hidden;
  min-width: 0;
   min-height: 46px;
-  padding: 5px 0;
+  padding: var(--space-2) 0;
 }
 .editor-toolbar-group {
   display: flex;
-  gap: 6px;
+  gap: var(--space-3);
   flex-shrink: 0;
 }
 .sep {
@@ -687,23 +710,23 @@ function applyInlineAction(action: string, label: string) {
 }
 
 @media (max-width: 1279px) {
-  .editor-header { align-items: flex-start; gap: 6px 10px; padding: 6px 12px; }
+  .editor-header { align-items: flex-start; gap: var(--space-3) var(--space-5); padding: var(--space-3) var(--space-5); }
   .editor-title { flex: 1 1 180px; max-width: none; }
   .editor-toolbar { flex: 1 1 100%; width: 100%; overflow: hidden; }
-  .editor-toolbar-group { flex: 1 1 auto; min-width: 0; max-width: 100%; flex-wrap: wrap; gap: 3px; }
+  .editor-toolbar-group { flex: 1 1 auto; min-width: 0; max-width: 100%; flex-wrap: wrap; gap: var(--space-3); }
   .editor-toolbar .sep { display: none; }
   .word-count { margin-left: auto; }
 }
 
 @media (max-width: 760px) {
-  .editor-toolbar { gap: 5px; }
-  .editor-toolbar-group { gap: 5px; }
+  .editor-toolbar { gap: var(--space-2); }
+  .editor-toolbar-group { gap: var(--space-2); }
   .word-count { flex-basis: 100%; margin-left: 0; }
 }
 .chapter-tabs {
   display: flex;
-  gap: 2px;
-  padding: 0 8px;
+  gap: var(--space-1);
+  padding: 0 var(--space-4);
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   overflow-x: auto;
@@ -712,8 +735,8 @@ function applyInlineAction(action: string, label: string) {
 .tab {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 12px;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   cursor: pointer;
@@ -740,7 +763,7 @@ function applyInlineAction(action: string, label: string) {
   color: var(--text-muted);
   cursor: pointer;
   font-size: var(--font-size-xxs);
-  padding: 0 2px;
+  padding: 0 var(--space-1);
 }
 .tab-close:hover {
   color: var(--danger);
@@ -748,8 +771,8 @@ function applyInlineAction(action: string, label: string) {
 .find-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
 }
@@ -758,7 +781,7 @@ function applyInlineAction(action: string, label: string) {
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xs);
-  padding: 2px 8px;
+  padding: var(--space-1) var(--space-4);
   font-size: var(--font-size-sm);
   height: 24px;
   outline: none;
@@ -780,7 +803,7 @@ function applyInlineAction(action: string, label: string) {
   font-family: var(--editor-font, serif);
   font-size: var(--font-size-lg);
   line-height: 1.8;
-  padding: 24px 32px;
+  padding: var(--space-8) var(--space-10);
   resize: none;
   overflow-y: auto;
 }
@@ -794,18 +817,18 @@ function applyInlineAction(action: string, label: string) {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  padding: 4px;
+  padding: var(--space-2);
   z-index: 100;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-1);
 }
 .export-dropdown button {
   background: none;
   border: none;
   color: var(--text-secondary);
   text-align: left;
-  padding: 4px 12px;
+  padding: var(--space-2) var(--space-5);
   font-size: var(--font-size-sm);
   border-radius: var(--radius-xs);
   cursor: pointer;
@@ -825,19 +848,19 @@ function applyInlineAction(action: string, label: string) {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  padding: 4px;
+  padding: var(--space-2);
   display: flex;
   flex-wrap: wrap;
-  gap: 2px;
+  gap: var(--space-1);
   max-width: 360px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-shadow: var(--shadow-md);
 }
 .inline-menu-btn {
   background: none;
   border: none;
   color: var(--text-secondary);
   text-align: left;
-  padding: 4px 10px;
+  padding: var(--space-2) var(--space-5);
   font-size: var(--font-size-sm);
   border-radius: var(--radius-xs);
   cursor: pointer;
@@ -854,7 +877,7 @@ function applyInlineAction(action: string, label: string) {
    display: flex;
    align-items: center;
    justify-content: center;
-   padding: 24px;
+   padding: var(--space-8);
   background: var(--bg-overlay);
  }
  .editor-memory-modal {
@@ -866,31 +889,31 @@ function applyInlineAction(action: string, label: string) {
    background: var(--bg-panel, var(--bg-secondary));
    border: 1px solid var(--border-color);
    border-radius: var(--radius-md, 8px);
-   box-shadow: var(--shadow-lg, 0 16px 44px rgba(0,0,0,.35));
+   box-shadow: var(--shadow-lg);
  }
  .editor-memory-header,
  .editor-memory-footer {
    display: flex;
    align-items: center;
    justify-content: space-between;
-   gap: 16px;
-   padding: 16px 20px;
+   gap: var(--space-6);
+   padding: var(--space-6) var(--space-7);
  }
  .editor-memory-header { border-bottom: 1px solid var(--border-color); }
- .editor-memory-body { min-height: 140px; overflow: auto; padding: 16px 20px; color: var(--text-primary); }
+ .editor-memory-body { min-height: 140px; overflow: auto; padding: var(--space-6) var(--space-7); color: var(--text-primary); }
  .editor-memory-hint { color: var(--text-secondary); }
  .editor-memory-error { color: var(--danger); }
- .editor-memory-list { display: flex; flex-direction: column; gap: 8px; padding: 0; margin: 12px 0 0; list-style: none; }
- .editor-memory-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm, 6px); }
+ .editor-memory-list { display: flex; flex-direction: column; gap: var(--space-4); padding: 0; margin: var(--space-5) 0 0; list-style: none; }
+ .editor-memory-list li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-5); padding: var(--space-5) var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm, 6px); }
  .editor-memory-list li.rejected { opacity: .55; text-decoration: line-through; }
  .editor-memory-list li.locked { border-color: var(--accent); }
- .editor-memory-actions { display: flex; flex: 0 0 auto; gap: 6px; }
+ .editor-memory-actions { display: flex; flex: 0 0 auto; gap: var(--space-3); }
  .editor-memory-footer { justify-content: flex-end; border-top: 1px solid var(--border-color); }
 </style>
 <style>
 .tool-flash-overlay { position: absolute; top: 0; left: 0; right: 0; height: 3px; z-index: 10; pointer-events: none; }
-.tool-flash-read { background: var(--accent, #4a9); animation: flash-fade 1.5s ease-out; }
-.tool-flash-write { background: var(--chat-status-error, #e54); animation: flash-fade 1.5s ease-out; }
+.tool-flash-read { background: var(--accent); animation: flash-fade 1.5s ease-out; }
+.tool-flash-write { background: var(--chat-status-error); animation: flash-fade 1.5s ease-out; }
 @keyframes flash-fade { 0% { opacity: 1; } 100% { opacity: 0; } }
 </style>
 
