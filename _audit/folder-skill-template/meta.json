@@ -1,0 +1,10 @@
+{
+  "executionMode": "single",
+  "apiCallLimit": 3,
+  "sampleCount": 2,
+  "smartSamples": true,
+  "agent": {
+    "temperature": 0.45,
+    "maxTokens": 8192
+  }
+}

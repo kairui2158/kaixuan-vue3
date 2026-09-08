@@ -128,3 +128,33 @@ pm run build:vue succeeded in this turn.
 - Five-view visual evidence: `_audit/tmp/d3-five-views-evidence.json` plus screenshots `_audit/tmp/d3-view-list.png`, `_audit/tmp/d3-view-graph.png`, `_audit/tmp/d3-view-analysis.png`, `_audit/tmp/d3-view-mind.png`, and `_audit/tmp/d3-view-timeline.png`; each view is visible, populated, and saved.
 - Verification: `npx vue-tsc --noEmit` exit 0; `npm run build:vue` succeeded; `node --check electron/main.js` exit 0; `git diff --check` reported no whitespace errors.
 - Status: five-type edit UI PASS; five-view visual acceptance PASS; trailing-whitespace cleanup PASS.
+
+## G6 T0/T1 checkpoint (2026-09-06 10:20:00 +08:00)
+- T0: `useG6Graph.ts` supplies `toG6Data`, `adaptTreeForG6`, `timelineToG6Data`, `createGraph`, `destroyGraph`, and new `updateGraphData`; `src/types/g6.ts` defines the conversion contracts.
+- T1: `src/components/memory/MindMap.vue` now uses G6 v5 `mindmap` layout through shared `G6Canvas.vue`; props/emits signatures preserved, click selection emits through the existing open-source action.
+- CSS: added the confirmed `--g6-*` token block to `tokens.css`; no duplicate `--g6-*` names exist.
+- Verification: `npx vitest run src/composables/useG6Graph.spec.ts` => 1 file / 4 tests passed. `npx vue-tsc --noEmit` reports only the pre-existing `src/composables/useResizers.ts:167` `Timeout` error; no G6-related type errors.
+- Runtime gate: UNVERIFIED until Electron/CDP four-view behavior evidence is captured after T1-T4.
+
+## Memory V2 execution start (2026-09-06 +08:00)
+- Scope: execute all 12 gaps in `_audit/MEMORY_HANDOFF_COMPLETE_V2.md` in P0 -> P1 -> P2 -> P3 order, then run V1-V16 + G1-G12 gates.
+- Pre-read completed: handoff V2, gap repair plan, experience sections §1/§3, and current Gap 3 sources (`src/stores/settings.ts`, `src/components/settings/AppearanceSettings.vue`, `src/components/pipeline/PipelinePanel.vue`).
+- Gap 3 impact list: add `memoryExtractionTimeoutSeconds` setting; UI number input clamped 60-600; pipeline extraction call reads the configured value.
+- Status: execution started; Gap 3 implementation pending.
+
+## Memory V2 P0 code checkpoint (2026-09-06 +08:00)
+- Gap 3: `src/stores/settings.ts` adds persisted `memoryExtractionTimeoutSeconds` (default 300, clamp 60-600); `src/components/settings/AppearanceSettings.vue` adds `#cfg-memory-extraction-timeout`; `src/components/pipeline/PipelinePanel.vue` now passes `settingsStore.memoryExtractionTimeoutSeconds * 1000` to `extractMemory`.
+- Gap 1: `src/components/common/MemoryPanel.vue` adds four dedicated export menu actions plus an entity selector; `src/services/memoryExport.ts` now exports character profile with related relations and co-occurring events.
+- Gap 2: new `src/components/memory/MemoryHistoryModal.vue` shows history statistics, chapter filter, before/after preview metrics, rollback-to-version, and rollback-by-chapter entry; `MemoryPanel.vue` wires it through `getMemoryChangeHistory` and `rollbackMemoryTo`.
+- Verification: `npm run type-check` => exit 0. `npm run build:vue` => `1593 modules transformed`, `✓ built in 3.56s`, protocol bundle `✓ built in 48ms`.
+- Runtime gate: UNVERIFIED until real Electron/CDP proves timeout setting read, four exports, and history/rollback behavior.
+
+## Memory V2 final execution checkpoint (2026-09-07 +08:00)
+
+- Gap status: all 12 gaps implemented and runtime-verified in P0 -> P1 -> P2 -> P3 order.
+- Runtime evidence: `_audit/tmp/memory-v2-p0-evidence.json` (`allStepsOk:true`), `_audit/tmp/memory-v2-gaps-evidence.json` (`allStepsOk:true`), `_audit/tmp/memory-v2-final-acceptance.json` (`allStepsOk:true`), `_audit/tmp/memory-v2-request-evidence.json` (`allStepsOk:true`).
+- G6 regression: `_audit/tmp/g6-views-evidence.json` and `_audit/tmp/g6-behavior-evidence.json` both `allStepsOk:true`; views, interactions, source jumps, empty states, panel reopen, and no-writeback checks passed.
+- V11/V12 root fix: mock server now exposes `GET /requests`, and the acceptance probe reads the in-memory snapshot instead of the concurrently written JSON log; final request acceptance exited 0 with body-generation memory 3/4 requests and chat memory present.
+- Cleanup: mock server stopped (`18080` closed), request test projects/chats removed, and real provider config restored (5 providers, generate provider `prov-1788350418677`, model `deepseek-v4-pro`).
+- Baseline: `npm run type-check` exit 0; `npm run build:vue` exit 0 (`1593 modules transformed`, main build 6.19s, protocol build 78ms); `npx vitest run` => 33 files / 224 tests passed.
+- Final report: `_audit/MEMORY_V2_EXECUTION_REPORT.md`; V1-V16 and G1-G12 all 28 gates PASS.
