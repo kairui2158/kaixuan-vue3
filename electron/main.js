@@ -10,22 +10,19 @@ log.transports.file.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}'
 log.errorHandler.startCatching()
 log.eventLogger.startLogging()
 
-// GPU hardware acceleration enabled by default (community standard: VSCode/Slack/Discord)
- app.commandLine.appendSwitch('no-sandbox')
+// Development-only compatibility switches. Packaged builds keep Electron defaults.
+if (!app.isPackaged) {
+  app.commandLine.appendSwitch('no-sandbox')
   app.commandLine.appendSwitch('remote-allow-origins', '*')
-
-// Single instance lock - must be before app.whenReady()
-var gotLock = app.requestSingleInstanceLock()
-if (!gotLock) {
-  app.quit()
-} else {
-  app.on('second-instance', function() {
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore()
-      mainWindow.focus()
-    }
-  })
 }
+
+// Multi-window support: no single instance lock
+// Each window loads its own project; project lock prevents same project in two windows
+var windowMap = new Map()       // windowId -> { projectId, browserWindow }
+var lockedProjects = new Set()  // projectIds currently held by a window
+var windowCounter = 0
+var ipcHandlersRegistered = false
+var windowStateSaveTimers = new Map() // win.id -> debounce timer
 
 // Error handlers
 process.on('uncaughtException', function(e) {
@@ -40,59 +37,241 @@ const { registerCryptoHandlers } = require('./ipc/crypto')
 const { registerDiagHandlers, setLogDir } = require('./ipc/diag')
 const { registerApiHandlers } = require('./ipc/api')
 const { registerDialogHandlers } = require('./ipc/dialog')
-const { registerLifecycleHandlers } = require('./ipc/lifecycle')
+const { registerLifecycleHandlers, registerWindowCloseHandler } = require('./ipc/lifecycle')
 const { registerStorageHandlers, setDataDir, getDataDir, setLegacyDir } = require('./ipc/storage')
-
-var mainWindow = null
+const { registerSkillLoaderHandlers } = require('./ipc/skill-loader')
+const { registerSkillPackageHandlers } = require('./ipc/skill-package')
+const { registerRunTraceHandlers, setDataDir: setRunTraceDataDir } = require('./ipc/runTrace')
 
 function registerApplicationMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate([
+    {
+      label: '窗口',
+      submenu: [
+        {
+          label: '新建窗口',
+          click: function() { createWindow() }
+        },
+        {
+          label: '在新窗口打开当前项目',
+          click: function(item, focusedWindow) {
+            if (focusedWindow) {
+              focusedWindow.webContents.send('app:getCurrentProjectId')
+            }
+          }
+        }
+      ]
+    },
     {
       label: '帮助',
       submenu: [
         {
           label: '应用教学指南',
-          click: () => mainWindow?.webContents.send('app:openHelpGuide')
+          click: function(item, focusedWindow) {
+            if (focusedWindow) focusedWindow.webContents.send('app:openHelpGuide')
+          }
         }
       ]
     }
   ]))
 }
 
-function getWindowStatePath() {
-  return path.join(app.getPath("userData"), "window-state.json")
+function getWindowStatePath(winId) {
+  return path.join(app.getPath('userData'), 'window-state-' + winId + '.json')
 }
-function loadWindowState() {
+function loadWindowState(winId) {
   try {
-    var p = getWindowStatePath()
-    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, "utf8"))
+    var p = getWindowStatePath(winId)
+    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'))
   } catch(e) {}
   return null
 }
-function saveWindowState() {
-  if (!mainWindow) return
+function saveWindowStateFor(win) {
+  if (!win) return
   try {
-    var bounds = mainWindow.getBounds()
-    var state = { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height, maximized: mainWindow.isMaximized() }
-    fs.writeFileSync(getWindowStatePath(), JSON.stringify(state), "utf8")
+    var entry = windowMap.get(win.id)
+    var winId = entry ? entry.windowId : 0
+    var bounds = win.getBounds()
+    var state = { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height, maximized: win.isMaximized() }
+    fs.writeFileSync(getWindowStatePath(winId), JSON.stringify(state), 'utf8')
   } catch(e) {}
 }
 
- function createWindow() {
-   // Use workspace directory for development/testing to avoid permission issues
-   var isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
-   var docsDir = isDev
-     ? path.join(process.cwd(), '_data')
-     : path.join(app.getPath('documents'), '神意助手数据')
-   var dataDir = docsDir
-   var logDir = path.join(app.getPath('userData'), 'logs')
+function scheduleWindowStateSave(win) {
+  if (!win) return
+  var existing = windowStateSaveTimers.get(win.id)
+  if (existing) clearTimeout(existing)
+  var timer = setTimeout(function() {
+    windowStateSaveTimers.delete(win.id)
+    if (!win.isDestroyed()) saveWindowStateFor(win)
+  }, 500)
+  windowStateSaveTimers.set(win.id, timer)
+}
+
+function flushWindowStateFor(win) {
+  if (!win) return
+  var existing = windowStateSaveTimers.get(win.id)
+  if (existing) {
+    clearTimeout(existing)
+    windowStateSaveTimers.delete(win.id)
+  }
+  saveWindowStateFor(win)
+}
+
+function saveWindowState() {
+  for (var entry of windowMap.values()) {
+    if (entry.browserWindow) saveWindowStateFor(entry.browserWindow)
+  }
+}
+
+function createWindow(projectId) {
+  // Project lock: prevent same project in two windows
+  if (projectId && lockedProjects.has(projectId)) {
+    for (var entry of windowMap.values()) {
+      if (entry.projectId === projectId) {
+        var existingWin = entry.browserWindow
+        if (existingWin.isMinimized()) existingWin.restore()
+        existingWin.focus()
+        return existingWin
+      }
+    }
+  }
+
+  var isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
+  var docsDir = isDev
+    ? path.join(process.cwd(), '_data')
+    : path.join(app.getPath('documents'), '神意助手数据')
+  var dataDir = docsDir
+  var logDir = path.join(app.getPath('userData'), 'logs')
 
   setDataDir(dataDir)
+  setRunTraceDataDir(dataDir)
   setLegacyDir(path.join(app.getPath('documents'), '写作助手数据'))
   setLogDir(logDir)
 
-  var saved = loadWindowState()
-  mainWindow = new BrowserWindow({
+  if (!ipcHandlersRegistered) {
+    registerCryptoHandlers()
+    registerStorageHandlers()
+    registerDiagHandlers()
+    registerApiHandlers()
+    registerDialogHandlers()
+    registerLifecycleHandlers()
+    registerSkillLoaderHandlers()
+    registerSkillPackageHandlers(require('electron'))
+    registerRunTraceHandlers()
+
+    ipcMain.handle('window:getInitialProjectId', function(event) {
+      var wc = event.sender
+      for (var entry of windowMap.values()) {
+        if (entry.browserWindow && entry.browserWindow.webContents === wc) {
+          return entry.projectId || null
+        }
+      }
+      return null
+    })
+
+    ipcMain.handle('window:openProject', function(event, pid) {
+      if (pid && lockedProjects.has(pid)) {
+        for (var entry of windowMap.values()) {
+          if (entry.projectId === pid) {
+            var w = entry.browserWindow
+            if (w.isMinimized()) w.restore()
+            w.focus()
+            return { ok: false, reason: 'already_open' }
+          }
+        }
+      }
+      createWindow(pid)
+      return { ok: true }
+    })
+
+    ipcMain.handle('window:setCurrentProject', function(event, pid) {
+      var wc = event.sender
+      for (var entry of windowMap.values()) {
+        if (entry.browserWindow && entry.browserWindow.webContents === wc) {
+          var oldPid = entry.projectId
+          if (oldPid && lockedProjects.has(oldPid)) lockedProjects.delete(oldPid)
+          entry.projectId = pid
+          if (pid) lockedProjects.add(pid)
+          return true
+        }
+      }
+      return false
+    })
+
+    ipcMain.handle('clipboard:write', function(event, text) {
+      clipboard.writeText(String(text || ''))
+      return true
+    })
+    ipcMain.handle('clipboard:read', function(event) {
+      return clipboard.readText()
+    })
+
+    ipcMain.handle('agent:execute', async function(event, config) {
+      return { status: 'renderer_handled' }
+    })
+    ipcMain.handle('agent:spawn', async function(event, config) {
+      return { status: 'renderer_handled' }
+    })
+    ipcMain.handle('agent:status', function(event, agentId) {
+      return { status: 'renderer_handled' }
+    })
+    ipcMain.handle('agent:cancel', function(event, agentId) {
+      return { status: 'ok' }
+    })
+    ipcMain.handle('pipeline:generate', async function(event, config) {
+      return { status: 'renderer_handled' }
+    })
+    ipcMain.handle('pipeline:resume', async function(event, breakpoint) {
+      return { status: 'renderer_handled' }
+    })
+    ipcMain.handle('deai:process', async function(event, config) {
+      return { status: 'renderer_handled' }
+    })
+    ipcMain.handle('deai:cancel', function(event) {
+      return { status: 'ok' }
+    })
+    ipcMain.handle('skill:execute', async function(event, config) {
+      return { status: 'renderer_handled' }
+    })
+    ipcMain.handle('skill:validate', function(event, output, rules) {
+      return { valid: true, errors: [] }
+    })
+
+    ipcMain.handle('provider:testConnection', async function(event, baseUrl, apiKey) {
+      try {
+        var protocols = require('./dist-renderer/providerProtocols.cjs')
+        var url = protocols.buildProviderModelsUrl({ baseUrl: baseUrl, providerType: 'openai-compatible' })
+        var response = await fetch(url, {
+          method: 'GET',
+          headers: protocols.buildProviderHeaders('openai-compatible', apiKey),
+          signal: AbortSignal.timeout(15000),
+        })
+        if (response.ok) return { connected: true }
+        var body = await response.arrayBuffer()
+        var text = Buffer.from(body).toString('utf8')
+        var providerMessage = ''
+        try {
+          var parsed = JSON.parse(text)
+          providerMessage = (parsed && parsed.error && parsed.error.message) || (parsed && parsed.message) || ''
+        } catch (e) {}
+        return { connected: false, error: protocols.httpErrorMessage(response.status, providerMessage) }
+      } catch (e) {
+        if (e && (e.name === 'TimeoutError' || e.name === 'AbortError')) {
+          return { connected: false, error: '供应商响应超时' }
+        }
+        return { connected: false, error: (e && e.message) || '连接失败' }
+      }
+    })
+
+    ipcHandlersRegistered = true
+  }
+
+  registerApplicationMenu()
+
+  var winId = ++windowCounter
+  var saved = loadWindowState(winId)
+  var win = new BrowserWindow({
     width: saved ? saved.width : 1400,
     height: saved ? saved.height : 900,
     minWidth: 1000,
@@ -109,31 +288,54 @@ function saveWindowState() {
     }
   })
 
-  mainWindow.once('ready-to-show', function() {
-    mainWindow.show()
-    mainWindow.focus()
-    if (saved && saved.maximized) mainWindow.maximize()
+  windowMap.set(win.id, { windowId: winId, projectId: projectId || null, browserWindow: win })
+  if (projectId) lockedProjects.add(projectId)
+
+  win.once('ready-to-show', function() {
+    win.show()
+    win.focus()
+    if (saved && saved.maximized) win.maximize()
   })
 
-  mainWindow.on('close', function() { saveWindowState() })
-  mainWindow.on('resize', function() { if (!mainWindow.isMaximized()) saveWindowState() })
-  mainWindow.on('move', function() { if (!mainWindow.isMaximized()) saveWindowState() })
+  win.on('close', function() { flushWindowStateFor(win) })
+  win.on('closed', function() {
+    var pendingSave = windowStateSaveTimers.get(win.id)
+    if (pendingSave) {
+      clearTimeout(pendingSave)
+      windowStateSaveTimers.delete(win.id)
+    }
+    var entry = windowMap.get(win.id)
+    if (entry && entry.projectId && lockedProjects.has(entry.projectId)) lockedProjects.delete(entry.projectId)
+    windowMap.delete(win.id)
+  })
+  win.on('resize', function() { if (!win.isMaximized()) scheduleWindowStateSave(win) })
+  win.on('move', function() { if (!win.isMaximized()) scheduleWindowStateSave(win) })
 
-  // Structured crash/load-failure logging; electron-log eventLogger alone
-  // serializes these event details as "{}".
-  mainWindow.webContents.on('render-process-gone', function(_event, details) {
+  // Per-window close handler (lifecycle IPC: save & quit / force quit / cancel)
+  registerWindowCloseHandler(win)
+
+  win.webContents.on('render-process-gone', function(_event, details) {
     log.error('render-process-gone: reason=' + details.reason + ' exitCode=' + details.exitCode)
+    log.error('render-process-gone: windowId=' + win.id)
+    var message = '窗口页面进程异常退出（' + details.reason + '）。该窗口可能已停止响应，可保留现场排查，或关闭后重新打开。'
+    for (var entry of windowMap.values()) {
+      if (entry.browserWindow && !entry.browserWindow.isDestroyed() && entry.browserWindow.webContents !== _event.sender) {
+        entry.browserWindow.webContents.send('app:rendererRecoveryNotice', {
+          reason: details.reason,
+          exitCode: details.exitCode,
+          message: message
+        })
+      }
+    }
   })
-  mainWindow.webContents.on('child-process-gone', function(_event, details) {
+  win.webContents.on('child-process-gone', function(_event, details) {
     log.error('child-process-gone: type=' + details.type + ' reason=' + details.reason + ' exitCode=' + details.exitCode)
   })
-  mainWindow.webContents.on('did-fail-load', function(_event, code, desc, url, isMainFrame) {
+  win.webContents.on('did-fail-load', function(_event, code, desc, url, isMainFrame) {
     if (isMainFrame) log.error('did-fail-load: code=' + code + ' desc=' + desc + ' url=' + url)
   })
 
-  // Take over downloads so renderer exports land in Downloads with a real
-  // filename instead of Chromium's unnamed GUID ".tmp" intermediate.
-  mainWindow.webContents.session.on('will-download', function(_event, item) {
+  win.webContents.session.on('will-download', function(_event, item) {
     var downloadsDir = app.getPath('downloads')
     var filePath = path.join(downloadsDir, item.getFilename())
     if (fs.existsSync(filePath)) {
@@ -146,103 +348,18 @@ function saveWindowState() {
     item.setSavePath(filePath)
   })
 
-  // Register all IPC handlers
-  registerCryptoHandlers()
-  registerApplicationMenu()
-  registerStorageHandlers()
-  registerDiagHandlers()
-  registerApiHandlers()
-  registerDialogHandlers()
-  registerLifecycleHandlers(mainWindow)
-
-  ipcMain.handle('clipboard:write', function(event, text) {
-    clipboard.writeText(String(text || ''))
-    return true
-  })
-  ipcMain.handle('clipboard:read', function(event) {
-    return clipboard.readText()
-  })
-
- // New IPC channels for Vue 3 migration
-  // These features are handled in renderer process via composables
- ipcMain.handle('agent:execute', async function(event, config) {
-    return { status: 'renderer_handled' }
- })
-
- ipcMain.handle('agent:spawn', async function(event, config) {
-    return { status: 'renderer_handled' }
- })
-
- ipcMain.handle('agent:status', function(event, agentId) {
-    return { status: 'renderer_handled' }
- })
-
- ipcMain.handle('agent:cancel', function(event, agentId) {
-    return { status: 'ok' }
- })
-
- ipcMain.handle('pipeline:generate', async function(event, config) {
-    return { status: 'renderer_handled' }
- })
-
- ipcMain.handle('pipeline:resume', async function(event, breakpoint) {
-    return { status: 'renderer_handled' }
- })
-
- ipcMain.handle('deai:process', async function(event, config) {
-    return { status: 'renderer_handled' }
- })
-
- ipcMain.handle('deai:cancel', function(event) {
-   return { status: 'ok' }
- })
-
- ipcMain.handle('skill:execute', async function(event, config) {
-    return { status: 'renderer_handled' }
- })
-
- ipcMain.handle('skill:validate', function(event, output, rules) {
-   return { valid: true, errors: [] }
- })
-
-ipcMain.handle('provider:testConnection', async function(event, baseUrl, apiKey) {
-  try {
-    var protocols = require('./dist-renderer/providerProtocols.cjs')
-    var url = protocols.buildProviderModelsUrl({ baseUrl: baseUrl, providerType: 'openai-compatible' })
-    var response = await fetch(url, {
-      method: 'GET',
-      headers: protocols.buildProviderHeaders('openai-compatible', apiKey),
-      signal: AbortSignal.timeout(15000),
-    })
-    if (response.ok) return { connected: true }
-    var body = await response.arrayBuffer()
-    var text = Buffer.from(body).toString('utf8')
-    var providerMessage = ''
-    try {
-      var parsed = JSON.parse(text)
-      providerMessage = (parsed && parsed.error && parsed.error.message) || (parsed && parsed.message) || ''
-    } catch (e) {}
-    return { connected: false, error: protocols.httpErrorMessage(response.status, providerMessage) }
-  } catch (e) {
-    if (e && (e.name === 'TimeoutError' || e.name === 'AbortError')) {
-      return { connected: false, error: '供应商响应超时' }
-    }
-    return { connected: false, error: (e && e.message) || '连接失败' }
-  }
-})
-
   // Load the app
   var isDev = process.argv.includes('--dev')
   if (isDev) {
     // In dev mode, load from Vite dev server or old renderer
     var viteUrl = 'http://localhost:5173'
-    mainWindow.loadURL(viteUrl)
-    mainWindow.webContents.openDevTools()
+    win.loadURL(viteUrl)
+    win.webContents.openDevTools()
   } else {
     // Production: load built Vue app, fallback to old renderer
     var vueIndex = path.join(__dirname, '..', 'dist-renderer', 'index.html')
     if (fs.existsSync(vueIndex)) {
-      mainWindow.loadFile(vueIndex)
+      win.loadFile(vueIndex)
     } else {
       // No fallback - Vue3 app is the only renderer
       console.error('dist-renderer/index.html not found! Build with: npx vite build')
@@ -251,7 +368,7 @@ ipcMain.handle('provider:testConnection', async function(event, baseUrl, apiKey)
 
   // CDP debug port for testing
   if (isDev) {
-    mainWindow.webContents.on('did-finish-load', function() {
+    win.webContents.on('did-finish-load', function() {
       // Enable remote debugging
     })
   }
@@ -270,6 +387,8 @@ app.on('window-all-closed', function() {
 })
 
 app.on('before-quit', function() {
+  for (var pending of windowStateSaveTimers.values()) clearTimeout(pending)
+  windowStateSaveTimers.clear()
   saveWindowState()
 })
 

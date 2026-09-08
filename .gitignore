@@ -46,6 +46,9 @@ fix_audit.js
 # full-storage probe backups contain real tokens; never commit
 _audit/tmp/*backup*.json
 
+# local run-trace / audit evidence, retained on disk but not tracked
+_audit/tmp/
+
 # Local app data dir contains user's encrypted API keys; never commit
 _data/
 

@@ -1,6 +1,6 @@
 {
   "name": "shenyi-assistant",
-  "version": "3.20.2",
+  "version": "3.29.0",
   "description": "神意助手 - AI驱动的桌面小说写作应用",
   "main": "electron/main.js",
   "scripts": {
@@ -8,15 +8,17 @@
     "dev": "electron . --dev",
     "dev:vue": "vite",
     "dev:electron": "electron . --dev",
-    "build:vue": "vite build && vite build --config vite.protocols.config.ts",
+    "build:vue": "vite build && vite build --config vite.protocols.config.mts",
     "build": "npm run build:vue && electron-builder --win",
     "build:portable": "npm run build:vue && electron-builder --win portable",
     "type-check": "vue-tsc --noEmit",
-    "test:services": "vitest run src/services/aiService.spec.ts src/services/memoryIO.spec.ts src/services/volumeGeneration.spec.ts"
+    "test:services": "vitest run src/stores/skill.spec.ts src/services/aiService.spec.ts src/services/memoryIO.spec.ts src/services/volumeGeneration.spec.ts src/services/realSkillExecutor.spec.ts src/services/skillOrchestrator.spec.ts src/services/skillRouter.spec.ts src/services/folderSkillTest.spec.ts src/services/folderSkillBoundary.spec.ts src/services/folderSkillBatchImport.spec.ts src/services/workspaceSkillEngine.spec.ts src/services/skillPackageManager.spec.ts src/services/skillPackageInstaller.spec.ts src/services/skillHealth.spec.ts",
+    "acceptance:memory-v2": "node scripts/run_memory_v2_acceptance.cjs"
   },
   "author": "kaixuan",
   "license": "MIT",
   "dependencies": {
+    "@antv/g6": "^5.1.1",
     "@shikijs/langs": "^4.4.3",
     "@shikijs/themes": "^4.4.3",
     "dompurify": "^3.4.14",
@@ -40,6 +42,9 @@
     "electron": "^33.0.0",
     "electron-builder": "^25.0.0",
     "playwright": "^1.61.1",
+    "stylelint": "^16.26.1",
+    "stylelint-config-standard": "^36.0.1",
+    "stylelint-declaration-strict-value": "^1.12.1",
     "typescript": "5.7.3",
     "vite": "^8.2.1",
     "vitest": "^4.1.11",
@@ -108,5 +113,3 @@
     "asarUnpack": []
   }
 }
-
-

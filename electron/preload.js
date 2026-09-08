@@ -35,6 +35,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   dialogReadFile: function(filePath) { return ipcRenderer.invoke('dialog:readFileAsync', filePath) },
   dialogSaveFileAsync: function(defaultName) { return ipcRenderer.invoke('dialog:saveFileAsync', defaultName) },
   dialogOpenFileAsync: function() { return ipcRenderer.invoke('dialog:openFileAsync') },
+  dialogOpenDirectoryAsync: function() { return ipcRenderer.invoke('dialog:openDirectoryAsync') },
   dialogReadFileAsync: function(filePath) { return ipcRenderer.invoke('dialog:readFileAsync', filePath) },
   dialogWriteFile: function(filePath, content) { return ipcRenderer.invoke('dialog:writeFile', filePath, content) },
 
@@ -50,6 +51,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
   respondCloseChoice: function(choice) { ipcRenderer.send('app:closeChoice', choice) },
   sendSaveComplete: function() { ipcRenderer.send('app:saveComplete') },
   onOpenHelpGuide: function(callback) { ipcRenderer.on('app:openHelpGuide', function() { callback() }) },
+  onRendererRecoveryNotice: function(callback) {
+    var listener = function(_event, detail) { callback(detail) }
+    ipcRenderer.on('app:rendererRecoveryNotice', listener)
+    return function() { ipcRenderer.removeListener('app:rendererRecoveryNotice', listener) }
+  },
+  onGetCurrentProjectId: function(callback) { ipcRenderer.on('app:getCurrentProjectId', function() { callback() }) },
+  windowOpenProject: function(pid) { return ipcRenderer.invoke('window:openProject', pid) },
+  windowSetCurrentProject: function(pid) { return ipcRenderer.invoke('window:setCurrentProject', pid) },
+  windowGetInitialProjectId: function() { return ipcRenderer.invoke('window:getInitialProjectId') },
 
   // Diag
   diagWrite: function(entries) { return ipcRenderer.invoke('diag:write', entries) },
@@ -57,6 +67,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   diagExport: function(options) { return ipcRenderer.invoke('diag:export', options || {}) },
   diagClear: function() { return ipcRenderer.invoke('diag:clear') },
   diagRefresh: function() { return ipcRenderer.invoke('diag:refresh') },
+  runTraceExport: function(payload) { return ipcRenderer.invoke('runTrace:export', payload || {}) },
 
   // API
   fetchModels: function(baseUrl, apiKey) {
@@ -83,6 +94,21 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Skill
   skillExecute: function(config) { return ipcRenderer.invoke('skill:execute', config) },
   skillValidate: function(output, rules) { return ipcRenderer.invoke('skill:validate', output, rules) },
+  skillLoadFolder: function(folderPath) { return ipcRenderer.invoke('skill:loadFolder', folderPath) },
+  skillListFolders: function(rootPath) { return ipcRenderer.invoke('skill:listFolders', rootPath) },
+  skillOpenFolder: function(folderPath) { return ipcRenderer.invoke('skill:openFolder', folderPath) },
+  skillExecuteScript: function(script, payload) { return ipcRenderer.invoke('skill:executeScript', script, payload) },
+  skillPackageOpenDialog: function() { return ipcRenderer.invoke('skillPackage:openDialog') },
+  skillPackagePreview: function(zipPath) { return ipcRenderer.invoke('skillPackage:preview', zipPath) },
+  skillPackageInstall: function(zipPath, skillId, version) {
+    return ipcRenderer.invoke('skillPackage:install', zipPath, skillId, version)
+  },
+  skillPackageListVersions: function(skillId) {
+    return ipcRenderer.invoke('skillPackage:listVersions', skillId)
+  },
+  skillPackageExport: function(skillId, targetPath) {
+    return ipcRenderer.invoke('skillPackage:export', skillId, targetPath)
+  },
 
   // Provider
   providerTestConnection: function(baseUrl, apiKey) {
