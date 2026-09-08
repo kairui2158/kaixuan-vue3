@@ -10,16 +10,13 @@
       <input v-model="characterFilter" class="timeline-filter" placeholder="筛选角色" aria-label="按角色筛选" />
     </div>
     <div v-if="filteredEvents.length === 0" class="timeline-empty">暂无符合条件的事件</div>
-    <div v-else class="timeline-list">
-      <button v-for="event in filteredEvents" :key="event.id" class="timeline-item" type="button" @click="selectEvent(event.id)">
-        <span class="timeline-marker"></span>
-        <span class="timeline-main">
-          <span class="timeline-meta">第 {{ event.chapterIndex || '?' }} 章 · {{ event.type }}{{ event.location ? ` · ${event.location}` : '' }}</span>
-          <strong>{{ event.title }}</strong>
-          <span class="timeline-summary">{{ event.summary || '暂无摘要' }}</span>
-          <span v-if="event.characters.length" class="timeline-characters">{{ event.characters.join('、') }}</span>
-        </span>
-      </button>
+    <div v-else class="timeline-canvas-wrap">
+      <G6Canvas :options="graphOptions" :data="graphData" aria-label="记忆时间线图" @node-click="selectEvent" />
+      <div class="timeline-range">
+        <label for="timeline-chapter-range">章节范围</label>
+        <input id="timeline-chapter-range" v-model.number="chapterRange" type="range" :min="1" :max="maxChapterIndex" />
+        <span>{{ rangeStart }}-{{ rangeEnd }} 章</span>
+      </div>
     </div>
     <div v-if="selectedEvent" class="timeline-selection">
       <span>已选事件：{{ selectedEvent.title }}</span>
@@ -30,41 +27,66 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import type { GraphOptions } from '@antv/g6'
 import type { MemoryData } from '../../types/memory'
+import { timelineToG6Data } from '../../composables/useG6Graph'
 import { useMemoryGraph } from '../../composables/useMemoryGraph'
+import G6Canvas from './G6Canvas.vue'
 
 const props = defineProps<{ memories: MemoryData }>()
 const emit = defineEmits<{ openSource: [payload: { kind: 'event'; id: string }] }>()
 const { eventsToTimelineData } = useMemoryGraph()
 const typeFilter = ref('all')
 const characterFilter = ref('')
+const chapterRange = ref(1)
 const selectedId = ref('')
+
 const timeline = computed(() => eventsToTimelineData(props.memories.events))
+const maxChapterIndex = computed(() => Math.max(1, ...timeline.value.map(event => event.chapterIndex || 0)))
+const rangeStart = computed(() => Math.max(1, maxChapterIndex.value - chapterRange.value + 1))
+const rangeEnd = computed(() => maxChapterIndex.value)
 const eventTypes = computed(() => [...new Set(timeline.value.map(event => event.type))])
 const filteredEvents = computed(() => {
   const character = characterFilter.value.trim().toLowerCase()
-  return timeline.value.filter(event => (typeFilter.value === 'all' || event.type === typeFilter.value) && (!character || event.characters.some(name => name.toLowerCase().includes(character))))
+  return timeline.value.filter(event =>
+    (typeFilter.value === 'all' || event.type === typeFilter.value) &&
+    (!character || event.characters.some(name => name.toLowerCase().includes(character))) &&
+    (!event.chapterIndex || event.chapterIndex >= rangeStart.value)
+  )
 })
+const graphData = computed(() => timelineToG6Data(filteredEvents.value))
 const selectedEvent = computed(() => timeline.value.find(event => event.id === selectedId.value) || null)
-function selectEvent(id: string) { selectedId.value = id }
+
+const graphOptions: GraphOptions = {
+  layout: { type: 'snake', indent: 40, fixSize: 30 },
+  node: {
+    style: { size: 30, fill: '#2c3a5d', stroke: '#4d5f8a' },
+    state: { selected: { stroke: '#7c8cf8', lineWidth: 3 } }
+  },
+  edge: {
+    style: { stroke: '#4d5f8a', lineWidth: 1 },
+    state: { selected: { stroke: '#7c8cf8', lineWidth: 2 } }
+  },
+  behaviors: ['drag-canvas', 'zoom-canvas', 'scroll-canvas', { type: 'click-select' }],
+  animation: false
+}
+
+function selectEvent(id: string) {
+  selectedId.value = id
+}
 function openSource() {
   if (selectedEvent.value) emit('openSource', { kind: 'event', id: selectedEvent.value.id })
 }
 </script>
 
 <style scoped>
-.memory-timeline { height: 100%; overflow: auto; color: var(--text-primary); }
-.timeline-toolbar { display: flex; align-items: center; gap: 8px; min-height: 38px; border-bottom: 1px solid var(--border-color); }
+.memory-timeline { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; color: var(--text-primary); background: var(--g6-bg); }
+.timeline-toolbar { display: flex; align-items: center; gap: var(--space-4); min-height: 38px; border-bottom: 1px solid var(--border-color); }
 .timeline-toolbar span { flex: 1; color: var(--text-secondary); font-size: var(--font-size-sm); }
-.timeline-toolbar select, .timeline-filter { height: 30px; max-width: 150px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-xs); color: var(--text-primary); padding: 4px 8px; font-size: var(--font-size-sm); }
-.timeline-list { position: relative; padding: 12px 0 12px 20px; }
-.timeline-list::before { content: ''; position: absolute; left: 7px; top: 14px; bottom: 14px; width: 2px; background: var(--border-color); }
-.timeline-item { display: flex; position: relative; width: 100%; border: 0; background: transparent; text-align: left; color: var(--text-primary); padding: 8px 0 8px 14px; cursor: pointer; }
-.timeline-item:hover { background: var(--bg-hover); }
-.timeline-marker { position: absolute; left: -17px; top: 14px; width: 10px; height: 10px; border: 2px solid var(--accent); border-radius: 50%; background: var(--bg-primary); }
-.timeline-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.timeline-meta, .timeline-characters { color: var(--text-secondary); font-size: var(--font-size-sm); }
-.timeline-summary { color: var(--text-primary); line-height: 1.5; }
-.timeline-empty { padding: 22px; color: var(--memory-empty-text); }
+.timeline-toolbar select, .timeline-filter { height: 30px; max-width: 150px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-xs); color: var(--text-primary); padding: var(--space-2) var(--space-4); font-size: var(--font-size-sm); }
+.timeline-canvas-wrap { position: relative; display: flex; flex: 1; min-height: 0; }
+.timeline-range { display: flex; align-items: center; gap: var(--space-4); position: absolute; right: 12px; bottom: 12px; padding: var(--space-3) var(--space-5); background: var(--g6-timebar-bg); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--font-size-sm); }
+.timeline-range input { width: 140px; }
+.timeline-empty { display: grid; place-items: center; flex: 1; color: var(--memory-empty-text); }
 .timeline-selection { border-top: 1px solid var(--border-color); padding-top: 10px; color: var(--accent); }
 </style>

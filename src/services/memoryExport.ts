@@ -24,6 +24,8 @@ export interface CharacterProfileExport {
   version: 1
   exportedAt: string
   entity: MemoryData['entities'][number]
+  relations?: MemoryData['relations']
+  events?: MemoryData['events']
 }
 
 export interface StorylineExport {
@@ -85,11 +87,16 @@ function chapterKey(chapter: MemoryExportChapter) {
 export function exportCharacterProfile(memory: MemoryData, entityId: string): string | null {
   const entity = memory.entities.find(item => item.id === entityId)
   if (!entity) return null
+  const entityNames = new Set([entity.name, ...entity.aliases])
+  const relations = memory.relations.filter(relation => relation.sourceId === entityId || relation.targetId === entityId)
+  const events = memory.events.filter(event => event.characters.some(character => entityNames.has(character)))
   const payload: CharacterProfileExport = {
     format: 'shenyi-character-profile',
     version: 1,
     exportedAt: now(),
-    entity: clone(entity)
+    entity: clone(entity),
+    relations: clone(relations),
+    events: clone(events)
   }
   return json(payload)
 }

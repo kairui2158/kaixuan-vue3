@@ -35,6 +35,19 @@ export interface FactSource {
 
 export type FactStatus = 'confirmed' | 'pending' | 'stale' | 'conflicted' | 'rejected'
 
+/** 冲突字段快照：旧值供用户审查，新值供用户采纳。 */
+export interface ConflictValue {
+  field: string
+  oldValue: string
+  newValue: string
+}
+
+export interface MemoryConflictData {
+  detectedAt: string
+  chapterId: string
+  values: ConflictValue[]
+}
+
 /** 实体（人物/组织/地点等） */
 export interface MemoryEntity {
   id: string
@@ -60,6 +73,7 @@ export interface MemoryEntity {
   factStatus?: FactStatus
   supersedesId?: string
   conflictsWithIds?: string[]
+  conflictsData?: MemoryConflictData
   factSource?: FactSource
   updatedAt: string
 }
@@ -78,6 +92,7 @@ export interface MemoryRelation {
   factStatus?: FactStatus
   supersedesId?: string
   conflictsWithIds?: string[]
+  conflictsData?: MemoryConflictData
   factSource?: FactSource
   updatedAt: string
 }
@@ -99,6 +114,7 @@ export interface MemoryEvent {
   factStatus?: FactStatus
   supersedesId?: string
   conflictsWithIds?: string[]
+  conflictsData?: MemoryConflictData
   factSource?: FactSource
 }
 
@@ -116,6 +132,7 @@ export interface WorldEntry {
   factStatus?: FactStatus
   supersedesId?: string
   conflictsWithIds?: string[]
+  conflictsData?: MemoryConflictData
   factSource?: FactSource
 }
 
@@ -136,6 +153,7 @@ export interface Foreshadowing {
   factStatus?: FactStatus
   supersedesId?: string
   conflictsWithIds?: string[]
+  conflictsData?: MemoryConflictData
   factSource?: FactSource
 }
 

@@ -1,4 +1,5 @@
 import type {
+  ConflictValue,
   Foreshadowing,
   MemoryData,
   MemoryEntity,
@@ -29,6 +30,38 @@ export interface MemoryMergeResult {
 }
 
 const emptyEvidence = (chapterId: string) => [{ chapterId, snippet: '' }]
+
+const stringFields = ['type', 'location', 'summary', 'description', 'category', 'detail'] as const
+
+function stringConflictValues(
+  target: Record<string, unknown>,
+  incoming: Record<string, unknown>,
+  fields: readonly string[]
+): ConflictValue[] {
+  return fields
+    .filter(field => typeof incoming[field] === 'string' && (incoming[field] as string).trim() && incoming[field] !== target[field])
+    .map(field => ({
+      field,
+      oldValue: typeof target[field] === 'string' ? target[field] as string : '',
+      newValue: incoming[field] as string
+    }))
+}
+
+function markConflict<T extends { factStatus?: FactStatusLike; conflictsData?: import('../types/memory').MemoryConflictData }>(
+  target: T,
+  incoming: Record<string, unknown>,
+  fields: readonly string[],
+  chapterId: string,
+  now: string
+) {
+  if (target.factStatus === 'confirmed' && incoming.factStatus === 'pending') {
+    target.factStatus = 'conflicted'
+    const values = stringConflictValues(target as Record<string, unknown>, incoming, fields)
+    if (values.length) target.conflictsData = { detectedAt: now, chapterId, values }
+  }
+}
+
+type FactStatusLike = 'confirmed' | 'pending' | 'stale' | 'conflicted' | 'rejected'
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
@@ -84,7 +117,7 @@ function appendEvidence<T extends { evidence: Array<{ chapterId: string; snippet
 function mergeEntity(target: MemoryEntity, incoming: Partial<MemoryEntity>, options: Required<Pick<MemoryMergeOptions, 'chapterId' | 'now'>>, changes: MemoryChange[]) {
   const locked = new Set(target.lockedFields || [])
   const incomingEvidence = evidenceFor(incoming, options.chapterId)
-  if (target.factStatus === 'confirmed' && incoming.factStatus === 'pending') target.factStatus = 'conflicted'
+  markConflict(target, incoming as Record<string, unknown>, [...stringFields, 'status'], options.chapterId, options.now)
   appendEvidence(target, incomingEvidence)
   target.aliases = uniqueStrings([...target.aliases, ...uniqueStrings(incoming.aliases), incoming.name])
     .filter(alias => normalized(alias) !== normalized(target.name))
@@ -158,6 +191,7 @@ function mergeRelations(data: MemoryData, values: Array<Partial<MemoryRelation>>
     if (target) {
       if (target.locked) changes.push({ kind: 'relation', action: 'skipped', id: target.id, reason: '关系已锁定' })
       else {
+        markConflict(target, incoming as Record<string, unknown>, ['detail'], chapterId, now)
         target.detail = incoming.detail || target.detail
         target.strength = typeof incoming.strength === 'number' ? incoming.strength : target.strength
         appendEvidence(target, evidenceFor(incoming, chapterId))
@@ -179,7 +213,7 @@ function mergeEvents(data: MemoryData, values: Array<Partial<MemoryEvent>>, chap
     if (target) {
       if (target.locked) changes.push({ kind: 'event', action: 'skipped', id: target.id, reason: '事件已锁定' })
       else {
-        if (target.factStatus === 'confirmed' && incoming.factStatus === 'pending') target.factStatus = 'conflicted'
+        markConflict(target, incoming as Record<string, unknown>, [...stringFields, 'status'], chapterId, now)
         if (incoming.type) target.type = incoming.type
         if (Array.isArray(incoming.characters)) target.characters = uniqueStrings([...(target.characters || []), ...incoming.characters])
         if (incoming.location) target.location = incoming.location
@@ -206,7 +240,7 @@ function mergeWorld(data: MemoryData, values: Array<Partial<WorldEntry>>, chapte
     if (target) {
       if (target.locked) changes.push({ kind: 'world', action: 'skipped', id: target.id, reason: '世界观条目已锁定' })
       else {
-        if (target.factStatus === 'confirmed' && incoming.factStatus === 'pending') target.factStatus = 'conflicted'
+        markConflict(target, incoming as Record<string, unknown>, stringFields, chapterId, now)
         if (incoming.category) target.category = incoming.category
         if (incoming.description) target.description = incoming.description
         if (incoming.established !== undefined) target.established = incoming.established
@@ -229,7 +263,7 @@ function mergeForeshadowing(data: MemoryData, values: Array<Partial<Foreshadowin
     if (target) {
       if (target.locked) changes.push({ kind: 'foreshadowing', action: 'skipped', id: target.id, reason: '伏笔已锁定' })
       else {
-        if (target.factStatus === 'confirmed' && incoming.factStatus === 'pending') target.factStatus = 'conflicted'
+        markConflict(target, incoming as Record<string, unknown>, [...stringFields, 'status'], chapterId, now)
         if (incoming.description) target.description = incoming.description
         if (incoming.status) target.status = incoming.status
         if (incoming.resolved !== undefined) target.resolved = incoming.resolved

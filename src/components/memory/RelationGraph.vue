@@ -3,130 +3,162 @@
     <div class="graph-toolbar">
       <span class="graph-title">关系图</span>
       <span class="graph-hint">节点 {{ visibleNodes.length }} · 关系 {{ visibleEdges.length }}</span>
+      <span v-if="hoveredNode" class="graph-hover">悬停：{{ hoveredNode.data.label }}</span>
+      <button class="btn-sm btn-secondary" type="button" @click="toggleEditMode">{{ editMode ? '退出编辑' : '编辑' }}</button>
       <button class="btn-sm btn-secondary" type="button" @click="resetView">重置</button>
     </div>
     <div v-if="visibleNodes.length === 0" class="graph-empty">暂无实体关系数据</div>
-    <svg v-else class="graph-canvas" :viewBox="`0 0 ${canvasWidth} ${canvasHeight}`" role="img">
-      <g :transform="`translate(${panX} ${panY}) scale(${zoom})`" @pointermove="onPointerMove" @pointerup="endPan" @pointerleave="endPan">
-        <line
-          v-for="edge in visibleEdges"
-          :key="edge.id"
-          class="graph-edge"
-          :x1="nodePosition(edge.source).x"
-          :y1="nodePosition(edge.source).y"
-          :x2="nodePosition(edge.target).x"
-          :y2="nodePosition(edge.target).y"
-        />
-        <text
-          v-for="edge in visibleEdges"
-          :key="edge.id + '-label'"
-          class="graph-edge-label"
-          :x="(nodePosition(edge.source).x + nodePosition(edge.target).x) / 2"
-          :y="(nodePosition(edge.source).y + nodePosition(edge.target).y) / 2 - 5"
-        >{{ edge.label }}</text>
-        <g
-          v-for="node in visibleNodes"
-          :key="node.id"
-          class="graph-node"
-          :class="{ selected: selectedId === node.id }"
-          :transform="`translate(${nodePosition(node.id).x} ${nodePosition(node.id).y})`"
-          @pointerdown.stop="startNodeDrag(node.id, $event)"
-          @click.stop="selectNode(node.id)"
-        >
-          <circle r="28" />
-          <text text-anchor="middle" dy="4">{{ node.label.slice(0, 8) }}</text>
-        </g>
-      </g>
-    </svg>
+    <G6Canvas
+      v-else
+      ref="canvasRef"
+      :options="graphOptions"
+      :data="visibleData"
+      aria-label="记忆关系图"
+      @node-click="selectNode"
+      @node-dblclick="editSelectedNode"
+    />
     <div v-if="selectedNode" class="graph-selection">
-      <strong>{{ selectedNode.label }}</strong>
+      <strong>{{ selectedNode.data.label }}</strong>
       <span>{{ neighborCount }} 个关联节点</span>
+      <button v-if="editMode" class="btn-sm btn-primary" type="button" @click="editSelectedNode(selectedNode.id)">编辑实体</button>
+      <button v-if="editMode" class="btn-sm btn-secondary" type="button" @click="startRelationFrom(selectedNode.id)">从当前节点建关系</button>
       <button class="btn-sm btn-secondary" type="button" @click="openSource">打开来源</button>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
+import type { GraphOptions, IElementEvent } from '@antv/g6'
 import type { MemoryData } from '../../types/memory'
-import { useMemoryGraph } from '../../composables/useMemoryGraph'
+import { toG6Data } from '../../composables/useG6Graph'
+import G6Canvas from './G6Canvas.vue'
 
 const props = defineProps<{ memories: MemoryData }>()
-const emit = defineEmits<{ openSource: [payload: { kind: 'entity'; id: string }] }>()
-const { entitiesToGraphData } = useMemoryGraph()
-const canvasWidth = 900
-const canvasHeight = 430
-const zoom = ref(1)
-const panX = ref(0)
-const panY = ref(0)
+const emit = defineEmits<{
+  openSource: [payload: { kind: 'entity'; id: string }]
+  editEntity: [id: string]
+  createRelation: [payload: { sourceId: string; targetId: string }]
+}>()
 const selectedId = ref('')
-const draggingNode = ref('')
-const draggingPan = ref(false)
-const lastPointer = ref({ x: 0, y: 0 })
+const hoveredId = ref('')
+const editMode = ref(false)
+const relationSourceId = ref('')
+const canvasRef = ref<InstanceType<typeof G6Canvas> | null>(null)
+type G6GraphInstance = NonNullable<ReturnType<InstanceType<typeof G6Canvas>['getGraph']>>
+let setupGraph: G6GraphInstance | null = null
 
-const graph = computed(() => entitiesToGraphData(props.memories))
-const positions = computed(() => {
-  const result: Record<string, { x: number; y: number }> = {}
-  const count = graph.value.nodes.length
-  graph.value.nodes.forEach((node, index) => {
-    const angle = count ? (Math.PI * 2 * index) / count : 0
-    result[node.id] = { x: canvasWidth / 2 + Math.cos(angle) * Math.min(260, 60 + count * 18), y: canvasHeight / 2 + Math.sin(angle) * Math.min(145, 45 + count * 10) }
-  })
-  return result
-})
-const visibleNodes = computed(() => {
-  if (!selectedId.value) return graph.value.nodes
+const graph = computed(() => toG6Data(props.memories))
+const neighborIds = computed(() => {
+  if (!selectedId.value) return new Set<string>()
   const ids = new Set([selectedId.value])
   graph.value.edges.forEach(edge => {
     if (edge.source === selectedId.value) ids.add(edge.target)
     if (edge.target === selectedId.value) ids.add(edge.source)
   })
-  return graph.value.nodes.filter(node => ids.has(node.id))
+  return ids
+})
+const visibleNodes = computed(() => {
+  if (!selectedId.value) return graph.value.nodes
+  return graph.value.nodes.filter(node => neighborIds.value.has(node.id))
 })
 const visibleEdges = computed(() => {
   const ids = new Set(visibleNodes.value.map(node => node.id))
   return graph.value.edges.filter(edge => ids.has(edge.source) && ids.has(edge.target))
 })
+const visibleData = computed(() => ({ nodes: visibleNodes.value, edges: visibleEdges.value }))
 const selectedNode = computed(() => graph.value.nodes.find(node => node.id === selectedId.value) || null)
-const neighborCount = computed(() => {
-  if (!selectedId.value) return 0
-  return new Set(visibleEdges.value.flatMap(edge => [edge.source, edge.target])).size - 1
+const hoveredNode = computed(() => graph.value.nodes.find(node => node.id === hoveredId.value) || null)
+const neighborCount = computed(() => new Set(visibleEdges.value.flatMap(edge => [edge.source, edge.target])).size - 1)
+
+const graphOptions: GraphOptions = {
+  layout: { type: 'force', preventOverlap: true, nodeSize: 40, linkDistance: 120 },
+  node: {
+    style: { size: 40, fill: '#2c3a5d', stroke: '#4d5f8a' },
+    state: {
+      selected: { stroke: '#7c8cf8', lineWidth: 3 },
+      active: { stroke: '#a5b4fc', lineWidth: 3 }
+    }
+  },
+  edge: {
+    style: { stroke: '#4d5f8a', lineWidth: 1.5 },
+    state: {
+      selected: { stroke: '#7c8cf8', lineWidth: 2.5 },
+      active: { stroke: '#a5b4fc', lineWidth: 2.5 }
+    }
+  },
+  behaviors: [
+    'drag-element',
+    'drag-canvas',
+    'zoom-canvas',
+    { type: 'hover-activate', degree: 1 },
+    { type: 'click-select' }
+  ],
+  animation: false
+}
+
+async function syncGraphEvents() {
+  await nextTick()
+  const graph = canvasRef.value?.getGraph()
+  if (!graph || graph === setupGraph) return
+  setupGraph = graph
+  graph.on('node:pointerover', event => {
+    const id = (event as IElementEvent).target.id
+    if (typeof id === 'string') hoveredId.value = id
+  })
+  graph.on('node:pointerleave', () => {
+    hoveredId.value = ''
+  })
+  graph.on('node:dragstart', event => {
+    if (!editMode.value || !relationSourceId.value) return
+    const id = (event as IElementEvent).target.id
+    if (typeof id === 'string' && id !== relationSourceId.value) {
+      emit('createRelation', { sourceId: relationSourceId.value, targetId: id })
+      relationSourceId.value = ''
+    }
+  })
+}
+
+void syncGraphEvents()
+
+defineExpose({
+  getGraph: () => canvasRef.value?.getGraph() || null,
+  setHoveredId: (id: string) => {
+    hoveredId.value = id
+  },
+  selectNode
 })
 
-function nodePosition(id: string) { return positions.value[id] || { x: 0, y: 0 } }
-function selectNode(id: string) { selectedId.value = selectedId.value === id ? '' : id }
+function selectNode(id: string) {
+  selectedId.value = selectedId.value === id ? '' : id
+}
+function toggleEditMode() {
+  editMode.value = !editMode.value
+  relationSourceId.value = ''
+}
+function editSelectedNode(id: string) {
+  if (!editMode.value) return
+  emit('editEntity', id)
+}
+function startRelationFrom(id: string) {
+  relationSourceId.value = id
+}
+function resetView() {
+  selectedId.value = ''
+  hoveredId.value = ''
+  relationSourceId.value = ''
+}
 function openSource() {
   if (selectedNode.value) emit('openSource', { kind: 'entity', id: selectedNode.value.id })
 }
-function resetView() { selectedId.value = ''; zoom.value = 1; panX.value = 0; panY.value = 0 }
-function startNodeDrag(id: string, event: PointerEvent) {
-  draggingNode.value = id
-  lastPointer.value = { x: event.clientX, y: event.clientY }
-}
-function onPointerMove(event: PointerEvent) {
-  if (!draggingNode.value && !draggingPan.value) return
-  const dx = event.clientX - lastPointer.value.x
-  const dy = event.clientY - lastPointer.value.y
-  panX.value += dx
-  panY.value += dy
-  lastPointer.value = { x: event.clientX, y: event.clientY }
-}
-function endPan() { draggingNode.value = ''; draggingPan.value = false }
 </script>
 
 <style scoped>
-.memory-relation-graph { display: flex; flex-direction: column; min-height: 0; height: 100%; background: var(--bg-primary); }
-.graph-toolbar { display: flex; align-items: center; gap: 10px; min-height: 38px; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); }
+.memory-relation-graph { display: flex; flex-direction: column; min-height: 0; height: 100%; overflow: hidden; background: var(--g6-bg); }
+.graph-toolbar { display: flex; align-items: center; gap: var(--space-5); min-height: 38px; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); }
 .graph-title { color: var(--text-primary); font-weight: 600; }
 .graph-hint { flex: 1; font-size: var(--font-size-sm); }
-.graph-canvas { width: 100%; min-height: 280px; flex: 1; background: var(--memory-card-bg); cursor: grab; touch-action: none; }
-.graph-edge { stroke: var(--memory-edge); stroke-width: 2; }
-.graph-edge-label { fill: var(--memory-edge-label); font-size: 12px; text-anchor: middle; }
-.graph-node { cursor: pointer; }
-.graph-node circle { fill: var(--memory-node-bg); stroke: var(--memory-node-border); stroke-width: 3; }
-.graph-node.selected circle { fill: var(--memory-node-selected-bg); }
-.graph-node text { fill: var(--memory-node-text); font-size: 12px; pointer-events: none; }
 .graph-empty { display: grid; place-items: center; flex: 1; color: var(--memory-empty-text); }
-.graph-selection { display: flex; gap: 10px; padding: 8px 0 0; color: var(--text-secondary); }
+.graph-selection { display: flex; gap: var(--space-5); padding: var(--space-4) 0 0; color: var(--text-secondary); }
 .graph-selection strong { color: var(--text-primary); }
 </style>
