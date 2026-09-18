@@ -47,16 +47,221 @@ describe('editorTools', () => {
     const result = await gateway.execute('editor.locate', { fragment: '主角' }, makeContext())
     expect(result.ok).toBe(false)
     expect(result.error?.code).toBe('ambiguous_target')
+
+    expect(gateway.has('editor.propose_edits')).toBe(false)
   })
 
-  it('propose_edits never reports direct application', async () => {
+  it('direct mode exposes the unified direct write tool', async () => {
     const gateway = new ToolGateway()
-    gateway.registerAll(createEditorTools({ getSnapshot: () => snapshot }))
-    const result = await gateway.execute('editor.propose_edits', {
-      commands: [{ operation: 'append', content: '新结局' }],
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      applyWrite: async () => ({ ok: true, rollbackAvailable: true }),
+    }))
+    expect(gateway.has('editor.write')).toBe(true)
+    expect(gateway.has('editor.propose_edits')).toBe(false)
+  })
+
+  it('editor.write applies a validated batch immediately', async () => {
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+    const result = await gateway.execute('editor.write', {
+      commands: [{ operation: 'replace_match', content: '新主角', target: '第一段落提到主角。' }],
+      reveal: { mode: 'instant', firstChange: false },
     }, makeContext())
+
     expect(result.ok).toBe(true)
-    expect((result.data as any).status).toBe('pending_user_confirmation')
+    expect((result.data as any)).toMatchObject({
+      status: 'written',
+      commandCount: 1,
+      rollbackAvailable: true,
+      reveal: { mode: 'instant', firstChange: false },
+    })
+    expect(appliedBatches).toHaveLength(1)
+    expect(appliedBatches[0].next).toBe('新主角第二段落提到主角。第三段提到伏笔。')
+    expect(appliedBatches[0].original).toBe(snapshot.content)
+  })
+
+  it('editor.write rejects validation failures without calling applyWrite', async () => {
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+    const result = await gateway.execute('editor.write', {
+      commands: [{ operation: 'replace_match', content: '新主角', target: '主角' }],
+    }, makeContext())
+
+    expect(result.ok).toBe(false)
+    expect(result.error?.code).toBe('ambiguous_target')
+    expect(result.error?.retryable).toBe(true)
+    expect(appliedBatches).toHaveLength(0)
+  })
+
+  it('editor.write retries a partial-failure batch while keeping validated commands', async () => {
+    let failedBatch: any = null
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+      onFailedBatch: batch => { failedBatch = batch },
+      takeFailedBatch: () => failedBatch,
+    }))
+
+    const failed = await gateway.execute('editor.write', {
+      commands: [
+        { operation: 'replace_match', content: '新主角', target: '第一段落提到主角。' },
+        { operation: 'replace_match', content: '新伏笔', target: '主角' },
+      ],
+    }, makeContext())
+    expect(failed.ok).toBe(false)
+    expect(failedBatch?.succeededIndexes).toEqual([0])
+
+    const retried = await gateway.execute('editor.write', {
+      commands: [{ operation: 'replace_match', content: '新伏笔', target: '第三段提到伏笔。' }],
+      reason: '只重提失败条目',
+    }, makeContext())
+
+    expect(retried.ok).toBe(true)
+    expect((retried.data as any).commandCount).toBe(2)
+    expect(appliedBatches).toHaveLength(1)
+    expect(appliedBatches[0].next).toBe('新主角第二段落提到主角。新伏笔')
+    expect(failedBatch).toBeNull()
+  })
+
+  it('editor.write allows insert and append on an empty editor', async () => {
+    const emptySnapshot = createEditorTargetSnapshot({
+      workspace: 'main',
+      targetId: 'empty-tab',
+      label: '新章节',
+      content: '',
+    })
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => emptySnapshot,
+      mode: 'direct',
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+    const result = await gateway.execute('editor.write', {
+      commands: [{ operation: 'insert', content: '新开篇' }],
+    }, { ...makeContext(), targetId: 'empty-tab' })
+
+    expect(result.ok).toBe(true)
+    expect(appliedBatches[0].next).toBe('新开篇')
+  })
+
+  it('editor.write rejects more than ten commands', async () => {
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      applyWrite: async () => ({ ok: true, rollbackAvailable: true }),
+    }))
+    const result = await gateway.execute('editor.write', {
+      commands: Array.from({ length: 11 }, () => ({ operation: 'append', content: 'x' })),
+    }, makeContext())
+    expect(result.error?.code).toBe('too_many_commands')
+  })
+
+  it('editor.reveal highlights a unique fragment without modifying content', async () => {
+    const revealed: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      revealTarget: async request => { revealed.push(request) },
+    }))
+    const result = await gateway.execute('editor.reveal', {
+      target: { fragment: '第三段提到伏笔。' },
+      focus: 'center',
+    }, makeContext())
+
+    expect(result.ok).toBe(true)
+    expect((result.data as any)).toMatchObject({ status: 'revealed', degraded: true })
+    expect(revealed).toHaveLength(1)
+    expect(revealed[0]).toMatchObject({
+      targetId: 'chapter-1',
+      focus: 'center',
+      highlightMs: 3000,
+    })
+  })
+
+  it('editor.reveal rejects ambiguous fragments', async () => {
+    const revealed: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      revealTarget: async request => { revealed.push(request) },
+    }))
+    const result = await gateway.execute('editor.reveal', {
+      target: { fragment: '主角' },
+    }, makeContext())
+
+    expect(result.ok).toBe(false)
+    expect(result.error?.code).toBe('ambiguous_target')
+    expect(revealed).toHaveLength(0)
+  })
+
+  it('editor.reveal supports paragraph index', async () => {
+    const revealed: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      revealTarget: async request => { revealed.push(request) },
+    }))
+    const result = await gateway.execute('editor.reveal', {
+      target: { paragraphIndex: 0 },
+    }, makeContext())
+
+    expect(result.ok).toBe(true)
+    expect((result.data as any).start).toBe(0)
+    expect((result.data as any).degraded).toBe(true)
+    expect(revealed[0].end).toBe(snapshot.content.length)
+  })
+
+  it('editor.reveal supports structure anchors', async () => {
+    const content = '第一卷 北境\n少年出发。\n第二章 灯塔\n风暴逼近。'
+    const anchorSnapshot = createEditorTargetSnapshot({
+      workspace: 'outline',
+      targetId: 'outline',
+      label: '大纲',
+      content,
+    })
+    const revealed: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => anchorSnapshot,
+      revealTarget: async request => { revealed.push(request) },
+      workspace: 'outline',
+    }))
+    const result = await gateway.execute('editor.reveal', {
+      target: { anchor: { chapterTitle: '第二章 灯塔' } },
+    }, { ...makeContext(), workspace: 'outline' as const, targetId: 'outline' })
+
+    expect(result.ok).toBe(true)
+    expect((result.data as any).structurePath).toContain('第二章 灯塔')
+    expect(revealed[0].start).toBe(content.indexOf('第二章 灯塔'))
   })
 
   it('returns structured errors for missing tools and invalid inputs', async () => {

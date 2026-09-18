@@ -78,22 +78,21 @@ export function resolveTemperature(provider: ProviderLike, tempOverride?: number
 }
 
 /**
- * Resolves maxTokens, capped at 16384 to prevent 400 errors.
+ * Resolves maxTokens from override, provider config, or the default.
+ * Provider limits are handled by the 400 downgrade/retry path.
  */
 export function resolveMaxTokens(provider: ProviderLike, maxOverride?: number): number {
-  const raw = maxOverride ?? provider.maxTokens ?? 8192
-  return Math.min(raw, 16384)
+  return maxOverride ?? provider.maxTokens ?? 8192
 }
 
 /**
  * Extracts text content from a non-streaming JSON response.
- * Handles: choices[0].message.content, reasoning_content fallback.
+ * reasoning_content stays separate so callers can distinguish thinking from body.
  */
 export function extractNonStreamText(data: any): { text: string; reasoning: string; usage?: any; finishReason?: string } {
   const msg = data?.choices?.[0]?.message || {}
-  let text = msg.content || ''
+  const text = msg.content || ''
   const reasoning = msg.reasoning_content || ''
-  if (!text && reasoning) text = reasoning
   return { text, reasoning, usage: data?.usage, finishReason: data?.choices?.[0]?.finish_reason }
 }
 
@@ -156,10 +155,10 @@ export function resolveFinishReason(
 ): string {
   const normalized = normalizeFinishReason(finishReason)
   if (normalized) return normalized
-  if (!hasText) return 'stop'
   const completionTokens = readCompletionTokens(usage)
   if (completionTokens == null || completionTokens <= 0 || maxTokens <= 0) return 'stop'
-  return completionTokens / maxTokens >= 0.95 ? 'length' : 'stop'
+  if (completionTokens >= maxTokens) return 'length'
+  return hasText && completionTokens / maxTokens >= 0.95 ? 'length' : 'stop'
 }
 
 export function isSSEDone(payload: string): boolean {

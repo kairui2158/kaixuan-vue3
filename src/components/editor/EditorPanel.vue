@@ -30,9 +30,16 @@
         <span class="sep"></span>
        <div class="editor-toolbar-group">
           <button id="btn-de-ai" class="btn-sm btn-secondary" @click="triggerDeAi" :disabled="deAiStore.isProcessing">{{ deAiStore.isProcessing ? '处理中 ' + deAiStore.progress + '%' : '去AI味' }}</button>
-       </div>
-       <div class="editor-toolbar-group">
+          <button
+            v-if="deAiStore.hardruleEnabled && deAiStore.hardRuleMode !== 'legacy-auto'"
+            id="btn-deai-report"
+            class="btn-sm btn-secondary"
+            title="查看最近一次降AI检测报告"
+            :disabled="!deAiStore.lastDetectReport"
+            @click="showDeAiReport"
+          >检测报告</button>
           <button id="btn-ai-names" class="btn-sm btn-secondary" title="AI命名" @click="aiNames">AI命名</button>
+          <button id="btn-editor-run-trace" class="btn-sm btn-secondary" title="查看主页编辑器运行记录" @click="showRunTrace = true">运行记录</button>
        </div>
         <span id="word-count" class="word-count">{{ wordCount }} 字</span>
       </div>
@@ -63,6 +70,7 @@
       <button id="btn-find-close" class="find-close" @click="editorStore.toggleFind()">x</button>
     </div>
 
+    <div class="editor-viewport-wrap">
     <textarea id="editor-content"
       ref="editorTextarea"
       class="editor-content"
@@ -74,10 +82,13 @@
       @mouseup="checkInlineMenu"
       @blur="hideInlineMenu"
     ></textarea>
+    <div ref="editorViewportMirror" class="editor-viewport-mirror" aria-hidden="true"></div>
+    <div ref="editorViewportHighlight" class="editor-viewport-highlight-layer" aria-hidden="true"></div>
+    </div>
    <div v-if="inlineMenuVisible" class="inline-menu" :style="{ left: inlineMenuPos.x + 'px', top: inlineMenuPos.y + 'px' }">
      <button v-for="a in inlineActions" :key="a.key" class="inline-menu-btn" @mousedown.prevent="applyInlineAction(a.key, a.label)">{{ a.label }}</button>
    </div>
-    <div v-if="memoryExtraction.previewVisible" class="editor-memory-overlay" @click.self="closeMemoryPreview">
+    <div v-if="memoryExtraction.previewVisible" class="editor-memory-overlay" :style="{ zIndex: modalQueue.getZIndex('editor-memory-preview') }" @click.self="closeMemoryPreview">
       <section class="editor-memory-modal" role="dialog" aria-modal="true" aria-labelledby="editor-memory-title">
         <header class="editor-memory-header"><strong id="editor-memory-title">记忆变更预览</strong><button class="modal-close" type="button" @click.stop="closeMemoryPreview">&times;</button></header>
         <div class="editor-memory-body">
@@ -96,6 +107,7 @@
       </section>
     </div>
  </section>
+ <RunTracePanel :visible="showRunTrace" default-source="home" @close="showRunTrace = false" />
 
 </template>
 
@@ -109,8 +121,13 @@ import { useProjectStore } from '../../stores/project'
 import { useDeAiStore } from '../../stores/deai'
 import { useSettingsStore } from '../../stores/settings'
 import { useMemoryExtraction } from '../../composables/useMemoryExtraction'
+import { useModalQueue } from '../../composables/useModalQueue'
 import { unifiedMemoryAiCall } from '../../services/memoryExtractor'
 import { useProviderStore } from '../../stores/provider'
+import RunTracePanel from '../common/RunTracePanel.vue'
+import { useRunTraceStore } from '../../stores/runTrace'
+import { useAiCallTrace } from '../../composables/useAiCallTrace'
+import { createTextareaViewport, type EditorViewport } from '../../services/editorViewport'
 
 const editorStore = useEditorStore()
 const projectStore = useProjectStore()
@@ -118,9 +135,20 @@ const appConfirm = useAppConfirm()
 const deAiStore = useDeAiStore()
 const settingsStore = useSettingsStore()
 const providerStore = useProviderStore()
+const runTraceStore = useRunTraceStore()
+const showRunTrace = ref(false)
 const { process: deAiProcess } = useDeAi()
 const memoryExtraction = reactive(useMemoryExtraction(unifiedMemoryAiCall))
+const modalQueue = useModalQueue()
+
+watch(() => memoryExtraction.previewVisible, visible => {
+  if (visible) modalQueue.open('editor-memory-preview')
+  else modalQueue.close('editor-memory-preview')
+}, { immediate: true })
 const editorTextarea = ref<HTMLTextAreaElement | null>(null)
+const editorViewportMirror = ref<HTMLDivElement | null>(null)
+const editorViewportHighlight = ref<HTMLDivElement | null>(null)
+let editorViewport: EditorViewport | null = null
 const exportMenu = ref(false)
 const undoRedo = useUndoRedo(50)
 let autoSaveTimer: ReturnType<typeof setInterval> | null = null
@@ -142,6 +170,50 @@ const inlineActions = [
 ]
 const inlineMenuVisible = ref(false)
  const inlineMenuPos = ref({ x: 0, y: 0 })
+
+type HomeToolTrace = ReturnType<typeof useAiCallTrace>
+
+async function runTracedHomeTool(
+  operation: string,
+  run: (trace: HomeToolTrace) => Promise<void> | void,
+  _successLabel: string
+) {
+  const provider = providerStore.activeGenerateProvider
+  const previousRunId = runTraceStore.getRunId('home')
+  if (previousRunId) {
+    runTraceStore.cancelRunningApiCalls(previousRunId, '新的主页工具运行开始，上一条运行已取消')
+    runTraceStore.finishRun(previousRunId, 'canceled', '新的主页工具运行开始，上一条运行已取消')
+  }
+  const trace = useAiCallTrace({
+    source: 'home',
+    stepName: operation,
+    mode: 'editor-tool',
+    projectId: projectStore.currentProjectId || 'default',
+    projectName: projectStore.projectName,
+    providerId: provider?.id,
+    providerName: provider?.name,
+    model: provider?.selectedModel || provider?.models?.[0],
+    target: {
+      type: activeTab.value?.mode || 'main',
+      id: activeTab.value?.id || 'main',
+      name: activeTab.value?.title || '主页编辑器',
+      activeTab: activeTab.value?.title || '未打开页签'
+    }
+  })
+  trace.begin()
+  trace.addEvent({
+    type: 'tool-entry',
+    label: operation + '入口',
+    level: 'info',
+    detail: activeTab.value ? `${activeTab.value.title}（${activeTab.value.mode || '正文'}）` : '未打开页签'
+  })
+  try {
+    await run(trace)
+    trace.finish('success')
+  } catch (error: any) {
+    trace.fail(error)
+  }
+}
 
  const activeTab = computed(() => editorStore.activeTab)
 const modeLabel = computed(() => {
@@ -234,10 +306,15 @@ async function save() {
 async function extractCurrentMemory() {
   const tab = activeTab.value
   if (!tab || !tab.chapterId || !tab.content.trim()) return
-  save()
-  const index = Object.values(projectStore.chapters).flat().findIndex((item: any) => item.id === tab.chapterId)
-  const sourceVersionId = await projectStore.recordSourceVersion(tab.chapterId, Math.max(0, index), tab.content)
-  await memoryExtraction.start({ id: tab.chapterId, index: Math.max(0, index), title: tab.title, content: tab.content, sourceVersionId })
+  await runTracedHomeTool('提取记忆', async (trace) => {
+    save()
+    const index = Object.values(projectStore.chapters).flat().findIndex((item: any) => item.id === tab.chapterId)
+    const sourceVersionId = await projectStore.recordSourceVersion(tab.chapterId, Math.max(0, index), tab.content)
+    await memoryExtraction.startWithTrace(
+      { id: tab.chapterId, index: Math.max(0, index), title: tab.title, content: tab.content, sourceVersionId },
+      (prompt, systemPrompt) => unifiedMemoryAiCall(prompt, systemPrompt, trace)
+    )
+  }, '记忆预览已生成')
 }
 
 function closeMemoryPreview() {
@@ -261,13 +338,14 @@ function redo() {
 }
 
 function generateContent() {
-  if (!activeTab.value || !activeTab.value.chapterId) {
-    void appConfirm.alert('请先选择一个章节');
-    return;
-  }
-  // Emit event to parent to open pipeline at body step
-  const event = new CustomEvent('generate-body', { detail: { chapterId: activeTab.value.chapterId } });
-  window.dispatchEvent(event);
+  void runTracedHomeTool('生成正文', async () => {
+    if (!activeTab.value || !activeTab.value.chapterId) {
+      void appConfirm.alert('请先选择一个章节');
+      throw new Error('未选择章节，未进入正文生成')
+    }
+    const event = new CustomEvent('generate-body', { detail: { chapterId: activeTab.value.chapterId } });
+    window.dispatchEvent(event);
+  }, '已打开正文生成')
 }
 
 async function triggerDeAi() {
@@ -336,9 +414,20 @@ function startAutoSave() {
   }, interval)
 }
 
-onMounted(() => { startAutoSave() })
+onMounted(() => {
+  startAutoSave()
+  if (editorTextarea.value) {
+    editorViewport = createTextareaViewport({
+      textarea: editorTextarea.value,
+      mirror: editorViewportMirror.value || document.createElement('div'),
+      highlightLayer: editorViewportHighlight.value || undefined,
+    })
+  }
+})
 projectStore.startProjectAutoSave(settingsStore.autoSaveInterval || 30)
 onUnmounted(() => {
+  editorViewport?.dispose()
+  editorViewport = null
   if (autoSaveTimer) clearInterval(autoSaveTimer)
   projectStore.stopProjectAutoSave()
   window.removeEventListener('editor-undo', handleUndoEvent)
@@ -347,6 +436,8 @@ onUnmounted(() => {
   window.removeEventListener('editor-save', handleSaveEvent)
   window.removeEventListener('toggle-find', handleToggleFindEvent)
   window.removeEventListener('diff-locate', handleDiffLocate)
+  window.removeEventListener('editor-follow-progress', handleEditorFollowProgress)
+  window.removeEventListener('editor-stop-follow', handleEditorStopFollow)
   window.removeEventListener('editor-ai-batch-checkpoint', handleAiBatchCheckpoint)
   window.removeEventListener('tool-activity', handleToolActivity)
   window.removeEventListener('restore-session', handleRestoreSession)
@@ -356,7 +447,11 @@ function handleRedoEvent() { redo() }
 function handleExternalChangeEvent(event: Event) {
   const detail = (event as CustomEvent).detail
   if (!activeTab.value || detail?.tabId !== activeTab.value.id || typeof detail?.content !== 'string') return
-  undoRedo.replaceCurrentSnapshot(detail.content)
+  if (typeof detail.silentUndo === 'boolean') {
+    undoRedo.replaceCurrentSnapshot(detail.content, undefined, detail.silentUndo)
+  } else {
+    undoRedo.replaceCurrentSnapshot(detail.content)
+  }
   if (editorTextarea.value && editorTextarea.value.value !== detail.content) {
     editorTextarea.value.value = detail.content
   }
@@ -393,6 +488,8 @@ onMounted(() => {
   window.addEventListener('editor-save', handleSaveEvent)
   window.addEventListener('toggle-find', handleToggleFindEvent)
   window.addEventListener('diff-locate', handleDiffLocate)
+  window.addEventListener('editor-follow-progress', handleEditorFollowProgress)
+  window.addEventListener('editor-stop-follow', handleEditorStopFollow)
   window.addEventListener('editor-ai-batch-checkpoint', handleAiBatchCheckpoint)
   window.addEventListener('tool-activity', handleToolActivity)
   window.addEventListener('restore-session', handleRestoreSession)
@@ -441,9 +538,24 @@ function handleDiffLocate(event: Event) {
   const start = Math.max(0, Number(detail.range?.start) || 0)
   const end = Math.max(start, Number(detail.range?.end) || start)
   editorTextarea.value.focus()
-  editorTextarea.value.setSelectionRange(start, end)
-  const linesBefore = editorTextarea.value.value.substring(0, start).split('\n').length
-  editorTextarea.value.scrollTop = Math.max(0, (linesBefore - 3) * 20)
+  if (editorViewport) {
+    editorViewport.revealTarget({ start, end, focus: 'center' })
+  } else {
+    editorTextarea.value.setSelectionRange(start, end)
+  }
+}
+function handleEditorFollowProgress(event: Event) {
+  const detail = (event as CustomEvent).detail
+  if (!detail || detail.workspace !== 'main' || !editorTextarea.value) return
+  if (detail.targetId && editorStore.activeTabId !== detail.targetId) {
+    editorStore.activeTabId = detail.targetId
+  }
+  const start = Math.max(0, Number(detail.start) || 0)
+  const end = Math.max(start, Number(detail.end) || start)
+  if (editorViewport) editorViewport.followWriteProgress(start, end)
+}
+function handleEditorStopFollow() {
+  editorViewport?.stopFollow()
 }
 watch(activeTab, (newTab) => {
   if (newTab) undoRedo.reset(newTab.content)
@@ -517,26 +629,48 @@ function buildEpubZip(files: any[]): Uint8Array {
 
 
 function aiNames() {
-  const tab = activeTab.value
-  const ta = editorTextarea.value
-  const selectionStart = ta ? ta.selectionStart : 0
-  const selectionEnd = ta ? ta.selectionEnd : 0
-  const content = tab ? (tab.content || '') : ''
-  const selectedText = content.substring(selectionStart, selectionEnd)
-  window.dispatchEvent(new CustomEvent('open-ai-naming', {
-    detail: {
-      source: 'editor',
-      target: tab ? {
-        tabId: tab.id,
-        chapterId: tab.chapterId,
-        mode: tab.mode,
-        selectionStart,
-        selectionEnd,
-        selectedText,
-        contentSnapshot: content,
-      } : undefined,
-    },
-  }))
+  void runTracedHomeTool('AI命名', async () => {
+    const tab = activeTab.value
+    const ta = editorTextarea.value
+    const selectionStart = ta ? ta.selectionStart : 0
+    const selectionEnd = ta ? ta.selectionEnd : 0
+    const content = tab ? (tab.content || '') : ''
+    const selectedText = content.substring(selectionStart, selectionEnd)
+    window.dispatchEvent(new CustomEvent('open-ai-naming', {
+      detail: {
+        source: 'editor',
+        target: tab ? {
+          tabId: tab.id,
+          chapterId: tab.chapterId,
+          mode: tab.mode,
+          selectionStart,
+          selectionEnd,
+          selectedText,
+          contentSnapshot: content,
+        } : undefined,
+      },
+    }))
+  }, 'AI命名窗口已打开')
+}
+
+async function showDeAiReport() {
+  const report = deAiStore.lastDetectReport
+  if (!report) return
+  const blocking = report.findings.filter(item => item.severity === 'blocking')
+  const advisory = report.findings.filter(item => item.severity === 'advisory')
+  const render = (list: typeof report.findings) => list.map(item =>
+    `${item.type}：${item.count} 处（每千字 ${item.perKilo}）\n${item.samples.join('；')}\n建议：${item.suggestion}`
+  ).join('\n\n')
+  const content = [
+    `句长变异：${report.metrics.sentenceLengthCV}`,
+    `连接词密度：${report.metrics.connectorDensity}`,
+    `保护片段：${report.metrics.protectedSpans.hit}/${report.metrics.protectedSpans.total}`,
+    '',
+    blocking.length > 0 ? `【需处理】\n${render(blocking)}` : '【需处理】无',
+    '',
+    advisory.length > 0 ? `【建议】\n${render(advisory)}` : '【建议】无'
+  ].join('\n')
+  await appConfirm.alert({ title: '降AI检测报告', message: content, confirmText: '知道了' })
 }
 
 function findPrev() {
@@ -809,6 +943,36 @@ function applyInlineAction(action: string, label: string) {
 }
 .editor-content:disabled {
   opacity: 0.5;
+}
+.editor-viewport-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+.editor-viewport-wrap .editor-content {
+  flex: 1;
+  min-height: 0;
+}
+.editor-viewport-mirror {
+  position: absolute;
+  left: 0;
+  top: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.editor-viewport-highlight-layer {
+  position: absolute;
+  pointer-events: none;
+  border-radius: var(--radius-xs);
+}
+.editor-viewport-highlight-layer.editor-viewport-highlight {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+.editor-viewport-highlight-layer.editor-viewport-active-line {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 38%, transparent);
 }
 .export-dropdown {
   position: absolute;

@@ -25,7 +25,16 @@ function enqueueWrite(key, task) {
 async function appendCorruptionLog(key, err, restored) {
   try {
     var line = '[' + new Date().toISOString() + '] key=' + key + ' restored=' + (restored ? 'yes' : 'no') + ' error=' + (err && err.message ? err.message : String(err)) + '\n'
-    await fs.appendFile(path.join(dataDir, 'storage-corruption.log'), line, 'utf8')
+    var logPath = path.join(dataDir, 'storage-corruption.log')
+    await fs.appendFile(logPath, line, 'utf8')
+    // Rotate: keep only last 50 lines to prevent unbounded growth and stale re-reporting
+    try {
+      var raw = await fs.readFile(logPath, 'utf8')
+      var lines = raw.split('\n').filter(function(l) { return l.trim() })
+      if (lines.length > 50) {
+        await fs.writeFile(logPath, lines.slice(-50).join('\n') + '\n', 'utf8')
+      }
+    } catch (rotateErr) { /* rotation must never break logging */ }
   } catch (e) { /* logging must never break read/write */ }
 }
 
@@ -48,8 +57,13 @@ async function migrateOldDataIfNeeded() {
           var src = path.join(oldDir, f)
           var dst = path.join(targetDir, f)
           try { await fs.access(dst) } catch(e) {
-            await fs.copyFile(src, dst)
-            copied++
+            // Validate JSON before copying to avoid migrating corrupt files
+            try {
+              var rawContent = await fs.readFile(src, 'utf8')
+              JSON.parse(rawContent)
+              await fs.writeFile(dst, rawContent, 'utf8')
+              copied++
+            } catch (validateErr) { /* skip corrupt file */ }
           }
         }
       } catch(e) { /* dir not accessible */ }

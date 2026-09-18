@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import type { EditorEditBatchCommand } from './editorEditProtocol'
 import { hashEditorContent } from './editorTarget'
+import { normalizeDialogueBatchEvent } from './dialogueFoundation'
 import {
-  createEditorBatchRecord,
   canRollbackEditorBatch,
+  createEditorBatchRecord,
   findEditorBatchUndoContent,
   normalizeEditorBatchRecord,
+  transitionEditorBatchRecord,
+  toDialogueBatchEvent,
   updateEditorBatchRecord
 } from './editorBatchRecord'
 
@@ -57,5 +60,33 @@ describe('editorBatchRecord', () => {
     expect(canRollbackEditorBatch(record, applied)).toBe(true)
     expect(findEditorBatchUndoContent(['无关内容', source], record)).toEqual({ content: source, consumed: 1 })
     expect(findEditorBatchUndoContent([], record)).toBeNull()
+  })
+
+  it('批次确认状态机首答不可变', () => {
+    const record = createEditorBatchRecord({ workspace: 'outline', targetId: 'outline', batch, sourceContent: '大纲' })
+    const applied = transitionEditorBatchRecord(record, 'applied')
+    expect(applied.status).toBe('applied')
+    expect(transitionEditorBatchRecord(applied, 'expired').status).toBe('applied')
+    expect(transitionEditorBatchRecord(applied, 'rejected').status).toBe('applied')
+
+    const second = createEditorBatchRecord({ workspace: 'outline', targetId: 'outline', batch, sourceContent: '大纲' })
+    expect(transitionEditorBatchRecord(transitionEditorBatchRecord(second, 'expired'), 'applied').status).toBe('expired')
+  })
+
+  it('转换为统一对话批次事件时保留身份与命令数', () => {
+    const record = createEditorBatchRecord({ workspace: 'main', targetId: 'tab-1', batch, sourceContent: '原文' })
+    const event = toDialogueBatchEvent(record, 'applied', '用户确认')
+
+    expect(event).toEqual({
+      version: 1,
+      batchId: record.batchId,
+      workspace: 'main',
+      targetId: 'tab-1',
+      status: 'applied',
+      commandCount: 1,
+      reason: '用户确认',
+      occurredAt: event.occurredAt
+    })
+    expect(normalizeDialogueBatchEvent(event)?.status).toBe('applied')
   })
 })

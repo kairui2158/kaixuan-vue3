@@ -1,19 +1,35 @@
 import { getAiService } from './aiService'
 import { DeAiSamples } from './deai-samples.js'
+import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from './generationValidity'
 import { loadRealSkill } from './realSkillLoader'
 import { validateSkillOutput } from './skillValidation'
 import type {
   RealSkillAgentContext,
   RealSkillDiagnostic,
   RealSkillExecuteOptions,
-  RealSkillExecutionResult
+  RealSkillExecutionResult,
+  RealSkillMeta,
+  RealSkillPostProcessReport,
+  RealSkillResource,
 } from './realSkillTypes'
 
 const ALLOWED_PRE_FIELDS = new Set(['input', 'template', 'samples'])
-const ALLOWED_POST_FIELDS = new Set(['output', 'valid', 'message', 'errors'])
+const ALLOWED_POST_FIELDS = new Set(['output', 'valid', 'message', 'errors', 'issues'])
 const TEMPLATE_LIMIT = 20000
 const RETRY_LIMIT = 3
 const SMART_SAMPLE_CHAR_LIMIT = 4000
+const DIRECT_OUTPUT_SUFFIX = [
+  '【直出模式】',
+  '跳过所有内部思考、分析过程和推理说明，不输出任何标签。',
+  '从回复第一个字符开始直接输出最终正文内容。'
+].join('\n')
+
+type CallAiToolResultLike = {
+  toolCalls?: Array<{ name: string; input: unknown }>
+  toolResults?: Array<{ call: { name: string; input: unknown }; result: unknown }>
+  toolRequestDeltas?: Array<{ role: string; content: string }>
+  reasoning?: string
+}
 
 function diagnostic(
   type: RealSkillDiagnostic['type'],
@@ -21,6 +37,53 @@ function diagnostic(
   message: string
 ): RealSkillDiagnostic {
   return { type, code, message, at: new Date().toISOString() }
+}
+
+/**
+ * Only warnings that affected the delivered output may downgrade a run.
+ * Protocol/debug hints stay visible in diagnostics without turning a valid
+ * generation into a degraded one.
+ */
+const OUTPUT_DEGRADING_WARNING_CODES = new Set([
+  'generation-direct-retry-recovered',
+  'generation-truncated',
+  'generation-truncated-after-continuation',
+  'template-truncated',
+  'folder-template-missing',
+  'base-template-fallback',
+  'script-bridge-unavailable',
+  'script-hook-failed',
+  'script-hook-exception',
+  'hook-result-ignored',
+  'hook-field-ignored',
+  'schema-validation-failed'
+])
+
+const OUTPUT_DEGRADING_POST_PROCESS_CODES = new Set([
+  'lost-section',
+  'missing-continuity-snapshot',
+  'missing-micro-scene-range',
+  'missing-marker'
+])
+
+function isOutputDegradingPostProcessCode(code: string): boolean {
+  if (OUTPUT_DEGRADING_POST_PROCESS_CODES.has(code)) return true
+  // Generic skill-authored messages such as "缺少标记区块" and
+  // "missing continuity snapshot" describe structural output loss, not prose
+  // taste warnings. Those must downgrade the run so trace consumers can see
+  // that a delivered volume no longer satisfies the skill contract.
+  return /^missing\b/i.test(code) || /^(缺少|缺失)/.test(code)
+}
+
+function isOutputDegradingWarning(item: RealSkillDiagnostic): boolean {
+  if (item.type !== 'warning') return false
+  if (OUTPUT_DEGRADING_WARNING_CODES.has(item.code)) return true
+  if (!item.code.startsWith('post-process-issue:')) return false
+  return isOutputDegradingPostProcessCode(item.code.slice('post-process-issue:'.length))
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
 function normalizeRecord(
@@ -87,6 +150,17 @@ async function executeHook(
     if (typeof result === 'function' || result === undefined) {
       return { fields: {}, templateOverride: '' }
     }
+    if (response.consumedStructuredOutput === true && isPlainObject(result)) {
+      return {
+        fields: normalizeRecord(
+          result,
+          hookName === 'preProcess' ? 'input' : 'output',
+          hookName === 'preProcess' ? ALLOWED_PRE_FIELDS : ALLOWED_POST_FIELDS,
+          diagnostics
+        ),
+        templateOverride: typeof response.templateOverride === 'string' ? response.templateOverride : ''
+      }
+    }
     return {
       fields: normalizeRecord(
         result,
@@ -107,6 +181,7 @@ async function executeHook(
 }
 
 function loadSamples(skillSamples: string, count: number, diagnostics: RealSkillDiagnostic[]): string[] {
+  if (count <= 0) return []
   if (skillSamples.trim()) {
     const items = skillSamples
       .split(/\r?\n+/)
@@ -126,10 +201,37 @@ function loadSamples(skillSamples: string, count: number, diagnostics: RealSkill
 
 function buildSystemPrompt(
   agentPrompt: string | undefined,
+  skillBody: string | undefined,
   template: string,
+  resources: RealSkillResource[] | undefined,
   systemPromptSuffix?: string
 ): string {
-  return [agentPrompt?.trim(), template.trim(), systemPromptSuffix?.trim()].filter(Boolean).join('\n\n')
+  const resourceBlocks = (resources || [])
+    .filter(resource => resource.path && resource.content.trim())
+    .map(resource => `[folder resource: ${resource.path}]\n${resource.content}`)
+  const normalizedSkillBody = skillBody?.trim()
+  return [
+    agentPrompt?.trim(),
+    // Fallback packages already use SKILL.md as template; don't inject it twice.
+    normalizedSkillBody && normalizedSkillBody !== template.trim() ? normalizedSkillBody : '',
+    template.trim(),
+    ...resourceBlocks,
+    systemPromptSuffix?.trim()
+  ].filter(Boolean).join('\n\n')
+}
+
+function mergeContinuationText(previous: string, continuation: string): string {
+  const left = previous.trimEnd()
+  const right = continuation.trimStart()
+  if (!left) return right
+  if (!right) return left
+  const maxOverlap = Math.min(200, left.length, right.length)
+  for (let size = maxOverlap; size >= 12; size -= 1) {
+    if (left.slice(-size) === right.slice(0, size)) {
+      return `${left}${right.slice(size)}`
+    }
+  }
+  return `${left}\n${right}`
 }
 
 function mergeSkillAgentDefaults(
@@ -240,6 +342,84 @@ function buildValidationErrorReport(errors: string[]): string {
   return errors.slice(0, 10).join('\n')
 }
 
+/**
+ * Folder skills own their template.md structure. In chain mode the app
+ * nevertheless resolves the catalog template with live layer variables, so
+ * extract those values and inject them into matching folder placeholders.
+ */
+function injectResolvedVariables(
+  folderTemplate: string,
+  variables: Record<string, unknown> | undefined,
+  diagnostics: RealSkillDiagnostic[]
+): string {
+  const entries = Object.entries(variables || {})
+    .map(([name, value]) => [name, value == null ? '' : String(value)] as const)
+  let output = folderTemplate
+  const missing: string[] = []
+  const empty: string[] = []
+  const placeholders = new Set(Array.from(output.matchAll(/\{\{\s*([A-Za-z_$][\w$-]*)\s*\}\}/g), match => match[1]))
+  for (const [name, value] of entries) {
+    if (!placeholders.has(name)) {
+      missing.push(name)
+      continue
+    }
+    if (!value.trim()) {
+      empty.push(name)
+      output = output.replace(new RegExp(`\\{\\{\\s*${name.replace(/[$]/g, '\\$')}\\s*\\}\\}`, 'g'), '未设置')
+      continue
+    }
+    const pattern = new RegExp(`\\{\\{\\s*${name.replace(/[$]/g, '\\$')}\\s*\\}\\}`, 'g')
+    if (!pattern.test(output)) {
+      pattern.lastIndex = 0
+      missing.push(name)
+      continue
+    }
+    pattern.lastIndex = 0
+    output = output.replace(pattern, () => value)
+  }
+  if (missing.length > 0) {
+    diagnostics.push(diagnostic(
+      'info',
+      'folder-template-variables-missing',
+      `folder template.md 缺少流水线变量：${missing.join('、')}`
+    ))
+  }
+  if (empty.length > 0) {
+    diagnostics.push(diagnostic(
+      'info',
+      'template-variable-empty',
+      `folder template.md 变量为空，已渲染为“未设置”：${empty.join('、')}`
+    ))
+  }
+  return output
+}
+
+function normalizePostIssues(value: unknown): Array<{ message: string; severity?: 'blocking' | 'non-blocking'; code?: string }> {
+  if (!Array.isArray(value)) return []
+  const issues: Array<{ message: string; severity?: 'blocking' | 'non-blocking'; code?: string }> = []
+  for (const item of value) {
+    if (typeof item === 'string') {
+      if (item.trim()) issues.push({ message: item, severity: 'non-blocking' })
+      continue
+    }
+    if (!item || typeof item !== 'object' || Array.isArray(item)) continue
+    const record = item as Record<string, unknown>
+    const message = String(record.message || record.reason || '').trim()
+    if (!message) continue
+    const rawSeverity = String(record.severity || record.level || '').toLowerCase()
+    const severity = rawSeverity === 'blocking' || rawSeverity === 'error'
+      ? 'blocking'
+      : 'non-blocking'
+    const code = String(record.code || '').trim()
+    issues.push({
+      message,
+      severity,
+      ...(code ? { code } : {})
+    })
+  }
+  return issues.slice(0, 50)
+}
+
 function dispatchPassEvent(detail: {
   skillId: string
   index: number
@@ -278,45 +458,74 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       output: '',
       errors: [`文件夹技能加载失败：${loaded.error || '未知错误'}`],
       diagnostics: [diagnostic('error', 'skill-load-failed', `folderPath=${options.folderPath}`)],
-      fromCache: false
+      folderPackageCache: false
     }
   }
 
   const pkg = loaded.package
+  for (const warning of loaded.warnings || pkg.warnings || []) {
+    diagnostics.push(diagnostic('warning', `folder-package:${warning.code}`, warning.message))
+  }
   const agent = mergeSkillAgentDefaults(options.agent, pkg.meta.agent, options.agentSource)
-  if (!pkg.template.trim()) {
+  const hasPipelineTemplate = (
+    typeof options.baseTemplateOverride === 'string' && options.baseTemplateOverride.trim().length > 0
+  ) || (
+    typeof options.resolvedTemplate === 'string' && options.resolvedTemplate.trim().length > 0
+  )
+  if (!pkg.template.trim() && !hasPipelineTemplate) {
     return {
       status: 'failed',
       output: '',
       errors: ['template.md 为空，未调用 API'],
       diagnostics,
-      fromCache: loaded.fromCache === true
+      folderPackageCache: loaded.folderPackageCache === true
     }
+  }
+  if (!pkg.template.trim() && hasPipelineTemplate) {
+    diagnostics.push(diagnostic(
+      'warning',
+      'folder-template-missing',
+      'folder template.md 为空，已回退使用流水线传入模板'
+    ))
   }
 
   const preResult = await executeHook(pkg.script, 'preProcess', options.input, diagnostics)
   const preInput = typeof preResult.fields.input === 'string' && preResult.fields.input.length > 0
     ? preResult.fields.input
     : options.input
+  const hasFolderTemplate = pkg.template.trim().length > 0
   const hasBaseTemplate = (
     typeof options.baseTemplateOverride === 'string' && options.baseTemplateOverride.trim().length > 0
   ) || (
     typeof options.resolvedTemplate === 'string' && options.resolvedTemplate.trim().length > 0
   )
-  if (hasBaseTemplate) {
+  const useFolderTemplate = hasFolderTemplate
+  const resolvedBaseTemplate = (
+    options.baseTemplateOverride || options.resolvedTemplate || ''
+  ).slice(0, TEMPLATE_LIMIT)
+  if (useFolderTemplate && hasBaseTemplate) {
     diagnostics.push(diagnostic(
       'info',
-      'base-template-applied',
-      '流水线已传入变量解析后的基础模板，将优先于 folder 静态 template.md'
+      'folder-template-priority',
+      '已优先执行 folder template.md，并注入流水线已解析的同名变量'
+    ))
+  } else if (hasBaseTemplate) {
+    diagnostics.push(diagnostic(
+      'info',
+      'base-template-fallback',
+      'folder 无有效模板，已使用流水线传入的基础模板'
     ))
   }
-  const baseTemplate = hasBaseTemplate
-    ? (options.baseTemplateOverride || options.resolvedTemplate || '').slice(0, TEMPLATE_LIMIT)
+  const baseTemplate = hasBaseTemplate && !useFolderTemplate
+    ? resolvedBaseTemplate
+    : pkg.template
+  const variableInjectedTemplate = useFolderTemplate && Object.keys(options.templateVariables || {}).length > 0
+    ? injectResolvedVariables(pkg.template, options.templateVariables, diagnostics)
     : pkg.template
   // preProcess 只改写 input，不改写模板。compose 场景必须保留完整合并模板，
   // 否则多个 SKILL 合并后的 system prompt 会被 folder 自身 template 意外替换。
   let template = normalizeTemplate(
-    baseTemplate,
+    useFolderTemplate ? variableInjectedTemplate : baseTemplate,
     preResult.templateOverride,
     'api.setTemplate',
     diagnostics
@@ -334,7 +543,23 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
   let output = ''
   let finishReason: string | undefined
   let providerId: string | undefined
+  let usage: Record<string, unknown> | undefined
+  let finalMaxTokens: number | undefined
+  let finalReasoningText: string | undefined
+  let postProcessReport: RealSkillPostProcessReport | undefined
+  let toolCalls: NonNullable<RealSkillExecutionResult['apiMeta']>['toolCalls']
+  let toolResults: NonNullable<RealSkillExecutionResult['apiMeta']>['toolResults']
+  let toolRequestDeltas: NonNullable<RealSkillExecutionResult['apiMeta']>['toolRequestDeltas']
   const capturedRequestMessages: Array<{ role: string; content: string }> = []
+
+  function captureRequestMessages(messages: CallAiToolResultLike['toolRequestDeltas']) {
+    for (const message of messages || []) {
+      capturedRequestMessages.push({
+        role: String(message.role || ''),
+        content: typeof message.content === 'string' ? message.content : ''
+      })
+    }
+  }
 
   for (let passIndex = 0; passIndex < passList.length; passIndex += 1) {
     const pass = passList[passIndex]
@@ -356,73 +581,275 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         }
         errors.push(budget.reason || 'API 调用预算已耗尽')
         diagnostics.push(diagnostic('error', 'api-budget-blocked', budget.reason || ''))
-        return { status: 'blocked', output: '', errors, diagnostics, fromCache: loaded.fromCache === true }
+        return { status: 'blocked', output: '', errors, diagnostics, folderPackageCache: loaded.folderPackageCache === true }
       }
 
       const selectedSamples = pkg.meta.smartSamples === true
         ? applySampleBudget(chooseSmartSamples(allSamples, passInput, sampleCount), SMART_SAMPLE_CHAR_LIMIT)
         : samples
       const aiService = options.aiService || await getAiService()
-      const systemPrompt = buildSystemPrompt(agent?.systemPrompt, template, options.systemPromptSuffix)
-      const userPrompt = buildUserPrompt(passInput, selectedSamples)
-      const requestMessages = options.messageBuilder
-        ? options.messageBuilder(systemPrompt, userPrompt)
-        : [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
-          ]
-      if (passIndex === 0 && attempt === 1) {
-        capturedRequestMessages.push(...requestMessages.map(message => ({
-          role: message.role,
-          content: typeof message.content === 'string' ? message.content : ''
-        })))
+      const systemPrompt = buildSystemPrompt(
+        agent?.systemPrompt,
+        pkg.body,
+        template,
+        pkg.resources,
+        options.systemPromptSuffix
+      )
+      const buildRequest = (promptSuffix?: string) => {
+        const effectiveSystemPrompt = promptSuffix
+          ? `${systemPrompt}\n\n${promptSuffix}`
+          : systemPrompt
+        const userPrompt = buildUserPrompt(passInput, selectedSamples)
+        const messages = options.messageBuilder
+          ? options.messageBuilder(effectiveSystemPrompt, userPrompt)
+          : [
+              { role: 'system', content: effectiveSystemPrompt },
+              { role: 'user', content: userPrompt }
+            ]
+        if (passIndex === 0 && attempt === 1 && !promptSuffix) {
+          captureRequestMessages(messages)
+          options.onRequestBuilt?.(messages)
+        }
+        return messages
       }
+      let requestMessages = buildRequest()
 
       try {
-        const result = await aiService.callAi({
-          purpose: options.purpose || 'rewrite',
-          messages: requestMessages,
-          stream: options.stream === true,
+        const callAiOnce = async (
+          messages: Array<{ role: string; content: string }>,
+          promptSuffix?: string,
+          retryOptions?: {
+            reasoningRetry?: RealSkillExecuteOptions['reasoningRetry']
+            maxTokens?: number
+          }
+        ) => {
+          const budgetStep = `real-skill:${options.skillId || pkg.id}${isMultiPass ? `:pass-${passIndex + 1}` : ''}`
+          const callBudget = options.budget.tryConsume(
+            `${budgetStep}${promptSuffix ? ':direct-retry' : ''}`,
+            pkg.meta.apiCallLimit ?? null
+          )
+          if (callBudget.status === 'blocked') {
+            throw Object.assign(new Error(callBudget.reason || 'API 调用预算已耗尽'), { budgetBlocked: true })
+          }
+          return (await aiService.callAi({
+            purpose: options.purpose || 'rewrite',
+            messages,
+            // Keep the caller's stream contract. Leaving undefined lets
+            // aiService apply its purpose-based generate/rewrite default.
+            stream: options.stream,
           signal: options.signal,
           timeoutMs: options.timeoutMs,
           onChunk: options.onChunk,
+          onReasoning: options.onReasoning,
+          onPhysicalCall: options.onPhysicalCall as any,
           retry: true,
           model: agent?.model || undefined,
           temperature: attempt === RETRY_LIMIT
             ? Math.min((agent?.temperature ?? 0.7) + 0.05, 1.0)
             : agent?.temperature,
-          maxTokens: agent?.maxTokens,
+          maxTokens: retryOptions?.maxTokens ?? agent?.maxTokens,
+          ...(retryOptions?.reasoningRetry === 'thinking_disabled'
+            ? { reasoning: { mode: 'off' as const } }
+            : {}),
+          retryStrategy: retryOptions?.reasoningRetry,
           meta: {
             source: 'realSkillExecutor',
+            projectId: options.toolContext?.projectId,
+            workspace: options.toolContext?.workspace,
+            targetId: options.toolContext?.targetId,
+            readableTargets: options.toolContext?.readableTargets,
             skillId: pkg.id,
             agentId: agent?.id,
             step: attempt
-          }
+          },
+            ...(options.tools?.length
+            ? { tools: options.tools, toolPolicy: options.toolPolicy }
+            : {})
+          })) as { text: string; reasoning?: string; providerId?: string; finishReason?: string; usage?: Record<string, unknown>; maxTokens?: number }
+        }
+
+        let result = await callAiOnce(requestMessages)
+        let validity = classifyGenerationValidity({
+          text: result.text,
+          reasoning: (result as { reasoning?: string }).reasoning,
+          finishReason: result.finishReason,
+          usage: result.usage,
+          maxTokens: result.maxTokens ?? agent?.maxTokens
         })
 
+        if (!validity.usable && (validity.kind === 'reasoning_exhausted' || validity.kind === 'empty')) {
+          diagnostics.push(diagnostic('error', `generation-invalid:${validity.kind}`, validity.message))
+          options.onGenerationEvent?.({
+            type: 'generation-invalid',
+            kind: validity.kind,
+            message: validity.message,
+            reasoningLength: (result.reasoning || '').length,
+            textLength: result.text.length,
+          })
+          const retryMessages = buildRequest(DIRECT_OUTPUT_SUFFIX)
+          const retryStartedAt = Date.now()
+          // The provider protocol is not exposed by AiService; until it is,
+          // only the confirmed OpenAI-compatible reasoning_effort control is
+          // safe to enable. Other protocols raise the token budget instead.
+          const reasoningControl = { supported: false }
+          const retryStrategy: NonNullable<Required<RealSkillExecuteOptions>['reasoningRetry']> = reasoningControl.supported
+            ? 'thinking_disabled'
+            : 'max_tokens_raised'
+          const retryMaxTokens = retryStrategy === 'max_tokens_raised'
+            ? Math.max(Number(agent?.maxTokens || 8192), Math.round(Number(agent?.maxTokens || 8192) * 1.5)) || 12288
+            : agent?.maxTokens || 8192
+          options.onGenerationEvent?.({
+            type: 'direct-retry-start',
+            kind: validity.kind,
+            message: retryStrategy === 'thinking_disabled'
+              ? '正文为空，已关闭模型思考并切换直出模式重试'
+              : '正文为空，已提高输出上限并切换直出模式重试',
+            retryStrategy,
+            maxTokens: retryMaxTokens ?? 8192,
+          })
+          result = await callAiOnce(retryMessages, DIRECT_OUTPUT_SUFFIX, {
+            reasoningRetry: retryStrategy,
+            maxTokens: retryMaxTokens ?? 8192,
+          })
+          validity = classifyGenerationValidity({
+            text: result.text,
+            reasoning: (result as { reasoning?: string }).reasoning,
+            finishReason: result.finishReason,
+            usage: result.usage,
+            maxTokens: result.maxTokens ?? agent?.maxTokens
+          })
+          if (!validity.usable) {
+            options.onGenerationEvent?.({
+              type: 'direct-retry-finished',
+              kind: validity.kind,
+              message: GENERATION_VALIDITY_MESSAGES[validity.kind === 'reasoning_exhausted' ? 'reasoning_exhausted' : validity.kind],
+              reasoningLength: (result.reasoning || '').length,
+              textLength: result.text.length,
+            durationMs: Date.now() - retryStartedAt,
+            success: false,
+            retryStrategy,
+            maxTokens: result.maxTokens ?? retryMaxTokens,
+            })
+            throw new Error(GENERATION_VALIDITY_MESSAGES[validity.kind === 'reasoning_exhausted' ? 'reasoning_exhausted' : validity.kind])
+          }
+          options.onGenerationEvent?.({
+            type: 'direct-retry-finished',
+            kind: validity.kind,
+            message: '直出模式重试后已生成正文',
+            reasoningLength: (result.reasoning || '').length,
+            textLength: result.text.length,
+            durationMs: Date.now() - retryStartedAt,
+            success: true,
+            retryStrategy,
+            maxTokens: result.maxTokens ?? retryMaxTokens,
+          })
+          diagnostics.push(diagnostic('warning', 'generation-direct-retry-recovered', '直出模式重试后已生成正文'))
+        } else if (validity.kind === 'truncated') {
+          diagnostics.push(diagnostic('warning', 'generation-truncated', validity.message))
+          const continuationMessages = [
+            ...requestMessages,
+            {
+              role: 'user' as const,
+              content: `以下是未完成的输出，请从中断处自然续写，不要重复已有内容：\n${result.text}`
+            }
+          ]
+          const continuation = await callAiOnce(continuationMessages)
+          const continuationValidity = classifyGenerationValidity({
+            text: continuation.text,
+            reasoning: (continuation as { reasoning?: string }).reasoning,
+            finishReason: continuation.finishReason,
+            usage: continuation.usage,
+            maxTokens: agent?.maxTokens
+          })
+          result = {
+            ...result,
+            text: continuationValidity.usable
+              ? mergeContinuationText(result.text, continuation.text)
+              : result.text,
+            reasoning: continuation.reasoning || result.reasoning,
+            usage: continuation.usage || result.usage,
+            finishReason: continuation.finishReason || result.finishReason
+          }
+          if (!continuationValidity.usable || continuationValidity.kind === 'truncated') {
+            diagnostics.push(diagnostic('warning', 'generation-truncated-after-continuation', '续写后输出仍不完整，已保留可用正文'))
+          }
+        }
+
         let candidateOutput = result.text || ''
+        const postStartedAt = Date.now()
+        const postInput = candidateOutput
         const postResult = await executeHook(pkg.script, 'postProcess', candidateOutput, diagnostics)
         if (typeof postResult.fields.output === 'string' && postResult.fields.output.length > 0) {
           candidateOutput = postResult.fields.output
         }
+        const postIssues = normalizePostIssues(postResult.fields.issues)
+        postProcessReport = {
+          applied: true,
+          changedOutput: candidateOutput !== postInput,
+          output: candidateOutput,
+          issues: postIssues.map(issue => ({
+            severity: issue.severity === 'blocking' ? 'blocking' : 'warning',
+            code: issue.code || 'post-process-issue',
+            message: issue.message
+          })),
+          durationMs: Date.now() - postStartedAt
+        }
+        for (const issue of postIssues) {
+          const issueCode = issue.code ? `post-process-issue:${issue.code}` : 'post-process-issue'
+          diagnostics.push(diagnostic(
+            issue.severity === 'blocking' ? 'error' : 'warning',
+            issueCode,
+            `[${issue.severity}] ${issue.message}`
+          ))
+        }
 
-        const hasPostValidation = typeof postResult.fields.valid === 'boolean'
+        const hasPostValidation = typeof postResult.fields.valid === 'boolean' || postIssues.some(issue => issue.severity === 'blocking')
         const validation = hasPostValidation
           ? {
-              valid: postResult.fields.valid === true,
+              valid: postResult.fields.valid === true && !postIssues.some(issue => issue.severity === 'blocking'),
               errors: Array.isArray(postResult.fields.errors)
                 ? postResult.fields.errors.map(String)
-                : typeof postResult.fields.message === 'string' ? [postResult.fields.message] : []
+                : typeof postResult.fields.message === 'string' ? [postResult.fields.message] : postIssues.filter(issue => issue.severity === 'blocking').map(issue => issue.message)
             }
           : pkg.schema
             ? validateSkillOutput(candidateOutput, { outputFormat: 'json', outputSchema: pkg.schema })
             : { valid: true, errors: [] }
+        const hasBlockingPostIssue = postIssues.some(issue => issue.severity === 'blocking')
+        if (!validation.valid && hasBlockingPostIssue) {
+          throw new Error(postIssues
+            .filter(issue => issue.severity === 'blocking')
+            .map(issue => issue.message)
+            .join('\n') || 'postProcess 返回阻断性问题')
+        }
+        if (!validation.valid && options.validateOutputSchema) {
+          lastAttempt = { output: candidateOutput, validation: { valid: true, errors: [] } }
+          diagnostics.push(diagnostic(
+            'warning',
+            'schema-contract-warning',
+            `非末步结构化契约未满足：${buildValidationErrorReport(validation.errors)}（已保留输出，不阻断 chain）`
+          ))
+          output = candidateOutput
+          finishReason = result.finishReason
+          providerId = result.providerId
+          usage = result.usage
+          finalMaxTokens = result.maxTokens ?? agent?.maxTokens
+          if (isMultiPass) {
+            dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'done' })
+          }
+          break
+        }
         lastAttempt = { output: candidateOutput, validation }
 
         if (validation.valid) {
           output = candidateOutput
           finishReason = result.finishReason
           providerId = result.providerId
+          usage = result.usage
+          finalMaxTokens = result.maxTokens ?? agent?.maxTokens
+          finalReasoningText = (result as CallAiToolResultLike).reasoning || finalReasoningText
+          toolCalls = (result as CallAiToolResultLike).toolCalls
+          toolResults = (result as CallAiToolResultLike).toolResults
+          toolRequestDeltas = (result as CallAiToolResultLike).toolRequestDeltas
           if (isMultiPass) {
             dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'done' })
           }
@@ -447,7 +874,25 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         }
         errors.push(error?.message || 'API 调用失败')
         diagnostics.push(diagnostic('error', 'api-failed', error?.message || ''))
-        return { status: 'failed', output: '', errors, diagnostics, fromCache: loaded.fromCache === true }
+        return {
+          status: 'failed',
+          output: '',
+          errors,
+          diagnostics,
+          folderPackageCache: loaded.folderPackageCache === true,
+          postProcessReport,
+        apiMeta: {
+          finishReason: finishReason || 'error',
+          providerId,
+          usage,
+          maxTokens: finalMaxTokens,
+          reasoningText: finalReasoningText || '',
+          requestMessages: capturedRequestMessages,
+            toolCalls,
+            toolResults,
+            toolRequestDeltas
+          }
+        }
       }
     }
 
@@ -464,8 +909,19 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         output: lastAttempt?.output || '',
         errors,
         diagnostics,
-        fromCache: loaded.fromCache === true,
-        apiMeta: { finishReason, providerId, requestMessages: capturedRequestMessages }
+        folderPackageCache: loaded.folderPackageCache === true,
+        postProcessReport,
+        apiMeta: {
+          finishReason,
+          providerId,
+          usage,
+          maxTokens: finalMaxTokens,
+          reasoningText: finalReasoningText || '',
+          requestMessages: capturedRequestMessages,
+          toolCalls,
+          toolResults,
+          toolRequestDeltas
+        }
       }
     }
 
@@ -475,7 +931,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
     }
   }
 
-  const status = diagnostics.some(item => item.type === 'warning')
+  const status = diagnostics.some(isOutputDegradingWarning)
     ? 'degraded'
     : 'success'
   return {
@@ -483,7 +939,18 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
     output,
     errors,
     diagnostics,
-    fromCache: loaded.fromCache === true,
-    apiMeta: { finishReason, providerId, requestMessages: capturedRequestMessages }
+    folderPackageCache: loaded.folderPackageCache === true,
+    postProcessReport,
+    apiMeta: {
+      finishReason,
+      providerId,
+      usage,
+      maxTokens: finalMaxTokens,
+      reasoningText: finalReasoningText || '',
+      requestMessages: capturedRequestMessages,
+      toolCalls,
+      toolResults,
+      toolRequestDeltas
+    }
   }
 }

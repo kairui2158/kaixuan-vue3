@@ -3,7 +3,7 @@ import { chromium } from 'playwright'
 const browser = await chromium.connectOverCDP('http://127.0.0.1:9227')
 const context = browser.contexts()[0]
 if (!context) throw new Error('Electron context not found')
-let page = context.pages().find(item => item.url().includes('index.html')) || context.pages()[0]
+let page = context.pages().find(item => !item.url().startsWith('devtools://')) || context.pages()[0]
 if (!page) throw new Error('Electron page not found')
 
 const originalLastProjectId = await page.evaluate(async () => {

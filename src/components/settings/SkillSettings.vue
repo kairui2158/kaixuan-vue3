@@ -32,6 +32,7 @@
             <span v-if="s.format !== 'folder'" class="skill-card-badge">文本</span>
             <span v-if="s.format === 'folder'" class="skill-card-badge is-folder">文件夹</span>
             <span v-if="s.format === 'folder' && s.sourceId" class="skill-card-info">来源 ID：{{ s.sourceId }}</span>
+            <span v-if="s.format === 'folder' && s.resourceSummary" class="skill-card-info">资源 {{ s.resourceSummary.resourceCount }} 个 / 警告 {{ s.resourceSummary.warningCount }} 条</span>
           </div>
           <div v-if="s.format === 'folder'" class="skill-folder-status" :class="{ 'is-invalid': !folderStatusMap[s.id]?.valid }">
             <span class="skill-folder-path" :title="s.folderPath">{{ s.folderPath || '未记录路径' }}</span>
@@ -70,7 +71,7 @@
       </div>
       </div>
    </div>
-   <div v-if="healthReportSkillId" class="skill-import-overlay" @click.self="closeHealthReport">
+   <div v-if="healthReportSkillId" class="skill-import-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-health-report') }" @click.self="closeHealthReport">
      <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="skill-health-title">
        <div class="sem-header"><h4 id="skill-health-title">技能体检报告</h4><button type="button" title="关闭" @click="closeHealthReport">×</button></div>
        <div class="skill-import-summary">{{ getSkillName(healthReportSkillId) }}</div>
@@ -88,7 +89,7 @@
        <div class="form-actions"><button class="btn-secondary" type="button" @click="closeHealthReport">关闭</button></div>
      </div>
    </div>
-   <div v-if="versionRollbackSkillId" class="skill-import-overlay" @click.self="closeVersionRollback">
+  <div v-if="versionRollbackSkillId" class="skill-import-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-version-rollback') }" @click.self="closeVersionRollback">
      <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="skill-version-title">
        <div class="sem-header"><h4 id="skill-version-title">技能版本回退</h4><button type="button" title="关闭" @click="closeVersionRollback">×</button></div>
        <div class="skill-import-summary">{{ getSkillName(versionRollbackSkillId) }}</div>
@@ -107,7 +108,7 @@
      </div>
    </div>
    <button id="btn-add-skill" class="btn-add" @click="addSkill">+ 新建技能</button>
-   <div v-if="editingSkillId" class="skill-edit-overlay" @click.self="cancelEdit">
+  <div v-if="editingSkillId" class="skill-edit-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-edit') }" @click.self="cancelEdit">
      <div id="skill-form" class="skill-edit-modal">
        <div class="sem-header"><h4 id="skill-form-title">编辑技能</h4><button title="关闭" @click="cancelEdit">×</button></div>
        <label>名称</label><input id="sf-name" v-model="editingName" class="sem-input" />
@@ -198,7 +199,7 @@
         </div>
      </div>
    </div>
-   <div v-if="importPreviewVisible" class="skill-import-overlay" @click.self="cancelImport">
+  <div v-if="importPreviewVisible" class="skill-import-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-import-preview') }" @click.self="cancelImport">
      <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="skill-import-title">
        <div class="sem-header"><h4 id="skill-import-title">导入预览</h4><button type="button" title="关闭" @click="cancelImport">×</button></div>
        <p class="skill-import-source" :title="importSource">{{ importSource || '配置文件' }}</p>
@@ -238,7 +239,7 @@
        <div class="form-actions"><button class="btn-secondary" type="button" @click="cancelImport">取消</button><button class="btn-primary" type="button" :disabled="importPlan.length === 0 || exchangeLoading" @click="confirmImport">确认导入</button></div>
      </div>
    </div>
-   <div v-if="folderBatchPreviewVisible" class="skill-import-overlay" @click.self="closeFolderBatchPreview">
+  <div v-if="folderBatchPreviewVisible" class="skill-import-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-folder-batch-preview') }" @click.self="closeFolderBatchPreview">
      <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="folder-batch-title">
        <div class="sem-header"><h4 id="folder-batch-title">批量导入文件夹技能</h4><button type="button" title="关闭" @click="closeFolderBatchPreview">×</button></div>
        <p class="skill-import-source" :title="folderBatchRoot">{{ folderBatchRoot || '未选择根目录' }}</p>
@@ -246,11 +247,12 @@
          共扫描 {{ folderBatchItems.length }} 个候选文件夹，可导入 {{ folderBatchItems.filter(item => item.action === 'add' || item.action === 'overwrite').length }} 个
        </div>
        <div class="skill-import-plan">
-         <div v-for="item in folderBatchItems" :key="item.folderPath" class="skill-import-plan-item">
-           <span>{{ item.name }}</span>
-           <span class="skill-import-id" :title="item.folderPath">{{ item.id || item.folderName }}</span>
-           <span :class="'is-' + item.action">{{ folderBatchActionText(item.action) }}</span>
-         </div>
+        <div v-for="item in folderBatchItems" :key="item.folderPath" class="skill-import-plan-item">
+          <span>{{ item.name }}</span>
+          <span class="skill-import-id" :title="item.folderPath">{{ item.id || item.folderName }}</span>
+          <span v-if="item.valid">资源 {{ item.resourceCount || 0 }} 个 / 警告 {{ item.warnings?.length || 0 }} 条</span>
+          <span :class="'is-' + item.action">{{ folderBatchActionText(item.action) }}</span>
+        </div>
          <p v-if="folderBatchItems.length === 0">根目录下没有包含 SKILL.md 的一级子文件夹。</p>
        </div>
        <label class="skill-import-strategy">
@@ -268,13 +270,16 @@
        </div>
      </div>
    </div>
-   <div v-if="folderImportPreviewVisible" class="skill-import-overlay" @click.self="closeFolderImportPreview">
+  <div v-if="folderImportPreviewVisible" class="skill-import-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-folder-import-preview') }" @click.self="closeFolderImportPreview">
      <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="folder-import-title">
        <div class="sem-header"><h4 id="folder-import-title">导入文件夹技能</h4><button type="button" title="关闭" @click="closeFolderImportPreview">×</button></div>
        <p class="skill-import-source" :title="folderImportPreview?.folderPath">{{ folderImportPreview?.folderPath || '未选择文件夹' }}</p>
-       <div v-if="folderImportPreview" class="skill-import-summary">
-         {{ folderImportPreview.name }} 将{{ folderImportPreview.action === 'add' ? '新增到技能库' : folderImportPreview.action === 'overwrite' ? '覆盖已有文件夹技能' : '按策略跳过' }}
-       </div>
+      <div v-if="folderImportPreview" class="skill-import-summary">
+        {{ folderImportPreview.name }} 将{{ folderImportPreview.action === 'add' ? '新增到技能库' : folderImportPreview.action === 'overwrite' ? '覆盖已有文件夹技能' : '按策略跳过' }}
+      </div>
+      <div v-if="folderImportPreview" class="skill-import-summary">
+        资源 {{ folderImportPreview.resourceCount || 0 }} 个 / 警告 {{ folderImportPreview.warnings?.length || 0 }} 条
+      </div>
        <div v-if="folderImportPreview" class="skill-import-plan">
          <div class="skill-import-plan-item">
            <span>{{ folderImportPreview.name }}</span>
@@ -297,7 +302,7 @@
        </div>
      </div>
    </div>
-   <div v-if="packagePreview" class="skill-import-overlay" @click.self="closePackagePreview">
+  <div v-if="packagePreview" class="skill-import-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-package-preview') }" @click.self="closePackagePreview">
      <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="skill-package-title">
        <div class="sem-header"><h4 id="skill-package-title">技能包预览</h4><button type="button" title="关闭" @click="closePackagePreview">×</button></div>
        <p class="skill-import-source" :title="packagePreview.zipPath">{{ packagePreview.zipPath }}</p>
@@ -336,13 +341,23 @@
        </div>
      </div>
    </div>
-   <div v-if="testSkillId" class="skill-edit-overlay" @click.self="closeTest">
+  <div v-if="testSkillId" class="skill-edit-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-test') }" @click.self="closeTest">
      <div id="skill-test-modal" class="skill-edit-modal">
        <div class="sem-header"><h4 id="skill-test-title">技能测试: {{ getSkillName(testSkillId) }}</h4><button title="关闭" @click="closeTest">×</button></div>
        <label>测试文本</label>
        <textarea id="st-test-input" v-model="testText" class="sem-textarea" style="min-height: 120px;" placeholder="输入示例文本，用于验证技能输出"></textarea>
        <div class="form-actions">
          <button id="btn-run-skill-test" class="btn-primary" @click="runTest" :disabled="isTesting">{{ isTesting ? '测试中...' : '运行测试' }}</button>
+         <button
+           v-if="testSkill?.format === 'folder' && testSkill?.folderPath"
+           id="btn-run-skill-eval"
+           class="btn-secondary"
+           type="button"
+           :disabled="isEvaluating || isTesting"
+           @click="runEval"
+         >
+           {{ isEvaluating ? '评测中...' : '运行评测' }}
+         </button>
          <button class="btn-secondary" @click="closeTest">关闭</button>
        </div>
        <div v-if="testError" id="st-test-error" class="st-test-error">{{ testError }}</div>
@@ -353,11 +368,11 @@
            :diagnostics="folderTestReport.diagnostics"
            :request-messages="folderTestReport.requestMessages"
            :budget="folderTestReport.budget"
-           :from-cache="folderTestReport.fromCache"
+           :folder-package-cache="folderTestReport.folderPackageCache"
          />
          <div class="st-folder-report-row">
            <span class="st-folder-status" :class="`is-${folderTestReport.status}`">状态：{{ folderStatusText }}</span>
-           <span>磁盘加载：{{ folderTestReport.fromCache ? '使用 5 秒缓存' : '实时读取' }}</span>
+           <span>磁盘加载：{{ folderTestReport.folderPackageCache ? '使用 5 秒缓存' : '实时读取' }}</span>
            <span>API 预算：{{ folderTestReport.budget.used }}/{{ folderTestReport.budget.limit }}</span>
          </div>
          <div v-if="folderDiagnostics.length > 0" class="st-folder-diagnostics">
@@ -372,8 +387,43 @@
              <pre>{{ message.content }}</pre>
            </div>
            <p v-if="folderTestReport.requestMessages.length === 0">本次没有可展示的请求内容。</p>
-         </details>
-       </div>
+       </details>
+      </div>
+      <div v-if="evalError" id="st-eval-error" class="st-test-error">{{ evalError }}</div>
+      <div v-if="evalReport" id="st-eval-report" class="st-eval-report">
+        <div class="st-eval-summary">
+          <strong>{{ evalReport.skillName }} with/baseline 评测</strong>
+          <span :class="evalReport.benchmark && evalReport.benchmark.withPassed >= evalReport.benchmark.baselinePassed ? 'is-pass' : 'is-fail'">
+            技能 {{ evalReport.benchmark?.withPassed ?? 0 }}/{{ evalReport.benchmark?.total ?? 0 }} · 基线 {{ evalReport.benchmark?.baselinePassed ?? 0 }}/{{ evalReport.benchmark?.total ?? 0 }}
+          </span>
+          <span>通过率 {{ evalReport.benchmark?.withPassRate ?? 0 }}% / {{ evalReport.benchmark?.baselinePassRate ?? 0 }}%</span>
+          <span>提升 {{ evalReport.benchmark?.improved ?? 0 }} · 持平 {{ evalReport.benchmark?.same ?? 0 }} · 退化 {{ evalReport.benchmark?.degraded ?? 0 }}</span>
+        </div>
+        <div v-for="item in evalReport.grading" :key="item.caseId" class="st-eval-case" :class="{ 'is-pass': item.withSkill.passed }">
+          <div class="st-eval-case-head">
+            <strong>{{ item.caseName }}</strong>
+            <span>with：{{ item.withSkill.passed ? '通过' : '未通过' }}</span>
+            <span>baseline：{{ item.baseline.passed ? '通过' : '未通过' }}</span>
+            <span>{{ skillEffectText(item.skillEffect) }}</span>
+          </div>
+          <details>
+            <summary>断言结果</summary>
+            <div v-for="(assertion, index) in item.withSkill.assertions" :key="`${item.caseId}-assertion-${index}`" class="st-eval-assertion" :class="{ 'is-pass': assertion.pass }">
+              <span>{{ assertion.pass ? '通过' : '失败' }}</span>
+              <span>{{ assertion.type }}</span>
+              <span>{{ assertion.message }}</span>
+            </div>
+          </details>
+          <details>
+            <summary>with 输出</summary>
+            <pre>{{ item.withSkill.output || '本次没有输出。' }}</pre>
+          </details>
+          <details>
+            <summary>baseline 输出</summary>
+            <pre>{{ item.baseline.output || '本次没有输出。' }}</pre>
+          </details>
+        </div>
+      </div>
      </div>
    </div>
   </div>
@@ -382,6 +432,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
+import { useModalQueue } from '../../composables/useModalQueue'
 import { useSkillStore } from '../../stores/skill'
 import { useSkillTest } from '../../composables/useSkillTest'
 import { useConfigExchange } from '../../composables/useConfigExchange'
@@ -407,7 +458,8 @@ import {
 } from '../../services/folderSkillBatchImport'
 
 const skillStore = useSkillStore()
-const { testResult, isTesting, testError, folderTestReport, runSkillTest } = useSkillTest()
+const modalQueue = useModalQueue()
+const { testResult, isTesting, testError, folderTestReport, runSkillTest, evalReport, isEvaluating, evalError, runSkillEval } = useSkillTest()
 const { exchangeLoading, importSkillsFromFile, applySkillImport, exportAllSkillsJSON, exportSkillMarkdown } = useConfigExchange()
 const {
   packageLoading,
@@ -438,6 +490,7 @@ const importAddCount = computed(() => importPlan.value.filter(item => item.actio
 const importConflictCount = computed(() => importPlan.value.filter(item => item.action !== 'add').length)
 const testSkillId = ref('')
 const testText = ref('')
+const testSkill = computed(() => testSkillId.value ? skillStore.getSkill(testSkillId.value) : null)
 const folderDiagnostics = computed(() => folderTestReport.value?.diagnostics || [])
 const folderStatusText = computed(() => {
   const status = folderTestReport.value?.status
@@ -463,6 +516,26 @@ const versionRollbackSkillId = ref('')
 const versionRollbackVersions = ref<string[]>([])
 const versionRollbackCurrent = ref('')
 const versionRollbackLoading = ref(false)
+const editingSkillId = ref('')
+const editingName = ref('')
+
+const modalVisibility = computed(() => ({
+  'skill-health-report': Boolean(healthReportSkillId.value),
+  'skill-version-rollback': Boolean(versionRollbackSkillId.value),
+  'skill-edit': Boolean(editingSkillId.value),
+  'skill-import-preview': importPreviewVisible.value,
+  'skill-folder-batch-preview': folderBatchPreviewVisible.value,
+  'skill-folder-import-preview': folderImportPreviewVisible.value,
+  'skill-package-preview': Boolean(packagePreview.value),
+  'skill-test': Boolean(testSkillId.value)
+}))
+
+watch(modalVisibility, visible => {
+  for (const [id, isOpen] of Object.entries(visible)) {
+    if (isOpen) modalQueue.open(id)
+    else modalQueue.close(id)
+  }
+}, { immediate: true, deep: true })
 
 const packageActionLabel = computed(() => {
   const labels: Record<typeof packageInstallAction.value, string> = {
@@ -697,15 +770,21 @@ async function loadFolderSkill(folderPath: string, overwrite = false) {
 
   const skill = loaded.skill
   const now = new Date().toISOString()
+  const resourceSummary = {
+    resourceCount: Array.isArray(skill.resources) ? skill.resources.length : 0,
+    warningCount: Array.isArray(skill.warnings) ? skill.warnings.length : 0
+  }
   const record = {
     id: skill.id,
     sourceId: skill.id,
     name: skill.name,
+    version: typeof skill.manifest?.version === 'string' ? skill.manifest.version : '',
     format: 'folder' as const,
     folderPath: loaded.folderPath,
     template: skill.template,
     category: 'folder',
     description: skill.description || '',
+    resourceSummary,
     executionMode: 'chain' as const,
     outputFormat: 'text' as const,
     validationRules: [],
@@ -719,6 +798,7 @@ async function loadFolderSkill(folderPath: string, overwrite = false) {
     inputSchema: '' as string,
     outputSchema: '' as string,
     retryPolicy: '' as string
+    ,intents: (skill.meta && Array.isArray(skill.meta.intents)) ? skill.meta.intents : undefined
   }
 
   const result = await skillStore.importSkills([record], { strategy: overwrite ? 'overwrite' : 'skip' })
@@ -740,7 +820,11 @@ async function importFolderSkill() {
     if (!folderPath) return
     const preview = await previewFolderSkill(
       folderPath,
-      skillStore.skills.map(skill => skill.id)
+      skillStore.skills.map(skill => skill.id),
+      undefined,
+      skillStore.skills
+        .filter(skill => skill.format === 'folder')
+        .map(skill => ({ id: skill.id, folderPath: skill.folderPath || '' }))
     )
     if (!preview.ok || !preview.item) {
       showMessage(preview.message)
@@ -804,7 +888,11 @@ async function importFolderSkillBatch() {
     if (!rootPath) return
     const preview = await previewFolderSkillBatch(
       rootPath,
-      skillStore.skills.map(skill => skill.id)
+      skillStore.skills.map(skill => skill.id),
+      undefined,
+      skillStore.skills
+        .filter(skill => skill.format === 'folder')
+        .map(skill => ({ id: skill.id, folderPath: skill.folderPath || '' }))
     )
     if (!preview.ok) {
       showMessage(preview.message)
@@ -839,15 +927,21 @@ async function confirmFolderBatchImport() {
       }
       const skill = loaded.skill
       const now = new Date().toISOString()
+      const resourceSummary = {
+        resourceCount: Array.isArray(skill.resources) ? skill.resources.length : 0,
+        warningCount: Array.isArray(skill.warnings) ? skill.warnings.length : 0
+      }
       const record = {
         id: skill.id,
         sourceId: skill.id,
         name: skill.name,
+        version: typeof skill.manifest?.version === 'string' ? skill.manifest.version : '',
         format: 'folder' as const,
         folderPath: loaded.folderPath,
         template: skill.template,
         category: 'folder',
         description: skill.description || '',
+        resourceSummary,
         executionMode: 'chain' as const,
         outputFormat: 'text' as const,
         validationRules: [],
@@ -861,6 +955,7 @@ async function confirmFolderBatchImport() {
         inputSchema: '' as string,
         outputSchema: '' as string,
         retryPolicy: '' as string
+        ,intents: (skill.meta && Array.isArray(skill.meta.intents)) ? skill.meta.intents : undefined
       }
       const result = await skillStore.importSkills([record], { strategy: item.action === 'overwrite' ? 'overwrite' : 'skip' })
       folderStatusMap.value[skillStore.normalizeSkillId(record.id, 'folder')] = {
@@ -901,7 +996,7 @@ async function reselectFolderSkill(id: string) {
       showMessage(loaded?.message || '重新选择的路径无效')
       return
     }
-    await skillStore.updateSkill(id, { format: 'folder', folderPath: loaded.folderPath, name: loaded.skill.name, template: loaded.skill.template })
+    await skillStore.updateSkill(id, { format: 'folder', folderPath: loaded.folderPath, name: loaded.skill.name, template: loaded.skill.template, intents: (loaded.skill.meta && Array.isArray(loaded.skill.meta.intents)) ? loaded.skill.meta.intents : undefined })
     folderStatusMap.value[id] = {
       valid: true,
       message: '路径有效',
@@ -1003,11 +1098,28 @@ function openTest(id: string) {
   testText.value = '这是一段测试文本，用于验证技能的输出效果。'
   testResult.value = ''
   testError.value = ''
+  evalReport.value = null
+  evalError.value = ''
 }
 
 function runTest() {
   if (!testSkillId.value) return
   runSkillTest(testSkillId.value, testText.value).then(() => {})
+}
+
+function runEval() {
+  if (!testSkillId.value) return
+  runSkillEval(testSkillId.value).then(() => {})
+}
+
+function skillEffectText(effect: string) {
+  const labels: Record<string, string> = {
+    improved: '技能提升',
+    same: '结果持平',
+    degraded: '技能退化',
+    indeterminate: '无法判定'
+  }
+  return labels[effect] || effect
 }
 
 function closeTest() {
@@ -1067,8 +1179,6 @@ function addSkill() {
   }
 }
 
-const editingSkillId = ref('')
-const editingName = ref('')
 const editingTemplate = ref('')
 const editingCategory = ref('general')
 const editingDescription = ref('')
@@ -1333,6 +1443,19 @@ function refreshPreview() {
 .st-folder-request-message { margin-top: var(--space-2); }
 .st-folder-request-message span { display: block; margin-bottom: var(--space-1); color: var(--text-secondary); font-size: var(--font-size-sm); }
 .st-folder-request-message pre { margin: 0; padding: var(--space-3); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary); font-size: var(--font-size-sm); line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 160px; overflow-y: auto; }
+.st-eval-report { margin-top: 10px; padding: var(--space-4); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-elevated); display: flex; flex-direction: column; gap: var(--space-3); }
+.st-eval-summary { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); font-size: var(--font-size-sm); color: var(--text-secondary); }
+.st-eval-summary strong { color: var(--text-primary); }
+.st-eval-summary .is-pass { color: var(--success); font-weight: 600; }
+.st-eval-summary .is-fail { color: var(--danger); font-weight: 600; }
+.st-eval-case { padding: var(--space-3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-tertiary); display: flex; flex-direction: column; gap: var(--space-2); }
+.st-eval-case.is-pass { border-color: var(--success); }
+.st-eval-case-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); font-size: var(--font-size-sm); color: var(--text-secondary); }
+.st-eval-case-head strong { color: var(--text-primary); }
+.st-eval-assertion { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); color: var(--text-secondary); }
+.st-eval-assertion.is-pass span:first-child { color: var(--success); font-weight: 600; }
+.st-eval-assertion:not(.is-pass) span:first-child { color: var(--danger); font-weight: 600; }
+.st-eval-case pre { margin: 0; padding: var(--space-3); border-radius: var(--radius-sm); background: var(--bg-elevated); color: var(--text-primary); font-size: var(--font-size-sm); line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 180px; overflow-y: auto; }
 .skill-edit-overlay { position: fixed; inset: 0; padding: var(--modal-gutter); background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal-nested); }
 .skill-edit-modal { position: relative; z-index: var(--z-modal-nested-content); width: min(var(--modal-width-lg), 100%); max-height: var(--modal-max-height); min-height: 0; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--modal-padding); display: flex; flex-direction: column; gap: var(--space-4); overflow-y: auto; }
 .sem-header { display: flex; justify-content: space-between; font-size: var(--font-size-lg); font-weight: 600; margin-bottom: 8px; }

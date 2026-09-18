@@ -49,6 +49,9 @@ export interface MarkdownRenderOptions {
   allowTables?: boolean
 }
 
+const RENDER_PREVIEW_LIMIT = 200000
+const RENDER_PREVIEW_NOTICE = '\n\n[文本超过 20 万字符，已截断预览；复制、插入或导出仍使用完整内容]'
+
 type ShikiHighlighter = HighlighterCore
 
 const supportedCodeLanguages = new Set(['json', 'javascript', 'js', 'typescript', 'ts', 'bash', 'sh', 'shell', 'markdown', 'md'])
@@ -278,6 +281,10 @@ function injectStatusBadges(html: string): string {
 
 export function renderMarkdown(text: string, options: MarkdownRenderOptions = {}): string {
   const source = text || ''
+  if (source.length > RENDER_PREVIEW_LIMIT) {
+    const preview = source.slice(0, RENDER_PREVIEW_LIMIT) + RENDER_PREVIEW_NOTICE
+    return `<p>${escapeHtml(preview)}</p>`
+  }
   const normalized = normalizePseudoTables(source)
   const rawHtml = marked.parse(normalized, { async: false }) as string
   const sanitizedHtml = sanitizer.sanitize(rawHtml, {

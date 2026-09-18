@@ -1,0 +1,440 @@
+[
+  {
+    "scenario": "home-empty-insert",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-empty-insert",
+    "requestCount": 2,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-replace-rollback",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-replace-rollback",
+    "requestCount": 2,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-ambiguous",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-ambiguous",
+    "requestCount": 2,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-replace-rollback",
+    "requestCount": 3,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-replace-rollback",
+    "requestCount": 4,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-large-instant",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-large-instant",
+    "requestCount": 2,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-stream-follow",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-stream-follow",
+    "requestCount": 2,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-reveal-discuss",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-reveal-discuss",
+    "requestCount": 2,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-permission-denied",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-permission-denied",
+    "requestCount": 2,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-write-limit",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-write-limit",
+    "requestCount": 2,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-write-limit",
+    "requestCount": 3,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "outline-write",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary",
+      "outline.get_structure",
+      "outline.read_range",
+      "outline.search",
+      "outline.get_summary"
+    ]
+  },
+  {
+    "scenario": "outline-write",
+    "requestCount": 2,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary",
+      "outline.get_structure",
+      "outline.read_range",
+      "outline.search",
+      "outline.get_summary"
+    ]
+  },
+  {
+    "scenario": "outline-locked-write",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary",
+      "outline.get_structure",
+      "outline.read_range",
+      "outline.search",
+      "outline.get_summary"
+    ]
+  },
+  {
+    "scenario": "outline-locked-write",
+    "requestCount": 2,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary",
+      "outline.get_structure",
+      "outline.read_range",
+      "outline.search",
+      "outline.get_summary"
+    ]
+  },
+  {
+    "scenario": "outline-locked-reveal",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary",
+      "outline.get_structure",
+      "outline.read_range",
+      "outline.search",
+      "outline.get_summary"
+    ]
+  },
+  {
+    "scenario": "outline-locked-reveal",
+    "requestCount": 2,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary",
+      "outline.get_structure",
+      "outline.read_range",
+      "outline.search",
+      "outline.get_summary"
+    ]
+  },
+  {
+    "scenario": "pipeline-settings",
+    "requestCount": 1,
+    "tools": []
+  },
+  {
+    "scenario": "compatibility-first-tools",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "compatibility-first-tools",
+    "requestCount": 2,
+    "tools": []
+  },
+  {
+    "scenario": "compatibility-json-write",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "compatibility-json-write",
+    "requestCount": 2,
+    "tools": []
+  }
+]

@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div v-if="naming.visible.value" class="naming-overlay" @click.self="handleOverlayClick">
+    <div v-if="naming.visible.value" class="naming-overlay" :style="{ zIndex: modalQueue.getZIndex('ai-naming') }" @click.self="handleOverlayClick">
       <section
         class="naming-modal"
         role="dialog"
@@ -251,15 +251,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useAiNaming } from '../../composables/useAiNaming'
 import { useAppConfirm } from '../../composables/useAppConfirm'
 import { NAMING_TYPE_LABELS, type NamingType } from '../../types/aiNaming'
+import { useModalQueue } from '../../composables/useModalQueue'
 
 const naming = useAiNaming()
 const appConfirm = useAppConfirm()
+const modalQueue = useModalQueue()
 
 const subTab = ref<'generate' | 'favorites' | 'history'>('generate')
+
+watch(() => naming.visible.value, visible => {
+  if (visible) modalQueue.open('ai-naming')
+  else modalQueue.close('ai-naming')
+}, { immediate: true })
 
 const allTypes = (Object.keys(NAMING_TYPE_LABELS) as NamingType[]).map(v => ({
   value: v,

@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-overlay" :class="{ 'modal-hidden': !visible }" @click.self="$emit('close')">
+  <div class="modal-overlay" :class="{ 'modal-hidden': !visible }" :style="{ zIndex: modalQueue.getZIndex('project-modal') }" @click.self="$emit('close')">
     <div class="modal-content project-modal-content">
       <div class="modal-header">
         <h3>项目管理</h3>
@@ -48,12 +48,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useProjectStore } from '../../stores/project'
 import { useAppConfirm } from '../../composables/useAppConfirm'
+import { useModalQueue } from '../../composables/useModalQueue'
 
 const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits<{ close: [] }>()
+const modalQueue = useModalQueue()
 
 const projectStore = useProjectStore()
 const appConfirm = useAppConfirm()
@@ -64,6 +66,11 @@ const newOutline = ref('')
 const transitionConfirmVisible = ref(false)
 const transitionConfirmTitle = ref('')
 const pendingTransition = ref<{ type: 'load' | 'create'; id?: string } | null>(null)
+
+watch(() => props.visible, visible => {
+  if (visible) modalQueue.open('project-modal')
+  else modalQueue.close('project-modal')
+}, { immediate: true })
 
 const projectList = computed(() => projectStore.projectList || [])
 

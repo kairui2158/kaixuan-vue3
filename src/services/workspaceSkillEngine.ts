@@ -1,4 +1,3 @@
-import type { AiService, CallAiResult } from './aiService'
 import type {
   ContextBundle,
   ContextMessage,
@@ -7,27 +6,127 @@ import type {
   ContextTurn,
   ContextWorkspaceState,
 } from '../types/context'
-import type { ContextBuildInput } from './conversationContextService'
-import type { ConversationContextService } from './conversationContextService'
-import { buildChainSkillPrompt } from './chainExecution'
+import type {
+  AiService,
+  CallAiParams,
+  CallAiResult,
+  PhysicalCallEvent,
+} from './aiService'
+import { type ApiCallBudget, createApiCallBudget } from './apiCallBudget'
 import {
+  type ChainBreakpoint,
   createChainFailureBreakpoint,
   createChainSuccessBreakpoint,
   getChainResumePoint,
-  type ChainBreakpoint,
 } from './chainBreakpoint'
 import {
+  buildChainSkillPrompt,
+  detectChainOutputEcho,
+  templateReferencesPreviousOutput,
+} from './chainExecution'
+import {
+  describeChainHandoffEvent,
+  makeChainHandoffArtifact,
+} from './chainHandoff'
+import {
+  type ChainIntent,
+  type ChainIntentHistoryMessage,
+  classifyChainIntent,
+  filterTemplatesByIntent,
+  routeChainIntent,
+  type ChainRoutingResult,
+} from './chainIntentRouter'
+import type {
+  ContextBuildInput,
+  ConversationContextService,
+} from './conversationContextService'
+import type { AgentToolDefinition } from './editorTools'
+import { hashEditorContent } from './editorTarget'
+import type {
+  RealSkillExecuteOptions,
+  RealSkillPostProcessReport,
+} from './realSkillTypes'
+import { type RoutedSkill, routeSkill } from './skillRouter'
+import { authorizeDialogueTools } from './dialogueToolSurface'
+import {
   getSkillMaxAttempts,
+  type JsonSchema,
+  type SkillRetryPolicy,
   validateSkillInput,
   validateSkillOutput,
   validateSkillRules,
-  type JsonSchema,
-  type SkillRetryPolicy,
 } from './skillValidation'
-import { routeSkill, type RoutedSkill } from './skillRouter'
-import { createApiCallBudget, type ApiCallBudget } from './apiCallBudget'
 
 export type WorkspaceSkillMode = 'chain' | 'compose'
+
+export type RoutingAwaitState = {
+  runId: string
+  requestText: string
+  candidates: string[]
+  fallbackMode: string
+  createdAt: number
+  resumeToken: string
+}
+
+export function buildRoutingResumeToken(input: {
+  runId: string
+  requestText: string
+  createdAt: number
+}): string {
+  return hashEditorContent(
+    `${input.runId}\n${input.requestText}\n${input.createdAt}`,
+  )
+}
+
+export function createRoutingAwaitState(input: {
+  runId: string
+  requestText: string
+  routing?: ChainRoutingResult
+}): RoutingAwaitState {
+  const createdAt = Date.now()
+  return {
+    runId: input.runId,
+    requestText: input.requestText,
+    candidates:
+      input.routing?.kind === 'ambiguous' ? [...input.routing.candidates] : [],
+    fallbackMode:
+      (input.routing && 'fallbackMode' in input.routing
+        ? String(input.routing.fallbackMode)
+        : 'await-user') || 'await-user',
+    createdAt,
+    resumeToken: buildRoutingResumeToken({
+      runId: input.runId,
+      requestText: input.requestText,
+      createdAt,
+    }),
+  }
+}
+
+export function validateRoutingResumeToken(
+  state:
+    | Partial<
+        Pick<
+          RoutingAwaitState,
+          'runId' | 'requestText' | 'createdAt' | 'resumeToken'
+        >
+      >
+    | null
+    | undefined,
+  expectedRunId: string | null | undefined,
+): boolean {
+  if (!state?.runId || !state.resumeToken || !expectedRunId) return false
+  if (state.runId !== expectedRunId) return false
+  return (
+    state.resumeToken ===
+    buildRoutingResumeToken({
+      runId: state.runId,
+      requestText: state.requestText || '',
+      createdAt: state.createdAt || 0,
+    })
+  )
+}
+
+export type WorkspaceSkillToolAccess = 'read' | 'write'
 
 export type WorkspaceSkillTemplate = {
   id: string
@@ -41,6 +140,7 @@ export type WorkspaceSkillTemplate = {
   inputSchema?: JsonSchema | string
   outputSchema?: JsonSchema | string
   retryPolicy?: SkillRetryPolicy | string
+  intents?: string[]
 }
 
 export type WorkspacePromptParts = {
@@ -68,7 +168,23 @@ export type WorkspaceProviderConfig = {
 export type WorkspaceContextOptions = {
   requestText: string
   previousSkillOutput?: string
+  previousOutputOwnership?: 'user_prompt' | 'context_block'
   includeHistory?: boolean
+  intent?: ChainIntent
+  stage?: number
+  mode?: WorkspaceSkillMode
+}
+
+export type WorkspaceSkillToolRequest = {
+  intent: ChainIntent
+  stage: number
+  mode: WorkspaceSkillMode
+}
+
+type AuthorizedWorkspaceToolSurface = {
+  tools: AgentToolDefinition[]
+  toolPolicy?: CallAiParams['toolPolicy']
+  actualToolSurface: Array<{ name: string; policy: 'read' | 'write' }>
 }
 
 export type WorkspaceSkillRunMeta = {
@@ -79,21 +195,136 @@ export type WorkspaceSkillRunMeta = {
   agentId?: string
   skillId: string
   status?: 'success' | 'degraded'
-  diagnostics?: Array<{ type: 'info' | 'warning' | 'error'; code: string; message: string; at?: string }>
+  responseText?: string
+  reasoningText?: string
+  usage?: unknown
+  maxTokens?: number
+  diagnostics?: Array<{
+    type: 'info' | 'warning' | 'error'
+    code: string
+    message: string
+    at?: string
+  }>
   budget?: { used: number; limit: number }
-  fromCache?: boolean
+  folderPackageCache?: boolean
+  postProcessReport?: RealSkillPostProcessReport
+  toolCalls?: Array<{ name: string; input: unknown }>
+  toolResults?: Array<{ call: { name: string; input: unknown }; result: unknown }>
+  toolRequestDeltas?: Array<{ role: string; content: string }>
 }
 
 export type WorkspaceSkillRunResult = {
   text: string
   meta: WorkspaceSkillRunMeta | null
+  terminalStatus?: 'success' | 'degraded' | 'blocked'
+  terminalReason?: string
   mode: WorkspaceSkillMode
+  allMetas?: WorkspaceSkillRunMeta[]
+  intent?: ChainIntent
+  routing?: ChainRoutingResult
+  runState?: ChainRunState
+  awaiting?: {
+    routing: ChainRoutingResult
+    recommendedSkills: WorkspaceSkillTemplate[]
+  }
+  budgetSnapshot?: {
+    used: number
+    limit: number
+    entries: Array<{
+      step: string
+      at: string
+      used: number
+      limit: number | null
+    }>
+  }
 }
+
+export type ChainRunState =
+  | 'idle'
+  | 'routing'
+  | 'awaiting_confirmation'
+  | 'running'
+  | 'completed'
+  | 'failed'
+  | 'cancelled'
+  | 'budget_exhausted'
+
+export type ChainRoutingEvent =
+  | { type: 'routing_started'; requestText: string }
+  | { type: 'routing_result'; result: ChainRoutingResult }
+  | { type: 'fallback_requested'; result: ChainRoutingResult }
+  | {
+      type: 'chain_handoff'
+      artifact: ReturnType<typeof describeChainHandoffEvent>
+    }
+  | {
+      type: 'skill_skipped'
+      skillIndex: number
+      skillId: string
+      reason: string
+    }
+  | {
+      type: 'budget_exhausted'
+      step: string
+      budget: { used: number; limit: number }
+    }
+  | { type: 'run_completed'; state: ChainRunState }
 
 export type WorkspaceSkillEngineCallbacks = {
   onFirstChunk?: () => void
   onStatus?: (status: string) => void
   onChunk?: (text: string) => void
+  onReasoning?: (text: string) => void
+  onBeforeSkill?: (
+    skillIndex: number,
+    skillId: string,
+    skillName: string,
+  ) => void
+  onAfterSkill?: (
+    skillIndex: number,
+    skillId: string,
+    skillName: string,
+    output: string,
+  ) => void
+  onApiCallStart?: (
+    skillId: string,
+    skillName: string,
+    model: string,
+    actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>,
+  ) => string | undefined
+  onApiCallFinish?: (
+    callId: string,
+    meta: WorkspaceSkillRunMeta,
+    durationMs: number,
+    result?: {
+      status: 'success' | 'failed'
+      text: string
+      reasoning?: string
+    },
+  ) => void
+  onPromptBuilt?: (input: {
+    skillId: string
+    skillName: string
+    mode: string
+    systemPrompt: string
+    userPrompt: string
+    finalMessages: ContextMessage[]
+    variables: Record<string, unknown>
+    contextBlocks: WorkspaceContextBlock[]
+    folderFingerprint?: Array<{
+      file: string
+      hash: string
+      mtime: number
+      bytes: number
+    }>
+  }) => void
+  onSkillSkipped?: (skillIndex: number, skillId: string, reason: string) => void
+  onRoutingEvent?: (event: ChainRoutingEvent) => void
+  onPhysicalCall?: (skillId: string, callId: string, event: PhysicalCallEvent) => void
+  onGenerationEvent?: (
+    skillId: string,
+    event: Parameters<NonNullable<RealSkillExecuteOptions['onGenerationEvent']>>[0],
+  ) => void
 }
 
 export interface WorkspaceContextServiceLike {
@@ -103,28 +334,117 @@ export interface WorkspaceContextServiceLike {
     skillPolicy?: Parameters<ConversationContextService['getPolicy']>[2],
   ): ContextPolicy
   buildContextBundle(input: ContextBuildInput): Promise<ContextBundle>
-  assembleMessages(bundle: ContextBundle, policy: ContextPolicy, base: ContextMessage[]): ContextMessage[]
+  buildDialogueContextBlocks(
+    bundle: ContextBundle,
+    policy: ContextPolicy,
+  ): WorkspaceContextBlock[]
+  assembleMessages(
+    bundle: ContextBundle,
+    policy: ContextPolicy,
+    base: ContextMessage[],
+  ): ContextMessage[]
   recordTurn(ref: ContextRef, turn: ContextTurn): Promise<void>
+}
+
+export type PostProcessTerminalStatus = {
+  processingStatus: 'success' | 'warning' | 'failed'
+  runStatus: 'success' | 'degraded' | 'blocked'
+  eventReason: 'post-process-completed' | 'post-process-degraded' | 'post-process-blocked' | 'post-process-warning'
+}
+
+export function resolvePostProcessTerminalStatus(
+  report: RealSkillPostProcessReport | undefined,
+): PostProcessTerminalStatus {
+  if (!report) {
+    return {
+      processingStatus: 'success',
+      runStatus: 'success',
+      eventReason: 'post-process-completed',
+    }
+  }
+  if (report.issues.some(issue => issue.severity === 'blocking')) {
+    return {
+      processingStatus: 'failed',
+      runStatus: 'blocked',
+      eventReason: 'post-process-blocked',
+    }
+  }
+  if (report.changedOutput || report.issues.length > 0) {
+    return {
+      processingStatus: 'warning',
+      runStatus: 'degraded',
+      eventReason: 'post-process-degraded',
+    }
+  }
+  return {
+    processingStatus: 'success',
+    runStatus: 'success',
+    eventReason: 'post-process-completed',
+  }
+}
+
+export type WorkspaceContextBlock = {
+  source:
+    | 'editorContent'
+    | 'referenceOutline'
+    | 'outline'
+    | 'settings'
+    | 'memory'
+    | 'selection'
+    | 'pipeline'
+    | 'activeTab'
+  version: string
+  coverage:
+    | 'full'
+    | 'partial'
+    | 'structure_map'
+    | 'reference'
+    | 'selection'
+  content?: string
+  truncated?: boolean
 }
 
 export interface WorkspaceSkillEngineAdapter {
   workspace: 'main' | 'outline'
   source: string
   projectId: string
+  /**
+   * Identity of the editor target owned by this adapter. `callAi.meta` and the
+   * tool execution context must share it, otherwise editor.write is rejected.
+   */
+  toolContext?: {
+    targetId?: string
+    readableTargets?: string[]
+  }
   step: number
   defaultSystemPrompt: string
   preferredModel?: string
   getBaseAgentId(): string
   getSkillAgentId(skillId: string): string
   getAgent(agentId: string): WorkspaceAgentConfig | null
-  getProvider(agent: WorkspaceAgentConfig | null): WorkspaceProviderConfig | null
-  getSkillPolicy(template: WorkspaceSkillTemplate): Parameters<ConversationContextService['getPolicy']>[2]
-  buildTemplateContext(requestText: string, previousOutput?: string): Record<string, unknown>
+  getProvider(
+    agent: WorkspaceAgentConfig | null,
+  ): WorkspaceProviderConfig | null
+  getSkillPolicy(
+    template: WorkspaceSkillTemplate,
+  ): Parameters<ConversationContextService['getPolicy']>[2]
+  buildTemplateContext(
+    requestText: string,
+    previousOutput?: string,
+  ): Record<string, unknown>
   getWorkspaceState(): Partial<ContextWorkspaceState>
   getLegacyMessages(requestText: string): ContextMessage[]
   loadBreakpoint(): Promise<ChainBreakpoint | null>
   saveBreakpoint(breakpoint: ChainBreakpoint): Promise<void>
   clearBreakpoint(): Promise<void>
+  /**
+   * Intent-scoped tool surface. Read tools are always safe; adapters must only
+   * return write proposal tools when the engine explicitly requests them.
+   */
+  buildTools?(request: WorkspaceSkillToolRequest): {
+    tools?: AgentToolDefinition[]
+    toolPolicy?: CallAiParams['toolPolicy']
+  }
 }
 
 export interface RunWorkspaceSkillsInput {
@@ -136,73 +456,152 @@ export interface RunWorkspaceSkillsInput {
   adapter: WorkspaceSkillEngineAdapter
   signal?: AbortSignal
   apiBudget?: ApiCallBudget
+  routingOverride?: {
+    bypass?: boolean
+    forcedIntent?: Exclude<ChainIntent, 'auto'>
+  }
   callbacks?: WorkspaceSkillEngineCallbacks
 }
 
-export function getPromptParts(template: string, mode: string): WorkspacePromptParts {
+export function getPromptParts(
+  template: string,
+  mode: string,
+): WorkspacePromptParts {
   if (mode === 'user_prefix') return { userPrefix: template }
   if (mode === 'user_suffix') return { userSuffix: template }
   return { systemSkill: template }
 }
 
-export function mergePromptParts(parts: WorkspacePromptParts[]): WorkspacePromptParts {
+export function mergePromptParts(
+  parts: WorkspacePromptParts[],
+): WorkspacePromptParts {
   return {
-    systemSkill: parts.map(part => part.systemSkill).filter(Boolean).join('\n\n'),
-    userPrefix: parts.map(part => part.userPrefix).filter(Boolean).join('\n\n'),
-    userSuffix: parts.map(part => part.userSuffix).filter(Boolean).join('\n\n'),
+    systemSkill: parts
+      .map((part) => part.systemSkill)
+      .filter(Boolean)
+      .join('\n\n'),
+    userPrefix: parts
+      .map((part) => part.userPrefix)
+      .filter(Boolean)
+      .join('\n\n'),
+    userSuffix: parts
+      .map((part) => part.userSuffix)
+      .filter(Boolean)
+      .join('\n\n'),
   }
 }
 
-export function resolveWorkspaceTemplate(template: string, context: Record<string, unknown>): string {
-  const engine = typeof window !== 'undefined' ? (window as any).SkillExecutionEngine : undefined
-  if (engine && typeof engine.resolveTemplate === 'function' && template && /\{\{/.test(template)) {
+export function resolveWorkspaceTemplate(
+  template: string,
+  context: Record<string, unknown>,
+): string {
+  const engine =
+    typeof window !== 'undefined'
+      ? (window as any).SkillExecutionEngine
+      : undefined
+  if (
+    engine &&
+    typeof engine.resolveTemplate === 'function' &&
+    template &&
+    /\{\{/.test(template)
+  ) {
     try {
       return engine.resolveTemplate(template, context, { keepMissing: false })
     } catch (error) {
-      console.warn('[WORKSPACE_SKILL_ENGINE] resolveTemplate failed, using raw template', error)
+      console.warn(
+        '[WORKSPACE_SKILL_ENGINE] resolveTemplate failed, using raw template',
+        error,
+      )
     }
   }
   return template
+}
+
+function isFolderTemplate(
+  template: WorkspaceSkillTemplate,
+): template is WorkspaceSkillTemplate & {
+  skill: RoutedSkill & { format: 'folder'; folderPath: string }
+} {
+  return (
+    template.skill?.format === 'folder' && Boolean(template.skill.folderPath)
+  )
 }
 
 function validateInput(template: WorkspaceSkillTemplate, input: unknown): void {
   if (!template.inputSchema) return
   const result = validateSkillInput(input, template)
   if (!result.valid) {
-    throw new Error('「' + template.name + '」输入校验失败：' + result.errors.join('；'))
+    throw new Error(
+      '「' + template.name + '」输入校验失败：' + result.errors.join('；'),
+    )
   }
 }
 
-function validateOutput(template: WorkspaceSkillTemplate, output: string): void {
+function validateOutput(
+  template: WorkspaceSkillTemplate,
+  output: string,
+): void {
   const structured = validateSkillOutput(output, template)
   if (!structured.valid) {
-    throw new Error('「' + template.name + '」输出校验失败：' + structured.errors.join('；'))
+    throw new Error(
+      '「' + template.name + '」输出校验失败：' + structured.errors.join('；'),
+    )
   }
-  const rules = validateSkillRules(structured.value ?? output, template.validationRules)
+  const rules = validateSkillRules(
+    structured.value ?? output,
+    template.validationRules,
+  )
   if (!rules.valid) {
-    throw new Error('「' + template.name + '」规则校验失败：' + rules.errors.join('；'))
+    throw new Error(
+      '「' + template.name + '」规则校验失败：' + rules.errors.join('；'),
+    )
   }
 }
 
-function combineComposeTemplate(templates: WorkspaceSkillTemplate[]): WorkspaceSkillTemplate {
-  const folderTemplate = templates.find(template => template.skill)
+function combineComposeTemplate(
+  templates: WorkspaceSkillTemplate[],
+): WorkspaceSkillTemplate {
+  const folderTemplate = templates.find(isFolderTemplate)
   if (folderTemplate) {
     return {
       ...folderTemplate,
-      template: templates.map(template => template.template).filter(Boolean).join('\n\n'),
-      validationRules: templates.flatMap(template => template.validationRules || []),
-      outputSchema: templates.find(template => template.outputSchema)?.outputSchema,
-      retryPolicy: JSON.stringify({ maxAttempts: templates.reduce((max, template) => Math.max(max, getSkillMaxAttempts(template.retryPolicy)), 1) }),
+      template: templates
+        .map((template) => template.template)
+        .filter(Boolean)
+        .join('\n\n'),
+      validationRules: templates.flatMap(
+        (template) => template.validationRules || [],
+      ),
+      outputSchema: templates.find((template) => template.outputSchema)
+        ?.outputSchema,
+      retryPolicy: JSON.stringify({
+        maxAttempts: templates.reduce(
+          (max, template) =>
+            Math.max(max, getSkillMaxAttempts(template.retryPolicy)),
+          1,
+        ),
+      }),
     }
   }
   return {
     id: 'compose',
-    name: templates.map(template => template.name).join(' + '),
+    name: templates.map((template) => template.name).join(' + '),
     template: '',
-    outputFormat: templates.some(template => template.outputFormat === 'json') ? 'json' : 'text',
-    validationRules: templates.flatMap(template => template.validationRules || []),
-    outputSchema: templates.find(template => template.outputSchema)?.outputSchema,
-    retryPolicy: JSON.stringify({ maxAttempts: templates.reduce((max, template) => Math.max(max, getSkillMaxAttempts(template.retryPolicy)), 1) }),
+    outputFormat: templates.some((template) => template.outputFormat === 'json')
+      ? 'json'
+      : 'text',
+    validationRules: templates.flatMap(
+      (template) => template.validationRules || [],
+    ),
+    outputSchema: templates.find((template) => template.outputSchema)
+      ?.outputSchema,
+    retryPolicy: JSON.stringify({
+      maxAttempts: templates.reduce(
+        (max, template) =>
+          Math.max(max, getSkillMaxAttempts(template.retryPolicy)),
+        1,
+      ),
+    }),
   }
 }
 
@@ -211,8 +610,19 @@ function contextPolicy(
   adapter: WorkspaceSkillEngineAdapter,
   template: WorkspaceSkillTemplate,
   previousSkillOutput?: string,
+  templateContext?: Record<string, unknown>,
 ): ContextPolicy {
-  const policy = contextService.getPolicy('generate', template.id, adapter.getSkillPolicy(template))
+  const policy = contextService.getPolicy(
+    'generate',
+    template.id,
+    adapter.getSkillPolicy(template),
+  )
+  if (
+    typeof templateContext?.outlineContent === 'string' &&
+    templateContext.outlineContent.length > 0
+  ) {
+    return { ...policy, skipOutlineBody: true }
+  }
   if (previousSkillOutput === undefined) return policy
   return {
     ...policy,
@@ -220,6 +630,54 @@ function contextPolicy(
     includeOutline: false,
     includeSettings: false,
     includeMemory: false,
+  }
+}
+
+export function inferRoutingFallbackIntent(
+  routing: ChainRoutingResult,
+): Exclude<ChainIntent, 'auto'> {
+  if (routing.kind === 'matched') {
+    if (
+      routing.intent === 'analyze' ||
+      routing.intent === 'edit' ||
+      routing.intent === 'generate' ||
+      routing.intent === 'discuss'
+    ) {
+      return routing.intent
+    }
+  }
+  return 'discuss'
+}
+
+function resolveReadonlyFallbackIntent(
+  routing: ChainRoutingResult,
+): 'discuss' | null {
+  if (routing.kind === 'matched') return null
+  return routing.fallbackMode === 'readonly-discuss' ? 'discuss' : null
+}
+
+function resolveAuthorizedToolSurface(
+  adapter: WorkspaceSkillEngineAdapter,
+  intent: ChainIntent,
+  stage: number,
+  mode: WorkspaceSkillMode,
+): AuthorizedWorkspaceToolSurface {
+  const requestedSurface = adapter.buildTools?.({ intent, stage, mode }) || {}
+  const { tools: authorizedTools } = authorizeDialogueTools(
+    requestedSurface.tools || [],
+    intent,
+    'direct',
+  )
+  const authorizedToolPolicy = requestedSurface.toolPolicy
+    ? { ...requestedSurface.toolPolicy, intent }
+    : undefined
+  return {
+    tools: authorizedTools,
+    toolPolicy: authorizedToolPolicy,
+    actualToolSurface: authorizedTools.map(tool => ({
+      name: tool.name,
+      policy: tool.policy,
+    })),
   }
 }
 
@@ -233,57 +691,126 @@ async function callWorkspaceSkill(
   onProgress?: (status: string) => void,
 ): Promise<string> {
   const { adapter, aiService, contextService } = input
+  let streamText = ''
   validateInput(template, inputContext)
-  if (template.skill) {
-    const previousOutput = (inputContext as { previousOutput?: unknown }).previousOutput
-    const folderInput = typeof previousOutput === 'string' && previousOutput.trim()
-      ? `原始用户请求: ${contextOptions.requestText}\n\n请继续处理上一步 SKILL 输出：\n${previousOutput}`
-      : contextOptions.requestText
-    const agentId = adapter.getSkillAgentId(template.id) || adapter.getBaseAgentId()
+  const toolSurface = resolveAuthorizedToolSurface(
+    adapter,
+    contextOptions.intent || 'auto',
+    contextOptions.stage || 0,
+    contextOptions.mode || 'compose',
+  )
+  const toolContext = {
+    ...(adapter.toolContext || {}),
+    projectId: adapter.projectId,
+    workspace: adapter.workspace,
+  }
+  let folderFallbackReason: string | undefined
+  if (isFolderTemplate(template)) {
+    let folderFingerprint: Array<{
+      file: string
+      hash: string
+      mtime: number
+      bytes: number
+    }> | undefined
+    const previousOutput = (inputContext as { previousOutput?: unknown })
+      .previousOutput
+    const previousOutputOwnership: 'user_prompt' | 'context_block' =
+      contextOptions.previousOutputOwnership || 'user_prompt'
+    const folderInput =
+      typeof previousOutput === 'string' && previousOutput.trim()
+        ? `${userPrompt}\n\n请继续处理上一步 SKILL 输出：\n${previousOutput}`
+        : contextOptions.requestText
+    const agentId =
+      adapter.getSkillAgentId(template.id) || adapter.getBaseAgentId()
     const agentConfig = agentId ? adapter.getAgent(agentId) : null
-    if (agentId && !agentConfig) throw new Error('绑定的智能体不存在：' + agentId)
+    if (agentId && !agentConfig)
+      throw new Error('绑定的智能体不存在：' + agentId)
     const budget = input.apiBudget || createApiCallBudget(8)
     const contextRef: ContextRef = {
       projectId: adapter.projectId,
       workspace: adapter.workspace,
       purpose: 'generate',
       skillId: template.id,
-      agentId: agentId || undefined
+      agentId: agentId || undefined,
     }
     const contextBundle = await contextService.buildContextBundle({
       ...contextRef,
-      previousSkillOutput: contextOptions.previousSkillOutput,
+      ...(previousOutputOwnership === 'user_prompt' ||
+        contextOptions.previousSkillOutput === undefined
+        ? {}
+        : { previousSkillOutput: contextOptions.previousSkillOutput }),
       workspaceState: adapter.getWorkspaceState(),
-      legacyMessages: contextOptions.includeHistory === false
-        ? []
-        : adapter.getLegacyMessages(contextOptions.requestText)
+      legacyMessages:
+        contextOptions.includeHistory === false
+          ? []
+          : adapter.getLegacyMessages(contextOptions.requestText),
     })
-    const policy = contextPolicy(contextService, adapter, template, contextOptions.previousSkillOutput)
+    const policy = contextPolicy(
+      contextService,
+      adapter,
+      template,
+      contextOptions.previousSkillOutput,
+      adapter.buildTemplateContext(contextOptions.requestText, contextOptions.previousSkillOutput),
+    )
     const route = await routeSkill(template.skill, {
       input: folderInput,
-      agent: agentConfig ? {
-        id: agentId,
-        model: agentConfig.model,
-        temperature: agentConfig.temperature,
-        maxTokens: agentConfig.maxTokens,
-        systemPrompt: agentConfig.systemPrompt
-      } : null,
+      agent: agentConfig
+        ? {
+            id: agentId,
+            model: agentConfig.model,
+            temperature: agentConfig.temperature,
+            maxTokens: agentConfig.maxTokens,
+            systemPrompt: agentConfig.systemPrompt,
+          }
+        : null,
       purpose: 'generate',
       budget,
       skillId: template.id,
+      toolContext,
       aiService,
       stream: true,
       signal: input.signal,
-      onChunk: text => {
-        input.callbacks?.onChunk?.(text)
+      onReasoning: (text) => {
+        input.callbacks?.onReasoning?.(text)
+      },
+      onPhysicalCall: (event) => {
+        const callId = activeSkillCallIds.get(input)?.get(template.id) || ''
+        if (callId) input.callbacks?.onPhysicalCall?.(template.id, callId, event)
+      },
+      onGenerationEvent: (event) => {
+        input.callbacks?.onGenerationEvent?.(template.id, event)
+      },
+      onChunk: (text) => {
+        streamText += text
+        input.callbacks?.onChunk?.(streamText)
         onProgress?.('正在生成...')
       },
+      onFolderLoaded: (pkg) => {
+        folderFingerprint = pkg.fingerprint
+      },
       messageBuilder: (systemPrompt, userPrompt) => {
-        return contextService.assembleMessages(contextBundle, policy, [
+        const finalMessages = contextService.assembleMessages(contextBundle, policy, [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
+          { role: 'user', content: userPrompt },
         ])
-      }
+        try {
+          input.callbacks?.onPromptBuilt?.({
+            skillId: template.id,
+            skillName: template.name || template.id,
+            mode: input.mode,
+            systemPrompt,
+            userPrompt,
+            finalMessages,
+            variables: adapter.buildTemplateContext(contextOptions.requestText, contextOptions.previousSkillOutput),
+            contextBlocks: contextService.buildDialogueContextBlocks(contextBundle, policy),
+            folderFingerprint
+          })
+        } catch { /* trace hook must not break generation */ }
+        return finalMessages
+      },
+      ...(toolSurface.tools?.length
+        ? { tools: toolSurface.tools, toolPolicy: toolSurface.toolPolicy }
+        : {}),
     })
     if (route.mode === 'folder' && route.folderResult) {
       const folderResult = route.folderResult
@@ -292,43 +819,71 @@ async function callWorkspaceSkill(
       await contextService.recordTurn(contextRef, {
         user: contextOptions.requestText,
         assistant: output,
-        meta: { source: adapter.source, skillId: template.id, agentId: agentId || undefined }
+        reservedOutputTokens:
+          folderResult.apiMeta?.maxTokens
+          ?? agentConfig?.maxTokens
+          ?? undefined,
+        meta: {
+          source: adapter.source,
+          skillId: template.id,
+          agentId: agentId || undefined,
+        },
       })
       lastRunMeta.set(input, {
         finishReason: folderResult.apiMeta?.finishReason,
-        requestMessages: folderResult.apiMeta?.requestMessages as ContextMessage[] || [],
+        requestMessages:
+          (folderResult.apiMeta?.requestMessages as ContextMessage[]) || [],
         providerId: folderResult.apiMeta?.providerId,
         model: agentConfig?.model || 'folder-skill',
         agentId: agentId || undefined,
         skillId: template.id,
         status: folderResult.status === 'degraded' ? 'degraded' : 'success',
+        responseText: output,
+        reasoningText: folderResult.apiMeta?.reasoningText,
+        usage: folderResult.apiMeta?.usage,
+        maxTokens: folderResult.apiMeta?.maxTokens,
         diagnostics: folderResult.diagnostics,
         budget: budget.snapshot(),
-        fromCache: folderResult.fromCache
+        folderPackageCache: folderResult.folderPackageCache === true,
+        postProcessReport: folderResult.postProcessReport,
+        toolCalls: folderResult.apiMeta?.toolCalls,
+        toolResults: folderResult.apiMeta?.toolResults,
+        toolRequestDeltas: folderResult.apiMeta?.toolRequestDeltas,
       })
       return output
     }
-    if (!route.fallbackReason) throw new Error('folder SKILL 配置不完整')
-    // Only a load failure may fall through to the text path; execution failures already returned text mode with diagnostics.
+    // Only a load failure falls back to the text path; execution failures
+    // already return folder mode with diagnostics above.
+    folderFallbackReason = route.fallbackReason
   }
   const maxAttempts = template.retryPolicy
     ? getSkillMaxAttempts(template.retryPolicy)
-    : template.outputFormat === 'json' ? 2 : 1
-  const agentId = adapter.getSkillAgentId(template.id) || adapter.getBaseAgentId()
+    : template.outputFormat === 'json'
+      ? 2
+      : 1
+  const agentId =
+    adapter.getSkillAgentId(template.id) || adapter.getBaseAgentId()
   const agentConfig = agentId ? adapter.getAgent(agentId) : null
   if (agentId && !agentConfig) throw new Error('绑定的智能体不存在：' + agentId)
   const provider = adapter.getProvider(agentConfig)
   if (!provider) throw new Error('请先配置API供应商')
-  const model = adapter.preferredModel
-    || agentConfig?.model
-    || provider.selectedModel
-    || provider.models?.[0]
-    || 'gpt-4o'
+  const model =
+    adapter.preferredModel ||
+    agentConfig?.model ||
+    provider.selectedModel ||
+    provider.models?.[0] ||
+    'gpt-4o'
   const temperature = agentConfig?.temperature ?? provider.temperature ?? 0.7
   const maxTokens = agentConfig?.maxTokens || provider.maxTokens || 8192
-  const systemPrompt = [injection.systemSkill, agentConfig?.systemPrompt].filter(Boolean).join('\n\n')
-    || adapter.defaultSystemPrompt
-  const userPromptParts = [injection.userPrefix, userPrompt, injection.userSuffix].filter(Boolean)
+  const systemPrompt =
+    [injection.systemSkill, agentConfig?.systemPrompt]
+      .filter(Boolean)
+      .join('\n\n') || adapter.defaultSystemPrompt
+  const userPromptParts = [
+    injection.userPrefix,
+    userPrompt,
+    injection.userSuffix,
+  ].filter(Boolean)
   const contextRef: ContextRef = {
     projectId: adapter.projectId,
     workspace: adapter.workspace,
@@ -338,24 +893,52 @@ async function callWorkspaceSkill(
   }
   const contextBundle = await contextService.buildContextBundle({
     ...contextRef,
-    previousSkillOutput: contextOptions.previousSkillOutput,
+    ...(contextOptions.previousOutputOwnership === 'user_prompt' ||
+      contextOptions.previousSkillOutput === undefined
+      ? {}
+      : { previousSkillOutput: contextOptions.previousSkillOutput }),
     workspaceState: adapter.getWorkspaceState(),
-    legacyMessages: contextOptions.includeHistory === false
-      ? []
-      : adapter.getLegacyMessages(contextOptions.requestText),
+    legacyMessages:
+      contextOptions.includeHistory === false
+        ? []
+        : adapter.getLegacyMessages(contextOptions.requestText),
   })
-  const policy = contextPolicy(contextService, adapter, template, contextOptions.previousSkillOutput)
+  const policy = contextPolicy(
+    contextService,
+    adapter,
+    template,
+    contextOptions.previousSkillOutput,
+    adapter.buildTemplateContext(contextOptions.requestText, contextOptions.previousSkillOutput),
+  )
   let lastError: unknown = null
   let lastResult: CallAiResult | null = null
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const attemptPrompt = attempt === 1
-      ? userPromptParts.join('\n\n')
-      : userPromptParts.join('\n\n') + '\n\n[校验重试] 上次输出未满足技能的结构化约束，请只返回符合要求的结果。'
+    const attemptPrompt =
+      attempt === 1
+        ? userPromptParts.join('\n\n')
+        : userPromptParts.join('\n\n') +
+          '\n\n[校验重试] 上次输出未满足技能的结构化约束，请只返回符合要求的结果。'
     try {
-      const requestMessages = contextService.assembleMessages(contextBundle, policy, [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: attemptPrompt },
-      ])
+      const requestMessages = contextService.assembleMessages(
+        contextBundle,
+        policy,
+        [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: attemptPrompt },
+        ],
+      )
+      try {
+        input.callbacks?.onPromptBuilt?.({
+          skillId: template.id,
+          skillName: template.name || template.id,
+          mode: input.mode,
+          systemPrompt,
+          userPrompt: attemptPrompt,
+          finalMessages: requestMessages,
+          variables: adapter.buildTemplateContext(contextOptions.requestText, contextOptions.previousSkillOutput),
+          contextBlocks: contextService.buildDialogueContextBlocks(contextBundle, policy)
+        })
+      } catch { /* trace hook must not break generation */ }
       const result = await input.aiService.callAi({
         purpose: 'generate',
         messages: requestMessages,
@@ -364,19 +947,54 @@ async function callWorkspaceSkill(
         maxTokens,
         signal: input.signal,
         onChunk: (text: string) => {
-          input.callbacks?.onChunk?.(text)
+          streamText += text
+          input.callbacks?.onChunk?.(streamText)
           onProgress?.('正在生成...')
         },
-        retry: true,
-        meta: { source: adapter.source, skillId: template.id, agentId: agentId || undefined },
+        onPhysicalCall: (event) => {
+          const callId = activeSkillCallIds.get(input)?.get(template.id) || ''
+          if (callId) input.callbacks?.onPhysicalCall?.(template.id, callId, event)
+        },
+      retry: true,
+      ...(toolSurface.tools?.length
+        ? { tools: toolSurface.tools, toolPolicy: toolSurface.toolPolicy }
+        : {}),
+      meta: {
+        source: adapter.source,
+        projectId: adapter.projectId,
+        workspace: adapter.workspace,
+        targetId: toolContext.targetId,
+        readableTargets: toolContext.readableTargets,
+        skillId: template.id,
+        agentId: agentId || undefined,
+      },
       })
       const output = result.text || ''
+      lastRunMeta.set(input, {
+        finishReason: result.finishReason,
+        requestMessages,
+        providerId: result.providerId,
+        model,
+        agentId: agentId || undefined,
+        skillId: template.id,
+        responseText: output,
+        reasoningText: result.reasoning,
+        usage: result.usage,
+        maxTokens: result.maxTokens,
+        toolCalls: result.toolCalls,
+        toolResults: result.toolResults,
+      })
       if (!output.trim()) throw new Error('API 返回为空')
       validateOutput(template, output)
       await contextService.recordTurn(contextRef, {
         user: contextOptions.requestText,
         assistant: output,
-        meta: { source: adapter.source, skillId: template.id, agentId: agentId || undefined },
+        reservedOutputTokens: maxTokens,
+        meta: {
+          source: adapter.source,
+          skillId: template.id,
+          agentId: agentId || undefined,
+        },
       })
       lastResult = result
       lastRunMeta.set(input, {
@@ -386,10 +1004,41 @@ async function callWorkspaceSkill(
         model,
         agentId: agentId || undefined,
         skillId: template.id,
+        responseText: output,
+        reasoningText: result.reasoning,
+        usage: result.usage,
+        maxTokens: result.maxTokens,
+        toolCalls: lastResult.toolCalls,
+        toolResults: lastResult.toolResults,
       })
+      if (folderFallbackReason) {
+        const meta = lastRunMeta.get(input)
+        if (meta) {
+          meta.diagnostics = [
+            ...(meta.diagnostics || []),
+            {
+              type: 'warning',
+              code: 'folder-skill-fallback',
+              message: `folder SKILL 加载失败，已回退文本路径：${folderFallbackReason}`,
+            },
+          ]
+        }
+      }
       return output
     } catch (error) {
       lastError = error
+      const meta = lastRunMeta.get(input)
+      if (meta) {
+        meta.diagnostics = [
+          ...(meta.diagnostics || []),
+          {
+            type: 'warning' as const,
+            code: 'skill-validation-retry',
+            message: `第 ${attempt}/${maxAttempts} 次尝试未通过：${error instanceof Error ? error.message : String(error)}`,
+            at: new Date().toISOString(),
+          },
+        ]
+      }
       if (attempt === maxAttempts) throw error
     }
   }
@@ -400,21 +1049,205 @@ async function callWorkspaceSkill(
       providerId: lastResult.providerId,
       model,
       agentId: agentId || undefined,
-      skillId: template.id,
-    })
+        skillId: template.id,
+        responseText: lastResult.text,
+        reasoningText: lastResult.reasoning,
+        usage: lastResult.usage,
+        toolCalls: lastResult.toolCalls,
+        toolResults: lastResult.toolResults,
+      })
   }
   throw lastError instanceof Error ? lastError : new Error('技能输出校验失败')
 }
 
-const lastRunMeta = new WeakMap<RunWorkspaceSkillsInput, WorkspaceSkillRunMeta>()
+const lastRunMeta = new WeakMap<
+  RunWorkspaceSkillsInput,
+  WorkspaceSkillRunMeta
+>()
 
-export async function runWorkspaceSkills(input: RunWorkspaceSkillsInput): Promise<WorkspaceSkillRunResult> {
+const activeSkillCallIds = new WeakMap<
+  RunWorkspaceSkillsInput,
+  Map<string, string>
+>()
+
+const seenChainHandoffHashes = new WeakMap<
+  RunWorkspaceSkillsInput,
+  Set<string>
+>()
+
+function getRecentHistoryForIntent(
+  adapter: WorkspaceSkillEngineAdapter,
+  requestText: string,
+): ChainIntentHistoryMessage[] {
+  return adapter
+    .getLegacyMessages(requestText)
+    .slice(-4)
+    .filter(
+      (message): message is ContextMessage & { role: 'user' | 'assistant' } =>
+        (message.role === 'user' || message.role === 'assistant') &&
+        typeof message.content === 'string',
+    )
+}
+
+function resolveWorkspaceIntentRouting(
+  input: RunWorkspaceSkillsInput,
+  adapter: WorkspaceSkillEngineAdapter,
+  templates: WorkspaceSkillTemplate[],
+  callbacks: WorkspaceSkillEngineCallbacks,
+): ChainRoutingResult {
+  if (input.routingOverride?.bypass === true) {
+    const bypassedResult: ChainRoutingResult = {
+      kind: 'matched',
+      intent: 'generate',
+      confidence: 1,
+      reason: 'user-bypassed-routing',
+    }
+    callbacks.onRoutingEvent?.({
+      type: 'routing_started',
+      requestText: input.requestText,
+    })
+    callbacks.onRoutingEvent?.({
+      type: 'routing_result',
+      result: bypassedResult,
+    })
+    return bypassedResult
+  }
+
+  const recentHistory = getRecentHistoryForIntent(adapter, input.requestText)
+  callbacks.onRoutingEvent?.({
+    type: 'routing_started',
+    requestText: input.requestText,
+  })
+  const routingResult = routeChainIntent(input.requestText, {
+    projectId: adapter.projectId,
+    workspace:
+      adapter.workspace === 'outline' ? 'outline-workbench' : 'home-editor',
+    recentUserMessages: recentHistory
+      .filter((message) => message.role === 'user')
+      .map((message) => message.content),
+    recentHistory,
+    activeSkillIds: templates.map((template) => template.id),
+  })
+  const effectiveRoutingResult = routingResult
+  if (
+    input.routingOverride?.forcedIntent &&
+    (effectiveRoutingResult.kind !== 'matched' ||
+      effectiveRoutingResult.intent !== input.routingOverride.forcedIntent)
+  ) {
+    const forcedResult: ChainRoutingResult = {
+      kind: 'matched',
+      intent: input.routingOverride.forcedIntent,
+      confidence: 1,
+      reason: 'user-confirmed-recommendation',
+    }
+    callbacks.onRoutingEvent?.({
+      type: 'routing_result',
+      result: forcedResult,
+    })
+    return forcedResult
+  }
+  callbacks.onRoutingEvent?.({
+    type: 'routing_result',
+    result: effectiveRoutingResult,
+  })
+  return effectiveRoutingResult
+}
+
+export async function runWorkspaceSkills(
+  input: RunWorkspaceSkillsInput,
+): Promise<WorkspaceSkillRunResult> {
   const { adapter, contextService, templates } = input
   const callbacks = input.callbacks || {}
   if (templates.length === 0) throw new Error('未选择可执行技能')
 
-  if (input.mode === 'chain' && templates.length > 1) {
-    const skillSequence = templates.map(template => template.id)
+  if (input.mode === 'chain') {
+    const bypassed = input.routingOverride?.bypass === true
+    const effectiveRoutingResult = resolveWorkspaceIntentRouting(
+      input,
+      adapter,
+      templates,
+      callbacks,
+    )
+    const readonlyFallbackIntent = resolveReadonlyFallbackIntent(
+      effectiveRoutingResult,
+    )
+    if (effectiveRoutingResult.kind !== 'matched' && !readonlyFallbackIntent) {
+      callbacks.onRoutingEvent?.({
+        type: 'fallback_requested',
+        result: effectiveRoutingResult,
+      })
+      const intentResult = {
+        intent: 'auto' as ChainIntent,
+        matchedKeywords: [],
+        confidence: effectiveRoutingResult.confidence,
+      }
+      const { filtered: fallbackTemplates, skipped: fallbackSkipped } =
+        filterTemplatesByIntent(templates, intentResult.intent)
+      for (const s of fallbackSkipped) {
+        callbacks.onSkillSkipped?.(s.index, s.template.id, s.reason)
+      }
+  return {
+    text: '',
+    meta: null,
+    mode: 'chain',
+    intent: intentResult.intent,
+    routing: effectiveRoutingResult,
+    runState: 'awaiting_confirmation',
+        allMetas: [],
+        awaiting: {
+          routing: effectiveRoutingResult,
+          recommendedSkills: filterTemplatesByIntent(
+            templates,
+            inferRoutingFallbackIntent(effectiveRoutingResult),
+          ).filtered,
+        },
+      }
+}
+    const intentResult: {
+      intent: ChainIntent
+      matchedKeywords: string[]
+      confidence: number
+    } = {
+      intent: bypassed
+        ? 'auto'
+        : effectiveRoutingResult.kind === 'matched'
+          ? effectiveRoutingResult.intent
+          : readonlyFallbackIntent || input.routingOverride?.forcedIntent || 'auto',
+      matchedKeywords: [],
+      confidence: effectiveRoutingResult.confidence,
+    }
+    const { filtered: chainTemplates, skipped } = bypassed
+      ? { filtered: templates, skipped: [] }
+      : filterTemplatesByIntent(templates, intentResult.intent)
+    if (skipped.length > 0) {
+      for (const s of skipped) {
+        callbacks.onSkillSkipped?.(s.index, s.template.id, s.reason)
+        callbacks.onRoutingEvent?.({
+          type: 'skill_skipped',
+          skillIndex: s.index,
+          skillId: s.template.id,
+          reason: s.reason,
+        })
+      }
+    }
+    if (chainTemplates.length === 0) {
+      return {
+        text: '',
+        meta: null,
+        mode: 'chain',
+        runState: 'awaiting_confirmation',
+        routing: effectiveRoutingResult,
+        awaiting: { routing: effectiveRoutingResult, recommendedSkills: [] },
+      }
+    }
+    const allMetas: WorkspaceSkillRunMeta[] = []
+    const skillSequence = templates.map((template) => template.id)
+    const stepToolSurface = resolveAuthorizedToolSurface(
+      adapter,
+      intentResult.intent,
+      0,
+      'chain',
+    )
     const breakpoint = await adapter.loadBreakpoint()
     const resumePoint = getChainResumePoint({
       breakpoint,
@@ -423,27 +1256,95 @@ export async function runWorkspaceSkills(input: RunWorkspaceSkillsInput): Promis
       skillSequence,
     })
     let current = resumePoint.previousOutput || input.requestText
-    let startIndex = resumePoint.startIndex
-    if (resumePoint.resumed) callbacks.onStatus?.(`从第 ${startIndex + 1} 步继续`)
-    for (let index = startIndex; index < templates.length; index++) {
-      const template = templates[index]
+    const startIndex = resumePoint.startIndex
+    const skillCallIds = new Map<string, string>()
+    activeSkillCallIds.set(input, skillCallIds)
+    seenChainHandoffHashes.set(input, new Set<string>(resumePoint.handoffHashes))
+    if (resumePoint.resumed)
+      callbacks.onStatus?.(`从第 ${startIndex + 1} 步继续`)
+    for (let index = startIndex; index < chainTemplates.length; index++) {
+      if (input.signal?.aborted) {
+        callbacks.onStatus?.('已中断')
+        break
+      }
+      if (
+        input.apiBudget &&
+        input.apiBudget.tryConsume(`chain-step-${index}`).status === 'blocked'
+      ) {
+        callbacks.onStatus?.('API 预算已用尽')
+        const budgetSnapshot = input.apiBudget.snapshot()
+        callbacks.onRoutingEvent?.({
+          type: 'budget_exhausted',
+          step: `chain-step-${index}`,
+          budget: { used: budgetSnapshot.used, limit: budgetSnapshot.limit },
+        })
+        return {
+          text: current,
+          meta: allMetas[allMetas.length - 1] || null,
+          allMetas,
+          mode: 'chain',
+          intent: intentResult.intent,
+          routing: effectiveRoutingResult,
+          runState: 'budget_exhausted',
+          budgetSnapshot,
+        }
+      }
+      const template = chainTemplates[index]
       const previousOutput = index === 0 ? '' : current
+      const templateOwnsPreviousOutput =
+        isFolderTemplate(template) ||
+        templateReferencesPreviousOutput(template.template)
       const templateContext = {
-        ...adapter.buildTemplateContext(input.requestText, previousOutput || undefined),
+        ...adapter.buildTemplateContext(
+          input.requestText,
+          previousOutput || undefined,
+        ),
         ...(template.customVars || {}),
       }
       const injection = getPromptParts(
         resolveWorkspaceTemplate(template.template, templateContext),
         template.injectMode || 'system_prefix',
       )
-      const userPrompt = index === 0
-        ? buildChainSkillPrompt({
-          initialPrompt: `用户请求: ${input.requestText}\n\n请执行当前 SKILL：${template.name || template.id}`,
-          previousOutput: '',
-          isFirst: true,
-        })
-        : `原始用户请求: ${input.requestText}\n\n请执行当前 SKILL：${template.name || template.id}。请严格基于上下文中的“上一步 SKILL 完整输出”继续处理。`
-      callbacks.onStatus?.(`Skill ${index + 1}/${templates.length}：${template.name || template.id}`)
+      const userPrompt =
+        index === 0
+          ? buildChainSkillPrompt({
+              initialPrompt: `用户请求: ${input.requestText}\n\n请执行当前 SKILL：${template.name || template.id}`,
+              previousOutput: '',
+              isFirst: true,
+            })
+          : buildChainSkillPrompt({
+              initialPrompt: `原始用户请求: ${input.requestText}\n\n请执行当前 SKILL：${template.name || template.id}。`,
+              previousOutput: '',
+              isFirst: false,
+              templateOwnsPreviousOutput: true,
+              delivery: 'template_variable',
+            })
+      callbacks.onStatus?.(
+        `Skill ${index + 1}/${chainTemplates.length}：${template.name || template.id}`,
+      )
+      const stepStart = performance.now()
+      callbacks.onBeforeSkill?.(
+        index,
+        template.id,
+        template.name || template.id,
+      )
+      const provider = adapter.getProvider(
+        adapter.getAgent(
+          adapter.getSkillAgentId(template.id) || adapter.getBaseAgentId(),
+        ),
+      )
+      const modelName =
+        provider?.selectedModel ||
+        provider?.models?.[0] ||
+        adapter.preferredModel ||
+        'unknown'
+      const callId = callbacks.onApiCallStart?.(
+        template.id,
+        template.name || template.id,
+        modelName,
+        stepToolSurface.actualToolSurface,
+      )
+      if (callId) skillCallIds.set(template.id, callId)
       try {
         current = await callWorkspaceSkill(
           input,
@@ -453,69 +1354,287 @@ export async function runWorkspaceSkills(input: RunWorkspaceSkillsInput): Promis
           { ...templateContext, previousOutput },
           {
             requestText: input.requestText,
-            previousSkillOutput: index === 0 ? undefined : current,
+            ...(index === 0 ? {} : { previousSkillOutput: current }),
+            previousOutputOwnership: templateOwnsPreviousOutput
+              ? 'user_prompt'
+              : 'context_block',
             includeHistory: index === 0,
+            intent: intentResult.intent,
+            stage: index,
+            mode: 'chain',
           },
           () => {
             callbacks.onFirstChunk?.()
-            callbacks.onStatus?.(`Skill ${index + 1}/${templates.length}：正在生成...`)
+            callbacks.onStatus?.(
+              `Skill ${index + 1}/${chainTemplates.length}：正在生成...`,
+            )
           },
         )
-        await adapter.saveBreakpoint(createChainSuccessBreakpoint({
-          step: adapter.step,
-          projectId: adapter.projectId,
-          skillIndex: index,
-          skillId: template.id,
-          skillSequence,
-          lastSuccessChainIndex: index,
-          lastOutput: current,
-          inputPrompt: userPrompt,
-          agentId: adapter.getSkillAgentId(template.id) || adapter.getBaseAgentId(),
-          retryCount: 0,
-        }))
+        skillCallIds.delete(template.id)
+        const stepMeta = lastRunMeta.get(input)
+        const seenSet = seenChainHandoffHashes.get(input)
+        const handoffArtifact = makeChainHandoffArtifact({
+          sourceStep: index,
+          sourceSkillId: template.id,
+          output: current,
+          delivery: 'full_text',
+          templateMeta: null,
+          previousSeenHashes: seenSet,
+        })
+        if (seenSet) {
+          seenSet.add(handoffArtifact.outputHash)
+          callbacks.onRoutingEvent?.({
+            type: 'chain_handoff',
+            artifact: describeChainHandoffEvent(handoffArtifact),
+          })
+        }
+        const echoDiagnostic = detectChainOutputEcho(
+          previousOutput || undefined,
+          current,
+        )
+        if (stepMeta && echoDiagnostic) {
+          stepMeta.diagnostics = [
+            ...(stepMeta.diagnostics || []),
+            {
+              type: 'warning',
+              code: echoDiagnostic.code,
+              message: echoDiagnostic.message,
+            },
+          ]
+        }
+        if (stepMeta) allMetas.push(stepMeta)
+        callbacks.onApiCallFinish?.(
+          callId || '',
+          stepMeta || {
+            requestMessages: [],
+            model: modelName,
+            skillId: template.id,
+          },
+          Math.round(performance.now() - stepStart),
+          { status: 'success', text: current, reasoning: stepMeta?.reasoningText },
+        )
+        callbacks.onAfterSkill?.(
+          index,
+          template.id,
+          template.name || template.id,
+          current,
+        )
+        await adapter.saveBreakpoint(
+          createChainSuccessBreakpoint({
+            step: adapter.step,
+            projectId: adapter.projectId,
+            skillIndex: index,
+            skillId: template.id,
+            skillSequence,
+            lastSuccessChainIndex: index,
+            lastOutput: current,
+            handoffHashes: Array.from(
+              seenChainHandoffHashes.get(input) || [],
+            ),
+            inputPrompt: userPrompt,
+            agentId:
+              adapter.getSkillAgentId(template.id) || adapter.getBaseAgentId(),
+            retryCount: 0,
+          }),
+        )
       } catch (error) {
-        await adapter.saveBreakpoint(createChainFailureBreakpoint({
-          step: adapter.step,
-          projectId: adapter.projectId,
-          skillIndex: index,
-          skillId: template.id,
-          skillSequence,
-          lastSuccessChainIndex: index - 1,
-          lastOutput: previousOutput,
-          inputPrompt: userPrompt,
-          agentId: adapter.getSkillAgentId(template.id) || adapter.getBaseAgentId(),
-          retryCount: Number(breakpoint?.skillId === template.id ? breakpoint.retryCount || 0 : 0) + 1,
-          error: error instanceof Error ? error.message : String(error),
-        }))
+        callbacks.onApiCallFinish?.(
+          callId || '',
+          lastRunMeta.get(input) || {
+            requestMessages: [],
+            model: modelName,
+            skillId: template.id,
+          },
+          Math.round(performance.now() - stepStart),
+          { status: 'failed', text: '' },
+        )
+        await adapter.saveBreakpoint(
+          createChainFailureBreakpoint({
+            step: adapter.step,
+            projectId: adapter.projectId,
+            skillIndex: index,
+            skillId: template.id,
+            skillSequence,
+            lastSuccessChainIndex: index - 1,
+            lastOutput: previousOutput,
+            inputPrompt: userPrompt,
+            agentId:
+              adapter.getSkillAgentId(template.id) || adapter.getBaseAgentId(),
+            retryCount:
+              Number(
+                breakpoint?.skillId === template.id
+                  ? breakpoint.retryCount || 0
+                  : 0,
+              ) + 1,
+            error: error instanceof Error ? error.message : String(error),
+          }),
+        )
         throw error
       }
       callbacks.onChunk?.(current)
     }
     await adapter.clearBreakpoint()
-    return { text: current, meta: lastRunMeta.get(input) || null, mode: 'chain' }
+    callbacks.onRoutingEvent?.({ type: 'run_completed', state: 'completed' })
+  return {
+    text: current,
+    meta: allMetas[allMetas.length - 1] || lastRunMeta.get(input) || null,
+    terminalStatus: resolvePostProcessTerminalStatus(
+      allMetas[allMetas.length - 1]?.postProcessReport,
+    ).runStatus,
+    terminalReason: resolvePostProcessTerminalStatus(
+      allMetas[allMetas.length - 1]?.postProcessReport,
+    ).eventReason,
+    allMetas,
+      mode: 'chain',
+      intent: intentResult.intent,
+      routing: effectiveRoutingResult,
+      runState: 'completed',
+    }
   }
 
   const context = adapter.buildTemplateContext(input.requestText)
-  const parts = mergePromptParts(templates.map(template => {
-    const templateContext = { ...context, ...(template.customVars || {}) }
-    return getPromptParts(
-      resolveWorkspaceTemplate(template.template, templateContext),
-      template.injectMode || 'system_prefix',
-    )
-  }))
-  templates.forEach(template => validateInput(template, context))
-  const combinedTemplate = combineComposeTemplate(templates)
-  const text = await callWorkspaceSkill(
+  const composeRouting = resolveWorkspaceIntentRouting(
     input,
-    combinedTemplate,
-    parts,
-    `用户请求: ${input.requestText}`,
-    context,
-    { requestText: input.requestText, includeHistory: true },
-    () => {
-      callbacks.onFirstChunk?.()
-      callbacks.onStatus?.('正在生成...')
-    },
+    adapter,
+    templates,
+    callbacks,
   )
-  return { text, meta: lastRunMeta.get(input) || null, mode: 'compose' }
+  const composeReadonlyIntent = resolveReadonlyFallbackIntent(composeRouting)
+  if (composeRouting.kind !== 'matched' && !composeReadonlyIntent) {
+    callbacks.onRoutingEvent?.({
+      type: 'fallback_requested',
+      result: composeRouting,
+    })
+    return {
+      text: '',
+      meta: null,
+      mode: 'compose',
+      intent: 'auto',
+      routing: composeRouting,
+      runState: 'awaiting_confirmation',
+      allMetas: [],
+      awaiting: {
+        routing: composeRouting,
+        recommendedSkills: filterTemplatesByIntent(
+          templates,
+          inferRoutingFallbackIntent(composeRouting),
+        ).filtered,
+      },
+    }
+  }
+  const intent: ChainIntent = composeRouting.kind === 'matched'
+    ? composeRouting.intent
+    : composeReadonlyIntent || 'discuss'
+  const composeToolSurface = resolveAuthorizedToolSurface(
+    adapter,
+    intent,
+    0,
+    'compose',
+  )
+  const parts = mergePromptParts(
+    templates.map((template) => {
+      const templateContext = { ...context, ...(template.customVars || {}) }
+      return getPromptParts(
+        resolveWorkspaceTemplate(template.template, templateContext),
+        template.injectMode || 'system_prefix',
+      )
+    }),
+  )
+  templates.forEach((template) => validateInput(template, context))
+  const combinedTemplate = combineComposeTemplate(templates)
+  const composeSkillId = combinedTemplate.id || 'compose'
+  const composeSkillName = templates
+    .map((template) => template.name || template.id)
+    .join(' + ')
+  const composeProvider = adapter.getProvider(
+    adapter.getAgent(
+      adapter.getSkillAgentId(templates[0]?.id || '') ||
+        adapter.getBaseAgentId(),
+    ),
+  )
+  const composeModel =
+    composeProvider?.selectedModel ||
+    composeProvider?.models?.[0] ||
+    adapter.preferredModel ||
+    'unknown'
+  const composeStart = performance.now()
+  const composeCallId = callbacks.onApiCallStart?.(
+    composeSkillId,
+    composeSkillName,
+    composeModel,
+    composeToolSurface.actualToolSurface,
+  )
+  if (composeCallId) {
+    let composeCallIds = activeSkillCallIds.get(input)
+    if (!composeCallIds) {
+      composeCallIds = new Map<string, string>()
+      activeSkillCallIds.set(input, composeCallIds)
+    }
+    composeCallIds.set(composeSkillId, composeCallId)
+  }
+  let text = ''
+  try {
+    text = await callWorkspaceSkill(
+      input,
+      combinedTemplate,
+      parts,
+      `用户请求: ${input.requestText}`,
+      context,
+      {
+        requestText: input.requestText,
+        includeHistory: true,
+        intent,
+        mode: 'compose',
+      },
+      () => {
+        callbacks.onFirstChunk?.()
+        callbacks.onStatus?.('正在生成...')
+      },
+    )
+    if (composeCallId) {
+      activeSkillCallIds.get(input)?.delete(composeSkillId)
+    }
+    callbacks.onApiCallFinish?.(
+      composeCallId || '',
+      lastRunMeta.get(input) || {
+        requestMessages: [],
+        model: composeModel,
+        skillId: composeSkillId,
+      },
+      Math.round(performance.now() - composeStart),
+          { status: 'success', text, reasoning: lastRunMeta.get(input)?.reasoningText },
+    )
+  } catch (error) {
+    if (composeCallId) {
+      activeSkillCallIds.get(input)?.delete(composeSkillId)
+    }
+    callbacks.onApiCallFinish?.(
+      composeCallId || '',
+      lastRunMeta.get(input) || {
+        requestMessages: [],
+        model: composeModel,
+        skillId: composeSkillId,
+      },
+      Math.round(performance.now() - composeStart),
+      { status: 'failed', text: '' },
+    )
+    throw error
+  }
+  return {
+    text,
+    meta: lastRunMeta.get(input) || null,
+    terminalStatus: resolvePostProcessTerminalStatus(
+      lastRunMeta.get(input)?.postProcessReport,
+    ).runStatus,
+    terminalReason: resolvePostProcessTerminalStatus(
+      lastRunMeta.get(input)?.postProcessReport,
+    ).eventReason,
+    allMetas: [lastRunMeta.get(input)].filter(
+      Boolean,
+    ) as WorkspaceSkillRunMeta[],
+    mode: 'compose',
+    intent,
+    routing: composeRouting,
+    runState: 'completed',
+  }
 }

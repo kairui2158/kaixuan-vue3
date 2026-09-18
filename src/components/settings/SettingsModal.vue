@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-overlay" :class="{ 'modal-hidden': !visible }" @click.self="$emit('close')">
+  <div class="modal-overlay" :class="{ 'modal-hidden': !visible }" :style="{ zIndex: modalQueue.getZIndex('settings-modal') }" @click.self="$emit('close')">
     <div class="modal-content modal-lg" :class="{ 'modal-closing': closing }">
       <div class="modal-header">
         <h3>设置</h3>
@@ -18,7 +18,7 @@
         </div>
         <div class="settings-panel">
           <ApiSettings v-if="settingsStore.activeTab === 'api'" />
-          <SkillSettings v-else-if="settingsStore.activeTab === 'skill'" />
+<SkillSettings v-else-if="settingsStore.activeTab === 'skill'" />
           <AgentSettings v-else-if="settingsStore.activeTab === 'agent'" />
           <AppearanceSettings v-else-if="settingsStore.activeTab === 'appearance'" />
           <DeAiSettings v-else-if="settingsStore.activeTab === 'deai'" />
@@ -36,7 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from 'vue'
+import { defineAsyncComponent, ref, watch } from 'vue'
+import { useModalQueue } from '../../composables/useModalQueue'
 import { useSettingsStore } from '../../stores/settings'
 import { useProviderStore } from '../../stores/provider'
 import { useSkillStore } from '../../stores/skill'
@@ -57,6 +58,12 @@ const providerStore = useProviderStore()
 const skillStore = useSkillStore()
 const agentStore = useAgentStore()
 const closing = ref(false)
+const modalQueue = useModalQueue()
+
+watch(() => props.visible, visible => {
+  if (visible) modalQueue.open('settings-modal')
+  else modalQueue.close('settings-modal')
+}, { immediate: true })
 
 const tabs = [
   { id: 'api' as const, label: 'API设置' },

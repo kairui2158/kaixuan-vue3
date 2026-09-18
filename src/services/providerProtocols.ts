@@ -21,6 +21,11 @@ export interface ProviderEndpointConfig {
   stream?: boolean
 }
 
+export interface ProviderReasoningControl {
+  /** Whether this protocol can turn down or disable model thinking at request time. */
+  supported: boolean
+}
+
 export interface ProviderProtocol {
   type: ProviderType
   label: string
@@ -35,6 +40,9 @@ export interface ProviderProtocol {
     temperature: number
     maxTokens: number
     tools?: unknown
+    reasoning?: {
+      mode: 'off'
+    }
   }): Record<string, unknown>
   extractText(data: any): string
   extractReasoning(data: any): string
@@ -128,6 +136,7 @@ const openAICompatibleProtocol: ProviderProtocol = {
       max_tokens: config.maxTokens,
     }
     if (config.tools !== undefined) body.tools = config.tools
+    if (config.reasoning?.mode === 'off') body.reasoning_effort = 'none'
     return body
   },
   extractText(data) {
@@ -216,6 +225,9 @@ const anthropicProtocol: ProviderProtocol = {
     }
     if (system) body.system = system
     if (config.tools !== undefined) body.tools = config.tools
+    if (config.reasoning?.mode === 'off') {
+      body.thinking = { type: 'disabled' }
+    }
     return body
   },
   extractText(data) {
@@ -345,6 +357,11 @@ export function normalizeProviderType(value?: string): ProviderType {
 
 export function getProviderProtocol(providerType?: string): ProviderProtocol {
   return protocols[normalizeProviderType(providerType)]
+}
+
+export function getProviderReasoningControl(providerType?: string): ProviderReasoningControl {
+  const type = normalizeProviderType(providerType)
+  return { supported: type === 'openai-compatible' || type === 'deepseek' || type === 'anthropic' }
 }
 
 export function buildProviderChatUrl(config: ProviderEndpointConfig): string {

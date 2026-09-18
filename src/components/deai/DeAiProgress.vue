@@ -1,5 +1,5 @@
 <template>
-  <div class="deai-progress-overlay">
+  <div class="deai-progress-overlay" :style="{ zIndex: modalQueue.getZIndex('deai-progress') }">
     <div class="deai-progress-modal">
       <div class="deai-progress-header">
         <span>去AI味处理中</span>
@@ -35,9 +35,15 @@
 </template>
 
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted } from 'vue'
+import { useModalQueue } from '../../composables/useModalQueue'
 import { useDeAiStore } from '../../stores/deai'
 
 const deAiStore = useDeAiStore()
+const modalQueue = useModalQueue()
+
+onMounted(() => modalQueue.open('deai-progress'))
+onBeforeUnmount(() => modalQueue.close('deai-progress'))
 
 function cancelDeAi() {
   window.dispatchEvent(new CustomEvent('deai-cancel'))

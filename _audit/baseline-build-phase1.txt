@@ -1,0 +1,101 @@
+
+> shenyi-assistant@3.41.0 build:vue
+> vite build && vite build --config vite.protocols.config.mts
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vite.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+vite v8.2.1 building client environment for production...
+[2K
+[plugin rolldown:vite-resolve] Module "fs" has been externalized for browser compatibility, imported by "D:/codex/novel-workshop-vue3/node_modules/@node-rs/jieba/dict.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin rolldown:vite-resolve] Module "path" has been externalized for browser compatibility, imported by "D:/codex/novel-workshop-vue3/node_modules/@node-rs/jieba/dict.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+transforming...✓ 1635 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-renderer/index.html                                         2.13 kB │ gzip:   0.73 kB
+dist-renderer/assets/wasi-worker-browser-DRA3qwlE.js           197.31 kB
+dist-renderer/assets/jieba.wasm32-wasi-Cwaf8cg6.wasm         1,911.38 kB │ gzip: 693.95 kB
+dist-renderer/assets/SourceHanSansSC-Regular-Cb5JpUDu.otf   16,529.83 kB
+dist-renderer/assets/LXGWWenKai-Regular-Cd54ufNZ.ttf        19,082.66 kB
+dist-renderer/assets/SourceHanSerifSC-Regular-BWWZa5G5.otf  24,543.33 kB
+dist-renderer/assets/G6Canvas-D8ivwlCJ.css                       0.11 kB │ gzip:   0.12 kB
+dist-renderer/assets/MindMap-CjrBleIY.css                        0.66 kB │ gzip:   0.31 kB
+dist-renderer/assets/RelationGraph-BeYTxD4F.css                  0.73 kB │ gzip:   0.32 kB
+dist-renderer/assets/TimelineView-DE-WSveM.css                   1.35 kB │ gzip:   0.47 kB
+dist-renderer/assets/McpSettings-DCkwcpPL.css                    2.06 kB │ gzip:   0.51 kB
+dist-renderer/assets/folderSkillBoundary-BV0lfyrM.css            2.16 kB │ gzip:   0.56 kB
+dist-renderer/assets/AppearanceSettings-BMc_Ou97.css             2.77 kB │ gzip:   0.69 kB
+dist-renderer/assets/GraphAnalysis-BzA_BgER.css                  2.96 kB │ gzip:   0.82 kB
+dist-renderer/assets/DiagLogPanel-X1W6lNTZ.css                   5.33 kB │ gzip:   1.16 kB
+dist-renderer/assets/DeAiSettings-DAwl3iUs.css                   9.06 kB │ gzip:   1.57 kB
+dist-renderer/assets/AgentSettings-CT8Hj-2A.css                  9.19 kB │ gzip:   1.67 kB
+dist-renderer/assets/ApiSettings-BdDMAf3u.css                    9.54 kB │ gzip:   1.78 kB
+dist-renderer/assets/SkillSettings-Bs_JBslV.css                 19.19 kB │ gzip:   2.87 kB
+dist-renderer/assets/index-QVPbL-tg.css                        239.88 kB │ gzip:  34.76 kB
+dist-renderer/assets/storage-key-CiRtpmk5.js                     0.06 kB │ gzip:   0.08 kB
+dist-renderer/assets/aiService-BFkDdYEP.js                       0.07 kB │ gzip:   0.07 kB
+dist-renderer/assets/provider-BdiKefCG.js                        0.07 kB │ gzip:   0.08 kB
+dist-renderer/assets/executionLog-ByCIUxIM.js                    0.08 kB │ gzip:   0.08 kB
+dist-renderer/assets/_plugin-vue_export-helper-BDNMzG2s.js       0.08 kB │ gzip:   0.09 kB
+dist-renderer/assets/dict-CwIp5fnw.js                            0.25 kB │ gzip:   0.18 kB
+dist-renderer/assets/rolldown-runtime-Dd_uD5pT.js                1.10 kB │ gzip:   0.62 kB
+dist-renderer/assets/executionLog-B5fLxX9g.js                    1.65 kB │ gzip:   0.97 kB
+dist-renderer/assets/useMemoryGraph-CUDKvx_2.js                  1.71 kB │ gzip:   0.75 kB
+dist-renderer/assets/MindMap-C_OzsR9u.js                         2.44 kB │ gzip:   1.29 kB
+dist-renderer/assets/useAppConfirm-Clrj_JbF.js                   2.74 kB │ gzip:   1.10 kB
+dist-renderer/assets/json-qhed-kSA.js                            2.81 kB │ gzip:   0.77 kB
+dist-renderer/assets/TimelineView-bbtnoidU.js                    2.94 kB │ gzip:   1.55 kB
+dist-renderer/assets/deai-bS27gDkX.js                            2.99 kB │ gzip:   1.32 kB
+dist-renderer/assets/RelationGraph-BfdpHGO2.js                   3.61 kB │ gzip:   1.68 kB
+dist-renderer/assets/provider-CiZyuMoU.js                        3.86 kB │ gzip:   1.25 kB
+dist-renderer/assets/GraphAnalysis-CrtBj_dz.js                   4.81 kB │ gzip:   2.18 kB
+dist-renderer/assets/McpSettings-BWlSXLQS.js                     5.15 kB │ gzip:   2.25 kB
+dist-renderer/assets/diag-C8ikGRX7.js                            5.35 kB │ gzip:   2.00 kB
+dist-renderer/assets/pinia-CqD03fkn.js                           5.88 kB │ gzip:   2.80 kB
+dist-renderer/assets/DiagLogPanel-B6PJ09WN.js                    6.72 kB │ gzip:   2.76 kB
+dist-renderer/assets/useConfigExchange-C3Zla7jD.js               7.04 kB │ gzip:   2.08 kB
+dist-renderer/assets/preload-helper-CvpMKP1b.js                  8.87 kB │ gzip:   3.01 kB
+dist-renderer/assets/AppearanceSettings-Cug-WQXc.js              9.74 kB │ gzip:   3.35 kB
+dist-renderer/assets/AgentSettings-DwNuO31r.js                  10.75 kB │ gzip:   4.03 kB
+dist-renderer/assets/github-light-EUqPIrTm.js                   11.18 kB │ gzip:   2.49 kB
+dist-renderer/assets/github-dark-C-LZuMrd.js                    11.40 kB │ gzip:   2.53 kB
+dist-renderer/assets/ApiSettings-BTYhxJFs.js                    12.59 kB │ gzip:   4.41 kB
+dist-renderer/assets/runtime-dom.esm-bundler-58IYsBEh.js        14.01 kB │ gzip:   5.94 kB
+dist-renderer/assets/DeAiSettings-Dvaael9c.js                   15.53 kB │ gzip:   5.03 kB
+dist-renderer/assets/skill-CdJuzTNr.js                          26.82 kB │ gzip:   7.12 kB
+dist-renderer/assets/aiService-8b2dggF6.js                      30.54 kB │ gzip:   9.93 kB
+dist-renderer/assets/bash-CLZ0U2zV.js                           41.47 kB │ gzip:   6.07 kB
+dist-renderer/assets/markdown-BYOwaDjH.js                       59.32 kB │ gzip:   5.66 kB
+dist-renderer/assets/runtime-core.esm-bundler-C_PM5Q90.js       66.06 kB │ gzip:  25.92 kB
+dist-renderer/assets/SkillSettings-DkC0_SY6.js                  68.12 kB │ gzip:  20.93 kB
+dist-renderer/assets/javascript-BgS3c2Ky.js                    174.82 kB │ gzip:  16.62 kB
+dist-renderer/assets/typescript-bsJCZSQ-.js                    181.07 kB │ gzip:  16.23 kB
+dist-renderer/assets/browser-BvyJXL7N.js                       197.59 kB │ gzip:  45.08 kB
+dist-renderer/assets/folderSkillBoundary-WS5Y8Z3B.js           294.33 kB │ gzip:  99.26 kB
+dist-renderer/assets/index-pYjaA_at.js                         722.53 kB │ gzip: 232.67 kB
+dist-renderer/assets/G6Canvas-b94VH3Wp.js                    1,409.35 kB │ gzip: 404.72 kB
+
+✓ built in 3.67s
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[PLUGIN_TIMINGS] Your build spent 68% of 3.7s inside plugin hooks (2.5s).
+Measured inside the callback, so queue time is excluded and time the callback itself awaited is not:
+  - vite:css transform (57%, 2.1s, 50 calls)
+  - vite:worker-import-meta-url transform (56%, 2.0s, 1 call)
+  - vite:vue transform (52%, 1.9s, 129 calls)
+See https://rolldown.rs/reference/InputOptions.checks#plugintimings for more details.
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - `__dirname` (vite.protocols.config.mts:9:22). Use `import.meta.dirname` instead
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+vite v8.2.1 building client environment for production...
+[2K
+transforming...✓ 2 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-renderer/providerProtocols.cjs  8.18 kB │ gzip: 2.62 kB
+
+✓ built in 380ms

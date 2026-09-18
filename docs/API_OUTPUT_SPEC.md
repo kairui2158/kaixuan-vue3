@@ -324,3 +324,4 @@ Skill 3: 同上 → 最终输出
 1. **Step 2 设定**: prompt 要求 `attrs: {描述, 特点, 关系}`，系统提示词要求 `description` 字段。两者都被解析但来源不同。
 2. **Step 4 章节**: prompt 要求 `plot` 字段，系统提示词只要求 `summary`。代码用 `c.plot || c.summary` 兼容。
 3. **Skill 链式模式**: 最终输出格式取决于最后一个 Skill，可能与步骤期望格式不匹配。
+> 历史资料：本文描述旧架构输出协议，不作为当前 API 协议依据。当前协议以 `src/services/` 与相关规格测试为准。

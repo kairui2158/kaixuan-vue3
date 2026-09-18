@@ -1,7 +1,7 @@
 import { chromium } from 'playwright'
 
 const browser = await chromium.connectOverCDP('http://127.0.0.1:9227')
-const page = browser.contexts()[0].pages().find(item => item.url().includes('index.html'))
+const page = browser.contexts()[0].pages().find(item => !item.url().startsWith('devtools://'))
 console.log('url:', page.url())
 console.log('title:', await page.title())
 console.log('overlays:', await page.evaluate(() => {

@@ -9,6 +9,8 @@ import { useAgentStore } from '../stores/agent'
 import { useProjectStore } from '../stores/project'
 import { generateNames, regenerateSingleName, isNamingError, isCanceledError } from '../services/namingService'
 import type { NamingGenerateError } from '../services/namingService'
+import { useAiCallTrace } from './useAiCallTrace'
+import { useRunTraceStore } from '../stores/runTrace'
 import type {
   NamingOptions,
   NamingResult,
@@ -50,6 +52,7 @@ export function useAiNaming() {
 
   // 生成状态
   const status = ref<NamingStatus>('idle')
+  const statusHistory = ref<Array<{ fromStatus: NamingStatus | null; toStatus: NamingStatus; reason?: string; recordedAt: number }>>([])
   const statusMessage = ref('')
   const progressLabel = ref('')
   const currentResults = ref<NamingResult[]>([])
@@ -59,7 +62,51 @@ export function useAiNaming() {
   // 取消控制器
   let abortController: AbortController | null = null
 
+  function createTrace(operation: string) {
+    const provider = providerStore.activeGenerateProvider
+    const agent = agentStore.activeAgent
+    const runTraceStore = useRunTraceStore()
+    const previousRunId = runTraceStore.getRunId('home')
+    if (previousRunId) {
+      runTraceStore.cancelRunningApiCalls(previousRunId, `新的${operation}运行开始，上一条运行已取消`)
+      runTraceStore.finishRun(previousRunId, 'canceled', `新的${operation}运行开始，上一条运行已取消`)
+    }
+    const trace = useAiCallTrace({
+      source: 'home',
+      stepName: operation,
+      mode: 'editor-tool',
+      projectId: projectStore.currentProjectId || 'default',
+      projectName: projectStore.projectName,
+      providerId: provider?.id,
+      providerName: provider?.name,
+      model: agent?.model || provider?.selectedModel || provider?.models?.[0],
+      target: {
+        type: openOptions.value?.source || 'editor',
+        id: 'ai-naming',
+        name: 'AI命名'
+      }
+    })
+    trace.begin()
+    trace.addEvent({
+      type: 'tool-entry',
+      label: `${operation}入口`,
+      level: 'info',
+      detail: 'AI 命名面板'
+    })
+    return trace
+  }
+
   // ── 弹窗控制 ───────────────────────────
+  function setNamingStatus(next: NamingStatus, reason?: string) {
+    statusHistory.value = [...statusHistory.value.slice(-99), {
+      fromStatus: status.value,
+      toStatus: next,
+      reason,
+      recordedAt: Date.now()
+    }]
+    status.value = next
+  }
+
   function openNaming(options: OpenNamingOptions) {
     openOptions.value = options
     visible.value = true
@@ -72,7 +119,7 @@ export function useAiNaming() {
     } else if (options.pipelineContext) {
       context.value = options.pipelineContext.slice(0, 500)
     }
-    status.value = 'idle'
+    setNamingStatus('idle', '面板打开')
     statusMessage.value = ''
     currentResults.value = []
     currentError.value = null
@@ -83,7 +130,7 @@ export function useAiNaming() {
     visible.value = false
     openOptions.value = null
     currentResults.value = []
-    status.value = 'idle'
+    setNamingStatus('idle', '面板关闭')
     statusMessage.value = ''
     currentError.value = null
   }
@@ -106,7 +153,7 @@ export function useAiNaming() {
     if (status.value === 'loading') return
     cancelGeneration()
     abortController = new AbortController()
-    status.value = 'loading'
+    setNamingStatus('loading', '开始生成')
     statusMessage.value = '正在生成…'
     progressLabel.value = ''
     currentError.value = null
@@ -114,31 +161,37 @@ export function useAiNaming() {
 
     const options = buildOptions()
     lastRequestOptions.value = options
+    const trace = createTrace('AI命名')
 
     try {
       const result = await generateNames(options, { providerStore, agentStore }, abortController.signal, (label) => {
         progressLabel.value = label
-      })
+      }, trace)
       currentResults.value = result.results
       if (result.filteredCount > 0 && result.validCount < options.count) {
-        status.value = 'partial'
+        setNamingStatus('partial', '部分有效结果')
+        addPartialNamingTraceEvent(trace, result, options.count)
+        trace.finish('success')
         statusMessage.value = `已生成 ${result.validCount} 个，过滤 ${result.filteredCount} 个无效项`
       } else {
-        status.value = 'success'
+        setNamingStatus('success', '生成完成')
+        trace.finish('success')
         statusMessage.value = `已生成 ${result.validCount} 个`
       }
       // 添加到历史
       addHistory(options, result.results)
     } catch (e: any) {
+      if (isCanceledError(e)) trace.finish('canceled', '已取消')
+      else trace.fail(e)
       if (isCanceledError(e)) {
-        status.value = 'canceled'
+        setNamingStatus('canceled', '用户取消')
         statusMessage.value = '已取消'
       } else if (isNamingError(e)) {
-        status.value = 'error'
+        setNamingStatus('error', '命名服务错误')
         statusMessage.value = e.message
         currentError.value = e
       } else {
-        status.value = 'error'
+        setNamingStatus('error', '生成异常')
         statusMessage.value = e?.message || '未知错误'
         currentError.value = { kind: 'network', message: e?.message || '未知错误' }
       }
@@ -148,43 +201,57 @@ export function useAiNaming() {
     }
   }
 
+  function addPartialNamingTraceEvent(trace: ReturnType<typeof createTrace>, result: { validCount: number }, expectedCount: number) {
+    trace.addEvent({
+      type: 'state-transition',
+      level: 'warn',
+      label: 'NamingStatus：partial → RunTraceStatus degraded',
+      detail: `有效结果 ${result.validCount}/${expectedCount}；runTrace schema 继续使用 degraded`
+    })
+  }
+
   async function doRegenerateSingle(index: number) {
     if (status.value === 'loading') return
     if (index < 0 || index >= currentResults.value.length) return
     cancelGeneration()
     abortController = new AbortController()
-    status.value = 'loading'
+    setNamingStatus('loading', '开始单项重生成')
     statusMessage.value = `正在重新生成第 ${index + 1} 个…`
     progressLabel.value = ''
     currentError.value = null
 
     const options = { ...buildOptions(), count: 1 }
     lastRequestOptions.value = options
+    const trace = createTrace('AI命名单项重生成')
 
     try {
       const result = await regenerateSingleName(options, { providerStore, agentStore }, abortController.signal, (label) => {
         progressLabel.value = label
-      })
+      }, trace)
+      trace.finish('success')
       if (result) {
         currentResults.value[index] = result
-        status.value = 'success'
+        setNamingStatus('success', '单项重生成完成')
         statusMessage.value = `已重新生成`
         addHistory(options, [result])
       } else {
-        status.value = 'error'
+        trace.finish('failed', '重新生成未返回有效结果')
+        setNamingStatus('error', '单项重生成未返回结果')
         statusMessage.value = '重新生成未返回有效结果'
         currentError.value = { kind: 'empty', message: '重新生成未返回有效结果' }
       }
     } catch (e: any) {
+      if (isCanceledError(e)) trace.finish('canceled', '已取消')
+      else trace.fail(e)
       if (isCanceledError(e)) {
-        status.value = 'canceled'
+        setNamingStatus('canceled', '用户取消')
         statusMessage.value = '已取消'
       } else if (isNamingError(e)) {
-        status.value = 'error'
+        setNamingStatus('error', '单项重生成异常')
         statusMessage.value = e.message
         currentError.value = e
       } else {
-        status.value = 'error'
+        setNamingStatus('error', '单项重生成异常')
         statusMessage.value = e?.message || '未知错误'
       }
     } finally {
@@ -199,7 +266,7 @@ export function useAiNaming() {
       abortController = null
     }
     if (status.value === 'loading') {
-      status.value = 'canceled'
+      setNamingStatus('canceled', '取消生成')
       statusMessage.value = '已取消'
       progressLabel.value = ''
     }
@@ -258,7 +325,7 @@ export function useAiNaming() {
     count.value = record.request.count
     currentResults.value = [...record.results]
     lastRequestOptions.value = record.request
-    status.value = 'idle'
+    setNamingStatus('idle', '历史恢复')
     statusMessage.value = '已从历史恢复'
   }
 

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="props.visible" id="skill-bind-modal" class="skill-bind-overlay" @click.self="closeModal">
+  <div v-if="props.visible" id="skill-bind-modal" class="skill-bind-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-bind-modal') }" @click.self="closeModal">
     <div class="skill-bind-content">
       <div class="skill-bind-header">
         <h3 id="sbm-title">绑定技能</h3>
@@ -36,6 +36,7 @@ import { ref, watch } from 'vue'
 import { useSkillStore } from '../../stores/skill'
 import { useProjectStore } from '../../stores/project'
 import { usePipelineStore } from '../../stores/pipeline'
+import { useModalQueue } from '../../composables/useModalQueue'
 
 const props = defineProps<{ visible: boolean; type: string; id: string }>()
 const emit = defineEmits<{ close: [] }>()
@@ -43,12 +44,15 @@ const emit = defineEmits<{ close: [] }>()
 const skillStore = useSkillStore()
 const projectStore = useProjectStore()
 const pipelineStore = usePipelineStore()
+const modalQueue = useModalQueue()
 const selectedIds = ref<string[]>([])
 const selectedStep = ref<number>(1)
 
 watch(() => props.visible, (v) => {
   if (v) loadCurrentBinding()
-})
+  if (v) modalQueue.open('skill-bind-modal')
+  else modalQueue.close('skill-bind-modal')
+}, { immediate: true })
 
 function loadCurrentBinding() {
   const node = findNode()

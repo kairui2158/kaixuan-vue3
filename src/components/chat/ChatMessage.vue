@@ -3,12 +3,12 @@
     <div class="message-bubble" :class="message.role">
       <div ref="contentRef" class="message-content" v-html="renderedContent"></div>
       <div
-        v-if="message.role === 'assistant' && message.editorBatch"
+        v-if="message.role === 'assistant' && message.editorBatch && message.editorBatchRecord"
         class="chat-edit-command"
-        title="已识别为待确认的批量编辑"
+        title="API 已直接写入编辑器，可通过批次记录回滚"
       >
-        已识别批量编辑：{{ message.editorBatch.commands.length }} 条
-        <button class="msg-btn" :disabled="busy" type="button" @click="$emit('preview')">预览修改</button>
+        已写入编辑器：{{ message.editorBatch.commands.length }} 条
+        <span class="chat-direct-write-badge">可回滚</span>
         <button
           v-if="canRollbackBatch"
           class="msg-btn"
@@ -17,6 +17,12 @@
           title="恢复该批次应用前的内容"
           @click="$emit('rollback')"
         >回滚此批次</button>
+        <button
+          class="msg-btn"
+          type="button"
+          title="在编辑器中定位首处变更"
+          @click="$emit('reveal')"
+        >查看位置</button>
       </div>
       <div
         v-if="message.role === 'assistant' && message.editorToolPlan?.steps?.length"
@@ -114,8 +120,32 @@
         :diagnostics="message.skillRunDiagnostics.diagnostics"
         :request-messages="message.skillRunDiagnostics.requestMessages"
         :budget="message.skillRunDiagnostics.budget"
-        :from-cache="message.skillRunDiagnostics.fromCache"
+        :folder-package-cache="message.skillRunDiagnostics.folderPackageCache"
       />
+    </div>
+    <div
+      v-if="message.role === 'assistant' && message.routingFallback"
+      class="chat-routing-fallback"
+    >
+      <div class="chat-routing-title">未识别到明确执行意图</div>
+      <div class="chat-routing-desc">{{ routingFallbackText }}</div>
+      <div class="chat-routing-actions">
+        <button class="msg-btn" :disabled="busy" type="button" @click="$emit('routing-continue')">按推荐技能继续</button>
+        <details class="chat-routing-advanced">
+          <summary>高级</summary>
+          <button class="msg-btn" :disabled="busy" type="button" @click="$emit('routing-bypass')">本次直接全链执行</button>
+        </details>
+      </div>
+    </div>
+    <div
+      v-if="message.role === 'assistant' && message.budgetExhausted"
+      class="chat-routing-budget"
+    >
+      <div class="chat-routing-title">API 调用预算已用尽（{{ message.budgetExhausted.used }}/{{ message.budgetExhausted.limit }}）</div>
+      <div class="chat-routing-desc">已保留链式断点，可追加预算后从断点继续。</div>
+      <div class="chat-routing-actions">
+        <button class="msg-btn" :disabled="busy" type="button" @click="$emit('budget-extend')">追加 4 次并继续</button>
+      </div>
     </div>
   </div>
 </template>
@@ -130,11 +160,11 @@ import type { EditorEditBatchCommand } from '../../services/editorEditProtocol'
 import type { EditorBatchRecord } from '../../services/editorBatchRecord'
 import type { EditorToolPlan } from '../../stores/chat'
 import type { ToolCallStreamEvent } from '../../stores/chat'
-import type { ChatMessage } from '../../stores/chat'
+import type { ChatMessage as ChatMessageType } from '../../stores/chat'
 import RealSkillDiagnosticsPanel from '../common/RealSkillDiagnosticsPanel.vue'
 
 const props = defineProps<{
-  message: { role: string; content: string; continuation?: unknown; editorBatch?: EditorEditBatchCommand; editorBatchRecord?: EditorBatchRecord; editorToolPlan?: EditorToolPlan; toolCallStream?: ToolCallStreamEvent[]; skillRunDiagnostics?: ChatMessage['skillRunDiagnostics'] }
+  message: { role: string; content: string; continuation?: unknown; editorBatch?: EditorEditBatchCommand; editorBatchRecord?: EditorBatchRecord; editorToolPlan?: EditorToolPlan; toolCallStream?: ToolCallStreamEvent[]; skillRunDiagnostics?: ChatMessageType['skillRunDiagnostics']; routingFallback?: ChatMessageType['routingFallback']; budgetExhausted?: ChatMessageType['budgetExhausted'] }
   busy?: boolean
   chainBreakpoint?: { skillId: string; step: number; error: string; retryCount: number } | null
 }>()
@@ -178,16 +208,28 @@ const emit = defineEmits<{
   replace: [string]
   apply: [string]
   continue: []
-  preview: []
   rollback: []
+  reveal: []
   'resume-task': []
   'pause-task': []
   'retry-step': []
   'resume-breakpoint': []
   'discard-breakpoint': []
+  'routing-continue': []
+  'routing-bypass': []
+  'budget-extend': []
 }>()
 
 const canRollbackBatch = computed(() => props.message.editorBatchRecord?.status === 'applied' && props.message.editorBatchRecord?.undoAvailable === true)
+const routingFallbackText = computed(() => {
+  const fallback = props.message.routingFallback
+  if (!fallback) return ''
+  const routing = fallback.routing
+  if (routing?.kind === 'ambiguous') {
+    return `检测到多个可能意图：${routing.candidates.join('、')}。请确认后继续。`
+  }
+  return '未能识别意图，请补充写入或讨论说明'
+})
 
 function runAction(action: 'copy' | 'regenerate' | 'apply' | 'replace' | 'continue', content?: string) {
   if (props.busy) return
@@ -313,6 +355,18 @@ watch(() => props.busy, (busy, previousBusy) => {
   font-size: var(--font-size-sm);
 }
 
+.chat-direct-write-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm, 4px);
+  background: color-mix(in srgb, var(--success, #2f855a) 14%, transparent);
+  color: var(--success, #2f855a);
+  font-size: var(--font-size-xs, 12px);
+  line-height: 1;
+}
+
 .chat-tool-plan {
   margin-top: 8px;
   padding: var(--space-4) var(--space-5);
@@ -385,6 +439,12 @@ watch(() => props.busy, (busy, previousBusy) => {
 .chat-task-step.running { color: var(--accent); font-weight: 500; }
 .chat-task-actions { display: flex; gap: var(--space-2); margin-top: 4px; }
 .chat-breakpoint-status { margin-top: 8px; padding: var(--space-4) var(--space-5); border-left: 3px solid var(--chat-status-error); background: var(--bg-secondary); font-size: var(--font-size-sm); }
+.chat-routing-fallback, .chat-routing-budget { margin-top: 8px; padding: var(--space-4) var(--space-5); border-left: 3px solid var(--accent); background: var(--bg-secondary); font-size: var(--font-size-sm); }
+.chat-routing-title { font-weight: 600; color: var(--text-primary); }
+.chat-routing-desc { margin: var(--space-2) 0; color: var(--text-muted); }
+.chat-routing-actions { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.chat-routing-advanced summary { color: var(--text-muted); cursor: pointer; font-size: var(--font-size-xs); }
+.chat-routing-advanced[open] { display: contents; }
 .chat-breakpoint-title { display: flex; align-items: center; gap: var(--space-3); font-weight: 600; color: var(--chat-status-error); }
 .chat-breakpoint-error { margin: var(--space-2) 0; color: var(--text-muted); font-size: var(--font-size-xs); }
 .chat-breakpoint-actions { display: flex; gap: var(--space-2); }

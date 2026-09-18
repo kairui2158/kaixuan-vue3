@@ -42,10 +42,11 @@ export function useUndoRedo(maxDepth: number = 50) {
   // External writes (AI batches) replace the current snapshot without adding
   // a user-edit undo entry. Batch rollback has its own dedicated stack.
   // 保留旧接口兼容: 无 batchId 时退化为快照替换
-  function replaceCurrentSnapshot(currentValue: string, batchId?: string) {
+  function replaceCurrentSnapshot(currentValue: string, batchId?: string, silentUndo = false) {
     redoStack.value = []
     if (batchId) {
       pushAiBatchCheckpoint(currentValue, batchId)
+      if (silentUndo) undoStack.value.pop()
     } else {
       lastSnapshot = { content: currentValue }
     }

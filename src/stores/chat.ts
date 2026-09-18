@@ -5,6 +5,7 @@ import type { ContinuationSnapshot } from '../services/continuation'
 import type { EditorEditBatchCommand } from '../services/editorEditProtocol'
 import type { EditorBatchRecord } from '../services/editorBatchRecord'
 import type { WorkspaceSkillRunMeta } from '../services/workspaceSkillEngine'
+import type { ChainRoutingResult } from '../services/chainIntentRouter'
 
 export interface EditorToolPlan {
   stage: string
@@ -40,7 +41,21 @@ export interface ChatMessage {
   editorBatchRecord?: EditorBatchRecord
   editorToolPlan?: EditorToolPlan
   toolCallStream?: ToolCallStreamEvent[]
-  skillRunDiagnostics?: Pick<WorkspaceSkillRunMeta, 'status' | 'diagnostics' | 'requestMessages' | 'budget' | 'fromCache'>
+  routingFallback?: {
+    routing?: ChainRoutingResult
+    skillNames: string[]
+    recommendedSkillIds?: string[]
+    requestText: string
+    runId?: string
+    createdAt?: number
+    resumeToken?: string
+  }
+  budgetExhausted?: {
+    used: number
+    limit: number
+    requestText: string
+  }
+  skillRunDiagnostics?: Pick<WorkspaceSkillRunMeta, 'status' | 'diagnostics' | 'requestMessages' | 'budget' | 'folderPackageCache'>
 }
 
 export interface ChatSession {
@@ -134,7 +149,7 @@ export const useChatStore = defineStore('chat', () => {
       diagnostics: meta.diagnostics,
       requestMessages: meta.requestMessages,
       budget: meta.budget,
-      fromCache: meta.fromCache
+      folderPackageCache: meta.folderPackageCache
     }
     session.updatedAt = Date.now()
     saveSessions(currentProjectId.value)
@@ -155,6 +170,21 @@ export const useChatStore = defineStore('chat', () => {
     const message = session?.messages.find(item => item.id === messageId)
     if (!session || !message) return false
     message.continuation = continuation
+    session.updatedAt = Date.now()
+    void saveSessions(currentProjectId.value)
+    return true
+  }
+
+  function updateMessageRoutingState(
+    messageId: string,
+    patch: { routingFallback?: ChatMessage['routingFallback']; budgetExhausted?: ChatMessage['budgetExhausted'] },
+    sessionId?: string
+  ) {
+    const session = sessions.value.find(item => item.id === (sessionId || activeSessionId.value))
+    const message = session?.messages.find(item => item.id === messageId)
+    if (!session || !message || message.role !== 'assistant') return false
+    if (patch.routingFallback !== undefined) message.routingFallback = patch.routingFallback
+    if (patch.budgetExhausted !== undefined) message.budgetExhausted = patch.budgetExhausted
     session.updatedAt = Date.now()
     void saveSessions(currentProjectId.value)
     return true
@@ -263,7 +293,7 @@ export const useChatStore = defineStore('chat', () => {
   return {
     sessions, activeSessionId, activeSession, activeMessages, currentContext,
     generationStatus, generationMessage, generationStartedAt,
-    loadSessions, saveSessions, ensureSession, addMessage, updateLastMessage, updateLastMessageSkillDiagnostics, updateMessageContent, replaceMessagePair, setGenerationState,
+    loadSessions, saveSessions, ensureSession, addMessage, updateLastMessage, updateLastMessageSkillDiagnostics, updateMessageContent, updateMessageRoutingState, replaceMessagePair, setGenerationState,
     clearSession, removeSession, setCurrentContext, updateMessageContinuation, updateMessageEditorBatch, updateMessageEditorToolPlan
     , appendToolCallStream
   }

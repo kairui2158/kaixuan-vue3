@@ -178,6 +178,7 @@
 import { ref, computed } from 'vue'
 import { useProviderStore, type Provider } from '../../stores/provider'
 import { getAiService } from '../../services/aiService'
+import { useAiCallTrace } from '../../composables/useAiCallTrace'
 
 const providerStore = useProviderStore()
 
@@ -332,6 +333,15 @@ async function fetchModels() {
   }
   fetchingModels.value = true
   fetchMsg.value = ''
+  const trace = useAiCallTrace({
+    source: 'infra',
+    stepName: '获取模型列表',
+    mode: 'provider',
+    providerId: editingProvider.value.id,
+    providerName: editingProvider.value.name,
+    model: editingProvider.value.selectedModel
+  })
+  trace.begin()
   try {
     const service = await getAiService()
     const models = await service.fetchModelsForProvider(editingProvider.value)
@@ -341,8 +351,10 @@ async function fetchModels() {
     } else {
       fetchMsg.value = '未获取到模型，请检查接口地址和密钥'
     }
+    trace.finish(models && models.length > 0 ? 'success' : 'degraded')
   } catch (e: any) {
     fetchMsg.value = '获取失败: ' + (e?.message || String(e))
+    trace.fail(e)
   } finally {
     fetchingModels.value = false
   }
@@ -356,6 +368,15 @@ async function testConnection() {
   }
   testingConn.value = true
   connStatus.value = ''
+  const trace = useAiCallTrace({
+    source: 'infra',
+    stepName: '连接测试',
+    mode: 'provider',
+    providerId: editingProvider.value.id,
+    providerName: editingProvider.value.name,
+    model: editingProvider.value.selectedModel
+  })
+  trace.begin()
   try {
     const service = await getAiService()
     const result = await service.testConnectionForProvider(editingProvider.value)
@@ -364,8 +385,10 @@ async function testConnection() {
     } else {
       connStatus.value = '连接失败: ' + (result?.error || '未知错误')
     }
+    trace.finish(result?.connected ? 'success' : 'failed', result?.error)
   } catch (e: any) {
     connStatus.value = '连接失败: ' + (e?.message || String(e))
+    trace.fail(e)
   } finally {
     testingConn.value = false
   }

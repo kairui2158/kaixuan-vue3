@@ -1,5 +1,15 @@
 export type ChainBreakpointStatus = 'completed' | 'failed'
 
+export type ChainBreakpointHandoff = {
+  artifactId: string
+  sourceStep: number
+  sourceSkillId: string
+  outputHash: string
+  fullTextLength: number
+  delivery: string
+  canonicalExcerpt?: string
+}
+
 export type ChainBreakpoint = {
   kind: 'chain'
   status: ChainBreakpointStatus
@@ -10,6 +20,8 @@ export type ChainBreakpoint = {
   skillSequence: string[]
   lastSuccessChainIndex: number
   lastOutput: string
+  lastHandoff?: ChainBreakpointHandoff
+  handoffHashes?: string[]
   inputPrompt: string
   agentId: string
   retryCount: number
@@ -28,6 +40,8 @@ export type ChainResumeInput = {
 export type ChainResumePoint = {
   startIndex: number
   previousOutput: string
+  lastHandoff?: ChainBreakpointHandoff
+  handoffHashes: string[]
   resumed: boolean
 }
 
@@ -52,12 +66,14 @@ export function createChainFailureBreakpoint(input: Omit<ChainBreakpoint, 'kind'
 export function getChainResumePoint(input: ChainResumeInput): ChainResumePoint {
   const bp = input.breakpoint
   if (!bp || bp.step !== input.step || bp.projectId !== input.projectId) {
-    return { startIndex: 0, previousOutput: '', resumed: false }
+    return { startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false }
   }
   const sequenceMatches = Array.isArray(bp.skillSequence)
     ? bp.skillSequence.length === input.skillSequence.length && bp.skillSequence.every((id, index) => id === input.skillSequence[index])
     : true
-  if (!sequenceMatches) return { startIndex: 0, previousOutput: '', resumed: false }
+  if (!sequenceMatches) {
+    return { startIndex: 0, previousOutput: '', handoffHashes: [], resumed: false }
+  }
 
   const legacyNext = Number.isInteger(bp.lastSuccessChainIndex) ? Number(bp.lastSuccessChainIndex) + 1 : 0
   const failedIndex = bp.status === 'failed' && Number.isInteger(bp.skillIndex) ? Number(bp.skillIndex) : -1
@@ -65,6 +81,10 @@ export function getChainResumePoint(input: ChainResumeInput): ChainResumePoint {
   return {
     startIndex,
     previousOutput: typeof bp.lastOutput === 'string' ? bp.lastOutput : '',
+    lastHandoff: bp.lastHandoff,
+    handoffHashes: Array.isArray(bp.handoffHashes)
+      ? bp.handoffHashes.filter(hash => typeof hash === 'string' && hash.length > 0)
+      : [],
     resumed: startIndex > 0 || failedIndex >= 0
   }
 }

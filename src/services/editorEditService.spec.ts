@@ -30,6 +30,13 @@ describe('parseEditorEditCommand', () => {
     const command = parseEditorEditCommand('{"type":"outline_edit","operation":"replace_section","content":"新段落","target":"第二段"}')
     expect(command).toMatchObject({ type: 'editor_edit', operation: 'replace_match' })
   })
+
+  it('parses optional structure anchors for long-document two-layer locating', () => {
+    const command = parseEditorEditCommand('{"type":"editor_edit","version":1,"operation":"replace_match","content":"新文","target":"第二章","chapterTitle":"第二章 风暴"}')
+    expect(command).toMatchObject({
+      chapterTitle: '第二章 风暴'
+    })
+  })
 })
 
 describe('editor target', () => {
@@ -79,6 +86,20 @@ describe('buildEditPlan', () => {
     expect(plan.next).toBe(content)
   })
 
+  it('rejects repeated target fragments instead of using the first hit', () => {
+    const target = createTarget()
+    const repeated = buildEditPlan(target, {
+      type: 'editor_edit',
+      version: 1,
+      operation: 'replace_match',
+      content: '新文',
+      target: '段'
+    }, { content })
+    expect(repeated.ok).toBe(false)
+    expect(repeated.failureReason).toBe('ambiguous_target')
+    expect(repeated.next).toBe(content)
+  })
+
   it('supports insert positions, append, delete, and rewrite without whole-file replacement', () => {
     const target = createTarget(4, 4)
     const insert = buildEditPlan(target, {
@@ -112,5 +133,48 @@ describe('buildEditorEditPrompt', () => {
     const withoutSelection = buildEditorEditPrompt({ workspace: 'main', label: '第一章', content: '正文' })
     expect(withSelection).toContain('replace_selection 可直接替换')
     expect(withoutSelection).toContain('禁止 replace_selection')
+  })
+
+  it('injects the structure map and focused content for long documents instead of the full text', () => {
+    const content = 'x'.repeat(13000)
+    const prompt = buildEditorEditPrompt({
+      workspace: 'outline',
+      label: '大纲编辑器',
+      content,
+      structureMap: '大纲结构地图：卷 1，章 0，节 0',
+      focusContent: '第一卷 风暴起点',
+      focusLabel: '（第一卷）'
+    })
+    expect(prompt).toContain('当前编辑内容为长文档')
+    expect(prompt).toContain('大纲结构地图：卷 1')
+    expect(prompt).toContain('第一卷 风暴起点')
+    expect(prompt).not.toContain(content)
+  })
+
+  it('keeps full content for short documents and remains compatible', () => {
+    const prompt = buildEditorEditPrompt({ workspace: 'main', label: '第一章', content: '正文全文' })
+    expect(prompt).toContain('当前编辑内容：\n正文全文')
+  })
+
+  it('uses a chapter anchor to disambiguate repeated targets', () => {
+    const repeatedContent = '第一卷\n第二章\n目标片段\n第二卷\n第二章\n目标片段'
+    const target = createEditorTargetSnapshot({
+      workspace: 'main',
+      targetId: 'long-target',
+      label: '长文档',
+      content: repeatedContent
+    })
+    const plan = buildEditPlan(target, {
+      type: 'editor_edit',
+      version: 1,
+      operation: 'replace_match',
+      content: '新文',
+      target: '目标片段',
+      chapterTitle: '第二卷'
+    }, { content: repeatedContent })
+    expect(plan.ok).toBe(true)
+    expect(plan.range.start).toBe('第一卷\n第二章\n目标片段\n第二卷\n第二章\n'.length)
+    expect(plan.next.slice(plan.range.start, plan.range.end)).toBe('新文')
+    expect(plan.next.slice(0, plan.range.start)).toBe('第一卷\n第二章\n目标片段\n第二卷\n第二章\n')
   })
 })

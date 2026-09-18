@@ -167,7 +167,7 @@ var DiagLogger = {
   trackApiCall: trackApiCall
 };
 
-// 全局挂载：pipeline-manager 等守卫式消费方依赖 window.DiagLogger
+// 全局挂载：旧式守卫消费方依赖 window.DiagLogger
 if (typeof window !== 'undefined') window.DiagLogger = DiagLogger;
 
 export { DiagLogger, subscribe };

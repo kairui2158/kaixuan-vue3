@@ -20,7 +20,7 @@ export interface FolderSkillTestResult {
   errors: string[]
   diagnostics: Array<{ type: 'info' | 'warning' | 'error'; code: string; message: string; at: string }>
   budget: { used: number; limit: number }
-  fromCache: boolean
+  folderPackageCache: boolean
   requestMessages: Array<{ role: string; content: string }>
 }
 
@@ -40,7 +40,7 @@ function toLoadFailedResult(
       at: new Date().toISOString()
     }],
     budget,
-    fromCache: false,
+    folderPackageCache: false,
     requestMessages: []
   }
 }
@@ -57,7 +57,7 @@ function fromRouteFailure(
       errors: folderResult.errors,
       diagnostics: folderResult.diagnostics,
       budget: folderResult.budget || budget,
-      fromCache: folderResult.fromCache,
+      folderPackageCache: folderResult.folderPackageCache === true,
       requestMessages: folderResult.apiMeta?.requestMessages || []
     }
   }
@@ -73,7 +73,7 @@ function fromRouteFailure(
       at: new Date().toISOString()
     }],
     budget,
-    fromCache: false,
+    folderPackageCache: false,
     requestMessages: []
   }
 }
@@ -106,7 +106,7 @@ export async function runFolderSkillTest(input: FolderSkillTestInput): Promise<F
       errors: folderResult.errors,
       diagnostics: folderResult.diagnostics,
       budget: budget.snapshot(),
-      fromCache: folderResult.fromCache,
+      folderPackageCache: folderResult.folderPackageCache === true,
       requestMessages: folderResult.apiMeta?.requestMessages || []
     }
   } catch (error) {

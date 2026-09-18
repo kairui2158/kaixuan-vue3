@@ -99,6 +99,9 @@ function registerProviderNetHandlers() {
           kind: errorKindForStatus(response.status),
           statusCode: response.status,
           message: parseErrorBody(body),
+          // The renderer's native-tool fallback depends on this field to
+          // distinguish "provider rejected tools" from a generic HTTP 400.
+          providerErrorSummary: parseErrorBody(body),
         }
       }
       event.sender.send('providerNet:streamChunk', {

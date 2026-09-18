@@ -12,10 +12,13 @@ export interface FolderSkillBatchItem {
   folderPath: string
   id: string
   name: string
+  version?: string
   valid: boolean
   message: string
   exists: boolean
   action: 'add' | 'overwrite' | 'skip' | 'invalid'
+  resourceCount?: number
+  warnings?: string[]
 }
 
 export interface FolderSkillBatchSummary {
@@ -40,15 +43,44 @@ export interface FolderSkillImportPreview {
   item: FolderSkillBatchItem | null
 }
 
+export interface ExistingFolderRecord {
+  id: string
+  folderPath: string
+}
+
 function bridge(): FolderSkillBatchBridge | undefined {
   if (typeof window === 'undefined') return undefined
   return (window as any).electronAPI as FolderSkillBatchBridge | undefined
 }
 
+function normalizeFolderKey(folderPath: string): string {
+  return folderPath
+    .trim()
+    .replace(/\\/g, '/')
+    .replace(/\/+$/, '')
+    .toLowerCase()
+}
+
+function appendPathConflictWarning(
+  warnings: string[],
+  folderPath: string,
+  id: string,
+  existingFolders: ExistingFolderRecord[] = []
+): void {
+  const pathKey = normalizeFolderKey(folderPath)
+  const conflict = existingFolders.find(item =>
+    item.id !== id && normalizeFolderKey(item.folderPath) === pathKey
+  )
+  if (conflict) {
+    warnings.push(`路径已绑定到 ${conflict.id}；继续导入会形成同一路径多条记录`)
+  }
+}
+
 export async function previewFolderSkill(
   folderPath: string,
   existingIds: string[],
-  bridgeApi?: FolderSkillBatchBridge
+  bridgeApi?: FolderSkillBatchBridge,
+  existingFolders: ExistingFolderRecord[] = []
 ): Promise<FolderSkillImportPreview> {
   const api = bridgeApi || bridge()
   if (!folderPath || !api?.skillLoadFolder) {
@@ -57,26 +89,54 @@ export async function previewFolderSkill(
 
   const loaded = await api.skillLoadFolder(folderPath)
   if (!loaded?.ok || !loaded.skill?.id) {
-    return { ok: false, message: loaded?.message || '缺少 SKILL.md 或 template.md', item: null }
+    return { ok: false, message: loaded?.message || '缺少 SKILL.md', item: null }
   }
 
   const sourceId = String(loaded.skill.id)
   const id = `folder:${sourceId}`
   const exists = existingIds.includes(id)
+  const message = buildImportMessage(loaded.skill)
+  const warnings = normalizeLoadWarnings(loaded.skill.warnings)
+  const resolvedFolderPath = String(loaded.folderPath || folderPath)
+  appendPathConflictWarning(warnings, resolvedFolderPath, id, existingFolders)
   return {
     ok: true,
-    message: loaded.skill.template ? '结构有效' : '模板为空，仍可导入',
+    message,
     item: {
       folderName: folderPath.split(/[\\/]/).filter(Boolean).pop() || sourceId,
-      folderPath: String(loaded.folderPath || folderPath),
+      folderPath: resolvedFolderPath,
       id,
       name: String(loaded.skill.name || sourceId),
+      version: typeof loaded.skill.manifest?.version === 'string' ? loaded.skill.manifest.version : '',
       valid: true,
-      message: loaded.skill.template ? '结构有效' : '模板为空，仍可导入',
+      message,
       exists,
-      action: exists ? 'skip' : 'add'
+      action: exists ? 'skip' : 'add',
+      resourceCount: Array.isArray(loaded.skill.resources) ? loaded.skill.resources.length : 0,
+      warnings
     }
   }
+}
+
+function normalizeLoadWarnings(warnings: unknown): string[] {
+  if (!Array.isArray(warnings)) return []
+  return warnings
+    .map(item => {
+      if (!item || typeof item !== 'object') return ''
+      const record = item as Record<string, unknown>
+      return String(record.message || '')
+    })
+    .filter(Boolean)
+}
+
+function buildImportMessage(skill: any): string {
+  const parts: string[] = []
+  parts.push(skill?.template ? '结构有效' : '模板为空，仍可导入')
+  const resourceCount = Array.isArray(skill?.resources) ? skill.resources.length : 0
+  if (resourceCount > 0) parts.push(`识别 ${resourceCount} 个资源文件`)
+  const warnings = normalizeLoadWarnings(skill?.warnings)
+  if (warnings.length > 0) parts.push(`警告 ${warnings.length} 项`)
+  return parts.join('；')
 }
 
 export function refreshFolderSkillPlan(
@@ -103,13 +163,18 @@ function toSkillRecord(loaded: any, folderPath: string): Skill {
   const skill = loaded?.skill || {}
   return {
     id: String(skill.id || ''),
-    sourceId: String(skill.id || ''),
-    name: String(skill.name || skill.id || ''),
-    format: 'folder',
+      sourceId: String(skill.id || ''),
+      name: String(skill.name || skill.id || ''),
+      version: typeof skill.manifest?.version === 'string' ? skill.manifest.version : '',
+      format: 'folder',
     folderPath: String(loaded.folderPath || folderPath),
     template: String(skill.template || ''),
     category: 'folder',
     description: String(skill.description || ''),
+    resourceSummary: {
+      resourceCount: Array.isArray(skill.resources) ? skill.resources.length : 0,
+      warningCount: normalizeLoadWarnings(skill.warnings).length
+    },
     executionMode: 'chain',
     outputFormat: 'text',
     validationRules: [],
@@ -129,7 +194,8 @@ function toSkillRecord(loaded: any, folderPath: string): Skill {
 export async function previewFolderSkillBatch(
   rootPath: string,
   existingIds: string[],
-  bridgeApi?: FolderSkillBatchBridge
+  bridgeApi?: FolderSkillBatchBridge,
+  existingFolders: ExistingFolderRecord[] = []
 ): Promise<{ ok: boolean; message: string; items: FolderSkillBatchItem[] }> {
   const api = bridgeApi || bridge()
   if (!rootPath || !api?.skillListFolders || !api?.skillLoadFolder) {
@@ -160,6 +226,7 @@ export async function previewFolderSkillBatch(
   }
 
   const existingFolderIds = new Set(existingIds.filter(id => id.startsWith('folder:')))
+  const seenIds = new Set<string>()
   const items: FolderSkillBatchItem[] = []
   for (const entry of listed.folders) {
     const folder = normalizeFolderEntry(entry)
@@ -172,7 +239,7 @@ export async function previewFolderSkillBatch(
         id: '',
         name: folder.folderName,
         valid: false,
-        message: loaded?.message || '缺少 SKILL.md 或 template.md',
+        message: loaded?.message || '缺少 SKILL.md',
         exists: false,
         action: 'invalid'
       })
@@ -180,17 +247,26 @@ export async function previewFolderSkillBatch(
     }
     const sourceId = String(loaded.skill.id)
     const id = `folder:${sourceId}`
-    const exists = existingFolderIds.has(id)
+    const exists = existingFolderIds.has(id) || seenIds.has(id)
+    const message = buildImportMessage(loaded.skill)
+    const warnings = normalizeLoadWarnings(loaded.skill.warnings)
+    const resolvedFolderPath = String(loaded.folderPath || folder.folderPath)
+    appendPathConflictWarning(warnings, resolvedFolderPath, id, existingFolders)
+    if (seenIds.has(id)) warnings.push('批量扫描中出现重复 ID，将按重复策略处理')
     items.push({
       folderName: folder.folderName,
-      folderPath: String(loaded.folderPath || folder.folderPath),
+      folderPath: resolvedFolderPath,
       id,
       name: String(loaded.skill.name || id),
+      version: typeof loaded.skill.manifest?.version === 'string' ? loaded.skill.manifest.version : '',
       valid: true,
-      message: loaded.skill.template ? '结构有效' : '模板为空，仍可导入',
+      message,
       exists,
-      action: exists ? 'skip' : 'add'
+      action: exists ? 'skip' : 'add',
+      resourceCount: Array.isArray(loaded.skill.resources) ? loaded.skill.resources.length : 0,
+      warnings
     })
+    seenIds.add(id)
   }
   return { ok: true, message: `扫描到 ${items.length} 个候选文件夹`, items }
 }

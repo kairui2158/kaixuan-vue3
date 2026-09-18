@@ -1,5 +1,5 @@
 <template>
-  <div id="dashboard-modal" class="dash-overlay" @click.self="emit('close')">
+  <div id="dashboard-modal" class="dash-overlay" :style="{ zIndex: modalQueue.getZIndex('dashboard-modal') }" @click.self="emit('close')">
     <div class="dash-modal">
       <div class="dash-header">
         <h3>写作仪表盘</h3>
@@ -54,8 +54,15 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, onBeforeUnmount } from 'vue'
+import { useModalQueue } from '../../composables/useModalQueue'
+
 defineProps<{ stats: any }>()
 const emit = defineEmits<{ close: [] }>()
+const modalQueue = useModalQueue()
+
+onMounted(() => modalQueue.open('dashboard-modal'))
+onBeforeUnmount(() => modalQueue.close('dashboard-modal'))
 </script>
 
 <style scoped>

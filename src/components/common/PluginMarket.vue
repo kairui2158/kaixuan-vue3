@@ -1,5 +1,5 @@
 <template>
-  <div id="plugin-market-modal" class="pm-overlay" @click.self="$emit('close')">
+  <div id="plugin-market-modal" class="pm-overlay" :style="{ zIndex: modalQueue.getZIndex('plugin-market') }" @click.self="$emit('close')">
     <div class="pm-content">
       <div class="pm-header">
         <h3>技能市场</h3>
@@ -95,13 +95,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useSettingsStore } from '../../stores/settings'
 import { useSkillStore } from '../../stores/skill'
+import { useModalQueue } from '../../composables/useModalQueue'
 
 defineEmits<{ close: [] }>()
 
 const settingsStore = useSettingsStore()
+const modalQueue = useModalQueue()
 const tokenInput = ref('')
 const hasToken = ref(false)
 const showTokenInput = ref(false)
@@ -127,11 +129,16 @@ function sourceLabel(source?: string) {
 }
 
 onMounted(() => {
+  modalQueue.open('plugin-market')
   const saved = settingsStore.githubToken || ''
   if (saved) {
     tokenInput.value = saved
     hasToken.value = true
   }
+})
+
+onBeforeUnmount(() => {
+  modalQueue.close('plugin-market')
 })
 
 function saveToken() {

@@ -10,7 +10,7 @@
     </div>
     
     <!-- Version Save Dialog -->
-    <div v-if="showSaveDialog" class="pf-dialog-overlay" @click.self="showSaveDialog = false">
+    <div v-if="showSaveDialog" class="pf-dialog-overlay" :style="{ zIndex: modalQueue.getZIndex('pipeline-flow-save') }" @click.self="showSaveDialog = false">
       <div class="pf-dialog">
         <div class="pf-dialog-header">
           <span>保存流水线配置</span>
@@ -28,7 +28,7 @@
     </div>
     
     <!-- Version Load Dialog -->
-    <div v-if="showLoadDialog" class="pf-dialog-overlay" @click.self="showLoadDialog = false">
+    <div v-if="showLoadDialog" class="pf-dialog-overlay" :style="{ zIndex: modalQueue.getZIndex('pipeline-flow-load') }" @click.self="showLoadDialog = false">
       <div class="pf-dialog pf-dialog-wide">
         <div class="pf-dialog-header">
           <span>加载流水线配置</span>
@@ -93,17 +93,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { usePipelineStore } from '../../stores/pipeline'
 import { useSkillStore } from '../../stores/skill'
 import { useAgentStore } from '../../stores/agent'
 import { storageKey } from '../../utils/storage-key'
+import { useModalQueue } from '../../composables/useModalQueue'
 
 const emit = defineEmits<{ (e: 'toggle-view'): void }>()
 
 const pipelineStore = usePipelineStore()
 const skillStore = useSkillStore()
 const agentStore = useAgentStore()
+const modalQueue = useModalQueue()
 
 const props = defineProps<{
   stepsWithIds: { id: string; name: string; completed: boolean }[]
@@ -125,6 +127,13 @@ const modeLabels: Record<string, string> = {
 // Version management
 const showSaveDialog = ref(false)
 const showLoadDialog = ref(false)
+
+watch(() => ({ save: showSaveDialog.value, load: showLoadDialog.value }), visible => {
+  if (visible.save) modalQueue.open('pipeline-flow-save')
+  else modalQueue.close('pipeline-flow-save')
+  if (visible.load) modalQueue.open('pipeline-flow-load')
+  else modalQueue.close('pipeline-flow-load')
+}, { immediate: true })
 const saveVersionName = ref('')
 const versions = ref<{ name: string; savedAt: string; config: any }[]>([])
 

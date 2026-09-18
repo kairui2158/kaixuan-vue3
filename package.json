@@ -1,6 +1,6 @@
 {
   "name": "shenyi-assistant",
-  "version": "3.29.0",
+  "version": "3.53.6",
   "description": "神意助手 - AI驱动的桌面小说写作应用",
   "main": "electron/main.js",
   "scripts": {
@@ -12,8 +12,11 @@
     "build": "npm run build:vue && electron-builder --win",
     "build:portable": "npm run build:vue && electron-builder --win portable",
     "type-check": "vue-tsc --noEmit",
-    "test:services": "vitest run src/stores/skill.spec.ts src/services/aiService.spec.ts src/services/memoryIO.spec.ts src/services/volumeGeneration.spec.ts src/services/realSkillExecutor.spec.ts src/services/skillOrchestrator.spec.ts src/services/skillRouter.spec.ts src/services/folderSkillTest.spec.ts src/services/folderSkillBoundary.spec.ts src/services/folderSkillBatchImport.spec.ts src/services/workspaceSkillEngine.spec.ts src/services/skillPackageManager.spec.ts src/services/skillPackageInstaller.spec.ts src/services/skillHealth.spec.ts",
-    "acceptance:memory-v2": "node scripts/run_memory_v2_acceptance.cjs"
+    "test:services": "vitest run",
+    "sync:phrase-corpus": "node scripts/sync-chain-intent-phrase-corpus.cjs",
+    "verify:phrase-corpus-sync": "node scripts/verify-phrase-corpus-sync.cjs",
+    "evaluate:chain-intent": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/evaluate-chain-intent-router.mjs",
+    "verify:production-wiring": "depcruise src --config .dependency-cruiser.cjs"
   },
   "author": "kaixuan",
   "license": "MIT",

@@ -73,7 +73,7 @@ export function useMemoryExtraction(callAi: MemoryAiCall) {
     }
   }
 
-  async function start(target: MemoryExtractionChapter) {
+  async function start(target: MemoryExtractionChapter, callAiOverride?: MemoryAiCall) {
     if (!target.id.trim() || !target.content.trim() || loading.value) return false
     const projectIdAtCall = projectStore.currentProjectId || ''
     chapter.value = target
@@ -92,7 +92,7 @@ export function useMemoryExtraction(callAi: MemoryAiCall) {
         sourceVersionId: target.sourceVersionId,
         chapterTitle: target.title,
         content: target.content
-      }, callAi)
+      }, callAiOverride || callAi)
       if ((projectStore.currentProjectId || '') !== projectIdAtCall) {
         error.value = '项目已切换，已丢弃旧项目抽取结果'
         return false
@@ -167,5 +167,9 @@ export function useMemoryExtraction(callAi: MemoryAiCall) {
     }
   }
 
-  return { loading, saving, previewVisible, error, changes, chapter, extracted, logs, start, close, confirm, toggleReview, toggleLock }
+  async function startWithTrace(target: MemoryExtractionChapter, callAiOverride: MemoryAiCall) {
+    return start(target, callAiOverride)
+  }
+
+  return { loading, saving, previewVisible, error, changes, chapter, extracted, logs, start, startWithTrace, close, confirm, toggleReview, toggleLock }
 }

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="visible" class="mem-overlay" @click.self="$emit('close')">
+  <div v-if="visible" class="mem-overlay" :style="{ zIndex: modalQueue.getZIndex('memory-history') }" @click.self="$emit('close')">
     <div class="mem-history-modal">
       <div class="mem-history-header">
         <h3>记忆版本历史</h3>
@@ -51,8 +51,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { MemoryChangeRecord } from '../../types/memory'
+import { useModalQueue } from '../../composables/useModalQueue'
 
 const props = defineProps<{ visible: boolean; records: MemoryChangeRecord[] }>()
 const emit = defineEmits<{
@@ -64,6 +65,12 @@ const emit = defineEmits<{
 const previewId = ref('')
 const chapterFilter = ref('')
 const rollbackChapterId = ref('')
+const modalQueue = useModalQueue()
+
+watch(() => props.visible, visible => {
+  if (visible) modalQueue.open('memory-history')
+  else modalQueue.close('memory-history')
+}, { immediate: true })
 
 const filteredRecords = computed(() => {
   if (!chapterFilter.value) return props.records

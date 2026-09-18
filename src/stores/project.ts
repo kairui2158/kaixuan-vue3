@@ -46,7 +46,36 @@ function migrateProjectData(data: any): any {
     data.memories = normalizeMemories(data.memories)
     v = 3
   }
+  data = migrateVolumeIds(data)
   data.schemaVersion = v
+  return data
+}
+
+function migrateVolumeIds(data: any): any {
+  if (!Array.isArray(data.volumes)) return data
+  const usedIds = new Set<string>()
+  for (const vol of data.volumes) {
+    if (vol && vol.id && !usedIds.has(String(vol.id))) {
+      usedIds.add(String(vol.id))
+    }
+  }
+  let syntheticIndex = 1
+  for (const vol of data.volumes) {
+    if (!vol || vol.id) continue
+    let id = ''
+    do {
+      id = 'vol_' + Date.now() + '_' + syntheticIndex++
+    } while (usedIds.has(id))
+    usedIds.add(id)
+    vol.id = id
+    if (data.chapters && Object.prototype.hasOwnProperty.call(data.chapters, vol.name)) {
+      const legacyChapters = data.chapters[vol.name]
+      delete data.chapters[vol.name]
+      if (!Object.prototype.hasOwnProperty.call(data.chapters, id)) {
+        data.chapters[id] = Array.isArray(legacyChapters) ? legacyChapters : []
+      }
+    }
+  }
   return data
 }
 
@@ -311,7 +340,10 @@ async function loadProject(id: string) {
 
   function updateOutlineChatAt(index: number, patch: Record<string, any>) {
     if (index >= 0 && index < outlineChat.value.length) {
-      outlineChat.value[index] = { ...outlineChat.value[index], ...patch }
+      const next = { ...outlineChat.value[index], ...patch }
+      if (patch.routingFallback === undefined) delete next.routingFallback
+      if (patch.budgetExhausted === undefined) delete next.budgetExhausted
+      outlineChat.value[index] = next
       saveProject()
     }
   }

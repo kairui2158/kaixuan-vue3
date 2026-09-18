@@ -8,6 +8,7 @@ export const useSettingsStore = defineStore('settings', () => {
   const uiFontSize = ref(14)
   const theme = ref<'dark'>('dark')
   const editorFont = ref('lxgw-wenkai')
+  const chatInputMode = ref<'enter-send' | 'enter-newline'>('enter-send')
   const autoSaveInterval = ref(30)
   const maxTabs = ref(20)
   const cdpPort = ref(9223)
@@ -21,7 +22,8 @@ export const useSettingsStore = defineStore('settings', () => {
    if (data) {
      fontSize.value = data.fontSize || 14
       uiFontSize.value = data.uiFontSize || data.fontSize || 14
-      editorFont.value = data.editorFont || data.editorFontSize || 'lxgw-wenkai'
+     editorFont.value = data.editorFont || data.editorFontSize || 'lxgw-wenkai'
+     chatInputMode.value = data.chatInputMode === 'enter-newline' ? 'enter-newline' : 'enter-send'
      autoSaveInterval.value = data.autoSaveInterval || 30
       maxTabs.value = data.maxTabs || 20
     cdpPort.value = data.cdpPort || 9223
@@ -38,6 +40,7 @@ export const useSettingsStore = defineStore('settings', () => {
       fontSize: fontSize.value,
       uiFontSize: uiFontSize.value,
       editorFont: editorFont.value,
+      chatInputMode: chatInputMode.value,
       autoSaveInterval: autoSaveInterval.value,
       maxTabs: maxTabs.value,
       cdpPort: cdpPort.value,
@@ -52,6 +55,7 @@ export const useSettingsStore = defineStore('settings', () => {
     if (data.fontSize !== undefined) fontSize.value = data.fontSize
     if (data.uiFontSize !== undefined) uiFontSize.value = data.uiFontSize
     if (data.editorFont !== undefined) editorFont.value = data.editorFont
+    if (data.chatInputMode !== undefined) chatInputMode.value = data.chatInputMode === 'enter-newline' ? 'enter-newline' : 'enter-send'
     if (data.autoSaveInterval !== undefined) autoSaveInterval.value = data.autoSaveInterval
     if (data.maxTabs !== undefined) maxTabs.value = data.maxTabs
     if (data.cdpPort !== undefined) cdpPort.value = data.cdpPort
@@ -67,7 +71,7 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   return {
-    activeTab, fontSize, uiFontSize, theme, editorFont, autoSaveInterval, maxTabs, cdpPort, memoryExtractionTimeoutSeconds, autoExtractMemory, githubToken,
+    activeTab, fontSize, uiFontSize, theme, editorFont, chatInputMode, autoSaveInterval, maxTabs, cdpPort, memoryExtractionTimeoutSeconds, autoExtractMemory, githubToken,
     loadSettings, saveSettings, updateSettings, setActiveTab
   }
 })

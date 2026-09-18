@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "scenarios": 15,
+  "mode": "source",
+  "screenshots": [
+    "01-home-empty-insert.png",
+    "02-home-replace-rollback.png",
+    "03-home-ambiguous-target.png",
+    "04-home-rollback-blocked.png",
+    "05-home-large-instant.png",
+    "06-home-stream-follow.png",
+    "07-home-discuss-reveal.png",
+    "07a-home-permission-denied.png",
+    "08-home-write-limit.png",
+    "09-outline-direct-write.png",
+    "09a-outline-short-approval.png",
+    "10-outline-locked-reveal.png",
+    "11-pipeline-tool-surface.png",
+    "12-compatibility-json-write.png",
+    "13-run-trace-export.png",
+    "14-diagnostics-coverage.png"
+  ],
+  "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\api-direct-write-v2-exports-source\\run-trace-home-20260917-223436-deep"
+}

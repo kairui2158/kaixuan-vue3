@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ConversationContextService, conversationContextService } from './conversationContextService'
+import { ConversationContextService, conversationContextService, resolveModelContextWindow } from './conversationContextService'
 import type { ContextMessage, ContextPolicy, StoredContextState } from '../types/context'
 
 function createStorage(initial: Record<string, unknown> = {}) {
@@ -35,6 +35,297 @@ const baseMessages: ContextMessage[] = [
 ]
 
 describe('ConversationContextService', () => {
+  it('预算超过时非破坏性压缩历史，原文保留且组装请求不再携带已折叠消息', async () => {
+    const storage = createStorage()
+    const service = new ConversationContextService({
+      storage,
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+      compaction: { budget: { modelContextWindow: 200, reservedOutputTokens: 20 } },
+    })
+    const ref = { projectId: 'p-compaction', workspace: 'outline' as const, purpose: 'generate' as const, skillId: 's1' }
+    await service.recordTurn(ref, { user: '第一轮用户输入，内容比较长。'.repeat(20), assistant: '第一轮回答，内容比较长。'.repeat(20) })
+    await service.recordTurn(ref, { user: '第二轮用户输入，内容比较长。'.repeat(20), assistant: '第二轮回答，内容比较长。'.repeat(20) })
+    await service.recordTurn(ref, { user: '第三轮用户输入，内容比较长。'.repeat(20), assistant: '第三轮回答，内容比较长。'.repeat(20) })
+
+    const bundle = await service.buildContextBundle(ref)
+    const stored = bundle.session.recentMessages
+    expect(stored.some(message => message.meta?.compaction)).toBe(true)
+    expect(stored.length).toBe(7)
+
+    const assembled = service.assembleMessages(
+      bundle,
+      { ...service.getPolicy('generate'), chatHistory: 'full', includeOutline: false, includeSettings: false, includeMemory: false },
+      baseMessages,
+    )
+    expect(assembled.filter(message => message.role === 'user' && message.content.includes('第一轮用户输入'))).toEqual([])
+    expect(assembled.some(message => message.content.includes('第二轮用户输入'))).toBe(true)
+    expect(assembled.some(message => message.content.includes('[上下文压缩标记]'))).toBe(true)
+  })
+
+  it('未知模型窗口时不压缩；摘要失败降级为标记截断', () => {
+    const service = new ConversationContextService({
+      storage: createStorage(),
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+    })
+    const history = messages(
+      '这是一段足够长的第一轮历史，用于验证极端预算下的非破坏性压缩。'.repeat(20),
+      '这是一段足够长的第一轮回答，用于验证极端预算下的非破坏性压缩。'.repeat(20),
+      '这是一段足够长的第二轮历史，用于验证极端预算下的非破坏性压缩。'.repeat(20),
+      '这是一段足够长的第二轮回答，用于验证极端预算下的非破坏性压缩。'.repeat(20),
+      '这是一段足够长的第三轮历史，用于验证极端预算下的非破坏性压缩。'.repeat(20),
+      '这是一段足够长的第三轮回答，用于验证极端预算下的非破坏性压缩。'.repeat(20),
+      '这是一段足够长的第四轮历史，用于验证极端预算下的非破坏性压缩。',
+      '这是一段足够长的第四轮回答，用于验证极端预算下的非破坏性压缩。',
+      '这是一段足够长的第五轮历史，用于验证极端预算下的非破坏性压缩。',
+      '这是一段足够长的第五轮回答，用于验证极端预算下的非破坏性压缩。',
+      `这是最近一轮用户目标，必须被完整保留。${'当前要求包含足够长的事实细节，验证保护尾部不会被压缩。'.repeat(40)}`,
+      '这是最近一轮助手回答，必须被完整保留。'
+    )
+    const unknown = service.compactContext(history)
+    expect(unknown.performed).toBe(false)
+    expect(unknown.reason).toBe('unknown-window')
+
+    const serviceWithBudget = new ConversationContextService({
+      storage: createStorage(),
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+      compaction: { budget: { modelContextWindow: 1, reservedOutputTokens: 0 } },
+    })
+    const compacted = serviceWithBudget.compactContext(history)
+    expect(compacted.performed).toBe(true)
+    expect(['summary', 'marker-truncation']).toContain(compacted.strategy)
+    expect(compacted.compactedMessageCount).toBeGreaterThan(0)
+    expect(compacted.retainedMessageCount).toBeGreaterThan(0)
+    expect(compacted.estimatedAfterTokens).toBeLessThanOrEqual(compacted.estimatedBeforeTokens)
+    expect(compacted.retainedMessages?.some(message => message.content.includes('这是最近一轮用户目标'))).toBe(true)
+    expect(compacted.retainedMessages?.some(message => message.content.includes('这是最近一轮助手回答'))).toBe(true)
+    expect(compacted.markerMessage?.content).toContain('[上下文压缩标记]')
+  })
+
+  it('recordTurn 按 retained 身份折叠，二次压缩不错位且 marker 不被截断', async () => {
+    const storage = createStorage()
+    const service = new ConversationContextService({
+      storage,
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+      compaction: { budget: { modelContextWindow: 250, reservedOutputTokens: 20 } },
+    })
+    const ref = { projectId: 'p-compaction-twice', workspace: 'outline' as const, purpose: 'generate' as const, skillId: 's1' }
+    for (let index = 1; index <= 6; index += 1) {
+      await service.recordTurn(ref, {
+        user: `第${index}轮用户输入，必须按身份折叠。${'内容长度。'.repeat(30)}`,
+        assistant: `第${index}轮助手回答，必须按身份折叠。${'内容长度。'.repeat(30)}`,
+      })
+    }
+
+    const stored = (storage.values.get('wa_ctx_p-compaction-twice') as any)
+      ?.sessions.find((session: any) => session.id === 'outline__generate__s1')
+      ?.messages as ContextMessage[]
+    const markers = stored.filter(message => message.meta?.compactionMarker)
+    expect(markers.length).toBeGreaterThan(1)
+    expect(stored.filter(message => message.meta?.compaction).length).toBeGreaterThan(0)
+    // The retained tail must never be accidentally folded by a stale count.
+    expect(stored.slice(-4).every(message => !message.meta?.compaction)).toBe(true)
+  })
+
+  it('recent 策略不会把已折叠历史重新注入请求', async () => {
+    const storage = createStorage()
+    const service = new ConversationContextService({
+      storage,
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+      compaction: { budget: { modelContextWindow: 250, reservedOutputTokens: 20 } },
+    })
+    const ref = { projectId: 'p-recent-compacted', workspace: 'outline' as const, purpose: 'generate' as const, skillId: 's1' }
+    for (let index = 1; index <= 6; index += 1) {
+      await service.recordTurn(ref, {
+        user: `第${index}轮用户输入，验证 recent 不回放折叠历史。${'内容长度。'.repeat(30)}`,
+        assistant: `第${index}轮助手回答，验证 recent 不回放折叠历史。${'内容长度。'.repeat(30)}`,
+      })
+    }
+    const bundle = await service.buildContextBundle(ref)
+    const assembled = service.assembleMessages(
+      bundle,
+      { ...service.getPolicy('generate'), chatHistory: 'recent', recentTurns: 10, includeOutline: false, includeSettings: false, includeMemory: false },
+      baseMessages,
+    )
+
+    expect(assembled.some(message => message.content.includes('[上下文压缩标记]'))).toBe(true)
+    expect(assembled.filter(message => message.content.includes('第1轮用户输入'))).toHaveLength(0)
+    expect(assembled.filter(message => message.content.includes('第2轮用户输入'))).toHaveLength(0)
+    expect(assembled.some(message => message.content.includes('第6轮用户输入'))).toBe(true)
+  })
+
+  it('并发 recordTurn 全部落盘，不用旧快照覆盖新会话', async () => {
+    const storage = createStorage()
+    const service = new ConversationContextService({
+      storage,
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+    })
+    const ref = { projectId: 'p-concurrent-turns', workspace: 'outline' as const, purpose: 'generate' as const, skillId: 's1' }
+    await Promise.all(Array.from({ length: 12 }, (_, index) =>
+      service.recordTurn(ref, {
+        user: `并发用户${index + 1}`,
+        assistant: `并发回答${index + 1}`,
+      })
+    ))
+
+    const bundle = await service.buildContextBundle(ref)
+    expect(bundle.session.recentMessages).toHaveLength(24)
+    for (let index = 1; index <= 12; index += 1) {
+      expect(bundle.session.recentMessages.some(message => message.content === `并发用户${index}`)).toBe(true)
+      expect(bundle.session.recentMessages.some(message => message.content === `并发回答${index}`)).toBe(true)
+    }
+  })
+
+  it('按 workspace 设置压缩预算与观察器，未知窗口可见且互不覆盖', async () => {
+    const compactedEvents: string[] = []
+    const skippedEvents: string[] = []
+    const service = new ConversationContextService({
+      storage: createStorage(),
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+    })
+    service.setCompactionRouting({
+      workspace: 'outline',
+      budget: { modelContextWindow: 200, reservedOutputTokens: 20 },
+      observer: {
+        onContextCompacted: () => compactedEvents.push('outline'),
+        onContextCompactionSkipped: () => skippedEvents.push('outline'),
+      },
+    })
+    service.setCompactionRouting({
+      workspace: 'main',
+      observer: {
+        onContextCompacted: () => compactedEvents.push('main'),
+        onContextCompactionSkipped: () => skippedEvents.push('main'),
+      },
+    })
+
+    const long = '这是一段足够长的上下文，用于验证压缩触发。'.repeat(20)
+    const outlineRef = { projectId: 'p-routed-outline', workspace: 'outline' as const, purpose: 'generate' as const }
+    const mainRef = { projectId: 'p-routed-main', workspace: 'main' as const, purpose: 'generate' as const }
+    await service.recordTurn(outlineRef, { user: long, assistant: long })
+    await service.recordTurn(outlineRef, { user: long, assistant: long })
+    await service.recordTurn(outlineRef, { user: long, assistant: long })
+    await service.recordTurn(mainRef, { user: long, assistant: long })
+    await service.recordTurn(mainRef, { user: long, assistant: long })
+    await service.recordTurn(mainRef, { user: long, assistant: long })
+
+    expect(compactedEvents).toEqual(['outline'])
+    expect(skippedEvents).toEqual(['main', 'main', 'main'])
+  })
+
+  it('recordTurn 的本轮输出预算优先于 workspace 路由预算', async () => {
+    const compacted: number[] = []
+    const service = new ConversationContextService({
+      storage: createStorage(),
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+    })
+    service.setCompactionRouting({
+      workspace: 'outline',
+      budget: { modelContextWindow: 250, reservedOutputTokens: 20 },
+      observer: {
+        onContextCompacted: result => compacted.push(result.allowedInputTokens ?? -1),
+      },
+    })
+
+    const long = '这是一段足够长的上下文，用于验证压缩触发。'.repeat(40)
+    const ref = { projectId: 'p-request-budget', workspace: 'outline' as const, purpose: 'generate' as const }
+    await service.recordTurn(ref, { user: long, assistant: long, reservedOutputTokens: 100 })
+    await service.recordTurn(ref, { user: long, assistant: long, reservedOutputTokens: 100 })
+    await service.recordTurn(ref, { user: long, assistant: long, reservedOutputTokens: 100 })
+
+    expect(compacted).toEqual([125])
+    const after = await service.buildContextBundle(ref)
+    expect(after.session.recentMessages.some(message => message.meta?.compactionMarker)).toBe(true)
+  })
+
+  it('recordTurn 无本轮输出预算时回落 workspace 路由预算', async () => {
+    const compacted: number[] = []
+    const service = new ConversationContextService({
+      storage: createStorage(),
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+    })
+    service.setCompactionRouting({
+      workspace: 'outline',
+      budget: { modelContextWindow: 250, reservedOutputTokens: 20 },
+      observer: {
+        onContextCompacted: result => compacted.push(result.allowedInputTokens ?? -1),
+      },
+    })
+
+    const long = '这是一段足够长的上下文，用于验证压缩触发。'.repeat(40)
+    const ref = { projectId: 'p-request-budget-fallback', workspace: 'outline' as const, purpose: 'generate' as const }
+    for (let index = 0; index < 3; index += 1) {
+      await service.recordTurn(ref, { user: long, assistant: long })
+    }
+
+    expect(compacted).toEqual([205])
+  })
+
+  it('模型输入窗口只从明确声明解析，未知模型返回 undefined', () => {
+    expect(resolveModelContextWindow('claude-sonnet-4-5')).toBe(200_000)
+    expect(resolveModelContextWindow('gpt-4o')).toBe(128_000)
+    expect(resolveModelContextWindow('model-1m')).toBe(1_000_000)
+    expect(resolveModelContextWindow('qwen-128k')).toBe(128_000)
+    expect(resolveModelContextWindow('deepseek-reasoner')).toBe(128_000)
+    expect(resolveModelContextWindow('custom-private-model')).toBeUndefined()
+  })
+
+  it('构建可校验的统一 ContextPack blocks，并标明截断', async () => {
+    const longSelection = '选'.repeat(MAX_SELECTED_TEXT_CHARS + 10)
+    const service = new ConversationContextService({
+      storage: createStorage(),
+      projectReader: async () => ({
+        outline: '第一卷 大纲',
+        settings: { items: { core: '设定' } },
+        memories: null
+      })
+    })
+    const bundle = await service.buildContextBundle({
+      projectId: 'p-blocks',
+      workspace: 'main',
+      purpose: 'generate',
+      workspaceState: {
+        outline: '参考大纲',
+        editorContent: '编辑器完整内容',
+        referenceOutline: '参考资料大纲',
+        selectedText: longSelection,
+        activeTab: '第一章'
+      }
+    })
+    const blocks = service.buildDialogueContextBlocks(bundle, service.getPolicy('generate'))
+
+    expect(blocks.map(block => block.source)).toEqual([
+      'outline', 'editorContent', 'referenceOutline', 'settings', 'selection', 'activeTab'
+    ])
+    expect(blocks.find(block => block.source === 'outline')?.coverage).toBe('structure_map')
+    expect(blocks.find(block => block.source === 'editorContent')?.coverage).toBe('full')
+    expect(blocks.find(block => block.source === 'referenceOutline')?.coverage).toBe('reference')
+    expect(blocks.find(block => block.source === 'selection')?.truncated).toBe(true)
+    expect(validateDialogueContextBlocks(blocks).valid).toBe(true)
+  })
+
+  it('主页 blocks 必须以 editorContent 为 full，referenceOutline 只作参考', async () => {
+    const service = new ConversationContextService({
+      storage: createStorage(),
+      projectReader: async () => ({ outline: '大纲参考', settings: {}, memories: null })
+    })
+    const bundle = await service.buildContextBundle({
+      projectId: 'p-main-priority',
+      workspace: 'main',
+      purpose: 'generate',
+      workspaceState: {
+        editorContent: '当前编辑目标完整内容',
+        referenceOutline: '大纲参考'
+      }
+    })
+    const blocks = service.buildDialogueContextBlocks(
+      bundle,
+      { ...service.getPolicy('generate'), includeSettings: false, includeMemory: false }
+    )
+
+    expect(blocks.find(block => block.source === 'editorContent')?.content).toBe('当前编辑目标完整内容')
+    expect(blocks.find(block => block.source === 'referenceOutline')?.coverage).toBe('reference')
+  })
+
   it('按 none/recent/summary/full 裁剪会话，而不改写当前请求', async () => {
     const storage = createStorage()
     const service = new ConversationContextService({
@@ -262,4 +553,84 @@ describe('ConversationContextService', () => {
       else delete (globalThis as any).__conversationContextService
     }
   })
+
+  it('大纲 ContextPack 注入结构地图、当前焦点全文与事实优先级，不再使用 12000 字截断', async () => {
+    const chapterBody = '第101章正文。'.repeat(40)
+    const outline = [
+      '第一卷 风暴起点',
+      '第一卷主线围绕北方风暴展开。',
+      '第1章 夜行',
+      '第一章内容。男主在夜路中遇到风暴。',
+      '第2章 灯塔',
+      '第二章内容。男主在灯塔下发现旧信。',
+      '第二卷 潮汐',
+      '第二卷内容。商队南下，风暴记忆成为伏笔。'
+    ].join('\n') + '\n' + chapterBody
+    const service = new ConversationContextService({
+      storage: createStorage(),
+      projectReader: async () => ({ outline, settings: {}, memories: null })
+    })
+    const bundle = await service.buildContextBundle({
+      projectId: 'p-long-outline',
+      workspace: 'outline',
+      purpose: 'generate',
+      workspaceState: {
+        outline,
+        selectedText: '当前选中的第三章设定，必须完整保留。'
+      }
+    })
+    const assembled = service.assembleMessages(bundle, service.getPolicy('generate'), [
+      { role: 'system', content: '技能指令' },
+      { role: 'user', content: '请基于当前大纲回答' }
+    ])
+    const context = assembled.find(message => message.content.includes('当前大纲 ContextPack'))
+
+    expect(context?.content).toContain('[事实优先级]')
+    expect(context?.content).toContain('来源=outline，版本=v-')
+    expect(context?.content).toContain('[大纲结构地图]')
+    expect(context?.content).toContain('第1章 夜行')
+    expect(context?.content).toContain('[当前焦点全文]')
+    expect(context?.content).toContain('当前选中的第三章设定，必须完整保留。')
+    expect(context?.content).not.toContain('12000')
+    expect(bundle.workspace.outline).toBe(outline)
+  })
+
+  it('无选中文本时大纲 ContextPack 的焦点全文保留完整大纲，不产生截断省略号', async () => {
+    const outline = Array.from({ length: 600 }, (item, index) => `第${index + 1}行 大纲内容，用于验证不再截断。`).join('\n')
+    const service = new ConversationContextService({
+      storage: createStorage(),
+      projectReader: async () => ({ outline, settings: {}, memories: null })
+    })
+    const bundle = await service.buildContextBundle({
+      projectId: 'p-long-outline-no-selection',
+      workspace: 'outline',
+      purpose: 'generate'
+    })
+    const assembled = service.assembleMessages(bundle, service.getPolicy('generate'), [])
+    const context = assembled.find(message => message.content.includes('当前大纲 ContextPack'))
+
+    expect(context?.content).toContain(outline)
+    expect(context?.content.endsWith('…')).toBe(false)
+  })
+
+  it('设定作为稳定事实完整注入，不使用 5000 字截断', async () => {
+    const detail = '这是必须完整保留的锁定设定细节。'.repeat(400)
+    const settings = { categories: [], items: { core: detail } }
+    const service = new ConversationContextService({
+      storage: createStorage(),
+      projectReader: async () => ({ outline: '第一卷 大纲', settings, memories: null })
+    })
+    const bundle = await service.buildContextBundle({
+      projectId: 'p-full-settings',
+      workspace: 'outline',
+      purpose: 'generate'
+    })
+    const assembled = service.assembleMessages(bundle, service.getPolicy('generate'), [])
+    const context = assembled.find(message => message.content.includes('当前设定'))
+
+    expect(context?.content).toContain('来源=settings，版本=v-')
+    expect(context?.content).toContain(detail)
+  })
 })
+import { validateDialogueContextBlocks } from './dialogueFoundation'
+import { MAX_SELECTED_TEXT_CHARS, MAX_MEMORY_CHARS } from './conversationContextService'

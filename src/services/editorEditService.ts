@@ -1,4 +1,5 @@
 import type { EditorEditCommand, EditorEditFailureReason } from './editorEditProtocol'
+import { locateEditorFragment } from './editorEditLocator'
 import { validateEditorTarget, type EditorTargetSnapshot } from './editorTarget'
 
 export interface EditPlan {
@@ -90,10 +91,21 @@ export function buildEditPlan(
   }
 
   const targetText = command.target || ''
-  const index = content.indexOf(targetText)
-  if (!targetText || index < 0) {
-    return failed(command, target, 'target_not_found')
+  const located = targetText
+    ? locateEditorFragment({
+      content,
+      fragment: targetText,
+      anchor: {
+        ...(command.volumeTitle ? { volumeTitle: command.volumeTitle } : {}),
+        ...(command.chapterTitle ? { chapterTitle: command.chapterTitle } : {}),
+        ...(command.sectionTitle ? { sectionTitle: command.sectionTitle } : {})
+      }
+    })
+    : null
+  if (!located || !located.ok) {
+    return failed(command, target, located?.reason === 'ambiguous_target' ? 'ambiguous_target' : 'target_not_found')
   }
+  const index = located.start
 
   if (command.operation === 'delete') {
     return {

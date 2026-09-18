@@ -26,6 +26,7 @@ analysis/writerhelper/
 
 dist/
 dist-renderer/
+_audit/research-cache/
 
 # Archived temp scripts (historical, not tracked)
 _archive/

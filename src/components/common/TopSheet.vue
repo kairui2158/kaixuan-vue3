@@ -1,6 +1,6 @@
 <template>
   <Transition name="topsheet">
-    <div v-if="visible" class="topsheet-overlay" @click.self="$emit('close')">
+    <div v-if="visible" class="topsheet-overlay" :style="{ zIndex: modalQueue.getZIndex(modalId) }" @click.self="$emit('close')">
       <div class="topsheet-panel" :style="{ maxHeight: height }">
         <div class="topsheet-header">
           <span class="topsheet-title">{{ title }}</span>
@@ -15,18 +15,31 @@
 </template>
 
 <script setup lang="ts">
+import { computed, watch } from 'vue'
+import { useModalQueue } from '../../composables/useModalQueue'
+
 interface Props {
   visible: boolean
+  modalId?: string
   title?: string
   height?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
+  modalId: 'topsheet',
   title: '',
   height: '40vh'
 })
 
 defineEmits<{ close: [] }>()
+
+const modalQueue = useModalQueue()
+const modalId = computed(() => props.modalId)
+
+watch(() => props.visible, visible => {
+  if (visible) modalQueue.open(modalId.value)
+  else modalQueue.close(modalId.value)
+}, { immediate: true })
 </script>
 
 <style scoped>

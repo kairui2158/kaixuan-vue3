@@ -5,6 +5,8 @@ import { useProviderStore } from '../stores/provider'
 import { useSkillStore } from '../stores/skill'
 import { useAgentStore } from '../stores/agent'
 import { getAiService } from '../services/aiService'
+import { repairJsonText } from '../services/jsonExtraction'
+import { useAiCallTrace } from './useAiCallTrace'
  
  interface AiRequestConfig {
    baseUrl: string
@@ -34,8 +36,16 @@ import { getAiService } from '../services/aiService'
    const batchReviewResults = ref<any[]>([])
    const batchReviewAborted = ref(false)
  
-  /** 底层AI请求 — 通过统一 aiService 调用 */
-  async function callAi(prompt: string, systemPrompt: string, skillIds: string[] = []): Promise<string | null> {
+  /** 底层AI请求 — 通过统一 aiService 调用；技能链逐个执行并逐条落 trace */
+  async function callAi(
+    prompt: string,
+    systemPrompt: string,
+    skillIds: string[] = [],
+    options: {
+      source?: 'home' | 'outline' | 'pipeline'
+      stepName?: string
+    } = {}
+  ): Promise<string | null> {
     const providerStore = useProviderStore()
     const agentStore = useAgentStore()
     const skillStore = useSkillStore()
@@ -48,87 +58,84 @@ import { getAiService } from '../services/aiService'
     const temperature = agent?.temperature ?? 0.7
     const maxTokens = agent?.maxTokens || 8192
 
-    let messages: Array<{ role: string; content: string }> = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: prompt }
-    ]
-
-    // 技能链执行：覆盖 system prompt
-    if (skillIds.length > 0) {
-      const skills = skillIds.map(id => skillStore.getSkill(id)).filter((skill): skill is NonNullable<typeof skill> => Boolean(skill))
-      for (const skill of skills) {
-        messages = [
-          { role: 'system', content: skill.template || systemPrompt },
-          { role: 'user', content: prompt }
-        ]
-      }
-    }
+    const trace = useAiCallTrace({
+      source: options.source || 'home',
+      stepName: options.stepName || 'AI 工具调用',
+      mode: skillIds.length ? 'skill-chain' : 'direct',
+      projectId: useProjectStore().currentProjectId || undefined,
+      projectName: useProjectStore().projectName,
+      providerId: provider.id,
+      providerName: provider.name,
+      model,
+      skillNames: skillIds.map(id => skillStore.getSkill(id)?.name).filter(Boolean) as string[]
+    })
+    const skills = skillIds
+      .map(id => skillStore.getSkill(id))
+      .filter((skill): skill is NonNullable<typeof skill> => Boolean(skill))
+    const runSkills = skills.length > 0 ? skills : [null]
 
     try {
       const aiService = await getAiService()
-      const result = await aiService.callAi({
-        purpose: 'generate',
-        messages,
-        model,
-        temperature,
-        maxTokens,
-        stream: false,
-        retry: true,
-        meta: { source: 'useAiTools.callAi' }
-      })
-      return result.text || null
+      trace.begin()
+      let lastText: string | null = null
+      let anySuccess = false
+      for (let index = 0; index < runSkills.length; index++) {
+        const skill = runSkills[index]
+        const messages: Array<{ role: string; content: string }> = [
+          { role: 'system', content: skill?.template || systemPrompt },
+          { role: 'user', content: prompt }
+        ]
+        const callId = trace.beginApiCall({
+          skillId: skill?.id,
+          skillName: skill?.name,
+          providerId: provider.id,
+          providerName: provider.name,
+          model,
+          temperature,
+          maxTokens,
+          requestMessages: messages
+        })
+        const result = await aiService.callAi({
+          purpose: 'generate',
+          messages,
+          model,
+          temperature,
+          maxTokens,
+          stream: false,
+          retry: true,
+          meta: { source: 'useAiTools.callAi', skillId: skill?.id || 'base' }
+        })
+        trace.finishApiCall(callId, {
+          status: result.text ? 'success' : 'degraded',
+          responseText: result.text || '',
+          reasoningText: result.reasoning || '',
+          usage: result.usage,
+          finishReason: result.finishReason
+        })
+        lastText = result.text || null
+        if (result.text) anySuccess = true
+        if (index < runSkills.length - 1) {
+          trace.addEvent({
+            type: 'skill-chain-step',
+            level: 'info',
+            label: `技能链步骤 ${index + 1}/${runSkills.length} 完成`,
+            detail: `${skill?.name || '基础调用'}：${result.text ? '已返回内容' : '返回为空'}`
+          })
+        }
+      }
+      trace.finish(anySuccess ? 'success' : 'degraded')
+      return lastText
     } catch (e) {
       console.error('[AiTools] callAi error:', e)
+      trace.fail(e)
       return null
     }
   }
  
-   /** JSON修复 — 从旧架构_repairJson迁移 */
-   function repairJson(text: string): any | null {
-     if (!text) return null
-     text = text.trim()
-     // 尝试直接解析
-     try { return JSON.parse(text) } catch {}
-     // 去除markdown fence
-     const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/)
-     if (fenceMatch) {
-       try { return JSON.parse(fenceMatch[1].trim()) } catch {}
-     }
-     // 找JSON数组或对象
-     const arrayMatch = text.match(/\[[\s\S]*\]/)
-     if (arrayMatch) {
-       try { return JSON.parse(arrayMatch[0]) } catch {}
-     }
-     const objMatch = text.match(/\{[\s\S]*\}/)
-     if (objMatch) {
-       try { return JSON.parse(objMatch[0]) } catch {}
-     }
-     return null
-   }
- 
-   /**
-    * @deprecated 已迁移至命名工作台 src/services/namingService.ts + src/composables/useAiNaming.ts
-    * 新代码请使用 namingService.generateNames + useAiNaming composable
-    * 此函数保留仅供流水线旧代码兼容，后续应移除
-    */
-   async function generateNames(type: string = 'character', context: string = ''): Promise<AiToolResult> {
-     const typeMap: Record<string, string> = {
-       character: '角色名', location: '地点名', faction: '门派/势力名', item: '物品名'
-     }
-     const typeLabel = typeMap[type] || '名称'
-     isLoading.value = true
-     loadingText.value = '正在生成' + typeLabel + '...'
-     const prompt = '请生成10个' + typeLabel + '，要求符合小说风格，独特且有记忆点。\n' +
-       '返回JSON格式: [{"name":"名称","meaning":"含义说明"}]\n' +
-       (context ? '背景信息：' + context + '\n' : '') +
-       '只返回JSON。'
-     const result = await callAi(prompt, '你是专业的小说命名专家。')
-     isLoading.value = false
-     if (!result) return { success: false, error: '生成失败' }
-     const parsed = repairJson(result)
-     if (!parsed || !Array.isArray(parsed)) return { success: false, error: '解析失败' }
-     return { success: true, data: parsed }
-   }
+  /** JSON修复 — 统一走 jsonExtraction，避免各组件贪婪正则互相漂移 */
+  function repairJson(text: string): any | null {
+    return repairJsonText(text) as any | null
+  }
  
    /** 2. 写作规则 — 从旧架构generateWritingRules迁移 (L5083) */
    async function generateWritingRules(outline: string): Promise<AiToolResult> {
@@ -292,7 +299,6 @@ import { getAiService } from '../services/aiService'
     loadingText,
     batchReviewResults,
      callAi,
-     generateNames,
      generateWritingRules,
      extractTimeline,
      batchReviewChapters,

@@ -53,7 +53,7 @@ describe('folderSkillTest', () => {
     loadRealSkillMock.mockResolvedValue({
       package: createPackage(),
       error: null,
-      fromCache: false
+      folderPackageCache: false
     })
     const callAi = vi.fn<(params: any) => Promise<any>>(async () => ({ text: '处理后的输出', reasoning: '' }))
 
@@ -68,7 +68,7 @@ describe('folderSkillTest', () => {
 
     expect(result.status).toBe('success')
     expect(result.output).toBe('处理后的输出')
-    expect(result.budget).toEqual({ used: 1, limit: 3, entries: expect.any(Array) })
+    expect(result.budget).toEqual({ used: 2, limit: 3, entries: expect.any(Array) })
     expect(result.requestMessages[0]).toMatchObject({ role: 'system' })
     expect(result.requestMessages[0].content).toContain('磁盘模板：处理输入。')
     expect(callAi).toHaveBeenCalledTimes(1)
@@ -94,7 +94,7 @@ describe('folderSkillTest', () => {
         }
       }),
       error: null,
-      fromCache: false
+      folderPackageCache: false
     })
     const callAi = vi.fn(async () => ({ text: '第一轮输出' }))
 
@@ -111,7 +111,7 @@ describe('folderSkillTest', () => {
   })
 
   it('returns a load-failed result without calling AI when the folder is unavailable', async () => {
-    loadRealSkillMock.mockResolvedValueOnce({ package: null, error: 'folder-not-found', fromCache: false })
+    loadRealSkillMock.mockResolvedValueOnce({ package: null, error: 'folder-not-found', folderPackageCache: false })
     const callAi = vi.fn(async () => ({ text: '不应调用' }))
 
     const result = await runFolderSkillTest({

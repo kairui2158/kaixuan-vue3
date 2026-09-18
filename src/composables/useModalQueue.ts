@@ -7,6 +7,7 @@ export interface ModalEntry {
 }
 
 const BASE_Z = 3000
+const CONFIRM_BASE_Z = 9000
 const modalStack = ref<ModalEntry[]>([])
 
 const topId = computed(() => modalStack.value.length > 0 ? modalStack.value[modalStack.value.length - 1].id : null)
@@ -31,6 +32,7 @@ function isOpen(id: string) {
 }
 
 function getZIndex(id: string) {
+  if (id === 'app-confirm') return CONFIRM_BASE_Z
   const entry = modalStack.value.find(e => e.id === id)
   return entry ? entry.zIndex : BASE_Z
 }

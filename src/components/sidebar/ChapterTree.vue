@@ -55,7 +55,7 @@
         </template>
       </div>
     </div>
-    <TopSheet :visible="ctxMenu.visible" :title="ctxMenu.type === 'volume' ? '卷操作' : '章节操作'" @close="closeCtxMenu">
+    <TopSheet :visible="ctxMenu.visible" modal-id="chapter-tree-context" :title="ctxMenu.type === 'volume' ? '卷操作' : '章节操作'" @close="closeCtxMenu">
       <template v-if="ctxMenu.type === 'volume'">
         <button class="ctx-item" @click="ctxAction('view-outline')">查看卷纲</button>
         <button class="ctx-item" @click="ctxAction('edit-vol')">编辑卷</button>

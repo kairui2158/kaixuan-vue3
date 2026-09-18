@@ -13,7 +13,7 @@ export type CompositeStatus = 'DONE' | 'DONE_WITH_CONCERNS' | 'NEEDS_CONTEXT' | 
 
 export interface CompositeStepState {
   stepId: string
-  status: 'running' | 'done' | 'failed' | 'skipped'
+  status: 'running' | 'done' | 'failed' | 'skipped' | 'blocked'
   output: string
   attempts: number
   diagnostics: RealSkillDiagnostic[]
@@ -227,6 +227,18 @@ export async function executeCompositeSkill(options: CompositeExecuteOptions): P
         continue
       }
 
+      const transition = (status: CompositeStepState['status'], reason: string) => {
+        if (stepState.status === status) return
+        const from = stepState.status
+        stepState.status = status
+        diagnostics.push({
+          type: from === status ? 'info' : 'info',
+          code: 'state-transition',
+          message: `CompositeStepState：${from} → ${status} / ${reason}`,
+          at: new Date().toISOString()
+        })
+      }
+
       const stepState: CompositeStepState = {
         stepId: child.id,
         status: 'running',
@@ -265,8 +277,21 @@ export async function executeCompositeSkill(options: CompositeExecuteOptions): P
         })
         if (result.apiMeta) lastApiMeta = result.apiMeta
 
-        if (result.status === 'blocked' || result.status === 'failed') {
-          stepState.status = 'failed'
+        if (result.status === 'blocked') {
+          transition('blocked', 'SKILL 返回 blocked')
+          stack.pop()
+          return {
+            status: 'BLOCKED',
+            output: '',
+            steps,
+            diagnostics: [...diagnostics, ...result.diagnostics],
+            errors: result.errors,
+            apiMeta: lastApiMeta
+          }
+        }
+
+        if (result.status === 'failed') {
+          transition('failed', 'SKILL 执行失败')
           stack.pop()
           return {
             status: 'BLOCKED',
@@ -280,7 +305,7 @@ export async function executeCompositeSkill(options: CompositeExecuteOptions): P
 
         if (result.status === 'degraded') {
           if (!result.output.trim()) {
-            stepState.status = 'failed'
+            transition('failed', '降级输出为空')
             stack.pop()
             return {
               status: 'BLOCKED',
@@ -291,7 +316,7 @@ export async function executeCompositeSkill(options: CompositeExecuteOptions): P
               apiMeta: lastApiMeta
             }
           }
-          stepState.status = 'done'
+          transition('done', '降级输出保留')
           diagnostics.push(diagnostic(
             'warning',
             'step-degraded-with-output',
@@ -312,7 +337,7 @@ export async function executeCompositeSkill(options: CompositeExecuteOptions): P
         if (action === 'retry') {
           const maxRetries = Number((afterResult.result as any)?.maxRetries ?? 1)
           if (retryCount >= maxRetries) {
-            stepState.status = 'failed'
+            transition('failed', '重试次数耗尽')
             stack.pop()
             return {
               status: 'BLOCKED',
@@ -327,7 +352,7 @@ export async function executeCompositeSkill(options: CompositeExecuteOptions): P
           continue
         }
         if (action === 'skip') {
-          stepState.status = 'skipped'
+          transition('skipped', '父技能要求跳过')
           diagnostics.push(diagnostic('warning', 'step-skipped', `${child.id} 被父技能跳过`))
           dispatchCompositeProgressEvent({
             skillId: child.id,
@@ -339,7 +364,7 @@ export async function executeCompositeSkill(options: CompositeExecuteOptions): P
           break
         }
         if (action === 'stop') {
-          stepState.status = 'failed'
+          transition('failed', '父技能要求停止')
           stack.pop()
           return {
             status: 'BLOCKED',
@@ -350,7 +375,7 @@ export async function executeCompositeSkill(options: CompositeExecuteOptions): P
             apiMeta: lastApiMeta
           }
         }
-        stepState.status = 'done'
+        transition('done', '步骤执行完成')
         dispatchCompositeProgressEvent({
           skillId: child.id,
           index: steps.length - 1,

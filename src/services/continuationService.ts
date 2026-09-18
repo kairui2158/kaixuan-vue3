@@ -13,7 +13,12 @@ export function buildContinuationMessages(snapshot: ContinuationSnapshot, maxCon
 export async function continueSnapshot(
   service: Pick<AiService, 'callAi'>,
   snapshot: ContinuationSnapshot,
-  options: { signal?: AbortSignal; onChunk?: (text: string) => void } = {}
+  options: {
+    signal?: AbortSignal
+    onChunk?: (text: string) => void
+    onReasoning?: (text: string) => void
+    onPhysicalCall?: (event: Parameters<NonNullable<Parameters<AiService['callAi']>[0]['onPhysicalCall']>>[0]) => void
+  } = {}
 ): Promise<CallAiResult & { text: string }> {
   const result = await service.callAi({
     purpose: snapshot.purpose,
@@ -22,7 +27,9 @@ export async function continueSnapshot(
     stream: true,
     signal: options.signal,
     meta: { source: 'continuation.continueSnapshot', step: snapshot.currentStep, skillId: snapshot.skillIds[0], agentId: snapshot.agentIds[0] },
-    onChunk: options.onChunk
+    onChunk: options.onChunk,
+    onReasoning: options.onReasoning,
+    onPhysicalCall: options.onPhysicalCall
   })
   return { ...result, text: mergeContinuationText(snapshot.accumulatedText, result.text) }
 }

@@ -7,14 +7,28 @@
       <div class="deai-step-title">通用参数</div>
       <div class="deai-common-params">
      <div class="deai-param-row">
-        <div class="deai-param-item">
-          <span class="deai-param-label">硬规则总开关</span>
+       <div class="deai-param-item">
+         <span class="deai-param-label">硬规则总开关</span>
           <button
             class="toggle-btn"
             :class="{ on: deAiStore.hardruleEnabled }"
             @click="deAiStore.hardruleEnabled = !deAiStore.hardruleEnabled; deAiStore.saveConfig()"
-          >{{ deAiStore.hardruleEnabled ? 'ON' : 'OFF' }}</button>
-        </div>
+         >{{ deAiStore.hardruleEnabled ? 'ON' : 'OFF' }}</button>
+       </div>
+       <div class="deai-param-item" id="deai-hardrule-mode">
+         <span class="deai-param-label">硬规则模式</span>
+         <div class="deai-radio-group">
+           <label class="deai-radio-option">
+             <input type="radio" value="detect-report" v-model="hardRuleModeValue" @change="selectHardRuleMode"> 检测报告（推荐）
+           </label>
+           <label class="deai-radio-option">
+             <input type="radio" value="deep-fix" v-model="hardRuleModeValue" @change="selectHardRuleMode"> 深度修复
+           </label>
+           <label class="deai-radio-option">
+             <input type="radio" value="legacy-auto" v-model="hardRuleModeValue" @change="selectHardRuleMode"> 兼容自动替换
+           </label>
+         </div>
+       </div>
        <div class="deai-param-item">
          <span class="deai-param-label">处理强度</span>
           <div class="deai-radio-group">
@@ -190,6 +204,34 @@
       </div>
     </div>
 
+    <div class="deai-step-group" v-if="deAiStore.hardruleEnabled && deAiStore.hardRuleMode !== 'legacy-auto'">
+      <div class="deai-step-title">最近检测报告</div>
+      <div id="deai-detect-report" class="deai-detect-report">
+        <div v-if="!deAiStore.lastDetectReport" class="deai-detect-empty">暂无检测报告。生成正文或运行去AI味后，这里会显示最近一次检测摘要。</div>
+        <template v-else>
+          <div class="deai-detect-metrics">
+            <span>句长变异 {{ deAiStore.lastDetectReport.metrics.sentenceLengthCV }}</span>
+            <span>连接词密度 {{ deAiStore.lastDetectReport.metrics.connectorDensity }}</span>
+            <span>保护片段 {{ deAiStore.lastDetectReport.metrics.protectedSpans.hit }}/{{ deAiStore.lastDetectReport.metrics.protectedSpans.total }}</span>
+          </div>
+          <div
+            v-for="finding in deAiStore.lastDetectReport.findings"
+            :key="finding.id"
+            class="deai-detect-finding"
+            :class="{ blocking: finding.severity === 'blocking' }"
+          >
+            <div class="deai-detect-finding-head">
+              <span>{{ finding.severity === 'blocking' ? '需处理' : '建议' }}</span>
+              <strong>{{ finding.type }}</strong>
+              <em>{{ finding.count }} 处 / 每千字 {{ finding.perKilo }}</em>
+            </div>
+            <p>{{ finding.samples.join('；') }}</p>
+            <small>{{ finding.suggestion }}</small>
+          </div>
+        </template>
+      </div>
+    </div>
+
     <!-- 验证供应商状态 -->
     <div class="deai-step-group">
       <div class="deai-step-title">AI验证AI（跨模型审核）</div>
@@ -212,6 +254,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import type { DeAiHardRuleMode } from '../../stores/deai'
 import { useDeAiStore } from '../../stores/deai'
 import { useSkillStore } from '../../stores/skill'
 import { useAgentStore } from '../../stores/agent'
@@ -226,31 +269,22 @@ const providerStore = useProviderStore()
 const selectedChainSkill = ref('')
 const selectedSplitSkill = ref('')
 const selectedMultiSkill = ref('')
+const hardRuleModeValue = computed<DeAiHardRuleMode>({
+  get: () => deAiStore.hardRuleMode,
+  set: (value) => { deAiStore.setHardRuleMode(value) }
+})
 
 const verifyProvider = computed(() => providerStore.activeVerifyProvider)
 
-// 20条硬规则定义，对应 de-ai.js 的 HARD_RULES
+// 硬规则定义与 de-ai.js 的 HARD_RULES 保持单一事实源
 const hardRulesList = [
-  { id: 'cliches', name: 'AI套话替换' },
+  { id: 'cliches', name: 'AI套话安全替换' },
   { id: 'connectors', name: '连接词替换' },
-  { id: 'dropNames', name: '去掉句首人名' },
-  { id: 'dropPronouns', name: '去掉句首他/她' },
-  { id: 'mergeShort', name: '合并短句' },
-  { id: 'narratorIntermediary', name: '中转词删除' },
-  { id: 'causalInversion', name: '因果倒装' },
-  { id: 'frameStripping', name: '框架剥离' },
-  { id: 'reduceSensory', name: '压缩感官描写' },
-  { id: 'templateOpening', name: '替换模板化开头' },
-  { id: 'mergeShortPara', name: '合并短段落' },
-  { id: 'shuffleListing', name: '打散列举模式' },
-  { id: 'breakUniformity', name: '修复段落趋同' },
-  { id: 'fixUniformLen', name: '修复句长趋同' },
-  { id: 'rhythmVariation', name: '段落节奏变化' },
-  { id: 'fixPeriods', name: '段首句号修复' },
-  { id: 'breakConnectors', name: '打断连接词序列' },
   { id: 'deDiReplace', name: '的/地替换' },
   { id: 'dunhaoToComma', name: '顿号转逗号' },
-  { id: 'aiFreqDetect', name: 'AI高频词检测' }
+  { id: 'aiFreqDetect', name: 'AI高频词检测' },
+  { id: 'bannedVocab', name: '禁用词检测' },
+  { id: 'bannedPhrases', name: '禁用句式检测' }
 ]
 
 const modes = [
@@ -282,6 +316,10 @@ const modes = [
 
 function selectMode(mode: 'chain' | 'split-merge' | 'multi-step') {
   deAiStore.setMode(mode)
+}
+
+function selectHardRuleMode() {
+  deAiStore.saveConfig()
 }
 
 function getSkillName(id: string) {
@@ -331,6 +369,31 @@ function saveAllConfig() {
 .deai-param-row { display: flex; flex-wrap: wrap; gap: var(--space-md); align-items: flex-end; }
 .deai-param-item { display: flex; flex-direction: column; gap: var(--space-2); }
 .deai-param-label { font-size: var(--font-size-md); color: var(--text-muted); font-weight: 500; }
+
+/* === 检测报告 === */
+.deai-detect-report {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.deai-detect-empty { color: var(--text-muted); font-size: var(--font-size-md); }
+.deai-detect-metrics { display: flex; flex-wrap: wrap; gap: var(--space-4); color: var(--text-secondary); font-size: var(--font-size-sm); }
+.deai-detect-finding {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-elevated);
+}
+.deai-detect-finding.blocking { border-color: var(--warning, var(--accent)); }
+.deai-detect-finding-head { display: flex; align-items: center; gap: var(--space-3); font-size: var(--font-size-sm); }
+.deai-detect-finding-head span { color: var(--text-muted); }
+.deai-detect-finding.blocking .deai-detect-finding-head span { color: var(--warning, var(--accent)); font-weight: 600; }
+.deai-detect-finding-head em { margin-left: auto; color: var(--text-muted); font-style: normal; }
+.deai-detect-finding p { margin: var(--space-2) 0 var(--space-1); color: var(--text-primary); font-size: var(--font-size-md); }
+.deai-detect-finding small { color: var(--text-secondary); font-size: var(--font-size-sm); }
 .select-standard {
   min-width: 100px;
   padding: var(--space-2) var(--space-4);

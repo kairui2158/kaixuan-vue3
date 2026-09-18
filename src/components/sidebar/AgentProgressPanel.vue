@@ -35,7 +35,7 @@ async function pollAgentStatus() {
       }
     }
   } catch (e) {
-    // silently ignore
+    console.warn('[AgentProgressPanel] agent status poll failed:', e)
   }
 }
 

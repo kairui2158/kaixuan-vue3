@@ -153,6 +153,12 @@ module.exports = {
 
 每行一条样本。存在 `samples.txt` 时优先使用技能样本；为空或不存在时回退到应用内置样本。`smartSamples: true` 时，会按输入关键词挑选最相关样本，样本总字符预算 4000。
 
+内容边界：
+
+1. `samples.txt` 是风格参考，不是输出范例。只放短句、语气片段或带 `{{占位符}}` 的结构示例。
+2. 禁止放置完整成品输出。完整卷纲、完整章节、完整大纲会被应用体检标记为 warning，但应用不会修改第三方技能文件夹。
+3. 长结构化示例请保留字段结构，把具体内容替换为 `{{volumeName}}`、`{{volumeSummary}}` 等占位符，避免模型复制示例内容。
+
 ## 9. 输入输出协议
 
 Folder SKILL 的输入输出都是字符串：
@@ -161,6 +167,18 @@ Folder SKILL 的输入输出都是字符串：
 2. API 输出传给 `postProcess(output)`，可返回 `{ output: "..." }` 改写输出。
 3. 最终输出是普通文本，除非 `schema.json` 要求 JSON。
 4. 文本写作场景推荐纯文本输出，结构化数据仅在确实需要机器消费时使用 JSON。
+
+### 9.1 大纲/主页写入协议（重要）
+
+Folder SKILL 可以在明确写入意图下直接改写编辑器。应用的安全模型是：`discuss/analyze` 只读；用户明确下达“插入/写入/修改/删除”等 edit/generate 指令时，才暴露 `editor.write` 并执行直写；执行仍受定位唯一、hash/版本校验、锁定只读、写入上限、undo 与批次记录保护。
+
+1. 读范围用 `outline.get_structure`、`outline.read_range`、`outline.search`。
+2. 需要写入时必须调用 `editor.write`，不要只输出【修改预览】文本。
+3. `editor.write` 返回 `status: written` 表示写入已执行；返回失败状态时禁止输出“已写入/已插入”。
+4. 未收到 `editor.write` 的 `status: written` 结果前，禁止输出“已写入/已插入”。
+5. 写入失败要按失败原因回复用户：目标不唯一、hash/版本冲突、编辑器锁定、超过写入上限均表示本次未写入。
+6. 用户说“插入/写入/改到大纲”属于 edit 意图；讨论、分析属于 discuss/analyze，此时不要调用写入工具。
+7. 判断“明确写入但模型未写入”的方法：先确认 turn 的 `actualToolSurface` 包含 `editor.write`，再看 API call 的 `toolCalls` 是否为空；为空则表示模型没有提交写入工具调用。
 
 ## 10. 执行模式能力边界
 

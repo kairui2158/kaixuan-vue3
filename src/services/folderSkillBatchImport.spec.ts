@@ -21,7 +21,7 @@ describe('folderSkillBatchImport', () => {
       skillLoadFolder: vi.fn(async () => ({
         ok: true,
         folderPath: 'D:/skills/kaixuan-s1',
-        skill: { id: 'KAI-S1', name: '骨架师', template: '模板' }
+        skill: { id: 'KAI-S1', name: '骨架师', template: '模板', manifest: { version: '1.2.0' } }
       }))
     }
 
@@ -33,6 +33,7 @@ describe('folderSkillBatchImport', () => {
       folderPath: 'D:/skills/kaixuan-s1',
       id: 'folder:KAI-S1',
       name: '骨架师',
+      version: '1.2.0',
       valid: true,
       exists: true,
       action: 'skip'
@@ -53,6 +54,27 @@ describe('folderSkillBatchImport', () => {
 
     expect(result.ok).toBe(true)
     expect(result.item).toMatchObject({ id: 'folder:KAI-S1', exists: false, action: 'add' })
+  })
+
+  it('warns when one folder path is already bound to another folder skill', async () => {
+    const bridge = {
+      skillListFolders: vi.fn(),
+      skillLoadFolder: vi.fn(async () => ({
+        ok: true,
+        folderPath: 'D:/skills/kaixuan-s1',
+        skill: { id: 'KAI-S2', name: '血肉师', template: '模板' }
+      }))
+    }
+
+    const result = await previewFolderSkill(
+      'D:/skills/kaixuan-s1',
+      [],
+      bridge,
+      [{ id: 'folder:KAI-S1', folderPath: 'D:/skills/kaixuan-s1/' }]
+    )
+
+    expect(result.ok).toBe(true)
+    expect(result.item?.warnings).toContain('路径已绑定到 folder:KAI-S1；继续导入会形成同一路径多条记录')
   })
 
   it('updates a single folder import plan when the duplicate strategy changes', () => {
@@ -145,6 +167,26 @@ describe('folderSkillBatchImport', () => {
       exists: false,
       action: 'add'
     })
+  })
+
+  it('marks duplicate ids inside one batch and reports them through warnings', async () => {
+    const bridge = bridgeWith(
+      [
+        { name: 'copy-a', folderPath: 'D:/skills/copy-a' },
+        { name: 'copy-b', folderPath: 'D:/skills/copy-b' }
+      ],
+      {
+        'D:/skills/copy-a': { ok: true, folderPath: 'D:/skills/copy-a', skill: { id: 'same-skill', name: '复制A', template: '模板' } },
+        'D:/skills/copy-b': { ok: true, folderPath: 'D:/skills/copy-b', skill: { id: 'same-skill', name: '复制B', template: '模板' } }
+      }
+    )
+
+    const result = await previewFolderSkillBatch('D:/skills', [], bridge)
+
+    expect(result.ok).toBe(true)
+    expect(result.items[0]).toMatchObject({ id: 'folder:same-skill', exists: false, action: 'add' })
+    expect(result.items[1]).toMatchObject({ id: 'folder:same-skill', exists: true, action: 'skip' })
+    expect(result.items[1].warnings).toContain('批量扫描中出现重复 ID，将按重复策略处理')
   })
 
   it('updates the plan when the duplicate strategy changes', () => {

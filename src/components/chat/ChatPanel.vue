@@ -16,13 +16,16 @@
           @regenerate="regenerateMessage(i)"
           @apply="insertToEditor(msg.content)" @replace="replaceWhole(msg.content)"
           @continue="continueMessage(msg)"
-         @preview="previewEditorBatch(msg)"
          @rollback="rollbackEditorBatch(msg)"
+         @reveal="revealEditorBatch(msg)"
         @resume-task="aiTaskStore.resumeTask(aiTaskStore.activeTaskId!)"
         @pause-task="aiTaskStore.pauseTask(aiTaskStore.activeTaskId!)"
          @retry-step="aiTaskStore.retryStep(aiTaskStore.activeTaskId!)"
         @resume-breakpoint="resumeFromChainBreakpoint()"
         @discard-breakpoint="discardChainBreakpoint()"
+        @routing-continue="continueRoutingFallback(msg)"
+        @routing-bypass="bypassRoutingFallback(msg)"
+        @budget-extend="extendRoutingBudget(msg)"
         :chain-breakpoint="chainBreakpointInfo"
      />
       </div>
@@ -39,22 +42,19 @@
       <button type="button" @click="compatibilityNotice = ''">知道了</button>
     </div>
     <div id="chat-input-row" class="chat-input-row">
-     <textarea
-       v-model="inputText"
-        class="chat-input"
-        id="user-input"
-       placeholder="输入消息..."
-       rows="1"
-     @keydown.enter.exact.prevent="() => sendMessage()"
-       @keydown.enter.shift.exact="inputText += '\n'"
-    ></textarea>
-      <button id="btn-send" class="btn-send" :disabled="isStreaming" @click="() => sendMessage()" :title="isStreaming ? '生成中' : '发送'">
-        <svg v-if="!isStreaming" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"></line>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-        </svg>
-        <span v-else class="send-busy-label">生成中</span>
-      </button>
+      <ApiChatInput
+        v-model="inputText"
+        placeholder="输入消息..."
+        :send-disabled="isStreaming"
+        send-label="发送"
+        show-reset
+        reset-label="重置对话"
+        input-id="user-input"
+        send-id="btn-send"
+        reset-id="btn-reset-conversation"
+        @send="() => sendMessage()"
+        @reset="resetConversation"
+      />
     </div>
 
       <div id="skill-area" class="skill-area">
@@ -131,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onMounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useAgentStore } from '../../stores/agent'
 import { useAppConfirm } from '../../composables/useAppConfirm'
 import { useProviderStore } from '../../stores/provider'
@@ -139,35 +139,54 @@ import { useEditorStore } from '../../stores/editor'
 import { useProjectStore } from '../../stores/project'
 import { useSettingsStore } from '../../stores/settings'
 import ChatMessageComponent from './ChatMessage.vue'
+import ApiChatInput from '../common/ApiChatInput.vue'
 import { useSkillStore } from '../../stores/skill'
 import { useChatStore } from '../../stores/chat'
 import { useCoCreationStore } from '../../stores/coCreation'
 import { useAiTaskStore } from '../../stores/aiTaskStore'
-import { getAiService } from '../../services/aiService'
-import { runWorkspaceSkills, type WorkspaceSkillEngineAdapter, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
+import { getAiService, type PhysicalCallEvent } from '../../services/aiService'
+import { getProviderReasoningControl } from '../../services/providerProtocols'
+import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from '../../services/generationValidity'
+import { createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceSkillEngineAdapter, type WorkspaceSkillToolRequest, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
+import type { ChainRoutingResult } from '../../services/chainIntentRouter'
 import { createApiCallBudget } from '../../services/apiCallBudget'
+import type { ApiCallBudget } from '../../services/apiCallBudget'
 import { getWorkspaceSkillAgentKey } from '../../services/skillAgentBinding'
 import { MCPProtocol } from '../../services/mcp-protocol'
 import { retrieveContext } from '../../services/memoryRetriever'
-import { conversationContextService } from '../../services/conversationContextService'
+import { conversationContextService, resolveModelContextWindow } from '../../services/conversationContextService'
 import type { ContextMessage } from '../../types/context'
-import { continueSnapshot } from '../../services/continuationService'
+import { buildContinuationMessages, continueSnapshot } from '../../services/continuationService'
+import { slimContinuationMessages } from '../../services/continuationSlim'
 import { canContinue, continuationStatusFor, type ContinuationSnapshot } from '../../services/continuation'
 import { saveContinuation, loadContinuation, removeContinuation } from '../../services/continuationStorage'
-import { buildEditorEditPrompt, buildEditorReadonlyPrompt, parseEditorEditBatch, parseEditorEditCommand, type EditorEditCommand } from '../../services/editorEditProtocol'
+import { buildEditorReadonlyPrompt, type EditorEditCommand } from '../../services/editorEditProtocol'
 import { createEditorTargetSnapshot, hashEditorContent, validateEditorTarget, type EditorTargetSnapshot } from '../../services/editorTarget'
 import { buildEditPlan } from '../../services/editorEditService'
-import { applyAcceptedItems, planEditorEditBatch, type EditorEditBatchPlan } from '../../services/editorEditBatch'
-import { canRollbackEditorBatch, createEditorBatchRecord, findEditorBatchUndoContent, normalizeEditorBatchRecord, updateEditorBatchRecord } from '../../services/editorBatchRecord'
-import { logEditorEdit } from '../../services/editorEditDiagnostics'
+import { canRollbackEditorBatch, createEditorBatchRecord, findEditorBatchUndoContent, normalizeEditorBatchRecord, toDialogueBatchEvent, updateEditorBatchRecord } from '../../services/editorBatchRecord'
+import { logEditorEdit, logEditorPresentation } from '../../services/editorEditDiagnostics'
 import { captureWorkspaceSnapshot, clearWorkspaceSnapshot, hasWorkspaceSnapshot, restoreWorkspaceSnapshot } from '../../services/workspaceSnapshot'
-import { createEditorTools } from '../../services/editorTools'
-import type { EditorEditBatchCommand } from '../../services/editorEditProtocol'
+import {
+  authorizeDialogueTools,
+  type AgentToolDefinition,
+  buildDialogueToolSurface,
+  describeDialogueToolSurface,
+  type EditorRevealer,
+  type EditorWriteApplier,
+  type ToolResult,
+  type DialogueToolSurfaceIntent,
+  type DialogueToolSurfaceSummary,
+  type EditorWriteRetryCarrier,
+} from '../../services/dialogueToolSurface'
+import { classifyPlainDialogueIntent, type PlainDialogueIntent } from '../../services/plainDialogueIntent'
 import type { ChatMessage } from '../../stores/chat'
+import { useRunTraceStore, type RunTraceMessage, type RunTraceStatus } from '../../stores/runTrace'
 
 const agentStore = useAgentStore()
 const providerStore = useProviderStore()
 const editorStore = useEditorStore()
+// P6-1: track consecutive no_edit responses for adaptive hint
+const consecutiveNoEditCount = ref(0)
 const appConfirm = useAppConfirm()
 const skillStore = useSkillStore()
 const chatStore = useChatStore()
@@ -178,19 +197,483 @@ const aiTaskStore = useAiTaskStore()
 
 const projectId = computed(() => projectStore.currentProjectId || 'default')
 const messages = computed(() => chatStore.activeMessages)
+const runTraceStore = useRunTraceStore()
+let homeRunTraceId: string | null = null
+let activeHomeApiCallId: string | null = null
+let homeLastDirectRequestId = 0
+let homeStreamLength = 0
+let homeRunTurnId: string | null = null
+let homeSessionId = ''
+
+function homeTraceTarget() {
+  const tab = editorStore.activeTab
+  return {
+    type: tab?.mode || 'main',
+    id: tab?.id || 'main',
+    name: tab?.title || '主页编辑器',
+    activeTab: tab?.title || '未打开页签',
+    locked: false
+  }
+}
+
+function startHomeRun(
+  mode: string,
+  requestText: string,
+  skillNames: string[] = [],
+  options: {
+    intent?: PlainDialogueIntent
+    writeMode?: 'direct'
+    toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
+    actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
+  } = {},
+) {
+  const provider = providerStore.activeGenerateProvider
+  homeStreamLength = 0
+  const activeRun = homeRunTraceId ? runTraceStore.getRun(homeRunTraceId) : null
+  if (
+    activeRun &&
+    activeRun.status === 'running' &&
+    activeRun.sessionKind === 'chat' &&
+    homeSessionId === (chatStore.currentContext?.tabId || '')
+  ) {
+    homeRunTraceId = activeRun.id
+  } else {
+    homeRunTraceId = runTraceStore.startRun({
+      source: 'home',
+      stepName: '主页共创',
+      mode,
+      sessionKind: 'chat',
+      projectId: projectId.value,
+      projectName: projectStore.projectName,
+      providerId: provider?.id,
+      providerName: provider?.name,
+      model: provider?.selectedModel || provider?.models?.[0],
+      skillNames,
+      skillMode: skillNames.length ? mode : undefined,
+      target: homeTraceTarget(),
+      context: {
+        turns: messages.value.filter(item => item.role === 'user').length
+      }
+    })
+    homeSessionId = chatStore.currentContext?.tabId || ''
+  }
+  homeRunTurnId = runTraceStore.startTurn(homeRunTraceId, {
+    userRequest: requestText,
+    skillNames,
+    mode,
+    intent: options.intent,
+    writeMode: options.writeMode,
+    toolSurface: options.toolSurface,
+    actualToolSurface: options.actualToolSurface
+  })
+  if (runTraceStore.getRun(homeRunTraceId)?.status === 'running') {
+    runTraceStore.finishAwaitingUser(homeRunTraceId, `next_turn:${requestText.slice(0, 80)}`)
+  }
+  runTraceStore.addEvent(homeRunTraceId, {
+    type: 'user-request',
+    level: 'info',
+    label: '用户请求',
+    detail: requestText
+  })
+}
+
+function appendHomeStream(text: string, isDelta = false) {
+  const callId = runTraceStore.getApiCallId('home')
+  if (!homeRunTraceId || !callId) return
+  if (isDelta) {
+    if (!text) return
+    runTraceStore.appendStream(homeRunTraceId, callId, text)
+    return
+  }
+  if (text.length < homeStreamLength) return
+  const delta = text.slice(homeStreamLength)
+  if (!delta) return
+  homeStreamLength = text.length
+  runTraceStore.appendStream(homeRunTraceId, callId, delta)
+}
+
+function appendHomeReasoning(callId: string | undefined, text?: string) {
+  if (!homeRunTraceId || !text) return
+  if (callId) runTraceStore.appendReasoning(homeRunTraceId, callId, text)
+}
+
+function finishHomeRun(status: RunTraceStatus, error?: string, resultPreview?: string, reason?: string) {
+  const runId = homeRunTraceId
+  if (!runId) return
+  if (status === 'canceled' || status === 'failed') {
+    runTraceStore.cancelRunningApiCalls(runId, error || (status === 'canceled' ? '用户取消生成' : '运行失败'))
+  }
+  const run = runTraceStore.getRun(runId)
+  if (run && resultPreview) run.resultPreview = resultPreview
+  if (run?.sessionKind === 'chat') {
+    if (homeRunTurnId) runTraceStore.finishTurn(runId, homeRunTurnId, status, error, reason)
+    return
+  }
+  runTraceStore.finishRun(runId, status, error, reason)
+  homeRunTraceId = null
+  homeStreamLength = 0
+}
+
+function sealHomeTraceSession() {
+  const runId = homeRunTraceId
+  if (!runId) return
+  const run = runTraceStore.getRun(runId)
+  if (!run || run.sessionKind !== 'chat') return
+  if (run.status === 'running') runTraceStore.finishRun(runId, 'success')
+  homeRunTraceId = null
+  homeRunTurnId = null
+  homeStreamLength = 0
+}
+
+function finishHomeTraceSession(status: RunTraceStatus, error?: string, reason?: string) {
+  const runId = homeRunTraceId
+  if (!runId) return
+  const run = runTraceStore.getRun(runId)
+  if (run?.sessionKind === 'chat') {
+    if (homeRunTurnId) runTraceStore.finishTurn(runId, homeRunTurnId, status, error, reason)
+    if (run.status === 'running') runTraceStore.finishRun(runId, status, error, reason)
+  } else if (run?.status === 'running') {
+    runTraceStore.finishRun(runId, status, error, reason)
+  }
+  homeRunTraceId = null
+  homeRunTurnId = null
+  homeStreamLength = 0
+  activeHomeApiCallId = null
+}
+
+function addHomeTraceEvent(event: { type: string; label: string; level?: 'info' | 'warn' | 'error'; detail?: string }) {
+  const runId = homeRunTraceId
+  if (!runId) return
+  runTraceStore.addEvent(runId, {
+    level: event.level || 'info',
+    type: event.type,
+    label: event.label,
+    detail: event.detail?.slice(0, 20000)
+  })
+}
+
+function startHomeApiCall(input: {
+  skillName?: string
+  requestMessages: RunTraceMessage[]
+  model?: string
+  intent?: PlainDialogueIntent
+  toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
+  actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
+}) {
+  const runId = homeRunTraceId
+  if (!runId) return
+  homeStreamLength = 0
+  const callId = runTraceStore.startApiCall(runId, {
+    source: 'home',
+    skillName: input.skillName,
+    providerId: providerStore.activeGenerateProvider?.id,
+    providerName: providerStore.activeGenerateProvider?.name,
+    model: input.model || providerStore.activeGenerateProvider?.selectedModel || providerStore.activeGenerateProvider?.models?.[0],
+    requestMessages: input.requestMessages,
+    intent: input.intent,
+    toolSurface: input.toolSurface,
+    actualToolSurface: input.actualToolSurface
+  })
+  activeHomeApiCallId = callId || null
+  return callId
+}
+
+function finishHomeApiCall(callId: string | undefined, result: {
+  status: RunTraceStatus
+  responseText?: string
+  reasoningText?: string
+  finishReason?: string
+  usage?: unknown
+  durationMs?: number
+  error?: string
+  compatibilityMode?: 'json-protocol'
+  compatibilityWrite?: boolean
+  toolsDowngraded?: boolean | 'json-protocol'
+  downgradeReason?: string
+  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+  maxTokens?: number
+}) {
+  const runId = homeRunTraceId
+  if (!runId || !callId) return
+  runTraceStore.finishApiCall(runId, callId, result)
+  if (activeHomeApiCallId === callId) activeHomeApiCallId = null
+}
+
+function closeActiveHomeApiCall(status: RunTraceStatus, error?: string) {
+  if (!activeHomeApiCallId) return
+  finishHomeApiCall(activeHomeApiCallId, { status, error })
+}
+
+function recordHomePhysicalCall(callId: string | undefined, event: PhysicalCallEvent) {
+  if (!homeRunTraceId || !callId) return
+  runTraceStore.appendPhysicalCall(homeRunTraceId, callId, {
+    physicalCallId: event.physicalCallId,
+    phase: event.phase,
+    status: event.status,
+    requestMessages: event.requestMessages.map(m => ({ role: m.role, content: String(m.content || '') })),
+    responseText: event.responseText,
+    streamText: event.streamText,
+    reasoningText: event.reasoningText,
+    finishReason: event.finishReason,
+    usage: event.usage,
+    durationMs: event.durationMs,
+    error: event.error,
+    toolsEnabled: event.toolsEnabled,
+    toolsDowngraded: event.toolsDowngraded,
+    downgradeReason: event.downgradeReason,
+    retryStrategy: event.retryStrategy,
+    maxTokens: event.maxTokens,
+  })
+}
+
+  function recordHomeToolCall(callId: string | undefined, event: {
+  toolName: string
+  input: unknown
+  result: ToolResult
+  durationMs: number
+}) {
+  if (!homeRunTraceId || !callId) return
+  runTraceStore.appendToolCall(homeRunTraceId, callId, {
+    name: event.toolName,
+    input: event.input,
+    result: event.result,
+    status: event.result.ok ? 'success' : 'failed',
+    durationMs: event.durationMs,
+    error: event.result.ok ? undefined : event.result.error?.message,
+  })
+}
+
+function recordEditorPresentation(event: {
+  phase: 'start' | 'finished' | 'failed'
+  workspace: 'main'
+  targetId: string
+  mode: string
+  commands?: number
+  reason?: string
+}) {
+  logEditorPresentation(event)
+  const label = event.phase === 'start'
+    ? '编辑器直写呈现开始'
+    : event.phase === 'finished'
+      ? '编辑器直写呈现完成'
+      : '编辑器直写呈现失败'
+  addHomeTraceEvent({
+    type: `editor-presentation-${event.phase}`,
+    level: event.phase === 'failed' ? 'error' : 'info',
+    label,
+    detail: JSON.stringify(event).slice(0, 20000)
+  })
+}
+
+function compatibilityNoticeFor(result: {
+  compatibilityWrite?: boolean
+  toolCalls?: Array<{ name: string }>
+}): string | null {
+  if (result.compatibilityWrite) {
+    return '兼容模式直写：本次编辑器写入已执行，但模型定位可靠性较低'
+  }
+  return null
+}
 const inputText = ref('')
 const _pendingInlineOriginal = ref('')
 const _pendingInlineSelection = ref<{ tabId: string; start: number; end: number } | null>(null)
 const pendingEditorTarget = ref<EditorTargetSnapshot | null>(null)
-const pendingEditorBatchPlan = ref<EditorEditBatchPlan | null>(null)
-const pendingEditorBatchMessage = ref<{ messageId: string; sessionId?: string } | null>(null)
-let pendingToolEditBatch: EditorEditBatchCommand | null = null
+let homeFailedWriteBatch: {
+  workspace: string
+  targetId: string
+  contentVersion: number
+  commands: EditorEditCommand[]
+  succeededIndexes: number[]
+} | null = null
 let lastToolCallSummary: string | null = null
 const messagesContainer = ref<HTMLElement | null>(null)
 const isStreaming = computed(() => chatStore.generationStatus === 'preparing' || chatStore.generationStatus === 'streaming' || chatStore.generationStatus === 'retrying')
 const generationStatus = computed(() => chatStore.generationStatus)
 const generationMessage = computed(() => chatStore.generationMessage)
 const lastFailedText = ref('')
+const homeApiBudget = ref<ApiCallBudget | null>(null)
+
+function recordHomeRoutingEvent(event: ChainRoutingEvent) {
+  if (event.type === 'routing_started') {
+    addHomeTraceEvent({ type: 'routing-started', label: '开始意图路由', detail: event.requestText })
+  } else if (event.type === 'routing_result') {
+    const routing = event.result
+    if (
+      routing.kind === 'matched' &&
+      homeRunTraceId &&
+      homeRunTurnId
+    ) {
+      const matchedIntent = routing.intent
+      const requestTarget = createEditorTargetSnapshot({
+        workspace: 'main',
+        targetId: editorStore.activeTab?.id || projectId.value,
+        label: editorStore.activeTab?.title || '主页编辑器',
+        chapterId: editorStore.activeTab?.chapterId,
+        mode: editorStore.activeTab?.mode || 'ch-body',
+        content: editorStore.activeTab?.content || '',
+        selectionStart: 0,
+        selectionEnd: 0
+      })
+      const reroutedSurface = requestTarget.content
+        ? buildHomeDialogueToolSurface(requestTarget, matchedIntent)
+        : { tools: [] as AgentToolDefinition[] }
+      const authorizedSurface = authorizeDialogueTools(reroutedSurface.tools, matchedIntent)
+      runTraceStore.updateTurnIntent(homeRunTraceId, homeRunTurnId, {
+        intent: matchedIntent,
+        routingFallback: 'none',
+        toolSurface: reroutedSurface.tools.map(tool => ({
+          name: tool.name,
+          policy: tool.policy || 'read' as const,
+        })),
+        actualToolSurface: authorizedSurface.actualToolSurface,
+      })
+    }
+    addHomeTraceEvent({
+      type: 'routing-result',
+      label: `意图路由结果：${routing.kind}`,
+      detail: `${routing.reason}${'fallbackMode' in routing ? ` | fallback=${routing.fallbackMode}` : ''}`
+    })
+    if (
+      routing.kind !== 'matched' &&
+      homeRunTraceId &&
+      homeRunTurnId
+    ) {
+      runTraceStore.updateTurnIntent(homeRunTraceId, homeRunTurnId, {
+        routingFallback: routing.fallbackMode,
+      })
+    }
+  } else if (event.type === 'skill_skipped') {
+    addHomeTraceEvent({
+      type: 'skill-skipped',
+      label: `跳过技能：${event.skillId}`,
+      detail: event.reason
+    })
+  } else if (event.type === 'chain_handoff') {
+    addHomeTraceEvent({
+      type: 'chain-handoff',
+      level: event.artifact.repeatedHashCount ? 'warn' : 'info',
+      label: `链式步骤 Handoff：${event.artifact.sourceSkillId}`,
+      detail: JSON.stringify(event.artifact)
+    })
+  } else if (event.type === 'budget_exhausted') {
+    addHomeTraceEvent({
+      type: 'budget-exhausted',
+      level: 'warn',
+      label: 'API 调用预算已用尽',
+      detail: `已用 ${event.budget.used}/${event.budget.limit}，阻断位置：${event.step}`
+    })
+    addHomeTraceEvent({
+      type: 'state-transition',
+      label: 'ChainRunState：running → budget_exhausted',
+      detail: '预算耗尽，等待用户追加后恢复'
+    })
+  } else if (event.type === 'run_completed') {
+    addHomeTraceEvent({ type: 'routing-run-complete', label: '链式技能执行完成', detail: event.state })
+    if (event.state === 'completed') {
+      addHomeTraceEvent({
+        type: 'state-transition',
+        label: 'ChainRunState：running → completed',
+        detail: '全部链式技能执行完成'
+      })
+    }
+  }
+}
+
+function clearRoutingFallback(messageId: string) {
+  const session = chatStore.activeSession
+  const message = session?.messages.find(item => item.id === messageId)
+  if (!message) return
+  message.routingFallback = undefined
+  message.budgetExhausted = undefined
+  if (!session) return
+  session.updatedAt = Date.now()
+  void chatStore.saveSessions(projectId.value)
+}
+
+type RoutingFallbackBubble = {
+  requestText?: string
+  routing?: ChainRoutingResult
+  runId?: string
+  createdAt?: number
+  resumeToken?: string
+}
+
+async function continueRoutingFallback(message: { id?: string; routingFallback?: RoutingFallbackBubble }) {
+  if (isStreaming.value || !message.routingFallback) return
+  const fallback = message.routingFallback
+  if (!fallback.requestText) return
+  const tokenValid =
+    fallback.runId === homeRunTraceId &&
+    validateRoutingResumeToken(fallback, homeRunTraceId)
+  if (fallback.runId && !tokenValid) {
+    addHomeTraceEvent({
+      type: 'routing-resume-token-invalid',
+      level: 'warn',
+      label: '意图确认恢复令牌失效',
+      detail: `bubble_run=${fallback.runId}; current_run=${homeRunTraceId || 'none'}`
+    })
+  } else if (fallback.runId) {
+    runTraceStore.finishAwaitingUser(fallback.runId, `resume:${fallback.requestText.slice(0, 80)}`)
+  }
+  if (message.id) clearRoutingFallback(message.id)
+  homeApiBudget.value = createApiCallBudget(8)
+  await sendMessage(fallback.requestText, {
+    forcedIntent: inferRoutingFallbackIntent(fallback.routing || {
+      kind: 'no_match',
+      confidence: 0,
+      reason: 'low-confidence',
+      fallbackMode: 'await-user',
+    })
+  })
+}
+
+function recordHomeBatchEvent(
+  record: ReturnType<typeof normalizeEditorBatchRecord>,
+  status: Parameters<typeof toDialogueBatchEvent>[1],
+  reason?: string,
+) {
+  if (!record) return
+  runTraceStore.addBatchEvent('home', toDialogueBatchEvent(record, status, reason))
+}
+
+async function bypassRoutingFallback(message: { id?: string; routingFallback?: { requestText?: string } }) {
+  if (isStreaming.value || !message.routingFallback?.requestText) return
+  const requestText = message.routingFallback.requestText
+  addHomeTraceEvent({
+    type: 'user-bypassed-routing',
+    level: 'warn',
+    label: '用户跳过意图路由',
+    detail: '本次直接全链执行，不写入配置'
+  })
+  if (message.id) clearRoutingFallback(message.id)
+  homeApiBudget.value = createApiCallBudget(8)
+  await sendMessage(requestText, { bypass: true })
+}
+
+async function extendRoutingBudget(message: { id?: string; budgetExhausted?: { requestText?: string } }) {
+  if (isStreaming.value || !message.budgetExhausted?.requestText) return
+  const requestText = message.budgetExhausted.requestText
+  const budget = homeApiBudget.value
+  if (!budget) {
+    await appConfirm.alert('本次执行的预算对象已释放，请重新发起请求')
+    return
+  }
+  const next = budget.extend(4)
+  addHomeTraceEvent({
+    type: 'budget-extended',
+    level: 'warn',
+    label: '用户追加 API 预算',
+    detail: `追加 4 次；当前 ${next.used}/${next.limit}`
+  })
+  if (message.id) clearRoutingFallback(message.id)
+  await sendMessage(requestText)
+}
+
+type HomeRoutingDecision = {
+  bypass?: boolean
+  forcedIntent?: 'analyze' | 'edit' | 'generate' | 'discuss'
+}
+
 const compatibilityNotice = ref('')
 let activeAbortController: AbortController | null = null
 const tokenCount = ref(0)
@@ -201,6 +684,7 @@ const DEFAULT_CO_CREATION_HISTORY_TURNS = 10
 function getChatContextMessages(currentRequest: string): ContextMessage[] {
   return chatStore.activeMessages
     .filter(message => (message.role === 'user' || message.role === 'assistant') && message.content?.trim())
+    .filter(message => !message.routingFallback && !message.budgetExhausted)
     .filter(message => !(message.role === 'user' && message.content === currentRequest))
     .slice(-maxDepthRef.value * 2)
     .map(message => ({ role: message.role, content: message.content }))
@@ -210,6 +694,16 @@ const coCreationAgentId = computed({
   get: () => coCreation.config.agentId,
   set: (v: string) => { coCreation.setAgent(v) }
 })
+
+function classifyHomeIntent(requestText: string): PlainDialogueIntent {
+  const recentHistory = getChatContextMessages(requestText)
+    .slice(-4)
+    .map(message => ({
+      role: message.role,
+      content: String(message.content || ''),
+    }))
+  return classifyPlainDialogueIntent(requestText, recentHistory)
+}
 
 const coCreationMode = computed({
   get: () => coCreation.config.mode,
@@ -265,6 +759,7 @@ function getHomeSkillTemplates(): WorkspaceSkillTemplate[] {
       inputSchema: skill.inputSchema,
       outputSchema: skill.outputSchema,
       retryPolicy: skill.retryPolicy
+      ,intents: skill.intents
     }))
 }
 
@@ -340,11 +835,27 @@ function buildSOI(mode: string | undefined, activeTab: any): string {
   return volumeOverview ? '【全局卷概览】\n' + volumeOverview : ''
 }
 
-function createHomeSkillAdapter(): WorkspaceSkillEngineAdapter {
+function createHomeSkillAdapter(
+  fallbackIntent: PlainDialogueIntent = 'discuss',
+): WorkspaceSkillEngineAdapter {
+  const requestTarget = createEditorTargetSnapshot({
+    workspace: 'main',
+    targetId: editorStore.activeTab?.id || projectId.value,
+    label: editorStore.activeTab?.title || '主页编辑器',
+    chapterId: editorStore.activeTab?.chapterId,
+    mode: editorStore.activeTab?.mode || 'ch-body',
+    content: editorStore.activeTab?.content || '',
+    selectionStart: 0,
+    selectionEnd: 0
+  })
   return {
     workspace: 'main',
     source: 'HomeCoCreation.skill',
     projectId: projectId.value,
+    toolContext: {
+      targetId: requestTarget.targetId,
+      readableTargets: [requestTarget.targetId],
+    },
     step: 0,
     preferredModel: undefined,
     defaultSystemPrompt: '你是小说主页编辑器创作助手。',
@@ -421,6 +932,34 @@ function createHomeSkillAdapter(): WorkspaceSkillEngineAdapter {
     }),
     getLegacyMessages: requestText => getChatContextMessages(requestText)
       .slice(-DEFAULT_CO_CREATION_HISTORY_TURNS * 2),
+    buildTools: (request) => ({
+      tools: requestTarget.content
+        ? buildHomeDialogueToolSurface(requestTarget, request.intent === 'auto' ? fallbackIntent : request.intent).tools
+        : [],
+      toolPolicy: requestTarget.content ? {
+        maxToolIterations: 6,
+        intent: request.intent,
+        onPermissionDenied: event => {
+          addHomeTraceEvent({
+            type: 'tool-permission-denied',
+            level: 'error',
+            label: '工具写入权限拒绝',
+            detail: `${event.toolName}：${event.reason}`
+          })
+        },
+          onRepeatedWriteBlocked: event => {
+            addHomeTraceEvent({
+              type: 'write-duplicate-blocked',
+              level: 'warn',
+              label: '重复写入已拦截',
+              detail: `${event.toolName}：连续 ${event.repeatCount} 次提交完全相同的写入参数，本次已拦截`
+            })
+          },
+        onCompatibilityMode: () => {
+          compatibilityNotice.value = '当前供应商未启用原生工具调用，已使用兼容模式'
+        }
+      } : undefined
+    }),
     loadBreakpoint: () => coCreation.loadBreakpoint(),
     saveBreakpoint: breakpoint => coCreation.saveBreakpoint(breakpoint),
     clearBreakpoint: () => coCreation.clearBreakpoint()
@@ -435,7 +974,119 @@ function requestTargetFromEditor(): { selectedText: string } {
   return { selectedText: start < end ? content.slice(start, end) : '' }
 }
 
-async function runHomeCoCreationSkills(requestText: string): Promise<string> {
+function firstContentDifference(previous: string, next: string): number {
+  const length = Math.min(previous.length, next.length)
+  let index = 0
+  while (index < length && previous[index] === next[index]) index += 1
+  return index
+}
+
+const DIRECT_WRITE_INSTANT_LINE_THRESHOLD = 3000
+
+function configureHomeContextCompaction(model: string, reservedOutputTokens?: number): void {
+  const modelContextWindow = resolveModelContextWindow(model)
+  conversationContextService.setCompactionRouting({
+    workspace: 'main',
+    ...(modelContextWindow
+      ? { budget: { modelContextWindow, ...(reservedOutputTokens ? { reservedOutputTokens } : {}) } }
+      : {}),
+    observer: {
+      onContextCompacted: result => {
+        const detail = `strategy=${result.strategy}; compacted=${result.compactedMessageCount}; retained=${result.retainedMessageCount}; chars=${result.beforeChars}->${result.afterChars}; allowedTokens=${result.allowedInputTokens ?? 'unknown'}`
+        if (homeRunTraceId) runTraceStore.markContextCompacted(homeRunTraceId, detail)
+        addHomeTraceEvent({
+          type: 'context-compacted',
+          label: '上下文已非破坏性压缩',
+          detail
+        })
+        const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+        diag?.log?.('info', 'context/compaction', '主页上下文已非破坏性压缩', {
+          workspace: 'main',
+          model,
+          strategy: result.strategy,
+          compactedMessageCount: result.compactedMessageCount,
+          retainedMessageCount: result.retainedMessageCount,
+          beforeChars: result.beforeChars,
+          afterChars: result.afterChars,
+          allowedInputTokens: result.allowedInputTokens,
+        })
+      },
+      onContextCompactionSkipped: result => {
+        if (result.reason !== 'unknown-window') return
+        const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+        diag?.log?.('info', 'context/compaction', '模型输入窗口未知，跳过上下文压缩', {
+          workspace: 'main',
+          model,
+          reason: result.reason,
+          messageCount: result.retainedMessageCount,
+        })
+      },
+    },
+  })
+}
+
+function presentDirectWrite(options: {
+  targetId: string
+  original: string
+  next: string
+  mode: 'stream' | 'instant'
+  onProgress: (content: string) => void
+}): Promise<void> {
+  const changed = options.next !== options.original
+  if (options.mode === 'instant' || !changed) return Promise.resolve()
+  const lineCount = options.next.split('\n').length
+  if (lineCount > DIRECT_WRITE_INSTANT_LINE_THRESHOLD) return Promise.resolve()
+  const firstChange = firstContentDifference(options.original, options.next)
+  const frames: number[] = []
+  const frameCount = 16
+  const insertedLength = Math.max(0, options.next.length - options.original.length)
+  if (insertedLength > 0) {
+    for (let index = 1; index <= frameCount; index += 1) {
+      frames.push(firstChange + Math.floor(insertedLength * index / frameCount))
+    }
+  }
+  if (!frames.length) return Promise.resolve()
+  return new Promise(resolve => {
+    let index = 0
+    const step = () => {
+      const position = frames[index]
+      options.onProgress(options.original + options.next.slice(options.original.length, position))
+      window.dispatchEvent(new CustomEvent('editor-follow-progress', {
+        detail: {
+          workspace: 'main',
+          targetId: options.targetId,
+          start: firstChange,
+          end: Math.max(firstChange + 1, position)
+        }
+      }))
+      index += 1
+      if (index < frames.length) window.requestAnimationFrame(step)
+      else resolve()
+    }
+    window.requestAnimationFrame(step)
+  })
+}
+
+async function runHomeCoCreationSkills(
+  requestText: string,
+  routingDecision: HomeRoutingDecision = {},
+  options: {
+    intent?: PlainDialogueIntent
+    toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
+    actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
+  } = {},
+): Promise<{
+  text: string
+  maxTokens?: number
+  toolCallSummary: string | null
+  terminalStatus?: 'success' | 'degraded' | 'blocked'
+  terminalReason?: string
+}> {
+  const provider = providerStore.activeGenerateProvider
+  const model = provider?.selectedModel || provider?.models?.[0] || ''
+  // Compaction input windows are set per turn from the actual request result;
+  // this only ensures the model-window routing exists before the first turn.
+  configureHomeContextCompaction(model)
   const placeholderMessage = chatStore.addMessage(
     { role: 'assistant', content: '', tabId: chatStore.currentContext?.tabId || '' },
     projectId.value
@@ -444,37 +1095,259 @@ async function runHomeCoCreationSkills(requestText: string): Promise<string> {
 
   let streamedText = ''
   let firstChunkSeen = false
+  let homeSkillTerminalStatus: 'success' | 'degraded' | 'blocked' | undefined
+  let homeSkillTerminalReason: string | undefined
+  const runStartedAt = performance.now()
+  const skillNames = selectedCoCreationSkills.value.map(skill => skillStore.displaySkillName(skill))
+  const apiBudget = createApiCallBudget(8)
+  homeApiBudget.value = apiBudget
+  addHomeTraceEvent({
+    type: 'skill-start',
+    label: '开始主页共创技能',
+    detail: [coCreationMode.value, skillNames.join(' → ')].filter(Boolean).join(' / ')
+  })
   const result = await runWorkspaceSkills({
     requestText,
     templates: getHomeSkillTemplates(),
     mode: coCreationMode.value,
     aiService: await getAiService(),
     contextService: conversationContextService,
-    adapter: createHomeSkillAdapter(),
+    adapter: createHomeSkillAdapter(options.intent),
     signal: activeAbortController?.signal,
-    apiBudget: createApiCallBudget(8),
+    apiBudget,
+    routingOverride: routingDecision.bypass
+      ? { bypass: true }
+      : routingDecision.forcedIntent
+        ? { forcedIntent: routingDecision.forcedIntent }
+        : undefined,
     callbacks: {
       onFirstChunk: () => {
         firstChunkSeen = true
+        const callId = runTraceStore.getApiCallId('home')
+        if (callId) {
+          runTraceStore.attachSemantic(homeRunTraceId || '', callId, {
+            timeToFirstChunkMs: Math.round(performance.now() - runStartedAt)
+          })
+        }
         chatStore.setGenerationState('streaming', '正在接收共创输出…')
       },
       onStatus: status => {
         if (!firstChunkSeen) chatStore.setGenerationState('preparing', status)
       },
       onChunk: text => {
-        streamedText = text
-        chatStore.updateLastMessage(streamedText)
+      streamedText += text
+      appendHomeStream(streamedText)
+      chatStore.updateLastMessage(streamedText)
         void nextTick().then(() => scrollToBottom())
-      }
+      },
+      onApiCallStart: (skillId, skillName, callModel, actualToolSurface) => {
+        return startHomeApiCall({
+          skillName: skillName || skillId,
+          requestMessages: [],
+          model: callModel || model,
+          intent: options.intent,
+          toolSurface: options.toolSurface,
+          actualToolSurface: actualToolSurface || options.actualToolSurface
+        })
+      },
+      onGenerationEvent: (skillId, event) => {
+        addHomeTraceEvent({
+          type: event.type,
+          level: event.type === 'generation-invalid' ? 'warn' : 'info',
+          label: event.type === 'generation-invalid'
+            ? `SKILL「${skillId}」生成无效`
+            : event.type === 'direct-retry-start'
+              ? `SKILL「${skillId}」切换直出重试`
+              : `SKILL「${skillId}」直出重试${event.success ? '成功' : '失败'}`,
+          detail: JSON.stringify(event).slice(0, 20000)
+        })
+        chatStore.setGenerationState('preparing', event.message || '正在直出重试')
+      },
+      onApiCallFinish: (callId, meta, durationMs, result) => {
+        if (callId) {
+          const requestMessages = (meta.requestMessages || []).map(message => ({
+            role: String(message.role || ''),
+            content: String(message.content || '')
+          }))
+          if (requestMessages.length) runTraceStore.setApiCallRequest(homeRunTraceId || '', callId, requestMessages)
+          const toolRequestDeltas = (meta.toolRequestDeltas || []).map(message => ({
+            role: String(message.role || ''),
+            content: String(message.content || '')
+          }))
+          if (toolRequestDeltas.length) runTraceStore.setApiCallToolRequestDeltas(homeRunTraceId || '', callId, toolRequestDeltas)
+          for (const toolResult of meta.toolResults || []) {
+            recordHomeToolCall(callId, {
+              toolName: toolResult.call.name,
+              input: toolResult.call.input,
+              result: toolResult.result as ToolResult,
+              durationMs: 0
+            })
+          }
+          finishHomeApiCall(callId, {
+            status: 'success',
+            responseText: meta.responseText || result?.text || '',
+            reasoningText: meta.reasoningText || result?.reasoning || '',
+            finishReason: meta.finishReason,
+            usage: meta.usage,
+            durationMs
+            })
+          }
+        },
+        onPhysicalCall: (_skillId, callId, event) => {
+          recordHomePhysicalCall(callId, event)
+        },
+      onPromptBuilt: (event) => {
+        if (!homeRunTraceId) return
+        const callId = runTraceStore.getApiCallId('home') || undefined
+        runTraceStore.attachPromptSnapshot(homeRunTraceId, {
+          apiCallId: callId,
+          skillId: event.skillId,
+          skillName: event.skillName,
+          mode: event.mode,
+          systemPrompt: event.systemPrompt,
+          userPrompt: event.userPrompt,
+          finalMessages: event.finalMessages.map(m => ({ role: m.role, content: String(m.content || '') })),
+          variables: Object.entries(event.variables || {}).map(([key, value]) => ({
+            key,
+            source: 'template-context',
+            chars: typeof value === 'string' ? value.length : JSON.stringify(value || null).length,
+            value
+          })),
+          contextBlocks: event.contextBlocks,
+          folderFingerprint: event.folderFingerprint,
+        })
+      },
+      onSkillSkipped: (skillIndex, skillId, reason) => {
+        addHomeTraceEvent({
+          type: 'skill-skipped',
+          label: `跳过技能：${skillId}`,
+          detail: reason
+        })
+      },
+      onBeforeSkill: (skillIndex, skillId, skillName) => {
+        addHomeTraceEvent({
+          type: 'skill-start',
+          label: `开始执行：${skillName}`,
+          detail: `步骤 ${skillIndex + 1}`
+        })
+      },
+      onAfterSkill: (skillIndex, skillId, skillName) => {
+        addHomeTraceEvent({
+          type: 'skill-complete',
+          label: `完成：${skillName}`,
+          detail: `步骤 ${skillIndex + 1} 完成`
+        })
+      },
+      onRoutingEvent: event => recordHomeRoutingEvent(event)
     }
   })
 
+  if (result.runState === 'awaiting_confirmation' && placeholderMessage) {
+    const fallbackSkillNames = getHomeSkillTemplates().map(template => template.name || template.id)
+    const fallbackRouting = result.awaiting?.routing || result.routing
+    const recommendedSkillIds = (result.awaiting?.recommendedSkills || []).map(template => template.id)
+    const awaitingState = homeRunTraceId
+      ? createRoutingAwaitState({
+          runId: homeRunTraceId,
+          requestText,
+          routing: fallbackRouting,
+        })
+      : undefined
+    chatStore.updateMessageRoutingState(placeholderMessage.id, {
+      routingFallback: {
+        routing: fallbackRouting || undefined,
+        skillNames: fallbackSkillNames,
+        recommendedSkillIds,
+        requestText,
+        runId: awaitingState?.runId,
+        createdAt: awaitingState?.createdAt,
+        resumeToken: awaitingState?.resumeToken
+      }
+    })
+    addHomeTraceEvent({
+      type: 'routing-fallback',
+      label: '等待意图确认',
+      detail: result.awaiting?.routing?.reason || '未识别到明确意图'
+    })
+    if (homeRunTraceId) runTraceStore.startAwaitingUser(homeRunTraceId, 'awaiting_confirmation')
+    return { text: '', toolCallSummary: null }
+  }
+  if (result.runState === 'budget_exhausted' && placeholderMessage) {
+    chatStore.updateMessageRoutingState(placeholderMessage.id, {
+      budgetExhausted: {
+        used: result.budgetSnapshot?.used || 0,
+        limit: result.budgetSnapshot?.limit || 0,
+        requestText
+      }
+    })
+    if (result.text) chatStore.updateLastMessage(result.text)
+    addHomeTraceEvent({
+      type: 'budget-exhausted',
+      level: 'warn',
+      label: 'API 调用预算已用尽',
+      detail: `已用 ${result.budgetSnapshot?.used || 0}/${result.budgetSnapshot?.limit || 0}，已保留断点`
+    })
+    return { text: result.text, toolCallSummary: null }
+  }
   if (result.text.trim()) chatStore.updateLastMessage(result.text)
   if (result.meta && (result.meta.diagnostics?.length || result.meta.status === 'degraded')) {
     chatStore.updateLastMessageSkillDiagnostics(result.meta)
+    runTraceStore.setFolderDiagnostics(homeRunTraceId || '', result.meta.diagnostics || [])
+  }
+  if (homeRunTraceId && result.meta?.postProcessReport) {
+    const report = result.meta.postProcessReport
+    const currentApiCallId = runTraceStore.getApiCallId('home') || undefined
+    const postProcessTerminal = resolvePostProcessTerminalStatus(report)
+    runTraceStore.attachProcessingReport(homeRunTraceId, {
+      apiCallId: currentApiCallId,
+      stage: 'post',
+      processor: 'postProcess',
+      status: postProcessTerminal.processingStatus,
+      outputPreview: report.output.slice(0, 200),
+      ruleHits: [{
+        rule: report.changedOutput ? 'postProcess.output' : 'postProcess.no-change',
+        count: report.issues.length
+      }],
+      issues: report.issues.map(issue => ({
+        level: issue.severity === 'blocking' ? 'error' : issue.severity === 'warning' ? 'warning' : 'info',
+        code: issue.code || 'post-process-issue',
+        message: issue.message,
+        blocking: issue.severity === 'blocking'
+      })),
+      startedAt: Date.now() - report.durationMs,
+      endedAt: Date.now(),
+      durationMs: report.durationMs
+    })
+    addHomeTraceEvent({
+      type: postProcessTerminal.eventReason,
+      level: postProcessTerminal.runStatus === 'success' ? 'info' : postProcessTerminal.runStatus === 'degraded' ? 'warn' : 'error',
+      label: postProcessTerminal.runStatus === 'success'
+        ? 'postProcess 完成'
+        : postProcessTerminal.runStatus === 'degraded'
+          ? 'postProcess 输出已降级'
+          : 'postProcess 阻断输出',
+      detail: `${report.issues.length} 个 issue；changedOutput=${report.changedOutput}`
+    })
+  }
+  addHomeTraceEvent({
+    type: result.mode === 'chain' ? 'skill-chain-complete' : 'skill-compose-complete',
+    label: '主页共创技能执行完成',
+    detail: result.mode || coCreationMode.value
+  })
+  const allToolCalls = (result.allMetas || [])
+    .flatMap(meta => meta.toolCalls || [])
+  const toolCallSummary = allToolCalls.length
+    ? allToolCalls.map(call => call.name).join(' → ')
+    : null
+  if (toolCallSummary) {
+    addHomeTraceEvent({
+      type: 'tool-call',
+      label: '技能工具调用完成',
+      detail: toolCallSummary
+    })
   }
   void loadChainBreakpointStatus()
-  if (result.mode) {
+  if (result.mode && result.text.trim()) {
     await conversationContextService.recordTurn({
       projectId: projectId.value,
       workspace: 'main',
@@ -482,6 +1355,7 @@ async function runHomeCoCreationSkills(requestText: string): Promise<string> {
     }, {
       user: requestText,
       assistant: result.text,
+      reservedOutputTokens: result.meta?.maxTokens,
       meta: {
         source: 'HomeCoCreation.skill',
         mode: result.mode,
@@ -492,7 +1366,13 @@ async function runHomeCoCreationSkills(requestText: string): Promise<string> {
       }
     })
   }
-  return result.text
+  return {
+    text: result.text,
+    maxTokens: result.meta?.maxTokens,
+    toolCallSummary,
+    terminalStatus: result.terminalStatus,
+    terminalReason: result.terminalReason
+  }
 }
 
 const configStatus = computed(() => {
@@ -507,6 +1387,7 @@ watch(() => [coCreation.config.agentId, coCreation.config.mode, coCreation.confi
 // Editor -> chat context binding. 《行为等价》：切换标签/内容变化时，对话会话跟着上下文走。
 watch(() => editorStore.activeTab, (tab) => {
   if (!tab) return
+  if (chatStore.currentContext?.tabId && tab.id !== chatStore.currentContext.tabId) sealHomeTraceSession()
   chatStore.ensureSession(tab.id, tab.chapterId, tab.title, projectId.value)
   chatStore.setCurrentContext({
     tabId: tab.id,
@@ -555,14 +1436,27 @@ async function syncChatProject() {
 
 watch(projectId, (nextId, previousId) => {
   if (nextId && nextId !== previousId) syncChatProject()
+  if (previousId && nextId && nextId !== previousId) sealHomeTraceSession()
 })
 
 onMounted(() => {
   void coCreation.loadConfig()
   void loadChainBreakpointStatus()
   syncChatProject()
+  // Reload 后保留上一条 chat run 的指针，跨进程重载也能继续聚合。
+  const restoredHomeRunId = runTraceStore.getLastRunId('home')
+  if (restoredHomeRunId && runTraceStore.getRun(restoredHomeRunId)?.sessionKind === 'chat') {
+    homeRunTraceId = restoredHomeRunId
+    homeSessionId = chatStore.currentContext?.tabId || ''
+  }
   window.addEventListener('editor-action', handleEditorAction)
   aiTaskStore.restore(projectId.value)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('editor-action', handleEditorAction)
+  window.removeEventListener('diff-applied', handleDiffApplied)
+  window.removeEventListener('diff-closed', handleDiffClosed)
 })
 
 function handleEditorAction(e: any) {
@@ -589,7 +1483,7 @@ function handleEditorAction(e: any) {
   }
 }
 
-async function sendMessage(requestText?: string) {
+async function sendMessage(requestText?: string, routingDecision: HomeRoutingDecision = {}) {
   const editRequestId = `chat-edit_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
   const editStartedAt = performance.now()
   const projId = projectId.value
@@ -604,8 +1498,8 @@ async function sendMessage(requestText?: string) {
   activeAbortController = new AbortController()
   const pendingOriginal = _pendingInlineOriginal.value
   _pendingInlineOriginal.value = ''
-  pendingToolEditBatch = null
   lastToolCallSummary = null
+  homeFailedWriteBatch = null
   const requestTarget = createEditorTargetSnapshot({
     workspace: 'main',
     targetId: editorStore.activeTab?.id || 'main',
@@ -616,6 +1510,22 @@ async function sendMessage(requestText?: string) {
     selectionStart: _pendingInlineSelection.value?.start,
     selectionEnd: _pendingInlineSelection.value?.end
   })
+  const requestIntent = classifyHomeIntent(text)
+  const skillSurface = requestTarget.content
+    ? buildHomeDialogueToolSurface(requestTarget, requestIntent)
+    : undefined
+  const skillToolSurface = skillSurface?.actualToolSurface
+  startHomeRun(
+    selectedCoCreationSkills.value.length > 0 ? coCreationMode.value : 'direct',
+    text,
+    selectedCoCreationSkills.value.map(skill => skillStore.displaySkillName(skill)),
+    {
+      intent: requestIntent,
+      writeMode: requestTarget.content ? 'direct' : undefined,
+      toolSurface: skillToolSurface,
+      actualToolSurface: skillToolSurface,
+    }
+  )
 
   chatStore.addMessage({ role: 'user', content: text, tabId: chatStore.currentContext?.tabId || '' }, projId)
   inputText.value = ''
@@ -624,14 +1534,21 @@ async function sendMessage(requestText?: string) {
 
   chatStore.setGenerationState('preparing', '正在准备请求…')
   let response = ''
+  let failedTurnMaxTokens: number | undefined
+  let homeSkillTerminalStatus: 'success' | 'degraded' | 'blocked' | undefined
+  let homeSkillTerminalReason: string | undefined
   try {
     const provider = providerStore.activeGenerateProvider
     if (!provider) {
       chatStore.addMessage({ role: 'assistant', content: '未配置 API 提供方。请在设置中配置后重试。', tabId: chatStore.currentContext?.tabId || '' }, projId)
+      finishHomeRun('failed', '未配置 API 提供方', undefined, 'provider_not_configured')
+      chatStore.setGenerationState('idle')
       return
     }
     if (!provider.apiKey) {
       chatStore.addMessage({ role: 'assistant', content: '未配置 API Key。请在设置中填写后重试。', tabId: chatStore.currentContext?.tabId || '' }, projId)
+      finishHomeRun('failed', '未配置 API Key', undefined, 'api_key_missing')
+      chatStore.setGenerationState('idle')
       return
     }
     const agent = agentStore.getAgent(coCreationAgentId.value)
@@ -797,6 +1714,9 @@ async function sendMessage(requestText?: string) {
     if (!chatCtx.referenceOutline) {
       chatCtx.referenceOutline = projectStore.outlineText || ''
     }
+    if (chatCtx.editorContent && chatCtx.editorContent === chatCtx.referenceOutline) {
+      chatCtx.referenceOutline = ''
+    }
     if (chatCtx.editorContent) { systemParts.push('主创作上下文（编辑器内容）：\n' + chatCtx.editorContent) }
     if (chatCtx.referenceOutline) { systemParts.push('参考资料-大纲索引：\n' + chatCtx.referenceOutline) }
 
@@ -808,12 +1728,15 @@ async function sendMessage(requestText?: string) {
     })
     if (memoryContext.text) systemParts.push(`相关记忆：\n${memoryContext.text}`)
     if (requestTarget.content) {
-      systemParts.push(buildEditorEditPrompt({
-        workspace: 'main',
-        label: requestTarget.label,
-        content: requestTarget.content,
-        selectedText: requestTarget.selectedText
-      }))
+      systemParts.push([
+        `当前编辑目标：${requestTarget.label}`,
+        requestTarget.selectedText
+          ? `当前选区：${requestTarget.selectedText}`
+          : '当前无选区：请使用 insert/replace_match/append，禁止 replace_selection。',
+        requestTarget.content.length > 12000
+          ? `长文档目标总长度 ${requestTarget.content.length} 字符；如需修改焦点外内容，必须先用只读工具读取对应范围。`
+          : `当前编辑内容：\n${requestTarget.content}`
+      ].join('\n'))
     } else if (editorStore.activeTab) {
       systemParts.push(buildEditorReadonlyPrompt({
         workspace: 'main',
@@ -836,15 +1759,40 @@ async function sendMessage(requestText?: string) {
         const params = JSON.parse(rawParams || '{}')
         const toolResult: any = await MCPProtocol.callToolLocal(toolName, params)
         response = typeof toolResult === 'string' ? toolResult : JSON.stringify(toolResult, null, 2)
+        addHomeTraceEvent({
+          type: 'tool_call',
+          label: '本地工具调用完成',
+          detail: toolName
+        })
       } catch (toolErr: any) {
         response = 'MCP 工具调用失败: ' + (toolErr?.message || String(toolErr))
+        addHomeTraceEvent({
+          type: 'tool_call',
+          level: 'error',
+          label: '本地工具调用失败',
+          detail: toolName + '：' + (toolErr?.message || String(toolErr))
+        })
       }
     } else if (selectedCoCreationSkills.value.length > 0) {
-      response = await runHomeCoCreationSkills(originalRequest)
+    const skillRun = await runHomeCoCreationSkills(originalRequest, routingDecision, {
+        intent: requestIntent,
+      toolSurface: skillToolSurface,
+      actualToolSurface: skillToolSurface
+      })
+      response = skillRun.text
+      failedTurnMaxTokens = skillRun.maxTokens
+      lastToolCallSummary = skillRun.toolCallSummary
+      homeSkillTerminalStatus = skillRun.terminalStatus
+      homeSkillTerminalReason = skillRun.terminalReason
     } else {
-      // 3) 常规对话走 callApi
+      // 3) 常规对话走统一意图授权：讨论/分析只读，编辑/生成才提供提案工具
       const useTools = Boolean(editorStore.activeTab)
-     const toolEditBatch = await callApi(
+      const plainIntent = requestIntent
+      const plainSurface = useTools
+        ? buildHomeDialogueToolSurface(requestTarget, plainIntent)
+        : undefined
+      const plainTools = plainSurface?.tools
+     const plainResult = await callApi(
        provider,
        model,
        systemPrompt,
@@ -852,12 +1800,14 @@ async function sendMessage(requestText?: string) {
       maxDepth,
       projId,
       text,
-      useTools ? buildChatEditorTools(requestTarget) : undefined,
-      requestTarget
+      plainTools,
+      requestTarget,
+      plainIntent,
+      plainSurface?.actualToolSurface
     )
-      response = toolEditBatch.text
-      pendingToolEditBatch = toolEditBatch.toolEditBatch
-      lastToolCallSummary = toolEditBatch.toolCallSummary
+      response = plainResult.text
+      failedTurnMaxTokens = plainResult.maxTokens
+      lastToolCallSummary = plainResult.toolCallSummary
       if (response?.trim()) {
         await conversationContextService.recordTurn({
           projectId: projId,
@@ -866,158 +1816,93 @@ async function sendMessage(requestText?: string) {
         }, {
           user: originalRequest,
           assistant: response,
+          reservedOutputTokens: plainResult.maxTokens,
           meta: {
             source: 'ChatPanel.callApi',
             model,
             agentId: coCreationAgentId.value || undefined,
-            toolCalls: toolEditBatch.toolCallSummary,
-            editorBatch: toolEditBatch.toolEditBatch
-              ? { commandCount: toolEditBatch.toolEditBatch.commands.length, reason: toolEditBatch.toolEditBatch.reason }
-              : undefined
+            toolCalls: plainResult.toolCallSummary,
           }
         })
       }
     }
 
-    if (response) {
+    if (!response && selectedCoCreationSkills.value.length > 0 && coCreationMode.value === 'chain') {
+      // Awaiting confirmation keeps its dedicated bubble and the chat run open;
+      // the next user action resumes the active watchdog instead of minting a
+      // false success terminal state.
+      if (homeRunTraceId) runTraceStore.startAwaitingUser(homeRunTraceId, 'awaiting_confirmation')
+    } else if (response) {
       if (messages.value.length === 0 || messages.value[messages.value.length - 1].role !== 'assistant') {
         chatStore.addMessage({ role: 'assistant', content: response, tabId: chatStore.currentContext?.tabId || '' }, projId)
       }
     }
-    const editBatch = pendingToolEditBatch || parseEditorEditBatch(response)
-    const editCommand = editBatch ? null : parseEditorEditCommand(response)
-    const editorBatchRecord = editBatch && requestTarget.content
-      ? createEditorBatchRecord({
-        workspace: 'main',
-        targetId: requestTarget.targetId,
-        batch: editBatch,
-        sourceContent: requestTarget.content
-      })
-      : undefined
-    if (editBatch && requestTarget.content) {
-      const lastMessage = messages.value[messages.value.length - 1]
-      if (lastMessage?.role === 'assistant') {
-        chatStore.updateMessageEditorBatch(
-          lastMessage.id,
-          editBatch,
-          {
-            workspace: 'main',
-            targetId: requestTarget.targetId,
-            contentHash: hashEditorContent(requestTarget.content)
-          },
-          editorBatchRecord,
-          chatStore.activeSessionId || undefined
-        )
-      }
-    }
     logEditorEdit({
       requestId: editRequestId,
       workspace: 'main',
       tabId: requestTarget.targetId,
-      operation: editCommand?.operation,
-      result: editCommand ? 'parsed' : 'no_edit',
+      operation: 'editor_write',
+      result: 'no_edit',
       targetLength: requestTarget.content.length,
-      contentLength: editCommand?.content?.length,
+      contentLength: response?.length,
       durationMs: Math.round(performance.now() - editStartedAt),
-      detail: editCommand ? '已解析为编辑指令，等待用户预览确认' : '普通对话响应，未识别编辑指令'
+     detail: '编辑器写入统一由 editor.write 执行；UI 不再解析待确认编辑协议'
     })
-    if (pendingOriginal && response && pendingOriginal !== response && !editCommand) {
+    // P6-1: no_edit hint — append inline tip when AI response has no edit command
+    if (response) {
+      consecutiveNoEditCount.value++
+      const tip = consecutiveNoEditCount.value >= 3
+        ? '连续多次未识别编辑指令。如需 AI 直接修改内容，请明确指示，例如「请重写第三段」或「在开头插入一段环境描写」。'
+        : '本次回复未包含编辑操作。如需修改内容，请明确告诉 AI 要改什么。'
+      const lastMsg = messages.value[messages.value.length - 1]
+      if (lastMsg?.role === 'assistant') {
+        chatStore.updateMessageContent(lastMsg.id, lastMsg.content + '\n\n---\n\n**提示：** ' + tip, chatStore.activeSessionId || undefined)
+      }
+    } else {
+      consecutiveNoEditCount.value = 0
+    }
+    if (requestIntent !== 'discuss' && pendingOriginal && response && pendingOriginal !== response) {
         window.dispatchEvent(new CustomEvent('show-diff', {
           detail: { original: pendingOriginal, modified: response }
         }));
     }
-    if (editBatch && requestTarget.content) {
-      const currentContent = editorStore.activeTab?.id === requestTarget.targetId
-        ? editorStore.activeTab?.content || ''
-        : requestTarget.content
-      const batchPlan = planEditorEditBatch(editBatch, requestTarget, { content: currentContent })
-      const lastBatchMessage = messages.value[messages.value.length - 1]
-      const pendingRecord = normalizeEditorBatchRecord(lastBatchMessage?.editorBatchRecord)
-      logEditorEdit({
-        requestId: editRequestId,
-        batchId: pendingRecord?.batchId,
-        workspace: 'main',
-        tabId: requestTarget.targetId,
-        operation: 'editor_edit_batch',
-        result: batchPlan.ok ? 'parsed' : 'rejected',
-        targetLength: requestTarget.content.length,
-        contentLength: batchPlan.items.reduce((sum, item) => sum + (item.command.content?.length || 0), 0),
-        failureReason: batchPlan.failureReason,
-        durationMs: Math.round(performance.now() - editStartedAt),
-        detail: batchPlan.ok ? `批次包含 ${batchPlan.items.length} 条编辑，等待用户预览确认` : '批次规划失败：' + batchPlan.failureReason
-      })
-      pendingEditorTarget.value = requestTarget
-      pendingEditorBatchPlan.value = batchPlan
-      if (lastBatchMessage?.role === 'assistant') {
-        pendingEditorBatchMessage.value = {
-          messageId: lastBatchMessage.id,
-          sessionId: chatStore.activeSession?.id
-        }
-      }
-      window.dispatchEvent(new CustomEvent('show-diff', {
-        detail: {
-          original: batchPlan.original,
-          modified: batchPlan.ok ? batchPlan.next : batchPlan.original,
-          editMeta: {
-            workspace: 'main',
-            targetId: requestTarget.targetId,
-            targetLabel: requestTarget.label,
-            operationLabel: `批量编辑（${batchPlan.items.length} 项）`,
-            failureReason: batchPlan.ok ? undefined : batchPlan.failureReason,
-            dangerous: batchPlan.items.some(item => item.command.operation === 'rewrite' || item.command.operation === 'delete'),
-            batchItems: batchPlan.items.map(item => ({
-              index: item.index,
-              label: item.command.operation + (item.command.target ? `：${item.command.target}` : ''),
-              reason: item.command.reason,
-              dangerous: item.command.operation === 'rewrite' || item.command.operation === 'delete',
-              range: item.plan.range
-            })),
-          }
-        }
-      }))
-    } else if (editCommand && requestTarget.content) {
-      const currentContent = editorStore.activeTab?.id === requestTarget.targetId
-        ? editorStore.activeTab?.content || ''
-        : requestTarget.content
-    const plan = buildEditPlan(requestTarget, editCommand, { content: currentContent })
-    logEditorEdit({
-      requestId: editRequestId,
-      workspace: 'main',
-      tabId: requestTarget.targetId,
-      operation: editCommand.operation,
-      result: plan.ok ? 'parsed' : 'rejected',
-      targetLength: requestTarget.content.length,
-      contentLength: editCommand.content?.length,
-      failureReason: plan.ok ? undefined : plan.failureReason,
-      durationMs: Math.round(performance.now() - editStartedAt),
-      detail: plan.ok ? '编辑计划已生成，等待用户预览确认' : '编辑计划失败：' + plan.failureReason
-    })
-      pendingEditorTarget.value = requestTarget
-      pendingEditorBatchPlan.value = null
-      window.dispatchEvent(new CustomEvent('show-diff', {
-        detail: {
-          original: plan.original,
-          modified: plan.ok ? plan.next : plan.original,
-          editMeta: {
-            targetLabel: requestTarget.label,
-            operationLabel: plan.operation,
-            failureReason: plan.ok ? undefined : plan.failureReason,
-            dangerous: plan.ok && (plan.operation === 'rewrite' || plan.operation === 'delete')
-          }
-        }
-      }))
-    }
+    finishHomeRun(
+      homeSkillTerminalStatus || 'success',
+      undefined,
+      response,
+      homeSkillTerminalReason || (selectedCoCreationSkills.value.length > 0 ? 'co_creation_complete' : 'dialogue_complete'),
+    )
  } catch (e: any) {
    if (e?.kind === 'canceled' || activeAbortController?.signal.aborted) {
+     closeActiveHomeApiCall('canceled', '用户取消生成')
      removeEmptyAssistantMessage()
      chatStore.setGenerationState('canceled', '已取消生成')
+     finishHomeRun('canceled', '用户取消生成', undefined, 'user_cancel')
    } else {
+     closeActiveHomeApiCall('failed', e?.message || String(e))
+     finishHomeTraceSession('failed', e?.message || String(e))
      removeEmptyAssistantMessage()
      lastFailedText.value = text
      chatStore.setGenerationState('error', '生成失败：' + (e?.message || String(e)))
      chatStore.addMessage({ role: 'assistant', content: '请求失败：' + (e?.message || String(e)), tabId: chatStore.currentContext?.tabId || '' }, projId)
+     finishHomeRun('failed', e?.message || String(e), undefined, 'runtime_exception')
+     void conversationContextService.recordTurn({
+       projectId: projId,
+       workspace: 'main',
+       purpose: 'generate'
+     }, {
+       user: originalRequest,
+       assistant: `[错误] ${e?.message || String(e)}`,
+       reservedOutputTokens: failedTurnMaxTokens,
+       meta: { source: 'ChatPanel.sendMessage', failed: true }
+     }).catch(() => undefined)
    }
 } finally {
+  if (homeRunTraceId && runTraceStore.isAwaitingUser(homeRunTraceId)) {
+    closeActiveHomeApiCall('canceled', '等待用户确认，未发起 API 调用')
+  } else {
+    closeActiveHomeApiCall('failed', '运行收尾时仍未闭合')
+  }
     clearWorkspaceSnapshotIfSafe()
     activeAbortController = null
     if (chatStore.generationStatus === 'preparing' || chatStore.generationStatus === 'streaming' || chatStore.generationStatus === 'retrying') {
@@ -1046,13 +1931,17 @@ async function callApi(
   maxDepth: number,
   projId: string,
  engineInput = userText,
- tools?: ReturnType<typeof createEditorTools>,
- externalRequestTarget?: EditorTargetSnapshot
+    tools?: AgentToolDefinition[],
+ externalRequestTarget?: EditorTargetSnapshot,
+ plainIntent?: PlainDialogueIntent,
+ actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>,
 ): Promise<{
   text: string
-  toolEditBatch: EditorEditBatchCommand | null
+  maxTokens?: number
   toolCallSummary: string | null
 }> {
+  // The per-turn token limit is recorded from the actual request result.
+  configureHomeContextCompaction(model)
   const requestTarget = externalRequestTarget || createEditorTargetSnapshot({
     workspace: 'main',
     targetId: editorStore.activeTab?.id || projId,
@@ -1071,14 +1960,25 @@ async function callApi(
   const placeholderMessage = chatStore.addMessage({ role: 'assistant', content: '', tabId: chatStore.currentContext?.tabId || '' }, projId)
   if (!placeholderMessage) throw new Error('当前没有可用对话会话')
 
-  const contextBundle = await conversationContextService.buildContextBundle({
-    projectId: projId,
-    workspace: 'main',
-    purpose: 'generate',
-    legacyMessages: getChatContextMessages(userText)
-  })
-  const contextPolicy = conversationContextService.getPolicy('generate')
-  const messages = conversationContextService.assembleMessages(
+ const contextBundle = await conversationContextService.buildContextBundle({
+   projectId: projId,
+   workspace: 'main',
+   purpose: 'generate',
+   legacyMessages: getChatContextMessages(userText),
+   workspaceState: {
+     editorContent: requestTarget.content,
+     referenceOutline: projectStore.outlineText || '',
+     selectedText: requestTarget.selectedText || undefined,
+     activeTab: requestTarget.label
+   }
+ })
+ const contextPolicy = conversationContextService.getPolicy('generate')
+ // Build structured ContextPack blocks for contract validation; assembly stays unchanged.
+ void conversationContextService.buildDialogueContextBlocks(
+   contextBundle,
+   { ...contextPolicy, includeOutline: false, includeSettings: false, includeMemory: false }
+ )
+ const messages = conversationContextService.assembleMessages(
     contextBundle,
     {
       ...contextPolicy,
@@ -1095,18 +1995,62 @@ async function callApi(
   const ctxTurns = messages.filter(message => message.role === 'user' || message.role === 'assistant').length / 2
 
   const service = await getAiService()
-  const result = await service.callAi({
+  const requestMaxTokens = Number(provider.maxTokens) > 0 ? Number(provider.maxTokens) : 128000
+  const traceApiCallId = startHomeApiCall({
+    skillName: selectedCoCreationSkills.value.length > 0 ? '主页共创' : '直接对话',
+    requestMessages: messages.map(message => ({ role: message.role, content: String(message.content || '') })),
+    model,
+    intent: plainIntent,
+    toolSurface: actualToolSurface,
+    actualToolSurface
+  })
+  const requestId = ++homeLastDirectRequestId
+  const reportDirectGenerationEvent = (type: 'generation-invalid' | 'direct-retry-start' | 'direct-retry-finished', detail: Record<string, unknown>) => {
+    if (homeLastDirectRequestId !== requestId) return
+    addHomeTraceEvent({
+      type,
+      level: type === 'generation-invalid' || (type === 'direct-retry-finished' && detail.success === false) ? 'warn' : 'info',
+      label: '产物有效性检查',
+      detail: JSON.stringify(detail).slice(0, 20000),
+    })
+  }
+  let directStreamText = ''
+  const reasoningControl = getProviderReasoningControl(provider.providerType)
+    const result = await service.callAi({
     purpose: 'generate',
     messages,
     model,
+    stream: true,
     temperature: provider.temperature ?? 0.7,
-    maxTokens: 128000,
+      maxTokens: requestMaxTokens,
     retry: true,
     signal: activeAbortController?.signal,
     tools,
+    onPhysicalCall: (event) => {
+      recordHomePhysicalCall(traceApiCallId, event)
+    },
+    onReasoning: (text: string) => {
+      appendHomeReasoning(traceApiCallId, text)
+    },
     toolPolicy: tools ? {
    maxToolIterations: 6,
-   maxWriteProposals: 1,
+   intent: plainIntent,
+   onPermissionDenied: event => {
+     addHomeTraceEvent({
+       type: 'tool-permission-denied',
+       level: 'error',
+       label: '工具写入权限拒绝',
+       detail: `${event.toolName}：${event.reason}`
+     })
+   },
+   onRepeatedWriteBlocked: event => {
+     addHomeTraceEvent({
+       type: 'write-duplicate-blocked',
+       level: 'warn',
+       label: '重复写入已拦截',
+       detail: `${event.toolName}：连续 ${event.repeatCount} 次提交完全相同的写入参数，本次已拦截`
+     })
+   },
   onToolStart: (event) => {
     // P6: 工具调用开始 -> 流式 tool_start 事件
     // P7: 通知编辑器实时反馈
@@ -1123,8 +2067,14 @@ async function callApi(
          ok: false,
        }, chatStore.activeSession?.id)
      }
+    addHomeTraceEvent({
+      type: 'tool_start',
+      label: '工具调用开始',
+      detail: `${event.toolName}（${event.policy}，第 ${event.iteration} 轮）`
+    })
    },
-   onToolCall: (event) => {
+  onToolCall: (event) => {
+    recordHomeToolCall(traceApiCallId, event)
      // P2: 实时校验写入目标一致性
      if (event.policy === 'write' && event.result.ok) {
        const writableTarget = event.result.data && typeof event.result.data === 'object'
@@ -1147,9 +2097,15 @@ async function callApi(
           ok: event.result.ok,
           error: event.result.ok ? undefined : event.result.error?.message
         }, chatStore.activeSession?.id)
-        // P7: 通知编辑器工具完成
-        window.dispatchEvent(new CustomEvent('tool-activity', { detail: { type: event.result.ok ? 'tool_result' : 'tool_error', toolName: event.toolName, targetId: requestTarget.targetId, policy: event.policy } }))
-      }
+       // P7: 通知编辑器工具完成
+       window.dispatchEvent(new CustomEvent('tool-activity', { detail: { type: event.result.ok ? 'tool_result' : 'tool_error', toolName: event.toolName, targetId: requestTarget.targetId, policy: event.policy } }))
+     }
+     addHomeTraceEvent({
+       type: 'tool_call',
+       level: event.result.ok ? 'info' : 'error',
+       label: event.result.ok ? '工具调用完成' : '工具调用失败',
+       detail: `${event.toolName}：${event.result.ok ? '成功' : (event.result.error?.message || '失败')}`
+     })
      // P5: 记录工具调用到任务状态机
      if (!aiTaskStore.hasActiveTask) {
        aiTaskStore.createTask({
@@ -1184,44 +2140,165 @@ async function callApi(
         compatibilityNotice.value = '当前供应商未启用原生工具调用，已使用 JSON 兼容模式'
       }
     } : undefined,
-    meta: { source: 'ChatPanel.callApi', targetId: requestTarget.targetId, ctxTurns: Math.round(ctxTurns) },
+    meta: {
+      source: 'ChatPanel.callApi',
+      workspace: 'main',
+      targetId: requestTarget.targetId,
+      readableTargets: [requestTarget.targetId, ...editorStore.tabs.map(tab => tab.id)]
+        .filter((id, index, all) => Boolean(id) && all.indexOf(id) === index),
+      ctxTurns: Math.round(ctxTurns),
+    },
     onChunk: (text: string) => {
       chatStore.setGenerationState('streaming', '正在接收 AI 输出…')
-      chatStore.updateLastMessage(text)
+      directStreamText += text
+      appendHomeStream(text, true)
+      chatStore.updateLastMessage(directStreamText)
       nextTick().then(() => scrollToBottom())
     }
+  })
+  const validity = classifyGenerationValidity({
+    text: result.text,
+    reasoning: result.reasoning,
+    finishReason: result.finishReason,
+    usage: result.usage,
+    maxTokens: requestMaxTokens,
+    toolCalls: result.toolCalls,
+    canceled: activeAbortController?.signal.aborted,
+  })
+  if (!validity.usable && (validity.kind === 'reasoning_exhausted' || validity.kind === 'empty')) {
+    reportDirectGenerationEvent('generation-invalid', {
+      kind: validity.kind,
+      message: validity.message,
+      reasoningLength: (result.reasoning || '').length,
+      textLength: (result.text || '').length,
+    })
+    reportDirectGenerationEvent('direct-retry-start', {
+      type: 'direct-retry-start',
+      message: '正文为空，已切换直出模式重试',
+      retryStrategy: reasoningControl.supported ? 'thinking_disabled' : 'max_tokens_raised',
+      maxTokens: reasoningControl.supported
+        ? requestMaxTokens
+        : Math.max(requestMaxTokens, Math.round(requestMaxTokens * 1.5)),
+    })
+    chatStore.setGenerationState('retrying', '正文为空，正在切换直出模式重试')
+    const retryStrategy: 'thinking_disabled' | 'max_tokens_raised' = reasoningControl.supported
+      ? 'thinking_disabled'
+      : 'max_tokens_raised'
+    const retryMaxTokens = retryStrategy === 'thinking_disabled'
+      ? requestMaxTokens
+      : Math.max(requestMaxTokens, Math.round(requestMaxTokens * 1.5))
+    const retryResult = await service.callAi({
+      purpose: 'generate',
+      messages: [...messages, { role: 'system', content: '请直接输出最终正文，不要输出思考过程。' }],
+      model,
+      temperature: provider.temperature ?? 0.7,
+      maxTokens: retryMaxTokens,
+      reasoning: retryStrategy === 'thinking_disabled' ? { mode: 'off' } : undefined,
+      retryStrategy,
+      retry: true,
+      signal: activeAbortController?.signal,
+      tools: undefined,
+      onPhysicalCall: (event) => {
+        recordHomePhysicalCall(traceApiCallId, event)
+      },
+      onReasoning: (text: string) => {
+        appendHomeReasoning(traceApiCallId, text)
+      },
+      toolPolicy: undefined,
+      meta: {
+        source: 'ChatPanel.callApi:direct-retry',
+        workspace: 'main',
+        targetId: requestTarget.targetId,
+        readableTargets: [requestTarget.targetId, ...editorStore.tabs.map(tab => tab.id)]
+          .filter((id, index, all) => Boolean(id) && all.indexOf(id) === index),
+        ctxTurns: Math.round(ctxTurns),
+      },
+      onChunk: (text: string) => {
+        chatStore.setGenerationState('streaming', '正在接收直出重试输出…')
+        directStreamText += text
+        appendHomeStream(text, true)
+        chatStore.updateLastMessage(directStreamText)
+        nextTick().then(() => scrollToBottom())
+      },
+    })
+    const retryValidity = classifyGenerationValidity({
+      text: retryResult.text,
+      reasoning: retryResult.reasoning,
+      finishReason: retryResult.finishReason,
+      usage: retryResult.usage,
+      maxTokens: retryResult.maxTokens ?? retryMaxTokens,
+      toolCalls: retryResult.toolCalls,
+      canceled: activeAbortController?.signal.aborted,
+    })
+    if (!retryValidity.usable) {
+      reportDirectGenerationEvent('direct-retry-finished', {
+        kind: retryValidity.kind,
+        message: GENERATION_VALIDITY_MESSAGES[retryValidity.kind],
+        success: false,
+        reasoningLength: (retryResult.reasoning || '').length,
+        textLength: (retryResult.text || '').length,
+      })
+      throw new Error(GENERATION_VALIDITY_MESSAGES[retryValidity.kind])
+    }
+    reportDirectGenerationEvent('direct-retry-finished', {
+      kind: retryValidity.kind,
+      message: '直出模式重试后已生成正文',
+      success: true,
+      reasoningLength: (retryResult.reasoning || '').length,
+      textLength: (retryResult.text || '').length,
+      retryStrategy,
+      maxTokens: retryResult.maxTokens ?? retryMaxTokens,
+    })
+    finishHomeApiCall(traceApiCallId, {
+      status: 'success',
+      responseText: retryResult.text || '',
+      reasoningText: retryResult.reasoning || '',
+      finishReason: retryResult.finishReason,
+      usage: retryResult.usage,
+      retryStrategy,
+      maxTokens: retryResult.maxTokens ?? retryMaxTokens,
+    })
+    chatStore.updateLastMessage(retryResult.text || '')
+    return {
+      text: retryResult.text || '',
+      maxTokens: retryResult.maxTokens ?? retryMaxTokens,
+      toolCallSummary: null
+    }
+  }
+  if (!validity.usable) {
+    throw new Error(validity.message)
+  }
+  const toolCallSummary = result.toolCalls?.length
+    ? result.toolCalls.map(call => call.name).join(' → ')
+    : null
+  finishHomeApiCall(traceApiCallId, {
+    status: 'success',
+    responseText: toolCallSummary || result.text || '',
+    reasoningText: result.reasoning || '',
+    finishReason: result.finishReason,
+    usage: result.usage,
+    compatibilityMode: result.compatibilityMode,
+    compatibilityWrite: result.compatibilityWrite,
+    toolsDowngraded: result.toolsDowngraded,
+    downgradeReason: result.compatibilityWrite ? 'compatibility_write' : undefined,
+    maxTokens: result.maxTokens
   })
   if (result.toolsDowngraded === 'json-protocol' && !compatibilityNotice.value) {
     compatibilityNotice.value = '供应商拒绝原生工具调用，已降级为 JSON 兼容模式'
   }
+  const compatibilityWriteNotice = compatibilityNoticeFor(result)
+  if (compatibilityWriteNotice) {
+    compatibilityNotice.value = compatibilityWriteNotice
+    addHomeTraceEvent({
+      type: 'tool-compatibility',
+      level: 'warn',
+      label: '兼容模式完成编辑器直写',
+      detail: 'compatibility_write=true'
+    })
+  }
 
-  let toolEditBatch: EditorEditBatchCommand | null = null
-  const compatibilityBatch = parseEditorEditBatch(result.text)
-  if (!result.toolCalls?.length && compatibilityBatch) {
-    toolEditBatch = compatibilityBatch
-  }
-  if (result.toolCalls?.length) {
-    for (let index = result.toolCalls.length - 1; index >= 0; index--) {
-      const call = result.toolCalls[index]
-      if (call.name !== 'editor.propose_edits') continue
-      const input = call.input as { commands?: unknown; reason?: unknown }
-      if (!Array.isArray(input?.commands) || input.commands.length === 0) continue
-      toolEditBatch = {
-        type: 'editor_edit_batch',
-        version: 1,
-        commands: input.commands as EditorEditCommand[],
-        reason: typeof input.reason === 'string' ? input.reason : undefined
-      }
-      break
-    }
-  }
-    const responseText = result.text || (toolEditBatch
-      ? `已生成 ${toolEditBatch.commands.length} 条编辑建议，请预览确认。`
-      : '')
+    const responseText = result.text
     if (responseText) chatStore.updateLastMessage(responseText)
-  const toolCallSummary = result.toolCalls?.length
-    ? result.toolCalls.map(call => call.name).join(' → ')
-    : null
   const finishReason = result.finishReason || 'unknown'
   const continuationStatus = finishReason === 'length' || finishReason === 'timeout' || finishReason === 'network_error' || finishReason === 'canceled'
     ? continuationStatusFor(finishReason as any, Boolean(result.text))
@@ -1235,13 +2312,17 @@ async function callApi(
       agentIds: coCreation.config.skillIds
         .map(skillId => coCreation.config.skillAgents[homeSkillAgentKey(skillId)] || coCreation.config.agentId)
         .filter((agentId, index, all): agentId is string => Boolean(agentId) && all.indexOf(agentId) === index),
-      mode: 'single', originalMessages: messages, accumulatedText: result.text || '', continuationCount: 0, status: continuationStatus,
+      mode: 'single', originalMessages: slimContinuationMessages(messages), _slimmed: true, accumulatedText: result.text || '', continuationCount: 0, status: continuationStatus,
       finishReason: finishReason as any, createdAt: Date.now(), updatedAt: Date.now()
     }
     chatStore.updateMessageContinuation(activeMessage.id, snapshot, chatStore.activeSession?.id || 'main')
     await saveContinuation(snapshot, chatStore.activeSession?.id || 'main')
   }
-  return { text: responseText, toolEditBatch, toolCallSummary }
+  return {
+    text: responseText,
+    maxTokens: result.maxTokens ?? requestMaxTokens,
+    toolCallSummary
+  }
 }
 
 function clearWorkspaceSnapshotIfSafe() {
@@ -1252,6 +2333,32 @@ function clearWorkspaceSnapshotIfSafe() {
 
 function cancelGeneration() {
   activeAbortController?.abort()
+}
+
+async function resetConversation() {
+  if (isStreaming.value) return
+  const confirmed = await appConfirm.confirm({
+    title: '重置对话',
+    message: '将清空当前对话和会话上下文。API 下次请求会从当前编辑器内容重新开始，不影响编辑器内容、项目记忆和运行记录。',
+    confirmText: '清空',
+    danger: true
+  })
+  if (!confirmed) return
+  if (homeRunTraceId) runTraceStore.markContextCompacted(homeRunTraceId, '用户点击清空记忆')
+  sealHomeTraceSession()
+  try {
+    chatStore.clearSession()
+    await conversationContextService.clearSession({
+      projectId: projectId.value,
+      workspace: 'main',
+      purpose: 'generate'
+    })
+    inputText.value = ''
+    compatibilityNotice.value = '上下文已重置，API 将从当前编辑器内容重新开始。'
+  } catch (error) {
+    console.error('[chat] reset conversation failed:', error)
+    compatibilityNotice.value = '重置对话失败：' + (error instanceof Error ? error.message : String(error))
+  }
 }
 
 const chainBreakpointInfo = ref<{ skillId: string; step: number; error: string; retryCount: number } | null>(null)
@@ -1314,12 +2421,48 @@ async function continueMessage(message: any) {
   const targetSessionId = chatStore.activeSession?.id || 'main'
   const targetMessageId = message.id
   activeAbortController = new AbortController()
+  startHomeRun('continue', '续生成', [])
+  addHomeTraceEvent({
+    type: 'continuation-resume',
+    label: '续生成断点恢复',
+    detail: `已生成 ${snapshot.accumulatedText.length} 字，finish_reason=${snapshot.finishReason}，第 ${snapshot.continuationCount + 1} 次续生成`
+  })
   try {
-    const result = await continueSnapshot(await getAiService(), snapshot, { signal: activeAbortController?.signal, onChunk: text => chatStore.updateMessageContent(targetMessageId, snapshot.accumulatedText + text, targetSessionId) })
+    const continuationRequestMessages = buildContinuationMessages(snapshot)
+    const traceApiCallId = startHomeApiCall({
+      skillName: '续生成',
+      requestMessages: continuationRequestMessages.map((message: any) => ({ role: message.role, content: String(message.content || '') })),
+      model: snapshot.model
+    })
+    const result = await continueSnapshot(await getAiService(), snapshot, {
+      signal: activeAbortController?.signal,
+      onPhysicalCall: event => recordHomePhysicalCall(traceApiCallId, event),
+      onReasoning: (text: string) => {
+        appendHomeReasoning(traceApiCallId, text)
+      },
+      onChunk: (text: string | null) => {
+        const newStreamText = text || ''
+        const streamText = snapshot.accumulatedText + newStreamText
+        if (!newStreamText) return
+        if (homeRunTraceId && traceApiCallId) {
+          runTraceStore.appendStream(homeRunTraceId, traceApiCallId, newStreamText)
+        }
+        chatStore.updateMessageContent(targetMessageId, streamText, targetSessionId)
+      }
+    })
+    finishHomeApiCall(traceApiCallId, {
+      status: 'success',
+      responseText: result.text || '',
+      reasoningText: result.reasoning || '',
+      finishReason: result.finishReason,
+      usage: result.usage
+    })
+    finishHomeRun('success', undefined, result.text, 'continuation_complete')
     chatStore.updateMessageContent(targetMessageId, result.text, targetSessionId)
     const nextReason = result.finishReason || 'unknown'
     if (nextReason === 'length' || nextReason === 'timeout' || nextReason === 'network_error' || nextReason === 'canceled') {
-      const nextSnapshot = { ...snapshot, accumulatedText: result.text, continuationCount: snapshot.continuationCount + 1, status: continuationStatusFor(nextReason as any, Boolean(result.text)), finishReason: nextReason as any, updatedAt: Date.now() }
+      const nextStatus = continuationStatusFor(nextReason as any, Boolean(result.text))
+      const nextSnapshot = { ...snapshot, accumulatedText: result.text, continuationCount: snapshot.continuationCount + 1, status: nextStatus, finishReason: nextReason as any, updatedAt: Date.now(), statusHistory: [...(snapshot.statusHistory || []), { fromStatus: snapshot.status, toStatus: nextStatus, reason: `finish_reason=${nextReason}`, recordedAt: Date.now() }] }
       chatStore.updateMessageContinuation(targetMessageId, nextSnapshot, targetSessionId)
       await saveContinuation(nextSnapshot, targetSessionId)
     } else {
@@ -1327,8 +2470,11 @@ async function continueMessage(message: any) {
       chatStore.updateMessageContinuation(targetMessageId, undefined, targetSessionId)
     }
   } catch (error: any) {
+    closeActiveHomeApiCall('failed', error?.message || String(error))
     chatStore.setGenerationState('error', '续生成失败：' + (error?.message || String(error)))
+    finishHomeRun('failed', error?.message || String(error), undefined, 'continuation_failed')
   } finally {
+    closeActiveHomeApiCall('failed', '运行收尾时仍未闭合')
     chatStore.setGenerationState('idle')
   }
 }
@@ -1394,7 +2540,6 @@ async function insertToEditor(content: string) {
     return
   }
   pendingEditorTarget.value = target
-  pendingEditorBatchPlan.value = null
   window.dispatchEvent(new CustomEvent('show-diff', {
     detail: {
       original: plan.original,
@@ -1411,10 +2556,125 @@ async function insertToEditor(content: string) {
 }
 
 function buildChatEditorTools(requestTarget: EditorTargetSnapshot) {
-  return createEditorTools({
-    getSnapshot: () => (pendingEditorTarget.value && pendingEditorTarget.value.targetId === requestTarget.targetId
-      ? pendingEditorTarget.value
-      : requestTarget),
+  const applyDirectWrite = async (input: Parameters<EditorWriteApplier>[0]): Promise<
+    { ok: true; rollbackAvailable: boolean } | { ok: false; code: string; message: string }
+  > => {
+    const tab = editorStore.tabs.find(item => item.id === input.targetId)
+    if (!tab) return { ok: false, code: 'target_missing', message: '编辑目标已关闭，无法写入' }
+    const currentContent = tab.content || ''
+    if (currentContent !== input.original) {
+      recordEditorPresentation({
+        phase: 'failed',
+        workspace: 'main',
+        targetId: input.targetId,
+        mode: input.reveal.mode,
+        commands: input.commands.length,
+        reason: 'version_changed',
+      })
+      return { ok: false, code: 'version_changed', message: '编辑器内容已变化，本次写入已取消' }
+    }
+    const message = chatStore.activeSession?.messages[chatStore.activeSession.messages.length - 1]
+    recordEditorPresentation({
+      phase: 'start',
+      workspace: 'main',
+      targetId: input.targetId,
+      mode: input.reveal.mode,
+      commands: input.commands.length,
+      reason: input.reason,
+    })
+    const record = createEditorBatchRecord({
+      workspace: 'main',
+      targetId: input.targetId,
+      batch: {
+        type: 'editor_edit_batch',
+        version: 1,
+        commands: input.commands,
+        reason: input.reason,
+      },
+      sourceContent: input.original,
+      batchId: input.batchId,
+    })
+    editorStore.pushUndoState(tab.id, currentContent)
+    const finishWrite = () => {
+      editorStore.updateContent(tab.id, input.next)
+      window.dispatchEvent(new CustomEvent('editor-ai-batch-checkpoint', {
+        detail: { tabId: tab.id, content: input.next, batchId: record.batchId }
+      }))
+      window.dispatchEvent(new CustomEvent('editor-external-change', {
+        detail: { tabId: tab.id, content: input.next }
+      }))
+    }
+    if (input.reveal.mode === 'stream') {
+      await presentDirectWrite({
+        targetId: input.targetId,
+        original: input.original,
+        next: input.next,
+        mode: 'stream',
+        onProgress: content => editorStore.updateContent(tab.id, content)
+      })
+    }
+    finishWrite()
+    window.dispatchEvent(new CustomEvent('editor-stop-follow', {
+      detail: { workspace: 'main', targetId: input.targetId }
+    }))
+    if (message?.role === 'assistant') {
+      chatStore.updateMessageEditorBatch(
+        message.id,
+        {
+          type: 'editor_edit_batch',
+          version: 1,
+          commands: input.commands,
+          reason: input.reason,
+        },
+        {
+          workspace: 'main',
+          targetId: input.targetId,
+          contentHash: hashEditorContent(input.original),
+        },
+        updateEditorBatchRecord(record, {
+          status: 'applied',
+          appliedContentHash: hashEditorContent(input.next),
+          appliedAt: Date.now(),
+          undoAvailable: true,
+        }),
+        chatStore.activeSession?.id,
+      )
+    }
+    recordHomeBatchEvent(record, 'applied', `已直接写入 ${input.commands.length} 条修改`)
+    logEditorEdit({
+      requestId: `chat-direct-write_${record.batchId}`,
+      batchId: record.batchId,
+      workspace: 'main',
+      tabId: input.targetId,
+      operation: 'editor_write',
+      result: 'applied',
+      targetLength: input.original.length,
+      contentLength: input.commands.reduce((sum, command) => sum + (command.content?.length || 0), 0),
+      durationMs: 0,
+      detail: `API 直写已应用 ${input.commands.length} 条命令`,
+    })
+    if (input.reveal.firstChange !== false) {
+      const start = firstContentDifference(input.original, input.next)
+      window.dispatchEvent(new CustomEvent('diff-locate', {
+        detail: {
+          workspace: 'main',
+          targetId: input.targetId,
+          range: { start, end: Math.max(start + 1, start + (input.next.length - input.original.length)) },
+        },
+      }))
+    }
+    recordEditorPresentation({
+      phase: 'finished',
+      workspace: 'main',
+      targetId: input.targetId,
+      mode: input.reveal.mode,
+      commands: input.commands.length,
+      reason: input.reason,
+    })
+    return { ok: true, rollbackAvailable: true }
+  }
+  return {
+    getSnapshot: () => requestTarget,
     getAllSnapshots: () => editorStore.tabs.map(tab => ({
       workspace: 'main' as const,
       targetId: tab.id,
@@ -1427,99 +2687,41 @@ function buildChatEditorTools(requestTarget: EditorTargetSnapshot) {
       selectionEnd: 0,
       selectedText: '',
     })),
-    onPlanUpdate: (plan) => {
+    onPlanUpdate: (plan: Parameters<NonNullable<Parameters<typeof buildDialogueToolSurface>[0]['onPlanUpdate']>>[0]) => {
       const activeMessage = chatStore.activeSession?.messages[chatStore.activeSession.messages.length - 1]
       if (activeMessage?.role === 'assistant') {
         chatStore.updateMessageEditorToolPlan(activeMessage.id, plan, chatStore.activeSession?.id)
       }
-    }
-  })
+    },
+    mode: 'direct' as const,
+    applyWrite: applyDirectWrite,
+    onFailedBatch: (batch: EditorWriteRetryCarrier | null) => { homeFailedWriteBatch = batch },
+    takeFailedBatch: () => homeFailedWriteBatch,
+    revealTarget: async (request: Parameters<EditorRevealer>[0]) => {
+      if (request.workspace !== 'main') return
+      window.dispatchEvent(new CustomEvent('diff-locate', {
+        detail: {
+          workspace: 'main',
+          targetId: request.targetId,
+          range: { start: request.start, end: request.end },
+        },
+      }))
+    },
+  }
 }
 
-function previewEditorBatch(message: ChatMessage) {
-  if (isStreaming.value) return
-  const batch = message.editorBatch
-  const targetMeta = message.editorBatchTarget
-  if (!batch) return
-  const tab = targetMeta
-    ? editorStore.tabs.find(item => item.id === targetMeta.targetId)
-    : editorStore.activeTab
-  if (!tab) {
-    void appConfirm.alert('编辑目标已关闭，请重新发起编辑请求')
-    return
-  }
-  if (targetMeta && targetMeta.contentHash !== hashEditorContent(tab.content || '')) {
-    const previewRecord = normalizeEditorBatchRecord(message.editorBatchRecord)
-    logEditorEdit({
-      requestId: `chat-edit_${Date.now()}`,
-      batchId: previewRecord?.batchId,
-      workspace: 'main',
-      tabId: targetMeta.targetId,
-      operation: 'editor_edit_batch',
-      result: 'rejected',
-      targetLength: (tab.content || '').length,
-      contentLength: batch.commands.reduce((sum, command) => sum + (command.content?.length || 0), 0),
-      failureReason: 'version_changed',
-      durationMs: 0,
-      detail: '主编辑器批次生成后内容已手动修改，请重新生成编辑建议'
-    })
-    void appConfirm.alert('编辑器内容已手动修改，请重新生成编辑建议')
-    return
-  }
-  const target = createEditorTargetSnapshot({
+function buildHomeDialogueToolSurface(
+  requestTarget: EditorTargetSnapshot,
+  intent: PlainDialogueIntent,
+): ReturnType<typeof buildDialogueToolSurface> {
+  return buildDialogueToolSurface({
     workspace: 'main',
-    targetId: tab.id,
-    label: tab.title,
-    chapterId: tab.chapterId,
-    mode: tab.mode,
-    content: tab.content || '',
-    selectionStart: tab.content?.length,
-    selectionEnd: tab.content?.length
+    intent,
+    ...buildChatEditorTools(requestTarget),
+    readableTargets: [requestTarget.targetId, ...editorStore.tabs.map(tab => tab.id)]
+      .filter((id, index, all) => Boolean(id) && all.indexOf(id) === index),
+    writableTarget: requestTarget.targetId,
   })
-  const batchPlan = planEditorEditBatch(batch, target, { content: tab.content || '' }, {
-    batchId: normalizeEditorBatchRecord(message.editorBatchRecord)?.batchId
-  })
-  pendingEditorTarget.value = target
-  pendingEditorBatchPlan.value = batchPlan
-  pendingEditorBatchMessage.value = {
-    messageId: message.id,
-    sessionId: chatStore.activeSession?.id
-  }
-  const previewRecord = normalizeEditorBatchRecord(message.editorBatchRecord)
-  logEditorEdit({
-    requestId: `chat-edit_${Date.now()}`,
-    batchId: previewRecord?.batchId,
-    workspace: 'main',
-    tabId: tab.id,
-    operation: 'editor_edit_batch',
-    result: batchPlan.ok ? 'parsed' : 'rejected',
-    targetLength: (tab.content || '').length,
-    contentLength: batchPlan.items.reduce((sum, item) => sum + (item.command.content?.length || 0), 0),
-    failureReason: batchPlan.failureReason,
-    durationMs: 0,
-    detail: batchPlan.ok ? `重新预览批次包含 ${batchPlan.items.length} 条编辑` : '重新预览批次规划失败：' + batchPlan.failureReason
-  })
-  window.dispatchEvent(new CustomEvent('show-diff', {
-    detail: {
-      original: batchPlan.original,
-      modified: batchPlan.ok ? batchPlan.next : batchPlan.original,
-      editMeta: {
-        workspace: 'main',
-        targetId: target.targetId,
-        targetLabel: target.label,
-        operationLabel: `批量编辑（${batchPlan.items.length} 项）`,
-        failureReason: batchPlan.ok ? undefined : batchPlan.failureReason,
-        dangerous: batchPlan.items.some(item => item.command.operation === 'rewrite' || item.command.operation === 'delete'),
-        batchItems: batchPlan.items.map(item => ({
-          index: item.index,
-          label: item.command.operation + (item.command.target ? `：${item.command.target}` : ''),
-          reason: item.command.reason,
-          dangerous: item.command.operation === 'rewrite' || item.command.operation === 'delete',
-          range: item.plan.range
-        }))
-      }
-    }
-  }))
 }
 
 function rollbackEditorBatch(message: ChatMessage) {
@@ -1532,6 +2734,7 @@ function rollbackEditorBatch(message: ChatMessage) {
   }
   const currentContent = tab.content || ''
   if (!canRollbackEditorBatch(record, currentContent)) {
+    recordHomeBatchEvent(record, 'version_changed', '批次应用后编辑器内容已变化，拒绝自动回滚')
     logEditorEdit({
       requestId: `chat-edit_${Date.now()}`,
       batchId: record.batchId,
@@ -1580,6 +2783,7 @@ function rollbackEditorBatch(message: ChatMessage) {
     }),
     chatStore.activeSession?.id
   )
+  recordHomeBatchEvent(record, 'rolled_back', `已回滚 AI 批次，消耗 ${undoContent.consumed} 条撤销历史`)
   logEditorEdit({
     requestId: `chat-edit_${Date.now()}`,
     batchId: record.batchId,
@@ -1605,25 +2809,16 @@ function rollbackEditorBatch(message: ChatMessage) {
 }
 
 let applyingEditorEdit = false
-window.addEventListener('diff-applied', (event: Event) => {
+function handleDiffApplied(event: Event) {
   const detail = (event as CustomEvent).detail
   const target = pendingEditorTarget.value
   const text = detail?.text
   if (applyingEditorEdit || !target || typeof text !== 'string') return
   const tab = editorStore.tabs.find(item => item.id === target.targetId)
   if (!tab) return
-  const pendingBatchMessage = pendingEditorBatchMessage.value
-  const pendingRecord = pendingBatchMessage
-    ? normalizeEditorBatchRecord(
-      chatStore.sessions
-        .find(session => session.id === (pendingBatchMessage.sessionId || chatStore.activeSessionId))
-        ?.messages.find(message => message.id === pendingBatchMessage.messageId)?.editorBatchRecord
-    )
-    : null
   const validation = validateEditorTarget(target, { content: tab.content || '' })
   if (!validation.valid) {
     pendingEditorTarget.value = null
-    pendingEditorBatchPlan.value = null
     logEditorEdit({
       requestId: `chat-edit_${Date.now()}`,
       workspace: 'main',
@@ -1639,93 +2834,75 @@ window.addEventListener('diff-applied', (event: Event) => {
   }
   applyingEditorEdit = true
   try {
-    const wasBatch = Boolean(pendingEditorBatchPlan.value)
-    const acceptedIndexes = detail?.acceptedIndexes
-    let finalText = text
-    if (wasBatch && Array.isArray(acceptedIndexes)) {
-      const replanned = applyAcceptedItems(pendingEditorBatchPlan.value!, acceptedIndexes)
-      if (!replanned.ok) {
-        pendingEditorTarget.value = null
-        pendingEditorBatchPlan.value = null
-        void appConfirm.alert('部分命令被拒绝后批次无法重新规划，请重新发起编辑请求')
-        return
-      }
-      finalText = replanned.next
-    }
+    const finalText = text
     editorStore.pushUndoState(tab.id, tab.content || '')
     editorStore.updateContent(tab.id, finalText)
     // P3: AI 批次 checkpoint 通过 editorStore undo 栈联动
     // 经验引用: §1 规则6（不得重新赋值）、§7 规则19（AI 批次专用回滚栈）
     // ChatPanel 不持有 useUndoRedo 实例，通过事件通知 EditorPanel 联动
-    if (pendingRecord?.batchId) {
-      window.dispatchEvent(new CustomEvent('editor-ai-batch-checkpoint', {
-        detail: { tabId: tab.id, content: finalText, batchId: pendingRecord.batchId }
-      }))
-    }
     window.dispatchEvent(new CustomEvent('editor-external-change', {
       detail: { tabId: tab.id, content: finalText }
     }))
-    const rejectedIndexes = Array.isArray(acceptedIndexes)
-      ? pendingEditorBatchPlan.value!.items
-        .map(item => item.index)
-        .filter(index => !(acceptedIndexes as number[]).includes(index))
-      : undefined
-    if (pendingRecord) {
-      chatStore.updateMessageEditorBatch(
-        pendingBatchMessage!.messageId,
-        undefined,
-        undefined,
-        updateEditorBatchRecord(pendingRecord, {
-          status: 'applied',
-          appliedContentHash: hashEditorContent(finalText),
-          appliedAt: Date.now(),
-          undoAvailable: true,
-          acceptedIndexes: Array.isArray(acceptedIndexes) ? [...acceptedIndexes] : undefined,
-          rejectedIndexes
-        }),
-        pendingBatchMessage!.sessionId
-      )
-    }
     _pendingInlineSelection.value = null
     pendingEditorTarget.value = null
-    pendingEditorBatchPlan.value = null
-    pendingEditorBatchMessage.value = null
     logEditorEdit({
       requestId: `chat-edit_${Date.now()}`,
-      batchId: pendingRecord?.batchId,
       workspace: 'main',
       tabId: target.targetId,
-      operation: wasBatch ? 'editor_edit_batch' : (target.selectedText ? 'replace_selection' : 'insert'),
+      operation: target.selectedText ? 'replace_selection' : 'insert',
       result: 'applied',
       targetLength: target.content.length,
       contentLength: Math.max(0, finalText.length - target.content.length),
       durationMs: 0,
       detail: '用户确认后已写入主页编辑器'
     })
-    if (pendingRecord) {
-      void conversationContextService.recordEditorEvent({
-        projectId: projectId.value,
-        workspace: 'main',
-        purpose: 'generate'
-      }, '已应用 AI 编辑批次', {
-        batchId: pendingRecord.batchId,
-        commandCount: pendingRecord.commandCount,
-        targetId: target.targetId,
-        status: 'applied',
-        acceptedIndexes: Array.isArray(acceptedIndexes) ? [...acceptedIndexes] : undefined,
-        rejectedIndexes
-      }).catch(error => console.error('[CHAT] 记录 AI 批次应用上下文失败', error))
-    }
   } finally {
     applyingEditorEdit = false
   }
-})
+}
 
-window.addEventListener('diff-closed', () => {
+function revealEditorBatch(message: ChatMessage) {
+  const record = normalizeEditorBatchRecord(message.editorBatchRecord)
+  if (!record) return
+  const tab = editorStore.tabs.find(item => item.id === record.targetId)
+  if (!tab) {
+    void appConfirm.alert('编辑目标已关闭，无法定位该批次')
+    return
+  }
+  const content = tab.content || ''
+  const sourceContent = findEditorBatchUndoContent(editorStore.tabUndoStacks[record.targetId] || [], record)?.content
+  if (!sourceContent) {
+    void appConfirm.alert('找不到批次应用前内容，无法计算首处变更')
+    return
+  }
+  const start = firstContentDifference(sourceContent, content)
+  const end = Math.max(start + 1, start + (content.length - sourceContent.length))
+  window.dispatchEvent(new CustomEvent('diff-locate', {
+    detail: {
+      workspace: 'main',
+      targetId: record.targetId,
+      range: { start, end }
+    }
+  }))
+  logEditorEdit({
+    requestId: `chat-direct-write-reveal_${record.batchId}`,
+    batchId: record.batchId,
+    workspace: 'main',
+    tabId: record.targetId,
+    operation: 'editor_write',
+    result: 'applied',
+    targetLength: content.length,
+    durationMs: 0,
+    detail: '用户在气泡中查看 AI 批次首处变更位置'
+  })
+}
+
+function handleDiffClosed() {
   pendingEditorTarget.value = null
-  pendingEditorBatchPlan.value = null
-  pendingEditorBatchMessage.value = null
-})
+}
+
+window.addEventListener('diff-applied', handleDiffApplied)
+window.addEventListener('diff-closed', handleDiffClosed)
 
 async function replaceWhole(content: string) {
   const pending = _pendingInlineSelection.value
@@ -1884,44 +3061,6 @@ function scrollToBottom() {
 }
 .generation-action:hover { background: var(--bg-hover); }
 .generation-cancel { color: var(--accent-lighter, var(--accent)); }
-.chat-input {
-  flex: 1;
-  background: var(--bg-input);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: var(--space-3) var(--space-5);
-  font-size: var(--font-size-md);
-  resize: none;
-  outline: none;
-  height: 36px;
-  max-height: 100px;
-}
-.chat-input:focus {
-  border-color: var(--accent);
-}
-.btn-send {
-  background: var(--control-primary-bg);
-  color: var(--text-on-accent);
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 0 var(--space-md);
-  min-width: 48px;
-  height: 32px;
-  cursor: pointer;
-  font-size: var(--btn-font-size-md);
-}
-.btn-send:disabled {
-  cursor: wait;
-  opacity: 0.65;
-}
-.send-busy-label { font-size: var(--font-size-sm); white-space: nowrap; }
-#btn-send:hover {
-  background: var(--control-primary-bg-hover);
-}
-#btn-send:active {
-  transform: var(--tf-press);
-}
 .chat-context-bar {
   height: 0;
   overflow: hidden;

@@ -77,6 +77,7 @@ import { useDeAiStore } from './stores/deai'
 import { useSkillStore } from './stores/skill'
 import { usePipelineStore } from './stores/pipeline'
 import { useEditorStore } from './stores/editor'
+import { useRunTraceStore } from './stores/runTrace'
 import SidebarNav from './components/sidebar/SidebarNav.vue'
 import ChapterTree from './components/sidebar/ChapterTree.vue'
 import EditorPanel from './components/editor/EditorPanel.vue'
@@ -108,6 +109,7 @@ const deAiStore = useDeAiStore()
 const skillStore = useSkillStore()
 const pipelineStore = usePipelineStore()
 const editorStore = useEditorStore()
+const runTraceStore = useRunTraceStore()
 
 const themeStore = useThemeStore()
 const breadcrumbItems = ref<string[]>([])
@@ -165,6 +167,10 @@ window.addEventListener('show-diff', (e: Event) => {
   diffEditMeta.value = detail?.editMeta || null
   diffVisible.value = true
 })
+window.addEventListener('hide-diff', () => {
+  diffVisible.value = false
+  diffEditMeta.value = null
+})
 const selectedModel = computed({
   get: () => providerStore.activeGenerateProvider?.selectedModel || '',
   set: (v: string) => {
@@ -181,8 +187,8 @@ function handleNavigate(panel: string) {
   }
 }
 
-function applyDiffResult(text: string, acceptedIndexes?: number[]) {
-  window.dispatchEvent(new CustomEvent('diff-applied', { detail: { text, acceptedIndexes } }))
+function applyDiffResult(text: string, acceptedIndexes?: number[], options?: { allowCritical?: boolean }) {
+  window.dispatchEvent(new CustomEvent('diff-applied', { detail: { text, acceptedIndexes, allowCritical: options?.allowCritical === true } }))
  diffVisible.value = false
  diffEditMeta.value = null
 }
@@ -295,15 +301,25 @@ onMounted(async () => {
      }
    } catch (e) { /* lastSession 是辅助功能，失败不阻塞启动 */ }
  }
- try {
-    const corruption = await (window as any).electronAPI?.storageCorruptionLog?.()
-    if (corruption?.hasEntries) {
-      const diag = (window as any).DiagLogger
-      if (diag && typeof diag.log === 'function') {
-        diag.log('error', 'storage', '检测到存储损坏并已从备份恢复，最近记录: ' + corruption.entries.slice(-3).join(' | '))
-      }
-    }
-  } catch (e) { /* corruption check is optional */ }
+try {
+   const corruption = await (window as any).electronAPI?.storageCorruptionLog?.()
+   if (corruption?.hasEntries) {
+     // Only report entries newer than the last reported timestamp to avoid re-reporting old issues
+     const lastReported = localStorage.getItem('lastCorruptionReportTs') || ''
+     const newEntries = corruption.entries.filter((e: string) => {
+       const m = e.match(/^\[(.+?)\]/)
+       return m && m[1] > lastReported
+     })
+     if (newEntries.length > 0) {
+       const diag = (window as any).DiagLogger
+       if (diag && typeof diag.log === 'function') {
+         diag.log('error', 'storage', '检测到存储损坏并已从备份恢复，最近记录: ' + newEntries.slice(-3).join(' | '))
+       }
+       const latestTs = newEntries[newEntries.length - 1].match(/^\[(.+?)\]/)
+       if (latestTs) localStorage.setItem('lastCorruptionReportTs', latestTs[1])
+     }
+   }
+ } catch (e) { /* corruption check is optional */ }
  window.addEventListener('generate-body', handleGenerateBody)
   window.addEventListener('insert-text', handleInsertText)
   window.addEventListener('show-skill-binding', handleSkillBinding)
@@ -335,6 +351,11 @@ onUnmounted(() => {
   watch(activePanel, (v) => {
    breadcrumbItems.value = v && labels[v] ? [labels[v]] : []
  }, { immediate: true })
+  const reportIntegrityBeforeClose = () => {
+    try { runTraceStore.checkStateIntegrityBeforeClose() } catch (e) {}
+  }
+  window.addEventListener('beforeunload', reportIntegrityBeforeClose)
+  window.addEventListener('pagehide', reportIntegrityBeforeClose)
   // P3: editorFont -> CSS variable bridge (fixes broken font selection chain)
   watch(() => settingsStore.editorFont, (font) => {
     const fontMap: Record<string, string> = {

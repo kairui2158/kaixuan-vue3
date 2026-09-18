@@ -1,5 +1,12 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
+// electron-log requires its preload bridge before renderer code runs.
+try {
+  require('electron-log/renderer')
+} catch (e) {
+  console.error('electron-log renderer bridge failed', e)
+}
+
 // Backward-compatible API (matches original preload.js)
 contextBridge.exposeInMainWorld('electronAPI', {
   platform: process.platform,
@@ -68,6 +75,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   diagClear: function() { return ipcRenderer.invoke('diag:clear') },
   diagRefresh: function() { return ipcRenderer.invoke('diag:refresh') },
   runTraceExport: function(payload) { return ipcRenderer.invoke('runTrace:export', payload || {}) },
+  runTraceReportStateIntegrity: function(report) { ipcRenderer.send('runTrace:stateIntegrity', report || {}) },
+  runTraceSave: function(payload) { return ipcRenderer.invoke('runTrace:save', payload || {}) },
+  runTraceRemove: function(payload) { return ipcRenderer.invoke('runTrace:remove', payload || {}) },
+  runTraceOpenFolder: function(source) { return ipcRenderer.invoke('runTrace:openFolder', source || 'pipeline') },
 
   // API
   fetchModels: function(baseUrl, apiKey) {

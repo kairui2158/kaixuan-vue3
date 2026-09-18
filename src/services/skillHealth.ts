@@ -25,6 +25,28 @@ export function inspectTemplateVariables(template: string): string[] {
   return [...variables]
 }
 
+export function inspectSkillSamples(samples: string): SkillHealthIssue[] {
+  const text = typeof samples === 'string' ? samples.trim() : ''
+  if (!text) return []
+
+  const lines = text.split(/\r?\n/).filter(line => line.trim().length > 0)
+  if (lines.length > 8) {
+    return [{ level: 'warning', field: 'samples.txt', message: '样本行数超过 8 行，建议只保留风格参考，不要放置完整成品' }]
+  }
+
+  for (const line of lines) {
+    if (line.length > 400) {
+      return [{ level: 'warning', field: 'samples.txt', message: '存在超过 400 字符的样本行，建议改为短句风格参考或占位符' }]
+    }
+    const looksStructured = /^\s*[\[{]/.test(line)
+    if (looksStructured && !/\{\{\s*([A-Za-z0-9_.-]+)\s*\}\}/.test(line)) {
+      return [{ level: 'warning', field: 'samples.txt', message: '样本疑似完整结构化输出，请改为占位符结构，避免诱导模型复制成品' }]
+    }
+  }
+
+  return []
+}
+
 export function analyzeSkillHealth(input: {
   skillId: string
   format: string
@@ -60,6 +82,8 @@ export function analyzeSkillHealth(input: {
     if (pkg && !String(pkg.samples || '').trim()) {
       issues.push({ level: 'info', field: 'samples.txt', message: '未提供示例文本' })
     }
+    const sampleIssues = inspectSkillSamples(String(pkg?.samples || ''))
+    issues.push(...sampleIssues)
   } else {
     if (!String(input.template || '').trim()) {
       issues.push({ level: 'error', field: 'template', message: '文本技能模板为空' })

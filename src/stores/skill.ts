@@ -18,6 +18,11 @@ export interface Skill {
   template: string
   category: string
   description?: string
+  /** Folder skill catalog summary; full package content is loaded on activation. */
+  resourceSummary?: {
+    resourceCount: number
+    warningCount: number
+  }
   executionMode: 'chain' | 'split-merge' | 'multi-step'
   outputFormat: 'json' | 'text'
   validationRules: string[]
@@ -38,6 +43,7 @@ export interface Skill {
   inputSchema?: JsonSchema | string
   outputSchema?: JsonSchema | string
   retryPolicy?: SkillRetryPolicy | string
+  intents?: string[]
 }
 
 export const useSkillStore = defineStore('skill', () => {
@@ -128,6 +134,10 @@ export const useSkillStore = defineStore('skill', () => {
             template: s.template,
             category: s.category || 'general',
             description: s.description || '',
+            resourceSummary: s.format === 'folder' || s.resourceSummary ? {
+              resourceCount: Number(s.resourceSummary?.resourceCount || 0),
+              warningCount: Number(s.resourceSummary?.warningCount || 0)
+            } : undefined,
             executionMode: s.executionMode || 'chain',
             outputFormat: s.outputFormat || 'text',
             validationRules: s.validationRules || [],
@@ -144,6 +154,7 @@ export const useSkillStore = defineStore('skill', () => {
             inputSchema: s.inputSchema,
             outputSchema: s.outputSchema,
             retryPolicy: s.retryPolicy
+            ,intents: s.intents
           }
         })
       } else {
@@ -240,6 +251,7 @@ export const useSkillStore = defineStore('skill', () => {
           inputSchema: s.inputSchema,
           outputSchema: s.outputSchema,
           retryPolicy: s.retryPolicy
+          ,intents: s.intents
         })
         existingIds.add(s.id)
         result.added++

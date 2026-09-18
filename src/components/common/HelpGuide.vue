@@ -1,5 +1,5 @@
 <template>
-  <div v-if="visible" class="help-overlay" @click.self="close">
+  <div v-if="visible" class="help-overlay" :style="{ zIndex: modalQueue.getZIndex('help-guide') }" @click.self="close">
     <section class="help-modal" role="dialog" aria-modal="true" aria-label="应用教学指南">
       <header class="help-header">
         <div>
@@ -96,7 +96,7 @@
             <h4>生成时看哪里</h4>
             <p>生成时页面底部会出现进度条。想看模型正在输出什么，点进度条上的“展开 API 输出”；看完点“收起 API 输出”。</p>
             <h4>逐卷生成怎么用</h4>
-            <p>卷纲层有“AI生成全卷”和“逐卷生成”。逐卷生成适合写长篇：一次只生成一卷，确认满意后点该卷的“续生成”接着写下一卷。</p>
+            <p>卷纲层有“AI生成全卷”和“逐卷生成”。逐卷生成适合写长篇：一次只生成一卷，确认满意后点该卷的“续生成”接着写下一卷；续生成同样只生成下一卷。</p>
             <h4>常见卡点</h4>
             <ul>
               <li>确认按钮灰着：多半是上游还没完成，比如大纲没锁定、没有绑定卷、没有可确认内容。</li>
@@ -144,6 +144,7 @@
               <li>一个文件夹就是一个技能，入口固定是 SKILL.md，模板放在 template.md。</li>
               <li>文件夹名不是技能 ID，真正的 ID 写在 SKILL.md 里。</li>
               <li>meta.json、script.js、samples.txt、schema.json 是可选增强：管配置、脚本、示例和输出校验。</li>
+              <li>samples.txt 只放短句风格参考或占位符示例，不要放完整成品，避免 AI 把示例内容当成结果复制。</li>
               <li>应用只认这一层文件，不扫描更深的子文件夹。</li>
             </ul>
             <h4>导入后怎么用</h4>
@@ -263,9 +264,11 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useModalQueue } from '../../composables/useModalQueue'
 
 const visible = ref(false)
 const activeId = ref('start')
+const modalQueue = useModalQueue()
 
 const sections = [
   { id: 'start', title: '快速上手' },
@@ -287,10 +290,12 @@ const activeSection = computed(() => sections.find(item => item.id === activeId.
 
 function open() {
   visible.value = true
+  modalQueue.open('help-guide')
 }
 
 function close() {
   visible.value = false
+  modalQueue.close('help-guide')
 }
 
 onMounted(() => {

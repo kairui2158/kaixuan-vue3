@@ -54,7 +54,7 @@ describe('skillRouter composite mapping', () => {
         folderPath: 'D:/skills/parent'
       } as any,
       error: null,
-      fromCache: false
+      folderPackageCache: false
     })
     executeCompositeSkillMock.mockResolvedValueOnce(compositeResult('DONE'))
 
@@ -83,7 +83,7 @@ describe('skillRouter composite mapping', () => {
         folderPath: 'D:/skills/parent'
       } as any,
       error: null,
-      fromCache: false
+      folderPackageCache: false
     })
     executeCompositeSkillMock.mockResolvedValueOnce(compositeResult('DONE_WITH_CONCERNS'))
 
@@ -111,7 +111,7 @@ describe('skillRouter composite mapping', () => {
         folderPath: 'D:/skills/parent'
       } as any,
       error: null,
-      fromCache: false
+      folderPackageCache: false
     })
     executeCompositeSkillMock.mockResolvedValueOnce(compositeResult('NEEDS_CONTEXT'))
 
@@ -124,7 +124,7 @@ describe('skillRouter composite mapping', () => {
   })
 
   it('falls back to text mode when folder loading fails', async () => {
-    loadRealSkillMock.mockResolvedValueOnce({ package: null, error: 'folder-not-found', fromCache: false })
+    loadRealSkillMock.mockResolvedValueOnce({ package: null, error: 'folder-not-found', folderPackageCache: false })
 
     const result = await routeSkill(
       { id: 'skill', format: 'folder', folderPath: 'D:/missing' },
@@ -149,14 +149,14 @@ describe('skillRouter composite mapping', () => {
         folderPath: 'D:/skills/folder'
       } as any,
       error: null,
-      fromCache: false
+      folderPackageCache: false
     })
     executeRealSkillMock.mockResolvedValueOnce({
       status: 'success',
       output: '输出',
       errors: [],
       diagnostics: [],
-      fromCache: false
+      folderPackageCache: false
     })
 
     const result = await routeSkill(

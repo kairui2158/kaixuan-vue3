@@ -137,13 +137,13 @@
         </div>
       </div>
       <div v-else class="mem-graph-content">
-        <RelationGraph v-if="showRelationGraph === 'graph'" :memories="projectStore.memories" @open-source="openMemorySource" @edit-entity="editEntity" @create-relation="createRelation" />
-        <GraphAnalysis v-else-if="showRelationGraph === 'analysis'" :memories="projectStore.memories" @open-source="openMemorySource" />
-        <MindMap v-else-if="showRelationGraph === 'mind'" :memories="projectStore.memories" :volumes="projectStore.volumes" :chapters="projectStore.chapters" @open-source="openMemorySource" />
-        <TimelineView v-else :memories="projectStore.memories" @open-source="openMemorySource" />
+        <RelationGraph v-if="showRelationGraph === 'graph'" :memories="projectStore.memories || { categories: [], entities: [], relations: [], events: [], world: [], foreshadowing: [], items: [] }" @open-source="openMemorySource" @edit-entity="editEntity" @create-relation="createRelation" />
+        <GraphAnalysis v-else-if="showRelationGraph === 'analysis'" :memories="projectStore.memories || { categories: [], entities: [], relations: [], events: [], world: [], foreshadowing: [], items: [] }" @open-source="openMemorySource" />
+        <MindMap v-else-if="showRelationGraph === 'mind'" :memories="projectStore.memories || { categories: [], entities: [], relations: [], events: [], world: [], foreshadowing: [], items: [] }" :volumes="projectStore.volumes" :chapters="projectStore.chapters" @open-source="openMemorySource" />
+        <TimelineView v-else :memories="projectStore.memories || { categories: [], entities: [], relations: [], events: [], world: [], foreshadowing: [], items: [] }" @open-source="openMemorySource" />
       </div>
     </div>
-    <div v-if="blacklistVisible" class="mem-overlay" @click.self="blacklistVisible = false">
+    <div v-if="blacklistVisible" class="mem-overlay" :style="{ zIndex: modalQueue.getZIndex('memory-blacklist') }" @click.self="blacklistVisible = false">
       <div class="mem-inline-box mem-blacklist-box">
         <h3>黑名单管理</h3>
         <button class="btn-close" type="button" aria-label="关闭黑名单管理" @click="blacklistVisible = false">&times;</button>
@@ -154,7 +154,7 @@
         </div>
       </div>
     </div>
-    <div v-if="mergeVisible" class="mem-overlay" @click.self="mergeVisible = false">
+    <div v-if="mergeVisible" class="mem-overlay" :style="{ zIndex: modalQueue.getZIndex('memory-merge') }" @click.self="mergeVisible = false">
       <div class="mem-inline-box mem-merge-box">
         <h3>实体合并建议</h3>
         <button class="btn-close" type="button" aria-label="关闭实体合并建议" @click="mergeVisible = false">&times;</button>
@@ -165,7 +165,7 @@
         </div>
       </div>
     </div>
-    <div v-if="conflictItem" class="mem-overlay" @click.self="conflictItem = null">
+    <div v-if="conflictItem" class="mem-overlay" :style="{ zIndex: modalQueue.getZIndex('memory-conflict') }" @click.self="conflictItem = null">
       <div class="mem-inline-box mem-conflict-box">
         <h3>冲突审查</h3>
         <div class="mem-conflict-list">
@@ -182,7 +182,7 @@
       </div>
     </div>
     <!-- 内联输入框弹窗替代 prompt -->
-    <div v-if="showCatInput" class="mem-overlay" @click.self="showCatInput = false">
+    <div v-if="showCatInput" class="mem-overlay" :style="{ zIndex: modalQueue.getZIndex('memory-category') }" @click.self="showCatInput = false">
       <div class="mem-inline-box">
         <h3>新增分类</h3>
         <input ref="catInputRef" v-model="newCatName" class="mem-input" placeholder="输入新分类名称" @keyup.enter="confirmAddCat" />
@@ -192,7 +192,7 @@
         </div>
       </div>
     </div>
-    <div v-if="editDialogVisible" class="mem-overlay" @click.self="closeEditDialog">
+    <div v-if="editDialogVisible" class="mem-overlay" :style="{ zIndex: modalQueue.getZIndex('memory-edit') }" @click.self="closeEditDialog">
       <div class="mem-edit-dialog">
         <h3>{{ editDialogTitle }}</h3>
         <div class="mem-edit-scroll">
@@ -211,7 +211,7 @@
         </div>
       </div>
     </div>
-    <div v-if="profileExportVisible" class="mem-overlay" @click.self="profileExportVisible = false">
+    <div v-if="profileExportVisible" class="mem-overlay" :style="{ zIndex: modalQueue.getZIndex('memory-profile-export') }" @click.self="profileExportVisible = false">
       <div class="mem-inline-box">
         <h3>选择要导出的角色</h3>
         <div class="mem-profile-export-list">
@@ -235,7 +235,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, computed, nextTick } from 'vue'
+import { defineAsyncComponent, ref, computed, nextTick, watch } from 'vue'
 import { useProjectStore } from '../../stores/project'
 import { useEditorStore } from '../../stores/editor'
 const RelationGraph = defineAsyncComponent(() => import('../memory/RelationGraph.vue'))
@@ -249,10 +249,12 @@ import { useAppConfirm } from '../../composables/useAppConfirm'
 import { storageKey } from '../../utils/storage-key'
 import { exportFullJSON, importFullJSON, mergeImportedMemory, createMemoryBackup, exportCharacterCardV3, importCharacterCardV3 } from '../../services/memoryIO'
 import { exportCharacterProfile, exportStoryline, exportTimeline, exportScene, type MemoryExportContext } from '../../services/memoryExport'
+import { useModalQueue } from '../../composables/useModalQueue'
 
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
 const appConfirm = useAppConfirm()
+const modalQueue = useModalQueue()
 const emit = defineEmits<{ close: [] }>()
 
 const selectedCat = ref('all')
@@ -292,6 +294,22 @@ const emptyEditDialog: EditDialog = { kind: 'entity', id: '', title: '', fields:
 const editDialog = ref<EditDialog>(emptyEditDialog)
 const editDialogVisible = ref(false)
 
+const memoryModalVisibility = computed(() => ({
+  'memory-blacklist': blacklistVisible.value,
+  'memory-merge': mergeVisible.value,
+  'memory-conflict': Boolean(conflictItem.value),
+  'memory-category': showCatInput.value,
+  'memory-edit': editDialogVisible.value,
+  'memory-profile-export': profileExportVisible.value
+}))
+
+watch(memoryModalVisibility, visibility => {
+  for (const [id, isOpen] of Object.entries(visibility)) {
+    if (isOpen) modalQueue.open(id)
+    else modalQueue.close(id)
+  }
+}, { immediate: true })
+
 type MemoryDisplayItem = {
   key: string
   category: string
@@ -310,17 +328,19 @@ type MemoryDisplayItem = {
 type FactStatusValue = NonNullable<import('../../types/memory').MemoryEntity['factStatus']>
 
 const memoryCategories = computed(() => {
-  const categories = [...projectStore.memories.categories]
-  const modelCategories = projectStore.memories.entities.length > 0 ? ['实体'] : []
-  if (projectStore.memories.relations.length > 0) modelCategories.push('关系')
-  if (projectStore.memories.events.length > 0) modelCategories.push('事件')
-  if (projectStore.memories.world.length > 0) modelCategories.push('世界观')
-  if (projectStore.memories.foreshadowing.length > 0) modelCategories.push('伏笔')
+  const mem = projectStore.memories || { categories: [], entities: [], relations: [], events: [], world: [], foreshadowing: [], items: [] }
+  const categories = [...(mem.categories ?? [])]
+  const modelCategories = (mem.entities?.length ?? 0) > 0 ? ['实体'] : []
+  if ((mem.relations?.length ?? 0) > 0) modelCategories.push('关系')
+  if ((mem.events?.length ?? 0) > 0) modelCategories.push('事件')
+  if ((mem.world?.length ?? 0) > 0) modelCategories.push('世界观')
+  if ((mem.foreshadowing?.length ?? 0) > 0) modelCategories.push('伏笔')
   return [...new Set([...categories, ...modelCategories])]
 })
 
 const memoryDisplayItems = computed<MemoryDisplayItem[]>(() => {
-  const legacy = projectStore.memories.items.map((item: any, legacyIndex: number) => ({
+  const mem = projectStore.memories || { categories: [], entities: [], relations: [], events: [], world: [], foreshadowing: [], items: [] }
+  const legacy = (mem.items ?? []).map((item: any, legacyIndex: number) => ({
     key: item.key,
     category: item.category,
     content: item.content,
@@ -328,7 +348,7 @@ const memoryDisplayItems = computed<MemoryDisplayItem[]>(() => {
     source: 'legacy' as const,
     legacyIndex
   }))
-  const entities = projectStore.memories.entities.map((item: any) => ({
+  const entities = (mem.entities ?? []).map((item: any) => ({
     key: item.name || item.id,
     category: '实体',
     content: [item.description, item.status && `状态：${item.status}`, item.notes].filter(Boolean).join('\n'),
@@ -338,7 +358,7 @@ const memoryDisplayItems = computed<MemoryDisplayItem[]>(() => {
     entity: item,
     record: item
   }))
-  const relations = projectStore.memories.relations.map((item: any) => ({
+  const relations = (mem.relations ?? []).map((item: any) => ({
     key: item.id,
     category: '关系',
     content: [item.type, item.detail].filter(Boolean).join('：'),
@@ -348,7 +368,7 @@ const memoryDisplayItems = computed<MemoryDisplayItem[]>(() => {
     relation: item,
     record: item
   }))
-  const events = projectStore.memories.events.map((item: any) => ({
+  const events = (mem.events ?? []).map((item: any) => ({
     key: item.title || item.id,
     category: '事件',
     content: item.summary || '',
@@ -358,7 +378,7 @@ const memoryDisplayItems = computed<MemoryDisplayItem[]>(() => {
     event: item,
     record: item
   }))
-  const world = projectStore.memories.world.map((item: any) => ({
+  const world = (mem.world ?? []).map((item: any) => ({
     key: item.name || item.id,
     category: '世界观',
     content: item.description || '',
@@ -368,7 +388,7 @@ const memoryDisplayItems = computed<MemoryDisplayItem[]>(() => {
     world: item,
     record: item
   }))
-  const foreshadowing = projectStore.memories.foreshadowing.map((item: any) => ({
+  const foreshadowing = (mem.foreshadowing ?? []).map((item: any) => ({
     key: item.title || item.id,
     category: '伏笔',
     content: item.description || '',
@@ -412,17 +432,17 @@ function recordOf(item: MemoryDisplayItem) {
 }
 
 const memoryStats = computed(() => {
-  const memories = projectStore.memories
+  const memories = projectStore.memories || { categories: [], entities: [], relations: [], events: [], world: [], foreshadowing: [], items: [], meta: { extractionCount: 0 } }
   const pending = [memories.entities, memories.relations, memories.events, memories.world, memories.foreshadowing]
-    .flat().filter((item: any) => item.factStatus === 'pending').length
+    .flat().filter((item: any) => item?.factStatus === 'pending').length
   return [
-    { label: '实体', value: memories.entities.length, category: '实体', status: 'all' as const },
-    { label: '关系', value: memories.relations.length, category: '关系', status: 'all' as const },
-    { label: '事件', value: memories.events.length, category: '事件', status: 'all' as const },
-    { label: '世界观', value: memories.world.length, category: '世界观', status: 'all' as const },
-    { label: '伏笔', value: memories.foreshadowing.length, category: '伏笔', status: 'all' as const },
+    { label: '实体', value: memories.entities?.length ?? 0, category: '实体', status: 'all' as const },
+    { label: '关系', value: memories.relations?.length ?? 0, category: '关系', status: 'all' as const },
+    { label: '事件', value: memories.events?.length ?? 0, category: '事件', status: 'all' as const },
+    { label: '世界观', value: memories.world?.length ?? 0, category: '世界观', status: 'all' as const },
+    { label: '伏笔', value: memories.foreshadowing?.length ?? 0, category: '伏笔', status: 'all' as const },
     { label: '待确认', value: pending, category: 'all', status: 'pending' as const },
-    { label: '抽取次数', value: memories.meta.extractionCount, category: 'all', status: 'all' as const }
+    { label: '抽取次数', value: memories.meta?.extractionCount ?? 0, category: 'all', status: 'all' as const }
   ]
 })
 
@@ -431,7 +451,7 @@ function applyStatFilter(stat: { category: string; status: string }) {
   statusFilter.value = stat.status as typeof statusFilter.value
 }
 
-const blacklistedEntities = computed(() => projectStore.memories.entities.filter(entity => projectStore.isBlacklisted(entity.id)))
+const blacklistedEntities = computed(() => (projectStore.memories?.entities ?? []).filter(entity => projectStore.isBlacklisted(entity.id)))
 
 function toggleBlacklist(entityId: string) {
   if (projectStore.isBlacklisted(entityId)) projectStore.removeFromBlacklist(entityId)
@@ -439,7 +459,7 @@ function toggleBlacklist(entityId: string) {
 }
 
 const mergeSuggestions = computed(() => {
-  const entities = projectStore.memories.entities.filter(entity => !projectStore.isBlacklisted(entity.id))
+  const entities = (projectStore.memories?.entities ?? []).filter(entity => !projectStore.isBlacklisted(entity.id))
   const result: Array<{ source: import('../../types/memory').MemoryEntity; target: import('../../types/memory').MemoryEntity; reason: string }> = []
   for (let index = 0; index < entities.length; index++) {
     for (let next = index + 1; next < entities.length; next++) {
@@ -511,7 +531,7 @@ function batchRejectSelected() {
 function showForm(idx: number) {
   editingIdx.value = idx
   if (idx >= 0) {
-    const item = projectStore.memories.items[idx]
+    const item = projectStore.memories?.items?.[idx]
     formData.value = { key: item.key, category: item.category, content: item.content }
   } else {
     formData.value = { key: '', category: memoryCategories.value[0] || '', content: '' }
@@ -604,11 +624,11 @@ const editDialogFieldSets: Record<EditableKind, EditDialogField[]> = {
 }
 
 function findEditable(kind: EditableKind, id: string): EditableRecord | undefined {
-  if (kind === 'entity') return projectStore.memories.entities.find(item => item.id === id)
-  if (kind === 'relation') return projectStore.memories.relations.find(item => item.id === id)
-  if (kind === 'event') return projectStore.memories.events.find(item => item.id === id)
-  if (kind === 'world') return projectStore.memories.world.find(item => item.id === id)
-  return projectStore.memories.foreshadowing.find(item => item.id === id)
+  if (kind === 'entity') return (projectStore.memories?.entities ?? []).find(item => item.id === id)
+  if (kind === 'relation') return (projectStore.memories?.relations ?? []).find(item => item.id === id)
+  if (kind === 'event') return (projectStore.memories?.events ?? []).find(item => item.id === id)
+  if (kind === 'world') return (projectStore.memories?.world ?? []).find(item => item.id === id)
+  return (projectStore.memories?.foreshadowing ?? []).find(item => item.id === id)
 }
 
 function openEditDialog(kind: EditableKind, id: string) {
@@ -675,8 +695,8 @@ function editEntity(id: string) {
 }
 
 function createRelation(payload: { sourceId: string; targetId: string }) {
-  const source = projectStore.memories.entities.find(entity => entity.id === payload.sourceId)
-  const target = projectStore.memories.entities.find(entity => entity.id === payload.targetId)
+  const source = (projectStore.memories?.entities ?? []).find(entity => entity.id === payload.sourceId)
+  const target = (projectStore.memories?.entities ?? []).find(entity => entity.id === payload.targetId)
   if (!source || !target) return
   openEditDialog('relation', projectStore.addRelation({
     sourceId: source.id,
@@ -771,7 +791,7 @@ async function rollbackHistoryByChapter(chapterId: string, chapterIndex?: number
   void appConfirm.alert(ok ? '记忆已按章节回滚' : '未找到该章节的回滚版本')
 }
 
-const profileExportEntities = computed(() => projectStore.memories.entities)
+const profileExportEntities = computed(() => projectStore.memories?.entities ?? [])
 const memoryHistory = computed(() => projectStore.getMemoryChangeHistory())
 
 function memoryExportContext(): MemoryExportContext {
@@ -795,7 +815,7 @@ async function saveExportFile(fileName: string, json: string, label: string) {
 }
 
 function exportCharacterProfileUI() {
-  if (projectStore.memories.entities.length === 0) {
+  if ((projectStore.memories?.entities?.length ?? 0) === 0) {
     void appConfirm.alert('暂无可导出的实体')
     return
   }
@@ -803,7 +823,7 @@ function exportCharacterProfileUI() {
 }
 
 async function exportCharacterProfileEntity(entityId: string) {
-  const entity = projectStore.memories.entities.find(item => item.id === entityId)
+  const entity = (projectStore.memories?.entities ?? []).find(item => item.id === entityId)
   if (!entity) {
     profileExportVisible.value = false
     void appConfirm.alert('未找到对应实体数据')
@@ -881,7 +901,7 @@ async function importCharacterCard() {
 }
 
 async function exportEntityCard(item: any) {
-  const entity = projectStore.memories.entities.find((e: any) => e.name === item.key || e.id === item.key)
+  const entity = (projectStore.memories?.entities ?? []).find((e: any) => e.name === item.key || e.id === item.key)
   if (!entity) {
     void appConfirm.alert('未找到对应实体数据')
     return
@@ -905,8 +925,8 @@ function findChapter(chapterId: string) {
 
 function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
   const chapterId = payload.kind === 'event'
-    ? projectStore.memories.events.find(item => item.id === payload.id)?.chapterId
-    : projectStore.memories.entities.find(item => item.id === payload.id)?.evidence?.[0]?.chapterId
+    ? (projectStore.memories?.events ?? []).find(item => item.id === payload.id)?.chapterId
+    : (projectStore.memories?.entities ?? []).find(item => item.id === payload.id)?.evidence?.[0]?.chapterId
   if (!chapterId) {
     void appConfirm.alert('该记忆暂无对应正文来源')
     return

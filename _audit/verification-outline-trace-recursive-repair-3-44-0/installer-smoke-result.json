@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "version": "3.44.0",
+  "installer": "D:\\codex\\novel-workshop-vue3\\dist\\神意助手-Setup-3.44.0.exe",
+  "installedExe": "D:\\codex\\novel-workshop-vue3\\_data\\installer-3-44-0-install\\神意助手.exe",
+  "views": [
+    "主页",
+    "设置-API",
+    "设置-技能",
+    "设置-智能体",
+    "大纲工作台"
+  ],
+  "screenshots": [
+    "01-installer-home.png",
+    "06-installer-outline-workspace.png",
+    "设置-API.png",
+    "设置-技能.png",
+    "设置-智能体.png"
+  ],
+  "screenshotHashes": {
+    "01-installer-home.png": "49c91d14aa10ad0ccc48e7175fab0a721317d857bdb49b3dd579cebb84513eef",
+    "06-installer-outline-workspace.png": "e444839817ee3f668ee1602e1c7ad06bc4c8e0da12f2a9872a5172085881b3c3"
+  },
+  "consoleErrors": []
+}

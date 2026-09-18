@@ -43,6 +43,12 @@ import {
   type NormalizedToolCall,
   type ProviderToolMessage,
 } from './providerTools'
+import {
+  buildEditorWriteProtocolPrompt,
+  parseEditorWriteProtocol,
+} from './editorEditProtocol'
+import type { DialogueIntent } from './dialogueFoundation'
+import { extractJsonCandidates } from './jsonExtraction'
 
 // ── Types (carried from Step 2 interface) ──────────────────────────
 
@@ -80,14 +86,37 @@ export interface CallAiParams {
   model?: string
   temperature?: number
   maxTokens?: number
+  /** Protocol-level request control for providers whose thinking consumes the output budget. */
+  reasoning?: {
+    mode: 'off'
+  }
+  /** Marks a request as a deliberate validity retry; recorded in diagnostics and run traces. */
+  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
   jsonMode?: boolean
   stream?: boolean
   signal?: AbortSignal
+  /** User cancellation; kept separate from logical deadline signals such as a supervisor timeout. */
+  cancelSignal?: AbortSignal
   tools?: AgentToolDefinition[]
   toolPolicy?: {
     maxToolIterations?: number
-    maxWriteProposals?: number
+    intent?: DialogueIntent
     onCompatibilityMode?: (reason: string) => void
+    onConvergenceStart?: () => void
+    onToolWarning?: (message: string) => void
+    onPermissionDenied?: (event: {
+      toolName: string
+      policy: 'read' | 'write'
+      intent?: DialogueIntent
+      writeMode: 'direct'
+      reason: string
+      durationMs: number
+    }) => void
+    onRepeatedWriteBlocked?: (event: {
+      toolName: string
+      input: unknown
+      repeatCount: number
+    }) => void
     onToolStart?: (event: {
       toolName: string
       policy: 'read' | 'write'
@@ -105,19 +134,53 @@ export interface CallAiParams {
   }
   timeoutMs?: number
   retry?: boolean
+  /** @internal Used by tool-loop and downgrade wrappers to classify physical requests. */
+  physicalPhase?: PhysicalCallEvent['phase']
+  /** @internal Wraps the caller's onChunk to capture per-request stream deltas. */
+  onPhysicalCall?: (event: PhysicalCallEvent) => void
   meta?: {
     source?: string
+    projectId?: string
+    workspace?: 'main' | 'outline'
+    sessionId?: string
     targetId?: string
+    readableTargets?: string[]
     step?: number
     skillId?: string
     agentId?: string
+    /** Eval case id for with/baseline grading runs. */
+    caseId?: string
     ctxTurns?: number
   }
+  /** Stream callback contract: receives only the newly emitted text for this chunk. */
   onChunk?: (text: string) => void
+  /** Stream callback contract: receives only the newly emitted reasoning text for this chunk. */
   onReasoning?: (text: string) => void
   onUsage?: (usage: any) => void
   onProgress?: (percent: number, label: string) => void
   /** @internal Keep the legacy public path clean; P6 callers receive a typed helper instead. */
+}
+
+export interface PhysicalCallEvent {
+  /** Stable identity for one physical network request; running/finish records use the same value. */
+  physicalCallId?: string
+  phase: 'normal' | 'tool_iteration' | 'tool_convergence' | 'downgrade_initial' | 'downgrade_retry' | 'continuation' | 'retry' | 'heartbeat_retry'
+  status: 'running' | 'success' | 'failed' | 'canceled'
+  attempt: number
+  durationMs: number
+  requestMessages: CallAiParams['messages']
+  responseText: string
+  streamText: string
+  reasoningText: string
+  finishReason?: string
+  usage?: any
+  error?: string
+  toolsEnabled: boolean
+  toolsDowngraded: boolean
+  downgradeReason?: string
+  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+  /** Effective max_tokens after overrides, provider defaults, or a 400 downgrade. */
+  maxTokens?: number
 }
 
 export interface CallAiResult {
@@ -130,10 +193,17 @@ export interface CallAiResult {
   finishReason?: string
   toolCalls?: NormalizedToolCall[]
   toolResults?: Array<{ call: NormalizedToolCall; result: ToolResult }>
+  /** Initial request plus only the messages appended in later native-tool rounds. */
+  toolRequestDeltas?: CallAiParams['messages']
   /** Present when the provider does not support native tools and the JSON protocol path was used. */
   compatibilityMode?: 'json-protocol'
+  /** Present when a compatibility-mode response executed editor.write through the unified tool. */
+  compatibilityWrite?: boolean
   /** Present when a provider with declared native-tool support rejected tools at request time. */
   toolsDowngraded?: 'json-protocol'
+  retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+  /** Effective max_tokens after overrides, provider defaults, or a 400 downgrade. */
+  maxTokens?: number
   /** @internal Raw provider payload; needed to continue native tool-call loops. */
   raw?: any
 }
@@ -179,6 +249,294 @@ function withTableOutputGuideline(
   return [{ role: 'system', content: TABLE_OUTPUT_GUIDELINE }, ...messages]
 }
 
+function withEditorWriteProtocol(
+  messages: CallAiParams['messages'],
+): CallAiParams['messages'] {
+  const prompt = buildEditorWriteProtocolPrompt()
+  const systemIndex = messages.findIndex(message => message.role === 'system')
+  if (systemIndex >= 0) {
+    return messages.map((message, index) => index === systemIndex
+      ? { ...message, content: `${message.content}\n\n${prompt}` }
+      : message
+    )
+  }
+  return [{ role: 'system', content: prompt }, ...messages]
+}
+
+function hasEditorWriteTool(params: CallAiParams): boolean {
+  return params.tools?.some(tool => tool.name === 'editor.write') ?? false
+}
+
+function stableToolSignature(value: unknown): string {
+  const sortValue = (item: unknown): unknown => {
+    if (Array.isArray(item)) return item.map(sortValue)
+    if (item && typeof item === 'object') {
+      return Object.keys(item as Record<string, unknown>)
+        .sort()
+        .reduce((result, key) => {
+          result[key] = sortValue((item as Record<string, unknown>)[key])
+          return result
+        }, {} as Record<string, unknown>)
+    }
+    return item
+  }
+  try {
+    return JSON.stringify(sortValue(value))
+  } catch {
+    return String(value)
+  }
+}
+
+function createRepeatedWriteGuard(
+  policy: CallAiParams['toolPolicy'],
+) {
+  const threshold = 3
+  let lastSignature = ''
+  let repeatCount = 0
+  const shouldBlock = (input: unknown, toolName = 'editor.write'): boolean => {
+    const signature = stableToolSignature(input)
+    if (signature !== lastSignature) {
+      lastSignature = signature
+      repeatCount = 1
+      return false
+    }
+    repeatCount += 1
+    if (repeatCount < threshold) return false
+    policy?.onRepeatedWriteBlocked?.({
+      toolName,
+      input,
+      repeatCount,
+    })
+    lastSignature = ''
+    repeatCount = 0
+    return true
+  }
+  const record = (input: unknown, ok: boolean): void => {
+    if (ok) return
+    lastSignature = ''
+    repeatCount = 0
+  }
+  return { shouldBlock, record }
+}
+
+type RepeatedWriteGuard = ReturnType<typeof createRepeatedWriteGuard>
+
+function getCompatibilityWriteGuard(
+  guards: Map<string, RepeatedWriteGuard>,
+  params: CallAiParams,
+): RepeatedWriteGuard {
+  const scope = [
+    params.meta?.projectId || params.meta?.source || 'unknown-project',
+    params.meta?.workspace || 'unknown-workspace',
+    params.meta?.targetId || 'unknown-target',
+    params.meta?.sessionId || 'unknown-session',
+  ].join('::')
+  let guard = guards.get(scope)
+  if (!guard) {
+    if (guards.size >= 100) {
+      const oldestScope = guards.keys().next().value
+      if (oldestScope !== undefined) guards.delete(oldestScope)
+    }
+    guard = createRepeatedWriteGuard(params.toolPolicy)
+    guards.set(scope, guard)
+  }
+  else if (guards.delete(scope)) {
+    guards.set(scope, guard)
+  }
+  return guard
+}
+
+function evaluateWritePermission(
+  params: CallAiParams,
+  tool: AgentToolDefinition,
+): ToolResult | null {
+  if (tool.policy !== 'write') return null
+  const policy = params.toolPolicy
+  if (!policy?.intent) {
+    return {
+      ok: false,
+      error: {
+        code: 'permission_denied',
+        message: '编辑器写入请求缺少意图上下文，已拒绝执行',
+      },
+    }
+  }
+  if (policy.intent !== 'edit' && policy.intent !== 'generate') {
+    return {
+      ok: false,
+      error: {
+        code: 'permission_denied',
+        message: `当前意图 ${policy.intent} 不允许编辑器写入`,
+      },
+    }
+  }
+  return null
+}
+
+async function executeCompatibilityEditorWrite(
+  response: CallAiResult,
+  params: CallAiParams,
+  logger: DiagnosticLogLike | null,
+  providerId: string,
+  model: string,
+  iteration = 1,
+  guardRegistry?: Map<string, RepeatedWriteGuard>
+): Promise<{ call: NormalizedToolCall; result: ToolResult } | null> {
+  const writeTool = params.tools?.find(tool => tool.name === 'editor.write')
+  if (!writeTool) return null
+  const request = parseEditorWriteProtocol(response.text || '')
+  if (!request) return null
+
+  const input = {
+    commands: request.commands,
+    reveal: request.reveal,
+    reason: request.reason,
+  }
+  const call: NormalizedToolCall = {
+    id: `compatibility-write-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    name: writeTool.name,
+    input,
+  }
+  const started = Date.now()
+  const permissionError = evaluateWritePermission(params, writeTool)
+  if (permissionError) {
+    params.toolPolicy?.onToolStart?.({
+      toolName: writeTool.name,
+      policy: writeTool.policy,
+      iteration,
+      input,
+    })
+    params.toolPolicy?.onPermissionDenied?.({
+      toolName: writeTool.name,
+      policy: writeTool.policy,
+      intent: params.toolPolicy?.intent,
+      writeMode: 'direct',
+      reason: permissionError.error?.message || '编辑器写入权限不足',
+      durationMs: Date.now() - started,
+    })
+    logToolRequest(logger, {
+      purpose: params.purpose,
+      providerId,
+      model,
+      toolName: writeTool.name,
+      iteration,
+      input,
+      result: permissionError,
+      durationMs: Date.now() - started,
+      toolCapability: 'json_protocol',
+    })
+    params.toolPolicy?.onToolCall?.({
+      toolName: writeTool.name,
+      policy: writeTool.policy,
+      iteration,
+      input,
+      result: permissionError,
+      durationMs: Date.now() - started,
+    })
+    return {
+      call,
+      result: permissionError,
+    }
+  }
+  const repeatedWriteGuard = guardRegistry
+    ? getCompatibilityWriteGuard(guardRegistry, params)
+    : createRepeatedWriteGuard(params.toolPolicy)
+  if (repeatedWriteGuard.shouldBlock(input, writeTool.name)) {
+    const result: ToolResult = {
+      ok: false,
+      error: {
+        code: 'duplicate_write_blocked',
+        message: '检测到连续 3 次完全相同的编辑器写入请求，本次重复写入已拦截。请不要重复提交同一批修改，基于已写入结果输出总结或调整参数。',
+      },
+    }
+    params.toolPolicy?.onToolStart?.({
+      toolName: writeTool.name,
+      policy: writeTool.policy,
+      iteration,
+      input,
+    })
+    params.toolPolicy?.onToolCall?.({
+      toolName: writeTool.name,
+      policy: writeTool.policy,
+      iteration,
+      input,
+      result,
+      durationMs: Date.now() - started,
+    })
+    logToolRequest(logger, {
+      purpose: params.purpose,
+      providerId,
+      model,
+      toolName: writeTool.name,
+      iteration,
+      input,
+      result,
+      durationMs: Date.now() - started,
+      toolCapability: 'json_protocol',
+    })
+    return { call, result }
+  }
+  const context = {
+    projectId: params.meta?.projectId || params.meta?.source || 'unknown-project',
+    workspace: params.meta?.workspace || 'main',
+    targetId: params.meta?.targetId || 'unknown-target',
+    readableTargets: params.meta?.readableTargets || (params.meta?.targetId ? [params.meta.targetId] : []),
+    writableTarget: params.meta?.targetId || 'unknown-target',
+    sessionId: params.meta?.sessionId || params.meta?.source || 'unknown-session',
+    iteration,
+    abortSignal: params.signal,
+  }
+  const durationMs = Date.now() - started
+  params.toolPolicy?.onToolStart?.({
+    toolName: writeTool.name,
+    policy: writeTool.policy,
+    iteration,
+    input,
+  })
+  const result = await writeTool.execute(input, context)
+  const actualDurationMs = Date.now() - started
+  repeatedWriteGuard.record(input, result.ok)
+  params.onPhysicalCall?.({
+    phase: 'tool_iteration',
+    status: result.ok ? 'success' : 'failed',
+    attempt: 1,
+    durationMs,
+    requestMessages: [{
+      role: 'tool',
+      content: JSON.stringify(input),
+      toolCallId: call.id,
+      toolName: call.name,
+    }],
+    responseText: JSON.stringify({ ok: result.ok, pending: true }),
+    streamText: '',
+    reasoningText: '',
+    toolsEnabled: false,
+    toolsDowngraded: true,
+    downgradeReason: 'compatibility_write',
+    error: result.ok ? undefined : (result.error?.message || '兼容模式编辑器写入失败'),
+  })
+  params.toolPolicy?.onToolCall?.({
+    toolName: writeTool.name,
+    policy: writeTool.policy,
+    iteration,
+    input,
+    result,
+    durationMs: actualDurationMs,
+  })
+  logToolRequest(logger, {
+    purpose: params.purpose,
+    providerId,
+    model,
+    toolName: writeTool.name,
+    iteration,
+    input,
+    result,
+    durationMs: actualDurationMs,
+    toolCapability: 'json_protocol',
+  })
+  return { call, result }
+}
+
 
 // ── Thinking-tag filter ─────────────────────────────────────────────
 
@@ -194,12 +552,185 @@ export function filterThinkingTags(text: string): string {
   return out
 }
 
+const THINKING_TAG_NAMES = ['thinking', 'reasoning', 'think'] as const
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+const THINKING_OPEN_RES = THINKING_TAG_NAMES.map(
+  name => new RegExp(`<${escapeRegExp(name)}>`, 'i'),
+)
+const THINKING_CLOSE_RES = new Map(
+  THINKING_TAG_NAMES.map(name => [name, new RegExp(`</${escapeRegExp(name)}>`, 'i')] as const),
+)
+
+function potentialTagPrefixLength(text: string, patterns: RegExp[]): number {
+  const start = text.lastIndexOf('<')
+  if (start < 0) return 0
+  const fragment = text.slice(start).toLowerCase()
+  const possible = patterns.some(pattern => {
+    const source = pattern.source.toLowerCase()
+    return source.startsWith(fragment) && fragment.length < source.length
+  })
+  return possible ? text.length - start : 0
+}
+
+export interface ThinkingTagStreamFilter {
+  push(delta: string): string
+  flush(): string
+}
+
+export function createThinkingTagStreamFilter(): ThinkingTagStreamFilter {
+  let pending = ''
+  let activeTag: (typeof THINKING_TAG_NAMES)[number] | null = null
+
+  function emitAvailable(): string {
+    if (activeTag) {
+      const closeRe = THINKING_CLOSE_RES.get(activeTag)!
+      const match = closeRe.exec(pending)
+      if (!match) {
+        const hold = potentialTagPrefixLength(pending, [closeRe])
+        if (hold <= 0) return ''
+        const emitted = pending.slice(0, -hold)
+        pending = pending.slice(-hold)
+        return emitted
+      }
+      pending = pending.slice(match.index + match[0].length)
+      activeTag = null
+      return emitAvailable()
+    }
+
+    let earliest: { index: number; name: (typeof THINKING_TAG_NAMES)[number]; length: number } | null = null
+    for (let i = 0; i < THINKING_TAG_NAMES.length; i++) {
+      const match = THINKING_OPEN_RES[i].exec(pending)
+      if (match && (!earliest || match.index < earliest.index)) {
+        earliest = { index: match.index, name: THINKING_TAG_NAMES[i], length: match[0].length }
+      }
+    }
+    if (earliest) {
+      const emitted = pending.slice(0, earliest.index)
+      pending = pending.slice(earliest.index + earliest.length)
+      activeTag = earliest.name
+      return emitted + emitAvailable()
+    }
+
+    const hold = potentialTagPrefixLength(pending, THINKING_OPEN_RES)
+    if (hold <= 0) {
+      const emitted = pending
+      pending = ''
+      return emitted
+    }
+    const emitted = pending.slice(0, -hold)
+    pending = pending.slice(-hold)
+    return emitted
+  }
+
+  return {
+    push(delta: string) {
+      if (!delta) return ''
+      pending += delta
+      return emitAvailable()
+    },
+    flush() {
+      const emitted = pending
+      pending = ''
+      activeTag = null
+      return emitted
+    },
+  }
+}
+
 // ── SSE Stream Parser ──────────────────────────────────────────────
 
 interface StreamCallbacks {
   onChunk?: (text: string) => void
   onReasoning?: (text: string) => void
   onUsage?: (usage: any) => void
+}
+
+interface StreamToolCallState {
+  openAIToolCalls: Array<{ id?: string; type: 'function'; function: { name: string; arguments: string } }>
+  anthropicBlocks: Map<number, { id?: string; name?: string; json: string }>
+  anthropicContent: Array<{ type: 'tool_use'; id: string; name: string; input: unknown }>
+  geminiParts: Array<{ functionCall: { name: string; args: unknown } }>
+}
+
+function createStreamToolCallState(): StreamToolCallState {
+  return {
+    openAIToolCalls: [],
+    anthropicBlocks: new Map(),
+    anthropicContent: [],
+    geminiParts: [],
+  }
+}
+
+function collectStreamToolCalls(json: any, protocolName: string, state: StreamToolCallState): void {
+  if (protocolName === 'gemini') {
+    const parts = json?.candidates?.[0]?.content?.parts
+    if (!Array.isArray(parts)) return
+    for (const part of parts) {
+      if (!part?.functionCall?.name) continue
+      state.geminiParts.push({ functionCall: { name: String(part.functionCall.name), args: part.functionCall.args ?? {} } })
+    }
+    return
+  }
+
+  if (protocolName === 'anthropic') {
+    if (json?.type === 'content_block_start' && json?.content_block?.type === 'tool_use') {
+      state.anthropicBlocks.set(Number(json.index ?? 0), {
+        id: json.content_block.id ? String(json.content_block.id) : undefined,
+        name: json.content_block.name ? String(json.content_block.name) : undefined,
+        json: '',
+      })
+    }
+    if (json?.type === 'content_block_delta' && json?.delta?.type === 'input_json_delta') {
+      const block = state.anthropicBlocks.get(Number(json.index ?? 0))
+      if (block) block.json += String(json.delta.partial_json || '')
+    }
+    if (json?.type === 'content_block_stop') {
+      const index = Number(json.index ?? 0)
+      const block = state.anthropicBlocks.get(index)
+      if (block) {
+        let input: unknown = {}
+        try { input = block.json ? JSON.parse(block.json) : {} } catch { input = {} }
+        state.anthropicContent.push({
+          type: 'tool_use',
+          id: block.id || `anthropic-tool-${index}`,
+          name: block.name || '',
+          input,
+        })
+        state.anthropicBlocks.delete(index)
+      }
+    }
+    return
+  }
+
+  const deltas = json?.choices?.[0]?.delta?.tool_calls
+  if (!Array.isArray(deltas)) return
+  for (const delta of deltas) {
+    const index = Number.isFinite(delta?.index) ? Number(delta.index) : state.openAIToolCalls.length
+    while (state.openAIToolCalls.length <= index) {
+      state.openAIToolCalls.push({ id: '', type: 'function', function: { name: '', arguments: '' } })
+    }
+    const target = state.openAIToolCalls[index]
+    if (delta?.id) target.id = String(delta.id)
+    if (delta?.function?.name) target.function.name = String(delta.function.name)
+    if (typeof delta?.function?.arguments === 'string') target.function.arguments += delta.function.arguments
+  }
+}
+
+function streamToolCallRaw(protocolName: string, state: StreamToolCallState): any | undefined {
+  if (protocolName === 'gemini') {
+    if (state.geminiParts.length === 0) return undefined
+    return { candidates: [{ content: { parts: state.geminiParts } }] }
+  }
+  if (protocolName === 'anthropic') {
+    if (state.anthropicContent.length === 0) return undefined
+    return { content: state.anthropicContent }
+  }
+  if (state.openAIToolCalls.length === 0) return undefined
+  return { choices: [{ message: { tool_calls: state.openAIToolCalls } }] }
 }
 
 /**
@@ -210,12 +741,26 @@ async function parseSSEStream(
   reader: ReadableStreamDefaultReader<Uint8Array>,
   cb: StreamCallbacks,
   protocolName: string = 'openai-compatible'
-): Promise<{ text: string; reasoning: string; finishReason?: string }> {
+): Promise<{ text: string; reasoning: string; finishReason?: string; raw?: any }> {
   const decoder = new TextDecoder()
   let fullText = ''
   let reasoningText = ''
   let finishReason: string | undefined
   let buffer = ''
+  const chunkFilter = createThinkingTagStreamFilter()
+  const reasoningFilter = createThinkingTagStreamFilter()
+  const toolCallState = createStreamToolCallState()
+  const emitChunk = (delta: string) => {
+    const emitted = chunkFilter.push(delta)
+    if (emitted) cb.onChunk?.(emitted)
+  }
+  const emitReasoning = (delta: string) => {
+    const emitted = reasoningFilter.push(delta)
+    if (emitted) {
+      reasoningText += emitted
+      cb.onReasoning?.(emitted)
+    }
+  }
 
   while (true) {
     const chunk = await reader.read()
@@ -230,11 +775,12 @@ async function parseSSEStream(
       if (isSSEDone(payload)) continue
       try {
         const json = JSON.parse(payload)
+        collectStreamToolCalls(json, protocolName, toolCallState)
         if (protocolName === 'gemini') {
           const text = (json?.candidates?.[0]?.content?.parts || []).map((part: any) => part?.text || '').join('')
           if (text) {
             fullText += text
-            cb.onChunk?.(filterThinkingTags(fullText))
+            emitChunk(text)
           }
           finishReason = json?.candidates?.[0]?.finishReason || finishReason
           if (json?.usageMetadata && cb.onUsage) cb.onUsage(json.usageMetadata)
@@ -243,12 +789,11 @@ async function parseSSEStream(
             const text = json?.delta?.text || ''
             const thinking = json?.delta?.thinking || ''
             if (thinking) {
-              reasoningText += thinking
-              cb.onReasoning?.(filterThinkingTags(reasoningText))
+              emitReasoning(thinking)
             }
             if (text) {
               fullText += text
-              cb.onChunk?.(filterThinkingTags(fullText))
+              emitChunk(text)
             }
           }
           if (json?.type === 'message_delta') {
@@ -259,20 +804,25 @@ async function parseSSEStream(
           const delta = extractStreamDelta(json)
           finishReason = extractFinishReason(json) || finishReason
           if (delta.reasoning) {
-            reasoningText += delta.reasoning
-            cb.onReasoning?.(filterThinkingTags(reasoningText))
+            emitReasoning(delta.reasoning)
           }
           if (delta.content) {
             fullText += delta.content
-            cb.onChunk?.(filterThinkingTags(fullText))
+            emitChunk(delta.content)
           }
           if (json.usage && cb.onUsage) cb.onUsage(json.usage)
         }
       } catch { /* skip non-JSON lines */ }
     }
   }
-  if (!fullText && reasoningText) fullText = reasoningText
-  return { text: fullText, reasoning: reasoningText, finishReason }
+  const finalChunk = chunkFilter.flush()
+  if (finalChunk) cb.onChunk?.(finalChunk)
+  const finalReasoning = reasoningFilter.flush()
+  if (finalReasoning) {
+    reasoningText += finalReasoning
+    cb.onReasoning?.(finalReasoning)
+  }
+  return { text: fullText, reasoning: reasoningText, finishReason, raw: streamToolCallRaw(protocolName, toolCallState) }
 }
 
 // ── JSON Repair ─────────────────────────────────────────────────────
@@ -359,6 +909,8 @@ export interface DiagnosticLogLike {
     providerErrorSummary?: string
     toolCapability?: 'native_tools' | 'json_protocol'
     downgradeReason?: string
+    retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+    maxTokens?: number
   }): void
 }
 
@@ -384,6 +936,8 @@ function logRequest(
     providerErrorSummary?: string
     toolCapability?: 'native_tools' | 'json_protocol'
     downgradeReason?: string
+    retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
+    maxTokens?: number
   }
 ) {
   if (logger) {
@@ -407,6 +961,8 @@ function logRequest(
       providerErrorSummary: params.providerErrorSummary,
       toolCapability: params.toolCapability,
       downgradeReason: params.downgradeReason,
+      retryStrategy: params.retryStrategy,
+      maxTokens: params.maxTokens,
     })
   }
   // Push to DiagLogger for real-time DiagLogPanel display.
@@ -433,6 +989,8 @@ function logRequest(
         providerErrorSummary: params.providerErrorSummary,
         toolCapability: params.toolCapability,
         downgradeReason: params.downgradeReason,
+        retryStrategy: params.retryStrategy,
+        maxTokens: params.maxTokens,
       }
     )
     if (typeof _diag.trackApiCall === 'function') {
@@ -453,6 +1011,7 @@ function logToolRequest(
     input: unknown
     result: ToolResult
     durationMs: number
+    toolCapability?: 'native_tools' | 'json_protocol'
   }
 ) {
   const resultPreview = JSON.stringify(params.result).slice(0, 500)
@@ -469,6 +1028,7 @@ function logToolRequest(
       result: resultPreview,
       duration: params.durationMs,
       status: params.result.ok ? 'success' : 'failed',
+      toolCapability: params.toolCapability,
     })
   }
   const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
@@ -480,13 +1040,31 @@ function logToolRequest(
         purpose: params.purpose,
         model: params.model,
         toolName: params.toolName,
-        toolCapability: 'native_tools',
+        toolCapability: params.toolCapability,
         iteration: params.iteration,
         durationMs: params.durationMs,
         input: params.input,
         result: params.result,
       }
     )
+  }
+}
+
+function parseMaxTokensDowngrade(providerMessage: string, currentMaxTokens: number): { from: number; to: number; reason: string } | null {
+  const message = String(providerMessage || '')
+  const limitPatterns = [
+    /max[_\s-]*tokens?[^\d]{0,80}(\d{1,9})/gi,
+    /(?:maximum|allowed|permitted|上限|最大)[^\d]{0,80}(\d{1,9})/gi,
+  ]
+  const suggested = limitPatterns
+    .flatMap(pattern => Array.from(message.matchAll(pattern)))
+    .map(match => Number(match[1]))
+    .find(value => Number.isFinite(value) && value > 0 && value < currentMaxTokens)
+  if (suggested == null) return null
+  return {
+    from: currentMaxTokens,
+    to: suggested,
+    reason: message.slice(0, 300),
   }
 }
 
@@ -589,14 +1167,21 @@ async function mainNetStream(
   request: { url: string; headers: Record<string, string>; body: Record<string, unknown> },
   callbacks: StreamCallbacks,
   protocolName: string,
-  externalSignal?: AbortSignal
-): Promise<{ text: string; reasoning: string; finishReason?: string }> {
+  externalSignal?: AbortSignal,
+  timeoutMs?: number
+): Promise<{ text: string; reasoning: string; finishReason?: string; raw?: any }> {
   const signalId = 'provider-net-' + Date.now() + '-' + Math.random().toString(36).slice(2)
   const chunkQueue: string[] = []
   let resolveChunk: (() => void) | null = null
   let ended = false
   let streamError: string | null = null
   let canceled = false
+  let fullText = ''
+  let reasoningText = ''
+  let finishReason: string | undefined
+  const chunkFilter = createThinkingTagStreamFilter()
+  const reasoningFilter = createThinkingTagStreamFilter()
+  const toolCallState = createStreamToolCallState()
 
   const offChunk = (window as any).electronAPI.onProviderNetStreamChunk((payload: any) => {
     if (payload.signalId !== signalId) return
@@ -621,6 +1206,30 @@ async function mainNetStream(
     ...request,
     signalId,
   })
+  invoke
+    .then((result: MainNetResult) => {
+      // The stream IPC returns failures without emitting a stream event. Wake
+      // the consumer immediately so HTTP/auth failures do not wait for the
+      // long stream timeout.
+      if (result && result.ok === false) {
+        ended = true
+        if (resolveChunk) {
+          const resolve = resolveChunk
+          resolveChunk = null
+          resolve()
+        }
+      }
+    })
+    .catch((error: unknown) => {
+      streamError = error instanceof Error ? error.message : String(error)
+      ended = true
+      if (resolveChunk) {
+        const resolve = resolveChunk
+        resolveChunk = null
+        resolve()
+      }
+    })
+  const startedAt = Date.now()
 
   const abortHandler = () => {
     ;(window as any).electronAPI.providerNetAbort(signalId)
@@ -629,9 +1238,6 @@ async function mainNetStream(
 
   const decoder = new TextDecoder()
   let buffer = ''
-  let fullText = ''
-  let reasoningText = ''
-  let finishReason: string | undefined
   let sawFirstByte = false
   const protocol = getProviderProtocol(protocolName)
 
@@ -642,6 +1248,9 @@ async function mainNetStream(
           resolveChunk = resolve
           setTimeout(resolve, 100)
         })
+        if (!ended && timeoutMs && Date.now() - startedAt > timeoutMs) {
+          throw new DOMException('The operation was aborted', 'AbortError')
+        }
         continue
       }
       const text = chunkQueue.shift()
@@ -659,20 +1268,28 @@ async function mainNetStream(
         if (isSSEDone(payload)) continue
         try {
           const json = JSON.parse(payload)
+          collectStreamToolCalls(json, protocolName, toolCallState)
           const delta = extractProtocolStreamDelta(json, protocol)
           finishReason = delta.finishReason || finishReason
           if (delta.reasoning) {
-            reasoningText += delta.reasoning
-            callbacks.onReasoning?.(filterThinkingTags(reasoningText))
+            const emitted = reasoningFilter.push(delta.reasoning)
+            if (emitted) {
+              reasoningText += emitted
+              callbacks.onReasoning?.(emitted)
+            }
           }
           if (delta.content) {
             fullText += delta.content
-            callbacks.onChunk?.(filterThinkingTags(fullText))
+            const emitted = chunkFilter.push(delta.content)
+            if (emitted) callbacks.onChunk?.(emitted)
           }
           const usage = protocol.extractUsage(json)
           if (usage && callbacks.onUsage) callbacks.onUsage(usage)
         } catch { /* skip non-JSON lines */ }
       }
+    }
+    if (canceled) {
+      throw new DOMException('The operation was aborted', 'AbortError')
     }
     const invokeResult = await invoke
     if (!invokeResult.ok) {
@@ -686,7 +1303,22 @@ async function mainNetStream(
         providerErrorSummary: invokeResult.providerErrorSummary,
       })
     }
-    return { text: fullText, reasoning: reasoningText, finishReason }
+    if (streamError) {
+      throw new AiServiceErrorImpl({ kind: 'network', message: streamError })
+    }
+    const finalChunk = chunkFilter.flush()
+    if (finalChunk) callbacks.onChunk?.(finalChunk)
+    const finalReasoning = reasoningFilter.flush()
+    if (finalReasoning) {
+      reasoningText += finalReasoning
+      callbacks.onReasoning?.(finalReasoning)
+    }
+    return {
+      text: fullText,
+      reasoning: reasoningText,
+      finishReason,
+      raw: streamToolCallRaw(protocolName, toolCallState),
+    }
   } finally {
     externalSignal?.removeEventListener('abort', abortHandler)
     if (typeof offChunk === 'function') offChunk()
@@ -704,12 +1336,13 @@ export function createAiService(
   logger?: DiagnosticLogLike | null
 ): AiService {
   const log = logger || null
+  const compatibilityWriteGuards = new Map<string, RepeatedWriteGuard>()
 
   async function _rawCall(
     provider: ProviderLike,
     params: CallAiParams,
     timeoutMs: number
-  ): Promise<{ text: string; reasoning: string; usage?: any; finishReason?: string; raw?: any }> {
+  ): Promise<{ text: string; reasoning: string; usage?: any; finishReason?: string; raw?: any; maxTokens?: number }> {
     const model = resolveModel(provider, params.model)
     const providerType = normalizeProviderType(provider.providerType)
     const url = buildProviderChatUrl({
@@ -729,14 +1362,18 @@ export function createAiService(
       const nativeTools = params.tools && params.tools.length > 0 && supportsNativeTools(providerType)
       ? buildProviderTools(providerType, params.tools)
       : undefined
-    const requestParams = nativeTools ? { ...params, stream: false } : params
-    const wantStream = requestParams.stream ?? (params.purpose === 'generate' || params.purpose === 'rewrite')
+    const requestParams = params
+    const wantStream = requestParams.stream ?? (
+      !params.tools?.length &&
+      (params.purpose === 'generate' || params.purpose === 'rewrite')
+    )
     const body = protocol.buildRequestBody({
       model,
       messages: withTableOutputGuideline(params.messages, params.jsonMode === true),
       stream: wantStream,
       temperature,
       maxTokens,
+      reasoning: params.reasoning?.mode === 'off' ? { mode: 'off' } : undefined,
       tools: nativeTools,
     })
     const useMainNet = hasMainNet()
@@ -757,7 +1394,7 @@ export function createAiService(
     if (resp && !resp.ok) throw resp
     if (!wantStream && !resp) throw new Error('网络传输初始化失败')
     if (wantStream) {
-      let result: { text: string; reasoning: string; finishReason?: string }
+      let result: { text: string; reasoning: string; finishReason?: string; raw?: any }
       let streamUsage: any
       if (useMainNet) {
         result = await mainNetStream(
@@ -771,7 +1408,8 @@ export function createAiService(
             },
           },
           providerType,
-          signal
+          signal,
+          timeoutMs
         )
       } else {
         const reader = resp!.body!.getReader()
@@ -789,7 +1427,7 @@ export function createAiService(
         )
       }
       const finishReason = resolveFinishReason(result.finishReason, streamUsage, maxTokens, Boolean(result.text))
-      return { ...result, usage: streamUsage, finishReason }
+      return { ...result, usage: streamUsage, finishReason, raw: result.raw, maxTokens }
     } else {
       const data = await resp!.json()
       const text = protocol.extractText(data)
@@ -798,7 +1436,7 @@ export function createAiService(
       const rawFinishReason = protocol.extractFinishReason(data)
       if (usage && requestParams.onUsage) requestParams.onUsage(usage)
       const finishReason = resolveFinishReason(rawFinishReason, usage, maxTokens, Boolean(text))
-      return { text, reasoning, usage, finishReason, raw: data }
+      return { text, reasoning, usage, finishReason, raw: data, maxTokens }
     }
   }
 
@@ -815,17 +1453,19 @@ export function createAiService(
     const { provider, providerId } = resolveProvider(providerStore, params.purpose)
     const providerType = normalizeProviderType(provider.providerType)
     const compatibleMode = !supportsNativeTools(providerType)
-    const maxWriteProposals = Math.max(1, params.toolPolicy?.maxWriteProposals ?? 1)
     const model = resolveModel(provider, params.model)
     const maxIterations = Math.max(1, params.toolPolicy?.maxToolIterations ?? 6)
     let messages: CallAiParams['messages'] = params.messages.map(message => ({ ...message }))
     const allToolCalls: NormalizedToolCall[] = []
     const allToolResults: Array<{ call: NormalizedToolCall; result: ToolResult }> = []
-    let writeProposals = 0
+    const toolRequestDeltas: CallAiParams['messages'] = []
+    const repeatedWriteGuard = createRepeatedWriteGuard(params.toolPolicy)
+    let consecutiveToolOnlyRounds = 0
+    const zeroTextWarnThreshold = 2
     let lastResult: CallAiResult | null = null
     let lastRawResponse: any = null
+    let lastUsableText = ''
     let hitToolLoopLimit = false
-
     if (compatibleMode) {
       const compatibility: CallAiResult['compatibilityMode'] = 'json-protocol'
       params.toolPolicy?.onCompatibilityMode?.('provider_not_supported')
@@ -855,12 +1495,34 @@ export function createAiService(
       }
       const response = await callAiWithoutTools({
         ...params,
+        messages: hasEditorWriteTool(params)
+          ? withEditorWriteProtocol(params.messages)
+          : params.messages,
+        toolPolicy: {
+          ...params.toolPolicy,
+          onCompatibilityMode: undefined,
+          onToolStart: undefined,
+          onToolCall: undefined,
+          onToolWarning: undefined,
+        },
         tools: undefined,
-        toolPolicy: undefined,
+        physicalPhase: 'downgrade_retry',
       })
+      const compatibilityWrite = await executeCompatibilityEditorWrite(
+        response,
+        params,
+        log,
+        providerId,
+        model,
+        1,
+        compatibilityWriteGuards
+      )
       const compatibilityResponse: CallAiResult = {
         ...response,
         compatibilityMode: compatibility,
+        compatibilityWrite: Boolean(compatibilityWrite?.result.ok),
+        toolCalls: compatibilityWrite ? [compatibilityWrite.call] : [],
+        toolResults: compatibilityWrite ? [{ call: compatibilityWrite.call, result: compatibilityWrite.result }] : [],
         text: response.text || '',
         reasoning: response.reasoning || '',
       }
@@ -870,13 +1532,17 @@ export function createAiService(
     for (let iteration = 1; iteration <= maxIterations; iteration++) {
       const response = await callAiWithoutTools({
         ...params,
-        stream: false,
         messages,
         retry: params.retry,
         jsonMode: false,
+        physicalPhase: iteration === 1 ? 'normal' : 'tool_iteration',
       })
       lastResult = response
       lastRawResponse = response.raw ?? null
+      if (String(response.text || '').trim()) lastUsableText = response.text
+      if (iteration === 1) {
+        toolRequestDeltas.push(...messages.map(message => ({ ...message })))
+      }
 
       const calls = extractProviderToolCallsFromResponse(providerType, response)
       if (calls.length === 0) {
@@ -884,13 +1550,71 @@ export function createAiService(
           ...response,
           toolCalls: allToolCalls,
           toolResults: allToolResults,
+          toolRequestDeltas,
         }
+      }
+      if (!String(response.text || '').trim()) {
+        consecutiveToolOnlyRounds += 1
+        if (consecutiveToolOnlyRounds === zeroTextWarnThreshold) {
+          params.toolPolicy?.onToolWarning?.(`模型连续 ${consecutiveToolOnlyRounds} 轮只调用工具、未输出正文；到达工具上限后将基于已获得的工具结果直接总结回答`)
+        }
+      } else {
+        consecutiveToolOnlyRounds = 0
       }
       const toolResults: Array<{ call: NormalizedToolCall; result: ToolResult }> = []
       for (const call of calls) {
         allToolCalls.push(call)
         const tool = params.tools?.find(item => item.name === call.name)
         if (!tool) {
+          if (
+            params.toolPolicy?.intent &&
+            params.toolPolicy.intent !== 'edit' &&
+            params.toolPolicy.intent !== 'generate' &&
+            /^(editor\.(append|insert|replace|delete|rewrite|write)|editor_edit(_batch)?)$/.test(call.name)
+          ) {
+            const result: ToolResult = {
+              ok: false,
+              error: {
+                code: 'permission_denied',
+                message: `当前意图 ${params.toolPolicy.intent} 不允许编辑器写入`,
+              },
+            }
+            toolResults.push({ call, result })
+            allToolResults.push({ call, result })
+            params.toolPolicy?.onToolStart?.({
+              toolName: call.name,
+              policy: 'write',
+              iteration,
+              input: call.input,
+            })
+            params.toolPolicy?.onPermissionDenied?.({
+              toolName: call.name,
+              policy: 'write',
+              intent: params.toolPolicy.intent,
+              writeMode: 'direct' as const,
+              reason: result.error?.message || '编辑器写入权限不足',
+              durationMs: 0,
+            })
+            params.toolPolicy?.onToolCall?.({
+              toolName: call.name,
+              policy: 'write',
+              iteration,
+              input: call.input,
+              result,
+              durationMs: 0,
+            })
+            logToolRequest(log, {
+              purpose: params.purpose,
+              providerId,
+              model,
+              toolName: call.name,
+              iteration,
+              input: call.input,
+              result,
+              durationMs: 0,
+            })
+            continue
+          }
           const result: ToolResult = { ok: false, error: { code: 'tool_not_found', message: `工具不存在：${call.name}` } }
           toolResults.push({ call, result })
           allToolResults.push({ call, result })
@@ -898,36 +1622,80 @@ export function createAiService(
           params.toolPolicy?.onToolCall?.({ toolName: call.name, policy: 'read', iteration, input: call.input, result, durationMs: 0 })
           continue
         }
-        if (tool.policy === 'write' && writeProposals >= maxWriteProposals) {
+        const permissionError = evaluateWritePermission(params, tool)
+        if (permissionError) {
+          params.toolPolicy?.onToolStart?.({ toolName: tool.name, policy: tool.policy, iteration, input: call.input })
+          params.toolPolicy?.onPermissionDenied?.({
+            toolName: tool.name,
+            policy: tool.policy,
+            intent: params.toolPolicy?.intent,
+            writeMode: 'direct' as const,
+            reason: permissionError.error?.message || '编辑器写入权限不足',
+            durationMs: 0,
+          })
+          toolResults.push({ call, result: permissionError })
+          allToolResults.push({ call, result: permissionError })
+          params.toolPolicy?.onToolCall?.({ toolName: tool.name, policy: tool.policy, iteration, input: call.input, result: permissionError, durationMs: 0 })
+          logToolRequest(log, {
+            purpose: params.purpose,
+            providerId,
+            model,
+            toolName: tool.name,
+            iteration,
+            input: call.input,
+            result: permissionError,
+            durationMs: 0,
+          })
+          continue
+        }
+        if (tool.policy === 'write' && repeatedWriteGuard.shouldBlock(call.input, tool.name)) {
           const result: ToolResult = {
             ok: false,
             error: {
-              code: 'write_proposal_limit',
-              message: `本次任务只允许 ${maxWriteProposals} 个写入提案，请直接结束请求`,
+              code: 'duplicate_write_blocked',
+              message: '检测到连续 3 次完全相同的编辑器写入请求，本次重复写入已拦截。请不要重复提交同一批修改，基于已写入结果输出总结或调整参数。',
             },
           }
           toolResults.push({ call, result })
           allToolResults.push({ call, result })
           params.toolPolicy?.onToolStart?.({ toolName: tool.name, policy: tool.policy, iteration, input: call.input })
           params.toolPolicy?.onToolCall?.({ toolName: tool.name, policy: tool.policy, iteration, input: call.input, result, durationMs: 0 })
+          logToolRequest(log, {
+            purpose: params.purpose,
+            providerId,
+            model,
+            toolName: tool.name,
+            iteration,
+            input: call.input,
+            result,
+            durationMs: 0,
+            toolCapability: 'native_tools',
+          })
           continue
         }
         const started = Date.now()
+        const toolAbortControllers = [params.signal, params.cancelSignal]
+          .filter((sourceSignal): sourceSignal is AbortSignal => Boolean(sourceSignal))
+        const toolAbortController = new AbortController()
+        toolAbortControllers.forEach(sourceSignal => {
+          if (sourceSignal.aborted) toolAbortController.abort(sourceSignal.reason)
+          sourceSignal.addEventListener('abort', () => toolAbortController.abort(sourceSignal.reason), { once: true })
+        })
         params.toolPolicy?.onToolStart?.({ toolName: tool.name, policy: tool.policy, iteration, input: call.input })
         const result = await tool.execute(call.input, {
-          projectId: params.meta?.source || 'unknown-project',
-          workspace: 'main',
-          targetId: params.meta?.targetId || params.meta?.source || 'unknown-target',
-          readableTargets: [],
-          writableTarget: params.meta?.targetId || params.meta?.source || 'unknown-target',
-          sessionId: params.meta?.source || 'unknown-session',
+          projectId: params.meta?.projectId || params.meta?.source || 'unknown-project',
+          workspace: params.meta?.workspace || 'main',
+          targetId: params.meta?.targetId || 'unknown-target',
+          readableTargets: params.meta?.readableTargets || (params.meta?.targetId ? [params.meta.targetId] : []),
+          writableTarget: params.meta?.targetId || 'unknown-target',
+          sessionId: params.meta?.sessionId || params.meta?.source || 'unknown-session',
           iteration,
-          abortSignal: params.signal,
+          abortSignal: toolAbortController.signal,
         })
         const durationMs = Date.now() - started
         toolResults.push({ call, result })
         allToolResults.push({ call, result })
-        if (tool.policy === 'write' && result.ok) writeProposals += 1
+        if (tool.policy === 'write') repeatedWriteGuard.record(call.input, result.ok)
         params.toolPolicy?.onToolCall?.({ toolName: tool.name, policy: tool.policy, iteration, input: call.input, result, durationMs })
         logToolRequest(log, {
           purpose: params.purpose,
@@ -941,13 +1709,75 @@ export function createAiService(
         })
       }
 
+      const previousMessageCount = messages.length
       messages = buildToolResultChatMessages(
         providerType,
         messages,
         lastRawResponse,
         toolResults
       )
+      toolRequestDeltas.push(
+        ...messages.slice(previousMessageCount).map(message => ({ ...message }))
+      )
       if (iteration === maxIterations) hitToolLoopLimit = true
+    }
+
+    if (hitToolLoopLimit && !lastUsableText.trim()) {
+      const convergenceMessages = [
+        ...messages,
+        {
+          role: 'system',
+          content: '工具调用轮次已达上限。停止调用任何工具，基于已获得的工具结果直接输出最终回答；如果信息不足，请明确说明已确认的信息和仍缺失的信息。'
+        }
+      ]
+      toolRequestDeltas.push({ ...convergenceMessages[convergenceMessages.length - 1] })
+      try {
+        params.toolPolicy?.onConvergenceStart?.()
+        const convergenceResponse = await callAiWithoutTools({
+          ...params,
+          messages: convergenceMessages,
+          tools: undefined,
+          toolPolicy: undefined,
+          stream: params.stream ?? false,
+          // The convergence turn is the rescue request after a tool loop. It
+          // starts after N slow tool rounds, so inheriting the caller's total
+          // deadline lets the outer supervisor abort the rescue mid-flight and
+          // reproduce the original "no body" failure.
+          timeoutMs: undefined,
+          signal: params.cancelSignal ?? params.signal,
+          physicalPhase: 'tool_convergence',
+        })
+        if (String(convergenceResponse.text || '').trim()) {
+          return {
+            ...convergenceResponse,
+            toolCalls: allToolCalls,
+            toolResults: allToolResults,
+            toolRequestDeltas,
+            finishReason: 'tool_converged',
+          }
+        }
+      } catch (error) {
+        if ((params.cancelSignal ?? params.signal)?.aborted) throw error
+      }
+      // The convergence request is a last-mile answer, not a new generation.
+      // If it is empty or fails (without user cancellation), return the already
+      // collected tool evidence instead of another empty-body failure.
+      const toolDigest = allToolResults.map(item =>
+        `${item.call.name}: ${JSON.stringify(item.result)}`
+      ).join('\n')
+      params.toolPolicy?.onToolWarning?.('工具调用轮次已达上限，本次返回本地拼接的工具结果摘要')
+      return {
+        text: `本轮 API 未返回完整正文，已到达工具调用上限。以下是本轮已完成的工具结果：\n${toolDigest || '（本轮没有成功取得的工具结果）'}\n\n建议：请基于以上已确认信息缩小问题范围，或分轮继续处理。`,
+        reasoning: '',
+        usage: lastResult?.usage,
+        providerId,
+        model,
+        durationMs: Date.now() - startTime,
+        toolCalls: allToolCalls,
+        toolResults: allToolResults,
+        toolRequestDeltas,
+        finishReason: 'tool_converged_local',
+      }
     }
 
     return {
@@ -959,6 +1789,7 @@ export function createAiService(
       durationMs: Date.now() - startTime,
       toolCalls: allToolCalls,
       toolResults: allToolResults,
+      toolRequestDeltas,
       finishReason: hitToolLoopLimit ? 'tool_loop_limit' : (lastResult?.finishReason || 'tool_loop_limit'),
     }
   }
@@ -976,10 +1807,35 @@ export function createAiService(
       const toolsRejected = requestedTools && (Boolean(error?.providerErrorSummary?.includes('tools unsupported')) || error?.message?.includes('tools unsupported'))
       if (!isClientError || !requestedTools || params.signal?.aborted || !toolsRejected) throw error
 
+      params.onPhysicalCall?.({
+        phase: 'downgrade_initial',
+        status: 'failed',
+        attempt: 1,
+        durationMs: 0,
+        requestMessages: params.messages,
+        responseText: '',
+        streamText: '',
+        reasoningText: '',
+        error: error?.message || String(error),
+        toolsEnabled: true,
+        toolsDowngraded: false,
+      })
       const downgradeParams: CallAiParams = {
         ...params,
+        messages: hasEditorWriteTool(params)
+          ? withEditorWriteProtocol(params.messages)
+          : params.messages,
+        toolPolicy: params.toolPolicy
+          ? {
+            ...params.toolPolicy,
+            onCompatibilityMode: undefined,
+            onToolStart: undefined,
+            onToolCall: undefined,
+            onToolWarning: undefined,
+          }
+          : undefined,
         tools: undefined,
-        toolPolicy: undefined,
+        physicalPhase: 'downgrade_retry',
       }
       const { provider: downgradeProvider, providerId: downgradeProviderId } = resolveProvider(providerStore, params.purpose)
       const downgradeProviderType = normalizeProviderType(downgradeProvider.providerType)
@@ -1011,9 +1867,21 @@ export function createAiService(
       }
       const downgradeReason = `http_${error?.statusCode || 'client_error'}`
       params.toolPolicy?.onCompatibilityMode?.(downgradeReason)
+      const compatibilityWrite = await executeCompatibilityEditorWrite(
+        response,
+        params,
+        log,
+        downgradeProviderId,
+        downgradeModel,
+        1,
+        compatibilityWriteGuards
+      )
       const downgradedResponse: CallAiResult = {
         ...response,
         toolsDowngraded: 'json-protocol',
+        compatibilityWrite: Boolean(compatibilityWrite?.result.ok),
+        toolCalls: compatibilityWrite ? [compatibilityWrite.call] : [],
+        toolResults: compatibilityWrite ? [{ call: compatibilityWrite.call, result: compatibilityWrite.result }] : [],
         text: response.text || '',
         reasoning: response.reasoning || '',
       }
@@ -1033,14 +1901,17 @@ export function createAiService(
 
   async function callAiWithoutTools(params: CallAiParams): Promise<CallAiResult> {
     const startTime = Date.now()
+    const requestedTools = Boolean(params.tools?.length)
     const { provider, providerId } = resolveProvider(providerStore, params.purpose)
-    // Default stream: true for generate/rewrite (long text), false for others (short/JSON)
-    const defaultStream = (params.purpose === 'generate' || params.purpose === 'rewrite')
+    // Default stream: true for generate/rewrite (long text), false for others (short/JSON).
+    // Native tool exchanges use non-streaming JSON because some compatible providers
+    // ignore stream=true and return a plain JSON tool_calls body.
+    const defaultStream = !requestedTools &&
+      (params.purpose === 'generate' || params.purpose === 'rewrite')
     const wantStream = params.stream ?? defaultStream
     const timeoutMs = params.timeoutMs ?? provider.timeoutMs ?? (wantStream ? DEFAULT_STREAM_TIMEOUT : DEFAULT_NON_STREAM_TIMEOUT)
     const doRetry = params.retry !== false
     const maxRetries = doRetry ? MAX_RETRIES : 0
-    const requestedTools = Boolean(params.tools?.length)
     const providerType = normalizeProviderType(provider.providerType)
     const finalUrl = (() => {
       try {
@@ -1060,9 +1931,48 @@ export function createAiService(
     const transport: 'main-process' | 'renderer-fetch' = hasMainNet() ? 'main-process' : 'renderer-fetch'
     let lastErr: any = null
     let lastResp: { text: string; reasoning: string; usage?: any } | null = null
+    let sawStreamOutput = false
+    let streamBuffer = ''
+    let reasoningBuffer = ''
+    const basePhase = params.physicalPhase || 'normal'
+    const effectiveMaxTokens = () => resolveMaxTokens(provider, params.maxTokens)
+    const physicalCallIds = new Map<number, string>()
+    const reportPhysical = (attempt: number, status: PhysicalCallEvent['status'], result?: any, error?: string, overridePhase?: PhysicalCallEvent['phase']) => {
+      try {
+        let physicalCallId = physicalCallIds.get(attempt)
+        if (!physicalCallId) {
+          physicalCallId = `physical-${startTime}-${attempt}`
+          physicalCallIds.set(attempt, physicalCallId)
+        }
+        params.onPhysicalCall?.({
+          physicalCallId,
+          phase: overridePhase || (attempt > 0 ? 'retry' : basePhase),
+          status,
+          attempt: attempt + 1,
+          durationMs: Date.now() - startTime,
+          requestMessages: params.messages,
+          responseText: result?.text || '',
+          streamText: streamBuffer,
+          reasoningText: reasoningBuffer || result?.reasoning || '',
+          finishReason: result?.finishReason,
+          usage: result?.usage,
+          error,
+          toolsEnabled: requestedTools,
+          toolsDowngraded: Boolean(params.toolPolicy === undefined && requestedTools),
+          downgradeReason: overridePhase?.startsWith('downgrade') ? undefined : undefined,
+          retryStrategy: params.retryStrategy,
+          maxTokens: result?.maxTokens ?? effectiveMaxTokens(),
+        })
+      } catch { /* trace must never break the AI request */ }
+    }
     const promptPreview = params.messages.map(m => m.content).join(' ').slice(0, 200)
+    let maxTokensDowngrade: { from: number; to: number; reason: string } | null = null
+    let currentPhysicalAttempt = 0
     const throwCanceled = (): never => {
       const durationMs = Date.now() - startTime
+      // Closing the same running physical record prevents a canceled request
+      // from leaving a perpetual running physical call in the trace.
+      reportPhysical(currentPhysicalAttempt, 'canceled')
       logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: resolveModel(provider, params.model), prompt: promptPreview, result: '用户取消', durationMs, success: false, skillId: params.meta?.skillId, agentId: params.meta?.agentId, providerType, transport, finalUrl })
       throw new AiServiceErrorImpl({ kind: 'canceled', message: '用户取消', providerId, purpose: params.purpose })
     }
@@ -1070,8 +1980,35 @@ export function createAiService(
     // Do not even open a network request when the caller has already canceled.
     if (params.signal?.aborted) return throwCanceled()
 
+    // The wrapper must be applied once per logical request. Wrapping it inside
+    // the retry loop made every retry nest another callback and duplicate the
+    // same stream chunks in both the UI and the physical-call trace.
+    // Stream callbacks are delta-only; the trace buffer accumulates them so
+    // physical-call records keep their final cumulative stream text.
+    const originalOnChunk = params.onChunk
+    const originalOnReasoning = params.onReasoning
+    const traceParams = originalOnChunk
+      ? { ...params, onChunk: (text: string) => {
+          if (!text) return
+          streamBuffer += text
+          originalOnChunk(text)
+        } }
+      : params
+    const reasoningTraceParams = originalOnReasoning
+      ? { ...traceParams, onReasoning: (text: string) => {
+          if (!text) return
+          reasoningBuffer += text
+          originalOnReasoning(text)
+        } }
+      : traceParams
+    params = reasoningTraceParams
+
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
+        streamBuffer = ''
+        reasoningBuffer = ''
+        currentPhysicalAttempt = attempt
+        reportPhysical(attempt, 'running')
         const result = await _rawCall(provider, params, timeoutMs)
         lastResp = result
         let finalText = filterThinkingTags(result.text)
@@ -1081,8 +2018,21 @@ export function createAiService(
         const durationMs = Date.now() - startTime
         const _model = resolveModel(provider, params.model)
         logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _model, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, agentId: params.meta?.agentId, usage: result.usage, providerType, transport, finalUrl })
-        return { text: finalText, reasoning: result.reasoning, providerId, model: _model, durationMs, usage: result.usage, finishReason: result.finishReason, raw: result.raw }
+        reportPhysical(attempt, 'success', result)
+        return {
+          text: finalText,
+          reasoning: result.reasoning,
+          providerId,
+          model: _model,
+          durationMs,
+          usage: result.usage,
+          finishReason: result.finishReason,
+          raw: result.raw,
+          maxTokens: result.maxTokens ?? effectiveMaxTokens(),
+          retryStrategy: params.retryStrategy,
+        }
       } catch (e: any) {
+        if (streamBuffer.length > 0 || reasoningBuffer.length > 0) sawStreamOutput = true
         // Canceled by user?
         if (params.signal?.aborted) {
           return throwCanceled()
@@ -1092,11 +2042,13 @@ export function createAiService(
         // long network retry and heartbeat recovery path.
         if (e?.kind === 'json') {
           lastErr = e
+          reportPhysical(attempt, 'failed', undefined, e?.message || String(e))
           break
         }
         // Timeout?
         if (e.name === 'TimeoutError' || e.name === 'AbortError') {
           lastErr = new AiServiceErrorImpl({ kind: 'timeout', message: '请求超时', providerId, purpose: params.purpose })
+          reportPhysical(attempt, params.signal?.aborted ? 'canceled' : 'failed', undefined, '请求超时')
           if (doRetry && attempt < maxRetries) {
             try { await waitWithSignal(RETRY_DELAYS[attempt], params.signal) }
             catch (ce: any) {
@@ -1123,6 +2075,7 @@ export function createAiService(
         if (httpError) {
           const status = httpError.status
           const providerMessage = await httpError.providerSummary
+          reportPhysical(attempt, 'failed', undefined, `${status}: ${providerMessage || httpErrorMessage(status, '')}`)
           if (doRetry && (status === 429 || status === 502 || status === 503) && attempt < maxRetries) {
             lastErr = new AiServiceErrorImpl({ kind: 'http', message: httpErrorMessage(status, providerMessage), providerId, purpose: params.purpose, statusCode: status, providerErrorSummary: providerMessage })
             try { await waitWithSignal(RETRY_DELAYS[attempt], params.signal) }
@@ -1147,10 +2100,44 @@ export function createAiService(
             })
           }
           if (status === 400 && doRetry && attempt < maxRetries) {
-            // 400 adaptive: halve max_tokens
-            params = { ...params, maxTokens: Math.floor((params.maxTokens ?? 8192) / 2) }
-            lastErr = new AiServiceErrorImpl({ kind: 'http', message: 'HTTP 400, max_tokens halved', providerId, purpose: params.purpose, statusCode: 400 })
-            continue
+            const downgrade = parseMaxTokensDowngrade(providerMessage, effectiveMaxTokens())
+            if (downgrade) {
+              // Provider-declared limits are authoritative; retry once at the
+              // allowed value instead of blind halving.
+              params = { ...params, maxTokens: downgrade.to, retry: false }
+              maxTokensDowngrade = downgrade
+              logRequest(log, {
+                step: params.meta?.step,
+                purpose: params.purpose,
+                providerId,
+                model: resolveModel(provider, params.model),
+                prompt: promptPreview,
+                result: `max-tokens-downgraded: ${downgrade.from} -> ${downgrade.to}; ${downgrade.reason}`,
+                durationMs: Date.now() - startTime,
+                success: false,
+                skillId: params.meta?.skillId,
+                agentId: params.meta?.agentId,
+                providerType,
+                transport,
+                finalUrl,
+                statusCode: 400,
+                providerErrorSummary: providerMessage,
+                maxTokens: downgrade.to,
+              })
+              const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+              if (diag && typeof diag.log === 'function') {
+                diag.log('warn', 'ai-service/max-tokens', 'max-tokens-downgraded', {
+                  providerId,
+                  purpose: params.purpose,
+                  from: downgrade.from,
+                  to: downgrade.to,
+                  reason: downgrade.reason,
+                })
+              }
+              continue
+            }
+            lastErr = new AiServiceErrorImpl({ kind: 'http', message: httpErrorMessage(400, providerMessage), providerId, purpose: params.purpose, statusCode: 400, providerErrorSummary: providerMessage })
+            break
           }
           if (status === 401 || status === 403) {
             throw new AiServiceErrorImpl({ kind: 'auth', message: httpErrorMessage(status, providerMessage), providerId, purpose: params.purpose, statusCode: status })
@@ -1168,6 +2155,7 @@ export function createAiService(
         }
         // Network error
         lastErr = new AiServiceErrorImpl({ kind: 'network', message: e.message || '网络错误', providerId, purpose: params.purpose })
+        reportPhysical(attempt, 'failed', undefined, e.message || '网络错误')
         const noRetry = e.message?.includes('API Key') || e.message?.includes('访问被禁止') || e.message?.includes('接口不存在')
         if (doRetry && attempt < maxRetries && !noRetry) {
           try { await waitWithSignal(RETRY_DELAYS[attempt], params.signal) }
@@ -1181,8 +2169,11 @@ export function createAiService(
       }
     }
 
-    // Heartbeat reconnection (from useAiRequest Layer 5)
-    if (doRetry && lastErr && lastErr.kind !== 'json') {
+    // Heartbeat reconnection is only for a stream that actually started and
+    // then dropped. A request that never produced bytes has nothing to
+    // reconnect to; it must fail after the fast retry budget instead of
+    // silently waiting through three 60-second heartbeat probes.
+    if (doRetry && lastErr && lastErr.kind !== 'json' && lastErr.kind !== 'timeout' && sawStreamOutput) {
       let hbAttempt = 0
       while (hbAttempt < MAX_HEARTBEAT_ATTEMPTS) {
         hbAttempt++
@@ -1197,6 +2188,9 @@ export function createAiService(
         try {
           const hbSignal = combineSignals(params.signal, makeTimeoutSignal(timeoutMs))
           const hbParams = { ...params, signal: hbSignal }
+          streamBuffer = ''
+          reasoningBuffer = ''
+          currentPhysicalAttempt = hbAttempt
           const result = await _rawCall(provider, hbParams, timeoutMs)
           let finalText = filterThinkingTags(result.text)
           if (params.jsonMode) {
@@ -1205,18 +2199,47 @@ export function createAiService(
           const durationMs = Date.now() - startTime
           const _hbModel = resolveModel(provider, params.model)
           logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: _hbModel, prompt: promptPreview, result: finalText.slice(0, 200), durationMs, success: true, skillId: params.meta?.skillId, agentId: params.meta?.agentId, usage: result.usage })
-          return { text: finalText, reasoning: result.reasoning, providerId, model: resolveModel(provider, params.model), durationMs, usage: result.usage }
+          reportPhysical(hbAttempt, 'success', result, undefined, 'heartbeat_retry')
+          return {
+            text: finalText,
+            reasoning: result.reasoning,
+            providerId,
+            model: resolveModel(provider, params.model),
+            durationMs,
+            usage: result.usage,
+            maxTokens: result.maxTokens ?? effectiveMaxTokens(),
+            retryStrategy: params.retryStrategy,
+          }
         } catch (hbErr: any) {
           if (params.signal?.aborted) {
             return throwCanceled()
           }
+          reportPhysical(hbAttempt, 'failed', undefined, hbErr?.message || String(hbErr), 'heartbeat_retry')
           console.warn('[HEARTBEAT] Probe ' + hbAttempt + ' failed: ' + ((hbErr && (hbErr.message || String(hbErr))) || 'unknown'))
         }
       }
     }
 
     const durationMs = Date.now() - startTime
-    logRequest(log, { step: params.meta?.step, purpose: params.purpose, providerId, model: resolveModel(provider, params.model), prompt: promptPreview, result: lastErr?.message || 'unknown', durationMs, success: false, skillId: params.meta?.skillId, agentId: params.meta?.agentId, providerType, transport, finalUrl, statusCode: lastErr?.statusCode, providerErrorSummary: lastErr?.providerErrorSummary })
+    logRequest(log, {
+      step: params.meta?.step,
+      purpose: params.purpose,
+      providerId,
+      model: resolveModel(provider, params.model),
+      prompt: promptPreview,
+      result: lastErr?.message || 'unknown',
+      durationMs,
+      success: false,
+      skillId: params.meta?.skillId,
+      agentId: params.meta?.agentId,
+      providerType,
+      transport,
+      finalUrl,
+      statusCode: lastErr?.statusCode,
+      providerErrorSummary: lastErr?.providerErrorSummary,
+      downgradeReason: maxTokensDowngrade ? 'max-tokens-downgraded' : undefined,
+      maxTokens: maxTokensDowngrade?.to ?? effectiveMaxTokens(),
+    })
     throw lastErr || new AiServiceErrorImpl({ kind: 'network', message: 'unknown error', providerId, purpose: params.purpose })
   }
 

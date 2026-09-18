@@ -2,7 +2,9 @@ import { executeRealSkill } from './realSkillExecutor'
 import { loadRealSkill } from './realSkillLoader'
 import { executeCompositeSkill } from './skillOrchestrator'
 import type {
+  RealSkillPackage,
   RealSkillAgentContext,
+  RealSkillExecuteOptions,
   RealSkillExecutionResult
 } from './realSkillTypes'
 
@@ -19,17 +21,27 @@ export interface SkillRouteOptions {
   budget: { tryConsume: (step: string, skillLimit?: number | null) => any }
   skillId?: string
   aiService?: {
-    callAi: (params: any) => Promise<{ text: string; finishReason?: string; providerId?: string }>
+    callAi: (params: any) => Promise<{ text: string; finishReason?: string; providerId?: string; usage?: Record<string, unknown> }>
   }
   stream?: boolean
   signal?: AbortSignal
   timeoutMs?: number
   onChunk?: (text: string) => void
+  onReasoning?: (text: string) => void
+  onPhysicalCall?: (event: import('./aiService').PhysicalCallEvent) => void
+  onGenerationEvent?: RealSkillExecuteOptions['onGenerationEvent']
+  onRequestBuilt?: (messages: Array<{ role: string; content: string }>) => void
+  onFolderLoaded?: (pkg: RealSkillPackage) => void
   messageBuilder?: (systemPrompt: string, userPrompt: string) => Array<{ role: string; content: string }>
+  toolContext?: RealSkillExecuteOptions['toolContext']
   systemPromptSuffix?: string
   agentSource?: 'user-binding' | 'step-default' | 'none'
   baseTemplateOverride?: string
   resolvedTemplate?: string
+  templateVariables?: Record<string, unknown>
+  validateOutputSchema?: boolean
+  tools?: RealSkillExecuteOptions['tools']
+  toolPolicy?: RealSkillExecuteOptions['toolPolicy']
 }
 
 export interface SkillRouteResult {
@@ -48,7 +60,7 @@ function compositeToExecutionResult(
       output: result.output,
       errors: result.errors,
       diagnostics: result.diagnostics,
-      fromCache: false,
+      folderPackageCache: false,
       apiMeta: result.apiMeta
     }
   }
@@ -58,7 +70,7 @@ function compositeToExecutionResult(
       output: result.output,
       errors: result.errors,
       diagnostics: result.diagnostics,
-      fromCache: false,
+      folderPackageCache: false,
       apiMeta: result.apiMeta
     }
   }
@@ -67,7 +79,7 @@ function compositeToExecutionResult(
     output: '',
     errors: result.errors,
     diagnostics: result.diagnostics,
-    fromCache: false,
+    folderPackageCache: false,
     apiMeta: result.apiMeta
   }
 }
@@ -94,10 +106,12 @@ export async function routeSkill(
       fallbackReason: probe.error || 'skill-load-failed'
     }
   }
+  options.onFolderLoaded?.(probe.package)
 
   const executeOptions = {
     folderPath: skill.folderPath,
     input: options.input,
+    toolContext: options.toolContext,
     agent: options.agent,
     agentSource: options.agentSource,
     purpose: options.purpose,
@@ -108,10 +122,18 @@ export async function routeSkill(
     signal: options.signal,
     timeoutMs: options.timeoutMs,
     onChunk: options.onChunk,
+    onReasoning: options.onReasoning,
+    onPhysicalCall: options.onPhysicalCall,
+    onGenerationEvent: options.onGenerationEvent,
+    onRequestBuilt: options.onRequestBuilt,
     messageBuilder: options.messageBuilder,
     systemPromptSuffix: options.systemPromptSuffix,
     baseTemplateOverride: options.baseTemplateOverride,
-    resolvedTemplate: options.resolvedTemplate
+    resolvedTemplate: options.resolvedTemplate,
+    templateVariables: options.templateVariables,
+    validateOutputSchema: options.validateOutputSchema,
+    tools: options.tools,
+    toolPolicy: options.toolPolicy
   }
 
   if (probe.package.meta.executionMode === 'composite') {

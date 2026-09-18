@@ -2,7 +2,7 @@
   <section class="real-skill-diagnostics" :class="`is-${status}`" aria-label="文件夹技能执行诊断">
     <div class="real-skill-diagnostics-head">
       <span class="real-skill-diagnostics-status">{{ statusText }}</span>
-      <span v-if="fromCache !== undefined">磁盘加载：{{ fromCache ? '使用缓存' : '实时读取' }}</span>
+      <span v-if="folderPackageCache !== undefined">磁盘加载：{{ folderPackageCache ? '使用缓存' : '实时读取' }}</span>
       <span v-if="budget">API 预算：{{ budget.used }}/{{ budget.limit }}</span>
       <button type="button" class="btn-sm btn-secondary" @click="copyDiagnostics">复制诊断</button>
     </div>
@@ -42,7 +42,7 @@ const props = defineProps<{
   diagnostics?: DiagnosticItem[]
   requestMessages?: Array<{ role: string; content: string }>
   budget?: { used: number; limit: number }
-  fromCache?: boolean
+  folderPackageCache?: boolean
 }>()
 
 const diagnostics = computed(() => props.diagnostics || [])

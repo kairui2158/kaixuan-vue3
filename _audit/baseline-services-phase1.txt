@@ -1,0 +1,16 @@
+
+> shenyi-assistant@3.41.0 test:services
+> vitest run src/stores/skill.spec.ts src/services/aiService.spec.ts src/services/memoryIO.spec.ts src/services/volumeGeneration.spec.ts src/services/realSkillExecutor.spec.ts src/services/skillOrchestrator.spec.ts src/services/skillRouter.spec.ts src/services/folderSkillTest.spec.ts src/services/folderSkillBoundary.spec.ts src/services/folderSkillBatchImport.spec.ts src/services/workspaceSkillEngine.spec.ts src/services/skillPackageManager.spec.ts src/services/skillPackageInstaller.spec.ts src/services/skillHealth.spec.ts
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vite.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.11 D:/codex/novel-workshop-vue3
+
+
+ Test Files  14 passed (14)
+      Tests  198 passed (198)
+   Start at  02:22:17
+   Duration  3.19s (transform 4.02s, setup 0ms, import 5.95s, tests 1.72s, environment 17ms)
+

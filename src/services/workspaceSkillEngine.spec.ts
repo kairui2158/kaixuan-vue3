@@ -1,15 +1,32 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { loadRealSkill } from './realSkillLoader'
+import type {
+  ContextBundle,
+  ContextMessage,
+  ContextPolicy,
+  ContextRef,
+  ContextTurn,
+} from '../types/context'
+import type { AiService, CallAiResult } from './aiService'
+import type { ChainBreakpoint } from './chainBreakpoint'
+import type { WorkspaceContextServiceLike } from './workspaceSkillEngine'
 import {
-  mergePromptParts,
+  createApiCallBudget,
+} from './apiCallBudget'
+import {
+  executeRealSkill,
+} from './realSkillExecutor'
+import {
+  resolvePostProcessTerminalStatus,
+  buildRoutingResumeToken,
+  createRoutingAwaitState,
+  validateRoutingResumeToken,
   getPromptParts,
+  mergePromptParts,
   runWorkspaceSkills,
   type WorkspaceSkillEngineAdapter,
   type WorkspaceSkillTemplate,
 } from './workspaceSkillEngine'
-import type { AiService, CallAiResult } from './aiService'
-import type { WorkspaceContextServiceLike } from './workspaceSkillEngine'
-import type { ContextBundle, ContextMessage, ContextPolicy, ContextRef, ContextTurn } from '../types/context'
-import type { ChainBreakpoint } from './chainBreakpoint'
 
 type Call = {
   messages: Array<{ role: string; content: string }>
@@ -17,9 +34,24 @@ type Call = {
   temperature?: number
   maxTokens?: number
   meta?: Record<string, unknown>
+  tools?: Array<{ name: string }>
 }
 
-function makeTemplate(id: string, name: string, overrides: Partial<WorkspaceSkillTemplate> = {}): WorkspaceSkillTemplate {
+vi.mock('./realSkillLoader', () => ({
+  loadRealSkill: vi.fn()
+}))
+vi.mock('./realSkillExecutor', () => ({
+  executeRealSkill: vi.fn()
+}))
+
+const loadRealSkillMock = vi.mocked(loadRealSkill)
+const executeRealSkillMock = vi.mocked(executeRealSkill)
+
+function makeTemplate(
+  id: string,
+  name: string,
+  overrides: Partial<WorkspaceSkillTemplate> = {},
+): WorkspaceSkillTemplate {
   return {
     id,
     name,
@@ -37,21 +69,48 @@ function makeContextService(): WorkspaceContextServiceLike {
       includeSettings: true,
       includeMemory: true,
     })),
-    buildContextBundle: vi.fn(async (input: ContextRef): Promise<ContextBundle> => ({
-      session: { id: input.skillId || 'default', projectId: input.projectId, recentMessages: [] },
-      workspace: {},
-      execution: { purpose: 'generate' },
-    })),
-    assembleMessages: vi.fn((_bundle: ContextBundle, _policy: ContextPolicy, base: ContextMessage[]) => base),
-    recordTurn: vi.fn(async (_ref: ContextRef, _turn: ContextTurn) => undefined),
+    buildContextBundle: vi.fn(
+      async (input: ContextRef): Promise<ContextBundle> => ({
+        session: {
+          id: input.skillId || 'default',
+          projectId: input.projectId,
+          recentMessages: [],
+        },
+        workspace: {},
+        execution: { purpose: 'generate' },
+      }),
+    ),
+    assembleMessages: vi.fn(
+      (
+        _bundle: ContextBundle,
+        _policy: ContextPolicy,
+        base: ContextMessage[],
+      ) => base,
+    ),
+    buildDialogueContextBlocks: vi.fn(() => [
+      {
+        source: 'outline' as const,
+        version: 'v1',
+        coverage: 'structure_map' as const,
+      },
+    ]),
+    recordTurn: vi.fn(
+      async (_ref: ContextRef, _turn: ContextTurn) => undefined,
+    ),
   }
 }
 
-function makeAdapter(overrides: Partial<WorkspaceSkillEngineAdapter> = {}): WorkspaceSkillEngineAdapter {
+function makeAdapter(
+  overrides: Partial<WorkspaceSkillEngineAdapter> = {},
+): WorkspaceSkillEngineAdapter {
   return {
     workspace: 'outline',
     source: 'TestWorkspace.skill',
     projectId: 'project-1',
+    toolContext: {
+      targetId: 'outline',
+      readableTargets: ['outline'],
+    },
     step: 0,
     defaultSystemPrompt: '默认助手',
     getBaseAgentId: () => '',
@@ -90,26 +149,129 @@ function makeAiService(outputs: string[]) {
       model: params.model,
     }
   })
-  return { aiService: { callAi } as unknown as AiService & { callAi: ReturnType<typeof vi.fn> }, calls }
+  return {
+    aiService: { callAi } as unknown as AiService & {
+      callAi: ReturnType<typeof vi.fn>
+    },
+    calls,
+  }
 }
 
 describe('workspace skill engine', () => {
+  it('creates and validates routing resume tokens', () => {
+    const runId = 'run-1'
+    const requestText = '请确认这段大纲的意图'
+    const state = createRoutingAwaitState({
+      runId,
+      requestText,
+      routing: {
+        kind: 'ambiguous',
+        confidence: 0.4,
+        reason: 'ambiguous-intent',
+        candidates: ['discuss', 'edit'],
+        fallbackMode: 'await-user',
+      },
+    })
+    expect(state.runId).toBe(runId)
+    expect(state.requestText).toBe(requestText)
+    expect(state.candidates).toEqual(['discuss', 'edit'])
+    expect(state.fallbackMode).toBe('await-user')
+    expect(state.resumeToken).toBe(
+      buildRoutingResumeToken({
+        runId,
+        requestText,
+        createdAt: state.createdAt,
+      }),
+    )
+    expect(validateRoutingResumeToken(state, runId)).toBe(true)
+    expect(validateRoutingResumeToken(state, 'run-2')).toBe(false)
+    expect(
+      validateRoutingResumeToken(
+        { ...state, requestText: requestText + ' ' },
+        runId,
+      ),
+    ).toBe(false)
+    expect(
+      validateRoutingResumeToken(
+        { ...state, createdAt: 0 },
+        runId,
+      ),
+    ).toBe(false)
+    expect(
+      validateRoutingResumeToken(
+        { ...state, resumeToken: state.resumeToken },
+        null,
+      ),
+    ).toBe(false)
+    expect(validateRoutingResumeToken(null, runId)).toBe(false)
+  })
+  beforeEach(() => {
+    loadRealSkillMock.mockReset()
+    executeRealSkillMock.mockReset()
+  })
+
+  it('merges postProcess results into stable terminal statuses', () => {
+    expect(resolvePostProcessTerminalStatus(undefined)).toMatchObject({
+      processingStatus: 'success',
+      runStatus: 'success',
+      eventReason: 'post-process-completed',
+    })
+
+    expect(resolvePostProcessTerminalStatus({
+      applied: true,
+      changedOutput: true,
+      output: 'changed',
+      issues: [],
+      durationMs: 2,
+    })).toMatchObject({
+      processingStatus: 'warning',
+      runStatus: 'degraded',
+      eventReason: 'post-process-degraded',
+    })
+
+    expect(resolvePostProcessTerminalStatus({
+      applied: true,
+      changedOutput: false,
+      output: 'same',
+      issues: [{ severity: 'warning', code: 'minor', message: '轻微问题' }],
+      durationMs: 2,
+    })).toMatchObject({
+      processingStatus: 'warning',
+      runStatus: 'degraded',
+      eventReason: 'post-process-degraded',
+    })
+
+    expect(resolvePostProcessTerminalStatus({
+      applied: true,
+      changedOutput: false,
+      output: 'same',
+      issues: [{ severity: 'blocking', code: 'lost-section', message: '缺少核心章节' }],
+      durationMs: 2,
+    })).toMatchObject({
+      processingStatus: 'failed',
+      runStatus: 'blocked',
+      eventReason: 'post-process-blocked',
+    })
+  })
+
   it('maps skill injection modes and merges compose parts', () => {
     expect(getPromptParts('A', 'system_prefix')).toEqual({ systemSkill: 'A' })
     expect(getPromptParts('B', 'user_prefix')).toEqual({ userPrefix: 'B' })
     expect(getPromptParts('C', 'user_suffix')).toEqual({ userSuffix: 'C' })
-    expect(mergePromptParts([
-      { systemSkill: 'A' },
-      { userPrefix: 'B' },
-      { userSuffix: 'C' },
-    ])).toEqual({
+    expect(
+      mergePromptParts([
+        { systemSkill: 'A' },
+        { userPrefix: 'B' },
+        { userSuffix: 'C' },
+      ]),
+    ).toEqual({
       systemSkill: 'A',
       userPrefix: 'B',
       userSuffix: 'C',
     })
   })
 
-  it('runs a single skill as compose and returns final metadata', async () => {
+  it('runs a single skill as chain and returns final metadata', async () => {
     const context = makeContextService()
     const adapter = makeAdapter()
     const { aiService, calls } = makeAiService(['最终结果'])
@@ -122,14 +284,316 @@ describe('workspace skill engine', () => {
       adapter,
     })
     expect(result.text).toBe('最终结果')
-    expect(result.mode).toBe('compose')
-    expect(result.meta?.skillId).toBe('compose')
+    expect(result.mode).toBe('chain')
+    expect(result.meta?.skillId).toBe('s1')
     expect(calls).toHaveLength(1)
-    expect(calls[0].messages[0]).toEqual({ role: 'system', content: '执行 解析' })
+    expect(calls[0].messages[0]).toEqual({
+      role: 'system',
+      content: '执行 解析',
+    })
     expect(calls[0].messages[1]?.content).toContain('用户请求: 写一个大纲')
   })
 
-  it('passes full previous output to the next chain skill and records every step', async () => {
+  it('keeps discuss-intent chain calls read-only', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter({
+      buildTools: () => ({
+        tools: [
+          { name: 'editor.get_state', description: 'Read editor state', policy: 'read', inputSchema: { type: 'object', properties: {} }, execute: async () => ({ ok: true }) },
+          { name: 'editor.write', description: 'Direct write', policy: 'write', inputSchema: { type: 'object', properties: {} }, execute: async () => ({ ok: true }) },
+        ],
+      }),
+    })
+    const { aiService, calls } = makeAiService(['讨论结果'])
+    await runWorkspaceSkills({
+      requestText: '讨论',
+      templates: [makeTemplate('s1', '诊断', { intents: ['discuss', 'analyze'] })],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+      routingOverride: { forcedIntent: 'discuss' },
+    })
+    expect((calls[0].tools || []).map(tool => tool.name)).toEqual([
+      'editor.get_state',
+    ])
+  })
+
+  it('exposes direct write tools only for edit or generate intents', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter({
+      buildTools: () => ({
+        tools: [
+          { name: 'editor.get_state', description: 'Read editor state', policy: 'read', inputSchema: { type: 'object', properties: {} }, execute: async () => ({ ok: true }) },
+          { name: 'editor.write', description: 'Direct write', policy: 'write', inputSchema: { type: 'object', properties: {} }, execute: async () => ({ ok: true }) },
+        ],
+      }),
+    })
+    const { aiService, calls } = makeAiService(['修改结果'])
+    await runWorkspaceSkills({
+      requestText: '把第一卷的目标改成复仇',
+      templates: [makeTemplate('s1', '修改', { intents: ['edit'] })],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+      routingOverride: { forcedIntent: 'edit' },
+    })
+    expect(calls[0].tools?.map(tool => tool.name)).toContain('editor.write')
+  })
+
+  it('reports the authorized tool surface to API-call trace callbacks', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter({
+      buildTools: ({ intent }) => ({
+        tools: intent === 'edit'
+          ? [
+            { name: 'editor.get_state', description: 'Read editor state', policy: 'read', inputSchema: { type: 'object', properties: {} }, execute: async () => ({ ok: true }) },
+            { name: 'editor.write', description: 'Direct write', policy: 'write', inputSchema: { type: 'object', properties: {} }, execute: async () => ({ ok: true }) },
+          ]
+          : [
+            { name: 'editor.get_state', description: 'Read editor state', policy: 'read', inputSchema: { type: 'object', properties: {} }, execute: async () => ({ ok: true }) },
+          ],
+      }),
+    })
+    const { aiService, calls } = makeAiService(['修改结果'])
+    const reportedSurfaces: Array<Array<{ name: string; policy: 'read' | 'write' }>> = []
+    await runWorkspaceSkills({
+      requestText: '把第一卷的目标改成复仇',
+      templates: [makeTemplate('s1', '修改', { intents: ['edit'] })],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+      routingOverride: { forcedIntent: 'edit' },
+      callbacks: {
+        onApiCallStart: (_skillId, _skillName, _model, actualToolSurface) => {
+          reportedSurfaces.push(actualToolSurface || [])
+          return 'call-1'
+        },
+      },
+    })
+    expect(reportedSurfaces).toEqual([
+      [
+        { name: 'editor.get_state', policy: 'read' },
+        { name: 'editor.write', policy: 'write' },
+      ],
+    ])
+    expect(calls[0].tools?.map(tool => tool.name)).toEqual([
+      'editor.get_state',
+      'editor.write',
+    ])
+  })
+
+  it('records compose API calls for success and failure paths', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter()
+    const { aiService } = makeAiService(['compose 结果'])
+    const started: string[] = []
+    const finished: string[] = []
+    const result = await runWorkspaceSkills({
+      requestText: '把内容插入进大纲',
+      templates: [makeTemplate('s1', '主编')],
+      mode: 'compose',
+      aiService,
+      contextService: context,
+      adapter,
+      callbacks: {
+        onApiCallStart: (skillId, skillName, model) => {
+          started.push(`${skillId}:${skillName}:${model}`)
+          return `call-${started.length}`
+        },
+        onApiCallFinish: (callId, meta, durationMs, callResult) => {
+          finished.push(
+            `${callId}:${meta.skillId}:${callResult?.status}:${callResult?.text}:${durationMs >= 0}`,
+          )
+        },
+      },
+    })
+
+    expect(result.text).toBe('compose 结果')
+    expect(started).toEqual(['compose:主编:provider-model'])
+    expect(finished).toHaveLength(1)
+    expect(finished[0]).toMatch(/^call-1:compose:success:compose 结果:true$/)
+
+    const failingService = {
+      callAi: vi.fn(async () => {
+        throw new Error('API 失败')
+      }),
+    } as unknown as AiService
+    started.length = 0
+    finished.length = 0
+    await expect(
+      runWorkspaceSkills({
+        requestText: '把内容插入进大纲',
+        templates: [makeTemplate('s1', '主编')],
+        mode: 'compose',
+        aiService: failingService,
+        contextService: context,
+        adapter,
+        callbacks: {
+          onApiCallStart: () => `call-${started.length + 1}`,
+          onApiCallFinish: (callId, meta, durationMs, callResult) => {
+            finished.push(
+              `${callId}:${meta.skillId}:${callResult?.status}:${durationMs >= 0}`,
+            )
+          },
+        },
+      }),
+    ).rejects.toThrow('API 失败')
+    expect(finished).toHaveLength(1)
+    expect(finished[0]).toMatch(/^call-1:compose:failed:true$/)
+  })
+
+  it('routes compose requests through the shared intent router', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter({
+      buildTools: () => ({
+        tools: [
+          { name: 'editor.get_state', description: 'Read editor state', policy: 'read', inputSchema: { type: 'object', properties: {} }, execute: async () => ({ ok: true }) },
+          { name: 'editor.write', description: 'Direct write', policy: 'write', inputSchema: { type: 'object', properties: {} }, execute: async () => ({ ok: true }) },
+        ],
+      }),
+    })
+    const { aiService, calls } = makeAiService(['插入完成'])
+    const result = await runWorkspaceSkills({
+      requestText: '把内容插入进大纲',
+      templates: [makeTemplate('s1', '主编')],
+      mode: 'compose',
+      aiService,
+      contextService: context,
+      adapter,
+    })
+
+    expect(result.runState).toBe('completed')
+    expect(result.intent).toBe('edit')
+    expect(result.routing).toMatchObject({ kind: 'matched', intent: 'edit' })
+    expect(calls[0].tools?.map(tool => tool.name)).toContain('editor.write')
+  })
+
+  it('passes structured context blocks to prompt snapshots', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter()
+    const { aiService } = makeAiService(['compose 结果'])
+    const prompts: Array<{ skillId: string; contextBlocks: unknown[] }> = []
+    await runWorkspaceSkills({
+      requestText: '把内容插入进大纲',
+      templates: [makeTemplate('s1', '主编')],
+      mode: 'compose',
+      aiService,
+      contextService: context,
+      adapter,
+      callbacks: {
+        onPromptBuilt: event => {
+          prompts.push({ skillId: event.skillId, contextBlocks: event.contextBlocks })
+        },
+      },
+    })
+
+    expect(prompts).toHaveLength(1)
+    expect(prompts[0].skillId).toBe('compose')
+    expect(prompts[0].contextBlocks).toEqual([
+      { source: 'outline', version: 'v1', coverage: 'structure_map' },
+    ])
+    expect(context.buildDialogueContextBlocks).toHaveBeenCalled()
+  })
+
+  it('keeps compose discussion read-only and records routing events', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter({
+      buildTools: () => ({
+        tools: [
+          { name: 'editor.get_state', description: 'Read editor state', policy: 'read', inputSchema: { type: 'object', properties: {} }, execute: async () => ({ ok: true }) },
+          { name: 'editor.write', description: 'Direct write', policy: 'write', inputSchema: { type: 'object', properties: {} }, execute: async () => ({ ok: true }) },
+        ],
+      }),
+    })
+    const { aiService, calls } = makeAiService(['讨论结果'])
+    const routingEvents: string[] = []
+    const result = await runWorkspaceSkills({
+      requestText: '我们聊聊这个设定',
+      templates: [makeTemplate('s1', '主编')],
+      mode: 'compose',
+      aiService,
+      contextService: context,
+      adapter,
+      callbacks: {
+        onRoutingEvent: event => routingEvents.push(event.type),
+      },
+    })
+
+    expect(result.runState).toBe('completed')
+    expect(result.intent).toBe('discuss')
+    expect(routingEvents).toContain('routing_result')
+    expect(calls[0].tools?.map(tool => tool.name)).toEqual([
+      'editor.get_state',
+    ])
+  })
+
+  it('runs read-only discussion fallback instead of blocking compose', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter()
+    const { aiService, calls } = makeAiService(['我们来继续讨论这个设定'])
+    const result = await runWorkspaceSkills({
+      requestText: '今天天气不错呀',
+      templates: [makeTemplate('s1', '主编')],
+      mode: 'compose',
+      aiService,
+      contextService: context,
+      adapter,
+    })
+
+    expect(result.runState).toBe('completed')
+    expect(result.routing?.kind).toBe('no_match')
+    expect(result.intent).toBe('discuss')
+    expect(result.text).toBe('我们来继续讨论这个设定')
+    expect(calls).toHaveLength(1)
+  })
+
+  it('keeps compose write tool calls in run metadata', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter()
+    const { aiService } = makeAiService(['已完成编辑器写入'])
+    aiService.callAi.mockImplementationOnce(async () => ({
+      text: '已完成编辑器写入',
+      reasoning: '',
+      finishReason: 'stop',
+      providerId: 'provider-1',
+      model: 'provider-model',
+      toolCalls: [
+        {
+          id: 'call-1',
+          name: 'editor.write',
+          input: {
+            commands: [
+              { operation: 'insert_after', content: '新增设定', target: '第一卷' },
+            ],
+            reason: '用户要求插入大纲',
+          },
+        },
+      ],
+      toolResults: [],
+      toolRequestDeltas: [],
+    }))
+    const result = await runWorkspaceSkills({
+      requestText: '把内容插入进大纲',
+      templates: [makeTemplate('s1', '主编')],
+      mode: 'compose',
+      aiService,
+      contextService: context,
+      adapter,
+    })
+
+    expect(result.intent).toBe('edit')
+    expect(result.meta?.toolCalls?.[0]?.name).toBe('editor.write')
+    expect(result.meta?.toolCalls?.[0]?.input).toMatchObject({
+      commands: [
+        { operation: 'insert_after', content: '新增设定', target: '第一卷' },
+      ],
+    })
+  })
+
+  it('passes full previous output to the next chain skill and records full-text handoff', async () => {
     const context = makeContextService()
     const adapter = makeAdapter()
     const { aiService, calls } = makeAiService(['第一步输出', '第二步输出'])
@@ -144,28 +608,416 @@ describe('workspace skill engine', () => {
     expect(result.text).toBe('第二步输出')
     expect(result.mode).toBe('chain')
     expect(calls).toHaveLength(2)
-    expect(calls[1].messages[1]?.content).toContain('请严格基于上下文中的“上一步 SKILL 完整输出”继续处理')
-    expect(context.buildContextBundle).toHaveBeenNthCalledWith(2, expect.objectContaining({
-      skillId: 's2',
-      previousSkillOutput: '第一步输出',
-    }))
+    expect(calls[1].messages[1]?.content).toContain(
+      '只输出当前步骤的定稿产物',
+    )
+    expect(context.buildContextBundle).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        skillId: 's2',
+        previousSkillOutput: '第一步输出',
+      }),
+    )
     expect(adapter.clearBreakpoint).toHaveBeenCalledTimes(1)
+  })
+
+  it('emits full-text handoff artifacts for every completed chain step', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter()
+    const { aiService } = makeAiService(['第一步输出', '第二步输出'])
+    const routingEvents: Array<{ type: string; artifact?: { delivery: string } }> = []
+    await runWorkspaceSkills({
+      requestText: '续写设定',
+      templates: [makeTemplate('s1', '解析'), makeTemplate('s2', '推演')],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+      callbacks: {
+        onRoutingEvent: event => {
+          if (event.type === 'chain_handoff') routingEvents.push(event)
+        },
+      },
+    })
+    expect(routingEvents).toHaveLength(2)
+    expect(routingEvents.map(event => event.artifact?.delivery)).toEqual(['full_text', 'full_text'])
+  })
+
+  it('injects the previous chain output exactly once for text skills', async () => {
+    const previousOutput = '第一步完整输出。'.repeat(60)
+    const context = makeContextService()
+    const capturedBundles: Array<Record<string, unknown>> = []
+    ;(context.buildContextBundle as any).mockImplementation(
+      async (input: Record<string, unknown>) => {
+        capturedBundles.push(input)
+        return {
+          session: { id: input.skillId || 'default', projectId: input.projectId, recentMessages: [] },
+          workspace: {},
+          execution: { purpose: 'generate' },
+        }
+      },
+    )
+    ;(context.assembleMessages as any).mockImplementation(
+      (_bundle: unknown, _policy: unknown, base: ContextMessage[]) => [
+        ...base.slice(0, -1),
+        {
+          role: 'user',
+          content: `[上一步 SKILL 完整输出]\n${String(
+            (capturedBundles.at(-1) || {}).previousSkillOutput || '',
+          )}`,
+        },
+        ...base.slice(-1),
+      ],
+    )
+    const adapter = makeAdapter()
+    const { aiService, calls } = makeAiService([previousOutput, '第二步输出'])
+    await runWorkspaceSkills({
+      requestText: '续写设定',
+      templates: [makeTemplate('s1', '解析'), makeTemplate('s2', '推演')],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+      routingOverride: { forcedIntent: 'generate' },
+    })
+    const secondStepBundle = capturedBundles[1] || {}
+    expect(capturedBundles[0] || {}).not.toHaveProperty('previousSkillOutput')
+    expect(secondStepBundle).toHaveProperty('previousSkillOutput', previousOutput)
+    const secondUserPrompt = String(calls[1].messages.at(-1)?.content || '')
+    expect(secondUserPrompt).not.toContain(previousOutput)
+    const secondRequestText = calls[1].messages
+      .map((message) => message.content)
+      .join('\n')
+    expect(secondRequestText).toContain('[上一步 SKILL 完整输出]')
+    expect(secondRequestText.split(previousOutput).length - 1).toBe(1)
+  })
+
+  it('keeps folder handoff in the user prompt and out of the context block', async () => {
+    const previousOutput = 'folder 第一步完整输出。'.repeat(40)
+    const context = makeContextService()
+    const adapter = makeAdapter()
+    loadRealSkillMock.mockResolvedValue({
+      package: {
+        id: 's2',
+        name: 'folder 推演',
+        description: '',
+        template: '',
+        meta: {},
+        script: '',
+        samples: '',
+        schema: null,
+        folderPath: 'D:/skills/s2',
+      } as any,
+      error: null,
+      folderPackageCache: false,
+    })
+    executeRealSkillMock.mockResolvedValue({
+      status: 'success',
+      output: '第二步输出',
+      errors: [],
+      diagnostics: [],
+      folderPackageCache: false,
+      apiMeta: { requestMessages: [] },
+    } as any)
+    const { aiService, calls } = makeAiService([previousOutput, '第二步输出'])
+    const folderTemplate: WorkspaceSkillTemplate = {
+      ...makeTemplate('s2', 'folder 推演'),
+      skill: {
+        format: 'folder',
+        folderPath: 'D:/skills/s2',
+      } as any,
+    }
+    await runWorkspaceSkills({
+      requestText: '续写设定',
+      templates: [makeTemplate('s1', '解析'), folderTemplate],
+      mode: 'chain',
+      routingOverride: { forcedIntent: 'generate' },
+      aiService,
+      contextService: context,
+      adapter,
+    })
+    expect(executeRealSkillMock).toHaveBeenCalledTimes(1)
+    const secondPrompt = String(executeRealSkillMock.mock.calls[0]?.[0]?.input || '')
+    expect(secondPrompt).toContain('请执行当前 SKILL：folder 推演')
+    expect(secondPrompt).toContain(previousOutput)
+    expect(
+      (context.buildContextBundle as any).mock.calls[1][0],
+    ).not.toHaveProperty('previousSkillOutput')
+    expect(secondPrompt.split(previousOutput).length - 1).toBe(1)
+    expect(calls).toHaveLength(1)
+    expect(calls[0].messages[1]?.content).not.toContain(previousOutput)
+  })
+
+  it('routes short contextual replies to discussion skills only', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter({
+      getLegacyMessages: () => [
+        { role: 'user', content: '聊聊主角金手指落在谁身上' },
+        {
+          role: 'assistant',
+          content:
+            '【讨论回复】有两类方案。\n【讨论状态】await_user: true\n【下一问】你倾向哪一类？',
+        },
+      ],
+    })
+    const { aiService, calls } = makeAiService(['讨论结果'])
+    const result = await runWorkspaceSkills({
+      requestText: '落在自己的身上吧',
+      templates: [
+        makeTemplate('discuss', '共创讨论', {
+          intents: ['generate', 'discuss'],
+        }),
+        makeTemplate('generator', '主编落地', { intents: ['generate'] }),
+      ],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+    })
+    expect(result.intent).toBe('discuss')
+    expect(calls).toHaveLength(1)
+    expect(calls[0].messages[0]).toEqual({
+      role: 'system',
+      content: '执行 共创讨论',
+    })
+  })
+
+  it('keeps normal intent routing when the reply is an explicit command', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter({
+      getLegacyMessages: () => [
+        { role: 'assistant', content: '【讨论状态】await_user: true' },
+      ],
+    })
+    const { aiService, calls } = makeAiService(['生成结果'])
+    const result = await runWorkspaceSkills({
+      requestText: '直接生成第一版大纲',
+      templates: [
+        makeTemplate('discuss', '共创讨论', {
+          intents: ['generate', 'discuss'],
+        }),
+        makeTemplate('generator', '主编落地', { intents: ['generate'] }),
+      ],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+    })
+    expect(result.intent).toBe('generate')
+    expect(calls).toHaveLength(2)
+  })
+
+  it('runs readonly fallback when no assistant turn is awaiting user input', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter({
+      getLegacyMessages: () => [
+        { role: 'assistant', content: '这是一段普通的历史输出。' },
+      ],
+    })
+    const { aiService, calls } = makeAiService(['讨论结果'])
+    const result = await runWorkspaceSkills({
+      requestText: '落在自己的身上吧',
+      templates: [
+        makeTemplate('discuss', '共创讨论', {
+          intents: ['generate', 'discuss'],
+        }),
+        makeTemplate('generator', '主编落地', { intents: ['generate'] }),
+      ],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+    })
+    expect(result.runState).toBe('completed')
+    expect(result.routing?.kind).toBe('no_match')
+    expect(result.routing?.kind === 'no_match' && result.routing.fallbackMode).toBe('readonly-discuss')
+    expect(result.intent).toBe('discuss')
+    expect(calls).toHaveLength(1)
+  })
+
+  it('keeps write-candidate fallback awaiting user while readonly fallback executes', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter()
+    const { aiService, calls } = makeAiService(['不应被调用'])
+    const result = await runWorkspaceSkills({
+      requestText: '生成后讨论一下',
+      templates: [
+        makeTemplate('generator', '主编落地', { intents: ['generate', 'edit'] }),
+      ],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+    })
+
+    expect(result.runState).toBe('awaiting_confirmation')
+    expect(result.routing?.kind).toBe('ambiguous')
+    expect(result.routing?.kind === 'ambiguous' && result.routing.fallbackMode).toBe('await-user')
+    expect(calls).toHaveLength(0)
+  })
+
+  it('runs a text skill with a skill object through the text path', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter()
+    const { aiService, calls } = makeAiService(['文本技能结果'])
+    const result = await runWorkspaceSkills({
+      requestText: '生成文本结果',
+      templates: [
+        makeTemplate('text-skill', '文本技能', {
+          skill: { id: 'text-skill', format: 'text' },
+        }),
+      ],
+      mode: 'compose',
+      aiService,
+      contextService: context,
+      adapter,
+    })
+    expect(result.text).toBe('文本技能结果')
+    expect(calls).toHaveLength(1)
+  })
+
+  it('passes adapter tool identity through text and folder callAi meta', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter()
+    const { aiService, calls } = makeAiService(['最终结果'])
+    await runWorkspaceSkills({
+      requestText: '修改第二章设定',
+      templates: [makeTemplate('s1', '修改')],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+    })
+    expect(calls).toHaveLength(1)
+    expect(calls[0].meta).toMatchObject({
+      projectId: 'project-1',
+      workspace: 'outline',
+      targetId: 'outline',
+      readableTargets: ['outline'],
+    })
+
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: {
+        id: 'folder-1',
+        name: 'folder-1',
+        description: '测试文件夹技能',
+        template: 'folder template',
+        meta: {},
+        script: '',
+        samples: '',
+        schema: null,
+        folderPath: 'D:/skills/folder-1',
+      },
+      warnings: [],
+      error: null,
+    })
+    executeRealSkillMock.mockResolvedValueOnce({
+      status: 'success',
+      output: 'folder 结果',
+      errors: [],
+      diagnostics: [],
+      folderPackageCache: false,
+    })
+    const folderRun = await runWorkspaceSkills({
+      requestText: '把第二章设定修改为更清晰的伏笔',
+      templates: [makeTemplate('s2', '文件夹', {
+        intents: ['edit'],
+        skill: {
+          id: 'folder-1',
+          format: 'folder',
+          folderPath: 'D:/skills/folder-1',
+        },
+      })],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+      routingOverride: { forcedIntent: 'edit' },
+    })
+    expect(folderRun.text).toBe('folder 结果')
+    expect(executeRealSkillMock).toHaveBeenCalledTimes(1)
+    expect(executeRealSkillMock.mock.calls[0]?.[0]).toMatchObject(
+      expect.objectContaining({
+        toolContext: {
+          projectId: 'project-1',
+          workspace: 'outline',
+          targetId: 'outline',
+          readableTargets: ['outline'],
+        },
+      }),
+    )
+  })
+
+  it('bypasses intent routing for a user-confirmed full-chain run', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter()
+    const { aiService, calls } = makeAiService(['A', 'B'])
+    const result = await runWorkspaceSkills({
+      requestText: '今天天气怎么样',
+      templates: [
+        makeTemplate('analyze', '分析', { intents: ['analyze'] }),
+        makeTemplate('generator', '生成', { intents: ['generate'] }),
+      ],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+      routingOverride: { bypass: true },
+    })
+    expect(result.runState).toBe('completed')
+    expect(result.routing).toMatchObject({
+      reason: 'user-bypassed-routing',
+    })
+    expect(calls).toHaveLength(2)
+  })
+
+  it('continues with the fallback recommendation after user confirmation', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter()
+    const { aiService, calls } = makeAiService(['讨论结果'])
+    const result = await runWorkspaceSkills({
+      requestText: '今天天气怎么样',
+      templates: [
+        makeTemplate('discuss', '讨论', { intents: ['discuss'] }),
+        makeTemplate('generator', '生成', { intents: ['generate'] }),
+      ],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+      routingOverride: { forcedIntent: 'discuss' },
+    })
+    expect(result.runState).toBe('completed')
+    expect(result.routing).toMatchObject({
+      reason: 'user-confirmed-recommendation',
+    })
+    expect(calls).toHaveLength(1)
+    expect(calls[0].messages[0]).toEqual({
+      role: 'system',
+      content: '执行 讨论',
+    })
   })
 
   it('uses per-skill agent before base agent and default provider', async () => {
     const context = makeContextService()
     const adapter = makeAdapter({
       getBaseAgentId: () => 'base-agent',
-      getSkillAgentId: skillId => skillId === 's2' ? 'skill-agent' : '',
-      getAgent: agentId => agentId === 'skill-agent'
-        ? { model: 'skill-model', temperature: 0.2, maxTokens: 1234, systemPrompt: '专属智能体' }
-        : agentId === 'base-agent'
-          ? { model: 'base-model' }
-          : null,
+      getSkillAgentId: (skillId) => (skillId === 's2' ? 'skill-agent' : ''),
+      getAgent: (agentId) =>
+        agentId === 'skill-agent'
+          ? {
+              model: 'skill-model',
+              temperature: 0.2,
+              maxTokens: 1234,
+              systemPrompt: '专属智能体',
+            }
+          : agentId === 'base-agent'
+            ? { model: 'base-model' }
+            : null,
     })
     const { aiService, calls } = makeAiService(['A', 'B'])
     await runWorkspaceSkills({
-      requestText: '执行',
+      requestText: '生成执行结果',
       templates: [makeTemplate('s1', '一'), makeTemplate('s2', '二')],
       mode: 'chain',
       aiService,
@@ -176,7 +1028,10 @@ describe('workspace skill engine', () => {
     expect(calls[1].model).toBe('skill-model')
     expect(calls[1].temperature).toBe(0.2)
     expect(calls[1].maxTokens).toBe(1234)
-    expect(calls[1].meta).toMatchObject({ agentId: 'skill-agent', skillId: 's2' })
+    expect(calls[1].meta).toMatchObject({
+      agentId: 'skill-agent',
+      skillId: 's2',
+    })
     expect(calls[1].messages[0]?.content).toContain('专属智能体')
   })
 
@@ -189,14 +1044,16 @@ describe('workspace skill engine', () => {
       outputSchema: { type: 'object', required: ['result'] },
       retryPolicy: { maxAttempts: 2 },
     })
-    await expect(runWorkspaceSkills({
-      requestText: '生成JSON',
-      templates: [template],
-      mode: 'compose',
-      aiService,
-      contextService: context,
-      adapter,
-    })).rejects.toThrow('输出校验失败')
+    await expect(
+      runWorkspaceSkills({
+        requestText: '生成JSON',
+        templates: [template],
+        mode: 'compose',
+        aiService,
+        contextService: context,
+        adapter,
+      }),
+    ).rejects.toThrow('输出校验失败')
     expect(calls).toHaveLength(2)
     expect(calls[1].messages[1]?.content).toContain('[校验重试]')
   })
@@ -206,19 +1063,28 @@ describe('workspace skill engine', () => {
     let saved: ChainBreakpoint | null = null
     const adapter = makeAdapter({
       loadBreakpoint: async () => null,
-      saveBreakpoint: vi.fn(async (breakpoint: ChainBreakpoint) => { saved = breakpoint }),
+      saveBreakpoint: vi.fn(async (breakpoint: ChainBreakpoint) => {
+        saved = breakpoint
+      }),
     })
     const firstRun = makeAiService(['第一步输出'])
-    firstRun.aiService.callAi.mockImplementationOnce(async () => ({ text: '第一步输出', reasoning: '' }) as never)
-      .mockImplementationOnce(async () => { throw new Error('第二步失败') })
-    await expect(runWorkspaceSkills({
-      requestText: '生成',
-      templates: [makeTemplate('s1', '一'), makeTemplate('s2', '二')],
-      mode: 'chain',
-      aiService: firstRun.aiService,
-      contextService: context,
-      adapter,
-    })).rejects.toThrow('第二步失败')
+    firstRun.aiService.callAi
+      .mockImplementationOnce(
+        async () => ({ text: '第一步输出', reasoning: '' }) as never,
+      )
+      .mockImplementationOnce(async () => {
+        throw new Error('第二步失败')
+      })
+    await expect(
+      runWorkspaceSkills({
+        requestText: '生成',
+        templates: [makeTemplate('s1', '一'), makeTemplate('s2', '二')],
+        mode: 'chain',
+        aiService: firstRun.aiService,
+        contextService: context,
+        adapter,
+      }),
+    ).rejects.toThrow('第二步失败')
     expect(saved).toMatchObject({
       status: 'failed',
       skillId: 's2',
@@ -230,7 +1096,7 @@ describe('workspace skill engine', () => {
     const resumeAdapter = makeAdapter({ loadBreakpoint: async () => saved })
     const resumed = makeAiService(['第二步续跑'])
     const result = await runWorkspaceSkills({
-      requestText: '生成',
+      requestText: '生成大纲',
       templates: [makeTemplate('s1', '一'), makeTemplate('s2', '二')],
       mode: 'chain',
       aiService: resumed.aiService,
@@ -239,6 +1105,80 @@ describe('workspace skill engine', () => {
     })
     expect(result.text).toBe('第二步续跑')
     expect(resumed.calls).toHaveLength(1)
-    expect(resumed.calls[0].messages[1]?.content).toContain('请执行当前 SKILL：二')
+    expect(resumed.calls[0].messages[1]?.content).toContain(
+      'SKILL：二',
+    )
+  })
+
+  it('returns budget_exhausted before running the remaining chain steps', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter()
+    const { aiService, calls } = makeAiService(['A', 'B', 'C'])
+    const result = await runWorkspaceSkills({
+      requestText: '生成',
+      templates: [
+        makeTemplate('s1', '生成一'),
+        makeTemplate('s2', '生成二'),
+        makeTemplate('s3', '生成三'),
+      ],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+      apiBudget: createApiCallBudget(2),
+    })
+    expect(result.runState).toBe('budget_exhausted')
+    expect(result.text).toBe('B')
+    expect(result.budgetSnapshot).toMatchObject({ used: 2, limit: 2 })
+    expect(calls).toHaveLength(2)
+  })
+
+  it('continues from the breakpoint after the budget is extended', async () => {
+    const context = makeContextService()
+    let saved: ChainBreakpoint | null = null
+    const adapter = makeAdapter({
+      loadBreakpoint: async () => saved,
+      saveBreakpoint: vi.fn(async (breakpoint: ChainBreakpoint) => {
+        saved = breakpoint
+      }),
+    })
+    const budget = createApiCallBudget(2)
+    const firstRun = makeAiService(['A', 'B', 'C'])
+    const exhausted = await runWorkspaceSkills({
+      requestText: '生成',
+      templates: [
+        makeTemplate('s1', '生成一'),
+        makeTemplate('s2', '生成二'),
+        makeTemplate('s3', '生成三'),
+      ],
+      mode: 'chain',
+      aiService: firstRun.aiService,
+      contextService: context,
+      adapter,
+      apiBudget: budget,
+    })
+    expect(exhausted.runState).toBe('budget_exhausted')
+
+    budget.extend(2)
+    const resumed = makeAiService(['C'])
+    const result = await runWorkspaceSkills({
+      requestText: '生成',
+      templates: [
+        makeTemplate('s1', '生成一'),
+        makeTemplate('s2', '生成二'),
+        makeTemplate('s3', '生成三'),
+      ],
+      mode: 'chain',
+      aiService: resumed.aiService,
+      contextService: context,
+      adapter,
+      apiBudget: budget,
+    })
+    expect(result.runState).toBe('completed')
+    expect(result.text).toBe('C')
+    expect(resumed.calls).toHaveLength(1)
+    expect(resumed.calls[0].messages[1]?.content).toContain(
+      'SKILL：生成三',
+    )
   })
 })

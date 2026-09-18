@@ -85,11 +85,11 @@ describe('skillOrchestrator composite', () => {
             meta: { executionMode: 'composite', children: ['child-a', 'child-b', 'child-c'] }
           }),
           error: null,
-          fromCache: false
+          folderPackageCache: false
         }
       }
       const id = folderPath.split('/').pop() || 'child'
-      return { package: packageFor(id, { folderPath }), error: null, fromCache: false }
+      return { package: packageFor(id, { folderPath }), error: null, folderPackageCache: false }
     })
 
     const result = await executeCompositeSkill({
@@ -114,11 +114,11 @@ describe('skillOrchestrator composite', () => {
             meta: { executionMode: 'composite', children: ['child-a', 'child-b'] }
           }),
           error: null,
-          fromCache: false
+          folderPackageCache: false
         }
       }
       const id = folderPath.split('/').pop() || 'child'
-      return { package: packageFor(id, { folderPath }), error: null, fromCache: false }
+      return { package: packageFor(id, { folderPath }), error: null, folderPackageCache: false }
     })
 
     const result = await executeCompositeSkill({
@@ -148,7 +148,7 @@ describe('skillOrchestrator composite', () => {
             meta: { executionMode: 'composite', children: ['child-a', 'child-b'] }
           }),
           error: null,
-          fromCache: false
+          folderPackageCache: false
         }
       }
       const id = folderPath.split('/').pop() || 'child'
@@ -159,7 +159,7 @@ describe('skillOrchestrator composite', () => {
           meta: { agent: { temperature, maxTokens: 8192 } }
         }),
         error: null,
-        fromCache: false
+        folderPackageCache: false
       }
     })
 
@@ -188,7 +188,7 @@ describe('skillOrchestrator composite', () => {
             meta: { executionMode: 'composite', children: ['child-a', 'child-b'] }
           }),
           error: null,
-          fromCache: false
+          folderPackageCache: false
         }
       }
       const id = folderPath.split('/').pop() || 'child'
@@ -198,7 +198,7 @@ describe('skillOrchestrator composite', () => {
           meta: { agent: { temperature: 0.45, model: 'child-model', maxTokens: 8192 } }
         }),
         error: null,
-        fromCache: false
+        folderPackageCache: false
       }
     })
 
@@ -232,11 +232,11 @@ describe('skillOrchestrator composite', () => {
             meta: { executionMode: 'composite', children: ['child-a'] }
           }),
           error: null,
-          fromCache: false
+          folderPackageCache: false
         }
       }
       const id = folderPath.split('/').pop() || 'child'
-      return { package: packageFor(id, { folderPath }), error: null, fromCache: false }
+      return { package: packageFor(id, { folderPath }), error: null, folderPackageCache: false }
     })
 
     const result = await executeCompositeSkill({
@@ -257,7 +257,7 @@ describe('skillOrchestrator composite', () => {
         meta: { executionMode: 'composite', children: ['nested'] }
       }),
       error: null,
-      fromCache: false
+      folderPackageCache: false
     }))
 
     const result = await executeCompositeSkill({
@@ -285,7 +285,7 @@ describe('skillOrchestrator composite', () => {
             meta: { executionMode: 'composite', children: ['child-a', 'child-b'] }
           }),
           error: null,
-          fromCache: false
+          folderPackageCache: false
         }
       }
       const id = folderPath.split('/').pop() || 'child'
@@ -296,7 +296,7 @@ describe('skillOrchestrator composite', () => {
           schema: id === 'child-a' ? { required: ['missing-field'] } : null
         }),
         error: null,
-        fromCache: false
+        folderPackageCache: false
       }
     })
 
@@ -323,7 +323,7 @@ describe('skillOrchestrator composite', () => {
             meta: { executionMode: 'composite', children: ['child-a'] }
           }),
           error: null,
-          fromCache: false
+          folderPackageCache: false
         }
       }
       const id = folderPath.split('/').pop() || 'child'
@@ -333,7 +333,7 @@ describe('skillOrchestrator composite', () => {
           schema: { required: ['missing-field'] }
         }),
         error: null,
-        fromCache: false
+        folderPackageCache: false
       }
     })
 
@@ -365,11 +365,11 @@ describe('skillOrchestrator composite', () => {
             meta: { executionMode: 'composite', children: ['child-a', 'child-b'] }
           }),
           error: null,
-          fromCache: false
+          folderPackageCache: false
         }
       }
       const id = folderPath.split('/').pop() || 'child'
-      return { package: packageFor(id, { folderPath }), error: null, fromCache: false }
+      return { package: packageFor(id, { folderPath }), error: null, folderPackageCache: false }
     })
 
     const result = await executeCompositeSkill({
@@ -395,11 +395,11 @@ describe('skillOrchestrator composite', () => {
             meta: { executionMode: 'composite', children: ['child-a', 'child-b'] }
           }),
           error: null,
-          fromCache: false
+          folderPackageCache: false
         }
       }
       const id = folderPath.split('/').pop() || 'child'
-      return { package: packageFor(id, { folderPath }), error: null, fromCache: false }
+      return { package: packageFor(id, { folderPath }), error: null, folderPackageCache: false }
     })
 
     const result = await executeCompositeSkill({
@@ -424,11 +424,11 @@ describe('skillOrchestrator composite', () => {
             meta: { executionMode: 'composite', children: ['child-a'] }
           }),
           error: null,
-          fromCache: false
+          folderPackageCache: false
         }
       }
       const id = folderPath.split('/').pop() || 'child'
-      return { package: packageFor(id, { folderPath }), error: null, fromCache: false }
+      return { package: packageFor(id, { folderPath }), error: null, folderPackageCache: false }
     })
     const tryConsume = vi.fn(() => ({
       status: 'blocked' as const,
@@ -458,10 +458,10 @@ describe('skillOrchestrator composite', () => {
             meta: { executionMode: 'composite', children: ['missing'] }
           }),
           error: null,
-          fromCache: false
+          folderPackageCache: false
         }
       }
-      return { package: null, error: 'folder-not-found', fromCache: false }
+      return { package: null, error: 'folder-not-found', folderPackageCache: false }
     })
 
     const result = await executeCompositeSkill({

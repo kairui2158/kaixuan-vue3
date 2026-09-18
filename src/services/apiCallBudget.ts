@@ -15,6 +15,7 @@ export interface ApiBudgetDecision {
 
 export interface ApiCallBudget {
   tryConsume(step: string, skillLimit?: number | null): ApiBudgetDecision
+  extend(additional: number): { used: number; limit: number; extensions: number }
   snapshot(): { used: number; limit: number; entries: ApiBudgetEntry[] }
 }
 
@@ -29,12 +30,24 @@ export function createApiCallBudget(totalLimit = 8): ApiCallBudget {
         reason: 'API 调用预算已耗尽（已用 0/0），阻断位置：测试专用预算',
         step: 'test-budget-zero'
       }),
+      extend: () => ({ used: 0, limit: 0, extensions: 0 }),
       snapshot: () => ({ used: 0, limit: 0, entries: [] })
     }
   }
-  const limit = normalizedTotal || 8
+  let limit = normalizedTotal || 8
   let used = 0
+  let extensions = 0
   const entries: ApiBudgetEntry[] = []
+
+  function extendBudget(additional: number): { used: number; limit: number; extensions: number } {
+    const normalizedAdditional = Number.isFinite(additional) ? Math.floor(additional) : 0
+    if (normalizedAdditional <= 0) {
+      return { used, limit, extensions }
+    }
+    limit += normalizedAdditional
+    extensions += 1
+    return { used, limit, extensions }
+  }
 
   function tryConsume(step: string, skillLimit?: number | null): ApiBudgetDecision {
     const effectiveLimit = Math.min(
@@ -57,6 +70,7 @@ export function createApiCallBudget(totalLimit = 8): ApiCallBudget {
 
   return {
     tryConsume,
+    extend: extendBudget,
     snapshot: () => ({ used, limit, entries: entries.slice() })
   }
 }

@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "rendererCount": 132,
+  "mainCount": 132,
+  "rendererCategories": {
+    "ai-service": 30,
+    "ai-service/tool-call": 14,
+    "ai-service/editor-presentation": 19,
+    "ai-service/editor-batch": 22
+  },
+  "mainCategories": {
+    "ai-service": 30,
+    "ai-service/tool-call": 14,
+    "ai-service/editor-presentation": 19,
+    "ai-service/editor-batch": 22
+  },
+  "missingInMain": []
+}

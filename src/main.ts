@@ -21,6 +21,8 @@ DiagLogger.init()
 import { MCPProtocol } from './services/mcp-protocol'
 import { ToolRegistry } from './services/tool-registry'
 import { buildProviderModelsUrl, buildProviderHeaders } from './services/providerProtocols'
+// Intent router: jieba + TF-IDF + cosine for chain mode intent classification
+import { initIntentRouter, isIntentRouterDegraded } from './services/chainIntentRouter'
 ;(globalThis as any).MCPProtocol = MCPProtocol
 ;(globalThis as any).ToolRegistry = ToolRegistry
 
@@ -107,5 +109,15 @@ app.use(VueVirtualScroller)
 
 // Expose app instance for debugging/testing
 ;(globalThis as any).__app = app
+
+// Initialize intent router (jieba + TF-IDF engine). Routing still falls back
+// read-only if init fails, so this must never block app startup.
+initIntentRouter()
+  .then(() => {
+    if (isIntentRouterDegraded()) {
+      console.warn('[chainIntentRouter] degraded: falling back to readonly routing')
+    }
+  })
+  .catch((e) => console.error('[chainIntentRouter] init failed:', e))
 
 app.mount('#app')

@@ -29,6 +29,20 @@ export interface ContextMessage {
   meta?: Record<string, unknown>
 }
 
+/** Non-destructive compaction marker; the original message stays in storage. */
+export interface ContextMessageCompaction {
+  compactionId: string
+  foldedAt: number
+  reason?: 'summary' | 'budget'
+}
+
+/** Boundary marker stored in the session; it replaces folded messages in API history. */
+export interface ContextCompactionMarker {
+  compactionId: string
+  foldedAt: number
+  foldedMessageCount: number
+}
+
 export interface ContextRef {
   projectId: string
   workspace: ContextWorkspace
@@ -46,10 +60,40 @@ export interface ContextPolicy {
   includeOutline: boolean
   includeSettings: boolean
   includeMemory: boolean
+  /** SKILL 模板已通过 {{outlineContent}} 变量注入大纲全文时，ContextPack 不再重复携带焦点全文。 */
+  skipOutlineBody?: boolean
+}
+
+export interface ContextBudget {
+  /** Declared model input window; undefined means no reliable compaction trigger. */
+  modelContextWindow?: number
+  /** Output tokens reserved by this generation request. */
+  reservedOutputTokens?: number
+}
+
+export interface ContextCompactionResult {
+  performed: boolean
+  strategy: 'none' | 'summary' | 'marker-truncation'
+  reason?: 'budget-exceeded' | 'summary-failed' | 'unknown-window'
+  compactedMessageCount: number
+  retainedMessageCount: number
+  retainedMessages?: ContextMessage[]
+  summary?: string
+  markerMessage?: ContextMessage
+  beforeChars: number
+  afterChars: number
+  estimatedBeforeTokens: number
+  estimatedAfterTokens: number
+  allowedInputTokens?: number
 }
 
 export interface ContextWorkspaceState {
   outline?: string
+  outlineContextPack?: string
+  /** 主页编辑器当前目标的完整内容；仅在 main 工作区使用。 */
+  editorContent?: string
+  /** 主页编辑器的参考资料大纲；不得替代 editorContent 的主上下文地位。 */
+  referenceOutline?: string
   selectedText?: string
   activeTab?: string
   settings?: Record<string, unknown>
@@ -74,9 +118,16 @@ export interface ContextBundle {
   execution: ContextExecutionState
 }
 
+export interface ContextCompactionObserver {
+  onContextCompacted?: (result: ContextCompactionResult) => void
+  onContextCompactionSkipped?: (result: ContextCompactionResult) => void
+}
+
 export interface ContextTurn {
   user: string
   assistant: string
+  /** 本轮真实请求的实际输出上限，用于压缩预算；缺省回落到 workspace 路由配置。 */
+  reservedOutputTokens?: number
   meta?: Record<string, unknown>
 }
 

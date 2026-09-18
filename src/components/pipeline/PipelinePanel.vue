@@ -1,5 +1,5 @@
 <template>
-  <div id="pipeline-panel" class="pl-overlay pl-fullscreen" @click.self="$emit('close')">
+  <div id="pipeline-panel" class="pl-overlay pl-fullscreen" :style="{ zIndex: modalQueue.getZIndex('pipeline-panel') }" @click.self="$emit('close')">
     <div class="pl-content pl-content-fullscreen">
       <div class="pl-header">
         <span class="pl-header-title">生成流水线</span>
@@ -14,7 +14,7 @@
         </div>
       </div>
       <div class="pl-body">
-        <div v-if="bindingImportPreview" id="pl-binding-import-preview" class="pl-binding-import-preview" role="dialog" aria-modal="true">
+        <div v-if="bindingImportPreview" id="pl-binding-import-preview" class="pl-binding-import-preview" :style="{ zIndex: modalQueue.getZIndex('pl-binding-import-preview') }" role="dialog" aria-modal="true">
           <div class="pl-binding-import-card">
             <h3>确认导入流水线绑定</h3>
             <p class="pl-binding-import-source">来源：{{ bindingImportPreview.source || '未知文件' }}</p>
@@ -369,7 +369,7 @@
                         :id="'btn-pl-continue-volume-' + i"
                         class="btn-sm btn-secondary"
                         :disabled="pipelineStore.isGenerating"
-                        title="以上一卷为记忆基准生成下一卷"
+                        title="以上一卷为记忆基准，本次只生成下一卷"
                         @click="genVolumes('continue')"
                       >
                         续生成
@@ -508,7 +508,7 @@
               <button id="btn-pl-autogen-chapters" class="btn-secondary" @click="genChapters" :disabled="pipelineStore.isGenerating || !selectedVolumeChapterLocked">自动生成章节</button>
              <button id="btn-pl-confirm-chapters" class="btn-secondary" @click="confirmStep(3)" :disabled="currentVolumeChapters.length === 0">确认完成</button>
            </div>
-            <div v-if="chapterDetailVisible" id="pl-chapter-detail-overlay" class="pl-ch-detail-overlay" @click.self="closeChapterDetail">
+            <div v-if="chapterDetailVisible" id="pl-chapter-detail-overlay" class="pl-ch-detail-overlay" :style="{ zIndex: modalQueue.getZIndex('pl-chapter-detail') }" @click.self="closeChapterDetail">
               <section id="pl-chapter-detail-modal" class="pl-ch-detail-modal" role="dialog" aria-modal="true" aria-labelledby="pl-chapter-detail-title">
                 <div class="pl-ch-detail-header">
                   <strong id="pl-chapter-detail-title">{{ chapterDetailEditTitle || '未命名章节' }}</strong>
@@ -625,7 +625,7 @@
     </div>
   </div>
 
-  <div v-if="showAddSettingModal" class="pl-add-setting-overlay" >
+  <div v-if="showAddSettingModal" class="pl-add-setting-overlay" :style="{ zIndex: modalQueue.getZIndex('pl-add-setting') }">
     <div class="pl-add-setting-modal">
       <div class="pl-add-setting-header">
         <span>新增设定</span>
@@ -652,6 +652,7 @@
     v-if="showSettingDetailModal && editingSettingItem"
     id="pl-setting-detail-overlay"
     class="pl-add-setting-overlay"
+    :style="{ zIndex: modalQueue.getZIndex('pl-setting-detail') }"
     @click.self="closeSettingDetailModal"
   >
     <section id="pl-setting-detail-modal" class="pl-add-setting-modal" role="dialog" aria-modal="true" aria-labelledby="pl-setting-detail-title">
@@ -675,7 +676,7 @@
     </section>
   </div>
 
-  <div v-if="memoryPreviewVisible" class="pl-memory-preview-overlay" @click.self="closeMemoryPreview">
+  <div v-if="memoryPreviewVisible" class="pl-memory-preview-overlay" :style="{ zIndex: modalQueue.getZIndex('pl-memory-preview') }" @click.self="closeMemoryPreview">
     <section class="pl-memory-preview-modal" role="dialog" aria-modal="true" aria-labelledby="pl-memory-preview-title">
       <header class="pl-memory-preview-header">
         <div>
@@ -707,149 +708,52 @@
     </section>
   </div>
 
-  <div v-if="showRunTracePanel" id="pl-run-trace-overlay" class="pl-run-trace-overlay" @click.self="closeRunTracePanel">
-    <section id="pl-run-trace-panel" class="pl-run-trace-panel" role="dialog" aria-modal="true" aria-labelledby="pl-run-trace-title">
-      <header class="pl-run-trace-header">
-        <div>
-          <strong id="pl-run-trace-title">运行记录</strong>
-          <span>仅保留最近 20 次运行，每次运行完整记录全过程</span>
+  <RunTracePanel
+    :visible="showRunTracePanel"
+    default-source="pipeline"
+    @close="closeRunTracePanel"
+  >
+    <template #folder-diagnostics="{ diagnostics }">
+      <RealSkillDiagnosticsPanel
+        v-for="(item, index) in folderDiagnosticsFor(diagnostics)"
+        :key="index"
+        :status="item.status"
+        :diagnostics="item.diagnostics"
+        :request-messages="item.apiMeta?.requestMessages || []"
+        :folder-package-cache="item.folderPackageCache"
+      />
+    </template>
+    <template #skill-extra="{ run }">
+      <div class="pl-run-trace-legacy">
+        <div class="pl-run-trace-legacy-head">
+          <strong>技能执行摘要</strong>
+          <button type="button" class="btn-sm btn-secondary" @click="showSuggestions = !showSuggestions">优化建议</button>
         </div>
-        <button type="button" class="modal-close" title="关闭" @click="closeRunTracePanel">&times;</button>
-      </header>
-
-      <div class="pl-run-trace-layout">
-        <aside class="pl-run-trace-list" aria-label="运行列表">
-          <div
-            v-for="run in runTraceStore.sortedRuns"
-            :key="run.id"
-            class="pl-run-trace-run"
-            :class="{ active: run.id === selectedRunTraceId }"
-            @click="selectedRunTraceId = run.id"
-          >
-            <div class="pl-run-trace-run-main">
-              <strong>{{ run.stepName }}</strong>
-              <span>{{ formatRunTraceTime(run.startedAt) }}</span>
-            </div>
-            <div class="pl-run-trace-run-meta">
-              <span :class="'is-' + run.status">{{ runTraceStatusText(run.status) }}</span>
-              <span>{{ run.mode }}</span>
-              <span>{{ run.durationMs ? run.durationMs + 'ms' : '进行中' }}</span>
-            </div>
+        <div v-for="log in legacyLogsFor(run)" :key="log.id" class="pl-run-trace-legacy-item" :class="'is-' + log.status">
+          <div class="pl-run-trace-legacy-top">
+            <span>{{ log.stepName }}</span>
+            <span>{{ log.mode }}</span>
+            <span>{{ log.skillNames.join('、') }}</span>
+            <span>{{ log.duration }}ms</span>
+            <button type="button" class="btn-icon" title="删除摘要" @click="execLogStore.removeLog(log.id)">&times;</button>
           </div>
-          <div v-if="runTraceStore.sortedRuns.length === 0" class="pl-run-trace-empty">还没有运行记录。生成一次设定、卷纲、章节或正文后会出现在这里。</div>
-        </aside>
-
-        <section v-if="selectedRunTrace" class="pl-run-trace-detail">
-          <div class="pl-run-trace-summary">
-            <span>层级：{{ selectedRunTrace.stepName }}</span>
-            <span>项目：{{ selectedRunTrace.projectName || selectedRunTrace.projectId || '未命名' }}</span>
-            <span>供应商：{{ selectedRunTrace.providerName || selectedRunTrace.providerId || '未记录' }}</span>
-            <span>模型：{{ selectedRunTrace.model || '未记录' }}</span>
-            <span>技能：{{ selectedRunTrace.skillNames.join('、') || '未使用' }}</span>
-            <span>技能模式：{{ selectedRunTrace.skillMode || '直接生成' }}</span>
+          <details>
+            <summary>查看提示词与结果</summary>
+            <pre>提示词：{{ log.prompt }}</pre>
+            <pre>结果：{{ log.result }}</pre>
+          </details>
+          <div v-if="log.status === 'success'" class="pl-run-trace-feedback">
+            <button type="button" class="btn-sm btn-secondary" @click="execLogStore.setFeedback(log.id, 'up')" :class="{ active: log.feedback === 'up' }">点赞</button>
+            <button type="button" class="btn-sm btn-secondary" @click="execLogStore.setFeedback(log.id, 'down')" :class="{ active: log.feedback === 'down' }">点踩</button>
           </div>
-
-          <nav class="pl-run-trace-tabs" role="tablist" aria-label="运行记录视图">
-            <button type="button" :class="{ active: activeRunTraceTab === 'timeline' }" @click="activeRunTraceTab = 'timeline'">时间线</button>
-            <button type="button" :class="{ active: activeRunTraceTab === 'api' }" @click="activeRunTraceTab = 'api'">API 调用</button>
-            <button type="button" :class="{ active: activeRunTraceTab === 'skill' }" @click="activeRunTraceTab = 'skill'">技能诊断</button>
-            <button type="button" :class="{ active: activeRunTraceTab === 'export' }" @click="activeRunTraceTab = 'export'">导出/复制</button>
-          </nav>
-
-          <div class="pl-run-trace-body">
-            <div v-if="activeRunTraceTab === 'timeline'" class="pl-run-trace-section">
-              <div v-for="event in selectedRunTrace.events" :key="event.id" class="pl-run-trace-event" :class="'is-' + event.level">
-                <span>{{ formatRunTraceTime(event.ts) }}</span>
-                <strong>{{ event.label }}</strong>
-                <pre v-if="event.detail">{{ event.detail }}</pre>
-              </div>
-              <div v-if="selectedRunTrace.error" class="pl-run-trace-error">{{ selectedRunTrace.error }}</div>
-            </div>
-
-            <div v-else-if="activeRunTraceTab === 'api'" class="pl-run-trace-section">
-              <div v-for="call in selectedRunTrace.apiCalls" :key="call.id" class="pl-run-trace-api">
-                <div class="pl-run-trace-api-head">
-                  <strong>第 {{ call.seq }} 次调用</strong>
-                  <span :class="'is-' + call.status">{{ runTraceStatusText(call.status) }}</span>
-                  <span>{{ call.skillName || call.skillId || '无技能' }}</span>
-                  <span>{{ call.model || '未记录模型' }}</span>
-                  <span>{{ call.durationMs ? call.durationMs + 'ms' : '未记录耗时' }}</span>
-                </div>
-                <details>
-                  <summary>请求消息</summary>
-                  <pre v-for="(message, index) in call.requestMessages" :key="index">[{{ message.role }}]\n{{ message.content }}</pre>
-                </details>
-                <details>
-                  <summary>流式输出</summary>
-                  <pre>{{ call.streamText || '本次没有流式内容。' }}</pre>
-                </details>
-                <details>
-                  <summary>完整返回</summary>
-                  <pre>{{ call.responseText || '本次没有返回内容。' }}</pre>
-                </details>
-                <div v-if="call.error" class="pl-run-trace-error">{{ call.error }}</div>
-              </div>
-              <div v-if="selectedRunTrace.apiCalls.length === 0" class="pl-run-trace-empty">本次运行没有 API 调用。</div>
-            </div>
-
-            <div v-else-if="activeRunTraceTab === 'skill'" class="pl-run-trace-section">
-              <div v-if="selectedRunTrace.folderDiagnostics?.length" class="pl-run-trace-folders">
-                <RealSkillDiagnosticsPanel
-                  v-for="(item, index) in selectedRunTraceFolderDiagnostics"
-                  :key="index"
-                  :status="item.status"
-                  :diagnostics="item.diagnostics"
-                  :request-messages="item.apiMeta?.requestMessages || []"
-                  :from-cache="item.fromCache"
-                />
-              </div>
-
-              <div class="pl-run-trace-legacy">
-                <div class="pl-run-trace-legacy-head">
-                  <strong>技能执行摘要</strong>
-                  <button type="button" class="btn-sm btn-secondary" @click="showSuggestions = !showSuggestions">优化建议</button>
-                </div>
-                <div v-for="log in selectedRunTraceLegacyLogs" :key="log.id" class="pl-run-trace-legacy-item" :class="'is-' + log.status">
-                  <div class="pl-run-trace-legacy-top">
-                    <span>{{ log.stepName }}</span>
-                    <span>{{ log.mode }}</span>
-                    <span>{{ log.skillNames.join('、') }}</span>
-                    <span>{{ log.duration }}ms</span>
-                    <button type="button" class="btn-icon" title="删除摘要" @click="execLogStore.removeLog(log.id)">&times;</button>
-                  </div>
-                  <details>
-                    <summary>查看提示词与结果</summary>
-                    <pre>提示词：{{ log.prompt }}</pre>
-                    <pre>结果：{{ log.result }}</pre>
-                  </details>
-                  <div v-if="log.status === 'success'" class="pl-run-trace-feedback">
-                    <button type="button" class="btn-sm btn-secondary" @click="execLogStore.setFeedback(log.id, 'up')" :class="{ active: log.feedback === 'up' }">点赞</button>
-                    <button type="button" class="btn-sm btn-secondary" @click="execLogStore.setFeedback(log.id, 'down')" :class="{ active: log.feedback === 'down' }">点踩</button>
-                  </div>
-                </div>
-                <div v-if="selectedRunTraceLegacyLogs.length === 0" class="pl-run-trace-empty">本层级暂无技能执行摘要。</div>
-                <div v-if="showSuggestions" class="pl-run-trace-suggestions">
-                  <p v-for="(sg, si) in execLogStore.getSuggestions()" :key="si">{{ sg }}</p>
-                </div>
-              </div>
-            </div>
-
-            <div v-else class="pl-run-trace-section">
-              <div class="pl-run-trace-export">
-                <button type="button" class="btn-primary" @click="exportSelectedRunTrace">导出本次 JSON</button>
-                <button type="button" class="btn-secondary" @click="copySelectedRunTrace">复制完整文本</button>
-              </div>
-              <p class="pl-run-trace-export-tip">JSON 会保存请求、流式输出、返回、usage、诊断和运行错误，导出前自动隐藏 API Key。</p>
-            </div>
-          </div>
-        </section>
-
-        <section v-else class="pl-run-trace-detail pl-run-trace-detail-empty">
-          请选择左侧任意一次运行查看详情。
-        </section>
+        </div>
+        <div v-if="legacyLogsFor(run).length === 0" class="pl-run-trace-legacy-empty">本层级暂无技能执行摘要。</div>
+        <div v-if="showSuggestions" class="pl-run-trace-suggestions">
+          <p v-for="(sg, si) in execLogStore.getSuggestions()" :key="si">{{ sg }}</p>
+        </div>
       </div>
-    </section>
-  </div>
+    </template>
+  </RunTracePanel>
 </template>
 
 <script setup lang="ts">
@@ -861,8 +765,11 @@ import { useSkillStore, type Skill } from "../../stores/skill"
 import { useAgentStore } from "../../stores/agent"
 import { useEditorStore } from "../../stores/editor"
 import { useExecutionLogStore } from "../../stores/executionLog"
-import { useRunTraceStore } from "../../stores/runTrace"
+import { folderDiagnosticsStatus, useRunTraceStore } from "../../stores/runTrace"
+import { useAiCallTrace, type AiCallContext } from "../../composables/useAiCallTrace"
+import { useModalQueue } from "../../composables/useModalQueue"
 import { useSettingsStore } from "../../stores/settings"
+import { useDeAiStore } from "../../stores/deai"
 import { useAiTools } from "../../composables/useAiTools"
 import { getAiService } from "../../services/aiService"
 import { routeSkill } from "../../services/skillRouter"
@@ -882,31 +789,34 @@ import { mergeMemory } from "../../services/memoryMerger"
 import type { ExtractedMemoryData } from "../../services/memoryExtractor"
 import { conversationContextService } from "../../services/conversationContextService"
 import { retrieveContext } from "../../services/memoryRetriever"
+import { classifyRunOutcome, type RunOutcomeStatus } from "../../services/generationValidity"
+import { extractJsonArray, extractJsonObject } from "../../services/jsonExtraction"
+import type { RunTraceStatus } from "../../stores/runTrace"
 import { parseGenerationResult } from "../../services/generationResult"
 import { buildChapterExecutionPrompt, createChapterExecutionPackage } from "../../services/chapterExecutionPackage"
-import { appendMemoryPromptOnce, buildChainSkillPrompt, formatMemoryPrompt } from "../../services/chainExecution"
+import { appendMemoryPromptOnce, buildChainSkillPrompt, dedupeChainIntermediateOutput, detectChainOutputEcho, formatMemoryPrompt, slimChainUpstreamPrompt, templateReferencesPreviousOutput } from "../../services/chainExecution"
 import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from "../../services/skillValidation"
 import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from "../../services/chainBreakpoint"
+import { describeChainHandoffEvent, makeChainHandoffArtifact, resolveChainPreviousOutput } from "../../services/chainHandoff"
+import type { ChainHandoffTemplateMeta } from "../../services/chainHandoff"
 import { selectCompleteChapters, validateChapterNarrative, validateVolumeNarrative } from "../../services/narrativeValidation"
 import { buildVolumePrompt, clampGeneratedVolumes, hasVolumeContent } from "../../services/volumeGeneration"
+import { buildVolumePlanIntegrity, clampVolumeWordsToPlan } from "../../services/volumePlanIntegrity"
 import type { VolumeGenerateMode } from "../../services/volumeGeneration"
 import { DeAiProcessor, DEAI_METHODOLOGY_PROMPT } from "../../services/de-ai"
 import type { RealSkillExecutionResult } from "../../services/realSkillTypes"
 import RealSkillDiagnosticsPanel from "../common/RealSkillDiagnosticsPanel.vue"
+import RunTracePanel from "../common/RunTracePanel.vue"
+import type { RunTrace } from "../../stores/runTrace"
 
 defineEmits<{ close: [], minimize: [], openOutline: [] }>()
-
 
 const showFlowView = ref(false)
 const showSuggestions = ref(false)
 const expandedLog = ref<string | null>(null)
 const showRunTracePanel = ref(false)
-const selectedRunTraceId = ref<string | null>(null)
-const activeRunTraceTab = ref<'timeline' | 'api' | 'skill' | 'export'>('timeline')
-const selectedRunTrace = computed(() => selectedRunTraceId.value ? runTraceStore.getRun(selectedRunTraceId.value) : null)
-const selectedRunTraceFolderDiagnostics = computed(() => (selectedRunTrace.value?.folderDiagnostics || []) as RealSkillExecutionResult[])
-const selectedRunTraceLegacyLogs = computed(() => selectedRunTrace.value ? execLogStore.logs.filter(item => item.step === selectedRunTrace.value?.step) : [])
 const lastFolderSkillDiagnostics = ref<RealSkillExecutionResult | null>(null)
+const modalQueue = useModalQueue()
 const pipelineStore = usePipelineStore()
 const projectStore = useProjectStore()
 const providerStore = useProviderStore()
@@ -915,7 +825,24 @@ const agentStore = useAgentStore()
 const editorStore = useEditorStore()
 const execLogStore = useExecutionLogStore()
 const runTraceStore = useRunTraceStore()
+function startStepTrace(step: number, stepName: string, mode: string): AiCallContext {
+  return useAiCallTrace({
+    source: "pipeline",
+    step,
+    stepName,
+    mode,
+    projectId: projectStore.currentProjectId || undefined,
+    projectName: projectStore.projectName,
+    skillNames: getStepSkillTemplates(step).map(t => t.name).filter(Boolean),
+    skillMode: getStepSkillMode(step)
+  })
+}
+function readChainHandoffMeta(skill: Skill | undefined): ChainHandoffTemplateMeta | null {
+  const meta = (skill as { meta?: unknown }).meta
+  return meta && typeof meta === 'object' ? (meta as ChainHandoffTemplateMeta) : null
+}
 const settingsStore = useSettingsStore()
+const deAiStore = useDeAiStore()
 const { importBindingsFromFile, exportBindingsJSON } = useConfigExchange()
 const bindingImportPreview = ref<{
   ok: boolean
@@ -924,7 +851,7 @@ const bindingImportPreview = ref<{
   source: string
 } | null>(null)
 
-const { generateNames, generateWritingRules, extractTimeline, batchReviewChapters, reviseChapter, translateText, convertStyle, regenerateContent, modifyContent, isLoading: aiLoading, loadingText: aiLoadingText } = useAiTools()
+const { generateWritingRules, extractTimeline, batchReviewChapters, reviseChapter, translateText, convertStyle, regenerateContent, modifyContent, isLoading: aiLoading, loadingText: aiLoadingText } = useAiTools()
 
 const toolResult = ref("")
 const toolResultHtml = computed(() => renderMarkdown(toolResult.value))
@@ -950,9 +877,6 @@ const settingsGenerationFeedbackVisible = computed(() =>
 )
 
 function openRunTracePanel() {
-  if (!selectedRunTraceId.value && runTraceStore.sortedRuns.length > 0) {
-    selectedRunTraceId.value = runTraceStore.sortedRuns[0].id
-  }
   showRunTracePanel.value = true
 }
 
@@ -960,42 +884,24 @@ function closeRunTracePanel() {
   showRunTracePanel.value = false
 }
 
-function formatRunTraceTime(ts: number) {
-  const d = new Date(ts)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+function folderDiagnosticsFor(diagnostics: unknown) {
+  return (Array.isArray(diagnostics) ? diagnostics : []) as RealSkillExecutionResult[]
 }
 
-function runTraceStatusText(status: string) {
-  if (status === 'running') return '进行中'
-  if (status === 'success') return '成功'
-  if (status === 'canceled') return '已取消'
-  return '失败'
-}
-
-async function copySelectedRunTrace() {
-  const run = selectedRunTrace.value
-  if (!run) return
+function logPipelineChainHandoff(level: 'info' | 'warn', summary: string, detail: unknown) {
+  const diag = typeof window !== 'undefined' ? (window as any).DiagLogger : null
+  if (!diag || typeof diag.log !== 'function') return
+  let payload = ''
   try {
-    await navigator.clipboard.writeText(runTraceStore.exportRunToText(run))
+    payload = JSON.stringify(detail)
   } catch {
-    await window.electronAPI?.clipboardWrite(runTraceStore.exportRunToText(run))
+    payload = String(detail)
   }
+  diag.log(level, 'pipeline/chain-handoff', summary, { detail: payload })
 }
 
-async function exportSelectedRunTrace() {
-  const run = selectedRunTrace.value
-  if (!run) return
-  const exportData = {
-    schema: 'shenyi.run-trace',
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    run: runTraceStore.exportRunToJson(run)
-  }
-  const result = await window.electronAPI?.runTraceExport(exportData)
-  if (result && !result.success) {
-    appendStepLog(run.step, '运行记录导出失败：' + (result.reason || '未知错误'))
-  }
+function legacyLogsFor(run: RunTrace) {
+  return run.step === undefined ? [] : execLogStore.logs.filter(item => item.step === run.step)
 }
 
 function closeSettingsGenerationFeedback() {
@@ -1099,6 +1005,10 @@ onBeforeUnmount(() => {
   window.removeEventListener('real-skill:pass', handleRealSkillPass)
 })
 const activeVolumeGenerationIndex = ref(-1)
+// The volume that owns the generation currently being executed. Skills use it
+// to resolve layer-accurate template variables instead of reading the body
+// layer's current selectors.
+const currentGenerationVolume = ref<any>(null)
 const volumeGenerationFeedbackVisible = computed(() =>
   pipelineStore.isGenerating
     ? activeGenerationFeedbackStep.value === 2
@@ -1125,8 +1035,13 @@ function appendPipelineStream(step: number, text: string) {
   const logs = step === 1 ? settingsGenerationLogs : step === 2 ? volumeGenerationLogs : step === 3 ? chapterGenerationLogs : bodyGenerationLogs
   const clean = (text || '').trim()
   if (!clean) return
-  if (runTraceStore.currentRunId && runTraceStore.currentApiCallId) {
-    runTraceStore.appendStream(runTraceStore.currentRunId, runTraceStore.currentApiCallId, text)
+  const waitingMarker = '模型思考中，尚未输出正文'
+  const waitingIndex = logs.value.findIndex(item => item === waitingMarker)
+  if (waitingIndex >= 0) logs.value.splice(waitingIndex, 1)
+  const runId = runTraceStore.currentRunId
+  const callId = runTraceStore.currentApiCallId
+  if (runId && callId) {
+    runTraceStore.appendCumulativeStream(runId, callId, clean)
   }
   const preview = clean.length > 500 ? clean.slice(-500) : clean
   const marker = 'API实时输出：'
@@ -1135,6 +1050,135 @@ function appendPipelineStream(step: number, text: string) {
   if (index >= 0) logs.value[index] = line
   else logs.value.push(line)
   autoScrollLog(step)
+}
+
+function appendPipelineReasoning(step: number, text: string) {
+  const logs = step === 1 ? settingsGenerationLogs : step === 2 ? volumeGenerationLogs : step === 3 ? chapterGenerationLogs : bodyGenerationLogs
+  const clean = (text || '').trim()
+  if (!clean) return
+  const preview = clean.length > 500 ? clean.slice(-500) : clean
+  const marker = '模型思考：'
+  const line = marker + preview
+  const index = logs.value.findIndex(item => item.startsWith(marker))
+  if (index >= 0) logs.value[index] = line
+  else logs.value.push(line)
+  const bodyMarker = 'API实时输出：'
+  if (!logs.value.some(item => item.startsWith(bodyMarker))) {
+    logs.value.push('模型思考中，尚未输出正文')
+  }
+  autoScrollLog(step)
+}
+
+type PipelineStreamState = {
+  text: string
+  reasoning: string
+  traceText: string
+  traceReasoning: string
+  frameId: number | null
+  dirty: boolean
+}
+
+const pipelineStreamStates = new Map<number, PipelineStreamState>()
+
+function getPipelineStreamState(step: number) {
+  let state = pipelineStreamStates.get(step)
+  if (!state) {
+    state = { text: '', reasoning: '', traceText: '', traceReasoning: '', frameId: null, dirty: false }
+    pipelineStreamStates.set(step, state)
+  }
+  return state
+}
+
+function renderPipelineStreamState(step: number, state: PipelineStreamState) {
+  appendPipelineStream(step, state.text)
+  appendPipelineReasoning(step, state.reasoning)
+  const runId = runTraceStore.currentRunId
+  const callId = runTraceStore.currentApiCallId
+  if (runId && callId) {
+    if (state.traceText) runTraceStore.appendStream(runId, callId, state.traceText)
+    if (state.traceReasoning) runTraceStore.appendReasoning(runId, callId, state.traceReasoning)
+  }
+  state.traceText = ''
+  state.traceReasoning = ''
+}
+
+function schedulePipelineStreamRender(step: number) {
+  const state = getPipelineStreamState(step)
+  if (state.frameId !== null) return
+  state.frameId = window.requestAnimationFrame(() => {
+    state.frameId = null
+    if (!state.dirty) return
+    state.dirty = false
+    renderPipelineStreamState(step, state)
+  })
+}
+
+function resetPipelineStreamState(step: number) {
+  const state = getPipelineStreamState(step)
+  if (state.frameId !== null) window.cancelAnimationFrame(state.frameId)
+  state.text = ''
+  state.reasoning = ''
+  state.traceText = ''
+  state.traceReasoning = ''
+  state.frameId = null
+  state.dirty = false
+}
+
+function appendPipelineDelta(step: number, kind: 'text' | 'reasoning', delta: string) {
+  const value = delta || ''
+  if (!value) return
+  const state = getPipelineStreamState(step)
+  if (kind === 'text') {
+    state.text += value
+    state.traceText += value
+  } else {
+    state.reasoning += value
+    state.traceReasoning += value
+  }
+  state.dirty = true
+  schedulePipelineStreamRender(step)
+}
+
+function flushPipelineStreamState(step: number) {
+  const state = getPipelineStreamState(step)
+  if (state.frameId !== null) {
+    window.cancelAnimationFrame(state.frameId)
+    state.frameId = null
+  }
+  if (!state.dirty) return
+  state.dirty = false
+  renderPipelineStreamState(step, state)
+}
+
+function traceStatusFromAiResult(result: {
+  text?: string | null
+  reasoning?: string | null
+  finishReason?: string | null
+  usage?: Record<string, unknown> | null
+}, maxTokens?: number | null): {
+  status: RunOutcomeStatus
+  error?: string
+} {
+  return classifyRunOutcome({
+    text: result.text,
+    reasoning: result.reasoning,
+    finishReason: result.finishReason,
+    usage: result.usage,
+    maxTokens
+  })
+}
+
+function traceStatusFromRun(runId: string): RunTraceStatus {
+  const run = runTraceStore.runs.find(item => item.id === runId)
+  if (!run) return 'success'
+  if (pipelineStore.generationStatus === 'canceled' || run.apiCalls.some(call => call.status === 'canceled')) return 'canceled'
+  if (pipelineStore.generationStatus.startsWith('failed') || run.apiCalls.some(call => call.status === 'failed')) return 'failed'
+  if (pipelineStore.generationStatus.startsWith('blocked') || run.apiCalls.some(call => call.status === 'blocked')) return 'blocked'
+  if (run.apiCalls.some(call => call.status === 'degraded')) return 'degraded'
+  const folderStatus = folderDiagnosticsStatus(run.folderDiagnostics || [])
+  if (folderStatus === 'failed') return 'failed'
+  if (folderStatus === 'degraded') return 'degraded'
+  return 'success'
 }
 
 function appendStepLog(step: number, line: string) {
@@ -1173,6 +1217,27 @@ type MemoryPreviewItem = {
 }
 
 const memoryPreviewVisible = ref(false)
+
+watch(() => ({
+  container: true,
+  bindingImport: Boolean(bindingImportPreview.value),
+  addSetting: showAddSettingModal.value,
+  settingDetail: showSettingDetailModal.value,
+  memoryPreview: memoryPreviewVisible.value
+}), visible => {
+  const ids: Record<string, string> = {
+    container: 'pipeline-panel',
+    bindingImport: 'pl-binding-import-preview',
+    addSetting: 'pl-add-setting',
+    settingDetail: 'pl-setting-detail',
+    memoryPreview: 'pl-memory-preview'
+  }
+  for (const key of Object.keys(ids)) {
+    if (visible[key as keyof typeof visible]) modalQueue.open(ids[key])
+    else modalQueue.close(ids[key])
+  }
+}, { immediate: true })
+
 const memoryPreviewLoading = ref(false)
 const memoryPreviewSaving = ref(false)
 const memoryPreviewError = ref("")
@@ -1641,11 +1706,8 @@ function getStepSkillIds(step: number): string[] {
     const ids = stepSlot.filter(Boolean)
     if (ids.length > 0) return ids
   }
-  const fallback = skillStore.orderedPipelineSkills
-  const idx = step
-  if (fallback.length > 0 && idx >= 0 && idx < fallback.length && fallback[idx]) {
-    return [fallback[idx].id]
-  }
+  // A layer without an explicit binding must stay empty. The old index-based
+  // fallback could silently attach another layer's skill to this step.
   return []
 }
 
@@ -1662,6 +1724,8 @@ type PipelineSkillTemplate = {
   outputSchema?: any
   retryPolicy?: any
 }
+
+type HydratedFolderMeta = { meta?: unknown }
 
 function getStepSkillTemplates(step: number): PipelineSkillTemplate[] {
   const ids = getStepSkillIds(step)
@@ -1688,9 +1752,12 @@ function getStepSkillTemplates(step: number): PipelineSkillTemplate[] {
 async function hydrateFolderTemplates(templates: PipelineSkillTemplate[]) {
   for (const t of templates) {
     if (t.skill?.format !== 'folder' || !t.skill.folderPath) continue
-    if (t.template && t.template.trim()) continue
     const loaded = await loadRealSkill(t.skill.folderPath)
     if (loaded.package?.template) t.template = loaded.package.template
+    const loadedMeta = (loaded.package as { meta?: unknown } | null)?.meta
+    if (loadedMeta && typeof loadedMeta === 'object') {
+      ;(t as HydratedFolderMeta).meta = loadedMeta
+    }
   }
 }
 
@@ -1762,39 +1829,163 @@ async function callValidatedSkill(
   timeoutMs: number | undefined,
   skillAgentId: string | undefined,
   baseTemplateOverride: string | undefined = undefined,
-  resolvedTemplate: string | undefined = undefined
+  resolvedTemplate: string | undefined = undefined,
+  templateVariables: Record<string, unknown> | undefined = undefined,
+  validateOutputSchema: boolean = false
 ): Promise<string> {
   validateSkillInputOrThrow(template, inputContext)
   if (template.skill && template.skill.format === "folder" && template.skill.folderPath) {
     const agentId = skillAgentId || getStepAgentId(step)
     const agentConfig = agentId ? (agentStore.getAgent(agentId) || null) : getStepAgentConfig(step)
     const agentSource = skillAgentId ? "user-binding" : agentId ? "step-default" : "none"
-    const route = await routeSkill(template.skill, {
-      input: prompt,
-      agent: agentConfig ? {
-        id: agentId,
-        model: agentConfig.model,
-        temperature: agentConfig.temperature,
-        maxTokens: agentConfig.maxTokens,
-        systemPrompt: agentConfig.systemPrompt
-      } : null,
-      agentSource,
-      systemPromptSuffix: step === 4 ? DEAI_METHODOLOGY_PROMPT : "",
-      baseTemplateOverride,
-      resolvedTemplate,
-      purpose: "generate",
-      budget: createApiCallBudget(8),
-      skillId: template.id,
-      aiService: await getAiService(),
-      stream: true,
-      signal: pipelineStore.getGenerationSignal(),
-      timeoutMs,
-      onChunk: (text: string) => appendPipelineStream(step, text)
-    })
+    const traceRunId = runTraceStore.currentRunId
+    const fallbackProviderId = activeProviderId()
+    const traceCallId = traceRunId
+      ? runTraceStore.startApiCall(traceRunId, {
+        step,
+        skillId: template.id,
+        skillName: template.name,
+        agentId: agentId || undefined,
+        agentName: agentConfig?.name || agentId || undefined,
+        providerId: fallbackProviderId || undefined,
+        providerName: providerStore.getProvider(fallbackProviderId)?.name,
+        model: agentConfig?.model || activeProviderModel(),
+        requestMessages: [{ role: 'user', content: prompt }]
+      })
+      : ''
+    const startedAt = Date.now()
+    const finishFolderTrace = (status: 'success' | 'degraded' | 'failed' | 'canceled', error?: string, output = '') => {
+      if (!traceRunId || !traceCallId) return
+      flushPipelineStreamState(step)
+      runTraceStore.finishApiCall(traceRunId, traceCallId, {
+        status,
+        responseText: output,
+        durationMs: Date.now() - startedAt,
+        error
+      })
+    }
+    const finishFolderTraceFromResult = (result: typeof route.folderResult) => {
+      if (!traceRunId || !traceCallId) return
+      flushPipelineStreamState(step)
+      const apiMeta = result?.apiMeta
+      const hasOutput = Boolean(result?.output?.trim())
+      const traceStatus = result?.status === 'failed'
+        ? 'failed'
+        : result?.status === 'blocked'
+          ? 'blocked'
+        : result?.status === 'degraded' && !hasOutput
+          ? 'failed'
+          : result?.status === 'degraded'
+            ? 'degraded'
+            : 'success'
+      runTraceStore.finishApiCall(traceRunId, traceCallId, {
+        status: traceStatus,
+        responseText: result?.output || '',
+        error: traceStatus === 'failed' ? (result?.errors?.[0] || 'folder SKILL 未生成有效输出') : traceStatus === 'blocked' ? 'folder SKILL 已阻断，等待恢复条件' : traceStatus === 'degraded' ? 'folder SKILL 降级完成，已保留可用输出' : undefined,
+        durationMs: Date.now() - startedAt,
+        finishReason: apiMeta?.finishReason,
+        reasoningText: apiMeta?.reasoningText,
+        usage: apiMeta?.usage
+      })
+    }
+    let route: Awaited<ReturnType<typeof routeSkill>>
+    try {
+      route = await routeSkill(template.skill, {
+        input: prompt,
+        agent: agentConfig ? {
+          id: agentId,
+          model: agentConfig.model,
+          temperature: agentConfig.temperature,
+          maxTokens: agentConfig.maxTokens,
+          systemPrompt: agentConfig.systemPrompt
+        } : null,
+        agentSource,
+        systemPromptSuffix: step === 4 ? DEAI_METHODOLOGY_PROMPT : "",
+        baseTemplateOverride,
+        resolvedTemplate,
+        templateVariables,
+        validateOutputSchema,
+        purpose: "generate",
+        budget: createApiCallBudget(8),
+        skillId: template.id,
+        aiService: await getAiService(),
+        stream: true,
+        signal: pipelineStore.getGenerationSignal(),
+        timeoutMs,
+      onChunk: (text: string) => {
+        appendPipelineDelta(step, 'text', text)
+      },
+       onReasoning: (text: string) => {
+         appendPipelineDelta(step, 'reasoning', text)
+       },
+        onGenerationEvent: (event) => {
+          if (!traceRunId) return
+          runTraceStore.addEvent(traceRunId, {
+            type: event.type,
+            level: event.type === 'generation-invalid' ? 'warn' : 'info',
+            label: `SKILL「${template.name || template.id}」${
+              event.type === 'generation-invalid'
+                ? '生成无效'
+                : event.type === 'direct-retry-start'
+                  ? '切换直出重试'
+                  : `直出重试${event.success ? '成功' : '失败'}`
+            }`,
+            detail: JSON.stringify(event)
+          })
+          appendStepLog(step, event.message || '模型输出无效，正在切换直出重试')
+        },
+        onRequestBuilt: (messages: Array<{ role: string; content: string }>) => {
+          if (traceRunId && traceCallId) {
+            runTraceStore.setApiCallRequest(traceRunId, traceCallId, messages)
+          }
+        },
+        onPhysicalCall: (event) => {
+          if (traceRunId && traceCallId) runTraceStore.appendPhysicalCall(traceRunId, traceCallId, {
+            physicalCallId: event.physicalCallId,
+            phase: event.phase,
+            status: event.status,
+            requestMessages: (event.requestMessages || []).map(m => ({ role: m.role, content: String(m.content || '') })),
+            responseText: event.responseText || '',
+            streamText: event.streamText || '',
+            reasoningText: event.reasoningText || '',
+            finishReason: event.finishReason,
+            usage: event.usage,
+            durationMs: event.durationMs,
+            error: event.error,
+      toolsEnabled: event.toolsEnabled,
+      toolsDowngraded: event.toolsDowngraded,
+      downgradeReason: event.downgradeReason,
+      retryStrategy: event.retryStrategy,
+      maxTokens: event.maxTokens
+          })
+        }
+      })
+    } catch (error) {
+      const folderResult = (error as Error & { folderResult?: RealSkillExecutionResult }).folderResult
+      if (folderResult) {
+        lastFolderSkillDiagnostics.value = folderResult
+        if (traceRunId) {
+          runTraceStore.appendFolderDiagnostics(traceRunId, {
+            ...folderResult,
+            output: folderResult.output
+          })
+        const apiMeta = folderResult.apiMeta
+        if (apiMeta?.requestMessages?.length && traceCallId) {
+          runTraceStore.setApiCallRequest(traceRunId, traceCallId, apiMeta.requestMessages)
+        }
+        if (apiMeta?.toolRequestDeltas?.length && traceCallId) {
+          runTraceStore.setApiCallToolRequestDeltas(traceRunId, traceCallId, apiMeta.toolRequestDeltas)
+        }
+        }
+        finishFolderTraceFromResult(folderResult)
+      } else {
+        finishFolderTrace('failed', error instanceof Error ? error.message : String(error))
+      }
+      throw error
+    }
     if (route.mode === "folder" && route.folderResult) {
       const folderStatus = route.folderResult.status
       lastFolderSkillDiagnostics.value = route.folderResult
-      const traceRunId = runTraceStore.currentRunId
       if (traceRunId) {
         runTraceStore.appendFolderDiagnostics(traceRunId, {
           ...route.folderResult,
@@ -1802,27 +1993,20 @@ async function callValidatedSkill(
         })
         const apiMeta = route.folderResult.apiMeta
         if (apiMeta?.requestMessages?.length) {
-          const apiCallId = runTraceStore.currentApiCallId
-            || runTraceStore.startApiCall(traceRunId, {
-              step,
-              skillId: template.id,
-              skillName: template.name,
-              agentId: agentId || undefined,
-              agentName: agentConfig?.name || agentId || undefined,
-              providerId: apiMeta.providerId || activeProviderId(),
-              providerName: providerStore.getProvider(apiMeta.providerId || activeProviderId())?.name,
-              model: agentConfig?.model || activeProviderModel(),
-              requestMessages: apiMeta.requestMessages
-            })
-          if (!runTraceStore.currentApiCallId) runTraceStore.setApiCallRequest(traceRunId, apiCallId, apiMeta.requestMessages)
+          runTraceStore.setApiCallRequest(traceRunId, traceCallId, apiMeta.requestMessages)
+        }
+        if (apiMeta?.toolRequestDeltas?.length) {
+          runTraceStore.setApiCallToolRequestDeltas(traceRunId, traceCallId, apiMeta.toolRequestDeltas)
         }
       }
+      finishFolderTraceFromResult(route.folderResult)
       if (folderStatus === "degraded") {
         const warnings = route.folderResult.diagnostics
+          .filter(item => item.type === "warning")
           .map(item => item.message)
           .filter(Boolean)
           .join("；")
-        if (warnings) appendStepLog(step, `「${template.name}」降级完成：${warnings}`)
+        appendStepLog(step, `「${template.name}」降级完成：${warnings || '已保留可用输出，详情见运行记录'}`)
       }
       return route.folderResult.output
     }
@@ -1866,12 +2050,16 @@ function getStepSkillMode(step: number): string {
   return mode === "chain" ? "chain" : "compose"
 }
 
-function buildTemplateContext(step: number, prompt: string, prevResponse?: string): Record<string, any> {
-  const contextVolumeIndex = bodyVolumeIndex.value
+function buildTemplateContext(step: number, prompt: string, prevResponse?: string, contextVolumeOverride?: any): Record<string, any> {
+  const contextVolumeIndex = contextVolumeOverride
+    ? Math.max(0, projectStore.volumes.indexOf(contextVolumeOverride))
+    : bodyVolumeIndex.value
   const vol = projectStore.volumes[contextVolumeIndex] || null
   const volId = vol ? (vol.id || vol.name) : ""
   const chs = volId ? (projectStore.chapters[volId] || []) : []
-  const selectedCh = getBodyChapterByVisibleIndex(contextVolumeIndex, bodyChapterIndex.value).chapter || getVisibleChaptersForVolume(contextVolumeIndex)[0] || null
+  const selectedCh = contextVolumeOverride
+    ? (getVisibleChaptersForVolume(contextVolumeIndex).slice(-1)[0] || null)
+    : (getBodyChapterByVisibleIndex(contextVolumeIndex, bodyChapterIndex.value).chapter || getVisibleChaptersForVolume(contextVolumeIndex)[0] || null)
   const chIdx = selectedCh ? Math.max(0, chs.indexOf(selectedCh)) : -1
   const prevCh = chIdx > 0 ? chs[chIdx - 1] : null
   const characterSettings: any[] = []
@@ -1886,13 +2074,18 @@ function buildTemplateContext(step: number, prompt: string, prevResponse?: strin
       : String(s.attrsText || "")
     return (s.name || "") + (attrs ? "（" + attrs + "）" : "")
   }).join("；")
+  const volumePlan = buildVolumePlanIntegrity({
+    plannedVolumeCount: Math.max(1, Number(volumeCount.value) || 1),
+    totalWords: Math.max(0, Math.round(bookWordCount.value * 10000)),
+    existingVolumes: projectStore.volumes
+  })
   return {
     selectedText: prompt,
     userPrompt: prompt,
     outlineContent: projectStore.pipelineOutlineText || "",
     novelTitle: projectStore.projectName || "",
-    volumeCount: projectStore.volumes.length || volumeCount.value,
-    wordsPerVolume: (vol ? Number(vol.allocatedWords || vol.suggestedWords) || 0 : 0) || volumeWords.value || "",
+    volumeCount: volumePlan.generatedVolumeCount,
+    wordsPerVolume: volumePlan.currentVolumeBudget || "",
     chapterCount: chs.length,
     wordsPerChapter: Number(vol?.wordsPerChapter || chapterWords.value || 3500) || "",
     styleTags: styleTags.value || "",
@@ -1982,8 +2175,19 @@ async function analyzeOutline() {
     return
   }
   const prompt = "请分析以下小说大纲的写作风格和节奏特征。返回JSON对象：{styleTags:\"风格标签以逗号分隔\", pacingParams:\"节奏参数描述\"}\n\n大纲：\n" + projectStore.pipelineOutlineText
+  const trace = startStepTrace(0, "大纲风格分析", "outline-analysis")
   try {
     const aiService = await getAiService()
+    trace.begin()
+    const callId = trace.beginApiCall({
+      providerId: provider.id,
+      providerName: provider.name,
+      model,
+      requestMessages: [
+        { role: "system", content: "你是小说风格分析专家。分析大纲的写作风格和节奏特征，返回JSON。" },
+        { role: "user", content: prompt }
+      ]
+    })
     const callResult = await aiService.callAi({
       purpose: 'generate',
       messages: [
@@ -1994,13 +2198,21 @@ async function analyzeOutline() {
       retry: true,
       meta: { source: 'PipelinePanel.outline-analysis' }
     })
+    trace.finishApiCall(callId, {
+      status: callResult.text ? 'success' : 'degraded',
+      responseText: callResult.text || '',
+      reasoningText: callResult.reasoning || '',
+      finishReason: callResult.finishReason,
+      usage: callResult.usage
+    })
     const text = callResult.text || ''
-    if (!text) { console.warn("[WARN] Outline analysis returned empty"); return }
+    if (!text) {
+      console.warn("[WARN] Outline analysis returned empty")
+      trace.finish('degraded', '大纲风格分析返回为空')
+      return
+    }
     let data: any = null
-    try {
-      const m = text.match(/\{[\s\S]*\}/)
-      if (m) data = JSON.parse(m[0])
-    } catch(e) { console.warn("[WARN] Outline analysis parse failed:", e) }
+    data = extractJsonObject(text)
     if (data) {
       styleTags.value = data.styleTags || data.style || ""
       pacingParams.value = data.pacingParams || data.pacing || ""
@@ -2012,10 +2224,15 @@ async function analyzeOutline() {
       styleTags.value = text.substring(0, 200)
       outlineAnalyzed.value = true
       console.log("[OK] Outline analyzed (raw text fallback)")
+      trace.finish('degraded', '大纲风格分析未返回JSON，已使用原文截断兜底')
+      return
     }
   } catch(e: any) {
     console.warn("[WARN] Outline analysis failed (non-blocking):", e.message)
+    trace.fail(e)
+    return
   }
+  trace.finish('success')
 }
 
 function getStyleTagsValue(): string {
@@ -2126,27 +2343,6 @@ function getStepAgentConfig(step: number) {
   const agentId = getStepAgentId(step)
   if (!agentId) return null
   return agentStore.getAgent(agentId) || null
-}
-
-function extractJsonArray(text: string): any[] {
-  try {
-    const jsonMatch = text.match(/\[[\s\S]*\]/)
-    if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0])
-      if (Array.isArray(parsed)) return parsed
-    }
-  } catch {}
-  return []
-}
-
-function extractJsonObject(text: string): any {
-  try {
-    const jsonMatch = text.match(/\{[\s\S]*\}/)
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0])
-    }
-  } catch {}
-  return null
 }
 
 function validateVolumes(vols: any[]): { valid: boolean; errors: string[] } {
@@ -2348,30 +2544,64 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
     requestMessages: messages
   }) : ""
   try {
-    const result = await aiService.callAi({
+      const result = await aiService.callAi({
     purpose: 'generate',
     messages,
     model,
     temperature,
     maxTokens,
-    onChunk: (text: string) => appendPipelineStream(step, text),
+    onChunk: (text: string) => {
+      appendPipelineDelta(step, 'text', text)
+    },
+    onReasoning: (text: string) => {
+      appendPipelineDelta(step, 'reasoning', text)
+    },
+    onPhysicalCall: (event) => {
+      if (runId && apiCallId) runTraceStore.appendPhysicalCall(runId, apiCallId, {
+        physicalCallId: event.physicalCallId,
+        phase: event.phase,
+        status: event.status,
+        requestMessages: (event.requestMessages || []).map(m => ({ role: m.role, content: String(m.content || '') })),
+            responseText: event.responseText || '',
+            streamText: event.streamText || '',
+            reasoningText: event.reasoningText || '',
+        finishReason: event.finishReason,
+        usage: event.usage,
+        durationMs: event.durationMs,
+        error: event.error,
+            toolsEnabled: event.toolsEnabled,
+            toolsDowngraded: event.toolsDowngraded,
+            downgradeReason: event.downgradeReason,
+            retryStrategy: event.retryStrategy,
+            maxTokens: event.maxTokens
+      })
+    },
     signal: signal || pipelineStore.getGenerationSignal(),
     timeoutMs,
     retry: true,
     meta: { source: 'PipelinePanel.callApiWithAgent', step, agentId: agentId || undefined, skillId: skillId || undefined }
     })
     if (runId && apiCallId) {
+      flushPipelineStreamState(step)
+      const traceStatus = traceStatusFromAiResult(result, result.maxTokens ?? maxTokens)
       runTraceStore.finishApiCall(runId, apiCallId, {
-        status: "success",
+        status: traceStatus.status,
         responseText: result.text || "",
+        reasoningText: result.reasoning || "",
         finishReason: result.finishReason,
         usage: result.usage,
-        durationMs: result.durationMs
+        durationMs: result.durationMs,
+        error: traceStatus.error,
+        maxTokens: result.maxTokens
       })
+      if (traceStatus.status === 'failed') {
+        throw new Error(traceStatus.error || '模型没有返回正文')
+      }
     }
     return result.text || ""
   } catch (e) {
     if (runId && apiCallId) {
+      flushPipelineStreamState(step)
       const canceled = signal?.aborted || pipelineStore.isGenerationCanceled()
       runTraceStore.finishApiCall(runId, apiCallId, {
         status: canceled ? "canceled" : "failed",
@@ -2408,7 +2638,7 @@ async function runStepSkills(step: number, prompt: string, timeoutMs: number | u
 async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: number | undefined, fallbackTemplate: string, hydratedTemplates: PipelineSkillTemplate[]) {
   const templates = hydratedTemplates
   const mode = getStepSkillMode(step)
-  const baseCtx = buildTemplateContext(step, prompt)
+  const baseCtx = buildTemplateContext(step, prompt, undefined, currentGenerationVolume.value)
   const memoryPrompt = formatMemoryPrompt(baseCtx.memoryContext)
   const generationPrompt = appendMemoryPromptOnce(prompt, baseCtx.memoryContext)
   // Use SkillExecutionEngine for split-merge / multi-step
@@ -2451,10 +2681,38 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           retry: true,
           signal: pipelineStore.getGenerationSignal(),
           meta: { source: 'PipelinePanel.engine' },
-          onChunk: opts.onChunk
+          onChunk: (text: string) => {
+            opts.onChunk?.(text)
+            appendPipelineDelta(step, 'text', text)
+          },
+          onReasoning: (text: string) => {
+            opts.onReasoning?.(text)
+            appendPipelineDelta(step, 'reasoning', text)
+          },
+          onPhysicalCall: (event) => {
+            if (traceRunId && traceCallId) runTraceStore.appendPhysicalCall(traceRunId, traceCallId, {
+              physicalCallId: event.physicalCallId,
+              phase: event.phase,
+              status: event.status,
+              requestMessages: (event.requestMessages || []).map(m => ({ role: m.role, content: String(m.content || '') })),
+              responseText: event.responseText || '',
+              streamText: event.streamText || '',
+              reasoningText: event.reasoningText || '',
+              finishReason: event.finishReason,
+              usage: event.usage,
+              durationMs: event.durationMs,
+              error: event.error,
+            toolsEnabled: event.toolsEnabled,
+            toolsDowngraded: event.toolsDowngraded,
+              downgradeReason: event.downgradeReason,
+              retryStrategy: event.retryStrategy,
+              maxTokens: event.maxTokens
+            })
+          }
           })
         } catch (error) {
           if (traceRunId && traceCallId) {
+            flushPipelineStreamState(step)
             const canceled = pipelineStore.isGenerationCanceled()
             runTraceStore.finishApiCall(traceRunId, traceCallId, {
               status: canceled ? 'canceled' : 'failed',
@@ -2464,13 +2722,20 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           throw error
         }
         if (traceRunId && traceCallId) {
+          flushPipelineStreamState(step)
+          const traceStatus = traceStatusFromAiResult(result, result.maxTokens ?? opts.maxTokens)
           runTraceStore.finishApiCall(traceRunId, traceCallId, {
-            status: 'success',
+            status: traceStatus.status,
             responseText: result.text || '',
+            reasoningText: result.reasoning || '',
             finishReason: result.finishReason,
             usage: result.usage,
-            durationMs: result.durationMs ?? (Date.now() - startedAt)
+            durationMs: result.durationMs ?? (Date.now() - startedAt),
+            error: traceStatus.error
           })
+          if (traceStatus.status === 'failed') {
+            throw new Error(traceStatus.error || '模型没有返回正文')
+          }
         }
         return { text: result.text, reasoning: result.reasoning }
       }
@@ -2495,7 +2760,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     }
   }
   if (mode === "chain" && templates.length > 1) {
-    const chainCtx = { ...baseCtx }
+    const chainCtx = { ...baseCtx, prevResponse: "" }
     const checkpointProjectId = String(projectStore.currentProjectId || "")
     const fallbackAgentId = (skillAgentId: string) => skillAgentId || getStepAgentId(step) || ""
     // Need 2: chain breakpoint resume
@@ -2509,8 +2774,19 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     })
     let startSi = resumePoint.startIndex
     let current = resumePoint.previousOutput || prompt
+    const seenHandoffHashes = new Set<string>(resumePoint.handoffHashes)
+    if (resumePoint.lastHandoff?.outputHash) {
+      seenHandoffHashes.add(resumePoint.lastHandoff.outputHash)
+      if (runTraceStore.currentRunId) {
+        runTraceStore.addEvent(runTraceStore.currentRunId, {
+          type: "chain-handoff-resume",
+          level: "info",
+          label: `链式断点恢复 Handoff`,
+          detail: `恢复 ${resumePoint.lastHandoff.sourceSkillId} 的产物 ${resumePoint.lastHandoff.outputHash}`
+        })
+      }
+    }
     if (resumePoint.resumed) {
-      chainCtx.prevResponse = current
       if (step === 2) {
         volumeGenerationLogs.value.push(
           "检测到卷纲断点：将从第" + (startSi + 1) + "步继续（失败步骤会重试）"
@@ -2520,15 +2796,112 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
     }
     for (let si = startSi; si < templates.length; si++) {
       const t = templates[si]
-      const ctxForSkill = { ...chainCtx, ...(t.customVars || {}) }
-      const resolvedTemplate = resolveSkillTemplate(t.template, ctxForSkill)
       const useOriginal = si === 0 && startSi === 0
-      const nextPrompt = buildChainSkillPrompt({
-        initialPrompt: generationPrompt,
-        previousOutput: current,
-        memoryPrompt,
-        isFirst: useOriginal
+      const isPrimaryConsumer = si === startSi
+      const templateMeta = readChainHandoffMeta(t.skill) ||
+        ((t as HydratedFolderMeta).meta && typeof (t as HydratedFolderMeta).meta === 'object'
+          ? (t as HydratedFolderMeta).meta as ChainHandoffTemplateMeta
+          : null)
+      const isFolderSkill = t.skill?.format === "folder" && Boolean(t.skill?.folderPath)
+      // Detect the raw catalog template: with keepMissing:false, resolved placeholders
+      // would otherwise disappear and hide ownership from the delivery resolver.
+      const templateOwnsPreviousOutput = si === 0
+        ? false
+        : !isFolderSkill && templateReferencesPreviousOutput(t.template)
+      const requiresFullUpstream =
+        templateMeta?.chainHandoff?.requiresFullPreviousOutput === true ||
+        (templateMeta?.chainHandoff as { requiresFullUpstreamContext?: unknown } | undefined)?.requiresFullUpstreamContext === true
+      const upstreamPrompt = slimChainUpstreamPrompt({
+        prompt: generationPrompt,
+        isPrimaryConsumer,
+        requiresFullUpstream
       })
+      if (runTraceStore.currentRunId) {
+        runTraceStore.addEvent(runTraceStore.currentRunId, {
+          type: "chain-context-slim",
+          level: upstreamPrompt.slimmed ? "info" : "info",
+          label: `链式步骤 ${si + 1}/${templates.length} 上下文决策`,
+          detail: JSON.stringify({
+            decision: upstreamPrompt.slimmed ? "slim" : "full",
+            reason: upstreamPrompt.reason,
+            isPrimaryConsumer,
+            requiresFullUpstream,
+            declarationSource: templateMeta ? "folder-meta" : "default",
+            originalPromptLength: upstreamPrompt.originalLength,
+            finalPromptLength: upstreamPrompt.prompt.length,
+            outlineOriginalLength: upstreamPrompt.outlineLength
+          })
+        })
+      }
+      const previousResolution = si === 0
+        ? { delivery: 'full_text' as const, output: '' }
+        : resolveChainPreviousOutput({
+          previousOutput: current,
+          templateMeta,
+          textSkillTemplateReferencesPreviousOutput: templateOwnsPreviousOutput
+        })
+      const handoffDelivery = previousResolution.delivery
+      // Folder executor keeps its own template.md and does not resolve pipeline
+      // template variables, so the previous output must be delivered inline once.
+      const delivery = si === 0
+        ? "context_block"
+        : isFolderSkill
+          ? "inline_block"
+          : templateOwnsPreviousOutput
+            ? "template_variable"
+            : "inline_block"
+      const nextPrompt = buildChainSkillPrompt({
+        initialPrompt: upstreamPrompt.prompt,
+        previousOutput: previousResolution.output,
+        memoryPrompt,
+        isFirst: useOriginal,
+        templateOwnsPreviousOutput,
+        delivery
+      })
+      const previousOutput = si === 0 ? "" : previousResolution.output
+      const ctxForSkill = {
+        ...chainCtx,
+        ...(t.customVars || {}),
+        previousOutput,
+        previousSkillOutput: previousOutput,
+        prevResponse: previousOutput
+      }
+      const resolvedTemplate = resolveSkillTemplate(t.template, ctxForSkill)
+      if (si > 0 && runTraceStore.currentRunId) {
+        const deliveryDetail = JSON.stringify({
+          delivery: handoffDelivery,
+          fullTextLength: current.length,
+          deliveredLength: previousResolution.output.length,
+          declaredMode: templateMeta?.chainHandoff?.previousOutput || "default",
+          requires: templateMeta?.chainHandoff?.requires || []
+        })
+        runTraceStore.addEvent(runTraceStore.currentRunId, {
+          type: "chain-handoff-delivery",
+          level: "info",
+          label: `链式步骤 ${si + 1}/${templates.length} 上游交付决策`,
+          detail: deliveryDetail
+        })
+        logPipelineChainHandoff(
+          'info',
+          `Chain handoff delivery: step=${si + 1}/${templates.length} delivery=${handoffDelivery}`,
+          deliveryDetail
+        )
+        const contractMiss = previousResolution.contractMiss
+        if (contractMiss) {
+          const contractMissDetail = JSON.stringify(contractMiss)
+          runTraceStore.addEvent(runTraceStore.currentRunId, {
+            type: "chain-handoff-contract-miss",
+            level: "warn",
+            label: `链式步骤 ${si + 1}/${templates.length} Handoff 契约未命中`,
+            detail: contractMissDetail
+          })
+          logPipelineChainHandoff(
+            'warn',
+            `Chain handoff contract miss: step=${si + 1}/${templates.length}`,
+            contractMissDetail
+          )
+        }
+      }
       console.log("[PIPELINE] chain step " + (si + 1) + "/" + templates.length + " = " + t.name)
       if (step === 2) {
         volumeGenerationLogs.value.push("卷纲链式步骤 " + (si + 1) + "/" + templates.length + "：正在执行「" + (t.name || "未命名技能") + "」")
@@ -2551,8 +2924,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
       const skillAgentId = getStepSkillAgentId(step, t.id)
       const injection = getPromptParts(resolvedTemplate, t.injectMode || "system_prefix")
       try {
-        const previousOutput = si === 0 ? "" : current
-        current = await callValidatedSkill(
+        let stepOutput = await callValidatedSkill(
           step,
           t,
           injection,
@@ -2561,10 +2933,75 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           timeoutMs,
           skillAgentId,
           undefined,
-          resolvedTemplate
+          resolvedTemplate,
+          ctxForSkill,
+          si < templates.length - 1
         )
+        if (si > 0 && handoffDelivery !== 'full_text') {
+          validateSkillOutputOrThrow(t, stepOutput)
+        }
+        if (si < templates.length - 1) {
+          const dedupedOutput = dedupeChainIntermediateOutput(stepOutput)
+          if (dedupedOutput !== stepOutput) {
+            const removedChars = stepOutput.length - dedupedOutput.length
+            stepOutput = dedupedOutput
+            if (runTraceStore.currentRunId) {
+              runTraceStore.addEvent(runTraceStore.currentRunId, {
+                type: "chain-dedupe",
+                level: "warn",
+                label: `链式步骤 ${si + 1}/${templates.length} 中间产物去重`,
+                detail: `剔除上一步回显的记忆块/上一步标题，共 ${removedChars} 字符`
+              })
+            }
+          }
+        }
+        const echoDiagnostic = detectChainOutputEcho(
+          si === 0 ? undefined : previousResolution.output,
+          stepOutput
+        )
+        if (runTraceStore.currentRunId && echoDiagnostic) {
+          runTraceStore.addEvent(runTraceStore.currentRunId, {
+            type: echoDiagnostic.code,
+            level: "warn",
+            label: `链式步骤 ${si + 1}/${templates.length} 输出回显警告`,
+            detail: `${echoDiagnostic.message}（前序长度 ${echoDiagnostic.previousLength}，当前长度 ${stepOutput.length}）`
+          })
+        }
+        current = stepOutput
         chainCtx.prevResponse = current
+        if (si < templates.length - 1 && runTraceStore.currentRunId) {
+          const reportStartedAt = Date.now()
+          runTraceStore.attachProcessingReport(runTraceStore.currentRunId, {
+            stage: 'post',
+            processor: 'chain-handoff',
+            status: 'success',
+            inputPreview: upstreamPrompt.prompt.slice(0, 500),
+            outputPreview: current.slice(0, 500),
+            output: current,
+            startedAt: reportStartedAt,
+            endedAt: reportStartedAt,
+            durationMs: 0
+          })
+        }
+        const handoffArtifact = makeChainHandoffArtifact({
+          sourceStep: si,
+          sourceSkillId: t.id,
+          output: current,
+          delivery: handoffDelivery,
+          templateMeta,
+          previousSeenHashes: seenHandoffHashes
+        })
+        seenHandoffHashes.add(handoffArtifact.outputHash)
+        if (runTraceStore.currentRunId) {
+          runTraceStore.addEvent(runTraceStore.currentRunId, {
+            type: "chain-handoff",
+            level: handoffArtifact.repeatedHashCount ? "warn" : "info",
+            label: `链式步骤 ${si + 1}/${templates.length} Handoff`,
+            detail: JSON.stringify(describeChainHandoffEvent(handoffArtifact))
+          })
+        }
         // Persist a complete success checkpoint immediately after each Skill.
+        const handoffHashes = Array.from(seenHandoffHashes)
         await pipelineStore.saveBreakpoint(createChainSuccessBreakpoint({
           step,
           projectId: checkpointProjectId,
@@ -2573,12 +3010,163 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           skillSequence,
           lastSuccessChainIndex: si,
           lastOutput: current,
+          lastHandoff: {
+            artifactId: handoffArtifact.artifactId,
+            sourceStep: handoffArtifact.sourceStep,
+            sourceSkillId: handoffArtifact.sourceSkillId,
+            outputHash: handoffArtifact.outputHash,
+            fullTextLength: handoffArtifact.fullTextLength,
+            delivery: handoffArtifact.delivery,
+            canonicalExcerpt: handoffArtifact.canonicalExcerpt
+          },
+          handoffHashes,
           inputPrompt: nextPrompt,
           agentId: fallbackAgentId(skillAgentId),
           retryCount: 0,
           volumeIndex: selectedVolumeIndex.value
         }))
       } catch (error) {
+        if (si > 0 && handoffDelivery !== 'full_text') {
+          try {
+            if (runTraceStore.currentRunId) {
+              const escalationDetail = JSON.stringify({
+                fromDelivery: handoffDelivery,
+                reason: error instanceof Error ? error.message : String(error)
+              })
+              runTraceStore.addEvent(runTraceStore.currentRunId, {
+                type: "chain-handoff-escalation",
+                level: "warn",
+                label: `链式步骤 ${si + 1}/${templates.length} Handoff 升级全文重试`,
+                detail: escalationDetail
+              })
+              logPipelineChainHandoff(
+                'warn',
+                `Chain handoff escalation: step=${si + 1}/${templates.length} from=${handoffDelivery}`,
+                escalationDetail
+              )
+            }
+            const fullRetryPrompt = buildChainSkillPrompt({
+              initialPrompt: upstreamPrompt.prompt,
+              previousOutput: current,
+              memoryPrompt,
+              isFirst: useOriginal,
+              templateOwnsPreviousOutput,
+              delivery
+            })
+            const fullRetryContext = { ...ctxForSkill, previousOutput: current }
+            const fullRetryResolvedTemplate = resolveSkillTemplate(t.template, {
+              ...ctxForSkill,
+              prevResponse: current,
+              previousOutput: current,
+              previousSkillOutput: current
+            })
+            let stepOutput = await callValidatedSkill(
+              step,
+              t,
+              injection,
+              fullRetryPrompt,
+              fullRetryContext,
+              timeoutMs,
+              skillAgentId,
+              undefined,
+              fullRetryResolvedTemplate,
+              ctxForSkill,
+              si < templates.length - 1
+            )
+            validateSkillOutputOrThrow(t, stepOutput)
+            if (si < templates.length - 1) {
+              const dedupedOutput = dedupeChainIntermediateOutput(stepOutput)
+              if (dedupedOutput !== stepOutput) {
+                const removedChars = stepOutput.length - dedupedOutput.length
+                stepOutput = dedupedOutput
+                if (runTraceStore.currentRunId) {
+                  runTraceStore.addEvent(runTraceStore.currentRunId, {
+                    type: "chain-dedupe",
+                    level: "warn",
+                    label: `链式步骤 ${si + 1}/${templates.length} 中间产物去重`,
+                    detail: `剔除上一步回显的记忆块/上一步标题，共 ${removedChars} 字符`
+                  })
+                }
+              }
+            }
+            const echoDiagnostic = detectChainOutputEcho(current, stepOutput)
+            if (runTraceStore.currentRunId && echoDiagnostic) {
+              runTraceStore.addEvent(runTraceStore.currentRunId, {
+                type: echoDiagnostic.code,
+                level: "warn",
+                label: `链式步骤 ${si + 1}/${templates.length} 输出回显警告`,
+                detail: `${echoDiagnostic.message}（前序长度 ${echoDiagnostic.previousLength}，当前长度 ${stepOutput.length}）`
+              })
+            }
+            current = stepOutput
+            chainCtx.prevResponse = current
+            const reportStartedAt = Date.now()
+            if (runTraceStore.currentRunId) {
+              runTraceStore.attachProcessingReport(runTraceStore.currentRunId, {
+                stage: 'post',
+                processor: 'chain-handoff',
+                status: 'warning',
+                inputPreview: upstreamPrompt.prompt.slice(0, 500),
+                outputPreview: current.slice(0, 500),
+                output: current,
+                issues: [{
+                  level: 'warning',
+                  code: 'chain-handoff-escalation',
+                  message: `已从 ${handoffDelivery} 升级为全文重试并成功`,
+                  blocking: false,
+                  retried: true
+                }],
+                startedAt: reportStartedAt,
+                endedAt: reportStartedAt,
+                durationMs: 0
+              })
+            }
+            const handoffArtifact = makeChainHandoffArtifact({
+              sourceStep: si,
+              sourceSkillId: t.id,
+              output: current,
+              delivery: 'full_text',
+              templateMeta: { chainHandoff: { requiresFullPreviousOutput: true } },
+              previousSeenHashes: seenHandoffHashes
+            })
+            seenHandoffHashes.add(handoffArtifact.outputHash)
+            if (runTraceStore.currentRunId) {
+              runTraceStore.addEvent(runTraceStore.currentRunId, {
+                type: "chain-handoff",
+                level: handoffArtifact.repeatedHashCount ? "warn" : "info",
+                label: `链式步骤 ${si + 1}/${templates.length} Handoff（全文重试）`,
+                detail: JSON.stringify(describeChainHandoffEvent(handoffArtifact))
+              })
+            }
+            const handoffHashes = Array.from(seenHandoffHashes)
+            await pipelineStore.saveBreakpoint(createChainSuccessBreakpoint({
+              step,
+              projectId: checkpointProjectId,
+              skillIndex: si,
+              skillId: t.id,
+              skillSequence,
+              lastSuccessChainIndex: si,
+              lastOutput: current,
+              lastHandoff: {
+                artifactId: handoffArtifact.artifactId,
+                sourceStep: handoffArtifact.sourceStep,
+                sourceSkillId: handoffArtifact.sourceSkillId,
+                outputHash: handoffArtifact.outputHash,
+                fullTextLength: handoffArtifact.fullTextLength,
+                delivery: handoffArtifact.delivery,
+                canonicalExcerpt: handoffArtifact.canonicalExcerpt
+              },
+              handoffHashes,
+              inputPrompt: fullRetryPrompt,
+              agentId: fallbackAgentId(skillAgentId),
+              retryCount: 0,
+              volumeIndex: selectedVolumeIndex.value
+            }))
+            continue
+          } catch (escalationError) {
+            error = escalationError instanceof Error ? escalationError : new Error(String(escalationError))
+          }
+        }
         // A failed Skill is a terminal chain state for this run; never pass stale output onward.
         await pipelineStore.saveBreakpoint(createChainFailureBreakpoint({
           step,
@@ -2692,28 +3280,22 @@ function removeSetting(index: number) {
 
 async function genSettings() {
   if (!projectStore.hasOutline || !projectStore.outlineLocked) return
-  const traceRunId = runTraceStore.startRun({
-    step: 1,
-    stepName: "设定层",
-    mode: "settings",
-    projectId: projectStore.currentProjectId || undefined,
-    projectName: projectStore.projectName,
-    skillNames: getStepSkillTemplates(1).map(t => t.name).filter(Boolean),
-    skillMode: getStepSkillMode(1)
-  })
+  const trace = startStepTrace(1, "设定层", "settings")
+  trace.begin()
   activeGenerationFeedbackStep.value = 1
   skillStepStates.value = []
+  resetPipelineStreamState(1)
   settingsGenerationLogs.value = ["已读取大纲锁定状态，准备构造设定生成请求"]
   pipelineStore.startGeneration()
   pipelineStore.updateProgress(10, "正在读取已确认大纲并生成设定")
   try {
-    runTraceStore.addEvent(traceRunId, { type: "prompt-built", level: "info", label: "设定层提示词已构建" })
+    trace.addEvent({ type: "prompt-built", level: "info", label: "设定层提示词已构建" })
     const prompt = "[已确认大纲]\n" + projectStore.pipelineOutlineText + "\n\n请基于这份已确认的大纲，提取并生成设定项。根据内容自动分配category；没有合适分类时使用设定类。输出JSON数组，每项含name/category/attrsText字段。"
     settingsGenerationLogs.value.push("请求已发送：正在等待 API 返回设定内容")
     const result = await runStepSkills(1, prompt, undefined, "你是设定生成专家。基于小说大纲生成详细设定。")
     settingsGenerationLogs.value.push("API 已返回：正在解析设定 JSON 并检查设定名称")
     pipelineStore.updateProgress(70, "正在解析设定内容")
-    const settings = extractJsonArray(result)
+    const settings = extractJsonArray(result) as any[]
     if (settings.length > 0) {
       const valid = settings.filter((s: any) => s.name)
       if (valid.length > 0) {
@@ -2742,7 +3324,7 @@ async function genSettings() {
           selectedSettingCategory.value = firstCategoryWithSettings(["设定类", ...sc2.categories])
         }
         settingsGenerationLogs.value.push("设定已写入分类并保存到当前项目")
-        runTraceStore.addEvent(traceRunId, { type: "write", level: "info", label: "设定已写入项目", detail: "新增 " + valid.length + " 项" })
+        trace.addEvent({ type: "write", level: "info", label: "设定已写入项目", detail: "新增 " + valid.length + " 项" })
         pipelineStore.updateProgress(100, "设定生成完成")
         styleCardExpanded.value = true
       } else {
@@ -2758,30 +3340,24 @@ async function genSettings() {
     settingsGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
     pipelineStore.failGeneration(e.message)
   } finally {
-    const status = pipelineStore.generationStatus === "canceled" ? "canceled" : pipelineStore.generationStatus.startsWith("failed") ? "failed" : "success"
-    runTraceStore.finishRun(traceRunId, status)
+    const traceStatus = traceStatusFromRun(trace.runId!)
+    trace.finish(traceStatus, undefined, traceStatus === 'success' ? 'settings_generation_complete' : 'generation_failed')
   }
 }
 
 async function genVolumes(mode: string) {
   if (!projectStore.pipelineOutlineText) return
-  const traceRunId = runTraceStore.startRun({
-    step: 2,
-    stepName: "卷纲层",
-    mode,
-    projectId: projectStore.currentProjectId || undefined,
-    projectName: projectStore.projectName,
-    skillNames: getStepSkillTemplates(2).map(t => t.name).filter(Boolean),
-    skillMode: getStepSkillMode(2)
-  })
+  const trace = startStepTrace(2, "卷纲层", mode)
+  trace.begin()
   activeGenerationFeedbackStep.value = 2
   skillStepStates.value = []
   // 新项目会从大纲自动生成占位卷；占位卷没有纲要/摘要，不能作为上一卷记忆。
   const previousVolumes = projectStore.volumes.filter(hasVolumeContent)
   const existingCountBeforeGeneration = previousVolumes.length
+  resetPipelineStreamState(2)
   activeVolumeGenerationIndex.value = mode === "auto" ? 0 : existingCountBeforeGeneration
   volumeGenerationLogs.value = [
-    mode === "single" ? "已选择逐卷生成，准备生成下一卷" : mode === "continue" ? "已选择续生成，准备补齐后续卷纲" : "已选择 AI 生成全卷，准备分析大纲和字数"
+    mode === "single" ? "已选择逐卷生成，准备生成下一卷" : mode === "continue" ? "已选择续生成，本次只生成下一卷" : "已选择 AI 生成全卷，准备分析大纲和字数"
   ]
   pipelineStore.startGeneration()
   pipelineStore.updateProgress(10, "AI生成卷纲中")
@@ -2796,18 +3372,19 @@ async function genVolumes(mode: string) {
     const boundText = getBoundSettingsText()
     const effectiveVolumes = Math.max(1, volumeCount.value)
     const existingCount = previousVolumes.length
-    volumeGenerationLogs.value.push("已读取大纲、设定和全书字数，正在构造卷纲请求")
     const totalWords = Math.max(0, Math.round(bookWordCount.value * 10000))
-    runTraceStore.addEvent(traceRunId, {
+    const volumePlan = buildVolumePlanIntegrity({
+      plannedVolumeCount: effectiveVolumes,
+      totalWords,
+      existingVolumes: previousVolumes
+    })
+    volumeGenerationLogs.value.push("已读取大纲、设定和全书字数，正在构造卷纲请求")
+    trace.addEvent({
       type: "prompt-built",
       level: "info",
       label: "卷纲层提示词已构建",
-      detail: JSON.stringify({ effectiveVolumes, totalWords, existingCount, mode })
+      detail: JSON.stringify({ ...volumePlan, mode })
     })
-    const allocatedSum = previousVolumes.reduce(
-      (sum: number, v: any) => sum + Math.max(0, Math.round(Number(v.allocatedWords || v.suggestedWords) || 0)),
-      0
-    )
     const prompt = buildVolumePrompt({
       mode: mode as VolumeGenerateMode,
       outlineText: projectStore.pipelineOutlineText,
@@ -2815,14 +3392,14 @@ async function genVolumes(mode: string) {
       boundText,
       effectiveVolumes,
       totalWords,
-      allocatedSum,
+      allocatedSum: volumePlan.allocatedWords,
       existingVolumes: previousVolumes
     })
     volumeGenerationLogs.value.push("请求已发送：正在等待 API 返回卷纲内容")
     const result = await runStepSkills(2, prompt, 600000, "你是卷纲生成专家。基于大纲和设定生成卷纲。")
     volumeGenerationLogs.value.push("API 已返回：正在解析卷纲 JSON 并校验卷数")
     pipelineStore.updateProgress(70, "正在解析卷纲内容")
-    let volumes = extractJsonArray(result)
+    let volumes = extractJsonArray(result) as any[]
     if (volumes.length === 0) {
       volumeGenerationLogs.value.push("卷纲解析失败，正在重试一次")
       pipelineStore.updateProgress(75, "卷纲解析失败，重试中")
@@ -2833,7 +3410,7 @@ async function genVolumes(mode: string) {
     if (clamped.truncated) {
       const modeLabel = mode === "single" ? "逐卷" : "续生成"
       volumeGenerationLogs.value.push("模型返回 " + volumes.length + " 项，已按" + modeLabel + "模式截取前 " + clamped.volumes.length + " 项")
-      runTraceStore.addEvent(traceRunId, {
+      trace.addEvent({
         type: "parse",
         level: "warn",
         label: "卷纲数量已按模式截取",
@@ -2849,30 +3426,62 @@ async function genVolumes(mode: string) {
         return
       }
       if (mode === "continue" || mode === "single") {
-        projectStore.volumes = [
-          ...previousVolumes,
-          ...volumes.map((v: any) => ({
+        const normalizedVolumes = volumes.map((v: any) => {
+          const requestedWords = Math.max(0, Math.round(Number(v.allocatedWords || v.suggestedWords) || 0))
+          const clamped = clampVolumeWordsToPlan(requestedWords, volumePlan)
+          if (clamped.clamped) {
+            volumeGenerationLogs.value.push(
+              `第${previousVolumes.length + 1}卷字数 ${requestedWords} 超出剩余预算，已调整为 ${clamped.words}`
+            )
+            trace.addEvent({
+              type: "volume-budget-clamped",
+              level: "warn",
+              label: "卷纲字数已按全书预算钳制",
+              detail: `requested=${requestedWords}; allowed=${clamped.words}; remaining=${volumePlan.remainingWords}`
+            })
+          }
+          return {
             ...v,
-            allocatedWords: Math.max(0, Math.round(Number(v.allocatedWords) || 0)),
+            id: v.id || ('vol_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)),
+            allocatedWords: clamped.words,
             confirmed: false,
             isBound: false,
             boundTo: [],
             bodyGenerated: false
-          }))
-        ]
+          }
+        })
+        projectStore.volumes = [...previousVolumes, ...normalizedVolumes]
       } else {
-        projectStore.volumes = volumes.map((v: any) => ({
-          ...v,
-          allocatedWords: Math.max(0, Math.round(Number(v.allocatedWords) || 0)),
-          confirmed: false,
-          isBound: false,
-          boundTo: [],
-          bodyGenerated: false
-        }))
+        const plannedWords = buildVolumePlanIntegrity({
+          plannedVolumeCount: effectiveVolumes,
+          totalWords,
+          existingVolumes: []
+        })
+        projectStore.volumes = volumes.map((v: any) => {
+          const requestedWords = Math.max(0, Math.round(Number(v.allocatedWords || v.suggestedWords) || 0))
+          const clamped = clampVolumeWordsToPlan(requestedWords, plannedWords)
+          if (clamped.clamped) {
+            trace.addEvent({
+              type: "volume-budget-clamped",
+              level: "warn",
+              label: "全卷生成字数已按全书预算钳制",
+              detail: `requested=${requestedWords}; allowed=${clamped.words}; remaining=${plannedWords.remainingWords}`
+            })
+          }
+          return {
+            ...v,
+            id: v.id || ('vol_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)),
+            allocatedWords: clamped.words,
+            confirmed: false,
+            isBound: false,
+            boundTo: [],
+            bodyGenerated: false
+          }
+        })
       }
       projectStore.saveProject()
       volumeGenerationLogs.value.push("卷纲已写入卷框并保存到当前项目")
-      runTraceStore.addEvent(traceRunId, { type: "write", level: "info", label: "卷纲已写入项目", detail: "写入 " + volumes.length + " 卷" })
+      trace.addEvent({ type: "write", level: "info", label: "卷纲已写入项目", detail: "写入 " + volumes.length + " 卷" })
       pipelineStore.updateProgress(100, "卷纲生成完成")
     } else {
       volumeGenerationLogs.value.push("API 返回内容不是可用的卷纲数组")
@@ -2889,10 +3498,11 @@ async function genVolumes(mode: string) {
       volumeGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
     }
     pipelineStore.failGeneration(e.message)
-    runTraceStore.addEvent(traceRunId, { type: "failed", level: "error", label: "卷纲运行失败", detail: e.message || "未知错误" })
+    trace.addEvent({ type: "failed", level: "error", label: "卷纲运行失败", detail: e.message || "未知错误" })
   } finally {
-    const status = pipelineStore.generationStatus === "canceled" ? "canceled" : pipelineStore.generationStatus.startsWith("failed") ? "failed" : "success"
-    runTraceStore.finishRun(traceRunId, status)
+    const traceStatus = traceStatusFromRun(trace.runId!)
+    const successReason = mode === 'single' ? 'single_volume_generation_complete' : mode === 'continue' ? 'next_volume_generation_complete' : 'all_volumes_generation_complete'
+    trace.finish(traceStatus, undefined, traceStatus === 'success' ? successReason : 'generation_failed')
   }
 }
 
@@ -2902,70 +3512,21 @@ async function loadOutline() {
 }
 
 async function callChapterApi(prompt: string): Promise<string> {
-  const provider = providerStore.preferredGenerateProvider
-  if (!provider?.id) throw new Error("未配置生成 API")
-  const model = provider.selectedModel || provider.models?.[0] || ""
-  if (!model) throw new Error("生成 API 未选择模型")
-  chapterGenerationLogs.value.push("已连接生成 API：" + (provider.name || provider.id) + " / " + model)
-  const aiService = await getAiService()
-  const messages = [
-    { role: "system", content: "你是章节规划师。请严格按照用户要求输出合法 JSON 数组，每项必须包含 title 和 plot 字段。不要输出 Markdown 或解释文字。" },
-    { role: "user", content: prompt }
-  ]
-  const runId = runTraceStore.currentRunId
-  const apiCallId = runId ? runTraceStore.startApiCall(runId, {
-    step: 3,
-    providerId: provider.id,
-    providerName: provider.name,
-    model,
-    requestMessages: messages
-  }) : ""
-  try {
-    const callResult = await aiService.callAi({
-    purpose: 'generate',
-    messages,
-    model,
-    signal: pipelineStore.getGenerationSignal(),
-    onChunk: (text: string) => appendPipelineStream(3, text),
-    retry: true,
-    meta: { source: 'PipelinePanel.callChapterApi' }
-    })
-    if (runId && apiCallId) {
-        runTraceStore.finishApiCall(runId, apiCallId, {
-        status: "success",
-        responseText: callResult.text || "",
-        finishReason: callResult.finishReason,
-        usage: callResult.usage,
-        durationMs: callResult.durationMs
-      })
-    }
-    return callResult.text || ""
-  } catch (e) {
-    if (runId && apiCallId) {
-      const canceled = pipelineStore.isGenerationCanceled()
-      runTraceStore.finishApiCall(runId, apiCallId, {
-        status: canceled ? "canceled" : "failed",
-        error: e instanceof Error ? e.message : String(e)
-      })
-    }
-    throw e
-  }
+  const result = await runStepSkills(3, prompt, undefined, "你是章节规划师。请基于大纲、设定和卷纲规划本卷章节。")
+  return result
 }
 
 async function genChapters() {
   const vol = selectedVolume.value
   if (!vol) return
-  const traceRunId = runTraceStore.startRun({
-    step: 3,
-    stepName: "章节层",
-    mode: "chapters",
-    projectId: projectStore.currentProjectId || undefined,
-    projectName: projectStore.projectName,
-    skillNames: [],
-    skillMode: "direct"
-  })
+  currentGenerationVolume.value = vol
+  const trace = startStepTrace(3, "章节层", "chapters")
+  trace.begin()
   activeGenerationFeedbackStep.value = 3
   skillStepStates.value = []
+  resetPipelineStreamState(3)
+  const volumeAgentId = getStepAgentId(3)
+  const volumeSkillNames = getStepSkillTemplates(3).map(t => t.name).filter(Boolean)
   const volId = vol.id || vol.name
   const wordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
   const totalChapters = Number(vol.chapterCount) || Math.ceil((Number(vol.allocatedWords) || Number(vol.suggestedWords) || Number(volumeWords.value) || 0) / wordsPerChapter)
@@ -2986,6 +3547,8 @@ async function genChapters() {
   // after the existing chapter list and only appends new, de-duplicated data.
   const existingChapters = persistedChapters.slice()
   chapterGenerationLogs.value = ["已选择卷「" + vol.name + "」，目标章数：" + totalChapters + "，单章字数：" + wordsPerChapter]
+  chapterGenerationLogs.value.push("智能体：" + (volumeAgentId ? (agentStore.getAgent(volumeAgentId)?.name || volumeAgentId) : "未配置，使用默认生成模型"))
+  chapterGenerationLogs.value.push("Skill：" + (volumeSkillNames.length ? volumeSkillNames.join("、") : "未配置，仅使用章节规划师提示词"))
   if (matchingBreakpoint && persistedChapters.length > 0 && persistedChapters.length < totalChapters) {
     chapterGenerationLogs.value.push(
       "检测到章节断点：已保存 " + persistedChapters.length + "/" + totalChapters + " 章，将从第" + (persistedChapters.length + 1) + "章继续"
@@ -3011,13 +3574,28 @@ async function genChapters() {
   }
   await saveChapterBreakpoint(collected.length > 0 ? 'resume-ready' : 'started')
   try {
-    runTraceStore.addEvent(traceRunId, {
+    trace.addEvent({
       type: "prompt-built",
       level: "info",
       label: "章节层执行参数已构建",
       detail: JSON.stringify({ volume: vol.name, totalChapters, wordsPerChapter, resumeCount })
     })
     const volOutline = vol.outline || vol.summary || ""
+    if (!volOutline.trim()) {
+      chapterGenerationLogs.value.push("警告：本卷没有卷纲要，章节将只能依据卷名和上游大纲、设定生成")
+    }
+    const styleCtxForChapters = getStyleContext()
+    if (styleCtxForChapters) {
+      chapterGenerationLogs.value.push("已注入风格与节奏上下文")
+    }
+    const scForChapters = projectStore.getSettingsCollection()
+    const allSettings: any[] = []
+    for (const cat of scForChapters.categories) {
+      const items = scForChapters.items[cat] || []
+      allSettings.push(...items)
+    }
+    const settingsTextForChapters = allSettings.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)).join("\n")
+    const boundSettingsTextForChapters = getBoundSettingsText()
     const batch = Math.max(1, Math.min(chapterBatchSize.value || 5, 20))
     while (collected.length < totalChapters) {
       const start = collected.length
@@ -3028,14 +3606,21 @@ async function genChapters() {
       chapterGenerationLogs.value.push(
         (phase === 'supplement' ? "补充生成" : "正在生成") + "第" + (start + 1) + "章到第" + end + "章（共" + totalChapters + "章）"
       )
-      const prompt = "[卷纲]\n" + vol.name + " - " + volOutline + "\n\n[本卷总章数]\n" + totalChapters + "\n\n[单章字数]\n" + wordsPerChapter + "\n\n已有" + start + "章，" + (phase === 'supplement' ? "继续" : "请") + "生成第" + (start + 1) + "章到第" + end + "章的章节列表。不要重复已有章节。输出JSON数组，每项含title/plot字段。数组长度应为" + requested + "。"
+      const prompt = "[全书大纲]\n" + projectStore.pipelineOutlineText
+        + "\n\n[设定]\n" + (settingsTextForChapters || "（暂无设定）")
+        + (boundSettingsTextForChapters ? "\n\n[绑定设定]\n" + boundSettingsTextForChapters : "")
+        + "\n\n[卷纲]\n" + vol.name + " - " + volOutline
+        + (styleCtxForChapters ? "\n\n[风格与节奏]\n" + styleCtxForChapters : "")
+        + "\n\n[本卷总章数]\n" + totalChapters
+        + "\n\n[单章字数]\n" + wordsPerChapter
+        + "\n\n已有" + start + "章，" + (phase === 'supplement' ? "继续" : "请") + "生成第" + (start + 1) + "章到第" + end + "章的章节列表。不要重复已有章节。输出JSON数组，每项含title/plot字段。数组长度应为" + requested + "。"
       let added: any[] = []
       let lastError: any = null
       for (let retry = 0; retry < 5 && added.length === 0; retry++) {
         try {
           const result = await callChapterApi(prompt)
           const existingTitles = new Set(collected.map(c => c.title))
-          const chapters = selectCompleteChapters(extractJsonArray(result).slice(0, requested * 2))
+          const chapters = selectCompleteChapters((extractJsonArray(result) as any[]).slice(0, requested * 2))
           added = chapters.filter((c: any) => !existingTitles.has(String(c.title).trim())).slice(0, requested)
           if (added.length === 0) {
             lastError = new Error("API 返回空章节或重复章节")
@@ -3061,7 +3646,7 @@ async function genChapters() {
       projectStore.refreshTree()
       await saveChapterBreakpoint('progress')
       chapterGenerationLogs.value.push("已生成 " + collected.length + "/" + totalChapters + " 章")
-      runTraceStore.addEvent(traceRunId, { type: "write", level: "info", label: "章节批次已写入", detail: `已生成 ${collected.length}/${totalChapters} 章` })
+      trace.addEvent({ type: "write", level: "info", label: "章节批次已写入", detail: `已生成 ${collected.length}/${totalChapters} 章` })
     }
     if (collected.length > 0) {
       const vr = validateChapters(collected, totalChapters)
@@ -3083,25 +3668,19 @@ async function genChapters() {
     await saveChapterBreakpoint('failed')
     pipelineStore.failGeneration(e.message)
     chapterGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
-    runTraceStore.addEvent(traceRunId, { type: "failed", level: "error", label: "章节运行失败", detail: e.message || "未知错误" })
+    trace.addEvent({ type: "failed", level: "error", label: "章节运行失败", detail: e.message || "未知错误" })
   } finally {
-    const status = pipelineStore.generationStatus === "canceled" ? "canceled" : pipelineStore.generationStatus.startsWith("failed") ? "failed" : "success"
-    runTraceStore.finishRun(traceRunId, status)
+    currentGenerationVolume.value = null
+    const traceStatus = traceStatusFromRun(trace.runId!)
+    trace.finish(traceStatus, undefined, traceStatus === 'success' ? 'chapters_generation_complete' : 'generation_failed')
   }
 }
 
 async function genBody(volumeIndex: number, chapterIndex: number) {
   const { vol, volId, chapter: ch } = getBodyChapterByVisibleIndex(volumeIndex, chapterIndex)
   if (!ch) return
-  const traceRunId = runTraceStore.startRun({
-    step: 4,
-    stepName: "正文层",
-    mode: "body",
-    projectId: projectStore.currentProjectId || undefined,
-    projectName: projectStore.projectName,
-    skillNames: getStepSkillTemplates(4).map(t => t.name).filter(Boolean),
-    skillMode: getStepSkillMode(4)
-  })
+  const trace = startStepTrace(4, "正文层", "body")
+  trace.begin()
 
   // Sync the body-stage selectors to the chapter we are generating from.
   bodyVolumeIndex.value = volumeIndex
@@ -3111,6 +3690,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
   pipelineStore.updateProgress(10, "AI生成正文中")
   activeGenerationFeedbackStep.value = 4
   skillStepStates.value = []
+  resetPipelineStreamState(4)
   const _bodyWordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
     bodyGenerationLogs.value = ["已选择卷「" + (vol.name || "未命名") + "」，章节：「" + (ch.title || "未命名") + "」，目标字数：" + _bodyWordsPerChapter]
   try {
@@ -3158,7 +3738,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     })
     ch.chapterExecutionPackage = executionPackage
     const prompt = buildChapterExecutionPrompt(executionPackage, _bodyWordsPerChapter)
-    runTraceStore.addEvent(traceRunId, {
+    trace.addEvent({
       type: "prompt-built",
       level: "info",
       label: "正文层执行包已构建",
@@ -3170,23 +3750,108 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     const generationResult = parseGenerationResult(rawResult)
     // P2: 后处理层 — 自动降AI清洗
     let finalBody = generationResult.body || ""
-    if (finalBody.length > 0) {
-      bodyGenerationLogs.value.push("开始降AI硬规则清洗（255禁用词+34禁用句式+句长修复）…")
+    if (finalBody.length > 0 && deAiStore.hardruleEnabled) {
+      bodyGenerationLogs.value.push(
+        deAiStore.hardRuleMode === 'legacy-auto'
+          ? "开始降AI硬规则清洗（兼容自动替换模式）…"
+          : "开始降AI硬规则检测（只报告，不改写正文）…"
+      )
       pipelineStore.updateProgress(90, "降AI后处理中")
     }
-    try {
-      const deaiResult = DeAiProcessor.process(finalBody, null)
-      if (deaiResult && deaiResult.text && deaiResult.text.length > 0) {
-        bodyGenerationLogs.value.push(
-          "降AI后处理完成：" +
-          (deaiResult.stats?.total || 0) + " 处修正" +
-          (deaiResult.detections?.length ? "，" + deaiResult.detections.length + " 项检测" : "")
-        )
-        finalBody = deaiResult.text
+    if (finalBody.length > 0 && deAiStore.hardruleEnabled) {
+      try {
+        const deaiStartedAt = Date.now()
+        const deaiInputPreview = finalBody.slice(0, 200)
+        if (deAiStore.hardRuleMode === 'legacy-auto') {
+          // V55: 兼容模式保留 processBody（只做字符级替换，不重组段落/句子结构）
+          const deaiResult = DeAiProcessor.processBody(finalBody, { hardRules: deAiStore.hardRules })
+          if (deaiResult && deaiResult.text && deaiResult.text.length > 0) {
+            bodyGenerationLogs.value.push(
+              "降AI后处理完成：" +
+              (deaiResult.stats?.total || 0) + " 处修正" +
+              (deaiResult.detections?.length ? "，" + deaiResult.detections.length + " 项检测" : "")
+            )
+            finalBody = deaiResult.text
+          }
+          runTraceStore.attachProcessingReport(trace.runId!, {
+            stage: 'post',
+            processor: 'hard-rules',
+            status: 'success',
+            inputPreview: deaiInputPreview,
+            outputPreview: finalBody.slice(0, 200),
+            ruleHits: Object.entries(deaiResult.stats || {}).map(([rule, count]) => ({
+              rule,
+              count: typeof count === 'number' ? count : 0
+            })),
+            startedAt: deaiStartedAt,
+            endedAt: Date.now(),
+            durationMs: Date.now() - deaiStartedAt
+          })
+        } else {
+          // V2：检测报告/深度修复都先出报告；检测模式不改写正文。
+          const report = DeAiProcessor.detectBody(finalBody, { hardRules: deAiStore.hardRules })
+          deAiStore.setLastDetectReport(report)
+          const blocking = report.findings.filter((item: any) => item.severity === 'blocking').length
+          const advisory = report.findings.length - blocking
+          bodyGenerationLogs.value.push(
+            "降AI检测完成：需处理 " + blocking + " 项，建议 " + advisory + " 项；正文保持原始生成结果"
+          )
+          trace.addEvent({
+            type: "deai-detect",
+            level: blocking > 0 ? "warn" : "info",
+            label: "降AI检测报告",
+            detail: JSON.stringify(report)
+          })
+          runTraceStore.attachProcessingReport(trace.runId!, {
+            stage: 'post',
+            processor: 'deai',
+            status: blocking > 0 ? 'warning' : 'success',
+            inputPreview: deaiInputPreview,
+            outputPreview: finalBody.slice(0, 200),
+            ruleHits: report.findings.map((item: any) => ({
+              rule: item.type || item.code || 'unknown',
+              count: item.count || 1
+            })),
+            issues: report.findings.map((item: any) => ({
+              level: item.severity === 'blocking' ? 'error' : 'warning',
+              code: item.type || item.code || 'unknown',
+              message: item.message || item.summary || '',
+              blocking: item.severity === 'blocking'
+            })),
+            startedAt: deaiStartedAt,
+            endedAt: Date.now(),
+            durationMs: Date.now() - deaiStartedAt
+          })
+          if (deAiStore.hardRuleMode === 'deep-fix') {
+            bodyGenerationLogs.value.push("降AI深度修复执行中（最小编辑 + 保护片段回对 + 完整性门禁）…")
+            pipelineStore.updateProgress(94, "降AI深度修复中")
+            finalBody = await runBodyMinimalEdit(finalBody, report, trace.runId!)
+            bodyGenerationLogs.value.push(
+              "降AI深度修复结束；未通过门禁或 API 失败时保留原始正文"
+            )
+          }
+        }
+      } catch (deaiErr: any) {
+        if (pipelineStore.isGenerationCanceled()) throw deaiErr
+        console.warn("[DEAI] post-process failed, using raw body:", deaiErr)
+        bodyGenerationLogs.value.push("降AI后处理跳过：" + (deaiErr?.message || "未知错误"))
+        runTraceStore.attachProcessingReport(trace.runId!, {
+          stage: 'post',
+          processor: 'deai',
+          status: 'failed',
+          inputPreview: finalBody.slice(0, 200),
+          outputPreview: finalBody.slice(0, 200),
+          issues: [{
+            level: 'error',
+            code: 'deai-post-process-failed',
+            message: deaiErr?.message || String(deaiErr),
+            blocking: false
+          }],
+          startedAt: Date.now(),
+          endedAt: Date.now(),
+          durationMs: 0
+        })
       }
-    } catch (deaiErr: any) {
-      console.warn("[DEAI] post-process failed, using raw body:", deaiErr)
-      bodyGenerationLogs.value.push("降AI后处理跳过：" + (deaiErr?.message || "未知错误"))
     }
     bodyResult.value = finalBody
     ch.body = finalBody
@@ -3196,7 +3861,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     projectStore.refreshTree()
     syncChapterManager(volId, ch, finalBody)
     bodyGenerationLogs.value.push("正文生成完成，字数：" + (finalBody || "").length)
-    runTraceStore.addEvent(traceRunId, { type: "write", level: "info", label: "正文已写入项目", detail: "字数 " + (finalBody || "").length })
+    trace.addEvent({ type: "write", level: "info", label: "正文已写入项目", detail: "字数 " + (finalBody || "").length })
     // Insert into the editor automatically (same link as old architecture).
     window.dispatchEvent(new CustomEvent("insert-text", {
       detail: {
@@ -3212,10 +3877,118 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
   } catch (e: any) {
     pipelineStore.failGeneration(e.message)
     bodyGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
-    runTraceStore.addEvent(traceRunId, { type: "failed", level: "error", label: "正文运行失败", detail: e.message || "未知错误" })
+    trace.addEvent({ type: "failed", level: "error", label: "正文运行失败", detail: e.message || "未知错误" })
   } finally {
-    const status = pipelineStore.generationStatus === "canceled" ? "canceled" : pipelineStore.generationStatus.startsWith("failed") ? "failed" : "success"
-    runTraceStore.finishRun(traceRunId, status)
+    const traceStatus = traceStatusFromRun(trace.runId!)
+    trace.finish(traceStatus, undefined, traceStatus === 'success' ? 'body_generation_complete' : 'generation_failed')
+  }
+}
+
+async function runBodyMinimalEdit(
+  text: string,
+  report: any,
+  traceRunId: string
+): Promise<string> {
+  if (!report?.findings?.length) return text
+
+  const spans = DeAiProcessor.extractProtectedSpans(text, {})
+  const reportText = report.findings.map((item: any) =>
+    `${item.type}（${item.count} 处，每千字 ${item.perKilo}）：${item.samples.join('；')}`
+  ).join('\n')
+  const systemPrompt = [
+    DeAiProcessor.getMinimalEditPrompt(),
+    '',
+    '【检测报告】',
+    reportText,
+    '',
+    '【必须保留的人名/设定/对白】',
+    spans.map((span: any) => span.value).join('\n') || '无'
+  ].join('\n')
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: text }
+  ]
+  const provider = providerStore.getProvider(activeProviderId()) || providerStore.preferredGenerateProvider
+  const model = provider?.selectedModel || provider?.models?.[0] || ''
+  const aiService = await getAiService()
+  const callId = runTraceStore.startApiCall(traceRunId, {
+    step: 4,
+    skillName: '降AI深度修复',
+    providerId: provider?.id,
+    providerName: provider?.name,
+    model,
+    requestMessages: messages
+  })
+  try {
+    const result = await aiService.callAi({
+      purpose: 'generate',
+      messages,
+      model: model || undefined,
+      stream: false,
+      retry: true,
+      signal: pipelineStore.getGenerationSignal(),
+      meta: { source: 'PipelinePanel.runBodyMinimalEdit' }
+    })
+    const edited = result.text || ''
+    const traceStatus = traceStatusFromAiResult(result)
+    runTraceStore.finishApiCall(traceRunId, callId, {
+      status: traceStatus.status,
+      responseText: edited,
+      reasoningText: result.reasoning || '',
+      finishReason: result.finishReason,
+      usage: result.usage,
+      durationMs: result.durationMs,
+      error: traceStatus.error
+    })
+    if (traceStatus.status === 'failed') {
+      appendStepLog(4, traceStatus.error || '降AI深度修复未生成正文，保留原文')
+      return text
+    }
+    if (!edited.trim()) {
+      runTraceStore.addEvent(traceRunId, {
+        type: 'deai-minimal-edit',
+        level: 'warn',
+        label: '降AI深度修复结果为空，保留原文'
+      })
+      return text
+    }
+
+    const spanCheck = DeAiProcessor.verifyProtectedSpans(text, edited, spans)
+    const integrityOk = DeAiProcessor.passesBodyIntegrityCheck(text, edited)
+    if (spanCheck.mustMissing > 0 || !integrityOk) {
+      runTraceStore.addEvent(traceRunId, {
+        type: 'deai-minimal-edit',
+        level: 'warn',
+        label: '降AI深度修复未通过门禁，保留原文',
+        detail: JSON.stringify({
+          mustMissing: spanCheck.mustMissing,
+          shouldMissing: spanCheck.shouldMissing,
+          integrityOk
+        })
+      })
+      return text
+    }
+
+    runTraceStore.addEvent(traceRunId, {
+      type: 'deai-minimal-edit',
+      level: 'info',
+      label: '降AI深度修复完成',
+      detail: JSON.stringify({
+        mustMissing: spanCheck.mustMissing,
+        shouldMissing: spanCheck.shouldMissing,
+        integrityOk,
+        originalLength: text.length,
+        editedLength: edited.length
+      })
+    })
+    return edited
+  } catch (error) {
+    const canceled = pipelineStore.isGenerationCanceled()
+    runTraceStore.finishApiCall(traceRunId, callId, {
+      status: canceled ? 'canceled' : 'failed',
+      error: error instanceof Error ? error.message : String(error)
+    })
+    throw error
   }
 }
 
@@ -3339,9 +4112,13 @@ function filterReviewedMemory(extracted: ExtractedMemoryData): ExtractedMemoryDa
   }
 }
 
-async function callMemoryApi(prompt: string, systemPrompt: string): Promise<string | null> {
+async function callMemoryApi(
+  prompt: string,
+  systemPrompt: string,
+  trace?: Parameters<typeof unifiedMemoryAiCall>[2]
+): Promise<string | null> {
   try {
-    return await unifiedMemoryAiCall(prompt, systemPrompt)
+    return await unifiedMemoryAiCall(prompt, systemPrompt, trace)
   } catch (error) {
     if ((error as any)?.message === "记忆抽取超时" || (error as any)?.kind === "timeout") throw error
     console.warn("[PIPELINE] memory extraction API failed:", error)
@@ -3367,6 +4144,8 @@ async function confirmBodyWithMemory() {
 
   if (!settingsStore.autoExtractMemory) return
 
+  const memoryTrace = startStepTrace(4, "记忆抽取", "memory-extraction")
+  memoryTrace.begin()
   memoryPreviewLoading.value = true
   memoryPreviewError.value = ""
   memoryPreviewVisible.value = true
@@ -3409,11 +4188,17 @@ async function confirmBodyWithMemory() {
       sourceVersionId,
       chapterTitle: chapter.title,
       content: chapter.content
-    }, callMemoryApi, settingsStore.memoryExtractionTimeoutSeconds * 1000)
-    if (projectStore.currentProjectId !== projectIdAtCall) return
+    }, (prompt, systemPrompt) => callMemoryApi(prompt, systemPrompt, memoryTrace), settingsStore.memoryExtractionTimeoutSeconds * 1000)
+    if (projectStore.currentProjectId !== projectIdAtCall) {
+      log("failed", "failed", "canceled")
+      memoryPreviewError.value = "项目已切换，记忆抽取结果已丢弃。"
+      memoryTrace.finish("canceled", "项目已切换，记忆抽取结果已丢弃")
+      return
+    }
     if (!result.success) {
       log("failed", "failed", result.error?.includes("超时") ? "timeout" : "invalid_json")
       memoryPreviewError.value = `记忆抽取失败：${result.error || "未知错误"}。正文已保存。`
+      memoryTrace.finish("failed", result.error || "记忆抽取失败")
       return
     }
     log("complete", "success")
@@ -3427,9 +4212,12 @@ async function confirmBodyWithMemory() {
   } catch (error: any) {
     log("failed", "failed", "unknown")
     memoryPreviewError.value = `记忆抽取失败：${error?.message || "未知错误"}。正文已保存。`
+    memoryTrace.fail(error)
+    return
   } finally {
     memoryPreviewLoading.value = false
   }
+  if (memoryTrace.isRunning()) memoryTrace.finish('success')
 }
 
 function closeMemoryPreview() {
@@ -3563,6 +4351,11 @@ const selectedChapter = computed(() => currentVolumeChapters.value[selectedChapt
 const chapterDetailVisible = ref(false)
 const chapterDetailEditTitle = ref('')
 const chapterDetailEditPlot = ref('')
+
+watch(chapterDetailVisible, visible => {
+  if (visible) modalQueue.open('pl-chapter-detail')
+  else modalQueue.close('pl-chapter-detail')
+}, { immediate: true })
 
 function openChapterDetail(index: number) {
   const ch = currentVolumeChapters.value[index]
@@ -3751,47 +4544,6 @@ function toolAction(action: string) {
 </script>
 
 <style scoped>
-.pl-run-trace-overlay { position: fixed; inset: 0; z-index: 2600; display: flex; align-items: center; justify-content: center; padding: var(--space-6); background: rgba(15, 23, 42, .58); backdrop-filter: blur(2px); }
-.pl-run-trace-panel { display: flex; flex-direction: column; width: min(1180px, 100%); height: min(820px, calc(100vh - 96px)); overflow: hidden; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-primary); box-shadow: var(--shadow-lg); }
-.pl-run-trace-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border-color); }
-.pl-run-trace-header div { display: flex; align-items: baseline; gap: var(--space-3); min-width: 0; }
-.pl-run-trace-header strong { color: var(--text-primary); font-size: 1.05rem; }
-.pl-run-trace-header span { color: var(--text-secondary); font-size: var(--font-size-sm); }
-.pl-run-trace-layout { display: grid; grid-template-columns: minmax(240px, 300px) minmax(0, 1fr); flex: 1; min-height: 0; }
-.pl-run-trace-list { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border-right: 1px solid var(--border-color); background: var(--bg-secondary); overflow-y: auto; }
-.pl-run-trace-run { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-3); border: 1px solid transparent; border-radius: var(--radius-sm); background: var(--bg-elevated); cursor: pointer; }
-.pl-run-trace-run:hover { border-color: var(--border-color); }
-.pl-run-trace-run.active { border-color: var(--primary); }
-.pl-run-trace-run-main { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); color: var(--text-primary); font-size: var(--font-size-sm); }
-.pl-run-trace-run-meta { display: flex; flex-wrap: wrap; gap: var(--space-2); color: var(--text-secondary); font-size: 12px; }
-.pl-run-trace-run-meta .is-success { color: var(--success); }
-.pl-run-trace-run-meta .is-failed { color: var(--danger); }
-.pl-run-trace-run-meta .is-canceled { color: var(--warning); }
-.pl-run-trace-run-meta .is-running { color: var(--primary); }
-.pl-run-trace-detail { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
-.pl-run-trace-detail-empty { align-items: center; justify-content: center; color: var(--text-secondary); }
-.pl-run-trace-summary { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); padding: var(--space-3) var(--space-5); border-bottom: 1px solid var(--border-color); color: var(--text-secondary); font-size: var(--font-size-sm); }
-.pl-run-trace-tabs { display: flex; gap: var(--space-1); padding: var(--space-3) var(--space-5) 0; border-bottom: 1px solid var(--border-color); }
-.pl-run-trace-tabs button { padding: var(--space-2) var(--space-3); border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: var(--font-size-sm); }
-.pl-run-trace-tabs button.active { border-bottom-color: var(--primary); color: var(--text-primary); font-weight: 600; }
-.pl-run-trace-body { flex: 1; min-height: 0; overflow: hidden; }
-.pl-run-trace-section { display: flex; flex-direction: column; gap: var(--space-3); height: 100%; padding: var(--space-4) var(--space-5) var(--space-5); overflow-y: auto; }
-.pl-run-trace-event { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: var(--space-2); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--bg-secondary); }
-.pl-run-trace-event span { color: var(--text-secondary); font-size: 12px; }
-.pl-run-trace-event strong { color: var(--text-primary); font-size: var(--font-size-sm); }
-.pl-run-trace-event pre { grid-column: 1 / -1; margin: 0; max-height: 180px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text-secondary); font-size: 12px; line-height: 1.5; user-select: text; }
-.pl-run-trace-error { padding: var(--space-3); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--danger); overflow-wrap: anywhere; }
-.pl-run-trace-api { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-secondary); }
-.pl-run-trace-api-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); color: var(--text-secondary); font-size: var(--font-size-sm); }
-.pl-run-trace-api-head strong { color: var(--text-primary); }
-.pl-run-trace-api-head .is-success { color: var(--success); }
-.pl-run-trace-api-head .is-failed { color: var(--danger); }
-.pl-run-trace-api-head .is-canceled { color: var(--warning); }
-.pl-run-trace-api-head .is-running { color: var(--primary); }
-.pl-run-trace-api details { color: var(--text-secondary); font-size: var(--font-size-sm); }
-.pl-run-trace-api summary { cursor: pointer; }
-.pl-run-trace-api pre { margin: var(--space-2) 0 0; padding: var(--space-3); max-height: 360px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary); font-size: 12px; line-height: 1.6; user-select: text; }
-.pl-run-trace-folders { display: flex; flex-direction: column; gap: var(--space-3); }
 .pl-run-trace-legacy { display: flex; flex-direction: column; gap: var(--space-3); }
 .pl-run-trace-legacy-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); color: var(--text-primary); }
 .pl-run-trace-legacy-item { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-secondary); }
@@ -3803,10 +4555,7 @@ function toolAction(action: string) {
 .pl-run-trace-feedback .active { border-color: var(--primary); color: var(--primary); }
 .pl-run-trace-suggestions { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-secondary); font-size: var(--font-size-sm); }
 .pl-run-trace-suggestions p { margin: 0; }
-.pl-run-trace-export { display: flex; flex-wrap: wrap; gap: var(--space-3); }
-.pl-run-trace-export-tip { margin: 0; color: var(--text-secondary); font-size: var(--font-size-sm); line-height: 1.6; }
-.pl-run-trace-empty { padding: var(--space-4); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-secondary); font-size: var(--font-size-sm); line-height: 1.6; }
-@media (max-width: 900px) { .pl-run-trace-layout { grid-template-columns: 1fr; } .pl-run-trace-list { max-height: 220px; border-right: 0; border-bottom: 1px solid var(--border-color); } }
+.pl-run-trace-legacy-empty { padding: var(--space-4); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-secondary); font-size: var(--font-size-sm); line-height: 1.6; }
 .pl-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal); }
 .pl-deai-badge { display: inline-flex; align-items: center; padding: var(--space-1) var(--space-4); font-size: var(--font-size-xs, 12px); color: var(--color-success, #4caf50); background: var(--color-success-surface, rgba(76,175,80,0.12)); border-radius: var(--radius-sm, 4px); white-space: nowrap; }
 .pl-style-card { margin-bottom: var(--space-4); border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-input); overflow: visible; }
@@ -4331,6 +5080,13 @@ function toolAction(action: string) {
 .pl-add-setting-footer { display: flex; justify-content: flex-end; gap: var(--space-5); padding: var(--space-5) var(--space-7); border-top: 1px solid var(--border-color); }
 .pl-setting-detail-modal-footer { justify-content: space-between; }
 .pl-setting-detail-modal-actions { display: flex; align-items: center; gap: var(--space-5); }
+.pl-binding-import-preview { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: var(--modal-gutter); background: var(--bg-overlay); }
+.pl-binding-import-card { width: min(520px, 100%); background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: var(--space-7); display: flex; flex-direction: column; gap: var(--space-4); }
+.pl-binding-import-card h3 { margin: 0; color: var(--text-primary); font-size: var(--font-size-lg); font-weight: 600; }
+.pl-binding-import-card p { margin: 0; color: var(--text-secondary); font-size: var(--font-size-sm); line-height: 1.6; }
+.pl-binding-import-source { color: var(--text-primary); font-weight: 600; word-break: break-all; }
+.pl-binding-import-warnings { color: var(--danger, #d9534f); }
+.pl-binding-import-card .pl-actions { justify-content: flex-end; display: flex; gap: var(--space-4); }
 
 
 .pl-step-view {

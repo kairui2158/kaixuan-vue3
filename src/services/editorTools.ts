@@ -1,4 +1,11 @@
+import type { DialogueToolSet, DialogueWorkspace } from './dialogueFoundation'
+import { validateDialogueToolSet } from './dialogueFoundation'
 import type { EditorTargetSnapshot } from './editorTarget'
+import { locateEditorFragment } from './editorEditLocator'
+import type { EditorEditCommand } from './editorEditProtocol'
+import { diagnoseEditorEditBatch } from './editorEditDiagnostics'
+import { mergeRetriedCommands, planEditorEditBatch } from './editorEditBatch'
+import { parseOutlineStructure, type OutlineStructureNode } from './outlineStructure'
 
 export type AgentToolPolicy = 'read' | 'write'
 
@@ -47,9 +54,211 @@ export interface ToolCallEvent {
 
 export type ToolEventSink = (event: ToolCallEvent) => void
 
+export type EditorWriteMode = 'direct'
+
+export interface EditorWriteApplyInput {
+  workspace: 'main' | 'outline'
+  targetId: string
+  batchId: string
+  next: string
+  original: string
+  commands: EditorEditCommand[]
+  reason?: string
+  reveal: {
+    mode: 'stream' | 'instant'
+    firstChange: boolean
+  }
+}
+
+export type EditorWriteApplier = (input: EditorWriteApplyInput) => Promise<
+  | { ok: true; rollbackAvailable: boolean }
+  | { ok: false; code: string; message: string }
+>
+
+export interface EditorWriteRetryCarrier {
+  workspace: string
+  targetId: string
+  contentVersion: number
+  commands: EditorEditCommand[]
+  succeededIndexes: number[]
+}
+
+export interface EditorRevealTargetInput {
+  fragment?: string
+  paragraphIndex?: number
+  anchor?: {
+    volumeTitle?: string
+    chapterTitle?: string
+    sectionTitle?: string
+  }
+  range?: { start: number; end: number }
+}
+
+export type EditorRevealFocus = 'auto' | 'start' | 'end' | 'center'
+
+export interface EditorRevealRequest {
+  workspace: 'main' | 'outline'
+  targetId: string
+  start: number
+  end: number
+  focus: EditorRevealFocus
+  highlightMs: number
+  reason?: string
+}
+
+export type EditorRevealer = (request: EditorRevealRequest) => Promise<void>
+
 const MAX_CONTEXT_WINDOW = 300
 const MAX_SEARCH_RESULTS = 20
 const MAX_PLAN_STEPS = 20
+const MAX_REVEAL_RANGE = 20000
+
+interface RevealSuccess {
+  ok: true
+  start: number
+  end: number
+  line: number
+  structurePath: string[]
+  degraded: boolean
+}
+
+interface RevealFailure {
+  ok: false
+  code: string
+  message: string
+  retryable: boolean
+  data?: unknown
+}
+
+function buildStructurePath(
+  structure: ReturnType<typeof parseOutlineStructure>,
+  start: number,
+  end: number
+): string[] {
+  const path: string[] = []
+  const walk = (nodes: OutlineStructureNode[]): boolean => {
+    for (const node of nodes) {
+      if (node.end <= start) continue
+      if (node.start >= end) continue
+      path.push(node.title)
+      if (walk(node.children)) return true
+      return true
+    }
+    return false
+  }
+  walk(structure.nodes)
+  return path
+}
+
+function resolveRevealRange(target: EditorRevealTargetInput, content: string): RevealSuccess | RevealFailure {
+  const hasFragment = typeof target.fragment === 'string' && target.fragment.trim().length > 0
+  const hasParagraphIndex = typeof target.paragraphIndex === 'number' && Number.isFinite(target.paragraphIndex)
+  const hasAnchor = !!target.anchor && [
+    target.anchor.volumeTitle,
+    target.anchor.chapterTitle,
+    target.anchor.sectionTitle,
+  ].some(title => typeof title === 'string' && title.trim().length > 0)
+  const hasRange = !!target.range && Number.isFinite(target.range.start) && Number.isFinite(target.range.end)
+  if ([hasFragment, hasParagraphIndex, hasAnchor, hasRange].filter(Boolean).length !== 1) {
+    return {
+      ok: false,
+      code: 'invalid_input',
+      message: 'target 必须且只能提供 fragment / paragraphIndex / anchor / range 之一',
+      retryable: true,
+    }
+  }
+
+  const structure = parseOutlineStructure(content)
+  const toSuccess = (start: number, end: number, degraded = structure.degraded): RevealSuccess => ({
+    ok: true,
+    start,
+    end,
+    line: content.slice(0, start).split('\n').length,
+    structurePath: buildStructurePath(structure, start, end),
+    degraded,
+  })
+
+  if (hasFragment) {
+    const located = locateEditorFragment({ content, fragment: target.fragment as string })
+    if (located.ok) {
+      return toSuccess(located.start, located.end)
+    }
+    if (located.reason === 'ambiguous_target') {
+      return {
+        ok: false,
+        code: 'ambiguous_target',
+        message: located.message,
+        retryable: true,
+        data: { matches: located.matches },
+      }
+    }
+    if (located.reason === 'target_not_found' && located.candidates?.length) {
+      return {
+        ok: false,
+        code: 'target_not_found',
+        message: located.message,
+        retryable: true,
+        data: { candidates: located.candidates },
+      }
+    }
+    return {
+      ok: false,
+      code: located.reason || 'target_not_found',
+      message: located.message,
+      retryable: true,
+    }
+  }
+
+  if (hasParagraphIndex) {
+    const index = target.paragraphIndex as number
+    if (index < 0) {
+      return { ok: false, code: 'invalid_input', message: 'paragraphIndex 不能为负数', retryable: true }
+    }
+    const paragraphs = content.split(/\n{2,}/)
+    if (index >= paragraphs.length) {
+      return {
+        ok: false,
+        code: 'target_not_found',
+        message: `段落索引不存在：当前共 ${paragraphs.length} 段，合法范围 0-${paragraphs.length - 1}`,
+        retryable: true,
+      }
+    }
+    let cursor = 0
+    for (let current = 0; current < index; current += 1) {
+      cursor += paragraphs[current].length + 2
+    }
+    return toSuccess(cursor, cursor + paragraphs[index].length, true)
+  }
+
+  if (hasAnchor) {
+    const anchor = target.anchor!
+    const wanted = anchor.sectionTitle || anchor.chapterTitle || anchor.volumeTitle || ''
+    const exact = content.indexOf(wanted)
+    if (exact < 0) {
+      return {
+        ok: false,
+        code: 'target_not_found',
+        message: '结构锚点不存在；请改用候选锚点或先读取结构地图',
+        retryable: true,
+        data: { anchor },
+      }
+    }
+    const nextBreak = content.indexOf('\n', exact + wanted.length)
+    const end = nextBreak < 0 ? content.length : nextBreak
+    return toSuccess(exact, end)
+  }
+
+  const range = target.range!
+  const start = Math.max(0, Math.floor(range.start))
+  const end = Math.min(content.length, Math.ceil(range.end))
+  if (end <= start) {
+    return { ok: false, code: 'invalid_input', message: 'range.end 必须大于 range.start', retryable: true }
+  }
+  if (end - start > MAX_REVEAL_RANGE) {
+    return { ok: false, code: 'range_too_large', message: '定位范围不能超过 20000 字符', retryable: true }
+  }
+  return toSuccess(start, end)
+}
 
 function toolError(code: string, message: string, retryable = false): ToolResult {
   return { ok: false, error: { code, message, retryable } }
@@ -74,47 +283,16 @@ function findMatches(content: string, query: string, caseSensitive: boolean): Ar
   return matches
 }
 
-function levenshtein(a: string, b: string): number {
-  const m = a.length, n = b.length
-  if (!m) return n; if (!n) return m
-  const dp = new Array(n + 1).fill(0).map((_, j) => j)
-  for (let i = 1; i <= m; i++) {
-    let prev = dp[0]
-    dp[0] = i
-    for (let j = 1; j <= n; j++) {
-      const tmp = dp[j]
-      dp[j] = Math.min(dp[j] + 1, dp[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1))
-      prev = tmp
-    }
-  }
-  return dp[n]
-}
-
-function fuzzyLocate(content: string, query: string, maxCandidates = 3): Array<{ start: number; end: number; similarity: number; context: string }> {
-  const queryLower = query.toLowerCase()
-  const contentLower = content.toLowerCase()
-  const queryLen = query.length
-  if (!queryLen) return []
-  const candidates: Array<{ start: number; end: number; similarity: number; context: string }> = []
-  const windowSize = Math.min(queryLen + 40, 200)
-  const step = Math.max(1, Math.floor(windowSize / 4))
-  for (let i = 0; i < contentLower.length; i += step) {
-    const end = Math.min(i + windowSize, contentLower.length)
-    const slice = contentLower.slice(i, end)
-    const dist = levenshtein(slice.slice(0, queryLen), queryLower)
-    const similarity = 1 - dist / queryLen
-    if (similarity >= 0.6) {
-      candidates.push({ start: i, end: i + queryLen, similarity, context: contextWindow(content, i, i + queryLen) })
-    }
-  }
-  candidates.sort((a, b) => b.similarity - a.similarity)
-  return candidates.slice(0, maxCandidates)
-}
-
 export function createEditorTools(options: {
   getSnapshot: () => EditorTargetSnapshot | null
   getAllSnapshots?: () => EditorTargetSnapshot[]
   onPlanUpdate?: (plan: { stage: string; steps: string[] }) => void
+  mode?: EditorWriteMode
+  applyWrite?: EditorWriteApplier
+  revealTarget?: EditorRevealer
+  workspace?: DialogueWorkspace
+  onFailedBatch?: (batch: EditorWriteRetryCarrier | null) => void
+  takeFailedBatch?: () => EditorWriteRetryCarrier | null
 }): AgentToolDefinition[] {
   const getState: AgentToolDefinition = {
     name: 'editor.get_state',
@@ -195,47 +373,44 @@ export function createEditorTools(options: {
       if (typeof params.fragment !== 'string' || !params.fragment) {
         return toolError('invalid_input', 'fragment 必须是非空字符串')
       }
-    const matches = findMatches(snapshot.content, params.fragment, true)
-      if (matches.length === 0) {
-        const candidates = fuzzyLocate(snapshot.content, params.fragment, 3)
-        if (candidates.length > 0) {
-          return {
-            ok: true,
-            data: {
-              unique: false,
-              fuzzy: true,
-              candidates: candidates.map(c => ({
-                start: c.start,
-                end: c.end,
-                similarity: Math.round(c.similarity * 100) / 100,
-                context: c.context,
-              })),
-              hint: '精确匹配失败，以下为相似度最高的候选位置，请选择一个并重新定位',
-            },
-          }
+      const located = locateEditorFragment({ content: snapshot.content, fragment: params.fragment })
+      if (located.ok) {
+        const match = { start: located.start, end: located.end }
+        return {
+          ok: true,
+          data: {
+            unique: true,
+            fuzzy: false,
+            start: match.start,
+            end: match.end,
+            context: located.context,
+          },
         }
-        return toolError('target_not_found', '片段不存在，请重新复制原文')
       }
-      if (matches.length > 1) {
+      if (located.reason === 'ambiguous_target') {
         return toolError('ambiguous_target', '片段出现多次，必须扩展片段使其唯一')
       }
-      const match = matches[0]
-      return {
-        ok: true,
-        data: {
-          unique: true,
-          fuzzy: false,
-          start: match.start,
-          end: match.end,
-          context: contextWindow(snapshot.content, match.start, match.end),
-        },
+      if (located.reason === 'target_not_found' && located.candidates?.length) {
+        return {
+          ok: true,
+          data: {
+            unique: false,
+            fuzzy: true,
+            candidates: located.candidates,
+            hint: '精确匹配失败，以下为相似度最高的候选位置，请选择一个并重新定位',
+          },
+        }
       }
+      if (located.reason === 'target_not_found') {
+        return toolError('target_not_found', '片段不存在，请重新复制原文')
+      }
+      return toolError('invalid_input', '定位请求无效，请提供非空原文片段')
     },
   }
 
-  const proposeEdits: AgentToolDefinition = {
-    name: 'editor.propose_edits',
-    description: '提交受限编辑批次，只进入待确认暂存区，不会写入编辑器。',
+  const writeEdits: AgentToolDefinition = {
+    name: 'editor.write',
+    description: '立即写入当前编辑器。提交 1-10 条受限编辑命令；应用执行唯一性、版本与锁定校验，通过后立即写入并返回结果；失败返回结构化错误供修正重试。',
     policy: 'write',
     inputSchema: {
       type: 'object',
@@ -255,29 +430,39 @@ export function createEditorTools(options: {
             required: ['operation'],
           },
         },
-        reason: { type: 'string', description: '整批修改说明' },
+        reveal: {
+          type: 'object',
+          description: '写入后的编辑器定位呈现配置',
+          properties: {
+            mode: { type: 'string', description: 'stream 或 instant' },
+            firstChange: { type: 'boolean', description: '是否定位首处变更，默认 true' },
+          },
+        },
+        reason: { type: 'string', description: '整批写入说明' },
       },
       required: ['commands'],
     },
     async execute(input, context) {
-     const params = input as { commands?: unknown }
-     if (!Array.isArray(params.commands) || params.commands.length === 0) {
-       return toolError('invalid_input', 'commands 必须是非空数组')
-     }
-     if (params.commands.length > 10) {
-       return toolError('too_many_commands', '单批最多 10 条编辑命令')
-     }
-      // P2: 写入安全边界 — 校验 writableTarget 与 context.targetId 一致
+      if (options.mode !== 'direct' || !options.applyWrite) {
+        return toolError('not_available', '当前会话未启用直写模式')
+      }
+      const params = input as { commands?: unknown; reason?: unknown; reveal?: unknown }
+      if (!Array.isArray(params.commands) || params.commands.length === 0) {
+        return toolError('invalid_input', 'commands 必须是非空数组')
+      }
+      if (params.commands.length > 10) {
+        return toolError('too_many_commands', '单批最多 10 条编辑命令')
+      }
+      const snapshot = options.getSnapshot()
+      if (!snapshot) return toolError('target_missing', '当前没有可编辑目标')
       if (context.writableTarget && context.writableTarget !== context.targetId) {
         return toolError('write_target_mismatch', '写入目标与当前编辑目标不一致，禁止跨目标写入')
       }
-      // 验证每条命令的 target 字段不跨目标
-      for (const cmd of params.commands as Array<{ target?: string }>) {
-        if (cmd.target && context.writableTarget && cmd.target !== context.writableTarget) {
-          return toolError('cross_target_write', `命令目标 ${cmd.target} 与可写目标 ${context.writableTarget} 不一致`)
-        }
+      if (snapshot.workspace !== context.workspace || snapshot.targetId !== context.targetId) {
+        return toolError('write_target_mismatch', '工具目标与当前编辑目标不一致，禁止跨目标写入')
       }
-     const totalLength = params.commands.reduce((sum, command) => {
+
+      const totalLength = params.commands.reduce((sum, command) => {
         const item = command as { content?: unknown; target?: unknown }
         return sum + (typeof item?.content === 'string' ? item.content.length : 0) +
           (typeof item?.target === 'string' ? item.target.length : 0)
@@ -285,15 +470,235 @@ export function createEditorTools(options: {
       if (totalLength > 60000) {
         return toolError('batch_too_large', '批次内容超过 60000 字符上限')
       }
+
+      const commands: EditorEditCommand[] = (params.commands as Array<Record<string, unknown>>).map(rawCommand => ({
+        type: 'editor_edit' as const,
+        version: 1 as const,
+        operation: (typeof rawCommand.operation === 'string' ? rawCommand.operation : '') as EditorEditCommand['operation'],
+        content: typeof rawCommand.content === 'string' ? rawCommand.content : undefined,
+        target: typeof rawCommand.target === 'string' ? rawCommand.target : undefined,
+        position: (typeof rawCommand.position === 'string' ? rawCommand.position : 'cursor') as EditorEditCommand['position'],
+        reason: typeof rawCommand.reason === 'string' ? rawCommand.reason : undefined
+      }))
+
+      const batch = {
+        type: 'editor_edit_batch' as const,
+        version: 1 as const,
+        target: {
+          workspace: snapshot.workspace,
+          targetId: snapshot.targetId,
+          contentVersion: snapshot.contentVersion,
+        },
+        commands,
+        reason: typeof params.reason === 'string' ? params.reason : undefined,
+      }
+      const failedBatch = options.takeFailedBatch?.()
+      const failedIndexes = failedBatch
+        ? failedBatch.commands.map((_, index) => index).filter(index => !failedBatch.succeededIndexes.includes(index))
+        : []
+      const retrySource = failedBatch
+        && failedBatch.workspace === snapshot.workspace
+        && failedBatch.targetId === snapshot.targetId
+        && failedBatch.contentVersion === snapshot.contentVersion
+        && failedIndexes.length > 0
+        && failedIndexes.length === commands.length
+        ? failedBatch
+        : null
+      const canRetryFailedBatch = retrySource !== null
+      const retryCursor = { value: 0 }
+      const mergedCommands = canRetryFailedBatch
+        ? retrySource?.commands.map((command, index) =>
+          retrySource?.succeededIndexes.includes(index)
+            ? command
+            : commands[retryCursor.value++]
+        )
+        : commands
+      const plan = canRetryFailedBatch
+        ? mergeRetriedCommands(
+          { ...batch, commands: retrySource?.commands || [] },
+          retrySource?.succeededIndexes || [],
+          commands,
+          snapshot,
+          { content: snapshot.content }
+        )
+        : planEditorEditBatch(batch, snapshot, { content: snapshot.content })
+      if (!plan.ok) {
+        if (canRetryFailedBatch) {
+          options.onFailedBatch?.({
+            workspace: snapshot.workspace,
+            targetId: snapshot.targetId,
+            contentVersion: snapshot.contentVersion,
+            commands: retrySource?.commands || [],
+            succeededIndexes: retrySource?.succeededIndexes || [],
+          })
+        } else {
+          const succeededIndexes = plan.diagnostics?.succeededIndexes || []
+          options.onFailedBatch?.(
+            succeededIndexes.length > 0 && succeededIndexes.length < commands.length
+              ? {
+                workspace: snapshot.workspace,
+                targetId: snapshot.targetId,
+                contentVersion: snapshot.contentVersion,
+                commands,
+                succeededIndexes,
+              }
+              : null
+          )
+        }
+        return {
+          ok: false,
+          error: {
+            code: plan.failureReason || 'invalid_command',
+            message: plan.diagnostics?.summary || '编辑批次校验失败，原文未修改',
+            retryable: true,
+          },
+          data: plan.diagnostics,
+        }
+      }
+      options.onFailedBatch?.(null)
+
+      const reveal = (params.reveal && typeof params.reveal === 'object' && !Array.isArray(params.reveal))
+        ? params.reveal as { mode?: unknown; firstChange?: unknown }
+        : {}
+      const revealMode = reveal.mode === 'instant' ? 'instant' : 'stream'
+      const applied = await options.applyWrite({
+        workspace: snapshot.workspace,
+        targetId: snapshot.targetId,
+        batchId: plan.batchId,
+        next: plan.next,
+        original: plan.original,
+        commands: mergedCommands,
+        reason: typeof params.reason === 'string' ? params.reason : undefined,
+        reveal: {
+          mode: revealMode,
+          firstChange: reveal.firstChange !== false,
+        },
+      })
+      if (!applied.ok) {
+        return toolError(applied.code || 'write_failed', applied.message || '编辑器写入失败，原文未修改', true)
+      }
+
       return {
         ok: true,
         data: {
-          status: 'pending_user_confirmation',
-          commandCount: params.commands.length,
-          totalLength,
+          status: 'written',
+          batchId: plan.batchId,
+          commandCount: mergedCommands.length,
+          writtenLength: plan.next.length,
+          reveal: { mode: revealMode, firstChange: reveal.firstChange !== false },
+          rollbackAvailable: applied.rollbackAvailable,
         },
       }
+    }
+  }
+
+  const revealTargetTool: AgentToolDefinition = {
+    name: 'editor.reveal',
+    description: '定位并高亮编辑器中的目标位置，不修改内容。用于回答写入位置、展示候选节点或写入前确认位置。',
+    policy: 'read',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        target: {
+          type: 'object',
+          description: '定位目标：fragment / paragraphIndex / anchor / range 四选一',
+          properties: {
+            fragment: { type: 'string', description: '原文唯一片段' },
+            paragraphIndex: { type: 'number', description: '段落索引，从 0 开始' },
+            anchor: {
+              type: 'object',
+              description: '结构锚点，支持卷/章/节标题',
+              properties: {
+                volumeTitle: { type: 'string' },
+                chapterTitle: { type: 'string' },
+                sectionTitle: { type: 'string' },
+              },
+            },
+            range: {
+              type: 'object',
+              description: '精确字符范围',
+              properties: {
+                start: { type: 'number' },
+                end: { type: 'number' },
+              },
+              required: ['start', 'end'],
+            },
+          },
+        },
+        focus: { type: 'string', description: 'auto / start / end / center，默认 auto' },
+        highlightDuration: { type: 'number', description: '高亮毫秒数，默认 3000，最大 10000' },
+        reason: { type: 'string', description: '定位说明' },
+      },
+      required: ['target'],
     },
+    async execute(input, context) {
+      if (!options.revealTarget) {
+        return toolError('not_available', '当前会话未启用编辑器定位联动')
+      }
+      const snapshot = options.getSnapshot()
+      if (!snapshot) return toolError('target_missing', '当前没有可编辑目标')
+      if (snapshot.workspace !== context.workspace || snapshot.targetId !== context.targetId) {
+        return toolError('target_mismatch', '定位目标与当前编辑目标不一致')
+      }
+      const params = input as {
+        target?: EditorRevealTargetInput
+        focus?: unknown
+        highlightDuration?: unknown
+        reason?: unknown
+      }
+      const target = params.target
+      if (!target || typeof target !== 'object' || Array.isArray(target)) {
+        return toolError('invalid_input', 'target 必须是定位对象')
+      }
+
+      const located = resolveRevealRange(target, snapshot.content)
+      if (!located.ok) {
+        return {
+          ok: false,
+          error: {
+            code: located.code,
+            message: located.message,
+            retryable: located.retryable,
+          },
+          ...(located.data ? { data: located.data } : {}),
+        }
+      }
+
+      const focus: EditorRevealFocus =
+        params.focus === 'start' || params.focus === 'end' || params.focus === 'center'
+          ? params.focus
+          : 'auto'
+      const highlightMs = typeof params.highlightDuration === 'number' && Number.isFinite(params.highlightDuration)
+        ? Math.max(0, Math.min(10000, Math.floor(params.highlightDuration)))
+        : 3000
+
+      try {
+        await options.revealTarget({
+          workspace: snapshot.workspace,
+          targetId: snapshot.targetId,
+          start: located.start,
+          end: located.end,
+          focus,
+          highlightMs,
+          reason: typeof params.reason === 'string' ? params.reason : undefined,
+        })
+      } catch (error) {
+        return toolError('reveal_failed', `编辑器定位失败：${(error as Error)?.message || String(error)}`, true)
+      }
+
+      return {
+        ok: true,
+        data: {
+          status: 'revealed',
+          start: located.start,
+          end: located.end,
+          line: located.line,
+          structurePath: located.structurePath,
+          degraded: located.degraded,
+          context: contextWindow(snapshot.content, located.start, located.end),
+        },
+      }
+    }
   }
 
   const updatePlan: AgentToolDefinition = {
@@ -440,7 +845,50 @@ export function createEditorTools(options: {
     },
   }
 
-  return [getState, search, locate, proposeEdits, updatePlan, multiGetState, globalSearch, workspaceSummary]
+  const currentTarget = options.getSnapshot()
+  const writeTools = options.mode === 'direct' ? [writeEdits] : []
+  const readableTargets = options.getAllSnapshots
+    ? [...new Set([currentTarget?.targetId, ...options.getAllSnapshots().map(item => item.targetId)].filter(Boolean))]
+    : [currentTarget?.targetId].filter(Boolean)
+  const declaredReadableTargets: string[] = readableTargets.filter(
+    (id): id is string => typeof id === 'string' && id.length > 0,
+  )
+  return buildDialogueToolSet({
+    workspace: options.workspace || 'main',
+    tools: [
+      getState,
+      search,
+      locate,
+      ...writeTools,
+      revealTargetTool,
+      updatePlan,
+      multiGetState,
+      globalSearch,
+      workspaceSummary,
+    ],
+    readableTargets: declaredReadableTargets,
+    writableTarget: currentTarget?.targetId || '',
+  })
+}
+
+export function buildDialogueToolSet(input: {
+  workspace: DialogueWorkspace
+  tools: AgentToolDefinition[]
+  readableTargets: string[]
+  writableTarget: string
+}): AgentToolDefinition[] {
+  const toolSet: DialogueToolSet = {
+    version: 1,
+    workspace: input.workspace,
+    tools: input.tools,
+    readableTargets: input.readableTargets,
+    writableTarget: input.writableTarget,
+  }
+  const validation = validateDialogueToolSet(toolSet)
+  if (!validation.valid) {
+    throw new Error(`编辑器工具集契约校验失败：${validation.errors.join('；')}`)
+  }
+  return validation.tools
 }
 
 const MAX_READABLE_TARGETS = 5

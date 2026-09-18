@@ -37,6 +37,13 @@ export interface ContinuationSnapshot {
   finishReason?: FinishReason
   currentStep?: number
   inputVersion?: string
+  _slimmed?: boolean
+  statusHistory?: Array<{
+    fromStatus: ContinuationStatus | null
+    toStatus: ContinuationStatus
+    reason?: string
+    recordedAt: number
+  }>
   createdAt: number
   updatedAt: number
 }

@@ -6,6 +6,7 @@
 
 import { getAiService } from './aiService'
 import type { AiServiceError } from './aiService'
+import { extractJsonArray } from './jsonExtraction'
 import type { NamingOptions, NamingResult, NamingType } from '../types/aiNaming'
 import { NAMING_TYPE_PROMPT_LABELS, MAX_COUNT, MIN_COUNT } from '../types/aiNaming'
 
@@ -28,6 +29,25 @@ export type NamingGenerateError =
   | { kind: 'json'; message: string }
   | { kind: 'empty'; message: string }
   | { kind: 'http'; message: string; statusCode: number }
+
+export interface NamingTraceContext {
+  beginApiCall(input: {
+    providerId?: string
+    providerName?: string
+    model?: string
+    temperature?: number
+    maxTokens?: number
+    requestMessages: Array<{ role: string; content: string }>
+  }): string
+  finishApiCall(callId: string, patch: {
+    status: 'success' | 'failed' | 'canceled' | 'degraded'
+    responseText?: string
+    reasoningText?: string
+    finishReason?: string
+    usage?: unknown
+    error?: string
+  }): void
+}
 
 /**
  * 构建命名提示词
@@ -69,20 +89,8 @@ export function buildNamingPrompt(options: NamingOptions): { system: string; use
  */
 export function repairNamingJson(text: string): any[] | null {
   if (!text) return null
-  let t = text.trim()
-  // 直接解析
-  try { const p = JSON.parse(t); return Array.isArray(p) ? p : null } catch { /* continue */ }
-  // 去除 markdown fence
-  const fence = t.match(/```(?:json)?\s*([\s\S]*?)```/)
-  if (fence) {
-    try { const p = JSON.parse(fence[1].trim()); return Array.isArray(p) ? p : null } catch { /* continue */ }
-  }
-  // 提取数组
-  const arr = t.match(/\[[\s\S]*\]/)
-  if (arr) {
-    try { const p = JSON.parse(arr[0]); return Array.isArray(p) ? p : null } catch { /* continue */ }
-  }
-  return null
+  const parsed = extractJsonArray(text)
+  return parsed.length > 0 ? parsed : null
 }
 
 /**
@@ -120,7 +128,8 @@ export async function generateNames(
     skillStore?: any
   },
   signal?: AbortSignal,
-  onProgress?: (label: string) => void
+  onProgress?: (label: string) => void,
+  trace?: NamingTraceContext
 ): Promise<NamingGenerateResult> {
   const { providerStore, agentStore } = deps
   const provider = providerStore.activeGenerateProvider
@@ -139,14 +148,23 @@ export async function generateNames(
   onProgress?.('正在请求 AI 生成…')
 
   const aiService = await getAiService()
+  const requestMessages = [
+    { role: 'system', content: system },
+    { role: 'user', content: user },
+  ]
+  const traceCallId = trace?.beginApiCall({
+    providerId: provider.id,
+    providerName: provider.name,
+    model,
+    temperature,
+    maxTokens,
+    requestMessages,
+  })
   let rawText: string
   try {
     const result = await aiService.callAi({
       purpose: 'generate',
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: user },
-      ],
+      messages: requestMessages,
       model,
       temperature,
       maxTokens,
@@ -159,8 +177,23 @@ export async function generateNames(
       onProgress: (pct, label) => onProgress?.(label),
     })
     rawText = result.text
+    if (traceCallId) {
+      trace?.finishApiCall(traceCallId, {
+        status: 'success',
+        responseText: rawText,
+        reasoningText: result.reasoning || '',
+        finishReason: result.finishReason,
+        usage: result.usage,
+      })
+    }
   } catch (e: any) {
     const err = e as AiServiceError
+    if (traceCallId) {
+      trace?.finishApiCall(traceCallId, {
+        status: err?.kind === 'canceled' ? 'canceled' : 'failed',
+        error: err?.message || String(e),
+      })
+    }
     if (err?.kind === 'canceled') {
       throw { kind: 'canceled', message: '已取消' } as NamingGenerateError
     }
@@ -234,10 +267,11 @@ export async function regenerateSingleName(
   options: NamingOptions,
   deps: { providerStore: any; agentStore: any },
   signal?: AbortSignal,
-  onProgress?: (label: string) => void
+  onProgress?: (label: string) => void,
+  trace?: NamingTraceContext
 ): Promise<NamingResult | null> {
   const singleOptions: NamingOptions = { ...options, count: 1 }
-  const result = await generateNames(singleOptions, deps, signal, onProgress)
+  const result = await generateNames(singleOptions, deps, signal, onProgress, trace)
   return result.results[0] || null
 }
 

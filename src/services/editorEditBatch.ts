@@ -1,6 +1,11 @@
 import type { EditorEditBatchCommand, EditorEditCommand, EditorEditFailureReason } from './editorEditProtocol'
 import { buildEditPlan, type EditPlan } from './editorEditService'
 import { createEditorTargetSnapshot, validateEditorTarget, type EditorTargetSnapshot } from './editorTarget'
+import {
+  diagnoseEditorEditBatch,
+  remapEditorEditDiagnostics,
+  type EditorEditBatchDiagnostics
+} from './editorEditDiagnostics'
 
 export interface StagedEditItem {
   index: number
@@ -17,6 +22,37 @@ export interface EditorEditBatchPlan {
   items: StagedEditItem[]
   failureReason?: EditorEditFailureReason
   reason?: string
+  diagnostics?: EditorEditBatchDiagnostics
+}
+
+function batchDiagnostics(
+  batch: EditorEditBatchCommand,
+  target: EditorTargetSnapshot,
+  reason: EditorEditFailureReason
+): EditorEditBatchDiagnostics {
+  return diagnoseEditorEditBatch({
+    commands: batch.commands,
+    content: target.content,
+    selectedText: target.selectedText,
+    failureReason: reason === 'version_changed' || reason === 'locked'
+      ? reason
+      : reason === 'selection_missing'
+        ? 'selection_missing'
+        : undefined
+  })
+}
+
+function diagnoseCommandFailure(
+  command: EditorEditCommand,
+  target: EditorTargetSnapshot,
+  reason: EditorEditFailureReason
+): EditorEditBatchDiagnostics {
+  return diagnoseEditorEditBatch({
+    commands: [command],
+    content: target.content,
+    selectedText: target.selectedText,
+    failureReason: reason === 'selection_missing' ? 'selection_missing' : reason === 'content_too_large' ? 'content_too_large' : undefined
+  })
 }
 
 export function planEditorEditBatch(
@@ -34,6 +70,7 @@ export function planEditorEditBatch(
     items: [],
     failureReason: reason,
     reason: batch.reason,
+    diagnostics: batchDiagnostics(batch, target, reason),
   })
 
   const validation = validateEditorTarget(target, current)
@@ -61,7 +98,19 @@ export function planEditorEditBatch(
       selectionEnd: target.selectionEnd,
     })
     const plan = buildEditPlan(workingTarget, command, { content: working, locked: current.locked })
-    if (!plan.ok) return failed(plan.failureReason || 'invalid_command')
+    if (!plan.ok) {
+      const commandFailure = plan.failureReason || 'invalid_command'
+      const diagnostics = remapEditorEditDiagnostics({
+        diagnostics: diagnoseCommandFailure(command, workingTarget, commandFailure),
+        commandIndex: index,
+        succeededIndexes: items.map(item => item.index),
+        commandCount: batch.commands.length
+      })
+      return {
+        ...failed(commandFailure),
+        diagnostics
+      }
+    }
     working = plan.next
     items.push({ index, command, plan })
   }
@@ -99,6 +148,67 @@ export function applyAcceptedItems(
   return planEditorEditBatch(batch, batchPlan.snapshot, {
     content: batchPlan.snapshot.content,
   }, { batchId: batchPlan.batchId })
+}
+
+/**
+ * Rebuilds a failed proposal by keeping commands that passed locating and
+ * replacing failed slots with model-repaired commands. The merged batch is
+ * fully revalidated; repairs never bypass uniqueness or version checks.
+ */
+export function mergeRetriedCommands(
+  originalBatch: EditorEditBatchCommand,
+  succeededIndexes: number[],
+  retriedCommands: EditorEditCommand[],
+  target: EditorTargetSnapshot,
+  current: { content: string; locked?: boolean },
+  options: { batchId?: string } = {}
+): EditorEditBatchPlan {
+  const originalCommands = originalBatch.commands || []
+  const kept = new Set(succeededIndexes)
+  const failedIndexes = originalCommands
+    .map((_, index) => index)
+    .filter(index => !kept.has(index))
+
+  if (
+    kept.size > originalCommands.length ||
+    [...kept].some(index => index < 0 || index >= originalCommands.length) ||
+    retriedCommands.length !== failedIndexes.length
+  ) {
+    const diagnostics = diagnoseEditorEditBatch({
+      commands: originalCommands,
+      content: target.content,
+      selectedText: target.selectedText,
+      failureReason: 'invalid_command'
+    })
+    return {
+      ok: false,
+      batchId: options.batchId || createBatchId(),
+      snapshot: target,
+      original: target.content,
+      next: target.content,
+      items: [],
+      failureReason: 'invalid_command',
+      reason: originalBatch.reason,
+      diagnostics: {
+        ...diagnostics,
+        summary: `重提命令数量不匹配：原批次 ${originalCommands.length} 条，保留 ${kept.size} 条，重提 ${retriedCommands.length} 条，需重提 ${failedIndexes.length} 条。`
+      }
+    }
+  }
+
+  let retryCursor = 0
+  const commands = originalCommands.map((command, index) => {
+    if (kept.has(index)) return command
+    return retriedCommands[retryCursor++]
+  })
+
+  return planEditorEditBatch({
+    ...originalBatch,
+    commands,
+    reason: originalBatch.reason
+      ? `${originalBatch.reason}（已修正失败条目并重新校验）`
+      : '已修正失败条目并重新校验'
+  }, target, current, options)
 }
 
 let batchSequence = 0

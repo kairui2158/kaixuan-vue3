@@ -4,7 +4,7 @@
 - v3.24.0 (不升版本号，同日补丁)
 
 ## 改动概述
-参照 splitpanes 4.1.2 核心设计，等价实现面板分隔条拖拽升级。不装包，不动布局 DOM，只重写 resizer 逻辑和 CSS。同时优化 GenerationProgressBar 展开按钮的可见性。
+参照 splitpanes 4.1.2 核心设计，等价实现面板分隔条拖拽升级。评估风险后经用户确认可加装包，不动布局 DOM，只重写 resizer 逻辑和 CSS。同时优化 GenerationProgressBar 展开按钮的可见性。
 
 ## P0 - useResizers.ts
 - 功能：从 App.vue 抽出 resizer 逻辑为独立 composable

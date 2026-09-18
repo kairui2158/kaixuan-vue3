@@ -3,6 +3,7 @@
     v-if="state.visible"
     ref="overlayRef"
     class="modal-overlay modal-nested app-confirm-overlay"
+    :style="{ zIndex: confirmZIndex }"
     tabindex="-1"
     @click.self="dismiss"
     @keydown="onKeydown"
@@ -23,13 +24,16 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useAppConfirm } from '../../composables/useAppConfirm'
+import { useModalQueue } from '../../composables/useModalQueue'
 
 const { state, accept, dismiss } = useAppConfirm()
+const modalQueue = useModalQueue()
 const overlayRef = ref<HTMLElement | null>(null)
 const confirmBtnRef = ref<HTMLButtonElement | null>(null)
 const cancelBtnRef = ref<HTMLButtonElement | null>(null)
+const confirmZIndex = computed(() => modalQueue.getZIndex('app-confirm'))
 
 watch(() => state.visible, async (visible) => {
   if (!visible) return
@@ -44,6 +48,8 @@ watch(() => state.visible, async (visible) => {
 function onKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     e.preventDefault()
+    // Confirm is the active top-layer; closing it must not cascade to the owner modal.
+    e.stopPropagation()
     dismiss()
   } else if (e.key === 'Enter' && state.kind === 'alert') {
     e.preventDefault()

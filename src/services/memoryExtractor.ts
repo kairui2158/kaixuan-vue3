@@ -1,4 +1,5 @@
 import { getAiService } from './aiService'
+import { extractJsonObject } from './jsonExtraction'
 import type {
   Foreshadowing,
   MemoryEntity,
@@ -32,8 +33,35 @@ export interface ExtractionResult {
 
 export type MemoryAiCall = (prompt: string, systemPrompt: string) => Promise<string | null>
 
-export async function unifiedMemoryAiCall(prompt: string, systemPrompt: string): Promise<string | null> {
+export interface UnifiedMemoryAiCallTrace {
+  beginApiCall(input: {
+    providerId?: string
+    providerName?: string
+    model?: string
+    requestMessages: Array<{ role: string; content: string }>
+  }): string
+  finishApiCall(callId: string, patch: {
+    status: 'success' | 'failed' | 'canceled' | 'degraded'
+    responseText?: string
+    reasoningText?: string
+    finishReason?: string
+    usage?: unknown
+    error?: string
+  }): void
+}
+
+export async function unifiedMemoryAiCall(
+  prompt: string,
+  systemPrompt: string,
+  trace?: UnifiedMemoryAiCallTrace
+): Promise<string | null> {
   const service = await getAiService()
+  const callId = trace?.beginApiCall({
+    requestMessages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: prompt }
+    ]
+  })
   const call = service.callAi({
     purpose: 'generate',
     messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: prompt }],
@@ -45,8 +73,19 @@ export async function unifiedMemoryAiCall(prompt: string, systemPrompt: string):
   })
   try {
     const result = await call
-    return result.text || null
+    const text = result.text || null
+    if (callId) trace?.finishApiCall(callId, {
+      status: 'success',
+      responseText: text || '',
+      reasoningText: result.reasoning || '',
+      finishReason: result.finishReason,
+      usage: result.usage
+    })
+    return text
   } catch (error: any) {
+    if (callId) {
+      trace?.finishApiCall(callId, { status: 'failed', error: error?.message || String(error) })
+    }
     if (error?.kind === 'timeout' || error?.message === '请求超时') {
       throw new Error('记忆抽取超时')
     }
@@ -81,40 +120,26 @@ export function verifySnippet(snippet: string, content: string): boolean {
 }
 
 function parseJson(text: string, chapterId: string, originalContent: string): ExtractedMemoryData | null {
-  const trimmed = text.trim()
-  const candidates = [trimmed]
-  const fence = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i)
-  if (fence) candidates.push(fence[1].trim())
-  const object = trimmed.match(/\{[\s\S]*\}/)
-  if (object) candidates.push(object[0])
-
-  for (const candidate of candidates) {
-    try {
-      const parsed = JSON.parse(candidate) as Partial<ExtractedMemoryData>
-      if (!parsed || typeof parsed !== 'object') continue
-      const entities = parsed.entities
-      const relations = parsed.relations
-      const events = parsed.events
-      const world = parsed.world
-      const foreshadowing = parsed.foreshadowing
-      if (!Array.isArray(entities) || !Array.isArray(relations) || !Array.isArray(events)
-        || !Array.isArray(world) || !Array.isArray(foreshadowing)) continue
-      const verifyItems = (values: unknown[]) => values.filter(value => hasEvidence(value, chapterId)).map(value => {
-        const item = value as { evidence: Array<{ chapterId: string; snippet: string; verified?: boolean }> }
-        return { ...item, evidence: item.evidence.map(evidence => ({ ...evidence, verified: verifySnippet(evidence.snippet, originalContent) })) }
-      })
-      return {
-        entities: verifyItems(entities),
-        relations: verifyItems(relations),
-        events: verifyItems(events),
-        world: verifyItems(world),
-        foreshadowing: verifyItems(foreshadowing)
-      }
-    } catch {
-      // 交给一次重试处理，避免在服务层猜测或改写模型输出。
-    }
+  const parsed = extractJsonObject(text) as Partial<ExtractedMemoryData> | null
+  if (!parsed) return null
+  const entities = parsed.entities
+  const relations = parsed.relations
+  const events = parsed.events
+  const world = parsed.world
+  const foreshadowing = parsed.foreshadowing
+  if (!Array.isArray(entities) || !Array.isArray(relations) || !Array.isArray(events)
+    || !Array.isArray(world) || !Array.isArray(foreshadowing)) return null
+  const verifyItems = (values: unknown[]) => values.filter(value => hasEvidence(value, chapterId)).map(value => {
+    const item = value as { evidence: Array<{ chapterId: string; snippet: string; verified?: boolean }> }
+    return { ...item, evidence: item.evidence.map(evidence => ({ ...evidence, verified: verifySnippet(evidence.snippet, originalContent) })) }
+  })
+  return {
+    entities: verifyItems(entities),
+    relations: verifyItems(relations),
+    events: verifyItems(events),
+    world: verifyItems(world),
+    foreshadowing: verifyItems(foreshadowing)
   }
-  return null
 }
 
 function buildPrompt(input: ExtractionInput, repair = false): string {

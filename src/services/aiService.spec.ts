@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { buildChatUrl, buildModelsUrl, extractNonStreamText, extractStreamDelta, isSSEDataLine, isSSEDone, normalizeFinishReason, resolveFinishReason, resolveModel, resolveTemperature, resolveMaxTokens } from './providerAdapter';
 import { buildProviderChatUrl, buildProviderModelsUrl, buildProviderHeaders, buildProviderModelsHeaders, getProviderProtocol, httpErrorMessage, sanitizeUrlForLog } from './providerProtocols';
 import { resolveProvider, tryResolveProvider } from './providerRouter';
-import { createAiService, filterThinkingTags, AiServiceErrorImpl } from './aiService';
+import { createAiService, createThinkingTagStreamFilter, filterThinkingTags, AiServiceErrorImpl } from './aiService';
 
 // ── providerAdapter tests ──────────────────────────────────────────
 
@@ -80,9 +80,10 @@ describe('extractNonStreamText', () => {
     const data = { choices: [{ message: { content: 'Hello' } }] };
     expect(extractNonStreamText(data).text).toBe('Hello');
   });
-  it('falls back to reasoning_content', () => {
+  it('keeps reasoning_content separate from body text', () => {
     const data = { choices: [{ message: { reasoning_content: 'Reasoning' } }] };
-    expect(extractNonStreamText(data).text).toBe('Reasoning');
+    expect(extractNonStreamText(data).text).toBe('');
+    expect(extractNonStreamText(data).reasoning).toBe('Reasoning');
   });
   it('returns empty string when no content', () => {
     expect(extractNonStreamText({}).text).toBe('');
@@ -121,6 +122,12 @@ describe('cross-provider finish reason resolution', () => {
     expect(resolveFinishReason(undefined, { completion_tokens: 500 }, 1000, true)).toBe('stop');
     expect(resolveFinishReason(undefined, undefined, 1000, true)).toBe('stop');
   });
+  it('detects output budget exhaustion even when the body is empty', () => {
+    expect(resolveFinishReason(undefined, { completion_tokens: 1000 }, 1000, false)).toBe('length');
+  });
+  it('keeps an empty body without token evidence as stop', () => {
+    expect(resolveFinishReason(undefined, { completion_tokens: 500 }, 1000, false)).toBe('stop');
+  });
 });
 
 describe('isSSEDataLine', () => {
@@ -151,7 +158,7 @@ describe('resolveTemperature', () => {
 describe('resolveMaxTokens', () => {
   const provider = { id: 'p1', name: 'P1', baseUrl: '', apiKey: '', selectedModel: '', temperature: 0.7, maxTokens: 4096, streamMode: false, systemPrompt: '' };
   it('uses override when provided', () => { expect(resolveMaxTokens(provider, 8192)).toBe(8192); });
-  it('caps at 16384', () => { expect(resolveMaxTokens(provider, 99999)).toBe(16384); });
+  it('passes large overrides through without an app-imposed cap', () => { expect(resolveMaxTokens(provider, 99999)).toBe(99999); });
   it('falls back to provider maxTokens', () => { expect(resolveMaxTokens(provider)).toBe(4096); });
 });
 
@@ -194,20 +201,37 @@ describe('filterThinkingTags', () => {
   it('returns original text when no tags', () => { expect(filterThinkingTags('Hello World')).toBe('Hello World'); });
 });
 
+describe('createThinkingTagStreamFilter', () => {
+  it('emits deltas incrementally and removes complete thinking tags', () => {
+    const filter = createThinkingTagStreamFilter();
+    expect(filter.push('He')).toBe('He');
+    expect(filter.push('llo <t')).toBe('llo ');
+    expect(filter.push('hinking>hidden</t')).toBe('');
+    expect(filter.push('hinking> World')).toBe(' World');
+  });
+
+  it('flushes an unterminated tag so the final text is not truncated', () => {
+    const filter = createThinkingTagStreamFilter();
+    expect(filter.push('A<reasoning>still thinking')).toBe('A');
+    expect(filter.flush()).toBe('still thinking');
+  });
+});
+
 // ── callAi runtime error boundaries ────────────────────────────────
 
 const runtimeProvider = {
   id: 'runtime', name: 'Runtime', baseUrl: 'https://api.example.com', apiKey: 'key',
   selectedModel: 'test-model', temperature: 0.2, maxTokens: 1024,
+  providerType: 'openai-compatible',
   streamMode: false, systemPrompt: '',
 };
 
-function runtimeStore() {
+function runtimeStore(provider = runtimeProvider) {
   return {
-    providers: [runtimeProvider],
+    providers: [provider],
     generateProvider: 'runtime', verifyProvider: 'runtime', detectProvider: null,
-    getGenerateProvider() { return runtimeProvider; },
-    getVerifyProvider() { return runtimeProvider; },
+    getGenerateProvider() { return provider; },
+    getVerifyProvider() { return provider; },
     getDetectProvider() { return undefined; },
   } as any;
 }
@@ -246,6 +270,84 @@ describe('createAiService.callAi', () => {
       purpose: 'generate', messages: [{ role: 'user', content: 'test' }],
       retry: false,
     })).resolves.toMatchObject({ text: 'firstsecond', finishReason: 'length' });
+    vi.unstubAllGlobals();
+  });
+
+  it('emits only newly received SSE text and filters tags split across chunks', async () => {
+    const sse = [
+      'data: {"choices":[{"delta":{"content":"He"}}]}\n\n',
+      'data: {"choices":[{"delta":{"content":"llo <t"}}]}\n\n',
+      'data: {"choices":[{"delta":{"content":"hinking>secret</thinking>!"}}]}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(sse));
+        controller.close();
+      },
+    });
+    const fetchMock = vi.fn().mockResolvedValue(new Response(stream, { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const chunks: string[] = [];
+    const service = createAiService(runtimeStore());
+    const request = service.callAi({
+      purpose: 'generate', messages: [{ role: 'user', content: 'test' }],
+      retry: false,
+      stream: true,
+      onChunk: text => chunks.push(text),
+    });
+    await expect(request).resolves.toMatchObject({ text: 'Hello !', finishReason: 'stop' });
+    expect(chunks.join('')).toBe('Hello !');
+    expect(chunks).toEqual(['He', 'llo ', '!']);
+    vi.unstubAllGlobals();
+  });
+
+  it('keeps filtered reasoning deltas and the flushed tail in the final result', async () => {
+    const sse = [
+      'data: {"choices":[{"delta":{"reasoning_content":"<reasoning>open"}}]}\n\n',
+      'data: {"choices":[{"delta":{"reasoning_content":" tail"}}]}\n\n',
+      'data: {"choices":[{"delta":{"content":"body"}}]}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(sse));
+        controller.close();
+      },
+    });
+    const fetchMock = vi.fn().mockResolvedValue(new Response(stream, { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const reasoningDeltas: string[] = [];
+    const service = createAiService(runtimeStore());
+    await expect(service.callAi({
+      purpose: 'generate', messages: [{ role: 'user', content: 'test' }],
+      retry: false, stream: true,
+      onReasoning: text => reasoningDeltas.push(text),
+    })).resolves.toMatchObject({ text: 'body', reasoning: 'open tail' });
+    expect(reasoningDeltas.join('')).toBe('open tail');
+    vi.unstubAllGlobals();
+  });
+
+  it('keeps an unterminated reasoning tag out of the body but in the final result', async () => {
+    const sse = [
+      'data: {"choices":[{"delta":{"reasoning_content":"<reasoning>still thinking"}}]}\n\n',
+      'data: {"choices":[{"delta":{"content":"正文"}}]}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(sse));
+        controller.close();
+      },
+    });
+    const fetchMock = vi.fn().mockResolvedValue(new Response(stream, { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    await expect(service.callAi({
+      purpose: 'generate', messages: [{ role: 'user', content: 'test' }],
+      retry: false, stream: true,
+      onReasoning: () => {},
+    })).resolves.toMatchObject({ text: '正文', reasoning: 'still thinking' });
     vi.unstubAllGlobals();
   });
 
@@ -341,7 +443,7 @@ describe('createAiService.callAi', () => {
       electronAPI: {
         providerNetRequest: requestMock,
         providerNetStream: vi.fn(),
-        providerNetAbort: vi.fn(),
+        providerNetAbort: vi.fn(() => Promise.resolve()),
         onProviderNetStreamChunk: vi.fn(() => () => {}),
       },
     });
@@ -387,6 +489,48 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   });
 
+  it('downgrades max_tokens once to the provider-declared limit and retries', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        error: { message: 'max_tokens must be less than or equal to 4096' },
+      }), { status: 400 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        choices: [{ message: { content: 'ok' }, finish_reason: 'stop' }],
+        usage: { completion_tokens: 20 },
+      }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const entries: any[] = [];
+    const service = createAiService(runtimeStore(), { addLog: entry => entries.push(entry) });
+    await expect(service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: false,
+      maxTokens: 99999,
+    })).resolves.toMatchObject({ text: 'ok', maxTokens: 4096 });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const bodies = fetchMock.mock.calls.map(call => JSON.parse(String(call[1]?.body)));
+    expect(bodies[0]).toMatchObject({ max_tokens: 99999 });
+    expect(bodies[1]).toMatchObject({ max_tokens: 4096 });
+    expect(entries.some(entry => entry.result.includes('max-tokens-downgraded: 99999 -> 4096'))).toBe(true);
+    vi.unstubAllGlobals();
+  });
+
+  it('does not blind-retry a 400 without a parseable max_tokens suggestion', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      error: { message: 'invalid model' },
+    }), { status: 400 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    await expect(service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: false,
+      maxTokens: 99999,
+    })).rejects.toMatchObject({ kind: 'http', statusCode: 400 });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    vi.unstubAllGlobals();
+  });
+
   it('classifies an already-aborted request as canceled', async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock);
@@ -416,6 +560,97 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   });
 
+  it('fails a connection-level error after fast retries without entering heartbeat', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response('', { status: 503 }));
+    vi.stubGlobal('fetch', fetchMock);
+    vi.useFakeTimers();
+    const service = createAiService(runtimeStore());
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      timeoutMs: 100,
+    });
+    // Advance only through the fast retry delays; a heartbeat entry would
+    // need another 60s and make the promise stay pending here.
+    const assertion = expect(request).rejects.toMatchObject({ kind: 'http', statusCode: 503 });
+    await vi.advanceTimersByTimeAsync(6100);
+    await assertion;
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it('keeps heartbeat recovery for a stream that produced output then dropped', async () => {
+    let emitMainNetEvent: ((payload: any) => void) | null = null;
+    const emitMainNetStream = (events: any[]) => {
+      const signalId = streamMock.mock.calls.at(-1)?.[0]?.signalId;
+      for (const event of events) emitMainNetEvent?.({ ...event, signalId });
+    };
+    const streamMock = vi.fn()
+      .mockImplementationOnce(() => {
+        emitMainNetStream([
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"partial"}}]}\n\n' },
+          { event: 'error', message: 'network dropped' },
+        ]);
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      })
+      .mockImplementation(() => {
+        emitMainNetStream([
+          { event: 'error', message: 'network dropped' },
+        ]);
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      });
+    let recovered = false;
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: vi.fn(),
+        providerNetStream: streamMock,
+        providerNetAbort: vi.fn(() => Promise.resolve()),
+        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+          emitMainNetEvent = listener;
+          return () => { emitMainNetEvent = null; };
+        },
+      },
+    });
+    vi.useFakeTimers();
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      timeoutMs: 120_000,
+      onChunk: () => {},
+      onPhysicalCall: (event: any) => physicalEvents.push(event),
+    });
+    const assertion = expect(request).resolves.toMatchObject({ text: 'recovered' });
+    await vi.advanceTimersByTimeAsync(0);
+    await Promise.resolve();
+    await vi.advanceTimersByTimeAsync(0);
+    await Promise.resolve();
+    await vi.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(6100);
+    expect(physicalEvents.map(event => event.phase)).toEqual(['normal', 'normal', 'retry', 'retry', 'retry', 'retry', 'retry', 'retry']);
+    expect(streamMock).toHaveBeenCalledTimes(4);
+    streamMock.mockImplementation(() => {
+      recovered = true;
+      emitMainNetStream([
+        { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"recovered"}}]}\n\n' },
+        { event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n' },
+        { event: 'chunk', text: 'data: [DONE]\n\n' },
+        { event: 'end' },
+      ]);
+      return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+    });
+    await vi.advanceTimersByTimeAsync(60_000);
+    await assertion;
+    expect(recovered).toBe(true);
+    expect(streamMock).toHaveBeenCalledTimes(5);
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
   it('rejects malformed JSON after one structured retry', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({ choices: [{ message: { content: 'not json' } }] }), { status: 200 }))
@@ -427,6 +662,55 @@ describe('createAiService.callAi', () => {
       stream: false, retry: false, jsonMode: true,
     })).resolves.toMatchObject({ text: '{"ok":true}' });
     expect(fetchMock).toHaveBeenCalledTimes(2);
+    vi.unstubAllGlobals();
+  });
+
+  it('reports a running physical call before the network request resolves', async () => {
+    let releaseRequest: ((value: Response) => void) | undefined;
+    const heldResponse = new Promise<Response>(resolve => { releaseRequest = resolve; });
+    vi.stubGlobal('fetch', vi.fn().mockReturnValueOnce(heldResponse));
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    const request = service.callAi({
+      purpose: 'verify',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: false,
+      retry: false,
+      onPhysicalCall: (event: any) => physicalEvents.push(event),
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(physicalEvents.map(event => event.status)).toEqual(['running']);
+    expect(physicalEvents[0].physicalCallId).toBeTruthy();
+    releaseRequest?.(new Response(JSON.stringify({ choices: [{ message: { content: 'ok' } }] }), { status: 200 }));
+    await expect(request).resolves.toMatchObject({ text: 'ok' });
+    expect(physicalEvents.map(event => event.status)).toEqual(['running', 'success']);
+    expect(physicalEvents[0].physicalCallId).toBe(physicalEvents[1].physicalCallId);
+    vi.unstubAllGlobals();
+  });
+
+  it('closes the running physical call as canceled when the request is aborted in flight', async () => {
+    const controller = new AbortController();
+    vi.stubGlobal('fetch', vi.fn((_url: string, init: RequestInit) => new Promise<Response>((_resolve, reject) => {
+      init.signal?.addEventListener('abort', () => reject(new DOMException('The operation was canceled', 'AbortError')), { once: true });
+    })));
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    const request = service.callAi({
+      purpose: 'verify',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: false,
+      retry: false,
+      signal: controller.signal,
+      onPhysicalCall: (event: any) => physicalEvents.push(event),
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(physicalEvents.map(event => event.status)).toEqual(['running']);
+    controller.abort();
+    await expect(request).rejects.toMatchObject({ kind: 'canceled' });
+    expect(physicalEvents.map(event => event.status)).toEqual(['running', 'canceled']);
+    expect(physicalEvents[0].physicalCallId).toBe(physicalEvents[1].physicalCallId);
     vi.unstubAllGlobals();
   });
 
@@ -501,7 +785,57 @@ describe('createAiService.callAi tools', () => {
     vi.unstubAllGlobals();
   });
 
-  it('stops at the configured tool iteration limit', async () => {
+  it('records tool requests as deltas instead of repeated full snapshots', async () => {
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => new Response(JSON.stringify({
+        choices: [{
+          finish_reason: 'tool_calls',
+          message: {
+            role: 'assistant',
+            content: '',
+            tool_calls: [{ id: 'call_1', type: 'function', function: { name: 'editor.get_state', arguments: '{}' } }]
+          }
+        }]
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } }))
+      .mockImplementationOnce(async () => new Response(JSON.stringify({
+        choices: [{
+          finish_reason: 'tool_calls',
+          message: {
+            role: 'assistant',
+            content: '',
+            tool_calls: [{ id: 'call_2', type: 'function', function: { name: 'editor.get_state', arguments: '{}' } }]
+          }
+        }]
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } }))
+      .mockResolvedValue(new Response(JSON.stringify({
+        choices: [{ finish_reason: 'stop', message: { role: 'assistant', content: '已完成' } }]
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [
+        { role: 'system', content: '系统提示' },
+        { role: 'user', content: '读取编辑区' },
+      ],
+      tools: [tool],
+      stream: false,
+      retry: false,
+    });
+    expect(result.text).toBe('已完成');
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(result.toolRequestDeltas).toHaveLength(6);
+    expect(result.toolRequestDeltas?.[0]).toEqual({ role: 'system', content: '系统提示' });
+    expect(result.toolRequestDeltas?.[1]).toEqual({ role: 'user', content: '读取编辑区' });
+    expect(result.toolRequestDeltas?.[2]).toMatchObject({ role: 'assistant', toolCalls: [{ id: 'call_1' }] });
+    expect(result.toolRequestDeltas?.[3]).toMatchObject({ role: 'tool', toolCallId: 'call_1' });
+    expect(result.toolRequestDeltas?.[4]).toMatchObject({ role: 'assistant', toolCalls: [{ id: 'call_2' }] });
+    expect(result.toolRequestDeltas?.[5]).toMatchObject({ role: 'tool', toolCallId: 'call_2' });
+    expect(JSON.stringify(result.toolRequestDeltas?.[2])).not.toContain('系统提示');
+    vi.unstubAllGlobals();
+  });
+
+  it('converges to a final answer at the tool iteration limit', async () => {
     const loopTool = {
       ...tool,
       name: 'editor.search',
@@ -510,9 +844,206 @@ describe('createAiService.callAi tools', () => {
       },
     }
     const toolResponse = () => new Response(JSON.stringify({
-      choices: [{ message: { content: '', tool_calls: [{ id: 'call_loop', type: 'function', function: { name: 'editor.search', arguments: '{"query":"x"}' } }] } }],
-    }), { status: 200 });
-    const fetchMock = vi.fn().mockImplementation(async () => toolResponse());
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_loop', type: 'function', function: { name: 'editor.search', arguments: '{"query":"x"}' } }]
+        }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const finalResponse = new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'stop',
+        message: { role: 'assistant', content: '基于现有工具结果的最终回答' }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(async () => toolResponse())
+      .mockResolvedValue(finalResponse);
+    const exhaustedDeadlineController = new AbortController();
+    setTimeout(() => exhaustedDeadlineController.abort(), 1);
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const userCancelController = new AbortController();
+    let onConvergenceStartCount = 0;
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '搜索' }],
+      tools: [loopTool],
+      toolPolicy: {
+        maxToolIterations: 2,
+        onConvergenceStart: () => { onConvergenceStartCount += 1; },
+      },
+      signal: exhaustedDeadlineController.signal,
+      cancelSignal: userCancelController.signal,
+      retry: false,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(result.text).toBe('基于现有工具结果的最终回答');
+    expect(result.finishReason).toBe('tool_converged');
+    expect(result.toolCalls).toHaveLength(2);
+    const convergenceBody = JSON.parse((fetchMock.mock.calls[2][1] as RequestInit).body as string);
+    expect(convergenceBody.tools).toBeUndefined();
+    expect(convergenceBody.messages.some((message: { role: string; content?: string }) =>
+      message.role === 'system' && message.content?.includes('停止调用任何工具'))).toBe(true);
+    // The rescue request must not inherit the exhausted logical deadline.
+    // Otherwise an outer supervisor can abort it mid-flight and recreate the
+    // original no-body failure.
+    const convergenceRequestInit = fetchMock.mock.calls[2][1] as RequestInit;
+    const convergenceSignal = convergenceRequestInit.signal as AbortSignal;
+    expect(convergenceSignal.aborted).toBe(false);
+    expect(onConvergenceStartCount).toBe(1);
+    vi.unstubAllGlobals();
+  });
+
+  it('cancels the convergence request when the user cancels mid-flight', async () => {
+    const loopTool = {
+      ...tool,
+      name: 'editor.search',
+      async execute() {
+        return { ok: true, data: { total: 1 } }
+      },
+    }
+    const toolResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_loop', type: 'function', function: { name: 'editor.search', arguments: '{"query":"x"}' } }]
+        }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const userCancelController = new AbortController();
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(() => new Promise<Response>((_resolve, reject) => {
+        userCancelController.signal.addEventListener('abort', () =>
+          reject(new DOMException('The operation was canceled', 'AbortError')), { once: true });
+      }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '搜索' }],
+      tools: [loopTool],
+      toolPolicy: { maxToolIterations: 2 },
+      cancelSignal: userCancelController.signal,
+      retry: false,
+    });
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    userCancelController.abort();
+    await expect(request).rejects.toMatchObject({ kind: 'canceled' });
+    vi.unstubAllGlobals();
+  });
+
+  it('does not issue the convergence request when user cancellation is already active', async () => {
+    const loopTool = {
+      ...tool,
+      name: 'editor.search',
+      async execute() {
+        return { ok: true, data: { total: 1 } }
+      },
+    }
+    const toolResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_loop', type: 'function', function: { name: 'editor.search', arguments: '{"query":"x"}' } }]
+        }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const logicalDeadlineController = new AbortController();
+    const userCancelController = new AbortController();
+    userCancelController.abort();
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(async () => toolResponse());
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    await expect(service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '搜索' }],
+      tools: [loopTool],
+      toolPolicy: { maxToolIterations: 2 },
+      signal: logicalDeadlineController.signal,
+      cancelSignal: userCancelController.signal,
+      retry: false,
+    })).rejects.toMatchObject({ kind: 'canceled' });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    vi.unstubAllGlobals();
+  });
+
+  it('cancels convergence through the fallback user signal when no dedicated cancel signal is provided', async () => {
+    const loopTool = {
+      ...tool,
+      name: 'editor.search',
+      async execute() {
+        return { ok: true, data: { total: 1 } }
+      },
+    }
+    const toolResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_loop', type: 'function', function: { name: 'editor.search', arguments: '{"query":"x"}' } }]
+        }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const userCancelController = new AbortController();
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(() => new Promise<Response>((_resolve, reject) => {
+        userCancelController.signal.addEventListener('abort', () =>
+          reject(new DOMException('The operation was canceled', 'AbortError')), { once: true });
+      }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '搜索' }],
+      tools: [loopTool],
+      toolPolicy: { maxToolIterations: 2 },
+      signal: userCancelController.signal,
+      retry: false,
+    });
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    userCancelController.abort();
+    await expect(request).rejects.toMatchObject({ kind: 'canceled' });
+    vi.unstubAllGlobals();
+  });
+
+  it('returns a local convergence digest when the convergence request fails', async () => {
+    const loopTool = {
+      ...tool,
+      name: 'editor.search',
+      async execute() {
+        return { ok: true, data: { total: 1 } }
+      },
+    }
+    const toolResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_loop', type: 'function', function: { name: 'editor.search', arguments: '{"query":"x"}' } }]
+        }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(async () => new Response(JSON.stringify({ error: 'provider down' }), { status: 500 }));
     vi.stubGlobal('fetch', fetchMock);
     const service = createAiService(runtimeStore());
     const result = await service.callAi({
@@ -522,25 +1053,46 @@ describe('createAiService.callAi tools', () => {
       toolPolicy: { maxToolIterations: 2 },
       retry: false,
     });
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(result.finishReason).toBe('tool_loop_limit');
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(result.text).toContain('本轮 API 未返回完整正文');
+    expect(result.text).toContain('editor.search');
+    expect(result.finishReason).toBe('tool_converged_local');
     expect(result.toolCalls).toHaveLength(2);
+    const convergenceBody = JSON.parse((fetchMock.mock.calls[2][1] as RequestInit).body as string);
+    expect(convergenceBody.tools).toBeUndefined();
+    expect(convergenceBody.messages.some((message: { role: string; content?: string }) =>
+      message.role === 'system' && message.content?.includes('停止调用任何工具'))).toBe(true);
     vi.unstubAllGlobals();
   });
 
-  it('enforces the write-proposal limit and reports compatibility mode', async () => {
+  it('continues the tool loop after one direct editor write', async () => {
     const writeTool = {
       ...tool,
-      name: 'editor.propose_edits',
+      name: 'editor.write',
       policy: 'write' as const,
       async execute() {
-        return { ok: true, data: { status: 'pending_user_confirmation' } }
+        return { ok: true, data: { status: 'written' } }
       },
     }
-    const response = () => new Response(JSON.stringify({
-      choices: [{ message: { content: '', tool_calls: [{ id: 'call_write', type: 'function', function: { name: 'editor.propose_edits', arguments: '{"commands":[{"operation":"append","content":"x"}]}' } }] } }],
-    }), { status: 200 });
-    const fetchMock = vi.fn().mockImplementation(async () => response());
+    const toolResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_write', type: 'function', function: { name: 'editor.write', arguments: '{"commands":[{"operation":"append","content":"x"}]}' } }]
+        }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const finalResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'stop',
+        message: { role: 'assistant', content: '写入完成' }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(async () => finalResponse());
     vi.stubGlobal('fetch', fetchMock);
     const compatibilityEvents: string[] = [];
     const service = createAiService(runtimeStore());
@@ -550,26 +1102,252 @@ describe('createAiService.callAi tools', () => {
       tools: [writeTool],
       toolPolicy: {
         maxToolIterations: 2,
-        maxWriteProposals: 1,
+        intent: 'edit',
         onCompatibilityMode: reason => compatibilityEvents.push(reason),
       },
       retry: false,
     });
-    expect(result.toolResults ?? []).toHaveLength(2);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(result.toolResults?.[0].result.ok).toBe(true);
-    expect(result.toolResults?.[1].result.ok).toBe(false);
-    expect(result.toolResults?.[1].result.error?.code).toBe('write_proposal_limit');
+    expect(result.text).toBe('写入完成');
+    expect(result.finishReason).toBe('stop');
     expect(compatibilityEvents).toEqual([]);
+    vi.unstubAllGlobals();
+  });
+
+  it('allows multiple direct editor writes with different inputs', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      async execute() {
+        return { ok: true, data: { status: 'written' } }
+      },
+    }
+    const response = (content: string) => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_write', type: 'function', function: { name: 'editor.write', arguments: `{"commands":[{"operation":"append","content":"${content}"}]}` } }]
+        }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const finalResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'stop',
+        message: { role: 'assistant', content: '全部写入完成' }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => response('x'))
+      .mockImplementationOnce(async () => response('y'))
+      .mockImplementationOnce(async () => response('z'))
+      .mockImplementationOnce(async () => finalResponse());
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '直写两次' }],
+      tools: [writeTool],
+      toolPolicy: {
+        maxToolIterations: 4,
+        intent: 'edit',
+      },
+      retry: false,
+    });
+    expect(result.toolResults ?? []).toHaveLength(3);
+    expect(result.toolResults?.map(item => item.result.ok)).toEqual([true, true, true]);
+    expect(result.text).toBe('全部写入完成');
+    vi.unstubAllGlobals();
+  });
+
+  it('blocks the third identical direct editor write and then resets the guard', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      async execute() {
+        return { ok: true, data: { status: 'written' } }
+      },
+    }
+    const response = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_write', type: 'function', function: { name: 'editor.write', arguments: '{"commands":[{"operation":"append","content":"x"}]}' } }]
+        }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const finalResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'stop',
+        message: { role: 'assistant', content: '重复写入已处理' }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => response())
+      .mockImplementationOnce(async () => response())
+      .mockImplementationOnce(async () => response())
+      .mockImplementationOnce(async () => response())
+      .mockImplementationOnce(async () => finalResponse());
+    vi.stubGlobal('fetch', fetchMock);
+    const blockedEvents: Array<{ repeatCount: number }> = [];
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '重复提交同一批修改' }],
+      tools: [writeTool],
+      toolPolicy: {
+        maxToolIterations: 5,
+        intent: 'edit',
+        onRepeatedWriteBlocked: event => blockedEvents.push({ repeatCount: event.repeatCount }),
+      },
+      retry: false,
+    });
+    expect(result.toolResults ?? []).toHaveLength(4);
+    expect(result.toolResults?.map(item => item.result.ok)).toEqual([true, true, false, true]);
+    expect(result.toolResults?.[2].result.error?.code).toBe('duplicate_write_blocked');
+    expect(blockedEvents).toEqual([{ repeatCount: 3 }]);
+    expect(result.text).toBe('重复写入已处理');
+    vi.unstubAllGlobals();
+  });
+
+  it('does not count failed direct editor writes toward repeat blocking', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      async execute() {
+        return { ok: false, error: { code: 'batch_failed', message: '写入失败' } }
+      },
+    }
+    const response = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_write', type: 'function', function: { name: 'editor.write', arguments: '{"commands":[{"operation":"append","content":"x"}]}' } }]
+        }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const finalResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'stop',
+        message: { role: 'assistant', content: '写入失败已报告' }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => response())
+      .mockImplementationOnce(async () => response())
+      .mockImplementationOnce(async () => response())
+      .mockImplementationOnce(async () => finalResponse());
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '重试同一批修改' }],
+      tools: [writeTool],
+      toolPolicy: {
+        maxToolIterations: 4,
+        intent: 'edit',
+      },
+      retry: false,
+    });
+    expect(result.toolResults ?? []).toHaveLength(3);
+    expect(result.toolResults?.map(item => item.result.ok)).toEqual([false, false, false]);
+    expect(result.toolResults?.map(item => item.result.error?.code)).toEqual(['batch_failed', 'batch_failed', 'batch_failed']);
+    expect(result.text).toBe('写入失败已报告');
+    vi.unstubAllGlobals();
+  });
+
+  it('rejects write tools without intent metadata', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      async execute() {
+        return { ok: true, data: { status: 'written' } }
+      },
+    }
+    const response = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_write', type: 'function', function: { name: 'editor.write', arguments: '{"commands":[{"operation":"append","content":"x"}]}' } }]
+        }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const fetchMock = vi.fn().mockImplementation(async () => response());
+    vi.stubGlobal('fetch', fetchMock);
+    const permissionEvents: any[] = [];
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '直写正文' }],
+      tools: [writeTool],
+      toolPolicy: {
+        onPermissionDenied: event => permissionEvents.push(event),
+      },
+      retry: false,
+    });
+    expect(result.toolResults?.[0].result.ok).toBe(false);
+    expect(result.toolResults?.[0].result.error?.code).toBe('permission_denied');
+    expect(permissionEvents.length).toBeGreaterThan(0);
+    expect(permissionEvents[0]).toMatchObject({ toolName: 'editor.write', reason: expect.stringContaining('缺少意图上下文') });
+    vi.unstubAllGlobals();
+  });
+
+  it('rejects discuss-intent write tools even in direct mode', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      async execute() {
+        return { ok: true, data: { status: 'written' } }
+      },
+    }
+    const response = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_write', type: 'function', function: { name: 'editor.write', arguments: '{"commands":[{"operation":"append","content":"x"}]}' } }]
+        }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const fetchMock = vi.fn().mockImplementation(async () => response());
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '看一下这里' }],
+      tools: [writeTool],
+      toolPolicy: {
+        intent: 'discuss',
+      },
+      retry: false,
+    });
+    expect(result.toolResults?.[0].result.ok).toBe(false);
+    expect(result.toolResults?.[0].result.error?.code).toBe('permission_denied');
+    expect(result.toolResults?.[0].result.error?.message).toContain('discuss');
     vi.unstubAllGlobals();
   });
 
   it('degrades a rejected native-tools request to the JSON protocol', async () => {
     const writeTool = {
       ...tool,
-      name: 'editor.propose_edits',
+      name: 'editor.write',
       policy: 'write' as const,
       async execute() {
-        return { ok: true, data: { status: 'pending_user_confirmation' } }
+        return { ok: true, data: { status: 'written' } }
       },
     }
     const fetchMock = vi.fn()
@@ -583,6 +1361,7 @@ describe('createAiService.callAi tools', () => {
       purpose: 'generate',
       messages: [{ role: 'user', content: '修改正文' }],
       tools: [writeTool],
+      toolPolicy: { intent: 'edit' },
       stream: false,
       retry: false,
     });
@@ -593,6 +1372,198 @@ describe('createAiService.callAi tools', () => {
     const secondBody = JSON.parse((fetchMock.mock.calls[1][1] as RequestInit).body as string);
     expect(firstBody.tools).toBeDefined();
     expect(secondBody.tools).toBeUndefined();
+    vi.unstubAllGlobals();
+  });
+
+  it('executes editor.write through the unified tool after a native-tools downgrade', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      async execute(input: unknown) {
+        const params = input as { commands?: unknown[] }
+        return { ok: true, data: { status: 'written', commandCount: params.commands?.length || 0 } }
+      },
+    }
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ error: { message: 'tools unsupported' } }), { status: 400 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        choices: [{ message: { content: '```json\n{"tool":"editor.write","commands":[{"operation":"append","content":"尾声"}],"reveal":{"mode":"instant"},"reason":"追加尾声"}\n```' } }],
+      }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const toolEvents: any[] = [];
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '把尾声写进编辑器' }],
+      tools: [writeTool],
+      stream: false,
+      retry: false,
+      toolPolicy: {
+        intent: 'edit',
+        onToolStart: event => toolEvents.push(['start', event.toolName, event.input]),
+        onToolCall: event => toolEvents.push(['call', event.toolName, event.result.ok]),
+      },
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const secondBody = JSON.parse((fetchMock.mock.calls[1][1] as RequestInit).body as string);
+    expect(secondBody.tools).toBeUndefined();
+    expect(secondBody.messages.some((message: { role: string; content?: string }) =>
+      message.role === 'system' && message.content?.includes('"tool":"editor.write"'))).toBe(true);
+    expect(result.toolsDowngraded).toBe('json-protocol');
+    expect(result.compatibilityWrite).toBe(true);
+    expect(result.toolCalls ?? []).toHaveLength(1);
+    expect(result.toolCalls?.[0]).toMatchObject({ name: 'editor.write' });
+    expect(result.toolResults?.[0].result.ok).toBe(true);
+    expect(toolEvents).toEqual([
+      ['start', 'editor.write', expect.any(Object)],
+      ['call', 'editor.write', true],
+    ]);
+    vi.unstubAllGlobals();
+  });
+
+  it('blocks the third identical compatibility editor write across separate calls', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      async execute() {
+        return { ok: true, data: { status: 'written' } }
+      },
+    }
+    const rejectedResponse = () => new Response(JSON.stringify({
+      error: { message: 'tools unsupported' },
+    }), { status: 400 });
+    const protocolResponse = () => new Response(JSON.stringify({
+      choices: [{ message: { content: ['```json', '{"tool":"editor.write","commands":[{"operation":"append","content":"尾声"}],"reveal":{"mode":"instant"},"reason":"追加尾声"}', '```'].join('\n') } }],
+    }), { status: 200 });
+    const fetchMock = vi.fn();
+    for (let requestIndex = 0; requestIndex < 4; requestIndex += 1) {
+      fetchMock
+        .mockImplementationOnce(async () => rejectedResponse())
+        .mockImplementationOnce(async () => protocolResponse());
+    }
+    vi.stubGlobal('fetch', fetchMock);
+    const blockedEvents: Array<{ repeatCount: number }> = [];
+    const physicalStatuses: string[] = [];
+    const service = createAiService(runtimeStore());
+    const request = async () => service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '追加尾声' }],
+      tools: [writeTool],
+      stream: false,
+      retry: false,
+      toolPolicy: {
+        intent: 'edit',
+        onRepeatedWriteBlocked: event => blockedEvents.push({ repeatCount: event.repeatCount }),
+      },
+      meta: {
+        projectId: 'project-a',
+        workspace: 'outline',
+        targetId: 'outline',
+        sessionId: 'session-1',
+      },
+      onPhysicalCall: event => {
+        if (event.downgradeReason === 'compatibility_write') physicalStatuses.push(event.status)
+      },
+    });
+    await request();
+    await request();
+    const blocked = await request();
+    expect(blocked.toolResults?.[0].result.error?.code).toBe('duplicate_write_blocked');
+    expect(blockedEvents).toEqual([{ repeatCount: 3 }]);
+    expect(physicalStatuses).toEqual(['success', 'success']);
+    const afterReset = await request();
+    expect(afterReset.toolResults?.[0].result.ok).toBe(true);
+    expect(physicalStatuses).toEqual(['success', 'success', 'success']);
+    vi.unstubAllGlobals();
+  });
+
+  it('evicts the oldest compatibility write guard scope after 100 sessions', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      async execute() {
+        return { ok: true, data: { status: 'written' } }
+      },
+    }
+    const rejectedResponse = () => new Response(JSON.stringify({
+      error: { message: 'tools unsupported' },
+    }), { status: 400 });
+    const protocolResponse = () => new Response(JSON.stringify({
+      choices: [{ message: { content: ['```json', '{"tool":"editor.write","commands":[{"operation":"append","content":"尾声"}],"reveal":{"mode":"instant"},"reason":"追加尾声"}', '```'].join('\n') } }],
+    }), { status: 200 });
+    const fetchMock = vi.fn();
+    for (let requestIndex = 0; requestIndex < 103; requestIndex += 1) {
+      fetchMock
+        .mockImplementationOnce(async () => rejectedResponse())
+        .mockImplementationOnce(async () => protocolResponse());
+    }
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const request = (sessionIndex: number) => service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '追加尾声' }],
+      tools: [writeTool],
+      stream: false,
+      retry: false,
+      toolPolicy: { intent: 'edit' },
+      meta: {
+        projectId: 'project-a',
+        workspace: 'outline',
+        targetId: 'outline',
+        sessionId: `session-${sessionIndex}`,
+      },
+    });
+
+    await request(0);
+    await request(0);
+    for (let sessionIndex = 1; sessionIndex <= 100; sessionIndex += 1) {
+      await request(sessionIndex);
+    }
+    const firstSessionAgain = await request(0);
+    expect(firstSessionAgain.toolResults?.[0].result.ok).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(206);
+    vi.unstubAllGlobals();
+  });
+
+  it('records a failed compatibility editor write as failed in physical trace', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      async execute() {
+        return { ok: false, error: { code: 'version_changed', message: '编辑目标已变化' } }
+      },
+    }
+    const rejectedResponse = () => new Response(JSON.stringify({
+      error: { message: 'tools unsupported' },
+    }), { status: 400 });
+    const protocolResponse = () => new Response(JSON.stringify({
+      choices: [{ message: { content: ['```json', '{"tool":"editor.write","commands":[{"operation":"append","content":"尾声"}],"reveal":{"mode":"instant"},"reason":"追加尾声"}', '```'].join('\n') } }],
+    }), { status: 200 });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => rejectedResponse())
+      .mockImplementationOnce(async () => protocolResponse());
+    vi.stubGlobal('fetch', fetchMock);
+    const physicalEvents: any[] = [];
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '追加尾声' }],
+      tools: [writeTool],
+      stream: false,
+      retry: false,
+      toolPolicy: { intent: 'edit' },
+      onPhysicalCall: event => {
+        if (event.downgradeReason === 'compatibility_write') physicalEvents.push(event)
+      },
+    });
+    expect(result.toolResults?.[0].result.ok).toBe(false);
+    expect(physicalEvents).toHaveLength(1);
+    expect(physicalEvents[0].status).toBe('failed');
+    expect(physicalEvents[0].error).toContain('编辑目标已变化');
     vi.unstubAllGlobals();
   });
 });

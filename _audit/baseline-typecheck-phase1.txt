@@ -1,0 +1,4 @@
+
+> shenyi-assistant@3.41.0 type-check
+> vue-tsc --noEmit
+

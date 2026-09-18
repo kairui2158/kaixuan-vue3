@@ -1,10 +1,16 @@
 const fs = require('fs')
 const path = require('path')
+const crypto = require('crypto')
 const { ipcMain, shell, utilityProcess } = require('electron')
 const log = require('electron-log/main')
 
 const SKILL_ENTRY = 'SKILL.md'
 const OPTIONAL_FILES = ['template.md', 'meta.json', 'script.js', 'samples.txt', 'schema.json']
+const MANIFEST_FILE = 'skill.json'
+const EVALS_FILE = 'evals.json'
+const RESOURCE_MAX_DEPTH = 6
+const RESOURCE_MAX_FILES = 2000
+const RESOURCE_MAX_FILE_SIZE = 2 * 1024 * 1024
 const SCRIPT_REQUEST_TIMEOUT_MS = 5000
 const SCRIPT_MAX_LENGTH = 512 * 1024
 const workerPath = path.join(__dirname, 'skill-script-worker.js')
@@ -112,6 +118,80 @@ function readText(filePath) {
   }
 }
 
+function buildFileFingerprint(fullPath) {
+  try {
+    const stat = fs.statSync(fullPath)
+    if (!stat.isFile()) return null
+    return {
+      file: path.basename(fullPath),
+      hash: crypto.createHash('sha256').update(fs.readFileSync(fullPath)).digest('hex'),
+      mtime: Math.round(stat.mtimeMs),
+      bytes: stat.size
+    }
+  } catch (_) {
+    return null
+  }
+}
+
+function addWarning(warnings, code, message) {
+  warnings.push({ code, message })
+}
+
+function collectResourceFiles(directory, warnings) {
+  const resources = []
+  const knownFiles = new Set([SKILL_ENTRY, ...OPTIONAL_FILES, MANIFEST_FILE, EVALS_FILE])
+  const queue = [{ directory, relativePath: '', depth: 0 }]
+
+  while (queue.length > 0 && resources.length < RESOURCE_MAX_FILES) {
+    const current = queue.shift()
+    let entries = []
+    try {
+      entries = fs.readdirSync(current.directory, { withFileTypes: true })
+    } catch (e) {
+      addWarning(warnings, 'resource-dir-read-failed', `无法读取 ${current.relativePath || '.'}：${e.message}`)
+      continue
+    }
+
+    for (const entry of entries) {
+      const relativePath = current.relativePath ? `${current.relativePath}/${entry.name}` : entry.name
+      const fullPath = path.join(current.directory, entry.name)
+      if (entry.name.startsWith('.')) continue
+      if (entry.isDirectory()) {
+        if (current.depth + 1 >= RESOURCE_MAX_DEPTH) {
+          addWarning(warnings, 'resource-depth-exceeded', `跳过超过 6 层的目录：${relativePath}`)
+          continue
+        }
+        queue.push({ directory: fullPath, relativePath, depth: current.depth + 1 })
+        continue
+      }
+      if (!entry.isFile()) continue
+      if (current.relativePath === '' && knownFiles.has(entry.name)) continue
+      if (resources.length >= RESOURCE_MAX_FILES) {
+        addWarning(warnings, 'resource-count-exceeded', `资源文件超过 2000 个，剩余文件未读取`)
+        break
+      }
+
+      let stat = null
+      try { stat = fs.statSync(fullPath) } catch (e) {
+        addWarning(warnings, 'resource-stat-failed', `无法读取 ${relativePath}：${e.message}`)
+        continue
+      }
+      if (stat.size > RESOURCE_MAX_FILE_SIZE) {
+        addWarning(warnings, 'resource-too-large', `跳过超过 2MB 的资源文件：${relativePath}`)
+        continue
+      }
+      const result = readText(fullPath)
+      if (!result.ok) {
+        addWarning(warnings, 'resource-read-failed', `无法读取 ${relativePath}：${result.message}`)
+        continue
+      }
+      resources.push({ path: relativePath, content: result.content })
+    }
+  }
+
+  return resources.sort((a, b) => a.path.localeCompare(b.path))
+}
+
 function resolveExistingDirectory(inputPath) {
   if (typeof inputPath !== 'string' || !inputPath.trim()) return null
   const resolved = path.resolve(inputPath)
@@ -130,14 +210,46 @@ function loadSkillFolder(folderPath) {
   if (!entry.ok) return fail('skill-md-missing', '缺少 SKILL.md')
 
   const markdown = parseSkillMarkdown(entry.content)
-  const id = markdown && markdown.id ? markdown.id : path.basename(directory)
-  const name = markdown && markdown.name ? markdown.name : id
+  const warnings = []
+  const skillBody = (markdown && markdown.body) || ''
+
+  let manifest = null
+  const manifestResult = readText(path.join(directory, MANIFEST_FILE))
+  if (manifestResult.ok) {
+    try {
+      manifest = JSON.parse(manifestResult.content)
+      if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
+        addWarning(warnings, 'manifest-invalid', 'skill.json 必须是 JSON 对象，已忽略该文件')
+        manifest = null
+      }
+    } catch (e) {
+      addWarning(warnings, 'manifest-invalid', 'skill.json 不是有效 JSON，已忽略该文件：' + e.message)
+      manifest = null
+    }
+  }
+
+  const id = manifest && typeof manifest.id === 'string' && manifest.id.trim()
+    ? manifest.id.trim()
+    : (markdown && markdown.id ? markdown.id : path.basename(directory))
+  const name = manifest && typeof manifest.name === 'string' && manifest.name.trim()
+      ? manifest.name.trim()
+      : (markdown && markdown.name ? markdown.name : id)
+  if (manifest) {
+    if (markdown && markdown.id && manifest.id !== undefined && String(manifest.id) !== markdown.id) {
+      addWarning(warnings, 'manifest-id-conflict', `skill.json 显式声明 id=${manifest.id}，已优先于 SKILL.md 的 id=${markdown.id}`)
+    }
+    if (markdown && markdown.name && manifest.name !== undefined && String(manifest.name) !== markdown.name) {
+      addWarning(warnings, 'manifest-name-conflict', `skill.json 显式声明 name=${manifest.name}，已优先于 SKILL.md 的 name=${markdown.name}`)
+    }
+  }
 
   const templatePath = path.join(directory, 'template.md')
   const template = readText(templatePath)
-  if (!template.ok) return fail('template-missing', '缺少 template.md')
+  if (!template.ok) {
+    addWarning(warnings, 'template-fallback-skill-md', '缺少 template.md，已回退使用 SKILL.md 正文')
+  }
 
-  const files = { template: template.content }
+  const files = { template: template.ok ? template.content : skillBody }
   for (const fileName of OPTIONAL_FILES) {
     if (fileName === 'template.md') continue
     const result = readText(path.join(directory, fileName))
@@ -147,14 +259,40 @@ function loadSkillFolder(folderPath) {
   let meta = {}
   if (files.meta) {
     try { meta = JSON.parse(files.meta) }
-    catch (e) { return fail('meta-invalid', 'meta.json 不是有效 JSON：' + e.message) }
+    catch (e) {
+      meta = {}
+      addWarning(warnings, 'meta-invalid', 'meta.json 不是有效 JSON，已忽略该文件：' + e.message)
+    }
   }
 
   let schema = null
   if (files.schema) {
     try { schema = JSON.parse(files.schema) }
-    catch (e) { return fail('schema-invalid', 'schema.json 不是有效 JSON：' + e.message) }
+    catch (e) {
+      schema = null
+      addWarning(warnings, 'schema-invalid', 'schema.json 不是有效 JSON，已忽略该文件：' + e.message)
+    }
   }
+
+  let evals = null
+  const evalsResult = readText(path.join(directory, EVALS_FILE))
+  if (evalsResult.ok) {
+    try {
+      evals = JSON.parse(evalsResult.content)
+      if (!evals || typeof evals !== 'object' || Array.isArray(evals)) {
+        addWarning(warnings, 'evals-invalid', 'evals.json 必须是 JSON 对象，已忽略该文件')
+        evals = null
+      }
+    } catch (e) {
+      addWarning(warnings, 'evals-invalid', 'evals.json 不是有效 JSON，已忽略该文件：' + e.message)
+      evals = null
+    }
+  }
+
+  const resources = collectResourceFiles(directory, warnings)
+  const fingerprint = [SKILL_ENTRY, ...OPTIONAL_FILES, MANIFEST_FILE, EVALS_FILE]
+    .map(fileName => buildFileFingerprint(path.join(directory, fileName)))
+    .filter(Boolean)
 
   return ok({
     folderPath: directory,
@@ -162,11 +300,17 @@ function loadSkillFolder(folderPath) {
       id,
       name,
       description: (markdown && markdown.description) || '',
+      body: skillBody,
       template: files.template,
       meta,
       script: files.script || '',
       samples: files.samples || '',
-      schema
+      schema,
+      evals,
+      manifest,
+      resources,
+      fingerprint,
+      warnings
     }
   })
 }

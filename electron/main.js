@@ -23,6 +23,48 @@ var lockedProjects = new Set()  // projectIds currently held by a window
 var windowCounter = 0
 var ipcHandlersRegistered = false
 var windowStateSaveTimers = new Map() // win.id -> debounce timer
+var rendererResourceSamplers = new Map() // win.id -> interval timer
+
+function startRendererResourceSampler(win) {
+  if (!win || rendererResourceSamplers.has(win.id)) return
+  var sampleCount = 0
+  var timer = setInterval(function() {
+    if (!win || win.isDestroyed()) {
+      stopRendererResourceSampler(win)
+      return
+    }
+    sampleCount++
+    try {
+      var metrics = app.getAppMetrics().filter(function(metric) {
+        return metric && metric.id === win.webContents.id
+      })[0]
+      if (!metrics || !metrics.memory || !metrics.cpu) return
+      var cpuPercent = Number(metrics.cpu.percentCPUUsage) || 0
+      var memoryMb = Number(metrics.memory.workingSetSize) / 1024
+      if (cpuPercent >= 90) {
+        log.warn('renderer-pressure-high: windowId=' + win.id +
+          ' cpu=' + cpuPercent.toFixed(1) +
+          ' memoryMb=' + memoryMb.toFixed(1) +
+          ' samples=' + sampleCount)
+      } else {
+        log.info('renderer-resource-sample: windowId=' + win.id +
+          ' cpu=' + cpuPercent.toFixed(1) +
+          ' memoryMb=' + memoryMb.toFixed(1) +
+          ' samples=' + sampleCount)
+      }
+    } catch (e) {
+      log.warn('renderer-resource-sample-failed: windowId=' + win.id + ' error=' + e.message)
+    }
+  }, 5000)
+  rendererResourceSamplers.set(win.id, timer)
+}
+
+function stopRendererResourceSampler(win) {
+  if (!win) return
+  var timer = rendererResourceSamplers.get(win.id)
+  if (timer) clearInterval(timer)
+  rendererResourceSamplers.delete(win.id)
+}
 
 // Error handlers
 process.on('uncaughtException', function(e) {
@@ -138,11 +180,17 @@ function createWindow(projectId) {
   }
 
   var isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
-  var docsDir = isDev
+  var testDataDir = isDev && process.env.SHENYI_TEST_USER_DATA_DIR
+    ? path.resolve(process.env.SHENYI_TEST_USER_DATA_DIR)
+    : ''
+  var docsDir = testDataDir || (isDev
     ? path.join(process.cwd(), '_data')
-    : path.join(app.getPath('documents'), '神意助手数据')
+    : path.join(app.getPath('documents'), '神意助手数据'))
   var dataDir = docsDir
   var logDir = path.join(app.getPath('userData'), 'logs')
+  if (isDev && process.env.SHENYI_TEST_LOG_DIR) {
+    logDir = path.resolve(process.env.SHENYI_TEST_LOG_DIR)
+  }
 
   setDataDir(dataDir)
   setRunTraceDataDir(dataDir)
@@ -288,6 +336,7 @@ function createWindow(projectId) {
     }
   })
 
+  startRendererResourceSampler(win)
   windowMap.set(win.id, { windowId: winId, projectId: projectId || null, browserWindow: win })
   if (projectId) lockedProjects.add(projectId)
 
@@ -299,6 +348,7 @@ function createWindow(projectId) {
 
   win.on('close', function() { flushWindowStateFor(win) })
   win.on('closed', function() {
+    stopRendererResourceSampler(win)
     var pendingSave = windowStateSaveTimers.get(win.id)
     if (pendingSave) {
       clearTimeout(pendingSave)

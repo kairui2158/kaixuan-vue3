@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-09-03
+更新日期：2026-09-19
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -11,6 +11,29 @@
 3. `用途` 说明该工作对用户、系统稳定性或后续开发的价值。
 4. 新增日志必须登记：日期、功能、用途、文件路径。
 5. 版本封装节点在表内单独标出，方便客户交付对账。
+
+## 阶段九：大纲双向写入与运行记录深调（2026-09-14）
+
+## 阶段十四：直写成熟化与回归（2026-09-17）
+
+| 序号 | 日期 | 开发工作 | 开发功能 | 用途 | 日志文件 |
+|---:|---|---|---|---|---|
+| 230 | 2026-09-17 | 大纲直写意图回归修复 | 固化 09-17 trace 语料，补显式写入词库与只读护栏，统一双入口路由回归 | 用户说“输入进编辑器/改完”时正确进入 edit 并暴露 `editor.write`，同时保留位置咨询、写入状态询问、索取参考的只读边界 | [DEV_LOG_2026-09-17-outline-direct-write-intent-regression.md](DEV_LOG_2026-09-17-outline-direct-write-intent-regression.md) |
+| 231 | 2026-09-17 | 3.53.2 封装与分层清理门禁 | 升版封装、补 SKILL 工具面交付文档、清理旧安装产物并写入 M29 | 交付 3.53.2；以后封装后旧包必须清干净，但未提交源码不得误当旧留存删除 | [DEV_LOG_2026-09-17-packaging-3.53.2.md](DEV_LOG_2026-09-17-packaging-3.53.2.md) |
+| 232 | 2026-09-17 | 权限问句复合写入修复 | 权限问句二次判定写入指令、试探性写入语料补齐、runTrace turn 层工具调用对账 | “试着修改验证权限”这类复合句进入 edit 并暴露写工具；trace 三层工具证据不再缺失 | [DEV_LOG_2026-09-17-permission-write-composite-fix.md](DEV_LOG_2026-09-17-permission-write-composite-fix.md) |
+| 233 | 2026-09-18 | 3.53.3 封装 | 升级版本、全量服务测试、构建封装并核验 asar 内修复标记 | 交付包含权限问句复合写入修复与 turn 层工具对账的客户安装包 | [DEV_LOG_2026-09-18-packaging-3.53.3.md](DEV_LOG_2026-09-18-packaging-3.53.3.md) |
+| 234 | 2026-09-18 | 编辑器重复写入守卫 | 删除写入次数预算，改为连续 3 次相同写入拦截；补 runTrace 正文回填并放宽 active 看门狗 | API 可连续执行不同有效写入，不再被次数上限误杀；trace 保留工具轮最终输出 | [DEV_LOG_2026-09-18-editor-write-repeat-guard.md](DEV_LOG_2026-09-18-editor-write-repeat-guard.md) |
+| 235 | 2026-09-18 | 全链路审计补修与回头看 | 技能链真实串行执行、测试路径 trace 补齐、autoDecompose 聚合、记忆抽取/大纲分析 trace 接入；回头看补修项目切换 canceled 与 JSON 兜底 degraded 终态 | SKILL 调试方能看到测试、自动拆解、记忆抽取和大纲分析的真实 API 过程，早退与兜底分支不再伪装成功 | [DEV_LOG_2026-09-18-call-path-audit-followup.md](DEV_LOG_2026-09-18-call-path-audit-followup.md) |
+| 236 | 2026-09-18 | 3.53.5 封装 | 版本升级、全量服务测试、类型检查、NSIS 重封装、asar 修复标记核验与旧 3.53.4 产物清理 | 交付包含全链路审计补修与回头看终态修复的客户安装包 | [DEV_LOG_2026-09-18-packaging-3.53.5.md](DEV_LOG_2026-09-18-packaging-3.53.5.md) |
+
+| 序号 | 日期 | 开发工作 | 开发功能 | 用途 | 日志文件 |
+|---:|---|---|---|---|---|
+| 103 | 2026-09-14 | 大纲空等修复 | 工具过程气泡化、纯工具循环警示、可读上限错误、取消终态与 trace 完整性修复 | 用户在工具轮次不再静默空等，SKILL 调试方能拿到取消、失败和物理请求的真实证据 | [DEV_LOG_2026-09-14-outline-silent-wait-fix.md](DEV_LOG_2026-09-14-outline-silent-wait-fix.md) |
+| 104 | 2026-09-14 | 3.41.0 封装 | 版本号升级与 Windows 安装包重新生成 | 交付包含大纲空等修复与运行记录完整性修复的客户安装包 | [DEV_LOG_2026-09-14-outline-silent-wait-fix.md](DEV_LOG_2026-09-14-outline-silent-wait-fix.md) |
+| 105 | 2026-09-14 | API 直写编辑器 V2 | 主页 API 直写编辑器、兼容供应商 JSON 降级直写、编辑器定位呈现、写入限流与运行记录证据 | 客户在主页和大纲工作台无需手动复制 AI 产物，API 可直接写入、定位和呈现编辑器内容 | [DEV_LOG_2026-09-14-api-direct-write-v2.md](DEV_LOG_2026-09-14-api-direct-write-v2.md) |
+| 106 | 2026-09-14 | 3.42.0 封装 | 版本号升级与 Windows 安装包重新生成 | 交付包含 API 直写编辑器 V2 的客户安装包 | [DEV_LOG_2026-09-14-api-direct-write-v2.md](DEV_LOG_2026-09-14-api-direct-write-v2.md) |
+| 107 | 2026-09-14 | API 输入区统一 | 共享 `ApiChatInput`、60px 自动增高、Enter/换行双模式与设置持久化 | 主页和大纲工作台输入体验一致，键盘模式可由用户选择并跨启动保留 | [DEV_LOG_2026-09-14-chat-input-unification.md](DEV_LOG_2026-09-14-chat-input-unification.md) |
+| 108 | 2026-09-14 | 3.43.0 封装 | 版本号升级与 Windows 安装包重新生成 | 交付包含 API 输入区统一改造的客户安装包 | [DEV_LOG_2026-09-14-chat-input-unification.md](DEV_LOG_2026-09-14-chat-input-unification.md) |
 
 ## 阶段一：基础架构与早期闭环（2026-08-15 至 08-19）
 
@@ -215,10 +238,107 @@
 | 162 | 2026-09-08 | 3.28.6 封装 | Folder 技能导入状态与单个导入预览修复交付；type-check、149 测试、构建、asar 版本与产物关键词验证 | 客户实测导入成功后路径状态显示、单个导入预览、冲突策略与确认导入闭环 | [DEV_LOG_2026-09-08-packaging-3.28.6.md](DEV_LOG_2026-09-08-packaging-3.28.6.md) |
 | 163 | 2026-09-08 | 生成流水线运行记录 | 左侧运行列表 + 右侧详情四 Tab 居中面板；按次完整记录请求、流式、返回、诊断与时间线；按次导出 JSON 并同步写入应用数据目录 run-trace/ 全量现场 | 第三方 SKILL 制作方可获得脱敏后的完整调试现场，用户可按次导出或复制片段，降低远程调试成本 | [DEV_LOG_2026-09-08-run-trace.md](DEV_LOG_2026-09-08-run-trace.md) |
 | 164 | 2026-09-08 | 3.29.0 封装 | 运行记录功能交付；type-check、149 测试、7 个 runTrace 用例、源 Electron UI 验证、构建、asar 版本与产物关键词验证 | 客户实测运行记录面板、四 Tab、按次导出 JSON、应用数据目录全量现场与脱敏效果 | [DEV_LOG_2026-09-08-packaging-3.29.0.md](DEV_LOG_2026-09-08-packaging-3.29.0.md) |
+| 165 | 2026-09-08 | 运行记录三期 | 三来源(pipeline/outline/home)来源隔离与并发、通用居中面板、大纲工作台与主页编辑器入口、去AI味/API对话/工具接入、自动落盘与打开记录文件夹 | 运行记录从生成流水线复现到大纲工作台与主页编辑器，第三方 SKILL 调试可覆盖三大创作现场 | [DEV_LOG_2026-09-08-run-trace-phase3.md](DEV_LOG_2026-09-08-run-trace-phase3.md) |
+| 166 | 2026-09-08 | 对话上下文重置 | 主页与大纲工作台新增“重置对话”按钮，同时清 UI 会话与 ConversationContextService 作用域上下文 | 用户在对话跑偏无法纠正时可一键重置 API 请求上下文，从当前编辑器内容重新开始 | [DEV_LOG_2026-09-08-reset-conversation.md](DEV_LOG_2026-09-08-reset-conversation.md) |
+| 167 | 2026-09-08 | 3.30.0 封装 | 运行记录三期 + 对话上下文重置交付；type-check、149 服务测试、源 Electron UI 验证、构建、asar 版本与产物关键词验证 | 客户实测三来源运行记录、导出脱敏、自动落盘、两处重置对话按钮与作用域隔离 | [DEV_LOG_2026-09-08-packaging-3.30.0.md](DEV_LOG_2026-09-08-packaging-3.30.0.md) |
+| 168 | 2026-09-09 | chain 意图路由与中断机制 | 新建 chainIntentRouter 意图分类器（analyze/edit/generate/discuss/auto）+ workspaceSkillEngine chain 循环改造（意图过滤、中断检查、5回调注入）+ SkillSettings 三处读取 intents + 大纲工作台/主页聊天回调注册 | SKILL 调试方反馈 chain 模式无意图判断导致分析请求跑完全链路；修复后用户分析/讨论请求只调相关技能，生成请求才跑完整 chain | [DEV_LOG_2026-09-09-chain-intent-routing.md](DEV_LOG_2026-09-09-chain-intent-routing.md) |
+| 169 | 2026-09-09 | 意图路由 V2 升级 jieba+TF-IDF | @node-rs/jieba 依赖安装 + chainIntentRouter 重写（jieba分词+TF-IDF向量+cosine相似度+123条示例库）+ main.ts 入口初始化 + jieba API 修正 + 铁律写入 AGENTS.md 和经验文件V3 | V1关键词分类准确率50-60%提升至V2的85-90%；10/10意图分类+4/4 SKILL推断+性能<0.03ms 全部通过；compose/流水线/回调回归无影响 | [DEV_LOG_2026-09-09-intent-routing-v2-jieba.md](DEV_LOG_2026-09-09-intent-routing-v2-jieba.md) |
+| 170 | 2026-09-09 | 流水线信息注入链路彻查 | 章节层接入 runStepSkills 统一通道、补齐大纲/设定/绑定设定/风格节奏注入、移除技能错位兜底、旧卷补稳定ID、模板变量按生成卷解析 | 五层信息注入链路完整闭环，章节层智能体/Skill/技能模式不再是摆设，旧项目卷改名不再导致章节数据孤儿化 | [DEV_LOG_2026-09-09-pipeline-injection-chain.md](DEV_LOG_2026-09-09-pipeline-injection-chain.md) |
+| 171 | 2026-09-09 | 正文层硬规则后处理安全化 | CLICHES_BODY_SAFE 白名单 + processBody 完整性回滚门 + useDeAi 四处切换 + 设置页开关联动 + ChatPanel 类型修复 | 正文层与主页编辑器“去AI味”不再打碎完整文章；规则吞标点、旧 process 二次破坏、无安全网、开关脱节四个风险闭环 | [DEV_LOG_2026-09-09-deai-body-safety.md](DEV_LOG_2026-09-09-deai-body-safety.md) |
+| 172 | 2026-09-09 | 降AI硬规则架构V2 | detect-report/deep-fix/legacy-auto 三模式 + detectBody 检测器 + 保护片段回对 + 最小编辑API + 完整性门禁 + 运行记录接入 | 正文默认不再静默改写；用户和SKILL调试方先看到分级报告，深度修复失败自动保留原文，第三方可复现降AI处理现场 | [DEV_LOG_2026-09-09-deai-architecture-v2.md](DEV_LOG_2026-09-09-deai-architecture-v2.md) |
+| 173 | 2026-09-09 | 3.32.0 封装 | 降AI硬规则架构V2交付；type-check、build:vue、9项单测、16步源Electron CDP、产物SHA256与渲染产物关键词验证 | 客户实测三模式切换、检测报告事件、深度修复门禁回滚、兼容模式安全替换与主页查看报告入口 | [DEV_LOG_2026-09-09-packaging-3.32.0.md](DEV_LOG_2026-09-09-packaging-3.32.0.md) |
+| 174 | 2026-09-10 | 运行记录会话聚合 | 大纲工作台与主页编辑器运行记录按会话聚合、轮次分组、每轮落盘、手动封存；流水线保持单任务粒度 | 多轮对话调试一次导出覆盖完整现场，第三方 SKILL 制作方不再拼接多条碎片记录 | [DEV_LOG_2026-09-10-run-trace-session-aggregation.md](DEV_LOG_2026-09-10-run-trace-session-aggregation.md) |
+| 174a | 2026-09-10 | 3.33.0 版本封装 | 运行记录会话聚合与主页链路修复打包；13/13 runTrace 单测、源 Electron + CDP 三轮会话聚合实测、产物 SHA256 | 客户实测 3.33.0：连续对话聚合为一条会话、轮次分隔、手动封存与原子落盘 | [DEV_LOG_2026-09-10-packaging-3.33.0.md](DEV_LOG_2026-09-10-packaging-3.33.0.md) |
+| 175 | 2026-09-10 | 意图路由 V3 修复与真实验证 | folder 判据改为显式规格字段、fallback 增加一次性 routingOverride 与推荐技能、3 条回归测试、源 Electron + CDP 真实 UI 验证、清理 codex-e2e 测试残留与临时脚本 | 文本技能不再被误判为 folder；低置信请求可按推荐技能继续或跳过路由全链执行，验证数据不污染用户技能库和流水线配置 | [DEV_LOG_2026-09-10-intent-routing-v3.md](DEV_LOG_2026-09-10-intent-routing-v3.md) |
+| 176 | 2026-09-10 | 3.34.0 封装 | 意图路由 V3 打包交付；打包版 Electron + CDP 真实 UI 验证 13 项断言、验证脚本收尾修复、测试数据与临时脚本清理 | 客户实测 3.34.0：低置信请求 fallback 气泡、推荐技能、高级选项全链执行、无 API 误调用与测试数据残留 | [DEV_LOG_2026-09-10-packaging-3.34.0.md](DEV_LOG_2026-09-10-packaging-3.34.0.md) |
+| 177 | 2026-09-10 | Folder 协议成熟化第一阶段 | 递归资源扫描、可选文件宽容降级、postProcess.issues 语义、folder 模板执行权、逐技能 usage/finishReason 回填、folderPackageCache | 第三方 folder SKILL 资源不再静默丢失，运行记录可复现包结构与执行决策，chain 每技能 API 记录闭环 | [DEV_LOG_2026-09-10-folder-protocol-maturity.md](DEV_LOG_2026-09-10-folder-protocol-maturity.md) |
+| 178 | 2026-09-10 | Folder 协议成熟化第二阶段 | SKILL.md 正文完整注入、全部资源无截断注入、资源/警告摘要展示、源 Electron + CDP + SSE mock 真实 UI 验证 | 第三方 folder SKILL 的入口协议与深层参考资料完整进入模型上下文，导入前后可自检包结构 | [DEV_LOG_2026-09-10-folder-protocol-phase2.md](DEV_LOG_2026-09-10-folder-protocol-phase2.md) |
+| 179 | 2026-09-10 | Folder 协议成熟化第三阶段 | skill.json manifest、Electron/Node 双协议脚本桥修复、postProcess stdout 结构化输出、导入路径/ID 冲突规则、源 Electron IPC P0 探针 | 第三方 folder SKILL 作者获得稳定包元数据与社区脚本兼容路径；用户导入重复路径或重复 ID 时获得显式提示与策略入口 | [DEV_LOG_2026-09-10-folder-protocol-phase3.md](DEV_LOG_2026-09-10-folder-protocol-phase3.md) |
+| 180 | 2026-09-10 | Folder 协议成熟化第四阶段 | evals.json 随包加载、with/baseline 双路评测服务、六种本地断言、设置页运行评测按钮与报告、运行记录技能评测来源、caseId 协议化 | 第三方 folder SKILL 可附带可判定评测用例，用户运行后直观对比技能与基线的提升/持平/退化，评测现场进入运行记录供 SKILL 制作方调试 | [DEV_LOG_2026-09-10-folder-protocol-phase4.md](DEV_LOG_2026-09-10-folder-protocol-phase4.md) |
+| 181 | 2026-09-10 | Folder SKILL 评测协议交接文档 | evals.json 文件位置、字段结构、六种断言语义、with/baseline 判定、费用规则、常见失败原因与快速模板 | 第三方 Folder SKILL 制作方可按文档编写标准评测用例，用户运行评测后导出现场，形成技能改版前后的质量对比 | [DEV_LOG_2026-09-10-folder-evals-handoff.md](DEV_LOG_2026-09-10-folder-evals-handoff.md) |
+| 181a | 2026-09-10 | 大纲共创底座阶段1：读取地基 | outlineStructure 结构索引、outline.* 四只读工具、getAllSnapshots 补齐、ContextPack 化移除 12,000 字截断 | 几十万字大纲先看结构地图再按需读取局部全文，大纲工作台跨目标工具真实可用 | [DEV_LOG_2026-09-10-outline-cocreation-stage1.md](DEV_LOG_2026-09-10-outline-cocreation-stage1.md) |
+| 181b | 2026-09-11 | 大纲共创底座阶段2：写入可靠性 | 统一定位引擎(唯一命中/多匹配拒绝/模糊候选)、失败诊断只重提失败条、编辑协议长文档化+结构锚点、chain 按意图授权工具 | API 写入从 indexOf 首次命中升级为可诊断的提案式定位，SKILL 与 plain 能力面统一 | [DEV_LOG_2026-09-11-outline-cocreation-stage2.md](DEV_LOG_2026-09-11-outline-cocreation-stage2.md) |
+| 181c | 2026-09-11 | 大纲共创底座阶段3：审批与体验 | Diff 卡片化与原文定位、pending 批次会话状态机(过期不可应用/首答不可变)、兼容模式明示与过程状态 | 用户能看懂每条修改、确认状态不混乱，供应商不支持原生工具时可靠性差异可见 | [DEV_LOG_2026-09-11-outline-cocreation-stage3.md](DEV_LOG_2026-09-11-outline-cocreation-stage3.md) |
+| 182 | 2026-09-11 | 大纲工作台长文档共创阶段4收口 | Stage4 探针 mock 死分支修复、DiffModal critical override 按钮解禁、影响分析引用去重、完整性面板按需显示；type-check、216 服务测试、构建与四个源 Electron CDP 探针全绿 | 大纲工作台获得结构锚点、完整性校验、讨论蒸馏提案、影响分析与批次回滚完整闭环，阶段4方案全部勾选并沉淀经验 | [DEV_LOG_2026-09-11-outline-cocreation-stage4.md](DEV_LOG_2026-09-11-outline-cocreation-stage4.md) |
+| 183 | 2026-09-11 | 3.35.0 版本封装 | 大纲工作台长文档共创底座打包；处理源 Electron 验证实例导致的 EBUSY 后重新构建；验证安装包元数据、asar 版本、大小与 SHA256 | 将阶段 1 至阶段 4 功能发布为 Windows 安装包，供客户实操验证，并沉淀 EBUSY 根因与封装处理经验 | [DEV_LOG_2026-09-11-packaging-3.35.0.md](DEV_LOG_2026-09-11-packaging-3.35.0.md) |
+| 184 | 2026-09-11 | 全应用深度递归检测 | IPC 对账、全量测试发现治理、渲染层监听生命周期、残留与颜色扫描；修复 Vitest 污染、ChatPanel 三个监听泄漏、AgentProgressPanel 静默 catch | 3.35.0 大更新后核销跨任务遗留风险，全量测试恢复 53 文件/394 用例全绿，长会话与组件重挂载不再累积 window 监听，轮询异常可诊断 | [DEV_LOG_2026-09-11-recursive-audit.md](DEV_LOG_2026-09-11-recursive-audit.md) |
+| 184a | 2026-09-11 | 开发日志与经验文件对账补全 | 补阶段1-3独立日志与主索引断档、补 3.33.0 索引、经验 v3 补大纲共创规则与多阶段文档对账规则、消除“两个方案融合”命名歧义 | 后续会话可按日期/任务名/关键词双向追溯 09-07 至 09-11 全部任务，防止再串台 | [DEV_LOG_2026-09-11-doc-reconciliation.md](DEV_LOG_2026-09-11-doc-reconciliation.md) |
+| 185 | 2026-09-11 | API 对话系统底座统一 | 三入口统一权限/上下文/工具/批次事件 + 横向契约测试 + 源 Electron CDP 14 项真实 UI 验证 | 主页、大纲、流水线共享同一对话底座，后续对话能力升级不再三处分叉；写入仍走提案确认与回滚，测试数据无残留 | [DEV_LOG_2026-09-11-api-dialogue-foundation-unification.md](DEV_LOG_2026-09-11-api-dialogue-foundation-unification.md) |
+| 186 | 2026-09-11 | 3.36.0 版本封装 | API 对话系统底座统一打包；type-check、218 服务测试、构建、安装包元数据、asar 版本与 SHA256 验证 | 客户实测 3.36.0：主页、大纲、流水线统一对话底座与写入安全模型；同时沉淀 rcedit/EBUSY 文件锁恢复流程 | [DEV_LOG_2026-09-11-packaging-3.36.0.md](DEV_LOG_2026-09-11-packaging-3.36.0.md) |
+| 187 | 2026-09-11 | 运行记录深度化 V2 | v4 数据模型、API/物理请求/工具现场、提示词快照、处理报告、payload 外置与三种导出模式、并发保存串行化、严格前缀流式记录、源 Electron E2E 验证 | 第三方 SKILL 制作方可获得可复现的完整调试现场，主 JSON 保持轻量，敏感信息双侧脱敏；同时沉淀构建产物验证与运行目录清理纪律 | [DEV_LOG_2026-09-11-run-trace-depth-v2.md](DEV_LOG_2026-09-11-run-trace-depth-v2.md) |
+| 188 | 2026-09-12 | 生成流水线 folder chain 单一所有权 E2E | text→folder 混合链真实 Electron E2E + folder 交付通道修复（强制 inline_block）+ 无 base-template-applied 断言 | folder SKILL 加入生成流水线 chain 后，上一步输出完整进入 folder 请求且只注入一次，folder template.md 拥有执行权 | [DEV_LOG_2026-09-12-folder-pipeline-chain-e2e.md](DEV_LOG_2026-09-12-folder-pipeline-chain-e2e.md) |
+| 189 | 2026-09-12 | 3.37.0 版本封装 | folder chain 单一所有权修复交付；type-check、432 测试、三个 chain E2E 串行验证、构建、安装包元数据、asar 版本与 SHA256 验证 | 客户实测 3.37.0：text+folder 混合链路逐卷/流水线生成，确认 folder 步骤拿到完整上一步输出且不重复注入 | [DEV_LOG_2026-09-12-packaging-3.37.0.md](DEV_LOG_2026-09-12-packaging-3.37.0.md) |
+| 190 | 2026-09-12 | 开发经验文件 v4 重整 | 09-09 至 09-12 日期型经验提炼归位 §2/§3/§6/§8/§9，尾部过程章节删除，新增归档索引与回写铁律；v3 删除 | 经验文件保持规则型结构，后续会话按章节检索，避免日期日志和纪律混杂导致串台 | [神意开发经验总结_v5.md](神意开发经验总结_v5.md) |
+| 191 | 2026-09-12 | Folder Chain 变量注入与 Reasoning 可见性 | folder 模板变量改为显式 `templateVariables` 注入；reasoning 流接入进度弹窗并持久化导出 | 修复卷纲 folder chain 变量未替换、长思考期间进度空白、SKILL 调试缺思考过程的问题 | [DEV_LOG_2026-09-12-folder-chain-variable-reasoning.md](DEV_LOG_2026-09-12-folder-chain-variable-reasoning.md) |
+| 191 | 2026-09-12 | 3.37.1 封装修复 | 恢复 package.json 被覆盖丢失的 electron-builder NSIS 配置；type-check、432 测试、构建、有效配置、安装包元数据与 SHA256 验证 | 客户安装 3.37.1 时可重新选择安装目录，卸载仍保留用户数据；封装验收增加 NSIS 有效配置检查，防止静默回退一键安装 | [DEV_LOG_2026-09-12-packaging-3.37.1.md](DEV_LOG_2026-09-12-packaging-3.37.1.md) |
+| 192 | 2026-09-12 | 3.38.0 版本封装 | 卷纲层运行记录六缺陷修复交付；E2E 脚本修复为真实 Electron + Playwright CDP，六项断言 PASS；type-check、定向 68 测试、chain 单一所有权 8 项 PASS、构建、产物元数据与 SHA256 验证 | 客户实测 3.38.0：folder diagnostics 输出引用化、payload 内容寻址去重、chain 中间产物事件、API 终态闭合；旧 3.37.x 安装包已清理 | [DEV_LOG_2026-09-12-packaging-3.38.0.md](DEV_LOG_2026-09-12-packaging-3.38.0.md) |
+| 193 | 2026-09-12 | 产物有效性与状态一致性修复 | 统一产物有效性分类、provider finishReason/reasoning 归一化、folder 有效性门与直出重试、截断续写合并、degraded 状态链、失败路径诊断落 trace、sampleCount=0 语义修复 | 模型思考耗尽/空正文/截断不再伪装成功；SKILL 调试方导出运行记录可见 finishReason、usage、reasoning 与完整失败现场；基于 3.38.1 源码修复 | [DEV_LOG_2026-09-12-product-validity-status-repair.md](DEV_LOG_2026-09-12-product-validity-status-repair.md) |
+| 194 | 2026-09-12 | 3.38.2 版本封装 | 产物有效性与状态一致性修复打包；type-check、定向 64 测试、build:vue、源 Electron E2E 四场景、NSIS 有效配置、安装包元数据与 SHA256 验证 | 客户实测 3.38.2：卷纲 folder chain 在空正文、reasoning 耗尽、截断、postProcess blocking 下均显示真实状态并导出完整运行记录 | [DEV_LOG_2026-09-12-packaging-3.38.2.md](DEV_LOG_2026-09-12-packaging-3.38.2.md) |
+| 195 | 2026-09-12 | 卷纲生成挂死根因修复 | 流式 delta 化、UI 帧级节流、直出重试可见化、资源观测、G1-G6 发布矩阵；102 测试、G2/G3 压力与失败路径、三入口 G4、3.38.3 安装版实测全部通过 | 16384 token reasoning-only 长流不再压死渲染进程；空正文重试、超时、取消、连续失败全部用户可见、可取消、可导出，防止单测绿灯伪装发布闭环 | [DEV_LOG_2026-09-12-volume-generation-hang-fix.md](DEV_LOG_2026-09-12-volume-generation-hang-fix.md) |
+| 196 | 2026-09-12 | 3.38.3 版本封装 | 根因修复打包；版本、NSIS 目录选择、安装包元数据与 SHA256 验证；G4 验证脚本支持安装版 exe 并修正 folder 显示名断言 | 客户实测 3.38.3：卷纲长 reasoning、空正文重试、取消导出与三入口 API 流式；无临时安装与测试 profile 残留 | [DEV_LOG_2026-09-12-volume-generation-hang-fix.md](DEV_LOG_2026-09-12-volume-generation-hang-fix.md) |
+| 197 | 2026-09-12 | 降级终态与运行记录状态修复 | degraded 终态正确化、产物降级白名单、chain 非首步记忆去重、卷纲字数回退；61+30 定向测试、type-check、build、两项 E2E 全部通过 | SKILL 调试方可区分失败与降级完成，协议提示不再伪装降级，卷纲每卷字数在生成/解析/写入三环节一致 | [DEV_LOG_2026-09-12-degraded-trace-repair.md](DEV_LOG_2026-09-12-degraded-trace-repair.md) |
+| 198 | 2026-09-12 | 3.38.4 版本封装 | 降级终态与运行记录状态修复打包；版本升级、NSIS 有效配置、安装包元数据、asar 版本与 SHA256 验证；旧 3.38.2/3.38.3 安装包清理 | 客户实测 3.38.4：验证降级完成状态、协议提示、chain 记忆单一注入与卷纲字数一致性 | [DEV_LOG_2026-09-12-packaging-3.38.4.md](DEV_LOG_2026-09-12-packaging-3.38.4.md) |
+| 199 | 2026-09-13 | 全应用统一性修复收尾 | Modal 队列统一、AI Trace 生命周期统一、旧架构 6 服务删除、续生成 turn 修复、E2E 脚本隔离与路径修复；type-check、481 测试、构建、G2/G3/G4 三门 E2E 全部通过 | 消除 30+ overlay 各自管理 z-index 的风险、统一 AI 调用 trace 生命周期消除 running 僵尸、删除旧架构死代码减少维护负担 | [DEV_LOG_2026-09-13-full-unification-repair.md](DEV_LOG_2026-09-13-full-unification-repair.md) |
+| 200 | 2026-09-13 | 3.39.0 版本封装 | 全应用统一性修复打包；版本升级、NSIS 目录选择、安装包元数据、asar 版本与 SHA256 验证；旧 3.38.4 安装包清理 | 客户实测 3.39.0：统一 Modal 队列、AI Trace 终态闭合、旧服务删除后的三入口功能与 folder chain 链路 | [DEV_LOG_2026-09-13-packaging-3.39.0.md](DEV_LOG_2026-09-13-packaging-3.39.0.md) |
+| 201 | 2026-09-13 | 3.39.1 修复版封装 | 修复技能页 TDZ 回归；type-check、build:vue、真实 Electron 技能页 E2E、Modal 队列单测、构建、NSIS 目录选择、asar 版本与 SHA256 验证 | 3.39.0 废弃并清理；客户实测 3.39.1：设置页技能入口恢复、folder 导入与技能编辑弹窗可用、安装仍可选目录 | [DEV_LOG_2026-09-13-packaging-3.39.1.md](DEV_LOG_2026-09-13-packaging-3.39.1.md) |
+| 202 | 2026-09-13 | 旧框架废弃文件清理 | 三面引用闭包确认后删除旧架构死文件、无调用 composable、失效 gate 脚本与 33 个归档 UI 审计脚本；保留仍在生效的 legacy 兼容逻辑与历史资料 | 消除“旧框架不适用”误导源，减少死代码维护面；锁文件、type-check、481 测试与双构建全部通过，版本保持 3.39.1 | [DEV_LOG_2026-09-13-obsolete-framework-cleanup.md](DEV_LOG_2026-09-13-obsolete-framework-cleanup.md) |
+| 203 | 2026-09-13 | JSON 围栏清洗与 samples.txt 健康边界 | 新增统一平衡括号 JSON 解析服务并迁移全部调用点；folder SKILL 样本健康检查只警告不修改第三方文件夹；同步协议文档与帮助教学 | 模型围栏 JSON、解释文本包裹 JSON 不再因贪婪正则解析失败；第三方 SKILL 的完整成品样本会被体检显式提醒，降低模型复制示例内容的风险 | [DEV_LOG_2026-09-13-json-fence-samples-health.md](DEV_LOG_2026-09-13-json-fence-samples-health.md) |
+| 204 | 2026-09-13 | 开发经验文件 v5 重整 | 合并 v4 全部有效规则并修复重复编号；删除旧归档声明与尾部整理记录；v1/phaseC/v4 旧经验文件删除，v5 成为唯一经验规则文件 | 后续会话只读一份经验文件，避免 v4 与历史归档并行导致引用串台；过程细节统一从 DEV_LOG 检索 | [DEV_LOG_2026-09-13-experience-file-v5.md](DEV_LOG_2026-09-13-experience-file-v5.md) |
+| 205 | 2026-09-13 | 3.39.2 版本封装 | 发布旧框架清理、JSON 围栏清洗、samples.txt 健康边界与卷纲续生成单卷修复；type-check、198 条服务测试、设置页真实 Electron E2E、NSIS 构建、asar 版本与 SHA256 验证 | 客户实测 3.39.2：安装路径可选、技能页正常、卷纲续生成只出下一卷、模型围栏 JSON 可解析 | [DEV_LOG_2026-09-13-packaging-3.39.2.md](DEV_LOG_2026-09-13-packaging-3.39.2.md) |
+| 206 | 2026-09-13 | 卷纲层三缺陷修复 | 续生成错卷根因定位（samples.txt 完整成品诱导）、run-trace 首载荷内联与嵌套诊断外置修复、folder 结构缺失 warning 降级归并；68 定向测试、type-check、构建与真实 6.6MB trace 复测通过 | 运行记录主文件从 6.63MB 降至 481KB 且无内联 payload；folder 缺少标记/快照/微场景时显示降级而不是伪装成功 | [DEV_LOG_2026-09-13-volume-three-defects.md](DEV_LOG_2026-09-13-volume-three-defects.md) |
+| 207 | 2026-09-13 | 3.40.0 版本封装 | run-trace 旧导出兼容修复进入发布；14 文件 192 测试、type-check、双构建与 NSIS 打包通过；asar 版本与 runTrace 外置逻辑复核 | 生成 `神意助手-Setup-3.40.0.exe`，保留自定义安装路径；旧 3.39.2 产物已清理 | [DEV_LOG_2026-09-13-packaging-3.40.0.md](DEV_LOG_2026-09-13-packaging-3.40.0.md) |
+| 208 | 2026-09-13 | 大纲工作台 compose + folder 修复 V2 验证闭环 | compose 复用统一路由/API trace/工具面/提案闭环；修复 prompt 外置载荷哈希与落盘内容不一致；新增 prompt sha256 回归测试；真实源 Electron + CDP 全场景验证通过 | 大纲工作台 compose + folder 讨论与写入闭环可被完整复现；深度导出 36 个 payload 全部校验通过，SKILL 调试方拿到可信现场 | [DEV_LOG_2026-09-13-outline-compose-folder-repair-v2.md](DEV_LOG_2026-09-13-outline-compose-folder-repair-v2.md) |
+| 209 | 2026-09-13 | 3.40.1 版本封装 | prompt 外置载荷哈希一致性修复发布；type-check、5 条 prompt 回归、198 条服务测试、507 条全量测试、双构建与 NSIS 打包通过；asar 版本与 runTrace 修复复核 | 客户实测 3.40.1：大纲工作台 compose + folder 深度导出 payload 不再出现 hashMismatch，运行记录可作为可信调试现场 | [DEV_LOG_2026-09-13-packaging-3.40.1.md](DEV_LOG_2026-09-13-packaging-3.40.1.md) |
+| 210 | 2026-09-13 | 3.40.1 封装收尾修复 | asar extract-file 误写仓库根目录覆盖源 package.json；恢复完整发布清单、删除根目录 runTrace.js 残留、复核源文件与安装包哈希未受影响 | 沉淀经验 §6-18：asar 校验必须用 Node API 内存读取或解到临时目录，封装收尾复核根目录无解包残留 | [DEV_LOG_2026-09-13-packaging-3.40.1.md](DEV_LOG_2026-09-13-packaging-3.40.1.md) |
+| 211 | 2026-09-13 | 全局确认弹窗层级修复 | 确认框 9000 高于 Modal 队列，Escape 阻断级联，重置对话双入口 E2E 回归 | 全局确认层不再被宿主工作台遮挡，重置对话等确认操作恢复可见可点，层级变更形成固定回归门 | [DEV_LOG_2026-09-13-app-confirm-layering-fix.md](DEV_LOG_2026-09-13-app-confirm-layering-fix.md) |
+| 212 | 2026-09-14 | 开发经验文件 v5.1 门禁修订 | 直写规则 26/69 与产品决策对齐，新增 M8 日志覆盖同步、M9 权限执行门、M10 测试契约门，修复 §8 重复编号 | 后续直写、日志覆盖与测试契约有最新硬门禁锚点，避免旧条款误导修复方向 | [DEV_LOG_2026-09-14-api-direct-write-v2.md](DEV_LOG_2026-09-14-api-direct-write-v2.md) |
+| 213 | 2026-09-14 | API 直写权限门补验 | 兼容直写显式祈使意图补齐；classify/route 共享语义；源码 15 场景、安装版 3.42.2 十五场景与诊断覆盖面复验通过 | 显式“直写”请求进入 edit，讨论/分析只读门不变；意图单源规则沉淀为 M11 | [DEV_LOG_2026-09-14-direct-write-permission-gate.md](DEV_LOG_2026-09-14-direct-write-permission-gate.md) |
+| 214 | 2026-09-14 | 3.42.2 封装 | 权限门补验后升级版本、NSIS 重封装、安装版静默安装与 15 场景 E2E 复验 | 客户拿到 `神意助手-Setup-3.42.2.exe`，兼容供应商 JSON 直写可复现且权限拒绝路径未回退 | [DEV_LOG_2026-09-14-direct-write-permission-gate.md](DEV_LOG_2026-09-14-direct-write-permission-gate.md) |
+| 215 | 2026-09-15 | Outline Trace 递归修复与 3.44.0 全面收尾 | 修复 ChatPanel `toolCallSummary` 生产 TDZ；直写批次解析与提案工具语义落地、blocked 诊断与 toolSurface 补全；工具交换改非流式 JSON 并修正 5 个 mock；type-check、216 服务测试、build:vue、stage2 20/20 E2E、NSIS 构建、安装级烟测、安装级 15 场景直写 E2E 与双侧诊断覆盖 120/120 通过 | 大纲与主页的合法批次可进入预览并确认写入，批次失败真实归因可见；3.44.0 安装/卸载、自定义路径、asar 版本、15 场景直写、运行记录与诊断覆盖均有证据；客户仍需用真实供应商复验长素材、确认、undo 与 trace 归因 | [DEV_LOG_2026-09-15-outline-trace-recursive-repair.md](DEV_LOG_2026-09-15-outline-trace-recursive-repair.md) |
+| 216 | 2026-09-15 | ContextPack 去重与续生成快照瘦身 | plain 与 SKILL 路径去重、ContextPack skipOutlineBody、主页大纲重复注入去重、续生成消息瘦身与兼容旧快照；type-check、216 服务测试、专项测试与 build:vue 通过 | 降低长大纲和长历史造成的上下文重复与请求膨胀，续生成快照不再无限携带旧全文 | [DEV_LOG_2026-09-15-context-dedup-snapshot-slim.md](DEV_LOG_2026-09-15-context-dedup-snapshot-slim.md) |
+| 217 | 2026-09-15 | 3.45.0 封装 | ContextPack 去重与快照瘦身进入交付 | 客户可验证长文档对话的上下文重复减少与续生成稳定性 | [DEV_LOG_2026-09-15-context-dedup-snapshot-slim.md](DEV_LOG_2026-09-15-context-dedup-snapshot-slim.md) |
+| 218 | 2026-09-15 | 全应用调用路径审计 V2 | Chain Handoff warn-only 对账、infra/background trace、Outline 共享收尾、状态冲突事件、classifyRunOutcome 归一与 Vite jieba external 修复；type-check、558 全量测试和生产构建通过 | chain 上下文交接有可导出证据，隐藏 AI 与供应商调用失败可溯源，运行终态不被 finally 覆盖，降级不被折叠成 success | [DEV_LOG_2026-09-15-call-path-audit-v2.md](DEV_LOG_2026-09-15-call-path-audit-v2.md) |
+| 219 | 2026-09-15 | 3.46.0 封装 | 调用路径审计 V2 进入交付，生成 `神意助手-Setup-3.46.0.exe` | 客户重点复验 chain handoff 对账、供应商/AI 工具 trace、取消/失败终态与降级归因 | [DEV_LOG_2026-09-15-call-path-audit-v2.md](DEV_LOG_2026-09-15-call-path-audit-v2.md) |
+| 220 | 2026-09-15 | Trace 加固 V2 | handoff hash 断点持久化、schemaVersion 5、Trace 落盘 fail-open、eval source 白名单补齐、并发收尾冲突事件与 E2E 清理加固；44 专项测试、562 全量测试、类型检查和真实 Electron E2E 通过 | 断点恢复不再重复注入已处理 handoff，trace 结构变更可版本识别，观测故障不阻断生成，技能评测记录保持正确来源，取消后的迟到收尾有可导出证据 | [DEV_LOG_2026-09-15-trace-hardening.md](DEV_LOG_2026-09-15-trace-hardening.md) |
+| 221 | 2026-09-15 | 状态审计 V2（含回头看补修） | 修复预算耗尽/等待确认/技能阻断三类错误终态；建立状态守卫、看门狗、完整性检查、schemaVersion 6 状态时间线与关闭前状态上报；回头看补修 PipelinePanel blocked 折叠、看门狗 LifecycleStatus、快照合成终态历史，并声明测试量降档原因 | 运行记录可还原每次状态转换原因，folder SKILL blocked 不再伪装为 failed，chat 导出快照带证据链；后续状态改动必须经统一收口而不是散点赋值 | [DEV_LOG_2026-09-15-state-audit-v2.md](DEV_LOG_2026-09-15-state-audit-v2.md) |
+| 222 | 2026-09-15 | 回头看门禁升格 | 经验文件 v5.6 新增 M17：每次任务收尾前必须执行目标对账、diff 自审、同款逻辑扫描、日志与经验覆盖、本轮证据复核；任一项缺失不得声称完成 | 后续所有任务把回头看作为硬门禁执行，防止“主体做完但链路断档、规则未回写、证据借用旧轮”的假闭环 | [DEV_LOG_2026-09-15-state-audit-v2.md](DEV_LOG_2026-09-15-state-audit-v2.md) |
+| 223 | 2026-09-15 | 状态审计 V2 补完 | 等待用户确认恢复改为一次性登记，普通连续对话不再制造虚假恢复事件；AI 命名 partial 事件移到 trace finish 之前，SKILL 调试可见 NamingStatus.partial → RunTraceStatus degraded 契约；新增两条回归并完成专项、类型与全量验证 | 等待确认观测只在实际等待后出现，命名部分有效结果在运行记录中保留状态转换证据 | [DEV_LOG_2026-09-15-state-audit-v2.md](DEV_LOG_2026-09-15-state-audit-v2.md) |
+| 224 | 2026-09-15 | 3.49.0 封装 | 版本升级并生成 NSIS 安装包；asar 版本、NSIS 自定义安装目录配置、测试与类型检查复核通过 | 客户可实操验证等待确认观测与 Naming partial trace 修复 | [DEV_LOG_2026-09-15-packaging-3.49.0.md](DEV_LOG_2026-09-15-packaging-3.49.0.md) |
+| 225 | 2026-09-16 | 运行记录两次对比面板 RunTraceDiff | A/B 运行选择、六组差异 Tab、全文 diff、JSON 导出与递归脱敏；58 条单测、type-check、build:vue 与 31 项源 Electron E2E 通过 | SKILL 制作方可直接对比模板修改前后的 API、提示词、输出、工具、处理报告与状态链差异，导出全文供离线调试 | [DEV_LOG_2026-09-15-run-trace-diff.md](DEV_LOG_2026-09-15-run-trace-diff.md) |
+| 226 | 2026-09-16 | 方案成熟度门禁 M18 | 经验文件 v5.8 新增 M18 四层成熟度评估、三档结论与方案成熟度声明；M12 增补防假研磨；根因索引登记 mock 假验证放行半成熟方案 | 后续任何方案审核必须明确“成熟 / 半成熟 / 不成熟”，未给出结论不得执行；mock 强制工具面不得作为链路验证证据 | [DEV_LOG_2026-09-16-plan-maturity-gate.md](DEV_LOG_2026-09-16-plan-maturity-gate.md) |
+| 227 | 2026-09-16 | API 直写 V2 成熟化修复 | 大纲工具面单源构建、主页 actualToolSurface 双层记录、E2E 假失败源修复；14 场景真实 E2E、build:vue、type-check、216 服务测试通过 | 大纲与主页 API 直写的真实请求与运行记录共享同一工具面，SKILL 调试方不再被入口声明值误导 | [DEV_LOG_2026-09-16-api-direct-write-v2-maturity.md](DEV_LOG_2026-09-16-api-direct-write-v2-maturity.md) |
+| 228 | 2026-09-16 | 3.51.0 封装 | 版本升级与 Windows 安装包重新生成 | 交付 API 直写 V2 成熟化修复客户复验包 | [DEV_LOG_2026-09-16-api-direct-write-v2-maturity.md](DEV_LOG_2026-09-16-api-direct-write-v2-maturity.md) |
+| 229 | 2026-09-16 | API 直写成熟化执行与 3.52.0 交付 | 确认预览链路清零、意图语料单源、tool-loop 状态机、三层工具调用对账；补修 SKILL 路径失败批次接线、E2E 页面选择器与 Vite jieba 传递依赖；type-check、build:vue、602 服务测试、三套 E2E 全部通过 | 客户实测 3.52.0：大纲 SKILL 路径部分失败批次可只重提失败条，discuss 只读、edit 直写与 tool-loop 阶段可见，运行记录三层可对账 | [DEV_LOG_2026-09-16-api-direct-write-mature.md](DEV_LOG_2026-09-16-api-direct-write-mature.md) |
+| 230 | 2026-09-16 | M17 回看维度扩充与 3.52.1 补修封装 | M17 扩充 8 维回看、M24 全仓入口盘点；补修主页 `createEditorTools` 失败批次接线与 12 处脚本页面选择器；同步修复 lockfile 版本分叉；type-check、602 测试、双构建、asar 版本与 NSIS 配置核验通过 | 客户实测 3.52.1：主页 API 对话框部分失败批次可只重提失败条，大纲直写与安装路径能力不回退 | [DEV_LOG_2026-09-16-m17-expansion-and-batch-repair.md](DEV_LOG_2026-09-16-m17-expansion-and-batch-repair.md) |
+| 231 | 2026-09-16 | 卷纲 Chain 上游上下文契约改造 | S1/断点恢复主消费者保留全文，S2+ 默认替换 `[大纲]` 为确定性结构地图；folder `meta.json` 可声明 `chainHandoff.requiresFullPreviousOutput` 申请全文；meta 水合与 `chain-context-slim` trace 事件落地；34 专项测试、vue-tsc、双构建通过 | 卷纲 chain 中间步骤不再默认携带大纲全文，缓解输入滚雪球；SKILL 调试方可在运行记录中逐步对账每步拿到 full/slim 上下文 | [DEV_LOG_2026-09-16-chain-upstream-slim.md](DEV_LOG_2026-09-16-chain-upstream-slim.md) |
+| 232 | 2026-09-16 | MAX_TOKENS 与思考重试 V2 | 移除 16384 硬顶、400 供应商上限降级、思考关闭协议、三入口直出重试、运行记录 retryStrategy/maxTokens 对账、四层失败终态修正 | 模型不再被本地硬顶截断，思考耗尽可用正确策略重试；SKILL 调试方能从 trace 看到实际输出上限、重试策略与失败原因 | [DEV_LOG_2026-09-16-max-tokens-reasoning-retry-v2.md](DEV_LOG_2026-09-16-max-tokens-reasoning-retry-v2.md) |
+| 233 | 2026-09-16 | Chain Handoff 真执行 V2 | 生成流水线 chain 中间产物按消费契约交付：默认全文、structured 全命中才生效、excerpt 仅显式声明、contract-miss 回退、输出校验失败自动升级全文重试、每步全文入 runTrace payload | SKILL 可声明只需要上一步的字段，降低链式上下文滚雪球；任何截断失败都有全文兜底与可导出证据，第三方未声明 SKILL 零回归 | [DEV_LOG_2026-09-16-chain-handoff-execution-v2.md](DEV_LOG_2026-09-16-chain-handoff-execution-v2.md) |
+| 234 | 2026-09-16 | tool-loop 悬死修复 | 请求级 supervisor（idle 150s / hard 300s / 重复工具错误 3 次）接入大纲 direct 对话；物理请求 running/canceled 观测补齐；finishTurn reason 与 cancelRunningApiCalls 物理请求兜底；119 专项测试、type-check、build:vue、真实 Electron E2E 与 DiagLogger 双侧对账通过 | 工具循环、供应商 hold、无进展流式不再无限等待，用户可取消，SKILL 调试方可从 trace 还原停滞原因 | [DEV_LOG_2026-09-16-tool-loop-stuck-fix.md](DEV_LOG_2026-09-16-tool-loop-stuck-fix.md) |
+| 235 | 2026-09-17 | tool-loop 收敛缺口补漏 | 到达工具上限后新增不带 tools 的 `tool_convergence` 物理请求，注入“停止调用任何工具、基于已有结果输出最终回答”指令；runTrace phase 补 `tool_convergence`；E2E 从“失败提示”升级为“必须输出收敛回答” | 无法输出正文的核心缺口闭合：模型沉迷工具轮时仍会得到最终回答，trace 可区分工具轮与收敛轮 | [DEV_LOG_2026-09-17-tool-loop-convergence.md](DEV_LOG_2026-09-17-tool-loop-convergence.md) |
+| 236 | 2026-09-17 | tool convergence 取消信号 V2 | `CallAiParams` 新增用户取消专用 `cancelSignal`，收敛请求继承用户取消但不继承 supervisor 总 deadline；工具执行组合双取消信号；大纲 direct 对话双 controller 同步生命周期并在收敛开始时记录 trace、停用工具监督器 | 保留“收敛救援不被逻辑 deadline 误杀”的成果，同时恢复用户取消能力，其他入口无回归 | [DEV_LOG_2026-09-17-tool-convergence-signal-v2.md](DEV_LOG_2026-09-17-tool-convergence-signal-v2.md) |
+| 237 | 2026-09-17 | 3.52.3 版本封装 | tool convergence 取消信号 V2 交付；封装前回头复核全仓 `callAi` fallback、supervisor 单调用点与双 controller 生命周期；type-check、71 文件/633 测试、构建、asar 版本、NSIS 目录选择、安装包元数据与 SHA256 验证 | 客户实测 3.52.3：工具上限后的收敛正文、收敛期间用户取消、自定义安装路径不回退 | [DEV_LOG_2026-09-17-packaging-3.52.3.md](DEV_LOG_2026-09-17-packaging-3.52.3.md) |
+| 238 | 2026-09-17 | 生产接线门禁与社区调研 | 新增 M26 旧假设清零门禁；真实克隆 semantic-router、Roo Code、knip、dependency-cruiser 并读取源码；对账出 ChatPanel/OutlineWorkspace 多入口自建工具面缺口；产出成熟化 V2 方案等待审核 | 后续生产接线改造有机器门禁依据：每路由阈值评估、工具面单源入口、依赖图 forbidden/reachable/orphan 规则 | [DEV_LOG_2026-09-17-production-wiring-gate.md](DEV_LOG_2026-09-17-production-wiring-gate.md) |
+| 239 | 2026-09-19 | 意图等待恢复与构建告警收尾 | 实现 runId + createdAt + resumeToken 等待恢复结构、修复气泡清空前快照缺口、删除旧 Vite 配置并显式收敛测试范围、消除 Node typeless warning | 等待确认后的继续操作能带身份恢复 trace，不再必然落入 next_turn 兜底；构建与评估命令无配置类 warning | [DEV_LOG_2026-09-19-resume-token-and-build-warnings.md](DEV_LOG_2026-09-19-resume-token-and-build-warnings.md) |
 
 ## 维护要求
 
 - 新开发日志必须追加到所属阶段末尾，并递增全局序号。
 - 新版本封装必须写明版本号、交付目的和客户验证重点。
 - 若某项工作被后续版本推翻或替换，不修改原记录，在当前索引新增一行说明新状态。
+# 2026-09-18 上下文滚雪球修复 Phase 2
 
+- 文件：[DEV_LOG_2026-09-18-context-snowball-fix.md](DEV_LOG_2026-09-18-context-snowball-fix.md)
+- 范围：非破坏性上下文压缩生产接线、二次压缩身份折叠修复、模型输入窗口解析、workspace 隔离、runTrace/DiagLogger 双侧观测。
+- 验证：服务测试 657/657，type-check 与 build:vue 通过。
+
+# 2026-09-19 卷纲计划与 Reasoning Trace 修复
+
+- 文件：[DEV_LOG_2026-09-19-volume-plan-reasoning-trace.md](DEV_LOG_2026-09-19-volume-plan-reasoning-trace.md)
+- 范围：卷纲计划单一事实源与预算钳制、folder 模板空变量归一、reasoning delta 契约统一、最终 reasoningText 回填、大纲工作台与主页续生成旁路补漏。
+- 验证：72 文件 / 672 条服务测试、type-check、build:vue 全部通过；build 仅存在既有 chunk 警告。
+
+# 2026-09-19 意图路由 V5 收尾
+
+- 文件：[DEV_LOG_2026-09-19-intent-routing-v5.md](DEV_LOG_2026-09-19-intent-routing-v5.md)
+- 范围：大纲入口预组装工具面清零、fallback 推荐意图单源收口、旧链路七面扫描、ChatPanel 路由类型收窄、M36 门禁写入经验文件。
+- 验证：type-check、2 文件 41 条路由/引擎测试、意图评测 20/20 与 253 条饱和语料、3 文件 101 条 trace/执行器/状态测试全部通过；旧链路残留扫描仅剩合法兜底与负向断言。

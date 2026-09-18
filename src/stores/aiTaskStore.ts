@@ -26,6 +26,13 @@ export interface TaskPlan {
   updatedAt: number
   projectId: string
   workspace: string
+  stateHistory?: Array<{
+    stepId: string
+    fromStatus: TaskStep['status']
+    toStatus: TaskStep['status']
+    reason?: string
+    recordedAt: number
+  }>
 }
 
 export const useAiTaskStore = defineStore('aiTask', () => {
@@ -77,6 +84,7 @@ export const useAiTaskStore = defineStore('aiTask', () => {
     if (!task) return
     const step = task.steps.find(s => s.stepId === stepId)
     if (!step) return
+    const fromStatus = step.status
     step.status = status
     if (result !== undefined) step.result = result
     if (error !== undefined) step.error = error
@@ -92,6 +100,16 @@ export const useAiTaskStore = defineStore('aiTask', () => {
     if (status === 'failed') {
       task.state = 'failed'
     }
+    task.stateHistory = [
+      ...(task.stateHistory || []),
+      {
+        stepId,
+        fromStatus,
+        toStatus: status,
+        reason: result || error || 'status-update',
+        recordedAt: Date.now()
+      }
+    ]
     persist()
   }
 

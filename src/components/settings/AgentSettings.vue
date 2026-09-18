@@ -60,7 +60,7 @@
       <option v-for="m in allModelOptions" :key="m" :value="m"></option>
     </datalist>
 
-    <div v-if="importPreviewVisible" class="agent-import-overlay" @click.self="cancelImport">
+    <div v-if="importPreviewVisible" class="agent-import-overlay" :style="{ zIndex: modalQueue.getZIndex('agent-import-preview') }" @click.self="cancelImport">
       <div class="agent-import-modal" role="dialog" aria-modal="true" aria-labelledby="agent-import-title">
         <div class="agent-import-header">
           <h4 id="agent-import-title">导入预览</h4>
@@ -122,16 +122,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useAgentStore } from '../../stores/agent'
 import { useProviderStore } from '../../stores/provider'
 import { useConfigExchange } from '../../composables/useConfigExchange'
 import type { Agent } from '../../stores/agent'
 import { buildImportPlan } from '../../services/configExchange'
 import type { ConfigDiagnostic, ConfigFieldTrace, ConfigIssue, ConfigSourceInfo, ImportPlanItem, ImportStrategy } from '../../services/configExchange'
+import { useModalQueue } from '../../composables/useModalQueue'
 
 const agentStore = useAgentStore()
 const providerStore = useProviderStore()
+const modalQueue = useModalQueue()
 const {
   exchangeLoading,
   importAgentsFromFile,
@@ -152,6 +154,11 @@ const importFieldTrace = ref<ConfigFieldTrace[]>([])
 const importSourceInfo = ref<ConfigSourceInfo>()
 const importUnknownFields = ref<string[]>([])
 const importStrategy = ref<ImportStrategy>('skip')
+
+watch(() => importPreviewVisible.value, visible => {
+  if (visible) modalQueue.open('agent-import-preview')
+  else modalQueue.close('agent-import-preview')
+}, { immediate: true })
 const importAddCount = computed(() => importPlan.value.filter(item => item.action === 'add').length)
 const importConflictCount = computed(() => importPlan.value.filter(item => item.action !== 'add').length)
 
