@@ -602,3 +602,10 @@
 - 范围：3.30-3.70 周期 150+ 修改文件与 400+ 未跟踪文件分批归档；删除 5 处第三方调研原始缓存（约 80MB）与 `dist/win-unpacked`（约 972MB）；修复孤儿 idx / tmp_obj 后重建 multi-pack-index；嵌套第三方 Git 仓库从版本索引移除、本地保留并加入 ignore 规则。
 - 验证：`git status --short` 无 tracked/untracked 残留；`git fsck --full` 0 error/missing/corrupt；归档提交 `0764672`、`39414c8`、`b6704c4`、`c40e19b` 可在 `git log` 追溯。
 - 客户重点复验：无需客户操作；本地 `_data/` 用户数据、3.70.0 安装包与全部审计证据保留。
+
+# 2026-10-01 门禁体系重构 v6
+
+- 文件：[_audit/DEV_LOG_2026-10-01_gate-system-refactor.md](_audit/DEV_LOG_2026-10-01_gate-system-refactor.md)
+- 范围：开发经验文件从 v5 升级为 v6 四层门禁结构（L0 永恒 / L1 通用 / L2 领域 / L3 归档映射）；M1-M80 全量归位，删除尾部日期修订记录；删除 v5 旧经验文件；更新 STACK.md 与活跃 docs 指向。
+- 验证：活跃文档 v5 引用清零、M 编号映射全覆盖、`git diff --check` 通过、工作区仅含本轮改动。
+- 客户重点复验：后续任务开始前按 v6 使用路由读取 L0 + 相关 L1/L2；发现规则失效按失效条件归档，不回滚 v5。
