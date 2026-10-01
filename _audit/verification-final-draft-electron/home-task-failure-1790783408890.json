@@ -1,0 +1,3729 @@
+{
+  "generatedAt": "2026-09-30T15:50:08.890Z",
+  "source": "home",
+  "snapshot": {
+    "runId": "run-1790781120235-1",
+    "runStatus": "running",
+    "userCount": 1,
+    "turnCount": 1,
+    "turnId": "turn-1790781120237-3",
+    "turnStatus": "failed",
+    "turnCallCount": 1,
+    "turnCallStatuses": [
+      "success"
+    ],
+    "apiCallCount": 2,
+    "runningApiCallCount": 0,
+    "physicalCallCount": 5,
+    "activeStreamChars": 0,
+    "logicalStreamChars": 0,
+    "lastStreamActivityAt": 0,
+    "eventCount": 469,
+    "lastEventType": "session-active",
+    "task": {
+      "taskId": "final-draft-1790781120322-1",
+      "status": "failed",
+      "activeSegmentIndex": 0,
+      "segments": 2,
+      "accumulatedChars": 0,
+      "completedChars": 0,
+      "streamingChars": 0,
+      "throughputStatus": null,
+      "sixtySecondCharsPerSecond": null,
+      "continuationCount": 0,
+      "updatedAt": 1790783408238
+    },
+    "sendEnabled": true
+  },
+  "conversationState": {
+    "runId": "run-1790781120235-1",
+    "turnId": "turn-1790781120237-3",
+    "turnStatus": "failed",
+    "apiStatuses": [
+      "success",
+      "failed"
+    ],
+    "physicalCalls": [
+      {
+        "seq": 1,
+        "status": "success",
+        "finishReason": "stop",
+        "responseChars": 29,
+        "requestChars": 339
+      },
+      {
+        "seq": 1,
+        "status": "failed",
+        "finishReason": null,
+        "responseChars": 0,
+        "requestChars": 676
+      },
+      {
+        "seq": 2,
+        "status": "failed",
+        "finishReason": null,
+        "responseChars": 0,
+        "requestChars": 676
+      },
+      {
+        "seq": 3,
+        "status": "failed",
+        "finishReason": null,
+        "responseChars": 0,
+        "requestChars": 676
+      },
+      {
+        "seq": 4,
+        "status": "failed",
+        "finishReason": null,
+        "responseChars": 0,
+        "requestChars": 676
+      }
+    ],
+    "toolCalls": [],
+    "toolSurface": [],
+    "eventTypes": [
+      "started",
+      "user-request",
+      "final-draft-created",
+      "final-draft-generation-started",
+      "api-start",
+      "run-activity",
+      "long-request-in-progress",
+      "physical-call",
+      "final-draft-checkpoint-saved",
+      "physical-call",
+      "state-transition",
+      "api-success",
+      "final-draft-segment-order-planned",
+      "final-draft-segment-started",
+      "api-start",
+      "run-activity",
+      "long-request-in-progress",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "physical-call",
+      "run-activity",
+      "long-request-in-progress",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "physical-call",
+      "run-activity",
+      "physical-call",
+      "run-activity",
+      "long-request-in-progress",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "physical-call",
+      "run-activity",
+      "long-request-in-progress",
+      "physical-call",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-checkpoint-saved",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "final-draft-throughput-streaming_active",
+      "physical-call",
+      "run-activity",
+      "physical-call",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "physical-call",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-stalled",
+      "state-stuck-detected",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "physical-call",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-checkpoint-saved",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "final-draft-throughput-stalled",
+      "physical-call",
+      "state-transition",
+      "api-failed",
+      "final-draft-task-failed",
+      "turn-finished",
+      "session-active"
+    ],
+    "finalDraftEvents": [
+      {
+        "type": "final-draft-created",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "destination": "home-editor",
+          "targetId": "final-draft-stall-recovery",
+          "sourceChars": 62,
+          "sourceContentHash": "fnv1a32_fffffb7b",
+          "segments": 2
+        }
+      },
+      {
+        "type": "final-draft-generation-started",
+        "payload": {}
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-segment-order-planned",
+        "payload": {
+          "segmentOrder": [
+            "segment-1",
+            "segment-2"
+          ],
+          "fallback": true
+        }
+      },
+      {
+        "type": "final-draft-segment-started",
+        "payload": {
+          "segmentId": "segment-1"
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 9,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 18,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-streaming_active",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "streaming_active",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-checkpoint-saved",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "checkpointId": "final-draft-final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "completedChars": 0
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-throughput-stalled",
+        "payload": {
+          "taskId": "final-draft-1790781120322-1",
+          "activeSegmentIndex": 0,
+          "streamingChars": 27,
+          "tenSecondCharsPerSecond": 0,
+          "sixtySecondCharsPerSecond": 0,
+          "throughputStatus": "stalled",
+          "estimatedRemainingMs": null
+        }
+      },
+      {
+        "type": "final-draft-task-failed",
+        "payload": {
+          "error": "terminated"
+        }
+      }
+    ],
+    "lastTask": {
+      "taskId": "final-draft-1790781120322-1",
+      "destination": "home-editor",
+      "targetId": "final-draft-stall-recovery",
+      "instruction": "请对当前编辑器全文进行整理排序，并统一格式。不要改写正文含义，输出完整终稿。",
+      "constraints": [],
+      "protectedRanges": [],
+      "sourceContent": "# 停滞恢复测试\n\n## 第一章\n\n第一段源文内容。\n\n## 第二章\n\n第二段源文内容。\n\n## 第三章\n\n第三段源文内容。",
+      "sourceSegments": [
+        {
+          "segmentId": "segment-1",
+          "start": 0,
+          "end": 46
+        },
+        {
+          "segmentId": "segment-2",
+          "start": 46,
+          "end": 62
+        }
+      ],
+      "segmentOrder": [
+        "segment-1",
+        "segment-2"
+      ],
+      "activeSegmentIndex": 0,
+      "completedText": "",
+      "accumulatedText": "",
+      "continuationCount": 0,
+      "status": "failed",
+      "sourceContentHash": "fnv1a32_fffffb7b",
+      "createdAt": 1790781120322,
+      "updatedAt": 1790783408238,
+      "error": "terminated"
+    },
+    "outlineChars": 62,
+    "editorTabCount": 1,
+    "editorActiveContent": "# 停滞恢复测试\n\n## 第一章\n\n第一段源文内容。\n\n## 第二章\n\n第二段源文内容。\n\n## 第三章\n\n第三段源文内容。"
+  }
+}

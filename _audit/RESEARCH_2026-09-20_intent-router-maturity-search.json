@@ -1,0 +1,910 @@
+{
+  "searchedAt": "2026-09-20T06:16:16.661Z",
+  "queryCount": 20,
+  "results": [
+    {
+      "round": 1,
+      "kind": "github",
+      "query": "semantic router intent classification",
+      "url": "https://api.github.com/search/repositories?q=semantic%20router%20intent%20classification&sort=stars&order=desc&per_page=10",
+      "total": 10,
+      "items": [
+        {
+          "id": "sitanshukr08/SynaptoRoute",
+          "stars": 7,
+          "description": "A high-throughput semantic routing engine for AI agents and LLM applications. Executes local intent classification using ONNX embeddings, FAISS indexing, and asynchronous micro-batching.",
+          "url": "https://github.com/sitanshukr08/SynaptoRoute",
+          "updated": "2026-08-27T17:55:45Z"
+        },
+        {
+          "id": "moodlehq/asero",
+          "stars": 1,
+          "description": "A very simple semantic router, using max scores and cosine similarity, to provide basic intent detection / classification wherever needed to.",
+          "url": "https://github.com/moodlehq/asero",
+          "updated": "2026-06-21T17:35:01Z"
+        },
+        {
+          "id": "anoopgeorg/semantic-router",
+          "stars": 0,
+          "description": "A lightweight, embedding-based query classification and routing system that dispatches user queries to specialized agents or knowledge bases — designed as a fast, cheap alternative to LLM-based intent classification.",
+          "url": "https://github.com/anoopgeorg/semantic-router",
+          "updated": "2026-08-01T07:20:53Z"
+        },
+        {
+          "id": "Danialpro2k04/semantic-router-microservice",
+          "stars": 0,
+          "description": "A high-performance semantic classification microservice using FastAPI and Qdrant. Replaces expensive LLM calls with local vector search (FastEmbed) to route user intents in <20ms, reducing AI operational costs by ~90%.",
+          "url": "https://github.com/Danialpro2k04/semantic-router-microservice",
+          "updated": "2026-02-12T06:22:07Z"
+        },
+        {
+          "id": "devfest-event-ai/order-router-agent-showcase",
+          "stars": 0,
+          "description": "Production-grade semantic router boilerplate for AI agents. Demonstrates 82% API cost reduction, <50ms latency, and deterministic intent classification using local vector databases & cosine similarity.",
+          "url": "https://github.com/devfest-event-ai/order-router-agent-showcase",
+          "updated": "2026-06-15T17:13:59Z"
+        },
+        {
+          "id": "VishvaSabeshkar/ResolveAI-Intelligent-Banking-Support",
+          "stars": 0,
+          "description": "An AI-powered banking customer support system for intent classification, semantic search, confidence-based escalation, and intelligent ticket routing.",
+          "url": "https://github.com/VishvaSabeshkar/ResolveAI-Intelligent-Banking-Support",
+          "updated": "2026-08-05T11:17:57Z"
+        },
+        {
+          "id": "Devanik21/LangGraph---Langchain-AI-Chat-app",
+          "stars": 0,
+          "description": "LangGraph stateful agent — directed graph with intent classification, tool routing, execution, and response synthesis nodes. FAISS semantic memory + streaming chat UI.",
+          "url": "https://github.com/Devanik21/LangGraph---Langchain-AI-Chat-app",
+          "updated": "2026-03-15T06:51:08Z"
+        },
+        {
+          "id": "Gaur-Ayush-AI-Engineer/Agentic-RAG-weather-assistant",
+          "stars": 0,
+          "description": "Intelligent chat assistant using LangGraph for agentic routing between real-time weather queries and PDF document Q&A with RAG. Features intent classification, vector search with Qdrant, semantic reranking, and LangSmith observability.",
+          "url": "https://github.com/Gaur-Ayush-AI-Engineer/Agentic-RAG-weather-assistant",
+          "updated": "2026-07-06T17:54:33Z"
+        },
+        {
+          "id": "Suryanshkumar190/RAG-Based-AI-Chatbot-For-NIT-KARNATAKA-COLLEGE-ENQUIRIES-",
+          "stars": 0,
+          "description": " Designed full RAG pipeline: documents → chunking → embeddings (Sentence Transformers) → ChromaDB vector storage → semantic retrieval → LLM-grounded responses. • Built REST API backend with NLP preprocessing (tokenization, intent classification, entity extraction) and query routing — accurate, hallucination-reduced query resolution.",
+          "url": "https://github.com/Suryanshkumar190/RAG-Based-AI-Chatbot-For-NIT-KARNATAKA-COLLEGE-ENQUIRIES-",
+          "updated": "2026-05-28T18:09:57Z"
+        },
+        {
+          "id": "Victor-Caceres/pokemon-rag",
+          "stars": 0,
+          "description": "AI-powered Pokédex chatbot built on a hybrid RAG + structured query architecture. Routes natural language questions to either a pgvector semantic search pipeline or a SQL query pipeline based on intent classification. Covers all generations, regional variants, move history across every game version, type effectiveness, and evolution chains.",
+          "url": "https://github.com/Victor-Caceres/pokemon-rag",
+          "updated": "2026-04-09T02:54:21Z"
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "kind": "github",
+      "query": "sentence transformers intent classification",
+      "url": "https://api.github.com/search/repositories?q=sentence%20transformers%20intent%20classification&sort=stars&order=desc&per_page=10",
+      "total": 16,
+      "items": [
+        {
+          "id": "thrinathpolanki/customer_support_chatbot",
+          "stars": 5,
+          "description": "Hybrid AI customer support chatbot combining semantic intent classification (sentence-transformers + logistic regression) with a FLAN-T5 generative fallback. Features context-aware conversations, calibrated confidence scoring, FastAPI backend, and a Streamlit chat UI.",
+          "url": "https://github.com/thrinathpolanki/customer_support_chatbot",
+          "updated": "2026-08-18T16:55:18Z"
+        },
+        {
+          "id": "JP-Vela/SemanticClassifier",
+          "stars": 1,
+          "description": "Uses the Sentence Transformer embedding model with ChromaDB to classify intents. Useful for dynamic/growing intent classification problems over traditional Deep Neural Networks which need constant training..",
+          "url": "https://github.com/JP-Vela/SemanticClassifier",
+          "updated": "2023-06-13T14:52:41Z"
+        },
+        {
+          "id": "wyattstanson/llm-rag-faq-chatbot",
+          "stars": 1,
+          "description": "# Local LLM with RAI and RAG  ## Features - Local LLM using Ollama - Retrieval-Augmented Generation using FAISS - Responsible AI (intent classification, policy control) - Self-evaluation of responses  ## Tech Stack - Python - Streamlit - Ollama - FAISS - Sentence Transformers  ## Run streamlit run app.py",
+          "url": "https://github.com/wyattstanson/llm-rag-faq-chatbot",
+          "updated": "2026-04-04T20:00:22Z"
+        },
+        {
+          "id": "TrijetaGhosh166/apple-support-intent-classification",
+          "stars": 0,
+          "description": "An end-to-end AI customer support system built on the AppleSupport Twitter dataset using Sentence Transformers, Logistic Regression, and Gemini.",
+          "url": "https://github.com/TrijetaGhosh166/apple-support-intent-classification",
+          "updated": "2026-09-12T07:50:58Z"
+        },
+        {
+          "id": "Hazemsaady23/Sentence-Classification-using-Transformer-Models-BERT-based-",
+          "stars": 0,
+          "description": "This project uses a **Transformer-based model (e.g., BERT, DistilBERT)** to classify sentences into different categories such as *positive/negative*, *topic-based*, or *intent-based*.   The model is fine-tuned using the **Hugging Face Transformers** library and trained on a labeled text dataset for high-performance NLP classification. ",
+          "url": "https://github.com/Hazemsaady23/Sentence-Classification-using-Transformer-Models-BERT-based-",
+          "updated": "2025-10-27T12:31:37Z"
+        },
+        {
+          "id": "wlocha/live-commerce-recommendation",
+          "stars": 0,
+          "description": "Purchase intent classification and session ranking engine for live commerce, inspired by TikTok LIVE. Built with LightGBM, sentence-transformers, and BART.",
+          "url": "https://github.com/wlocha/live-commerce-recommendation",
+          "updated": "2026-05-01T17:30:03Z"
+        },
+        {
+          "id": "diksha-raj/Intent-Drift-Detection",
+          "stars": 0,
+          "description": "An end-to-end, local, hobby project to detect changes in user intent during a conversation. Built with FastAPI, sentence-transformers for embeddings, and zero-shot intent classification. Runs fully offline (models cached locally) and uses only open-source models.",
+          "url": "https://github.com/diksha-raj/Intent-Drift-Detection",
+          "updated": "2026-08-18T23:36:34Z"
+        },
+        {
+          "id": "xavircode/NLPChatbot",
+          "stars": 0,
+          "description": "FastAPI chatbot application that combines sentence-transformer embeddings, calibrated logistic regression intent classification, templates, Docker, and a retraining endpoint.",
+          "url": "https://github.com/xavircode/NLPChatbot",
+          "updated": "2026-06-29T14:42:44Z"
+        },
+        {
+          "id": "DeepanB2005/Intent-Classifier-and-tweet-analytic",
+          "stars": 0,
+          "description": "An NLP-based intent classification system that identifies customer queries from social media posts and categorizes them into predefined support intents. The project compares TF-IDF + traditional ML models with Sentence Transformer embeddings + classifiers such as Linear SVM and Logistic Regression.",
+          "url": "https://github.com/DeepanB2005/Intent-Classifier-and-tweet-analytic",
+          "updated": "2026-09-15T17:02:43Z"
+        },
+        {
+          "id": "Jeye-suriya/AI-Powered-Customer-Support-Ticket-Resolution-System",
+          "stars": 0,
+          "description": "AI-powered customer support ticket resolution system that uses semantic intent classification, out-of-scope detection, knowledge-base retrieval, intent-aware reranking, and RAG to generate grounded responses and escalate complex customer issues. Built with Python, FastAPI, Streamlit, Sentence Transformers, ChromaDB, Gemini, and SQLite.",
+          "url": "https://github.com/Jeye-suriya/AI-Powered-Customer-Support-Ticket-Resolution-System",
+          "updated": "2026-09-20T06:07:05Z"
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "kind": "github",
+      "query": "transformers.js embeddings browser",
+      "url": "https://api.github.com/search/repositories?q=transformers.js%20embeddings%20browser&sort=stars&order=desc&per_page=10",
+      "total": 34,
+      "items": [
+        {
+          "id": "babycommando/entity-db",
+          "stars": 297,
+          "description": "EntityDB is an in-browser vector database wrapping indexedDB and Transformers.js over WebAssembly",
+          "url": "https://github.com/babycommando/entity-db",
+          "updated": "2026-09-10T06:12:32Z"
+        },
+        {
+          "id": "moeru-ai/xsai-transformers",
+          "stars": 71,
+          "description": "🤗💬 Transformers.js provider for xsAI. Running Embedding, Whisper, and LLMs right in your browser!",
+          "url": "https://github.com/moeru-ai/xsai-transformers",
+          "updated": "2026-08-27T04:04:54Z"
+        },
+        {
+          "id": "koxy-ai/gte-small",
+          "stars": 5,
+          "description": "General Text Embeddings (GTE) model compatible with Transformers.js to use in Deno, NodeJS, and the browser.",
+          "url": "https://github.com/koxy-ai/gte-small",
+          "updated": "2026-06-01T11:17:41Z"
+        },
+        {
+          "id": "Xwits-Developers/dhiya-npm",
+          "stars": 1,
+          "description": "Dhiya — A fully client-side RAG chatbot powered by Google Chrome’s native Gemini Nano AI with a fallback to Transformers.js GPT-2. Privacy-first, offline-capable, and lightning-fast.",
+          "url": "https://github.com/Xwits-Developers/dhiya-npm",
+          "updated": "2026-07-03T14:48:07Z"
+        },
+        {
+          "id": "Jarad-z/nymard_rag",
+          "stars": 1,
+          "description": "Browser-side RAG demo — runs embeddings entirely in the browser via transformers.js (@xenova), no backend. React + Vite + TypeScript.",
+          "url": "https://github.com/Jarad-z/nymard_rag",
+          "updated": "2026-06-14T06:54:53Z"
+        },
+        {
+          "id": "AditiAdhikari05/representation-explorer",
+          "stars": 1,
+          "description": "Interactive UMAP of learned embeddings across SimCLR epochs and in-browser ViT attention. Next.js + transformers.js + react-plotly.",
+          "url": "https://github.com/AditiAdhikari05/representation-explorer",
+          "updated": "2026-06-15T08:17:12Z"
+        },
+        {
+          "id": "khawjaahmad/dupscout",
+          "stars": 1,
+          "description": "Semantic duplicate bug-report detection running fully in the browser — Qwen3 embeddings (recall) + Qwen3 reranker (precision) on WebGPU via Transformers.js",
+          "url": "https://github.com/khawjaahmad/dupscout",
+          "updated": "2026-06-02T04:36:07Z"
+        },
+        {
+          "id": "hevangel/offline-rag-library",
+          "stars": 1,
+          "description": "Agent Skill that scaffolds offline single-page library sites with in-browser RAG chatbots — EPUB→markdown conversion, prebuilt embeddings, and zero-server, zero-API-key retrieval via transformers.js + WebGPU.",
+          "url": "https://github.com/hevangel/offline-rag-library",
+          "updated": "2026-07-21T06:16:48Z"
+        },
+        {
+          "id": "LegendarySumit/ai-marketplace-assistant",
+          "stars": 1,
+          "description": " Artifex is an AI-powered marketplace assistant built with Vite and React. It features in-browser AI embeddings using Transformers.js with a cloud fallback option, plus an intelligent Artemis chat assistant for user guidance.",
+          "url": "https://github.com/LegendarySumit/ai-marketplace-assistant",
+          "updated": "2026-04-12T11:33:45Z"
+        },
+        {
+          "id": "qwertymuzaffar/ngx-transformers",
+          "stars": 1,
+          "description": "On-device ML for Angular - Transformers.js v4 with a signals API: text and zero-shot classification, embeddings and semantic search, translation, Whisper speech-to-text in the browser, on WebGPU when available. No server, no API key.",
+          "url": "https://github.com/qwertymuzaffar/ngx-transformers",
+          "updated": "2026-09-16T02:38:07Z"
+        }
+      ]
+    },
+    {
+      "round": 4,
+      "kind": "github",
+      "query": "bge-small-zh embeddings onnx",
+      "url": "https://api.github.com/search/repositories?q=bge-small-zh%20embeddings%20onnx&sort=stars&order=desc&per_page=10",
+      "total": 0,
+      "items": []
+    },
+    {
+      "round": 5,
+      "kind": "github",
+      "query": "m3e chinese embedding onnx",
+      "url": "https://api.github.com/search/repositories?q=m3e%20chinese%20embedding%20onnx&sort=stars&order=desc&per_page=10",
+      "total": 0,
+      "items": []
+    },
+    {
+      "round": 6,
+      "kind": "github",
+      "query": "intent classification confidence calibration",
+      "url": "https://api.github.com/search/repositories?q=intent%20classification%20confidence%20calibration&sort=stars&order=desc&per_page=10",
+      "total": 2,
+      "items": [
+        {
+          "id": "ashen4444/intent-guard",
+          "stars": 0,
+          "description": "A production-ready customer support intent routing system with fine-tuned transformer classification, out-of-scope detection, confidence calibration, and FastAPI deployment.",
+          "url": "https://github.com/ashen4444/intent-guard",
+          "updated": "2026-08-04T08:54:20Z"
+        },
+        {
+          "id": "RohanLala04/siri-intent-classifier",
+          "stars": 0,
+          "description": " On-device NLU pipeline for Siri-style voice commands - intent classification, audio SLU, confidence calibration, OOD detection, and multi-turn dialog management with Core ML export",
+          "url": "https://github.com/RohanLala04/siri-intent-classifier",
+          "updated": "2026-05-22T05:23:42Z"
+        }
+      ]
+    },
+    {
+      "round": 7,
+      "kind": "github",
+      "query": "rasa nlu intent confidence fallback",
+      "url": "https://api.github.com/search/repositories?q=rasa%20nlu%20intent%20confidence%20fallback&sort=stars&order=desc&per_page=10",
+      "error": "403 https://api.github.com/search/repositories?q=rasa%20nlu%20intent%20confidence%20fallback&sort=stars&order=desc&per_page=10"
+    },
+    {
+      "round": 8,
+      "kind": "github",
+      "query": "llm intent router tool use",
+      "url": "https://api.github.com/search/repositories?q=llm%20intent%20router%20tool%20use&sort=stars&order=desc&per_page=10",
+      "total": 19,
+      "items": [
+        {
+          "id": "abnsrishik/multi-tool-agentic-chatbot",
+          "stars": 1,
+          "description": "Agentic AI chatbot using LangGraph — autonomously routes queries between arXiv search, Wikipedia, and live web search based on query intent",
+          "url": "https://github.com/abnsrishik/multi-tool-agentic-chatbot",
+          "updated": "2026-09-08T12:11:27Z"
+        },
+        {
+          "id": "relzzy/codebase-RAG",
+          "stars": 1,
+          "description": "A lightweight, modular RAG pipeline with a fine-tuned Qwen3.5-2B micro-router for intent-based tool selection, hybrid retrieval using ChromaDB + BM25, cross-encoder re-ranking, terminal integration, and an LLM for final response generation.",
+          "url": "https://github.com/relzzy/codebase-RAG",
+          "updated": "2026-08-15T19:33:59Z"
+        },
+        {
+          "id": "Hiteshi3121/E-commerce-Customer-Support-System",
+          "stars": 1,
+          "description": "A production-style agentic AI customer support system using LLMs, LangGraph, RAG, and tool-based agents with user authentication, intent routing, stateful multi-turn conversations, escalation handling, and evaluation metrics (HITL & Confidence Scoring). System handles orders, returns, tracking and raising support ticket functionalities.",
+          "url": "https://github.com/Hiteshi3121/E-commerce-Customer-Support-System",
+          "updated": "2026-03-25T17:03:27Z"
+        },
+        {
+          "id": "vinaymohan768/multi-agent-llm-system",
+          "stars": 0,
+          "description": "Multi-agent LLM system -intent routing, RAG memory, tool use, LangGraph orchestration",
+          "url": "https://github.com/vinaymohan768/multi-agent-llm-system",
+          "updated": "2026-06-03T17:53:52Z"
+        },
+        {
+          "id": "MiddeVamsiKrishna/intelli-chat-router",
+          "stars": 0,
+          "description": "An AI chatbot that detects user intent and automatically selects the right tool (password reset, ticketing, FAQ retrieval) using a hybrid rule-based + LLM approach with LangChain",
+          "url": "https://github.com/MiddeVamsiKrishna/intelli-chat-router",
+          "updated": "2026-08-06T06:46:18Z"
+        },
+        {
+          "id": "LajinaD/AI-First-CRM",
+          "stars": 0,
+          "description": "AI-powered CRM for logging HCP interactions via natural language, using a LangGraph agent + Groq LLM to classify intent and route across 5 CRM tools.",
+          "url": "https://github.com/LajinaD/AI-First-CRM",
+          "updated": "2026-07-25T07:22:30Z"
+        },
+        {
+          "id": "gian-gg/omni-ai",
+          "stars": 0,
+          "description": "An AI-first chat app that turns natural language into structured transactions, todos, and notes   using intent routing, RAG, streaming replies, and gated tool-calling.",
+          "url": "https://github.com/gian-gg/omni-ai",
+          "updated": "2026-05-26T16:19:15Z"
+        },
+        {
+          "id": "SandeshAwate6055/College-Admin-Collaboration-Copilot",
+          "stars": 0,
+          "description": " Architected a multi-agent agentic pipeline with an LLM-powered intent router (Groq) that classifies and triages queries across document Q&A, project matching, and a PostgreSQL ticketing system — end-to-end LLM coordination with tool-use and structured outputs.",
+          "url": "https://github.com/SandeshAwate6055/College-Admin-Collaboration-Copilot",
+          "updated": "2026-06-05T19:21:29Z"
+        },
+        {
+          "id": "Dxten/CampusIntel-Copilot",
+          "stars": 0,
+          "description": "Architected a multi-agent agentic pipeline with an LLM-powered intent router (Groq) that classifies and triages queries across document Q&A, project matching, and a PostgreSQL ticketing system — end-to-end LLM coordination with tool-use and structured outputs.",
+          "url": "https://github.com/Dxten/CampusIntel-Copilot",
+          "updated": "2026-06-23T20:36:35Z"
+        },
+        {
+          "id": "pranavkapale/devdocs-rag-assistant",
+          "stars": 0,
+          "description": "FastAPI-served RAG assistant that routes developer queries between a local FAISS vector index and live external documentation via the Model Context Protocol (MCP), using an LLM-based intent router and a pluggable tool-connector architecture for AI-workflow orchestration",
+          "url": "https://github.com/pranavkapale/devdocs-rag-assistant",
+          "updated": "2026-09-01T07:03:28Z"
+        }
+      ]
+    },
+    {
+      "round": 9,
+      "kind": "github",
+      "query": "langchain semantic routing",
+      "url": "https://api.github.com/search/repositories?q=langchain%20semantic%20routing&sort=stars&order=desc&per_page=10",
+      "error": "403 https://api.github.com/search/repositories?q=langchain%20semantic%20routing&sort=stars&order=desc&per_page=10"
+    },
+    {
+      "round": 10,
+      "kind": "github",
+      "query": "active learning intent classification",
+      "url": "https://api.github.com/search/repositories?q=active%20learning%20intent%20classification&sort=stars&order=desc&per_page=10",
+      "total": 2,
+      "items": [
+        {
+          "id": "Koorimikiran369/Quora-Question-Pairing",
+          "stars": 1,
+          "description": "Quora Question Pair Similarity Over 100 million people visit Quora every month, so it's no surprise that many people ask similarly worded questions. Multiple questions with the same intent can cause seekers to spend more time finding the best answer to their question, and make writers feel they need to answer multiple versions of the same question. Quora values canonical questions because they provide a better experience to active seekers and writers, and offer more value to both of these groups in the long term. The main aim of the project is to predict whether a pair of questions are similar or not.  Problem Statement: Identify which questions asked on Quora are duplicates of questions that have already been asked. Real world/Business Objectives and Constraints: The cost of a mis-classification can be very high. You would want a probability of a pair of questions to be duplicates so that you can choose any threshold of choice. No strict latency concerns. Interpretability is partially important. Tasks to perform: Import the General libraries, NLP module, and Machine learning modules Load the dataset Text Preprocessing: Removing html tags Removing Punctuations Performing stemming Removing Stop words Expanding contractions etc. Apply Tokenization Apply Stemming Apply Pos Tagging Apply Lemmatization Apply label encoding  Feature Extraction Apply BOW Apply TFIDF vectorizer Apply Word2Vector vectorizer Apply Glove Data preprocessing Model Building Evaluate the model confusion matrix Classification report   Data Overview Data will be in a file Train.csv Train.csv contains 5 columns : qid1, qid2, question1, question2, is_duplicate Size of Train.csv - 60MB Number of rows in Train.csv = 404,290 Mapping the real world problem to an ML problem Datalink: https://drive.google.com/file/d/10QDGTSI5PEV9e7CTpfzsXRpUwRIsJA-J/view?usp=sharing  Type of Machine Learning Problem It is a binary classification problem, for a given pair of questions we need to predict if they are duplicate or not.    ",
+          "url": "https://github.com/Koorimikiran369/Quora-Question-Pairing",
+          "updated": "2023-12-04T17:55:14Z"
+        },
+        {
+          "id": "sarahalish/Social-Media-Analysis-ML-model-",
+          "stars": 0,
+          "description": "A production-hardened NLP pipeline for Saudi social media intent classification. Features dialect-aware scrubbing, SHA-256 integrity verification, and an active-learning BI layer for real-time consumer insights.",
+          "url": "https://github.com/sarahalish/Social-Media-Analysis-ML-model-",
+          "updated": "2026-05-13T08:39:09Z"
+        }
+      ]
+    },
+    {
+      "round": 11,
+      "kind": "huggingface",
+      "query": "BAAI bge small zh",
+      "url": "https://hf-mirror.com/api/models?search=BAAI%20bge%20small%20zh&limit=10",
+      "total": 3,
+      "items": [
+        {
+          "id": "BAAI/bge-small-zh-v1.5",
+          "downloads": 5094242,
+          "likes": 140,
+          "tags": [
+            "transformers",
+            "pytorch",
+            "safetensors",
+            "bert",
+            "feature-extraction",
+            "zh",
+            "arxiv:2310.07554",
+            "arxiv:2309.07597",
+            "license:mit",
+            "text-embeddings-inference",
+            "endpoints_compatible",
+            "region:us",
+            "deploy:azure"
+          ]
+        },
+        {
+          "id": "BAAI/bge-small-zh",
+          "downloads": 49541,
+          "likes": 29,
+          "tags": [
+            "transformers",
+            "pytorch",
+            "bert",
+            "feature-extraction",
+            "zh",
+            "arxiv:2310.07554",
+            "arxiv:2309.07597",
+            "license:mit",
+            "text-embeddings-inference",
+            "endpoints_compatible",
+            "region:us",
+            "deploy:azure"
+          ]
+        },
+        {
+          "id": "zhufucdev/BAAI-bge-small-zh-v1.5",
+          "downloads": 29,
+          "likes": 0,
+          "tags": [
+            "tflite",
+            "coreml",
+            "feature-extraction",
+            "en",
+            "zh",
+            "base_model:BAAI/bge-small-zh-v1.5",
+            "base_model:quantized:BAAI/bge-small-zh-v1.5",
+            "license:apache-2.0",
+            "region:us"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 12,
+      "kind": "huggingface",
+      "query": "moka embeddings m3e small",
+      "url": "https://hf-mirror.com/api/models?search=moka%20embeddings%20m3e%20small&limit=10",
+      "total": 0,
+      "items": []
+    },
+    {
+      "round": 13,
+      "kind": "huggingface",
+      "query": "shibing624 text2vec base chinese",
+      "url": "https://hf-mirror.com/api/models?search=shibing624%20text2vec%20base%20chinese&limit=10",
+      "total": 4,
+      "items": [
+        {
+          "id": "shibing624/text2vec-base-chinese",
+          "downloads": 992051,
+          "likes": 803,
+          "tags": [
+            "sentence-transformers",
+            "pytorch",
+            "onnx",
+            "safetensors",
+            "openvino",
+            "bert",
+            "Sentence Transformers",
+            "sentence-similarity",
+            "zh",
+            "dataset:shibing624/nli_zh",
+            "license:apache-2.0",
+            "endpoints_compatible",
+            "region:us",
+            "deploy:azure"
+          ]
+        },
+        {
+          "id": "shibing624/text2vec-base-chinese-sentence",
+          "downloads": 467,
+          "likes": 58,
+          "tags": [
+            "sentence-transformers",
+            "pytorch",
+            "safetensors",
+            "ernie",
+            "feature-extraction",
+            "text2vec",
+            "sentence-similarity",
+            "transformers",
+            "zh",
+            "dataset:shibing624/nli-zh-all",
+            "license:apache-2.0",
+            "endpoints_compatible",
+            "region:us",
+            "deploy:azure"
+          ]
+        },
+        {
+          "id": "shibing624/text2vec-base-chinese-paraphrase",
+          "downloads": 157328,
+          "likes": 79,
+          "tags": [
+            "sentence-transformers",
+            "pytorch",
+            "safetensors",
+            "ernie",
+            "feature-extraction",
+            "text2vec",
+            "sentence-similarity",
+            "transformers",
+            "zh",
+            "dataset:shibing624/nli-zh-all",
+            "license:apache-2.0",
+            "endpoints_compatible",
+            "region:us",
+            "deploy:azure"
+          ]
+        },
+        {
+          "id": "ryanlai/shibing624_text2vec-base-chinese-fine-tune-insurance_data",
+          "downloads": 77,
+          "likes": 1,
+          "tags": [
+            "sentence-transformers",
+            "pytorch",
+            "bert",
+            "feature-extraction",
+            "sentence-similarity",
+            "transformers",
+            "text-embeddings-inference",
+            "endpoints_compatible",
+            "region:us"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 14,
+      "kind": "huggingface",
+      "query": "GanymedeNil text2vec-large-chinese",
+      "url": "https://hf-mirror.com/api/models?search=GanymedeNil%20text2vec-large-chinese&limit=10",
+      "total": 2,
+      "items": [
+        {
+          "id": "GanymedeNil/text2vec-large-chinese",
+          "downloads": 2627,
+          "likes": 761,
+          "tags": [
+            "transformers",
+            "pytorch",
+            "safetensors",
+            "bert",
+            "feature-extraction",
+            "text2vec",
+            "sentence-similarity",
+            "zh",
+            "license:apache-2.0",
+            "text-embeddings-inference",
+            "endpoints_compatible",
+            "region:us",
+            "deploy:azure"
+          ]
+        },
+        {
+          "id": "GanymedeNil/text2vec-large-chinese-onnx",
+          "downloads": 12,
+          "likes": 5,
+          "tags": [
+            "transformers",
+            "onnx",
+            "bert",
+            "feature-extraction",
+            "text2vec",
+            "zh",
+            "en",
+            "license:apache-2.0",
+            "text-embeddings-inference",
+            "endpoints_compatible",
+            "region:us"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 15,
+      "kind": "huggingface",
+      "query": "Xenova bge-small-zh",
+      "url": "https://hf-mirror.com/api/models?search=Xenova%20bge-small-zh&limit=10",
+      "total": 1,
+      "items": [
+        {
+          "id": "Xenova/bge-small-zh-v1.5",
+          "downloads": 49944,
+          "likes": 4,
+          "tags": [
+            "transformers.js",
+            "onnx",
+            "bert",
+            "feature-extraction",
+            "base_model:BAAI/bge-small-zh-v1.5",
+            "base_model:quantized:BAAI/bge-small-zh-v1.5",
+            "region:us"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 16,
+      "kind": "huggingface",
+      "query": "sentence transformers chinese",
+      "url": "https://hf-mirror.com/api/models?search=sentence%20transformers%20chinese&limit=10",
+      "total": 1,
+      "items": [
+        {
+          "id": "bqwq/sentence-transformers_bert-base-chinese",
+          "downloads": 0,
+          "likes": 0,
+          "tags": [
+            "license:wtfpl",
+            "region:us"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 17,
+      "kind": "huggingface",
+      "query": "intent classification dataset chinese",
+      "url": "https://hf-mirror.com/api/models?search=intent%20classification%20dataset%20chinese&limit=10",
+      "total": 0,
+      "items": []
+    },
+    {
+      "round": 18,
+      "kind": "huggingface",
+      "query": "semantic router",
+      "url": "https://hf-mirror.com/api/models?search=semantic%20router&limit=10",
+      "total": 10,
+      "items": [
+        {
+          "id": "llm-semantic-router/Vela-1.0-Encoder-307M-Embedding",
+          "downloads": 4433,
+          "likes": 7,
+          "tags": [
+            "sentence-transformers",
+            "onnx",
+            "safetensors",
+            "modernbert",
+            "semantic-router",
+            "vela",
+            "matryoshka",
+            "sentence-similarity",
+            "en",
+            "ar",
+            "es",
+            "ja",
+            "zh",
+            "base_model:llm-semantic-router/Vela-1.0-Encoder-307M",
+            "base_model:finetune:llm-semantic-router/Vela-1.0-Encoder-307M",
+            "license:apache-2.0",
+            "text-embeddings-inference",
+            "endpoints_compatible",
+            "region:us"
+          ]
+        },
+        {
+          "id": "llm-semantic-router/Vela-1.0-Encoder-307M",
+          "downloads": 726,
+          "likes": 2,
+          "tags": [
+            "transformers",
+            "safetensors",
+            "modernbert",
+            "fill-mask",
+            "vela",
+            "multilingual",
+            "long-context",
+            "en",
+            "zh",
+            "de",
+            "fr",
+            "ja",
+            "ar",
+            "base_model:jhu-clsp/mmBERT-base",
+            "base_model:finetune:jhu-clsp/mmBERT-base",
+            "license:mit",
+            "endpoints_compatible",
+            "region:us"
+          ]
+        },
+        {
+          "id": "llm-semantic-router/Vela-1.0-Encoder-307M-Halu",
+          "downloads": 53,
+          "likes": 2,
+          "tags": [
+            "transformers",
+            "safetensors",
+            "modernbert",
+            "token-classification",
+            "semantic-router",
+            "vela",
+            "hallucination-detection",
+            "dataset:KRLabsOrg/lettucedetect-code-hallucination",
+            "dataset:KRLabsOrg/lettucedetect-prose-hallucination",
+            "base_model:llm-semantic-router/Vela-1.0-Encoder-307M",
+            "base_model:finetune:llm-semantic-router/Vela-1.0-Encoder-307M",
+            "license:apache-2.0",
+            "endpoints_compatible",
+            "region:us"
+          ]
+        },
+        {
+          "id": "llm-semantic-router/Vela-1.0-Omni-Mini",
+          "downloads": 238,
+          "likes": 2,
+          "tags": [
+            "pytorch",
+            "safetensors",
+            "vela",
+            "semantic-router",
+            "multimodal",
+            "image-text-retrieval",
+            "audio-text-retrieval",
+            "feature-extraction",
+            "license:apache-2.0",
+            "region:us"
+          ]
+        },
+        {
+          "id": "llm-semantic-router/Vela-1.0-Omni-Nano",
+          "downloads": 248,
+          "likes": 1,
+          "tags": [
+            "pytorch",
+            "safetensors",
+            "vela",
+            "semantic-router",
+            "multimodal",
+            "image-text-retrieval",
+            "audio-text-retrieval",
+            "feature-extraction",
+            "license:apache-2.0",
+            "region:us"
+          ]
+        },
+        {
+          "id": "llm-semantic-router/category_classifier_modernbert-base_model",
+          "downloads": 402,
+          "likes": 5,
+          "tags": [
+            "safetensors",
+            "modernbert",
+            "region:us"
+          ]
+        },
+        {
+          "id": "llm-semantic-router/pii_classifier_modernbert-base_model",
+          "downloads": 72,
+          "likes": 3,
+          "tags": [
+            "safetensors",
+            "modernbert",
+            "region:us"
+          ]
+        },
+        {
+          "id": "llm-semantic-router/pii_classifier_modernbert-base_presidio_token_model",
+          "downloads": 146,
+          "likes": 2,
+          "tags": [
+            "safetensors",
+            "modernbert",
+            "region:us"
+          ]
+        },
+        {
+          "id": "llm-semantic-router/jailbreak_classifier_modernbert-base_model",
+          "downloads": 687,
+          "likes": 1,
+          "tags": [
+            "safetensors",
+            "modernbert",
+            "region:us"
+          ]
+        },
+        {
+          "id": "Albertmade/semantic-reason-router",
+          "downloads": 0,
+          "likes": 0,
+          "tags": [
+            "safetensors",
+            "encoder",
+            "binary-classification",
+            "routing",
+            "ai-champs",
+            "text-classification",
+            "base_model:intfloat/multilingual-e5-base",
+            "base_model:finetune:intfloat/multilingual-e5-base",
+            "region:us"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 19,
+      "kind": "huggingface",
+      "query": "onnx text classification",
+      "url": "https://hf-mirror.com/api/models?search=onnx%20text%20classification&limit=10",
+      "total": 3,
+      "items": [
+        {
+          "id": "onnx-community/chinese-roberta-wwm-ext-text-classification-ONNX",
+          "downloads": 17,
+          "likes": 0,
+          "tags": [
+            "transformers.js",
+            "onnx",
+            "bert",
+            "text-classification",
+            "generated_from_trainer",
+            "base_model:CeroShrijver/chinese-roberta-wwm-ext-text-classification",
+            "base_model:quantized:CeroShrijver/chinese-roberta-wwm-ext-text-classification",
+            "license:apache-2.0",
+            "region:us"
+          ]
+        },
+        {
+          "id": "TonitoMC/jina-embeddings-v5-text-small-classification-onnx",
+          "downloads": 71,
+          "likes": 0,
+          "tags": [
+            "llama.cpp",
+            "onnx",
+            "qwen3",
+            "gguf",
+            "embedding",
+            "llama-cpp",
+            "jina-embeddings-v5",
+            "feature-extraction",
+            "mteb",
+            "vllm",
+            "sentence-transformers",
+            "text-classification",
+            "multilingual",
+            "arxiv:2602.15547",
+            "base_model:jinaai/jina-embeddings-v5-text-small",
+            "base_model:quantized:jinaai/jina-embeddings-v5-text-small",
+            "license:cc-by-nc-4.0",
+            "text-embeddings-inference",
+            "region:us"
+          ]
+        },
+        {
+          "id": "TonitoMC/jina-embeddings-v5-text-nano-classification-onnx",
+          "downloads": 78,
+          "likes": 0,
+          "tags": [
+            "llama.cpp",
+            "onnx",
+            "eurobert",
+            "gguf",
+            "embedding",
+            "llama-cpp",
+            "jina-embeddings-v5",
+            "feature-extraction",
+            "mteb",
+            "vllm",
+            "sentence-transformers",
+            "text-classification",
+            "custom_code",
+            "multilingual",
+            "arxiv:2602.15547",
+            "base_model:jinaai/jina-embeddings-v5-text-nano",
+            "base_model:quantized:jinaai/jina-embeddings-v5-text-nano",
+            "license:cc-by-nc-4.0",
+            "region:us"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 20,
+      "kind": "huggingface",
+      "query": "embedding model quantized",
+      "url": "https://hf-mirror.com/api/models?search=embedding%20model%20quantized&limit=10",
+      "total": 0,
+      "items": []
+    }
+  ]
+}

@@ -1,18 +1,18 @@
 {
   "passed": true,
-  "rendererCount": 132,
-  "mainCount": 132,
+  "rendererCount": 208,
+  "mainCount": 208,
   "rendererCategories": {
-    "ai-service": 30,
-    "ai-service/tool-call": 14,
-    "ai-service/editor-presentation": 19,
-    "ai-service/editor-batch": 22
+    "ai-service": 42,
+    "ai-service/tool-call": 28,
+    "ai-service/editor-presentation": 27,
+    "ai-service/editor-batch": 31
   },
   "mainCategories": {
-    "ai-service": 30,
-    "ai-service/tool-call": 14,
-    "ai-service/editor-presentation": 19,
-    "ai-service/editor-batch": 22
+    "ai-service": 42,
+    "ai-service/tool-call": 28,
+    "ai-service/editor-presentation": 27,
+    "ai-service/editor-batch": 31
   },
   "missingInMain": []
 }

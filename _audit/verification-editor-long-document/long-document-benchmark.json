@@ -1,0 +1,31 @@
+{
+  "schema": "shenyi.editor-long-document-benchmark",
+  "version": 1,
+  "documentChars": 500002,
+  "actions": [
+    {
+      "name": "scroll",
+      "ms": 94
+    },
+    {
+      "name": "jump",
+      "ms": 126
+    },
+    {
+      "name": "search",
+      "ms": 617
+    },
+    {
+      "name": "write-follow",
+      "ms": 94
+    }
+  ],
+  "worstActionMs": 617,
+  "result": {
+    "valueLength": 500002,
+    "highlightCount": 1,
+    "activeHighlightCount": 1,
+    "scrollTop": 277611
+  },
+  "generatedAt": "2026-09-25T02:06:00.219Z"
+}

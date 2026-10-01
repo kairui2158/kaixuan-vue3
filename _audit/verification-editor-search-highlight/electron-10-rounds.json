@@ -1,0 +1,120 @@
+{
+  "schema": "shenyi.editor-search-highlight.electron",
+  "version": 1,
+  "documentChars": 8614,
+  "documentRequirement": ">=5000",
+  "rounds": [
+    {
+      "round": 1,
+      "documentChars": 8614,
+      "query": "第1-",
+      "expectedMatches": 45,
+      "renderedHighlights": 34,
+      "windowedRendering": true,
+      "activeHighlights": 1,
+      "contentUnchanged": true,
+      "clearedAfterClose": true
+    },
+    {
+      "round": 2,
+      "documentChars": 8614,
+      "query": "第2-",
+      "expectedMatches": 45,
+      "renderedHighlights": 19,
+      "windowedRendering": true,
+      "activeHighlights": 1,
+      "contentUnchanged": true,
+      "clearedAfterClose": true
+    },
+    {
+      "round": 3,
+      "documentChars": 8614,
+      "query": "第3-",
+      "expectedMatches": 45,
+      "renderedHighlights": 1,
+      "windowedRendering": true,
+      "activeHighlights": 1,
+      "contentUnchanged": true,
+      "clearedAfterClose": true
+    },
+    {
+      "round": 4,
+      "documentChars": 8614,
+      "query": "第4-",
+      "expectedMatches": 45,
+      "renderedHighlights": 1,
+      "windowedRendering": true,
+      "activeHighlights": 1,
+      "contentUnchanged": true,
+      "clearedAfterClose": true
+    },
+    {
+      "round": 5,
+      "documentChars": 8614,
+      "query": "第5-",
+      "expectedMatches": 45,
+      "renderedHighlights": 1,
+      "windowedRendering": true,
+      "activeHighlights": 1,
+      "contentUnchanged": true,
+      "clearedAfterClose": true
+    },
+    {
+      "round": 6,
+      "documentChars": 8614,
+      "query": "第1-",
+      "expectedMatches": 45,
+      "renderedHighlights": 34,
+      "windowedRendering": true,
+      "activeHighlights": 1,
+      "contentUnchanged": true,
+      "clearedAfterClose": true
+    },
+    {
+      "round": 7,
+      "documentChars": 8614,
+      "query": "第2-",
+      "expectedMatches": 45,
+      "renderedHighlights": 19,
+      "windowedRendering": true,
+      "activeHighlights": 1,
+      "contentUnchanged": true,
+      "clearedAfterClose": true
+    },
+    {
+      "round": 8,
+      "documentChars": 8614,
+      "query": "第3-",
+      "expectedMatches": 45,
+      "renderedHighlights": 1,
+      "windowedRendering": true,
+      "activeHighlights": 1,
+      "contentUnchanged": true,
+      "clearedAfterClose": true
+    },
+    {
+      "round": 9,
+      "documentChars": 8614,
+      "query": "第4-",
+      "expectedMatches": 45,
+      "renderedHighlights": 1,
+      "windowedRendering": true,
+      "activeHighlights": 1,
+      "contentUnchanged": true,
+      "clearedAfterClose": true
+    },
+    {
+      "round": 10,
+      "documentChars": 8614,
+      "query": "第5-",
+      "expectedMatches": 45,
+      "renderedHighlights": 1,
+      "windowedRendering": true,
+      "activeHighlights": 1,
+      "contentUnchanged": true,
+      "clearedAfterClose": true
+    }
+  ],
+  "assertions": "10 rounds: total match count, windowed rendering with active-match retention, one active rectangle, rectangle dimensions, store/textarea unchanged, close/empty-query cleanup, no page errors",
+  "generatedAt": "2026-09-25T01:46:18.594Z"
+}

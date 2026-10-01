@@ -1,0 +1,2430 @@
+﻿[
+    {
+        "id":  "codex",
+        "repo":  "openai/codex",
+        "branch":  "main",
+        "truncated":  false,
+        "candidates":  [
+                           {
+                               "path":  ".github/scripts/voice_windows_tools.py",
+                               "size":  3472
+                           },
+                           {
+                               "path":  "codex-rs/analytics/src/tests/suite/tools_tests.rs",
+                               "size":  36510
+                           },
+                           {
+                               "path":  "codex-rs/analytics/src/tests/suite/turns/compaction_tests.rs",
+                               "size":  10460
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/AutoCompactTokenLimitScope.ts",
+                               "size":  333
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/FuzzyFileSearchSessionCompletedNotification.ts",
+                               "size":  235
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/FuzzyFileSearchSessionUpdatedNotification.ts",
+                               "size":  355
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/InternalSessionSource.ts",
+                               "size":  226
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/PlanType.ts",
+                               "size":  452
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/SessionSource.ts",
+                               "size":  450
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/Tool.ts",
+                               "size":  460
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/ToolExposureSurface.ts",
+                               "size":  290
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/WebSearchToolConfig.ts",
+                               "size":  440
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/AppToolApproval.ts",
+                               "size":  225
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/AppToolSummary.ts",
+                               "size":  373
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/AppToolsConfig.ts",
+                               "size":  331
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/CollabAgentTool.ts",
+                               "size":  318
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/CollabAgentToolCallStatus.ts",
+                               "size":  248
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/ContextCompactedNotification.ts",
+                               "size":  301
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/DynamicToolCallOutputContentItem.ts",
+                               "size":  332
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/DynamicToolCallParams.ts",
+                               "size":  364
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/DynamicToolCallResponse.ts",
+                               "size":  361
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/DynamicToolCallStatus.ts",
+                               "size":  228
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/DynamicToolFunctionSpec.ts",
+                               "size":  337
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/DynamicToolNamespaceSpec.ts",
+                               "size":  348
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/DynamicToolNamespaceTool.ts",
+                               "size":  316
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/DynamicToolSpec.ts",
+                               "size":  436
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/McpServerToolCallParams.ts",
+                               "size":  344
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/McpServerToolCallResponse.ts",
+                               "size":  352
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/McpToolCallAppContext.ts",
+                               "size":  317
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/McpToolCallError.ts",
+                               "size":  206
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/McpToolCallProgressNotification.ts",
+                               "size":  271
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/McpToolCallResult.ts",
+                               "size":  337
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/McpToolCallStatus.ts",
+                               "size":  224
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/PlanDeltaNotification.ts",
+                               "size":  420
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/SessionMigration.ts",
+                               "size":  238
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/SessionSource.ts",
+                               "size":  347
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/SkillToolDependency.ts",
+                               "size":  295
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/ThreadCompactStartParams.ts",
+                               "size":  215
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/ThreadCompactStartResponse.ts",
+                               "size":  217
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/ThreadRealtimeSessionOutcome.ts",
+                               "size":  216
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/ToolRequestUserInputAnswer.ts",
+                               "size":  307
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/ToolRequestUserInputOption.ts",
+                               "size":  319
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/ToolRequestUserInputParams.ts",
+                               "size":  589
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/ToolRequestUserInputQuestion.ts",
+                               "size":  509
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/ToolRequestUserInputResponse.ts",
+                               "size":  415
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/ToolsV2.ts",
+                               "size":  287
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/TurnPlanStep.ts",
+                               "size":  291
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/TurnPlanStepStatus.ts",
+                               "size":  226
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/TurnPlanUpdatedNotification.ts",
+                               "size":  341
+                           },
+                           {
+                               "path":  "codex-rs/app-server-protocol/schema/typescript/v2/TurnToolOutput.ts",
+                               "size":  332
+                           },
+                           {
+                               "path":  "codex-rs/app-server/src/dynamic_tools.rs",
+                               "size":  3863
+                           },
+                           {
+                               "path":  "codex-rs/app-server/src/external_agent_migration/session_importer.rs",
+                               "size":  24197
+                           },
+                           {
+                               "path":  "codex-rs/app-server/tests/suite/v2/compaction.rs",
+                               "size":  20186
+                           },
+                           {
+                               "path":  "codex-rs/app-server/tests/suite/v2/dynamic_tools.rs",
+                               "size":  34017
+                           },
+                           {
+                               "path":  "codex-rs/app-server/tests/suite/v2/guardian_sync_session_tests.rs",
+                               "size":  19005
+                           },
+                           {
+                               "path":  "codex-rs/app-server/tests/suite/v2/mcp_tool.rs",
+                               "size":  58558
+                           },
+                           {
+                               "path":  "codex-rs/app-server/tests/suite/v2/plan_item.rs",
+                               "size":  9084
+                           },
+                           {
+                               "path":  "codex-rs/app-server/tests/suite/v2/session_end.rs",
+                               "size":  7381
+                           },
+                           {
+                               "path":  "codex-rs/apply-patch/tests/suite/tool.rs",
+                               "size":  14238
+                           },
+                           {
+                               "path":  "codex-rs/backend-client/src/analytics_session.rs",
+                               "size":  5033
+                           },
+                           {
+                               "path":  "codex-rs/backend-client/src/analytics_session_tests.rs",
+                               "size":  3801
+                           },
+                           {
+                               "path":  "codex-rs/backend-client/src/client/plan_history.rs",
+                               "size":  2662
+                           },
+                           {
+                               "path":  "codex-rs/backend-client/src/client/plan_history_tests.rs",
+                               "size":  1894
+                           },
+                           {
+                               "path":  "codex-rs/code-mode-host/src/grpc/session.rs",
+                               "size":  15838
+                           },
+                           {
+                               "path":  "codex-rs/code-mode-host/tests/support/large_tool_delegate.rs",
+                               "size":  1522
+                           },
+                           {
+                               "path":  "codex-rs/code-mode-protocol/src/session.rs",
+                               "size":  6564
+                           },
+                           {
+                               "path":  "codex-rs/code-mode-protocol/src/session_tests.rs",
+                               "size":  590
+                           },
+                           {
+                               "path":  "codex-rs/code-mode-runtime/src/session_runtime/mod.rs",
+                               "size":  10539
+                           },
+                           {
+                               "path":  "codex-rs/code-mode-runtime/src/session_runtime/tests.rs",
+                               "size":  8021
+                           },
+                           {
+                               "path":  "codex-rs/code-mode-runtime/src/session_runtime/types.rs",
+                               "size":  5575
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/grpc_session/callbacks.rs",
+                               "size":  9967
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/grpc_session/completion.rs",
+                               "size":  1863
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/grpc_session/completion_tests.rs",
+                               "size":  1404
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/grpc_session/conversion.rs",
+                               "size":  6406
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/grpc_session/conversion_tests.rs",
+                               "size":  8524
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/grpc_session/deadline.rs",
+                               "size":  2306
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/grpc_session/deadline_tests.rs",
+                               "size":  4136
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/grpc_session/generation.rs",
+                               "size":  3996
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/grpc_session/generation_tests.rs",
+                               "size":  8608
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/grpc_session/mod.rs",
+                               "size":  12413
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/grpc_session/operations.rs",
+                               "size":  17199
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/grpc_session/reconnect.rs",
+                               "size":  8246
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/grpc_session/state.rs",
+                               "size":  14278
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/grpc_session/state_tests.rs",
+                               "size":  19878
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/grpc_session/transport.rs",
+                               "size":  5023
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/remote_session.rs",
+                               "size":  19089
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/remote_session/connection.rs",
+                               "size":  20995
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/remote_session/connection/driver.rs",
+                               "size":  6336
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/remote_session/connection/driver/cell_ids.rs",
+                               "size":  3861
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/remote_session/connection/driver/cleanup.rs",
+                               "size":  947
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/remote_session/connection/driver/commands.rs",
+                               "size":  11177
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/remote_session/connection/driver/delegate_runtime.rs",
+                               "size":  11566
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/remote_session/connection/driver/request_tracker.rs",
+                               "size":  6515
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/remote_session/connection/driver/responses.rs",
+                               "size":  18808
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/remote_session/connection/driver/session_registry.rs",
+                               "size":  6403
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/remote_session/connection/driver/types.rs",
+                               "size":  7890
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/remote_session/connection/driver_tests.rs",
+                               "size":  70186
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/remote_session/connection/reader.rs",
+                               "size":  966
+                           },
+                           {
+                               "path":  "codex-rs/code-mode/src/remote_session_tests.rs",
+                               "size":  3195
+                           },
+                           {
+                               "path":  "codex-rs/codex-api/src/endpoint/session.rs",
+                               "size":  4446
+                           }
+                       ]
+    },
+    {
+        "id":  "aider",
+        "repo":  "Aider-AI/aider",
+        "branch":  "main",
+        "truncated":  false,
+        "candidates":  [
+                           {
+                               "path":  "aider/coders/editblock_coder.py",
+                               "size":  19616
+                           },
+                           {
+                               "path":  "aider/coders/editblock_fenced_coder.py",
+                               "size":  346
+                           },
+                           {
+                               "path":  "aider/coders/editblock_fenced_prompts.py",
+                               "size":  4415
+                           },
+                           {
+                               "path":  "aider/coders/editblock_func_coder.py",
+                               "size":  5317
+                           },
+                           {
+                               "path":  "aider/coders/editblock_func_prompts.py",
+                               "size":  886
+                           },
+                           {
+                               "path":  "aider/coders/editblock_prompts.py",
+                               "size":  5723
+                           },
+                           {
+                               "path":  "aider/coders/editor_editblock_coder.py",
+                               "size":  306
+                           },
+                           {
+                               "path":  "aider/coders/editor_editblock_prompts.py",
+                               "size":  547
+                           },
+                           {
+                               "path":  "aider/models.py",
+                               "size":  46342
+                           },
+                           {
+                               "path":  "scripts/my_models.py",
+                               "size":  3258
+                           },
+                           {
+                               "path":  "tests/basic/test_editblock.py",
+                               "size":  17579
+                           },
+                           {
+                               "path":  "tests/basic/test_model_info_manager.py",
+                               "size":  3173
+                           },
+                           {
+                               "path":  "tests/basic/test_models.py",
+                               "size":  22037
+                           }
+                       ]
+    },
+    {
+        "id":  "continue",
+        "repo":  "continuedev/continue",
+        "branch":  "main",
+        "truncated":  false,
+        "candidates":  [
+                           {
+                               "path":  "core/autocomplete/templating/getStopTokens.ts",
+                               "size":  1106
+                           },
+                           {
+                               "path":  "core/llm/countTokens.test.ts",
+                               "size":  13687
+                           },
+                           {
+                               "path":  "core/llm/countTokens.ts",
+                               "size":  17599
+                           },
+                           {
+                               "path":  "core/llm/getAdjustedTokenCount.test.ts",
+                               "size":  2393
+                           },
+                           {
+                               "path":  "core/llm/getAdjustedTokenCount.ts",
+                               "size":  1662
+                           },
+                           {
+                               "path":  "core/llm/llamaTokenizer.d.ts",
+                               "size":  588
+                           },
+                           {
+                               "path":  "core/llm/llamaTokenizer.js",
+                               "size":  672251
+                           },
+                           {
+                               "path":  "core/tools/systemMessageTools/detectToolCallStart.ts",
+                               "size":  928
+                           },
+                           {
+                               "path":  "core/tools/systemMessageTools/interceptSystemToolCalls.ts",
+                               "size":  3771
+                           },
+                           {
+                               "path":  "core/tools/systemMessageTools/toolCodeblocks/detectToolCallStart.vitest.ts",
+                               "size":  2820
+                           },
+                           {
+                               "path":  "core/tools/systemMessageTools/toolCodeblocks/interceptSystemToolCalls.vitest.ts",
+                               "size":  11801
+                           },
+                           {
+                               "path":  "core/tools/systemMessageTools/toolCodeblocks/parseSystemToolCall.ts",
+                               "size":  4074
+                           },
+                           {
+                               "path":  "core/tools/systemMessageTools/toolCodeblocks/parseSystemToolCall.vitest.ts",
+                               "size":  7613
+                           },
+                           {
+                               "path":  "core/util/conversationCompaction.ts",
+                               "size":  5128
+                           },
+                           {
+                               "path":  "core/vendor/modules/@xenova/transformers/src/tokenizers.js",
+                               "size":  148127
+                           },
+                           {
+                               "path":  "core/vendor/modules/@xenova/transformers/types/tokenizers.d.ts",
+                               "size":  38454
+                           },
+                           {
+                               "path":  "extensions/cli/src/compaction.infiniteLoop.test.ts",
+                               "size":  4956
+                           },
+                           {
+                               "path":  "extensions/cli/src/compaction.pruneLastMessage.test.ts",
+                               "size":  7827
+                           },
+                           {
+                               "path":  "extensions/cli/src/compaction.test.ts",
+                               "size":  25938
+                           },
+                           {
+                               "path":  "extensions/cli/src/compaction.ts",
+                               "size":  10264
+                           },
+                           {
+                               "path":  "extensions/cli/src/stream/handleToolCalls.test.ts",
+                               "size":  11976
+                           },
+                           {
+                               "path":  "extensions/cli/src/stream/handleToolCalls.ts",
+                               "size":  5943
+                           },
+                           {
+                               "path":  "extensions/cli/src/stream/streamChatResponse.autoCompaction.test.ts",
+                               "size":  7433
+                           },
+                           {
+                               "path":  "extensions/cli/src/stream/streamChatResponse.autoCompaction.ts",
+                               "size":  5956
+                           },
+                           {
+                               "path":  "extensions/cli/src/stream/streamChatResponse.compactionHelpers.ts",
+                               "size":  6843
+                           },
+                           {
+                               "path":  "extensions/cli/src/tools/ToolCallTitle.tsx",
+                               "size":  1480
+                           },
+                           {
+                               "path":  "extensions/cli/src/ui/__tests__/TUIChat.compactionCancellation.test.tsx",
+                               "size":  4065
+                           },
+                           {
+                               "path":  "extensions/cli/src/ui/hooks/useChat.compaction.ts",
+                               "size":  4754
+                           },
+                           {
+                               "path":  "extensions/cli/src/util/tokenizer.contextValidation.test.ts",
+                               "size":  2015
+                           },
+                           {
+                               "path":  "extensions/cli/src/util/tokenizer.test.ts",
+                               "size":  26033
+                           },
+                           {
+                               "path":  "extensions/cli/src/util/tokenizer.ts",
+                               "size":  11705
+                           },
+                           {
+                               "path":  "gui/src/components/mainInput/Lump/LumpToolbar/PendingToolCallToolbar.tsx",
+                               "size":  3030
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/CreateFile.tsx",
+                               "size":  724
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/EditFile.tsx",
+                               "size":  1017
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/FindAndReplace.test.tsx",
+                               "size":  10472
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/FindAndReplace.tsx",
+                               "size":  11116
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/FunctionSpecificToolCallDiv.tsx",
+                               "size":  2764
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/GroupedToolCallHeader.tsx",
+                               "size":  1034
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/IndicatorBar.tsx",
+                               "size":  631
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/MCPAppRenderer.tsx",
+                               "size":  12984
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/RunTerminalCommand.test.tsx",
+                               "size":  8195
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/RunTerminalCommand.tsx",
+                               "size":  1458
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/SimpleToolCallUI.tsx",
+                               "size":  3053
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/TerminalCollapsibleContainer.tsx",
+                               "size":  1892
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/ToggleWithIcon.tsx",
+                               "size":  1491
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/ToolCallArgs.tsx",
+                               "size":  1264
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/ToolCallDisplay.tsx",
+                               "size":  2187
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/ToolCallStatusMessage.tsx",
+                               "size":  1807
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/ToolTruncateHistoryIcon.tsx",
+                               "size":  1667
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/index.tsx",
+                               "size":  4309
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/mcp-ext-apps.d.ts",
+                               "size":  133
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/ToolCallDiv/utils.tsx",
+                               "size":  2821
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/chat-tests/ParallelToolCallsActions.test.tsx",
+                               "size":  3651
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/chat-tests/ParallelToolCallsBasic.test.tsx",
+                               "size":  3111
+                           },
+                           {
+                               "path":  "gui/src/pages/gui/chat-tests/ParallelToolCallsStreaming.test.tsx",
+                               "size":  3763
+                           },
+                           {
+                               "path":  "gui/src/redux/selectors/selectToolCalls.ts",
+                               "size":  2107
+                           },
+                           {
+                               "path":  "gui/src/redux/thunks/cancelToolCall.ts",
+                               "size":  1464
+                           },
+                           {
+                               "path":  "gui/src/redux/thunks/preprocessToolCallArgs.ts",
+                               "size":  2165
+                           },
+                           {
+                               "path":  "gui/src/redux/thunks/streamResponseAfterToolCall.ts",
+                               "size":  2886
+                           },
+                           {
+                               "path":  "gui/src/redux/thunks/streamResponse_toolCalls.test.ts",
+                               "size":  68834
+                           },
+                           {
+                               "path":  "gui/src/util/toolCallState.test.ts",
+                               "size":  13981
+                           },
+                           {
+                               "path":  "gui/src/util/toolCallState.ts",
+                               "size":  2563
+                           },
+                           {
+                               "path":  "packages/config-yaml/src/schemas/data/tokensGenerated/index.ts",
+                               "size":  260
+                           },
+                           {
+                               "path":  "packages/config-yaml/src/schemas/data/tokensGenerated/v0.1.0.ts",
+                               "size":  334
+                           },
+                           {
+                               "path":  "packages/config-yaml/src/schemas/data/tokensGenerated/v0.2.0.ts",
+                               "size":  508
+                           }
+                       ]
+    },
+    {
+        "id":  "vercel-ai",
+        "repo":  "vercel/ai",
+        "branch":  "main",
+        "truncated":  false,
+        "candidates":  [
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/_create.ts",
+                               "size":  510
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/active-tools.ts",
+                               "size":  1524
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/ask-user-questions.ts",
+                               "size":  2582
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/attach.ts",
+                               "size":  2895
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/builtin-tool-approval.ts",
+                               "size":  1682
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/changing-settings.ts",
+                               "size":  3938
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/compaction.ts",
+                               "size":  2121
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/custom-tool-approval.ts",
+                               "size":  2164
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/file-edit.ts",
+                               "size":  1509
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/generate-text.ts",
+                               "size":  1027
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/inactive-tools.ts",
+                               "size":  1558
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/lifecycle-callbacks.ts",
+                               "size":  2331
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/multi-turn.ts",
+                               "size":  1457
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/native-subscription.ts",
+                               "size":  1037
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/resume.ts",
+                               "size":  2803
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/runtime-configuration.ts",
+                               "size":  1095
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/sandbox-template.ts",
+                               "size":  1184
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/steer.ts",
+                               "size":  2024
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/stop-when.ts",
+                               "size":  1861
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/stream-text.ts",
+                               "size":  1075
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/suspend-turn.ts",
+                               "size":  1967
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/typed-builtin-tools.ts",
+                               "size":  1640
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/vercel-sandbox-resume.ts",
+                               "size":  2274
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/with-client-side-tool.ts",
+                               "size":  2621
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/with-instructions.ts",
+                               "size":  1447
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/with-mcp.ts",
+                               "size":  1543
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/with-model.ts",
+                               "size":  952
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/with-provided-sandbox.ts",
+                               "size":  1179
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/with-reasoning.ts",
+                               "size":  1511
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/with-restricted-sandbox.ts",
+                               "size":  1427
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/with-skills.ts",
+                               "size":  3028
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/with-structured-output.ts",
+                               "size":  1417
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/with-tool-input-error.ts",
+                               "size":  3008
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/claude-code/with-tools.ts",
+                               "size":  1927
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/_create.ts",
+                               "size":  464
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/active-tools.ts",
+                               "size":  1614
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/ask-user-questions.ts",
+                               "size":  2553
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/attach.ts",
+                               "size":  2548
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/builtin-tool-approval.ts",
+                               "size":  1772
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/changing-settings.ts",
+                               "size":  3919
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/compaction.ts",
+                               "size":  3308
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/custom-tool-approval.ts",
+                               "size":  2254
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/file-edit.ts",
+                               "size":  1599
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/generate-text.ts",
+                               "size":  1117
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/inactive-tools.ts",
+                               "size":  1643
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/lifecycle-callbacks.ts",
+                               "size":  2302
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/multi-turn.ts",
+                               "size":  1418
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/native-subscription.ts",
+                               "size":  915
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/resume.ts",
+                               "size":  2758
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/sandbox-template.ts",
+                               "size":  1155
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/steer.ts",
+                               "size":  1995
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/stop-when.ts",
+                               "size":  1951
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/stream-text.ts",
+                               "size":  1197
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/suspend-turn.ts",
+                               "size":  2057
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/typed-builtin-tools.ts",
+                               "size":  1740
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/vercel-sandbox-resume.ts",
+                               "size":  2230
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/with-client-side-tool.ts",
+                               "size":  2711
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/with-instructions.ts",
+                               "size":  1408
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/with-mcp.ts",
+                               "size":  1587
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/with-model.ts",
+                               "size":  933
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/with-provided-sandbox.ts",
+                               "size":  1270
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/with-reasoning.ts",
+                               "size":  1812
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/with-restricted-sandbox.ts",
+                               "size":  1385
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/with-skills.ts",
+                               "size":  3019
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/with-structured-output.ts",
+                               "size":  1388
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/with-tool-input-error.ts",
+                               "size":  2979
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/cline/with-tools.ts",
+                               "size":  1888
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/_create.ts",
+                               "size":  577
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/active-tools.ts",
+                               "size":  1488
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/ask-user-questions.ts",
+                               "size":  2578
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/attach.ts",
+                               "size":  2701
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/bash-shell.ts",
+                               "size":  999
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/builtin-tool-approval.ts",
+                               "size":  1733
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/changing-settings.ts",
+                               "size":  3930
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/compaction.ts",
+                               "size":  848
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/custom-tool-approval.ts",
+                               "size":  2428
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/file-edit.ts",
+                               "size":  1230
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/generate-text.ts",
+                               "size":  990
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/inactive-tools.ts",
+                               "size":  1487
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/lifecycle-callbacks.ts",
+                               "size":  2327
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/multi-turn.ts",
+                               "size":  1421
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/resume.ts",
+                               "size":  2084
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/sandbox-template.ts",
+                               "size":  1180
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/steer.ts",
+                               "size":  2020
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/stop-when.ts",
+                               "size":  1948
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/stream-text.ts",
+                               "size":  1063
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/suspend-turn.ts",
+                               "size":  1931
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/vercel-sandbox-resume.ts",
+                               "size":  3805
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/with-client-side-tool.ts",
+                               "size":  2585
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/with-instructions.ts",
+                               "size":  1411
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/with-mcp.ts",
+                               "size":  1562
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/with-model.ts",
+                               "size":  944
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/with-provided-sandbox.ts",
+                               "size":  1032
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/with-reasoning.ts",
+                               "size":  1443
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/with-restricted-sandbox.ts",
+                               "size":  1279
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/with-skills.ts",
+                               "size":  2553
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/with-structured-output.ts",
+                               "size":  1413
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/with-tool-input-error.ts",
+                               "size":  3004
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/with-tools.ts",
+                               "size":  1891
+                           },
+                           {
+                               "path":  "examples/ai-functions/src/harness-agent/codex-acp/with-web-search.ts",
+                               "size":  1004
+                           }
+                       ]
+    },
+    {
+        "id":  "langgraphjs",
+        "repo":  "langchain-ai/langgraphjs",
+        "branch":  "main",
+        "truncated":  false,
+        "candidates":  [
+                           {
+                               "path":  "examples/streaming/src/agents/simple-tool-graph.ts",
+                               "size":  1141
+                           },
+                           {
+                               "path":  "examples/streaming/src/api/subgraphs.ts",
+                               "size":  7508
+                           },
+                           {
+                               "path":  "examples/streaming/src/subgraphs/in-process.ts",
+                               "size":  1770
+                           },
+                           {
+                               "path":  "examples/streaming/src/subgraphs/remote.ts",
+                               "size":  2176
+                           },
+                           {
+                               "path":  "examples/ui-multimodal/src/lib/paragraphs.ts",
+                               "size":  1002
+                           },
+                           {
+                               "path":  "examples/ui-react/src/agents/nested-stategraph.ts",
+                               "size":  6146
+                           },
+                           {
+                               "path":  "examples/ui-react/src/views/NestedStateGraphView.tsx",
+                               "size":  5568
+                           },
+                           {
+                               "path":  "libs/checkpoint-mongodb/src/checkpoint.ts",
+                               "size":  15945
+                           },
+                           {
+                               "path":  "libs/checkpoint-mongodb/src/index.ts",
+                               "size":  178
+                           },
+                           {
+                               "path":  "libs/checkpoint-mongodb/src/store.ts",
+                               "size":  26187
+                           },
+                           {
+                               "path":  "libs/checkpoint-mongodb/src/tests/checkpoints.int.test.ts",
+                               "size":  12967
+                           },
+                           {
+                               "path":  "libs/checkpoint-mongodb/src/tests/checkpoints.test.ts",
+                               "size":  25984
+                           },
+                           {
+                               "path":  "libs/checkpoint-mongodb/src/tests/store.int.test.ts",
+                               "size":  21367
+                           },
+                           {
+                               "path":  "libs/checkpoint-mongodb/src/tests/store.test.ts",
+                               "size":  14300
+                           },
+                           {
+                               "path":  "libs/checkpoint-mongodb/vitest.config.js",
+                               "size":  768
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/index.ts",
+                               "size":  20479
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/migrations.ts",
+                               "size":  1566
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/sql.ts",
+                               "size":  4988
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/store/index.ts",
+                               "size":  18021
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/store/modules/crud-operations.ts",
+                               "size":  2774
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/store/modules/database-core.ts",
+                               "size":  1683
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/store/modules/query-builder.ts",
+                               "size":  4587
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/store/modules/search-operations.ts",
+                               "size":  15418
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/store/modules/ttl-manager.ts",
+                               "size":  1060
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/store/modules/types.ts",
+                               "size":  5278
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/store/modules/utils.test.ts",
+                               "size":  1928
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/store/modules/utils.ts",
+                               "size":  2095
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/store/modules/vector-operations.ts",
+                               "size":  6025
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/store/sql.ts",
+                               "size":  388
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/store/store-migrations.ts",
+                               "size":  4785
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/tests/checkpoints.int.test.ts",
+                               "size":  16661
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/tests/sql.test.ts",
+                               "size":  5493
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/src/tests/store.int.test.ts",
+                               "size":  45611
+                           },
+                           {
+                               "path":  "libs/checkpoint-postgres/vitest.config.js",
+                               "size":  768
+                           },
+                           {
+                               "path":  "libs/checkpoint-redis/src/constants.ts",
+                               "size":  57
+                           },
+                           {
+                               "path":  "libs/checkpoint-redis/src/index.ts",
+                               "size":  42260
+                           },
+                           {
+                               "path":  "libs/checkpoint-redis/src/shallow.ts",
+                               "size":  24183
+                           },
+                           {
+                               "path":  "libs/checkpoint-redis/src/store.ts",
+                               "size":  31955
+                           },
+                           {
+                               "path":  "libs/checkpoint-redis/src/tests/checkpoint-search.int.test.ts",
+                               "size":  10793
+                           },
+                           {
+                               "path":  "libs/checkpoint-redis/src/tests/checkpoint.int.test.ts",
+                               "size":  59813
+                           },
+                           {
+                               "path":  "libs/checkpoint-redis/src/tests/deleteThread.test.ts",
+                               "size":  2106
+                           },
+                           {
+                               "path":  "libs/checkpoint-redis/src/tests/putWrites.test.ts",
+                               "size":  6121
+                           },
+                           {
+                               "path":  "libs/checkpoint-redis/src/tests/redis-container.ts",
+                               "size":  2070
+                           },
+                           {
+                               "path":  "libs/checkpoint-redis/src/tests/store.int.test.ts",
+                               "size":  48730
+                           },
+                           {
+                               "path":  "libs/checkpoint-redis/src/tests/utils.test.ts",
+                               "size":  7656
+                           },
+                           {
+                               "path":  "libs/checkpoint-redis/src/utils.ts",
+                               "size":  4171
+                           },
+                           {
+                               "path":  "libs/checkpoint-redis/vitest.config.js",
+                               "size":  1235
+                           },
+                           {
+                               "path":  "libs/checkpoint-redis/vitest.teardown.ts",
+                               "size":  206
+                           },
+                           {
+                               "path":  "libs/checkpoint-sqlite/src/index.ts",
+                               "size":  15376
+                           },
+                           {
+                               "path":  "libs/checkpoint-sqlite/src/tests/checkpoints.test.ts",
+                               "size":  10727
+                           },
+                           {
+                               "path":  "libs/checkpoint-sqlite/vitest.config.js",
+                               "size":  768
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/bin/cli.js",
+                               "size":  103
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/cli.ts",
+                               "size":  1932
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/import_utils.ts",
+                               "size":  1270
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/index.ts",
+                               "size":  581
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/runner.ts",
+                               "size":  2886
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/spec/delete_thread.ts",
+                               "size":  1307
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/spec/delta_channel_history.ts",
+                               "size":  6469
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/spec/get_tuple.ts",
+                               "size":  14179
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/spec/index.ts",
+                               "size":  1821
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/spec/list.ts",
+                               "size":  13116
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/spec/put.ts",
+                               "size":  8233
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/spec/put_writes.ts",
+                               "size":  4101
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/test_utils.ts",
+                               "size":  9671
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/tests/memory.spec.ts",
+                               "size":  240
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/tests/memory_initializer.ts",
+                               "size":  308
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/tests/mongodb.spec.ts",
+                               "size":  453
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/tests/mongodb_initializer.ts",
+                               "size":  1326
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/tests/postgres.spec.ts",
+                               "size":  454
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/tests/postgres_initializer.ts",
+                               "size":  1721
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/tests/redis.spec.ts",
+                               "size":  451
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/tests/redis_initializer.ts",
+                               "size":  1487
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/tests/sqlite.spec.ts",
+                               "size":  240
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/tests/sqlite_initializer.ts",
+                               "size":  536
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/tests/utils.ts",
+                               "size":  1174
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/types.ts",
+                               "size":  2798
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/src/vitest.d.ts",
+                               "size":  41
+                           },
+                           {
+                               "path":  "libs/checkpoint-validation/vitest.config.js",
+                               "size":  310
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/base.ts",
+                               "size":  10618
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/cache/base.ts",
+                               "size":  1167
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/cache/index.ts",
+                               "size":  56
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/cache/memory.ts",
+                               "size":  2062
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/id.ts",
+                               "size":  1292
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/index.ts",
+                               "size":  258
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/memory.ts",
+                               "size":  23143
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/serde/base.ts",
+                               "size":  295
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/serde/jsonplus.ts",
+                               "size":  7657
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/serde/tests/jsonplus.test.ts",
+                               "size":  10198
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/serde/types.ts",
+                               "size":  3377
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/serde/utils/fast-safe-stringify/index.ts",
+                               "size":  5936
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/store/base.ts",
+                               "size":  14554
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/store/batch.ts",
+                               "size":  4237
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/store/index.ts",
+                               "size":  84
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/store/memory.ts",
+                               "size":  13397
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/store/utils.ts",
+                               "size":  8004
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/tests/cache.test.ts",
+                               "size":  4572
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/tests/checkpoints.test.ts",
+                               "size":  11751
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/tests/memory-pollution.test.ts",
+                               "size":  7982
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/tests/namespace.test.ts",
+                               "size":  6945
+                           },
+                           {
+                               "path":  "libs/checkpoint/src/tests/store.test.ts",
+                               "size":  14596
+                           }
+                       ]
+    },
+    {
+        "id":  "librechat",
+        "repo":  "danny-avila/LibreChat",
+        "branch":  "main",
+        "truncated":  false,
+        "candidates":  [
+                           {
+                               "path":  "api/server/controllers/TokenConfigController.js",
+                               "size":  1150
+                           },
+                           {
+                               "path":  "api/server/services/GraphTokenService.js",
+                               "size":  1072
+                           },
+                           {
+                               "path":  "api/server/services/OboTokenService.js",
+                               "size":  7885
+                           },
+                           {
+                               "path":  "api/server/services/OboTokenService.spec.js",
+                               "size":  18330
+                           },
+                           {
+                               "path":  "api/server/services/RefreshTokenBridge.js",
+                               "size":  501
+                           },
+                           {
+                               "path":  "api/server/services/RefreshTokenBridge.spec.js",
+                               "size":  9150
+                           },
+                           {
+                               "path":  "api/utils/tokens.spec.js",
+                               "size":  95469
+                           },
+                           {
+                               "path":  "client/src/components/Chat/Input/TokenUsage/Breakdown.spec.tsx",
+                               "size":  22415
+                           },
+                           {
+                               "path":  "client/src/components/Chat/Input/TokenUsage/Breakdown.tsx",
+                               "size":  29140
+                           },
+                           {
+                               "path":  "client/src/components/Chat/Input/TokenUsage/CompactAction.tsx",
+                               "size":  1792
+                           },
+                           {
+                               "path":  "client/src/components/Chat/Input/TokenUsage/Gauge.tsx",
+                               "size":  1593
+                           },
+                           {
+                               "path":  "client/src/components/Chat/Input/TokenUsage/index.tsx",
+                               "size":  11401
+                           },
+                           {
+                               "path":  "client/src/components/Chat/Input/__tests__/appearanceTokens.spec.ts",
+                               "size":  2140
+                           },
+                           {
+                               "path":  "client/src/components/Nav/SettingsTabs/Balance/TokenCreditsItem.tsx",
+                               "size":  902
+                           },
+                           {
+                               "path":  "client/src/hooks/Chat/__tests__/useTokenUsage.spec.tsx",
+                               "size":  10362
+                           },
+                           {
+                               "path":  "client/src/hooks/Chat/useTokenLimits.ts",
+                               "size":  2446
+                           },
+                           {
+                               "path":  "client/src/hooks/Chat/useTokenUsage.ts",
+                               "size":  22724
+                           },
+                           {
+                               "path":  "client/src/hooks/Files/useSharePointToken.ts",
+                               "size":  1218
+                           },
+                           {
+                               "path":  "client/src/utils/tokens.spec.ts",
+                               "size":  38493
+                           },
+                           {
+                               "path":  "client/src/utils/tokens.ts",
+                               "size":  39847
+                           },
+                           {
+                               "path":  "packages/api/src/agents/__tests__/estimateMediaTokensForMessage.spec.ts",
+                               "size":  10370
+                           },
+                           {
+                               "path":  "packages/api/src/endpoints/tokenConfig.spec.ts",
+                               "size":  4755
+                           },
+                           {
+                               "path":  "packages/api/src/endpoints/tokenConfig.ts",
+                               "size":  2405
+                           },
+                           {
+                               "path":  "packages/api/src/mcp/__tests__/MCPOAuthTokenExpiry.test.ts",
+                               "size":  47648
+                           },
+                           {
+                               "path":  "packages/api/src/mcp/__tests__/MCPOAuthTokenStorage.test.ts",
+                               "size":  132970
+                           },
+                           {
+                               "path":  "packages/api/src/mcp/__tests__/tokens.test.ts",
+                               "size":  5766
+                           },
+                           {
+                               "path":  "packages/api/src/mcp/oauth/tokens.test.ts",
+                               "size":  3239
+                           },
+                           {
+                               "path":  "packages/api/src/mcp/oauth/tokens.ts",
+                               "size":  79601
+                           },
+                           {
+                               "path":  "packages/api/src/oauth/tokens.spec.ts",
+                               "size":  11867
+                           },
+                           {
+                               "path":  "packages/api/src/oauth/tokens.ts",
+                               "size":  10488
+                           },
+                           {
+                               "path":  "packages/api/src/types/tokens.ts",
+                               "size":  299
+                           },
+                           {
+                               "path":  "packages/api/src/utils/tokenMap.ts",
+                               "size":  1383
+                           },
+                           {
+                               "path":  "packages/api/src/utils/tokenizer.spec.ts",
+                               "size":  9814
+                           },
+                           {
+                               "path":  "packages/api/src/utils/tokenizer.ts",
+                               "size":  5737
+                           },
+                           {
+                               "path":  "packages/api/src/utils/tokens.spec.ts",
+                               "size":  12191
+                           },
+                           {
+                               "path":  "packages/api/src/utils/tokens.ts",
+                               "size":  27049
+                           },
+                           {
+                               "path":  "packages/client/src/theme/semanticTokens.spec.ts",
+                               "size":  21394
+                           },
+                           {
+                               "path":  "packages/data-schemas/src/methods/refreshTokenBridge.spec.ts",
+                               "size":  6940
+                           },
+                           {
+                               "path":  "packages/data-schemas/src/methods/refreshTokenBridge.ts",
+                               "size":  4492
+                           },
+                           {
+                               "path":  "packages/data-schemas/src/methods/spendTokens.spec.ts",
+                               "size":  36616
+                           },
+                           {
+                               "path":  "packages/data-schemas/src/methods/spendTokens.ts",
+                               "size":  5642
+                           },
+                           {
+                               "path":  "packages/data-schemas/src/methods/token.spec.ts",
+                               "size":  39802
+                           },
+                           {
+                               "path":  "packages/data-schemas/src/methods/token.ts",
+                               "size":  4862
+                           },
+                           {
+                               "path":  "packages/data-schemas/src/models/refreshTokenBridge.ts",
+                               "size":  655
+                           },
+                           {
+                               "path":  "packages/data-schemas/src/models/token.ts",
+                               "size":  395
+                           },
+                           {
+                               "path":  "packages/data-schemas/src/schema/refreshTokenBridge.ts",
+                               "size":  896
+                           },
+                           {
+                               "path":  "packages/data-schemas/src/schema/token.ts",
+                               "size":  1244
+                           },
+                           {
+                               "path":  "packages/data-schemas/src/types/refreshTokenBridge.ts",
+                               "size":  773
+                           },
+                           {
+                               "path":  "packages/data-schemas/src/types/token.ts",
+                               "size":  1101
+                           }
+                       ]
+    },
+    {
+        "id":  "cherry",
+        "repo":  "CherryHQ/cherry-studio",
+        "branch":  "main",
+        "truncated":  false,
+        "candidates":  [
+                           {
+                               "path":  "packages/aiCore/src/core/context/tokenUtils.ts",
+                               "size":  1277
+                           },
+                           {
+                               "path":  "packages/provider-registry/src/providers/tokendance.ts",
+                               "size":  1296
+                           },
+                           {
+                               "path":  "packages/provider-registry/src/providers/tokenhub.ts",
+                               "size":  6251
+                           },
+                           {
+                               "path":  "packages/ui/src/components/icons/providers/tokendance/avatar.tsx",
+                               "size":  675
+                           },
+                           {
+                               "path":  "packages/ui/src/components/icons/providers/tokendance/index.tsx",
+                               "size":  558
+                           },
+                           {
+                               "path":  "packages/ui/src/components/icons/providers/tokendance/light.tsx",
+                               "size":  1648
+                           },
+                           {
+                               "path":  "packages/ui/src/components/icons/providers/tokendance/meta.ts",
+                               "size":  172
+                           },
+                           {
+                               "path":  "src/main/ai/contextBuild/resolveContextWindow.ts",
+                               "size":  1593
+                           },
+                           {
+                               "path":  "src/main/ai/provider/custom/__tests__/boundary/anthropic.maxOutputTokens.test.ts",
+                               "size":  3527
+                           },
+                           {
+                               "path":  "src/main/ai/provider/custom/__tests__/tokenhubTransport.test.ts",
+                               "size":  9925
+                           },
+                           {
+                               "path":  "src/main/ai/provider/custom/tokenhub/tokenhubProvider.ts",
+                               "size":  3283
+                           },
+                           {
+                               "path":  "src/main/ai/provider/custom/tokenhub/tokenhubTransport.ts",
+                               "size":  11821
+                           },
+                           {
+                               "path":  "src/main/ai/runtime/__tests__/agentContextWindow.test.ts",
+                               "size":  824
+                           },
+                           {
+                               "path":  "src/main/ai/runtime/agentContextWindow.ts",
+                               "size":  758
+                           },
+                           {
+                               "path":  "src/main/ai/runtime/claudeCode/__tests__/contextWindowSuffix.test.ts",
+                               "size":  2045
+                           },
+                           {
+                               "path":  "src/main/ai/runtime/claudeCode/contextWindowSuffix.ts",
+                               "size":  2387
+                           },
+                           {
+                               "path":  "src/main/ai/tokens/__tests__/footprint.test.ts",
+                               "size":  9281
+                           },
+                           {
+                               "path":  "src/main/ai/tokens/__tests__/imageTokens.test.ts",
+                               "size":  1712
+                           },
+                           {
+                               "path":  "src/main/ai/tokens/__tests__/mediaTokens.test.ts",
+                               "size":  2375
+                           },
+                           {
+                               "path":  "src/main/ai/tokens/__tests__/profiles.test.ts",
+                               "size":  2624
+                           },
+                           {
+                               "path":  "src/main/ai/tokens/__tests__/textTokenizer.test.ts",
+                               "size":  615
+                           },
+                           {
+                               "path":  "src/main/ai/tokens/dialect.ts",
+                               "size":  1809
+                           },
+                           {
+                               "path":  "src/main/ai/tokens/footprint.ts",
+                               "size":  13785
+                           },
+                           {
+                               "path":  "src/main/ai/tokens/imageTokens.ts",
+                               "size":  3082
+                           },
+                           {
+                               "path":  "src/main/ai/tokens/mediaTokens.ts",
+                               "size":  3429
+                           },
+                           {
+                               "path":  "src/main/ai/tokens/profiles.ts",
+                               "size":  2354
+                           },
+                           {
+                               "path":  "src/main/ai/tokens/textTokenizer.ts",
+                               "size":  1557
+                           },
+                           {
+                               "path":  "src/main/features/apiGateway/tokens/__tests__/estimateAnthropicRequestTokens.test.ts",
+                               "size":  8341
+                           },
+                           {
+                               "path":  "src/main/features/apiGateway/tokens/__tests__/estimateGeminiRequestTokens.test.ts",
+                               "size":  4275
+                           },
+                           {
+                               "path":  "src/main/features/apiGateway/tokens/__tests__/fallbackEstimate.test.ts",
+                               "size":  2360
+                           },
+                           {
+                               "path":  "src/main/features/apiGateway/tokens/__tests__/remoteAnthropicCount.test.ts",
+                               "size":  3008
+                           },
+                           {
+                               "path":  "src/main/features/apiGateway/tokens/estimateAnthropicRequestTokens.ts",
+                               "size":  5264
+                           },
+                           {
+                               "path":  "src/main/features/apiGateway/tokens/estimateGeminiRequestTokens.ts",
+                               "size":  3663
+                           },
+                           {
+                               "path":  "src/main/features/apiGateway/tokens/fallbackEstimate.ts",
+                               "size":  3081
+                           },
+                           {
+                               "path":  "src/main/features/apiGateway/tokens/remoteAnthropicCount.ts",
+                               "size":  2858
+                           },
+                           {
+                               "path":  "src/main/features/apiGateway/tokens/wireToolDefs.ts",
+                               "size":  1440
+                           },
+                           {
+                               "path":  "src/main/features/knowledge/pipeline/indexing/__tests__/localEmbeddingTokenLimit.test.ts",
+                               "size":  2794
+                           },
+                           {
+                               "path":  "src/main/features/knowledge/pipeline/indexing/__tests__/tokenLimit.test.ts",
+                               "size":  3471
+                           },
+                           {
+                               "path":  "src/main/features/knowledge/pipeline/indexing/localEmbeddingTokenLimit.ts",
+                               "size":  1420
+                           },
+                           {
+                               "path":  "src/main/features/knowledge/pipeline/indexing/tokenLimit.ts",
+                               "size":  4464
+                           },
+                           {
+                               "path":  "src/main/services/__tests__/tokenDanceOAuth.test.ts",
+                               "size":  7716
+                           },
+                           {
+                               "path":  "src/main/services/oauth/runtime/OAuthTokenStore.ts",
+                               "size":  3098
+                           },
+                           {
+                               "path":  "src/main/services/oauth/runtime/__tests__/OAuthTokenStore.test.ts",
+                               "size":  4197
+                           },
+                           {
+                               "path":  "src/main/services/remoteAccess/RemoteTokens.ts",
+                               "size":  2260
+                           },
+                           {
+                               "path":  "src/main/services/tokenDanceOAuth.ts",
+                               "size":  7333
+                           },
+                           {
+                               "path":  "src/renderer/components/chat/messages/frame/MessageTokenDetailsCard.tsx",
+                               "size":  16933
+                           },
+                           {
+                               "path":  "src/renderer/components/chat/messages/frame/MessageTokens.tsx",
+                               "size":  6538
+                           },
+                           {
+                               "path":  "src/renderer/components/chat/messages/frame/__tests__/MessageTokenDetailsCard.test.tsx",
+                               "size":  4076
+                           },
+                           {
+                               "path":  "src/renderer/components/chat/messages/frame/__tests__/MessageTokens.test.tsx",
+                               "size":  19193
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/ComposerTokenNode.tsx",
+                               "size":  10994
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/PromptVariableToken.tsx",
+                               "size":  6577
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/__tests__/ComposerToken.test.tsx",
+                               "size":  56973
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/__tests__/linkToken.test.ts",
+                               "size":  1882
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/__tests__/selectionReferenceToken.test.ts",
+                               "size":  3376
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/chatTokenView.ts",
+                               "size":  355
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/composerTokenMarkers.ts",
+                               "size":  3039
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/folderToken.ts",
+                               "size":  478
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/linkToken.ts",
+                               "size":  1304
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/quoteToken.ts",
+                               "size":  1165
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/selectionReferenceToken.ts",
+                               "size":  1964
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/tokenView/ComposerToken.tsx",
+                               "size":  36887
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/tokenView/__tests__/fileTokenPresentation.test.tsx",
+                               "size":  1909
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/tokenView/fileTokenPresentation.tsx",
+                               "size":  6976
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/tokenView/index.ts",
+                               "size":  277
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/tokens.ts",
+                               "size":  2436
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/variants/__tests__/agentComposerTokens.test.ts",
+                               "size":  2552
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/variants/__tests__/chatComposerTokens.test.ts",
+                               "size":  2895
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/variants/agentComposerTokens.ts",
+                               "size":  1189
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/variants/chatComposerTokens.ts",
+                               "size":  343
+                           },
+                           {
+                               "path":  "src/renderer/components/composer/variants/shared/composerTokens.ts",
+                               "size":  3692
+                           },
+                           {
+                               "path":  "src/renderer/pages/settings/ProviderSettings/ModelList/ModelDrawer/ModelContextWindowFields.tsx",
+                               "size":  4865
+                           },
+                           {
+                               "path":  "src/renderer/pages/settings/ProviderSettings/ModelList/ModelDrawer/__tests__/ModelContextWindowFields.test.tsx",
+                               "size":  3082
+                           },
+                           {
+                               "path":  "src/renderer/services/ShikiStreamTokenizer.ts",
+                               "size":  2911
+                           },
+                           {
+                               "path":  "src/renderer/services/__tests__/ShikiStreamTokenizer.test.ts",
+                               "size":  6598
+                           },
+                           {
+                               "path":  "src/renderer/services/__tests__/helpers/ShikiStreamTokenizer.helper.ts",
+                               "size":  2910
+                           },
+                           {
+                               "path":  "src/renderer/utils/__tests__/composerTokenPolicy.test.ts",
+                               "size":  2882
+                           },
+                           {
+                               "path":  "src/renderer/utils/composerTokenPolicy.ts",
+                               "size":  5205
+                           },
+                           {
+                               "path":  "src/renderer/utils/message/__tests__/composerFileTokenSource.test.ts",
+                               "size":  2401
+                           },
+                           {
+                               "path":  "src/renderer/utils/message/__tests__/composerTokens.test.ts",
+                               "size":  5497
+                           },
+                           {
+                               "path":  "src/renderer/utils/message/composerFileTokenSource.ts",
+                               "size":  2838
+                           },
+                           {
+                               "path":  "src/renderer/utils/message/composerTokens.ts",
+                               "size":  3874
+                           },
+                           {
+                               "path":  "src/renderer/utils/uiContract/__tests__/tokens.test.ts",
+                               "size":  1274
+                           },
+                           {
+                               "path":  "src/renderer/utils/uiContract/tokens.ts",
+                               "size":  2066
+                           }
+                       ]
+    },
+    {
+        "id":  "cline",
+        "repo":  "cline/cline",
+        "branch":  "main",
+        "truncated":  false,
+        "candidates":  [
+                           {
+                               "path":  "apps/vscode/webview-ui/src/components/chat/task-header/ContextWindow.stories.tsx",
+                               "size":  1529
+                           },
+                           {
+                               "path":  "apps/vscode/webview-ui/src/components/chat/task-header/ContextWindow.test.tsx",
+                               "size":  2364
+                           },
+                           {
+                               "path":  "apps/vscode/webview-ui/src/components/chat/task-header/ContextWindow.tsx",
+                               "size":  6448
+                           },
+                           {
+                               "path":  "apps/vscode/webview-ui/src/components/chat/task-header/ContextWindowSummary.tsx",
+                               "size":  5545
+                           }
+                       ]
+    },
+    {
+        "id":  "roo",
+        "repo":  "RooCodeInc/Roo-Code",
+        "branch":  "main",
+        "truncated":  false,
+        "candidates":  [
+                           {
+                               "path":  "src/core/condense/__tests__/condense.spec.ts",
+                               "size":  15317
+                           },
+                           {
+                               "path":  "src/core/condense/__tests__/foldedFileContext.spec.ts",
+                               "size":  14228
+                           },
+                           {
+                               "path":  "src/core/condense/__tests__/index.spec.ts",
+                               "size":  50032
+                           },
+                           {
+                               "path":  "src/core/condense/__tests__/nested-condense.spec.ts",
+                               "size":  8162
+                           },
+                           {
+                               "path":  "src/core/condense/__tests__/rewind-after-condense.spec.ts",
+                               "size":  26088
+                           },
+                           {
+                               "path":  "src/core/condense/foldedFileContext.ts",
+                               "size":  5970
+                           },
+                           {
+                               "path":  "src/core/condense/index.ts",
+                               "size":  25509
+                           },
+                           {
+                               "path":  "webview-ui/src/__tests__/ContextWindowProgress.spec.tsx",
+                               "size":  5218
+                           },
+                           {
+                               "path":  "webview-ui/src/__tests__/ContextWindowProgressLogic.spec.ts",
+                               "size":  5383
+                           },
+                           {
+                               "path":  "webview-ui/src/components/chat/ContextWindowProgress.tsx",
+                               "size":  3343
+                           }
+                       ]
+    },
+    {
+        "id":  "openhands",
+        "repo":  "All-Hands-AI/OpenHands",
+        "branch":  "main",
+        "truncated":  false,
+        "candidates":  [
+                           {
+                               "path":  "__tests__/components/automations/detail/not-found-state.test.tsx",
+                               "size":  644
+                           },
+                           {
+                               "path":  "__tests__/components/automations/error-state.test.tsx",
+                               "size":  893
+                           },
+                           {
+                               "path":  "__tests__/components/automations/to-latest-run-state.test.ts",
+                               "size":  1516
+                           },
+                           {
+                               "path":  "__tests__/components/conversation-events/chat/action-event-content.test.ts",
+                               "size":  13817
+                           },
+                           {
+                               "path":  "__tests__/components/conversation-events/chat/event-message-think-action.test.tsx",
+                               "size":  6693
+                           },
+                           {
+                               "path":  "__tests__/components/features/chat/components/chat-input-actions.test.tsx",
+                               "size":  12507
+                           },
+                           {
+                               "path":  "__tests__/components/features/conversation-panel/conversation-group-folder-interactions.test.tsx",
+                               "size":  15526
+                           },
+                           {
+                               "path":  "__tests__/components/features/conversation/conversation-git-actions-toggle.test.tsx",
+                               "size":  2767
+                           },
+                           {
+                               "path":  "__tests__/components/settings/llm-profiles/profile-actions-menu.test.tsx",
+                               "size":  10161
+                           },
+                           {
+                               "path":  "__tests__/components/terminal/terminal-empty-state.test.tsx",
+                               "size":  2166
+                           },
+                           {
+                               "path":  "__tests__/hooks/use-chat-input-llm-profile-state.test.tsx",
+                               "size":  6598
+                           },
+                           {
+                               "path":  "__tests__/hooks/use-chat-input-model-state.test.tsx",
+                               "size":  11604
+                           },
+                           {
+                               "path":  "__tests__/manifests/manifest-actions.test.ts",
+                               "size":  4080
+                           },
+                           {
+                               "path":  "__tests__/utils/agent-state-emoji.test.ts",
+                               "size":  813
+                           },
+                           {
+                               "path":  "__tests__/utils/scroll-fade-state.test.ts",
+                               "size":  2087
+                           },
+                           {
+                               "path":  "src/components/conversation-events/chat/event-content-helpers/get-action-content.ts",
+                               "size":  7877
+                           },
+                           {
+                               "path":  "src/components/conversation-events/chat/event-content-helpers/get-action-event-title.ts",
+                               "size":  4196
+                           },
+                           {
+                               "path":  "src/components/features/automations/automation-action-button-classes.ts",
+                               "size":  502
+                           },
+                           {
+                               "path":  "src/components/features/automations/dashboard/automations-filtered-empty-state.tsx",
+                               "size":  1000
+                           },
+                           {
+                               "path":  "src/components/features/automations/detail/not-found-state.tsx",
+                               "size":  756
+                           },
+                           {
+                               "path":  "src/components/features/automations/empty-state.tsx",
+                               "size":  851
+                           },
+                           {
+                               "path":  "src/components/features/automations/error-state.tsx",
+                               "size":  837
+                           },
+                           {
+                               "path":  "src/components/features/automations/git-sync/git-sync-no-access-state.tsx",
+                               "size":  806
+                           },
+                           {
+                               "path":  "src/components/features/automations/git-sync/git-sync-unsupported-state.tsx",
+                               "size":  1064
+                           },
+                           {
+                               "path":  "src/components/features/automations/to-latest-run-state.ts",
+                               "size":  1305
+                           },
+                           {
+                               "path":  "src/components/features/chat/chat-action-tooltip.tsx",
+                               "size":  567
+                           },
+                           {
+                               "path":  "src/components/features/chat/components/chat-input-actions.tsx",
+                               "size":  18922
+                           },
+                           {
+                               "path":  "src/components/features/conversation-panel/conversation-card/conversation-card-actions.tsx",
+                               "size":  5164
+                           },
+                           {
+                               "path":  "src/components/features/conversation-panel/hooks-empty-state.tsx",
+                               "size":  584
+                           },
+                           {
+                               "path":  "src/components/features/conversation-panel/hooks-loading-state.tsx",
+                               "size":  225
+                           },
+                           {
+                               "path":  "src/components/features/conversation-panel/runtime-waiting-state.tsx",
+                               "size":  918
+                           },
+                           {
+                               "path":  "src/components/features/conversation-panel/skills-empty-state.tsx",
+                               "size":  588
+                           },
+                           {
+                               "path":  "src/components/features/conversation-panel/skills-loading-state.tsx",
+                               "size":  226
+                           },
+                           {
+                               "path":  "src/components/features/conversation-panel/system-message-modal/empty-tools-state.tsx",
+                               "size":  441
+                           },
+                           {
+                               "path":  "src/components/features/conversation/conversation-git-actions-menu.tsx",
+                               "size":  5177
+                           },
+                           {
+                               "path":  "src/components/features/conversation/conversation-git-actions-toggle.tsx",
+                               "size":  3805
+                           },
+                           {
+                               "path":  "src/components/features/conversation/conversation-tab-empty-state.tsx",
+                               "size":  1051
+                           },
+                           {
+                               "path":  "src/components/features/home/shared/empty-state.tsx",
+                               "size":  520
+                           },
+                           {
+                               "path":  "src/components/features/settings/agent-profiles/agent-profile-actions-menu.tsx",
+                               "size":  5388
+                           },
+                           {
+                               "path":  "src/components/features/settings/llm-profiles/profile-actions-menu-item.tsx",
+                               "size":  1270
+                           },
+                           {
+                               "path":  "src/components/features/settings/llm-profiles/profile-actions-menu.tsx",
+                               "size":  6410
+                           },
+                           {
+                               "path":  "src/components/shared/action-tooltip.tsx",
+                               "size":  1316
+                           },
+                           {
+                               "path":  "src/hooks/use-agent-state.test.tsx",
+                               "size":  2438
+                           },
+                           {
+                               "path":  "src/hooks/use-agent-state.ts",
+                               "size":  3848
+                           },
+                           {
+                               "path":  "src/hooks/use-await-context-compaction.test.ts",
+                               "size":  4635
+                           },
+                           {
+                               "path":  "src/hooks/use-await-context-compaction.ts",
+                               "size":  5053
+                           },
+                           {
+                               "path":  "src/hooks/use-chat-input-llm-profile-state.ts",
+                               "size":  4946
+                           },
+                           {
+                               "path":  "src/hooks/use-chat-input-model-state.ts",
+                               "size":  4650
+                           },
+                           {
+                               "path":  "src/hooks/use-chat-input-profile-state.ts",
+                               "size":  4450
+                           },
+                           {
+                               "path":  "src/hooks/use-compact-context-action.test.tsx",
+                               "size":  3529
+                           },
+                           {
+                               "path":  "src/hooks/use-compact-context-action.ts",
+                               "size":  4155
+                           },
+                           {
+                               "path":  "src/hooks/use-home-automation-actions.ts",
+                               "size":  4470
+                           },
+                           {
+                               "path":  "src/manifests/manifest-actions.ts",
+                               "size":  5805
+                           },
+                           {
+                               "path":  "src/services/agent-state-service.ts",
+                               "size":  245
+                           },
+                           {
+                               "path":  "src/stores/conversation-state-store.ts",
+                               "size":  1222
+                           },
+                           {
+                               "path":  "src/types/action-type.tsx",
+                               "size":  1256
+                           },
+                           {
+                               "path":  "src/types/agent-server/core/base/action.ts",
+                               "size":  11641
+                           },
+                           {
+                               "path":  "src/types/agent-server/core/events/action-event.ts",
+                               "size":  1873
+                           },
+                           {
+                               "path":  "src/types/agent-server/core/events/condensation-event.ts",
+                               "size":  1361
+                           },
+                           {
+                               "path":  "src/types/agent-server/core/events/conversation-state-event.ts",
+                               "size":  4817
+                           },
+                           {
+                               "path":  "src/types/agent-state.tsx",
+                               "size":  676
+                           },
+                           {
+                               "path":  "src/utils/agent-state-emoji.ts",
+                               "size":  1011
+                           },
+                           {
+                               "path":  "src/utils/scroll-fade-state.ts",
+                               "size":  1144
+                           }
+                       ]
+    }
+]

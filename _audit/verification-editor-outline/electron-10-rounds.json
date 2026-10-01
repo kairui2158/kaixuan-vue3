@@ -1,0 +1,110 @@
+{
+  "schema": "shenyi.editor-outline.electron",
+  "version": 1,
+  "documentChars": 11304,
+  "documentRequirement": ">=5000",
+  "rounds": [
+    {
+      "round": 1,
+      "documentChars": 11304,
+      "headingCount": 30,
+      "targetHeading": "## 第2-3节 长文档大纲导航",
+      "targetOffset": 3175,
+      "scrollTop": 2369,
+      "clientHeight": 636,
+      "foldedJumpVerified": false
+    },
+    {
+      "round": 2,
+      "documentChars": 11304,
+      "headingCount": 30,
+      "targetHeading": "## 第3-3节 长文档大纲导航",
+      "targetOffset": 5436,
+      "scrollTop": 4304,
+      "clientHeight": 636,
+      "foldedJumpVerified": true
+    },
+    {
+      "round": 3,
+      "documentChars": 11304,
+      "headingCount": 30,
+      "targetHeading": "## 第4-3节 长文档大纲导航",
+      "targetOffset": 7697,
+      "scrollTop": 6230,
+      "clientHeight": 636,
+      "foldedJumpVerified": false
+    },
+    {
+      "round": 4,
+      "documentChars": 11304,
+      "headingCount": 30,
+      "targetHeading": "## 第5-3节 长文档大纲导航",
+      "targetOffset": 9958,
+      "scrollTop": 8156,
+      "clientHeight": 636,
+      "foldedJumpVerified": true
+    },
+    {
+      "round": 5,
+      "documentChars": 11304,
+      "headingCount": 30,
+      "targetHeading": "## 第1-3节 长文档大纲导航",
+      "targetOffset": 914,
+      "scrollTop": 453,
+      "clientHeight": 636,
+      "foldedJumpVerified": false
+    },
+    {
+      "round": 6,
+      "documentChars": 11304,
+      "headingCount": 30,
+      "targetHeading": "## 第2-3节 长文档大纲导航",
+      "targetOffset": 3175,
+      "scrollTop": 2379,
+      "clientHeight": 636,
+      "foldedJumpVerified": true
+    },
+    {
+      "round": 7,
+      "documentChars": 11304,
+      "headingCount": 30,
+      "targetHeading": "## 第3-3节 长文档大纲导航",
+      "targetOffset": 5436,
+      "scrollTop": 4304,
+      "clientHeight": 636,
+      "foldedJumpVerified": false
+    },
+    {
+      "round": 8,
+      "documentChars": 11304,
+      "headingCount": 30,
+      "targetHeading": "## 第4-3节 长文档大纲导航",
+      "targetOffset": 7697,
+      "scrollTop": 6230,
+      "clientHeight": 636,
+      "foldedJumpVerified": true
+    },
+    {
+      "round": 9,
+      "documentChars": 11304,
+      "headingCount": 30,
+      "targetHeading": "## 第5-3节 长文档大纲导航",
+      "targetOffset": 9958,
+      "scrollTop": 8156,
+      "clientHeight": 636,
+      "foldedJumpVerified": false
+    },
+    {
+      "round": 10,
+      "documentChars": 11304,
+      "headingCount": 30,
+      "targetHeading": "## 第1-3节 长文档大纲导航",
+      "targetOffset": 914,
+      "scrollTop": 453,
+      "clientHeight": 636,
+      "foldedJumpVerified": true
+    }
+  ],
+  "assertions": "10 rounds: parse 30 headings, click 10 distinct headings, center-scroll, no content change, folded-state jump expansion, panel collapse, no page errors",
+  "generatedAt": "2026-09-24T16:55:10.363Z"
+}

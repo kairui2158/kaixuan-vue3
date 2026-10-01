@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-09-22T21:26:33.280Z",
+  "scenario": "synthetic-long-document-tool-loop",
+  "documentChars": 213785,
+  "iterations": 12,
+  "toolCalls": 24,
+  "toolResults": 23,
+  "orphanToolCallIds": [
+    "synthetic-call-12-1"
+  ],
+  "auditEntries": 20,
+  "auditTruncated": true,
+  "policy": {
+    "scenario": "direct-tool-intensive",
+    "maxToolIterations": 12,
+    "timeoutMs": 0,
+    "convergence": true
+  },
+  "assertions": [
+    {
+      "name": "iteration ceiling is single-sourced",
+      "passed": true,
+      "expected": 12,
+      "actual": 12
+    },
+    {
+      "name": "orphan tool calls are detectable before the next request",
+      "passed": true,
+      "orphanToolCallIds": [
+        "synthetic-call-12-1"
+      ]
+    },
+    {
+      "name": "audit summary does not grow linearly with tool rounds",
+      "passed": true,
+      "entries": 20,
+      "toolResults": 23
+    },
+    {
+      "name": "direct default policy is preserved",
+      "passed": true
+    },
+    {
+      "name": "compatibility JSON remains one-shot",
+      "passed": true
+    },
+    {
+      "name": "folder chain has a bounded loop ceiling",
+      "passed": true
+    }
+  ],
+  "passed": true
+}

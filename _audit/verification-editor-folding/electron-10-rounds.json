@@ -1,0 +1,70 @@
+{
+  "schema": "shenyi.editor-folding.electron",
+  "version": 1,
+  "documentChars": 11244,
+  "documentRequirement": ">=5000",
+  "rounds": [
+    {
+      "round": 1,
+      "documentChars": 11244,
+      "foldedChars": 10823,
+      "restoredChars": 11244
+    },
+    {
+      "round": 2,
+      "documentChars": 11244,
+      "foldedChars": 10823,
+      "restoredChars": 11244
+    },
+    {
+      "round": 3,
+      "documentChars": 11244,
+      "foldedChars": 10823,
+      "restoredChars": 11244
+    },
+    {
+      "round": 4,
+      "documentChars": 11244,
+      "foldedChars": 10823,
+      "restoredChars": 11244
+    },
+    {
+      "round": 5,
+      "documentChars": 11244,
+      "foldedChars": 10823,
+      "restoredChars": 11244
+    },
+    {
+      "round": 6,
+      "documentChars": 11244,
+      "foldedChars": 10823,
+      "restoredChars": 11244
+    },
+    {
+      "round": 7,
+      "documentChars": 11244,
+      "foldedChars": 10823,
+      "restoredChars": 11244
+    },
+    {
+      "round": 8,
+      "documentChars": 11244,
+      "foldedChars": 10823,
+      "restoredChars": 11244
+    },
+    {
+      "round": 9,
+      "documentChars": 11244,
+      "foldedChars": 10823,
+      "restoredChars": 11244
+    },
+    {
+      "round": 10,
+      "documentChars": 11244,
+      "foldedChars": 10823,
+      "restoredChars": 11244
+    }
+  ],
+  "assertions": "10 rounds long-document fold/restore/store-integrity/cursor-mapping",
+  "generatedAt": "2026-09-24T15:57:44.344Z"
+}

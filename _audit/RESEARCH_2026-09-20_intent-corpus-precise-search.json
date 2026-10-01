@@ -1,0 +1,1013 @@
+{
+  "searchedAt": "2026-09-19T21:28:13.217Z",
+  "source": "hf-mirror.com Hugging Face dataset search API",
+  "queryCount": 20,
+  "results": [
+    {
+      "round": 1,
+      "query": "COIG-PC",
+      "url": "https://hf-mirror.com/api/datasets?search=COIG-PC&limit=20",
+      "count": 8,
+      "items": [
+        {
+          "id": "BAAI/COIG-PC",
+          "downloads": 392,
+          "likes": 272,
+          "tags": [
+            "language:zh",
+            "license:unknown",
+            "size_categories:100M<n<1B",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:mlcroissant",
+            "library:polars",
+            "arxiv:2304.07987",
+            "region:us"
+          ]
+        },
+        {
+          "id": "BAAI/COIG-PC-Lite",
+          "downloads": 1004,
+          "likes": 36,
+          "tags": [
+            "language:zh",
+            "license:unknown",
+            "size_categories:1M<n<10M",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:mlcroissant",
+            "library:polars",
+            "arxiv:2304.07987",
+            "region:us"
+          ]
+        },
+        {
+          "id": "BAAI/COIG-PC-core",
+          "downloads": 368,
+          "likes": 29,
+          "tags": [
+            "language:zh",
+            "license:unknown",
+            "size_categories:100K<n<1M",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:mlcroissant",
+            "library:polars",
+            "arxiv:2304.07987",
+            "region:us"
+          ]
+        },
+        {
+          "id": "yizhilll/cpt_v1_flan-niv2-notrans-sample_coig-pc-core",
+          "downloads": 19,
+          "likes": 0,
+          "tags": [
+            "size_categories:1M<n<10M",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "erhwenkuo/coig-pc-zhtw",
+          "downloads": 101,
+          "likes": 0,
+          "tags": [
+            "size_categories:1M<n<10M",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "lorinma/EvolInstruct_zh_COIG-PC_Deepseek",
+          "downloads": 22,
+          "likes": 3,
+          "tags": [
+            "language:zh",
+            "license:mit",
+            "region:us"
+          ]
+        },
+        {
+          "id": "m-a-p/COIG-P-CRM",
+          "downloads": 55,
+          "likes": 4,
+          "tags": [
+            "size_categories:100K<n<1M",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:mlcroissant",
+            "library:polars",
+            "arxiv:2504.05535",
+            "region:us"
+          ]
+        },
+        {
+          "id": "banktop1/COIG-PC-Lite",
+          "downloads": 46,
+          "likes": 0,
+          "tags": [
+            "language:zh",
+            "license:unknown",
+            "size_categories:1M<n<10M",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:polars",
+            "library:mlcroissant",
+            "arxiv:2304.07987",
+            "region:us"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "query": "COIG-CQIA",
+      "url": "https://hf-mirror.com/api/datasets?search=COIG-CQIA&limit=20",
+      "count": 16,
+      "items": [
+        {
+          "id": "m-a-p/COIG-CQIA",
+          "downloads": 35937,
+          "likes": 774,
+          "tags": [
+            "task_categories:question-answering",
+            "task_categories:text-classification",
+            "task_categories:text-generation",
+            "language:zh",
+            "size_categories:10K<n<100K",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:mlcroissant",
+            "library:polars",
+            "arxiv:2403.18058",
+            "arxiv:2304.07987",
+            "arxiv:2307.09705",
+            "region:us"
+          ]
+        },
+        {
+          "id": "xDAN-datasets/COIG-CQIA-all-subset",
+          "downloads": 12,
+          "likes": 0,
+          "tags": [
+            "size_categories:10K<n<100K",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "xDAN-Engine/COIG-CQIA-Preference",
+          "downloads": 21,
+          "likes": 0,
+          "tags": [
+            "size_categories:10K<n<100K",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "botp/COIG-CQIA",
+          "downloads": 201,
+          "likes": 0,
+          "tags": [
+            "task_categories:question-answering",
+            "task_categories:text-classification",
+            "task_categories:text-generation",
+            "language:zh",
+            "size_categories:10K<n<100K",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:mlcroissant",
+            "library:polars",
+            "arxiv:2403.18058",
+            "arxiv:2304.07987",
+            "arxiv:2307.09705",
+            "region:us"
+          ]
+        },
+        {
+          "id": "zhengr/COIG-CQIA",
+          "downloads": 232,
+          "likes": 4,
+          "tags": [
+            "task_categories:question-answering",
+            "task_categories:text-classification",
+            "task_categories:text-generation",
+            "language:zh",
+            "size_categories:10K<n<100K",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:mlcroissant",
+            "library:polars",
+            "arxiv:2403.18058",
+            "arxiv:2304.07987",
+            "arxiv:2307.09705",
+            "region:us"
+          ]
+        },
+        {
+          "id": "Starlento/SFT-COIG-CQIA-handbook",
+          "downloads": 357,
+          "likes": 5,
+          "tags": [
+            "task_categories:text-generation",
+            "task_categories:question-answering",
+            "language:zh",
+            "size_categories:10K<n<100K",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "arxiv:2403.18058",
+            "region:us",
+            "sft"
+          ]
+        },
+        {
+          "id": "wzzwj/COIG-CQIA-full",
+          "downloads": 8,
+          "likes": 0,
+          "tags": [
+            "license:apache-2.0",
+            "region:us"
+          ]
+        },
+        {
+          "id": "svjack/COIG-CQIA-ZH-EN",
+          "downloads": 9,
+          "likes": 0,
+          "tags": [
+            "size_categories:10K<n<100K",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "svjack/DPO-COIG-CQIA-ZH-REJECT-EN",
+          "downloads": 6,
+          "likes": 0,
+          "tags": [
+            "size_categories:10K<n<100K",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "favorPotato/COIG-CQIA-full",
+          "downloads": 11,
+          "likes": 0,
+          "tags": [
+            "license:apache-2.0",
+            "size_categories:10K<n<100K",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "simonguo/COIG-CQIA-full",
+          "downloads": 5,
+          "likes": 0,
+          "tags": [
+            "license:mit",
+            "size_categories:10K<n<100K",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "dvilasuero/COIG-CQIA-en-translation-eval",
+          "downloads": 9,
+          "likes": 0,
+          "tags": [
+            "size_categories:n<1K",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "dvilasuero/COIG_CQIA_ruozhiba_ruozhiba_translation_judge",
+          "downloads": 18,
+          "likes": 0,
+          "tags": [
+            "task_categories:translation",
+            "task_categories:text-generation",
+            "language:zh",
+            "language:en",
+            "license:apache-2.0",
+            "size_categories:n<1K",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us",
+            "synthetic"
+          ]
+        },
+        {
+          "id": "w497273/COIG-CQIA-gpt-oss-120b",
+          "downloads": 18,
+          "likes": 0,
+          "tags": [
+            "size_categories:10K<n<100K",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "tonysong6462/COIG-CQIA-chinese-traditional",
+          "downloads": 23,
+          "likes": 0,
+          "tags": [
+            "task_categories:question-answering",
+            "task_categories:text-generation",
+            "task_categories:text-classification",
+            "language:zh",
+            "license:mit",
+            "size_categories:1K<n<10K",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:polars",
+            "library:mlcroissant",
+            "region:us",
+            "chinese",
+            "traditional-chinese",
+            "instruction-following"
+          ]
+        },
+        {
+          "id": "hqili/COIG-CQIA",
+          "downloads": 211,
+          "likes": 1,
+          "tags": [
+            "task_categories:question-answering",
+            "task_categories:text-classification",
+            "task_categories:text-generation",
+            "language:zh",
+            "size_categories:10K<n<100K",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:polars",
+            "library:mlcroissant",
+            "arxiv:2403.18058",
+            "arxiv:2304.07987",
+            "arxiv:2307.09705",
+            "region:us"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "query": "COIG-Writer",
+      "url": "https://hf-mirror.com/api/datasets?search=COIG-Writer&limit=20",
+      "count": 2,
+      "items": [
+        {
+          "id": "m-a-p/COIG-Writer",
+          "downloads": 452,
+          "likes": 26,
+          "tags": [
+            "task_categories:question-answering",
+            "language:zh",
+            "license:apache-2.0",
+            "size_categories:1K<n<10K",
+            "arxiv:2510.14763",
+            "region:us",
+            "banchmark"
+          ]
+        },
+        {
+          "id": "JunoLi622/COIG-Writer",
+          "downloads": 25,
+          "likes": 0,
+          "tags": [
+            "task_categories:question-answering",
+            "language:zh",
+            "license:apache-2.0",
+            "size_categories:1K<n<10K",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us",
+            "banchmark"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 4,
+      "query": "BelleGroup train_CN",
+      "url": "https://hf-mirror.com/api/datasets?search=BelleGroup%20train_CN&limit=20",
+      "count": 5,
+      "items": [
+        {
+          "id": "BelleGroup/train_1M_CN",
+          "downloads": 5782,
+          "likes": 157,
+          "tags": [
+            "language:zh",
+            "license:gpl-3.0",
+            "size_categories:100K<n<1M",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "BelleGroup/train_0.5M_CN",
+          "downloads": 4640,
+          "likes": 125,
+          "tags": [
+            "language:zh",
+            "license:gpl-3.0",
+            "size_categories:100K<n<1M",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "BelleGroup/train_2M_CN",
+          "downloads": 3312,
+          "likes": 111,
+          "tags": [
+            "language:zh",
+            "license:gpl-3.0",
+            "size_categories:1M<n<10M",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "BelleGroup/train_3.5M_CN",
+          "downloads": 4547,
+          "likes": 156,
+          "tags": [
+            "language:zh",
+            "license:gpl-3.0",
+            "size_categories:1M<n<10M",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "xDAN-Engine/BelleGroup_train_2M_CN-xdanl3-complex_3-4_26",
+          "downloads": 12,
+          "likes": 0,
+          "tags": [
+            "size_categories:1K<n<10K",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 5,
+      "query": "BelleGroup multiturn_chat",
+      "url": "https://hf-mirror.com/api/datasets?search=BelleGroup%20multiturn_chat&limit=20",
+      "count": 1,
+      "items": [
+        {
+          "id": "BelleGroup/multiturn_chat_0.8M",
+          "downloads": 709,
+          "likes": 146,
+          "tags": [
+            "language:zh",
+            "license:gpl-3.0",
+            "size_categories:100K<n<1M",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 6,
+      "query": "Firefly Chinese",
+      "url": "https://hf-mirror.com/api/datasets?search=Firefly%20Chinese&limit=20",
+      "count": 2,
+      "items": [
+        {
+          "id": "DialogueCharacter/chinese_firefly_unfiltered",
+          "downloads": 24,
+          "likes": 0,
+          "tags": [
+            "size_categories:1M<n<10M",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "erhwenkuo/firefly-train-chinese-zhtw",
+          "downloads": 136,
+          "likes": 2,
+          "tags": [
+            "task_categories:text-generation",
+            "language:zh",
+            "size_categories:1M<n<10M",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 7,
+      "query": "Huozi instruction",
+      "url": "https://hf-mirror.com/api/datasets?search=Huozi%20instruction&limit=20",
+      "count": 0,
+      "items": []
+    },
+    {
+      "round": 8,
+      "query": "Chinese writing",
+      "url": "https://hf-mirror.com/api/datasets?search=Chinese%20writing&limit=20",
+      "count": 6,
+      "items": [
+        {
+          "id": "IDEA-CCNL/Ziya-Writing-Eval-Chinese",
+          "downloads": 42,
+          "likes": 8,
+          "tags": [
+            "language:zh",
+            "license:apache-2.0",
+            "size_categories:n<1K",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "dvilasuero/Gryphe_ChatGPT_4o_Writing_Prompts_Chinese",
+          "downloads": 217,
+          "likes": 0,
+          "tags": [
+            "size_categories:1K<n<10K",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "zake7749/chinese-writing-benchmark",
+          "downloads": 275,
+          "likes": 1,
+          "tags": [
+            "task_categories:text-generation",
+            "language:zh",
+            "license:apache-2.0",
+            "size_categories:1K<n<10K",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:polars",
+            "library:mlcroissant",
+            "region:us"
+          ]
+        },
+        {
+          "id": "zake7749/chinese-writing-bench-judgements",
+          "downloads": 193,
+          "likes": 1,
+          "tags": [
+            "task_categories:text-generation",
+            "language:zh",
+            "license:cc-by-nc-nd-4.0",
+            "size_categories:1K<n<10K",
+            "format:parquet",
+            "modality:tabular",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:polars",
+            "library:mlcroissant",
+            "region:us"
+          ]
+        },
+        {
+          "id": "zake7749/chinese-writing-bench-judgements-gpt-5.4",
+          "downloads": 139,
+          "likes": 0,
+          "tags": [
+            "task_categories:text-generation",
+            "language:zh",
+            "license:apache-2.0",
+            "size_categories:1K<n<10K",
+            "format:parquet",
+            "modality:tabular",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:polars",
+            "library:mlcroissant",
+            "region:us"
+          ]
+        },
+        {
+          "id": "dendy555/Ziya-Writing-Eval-Chinese",
+          "downloads": 6,
+          "likes": 0,
+          "tags": [
+            "language:zh",
+            "license:apache-2.0",
+            "size_categories:n<1K",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:polars",
+            "library:mlcroissant",
+            "region:us"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 9,
+      "query": "Chinese editing",
+      "url": "https://hf-mirror.com/api/datasets?search=Chinese%20editing&limit=20",
+      "count": 0,
+      "items": []
+    },
+    {
+      "round": 10,
+      "query": "Chinese rewrite",
+      "url": "https://hf-mirror.com/api/datasets?search=Chinese%20rewrite&limit=20",
+      "count": 0,
+      "items": []
+    },
+    {
+      "round": 11,
+      "query": "Chinese sentence revision",
+      "url": "https://hf-mirror.com/api/datasets?search=Chinese%20sentence%20revision&limit=20",
+      "count": 0,
+      "items": []
+    },
+    {
+      "round": 12,
+      "query": "Chinese writing assistant",
+      "url": "https://hf-mirror.com/api/datasets?search=Chinese%20writing%20assistant&limit=20",
+      "count": 0,
+      "items": []
+    },
+    {
+      "round": 13,
+      "query": "Chinese instruction",
+      "url": "https://hf-mirror.com/api/datasets?search=Chinese%20instruction&limit=20",
+      "count": 10,
+      "items": [
+        {
+          "id": "dkqkxx/chinese_instruction_sample",
+          "downloads": 440,
+          "likes": 2,
+          "tags": [
+            "region:us"
+          ]
+        },
+        {
+          "id": "LinkSoul/Chinese-LLaVA-Vision-Instructions",
+          "downloads": 157,
+          "likes": 71,
+          "tags": [
+            "language:en",
+            "language:zh",
+            "license:apache-2.0",
+            "size_categories:1M<n<10M",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:mlcroissant",
+            "region:us"
+          ]
+        },
+        {
+          "id": "DialogueCharacter/chinese_general_instruction_with_reward_score",
+          "downloads": 122,
+          "likes": 1,
+          "tags": [
+            "size_categories:1M<n<10M",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "DialogueCharacter/chinese_dialogue_instruction_with_reward_score_judged_by_13B_baichuan2",
+          "downloads": 11,
+          "likes": 3,
+          "tags": [
+            "size_categories:100K<n<1M",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "jean1/45k_python_code_chinese_instruction",
+          "downloads": 67,
+          "likes": 6,
+          "tags": [
+            "size_categories:10K<n<100K",
+            "format:csv",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "dlface/code_instructions_120k_alpaca_chinese",
+          "downloads": 58,
+          "likes": 2,
+          "tags": [
+            "size_categories:100K<n<1M",
+            "format:parquet",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "dlface/CodeFeedback-Filtered-Instruction-Chinese",
+          "downloads": 29,
+          "likes": 4,
+          "tags": [
+            "license:apache-2.0",
+            "size_categories:100K<n<1M",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:mlcroissant",
+            "library:polars",
+            "region:us"
+          ]
+        },
+        {
+          "id": "kaupane/magpie-qwen2.5-chinese-instructions",
+          "downloads": 136,
+          "likes": 1,
+          "tags": [
+            "size_categories:100K<n<1M",
+            "format:parquet",
+            "format:optimized-parquet",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:polars",
+            "library:mlcroissant",
+            "region:us"
+          ]
+        },
+        {
+          "id": "Scicom-intl/Malaysian-Local-Chinese-Instruction",
+          "downloads": 11,
+          "likes": 0,
+          "tags": [
+            "language:zh",
+            "size_categories:1K<n<10K",
+            "format:parquet",
+            "format:optimized-parquet",
+            "modality:text",
+            "library:datasets",
+            "library:pandas",
+            "library:polars",
+            "library:mlcroissant",
+            "region:us"
+          ]
+        },
+        {
+          "id": "g8603003/Chinese-LLaVA-Vision-Instructions",
+          "downloads": 6,
+          "likes": 0,
+          "tags": [
+            "language:en",
+            "language:zh",
+            "license:apache-2.0",
+            "size_categories:1M<n<10M",
+            "modality:text",
+            "region:us"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 14,
+      "query": "中文 指令",
+      "url": "https://hf-mirror.com/api/datasets?search=%E4%B8%AD%E6%96%87%20%E6%8C%87%E4%BB%A4&limit=20",
+      "count": 0,
+      "items": []
+    },
+    {
+      "round": 15,
+      "query": "中文 编辑",
+      "url": "https://hf-mirror.com/api/datasets?search=%E4%B8%AD%E6%96%87%20%E7%BC%96%E8%BE%91&limit=20",
+      "count": 0,
+      "items": []
+    },
+    {
+      "round": 16,
+      "query": "中文 改写",
+      "url": "https://hf-mirror.com/api/datasets?search=%E4%B8%AD%E6%96%87%20%E6%94%B9%E5%86%99&limit=20",
+      "count": 0,
+      "items": []
+    },
+    {
+      "round": 17,
+      "query": "中文 写作",
+      "url": "https://hf-mirror.com/api/datasets?search=%E4%B8%AD%E6%96%87%20%E5%86%99%E4%BD%9C&limit=20",
+      "count": 0,
+      "items": []
+    },
+    {
+      "round": 18,
+      "query": "text editing tasks",
+      "url": "https://hf-mirror.com/api/datasets?search=text%20editing%20tasks&limit=20",
+      "count": 1,
+      "items": [
+        {
+          "id": "AoShen/text-editing-tasks",
+          "downloads": 24,
+          "likes": 0,
+          "tags": [
+            "size_categories:n<1K",
+            "format:text",
+            "modality:text",
+            "library:datasets",
+            "library:mlcroissant",
+            "region:us"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 19,
+      "query": "natural language editing commands",
+      "url": "https://hf-mirror.com/api/datasets?search=natural%20language%20editing%20commands&limit=20",
+      "count": 0,
+      "items": []
+    },
+    {
+      "round": 20,
+      "query": "document editing",
+      "url": "https://hf-mirror.com/api/datasets?search=document%20editing&limit=20",
+      "count": 1,
+      "items": [
+        {
+          "id": "grimulkan/document-editing",
+          "downloads": 21,
+          "likes": 2,
+          "tags": [
+            "license:apache-2.0",
+            "size_categories:n<1K",
+            "format:json",
+            "modality:text",
+            "library:datasets",
+            "library:dask",
+            "library:mlcroissant",
+            "region:us"
+          ]
+        }
+      ]
+    }
+  ]
+}

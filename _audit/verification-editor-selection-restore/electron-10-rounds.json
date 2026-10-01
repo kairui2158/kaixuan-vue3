@@ -1,0 +1,159 @@
+{
+  "schema": "shenyi.editor-selection-restore.electron",
+  "version": 1,
+  "documentChars": 5426,
+  "rounds": [
+    {
+      "round": 1,
+      "documentChars": 5426,
+      "writeAfterKeep": true,
+      "writeBeforeShift": 6,
+      "overlapReset": true,
+      "foldedHiddenReset": true,
+      "unfoldRestore": {
+        "start": 37,
+        "end": 43
+      },
+      "tabSwitchReset": true,
+      "traceCount": 6,
+      "diagCount": 6
+    },
+    {
+      "round": 2,
+      "documentChars": 5426,
+      "writeAfterKeep": true,
+      "writeBeforeShift": 6,
+      "overlapReset": true,
+      "foldedHiddenReset": true,
+      "unfoldRestore": {
+        "start": 37,
+        "end": 43
+      },
+      "tabSwitchReset": true,
+      "traceCount": 12,
+      "diagCount": 12
+    },
+    {
+      "round": 3,
+      "documentChars": 5426,
+      "writeAfterKeep": true,
+      "writeBeforeShift": 6,
+      "overlapReset": true,
+      "foldedHiddenReset": true,
+      "unfoldRestore": {
+        "start": 37,
+        "end": 43
+      },
+      "tabSwitchReset": true,
+      "traceCount": 18,
+      "diagCount": 18
+    },
+    {
+      "round": 4,
+      "documentChars": 5426,
+      "writeAfterKeep": true,
+      "writeBeforeShift": 6,
+      "overlapReset": true,
+      "foldedHiddenReset": true,
+      "unfoldRestore": {
+        "start": 37,
+        "end": 43
+      },
+      "tabSwitchReset": true,
+      "traceCount": 24,
+      "diagCount": 24
+    },
+    {
+      "round": 5,
+      "documentChars": 5426,
+      "writeAfterKeep": true,
+      "writeBeforeShift": 6,
+      "overlapReset": true,
+      "foldedHiddenReset": true,
+      "unfoldRestore": {
+        "start": 37,
+        "end": 43
+      },
+      "tabSwitchReset": true,
+      "traceCount": 30,
+      "diagCount": 30
+    },
+    {
+      "round": 6,
+      "documentChars": 5426,
+      "writeAfterKeep": true,
+      "writeBeforeShift": 6,
+      "overlapReset": true,
+      "foldedHiddenReset": true,
+      "unfoldRestore": {
+        "start": 37,
+        "end": 43
+      },
+      "tabSwitchReset": true,
+      "traceCount": 36,
+      "diagCount": 36
+    },
+    {
+      "round": 7,
+      "documentChars": 5426,
+      "writeAfterKeep": true,
+      "writeBeforeShift": 6,
+      "overlapReset": true,
+      "foldedHiddenReset": true,
+      "unfoldRestore": {
+        "start": 37,
+        "end": 43
+      },
+      "tabSwitchReset": true,
+      "traceCount": 42,
+      "diagCount": 42
+    },
+    {
+      "round": 8,
+      "documentChars": 5426,
+      "writeAfterKeep": true,
+      "writeBeforeShift": 6,
+      "overlapReset": true,
+      "foldedHiddenReset": true,
+      "unfoldRestore": {
+        "start": 37,
+        "end": 43
+      },
+      "tabSwitchReset": true,
+      "traceCount": 48,
+      "diagCount": 48
+    },
+    {
+      "round": 9,
+      "documentChars": 5426,
+      "writeAfterKeep": true,
+      "writeBeforeShift": 6,
+      "overlapReset": true,
+      "foldedHiddenReset": true,
+      "unfoldRestore": {
+        "start": 37,
+        "end": 43
+      },
+      "tabSwitchReset": true,
+      "traceCount": 54,
+      "diagCount": 54
+    },
+    {
+      "round": 10,
+      "documentChars": 5426,
+      "writeAfterKeep": true,
+      "writeBeforeShift": 6,
+      "overlapReset": true,
+      "foldedHiddenReset": true,
+      "unfoldRestore": {
+        "start": 37,
+        "end": 43
+      },
+      "tabSwitchReset": true,
+      "traceCount": 60,
+      "diagCount": 60
+    }
+  ],
+  "assertions": "10 rounds: external write keep/shift/reset, fold hide/reset and unfold restore, tab switch reset, runTrace selectionRestoreMode + DiagLogger editor-selection coverage, no page errors",
+  "generatedAt": "2026-09-24T18:00:46.552Z"
+}

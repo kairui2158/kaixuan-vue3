@@ -1,0 +1,153 @@
+{
+  "schemaVersion": "agent-sub-agent-electron-v1",
+  "generatedAt": "2026-09-26T03:08:34.563Z",
+  "checks": [
+    "outline: outer agent tools exposed, sub-agent tools hidden, trace closed, final body visible",
+    "home: outer agent tools exposed, sub-agent tools hidden, trace closed, final body visible"
+  ],
+  "verdict": "pass",
+  "requests": [
+    {
+      "mode": "outline",
+      "isOuter": true,
+      "lastToolCall": null,
+      "toolNames": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "outline.get_structure",
+        "outline.read_range",
+        "outline.search",
+        "outline.get_summary",
+        "context.remaining",
+        "agent.plan",
+        "agent.spawn",
+        "agent.wait",
+        "agent.cancel"
+      ]
+    },
+    {
+      "mode": "outline",
+      "isOuter": false,
+      "lastToolCall": null,
+      "toolNames": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "outline.get_structure",
+        "outline.read_range",
+        "outline.search",
+        "outline.get_summary",
+        "context.remaining",
+        "agent.plan"
+      ]
+    },
+    {
+      "mode": "outline",
+      "isOuter": true,
+      "lastToolCall": "agent.spawn",
+      "toolNames": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "outline.get_structure",
+        "outline.read_range",
+        "outline.search",
+        "outline.get_summary",
+        "context.remaining",
+        "agent.plan",
+        "agent.spawn",
+        "agent.wait",
+        "agent.cancel"
+      ]
+    },
+    {
+      "mode": "outline",
+      "isOuter": true,
+      "lastToolCall": "agent.wait",
+      "toolNames": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "outline.get_structure",
+        "outline.read_range",
+        "outline.search",
+        "outline.get_summary",
+        "context.remaining",
+        "agent.plan",
+        "agent.spawn",
+        "agent.wait",
+        "agent.cancel"
+      ]
+    },
+    {
+      "mode": "home",
+      "isOuter": true,
+      "lastToolCall": null,
+      "toolNames": [
+        "context.remaining",
+        "agent.plan",
+        "agent.spawn",
+        "agent.wait",
+        "agent.cancel"
+      ]
+    },
+    {
+      "mode": "home",
+      "isOuter": false,
+      "lastToolCall": null,
+      "toolNames": [
+        "context.remaining",
+        "agent.plan"
+      ]
+    },
+    {
+      "mode": "home",
+      "isOuter": true,
+      "lastToolCall": "agent.spawn",
+      "toolNames": [
+        "context.remaining",
+        "agent.plan",
+        "agent.spawn",
+        "agent.wait",
+        "agent.cancel"
+      ]
+    },
+    {
+      "mode": "home",
+      "isOuter": true,
+      "lastToolCall": "agent.wait",
+      "toolNames": [
+        "context.remaining",
+        "agent.plan",
+        "agent.spawn",
+        "agent.wait",
+        "agent.cancel"
+      ]
+    }
+  ]
+}

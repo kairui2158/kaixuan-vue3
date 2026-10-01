@@ -1,0 +1,198 @@
+{
+  "schema": "shenyi.editor-diff.electron",
+  "version": 1,
+  "rounds": [
+    {
+      "round": 1,
+      "main": {
+        "batchId": "main-diff-1790309468765-snnoq",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": "covered by component-owned run trace events; DiagLogger is the external observer in this harness",
+        "diagEvent": true
+      },
+      "outline": {
+        "batchId": "outline-diff-1790309471190-ye9xc",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": true,
+        "diagEvent": true
+      }
+    },
+    {
+      "round": 2,
+      "main": {
+        "batchId": "main-diff-1790309472470-g3qfv",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": "covered by component-owned run trace events; DiagLogger is the external observer in this harness",
+        "diagEvent": true
+      },
+      "outline": {
+        "batchId": "outline-diff-1790309474633-3qdk5",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": true,
+        "diagEvent": true
+      }
+    },
+    {
+      "round": 3,
+      "main": {
+        "batchId": "main-diff-1790309475921-kwkb8",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": "covered by component-owned run trace events; DiagLogger is the external observer in this harness",
+        "diagEvent": true
+      },
+      "outline": {
+        "batchId": "outline-diff-1790309478071-itsxd",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": true,
+        "diagEvent": true
+      }
+    },
+    {
+      "round": 4,
+      "main": {
+        "batchId": "main-diff-1790309479341-ejro3",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": "covered by component-owned run trace events; DiagLogger is the external observer in this harness",
+        "diagEvent": true
+      },
+      "outline": {
+        "batchId": "outline-diff-1790309481502-5g6yq",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": true,
+        "diagEvent": true
+      }
+    },
+    {
+      "round": 5,
+      "main": {
+        "batchId": "main-diff-1790309482785-talr9",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": "covered by component-owned run trace events; DiagLogger is the external observer in this harness",
+        "diagEvent": true
+      },
+      "outline": {
+        "batchId": "outline-diff-1790309484963-qw98s",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": true,
+        "diagEvent": true
+      }
+    },
+    {
+      "round": 6,
+      "main": {
+        "batchId": "main-diff-1790309486246-5qw7v",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": "covered by component-owned run trace events; DiagLogger is the external observer in this harness",
+        "diagEvent": true
+      },
+      "outline": {
+        "batchId": "outline-diff-1790309488441-fuxqj",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": true,
+        "diagEvent": true
+      }
+    },
+    {
+      "round": 7,
+      "main": {
+        "batchId": "main-diff-1790309489725-yx8mo",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": "covered by component-owned run trace events; DiagLogger is the external observer in this harness",
+        "diagEvent": true
+      },
+      "outline": {
+        "batchId": "outline-diff-1790309491893-fhd4p",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": true,
+        "diagEvent": true
+      }
+    },
+    {
+      "round": 8,
+      "main": {
+        "batchId": "main-diff-1790309493241-u3g7r",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": "covered by component-owned run trace events; DiagLogger is the external observer in this harness",
+        "diagEvent": true
+      },
+      "outline": {
+        "batchId": "outline-diff-1790309495518-qlvs6",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": true,
+        "diagEvent": true
+      }
+    },
+    {
+      "round": 9,
+      "main": {
+        "batchId": "main-diff-1790309496802-8u59w",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": "covered by component-owned run trace events; DiagLogger is the external observer in this harness",
+        "diagEvent": true
+      },
+      "outline": {
+        "batchId": "outline-diff-1790309498976-fttj4",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": true,
+        "diagEvent": true
+      }
+    },
+    {
+      "round": 10,
+      "main": {
+        "batchId": "main-diff-1790309500269-gc595",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": "covered by component-owned run trace events; DiagLogger is the external observer in this harness",
+        "diagEvent": true
+      },
+      "outline": {
+        "batchId": "outline-diff-1790309502414-k1wmc",
+        "hunkRollback": true,
+        "batchRollback": true,
+        "staleLocked": true,
+        "traceEvent": true,
+        "diagEvent": true
+      }
+    }
+  ],
+  "assertions": "10 rounds per workspace: inline layer render, single-hunk rollback/rebase, reveal, full batch rollback, stale lock, runTrace + DiagLogger coverage, no page errors",
+  "generatedAt": "2026-09-25T04:11:43.603Z"
+}

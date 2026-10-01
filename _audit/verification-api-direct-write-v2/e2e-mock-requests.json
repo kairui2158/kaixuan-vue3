@@ -91,7 +91,7 @@
   },
   {
     "scenario": "home-replace-rollback",
-    "requestCount": 3,
+    "requestCount": 1,
     "tools": [
       "editor.get_state",
       "editor.search",
@@ -208,6 +208,36 @@
     ]
   },
   {
+    "scenario": "home-invalid-protocol",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-invalid-protocol",
+    "requestCount": 2,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
     "scenario": "home-permission-denied",
     "requestCount": 1,
     "tools": [
@@ -236,7 +266,7 @@
     ]
   },
   {
-    "scenario": "home-write-limit",
+    "scenario": "home-repeat-write-guard",
     "requestCount": 1,
     "tools": [
       "editor.get_state",
@@ -251,7 +281,7 @@
     ]
   },
   {
-    "scenario": "home-write-limit",
+    "scenario": "home-repeat-write-guard",
     "requestCount": 2,
     "tools": [
       "editor.get_state",
@@ -266,13 +296,160 @@
     ]
   },
   {
-    "scenario": "home-write-limit",
+    "scenario": "home-repeat-write-guard",
     "requestCount": 3,
     "tools": [
       "editor.get_state",
       "editor.search",
       "editor.locate",
       "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-repeat-write-guard",
+    "requestCount": 4,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-repeat-write-guard",
+    "requestCount": 5,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-repeat-write-guard",
+    "requestCount": 6,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-empty-insert",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-empty-insert",
+    "requestCount": 4,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-invalid-protocol",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-invalid-protocol",
+    "requestCount": 4,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.write",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-permission-denied",
+    "requestCount": 1,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-permission-denied",
+    "requestCount": 4,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
+      "editor.reveal",
+      "task.update_plan",
+      "editor.multi_get_state",
+      "editor.global_search",
+      "editor.workspace_summary"
+    ]
+  },
+  {
+    "scenario": "home-permission-denied",
+    "requestCount": 5,
+    "tools": [
+      "editor.get_state",
+      "editor.search",
+      "editor.locate",
       "editor.reveal",
       "task.update_plan",
       "editor.multi_get_state",

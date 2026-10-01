@@ -1,0 +1,353 @@
+{
+  "generatedAt": "2026-09-21T10:42:55.238Z",
+  "routerVersion": "v5-production-baseline",
+  "phase": "intent-routing-v6-phase1",
+  "datasets": [
+    {
+      "dataset": "holdout-real-trace",
+      "total": 28,
+      "correct": 25,
+      "accuracy": 0.8929,
+      "layerDistribution": [
+        {
+          "layer": "L1-rule",
+          "count": 21
+        },
+        {
+          "layer": "L2-keyword-tfidf",
+          "count": 6
+        },
+        {
+          "layer": "L0-context",
+          "count": 1
+        }
+      ],
+      "failureReasons": [
+        {
+          "reason": "no-keyword-overlap",
+          "count": 3
+        }
+      ],
+      "failureSources": [
+        {
+          "source": "trace-2026-09-19-042658",
+          "count": 1
+        },
+        {
+          "source": "trace-2026-09-19-220827",
+          "count": 2
+        }
+      ],
+      "failures": [
+        {
+          "input": "钩子二沈萤的脚踝我设计的是一次性伤害，不是永久残疾，这点要先说清楚",
+          "expected": "discuss",
+          "actual": "no_match",
+          "source": "trace-2026-09-19-042658",
+          "reason": "no-keyword-overlap",
+          "confidence": 0,
+          "layer": "L2-keyword-tfidf",
+          "note": "author explains existing design; historical router returned no_match"
+        },
+        {
+          "input": "第一卷开篇的吸引力我不太满意",
+          "expected": "edit",
+          "actual": "no_match",
+          "source": "trace-2026-09-19-220827",
+          "reason": "no-keyword-overlap",
+          "confidence": 0,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        },
+        {
+          "input": "开篇那个抓人的地方要再强化",
+          "expected": "edit",
+          "actual": "no_match",
+          "source": "trace-2026-09-19-220827",
+          "reason": "no-keyword-overlap",
+          "confidence": 0,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        }
+      ]
+    },
+    {
+      "dataset": "adversarial-intent",
+      "total": 37,
+      "correct": 21,
+      "accuracy": 0.5676,
+      "layerDistribution": [
+        {
+          "layer": "L2-keyword-tfidf",
+          "count": 25
+        },
+        {
+          "layer": "L1-rule",
+          "count": 12
+        }
+      ],
+      "failureReasons": [
+        {
+          "reason": "no-keyword-overlap",
+          "count": 13
+        },
+        {
+          "reason": "keyword-top1",
+          "count": 1
+        },
+        {
+          "reason": "outside-workspace-scope",
+          "count": 1
+        },
+        {
+          "reason": "reference-request",
+          "count": 1
+        }
+      ],
+      "failureSources": [
+        {
+          "source": "adversarial-paraphrase",
+          "count": 10
+        },
+        {
+          "source": "adversarial-typo",
+          "count": 3
+        },
+        {
+          "source": "adversarial-domain",
+          "count": 2
+        },
+        {
+          "source": "adversarial-mixed",
+          "count": 1
+        }
+      ],
+      "failures": [
+        {
+          "input": "开篇那个吸引点我不太满意",
+          "expected": "edit",
+          "actual": "no_match",
+          "source": "adversarial-paraphrase",
+          "reason": "no-keyword-overlap",
+          "confidence": 0,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        },
+        {
+          "input": "开头抓人的地方要再弄一下",
+          "expected": "edit",
+          "actual": "no_match",
+          "source": "adversarial-paraphrase",
+          "reason": "no-keyword-overlap",
+          "confidence": 0,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        },
+        {
+          "input": "第一卷钩子得重新弄",
+          "expected": "edit",
+          "actual": "no_match",
+          "source": "adversarial-paraphrase",
+          "reason": "no-keyword-overlap",
+          "confidence": 0,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        },
+        {
+          "input": "把开头那个亮点再打磨打磨",
+          "expected": "edit",
+          "actual": "no_match",
+          "source": "adversarial-paraphrase",
+          "reason": "no-keyword-overlap",
+          "confidence": 0,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        },
+        {
+          "input": "第一卷新引子要重做",
+          "expected": "edit",
+          "actual": "no_match",
+          "source": "adversarial-paraphrase",
+          "reason": "no-keyword-overlap",
+          "confidence": 0,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        },
+        {
+          "input": "开头那个勾子不太行，改一下",
+          "expected": "edit",
+          "actual": "no_match",
+          "source": "adversarial-typo",
+          "reason": "no-keyword-overlap",
+          "confidence": 0,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        },
+        {
+          "input": "第一卷钩子需要重新设订",
+          "expected": "edit",
+          "actual": "no_match",
+          "source": "adversarial-typo",
+          "reason": "no-keyword-overlap",
+          "confidence": 0,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        },
+        {
+          "input": "沈萤的脚裸伏笔要补到第二卷",
+          "expected": "edit",
+          "actual": "no_match",
+          "source": "adversarial-typo",
+          "reason": "no-keyword-overlap",
+          "confidence": 0,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        },
+        {
+          "input": "卷纲里人物弧光的衔接断了一截，修一下",
+          "expected": "edit",
+          "actual": "no_match",
+          "source": "adversarial-domain",
+          "reason": "no-keyword-overlap",
+          "confidence": 0,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        },
+        {
+          "input": "把第二卷的节奏点重新排",
+          "expected": "edit",
+          "actual": "no_match",
+          "source": "adversarial-domain",
+          "reason": "no-keyword-overlap",
+          "confidence": 0,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        },
+        {
+          "input": "给第三卷想三个可选钩子",
+          "expected": "generate",
+          "actual": "no_match",
+          "source": "adversarial-paraphrase",
+          "reason": "no-keyword-overlap",
+          "confidence": 0,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        },
+        {
+          "input": "为沈萤补一段前史",
+          "expected": "generate",
+          "actual": "edit",
+          "source": "adversarial-paraphrase",
+          "reason": "keyword-top1",
+          "confidence": 1,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        },
+        {
+          "input": "起草第二卷的三个节点",
+          "expected": "generate",
+          "actual": "no_match",
+          "source": "adversarial-paraphrase",
+          "reason": "outside-workspace-scope",
+          "confidence": 1,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        },
+        {
+          "input": "这个伏笔我不是要永久残疾，先说清楚",
+          "expected": "discuss",
+          "actual": "no_match",
+          "source": "adversarial-paraphrase",
+          "reason": "no-keyword-overlap",
+          "confidence": 0,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        },
+        {
+          "input": "我不同意这个判断，理由是...",
+          "expected": "discuss",
+          "actual": "no_match",
+          "source": "adversarial-paraphrase",
+          "reason": "no-keyword-overlap",
+          "confidence": 0,
+          "layer": "L2-keyword-tfidf",
+          "note": null
+        },
+        {
+          "input": "先审一遍，再给我一版修改后的钩子",
+          "expected": "generate",
+          "actual": "discuss",
+          "source": "adversarial-mixed",
+          "reason": "reference-request",
+          "confidence": 0.9,
+          "layer": "L1-rule",
+          "note": "final deliverable is generated content"
+        }
+      ]
+    },
+    {
+      "dataset": "negative-intent",
+      "total": 14,
+      "correct": 14,
+      "accuracy": 1,
+      "layerDistribution": [
+        {
+          "layer": "L2-keyword-tfidf",
+          "count": 13
+        },
+        {
+          "layer": "L1-rule",
+          "count": 1
+        }
+      ],
+      "failureReasons": [],
+      "failureSources": [],
+      "failures": []
+    }
+  ],
+  "metrics": {
+    "totalSamples": 79,
+    "totalCorrect": 60,
+    "negativeRejection": {
+      "total": 14,
+      "rejected": 14,
+      "rate": 1
+    },
+    "writeFalseTriggers": {
+      "count": 1,
+      "samples": [
+        {
+          "dataset": "adversarial-intent",
+          "input": "为沈萤补一段前史",
+          "expected": "generate",
+          "actual": "edit",
+          "reason": "keyword-top1"
+        }
+      ]
+    },
+    "discussBlocked": {
+      "total": 21,
+      "blocked": 3,
+      "samples": [
+        {
+          "dataset": "holdout-real-trace",
+          "input": "钩子二沈萤的脚踝我设计的是一次性伤害，不是永久残疾，这点要先说清楚",
+          "actual": "no_match",
+          "reason": "no-keyword-overlap"
+        },
+        {
+          "dataset": "adversarial-intent",
+          "input": "这个伏笔我不是要永久残疾，先说清楚",
+          "actual": "no_match",
+          "reason": "no-keyword-overlap"
+        },
+        {
+          "dataset": "adversarial-intent",
+          "input": "我不同意这个判断，理由是...",
+          "actual": "no_match",
+          "reason": "no-keyword-overlap"
+        }
+      ]
+    }
+  }
+}

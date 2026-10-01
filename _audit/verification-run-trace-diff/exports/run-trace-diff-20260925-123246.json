@@ -1,0 +1,1924 @@
+{
+  "schema": "shenyi.run-trace-diff",
+  "version": 1,
+  "exportedAt": "2026-09-25T04:32:46.954Z",
+  "diff": {
+    "schema": "shenyi.run-trace-diff",
+    "schemaVersion": 1,
+    "version": 1,
+    "generatedAt": "2026-09-25T04:32:45.610Z",
+    "runs": {
+      "a": {
+        "id": "run-1790310764621-183",
+        "source": "outline",
+        "sourceName": "大纲工作台",
+        "stepName": "大纲共创",
+        "mode": "chain",
+        "projectId": "run-trace-diff-e2e",
+        "projectName": "运行对比实测",
+        "providerId": "probe-provider",
+        "providerName": "Probe Provider",
+        "model": "probe-model",
+        "skillNames": [
+          "大纲对比技能"
+        ],
+        "skillMode": "folder",
+        "status": "success",
+        "startedAt": 1790310764622,
+        "stateHistory": [
+          {
+            "fromStatus": "running",
+            "toStatus": "success",
+            "recordedAt": 1790310764630
+          }
+        ],
+        "events": [
+          {
+            "id": "event-1790310764627-184",
+            "ts": 1790310764627,
+            "seq": 1,
+            "type": "started",
+            "level": "info",
+            "label": "开始大纲工作台 大纲共创运行"
+          },
+          {
+            "id": "event-1790310764628-186",
+            "ts": 1790310764628,
+            "seq": 2,
+            "type": "api-start",
+            "level": "info",
+            "label": "第 1 次 API 调用开始",
+            "detail": "{\"skillName\":\"大纲对比技能\",\"model\":\"probe-model\",\"actualToolSurface\":[{\"name\":\"editor.read\",\"policy\":\"read\"},{\"name\":\"editor.write\",\"policy\":\"write\"}]}"
+          },
+          {
+            "id": "event-1790310764629-188",
+            "ts": 1790310764629,
+            "seq": 3,
+            "type": "tool-call",
+            "level": "info",
+            "label": "工具调用完成：editor.read"
+          },
+          {
+            "id": "event-1790310764629-190",
+            "ts": 1790310764629,
+            "seq": 4,
+            "type": "tool-call",
+            "level": "error",
+            "label": "工具调用失败：editor.write",
+            "detail": "probe-tool-failed"
+          },
+          {
+            "id": "event-1790310764629-192",
+            "ts": 1790310764629,
+            "seq": 5,
+            "type": "prompt-built",
+            "level": "info",
+            "label": "提示词快照已创建",
+            "detail": "大纲对比技能 / outline-compare / folder"
+          },
+          {
+            "id": "event-1790310764629-193",
+            "ts": 1790310764629,
+            "seq": 6,
+            "type": "state-transition",
+            "level": "info",
+            "label": "RunTraceStatus：running → success",
+            "detail": "apiCall=api-1790310764628-185 seq=1"
+          },
+          {
+            "id": "event-1790310764630-194",
+            "ts": 1790310764630,
+            "seq": 7,
+            "type": "api-success",
+            "level": "info",
+            "label": "第 1 次 API 调用完成",
+            "detail": "大纲对比技能 / probe-model"
+          },
+          {
+            "id": "event-1790310764630-195",
+            "ts": 1790310764630,
+            "seq": 8,
+            "type": "finished",
+            "level": "info",
+            "label": "运行完成",
+            "detail": ""
+          },
+          {
+            "id": "event-1790310764630-196",
+            "ts": 1790310764630,
+            "seq": 9,
+            "type": "state-transition",
+            "level": "info",
+            "label": "RunTraceStatus：running → success",
+            "detail": "run=run-1790310764621-183"
+          }
+        ],
+        "apiCalls": [
+          {
+            "id": "api-1790310764628-185",
+            "seq": 1,
+            "skillId": "outline-compare",
+            "skillName": "大纲对比技能",
+            "providerId": "probe-provider",
+            "providerName": "Probe Provider",
+            "model": "probe-model",
+            "intent": "edit",
+            "toolSurface": [
+              {
+                "name": "editor.read",
+                "policy": "read"
+              },
+              {
+                "name": "editor.write",
+                "policy": "write"
+              }
+            ],
+            "actualToolSurface": [
+              {
+                "name": "editor.read",
+                "policy": "read"
+              },
+              {
+                "name": "editor.write",
+                "policy": "write"
+              }
+            ],
+            "requestMessages": [
+              {
+                "role": "system",
+                "content": "模板 B system prompt 全文。"
+              },
+              {
+                "role": "user",
+                "content": "第 7 轮对比请求（B）"
+              }
+            ],
+            "responseText": "B 完整返回全文。",
+            "streamText": "",
+            "reasoningText": "B 思考过程。",
+            "status": "success",
+            "startedAt": 1790310764628,
+            "toolCalls": [
+              {
+                "id": "tool-1790310764628-187",
+                "toolCallId": "read-B-7",
+                "name": "editor.read",
+                "input": {
+                  "target": "outline",
+                  "range": {
+                    "from": 0,
+                    "to": 200
+                  }
+                },
+                "result": {
+                  "text": "B 侧大纲片段"
+                },
+                "status": "success",
+                "startedAt": 1790310764628,
+                "durationMs": 12
+              },
+              {
+                "id": "tool-1790310764629-189",
+                "toolCallId": "diverge-B-7",
+                "name": "editor.write",
+                "input": {
+                  "content": "B 侧写入内容"
+                },
+                "result": {
+                  "ok": true
+                },
+                "status": "failed",
+                "startedAt": 1790310764629,
+                "durationMs": 18,
+                "error": "probe-tool-failed"
+              }
+            ],
+            "promptSnapshotIds": [
+              "prompt-1790310764629-191"
+            ],
+            "finishReason": "stop",
+            "usage": {
+              "prompt_tokens": 100,
+              "completion_tokens": 20,
+              "total_tokens": 120
+            },
+            "usageUnavailable": false,
+            "durationMs": 48,
+            "endedAt": 1790310764629,
+            "semantic": {
+              "conversationId": "run-1790310764621-183",
+              "usage": {
+                "inputTokens": 100,
+                "outputTokens": 20,
+                "totalTokens": 120
+              }
+            }
+          }
+        ],
+        "sessionKind": "task",
+        "promptSnapshots": [
+          {
+            "id": "prompt-1790310764629-191",
+            "apiCallId": "api-1790310764628-185",
+            "skillId": "outline-compare",
+            "skillName": "大纲对比技能",
+            "skillVersion": "1.1.0",
+            "mode": "folder",
+            "builtAt": 1790310764629,
+            "promptName": "template.md",
+            "variables": [
+              {
+                "name": "outline",
+                "value": "B 模板变量"
+              }
+            ],
+            "contextBlocks": [
+              {
+                "name": "outline",
+                "text": "B 上下文块"
+              }
+            ],
+            "folderFingerprint": [
+              {
+                "file": "template.md",
+                "hash": "hash-b"
+              }
+            ],
+            "systemPrompt": "模板 B system prompt 全文。",
+            "userPrompt": "第 7 轮对比请求（B）",
+            "finalMessages": [
+              {
+                "role": "system",
+                "content": "模板 B system prompt 全文。"
+              },
+              {
+                "role": "user",
+                "content": "第 7 轮对比请求（B）"
+              }
+            ]
+          }
+        ],
+        "processingReports": [],
+        "payloads": [],
+        "endedAt": 1790310764630,
+        "durationMs": 8,
+        "dirName": "run-trace-大纲共创-20260925-123244"
+      },
+      "b": {
+        "id": "run-1790310764586-169",
+        "source": "outline",
+        "sourceName": "大纲工作台",
+        "stepName": "大纲共创",
+        "mode": "chain",
+        "projectId": "run-trace-diff-e2e",
+        "projectName": "运行对比实测",
+        "providerId": "probe-provider",
+        "providerName": "Probe Provider",
+        "model": "probe-model",
+        "skillNames": [
+          "大纲对比技能"
+        ],
+        "skillMode": "folder",
+        "status": "success",
+        "startedAt": 1790310764586,
+        "stateHistory": [
+          {
+            "fromStatus": "running",
+            "toStatus": "success",
+            "recordedAt": 1790310764589
+          }
+        ],
+        "events": [
+          {
+            "id": "event-1790310764586-170",
+            "ts": 1790310764586,
+            "seq": 1,
+            "type": "started",
+            "level": "info",
+            "label": "开始大纲工作台 大纲共创运行"
+          },
+          {
+            "id": "event-1790310764587-172",
+            "ts": 1790310764587,
+            "seq": 2,
+            "type": "api-start",
+            "level": "info",
+            "label": "第 1 次 API 调用开始",
+            "detail": "{\"skillName\":\"大纲对比技能\",\"model\":\"probe-model\",\"actualToolSurface\":[{\"name\":\"editor.read\",\"policy\":\"read\"},{\"name\":\"editor.write\",\"policy\":\"write\"}]}"
+          },
+          {
+            "id": "event-1790310764587-174",
+            "ts": 1790310764587,
+            "seq": 3,
+            "type": "tool-call",
+            "level": "info",
+            "label": "工具调用完成：editor.read"
+          },
+          {
+            "id": "event-1790310764587-176",
+            "ts": 1790310764587,
+            "seq": 4,
+            "type": "tool-call",
+            "level": "info",
+            "label": "工具调用完成：editor.search"
+          },
+          {
+            "id": "event-1790310764587-178",
+            "ts": 1790310764587,
+            "seq": 5,
+            "type": "prompt-built",
+            "level": "info",
+            "label": "提示词快照已创建",
+            "detail": "大纲对比技能 / outline-compare / folder"
+          },
+          {
+            "id": "event-1790310764588-179",
+            "ts": 1790310764588,
+            "seq": 6,
+            "type": "state-transition",
+            "level": "info",
+            "label": "RunTraceStatus：running → success",
+            "detail": "apiCall=api-1790310764587-171 seq=1"
+          },
+          {
+            "id": "event-1790310764588-180",
+            "ts": 1790310764588,
+            "seq": 7,
+            "type": "api-success",
+            "level": "info",
+            "label": "第 1 次 API 调用完成",
+            "detail": "大纲对比技能 / probe-model"
+          },
+          {
+            "id": "event-1790310764588-181",
+            "ts": 1790310764588,
+            "seq": 8,
+            "type": "finished",
+            "level": "info",
+            "label": "运行完成",
+            "detail": ""
+          },
+          {
+            "id": "event-1790310764588-182",
+            "ts": 1790310764588,
+            "seq": 9,
+            "type": "state-transition",
+            "level": "info",
+            "label": "RunTraceStatus：running → success",
+            "detail": "run=run-1790310764586-169"
+          }
+        ],
+        "apiCalls": [
+          {
+            "id": "api-1790310764587-171",
+            "seq": 1,
+            "skillId": "outline-compare",
+            "skillName": "大纲对比技能",
+            "providerId": "probe-provider",
+            "providerName": "Probe Provider",
+            "model": "probe-model",
+            "intent": "edit",
+            "toolSurface": [
+              {
+                "name": "editor.read",
+                "policy": "read"
+              },
+              {
+                "name": "editor.write",
+                "policy": "write"
+              }
+            ],
+            "actualToolSurface": [
+              {
+                "name": "editor.read",
+                "policy": "read"
+              },
+              {
+                "name": "editor.write",
+                "policy": "write"
+              }
+            ],
+            "requestMessages": [
+              {
+                "role": "system",
+                "content": "模板 A system prompt 全文。"
+              },
+              {
+                "role": "user",
+                "content": "第 7 轮对比请求（A）"
+              }
+            ],
+            "responseText": "A 完整返回全文。",
+            "streamText": "",
+            "reasoningText": "A 思考过程。",
+            "status": "success",
+            "startedAt": 1790310764587,
+            "toolCalls": [
+              {
+                "id": "tool-1790310764587-173",
+                "toolCallId": "read-A-7",
+                "name": "editor.read",
+                "input": {
+                  "target": "outline",
+                  "range": {
+                    "from": 0,
+                    "to": 200
+                  }
+                },
+                "result": {
+                  "text": "A 侧大纲片段"
+                },
+                "status": "success",
+                "startedAt": 1790310764587,
+                "durationMs": 12
+              },
+              {
+                "id": "tool-1790310764587-175",
+                "toolCallId": "diverge-A-7",
+                "name": "editor.search",
+                "input": {
+                  "query": "第一卷"
+                },
+                "result": {
+                  "ok": true
+                },
+                "status": "success",
+                "startedAt": 1790310764587,
+                "durationMs": 18
+              }
+            ],
+            "promptSnapshotIds": [
+              "prompt-1790310764587-177"
+            ],
+            "finishReason": "stop",
+            "usage": {
+              "prompt_tokens": 100,
+              "completion_tokens": 20,
+              "total_tokens": 120
+            },
+            "usageUnavailable": false,
+            "durationMs": 48,
+            "endedAt": 1790310764588,
+            "semantic": {
+              "conversationId": "run-1790310764586-169",
+              "usage": {
+                "inputTokens": 100,
+                "outputTokens": 20,
+                "totalTokens": 120
+              }
+            }
+          }
+        ],
+        "sessionKind": "task",
+        "promptSnapshots": [
+          {
+            "id": "prompt-1790310764587-177",
+            "apiCallId": "api-1790310764587-171",
+            "skillId": "outline-compare",
+            "skillName": "大纲对比技能",
+            "skillVersion": "1.0.0",
+            "mode": "folder",
+            "builtAt": 1790310764587,
+            "promptName": "template.md",
+            "variables": [
+              {
+                "name": "outline",
+                "value": "A 模板变量"
+              }
+            ],
+            "contextBlocks": [
+              {
+                "name": "outline",
+                "text": "A 上下文块"
+              }
+            ],
+            "folderFingerprint": [
+              {
+                "file": "template.md",
+                "hash": "hash-a"
+              }
+            ],
+            "systemPrompt": "模板 A system prompt 全文。",
+            "userPrompt": "第 7 轮对比请求（A）",
+            "finalMessages": [
+              {
+                "role": "system",
+                "content": "模板 A system prompt 全文。"
+              },
+              {
+                "role": "user",
+                "content": "第 7 轮对比请求（A）"
+              }
+            ]
+          }
+        ],
+        "processingReports": [],
+        "payloads": [],
+        "endedAt": 1790310764588,
+        "durationMs": 2,
+        "dirName": "run-trace-大纲共创-20260925-123244"
+      }
+    },
+    "warnings": [],
+    "overview": [
+      {
+        "key": "source",
+        "a": "outline",
+        "b": "outline",
+        "changed": false
+      },
+      {
+        "key": "sourceName",
+        "a": "大纲工作台",
+        "b": "大纲工作台",
+        "changed": false
+      },
+      {
+        "key": "stepName",
+        "a": "大纲共创",
+        "b": "大纲共创",
+        "changed": false
+      },
+      {
+        "key": "mode",
+        "a": "chain",
+        "b": "chain",
+        "changed": false
+      },
+      {
+        "key": "status",
+        "a": "success",
+        "b": "success",
+        "changed": false
+      },
+      {
+        "key": "projectName",
+        "a": "运行对比实测",
+        "b": "运行对比实测",
+        "changed": false
+      },
+      {
+        "key": "providerName",
+        "a": "Probe Provider",
+        "b": "Probe Provider",
+        "changed": false
+      },
+      {
+        "key": "model",
+        "a": "probe-model",
+        "b": "probe-model",
+        "changed": false
+      },
+      {
+        "key": "skillNames",
+        "a": [
+          "大纲对比技能"
+        ],
+        "b": [
+          "大纲对比技能"
+        ],
+        "changed": false
+      },
+      {
+        "key": "skillMode",
+        "a": "folder",
+        "b": "folder",
+        "changed": false
+      },
+      {
+        "key": "sessionKind",
+        "a": "task",
+        "b": "task",
+        "changed": false
+      },
+      {
+        "key": "turnCount",
+        "a": 0,
+        "b": 0,
+        "changed": false
+      },
+      {
+        "key": "apiCallCount",
+        "a": 1,
+        "b": 1,
+        "changed": false
+      },
+      {
+        "key": "toolCallCount",
+        "a": 2,
+        "b": 2,
+        "changed": false
+      },
+      {
+        "key": "durationMs",
+        "a": 8,
+        "b": 2,
+        "changed": true
+      },
+      {
+        "key": "payloadCount",
+        "a": 0,
+        "b": 0,
+        "changed": false
+      },
+      {
+        "key": "payloadIntegrityWarningCount",
+        "a": 0,
+        "b": 0,
+        "changed": false
+      }
+    ],
+    "apiCalls": [
+      {
+        "key": "||outline-compare|1|api-1790310764628-185|api-1790310764587-171",
+        "rule": "规则 1",
+        "a": {
+          "id": "api-1790310764628-185",
+          "seq": 1,
+          "skillId": "outline-compare",
+          "skillName": "大纲对比技能",
+          "providerId": "probe-provider",
+          "providerName": "Probe Provider",
+          "model": "probe-model",
+          "intent": "edit",
+          "toolSurface": [
+            {
+              "name": "editor.read",
+              "policy": "read"
+            },
+            {
+              "name": "editor.write",
+              "policy": "write"
+            }
+          ],
+          "actualToolSurface": [
+            {
+              "name": "editor.read",
+              "policy": "read"
+            },
+            {
+              "name": "editor.write",
+              "policy": "write"
+            }
+          ],
+          "requestMessages": [
+            {
+              "role": "system",
+              "content": "模板 B system prompt 全文。"
+            },
+            {
+              "role": "user",
+              "content": "第 7 轮对比请求（B）"
+            }
+          ],
+          "responseText": "B 完整返回全文。",
+          "streamText": "",
+          "reasoningText": "B 思考过程。",
+          "status": "success",
+          "startedAt": 1790310764628,
+          "toolCalls": [
+            {
+              "id": "tool-1790310764628-187",
+              "toolCallId": "read-B-7",
+              "name": "editor.read",
+              "input": {
+                "target": "outline",
+                "range": {
+                  "from": 0,
+                  "to": 200
+                }
+              },
+              "result": {
+                "text": "B 侧大纲片段"
+              },
+              "status": "success",
+              "startedAt": 1790310764628,
+              "durationMs": 12
+            },
+            {
+              "id": "tool-1790310764629-189",
+              "toolCallId": "diverge-B-7",
+              "name": "editor.write",
+              "input": {
+                "content": "B 侧写入内容"
+              },
+              "result": {
+                "ok": true
+              },
+              "status": "failed",
+              "startedAt": 1790310764629,
+              "durationMs": 18,
+              "error": "probe-tool-failed"
+            }
+          ],
+          "promptSnapshotIds": [
+            "prompt-1790310764629-191"
+          ],
+          "finishReason": "stop",
+          "usage": {
+            "prompt_tokens": 100,
+            "completion_tokens": 20,
+            "total_tokens": 120
+          },
+          "usageUnavailable": false,
+          "durationMs": 48,
+          "endedAt": 1790310764629,
+          "semantic": {
+            "conversationId": "run-1790310764621-183",
+            "usage": {
+              "inputTokens": 100,
+              "outputTokens": 20,
+              "totalTokens": 120
+            }
+          }
+        },
+        "b": {
+          "id": "api-1790310764587-171",
+          "seq": 1,
+          "skillId": "outline-compare",
+          "skillName": "大纲对比技能",
+          "providerId": "probe-provider",
+          "providerName": "Probe Provider",
+          "model": "probe-model",
+          "intent": "edit",
+          "toolSurface": [
+            {
+              "name": "editor.read",
+              "policy": "read"
+            },
+            {
+              "name": "editor.write",
+              "policy": "write"
+            }
+          ],
+          "actualToolSurface": [
+            {
+              "name": "editor.read",
+              "policy": "read"
+            },
+            {
+              "name": "editor.write",
+              "policy": "write"
+            }
+          ],
+          "requestMessages": [
+            {
+              "role": "system",
+              "content": "模板 A system prompt 全文。"
+            },
+            {
+              "role": "user",
+              "content": "第 7 轮对比请求（A）"
+            }
+          ],
+          "responseText": "A 完整返回全文。",
+          "streamText": "",
+          "reasoningText": "A 思考过程。",
+          "status": "success",
+          "startedAt": 1790310764587,
+          "toolCalls": [
+            {
+              "id": "tool-1790310764587-173",
+              "toolCallId": "read-A-7",
+              "name": "editor.read",
+              "input": {
+                "target": "outline",
+                "range": {
+                  "from": 0,
+                  "to": 200
+                }
+              },
+              "result": {
+                "text": "A 侧大纲片段"
+              },
+              "status": "success",
+              "startedAt": 1790310764587,
+              "durationMs": 12
+            },
+            {
+              "id": "tool-1790310764587-175",
+              "toolCallId": "diverge-A-7",
+              "name": "editor.search",
+              "input": {
+                "query": "第一卷"
+              },
+              "result": {
+                "ok": true
+              },
+              "status": "success",
+              "startedAt": 1790310764587,
+              "durationMs": 18
+            }
+          ],
+          "promptSnapshotIds": [
+            "prompt-1790310764587-177"
+          ],
+          "finishReason": "stop",
+          "usage": {
+            "prompt_tokens": 100,
+            "completion_tokens": 20,
+            "total_tokens": 120
+          },
+          "usageUnavailable": false,
+          "durationMs": 48,
+          "endedAt": 1790310764588,
+          "semantic": {
+            "conversationId": "run-1790310764586-169",
+            "usage": {
+              "inputTokens": 100,
+              "outputTokens": 20,
+              "totalTokens": 120
+            }
+          }
+        },
+        "fields": [
+          {
+            "key": "status",
+            "a": "success",
+            "b": "success",
+            "changed": false
+          },
+          {
+            "key": "skillId",
+            "a": "outline-compare",
+            "b": "outline-compare",
+            "changed": false
+          },
+          {
+            "key": "skillName",
+            "a": "大纲对比技能",
+            "b": "大纲对比技能",
+            "changed": false
+          },
+          {
+            "key": "agentName",
+            "changed": false
+          },
+          {
+            "key": "model",
+            "a": "probe-model",
+            "b": "probe-model",
+            "changed": false
+          },
+          {
+            "key": "temperature",
+            "changed": false
+          },
+          {
+            "key": "maxTokens",
+            "changed": false
+          },
+          {
+            "key": "intent",
+            "a": "edit",
+            "b": "edit",
+            "changed": false
+          },
+          {
+            "key": "finishReason",
+            "a": "stop",
+            "b": "stop",
+            "changed": false
+          },
+          {
+            "key": "usage",
+            "a": {
+              "prompt_tokens": 100,
+              "completion_tokens": 20,
+              "total_tokens": 120
+            },
+            "b": {
+              "prompt_tokens": 100,
+              "completion_tokens": 20,
+              "total_tokens": 120
+            },
+            "changed": false
+          },
+          {
+            "key": "durationMs",
+            "a": 48,
+            "b": 48,
+            "changed": false
+          },
+          {
+            "key": "timeToFirstChunkMs",
+            "changed": false
+          },
+          {
+            "key": "compatibilityMode",
+            "changed": false
+          },
+          {
+            "key": "compatibilityWrite",
+            "changed": false
+          },
+          {
+            "key": "toolsDowngraded",
+            "changed": false
+          },
+          {
+            "key": "downgradeReason",
+            "changed": false
+          },
+          {
+            "key": "error",
+            "changed": false
+          },
+          {
+            "key": "integrity",
+            "changed": false
+          }
+        ],
+        "requestDiffs": [
+          {
+            "role": "system",
+            "diff": {
+              "same": false,
+              "mode": "lines",
+              "stats": {
+                "aLines": 1,
+                "bLines": 1,
+                "unchanged": 0,
+                "added": 1,
+                "removed": 1,
+                "aChars": 22,
+                "bChars": 22
+              },
+              "changes": [
+                {
+                  "type": "removed",
+                  "text": "模板 B system prompt 全文。"
+                },
+                {
+                  "type": "added",
+                  "text": "模板 A system prompt 全文。"
+                }
+              ]
+            }
+          },
+          {
+            "role": "user",
+            "diff": {
+              "same": false,
+              "mode": "lines",
+              "stats": {
+                "aLines": 1,
+                "bLines": 1,
+                "unchanged": 0,
+                "added": 1,
+                "removed": 1,
+                "aChars": 12,
+                "bChars": 12
+              },
+              "changes": [
+                {
+                  "type": "removed",
+                  "text": "第 7 轮对比请求（B）"
+                },
+                {
+                  "type": "added",
+                  "text": "第 7 轮对比请求（A）"
+                }
+              ]
+            }
+          }
+        ],
+        "responseDiff": {
+          "same": false,
+          "mode": "lines",
+          "stats": {
+            "aLines": 1,
+            "bLines": 1,
+            "unchanged": 0,
+            "added": 1,
+            "removed": 1,
+            "aChars": 9,
+            "bChars": 9
+          },
+          "changes": [
+            {
+              "type": "removed",
+              "text": "B 完整返回全文。"
+            },
+            {
+              "type": "added",
+              "text": "A 完整返回全文。"
+            }
+          ]
+        },
+        "streamDiff": {
+          "same": true,
+          "mode": "lines",
+          "stats": {
+            "aLines": 1,
+            "bLines": 1,
+            "unchanged": 1,
+            "added": 0,
+            "removed": 0,
+            "aChars": 0,
+            "bChars": 0
+          },
+          "changes": [
+            {
+              "type": "unchanged",
+              "text": ""
+            }
+          ]
+        },
+        "reasoningDiff": {
+          "same": false,
+          "mode": "lines",
+          "stats": {
+            "aLines": 1,
+            "bLines": 1,
+            "unchanged": 0,
+            "added": 1,
+            "removed": 1,
+            "aChars": 7,
+            "bChars": 7
+          },
+          "changes": [
+            {
+              "type": "removed",
+              "text": "B 思考过程。"
+            },
+            {
+              "type": "added",
+              "text": "A 思考过程。"
+            }
+          ]
+        }
+      }
+    ],
+    "promptSnapshots": [
+      {
+        "key": "||outline-compare|1|api-1790310764628-185|api-1790310764587-171|snapshot-1",
+        "rule": "规则 1",
+        "a": {
+          "id": "prompt-1790310764629-191",
+          "apiCallId": "api-1790310764628-185",
+          "skillId": "outline-compare",
+          "skillName": "大纲对比技能",
+          "skillVersion": "1.1.0",
+          "mode": "folder",
+          "builtAt": 1790310764629,
+          "promptName": "template.md",
+          "variables": [
+            {
+              "name": "outline",
+              "value": "B 模板变量"
+            }
+          ],
+          "contextBlocks": [
+            {
+              "name": "outline",
+              "text": "B 上下文块"
+            }
+          ],
+          "folderFingerprint": [
+            {
+              "file": "template.md",
+              "hash": "hash-b"
+            }
+          ],
+          "systemPrompt": "模板 B system prompt 全文。",
+          "userPrompt": "第 7 轮对比请求（B）",
+          "finalMessages": [
+            {
+              "role": "system",
+              "content": "模板 B system prompt 全文。"
+            },
+            {
+              "role": "user",
+              "content": "第 7 轮对比请求（B）"
+            }
+          ]
+        },
+        "b": {
+          "id": "prompt-1790310764587-177",
+          "apiCallId": "api-1790310764587-171",
+          "skillId": "outline-compare",
+          "skillName": "大纲对比技能",
+          "skillVersion": "1.0.0",
+          "mode": "folder",
+          "builtAt": 1790310764587,
+          "promptName": "template.md",
+          "variables": [
+            {
+              "name": "outline",
+              "value": "A 模板变量"
+            }
+          ],
+          "contextBlocks": [
+            {
+              "name": "outline",
+              "text": "A 上下文块"
+            }
+          ],
+          "folderFingerprint": [
+            {
+              "file": "template.md",
+              "hash": "hash-a"
+            }
+          ],
+          "systemPrompt": "模板 A system prompt 全文。",
+          "userPrompt": "第 7 轮对比请求（A）",
+          "finalMessages": [
+            {
+              "role": "system",
+              "content": "模板 A system prompt 全文。"
+            },
+            {
+              "role": "user",
+              "content": "第 7 轮对比请求（A）"
+            }
+          ]
+        },
+        "fields": [
+          {
+            "key": "skillName",
+            "a": "大纲对比技能",
+            "b": "大纲对比技能",
+            "changed": false
+          },
+          {
+            "key": "skillVersion",
+            "a": "1.1.0",
+            "b": "1.0.0",
+            "changed": true
+          },
+          {
+            "key": "mode",
+            "a": "folder",
+            "b": "folder",
+            "changed": false
+          },
+          {
+            "key": "promptName",
+            "a": "template.md",
+            "b": "template.md",
+            "changed": false
+          }
+        ],
+        "variableDiff": {
+          "same": false,
+          "mode": "lines",
+          "stats": {
+            "aLines": 6,
+            "bLines": 6,
+            "unchanged": 5,
+            "added": 1,
+            "removed": 1,
+            "aChars": 56,
+            "bChars": 56
+          },
+          "changes": [
+            {
+              "type": "unchanged",
+              "text": "["
+            },
+            {
+              "type": "unchanged",
+              "text": "  {"
+            },
+            {
+              "type": "unchanged",
+              "text": "    \"name\": \"outline\","
+            },
+            {
+              "type": "removed",
+              "text": "    \"value\": \"B 模板变量\""
+            },
+            {
+              "type": "added",
+              "text": "    \"value\": \"A 模板变量\""
+            },
+            {
+              "type": "unchanged",
+              "text": "  }"
+            },
+            {
+              "type": "unchanged",
+              "text": "]"
+            }
+          ]
+        },
+        "contextDiff": {
+          "same": false,
+          "mode": "lines",
+          "stats": {
+            "aLines": 6,
+            "bLines": 6,
+            "unchanged": 5,
+            "added": 1,
+            "removed": 1,
+            "aChars": 55,
+            "bChars": 55
+          },
+          "changes": [
+            {
+              "type": "unchanged",
+              "text": "["
+            },
+            {
+              "type": "unchanged",
+              "text": "  {"
+            },
+            {
+              "type": "unchanged",
+              "text": "    \"name\": \"outline\","
+            },
+            {
+              "type": "removed",
+              "text": "    \"text\": \"B 上下文块\""
+            },
+            {
+              "type": "added",
+              "text": "    \"text\": \"A 上下文块\""
+            },
+            {
+              "type": "unchanged",
+              "text": "  }"
+            },
+            {
+              "type": "unchanged",
+              "text": "]"
+            }
+          ]
+        },
+        "fingerprintDiff": {
+          "same": false,
+          "mode": "lines",
+          "stats": {
+            "aLines": 6,
+            "bLines": 6,
+            "unchanged": 5,
+            "added": 1,
+            "removed": 1,
+            "aChars": 59,
+            "bChars": 59
+          },
+          "changes": [
+            {
+              "type": "unchanged",
+              "text": "["
+            },
+            {
+              "type": "unchanged",
+              "text": "  {"
+            },
+            {
+              "type": "unchanged",
+              "text": "    \"file\": \"template.md\","
+            },
+            {
+              "type": "removed",
+              "text": "    \"hash\": \"hash-b\""
+            },
+            {
+              "type": "added",
+              "text": "    \"hash\": \"hash-a\""
+            },
+            {
+              "type": "unchanged",
+              "text": "  }"
+            },
+            {
+              "type": "unchanged",
+              "text": "]"
+            }
+          ]
+        },
+        "systemDiff": {
+          "same": false,
+          "mode": "lines",
+          "stats": {
+            "aLines": 1,
+            "bLines": 1,
+            "unchanged": 0,
+            "added": 1,
+            "removed": 1,
+            "aChars": 22,
+            "bChars": 22
+          },
+          "changes": [
+            {
+              "type": "removed",
+              "text": "模板 B system prompt 全文。"
+            },
+            {
+              "type": "added",
+              "text": "模板 A system prompt 全文。"
+            }
+          ]
+        },
+        "userDiff": {
+          "same": false,
+          "mode": "lines",
+          "stats": {
+            "aLines": 1,
+            "bLines": 1,
+            "unchanged": 0,
+            "added": 1,
+            "removed": 1,
+            "aChars": 12,
+            "bChars": 12
+          },
+          "changes": [
+            {
+              "type": "removed",
+              "text": "第 7 轮对比请求（B）"
+            },
+            {
+              "type": "added",
+              "text": "第 7 轮对比请求（A）"
+            }
+          ]
+        }
+      }
+    ],
+    "physicalCalls": [],
+    "toolCalls": [
+      {
+        "key": "||outline-compare|1|api-1790310764628-185|api-1790310764587-171|tool-1",
+        "rule": "规则 1 / API 调用内出现顺序",
+        "a": {
+          "id": "tool-1790310764628-187",
+          "toolCallId": "read-B-7",
+          "name": "editor.read",
+          "input": {
+            "target": "outline",
+            "range": {
+              "from": 0,
+              "to": 200
+            }
+          },
+          "result": {
+            "text": "B 侧大纲片段"
+          },
+          "status": "success",
+          "startedAt": 1790310764628,
+          "durationMs": 12
+        },
+        "b": {
+          "id": "tool-1790310764587-173",
+          "toolCallId": "read-A-7",
+          "name": "editor.read",
+          "input": {
+            "target": "outline",
+            "range": {
+              "from": 0,
+              "to": 200
+            }
+          },
+          "result": {
+            "text": "A 侧大纲片段"
+          },
+          "status": "success",
+          "startedAt": 1790310764587,
+          "durationMs": 12
+        },
+        "fields": [
+          {
+            "key": "name",
+            "a": "editor.read",
+            "b": "editor.read",
+            "changed": false
+          },
+          {
+            "key": "status",
+            "a": "success",
+            "b": "success",
+            "changed": false
+          },
+          {
+            "key": "durationMs",
+            "a": 12,
+            "b": 12,
+            "changed": false
+          },
+          {
+            "key": "error",
+            "changed": false
+          }
+        ],
+        "inputDiff": {
+          "same": true,
+          "mode": "lines",
+          "stats": {
+            "aLines": 7,
+            "bLines": 7,
+            "unchanged": 7,
+            "added": 0,
+            "removed": 0,
+            "aChars": 72,
+            "bChars": 72
+          },
+          "changes": [
+            {
+              "type": "unchanged",
+              "text": "{"
+            },
+            {
+              "type": "unchanged",
+              "text": "  \"target\": \"outline\","
+            },
+            {
+              "type": "unchanged",
+              "text": "  \"range\": {"
+            },
+            {
+              "type": "unchanged",
+              "text": "    \"from\": 0,"
+            },
+            {
+              "type": "unchanged",
+              "text": "    \"to\": 200"
+            },
+            {
+              "type": "unchanged",
+              "text": "  }"
+            },
+            {
+              "type": "unchanged",
+              "text": "}"
+            }
+          ]
+        },
+        "resultDiff": {
+          "same": false,
+          "mode": "lines",
+          "stats": {
+            "aLines": 3,
+            "bLines": 3,
+            "unchanged": 2,
+            "added": 1,
+            "removed": 1,
+            "aChars": 23,
+            "bChars": 23
+          },
+          "changes": [
+            {
+              "type": "unchanged",
+              "text": "{"
+            },
+            {
+              "type": "removed",
+              "text": "  \"text\": \"B 侧大纲片段\""
+            },
+            {
+              "type": "added",
+              "text": "  \"text\": \"A 侧大纲片段\""
+            },
+            {
+              "type": "unchanged",
+              "text": "}"
+            }
+          ]
+        }
+      },
+      {
+        "key": "||outline-compare|1|api-1790310764628-185|api-1790310764587-171|tool-2",
+        "rule": "规则 1 / API 调用内出现顺序",
+        "a": {
+          "id": "tool-1790310764629-189",
+          "toolCallId": "diverge-B-7",
+          "name": "editor.write",
+          "input": {
+            "content": "B 侧写入内容"
+          },
+          "result": {
+            "ok": true
+          },
+          "status": "failed",
+          "startedAt": 1790310764629,
+          "durationMs": 18,
+          "error": "probe-tool-failed"
+        },
+        "b": {
+          "id": "tool-1790310764587-175",
+          "toolCallId": "diverge-A-7",
+          "name": "editor.search",
+          "input": {
+            "query": "第一卷"
+          },
+          "result": {
+            "ok": true
+          },
+          "status": "success",
+          "startedAt": 1790310764587,
+          "durationMs": 18
+        },
+        "fields": [
+          {
+            "key": "name",
+            "a": "editor.write",
+            "b": "editor.search",
+            "changed": true
+          },
+          {
+            "key": "status",
+            "a": "failed",
+            "b": "success",
+            "changed": true
+          },
+          {
+            "key": "durationMs",
+            "a": 18,
+            "b": 18,
+            "changed": false
+          },
+          {
+            "key": "error",
+            "a": "probe-tool-failed",
+            "changed": true
+          }
+        ],
+        "inputDiff": {
+          "same": false,
+          "mode": "lines",
+          "stats": {
+            "aLines": 3,
+            "bLines": 3,
+            "unchanged": 2,
+            "added": 1,
+            "removed": 1,
+            "aChars": 26,
+            "bChars": 20
+          },
+          "changes": [
+            {
+              "type": "unchanged",
+              "text": "{"
+            },
+            {
+              "type": "removed",
+              "text": "  \"content\": \"B 侧写入内容\""
+            },
+            {
+              "type": "added",
+              "text": "  \"query\": \"第一卷\""
+            },
+            {
+              "type": "unchanged",
+              "text": "}"
+            }
+          ]
+        },
+        "resultDiff": {
+          "same": true,
+          "mode": "lines",
+          "stats": {
+            "aLines": 3,
+            "bLines": 3,
+            "unchanged": 3,
+            "added": 0,
+            "removed": 0,
+            "aChars": 16,
+            "bChars": 16
+          },
+          "changes": [
+            {
+              "type": "unchanged",
+              "text": "{"
+            },
+            {
+              "type": "unchanged",
+              "text": "  \"ok\": true"
+            },
+            {
+              "type": "unchanged",
+              "text": "}"
+            }
+          ]
+        }
+      }
+    ],
+    "toolSurfaces": [
+      {
+        "name": "editor.read",
+        "policyA": "read",
+        "policyB": "read"
+      },
+      {
+        "name": "editor.write",
+        "policyA": "write",
+        "policyB": "write"
+      }
+    ],
+    "processingReports": [],
+    "templateVersions": [
+      {
+        "key": "0|outline-compare|0",
+        "skillId": "outline-compare",
+        "skillName": "大纲对比技能",
+        "aVersion": "1.1.0",
+        "bVersion": "1.0.0",
+        "aFingerprint": "template.md:hash-b",
+        "bFingerprint": "template.md:hash-a",
+        "changed": true
+      }
+    ],
+    "toolSequence": {
+      "steps": [
+        {
+          "index": 0,
+          "apiSeqA": 1,
+          "apiSeqB": 1,
+          "nameA": "editor.read",
+          "nameB": "editor.read",
+          "statusA": "success",
+          "statusB": "success",
+          "changed": false
+        },
+        {
+          "index": 1,
+          "apiSeqA": 1,
+          "apiSeqB": 1,
+          "nameA": "editor.write",
+          "nameB": "editor.search",
+          "statusA": "failed",
+          "statusB": "success",
+          "changed": true
+        }
+      ],
+      "firstDivergence": {
+        "index": 1,
+        "apiSeqA": 1,
+        "apiSeqB": 1,
+        "nameA": "editor.write",
+        "nameB": "editor.search",
+        "statusA": "failed",
+        "statusB": "success",
+        "changed": true
+      }
+    },
+    "skillDebugSummary": {
+      "templateVersionChanged": 1,
+      "toolSequenceChanged": true,
+      "firstDifferentApiCall": {
+        "index": 0,
+        "seqA": 1,
+        "seqB": 1,
+        "idA": "api-1790310764628-185",
+        "idB": "api-1790310764587-171",
+        "reason": "字段、请求消息或输出全文开始出现差异"
+      }
+    },
+    "folderDiagnostics": [],
+    "events": {
+      "pairs": [
+        {
+          "key": "event-1790310764627-184|event-1790310764586-170",
+          "rule": "turnId + seq + type",
+          "a": {
+            "id": "event-1790310764627-184",
+            "ts": 1790310764627,
+            "seq": 1,
+            "type": "started",
+            "level": "info",
+            "label": "开始大纲工作台 大纲共创运行"
+          },
+          "b": {
+            "id": "event-1790310764586-170",
+            "ts": 1790310764586,
+            "seq": 1,
+            "type": "started",
+            "level": "info",
+            "label": "开始大纲工作台 大纲共创运行"
+          }
+        },
+        {
+          "key": "event-1790310764628-186|event-1790310764587-172",
+          "rule": "turnId + seq + type",
+          "a": {
+            "id": "event-1790310764628-186",
+            "ts": 1790310764628,
+            "seq": 2,
+            "type": "api-start",
+            "level": "info",
+            "label": "第 1 次 API 调用开始",
+            "detail": "{\"skillName\":\"大纲对比技能\",\"model\":\"probe-model\",\"actualToolSurface\":[{\"name\":\"editor.read\",\"policy\":\"read\"},{\"name\":\"editor.write\",\"policy\":\"write\"}]}"
+          },
+          "b": {
+            "id": "event-1790310764587-172",
+            "ts": 1790310764587,
+            "seq": 2,
+            "type": "api-start",
+            "level": "info",
+            "label": "第 1 次 API 调用开始",
+            "detail": "{\"skillName\":\"大纲对比技能\",\"model\":\"probe-model\",\"actualToolSurface\":[{\"name\":\"editor.read\",\"policy\":\"read\"},{\"name\":\"editor.write\",\"policy\":\"write\"}]}"
+          }
+        },
+        {
+          "key": "event-1790310764629-188|event-1790310764587-174",
+          "rule": "turnId + seq + type",
+          "a": {
+            "id": "event-1790310764629-188",
+            "ts": 1790310764629,
+            "seq": 3,
+            "type": "tool-call",
+            "level": "info",
+            "label": "工具调用完成：editor.read"
+          },
+          "b": {
+            "id": "event-1790310764587-174",
+            "ts": 1790310764587,
+            "seq": 3,
+            "type": "tool-call",
+            "level": "info",
+            "label": "工具调用完成：editor.read"
+          }
+        },
+        {
+          "key": "event-1790310764629-190|event-1790310764587-176",
+          "rule": "turnId + seq + type",
+          "a": {
+            "id": "event-1790310764629-190",
+            "ts": 1790310764629,
+            "seq": 4,
+            "type": "tool-call",
+            "level": "error",
+            "label": "工具调用失败：editor.write",
+            "detail": "probe-tool-failed"
+          },
+          "b": {
+            "id": "event-1790310764587-176",
+            "ts": 1790310764587,
+            "seq": 4,
+            "type": "tool-call",
+            "level": "info",
+            "label": "工具调用完成：editor.search"
+          }
+        },
+        {
+          "key": "event-1790310764629-192|event-1790310764587-178",
+          "rule": "turnId + seq + type",
+          "a": {
+            "id": "event-1790310764629-192",
+            "ts": 1790310764629,
+            "seq": 5,
+            "type": "prompt-built",
+            "level": "info",
+            "label": "提示词快照已创建",
+            "detail": "大纲对比技能 / outline-compare / folder"
+          },
+          "b": {
+            "id": "event-1790310764587-178",
+            "ts": 1790310764587,
+            "seq": 5,
+            "type": "prompt-built",
+            "level": "info",
+            "label": "提示词快照已创建",
+            "detail": "大纲对比技能 / outline-compare / folder"
+          }
+        },
+        {
+          "key": "event-1790310764629-193|event-1790310764588-179",
+          "rule": "turnId + seq + type",
+          "a": {
+            "id": "event-1790310764629-193",
+            "ts": 1790310764629,
+            "seq": 6,
+            "type": "state-transition",
+            "level": "info",
+            "label": "RunTraceStatus：running → success",
+            "detail": "apiCall=api-1790310764628-185 seq=1"
+          },
+          "b": {
+            "id": "event-1790310764588-179",
+            "ts": 1790310764588,
+            "seq": 6,
+            "type": "state-transition",
+            "level": "info",
+            "label": "RunTraceStatus：running → success",
+            "detail": "apiCall=api-1790310764587-171 seq=1"
+          }
+        },
+        {
+          "key": "event-1790310764630-194|event-1790310764588-180",
+          "rule": "turnId + seq + type",
+          "a": {
+            "id": "event-1790310764630-194",
+            "ts": 1790310764630,
+            "seq": 7,
+            "type": "api-success",
+            "level": "info",
+            "label": "第 1 次 API 调用完成",
+            "detail": "大纲对比技能 / probe-model"
+          },
+          "b": {
+            "id": "event-1790310764588-180",
+            "ts": 1790310764588,
+            "seq": 7,
+            "type": "api-success",
+            "level": "info",
+            "label": "第 1 次 API 调用完成",
+            "detail": "大纲对比技能 / probe-model"
+          }
+        },
+        {
+          "key": "event-1790310764630-195|event-1790310764588-181",
+          "rule": "turnId + seq + type",
+          "a": {
+            "id": "event-1790310764630-195",
+            "ts": 1790310764630,
+            "seq": 8,
+            "type": "finished",
+            "level": "info",
+            "label": "运行完成",
+            "detail": ""
+          },
+          "b": {
+            "id": "event-1790310764588-181",
+            "ts": 1790310764588,
+            "seq": 8,
+            "type": "finished",
+            "level": "info",
+            "label": "运行完成",
+            "detail": ""
+          }
+        },
+        {
+          "key": "event-1790310764630-196|event-1790310764588-182",
+          "rule": "turnId + seq + type",
+          "a": {
+            "id": "event-1790310764630-196",
+            "ts": 1790310764630,
+            "seq": 9,
+            "type": "state-transition",
+            "level": "info",
+            "label": "RunTraceStatus：running → success",
+            "detail": "run=run-1790310764621-183"
+          },
+          "b": {
+            "id": "event-1790310764588-182",
+            "ts": 1790310764588,
+            "seq": 9,
+            "type": "state-transition",
+            "level": "info",
+            "label": "RunTraceStatus：running → success",
+            "detail": "run=run-1790310764586-169"
+          }
+        }
+      ],
+      "countDiffs": [
+        {
+          "type": "api-start",
+          "countA": 1,
+          "countB": 1
+        },
+        {
+          "type": "api-success",
+          "countA": 1,
+          "countB": 1
+        },
+        {
+          "type": "finished",
+          "countA": 1,
+          "countB": 1
+        },
+        {
+          "type": "prompt-built",
+          "countA": 1,
+          "countB": 1
+        },
+        {
+          "type": "started",
+          "countA": 1,
+          "countB": 1
+        },
+        {
+          "type": "state-transition",
+          "countA": 2,
+          "countB": 2
+        },
+        {
+          "type": "tool-call",
+          "countA": 2,
+          "countB": 2
+        }
+      ]
+    },
+    "stateHistory": {
+      "a": [
+        {
+          "fromStatus": "running",
+          "toStatus": "success",
+          "recordedAt": 1790310764630
+        }
+      ],
+      "b": [
+        {
+          "fromStatus": "running",
+          "toStatus": "success",
+          "recordedAt": 1790310764589
+        }
+      ],
+      "firstDivergence": {
+        "index": 0,
+        "reason": "第 1 条状态转换开始不一致"
+      }
+    }
+  }
+}

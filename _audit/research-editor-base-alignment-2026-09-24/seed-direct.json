@@ -1,0 +1,1587 @@
+[
+  {
+    "fullName": "microsoft/vscode",
+    "stars": 192829,
+    "language": "TypeScript",
+    "defaultBranch": "main",
+    "url": "https://github.com/microsoft/vscode",
+    "cachedFiles": [
+      {
+        "path": "extensions/copilot/src/extension/prompt/node/documentContext.ts",
+        "size": 4205,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_vscode__extensions_copilot_src_extension_prompt_node_documentContext.ts.txt"
+      },
+      {
+        "path": "extensions/copilot/src/extension/completions-core/vscode-node/lib/src/prompt/components/contextProviderBridge.ts",
+        "size": 2759,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_vscode__extensions_copilot_src_extension_completions-core_vscode-node_lib_src_prompt_components_contextProviderBridge.ts.txt"
+      },
+      {
+        "path": "src/vs/editor/common/cursor/cursorColumnSelection.ts",
+        "size": 5809,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_vscode__src_vs_editor_common_cursor_cursorColumnSelection.ts.txt"
+      },
+      {
+        "path": "src/vs/workbench/contrib/notebook/browser/contrib/multicursor/notebookSelectionHighlight.ts",
+        "size": 5723,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_vscode__src_vs_workbench_contrib_notebook_browser_contrib_multicursor_notebookSelectionHighlight.ts.txt"
+      },
+      {
+        "path": ".github/skills/heap-snapshot-analysis/SKILL.md",
+        "size": 11785,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_vscode__.github_skills_heap-snapshot-analysis_SKILL.md.txt"
+      },
+      {
+        "path": ".github/skills/heap-snapshot-analysis/helpers/compareSnapshots.ts",
+        "size": 6105,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_vscode__.github_skills_heap-snapshot-analysis_helpers_compareSnapshots.ts.txt"
+      },
+      {
+        "path": "src/vs/workbench/api/browser/mainThreadWindow.ts",
+        "size": 3288,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_vscode__src_vs_workbench_api_browser_mainThreadWindow.ts.txt"
+      },
+      {
+        "path": "src/vs/workbench/contrib/comments/browser/commentThreadRangeDecorator.ts",
+        "size": 5401,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_vscode__src_vs_workbench_contrib_comments_browser_commentThreadRangeDecorator.ts.txt"
+      },
+      {
+        "path": "src/vs/editor/common/services/modelUndoRedoParticipant.ts",
+        "size": 2384,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_vscode__src_vs_editor_common_services_modelUndoRedoParticipant.ts.txt"
+      },
+      {
+        "path": "src/vs/platform/undoRedo/common/undoRedo.ts",
+        "size": 5185,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_vscode__src_vs_platform_undoRedo_common_undoRedo.ts.txt"
+      },
+      {
+        "path": "src/vs/base/browser/ui/findinput/replaceInput.ts",
+        "size": 8425,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_vscode__src_vs_base_browser_ui_findinput_replaceInput.ts.txt"
+      },
+      {
+        "path": "src/vs/editor/contrib/find/browser/findWidgetSearchHistory.ts",
+        "size": 2757,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_vscode__src_vs_editor_contrib_find_browser_findWidgetSearchHistory.ts.txt"
+      },
+      {
+        "path": "extensions/copilot/src/extension/agents/node/test/openaiAdapter.spec.ts",
+        "size": 4868,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_vscode__extensions_copilot_src_extension_agents_node_test_openaiAdapter.spec.ts.txt"
+      },
+      {
+        "path": "extensions/copilot/src/extension/chatSessions/copilotcli/vscode-node/test/context.spec.ts",
+        "size": 6072,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_vscode__extensions_copilot_src_extension_chatSessions_copilotcli_vscode-node_test_context.spec.ts.txt"
+      }
+    ],
+    "dimensions": [
+      "context-injection",
+      "selection-tracking",
+      "version-integrity",
+      "read-cap-policy",
+      "undo-coordination",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "microsoft/monaco-editor",
+    "stars": 46796,
+    "language": "JavaScript",
+    "defaultBranch": "main",
+    "url": "https://github.com/microsoft/monaco-editor",
+    "cachedFiles": [
+      {
+        "path": "monaco-lsp-client/src/adapters/languageFeatures/LspSelectionRangeFeature.ts",
+        "size": 2478,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_monaco-editor__monaco-lsp-client_src_adapters_languageFeatures_LspSelectionRangeFeature.ts.txt"
+      },
+      {
+        "path": "website/src/website/pages/playground/getNpmVersionsSync.ts",
+        "size": 25212,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_monaco-editor__website_src_website_pages_playground_getNpmVersionsSync.ts.txt"
+      },
+      {
+        "path": "README.md",
+        "size": 7714,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_monaco-editor__README.md.txt"
+      },
+      {
+        "path": "webpack-plugin/README.md",
+        "size": 5469,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_monaco-editor__webpack-plugin_README.md.txt"
+      },
+      {
+        "path": "website/src/website/utils/ObservableHistory.ts",
+        "size": 2520,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_monaco-editor__website_src_website_utils_ObservableHistory.ts.txt"
+      },
+      {
+        "path": "src/features/find/register.js",
+        "size": 1642,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_monaco-editor__src_features_find_register.js.txt"
+      },
+      {
+        "path": "src/languages/definitions/typespec/typespec.test.ts",
+        "size": 6672,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_monaco-editor__src_languages_definitions_typespec_typespec.test.ts.txt"
+      },
+      {
+        "path": "monaco-lsp-client/src/adapters/LspCapabilitiesRegistry.ts",
+        "size": 11489,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\microsoft_monaco-editor__monaco-lsp-client_src_adapters_LspCapabilitiesRegistry.ts.txt"
+      }
+    ],
+    "dimensions": [
+      "selection-tracking",
+      "version-integrity",
+      "read-cap-policy",
+      "undo-coordination",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "facebook/lexical",
+    "stars": 23891,
+    "language": "TypeScript",
+    "defaultBranch": "main",
+    "url": "https://github.com/facebook/lexical",
+    "cachedFiles": [
+      {
+        "path": "packages/lexical-devtools/src/entrypoints/injected/scanAndListenForEditors.ts",
+        "size": 1708,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\facebook_lexical__packages_lexical-devtools_src_entrypoints_injected_scanAndListenForEditors.ts.txt"
+      },
+      {
+        "path": "packages/lexical-devtools/src/entrypoints/injected/InjectedPegasusService.ts",
+        "size": 3849,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\facebook_lexical__packages_lexical-devtools_src_entrypoints_injected_InjectedPegasusService.ts.txt"
+      },
+      {
+        "path": "packages/lexical-selection/src/range-selection.ts",
+        "size": 25161,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\facebook_lexical__packages_lexical-selection_src_range-selection.ts.txt"
+      },
+      {
+        "path": "packages/lexical-yjs/src/__tests__/unit/SyncCursorsOutOfRange.test.ts",
+        "size": 10300,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\facebook_lexical__packages_lexical-yjs_src___tests___unit_SyncCursorsOutOfRange.test.ts.txt"
+      },
+      {
+        "path": "packages/lexical-hashtag/src/LexicalHashtagExtension.ts",
+        "size": 12403,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\facebook_lexical__packages_lexical-hashtag_src_LexicalHashtagExtension.ts.txt"
+      },
+      {
+        "path": "packages/lexical-internal/src/version.ts",
+        "size": 1516,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\facebook_lexical__packages_lexical-internal_src_version.ts.txt"
+      },
+      {
+        "path": ".github/actions/internal-registry/README.md",
+        "size": 3484,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\facebook_lexical__.github_actions_internal-registry_README.md.txt"
+      },
+      {
+        "path": "README.md",
+        "size": 5562,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\facebook_lexical__README.md.txt"
+      },
+      {
+        "path": "packages/lexical-history/README.md",
+        "size": 2010,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\facebook_lexical__packages_lexical-history_README.md.txt"
+      },
+      {
+        "path": "packages/lexical-history/src/index.ts",
+        "size": 28291,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\facebook_lexical__packages_lexical-history_src_index.ts.txt"
+      },
+      {
+        "path": "packages/lexical-playground/src/plugins/FindReplaceExtension/index.tsx",
+        "size": 29472,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\facebook_lexical__packages_lexical-playground_src_plugins_FindReplaceExtension_index.tsx.txt"
+      },
+      {
+        "path": "packages/lexical-playground/__tests__/unit/FindReplace.test.ts",
+        "size": 36610,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\facebook_lexical__packages_lexical-playground___tests___unit_FindReplace.test.ts.txt"
+      },
+      {
+        "path": "dev-examples/shadow-dom-web-component/tests/web-component.spec.ts",
+        "size": 38279,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\facebook_lexical__dev-examples_shadow-dom-web-component_tests_web-component.spec.ts.txt"
+      },
+      {
+        "path": "dev-examples/shadow-dom/tests/shadow-dom.spec.ts",
+        "size": 3393,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\facebook_lexical__dev-examples_shadow-dom_tests_shadow-dom.spec.ts.txt"
+      }
+    ],
+    "dimensions": [
+      "context-injection",
+      "selection-tracking",
+      "version-integrity",
+      "read-cap-policy",
+      "undo-coordination",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "ProseMirror/prosemirror-transform",
+    "stars": 180,
+    "language": "TypeScript",
+    "defaultBranch": "master",
+    "url": "https://github.com/ProseMirror/prosemirror-transform",
+    "cachedFiles": [
+      {
+        "path": "README.md",
+        "size": 1648,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-transform__README.md.txt"
+      },
+      {
+        "path": "src/README.md",
+        "size": 1595,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-transform__src_README.md.txt"
+      },
+      {
+        "path": "src/replace.ts",
+        "size": 21065,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-transform__src_replace.ts.txt"
+      },
+      {
+        "path": "src/replace_step.ts",
+        "size": 7663,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-transform__src_replace_step.ts.txt"
+      },
+      {
+        "path": "test/test-mapping.ts",
+        "size": 3037,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-transform__test_test-mapping.ts.txt"
+      },
+      {
+        "path": "test/test-step.ts",
+        "size": 2632,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-transform__test_test-step.ts.txt"
+      }
+    ],
+    "dimensions": [
+      "read-cap-policy",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "ProseMirror/prosemirror-state",
+    "stars": 231,
+    "language": "TypeScript",
+    "defaultBranch": "master",
+    "url": "https://github.com/ProseMirror/prosemirror-state",
+    "cachedFiles": [
+      {
+        "path": "src/selection.ts",
+        "size": 17277,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-state__src_selection.ts.txt"
+      },
+      {
+        "path": "test/test-selection.ts",
+        "size": 7825,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-state__test_test-selection.ts.txt"
+      },
+      {
+        "path": "README.md",
+        "size": 1529,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-state__README.md.txt"
+      },
+      {
+        "path": "src/transaction.ts",
+        "size": 7932,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-state__src_transaction.ts.txt"
+      },
+      {
+        "path": "test/state.ts",
+        "size": 1541,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-state__test_state.ts.txt"
+      },
+      {
+        "path": "test/test-state.ts",
+        "size": 5428,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-state__test_test-state.ts.txt"
+      }
+    ],
+    "dimensions": [
+      "selection-tracking",
+      "read-cap-policy",
+      "undo-coordination",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "ProseMirror/prosemirror-history",
+    "stars": 60,
+    "language": "TypeScript",
+    "defaultBranch": "master",
+    "url": "https://github.com/ProseMirror/prosemirror-history",
+    "cachedFiles": [
+      {
+        "path": "src/history.ts",
+        "size": 17867,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-history__src_history.ts.txt"
+      },
+      {
+        "path": "test/test-history.ts",
+        "size": 15166,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-history__test_test-history.ts.txt"
+      }
+    ],
+    "dimensions": [
+      "undo-coordination",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "ProseMirror/prosemirror-view",
+    "stars": 2038,
+    "language": "TypeScript",
+    "defaultBranch": "master",
+    "url": "https://github.com/ProseMirror/prosemirror-view",
+    "cachedFiles": [
+      {
+        "path": "src/selection.ts",
+        "size": 8979,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-view__src_selection.ts.txt"
+      },
+      {
+        "path": "test/webtest-selection.ts",
+        "size": 13294,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-view__test_webtest-selection.ts.txt"
+      },
+      {
+        "path": "README.md",
+        "size": 1527,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-view__README.md.txt"
+      },
+      {
+        "path": "test/view.ts",
+        "size": 1915,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-view__test_view.ts.txt"
+      },
+      {
+        "path": "test/webtest-clipboard.ts",
+        "size": 6119,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ProseMirror_prosemirror-view__test_webtest-clipboard.ts.txt"
+      }
+    ],
+    "dimensions": [
+      "selection-tracking",
+      "read-cap-policy",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "yjs/yjs",
+    "stars": 22837,
+    "language": "JavaScript",
+    "defaultBranch": "main",
+    "url": "https://github.com/yjs/yjs",
+    "cachedFiles": [
+      {
+        "path": "src/utils/RelativePosition.js",
+        "size": 10382,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\yjs_yjs__src_utils_RelativePosition.js.txt"
+      },
+      {
+        "path": "src/utils/position-helpers.js",
+        "size": 13233,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\yjs_yjs__src_utils_position-helpers.js.txt"
+      },
+      {
+        "path": "src/utils/Snapshot.js",
+        "size": 6158,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\yjs_yjs__src_utils_Snapshot.js.txt"
+      },
+      {
+        "path": "tests/snapshot.tests.js",
+        "size": 6540,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\yjs_yjs__tests_snapshot.tests.js.txt"
+      },
+      {
+        "path": "README.md",
+        "size": 63269,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\yjs_yjs__README.md.txt"
+      },
+      {
+        "path": "tests/undo-redo.tests.js",
+        "size": 25494,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\yjs_yjs__tests_undo-redo.tests.js.txt"
+      },
+      {
+        "path": "src/utils/Transaction.js",
+        "size": 16486,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\yjs_yjs__src_utils_Transaction.js.txt"
+      },
+      {
+        "path": "tests/IdMap.tests.js",
+        "size": 8249,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\yjs_yjs__tests_IdMap.tests.js.txt"
+      },
+      {
+        "path": "tests/IdSet.tests.js",
+        "size": 12400,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\yjs_yjs__tests_IdSet.tests.js.txt"
+      }
+    ],
+    "dimensions": [
+      "selection-tracking",
+      "version-integrity",
+      "read-cap-policy",
+      "undo-coordination",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "automerge/automerge",
+    "stars": 6613,
+    "language": "JavaScript",
+    "defaultBranch": "main",
+    "url": "https://github.com/automerge/automerge",
+    "cachedFiles": [
+      {
+        "path": "rust/automerge-c/src/cursor.rs",
+        "size": 5120,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\automerge_automerge__rust_automerge-c_src_cursor.rs.txt"
+      },
+      {
+        "path": "rust/automerge/src/cursor.rs",
+        "size": 9270,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\automerge_automerge__rust_automerge_src_cursor.rs.txt"
+      },
+      {
+        "path": "javascript/src/conflicts.ts",
+        "size": 4051,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\automerge_automerge__javascript_src_conflicts.ts.txt"
+      },
+      {
+        "path": "javascript/test/conflicts.ts",
+        "size": 4933,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\automerge_automerge__javascript_test_conflicts.ts.txt"
+      },
+      {
+        "path": "README.md",
+        "size": 8660,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\automerge_automerge__README.md.txt"
+      },
+      {
+        "path": "javascript/README.md",
+        "size": 2909,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\automerge_automerge__javascript_README.md.txt"
+      },
+      {
+        "path": "rust/automerge/src/transaction.rs",
+        "size": 19030,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\automerge_automerge__rust_automerge_src_transaction.rs.txt"
+      },
+      {
+        "path": "rust/automerge/src/transaction/inner.rs",
+        "size": 54515,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\automerge_automerge__rust_automerge_src_transaction_inner.rs.txt"
+      },
+      {
+        "path": "rust/automerge/src/text_diff/replace.rs",
+        "size": 4447,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\automerge_automerge__rust_automerge_src_text_diff_replace.rs.txt"
+      },
+      {
+        "path": "javascript/test/anonymize_test.ts",
+        "size": 2311,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\automerge_automerge__javascript_test_anonymize_test.ts.txt"
+      },
+      {
+        "path": "javascript/test/basic_test.ts",
+        "size": 30800,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\automerge_automerge__javascript_test_basic_test.ts.txt"
+      }
+    ],
+    "dimensions": [
+      "selection-tracking",
+      "version-integrity",
+      "read-cap-policy",
+      "undo-coordination",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "toeverything/AFFiNE",
+    "stars": 72916,
+    "language": "TypeScript",
+    "defaultBranch": "canary",
+    "url": "https://github.com/toeverything/AFFiNE",
+    "cachedFiles": [
+      {
+        "path": "packages/frontend/apps/electron/src/main/windows-manager/context-menu.ts",
+        "size": 2859,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\toeverything_AFFiNE__packages_frontend_apps_electron_src_main_windows-manager_context-menu.ts.txt"
+      },
+      {
+        "path": "blocksuite/affine/components/src/context-menu/button.ts",
+        "size": 8228,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\toeverything_AFFiNE__blocksuite_affine_components_src_context-menu_button.ts.txt"
+      },
+      {
+        "path": "tests/blocksuite/snapshots/paragraph.spec.ts/should-delete-paragraph-block-child-can-hold-cursor-in-correct-position-final.json",
+        "size": 1732,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\toeverything_AFFiNE__tests_blocksuite_snapshots_paragraph.spec.ts_should-delete-paragraph-block-child-can-hold-cursor-in-correct-position-final.json.txt"
+      },
+      {
+        "path": "tests/blocksuite/snapshots/paragraph.spec.ts/should-delete-paragraph-block-child-can-hold-cursor-in-correct-position-init.json",
+        "size": 1809,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\toeverything_AFFiNE__tests_blocksuite_snapshots_paragraph.spec.ts_should-delete-paragraph-block-child-can-hold-cursor-in-correct-position-init.json.txt"
+      },
+      {
+        "path": "blocksuite/affine/rich-text/src/conversion.ts",
+        "size": 3664,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\toeverything_AFFiNE__blocksuite_affine_rich-text_src_conversion.ts.txt"
+      },
+      {
+        "path": "blocksuite/framework/global/src/di/stable-hash.ts",
+        "size": 2051,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\toeverything_AFFiNE__blocksuite_framework_global_src_di_stable-hash.ts.txt"
+      },
+      {
+        "path": "packages/frontend/native/media_capture/src/windows/README.md",
+        "size": 2825,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\toeverything_AFFiNE__packages_frontend_native_media_capture_src_windows_README.md.txt"
+      },
+      {
+        "path": "README.md",
+        "size": 16255,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\toeverything_AFFiNE__README.md.txt"
+      },
+      {
+        "path": "tests/blocksuite/e2e/edgeless/note/undo-redo.spec.ts",
+        "size": 5820,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\toeverything_AFFiNE__tests_blocksuite_e2e_edgeless_note_undo-redo.spec.ts.txt"
+      },
+      {
+        "path": "blocksuite/framework/store/src/extension/history/history-extension.ts",
+        "size": 2059,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\toeverything_AFFiNE__blocksuite_framework_store_src_extension_history_history-extension.ts.txt"
+      },
+      {
+        "path": "packages/backend/native/src/runtime/backend_runtime/search/worker/document.rs",
+        "size": 23867,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\toeverything_AFFiNE__packages_backend_native_src_runtime_backend_runtime_search_worker_document.rs.txt"
+      },
+      {
+        "path": "packages/backend/native/src/search_index/document.rs",
+        "size": 1916,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\toeverything_AFFiNE__packages_backend_native_src_search_index_document.rs.txt"
+      },
+      {
+        "path": "blocksuite/affine/all/src/__tests__/adapters/html.unit.spec.ts",
+        "size": 90670,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\toeverything_AFFiNE__blocksuite_affine_all_src___tests___adapters_html.unit.spec.ts.txt"
+      },
+      {
+        "path": "blocksuite/affine/all/src/__tests__/adapters/markdown.unit.spec.ts",
+        "size": 158293,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\toeverything_AFFiNE__blocksuite_affine_all_src___tests___adapters_markdown.unit.spec.ts.txt"
+      }
+    ],
+    "dimensions": [
+      "context-injection",
+      "selection-tracking",
+      "version-integrity",
+      "read-cap-policy",
+      "undo-coordination",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "outline/outline",
+    "stars": 40681,
+    "language": "TypeScript",
+    "defaultBranch": "main",
+    "url": "https://github.com/outline/outline",
+    "cachedFiles": [
+      {
+        "path": "app/components/DocumentContext.tsx",
+        "size": 4688,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\outline_outline__app_components_DocumentContext.tsx.txt"
+      },
+      {
+        "path": "app/components/LanguagePrompt.tsx",
+        "size": 2395,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\outline_outline__app_components_LanguagePrompt.tsx.txt"
+      },
+      {
+        "path": "app/components/DocumentSelectionToolbar.tsx",
+        "size": 1594,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\outline_outline__app_components_DocumentSelectionToolbar.tsx.txt"
+      },
+      {
+        "path": "app/components/ModelSelection.ts",
+        "size": 3346,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\outline_outline__app_components_ModelSelection.ts.txt"
+      },
+      {
+        "path": "app/actions/definitions/revisions.tsx",
+        "size": 7778,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\outline_outline__app_actions_definitions_revisions.tsx.txt"
+      },
+      {
+        "path": "app/components/Sidebar/components/Version.tsx",
+        "size": 1669,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\outline_outline__app_components_Sidebar_components_Version.tsx.txt"
+      },
+      {
+        "path": "README.md",
+        "size": 5843,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\outline_outline__README.md.txt"
+      },
+      {
+        "path": "app/components/Breadcrumb.tsx",
+        "size": 3800,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\outline_outline__app_components_Breadcrumb.tsx.txt"
+      },
+      {
+        "path": "app/components/Sidebar/components/HistoryNavigation.tsx",
+        "size": 3726,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\outline_outline__app_components_Sidebar_components_HistoryNavigation.tsx.txt"
+      },
+      {
+        "path": "app/scenes/Document/components/History/EventListItem.tsx",
+        "size": 3744,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\outline_outline__app_scenes_Document_components_History_EventListItem.tsx.txt"
+      },
+      {
+        "path": "app/components/DocumentExplorer/DocumentExplorerSearchResult.tsx",
+        "size": 1646,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\outline_outline__app_components_DocumentExplorer_DocumentExplorerSearchResult.tsx.txt"
+      },
+      {
+        "path": "app/editor/components/FindAndReplace.tsx",
+        "size": 16633,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\outline_outline__app_editor_components_FindAndReplace.tsx.txt"
+      },
+      {
+        "path": "app/components/LightboxState.test.ts",
+        "size": 4222,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\outline_outline__app_components_LightboxState.test.ts.txt"
+      },
+      {
+        "path": "app/utils/ModelContext.test.ts",
+        "size": 3846,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\outline_outline__app_utils_ModelContext.test.ts.txt"
+      }
+    ],
+    "dimensions": [
+      "context-injection",
+      "selection-tracking",
+      "version-integrity",
+      "read-cap-policy",
+      "undo-coordination",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "logseq/logseq",
+    "stars": 45039,
+    "language": "Clojure",
+    "defaultBranch": "master",
+    "url": "https://github.com/logseq/logseq",
+    "cachedFiles": [
+      {
+        "path": "docs/agent-guide/implemented/simplification/2026-09-08-remove-unused-agentbridge-prompt-templates.md",
+        "size": 4253,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\logseq_logseq__docs_agent-guide_implemented_simplification_2026-09-08-remove-unused-agentbridge-prompt-templates.md.txt"
+      },
+      {
+        "path": "prompts/review.md",
+        "size": 4127,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\logseq_logseq__prompts_review.md.txt"
+      },
+      {
+        "path": "android/app/src/main/java/com/logseq/app/NativeSelectionActionBarPlugin.kt",
+        "size": 9982,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\logseq_logseq__android_app_src_main_java_com_logseq_app_NativeSelectionActionBarPlugin.kt.txt"
+      },
+      {
+        "path": "src/main/frontend/selection.js",
+        "size": 2159,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\logseq_logseq__src_main_frontend_selection.js.txt"
+      },
+      {
+        "path": "android/app/src/main/java/com/logseq/app/WebViewSnapshotManager.kt",
+        "size": 6893,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\logseq_logseq__android_app_src_main_java_com_logseq_app_WebViewSnapshotManager.kt.txt"
+      },
+      {
+        "path": "docs/adr/0014-kv-row-r2-snapshot-download.md",
+        "size": 2628,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\logseq_logseq__docs_adr_0014-kv-row-r2-snapshot-download.md.txt"
+      },
+      {
+        "path": "README.md",
+        "size": 15481,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\logseq_logseq__README.md.txt"
+      },
+      {
+        "path": "clj-e2e/README.md",
+        "size": 1605,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\logseq_logseq__clj-e2e_README.md.txt"
+      },
+      {
+        "path": "docs/adr/0002-undo-redo-worker-sync.md",
+        "size": 4792,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\logseq_logseq__docs_adr_0002-undo-redo-worker-sync.md.txt"
+      },
+      {
+        "path": "docs/adr/0011-undo-redo-semantic-inverse-op-persistence.md",
+        "size": 21865,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\logseq_logseq__docs_adr_0011-undo-redo-semantic-inverse-op-persistence.md.txt"
+      },
+      {
+        "path": "docs/adr/0019-replace-rum-with-hsx.md",
+        "size": 7295,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\logseq_logseq__docs_adr_0019-replace-rum-with-hsx.md.txt"
+      },
+      {
+        "path": "docs/agent-guide/implemented/architecture/2026-09-18-replace-db-worker-lock-with-sqlite.md",
+        "size": 38421,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\logseq_logseq__docs_agent-guide_implemented_architecture_2026-09-18-replace-db-worker-lock-with-sqlite.md.txt"
+      },
+      {
+        "path": "cli-e2e/scripts/graph_deletion_lifecycle_test.py",
+        "size": 9216,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\logseq_logseq__cli-e2e_scripts_graph_deletion_lifecycle_test.py.txt"
+      },
+      {
+        "path": "cli-e2e/test/logseq/cli/e2e/compare_graph_queries_test.py",
+        "size": 2892,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\logseq_logseq__cli-e2e_test_logseq_cli_e2e_compare_graph_queries_test.py.txt"
+      }
+    ],
+    "dimensions": [
+      "context-injection",
+      "selection-tracking",
+      "version-integrity",
+      "read-cap-policy",
+      "undo-coordination",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "openai/codex",
+    "stars": 126221,
+    "language": "Rust",
+    "defaultBranch": "main",
+    "url": "https://github.com/openai/codex",
+    "cachedFiles": [
+      {
+        "path": "codex-rs/context-fragments/src/recap_prompt.rs",
+        "size": 3537,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\openai_codex__codex-rs_context-fragments_src_recap_prompt.rs.txt"
+      },
+      {
+        "path": "codex-rs/core/src/context/token_budget_context.rs",
+        "size": 6333,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\openai_codex__codex-rs_core_src_context_token_budget_context.rs.txt"
+      },
+      {
+        "path": "codex-rs/core/src/config/permission_profile_selection.rs",
+        "size": 1536,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\openai_codex__codex-rs_core_src_config_permission_profile_selection.rs.txt"
+      },
+      {
+        "path": "codex-rs/core/src/environment_selection.rs",
+        "size": 94772,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\openai_codex__codex-rs_core_src_environment_selection.rs.txt"
+      },
+      {
+        "path": ".codex/skills/update-v8-version/SKILL.md",
+        "size": 3378,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\openai_codex__.codex_skills_update-v8-version_SKILL.md.txt"
+      },
+      {
+        "path": ".github/scripts/voice-cygwin-snapshot.json",
+        "size": 29838,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\openai_codex__.github_scripts_voice-cygwin-snapshot.json.txt"
+      },
+      {
+        "path": "codex-rs/execpolicy/README.md",
+        "size": 4122,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\openai_codex__codex-rs_execpolicy_README.md.txt"
+      },
+      {
+        "path": "codex-rs/tui/src/screen_reader_windows.rs",
+        "size": 3131,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\openai_codex__codex-rs_tui_src_screen_reader_windows.rs.txt"
+      },
+      {
+        "path": "codex-rs/message-history/src/batch.rs",
+        "size": 14476,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\openai_codex__codex-rs_message-history_src_batch.rs.txt"
+      },
+      {
+        "path": "codex-rs/tui/src/bottom_pane/chat_composer_history/search_batch.rs",
+        "size": 7438,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\openai_codex__codex-rs_tui_src_bottom_pane_chat_composer_history_search_batch.rs.txt"
+      },
+      {
+        "path": "codex-rs/app-server/src/fuzzy_file_search.rs",
+        "size": 8043,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\openai_codex__codex-rs_app-server_src_fuzzy_file_search.rs.txt"
+      },
+      {
+        "path": "codex-rs/app-server/src/request_processors/plugins/search.rs",
+        "size": 13782,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\openai_codex__codex-rs_app-server_src_request_processors_plugins_search.rs.txt"
+      },
+      {
+        "path": "codex-rs/core/src/context/world_state/apps_instructions_tests.rs",
+        "size": 1907,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\openai_codex__codex-rs_core_src_context_world_state_apps_instructions_tests.rs.txt"
+      },
+      {
+        "path": "codex-rs/core/src/context/world_state/collaboration_mode_tests.rs",
+        "size": 7855,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\openai_codex__codex-rs_core_src_context_world_state_collaboration_mode_tests.rs.txt"
+      }
+    ],
+    "dimensions": [
+      "context-injection",
+      "selection-tracking",
+      "version-integrity",
+      "read-cap-policy",
+      "undo-coordination",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "Aider-AI/aider",
+    "stars": 49137,
+    "language": "Python",
+    "defaultBranch": "main",
+    "url": "https://github.com/Aider-AI/aider",
+    "cachedFiles": [
+      {
+        "path": "aider/coders/context_prompts.py",
+        "size": 3082,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\Aider-AI_aider__aider_coders_context_prompts.py.txt"
+      },
+      {
+        "path": "aider/coders/base_prompts.py",
+        "size": 2384,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\Aider-AI_aider__aider_coders_base_prompts.py.txt"
+      },
+      {
+        "path": "aider/versioncheck.py",
+        "size": 2977,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\Aider-AI_aider__aider_versioncheck.py.txt"
+      },
+      {
+        "path": "scripts/versionbump.py",
+        "size": 5952,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\Aider-AI_aider__scripts_versionbump.py.txt"
+      },
+      {
+        "path": "README.md",
+        "size": 12328,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\Aider-AI_aider__README.md.txt"
+      },
+      {
+        "path": "aider/queries/tree-sitter-languages/README.md",
+        "size": 2574,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\Aider-AI_aider__aider_queries_tree-sitter-languages_README.md.txt"
+      },
+      {
+        "path": "HISTORY.md",
+        "size": 77025,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\Aider-AI_aider__HISTORY.md.txt"
+      },
+      {
+        "path": "aider/history.py",
+        "size": 4769,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\Aider-AI_aider__aider_history.py.txt"
+      },
+      {
+        "path": "aider/coders/search_replace.py",
+        "size": 19795,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\Aider-AI_aider__aider_coders_search_replace.py.txt"
+      },
+      {
+        "path": "aider/website/examples/semantic-search-replace.md",
+        "size": 1946,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\Aider-AI_aider__aider_website_examples_semantic-search-replace.md.txt"
+      },
+      {
+        "path": "tests/basic/test_special.py",
+        "size": 1937,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\Aider-AI_aider__tests_basic_test_special.py.txt"
+      },
+      {
+        "path": "aider/special.py",
+        "size": 4415,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\Aider-AI_aider__aider_special.py.txt"
+      }
+    ],
+    "dimensions": [
+      "context-injection",
+      "version-integrity",
+      "read-cap-policy",
+      "undo-coordination",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "cline/cline",
+    "stars": 69188,
+    "language": "TypeScript",
+    "defaultBranch": "main",
+    "url": "https://github.com/cline/cline",
+    "cachedFiles": [
+      {
+        "path": "apps/vscode/webview-ui/src/components/chat/task-header/ContextWindow.stories.tsx",
+        "size": 1529,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\cline_cline__apps_vscode_webview-ui_src_components_chat_task-header_ContextWindow.stories.tsx.txt"
+      },
+      {
+        "path": "apps/vscode/webview-ui/src/components/chat/task-header/ContextWindow.tsx",
+        "size": 6446,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\cline_cline__apps_vscode_webview-ui_src_components_chat_task-header_ContextWindow.tsx.txt"
+      },
+      {
+        "path": "apps/cli/src/commands/schedule/model-selection.ts",
+        "size": 1682,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\cline_cline__apps_cli_src_commands_schedule_model-selection.ts.txt"
+      },
+      {
+        "path": "apps/cli/src/tui/utils/selection-copy.ts",
+        "size": 1967,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\cline_cline__apps_cli_src_tui_utils_selection-copy.ts.txt"
+      },
+      {
+        "path": "apps/vscode/src/shared/proto-conversions/cline-message.ts",
+        "size": 10970,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\cline_cline__apps_vscode_src_shared_proto-conversions_cline-message.ts.txt"
+      },
+      {
+        "path": "apps/vscode/src/shared/proto-conversions/mcp/mcp-server-conversion.ts",
+        "size": 6466,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\cline_cline__apps_vscode_src_shared_proto-conversions_mcp_mcp-server-conversion.ts.txt"
+      },
+      {
+        "path": ".clinerules/hooks/README.md",
+        "size": 14573,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\cline_cline__.clinerules_hooks_README.md.txt"
+      },
+      {
+        "path": "README.md",
+        "size": 9236,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\cline_cline__README.md.txt"
+      },
+      {
+        "path": "apps/cli/src/commands/history-command.ts",
+        "size": 3371,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\cline_cline__apps_cli_src_commands_history-command.ts.txt"
+      },
+      {
+        "path": "apps/cli/src/commands/history.ts",
+        "size": 4137,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\cline_cline__apps_cli_src_commands_history.ts.txt"
+      },
+      {
+        "path": ".clinerules/workflows/find-pr-reviewers.md",
+        "size": 2644,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\cline_cline__.clinerules_workflows_find-pr-reviewers.md.txt"
+      },
+      {
+        "path": "apps/cli/src/tui/components/searchable-list.tsx",
+        "size": 8889,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\cline_cline__apps_cli_src_tui_components_searchable-list.tsx.txt"
+      },
+      {
+        "path": "apps/cli/src/connectors/adapters/discord.test.ts",
+        "size": 16283,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\cline_cline__apps_cli_src_connectors_adapters_discord.test.ts.txt"
+      },
+      {
+        "path": "apps/cli/src/connectors/adapters/gchat.test.ts",
+        "size": 2153,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\cline_cline__apps_cli_src_connectors_adapters_gchat.test.ts.txt"
+      }
+    ],
+    "dimensions": [
+      "context-injection",
+      "selection-tracking",
+      "version-integrity",
+      "read-cap-policy",
+      "undo-coordination",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "RooCodeInc/Roo-Code",
+    "stars": 24298,
+    "language": "TypeScript",
+    "defaultBranch": "main",
+    "url": "https://github.com/RooCodeInc/Roo-Code",
+    "cachedFiles": [
+      {
+        "path": "apps/cli/src/lib/utils/context-window.ts",
+        "size": 1855,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\RooCodeInc_Roo-Code__apps_cli_src_lib_utils_context-window.ts.txt"
+      },
+      {
+        "path": "webview-ui/src/components/chat/ContextWindowProgress.tsx",
+        "size": 3343,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\RooCodeInc_Roo-Code__webview-ui_src_components_chat_ContextWindowProgress.tsx.txt"
+      },
+      {
+        "path": "packages/vscode-shim/src/classes/Selection.ts",
+        "size": 2232,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\RooCodeInc_Roo-Code__packages_vscode-shim_src_classes_Selection.ts.txt"
+      },
+      {
+        "path": "packages/vscode-shim/src/__tests__/Selection.test.ts",
+        "size": 4109,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\RooCodeInc_Roo-Code__packages_vscode-shim_src___tests___Selection.test.ts.txt"
+      },
+      {
+        "path": "src/api/providers/fetchers/versionedSettings.ts",
+        "size": 4416,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\RooCodeInc_Roo-Code__src_api_providers_fetchers_versionedSettings.ts.txt"
+      },
+      {
+        "path": "src/api/providers/fetchers/__tests__/versionedSettings.spec.ts",
+        "size": 9132,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\RooCodeInc_Roo-Code__src_api_providers_fetchers___tests___versionedSettings.spec.ts.txt"
+      },
+      {
+        "path": "README.md",
+        "size": 3327,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\RooCodeInc_Roo-Code__README.md.txt"
+      },
+      {
+        "path": "apps/cli/README.md",
+        "size": 8875,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\RooCodeInc_Roo-Code__apps_cli_README.md.txt"
+      },
+      {
+        "path": "webview-ui/src/components/history/BatchDeleteTaskDialog.tsx",
+        "size": 1873,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\RooCodeInc_Roo-Code__webview-ui_src_components_history_BatchDeleteTaskDialog.tsx.txt"
+      },
+      {
+        "path": "webview-ui/src/components/history/__tests__/BatchDeleteTaskDialog.spec.tsx",
+        "size": 3270,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\RooCodeInc_Roo-Code__webview-ui_src_components_history___tests___BatchDeleteTaskDialog.spec.tsx.txt"
+      },
+      {
+        "path": "apps/docs/docs/advanced-usage/available-tools/search-replace.md",
+        "size": 3727,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\RooCodeInc_Roo-Code__apps_docs_docs_advanced-usage_available-tools_search-replace.md.txt"
+      },
+      {
+        "path": "src/core/diff/strategies/multi-search-replace.ts",
+        "size": 20676,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\RooCodeInc_Roo-Code__src_core_diff_strategies_multi-search-replace.ts.txt"
+      },
+      {
+        "path": "webview-ui/src/context/__tests__/ExtensionStateContext.spec.tsx",
+        "size": 11417,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\RooCodeInc_Roo-Code__webview-ui_src_context___tests___ExtensionStateContext.spec.tsx.txt"
+      },
+      {
+        "path": "src/core/condense/__tests__/foldedFileContext.spec.ts",
+        "size": 14228,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\RooCodeInc_Roo-Code__src_core_condense___tests___foldedFileContext.spec.ts.txt"
+      }
+    ],
+    "dimensions": [
+      "context-injection",
+      "selection-tracking",
+      "version-integrity",
+      "read-cap-policy",
+      "undo-coordination",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "OpenHands/OpenHands",
+    "stars": 89007,
+    "language": "TypeScript",
+    "defaultBranch": "main",
+    "url": "https://github.com/OpenHands/OpenHands",
+    "cachedFiles": [
+      {
+        "path": "src/components/features/chat/components/context-window-meter.tsx",
+        "size": 6832,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\OpenHands_OpenHands__src_components_features_chat_components_context-window-meter.tsx.txt"
+      },
+      {
+        "path": "src/components/features/chat/components/context-window-ring.tsx",
+        "size": 3135,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\OpenHands_OpenHands__src_components_features_chat_components_context-window-ring.tsx.txt"
+      },
+      {
+        "path": "src/api/backend-registry/url-selection.ts",
+        "size": 3157,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\OpenHands_OpenHands__src_api_backend-registry_url-selection.ts.txt"
+      },
+      {
+        "path": "src/components/features/home/repo-selection-form.tsx",
+        "size": 8670,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\OpenHands_OpenHands__src_components_features_home_repo-selection-form.tsx.txt"
+      },
+      {
+        "path": ".github/scripts/update_debian_snapshot.py",
+        "size": 2920,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\OpenHands_OpenHands__.github_scripts_update_debian_snapshot.py.txt"
+      },
+      {
+        "path": "src/components/features/settings/agent-canvas-version-modal.tsx",
+        "size": 8338,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\OpenHands_OpenHands__src_components_features_settings_agent-canvas-version-modal.tsx.txt"
+      },
+      {
+        "path": "README.md",
+        "size": 10116,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\OpenHands_OpenHands__README.md.txt"
+      },
+      {
+        "path": "examples/acp-docker/README.md",
+        "size": 4523,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\OpenHands_OpenHands__examples_acp-docker_README.md.txt"
+      },
+      {
+        "path": "src/hooks/query/use-conversation-history.ts",
+        "size": 4162,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\OpenHands_OpenHands__src_hooks_query_use-conversation-history.ts.txt"
+      },
+      {
+        "path": "__tests__/hooks/query/use-conversation-history.test.tsx",
+        "size": 13840,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\OpenHands_OpenHands____tests___hooks_query_use-conversation-history.test.tsx.txt"
+      },
+      {
+        "path": "src/components/features/chat/tool-visualizers/search/search.tsx",
+        "size": 2606,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\OpenHands_OpenHands__src_components_features_chat_tool-visualizers_search_search.tsx.txt"
+      },
+      {
+        "path": "src/components/features/home/git-repo-dropdown/use-url-search.tsx",
+        "size": 1531,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\OpenHands_OpenHands__src_components_features_home_git-repo-dropdown_use-url-search.tsx.txt"
+      },
+      {
+        "path": "__tests__/api/agent-server-adapter.test.ts",
+        "size": 67319,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\OpenHands_OpenHands____tests___api_agent-server-adapter.test.ts.txt"
+      },
+      {
+        "path": "__tests__/components/automations/to-latest-run-state.test.ts",
+        "size": 1516,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\OpenHands_OpenHands____tests___components_automations_to-latest-run-state.test.ts.txt"
+      }
+    ],
+    "dimensions": [
+      "context-injection",
+      "selection-tracking",
+      "version-integrity",
+      "read-cap-policy",
+      "undo-coordination",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "continuedev/continue",
+    "stars": 36008,
+    "language": "TypeScript",
+    "defaultBranch": "main",
+    "url": "https://github.com/continuedev/continue",
+    "cachedFiles": [
+      {
+        "path": "gui/src/components/mainInput/TipTapEditor/extensions/Prompt/PromptBlock.ts",
+        "size": 3450,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\continuedev_continue__gui_src_components_mainInput_TipTapEditor_extensions_Prompt_PromptBlock.ts.txt"
+      },
+      {
+        "path": "gui/src/components/mainInput/TipTapEditor/extensions/Prompt/PromptBlockPreview.tsx",
+        "size": 1635,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\continuedev_continue__gui_src_components_mainInput_TipTapEditor_extensions_Prompt_PromptBlockPreview.tsx.txt"
+      },
+      {
+        "path": "extensions/intellij/src/main/kotlin/com/github/continuedev/continueintellijextension/listeners/ContinuePluginSelectionListener.kt",
+        "size": 8886,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\continuedev_continue__extensions_intellij_src_main_kotlin_com_github_continuedev_continueintellijextension_listeners_ContinuePluginSelectionListener.kt.txt"
+      },
+      {
+        "path": "extensions/intellij/src/main/kotlin/com/github/continuedev/continueintellijextension/listeners/SelectionChangeManager.kt",
+        "size": 9247,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\continuedev_continue__extensions_intellij_src_main_kotlin_com_github_continuedev_continueintellijextension_listeners_SelectionChangeManager.kt.txt"
+      },
+      {
+        "path": "core/util/messageConversion.ts",
+        "size": 11137,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\continuedev_continue__core_util_messageConversion.ts.txt"
+      },
+      {
+        "path": "extensions/cli/src/version.ts",
+        "size": 2979,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\continuedev_continue__extensions_cli_src_version.ts.txt"
+      },
+      {
+        "path": "core/tools/definitions/readFileRange.ts",
+        "size": 2894,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\continuedev_continue__core_tools_definitions_readFileRange.ts.txt"
+      },
+      {
+        "path": "core/tools/implementations/readFileRange.ts",
+        "size": 2962,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\continuedev_continue__core_tools_implementations_readFileRange.ts.txt"
+      },
+      {
+        "path": "core/nextEdit/DocumentHistoryTracker.ts",
+        "size": 4375,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\continuedev_continue__core_nextEdit_DocumentHistoryTracker.ts.txt"
+      },
+      {
+        "path": "core/util/history.ts",
+        "size": 5942,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\continuedev_continue__core_util_history.ts.txt"
+      },
+      {
+        "path": "core/edit/searchAndReplace/findAndReplaceUtils.ts",
+        "size": 1982,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\continuedev_continue__core_edit_searchAndReplace_findAndReplaceUtils.ts.txt"
+      },
+      {
+        "path": "core/edit/searchAndReplace/findSearchMatch.ts",
+        "size": 11678,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\continuedev_continue__core_edit_searchAndReplace_findSearchMatch.ts.txt"
+      },
+      {
+        "path": "core/autocomplete/context/root-path-context/test/RootPathContextService.vitest.ts",
+        "size": 1572,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\continuedev_continue__core_autocomplete_context_root-path-context_test_RootPathContextService.vitest.ts.txt"
+      },
+      {
+        "path": "core/autocomplete/templating/__tests__/formatOpenedFilesContext.vitest.ts",
+        "size": 12497,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\continuedev_continue__core_autocomplete_templating___tests___formatOpenedFilesContext.vitest.ts.txt"
+      }
+    ],
+    "dimensions": [
+      "context-injection",
+      "selection-tracking",
+      "version-integrity",
+      "read-cap-policy",
+      "undo-coordination",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "vercel/ai",
+    "stars": 26922,
+    "language": "TypeScript",
+    "defaultBranch": "main",
+    "url": "https://github.com/vercel/ai",
+    "cachedFiles": [
+      {
+        "path": "apps/docs/components/docs/inline-prompt.tsx",
+        "size": 4019,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\vercel_ai__apps_docs_components_docs_inline-prompt.tsx.txt"
+      },
+      {
+        "path": "examples/ai-functions/src/agent/openai/generate-runtime-context-call-options.ts",
+        "size": 1625,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\vercel_ai__examples_ai-functions_src_agent_openai_generate-runtime-context-call-options.ts.txt"
+      },
+      {
+        "path": "examples/ai-functions/src/harness-agent/cursor-acp/attach.ts",
+        "size": 2150,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\vercel_ai__examples_ai-functions_src_harness-agent_cursor-acp_attach.ts.txt"
+      },
+      {
+        "path": "examples/ai-functions/src/harness-agent/cursor-acp/builtin-tool-approval.ts",
+        "size": 1524,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\vercel_ai__examples_ai-functions_src_harness-agent_cursor-acp_builtin-tool-approval.ts.txt"
+      },
+      {
+        "path": "apps/docs/components/docs/version-select.tsx",
+        "size": 2279,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\vercel_ai__apps_docs_components_docs_version-select.tsx.txt"
+      },
+      {
+        "path": "skills/major-version-mode/SKILL.md",
+        "size": 3199,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\vercel_ai__skills_major-version-mode_SKILL.md.txt"
+      },
+      {
+        "path": "examples/next-openai-upstash-rate-limits/README.md",
+        "size": 2732,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\vercel_ai__examples_next-openai-upstash-rate-limits_README.md.txt"
+      },
+      {
+        "path": "packages/policy-opa/README.md",
+        "size": 28104,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\vercel_ai__packages_policy-opa_README.md.txt"
+      },
+      {
+        "path": "examples/ai-functions/src/stream-text/deepseek/multi-turn-reasoning-history.ts",
+        "size": 2632,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\vercel_ai__examples_ai-functions_src_stream-text_deepseek_multi-turn-reasoning-history.ts.txt"
+      },
+      {
+        "path": "examples/ai-functions/src/generate-text/mock/return-await-stack-trace.ts",
+        "size": 4308,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\vercel_ai__examples_ai-functions_src_generate-text_mock_return-await-stack-trace.ts.txt"
+      },
+      {
+        "path": "examples/ai-e2e-next/agent/openai/tool-search-agent.ts",
+        "size": 2440,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\vercel_ai__examples_ai-e2e-next_agent_openai_tool-search-agent.ts.txt"
+      },
+      {
+        "path": "examples/ai-e2e-next/agent/openai/tool-search-client-agent.ts",
+        "size": 5415,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\vercel_ai__examples_ai-e2e-next_agent_openai_tool-search-client-agent.ts.txt"
+      },
+      {
+        "path": "packages/ai/src/generate-text/validate-tool-context.test.ts",
+        "size": 1591,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\vercel_ai__packages_ai_src_generate-text_validate-tool-context.test.ts.txt"
+      },
+      {
+        "path": "packages/harness-cline/src/cline-resume-state.test.ts",
+        "size": 4690,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\vercel_ai__packages_harness-cline_src_cline-resume-state.test.ts.txt"
+      }
+    ],
+    "dimensions": [
+      "context-injection",
+      "selection-tracking",
+      "version-integrity",
+      "read-cap-policy",
+      "undo-coordination",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "zed-industries/zed",
+    "stars": 90791,
+    "language": "Rust",
+    "defaultBranch": "main",
+    "url": "https://github.com/zed-industries/zed",
+    "cachedFiles": [
+      {
+        "path": "crates/agent_ui/src/inline_prompt_editor.rs",
+        "size": 69707,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\zed-industries_zed__crates_agent_ui_src_inline_prompt_editor.rs.txt"
+      },
+      {
+        "path": "crates/edit_prediction_context/src/assemble_excerpts.rs",
+        "size": 5390,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\zed-industries_zed__crates_edit_prediction_context_src_assemble_excerpts.rs.txt"
+      },
+      {
+        "path": "crates/go_to_line/src/cursor_position.rs",
+        "size": 12946,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\zed-industries_zed__crates_go_to_line_src_cursor_position.rs.txt"
+      },
+      {
+        "path": "crates/edit_prediction/src/cursor_excerpt.rs",
+        "size": 21895,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\zed-industries_zed__crates_edit_prediction_src_cursor_excerpt.rs.txt"
+      },
+      {
+        "path": "crates/collab/src/db/tables/extension_version.rs",
+        "size": 2951,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\zed-industries_zed__crates_collab_src_db_tables_extension_version.rs.txt"
+      },
+      {
+        "path": "crates/dap/src/proto_conversions.rs",
+        "size": 20243,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\zed-industries_zed__crates_dap_src_proto_conversions.rs.txt"
+      },
+      {
+        "path": "README.md",
+        "size": 2852,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\zed-industries_zed__README.md.txt"
+      },
+      {
+        "path": "crates/acp_thread/src/connection.rs",
+        "size": 35092,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\zed-industries_zed__crates_acp_thread_src_connection.rs.txt"
+      },
+      {
+        "path": "crates/multi_buffer/src/transaction.rs",
+        "size": 18906,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\zed-industries_zed__crates_multi_buffer_src_transaction.rs.txt"
+      },
+      {
+        "path": "crates/project/src/search_history.rs",
+        "size": 4305,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\zed-industries_zed__crates_project_src_search_history.rs.txt"
+      },
+      {
+        "path": "crates/search/src/text_finder.rs",
+        "size": 26147,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\zed-industries_zed__crates_search_src_text_finder.rs.txt"
+      },
+      {
+        "path": "crates/search/src/text_finder/delegate.rs",
+        "size": 60117,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\zed-industries_zed__crates_search_src_text_finder_delegate.rs.txt"
+      },
+      {
+        "path": "crates/agent/src/tools/evals/fixtures/zode/react_test.py",
+        "size": 7973,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\zed-industries_zed__crates_agent_src_tools_evals_fixtures_zode_react_test.py.txt"
+      },
+      {
+        "path": "crates/context_server/src/test.rs",
+        "size": 4425,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\zed-industries_zed__crates_context_server_src_test.rs.txt"
+      }
+    ],
+    "dimensions": [
+      "context-injection",
+      "selection-tracking",
+      "version-integrity",
+      "read-cap-policy",
+      "undo-coordination",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "neovim/neovim",
+    "stars": 102542,
+    "language": "Vim Script",
+    "defaultBranch": "master",
+    "url": "https://github.com/neovim/neovim",
+    "cachedFiles": [
+      {
+        "path": "README.md",
+        "size": 5183,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\neovim_neovim__README.md.txt"
+      },
+      {
+        "path": "runtime/pack/dist/opt/netrw/README.md",
+        "size": 25053,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\neovim_neovim__runtime_pack_dist_opt_netrw_README.md.txt"
+      },
+      {
+        "path": "test/old/testdir/test_makeencoding.py",
+        "size": 1918,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\neovim_neovim__test_old_testdir_test_makeencoding.py.txt"
+      }
+    ],
+    "dimensions": [
+      "read-cap-policy",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  },
+  {
+    "fullName": "jina-ai/reader",
+    "stars": 12036,
+    "language": "TypeScript",
+    "defaultBranch": "main",
+    "url": "https://github.com/jina-ai/reader",
+    "cachedFiles": [
+      {
+        "path": "src/services/common-llm/prompt-profile.ts",
+        "size": 2575,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\jina-ai_reader__src_services_common-llm_prompt-profile.ts.txt"
+      },
+      {
+        "path": "tests/e2e/token-budget.test.ts",
+        "size": 2138,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\jina-ai_reader__tests_e2e_token-budget.test.ts.txt"
+      },
+      {
+        "path": "src/services/snapshot-formatter.ts",
+        "size": 48192,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\jina-ai_reader__src_services_snapshot-formatter.ts.txt"
+      },
+      {
+        "path": "README.md",
+        "size": 19700,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\jina-ai_reader__README.md.txt"
+      },
+      {
+        "path": "src/services/threaded.ts",
+        "size": 2643,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\jina-ai_reader__src_services_threaded.ts.txt"
+      },
+      {
+        "path": "src/3rd-party/serper-search.ts",
+        "size": 19468,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\jina-ai_reader__src_3rd-party_serper-search.ts.txt"
+      },
+      {
+        "path": "src/api/searcher.ts",
+        "size": 37503,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\jina-ai_reader__src_api_searcher.ts.txt"
+      },
+      {
+        "path": "tests/e2e/assert-status-code.test.ts",
+        "size": 5725,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\jina-ai_reader__tests_e2e_assert-status-code.test.ts.txt"
+      },
+      {
+        "path": "tests/e2e/base-url-resolution.test.ts",
+        "size": 3624,
+        "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\jina-ai_reader__tests_e2e_base-url-resolution.test.ts.txt"
+      }
+    ],
+    "dimensions": [
+      "context-injection",
+      "version-integrity",
+      "read-cap-policy",
+      "find-replace",
+      "dual-entry-equivalence"
+    ],
+    "seedDirect": true
+  }
+]

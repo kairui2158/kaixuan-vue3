@@ -1,0 +1,100 @@
+{
+  "schema": "shenyi.outline-virtualization.electron",
+  "version": 1,
+  "documentChars": 7759,
+  "documentRequirement": ">=5000",
+  "rounds": [
+    {
+      "round": 1,
+      "documentChars": 7759,
+      "targetOffset": 2180,
+      "selectionStart": 2180,
+      "scrollTop": 3495,
+      "scrollHeight": 5825,
+      "contentStable": true
+    },
+    {
+      "round": 2,
+      "documentChars": 7759,
+      "targetOffset": 3732,
+      "selectionStart": 3732,
+      "scrollTop": 3495,
+      "scrollHeight": 5825,
+      "contentStable": true
+    },
+    {
+      "round": 3,
+      "documentChars": 7759,
+      "targetOffset": 5284,
+      "selectionStart": 5284,
+      "scrollTop": 3495,
+      "scrollHeight": 5825,
+      "contentStable": true
+    },
+    {
+      "round": 4,
+      "documentChars": 7759,
+      "targetOffset": 6836,
+      "selectionStart": 6836,
+      "scrollTop": 3495,
+      "scrollHeight": 5825,
+      "contentStable": true
+    },
+    {
+      "round": 5,
+      "documentChars": 7759,
+      "targetOffset": 628,
+      "selectionStart": 628,
+      "scrollTop": 3495,
+      "scrollHeight": 5825,
+      "contentStable": true
+    },
+    {
+      "round": 6,
+      "documentChars": 7759,
+      "targetOffset": 2180,
+      "selectionStart": 2180,
+      "scrollTop": 3495,
+      "scrollHeight": 5825,
+      "contentStable": true
+    },
+    {
+      "round": 7,
+      "documentChars": 7759,
+      "targetOffset": 3732,
+      "selectionStart": 3732,
+      "scrollTop": 3495,
+      "scrollHeight": 5825,
+      "contentStable": true
+    },
+    {
+      "round": 8,
+      "documentChars": 7759,
+      "targetOffset": 5284,
+      "selectionStart": 5284,
+      "scrollTop": 3495,
+      "scrollHeight": 5825,
+      "contentStable": true
+    },
+    {
+      "round": 9,
+      "documentChars": 7759,
+      "targetOffset": 6836,
+      "selectionStart": 6836,
+      "scrollTop": 3495,
+      "scrollHeight": 5825,
+      "contentStable": true
+    },
+    {
+      "round": 10,
+      "documentChars": 7759,
+      "targetOffset": 628,
+      "selectionStart": 628,
+      "scrollTop": 3495,
+      "scrollHeight": 5825,
+      "contentStable": true
+    }
+  ],
+  "assertions": "10 rounds: long outline selection positioning, scroll responsiveness, content stability, no page errors",
+  "generatedAt": "2026-09-25T02:11:01.260Z"
+}

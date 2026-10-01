@@ -1,0 +1,3082 @@
+[
+  {
+    "query": "Chinese",
+    "count": 20,
+    "items": [
+      {
+        "id": "Hello-SimpleAI/HC3-Chinese",
+        "downloads": 1708,
+        "likes": 176,
+        "tags": [
+          "task_categories:text-classification",
+          "task_categories:question-answering",
+          "task_categories:sentence-similarity",
+          "task_categories:zero-shot-classification",
+          "language:en",
+          "language:zh",
+          "license:cc-by-sa-4.0",
+          "size_categories:10K<n<100K",
+          "modality:text",
+          "library:datasets",
+          "library:mlcroissant",
+          "arxiv:2301.07597",
+          "region:us",
+          "ChatGPT",
+          "SimpleAI",
+          "Detection",
+          "OOD"
+        ]
+      },
+      {
+        "id": "Foxintohumanbeing/2022_Chinese_Stock_Market_Minbar_Data",
+        "downloads": 213,
+        "likes": 2,
+        "tags": "region:us"
+      },
+      {
+        "id": "raptorkwok/cantonese-chinese-parallel-corpus-base",
+        "downloads": 175,
+        "likes": 17,
+        "tags": [
+          "task_categories:translation",
+          "language:zh",
+          "license:cc0-1.0",
+          "size_categories:100K<n<1M",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:polars",
+          "library:mlcroissant",
+          "region:us"
+        ]
+      },
+      {
+        "id": "FreedomIntelligence/Evol-Instruct-Chinese-GPT4",
+        "downloads": 184,
+        "likes": 47,
+        "tags": [
+          "task_categories:text-generation",
+          "language:zh",
+          "size_categories:10K<n<100K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2309.12053",
+          "arxiv:2304.10453",
+          "region:us"
+        ]
+      },
+      {
+        "id": "yuyijiong/LongAlpaca-Chinese",
+        "downloads": 44,
+        "likes": 10,
+        "tags": [
+          "language:zh",
+          "license:cc-by-nc-4.0",
+          "modality:text",
+          "region:us"
+        ]
+      },
+      {
+        "id": "kurehamnm/Chinese_Question_Answering_Dataset",
+        "downloads": 103,
+        "likes": 4,
+        "tags": [
+          "task_categories:question-answering",
+          "language:zh",
+          "size_categories:1M<n<10M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "SWHL/ChineseOCRBench",
+        "downloads": 352,
+        "likes": 27,
+        "tags": [
+          "language:zh",
+          "license:apache-2.0",
+          "size_categories:1K<n<10K",
+          "format:imagefolder",
+          "modality:image",
+          "modality:text",
+          "library:datasets",
+          "library:mlcroissant",
+          "arxiv:2305.07895",
+          "region:us"
+        ]
+      },
+      {
+        "id": "mrzjy/honkai_impact_3rd_chinese_dialogue_corpus",
+        "downloads": 247,
+        "likes": 15,
+        "tags": [
+          "language:zh",
+          "license:apache-2.0",
+          "size_categories:10K<n<100K",
+          "region:us",
+          "game",
+          "honkai_impact",
+          "hoyoverse",
+          "dialogue",
+          "narration"
+        ]
+      },
+      {
+        "id": "SylvanL/Traditional-Chinese-Medicine-Dataset-SFT",
+        "downloads": 783,
+        "likes": 107,
+        "tags": [
+          "task_categories:table-question-answering",
+          "language:zh",
+          "license:apache-2.0",
+          "size_categories:1M<n<10M",
+          "modality:text",
+          "region:us",
+          "medical"
+        ]
+      },
+      {
+        "id": "Johnson8187/Chinese_Multi-Emotion_Dialogue_Dataset",
+        "downloads": 213,
+        "likes": 19,
+        "tags": [
+          "task_categories:text-classification",
+          "task_categories:text-generation",
+          "task_categories:fill-mask",
+          "language:zh",
+          "license:mit",
+          "size_categories:1K<n<10K",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:polars",
+          "library:mlcroissant",
+          "region:us",
+          "emotion",
+          "conversation"
+        ]
+      },
+      {
+        "id": "Congliu/Chinese-DeepSeek-R1-Distill-data-110k",
+        "downloads": 908,
+        "likes": 789,
+        "tags": [
+          "task_categories:text-generation",
+          "task_categories:question-answering",
+          "language:zh",
+          "license:apache-2.0",
+          "size_categories:100K<n<1M",
+          "format:json",
+          "modality:tabular",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "zjunlp/ChineseHarm-bench",
+        "downloads": 376,
+        "likes": 13,
+        "tags": [
+          "task_categories:text-classification",
+          "language:zh",
+          "license:cc-by-nc-4.0",
+          "size_categories:10K<n<100K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "arxiv:2506.10960",
+          "region:us"
+        ]
+      },
+      {
+        "id": "guoxz/GX-Chinese-Instruct-1M-2508",
+        "downloads": 49,
+        "likes": 2,
+        "tags": [
+          "license:apache-2.0",
+          "size_categories:1M<n<10M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "reatiny/chinese-spam-10000",
+        "downloads": 29,
+        "likes": 20,
+        "tags": [
+          "size_categories:1K<n<10K",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "Gare/Classical_Chinese_to_Modern_Chinese",
+        "downloads": 7,
+        "likes": 5,
+        "tags": [
+          "license:mit",
+          "size_categories:n<1K",
+          "format:text",
+          "modality:text",
+          "library:datasets",
+          "library:mlcroissant",
+          "region:us"
+        ]
+      },
+      {
+        "id": "jiangjiechen/ekar_chinese",
+        "downloads": 1795,
+        "likes": 13,
+        "tags": [
+          "task_categories:question-answering",
+          "task_categories:text-generation",
+          "task_ids:explanation-generation",
+          "source_datasets:original",
+          "language:zh",
+          "license:afl-3.0",
+          "size_categories:1K<n<10K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "DMetaSoul/chinese-semantic-textual-similarity",
+        "downloads": 21,
+        "likes": 17,
+        "tags": [
+          "license:apache-2.0",
+          "region:us"
+        ]
+      },
+      {
+        "id": "zhangqiaobit/chinese_poetrys",
+        "downloads": 185,
+        "likes": 10,
+        "tags": "region:us"
+      },
+      {
+        "id": "mmdjiji/bert-chinese-idioms",
+        "downloads": 59,
+        "likes": 4,
+        "tags": [
+          "license:gpl-3.0",
+          "size_categories:10K<n<100K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "dddb/autotrain-data-mt5_chinese_small_finetune",
+        "downloads": 14,
+        "likes": 0,
+        "tags": "region:us"
+      }
+    ]
+  },
+  {
+    "query": "中文",
+    "count": 0,
+    "items": []
+  },
+  {
+    "query": "editing",
+    "count": 20,
+    "items": [
+      {
+        "id": "KingNish/Image-Gen-or-Image-Editing",
+        "downloads": 72,
+        "likes": 7,
+        "tags": [
+          "task_categories:text-classification",
+          "language:en",
+          "license:mit",
+          "size_categories:1K<n<10K",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us",
+          "art"
+        ]
+      },
+      {
+        "id": "LeroyDyer/Text_Guided_Image_Editing_Base64",
+        "downloads": 52,
+        "likes": 3,
+        "tags": [
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:image",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "Image-editing-3924/Image-Editing-ver1",
+        "downloads": 38,
+        "likes": 3,
+        "tags": [
+          "size_categories:1K<n<10K",
+          "format:parquet",
+          "modality:image",
+          "modality:text",
+          "modality:timeseries",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "molbal/identity_preservation_image_editing",
+        "downloads": 997,
+        "likes": 4,
+        "tags": [
+          "task_categories:image-to-image",
+          "language:en",
+          "license:cc-by-4.0",
+          "size_categories:10K<n<100K",
+          "region:us",
+          "image-editing",
+          "diffusion",
+          "identity-preservation",
+          "synthetic-data",
+          "augmentation",
+          "spatial-reasoning"
+        ]
+      },
+      {
+        "id": "ImagenHub/Text_Guided_Image_Editing",
+        "downloads": 281,
+        "likes": 26,
+        "tags": [
+          "task_categories:image-to-image",
+          "language:en",
+          "license:cc-by-4.0",
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:image",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2310.01596",
+          "region:us"
+        ]
+      },
+      {
+        "id": "ImagenHub/Subject_Driven_Image_Editing",
+        "downloads": 73,
+        "likes": 3,
+        "tags": [
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:image",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2310.01596",
+          "region:us"
+        ]
+      },
+      {
+        "id": "ImagenHub/Mask_Guided_Image_Editing",
+        "downloads": 153,
+        "likes": 3,
+        "tags": [
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:image",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2310.01596",
+          "region:us"
+        ]
+      },
+      {
+        "id": "victorzarzu/interior-design-editing-prompts",
+        "downloads": 26,
+        "likes": 2,
+        "tags": [
+          "size_categories:1K<n<10K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "tianyi0216/ukioye_editing",
+        "downloads": 5,
+        "likes": 1,
+        "tags": [
+          "size_categories:1K<n<10K",
+          "format:parquet",
+          "modality:image",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "grimulkan/document-editing",
+        "downloads": 21,
+        "likes": 2,
+        "tags": [
+          "license:apache-2.0",
+          "size_categories:n<1K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "region:us"
+        ]
+      },
+      {
+        "id": "victorzarzu/interior-design-prompt-editing-dataset-unchanged",
+        "downloads": 9,
+        "likes": 3,
+        "tags": [
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:image",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "victorzarzu/interior-design-prompt-editing-dataset-train",
+        "downloads": 74,
+        "likes": 8,
+        "tags": [
+          "size_categories:1K<n<10K",
+          "format:parquet",
+          "modality:image",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "victorzarzu/interior-design-prompt-editing-dataset-test",
+        "downloads": 49,
+        "likes": 9,
+        "tags": [
+          "size_categories:1K<n<10K",
+          "format:parquet",
+          "modality:image",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "wangzn2001/Model_Editing_Hurt",
+        "downloads": 1038,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "llm-editing/editing-attack",
+        "downloads": 61,
+        "likes": 0,
+        "tags": [
+          "modality:text",
+          "arxiv:2407.20224",
+          "region:us"
+        ]
+      },
+      {
+        "id": "PurCL/CSN-python-last-func-call-editing-completion",
+        "downloads": 27,
+        "likes": 0,
+        "tags": [
+          "size_categories:100K<n<1M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "PurCL/CSN-python-last-func-call-editing-short-completion",
+        "downloads": 40,
+        "likes": 0,
+        "tags": [
+          "size_categories:100K<n<1M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "VarunB31990/Video-Editing-Dataset",
+        "downloads": 26,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:image",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "gjyotin305/polite_editing",
+        "downloads": 10,
+        "likes": 0,
+        "tags": [
+          "size_categories:1K<n<10K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "llm-editing/HalluEditBench",
+        "downloads": 442,
+        "likes": 3,
+        "tags": [
+          "task_categories:question-answering",
+          "language:en",
+          "license:mit",
+          "size_categories:1K<n<10K",
+          "arxiv:2410.16251",
+          "region:us"
+        ]
+      }
+    ]
+  },
+  {
+    "query": "editing instructions",
+    "count": 0,
+    "items": []
+  },
+  {
+    "query": "text editing",
+    "count": 5,
+    "items": [
+      {
+        "id": "LeroyDyer/Text_Guided_Image_Editing_Base64",
+        "downloads": 52,
+        "likes": 3,
+        "tags": [
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:image",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "ImagenHub/Text_Guided_Image_Editing",
+        "downloads": 281,
+        "likes": 26,
+        "tags": [
+          "task_categories:image-to-image",
+          "language:en",
+          "license:cc-by-4.0",
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:image",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2310.01596",
+          "region:us"
+        ]
+      },
+      {
+        "id": "LeroyDyer/Text_Guided_Image_Editing_Base64_200",
+        "downloads": 21,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:image",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "d0rj/Text_Guided_Image_Editing-ru",
+        "downloads": 20,
+        "likes": 0,
+        "tags": [
+          "task_categories:image-to-image",
+          "language_creators:translated",
+          "source_datasets:ImagenHub/Text_Guided_Image_Editing",
+          "language:ru",
+          "license:cc-by-4.0",
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:image",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us",
+          "instruction",
+          "sft"
+        ]
+      },
+      {
+        "id": "AoShen/text-editing-tasks",
+        "downloads": 24,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:text",
+          "modality:text",
+          "library:datasets",
+          "library:mlcroissant",
+          "region:us"
+        ]
+      }
+    ]
+  },
+  {
+    "query": "writing assistant",
+    "count": 1,
+    "items": [
+      {
+        "id": "adiez85/Email-Writing-Assistant",
+        "downloads": 3,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      }
+    ]
+  },
+  {
+    "query": "writing instructions",
+    "count": 2,
+    "items": [
+      {
+        "id": "mlfoundations-dev/airoboros_writing_instructions_gpt-4o-mini",
+        "downloads": 148,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "KKACHI-HUB/refined_ko_writing_instructions",
+        "downloads": 1,
+        "likes": 1,
+        "tags": [
+          "size_categories:1K<n<10K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      }
+    ]
+  },
+  {
+    "query": "novel writing",
+    "count": 2,
+    "items": [
+      {
+        "id": "silk-road/ChatHaruhi_NovelWriting",
+        "downloads": 124,
+        "likes": 8,
+        "tags": [
+          "license:cc-by-4.0",
+          "size_categories:10K<n<100K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "StonerJay420/novel-writing",
+        "downloads": 1,
+        "likes": 0,
+        "tags": [
+          "license:apache-2.0",
+          "region:us"
+        ]
+      }
+    ]
+  },
+  {
+    "query": "fiction writing",
+    "count": 0,
+    "items": []
+  },
+  {
+    "query": "dialogue intent",
+    "count": 3,
+    "items": [
+      {
+        "id": "Tasfiya025/MedicalChatbot_IntentRecognition_Dialogue",
+        "downloads": 2,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:csv",
+          "modality:tabular",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:polars",
+          "library:mlcroissant",
+          "region:us"
+        ]
+      },
+      {
+        "id": "mayank1705/adaption-mixed-intent-dialogue-samples",
+        "downloads": 26,
+        "likes": 0,
+        "tags": [
+          "multilinguality:multilingual",
+          "source_datasets:original",
+          "language:en",
+          "language:ca",
+          "language:nl",
+          "size_categories:10K<n<100K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:polars",
+          "library:mlcroissant",
+          "region:us",
+          "adaption",
+          "instruction-tuning",
+          "language",
+          "other",
+          "academic-education"
+        ]
+      },
+      {
+        "id": "adeleyi/adaption-mixed-intent-dialogue-samples",
+        "downloads": 12,
+        "likes": 0,
+        "tags": [
+          "multilinguality:multilingual",
+          "language:en",
+          "language:vi",
+          "language:br",
+          "size_categories:n<1K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:polars",
+          "library:mlcroissant",
+          "region:us",
+          "adaption",
+          "preference-training",
+          "cooking"
+        ]
+      }
+    ]
+  },
+  {
+    "query": "intent classification",
+    "count": 20,
+    "items": [
+      {
+        "id": "Husain/intent-classification-en-fr",
+        "downloads": 119,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "Bhuvaneshwari/intent_classification",
+        "downloads": 34,
+        "likes": 9,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "Bhuvaneshwari/intent_classification1",
+        "downloads": 2,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "dipesh/Intent-Classification-small",
+        "downloads": 20,
+        "likes": 2,
+        "tags": [
+          "size_categories:1K<n<10K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "dipesh/Intent-Classification-large",
+        "downloads": 15,
+        "likes": 4,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "zxypro/storyteller-bot-intent-classification",
+        "downloads": 13,
+        "likes": 0,
+        "tags": [
+          "license:apache-2.0",
+          "size_categories:n<1K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "CATIE-AQ/amazon_massive_intent_fr_prompt_intent_classification",
+        "downloads": 45,
+        "likes": 0,
+        "tags": [
+          "task_categories:text-classification",
+          "annotations_creators:found",
+          "language_creators:found",
+          "multilinguality:monolingual",
+          "source_datasets:amazon_massive_intent",
+          "language:fra",
+          "license:apache-2.0",
+          "size_categories:100K<n<1M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2204.08582",
+          "region:us",
+          "intent-classification",
+          "DFP",
+          "french prompts"
+        ]
+      },
+      {
+        "id": "CATIE-AQ/mtop_domain_intent_fr_prompt_intent_classification",
+        "downloads": 31,
+        "likes": 0,
+        "tags": [
+          "task_categories:text-classification",
+          "annotations_creators:found",
+          "language_creators:found",
+          "multilinguality:monolingual",
+          "source_datasets:mtop_domain_intent",
+          "language:fra",
+          "license:unknown",
+          "size_categories:100K<n<1M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2008.09335",
+          "region:us",
+          "intent-classification",
+          "DFP",
+          "french prompts"
+        ]
+      },
+      {
+        "id": "Workhack/intent_classification_for_mistral_finetune",
+        "downloads": 5,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "aadilsayad/email-intent-classification",
+        "downloads": 22,
+        "likes": 2,
+        "tags": [
+          "size_categories:1K<n<10K",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "elenigkove/Email_Intent_Classification",
+        "downloads": 32,
+        "likes": 1,
+        "tags": [
+          "task_categories:text-classification",
+          "language:en",
+          "size_categories:n<1K",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "Narkantak/IntentClassification_7575",
+        "downloads": 3,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "mohits01/Text-Intent-Classification",
+        "downloads": 10,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "mohits01/Text-Intent-Classificationv2.0",
+        "downloads": 38,
+        "likes": 0,
+        "tags": [
+          "size_categories:1K<n<10K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:polars",
+          "library:mlcroissant",
+          "region:us"
+        ]
+      },
+      {
+        "id": "Narkantak/IntentClassificationPromptV2",
+        "downloads": 4,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "mohits01/IntentClassificationShuffled",
+        "downloads": 24,
+        "likes": 2,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "Narkantak/IntentClassificationPhi3",
+        "downloads": 12,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "Narkantak/IntentClassificationPhi3Terminate",
+        "downloads": 11,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "Narkantak/IntentClassificationPhi3InstallTerminate",
+        "downloads": 9,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "DynamicSuperbPrivate/IntentClassification_FluentSpeechCommands-Action_TTS",
+        "downloads": 9,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:audio",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      }
+    ]
+  },
+  {
+    "query": "task-oriented dialogue",
+    "count": 0,
+    "items": []
+  },
+  {
+    "query": "paraphrase",
+    "count": 20,
+    "items": [
+      {
+        "id": "humarin/chatgpt-paraphrases",
+        "downloads": 244,
+        "likes": 61,
+        "tags": [
+          "language:en",
+          "license:openrail",
+          "size_categories:100K<n<1M",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "redis/llm-paraphrases",
+        "downloads": 82,
+        "likes": 3,
+        "tags": [
+          "task_categories:text-classification",
+          "task_categories:sentence-similarity",
+          "language:en",
+          "license:apache-2.0",
+          "size_categories:1M<n<10M",
+          "format:parquet",
+          "format:optimized-parquet",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:polars",
+          "library:mlcroissant",
+          "arxiv:2504.02268",
+          "region:us",
+          "english",
+          "sentence-similarity",
+          "sentence-pair-classification",
+          "paraphrase-detection",
+          "synthetic-data",
+          "llm-generated",
+          "semantic-caching"
+        ]
+      },
+      {
+        "id": "GEM/turku_paraphrase_corpus",
+        "downloads": 159,
+        "likes": 0,
+        "tags": [
+          "task_categories:other",
+          "annotations_creators:expert-created",
+          "language_creators:unknown",
+          "multilinguality:unknown",
+          "source_datasets:original",
+          "language:fi",
+          "license:cc-by-sa-4.0",
+          "region:us",
+          "paraphrasing"
+        ]
+      },
+      {
+        "id": "Karavet/ARPA-Armenian-Paraphrase-Corpus",
+        "downloads": 294,
+        "likes": 3,
+        "tags": [
+          "multilinguality:monolingual",
+          "language:hy",
+          "size_categories:1K<n<10K",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2009.12615",
+          "region:us"
+        ]
+      },
+      {
+        "id": "TurkuNLP/turku_paraphrase_corpus",
+        "downloads": 167,
+        "likes": 4,
+        "tags": [
+          "task_categories:text-classification",
+          "task_categories:sentence-similarity",
+          "task_categories:other",
+          "task_ids:semantic-similarity-classification",
+          "annotations_creators:expert-generated",
+          "multilinguality:monolingual",
+          "source_datasets:original",
+          "language:fi",
+          "license:cc-by-sa-4.0",
+          "size_categories:100K<n<1M",
+          "region:us"
+        ]
+      },
+      {
+        "id": "cointegrated/ru-paraphrase-NMT-Leipzig",
+        "downloads": 583,
+        "likes": 11,
+        "tags": [
+          "task_categories:text-generation",
+          "annotations_creators:no-annotation",
+          "language_creators:machine-generated",
+          "multilinguality:translation",
+          "source_datasets:extended|other",
+          "language:ru",
+          "license:cc-by-4.0",
+          "size_categories:100K<n<1M",
+          "region:us",
+          "conditional-text-generation",
+          "paraphrase-generation",
+          "paraphrase"
+        ]
+      },
+      {
+        "id": "deepakvk/squad2_valdn_paraphrased",
+        "downloads": 12,
+        "likes": 0,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "cestwc/paraphrase",
+        "downloads": 81,
+        "likes": 5,
+        "tags": [
+          "size_categories:1M<n<10M",
+          "format:parquet",
+          "modality:tabular",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "merionum/ru_paraphraser",
+        "downloads": 288,
+        "likes": 13,
+        "tags": [
+          "task_categories:text-classification",
+          "task_categories:text-generation",
+          "task_categories:sentence-similarity",
+          "task_ids:semantic-similarity-scoring",
+          "annotations_creators:crowdsourced",
+          "annotations_creators:expert-generated",
+          "annotations_creators:machine-generated",
+          "language_creators:crowdsourced",
+          "multilinguality:monolingual",
+          "source_datasets:original",
+          "language:ru",
+          "license:mit",
+          "size_categories:1K<n<10K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "mahdiAsefi/autotrain-data-persina-paraphrase",
+        "downloads": 11,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "catasaurus/paraphrase-dataset2",
+        "downloads": 18,
+        "likes": 4,
+        "tags": [
+          "size_categories:100K<n<1M",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "RUCAIBox/Paraphrase",
+        "downloads": 17,
+        "likes": 0,
+        "tags": [
+          "task_categories:other",
+          "multilinguality:monolingual",
+          "language:en",
+          "region:us",
+          "paraphrase"
+        ]
+      },
+      {
+        "id": "jakartaresearch/id-paraphrase-detection",
+        "downloads": 21,
+        "likes": 3,
+        "tags": [
+          "task_categories:sentence-similarity",
+          "annotations_creators:found",
+          "language_creators:found",
+          "multilinguality:monolingual",
+          "source_datasets:extended|msrp",
+          "language:id",
+          "license:cc-by-4.0",
+          "size_categories:1K<n<10K",
+          "modality:text",
+          "library:datasets",
+          "library:mlcroissant",
+          "region:us",
+          "msrp",
+          "id-msrp",
+          "paraphrase-detection"
+        ]
+      },
+      {
+        "id": "jaimin/paraphrase",
+        "downloads": 7,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "paraphraser/first_data",
+        "downloads": 5,
+        "likes": 0,
+        "tags": [
+          "license:other",
+          "region:us"
+        ]
+      },
+      {
+        "id": "jpwahle/machine-paraphrase-dataset",
+        "downloads": 160,
+        "likes": 7,
+        "tags": [
+          "task_categories:text-classification",
+          "task_categories:text-generation",
+          "annotations_creators:machine-generated",
+          "language_creators:machine-generated",
+          "multilinguality:monolingual",
+          "source_datasets:original",
+          "language:en",
+          "license:cc-by-4.0",
+          "size_categories:100K<n<1M",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2103.11909",
+          "doi:10.57967/hf/7777",
+          "region:us",
+          "spinbot",
+          "spinnerchief",
+          "plagiarism",
+          "paraphrase",
+          "academic integrity",
+          "arxiv",
+          "wikipedia",
+          "theses"
+        ]
+      },
+      {
+        "id": "jpwahle/autoencoder-paraphrase-dataset",
+        "downloads": 164,
+        "likes": 2,
+        "tags": [
+          "task_categories:text-classification",
+          "task_categories:text-generation",
+          "annotations_creators:machine-generated",
+          "language_creators:machine-generated",
+          "multilinguality:monolingual",
+          "source_datasets:original",
+          "language:en",
+          "license:cc-by-4.0",
+          "size_categories:1M<n<10M",
+          "format:csv",
+          "modality:tabular",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2103.12450",
+          "region:us",
+          "bert",
+          "roberta",
+          "longformer",
+          "plagiarism",
+          "paraphrase",
+          "academic integrity",
+          "arxiv",
+          "wikipedia",
+          "theses"
+        ]
+      },
+      {
+        "id": "jpwahle/autoregressive-paraphrase-dataset",
+        "downloads": 56,
+        "likes": 1,
+        "tags": [
+          "task_categories:text-classification",
+          "task_categories:text-generation",
+          "annotations_creators:machine-generated",
+          "language_creators:machine-generated",
+          "multilinguality:monolingual",
+          "source_datasets:original",
+          "language:en",
+          "license:cc-by-4.0",
+          "size_categories:100K<n<1M",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2210.03568",
+          "region:us",
+          "plagiarism",
+          "paraphrase",
+          "academic integrity",
+          "arxiv",
+          "wikipedia",
+          "theses",
+          "bert",
+          "roberta",
+          "t5",
+          "gpt-3"
+        ]
+      },
+      {
+        "id": "mrbesher/tr-paraphrase-tatoeba",
+        "downloads": 40,
+        "likes": 1,
+        "tags": [
+          "license:cc-by-4.0",
+          "size_categories:10K<n<100K",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "mrbesher/tr-paraphrase-opensubtitles2018",
+        "downloads": 79,
+        "likes": 1,
+        "tags": [
+          "license:cc-by-4.0",
+          "size_categories:100K<n<1M",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      }
+    ]
+  },
+  {
+    "query": "text rewriting",
+    "count": 0,
+    "items": []
+  },
+  {
+    "query": "grammatical error correction",
+    "count": 3,
+    "items": [
+      {
+        "id": "sumitaryal/nepali_grammatical_error_correction",
+        "downloads": 10,
+        "likes": 0,
+        "tags": [
+          "size_categories:1M<n<10M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "Karthi02/grammatical-error-correction",
+        "downloads": 31,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "Karthi02/grammatical_error_correction",
+        "downloads": 44,
+        "likes": 0,
+        "tags": "region:us"
+      }
+    ]
+  },
+  {
+    "query": "instruction",
+    "count": 20,
+    "items": [
+      {
+        "id": "mesolitica/Zeroshot-Audio-Classification-Instructions",
+        "downloads": 93,
+        "likes": 3,
+        "tags": [
+          "language:en",
+          "size_categories:1M<n<10M",
+          "format:parquet",
+          "modality:audio",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "alxfgh/PubChem_Drug_Instruction_Tuning",
+        "downloads": 65,
+        "likes": 11,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "alxfgh/ChEMBL_Drug_Instruction_Tuning",
+        "downloads": 86,
+        "likes": 15,
+        "tags": [
+          "task_categories:question-answering",
+          "language:en",
+          "size_categories:100K<n<1M",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "goendalf666/sales-conversations-instruction-ext",
+        "downloads": 61,
+        "likes": 7,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "Trendyol/Trendyol-Cybersecurity-Instruction-Tuning-Dataset",
+        "downloads": 5451,
+        "likes": 133,
+        "tags": [
+          "task_categories:text-generation",
+          "task_categories:question-answering",
+          "language:en",
+          "license:apache-2.0",
+          "size_categories:10K<n<100K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us",
+          "cybersecurity",
+          "defensive-security",
+          "instruction-tuning",
+          "threat-intelligence",
+          "incident-response",
+          "security-operations"
+        ]
+      },
+      {
+        "id": "Lev384501/russian_instructions_2_cleaned",
+        "downloads": 58,
+        "likes": 2,
+        "tags": [
+          "task_categories:text-generation",
+          "language:ru",
+          "license:mit",
+          "size_categories:100K<n<1M",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:polars",
+          "library:mlcroissant",
+          "region:us",
+          "russian",
+          "instruction-tuning",
+          "sft",
+          "chat"
+        ]
+      },
+      {
+        "id": "sail/symbolic-instruction-tuning",
+        "downloads": 163,
+        "likes": 16,
+        "tags": [
+          "license:mit",
+          "size_categories:100K<n<1M",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "arxiv:2304.07995",
+          "region:us"
+        ]
+      },
+      {
+        "id": "haitengzhao/molecule_property_instruction",
+        "downloads": 14789,
+        "likes": 20,
+        "tags": [
+          "task_categories:question-answering",
+          "language:en",
+          "license:afl-3.0",
+          "size_categories:10M<n<100M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:polars",
+          "library:mlcroissant",
+          "region:us",
+          "chemistry",
+          "biology"
+        ]
+      },
+      {
+        "id": "iamtarun/python_code_instructions_18k_alpaca",
+        "downloads": 36701,
+        "likes": 349,
+        "tags": [
+          "task_categories:question-answering",
+          "task_categories:text-generation",
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us",
+          "code"
+        ]
+      },
+      {
+        "id": "tyzhu/v1.1_context_instruction_tuning",
+        "downloads": 78,
+        "likes": 1,
+        "tags": [
+          "size_categories:100K<n<1M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "goendalf666/sales-conversations-instruction-base",
+        "downloads": 109,
+        "likes": 3,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2306.11644",
+          "region:us"
+        ]
+      },
+      {
+        "id": "goendalf666/sales-conversations-instruction-customer",
+        "downloads": 57,
+        "likes": 7,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "Shiveswarran/llm_instruction_code_manual_yolo_lc",
+        "downloads": 18,
+        "likes": 2,
+        "tags": [
+          "size_categories:n<1K",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "Vanessasml/cybersecurity_32k_instruction_input_output",
+        "downloads": 1156,
+        "likes": 20,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:tabular",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "adorkin/general-instruction-augmented-corpora",
+        "downloads": 115,
+        "likes": 3,
+        "tags": [
+          "language:en",
+          "license:odc-by",
+          "size_categories:10M<n<100M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "nvidia/Nemotron-RL-instruction_following",
+        "downloads": 724,
+        "likes": 18,
+        "tags": [
+          "license:odc-by",
+          "region:us"
+        ]
+      },
+      {
+        "id": "tascib/turkish-instruction",
+        "downloads": 160,
+        "likes": 2,
+        "tags": [
+          "language:tr",
+          "license:cc-by-sa-4.0",
+          "size_categories:100K<n<1M",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:polars",
+          "library:mlcroissant",
+          "region:us",
+          "instruction-tuning",
+          "turkish",
+          "nlp",
+          "llm"
+        ]
+      },
+      {
+        "id": "nvidia/Nemotron-SFT-Instruction-Following-Chat-v3",
+        "downloads": 5058,
+        "likes": 20,
+        "tags": [
+          "task_categories:text-generation",
+          "language:en",
+          "license:odc-by",
+          "license:cc-by-4.0",
+          "license:apache-2.0",
+          "license:other",
+          "size_categories:100K<n<1M",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:polars",
+          "library:mlcroissant",
+          "region:us",
+          "chat",
+          "instruction-following",
+          "supervised-fine-tuning",
+          "sft",
+          "synthetic",
+          "text",
+          "Nemotron_3_Ultra"
+        ]
+      },
+      {
+        "id": "Synworx-AI/SciRIFF-Instruction",
+        "downloads": 4,
+        "likes": 1,
+        "tags": [
+          "license:cc-by-nc-nd-4.0",
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:polars",
+          "library:mlcroissant",
+          "region:us"
+        ]
+      },
+      {
+        "id": "fluid-concepts/multimodal-expert-instruction-samples",
+        "downloads": 71,
+        "likes": 1,
+        "tags": [
+          "language:en",
+          "license:other",
+          "size_categories:n<1K",
+          "modality:audio",
+          "modality:tabular",
+          "modality:text",
+          "modality:video",
+          "library:datasets",
+          "library:mlcroissant",
+          "region:us",
+          "audio",
+          "video",
+          "speech",
+          "dialogue",
+          "instruction",
+          "tutoring",
+          "guitar"
+        ]
+      }
+    ]
+  },
+  {
+    "query": "COIG",
+    "count": 20,
+    "items": [
+      {
+        "id": "m-a-p/COIG-CQIA",
+        "downloads": 35937,
+        "likes": 774,
+        "tags": [
+          "task_categories:question-answering",
+          "task_categories:text-classification",
+          "task_categories:text-generation",
+          "language:zh",
+          "size_categories:10K<n<100K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2403.18058",
+          "arxiv:2304.07987",
+          "arxiv:2307.09705",
+          "region:us"
+        ]
+      },
+      {
+        "id": "BAAI/COIG-PC",
+        "downloads": 392,
+        "likes": 272,
+        "tags": [
+          "language:zh",
+          "license:unknown",
+          "size_categories:100M<n<1B",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2304.07987",
+          "region:us"
+        ]
+      },
+      {
+        "id": "m-a-p/COIG-Writer",
+        "downloads": 452,
+        "likes": 26,
+        "tags": [
+          "task_categories:question-answering",
+          "language:zh",
+          "license:apache-2.0",
+          "size_categories:1K<n<10K",
+          "arxiv:2510.14763",
+          "region:us",
+          "banchmark"
+        ]
+      },
+      {
+        "id": "BAAI/COIG",
+        "downloads": 2196,
+        "likes": 462,
+        "tags": [
+          "language:zh",
+          "license:apache-2.0",
+          "size_categories:100K<n<1M",
+          "modality:text",
+          "library:datasets",
+          "library:mlcroissant",
+          "arxiv:2204.07705",
+          "arxiv:2212.10560",
+          "arxiv:2212.09689",
+          "arxiv:2304.07987",
+          "region:us"
+        ]
+      },
+      {
+        "id": "BAAI/COIG-PC-Lite",
+        "downloads": 1004,
+        "likes": 36,
+        "tags": [
+          "language:zh",
+          "license:unknown",
+          "size_categories:1M<n<10M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2304.07987",
+          "region:us"
+        ]
+      },
+      {
+        "id": "ssbuild/alpaca_coig",
+        "downloads": 181,
+        "likes": 0,
+        "tags": [
+          "license:apache-2.0",
+          "size_categories:100K<n<1M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_uukuguy__speechless-orca-platypus-coig-lite-2k-0.6e-13b",
+        "downloads": 23,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_uukuguy__speechless-orca-platypus-coig-lite-4k-0.5e-13b",
+        "downloads": 26,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_uukuguy__speechless-orca-platypus-coig-lite-4k-0.6e-13b",
+        "downloads": 34,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "BAAI/COIG-PC-core",
+        "downloads": 368,
+        "likes": 29,
+        "tags": [
+          "language:zh",
+          "license:unknown",
+          "size_categories:100K<n<1M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2304.07987",
+          "region:us"
+        ]
+      },
+      {
+        "id": "yizhilll/cpt_v1_flan-niv2-notrans-sample_coig-pc-core",
+        "downloads": 19,
+        "likes": 0,
+        "tags": [
+          "size_categories:1M<n<10M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_uukuguy__speechless-hermes-coig-lite-13b",
+        "downloads": 27,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "erhwenkuo/coig-pc-zhtw",
+        "downloads": 101,
+        "likes": 0,
+        "tags": [
+          "size_categories:1M<n<10M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "m-a-p/COIG-Kun",
+        "downloads": 404,
+        "likes": 30,
+        "tags": [
+          "task_categories:question-answering",
+          "language:zh",
+          "size_categories:100K<n<1M",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "lorinma/Slim-COIG-Kun",
+        "downloads": 25,
+        "likes": 1,
+        "tags": [
+          "task_categories:question-answering",
+          "language:zh",
+          "license:mit",
+          "size_categories:10K<n<100K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:1708.00489",
+          "region:us"
+        ]
+      },
+      {
+        "id": "lorinma/EvolInstruct_zh_COIG-PC_Deepseek",
+        "downloads": 22,
+        "likes": 3,
+        "tags": [
+          "language:zh",
+          "license:mit",
+          "region:us"
+        ]
+      },
+      {
+        "id": "xDAN-datasets/COIG-CQIA-all-subset",
+        "downloads": 12,
+        "likes": 0,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "xDAN-Engine/COIG-answer",
+        "downloads": 14,
+        "likes": 0,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "xDAN-Engine/COIG-CQIA-Preference",
+        "downloads": 21,
+        "likes": 0,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "botp/COIG-CQIA",
+        "downloads": 201,
+        "likes": 0,
+        "tags": [
+          "task_categories:question-answering",
+          "task_categories:text-classification",
+          "task_categories:text-generation",
+          "language:zh",
+          "size_categories:10K<n<100K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2403.18058",
+          "arxiv:2304.07987",
+          "arxiv:2307.09705",
+          "region:us"
+        ]
+      }
+    ]
+  },
+  {
+    "query": "CQIA",
+    "count": 20,
+    "items": [
+      {
+        "id": "m-a-p/COIG-CQIA",
+        "downloads": 35937,
+        "likes": 774,
+        "tags": [
+          "task_categories:question-answering",
+          "task_categories:text-classification",
+          "task_categories:text-generation",
+          "language:zh",
+          "size_categories:10K<n<100K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2403.18058",
+          "arxiv:2304.07987",
+          "arxiv:2307.09705",
+          "region:us"
+        ]
+      },
+      {
+        "id": "xDAN-datasets/COIG-CQIA-all-subset",
+        "downloads": 12,
+        "likes": 0,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "xDAN-Engine/COIG-CQIA-Preference",
+        "downloads": 21,
+        "likes": 0,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "botp/COIG-CQIA",
+        "downloads": 201,
+        "likes": 0,
+        "tags": [
+          "task_categories:question-answering",
+          "task_categories:text-classification",
+          "task_categories:text-generation",
+          "language:zh",
+          "size_categories:10K<n<100K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2403.18058",
+          "arxiv:2304.07987",
+          "arxiv:2307.09705",
+          "region:us"
+        ]
+      },
+      {
+        "id": "zhengr/COIG-CQIA",
+        "downloads": 232,
+        "likes": 4,
+        "tags": [
+          "task_categories:question-answering",
+          "task_categories:text-classification",
+          "task_categories:text-generation",
+          "language:zh",
+          "size_categories:10K<n<100K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2403.18058",
+          "arxiv:2304.07987",
+          "arxiv:2307.09705",
+          "region:us"
+        ]
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_HenryJJ__llama3-8b-cqia",
+        "downloads": 23,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "Starlento/SFT-COIG-CQIA-handbook",
+        "downloads": 357,
+        "likes": 5,
+        "tags": [
+          "task_categories:text-generation",
+          "task_categories:question-answering",
+          "language:zh",
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "arxiv:2403.18058",
+          "region:us",
+          "sft"
+        ]
+      },
+      {
+        "id": "wzzwj/COIG-CQIA-full",
+        "downloads": 8,
+        "likes": 0,
+        "tags": [
+          "license:apache-2.0",
+          "region:us"
+        ]
+      },
+      {
+        "id": "svjack/COIG-CQIA-ZH-EN",
+        "downloads": 9,
+        "likes": 0,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "svjack/DPO-COIG-CQIA-ZH-REJECT-EN",
+        "downloads": 6,
+        "likes": 0,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "favorPotato/COIG-CQIA-full",
+        "downloads": 11,
+        "likes": 0,
+        "tags": [
+          "license:apache-2.0",
+          "size_categories:10K<n<100K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "simonguo/COIG-CQIA-full",
+        "downloads": 5,
+        "likes": 0,
+        "tags": [
+          "license:mit",
+          "size_categories:10K<n<100K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "dvilasuero/COIG-CQIA-en-translation-eval",
+        "downloads": 9,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "dvilasuero/COIG_CQIA_ruozhiba_ruozhiba_translation_judge",
+        "downloads": 18,
+        "likes": 0,
+        "tags": [
+          "task_categories:translation",
+          "task_categories:text-generation",
+          "language:zh",
+          "language:en",
+          "license:apache-2.0",
+          "size_categories:n<1K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us",
+          "synthetic"
+        ]
+      },
+      {
+        "id": "williamValid/chineseTraditional-CQIA-Qwen-1.5B",
+        "downloads": 8,
+        "likes": 1,
+        "tags": [
+          "license:apache-2.0",
+          "size_categories:1K<n<10K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "region:us"
+        ]
+      },
+      {
+        "id": "williamValid/exam-CQIA-Qwen-1.5B",
+        "downloads": 19,
+        "likes": 0,
+        "tags": [
+          "license:apache-2.0",
+          "size_categories:1K<n<10K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "region:us"
+        ]
+      },
+      {
+        "id": "williamValid/humanValue-CQIA-Qwen-1.5B",
+        "downloads": 6,
+        "likes": 0,
+        "tags": [
+          "license:apache-2.0",
+          "size_categories:1K<n<10K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "region:us"
+        ]
+      },
+      {
+        "id": "williamValid/logicQA-CQIA-Qwen-1.5B",
+        "downloads": 21,
+        "likes": 0,
+        "tags": [
+          "license:apache-2.0",
+          "size_categories:n<1K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "w497273/COIG-CQIA-gpt-oss-120b",
+        "downloads": 18,
+        "likes": 0,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "tonysong6462/COIG-CQIA-chinese-traditional",
+        "downloads": 23,
+        "likes": 0,
+        "tags": [
+          "task_categories:question-answering",
+          "task_categories:text-generation",
+          "task_categories:text-classification",
+          "language:zh",
+          "license:mit",
+          "size_categories:1K<n<10K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:polars",
+          "library:mlcroissant",
+          "region:us",
+          "chinese",
+          "traditional-chinese",
+          "instruction-following"
+        ]
+      }
+    ]
+  },
+  {
+    "query": "BELLE",
+    "count": 20,
+    "items": [
+      {
+        "id": "yuekai/belle_1M_and_alpaca_cleaned",
+        "downloads": 261,
+        "likes": 2,
+        "tags": "region:us"
+      },
+      {
+        "id": "Chinese-Vicuna/guanaco_belle_merge_v1.0",
+        "downloads": 295,
+        "likes": 101,
+        "tags": [
+          "language:zh",
+          "language:en",
+          "language:ja",
+          "license:gpl-3.0",
+          "size_categories:100K<n<1M",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "BelleGroup/train_1M_CN",
+        "downloads": 5782,
+        "likes": 157,
+        "tags": [
+          "language:zh",
+          "license:gpl-3.0",
+          "size_categories:100K<n<1M",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "BelleGroup/train_0.5M_CN",
+        "downloads": 4640,
+        "likes": 125,
+        "tags": [
+          "language:zh",
+          "license:gpl-3.0",
+          "size_categories:100K<n<1M",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "jeffwan/BELLE-Alpaca-CN",
+        "downloads": 19,
+        "likes": 0,
+        "tags": [
+          "license:gpl-3.0",
+          "region:us"
+        ]
+      },
+      {
+        "id": "BelleGroup/school_math_0.25M",
+        "downloads": 949,
+        "likes": 105,
+        "tags": [
+          "language:zh",
+          "license:gpl-3.0",
+          "size_categories:100K<n<1M",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "BelleGroup/multiturn_chat_0.8M",
+        "downloads": 709,
+        "likes": 146,
+        "tags": [
+          "language:zh",
+          "license:gpl-3.0",
+          "size_categories:100K<n<1M",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "younyokel/BelleDelphine",
+        "downloads": 28,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:imagefolder",
+          "modality:image",
+          "modality:text",
+          "library:datasets",
+          "library:mlcroissant",
+          "region:us"
+        ]
+      },
+      {
+        "id": "BelleGroup/train_2M_CN",
+        "downloads": 3312,
+        "likes": 111,
+        "tags": [
+          "language:zh",
+          "license:gpl-3.0",
+          "size_categories:1M<n<10M",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "BelleGroup/generated_chat_0.4M",
+        "downloads": 1377,
+        "likes": 69,
+        "tags": [
+          "language:zh",
+          "license:gpl-3.0",
+          "size_categories:100K<n<1M",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "Miranda2023/alpaca13-belle-eval",
+        "downloads": 19,
+        "likes": 0,
+        "tags": [
+          "size_categories:n<1K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "BelleGroup/train_3.5M_CN",
+        "downloads": 4547,
+        "likes": 156,
+        "tags": [
+          "language:zh",
+          "license:gpl-3.0",
+          "size_categories:1M<n<10M",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "fireinwind/GPT4_Instinwild_belle_cn_school_math_zdmqa",
+        "downloads": 16,
+        "likes": 6,
+        "tags": [
+          "license:apache-2.0",
+          "size_categories:100K<n<1M",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "lyogavin/Anima33B_rlhf_belle_eval_1k",
+        "downloads": 18,
+        "likes": 5,
+        "tags": [
+          "size_categories:1K<n<10K",
+          "format:parquet",
+          "modality:tabular",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "ssbuild/alpaca_belle",
+        "downloads": 55,
+        "likes": 2,
+        "tags": [
+          "license:agpl-3.0",
+          "size_categories:1M<n<10M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "vasileiosalevizos/All_Inclusive_Hacks_Bellerophon",
+        "downloads": 1,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "BELLE-2/train_3.5M_CN_With_Category",
+        "downloads": 99,
+        "likes": 22,
+        "tags": [
+          "language:zh",
+          "license:gpl-3.0",
+          "size_categories:1M<n<10M",
+          "region:us"
+        ]
+      },
+      {
+        "id": "frankminors123/belle-math-zh",
+        "downloads": 30,
+        "likes": 1,
+        "tags": [
+          "size_categories:100K<n<1M",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "yuekai/belle_platypus_shargpt4",
+        "downloads": 23,
+        "likes": 3,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:json",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "DialogueCharacter/chinese_belle_unfiltered",
+        "downloads": 67,
+        "likes": 1,
+        "tags": [
+          "size_categories:1M<n<10M",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:dask",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      }
+    ]
+  },
+  {
+    "query": "LLM chat",
+    "count": 20,
+    "items": [
+      {
+        "id": "bitext/Bitext-customer-support-llm-chatbot-training-dataset",
+        "downloads": 6624,
+        "likes": 194,
+        "tags": [
+          "task_categories:question-answering",
+          "task_categories:table-question-answering",
+          "language:en",
+          "license:cdla-sharing-1.0",
+          "size_categories:10K<n<100K",
+          "format:csv",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us",
+          "question-answering",
+          "llm",
+          "chatbot",
+          "customer-support",
+          "conversional-ai",
+          "generative-ai",
+          "natural-language-understanding",
+          "fine-tuning",
+          "Retail"
+        ]
+      },
+      {
+        "id": "AlekseyKorshuk/gpt4-llm-cleaned-chatml",
+        "downloads": 14,
+        "likes": 1,
+        "tags": [
+          "size_categories:10K<n<100K",
+          "format:parquet",
+          "modality:text",
+          "library:datasets",
+          "library:pandas",
+          "library:mlcroissant",
+          "library:polars",
+          "region:us"
+        ]
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_jarradh__llama2_70b_chat_uncensored",
+        "downloads": 154,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_acrastt__RedPajama-INCITE-Chat-Instruct-3B-V1",
+        "downloads": 113,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_Lajonbot__Llama-2-7b-chat-hf-instruct-pl-lora_unload",
+        "downloads": 78,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_mosaicml__mpt-30b-chat",
+        "downloads": 85,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_mosaicml__mpt-7b-chat",
+        "downloads": 53,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_kfkas__Llama-2-ko-7b-Chat",
+        "downloads": 63,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_shareAI__llama2-13b-Chinese-chat",
+        "downloads": 216,
+        "likes": 1,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_Fredithefish__RedPajama-INCITE-Chat-3B-Instruction-Tuning-with-GPT-4",
+        "downloads": 72,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_Fredithefish__RedPajama-INCITE-Chat-3B-ShareGPT-11K",
+        "downloads": 107,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_AlekseyKorshuk__pygmalion-6b-vicuna-chatml",
+        "downloads": 109,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_AlekseyKorshuk__chatml-pyg-v1",
+        "downloads": 75,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_georgesung__llama2_7b_chat_uncensored",
+        "downloads": 233,
+        "likes": 2,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_TheTravellingEngineer__llama2-7b-chat-hf-v4",
+        "downloads": 44,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_TheTravellingEngineer__llama2-7b-chat-hf-guanaco",
+        "downloads": 41,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_TheTravellingEngineer__llama2-7b-chat-hf-v2",
+        "downloads": 35,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_mncai__chatdoctor",
+        "downloads": 43,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_FreedomIntelligence__phoenix-inst-chat-7b",
+        "downloads": 172,
+        "likes": 0,
+        "tags": "region:us"
+      },
+      {
+        "id": "open-llm-leaderboard-old/details_julianweng__Llama-2-7b-chat-orcah",
+        "downloads": 45,
+        "likes": 0,
+        "tags": "region:us"
+      }
+    ]
+  }
+]

@@ -1,0 +1,91 @@
+{
+  "dimension": "version-integrity",
+  "round": 6,
+  "query": "editor state version vector",
+  "repositories": [
+    {
+      "fullName": "dypsilon/frontend-dev-bookmarks",
+      "stars": 47551,
+      "language": null,
+      "defaultBranch": "master",
+      "url": "https://github.com/dypsilon/frontend-dev-bookmarks",
+      "cachedFiles": [
+        {
+          "path": "workflow/version-control.md",
+          "size": 1636,
+          "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\dypsilon_frontend-dev-bookmarks__workflow_version-control.md.txt",
+          "excerpt": "# Version Control\n\n**Context: [frontend-dev-bookmarks](../README.md) / Workflow**\n\nVersion control or source control is a system that records changes to a file or set of files over time so that you can recall specific versions later.\n\n[![frontend.directory](https://img.shields.io/badge/frontend-directory-blue.svg?style=flat-square)](http://frontend.directory/)\n[![Gitter](https://img.shields.io/gitter/room/dypsilon/frontend-dev-bookmarks.svg?style=flat-square&maxAge=2592000)](https://gitter.im/dypsilon/frontend-dev-bookmarks)\n[![Twitter](https://img.shields.io/badge/follow-twitter-55acee.svg?style=flat-square)](https://twitter.com/FrontendDir)\n\n-----------------------------------------\n+ **[Git](https://git-scm.com/)**: Git is a free and open source distributed version control system designed to handle everything from small to very large projects with speed and efficiency.\n    + **[Become a Git Guru](https://www.atlassian.com/git/tutorials)**: A series of Git tutorials by Atlassian.\n+ **[OctoLinker](https://github.com/OctoLinker/browser-extension)**: The OctoLinker is a browser extensions which makes references to other files in GitHub clickable.\n\n\n------------------\n\n# License\n\n<a rel=\"license\" href=\"http://creativecommons.org/licenses/by/4.0/\"><img alt=\"Creative Commons License\" style=\"border-width:0\" src=\"https://i.creativecommons.org/l/by/4.0/88x31.png\" /></a><br />This work is licensed under a <a rel=\"license\" href=\"http://creativecommons.org/licenses/by/4.0/\">Creative Commons Attribution 4.0 International License</a>.\n\nPlease provide a link back to this repository. This is not necessary for GitHub forks."
+        }
+      ]
+    },
+    {
+      "fullName": "goabstract/Awesome-Design-Tools",
+      "stars": 41305,
+      "language": "JavaScript",
+      "defaultBranch": "master",
+      "url": "https://github.com/goabstract/Awesome-Design-Tools",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "EthicalML/awesome-production-machine-learning",
+      "stars": 20947,
+      "language": null,
+      "defaultBranch": "master",
+      "url": "https://github.com/EthicalML/awesome-production-machine-learning",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "ellisonleao/magictools",
+      "stars": 17357,
+      "language": "Markdown",
+      "defaultBranch": "main",
+      "url": "https://github.com/ellisonleao/magictools",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "fdehau/tui-rs",
+      "stars": 10868,
+      "language": "Rust",
+      "defaultBranch": "master",
+      "url": "https://github.com/fdehau/tui-rs",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "PDFCraftTool/pdfcraft",
+      "stars": 8606,
+      "language": "TypeScript",
+      "defaultBranch": "main",
+      "url": "https://github.com/PDFCraftTool/pdfcraft",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "ZSeven-W/openpencil",
+      "stars": 6015,
+      "language": "Rust",
+      "defaultBranch": "main",
+      "url": "https://github.com/ZSeven-W/openpencil",
+      "cachedFiles": [
+        {
+          "path": "crates/op-cli/src/cli_conversion.rs",
+          "size": 3800,
+          "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ZSeven-W_openpencil__crates_op-cli_src_cli_conversion.rs.txt",
+          "excerpt": "//! Code-to-design conversion command aliases.\n\nuse std::fs;\n\nuse super::{flag_value, pair, tool_call, Command, Flags};\nuse crate::cli_error::CliError;\n\npub(crate) fn map_design_conversion(\n    positionals: &[String],\n    flags: &Flags,\n) -> Result<Command, CliError> {\n    match positionals[0].as_str() {\n        \"design:upsert-vars\" => map_upsert_variables(flags),\n        \"design:upsert-component\" => map_upsert_component(flags),\n        \"design:upsert-screen\" => map_upsert_screen(flags),\n        \"design:status\" => map_status(flags),\n        \"design:lint\" => map_lint(flags),\n        _ => unreachable!(\"caller guards design conversion command set\"),\n    }\n}\n\nfn map_upsert_variables(flags: &Flags) -> Result<Command, CliError> {\n    let key = required_flag(\n        flags,\n        \"key\",\n        \"Usage: op design:upsert-vars --key <key> --file vars.json\",\n    )?;\n    let variables = read_payload_file(\n        flags,\n        \"Usage: op design:upsert-vars --key <key> --file vars.json\",\n    )?;\n    let mut args = vec![pair(\"key\", key), pair(\"variables\", variables)];\n    push_source_fields(&mut args, flags);\n    tool_call(\"upsert_variables\", args)\n}\n\nfn map_upsert_component(flags: &Flags) -> Result<Command, CliError> {\n    let key = required_flag(\n        flags,\n        \"key\",\n        \"Usage: op design:upsert-component --key <key> --name <name> --file node.json\",\n    )?;\n    let name = required_flag(\n        flags,\n        \"name\",\n        \"Usage: op design:upsert-component --key <key> --name <name> --file node.json\",\n    )?;\n    let node_json = read_payload_file(\n        flags,\n        \"Usage: op design:upsert-component --key <key> --name <name> --file node.json\",\n    )?;\n    let mut args = vec![\n        pair(\"key\", key),\n        pair(\"name\", name),\n        pair(\"node_json\", node_json),\n    ];\n    push_source_fields(&mut args, flags);\n    tool_call(\"upsert_component\", args)\n}\n\nfn map_upsert_screen(flags: &Flags) -> Result<Command, CliError> {\n    let key = required_flag(\n        flags,\n        \"key\",\n        \"Usage: op design:upsert-screen --key <key> --file node.json\",\n    )?;\n    let node_json = read_payload_file(\n        flags,\n        \"Usage: op design:upsert-screen --key <key> --file node.json\",\n    )?;\n    let mut args = vec![pair(\"key\", key), pair(\"node_json\", node_json)];\n    push_source_fields(&mut args, flags);\n    tool_call(\"upsert_screen\", args)\n}\n\nfn map_status(flags: &Flags) -> Result<Command, CliError> {\n    let mut args = Vec::new();\n    if let Some(kind) = flag_value(flags, \"kind\") {\n        if !matches!(kind.as_str(), \"token\" | \"component\" | \"screen\") {\n            return Err(CliError::usage(\n                \"--kind must be token, component, or screen\",\n            ));\n        }\n        args.push(pair(\"kind\", kind));\n    }\n    tool_call(\"conversion_status\", args)\n}\n\nfn map_lint(flags: &Flags) -> Result<Command, CliError> {\n    let mut args = Vec::new();\n    if let Some(node_id) = flag_value(flags, \"node\") {\n        args.push(pair(\"nodeId\", node_id));\n    }\n    tool_call(\"lint_document\", args)\n}\n\nfn required_flag(flags: &Flags, name: &str, usage: &str) -> Result<String, CliError> {\n    flag_value(flags, name).ok_or_else(|| CliError::usage(usage))\n}\n\nfn read_payload_file(flags: &Flags, usage: &str) -> Result<String, CliError> {\n    let path = required_flag(flags, \"file\", usage)?;\n    fs::read_to_string(&path)\n        .map(|contents| contents.trim().to_string())\n        .map_err(|e| CliError::Io(format!(\"cannot read --file {path:?}: {e}\")))\n}\n\nfn push_source_fields(args: &mut Vec<(String, String)>, flags: &Flags) {\n    if let Some(source) = flag_value(flags, \"source\") {\n        args.push(pair(\"sourcePath\", source));\n    }\n    if let Some(hash) = flag_value(flags, \"hash\") {\n        args.push(pair(\"sourceHash\", hash));\n    }\n}\n"
+        },
+        {
+          "path": "crates/op-collab/src/hash.rs",
+          "size": 6965,
+          "cachePath": "_audit\\research-editor-base-alignment-2026-09-24\\cache\\ZSeven-W_openpencil__crates_op-collab_src_hash.rs.txt",
+          "excerpt": "use std::{fmt, str::FromStr};\n\nuse jian_ops_schema::{node::PenNode, PenDocument};\nuse serde::{de::Error as _, Deserialize, Deserializer, Serialize, Serializer};\nuse serde_json::Value;\n\nuse crate::{\n    finite::validate_finite,\n    serde_context::{inline_document, inline_node, inline_txn, to_isolated_value},\n    typed_images, CanonicalHashError, CanonicalHashParseError, CollabTxn,\n};\n\n/// Version of the canonical collaboration hash contract.\npub const CANONICAL_HASH_VERSION: u16 = 1;\n/// Hash algorithm frozen by collaboration protocol v1.\npub const CANONICAL_HASH_ALGORITHM: &str = \"blake3\";\n/// Domain prefix for complete canonical documents.\npub const DOCUMENT_HASH_DOMAIN: &str = \"openpencil-collab/document/v1\";\n/// Domain prefix for canonical nodes and their authored subtrees.\npub const NODE_HASH_DOMAIN: &str = \"openpencil-collab/node/v1\";\n/// Domain prefix for exact collaboration transactions.\npub const TXN_HASH_DOMAIN: &str = \"openpencil-collab/txn/v1\";\n\n/// A BLAKE3 digest of a domain-separated canonical JSON encoding.\n#[derive(Clone, Copy, PartialEq, Eq, Hash)]\npub struct CanonicalHash([u8; 32]);\n\nimpl CanonicalHash {\n    pub const BYTE_LEN: usize = 32;\n    pub const HEX_LEN: usize = Self::BYTE_LEN * 2;\n\n    pub const fn from_bytes(bytes: [u8; Self::BYTE_LEN]) -> Self {\n        Self(bytes)\n    }\n\n    pub const fn as_bytes(&self) -> &[u8; Self::BYTE_LEN] {\n        &self.0\n    }\n}\n\nimpl fmt::Debug for CanonicalHash {\n    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {\n        fmt::Display::fmt(self, formatter)\n    }\n}\n\nimpl fmt::Display for CanonicalHash {\n    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {\n        for byte in self.0 {\n            write!(formatter, \"{byte:02x}\")?;\n        }\n        Ok(())\n    }\n}\n\nimpl FromStr for CanonicalHash {\n    type Err = CanonicalHashParseError;\n\n    fn from_str(value: &str) -> Result<Self, Self::Err> {\n        if value.len() != Self::HEX_LEN\n            || !value\n                .as_bytes()\n                .iter()\n                .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(byte))\n        {\n            return Err(CanonicalHashParseError::InvalidEncoding);\n        }\n\n        let mut bytes = [0_u8; Self::BYTE_LEN];\n        for (index, chunk) in value.as_bytes().chunks_exact(2).enumerate() {\n            bytes[index] = (hex_nibble(chunk[0]) << 4) | hex_nibble(chunk[1]);\n        }\n        Ok(Self(bytes))\n    }\n}\n\nimpl Serialize for CanonicalHash {\n    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>\n    where\n        S: Serializer,\n    {\n        serializer.collect_str(self)\n    }\n}\n\nimpl<'de> Deserialize<'de> for CanonicalHash {\n    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>\n    where\n        D: Deserializer<'de>,\n    {\n        let encoded = String::deserialize(deserializer)?;\n        encoded.parse().map_err(D::Error::custom)\n    }\n}\n\n/// Encode any serde value using the deterministic collaboration-v1 JSON rules.\n///\n/// Object keys are sorted lexicographically, arrays retain authored order, and\n/// the encoding contains no insignificant whitespace.\npub fn canonical_json<T: Serialize>(value: &T) -> Result<Vec<u8>, CanonicalHashError> {\n    validate_finite(value).map_err(|_| CanonicalHashError::NonFiniteNumber)?;\n    let isolated = to_isolated_value(value)?;\n    if !isolated.images.is_empty() {\n        return Err(CanonicalHashError::ImageBearingGenericValue);\n    }\n    let mut output = Vec::new();\n    write_canonical_value(&isolated.value, &mut output)?;\n    Ok(output)\n}\n\npub fn canonical_document_hash(\n    document: &PenDocument,\n) -> Result<CanonicalHash, CanonicalHashError> {\n    if typed_images::document_has_external_image_ref(document) {\n        return Err(CanonicalHashError::ExternalImageReference);\n    }\n    let value = typed_canonical_value(document, inline_document)?;\n    hash_value(&value, DOCUMENT_HASH_DOMAIN)\n}\n\npub fn canonical_node_hash(node: &PenNode) -> Result<CanonicalHash, CanonicalHashError> {\n    if typed_images::node_has_external_image_ref(node) {\n        return Err(CanonicalHashError::ExternalImageReference);\n    }\n    let value = typed_canonical_value(node, inline_node)?;\n    hash_value(&value, NODE_HASH_DOMAIN)\n}\n\npub fn canonical_txn_hash(txn: &CollabTxn) -> Result<CanonicalHash, CanonicalHashError> {\n    if typed_images::txn_has_external_image_ref(txn) {\n        return Err(CanonicalHashError::ExternalImageReference);\n    }\n    let value = typed_canonical_value(txn, inline_txn)?;\n    hash_value(&value, TXN_HASH_DOMAIN)\n}\n\nfn typed_canonical_value<T: Serialize>(\n    value: &T,\n    inline: fn(&mut Value, &serde_json::Map<String, Value>),\n) -> Result<Value, CanonicalHashError> {\n    validate_finite(value).map_err(|_| CanonicalHashError::NonFiniteNumber)?;\n    let mut isolated = to_isolated_value(value)?;\n    inline(&mut isolated.value, &isolated.images);\n    Ok(isolated.value)\n}\n\nfn hash_value(value: &Value, domain: &str) -> Result<CanonicalHash, CanonicalHashError> {\n    let mut encoded = Vec::new();\n    write_canonical_value(value, &mut encoded)?;\n    let mut hasher = blake3::Hasher::new();\n    hasher.update(domain.as_bytes());\n    hasher.update(&[0]);\n    hasher.update(&encoded);\n    let digest = hasher.finalize();\n    let mut bytes = [0_u8; CanonicalHash::BYTE_LEN];\n    bytes.copy_from_slice(digest.as_bytes());\n    Ok(CanonicalHash(bytes))\n}\n\nfn write_canonical_value(value: &Value, output: &mut Vec<u8>) -> Result<(), CanonicalHashError> {\n    match value {\n        Value::Null => output.extend_from_slice(b\"null\"),\n        Value::Bool(value) => output.extend_from_slice(if *value { b\"true\" } else { b\"false\" }),\n        Value::Number(value) => output.extend_from_slice(value.to_string().as_bytes()),\n        Value::String(value) => {\n            serde_json::to_writer(output, value)?;\n        }\n        Value::Array(values) => {\n            output.push(b'[');\n            for (index, value) in values.iter().enumerate() {\n                if index != 0 {\n                    output.push(b',');\n                }\n                write_canonical_value(value, output)?;\n            }\n            output.push(b']');\n        }\n        Value::Object(values) => {\n            output.push(b'{');\n            let mut entries: Vec<_> = values.iter().collect();\n            entries.sort_unstable_by(|left, right| left.0.cmp(right.0));\n            for (index, (key, value)) in entries.into_iter().enumerate() {\n                if index != 0 {\n                    output.push(b',');\n                }\n                serde_json::to_writer(&mut *output, key)?;\n                output.push(b':');\n                write_canonical_value(value, output)?;\n            }\n            output.push(b'}');\n        }\n    }\n    Ok(())\n}\n\nfn hex_nibble(byte: u8) -> u8 {\n    match byte {\n        b'0'..=b'9' => byte - b'0',\n        b'a'..=b'f' => byte - b'a' + 10,\n        _ => unreachable!(\"encoding was validated before decoding\"),\n    }\n}\n"
+        }
+      ]
+    },
+    {
+      "fullName": "love2d-community/awesome-love2d",
+      "stars": 4506,
+      "language": "PowerShell",
+      "defaultBranch": "master",
+      "url": "https://github.com/love2d-community/awesome-love2d",
+      "cachedFiles": []
+    }
+  ]
+}

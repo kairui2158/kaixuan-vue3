@@ -1,7 +1,7 @@
 # API 对话工具面与 Folder SKILL 执行说明（交付给 SKILL 层）
 
 日期：2026-09-17  
-适用版本：神意助手 3.53.x  
+适用版本：神意助手 3.61.x（编辑器底座与 API 直写对齐修复已接入）
 适用位置：主页 API 对话、大纲工作台 API 对话、大纲/主页共创 SKILL 链路  
 不适用：生成流水线正文/卷纲/章节等 pipeline 层（该层禁止交互式工具）
 
@@ -31,10 +31,11 @@
 | 工具 | 权限 | 参数 | 返回 | 用途 |
 |---|---|---|---|---|
 | `editor.get_state` | read | 无 | workspace、targetId、label、contentLength、240 字预览、contentVersion、选区信息 | 读当前编辑目标摘要，不返回全文 |
-| `editor.search` | read | `query` 必填；`caseSensitive` 可选 | 最多 20 个命中，每个带 start/end/context | 当前目标内关键词定位 |
+| `editor.search` | read | `query` 必填；`caseSensitive`、`offset`、`limit` 可选 | 最多 20 个命中（单页最大 50），每个带 start/end/context、sectionId、sectionTitle；返回 totalCount、hasMore、nextOffset | 当前目标内关键词定位；超多命中时分页 |
+| `editor.document_map` | read | `offset`、`limit` 可选 | 总字符、估算 token、节列表（id、标题、层级、start/end、charCount、摘要头）、sectionCount、nextOffset、hasMore；无结构时降级为段落节点 | 长文档先读地图，再按节读取 |
+| `editor.read_range` | read | `sectionId` 或 `cursor` 二选一；`maxChars` 可选 | 节路径、range、content、hasMore、nextCursor；默认单次 12000 字，应用会按模型窗口下调 | 按 cursor 分段读全文，禁止一次性全文请求 |
 | `editor.locate` | read | `fragment` 必填 | 唯一命中返回位置；模糊命中返回 Top-3 候选 | 验证原文片段是否唯一存在 |
 | `editor.reveal` | read | `target` 必填（fragment / paragraphIndex / anchor / range 四选一）；`focus`、`highlightDuration`、`reason` 可选 | start/end/line/structurePath/context | 定位并高亮编辑器位置，不改内容 |
-| `task.update_plan` | read | `stage`、`steps` 必填 | stage 与截断到 20 条的 steps | 更新 UI 任务计划，不改正文 |
 | `editor.multi_get_state` | read | `targetIds` 可选数组 | 最多 5 个目标摘要 | 多打开文档时跨目标读取摘要 |
 | `editor.global_search` | read | `query` 必填；`caseSensitive` 可选 | 每个目标最多 5 个命中 | 跨所有打开目标搜索 |
 | `editor.workspace_summary` | read | 无 | 所有打开目标的列表与摘要 | 工作区结构概览 |
@@ -53,9 +54,11 @@
 
 ```json
 {
-  "operation": "insert | replace_selection | replace_match | append | delete | rewrite",
+  "operation": "insert | replace_selection | replace_match | append | delete | move | rewrite",
   "content": "插入/替换后的内容；delete 不需要",
   "target": "replace_match/delete/rewrite 必填，必须是原文唯一片段",
+  "destination": "move 必填，必须是原文唯一片段",
+  "destinationPosition": "move 必填，before 或 after",
   "position": "cursor | selection_start | selection_end | end",
   "reason": "本条修改说明"
 }
@@ -68,7 +71,14 @@
 - `replace_match`：用 content 替换 target 精确匹配的唯一片段。
 - `append`：追加到文档末尾。
 - `delete`：删除 target 精确匹配的唯一片段。
+- `move`：把 target 精确匹配的唯一片段整体移动到 destination 之前或之后。移动整节、整段、整块内容必须使用 move；禁止用“delete + insert”两条命令拼接移动。
 - `rewrite`：重写 target 精确匹配的唯一片段为 content。
+
+批次失败语义（必须遵守）：
+
+1. `editor.write` 批次是原子执行。任何条目失败时，原文未修改；诊断里 `succeededIndexes` 只表示“预演通过”，不表示已写入。
+2. 重试必须提交修正后的完整批次，禁止只重提 `failedItems`，禁止把旧批次与新一轮命令拼接。
+3. `integrity_failed` 会返回具体结构问题（例如标题数量下降、内容骤减）。移动整节优先使用 `move`，通常可以避免这类结构断裂。
 
 硬限制（`src/services/editorTools.ts:412` 起的 `editor.write`）：
 
@@ -101,6 +111,13 @@
 
 ## 3. 调用方式
 
+上下文注入口径（主页编辑器）：
+
+- 短文档注入全文，coverage 为 `full`。
+- 超过 12000 字符后注入结构化 ContextPack（目标、长度、选区、首尾片段、工具指引），coverage 为 `packed`，且 `truncated: true`。
+- packed 状态下需要额外内容时，必须调用 `editor.document_map` / `editor.read_range` 分段读取，不允许假设上下文已包含全文。
+- `contentVersion` 表示稳定内容版本；非活动 tab 或设定库快照可能返回 0，只作为“无版本基线”处理，不能当作内容校验失败。
+
 ### 3.1 原生 tool call
 
 工具会以模型原生 tools 形式随请求发送。模型返回 `tool_calls` 后，应用执行工具，把结果作为 tool 消息追加，再请求下一轮，直到模型输出正文。
@@ -112,10 +129,12 @@ Tool loop 控制在 `src/services/aiService.ts:1326` 的 `callAiWithTools()`：
 | `maxToolIterations` | 默认 6 | 单次 AI 调用的工具轮上限 |
 | 相同写入守卫 | 连续 3 次 | 连续 3 次完全相同的写入输入会被拦截；拦截一次后守卫重置，模型可继续输出总结 |
 | 连续纯工具轮告警 | 第 2 轮 | 提示“模型连续只调用工具、未输出正文” |
+| 只读收敛 steering | 连续 2 轮只读 | 第一轮追加 system：下一轮必须提交写入或说明无法完成 |
+| 写入收口模式 | steering 后仍只读 | 只保留 `editor.write`；若模型再调读取工具，返回 `write_only_mode` 结构化错误 |
 | 收敛请求 | 达到上限后 | 追加 system 指令：停止调用工具，基于已有工具结果直接输出最终回答 |
 | 收敛完成标记 | `finishReason: "tool_converged"` | 表示这是 tool loop 后的救场正文 |
 
-所以 SKILL 不需要追求“永不触发收敛”；需要避免的是无意义反复读同一位置。长文档应按 `outline.get_structure -> outline.search -> outline.read_range` 分页消费。
+所以 SKILL 不需要追求“永不触发收敛”；需要避免的是无意义反复读同一位置。长文档应按 `editor.document_map -> editor.search -> editor.read_range`（大纲侧为 `outline.get_structure -> outline.search -> outline.read_range`）分页消费。读完全文后直接提交 `editor.write`；不要在“已关闭读取工具”的收口轮继续申请读取。
 
 ### 3.2 非原生供应商：JSON 协议降级
 
@@ -165,6 +184,28 @@ Tool loop 控制在 `src/services/aiService.ts:1326` 的 `callAiWithTools()`：
 
 `editor.reveal` 用于不改内容的定位：支持原文片段、段落索引、卷/章/节结构锚点、精确字符范围四种目标，只能四选一；定位后滚动、聚焦并高亮。
 
+### 4.1 长文档 EditTask 多批执行
+
+长文档不是“更大的单批写入”，而是自动切换为任务制执行：
+
+| 请求形态 | 执行方式 |
+|---|---|
+| 小范围句段修改 | direct tool loop + `editor.write` |
+| 结构移动 / 顺序调整 | 定向读取 + 受限命令（`move` 等） |
+| 全文/整篇/全篇/整理/重排，且文档 >= 80000 字符 | 自动进入 EditTask 多批执行 |
+| 普通文档 >= 80000 字符 | 自动进入 EditTask 多批执行 |
+
+进入 EditTask 后的硬规则：
+
+1. 单批提交 `replace_document` 会被拒绝，错误码 `document_too_large_for_whole_replacement`。必须先 `editor.document_map`，再 `editor.read_range` 分段读取，然后用 `replace_match`、`move`、`delete` 等受限命令分批写入。
+2. 每批成功后应用写入 checkpoint（`documentVersion + contentHash`）。后续批次基于当前编辑器内容提交，禁止复用旧内容或旧 batchId 参数。
+3. 任务状态机：`planning -> awaiting_batch -> running_batch -> partially_applied / waiting_user`，终态为 `completed / completed_with_warnings / failed_before_write / failed_after_write / canceled`。
+4. 活动任务期间工具面会追加 `task.cancel`；在 `awaiting_batch / waiting_user / partially_applied` 且任务可恢复时会追加 `task.resume`。
+5. 只有 `awaiting_batch` 状态会重新开放 `editor.write`。system 声明会明确“写入权限已恢复：必须调用 editor.write 重试当前批次”；其他活动状态必须调用 `task.resume`，由任务执行器按批次校验并写入。
+6. 模型不得在 EditTask 中凭历史对话宣称“没有写入权限”。当前权限以本轮 `actualToolSurface` 与 system 工具面声明为准。
+
+SKILL 模板建议：遇到“整理全文 / 重排整篇”请求时，先输出批次计划（目标范围、每批操作类型），再逐批调用 `editor.write`；每批命令保持在 1-10 条、60000 字符以内。
+
 ## 5. Folder SKILL 与工具的关系
 
 Folder 协议完整规范见 `_audit/FOLDER_SKILL_SPEC_V1.md`，这里只讲与工具面相关的边界：
@@ -181,7 +222,7 @@ Folder 协议完整规范见 `_audit/FOLDER_SKILL_SPEC_V1.md`，这里只讲与�
 
 给 SKILL 制作方的建议模板条款：
 
-1. 需要编辑器内容时，优先调用 `outline.get_structure`，再 `outline.search` / `outline.read_range`，不要要求应用把全文塞进 prompt。
+1. 需要编辑器内容时，优先调用 `editor.document_map` 建立结构地图，再按 `sectionId` / `cursor` 调用 `editor.read_range` 分段读取；大纲侧优先 `outline.get_structure`，再 `outline.search` / `outline.read_range`。不要要求应用把全文塞进 prompt，也不要不做地图就连续盲读。
 2. 需要写入时必须调用 `editor.write`，不要只输出“修改后文本”或【修改预览】。
 3. 只有 `editor.write` 返回 `status: "written"` 才能说“已写入/已插入”。
 4. 写入失败时按错误码回复：目标不唯一、目标不存在、版本冲突、编辑器锁定、连续重复写入，都表示本次未写入。
@@ -219,6 +260,7 @@ Run trace 分三层，都记录实际发送的工具面：
 | `duplicate_write_blocked` | aiService | 连续 3 次完全相同的写入输入被拦截，模型应基于已写入结果总结或调整参数 |
 | `too_many_commands` | editorTools | 单批超过 10 条命令 |
 | `batch_too_large` | editorTools | 批次超过 60000 字符 |
+| `document_too_large_for_whole_replacement` | editorTools | 长文档 EditTask 多批模式禁止单批整篇 `replace_document`，必须分段受限写入 |
 | `write_target_mismatch` | editorTools | 工具目标与当前编辑目标不一致 |
 | `ambiguous_target` | editorTools / locator | 片段多次出现，需扩展片段 |
 | `target_not_found` | editorTools / locator | 片段不存在，需重新复制原文 |
@@ -248,7 +290,8 @@ SKILL 不要再输出“待确认编辑”或等待按钮确认的协议；那�
 4. 写入结果：是否以 `status: "written"` 为唯一成功依据？
 5. 失败路径：是否按错误码告知用户“本次未写入”？
 6. 工具循环：是否避免重复读取同一节点、同一关键词？
-7. run trace：turn/API/event 三层的 `actualToolSurface` 是否一致？
+7. 长文档整理：是否规划批次并使用受限命令，而不是尝试 `replace_document`？
+8. run trace：turn/API/event 三层的 `actualToolSurface` 是否一致？EditTask 场景是否有 `long-document-policy` 事件与批次生命周期事件？
 
 ## 10. 证据索引
 
@@ -269,3 +312,22 @@ SKILL 不要再输出“待确认编辑”或等待按钮确认的协议；那�
 | folder 模板覆盖 | `src/services/realSkillExecutor.ts:321` |
 | 意图路由入口 | `src/services/chainIntentRouter.ts:710` |
 | turn intent 回写 | `src/stores/runTrace.ts:771` |
+| 长文档策略 | `src/services/longDocumentPolicy.ts:24` |
+| 整篇替换拦截 | `src/services/editorTools.ts:516` |
+| EditTask 状态机 | `src/services/editTaskService.ts:14` |
+| 多批任务会话 | `src/composables/useEditTaskSession.ts:69` |
+| EditTask 工具授权 | `src/services/dialogueToolSurface.ts:100` |
+
+## 11. 供应商覆盖状态
+
+当前状态以 `_audit/verification-api-direct-write-provider-matrix.json` 为准：
+
+| 供应商 | 协议仿真 | live 实测 |
+|---|---|---|
+| openai-compatible | pass | pass |
+| deepseek | pass | pass |
+| anthropic | pass | untested（缺少 provider-specific live probe） |
+| gemini | pass | untested（缺少 provider-specific live probe；流式工具调用已标记 implemented） |
+| azure-openai | pass | untested（缺少 provider-specific live probe） |
+
+live 证据来自 `_audit/verification-api-direct-write-live-v3/`：7602 字六步实测（改句、增句、删句、移动、整理、倒序重排）全部通过，包含每步 before/after、截图与 run trace。`untested` 表示未执行，不代表通过或失败。

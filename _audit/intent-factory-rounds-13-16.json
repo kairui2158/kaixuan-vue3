@@ -1,0 +1,131 @@
+{
+  "schema": "shenyi.intent-factory-round-index",
+  "version": 1,
+  "generatedAt": "2026-09-22T04:46:00.000Z",
+  "description": "Companion index for input-hash identity across factory rounds; report inputHash excludes router behavior and must not be reused as a convergence identity.",
+  "rounds": [
+    {
+      "round": 13,
+      "reportPath": "_audit/intent-adversarial-factory-round-13.json",
+      "inputHash": "d18e53f232f2478c80d8a0af325d19fbfae921aa5896cb8e3b25b10c42ea51a6",
+      "seedCount": 90,
+      "silverCount": 356,
+      "silverMetrics": {
+        "writeFalseTriggers": 0,
+        "falseRejections": 0,
+        "missedRejections": 0,
+        "discussBlocked": 0,
+        "intentMismatches": 0
+      },
+      "manuscriptConsistency": 1
+    },
+    {
+      "round": 14,
+      "reportPath": "_audit/intent-adversarial-factory-round-14.json",
+      "inputHash": "f689da65bec7f05e99acb8543653df5b7d9fe1ed7e2cb3b11b995e56ff740c8f",
+      "seedCount": 98,
+      "silverCount": 381,
+      "silverMetrics": {
+        "writeFalseTriggers": 0,
+        "falseRejections": 0,
+        "missedRejections": 0,
+        "discussBlocked": 0,
+        "intentMismatches": 0
+      },
+      "manuscriptConsistency": 1
+    },
+    {
+      "round": 15,
+      "reportPath": "_audit/intent-adversarial-factory-round-15.json",
+      "inputHash": "3154bc2cf5d12ef632a4e805ee22a145bb7896e1b8045d13954516c2eb44469d",
+      "seedCount": 106,
+      "silverCount": 401,
+      "silverMetrics": {
+        "writeFalseTriggers": 0,
+        "falseRejections": 0,
+        "missedRejections": 0,
+        "discussBlocked": 0,
+        "intentMismatches": 2
+      },
+      "manuscriptConsistency": 1,
+      "note": "Accretion exposed two seed-label errors for '补一段'; fixed in round 16"
+    },
+    {
+      "round": 16,
+      "reportPath": "_audit/intent-adversarial-factory-round-16.json",
+      "inputHash": "c557140bbc80a8fdf866c9742fb702be1c17cbd11a73eaf3862d5bbb6c912650",
+      "seedCount": 107,
+      "silverCount": 402,
+      "silverMetrics": {
+        "writeFalseTriggers": 0,
+        "falseRejections": 0,
+        "missedRejections": 0,
+        "discussBlocked": 0,
+        "intentMismatches": 0
+      },
+      "manuscriptConsistency": 1
+    },
+    {
+    "round": 17,
+    "reportPath": "_audit/intent-adversarial-factory-round-17.json",
+    "inputHash": "36f1c576556f1f5230500ba8f4d49c37d3ac8ac0df271c58dbaf485beab95c8a",
+    "seedCount": 115,
+    "silverCount": 419,
+    "silverMetrics": {
+      "writeFalseTriggers": 0,
+      "falseRejections": 1,
+      "missedRejections": 0,
+      "discussBlocked": 0,
+      "intentMismatches": 0
+    },
+    "manuscriptConsistency": 1,
+    "note": "Punctuation mutation exposed missing 盘一盘 analyze verb"
+  },
+  {
+    "round": 18,
+    "reportPath": "_audit/intent-adversarial-factory-round-18.json",
+    "inputHash": "36f1c576556f1f5230500ba8f4d49c37d3ac8ac0df271c58dbaf485beab95c8a",
+    "seedCount": 115,
+    "silverCount": 419,
+    "silverMetrics": {
+      "writeFalseTriggers": 0,
+      "falseRejections": 0,
+      "missedRejections": 0,
+      "discussBlocked": 0,
+      "intentMismatches": 0
+    },
+    "manuscriptConsistency": 1
+  },
+  {
+    "round": 19,
+    "reportPath": "_audit/intent-adversarial-factory-round-19.json",
+    "inputHash": "2c90e5c687d3006e51ea8a6072e832c5278cada8eebfedae1fbcbf7863f867b5",
+    "seedCount": 123,
+    "silverCount": 440,
+    "silverMetrics": {
+      "writeFalseTriggers": 0,
+      "falseRejections": 0,
+      "missedRejections": 0,
+      "discussBlocked": 0,
+      "intentMismatches": 0
+    },
+    "manuscriptConsistency": 1
+  },
+  {
+    "round": 20,
+    "reportPath": "_audit/intent-adversarial-factory-round-20.json",
+    "inputHash": "f47190d7514fe3abcfe33255429ec5ac7bd4761e805f88fd708b6cc50f1f8f54",
+    "seedCount": 131,
+    "silverCount": 465,
+    "silverMetrics": {
+      "writeFalseTriggers": 0,
+      "falseRejections": 0,
+      "missedRejections": 0,
+      "discussBlocked": 0,
+      "intentMismatches": 0
+    },
+    "manuscriptConsistency": 1
+  }
+  ],
+  "effectiveConsecutiveRounds": ["18", "19", "20"]
+}

@@ -1,0 +1,317 @@
+[
+  {
+    "index": 1,
+    "input": "钩子二沈萤的脚踝我设计的是一次性伤害，不是永久残疾，这点要先说清楚",
+    "expected": "discuss",
+    "source": "trace-2026-09-19-042658",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "analyze",
+    "bestScore": 0.4353,
+    "secondIntent": "edit",
+    "secondScore": 0.4099
+  },
+  {
+    "index": 8,
+    "input": "第一卷开篇的吸引力我不太满意",
+    "expected": "edit",
+    "source": "trace-2026-09-19-220827",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "discuss",
+    "bestScore": 0.5176,
+    "secondIntent": "analyze",
+    "secondScore": 0.5049
+  },
+  {
+    "index": 9,
+    "input": "开篇那个抓人的地方要再强化",
+    "expected": "edit",
+    "source": "trace-2026-09-19-220827",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "edit",
+    "bestScore": 0.5339,
+    "secondIntent": "discuss",
+    "secondScore": 0.5016
+  },
+  {
+    "index": 27,
+    "input": "继续",
+    "expected": "ambiguous",
+    "source": "trace-2026-09-16-204057",
+    "sync": {
+      "kind": "ambiguous",
+      "intent": null,
+      "reason": "continuation-without-context"
+    },
+    "actual": "ambiguous",
+    "layer": "sync"
+  },
+  {
+    "index": 28,
+    "input": "开篇那个吸引点我不太满意",
+    "expected": "edit",
+    "source": "adversarial-paraphrase",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "discuss",
+    "bestScore": 0.5302,
+    "secondIntent": "analyze",
+    "secondScore": 0.5167
+  },
+  {
+    "index": 29,
+    "input": "开头抓人的地方要再弄一下",
+    "expected": "edit",
+    "source": "adversarial-paraphrase",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "edit",
+    "bestScore": 0.4899,
+    "secondIntent": "analyze",
+    "secondScore": 0.4615
+  },
+  {
+    "index": 30,
+    "input": "第一卷钩子得重新弄",
+    "expected": "edit",
+    "source": "adversarial-paraphrase",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "edit",
+    "bestScore": 0.4762,
+    "secondIntent": "generate",
+    "secondScore": 0.4442
+  },
+  {
+    "index": 31,
+    "input": "把开头那个亮点再打磨打磨",
+    "expected": "edit",
+    "source": "adversarial-paraphrase",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "edit",
+    "bestScore": 0.4583,
+    "secondIntent": "discuss",
+    "secondScore": 0.4439
+  },
+  {
+    "index": 33,
+    "input": "第一卷新引子要重做",
+    "expected": "edit",
+    "source": "adversarial-paraphrase",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "edit",
+    "bestScore": 0.4782,
+    "secondIntent": "generate",
+    "secondScore": 0.465
+  },
+  {
+    "index": 34,
+    "input": "开头那个勾子不太行，改一下",
+    "expected": "edit",
+    "source": "adversarial-typo",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "edit",
+    "bestScore": 0.5123,
+    "secondIntent": "analyze",
+    "secondScore": 0.4891
+  },
+  {
+    "index": 36,
+    "input": "第一卷钩子需要重新设订",
+    "expected": "edit",
+    "source": "adversarial-typo",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "edit",
+    "bestScore": 0.5117,
+    "secondIntent": "generate",
+    "secondScore": 0.4938
+  },
+  {
+    "index": 37,
+    "input": "沈萤的脚裸伏笔要补到第二卷",
+    "expected": "edit",
+    "source": "adversarial-typo",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "edit",
+    "bestScore": 0.4231,
+    "secondIntent": "analyze",
+    "secondScore": 0.3962
+  },
+  {
+    "index": 40,
+    "input": "卷纲里人物弧光的衔接断了一截，修一下",
+    "expected": "edit",
+    "source": "adversarial-domain",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "edit",
+    "bestScore": 0.5041,
+    "secondIntent": "analyze",
+    "secondScore": 0.4881
+  },
+  {
+    "index": 41,
+    "input": "把第二卷的节奏点重新排",
+    "expected": "edit",
+    "source": "adversarial-domain",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "edit",
+    "bestScore": 0.5363,
+    "secondIntent": "analyze",
+    "secondScore": 0.4788
+  },
+  {
+    "index": 42,
+    "input": "这份大纲缺什么，你先审一遍",
+    "expected": "analyze",
+    "source": "adversarial-paraphrase",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "analyze",
+    "bestScore": 0.5242,
+    "secondIntent": "generate",
+    "secondScore": 0.5022
+  },
+  {
+    "index": 48,
+    "input": "给第三卷想三个可选钩子",
+    "expected": "generate",
+    "source": "adversarial-paraphrase",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "edit",
+    "bestScore": 0.4482,
+    "secondIntent": "analyze",
+    "secondScore": 0.4276
+  },
+  {
+    "index": 51,
+    "input": "起草第二卷的三个节点",
+    "expected": "generate",
+    "source": "adversarial-paraphrase",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "out-of-scope"
+    },
+    "actual": "no_match",
+    "layer": "sync-no-score"
+  },
+  {
+    "index": 55,
+    "input": "这个伏笔我不是要永久残疾，先说清楚",
+    "expected": "discuss",
+    "source": "adversarial-paraphrase",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "analyze",
+    "bestScore": 0.4339,
+    "secondIntent": "edit",
+    "secondScore": 0.4022
+  },
+  {
+    "index": 59,
+    "input": "我不同意这个判断，理由是...",
+    "expected": "discuss",
+    "source": "adversarial-paraphrase",
+    "sync": {
+      "kind": "no_match",
+      "intent": null,
+      "reason": "no-keyword-overlap"
+    },
+    "actual": "ambiguous",
+    "layer": "margin",
+    "bestIntent": "analyze",
+    "bestScore": 0.4682,
+    "secondIntent": "discuss",
+    "secondScore": 0.4508
+  }
+]

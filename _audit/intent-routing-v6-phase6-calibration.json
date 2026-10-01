@@ -1,0 +1,1824 @@
+{
+  "schema": "intent-routing-v6-phase6-calibration",
+  "generatedAt": "2026-09-22T05:05:44.515Z",
+  "model": "Xenova/bge-small-zh-v1.5",
+  "sampleCount": 83,
+  "exampleCount": 154,
+  "realCorpus": {
+    "source": "built-in",
+    "confirmedCount": 0
+  },
+  "shadowCorpus": {
+    "count": 0,
+    "role": "diagnostic-only-not-calibrated"
+  },
+  "selectionPolicy": "sync rule/keyword routing first; embedding only for low-confidence/no-keyword-overlap; per-intent risk margins; OOS threshold; thresholds selected on dev only; write false triggers and missed rejections must be 0; then accuracy, fewest false rejections, fewest discuss blocked",
+  "baseline": {
+    "strategy": "centroid",
+    "thresholds": {
+      "analyze": 0.3,
+      "edit": 0.34,
+      "generate": 0.34,
+      "discuss": 0.3
+    },
+    "ambiguityThresholds": {
+      "analyze": 0.08,
+      "edit": 0.12,
+      "generate": 0.12,
+      "discuss": 0.08
+    },
+    "oosThreshold": 0.28
+  },
+  "best": [
+    {
+      "strategy": "centroid",
+      "thresholds": {
+        "analyze": 0.3,
+        "edit": 0.34,
+        "generate": 0.34,
+        "discuss": 0.3
+      },
+      "ambiguityThresholds": {
+        "analyze": 0.06,
+        "edit": 0.08,
+        "generate": 0.08,
+        "discuss": 0.06
+      },
+      "oosThreshold": 0.24,
+      "metrics": [
+        {
+          "split": "train",
+          "total": 10,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 2,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "dev",
+          "total": 9,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 0,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "test",
+          "total": 9,
+          "correct": 8,
+          "writeFalseTriggers": 0,
+          "falseRejections": 1,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        }
+      ],
+      "correct": 9,
+      "total": 9,
+      "accuracy": 1,
+      "writeFalseTriggers": 0,
+      "falseRejections": 0,
+      "missedRejections": 0,
+      "discussBlocked": 0
+    },
+    {
+      "strategy": "centroid",
+      "thresholds": {
+        "analyze": 0.3,
+        "edit": 0.34,
+        "generate": 0.34,
+        "discuss": 0.3
+      },
+      "ambiguityThresholds": {
+        "analyze": 0.06,
+        "edit": 0.08,
+        "generate": 0.08,
+        "discuss": 0.08
+      },
+      "oosThreshold": 0.24,
+      "metrics": [
+        {
+          "split": "train",
+          "total": 10,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 2,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "dev",
+          "total": 9,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 0,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "test",
+          "total": 9,
+          "correct": 8,
+          "writeFalseTriggers": 0,
+          "falseRejections": 1,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        }
+      ],
+      "correct": 9,
+      "total": 9,
+      "accuracy": 1,
+      "writeFalseTriggers": 0,
+      "falseRejections": 0,
+      "missedRejections": 0,
+      "discussBlocked": 0
+    },
+    {
+      "strategy": "centroid",
+      "thresholds": {
+        "analyze": 0.3,
+        "edit": 0.34,
+        "generate": 0.34,
+        "discuss": 0.3
+      },
+      "ambiguityThresholds": {
+        "analyze": 0.06,
+        "edit": 0.08,
+        "generate": 0.08,
+        "discuss": 0.1
+      },
+      "oosThreshold": 0.24,
+      "metrics": [
+        {
+          "split": "train",
+          "total": 10,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 2,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "dev",
+          "total": 9,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 0,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "test",
+          "total": 9,
+          "correct": 8,
+          "writeFalseTriggers": 0,
+          "falseRejections": 1,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        }
+      ],
+      "correct": 9,
+      "total": 9,
+      "accuracy": 1,
+      "writeFalseTriggers": 0,
+      "falseRejections": 0,
+      "missedRejections": 0,
+      "discussBlocked": 0
+    },
+    {
+      "strategy": "centroid",
+      "thresholds": {
+        "analyze": 0.3,
+        "edit": 0.34,
+        "generate": 0.34,
+        "discuss": 0.3
+      },
+      "ambiguityThresholds": {
+        "analyze": 0.06,
+        "edit": 0.08,
+        "generate": 0.12,
+        "discuss": 0.06
+      },
+      "oosThreshold": 0.24,
+      "metrics": [
+        {
+          "split": "train",
+          "total": 10,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 2,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "dev",
+          "total": 9,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 0,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "test",
+          "total": 9,
+          "correct": 8,
+          "writeFalseTriggers": 0,
+          "falseRejections": 1,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        }
+      ],
+      "correct": 9,
+      "total": 9,
+      "accuracy": 1,
+      "writeFalseTriggers": 0,
+      "falseRejections": 0,
+      "missedRejections": 0,
+      "discussBlocked": 0
+    },
+    {
+      "strategy": "centroid",
+      "thresholds": {
+        "analyze": 0.3,
+        "edit": 0.34,
+        "generate": 0.34,
+        "discuss": 0.3
+      },
+      "ambiguityThresholds": {
+        "analyze": 0.06,
+        "edit": 0.08,
+        "generate": 0.12,
+        "discuss": 0.08
+      },
+      "oosThreshold": 0.24,
+      "metrics": [
+        {
+          "split": "train",
+          "total": 10,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 2,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "dev",
+          "total": 9,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 0,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "test",
+          "total": 9,
+          "correct": 8,
+          "writeFalseTriggers": 0,
+          "falseRejections": 1,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        }
+      ],
+      "correct": 9,
+      "total": 9,
+      "accuracy": 1,
+      "writeFalseTriggers": 0,
+      "falseRejections": 0,
+      "missedRejections": 0,
+      "discussBlocked": 0
+    },
+    {
+      "strategy": "centroid",
+      "thresholds": {
+        "analyze": 0.3,
+        "edit": 0.34,
+        "generate": 0.34,
+        "discuss": 0.3
+      },
+      "ambiguityThresholds": {
+        "analyze": 0.06,
+        "edit": 0.08,
+        "generate": 0.12,
+        "discuss": 0.1
+      },
+      "oosThreshold": 0.24,
+      "metrics": [
+        {
+          "split": "train",
+          "total": 10,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 2,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "dev",
+          "total": 9,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 0,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "test",
+          "total": 9,
+          "correct": 8,
+          "writeFalseTriggers": 0,
+          "falseRejections": 1,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        }
+      ],
+      "correct": 9,
+      "total": 9,
+      "accuracy": 1,
+      "writeFalseTriggers": 0,
+      "falseRejections": 0,
+      "missedRejections": 0,
+      "discussBlocked": 0
+    },
+    {
+      "strategy": "centroid",
+      "thresholds": {
+        "analyze": 0.3,
+        "edit": 0.34,
+        "generate": 0.34,
+        "discuss": 0.3
+      },
+      "ambiguityThresholds": {
+        "analyze": 0.06,
+        "edit": 0.08,
+        "generate": 0.16,
+        "discuss": 0.06
+      },
+      "oosThreshold": 0.24,
+      "metrics": [
+        {
+          "split": "train",
+          "total": 10,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 2,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "dev",
+          "total": 9,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 0,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "test",
+          "total": 9,
+          "correct": 8,
+          "writeFalseTriggers": 0,
+          "falseRejections": 1,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        }
+      ],
+      "correct": 9,
+      "total": 9,
+      "accuracy": 1,
+      "writeFalseTriggers": 0,
+      "falseRejections": 0,
+      "missedRejections": 0,
+      "discussBlocked": 0
+    },
+    {
+      "strategy": "centroid",
+      "thresholds": {
+        "analyze": 0.3,
+        "edit": 0.34,
+        "generate": 0.34,
+        "discuss": 0.3
+      },
+      "ambiguityThresholds": {
+        "analyze": 0.06,
+        "edit": 0.08,
+        "generate": 0.16,
+        "discuss": 0.08
+      },
+      "oosThreshold": 0.24,
+      "metrics": [
+        {
+          "split": "train",
+          "total": 10,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 2,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "dev",
+          "total": 9,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 0,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "test",
+          "total": 9,
+          "correct": 8,
+          "writeFalseTriggers": 0,
+          "falseRejections": 1,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        }
+      ],
+      "correct": 9,
+      "total": 9,
+      "accuracy": 1,
+      "writeFalseTriggers": 0,
+      "falseRejections": 0,
+      "missedRejections": 0,
+      "discussBlocked": 0
+    },
+    {
+      "strategy": "centroid",
+      "thresholds": {
+        "analyze": 0.3,
+        "edit": 0.34,
+        "generate": 0.34,
+        "discuss": 0.3
+      },
+      "ambiguityThresholds": {
+        "analyze": 0.06,
+        "edit": 0.08,
+        "generate": 0.16,
+        "discuss": 0.1
+      },
+      "oosThreshold": 0.24,
+      "metrics": [
+        {
+          "split": "train",
+          "total": 10,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 2,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "dev",
+          "total": 9,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 0,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "test",
+          "total": 9,
+          "correct": 8,
+          "writeFalseTriggers": 0,
+          "falseRejections": 1,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        }
+      ],
+      "correct": 9,
+      "total": 9,
+      "accuracy": 1,
+      "writeFalseTriggers": 0,
+      "falseRejections": 0,
+      "missedRejections": 0,
+      "discussBlocked": 0
+    },
+    {
+      "strategy": "centroid",
+      "thresholds": {
+        "analyze": 0.3,
+        "edit": 0.34,
+        "generate": 0.34,
+        "discuss": 0.3
+      },
+      "ambiguityThresholds": {
+        "analyze": 0.06,
+        "edit": 0.12,
+        "generate": 0.08,
+        "discuss": 0.06
+      },
+      "oosThreshold": 0.24,
+      "metrics": [
+        {
+          "split": "train",
+          "total": 10,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 2,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "dev",
+          "total": 9,
+          "correct": 9,
+          "writeFalseTriggers": 0,
+          "falseRejections": 0,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        },
+        {
+          "split": "test",
+          "total": 9,
+          "correct": 8,
+          "writeFalseTriggers": 0,
+          "falseRejections": 1,
+          "missedRejections": 0,
+          "discussBlocked": 0
+        }
+      ],
+      "correct": 9,
+      "total": 9,
+      "accuracy": 1,
+      "writeFalseTriggers": 0,
+      "falseRejections": 0,
+      "missedRejections": 0,
+      "discussBlocked": 0
+    }
+  ],
+  "scoredSamples": [
+    {
+      "input": "大纲里的第一卷钩子需要重新设定",
+      "expected": "edit",
+      "source": "trace-2026-09-19-042658",
+      "split": "train",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "钩子二沈萤的脚踝我设计的是一次性伤害，不是永久残疾，这点要先说清楚",
+      "expected": "discuss",
+      "source": "trace-2026-09-19-042658",
+      "split": "dev",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "你把大纲内编辑器叙事里第一卷的补充钩子和我讨论一下",
+      "expected": "discuss",
+      "source": "trace-2026-09-19-042658",
+      "split": "test",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "contextual-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "你不要按钩子已有的思路走啊，可以打破重组，或者整体替换",
+      "expected": "discuss",
+      "source": "trace-2026-09-19-042658",
+      "split": "train",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "contextual-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "我们现在来讨论一下钩子的问题",
+      "expected": "discuss",
+      "source": "trace-2026-09-19-042658",
+      "split": "dev",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "contextual-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "统一大纲时间线",
+      "expected": "edit",
+      "source": "trace-2026-09-16-204057",
+      "split": "test",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "我们现在需要把整个大纲的时间线统一梳理一遍",
+      "expected": "edit",
+      "source": "trace-2026-09-16-204057",
+      "split": "train",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "把沈萤脚踝这条伏笔的后续影响补进第二卷",
+      "expected": "edit",
+      "source": "trace-2026-09-17-200242",
+      "split": "dev",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "第一卷开篇的吸引力我不太满意",
+      "expected": "edit",
+      "source": "trace-2026-09-19-220827",
+      "split": "test",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "no-keyword-overlap"
+      },
+      "scores": {
+        "analyze": {
+          "centroid": 0.504927,
+          "max": 0.714727
+        },
+        "edit": {
+          "centroid": 0.526913,
+          "max": 0.674139
+        },
+        "generate": {
+          "centroid": 0.504376,
+          "max": 0.675127
+        },
+        "discuss": {
+          "centroid": 0.521245,
+          "max": 0.793126
+        }
+      }
+    },
+    {
+      "input": "开篇那个抓人的地方要再强化",
+      "expected": "edit",
+      "source": "trace-2026-09-19-220827",
+      "split": "train",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "no-keyword-overlap"
+      },
+      "scores": {
+        "analyze": {
+          "centroid": 0.491469,
+          "max": 0.766712
+        },
+        "edit": {
+          "centroid": 0.558506,
+          "max": 0.96652
+        },
+        "generate": {
+          "centroid": 0.498576,
+          "max": 0.793695
+        },
+        "discuss": {
+          "centroid": 0.49882,
+          "max": 0.700724
+        }
+      }
+    },
+    {
+      "input": "这段设定应该放在哪个节点？",
+      "expected": "discuss",
+      "source": "trace-2026-09-17-200242",
+      "split": "dev",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "contextual-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "插入点在哪里？",
+      "expected": "discuss",
+      "source": "trace-2026-09-17-200242",
+      "split": "test",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "contextual-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "你现在有写入权限么？",
+      "expected": "discuss",
+      "source": "trace-2026-09-17-200242",
+      "split": "train",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "contextual-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "你写入编辑器了么？",
+      "expected": "discuss",
+      "source": "trace-2026-09-17-200242",
+      "split": "dev",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "contextual-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "同意你的修改，你按实际位置写入",
+      "expected": "edit",
+      "source": "trace-2026-09-17-200242",
+      "split": "test",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "那你试着把修改一下大纲编辑器里的内容来验证你有没有写入权限",
+      "expected": "edit",
+      "source": "trace-2026-09-17-200242",
+      "split": "train",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "先把这个设定录入编辑器",
+      "expected": "edit",
+      "source": "trace-2026-09-17-200242",
+      "split": "dev",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "把已经确定的修改同步到编辑器",
+      "expected": "edit",
+      "source": "trace-2026-09-17-200242",
+      "split": "test",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "你出#3的替换给我参考",
+      "expected": "discuss",
+      "source": "trace-2026-09-17-200242",
+      "split": "train",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "reference-request"
+      },
+      "scores": null
+    },
+    {
+      "input": "好的，按你的方案来出修改文案",
+      "expected": "discuss",
+      "source": "trace-2026-09-17-200242",
+      "split": "dev",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "contextual-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "审核一下这份大纲还缺什么",
+      "expected": "analyze",
+      "source": "trace-2026-09-09-051203",
+      "split": "test",
+      "sync": {
+        "kind": "matched",
+        "intent": "analyze",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "从长篇小说的角度检查这个大纲",
+      "expected": "analyze",
+      "source": "trace-2026-09-09-051203",
+      "split": "train",
+      "sync": {
+        "kind": "matched",
+        "intent": "analyze",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "给第一卷生成三个备选钩子",
+      "expected": "generate",
+      "source": "trace-2026-09-19-042658",
+      "split": "dev",
+      "sync": {
+        "kind": "matched",
+        "intent": "generate",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "帮我把这一卷的节奏重新排一下",
+      "expected": "edit",
+      "source": "trace-2026-09-18-224640",
+      "split": "test",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "这一卷的节奏你觉得有问题么",
+      "expected": "discuss",
+      "source": "trace-2026-09-18-224640",
+      "split": "train",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "contextual-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "人物弧光现在有点平，我们聊聊怎么加层次",
+      "expected": "discuss",
+      "source": "trace-2026-09-19-102919",
+      "split": "dev",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "contextual-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "把人物弧光的层次落实到沈萤的成长线",
+      "expected": "edit",
+      "source": "trace-2026-09-19-102919",
+      "split": "test",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "继续",
+      "expected": "ambiguous",
+      "source": "trace-2026-09-16-204057",
+      "split": "train",
+      "sync": {
+        "kind": "ambiguous",
+        "intent": null,
+        "reason": "continuation-without-context"
+      },
+      "scores": null
+    },
+    {
+      "input": "开篇那个吸引点我不太满意",
+      "expected": "edit",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "no-keyword-overlap"
+      },
+      "scores": {
+        "analyze": {
+          "centroid": 0.516693,
+          "max": 0.748683
+        },
+        "edit": {
+          "centroid": 0.515735,
+          "max": 0.713481
+        },
+        "generate": {
+          "centroid": 0.484306,
+          "max": 0.694494
+        },
+        "discuss": {
+          "centroid": 0.540594,
+          "max": 0.86743
+        }
+      }
+    },
+    {
+      "input": "开头抓人的地方要再弄一下",
+      "expected": "edit",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "第一卷钩子得重新弄",
+      "expected": "edit",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "把开头那个亮点再打磨打磨",
+      "expected": "edit",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "开篇钩子这块我想调整",
+      "expected": "edit",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "第一卷新引子要重做",
+      "expected": "edit",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "no-keyword-overlap"
+      },
+      "scores": {
+        "analyze": {
+          "centroid": 0.426291,
+          "max": 0.556736
+        },
+        "edit": {
+          "centroid": 0.511725,
+          "max": 0.973445
+        },
+        "generate": {
+          "centroid": 0.470179,
+          "max": 0.720178
+        },
+        "discuss": {
+          "centroid": 0.427975,
+          "max": 0.637583
+        }
+      }
+    },
+    {
+      "input": "开头那个勾子不太行，改一下",
+      "expected": "edit",
+      "source": "adversarial-typo",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "把开篇吸引点再强化下",
+      "expected": "edit",
+      "source": "adversarial-typo",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "第一卷钩子需要重新设订",
+      "expected": "edit",
+      "source": "adversarial-typo",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "沈萤的脚裸伏笔要补到第二卷",
+      "expected": "edit",
+      "source": "adversarial-typo",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "时间线有点乱，先帮我捋顺",
+      "expected": "edit",
+      "source": "adversarial-domain",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "伏笔清单里漏了灯塔旧信，补进去",
+      "expected": "edit",
+      "source": "adversarial-domain",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "卷纲里人物弧光的衔接断了一截，修一下",
+      "expected": "edit",
+      "source": "adversarial-domain",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "把第二卷的节奏点重新排",
+      "expected": "edit",
+      "source": "adversarial-domain",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "这份大纲缺什么，你先审一遍",
+      "expected": "analyze",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "analyze",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "帮我看看这个大纲哪里不稳",
+      "expected": "analyze",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "analyze",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "从商业长篇角度挑挑毛病",
+      "expected": "analyze",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "analyze",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "检查一下伏笔有没有断",
+      "expected": "analyze",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "analyze",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "评估第一卷钩子的留存效果",
+      "expected": "analyze",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "analyze",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "诊断一下时间线哪里冲突",
+      "expected": "analyze",
+      "source": "adversarial-domain",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "analyze",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "给第三卷想三个可选钩子",
+      "expected": "generate",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "generate",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "帮我想一个更抓人的开篇",
+      "expected": "generate",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "generate",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "为沈萤补一段前史",
+      "expected": "generate",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "起草第二卷的三个节点",
+      "expected": "generate",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "generate",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "扩写灯塔旧信这个设定",
+      "expected": "generate",
+      "source": "adversarial-domain",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "generate",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "构思一个卷末反转",
+      "expected": "generate",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "generate",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "我讲一下沈萤脚踝钩子的设计意图",
+      "expected": "discuss",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "reference-request"
+      },
+      "scores": null
+    },
+    {
+      "input": "这个伏笔我不是要永久残疾，先说清楚",
+      "expected": "discuss",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "你觉得第一卷钩子的问题在哪",
+      "expected": "discuss",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "location-consult"
+      },
+      "scores": null
+    },
+    {
+      "input": "我们商量一下时间线怎么收",
+      "expected": "discuss",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "contextual-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "聊聊人物弧光会不会太急",
+      "expected": "discuss",
+      "source": "adversarial-domain",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "contextual-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "我不同意这个判断，理由是...",
+      "expected": "discuss",
+      "source": "adversarial-paraphrase",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "author-preference-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "先分析哪里有问题，然后直接把确定的错字改掉",
+      "expected": "edit",
+      "source": "adversarial-mixed",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "edit",
+        "reason": "explicit-write-directive"
+      },
+      "scores": null
+    },
+    {
+      "input": "先审一遍，再给我一版修改后的钩子",
+      "expected": "generate",
+      "source": "adversarial-mixed",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "generate",
+        "reason": "keyword-top1"
+      },
+      "scores": null
+    },
+    {
+      "input": "聊聊这个方案，暂定不要动编辑器",
+      "expected": "discuss",
+      "source": "adversarial-mixed",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "prohibition-rollback"
+      },
+      "scores": null
+    },
+    {
+      "input": "给我看看第 3 个替换方案",
+      "expected": "discuss",
+      "source": "adversarial-mixed",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "readonly-replace-plan-request"
+      },
+      "scores": null
+    },
+    {
+      "input": "能不能只讨论，不写入",
+      "expected": "discuss",
+      "source": "adversarial-safety",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "prohibition-rollback"
+      },
+      "scores": null
+    },
+    {
+      "input": "今天天气怎么样",
+      "expected": "no_match",
+      "source": "negative-chat",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "no-keyword-overlap"
+      },
+      "scores": {
+        "analyze": {
+          "centroid": 0.282572,
+          "max": 0.39254
+        },
+        "edit": {
+          "centroid": 0.259987,
+          "max": 0.397924
+        },
+        "generate": {
+          "centroid": 0.219863,
+          "max": 0.307565
+        },
+        "discuss": {
+          "centroid": 0.289043,
+          "max": 0.442188
+        }
+      }
+    },
+    {
+      "input": "推荐一部电影",
+      "expected": "no_match",
+      "source": "negative-chat",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "no-keyword-overlap"
+      },
+      "scores": {
+        "analyze": {
+          "centroid": 0.351005,
+          "max": 0.442951
+        },
+        "edit": {
+          "centroid": 0.321232,
+          "max": 0.442699
+        },
+        "generate": {
+          "centroid": 0.339993,
+          "max": 0.475076
+        },
+        "discuss": {
+          "centroid": 0.351827,
+          "max": 0.471057
+        }
+      }
+    },
+    {
+      "input": "现在几点了",
+      "expected": "no_match",
+      "source": "negative-chat",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "no-keyword-overlap"
+      },
+      "scores": {
+        "analyze": {
+          "centroid": 0.383391,
+          "max": 0.552705
+        },
+        "edit": {
+          "centroid": 0.388788,
+          "max": 0.541104
+        },
+        "generate": {
+          "centroid": 0.312879,
+          "max": 0.476669
+        },
+        "discuss": {
+          "centroid": 0.378074,
+          "max": 0.482391
+        }
+      }
+    },
+    {
+      "input": "讲个笑话",
+      "expected": "no_match",
+      "source": "negative-chat",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "no-keyword-overlap"
+      },
+      "scores": {
+        "analyze": {
+          "centroid": 0.39068,
+          "max": 0.510189
+        },
+        "edit": {
+          "centroid": 0.388801,
+          "max": 0.505601
+        },
+        "generate": {
+          "centroid": 0.418606,
+          "max": 0.654379
+        },
+        "discuss": {
+          "centroid": 0.417512,
+          "max": 0.512295
+        }
+      }
+    },
+    {
+      "input": "你是谁",
+      "expected": "no_match",
+      "source": "negative-chat",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "no-keyword-overlap"
+      },
+      "scores": {
+        "analyze": {
+          "centroid": 0.328212,
+          "max": 0.472677
+        },
+        "edit": {
+          "centroid": 0.291082,
+          "max": 0.369668
+        },
+        "generate": {
+          "centroid": 0.319233,
+          "max": 0.424486
+        },
+        "discuss": {
+          "centroid": 0.344647,
+          "max": 0.453359
+        }
+      }
+    },
+    {
+      "input": "帮我订一张明天的机票",
+      "expected": "no_match",
+      "source": "negative-task",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "no-keyword-overlap"
+      },
+      "scores": {
+        "analyze": {
+          "centroid": 0.322537,
+          "max": 0.399481
+        },
+        "edit": {
+          "centroid": 0.323075,
+          "max": 0.476746
+        },
+        "generate": {
+          "centroid": 0.345683,
+          "max": 0.488188
+        },
+        "discuss": {
+          "centroid": 0.310955,
+          "max": 0.438847
+        }
+      }
+    },
+    {
+      "input": "这道数学题怎么解",
+      "expected": "no_match",
+      "source": "negative-task",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "no-keyword-overlap"
+      },
+      "scores": {
+        "analyze": {
+          "centroid": 0.381934,
+          "max": 0.539705
+        },
+        "edit": {
+          "centroid": 0.385014,
+          "max": 0.480347
+        },
+        "generate": {
+          "centroid": 0.345788,
+          "max": 0.430316
+        },
+        "discuss": {
+          "centroid": 0.391868,
+          "max": 0.51291
+        }
+      }
+    },
+    {
+      "input": "帮我写一份辞职信",
+      "expected": "no_match",
+      "source": "negative-task",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "out-of-scope"
+      },
+      "scores": null
+    },
+    {
+      "input": "查一下今天的股价",
+      "expected": "no_match",
+      "source": "negative-task",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "no-keyword-overlap"
+      },
+      "scores": {
+        "analyze": {
+          "centroid": 0.396071,
+          "max": 0.572053
+        },
+        "edit": {
+          "centroid": 0.344152,
+          "max": 0.512149
+        },
+        "generate": {
+          "centroid": 0.308584,
+          "max": 0.406113
+        },
+        "discuss": {
+          "centroid": 0.34774,
+          "max": 0.536191
+        }
+      }
+    },
+    {
+      "input": "翻译一句英文",
+      "expected": "no_match",
+      "source": "negative-task",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "no-keyword-overlap"
+      },
+      "scores": {
+        "analyze": {
+          "centroid": 0.345975,
+          "max": 0.42994
+        },
+        "edit": {
+          "centroid": 0.342109,
+          "max": 0.43319
+        },
+        "generate": {
+          "centroid": 0.360036,
+          "max": 0.455764
+        },
+        "discuss": {
+          "centroid": 0.334586,
+          "max": 0.436417
+        }
+      }
+    },
+    {
+      "input": "你好",
+      "expected": "no_match",
+      "source": "negative-greeting",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "no-keyword-overlap"
+      },
+      "scores": {
+        "analyze": {
+          "centroid": 0.416848,
+          "max": 0.530146
+        },
+        "edit": {
+          "centroid": 0.400786,
+          "max": 0.550865
+        },
+        "generate": {
+          "centroid": 0.374706,
+          "max": 0.483436
+        },
+        "discuss": {
+          "centroid": 0.429725,
+          "max": 0.676221
+        }
+      }
+    },
+    {
+      "input": "在吗",
+      "expected": "no_match",
+      "source": "negative-greeting",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "no-keyword-overlap"
+      },
+      "scores": {
+        "analyze": {
+          "centroid": 0.389819,
+          "max": 0.524023
+        },
+        "edit": {
+          "centroid": 0.36096,
+          "max": 0.435891
+        },
+        "generate": {
+          "centroid": 0.323186,
+          "max": 0.40002
+        },
+        "discuss": {
+          "centroid": 0.383833,
+          "max": 0.481003
+        }
+      }
+    },
+    {
+      "input": "哈哈哈",
+      "expected": "no_match",
+      "source": "negative-greeting",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "no-keyword-overlap"
+      },
+      "scores": {
+        "analyze": {
+          "centroid": 0.394024,
+          "max": 0.507277
+        },
+        "edit": {
+          "centroid": 0.387807,
+          "max": 0.479641
+        },
+        "generate": {
+          "centroid": 0.352297,
+          "max": 0.434652
+        },
+        "discuss": {
+          "centroid": 0.387496,
+          "max": 0.488194
+        }
+      }
+    },
+    {
+      "input": "这里的电话是多少？",
+      "expected": "discuss",
+      "source": "GEM/RiSAWOZ:dev:Request",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "contextual-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "这个地方的特点是什么？",
+      "expected": "discuss",
+      "source": "GEM/RiSAWOZ:dev:Request",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "contextual-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "这个地方是不是坐地铁就可以到的？",
+      "expected": "discuss",
+      "source": "GEM/RiSAWOZ:dev:Request",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "contextual-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "地址在什么地方？",
+      "expected": "discuss",
+      "source": "GEM/RiSAWOZ:dev:Request",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "matched",
+        "intent": "discuss",
+        "reason": "contextual-discussion"
+      },
+      "scores": null
+    },
+    {
+      "input": "",
+      "expected": "no_match",
+      "source": "negative-empty",
+      "split": "adversarial-negative",
+      "sync": {
+        "kind": "no_match",
+        "intent": null,
+        "reason": "empty-input"
+      },
+      "scores": null
+    }
+  ]
+}

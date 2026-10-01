@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "agent-state-electron-v1",
+  "generatedAt": "2026-09-26T03:09:01.820Z",
+  "checks": [
+    "state save -> status visible",
+    "UI panel reads persisted state",
+    "checkpoint save/load hash passes",
+    "checkpoint tamper rejected with hash_mismatch",
+    "cancel token persisted and task terminal",
+    "restart recovery converts running to needs_user",
+    "terminal statuses survive recovery"
+  ],
+  "uiVisible": true,
+  "verdict": "pass"
+}

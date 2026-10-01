@@ -1,0 +1,82 @@
+{
+  "schema": "shenyi.final-draft.electron-live",
+  "version": 1,
+  "generatedAt": "2026-09-30T22:48:45.523Z",
+  "model": "deepseek-v4-pro",
+  "electronPid": 17024,
+  "scales": [
+    {
+      "scale": "STALLED_RECOVERY",
+      "sourceChars": 62,
+      "model": "deepseek-v4-pro",
+      "operations": [
+        {
+          "status": "success",
+          "stalledTask": {
+            "taskId": "final-draft-1790808533179-1",
+            "status": "generating",
+            "activeSegmentIndex": 0,
+            "segments": 3,
+            "accumulatedChars": 27,
+            "completedChars": 0,
+            "streamingChars": 27,
+            "throughputStatus": "stalled",
+            "sixtySecondCharsPerSecond": 0,
+            "continuationCount": 0,
+            "error": null,
+            "updatedAt": 1790808533296
+          },
+          "finalTask": {
+            "taskId": "final-draft-1790808533179-1",
+            "destination": "home-editor",
+            "targetId": "final-draft-stall-recovery",
+            "instruction": "请对当前编辑器全文进行整理排序，并统一格式。不要改写正文含义，输出完整终稿。",
+            "constraints": [],
+            "protectedRanges": [],
+            "sourceContent": "# 停滞恢复测试\n\n## 第一章\n\n第一段源文内容。\n\n## 第二章\n\n第二段源文内容。\n\n## 第三章\n\n第三段源文内容。",
+            "sourceSegments": [
+              {
+                "segmentId": "segment-1",
+                "start": 0,
+                "end": 28
+              },
+              {
+                "segmentId": "segment-2",
+                "start": 28,
+                "end": 46
+              },
+              {
+                "segmentId": "segment-3",
+                "start": 46,
+                "end": 62
+              }
+            ],
+            "segmentOrder": [
+              "segment-1",
+              "segment-2",
+              "segment-3"
+            ],
+            "activeSegmentIndex": 3,
+            "completedText": "# 停滞恢复测试\n\n## 第一章\n\n第一段源文内容。\n## 第二章\n\n第二段源文内容。\n## 第三章\n\n第三段源文内容。\n",
+            "accumulatedText": "",
+            "continuationCount": 0,
+            "status": "completed",
+            "sourceContentHash": "fnv1a32_fffffb7b",
+            "createdAt": 1790808533179,
+            "updatedAt": 1790808535657,
+            "lastTelemetry": {
+              "tenSecondCharsPerSecond": 0,
+              "sixtySecondCharsPerSecond": 0,
+              "throughputStatus": "stalled",
+              "estimatedRemainingMs": null
+            },
+            "lastStreamActivityAt": 1790808533296,
+            "finishReason": "stop",
+            "documentVersionBeforeWrite": 0
+          },
+          "requests": 6
+        }
+      ]
+    }
+  ]
+}

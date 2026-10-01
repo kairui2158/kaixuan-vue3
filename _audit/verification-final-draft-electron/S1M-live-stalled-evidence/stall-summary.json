@@ -1,0 +1,106 @@
+{
+  "EvidenceFile": "D:/codex/novel-workshop-vue3/_audit/verification-final-draft-electron/S1M-live-stalled-evidence/S1M-heartbeat.jsonl",
+  "Lines": 9093,
+  "FirstHeartbeat": "2026-09-28T05:42:14.117Z",
+  "LastHeartbeat": "2026-09-30T02:17:09.59Z",
+  "LastCallCount": 18,
+  "LastSegmentIndex": 16,
+  "LastSegmentTotal": 20,
+  "LastCompletedChars": 818912,
+  "LastTaskUpdatedUnix": 1790729177094,
+  "LastTaskUpdatedLocal": "2026-09-30 08:46:17+08:00",
+  "LastChatStatus": "streaming",
+  "ContinuationCount": 0,
+  "SegmentObservations": [
+    {
+      "Segment": 0,
+      "FirstSeenAt": "2026-09-29T16:49:00.794Z",
+      "CompletedCharsAtFirstSeen": 0
+    },
+    {
+      "Segment": null,
+      "FirstSeenAt": "2026-09-28T05:42:14.117Z",
+      "CompletedCharsAtFirstSeen": null
+    },
+    {
+      "Segment": 1,
+      "FirstSeenAt": "2026-09-29T16:59:53.511Z",
+      "CompletedCharsAtFirstSeen": 50908
+    },
+    {
+      "Segment": 2,
+      "FirstSeenAt": "2026-09-29T17:15:12.3Z",
+      "CompletedCharsAtFirstSeen": 102207
+    },
+    {
+      "Segment": 3,
+      "FirstSeenAt": "2026-09-29T17:40:04.642Z",
+      "CompletedCharsAtFirstSeen": 153322
+    },
+    {
+      "Segment": 4,
+      "FirstSeenAt": "2026-09-29T18:14:53.861Z",
+      "CompletedCharsAtFirstSeen": 204429
+    },
+    {
+      "Segment": 5,
+      "FirstSeenAt": "2026-09-29T18:25:49.337Z",
+      "CompletedCharsAtFirstSeen": 255862
+    },
+    {
+      "Segment": 6,
+      "FirstSeenAt": "2026-09-29T18:36:00.719Z",
+      "CompletedCharsAtFirstSeen": 306971
+    },
+    {
+      "Segment": 7,
+      "FirstSeenAt": "2026-09-29T19:21:23.431Z",
+      "CompletedCharsAtFirstSeen": 358081
+    },
+    {
+      "Segment": 8,
+      "FirstSeenAt": "2026-09-29T19:33:56.915Z",
+      "CompletedCharsAtFirstSeen": 409198
+    },
+    {
+      "Segment": 9,
+      "FirstSeenAt": "2026-09-29T19:45:54.586Z",
+      "CompletedCharsAtFirstSeen": 460308
+    },
+    {
+      "Segment": 10,
+      "FirstSeenAt": "2026-09-29T19:59:11.926Z",
+      "CompletedCharsAtFirstSeen": 511549
+    },
+    {
+      "Segment": 11,
+      "FirstSeenAt": "2026-09-29T21:04:41.466Z",
+      "CompletedCharsAtFirstSeen": 562974
+    },
+    {
+      "Segment": 12,
+      "FirstSeenAt": "2026-09-29T21:21:46.414Z",
+      "CompletedCharsAtFirstSeen": 614410
+    },
+    {
+      "Segment": 13,
+      "FirstSeenAt": "2026-09-29T21:38:40.394Z",
+      "CompletedCharsAtFirstSeen": 665525
+    },
+    {
+      "Segment": 14,
+      "FirstSeenAt": "2026-09-29T22:52:24.489Z",
+      "CompletedCharsAtFirstSeen": 716632
+    },
+    {
+      "Segment": 15,
+      "FirstSeenAt": "2026-09-29T23:11:12.602Z",
+      "CompletedCharsAtFirstSeen": 767746
+    },
+    {
+      "Segment": 16,
+      "FirstSeenAt": "2026-09-30T00:46:18.23Z",
+      "CompletedCharsAtFirstSeen": 818912
+    }
+  ]
+}

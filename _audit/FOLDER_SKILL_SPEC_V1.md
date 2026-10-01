@@ -170,13 +170,13 @@ Folder SKILL 的输入输出都是字符串：
 
 ### 9.1 大纲/主页写入协议（重要）
 
-Folder SKILL 可以在明确写入意图下直接改写编辑器。应用的安全模型是：`discuss/analyze` 只读；用户明确下达“插入/写入/修改/删除”等 edit/generate 指令时，才暴露 `editor.write` 并执行直写；执行仍受定位唯一、hash/版本校验、锁定只读、写入上限、undo 与批次记录保护。
+Folder SKILL 可以在明确写入意图下直接改写编辑器。应用的安全模型是：`discuss/analyze` 只读；用户明确下达“插入/写入/修改/删除”等 edit/generate 指令时，才暴露 `editor.write` 并执行直写；执行仍受定位唯一、hash/版本校验、锁定只读、重复写入守卫、undo 与批次记录保护。同一轮内允许多次不同目标或不同内容的写入；连续 3 次完全相同写入会被拦截。
 
 1. 读范围用 `outline.get_structure`、`outline.read_range`、`outline.search`。
 2. 需要写入时必须调用 `editor.write`，不要只输出【修改预览】文本。
 3. `editor.write` 返回 `status: written` 表示写入已执行；返回失败状态时禁止输出“已写入/已插入”。
 4. 未收到 `editor.write` 的 `status: written` 结果前，禁止输出“已写入/已插入”。
-5. 写入失败要按失败原因回复用户：目标不唯一、hash/版本冲突、编辑器锁定、超过写入上限均表示本次未写入。
+5. 写入失败要按失败原因回复用户：目标不唯一、hash/版本冲突、编辑器锁定、连续重复写入被拦截均表示本次未写入。
 6. 用户说“插入/写入/改到大纲”属于 edit 意图；讨论、分析属于 discuss/analyze，此时不要调用写入工具。
 7. 判断“明确写入但模型未写入”的方法：先确认 turn 的 `actualToolSurface` 包含 `editor.write`，再看 API call 的 `toolCalls` 是否为空；为空则表示模型没有提交写入工具调用。
 

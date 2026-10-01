@@ -1,0 +1,149 @@
+{
+  "dimension": "verification",
+  "round": 15,
+  "query": "visual regression e2e",
+  "repositories": [
+    {
+      "fullName": "nightwatchjs/nightwatch",
+      "stars": 11953,
+      "language": "JavaScript",
+      "defaultBranch": "main",
+      "url": "https://github.com/nightwatchjs/nightwatch",
+      "cachedFiles": [
+        {
+          "path": "examples/custom-assertions/testCustomAssertion.js",
+          "size": 1166,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\nightwatchjs_nightwatch__examples_custom-assertions_testCustomAssertion.js.txt",
+          "excerpt": "const util = require('util');\n\nexports.assertion = function(selector, attribute, expected, msg) {\n  let DEFAULT_MSG = 'Testing if attribute %s of <%s> contains \"%s\".';\n  let MSG_ELEMENT_NOT_FOUND = `${DEFAULT_MSG} Element could not be located.`;\n  let MSG_ATTR_NOT_FOUND = `${DEFAULT_MSG} Element does not have a ${attribute} attribute.`;\n\n  this.message = msg || util.format(DEFAULT_MSG, attribute, selector, expected);\n\n  this.expected = function() {\n    return expected;\n  };\n\n  this.pass = function(value) {\n    return value === expected;\n  };\n\n  this.failure = function(result) {\n    let failed = (result === false) ||\n      // no such element\n      result && (result.status === -1 || result.value === null);\n\n    if (failed) {\n      let defaultMsg = MSG_ELEMENT_NOT_FOUND;\n      if (result && result.value === null) {\n        defaultMsg = MSG_ATTR_NOT_FOUND;\n      }\n      this.message = msg || util.format(defaultMsg, attribute, selector, expected);\n    }\n\n    return failed;\n  };\n\n  this.value = function(result) {\n    return result.value;\n  };\n\n  this.command = function(callback) {\n    return this.api.getAttribute(selector, attribute, callback);\n  };\n\n};\n"
+        },
+        {
+          "path": "examples/test-app/globals.js",
+          "size": 628,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\nightwatchjs_nightwatch__examples_test-app_globals.js.txt",
+          "excerpt": "const waitOn = require('wait-on');\nconst {spawn} = require('child_process');\nconst path = require('path');\n\nlet serverPid = null;\nconst serverPort = '13370';\n\nmodule.exports = {\n  before(done) {\n    // serve --listen 13370 ./test-app\n    serverPid = spawn(path.resolve('node_modules/.bin/serve'), ['--listen', serverPort, '--no-request-logging', __dirname], {\n      cwd: process.cwd(),\n      stdio: 'inherit'\n    }).pid;\n\n    waitOn({\n      resources: [`http://localhost:${serverPort}`]\n    }).then(() => {\n      setTimeout(done, 500);\n    });\n\n  },\n\n  after() {\n    if (serverPid) {\n      process.kill(serverPid);\n    }\n  }\n};\n"
+        }
+      ]
+    },
+    {
+      "fullName": "DouyinFE/semi-design",
+      "stars": 10382,
+      "language": "TypeScript",
+      "defaultBranch": "main",
+      "url": "https://github.com/DouyinFE/semi-design",
+      "cachedFiles": [
+        {
+          "path": "cypress/support/e2e.js",
+          "size": 957,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\DouyinFE_semi-design__cypress_support_e2e.js.txt",
+          "excerpt": "// ***********************************************************\n// This example support/index.js is processed and\n// loaded automatically before your test files.\n//\n// This is a great place to put global configuration and\n// behavior that modifies Cypress.\n//\n// You can change the location of this file or turn off\n// automatically serving support files with the\n// 'supportFile' configuration option.\n//\n// You can read more here:\n// https://on.cypress.io/configuration\n// ***********************************************************\n\n// Import commands.js using ES2015 syntax:\nimport \"cypress-real-events\";\nimport './commands';\nimport '@cypress/code-coverage/support';\nimport \"cypress-real-events\";\n\n// require('cypress-plugin-tab');\n// Alternatively you can use CommonJS syntax:\n// require('./commands')\n\nCypress.on('uncaught:exception', (err, runnable) => {\n    // returning false here prevents Cypress from\n    // failing the test\n    return false;\n});\n"
+        },
+        {
+          "path": "packages/semi-ui/datePicker/_story/v2/InsetInputE2E.jsx",
+          "size": 2333,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\DouyinFE_semi-design__packages_semi-ui_datePicker__story_v2_InsetInputE2E.jsx.txt",
+          "excerpt": "import React from 'react';\nimport { DatePicker, Space, Button } from '@douyinfe/semi-ui';\n\n/**\n * Test with Cypress\n * Don't modify DOM structure\n */\nexport default function App() {\n    const [needConfirm, setNeedConfirm] = React.useState(false);\n\n    const spacing = [200, 400];\n    const props = {\n        insetInput: true,\n        defaultPickerValue: '2021-12-01',\n        motion: false,\n    };\n\n    const handleToggleNeedConfirm = () => {\n        setNeedConfirm(!needConfirm);\n    };\n\n    return (\n        <div style={{ height: '300vh' }}>\n            <div style={{ marginBottom: 12 }}>\n                <Space>\n                    <Button onClick={handleToggleNeedConfirm} data-cy=\"btn\">\n                        {`needConfirm=${needConfirm}`}\n                    </Button>\n                </Space>\n            </div>\n            <Space wrap spacing={spacing}>\n                <div data-cy=\"date\">\n                    <DatePicker placeholder=\"选择单个日期\" {...props} />\n                </div>\n                <div data-cy=\"month\">\n                    <DatePicker\n                        {...props}\n                        placeholder=\"选择月\"\n                        type=\"month\"\n                        defaultValue=\"2021-12\"\n                        timePickerOpts={{\n                            scrollItemProps: { motion: false },\n                        }}\n                    />\n                </div>\n                <div data-cy=\"dateTime\">\n                    <DatePicker placeholder=\"选择日期时间\" {...props} type=\"dateTime\" needConfirm={needConfirm} />\n                </div>\n                <div data-cy=\"dateRange\">\n                    <DatePicker placeholder=\"选择日期范围\" {...props} type=\"dateRange\" />\n                </div>\n                <div data-cy=\"dateTimeRange\">\n                    <DatePicker\n                        placeholder=\"选择日期时间范围\"\n                        {...props}\n                        type=\"dateTimeRange\"\n                        needConfirm={needConfirm}\n                    />\n                </div>\n                <div data-cy=\"customFormat\">\n                    <DatePicker placeholder=\"选择日期范围\" {...props} type=\"dateRange\" format=\"Pp\" />\n                </div>\n            </Space>\n        </div>\n    );\n}\n\nApp.parameters = { chromatic: { disableSnapshot: true } };\nApp.storyName = 'inset input e2e test';\n"
+        }
+      ]
+    },
+    {
+      "fullName": "ixartz/SaaS-Boilerplate",
+      "stars": 7423,
+      "language": "TypeScript",
+      "defaultBranch": "main",
+      "url": "https://github.com/ixartz/SaaS-Boilerplate",
+      "cachedFiles": [
+        {
+          "path": "tests/e2e/I18n.e2e.ts",
+          "size": 953,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\ixartz_SaaS-Boilerplate__tests_e2e_I18n.e2e.ts.txt",
+          "excerpt": "import { expect, test } from '@playwright/test';\n\ntest.describe('I18n', () => {\n  test.describe('Language Switching', () => {\n    test('should switch language from English to French using dropdown and verify text on the homepage', async ({ page }) => {\n      await page.goto('/');\n\n      await expect(page.getByText('The perfect SaaS template to build')).toBeVisible();\n\n      await page.getByRole('button', { name: 'Change language' }).click();\n      await page.getByText('Français').click();\n\n      await expect(page.getByText('Le parfait SaaS template pour construire')).toBeVisible();\n    });\n\n    test('should switch language from English to French using URL and verify text on the sign-in page', async ({ page }) => {\n      await page.goto('/sign-in');\n\n      await expect(page.getByText('Email address')).toBeVisible();\n\n      await page.goto('/fr/sign-in');\n\n      await expect(page.getByText('Adresse e-mail')).toBeVisible();\n    });\n  });\n});\n"
+        },
+        {
+          "path": "tests/e2e/Sanity.check.e2e.ts",
+          "size": 970,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\ixartz_SaaS-Boilerplate__tests_e2e_Sanity.check.e2e.ts.txt",
+          "excerpt": "import { expect, test } from '@playwright/test';\n\n// Checkly is a tool used to monitor deployed environments, such as production or preview environments.\n// It runs end-to-end tests with the `.check.e2e.ts` extension after each deployment to ensure that the environment is up and running.\n// With Checkly, you can monitor your production environment and run `*.check.e2e.ts` tests regularly at a frequency of your choice.\n// If the tests fail, Checkly will notify you via email, Slack, or other channels of your choice.\n// On the other hand, E2E tests ending with `*.e2e.ts` are only run before deployment.\n// You can run them locally or on CI to ensure that the application is ready for deployment.\n\ntest.describe('Sanity', () => {\n  test.describe('Static pages', () => {\n    test('should display the homepage', async ({ page }) => {\n      await page.goto('/');\n\n      await expect(page.getByText('The perfect SaaS template to build')).toBeVisible();\n    });\n  });\n});\n"
+        }
+      ]
+    },
+    {
+      "fullName": "cypress-io/cypress-example-recipes",
+      "stars": 3478,
+      "language": "JavaScript",
+      "defaultBranch": "master",
+      "url": "https://github.com/cypress-io/cypress-example-recipes",
+      "cachedFiles": [
+        {
+          "path": "examples/blogs__e2e-api-testing/README.md",
+          "size": 476,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\cypress-io_cypress-example-recipes__examples_blogs__e2e-api-testing_README.md.txt",
+          "excerpt": "# E2E API Testing\n\nThis is an example of using Cypress to test REST APIs.\n\n## Blog Post\n\nWe wrote a [companion blog post](https://www.cypress.io/blog/2017/11/07/Add-GUI-to-Your-E2E-API-Tests) that provides more details and explanation of this recipe.\n\nPlease read that if you'd like to understand more about writing E2E API tests in Cypress.\n\n- Use `cy.request()` to perform API Testing\n- Use the Cypress GUI to help debug requests\n\n![API testing using Cypress](img/demo.png)\n"
+        },
+        {
+          "path": "examples/blogs__e2e-api-testing/cypress.config.js",
+          "size": 181,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\cypress-io_cypress-example-recipes__examples_blogs__e2e-api-testing_cypress.config.js.txt",
+          "excerpt": "const { defineConfig } = require('cypress')\n\nmodule.exports = defineConfig({\n  fixturesFolder: false,\n  e2e: {\n    baseUrl: 'http://localhost:7081',\n    supportFile: false,\n  },\n})\n"
+        }
+      ]
+    },
+    {
+      "fullName": "stevenpetryk/mafs",
+      "stars": 3434,
+      "language": "TypeScript",
+      "defaultBranch": "main",
+      "url": "https://github.com/stevenpetryk/mafs",
+      "cachedFiles": [
+        {
+          "path": "e2e/components/MafsDragging.tsx",
+          "size": 641,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\stevenpetryk_mafs__e2e_components_MafsDragging.tsx.txt",
+          "excerpt": "import { Mafs, Coordinates, Circle, useMovablePoint, Theme, Debug } from \"../../src\"\n\nexport function MafsDragging() {\n  const point1 = useMovablePoint([0, 0], { color: Theme.blue })\n  const point2 = useMovablePoint([0, 1], { color: Theme.red })\n  const point3 = useMovablePoint([0, 2], { color: Theme.green })\n\n  return (\n    <Mafs>\n      <Coordinates.Cartesian />\n\n      <Circle center={point1.point} radius={0.5} />\n      <Circle center={point2.point} radius={0.5} />\n      <Circle center={point3.point} radius={0.5} />\n\n      <Debug.ViewportInfo />\n\n      {point1.element}\n      {point2.element}\n      {point3.element}\n    </Mafs>\n  )\n}\n"
+        },
+        {
+          "path": "playwright.config.ts",
+          "size": 1629,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\stevenpetryk_mafs__playwright.config.ts.txt",
+          "excerpt": "import { defineConfig } from \"@playwright/experimental-ct-react\"\nimport { devices, ViewportSize } from \"@playwright/test\"\n\nconst viewport: ViewportSize = { width: 500, height: 500 }\n\nexport default defineConfig({\n  timeout: 30 * 1000,\n  expect: {\n    timeout: 5000,\n    toHaveScreenshot: {\n      maxDiffPixelRatio: 0.02,\n    },\n  },\n  fullyParallel: true,\n  forbidOnly: !!process.env.CI,\n  retries: process.env.CI ? 2 : 0,\n  workers: undefined,\n  reporter: \"html\",\n  use: {\n    actionTimeout: 0,\n    trace: \"on-first-retry\",\n\n    ctViteConfig: {\n      resolve: {\n        alias: {\n          mafs: \"src/index.tsx\",\n        },\n      },\n    },\n  },\n  projects: [\n    { name: \"chromium\", use: { ...devices[\"Desktop Chrome\"], viewport }, testDir: \"./e2e\" },\n    { name: \"firefox\", use: { ...devices[\"Desktop Firefox\"], viewport }, testDir: \"./e2e\" },\n    { name: \"webkit\", use: { ...devices[\"Desktop Safari\"], viewport }, testDir: \"./e2e\" },\n    { name: \"Mobile Chrome\", use: { ...devices[\"Pixel 5\"], viewport }, testDir: \"./e2e\" },\n    { name: \"Mobile Safari\", use: { ...devices[\"iPhone 12\"], viewport }, testDir: \"./e2e\" },\n\n    {\n      name: \"frameworks-setup\",\n      use: { ...devices[\"Desktop Chrome\"], viewport },\n      testDir: \"./tests\",\n      testMatch: \"tests/frameworks/setup.ts\",\n    },\n    {\n      name: \"frameworks\",\n      use: { ...devices[\"Desktop Chrome\"], viewport },\n      testDir: \"./tests\",\n      testMatch: \"tests/frameworks/*.spec.tsx\",\n      dependencies: [\"frameworks-setup\"],\n      // Since these tests operate on the actual file system, parallelism messes them up.\n      fullyParallel: false,\n    },\n  ],\n})\n"
+        }
+      ]
+    },
+    {
+      "fullName": "mojoaxel/awesome-regression-testing",
+      "stars": 2416,
+      "language": null,
+      "defaultBranch": "master",
+      "url": "https://github.com/mojoaxel/awesome-regression-testing",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "TheJambo/awesome-testing",
+      "stars": 2380,
+      "language": null,
+      "defaultBranch": "master",
+      "url": "https://github.com/TheJambo/awesome-testing",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "NoriSte/ui-testing-best-practices",
+      "stars": 1736,
+      "language": null,
+      "defaultBranch": "master",
+      "url": "https://github.com/NoriSte/ui-testing-best-practices",
+      "cachedFiles": [
+        {
+          "path": "sections/real-life-examples/test-front-end-with-integration-back-end-with-e2e.md",
+          "size": 6081,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\NoriSte_ui-testing-best-practices__sections_real-life-examples_test-front-end-with-integration-back-end-with-e2e.md.txt",
+          "excerpt": "# Real life example: *Test the front-end with the integration tests, the back-end with the E2E ones* - in reference to  [Component vs Integration vs E2e Testing](..//testing-strategy/component-vs-integration-vs-e2e-testing.md):\n\n<br/><br/>\n\n### One Paragraph Explainer\n\nUI tests with a stubbed server are [highly reliable and faster](../testing-strategy/component-vs-integration-vs-e2e-testing.md#ui-integration-tests)<!--TODO: check that the deeplinkl works--> in comparison to full E2E tests.\n\nFull E2E tests still provide the highest possible confidence, but at a high cost: being brittle, potentially unreliable, and slow.\n\nWe can still achieve high confidence for the front-end by using lower-cost UI integration tests and saving higher cost E2E tests for the back-end.\n\n\n<br/><br/>\n\n### Sample Test Architecture Diagram\n\nA high-level architectural view from a real-world [Building Controls Cloud application](https://new.siemens.com/global/en/products/buildings/digitalization/building-operator.html).\n\n* Angular front-end\n* Node-Express API (back-end)\n* Services (Go lambdas) (back-end)\n* Hardware (back-end)\n\n> Depending on needs, UI-E2E tests can be supplemented with pure API tests. Some popular tools for API testing are [Postman](https://www.getpostman.com/), [Rest Client for VS COde](https://marketplace.visualstudio.com/items?itemName=humao.rest-client), as well as Cypress.\n\n![](./../../assets/images/test-architecture-example.png)\n\n<br/>\n\n*Please note: all the following examples are for Cypress, it has the best XHR testing support at the moment. [Full XHR request waiting and inspection is not so common](../generic-best-practices/await-dont-sleep.md#xhr-request-waitings) in the existing testing tools, Cypress provides the most complete inspection support at the moment.*\n\n<br/>\n\n### Code Example: Login testing\n\nThe following example has 2 tests for covering Login functionality. The first test covers the front-end application with a UI integration trest, the second test covers the back-end with an E2E test.\n\n```javascript\n/** function to fill username, password and Login*/\nconst fillFormAndClick = ({ username, password }) => { .. };\n\n// This is an UI integration test with server stubbing.\n// Remember to write a few E2E tests and a lot of integration ones\n// @see https://github.com/NoriSte/ui-testing-best-practices/blob/master/sections/testing-strategy/component-vs-integration-vs-e2e-testing.md#ui-integration-tests\nit(\"Login: front-end integration tests\", () => {\n\n  // A route that intercepts / sniffs every POST request that goes to the authentication URL.\n  // Stubs the response with authentication-success.json fixture. This is called server stubbing\n  cy.intercept({\n    method: \"POST\",\n    fixture: \"authentication/authentication-success.json\", // Stubs the response\n    url: `**${AUTHENTICATE_API_URL}`\n  }).as(\"auth-xhr\");\n\n  fillFormAndClick(USERNAME_PLACEHOLDER, PASSWORD_PLACEHOLDER);\n\n  // wait for the POST XHR\n  cy.wait(\"@auth-xhr\").then(interception => {\n    // assert the payload body that the front end is sending to the back-end\n    expect(interception.request.body).to.have.property(\"username\", username);\n    expect(interception.request.body).to.have.property(\"password\", password);\n    // assert the request headers in the payload\n    expect(interception.request.headers).to.have.property('Content-Type', 'application/json;charset=utf-8');\n  });\n\n  // finally, the user must see the feedback\n  cy.getByText(SUCCESS_FEEDBACK).should(\"be.visible\");\n});\n\n// this is a copy of the integration test but without server stubbing.\nit(\"Login: back-end E2E tests\", () => {\n\n  // A route that intercepts / sniffs every POST request that goes to the authentication URL.\n  // Distinction: this is NOT stubbed!\n  cy.intercept({\n    method: \"POST\",\n    url: `**${AUTHENTICATE_API_URL}`\n  }).as(\"auth-xhr\");\n\n  fillFormAndClick(USERNAME_PLACEHOLDER, PASSWORD_PLACEHOLDER);\n\n  cy.wait(\"@auth-xhr\").then(interception => {\n    // since the integration tests already tested the front-end app, we use E2E tests to check the\n    // back-end app. It needs to ensure that the back-end app works and gets the correct response data\n\n    // response body assertions and status should be in the E2E tests since they rely on the server\n    expect(interception.status).to.equal(200);\n    expect(interception.response.body).to.have.property(\"token\");\n  });\n\n  // finally, the user must see the feedback\n  cy.getByText(SUCCESS_FEEDBACK).should(\"be.visible\");\n});\n```\n\n<br/><br/>\n\n### Code Example 2: switching UI integration tests to UI-E2E tests\n\nSometimes, you may want to switch UI integration tests to E2E tests.\n\nAt lower-level test layers - for example when isolating tests to only the UI code - you may prefer to use cost-effective UI integration tests.\n\nAt higher level test layers - for example, when you integrate with intermediate level services - you may need higher confidence and target the tests to the back-end.\n\nYou can switch focus between UI integration and E2E tests by using a conditional stub.\n\n```javascript\n// stub-services.js : a file that only includes a function to stub the back-end services\nexport default function() {\n  // all routes to the specified endpoint will respond with pre-packaged Json data\n  cy.intercept('/api/../me', {fixture:'services/me.json'});\n  cy.intercept('/api/../permissions', {fixture:'services/permissions.json'});\n  // Lots of other fixtures ...\n}\n\n// spec file:\nimport stubServices from '../../support/stub-services';\n\n/** isLocalhost is a function that checks the configuration environment*/\nconst isLocalHost = () => Cypress.env('ENVIRONMENT') === \"localhost\";\n\n// ... in your tests, or in before / beforeEach blocks,\n// stub the services if you are testing front-end (UI integration tests)\n// do not stub if you are testing the back-end (UI-E2E tests)\nif (isLocalHost()) {\n  stubServices();\n}\n\n```\n\n\n### References\n\n[Mastering UI Testing - conference video](https://www.youtube.com/watch?v=RwWz4hllDtg)\n<!-- TODO: in the end, decide if you want to move all the resources to a common chapter too -->\n"
+        },
+        {
+          "path": "sections/real-life-examples/test-front-end-with-integration-back-end-with-e2e.zh.md",
+          "size": 5274,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\NoriSte_ui-testing-best-practices__sections_real-life-examples_test-front-end-with-integration-back-end-with-e2e.zh.md.txt",
+          "excerpt": "# 真实案例：*用集成测试测试前端，用 E2E 测试测试后端 - 参考 [组件测试 vs（UI）集成测试 vs E2E 测试](./sections/testing-strategy/component-vs-integration-vs-e2e-testing.zh.md)\n\n<br/><br/>\n\n## 一段简要说明\n\nUI tests with a stubbed server are [highly reliable and faster](../testing-strategy/component-vs-integration-vs-e2e-testing.zh.md#ui-integration-tests)<!--TODO: check that the deeplinkl works--> in comparison to full E2E tests.\n\nFull E2E tests still provide the highest possible confidence, but at a high cost: being brittle, potentially unreliable, and slow.\n\nWe can still achieve high confidence for the front-end by using lower-cost UI integration tests and saving higher cost E2E tests for the back-end.\n\n使用带有存根服务器的 UI 测试相对于完整的 E2E 测试来说，不仅更加[可靠，而且速度更快](../testing-strategy/component-vs-integration-vs-e2e-testing.zh.md#UI-集成测试)。<!--TODO: 检查深链接是否有效-->\n\n尽管完整的 E2E 测试仍然提供了最高的信心水平，但代价很高：易碎、潜在不可靠且速度较慢。\n\n通过使用成本较低的 UI 集成测试，我们仍然可以在前端获得高信心水平，并将成本较高的 E2E 测试留给后端。\n\n<br/><br/>\n\n## 示例测试架构图\n\n这是来自实际的[建筑控制云应用程序](https://new.siemens.com/global/en/products/buildings/digitalization/building-operator.html)的高层次架构视图。\n\n* Angular 前端\n* Node-Express API（后端）\n* 服务（Go lambdas）（后端）\n* 硬件（后端）\n\n> 根据需求，可以通过纯 API 测试来补充 UI-E2E 测试。一些常用的 API 测试工具包括 [Postman](https://www.getpostman.com/)，[VS Code 的 Rest Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)，以及 Cypress。\n\n![ ](./../../assets/images/test-architecture-example.png)\n\n<br/>\n\n*请注意：以下所有示例均使用 Cypress，目前它在 XHR 测试支持方面是最优秀的。[在现有的测试工具中，完整的 XHR 请求等待和检查并不常见](../generic-best-practices/await-dont-sleep.zh.md#XHR-请求等待)，Cypress 目前提供了最全面的检查支持。*\n\n<br/>\n\n## 代码示例：登录测试\n\n以下示例包含两个测试，用于覆盖登录功能。第一个测试使用 UI 集成测试覆盖前端应用程序，第二个测试使用 E2E 测试覆盖后端。\n\n```javascript\n/** function to fill username, password and Login*/\nconst fillFormAndClick = ({ username, password }) => { .. };\n\n// This is an UI integration test with server stubbing.\n// Remember to write a few E2E tests and a lot of integration ones\n// @see https://github.com/NoriSte/ui-testing-best-practices/blob/master/sections/testing-strategy/component-vs-integration-vs-e2e-testing.zh.md#ui-integration-tests\nit(\"Login: front-end integration tests\", () => {\n\n  // A route that intercepts / sniffs every POST request that goes to the authentication URL.\n  // Stubs the response with authentication-success.json fixture. This is called server stubbing\n  cy.intercept({\n    method: \"POST\",\n    fixture: \"authentication/authentication-success.json\", // Stubs the response\n    url: `**${AUTHENTICATE_API_URL}`\n  }).as(\"auth-xhr\");\n\n  fillFormAndClick(USERNAME_PLACEHOLDER, PASSWORD_PLACEHOLDER);\n\n  // wait for the POST XHR\n  cy.wait(\"@auth-xhr\").then(interception => {\n    // assert the payload body that the front end is sending to the back-end\n    expect(interception.request.body).to.have.property(\"username\", username);\n    expect(interception.request.body).to.have.property(\"password\", password);\n    // assert the request headers in the payload\n    expect(interception.request.headers).to.have.property('Content-Type', 'application/json;charset=utf-8');\n  });\n\n  // finally, the user must see the feedback\n  cy.getByText(SUCCESS_FEEDBACK).should(\"be.visible\");\n});\n\n// this is a copy of the integration test but without server stubbing.\nit(\"Login: back-end E2E tests\", () => {\n\n  // A route that intercepts / sniffs every POST request that goes to the authentication URL.\n  // Distinction: this is NOT stubbed!\n  cy.intercept({\n    method: \"POST\",\n    url: `**${AUTHENTICATE_API_URL}`\n  }).as(\"auth-xhr\");\n\n  fillFormAndClick(USERNAME_PLACEHOLDER, PASSWORD_PLACEHOLDER);\n\n  cy.wait(\"@auth-xhr\").then(interception => {\n    // since the integration tests already tested the front-end app, we use E2E tests to check the\n    // back-end app. It needs to ensure that the back-end app works and gets the correct response data\n\n    // response body assertions and status should be in the E2E tests since they rely on the server\n    expect(interception.status).to.equal(200);\n    expect(interception.response.body).to.have.property(\"token\");\n  });\n\n  // finally, the user must see the feedback\n  cy.getByText(SUCCESS_FEEDBACK).should(\"be.visible\");\n});\n```\n\n<br/><br/>\n\n## 代码示例 2：将 UI 集成测试切换为 UI-E2E 测试\n\n有时候，您可能希望将 UI 集成测试切换为 E2E 测试。\n\n在较低级别的测试层面，例如仅将测试隔离到 UI 代码时，您可能更愿意使用经济高效的 UI 集成测试。\n\n而在较高级别的测试层面，例如与中间层服务集成时，您可能需要更高的信心水平，将测试目标定位到后端。\n\n通过使用条件存根，您可以在 UI 集成测试和 E2E 测试之间切换关注。\n\n```javascript\n// stub-services.js : a file that only includes a function to stub the back-end services\nexport default function() {\n  // all routes to the specified endpoint will respond with pre-packaged Json data\n  cy.intercept('/api/../me', {fixture:'services/me.json'});\n  cy.intercept('/api/../permissions', {fixture:'services/permissions.json'});\n  // Lots of other fixtures ...\n}\n\n// spec file:\nimport stubServices from '../../support/stub-services';\n\n/** isLocalhost is a function that checks the configuration environment*/\nconst isLocalHost = () => Cypress.env('ENVIRONMENT') === \"localhost\";\n\n// ... in your tests, or in before / beforeEach blocks,\n// stub the services if you are testing front-end (UI integration tests)\n// do not stub if you are testing the back-end (UI-E2E tests)\nif (isLocalHost()) {\n  stubServices();\n}\n\n```\n\n## 参考资料\n\n[熟练掌握 UI 测试 - 会议视频](https://www.youtube.com/watch?v=RwWz4hllDtg)\n<!-- TODO: 最后，决定是否将所有资源移动到一个共同的章节中。-->\n"
+        }
+      ]
+    }
+  ]
+}

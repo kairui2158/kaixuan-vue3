@@ -1,0 +1,224 @@
+{
+  "schemaVersion": "packaging-3-62-0-v1",
+  "generatedAt": "2026-09-25T02:17:15.315Z",
+  "version": "3.62.0",
+  "main": "electron/main.js",
+  "asarFile": "dist\\win-unpacked\\resources\\app.asar",
+  "asarMtime": "2026-09-25T02:13:38.491Z",
+  "latestSourceFile": {
+    "file": "package.json",
+    "mtime": 1790302310244.0056
+  },
+  "latestSourceMtime": "2026-09-25T02:11:50.244Z",
+  "rendererFileCount": 74,
+  "electronApiKeyCount": 77,
+  "electronApiKeys": [
+    "agentCancel",
+    "agentExecute",
+    "agentSpawn",
+    "agentStatus",
+    "clipboardRead",
+    "clipboardWrite",
+    "deaiCancel",
+    "deaiProcess",
+    "decrypt",
+    "diagClear",
+    "diagExport",
+    "diagRead",
+    "diagRefresh",
+    "diagWrite",
+    "dialogOpenDirectoryAsync",
+    "dialogOpenFile",
+    "dialogOpenFileAsync",
+    "dialogReadFile",
+    "dialogReadFileAsync",
+    "dialogSaveFile",
+    "dialogSaveFileAsync",
+    "dialogWriteFile",
+    "encrypt",
+    "fetchModels",
+    "forceQuit",
+    "getAppVersion",
+    "intentCorpusAppend",
+    "intentCorpusExportPackage",
+    "intentCorpusStatus",
+    "intentEmbed",
+    "intentEmbeddingStatus",
+    "intentEmbeddingWarmup",
+    "jiebaCut",
+    "onCloseRequest",
+    "onFinalSave",
+    "onGetCurrentProjectId",
+    "onOpenHelpGuide",
+    "onProviderNetStreamChunk",
+    "onRendererRecoveryNotice",
+    "pipelineGenerate",
+    "pipelineResume",
+    "platform",
+    "providerNetAbort",
+    "providerNetRequest",
+    "providerNetStream",
+    "providerTestConnection",
+    "respondCloseChoice",
+    "runTraceExport",
+    "runTraceOpenFolder",
+    "runTraceRemove",
+    "runTraceReportStateIntegrity",
+    "runTraceSave",
+    "sendSaveComplete",
+    "skillExecute",
+    "skillExecuteScript",
+    "skillListFolders",
+    "skillLoadFolder",
+    "skillOpenFolder",
+    "skillPackageExport",
+    "skillPackageInstall",
+    "skillPackageListVersions",
+    "skillPackageOpenDialog",
+    "skillPackagePreview",
+    "skillValidate",
+    "storageCorruptionLog",
+    "storageExport",
+    "storageGetDataDir",
+    "storageImport",
+    "storageList",
+    "storageOpenDataDir",
+    "storageRead",
+    "storageRemove",
+    "storageWrite",
+    "version",
+    "windowGetInitialProjectId",
+    "windowOpenProject",
+    "windowSetCurrentProject"
+  ],
+  "bodyTextLength": 879,
+  "sidebarTooltipChecks": [
+    {
+      "id": "btn-outline-workspace",
+      "text": "大纲工作台",
+      "width": 60,
+      "height": 17,
+      "flipped": false,
+      "clampY": 0,
+      "rect": {
+        "left": 46,
+        "top": 14,
+        "right": 106,
+        "bottom": 30
+      },
+      "viewport": {
+        "width": 1920,
+        "height": 991
+      }
+    },
+    {
+      "id": "btn-pipeline",
+      "text": "生成流水线",
+      "width": 60,
+      "height": 17,
+      "flipped": false,
+      "clampY": 0,
+      "rect": {
+        "left": 46,
+        "top": 46,
+        "right": 106,
+        "bottom": 62
+      },
+      "viewport": {
+        "width": 1920,
+        "height": 991
+      }
+    },
+    {
+      "id": "btn-memory",
+      "text": "记忆",
+      "width": 24,
+      "height": 17,
+      "flipped": false,
+      "clampY": 0,
+      "rect": {
+        "left": 46,
+        "top": 78,
+        "right": 70,
+        "bottom": 94
+      },
+      "viewport": {
+        "width": 1920,
+        "height": 991
+      }
+    },
+    {
+      "id": "btn-plugin-market",
+      "text": "插件市场",
+      "width": 48,
+      "height": 17,
+      "flipped": false,
+      "clampY": 0,
+      "rect": {
+        "left": 46,
+        "top": 123,
+        "right": 94,
+        "bottom": 139
+      },
+      "viewport": {
+        "width": 1920,
+        "height": 991
+      }
+    },
+    {
+      "id": "btn-settings",
+      "text": "设置",
+      "width": 24,
+      "height": 17,
+      "flipped": false,
+      "clampY": 0,
+      "rect": {
+        "left": 46,
+        "top": 155,
+        "right": 70,
+        "bottom": 171
+      },
+      "viewport": {
+        "width": 1920,
+        "height": 991
+      }
+    },
+    {
+      "id": "btn-dashboard",
+      "text": "写作仪表盘",
+      "width": 60,
+      "height": 17,
+      "flipped": false,
+      "clampY": 0,
+      "rect": {
+        "left": 46,
+        "top": 200,
+        "right": 106,
+        "bottom": 216
+      },
+      "viewport": {
+        "width": 1920,
+        "height": 991
+      }
+    },
+    {
+      "id": "theme-toggle-btn",
+      "text": "主题切换",
+      "width": 48,
+      "height": 17,
+      "flipped": false,
+      "clampY": 0,
+      "rect": {
+        "left": 46,
+        "top": 232,
+        "right": 94,
+        "bottom": 248
+      },
+      "viewport": {
+        "width": 1920,
+        "height": 991
+      }
+    }
+  ],
+  "verdict": "pass"
+}

@@ -1,0 +1,228 @@
+{
+  "schema": "shenyi.editor-replace.electron",
+  "version": 1,
+  "rounds": [
+    {
+      "round": 1,
+      "entry": "home",
+      "caseInsensitiveMatches": 15,
+      "wholeWordMatches": 14,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "traceEvents": 2
+    },
+    {
+      "round": 2,
+      "entry": "home",
+      "caseInsensitiveMatches": 15,
+      "wholeWordMatches": 14,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "traceEvents": 4
+    },
+    {
+      "round": 3,
+      "entry": "home",
+      "caseInsensitiveMatches": 15,
+      "wholeWordMatches": 14,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "traceEvents": 6
+    },
+    {
+      "round": 4,
+      "entry": "home",
+      "caseInsensitiveMatches": 15,
+      "wholeWordMatches": 14,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "traceEvents": 8
+    },
+    {
+      "round": 5,
+      "entry": "home",
+      "caseInsensitiveMatches": 15,
+      "wholeWordMatches": 14,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "traceEvents": 10
+    },
+    {
+      "round": 6,
+      "entry": "home",
+      "caseInsensitiveMatches": 15,
+      "wholeWordMatches": 14,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "traceEvents": 12
+    },
+    {
+      "round": 7,
+      "entry": "home",
+      "caseInsensitiveMatches": 15,
+      "wholeWordMatches": 14,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "traceEvents": 14
+    },
+    {
+      "round": 8,
+      "entry": "home",
+      "caseInsensitiveMatches": 15,
+      "wholeWordMatches": 14,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "traceEvents": 16
+    },
+    {
+      "round": 9,
+      "entry": "home",
+      "caseInsensitiveMatches": 15,
+      "wholeWordMatches": 14,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "traceEvents": 18
+    },
+    {
+      "round": 10,
+      "entry": "home",
+      "caseInsensitiveMatches": 15,
+      "wholeWordMatches": 14,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "traceEvents": 20
+    },
+    {
+      "round": 1,
+      "entry": "outline",
+      "caseSensitiveMatches": 13,
+      "wholeWordMatches": 14,
+      "regexMatches": 3,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "undoRestoresPreReplace": true,
+      "lockedReplaceBlocked": true
+    },
+    {
+      "round": 2,
+      "entry": "outline",
+      "caseSensitiveMatches": 13,
+      "wholeWordMatches": 14,
+      "regexMatches": 3,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "undoRestoresPreReplace": true,
+      "lockedReplaceBlocked": true
+    },
+    {
+      "round": 3,
+      "entry": "outline",
+      "caseSensitiveMatches": 13,
+      "wholeWordMatches": 14,
+      "regexMatches": 3,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "undoRestoresPreReplace": true,
+      "lockedReplaceBlocked": true
+    },
+    {
+      "round": 4,
+      "entry": "outline",
+      "caseSensitiveMatches": 13,
+      "wholeWordMatches": 14,
+      "regexMatches": 3,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "undoRestoresPreReplace": true,
+      "lockedReplaceBlocked": true
+    },
+    {
+      "round": 5,
+      "entry": "outline",
+      "caseSensitiveMatches": 13,
+      "wholeWordMatches": 14,
+      "regexMatches": 3,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "undoRestoresPreReplace": true,
+      "lockedReplaceBlocked": true
+    },
+    {
+      "round": 6,
+      "entry": "outline",
+      "caseSensitiveMatches": 13,
+      "wholeWordMatches": 14,
+      "regexMatches": 3,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "undoRestoresPreReplace": true,
+      "lockedReplaceBlocked": true
+    },
+    {
+      "round": 7,
+      "entry": "outline",
+      "caseSensitiveMatches": 13,
+      "wholeWordMatches": 14,
+      "regexMatches": 3,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "undoRestoresPreReplace": true,
+      "lockedReplaceBlocked": true
+    },
+    {
+      "round": 8,
+      "entry": "outline",
+      "caseSensitiveMatches": 13,
+      "wholeWordMatches": 14,
+      "regexMatches": 3,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "undoRestoresPreReplace": true,
+      "lockedReplaceBlocked": true
+    },
+    {
+      "round": 9,
+      "entry": "outline",
+      "caseSensitiveMatches": 13,
+      "wholeWordMatches": 14,
+      "regexMatches": 3,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "undoRestoresPreReplace": true,
+      "lockedReplaceBlocked": true
+    },
+    {
+      "round": 10,
+      "entry": "outline",
+      "caseSensitiveMatches": 13,
+      "wholeWordMatches": 14,
+      "regexMatches": 3,
+      "regexReplaceMatches": 3,
+      "replaceCurrentMatches": 12,
+      "invalidRegexGuarded": true,
+      "undoRestoresPreReplace": true,
+      "lockedReplaceBlocked": true
+    }
+  ],
+  "assertions": "20/20 rounds: home and outline, literal/case/whole-word/regex/invalid-regex, replace current/all, undo, lock, runTrace and DiagLogger, no page errors",
+  "generatedAt": "2026-09-25T00:29:37.501Z"
+}

@@ -1,0 +1,6612 @@
+{
+  "schema": "intent-routing-v6-phase1-electron-verification",
+  "generatedAt": "2026-09-21T18:40:05.230Z",
+  "phase": 1,
+  "rounds": [
+    {
+      "round": 1,
+      "dimension": "mainline"
+    },
+    {
+      "round": 2,
+      "dimension": "variant"
+    },
+    {
+      "round": 3,
+      "dimension": "stress-20-mixed"
+    }
+  ],
+  "totals": {
+    "cases": 64,
+    "pass": 39,
+    "expectedFailure": 2,
+    "stressObservation": 21,
+    "contextSensitive": 1
+  },
+  "baselineCheck": {
+    "baselineFailureCount": 19,
+    "electronExpectedFailureCount": 2,
+    "electronExpectedFailureInputs": [
+      "开篇那个吸引点我不太满意",
+      "先审一遍，再给我一版修改后的钩子"
+    ],
+    "electronLiveDivergenceCount": 1,
+    "electronLiveDivergenceInputs": [
+      "今天天气怎么样"
+    ]
+  },
+  "deepTraceExport": {
+    "success": true,
+    "path": "D:\\codex\\novel-workshop-vue3\\_data\\intent-routing-electron-exports\\run-trace-outline-20260922-023853-deep",
+    "mode": "deep",
+    "payloadCount": 67
+  },
+  "evidence": [
+    {
+      "phase": 1,
+      "round": 1,
+      "dimension": "mainline",
+      "input": "审核一下这份大纲还缺什么",
+      "expected": "analyze",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 1,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "analyze",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "审核一下这份大纲还缺什么"
+          },
+          {
+            "type": "routing-result",
+            "detail": "keyword-top1"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 3,
+          "systemPromptPreview": "你是V6分析师，只处理analyze请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "detail": "expected=analyze; observed=analyze",
+      "dataset": "mainline",
+      "classification": "pass"
+    },
+    {
+      "phase": 1,
+      "round": 1,
+      "dimension": "mainline",
+      "input": "统一大纲时间线",
+      "expected": "edit",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 2,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "edit",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.write",
+            "policy": "write"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "审核一下这份大纲还缺什么"
+          },
+          {
+            "type": "routing-result",
+            "detail": "keyword-top1"
+          },
+          {
+            "type": "routing-started",
+            "detail": "统一大纲时间线"
+          },
+          {
+            "type": "routing-result",
+            "detail": "explicit-write-directive"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.write",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 5,
+          "systemPromptPreview": "你是V6编辑师，只处理edit请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":[],"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "detail": "expected=edit; observed=edit",
+      "dataset": "mainline",
+      "classification": "pass"
+    },
+    {
+      "phase": 1,
+      "round": 1,
+      "dimension": "mainline",
+      "input": "给第一卷生成三个备选钩子",
+      "expected": "generate",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 3,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "generate",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.write",
+            "policy": "write"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "统一大纲时间线"
+          },
+          {
+            "type": "routing-result",
+            "detail": "explicit-write-directive"
+          },
+          {
+            "type": "routing-started",
+            "detail": "给第一卷生成三个备选钩子"
+          },
+          {
+            "type": "routing-result",
+            "detail": "keyword-top1"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.write",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 7,
+          "systemPromptPreview": "你是V6生成师，只处理generate请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\""
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "detail": "expected=generate; observed=generate",
+      "dataset": "mainline",
+      "classification": "pass"
+    },
+    {
+      "phase": 1,
+      "round": 1,
+      "dimension": "mainline",
+      "input": "我们现在来讨论一下钩子的问题",
+      "expected": "discuss",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 4,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "给第一卷生成三个备选钩子"
+          },
+          {
+            "type": "routing-result",
+            "detail": "keyword-top1"
+          },
+          {
+            "type": "routing-started",
+            "detail": "我们现在来讨论一下钩子的问题"
+          },
+          {
+            "type": "routing-result",
+            "detail": "contextual-discussion"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 9,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "detail": "expected=discuss; observed=discuss",
+      "dataset": "mainline",
+      "classification": "pass"
+    },
+    {
+      "phase": 1,
+      "round": 2,
+      "dimension": "paraphrase",
+      "input": "第一卷钩子得重新弄",
+      "expected": "edit",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 5,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "edit",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.write",
+            "policy": "write"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "我们现在来讨论一下钩子的问题"
+          },
+          {
+            "type": "routing-result",
+            "detail": "contextual-discussion"
+          },
+          {
+            "type": "routing-started",
+            "detail": "第一卷钩子得重新弄"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.write",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 5,
+          "systemPromptPreview": "你是V6编辑师，只处理edit请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":[],"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "detail": "expected=edit; observed=edit",
+      "dataset": "variant",
+      "classification": "pass"
+    },
+    {
+      "phase": 1,
+      "round": 2,
+      "dimension": "typo",
+      "input": "开头那个勾子不太行，改一下",
+      "expected": "edit",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 6,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "edit",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.write",
+            "policy": "write"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "第一卷钩子得重新弄"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "开头那个勾子不太行，改一下"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.write",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 7,
+          "systemPromptPreview": "你是V6编辑师，只处理edit请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":[],"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "detail": "expected=edit; observed=edit",
+      "dataset": "variant",
+      "classification": "pass"
+    },
+    {
+      "phase": 1,
+      "round": 2,
+      "dimension": "paraphrase",
+      "input": "开篇那个吸引点我不太满意",
+      "expected": "edit",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 7,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "开头那个勾子不太行，改一下"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "开篇那个吸引点我不太满意"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 5,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=edit; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "variant",
+      "classification": "expected-failure"
+    },
+    {
+      "phase": 1,
+      "round": 2,
+      "dimension": "author-explanation",
+      "input": "钩子二沈萤的脚踝我设计的是一次性伤害，不是永久残疾，这点要先说清楚",
+      "expected": "discuss",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 8,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "开篇那个吸引点我不太满意"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "钩子二沈萤的脚踝我设计的是一次性伤害，不是永久残疾，这点要先说清楚"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 7,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "detail": "expected=discuss; observed=discuss",
+      "dataset": "variant",
+      "classification": "pass"
+    },
+    {
+      "phase": 1,
+      "round": 2,
+      "dimension": "mixed",
+      "input": "先审一遍，再给我一版修改后的钩子",
+      "expected": "generate",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 9,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "钩子二沈萤的脚踝我设计的是一次性伤害，不是永久残疾，这点要先说清楚"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "先审一遍，再给我一版修改后的钩子"
+          },
+          {
+            "type": "routing-result",
+            "detail": "reference-request"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 9,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=generate; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "variant",
+      "classification": "expected-failure"
+    },
+    {
+      "phase": 1,
+      "round": 2,
+      "dimension": "safety",
+      "input": "能不能只讨论，不写入",
+      "expected": "discuss",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 10,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "先审一遍，再给我一版修改后的钩子"
+          },
+          {
+            "type": "routing-result",
+            "detail": "reference-request"
+          },
+          {
+            "type": "routing-started",
+            "detail": "能不能只讨论，不写入"
+          },
+          {
+            "type": "routing-result",
+            "detail": "prohibition-rollback"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 11,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "detail": "expected=discuss; observed=discuss",
+      "dataset": "variant",
+      "classification": "pass"
+    },
+    {
+      "phase": 1,
+      "round": 2,
+      "dimension": "negative",
+      "input": "今天天气怎么样",
+      "expected": "no_match",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 11,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "能不能只讨论，不写入"
+          },
+          {
+            "type": "routing-result",
+            "detail": "prohibition-rollback"
+          },
+          {
+            "type": "routing-started",
+            "detail": "今天天气怎么样"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 13,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=no_match; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "variant",
+      "classification": "live-divergence"
+    },
+    {
+      "phase": 1,
+      "round": 2,
+      "dimension": "continuation",
+      "input": "继续",
+      "expected": "ambiguous",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 12,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "今天天气怎么样"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "继续"
+          },
+          {
+            "type": "routing-result",
+            "detail": "continuation-resolved:discuss"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 15,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=ambiguous; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "variant",
+      "classification": "context-sensitive"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "统一大纲时间线",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 13,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "edit",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.write",
+            "policy": "write"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "继续"
+          },
+          {
+            "type": "routing-result",
+            "detail": "continuation-resolved:discuss"
+          },
+          {
+            "type": "routing-started",
+            "detail": "统一大纲时间线"
+          },
+          {
+            "type": "routing-result",
+            "detail": "explicit-write-directive"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.write",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 9,
+          "systemPromptPreview": "你是V6编辑师，只处理edit请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":[],"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=edit; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "我们现在来讨论一下钩子的问题",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 14,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "统一大纲时间线"
+          },
+          {
+            "type": "routing-result",
+            "detail": "explicit-write-directive"
+          },
+          {
+            "type": "routing-started",
+            "detail": "我们现在来讨论一下钩子的问题"
+          },
+          {
+            "type": "routing-result",
+            "detail": "contextual-discussion"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 17,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "审核一下这份大纲还缺什么",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 15,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "analyze",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "我们现在来讨论一下钩子的问题"
+          },
+          {
+            "type": "routing-result",
+            "detail": "contextual-discussion"
+          },
+          {
+            "type": "routing-started",
+            "detail": "审核一下这份大纲还缺什么"
+          },
+          {
+            "type": "routing-result",
+            "detail": "keyword-top1"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 5,
+          "systemPromptPreview": "你是V6分析师，只处理analyze请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=analyze; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "给第一卷生成三个备选钩子",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 16,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "generate",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.write",
+            "policy": "write"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "审核一下这份大纲还缺什么"
+          },
+          {
+            "type": "routing-result",
+            "detail": "keyword-top1"
+          },
+          {
+            "type": "routing-started",
+            "detail": "给第一卷生成三个备选钩子"
+          },
+          {
+            "type": "routing-result",
+            "detail": "keyword-top1"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.write",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 5,
+          "systemPromptPreview": "你是V6生成师，只处理generate请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\""
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=generate; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "第一卷钩子得重新弄",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 17,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "edit",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.write",
+            "policy": "write"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "给第一卷生成三个备选钩子"
+          },
+          {
+            "type": "routing-result",
+            "detail": "keyword-top1"
+          },
+          {
+            "type": "routing-started",
+            "detail": "第一卷钩子得重新弄"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.write",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 11,
+          "systemPromptPreview": "你是V6编辑师，只处理edit请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":[],"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=edit; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "生成后讨论一下",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 18,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "第一卷钩子得重新弄"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "生成后讨论一下"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 19,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "开头那个勾子不太行，改一下",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 19,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "edit",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.write",
+            "policy": "write"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "生成后讨论一下"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "开头那个勾子不太行，改一下"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.write",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 13,
+          "systemPromptPreview": "你是V6编辑师，只处理edit请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":[],"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=edit; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "开篇那个吸引点我不太满意",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 20,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "开头那个勾子不太行，改一下"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "开篇那个吸引点我不太满意"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 21,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "钩子二沈萤的脚踝我设计的是一次性伤害，不是永久残疾，这点要先说清楚",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 21,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "开篇那个吸引点我不太满意"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "钩子二沈萤的脚踝我设计的是一次性伤害，不是永久残疾，这点要先说清楚"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 23,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "这段设定应该放在哪个节点？",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 22,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "钩子二沈萤的脚踝我设计的是一次性伤害，不是永久残疾，这点要先说清楚"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "这段设定应该放在哪个节点？"
+          },
+          {
+            "type": "routing-result",
+            "detail": "contextual-discussion"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 23,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "你现在有写入权限么？",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 23,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "这段设定应该放在哪个节点？"
+          },
+          {
+            "type": "routing-result",
+            "detail": "contextual-discussion"
+          },
+          {
+            "type": "routing-started",
+            "detail": "你现在有写入权限么？"
+          },
+          {
+            "type": "routing-result",
+            "detail": "contextual-discussion"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 23,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "能不能只讨论，不写入",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 24,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "你现在有写入权限么？"
+          },
+          {
+            "type": "routing-result",
+            "detail": "contextual-discussion"
+          },
+          {
+            "type": "routing-started",
+            "detail": "能不能只讨论，不写入"
+          },
+          {
+            "type": "routing-result",
+            "detail": "prohibition-rollback"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 23,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "先审一遍，再给我一版修改后的钩子",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 25,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "能不能只讨论，不写入"
+          },
+          {
+            "type": "routing-result",
+            "detail": "prohibition-rollback"
+          },
+          {
+            "type": "routing-started",
+            "detail": "先审一遍，再给我一版修改后的钩子"
+          },
+          {
+            "type": "routing-result",
+            "detail": "reference-request"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 23,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "今天天气怎么样",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 26,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "先审一遍，再给我一版修改后的钩子"
+          },
+          {
+            "type": "routing-result",
+            "detail": "reference-request"
+          },
+          {
+            "type": "routing-started",
+            "detail": "今天天气怎么样"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 23,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "推荐一部电影",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 27,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "今天天气怎么样"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "推荐一部电影"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 23,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "现在几点了",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 28,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "推荐一部电影"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "现在几点了"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 23,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "讲个笑话",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 29,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "现在几点了"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "讲个笑话"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 23,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "你是谁",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 30,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "讲个笑话"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "你是谁"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 23,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "帮我订一张明天的机票",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 31,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "你是谁"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "帮我订一张明天的机票"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 23,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "翻译一句英文",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 32,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "帮我订一张明天的机票"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "翻译一句英文"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 23,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "stress-mixed",
+      "input": "继续",
+      "expected": "mixed-baseline",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 33,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_structure",
+            "policy": "read"
+          },
+          {
+            "name": "outline.read_range",
+            "policy": "read"
+          },
+          {
+            "name": "outline.search",
+            "policy": "read"
+          },
+          {
+            "name": "outline.get_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "翻译一句英文"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "继续"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ],
+          "messageCount": 23,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "after": "第一卷 风暴起点\n第一章内容。男主在夜路中遇到风暴。\n第二章内容。男主在灯塔下发现旧信。\n第三章内容。男主确认寄信人身份。",
+        "unchanged": true
+      },
+      "verdict": "fail",
+      "detail": "expected=mixed-baseline; observed=discuss; Phase 1 records this as a current word/keyword-layer failure",
+      "dataset": "stress-mixed",
+      "classification": "stress-observation"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "审核一下这份大纲还缺什么",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "analyze",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "审核一下这份大纲还缺什么"
+          },
+          {
+            "type": "routing-result",
+            "detail": "keyword-top1"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 3
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=analyze; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "统一大纲时间线",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "edit",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.write",
+            "policy": "write"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "审核一下这份大纲还缺什么"
+          },
+          {
+            "type": "routing-result",
+            "detail": "keyword-top1"
+          },
+          {
+            "type": "routing-started",
+            "detail": "统一大纲时间线"
+          },
+          {
+            "type": "routing-result",
+            "detail": "explicit-write-directive"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.write",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 5
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=edit; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "给第一卷生成三个备选钩子",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "generate",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.write",
+            "policy": "write"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "统一大纲时间线"
+          },
+          {
+            "type": "routing-result",
+            "detail": "explicit-write-directive"
+          },
+          {
+            "type": "routing-started",
+            "detail": "给第一卷生成三个备选钩子"
+          },
+          {
+            "type": "routing-result",
+            "detail": "keyword-top1"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.write",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 7
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=generate; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "我们现在来讨论一下钩子的问题",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "给第一卷生成三个备选钩子"
+          },
+          {
+            "type": "routing-result",
+            "detail": "keyword-top1"
+          },
+          {
+            "type": "routing-started",
+            "detail": "我们现在来讨论一下钩子的问题"
+          },
+          {
+            "type": "routing-result",
+            "detail": "contextual-discussion"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 9
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "开篇那个吸引点我不太满意",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "我们现在来讨论一下钩子的问题"
+          },
+          {
+            "type": "routing-result",
+            "detail": "contextual-discussion"
+          },
+          {
+            "type": "routing-started",
+            "detail": "开篇那个吸引点我不太满意"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 5
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "你现在有写入权限么？",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "开篇那个吸引点我不太满意"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "你现在有写入权限么？"
+          },
+          {
+            "type": "routing-result",
+            "detail": "contextual-discussion"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 7
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "这段设定应该放在哪个节点？",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "你现在有写入权限么？"
+          },
+          {
+            "type": "routing-result",
+            "detail": "contextual-discussion"
+          },
+          {
+            "type": "routing-started",
+            "detail": "这段设定应该放在哪个节点？"
+          },
+          {
+            "type": "routing-result",
+            "detail": "contextual-discussion"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 9
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "第一卷钩子得重新弄",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "edit",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.write",
+            "policy": "write"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "这段设定应该放在哪个节点？"
+          },
+          {
+            "type": "routing-result",
+            "detail": "contextual-discussion"
+          },
+          {
+            "type": "routing-started",
+            "detail": "第一卷钩子得重新弄"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.write",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 5
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=edit; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "先审一遍，再给我一版修改后的钩子",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "第一卷钩子得重新弄"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "先审一遍，再给我一版修改后的钩子"
+          },
+          {
+            "type": "routing-result",
+            "detail": "reference-request"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 11
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; providerCalls=1; known word-layer failure"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "今天天气怎么样",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "先审一遍，再给我一版修改后的钩子"
+          },
+          {
+            "type": "routing-result",
+            "detail": "reference-request"
+          },
+          {
+            "type": "routing-started",
+            "detail": "今天天气怎么样"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 13
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "推荐一部电影",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "今天天气怎么样"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "推荐一部电影"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 15
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "翻译一句英文",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "推荐一部电影"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "翻译一句英文"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 17
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "现在几点了",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "翻译一句英文"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "现在几点了"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 19
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "讲个笑话",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "现在几点了"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "讲个笑话"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 21
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "继续",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "讲个笑话"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "继续"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 23
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "帮我订一张明天的机票",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "继续"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "帮我订一张明天的机票"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 23
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "能不能只讨论，不写入",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "帮我订一张明天的机票"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "能不能只讨论，不写入"
+          },
+          {
+            "type": "routing-result",
+            "detail": "prohibition-rollback"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 23
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "开头那个勾子不太行，改一下",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "edit",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.write",
+            "policy": "write"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "能不能只讨论，不写入"
+          },
+          {
+            "type": "routing-result",
+            "detail": "prohibition-rollback"
+          },
+          {
+            "type": "routing-started",
+            "detail": "开头那个勾子不太行，改一下"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.write",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 7
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=edit; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "你是谁",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "开头那个勾子不太行，改一下"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "你是谁"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 23
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "home-20-mixed",
+      "dimension": "home-20-mixed",
+      "input": "钩子二沈萤的脚踝我设计的是一次性伤害，不是永久残疾，这点要先说清楚",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "你是谁"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "钩子二沈萤的脚踝我设计的是一次性伤害，不是永久残疾，这点要先说清楚"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 23
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "llm-fallback-no-match-normal",
+      "dimension": "llm-fallback-no-match-normal",
+      "input": "今天天气怎么样",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "钩子二沈萤的脚踝我设计的是一次性伤害，不是永久残疾，这点要先说清楚"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "今天天气怎么样"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 23
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; classifierCalls=1; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "llm-fallback-no-match-request-failed",
+      "dimension": "llm-fallback-no-match-request-failed",
+      "input": "今天天气怎么样",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "readonly-discuss",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "今天天气怎么样"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "今天天气怎么样"
+          },
+          {
+            "type": "routing-result",
+            "detail": "no-keyword-overlap | fallback=readonly-discuss"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 23
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; classifierCalls=1; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "llm-fallback-no-match-invalid-json",
+      "dimension": "llm-fallback-no-match-invalid-json",
+      "input": "今天天气怎么样",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "readonly-discuss",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "今天天气怎么样"
+          },
+          {
+            "type": "routing-result",
+            "detail": "no-keyword-overlap | fallback=readonly-discuss"
+          },
+          {
+            "type": "routing-started",
+            "detail": "今天天气怎么样"
+          },
+          {
+            "type": "routing-result",
+            "detail": "no-keyword-overlap | fallback=readonly-discuss"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 23
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; classifierCalls=2; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "llm-fallback-no-match-low-confidence",
+      "dimension": "llm-fallback-no-match-low-confidence",
+      "input": "今天天气怎么样",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "readonly-discuss",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "今天天气怎么样"
+          },
+          {
+            "type": "routing-result",
+            "detail": "no-keyword-overlap | fallback=readonly-discuss"
+          },
+          {
+            "type": "routing-started",
+            "detail": "今天天气怎么样"
+          },
+          {
+            "type": "routing-result",
+            "detail": "no-keyword-overlap | fallback=readonly-discuss"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 23
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; classifierCalls=1; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "llm-fallback-no-match-timeout",
+      "dimension": "llm-fallback-no-match-timeout",
+      "input": "今天天气怎么样",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "readonly-discuss",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "今天天气怎么样"
+          },
+          {
+            "type": "routing-result",
+            "detail": "no-keyword-overlap | fallback=readonly-discuss"
+          },
+          {
+            "type": "routing-started",
+            "detail": "今天天气怎么样"
+          },
+          {
+            "type": "routing-result",
+            "detail": "no-keyword-overlap | fallback=readonly-discuss"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 23
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "intent=discuss; classifierCalls=1; providerCalls=1"
+    },
+    {
+      "phase": 5,
+      "round": "llm-fallback-ambiguous-normal",
+      "dimension": "llm-fallback-ambiguous-normal",
+      "input": "生成后讨论一下",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": false
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "今天天气怎么样"
+          },
+          {
+            "type": "routing-result",
+            "detail": "no-keyword-overlap | fallback=readonly-discuss"
+          },
+          {
+            "type": "routing-started",
+            "detail": "生成后讨论一下"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 23
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "classifierCalls=1; providerCalls=1; fallbackVisible=0"
+    },
+    {
+      "phase": 5,
+      "round": "llm-fallback-ambiguous-request-failed",
+      "dimension": "llm-fallback-ambiguous-request-failed",
+      "input": "生成后讨论一下",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "await-user",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          },
+          {
+            "type": "routing-started",
+            "detail": "生成后讨论一下"
+          },
+          {
+            "type": "routing-result",
+            "detail": "ambiguous-top2 | fallback=await-user"
+          },
+          {
+            "type": "routing-fallback",
+            "detail": "ambiguous-top2"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "classifierCalls=1; providerCalls=0; fallbackVisible=1"
+    },
+    {
+      "phase": 5,
+      "round": "llm-fallback-ambiguous-invalid-json",
+      "dimension": "llm-fallback-ambiguous-invalid-json",
+      "input": "生成后讨论一下",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "await-user",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-fallback",
+            "detail": "ambiguous-top2"
+          },
+          {
+            "type": "routing-started",
+            "detail": "生成后讨论一下"
+          },
+          {
+            "type": "routing-result",
+            "detail": "ambiguous-top2 | fallback=await-user"
+          },
+          {
+            "type": "routing-fallback",
+            "detail": "ambiguous-top2"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "classifierCalls=2; providerCalls=0; fallbackVisible=1"
+    },
+    {
+      "phase": 5,
+      "round": "llm-fallback-ambiguous-low-confidence",
+      "dimension": "llm-fallback-ambiguous-low-confidence",
+      "input": "生成后讨论一下",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "await-user",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-fallback",
+            "detail": "ambiguous-top2"
+          },
+          {
+            "type": "routing-started",
+            "detail": "生成后讨论一下"
+          },
+          {
+            "type": "routing-result",
+            "detail": "ambiguous-top2 | fallback=await-user"
+          },
+          {
+            "type": "routing-fallback",
+            "detail": "ambiguous-top2"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "classifierCalls=1; providerCalls=0; fallbackVisible=1"
+    },
+    {
+      "phase": 5,
+      "round": "llm-fallback-ambiguous-timeout",
+      "dimension": "llm-fallback-ambiguous-timeout",
+      "input": "生成后讨论一下",
+      "expected": "phase5-home-entry",
+      "uiObservation": {
+        "fallbackBubble": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "await-user",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-fallback",
+            "detail": "ambiguous-top2"
+          },
+          {
+            "type": "routing-started",
+            "detail": "生成后讨论一下"
+          },
+          {
+            "type": "routing-result",
+            "detail": "ambiguous-top2 | fallback=await-user"
+          },
+          {
+            "type": "routing-fallback",
+            "detail": "ambiguous-top2"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "phase5-home-llm-fallback",
+      "detail": "classifierCalls=1; providerCalls=0; fallbackVisible=1"
+    },
+    {
+      "phase": 1,
+      "round": 3,
+      "dimension": "fallback-recovery",
+      "input": "生成后讨论一下",
+      "expected": "fallback-recovery",
+      "uiObservation": {
+        "fallbackBubble": false,
+        "assistantMessages": 0,
+        "statusSettled": true
+      },
+      "traceObservation": {
+        "turnStatus": "success",
+        "intent": "discuss",
+        "routingFallback": "none",
+        "actualToolSurface": [
+          {
+            "name": "editor.get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.locate",
+            "policy": "read"
+          },
+          {
+            "name": "editor.reveal",
+            "policy": "read"
+          },
+          {
+            "name": "task.update_plan",
+            "policy": "read"
+          },
+          {
+            "name": "editor.multi_get_state",
+            "policy": "read"
+          },
+          {
+            "name": "editor.global_search",
+            "policy": "read"
+          },
+          {
+            "name": "editor.workspace_summary",
+            "policy": "read"
+          }
+        ],
+        "routingEvents": [
+          {
+            "type": "routing-started",
+            "detail": "生成后讨论一下"
+          },
+          {
+            "type": "routing-result",
+            "detail": "LLM兜底测试"
+          }
+        ]
+      },
+      "toolSurfaceObservation": [
+        {
+          "tools": [
+            "editor.get_state",
+            "editor.search",
+            "editor.locate",
+            "editor.reveal",
+            "task.update_plan",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ],
+          "messageCount": 23,
+          "systemPromptPreview": "你是V6讨论师，只处理discuss请求。\n\n如果本次回答需要展示表格，必须使用 GFM 标准表格：\n首行为表头；第二行只使用半角 |、短横线和冒号作为分隔行；\n每个单元格使用半角 | 分隔，单元格内不换行。\n如果没有表格内容，不要输出空表或伪造表格。\n[工作区上下文]\n当前大纲 ContextPack（来源=outline，版本=v-0aaee65c）：\n[事实优先级]\n1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。\n2. 锁定大纲与设定是稳定事实，不得凭推测改写。\n3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。\n4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。\n\n[大纲结构地图]\n大纲结构地图：卷 1，章 0，节 0，总计 61 字\n解析模式：标准标题层级\n- [volume-1] 第一卷 风暴起点 (0-61, 52字)\n\n[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。\n\n当前设定（来源=settings，版本=v-03d07ec1）：\n{\"categories\":"
+        }
+      ],
+      "editorResult": {
+        "before": "夜风压过山脊。",
+        "after": "夜风压过山脊。",
+        "unchanged": true
+      },
+      "verdict": "pass",
+      "classification": "pass",
+      "dataset": "fallback-recovery",
+      "detail": "recommended-skill recovery removes the bubble, executes one request, and closes the turn"
+    }
+  ]
+}

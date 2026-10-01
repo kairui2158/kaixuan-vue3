@@ -1,0 +1,3308 @@
+{
+  "generatedAt": "2026-09-24T23:32:26.299Z",
+  "dimensions": [
+    "search-replace",
+    "virtualized-rendering",
+    "inline-diff",
+    "trace-compare",
+    "multi-cursor"
+  ],
+  "roundsPerDimension": 10,
+  "uniqueRepositories": 104,
+  "uniqueCachedFiles": 419,
+  "elapsedMs": 1057636,
+  "perDimension": {
+    "search-replace": {
+      "rounds": 10,
+      "repositories": 30,
+      "files": 79
+    },
+    "virtualized-rendering": {
+      "rounds": 10,
+      "repositories": 30,
+      "files": 85
+    },
+    "inline-diff": {
+      "rounds": 10,
+      "repositories": 30,
+      "files": 86
+    },
+    "trace-compare": {
+      "rounds": 10,
+      "repositories": 30,
+      "files": 86
+    },
+    "multi-cursor": {
+      "rounds": 10,
+      "repositories": 30,
+      "files": 83
+    }
+  },
+  "repositories": [
+    {
+      "fullName": "microsoft/vscode",
+      "stars": 192874,
+      "language": "TypeScript",
+      "url": "https://github.com/microsoft/vscode",
+      "dimensions": [
+        "search-replace",
+        "virtualized-rendering",
+        "inline-diff",
+        "trace-compare",
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/vs/base/browser/ui/findinput/replaceInput.ts",
+          "size": 8425,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__src_vs_base_browser_ui_findinput_replaceInput.ts.txt"
+        },
+        {
+          "path": "src/vs/editor/contrib/find/browser/findWidgetSearchHistory.ts",
+          "size": 2757,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__src_vs_editor_contrib_find_browser_findWidgetSearchHistory.ts.txt"
+        },
+        {
+          "path": "src/vs/editor/contrib/find/browser/replaceAllCommand.ts",
+          "size": 2589,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__src_vs_editor_contrib_find_browser_replaceAllCommand.ts.txt"
+        },
+        {
+          "path": "extensions/copilot/src/extension/completions-core/vscode-node/prompt/src/snippetInclusion/windowDelineations.ts",
+          "size": 6163,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__extensions_copilot_src_extension_completions-core_vscode-node_prompt_src_snippetInclusion_windowDelineations.ts.txt"
+        },
+        {
+          "path": "extensions/copilot/src/extension/inlineChat/node/rendererVisualization.ts",
+          "size": 4897,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__extensions_copilot_src_extension_inlineChat_node_rendererVisualization.ts.txt"
+        },
+        {
+          "path": "extensions/copilot/src/extension/inlineEdits/vscode-node/utils/virtualTextDocumentProvider.ts",
+          "size": 2365,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__extensions_copilot_src_extension_inlineEdits_vscode-node_utils_virtualTextDocumentProvider.ts.txt"
+        },
+        {
+          "path": "src/vs/editor/browser/gpu/renderStrategy/viewportRenderStrategy.ts",
+          "size": 19181,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__src_vs_editor_browser_gpu_renderStrategy_viewportRenderStrategy.ts.txt"
+        },
+        {
+          "path": "src/vs/editor/browser/widget/diffEditor/components/diffEditorViewZones/renderLines.ts",
+          "size": 11642,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__src_vs_editor_browser_widget_diffEditor_components_diffEditorViewZones_renderLines.ts.txt"
+        },
+        {
+          "path": "src/vs/editor/common/viewLayout/viewLineRenderer.ts",
+          "size": 44047,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__src_vs_editor_common_viewLayout_viewLineRenderer.ts.txt"
+        },
+        {
+          "path": "extensions/copilot/src/extension/inlineEdits/node/diffNextEdits.ts",
+          "size": 2745,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__extensions_copilot_src_extension_inlineEdits_node_diffNextEdits.ts.txt"
+        },
+        {
+          "path": "extensions/copilot/src/extension/inlineEdits/vscode-node/parts/verifyTextDocumentChanges.ts",
+          "size": 4652,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__extensions_copilot_src_extension_inlineEdits_vscode-node_parts_verifyTextDocumentChanges.ts.txt"
+        },
+        {
+          "path": "extensions/copilot/src/extension/prompts/node/inline/diffEditGeneration.tsx",
+          "size": 4414,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__extensions_copilot_src_extension_prompts_node_inline_diffEditGeneration.tsx.txt"
+        },
+        {
+          "path": "extensions/copilot/src/platform/workspaceChunkSearch/node/codeSearch/workspaceDiff.ts",
+          "size": 8881,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__extensions_copilot_src_platform_workspaceChunkSearch_node_codeSearch_workspaceDiff.ts.txt"
+        },
+        {
+          "path": "extensions/copilot/src/util/vs/base/common/diff/diffChange.ts",
+          "size": 1862,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__extensions_copilot_src_util_vs_base_common_diff_diffChange.ts.txt"
+        },
+        {
+          "path": "extensions/markdown-language-features/preview-src/diffScrollSync.ts",
+          "size": 2100,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__extensions_markdown-language-features_preview-src_diffScrollSync.ts.txt"
+        },
+        {
+          "path": "extensions/copilot/script/compareStestAlternativeRuns.ts",
+          "size": 17376,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__extensions_copilot_script_compareStestAlternativeRuns.ts.txt"
+        },
+        {
+          "path": "extensions/copilot/src/extension/chatSessions/copilotcli/vscode-node/tools/closeDiff.ts",
+          "size": 1983,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__extensions_copilot_src_extension_chatSessions_copilotcli_vscode-node_tools_closeDiff.ts.txt"
+        },
+        {
+          "path": "extensions/copilot/src/extension/chatSessions/copilotcli/vscode-node/tools/openDiff.ts",
+          "size": 7151,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__extensions_copilot_src_extension_chatSessions_copilotcli_vscode-node_tools_openDiff.ts.txt"
+        },
+        {
+          "path": "src/vs/editor/common/cursor/cursorColumnSelection.ts",
+          "size": 5809,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__src_vs_editor_common_cursor_cursorColumnSelection.ts.txt"
+        },
+        {
+          "path": "src/vs/workbench/contrib/notebook/browser/contrib/multicursor/notebookSelectionHighlight.ts",
+          "size": 5723,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__src_vs_workbench_contrib_notebook_browser_contrib_multicursor_notebookSelectionHighlight.ts.txt"
+        },
+        {
+          "path": "cli/src/tunnels/server_multiplexer.rs",
+          "size": 3979,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_vscode__cli_src_tunnels_server_multiplexer.rs.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "jmigpin/editor",
+      "stars": 441,
+      "language": "Go",
+      "url": "https://github.com/jmigpin/editor",
+      "dimensions": [
+        "search-replace",
+        "inline-diff",
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "core/internalcmds/find.go",
+          "size": 1399,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__core_internalcmds_find.go.txt"
+        },
+        {
+          "path": "util/iout/iorw/rwedit/find.go",
+          "size": 1680,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__util_iout_iorw_rwedit_find.go.txt"
+        },
+        {
+          "path": "util/parseutil/btparser/matchfns.go",
+          "size": 20242,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__util_parseutil_btparser_matchfns.go.txt"
+        },
+        {
+          "path": "util/parseutil/pscan/match.go",
+          "size": 24661,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__util_parseutil_pscan_match.go.txt"
+        },
+        {
+          "path": "core/inlinecomplete_test.go",
+          "size": 4977,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__core_inlinecomplete_test.go.txt"
+        },
+        {
+          "path": "core/inlinecomplete.go",
+          "size": 9278,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__core_inlinecomplete.go.txt"
+        },
+        {
+          "path": "util/iout/iorw/rwundo/mergeedits.go",
+          "size": 1961,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__util_iout_iorw_rwundo_mergeedits.go.txt"
+        },
+        {
+          "path": "driver/xdriver/xcursors/cursors.go",
+          "size": 6330,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__driver_xdriver_xcursors_cursors.go.txt"
+        },
+        {
+          "path": "driver/xdriver/xcursors/rendercursor.go",
+          "size": 3495,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__driver_xdriver_xcursors_rendercursor.go.txt"
+        },
+        {
+          "path": "driver/xdriver/xcursors/xcur/parser_test.go",
+          "size": 1986,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__driver_xdriver_xcursors_xcur_parser_test.go.txt"
+        },
+        {
+          "path": "driver/xdriver/xcursors/xcur/parser.go",
+          "size": 4498,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__driver_xdriver_xcursors_xcur_parser.go.txt"
+        },
+        {
+          "path": "driver/xdriver/xcursors/xcur/theme.go",
+          "size": 4443,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__driver_xdriver_xcursors_xcur_theme.go.txt"
+        },
+        {
+          "path": "ui/column.go",
+          "size": 4459,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__ui_column.go.txt"
+        },
+        {
+          "path": "ui/columns.go",
+          "size": 2484,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__ui_columns.go.txt"
+        },
+        {
+          "path": "util/drawutil/drawer4/cursor.go",
+          "size": 1764,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__util_drawutil_drawer4_cursor.go.txt"
+        },
+        {
+          "path": "util/iout/iorw/rwedit/cursor.go",
+          "size": 3059,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__util_iout_iorw_rwedit_cursor.go.txt"
+        },
+        {
+          "path": "util/iout/iorw/rwedit/movecursor.go",
+          "size": 3398,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__util_iout_iorw_rwedit_movecursor.go.txt"
+        },
+        {
+          "path": "util/iout/multierror.go",
+          "size": 1340,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__util_iout_multierror.go.txt"
+        },
+        {
+          "path": "util/uiutil/widget/multilayer.go",
+          "size": 3952,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jmigpin_editor__util_uiutil_widget_multilayer.go.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "ajaxorg/ace",
+      "stars": 27144,
+      "language": "JavaScript",
+      "url": "https://github.com/ajaxorg/ace",
+      "dimensions": [
+        "search-replace",
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "doc/template/resources/javascripts/jquery-scrollspy.js",
+          "size": 3273,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ajaxorg_ace__doc_template_resources_javascripts_jquery-scrollspy.js.txt"
+        },
+        {
+          "path": "doc/template/resources/javascripts/jquery.collapse.js",
+          "size": 5585,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ajaxorg_ace__doc_template_resources_javascripts_jquery.collapse.js.txt"
+        },
+        {
+          "path": "doc/template/resources/javascripts/jquery.cookie.js",
+          "size": 4246,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ajaxorg_ace__doc_template_resources_javascripts_jquery.cookie.js.txt"
+        },
+        {
+          "path": "lib/ace/mode/xquery_worker.js",
+          "size": 4462,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ajaxorg_ace__lib_ace_mode_xquery_worker.js.txt"
+        },
+        {
+          "path": "lib/ace/mode/xquery.js",
+          "size": 8432,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ajaxorg_ace__lib_ace_mode_xquery.js.txt"
+        },
+        {
+          "path": "lib/ace/mode/xquery/jsoniq_lexer.js",
+          "size": 348140,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ajaxorg_ace__lib_ace_mode_xquery_jsoniq_lexer.js.txt"
+        },
+        {
+          "path": "lib/ace/mode/xquery/xquery_lexer.js",
+          "size": 344374,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ajaxorg_ace__lib_ace_mode_xquery_xquery_lexer.js.txt"
+        },
+        {
+          "path": "lib/ace/snippets/xquery.snippets.js",
+          "size": 1803,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ajaxorg_ace__lib_ace_snippets_xquery.snippets.js.txt"
+        },
+        {
+          "path": "src/commands/incremental_search_commands.js",
+          "size": 6630,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ajaxorg_ace__src_commands_incremental_search_commands.js.txt"
+        },
+        {
+          "path": "src/commands/multi_select_commands.js",
+          "size": 3639,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ajaxorg_ace__src_commands_multi_select_commands.js.txt"
+        },
+        {
+          "path": "src/ext/whitespaces_in_selection_test.js",
+          "size": 1955,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ajaxorg_ace__src_ext_whitespaces_in_selection_test.js.txt"
+        },
+        {
+          "path": "src/ext/whitespaces_in_selection.js",
+          "size": 2202,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ajaxorg_ace__src_ext_whitespaces_in_selection.js.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "microsoft/monaco-editor",
+      "stars": 46803,
+      "language": "JavaScript",
+      "url": "https://github.com/microsoft/monaco-editor",
+      "dimensions": [
+        "search-replace"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/features/find/register.js",
+          "size": 1642,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_monaco-editor__src_features_find_register.js.txt"
+        },
+        {
+          "path": "src/languages/definitions/powerquery/powerquery.test.ts",
+          "size": 9759,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_monaco-editor__src_languages_definitions_powerquery_powerquery.test.ts.txt"
+        },
+        {
+          "path": "src/languages/definitions/powerquery/powerquery.ts",
+          "size": 20266,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_monaco-editor__src_languages_definitions_powerquery_powerquery.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "givanz/VvvebJs",
+      "stars": 8684,
+      "language": "JavaScript",
+      "url": "https://github.com/givanz/VvvebJs",
+      "dimensions": [
+        "search-replace"
+      ],
+      "cachedFiles": [
+        {
+          "path": "libs/codemirror/lib/search.js",
+          "size": 11863,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\givanz_VvvebJs__libs_codemirror_lib_search.js.txt"
+        },
+        {
+          "path": "libs/codemirror/lib/searchcursor.js",
+          "size": 12234,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\givanz_VvvebJs__libs_codemirror_lib_searchcursor.js.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "AvengeMedia/DankMaterialShell",
+      "stars": 8204,
+      "language": "QML",
+      "url": "https://github.com/AvengeMedia/DankMaterialShell",
+      "dimensions": [
+        "search-replace"
+      ],
+      "cachedFiles": [
+        {
+          "path": "core/internal/plugins/search.go",
+          "size": 2437,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AvengeMedia_DankMaterialShell__core_internal_plugins_search.go.txt"
+        },
+        {
+          "path": "core/internal/proto/wp_color_management/query.go",
+          "size": 1661,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AvengeMedia_DankMaterialShell__core_internal_proto_wp_color_management_query.go.txt"
+        },
+        {
+          "path": "core/internal/server/plugins/search.go",
+          "size": 1686,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AvengeMedia_DankMaterialShell__core_internal_server_plugins_search.go.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "neovim/neovim",
+      "stars": 102557,
+      "language": "Vim Script",
+      "url": "https://github.com/neovim/neovim",
+      "dimensions": [
+        "search-replace",
+        "virtualized-rendering",
+        "inline-diff",
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/nvim/file_search.c",
+          "size": 67237,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\neovim_neovim__src_nvim_file_search.c.txt"
+        },
+        {
+          "path": "src/nvim/linematch.c",
+          "size": 14513,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\neovim_neovim__src_nvim_linematch.c.txt"
+        },
+        {
+          "path": "src/nvim/match.c",
+          "size": 36244,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\neovim_neovim__src_nvim_match.c.txt"
+        },
+        {
+          "path": "src/nvim/api/buffer.c",
+          "size": 47891,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\neovim_neovim__src_nvim_api_buffer.c.txt"
+        },
+        {
+          "path": "src/nvim/api/window.c",
+          "size": 18257,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\neovim_neovim__src_nvim_api_window.c.txt"
+        },
+        {
+          "path": "src/nvim/buffer_defs.h",
+          "size": 62698,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\neovim_neovim__src_nvim_buffer_defs.h.txt"
+        },
+        {
+          "path": "src/nvim/buffer_updates.c",
+          "size": 12646,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\neovim_neovim__src_nvim_buffer_updates.c.txt"
+        },
+        {
+          "path": "src/nvim/buffer.c",
+          "size": 137978,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\neovim_neovim__src_nvim_buffer.c.txt"
+        },
+        {
+          "path": "src/nvim/buffer.h",
+          "size": 3268,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\neovim_neovim__src_nvim_buffer.h.txt"
+        },
+        {
+          "path": "src/nvim/change.c",
+          "size": 76375,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\neovim_neovim__src_nvim_change.c.txt"
+        },
+        {
+          "path": "src/nvim/decoration_defs.h",
+          "size": 4417,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\neovim_neovim__src_nvim_decoration_defs.h.txt"
+        },
+        {
+          "path": "src/nvim/decoration_provider.c",
+          "size": 11733,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\neovim_neovim__src_nvim_decoration_provider.c.txt"
+        },
+        {
+          "path": "src/nvim/cursor_shape.c",
+          "size": 12303,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\neovim_neovim__src_nvim_cursor_shape.c.txt"
+        },
+        {
+          "path": "src/nvim/cursor_shape.h",
+          "size": 2497,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\neovim_neovim__src_nvim_cursor_shape.h.txt"
+        },
+        {
+          "path": "src/nvim/cursor.c",
+          "size": 15279,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\neovim_neovim__src_nvim_cursor.c.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "billthefarmer/editor",
+      "stars": 571,
+      "language": "Java",
+      "url": "https://github.com/billthefarmer/editor",
+      "dimensions": [
+        "search-replace"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/main/java/com/ibm/icu/text/CharsetMatch.java",
+          "size": 9236,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\billthefarmer_editor__src_main_java_com_ibm_icu_text_CharsetMatch.java.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "wavetermdev/waveterm",
+      "stars": 22357,
+      "language": "Go",
+      "url": "https://github.com/wavetermdev/waveterm",
+      "dimensions": [
+        "search-replace"
+      ],
+      "cachedFiles": [
+        {
+          "path": "frontend/app/element/search.tsx",
+          "size": 8266,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\wavetermdev_waveterm__frontend_app_element_search.tsx.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "pascalorg/editor",
+      "stars": 24286,
+      "language": "TypeScript",
+      "url": "https://github.com/pascalorg/editor",
+      "dimensions": [
+        "search-replace",
+        "virtualized-rendering",
+        "inline-diff",
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "packages/core/src/hooks/spatial-grid/use-spatial-query.ts",
+          "size": 1582,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_core_src_hooks_spatial-grid_use-spatial-query.ts.txt"
+        },
+        {
+          "path": "packages/core/src/procedural-items/query.ts",
+          "size": 18350,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_core_src_procedural-items_query.ts.txt"
+        },
+        {
+          "path": "packages/mcp/src/tools/find-nodes.test.ts",
+          "size": 2905,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_mcp_src_tools_find-nodes.test.ts.txt"
+        },
+        {
+          "path": "packages/mcp/src/tools/find-nodes.ts",
+          "size": 3692,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_mcp_src_tools_find-nodes.ts.txt"
+        },
+        {
+          "path": "packages/mcp/src/tools/scene-query.test.ts",
+          "size": 12826,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_mcp_src_tools_scene-query.test.ts.txt"
+        },
+        {
+          "path": "packages/mcp/src/tools/scene-query.ts",
+          "size": 29610,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_mcp_src_tools_scene-query.ts.txt"
+        },
+        {
+          "path": "packages/nodes/src/window/renderer.tsx",
+          "size": 1740,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_nodes_src_window_renderer.tsx.txt"
+        },
+        {
+          "path": "packages/core/src/schema/nodes/lineset.ts",
+          "size": 2178,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_core_src_schema_nodes_lineset.ts.txt"
+        },
+        {
+          "path": "packages/core/src/schema/nodes/liquid-line.ts",
+          "size": 1304,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_core_src_schema_nodes_liquid-line.ts.txt"
+        },
+        {
+          "path": "apps/ifc-converter/components/PreviewToolbar.tsx",
+          "size": 6048,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__apps_ifc-converter_components_PreviewToolbar.tsx.txt"
+        },
+        {
+          "path": "packages/core/src/hooks/spatial-grid/fence-support-patch.test.ts",
+          "size": 5561,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_core_src_hooks_spatial-grid_fence-support-patch.test.ts.txt"
+        },
+        {
+          "path": "packages/core/src/hooks/spatial-grid/support-host-patch.ts",
+          "size": 19248,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_core_src_hooks_spatial-grid_support-host-patch.ts.txt"
+        },
+        {
+          "path": "packages/core/src/systems/elevator/elevator-dispatch.ts",
+          "size": 3060,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_core_src_systems_elevator_elevator-dispatch.ts.txt"
+        },
+        {
+          "path": "packages/core/src/systems/stair/stair-opening-preview.test.ts",
+          "size": 2915,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_core_src_systems_stair_stair-opening-preview.test.ts.txt"
+        },
+        {
+          "path": "packages/core/src/systems/stair/stair-opening-preview.ts",
+          "size": 3626,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_core_src_systems_stair_stair-opening-preview.ts.txt"
+        },
+        {
+          "path": "packages/editor/src/components/ui/panels/multi-selection-panel.tsx",
+          "size": 3790,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_editor_src_components_ui_panels_multi-selection-panel.tsx.txt"
+        },
+        {
+          "path": "packages/nodes/src/block/selection-geometry.test.ts",
+          "size": 1257,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_nodes_src_block_selection-geometry.test.ts.txt"
+        },
+        {
+          "path": "packages/nodes/src/block/selection-geometry.ts",
+          "size": 2011,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pascalorg_editor__packages_nodes_src_block_selection-geometry.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "zed-industries/zed",
+      "stars": 90833,
+      "language": "Rust",
+      "url": "https://github.com/zed-industries/zed",
+      "dimensions": [
+        "search-replace",
+        "virtualized-rendering",
+        "inline-diff",
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "crates/search/src/text_finder.rs",
+          "size": 26147,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\zed-industries_zed__crates_search_src_text_finder.rs.txt"
+        },
+        {
+          "path": "crates/search/src/text_finder/delegate.rs",
+          "size": 60117,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\zed-industries_zed__crates_search_src_text_finder_delegate.rs.txt"
+        },
+        {
+          "path": "crates/agent_ui/src/conversation_view/thread_search_bar.rs",
+          "size": 33808,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\zed-industries_zed__crates_agent_ui_src_conversation_view_thread_search_bar.rs.txt"
+        },
+        {
+          "path": "crates/gpui_windows/src/directx_renderer.rs",
+          "size": 72814,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\zed-industries_zed__crates_gpui_windows_src_directx_renderer.rs.txt"
+        },
+        {
+          "path": "crates/language/src/buffer/row_chunk.rs",
+          "size": 5033,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\zed-industries_zed__crates_language_src_buffer_row_chunk.rs.txt"
+        },
+        {
+          "path": "crates/picker/src/render/window_controls.rs",
+          "size": 16424,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\zed-industries_zed__crates_picker_src_render_window_controls.rs.txt"
+        },
+        {
+          "path": "crates/tabular_data_preview/src/renderer/performance_metrics_overlay.rs",
+          "size": 2813,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\zed-industries_zed__crates_tabular_data_preview_src_renderer_performance_metrics_overlay.rs.txt"
+        },
+        {
+          "path": "crates/agent_ui/src/buffer_codegen.rs",
+          "size": 103889,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\zed-industries_zed__crates_agent_ui_src_buffer_codegen.rs.txt"
+        },
+        {
+          "path": "crates/agent_ui/src/inline_assistant.rs",
+          "size": 81545,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\zed-industries_zed__crates_agent_ui_src_inline_assistant.rs.txt"
+        },
+        {
+          "path": "crates/acp_thread/src/diff.rs",
+          "size": 14631,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\zed-industries_zed__crates_acp_thread_src_diff.rs.txt"
+        },
+        {
+          "path": "crates/agent_ui/src/agent_diff.rs",
+          "size": 84036,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\zed-industries_zed__crates_agent_ui_src_agent_diff.rs.txt"
+        },
+        {
+          "path": "crates/agent_ui/src/inline_prompt_editor.rs",
+          "size": 69707,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\zed-industries_zed__crates_agent_ui_src_inline_prompt_editor.rs.txt"
+        },
+        {
+          "path": "crates/editor/src/columnar_selection.rs",
+          "size": 113744,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\zed-industries_zed__crates_editor_src_columnar_selection.rs.txt"
+        },
+        {
+          "path": "crates/edit_prediction/src/cursor_excerpt.rs",
+          "size": 21895,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\zed-industries_zed__crates_edit_prediction_src_cursor_excerpt.rs.txt"
+        },
+        {
+          "path": "crates/editor/src/cursor_animation.rs",
+          "size": 43515,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\zed-industries_zed__crates_editor_src_cursor_animation.rs.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "pandao/editor.md",
+      "stars": 14317,
+      "language": "JavaScript",
+      "url": "https://github.com/pandao/editor.md",
+      "dimensions": [
+        "search-replace"
+      ],
+      "cachedFiles": [
+        {
+          "path": "lib/codemirror/addon/search/match-highlighter.js",
+          "size": 4943,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pandao_editor.md__lib_codemirror_addon_search_match-highlighter.js.txt"
+        },
+        {
+          "path": "lib/codemirror/addon/search/matchesonscrollbar.js",
+          "size": 3704,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pandao_editor.md__lib_codemirror_addon_search_matchesonscrollbar.js.txt"
+        },
+        {
+          "path": "lib/codemirror/addon/edit/matchbrackets.js",
+          "size": 5254,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pandao_editor.md__lib_codemirror_addon_edit_matchbrackets.js.txt"
+        },
+        {
+          "path": "lib/codemirror/addon/edit/matchtags.js",
+          "size": 2355,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pandao_editor.md__lib_codemirror_addon_edit_matchtags.js.txt"
+        },
+        {
+          "path": "lib/codemirror/addon/search/search.js",
+          "size": 7128,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pandao_editor.md__lib_codemirror_addon_search_search.js.txt"
+        },
+        {
+          "path": "lib/codemirror/addon/search/searchcursor.js",
+          "size": 7720,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pandao_editor.md__lib_codemirror_addon_search_searchcursor.js.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "facebook/lexical",
+      "stars": 23893,
+      "language": "TypeScript",
+      "url": "https://github.com/facebook/lexical",
+      "dimensions": [
+        "search-replace",
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "packages/lexical-playground/__tests__/unit/FindReplace.test.ts",
+          "size": 36610,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\facebook_lexical__packages_lexical-playground___tests___unit_FindReplace.test.ts.txt"
+        },
+        {
+          "path": "packages/lexical-playground/src/plugins/FindReplaceExtension/index.tsx",
+          "size": 29472,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\facebook_lexical__packages_lexical-playground_src_plugins_FindReplaceExtension_index.tsx.txt"
+        },
+        {
+          "path": "examples/node-replacement/src/App.tsx",
+          "size": 2085,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\facebook_lexical__examples_node-replacement_src_App.tsx.txt"
+        },
+        {
+          "path": "packages/lexical-playground/__tests__/regression/4661-insert-column-selection.spec.mjs",
+          "size": 7299,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\facebook_lexical__packages_lexical-playground___tests___regression_4661-insert-column-selection.spec.mjs.txt"
+        },
+        {
+          "path": "packages/lexical-rich-text/src/__tests__/unit/RichTextBlockCursorRootBoundary.test.ts",
+          "size": 7916,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\facebook_lexical__packages_lexical-rich-text_src___tests___unit_RichTextBlockCursorRootBoundary.test.ts.txt"
+        },
+        {
+          "path": "packages/lexical-rich-text/src/__tests__/unit/RichTextBlockCursorShadowRoot.test.ts",
+          "size": 20875,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\facebook_lexical__packages_lexical-rich-text_src___tests___unit_RichTextBlockCursorShadowRoot.test.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "rizonesoft/Notepad3",
+      "stars": 6665,
+      "language": "C",
+      "url": "https://github.com/rizonesoft/Notepad3",
+      "dimensions": [
+        "search-replace",
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "scintilla/pcre2/src/pcre2_dfa_match.c",
+          "size": 143978,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\rizonesoft_Notepad3__scintilla_pcre2_src_pcre2_dfa_match.c.txt"
+        },
+        {
+          "path": "scintilla/pcre2/src/pcre2_find_bracket.c",
+          "size": 6862,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\rizonesoft_Notepad3__scintilla_pcre2_src_pcre2_find_bracket.c.txt"
+        },
+        {
+          "path": "scintilla/pcre2/src/pcre2_jit_match_inc.h",
+          "size": 6991,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\rizonesoft_Notepad3__scintilla_pcre2_src_pcre2_jit_match_inc.h.txt"
+        },
+        {
+          "path": "scintilla/src/Selection.h",
+          "size": 8511,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\rizonesoft_Notepad3__scintilla_src_Selection.h.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "thomasschafer/scooter",
+      "stars": 1297,
+      "language": "Rust",
+      "url": "https://github.com/thomasschafer/scooter",
+      "dimensions": [
+        "search-replace"
+      ],
+      "cachedFiles": [
+        {
+          "path": "scooter-core/src/replace.rs",
+          "size": 210714,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\thomasschafer_scooter__scooter-core_src_replace.rs.txt"
+        },
+        {
+          "path": "scooter-core/src/search.rs",
+          "size": 58225,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\thomasschafer_scooter__scooter-core_src_search.rs.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "helix-editor/helix",
+      "stars": 46327,
+      "language": "Rust",
+      "url": "https://github.com/helix-editor/helix",
+      "dimensions": [
+        "search-replace",
+        "virtualized-rendering",
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "helix-core/src/match_brackets.rs",
+          "size": 11313,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\helix-editor_helix__helix-core_src_match_brackets.rs.txt"
+        },
+        {
+          "path": "helix-core/src/search.rs",
+          "size": 2671,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\helix-editor_helix__helix-core_src_search.rs.txt"
+        },
+        {
+          "path": "helix-term/src/ui/picker/query.rs",
+          "size": 12481,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\helix-editor_helix__helix-term_src_ui_picker_query.rs.txt"
+        },
+        {
+          "path": "helix-core/src/command_line.rs",
+          "size": 47431,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\helix-editor_helix__helix-core_src_command_line.rs.txt"
+        },
+        {
+          "path": "helix-core/src/line_ending.rs",
+          "size": 11431,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\helix-editor_helix__helix-core_src_line_ending.rs.txt"
+        },
+        {
+          "path": "helix-core/src/snippets/render.rs",
+          "size": 11364,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\helix-editor_helix__helix-core_src_snippets_render.rs.txt"
+        },
+        {
+          "path": "helix-lsp-types/src/selection_range.rs",
+          "size": 2823,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\helix-editor_helix__helix-lsp-types_src_selection_range.rs.txt"
+        },
+        {
+          "path": "helix-core/src/selection.rs",
+          "size": 48969,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\helix-editor_helix__helix-core_src_selection.rs.txt"
+        },
+        {
+          "path": "helix-lsp-types/src/folding_range.rs",
+          "size": 5584,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\helix-editor_helix__helix-lsp-types_src_folding_range.rs.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "vi3k6i5/flashtext",
+      "stars": 5706,
+      "language": "Python",
+      "url": "https://github.com/vi3k6i5/flashtext",
+      "dimensions": [
+        "search-replace"
+      ],
+      "cachedFiles": [
+        {
+          "path": "test/test_replace_fuzzy.py",
+          "size": 3788,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\vi3k6i5_flashtext__test_test_replace_fuzzy.py.txt"
+        },
+        {
+          "path": "test/test_replacer.py",
+          "size": 1935,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\vi3k6i5_flashtext__test_test_replacer.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "skylot/jadx",
+      "stars": 50614,
+      "language": "Java",
+      "url": "https://github.com/skylot/jadx",
+      "dimensions": [
+        "search-replace"
+      ],
+      "cachedFiles": [
+        {
+          "path": "jadx-core/src/main/java/jadx/core/dex/visitors/ReplaceNewArray.java",
+          "size": 6983,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\skylot_jadx__jadx-core_src_main_java_jadx_core_dex_visitors_ReplaceNewArray.java.txt"
+        },
+        {
+          "path": "jadx-core/src/main/java/jadx/core/dex/visitors/typeinference/TypeSearch.java",
+          "size": 11729,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\skylot_jadx__jadx-core_src_main_java_jadx_core_dex_visitors_typeinference_TypeSearch.java.txt"
+        },
+        {
+          "path": "jadx-core/src/main/java/jadx/core/dex/visitors/typeinference/TypeSearchState.java",
+          "size": 1743,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\skylot_jadx__jadx-core_src_main_java_jadx_core_dex_visitors_typeinference_TypeSearchState.java.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "lapce/lapce",
+      "stars": 38867,
+      "language": "Rust",
+      "url": "https://github.com/lapce/lapce",
+      "dimensions": [
+        "search-replace",
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "lapce-app/src/find.rs",
+          "size": 19124,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\lapce_lapce__lapce-app_src_find.rs.txt"
+        },
+        {
+          "path": "lapce-app/src/global_search.rs",
+          "size": 6260,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\lapce_lapce__lapce-app_src_global_search.rs.txt"
+        },
+        {
+          "path": "lapce-app/src/panel/global_search_view.rs",
+          "size": 13959,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\lapce_lapce__lapce-app_src_panel_global_search_view.rs.txt"
+        },
+        {
+          "path": "lapce-app/benches/visual_line.rs",
+          "size": 9240,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\lapce_lapce__lapce-app_benches_visual_line.rs.txt"
+        },
+        {
+          "path": "lapce-app/src/inline_completion.rs",
+          "size": 8947,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\lapce_lapce__lapce-app_src_inline_completion.rs.txt"
+        },
+        {
+          "path": "lapce-app/src/window_tab.rs",
+          "size": 113340,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\lapce_lapce__lapce-app_src_window_tab.rs.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "SBoudrias/Inquirer.js",
+      "stars": 21627,
+      "language": "TypeScript",
+      "url": "https://github.com/SBoudrias/Inquirer.js",
+      "dimensions": [
+        "search-replace"
+      ],
+      "cachedFiles": [
+        {
+          "path": "packages/demo/src/demos/search.ts",
+          "size": 2636,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\SBoudrias_Inquirer.js__packages_demo_src_demos_search.ts.txt"
+        },
+        {
+          "path": "packages/search/search.test.ts",
+          "size": 20611,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\SBoudrias_Inquirer.js__packages_search_search.test.ts.txt"
+        },
+        {
+          "path": "packages/search/src/index.ts",
+          "size": 8794,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\SBoudrias_Inquirer.js__packages_search_src_index.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "mpvnet-player/mpv.net",
+      "stars": 5413,
+      "language": "C#",
+      "url": "https://github.com/mpvnet-player/mpv.net",
+      "dimensions": [
+        "search-replace"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/MpvNet.Windows/WPF/Controls/SearchControl.xaml.cs",
+          "size": 2197,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\mpvnet-player_mpv.net__src_MpvNet.Windows_WPF_Controls_SearchControl.xaml.cs.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "vim/vim",
+      "stars": 40934,
+      "language": "Vim Script",
+      "url": "https://github.com/vim/vim",
+      "dimensions": [
+        "search-replace"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/findfile.c",
+          "size": 81241,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\vim_vim__src_findfile.c.txt"
+        },
+        {
+          "path": "src/linematch.c",
+          "size": 14676,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\vim_vim__src_linematch.c.txt"
+        },
+        {
+          "path": "src/match.c",
+          "size": 34749,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\vim_vim__src_match.c.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "openai/chatgpt-retrieval-plugin",
+      "stars": 21250,
+      "language": "Python",
+      "url": "https://github.com/openai/chatgpt-retrieval-plugin",
+      "dimensions": [
+        "search-replace"
+      ],
+      "cachedFiles": [
+        {
+          "path": "datastore/providers/azuresearch_datastore.py",
+          "size": 15843,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\openai_chatgpt-retrieval-plugin__datastore_providers_azuresearch_datastore.py.txt"
+        },
+        {
+          "path": "datastore/providers/elasticsearch_datastore.py",
+          "size": 12922,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\openai_chatgpt-retrieval-plugin__datastore_providers_elasticsearch_datastore.py.txt"
+        },
+        {
+          "path": "tests/datastore/providers/azuresearch/test_azuresearch_datastore.py",
+          "size": 8748,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\openai_chatgpt-retrieval-plugin__tests_datastore_providers_azuresearch_test_azuresearch_datastore.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "opendatalab/MinerU",
+      "stars": 80610,
+      "language": "Python",
+      "url": "https://github.com/opendatalab/MinerU",
+      "dimensions": [
+        "search-replace"
+      ],
+      "cachedFiles": [
+        {
+          "path": "mineru/cli/commands/search.py",
+          "size": 3999,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\opendatalab_MinerU__mineru_cli_commands_search.py.txt"
+        },
+        {
+          "path": "mineru/doclib/services/search_svc.py",
+          "size": 7379,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\opendatalab_MinerU__mineru_doclib_services_search_svc.py.txt"
+        },
+        {
+          "path": "mineru/model/table/rec/slanet_plus/matcher_utils.py",
+          "size": 9647,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\opendatalab_MinerU__mineru_model_table_rec_slanet_plus_matcher_utils.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "emacs-mirror/emacs",
+      "stars": 5209,
+      "language": "Emacs Lisp",
+      "url": "https://github.com/emacs-mirror/emacs",
+      "dimensions": [
+        "search-replace",
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "admin/find-gc.el",
+          "size": 5186,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\emacs-mirror_emacs__admin_find-gc.el.txt"
+        },
+        {
+          "path": "lisp/cedet/semantic/db-find.el",
+          "size": 54499,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\emacs-mirror_emacs__lisp_cedet_semantic_db-find.el.txt"
+        },
+        {
+          "path": "lisp/cedet/semantic/find.el",
+          "size": 27435,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\emacs-mirror_emacs__lisp_cedet_semantic_find.el.txt"
+        },
+        {
+          "path": "java/org/gnu/emacs/EmacsCursor.java",
+          "size": 1331,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\emacs-mirror_emacs__java_org_gnu_emacs_EmacsCursor.java.txt"
+        },
+        {
+          "path": "java/org/gnu/emacs/EmacsMultitaskActivity.java",
+          "size": 1590,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\emacs-mirror_emacs__java_org_gnu_emacs_EmacsMultitaskActivity.java.txt"
+        },
+        {
+          "path": "lib/copy-file-range.c",
+          "size": 3347,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\emacs-mirror_emacs__lib_copy-file-range.c.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "ckeditor/ckeditor5",
+      "stars": 10498,
+      "language": "JavaScript",
+      "url": "https://github.com/ckeditor/ckeditor5",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "docs/_snippets/examples/inline-editor.js",
+          "size": 1649,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ckeditor_ckeditor5__docs__snippets_examples_inline-editor.js.txt"
+        },
+        {
+          "path": "docs/_snippets/framework/tutorials/inline-widget.js",
+          "size": 6759,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ckeditor_ckeditor5__docs__snippets_framework_tutorials_inline-widget.js.txt"
+        },
+        {
+          "path": "packages/ckeditor5-autoformat/src/inlineautoformatediting.ts",
+          "size": 8289,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ckeditor_ckeditor5__packages_ckeditor5-autoformat_src_inlineautoformatediting.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "AvaloniaUI/AvaloniaEdit",
+      "stars": 1132,
+      "language": "C#",
+      "url": "https://github.com/AvaloniaUI/AvaloniaEdit",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/AvaloniaEdit/Rendering/CollapsedLineSection.cs",
+          "size": 3648,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AvaloniaUI_AvaloniaEdit__src_AvaloniaEdit_Rendering_CollapsedLineSection.cs.txt"
+        },
+        {
+          "path": "src/AvaloniaEdit/Rendering/CurrentLineHighlightRenderer.cs",
+          "size": 3501,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AvaloniaUI_AvaloniaEdit__src_AvaloniaEdit_Rendering_CurrentLineHighlightRenderer.cs.txt"
+        },
+        {
+          "path": "src/AvaloniaEdit/Rendering/HeightTreeLineNode.cs",
+          "size": 2503,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AvaloniaUI_AvaloniaEdit__src_AvaloniaEdit_Rendering_HeightTreeLineNode.cs.txt"
+        },
+        {
+          "path": "src/AvaloniaEdit/Rendering/InlineObjectRun.cs",
+          "size": 3966,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AvaloniaUI_AvaloniaEdit__src_AvaloniaEdit_Rendering_InlineObjectRun.cs.txt"
+        },
+        {
+          "path": "src/AvaloniaEdit/Rendering/IVisualLineTransformer.cs",
+          "size": 1538,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AvaloniaUI_AvaloniaEdit__src_AvaloniaEdit_Rendering_IVisualLineTransformer.cs.txt"
+        },
+        {
+          "path": "src/AvaloniaEdit/Rendering/VisualLine.cs",
+          "size": 35388,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AvaloniaUI_AvaloniaEdit__src_AvaloniaEdit_Rendering_VisualLine.cs.txt"
+        },
+        {
+          "path": "src/AvaloniaEdit/Rendering/VisualLineConstructionStartEventArgs.cs",
+          "size": 1841,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AvaloniaUI_AvaloniaEdit__src_AvaloniaEdit_Rendering_VisualLineConstructionStartEventArgs.cs.txt"
+        },
+        {
+          "path": "src/AvaloniaEdit/Rendering/VisualLineElement.cs",
+          "size": 11404,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AvaloniaUI_AvaloniaEdit__src_AvaloniaEdit_Rendering_VisualLineElement.cs.txt"
+        },
+        {
+          "path": "src/AvaloniaEdit/Rendering/VisualLineElementGenerator.cs",
+          "size": 2897,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AvaloniaUI_AvaloniaEdit__src_AvaloniaEdit_Rendering_VisualLineElementGenerator.cs.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "openvideodev/react-video-editor",
+      "stars": 1798,
+      "language": "TypeScript",
+      "url": "https://github.com/openvideodev/react-video-editor",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/components/editor/right-panel/properties/options/caption-words-per-line.tsx",
+          "size": 1624,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\openvideodev_react-video-editor__src_components_editor_right-panel_properties_options_caption-words-per-line.tsx.txt"
+        },
+        {
+          "path": "src/components/editor/timeline/controls/controls.ts",
+          "size": 2291,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\openvideodev_react-video-editor__src_components_editor_timeline_controls_controls.ts.txt"
+        },
+        {
+          "path": "src/components/editor/timeline/controls/draw.ts",
+          "size": 1277,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\openvideodev_react-video-editor__src_components_editor_timeline_controls_draw.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "hoffstadt/DearPyGui",
+      "stars": 15635,
+      "language": "C++",
+      "url": "https://github.com/hoffstadt/DearPyGui",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/mvAboutWindow.cpp",
+          "size": 6972,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\hoffstadt_DearPyGui__src_mvAboutWindow.cpp.txt"
+        },
+        {
+          "path": "src/mvDebugWindow.cpp",
+          "size": 2053,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\hoffstadt_DearPyGui__src_mvDebugWindow.cpp.txt"
+        },
+        {
+          "path": "src/mvDocWindow.cpp",
+          "size": 4733,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\hoffstadt_DearPyGui__src_mvDocWindow.cpp.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "excalidraw/excalidraw",
+      "stars": 132824,
+      "language": "TypeScript",
+      "url": "https://github.com/excalidraw/excalidraw",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "packages/element/src/linearElementEditor.ts",
+          "size": 83471,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\excalidraw_excalidraw__packages_element_src_linearElementEditor.ts.txt"
+        },
+        {
+          "path": "packages/element/src/renderElement.ts",
+          "size": 41607,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\excalidraw_excalidraw__packages_element_src_renderElement.ts.txt"
+        },
+        {
+          "path": "packages/excalidraw/actions/actionLinearEditor.tsx",
+          "size": 5858,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\excalidraw_excalidraw__packages_excalidraw_actions_actionLinearEditor.tsx.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "Azure/azure-cli",
+      "stars": 4642,
+      "language": "Python",
+      "url": "https://github.com/Azure/azure-cli",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "scripts/performance/measure.py",
+          "size": 1965,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Azure_azure-cli__scripts_performance_measure.py.txt"
+        },
+        {
+          "path": "src/azure-cli/azure/cli/command_modules/eventgrid/inline_event_type.py",
+          "size": 2128,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Azure_azure-cli__src_azure-cli_azure_cli_command_modules_eventgrid_inline_event_type.py.txt"
+        },
+        {
+          "path": "src/azure-cli/azure/cli/command_modules/network/aaz/latest/network/virtual_appliance/_create.py",
+          "size": 35083,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Azure_azure-cli__src_azure-cli_azure_cli_command_modules_network_aaz_latest_network_virtual_appliance__create.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "xi-editor/xi-editor",
+      "stars": 19816,
+      "language": "Rust",
+      "url": "https://github.com/xi-editor/xi-editor",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "rust/core-lib/src/line_cache_shadow.rs",
+          "size": 10565,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\xi-editor_xi-editor__rust_core-lib_src_line_cache_shadow.rs.txt"
+        },
+        {
+          "path": "rust/core-lib/src/line_ending.rs",
+          "size": 2968,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\xi-editor_xi-editor__rust_core-lib_src_line_ending.rs.txt"
+        },
+        {
+          "path": "rust/core-lib/src/line_offset.rs",
+          "size": 3900,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\xi-editor_xi-editor__rust_core-lib_src_line_offset.rs.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "scottlerch/HostsFileEditor",
+      "stars": 1258,
+      "language": "C#",
+      "url": "https://github.com/scottlerch/HostsFileEditor",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "HostsFileEditor.Core/CommandLine/ConsoleAttach.cs",
+          "size": 2726,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\scottlerch_HostsFileEditor__HostsFileEditor.Core_CommandLine_ConsoleAttach.cs.txt"
+        },
+        {
+          "path": "HostsFileEditor.Core/CommandLine/HostsCli.cs",
+          "size": 13855,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\scottlerch_HostsFileEditor__HostsFileEditor.Core_CommandLine_HostsCli.cs.txt"
+        },
+        {
+          "path": "HostsFileEditor.WinUI/MainWindow.Utilities.cs",
+          "size": 3801,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\scottlerch_HostsFileEditor__HostsFileEditor.WinUI_MainWindow.Utilities.cs.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "antvis/Infographic",
+      "stars": 6861,
+      "language": "TypeScript",
+      "url": "https://github.com/antvis/Infographic",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "__tests__/unit/designs/structures/chart-line.test.tsx",
+          "size": 1278,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\antvis_Infographic____tests___unit_designs_structures_chart-line.test.tsx.txt"
+        },
+        {
+          "path": "__tests__/unit/renderer/palette.test.ts",
+          "size": 1852,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\antvis_Infographic____tests___unit_renderer_palette.test.ts.txt"
+        },
+        {
+          "path": "__tests__/unit/renderer/utils/attrs.test.ts",
+          "size": 1846,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\antvis_Infographic____tests___unit_renderer_utils_attrs.test.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "StarArawn/bevy_ecs_tilemap",
+      "stars": 1282,
+      "language": "Rust",
+      "url": "https://github.com/StarArawn/bevy_ecs_tilemap",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/render/chunk.rs",
+          "size": 17502,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\StarArawn_bevy_ecs_tilemap__src_render_chunk.rs.txt"
+        },
+        {
+          "path": "src/render/pipeline.rs",
+          "size": 10037,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\StarArawn_bevy_ecs_tilemap__src_render_pipeline.rs.txt"
+        },
+        {
+          "path": "examples/chunking.rs",
+          "size": 4844,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\StarArawn_bevy_ecs_tilemap__examples_chunking.rs.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "jesseduffield/lazygit",
+      "stars": 82652,
+      "language": "Go",
+      "url": "https://github.com/jesseduffield/lazygit",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "pkg/commands/oscommands/new_shell_windows_test.go",
+          "size": 12788,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jesseduffield_lazygit__pkg_commands_oscommands_new_shell_windows_test.go.txt"
+        },
+        {
+          "path": "pkg/commands/oscommands/os_windows_test.go",
+          "size": 1785,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jesseduffield_lazygit__pkg_commands_oscommands_os_windows_test.go.txt"
+        },
+        {
+          "path": "pkg/commands/oscommands/os_windows.go",
+          "size": 1332,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jesseduffield_lazygit__pkg_commands_oscommands_os_windows.go.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "jorgerojas26/lazysql",
+      "stars": 4322,
+      "language": "Go",
+      "url": "https://github.com/jorgerojas26/lazysql",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "components/performance_contract_test.go",
+          "size": 2279,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jorgerojas26_lazysql__components_performance_contract_test.go.txt"
+        },
+        {
+          "path": "components/performance_logging.go",
+          "size": 1302,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jorgerojas26_lazysql__components_performance_logging.go.txt"
+        },
+        {
+          "path": "components/sql_editor_pipeline_test.go",
+          "size": 16402,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jorgerojas26_lazysql__components_sql_editor_pipeline_test.go.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "toeverything/AFFiNE",
+      "stars": 72945,
+      "language": "TypeScript",
+      "url": "https://github.com/toeverything/AFFiNE",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "blocksuite/framework/std/src/inline/services/render.ts",
+          "size": 6221,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\toeverything_AFFiNE__blocksuite_framework_std_src_inline_services_render.ts.txt"
+        },
+        {
+          "path": "blocksuite/framework/std/src/inline/utils/attribute-renderer.ts",
+          "size": 1399,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\toeverything_AFFiNE__blocksuite_framework_std_src_inline_utils_attribute-renderer.ts.txt"
+        },
+        {
+          "path": "blocksuite/affine/all/src/__tests__/gfx/turbo-renderer.unit.spec.ts",
+          "size": 2007,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\toeverything_AFFiNE__blocksuite_affine_all_src___tests___gfx_turbo-renderer.unit.spec.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "rhysd/tui-textarea",
+      "stars": 514,
+      "language": "Rust",
+      "url": "https://github.com/rhysd/tui-textarea",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "examples/single_line.rs",
+          "size": 2712,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\rhysd_tui-textarea__examples_single_line.rs.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "xiangechen/chili3d",
+      "stars": 4859,
+      "language": "TypeScript",
+      "url": "https://github.com/xiangechen/chili3d",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "packages/app/src/bodys/line.ts",
+          "size": 1255,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\xiangechen_chili3d__packages_app_src_bodys_line.ts.txt"
+        },
+        {
+          "path": "packages/app/src/commands/application/performanceTest.ts",
+          "size": 2248,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\xiangechen_chili3d__packages_app_src_commands_application_performanceTest.ts.txt"
+        },
+        {
+          "path": "packages/app/src/commands/create/line.ts",
+          "size": 2204,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\xiangechen_chili3d__packages_app_src_commands_create_line.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "siyuan-note/siyuan",
+      "stars": 46490,
+      "language": "TypeScript",
+      "url": "https://github.com/siyuan-note/siyuan",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "app/src/protyle/render/av/groupTableVirtual.test.ts",
+          "size": 7426,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\siyuan-note_siyuan__app_src_protyle_render_av_groupTableVirtual.test.ts.txt"
+        },
+        {
+          "path": "app/src/protyle/render/av/groupTableVirtual.ts",
+          "size": 6148,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\siyuan-note_siyuan__app_src_protyle_render_av_groupTableVirtual.ts.txt"
+        },
+        {
+          "path": "app/src/protyle/render/av/virtualScroll.ts",
+          "size": 46213,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\siyuan-note_siyuan__app_src_protyle_render_av_virtualScroll.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "pacocoursey/writer",
+      "stars": 581,
+      "language": "JavaScript",
+      "url": "https://github.com/pacocoursey/writer",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/buffer.js",
+          "size": 10817,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\pacocoursey_writer__src_buffer.js.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "AppFlowy-IO/AppFlowy",
+      "stars": 76913,
+      "language": "Dart",
+      "url": "https://github.com/AppFlowy-IO/AppFlowy",
+      "dimensions": [
+        "virtualized-rendering"
+      ],
+      "cachedFiles": [
+        {
+          "path": "frontend/appflowy_flutter/macos/Runner/MainFlutterWindow.swift",
+          "size": 3708,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AppFlowy-IO_AppFlowy__frontend_appflowy_flutter_macos_Runner_MainFlutterWindow.swift.txt"
+        },
+        {
+          "path": "frontend/appflowy_flutter/packages/appflowy_backend/example/windows/runner/flutter_window.cpp",
+          "size": 1762,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AppFlowy-IO_AppFlowy__frontend_appflowy_flutter_packages_appflowy_backend_example_windows_runner_flutter_window.cpp.txt"
+        },
+        {
+          "path": "frontend/appflowy_flutter/packages/appflowy_backend/example/windows/runner/main.cpp",
+          "size": 1277,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AppFlowy-IO_AppFlowy__frontend_appflowy_flutter_packages_appflowy_backend_example_windows_runner_main.cpp.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "basecamp/trix",
+      "stars": 20014,
+      "language": "JavaScript",
+      "url": "https://github.com/basecamp/trix",
+      "dimensions": [
+        "virtualized-rendering",
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/inspector/views/performance_view.js",
+          "size": 1563,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\basecamp_trix__src_inspector_views_performance_view.js.txt"
+        },
+        {
+          "path": "src/trix/models/line_break_insertion.js",
+          "size": 1621,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\basecamp_trix__src_trix_models_line_break_insertion.js.txt"
+        },
+        {
+          "path": "src/inspector/views/selection_view.js",
+          "size": 1255,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\basecamp_trix__src_inspector_views_selection_view.js.txt"
+        },
+        {
+          "path": "src/trix/models/block.js",
+          "size": 8031,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\basecamp_trix__src_trix_models_block.js.txt"
+        },
+        {
+          "path": "src/trix/models/selection_manager.js",
+          "size": 5862,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\basecamp_trix__src_trix_models_selection_manager.js.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "crynta/terax-ai",
+      "stars": 9239,
+      "language": "TypeScript",
+      "url": "https://github.com/crynta/terax-ai",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/modules/ai/components/PlanDiffReview.tsx",
+          "size": 8009,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\crynta_terax-ai__src_modules_ai_components_PlanDiffReview.tsx.txt"
+        },
+        {
+          "path": "src/modules/agents/lib/review.test.ts",
+          "size": 5125,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\crynta_terax-ai__src_modules_agents_lib_review.test.ts.txt"
+        },
+        {
+          "path": "src/modules/agents/lib/review.ts",
+          "size": 2023,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\crynta_terax-ai__src_modules_agents_lib_review.ts.txt"
+        },
+        {
+          "path": "src/modules/editor/AiDiffPane.tsx",
+          "size": 7144,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\crynta_terax-ai__src_modules_editor_AiDiffPane.tsx.txt"
+        },
+        {
+          "path": "src/modules/editor/GitDiffPane.tsx",
+          "size": 10439,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\crynta_terax-ai__src_modules_editor_GitDiffPane.tsx.txt"
+        },
+        {
+          "path": "src/modules/editor/lib/autocomplete/inlineExtension.ts",
+          "size": 18366,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\crynta_terax-ai__src_modules_editor_lib_autocomplete_inlineExtension.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "hediet/vscode-drawio",
+      "stars": 9493,
+      "language": "TypeScript",
+      "url": "https://github.com/hediet/vscode-drawio",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/inline-editor/webview/previewInit.js",
+          "size": 23004,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\hediet_vscode-drawio__src_inline-editor_webview_previewInit.js.txt"
+        },
+        {
+          "path": "src/inline-editor/diagramLock.ts",
+          "size": 1884,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\hediet_vscode-drawio__src_inline-editor_diagramLock.ts.txt"
+        },
+        {
+          "path": "src/inline-editor/diagramParser.ts",
+          "size": 15172,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\hediet_vscode-drawio__src_inline-editor_diagramParser.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "Aider-AI/aider",
+      "stars": 49163,
+      "language": "Python",
+      "url": "https://github.com/Aider-AI/aider",
+      "dimensions": [
+        "inline-diff",
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "aider/coders/chat_chunks.py",
+          "size": 1981,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Aider-AI_aider__aider_coders_chat_chunks.py.txt"
+        },
+        {
+          "path": "aider/coders/patch_coder.py",
+          "size": 30286,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Aider-AI_aider__aider_coders_patch_coder.py.txt"
+        },
+        {
+          "path": "aider/coders/patch_prompts.py",
+          "size": 6000,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Aider-AI_aider__aider_coders_patch_prompts.py.txt"
+        },
+        {
+          "path": "aider/coders/udiff_coder.py",
+          "size": 11041,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Aider-AI_aider__aider_coders_udiff_coder.py.txt"
+        },
+        {
+          "path": "aider/coders/udiff_prompts.py",
+          "size": 3320,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Aider-AI_aider__aider_coders_udiff_prompts.py.txt"
+        },
+        {
+          "path": "aider/diffs.py",
+          "size": 3024,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Aider-AI_aider__aider_diffs.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "Vinzent03/obsidian-git",
+      "stars": 12036,
+      "language": "TypeScript",
+      "url": "https://github.com/Vinzent03/obsidian-git",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/editor/signs/changesStatusBar.ts",
+          "size": 2551,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Vinzent03_obsidian-git__src_editor_signs_changesStatusBar.ts.txt"
+        },
+        {
+          "path": "src/editor/signs/diff.ts",
+          "size": 9227,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Vinzent03_obsidian-git__src_editor_signs_diff.ts.txt"
+        },
+        {
+          "path": "src/editor/signs/hunkActions.ts",
+          "size": 3807,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Vinzent03_obsidian-git__src_editor_signs_hunkActions.ts.txt"
+        },
+        {
+          "path": "src/editor/signs/hunks.ts",
+          "size": 16879,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Vinzent03_obsidian-git__src_editor_signs_hunks.ts.txt"
+        },
+        {
+          "path": "src/editor/signs/hunkState.ts",
+          "size": 13815,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Vinzent03_obsidian-git__src_editor_signs_hunkState.ts.txt"
+        },
+        {
+          "path": "src/ui/diff/contextMenu.ts",
+          "size": 3143,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Vinzent03_obsidian-git__src_ui_diff_contextMenu.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "securingsincity/react-ace",
+      "stars": 4206,
+      "language": "TypeScript",
+      "url": "https://github.com/securingsincity/react-ace",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "example/diff.jsx",
+          "size": 4598,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\securingsincity_react-ace__example_diff.jsx.txt"
+        },
+        {
+          "path": "src/diff.tsx",
+          "size": 9152,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\securingsincity_react-ace__src_diff.tsx.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "continuedev/continue",
+      "stars": 36017,
+      "language": "TypeScript",
+      "url": "https://github.com/continuedev/continue",
+      "dimensions": [
+        "inline-diff",
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "extensions/cli/src/commands/review/diffContext.ts",
+          "size": 2846,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\continuedev_continue__extensions_cli_src_commands_review_diffContext.ts.txt"
+        },
+        {
+          "path": "extensions/vscode/src/diff/vertical/decorations.ts",
+          "size": 5688,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\continuedev_continue__extensions_vscode_src_diff_vertical_decorations.ts.txt"
+        },
+        {
+          "path": "gui/src/components/StyledMarkdownPreview/utils/patchNestedMarkdown.test.ts",
+          "size": 5787,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\continuedev_continue__gui_src_components_StyledMarkdownPreview_utils_patchNestedMarkdown.test.ts.txt"
+        },
+        {
+          "path": "core/tools/definitions/runTerminalCommand.ts",
+          "size": 3006,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\continuedev_continue__core_tools_definitions_runTerminalCommand.ts.txt"
+        },
+        {
+          "path": "core/tools/implementations/runTerminalCommand.timeout.vitest.ts",
+          "size": 6904,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\continuedev_continue__core_tools_implementations_runTerminalCommand.timeout.vitest.ts.txt"
+        },
+        {
+          "path": "core/tools/implementations/runTerminalCommand.ts",
+          "size": 19477,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\continuedev_continue__core_tools_implementations_runTerminalCommand.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "kimlimjustin/xplorer",
+      "stars": 5675,
+      "language": "TypeScript",
+      "url": "https://github.com/kimlimjustin/xplorer",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "apps/client/src/components/panels/agent-manager/DiffReviewWorkflow.tsx",
+          "size": 11411,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\kimlimjustin_xplorer__apps_client_src_components_panels_agent-manager_DiffReviewWorkflow.tsx.txt"
+        },
+        {
+          "path": "apps/client/src/components/panels/agent-manager/UnifiedDiffReview.tsx",
+          "size": 19733,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\kimlimjustin_xplorer__apps_client_src_components_panels_agent-manager_UnifiedDiffReview.tsx.txt"
+        },
+        {
+          "path": "apps/client/src/components/panels/ChangeReviewPanel.tsx",
+          "size": 9104,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\kimlimjustin_xplorer__apps_client_src_components_panels_ChangeReviewPanel.tsx.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "cline/cline",
+      "stars": 69244,
+      "language": "TypeScript",
+      "url": "https://github.com/cline/cline",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "apps/cli/src/tui/components/inline-tool-response.tsx",
+          "size": 13470,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\cline_cline__apps_cli_src_tui_components_inline-tool-response.tsx.txt"
+        },
+        {
+          "path": "apps/cli/src/tui/utils/diff.ts",
+          "size": 2737,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\cline_cline__apps_cli_src_tui_utils_diff.ts.txt"
+        },
+        {
+          "path": "apps/cline-hub/src/webview/src/components/ai-elements/inline-citation.tsx",
+          "size": 6361,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\cline_cline__apps_cline-hub_src_webview_src_components_ai-elements_inline-citation.tsx.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "tirth8205/code-review-graph",
+      "stars": 31771,
+      "language": "Python",
+      "url": "https://github.com/tirth8205/code-review-graph",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "code_review_graph/changes.py",
+          "size": 39629,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\tirth8205_code-review-graph__code_review_graph_changes.py.txt"
+        },
+        {
+          "path": "code_review_graph/graph_diff.py",
+          "size": 3628,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\tirth8205_code-review-graph__code_review_graph_graph_diff.py.txt"
+        },
+        {
+          "path": "code-review-graph-vscode/src/features/scmDecorations.ts",
+          "size": 4982,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\tirth8205_code-review-graph__code-review-graph-vscode_src_features_scmDecorations.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "JetBrains/intellij-community",
+      "stars": 20588,
+      "language": "Java",
+      "url": "https://github.com/JetBrains/intellij-community",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "java/java-impl-refactorings/src/com/intellij/refactoring/changeClassSignature/ChangeClassSigntaureViewDescriptor.java",
+          "size": 1385,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\JetBrains_intellij-community__java_java-impl-refactorings_src_com_intellij_refactoring_changeClassSignature_ChangeClassSigntaureViewDescriptor.java.txt"
+        },
+        {
+          "path": "java/java-impl-refactorings/src/com/intellij/refactoring/changeSignature/ChangeSignatureViewDescriptor.java",
+          "size": 1421,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\JetBrains_intellij-community__java_java-impl-refactorings_src_com_intellij_refactoring_changeSignature_ChangeSignatureViewDescriptor.java.txt"
+        },
+        {
+          "path": "java/java-impl-refactorings/src/com/intellij/refactoring/extractMethod/preview/PreviewDiffPanel.java",
+          "size": 23556,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\JetBrains_intellij-community__java_java-impl-refactorings_src_com_intellij_refactoring_extractMethod_preview_PreviewDiffPanel.java.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "meltylabs/melty",
+      "stars": 5443,
+      "language": "TypeScript",
+      "url": "https://github.com/meltylabs/melty",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/vs/base/common/diff/diffChange.ts",
+          "size": 1795,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\meltylabs_melty__src_vs_base_common_diff_diffChange.ts.txt"
+        },
+        {
+          "path": "src/vs/editor/browser/widget/diffEditor/components/diffEditorDecorations.ts",
+          "size": 6750,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\meltylabs_melty__src_vs_editor_browser_widget_diffEditor_components_diffEditorDecorations.ts.txt"
+        },
+        {
+          "path": "src/vs/editor/browser/widget/diffEditor/components/diffEditorViewZones/inlineDiffDeletedCodeMargin.ts",
+          "size": 7469,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\meltylabs_melty__src_vs_editor_browser_widget_diffEditor_components_diffEditorViewZones_inlineDiffDeletedCodeMargin.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "visualfc/liteide",
+      "stars": 7765,
+      "language": "C++",
+      "url": "https://github.com/visualfc/liteide",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "liteidex/src/3rdparty/diff_match_patch/diff_match_patch_test.cpp",
+          "size": 52876,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\visualfc_liteide__liteidex_src_3rdparty_diff_match_patch_diff_match_patch_test.cpp.txt"
+        },
+        {
+          "path": "liteidex/src/3rdparty/diff_match_patch/diff_match_patch_test.h",
+          "size": 3378,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\visualfc_liteide__liteidex_src_3rdparty_diff_match_patch_diff_match_patch_test.h.txt"
+        },
+        {
+          "path": "liteidex/src/3rdparty/diff_match_patch/diff_match_patch.cpp",
+          "size": 65607,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\visualfc_liteide__liteidex_src_3rdparty_diff_match_patch_diff_match_patch.cpp.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "geany/geany",
+      "stars": 3725,
+      "language": "C",
+      "url": "https://github.com/geany/geany",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "ctags/parsers/diff.c",
+          "size": 4767,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\geany_geany__ctags_parsers_diff.c.txt"
+        },
+        {
+          "path": "scintilla/src/ChangeHistory.h",
+          "size": 4256,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\geany_geany__scintilla_src_ChangeHistory.h.txt"
+        },
+        {
+          "path": "scintilla/src/Decoration.h",
+          "size": 2236,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\geany_geany__scintilla_src_Decoration.h.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "SeardnaSchmid/markdown-inline-editor-vscode",
+      "stars": 146,
+      "language": "JavaScript",
+      "url": "https://github.com/SeardnaSchmid/markdown-inline-editor-vscode",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "assets/mermaid/chunks/mermaid.esm.min/architectureDiagram-UL44E2DR.mjs",
+          "size": 152974,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\SeardnaSchmid_markdown-inline-editor-vscode__assets_mermaid_chunks_mermaid.esm.min_architectureDiagram-UL44E2DR.mjs.txt"
+        },
+        {
+          "path": "assets/mermaid/chunks/mermaid.esm.min/blockDiagram-7IZFK4PR.mjs",
+          "size": 71824,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\SeardnaSchmid_markdown-inline-editor-vscode__assets_mermaid_chunks_mermaid.esm.min_blockDiagram-7IZFK4PR.mjs.txt"
+        },
+        {
+          "path": "assets/mermaid/chunks/mermaid.esm.min/c4Diagram-Y2BXMSZH.mjs",
+          "size": 70310,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\SeardnaSchmid_markdown-inline-editor-vscode__assets_mermaid_chunks_mermaid.esm.min_c4Diagram-Y2BXMSZH.mjs.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "otakustay/react-diff-view",
+      "stars": 1015,
+      "language": "TypeScript",
+      "url": "https://github.com/otakustay/react-diff-view",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/Hunk/SplitHunk/SplitChange.tsx",
+          "size": 7656,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\otakustay_react-diff-view__src_Hunk_SplitHunk_SplitChange.tsx.txt"
+        },
+        {
+          "path": "src/Hunk/UnifiedHunk/UnifiedChange.tsx",
+          "size": 4517,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\otakustay_react-diff-view__src_Hunk_UnifiedHunk_UnifiedChange.tsx.txt"
+        },
+        {
+          "path": "src/utils/diff/insertHunk.ts",
+          "size": 6164,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\otakustay_react-diff-view__src_utils_diff_insertHunk.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "delibae/claude-prism",
+      "stars": 1784,
+      "language": "TypeScript",
+      "url": "https://github.com/delibae/claude-prism",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "apps/desktop/scripts/generate-previews.ts",
+          "size": 4192,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\delibae_claude-prism__apps_desktop_scripts_generate-previews.ts.txt"
+        },
+        {
+          "path": "apps/desktop/src/__tests__/stores/multi-tab-merge.test.ts",
+          "size": 18335,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\delibae_claude-prism__apps_desktop_src___tests___stores_multi-tab-merge.test.ts.txt"
+        },
+        {
+          "path": "apps/desktop/src/__tests__/stores/proposed-changes-store.test.ts",
+          "size": 3917,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\delibae_claude-prism__apps_desktop_src___tests___stores_proposed-changes-store.test.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "cruft/cruft",
+      "stars": 1587,
+      "language": "Python",
+      "url": "https://github.com/cruft/cruft",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "cruft/_commands/diff.py",
+          "size": 3599,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\cruft_cruft__cruft__commands_diff.py.txt"
+        },
+        {
+          "path": "cruft/_commands/utils/diff.py",
+          "size": 2773,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\cruft_cruft__cruft__commands_utils_diff.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "logseq/logseq",
+      "stars": 45049,
+      "language": "Clojure",
+      "url": "https://github.com/logseq/logseq",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": ".agents/skills/logseq-review-workflow-eval/scripts/compare_outputs.py",
+          "size": 7085,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\logseq_logseq__.agents_skills_logseq-review-workflow-eval_scripts_compare_outputs.py.txt"
+        },
+        {
+          "path": ".agents/skills/logseq-review-workflow-eval/scripts/setup_eval.py",
+          "size": 6074,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\logseq_logseq__.agents_skills_logseq-review-workflow-eval_scripts_setup_eval.py.txt"
+        },
+        {
+          "path": "ios/App/ShareViewController/ShareViewController.swift",
+          "size": 9549,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\logseq_logseq__ios_App_ShareViewController_ShareViewController.swift.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "leo-editor/leo-editor",
+      "stars": 1609,
+      "language": "Python",
+      "url": "https://github.com/leo-editor/leo-editor",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "leo/modes/patch.py",
+          "size": 2453,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\leo-editor_leo-editor__leo_modes_patch.py.txt"
+        },
+        {
+          "path": "leo/plugins/markup_inline.py",
+          "size": 2218,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\leo-editor_leo-editor__leo_plugins_markup_inline.py.txt"
+        },
+        {
+          "path": "leo/plugins/nodediff.py",
+          "size": 12257,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\leo-editor_leo-editor__leo_plugins_nodediff.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "ace-diff/ace-diff",
+      "stars": 364,
+      "language": "TypeScript",
+      "url": "https://github.com/ace-diff/ace-diff",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/AceDiff.ts",
+          "size": 31572,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ace-diff_ace-diff__src_AceDiff.ts.txt"
+        },
+        {
+          "path": "cypress/e2e/diff-granularity.cy.js",
+          "size": 2418,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ace-diff_ace-diff__cypress_e2e_diff-granularity.cy.js.txt"
+        },
+        {
+          "path": "cypress/e2e/on-diff-ready.cy.js",
+          "size": 2076,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ace-diff_ace-diff__cypress_e2e_on-diff-ready.cy.js.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "josdejong/jsoneditor",
+      "stars": 12267,
+      "language": "JavaScript",
+      "url": "https://github.com/josdejong/jsoneditor",
+      "dimensions": [
+        "inline-diff"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/js/previewmode.js",
+          "size": 18162,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\josdejong_jsoneditor__src_js_previewmode.js.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "promptfoo/promptfoo",
+      "stars": 25424,
+      "language": "TypeScript",
+      "url": "https://github.com/promptfoo/promptfoo",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/commands/mcp/tools/runEvaluation.ts",
+          "size": 19480,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\promptfoo_promptfoo__src_commands_mcp_tools_runEvaluation.ts.txt"
+        },
+        {
+          "path": "examples/eval-function-tools-callback/promptfooconfig.js",
+          "size": 1359,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\promptfoo_promptfoo__examples_eval-function-tools-callback_promptfooconfig.js.txt"
+        },
+        {
+          "path": "src/app/src/pages/eval-creator/components/RunOptionsSection.tsx",
+          "size": 4466,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\promptfoo_promptfoo__src_app_src_pages_eval-creator_components_RunOptionsSection.tsx.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "microsoft/Trace",
+      "stars": 760,
+      "language": "Python",
+      "url": "https://github.com/microsoft/Trace",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "examples/bbh/run_prompt_bigbench_trace.py",
+          "size": 15622,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_Trace__examples_bbh_run_prompt_bigbench_trace.py.txt"
+        },
+        {
+          "path": "examples/bbh/run_prompt_bigbench_dspy.py",
+          "size": 6301,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_Trace__examples_bbh_run_prompt_bigbench_dspy.py.txt"
+        },
+        {
+          "path": "examples/textgrad_examples/evals/textgrad_prompt_optimization.py",
+          "size": 9411,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_Trace__examples_textgrad_examples_evals_textgrad_prompt_optimization.py.txt"
+        },
+        {
+          "path": "examples/textgrad_examples/evals/textgrad_solution_optimization.py",
+          "size": 11115,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_Trace__examples_textgrad_examples_evals_textgrad_solution_optimization.py.txt"
+        },
+        {
+          "path": "opto/trace/broadcast.py",
+          "size": 3626,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_Trace__opto_trace_broadcast.py.txt"
+        },
+        {
+          "path": "opto/trace/bundle.py",
+          "size": 32180,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_Trace__opto_trace_bundle.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "SigNoz/signoz",
+      "stars": 32188,
+      "language": "TypeScript",
+      "url": "https://github.com/SigNoz/signoz",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "frontend/src/pages/TraceDetailsV3/SpanHoverCard/EventTooltipContent.tsx",
+          "size": 1336,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\SigNoz_signoz__frontend_src_pages_TraceDetailsV3_SpanHoverCard_EventTooltipContent.tsx.txt"
+        },
+        {
+          "path": "frontend/src/container/AnomalyAlertEvaluationView/tooltipPlugin.ts",
+          "size": 4477,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\SigNoz_signoz__frontend_src_container_AnomalyAlertEvaluationView_tooltipPlugin.ts.txt"
+        },
+        {
+          "path": "frontend/src/container/LLMObservability/AttributeMapping/AttributeMappingsTab/components/MappingsTable/GroupHeader/ConditionsTooltip.tsx",
+          "size": 1610,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\SigNoz_signoz__frontend_src_container_LLMObservability_AttributeMapping_AttributeMappingsTab_components_MappingsTable_GroupHeader_ConditionsTooltip.tsx.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "langfuse/langfuse",
+      "stars": 35022,
+      "language": "TypeScript",
+      "url": "https://github.com/langfuse/langfuse",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "web/src/features/traces/components/ObservationMetadataBadgesTooltip.tsx",
+          "size": 1899,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\langfuse_langfuse__web_src_features_traces_components_ObservationMetadataBadgesTooltip.tsx.txt"
+        },
+        {
+          "path": "packages/shared/scripts/seeder/utils/framework-traces/merge-observations.ts",
+          "size": 1831,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\langfuse_langfuse__packages_shared_scripts_seeder_utils_framework-traces_merge-observations.ts.txt"
+        },
+        {
+          "path": "packages/shared/src/features/evals/experimentRuleNormalization.test.ts",
+          "size": 3109,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\langfuse_langfuse__packages_shared_src_features_evals_experimentRuleNormalization.test.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "AUTOMATIC1111/stable-diffusion-webui",
+      "stars": 165103,
+      "language": "Python",
+      "url": "https://github.com/AUTOMATIC1111/stable-diffusion-webui",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "modules/models/diffusion/ddpm_edit.py",
+          "size": 67976,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AUTOMATIC1111_stable-diffusion-webui__modules_models_diffusion_ddpm_edit.py.txt"
+        },
+        {
+          "path": "modules/models/diffusion/uni_pc/sampler.py",
+          "size": 3897,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AUTOMATIC1111_stable-diffusion-webui__modules_models_diffusion_uni_pc_sampler.py.txt"
+        },
+        {
+          "path": "modules/models/diffusion/uni_pc/uni_pc.py",
+          "size": 37903,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\AUTOMATIC1111_stable-diffusion-webui__modules_models_diffusion_uni_pc_uni_pc.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "CompVis/stable-diffusion",
+      "stars": 73475,
+      "language": "Jupyter Notebook",
+      "url": "https://github.com/CompVis/stable-diffusion",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "ldm/models/diffusion/classifier.py",
+          "size": 10276,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\CompVis_stable-diffusion__ldm_models_diffusion_classifier.py.txt"
+        },
+        {
+          "path": "ldm/models/diffusion/ddim.py",
+          "size": 12797,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\CompVis_stable-diffusion__ldm_models_diffusion_ddim.py.txt"
+        },
+        {
+          "path": "ldm/models/diffusion/ddpm.py",
+          "size": 67425,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\CompVis_stable-diffusion__ldm_models_diffusion_ddpm.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "Arize-ai/phoenix",
+      "stars": 11605,
+      "language": "Python",
+      "url": "https://github.com/Arize-ai/phoenix",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "evals/pxi/harness/run_experiment.py",
+          "size": 18333,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Arize-ai_phoenix__evals_pxi_harness_run_experiment.py.txt"
+        },
+        {
+          "path": "js/app/evals/aiQuery/experimentRunFilterCases.ts",
+          "size": 13250,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Arize-ai_phoenix__js_app_evals_aiQuery_experimentRunFilterCases.ts.txt"
+        },
+        {
+          "path": "js/app/evals/aiQuery/experimentRunFilterPrompt.eval.ts",
+          "size": 4008,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Arize-ai_phoenix__js_app_evals_aiQuery_experimentRunFilterPrompt.eval.ts.txt"
+        },
+        {
+          "path": "js/app/src/components/trace/SpanPreviewTooltip.tsx",
+          "size": 5586,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Arize-ai_phoenix__js_app_src_components_trace_SpanPreviewTooltip.tsx.txt"
+        },
+        {
+          "path": "js/app/src/pages/project/__generated__/SpanSelectionToolbarDeleteTracesMutation.graphql.ts",
+          "size": 2145,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Arize-ai_phoenix__js_app_src_pages_project___generated___SpanSelectionToolbarDeleteTracesMutation.graphql.ts.txt"
+        },
+        {
+          "path": "js/app/src/pages/trace/span/LLMToolSchemasList.tsx",
+          "size": 2114,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Arize-ai_phoenix__js_app_src_pages_trace_span_LLMToolSchemasList.tsx.txt"
+        },
+        {
+          "path": "js/app/src/pages/trace/span/ToolMetadata.tsx",
+          "size": 2924,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Arize-ai_phoenix__js_app_src_pages_trace_span_ToolMetadata.tsx.txt"
+        },
+        {
+          "path": "js/app/src/pages/trace/span/ToolSpanInfo.tsx",
+          "size": 1204,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Arize-ai_phoenix__js_app_src_pages_trace_span_ToolSpanInfo.tsx.txt"
+        },
+        {
+          "path": "js/packages/phoenix-client/examples/experiment_trace_evaluator.ts",
+          "size": 6751,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Arize-ai_phoenix__js_packages_phoenix-client_examples_experiment_trace_evaluator.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "Shubhamsaboo/awesome-llm-apps",
+      "stars": 139661,
+      "language": "Python",
+      "url": "https://github.com/Shubhamsaboo/awesome-llm-apps",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "agent_skills/evals/tools/run_trigger_evals.py",
+          "size": 5291,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Shubhamsaboo_awesome-llm-apps__agent_skills_evals_tools_run_trigger_evals.py.txt"
+        },
+        {
+          "path": "agent_skills/evals/tools/registry_lint.py",
+          "size": 10023,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Shubhamsaboo_awesome-llm-apps__agent_skills_evals_tools_registry_lint.py.txt"
+        },
+        {
+          "path": "agent_skills/evals/tools/skill_lint.py",
+          "size": 15926,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Shubhamsaboo_awesome-llm-apps__agent_skills_evals_tools_skill_lint.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "chaitanyagiri/munder-difflin",
+      "stars": 7919,
+      "language": "TypeScript",
+      "url": "https://github.com/chaitanyagiri/munder-difflin",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/renderer/src/components/ThreadsPanel.tsx",
+          "size": 8399,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\chaitanyagiri_munder-difflin__src_renderer_src_components_ThreadsPanel.tsx.txt"
+        },
+        {
+          "path": "src/renderer/src/components/ToolWaterfall.tsx",
+          "size": 4446,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\chaitanyagiri_munder-difflin__src_renderer_src_components_ToolWaterfall.tsx.txt"
+        },
+        {
+          "path": "src/renderer/src/ide/MonacoDiff.tsx",
+          "size": 1284,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\chaitanyagiri_munder-difflin__src_renderer_src_ide_MonacoDiff.tsx.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "mlflow/mlflow",
+      "stars": 28127,
+      "language": "Python",
+      "url": "https://github.com/mlflow/mlflow",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "mlflow/server/js/src/experiment-tracking/components/evaluation-artifacts-compare/components/EvaluationCreatePromptRunOutput.tsx",
+          "size": 5596,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\mlflow_mlflow__mlflow_server_js_src_experiment-tracking_components_evaluation-artifacts-compare_components_EvaluationCreatePromptRunOutput.tsx.txt"
+        },
+        {
+          "path": "mlflow/server/js/src/experiment-tracking/components/evaluation-artifacts-compare/components/EvaluationCreateRunPromptTemplateErrors.tsx",
+          "size": 1417,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\mlflow_mlflow__mlflow_server_js_src_experiment-tracking_components_evaluation-artifacts-compare_components_EvaluationCreateRunPromptTemplateErrors.tsx.txt"
+        },
+        {
+          "path": "mlflow/server/js/src/experiment-tracking/components/evaluation-artifacts-compare/components/EvaluationRunHeaderCellRenderer.tsx",
+          "size": 7096,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\mlflow_mlflow__mlflow_server_js_src_experiment-tracking_components_evaluation-artifacts-compare_components_EvaluationRunHeaderCellRenderer.tsx.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "iovisor/bcc",
+      "stars": 22674,
+      "language": "C",
+      "url": "https://github.com/iovisor/bcc",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "libbpf-tools/runqlat.bpf.c",
+          "size": 4088,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\iovisor_bcc__libbpf-tools_runqlat.bpf.c.txt"
+        },
+        {
+          "path": "libbpf-tools/runqlat.c",
+          "size": 7064,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\iovisor_bcc__libbpf-tools_runqlat.c.txt"
+        },
+        {
+          "path": "libbpf-tools/runqlen.bpf.c",
+          "size": 1324,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\iovisor_bcc__libbpf-tools_runqlen.bpf.c.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "langchain-ai/langchainjs",
+      "stars": 18226,
+      "language": "TypeScript",
+      "url": "https://github.com/langchain-ai/langchainjs",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "libs/langchain-classic/src/agents/toolkits/conversational_retrieval/openai_functions.ts",
+          "size": 2232,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\langchain-ai_langchainjs__libs_langchain-classic_src_agents_toolkits_conversational_retrieval_openai_functions.ts.txt"
+        },
+        {
+          "path": "libs/langchain-classic/src/agents/toolkits/conversational_retrieval/token_buffer_memory.ts",
+          "size": 4290,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\langchain-ai_langchainjs__libs_langchain-classic_src_agents_toolkits_conversational_retrieval_token_buffer_memory.ts.txt"
+        },
+        {
+          "path": "examples/src/createAgent/accessExternalContextInTools.ts",
+          "size": 7707,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\langchain-ai_langchainjs__examples_src_createAgent_accessExternalContextInTools.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "run-llama/ParseBench",
+      "stars": 592,
+      "language": "Python",
+      "url": "https://github.com/run-llama/ParseBench",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/parse_bench/evaluation/metrics/field_grounding/value_compare.py",
+          "size": 6448,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\run-llama_ParseBench__src_parse_bench_evaluation_metrics_field_grounding_value_compare.py.txt"
+        },
+        {
+          "path": "src/parse_bench/evaluation/metrics/parse/emphasis_spans.py",
+          "size": 9756,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\run-llama_ParseBench__src_parse_bench_evaluation_metrics_parse_emphasis_spans.py.txt"
+        },
+        {
+          "path": "src/parse_bench/evaluation/runner.py",
+          "size": 87193,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\run-llama_ParseBench__src_parse_bench_evaluation_runner.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "traceloop/openllmetry",
+      "stars": 7447,
+      "language": "Python",
+      "url": "https://github.com/traceloop/openllmetry",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "packages/sample-app/sample_app/experiment/made_by_traceloop/agent_tool_trajectory.py",
+          "size": 2752,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\traceloop_openllmetry__packages_sample-app_sample_app_experiment_made_by_traceloop_agent_tool_trajectory.py.txt"
+        },
+        {
+          "path": "packages/sample-app/sample_app/experiment/made_by_traceloop/agents_exp.py",
+          "size": 7168,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\traceloop_openllmetry__packages_sample-app_sample_app_experiment_made_by_traceloop_agents_exp.py.txt"
+        },
+        {
+          "path": "packages/sample-app/sample_app/experiment/made_by_traceloop/compliance_exp.py",
+          "size": 3299,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\traceloop_openllmetry__packages_sample-app_sample_app_experiment_made_by_traceloop_compliance_exp.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "linshenkx/prompt-optimizer",
+      "stars": 35627,
+      "language": "TypeScript",
+      "url": "https://github.com/linshenkx/prompt-optimizer",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "packages/core/src/services/template/default-templates/evaluation-structured-compare/runtime-copy.ts",
+          "size": 15925,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\linshenkx_prompt-optimizer__packages_core_src_services_template_default-templates_evaluation-structured-compare_runtime-copy.ts.txt"
+        },
+        {
+          "path": "packages/core/src/services/evaluation/structured-compare-prompts.ts",
+          "size": 5798,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\linshenkx_prompt-optimizer__packages_core_src_services_evaluation_structured-compare-prompts.ts.txt"
+        },
+        {
+          "path": "packages/core/src/services/template/default-templates/evaluation-rewrite/runtime-copy.ts",
+          "size": 13307,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\linshenkx_prompt-optimizer__packages_core_src_services_template_default-templates_evaluation-rewrite_runtime-copy.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "promptslab/Promptify",
+      "stars": 4636,
+      "language": "Python",
+      "url": "https://github.com/promptslab/Promptify",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "promptify/eval/datasets.py",
+          "size": 2460,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\promptslab_Promptify__promptify_eval_datasets.py.txt"
+        },
+        {
+          "path": "promptify/eval/evaluator.py",
+          "size": 4303,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\promptslab_Promptify__promptify_eval_evaluator.py.txt"
+        },
+        {
+          "path": "promptify/eval/metrics.py",
+          "size": 2565,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\promptslab_Promptify__promptify_eval_metrics.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "openai/evals",
+      "stars": 19503,
+      "language": "Python",
+      "url": "https://github.com/openai/evals",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "evals/elsuite/bugged_tools/scripts/plot_experiments.py",
+          "size": 4023,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\openai_evals__evals_elsuite_bugged_tools_scripts_plot_experiments.py.txt"
+        },
+        {
+          "path": "evals/elsuite/hr_ml_agent_bench/scripts/run_experiments.py",
+          "size": 2540,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\openai_evals__evals_elsuite_hr_ml_agent_bench_scripts_run_experiments.py.txt"
+        },
+        {
+          "path": "evals/elsuite/bugged_tools/bugged_tools.py",
+          "size": 6752,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\openai_evals__evals_elsuite_bugged_tools_bugged_tools.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "comet-ml/opik",
+      "stars": 22225,
+      "language": "Python",
+      "url": "https://github.com/comet-ml/opik",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "apps/opik-frontend/src/v2/pages/CompareExperimentsPage/EvaluateExperimentTracesButton/EvaluateExperimentTracesButton.tsx",
+          "size": 1414,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\comet-ml_opik__apps_opik-frontend_src_v2_pages_CompareExperimentsPage_EvaluateExperimentTracesButton_EvaluateExperimentTracesButton.tsx.txt"
+        },
+        {
+          "path": "apps/opik-frontend/src/v2/pages/CompareExperimentsPage/EvaluateExperimentTracesButton/useEvaluateExperimentTraces.ts",
+          "size": 2585,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\comet-ml_opik__apps_opik-frontend_src_v2_pages_CompareExperimentsPage_EvaluateExperimentTracesButton_useEvaluateExperimentTraces.ts.txt"
+        },
+        {
+          "path": "apps/opik-backend/src/main/java/com/comet/opik/api/resources/v1/events/tools/GetTraceSpansTool.java",
+          "size": 2597,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\comet-ml_opik__apps_opik-backend_src_main_java_com_comet_opik_api_resources_v1_events_tools_GetTraceSpansTool.java.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "igerber/diff-diff",
+      "stars": 395,
+      "language": "Python",
+      "url": "https://github.com/igerber/diff-diff",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "tools/eval_core/compare.py",
+          "size": 15278,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\igerber_diff-diff__tools_eval_core_compare.py.txt"
+        },
+        {
+          "path": "tools/eval_core/runner.py",
+          "size": 14469,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\igerber_diff-diff__tools_eval_core_runner.py.txt"
+        },
+        {
+          "path": "tools/plan-review-eval/run_eval.py",
+          "size": 50154,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\igerber_diff-diff__tools_plan-review-eval_run_eval.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "qltysh/qlty",
+      "stars": 3164,
+      "language": "Rust",
+      "url": "https://github.com/qltysh/qlty",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "qlty-analysis/src/git/diff.rs",
+          "size": 13969,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\qltysh_qlty__qlty-analysis_src_git_diff.rs.txt"
+        },
+        {
+          "path": "qlty-analysis/src/workspace_entries/diff_source.rs",
+          "size": 1866,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\qltysh_qlty__qlty-analysis_src_workspace_entries_diff_source.rs.txt"
+        },
+        {
+          "path": "qlty-check/src/tool.rs",
+          "size": 38558,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\qltysh_qlty__qlty-check_src_tool.rs.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "latitude-dev/latitude-llm",
+      "stars": 4678,
+      "language": "TypeScript",
+      "url": "https://github.com/latitude-dev/latitude-llm",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "apps/web/src/routes/_authenticated/projects/$projectSlug/-components/trace-detail-drawer/tabs/spans-tab/span-detail/tool-definition-pills.tsx",
+          "size": 2248,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\latitude-dev_latitude-llm__apps_web_src_routes__authenticated_projects_projectSlug_-components_trace-detail-drawer_tabs_spans-tab_span-detail_tool-definition-pills.tsx.txt"
+        },
+        {
+          "path": "apps/web/src/routes/_authenticated/projects/$projectSlug/-components/trace-detail-drawer/tabs/spans-tab/span-detail/tool-execution-section.tsx",
+          "size": 3018,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\latitude-dev_latitude-llm__apps_web_src_routes__authenticated_projects_projectSlug_-components_trace-detail-drawer_tabs_spans-tab_span-detail_tool-execution-section.tsx.txt"
+        },
+        {
+          "path": "apps/web/src/domains/spans/select-traces-for-loaded-conversation.test.ts",
+          "size": 2829,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\latitude-dev_latitude-llm__apps_web_src_domains_spans_select-traces-for-loaded-conversation.test.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "Jwuthri/Tracely-ai",
+      "stars": 1361,
+      "language": "Python",
+      "url": "https://github.com/Jwuthri/Tracely-ai",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "backend/migrations/versions/0007_evaluators.py",
+          "size": 1582,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Jwuthri_Tracely-ai__backend_migrations_versions_0007_evaluators.py.txt"
+        },
+        {
+          "path": "backend/migrations/versions/0012_advisory_evaluator_flag.py",
+          "size": 1267,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Jwuthri_Tracely-ai__backend_migrations_versions_0012_advisory_evaluator_flag.py.txt"
+        },
+        {
+          "path": "backend/migrations/versions/0016_json_evaluator_verdicts.py",
+          "size": 5062,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Jwuthri_Tracely-ai__backend_migrations_versions_0016_json_evaluator_verdicts.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "promptslab/Awesome-Prompt-Engineering",
+      "stars": 6339,
+      "language": "TypeScript",
+      "url": "https://github.com/promptslab/Awesome-Prompt-Engineering",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "website/src/app/tools/ToolsClient.tsx",
+          "size": 1454,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\promptslab_Awesome-Prompt-Engineering__website_src_app_tools_ToolsClient.tsx.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "microsoft/PromptWizard",
+      "stars": 4013,
+      "language": "Python",
+      "url": "https://github.com/microsoft/PromptWizard",
+      "dimensions": [
+        "trace-compare"
+      ],
+      "cachedFiles": [
+        {
+          "path": "promptwizard/glue/common/utils/runtime_tasks.py",
+          "size": 2748,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\microsoft_PromptWizard__promptwizard_glue_common_utils_runtime_tasks.py.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "ollama/ollama",
+      "stars": 181641,
+      "language": "Go",
+      "url": "https://github.com/ollama/ollama",
+      "dimensions": [
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "create/blockfp8_test.go",
+          "size": 7665,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ollama_ollama__create_blockfp8_test.go.txt"
+        },
+        {
+          "path": "create/blockfp8.go",
+          "size": 6150,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ollama_ollama__create_blockfp8.go.txt"
+        },
+        {
+          "path": "mlxrunner/cache/rotating_multiturn_test.go",
+          "size": 9561,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ollama_ollama__mlxrunner_cache_rotating_multiturn_test.go.txt"
+        },
+        {
+          "path": "mlxrunner/model/qwen4_exp/blocks.go",
+          "size": 8168,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\ollama_ollama__mlxrunner_model_qwen4_exp_blocks.go.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "curvenote/editor",
+      "stars": 331,
+      "language": "TypeScript",
+      "url": "https://github.com/curvenote/editor",
+      "dimensions": [
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "packages/editor/src/components/InlineActions/LinkBlockActions.tsx",
+          "size": 4228,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\curvenote_editor__packages_editor_src_components_InlineActions_LinkBlockActions.tsx.txt"
+        },
+        {
+          "path": "packages/editor/src/views/CodeBlockView.tsx",
+          "size": 9114,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\curvenote_editor__packages_editor_src_views_CodeBlockView.tsx.txt"
+        },
+        {
+          "path": "packages/prosemirror-utils/src/selection.ts",
+          "size": 6576,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\curvenote_editor__packages_prosemirror-utils_src_selection.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "Comcast/react-data-grid",
+      "stars": 7688,
+      "language": "TypeScript",
+      "url": "https://github.com/Comcast/react-data-grid",
+      "dimensions": [
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/Columns.tsx",
+          "size": 2053,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Comcast_react-data-grid__src_Columns.tsx.txt"
+        },
+        {
+          "path": "src/GroupedColumnHeaderCell.tsx",
+          "size": 1516,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Comcast_react-data-grid__src_GroupedColumnHeaderCell.tsx.txt"
+        },
+        {
+          "path": "src/GroupedColumnHeaderRow.tsx",
+          "size": 1676,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\Comcast_react-data-grid__src_GroupedColumnHeaderRow.tsx.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "codex-team/editor.js",
+      "stars": 31962,
+      "language": "TypeScript",
+      "url": "https://github.com/codex-team/editor.js",
+      "dimensions": [
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/components/modules/blockSelection.ts",
+          "size": 11485,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\codex-team_editor.js__src_components_modules_blockSelection.ts.txt"
+        },
+        {
+          "path": "src/components/modules/crossBlockSelection.ts",
+          "size": 7268,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\codex-team_editor.js__src_components_modules_crossBlockSelection.ts.txt"
+        },
+        {
+          "path": "src/components/block-tunes/block-tune-move-down.ts",
+          "size": 2063,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\codex-team_editor.js__src_components_block-tunes_block-tune-move-down.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "toeverything/blocksuite",
+      "stars": 6023,
+      "language": "TypeScript",
+      "url": "https://github.com/toeverything/blocksuite",
+      "dimensions": [
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "packages/affine/blocks/database/src/selection.ts",
+          "size": 1626,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\toeverything_blocksuite__packages_affine_blocks_database_src_selection.ts.txt"
+        },
+        {
+          "path": "packages/affine/blocks/root/src/edgeless/utils/cursors.ts",
+          "size": 2088,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\toeverything_blocksuite__packages_affine_blocks_root_src_edgeless_utils_cursors.ts.txt"
+        },
+        {
+          "path": "packages/affine/blocks/table/src/selection-controller.ts",
+          "size": 17272,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\toeverything_blocksuite__packages_affine_blocks_table_src_selection-controller.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "fastmail/Squire",
+      "stars": 4913,
+      "language": "TypeScript",
+      "url": "https://github.com/fastmail/Squire",
+      "dimensions": [
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "source/range/Block.ts",
+          "size": 5633,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\fastmail_Squire__source_range_Block.ts.txt"
+        },
+        {
+          "path": "source/range/Boundaries.ts",
+          "size": 5896,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\fastmail_Squire__source_range_Boundaries.ts.txt"
+        },
+        {
+          "path": "source/range/Contents.ts",
+          "size": 1859,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\fastmail_Squire__source_range_Contents.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "yabwe/medium-editor",
+      "stars": 16100,
+      "language": "JavaScript",
+      "url": "https://github.com/yabwe/medium-editor",
+      "dimensions": [
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/js/selection.js",
+          "size": 29664,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\yabwe_medium-editor__src_js_selection.js.txt"
+        },
+        {
+          "path": "spec/selection.spec.js",
+          "size": 28959,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\yabwe_medium-editor__spec_selection.spec.js.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "mawww/kakoune",
+      "stars": 11069,
+      "language": "C++",
+      "url": "https://github.com/mawww/kakoune",
+      "dimensions": [
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/ranges.cc",
+          "size": 1551,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\mawww_kakoune__src_ranges.cc.txt"
+        },
+        {
+          "path": "src/selection.cc",
+          "size": 19325,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\mawww_kakoune__src_selection.cc.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "jasonkneen/openclicky",
+      "stars": 532,
+      "language": "Swift",
+      "url": "https://github.com/jasonkneen/openclicky",
+      "dimensions": [
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "cursor-buddy/AppBundleConfiguration.swift",
+          "size": 26413,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jasonkneen_openclicky__cursor-buddy_AppBundleConfiguration.swift.txt"
+        },
+        {
+          "path": "cursor-buddy/AppleFoundationModelsVoiceClient.swift",
+          "size": 3083,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jasonkneen_openclicky__cursor-buddy_AppleFoundationModelsVoiceClient.swift.txt"
+        },
+        {
+          "path": "cursor-buddy/AppleSpeechTranscriptionProvider.swift",
+          "size": 4942,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\jasonkneen_openclicky__cursor-buddy_AppleSpeechTranscriptionProvider.swift.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "obgnail/typora_plugin",
+      "stars": 4635,
+      "language": "JavaScript",
+      "url": "https://github.com/obgnail/typora_plugin",
+      "dimensions": [
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "plugin/cursor_history.js",
+          "size": 2508,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\obgnail_typora_plugin__plugin_cursor_history.js.txt"
+        },
+        {
+          "path": "plugin/search_multi/highlighter.js",
+          "size": 8129,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\obgnail_typora_plugin__plugin_search_multi_highlighter.js.txt"
+        },
+        {
+          "path": "plugin/search_multi/index.js",
+          "size": 14964,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\obgnail_typora_plugin__plugin_search_multi_index.js.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "klange/toaruos",
+      "stars": 6844,
+      "language": "C",
+      "url": "https://github.com/klange/toaruos",
+      "dimensions": [
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "base/usr/include/kernel/multiboot.h",
+          "size": 2224,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\klange_toaruos__base_usr_include_kernel_multiboot.h.txt"
+        },
+        {
+          "path": "boot/multiboot.c",
+          "size": 17132,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\klange_toaruos__boot_multiboot.c.txt"
+        },
+        {
+          "path": "boot/multiboot.h",
+          "size": 2400,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\klange_toaruos__boot_multiboot.h.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "KDE/kate",
+      "stars": 1128,
+      "language": "C++",
+      "url": "https://github.com/KDE/kate",
+      "dimensions": [
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "3rdparty/rapidjson/cursorstreamwrapper.h",
+          "size": 2260,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\KDE_kate__3rdparty_rapidjson_cursorstreamwrapper.h.txt"
+        },
+        {
+          "path": "addons/format/CursorPositionRestorer.h",
+          "size": 3445,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\KDE_kate__addons_format_CursorPositionRestorer.h.txt"
+        },
+        {
+          "path": "addons/katesql/dataoutput/columndelegates/booleandelegate.cpp",
+          "size": 4114,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\KDE_kate__addons_katesql_dataoutput_columndelegates_booleandelegate.cpp.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "martinrotter/textosaurus",
+      "stars": 302,
+      "language": "C++",
+      "url": "https://github.com/martinrotter/textosaurus",
+      "dimensions": [
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "src/libtextosaurus/3rd-party/scintilla-lt/src/Selection.h",
+          "size": 6350,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\martinrotter_textosaurus__src_libtextosaurus_3rd-party_scintilla-lt_src_Selection.h.txt"
+        },
+        {
+          "path": "src/libtextosaurus/3rd-party/scintilla/src/Selection.h",
+          "size": 6458,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\martinrotter_textosaurus__src_libtextosaurus_3rd-party_scintilla_src_Selection.h.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "eyaltoledano/claude-task-master",
+      "stars": 28086,
+      "language": "JavaScript",
+      "url": "https://github.com/eyaltoledano/claude-task-master",
+      "dimensions": [
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "apps/cli/src/utils/brief-selection.ts",
+          "size": 7933,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\eyaltoledano_claude-task-master__apps_cli_src_utils_brief-selection.ts.txt"
+        },
+        {
+          "path": "apps/cli/src/utils/org-selection.ts",
+          "size": 4480,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\eyaltoledano_claude-task-master__apps_cli_src_utils_org-selection.ts.txt"
+        },
+        {
+          "path": "packages/tm-profiles/src/slash-commands/profiles/cursor-profile.spec.ts",
+          "size": 8557,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\eyaltoledano_claude-task-master__packages_tm-profiles_src_slash-commands_profiles_cursor-profile.spec.ts.txt"
+        }
+      ]
+    },
+    {
+      "fullName": "RaspberryPiFoundation/blockly",
+      "stars": 13570,
+      "language": "TypeScript",
+      "url": "https://github.com/RaspberryPiFoundation/blockly",
+      "dimensions": [
+        "multi-cursor"
+      ],
+      "cachedFiles": [
+        {
+          "path": "packages/plugins/field-multilineinput/src/blocks/textMultiline.ts",
+          "size": 5300,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\RaspberryPiFoundation_blockly__packages_plugins_field-multilineinput_src_blocks_textMultiline.ts.txt"
+        },
+        {
+          "path": "packages/blockly/appengine/add_timestamps.py",
+          "size": 2039,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\RaspberryPiFoundation_blockly__packages_blockly_appengine_add_timestamps.py.txt"
+        },
+        {
+          "path": "packages/blockly/appengine/expiration.py",
+          "size": 1417,
+          "cachePath": "_audit\\research-editor-followup-features-2026-09-25\\cache\\RaspberryPiFoundation_blockly__packages_blockly_appengine_expiration.py.txt"
+        }
+      ]
+    }
+  ],
+  "failures": 0
+}

@@ -1,0 +1,71 @@
+{
+  "dimension": "routing",
+  "round": 14,
+  "query": "semantic routing embedding classifier",
+  "repositories": [
+    {
+      "fullName": "bharathgs/Awesome-pytorch-list",
+      "stars": 16679,
+      "language": null,
+      "defaultBranch": "master",
+      "url": "https://github.com/bharathgs/Awesome-pytorch-list",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "hindupuravinash/the-gan-zoo",
+      "stars": 14691,
+      "language": "Python",
+      "defaultBranch": "master",
+      "url": "https://github.com/hindupuravinash/the-gan-zoo",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "yizhiyanhua-ai/fireworks-tech-graph",
+      "stars": 11535,
+      "language": "Python",
+      "defaultBranch": "main",
+      "url": "https://github.com/yizhiyanhua-ai/fireworks-tech-graph",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "satellite-image-deep-learning/techniques",
+      "stars": 10269,
+      "language": null,
+      "defaultBranch": "master",
+      "url": "https://github.com/satellite-image-deep-learning/techniques",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "xialeiliu/Awesome-Incremental-Learning",
+      "stars": 4528,
+      "language": null,
+      "defaultBranch": "master",
+      "url": "https://github.com/xialeiliu/Awesome-Incremental-Learning",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "bragai/bRAG-langchain",
+      "stars": 4167,
+      "language": "Jupyter Notebook",
+      "defaultBranch": "main",
+      "url": "https://github.com/bragai/bRAG-langchain",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "maziarraissi/Applied-Deep-Learning",
+      "stars": 3566,
+      "language": null,
+      "defaultBranch": "main",
+      "url": "https://github.com/maziarraissi/Applied-Deep-Learning",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "lucidrains/audiolm-pytorch",
+      "stars": 2624,
+      "language": "Python",
+      "defaultBranch": "main",
+      "url": "https://github.com/lucidrains/audiolm-pytorch",
+      "cachedFiles": []
+    }
+  ]
+}

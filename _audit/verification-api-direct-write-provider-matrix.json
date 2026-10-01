@@ -1,0 +1,57 @@
+{
+  "generatedAt": "2026-09-26T07:41:57.776Z",
+  "layers": {
+    "protocolSimulation": {
+      "status": "pass",
+      "testFiles": [
+        "src/services/providerTools.spec.ts",
+        "src/services/aiService.spec.ts"
+      ],
+      "passedTests": 134
+    },
+    "live": {
+      "openai-compatible": "pass",
+      "deepseek": "pass",
+      "anthropic": "untested",
+      "gemini": "untested",
+      "azure-openai": "untested"
+    }
+  },
+  "providers": {
+    "openai-compatible": {
+      "protocolSimulation": "pass",
+      "live": {
+        "status": "pass",
+        "toolCallCount": 1
+      }
+    },
+    "deepseek": {
+      "protocolSimulation": "pass",
+      "live": {
+        "status": "pass",
+        "toolCallCount": 1
+      }
+    },
+    "anthropic": {
+      "protocolSimulation": "pass",
+      "live": {
+        "status": "untested",
+        "reason": "provider-specific live probe not implemented in this phase"
+      }
+    },
+    "gemini": {
+      "protocolSimulation": "pass",
+      "live": {
+        "status": "untested",
+        "reason": "provider-specific live probe not implemented in this phase"
+      }
+    },
+    "azure-openai": {
+      "protocolSimulation": "pass",
+      "live": {
+        "status": "untested",
+        "reason": "provider-specific live probe not implemented in this phase"
+      }
+    }
+  }
+}

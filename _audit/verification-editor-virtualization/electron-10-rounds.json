@@ -1,0 +1,100 @@
+{
+  "schema": "shenyi.editor-virtualization.electron",
+  "version": 1,
+  "documentChars": 8984,
+  "documentRequirement": ">=5000",
+  "rounds": [
+    {
+      "round": 1,
+      "documentChars": 8984,
+      "renderedHighlights": 37,
+      "activeHighlights": 1,
+      "scrollTop": 292,
+      "activeHighlightTop": 89.7812,
+      "contentUnchanged": true
+    },
+    {
+      "round": 2,
+      "documentChars": 8984,
+      "renderedHighlights": 37,
+      "activeHighlights": 1,
+      "scrollTop": 584,
+      "activeHighlightTop": 2930.78,
+      "contentUnchanged": true
+    },
+    {
+      "round": 3,
+      "documentChars": 8984,
+      "renderedHighlights": 38,
+      "activeHighlights": 1,
+      "scrollTop": 876,
+      "activeHighlightTop": 4972.75,
+      "contentUnchanged": true
+    },
+    {
+      "round": 4,
+      "documentChars": 8984,
+      "renderedHighlights": 37,
+      "activeHighlights": 1,
+      "scrollTop": 1168,
+      "activeHighlightTop": 7014.72,
+      "contentUnchanged": true
+    },
+    {
+      "round": 5,
+      "documentChars": 8984,
+      "renderedHighlights": 38,
+      "activeHighlights": 1,
+      "scrollTop": 1460,
+      "activeHighlightTop": 9056.69,
+      "contentUnchanged": true
+    },
+    {
+      "round": 6,
+      "documentChars": 8984,
+      "renderedHighlights": 37,
+      "activeHighlights": 1,
+      "scrollTop": 1752,
+      "activeHighlightTop": 888.812,
+      "contentUnchanged": true
+    },
+    {
+      "round": 7,
+      "documentChars": 8984,
+      "renderedHighlights": 38,
+      "activeHighlights": 1,
+      "scrollTop": 2044,
+      "activeHighlightTop": 2930.78,
+      "contentUnchanged": true
+    },
+    {
+      "round": 8,
+      "documentChars": 8984,
+      "renderedHighlights": 36,
+      "activeHighlights": 1,
+      "scrollTop": 2336,
+      "activeHighlightTop": 4972.75,
+      "contentUnchanged": true
+    },
+    {
+      "round": 9,
+      "documentChars": 8984,
+      "renderedHighlights": 38,
+      "activeHighlights": 1,
+      "scrollTop": 2628,
+      "activeHighlightTop": 7014.72,
+      "contentUnchanged": true
+    },
+    {
+      "round": 10,
+      "documentChars": 8984,
+      "renderedHighlights": 37,
+      "activeHighlights": 1,
+      "scrollTop": 2920,
+      "activeHighlightTop": 9056.69,
+      "contentUnchanged": true
+    }
+  ],
+  "assertions": "10 rounds: scroll-triggered repainting, windowed highlight rendering, active-match retention, unchanged content, no page errors",
+  "generatedAt": "2026-09-25T02:10:44.781Z"
+}

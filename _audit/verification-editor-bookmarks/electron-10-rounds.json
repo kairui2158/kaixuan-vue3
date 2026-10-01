@@ -1,0 +1,190 @@
+{
+  "schema": "shenyi.editor-bookmarks.electron",
+  "version": 1,
+  "documentChars": 11244,
+  "documentRequirement": ">=5000",
+  "rounds": [
+    {
+      "round": 1,
+      "documentChars": 11244,
+      "bookmarkOffset": 2710,
+      "tabSwitchVerified": true,
+      "jumpVerified": true,
+      "hashRefreshVerified": true,
+      "outOfRangeDropped": true,
+      "deleteSynced": true
+    },
+    {
+      "round": 2,
+      "documentChars": 11244,
+      "bookmarkOffset": 4959,
+      "tabSwitchVerified": true,
+      "jumpVerified": true,
+      "hashRefreshVerified": true,
+      "outOfRangeDropped": true,
+      "deleteSynced": true
+    },
+    {
+      "round": 3,
+      "documentChars": 11244,
+      "bookmarkOffset": 7208,
+      "tabSwitchVerified": true,
+      "jumpVerified": true,
+      "hashRefreshVerified": true,
+      "outOfRangeDropped": true,
+      "deleteSynced": true
+    },
+    {
+      "round": 4,
+      "documentChars": 11244,
+      "bookmarkOffset": 9457,
+      "tabSwitchVerified": true,
+      "jumpVerified": true,
+      "hashRefreshVerified": true,
+      "outOfRangeDropped": true,
+      "deleteSynced": true
+    },
+    {
+      "round": 5,
+      "documentChars": 11244,
+      "bookmarkOffset": 461,
+      "tabSwitchVerified": true,
+      "jumpVerified": true,
+      "hashRefreshVerified": true,
+      "outOfRangeDropped": true,
+      "deleteSynced": true
+    },
+    {
+      "round": 6,
+      "documentChars": 11244,
+      "bookmarkOffset": 2710,
+      "tabSwitchVerified": true,
+      "jumpVerified": true,
+      "hashRefreshVerified": true,
+      "outOfRangeDropped": true,
+      "deleteSynced": true
+    },
+    {
+      "round": 7,
+      "documentChars": 11244,
+      "bookmarkOffset": 4959,
+      "tabSwitchVerified": true,
+      "jumpVerified": true,
+      "hashRefreshVerified": true,
+      "outOfRangeDropped": true,
+      "deleteSynced": true
+    },
+    {
+      "round": 8,
+      "documentChars": 11244,
+      "bookmarkOffset": 7208,
+      "tabSwitchVerified": true,
+      "jumpVerified": true,
+      "hashRefreshVerified": true,
+      "outOfRangeDropped": true,
+      "deleteSynced": true
+    },
+    {
+      "round": 9,
+      "documentChars": 11244,
+      "bookmarkOffset": 9457,
+      "tabSwitchVerified": true,
+      "jumpVerified": true,
+      "hashRefreshVerified": true,
+      "outOfRangeDropped": true,
+      "deleteSynced": true
+    },
+    {
+      "round": 10,
+      "documentChars": 11244,
+      "bookmarkOffset": 461,
+      "tabSwitchVerified": true,
+      "jumpVerified": true,
+      "hashRefreshVerified": true,
+      "outOfRangeDropped": true,
+      "deleteSynced": true
+    },
+    {
+      "round": 1,
+      "type": "project-switch",
+      "projectSwitchIsolationVerified": true,
+      "tabsBefore": 2,
+      "bookmarksBefore": 1,
+      "undoTransactionsBefore": 2
+    },
+    {
+      "round": 2,
+      "type": "project-switch",
+      "projectSwitchIsolationVerified": true,
+      "tabsBefore": 2,
+      "bookmarksBefore": 1,
+      "undoTransactionsBefore": 2
+    },
+    {
+      "round": 3,
+      "type": "project-switch",
+      "projectSwitchIsolationVerified": true,
+      "tabsBefore": 2,
+      "bookmarksBefore": 1,
+      "undoTransactionsBefore": 2
+    },
+    {
+      "round": 4,
+      "type": "project-switch",
+      "projectSwitchIsolationVerified": true,
+      "tabsBefore": 2,
+      "bookmarksBefore": 1,
+      "undoTransactionsBefore": 2
+    },
+    {
+      "round": 5,
+      "type": "project-switch",
+      "projectSwitchIsolationVerified": true,
+      "tabsBefore": 2,
+      "bookmarksBefore": 1,
+      "undoTransactionsBefore": 2
+    },
+    {
+      "round": 6,
+      "type": "project-switch",
+      "projectSwitchIsolationVerified": true,
+      "tabsBefore": 2,
+      "bookmarksBefore": 1,
+      "undoTransactionsBefore": 2
+    },
+    {
+      "round": 7,
+      "type": "project-switch",
+      "projectSwitchIsolationVerified": true,
+      "tabsBefore": 2,
+      "bookmarksBefore": 1,
+      "undoTransactionsBefore": 2
+    },
+    {
+      "round": 8,
+      "type": "project-switch",
+      "projectSwitchIsolationVerified": true,
+      "tabsBefore": 2,
+      "bookmarksBefore": 1,
+      "undoTransactionsBefore": 2
+    },
+    {
+      "round": 9,
+      "type": "project-switch",
+      "projectSwitchIsolationVerified": true,
+      "tabsBefore": 2,
+      "bookmarksBefore": 1,
+      "undoTransactionsBefore": 2
+    },
+    {
+      "round": 10,
+      "type": "project-switch",
+      "projectSwitchIsolationVerified": true,
+      "tabsBefore": 2,
+      "bookmarksBefore": 1,
+      "undoTransactionsBefore": 2
+    }
+  ],
+  "assertions": "20 rounds: add/sync/tab-switch/jump/hash-refresh/out-of-range-drop/delete/no-page-error + project-switch isolation",
+  "generatedAt": "2026-09-24T18:38:37.426Z"
+}

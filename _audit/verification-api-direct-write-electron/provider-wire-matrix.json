@@ -1,0 +1,82 @@
+{
+  "schema": "shenyi.api-direct-write-provider-wire-electron-matrix",
+  "version": 1,
+  "generatedAt": "2026-09-24T22:16:01.382Z",
+  "layer": "mock",
+  "assertionContract": {
+    "authHeaders": true,
+    "nativeToolLoop": true,
+    "toolResultWire": true,
+    "textCompletion": true,
+    "traceUsage": true,
+    "traceFinishReason": true,
+    "traceToolCallId": true,
+    "outlineDirectWrite": true
+  },
+  "providers": [
+    {
+      "providerId": "wire-openai",
+      "providerType": "openai-compatible",
+      "layer": "mock",
+      "status": "pass",
+      "requestCount": 2,
+      "expectedHeader": "authorization",
+      "traceApiCallId": "api-1790288142259-8",
+      "finishReason": "stop",
+      "usage": {
+        "inputTokens": 112,
+        "outputTokens": 23,
+        "totalTokens": 135
+      },
+      "toolCallId": "wire-openai-tool-1"
+    },
+    {
+      "providerId": "wire-anthropic",
+      "providerType": "anthropic",
+      "layer": "mock",
+      "status": "pass",
+      "requestCount": 2,
+      "expectedHeader": "x-api-key",
+      "traceApiCallId": "api-1790288148352-8",
+      "finishReason": "stop",
+      "usage": {
+        "inputTokens": 223,
+        "outputTokens": 34,
+        "totalTokens": 257
+      },
+      "toolCallId": "toolu_provider_wire_1"
+    },
+    {
+      "providerId": "wire-gemini",
+      "providerType": "gemini",
+      "layer": "mock",
+      "status": "pass",
+      "requestCount": 2,
+      "expectedHeader": "x-goog-api-key",
+      "traceApiCallId": "api-1790288154155-8",
+      "finishReason": "stop",
+      "usage": {
+        "inputTokens": 334,
+        "outputTokens": 45,
+        "totalTokens": 379
+      },
+      "toolCallId": "editor.write"
+    },
+    {
+      "providerId": "wire-azure",
+      "providerType": "azure-openai",
+      "layer": "mock",
+      "status": "pass",
+      "requestCount": 2,
+      "expectedHeader": "api-key",
+      "traceApiCallId": "api-1790288160175-8",
+      "finishReason": "stop",
+      "usage": {
+        "inputTokens": 445,
+        "outputTokens": 56,
+        "totalTokens": 501
+      },
+      "toolCallId": "wire-azure-tool-1"
+    }
+  ]
+}

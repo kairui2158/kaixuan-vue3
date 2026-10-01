@@ -1,0 +1,188 @@
+{
+  "schema": "shenyi.run-trace-diff.electron",
+  "version": 1,
+  "rounds": [
+    {
+      "round": 1,
+      "runA": "run-1790310750223-1",
+      "runB": "run-1790310750238-15",
+      "sixTabs": [
+        "概览",
+        "API",
+        "提示词",
+        "输出",
+        "工具与处理",
+        "事件与状态"
+      ],
+      "templateVersionDiffRendered": true,
+      "toolSequenceDivergenceRendered": true,
+      "firstDifferentApiCallRendered": true,
+      "exportContainsFullRuns": true,
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-run-trace-diff\\exports\\run-trace-diff-20260925-123232.json"
+    },
+    {
+      "round": 2,
+      "runA": "run-1790310752489-29",
+      "runB": "run-1790310752516-43",
+      "sixTabs": [
+        "概览",
+        "API",
+        "提示词",
+        "输出",
+        "工具与处理",
+        "事件与状态"
+      ],
+      "templateVersionDiffRendered": true,
+      "toolSequenceDivergenceRendered": true,
+      "firstDifferentApiCallRendered": true,
+      "exportContainsFullRuns": true,
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-run-trace-diff\\exports\\run-trace-diff-20260925-123234.json"
+    },
+    {
+      "round": 3,
+      "runA": "run-1790310754911-57",
+      "runB": "run-1790310754931-71",
+      "sixTabs": [
+        "概览",
+        "API",
+        "提示词",
+        "输出",
+        "工具与处理",
+        "事件与状态"
+      ],
+      "templateVersionDiffRendered": true,
+      "toolSequenceDivergenceRendered": true,
+      "firstDifferentApiCallRendered": true,
+      "exportContainsFullRuns": true,
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-run-trace-diff\\exports\\run-trace-diff-20260925-123237.json"
+    },
+    {
+      "round": 4,
+      "runA": "run-1790310757467-85",
+      "runB": "run-1790310757481-99",
+      "sixTabs": [
+        "概览",
+        "API",
+        "提示词",
+        "输出",
+        "工具与处理",
+        "事件与状态"
+      ],
+      "templateVersionDiffRendered": true,
+      "toolSequenceDivergenceRendered": true,
+      "firstDifferentApiCallRendered": true,
+      "exportContainsFullRuns": true,
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-run-trace-diff\\exports\\run-trace-diff-20260925-123239.json"
+    },
+    {
+      "round": 5,
+      "runA": "run-1790310759713-113",
+      "runB": "run-1790310759727-127",
+      "sixTabs": [
+        "概览",
+        "API",
+        "提示词",
+        "输出",
+        "工具与处理",
+        "事件与状态"
+      ],
+      "templateVersionDiffRendered": true,
+      "toolSequenceDivergenceRendered": true,
+      "firstDifferentApiCallRendered": true,
+      "exportContainsFullRuns": true,
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-run-trace-diff\\exports\\run-trace-diff-20260925-123241.json"
+    },
+    {
+      "round": 6,
+      "runA": "run-1790310762176-141",
+      "runB": "run-1790310762186-155",
+      "sixTabs": [
+        "概览",
+        "API",
+        "提示词",
+        "输出",
+        "工具与处理",
+        "事件与状态"
+      ],
+      "templateVersionDiffRendered": true,
+      "toolSequenceDivergenceRendered": true,
+      "firstDifferentApiCallRendered": true,
+      "exportContainsFullRuns": true,
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-run-trace-diff\\exports\\run-trace-diff-20260925-123244.json"
+    },
+    {
+      "round": 7,
+      "runA": "run-1790310764586-169",
+      "runB": "run-1790310764621-183",
+      "sixTabs": [
+        "概览",
+        "API",
+        "提示词",
+        "输出",
+        "工具与处理",
+        "事件与状态"
+      ],
+      "templateVersionDiffRendered": true,
+      "toolSequenceDivergenceRendered": true,
+      "firstDifferentApiCallRendered": true,
+      "exportContainsFullRuns": true,
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-run-trace-diff\\exports\\run-trace-diff-20260925-123246.json"
+    },
+    {
+      "round": 8,
+      "runA": "run-1790310767296-197",
+      "runB": "run-1790310767319-211",
+      "sixTabs": [
+        "概览",
+        "API",
+        "提示词",
+        "输出",
+        "工具与处理",
+        "事件与状态"
+      ],
+      "templateVersionDiffRendered": true,
+      "toolSequenceDivergenceRendered": true,
+      "firstDifferentApiCallRendered": true,
+      "exportContainsFullRuns": true,
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-run-trace-diff\\exports\\run-trace-diff-20260925-123249.json"
+    },
+    {
+      "round": 9,
+      "runA": "run-1790310770009-225",
+      "runB": "run-1790310770018-239",
+      "sixTabs": [
+        "概览",
+        "API",
+        "提示词",
+        "输出",
+        "工具与处理",
+        "事件与状态"
+      ],
+      "templateVersionDiffRendered": true,
+      "toolSequenceDivergenceRendered": true,
+      "firstDifferentApiCallRendered": true,
+      "exportContainsFullRuns": true,
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-run-trace-diff\\exports\\run-trace-diff-20260925-123252.json"
+    },
+    {
+      "round": 10,
+      "runA": "run-1790310772210-253",
+      "runB": "run-1790310772230-267",
+      "sixTabs": [
+        "概览",
+        "API",
+        "提示词",
+        "输出",
+        "工具与处理",
+        "事件与状态"
+      ],
+      "templateVersionDiffRendered": true,
+      "toolSequenceDivergenceRendered": true,
+      "firstDifferentApiCallRendered": true,
+      "exportContainsFullRuns": true,
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-run-trace-diff\\exports\\run-trace-diff-20260925-123254.json"
+    }
+  ],
+  "assertions": "10 rounds: real RunTracePanel compare flow, six tabs, template version diff, tool sequence first divergence, first different API call, export JSON with both full runs, no overflow, no page errors",
+  "generatedAt": "2026-09-25T04:32:54.493Z"
+}

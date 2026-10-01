@@ -1,0 +1,169 @@
+{
+  "schema": "shenyi.intent-corpus-electron-verification",
+  "version": 1,
+  "generatedAt": "2026-09-22T05:06:16.114Z",
+  "scenarios": [
+    {
+      "scenario": "observed-routing",
+      "input": "我们现在来讨论一下钩子的问题",
+      "observed": {
+        "annotation": "observed",
+        "turnId": "turn-1790053560860-3",
+        "runId": "run-1790053560859-1",
+        "workspace": "home-editor",
+        "projectId": "intent-corpus-v2-project"
+      },
+      "verdict": "pass"
+    },
+    {
+      "scenario": "fallback-confirmation",
+      "input": "生成后讨论一下",
+      "observed": {
+        "sampleCount": 1,
+        "annotation": "confirmed",
+        "annotationBasis": "fallback-bubble-continue"
+      },
+      "verdict": "pass"
+    },
+    {
+      "scenario": "next-turn-inference",
+      "input": "生成后再讨论一下",
+      "nextTurnInput": "把开篇第一场改成倒叙结构",
+      "observed": {
+        "annotation": "inferred",
+        "relatedTurnId": "turn-1790053564333-102",
+        "expectedNextTurnId": "turn-1790053564333-102"
+      },
+      "verdict": "pass"
+    },
+    {
+      "scenario": "write-failure-fail-open",
+      "input": "这段设定的表达我再确认一下",
+      "observed": {
+        "turnStatus": "success",
+        "fallbackVisible": 0
+      },
+      "verdict": "pass"
+    },
+    {
+      "scenario": "project-package-export",
+      "observed": {
+        "schema": "shenyi.intent-corpus-package",
+        "scope": "project",
+        "sampleCount": 5,
+        "annotations": {
+          "observed": 3,
+          "confirmed": 1,
+          "inferred": 1
+        }
+      },
+      "verdict": "pass"
+    },
+    {
+      "scenario": "shadow-corpus-isolation",
+      "observed": {
+        "packageLeaks": 0,
+        "diskLeaks": 0,
+        "diskSampleCount": 5
+      },
+      "verdict": "pass"
+    },
+    {
+      "scenario": "manuscript-long-context-write-isolation",
+      "manuscriptVersion": "manuscript-v1-2026-09-22",
+      "manuscriptLength": 1142,
+      "routingContextVersion": "manuscript-v1-2026-09-22",
+      "requests": [
+        {
+          "scenario": "analyze",
+          "input": "审核这份大纲看看结构缺什么",
+          "expectedIntent": "analyze",
+          "observed": {
+            "beforeHash": "fnv1a-like-1141974289-1142",
+            "afterHash": "fnv1a-like-1141974289-1142",
+            "hashUnchanged": true,
+            "turnStatus": "success",
+            "turnIntent": "analyze",
+            "toolSurface": [],
+            "beforeLength": 1142,
+            "afterLength": 1142
+          }
+        },
+        {
+          "scenario": "discuss",
+          "input": "讨论一下沈萤脚踝旧伤这个钩子为什么这样设计",
+          "expectedIntent": "discuss",
+          "observed": {
+            "beforeHash": "fnv1a-like-1141974289-1142",
+            "afterHash": "fnv1a-like-1141974289-1142",
+            "hashUnchanged": true,
+            "turnStatus": "success",
+            "turnIntent": "discuss",
+            "toolSurface": [],
+            "beforeLength": 1142,
+            "afterLength": 1142
+          }
+        },
+        {
+          "scenario": "location",
+          "input": "这段潮汐档案设定应该放在第几段？请帮我定位",
+          "expectedIntent": "discuss",
+          "observed": {
+            "beforeHash": "fnv1a-like-1141974289-1142",
+            "afterHash": "fnv1a-like-1141974289-1142",
+            "hashUnchanged": true,
+            "turnStatus": "success",
+            "turnIntent": "discuss",
+            "toolSurface": [],
+            "beforeLength": 1142,
+            "afterLength": 1142
+          }
+        },
+        {
+          "scenario": "edit",
+          "input": "把开篇钩子改成倒叙结构，直接写入大纲",
+          "expectedIntent": "edit",
+          "observed": {
+            "beforeHash": "fnv1a-like-1141974289-1142",
+            "afterHash": "fnv1a-like-3535900984-1177",
+            "hashUnchanged": false,
+            "turnStatus": "success",
+            "turnIntent": "edit",
+            "toolSurface": [],
+            "beforeLength": 1142,
+            "afterLength": 1177
+          }
+        },
+        {
+          "scenario": "generate",
+          "input": "为第三卷生成一个新的情节链",
+          "expectedIntent": "generate",
+          "observed": {
+            "beforeHash": "fnv1a-like-3535900984-1177",
+            "afterHash": "fnv1a-like-2809871281-1212",
+            "hashUnchanged": false,
+            "turnStatus": "success",
+            "turnIntent": "generate",
+            "toolSurface": [],
+            "beforeLength": 1177,
+            "afterLength": 1212
+          }
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "scenario": "outline-plain-routing-fidelity",
+      "input": "这一段我想听你分析一下开篇节奏",
+      "nextInput": "我继续解释一下这个开篇设计",
+      "observed": {
+        "firstAnnotation": "observed",
+        "nextAnnotation": "observed",
+        "firstReason": "contextual-discussion",
+        "nextReason": "reference-request"
+      },
+      "verdict": "pass"
+    }
+  ],
+  "corpusPath": "D:\\codex\\novel-workshop-vue3\\_data\\intent-corpus-electron-profile\\app-data\\intent-corpus\\samples.jsonl"
+}

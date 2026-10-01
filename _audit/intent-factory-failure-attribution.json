@@ -1,0 +1,39 @@
+{
+  "schema": "shenyi.intent-factory-failure-attribution",
+  "version": 1,
+  "generatedAt": "2026-09-22T04:44:15.088Z",
+  "reportPath": "_audit\\intent-adversarial-factory-round-17.json",
+  "silverFailureCount": 1,
+  "clusters": [
+    {
+      "failureType": "falseRejection",
+      "mutationType": "punctuation",
+      "kind": "no_match",
+      "reason": "no-keyword-overlap",
+      "count": 1,
+      "sampleIds": [
+        "factory-accretion-r17:109:punctuation:0"
+      ],
+      "representativeInputs": [
+        {
+          "id": "factory-accretion-r17:109:punctuation:0",
+          "input": "盘一盘旧信灯塔沈萤三条线索的交汇点",
+          "expected": "analyze",
+          "actual": "no_match"
+        }
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "id": "factory-accretion-r17:109:punctuation:0",
+      "input": "盘一盘旧信灯塔沈萤三条线索的交汇点",
+      "expected": "analyze",
+      "actual": "no_match",
+      "routingKind": "no_match",
+      "reason": "no-keyword-overlap",
+      "mutationType": "punctuation",
+      "failureType": "falseRejection"
+    }
+  ]
+}

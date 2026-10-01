@@ -1,0 +1,3182 @@
+{
+  "generatedAt": "2026-09-23T16:47:15.094Z",
+  "source": {
+    "summaryPath": "D:\\codex\\novel-workshop-vue3\\_audit\\research-api-direct-write-100-closure-2026-09-23\\summary.json",
+    "legacyPath": "D:\\codex\\novel-workshop-vue3\\_audit\\research-api-direct-write-100-closure-2026-09-23\\legacy-rounds-01-10.json",
+    "roundFiles": 100,
+    "dimensions": [
+      "protocol",
+      "permission",
+      "editing",
+      "statemachine",
+      "toolloop",
+      "observability",
+      "longdocument",
+      "provider",
+      "routing",
+      "verification"
+    ]
+  },
+  "totals": {
+    "repositories": 644,
+    "uniqueCachedFiles": 2081,
+    "physicalCacheFiles": 2671,
+    "repositoriesWithoutCachedFiles": 136,
+    "rounds": 200,
+    "cacheIssues": 0,
+    "seedRepositories": 59,
+    "seedTotal": 59,
+    "uncoveredSeeds": []
+  },
+  "languageDistribution": [
+    {
+      "name": "Python",
+      "count": 190
+    },
+    {
+      "name": "TypeScript",
+      "count": 157
+    },
+    {
+      "name": "unknown",
+      "count": 59
+    },
+    {
+      "name": "JavaScript",
+      "count": 57
+    },
+    {
+      "name": "Go",
+      "count": 48
+    },
+    {
+      "name": "Rust",
+      "count": 36
+    },
+    {
+      "name": "Java",
+      "count": 21
+    },
+    {
+      "name": "Jupyter Notebook",
+      "count": 13
+    },
+    {
+      "name": "Shell",
+      "count": 11
+    },
+    {
+      "name": "C",
+      "count": 9
+    },
+    {
+      "name": "C#",
+      "count": 8
+    },
+    {
+      "name": "HTML",
+      "count": 7
+    },
+    {
+      "name": "C++",
+      "count": 6
+    },
+    {
+      "name": "Clojure",
+      "count": 2
+    },
+    {
+      "name": "Kotlin",
+      "count": 2
+    },
+    {
+      "name": "Makefile",
+      "count": 2
+    },
+    {
+      "name": "Objective-C",
+      "count": 2
+    },
+    {
+      "name": "Swift",
+      "count": 2
+    },
+    {
+      "name": "CSS",
+      "count": 1
+    },
+    {
+      "name": "Dart",
+      "count": 1
+    },
+    {
+      "name": "Lua",
+      "count": 1
+    },
+    {
+      "name": "MDX",
+      "count": 1
+    },
+    {
+      "name": "OpenEdge ABL",
+      "count": 1
+    },
+    {
+      "name": "PHP",
+      "count": 1
+    },
+    {
+      "name": "PowerShell",
+      "count": 1
+    },
+    {
+      "name": "Scala",
+      "count": 1
+    },
+    {
+      "name": "SCSS",
+      "count": 1
+    },
+    {
+      "name": "Svelte",
+      "count": 1
+    },
+    {
+      "name": "Vim Script",
+      "count": 1
+    },
+    {
+      "name": "Vue",
+      "count": 1
+    }
+  ],
+  "extensionDistribution": [
+    {
+      "name": ".py",
+      "count": 498
+    },
+    {
+      "name": ".ts",
+      "count": 484
+    },
+    {
+      "name": ".md",
+      "count": 415
+    },
+    {
+      "name": ".json",
+      "count": 145
+    },
+    {
+      "name": ".go",
+      "count": 137
+    },
+    {
+      "name": ".rs",
+      "count": 129
+    },
+    {
+      "name": ".tsx",
+      "count": 119
+    },
+    {
+      "name": ".js",
+      "count": 80
+    },
+    {
+      "name": ".java",
+      "count": 51
+    },
+    {
+      "name": ".kt",
+      "count": 18
+    },
+    {
+      "name": ".jsx",
+      "count": 5
+    }
+  ],
+  "starBands": [
+    {
+      "name": "10k-100k",
+      "count": 301
+    },
+    {
+      "name": "1k-10k",
+      "count": 250
+    },
+    {
+      "name": "100-1k",
+      "count": 53
+    },
+    {
+      "name": "100k+",
+      "count": 32
+    },
+    {
+      "name": "under-100",
+      "count": 8
+    }
+  ],
+  "dimensions": [
+    {
+      "dimension": "protocol",
+      "rounds": 20,
+      "queryProfile": {
+        "distinctQueries": 11,
+        "legacyV1ReplayRounds": 10
+      },
+      "repositories": 74,
+      "cachedFiles": 226,
+      "languages": [
+        {
+          "name": "TypeScript",
+          "count": 27
+        },
+        {
+          "name": "Python",
+          "count": 22
+        },
+        {
+          "name": "JavaScript",
+          "count": 7
+        },
+        {
+          "name": "unknown",
+          "count": 6
+        },
+        {
+          "name": "Go",
+          "count": 4
+        },
+        {
+          "name": "Rust",
+          "count": 4
+        },
+        {
+          "name": "C++",
+          "count": 1
+        },
+        {
+          "name": "Clojure",
+          "count": 1
+        }
+      ],
+      "roundOverlap": [
+        {
+          "round": 1,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 2,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 3,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 4,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 5,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 6,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 7,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 8,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 9,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 10,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 11,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 12,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 13,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 14,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 15,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 16,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 17,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        },
+        {
+          "round": 18,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 19,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 20,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        }
+      ]
+    },
+    {
+      "dimension": "permission",
+      "rounds": 20,
+      "queryProfile": {
+        "distinctQueries": 11,
+        "legacyV1ReplayRounds": 10
+      },
+      "repositories": 76,
+      "cachedFiles": 232,
+      "languages": [
+        {
+          "name": "TypeScript",
+          "count": 23
+        },
+        {
+          "name": "Python",
+          "count": 19
+        },
+        {
+          "name": "unknown",
+          "count": 9
+        },
+        {
+          "name": "Rust",
+          "count": 8
+        },
+        {
+          "name": "Go",
+          "count": 4
+        },
+        {
+          "name": "Java",
+          "count": 3
+        },
+        {
+          "name": "JavaScript",
+          "count": 3
+        },
+        {
+          "name": "C",
+          "count": 2
+        }
+      ],
+      "roundOverlap": [
+        {
+          "round": 1,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 2,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 3,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 4,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 5,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 6,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 7,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 8,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 9,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 10,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 11,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 12,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 13,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 14,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 15,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 16,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 17,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 18,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 19,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 20,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        }
+      ]
+    },
+    {
+      "dimension": "editing",
+      "rounds": 20,
+      "queryProfile": {
+        "distinctQueries": 11,
+        "legacyV1ReplayRounds": 10
+      },
+      "repositories": 76,
+      "cachedFiles": 176,
+      "languages": [
+        {
+          "name": "TypeScript",
+          "count": 17
+        },
+        {
+          "name": "JavaScript",
+          "count": 16
+        },
+        {
+          "name": "Python",
+          "count": 16
+        },
+        {
+          "name": "C#",
+          "count": 4
+        },
+        {
+          "name": "unknown",
+          "count": 4
+        },
+        {
+          "name": "Go",
+          "count": 3
+        },
+        {
+          "name": "C++",
+          "count": 2
+        },
+        {
+          "name": "Java",
+          "count": 2
+        }
+      ],
+      "roundOverlap": [
+        {
+          "round": 1,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 2,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 3,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 4,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 5,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 6,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 7,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 8,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 9,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 10,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 11,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 12,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 13,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 14,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 15,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 16,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 3
+        },
+        {
+          "round": 17,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        },
+        {
+          "round": 18,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 19,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 20,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        }
+      ]
+    },
+    {
+      "dimension": "statemachine",
+      "rounds": 20,
+      "queryProfile": {
+        "distinctQueries": 11,
+        "legacyV1ReplayRounds": 10
+      },
+      "repositories": 66,
+      "cachedFiles": 199,
+      "languages": [
+        {
+          "name": "Python",
+          "count": 16
+        },
+        {
+          "name": "TypeScript",
+          "count": 14
+        },
+        {
+          "name": "Go",
+          "count": 9
+        },
+        {
+          "name": "Java",
+          "count": 6
+        },
+        {
+          "name": "Rust",
+          "count": 6
+        },
+        {
+          "name": "JavaScript",
+          "count": 4
+        },
+        {
+          "name": "Jupyter Notebook",
+          "count": 4
+        },
+        {
+          "name": "unknown",
+          "count": 4
+        }
+      ],
+      "roundOverlap": [
+        {
+          "round": 1,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 2,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 3,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 4,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 5,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 6,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 7,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 8,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 9,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 10,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 11,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        },
+        {
+          "round": 12,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 13,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        },
+        {
+          "round": 14,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 15,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 16,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 3
+        },
+        {
+          "round": 17,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        },
+        {
+          "round": 18,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        },
+        {
+          "round": 19,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 3
+        },
+        {
+          "round": 20,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        }
+      ]
+    },
+    {
+      "dimension": "toolloop",
+      "rounds": 20,
+      "queryProfile": {
+        "distinctQueries": 11,
+        "legacyV1ReplayRounds": 10
+      },
+      "repositories": 74,
+      "cachedFiles": 212,
+      "languages": [
+        {
+          "name": "Python",
+          "count": 37
+        },
+        {
+          "name": "TypeScript",
+          "count": 16
+        },
+        {
+          "name": "unknown",
+          "count": 6
+        },
+        {
+          "name": "Go",
+          "count": 3
+        },
+        {
+          "name": "JavaScript",
+          "count": 3
+        },
+        {
+          "name": "Shell",
+          "count": 3
+        },
+        {
+          "name": "HTML",
+          "count": 2
+        },
+        {
+          "name": "Rust",
+          "count": 2
+        }
+      ],
+      "roundOverlap": [
+        {
+          "round": 1,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 2,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 3,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 4,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 5,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 6,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 7,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 8,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 9,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 10,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 11,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 12,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 13,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 14,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        },
+        {
+          "round": 15,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 16,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 3
+        },
+        {
+          "round": 17,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 18,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 19,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 20,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        }
+      ]
+    },
+    {
+      "dimension": "observability",
+      "rounds": 20,
+      "queryProfile": {
+        "distinctQueries": 11,
+        "legacyV1ReplayRounds": 10
+      },
+      "repositories": 76,
+      "cachedFiles": 333,
+      "languages": [
+        {
+          "name": "Python",
+          "count": 22
+        },
+        {
+          "name": "TypeScript",
+          "count": 12
+        },
+        {
+          "name": "Go",
+          "count": 11
+        },
+        {
+          "name": "Java",
+          "count": 9
+        },
+        {
+          "name": "Rust",
+          "count": 7
+        },
+        {
+          "name": "JavaScript",
+          "count": 4
+        },
+        {
+          "name": "C",
+          "count": 3
+        },
+        {
+          "name": "unknown",
+          "count": 3
+        }
+      ],
+      "roundOverlap": [
+        {
+          "round": 1,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 2,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 3,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 4,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 5,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 6,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 7,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 8,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 9,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 10,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 11,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 12,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        },
+        {
+          "round": 13,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 14,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 15,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 3
+        },
+        {
+          "round": 16,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 17,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        },
+        {
+          "round": 18,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 19,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 20,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        }
+      ]
+    },
+    {
+      "dimension": "longdocument",
+      "rounds": 20,
+      "queryProfile": {
+        "distinctQueries": 11,
+        "legacyV1ReplayRounds": 10
+      },
+      "repositories": 72,
+      "cachedFiles": 190,
+      "languages": [
+        {
+          "name": "Python",
+          "count": 29
+        },
+        {
+          "name": "TypeScript",
+          "count": 12
+        },
+        {
+          "name": "Go",
+          "count": 8
+        },
+        {
+          "name": "unknown",
+          "count": 8
+        },
+        {
+          "name": "JavaScript",
+          "count": 6
+        },
+        {
+          "name": "Jupyter Notebook",
+          "count": 4
+        },
+        {
+          "name": "C++",
+          "count": 1
+        },
+        {
+          "name": "MDX",
+          "count": 1
+        }
+      ],
+      "roundOverlap": [
+        {
+          "round": 1,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 2,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 3,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 4,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 5,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 6,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 7,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 8,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 9,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 10,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 11,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 12,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 13,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 14,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 3
+        },
+        {
+          "round": 15,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        },
+        {
+          "round": 16,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 17,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        },
+        {
+          "round": 18,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 19,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 20,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        }
+      ]
+    },
+    {
+      "dimension": "provider",
+      "rounds": 20,
+      "queryProfile": {
+        "distinctQueries": 11,
+        "legacyV1ReplayRounds": 10
+      },
+      "repositories": 68,
+      "cachedFiles": 317,
+      "languages": [
+        {
+          "name": "Python",
+          "count": 34
+        },
+        {
+          "name": "TypeScript",
+          "count": 15
+        },
+        {
+          "name": "Go",
+          "count": 5
+        },
+        {
+          "name": "unknown",
+          "count": 3
+        },
+        {
+          "name": "Java",
+          "count": 2
+        },
+        {
+          "name": "Jupyter Notebook",
+          "count": 2
+        },
+        {
+          "name": "Rust",
+          "count": 2
+        },
+        {
+          "name": "C",
+          "count": 1
+        }
+      ],
+      "roundOverlap": [
+        {
+          "round": 1,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 2,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 3,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 4,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 5,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 6,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 7,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 8,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 9,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 10,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 11,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        },
+        {
+          "round": 12,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        },
+        {
+          "round": 13,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 14,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 2
+        },
+        {
+          "round": 15,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 16,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 17,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 4
+        },
+        {
+          "round": 18,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 3
+        },
+        {
+          "round": 19,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 20,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        }
+      ]
+    },
+    {
+      "dimension": "routing",
+      "rounds": 20,
+      "queryProfile": {
+        "distinctQueries": 11,
+        "legacyV1ReplayRounds": 10
+      },
+      "repositories": 76,
+      "cachedFiles": 108,
+      "languages": [
+        {
+          "name": "Python",
+          "count": 30
+        },
+        {
+          "name": "unknown",
+          "count": 19
+        },
+        {
+          "name": "TypeScript",
+          "count": 6
+        },
+        {
+          "name": "JavaScript",
+          "count": 5
+        },
+        {
+          "name": "Rust",
+          "count": 3
+        },
+        {
+          "name": "Go",
+          "count": 2
+        },
+        {
+          "name": "Java",
+          "count": 2
+        },
+        {
+          "name": "Shell",
+          "count": 2
+        }
+      ],
+      "roundOverlap": [
+        {
+          "round": 1,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 2,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 3,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 4,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 5,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 6,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 7,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 8,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 9,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 10,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 11,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 12,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 13,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 14,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 15,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 3
+        },
+        {
+          "round": 16,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 17,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 18,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 19,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 20,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        }
+      ]
+    },
+    {
+      "dimension": "verification",
+      "rounds": 20,
+      "queryProfile": {
+        "distinctQueries": 11,
+        "legacyV1ReplayRounds": 10
+      },
+      "repositories": 75,
+      "cachedFiles": 173,
+      "languages": [
+        {
+          "name": "TypeScript",
+          "count": 20
+        },
+        {
+          "name": "JavaScript",
+          "count": 15
+        },
+        {
+          "name": "Python",
+          "count": 13
+        },
+        {
+          "name": "unknown",
+          "count": 12
+        },
+        {
+          "name": "Go",
+          "count": 4
+        },
+        {
+          "name": "Shell",
+          "count": 4
+        },
+        {
+          "name": "Java",
+          "count": 2
+        },
+        {
+          "name": "C++",
+          "count": 1
+        }
+      ],
+      "roundOverlap": [
+        {
+          "round": 1,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 2,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 3,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 4,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 5,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 6,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 7,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 8,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 9,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 10,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 8
+        },
+        {
+          "round": 11,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 12,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 0
+        },
+        {
+          "round": 13,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 14,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 15,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 16,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 17,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 18,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 4
+        },
+        {
+          "round": 19,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        },
+        {
+          "round": 20,
+          "repositoryCount": 8,
+          "maxOverlapWithPreviousRounds": 1
+        }
+      ]
+    }
+  ],
+  "cacheIssues": [],
+  "repositoriesWithoutCachedFiles": [
+    {
+      "fullName": "punkpeye/awesome-mcp-servers",
+      "stars": 95451,
+      "language": null,
+      "url": "https://github.com/punkpeye/awesome-mcp-servers",
+      "dimension": "protocol",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "punkpeye/awesome-mcp-servers"
+    },
+    {
+      "fullName": "owainlewis/awesome-artificial-intelligence",
+      "stars": 16544,
+      "language": "Python",
+      "url": "https://github.com/owainlewis/awesome-artificial-intelligence",
+      "dimension": "permission",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "owainlewis/awesome-artificial-intelligence"
+    },
+    {
+      "fullName": "firmai/industry-machine-learning",
+      "stars": 7484,
+      "language": "Jupyter Notebook",
+      "url": "https://github.com/firmai/industry-machine-learning",
+      "dimension": "permission",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "firmai/industry-machine-learning"
+    },
+    {
+      "fullName": "agarrharr/awesome-cli-apps",
+      "stars": 20451,
+      "language": "Shell",
+      "url": "https://github.com/agarrharr/awesome-cli-apps",
+      "dimension": "editing",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "agarrharr/awesome-cli-apps"
+    },
+    {
+      "fullName": "textAngular/textAngular",
+      "stars": 3942,
+      "language": "JavaScript",
+      "url": "https://github.com/textAngular/textAngular",
+      "dimension": "editing",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "textangular/textangular"
+    },
+    {
+      "fullName": "google-research/bert",
+      "stars": 40042,
+      "language": "Python",
+      "url": "https://github.com/google-research/bert",
+      "dimension": "statemachine",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "google-research/bert"
+    },
+    {
+      "fullName": "facebookresearch/seamless_communication",
+      "stars": 11863,
+      "language": "Jupyter Notebook",
+      "url": "https://github.com/facebookresearch/seamless_communication",
+      "dimension": "statemachine",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "facebookresearch/seamless_communication"
+    },
+    {
+      "fullName": "hesreallyhim/awesome-claude-code",
+      "stars": 54479,
+      "language": "Python",
+      "url": "https://github.com/hesreallyhim/awesome-claude-code",
+      "dimension": "toolloop",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "hesreallyhim/awesome-claude-code"
+    },
+    {
+      "fullName": "go-martini/martini",
+      "stars": 11599,
+      "language": "Go",
+      "url": "https://github.com/go-martini/martini",
+      "dimension": "longdocument",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "go-martini/martini"
+    },
+    {
+      "fullName": "openai/openai-realtime-agents",
+      "stars": 6989,
+      "language": "TypeScript",
+      "url": "https://github.com/openai/openai-realtime-agents",
+      "dimension": "provider",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "openai/openai-realtime-agents"
+    },
+    {
+      "fullName": "PublicAffairs/openai-gemini",
+      "stars": 3661,
+      "language": "JavaScript",
+      "url": "https://github.com/PublicAffairs/openai-gemini",
+      "dimension": "provider",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "publicaffairs/openai-gemini"
+    },
+    {
+      "fullName": "keon/awesome-nlp",
+      "stars": 19028,
+      "language": null,
+      "url": "https://github.com/keon/awesome-nlp",
+      "dimension": "routing",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "keon/awesome-nlp"
+    },
+    {
+      "fullName": "bharathgs/Awesome-pytorch-list",
+      "stars": 16679,
+      "language": null,
+      "url": "https://github.com/bharathgs/Awesome-pytorch-list",
+      "dimension": "routing",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "bharathgs/awesome-pytorch-list"
+    },
+    {
+      "fullName": "ritchieng/the-incredible-pytorch",
+      "stars": 12648,
+      "language": null,
+      "url": "https://github.com/ritchieng/the-incredible-pytorch",
+      "dimension": "routing",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "ritchieng/the-incredible-pytorch"
+    },
+    {
+      "fullName": "ripienaar/free-for-dev",
+      "stars": 138028,
+      "language": "HTML",
+      "url": "https://github.com/ripienaar/free-for-dev",
+      "dimension": "verification",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "ripienaar/free-for-dev"
+    },
+    {
+      "fullName": "vuejs/awesome-vue",
+      "stars": 73546,
+      "language": null,
+      "url": "https://github.com/vuejs/awesome-vue",
+      "dimension": "verification",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "vuejs/awesome-vue"
+    },
+    {
+      "fullName": "VoltAgent/awesome-agent-skills",
+      "stars": 34767,
+      "language": null,
+      "url": "https://github.com/VoltAgent/awesome-agent-skills",
+      "dimension": "verification",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "voltagent/awesome-agent-skills"
+    },
+    {
+      "fullName": "TheJambo/awesome-testing",
+      "stars": 2380,
+      "language": null,
+      "url": "https://github.com/TheJambo/awesome-testing",
+      "dimension": "verification",
+      "round": 1,
+      "query": "legacy-search",
+      "cachedFileCount": 0,
+      "fullNameLower": "thejambo/awesome-testing"
+    },
+    {
+      "fullName": "goss-org/goss",
+      "stars": 5975,
+      "language": "Go",
+      "url": "https://github.com/goss-org/goss",
+      "dimension": "protocol",
+      "round": 11,
+      "query": "tool result schema validation",
+      "cachedFileCount": 0,
+      "fullNameLower": "goss-org/goss"
+    },
+    {
+      "fullName": "plumatic/schema",
+      "stars": 2462,
+      "language": "Clojure",
+      "url": "https://github.com/plumatic/schema",
+      "dimension": "protocol",
+      "round": 11,
+      "query": "tool result schema validation",
+      "cachedFileCount": 0,
+      "fullNameLower": "plumatic/schema"
+    },
+    {
+      "fullName": "vudovn/ag-kit",
+      "stars": 8180,
+      "language": "TypeScript",
+      "url": "https://github.com/vudovn/ag-kit",
+      "dimension": "permission",
+      "round": 11,
+      "query": "tool call approval gate",
+      "cachedFileCount": 0,
+      "fullNameLower": "vudovn/ag-kit"
+    },
+    {
+      "fullName": "enaqx/awesome-react",
+      "stars": 74680,
+      "language": null,
+      "url": "https://github.com/enaqx/awesome-react",
+      "dimension": "editing",
+      "round": 11,
+      "query": "editor apply edit transaction",
+      "cachedFileCount": 0,
+      "fullNameLower": "enaqx/awesome-react"
+    },
+    {
+      "fullName": "yjs/yjs",
+      "stars": 22830,
+      "language": "JavaScript",
+      "url": "https://github.com/yjs/yjs",
+      "dimension": "editing",
+      "round": 11,
+      "query": "editor apply edit transaction",
+      "cachedFileCount": 0,
+      "fullNameLower": "yjs/yjs"
+    },
+    {
+      "fullName": "daytonaio/daytona",
+      "stars": 71728,
+      "language": null,
+      "url": "https://github.com/daytonaio/daytona",
+      "dimension": "statemachine",
+      "round": 11,
+      "query": "workflow execution state persistence",
+      "cachedFileCount": 0,
+      "fullNameLower": "daytonaio/daytona"
+    },
+    {
+      "fullName": "sanbuphy/learn-coding-agent",
+      "stars": 12280,
+      "language": null,
+      "url": "https://github.com/sanbuphy/learn-coding-agent",
+      "dimension": "statemachine",
+      "round": 11,
+      "query": "workflow execution state persistence",
+      "cachedFileCount": 0,
+      "fullNameLower": "sanbuphy/learn-coding-agent"
+    },
+    {
+      "fullName": "OneUptime/oneuptime",
+      "stars": 7643,
+      "language": "TypeScript",
+      "url": "https://github.com/OneUptime/oneuptime",
+      "dimension": "observability",
+      "round": 11,
+      "query": "agent observability tool spans",
+      "cachedFileCount": 0,
+      "fullNameLower": "oneuptime/oneuptime"
+    },
+    {
+      "fullName": "mrmans0n/smart-location-lib",
+      "stars": 1638,
+      "language": "Java",
+      "url": "https://github.com/mrmans0n/smart-location-lib",
+      "dimension": "routing",
+      "round": 11,
+      "query": "intent recognition fallback",
+      "cachedFileCount": 0,
+      "fullNameLower": "mrmans0n/smart-location-lib"
+    },
+    {
+      "fullName": "AdevintaSpain/Leku",
+      "stars": 779,
+      "language": "Kotlin",
+      "url": "https://github.com/AdevintaSpain/Leku",
+      "dimension": "routing",
+      "round": 11,
+      "query": "intent recognition fallback",
+      "cachedFileCount": 0,
+      "fullNameLower": "adevintaspain/leku"
+    },
+    {
+      "fullName": "ghuntley/amazon-kiro.kiro-agent-source-code-analysis",
+      "stars": 367,
+      "language": "JavaScript",
+      "url": "https://github.com/ghuntley/amazon-kiro.kiro-agent-source-code-analysis",
+      "dimension": "routing",
+      "round": 11,
+      "query": "intent recognition fallback",
+      "cachedFileCount": 0,
+      "fullNameLower": "ghuntley/amazon-kiro.kiro-agent-source-code-analysis"
+    },
+    {
+      "fullName": "IBM-Design/icons",
+      "stars": 192,
+      "language": "JavaScript",
+      "url": "https://github.com/IBM-Design/icons",
+      "dimension": "routing",
+      "round": 11,
+      "query": "intent recognition fallback",
+      "cachedFileCount": 0,
+      "fullNameLower": "ibm-design/icons"
+    },
+    {
+      "fullName": "dexteryy/spellbook-of-modern-webdev",
+      "stars": 17911,
+      "language": null,
+      "url": "https://github.com/dexteryy/spellbook-of-modern-webdev",
+      "dimension": "verification",
+      "round": 11,
+      "query": "electron app e2e automation",
+      "cachedFileCount": 0,
+      "fullNameLower": "dexteryy/spellbook-of-modern-webdev"
+    },
+    {
+      "fullName": "buger/jsonparser",
+      "stars": 5657,
+      "language": "Go",
+      "url": "https://github.com/buger/jsonparser",
+      "dimension": "protocol",
+      "round": 12,
+      "query": "strict json schema function arguments",
+      "cachedFileCount": 0,
+      "fullNameLower": "buger/jsonparser"
+    },
+    {
+      "fullName": "ShawnDEvans/smbmap",
+      "stars": 2078,
+      "language": "Python",
+      "url": "https://github.com/ShawnDEvans/smbmap",
+      "dimension": "permission",
+      "round": 12,
+      "query": "write tool permission confirmation",
+      "cachedFileCount": 0,
+      "fullNameLower": "shawndevans/smbmap"
+    },
+    {
+      "fullName": "The-Pocket/PocketFlow",
+      "stars": 11193,
+      "language": "Python",
+      "url": "https://github.com/The-Pocket/PocketFlow",
+      "dimension": "editing",
+      "round": 12,
+      "query": "document patch apply validation",
+      "cachedFileCount": 0,
+      "fullNameLower": "the-pocket/pocketflow"
+    },
+    {
+      "fullName": "AgriciDaniel/claude-ads",
+      "stars": 9499,
+      "language": "Python",
+      "url": "https://github.com/AgriciDaniel/claude-ads",
+      "dimension": "editing",
+      "round": 12,
+      "query": "document patch apply validation",
+      "cachedFileCount": 0,
+      "fullNameLower": "agricidaniel/claude-ads"
+    },
+    {
+      "fullName": "dbohdan/structured-text-tools",
+      "stars": 7149,
+      "language": null,
+      "url": "https://github.com/dbohdan/structured-text-tools",
+      "dimension": "editing",
+      "round": 12,
+      "query": "document patch apply validation",
+      "cachedFileCount": 0,
+      "fullNameLower": "dbohdan/structured-text-tools"
+    },
+    {
+      "fullName": "posabsolute/jQuery-Validation-Engine",
+      "stars": 2535,
+      "language": "JavaScript",
+      "url": "https://github.com/posabsolute/jQuery-Validation-Engine",
+      "dimension": "editing",
+      "round": 12,
+      "query": "document patch apply validation",
+      "cachedFileCount": 0,
+      "fullNameLower": "posabsolute/jquery-validation-engine"
+    },
+    {
+      "fullName": "meirwah/awesome-workflow-engines",
+      "stars": 7933,
+      "language": null,
+      "url": "https://github.com/meirwah/awesome-workflow-engines",
+      "dimension": "statemachine",
+      "round": 12,
+      "query": "durable execution checkpoint",
+      "cachedFileCount": 0,
+      "fullNameLower": "meirwah/awesome-workflow-engines"
+    },
+    {
+      "fullName": "microsoft/pg_durable",
+      "stars": 2821,
+      "language": "Rust",
+      "url": "https://github.com/microsoft/pg_durable",
+      "dimension": "statemachine",
+      "round": 12,
+      "query": "durable execution checkpoint",
+      "cachedFileCount": 0,
+      "fullNameLower": "microsoft/pg_durable"
+    },
+    {
+      "fullName": "guillaumemeyer/watermarks-remover",
+      "stars": 22654,
+      "language": "Python",
+      "url": "https://github.com/guillaumemeyer/watermarks-remover",
+      "dimension": "toolloop",
+      "round": 12,
+      "query": "tool call loop detector",
+      "cachedFileCount": 0,
+      "fullNameLower": "guillaumemeyer/watermarks-remover"
+    },
+    {
+      "fullName": "promptslab/Awesome-Prompt-Engineering",
+      "stars": 6339,
+      "language": "TypeScript",
+      "url": "https://github.com/promptslab/Awesome-Prompt-Engineering",
+      "dimension": "toolloop",
+      "round": 12,
+      "query": "tool call loop detector",
+      "cachedFileCount": 0,
+      "fullNameLower": "promptslab/awesome-prompt-engineering"
+    },
+    {
+      "fullName": "DynamoRIO/dynamorio",
+      "stars": 3165,
+      "language": "C",
+      "url": "https://github.com/DynamoRIO/dynamorio",
+      "dimension": "observability",
+      "round": 12,
+      "query": "tool call tracing instrumentation",
+      "cachedFileCount": 0,
+      "fullNameLower": "dynamorio/dynamorio"
+    },
+    {
+      "fullName": "shareAI-lab/learn-claude-code",
+      "stars": 77505,
+      "language": "Python",
+      "url": "https://github.com/shareAI-lab/learn-claude-code",
+      "dimension": "provider",
+      "round": 12,
+      "query": "anthropic messages tool use",
+      "cachedFileCount": 0,
+      "fullNameLower": "shareai-lab/learn-claude-code"
+    },
+    {
+      "fullName": "jim-schwoebel/voice_datasets",
+      "stars": 2230,
+      "language": null,
+      "url": "https://github.com/jim-schwoebel/voice_datasets",
+      "dimension": "routing",
+      "round": 12,
+      "query": "utterance classification dataset",
+      "cachedFileCount": 0,
+      "fullNameLower": "jim-schwoebel/voice_datasets"
+    },
+    {
+      "fullName": "AtmaHou/Task-Oriented-Dialogue-Research-Progress-Survey",
+      "stars": 1237,
+      "language": null,
+      "url": "https://github.com/AtmaHou/Task-Oriented-Dialogue-Research-Progress-Survey",
+      "dimension": "routing",
+      "round": 12,
+      "query": "utterance classification dataset",
+      "cachedFileCount": 0,
+      "fullNameLower": "atmahou/task-oriented-dialogue-research-progress-survey"
+    },
+    {
+      "fullName": "declare-lab/MELD",
+      "stars": 1088,
+      "language": "Python",
+      "url": "https://github.com/declare-lab/MELD",
+      "dimension": "routing",
+      "round": 12,
+      "query": "utterance classification dataset",
+      "cachedFileCount": 0,
+      "fullNameLower": "declare-lab/meld"
+    },
+    {
+      "fullName": "qinlibo-hit/Awesome-SLU-Survey",
+      "stars": 893,
+      "language": null,
+      "url": "https://github.com/qinlibo-hit/Awesome-SLU-Survey",
+      "dimension": "routing",
+      "round": 12,
+      "query": "utterance classification dataset",
+      "cachedFileCount": 0,
+      "fullNameLower": "qinlibo-hit/awesome-slu-survey"
+    },
+    {
+      "fullName": "arthurspk/guiadeelectron",
+      "stars": 8,
+      "language": null,
+      "url": "https://github.com/arthurspk/guiadeelectron",
+      "dimension": "verification",
+      "round": 12,
+      "query": "electron spectron playwright",
+      "cachedFileCount": 0,
+      "fullNameLower": "arthurspk/guiadeelectron"
+    },
+    {
+      "fullName": "wsw0108/playwright-fake-dialog",
+      "stars": 4,
+      "language": "JavaScript",
+      "url": "https://github.com/wsw0108/playwright-fake-dialog",
+      "dimension": "verification",
+      "round": 12,
+      "query": "electron spectron playwright",
+      "cachedFileCount": 0,
+      "fullNameLower": "wsw0108/playwright-fake-dialog"
+    },
+    {
+      "fullName": "oscartbeaumont/spectroscope",
+      "stars": 3,
+      "language": "TypeScript",
+      "url": "https://github.com/oscartbeaumont/spectroscope",
+      "dimension": "verification",
+      "round": 12,
+      "query": "electron spectron playwright",
+      "cachedFileCount": 0,
+      "fullNameLower": "oscartbeaumont/spectroscope"
+    },
+    {
+      "fullName": "PuerkitoBio/goquery",
+      "stars": 14995,
+      "language": "Go",
+      "url": "https://github.com/PuerkitoBio/goquery",
+      "dimension": "protocol",
+      "round": 13,
+      "query": "tool call argument parse error",
+      "cachedFileCount": 0,
+      "fullNameLower": "puerkitobio/goquery"
+    },
+    {
+      "fullName": "sandboxie-plus/Sandboxie",
+      "stars": 19525,
+      "language": "C",
+      "url": "https://github.com/sandboxie-plus/Sandboxie",
+      "dimension": "permission",
+      "round": 13,
+      "query": "sandbox tool permission policy",
+      "cachedFileCount": 0,
+      "fullNameLower": "sandboxie-plus/sandboxie"
+    },
+    {
+      "fullName": "ashishb/android-security-awesome",
+      "stars": 9707,
+      "language": "Makefile",
+      "url": "https://github.com/ashishb/android-security-awesome",
+      "dimension": "permission",
+      "round": 13,
+      "query": "sandbox tool permission policy",
+      "cachedFileCount": 0,
+      "fullNameLower": "ashishb/android-security-awesome"
+    },
+    {
+      "fullName": "ai-boost/awesome-harness-engineering",
+      "stars": 4482,
+      "language": "Python",
+      "url": "https://github.com/ai-boost/awesome-harness-engineering",
+      "dimension": "permission",
+      "round": 13,
+      "query": "sandbox tool permission policy",
+      "cachedFileCount": 0,
+      "fullNameLower": "ai-boost/awesome-harness-engineering"
+    },
+    {
+      "fullName": "google/ax",
+      "stars": 8498,
+      "language": "Go",
+      "url": "https://github.com/google/ax",
+      "dimension": "toolloop",
+      "round": 13,
+      "query": "agentic loop stop condition",
+      "cachedFileCount": 0,
+      "fullNameLower": "google/ax"
+    },
+    {
+      "fullName": "remzi-arpacidusseau/ostep-code",
+      "stars": 4423,
+      "language": "C",
+      "url": "https://github.com/remzi-arpacidusseau/ostep-code",
+      "dimension": "observability",
+      "round": 13,
+      "query": "structured event log execution",
+      "cachedFileCount": 0,
+      "fullNameLower": "remzi-arpacidusseau/ostep-code"
+    },
+    {
+      "fullName": "ai-boost/awesome-prompts",
+      "stars": 8927,
+      "language": null,
+      "url": "https://github.com/ai-boost/awesome-prompts",
+      "dimension": "routing",
+      "round": 13,
+      "query": "intent detection eval set",
+      "cachedFileCount": 0,
+      "fullNameLower": "ai-boost/awesome-prompts"
+    },
+    {
+      "fullName": "binhnguyennus/awesome-scalability",
+      "stars": 74211,
+      "language": null,
+      "url": "https://github.com/binhnguyennus/awesome-scalability",
+      "dimension": "verification",
+      "round": 13,
+      "query": "real user monitoring test",
+      "cachedFileCount": 0,
+      "fullNameLower": "binhnguyennus/awesome-scalability"
+    },
+    {
+      "fullName": "rothgar/awesome-tuis",
+      "stars": 20707,
+      "language": null,
+      "url": "https://github.com/rothgar/awesome-tuis",
+      "dimension": "verification",
+      "round": 13,
+      "query": "real user monitoring test",
+      "cachedFileCount": 0,
+      "fullNameLower": "rothgar/awesome-tuis"
+    },
+    {
+      "fullName": "avelino/awesome-go",
+      "stars": 185254,
+      "language": "Go",
+      "url": "https://github.com/avelino/awesome-go",
+      "dimension": "permission",
+      "round": 14,
+      "query": "tool access control list",
+      "cachedFileCount": 0,
+      "fullNameLower": "avelino/awesome-go"
+    },
+    {
+      "fullName": "Hack-with-Github/Awesome-Hacking",
+      "stars": 121038,
+      "language": null,
+      "url": "https://github.com/Hack-with-Github/Awesome-Hacking",
+      "dimension": "permission",
+      "round": 14,
+      "query": "tool access control list",
+      "cachedFileCount": 0,
+      "fullNameLower": "hack-with-github/awesome-hacking"
+    },
+    {
+      "fullName": "MunGell/awesome-for-beginners",
+      "stars": 89524,
+      "language": null,
+      "url": "https://github.com/MunGell/awesome-for-beginners",
+      "dimension": "permission",
+      "round": 14,
+      "query": "tool access control list",
+      "cachedFileCount": 0,
+      "fullNameLower": "mungell/awesome-for-beginners"
+    },
+    {
+      "fullName": "git/git",
+      "stars": 63282,
+      "language": "C",
+      "url": "https://github.com/git/git",
+      "dimension": "permission",
+      "round": 14,
+      "query": "tool access control list",
+      "cachedFileCount": 0,
+      "fullNameLower": "git/git"
+    },
+    {
+      "fullName": "awesome-foss/awesome-sysadmin",
+      "stars": 35237,
+      "language": null,
+      "url": "https://github.com/awesome-foss/awesome-sysadmin",
+      "dimension": "permission",
+      "round": 14,
+      "query": "tool access control list",
+      "cachedFileCount": 0,
+      "fullNameLower": "awesome-foss/awesome-sysadmin"
+    },
+    {
+      "fullName": "toniblyx/my-arsenal-of-aws-security-tools",
+      "stars": 9508,
+      "language": "Shell",
+      "url": "https://github.com/toniblyx/my-arsenal-of-aws-security-tools",
+      "dimension": "permission",
+      "round": 14,
+      "query": "tool access control list",
+      "cachedFileCount": 0,
+      "fullNameLower": "toniblyx/my-arsenal-of-aws-security-tools"
+    },
+    {
+      "fullName": "appcypher/awesome-mcp-servers",
+      "stars": 5777,
+      "language": null,
+      "url": "https://github.com/appcypher/awesome-mcp-servers",
+      "dimension": "permission",
+      "round": 14,
+      "query": "tool access control list",
+      "cachedFileCount": 0,
+      "fullNameLower": "appcypher/awesome-mcp-servers"
+    },
+    {
+      "fullName": "Consensys/ethereum-developer-tools-list",
+      "stars": 5398,
+      "language": null,
+      "url": "https://github.com/Consensys/ethereum-developer-tools-list",
+      "dimension": "permission",
+      "round": 14,
+      "query": "tool access control list",
+      "cachedFileCount": 0,
+      "fullNameLower": "consensys/ethereum-developer-tools-list"
+    },
+    {
+      "fullName": "IanLunn/Hover",
+      "stars": 29399,
+      "language": "SCSS",
+      "url": "https://github.com/IanLunn/Hover",
+      "dimension": "editing",
+      "round": 14,
+      "query": "edit apply before after blocks",
+      "cachedFileCount": 0,
+      "fullNameLower": "ianlunn/hover"
+    },
+    {
+      "fullName": "nidhinjs/prompt-master",
+      "stars": 13566,
+      "language": null,
+      "url": "https://github.com/nidhinjs/prompt-master",
+      "dimension": "editing",
+      "round": 14,
+      "query": "edit apply before after blocks",
+      "cachedFileCount": 0,
+      "fullNameLower": "nidhinjs/prompt-master"
+    },
+    {
+      "fullName": "VladKopanev/zio-saga",
+      "stars": 228,
+      "language": "Scala",
+      "url": "https://github.com/VladKopanev/zio-saga",
+      "dimension": "statemachine",
+      "round": 14,
+      "query": "workflow retry compensation state",
+      "cachedFileCount": 0,
+      "fullNameLower": "vladkopanev/zio-saga"
+    },
+    {
+      "fullName": "ruanyf/webpack-demos",
+      "stars": 9560,
+      "language": "JavaScript",
+      "url": "https://github.com/ruanyf/webpack-demos",
+      "dimension": "longdocument",
+      "round": 14,
+      "query": "large document chunk index",
+      "cachedFileCount": 0,
+      "fullNameLower": "ruanyf/webpack-demos"
+    },
+    {
+      "fullName": "hindupuravinash/the-gan-zoo",
+      "stars": 14691,
+      "language": "Python",
+      "url": "https://github.com/hindupuravinash/the-gan-zoo",
+      "dimension": "routing",
+      "round": 14,
+      "query": "semantic routing embedding classifier",
+      "cachedFileCount": 0,
+      "fullNameLower": "hindupuravinash/the-gan-zoo"
+    },
+    {
+      "fullName": "yizhiyanhua-ai/fireworks-tech-graph",
+      "stars": 11535,
+      "language": "Python",
+      "url": "https://github.com/yizhiyanhua-ai/fireworks-tech-graph",
+      "dimension": "routing",
+      "round": 14,
+      "query": "semantic routing embedding classifier",
+      "cachedFileCount": 0,
+      "fullNameLower": "yizhiyanhua-ai/fireworks-tech-graph"
+    },
+    {
+      "fullName": "satellite-image-deep-learning/techniques",
+      "stars": 10269,
+      "language": null,
+      "url": "https://github.com/satellite-image-deep-learning/techniques",
+      "dimension": "routing",
+      "round": 14,
+      "query": "semantic routing embedding classifier",
+      "cachedFileCount": 0,
+      "fullNameLower": "satellite-image-deep-learning/techniques"
+    },
+    {
+      "fullName": "xialeiliu/Awesome-Incremental-Learning",
+      "stars": 4528,
+      "language": null,
+      "url": "https://github.com/xialeiliu/Awesome-Incremental-Learning",
+      "dimension": "routing",
+      "round": 14,
+      "query": "semantic routing embedding classifier",
+      "cachedFileCount": 0,
+      "fullNameLower": "xialeiliu/awesome-incremental-learning"
+    },
+    {
+      "fullName": "bragai/bRAG-langchain",
+      "stars": 4167,
+      "language": "Jupyter Notebook",
+      "url": "https://github.com/bragai/bRAG-langchain",
+      "dimension": "routing",
+      "round": 14,
+      "query": "semantic routing embedding classifier",
+      "cachedFileCount": 0,
+      "fullNameLower": "bragai/brag-langchain"
+    },
+    {
+      "fullName": "maziarraissi/Applied-Deep-Learning",
+      "stars": 3566,
+      "language": null,
+      "url": "https://github.com/maziarraissi/Applied-Deep-Learning",
+      "dimension": "routing",
+      "round": 14,
+      "query": "semantic routing embedding classifier",
+      "cachedFileCount": 0,
+      "fullNameLower": "maziarraissi/applied-deep-learning"
+    },
+    {
+      "fullName": "lucidrains/audiolm-pytorch",
+      "stars": 2624,
+      "language": "Python",
+      "url": "https://github.com/lucidrains/audiolm-pytorch",
+      "dimension": "routing",
+      "round": 14,
+      "query": "semantic routing embedding classifier",
+      "cachedFileCount": 0,
+      "fullNameLower": "lucidrains/audiolm-pytorch"
+    },
+    {
+      "fullName": "RobotiumTech/robotium",
+      "stars": 2853,
+      "language": "Java",
+      "url": "https://github.com/RobotiumTech/robotium",
+      "dimension": "verification",
+      "round": 14,
+      "query": "ui acceptance automation framework",
+      "cachedFileCount": 0,
+      "fullNameLower": "robotiumtech/robotium"
+    },
+    {
+      "fullName": "mojoaxel/awesome-regression-testing",
+      "stars": 2416,
+      "language": null,
+      "url": "https://github.com/mojoaxel/awesome-regression-testing",
+      "dimension": "verification",
+      "round": 14,
+      "query": "ui acceptance automation framework",
+      "cachedFileCount": 0,
+      "fullNameLower": "mojoaxel/awesome-regression-testing"
+    },
+    {
+      "fullName": "mxschmitt/awesome-playwright",
+      "stars": 1581,
+      "language": null,
+      "url": "https://github.com/mxschmitt/awesome-playwright",
+      "dimension": "verification",
+      "round": 14,
+      "query": "ui acceptance automation framework",
+      "cachedFileCount": 0,
+      "fullNameLower": "mxschmitt/awesome-playwright"
+    },
+    {
+      "fullName": "bkrem/awesome-solidity",
+      "stars": 7052,
+      "language": null,
+      "url": "https://github.com/bkrem/awesome-solidity",
+      "dimension": "protocol",
+      "round": 15,
+      "query": "tool contract validation typescript",
+      "cachedFileCount": 0,
+      "fullNameLower": "bkrem/awesome-solidity"
+    },
+    {
+      "fullName": "firecrawl/firecrawl-mcp-server",
+      "stars": 7504,
+      "language": "JavaScript",
+      "url": "https://github.com/firecrawl/firecrawl-mcp-server",
+      "dimension": "permission",
+      "round": 15,
+      "query": "capability token tool authorization",
+      "cachedFileCount": 0,
+      "fullNameLower": "firecrawl/firecrawl-mcp-server"
+    },
+    {
+      "fullName": "systemdesign42/system-design-academy",
+      "stars": 28953,
+      "language": null,
+      "url": "https://github.com/systemdesign42/system-design-academy",
+      "dimension": "statemachine",
+      "round": 15,
+      "query": "workflow saga state machine",
+      "cachedFileCount": 0,
+      "fullNameLower": "systemdesign42/system-design-academy"
+    },
+    {
+      "fullName": "idugalic/micro-company",
+      "stars": 362,
+      "language": "JavaScript",
+      "url": "https://github.com/idugalic/micro-company",
+      "dimension": "statemachine",
+      "round": 15,
+      "query": "workflow saga state machine",
+      "cachedFileCount": 0,
+      "fullNameLower": "idugalic/micro-company"
+    },
+    {
+      "fullName": "mheiber/redux-machine",
+      "stars": 335,
+      "language": "JavaScript",
+      "url": "https://github.com/mheiber/redux-machine",
+      "dimension": "statemachine",
+      "round": 15,
+      "query": "workflow saga state machine",
+      "cachedFileCount": 0,
+      "fullNameLower": "mheiber/redux-machine"
+    },
+    {
+      "fullName": "sbilly/awesome-security",
+      "stars": 14880,
+      "language": null,
+      "url": "https://github.com/sbilly/awesome-security",
+      "dimension": "toolloop",
+      "round": 15,
+      "query": "repeated tool call prevention",
+      "cachedFileCount": 0,
+      "fullNameLower": "sbilly/awesome-security"
+    },
+    {
+      "fullName": "aasthas2022/SDE-Interview-and-Prep-Roadmap",
+      "stars": 3279,
+      "language": "Python",
+      "url": "https://github.com/aasthas2022/SDE-Interview-and-Prep-Roadmap",
+      "dimension": "toolloop",
+      "round": 15,
+      "query": "repeated tool call prevention",
+      "cachedFileCount": 0,
+      "fullNameLower": "aasthas2022/sde-interview-and-prep-roadmap"
+    },
+    {
+      "fullName": "indy256/Full-stack-Developer-Interview-Questions-and-Answers",
+      "stars": 2740,
+      "language": null,
+      "url": "https://github.com/indy256/Full-stack-Developer-Interview-Questions-and-Answers",
+      "dimension": "toolloop",
+      "round": 15,
+      "query": "repeated tool call prevention",
+      "cachedFileCount": 0,
+      "fullNameLower": "indy256/full-stack-developer-interview-questions-and-answers"
+    },
+    {
+      "fullName": "stephenh/ts-proto",
+      "stars": 2594,
+      "language": "TypeScript",
+      "url": "https://github.com/stephenh/ts-proto",
+      "dimension": "toolloop",
+      "round": 15,
+      "query": "repeated tool call prevention",
+      "cachedFileCount": 0,
+      "fullNameLower": "stephenh/ts-proto"
+    },
+    {
+      "fullName": "0x90/wifi-arsenal",
+      "stars": 2203,
+      "language": "C",
+      "url": "https://github.com/0x90/wifi-arsenal",
+      "dimension": "toolloop",
+      "round": 15,
+      "query": "repeated tool call prevention",
+      "cachedFileCount": 0,
+      "fullNameLower": "0x90/wifi-arsenal"
+    },
+    {
+      "fullName": "modelcontextprotocol/servers",
+      "stars": 90563,
+      "language": "TypeScript",
+      "url": "https://github.com/modelcontextprotocol/servers",
+      "dimension": "longdocument",
+      "round": 15,
+      "query": "context window management llm",
+      "cachedFileCount": 0,
+      "fullNameLower": "modelcontextprotocol/servers"
+    },
+    {
+      "fullName": "MoonshotAI/Kimi-K2",
+      "stars": 11112,
+      "language": null,
+      "url": "https://github.com/MoonshotAI/Kimi-K2",
+      "dimension": "provider",
+      "round": 15,
+      "query": "deepseek function calling client",
+      "cachedFileCount": 0,
+      "fullNameLower": "moonshotai/kimi-k2"
+    },
+    {
+      "fullName": "styfeng/DataAug4NLP",
+      "stars": 834,
+      "language": null,
+      "url": "https://github.com/styfeng/DataAug4NLP",
+      "dimension": "routing",
+      "round": 15,
+      "query": "dialogue intent corpus",
+      "cachedFileCount": 0,
+      "fullNameLower": "styfeng/dataaug4nlp"
+    },
+    {
+      "fullName": "snakeztc/NeuralDialogPapers",
+      "stars": 643,
+      "language": null,
+      "url": "https://github.com/snakeztc/NeuralDialogPapers",
+      "dimension": "routing",
+      "round": 15,
+      "query": "dialogue intent corpus",
+      "cachedFileCount": 0,
+      "fullNameLower": "snakeztc/neuraldialogpapers"
+    },
+    {
+      "fullName": "OJ/gobuster",
+      "stars": 14150,
+      "language": "Go",
+      "url": "https://github.com/OJ/gobuster",
+      "dimension": "permission",
+      "round": 16,
+      "query": "permission denied tool execution",
+      "cachedFileCount": 0,
+      "fullNameLower": "oj/gobuster"
+    },
+    {
+      "fullName": "cuixueshe/earthworm",
+      "stars": 11079,
+      "language": "TypeScript",
+      "url": "https://github.com/cuixueshe/earthworm",
+      "dimension": "permission",
+      "round": 16,
+      "query": "permission denied tool execution",
+      "cachedFileCount": 0,
+      "fullNameLower": "cuixueshe/earthworm"
+    },
+    {
+      "fullName": "ibireme/YYText",
+      "stars": 8863,
+      "language": "Objective-C",
+      "url": "https://github.com/ibireme/YYText",
+      "dimension": "editing",
+      "round": 16,
+      "query": "range edit text document",
+      "cachedFileCount": 0,
+      "fullNameLower": "ibireme/yytext"
+    },
+    {
+      "fullName": "drona23/claude-token-efficient",
+      "stars": 6054,
+      "language": "Python",
+      "url": "https://github.com/drona23/claude-token-efficient",
+      "dimension": "longdocument",
+      "round": 16,
+      "query": "token counting context budget",
+      "cachedFileCount": 0,
+      "fullNameLower": "drona23/claude-token-efficient"
+    },
+    {
+      "fullName": "noamseg/interview-coach-skill",
+      "stars": 2269,
+      "language": null,
+      "url": "https://github.com/noamseg/interview-coach-skill",
+      "dimension": "routing",
+      "round": 16,
+      "query": "intent threshold calibration",
+      "cachedFileCount": 0,
+      "fullNameLower": "noamseg/interview-coach-skill"
+    },
+    {
+      "fullName": "Anil-matcha/awesome-jev-by-typesafe",
+      "stars": 815,
+      "language": "Python",
+      "url": "https://github.com/Anil-matcha/awesome-jev-by-typesafe",
+      "dimension": "routing",
+      "round": 16,
+      "query": "intent threshold calibration",
+      "cachedFileCount": 0,
+      "fullNameLower": "anil-matcha/awesome-jev-by-typesafe"
+    },
+    {
+      "fullName": "IDEA-Research/Grounded-Segment-Anything",
+      "stars": 17734,
+      "language": "Jupyter Notebook",
+      "url": "https://github.com/IDEA-Research/Grounded-Segment-Anything",
+      "dimension": "statemachine",
+      "round": 17,
+      "query": "workflow checkpoint recovery",
+      "cachedFileCount": 0,
+      "fullNameLower": "idea-research/grounded-segment-anything"
+    },
+    {
+      "fullName": "freestylefly/awesome-gpt-image-2",
+      "stars": 33373,
+      "language": "JavaScript",
+      "url": "https://github.com/freestylefly/awesome-gpt-image-2",
+      "dimension": "longdocument",
+      "round": 17,
+      "query": "document map summarization agent",
+      "cachedFileCount": 0,
+      "fullNameLower": "freestylefly/awesome-gpt-image-2"
+    },
+    {
+      "fullName": "metorial/metorial",
+      "stars": 3358,
+      "language": "TypeScript",
+      "url": "https://github.com/metorial/metorial",
+      "dimension": "provider",
+      "round": 17,
+      "query": "provider adapter tool calling",
+      "cachedFileCount": 0,
+      "fullNameLower": "metorial/metorial"
+    },
+    {
+      "fullName": "KingOfBugbounty/KingOfBugBountyTips",
+      "stars": 5541,
+      "language": "Python",
+      "url": "https://github.com/KingOfBugbounty/KingOfBugBountyTips",
+      "dimension": "routing",
+      "round": 17,
+      "query": "out of scope intent detection",
+      "cachedFileCount": 0,
+      "fullNameLower": "kingofbugbounty/kingofbugbountytips"
+    },
+    {
+      "fullName": "Intent-Lab/VisionClaw",
+      "stars": 2556,
+      "language": "TypeScript",
+      "url": "https://github.com/Intent-Lab/VisionClaw",
+      "dimension": "routing",
+      "round": 17,
+      "query": "out of scope intent detection",
+      "cachedFileCount": 0,
+      "fullNameLower": "intent-lab/visionclaw"
+    },
+    {
+      "fullName": "eugeneyan/ml-design-docs",
+      "stars": 716,
+      "language": null,
+      "url": "https://github.com/eugeneyan/ml-design-docs",
+      "dimension": "routing",
+      "round": 17,
+      "query": "out of scope intent detection",
+      "cachedFileCount": 0,
+      "fullNameLower": "eugeneyan/ml-design-docs"
+    },
+    {
+      "fullName": "xamarin/Xamarin.Auth",
+      "stars": 529,
+      "language": "C#",
+      "url": "https://github.com/xamarin/Xamarin.Auth",
+      "dimension": "routing",
+      "round": 17,
+      "query": "out of scope intent detection",
+      "cachedFileCount": 0,
+      "fullNameLower": "xamarin/xamarin.auth"
+    },
+    {
+      "fullName": "minio/minio",
+      "stars": 61356,
+      "language": "Go",
+      "url": "https://github.com/minio/minio",
+      "dimension": "protocol",
+      "round": 18,
+      "query": "tool invocation validation",
+      "cachedFileCount": 0,
+      "fullNameLower": "minio/minio"
+    },
+    {
+      "fullName": "analysis-tools-dev/static-analysis",
+      "stars": 14800,
+      "language": "Rust",
+      "url": "https://github.com/analysis-tools-dev/static-analysis",
+      "dimension": "permission",
+      "round": 18,
+      "query": "tool execution guard rails",
+      "cachedFileCount": 0,
+      "fullNameLower": "analysis-tools-dev/static-analysis"
+    },
+    {
+      "fullName": "markets/awesome-ruby",
+      "stars": 14158,
+      "language": null,
+      "url": "https://github.com/markets/awesome-ruby",
+      "dimension": "permission",
+      "round": 18,
+      "query": "tool execution guard rails",
+      "cachedFileCount": 0,
+      "fullNameLower": "markets/awesome-ruby"
+    },
+    {
+      "fullName": "rohitg00/awesome-claude-code-toolkit",
+      "stars": 2635,
+      "language": "JavaScript",
+      "url": "https://github.com/rohitg00/awesome-claude-code-toolkit",
+      "dimension": "permission",
+      "round": 18,
+      "query": "tool execution guard rails",
+      "cachedFileCount": 0,
+      "fullNameLower": "rohitg00/awesome-claude-code-toolkit"
+    },
+    {
+      "fullName": "dreikanter/ruby-bookmarks",
+      "stars": 2306,
+      "language": null,
+      "url": "https://github.com/dreikanter/ruby-bookmarks",
+      "dimension": "permission",
+      "round": 18,
+      "query": "tool execution guard rails",
+      "cachedFileCount": 0,
+      "fullNameLower": "dreikanter/ruby-bookmarks"
+    },
+    {
+      "fullName": "josephmisiti/awesome-machine-learning",
+      "stars": 74414,
+      "language": "Python",
+      "url": "https://github.com/josephmisiti/awesome-machine-learning",
+      "dimension": "routing",
+      "round": 18,
+      "query": "tool selection classifier",
+      "cachedFileCount": 0,
+      "fullNameLower": "josephmisiti/awesome-machine-learning"
+    },
+    {
+      "fullName": "r0f1/datascience",
+      "stars": 4672,
+      "language": null,
+      "url": "https://github.com/r0f1/datascience",
+      "dimension": "routing",
+      "round": 18,
+      "query": "tool selection classifier",
+      "cachedFileCount": 0,
+      "fullNameLower": "r0f1/datascience"
+    },
+    {
+      "fullName": "jondot/awesome-react-native",
+      "stars": 35705,
+      "language": null,
+      "url": "https://github.com/jondot/awesome-react-native",
+      "dimension": "verification",
+      "round": 18,
+      "query": "regression suite e2e ui",
+      "cachedFileCount": 0,
+      "fullNameLower": "jondot/awesome-react-native"
+    },
+    {
+      "fullName": "styfle/cancel-workflow-action",
+      "stars": 981,
+      "language": "TypeScript",
+      "url": "https://github.com/styfle/cancel-workflow-action",
+      "dimension": "statemachine",
+      "round": 19,
+      "query": "cancel workflow execution state",
+      "cachedFileCount": 0,
+      "fullNameLower": "styfle/cancel-workflow-action"
+    },
+    {
+      "fullName": "daytona/ai-enablement-stack",
+      "stars": 643,
+      "language": "HTML",
+      "url": "https://github.com/daytona/ai-enablement-stack",
+      "dimension": "toolloop",
+      "round": 19,
+      "query": "runloop agent tools",
+      "cachedFileCount": 0,
+      "fullNameLower": "daytona/ai-enablement-stack"
+    },
+    {
+      "fullName": "magsther/awesome-opentelemetry",
+      "stars": 980,
+      "language": null,
+      "url": "https://github.com/magsther/awesome-opentelemetry",
+      "dimension": "observability",
+      "round": 19,
+      "query": "llm trace collector",
+      "cachedFileCount": 0,
+      "fullNameLower": "magsther/awesome-opentelemetry"
+    },
+    {
+      "fullName": "adriannovegil/awesome-observability",
+      "stars": 695,
+      "language": "Makefile",
+      "url": "https://github.com/adriannovegil/awesome-observability",
+      "dimension": "observability",
+      "round": 19,
+      "query": "llm trace collector",
+      "cachedFileCount": 0,
+      "fullNameLower": "adriannovegil/awesome-observability"
+    },
+    {
+      "fullName": "jaywcjlove/awesome-mac",
+      "stars": 114606,
+      "language": "Swift",
+      "url": "https://github.com/jaywcjlove/awesome-mac",
+      "dimension": "longdocument",
+      "round": 19,
+      "query": "scrolling context document reader",
+      "cachedFileCount": 0,
+      "fullNameLower": "jaywcjlove/awesome-mac"
+    },
+    {
+      "fullName": "brillout/awesome-react-components",
+      "stars": 48472,
+      "language": null,
+      "url": "https://github.com/brillout/awesome-react-components",
+      "dimension": "longdocument",
+      "round": 19,
+      "query": "scrolling context document reader",
+      "cachedFileCount": 0,
+      "fullNameLower": "brillout/awesome-react-components"
+    },
+    {
+      "fullName": "Trinea/android-open-project",
+      "stars": 31805,
+      "language": null,
+      "url": "https://github.com/Trinea/android-open-project",
+      "dimension": "longdocument",
+      "round": 19,
+      "query": "scrolling context document reader",
+      "cachedFileCount": 0,
+      "fullNameLower": "trinea/android-open-project"
+    },
+    {
+      "fullName": "browser-use/jev-ultrafast",
+      "stars": 18863,
+      "language": "Python",
+      "url": "https://github.com/browser-use/jev-ultrafast",
+      "dimension": "longdocument",
+      "round": 19,
+      "query": "scrolling context document reader",
+      "cachedFileCount": 0,
+      "fullNameLower": "browser-use/jev-ultrafast"
+    },
+    {
+      "fullName": "sindresorhus/awesome",
+      "stars": 509277,
+      "language": null,
+      "url": "https://github.com/sindresorhus/awesome",
+      "dimension": "routing",
+      "round": 19,
+      "query": "natural language command routing",
+      "cachedFileCount": 0,
+      "fullNameLower": "sindresorhus/awesome"
+    },
+    {
+      "fullName": "react-boilerplate/react-boilerplate",
+      "stars": 29475,
+      "language": "JavaScript",
+      "url": "https://github.com/react-boilerplate/react-boilerplate",
+      "dimension": "routing",
+      "round": 19,
+      "query": "natural language command routing",
+      "cachedFileCount": 0,
+      "fullNameLower": "react-boilerplate/react-boilerplate"
+    },
+    {
+      "fullName": "vinta/awesome-python",
+      "stars": 322499,
+      "language": "Python",
+      "url": "https://github.com/vinta/awesome-python",
+      "dimension": "protocol",
+      "round": 20,
+      "query": "agent tools typed schema",
+      "cachedFileCount": 0,
+      "fullNameLower": "vinta/awesome-python"
+    },
+    {
+      "fullName": "pbakaus/impeccable",
+      "stars": 70150,
+      "language": "JavaScript",
+      "url": "https://github.com/pbakaus/impeccable",
+      "dimension": "permission",
+      "round": 20,
+      "query": "workspace trust tool permission",
+      "cachedFileCount": 0,
+      "fullNameLower": "pbakaus/impeccable"
+    },
+    {
+      "fullName": "avante-corp/avante.nvim",
+      "stars": 18166,
+      "language": "Lua",
+      "url": "https://github.com/avante-corp/avante.nvim",
+      "dimension": "editing",
+      "round": 20,
+      "query": "structured edit diff apply",
+      "cachedFileCount": 0,
+      "fullNameLower": "avante-corp/avante.nvim"
+    },
+    {
+      "fullName": "diff-usion/Awesome-Diffusion-Models",
+      "stars": 12371,
+      "language": "HTML",
+      "url": "https://github.com/diff-usion/Awesome-Diffusion-Models",
+      "dimension": "editing",
+      "round": 20,
+      "query": "structured edit diff apply",
+      "cachedFileCount": 0,
+      "fullNameLower": "diff-usion/awesome-diffusion-models"
+    },
+    {
+      "fullName": "Egonex-AI/Understand-Anything",
+      "stars": 83834,
+      "language": "TypeScript",
+      "url": "https://github.com/Egonex-AI/Understand-Anything",
+      "dimension": "provider",
+      "round": 20,
+      "query": "gemini parallel function calls",
+      "cachedFileCount": 0,
+      "fullNameLower": "egonex-ai/understand-anything"
+    },
+    {
+      "fullName": "KRTirtho/spotube",
+      "stars": 49360,
+      "language": "Dart",
+      "url": "https://github.com/KRTirtho/spotube",
+      "dimension": "routing",
+      "round": 20,
+      "query": "intent router service",
+      "cachedFileCount": 0,
+      "fullNameLower": "krtirtho/spotube"
+    },
+    {
+      "fullName": "openai/openai-cs-agents-demo",
+      "stars": 6574,
+      "language": "Python",
+      "url": "https://github.com/openai/openai-cs-agents-demo",
+      "dimension": "routing",
+      "round": 20,
+      "query": "intent router service",
+      "cachedFileCount": 0,
+      "fullNameLower": "openai/openai-cs-agents-demo"
+    },
+    {
+      "fullName": "jinwyp/one_click_script",
+      "stars": 5142,
+      "language": "Shell",
+      "url": "https://github.com/jinwyp/one_click_script",
+      "dimension": "verification",
+      "round": 20,
+      "query": "installer verification script",
+      "cachedFileCount": 0,
+      "fullNameLower": "jinwyp/one_click_script"
+    },
+    {
+      "fullName": "mon5termatt/medicat_installer",
+      "stars": 3279,
+      "language": "C++",
+      "url": "https://github.com/mon5termatt/medicat_installer",
+      "dimension": "verification",
+      "round": 20,
+      "query": "installer verification script",
+      "cachedFileCount": 0,
+      "fullNameLower": "mon5termatt/medicat_installer"
+    },
+    {
+      "fullName": "maddox/magick-installer",
+      "stars": 487,
+      "language": "Shell",
+      "url": "https://github.com/maddox/magick-installer",
+      "dimension": "verification",
+      "round": 20,
+      "query": "installer verification script",
+      "cachedFileCount": 0,
+      "fullNameLower": "maddox/magick-installer"
+    }
+  ]
+}

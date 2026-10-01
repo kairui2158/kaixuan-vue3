@@ -1,0 +1,123 @@
+{
+  "dimension": "statemachine",
+  "round": 15,
+  "query": "workflow saga state machine",
+  "repositories": [
+    {
+      "fullName": "systemdesign42/system-design-academy",
+      "stars": 28953,
+      "language": null,
+      "defaultBranch": "main",
+      "url": "https://github.com/systemdesign42/system-design-academy",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "meirwah/awesome-workflow-engines",
+      "stars": 7933,
+      "language": null,
+      "defaultBranch": "master",
+      "url": "https://github.com/meirwah/awesome-workflow-engines",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "krasimir/kuker",
+      "stars": 656,
+      "language": "JavaScript",
+      "defaultBranch": "master",
+      "url": "https://github.com/krasimir/kuker",
+      "cachedFiles": [
+        {
+          "path": "src/kuker-ui/components/Dashboard/Handlers/SagaEffectCanceled.js",
+          "size": 948,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\krasimir_kuker__src_kuker-ui_components_Dashboard_Handlers_SagaEffectCanceled.js.txt",
+          "excerpt": "// eslint-disable-next-line no-unused-vars\nimport React from 'react';\n// eslint-disable-next-line no-unused-vars\nimport SagaEffectName from './helpers/SagaEffectName';\n// eslint-disable-next-line no-unused-vars\nimport SagaEffectIds from './helpers/SagaEffectIds';\n\nimport calculateRowStyles from './helpers/calculateRowStyles';\n// eslint-disable-next-line no-unused-vars\nimport TimeDiff from '../../TimeDiff';\n\nexport default function SagaEffectCanceled({ event, onClick, className }) {\n  var label = 'canceled';\n  const style = calculateRowStyles(event, { color: 'rgb(230, 230, 230)' });\n  const { timeDiff } = event;\n\n  return (\n    <div style={ style } onClick={ onClick } className={ className }>\n      <TimeDiff timeDiff={ timeDiff } parentStyle={ style } />\n      <div className='actionRowContent'>\n        <i className='fa fa-times-rectangle-o'></i>\n        <SagaEffectIds event={ event } />\n        { label }\n      </div>\n    </div>\n  );\n}\n"
+        },
+        {
+          "path": "src/kuker-ui/components/Dashboard/Handlers/onGeneratorResumed.js",
+          "size": 951,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\krasimir_kuker__src_kuker-ui_components_Dashboard_Handlers_onGeneratorResumed.js.txt",
+          "excerpt": "// eslint-disable-next-line no-unused-vars\nimport React from 'react';\n// eslint-disable-next-line no-unused-vars\nimport getMachineName from '../../../helpers/getMachineName';\nimport shortenJSON from '../../../helpers/shortenJSON';\n\nimport calculateRowStyles from './helpers/calculateRowStyles';\n// eslint-disable-next-line no-unused-vars\nimport TimeDiff from '../../TimeDiff';\n\nexport default function onGeneratorResumed({ event, onClick, className }) {\n  const { value, timeDiff } = event;\n  const style = calculateRowStyles(event, { color: 'rgb(201, 202, 189)' });\n  const short = value ? `with ${ shortenJSON(value) }` : '';\n\n  return (\n    <div style={ style } onClick={ onClick } className={ className }>\n      <TimeDiff timeDiff={ timeDiff } parentStyle={ style } />\n      <div className='actionRowContent'>\n        <i className='fa fa-arrow-circle-right'></i>\n        generator <strong>resumed</strong> { short }\n      </div>\n    </div>\n  );\n}\n"
+        }
+      ]
+    },
+    {
+      "fullName": "sopaco/saga-reader",
+      "stars": 537,
+      "language": "Rust",
+      "defaultBranch": "main",
+      "url": "https://github.com/sopaco/saga-reader",
+      "cachedFiles": [
+        {
+          "path": "app/src/routes/main/stores/tasks.svelte.ts",
+          "size": 2287,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\sopaco_saga-reader__app_src_routes_main_stores_tasks.svelte.ts.txt",
+          "excerpt": "import type { StoreType as LoadingStore } from './loading.svelte';\nimport { create as createLoadingStore, Status } from './loading.svelte';\n\ntype PendingItem = {\n\tdescription: string;\n\tloadingStore: LoadingStore;\n\tpromise: Promise<unknown>;\n};\n\ntype StoreType = {\n\tpendingStatus: Status;\n\tpendingStatusText: string;\n\tpendings: PendingItem[];\n\taddPending: (description: string, promise: Promise<unknown>) => void;\n\tqueryPending: (description: string) => PendingItem | undefined;\n\tremove: (pending: PendingItem) => void;\n};\n\nfunction createPending(description: string, promise: Promise<unknown>): PendingItem {\n\tconst loadingStore = createLoadingStore(Status.Loading);\n\tpromise.then(loadingStore.complete).catch(loadingStore.error);\n\treturn {\n\t\tdescription,\n\t\tloadingStore,\n\t\tpromise\n\t};\n}\n\nfunction create(): StoreType {\n\tlet pendings: PendingItem[] = $state([]);\n\tconst pendingStatus: Status = $derived.by(() => {\n\t\tlet hasError = false;\n\t\tfor (const pending of pendings) {\n\t\t\tif (pending.loadingStore.status === Status.Loading) return Status.Loading;\n\t\t\tif (pending.loadingStore.status === Status.Error) hasError = true;\n\t\t}\n\t\treturn hasError ? Status.Error : Status.Completed;\n\t});\n\n\tconst pendingStatusText = $derived.by(() => {\n\t\tswitch (pendingStatus) {\n\t\t\tcase Status.Loading:\n\t\t\t\tconst loadingPendings = pendings.filter((p) => p.loadingStore.status === Status.Loading);\n\t\t\t\treturn `处理中...${loadingPendings.length}项`;\n\t\t\tcase Status.Completed:\n\t\t\t\treturn '就绪';\n\t\t\tcase Status.Error:\n\t\t\t\treturn '出现错误，点击查看详情';\n\t\t}\n\t});\n\n\tfunction remove(p: PendingItem) {\n\t\tpendings = pendings.filter((pending) => pending !== p);\n\t}\n\n\tfunction addPending(description: string, promise: Promise<unknown>) {\n\t\tconst pending = createPending(description, promise);\n\t\tpromise.then(() => {\n\t\t\tpendings = pendings.filter((pending) => pending.loadingStore.status !== Status.Completed);\n\t\t});\n\t\tpendings.push(pending);\n\t}\n\n\tfunction queryPending(description: string) {\n\t\treturn pendings.find((pending) => pending.description === description);\n\t}\n\n\treturn {\n\t\tget pendingStatus() {\n\t\t\treturn pendingStatus;\n\t\t},\n\t\tget pendingStatusText() {\n\t\t\treturn pendingStatusText;\n\t\t},\n\t\tget pendings() {\n\t\t\treturn pendings;\n\t\t},\n\t\taddPending,\n\t\tqueryPending,\n\t\tremove\n\t};\n}\n\nexport type { StoreType };\nexport { create };\n"
+        },
+        {
+          "path": "crates/feed_api_rs/src/startup/task.rs",
+          "size": 1785,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\sopaco_saga-reader__crates_feed_api_rs_src_startup_task.rs.txt",
+          "excerpt": "use std::future::Future;\n\nuse spdlog::{error, info};\nuse tokio::time::Instant;\n\nuse super::types::{Status, TaskDump};\n\npub trait TaskInitializer<TResult, TData> {\n    fn start<F: FnOnce() -> Fut, Fut: Future<Output = anyhow::Result<TData>>>(\n        &mut self,\n        task_name: &str,\n        function: F,\n    ) -> impl Future<Output = anyhow::Result<()>>;\n\n    fn dump(&self) -> TaskDump;\n}\n\npub struct InitTask<TData> {\n    pub result: Option<TData>,\n    pub task_cost: u128,\n    pub task_status: Status,\n}\n\nimpl<TData> Default for InitTask<TData> {\n    fn default() -> Self {\n        InitTask {\n            result: None,\n            task_cost: 0,\n            task_status: Status::UnLaunch,\n        }\n    }\n}\n\nimpl<TData> TaskInitializer<InitTask<TData>, TData> for InitTask<TData> {\n    async fn start<F: FnOnce() -> Fut, Fut: Future<Output = anyhow::Result<TData>>>(\n        &mut self,\n        task_name: &str,\n        function: F,\n    ) -> anyhow::Result<()> {\n        let duration_elapse = Instant::now();\n        self.task_status = Status::Running;\n        match function().await {\n            Ok(result) => {\n                self.result = Some(result);\n                self.task_status = Status::Completed;\n                self.task_cost = duration_elapse.elapsed().as_millis();\n                info!(\"the task {} execute completed, cost {}ms\", task_name, self.task_cost);\n                Ok(())\n            }\n            Err(err) => {\n                self.task_status = Status::Error;\n                error!(\"the task {} execute error...{}\", task_name, err);\n                Err(err)\n            }\n        }\n    }\n\n    fn dump(&self) -> super::types::TaskDump {\n        TaskDump {\n            status: self.task_status,\n            duration: self.task_cost,\n        }\n    }\n}\n"
+        }
+      ]
+    },
+    {
+      "fullName": "idugalic/micro-company",
+      "stars": 362,
+      "language": "JavaScript",
+      "defaultBranch": "master",
+      "url": "https://github.com/idugalic/micro-company",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "mheiber/redux-machine",
+      "stars": 335,
+      "language": "JavaScript",
+      "defaultBranch": "dev",
+      "url": "https://github.com/mheiber/redux-machine",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "NitorCreations/nflow",
+      "stars": 239,
+      "language": "Java",
+      "defaultBranch": "master",
+      "url": "https://github.com/NitorCreations/nflow",
+      "cachedFiles": [
+        {
+          "path": "nflow-engine/src/main/java/io/nflow/engine/workflow/definition/StateTransitionValidationMode.java",
+          "size": 617,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\NitorCreations_nflow__nflow-engine_src_main_java_io_nflow_engine_workflow_definition_StateTransitionValidationMode.java.txt",
+          "excerpt": "package io.nflow.engine.workflow.definition;\n\n/**\n * Defines which workflow state transitions are accepted when validating a transition.\n */\npublic enum StateTransitionValidationMode {\n\n  /**\n   * Allow only normal transitions configured in workflow definition state transitions.\n   */\n  allowNormal,\n\n  /**\n   * Allow only failure transition configured in the workflow definition.\n   */\n  allowFailure,\n\n  /**\n   * Allow both normal and failure transitions configured in workflow definition.\n   */\n  allowNormalAndFailure,\n\n  /**\n   * Disable transition validation and allow all transitions.\n   */\n  doNotValidate\n}\n"
+        },
+        {
+          "path": "nflow-engine/src/main/java/io/nflow/engine/exception/StateProcessExceptionHandling.java",
+          "size": 1288,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\NitorCreations_nflow__nflow-engine_src_main_java_io_nflow_engine_exception_StateProcessExceptionHandling.java.txt",
+          "excerpt": "package io.nflow.engine.exception;\n\n/**\n * Controls how an exception thrown by a state method should be handled by the workflow state processor.\n */\npublic class StateProcessExceptionHandling extends ExceptionHandling {\n  /**\n   * True when the state method processing should be retried.\n   */\n  public final boolean isRetryable;\n\n  StateProcessExceptionHandling(Builder builder) {\n    super(builder);\n    this.isRetryable = builder.isRetryable;\n  }\n\n  /**\n   * Builder for exception handling settings.\n   */\n  public static class Builder extends ExceptionHandling.Builder<Builder> {\n    boolean isRetryable = true;\n\n    /**\n     * {@inheritDoc}\n     */\n    @Override\n    public Builder getThis() {\n      return this;\n    }\n\n    /**\n     * Set if state method processing is retryable or not.\n     *\n     * @param isRetryable\n     *          True if state method processing should be retried.\n     * @return This.\n     */\n    public Builder setRetryable(boolean isRetryable) {\n      this.isRetryable = isRetryable;\n      return this;\n    }\n\n    /**\n     * Create the exception handling object.\n     *\n     * @return State process exception handling.\n     */\n    @Override\n    public StateProcessExceptionHandling build() {\n      return new StateProcessExceptionHandling(this);\n    }\n  }\n}\n"
+        }
+      ]
+    },
+    {
+      "fullName": "GoogleCloudPlatform/workflows-demos",
+      "stars": 159,
+      "language": "Python",
+      "defaultBranch": "master",
+      "url": "https://github.com/GoogleCloudPlatform/workflows-demos",
+      "cachedFiles": [
+        {
+          "path": "state-management-firestore/README.md",
+          "size": 574,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\GoogleCloudPlatform_workflows-demos__state-management-firestore_README.md.txt",
+          "excerpt": "# Workflows state management with Firestore\n\nSometimes, you need to store some state (typically a key/value pair) in a\nstep from one workflow execution and later read that state in another step from\nanother workflow execution. There's no intrinsic key/value store in Workflows.\nHowever, you can use Firestore to store and read key/value pairs from Workflows.\n\nIn the [workflow.yaml](workflow.yaml), you can see how to store different types\nof key/value pairs to Firestore. It uses the workflow name as the collection\nname and stores each key/value pair in a single document."
+        },
+        {
+          "path": "workflow-tasks-workflow/README.md",
+          "size": 5175,
+          "cachePath": "_audit\\research-api-direct-write-100-closure-2026-09-23\\cache\\GoogleCloudPlatform_workflows-demos__workflow-tasks-workflow_README.md.txt",
+          "excerpt": "# Buffer workflow executions with a Cloud Tasks queue\n\nWhen you receive a heavy burst of traffic, it's tempting to create a high number\nof concurrent executions and let Workflows deal with them. This works until you hit\nthe [quotas](https://cloud.google.com/workflows/quotas) Workflows enforce. For\nexample, Workflows enforces **2000** maximum number of concurrent workflow\nexecutions per region, per project. Once the limit is reached, new executions\nfail with an HTTP 429.\n\nThankfully, a Cloud Tasks queue can help. Instead of creating Workflows\nexecutions directly, you can add tasks to a Cloud Tasks queue and let Cloud\nTasks drain that queue at a rate you define. This way, you can better utilize\nyour workflow quota.\n\nIn this example, we show how a parent workflow can create tasks to execute a\nchild workflow at a specified rate using a Cloud Tasks queue in the middle.\n\n![Workflow executing workflow with a queue in the middle](./images/image0.png)\n\n## Create a Cloud Tasks queue\n\nFirst, create a Cloud Tasks queue with no rate limits:\n\n```sh\nQUEUE=queue-workflow-child\nLOCATION=us-central1\n\ngcloud tasks queues create queue-workflow-child --location=$LOCATION\n```\n\n## Create and deploy a child workflow\n\nNext, let's create a child workflow in [workflow-child.yaml](./workflow-child.yaml).\n\nThe child workflow receives an `iteration` argument from the parent workflow. It\nwaits 10 seconds to simulate doing work and returns a string as result:\n\n```yaml\nmain:\n  params: [args]\n  steps:\n    - init:\n        assign:\n          - iteration : ${args.iteration}\n    - wait:\n        call: sys.sleep\n        args:\n            seconds: 10\n    - return_message:\n        return: ${\"Hello world\"+iteration}\n```\n\nDeploy the child workflow:\n\n```sh\ngcloud workflows deploy workflow-child --source=workflow-child.yaml --location=$LOCATION\n```\n\n## Create and deploy a parent workflow\n\nNext, create a parent workflow in [workflow-parent.yaml](./workflow-parent.yaml).\n\nThe workflow assigns some constants first. Note that it's referring to the child\nworkflow and the queue name between the parent and child workflows:\n\n```yaml\nmain:\n  steps:\n    - init:\n        assign:\n          - project_id: ${sys.get_env(\"GOOGLE_CLOUD_PROJECT_ID\")}\n          - project_number: ${sys.get_env(\"GOOGLE_CLOUD_PROJECT_NUMBER\")}\n          - location: ${sys.get_env(\"GOOGLE_CLOUD_LOCATION\")}\n          - workflow_child_name: \"workflow-child\"\n          - queue_name: \"queue-workflow-child\"\n```\n\nIn the next step, it adds a high number of tasks to the Cloud Tasks queue to\nexecute the child workflow:\n\n```yaml\n    - enqueue_tasks_to_execute_child_workflow:\n        for:\n          value: iteration\n          range: [1, 100]\n          steps:\n              - iterate:\n                  assign:\n                    - data:\n                        iteration: ${iteration}\n                    - exec:\n                        # Need to wrap into argument for Workflows args.\n                        argument: ${json.encode_to_string(data)}\n              - create_task_to_execute_child_workflow:\n                  call: googleapis.cloudtasks.v2.projects.locations.queues.tasks.create\n                  args:\n                      parent: ${\"projects/\" + project_id + \"/locations/\" + location + \"/queues/\" + queue_name}\n                      body:\n                        task:\n                          httpRequest:\n                            body: ${base64.encode(json.encode(exec))}\n                            url: ${\"https://workflowexecutions.googleapis.com/v1/projects/\" + project_id + \"/locations/\" + location + \"/workflows/\" + workflow_child_name + \"/executions\"}\n                            oauthToken:\n                              serviceAccountEmail: ${project_number + \"-compute@developer.gserviceaccount.com\"}\n```\n\nDeploy the parent workflow:\n\n```sh\ngcloud workflows deploy workflow-parent --source=workflow-parent.yaml --location=$LOCATION\n```\n\n## Execute the parent workflow with no rate limits\n\nTime to execute the parent workflow:\n\n```sh\ngcloud workflows run workflow-parent --location=$LOCATION\n```\n\nAs the parent workflow is running, you can see parallel executions of the child\nworkflow, all executed roughly around the same:\n\n![Parallel executions with no rate limits](./images/image1.png)\n\nIn this case, 100 executions is a piece of cake for Workflows, but you can run\ninto quota issues, if you submit 1000s of executions all at once. This in when\nCloud Tasks queue and its rate limits become useful.\n\n## Execute the parent workflow with rate limits\n\nLet's now apply a rate limit to the Cloud Tasks queue. In this case, 1 dispatch\nper second:\n\n```sh\ngcloud tasks queues update $QUEUE --max-dispatches-per-second=1 --location=$LOCATION\n```\n\nExecute the parent workflow again:\n\n```sh\ngcloud workflows run workflow-parent --location=$LOCATION\n```\n\nThis time, you see a more smooth execution rate (1 execution request per second):\n\n![Parallel executions with rate limits](./images/image2.png)\n\nPlaying with different dispatch rates and concurrency settings of Cloud Tasks\nqueues, you can better utilize your quota and stay below the limits without\ntriggering unnecessary quota related failures.\n\n"
+        }
+      ]
+    }
+  ]
+}

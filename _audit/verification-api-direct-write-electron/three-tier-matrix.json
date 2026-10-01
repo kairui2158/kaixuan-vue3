@@ -1,0 +1,59 @@
+{
+  "schema": "shenyi.api-direct-write-electron-matrix",
+  "version": 1,
+  "generatedAt": "2026-09-24T19:02:25.716Z",
+  "tiers": {
+    "S": {
+      "chars": 42,
+      "operation": "replace_match",
+      "requests": 2,
+      "evidence": "07-outline-natural-individual-edit.png; format-edit scenario"
+    },
+    "M": {
+      "chars": 91302,
+      "operations": [
+        "replace_match",
+        "replace_match"
+      ],
+      "requests": 3,
+      "evidence": "12-outline-long-document-edit-task.png"
+    },
+    "L": {
+      "chars": 1028903,
+      "operations": [
+        "document_map",
+        "read_range",
+        "replace_match",
+        "replace_match"
+      ],
+      "requests": 10,
+      "evidence": "13-outline-million-document-edit-task.png"
+    }
+  },
+  "hardAssertions": {
+    "wholeDocumentReplacementRejected": true,
+    "inputWithinDeclaredWindow": true,
+    "documentMapVisible": true,
+    "segmentedReadsVisible": true,
+    "batchCheckpointsRecorded": true,
+    "contentIntegrity": {
+      "beforeChars": 1028903,
+      "afterChars": 1028913,
+      "beforeLines": 20001,
+      "afterLines": 20001,
+      "changedLines": 2,
+      "duplicateSectionTitles": 0
+    },
+    "uiAlwaysStateful": true,
+    "traceExplainable": {
+      "runs": [
+        "format-edit",
+        "long-document-edit-task",
+        "million-document-edit-task",
+        "context-budget-5k"
+      ],
+      "apiCallsClosed": true,
+      "exportPath": "run-trace-export.json"
+    }
+  }
+}

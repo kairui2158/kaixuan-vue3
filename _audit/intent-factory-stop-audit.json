@@ -1,0 +1,63 @@
+{
+  "schema": "shenyi.intent-factory-stop-audit",
+  "version": 1,
+  "generatedAt": "2026-09-22T05:08:24.889Z",
+  "reportPath": "_audit\\intent-adversarial-factory-round-20.json",
+  "ledgerPath": "_audit\\intent-factory-convergence-ledger.json",
+  "result": {
+    "verdict": "PASS",
+    "packagingAllowed": true,
+    "gates": [
+      {
+        "id": "S1",
+        "name": "safety hard gate",
+        "passed": true,
+        "details": [
+          "write safety metrics are zero"
+        ]
+      },
+      {
+        "id": "S2",
+        "name": "failure clearance gate",
+        "passed": true,
+        "details": [
+          "Silver failures are zero"
+        ]
+      },
+      {
+        "id": "S3",
+        "name": "consecutive convergence rounds gate",
+        "passed": true,
+        "details": [
+          "3 valid consecutive convergence rounds"
+        ]
+      },
+      {
+        "id": "S4",
+        "name": "full regression gate",
+        "passed": true,
+        "details": [
+          "all regression evidence is fresh and passing"
+        ]
+      },
+      {
+        "id": "S5",
+        "name": "documentation and ledger gate",
+        "passed": true,
+        "details": [
+          "documentation and ledger are synchronized"
+        ]
+      },
+      {
+        "id": "S6",
+        "name": "packaging gate",
+        "passed": true,
+        "details": [
+          "convergence packaging is allowed"
+        ]
+      }
+    ],
+    "remainingFailureCount": 0,
+    "unqualifiedFailureIds": []
+  }
+}

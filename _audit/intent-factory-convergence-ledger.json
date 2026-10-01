@@ -1,0 +1,264 @@
+{
+  "schema": "shenyi.intent-factory-convergence-ledger",
+  "version": 1,
+  "createdAt": "2026-09-22T00:00:00.000Z",
+  "latestReportPath": "_audit/intent-adversarial-factory-round-20.json",
+  "baseline": {
+    "round": 5,
+    "seedCount": 82,
+    "silverCount": 336,
+    "bronzeCount": 1571,
+    "metrics": {
+      "writeFalseTriggers": 0,
+      "falseRejections": 46,
+      "missedRejections": 0,
+      "discussBlocked": 15,
+      "intentMismatches": 25
+    },
+    "manuscriptConsistency": 0.975
+  },
+  "rounds": [
+    {
+      "round": 5,
+      "timestamp": "2026-09-22T00:57:04.001Z",
+      "reportPath": "_audit/intent-adversarial-factory-round-5.json",
+      "effective": false,
+      "note": "baseline-only: infrastructure milestone, not a convergence round"
+    },
+    {
+      "round": 12,
+      "timestamp": "2026-09-22T04:17:18.924Z",
+      "reportPath": "_audit/intent-adversarial-factory-round-12.json",
+      "inputHash": "d18e53f232f2478c80d8a0af325d19fbfae921aa5896cb8e3b25b10c42ea51a6",
+      "effective": false,
+      "actions": [
+        "added 8 factory-accretion-r12 seeds",
+        "exposed one analyze misroute for 盘点 + write target"
+      ],
+      "metricsDelta": {
+        "seedCount": 90,
+        "silverCount": 356,
+        "writeFalseTriggers": 0,
+        "falseRejections": 0,
+        "missedRejections": 0,
+        "discussBlocked": 0,
+        "intentMismatches": 1
+      },
+      "evidence": [
+        "_audit/intent-adversarial-factory-round-12.json"
+      ],
+      "note": "failure round; fixed before effective sequence"
+    },
+    {
+      "round": 13,
+      "timestamp": "2026-09-22T04:22:57.383Z",
+      "reportPath": "_audit/intent-adversarial-factory-round-13.json",
+      "inputHash": "d18e53f232f2478c80d8a0af325d19fbfae921aa5896cb8e3b25b10c42ea51a6",
+      "effective": true,
+      "actions": [
+        "added 盘点 to read-only analyze verbs",
+        "added regression: inventory questions with write targets route to analyze",
+        "re-ran router and stop-audit focused tests"
+      ],
+      "metricsDelta": {
+        "seedCount": 90,
+        "silverCount": 356,
+        "writeFalseTriggers": 0,
+        "falseRejections": 0,
+        "missedRejections": 0,
+        "discussBlocked": 0,
+        "intentMismatches": 0
+      },
+      "evidence": [
+        "_audit/intent-adversarial-factory-round-13.json",
+        "_audit/intent-factory-rounds-13-16.json"
+      ],
+      "note": "same input set as round-12; effective identity is report + behavior-fix + metrics + evidence, not inputHash alone"
+    },
+    {
+      "round": 14,
+      "timestamp": "2026-09-22T04:24:32.252Z",
+      "reportPath": "_audit/intent-adversarial-factory-round-14.json",
+      "inputHash": "f689da65bec7f05e99acb8543653df5b7d9fe1ed7e2cb3b11b995e56ff740c8f",
+      "effective": true,
+      "actions": [
+        "added 8 factory-accretion-r14 seeds covering edit/analyze/generate/discuss"
+      ],
+      "metricsDelta": {
+        "seedCount": 98,
+        "silverCount": 381,
+        "writeFalseTriggers": 0,
+        "falseRejections": 0,
+        "missedRejections": 0,
+        "discussBlocked": 0,
+        "intentMismatches": 0
+      },
+      "evidence": [
+        "_audit/intent-adversarial-factory-round-14.json",
+        "_audit/intent-factory-rounds-13-16.json"
+      ]
+    },
+    {
+      "round": 15,
+      "timestamp": "2026-09-22T04:25:57.000Z",
+      "reportPath": "_audit/intent-adversarial-factory-round-15.json",
+      "inputHash": "3154bc2cf5d12ef632a4e805ee22a145bb7896e1b8045d13954516c2eb44469d",
+      "effective": false,
+      "actions": [
+        "added 8 factory-accretion-r15 seeds",
+        "exposed two seed-label errors for 补一段"
+      ],
+      "metricsDelta": {
+        "seedCount": 106,
+        "silverCount": 401,
+        "writeFalseTriggers": 0,
+        "falseRejections": 0,
+        "missedRejections": 0,
+        "discussBlocked": 0,
+        "intentMismatches": 2
+      },
+      "evidence": [
+        "_audit/intent-adversarial-factory-round-15.json"
+      ],
+      "note": "failure round; 补一段 is editor-insert semantics, seed labels were wrong and fixed in round-16"
+    },
+    {
+      "round": 16,
+      "timestamp": "2026-09-22T04:26:42.000Z",
+      "reportPath": "_audit/intent-adversarial-factory-round-16.json",
+      "inputHash": "c557140bbc80a8fdf866c9742fb702be1c17cbd11a73eaf3862d5bbb6c912650",
+      "effective": true,
+      "actions": [
+        "changed ambiguous generate seed to 撰写一段前史短稿",
+        "added editor-insert positive seed for 补一段",
+        "re-ran factory round with all 107 seeds"
+      ],
+      "metricsDelta": {
+        "seedCount": 107,
+        "silverCount": 402,
+        "writeFalseTriggers": 0,
+        "falseRejections": 0,
+        "missedRejections": 0,
+        "discussBlocked": 0,
+        "intentMismatches": 0
+      },
+      "evidence": [
+        "_audit/intent-adversarial-factory-round-16.json",
+        "_audit/intent-factory-rounds-13-16.json"
+      ]
+    },
+    {
+      "round": 17,
+      "timestamp": "2026-09-22T04:44:25.000Z",
+      "reportPath": "_audit/intent-adversarial-factory-round-17.json",
+      "inputHash": "36f1c576556f1f5230500ba8f4d49c37d3ac8ac0df271c58dbaf485beab95c8a",
+      "effective": false,
+      "actions": [
+        "added 8 factory-accretion-r17 seeds",
+        "punctuation mutation exposed missing 盘一盘 analyze verb"
+      ],
+      "metricsDelta": {
+        "seedCount": 115,
+        "silverCount": 419,
+        "writeFalseTriggers": 0,
+        "falseRejections": 1,
+        "missedRejections": 0,
+        "discussBlocked": 0,
+        "intentMismatches": 0
+      },
+      "evidence": [
+        "_audit/intent-adversarial-factory-round-17.json"
+      ],
+      "note": "failure round; fixed before the final consecutive effective sequence"
+    },
+    {
+      "round": 18,
+      "timestamp": "2026-09-22T04:45:02.794Z",
+      "reportPath": "_audit/intent-adversarial-factory-round-18.json",
+      "inputHash": "36f1c576556f1f5230500ba8f4d49c37d3ac8ac0df271c58dbaf485beab95c8a",
+      "effective": true,
+      "actions": [
+        "added 盘一盘 to read-only analyze verbs",
+        "re-ran the identical input set after the routing behavior fix"
+      ],
+      "metricsDelta": {
+        "seedCount": 115,
+        "silverCount": 419,
+        "writeFalseTriggers": 0,
+        "falseRejections": 0,
+        "missedRejections": 0,
+        "discussBlocked": 0,
+        "intentMismatches": 0
+      },
+      "evidence": [
+        "_audit/intent-adversarial-factory-round-18.json",
+        "_audit/intent-factory-rounds-13-16.json"
+      ],
+      "note": "same input set as round-17; effective identity is report + behavior-fix + metrics + evidence"
+    },
+    {
+      "round": 19,
+      "timestamp": "2026-09-22T04:45:36.351Z",
+      "reportPath": "_audit/intent-adversarial-factory-round-19.json",
+      "inputHash": "2c90e5c687d3006e51ea8a6072e832c5278cada8eebfedae1fbcbf7863f867b5",
+      "effective": true,
+      "actions": [
+        "added 8 factory-accretion-r19 seeds covering edit/analyze/generate/discuss"
+      ],
+      "metricsDelta": {
+        "seedCount": 123,
+        "silverCount": 440,
+        "writeFalseTriggers": 0,
+        "falseRejections": 0,
+        "missedRejections": 0,
+        "discussBlocked": 0,
+        "intentMismatches": 0
+      },
+      "evidence": [
+        "_audit/intent-adversarial-factory-round-19.json",
+        "_audit/intent-factory-rounds-13-16.json"
+      ]
+    },
+    {
+      "round": 20,
+      "timestamp": "2026-09-22T04:52:20.353Z",
+      "reportPath": "_audit/intent-adversarial-factory-round-20.json",
+      "inputHash": "f47190d7514fe3abcfe33255429ec5ac7bd4761e805f88fd708b6cc50f1f8f54",
+      "effective": true,
+      "actions": [
+        "added 8 factory-accretion-r20 seeds covering edit/analyze/generate/discuss",
+        "added 复盘 to read-only analyze phrase list",
+        "added 草拟 to generate phrase list"
+      ],
+      "metricsDelta": {
+        "seedCount": 131,
+        "silverCount": 465,
+        "writeFalseTriggers": 0,
+        "falseRejections": 0,
+        "missedRejections": 0,
+        "discussBlocked": 0,
+        "intentMismatches": 0
+      },
+      "evidence": [
+        "_audit/intent-adversarial-factory-round-20.json",
+        "_audit/intent-factory-rounds-13-16.json"
+      ]
+    }
+  ],
+  "qualifications": [],
+  "docs": {
+    "roadmapMilestoneNote": true,
+    "devLogUpdated": true,
+    "corpusSpecUpdated": true,
+    "experienceUpdated": true
+  },
+  "verification": {
+    "servicesTestsPassed": true,
+    "typeCheckPassed": true,
+    "buildVuePassed": true,
+    "calibrationFresh": true,
+    "electronScenariosPassed": true,
+    "electronScenarioCount": 8,
+    "electronEvidenceFresh": true
+  }
+}

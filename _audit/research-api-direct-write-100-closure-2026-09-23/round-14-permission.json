@@ -1,0 +1,71 @@
+{
+  "dimension": "permission",
+  "round": 14,
+  "query": "tool access control list",
+  "repositories": [
+    {
+      "fullName": "avelino/awesome-go",
+      "stars": 185254,
+      "language": "Go",
+      "defaultBranch": "main",
+      "url": "https://github.com/avelino/awesome-go",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "Hack-with-Github/Awesome-Hacking",
+      "stars": 121038,
+      "language": null,
+      "defaultBranch": "master",
+      "url": "https://github.com/Hack-with-Github/Awesome-Hacking",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "MunGell/awesome-for-beginners",
+      "stars": 89524,
+      "language": null,
+      "defaultBranch": "main",
+      "url": "https://github.com/MunGell/awesome-for-beginners",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "git/git",
+      "stars": 63282,
+      "language": "C",
+      "defaultBranch": "master",
+      "url": "https://github.com/git/git",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "awesome-foss/awesome-sysadmin",
+      "stars": 35237,
+      "language": null,
+      "defaultBranch": "master",
+      "url": "https://github.com/awesome-foss/awesome-sysadmin",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "toniblyx/my-arsenal-of-aws-security-tools",
+      "stars": 9508,
+      "language": "Shell",
+      "defaultBranch": "master",
+      "url": "https://github.com/toniblyx/my-arsenal-of-aws-security-tools",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "appcypher/awesome-mcp-servers",
+      "stars": 5777,
+      "language": null,
+      "defaultBranch": "main",
+      "url": "https://github.com/appcypher/awesome-mcp-servers",
+      "cachedFiles": []
+    },
+    {
+      "fullName": "Consensys/ethereum-developer-tools-list",
+      "stars": 5398,
+      "language": null,
+      "defaultBranch": "master",
+      "url": "https://github.com/Consensys/ethereum-developer-tools-list",
+      "cachedFiles": []
+    }
+  ]
+}

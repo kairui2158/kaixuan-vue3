@@ -1,0 +1,27 @@
+{
+  "schema": "shenyi.outline-deletion-confirmation.electron.full-replay",
+  "version": 2,
+  "generatedAt": "2026-09-26T22:05:56.161Z",
+  "electronPid": 19064,
+  "traceRoot": "C:/Users/凯瑞/Desktop/SKILL调试文件/run-trace-outline-20260926-212218-deep",
+  "testDocumentPath": "C:/Users/凯瑞/Desktop/测试/《绿潮》大纲总纲.md",
+  "replayedTurnId": "turn-1790429963268-209",
+  "physicalRequests": 21,
+  "userRequest": "把上一轮的决策写入大纲",
+  "outlineChars": 74841,
+  "outlineHeadings": 196,
+  "replayedToolCalls": 41,
+  "failedToolCalls": 11,
+  "historicalWriteOnlyLocateFailures": 3,
+  "historicalWriteOnlyLocateNowSuccessful": 3,
+  "editorWriteAttempts": 7,
+  "missingFieldWrites": 3,
+  "gatedHeadingDeletionWrites": 4,
+  "authorizedDeletedChars": 1566,
+  "rejectedContentLength": 74841,
+  "screenshots": [
+    "01-client-turn6-full-replay-authorization-gate.png",
+    "02-client-turn6-authorized-deletion.png",
+    "03-client-turn6-rejected-deletion.png"
+  ]
+}

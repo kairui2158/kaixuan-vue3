@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 9,
+  "id": "run-1790071464605-1",
+  "source": "outline",
+  "sourceName": "大纲工作台",
+  "stepName": "大纲共创",
+  "mode": "direct",
+  "status": "success",
+  "stateHistory": [
+    {
+      "fromStatus": "running",
+      "toStatus": "success",
+      "reason": "export_snapshot_synthesized_from_last_turn"
+    }
+  ],
+  "turns": [
+    {
+      "id": "turn-edit-success",
+      "seq": 1,
+      "status": "success",
+      "intent": "edit",
+      "userRequest": "删除第一卷补充钩子七：三千步，第一天",
+      "toolSurface": [{ "name": "editor.write", "policy": "write" }],
+      "actualToolSurface": [{ "name": "editor.write", "policy": "write" }],
+      "toolCalls": [
+        { "id": "tool-locate-1", "name": "editor.locate", "status": "success" },
+        { "id": "tool-write-1", "name": "editor.write", "status": "success" }
+      ]
+    },
+    {
+      "id": "turn-long-rearrange-failure",
+      "seq": 2,
+      "status": "failed",
+      "intent": "edit",
+      "userRequest": "整篇文章重新整理排序",
+      "reason": "edit_retry_empty_response",
+      "error": "模型未响应（非权限问题）：重试仍无正文输出，请稍后重试或换用模型。",
+      "actualToolSurface": [{ "name": "editor.write", "policy": "write" }],
+      "toolCalls": [
+        {
+          "id": "tool-write-partial",
+          "name": "editor.write",
+          "status": "failed",
+          "error": "批次 9 条命令中 1 条失败； 第 4 条：目标片段不存在：请重新读取原文，并逐字复制目标片段。"
+        },
+        {
+          "id": "tool-write-repair",
+          "name": "editor.write",
+          "status": "failed",
+          "error": "结构完整性校验未通过：发现 1 个严重结构问题，默认阻断应用。"
+        },
+        {
+          "id": "tool-write-successful-subset",
+          "name": "editor.write",
+          "status": "success"
+        }
+      ]
+    },
+    {
+      "id": "turn-discuss-after-failure",
+      "seq": 3,
+      "status": "success",
+      "intent": "discuss",
+      "userRequest": "你无法对整篇文章整理么？",
+      "toolSurface": [{ "name": "editor.locate", "policy": "read" }],
+      "actualToolSurface": [
+        { "name": "editor.locate", "policy": "read" },
+        { "name": "editor.search", "policy": "read" }
+      ],
+      "toolCalls": [
+        { "id": "tool-search-1", "name": "editor.search", "status": "success" }
+      ]
+    }
+  ]
+}

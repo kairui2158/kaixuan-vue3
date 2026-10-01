@@ -1,0 +1,10 @@
+2026-09-30T04:24:09.446Z
+AssertionError [ERR_ASSERTION]: D:\codex\novel-workshop-vue3\_audit\verification-final-draft-electron\S100:home leaf bodies preserved: item count unchanged
+
+239 !== 238
+
+    at assertSameMultiset (file:///D:/codex/novel-workshop-vue3/scripts/verify-final-draft-electron.mjs:152:10)
+    at assertFinalDraftClean (file:///D:/codex/novel-workshop-vue3/scripts/verify-final-draft-electron.mjs:231:3)
+    at runHomeOperation (file:///D:/codex/novel-workshop-vue3/scripts/verify-final-draft-electron.mjs:781:5)
+    at async runScale (file:///D:/codex/novel-workshop-vue3/scripts/verify-final-draft-electron.mjs:743:16)
+    at async main (file:///D:/codex/novel-workshop-vue3/scripts/verify-final-draft-electron.mjs:941:9)

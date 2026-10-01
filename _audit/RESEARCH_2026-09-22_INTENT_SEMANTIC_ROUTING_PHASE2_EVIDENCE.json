@@ -1,0 +1,2793 @@
+{
+  "schema": "intent-semantic-routing-phase2-evidence",
+  "generatedAt": "2026-09-21T17:00:27.918Z",
+  "repositoryCount": 60,
+  "failureCount": 0,
+  "downloadedFileCount": 414,
+  "selection": {
+    "maxFilesPerRepository": 16,
+    "maxFileBytes": 220000,
+    "implementationHint": "/(intent|router|routing|classif|embed|threshold|confidence|calibr|oos|out.of.scope|fallback|similarity|vector|nlu|route)/i"
+  },
+  "repositories": [
+    {
+      "repository": "aurelio-labs/semantic-router",
+      "category": "semantic-router",
+      "url": "https://github.com/aurelio-labs/semantic-router",
+      "stars": 3917,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "Superfast AI decision making and intelligent processing of multi-modal data.",
+      "implementationFiles": [
+        {
+          "path": "semantic_router/__init__.py",
+          "bytes": 213,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/aurelio-labs__semantic-router/semantic_router____init__.py"
+        },
+        {
+          "path": "semantic_router/encoders/__init__.py",
+          "bytes": 4254,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/aurelio-labs__semantic-router/semantic_router__encoders____init__.py"
+        },
+        {
+          "path": "semantic_router/encoders/aurelio.py",
+          "bytes": 3873,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/aurelio-labs__semantic-router/semantic_router__encoders__aurelio.py"
+        },
+        {
+          "path": "semantic_router/encoders/azure_openai.py",
+          "bytes": 9819,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/aurelio-labs__semantic-router/semantic_router__encoders__azure_openai.py"
+        },
+        {
+          "path": "semantic_router/encoders/base.py",
+          "bytes": 6320,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/aurelio-labs__semantic-router/semantic_router__encoders__base.py"
+        },
+        {
+          "path": "semantic_router/encoders/bedrock.py",
+          "bytes": 14053,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/aurelio-labs__semantic-router/semantic_router__encoders__bedrock.py"
+        },
+        {
+          "path": "semantic_router/encoders/bm25.py",
+          "bytes": 17784,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/aurelio-labs__semantic-router/semantic_router__encoders__bm25.py"
+        },
+        {
+          "path": "semantic_router/encoders/clip.py",
+          "bytes": 6595,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/aurelio-labs__semantic-router/semantic_router__encoders__clip.py"
+        },
+        {
+          "path": "semantic_router/encoders/cohere.py",
+          "bytes": 6752,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/aurelio-labs__semantic-router/semantic_router__encoders__cohere.py"
+        },
+        {
+          "path": "semantic_router/encoders/encode_input_type.py",
+          "bytes": 78,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/aurelio-labs__semantic-router/semantic_router__encoders__encode_input_type.py"
+        },
+        {
+          "path": "semantic_router/encoders/fastembed.py",
+          "bytes": 2690,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/aurelio-labs__semantic-router/semantic_router__encoders__fastembed.py"
+        },
+        {
+          "path": "semantic_router/encoders/google.py",
+          "bytes": 5406,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/aurelio-labs__semantic-router/semantic_router__encoders__google.py"
+        },
+        {
+          "path": "semantic_router/encoders/huggingface.py",
+          "bytes": 11366,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/aurelio-labs__semantic-router/semantic_router__encoders__huggingface.py"
+        },
+        {
+          "path": "semantic_router/encoders/jina.py",
+          "bytes": 5223,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/aurelio-labs__semantic-router/semantic_router__encoders__jina.py"
+        },
+        {
+          "path": "semantic_router/encoders/litellm.py",
+          "bytes": 5567,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/aurelio-labs__semantic-router/semantic_router__encoders__litellm.py"
+        },
+        {
+          "path": "semantic_router/encoders/local.py",
+          "bytes": 3296,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/aurelio-labs__semantic-router/semantic_router__encoders__local.py"
+        }
+      ],
+      "downloadedFiles": 16
+    },
+    {
+      "repository": "vllm-project/semantic-router",
+      "category": "semantic-router",
+      "url": "https://github.com/vllm-project/semantic-router",
+      "stars": 5889,
+      "defaultBranch": "main",
+      "language": "Go",
+      "description": "A programmable Mixture-of-Models router for heterogeneous LLM inference",
+      "implementationFiles": [
+        {
+          "path": "bench/agentic_routing_experiment.py",
+          "bytes": 56007,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vllm-project__semantic-router/bench__agentic_routing_experiment.py"
+        },
+        {
+          "path": "bench/agentic_routing_live_benchmark.py",
+          "bytes": 35366,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vllm-project__semantic-router/bench__agentic_routing_live_benchmark.py"
+        },
+        {
+          "path": "bench/plot_session_routing_figures.py",
+          "bytes": 30201,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vllm-project__semantic-router/bench__plot_session_routing_figures.py"
+        },
+        {
+          "path": "bench/reasoning/router_accounting.py",
+          "bytes": 6712,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vllm-project__semantic-router/bench__reasoning__router_accounting.py"
+        },
+        {
+          "path": "bench/reasoning/router_reason_bench_multi_dataset.py",
+          "bytes": 50752,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vllm-project__semantic-router/bench__reasoning__router_reason_bench_multi_dataset.py"
+        },
+        {
+          "path": "bench/reasoning/test_router_accounting.py",
+          "bytes": 4574,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vllm-project__semantic-router/bench__reasoning__test_router_accounting.py"
+        },
+        {
+          "path": "bench/router_flow/__init__.py",
+          "bytes": 40,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vllm-project__semantic-router/bench__router_flow____init__.py"
+        },
+        {
+          "path": "bench/router_flow/flow_eval.py",
+          "bytes": 12998,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vllm-project__semantic-router/bench__router_flow__flow_eval.py"
+        },
+        {
+          "path": "bench/router_flow/real_eval/collect_evalscope_results.py",
+          "bytes": 26337,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vllm-project__semantic-router/bench__router_flow__real_eval__collect_evalscope_results.py"
+        },
+        {
+          "path": "bench/router_flow/real_eval/run_amd_eval_matrix.py",
+          "bytes": 25397,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vllm-project__semantic-router/bench__router_flow__real_eval__run_amd_eval_matrix.py"
+        },
+        {
+          "path": "bench/router_flow/real_eval/run_evalscope_suite.py",
+          "bytes": 31000,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vllm-project__semantic-router/bench__router_flow__real_eval__run_evalscope_suite.py"
+        },
+        {
+          "path": "bench/router_flow/real_eval/test_collect_evalscope_results.py",
+          "bytes": 7128,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vllm-project__semantic-router/bench__router_flow__real_eval__test_collect_evalscope_results.py"
+        },
+        {
+          "path": "bench/router_flow/real_eval/test_run_amd_eval_matrix.py",
+          "bytes": 17063,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vllm-project__semantic-router/bench__router_flow__real_eval__test_run_amd_eval_matrix.py"
+        },
+        {
+          "path": "bench/router_flow/real_eval/test_run_evalscope_suite.py",
+          "bytes": 31324,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vllm-project__semantic-router/bench__router_flow__real_eval__test_run_evalscope_suite.py"
+        },
+        {
+          "path": "bench/router_flow/render_report.py",
+          "bytes": 15687,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vllm-project__semantic-router/bench__router_flow__render_report.py"
+        },
+        {
+          "path": "bench/router_reason_bench.py",
+          "bytes": 40627,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vllm-project__semantic-router/bench__router_reason_bench.py"
+        }
+      ],
+      "downloadedFiles": 16
+    },
+    {
+      "repository": "redhat-et/semantic_router",
+      "category": "semantic-router",
+      "url": "https://github.com/redhat-et/semantic_router",
+      "stars": 22,
+      "defaultBranch": "classify",
+      "language": "Python",
+      "description": "LLM Semantic Router: Intelligent Mixture-of-Models (MoM) System with Privacy Preservation and Prompt Guard. The semantic router intelligently directs OpenAI compliant API requests to the most suitable backend models based on semantic understanding of request content. ",
+      "implementationFiles": [
+        {
+          "path": "candle-binding/semantic_router.go",
+          "bytes": 21789,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/redhat-et__semantic_router/candle-binding__semantic_router.go"
+        },
+        {
+          "path": "candle-binding/semantic_router_test.go",
+          "bytes": 27532,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/redhat-et__semantic_router/candle-binding__semantic_router_test.go"
+        },
+        {
+          "path": "e2e-tests/02-router-classification-test.py",
+          "bytes": 9221,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/redhat-et__semantic_router/e2e-tests__02-router-classification-test.py"
+        },
+        {
+          "path": "src/semantic_router/cmd/main.go",
+          "bytes": 1276,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/redhat-et__semantic_router/src__semantic_router__cmd__main.go"
+        },
+        {
+          "path": "src/semantic_router/pkg/cache/cache.go",
+          "bytes": 8162,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/redhat-et__semantic_router/src__semantic_router__pkg__cache__cache.go"
+        },
+        {
+          "path": "src/semantic_router/pkg/cache/cache_test.go",
+          "bytes": 21638,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/redhat-et__semantic_router/src__semantic_router__pkg__cache__cache_test.go"
+        },
+        {
+          "path": "src/semantic_router/pkg/config/config.go",
+          "bytes": 15431,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/redhat-et__semantic_router/src__semantic_router__pkg__config__config.go"
+        },
+        {
+          "path": "src/semantic_router/pkg/config/config_reset_test.go",
+          "bytes": 218,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/redhat-et__semantic_router/src__semantic_router__pkg__config__config_reset_test.go"
+        },
+        {
+          "path": "src/semantic_router/pkg/config/config_test.go",
+          "bytes": 31789,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/redhat-et__semantic_router/src__semantic_router__pkg__config__config_test.go"
+        },
+        {
+          "path": "src/semantic_router/pkg/extproc/caching_test.go",
+          "bytes": 6725,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/redhat-et__semantic_router/src__semantic_router__pkg__extproc__caching_test.go"
+        },
+        {
+          "path": "src/semantic_router/pkg/extproc/edge_cases_test.go",
+          "bytes": 14128,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/redhat-et__semantic_router/src__semantic_router__pkg__extproc__edge_cases_test.go"
+        },
+        {
+          "path": "src/semantic_router/pkg/extproc/endpoint_selection_test.go",
+          "bytes": 9466,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/redhat-et__semantic_router/src__semantic_router__pkg__extproc__endpoint_selection_test.go"
+        },
+        {
+          "path": "src/semantic_router/pkg/extproc/extproc_test.go",
+          "bytes": 3839,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/redhat-et__semantic_router/src__semantic_router__pkg__extproc__extproc_test.go"
+        },
+        {
+          "path": "src/semantic_router/pkg/extproc/model_selector.go",
+          "bytes": 687,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/redhat-et__semantic_router/src__semantic_router__pkg__extproc__model_selector.go"
+        },
+        {
+          "path": "src/semantic_router/pkg/extproc/processor.go",
+          "bytes": 2735,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/redhat-et__semantic_router/src__semantic_router__pkg__extproc__processor.go"
+        },
+        {
+          "path": "src/semantic_router/pkg/extproc/request_handler.go",
+          "bytes": 21274,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/redhat-et__semantic_router/src__semantic_router__pkg__extproc__request_handler.go"
+        }
+      ],
+      "downloadedFiles": 16
+    },
+    {
+      "repository": "moodlehq/asero",
+      "category": "semantic-router",
+      "url": "https://github.com/moodlehq/asero",
+      "stars": 1,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "A very simple semantic router, using max scores and cosine similarity, to provide basic intent detection / classification wherever needed to.",
+      "implementationFiles": [
+        {
+          "path": "asero/embedding.py",
+          "bytes": 3868,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/moodlehq__asero/asero__embedding.py"
+        },
+        {
+          "path": "asero/router.py",
+          "bytes": 24467,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/moodlehq__asero/asero__router.py"
+        },
+        {
+          "path": "tests/asero/test_router.py",
+          "bytes": 8380,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/moodlehq__asero/tests__asero__test_router.py"
+        },
+        {
+          "path": "router_example.yaml",
+          "bytes": 1006,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/moodlehq__asero/router_example.yaml"
+        }
+      ],
+      "downloadedFiles": 4
+    },
+    {
+      "repository": "sitanshukr08/SynaptoRoute",
+      "category": "semantic-router",
+      "url": "https://github.com/sitanshukr08/SynaptoRoute",
+      "stars": 7,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "A high-throughput semantic routing engine for AI agents and LLM applications. Executes local intent classification using ONNX embeddings, FAISS indexing, and asynchronous micro-batching.",
+      "implementationFiles": [
+        {
+          "path": "benchmarks/bench_realworld_semantic_router.py",
+          "bytes": 7461,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/sitanshukr08__SynaptoRoute/benchmarks__bench_realworld_semantic_router.py"
+        },
+        {
+          "path": "benchmarks/calibration.py",
+          "bytes": 20533,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/sitanshukr08__SynaptoRoute/benchmarks__calibration.py"
+        },
+        {
+          "path": "benchmarks/embedding_cache.py",
+          "bytes": 1881,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/sitanshukr08__SynaptoRoute/benchmarks__embedding_cache.py"
+        },
+        {
+          "path": "benchmarks/eval_embeddings.py",
+          "bytes": 3228,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/sitanshukr08__SynaptoRoute/benchmarks__eval_embeddings.py"
+        },
+        {
+          "path": "benchmarks/eval_thresholds.py",
+          "bytes": 3262,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/sitanshukr08__SynaptoRoute/benchmarks__eval_thresholds.py"
+        },
+        {
+          "path": "benchmarks/hf_intent_datasets.py",
+          "bytes": 14315,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/sitanshukr08__SynaptoRoute/benchmarks__hf_intent_datasets.py"
+        },
+        {
+          "path": "benchmarks/probability_calibration.py",
+          "bytes": 7318,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/sitanshukr08__SynaptoRoute/benchmarks__probability_calibration.py"
+        },
+        {
+          "path": "benchmarks/run_intent_experiment.py",
+          "bytes": 24080,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/sitanshukr08__SynaptoRoute/benchmarks__run_intent_experiment.py"
+        },
+        {
+          "path": "benchmarks/run_multiseed_intent.py",
+          "bytes": 8070,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/sitanshukr08__SynaptoRoute/benchmarks__run_multiseed_intent.py"
+        },
+        {
+          "path": "benchmarks/synthetic_route_generator.py",
+          "bytes": 2741,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/sitanshukr08__SynaptoRoute/benchmarks__synthetic_route_generator.py"
+        },
+        {
+          "path": "examples/async_router.py",
+          "bytes": 2152,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/sitanshukr08__SynaptoRoute/examples__async_router.py"
+        },
+        {
+          "path": "examples/langchain_router.py",
+          "bytes": 2674,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/sitanshukr08__SynaptoRoute/examples__langchain_router.py"
+        },
+        {
+          "path": "scripts/bench_vs_semantic_router.py",
+          "bytes": 4921,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/sitanshukr08__SynaptoRoute/scripts__bench_vs_semantic_router.py"
+        },
+        {
+          "path": "scripts/validate_route_uniqueness.py",
+          "bytes": 4387,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/sitanshukr08__SynaptoRoute/scripts__validate_route_uniqueness.py"
+        },
+        {
+          "path": "src/synaptoroute/__init__.py",
+          "bytes": 866,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/sitanshukr08__SynaptoRoute/src__synaptoroute____init__.py"
+        },
+        {
+          "path": "src/synaptoroute/adaptive_weights.py",
+          "bytes": 7221,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/sitanshukr08__SynaptoRoute/src__synaptoroute__adaptive_weights.py"
+        }
+      ],
+      "downloadedFiles": 16
+    },
+    {
+      "repository": "hemeda3/java-ai-semantic-router",
+      "category": "semantic-router",
+      "url": "https://github.com/hemeda3/java-ai-semantic-router",
+      "stars": 3,
+      "defaultBranch": "main",
+      "language": "Java",
+      "description": "Java port of aurelio-labs/semantic-router",
+      "implementationFiles": [
+        {
+          "path": "semantic-router-api/src/main/java/org/hemeda3/ai/autoconfigure/semanticroute/SemanticRouterApi.java",
+          "bytes": 821,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hemeda3__java-ai-semantic-router/semantic-router-api__src__main__java__org__hemeda3__ai__autoconfigure__semanticroute__SemanticRouterApi.java"
+        },
+        {
+          "path": "semantic-router-api/src/test/java/org/hemeda3/ai/autoconfigure/semanticroute/SemanticRouterApiIT.java",
+          "bytes": 4682,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hemeda3__java-ai-semantic-router/semantic-router-api__src__test__java__org__hemeda3__ai__autoconfigure__semanticroute__SemanticRouterApiIT.java"
+        },
+        {
+          "path": "semantic-router-core/src/main/java/org/hemeda3/core/EncoderType.java",
+          "bytes": 110,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hemeda3__java-ai-semantic-router/semantic-router-core__src__main__java__org__hemeda3__core__EncoderType.java"
+        },
+        {
+          "path": "semantic-router-core/src/main/java/org/hemeda3/core/encoders/Encoder.java",
+          "bytes": 142,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hemeda3__java-ai-semantic-router/semantic-router-core__src__main__java__org__hemeda3__core__encoders__Encoder.java"
+        },
+        {
+          "path": "semantic-router-core/src/main/java/org/hemeda3/core/encoders/impl/EncoderType.java",
+          "bytes": 119,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hemeda3__java-ai-semantic-router/semantic-router-core__src__main__java__org__hemeda3__core__encoders__impl__EncoderType.java"
+        },
+        {
+          "path": "semantic-router-core/src/main/java/org/hemeda3/core/encoders/impl/OpenAIEncoder.java",
+          "bytes": 1002,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hemeda3__java-ai-semantic-router/semantic-router-core__src__main__java__org__hemeda3__core__encoders__impl__OpenAIEncoder.java"
+        },
+        {
+          "path": "semantic-router-core/src/main/java/org/hemeda3/core/index/BaseIndex.java",
+          "bytes": 355,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hemeda3__java-ai-semantic-router/semantic-router-core__src__main__java__org__hemeda3__core__index__BaseIndex.java"
+        },
+        {
+          "path": "semantic-router-core/src/main/java/org/hemeda3/core/index/impl/LocalIndex.java",
+          "bytes": 2310,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hemeda3__java-ai-semantic-router/semantic-router-core__src__main__java__org__hemeda3__core__index__impl__LocalIndex.java"
+        },
+        {
+          "path": "semantic-router-core/src/main/java/org/hemeda3/core/llms/BaseLLM.java",
+          "bytes": 383,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hemeda3__java-ai-semantic-router/semantic-router-core__src__main__java__org__hemeda3__core__llms__BaseLLM.java"
+        },
+        {
+          "path": "semantic-router-core/src/main/java/org/hemeda3/core/llms/Message.java",
+          "bytes": 58,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hemeda3__java-ai-semantic-router/semantic-router-core__src__main__java__org__hemeda3__core__llms__Message.java"
+        },
+        {
+          "path": "semantic-router-core/src/main/java/org/hemeda3/core/routes/SemanticRouterApiOptions.java",
+          "bytes": 997,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hemeda3__java-ai-semantic-router/semantic-router-core__src__main__java__org__hemeda3__core__routes__SemanticRouterApiOptions.java"
+        },
+        {
+          "path": "semantic-router-core/src/main/java/org/hemeda3/core/routes/client/SimpleRouteClient.java",
+          "bytes": 460,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hemeda3__java-ai-semantic-router/semantic-router-core__src__main__java__org__hemeda3__core__routes__client__SimpleRouteClient.java"
+        },
+        {
+          "path": "semantic-router-core/src/main/java/org/hemeda3/core/routes/impl/LayerConfig.java",
+          "bytes": 3963,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hemeda3__java-ai-semantic-router/semantic-router-core__src__main__java__org__hemeda3__core__routes__impl__LayerConfig.java"
+        },
+        {
+          "path": "semantic-router-core/src/main/java/org/hemeda3/core/routes/impl/Route.java",
+          "bytes": 946,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hemeda3__java-ai-semantic-router/semantic-router-core__src__main__java__org__hemeda3__core__routes__impl__Route.java"
+        },
+        {
+          "path": "semantic-router-core/src/main/java/org/hemeda3/core/routes/impl/RouteChoice.java",
+          "bytes": 1070,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hemeda3__java-ai-semantic-router/semantic-router-core__src__main__java__org__hemeda3__core__routes__impl__RouteChoice.java"
+        },
+        {
+          "path": "semantic-router-core/src/main/java/org/hemeda3/core/routes/impl/RouteClient.java",
+          "bytes": 127,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hemeda3__java-ai-semantic-router/semantic-router-core__src__main__java__org__hemeda3__core__routes__impl__RouteClient.java"
+        }
+      ],
+      "downloadedFiles": 16
+    },
+    {
+      "repository": "mazharul/semantic-llm-router",
+      "category": "semantic-router",
+      "url": "https://github.com/mazharul/semantic-llm-router",
+      "stars": 1,
+      "defaultBranch": "main",
+      "language": "TypeScript",
+      "description": "A hybrid intent classifier that combines fast semantic routing with LLM fallback. Self-improves over time via data flywheel.",
+      "implementationFiles": [
+        {
+          "path": "src/providers/embeddings/azure.ts",
+          "bytes": 1726,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/mazharul__semantic-llm-router/src__providers__embeddings__azure.ts"
+        },
+        {
+          "path": "src/providers/embeddings/bedrock.ts",
+          "bytes": 2404,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/mazharul__semantic-llm-router/src__providers__embeddings__bedrock.ts"
+        },
+        {
+          "path": "src/providers/embeddings/index.ts",
+          "bytes": 1492,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/mazharul__semantic-llm-router/src__providers__embeddings__index.ts"
+        },
+        {
+          "path": "src/providers/embeddings/local.ts",
+          "bytes": 2721,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/mazharul__semantic-llm-router/src__providers__embeddings__local.ts"
+        },
+        {
+          "path": "src/providers/embeddings/openai.ts",
+          "bytes": 1475,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/mazharul__semantic-llm-router/src__providers__embeddings__openai.ts"
+        },
+        {
+          "path": "src/router.ts",
+          "bytes": 11913,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/mazharul__semantic-llm-router/src__router.ts"
+        },
+        {
+          "path": "test/router.test.ts",
+          "bytes": 3952,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/mazharul__semantic-llm-router/test__router.test.ts"
+        }
+      ],
+      "downloadedFiles": 7
+    },
+    {
+      "repository": "open-first/FlowRoute",
+      "category": "semantic-router",
+      "url": "https://github.com/open-first/FlowRoute",
+      "stars": 2,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "Route predictable natural-language requests to deterministic workflows without using a generative LLM for the routing decision.",
+      "implementationFiles": [
+        {
+          "path": "src/flowroute/__init__.py",
+          "bytes": 1403,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/open-first__FlowRoute/src__flowroute____init__.py"
+        },
+        {
+          "path": "src/flowroute/__main__.py",
+          "bytes": 49,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/open-first__FlowRoute/src__flowroute____main__.py"
+        },
+        {
+          "path": "src/flowroute/api.py",
+          "bytes": 12399,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/open-first__FlowRoute/src__flowroute__api.py"
+        },
+        {
+          "path": "src/flowroute/backends/__init__.py",
+          "bytes": 191,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/open-first__FlowRoute/src__flowroute__backends____init__.py"
+        },
+        {
+          "path": "src/flowroute/backends/huggingface.py",
+          "bytes": 7481,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/open-first__FlowRoute/src__flowroute__backends__huggingface.py"
+        },
+        {
+          "path": "src/flowroute/calibration.py",
+          "bytes": 2498,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/open-first__FlowRoute/src__flowroute__calibration.py"
+        },
+        {
+          "path": "src/flowroute/cli.py",
+          "bytes": 5306,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/open-first__FlowRoute/src__flowroute__cli.py"
+        },
+        {
+          "path": "src/flowroute/evaluation.py",
+          "bytes": 3480,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/open-first__FlowRoute/src__flowroute__evaluation.py"
+        },
+        {
+          "path": "src/flowroute/factory.py",
+          "bytes": 2035,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/open-first__FlowRoute/src__flowroute__factory.py"
+        },
+        {
+          "path": "src/flowroute/inputs.py",
+          "bytes": 2767,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/open-first__FlowRoute/src__flowroute__inputs.py"
+        },
+        {
+          "path": "src/flowroute/models.py",
+          "bytes": 8749,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/open-first__FlowRoute/src__flowroute__models.py"
+        },
+        {
+          "path": "src/flowroute/policy.py",
+          "bytes": 2901,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/open-first__FlowRoute/src__flowroute__policy.py"
+        },
+        {
+          "path": "src/flowroute/registry.py",
+          "bytes": 3190,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/open-first__FlowRoute/src__flowroute__registry.py"
+        },
+        {
+          "path": "src/flowroute/retrieval.py",
+          "bytes": 5505,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/open-first__FlowRoute/src__flowroute__retrieval.py"
+        },
+        {
+          "path": "src/flowroute/router.py",
+          "bytes": 17329,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/open-first__FlowRoute/src__flowroute__router.py"
+        },
+        {
+          "path": "src/flowroute/runtime.py",
+          "bytes": 12926,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/open-first__FlowRoute/src__flowroute__runtime.py"
+        }
+      ],
+      "downloadedFiles": 16
+    },
+    {
+      "repository": "hashkanna/darwin-router",
+      "category": "semantic-router",
+      "url": "https://github.com/hashkanna/darwin-router",
+      "stars": 5,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "🏆 First prize, Superlinked × Qwen Hackathon 2026 — a training-free, self-improving semantic router: kNN over an exemplar index, LLM-judge writeback, 75%→85% in one day at half the cost",
+      "implementationFiles": [
+        {
+          "path": "router/__init__.py",
+          "bytes": 0,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hashkanna__darwin-router/router____init__.py"
+        },
+        {
+          "path": "router/bootstrap.py",
+          "bytes": 3027,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hashkanna__darwin-router/router__bootstrap.py"
+        },
+        {
+          "path": "router/config.py",
+          "bytes": 2721,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hashkanna__darwin-router/router__config.py"
+        },
+        {
+          "path": "router/costs.py",
+          "bytes": 1119,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hashkanna__darwin-router/router__costs.py"
+        },
+        {
+          "path": "router/embed.py",
+          "bytes": 1764,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hashkanna__darwin-router/router__embed.py"
+        },
+        {
+          "path": "router/index.py",
+          "bytes": 6507,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hashkanna__darwin-router/router__index.py"
+        },
+        {
+          "path": "router/judge.py",
+          "bytes": 6382,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hashkanna__darwin-router/router__judge.py"
+        },
+        {
+          "path": "router/proxy.py",
+          "bytes": 9273,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hashkanna__darwin-router/router__proxy.py"
+        },
+        {
+          "path": "router/replay.py",
+          "bytes": 3028,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/hashkanna__darwin-router/router__replay.py"
+        }
+      ],
+      "downloadedFiles": 9
+    },
+    {
+      "repository": "UdaraJay/tiny-router",
+      "category": "semantic-router",
+      "url": "https://github.com/UdaraJay/tiny-router",
+      "stars": 65,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "Compact multi-head text classifier for short, domain-neutral routing decisions. ",
+      "implementationFiles": [
+        {
+          "path": "tiny_router/__init__.py",
+          "bytes": 142,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/UdaraJay__tiny-router/tiny_router____init__.py"
+        },
+        {
+          "path": "tiny_router/calibration.py",
+          "bytes": 1760,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/UdaraJay__tiny-router/tiny_router__calibration.py"
+        },
+        {
+          "path": "tiny_router/config.py",
+          "bytes": 729,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/UdaraJay__tiny-router/tiny_router__config.py"
+        },
+        {
+          "path": "tiny_router/constants.py",
+          "bytes": 1002,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/UdaraJay__tiny-router/tiny_router__constants.py"
+        },
+        {
+          "path": "tiny_router/data.py",
+          "bytes": 9140,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/UdaraJay__tiny-router/tiny_router__data.py"
+        },
+        {
+          "path": "tiny_router/io.py",
+          "bytes": 2116,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/UdaraJay__tiny-router/tiny_router__io.py"
+        },
+        {
+          "path": "tiny_router/metrics.py",
+          "bytes": 4510,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/UdaraJay__tiny-router/tiny_router__metrics.py"
+        },
+        {
+          "path": "tiny_router/model.py",
+          "bytes": 6156,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/UdaraJay__tiny-router/tiny_router__model.py"
+        },
+        {
+          "path": "tiny_router/runtime.py",
+          "bytes": 1863,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/UdaraJay__tiny-router/tiny_router__runtime.py"
+        }
+      ],
+      "downloadedFiles": 9
+    },
+    {
+      "repository": "PrithivirajDamodaran/Route0x",
+      "category": "semantic-router",
+      "url": "https://github.com/PrithivirajDamodaran/Route0x",
+      "stars": 122,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "Low latency, High Accuracy, Custom Query routers for Humans and Agents. Built by Prithivi Da",
+      "implementationFiles": [
+        {
+          "path": "src/route0x/__init__.py",
+          "bytes": 0,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/PrithivirajDamodaran__Route0x/src__route0x____init__.py"
+        },
+        {
+          "path": "src/route0x/route_builder/__init__.py",
+          "bytes": 165,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/PrithivirajDamodaran__Route0x/src__route0x__route_builder____init__.py"
+        },
+        {
+          "path": "src/route0x/route_builder/losses.py",
+          "bytes": 5258,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/PrithivirajDamodaran__Route0x/src__route0x__route_builder__losses.py"
+        },
+        {
+          "path": "src/route0x/route_builder/outlier_detector.py",
+          "bytes": 4531,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/PrithivirajDamodaran__Route0x/src__route0x__route_builder__outlier_detector.py"
+        },
+        {
+          "path": "src/route0x/route_builder/route_builder.py",
+          "bytes": 76234,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/PrithivirajDamodaran__Route0x/src__route0x__route_builder__route_builder.py"
+        },
+        {
+          "path": "src/route0x/route_builder/unified_llm_caller.py",
+          "bytes": 5179,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/PrithivirajDamodaran__Route0x/src__route0x__route_builder__unified_llm_caller.py"
+        },
+        {
+          "path": "src/route0x/route_builder/vector_db.py",
+          "bytes": 7490,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/PrithivirajDamodaran__Route0x/src__route0x__route_builder__vector_db.py"
+        },
+        {
+          "path": "src/route0x/route_finder/__init__.py",
+          "bytes": 101,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/PrithivirajDamodaran__Route0x/src__route0x__route_finder____init__.py"
+        },
+        {
+          "path": "src/route0x/route_finder/route_finder.py",
+          "bytes": 11443,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/PrithivirajDamodaran__Route0x/src__route0x__route_finder__route_finder.py"
+        },
+        {
+          "path": "src/route0x/route_finder/vector_db.py",
+          "bytes": 7486,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/PrithivirajDamodaran__Route0x/src__route0x__route_finder__vector_db.py"
+        },
+        {
+          "path": "src/route0x/route_builder/config.json",
+          "bytes": 1058,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/PrithivirajDamodaran__Route0x/src__route0x__route_builder__config.json"
+        }
+      ],
+      "downloadedFiles": 11
+    },
+    {
+      "repository": "yusukebe/hono-jev-router",
+      "category": "semantic-router",
+      "url": "https://github.com/yusukebe/hono-jev-router",
+      "stars": 45,
+      "defaultBranch": "main",
+      "language": "TypeScript",
+      "description": "Route HTTP requests by meaning. A semantic router for Hono powered by Jev.",
+      "implementationFiles": [
+        {
+          "path": "playground/src/playground-router.ts",
+          "bytes": 887,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/yusukebe__hono-jev-router/playground__src__playground-router.ts"
+        }
+      ],
+      "downloadedFiles": 1
+    },
+    {
+      "repository": "RasaHQ/rasa",
+      "category": "nlu",
+      "url": "https://github.com/RasaHQ/rasa",
+      "stars": 21325,
+      "defaultBranch": "3.6.x",
+      "language": "Python",
+      "description": "💬   Open source machine learning framework to automate text- and voice-based conversations: NLU, dialogue management, connect to Slack, Facebook, and more - Create chatbots and voice assistants",
+      "implementationFiles": [
+        {
+          "path": "data/test_classes/custom_graph_components/nlu_dense.py",
+          "bytes": 5543,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RasaHQ__rasa/data__test_classes__custom_graph_components__nlu_dense.py"
+        },
+        {
+          "path": "data/test_classes/custom_graph_components/nlu_meta_fallback.py",
+          "bytes": 1433,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RasaHQ__rasa/data__test_classes__custom_graph_components__nlu_meta_fallback.py"
+        },
+        {
+          "path": "data/test_classes/custom_graph_components/nlu_meta_intent_featurizer.py",
+          "bytes": 637,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RasaHQ__rasa/data__test_classes__custom_graph_components__nlu_meta_intent_featurizer.py"
+        },
+        {
+          "path": "data/test_classes/custom_graph_components/nlu_sparse.py",
+          "bytes": 5967,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RasaHQ__rasa/data__test_classes__custom_graph_components__nlu_sparse.py"
+        },
+        {
+          "path": "data/test_classes/nlu_component_skeleton.py",
+          "bytes": 1503,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RasaHQ__rasa/data__test_classes__nlu_component_skeleton.py"
+        },
+        {
+          "path": "rasa/core/actions/two_stage_fallback.py",
+          "bytes": 6078,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RasaHQ__rasa/rasa__core__actions__two_stage_fallback.py"
+        },
+        {
+          "path": "rasa/core/policies/unexpected_intent_policy.py",
+          "bytes": 39537,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RasaHQ__rasa/rasa__core__policies__unexpected_intent_policy.py"
+        },
+        {
+          "path": "rasa/graph_components/converters/nlu_message_converter.py",
+          "bytes": 1576,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RasaHQ__rasa/rasa__graph_components__converters__nlu_message_converter.py"
+        },
+        {
+          "path": "rasa/graph_components/providers/nlu_training_data_provider.py",
+          "bytes": 2119,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RasaHQ__rasa/rasa__graph_components__providers__nlu_training_data_provider.py"
+        },
+        {
+          "path": "rasa/nlu/__init__.py",
+          "bytes": 123,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RasaHQ__rasa/rasa__nlu____init__.py"
+        },
+        {
+          "path": "rasa/nlu/classifiers/__init__.py",
+          "bytes": 118,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RasaHQ__rasa/rasa__nlu__classifiers____init__.py"
+        },
+        {
+          "path": "rasa/nlu/classifiers/classifier.py",
+          "bytes": 133,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RasaHQ__rasa/rasa__nlu__classifiers__classifier.py"
+        },
+        {
+          "path": "rasa/nlu/classifiers/diet_classifier.py",
+          "bytes": 72551,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RasaHQ__rasa/rasa__nlu__classifiers__diet_classifier.py"
+        },
+        {
+          "path": "rasa/nlu/classifiers/fallback_classifier.py",
+          "bytes": 7150,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RasaHQ__rasa/rasa__nlu__classifiers__fallback_classifier.py"
+        },
+        {
+          "path": "rasa/nlu/classifiers/keyword_intent_classifier.py",
+          "bytes": 7581,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RasaHQ__rasa/rasa__nlu__classifiers__keyword_intent_classifier.py"
+        },
+        {
+          "path": "rasa/nlu/classifiers/logistic_regression_classifier.py",
+          "bytes": 8020,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RasaHQ__rasa/rasa__nlu__classifiers__logistic_regression_classifier.py"
+        }
+      ],
+      "downloadedFiles": 16
+    },
+    {
+      "repository": "snipsco/snips-nlu",
+      "category": "nlu",
+      "url": "https://github.com/snipsco/snips-nlu",
+      "stars": 3973,
+      "defaultBranch": "master",
+      "language": "Python",
+      "description": "Snips Python library to extract meaning from text",
+      "implementationFiles": [
+        {
+          "path": "snips_nlu/__about__.py",
+          "bytes": 1110,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/snipsco__snips-nlu/snips_nlu____about__.py"
+        },
+        {
+          "path": "snips_nlu/__init__.py",
+          "bytes": 582,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/snipsco__snips-nlu/snips_nlu____init__.py"
+        },
+        {
+          "path": "snips_nlu/__main__.py",
+          "bytes": 131,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/snipsco__snips-nlu/snips_nlu____main__.py"
+        },
+        {
+          "path": "snips_nlu/cli/__init__.py",
+          "bytes": 2424,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/snipsco__snips-nlu/snips_nlu__cli____init__.py"
+        },
+        {
+          "path": "snips_nlu/cli/compatibility.py",
+          "bytes": 377,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/snipsco__snips-nlu/snips_nlu__cli__compatibility.py"
+        },
+        {
+          "path": "snips_nlu/cli/download.py",
+          "bytes": 5286,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/snipsco__snips-nlu/snips_nlu__cli__download.py"
+        },
+        {
+          "path": "snips_nlu/cli/download_entity.py",
+          "bytes": 6417,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/snipsco__snips-nlu/snips_nlu__cli__download_entity.py"
+        },
+        {
+          "path": "snips_nlu/cli/generate_dataset.py",
+          "bytes": 1455,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/snipsco__snips-nlu/snips_nlu__cli__generate_dataset.py"
+        },
+        {
+          "path": "snips_nlu/cli/inference.py",
+          "bytes": 2452,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/snipsco__snips-nlu/snips_nlu__cli__inference.py"
+        },
+        {
+          "path": "snips_nlu/cli/link.py",
+          "bytes": 2740,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/snipsco__snips-nlu/snips_nlu__cli__link.py"
+        },
+        {
+          "path": "snips_nlu/cli/metrics.py",
+          "bytes": 7051,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/snipsco__snips-nlu/snips_nlu__cli__metrics.py"
+        },
+        {
+          "path": "snips_nlu/cli/training.py",
+          "bytes": 2192,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/snipsco__snips-nlu/snips_nlu__cli__training.py"
+        },
+        {
+          "path": "snips_nlu/cli/utils.py",
+          "bytes": 4260,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/snipsco__snips-nlu/snips_nlu__cli__utils.py"
+        },
+        {
+          "path": "snips_nlu/cli/versions.py",
+          "bytes": 698,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/snipsco__snips-nlu/snips_nlu__cli__versions.py"
+        },
+        {
+          "path": "snips_nlu/common/__init__.py",
+          "bytes": 0,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/snipsco__snips-nlu/snips_nlu__common____init__.py"
+        },
+        {
+          "path": "snips_nlu/common/abc_utils.py",
+          "bytes": 1049,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/snipsco__snips-nlu/snips_nlu__common__abc_utils.py"
+        }
+      ],
+      "downloadedFiles": 16
+    },
+    {
+      "repository": "deeppavlov/DeepPavlov",
+      "category": "nlu",
+      "url": "https://github.com/deeppavlov/DeepPavlov",
+      "stars": 6993,
+      "defaultBranch": "master",
+      "language": "Python",
+      "description": "An open source library for deep learning end-to-end dialog systems and chatbots.",
+      "implementationFiles": [
+        {
+          "path": "deeppavlov/dataset_iterators/basic_classification_iterator.py",
+          "bytes": 6724,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/deeppavlov__DeepPavlov/deeppavlov__dataset_iterators__basic_classification_iterator.py"
+        },
+        {
+          "path": "deeppavlov/dataset_readers/basic_classification_reader.py",
+          "bytes": 4848,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/deeppavlov__DeepPavlov/deeppavlov__dataset_readers__basic_classification_reader.py"
+        },
+        {
+          "path": "deeppavlov/models/api_requester/api_router.py",
+          "bytes": 2279,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/deeppavlov__DeepPavlov/deeppavlov__models__api_requester__api_router.py"
+        },
+        {
+          "path": "deeppavlov/models/classifiers/__init__.py",
+          "bytes": 0,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/deeppavlov__DeepPavlov/deeppavlov__models__classifiers____init__.py"
+        },
+        {
+          "path": "deeppavlov/models/classifiers/cos_sim_classifier.py",
+          "bytes": 5367,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/deeppavlov__DeepPavlov/deeppavlov__models__classifiers__cos_sim_classifier.py"
+        },
+        {
+          "path": "deeppavlov/models/classifiers/dnnc_proba2labels.py",
+          "bytes": 3401,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/deeppavlov__DeepPavlov/deeppavlov__models__classifiers__dnnc_proba2labels.py"
+        },
+        {
+          "path": "deeppavlov/models/classifiers/proba2labels.py",
+          "bytes": 3761,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/deeppavlov__DeepPavlov/deeppavlov__models__classifiers__proba2labels.py"
+        },
+        {
+          "path": "deeppavlov/models/classifiers/re_bert.py",
+          "bytes": 8162,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/deeppavlov__DeepPavlov/deeppavlov__models__classifiers__re_bert.py"
+        },
+        {
+          "path": "deeppavlov/models/classifiers/torch_classification_model.py",
+          "bytes": 5490,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/deeppavlov__DeepPavlov/deeppavlov__models__classifiers__torch_classification_model.py"
+        },
+        {
+          "path": "deeppavlov/models/classifiers/torch_nets.py",
+          "bytes": 3251,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/deeppavlov__DeepPavlov/deeppavlov__models__classifiers__torch_nets.py"
+        },
+        {
+          "path": "deeppavlov/models/classifiers/utils.py",
+          "bytes": 3343,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/deeppavlov__DeepPavlov/deeppavlov__models__classifiers__utils.py"
+        },
+        {
+          "path": "deeppavlov/models/embedders/__init__.py",
+          "bytes": 0,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/deeppavlov__DeepPavlov/deeppavlov__models__embedders____init__.py"
+        },
+        {
+          "path": "deeppavlov/models/embedders/abstract_embedder.py",
+          "bytes": 4066,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/deeppavlov__DeepPavlov/deeppavlov__models__embedders__abstract_embedder.py"
+        },
+        {
+          "path": "deeppavlov/models/embedders/fasttext_embedder.py",
+          "bytes": 1985,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/deeppavlov__DeepPavlov/deeppavlov__models__embedders__fasttext_embedder.py"
+        },
+        {
+          "path": "deeppavlov/models/embedders/tfidf_weighted_embedder.py",
+          "bytes": 11794,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/deeppavlov__DeepPavlov/deeppavlov__models__embedders__tfidf_weighted_embedder.py"
+        },
+        {
+          "path": "deeppavlov/models/embedders/transformers_embedder.py",
+          "bytes": 4920,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/deeppavlov__DeepPavlov/deeppavlov__models__embedders__transformers_embedder.py"
+        }
+      ],
+      "downloadedFiles": 16
+    },
+    {
+      "repository": "axa-group/nlp.js",
+      "category": "nlu",
+      "url": "https://github.com/axa-group/nlp.js",
+      "stars": 6584,
+      "defaultBranch": "master",
+      "language": "JavaScript",
+      "description": "An NLP library for building bots, with entity extraction, sentiment analysis, automatic language identify, and so more",
+      "implementationFiles": [
+        {
+          "path": "examples/12-similarity/01-levenshtein.js",
+          "bytes": 1432,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/axa-group__nlp.js/examples__12-similarity__01-levenshtein.js"
+        },
+        {
+          "path": "examples/12-similarity/02-similarity.js",
+          "bytes": 1678,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/axa-group__nlp.js/examples__12-similarity__02-similarity.js"
+        },
+        {
+          "path": "examples/12-similarity/03-spell-check.js",
+          "bytes": 1434,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/axa-group__nlp.js/examples__12-similarity__03-spell-check.js"
+        },
+        {
+          "path": "examples/12-similarity/04-spell-check-training.js",
+          "bytes": 1747,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/axa-group__nlp.js/examples__12-similarity__04-spell-check-training.js"
+        },
+        {
+          "path": "examples/12-similarity/05-levenshtein-wa.js",
+          "bytes": 1438,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/axa-group__nlp.js/examples__12-similarity__05-levenshtein-wa.js"
+        },
+        {
+          "path": "examples/12-similarity/06-similarity-wa.js",
+          "bytes": 1684,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/axa-group__nlp.js/examples__12-similarity__06-similarity-wa.js"
+        },
+        {
+          "path": "examples/12-similarity/07-spell-check-wa.js",
+          "bytes": 1440,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/axa-group__nlp.js/examples__12-similarity__07-spell-check-wa.js"
+        },
+        {
+          "path": "examples/12-similarity/08-spell-check-training-wa.js",
+          "bytes": 1747,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/axa-group__nlp.js/examples__12-similarity__08-spell-check-training-wa.js"
+        },
+        {
+          "path": "examples/12-similarity/09-similarity-benchmark.js",
+          "bytes": 4062,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/axa-group__nlp.js/examples__12-similarity__09-similarity-benchmark.js"
+        },
+        {
+          "path": "examples/15-nlu/01-neural-nlu.js",
+          "bytes": 2648,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/axa-group__nlp.js/examples__15-nlu__01-neural-nlu.js"
+        },
+        {
+          "path": "examples/15-nlu/02-brain-nlu.js",
+          "bytes": 2006,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/axa-group__nlp.js/examples__15-nlu__02-brain-nlu.js"
+        },
+        {
+          "path": "examples/15-nlu/03-domain-manager.js",
+          "bytes": 6333,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/axa-group__nlp.js/examples__15-nlu__03-domain-manager.js"
+        },
+        {
+          "path": "examples/15-nlu/04-domain-manager-by-domain.js",
+          "bytes": 6354,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/axa-group__nlp.js/examples__15-nlu__04-domain-manager-by-domain.js"
+        },
+        {
+          "path": "examples/15-nlu/05-nlu-manager.js",
+          "bytes": 7115,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/axa-group__nlp.js/examples__15-nlu__05-nlu-manager.js"
+        },
+        {
+          "path": "examples/15-nlu/06-nlu-manager-by-domain.js",
+          "bytes": 7068,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/axa-group__nlp.js/examples__15-nlu__06-nlu-manager-by-domain.js"
+        },
+        {
+          "path": "packages/api-auth-jwt/src/user.router.js",
+          "bytes": 4353,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/axa-group__nlp.js/packages__api-auth-jwt__src__user.router.js"
+        }
+      ],
+      "downloadedFiles": 16
+    },
+    {
+      "repository": "opsdroid/opsdroid",
+      "category": "nlu",
+      "url": "https://github.com/opsdroid/opsdroid",
+      "stars": 869,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "🤖 An open source chat-ops bot framework",
+      "implementationFiles": [
+        {
+          "path": "opsdroid/parsers/rasanlu.py",
+          "bytes": 11707,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/opsdroid__opsdroid/opsdroid__parsers__rasanlu.py"
+        },
+        {
+          "path": "tests/test_parser_rasanlu.py",
+          "bytes": 32343,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/opsdroid__opsdroid/tests__test_parser_rasanlu.py"
+        }
+      ],
+      "downloadedFiles": 2
+    },
+    {
+      "repository": "MycroftAI/padatious",
+      "category": "nlu",
+      "url": "https://github.com/MycroftAI/padatious",
+      "stars": 160,
+      "defaultBranch": "dev",
+      "language": "Python",
+      "description": "A neural network intent parser",
+      "implementationFiles": [
+        {
+          "path": "padatious/intent.py",
+          "bytes": 2908,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/MycroftAI__padatious/padatious__intent.py"
+        },
+        {
+          "path": "padatious/intent_container.py",
+          "bytes": 11720,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/MycroftAI__padatious/padatious__intent_container.py"
+        },
+        {
+          "path": "padatious/intent_manager.py",
+          "bytes": 1154,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/MycroftAI__padatious/padatious__intent_manager.py"
+        },
+        {
+          "path": "padatious/pos_intent.py",
+          "bytes": 2968,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/MycroftAI__padatious/padatious__pos_intent.py"
+        },
+        {
+          "path": "padatious/simple_intent.py",
+          "bytes": 4720,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/MycroftAI__padatious/padatious__simple_intent.py"
+        },
+        {
+          "path": "tests/test_intent.py",
+          "bytes": 2187,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/MycroftAI__padatious/tests__test_intent.py"
+        }
+      ],
+      "downloadedFiles": 6
+    },
+    {
+      "repository": "Picovoice/rhino",
+      "category": "nlu",
+      "url": "https://github.com/Picovoice/rhino",
+      "stars": 711,
+      "defaultBranch": "master",
+      "language": "Python",
+      "description": "On-device Speech-to-Intent engine powered by deep learning",
+      "implementationFiles": [],
+      "downloadedFiles": 0
+    },
+    {
+      "repository": "OpenVoiceOS/architecture",
+      "category": "nlu",
+      "url": "https://github.com/OpenVoiceOS/architecture",
+      "stars": 3,
+      "defaultBranch": "dev",
+      "language": null,
+      "description": "Formal architecture specifications for OpenVoiceOS — the intent template grammar, locale resource formats, and the intent definition model",
+      "implementationFiles": [],
+      "downloadedFiles": 0
+    },
+    {
+      "repository": "chatopera/clause",
+      "category": "nlu-chinese",
+      "url": "https://github.com/chatopera/clause",
+      "stars": 408,
+      "defaultBranch": "osc",
+      "language": "C++",
+      "description": ":horse_racing: 聊天机器人，自然语言理解，语义理解",
+      "implementationFiles": [
+        {
+          "path": "src/clause/client/intent.test.js",
+          "bytes": 3610,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/chatopera__clause/src__clause__client__intent.test.js"
+        },
+        {
+          "path": "var/assets/clients/gen-csharp/com/chatopera/clause/Intent.cs",
+          "bytes": 7435,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/chatopera__clause/var__assets__clients__gen-csharp__com__chatopera__clause__Intent.cs"
+        },
+        {
+          "path": "var/assets/clients/gen-csharp/com/chatopera/clause/IntentSlot.cs",
+          "bytes": 10142,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/chatopera__clause/var__assets__clients__gen-csharp__com__chatopera__clause__IntentSlot.cs"
+        },
+        {
+          "path": "var/assets/clients/gen-csharp/com/chatopera/clause/IntentUtter.cs",
+          "bytes": 6556,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/chatopera__clause/var__assets__clients__gen-csharp__com__chatopera__clause__IntentUtter.cs"
+        },
+        {
+          "path": "var/assets/clients/gen-java/com/chatopera/clause/Intent.java",
+          "bytes": 29590,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/chatopera__clause/var__assets__clients__gen-java__com__chatopera__clause__Intent.java"
+        },
+        {
+          "path": "var/assets/clients/gen-java/com/chatopera/clause/IntentSlot.java",
+          "bytes": 40079,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/chatopera__clause/var__assets__clients__gen-java__com__chatopera__clause__IntentSlot.java"
+        },
+        {
+          "path": "var/assets/clients/gen-java/com/chatopera/clause/IntentUtter.java",
+          "bytes": 26373,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/chatopera__clause/var__assets__clients__gen-java__com__chatopera__clause__IntentUtter.java"
+        }
+      ],
+      "downloadedFiles": 7
+    },
+    {
+      "repository": "GaoQ1/rasa_chatbot_cn",
+      "category": "nlu-chinese",
+      "url": "https://github.com/GaoQ1/rasa_chatbot_cn",
+      "stars": 982,
+      "defaultBranch": "master",
+      "language": "Python",
+      "description": "building a chinese dialogue system based on the newest version of rasa(基于最新版本rasa搭建的对话系统)",
+      "implementationFiles": [],
+      "downloadedFiles": 0
+    },
+    {
+      "repository": "charlesXu86/Chatbot_CN",
+      "category": "nlu-chinese",
+      "url": "https://github.com/charlesXu86/Chatbot_CN",
+      "stars": 1291,
+      "defaultBranch": "master",
+      "language": null,
+      "description": "基于金融-司法领域(兼有闲聊性质)的聊天机器人，其中的主要模块有信息抽取、NLU、NLG、知识图谱等，并且利用Django整合了前端展示,目前已经封装了nlp和kg的restful接口",
+      "implementationFiles": [],
+      "downloadedFiles": 0
+    },
+    {
+      "repository": "Ailln/fuzi-nlu",
+      "category": "nlu-chinese",
+      "url": "https://github.com/Ailln/fuzi-nlu",
+      "stars": 88,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "🤖️ 聊天机器人——夫子的「自然语言理解」模块",
+      "implementationFiles": [
+        {
+          "path": "run/generate_domain_from_nlu.py",
+          "bytes": 1190,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/Ailln__fuzi-nlu/run__generate_domain_from_nlu.py"
+        },
+        {
+          "path": "data/guotie/nlu.yml",
+          "bytes": 1053,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/Ailln__fuzi-nlu/data__guotie__nlu.yml"
+        }
+      ],
+      "downloadedFiles": 2
+    },
+    {
+      "repository": "g-traveller/joint-model-chinese",
+      "category": "nlu-chinese",
+      "url": "https://github.com/g-traveller/joint-model-chinese",
+      "stars": 4,
+      "defaultBranch": "master",
+      "language": "Python",
+      "description": "NLU model joint intent classification and named entity together",
+      "implementationFiles": [],
+      "downloadedFiles": 0
+    },
+    {
+      "repository": "Happy-Chen-CH/Educational_RAG_System",
+      "category": "nlu-chinese",
+      "url": "https://github.com/Happy-Chen-CH/Educational_RAG_System",
+      "stars": 127,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "End-to-end educational RAG system: dual-engine retrieval (BM25 + BGE-M3 hybrid vector search), adaptive query strategies (HyDE/sub-query/backtracking), BERT intent classification, BGE-Reranker precision ranking, Chinese-optimized text splitting, and FastAPI SSE streaming — from documents to real-time answers.",
+      "implementationFiles": [
+        {
+          "path": "rag_qa/core/query_classifier.py",
+          "bytes": 19363,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/Happy-Chen-CH__Educational_RAG_System/rag_qa__core__query_classifier.py"
+        },
+        {
+          "path": "rag_qa/core/vector_store.py",
+          "bytes": 21692,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/Happy-Chen-CH__Educational_RAG_System/rag_qa__core__vector_store.py"
+        },
+        {
+          "path": "rag_qa/classify_data/model_generic_5000.json",
+          "bytes": 158881,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/Happy-Chen-CH__Educational_RAG_System/rag_qa__classify_data__model_generic_5000.json"
+        }
+      ],
+      "downloadedFiles": 3
+    },
+    {
+      "repository": "zijunVV/nlu-engine-zh",
+      "category": "nlu-chinese",
+      "url": "https://github.com/zijunVV/nlu-engine-zh",
+      "stars": 0,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "Chinese intent classification: fine-tuned encoder vs. direct LLM, with open-set rejection and a confidence routing table",
+      "implementationFiles": [
+        {
+          "path": "src/eval_intent.py",
+          "bytes": 8384,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/zijunVV__nlu-engine-zh/src__eval_intent.py"
+        },
+        {
+          "path": "src/train_intent.py",
+          "bytes": 4328,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/zijunVV__nlu-engine-zh/src__train_intent.py"
+        },
+        {
+          "path": "data/intent_names.json",
+          "bytes": 1066,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/zijunVV__nlu-engine-zh/data__intent_names.json"
+        }
+      ],
+      "downloadedFiles": 3
+    },
+    {
+      "repository": "Kathryn1206/chinese-exam-registration-assistant",
+      "category": "nlu-chinese",
+      "url": "https://github.com/Kathryn1206/chinese-exam-registration-assistant",
+      "stars": 4,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "Reproducible Chinese NLP assistant for exam-registration queries using NER, intent routing, fuzzy matching, scoped FAQ retrieval, and a constrained local LLM fallback.",
+      "implementationFiles": [
+        {
+          "path": "experiments/generate_intent_data.py",
+          "bytes": 3213,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/Kathryn1206__chinese-exam-registration-assistant/experiments__generate_intent_data.py"
+        },
+        {
+          "path": "experiments/train_intent_classifier.py",
+          "bytes": 2544,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/Kathryn1206__chinese-exam-registration-assistant/experiments__train_intent_classifier.py"
+        },
+        {
+          "path": "experiments/zero_shot_intent_baseline.py",
+          "bytes": 588,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/Kathryn1206__chinese-exam-registration-assistant/experiments__zero_shot_intent_baseline.py"
+        },
+        {
+          "path": "tests/test_synthetic_intent_data.py",
+          "bytes": 771,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/Kathryn1206__chinese-exam-registration-assistant/tests__test_synthetic_intent_data.py"
+        }
+      ],
+      "downloadedFiles": 4
+    },
+    {
+      "repository": "jay-zijiewang/ecommerce-search-intent-llm",
+      "category": "nlu-chinese",
+      "url": "https://github.com/jay-zijiewang/ecommerce-search-intent-llm",
+      "stars": 0,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "LLM-based Chinese e-commerce search intent classification, structured routing, and Zero-shot/Few-shot evaluation.",
+      "implementationFiles": [
+        {
+          "path": "src/classifier.py",
+          "bytes": 1401,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/jay-zijiewang__ecommerce-search-intent-llm/src__classifier.py"
+        },
+        {
+          "path": "src/router.py",
+          "bytes": 4152,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/jay-zijiewang__ecommerce-search-intent-llm/src__router.py"
+        },
+        {
+          "path": "tests/test_classifier.py",
+          "bytes": 2066,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/jay-zijiewang__ecommerce-search-intent-llm/tests__test_classifier.py"
+        },
+        {
+          "path": "tests/test_router.py",
+          "bytes": 2133,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/jay-zijiewang__ecommerce-search-intent-llm/tests__test_router.py"
+        },
+        {
+          "path": "config/intent_schema.json",
+          "bytes": 3816,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/jay-zijiewang__ecommerce-search-intent-llm/config__intent_schema.json"
+        },
+        {
+          "path": "config/routing_rules.json",
+          "bytes": 4436,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/jay-zijiewang__ecommerce-search-intent-llm/config__routing_rules.json"
+        }
+      ],
+      "downloadedFiles": 6
+    },
+    {
+      "repository": "xiaoyesoso/XIntent",
+      "category": "nlu-chinese",
+      "url": "https://github.com/xiaoyesoso/XIntent",
+      "stars": 7,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "Agent 意图框架 — 把人话翻译成结构化意图+槽位+约束。输入规范化(两阶段) + 三层瀑布式意图识别(Code→Flash→Pro)，80% 请求零 LLM 调用，10ms 内返回。650 测试全过。",
+      "implementationFiles": [
+        {
+          "path": "src/intent_recognition/__init__.py",
+          "bytes": 955,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/xiaoyesoso__XIntent/src__intent_recognition____init__.py"
+        },
+        {
+          "path": "src/intent_recognition/code_layer/__init__.py",
+          "bytes": 349,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/xiaoyesoso__XIntent/src__intent_recognition__code_layer____init__.py"
+        },
+        {
+          "path": "src/intent_recognition/code_layer/classifier.py",
+          "bytes": 2173,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/xiaoyesoso__XIntent/src__intent_recognition__code_layer__classifier.py"
+        },
+        {
+          "path": "src/intent_recognition/code_layer/keyword_matcher.py",
+          "bytes": 3262,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/xiaoyesoso__XIntent/src__intent_recognition__code_layer__keyword_matcher.py"
+        },
+        {
+          "path": "src/intent_recognition/code_layer/page_guidance.py",
+          "bytes": 2056,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/xiaoyesoso__XIntent/src__intent_recognition__code_layer__page_guidance.py"
+        },
+        {
+          "path": "src/intent_recognition/code_layer/rule_engine.py",
+          "bytes": 2821,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/xiaoyesoso__XIntent/src__intent_recognition__code_layer__rule_engine.py"
+        },
+        {
+          "path": "src/intent_recognition/code_layer/vector_matcher.py",
+          "bytes": 5749,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/xiaoyesoso__XIntent/src__intent_recognition__code_layer__vector_matcher.py"
+        },
+        {
+          "path": "src/intent_recognition/config.py",
+          "bytes": 7420,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/xiaoyesoso__XIntent/src__intent_recognition__config.py"
+        },
+        {
+          "path": "src/intent_recognition/deep_llm/__init__.py",
+          "bytes": 255,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/xiaoyesoso__XIntent/src__intent_recognition__deep_llm____init__.py"
+        },
+        {
+          "path": "src/intent_recognition/deep_llm/classifier.py",
+          "bytes": 10045,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/xiaoyesoso__XIntent/src__intent_recognition__deep_llm__classifier.py"
+        },
+        {
+          "path": "src/intent_recognition/deep_llm/prompts.py",
+          "bytes": 4867,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/xiaoyesoso__XIntent/src__intent_recognition__deep_llm__prompts.py"
+        },
+        {
+          "path": "src/intent_recognition/evaluation/__init__.py",
+          "bytes": 218,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/xiaoyesoso__XIntent/src__intent_recognition__evaluation____init__.py"
+        },
+        {
+          "path": "src/intent_recognition/evaluation/metrics.py",
+          "bytes": 19317,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/xiaoyesoso__XIntent/src__intent_recognition__evaluation__metrics.py"
+        },
+        {
+          "path": "src/intent_recognition/evaluation/runner.py",
+          "bytes": 16507,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/xiaoyesoso__XIntent/src__intent_recognition__evaluation__runner.py"
+        },
+        {
+          "path": "src/intent_recognition/evaluation/test_set.py",
+          "bytes": 8188,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/xiaoyesoso__XIntent/src__intent_recognition__evaluation__test_set.py"
+        },
+        {
+          "path": "src/intent_recognition/intent_registry.py",
+          "bytes": 12925,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/xiaoyesoso__XIntent/src__intent_recognition__intent_registry.py"
+        }
+      ],
+      "downloadedFiles": 16
+    },
+    {
+      "repository": "monologg/JointBERT",
+      "category": "intent-classification",
+      "url": "https://github.com/monologg/JointBERT",
+      "stars": 749,
+      "defaultBranch": "master",
+      "language": "Python",
+      "description": "Pytorch implementation of JointBERT: \"BERT for Joint Intent Classification and Slot Filling\"",
+      "implementationFiles": [],
+      "downloadedFiles": 0
+    },
+    {
+      "repository": "huggingface/setfit",
+      "category": "intent-classification",
+      "url": "https://github.com/huggingface/setfit",
+      "stars": 2813,
+      "defaultBranch": "main",
+      "language": "Jupyter Notebook",
+      "description": "Efficient few-shot learning with Sentence Transformers",
+      "implementationFiles": [],
+      "downloadedFiles": 0
+    },
+    {
+      "repository": "jianguoz/Few-Shot-Intent-Detection",
+      "category": "intent-classification",
+      "url": "https://github.com/jianguoz/Few-Shot-Intent-Detection",
+      "stars": 158,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "Few-Shot-Intent-Detection includes popular challenging intent detection datasets with/without OOS queries and state-of-the-art baselines and results.",
+      "implementationFiles": [],
+      "downloadedFiles": 0
+    },
+    {
+      "repository": "thuiar/TEXTOIR",
+      "category": "intent-classification",
+      "url": "https://github.com/thuiar/TEXTOIR",
+      "stars": 254,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "TEXTOIR is the first opensource toolkit for text open intent recognition. (ACL 2021) ",
+      "implementationFiles": [
+        {
+          "path": "open_intent_detection/__init__.py",
+          "bytes": 1017,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__TEXTOIR/open_intent_detection____init__.py"
+        },
+        {
+          "path": "open_intent_detection/backbones/__init__.py",
+          "bytes": 723,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__TEXTOIR/open_intent_detection__backbones____init__.py"
+        },
+        {
+          "path": "open_intent_detection/backbones/base.py",
+          "bytes": 2470,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__TEXTOIR/open_intent_detection__backbones__base.py"
+        },
+        {
+          "path": "open_intent_detection/backbones/bert.py",
+          "bytes": 26516,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__TEXTOIR/open_intent_detection__backbones__bert.py"
+        },
+        {
+          "path": "open_intent_detection/backbones/llama.py",
+          "bytes": 3615,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__TEXTOIR/open_intent_detection__backbones__llama.py"
+        },
+        {
+          "path": "open_intent_detection/backbones/utils.py",
+          "bytes": 4404,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__TEXTOIR/open_intent_detection__backbones__utils.py"
+        },
+        {
+          "path": "open_intent_detection/configs/ADB.py",
+          "bytes": 1922,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__TEXTOIR/open_intent_detection__configs__ADB.py"
+        },
+        {
+          "path": "open_intent_detection/configs/ARPL.py",
+          "bytes": 2012,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__TEXTOIR/open_intent_detection__configs__ARPL.py"
+        },
+        {
+          "path": "open_intent_detection/configs/DA-ADB.py",
+          "bytes": 2017,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__TEXTOIR/open_intent_detection__configs__DA-ADB.py"
+        },
+        {
+          "path": "open_intent_detection/configs/DA-ADB_llama.py",
+          "bytes": 2056,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__TEXTOIR/open_intent_detection__configs__DA-ADB_llama.py"
+        },
+        {
+          "path": "open_intent_detection/configs/DOC.py",
+          "bytes": 1875,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__TEXTOIR/open_intent_detection__configs__DOC.py"
+        },
+        {
+          "path": "open_intent_detection/configs/DeepUnk.py",
+          "bytes": 2010,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__TEXTOIR/open_intent_detection__configs__DeepUnk.py"
+        },
+        {
+          "path": "open_intent_detection/configs/EliDecide.py",
+          "bytes": 2095,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__TEXTOIR/open_intent_detection__configs__EliDecide.py"
+        },
+        {
+          "path": "open_intent_detection/configs/K+1-way.py",
+          "bytes": 1830,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__TEXTOIR/open_intent_detection__configs__K__1-way.py"
+        },
+        {
+          "path": "open_intent_detection/configs/KNNCL.py",
+          "bytes": 1459,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__TEXTOIR/open_intent_detection__configs__KNNCL.py"
+        },
+        {
+          "path": "open_intent_detection/configs/LOF.py",
+          "bytes": 2010,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__TEXTOIR/open_intent_detection__configs__LOF.py"
+        }
+      ],
+      "downloadedFiles": 16
+    },
+    {
+      "repository": "thuiar/MIntRec2.0",
+      "category": "intent-classification",
+      "url": "https://github.com/thuiar/MIntRec2.0",
+      "stars": 86,
+      "defaultBranch": "master",
+      "language": "Python",
+      "description": "MIntRec2.0 is the first large-scale dataset for multimodal intent recognition and out-of-scope detection in multi-party conversations (ICLR 2024)",
+      "implementationFiles": [
+        {
+          "path": "backbones/multi_turn/SubNets/transformers_encoder/position_embedding.py",
+          "bytes": 3675,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__MIntRec2.0/backbones__multi_turn__SubNets__transformers_encoder__position_embedding.py"
+        },
+        {
+          "path": "backbones/single_turn/SubNets/transformers_encoder/position_embedding.py",
+          "bytes": 3675,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thuiar__MIntRec2.0/backbones__single_turn__SubNets__transformers_encoder__position_embedding.py"
+        }
+      ],
+      "downloadedFiles": 2
+    },
+    {
+      "repository": "GT4SD/zero-shot-bert-adapters",
+      "category": "intent-classification",
+      "url": "https://github.com/GT4SD/zero-shot-bert-adapters",
+      "stars": 44,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "Implementation of Z-BERT-A: a zero-shot pipeline for unknown intent detection.",
+      "implementationFiles": [
+        {
+          "path": "src/zberta/intent_discovery/__init__.py",
+          "bytes": 0,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/GT4SD__zero-shot-bert-adapters/src__zberta__intent_discovery____init__.py"
+        },
+        {
+          "path": "src/zberta/intent_discovery/unknown_intents.py",
+          "bytes": 5120,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/GT4SD__zero-shot-bert-adapters/src__zberta__intent_discovery__unknown_intents.py"
+        },
+        {
+          "path": "src/zberta/intent_discovery/zberta.py",
+          "bytes": 2795,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/GT4SD__zero-shot-bert-adapters/src__zberta__intent_discovery__zberta.py"
+        }
+      ],
+      "downloadedFiles": 3
+    },
+    {
+      "repository": "kumar-shridhar/Know-Your-Intent",
+      "category": "intent-classification",
+      "url": "https://github.com/kumar-shridhar/Know-Your-Intent",
+      "stars": 134,
+      "defaultBranch": "master",
+      "language": "Jupyter Notebook",
+      "description": "State of the Art results in Intent Classification using Sematic Hashing for three datasets: AskUbuntu, Chatbot and WebApplication. ",
+      "implementationFiles": [
+        {
+          "path": "hashembedding/HashEmbedding/example.py",
+          "bytes": 2656,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/kumar-shridhar__Know-Your-Intent/hashembedding__HashEmbedding__example.py"
+        },
+        {
+          "path": "hashembedding/HashEmbedding/layers.py",
+          "bytes": 4682,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/kumar-shridhar__Know-Your-Intent/hashembedding__HashEmbedding__layers.py"
+        },
+        {
+          "path": "datasets/NLU-Evaluation-Corpora/ChatbotCorpus.json",
+          "bytes": 97615,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/kumar-shridhar__Know-Your-Intent/datasets__NLU-Evaluation-Corpora__ChatbotCorpus.json"
+        },
+        {
+          "path": "datasets/NLU-Evaluation-Corpora/WebApplicationsCorpus.json",
+          "bytes": 120374,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/kumar-shridhar__Know-Your-Intent/datasets__NLU-Evaluation-Corpora__WebApplicationsCorpus.json"
+        }
+      ],
+      "downloadedFiles": 4
+    },
+    {
+      "repository": "salesforce/TaiChi",
+      "category": "intent-classification",
+      "url": "https://github.com/salesforce/TaiChi",
+      "stars": 79,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "Open source library for few shot NLP",
+      "implementationFiles": [],
+      "downloadedFiles": 0
+    },
+    {
+      "repository": "davidberenstein1957/classy-classification",
+      "category": "intent-classification",
+      "url": "https://github.com/davidberenstein1957/classy-classification",
+      "stars": 220,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "This repository contains an easy and intuitive approach to few-shot classification using sentence-transformers or spaCy models, or zero-shot classification with Huggingface. ",
+      "implementationFiles": [
+        {
+          "path": "classy_classification/__init__.py",
+          "bytes": 2596,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/davidberenstein1957__classy-classification/classy_classification____init__.py"
+        },
+        {
+          "path": "classy_classification/classifiers/__init__.py",
+          "bytes": 0,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/davidberenstein1957__classy-classification/classy_classification__classifiers____init__.py"
+        },
+        {
+          "path": "classy_classification/classifiers/classy_skeleton.py",
+          "bytes": 9949,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/davidberenstein1957__classy-classification/classy_classification__classifiers__classy_skeleton.py"
+        },
+        {
+          "path": "classy_classification/classifiers/classy_spacy.py",
+          "bytes": 9549,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/davidberenstein1957__classy-classification/classy_classification__classifiers__classy_spacy.py"
+        },
+        {
+          "path": "classy_classification/classifiers/classy_standalone.py",
+          "bytes": 2274,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/davidberenstein1957__classy-classification/classy_classification__classifiers__classy_standalone.py"
+        },
+        {
+          "path": "classy_classification/examples/__init__.py",
+          "bytes": 0,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/davidberenstein1957__classy-classification/classy_classification__examples____init__.py"
+        },
+        {
+          "path": "classy_classification/examples/data.py",
+          "bytes": 2324,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/davidberenstein1957__classy-classification/classy_classification__examples__data.py"
+        },
+        {
+          "path": "classy_classification/examples/individual_transformer.py",
+          "bytes": 230,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/davidberenstein1957__classy-classification/classy_classification__examples__individual_transformer.py"
+        },
+        {
+          "path": "classy_classification/examples/spacy_few_shot_external.py",
+          "bytes": 344,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/davidberenstein1957__classy-classification/classy_classification__examples__spacy_few_shot_external.py"
+        },
+        {
+          "path": "classy_classification/examples/spacy_internal_embeddings.py",
+          "bytes": 373,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/davidberenstein1957__classy-classification/classy_classification__examples__spacy_internal_embeddings.py"
+        },
+        {
+          "path": "classy_classification/examples/spacy_zero_shot_external.py",
+          "bytes": 383,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/davidberenstein1957__classy-classification/classy_classification__examples__spacy_zero_shot_external.py"
+        }
+      ],
+      "downloadedFiles": 11
+    },
+    {
+      "repository": "thrinathpolanki/customer_support_chatbot",
+      "category": "intent-classification",
+      "url": "https://github.com/thrinathpolanki/customer_support_chatbot",
+      "stars": 5,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "Hybrid AI customer support chatbot combining semantic intent classification (sentence-transformers + logistic regression) with a FLAN-T5 generative fallback. Features context-aware conversations, calibrated confidence scoring, FastAPI backend, and a Streamlit chat UI.",
+      "implementationFiles": [
+        {
+          "path": "src/intent_classifier.py",
+          "bytes": 5914,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thrinathpolanki__customer_support_chatbot/src__intent_classifier.py"
+        },
+        {
+          "path": "data/intents.json",
+          "bytes": 21375,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thrinathpolanki__customer_support_chatbot/data__intents.json"
+        }
+      ],
+      "downloadedFiles": 2
+    },
+    {
+      "repository": "oconva/intento",
+      "category": "intent-classification",
+      "url": "https://github.com/oconva/intento",
+      "stars": 27,
+      "defaultBranch": "main",
+      "language": "TypeScript",
+      "description": "Open source intent recognition framework powered by LLMs.",
+      "implementationFiles": [
+        {
+          "path": "data/intents-data.json",
+          "bytes": 3217,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/oconva__intento/data__intents-data.json"
+        }
+      ],
+      "downloadedFiles": 1
+    },
+    {
+      "repository": "SquadyAI/RealtimeIntent",
+      "category": "intent-classification",
+      "url": "https://github.com/SquadyAI/RealtimeIntent",
+      "stars": 2,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "Intent recognition for voice AI — 50x faster than LLM routing. Vector search + neural reranking in <100ms.",
+      "implementationFiles": [
+        {
+          "path": "app/constants/intent_mappings.py",
+          "bytes": 10319,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/SquadyAI__RealtimeIntent/app__constants__intent_mappings.py"
+        },
+        {
+          "path": "app/embedding.py",
+          "bytes": 3888,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/SquadyAI__RealtimeIntent/app__embedding.py"
+        },
+        {
+          "path": "app/intent_service.py",
+          "bytes": 24733,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/SquadyAI__RealtimeIntent/app__intent_service.py"
+        },
+        {
+          "path": "app/routes/__init__.py",
+          "bytes": 479,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/SquadyAI__RealtimeIntent/app__routes____init__.py"
+        },
+        {
+          "path": "app/routes/data_management.py",
+          "bytes": 15477,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/SquadyAI__RealtimeIntent/app__routes__data_management.py"
+        },
+        {
+          "path": "app/routes/intent.py",
+          "bytes": 4934,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/SquadyAI__RealtimeIntent/app__routes__intent.py"
+        },
+        {
+          "path": "app/routes/middleware.py",
+          "bytes": 2816,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/SquadyAI__RealtimeIntent/app__routes__middleware.py"
+        },
+        {
+          "path": "app/routes/monitoring.py",
+          "bytes": 2740,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/SquadyAI__RealtimeIntent/app__routes__monitoring.py"
+        }
+      ],
+      "downloadedFiles": 8
+    },
+    {
+      "repository": "mlehman/nlp-intent-toolkit",
+      "category": "intent-classification",
+      "url": "https://github.com/mlehman/nlp-intent-toolkit",
+      "stars": 159,
+      "defaultBranch": "master",
+      "language": "Java",
+      "description": "Intent recognition with OpenNLP",
+      "implementationFiles": [
+        {
+          "path": "src/main/java/nlp/intent/toolkit/IntentDocumentSampleStream.java",
+          "bytes": 1679,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/mlehman__nlp-intent-toolkit/src__main__java__nlp__intent__toolkit__IntentDocumentSampleStream.java"
+        },
+        {
+          "path": "src/main/java/nlp/intent/toolkit/IntentTrainer.java",
+          "bytes": 4560,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/mlehman__nlp-intent-toolkit/src__main__java__nlp__intent__toolkit__IntentTrainer.java"
+        }
+      ],
+      "downloadedFiles": 2
+    },
+    {
+      "repository": "anuragmishra1/alter-nlu",
+      "category": "intent-classification",
+      "url": "https://github.com/anuragmishra1/alter-nlu",
+      "stars": 58,
+      "defaultBranch": "master",
+      "language": "Python",
+      "description": "Natural language understanding library for chatbots with intent recognition and entity extraction.",
+      "implementationFiles": [
+        {
+          "path": "classifiers/classifier.py",
+          "bytes": 1520,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/anuragmishra1__alter-nlu/classifiers__classifier.py"
+        },
+        {
+          "path": "classifiers/validation.py",
+          "bytes": 1304,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/anuragmishra1__alter-nlu/classifiers__validation.py"
+        },
+        {
+          "path": "extractors/extract_intent.py",
+          "bytes": 778,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/anuragmishra1__alter-nlu/extractors__extract_intent.py"
+        }
+      ],
+      "downloadedFiles": 3
+    },
+    {
+      "repository": "tanaos/artifex",
+      "category": "intent-classification",
+      "url": "https://github.com/tanaos/artifex",
+      "stars": 97,
+      "defaultBranch": "master",
+      "language": "Python",
+      "description": "Small Language Model Inference, Fine-Tuning and Observability.",
+      "implementationFiles": [
+        {
+          "path": "artifex/models/classification/__init__.py",
+          "bytes": 457,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/tanaos__artifex/artifex__models__classification____init__.py"
+        },
+        {
+          "path": "artifex/models/classification/binary_classification/__init__.py",
+          "bytes": 77,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/tanaos__artifex/artifex__models__classification__binary_classification____init__.py"
+        },
+        {
+          "path": "artifex/models/classification/binary_classification/spam_detection/__init__.py",
+          "bytes": 6276,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/tanaos__artifex/artifex__models__classification__binary_classification__spam_detection____init__.py"
+        },
+        {
+          "path": "artifex/models/classification/classification_model.py",
+          "bytes": 19348,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/tanaos__artifex/artifex__models__classification__classification_model.py"
+        },
+        {
+          "path": "artifex/models/classification/multi_class_classification/__init__.py",
+          "bytes": 314,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/tanaos__artifex/artifex__models__classification__multi_class_classification____init__.py"
+        },
+        {
+          "path": "artifex/models/classification/multi_class_classification/emotion_detection/__init__.py",
+          "bytes": 1533,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/tanaos__artifex/artifex__models__classification__multi_class_classification__emotion_detection____init__.py"
+        },
+        {
+          "path": "artifex/models/classification/multi_class_classification/intent_classifier/__init__.py",
+          "bytes": 1411,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/tanaos__artifex/artifex__models__classification__multi_class_classification__intent_classifier____init__.py"
+        },
+        {
+          "path": "artifex/models/classification/multi_class_classification/sentiment_analysis/__init__.py",
+          "bytes": 4297,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/tanaos__artifex/artifex__models__classification__multi_class_classification__sentiment_analysis____init__.py"
+        },
+        {
+          "path": "artifex/models/classification/multi_class_classification/topic_classification/__init__.py",
+          "bytes": 1268,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/tanaos__artifex/artifex__models__classification__multi_class_classification__topic_classification____init__.py"
+        },
+        {
+          "path": "artifex/models/classification/multi_label_classification/__init__.py",
+          "bytes": 178,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/tanaos__artifex/artifex__models__classification__multi_label_classification____init__.py"
+        },
+        {
+          "path": "artifex/models/classification/multi_label_classification/guardrail.py",
+          "bytes": 10543,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/tanaos__artifex/artifex__models__classification__multi_label_classification__guardrail.py"
+        },
+        {
+          "path": "artifex/models/classification/multi_label_classification/multi_label_classification_model.py",
+          "bytes": 22157,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/tanaos__artifex/artifex__models__classification__multi_label_classification__multi_label_classification_model.py"
+        },
+        {
+          "path": "tests/integration/intent_classifier/test_ic__call__intgr.py",
+          "bytes": 1732,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/tanaos__artifex/tests__integration__intent_classifier__test_ic__call__intgr.py"
+        },
+        {
+          "path": "tests/integration/intent_classifier/test_ic_train_intgr.py",
+          "bytes": 1221,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/tanaos__artifex/tests__integration__intent_classifier__test_ic_train_intgr.py"
+        },
+        {
+          "path": "tests/integration/text_classification/test_tc__call__intgr.py",
+          "bytes": 1256,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/tanaos__artifex/tests__integration__text_classification__test_tc__call__intgr.py"
+        },
+        {
+          "path": "tests/integration/text_classification/test_tc_train_intgr.py",
+          "bytes": 817,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/tanaos__artifex/tests__integration__text_classification__test_tc_train_intgr.py"
+        }
+      ],
+      "downloadedFiles": 16
+    },
+    {
+      "repository": "fanolabs/0shot-classification",
+      "category": "oos-rejection",
+      "url": "https://github.com/fanolabs/0shot-classification",
+      "stars": 19,
+      "defaultBranch": "master",
+      "language": "Python",
+      "description": "Zero-shot Intent Classification and Unknown Intent Detection",
+      "implementationFiles": [
+        {
+          "path": "code/model_new_intent.py",
+          "bytes": 10167,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/fanolabs__0shot-classification/code__model_new_intent.py"
+        },
+        {
+          "path": "data/OOS/processOOS.py",
+          "bytes": 3545,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/fanolabs__0shot-classification/data__OOS__processOOS.py"
+        },
+        {
+          "path": "intentTorch110.yml",
+          "bytes": 2946,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/fanolabs__0shot-classification/intentTorch110.yml"
+        }
+      ],
+      "downloadedFiles": 3
+    },
+    {
+      "repository": "fanolabs/out-of-scope-intent-detection",
+      "category": "oos-rejection",
+      "url": "https://github.com/fanolabs/out-of-scope-intent-detection",
+      "stars": 9,
+      "defaultBranch": "master",
+      "language": "Python",
+      "description": "Out-of-Scope Intent Detection",
+      "implementationFiles": [],
+      "downloadedFiles": 0
+    },
+    {
+      "repository": "liam0949/DCLOOS",
+      "category": "oos-rejection",
+      "url": "https://github.com/liam0949/DCLOOS",
+      "stars": 9,
+      "defaultBranch": "main",
+      "language": null,
+      "description": "This repository contains the essential code for the paper Out-of-Scope Intent Detection with Self-Supervision and Discriminative Training (ACL 2021).",
+      "implementationFiles": [],
+      "downloadedFiles": 0
+    },
+    {
+      "repository": "ehalit/KLOOS",
+      "category": "oos-rejection",
+      "url": "https://github.com/ehalit/KLOOS",
+      "stars": 2,
+      "defaultBranch": "master",
+      "language": null,
+      "description": "Repository for the paper \"KLOOS: KL Divergence-based Out-of-Scope Intent Detection in Human-to-Machine Conversations\"",
+      "implementationFiles": [],
+      "downloadedFiles": 0
+    },
+    {
+      "repository": "RealTapeL/SkillPilot",
+      "category": "tool-routing",
+      "url": "https://github.com/RealTapeL/SkillPilot",
+      "stars": 3,
+      "defaultBranch": "main",
+      "language": "TypeScript",
+      "description": "Universal Agent Skill Router — Route agent skills before LLM inference.  Zero-config skill fingerprinting, conflict-aware routing, and self-learning  feedback loop. Supports OpenClaw, Claude Code, LangChain, and more.",
+      "implementationFiles": [
+        {
+          "path": "packages/cli/src/commands/route.ts",
+          "bytes": 1878,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RealTapeL__SkillPilot/packages__cli__src__commands__route.ts"
+        },
+        {
+          "path": "packages/core/src/embed/EmbedProvider.ts",
+          "bytes": 1500,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RealTapeL__SkillPilot/packages__core__src__embed__EmbedProvider.ts"
+        },
+        {
+          "path": "packages/core/src/embed/LightweightMatcher.ts",
+          "bytes": 5633,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RealTapeL__SkillPilot/packages__core__src__embed__LightweightMatcher.ts"
+        },
+        {
+          "path": "packages/core/src/embed/LocalEmbed.ts",
+          "bytes": 10125,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RealTapeL__SkillPilot/packages__core__src__embed__LocalEmbed.ts"
+        },
+        {
+          "path": "packages/core/src/embed/OpenAIEmbed.ts",
+          "bytes": 2201,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RealTapeL__SkillPilot/packages__core__src__embed__OpenAIEmbed.ts"
+        },
+        {
+          "path": "packages/core/src/router/ConflictResolver.ts",
+          "bytes": 7546,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RealTapeL__SkillPilot/packages__core__src__router__ConflictResolver.ts"
+        },
+        {
+          "path": "packages/core/src/router/FastRouter.ts",
+          "bytes": 4874,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RealTapeL__SkillPilot/packages__core__src__router__FastRouter.ts"
+        },
+        {
+          "path": "packages/core/src/router/SemanticRouter.ts",
+          "bytes": 5761,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RealTapeL__SkillPilot/packages__core__src__router__SemanticRouter.ts"
+        },
+        {
+          "path": "packages/core/src/router/SkillRouter.ts",
+          "bytes": 13197,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RealTapeL__SkillPilot/packages__core__src__router__SkillRouter.ts"
+        },
+        {
+          "path": "tests/core/embed.test.ts",
+          "bytes": 3412,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RealTapeL__SkillPilot/tests__core__embed.test.ts"
+        },
+        {
+          "path": "tests/core/router.test.ts",
+          "bytes": 5135,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RealTapeL__SkillPilot/tests__core__router.test.ts"
+        },
+        {
+          "path": "benchmarks/datasets/intents-100.json",
+          "bytes": 5856,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RealTapeL__SkillPilot/benchmarks__datasets__intents-100.json"
+        }
+      ],
+      "downloadedFiles": 12
+    },
+    {
+      "repository": "choihyunsus/n2-QLN",
+      "category": "tool-routing",
+      "url": "https://github.com/choihyunsus/n2-QLN",
+      "stars": 43,
+      "defaultBranch": "main",
+      "language": "TypeScript",
+      "description": "n2-QLN: Intelligent Tool Router & Semantic Search Layer for MCP. Connect 1,000+ tools through 1 interface. Prevent AI model confusion and maximize context window efficiency",
+      "implementationFiles": [
+        {
+          "path": "src/lib/embedding.ts",
+          "bytes": 4217,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/choihyunsus__n2-QLN/src__lib__embedding.ts"
+        },
+        {
+          "path": "src/lib/router.ts",
+          "bytes": 10012,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/choihyunsus__n2-QLN/src__lib__router.ts"
+        },
+        {
+          "path": "src/lib/vector-index.ts",
+          "bytes": 4728,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/choihyunsus__n2-QLN/src__lib__vector-index.ts"
+        },
+        {
+          "path": "test/test-bm25-router.js",
+          "bytes": 6171,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/choihyunsus__n2-QLN/test__test-bm25-router.js"
+        }
+      ],
+      "downloadedFiles": 4
+    },
+    {
+      "repository": "rashidazarang/mcp-intelligence",
+      "category": "tool-routing",
+      "url": "https://github.com/rashidazarang/mcp-intelligence",
+      "stars": 4,
+      "defaultBranch": "master",
+      "language": "TypeScript",
+      "description": "The semantic brain for MCP servers. It understands natural language queries, intelligently routes to the right MCP server, validates responses, and learns from usage patterns.",
+      "implementationFiles": [
+        {
+          "path": "src/routing/SemanticRouter.ts",
+          "bytes": 7608,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/rashidazarang__mcp-intelligence/src__routing__SemanticRouter.ts"
+        },
+        {
+          "path": "src/routing/router.ts",
+          "bytes": 9225,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/rashidazarang__mcp-intelligence/src__routing__router.ts"
+        }
+      ],
+      "downloadedFiles": 2
+    },
+    {
+      "repository": "jkmaina/langgraph-llm-router-agent",
+      "category": "tool-routing",
+      "url": "https://github.com/jkmaina/langgraph-llm-router-agent",
+      "stars": 3,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "This is a LangGraph AI Agent that features a sophisticated two-tier routing system that uses OpenAI GPT models for smart tool selection with rule-based pattern matching as a reliable fallback, making it production-ready with extensive testing coverage and interactive capabilities.",
+      "implementationFiles": [
+        {
+          "path": "langgraph_agent/workflow/llm_router.py",
+          "bytes": 9653,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/jkmaina__langgraph-llm-router-agent/langgraph_agent__workflow__llm_router.py"
+        },
+        {
+          "path": "langgraph_agent/workflow/router.py",
+          "bytes": 6372,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/jkmaina__langgraph-llm-router-agent/langgraph_agent__workflow__router.py"
+        },
+        {
+          "path": "tests/test_llm_router.py",
+          "bytes": 16027,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/jkmaina__langgraph-llm-router-agent/tests__test_llm_router.py"
+        },
+        {
+          "path": "tests/test_router.py",
+          "bytes": 7995,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/jkmaina__langgraph-llm-router-agent/tests__test_router.py"
+        }
+      ],
+      "downloadedFiles": 4
+    },
+    {
+      "repository": "qingyiwanchen/CacheRouter",
+      "category": "tool-routing",
+      "url": "https://github.com/qingyiwanchen/CacheRouter",
+      "stars": 2,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "Multi-turn conversational AI harness with MCP tool integration, built for LLMs with cache-hit mechanisms (e.g. DeepSeek). A dual-path router keeps the main model's prompt prefix stable to maximize cache hits, while a fast sub-model handles long-tail tool selection. Includes deep thinking triggers and fallback answers.",
+      "implementationFiles": [
+        {
+          "path": "CacheRouter-v1.0.0/LLM_functions.py",
+          "bytes": 35452,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/qingyiwanchen__CacheRouter/CacheRouter-v1.0.0__LLM_functions.py"
+        },
+        {
+          "path": "CacheRouter-v1.0.0/apikey.py",
+          "bytes": 3046,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/qingyiwanchen__CacheRouter/CacheRouter-v1.0.0__apikey.py"
+        },
+        {
+          "path": "CacheRouter-v1.0.0/coding_test/Solve_HH.py",
+          "bytes": 10346,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/qingyiwanchen__CacheRouter/CacheRouter-v1.0.0__coding_test__Solve_HH.py"
+        },
+        {
+          "path": "CacheRouter-v1.0.0/coding_test/Solve_Lorentz.py",
+          "bytes": 15312,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/qingyiwanchen__CacheRouter/CacheRouter-v1.0.0__coding_test__Solve_Lorentz.py"
+        },
+        {
+          "path": "CacheRouter-v1.0.0/coding_test/test1.py",
+          "bytes": 417,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/qingyiwanchen__CacheRouter/CacheRouter-v1.0.0__coding_test__test1.py"
+        },
+        {
+          "path": "CacheRouter-v1.0.0/coding_test/test2.py",
+          "bytes": 961,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/qingyiwanchen__CacheRouter/CacheRouter-v1.0.0__coding_test__test2.py"
+        },
+        {
+          "path": "CacheRouter-v1.0.0/common_functions.py",
+          "bytes": 14083,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/qingyiwanchen__CacheRouter/CacheRouter-v1.0.0__common_functions.py"
+        },
+        {
+          "path": "CacheRouter-v1.0.0/deep_running.py",
+          "bytes": 8894,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/qingyiwanchen__CacheRouter/CacheRouter-v1.0.0__deep_running.py"
+        },
+        {
+          "path": "CacheRouter-v1.0.0/gateway_server.py",
+          "bytes": 30161,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/qingyiwanchen__CacheRouter/CacheRouter-v1.0.0__gateway_server.py"
+        },
+        {
+          "path": "CacheRouter-v1.0.0/mcp_deepseek_client.py",
+          "bytes": 18813,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/qingyiwanchen__CacheRouter/CacheRouter-v1.0.0__mcp_deepseek_client.py"
+        },
+        {
+          "path": "CacheRouter-v1.0.0/read_sessions_db.py",
+          "bytes": 5802,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/qingyiwanchen__CacheRouter/CacheRouter-v1.0.0__read_sessions_db.py"
+        },
+        {
+          "path": "CacheRouter-v1.0.0/show_web_ui.py",
+          "bytes": 56439,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/qingyiwanchen__CacheRouter/CacheRouter-v1.0.0__show_web_ui.py"
+        },
+        {
+          "path": "CacheRouter-v1.0.0/skills/base/experiment-metrics/scripts/_tracker_core.py",
+          "bytes": 17923,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/qingyiwanchen__CacheRouter/CacheRouter-v1.0.0__skills__base__experiment-metrics__scripts___tracker_core.py"
+        },
+        {
+          "path": "CacheRouter-v1.0.0/skills/base/experiment-metrics/scripts/compute_experiment_report.py",
+          "bytes": 26612,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/qingyiwanchen__CacheRouter/CacheRouter-v1.0.0__skills__base__experiment-metrics__scripts__compute_experiment_report.py"
+        },
+        {
+          "path": "CacheRouter-v1.0.0/skills/base/experiment-metrics/scripts/query_current_stats.py",
+          "bytes": 3879,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/qingyiwanchen__CacheRouter/CacheRouter-v1.0.0__skills__base__experiment-metrics__scripts__query_current_stats.py"
+        },
+        {
+          "path": "CacheRouter-v1.0.0/skills/base/rag-search-test1/scripts/rag_query.py",
+          "bytes": 3699,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/qingyiwanchen__CacheRouter/CacheRouter-v1.0.0__skills__base__rag-search-test1__scripts__rag_query.py"
+        }
+      ],
+      "downloadedFiles": 16
+    },
+    {
+      "repository": "vrraj/bm25s-retriever",
+      "category": "tool-routing",
+      "url": "https://github.com/vrraj/bm25s-retriever",
+      "stars": 1,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "Lexical routing layer for LLM tool selection. Filter MCP-discovered and registry tools before prompt assembly using fast BM25S retrieval.",
+      "implementationFiles": [
+        {
+          "path": "bm25s_retriever/api/routes.py",
+          "bytes": 15279,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vrraj__bm25s-retriever/bm25s_retriever__api__routes.py"
+        },
+        {
+          "path": "examples/llm_tool_routing_example.py",
+          "bytes": 14380,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/vrraj__bm25s-retriever/examples__llm_tool_routing_example.py"
+        }
+      ],
+      "downloadedFiles": 2
+    },
+    {
+      "repository": "thepass3r/llm-tool-router",
+      "category": "tool-routing",
+      "url": "https://github.com/thepass3r/llm-tool-router",
+      "stars": 0,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "Deterministic tool selection for LLM agents: 115 tools → 8–12 per request, ~33k tokens of schema → ~3.1k. No embeddings, benchmark included (37/37).",
+      "implementationFiles": [
+        {
+          "path": "tests/test_tool_router.py",
+          "bytes": 6135,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thepass3r__llm-tool-router/tests__test_tool_router.py"
+        },
+        {
+          "path": "tool_router.py",
+          "bytes": 16585,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/thepass3r__llm-tool-router/tool_router.py"
+        }
+      ],
+      "downloadedFiles": 2
+    },
+    {
+      "repository": "jaiswalsuraj487/agent-tool-selection-rag",
+      "category": "tool-routing",
+      "url": "https://github.com/jaiswalsuraj487/agent-tool-selection-rag",
+      "stars": 0,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "Tool-RAG + hierarchical routing agent that keeps LLM tool-selection accuracy flat as the catalog scales past 500+ tools",
+      "implementationFiles": [
+        {
+          "path": "src/scalable_agent/retrieval/centroid_router.py",
+          "bytes": 5748,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/jaiswalsuraj487__agent-tool-selection-rag/src__scalable_agent__retrieval__centroid_router.py"
+        },
+        {
+          "path": "src/scalable_agent/retrieval/embedder.py",
+          "bytes": 1137,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/jaiswalsuraj487__agent-tool-selection-rag/src__scalable_agent__retrieval__embedder.py"
+        },
+        {
+          "path": "src/scalable_agent/retrieval/router.py",
+          "bytes": 5858,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/jaiswalsuraj487__agent-tool-selection-rag/src__scalable_agent__retrieval__router.py"
+        }
+      ],
+      "downloadedFiles": 3
+    },
+    {
+      "repository": "bitrouter/bitrouter",
+      "category": "tool-routing",
+      "url": "https://github.com/bitrouter/bitrouter",
+      "stars": 228,
+      "defaultBranch": "main",
+      "language": "Rust",
+      "description": "The minimal interpretable model router that learns & adapts to your agent workflows",
+      "implementationFiles": [
+        {
+          "path": "apps/bitrouter/build.rs",
+          "bytes": 11106,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/bitrouter__bitrouter/apps__bitrouter__build.rs"
+        },
+        {
+          "path": "apps/bitrouter/examples/checkpoint_ts_publication.rs",
+          "bytes": 30262,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/bitrouter__bitrouter/apps__bitrouter__examples__checkpoint_ts_publication.rs"
+        },
+        {
+          "path": "apps/bitrouter/examples/checkpoint_ts_simulation.rs",
+          "bytes": 12081,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/bitrouter__bitrouter/apps__bitrouter__examples__checkpoint_ts_simulation.rs"
+        },
+        {
+          "path": "apps/bitrouter/src/acp_cli.rs",
+          "bytes": 158572,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/bitrouter__bitrouter/apps__bitrouter__src__acp_cli.rs"
+        },
+        {
+          "path": "apps/bitrouter/src/acp_cli/evolution_acceptance.rs",
+          "bytes": 30839,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/bitrouter__bitrouter/apps__bitrouter__src__acp_cli__evolution_acceptance.rs"
+        },
+        {
+          "path": "apps/bitrouter/src/acp_cli/evolution_acceptance/publication.rs",
+          "bytes": 16998,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/bitrouter__bitrouter/apps__bitrouter__src__acp_cli__evolution_acceptance__publication.rs"
+        },
+        {
+          "path": "apps/bitrouter/src/acp_runtime.rs",
+          "bytes": 10840,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/bitrouter__bitrouter/apps__bitrouter__src__acp_runtime.rs"
+        },
+        {
+          "path": "apps/bitrouter/src/acp_trajectory/checkpoint/assessment.rs",
+          "bytes": 15302,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/bitrouter__bitrouter/apps__bitrouter__src__acp_trajectory__checkpoint__assessment.rs"
+        },
+        {
+          "path": "apps/bitrouter/src/acp_trajectory/checkpoint/entities.rs",
+          "bytes": 2736,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/bitrouter__bitrouter/apps__bitrouter__src__acp_trajectory__checkpoint__entities.rs"
+        },
+        {
+          "path": "apps/bitrouter/src/acp_trajectory/checkpoint/mod.rs",
+          "bytes": 23783,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/bitrouter__bitrouter/apps__bitrouter__src__acp_trajectory__checkpoint__mod.rs"
+        },
+        {
+          "path": "apps/bitrouter/src/acp_trajectory/checkpoint/resource.rs",
+          "bytes": 7860,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/bitrouter__bitrouter/apps__bitrouter__src__acp_trajectory__checkpoint__resource.rs"
+        },
+        {
+          "path": "apps/bitrouter/src/acp_trajectory/checkpoint/resource/coverage.rs",
+          "bytes": 11549,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/bitrouter__bitrouter/apps__bitrouter__src__acp_trajectory__checkpoint__resource__coverage.rs"
+        },
+        {
+          "path": "apps/bitrouter/src/acp_trajectory/checkpoint/tests.rs",
+          "bytes": 21857,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/bitrouter__bitrouter/apps__bitrouter__src__acp_trajectory__checkpoint__tests.rs"
+        },
+        {
+          "path": "apps/bitrouter/src/acp_trajectory/checkpoint/types.rs",
+          "bytes": 7495,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/bitrouter__bitrouter/apps__bitrouter__src__acp_trajectory__checkpoint__types.rs"
+        },
+        {
+          "path": "apps/bitrouter/src/acp_trajectory/entities.rs",
+          "bytes": 2185,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/bitrouter__bitrouter/apps__bitrouter__src__acp_trajectory__entities.rs"
+        },
+        {
+          "path": "apps/bitrouter/src/acp_trajectory/mod.rs",
+          "bytes": 29628,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/bitrouter__bitrouter/apps__bitrouter__src__acp_trajectory__mod.rs"
+        }
+      ],
+      "downloadedFiles": 16
+    },
+    {
+      "repository": "peva3/SmarterRouter",
+      "category": "tool-routing",
+      "url": "https://github.com/peva3/SmarterRouter",
+      "stars": 152,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "SmarterRouter: An intelligent LLM gateway and VRAM-aware router for Ollama, llama.cpp, and OpenAI. Features semantic caching, model profiling, and automatic failover for local AI labs.",
+      "implementationFiles": [
+        {
+          "path": "router/__init__.py",
+          "bytes": 0,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/peva3__SmarterRouter/router____init__.py"
+        },
+        {
+          "path": "router/api/__init__.py",
+          "bytes": 331,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/peva3__SmarterRouter/router__api____init__.py"
+        },
+        {
+          "path": "router/api/admin.py",
+          "bytes": 55203,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/peva3__SmarterRouter/router__api__admin.py"
+        },
+        {
+          "path": "router/api/chat.py",
+          "bytes": 25293,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/peva3__SmarterRouter/router__api__chat.py"
+        },
+        {
+          "path": "router/api/health.py",
+          "bytes": 4705,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/peva3__SmarterRouter/router__api__health.py"
+        },
+        {
+          "path": "router/api/models.py",
+          "bytes": 11169,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/peva3__SmarterRouter/router__api__models.py"
+        },
+        {
+          "path": "router/audit.py",
+          "bytes": 4784,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/peva3__SmarterRouter/router__audit.py"
+        },
+        {
+          "path": "router/backends/__init__.py",
+          "bytes": 2149,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/peva3__SmarterRouter/router__backends____init__.py"
+        },
+        {
+          "path": "router/backends/base.py",
+          "bytes": 2360,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/peva3__SmarterRouter/router__backends__base.py"
+        },
+        {
+          "path": "router/backends/external.py",
+          "bytes": 5283,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/peva3__SmarterRouter/router__backends__external.py"
+        },
+        {
+          "path": "router/backends/llama_cpp.py",
+          "bytes": 10109,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/peva3__SmarterRouter/router__backends__llama_cpp.py"
+        },
+        {
+          "path": "router/backends/ollama.py",
+          "bytes": 18503,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/peva3__SmarterRouter/router__backends__ollama.py"
+        },
+        {
+          "path": "router/backends/openai.py",
+          "bytes": 10510,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/peva3__SmarterRouter/router__backends__openai.py"
+        },
+        {
+          "path": "router/backends/registry.py",
+          "bytes": 8830,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/peva3__SmarterRouter/router__backends__registry.py"
+        },
+        {
+          "path": "router/backends/resilience.py",
+          "bytes": 2392,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/peva3__SmarterRouter/router__backends__resilience.py"
+        },
+        {
+          "path": "router/backends/retry.py",
+          "bytes": 3824,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/peva3__SmarterRouter/router__backends__retry.py"
+        }
+      ],
+      "downloadedFiles": 16
+    },
+    {
+      "repository": "RouteWorks/RouterArena",
+      "category": "evaluation",
+      "url": "https://github.com/RouteWorks/RouterArena",
+      "stars": 134,
+      "defaultBranch": "main",
+      "language": "Python",
+      "description": "RouterArena: An open framework for evaluating LLM routers with standardized datasets, metrics, an automated framework, and a live leaderboard.",
+      "implementationFiles": [
+        {
+          "path": "router_evaluation/compute_scores.py",
+          "bytes": 4774,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RouteWorks__RouterArena/router_evaluation__compute_scores.py"
+        },
+        {
+          "path": "router_inference/check_config_prediction_files.py",
+          "bytes": 26132,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RouteWorks__RouterArena/router_inference__check_config_prediction_files.py"
+        },
+        {
+          "path": "router_inference/compare_router_accuracy.py",
+          "bytes": 11676,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RouteWorks__RouterArena/router_inference__compare_router_accuracy.py"
+        },
+        {
+          "path": "router_inference/generate_prediction_file.py",
+          "bytes": 10162,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RouteWorks__RouterArena/router_inference__generate_prediction_file.py"
+        },
+        {
+          "path": "router_inference/router/__init__.py",
+          "bytes": 822,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RouteWorks__RouterArena/router_inference__router____init__.py"
+        },
+        {
+          "path": "router_inference/router/auto_router.py",
+          "bytes": 2521,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RouteWorks__RouterArena/router_inference__router__auto_router.py"
+        },
+        {
+          "path": "router_inference/router/base_router.py",
+          "bytes": 4501,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RouteWorks__RouterArena/router_inference__router__base_router.py"
+        },
+        {
+          "path": "router_inference/router/chuzom_solo_v32.py",
+          "bytes": 690,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RouteWorks__RouterArena/router_inference__router__chuzom_solo_v32.py"
+        },
+        {
+          "path": "router_inference/router/cruq_sc_router.py",
+          "bytes": 4205,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RouteWorks__RouterArena/router_inference__router__cruq_sc_router.py"
+        },
+        {
+          "path": "router_inference/router/example_router.py",
+          "bytes": 1419,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RouteWorks__RouterArena/router_inference__router__example_router.py"
+        },
+        {
+          "path": "router_inference/router/llm_router.py",
+          "bytes": 27616,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RouteWorks__RouterArena/router_inference__router__llm_router.py"
+        },
+        {
+          "path": "router_inference/router/lynkr_router.py",
+          "bytes": 2775,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RouteWorks__RouterArena/router_inference__router__lynkr_router.py"
+        },
+        {
+          "path": "router_inference/router/nadir_adapter.py",
+          "bytes": 13350,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RouteWorks__RouterArena/router_inference__router__nadir_adapter.py"
+        },
+        {
+          "path": "router_inference/router/vllm_sr.py",
+          "bytes": 2355,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RouteWorks__RouterArena/router_inference__router__vllm_sr.py"
+        },
+        {
+          "path": "router_inference/config/AsiaInfo-Router.json",
+          "bytes": 202,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RouteWorks__RouterArena/router_inference__config__AsiaInfo-Router.json"
+        },
+        {
+          "path": "router_inference/config/BARouter.json",
+          "bytes": 351,
+          "evidenceFile": "_audit/research-cache/intent-semantic-routing-phase2/RouteWorks__RouterArena/router_inference__config__BARouter.json"
+        }
+      ],
+      "downloadedFiles": 16
+    }
+  ],
+  "failures": []
+}

@@ -1,6 +1,6 @@
 {
   "passed": true,
-  "scenarios": 15,
+  "scenarios": 19,
   "mode": "source",
   "screenshots": [
     "01-home-empty-insert.png",
@@ -11,7 +11,9 @@
     "06-home-stream-follow.png",
     "07-home-discuss-reveal.png",
     "07a-home-permission-denied.png",
-    "08-home-write-limit.png",
+    "07b-home-invalid-protocol-matrix.png",
+    "08-home-repeat-write-guard.png",
+    "08a-home-cross-turn-tool-audit.png",
     "09-outline-direct-write.png",
     "09a-outline-short-approval.png",
     "10-outline-locked-reveal.png",
@@ -20,5 +22,5 @@
     "13-run-trace-export.png",
     "14-diagnostics-coverage.png"
   ],
-  "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\api-direct-write-v2-exports-source\\run-trace-home-20260917-223436-deep"
+  "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\api-direct-write-v2-exports-source\\run-trace-home-20260920-043708-deep"
 }

@@ -1,0 +1,198 @@
+{
+  "schema": "shenyi.editor-multi-cursor.electron",
+  "version": 1,
+  "rounds": [
+    {
+      "round": 1,
+      "entry": "home",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "newlineVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 2,
+      "entry": "home",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "newlineVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 3,
+      "entry": "home",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "newlineVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 4,
+      "entry": "home",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "newlineVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 5,
+      "entry": "home",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "newlineVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 6,
+      "entry": "home",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "newlineVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 7,
+      "entry": "home",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "newlineVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 8,
+      "entry": "home",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "newlineVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 9,
+      "entry": "home",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "newlineVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 10,
+      "entry": "home",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "newlineVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 1,
+      "entry": "outline",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 2,
+      "entry": "outline",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 3,
+      "entry": "outline",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 4,
+      "entry": "outline",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 5,
+      "entry": "outline",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 6,
+      "entry": "outline",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 7,
+      "entry": "outline",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 8,
+      "entry": "outline",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 9,
+      "entry": "outline",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    },
+    {
+      "round": 10,
+      "entry": "outline",
+      "findAllCursors": 23,
+      "insertDeleteVerified": true,
+      "undoVerified": true,
+      "externalWriteDowngrade": true,
+      "traceAndDiagCovered": true
+    }
+  ],
+  "assertions": "20/20 rounds: home and outline, Find All virtual cursors, insert/delete/newline, undo transaction, external write downgrade, runTrace + DiagLogger, no page errors",
+  "generatedAt": "2026-09-25T05:11:32.528Z"
+}

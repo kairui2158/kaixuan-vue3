@@ -1,0 +1,108 @@
+{
+  "schema": "shenyi.editor-undo.electron",
+  "version": 1,
+  "rounds": [
+    {
+      "round": 1,
+      "apiUndoVerified": true,
+      "manualUndoVerified": true,
+      "manualRedoVerified": true,
+      "importUndoVerified": true,
+      "projectResetIsolationVerified": true,
+      "diagRecords": 4,
+      "traceEventVerified": true
+    },
+    {
+      "round": 2,
+      "apiUndoVerified": true,
+      "manualUndoVerified": true,
+      "manualRedoVerified": true,
+      "importUndoVerified": true,
+      "projectResetIsolationVerified": true,
+      "diagRecords": 8,
+      "traceEventVerified": true
+    },
+    {
+      "round": 3,
+      "apiUndoVerified": true,
+      "manualUndoVerified": true,
+      "manualRedoVerified": true,
+      "importUndoVerified": true,
+      "projectResetIsolationVerified": true,
+      "diagRecords": 12,
+      "traceEventVerified": true
+    },
+    {
+      "round": 4,
+      "apiUndoVerified": true,
+      "manualUndoVerified": true,
+      "manualRedoVerified": true,
+      "importUndoVerified": true,
+      "projectResetIsolationVerified": true,
+      "diagRecords": 16,
+      "traceEventVerified": true
+    },
+    {
+      "round": 5,
+      "apiUndoVerified": true,
+      "manualUndoVerified": true,
+      "manualRedoVerified": true,
+      "importUndoVerified": true,
+      "projectResetIsolationVerified": true,
+      "diagRecords": 20,
+      "traceEventVerified": true
+    },
+    {
+      "round": 6,
+      "apiUndoVerified": true,
+      "manualUndoVerified": true,
+      "manualRedoVerified": true,
+      "importUndoVerified": true,
+      "projectResetIsolationVerified": true,
+      "diagRecords": 24,
+      "traceEventVerified": true
+    },
+    {
+      "round": 7,
+      "apiUndoVerified": true,
+      "manualUndoVerified": true,
+      "manualRedoVerified": true,
+      "importUndoVerified": true,
+      "projectResetIsolationVerified": true,
+      "diagRecords": 28,
+      "traceEventVerified": true
+    },
+    {
+      "round": 8,
+      "apiUndoVerified": true,
+      "manualUndoVerified": true,
+      "manualRedoVerified": true,
+      "importUndoVerified": true,
+      "projectResetIsolationVerified": true,
+      "diagRecords": 32,
+      "traceEventVerified": true
+    },
+    {
+      "round": 9,
+      "apiUndoVerified": true,
+      "manualUndoVerified": true,
+      "manualRedoVerified": true,
+      "importUndoVerified": true,
+      "projectResetIsolationVerified": true,
+      "diagRecords": 36,
+      "traceEventVerified": true
+    },
+    {
+      "round": 10,
+      "apiUndoVerified": true,
+      "manualUndoVerified": true,
+      "manualRedoVerified": true,
+      "importUndoVerified": true,
+      "projectResetIsolationVerified": true,
+      "diagRecords": 40,
+      "traceEventVerified": true
+    }
+  ],
+  "assertions": "10 rounds: manual/api/import transactions, undo, redo, runTrace + DiagLogger dual logging, project-reset isolation, no-page-error",
+  "generatedAt": "2026-09-24T19:03:11.885Z"
+}

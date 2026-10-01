@@ -1,0 +1,23 @@
+{
+  "schema": "shenyi.api-direct-write-dual-entry-equivalence",
+  "version": 1,
+  "generatedAt": "2026-09-24T19:01:43.493Z",
+  "documentChars": 5046,
+  "operations": [
+    "append",
+    "replace_match",
+    "move",
+    "delete"
+  ],
+  "requests": 16,
+  "finalContentIdentical": true,
+  "sharedEditorToolSurfacesIdentical": true,
+  "outlineExtraTools": [
+    "outline.get_structure",
+    "outline.get_summary",
+    "outline.read_range",
+    "outline.search"
+  ],
+  "outlineExtraToolsReadOnly": true,
+  "traceClosed": true
+}

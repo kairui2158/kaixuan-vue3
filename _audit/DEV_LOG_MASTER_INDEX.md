@@ -25,6 +25,57 @@
 | 234 | 2026-09-18 | 编辑器重复写入守卫 | 删除写入次数预算，改为连续 3 次相同写入拦截；补 runTrace 正文回填并放宽 active 看门狗 | API 可连续执行不同有效写入，不再被次数上限误杀；trace 保留工具轮最终输出 | [DEV_LOG_2026-09-18-editor-write-repeat-guard.md](DEV_LOG_2026-09-18-editor-write-repeat-guard.md) |
 | 235 | 2026-09-18 | 全链路审计补修与回头看 | 技能链真实串行执行、测试路径 trace 补齐、autoDecompose 聚合、记忆抽取/大纲分析 trace 接入；回头看补修项目切换 canceled 与 JSON 兜底 degraded 终态 | SKILL 调试方能看到测试、自动拆解、记忆抽取和大纲分析的真实 API 过程，早退与兜底分支不再伪装成功 | [DEV_LOG_2026-09-18-call-path-audit-followup.md](DEV_LOG_2026-09-18-call-path-audit-followup.md) |
 | 236 | 2026-09-18 | 3.53.5 封装 | 版本升级、全量服务测试、类型检查、NSIS 重封装、asar 修复标记核验与旧 3.53.4 产物清理 | 交付包含全链路审计补修与回头看终态修复的客户安装包 | [DEV_LOG_2026-09-18-packaging-3.53.5.md](DEV_LOG_2026-09-18-packaging-3.53.5.md) |
+| 237 | 2026-09-19 | API 直写协议成熟化 Phase 3 | 跨轮 compact 工具审计、上一轮写入事实 system 注入、孤儿 tool_call 检测、run trace 补写与四路径接线 | 模型下一轮能看见上一轮成功/失败/拒权终态，不再重复提交已成功写入，SKILL 调试方也能在 trace 中看到工具对摘要 | [DEV_LOG_2026-09-19_api-direct-write-protocol-phase3.md](DEV_LOG_2026-09-19_api-direct-write-protocol-phase3.md) |
+| 238 | 2026-09-19 | API 直写协议成熟化 Phase 4 | 意图矩阵正负样本、路由优先级修正、precision/recall/F1 校准报告与 335 样本回归 | analyze/generate 明确指令不再被 discuss 语境护栏吞掉，确认后写入和参考请求边界可量化验证 | [DEV_LOG_2026-09-19_api-direct-write-protocol-phase4.md](DEV_LOG_2026-09-19_api-direct-write-protocol-phase4.md) |
+| 239 | 2026-09-19 | API 直写协议成熟化 Phase 5 | 兼容直写协议形状修复、15 场景负向/跨轮/权限矩阵、生产接线门禁、意图评估与 M37 经验回写 | 兼容供应商 JSON 直写恢复可用且不再输出协议原文；严格校验、trace、DiagLogger 与 E2E 形成完整闭环 | [DEV_LOG_2026-09-19_api-direct-write-protocol-phase5.md](DEV_LOG_2026-09-19_api-direct-write-protocol-phase5.md) |
+| 240 | 2026-09-20 | 意图语料 20 轮社区补齐与结构化替换路由修复 | 三路 20 轮精准搜索、结构化替换正负样本单源入库、祈使/预览问句分流、Electron 契约修正与全量验证 | “把某内容换成某内容”进入 edit 直写，“改成什么样”保持只读讨论，385 样本意图评估全指标 1.0000 | [DEV_LOG_2026-09-20_intent-corpus-structured-replace.md](DEV_LOG_2026-09-20_intent-corpus-structured-replace.md) |
+| 241 | 2026-09-20 | 意图路由 V6 Phase 1 生产加载与 Electron 证据闭环 | jieba 迁移到 Electron 主进程 IPC、验证器分类口径修正、三轮真实 UI 实测与 deep trace 落盘 | 意图路由在生产 Electron 不再因 Vite stub 全局降级；Phase 1 词表层失败被四侧证据完整采集，供 Phase 2 语义层对账 | [DEV_LOG_2026-09-20_intent-routing-v6-phase1.md](DEV_LOG_2026-09-20_intent-routing-v6-phase1.md) |
+| 242 | 2026-09-21 | 意图路由 V6 Phase 5 兜底矩阵与验证口径收口 | ambiguous LLM 兜底失败保持等待用户、no_match 保持只读讨论、Electron 10 场景兜底矩阵、fallback 恢复链路、live-divergence 分类与当前基线对账 | LLM 兜底故障不再把真实歧义输入误降级；SKILL 调试方能区分词层失败、会话观测分叉与兜底行为，并获得 deep trace 证据 | [DEV_LOG_2026-09-21_intent-routing-v6-phase5.md](DEV_LOG_2026-09-21_intent-routing-v6-phase5.md) |
+| 243 | 2026-09-21 | 设计融合响应式溢出反查 | 技能七类子弹窗三段式滚动结构、24 视图 12 宽度 341 用例压力矩阵、状态桥同进程注入修复与 M48 经验回写 | 按钮与长文本在 320-2560px 缩放范围内不再溢出或裁切；验证器不再因跨进程 getter 序列化产生假注入 | [DEV_LOG_2026-09-21-design-fusion-responsive-overflow.md](DEV_LOG_2026-09-21-design-fusion-responsive-overflow.md) |
+| 244 | 2026-09-21 | 3.55.0 响应式反查后重封装与仓库清理 | 清理旧 3.55.0 产物与设计审计临时文件，按最新响应式修复重新封装并完成 asar、启动、IPC 与哈希核验 | 交付包含 341 用例响应式修复后的新 3.55.0 安装包；仓库只保留当前产物与可追溯证据 | [DEV_LOG_2026-09-21-packaging-3.55.0-responsive-followup.md](DEV_LOG_2026-09-21-packaging-3.55.0-responsive-followup.md) |
+| 245 | 2026-09-22 | 递归审计收敛与 3.56.0 封装 | 删除损坏旧 preload 副本、统一 electron-log 入口、修复测试类型，完成 Electron 级三线验证与零新增问题收敛 | 交付 3.56.0 安装包；全量测试、类型检查、依赖巡航、意图语料同步与打包启动核验通过 | [DEV_LOG_2026-09-22_recursive-audit-packaging-3.56.0.md](DEV_LOG_2026-09-22_recursive-audit-packaging-3.56.0.md) |
+| 246 | 2026-09-22 | 意图语义路由 Phase 2 社区适配 | 60 仓库源码深读后的 OOS 独立判定、分意图歧义阈值、误拒/漏拒校准指标与 Electron 深度验证 | 路由器升级 v6.1；写意图使用更严 margin，越域输入可诊断降级，SKILL 调试方能在 trace 中看到完整阈值与决策层 | [DEV_LOG_2026-09-22_intent-semantic-routing-phase2.md](DEV_LOG_2026-09-22_intent-semantic-routing-phase2.md) |
+| 247 | 2026-09-22 | 意图路由语料自成长系统 V2 | 三级标注回流、主进程语料存储与项目作用域导出、社区影子语料隔离、影子校准接入与 Electron 七场景实测 | 客户正常使用即自动积累真实意图语料，无需反复导出完整运行记录；只有 confirmed 样本可进校准，写入安全阈值不被自动放宽 | [DEV_LOG_2026-09-22_intent_corpus_self_growth_v2.md](DEV_LOG_2026-09-22_intent_corpus_self_growth_v2.md) |
+| 248 | 2026-09-22 | 意图路由自动化对抗语料工厂 | 七类确定性变异、1000 字手稿测试稿、Silver/Bronze 分级工厂、社区来源挖掘、Electron 八场景长上下文写入隔离验证与 Gold 需求降为 30 条 | 客户无需反复导出运行记录，系统自动挖掘路由盲区并守住写入安全回归；合成语料永不污染生产阈值校准 | [DEV_LOG_2026-09-22_intent-adversarial-corpus-factory.md](DEV_LOG_2026-09-22_intent-adversarial-corpus-factory.md) |
+| 249 | 2026-09-22 | 3.57.0 对抗语料工厂封装 | 版本升级 3.57.0、全量服务测试、类型检查、NSIS 重封装、asar/renderer/electronAPI/真实启动核验与旧 3.56.0 产物清理 | 交付包含意图对抗语料工厂、八场景长上下文验证与 M54 门禁的客户安装包 | [DEV_LOG_2026-09-22-packaging-3.57.0-adversarial-corpus.md](DEV_LOG_2026-09-22-packaging-3.57.0-adversarial-corpus.md) |
+| 250 | 2026-09-23 | EditTask 系统成熟化调研 | 60 个真实仓库的编辑任务状态机、分批执行、checkpoint、失败恢复与工具面治理调研，形成 EditTask 系统方案 V1 | API 直写从单轮工具调用升级为跨轮可恢复编辑任务的方案基础，沉淀社区成熟实现证据 | [DEV_LOG_2026-09-22_edit-task-maturity-research.md](DEV_LOG_2026-09-22_edit-task-maturity-research.md) |
+| 251 | 2026-09-23 | EditTask 系统 Phase 1-4 | EditTask 状态机、分批执行器、checkpoint、跨轮恢复、任务条 UI、runTrace/DiagLogger 生命周期覆盖与双入口接线 | 长文编辑失败后可按批次恢复，不再反复重放或折叠部分失败；SKILL 调试方可见任务全生命周期 | [DEV_LOG_2026-09-23_EDIT_TASK_SYSTEM_PHASE5.md](DEV_LOG_2026-09-23_EDIT_TASK_SYSTEM_PHASE5.md) |
+| 252 | 2026-09-23 | EditTask 系统 Phase 5 收口 | 终态任务工具面归一、写入权限声明、task.resume/task.cancel 控制面、验证器 D2 mock 分支修复与 Electron 十场景高强度实测 | 编辑任务结束后下一轮 edit 自动恢复普通写入面；失败暂停、恢复、取消与终态收敛全部可用且 trace 可审计 | [DEV_LOG_2026-09-23_EDIT_TASK_SYSTEM_PHASE5.md](DEV_LOG_2026-09-23_EDIT_TASK_SYSTEM_PHASE5.md) |
+| 253 | 2026-09-22 | 3.58.0 意图对抗工厂收敛封装（补登） | round-20 五项失败指标全零、S1-S6 停止审计 PASS、全量服务测试与 Electron 打包核验、3.57.0 旧产物清理 | 交付 3.58.0 安装包；意图工厂达到机器可判定停止条件，且保留路径自选安装与 embedding 本地加载证据 | [DEV_LOG_2026-09-22-packaging-3.58.0.md](DEV_LOG_2026-09-22-packaging-3.58.0.md) |
+| 254 | 2026-09-23 | EditTask 20 轮回头看 | 修复取消终态任务条不收敛、终态任务弱恢复假成功，完成状态机、工具面、trace、验证器与全仓旧链路审计 | 编辑任务取消后 UI 与工具面立即收敛，终态任务不再被伪恢复，814 测试与 Electron 十场景实测全部通过 | [DEV_LOG_2026-09-23_EDIT_TASK_20R_LOOKBACK.md](DEV_LOG_2026-09-23_EDIT_TASK_20R_LOOKBACK.md) |
+| 255 | 2026-09-23 | 侧栏 tooltip 溢出修复 | 右侧默认 + 左侧翻转 + 两侧空间择优收窄 + 垂直钳制的 tooltip 定位控制器，验证器改为测量真实 `::after` 几何并新增四缘合成宿主 | 主页左栏点击/悬停不再出现文字显示不全；12 宽度 341 响应式用例、396 条 tooltip 断言、视觉矩阵、新旧并存与确认层回归全部通过 | [DEV_LOG_2026-09-23-sidebar-tooltip-overflow.md](DEV_LOG_2026-09-23-sidebar-tooltip-overflow.md) |
+| 256 | 2026-09-23 | 3.59.0 侧栏 Tooltip 修复封装 | 版本升级、815 全量测试、依赖单源规则同步、NSIS 重封装、打包内 7 个 tooltip 真实几何核验与 3.58.0 旧产物清理 | 交付包含侧栏 tooltip 溢出修复与 M60 门禁的 3.59.0 安装包；打包验证脚本假绿吞错与 NaN 假失败已修复 | [DEV_LOG_2026-09-23-packaging-3.59.0.md](DEV_LOG_2026-09-23-packaging-3.59.0.md) |
+| 257 | 2026-09-23 | API 直写长文档 V3 用户级收尾 | 删除五个入口假上限、收敛轮伪工具调用判定与强纠正、范围限定写入路由修复、7605 字六步 Electron 实测与全量回归 | 5000 字级文档的改句、增句、删句、移动、整理、倒序全部真实写入并可导出完整 trace；真实外部供应商监督实测作为明确剩余项登记 | [DEV_LOG_2026-09-23-api-direct-write-v3-user-visible.md](DEV_LOG_2026-09-23-api-direct-write-v3-user-visible.md) |
+| 258 | 2026-09-23 | 3.60.0 API 直写 V3 收口封装 | 版本升级、856 全量测试、伪工具调用收敛与完整性修复交付、NSIS 重封装、打包真实启动核验与 3.59.0 旧产物清理 | 交付 API 直写长文档成熟化 V3 的 3.60.0 安装包；验证器 tooltip 竞态已修复，安装路径可自选 | [DEV_LOG_2026-09-23-packaging-3.60.0.md](DEV_LOG_2026-09-23-packaging-3.60.0.md) |
+| 259 | 2026-09-23 | API 直写 100% 闭环 Phase 1 | 上下文容量模型、请求前三态预算决策、真实 usage 对账、trace 五字段全链路写入与 Electron 压测验证器口径修复 | 每次直写请求可审计供应商窗口、输入估算、预算决策与 usage 漂移；验证器不再因白名单缺字段把产品误报为缺陷 | [DEV_LOG_2026-09-23_api-direct-write-100-closure-phase1.md](DEV_LOG_2026-09-23_api-direct-write-100-closure-phase1.md) |
+| 260 | 2026-09-24 | API 直写 100% 闭环 Phase 2 | 编辑器文档地图、cursor 分段读取、搜索分页与所在节定位、模型窗口读取上限、SKILL 协议同步与 882 全量回归 | API 在 1M 级长文档上先读结构地图再分段消费全文；非法 cursor、全文请求和超限读取返回结构化错误 | [DEV_LOG_2026-09-23_api-direct-write-100-closure-phase2.md](DEV_LOG_2026-09-23_api-direct-write-100-closure-phase2.md) |
+| 261 | 2026-09-24 | API 直写 100% 闭环 Phase 3 | 长文档自动进入 EditTask、多批 checkpoint 与终态收口、整篇替换硬拦截、范围词路由窄修与 M65 门禁 | 全文整理不再靠 12 轮 direct 硬吃；“修改第N章/首尾两节”能进入写意图，大文档按受限命令分批写入且可恢复、可取消、可审计 | [DEV_LOG_2026-09-23_api-direct-write-100-closure-phase3.md](DEV_LOG_2026-09-23_api-direct-write-100-closure-phase3.md) |
+| 262 | 2026-09-24 | API 直写 100% 闭环 Phase 4 | 读取收敛第二轮改为 write-only 写入收口、steering 注入一次性修复、供应商矩阵分层报告与 Gemini 流式工具修复 | 模型读完全文后不再被移除写入工具导致假闭环；live 六步实测与供应商矩阵获得真实可审计证据 | [DEV_LOG_2026-09-23_api-direct-write-100-closure-phase4.md](DEV_LOG_2026-09-23_api-direct-write-100-closure-phase4.md) |
+| 263 | 2026-09-24 | API 直写 100% 闭环 Phase 5 | 工具拒绝分类归一化、native/JSON 双协议观测字段、run trace 与 DiagLogger 双侧接线、导出文本增强与 Gold 语料审计 | SKILL 调试方可按 unknown_tool / schema_invalid / permission_denied / range_invalid / invalid_protocol 直接检索拒绝原因，区分“模型没权限”与“工具面未接线” | [DEV_LOG_2026-09-24_api-direct-write-100-closure-phase5.md](DEV_LOG_2026-09-24_api-direct-write-100-closure-phase5.md) |
+| 264 | 2026-09-24 | API 直写 100% 闭环 Phase 6 | 意图路由事件 DiagLogger 镜像桥、主页与大纲工作台双侧接线、8 类路由事件分级与核心 payload 归一 | 路由开始、结果、诊断、fallback、handoff、跳过、预算耗尽、终态可在诊断日志和运行记录两侧对账，消除单侧观测盲区 | [DEV_LOG_2026-09-24_api-direct-write-100-closure-phase6.md](DEV_LOG_2026-09-24_api-direct-write-100-closure-phase6.md) |
+| 265 | 2026-09-24 | API 直写 100% 闭环 Phase 7 实测收口 | 长文档工作流写授权、Electron 13 场景高强度实测、write_only_mode 负向导流证据与验证器 turn 级断言修复 | 长文档 EditTask 即使被路由判为讨论意图也能真实写入；1M 文档整篇替换被拦截并按批执行 | [DEV_LOG_2026-09-24_api-direct-write-100-closure-phase7.md](DEV_LOG_2026-09-24_api-direct-write-100-closure-phase7.md) |
+| 266 | 2026-09-24 | 3.61.0 API 直写闭环封装 | 版本升级、NSIS 重封装、asar/renderer/electronAPI/tooltip 真实启动核验与 3.60.0 旧产物清理 | 交付包含 API 直写 100% 闭环 Phase 1-8 的 3.61.0 安装包 | [DEV_LOG_2026-09-24-packaging-3.61.0.md](DEV_LOG_2026-09-24-packaging-3.61.0.md) |
+| 267 | 2026-09-24 | 真实大纲 10 轮直写组合实测 | 使用 74,841 字符真实大纲完成 10 轮 Electron 级 UI 实测，每轮同批执行补写、修改、删除、整节重排与标点整理 | 验证 direct 长文档路径、原子批次、工具面、trace 会话聚合与导出完整度；修正验证脚本的跨轮标点状态与 run 聚合口径 | [DEV_LOG_2026-09-24_real-outline-10r-direct-write-e2e.md](DEV_LOG_2026-09-24_real-outline-10r-direct-write-e2e.md) |
+| 268 | 2026-09-24 | 3.61.0 实测后干净重封装 | 产品源码未变的 3.61.0 重封装、真实启动核验复跑、SHA256 与产物盘点 | 交付包含真实大纲 10 轮直写实测证据链的当前安装包；首次 tooltip 核验超时判定为偶发，复跑 7 个侧栏 tooltip 全通过 | [DEV_LOG_2026-09-24-packaging-3.61.0-real-outline-followup.md](DEV_LOG_2026-09-24-packaging-3.61.0-real-outline-followup.md) |
+| 269 | 2026-09-24 | 编辑器完整产品标准成熟化 P0-A1 | Markdown 折叠服务与 EditorPanel 接线、TDZ 修复、11,244 字 10 轮 Electron 真实 UI 实测 | 几万字文档可折叠只读导航，输入/保存/diff 定位自动展开且存储与撤销栈永不消费折叠文本 | [DEV_LOG_2026-09-24-editor-full-product-maturity.md](DEV_LOG_2026-09-24-editor-full-product-maturity.md) |
+| 270 | 2026-09-24 | 编辑器完整产品标准成熟化 P0-A2 | 书签服务、项目切换硬边界、20 轮 Electron 书签与项目隔离实测 | 用户可标记编辑位置，项目切换后书签、页签与撤销状态不再跨项目泄漏 | [DEV_LOG_2026-09-24-editor-full-product-maturity.md](DEV_LOG_2026-09-24-editor-full-product-maturity.md) |
+| 271 | 2026-09-24 | 编辑器完整产品标准成熟化 P1-A1 | 撤销服务单源化、大纲/主页/批次回滚统一事务栈、10 轮 Electron 撤销实测与书签回归 | 手动编辑、API 写入、导入共用同一文档级 undo/redo 时间线，项目切换后撤销状态彻底隔离 | [DEV_LOG_2026-09-24-editor-full-product-maturity.md](DEV_LOG_2026-09-24-editor-full-product-maturity.md) |
+| 272 | 2026-09-24 | 编辑器完整产品标准成熟化 P0-A3 | Markdown heading 解析服务、右侧大纲导航面板、10 轮 Electron 跳转实测 | 编辑器内可按标题层级定位章节，点击即居中滚动到原始 offset | [DEV_LOG_2026-09-24-editor-full-product-maturity.md](DEV_LOG_2026-09-24-editor-full-product-maturity.md) |
+| 273 | 2026-09-24 | 编辑器完整产品标准成熟化 P0-A4 | 搜索匹配单源服务、独立高亮叠加层、10 轮 Electron 实测 | 查找结果在编辑器内持久高亮，匹配计算不再散落组件，关闭或无结果时干净清理 | [DEV_LOG_2026-09-24-editor-full-product-maturity.md](DEV_LOG_2026-09-24-editor-full-product-maturity.md) |
+| 274 | 2026-09-25 | 编辑器完整产品标准成熟化 P0-A5 | 选区快照接线、选区感知折叠、10 轮 Electron 选区恢复实测 | 外部写入与折叠切换后用户选区可恢复或明确置零，行为可审计且不再静默丢失 | [DEV_LOG_2026-09-24-editor-full-product-maturity.md](DEV_LOG_2026-09-24-editor-full-product-maturity.md) |
+| 275 | 2026-09-25 | 编辑器完整产品标准成熟化 P1-A2 | 双入口 facade 单源化、outline context pack 收敛、双入口等价性 Electron 回归 | 主页与大纲工作台共用同一套 read cap、snapshot 与 ContextPack 入口，后续上下文与长文档能力不再分叉 | [DEV_LOG_2026-09-24-editor-full-product-maturity.md](DEV_LOG_2026-09-24-editor-full-product-maturity.md) |
+| 276 | 2026-09-25 | 编辑器完整产品标准成熟化 P1-A3 | 上下文注入五阶段管道、双入口 packed ContextPack、117,910 字 10 轮 Electron 实测 | 长文档对话不再重复注入全文，模型通过 document_map/read_range 按需读取，上下文成本从约 100% 降至约 1.1% | [DEV_LOG_2026-09-24-editor-full-product-maturity.md](DEV_LOG_2026-09-24-editor-full-product-maturity.md) |
+| 277 | 2026-09-25 | 编辑器完整产品标准成熟化 P1-A4 | 操作语义分类 + 整篇操作自动路由 EditTask、100,049 字 10 轮 Electron 实测 | “全文整理/替换/重排”不再塞进 direct 对话，而是自动进入分批、可恢复、可审计的 EditTask 流程 | [DEV_LOG_2026-09-24-editor-full-product-maturity.md](DEV_LOG_2026-09-24-editor-full-product-maturity.md) |
+| 278 | 2026-09-25 | 供应商接线矩阵收口 | usage 归一断言修正、Anthropic 流式 usage 帧级合并、Gemini 工具 ID 与 finish reason 验证契约修正，四供应商 Electron 矩阵全绿 | OpenAI-compatible、Anthropic、Gemini、Azure 原生工具环、直写、usage 与 trace 断言获得统一可审计证据；live 供应商差异仍登记为后续项 | [DEV_LOG_2026-09-25-provider-wire-matrix-closure.md](DEV_LOG_2026-09-25-provider-wire-matrix-closure.md) |
+| 279 | 2026-09-25 | UI 全视图覆盖门禁收口 | 响应式溢出门禁扩至 42 视图 605 用例，修复记忆黑名单/合并/冲突、流水线配置弹窗与模式标签溢出，删除 readonly computed 验证桥 setter | 全部可 E2E 打开视图在 320-2560px 矩阵内无文字/按钮溢出；类型、1070 服务测试、605 响应式、407 文件新旧并存、19 视觉矩阵与 300 章节树压力用例全部通过 | [DEV_LOG_2026-09-25-ui-coverage-gate.md](DEV_LOG_2026-09-25-ui-coverage-gate.md) |
+| 280 | 2026-09-26 | Agent Orchestrator V3 Phase 1-2 | Tokens 无感化与假默认清零、压缩生命周期、跨轮 checkpoint 元数据继承、双哈希恢复校验与双入口观测接线 | 上下文预算不再被本地假上限误伤，压缩触发/成功/失败/恢复全部可审计且失败不丢历史与任务目标 | [DEV_LOG_2026-09-26_agent_orchestrator_v3_phase1_phase2.md](DEV_LOG_2026-09-26_agent_orchestrator_v3_phase1_phase2.md) |
+| 281 | 2026-09-26 | Agent Orchestrator V3 Phase 3 | AgentOrchestrator 状态机、防空转门禁、`context.remaining`、长文档自动路由 EditTask 与五层 runTrace 事件 | Agent 编排具备收敛判定和长文档安全闸门，整篇任务不再绕过 EditTask 直写 | [DEV_LOG_2026-09-26_agent_orchestrator_v3_phase3.md](DEV_LOG_2026-09-26_agent_orchestrator_v3_phase3.md) |
+| 282 | 2026-09-26 | Agent Orchestrator V3 Phase 4 | 主进程 checkpoint IPC、hash 校验、cancel token 与重启恢复，替换 `renderer_handled` 空壳 | Agent 任务可跨应用重启恢复，状态不再由渲染层口头接管 | [DEV_LOG_2026-09-26_agent_orchestrator_v3_phase4.md](DEV_LOG_2026-09-26_agent_orchestrator_v3_phase4.md) |
+| 283 | 2026-09-26 | Agent Orchestrator V3 Phase 5 | 内置工具名单、重名冲突剔除、顺序子 Agent 管理、工具冲突观测接线 | 子 Agent 不递归获得 agent 运行时工具，外部 SKILL 重名工具被单源剔除并留痕 | [DEV_LOG_2026-09-26_agent_orchestrator_v3_phase5.md](DEV_LOG_2026-09-26_agent_orchestrator_v3_phase5.md) |
+| 284 | 2026-09-26 | Agent Orchestrator V3 Phase 6 与 3.67.0 交付 | 生产工具面接通 `agent.spawn/wait/cancel`、12 个 `tool-activity` 派发点统一过滤、M17 回头看、3.67.0 封装核验 | API 对话可安排子任务，工具明细只留 RunTrace，滚动 UI 不泄漏工具 JSON | [DEV_LOG_2026-09-26_agent_orchestrator_v3_phase6.md](DEV_LOG_2026-09-26_agent_orchestrator_v3_phase6.md) |
+| 285 | 2026-09-26 | Agent Orchestrator V3 Phase 6B 用户可见矩阵 | 50 万字五类任务各 3 轮、1M 窗口、压缩后强制中断恢复、可见 Electron 窗口与供应商 live 分层 | 用户亲眼确认长文档读、改、删、重排、标点整理与恢复链路真实可跑；证据与用户观察层对齐 | [DEV_LOG_2026-09-26_agent_orchestrator_v3_phase6b.md](DEV_LOG_2026-09-26_agent_orchestrator_v3_phase6b.md) |
+| 286 | 2026-09-27 | 客户大纲删除确认 trace 可见复刻 | 21 物理请求、41 工具调用、授权/拒绝双分支 Electron 复刻，修复工具轮上限钳制与并行失败误判 | 客户第 6 轮死锁路径可真实重放并收敛；历史 write_only_mode 缺陷以双语义对账，防止旧缺陷被误当成回归 | [DEV_LOG_2026-09-27-outline-deletion-confirmation-replay.md](DEV_LOG_2026-09-27-outline-deletion-confirmation-replay.md) |
+| 287 | 2026-09-27 | 长文档重排架构 V2 Phase 1-2 | 执行计划单源、供应商窗口冲突纠偏、EditTask plan_ready 事件顺序与批次元数据修复 | 长文档整理按计划分段执行，不再出现 0 可用上下文、计划缺失与 steering/toolPolicy 互相矛盾 | [DEV_LOG_2026-09-27_long_document_restructure_phase1_phase2.md](DEV_LOG_2026-09-27_long_document_restructure_phase1_phase2.md) |
 
 | 序号 | 日期 | 开发工作 | 开发功能 | 用途 | 日志文件 |
 |---:|---|---|---|---|---|
@@ -342,3 +393,205 @@
 - 文件：[DEV_LOG_2026-09-19-intent-routing-v5.md](DEV_LOG_2026-09-19-intent-routing-v5.md)
 - 范围：大纲入口预组装工具面清零、fallback 推荐意图单源收口、旧链路七面扫描、ChatPanel 路由类型收窄、M36 门禁写入经验文件。
 - 验证：type-check、2 文件 41 条路由/引擎测试、意图评测 20/20 与 253 条饱和语料、3 文件 101 条 trace/执行器/状态测试全部通过；旧链路残留扫描仅剩合法兜底与负向断言。
+
+# 2026-09-19 3.53.6 重复写入语义收口封装
+
+- 文件：[DEV_LOG_2026-09-19-packaging-3.53.6-repeat-write.md](DEV_LOG_2026-09-19-packaging-3.53.6-repeat-write.md)
+- 范围：主页同轮多次直写快照修复、重复写入守卫语义统一、活动规范与 E2E 场景命名去旧、3.53.6 NSIS 安装包重封装。
+- 验证：type-check、源码与安装版 Electron E2E、生产构建、asar 版本、NSIS 自定义安装目录配置、安装包 SHA256 与旧产物清理复核。
+- 客户重点复验：同轮多次不同写入全部生效，连续 3 次完全相同写入被 `duplicate_write_blocked` 拦截，安装路径可选不回退。
+# 2026-09-19 API Direct Write Protocol Maturity - Phase 1
+
+- 文件：[_audit/DEV_LOG_2026-09-19_api-direct-write-protocol-phase1.md](_audit/DEV_LOG_2026-09-19_api-direct-write-protocol-phase1.md)
+- 范围：协议单源收敛、protocolVersion 接线、tool_not_found 语义修正与诊断补录、E2E 拒绝面成熟化。
+- 验证：type-check、全量 671 条服务测试、生产接线门禁、build:vue 与真实 Electron E2E 通过。
+
+# 2026-09-19 API Direct Write Protocol Maturity - Phase 2
+
+- 文件：[_audit/DEV_LOG_2026-09-19_api-direct-write-protocol-phase2.md](_audit/DEV_LOG_2026-09-19_api-direct-write-protocol-phase2.md)
+- 范围：写入失败反馈成熟化，包含错误码目录、失败索引、合法枚举、候选、修复策略与成功批次防重发。
+- 验证：专项服务测试与协议负向路径回归通过。
+
+# 2026-09-19 API Direct Write Protocol Maturity - Phase 5
+
+- 文件：[_audit/DEV_LOG_2026-09-19_api-direct-write-protocol-phase5.md](_audit/DEV_LOG_2026-09-19_api-direct-write-protocol-phase5.md)
+- 范围：兼容直写协议形状修复、15 场景 E2E、全量 680 条测试、生产接线门禁、意图四类 F1=1.0000 与 M17 回头看。
+- 验证：type-check、build:vue、E2E、全量测试、生产接线门禁与意图评估全部通过。
+
+# 2026-09-19 API Direct Write Protocol Maturity V2 - Phase 3
+
+- 文件：[_audit/DEV_LOG_2026-09-19_api-direct-write-protocol-maturity-v2-phase3.md](_audit/DEV_LOG_2026-09-19_api-direct-write-protocol-maturity-v2-phase3.md)
+- 范围：协议版本单源与 v1 兼容缺省策略、未知版本结构化拒绝、`protocolVersionDefaulted` 从服务事件到双入口 runTrace 的完整接线、native 路径声明顺序修复。
+- 验证：type-check、全量 692 条服务测试、协议专项测试通过。
+
+# 2026-09-19 API Direct Write Protocol Maturity V2 - Phase 4
+
+- 文件：[_audit/DEV_LOG_2026-09-19_api-direct-write-protocol-maturity-v2-phase4.md](_audit/DEV_LOG_2026-09-19_api-direct-write-protocol-maturity-v2-phase4.md)
+- 范围：工具循环策略单源、四场景上限矩阵、入口 scenario 接线、`usageUnavailable` 透传、长文档工具轮压测与依赖规则门禁。
+- 验证：长文档压测、生产接线门禁 275 模块 0 违规、type-check、全量 692 条服务测试通过。
+
+# 2026-09-19 API Direct Write Protocol Maturity V2 - Phase 5
+
+- 文件：[_audit/DEV_LOG_2026-09-19_api-direct-write-protocol-maturity-v2-phase5.md](_audit/DEV_LOG_2026-09-19_api-direct-write-protocol-maturity-v2-phase5.md)
+- 范围：四层验证收口、全量回归、真实 Electron mock E2E、openai-compatible live 验证、意图饱和评估、经验文件 v5.19 与 M38/M39 回写。
+- 验证：type-check、692 条服务测试、协议仿真五供应商、13 场景 E2E、build:vue、意图四类 F1=1.0000 通过；live 仅 openai-compatible pass，其余供应商 untested。
+
+# 2026-09-19 3.54.0 API 直写协议成熟化 V2 封装
+
+- 文件：[_audit/DEV_LOG_2026-09-19-packaging-3.54.0.md](_audit/DEV_LOG_2026-09-19-packaging-3.54.0.md)
+- 范围：版本升级 3.54.0、类型检查与全量服务测试、生产构建、NSIS 打包、asar / EXE 元数据核验、SHA256 与旧 3.53.6 产物清理。
+- 验证：type-check、692 条服务测试、意图四类 F1=1.0000、协议仿真五供应商、13 场景 E2E、构建与产物核验通过；openai-compatible live pass，其余供应商 untested。
+- 客户重点复验：自定义安装路径、协议版本协商 trace、工具轮 scenario 与 usageUnavailable、folder schema 严格校验、长文档多轮定位收敛。
+
+# 2026-09-20 意图 Embedding V6 Phase 2 与 3.55.0 修复封装
+
+- 文件：[_audit/DEV_LOG_2026-09-20_intent-embedding-v6-phase2.md](_audit/DEV_LOG_2026-09-20_intent-embedding-v6-phase2.md)
+- 范围：本地 bge-small-zh-v1.5 embedding 服务、preload API 暴露、Electron 验证脚本超时与阶段日志强化、3.55.0 preload 语法事故修复、旧 3.54.0 产物清理。
+- 验证：type-check、703 条服务测试、build:vue、production-wiring 278 模块 0 违规、Node embedding 验证、真实 Electron 三轮 embedding 验证、3.55.0 EXE 版本与 SHA256 核验通过。
+- 客户重点复验：安装 3.55.0 后应用可正常启动，`window.electronAPI` 可用；运行记录、技能导入、API 对话不受 preload 事故影响。
+
+# 2026-09-20 Graphite Ink 设计融合 P0-P6
+
+- 文件：[_audit/DEV_LOG_2026-09-20-design-fusion-graphite-ink.md](_audit/DEV_LOG_2026-09-20-design-fusion-graphite-ink.md)
+- 范围：Token 单源、Toast/Tooltip/EmptyState 统一、Chat 与 ai-content token 化、G6/诊断面板 token 化、overlay 与 z-index 层级统一、动画与 GPU 层收口、现役文档与经验回写。
+- 验证：legacy 扫描 P0-P5 规则 0 命中、type-check、build:vue、703 条服务测试、app-confirm 层级验证全部通过；`verify-app-confirm-layering` 末尾出现 Windows EPERM 清理警告，进程 exit 0。
+
+# 2026-09-20 3.55.0 设计融合与意图路由成熟化封装
+
+- 文件：[_audit/DEV_LOG_2026-09-20-packaging-3.55.0.md](_audit/DEV_LOG_2026-09-20-packaging-3.55.0.md)
+- 范围：3.55.0 NSIS x64 重封装、M28 旧包新鲜度判定与旧产物清理、asar / renderer / preload 独立核验、真实打包产物启动验证、M29/M42/M43/M44 门禁收口。
+- 验证：preload `node --check`、完整 `npm run build`、安装包 SHA256 与 EXE 元数据、asar 3.55.0、renderer 74 条目、`window.electronAPI` 74 方法、旧产物仅保留一套复核通过。
+- 客户重点复验：自定义安装路径、Graphite Ink 三档响应式格局、新旧样式并存清零、意图路由与运行记录行为。
+
+# 2026-09-22 意图路由 V6 Phase 6：falseRejections 语料与 train/dev/test 收口
+
+- 文件：[_audit/DEV_LOG_2026-09-22_intent-routing-phase6.md](_audit/DEV_LOG_2026-09-22_intent-routing-phase6.md)
+- 范围：19 条 falseRejections 溯源、edit/discuss 示例语料扩充（126 -> 151）、holdout 确定性三切分、校准器去缺陷化（删除 falseRejections 硬上限）、生产 thresholdSource 修正、切分结构锁定测试。
+- 验证：66/66 专项测试、type-check、build:vue、Electron 级验证 64 cases 全部通过；写入类安全阈值未放宽，train/dev/test 的 writeFalseTriggers 均为 0。
+
+# 2026-09-25 F1 查找替换增强
+
+- 文件：[_audit/DEV_LOG_2026-09-25-editor-find-replace.md](_audit/DEV_LOG_2026-09-25-editor-find-replace.md)
+- 范围：主页与大纲工作台共享查找替换模型、大小写/全词/正则/非法正则防护、替换当前/全部、runTrace 与 DiagLogger 覆盖；Electron 验证器计数与状态泄漏修复。
+- 验证：32/32 服务测试、type-check、build:vue、真实 Electron 双入口 10+10 轮全部通过；证据文件 `_audit/verification-editor-replace/electron-10-rounds.json`。
+
+# 2026-09-25 F2 超长文档性能层
+
+- 文件：[_audit/DEV_LOG_2026-09-25-editor-virtualization.md](_audit/DEV_LOG_2026-09-25-editor-virtualization.md)
+- 范围：超长文档精确行号、viewport 同源测量与行窗口、搜索高亮视窗化、50 万字基准、大纲虚拟化验证器修复与共享证据目录保护。
+- 验证：50 万字基准最慢动作 617ms；编辑器与大纲 Electron 各 10/10 轮；104 文件 / 1047 条服务测试、type-check、build:vue 通过。
+
+# 2026-09-25 3.62.0 编辑器 F1/F2 交付封装
+
+- 文件：[_audit/DEV_LOG_2026-09-25-packaging-3.62.0.md](_audit/DEV_LOG_2026-09-25-packaging-3.62.0.md)
+- 范围：F1 查找替换、F2 超长文档性能层与 Provider Wire Matrix 进入 3.62.0 安装包；封装级真实启动核验、旧产物与解包残留清理。
+- 验证：F1 双入口 10+10、F2 双入口 10+10 与 50 万字基准、Provider 四矩阵、asar/IPC/tooltip 打包核验、清理复核全部通过。
+- 客户重点复验：查找替换选项与锁定态、50 万字滚动/跳转/搜索/写入跟随、供应商 wire trace，以及安装路径可选不回退。
+
+# 2026-09-25 F3 API 写入后的行内 Diff 视图
+
+- 文件：[_audit/DEV_LOG_2026-09-25-editor-diff.md](_audit/DEV_LOG_2026-09-25-editor-diff.md)
+- 范围：API 直写批次 hunk 化、行内 Diff 层、单命令回滚与 rebase、整批回滚、stale 锁定、runTrace/DiagLogger 覆盖。
+- 验证：主页与大纲真实 Electron 各 10 轮通过；服务测试、type-check、production wiring、build:vue 全绿；证据 `_audit/verification-editor-diff/electron-10-rounds.json`。
+
+# 2026-09-25 F4 SKILL 调试对比增强
+
+- 文件：[_audit/DEV_LOG_2026-09-25-run-trace-diff-enhancement.md](_audit/DEV_LOG_2026-09-25-run-trace-diff-enhancement.md)
+- 范围：模板版本 diff、工具序列结构 diff、首个不同 API 调用、SkillDebugSummary、导出双方全文不截断。
+- 验证：真实 RunTracePanel 对比流 10 轮通过；报告 `_audit/verification-run-trace-diff/electron-10-rounds.json`；全量回归通过。
+
+# 2026-09-25 F5 多光标与虚拟选区
+
+- 文件：[_audit/DEV_LOG_2026-09-25-editor-multi-cursor.md](_audit/DEV_LOG_2026-09-25-editor-multi-cursor.md)
+- 范围：单主光标 + 虚拟选区集合、Find All 多光标、插入/删除/换行 undo 事务、外部写入降级、日志覆盖。
+- 验证：主页与大纲真实 Electron 各 10 轮通过，服务测试 14/14；报告 `_audit/verification-editor-multi-cursor/electron-10-rounds.json`；全量回归通过。
+
+# 2026-09-25 Provider live 矩阵补测
+
+- 文件：[_audit/DEV_LOG_2026-09-25-provider-wire-matrix-closure.md](_audit/DEV_LOG_2026-09-25-provider-wire-matrix-closure.md)
+- 范围：修复无凭据重跑覆盖既有 pass 结论的问题；补测 openai-compatible 与 deepseek live；明确 Anthropic/Gemini/Azure 为凭据缺口。
+- 验证：openai-compatible/deepseek live pass 且各 1 次工具调用；报告 `_audit/verification-api-direct-write-provider-matrix.json`。
+
+# 2026-09-25 3.63.0 编辑器 F3/F4/F5 交付封装
+
+- 文件：[_audit/DEV_LOG_2026-09-25-packaging-3.63.0.md](_audit/DEV_LOG_2026-09-25-packaging-3.63.0.md)
+- 范围：F3 行内 Diff、F4 SKILL 调试对比增强、F5 多光标与虚拟选区、Provider live 补测进入 3.63.0 安装包；经验文件 v5.42 与 M67-M70 回写；旧 3.62.0 安装产物清理。
+- 验证：F3/F4/F5 双入口真实 Electron 各 10 轮、全量 1070 条服务测试、type-check、production wiring、build:vue、3.63.0 asar/IPC/tooltip 打包核验、清理复核全部通过。
+- 客户重点复验：API 写入后的行内 diff 与回滚、RunTrace 对比导出、Find All 多光标编辑、长文档操作稳定性，以及安装路径可选不回退。
+
+# 2026-09-25 3.64.0 UI 全覆盖收口交付封装
+
+- 文件：[_audit/DEV_LOG_2026-09-25-packaging-3.64.0.md](_audit/DEV_LOG_2026-09-25-packaging-3.64.0.md)
+- 范围：UI 42 视图/605 溢出案例全覆盖、章节树 300 压力案例、三处溢出修复、readonly computed setter 清理进入 3.64.0 安装包；旧 3.63.0 安装产物清理。
+- 验证：type-check、1070 条服务测试、responsive/legacy/visual/chapter-tree 四条 UI 验证链、production wiring、3.64.0 真实启动 asar/IPC/renderer 新鲜度/tooltip 几何打包核验、清理复核全部通过。
+- 客户重点复验：安装路径可选不回退、侧栏 tooltip 与章节树在极窄/极宽窗口下的显示、MemoryPanel 与 Pipeline 弹窗滚动、生成流水线模式标签换行。
+
+# 2026-09-25 3.65.0 章节树按钮竖排与全局按钮压缩修复封装
+
+- 文件：[_audit/DEV_LOG_2026-09-25-packaging-3.65.0.md](_audit/DEV_LOG_2026-09-25-packaging-3.65.0.md)
+- 范围：章节树顶栏“生成/项目”竖排、项目名挤压、Pipeline 提示按钮压缩、Diff 工具栏压缩、API 配置按钮压缩、stress 探针无效按钮文本注入修复进入 3.65.0 安装包。
+- 验证：type-check、605/605 responsive overflow、300/300 章节树压力、build、3.65.0 打包核验全部通过。
+- 客户重点复验：章节树顶栏窄窗口不竖排、Diff 弹窗按钮完整可读、Pipeline 窄屏提示卡上下堆叠、设置页导出/导入按钮不压缩。
+
+# 2026-09-26 直写测试项目污染清理与数据隔离修复
+
+- 文件：[_audit/DEV_LOG_2026-09-26-test-project-isolation-cleanup.md](_audit/DEV_LOG_2026-09-26-test-project-isolation-cleanup.md)
+- 范围：定位 `API Direct Write Electron Stress` 来源，新增 `SHENYI_DATA_DIR` Electron 数据隔离开关，验证脚本统一隔离注入，清理真实数据目录测试项目/lastProjectId/mock 供应商并恢复真实供应商备份。
+- 验证：三个脚本 `node --check` 通过；清理脚本路径守卫与执行通过；真实数据目录复核 lastProjectId 不存在、api-direct-write 残留为 0、供应商列表恢复。
+- 客户重点复验：重新打开应用后项目列表和章节树不再出现 API Direct Write Electron Stress，供应商设置显示真实 deepseek 供应商。
+
+# 2026-09-26 API 滚动状态与工具调用分层收口
+
+- 文件：[_audit/DEV_LOG_2026-09-26-live-status-no-tool-ui.md](_audit/DEV_LOG_2026-09-26-live-status-no-tool-ui.md)
+- 范围：切断 UI 滚动区工具流残留展示、删除重复写入拦截的 UI 展示链、本地兜底摘要去工具身份；修正取消与会话导出 e2e 旧契约；新增 M72。
+- 验证：outline silent-wait e2e 全场景 PASS、aiService/runTrace 172 条 PASS、type-check exit 0、`tool-stream` 源码零命中。
+- 客户重点复验：API 对话框只看到连接/流式状态，不再看到工具 JSON；工具调用明细只查运行记录。
+
+# 2026-09-26 Agent Orchestrator V3 Phase 4
+
+- 文件：[_audit/DEV_LOG_2026-09-26_agent_orchestrator_v3_phase4.md](_audit/DEV_LOG_2026-09-26_agent_orchestrator_v3_phase4.md)
+- 范围：主进程 Agent 状态 IPC、checkpoint hash 校验、cancel token、主进程重启恢复，替换 `renderer_handled` 空壳。
+- 验证：agent-state Electron 真实双实例验证 PASS、type-check、1108 条服务测试全部通过。
+
+# 2026-09-26 Agent Orchestrator V3 Phase 5
+
+- 文件：[_audit/DEV_LOG_2026-09-26_agent_orchestrator_v3_phase5.md](_audit/DEV_LOG_2026-09-26_agent_orchestrator_v3_phase5.md)
+- 范围：内置工具名单、外部重名冲突剔除、顺序子 Agent 管理、工具冲突 runTrace/DiagLogger 接线；修复 `editor.reveal_target` 名单错误与并行化缺陷。
+- 验证：专项 36/36、type-check、1108 条服务测试全部通过；`agent.spawn/wait/cancel` 尚未接生产工具面，已在日志登记为未闭环项。
+
+# 2026-09-26 Agent Orchestrator V3 Phase 6 与 3.67.0 交付
+
+- 文件：[_audit/DEV_LOG_2026-09-26_agent_orchestrator_v3_phase6.md](_audit/DEV_LOG_2026-09-26_agent_orchestrator_v3_phase6.md)
+- 范围：生产工具面接通 `agent.spawn/wait/cancel`、OutlineWorkspace workspace skill engine 两个 `tool-activity` 派发口补统一过滤、M72 补强、M17 四向回头看、版本 3.67.0 与封装核验、测试 profile 清理。
+- 验证：子 Agent Electron 双场景 PASS、Agent 状态 Electron 双实例 PASS、1117 条服务测试全绿、type-check、build、3.67.0 asar 真实启动 + 75 项 IPC 核验 PASS；12 个 `tool-activity` 派发点全部单源过滤。
+- 客户重点复验：API 对话中安排子任务时只看到滚动状态与最终正文，工具明细在运行记录中可见；子 Agent 不递归暴露 agent 运行时工具；应用重启后可恢复未完成任务。
+
+# 2026-09-26 3.68.0 仓库清理与封装
+
+- 文件：[_audit/DEV_LOG_2026-09-26-packaging-3-68-0.md](_audit/DEV_LOG_2026-09-26-packaging-3-68-0.md)
+- 范围：M42/M29 分层清理旧安装产物、探针临时输出与 Electron 测试 profile；版本升级 3.68.0；新增 3.68.0 封装核验脚本。
+- 验证：type-check、1139 条服务测试、依赖巡检、build、asar 真实启动 + 75 项 IPC + 安装路径可选 + SHA256 全部通过；旧 3.66.0/3.67.0 安装产物清理并复核。
+- 客户重点复验：安装 3.68.0 后可自选安装路径，应用真实启动且设置页、API 对话、运行记录功能可用。
+
+# 2026-09-27 长文档重排架构 V2 Phase 5
+
+- 文件：[_audit/DEV_LOG_2026-09-27_long_document_restructure_phase5.md](_audit/DEV_LOG_2026-09-27_long_document_restructure_phase5.md)
+- 范围：runTrace schema v10、长物理请求与终态归并事件、无总上限但保留 idle watchdog 的契约。
+- 验证：专项 66 条、全量服务测试 116 文件 / 1185 条、type-check 全部通过；schema v9 生产引用清零。
+- 登记缺口：Phase 6 真实 100k/200k/1M 字 UI 与 API 验证未执行，未通过前不封装。
+
+# 2026-09-27 长文档重排架构 V2 Phase 6
+
+- 文件：[_audit/DEV_LOG_2026-09-27_long_document_restructure_phase6.md](_audit/DEV_LOG_2026-09-27_long_document_restructure_phase6.md)
+- 范围：S200 与 S1M 真实 Electron + 真实 API 全操作矩阵、网络断流保留一次物理重连、runTrace 失败终态不被 canceled 覆盖、M17 测试标题语义残留修复。
+- 验证：S200 200,066 字符与 S1M 1,000,024 字符各 6 项操作全部 success；190 条定向、1,196 条全量服务测试、type-check、build:vue、M17 后 139 条定向回归全部通过。
+- 封装：3.69.0 安装包、asar 真实启动、75 项 electronAPI、安装路径可选与 SHA256 核验通过；旧 3.68.0 安装产物已清理。
+- 客户重点复验：20 万 / 100 万字大纲的全文排序、标点整理、重复项删除授权与拒绝、局部修改、中断恢复。
+
+# 2026-09-30 终稿停滞恢复闭环
+
+- 文件：[_audit/DEV_LOG_2026-09-30_final-draft-stalled-recovery-closure.md](_audit/DEV_LOG_2026-09-30_final-draft-stalled-recovery-closure.md)
+- 范围：修复停滞卡片重试快照无法克隆 reactive proxy、慢流物理重试伪装活跃、活动 API 记录误关闭；修正 Electron 验证器的分段 mock 映射与编辑器分隔符口径；沉淀 M80。
+- 验证：stalled-recovery Electron live PASS，72 条终稿专项、1293 条全量服务测试、type-check 全部通过。
+- 封装：3.70.0 安装包真实 Electron 启动通过，75 项 electronAPI、安装路径可选、asar/renderer 新鲜度与 SHA256 核验通过；旧 3.69.0 安装产物已清理。
+- 客户重点复验：终稿停滞卡片点击换供应商重试后可续跑并完整写入；低速流期间不出现重复请求；运行记录 API 调用不被旧 run 关闭。

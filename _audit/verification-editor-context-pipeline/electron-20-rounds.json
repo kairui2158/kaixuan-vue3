@@ -1,0 +1,192 @@
+{
+  "schema": "shenyi.editor-context-pipeline.electron",
+  "version": 1,
+  "documentChars": 117910,
+  "rounds": [
+    {
+      "mode": "packed",
+      "hasMap": true,
+      "hasReadRange": true,
+      "estimatedInputTokens": 499,
+      "availableContextTokens": 107008,
+      "validationReason": "within-available-window",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000",
+      "contentRatio": 0.011347638029005173
+    },
+    {
+      "mode": "packed",
+      "hasMap": true,
+      "hasReadRange": true,
+      "estimatedInputTokens": 499,
+      "availableContextTokens": 107008,
+      "validationReason": "within-available-window",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000",
+      "contentRatio": 0.011347638029005173
+    },
+    {
+      "mode": "packed",
+      "hasMap": true,
+      "hasReadRange": true,
+      "estimatedInputTokens": 499,
+      "availableContextTokens": 107008,
+      "validationReason": "within-available-window",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000",
+      "contentRatio": 0.011347638029005173
+    },
+    {
+      "mode": "packed",
+      "hasMap": true,
+      "hasReadRange": true,
+      "estimatedInputTokens": 499,
+      "availableContextTokens": 107008,
+      "validationReason": "within-available-window",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000",
+      "contentRatio": 0.011347638029005173
+    },
+    {
+      "mode": "packed",
+      "hasMap": true,
+      "hasReadRange": true,
+      "estimatedInputTokens": 499,
+      "availableContextTokens": 107008,
+      "validationReason": "within-available-window",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000",
+      "contentRatio": 0.011347638029005173
+    },
+    {
+      "mode": "packed",
+      "hasMap": true,
+      "hasReadRange": true,
+      "estimatedInputTokens": 499,
+      "availableContextTokens": 107008,
+      "validationReason": "within-available-window",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000",
+      "contentRatio": 0.011347638029005173
+    },
+    {
+      "mode": "packed",
+      "hasMap": true,
+      "hasReadRange": true,
+      "estimatedInputTokens": 499,
+      "availableContextTokens": 107008,
+      "validationReason": "within-available-window",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000",
+      "contentRatio": 0.011347638029005173
+    },
+    {
+      "mode": "packed",
+      "hasMap": true,
+      "hasReadRange": true,
+      "estimatedInputTokens": 499,
+      "availableContextTokens": 107008,
+      "validationReason": "within-available-window",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000",
+      "contentRatio": 0.011347638029005173
+    },
+    {
+      "mode": "packed",
+      "hasMap": true,
+      "hasReadRange": true,
+      "estimatedInputTokens": 499,
+      "availableContextTokens": 107008,
+      "validationReason": "within-available-window",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000",
+      "contentRatio": 0.011347638029005173
+    },
+    {
+      "mode": "packed",
+      "hasMap": true,
+      "hasReadRange": true,
+      "estimatedInputTokens": 499,
+      "availableContextTokens": 107008,
+      "validationReason": "within-available-window",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000",
+      "contentRatio": 0.011356119073869901
+    }
+  ],
+  "restructureRounds": [
+    {
+      "round": 1,
+      "documentChars": 100049,
+      "operationType": "whole-document-restructure",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000"
+    },
+    {
+      "round": 2,
+      "documentChars": 100049,
+      "operationType": "whole-document-restructure",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000"
+    },
+    {
+      "round": 3,
+      "documentChars": 100049,
+      "operationType": "whole-document-restructure",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000"
+    },
+    {
+      "round": 4,
+      "documentChars": 100049,
+      "operationType": "whole-document-restructure",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000"
+    },
+    {
+      "round": 5,
+      "documentChars": 100049,
+      "operationType": "whole-document-restructure",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000"
+    },
+    {
+      "round": 6,
+      "documentChars": 100049,
+      "operationType": "whole-document-restructure",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000"
+    },
+    {
+      "round": 7,
+      "documentChars": 100049,
+      "operationType": "whole-document-restructure",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000"
+    },
+    {
+      "round": 8,
+      "documentChars": 100049,
+      "operationType": "whole-document-restructure",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000"
+    },
+    {
+      "round": 9,
+      "documentChars": 100049,
+      "operationType": "whole-document-restructure",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000"
+    },
+    {
+      "round": 10,
+      "documentChars": 100049,
+      "operationType": "whole-document-restructure",
+      "editTask": true,
+      "autoRouteReason": "whole-document-operation+length>=10000"
+    }
+  ],
+  "restructureDocumentChars": 100049,
+  "assertions": "10 rounds: long main document uses packed context with editor.document_map and editor.read_range; whole-document restructure auto-routes to EditTask; editor content unchanged; no page errors",
+  "generatedAt": "2026-09-24T20:35:56.590Z"
+}
