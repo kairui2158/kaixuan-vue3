@@ -471,6 +471,34 @@ describe('finalDraftRunner', () => {
     expect(getContent()).toBe('第一段终稿\n\n第二段终稿')
   })
 
+  it('emits a dedicated truncation event when skill guidance exceeds the cap', async () => {
+    const { adapter, getContent } = createAdapter('源文档')
+    const { aiService } = createAi([aiResult({ text: '完整终稿。' })])
+    const { hooks, events } = createRecordingHooks()
+    const skillGuidance = '领域能力'.repeat(4000) + '尾部额外内容'
+
+    const task = await runFinalDraft({
+      aiService,
+      adapter,
+      destination: 'home-editor',
+      targetId: 'home-tab-1',
+      sourceContent: '源文档',
+      instruction: '全文整理',
+      skillGuidance,
+    }, hooks)
+
+    expect(task.status).toBe('completed')
+    expect(getContent()).toBe('完整终稿。')
+    expect(events.some(event => event.type === 'final-draft-skill-guidance')).toBe(true)
+    const truncated = events.find(event => event.type === 'skill-guidance-truncated')
+    expect(truncated).toMatchObject({
+      payload: {
+        originalChars: skillGuidance.length,
+        retainedChars: 8000,
+      },
+    })
+  })
+
   it('continues generation when checkpoint saving fails', async () => {
     const sourceContent = '第一段源文。\n\n第二段源文。'
     const { adapter, getContent } = createAdapter(sourceContent)

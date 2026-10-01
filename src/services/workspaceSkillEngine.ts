@@ -51,8 +51,13 @@ import type {
   RealSkillExecutionResult,
 } from './realSkillTypes'
 import { type RoutedSkill, routeSkill } from './skillRouter'
-import { authorizeDialogueTools, type DialogueToolSurfaceTaskContext } from './dialogueToolSurface'
+import {
+  authorizeDialogueTools,
+  type DialogueToolSurfaceTaskContext,
+  type DialogueWriteAuthorization,
+} from './dialogueToolSurface'
 import type { EditTask } from './editTaskService'
+import type { LongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
 import {
   getSkillMaxAttempts,
   type JsonSchema,
@@ -187,6 +192,7 @@ export type WorkspaceSkillToolRequest = {
   intent: ChainIntent
   stage: number
   mode: WorkspaceSkillMode
+  requestText: string
 }
 
 type AuthorizedWorkspaceToolSurface = {
@@ -459,6 +465,14 @@ export interface WorkspaceSkillEngineAdapter {
   getToolAudit?(): unknown
   /** Current edit-task context; used to remove editor.write while task controls are active. */
   getEditTaskContext?(): DialogueToolSurfaceTaskContext
+  /**
+   * App-owned execution context. SKILL packages cannot supply this; it is the
+   * same single-source plan and write authorization used by the plain path.
+   */
+  getExecutionContext?(): {
+    executionPlan?: LongDocumentExecutionPlan
+    writeAuthorization?: DialogueWriteAuthorization | null
+  }
   loadBreakpoint(): Promise<ChainBreakpoint | null>
   saveBreakpoint(breakpoint: ChainBreakpoint): Promise<void>
   clearBreakpoint(): Promise<void>
@@ -694,13 +708,21 @@ function resolveAuthorizedToolSurface(
   intent: ChainIntent,
   stage: number,
   mode: WorkspaceSkillMode,
+  requestText: string,
 ): AuthorizedWorkspaceToolSurface {
-  const requestedSurface = adapter.buildTools?.({ intent, stage, mode }) || {}
+  const requestedSurface = adapter.buildTools?.({ intent, stage, mode, requestText }) || {}
+  const executionContext = adapter.getExecutionContext?.() || {}
+  const taskContext = {
+    ...adapter.getEditTaskContext?.(),
+    ...(executionContext.writeAuthorization !== undefined
+      ? { writeAuthorization: executionContext.writeAuthorization }
+      : {}),
+  }
   const { tools: authorizedTools } = authorizeDialogueTools(
     requestedSurface.tools || [],
     intent,
     'direct',
-    adapter.getEditTaskContext?.(),
+    taskContext,
   )
   const authorizedToolPolicy = requestedSurface.toolPolicy
     ? { ...requestedSurface.toolPolicy, intent, scenario: 'folder-chain' as const }
@@ -733,6 +755,7 @@ async function callWorkspaceSkill(
     contextOptions.intent || 'auto',
     contextOptions.stage || 0,
     contextOptions.mode || 'compose',
+    contextOptions.requestText,
   )
   const toolContext = {
     ...(adapter.toolContext || {}),
@@ -1343,6 +1366,7 @@ export async function runWorkspaceSkills(
       intentResult.intent,
       0,
       'chain',
+      input.requestText,
     )
     const breakpoint = await adapter.loadBreakpoint()
     const resumePoint = getChainResumePoint({
@@ -1628,6 +1652,7 @@ export async function runWorkspaceSkills(
     intent,
     0,
     'compose',
+    input.requestText,
   )
   const parts = mergePromptParts(
     templates.map((template) => {

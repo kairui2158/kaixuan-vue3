@@ -260,6 +260,8 @@ export interface RunTraceTurn {
   writeMode?: string
   toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
+  /** Provenance for surfaces recorded from projection paths rather than live execution. */
+  surfaceSource?: 'trace-projection'
   error?: string
 }
 
@@ -293,6 +295,7 @@ export interface RunTrace {
   sessionKind?: 'task' | 'chat'
   sessionSnapshot?: boolean
   folderDiagnostics?: RunTraceFolderDiagnostic[]
+  executionContext?: 'skill-eval'
   evalReport?: unknown
   target?: {
     type?: string
@@ -479,6 +482,7 @@ export interface UpdateTurnIntentInput {
   routingFallback?: string
   toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
+  surfaceSource?: 'trace-projection'
 }
 
 export interface StartApiCallInput {
@@ -622,7 +626,7 @@ export interface RunMetadataInput {
   model?: string
 }
 
-const RUN_TRACE_SCHEMA_VERSION = 10
+const RUN_TRACE_SCHEMA_VERSION = 11
 const reportedLongRequestPhysicalIds = new Set<string>()
 const reportedTerminalMergeTaskIds = new Set<string>()
 
@@ -829,6 +833,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       target: input.target ? { ...input.target } : undefined,
       context: input.context ? { ...input.context } : undefined,
       status: 'running',
+      executionContext: source === 'eval' ? 'skill-eval' : undefined,
       startedAt: Date.now(),
       timeoutHint: input.timeoutHint ? { ...input.timeoutHint } : undefined,
       stateHistory: [],
@@ -850,6 +855,15 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       level: 'info',
       label: `开始${RUN_TRACE_SOURCE_NAMES[source]}${input.stepName ? ' ' + input.stepName : ''}运行`
     })
+    if (run.executionContext) {
+      addEvent(run.id, {
+        type: 'execution-context',
+        level: 'info',
+        label: '执行上下文已标记',
+        detail: run.executionContext,
+        payload: { executionContext: run.executionContext }
+      })
+    }
     trimRuns()
     startStateWatchdogForRun(run.id, 'active')
     return run.id
@@ -1018,6 +1032,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     if (input.actualToolSurface) {
       turn.actualToolSurface = input.actualToolSurface.map(item => ({ ...item }))
     }
+    if (input.surfaceSource) turn.surfaceSource = input.surfaceSource
     addEvent(runId, {
       type: 'turn-intent-updated',
       level: 'info',
@@ -1026,7 +1041,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
         input.intent,
         input.routingFallback,
         input.actualToolSurface?.map(item => item.name).join(','),
-      ].filter(Boolean).join(' / ')
+      ].filter(Boolean).join(' / '),
+      payload: input.surfaceSource ? { surfaceSource: input.surfaceSource } : undefined
     })
     void saveRunToDisk(run)
     return true
@@ -1669,6 +1685,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       level: 'info',
       label: '记录 folder SKILL 诊断'
     })
+    emitSkillAgentIgnoredEvents(runId, run.folderDiagnostics)
   }
 
   function setEvalReport(runId: string, report: unknown) {
@@ -1694,6 +1711,25 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       level: 'info',
       label: '记录 folder SKILL 诊断'
     })
+    emitSkillAgentIgnoredEvents(runId, run.folderDiagnostics)
+  }
+
+  function emitSkillAgentIgnoredEvents(runId: string, diagnostics: unknown) {
+    if (!Array.isArray(diagnostics)) return
+    for (const diagnostic of diagnostics) {
+      const source = diagnostic as { code?: unknown; diagnostics?: unknown; message?: unknown }
+      const code = source.code
+      const nested = source.diagnostics
+      if (Array.isArray(nested)) emitSkillAgentIgnoredEvents(runId, nested)
+      if (code !== 'skill-agent-ignored') continue
+      addEvent(runId, {
+        type: 'skill-agent-ignored',
+        level: 'warn',
+        label: 'SKILL agent 执行参数已忽略',
+        detail: typeof source.message === 'string' ? source.message : undefined,
+        payload: diagnostic
+      })
+    }
   }
 
   function removeRun(id: string) {

@@ -3,6 +3,8 @@ import {
   createFinalDraftTask,
   generateFinalDraft,
   hashContent,
+  normalizeFinalDraftSkillGuidance,
+  FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT,
   retryFinalDraftSegment,
   type FinalDraftDestination,
   type FinalDraftEditorAdapter,
@@ -67,6 +69,8 @@ export interface FinalDraftRunInput {
   targetId: string
   sourceContent: string
   instruction: string
+  /** App-owned SKILL guidance. It never changes the final-draft execution protocol. */
+  skillGuidance?: string
   constraints?: string[]
   model?: string
   providerId?: string
@@ -132,15 +136,51 @@ export interface FinalDraftResumeInput {
 }
 
 export async function runFinalDraft(input: FinalDraftRunInput, hooks: FinalDraftTraceHooks): Promise<FinalDraftTask> {
+  const guidance = normalizeFinalDraftSkillGuidance(input.skillGuidance)
   const task = createFinalDraftTask({
     destination: input.destination,
     targetId: input.targetId,
     sourceContent: input.sourceContent,
     instruction: input.instruction,
+    skillGuidance: guidance?.text,
     constraints: input.constraints,
     sourceSegments: input.sourceSegments,
   })
+  if (guidance?.truncated) {
+    hooks.addEvent({
+      type: 'skill-guidance-truncated',
+      label: '终稿领域能力已截断',
+      level: 'warn',
+      detail: JSON.stringify({
+        limit: FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT,
+        originalChars: input.skillGuidance?.length || 0,
+        retainedChars: guidance.text.length,
+      }),
+      payload: {
+        limit: FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT,
+        originalChars: input.skillGuidance?.length || 0,
+        retainedChars: guidance.text.length,
+      },
+    })
+  }
   const activeCallId: { current?: string } = {}
+  hooks.addEvent({
+    type: 'final-draft-skill-guidance',
+    label: guidance ? '终稿领域能力已注入' : '未注入终稿领域能力',
+    level: guidance?.truncated ? 'warn' : 'info',
+    detail: JSON.stringify({
+      executor: 'final-draft-runner',
+      skillGuidancePresent: Boolean(guidance),
+      chars: guidance?.text.length || 0,
+      truncated: guidance?.truncated || false,
+    }),
+    payload: {
+      executor: 'final-draft-runner',
+      skillGuidancePresent: Boolean(guidance),
+      chars: guidance?.text.length || 0,
+      truncated: guidance?.truncated || false,
+    },
+  })
   hooks.addEvent({
     type: 'final-draft-created',
     label: '终稿生成任务已创建',
@@ -201,6 +241,7 @@ export async function runFinalDraft(input: FinalDraftRunInput, hooks: FinalDraft
       sourceContent: input.sourceContent,
     },
     {
+      skillGuidance: guidance?.text,
       signal: input.signal,
       cancelSignal: input.cancelSignal,
       onTaskChange: changed => {

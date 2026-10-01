@@ -3,6 +3,8 @@
 const fs = require('fs')
 const path = require('path')
 
+const SKILL_PACKAGE_PROTOCOL = require('../src/services/skillPackageProtocol.json')
+
 const REQUIRED_FILES = ['SKILL.md', 'template.md']
 const OPTIONAL_FILES = ['meta.json', 'script.js', 'samples.txt', 'schema.json']
 const ALLOWED_FILES = new Set([...REQUIRED_FILES, ...OPTIONAL_FILES, 'children'])
@@ -102,6 +104,23 @@ function validateMeta(meta, errors) {
   }
 }
 
+function validateProtocolBoundary(manifest, errors, warnings) {
+  if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) return
+  for (const field of SKILL_PACKAGE_PROTOCOL.forbiddenFields) {
+    if (manifest[field] !== undefined) {
+      errors.push(`skill-package.json 不能声明执行协议字段：${field}；${SKILL_PACKAGE_PROTOCOL.messages.forbiddenField.split('；')[1] || '执行器、工具面与权限由应用单源管理'}`)
+    }
+  }
+  if (
+    manifest.meta
+    && typeof manifest.meta === 'object'
+    && !Array.isArray(manifest.meta)
+    && manifest.meta.agent !== undefined
+  ) {
+    warnings.push(SKILL_PACKAGE_PROTOCOL.messages.deprecatedMetaAgent)
+  }
+}
+
 function validateScript(content, errors) {
   if (/require\s*\(/.test(content)) errors.push('script.js 不能使用 require')
   if (/process\s*\./.test(content)) errors.push('script.js 不能访问 process')
@@ -134,6 +153,7 @@ function validateYamlFields(fields, errors) {
 
 function validateFolder(folderPath) {
   const errors = []
+  const warnings = []
   const resolved = path.resolve(folderPath)
   let stat = null
   try { stat = fs.statSync(resolved) } catch (_) { /* handled below */ }
@@ -143,6 +163,14 @@ function validateFolder(folderPath) {
 
   for (const file of REQUIRED_FILES) {
     if (!fs.existsSync(path.join(resolved, file))) errors.push(`缺少必需文件：${file}`)
+  }
+  const manifestPath = path.join(resolved, 'skill-package.json')
+  if (fs.existsSync(manifestPath)) {
+    try {
+      validateProtocolBoundary(JSON.parse(fs.readFileSync(manifestPath, 'utf8')), errors, warnings)
+    } catch (error) {
+      errors.push(`skill-package.json 不是有效 JSON：${error.message}`)
+    }
   }
   for (const entry of fs.readdirSync(resolved)) {
     if (!ALLOWED_FILES.has(entry)) errors.push(`不支持或未识别的顶层文件/目录：${entry}`)
@@ -184,6 +212,7 @@ function validateFolder(folderPath) {
   console.log(`名称：${parsed.fields.name || parsed.fields.id || path.basename(resolved)}`)
   console.log(`模板变量：${variables.length === 0 ? '无' : variables.join('、')}`)
   console.log(`能力：${meta.executionMode || 'single'}${meta.apiCallLimit ? `，调用上限 ${meta.apiCallLimit}` : ''}${meta.smartSamples ? '，智能样本' : ''}`)
+  for (const warning of warnings) console.warn(`[警告] ${warning}`)
   if (meta.agent) console.log(`Agent 默认值：temperature=${meta.agent.temperature ?? '未设置'}，maxTokens=${meta.agent.maxTokens ?? '未设置'}`)
 }
 

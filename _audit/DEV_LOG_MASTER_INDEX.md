@@ -609,3 +609,11 @@
 - 范围：开发经验文件从 v5 升级为 v6 四层门禁结构（L0 永恒 / L1 通用 / L2 领域 / L3 归档映射）；M1-M80 全量归位，删除尾部日期修订记录；删除 v5 旧经验文件；更新 STACK.md 与活跃 docs 指向。
 - 验证：活跃文档 v5 引用清零、M 编号映射全覆盖、`git diff --check` 通过、工作区仅含本轮改动。
 - 客户重点复验：后续任务开始前按 v6 使用路由读取 L0 + 相关 L1/L2；发现规则失效按失效条件归档，不回滚 v5。
+
+# 2026-10-01 SKILL / 无 SKILL 执行体系统一 v2 与 3.71.0
+
+- 文件：[_audit/DEV_LOG_2026-10-01_skill-neutral-execution-unification.md](_audit/DEV_LOG_2026-10-01_skill-neutral-execution-unification.md)
+- 范围：双入口 final-draft 判定删除“未加载 SKILL”条件；大纲单源执行计划；`skillGuidance` 贯通终稿 runner 与分段/续写；engine 透传 `requestText` 与 `writeAuthorization`；SKILL 包协议边界单源校验；RunTrace 补 skill 中立观测字段。
+- 验证：1303 条服务测试、type-check、build:vue、Electron 可见 UI 双入口矩阵（无 SKILL / 有 SKILL × final-draft / targeted edit）全部通过；真实外部供应商未执行，已按 G1.4 登记 untested。
+- 封装：3.71.0 安装包、asar 协议文件核验、真实启动与 SHA256 核验；旧 3.70.0 安装产物清理。
+- 客户重点复验：加载任意 SKILL 后发出“整篇重排 / 格式整理 / 去重”请求，仍进入终稿 runner 并写回编辑器；局部修改仍走工具循环且 `editor.write` 可用；API 对话框不出现工具 JSON，明细查运行记录。

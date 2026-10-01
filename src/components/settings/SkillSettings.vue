@@ -332,6 +332,11 @@
          <div v-if="packageIssues.length" class="skill-import-issues">
            <div v-for="(issue, index) in packageIssues" :key="issue.field + '-' + index">{{ issue.field }}：{{ issue.message }}</div>
          </div>
+         <div v-if="packageWarnings.length" class="skill-import-diagnostics">
+           <div v-for="(warning, index) in packageWarnings" :key="warning.field + '-' + index" class="skill-import-diagnostic is-warning">
+             <strong>警告</strong><span>{{ warning.field }}：{{ warning.message }}</span>
+           </div>
+         </div>
          <div class="skill-import-summary">
            {{ packagePreview.manifest ? `将安装：${packageInstallName} v${packageInstallVersion}` : '将按兼容包安装，版本记为 0.0.0' }}
          </div>
@@ -481,7 +486,8 @@ const {
   packageLoading,
   packageInstalling,
   packagePreview,
-  packageIssues,
+   packageIssues,
+   packageWarnings,
   packageMessage,
   packageInstallAction,
   packageInstallApproved,

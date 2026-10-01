@@ -3,6 +3,8 @@ const path = require('path')
 const { app, ipcMain } = require('electron')
 const { loadSkillFolder } = require('./skill-loader')
 
+const SKILL_PACKAGE_PROTOCOL = require('../../src/services/skillPackageProtocol.json')
+
 const MAX_ENTRIES = 500
 const MAX_UNCOMPRESSED_BYTES = 50 * 1024 * 1024
 const MANIFEST_NAME = 'skill-package.json'
@@ -13,6 +15,34 @@ function ok(value) {
 
 function fail(code, message) {
   return { ok: false, code, message }
+}
+
+function inspectManifestProtocolBoundary(manifest) {
+  const issues = []
+  const warnings = []
+  if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
+    return { issues, warnings }
+  }
+  for (const field of SKILL_PACKAGE_PROTOCOL.forbiddenFields) {
+    if (manifest[field] !== undefined) {
+      issues.push({
+        field,
+        message: SKILL_PACKAGE_PROTOCOL.messages.forbiddenField.replace('{field}', field)
+      })
+    }
+  }
+  if (
+    manifest.meta
+    && typeof manifest.meta === 'object'
+    && !Array.isArray(manifest.meta)
+    && manifest.meta.agent !== undefined
+  ) {
+    warnings.push({
+      field: 'meta.agent',
+      message: SKILL_PACKAGE_PROTOCOL.messages.deprecatedMetaAgent
+    })
+  }
+  return { issues, warnings }
 }
 
 function safeRelativePath(value) {
@@ -240,8 +270,12 @@ function readPackagePreview(zipPath) {
       const manifestText = read.files[manifestPath]
       let manifest = null
       let manifestIssues = []
+      const manifestWarnings = []
       try {
         manifest = JSON.parse(manifestText)
+        const protocol = inspectManifestProtocolBoundary(manifest)
+        manifestIssues = protocol.issues
+        manifestWarnings.push(...protocol.warnings)
       } catch (error) {
         return fail('manifest-invalid', 'skill-package.json 不是有效 JSON：' + error.message)
       }
@@ -249,6 +283,8 @@ function readPackagePreview(zipPath) {
         root,
         manifestPath,
         manifest,
+        manifestIssues,
+        manifestWarnings,
         entries: rootEntries.map(function(entry) {
           return {
             path: entry.relativePath.slice(root ? root.length + 1 : 0),

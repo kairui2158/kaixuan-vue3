@@ -81,4 +81,35 @@ describe('skillPackageManager manifest validation', () => {
     expect(result.valid).toBe(false)
     expect(result.issues.length).toBe(2)
   })
+
+  it('rejects execution protocol fields owned by the app', () => {
+    const result = validateSkillPackageManifest({
+      ...validManifest,
+      tools: [],
+      toolPolicy: { scenario: 'folder-chain' },
+      toolSurface: { tools: [] },
+      writeAuthorization: { source: 'skill' },
+      executionPlan: { mode: 'final-draft' },
+    }, '3.71.0')
+
+    expect(result.valid).toBe(false)
+    expect(result.issues.map(issue => issue.field)).toEqual([
+      'tools',
+      'toolPolicy',
+      'toolSurface',
+      'writeAuthorization',
+      'executionPlan',
+    ])
+  })
+
+  it('warns that meta.agent is deprecated without blocking the package', () => {
+    const result = validateSkillPackageManifest({
+      ...validManifest,
+      meta: { agent: { model: 'other-model' } },
+    }, '3.71.0')
+
+    expect(result.valid).toBe(true)
+    expect(result.warnings).toHaveLength(1)
+    expect(result.warnings?.[0].field).toBe('meta.agent')
+  })
 })

@@ -627,7 +627,7 @@ function currentOutlineBudgetToken() {
   return token
 }
 
-function recordOutlineRoutingEvent(event: ChainRoutingEvent) {
+function recordOutlineRoutingEvent(event: ChainRoutingEvent, requestText = currentOutlineUserRequest) {
   const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
   const diagEvent = describeRoutingDiagEvent(event)
   diag?.log?.(diagEvent.level, diagEvent.category, diagEvent.message, diagEvent.payload)
@@ -645,6 +645,7 @@ function recordOutlineRoutingEvent(event: ChainRoutingEvent) {
         intent: matchedIntent,
         stage: 0,
         mode: workspaceSkillMode.value === 'chain' ? 'chain' : 'compose',
+        requestText,
       })
       const reroutedToolSurface = reroutedSurface?.tools || []
       const authorizedSurface = authorizeDialogueTools(
@@ -654,6 +655,7 @@ function recordOutlineRoutingEvent(event: ChainRoutingEvent) {
       runTraceStore.updateTurnIntent(outlineRunTraceId, outlineRunTurnId, {
         intent: matchedIntent,
         routingFallback: 'none',
+        surfaceSource: 'trace-projection',
         toolSurface: reroutedToolSurface.map(tool => ({
           name: tool.name,
           policy: tool.policy || 'read' as const,
@@ -922,6 +924,7 @@ async function runOutlineFinalDraftTurn(options: {
   sourceContent: string
   model: string
   plan: LongDocumentExecutionPlan
+  skillGuidance?: string
 }) {
   const placeholderIndex = projectStore.outlineChat.length
   projectStore.appendOutlineChat({ role: 'assistant', content: '终稿任务已创建，正在准备生成。' })
@@ -956,6 +959,7 @@ async function runOutlineFinalDraftTurn(options: {
       sourceContent: options.sourceContent,
       instruction: options.requestText,
       model: options.model,
+      skillGuidance: options.skillGuidance,
       signal: abortController.signal,
       cancelSignal,
       checkpointStore: createElectronFinalDraftCheckpointStore(),
@@ -1484,7 +1488,6 @@ function isOutlineFinalDraftRequest(
 ) {
   return plan.mode === 'final-draft'
     && Boolean(targetContent)
-    && selectedWorkspaceSkills.value.length === 0
     && !requestText.trim().startsWith('@')
 }
 
@@ -2138,6 +2141,42 @@ async function applyOutlineDirectWrite(input: {
 }
 
 let currentOutlineUserRequest = ''
+let activeOutlineExecutionPlan: LongDocumentExecutionPlan | null = null
+
+function buildOutlineExecutionPlanForRequest(options: {
+  requestText: string
+  content: string
+  provider: NonNullable<typeof providerStore.activeGenerateProvider>
+}): { plan: LongDocumentExecutionPlan; providerWindow: number | null } {
+  const model = options.provider.selectedModel || options.provider.models?.[0] || 'gpt-4o'
+  const providerWindow = resolveEffectiveModelContextWindow({
+    model,
+    providerContextWindowTokens: options.provider.contextWindowTokens,
+  })
+  const maxOutputTokens = Number(options.provider.maxTokens) > 0 ? Number(options.provider.maxTokens) : null
+  return {
+    providerWindow: typeof providerWindow === 'number' ? providerWindow : null,
+    plan: buildLongDocumentExecutionPlan({
+      requestText: options.requestText,
+      content: options.content,
+      contextWindowTokens: typeof providerWindow === 'number' ? providerWindow : null,
+      maxOutputTokens,
+    }),
+  }
+}
+
+function buildOutlineSkillGuidance(): string {
+  return selectedWorkspaceSkills.value
+    .map(skill => {
+      const name = skillStore.displaySkillName(skill)
+      const guidance = [skill.template, skill.description]
+        .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+        .join('\n\n')
+      return guidance ? `【${name}】\n${guidance}` : ''
+    })
+    .filter(Boolean)
+    .join('\n\n')
+}
 
 function createOutlineSnapshot(options: {
   requestMessages: Array<{ role: string; content: string }>
@@ -2331,14 +2370,15 @@ function createWorkspaceSkillAdapter(
         toolConflicts: [],
       }
     }
-    const outlineSkillExecutionPlan = buildLongDocumentExecutionPlan({
-      requestText: currentOutlineUserRequest,
-      content: requestTarget.content,
-      contextWindowTokens: null,
-      maxOutputTokens: null,
-    })
+    const outlineSkillExecutionPlan = activeOutlineExecutionPlan
+      || buildOutlineExecutionPlanForRequest({
+        requestText: currentOutlineUserRequest,
+        content: requestTarget.content,
+        provider: providerStore.activeGenerateProvider!,
+      }).plan
+    const outlineSkillExecutionPlanFallback = !activeOutlineExecutionPlan
     const outlineSkillEditTaskPlan = outlineSkillExecutionPlan.mode === 'edit-task'
-    return buildDialogueToolSurface({
+    const surface = buildDialogueToolSurface({
       workspace: 'outline',
       intent,
       maxReadChars: () => getReadCapChars(
@@ -2372,6 +2412,22 @@ function createWorkspaceSkillAdapter(
       onResumeEditTask: taskId => outlineEditTaskSession.resumeEditTask(taskId),
       onCancelEditTask: taskId => outlineEditTaskSession.onCancelEditTask(taskId),
     })
+    if (outlineSkillExecutionPlanFallback) {
+      addOutlineTraceEvent({
+        type: 'plan-origin',
+        level: 'warn',
+        label: '大纲工具面使用降级计划',
+        detail: JSON.stringify({
+          planId: outlineSkillExecutionPlan.planId,
+          source: 'adapter-fallback',
+        }),
+        payload: {
+          planId: outlineSkillExecutionPlan.planId,
+          source: 'adapter-fallback',
+        },
+      })
+    }
+    return surface
   }
   return {
     workspace: 'outline',
@@ -2417,6 +2473,12 @@ function createWorkspaceSkillAdapter(
       activeEditTask: outlineEditTask.value,
       onResumeEditTask: taskId => outlineEditTaskSession.resumeEditTask(taskId),
       onCancelEditTask: taskId => outlineEditTaskSession.onCancelEditTask(taskId),
+    }),
+    getExecutionContext: () => ({
+      executionPlan: activeOutlineExecutionPlan ?? undefined,
+      writeAuthorization: activeOutlineExecutionPlan?.mode === 'edit-task'
+        ? { source: 'long-document-workflow' }
+        : null,
     }),
     buildTools: (request) => {
       const surface = buildOutlineToolSurface(request.intent)
@@ -3840,10 +3902,6 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
   if (isGenerating.value) return
   currentOutlineUserRequest = requestText
   const templates = getWorkspaceTemplates()
-  if (templates.length === 0) {
-    await askPlainAi(requestText)
-    return
-  }
   const provider = providerStore.activeGenerateProvider
   if (!provider) {
     projectStore.appendOutlineChat({ role: 'assistant', content: '请先配置API供应商' })
@@ -3853,6 +3911,46 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
   const model = provider.selectedModel || provider.models?.[0] || 'gpt-4o'
   // The per-turn token limit is recorded from the actual request result.
   configureOutlineContextCompaction(model, provider.contextWindowTokens)
+  const requestTarget = createOutlineRequestTarget()
+  const outlinePlan = buildOutlineExecutionPlanForRequest({
+    requestText,
+    content: requestTarget.content,
+    provider,
+  })
+  activeOutlineExecutionPlan = outlinePlan.plan
+  if (isOutlineFinalDraftRequest(outlinePlan.plan, requestText, requestTarget.content)) {
+    startOutlineRun(workspaceSkillMode.value, requestText, templates.map(template => template.name), {
+      intent: routingDecision.forcedIntent || 'generate',
+      toolSurface: [],
+      actualToolSurface: [],
+    })
+    consumeIntentCorpusInference({
+      projectId: outlineProjectId(),
+      projectName: projectStore.projectName,
+      workspace: 'outline-workbench',
+      runId: outlineRunTraceId,
+      turnId: outlineRunTurnId,
+      requestText,
+      routing: {
+        kind: 'matched',
+        intent: routingDecision.forcedIntent || 'generate',
+        confidence: 1,
+        reason: 'skill-final-draft-wrapper',
+      },
+    })
+    await runOutlineFinalDraftTurn({
+      requestText,
+      sourceContent: requestTarget.content,
+      model,
+      plan: outlinePlan.plan,
+      skillGuidance: buildOutlineSkillGuidance(),
+    })
+    return
+  }
+  if (templates.length === 0) {
+    await askPlainAi(requestText)
+    return
+  }
   let systemPrompt = buildOutlineSystemPrompt()
   const fallbackMessages = buildOutlineFallbackMessages(requestText)
   startOutlineRun(workspaceSkillMode.value, requestText, templates.map(template => template.name), {
@@ -4065,6 +4163,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     // BUG-2 修复：等待用户确认时不收尾，trace 保持 running；用户确认后由正常链路 finishRun
     generationStatus.value = '等待意图确认'
     if (outlineRunTraceId) runTraceStore.startAwaitingUser(outlineRunTraceId, 'awaiting_confirmation')
+    activeOutlineExecutionPlan = null
     return
   }
   if (result.runState === 'budget_exhausted') {
@@ -4085,6 +4184,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
       detail: `已用 ${result.budgetSnapshot?.used || 0}/${result.budgetSnapshot?.limit || 0}，已保留断点`
     })
     finishOutlineRun('blocked', 'API 调用预算已用尽，等待用户追加', result.text, 'budget_exhausted')
+    activeOutlineExecutionPlan = null
     return
   }
     responseText = result.text
@@ -4239,6 +4339,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     }
     generationController = null
     isGenerating.value = false
+    activeOutlineExecutionPlan = null
     pendingOutlineDeletionConfirmation.value = null
     if (generationStatus.value !== '已取消生成' && generationStatus.value !== '等待意图确认') generationStatus.value = ''
     streamingContent.value = ''
@@ -4261,6 +4362,7 @@ function handleEditorBeforeInput() {
 
 async function askPlainAi(requestText: string) {
   currentOutlineUserRequest = requestText
+  activeOutlineExecutionPlan = null
   const provider = providerStore.activeGenerateProvider
   if (!provider) {
     projectStore.appendOutlineChat({ role: 'assistant', content: '请先配置API供应商' })
@@ -4273,18 +4375,16 @@ async function askPlainAi(requestText: string) {
   const plainIntentDetailed = await classifyHomeIntentDetailed(requestText)
   const plainIntent: PlainDialogueIntent = plainIntentDetailed.intent
   const requestTarget = createOutlineRequestTarget()
-  const outlineProviderWindow = resolveEffectiveModelContextWindow({
-    model,
-    providerContextWindowTokens: provider.contextWindowTokens,
-  })
-  const outlineProviderWindowDeclared = typeof outlineProviderWindow === 'number'
-  const outlineMaxOutputTokens = Number(provider.maxTokens) > 0 ? Number(provider.maxTokens) : null
-  const outlineExecutionPlan = buildLongDocumentExecutionPlan({
+  const outlinePlan = buildOutlineExecutionPlanForRequest({
     requestText,
     content: requestTarget.content,
-    contextWindowTokens: typeof outlineProviderWindow === 'number' ? outlineProviderWindow : null,
-    maxOutputTokens: outlineMaxOutputTokens,
+    provider,
   })
+  const outlineExecutionPlan = outlinePlan.plan
+  const outlineProviderWindowDeclared = typeof outlinePlan.providerWindow === 'number'
+  const outlineProviderWindow = outlinePlan.providerWindow
+  const outlineMaxOutputTokens = Number(provider.maxTokens) > 0 ? Number(provider.maxTokens) : null
+  activeOutlineExecutionPlan = outlineExecutionPlan
   const useOutlineFinalDraft = isOutlineFinalDraftRequest(outlineExecutionPlan, requestText, requestTarget.content)
   if (useOutlineFinalDraft) {
     startOutlineRun('direct', requestText, [], {
@@ -4324,6 +4424,7 @@ async function askPlainAi(requestText: string) {
       sourceContent: requestTarget.content,
       model,
       plan: outlineExecutionPlan,
+      skillGuidance: buildOutlineSkillGuidance(),
     })
     return
   }
@@ -5211,6 +5312,7 @@ async function askPlainAi(requestText: string) {
     generationController = null
     cancelController = null
     isGenerating.value = false
+    activeOutlineExecutionPlan = null
     toolRunSupervisor.dispose()
     if (generationStatus.value !== '已取消生成') generationStatus.value = ''
     streamingContent.value = ''

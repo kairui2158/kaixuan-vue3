@@ -1,3 +1,5 @@
+import skillPackageProtocol from './skillPackageProtocol.json'
+
 export const SKILL_PACKAGE_SCHEMA = 'shenyi.skill-package/1'
 
 export interface SkillPackageManifest {
@@ -17,6 +19,7 @@ export interface SkillPackageManifest {
 export interface SkillPackageValidationResult {
   valid: boolean
   issues: Array<{ field: string; message: string }>
+  warnings?: Array<{ field: string; message: string }>
   manifest?: SkillPackageManifest
 }
 
@@ -29,6 +32,43 @@ export interface SemverParts {
 
 const MANIFEST_REQUIRED_KEYS = new Set(['schema', 'id', 'name', 'version', 'files'])
 const SEMVER_PATTERN = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z.-]+))?$/
+export const SKILL_PACKAGE_FORBIDDEN_FIELDS = skillPackageProtocol.forbiddenFields
+export const SKILL_PACKAGE_DEPRECATED_FIELDS = skillPackageProtocol.deprecatedFields
+export const skillPackageProtocolMessages = () => skillPackageProtocol.messages
+
+export function inspectSkillPackageManifestProtocol(raw: unknown): {
+  issues: Array<{ field: string; message: string }>
+  warnings: Array<{ field: string; message: string }>
+} {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return { issues: [], warnings: [] }
+  }
+  const source = raw as Record<string, unknown>
+  const issues: Array<{ field: string; message: string }> = []
+  const warnings: Array<{ field: string; message: string }> = []
+  const messages = skillPackageProtocolMessages()
+  for (const field of SKILL_PACKAGE_FORBIDDEN_FIELDS) {
+    if (source[field] !== undefined) {
+      issues.push({
+        field,
+        message: messages.forbiddenField.replace('{field}', field),
+      })
+    }
+  }
+  if (
+    source.meta !== undefined
+    && source.meta !== null
+    && typeof source.meta === 'object'
+    && !Array.isArray(source.meta)
+    && (source.meta as Record<string, unknown>).agent !== undefined
+  ) {
+    warnings.push({
+      field: 'meta.agent',
+      message: messages.deprecatedMetaAgent,
+    })
+  }
+  return { issues, warnings }
+}
 
 export function parseSemver(value: string): SemverParts | null {
   if (typeof value !== 'string') return null
@@ -88,6 +128,8 @@ export function validateSkillPackageManifest(
   appVersion: string,
 ): SkillPackageValidationResult {
   const issues: Array<{ field: string; message: string }> = []
+  const protocol = inspectSkillPackageManifestProtocol(raw)
+  issues.push(...protocol.issues)
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
     return { valid: false, issues: [{ field: '$', message: 'skill-package.json 必须是对象' }] }
   }
@@ -157,11 +199,12 @@ export function validateSkillPackageManifest(
     issues.push({ field: 'dependencies', message: 'dependencies 必须是字符串数组' })
   }
 
-  if (issues.length > 0) return { valid: false, issues }
+  if (issues.length > 0) return { valid: false, issues, warnings: protocol.warnings }
 
   return {
     valid: true,
     issues: [],
+    warnings: protocol.warnings,
     manifest: {
       schema: schema || SKILL_PACKAGE_SCHEMA,
       id: (id || '').trim(),

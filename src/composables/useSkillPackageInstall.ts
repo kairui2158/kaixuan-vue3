@@ -52,6 +52,7 @@ export function useSkillPackageInstall() {
   const packageInstalling = ref(false)
   const packagePreview = ref<SkillPackagePreview | null>(null)
   const packageIssues = ref<Array<{ field: string; message: string }>>([])
+  const packageWarnings = ref<Array<{ field: string; message: string }>>([])
   const packageMessage = ref('')
   const packageInstallAction = ref<SkillPackageInstallAction>('add')
   const packageInstallApproved = ref(false)
@@ -77,11 +78,21 @@ export function useSkillPackageInstall() {
     }
     packageLoading.value = true
     packageIssues.value = []
+    packageWarnings.value = []
     packageMessage.value = ''
     try {
       const zipPath = await api.skillPackageOpenDialog()
       if (!zipPath) return false
-      const preview = await api.skillPackagePreview(zipPath)
+      const preview = await api.skillPackagePreview(zipPath) as {
+        ok?: boolean
+        message?: string
+        root?: string
+        manifest?: SkillPackageManifest | null
+        manifestIssues?: Array<{ field: string; message: string }>
+        manifestWarnings?: Array<{ field: string; message: string }>
+        entries?: Array<{ path: string; size: number }>
+        totalBytes?: number
+      }
       if (!preview?.ok) {
         packageMessage.value = preview?.message || '技能包读取失败'
         return false
@@ -90,6 +101,7 @@ export function useSkillPackageInstall() {
         zipPath,
         root: preview.root || '',
         manifest: (preview.manifest as SkillPackageManifest | null) || null,
+        // Electron previews and the renderer use the same protocol-boundary rules.
         entries: preview.entries || [],
         totalBytes: preview.totalBytes || 0,
         compatible: !preview.manifest,
@@ -98,6 +110,16 @@ export function useSkillPackageInstall() {
         const appVersion = await api.getAppVersion()
         const validation = validateSkillPackageManifest(preview.manifest, appVersion)
         packageIssues.value = validation.issues
+        packageWarnings.value = validation.warnings || []
+        const electronIssues = Array.isArray(preview.manifestIssues)
+          ? preview.manifestIssues as Array<{ field: string; message: string }>
+          : []
+        if (electronIssues.length > 0) packageIssues.value = [...packageIssues.value, ...electronIssues]
+        const electronWarnings = Array.isArray(preview.manifestWarnings)
+          ? preview.manifestWarnings as Array<{ field: string; message: string }>
+          : []
+        if (electronWarnings.length > 0) packageWarnings.value = [...packageWarnings.value, ...electronWarnings]
+        if (packageIssues.value.length > 0) return false
         if (!validation.valid) return false
       }
       const manifest = preview.manifest as SkillPackageManifest | null
@@ -115,11 +137,13 @@ export function useSkillPackageInstall() {
     const api = getElectronAPI()
     const preview = packagePreview.value
     if (!preview || !api?.skillPackageInstall) return ''
+    packageWarnings.value = []
     const appVersion = await api.getAppVersion()
     const manifest = preview.manifest as any
     const validation = validateSkillPackageManifest(manifest, appVersion)
     if (manifest && !validation.valid) {
       packageIssues.value = validation.issues
+      packageWarnings.value = validation.warnings || []
       return ''
     }
 
@@ -182,6 +206,7 @@ export function useSkillPackageInstall() {
   function closePackagePreview() {
     packagePreview.value = null
     packageIssues.value = []
+    packageWarnings.value = []
     packageMessage.value = ''
   }
 
@@ -190,6 +215,7 @@ export function useSkillPackageInstall() {
     packageInstalling,
     packagePreview,
     packageIssues,
+    packageWarnings,
     packageMessage,
     packageInstallAction,
     packageInstallApproved,

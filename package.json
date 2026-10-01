@@ -1,6 +1,6 @@
 {
   "name": "shenyi-assistant",
-  "version": "3.70.0",
+  "version": "3.71.0",
   "description": "神意助手 - AI驱动的桌面小说写作应用",
   "main": "electron/main.js",
   "scripts": {
@@ -78,6 +78,7 @@
     "files": [
       "electron/**/*",
       "dist-renderer/**/*",
+      "src/services/skillPackageProtocol.json",
       "node_modules/**/*",
       "!node_modules/**/.bin/**",
       "!node_modules/**/.cache/**",

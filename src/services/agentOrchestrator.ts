@@ -58,10 +58,11 @@ export interface AgentOrchestratorEvent {
     | 'repeated_call'
     | 'pseudo_tool'
     | 'idle_timeout'
-  | 'compaction'
-  | 'error'
-  | 'tool_conflict'
-  | 'sub_agent'
+    | 'compaction'
+    | 'error'
+    | 'tool_conflict'
+    | 'sub_agent'
+    | 'plan-origin'
   level: 'info' | 'warning' | 'error'
   label: string
   detail?: string
@@ -285,6 +286,27 @@ function shouldRouteAwayFromDirectToolsBeforeRun(input: {
     maxOutputTokens: suppliedContext?.maxOutputTokens ?? null,
     operationHint: document.operationType,
   })
+  if (!document.executionPlan) {
+    const fallbackEvent = {
+      type: 'plan-origin',
+      level: 'warning',
+      label: '使用降级执行计划',
+      detail: '生产链路未传入 document.executionPlan，Agent 已按当前文档重建计划',
+      payload: { planId: plan.planId, source: 'agent-fallback' },
+    } as const satisfies AgentOrchestratorEvent
+    input.runtime.onEvent?.(fallbackEvent, {
+      taskId: 'agent-fallback-event',
+      status: 'running',
+      reason: '',
+      goal: input.planGoal,
+      stepIndex: 0,
+      callCount: 0,
+      successfulWriteCount: 0,
+      noProgressRounds: 0,
+      repeatedCallCount: 0,
+      updatedAt: Date.now(),
+    })
+  }
   return {
     editTask: plan.mode === 'edit-task',
     finalDraft: plan.mode === 'final-draft',

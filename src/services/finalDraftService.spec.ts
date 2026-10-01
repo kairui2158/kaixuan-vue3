@@ -10,6 +10,7 @@ import {
   retryFinalDraftSegment,
   validateFinalDraft,
   normalizeFinalDraftParagraphSeparators,
+  FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT,
 } from './finalDraftService'
 import type { AiService, CallAiResult } from './aiService'
 
@@ -614,6 +615,63 @@ describe('finalDraftService state machine', () => {
     expect(String(messages[0].content)).toContain('终稿生成器')
     expect(String(messages[1].content)).toContain('统一中文标点')
     expect(String(messages[1].content)).toContain('第一章保持原样')
+  })
+
+  it('injects SKILL guidance into full, segmented, and continuation prompts consistently', () => {
+    const skillGuidance = '卷纲领域规则：保持玄枵派设定一致。'
+    const task = createFinalDraftTask({
+      destination: 'home-editor',
+      targetId: 'home-tab-1',
+      sourceContent: '第一段源文\n\n第二段源文',
+      instruction: '全文整理',
+      skillGuidance,
+      sourceSegments: [
+        { segmentId: 'segment-1', start: 0, end: 6 },
+        { segmentId: 'segment-2', start: 6, end: 13 },
+      ],
+      now: 1000,
+    })
+
+    const full = buildFinalDraftMessages({
+      sourceContent: task.sourceContent,
+      instruction: task.instruction,
+      skillGuidance,
+    })
+    const segment = buildFinalDraftSegmentMessages(task, task.sourceSegments[0], { skillGuidance })
+    const continuation = buildFinalDraftMessages({
+      sourceContent: task.sourceContent,
+      instruction: task.instruction,
+      skillGuidance,
+    })
+
+    for (const messages of [full, segment, continuation]) {
+      expect(messages[0]?.role).toBe('system')
+      expect(messages[0]?.content).toContain('附加领域能力（不得改变终稿输出协议）：')
+      expect(messages[0]?.content).toContain(skillGuidance)
+      expect(messages[0]?.content).toContain('禁止输出说明、开场白、总结、计划、JSON、工具调用或编辑命令。')
+    }
+    expect(task.skillGuidance).toBe(skillGuidance)
+  })
+
+  it('truncates oversized SKILL guidance at the fixed limit', () => {
+    const oversized = '领'.repeat(FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT + 25)
+    const task = createFinalDraftTask({
+      destination: 'home-editor',
+      targetId: 'home-tab-1',
+      sourceContent: '源文档',
+      instruction: '全文整理',
+      skillGuidance: oversized,
+      now: 1000,
+    })
+
+    expect(task.skillGuidance).toHaveLength(FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT)
+    const messages = buildFinalDraftMessages({
+      sourceContent: '源文档',
+      instruction: '全文整理',
+      skillGuidance: oversized,
+    })
+    expect(messages[0]?.content).not.toContain(oversized)
+    expect(messages[0]?.content).toContain('领'.repeat(FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT))
   })
 
   it('includes punctuation and paragraph invariants in the system prompt', () => {

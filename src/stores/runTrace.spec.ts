@@ -726,6 +726,91 @@ describe('runTrace store', () => {
     expect(store.getRun(runId)?.turns?.find(item => item.id === turnId)?.intent).toBe('edit')
   })
 
+  it('records the surface source when routing traces project the tool surface', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲共创',
+      mode: 'chain',
+      skillNames: ['S1'],
+      sessionKind: 'chat'
+    })
+    const turnId = store.startTurn(runId, {
+      userRequest: '把这段设定插入第三段',
+      mode: 'chain',
+      intent: 'auto'
+    })
+
+    const updated = store.updateTurnIntent(runId, turnId, {
+      intent: 'edit',
+      surfaceSource: 'trace-projection',
+      toolSurface: [{ name: 'editor.read', policy: 'read' }],
+      actualToolSurface: [{ name: 'editor.read', policy: 'read' }]
+    })
+
+    const run = store.getRun(runId)
+    const turn = run?.turns?.find(item => item.id === turnId)
+    const event = run?.events.find(
+      item => item.type === 'turn-intent-updated' && item.turnId === turnId
+    )
+    expect(updated).toBe(true)
+    expect(turn?.surfaceSource).toBe('trace-projection')
+    expect(event?.payload).toMatchObject({ surfaceSource: 'trace-projection' })
+  })
+
+  it('emits a dedicated event when folder diagnostics ignore skill agent execution overrides', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'pipeline',
+      stepName: '生成流水线',
+      mode: 'chain'
+    })
+
+    store.appendFolderDiagnostics(runId, [
+      { level: 'info', code: 'skill-agent-ignored', message: 'meta.agent execution parameters ignored' }
+    ])
+
+    const event = store.getRun(runId)?.events.find(item => item.type === 'skill-agent-ignored')
+    expect(event?.level).toBe('warn')
+    expect(event?.payload).toMatchObject({ code: 'skill-agent-ignored' })
+  })
+
+  it('emits the skill agent ignored event from wrapped pipeline diagnostics', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'pipeline',
+      stepName: '生成流水线',
+      mode: 'chain'
+    })
+
+    store.appendFolderDiagnostics(runId, {
+      status: 'degraded',
+      diagnostics: [
+        { type: 'warning', code: 'skill-agent-ignored', message: 'meta.agent execution parameters ignored' }
+      ]
+    })
+
+    const event = store.getRun(runId)?.events.find(item => item.type === 'skill-agent-ignored')
+    expect(event?.level).toBe('warn')
+    expect(event?.payload).toMatchObject({ code: 'skill-agent-ignored' })
+  })
+
+  it('marks eval runs with an explicit execution context', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'eval',
+      stepName: '技能评测',
+      mode: 'with-baseline'
+    })
+
+    const run = store.getRun(runId)
+    expect(run?.executionContext).toBe('skill-eval')
+    expect(
+      run?.events.some(event => event.type === 'execution-context'
+        && (event.payload as { executionContext?: string } | undefined)?.executionContext === 'skill-eval')
+    ).toBe(true)
+  })
+
   it('preserves the folded intent when a late no-match event only records fallback', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({
@@ -1191,7 +1276,7 @@ describe('runTrace store', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
     const exported = store.exportRunToJson(store.getRun(runId)!) as Record<string, unknown>
-    expect(exported.schemaVersion).toBe(10)
+    expect(exported.schemaVersion).toBe(11)
   })
 
   it('records physical, stream, tool, and edit-task activity without firing false stuck warnings', () => {
@@ -1404,7 +1489,7 @@ describe('runTrace store', () => {
     const run = store.getRun(runId)!
     expect(run.events.some(event => event.type === 'chain-handoff-delivery')).toBe(true)
     expect(run.processingReports?.some(report => report.processor === 'chain-handoff')).toBe(true)
-    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(10)
+    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(11)
   })
 
   it('records the requested and actual tool surface separately', () => {

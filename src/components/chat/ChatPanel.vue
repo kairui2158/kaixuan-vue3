@@ -755,7 +755,6 @@ function recordHomeFinalDraftTaskEvent(task: FinalDraftTask, event: FinalDraftEv
 function isHomeFinalDraftRequest(plan: LongDocumentExecutionPlan, requestText: string, targetContent: string) {
   return plan.mode === 'final-draft'
     && Boolean(targetContent)
-    && selectedCoCreationSkills.value.length === 0
     && !requestText.trim().startsWith('@')
 }
 
@@ -766,6 +765,7 @@ async function runHomeFinalDraft(options: {
   sourceContent: string
   model: string
   plan: LongDocumentExecutionPlan
+  skillGuidance?: string
   abortSignal: AbortSignal
   cancelSignal: AbortSignal
 }): Promise<FinalDraftTask | undefined> {
@@ -780,6 +780,7 @@ async function runHomeFinalDraft(options: {
     sourceContent: options.sourceContent,
     instruction: options.requestText,
     model: options.model,
+    skillGuidance: options.skillGuidance,
     signal: options.abortSignal,
     cancelSignal: options.cancelSignal,
     checkpointStore: createElectronFinalDraftCheckpointStore(),
@@ -821,6 +822,7 @@ async function runHomeFinalDraftTurn(options: {
   sourceContent: string
   model: string
   plan: LongDocumentExecutionPlan
+  skillGuidance?: string
 }) {
   const projId = projectId.value
   const abortController = activeAbortController || new AbortController()
@@ -851,6 +853,7 @@ async function runHomeFinalDraftTurn(options: {
       sourceContent: options.sourceContent,
       model: options.model,
       plan: options.plan,
+      skillGuidance: options.skillGuidance,
       abortSignal: abortController.signal,
       cancelSignal: cancelController.signal,
     })
@@ -1664,10 +1667,25 @@ function createHomeSkillAdapter(
       onResumeEditTask: taskId => homeEditTaskSession.resumeEditTask(taskId),
       onCancelEditTask: taskId => homeEditTaskSession.onCancelEditTask(taskId),
     }),
+    getExecutionContext: () => ({
+      executionPlan: activeHomeExecutionPlan ?? undefined,
+      writeAuthorization: activeHomeExecutionPlan?.mode === 'edit-task'
+        ? { source: 'long-document-workflow' }
+        : null,
+    }),
     buildTools: (request) => ({
       tools: requestTarget.content
         ? buildHomeDialogueToolSurface(
-          requestTarget,
+          buildSnapshot({
+            workspace: 'main',
+            targetId: requestTarget.targetId,
+            label: requestTarget.label,
+            chapterId: requestTarget.chapterId,
+            mode: requestTarget.mode,
+            content: editorStore.activeTab?.content || '',
+            selectionStart: currentMainSelection().selectionStart,
+            selectionEnd: currentMainSelection().selectionEnd,
+          }),
           request.intent === 'auto' ? fallbackIntent : request.intent,
           undefined,
           activeHomeExecutionPlan ?? undefined,
@@ -2146,6 +2164,7 @@ async function runHomeCoCreationSkills(
       detail: result.awaiting?.routing?.reason || '未识别到明确意图'
     })
     if (homeRunTraceId) runTraceStore.startAwaitingUser(homeRunTraceId, 'awaiting_confirmation')
+    activeHomeExecutionPlan = null
     return { text: '', toolCallSummary: null }
   }
   if (result.runState === 'budget_exhausted' && placeholderMessage) {
@@ -2164,6 +2183,7 @@ async function runHomeCoCreationSkills(
       label: 'API 调用预算已用尽',
       detail: `已用 ${result.budgetSnapshot?.used || 0}/${result.budgetSnapshot?.limit || 0}，已保留断点`
     })
+    activeHomeExecutionPlan = null
     return {
       text: result.text,
       toolCallSummary: null,
@@ -2363,6 +2383,19 @@ function handleEditorAction(e: any) {
     inputText.value = prompt;
     nextTick(() => { sendMessage(); });
   }
+  }
+
+function buildHomeSkillGuidance(): string {
+  return selectedCoCreationSkills.value
+    .map(skill => {
+      const name = skillStore.displaySkillName(skill)
+      const guidance = [skill.template, skill.description]
+        .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+        .join('\n\n')
+      return guidance ? `【${name}】\n${guidance}` : ''
+    })
+    .filter(Boolean)
+    .join('\n\n')
 }
 
 async function sendMessage(requestText?: string, routingDecision: HomeRoutingDecision = {}) {
@@ -2474,6 +2507,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       sourceContent: requestTarget.content,
       model: providerForFinalDraft.selectedModel || providerForFinalDraft.models?.[0] || 'gpt-4o',
       plan: homeExecutionPlan,
+      skillGuidance: buildHomeSkillGuidance(),
     })
     return
   }
@@ -2984,6 +3018,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
   }
     clearWorkspaceSnapshotIfSafe()
     activeAbortController = null
+    activeHomeExecutionPlan = null
     if (chatStore.generationStatus === 'preparing' || chatStore.generationStatus === 'streaming' || chatStore.generationStatus === 'retrying') {
       chatStore.setGenerationState('idle')
     }

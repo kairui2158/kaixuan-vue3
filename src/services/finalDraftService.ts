@@ -36,6 +36,7 @@ export interface FinalDraftTask {
   destination: FinalDraftDestination
   targetId: string
   instruction: string
+  skillGuidance?: string
   constraints: string[]
   protectedRanges: FinalDraftProtectedRange[]
   sourceContent: string
@@ -100,6 +101,8 @@ export interface FinalDraftEditorAdapter {
 export interface FinalDraftGenerationOptions {
   signal?: AbortSignal
   cancelSignal?: AbortSignal
+  /** Optional app-provided SKILL guidance; task.skillGuidance remains authoritative once set. */
+  skillGuidance?: string
   /** The runner owns live streamed text; it supplies the partial text here before an interruption is reduced. */
   onSlowStreamInterrupted?: (partialText: string) => string | void
   onChunk?: (text: string) => void
@@ -175,6 +178,28 @@ const FINAL_DRAFT_SYSTEM_PROMPT = [
   '严格遵守保护范围约束。',
 ].join('\n')
 
+export const FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT = 8000
+
+export function normalizeFinalDraftSkillGuidance(
+  skillGuidance?: string,
+): { text: string; truncated: boolean } | null {
+  const text = (skillGuidance || '').trim()
+  if (!text) return null
+  if (text.length <= FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT) {
+    return { text, truncated: false }
+  }
+  return {
+    text: text.slice(0, FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT),
+    truncated: true,
+  }
+}
+
+function appendFinalDraftSkillGuidance(systemPrompt: string, skillGuidance?: string): string {
+  const guidance = normalizeFinalDraftSkillGuidance(skillGuidance)
+  if (!guidance) return systemPrompt
+  return `${systemPrompt}\n\n附加领域能力（不得改变终稿输出协议）：\n${guidance.text}`
+}
+
 let taskCounter = 0
 
 export function createFinalDraftTask(input: {
@@ -182,6 +207,7 @@ export function createFinalDraftTask(input: {
   targetId: string
   sourceContent: string
   instruction: string
+  skillGuidance?: string
   constraints?: string[]
   protectedRanges?: FinalDraftProtectedRange[]
   sourceSegments?: FinalDraftSourceSegment[]
@@ -197,6 +223,7 @@ export function createFinalDraftTask(input: {
     destination: input.destination,
     targetId: input.targetId,
     instruction: input.instruction,
+    skillGuidance: normalizeFinalDraftSkillGuidance(input.skillGuidance)?.text,
     constraints: input.constraints || [],
     protectedRanges: input.protectedRanges || [],
     sourceContent: input.sourceContent,
@@ -232,6 +259,7 @@ export function applyFinalDraftEventWithHooks(
 export function buildFinalDraftMessages(options: {
   sourceContent: string
   instruction: string
+  skillGuidance?: string
   constraints?: string[]
   protectedRanges?: FinalDraftProtectedRange[]
 }): CallAiParams['messages'] {
@@ -247,7 +275,7 @@ export function buildFinalDraftMessages(options: {
   }
   const constraintText = constraints.length ? `\n\n硬约束：\n${constraints.map(item => `- ${item}`).join('\n')}` : ''
   return [
-    { role: 'system', content: FINAL_DRAFT_SYSTEM_PROMPT },
+    { role: 'system', content: appendFinalDraftSkillGuidance(FINAL_DRAFT_SYSTEM_PROMPT, options.skillGuidance) },
     {
       role: 'user',
       content: `终稿要求：${options.instruction}${constraintText}\n\n源文档：\n${options.sourceContent}`,
@@ -258,7 +286,7 @@ export function buildFinalDraftMessages(options: {
 export function buildFinalDraftSegmentMessages(
   task: FinalDraftTask,
   segment: FinalDraftSourceSegment,
-  options: { tailContextChars?: number; structureRetry?: boolean } = {},
+  options: { tailContextChars?: number; structureRetry?: boolean; skillGuidance?: string } = {},
 ): CallAiParams['messages'] {
   const segmentContent = task.sourceContent.slice(segment.start, segment.end)
   const sourceBlockCount = countFinalDraftBlocks(segmentContent)
@@ -291,7 +319,7 @@ export function buildFinalDraftSegmentMessages(
   }
   const constraintText = constraints.length ? `\n\n硬约束：\n${constraints.map(item => `- ${item}`).join('\n')}` : ''
   return [
-    { role: 'system', content: FINAL_DRAFT_SYSTEM_PROMPT },
+    { role: 'system', content: appendFinalDraftSkillGuidance(FINAL_DRAFT_SYSTEM_PROMPT, options.skillGuidance) },
     {
       role: 'user',
       content: `终稿要求：${task.instruction}${constraintText}${segmentMap}${previousTail}${boundaryText}\n\n本次需要生成终稿的源文分段：\n${segmentContent}\n\n段落结构硬约束：本段源文共有 ${sourceBlockCount} 个段落。终稿至少输出 ${sourceBlockCount} 个段落；每个源文段落对应至少一个终稿段落，段落之间必须使用空行分隔，禁止把多个源文段落合并成一个段落。以 # 开头的标题行必须逐字保留，并且必须独立成段；每个段落开头的编号、标识和冒号前缀必须保留。`,
@@ -299,11 +327,15 @@ export function buildFinalDraftSegmentMessages(
   ]
 }
 
-export function buildFinalDraftContinuationMessages(task: FinalDraftTask, maxContextChars = 12000): CallAiParams['messages'] {
+export function buildFinalDraftContinuationMessages(
+  task: FinalDraftTask,
+  maxContextChars = 12000,
+  skillGuidance?: string,
+): CallAiParams['messages'] {
   const segment = activeSourceSegment(task)
   const recent = task.accumulatedText.slice(-maxContextChars)
   return [
-    ...buildFinalDraftSegmentMessages(task, segment),
+    ...buildFinalDraftSegmentMessages(task, segment, { skillGuidance }),
     { role: 'assistant', content: recent },
     {
       role: 'user',
@@ -461,6 +493,10 @@ export async function generateFinalDraft(
   options: FinalDraftGenerationOptions = {},
 ): Promise<FinalDraftTask> {
   let task = deps.task
+  const guidance = normalizeFinalDraftSkillGuidance(task.skillGuidance)
+  if (guidance && task.skillGuidance !== guidance.text) {
+    task = { ...task, skillGuidance: guidance.text }
+  }
   task = applyFinalDraftEventWithHooks(task, { type: 'generation_started', now: now() }, options)
   emitTask(task, options)
   try {
@@ -468,7 +504,7 @@ export async function generateFinalDraft(
       throw new Error('source_content_mismatch_at_generation_start')
     }
     task = await planSegmentOrderIfNeeded(deps.aiService, task, options)
-    task = await runPendingSegments(deps.aiService, task, options)
+    task = await runPendingSegments(deps.aiService, task, { ...options, skillGuidance: guidance?.text })
     if (task.status === 'awaiting_continuation') return task
     if (task.status !== 'generating') return task
     return await writeCompletedDraft(deps, task, options)
@@ -502,10 +538,14 @@ export async function continueFinalDraft(
     throw new Error(`终稿任务当前状态不支持续生成：${deps.task.status}`)
   }
   let current = applyFinalDraftEventWithHooks(deps.task, { type: 'continuation_started', now: now() }, options)
+  const guidance = normalizeFinalDraftSkillGuidance(current.skillGuidance)
+  if (guidance && current.skillGuidance !== guidance.text) {
+    current = { ...current, skillGuidance: guidance.text }
+  }
   emitTask(current, options)
   try {
     const result = await requestFinalDraft(deps.aiService, {
-      messages: buildFinalDraftContinuationMessages(current),
+      messages: buildFinalDraftContinuationMessages(current, undefined, guidance?.text),
       purpose: 'generate',
     }, options)
     current = updateTask(current, {
@@ -542,7 +582,7 @@ export async function continueFinalDraft(
     }
     current = completeActiveSegment(current, options)
     emitTask(current, options)
-    current = await runPendingSegments(deps.aiService, current, options)
+    current = await runPendingSegments(deps.aiService, current, { ...options, skillGuidance: guidance?.text })
     if (current.status === 'awaiting_continuation') return current
     if (current.status !== 'generating') return current
     return await writeCompletedDraft({ ...deps, task: current }, current, options)
@@ -721,8 +761,8 @@ async function runPendingSegments(
     const hasPartialSegment = options.resumePartialSegment === true && task.accumulatedText.length > 0
     const result = await requestFinalDraft(aiService, {
       messages: hasPartialSegment
-        ? buildFinalDraftContinuationMessages(task)
-        : buildFinalDraftSegmentMessages(task, segment),
+        ? buildFinalDraftContinuationMessages(task, undefined, options.skillGuidance)
+        : buildFinalDraftSegmentMessages(task, segment, { skillGuidance: options.skillGuidance }),
       purpose: 'generate',
     }, options)
     task = updateTask(task, {
@@ -750,7 +790,7 @@ async function runPendingSegments(
       }, options)
       emitTask(task, options)
       const retryResult = await requestFinalDraft(aiService, {
-        messages: buildFinalDraftSegmentMessages(task, segment, { structureRetry: true }),
+        messages: buildFinalDraftSegmentMessages(task, segment, { structureRetry: true, skillGuidance: options.skillGuidance }),
         purpose: 'generate',
       }, options)
       task = updateTask(task, {
@@ -835,6 +875,7 @@ export async function retryFinalDraftSegment(
     throw new Error(`终稿任务当前状态不支持重试当前段：${deps.task.status}`)
   }
   const segment = activeSourceSegment(deps.task)
+  const guidance = normalizeFinalDraftSkillGuidance(deps.task.skillGuidance)
   let current = applyFinalDraftEventWithHooks(deps.task, {
     type: 'segment_user_retry_started',
     segmentId: segment.segmentId,
@@ -844,7 +885,7 @@ export async function retryFinalDraftSegment(
   emitTask(current, options)
   current = await planSegmentOrderIfNeeded(deps.aiService, current, options)
   try {
-    current = await runPendingSegments(deps.aiService, current, options)
+    current = await runPendingSegments(deps.aiService, current, { ...options, skillGuidance: guidance?.text })
     if (current.status === 'awaiting_continuation') return current
     if (current.status !== 'generating') return current
     return await writeCompletedDraft({ ...deps, task: current }, current, options)

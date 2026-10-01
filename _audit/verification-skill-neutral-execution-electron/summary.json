@@ -1,0 +1,131 @@
+{
+  "schema": "shenyi.skill-neutral-execution.electron",
+  "version": 1,
+  "generatedAt": "2026-10-01T05:33:08.736Z",
+  "electronPid": 35892,
+  "cases": [
+    {
+      "skill": false,
+      "requests": [
+        {
+          "url": "/v1/chat/completions",
+          "guidance": false,
+          "tools": []
+        },
+        {
+          "url": "/v1/chat/completions",
+          "guidance": false,
+          "tools": []
+        },
+        {
+          "url": "/v1/chat/completions",
+          "guidance": false,
+          "tools": []
+        },
+        {
+          "url": "/v1/chat/completions",
+          "guidance": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "skill": true,
+      "requests": [
+        {
+          "url": "/v1/chat/completions",
+          "guidance": true,
+          "tools": []
+        },
+        {
+          "url": "/v1/chat/completions",
+          "guidance": true,
+          "tools": []
+        },
+        {
+          "url": "/v1/chat/completions",
+          "guidance": true,
+          "tools": []
+        },
+        {
+          "url": "/v1/chat/completions",
+          "guidance": true,
+          "tools": []
+        },
+        {
+          "url": "/v1/chat/completions",
+          "guidance": true,
+          "tools": [
+            "editor.get_state",
+            "editor.document_map",
+            "editor.read_range",
+            "editor.search",
+            "editor.locate",
+            "editor.write",
+            "editor.reveal",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ]
+        },
+        {
+          "url": "/v1/chat/completions",
+          "guidance": true,
+          "tools": [
+            "editor.get_state",
+            "editor.document_map",
+            "editor.read_range",
+            "editor.search",
+            "editor.locate",
+            "editor.write",
+            "editor.reveal",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary"
+          ]
+        },
+        {
+          "url": "/v1/chat/completions",
+          "guidance": true,
+          "tools": [
+            "editor.get_state",
+            "editor.document_map",
+            "editor.read_range",
+            "editor.search",
+            "editor.locate",
+            "editor.write",
+            "editor.reveal",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ]
+        },
+        {
+          "url": "/v1/chat/completions",
+          "guidance": true,
+          "tools": [
+            "editor.get_state",
+            "editor.document_map",
+            "editor.read_range",
+            "editor.search",
+            "editor.locate",
+            "editor.write",
+            "editor.reveal",
+            "editor.multi_get_state",
+            "editor.global_search",
+            "editor.workspace_summary",
+            "outline.get_structure",
+            "outline.read_range",
+            "outline.search",
+            "outline.get_summary"
+          ]
+        }
+      ]
+    }
+  ],
+  "exportedSchemaVersion": 11
+}

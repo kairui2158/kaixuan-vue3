@@ -437,6 +437,42 @@ describe('workspace skill engine', () => {
     ])
   })
 
+  it('passes the request text and workflow write authorization through the adapter surface', async () => {
+    const context = makeContextService()
+    const buildTools = vi.fn<
+      NonNullable<WorkspaceSkillEngineAdapter['buildTools']>
+    >(({ intent, requestText }) => ({
+      tools: intent === 'edit'
+        ? [
+          { name: 'editor.get_state', description: 'Read editor state', policy: 'read', inputSchema: { type: 'object', properties: {} }, execute: async () => ({ ok: true }) },
+          { name: 'editor.write', description: 'Direct write', policy: 'write', inputSchema: { type: 'object', properties: {} }, execute: async () => ({ ok: true }) },
+        ]
+        : [],
+    }))
+    const adapter = makeAdapter({
+      buildTools,
+      getExecutionContext: () => ({
+        writeAuthorization: { source: 'long-document-workflow' },
+      }),
+    })
+    const { aiService, calls } = makeAiService(['修改结果'])
+
+    await runWorkspaceSkills({
+      requestText: '把第一卷的目标改成复仇',
+      templates: [makeTemplate('s1', '修改', { intents: ['edit'] })],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+      routingOverride: { forcedIntent: 'edit' },
+    })
+
+    expect(buildTools).toHaveBeenCalledWith(
+      expect.objectContaining({ requestText: '把第一卷的目标改成复仇' }),
+    )
+    expect(calls[0].tools?.map(tool => tool.name)).toContain('editor.write')
+  })
+
   it('records compose API calls for success and failure paths', async () => {
     const context = makeContextService()
     const adapter = makeAdapter()

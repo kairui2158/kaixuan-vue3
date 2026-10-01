@@ -137,7 +137,7 @@ describe('skillOrchestrator composite', () => {
     expect(systemPrompts[1]).toContain('降AI约束')
   })
 
-  it('uses each child meta.agent default over a step default agent', async () => {
+  it('keeps the step agent parameters when child meta.agent is present', async () => {
     const callAi = vi.fn(async () => ({ text: '组合输出' }))
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockImplementation(async (folderPath: string) => {
@@ -174,7 +174,9 @@ describe('skillOrchestrator composite', () => {
     expect(result.status).toBe('DONE')
     expect(callAi).toHaveBeenCalledTimes(2)
     const temperatures = callAi.mock.calls.map(call => (call as unknown as Array<any>)?.[0]?.temperature)
-    expect(temperatures).toEqual([0.45, 0.85])
+    const models = callAi.mock.calls.map(call => (call as unknown as Array<any>)?.[0]?.model)
+    expect(temperatures).toEqual([0.2, 0.2])
+    expect(models).toEqual(['step-model', 'step-model'])
   })
 
   it('keeps a user-bound agent over child meta.agent defaults', async () => {

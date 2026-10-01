@@ -1,0 +1,14 @@
+{
+  "forbiddenFields": [
+    "tools",
+    "toolPolicy",
+    "toolSurface",
+    "writeAuthorization",
+    "executionPlan"
+  ],
+  "deprecatedFields": ["meta.agent"],
+  "messages": {
+    "forbiddenField": "SKILL 包不能声明执行协议字段 {field}；执行器、工具面与权限由应用单源管理",
+    "deprecatedMetaAgent": "meta.agent 已废弃：执行参数不再由 SKILL 包生效，systemPrompt 会并入领域能力提示"
+  }
+}

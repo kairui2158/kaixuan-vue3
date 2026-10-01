@@ -245,24 +245,46 @@ function mergeSkillAgentDefaults(
 ): RealSkillExecuteOptions['agent'] {
   if (!skillDefaults) return agent
   if (agentSource === 'user-binding') return agent
-  if (!agent) return skillDefaults
+  if (skillDefaults.model !== undefined
+    || skillDefaults.temperature !== undefined
+    || skillDefaults.maxTokens !== undefined
+  ) {
+    return {
+      ...agent,
+      model: agent?.model,
+      temperature: agent?.temperature,
+      maxTokens: agent?.maxTokens,
+      systemPrompt: agent?.systemPrompt
+        ? appendSkillAgentGuidance(agent.systemPrompt, skillDefaults.systemPrompt)
+        : skillDefaults.systemPrompt,
+    }
+  }
   if (agentSource === 'step-default') {
     return {
-      ...skillDefaults,
-      model: skillDefaults.model || agent.model,
-      temperature: skillDefaults.temperature ?? agent.temperature,
-      maxTokens: skillDefaults.maxTokens || agent.maxTokens,
-      systemPrompt: skillDefaults.systemPrompt || agent.systemPrompt,
-      id: agent.id
+      ...agent,
+      model: agent?.model,
+      temperature: agent?.temperature,
+      maxTokens: agent?.maxTokens,
+      systemPrompt: agent?.systemPrompt
+        ? appendSkillAgentGuidance(agent.systemPrompt, skillDefaults.systemPrompt)
+        : skillDefaults.systemPrompt,
     }
   }
   return {
     ...agent,
-    model: agent.model || skillDefaults.model,
-    temperature: agent.temperature ?? skillDefaults.temperature,
-    maxTokens: agent.maxTokens || skillDefaults.maxTokens,
-    systemPrompt: agent.systemPrompt || skillDefaults.systemPrompt
+    systemPrompt: agent?.systemPrompt
+      ? appendSkillAgentGuidance(agent.systemPrompt, skillDefaults.systemPrompt)
+      : skillDefaults.systemPrompt,
   }
+}
+
+function hasSkillAgentDefaults(skillDefaults: RealSkillAgentContext | undefined): boolean {
+  return Boolean(skillDefaults)
+}
+
+function appendSkillAgentGuidance(primary: string, guidance?: string): string {
+  if (!guidance?.trim()) return primary
+  return `${primary}\n\n${guidance.trim()}`
 }
 
 function buildUserPrompt(input: string, samples: string[]): string {
@@ -469,6 +491,13 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
   const pkg = loaded.package
   for (const warning of loaded.warnings || pkg.warnings || []) {
     diagnostics.push(diagnostic('warning', `folder-package:${warning.code}`, warning.message))
+  }
+  if (hasSkillAgentDefaults(pkg.meta.agent)) {
+    diagnostics.push(diagnostic(
+      'info',
+      'skill-agent-ignored',
+      'SKILL 包内 meta.agent 不再改变执行参数；提示词内容仅作为 guidance 追加'
+    ))
   }
   const agent = mergeSkillAgentDefaults(options.agent, pkg.meta.agent, options.agentSource)
   const hasPipelineTemplate = (

@@ -470,7 +470,7 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(dynamicParams.messages[1]?.content).toContain('处理后的输入')
   })
 
-  it('uses meta.agent defaults when no explicit user binding exists', async () => {
+  it('ignores meta.agent execution parameters and appends only guidance', async () => {
     const callAi = vi.fn(async () => ({ text: '输出' }))
     getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
@@ -498,9 +498,9 @@ describe('realSkillExecutor phase 4 upgrades', () => {
 
     expect(result.status).toBe('success')
     const params = (callAi.mock.calls[0] as unknown as Array<CallAiParams>)[0]
-    expect(params.model).toBe('folder-model')
-    expect(params.temperature).toBe(0.45)
-    expect(params.maxTokens).toBe(4096)
+    expect(params.model).toBe('step-model')
+    expect(params.temperature).toBe(0.7)
+    expect(params.maxTokens).toBeUndefined()
     expect(params.messages[0]?.content).toContain('技能默认智能体指令')
   })
 
