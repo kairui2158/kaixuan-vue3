@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-09-19
+更新日期：2026-10-01
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -595,3 +595,10 @@
 - 验证：stalled-recovery Electron live PASS，72 条终稿专项、1293 条全量服务测试、type-check 全部通过。
 - 封装：3.70.0 安装包真实 Electron 启动通过，75 项 electronAPI、安装路径可选、asar/renderer 新鲜度与 SHA256 核验通过；旧 3.69.0 安装产物已清理。
 - 客户重点复验：终稿停滞卡片点击换供应商重试后可续跑并完整写入；低速流期间不出现重复请求；运行记录 API 调用不被旧 run 关闭。
+
+# 2026-10-01 仓库大清理与长期改动归档
+
+- 文件：[_audit/DEV_LOG_2026-10-01_repo-consolidation-cleanup.md](_audit/DEV_LOG_2026-10-01_repo-consolidation-cleanup.md)
+- 范围：3.30-3.70 周期 150+ 修改文件与 400+ 未跟踪文件分三笔归档；删除 5 处第三方调研原始缓存（约 80MB）与 `dist/win-unpacked`（约 972MB）；修复孤儿 idx / tmp_obj 后重建 multi-pack-index；嵌套第三方 Git 仓库从版本索引移除但本地保留。
+- 验证：`git status --short` 无 tracked/untracked 残留；`git fsck --full` 0 error/missing/corrupt；三笔归档提交可在 `git log` 追溯。
+- 客户重点复验：无需客户操作；本地 `_data/` 用户数据、3.70.0 安装包与全部审计证据保留。
