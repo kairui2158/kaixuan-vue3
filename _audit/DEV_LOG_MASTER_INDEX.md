@@ -599,6 +599,6 @@
 # 2026-10-01 仓库大清理与长期改动归档
 
 - 文件：[_audit/DEV_LOG_2026-10-01_repo-consolidation-cleanup.md](_audit/DEV_LOG_2026-10-01_repo-consolidation-cleanup.md)
-- 范围：3.30-3.70 周期 150+ 修改文件与 400+ 未跟踪文件分三笔归档；删除 5 处第三方调研原始缓存（约 80MB）与 `dist/win-unpacked`（约 972MB）；修复孤儿 idx / tmp_obj 后重建 multi-pack-index；嵌套第三方 Git 仓库从版本索引移除但本地保留。
-- 验证：`git status --short` 无 tracked/untracked 残留；`git fsck --full` 0 error/missing/corrupt；三笔归档提交可在 `git log` 追溯。
+- 范围：3.30-3.70 周期 150+ 修改文件与 400+ 未跟踪文件分批归档；删除 5 处第三方调研原始缓存（约 80MB）与 `dist/win-unpacked`（约 972MB）；修复孤儿 idx / tmp_obj 后重建 multi-pack-index；嵌套第三方 Git 仓库从版本索引移除、本地保留并加入 ignore 规则。
+- 验证：`git status --short` 无 tracked/untracked 残留；`git fsck --full` 0 error/missing/corrupt；归档提交 `0764672`、`39414c8`、`b6704c4`、`c40e19b` 可在 `git log` 追溯。
 - 客户重点复验：无需客户操作；本地 `_data/` 用户数据、3.70.0 安装包与全部审计证据保留。

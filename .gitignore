@@ -50,6 +50,10 @@ _audit/tmp/*backup*.json
 # local run-trace / audit evidence, retained on disk but not tracked
 _audit/tmp/
 
+# Local research repositories retained as audit source bodies; tracked evidence
+# lives in _audit/agent-research/{candidates,rounds,selected}.json and reports.
+_audit/agent-research/work/
+
 # Local app data dir contains user's encrypted API keys; never commit
 _data/
 

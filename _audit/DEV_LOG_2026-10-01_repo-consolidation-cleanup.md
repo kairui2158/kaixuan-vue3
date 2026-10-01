@@ -41,6 +41,7 @@
 `_audit/agent-research/work` 下的 aider、cherry、cline-current、codex、continue、langgraph、openhands、roo-current、vercel 是本地抓取的完整第三方仓库。它们最初以 gitlink 形式被误归档，且仓库没有 `.gitmodules`，跨机器克隆会得到无法拉取的空引用。
 
 处置：从版本索引移除，本地文件保留。后续如需共享，应改为记录仓库 URL + commit SHA + 本地缓存路径，而不是提交 gitlink。
+同时在 `.gitignore` 增加 `_audit/agent-research/work/`，使该本地调研缓存不再出现在未跟踪状态中；可入库的证据仍为 `candidates.json`、`selected.json`、rounds 记录与整理版报告。
 
 ### 6. 用户数据与敏感信息
 
@@ -60,4 +61,4 @@
 
 - `git status --short`：无未提交、未归档的 tracked/untracked 残留。
 - `git fsck --full`：0 error/missing/corrupt。
-- `git log --oneline -5`：包含本次 3 笔清理归档提交。
+- `git log --oneline`：包含本次清理归档提交 `0764672`、`39414c8`、`b6704c4`、`c40e19b`。
