@@ -18,7 +18,7 @@
           <span class="skill-name">{{ getSkillName(id) }}</span>
           <button class="btn-sm btn-secondary" @click="skillStore.movePipelineSkillUp(i)" :disabled="i === 0">上移</button>
           <button class="btn-sm btn-secondary" @click="skillStore.movePipelineSkillDown(i)" :disabled="i === skillStore.pipelineSkills.length - 1">下移</button>
-          <button class="btn-danger btn-sm" title="移出流水线" @click="removeFromPipeline(i)">×</button>
+          <button class="btn-danger btn-sm" type="button" aria-label="移出流水线" @click="removeFromPipeline(i)"><AppIcon name="x" /></button>
         </div>
       </div>
     </div>
@@ -35,7 +35,7 @@
             <span v-if="s.format === 'folder' && s.resourceSummary" class="skill-card-info">资源 {{ s.resourceSummary.resourceCount }} 个 / 警告 {{ s.resourceSummary.warningCount }} 条</span>
           </div>
           <div v-if="s.format === 'folder'" class="skill-folder-status" :class="{ 'is-invalid': !folderStatusMap[s.id]?.valid }">
-            <span class="skill-folder-path" :title="s.folderPath">{{ s.folderPath || '未记录路径' }}</span>
+            <span class="skill-folder-path" :data-tooltip="s.folderPath">{{ s.folderPath || '未记录路径' }}</span>
             <span class="skill-folder-state">{{ folderStatusMap[s.id]?.valid ? '路径有效' : '路径失效' }}</span>
             <button v-if="!folderStatusMap[s.id]?.valid" class="btn-sm btn-secondary" @click="reselectFolderSkill(s.id)">重新选择文件夹</button>
           </div>
@@ -53,7 +53,7 @@
               class="skill-card-badge is-capability"
             >{{ capability }}</span>
           </div>
-          <div v-if="s.format === 'folder'" class="skill-folder-boundary" :title="getFolderBoundaryText(s)">
+          <div v-if="s.format === 'folder'" class="skill-folder-boundary" :data-tooltip="getFolderBoundaryText(s)">
             <span class="skill-folder-boundary-label">执行边界：</span>
             <span>{{ getFolderBoundarySummary(s) }}</span>
           </div>
@@ -71,197 +71,207 @@
       </div>
       </div>
    </div>
-   <div v-if="healthReportSkillId" class="skill-import-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-health-report') }" @click.self="closeHealthReport">
+   <div v-if="healthReportSkillId" data-modal-id="skill-health-report" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('skill-health-report') }" @click.self="closeHealthReport">
      <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="skill-health-title">
-       <div class="sem-header"><h4 id="skill-health-title">技能体检报告</h4><button type="button" title="关闭" @click="closeHealthReport">×</button></div>
-       <div class="skill-import-summary">{{ getSkillName(healthReportSkillId) }}</div>
-       <div class="skill-import-plan">
-         <div v-if="!healthReport">正在读取技能文件...</div>
-         <div v-else-if="healthReport.issues.length === 0" class="skill-import-diagnostic is-success">
-           <strong>通过</strong><span>未发现异常。</span>
-         </div>
-         <div v-else v-for="issue in healthReport.issues" :key="issue.field + issue.message" class="skill-import-plan-item">
-           <span :class="'is-' + issue.level">{{ levelLabel(issue.level) }}</span>
-           <span class="skill-import-id">{{ issue.field }}</span>
-           <span>{{ issue.message }}</span>
+       <div class="sem-header"><h4 id="skill-health-title">技能体检报告</h4><button type="button" aria-label="关闭技能体检报告" @click="closeHealthReport"><AppIcon name="x" /></button></div>
+       <div class="sem-scroll">
+         <div class="skill-import-summary">{{ getSkillName(healthReportSkillId) }}</div>
+         <div class="skill-import-plan">
+           <div v-if="!healthReport">正在读取技能文件...</div>
+           <div v-else-if="healthReport.issues.length === 0" class="skill-import-diagnostic is-success">
+             <strong>通过</strong><span>未发现异常。</span>
+           </div>
+           <div v-else v-for="issue in healthReport.issues" :key="issue.field + issue.message" class="skill-import-plan-item">
+             <span :class="'is-' + issue.level">{{ levelLabel(issue.level) }}</span>
+             <span class="skill-import-id">{{ issue.field }}</span>
+             <span>{{ issue.message }}</span>
+           </div>
          </div>
        </div>
        <div class="form-actions"><button class="btn-secondary" type="button" @click="closeHealthReport">关闭</button></div>
      </div>
    </div>
-  <div v-if="versionRollbackSkillId" class="skill-import-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-version-rollback') }" @click.self="closeVersionRollback">
+  <div v-if="versionRollbackSkillId" data-modal-id="skill-version-rollback" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('skill-version-rollback') }" @click.self="closeVersionRollback">
      <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="skill-version-title">
-       <div class="sem-header"><h4 id="skill-version-title">技能版本回退</h4><button type="button" title="关闭" @click="closeVersionRollback">×</button></div>
-       <div class="skill-import-summary">{{ getSkillName(versionRollbackSkillId) }}</div>
-       <div class="skill-import-plan">
-         <div v-if="versionRollbackLoading">正在读取技能版本...</div>
-         <div v-else-if="versionRollbackVersions.length === 0" class="skill-import-diagnostic is-warning">
-           <strong>提示</strong><span>当前技能库中没有可回退的本地版本。</span>
+       <div class="sem-header"><h4 id="skill-version-title">技能版本回退</h4><button type="button" aria-label="关闭技能版本回退" @click="closeVersionRollback"><AppIcon name="x" /></button></div>
+       <div class="sem-scroll">
+         <div class="skill-import-summary">{{ getSkillName(versionRollbackSkillId) }}</div>
+         <div class="skill-import-plan">
+           <div v-if="versionRollbackLoading">正在读取技能版本...</div>
+           <div v-else-if="versionRollbackVersions.length === 0" class="skill-import-diagnostic is-warning">
+             <strong>提示</strong><span>当前技能库中没有可回退的本地版本。</span>
+           </div>
+           <div v-else v-for="version in versionRollbackVersions" :key="version" class="skill-import-plan-item">
+             <span :class="{ 'is-success': version === versionRollbackCurrent }">{{ version }}</span>
+             <span>{{ version === versionRollbackCurrent ? '当前版本' : '本地版本' }}</span>
+             <button v-if="version !== versionRollbackCurrent" class="btn-sm btn-primary" @click="applyVersionRollback(version)">回退到此版本</button>
+           </div>
          </div>
-         <div v-else v-for="version in versionRollbackVersions" :key="version" class="skill-import-plan-item">
-           <span :class="{ 'is-success': version === versionRollbackCurrent }">{{ version }}</span>
-           <span>{{ version === versionRollbackCurrent ? '当前版本' : '本地版本' }}</span>
-           <button v-if="version !== versionRollbackCurrent" class="btn-sm btn-primary" @click="applyVersionRollback(version)">回退到此版本</button>
-         </div>
+        <div class="form-actions"><button class="btn-secondary" type="button" @click="closeVersionRollback">关闭</button></div>
        </div>
-       <div class="form-actions"><button class="btn-secondary" type="button" @click="closeVersionRollback">关闭</button></div>
-     </div>
-   </div>
+      </div>
+    </div>
    <button id="btn-add-skill" class="btn-add" @click="addSkill">+ 新建技能</button>
-  <div v-if="editingSkillId" class="skill-edit-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-edit') }" @click.self="cancelEdit">
+  <div v-if="editingSkillId" data-modal-id="skill-edit" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('skill-edit') }" @click.self="cancelEdit">
      <div id="skill-form" class="skill-edit-modal">
-       <div class="sem-header"><h4 id="skill-form-title">编辑技能</h4><button title="关闭" @click="cancelEdit">×</button></div>
-       <label>名称</label><input id="sf-name" v-model="editingName" class="sem-input" />
-       <label>分类</label>
-       <input id="sf-category" v-model="editingCategory" class="sem-input" />
-        <label>描述</label><input id="sf-desc" v-model="editingDescription" class="sem-input" placeholder="技能用途简述" />
-        <label>注入模式</label><select id="sf-inject-mode" v-model="editingInjectMode" class="sem-input">
-          <option value="system_prefix">系统前缀 - 追加到系统提示词之后</option>
-          <option value="user_prefix">用户前缀 - 添加到用户消息之前</option>
-          <option value="user_suffix">用户后缀 - 添加到用户消息之后</option>
-        </select>
-        <label>注入频率</label>
-        <select id="sf-frequency" v-model="editingInjectFrequency" class="sem-input">
-          <option value="every">每轮 - 每条消息都注入</option>
-          <option value="every3">每3轮 - 每3条用户消息注入一次</option>
-          <option value="every5">每5轮 - 每5条用户消息注入一次</option>
-        </select>
-        <label>上下文深度 (最近消息数, 0=不限)</label>
-        <input id="sf-depth" v-model.number="editingInjectDepth" type="number" min="0" max="100" class="sem-input" placeholder="0=不限制" />
-        <label>上下文策略</label>
-        <div class="sf-context-policy">
-          <select id="sf-context-history" v-model="editingContextHistory" class="sem-input">
-            <option value="recent">最近对话</option>
-            <option value="none">关闭历史</option>
-            <option value="summary">摘要模式</option>
-            <option value="full">完整历史</option>
+       <div class="sem-header"><h4 id="skill-form-title">编辑技能</h4><button type="button" aria-label="关闭编辑技能" @click="cancelEdit"><AppIcon name="x" /></button></div>
+       <div class="sem-scroll">
+         <label>名称</label><input id="sf-name" v-model="editingName" class="sem-input" />
+         <label>分类</label>
+         <input id="sf-category" v-model="editingCategory" class="sem-input" />
+          <label>描述</label><input id="sf-desc" v-model="editingDescription" class="sem-input" placeholder="技能用途简述" />
+          <label>注入模式</label><select id="sf-inject-mode" v-model="editingInjectMode" class="sem-input">
+            <option value="system_prefix">系统前缀 - 追加到系统提示词之后</option>
+            <option value="user_prefix">用户前缀 - 添加到用户消息之前</option>
+            <option value="user_suffix">用户后缀 - 添加到用户消息之后</option>
           </select>
-          <label class="sf-context-toggle"><input id="sf-context-outline" type="checkbox" v-model="editingContextOutline" />包含大纲</label>
-          <label class="sf-context-toggle"><input id="sf-context-memory" type="checkbox" v-model="editingContextMemory" />包含记忆</label>
-        </div>
-        <label>绑定层级</label><select id="sf-bind-type" v-model="editingBindTarget" class="sem-input">
-          <option value="project">全书</option>
-          <option value="volume">卷</option>
-          <option value="chapter">章</option>
-        </select>
-        <div id="sf-bind-id-group" class="sf-bind-id-group">
-          <label>绑定到</label>
-          <select id="sf-bind-id" v-model="editingBindId" class="sem-input">
-            <option value="">选择目标...</option>
-            <option v-if="editingBindTarget !== 'project'" v-for="t in bindTargetOptions" :key="t.id" :value="t.id">{{ t.name }}</option>
-            <option v-else value="project">全书</option>
+          <label>注入频率</label>
+          <select id="sf-frequency" v-model="editingInjectFrequency" class="sem-input">
+            <option value="every">每轮 - 每条消息都注入</option>
+            <option value="every3">每3轮 - 每3条用户消息注入一次</option>
+            <option value="every5">每5轮 - 每5条用户消息注入一次</option>
           </select>
-        </div>
-        <label>联动技能</label>
-        <div id="sf-linked-list" class="sf-linked-list">
-          <label v-for="s in skillStore.skills.filter(s => s.id !== editingSkillId)" :key="s.id" class="sf-linked-item">
-            <input type="checkbox" :value="s.id" v-model="editingLinkedSkillIds" />
-            <span>{{ s.name }}</span>
-          </label>
-        </div>
-        <label>自定义变量</label>
-        <div id="sf-custom-vars" class="sf-custom-vars">
-          <div v-for="(v, i) in editingCustomVars" :key="i" class="sf-custom-var-row">
-            <input :id="'sf-cv-key-' + i" v-model="v.key" class="sem-input sf-cv-key" placeholder="变量名，如 tone" />
-            <input :id="'sf-cv-value-' + i" v-model="v.value" class="sem-input sf-cv-value" placeholder="变量值，如 悬疑冷峻" />
-            <button class="btn-danger btn-sm" title="删除变量" @click="removeCustomVar(i)">×</button>
+          <label>上下文深度 (最近消息数, 0=不限)</label>
+          <input id="sf-depth" v-model.number="editingInjectDepth" type="number" min="0" max="100" class="sem-input" placeholder="0=不限制" />
+          <label>上下文策略</label>
+          <div class="sf-context-policy">
+            <select id="sf-context-history" v-model="editingContextHistory" class="sem-input">
+              <option value="recent">最近对话</option>
+              <option value="none">关闭历史</option>
+              <option value="summary">摘要模式</option>
+              <option value="full">完整历史</option>
+            </select>
+            <label class="sf-context-toggle"><input id="sf-context-outline" type="checkbox" v-model="editingContextOutline" />包含大纲</label>
+            <label class="sf-context-toggle"><input id="sf-context-memory" type="checkbox" v-model="editingContextMemory" />包含记忆</label>
           </div>
-          <button id="btn-add-custom-var" class="btn-sm btn-secondary" @click="addCustomVar">+ 添加变量</button>
-        </div>
-        <details class="var-details">
-          <summary>可用变量</summary>
-          <div class="var-tags">
-            <button v-for="v in availableVars" :key="v" class="btn-var" @click.prevent="insertVar(v)">{{ v }}</button>
+          <label>绑定层级</label><select id="sf-bind-type" v-model="editingBindTarget" class="sem-input">
+            <option value="project">全书</option>
+            <option value="volume">卷</option>
+            <option value="chapter">章</option>
+          </select>
+          <div id="sf-bind-id-group" class="sf-bind-id-group">
+            <label>绑定到</label>
+            <select id="sf-bind-id" v-model="editingBindId" class="sem-input">
+              <option value="">选择目标...</option>
+              <option v-if="editingBindTarget !== 'project'" v-for="t in bindTargetOptions" :key="t.id" :value="t.id">{{ t.name }}</option>
+              <option v-else value="project">全书</option>
+            </select>
           </div>
-        </details>
-        <label>模板 (支持Markdown)</label>
-        <div class="sf-template-wrapper">
-          <textarea id="sf-template" v-model="editingTemplate" class="sf-template-input" placeholder="支持 Markdown 格式。使用 {{变量名}} 插入动态内容。"></textarea>
-          <div id="sf-template-preview" ref="previewRef" class="sf-template-preview" v-html="renderMarkdown(editingTemplate)"></div>
-        </div>
-        <label>模板解析预览 (示例值)</label>
-        <div id="sf-resolved-preview" class="sf-resolved-preview"><pre>{{ resolvedPreviewText || '(输入模板后点击刷新预览)' }}</pre></div>
-        <button id="btn-refresh-preview" class="btn-sm btn-secondary" @click="refreshPreview">刷新解析预览</button>
-       <label>执行模式</label>
-       <select v-model="editingExecutionMode" class="sem-input">
-         <option value="chain">串行链式</option>
-         <option value="split-merge">切分并行</option>
-         <option value="multi-step">多步控制</option>
-       </select>
-       <label>输出格式</label>
-       <select v-model="editingOutputFormat" class="sem-input">
-         <option value="text">纯文本</option>
-         <option value="json">JSON数组</option>
-       </select>
-        <div id="btn-secondary-skill" class="form-actions">
-          <button class="btn-secondary" @click="cancelEdit">取消</button>
-          <button id="btn-save-skill" class="btn-primary" @click="saveEdit">保存</button>
-        </div>
+          <label>联动技能</label>
+          <div id="sf-linked-list" class="sf-linked-list">
+            <label v-for="s in skillStore.skills.filter(s => s.id !== editingSkillId)" :key="s.id" class="sf-linked-item">
+              <input type="checkbox" :value="s.id" v-model="editingLinkedSkillIds" />
+              <span>{{ s.name }}</span>
+            </label>
+          </div>
+          <label>自定义变量</label>
+          <div id="sf-custom-vars" class="sf-custom-vars">
+            <div v-for="(v, i) in editingCustomVars" :key="i" class="sf-custom-var-row">
+              <input :id="'sf-cv-key-' + i" v-model="v.key" class="sem-input sf-cv-key" placeholder="变量名，如 tone" />
+              <input :id="'sf-cv-value-' + i" v-model="v.value" class="sem-input sf-cv-value" placeholder="变量值，如 悬疑冷峻" />
+              <button class="btn-danger btn-sm" type="button" aria-label="删除变量" @click="removeCustomVar(i)"><AppIcon name="x" /></button>
+            </div>
+            <button id="btn-add-custom-var" class="btn-sm btn-secondary" @click="addCustomVar">+ 添加变量</button>
+          </div>
+          <details class="var-details">
+            <summary>可用变量</summary>
+            <div class="var-tags">
+              <button v-for="v in availableVars" :key="v" class="btn-var" @click.prevent="insertVar(v)">{{ v }}</button>
+            </div>
+          </details>
+          <label>模板 (支持Markdown)</label>
+          <div class="sf-template-wrapper">
+            <textarea id="sf-template" v-model="editingTemplate" class="sf-template-input" placeholder="支持 Markdown 格式。使用 {{变量名}} 插入动态内容。"></textarea>
+            <div id="sf-template-preview" ref="previewRef" class="sf-template-preview" v-html="renderMarkdown(editingTemplate)"></div>
+          </div>
+          <label>模板解析预览 (示例值)</label>
+          <div id="sf-resolved-preview" class="sf-resolved-preview"><pre>{{ resolvedPreviewText || '(输入模板后点击刷新预览)' }}</pre></div>
+          <button id="btn-refresh-preview" class="btn-sm btn-secondary" @click="refreshPreview">刷新解析预览</button>
+         <label>执行模式</label>
+         <select v-model="editingExecutionMode" class="sem-input">
+           <option value="chain">串行链式</option>
+           <option value="split-merge">切分并行</option>
+           <option value="multi-step">多步控制</option>
+         </select>
+         <label>输出格式</label>
+         <select v-model="editingOutputFormat" class="sem-input">
+           <option value="text">纯文本</option>
+           <option value="json">JSON数组</option>
+         </select>
+          <div id="btn-secondary-skill" class="form-actions">
+            <button class="btn-secondary" @click="cancelEdit">取消</button>
+            <button id="btn-save-skill" class="btn-primary" @click="saveEdit">保存</button>
+          </div>
+       </div>
      </div>
    </div>
-  <div v-if="importPreviewVisible" class="skill-import-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-import-preview') }" @click.self="cancelImport">
+  <div v-if="importPreviewVisible" data-modal-id="skill-import-preview" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('skill-import-preview') }" @click.self="cancelImport">
      <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="skill-import-title">
-       <div class="sem-header"><h4 id="skill-import-title">导入预览</h4><button type="button" title="关闭" @click="cancelImport">×</button></div>
-       <p class="skill-import-source" :title="importSource">{{ importSource || '配置文件' }}</p>
-       <div v-if="importSourceInfo" class="skill-import-origin" aria-label="导入来源与协议状态">
-         <span class="skill-import-chip">来源：{{ formatSource(importSourceInfo) }}</span>
-         <span class="skill-import-chip" :class="protocolClass(importSourceInfo)">
-           {{ formatProtocol(importSourceInfo) }}
-         </span>
-       </div>
-       <div v-if="importFieldTrace.length" class="skill-import-fields">
-         <div class="skill-import-section-title">字段读取</div>
-         <div v-for="trace in importFieldTrace" :key="trace.field" class="skill-import-field">
-           <span class="skill-import-field-name">{{ trace.field }}</span>
-           <span class="skill-import-field-origin">{{ formatOrigin(trace.origin) }}</span>
-           <span v-if="trace.sourceField" class="skill-import-field-source">来自 {{ trace.sourceField }}</span>
+       <div class="sem-header"><h4 id="skill-import-title">导入预览</h4><button type="button" aria-label="关闭导入预览" @click="cancelImport"><AppIcon name="x" /></button></div>
+       <div class="sem-scroll">
+         <p class="skill-import-source" :data-tooltip="importSource">{{ importSource || '配置文件' }}</p>
+         <div v-if="importSourceInfo" class="skill-import-origin" aria-label="导入来源与协议状态">
+           <span class="skill-import-chip">来源：{{ formatSource(importSourceInfo) }}</span>
+           <span class="skill-import-chip" :class="protocolClass(importSourceInfo)">
+             {{ formatProtocol(importSourceInfo) }}
+           </span>
          </div>
-       </div>
-       <div v-if="importDiagnostics.length" class="skill-import-diagnostics">
-         <div class="skill-import-section-title">解析诊断</div>
-         <div v-for="(diagnostic, index) in importDiagnostics" :key="diagnostic.code + '-' + index" class="skill-import-diagnostic" :class="'is-' + diagnostic.level">
-           <strong>{{ formatDiagnosticLevel(diagnostic.level) }}</strong>
-           <span>{{ diagnostic.message }}</span>
+         <div v-if="importFieldTrace.length" class="skill-import-fields">
+           <div class="skill-import-section-title">字段读取</div>
+           <div v-for="trace in importFieldTrace" :key="trace.field" class="skill-import-field">
+             <span class="skill-import-field-name">{{ trace.field }}</span>
+             <span class="skill-import-field-origin">{{ formatOrigin(trace.origin) }}</span>
+             <span v-if="trace.sourceField" class="skill-import-field-source">来自 {{ trace.sourceField }}</span>
+           </div>
          </div>
-       </div>
-       <div v-if="importUnknownFields.length" class="skill-import-unknown">未识别字段：{{ importUnknownFields.join('、') }}</div>
-       <div v-if="importIssues.length" class="skill-import-issues">
-         <div v-for="(issue, index) in importIssues" :key="issue.field + '-' + index">{{ issue.field }}：{{ issue.message }}</div>
-       </div>
-       <div class="skill-import-summary">共 {{ importPlan.length }} 个配置，新增 {{ importAddCount }} 个，重复 {{ importConflictCount }} 个</div>
-       <div class="skill-import-plan">
-         <div v-for="item in importPlan" :key="item.id" class="skill-import-plan-item">
-           <span>{{ item.name }}</span><span class="skill-import-id">{{ item.id }}</span><span :class="'is-' + item.action">{{ item.reason }}</span>
+         <div v-if="importDiagnostics.length" class="skill-import-diagnostics">
+           <div class="skill-import-section-title">解析诊断</div>
+           <div v-for="(diagnostic, index) in importDiagnostics" :key="diagnostic.code + '-' + index" class="skill-import-diagnostic" :class="'is-' + diagnostic.level">
+             <strong>{{ formatDiagnosticLevel(diagnostic.level) }}</strong>
+             <span>{{ diagnostic.message }}</span>
+           </div>
          </div>
-         <p v-if="importPlan.length === 0">没有可导入的有效配置。</p>
+         <div v-if="importUnknownFields.length" class="skill-import-unknown">未识别字段：{{ importUnknownFields.join('、') }}</div>
+         <div v-if="importIssues.length" class="skill-import-issues">
+           <div v-for="(issue, index) in importIssues" :key="issue.field + '-' + index">{{ issue.field }}：{{ issue.message }}</div>
+         </div>
+         <div class="skill-import-summary">共 {{ importPlan.length }} 个配置，新增 {{ importAddCount }} 个，重复 {{ importConflictCount }} 个</div>
+         <div class="skill-import-plan">
+           <div v-for="item in importPlan" :key="item.id" class="skill-import-plan-item">
+             <span>{{ item.name }}</span><span class="skill-import-id">{{ item.id }}</span><span :class="'is-' + item.action">{{ item.reason }}</span>
+           </div>
+           <p v-if="importPlan.length === 0">没有可导入的有效配置。</p>
+         </div>
+         <label class="skill-import-strategy"><span>重复配置处理</span><select v-model="importStrategy" class="sem-input" @change="refreshImportPlan"><option value="skip">跳过重复（推荐）</option><option value="overwrite">覆盖已有配置</option></select></label>
        </div>
-       <label class="skill-import-strategy"><span>重复配置处理</span><select v-model="importStrategy" class="sem-input" @change="refreshImportPlan"><option value="skip">跳过重复（推荐）</option><option value="overwrite">覆盖已有配置</option></select></label>
        <div class="form-actions"><button class="btn-secondary" type="button" @click="cancelImport">取消</button><button class="btn-primary" type="button" :disabled="importPlan.length === 0 || exchangeLoading" @click="confirmImport">确认导入</button></div>
      </div>
    </div>
-  <div v-if="folderBatchPreviewVisible" class="skill-import-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-folder-batch-preview') }" @click.self="closeFolderBatchPreview">
+  <div v-if="folderBatchPreviewVisible" data-modal-id="skill-folder-batch-preview" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('skill-folder-batch-preview') }" @click.self="closeFolderBatchPreview">
      <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="folder-batch-title">
-       <div class="sem-header"><h4 id="folder-batch-title">批量导入文件夹技能</h4><button type="button" title="关闭" @click="closeFolderBatchPreview">×</button></div>
-       <p class="skill-import-source" :title="folderBatchRoot">{{ folderBatchRoot || '未选择根目录' }}</p>
-       <div class="skill-import-summary">
-         共扫描 {{ folderBatchItems.length }} 个候选文件夹，可导入 {{ folderBatchItems.filter(item => item.action === 'add' || item.action === 'overwrite').length }} 个
+       <div class="sem-header"><h4 id="folder-batch-title">批量导入文件夹技能</h4><button type="button" aria-label="关闭批量导入预览" @click="closeFolderBatchPreview"><AppIcon name="x" /></button></div>
+       <div class="sem-scroll">
+         <p class="skill-import-source" :data-tooltip="folderBatchRoot">{{ folderBatchRoot || '未选择根目录' }}</p>
+         <div class="skill-import-summary">
+           共扫描 {{ folderBatchItems.length }} 个候选文件夹，可导入 {{ folderBatchItems.filter(item => item.action === 'add' || item.action === 'overwrite').length }} 个
+         </div>
+         <div class="skill-import-plan">
+           <div v-for="item in folderBatchItems" :key="item.folderPath" class="skill-import-plan-item">
+             <span>{{ item.name }}</span>
+             <span class="skill-import-id" :data-tooltip="item.folderPath">{{ item.id || item.folderName }}</span>
+             <span v-if="item.valid">资源 {{ item.resourceCount || 0 }} 个 / 警告 {{ item.warnings?.length || 0 }} 条</span>
+             <span :class="'is-' + item.action">{{ folderBatchActionText(item.action) }}</span>
+           </div>
+           <p v-if="folderBatchItems.length === 0">根目录下没有包含 SKILL.md 的一级子文件夹。</p>
+         </div>
+         <label class="skill-import-strategy">
+           <span>重复技能处理</span>
+           <select v-model="folderBatchStrategy" class="sem-input" @change="refreshFolderBatchPlan">
+             <option value="skip">跳过重复（推荐）</option>
+             <option value="overwrite">覆盖已有技能</option>
+           </select>
+         </label>
        </div>
-       <div class="skill-import-plan">
-        <div v-for="item in folderBatchItems" :key="item.folderPath" class="skill-import-plan-item">
-          <span>{{ item.name }}</span>
-          <span class="skill-import-id" :title="item.folderPath">{{ item.id || item.folderName }}</span>
-          <span v-if="item.valid">资源 {{ item.resourceCount || 0 }} 个 / 警告 {{ item.warnings?.length || 0 }} 条</span>
-          <span :class="'is-' + item.action">{{ folderBatchActionText(item.action) }}</span>
-        </div>
-         <p v-if="folderBatchItems.length === 0">根目录下没有包含 SKILL.md 的一级子文件夹。</p>
-       </div>
-       <label class="skill-import-strategy">
-         <span>重复技能处理</span>
-         <select v-model="folderBatchStrategy" class="sem-input" @change="refreshFolderBatchPlan">
-           <option value="skip">跳过重复（推荐）</option>
-           <option value="overwrite">覆盖已有技能</option>
-         </select>
-       </label>
        <div class="form-actions">
          <button class="btn-secondary" type="button" @click="closeFolderBatchPreview">取消</button>
          <button id="btn-confirm-folder-batch" class="btn-primary" type="button" :disabled="folderBatchImporting || folderBatchItems.length === 0" @click="confirmFolderBatchImport">
@@ -270,30 +280,32 @@
        </div>
      </div>
    </div>
-  <div v-if="folderImportPreviewVisible" class="skill-import-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-folder-import-preview') }" @click.self="closeFolderImportPreview">
+  <div v-if="folderImportPreviewVisible" data-modal-id="skill-folder-import-preview" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('skill-folder-import-preview') }" @click.self="closeFolderImportPreview">
      <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="folder-import-title">
-       <div class="sem-header"><h4 id="folder-import-title">导入文件夹技能</h4><button type="button" title="关闭" @click="closeFolderImportPreview">×</button></div>
-       <p class="skill-import-source" :title="folderImportPreview?.folderPath">{{ folderImportPreview?.folderPath || '未选择文件夹' }}</p>
-      <div v-if="folderImportPreview" class="skill-import-summary">
-        {{ folderImportPreview.name }} 将{{ folderImportPreview.action === 'add' ? '新增到技能库' : folderImportPreview.action === 'overwrite' ? '覆盖已有文件夹技能' : '按策略跳过' }}
-      </div>
-      <div v-if="folderImportPreview" class="skill-import-summary">
-        资源 {{ folderImportPreview.resourceCount || 0 }} 个 / 警告 {{ folderImportPreview.warnings?.length || 0 }} 条
-      </div>
-       <div v-if="folderImportPreview" class="skill-import-plan">
-         <div class="skill-import-plan-item">
-           <span>{{ folderImportPreview.name }}</span>
-           <span class="skill-import-id">{{ folderImportPreview.id }}</span>
-           <span :class="'is-' + folderImportPreview.action">{{ folderImportPreview.message }}</span>
+       <div class="sem-header"><h4 id="folder-import-title">导入文件夹技能</h4><button type="button" aria-label="关闭导入预览" @click="closeFolderImportPreview"><AppIcon name="x" /></button></div>
+       <div class="sem-scroll">
+         <p class="skill-import-source" :data-tooltip="folderImportPreview?.folderPath">{{ folderImportPreview?.folderPath || '未选择文件夹' }}</p>
+         <div v-if="folderImportPreview" class="skill-import-summary">
+           {{ folderImportPreview.name }} 将{{ folderImportPreview.action === 'add' ? '新增到技能库' : folderImportPreview.action === 'overwrite' ? '覆盖已有文件夹技能' : '按策略跳过' }}
          </div>
+         <div v-if="folderImportPreview" class="skill-import-summary">
+           资源 {{ folderImportPreview.resourceCount || 0 }} 个 / 警告 {{ folderImportPreview.warnings?.length || 0 }} 条
+         </div>
+         <div v-if="folderImportPreview" class="skill-import-plan">
+           <div class="skill-import-plan-item">
+             <span>{{ folderImportPreview.name }}</span>
+             <span class="skill-import-id">{{ folderImportPreview.id }}</span>
+             <span :class="'is-' + folderImportPreview.action">{{ folderImportPreview.message }}</span>
+           </div>
+         </div>
+         <label class="skill-import-strategy">
+           <span>重复技能处理</span>
+           <select v-model="folderImportStrategy" class="sem-input" @change="refreshFolderImportPlan">
+             <option value="skip">跳过重复（推荐）</option>
+             <option value="overwrite">覆盖已有技能</option>
+           </select>
+         </label>
        </div>
-       <label class="skill-import-strategy">
-         <span>重复技能处理</span>
-         <select v-model="folderImportStrategy" class="sem-input" @change="refreshFolderImportPlan">
-           <option value="skip">跳过重复（推荐）</option>
-           <option value="overwrite">覆盖已有技能</option>
-         </select>
-       </label>
        <div class="form-actions">
          <button class="btn-secondary" type="button" @click="closeFolderImportPreview">取消</button>
          <button id="btn-confirm-folder-import" class="btn-primary" type="button" :disabled="folderImporting || !folderImportPreview || folderImportPreview.action === 'skip'" @click="confirmFolderImport">
@@ -302,36 +314,38 @@
        </div>
      </div>
    </div>
-  <div v-if="packagePreview" class="skill-import-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-package-preview') }" @click.self="closePackagePreview">
+  <div v-if="packagePreview" data-modal-id="skill-package-preview" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('skill-package-preview') }" @click.self="closePackagePreview">
      <div class="skill-import-modal" role="dialog" aria-modal="true" aria-labelledby="skill-package-title">
-       <div class="sem-header"><h4 id="skill-package-title">技能包预览</h4><button type="button" title="关闭" @click="closePackagePreview">×</button></div>
-       <p class="skill-import-source" :title="packagePreview.zipPath">{{ packagePreview.zipPath }}</p>
-       <div class="skill-import-origin">
-         <span class="skill-import-chip" :class="packagePreview.compatible ? 'is-compatible' : 'is-standard'">
-           {{ packagePreview.compatible ? '兼容包：缺少 skill-package.json' : '标准技能包' }}
-         </span>
-         <span class="skill-import-chip">文件 {{ packagePreview.entries.length }} 个</span>
-         <span class="skill-import-chip">大小 {{ formatPackageSize(packagePreview.totalBytes) }}</span>
-       </div>
-       <div v-if="packagePreview.compatible" class="skill-import-diagnostics">
-         <div class="skill-import-diagnostic is-warning"><strong>警告</strong><span>该包没有版本声明和完整性清单，安装后无法参与版本管理与回滚。</span></div>
-       </div>
-       <div v-if="packageIssues.length" class="skill-import-issues">
-         <div v-for="(issue, index) in packageIssues" :key="issue.field + '-' + index">{{ issue.field }}：{{ issue.message }}</div>
-       </div>
-      <div class="skill-import-summary">
-        {{ packagePreview.manifest ? `将安装：${packageInstallName} v${packageInstallVersion}` : '将按兼容包安装，版本记为 0.0.0' }}
-      </div>
-      <div class="skill-import-summary">安装策略：{{ packageActionLabel }}</div>
-      <label v-if="packageInstallAction === 'downgrade' || packageInstallAction === 'same'" class="skill-import-strategy">
-        <input v-model="packageInstallApproved" type="checkbox">
-        <span>{{ packageInstallAction === 'downgrade' ? '我确认降级覆盖当前版本' : '我确认覆盖相同版本' }}</span>
-      </label>
-       <div class="skill-import-plan">
-         <div v-for="file in packagePreview.entries" :key="file.path" class="skill-import-plan-item">
-           <span>{{ file.path }}</span><span class="skill-import-id">{{ formatPackageSize(file.size) }}</span>
+       <div class="sem-header"><h4 id="skill-package-title">技能包预览</h4><button type="button" aria-label="关闭技能包预览" @click="closePackagePreview"><AppIcon name="x" /></button></div>
+       <div class="sem-scroll">
+         <p class="skill-import-source" :data-tooltip="packagePreview.zipPath">{{ packagePreview.zipPath }}</p>
+         <div class="skill-import-origin">
+           <span class="skill-import-chip" :class="packagePreview.compatible ? 'is-compatible' : 'is-standard'">
+             {{ packagePreview.compatible ? '兼容包：缺少 skill-package.json' : '标准技能包' }}
+           </span>
+           <span class="skill-import-chip">文件 {{ packagePreview.entries.length }} 个</span>
+           <span class="skill-import-chip">大小 {{ formatPackageSize(packagePreview.totalBytes) }}</span>
          </div>
-         <p v-if="packagePreview.entries.length === 0">压缩包内没有可安装文件。</p>
+         <div v-if="packagePreview.compatible" class="skill-import-diagnostics">
+           <div class="skill-import-diagnostic is-warning"><strong>警告</strong><span>该包没有版本声明和完整性清单，安装后无法参与版本管理与回滚。</span></div>
+         </div>
+         <div v-if="packageIssues.length" class="skill-import-issues">
+           <div v-for="(issue, index) in packageIssues" :key="issue.field + '-' + index">{{ issue.field }}：{{ issue.message }}</div>
+         </div>
+         <div class="skill-import-summary">
+           {{ packagePreview.manifest ? `将安装：${packageInstallName} v${packageInstallVersion}` : '将按兼容包安装，版本记为 0.0.0' }}
+         </div>
+         <div class="skill-import-summary">安装策略：{{ packageActionLabel }}</div>
+         <label v-if="packageInstallAction === 'downgrade' || packageInstallAction === 'same'" class="skill-import-strategy">
+           <input v-model="packageInstallApproved" type="checkbox">
+           <span>{{ packageInstallAction === 'downgrade' ? '我确认降级覆盖当前版本' : '我确认覆盖相同版本' }}</span>
+         </label>
+         <div class="skill-import-plan">
+           <div v-for="file in packagePreview.entries" :key="file.path" class="skill-import-plan-item">
+             <span>{{ file.path }}</span><span class="skill-import-id">{{ formatPackageSize(file.size) }}</span>
+           </div>
+           <p v-if="packagePreview.entries.length === 0">压缩包内没有可安装文件。</p>
+         </div>
        </div>
        <div class="form-actions">
          <button class="btn-secondary" type="button" @click="closePackagePreview">取消</button>
@@ -341,13 +355,78 @@
        </div>
      </div>
    </div>
-  <div v-if="testSkillId" class="skill-edit-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-test') }" @click.self="closeTest">
+  <div v-if="testSkillId" data-modal-id="skill-test" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('skill-test') }" @click.self="closeTest">
      <div id="skill-test-modal" class="skill-edit-modal">
-       <div class="sem-header"><h4 id="skill-test-title">技能测试: {{ getSkillName(testSkillId) }}</h4><button title="关闭" @click="closeTest">×</button></div>
-       <label>测试文本</label>
-       <textarea id="st-test-input" v-model="testText" class="sem-textarea" style="min-height: 120px;" placeholder="输入示例文本，用于验证技能输出"></textarea>
-       <div class="form-actions">
-         <button id="btn-run-skill-test" class="btn-primary" @click="runTest" :disabled="isTesting">{{ isTesting ? '测试中...' : '运行测试' }}</button>
+       <div class="sem-header"><h4 id="skill-test-title">技能测试: {{ getSkillName(testSkillId) }}</h4><button type="button" aria-label="关闭技能测试" @click="closeTest"><AppIcon name="x" /></button></div>
+       <div class="sem-scroll">
+         <label>测试文本</label>
+         <textarea id="st-test-input" v-model="testText" class="sem-textarea sem-textarea-sm" placeholder="输入示例文本，用于验证技能输出"></textarea>
+         <div v-if="testError" id="st-test-error" class="st-test-error">{{ testError }}</div>
+         <div v-if="testResult" id="st-test-result" class="st-test-result">{{ testResult }}</div>
+         <div v-if="folderTestReport" id="st-folder-report" class="st-folder-report">
+           <RealSkillDiagnosticsPanel
+             :status="folderTestReport.status"
+             :diagnostics="folderTestReport.diagnostics"
+             :request-messages="folderTestReport.requestMessages"
+             :budget="folderTestReport.budget"
+             :folder-package-cache="folderTestReport.folderPackageCache"
+           />
+           <div class="st-folder-report-row">
+             <span class="st-folder-status" :class="`is-${folderTestReport.status}`">状态：{{ folderStatusText }}</span>
+             <span>磁盘加载：{{ folderTestReport.folderPackageCache ? '使用 5 秒缓存' : '实时读取' }}</span>
+             <span>API 预算：{{ folderTestReport.budget.used }}/{{ folderTestReport.budget.limit }}</span>
+           </div>
+           <div v-if="folderDiagnostics.length > 0" class="st-folder-diagnostics">
+             <div v-for="(item, index) in folderDiagnostics" :key="`${item.code}-${index}`" class="st-folder-diagnostic" :class="`is-${item.type}`">
+               {{ item.message }}
+             </div>
+           </div>
+           <details class="st-folder-request">
+             <summary>查看最终请求内容</summary>
+             <div v-for="(message, index) in folderTestReport.requestMessages" :key="`request-${index}`" class="st-folder-request-message">
+               <span>{{ message.role }}</span>
+               <pre>{{ message.content }}</pre>
+             </div>
+             <p v-if="folderTestReport.requestMessages.length === 0">本次没有可展示的请求内容。</p>
+           </details>
+         </div>
+         <div v-if="evalError" id="st-eval-error" class="st-test-error">{{ evalError }}</div>
+         <div v-if="evalReport" id="st-eval-report" class="st-eval-report">
+           <div class="st-eval-summary">
+             <strong>{{ evalReport.skillName }} with/baseline 评测</strong>
+             <span :class="evalReport.benchmark && evalReport.benchmark.withPassed >= evalReport.benchmark.baselinePassed ? 'is-pass' : 'is-fail'">
+               技能 {{ evalReport.benchmark?.withPassed ?? 0 }}/{{ evalReport.benchmark?.total ?? 0 }} · 基线 {{ evalReport.benchmark?.baselinePassed ?? 0 }}/{{ evalReport.benchmark?.total ?? 0 }}
+             </span>
+             <span>通过率 {{ evalReport.benchmark?.withPassRate ?? 0 }}% / {{ evalReport.benchmark?.baselinePassRate ?? 0 }}%</span>
+             <span>提升 {{ evalReport.benchmark?.improved ?? 0 }} · 持平 {{ evalReport.benchmark?.same ?? 0 }} · 退化 {{ evalReport.benchmark?.degraded ?? 0 }}</span>
+           </div>
+           <div v-for="item in evalReport.grading" :key="item.caseId" class="st-eval-case" :class="{ 'is-pass': item.withSkill.passed }">
+             <div class="st-eval-case-head">
+               <strong>{{ item.caseName }}</strong>
+               <span>with：{{ item.withSkill.passed ? '通过' : '未通过' }}</span>
+               <span>baseline：{{ item.baseline.passed ? '通过' : '未通过' }}</span>
+               <span>{{ skillEffectText(item.skillEffect) }}</span>
+             </div>
+             <details>
+               <summary>断言结果</summary>
+               <div v-for="(assertion, index) in item.withSkill.assertions" :key="`${item.caseId}-assertion-${index}`" class="st-eval-assertion" :class="{ 'is-pass': assertion.pass }">
+                 <span>{{ assertion.pass ? '通过' : '失败' }}</span>
+                 <span>{{ assertion.type }}</span>
+                 <span>{{ assertion.message }}</span>
+               </div>
+             </details>
+             <details>
+               <summary>with 输出</summary>
+               <pre>{{ item.withSkill.output || '本次没有输出。' }}</pre>
+             </details>
+             <details>
+               <summary>baseline 输出</summary>
+               <pre>{{ item.baseline.output || '本次没有输出。' }}</pre>
+             </details>
+           </div>
+         </div>
+         <div class="form-actions">
+           <button id="btn-run-skill-test" class="btn-primary" @click="runTest" :disabled="isTesting">{{ isTesting ? '测试中...' : '运行测试' }}</button>
          <button
            v-if="testSkill?.format === 'folder' && testSkill?.folderPath"
            id="btn-run-skill-eval"
@@ -359,71 +438,8 @@
            {{ isEvaluating ? '评测中...' : '运行评测' }}
          </button>
          <button class="btn-secondary" @click="closeTest">关闭</button>
+         </div>
        </div>
-       <div v-if="testError" id="st-test-error" class="st-test-error">{{ testError }}</div>
-       <div v-if="testResult" id="st-test-result" class="st-test-result">{{ testResult }}</div>
-       <div v-if="folderTestReport" id="st-folder-report" class="st-folder-report">
-         <RealSkillDiagnosticsPanel
-           :status="folderTestReport.status"
-           :diagnostics="folderTestReport.diagnostics"
-           :request-messages="folderTestReport.requestMessages"
-           :budget="folderTestReport.budget"
-           :folder-package-cache="folderTestReport.folderPackageCache"
-         />
-         <div class="st-folder-report-row">
-           <span class="st-folder-status" :class="`is-${folderTestReport.status}`">状态：{{ folderStatusText }}</span>
-           <span>磁盘加载：{{ folderTestReport.folderPackageCache ? '使用 5 秒缓存' : '实时读取' }}</span>
-           <span>API 预算：{{ folderTestReport.budget.used }}/{{ folderTestReport.budget.limit }}</span>
-         </div>
-         <div v-if="folderDiagnostics.length > 0" class="st-folder-diagnostics">
-           <div v-for="(item, index) in folderDiagnostics" :key="`${item.code}-${index}`" class="st-folder-diagnostic" :class="`is-${item.type}`">
-             {{ item.message }}
-           </div>
-         </div>
-         <details class="st-folder-request">
-           <summary>查看最终请求内容</summary>
-           <div v-for="(message, index) in folderTestReport.requestMessages" :key="`request-${index}`" class="st-folder-request-message">
-             <span>{{ message.role }}</span>
-             <pre>{{ message.content }}</pre>
-           </div>
-           <p v-if="folderTestReport.requestMessages.length === 0">本次没有可展示的请求内容。</p>
-       </details>
-      </div>
-      <div v-if="evalError" id="st-eval-error" class="st-test-error">{{ evalError }}</div>
-      <div v-if="evalReport" id="st-eval-report" class="st-eval-report">
-        <div class="st-eval-summary">
-          <strong>{{ evalReport.skillName }} with/baseline 评测</strong>
-          <span :class="evalReport.benchmark && evalReport.benchmark.withPassed >= evalReport.benchmark.baselinePassed ? 'is-pass' : 'is-fail'">
-            技能 {{ evalReport.benchmark?.withPassed ?? 0 }}/{{ evalReport.benchmark?.total ?? 0 }} · 基线 {{ evalReport.benchmark?.baselinePassed ?? 0 }}/{{ evalReport.benchmark?.total ?? 0 }}
-          </span>
-          <span>通过率 {{ evalReport.benchmark?.withPassRate ?? 0 }}% / {{ evalReport.benchmark?.baselinePassRate ?? 0 }}%</span>
-          <span>提升 {{ evalReport.benchmark?.improved ?? 0 }} · 持平 {{ evalReport.benchmark?.same ?? 0 }} · 退化 {{ evalReport.benchmark?.degraded ?? 0 }}</span>
-        </div>
-        <div v-for="item in evalReport.grading" :key="item.caseId" class="st-eval-case" :class="{ 'is-pass': item.withSkill.passed }">
-          <div class="st-eval-case-head">
-            <strong>{{ item.caseName }}</strong>
-            <span>with：{{ item.withSkill.passed ? '通过' : '未通过' }}</span>
-            <span>baseline：{{ item.baseline.passed ? '通过' : '未通过' }}</span>
-            <span>{{ skillEffectText(item.skillEffect) }}</span>
-          </div>
-          <details>
-            <summary>断言结果</summary>
-            <div v-for="(assertion, index) in item.withSkill.assertions" :key="`${item.caseId}-assertion-${index}`" class="st-eval-assertion" :class="{ 'is-pass': assertion.pass }">
-              <span>{{ assertion.pass ? '通过' : '失败' }}</span>
-              <span>{{ assertion.type }}</span>
-              <span>{{ assertion.message }}</span>
-            </div>
-          </details>
-          <details>
-            <summary>with 输出</summary>
-            <pre>{{ item.withSkill.output || '本次没有输出。' }}</pre>
-          </details>
-          <details>
-            <summary>baseline 输出</summary>
-            <pre>{{ item.baseline.output || '本次没有输出。' }}</pre>
-          </details>
-        </div>
-      </div>
      </div>
    </div>
   </div>
@@ -512,12 +528,76 @@ const folderBatchItems = ref<FolderSkillBatchItem[]>([])
 const folderBatchStrategy = ref<FolderSkillBatchStrategy>('skip')
 const healthReportSkillId = ref('')
 const healthReport = ref<SkillHealthReport | null>(null)
+
+// Verification bridge for responsive E2E; no runtime behavior depends on it.
+;(globalThis as any).__skillSettingsState = {
+  get skills() { return skillStore.skills },
+  get healthReportSkillId() { return healthReportSkillId.value },
+  set healthReportSkillId(value: string) { healthReportSkillId.value = value },
+  get healthReport() { return healthReport.value },
+  set healthReport(value: SkillHealthReport | null) { healthReport.value = value },
+  get versionRollbackSkillId() { return versionRollbackSkillId.value },
+  set versionRollbackSkillId(value: string) { versionRollbackSkillId.value = value },
+  get versionRollbackLoading() { return versionRollbackLoading.value },
+  set versionRollbackLoading(value: boolean) { versionRollbackLoading.value = value },
+  get versionRollbackCurrent() { return versionRollbackCurrent.value },
+  set versionRollbackCurrent(value: string) { versionRollbackCurrent.value = value },
+  get versionRollbackVersions() { return versionRollbackVersions.value },
+  set versionRollbackVersions(value: string[]) { versionRollbackVersions.value = value },
+  get testSkillId() { return testSkillId.value },
+  set testSkillId(value: string) { testSkillId.value = value },
+  get testText() { return testText.value },
+  set testText(value: string) { testText.value = value },
+  get testError() { return testError.value },
+  set testError(value: string) { testError.value = value },
+  get testResult() { return testResult.value },
+  set testResult(value: string) { testResult.value = value },
+  get evalError() { return evalError.value },
+  set evalError(value: string) { evalError.value = value },
+  get evalReport() { return evalReport.value },
+  set evalReport(value: any) { evalReport.value = value },
+  get importSource() { return importSource.value },
+  set importSource(value: string) { importSource.value = value },
+  get importSourceInfo() { return importSourceInfo.value },
+  set importSourceInfo(value: ConfigSourceInfo | undefined) { importSourceInfo.value = value },
+  get importFieldTrace() { return importFieldTrace.value },
+  set importFieldTrace(value: ConfigFieldTrace[]) { importFieldTrace.value = value },
+  get importDiagnostics() { return importDiagnostics.value },
+  set importDiagnostics(value: ConfigDiagnostic[]) { importDiagnostics.value = value },
+  get importUnknownFields() { return importUnknownFields.value },
+  set importUnknownFields(value: string[]) { importUnknownFields.value = value },
+  get importIssues() { return importIssues.value },
+  set importIssues(value: ConfigIssue[]) { importIssues.value = value },
+  get importPlan() { return importPlan.value },
+  set importPlan(value: ImportPlanItem[]) { importPlan.value = value },
+  get importPreviewVisible() { return importPreviewVisible.value },
+  set importPreviewVisible(value: boolean) { importPreviewVisible.value = value },
+  get folderBatchRoot() { return folderBatchRoot.value },
+  set folderBatchRoot(value: string) { folderBatchRoot.value = value },
+  get folderBatchItems() { return folderBatchItems.value },
+  set folderBatchItems(value: any[]) { folderBatchItems.value = value as any },
+  get folderBatchPreviewVisible() { return folderBatchPreviewVisible.value },
+  set folderBatchPreviewVisible(value: boolean) { folderBatchPreviewVisible.value = value },
+  get folderImportPreview() { return folderImportPreview.value },
+  set folderImportPreview(value: any) { folderImportPreview.value = value },
+  get folderImportPreviewVisible() { return folderImportPreviewVisible.value },
+  set folderImportPreviewVisible(value: boolean) { folderImportPreviewVisible.value = value },
+  get packagePreview() { return packagePreview.value },
+  set packagePreview(value: any) { packagePreview.value = value },
+  get skillStore() { return skillStore }
+}
 const versionRollbackSkillId = ref('')
 const versionRollbackVersions = ref<string[]>([])
 const versionRollbackCurrent = ref('')
 const versionRollbackLoading = ref(false)
 const editingSkillId = ref('')
 const editingName = ref('')
+;(globalThis as any).__skillEditState = {
+  get editingSkillId() { return editingSkillId.value },
+  set editingSkillId(value: string) { editingSkillId.value = value },
+  get editingName() { return editingName.value },
+  set editingName(value: string) { editingName.value = value }
+}
 
 const modalVisibility = computed(() => ({
   'skill-health-report': Boolean(healthReportSkillId.value),
@@ -1348,10 +1428,10 @@ function refreshPreview() {
 .skill-card {
   flex-direction: column;
   align-items: stretch;
-  padding: var(--space-md, var(--space-5));
-  background: var(--bg-card, var(--bg-elevated));
+  padding: var(--space-6);
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg, 8px);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   transition: transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
@@ -1371,7 +1451,7 @@ function refreshPreview() {
 .skill-card-name { min-width: 0; max-width: 100%; font-weight: 600; font-size: var(--font-size-lg); color: var(--text-primary); flex: 1 1 180px; overflow-wrap: anywhere; word-break: break-word; }
 .skill-card-badge {
   font-size: var(--font-size-sm);
-  color: var(--accent-lighter, var(--accent));
+  color: var(--accent-lighter);
   background: var(--accent-dim);
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-pill);
@@ -1422,7 +1502,7 @@ function refreshPreview() {
 .skill-idx { color: var(--accent); font-weight: 600; min-width: 24px; }
 .skill-name { flex: 1 1 160px; min-width: 0; color: var(--text-primary); overflow-wrap: anywhere; word-break: break-word; }
 .skill-cat { min-width: 0; max-width: 100%; color: var(--text-muted); font-size: var(--font-size-md); overflow-wrap: anywhere; word-break: break-word; }
-.btn-add { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: var(--radius-sm); padding: var(--space-4) 1var(--space-4); cursor: pointer; font-size: var(--font-size-md); }
+.btn-add { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: var(--radius-sm); padding: var(--space-4); cursor: pointer; font-size: var(--font-size-md); }
 .skill-toolbar { display: flex; gap: var(--space-4); margin-bottom: 12px; }
 .skill-toolbar { align-items: center; flex-wrap: wrap; }
 .skill-toolbar-hint { color: var(--text-muted); font-size: var(--font-size-sm); }
@@ -1437,7 +1517,7 @@ function refreshPreview() {
 .st-folder-status.is-blocked, .st-folder-status.is-failed, .st-folder-status.is-load-failed { color: var(--danger); }
 .st-folder-diagnostics { display: flex; flex-direction: column; gap: var(--space-2); max-height: 150px; overflow-y: auto; }
 .st-folder-diagnostic { padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-secondary); font-size: var(--font-size-sm); line-height: 1.5; overflow-wrap: anywhere; }
-.st-folder-diagnostic.is-warning { background: var(--diagnostic-warning-bg); color: var(--warning); }
+.st-folder-diagnostic.is-warning { background: var(--warning-dim); color: var(--warning); }
 .st-folder-diagnostic.is-error { background: var(--diagnostic-error-bg); color: var(--danger); }
 .st-folder-request summary { cursor: pointer; color: var(--text-secondary); font-size: var(--font-size-sm); }
 .st-folder-request-message { margin-top: var(--space-2); }
@@ -1456,15 +1536,17 @@ function refreshPreview() {
 .st-eval-assertion.is-pass span:first-child { color: var(--success); font-weight: 600; }
 .st-eval-assertion:not(.is-pass) span:first-child { color: var(--danger); font-weight: 600; }
 .st-eval-case pre { margin: 0; padding: var(--space-3); border-radius: var(--radius-sm); background: var(--bg-elevated); color: var(--text-primary); font-size: var(--font-size-sm); line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 180px; overflow-y: auto; }
-.skill-edit-overlay { position: fixed; inset: 0; padding: var(--modal-gutter); background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal-nested); }
-.skill-edit-modal { position: relative; z-index: var(--z-modal-nested-content); width: min(var(--modal-width-lg), 100%); max-height: var(--modal-max-height); min-height: 0; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--modal-padding); display: flex; flex-direction: column; gap: var(--space-4); overflow-y: auto; }
-.sem-header { display: flex; justify-content: space-between; font-size: var(--font-size-lg); font-weight: 600; margin-bottom: 8px; }
+.skill-edit-modal { position: relative; z-index: var(--z-modal-nested-content); width: min(var(--modal-width-lg), 100%); max-height: var(--modal-max-height); min-height: 0; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--modal-padding); display: flex; flex-direction: column; gap: var(--space-4); overflow: hidden; }
+.sem-header { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); font-size: var(--font-size-lg); font-weight: 600; margin-bottom: 8px; flex-shrink: 0; min-width: 0; }
+.sem-header h4 { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.sem-header button { flex-shrink: 0; }
+.sem-scroll { flex: 1 1 auto; min-height: 0; min-width: 0; overflow-y: auto; padding-right: var(--space-2); display: flex; flex-direction: column; gap: var(--space-4); }
 .sem-header button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: var(--font-size-xl); }
 .sem-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-3) var(--space-5); font-size: var(--font-size-md); }
-.sem-textarea { min-height: 300px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-4) var(--space-5); font-size: var(--font-size-md); resize: vertical; font-family: monospace; }
+.sem-textarea { min-height: 300px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-4) var(--space-5); font-size: var(--font-size-md); resize: vertical; font-family: var(--font-family-mono); }
+.sem-textarea-sm { min-height: 120px; }
 .sem-btn { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: var(--radius-sm); padding: var(--space-4) var(--space-8); cursor: pointer; font-size: var(--font-size-md); margin-top: 8px; }
-.skill-import-overlay { position: fixed; inset: 0; padding: var(--modal-gutter); background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal-nested); }
-.skill-import-modal { width: min(680px, 100%); max-width: 100%; min-width: 0; max-height: var(--modal-max-height); overflow-y: auto; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--modal-padding); color: var(--text-primary); box-shadow: var(--shadow-lg); }
+.skill-import-modal { width: min(680px, 100%); max-width: 100%; min-width: 0; max-height: var(--modal-max-height); overflow: hidden; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--modal-padding); color: var(--text-primary); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; }
 .skill-import-source { margin: 0 0 var(--space-5); color: var(--text-muted); font-size: var(--font-size-sm); overflow-wrap: anywhere; }
 .skill-import-origin { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: -var(--space-2) 0 var(--space-5); min-width: 0; }
 .skill-import-chip { min-width: 0; max-width: 100%; padding: var(--space-2) var(--space-4); border: 1px solid var(--border-color); border-radius: var(--radius-xs); color: var(--text-secondary); background: var(--bg-tertiary); font-size: var(--font-size-sm); overflow-wrap: anywhere; }
@@ -1490,13 +1572,13 @@ function refreshPreview() {
 .skill-import-plan-item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, auto); align-items: center; gap: var(--space-4); min-width: 0; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border-color); }
 .skill-import-plan-item:last-child { border-bottom: 0; }
 .skill-import-plan-item > * { min-width: 0; overflow-wrap: anywhere; }
-.skill-import-id { color: var(--text-muted); font-family: monospace; font-size: var(--font-size-sm); }
+.skill-import-id { color: var(--text-muted); font-family: var(--font-family-mono); font-size: var(--font-size-sm); }
 .skill-import-plan-item .is-add { color: var(--success); }
 .skill-import-plan-item .is-update { color: var(--warning); }
 .skill-import-plan-item .is-skip { color: var(--text-muted); }
 .skill-import-strategy { display: grid; grid-template-columns: minmax(0, 120px) minmax(0, 1fr); align-items: center; gap: var(--space-4); margin-top: 12px; min-width: 0; }
 .skill-import-strategy select { width: 100%; min-width: 0; }
-@media (max-width: 560px) {
+@media (max-width: 600px) {
   .skill-import-plan-item { grid-template-columns: 1fr; gap: var(--space-3); }
   .skill-import-strategy { grid-template-columns: 1fr; }
   .skill-import-field { grid-template-columns: 1fr; gap: var(--space-1); }
@@ -1510,36 +1592,36 @@ function refreshPreview() {
 /* === 自定义变量 === */
 .sf-custom-vars { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); background: var(--bg-tertiary); border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
 .sf-custom-var-row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; min-width: 0; }
-.sf-cv-key { flex: 1; min-width: 0; font-family: monospace; }
+.sf-cv-key { flex: 1; min-width: 0; font-family: var(--font-family-mono); }
 .sf-cv-value { flex: 2; min-width: 0; }
 
 /* === 模板解析预览 === */
 .sf-resolved-preview { padding: var(--space-4) var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: var(--font-size-md); max-height: 220px; overflow-y: auto; margin-bottom: 4px; }
-.sf-resolved-preview pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: monospace; line-height: 1.6; }
+.sf-resolved-preview pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: var(--font-family-mono); line-height: 1.6; }
 
 /* === 变量详情 === */
 .var-details { margin: var(--space-4) 0; padding: var(--space-4) var(--space-5); background: var(--accent-dim); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--font-size-md); color: var(--text-secondary); }
 .var-details summary { cursor: pointer; margin-bottom: 4px; font-weight: 500; }
 .var-tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: 4px; }
-.btn-var { display: inline-block; padding: var(--space-3) var(--space-4); background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-primary); cursor: pointer; font-family: monospace; }
+.btn-var { display: inline-block; padding: var(--space-3) var(--space-4); background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-primary); cursor: pointer; font-family: var(--font-family-mono); }
 .btn-var:hover { border-color: var(--accent); color: var(--accent); }
 
 /* === 双栏模板编辑器 === */
 .sf-template-wrapper { display: flex; gap: var(--space-4); min-height: 280px; }
-.sf-template-input { flex: 1; min-width: 0; padding: var(--space-4) var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: var(--font-size-md); font-family: monospace; resize: vertical; line-height: 1.6; }
+.sf-template-input { flex: 1; min-width: 0; padding: var(--space-4) var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-size: var(--font-size-md); font-family: var(--font-family-mono); resize: vertical; line-height: 1.6; }
 .sf-template-preview { flex: 1; min-width: 0; padding: var(--space-4) var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary); font-size: var(--font-size-md); overflow-y: auto; max-height: 350px; line-height: 1.6; }
 .sf-template-preview:empty::before { content: 'Markdown 预览区（实时渲染）'; color: var(--text-muted); font-style: italic; }
 .sf-template-preview :deep(h1) { font-size: 1.3em; margin: 0.5em 0 0.3em; border-bottom: 1px solid var(--border-color); padding-bottom: 2px; }
 .sf-template-preview :deep(h2) { font-size: 1.15em; margin: 0.5em 0 0.3em; border-bottom: 1px solid var(--border-color); padding-bottom: 2px; }
 .sf-template-preview :deep(h3) { font-size: 1.05em; margin: 0.5em 0 0.3em; }
-.sf-template-preview :deep(code) { background: var(--bg-elevated); padding: var(--space-1) var(--space-2); border-radius: var(--radius-xs); font-family: monospace; font-size: 0.9em; }
+.sf-template-preview :deep(code) { background: var(--bg-elevated); padding: var(--space-1) var(--space-2); border-radius: var(--radius-xs); font-family: var(--font-family-mono); font-size: 0.9em; }
 .sf-template-preview :deep(pre) { background: var(--bg-elevated); padding: var(--space-4); border-radius: var(--radius-xs); overflow-x: auto; margin: 0.5em 0; }
 .sf-template-preview :deep(pre code) { background: none; padding: 0; }
 .sf-template-preview :deep(ul) { margin: 0.3em 0; padding-left: 1.5em; }
 .sf-template-preview :deep(li) { margin: 0.15em 0; }
 .sf-template-preview :deep(blockquote) { border-left: 3px solid var(--border-color); padding-left: 8px; margin: 0.5em 0; color: var(--text-secondary); }
 .sf-template-preview :deep(p) { margin: 0.3em 0; }
-@media (max-width: 768px) {
+@media (max-width: 760px) {
   .sf-template-wrapper { flex-direction: column; }
   .sf-template-preview { max-height: 200px; }
 }

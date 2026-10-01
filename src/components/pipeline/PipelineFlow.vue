@@ -10,11 +10,11 @@
     </div>
     
     <!-- Version Save Dialog -->
-    <div v-if="showSaveDialog" class="pf-dialog-overlay" :style="{ zIndex: modalQueue.getZIndex('pipeline-flow-save') }" @click.self="showSaveDialog = false">
+    <div v-if="showSaveDialog" data-modal-id="pipeline-flow-save" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('pipeline-flow-save') }" @click.self="showSaveDialog = false">
       <div class="pf-dialog">
         <div class="pf-dialog-header">
           <span>保存流水线配置</span>
-          <button class="modal-close" @click="showSaveDialog = false">&times;</button>
+          <button class="modal-close" type="button" aria-label="关闭保存配置" @click="showSaveDialog = false"><AppIcon name="x" /></button>
         </div>
         <div class="pf-dialog-body">
           <label>配置名称</label>
@@ -28,14 +28,20 @@
     </div>
     
     <!-- Version Load Dialog -->
-    <div v-if="showLoadDialog" class="pf-dialog-overlay" :style="{ zIndex: modalQueue.getZIndex('pipeline-flow-load') }" @click.self="showLoadDialog = false">
+    <div v-if="showLoadDialog" data-modal-id="pipeline-flow-load" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('pipeline-flow-load') }" @click.self="showLoadDialog = false">
       <div class="pf-dialog pf-dialog-wide">
         <div class="pf-dialog-header">
           <span>加载流水线配置</span>
-          <button class="modal-close" @click="showLoadDialog = false">&times;</button>
+          <button class="modal-close" type="button" aria-label="关闭加载配置" @click="showLoadDialog = false"><AppIcon name="x" /></button>
         </div>
         <div class="pf-dialog-body">
-          <div v-if="versions.length === 0" class="pf-empty-hint">暂无保存的配置</div>
+          <EmptyState
+            v-if="versions.length === 0"
+            variant="compact"
+            icon="history"
+            title="暂无保存的配置"
+            description="保存当前流水线配置后，可以在这里快速载入"
+          />
           <div v-for="(v, i) in versions" :key="i" class="pf-version-row">
             <div class="pf-version-info">
               <span class="pf-version-name">{{ v.name }}</span>
@@ -62,7 +68,7 @@
         <div class="pf-node-head">
           <span class="pf-node-num">{{ si + 1 }}</span>
           <span class="pf-node-label">{{ step.name }}</span>
-          <span v-if="step.completed" class="pf-node-check">&#10003;</span>
+          <AppIcon v-if="step.completed" name="check" class="pf-node-check" />
         </div>
         <div class="pf-node-body">
           <div class="pf-node-mode">
@@ -85,7 +91,7 @@
         </div>
         <!-- Arrow to next step -->
         <div v-if="si < pipelineSteps.length - 1" class="pf-arrow">
-          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <AppIcon name="arrow-up" :size="24" />
         </div>
       </div>
     </div>
@@ -95,6 +101,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { usePipelineStore } from '../../stores/pipeline'
+import EmptyState from '../common/EmptyState.vue'
+import AppIcon from '../common/AppIcon.vue'
 import { useSkillStore } from '../../stores/skill'
 import { useAgentStore } from '../../stores/agent'
 import { storageKey } from '../../utils/storage-key'
@@ -134,6 +142,16 @@ watch(() => ({ save: showSaveDialog.value, load: showLoadDialog.value }), visibl
   if (visible.load) modalQueue.open('pipeline-flow-load')
   else modalQueue.close('pipeline-flow-load')
 }, { immediate: true })
+
+// Verification bridge for responsive E2E; no runtime behavior depends on it.
+;(globalThis as any).__pipelineFlowState = {
+  get showSaveDialog() { return showSaveDialog.value },
+  set showSaveDialog(value: boolean) { showSaveDialog.value = value },
+  get showLoadDialog() { return showLoadDialog.value },
+  set showLoadDialog(value: boolean) { showLoadDialog.value = value },
+  get versions() { return versions.value },
+  set versions(value: Array<{ name: string; savedAt: string; config: any }>) { versions.value = value }
+}
 const saveVersionName = ref('')
 const versions = ref<{ name: string; savedAt: string; config: any }[]>([])
 
@@ -226,17 +244,15 @@ loadVersions()
 .pf-node-tag { font-size: var(--font-size-xs); color: var(--text-muted); background: var(--bg-tertiary); padding: var(--space-1) var(--space-3); border-radius: var(--radius-xs); flex-shrink: 0; }
 .pf-node-value { font-size: var(--font-size-md); color: var(--text-primary); }
 .pf-node-skill-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.pf-skill-chip { padding: var(--space-1) var(--space-4); border-radius: var(--radius-lg); font-size: var(--font-size-xs); background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-glow, transparent); }
+.pf-skill-chip { padding: var(--space-1) var(--space-4); border-radius: var(--radius-lg); font-size: var(--font-size-xs); background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-glow); }
 .pf-node-empty { font-size: var(--font-size-sm); color: var(--text-muted); font-style: italic; }
 .pf-arrow { display: flex; justify-content: center; padding: var(--space-1) 0; color: var(--text-muted); }
-.pf-dialog-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal-nested); }
-.pf-dialog { background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); width: min(400px, 92vw); box-shadow: var(--shadow-lg); }
+.pf-dialog { background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); width: min(400px, 92vw); max-height: min(82vh, 720px); overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); }
 .pf-dialog-wide { width: min(500px, 92vw); }
 .pf-dialog-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-5) var(--space-7); border-bottom: 1px solid var(--border-color); font-size: var(--font-size-lg); font-weight: 600; }
-.pf-dialog-body { padding: var(--space-7); }
+.pf-dialog-body { padding: var(--space-7); overflow-y: auto; min-height: 0; }
 .pf-dialog-body label { display: block; font-size: var(--font-size-md); color: var(--text-secondary); margin-bottom: 6px; }
 .pf-dialog-footer { display: flex; justify-content: flex-end; gap: var(--space-5); padding: var(--space-5) var(--space-7); border-top: 1px solid var(--border-color); }
-.pf-empty-hint { text-align: center; color: var(--text-muted); font-size: var(--font-size-md); padding: var(--space-7); }
 .pf-version-row { display: flex; align-items: center; justify-content: space-between; padding: var(--space-5); border-bottom: 1px solid var(--border-color); }
 .pf-version-row:last-child { border-bottom: none; }
 .pf-version-info { display: flex; flex-direction: column; gap: var(--space-1); }

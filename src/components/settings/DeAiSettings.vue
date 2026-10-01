@@ -112,7 +112,7 @@
               <div id="deai-skills-list" class="deai-skills-list">
                 <span v-for="(id, i) in deAiStore.skillIds" :key="id" class="deai-skill-chip">
                   <span>[{{ i + 1 }}] {{ getSkillName(id) }}</span>
-                  <button class="deai-skill-remove" @click="removeDeAiSkill(i)">&times;</button>
+                  <button class="deai-skill-remove" type="button" aria-label="移除技能" @click="removeDeAiSkill(i)"><AppIcon name="x" /></button>
                 </span>
               </div>
             </div>
@@ -140,7 +140,7 @@
               <div id="deai-skills-list-sm" class="deai-skills-list">
                 <span v-for="(id, i) in deAiStore.skillIds" :key="id" class="deai-skill-chip">
                   <span>{{ getSkillName(id) }}</span>
-                  <button class="deai-skill-remove" @click="removeDeAiSkill(i)">&times;</button>
+                  <button class="deai-skill-remove" type="button" aria-label="移除技能" @click="removeDeAiSkill(i)"><AppIcon name="x" /></button>
                 </span>
               </div>
             </div>
@@ -170,7 +170,7 @@
               <div id="deai-skills-list-ms" class="deai-skills-list">
                 <span v-for="(id, i) in deAiStore.skillIds" :key="id" class="deai-skill-chip">
                   <span>[{{ i + 1 }}] {{ getSkillName(id) }}</span>
-                  <button class="deai-skill-remove" @click="removeDeAiSkill(i)">&times;</button>
+                  <button class="deai-skill-remove" type="button" aria-label="移除技能" @click="removeDeAiSkill(i)"><AppIcon name="x" /></button>
                 </span>
               </div>
             </div>
@@ -363,10 +363,10 @@ function saveAllConfig() {
 .deai-common-params {
   background: var(--bg-tertiary);
   border-radius: var(--radius-sm);
-  padding: var(--space-sm) var(--space-md);
-  margin-bottom: var(--space-md);
+  padding: var(--space-4) var(--space-6);
+  margin-bottom: var(--space-6);
 }
-.deai-param-row { display: flex; flex-wrap: wrap; gap: var(--space-md); align-items: flex-end; }
+.deai-param-row { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-end; }
 .deai-param-item { display: flex; flex-direction: column; gap: var(--space-2); }
 .deai-param-label { font-size: var(--font-size-md); color: var(--text-muted); font-weight: 500; }
 
@@ -374,7 +374,7 @@ function saveAllConfig() {
 .deai-detect-report {
   background: var(--bg-tertiary);
   border-radius: var(--radius-sm);
-  padding: var(--space-md);
+  padding: var(--space-6);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -387,10 +387,10 @@ function saveAllConfig() {
   padding: var(--space-3) var(--space-4);
   background: var(--bg-elevated);
 }
-.deai-detect-finding.blocking { border-color: var(--warning, var(--accent)); }
+.deai-detect-finding.blocking { border-color: var(--warning); }
 .deai-detect-finding-head { display: flex; align-items: center; gap: var(--space-3); font-size: var(--font-size-sm); }
 .deai-detect-finding-head span { color: var(--text-muted); }
-.deai-detect-finding.blocking .deai-detect-finding-head span { color: var(--warning, var(--accent)); font-weight: 600; }
+.deai-detect-finding.blocking .deai-detect-finding-head span { color: var(--warning); font-weight: 600; }
 .deai-detect-finding-head em { margin-left: auto; color: var(--text-muted); font-style: normal; }
 .deai-detect-finding p { margin: var(--space-2) 0 var(--space-1); color: var(--text-primary); font-size: var(--font-size-md); }
 .deai-detect-finding small { color: var(--text-secondary); font-size: var(--font-size-sm); }
@@ -409,7 +409,7 @@ function saveAllConfig() {
 .flow-label { font-size: var(--font-size-md); color: var(--text-secondary); margin-bottom: 6px; }
 
 /* === 模式卡片 === */
-.deai-mode-cards { display: flex; gap: var(--space-3); margin-bottom: var(--space-md); }
+.deai-mode-cards { display: flex; gap: var(--space-3); margin-bottom: var(--space-6); }
 .deai-mode-card {
   flex: 1;
   border: 2px solid var(--border-color);
@@ -419,9 +419,9 @@ function saveAllConfig() {
   transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
   background: var(--bg-elevated);
 }
-.deai-mode-card:hover { border-color: var(--accent-color, var(--accent)); }
+.deai-mode-card:hover { border-color: var(--accent); }
 .deai-mode-card.active {
-  border-color: var(--accent-color, var(--accent));
+  border-color: var(--accent);
   box-shadow: var(--shadow-focus-accent);
 }
 .deai-mode-card-header {
@@ -433,7 +433,7 @@ function saveAllConfig() {
 }
 .deai-mode-card.active .deai-mode-card-header { background: var(--bg-tertiary); }
 .deai-mode-card-icon { font-weight: 700; color: var(--text-muted); font-size: var(--font-size-sm); }
-.deai-mode-card.active .deai-mode-card-icon { color: var(--accent-color, var(--accent)); }
+.deai-mode-card.active .deai-mode-card-icon { color: var(--accent); }
 .deai-mode-card-title { font-weight: 600; color: var(--text-primary); font-size: var(--font-size-sm); }
 .deai-mode-card-desc { font-size: var(--font-size-md); color: var(--text-muted); margin-left: auto; }
 .mode-full-desc { font-size: var(--font-size-md); color: var(--text-secondary); margin: var(--space-3); line-height: var(--lh-normal); }
@@ -447,7 +447,7 @@ function saveAllConfig() {
   color: var(--text-primary);
   font-size: var(--font-size-sm);
 }
-.deai-mode-card-body { padding: var(--space-sm) var(--space-md); }
+.deai-mode-card-body { padding: var(--space-4) var(--space-6); }
 
 /* === 表单组 === */
 .form-group { margin-bottom: 12px; }
@@ -470,7 +470,7 @@ function saveAllConfig() {
 .deai-skill-bar > button {
   flex: 0 0 auto;
   min-width: 48px;
-  min-height: 30px;
+  min-height: var(--density-btn-sm-height);
   line-height: 1.25;
 }
 .deai-split-input {
@@ -492,13 +492,18 @@ function saveAllConfig() {
   background: var(--accent-dim);
   border: 1px solid var(--accent-glow);
   border-radius: var(--radius-lg);
-  padding: var(--btn-xs-padding, var(--space-1) var(--space-4));
+  padding: var(--btn-xs-padding);
   margin: var(--space-1);
   font-size: var(--font-size-sm);
   color: var(--accent-lighter);
 }
-.deai-skill-chip span { color: var(--accent-lighter); font-weight: var(--fw-medium, 500); }
+.deai-skill-chip span { color: var(--accent-lighter); font-weight: var(--fw-medium); }
 .deai-skill-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
   background: none;
   border: none;
   color: var(--text-secondary);
@@ -547,7 +552,7 @@ function saveAllConfig() {
 .deai-hardrule-item span { user-select: none; }
 
 /* === V2/V3 单选 === */
-.deai-radio-group { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+.deai-radio-group { display: flex; flex-wrap: wrap; gap: var(--space-4); }
 .deai-radio-option {
   display: inline-flex;
   align-items: center;
@@ -563,7 +568,7 @@ function saveAllConfig() {
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  padding: var(--space-sm);
+  padding: var(--space-4);
   border-radius: var(--radius-sm);
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
@@ -582,13 +587,13 @@ function saveAllConfig() {
 /* === step group: border-left accent (old arch L7390-7391) === */
 .deai-step-group {
   border-left: 3px solid var(--border-color);
-  padding-left: var(--space-md);
-  margin-bottom: var(--space-md);
+  padding-left: var(--space-6);
+  margin-bottom: var(--space-6);
 }
 .deai-step-title {
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-4);
   font-size: var(--font-size-md);
 }
 

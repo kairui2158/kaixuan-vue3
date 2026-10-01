@@ -61,10 +61,25 @@ function ensureDir(target) {
   fs.mkdirSync(target, { recursive: true })
 }
 
-function writeEvidence(name, value) {
+async function writeEvidence(name, value) {
   const file = path.join(EVIDENCE_DIR, name)
-  fs.writeFileSync(file, typeof value === 'string' ? value : JSON.stringify(value, null, 2), 'utf8')
-  return file
+  const content = typeof value === 'string' ? value : JSON.stringify(value, null, 2)
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      fs.writeFileSync(file, content, 'utf8')
+      return file
+    } catch (error) {
+      if (attempt === 4) throw error
+    }
+    // Windows can hold evidence files briefly after antivirus/indexing scans.
+    const stale = `${file}.stale-${Date.now()}`
+    try {
+      fs.renameSync(file, stale)
+      fs.rmSync(stale, { force: true })
+    } catch {}
+    await sleep(500)
+  }
+  throw new Error(`unreachable evidence write: ${file}`)
 }
 
 function assertFreshRendererBuild() {
@@ -119,6 +134,26 @@ function toolCall(name, input, id) {
   }
 }
 
+function toolCalls(calls) {
+  return {
+    choices: [{
+      finish_reason: 'tool_calls',
+      message: {
+        role: 'assistant',
+        content: '',
+        tool_calls: calls.map(call => ({
+          id: call.id,
+          type: 'function',
+          function: {
+            name: call.name,
+            arguments: JSON.stringify(call.input),
+          },
+        })),
+      },
+    }],
+  }
+}
+
 function textCompletion(content) {
   return {
     choices: [{
@@ -129,6 +164,7 @@ function textCompletion(content) {
 }
 
 let scenario = 'home-empty-insert'
+let scenarioCountingStarted = false
 const requests = []
 const scenarioRequests = () => requests.filter(item => item.scenario === scenario)
 
@@ -138,7 +174,12 @@ const server = http.createServer((request, response) => {
   request.on('end', () => {
     let body = null
     try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')) } catch {}
-    const count = scenarioRequests().length + 1
+    // A scenario can be revisited later in the matrix. Count from one on each
+    // entry so mock branches stay deterministic instead of inheriting stale
+    // counts from the earlier visit.
+    const isNewScenarioEntry = scenario !== scenarioCountingStarted
+    const count = isNewScenarioEntry ? 1 : scenarioRequests().length + 1
+    if (isNewScenarioEntry) scenarioCountingStarted = scenario
     const record = { scenario, requestCount: count, tools: (body?.tools || []).map(tool => tool?.function?.name || tool?.name || '').filter(Boolean), body }
     requests.push(record)
     console.log(`[MOCK] ${scenario} #${count}: ${record.tools.join(', ') || '(no tools)'}`)
@@ -216,18 +257,78 @@ const server = http.createServer((request, response) => {
         focus: 'center',
         reason: '讨论写入位置',
       }, 'direct-reveal-discuss')
-    } else if (scenario === 'home-write-limit' && count <= 2) {
+    } else if (scenario === 'home-repeat-write-guard' && count === 1) {
       payload = toolCall('editor.write', {
-        commands: [{ operation: 'append', content: `第 ${count} 次写入。`, reason: '写入限流验证' }],
+        commands: [{ operation: 'append', content: '第 1 次写入。', reason: '同轮多次直写验证' }],
         reveal: { mode: 'instant', firstChange: false },
-        reason: '写入限流',
-      }, `direct-write-limit-${count}`)
+        reason: '同轮多次直写',
+      }, 'direct-write-multi-1')
+    } else if (scenario === 'home-repeat-write-guard' && count === 2) {
+      payload = toolCall('editor.write', {
+        commands: [{ operation: 'append', content: '第 2 次写入。', reason: '同轮多次直写验证' }],
+        reveal: { mode: 'instant', firstChange: false },
+        reason: '同轮多次直写',
+      }, 'direct-write-multi-2')
+    } else if (scenario === 'home-repeat-write-guard' && count === 3) {
+      payload = toolCall('editor.write', {
+        commands: [{ operation: 'append', content: '第 3 次写入。', reason: '完全重复写入拦截验证' }],
+        reveal: { mode: 'instant', firstChange: false },
+        reason: '完全重复写入拦截',
+      }, 'direct-write-duplicate-1')
+    } else if (scenario === 'home-repeat-write-guard' && count === 4) {
+      payload = toolCall('editor.write', {
+        commands: [{ operation: 'append', content: '第 3 次写入。', reason: '完全重复写入拦截验证' }],
+        reveal: { mode: 'instant', firstChange: false },
+        reason: '完全重复写入拦截',
+      }, 'direct-write-duplicate-2')
+    } else if (scenario === 'home-repeat-write-guard' && count === 5) {
+      payload = toolCall('editor.write', {
+        commands: [{ operation: 'append', content: '第 3 次写入。', reason: '完全重复写入拦截验证' }],
+        reveal: { mode: 'instant', firstChange: false },
+        reason: '完全重复写入拦截',
+      }, 'direct-write-duplicate-3')
+    } else if (scenario === 'home-repeat-write-guard' && count === 6) {
+      payload = textCompletion('已处理当前请求。')
     } else if (scenario === 'home-reveal-range' && count === 1) {
       payload = toolCall('editor.reveal', {
         target: { fragment: '第二章内容。男主确认了寄信人身份。' },
         focus: 'center',
         reason: '气泡查看位置',
       }, 'direct-reveal-range')
+    } else if (scenario === 'home-invalid-protocol' && count === 1) {
+      payload = toolCalls([
+        {
+          name: 'editor.write',
+          id: 'invalid-protocol-operation',
+          input: {
+            commands: [{ operation: 'insertAfter', content: '非法枚举不应写入。' }],
+          },
+        },
+        {
+          name: 'editor.write',
+          id: 'invalid-protocol-combination',
+          input: {
+            commands: [{ operation: 'insert', content: '非法组合不应写入。', target: '第二章内容。', position: 'cursor' }],
+          },
+        },
+        {
+          name: 'editor.write',
+          id: 'invalid-protocol-unknown-field',
+          input: {
+            commands: [{ operation: 'insert', content: '未知字段不应写入。', position: 'cursor' }],
+            insertAfter: true,
+          },
+        },
+        {
+          name: 'editor.write',
+          id: 'invalid-protocol-type',
+          input: {
+            commands: 'invalid-commands-type',
+          },
+        },
+      ])
+    } else if (scenario === 'home-invalid-protocol' && count === 2) {
+      payload = textCompletion('已处理当前请求。')
     } else if (scenario === 'outline-write' && count === 1) {
       payload = toolCall('editor.write', {
         commands: [{ operation: 'replace_match', target: '第二章内容。男主在灯塔下发现旧信。', content: '第二章大纲：男主确认寄信人身份。', reason: '大纲唯一目标直写' }],
@@ -301,6 +402,8 @@ function startElectron() {
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
+      SHENYI_ALLOW_TEST_ISOLATION: '1',
+      SHENYI_DATA_DIR: path.join(PROFILE, 'documents-data'),
       SHENYI_TEST_USER_DATA_DIR: path.join(PROFILE, 'app-data'),
       SHENYI_TEST_RUN_TRACE_EXPORT: EXPORT_ROOT,
       SHENYI_TEST_LOG_DIR: LOG_DIR,
@@ -471,16 +574,43 @@ async function waitHomeIdle(page, timeout = 40000) {
 
 async function sendHome(page, text, waitFor = '已处理当前请求。') {
   await resetObserver(page)
+  const beforeRequestCount = requests.length
+  const beforeRun = await currentHomeRun(page)
   await page.locator('#user-input').fill(text)
   await page.locator('#btn-send').click()
   try {
-    await page.waitForFunction(value => (document.body.textContent || '').includes(value), waitFor, { timeout: 40000, polling: 250 })
+    await page.waitForFunction(({ text: requestText, waitFor: completionText, requestCount, runId, previousTurnId }) => {
+      const store = window.__pinia?._s?.get('runTrace')
+      const run = [...(store?.runs || [])]
+        .filter(item => item.source === 'home')
+        .sort((a, b) => b.startedAt - a.startedAt)[0]
+      if (!run) return false
+      const turn = [...(run.turns || [])]
+        .filter(item => item.userRequest === requestText && item.status !== 'running')
+        .at(-1)
+      if (!turn) return false
+      const isCurrentRunTurn = run.id === runId || turn.id !== previousTurnId
+      return isCurrentRunTurn && (document.body.textContent || '').includes(completionText)
+    }, { text, waitFor, requestCount: beforeRequestCount, runId: beforeRun?.id, previousTurnId: beforeRun?.turnId }, { timeout: 40000, polling: 250 })
   } catch (error) {
     const bodyText = await page.evaluate(() => (document.body.textContent || '').slice(-4000))
-    console.error(`[HOME TIMEOUT] waiting for: ${waitFor}\n${bodyText}`)
+    const afterRun = await currentHomeRun(page)
+    const newRequests = requests.slice(beforeRequestCount).map(item => `${item.scenario}#${item.requestCount}`)
+    console.error(`[HOME TIMEOUT] waiting for: ${waitFor}\n[TRACE] ${JSON.stringify(afterRun)}\n[REQUESTS] ${newRequests.join(', ') || '(none)'}\n${bodyText}`)
     throw error
   }
   await waitHomeIdle(page)
+  const afterRun = await currentHomeRun(page)
+  assert(
+    requests.length > beforeRequestCount,
+    `home turn "${text}" produces a provider request (new requests: ${requests.slice(beforeRequestCount).map(item => `${item.scenario}#${item.requestCount}`).join(', ') || 'none'})`,
+  )
+  assert(
+    afterRun?.turnId && afterRun.turnId !== beforeRun?.turnId,
+    `home turn "${text}" creates a fresh turn (${JSON.stringify({ before: beforeRun, after: afterRun })})`,
+  )
+  assert.notEqual(afterRun?.turnStatus, 'running', `home turn "${text}" reaches a terminal state`)
+  return { ...afterRun, requests: requests.slice(beforeRequestCount) }
 }
 
 async function openOutline(page) {
@@ -558,20 +688,25 @@ async function latestRun(page, source) {
       id: run.id,
       status: run.status,
       turns: (run.turns || []).map(turn => ({
+        id: turn.id,
         status: turn.status,
         userRequest: turn.userRequest,
+        intent: turn.intent || null,
         toolSurface: (turn.toolSurface || []).map(tool => ({ name: tool.name, policy: tool.policy })),
         actualToolSurface: (turn.actualToolSurface || []).map(tool => ({ name: tool.name, policy: tool.policy })),
       })),
       apiCalls: (run.apiCalls || []).map(call => ({
+        turnId: call.turnId || null,
         status: call.status,
         responseText: call.responseText || '',
         compatibilityMode: call.compatibilityMode || null,
         toolSurface: (call.toolSurface || []).map(tool => ({ name: tool.name, policy: tool.policy })),
         actualToolSurface: (call.actualToolSurface || []).map(tool => ({ name: tool.name, policy: tool.policy })),
+        toolAudit: call.toolAudit || null,
         toolsDowngraded: call.toolsDowngraded || null,
         downgradeReason: call.downgradeReason || null,
         toolCalls: (call.toolCalls || []).map(callItem => ({
+          toolCallId: callItem.toolCallId || null,
           name: callItem.name,
           status: callItem.status,
           error: callItem.error,
@@ -589,6 +724,24 @@ async function latestRun(page, source) {
       })),
     }
   }, source)
+}
+
+async function currentHomeRun(page) {
+  return await page.evaluate(() => {
+    const store = window.__pinia?._s?.get('runTrace')
+    const run = [...(store?.runs || [])]
+      .filter(item => item.source === 'home')
+      .sort((a, b) => b.startedAt - a.startedAt)[0]
+    const currentTurnId = run?.currentTurnId
+      || [...(run?.turns || [])].sort((a, b) => b.startedAt - a.startedAt)[0]?.id
+    return {
+      id: run?.id || null,
+      status: run?.status || null,
+      turnId: currentTurnId || null,
+      turnStatus: [...(run?.turns || [])].find(turn => turn.id === currentTurnId)?.status || null,
+      turnUserRequest: [...(run?.turns || [])].find(turn => turn.id === currentTurnId)?.userRequest || null,
+    }
+  })
 }
 
 async function exportLatestRun(page, source) {
@@ -657,10 +810,11 @@ function assertDiagCoverage(rendererEntries, mainEntries) {
   const toolCalls = diagCategories(rendererEntries, 'ai-service/tool-call')
   assert(toolCalls.some(entry => entry.detail?.toolName === 'editor.write' && entry.level === 'info'), 'diag logs cover successful editor.write')
   assert(toolCalls.some(entry => entry.detail?.toolName === 'editor.write' && entry.level === 'error'), 'diag logs cover rejected editor.write')
-  const deniedRenderer = toolCalls.some(entry => entry.detail?.toolName === 'editor.write' && entry.detail?.result?.error?.code === 'permission_denied')
-  const deniedMain = diagCategories(mainEntries, 'ai-service/tool-call').some(entry => entry.detail?.toolName === 'editor.write' && entry.detail?.result?.error?.code === 'permission_denied')
-  assert(deniedRenderer, 'renderer diag logs cover permission_denied')
-  assert(deniedMain, 'main-process diag logs cover permission_denied')
+  const rejectionCodes = ['permission_denied', 'tool_not_found']
+  const rejectedRenderer = toolCalls.some(entry => entry.detail?.toolName === 'editor.write' && rejectionCodes.includes(entry.detail?.result?.error?.code))
+  const rejectedMain = diagCategories(mainEntries, 'ai-service/tool-call').some(entry => entry.detail?.toolName === 'editor.write' && rejectionCodes.includes(entry.detail?.result?.error?.code))
+  assert(rejectedRenderer, 'renderer diag logs cover editor.write rejection')
+  assert(rejectedMain, 'main-process diag logs cover editor.write rejection')
   assert(toolCalls.some(entry => entry.detail?.toolName === 'editor.reveal'), 'diag logs cover editor.reveal')
 
   const presentations = diagCategories(rendererEntries, 'ai-service/editor-presentation')
@@ -675,6 +829,63 @@ function assertDiagCoverage(rendererEntries, mainEntries) {
 
   const capabilities = diagCategories(rendererEntries, 'ai-service/tool-capability')
   assert(capabilities.some(entry => entry.detail?.toolCapability === 'json_protocol'), 'diag logs cover json_protocol compatibility')
+}
+
+function assertToolAuditCarriedForward(audit, expected) {
+  assert(audit && typeof audit === 'object', 'run trace stores cross-turn tool audit')
+  assert.equal(audit.protocolVersion, 1, 'cross-turn tool audit records protocolVersion=1')
+  const entries = Array.isArray(audit.entries) ? audit.entries : []
+  for (const expectedEntry of expected) {
+    const match = entries.find(entry =>
+      entry.toolCallId === expectedEntry.toolCallId && entry.toolName === expectedEntry.toolName
+    )
+    assert(match, `audit carries ${expectedEntry.toolCallId}`)
+    assert.equal(match.status, expectedEntry.status, `${expectedEntry.toolCallId} carries terminal status`)
+    assert.equal(match.errorCode, expectedEntry.errorCode, `${expectedEntry.toolCallId} carries error code`)
+  }
+}
+
+function apiCallsForRunAndTurn(run, turn) {
+  return (run?.apiCalls || []).filter(call => call.turnId && call.turnId === turn?.turnId)
+}
+
+function auditTextFromRequest(request, toolCallId) {
+  const messages = request?.body?.messages || []
+  const auditMessage = [...messages]
+    .reverse()
+    .find(message => String(message?.content || '').includes('[上一轮工具审计]'))
+  assert(auditMessage, `request carries cross-turn tool audit: ${request?.scenario || '(missing)'}`)
+  const content = String(auditMessage.content || '')
+  const line = content.split('\n').find(item => item.startsWith(toolCallId))
+  assert(line, `request audit includes ${toolCallId}`)
+  return line
+}
+
+function assertProviderToolSurfaceMatchesTrace(requestsForScenario, traceApiCalls, label) {
+  const providerSurfaces = requestsForScenario.map(item => [
+    ...new Set(item.tools),
+  ].sort().join('|'))
+  const tracedSurfaces = traceApiCalls.map(call => [
+    ...new Set((call.actualToolSurface || []).map(tool => tool.name)),
+  ].sort().join('|'))
+  assert(
+    tracedSurfaces.length > 0,
+    `${label}: run trace records at least one actual tool surface`,
+  )
+  for (const [index, providerSurface] of providerSurfaces.entries()) {
+    const tracedSurface = tracedSurfaces[index] || tracedSurfaces.at(-1)
+    assert(
+      providerSurface === tracedSurface,
+      `${label}: provider request surface matches run trace (#${index + 1}): provider=${providerSurface}; trace=${tracedSurface}`,
+    )
+  }
+  const uniqueProviderSurfaces = [...new Set(providerSurfaces)]
+  const uniqueTracedSurfaces = [...new Set(tracedSurfaces)]
+  assert.deepEqual(
+    uniqueProviderSurfaces,
+    uniqueTracedSurfaces,
+    `${label}: every provider tool surface is represented by run trace`,
+  )
 }
 
 function assertPass(message) {
@@ -724,7 +935,7 @@ async function main() {
     const emptyContent = await activeTabContent(page)
     assert.equal(emptyContent, 'AI 直写第一段：风暴中的旧信。', 'empty editor insert writes exactly once')
     const emptyObserver = await observe(page)
-    writeEvidence('debug-empty-observer.json', emptyObserver)
+    await writeEvidence('debug-empty-observer.json', emptyObserver)
     assert(emptyObserver.diffLocate.length >= 1, 'empty insert reveals first change')
     assert(await page.locator('.chat-edit-command .chat-direct-write-badge').count() > 0, 'direct write badge is visible')
     await capture(page, '01-home-empty-insert')
@@ -830,6 +1041,60 @@ async function main() {
     assert.equal(discussReveal?.status, 'success', 'discuss reveal succeeds in trace')
     await capture(page, '07-home-discuss-reveal')
 
+    // 7b. Invalid protocol matrix: every malformed write is rejected with a
+    // structured invalid_input error and the editor remains byte-identical.
+    await ensureMainEditor(page, BASE_EDITOR)
+    scenario = 'home-invalid-protocol'
+    await sendHome(page, '请修改第二章内容', '已处理当前请求。')
+    const invalidProtocolContent = await activeTabContent(page)
+    assert.equal(invalidProtocolContent, BASE_EDITOR, 'invalid protocol requests never change editor content')
+    const invalidProtocolRun = await latestRun(page, 'home')
+    const invalidProtocolWrites = (invalidProtocolRun?.apiCalls || [])
+      .flatMap(call => call.toolCalls || [])
+      .filter(call => call.name === 'editor.write' && String(call.toolCallId || '').startsWith('invalid-protocol-'))
+    assert.equal(
+      invalidProtocolWrites.length,
+      4,
+      `all four invalid protocol writes are recorded: ${JSON.stringify(invalidProtocolWrites.map(call => ({
+        toolCallId: call.toolCallId,
+        name: call.name,
+        status: call.status,
+        error: call.error,
+      })))}`,
+    )
+    const invalidProtocolByCallId = new Map(invalidProtocolWrites.map(call => [call.toolCallId, call]))
+    for (const callId of [
+      'invalid-protocol-operation',
+      'invalid-protocol-combination',
+      'invalid-protocol-unknown-field',
+      'invalid-protocol-type',
+    ]) {
+      const call = invalidProtocolByCallId.get(callId)
+      assert.equal(call?.status, 'failed', `${callId} is recorded as failed`)
+      const errorText = String(call?.error || '')
+      assert(
+        errorText.includes('invalid_input') || errorText.includes('校验失败') || errorText.includes('非法') || errorText.includes('不允许携带'),
+        `${callId} returns a structured invalid_input error: ${errorText}`,
+      )
+    }
+    assert(
+      String(invalidProtocolByCallId.get('invalid-protocol-operation')?.error || '').includes('operation'),
+      'invalid operation error names the invalid field',
+    )
+    assert(
+      String(invalidProtocolByCallId.get('invalid-protocol-combination')?.error || '').includes('不允许携带 target'),
+      'invalid combination error explains the target conflict',
+    )
+    assert(
+      String(invalidProtocolByCallId.get('invalid-protocol-unknown-field')?.error || '').includes('insertAfter'),
+      'unknown-field error names the unknown key',
+    )
+    assert(
+      String(invalidProtocolByCallId.get('invalid-protocol-type')?.error || '').includes('commands'),
+      'type error names the malformed field',
+    )
+    await capture(page, '07b-home-invalid-protocol-matrix')
+
     // 7a. A provider or model that attempts editor.write under discuss intent
     // must be stopped by the service-level permission gate, not by UI luck.
     await ensureMainEditor(page, BASE_EDITOR)
@@ -841,23 +1106,46 @@ async function main() {
     const permissionWrites = (permissionRun?.apiCalls || []).flatMap(call => call.toolCalls || []).filter(call => call.name === 'editor.write')
     const deniedWrite = permissionWrites.at(-1)
     assert.equal(deniedWrite?.status, 'failed', 'forced discuss write is rejected')
+    const deniedError = String(deniedWrite?.error || '')
     assert(
-      String(deniedWrite?.error || '').includes('不允许编辑器写入'),
-      `permission denial is user readable: ${deniedWrite?.error}`,
+      deniedError.includes('不允许编辑器写入') || deniedError.includes('工具不存在'),
+      `forced discuss write rejection is user readable: ${deniedWrite?.error}`,
     )
-    assert(
-      (permissionRun?.traceEvents || []).some(event => event.type === 'tool-permission-denied' && event.level === 'error'),
-      'run trace records tool-permission-denied',
-    )
+    if (deniedError.includes('不允许编辑器写入')) {
+      assert(
+        (permissionRun?.traceEvents || []).some(event => event.type === 'tool-permission-denied' && event.level === 'error'),
+        'run trace records tool-permission-denied when write tool is exposed',
+      )
+    } else {
+      assert(
+        (permissionRun?.traceEvents || []).every(event => event.type !== 'tool-permission-denied'),
+        'unexposed write tool does not emit a misleading permission event',
+      )
+    }
     await capture(page, '07a-home-permission-denied')
 
-    // 8. Write limit returns a structured result and prevents a second write.
+    // 8. Different writes in one turn build on each other; only consecutive
+    // identical write requests are blocked by the repeat guard.
     await ensureMainEditor(page, BASE_EDITOR)
-    scenario = 'home-write-limit'
-    await sendHome(page, '请连续追加两次内容', '已处理当前请求。')
+    scenario = 'home-repeat-write-guard'
+    await sendHome(page, '请连续追加四次内容', '已处理当前请求。')
     const limitContent = await activeTabContent(page)
-    assert(limitContent.includes('第 1 次写入。') && !limitContent.includes('第 2 次写入。'), 'only the first write is applied')
+    assert(
+      limitContent.includes('第 1 次写入。') && limitContent.includes('第 2 次写入。') && limitContent.includes('第 3 次写入。'),
+      'different writes in one turn all apply',
+    )
+    assert.equal(
+      limitContent.match(/第 3 次写入。/g)?.length || 0,
+      2,
+      'the first two identical writes apply before the third is blocked',
+    )
     const limitRun = await latestRun(page, 'home')
+    const limitTurn = (limitRun?.turns || []).find(turn => turn.userRequest === '请连续追加四次内容')
+    const limitTurnApiCalls = (limitRun?.apiCalls || []).filter(call => call.turnId && call.turnId === limitTurn?.id)
+    assert(
+      limitTurnApiCalls.length > 0,
+      'home repeat-write turn records its API call in run trace',
+    )
     const homeTurnSurface = (limitRun?.turns || []).flatMap(turn => turn.actualToolSurface || []).map(tool => tool.name)
     const homeCallSurface = (limitRun?.apiCalls || []).flatMap(call => call.actualToolSurface || []).map(tool => tool.name)
     assert(
@@ -886,13 +1174,135 @@ async function main() {
       [...new Set(homeCallSurface)].sort().join('|'),
       'home API event and API call traces share one actual tool surface',
     )
+    assertProviderToolSurfaceMatchesTrace(
+      requests.filter(item => item.scenario === 'home-repeat-write-guard'),
+      limitTurnApiCalls,
+      'home edit intent',
+    )
     const limitCalls = (limitRun?.apiCalls || []).flatMap(call => call.toolCalls || []).filter(call => call.name === 'editor.write')
     const limitFirstWrite = limitCalls.find(call => String(call.input?.commands?.[0]?.content || '').includes('第 1 次写入'))
     const limitSecondWrite = limitCalls.find(call => String(call.input?.commands?.[0]?.content || '').includes('第 2 次写入'))
-    const limitAttempt = limitSecondWrite || limitCalls.find(call => call.callId && call.callId !== limitFirstWrite?.callId)
-    assert.equal(limitAttempt?.status, 'failed', 'second write is rejected')
-    assert.equal(limitAttempt?.error, '本次任务只允许 1 次编辑器写入，请基于已写入结果直接结束请求', 'write limit error is user readable')
-    await capture(page, '08-home-write-limit')
+    assert.equal(limitFirstWrite?.status, 'success', 'first different write succeeds')
+    assert.equal(limitSecondWrite?.status, 'success', 'second different write succeeds')
+    const limitAttempt = limitCalls.find(call =>
+      String(call.input?.commands?.[0]?.content || '').includes('第 3 次写入')
+      && call.status === 'failed'
+    )
+    assert.equal(limitAttempt?.status, 'failed', 'consecutive identical write is rejected')
+    assert(
+      String(limitAttempt?.error || '').includes('连续 3 次完全相同'),
+      `duplicate write error is user readable: ${limitAttempt?.error}`,
+    )
+    await capture(page, '08-home-repeat-write-guard')
+
+    // 8a. Cross-turn audit: success, invalid_input, and permission_denied
+    // from the previous turn must be summarized into the next provider request.
+    await ensureMainEditor(page, BASE_EDITOR)
+    scenario = 'home-empty-insert'
+    const crossTurnSuccess = await sendHome(page, '请再写入风暴开场', '已写入编辑器：1 条')
+    const secondWriteRun = await latestRun(page, 'home')
+    const secondWriteAudit = apiCallsForRunAndTurn(secondWriteRun, crossTurnSuccess).at(-1)?.toolAudit
+    assertToolAuditCarriedForward(secondWriteAudit, [{
+      toolCallId: 'direct-write-empty',
+      toolName: 'editor.write',
+      status: 'success',
+      errorCode: undefined,
+    }])
+
+    scenario = 'home-invalid-protocol'
+    const crossTurnInvalid = await sendHome(page, '请继续修改第二章内容', '已处理当前请求。')
+    const invalidAuditRun = await latestRun(page, 'home')
+    const invalidAuditCall = apiCallsForRunAndTurn(invalidAuditRun, crossTurnInvalid).at(-1)
+    assertToolAuditCarriedForward(invalidAuditCall?.toolAudit, [
+      {
+        toolCallId: 'invalid-protocol-operation',
+        toolName: 'editor.write',
+        status: 'failed',
+        errorCode: 'invalid_input',
+      },
+      {
+        toolCallId: 'invalid-protocol-combination',
+        toolName: 'editor.write',
+        status: 'failed',
+        errorCode: 'invalid_input',
+      },
+      {
+        toolCallId: 'invalid-protocol-unknown-field',
+        toolName: 'editor.write',
+        status: 'failed',
+        errorCode: 'invalid_input',
+      },
+      {
+        toolCallId: 'invalid-protocol-type',
+        toolName: 'editor.write',
+        status: 'failed',
+        errorCode: 'invalid_input',
+      },
+    ])
+    const successAuditRequest = crossTurnInvalid.requests?.[0]
+    assert(
+      successAuditRequest?.body?.messages?.some(message => String(message.content || '').includes('direct-write-empty editor.write success')),
+      'next turn request carries the successful write audit',
+    )
+    auditTextFromRequest(successAuditRequest, 'direct-write-empty')
+
+    scenario = 'home-permission-denied'
+    const crossTurnPermission = await sendHome(page, '这段设定应该写在哪里？请帮我定位', '已处理当前请求。')
+    const permissionAuditRun = await latestRun(page, 'home')
+    const permissionAuditCall = apiCallsForRunAndTurn(permissionAuditRun, crossTurnPermission).at(-1)
+    assertToolAuditCarriedForward(permissionAuditCall?.toolAudit, [{
+      toolCallId: 'denied-write-discuss',
+      toolName: 'editor.write',
+      status: 'failed',
+      // Discuss intent does not expose editor.write. A provider that still
+      // calls the missing tool gets the terminal tool_not_found result; the
+      // permission_denied code is reserved for exposed-but-forbidden tools.
+      errorCode: 'tool_not_found',
+    }])
+    const invalidAuditRequest = crossTurnPermission.requests?.[0]
+    for (const invalidCallId of [
+      'invalid-protocol-operation',
+      'invalid-protocol-combination',
+      'invalid-protocol-unknown-field',
+      'invalid-protocol-type',
+    ]) {
+      auditTextFromRequest(invalidAuditRequest, invalidCallId)
+    }
+    const deniedAuditFollowUp = await sendHome(page, '请继续讨论刚才的定位', '已处理当前请求。')
+    const permissionAuditRequest = deniedAuditFollowUp.requests?.[0]
+    const deniedAuditLine = auditTextFromRequest(permissionAuditRequest, 'denied-write-discuss')
+    assert(
+      deniedAuditLine.includes('tool_not_found'),
+      'denied write audit exposes the unavailable write tool to the next turn',
+    )
+    await capture(page, '08a-home-cross-turn-tool-audit')
+
+    // 8a also guards the trace contract for the discuss turn itself. Earlier
+    // edit turns live in the same run, so scope this assertion to the follow-up
+    // turn instead of every API call in the home run.
+    const discussRunForSurface = await latestRun(page, 'home')
+    const discussTurnForSurface = (discussRunForSurface?.turns || [])
+      .find(turn => turn.id === deniedAuditFollowUp?.turnId)
+    const discussSurfaceCalls = (discussRunForSurface?.apiCalls || [])
+      .filter(call => call.turnId === deniedAuditFollowUp?.turnId)
+    assert(
+      (discussTurnForSurface?.actualToolSurface || []).length > 0,
+      'discuss turn records its read-only tool surface',
+    )
+    assert(
+      (discussTurnForSurface?.actualToolSurface || []).every(tool => tool.policy === 'read'),
+      'discuss turn only exposes read tools',
+    )
+    assert(
+      discussSurfaceCalls.length > 0,
+      'discuss turn records its API call',
+    )
+    assert(
+      discussSurfaceCalls.every(call =>
+        (call.actualToolSurface || []).every(tool => tool.policy === 'read')
+      ),
+      'discuss intent only exposes read tools in run trace',
+    )
 
     // 9. Outline direct write succeeds when unlocked.
     scenario = 'outline-write'
@@ -935,6 +1345,11 @@ async function main() {
       [...new Set(outlineEventSurface)].sort().join('|'),
       [...new Set(outlineCallSurface)].sort().join('|'),
       'outline API event and API call traces share one actual tool surface',
+    )
+    assertProviderToolSurfaceMatchesTrace(
+      requests.filter(item => item.scenario === 'outline-write'),
+      outlineWriteRun?.apiCalls || [],
+      'outline edit intent',
     )
     await capture(page, '09-outline-direct-write')
 
@@ -1001,15 +1416,47 @@ async function main() {
     await sleep(300)
     scenario = 'compatibility-first-tools'
     await ensureMainEditor(page, BASE_EDITOR)
-    await sendHome(page, '请用兼容供应商直写', '兼容模式直写：本次编辑器写入已执行，但模型定位可靠性较低')
+    const compatibilityFirst = await sendHome(page, '请用兼容供应商直写', '已通过兼容模式直写编辑器：1 条修改已执行。')
+    assert(
+      (compatibilityFirst.requests || []).length === 2,
+      `compatibility downgrade performs exactly two provider requests (actual: ${(compatibilityFirst.requests || []).length})`,
+    )
+    assert(
+      await page.locator('#chat-compatibility-notice').isVisible(),
+      'compatibility write notice remains visible after the terminal turn',
+    )
+    assert(
+      !(await page.evaluate(() => (document.body.textContent || '').includes('"tool":"editor.write"'))),
+      'compatibility protocol JSON is not rendered as chat content',
+    )
     scenario = 'compatibility-json-write'
-    await sendHome(page, '请继续用兼容供应商直写补充段', '已写入编辑器：1 条')
+    const compatibilitySecond = await sendHome(page, '请继续用兼容供应商直写补充段', '已通过兼容模式直写编辑器：1 条修改已执行。')
     const compatibilityContent = await activeTabContent(page)
     assert(compatibilityContent.includes('兼容供应商直写补充段。'), 'compatibility JSON protocol writes editor')
     const compatibilityRequests = requests.filter(item => item.scenario === 'compatibility-first-tools')
     assert(compatibilityRequests.length > 0 && compatibilityRequests[0].tools.includes('editor.write'), 'first compatibility request sends native tools')
     assert(compatibilityRequests.length > 1 && compatibilityRequests[1].tools.length === 0, 'downgrade retry sends no tools')
     const compatibilityRun = await latestRun(page, 'home')
+    const compatibilityToolCalls = (compatibilityRun?.apiCalls || [])
+      .flatMap(call => call.toolCalls || [])
+      .filter(call => call.name === 'editor.write' && String(call.toolCallId || '').startsWith('compatibility-write-'))
+    assert.equal(
+      compatibilityToolCalls.length,
+      2,
+      `both compatibility writes are recorded once each: ${JSON.stringify(compatibilityToolCalls.map(call => ({
+        toolCallId: call.toolCallId,
+        status: call.status,
+        error: call.error,
+      })))}`,
+    )
+    for (const call of compatibilityToolCalls) {
+      assert.equal(call.status, 'success', `compatibility write ${call.toolCallId} succeeds`)
+      assert(!call.error, `compatibility write ${call.toolCallId} has no validation error`)
+    }
+    assert(
+      (compatibilitySecond.requests || []).length === 2,
+      `second compatibility downgrade performs exactly two provider requests (actual: ${(compatibilitySecond.requests || []).length})`,
+    )
     assert(
       (compatibilityRun?.apiCalls || []).some(call => call.downgradeReason === 'compatibility_write'),
       'run trace marks compatibility_write',
@@ -1022,7 +1469,7 @@ async function main() {
     const exported = JSON.parse(fs.readFileSync(path.join(exportResult.path, 'run-trace.json'), 'utf8'))
     const exportedPresentationEvents = exported.events?.filter(event => String(event.type || '').startsWith('editor-presentation')) || []
     assert(exportedPresentationEvents.length > 0, 'exported trace contains presentation events')
-    writeEvidence('run-trace-export.json', exported)
+    await writeEvidence('run-trace-export.json', exported)
     assertPass('exported run trace contains write/reveal/presentation evidence')
     await page.locator('#btn-editor-run-trace').click()
     await page.locator('#run-trace-panel').waitFor({ state: 'visible', timeout: 10000 })
@@ -1041,7 +1488,7 @@ async function main() {
       .filter(entry => ['ai-service', 'ai-service/tool-call', 'ai-service/tool-capability', 'ai-service/editor-presentation', 'ai-service/editor-batch'].includes(entry.cat))
       .filter(entry => !mainNormalized.some(mainEntry => mainEntry.cat === entry.cat && mainEntry.msg === entry.msg))
     assert.equal(missingInMain.length, 0, 'all renderer direct-write diagnostics reach main-process storage')
-    writeEvidence('diag-coverage.json', {
+    await writeEvidence('diag-coverage.json', {
       passed: true,
       rendererCount: rendererNormalized.length,
       mainCount: mainNormalized.length,
@@ -1061,10 +1508,10 @@ async function main() {
     await page.locator('#run-trace-panel .modal-close').click()
     await page.locator('#run-trace-panel').waitFor({ state: 'hidden', timeout: 10000 })
 
-    writeEvidence('e2e-mock-requests.json', requests.map(({ scenario: itemScenario, requestCount, tools }) => ({ scenario: itemScenario, requestCount, tools })))
-    writeEvidence('e2e-result.json', {
+    await writeEvidence('e2e-mock-requests.json', requests.map(({ scenario: itemScenario, requestCount, tools }) => ({ scenario: itemScenario, requestCount, tools })))
+    await writeEvidence('e2e-result.json', {
       passed: true,
-      scenarios: 15,
+      scenarios: 19,
       mode: RUN_SUFFIX,
       screenshots: fs.readdirSync(SCREENSHOT_DIR).filter(file => file.endsWith('.png')),
       exportPath: exportResult.path,

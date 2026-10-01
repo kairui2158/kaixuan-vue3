@@ -26,7 +26,6 @@ export type DialogueToolKind =
   | 'editor_read'
   | 'editor_write'
   | 'outline_read'
-  | 'task_state'
   | 'pipeline_read'
 
 export type DialogueWorkspace =
@@ -177,9 +176,7 @@ export function describeDialogueTools(
           ? 'outline_read'
           : tool.name.startsWith('pipeline.')
             ? 'pipeline_read'
-            : tool.name === 'task.update_plan'
-              ? 'task_state'
-              : 'editor_read',
+            : 'editor_read',
     ...(tool.policy === 'read'
       ? { readableTargets: toolSet.readableTargets || [] }
       : { writableTarget: toolSet.writableTarget }),
@@ -188,6 +185,7 @@ export function describeDialogueTools(
 
 export type DialogueContextCoverage =
   | 'full'
+  | 'packed'
   | 'partial'
   | 'structure_map'
   | 'reference'
@@ -252,7 +250,7 @@ export function validateDialogueContextBlocks(
     }
     if (
       !value.coverage ||
-      !['full', 'partial', 'structure_map', 'reference', 'selection'].includes(
+      !['full', 'packed', 'partial', 'structure_map', 'reference', 'selection'].includes(
         value.coverage,
       )
     ) {

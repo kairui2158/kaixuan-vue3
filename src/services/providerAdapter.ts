@@ -11,6 +11,14 @@ import {
   buildProviderModelsUrl,
   getProviderProtocol,
 } from './providerProtocols'
+import {
+  protocolMaxTokens,
+  resolveModelCapability,
+  type ModelCapability,
+} from './modelCapability'
+import {
+  normalizeFinishReason as traceNormalizeFinishReason,
+} from './traceFieldNormalizer'
 
 export interface NormalizedRequest {
   url: string
@@ -26,6 +34,8 @@ export interface ProviderLike {
   selectedModel: string
   temperature: number
   maxTokens: number
+  /** Provider input context window in tokens; 0 or missing means undeclared. */
+  contextWindowTokens?: number
   timeoutMs?: number
   streamMode?: boolean
   systemPrompt?: string
@@ -78,11 +88,29 @@ export function resolveTemperature(provider: ProviderLike, tempOverride?: number
 }
 
 /**
- * Resolves maxTokens from override, provider config, or the default.
- * Provider limits are handled by the 400 downgrade/retry path.
+ * Resolves the on-the-wire output limit. A positive explicit override or
+ * provider config wins; Anthropic receives its protocol-required value when
+ * no explicit limit exists; all other protocols omit the field and let the
+ * provider decide.
  */
-export function resolveMaxTokens(provider: ProviderLike, maxOverride?: number): number {
-  return maxOverride ?? provider.maxTokens ?? 8192
+export function resolveMaxTokens(provider: ProviderLike, maxOverride?: number | null): number | null {
+  return protocolMaxTokens(resolveModelCapability({ provider, model: maxOverride ?? undefined }))
+}
+
+export function resolveModelCapabilityForProvider(
+  provider: ProviderLike,
+  maxOverride?: number | null
+): ModelCapability {
+  return resolveModelCapability({ provider, model: maxOverride ?? undefined })
+}
+
+/**
+ * Resolves the declared input context window. 0 is kept as "undeclared";
+ * budgeting turns that into a conservative default rather than unlimited.
+ */
+export function resolveContextWindowTokens(provider: ProviderLike): number {
+  const value = Number(provider?.contextWindowTokens)
+  return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0
 }
 
 /**
@@ -127,18 +155,12 @@ export function extractFinishReason(json: any): string | undefined {
  * Examples: max_tokens -> length, end_turn/stop_sequence -> stop.
  */
 export function normalizeFinishReason(reason?: string): string | undefined {
-  if (reason == null) return undefined
-  const key = String(reason).trim().toLowerCase().replace(/[\s-]+/g, '_')
-  if (!key) return undefined
-  if (['length', 'max_tokens', 'max_output_tokens'].includes(key)) return 'length'
-  if (['stop', 'end_turn', 'stop_sequence', 'eos', 'endoftext', 'complete', 'finished'].includes(key)) return 'stop'
-  if (key === 'function_call') return 'tool_calls'
-  return key
+  return traceNormalizeFinishReason(undefined, reason)
 }
 
 function readCompletionTokens(usage: any): number | undefined {
   if (!usage || typeof usage !== 'object') return undefined
-  const raw = usage.completion_tokens ?? usage.completionTokens ?? usage.output_tokens ?? usage.outputTokens ?? usage.completionTokenCount
+  const raw = usage.outputTokens ?? usage.completion_tokens ?? usage.completionTokens ?? usage.output_tokens ?? usage.completionTokenCount
   const value = Number(raw)
   return Number.isFinite(value) ? value : undefined
 }
@@ -150,15 +172,16 @@ function readCompletionTokens(usage: any): number | undefined {
 export function resolveFinishReason(
   finishReason: string | undefined,
   usage: any,
-  maxTokens: number,
+  maxTokens: number | null,
   hasText: boolean
 ): string {
   const normalized = normalizeFinishReason(finishReason)
   if (normalized) return normalized
   const completionTokens = readCompletionTokens(usage)
-  if (completionTokens == null || completionTokens <= 0 || maxTokens <= 0) return 'stop'
-  if (completionTokens >= maxTokens) return 'length'
-  return hasText && completionTokens / maxTokens >= 0.95 ? 'length' : 'stop'
+  const outputLimit = maxTokens ?? 0
+  if (completionTokens == null || completionTokens <= 0 || outputLimit <= 0) return 'stop'
+  if (completionTokens >= outputLimit) return 'length'
+  return hasText && completionTokens / outputLimit >= 0.95 ? 'length' : 'stop'
 }
 
 export function isSSEDone(payload: string): boolean {

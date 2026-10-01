@@ -2,9 +2,9 @@
 /* 1. Overlay backdrop */
 .modal-overlay {
   position: fixed; inset: 0;
-  background: var(--bg-overlay, rgba(0,0,0,0.4));
-  backdrop-filter: var(--glass-blur) var(--glass-saturate); -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-  z-index: var(--z-modal, 1000);
+  background: var(--overlay-level-1);
+  backdrop-filter: var(--overlay-blur); -webkit-backdrop-filter: var(--overlay-blur);
+  z-index: var(--z-modal);
   display: flex; align-items: center; justify-content: center;
   pointer-events: auto;
 }
@@ -14,26 +14,26 @@
 .modal-content {
   position: relative;
   display: flex; flex-direction: column;
-  background: var(--bg-elevated, var(--bg-secondary));
+  background: var(--bg-elevated);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg, 12px);
-  box-shadow: var(--shadow-lg, 0 8px 32px rgba(0,0,0,0.3));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
   max-width: 90vw; max-height: 85vh;
-  width: var(--modal-width, 720px); min-width: 420px;
+  width: var(--modal-width); min-width: 420px;
   margin: auto; overflow: hidden;
   opacity: 1; pointer-events: auto;
-  z-index: var(--z-modal-content, 1001);
-  max-height: var(--modal-max-height, min(85vh, 900px));
+  z-index: var(--z-modal-content);
+  max-height: var(--modal-max-height);
   min-height: 0;
 }
-.modal-content-sm { max-width: var(--modal-width-sm, 520px); width: var(--modal-width-sm, 520px); }
+.modal-content-sm { max-width: var(--modal-width-sm); width: var(--modal-width-sm); }
 .modal-content.modal-lg { max-width: 92vw; width: 960px; }
 /* 3. Modal header */
 .modal-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: var(--space-6) var(--space-8);
   border-bottom: 1px solid var(--border-color);
-  background: var(--bg-elevated, var(--bg-secondary));
+  background: var(--bg-elevated);
   flex-shrink: 0; min-height: 48px;
 }
 .modal-header h3 {
@@ -55,23 +55,23 @@
   gap: var(--space-4);
   padding: var(--space-5) var(--space-8);
   border-top: 1px solid var(--border-color);
-  background: var(--bg-elevated, var(--bg-secondary));
+  background: var(--bg-elevated);
   flex-shrink: 0; min-height: 52px;
 }
 .modal-footer button { min-width: 64px; }
 
-@media (max-width: 560px) {
+@media (max-width: 600px) {
   .modal-content { min-width: 0; width: calc(100vw - 16px); max-width: calc(100vw - 16px); }
 }
 /* 6. Close button */
 .modal-close, .btn-close {
   display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; flex-shrink: 0;
   background: none; border: none;
   color: var(--text-secondary);
-  font-size: var(--font-size-md, 14px);
+  font-size: 0;
   cursor: pointer;
-  padding: var(--space-xs, var(--space-2)) var(--space-sm, var(--space-4));
-  border-radius: var(--radius-sm, 6px);
+  border-radius: var(--radius-sm);
   transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 .modal-close:hover, .btn-close:hover {
@@ -82,14 +82,14 @@
 /* P3: nested dialogs must form a predictable layer above their owner. */
 .modal-overlay.modal-nested,
 .modal-nested-overlay {
-  z-index: var(--z-modal-nested, 1100);
-  padding: var(--modal-gutter, var(--space-8));
+  z-index: var(--z-modal-nested);
+  padding: var(--modal-gutter);
 }
 .modal-nested-content,
 .modal-overlay.modal-nested > .modal-content {
-  z-index: var(--z-modal-nested-content, 1101);
-  width: min(var(--modal-width, 720px), 100%);
+  z-index: var(--z-modal-nested-content);
+  width: min(var(--modal-width), 100%);
   max-width: 100%;
-  max-height: var(--modal-max-height, min(85vh, 900px));
+  max-height: var(--modal-max-height);
   min-width: 0;
 }

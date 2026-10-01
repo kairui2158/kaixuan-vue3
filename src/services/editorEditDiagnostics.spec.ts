@@ -59,11 +59,13 @@ describe('diagnoseEditorEditBatch', () => {
       suggestion: 're_read_target'
     })
     expect(result.failedItems[1].candidates === undefined || result.failedItems[1].candidates?.length === 0).toBe(true)
-    expect(result.retryCommand?.reason).toContain('只重提失败条目')
+    expect(result.retryCommand?.reason).toContain('必须整批重提')
     expect(JSON.parse(result.retryCommand?.content || '{}')).toMatchObject({
       failedIndexes: [1, 2],
-      keepIndexes: [0]
+      repair: '请整批重新提交修正后的命令'
     })
+    expect(result.summary).toContain('原文未修改')
+    expect(result.summary).toContain('预演通过条目也未写入')
   })
 
   it('reports selection and global failures without leaking false successes', () => {
@@ -101,7 +103,7 @@ describe('editor diagnostics logging', () => {
     ;(globalThis as any).window = { DiagLogger: { log } }
   }
 
-  it('logs applied edits as info, rejected edits as error, and other results as warn', () => {
+  it('logs applied and no-op edits as info, rejected edits as error, and other results as warn', () => {
     installLogger()
     const base = {
       requestId: 'request-1',
@@ -130,7 +132,7 @@ describe('editor diagnostics logging', () => {
     )
     expect(log).toHaveBeenNthCalledWith(
       3,
-      'warn',
+      'info',
       'ai-service/editor-batch',
       expect.stringContaining('result=no_edit'),
       expect.objectContaining({ purpose: 'main-edit', result: 'no_edit' }),

@@ -1,12 +1,12 @@
 <template>
-  <div v-if="visible" class="help-overlay" :style="{ zIndex: modalQueue.getZIndex('help-guide') }" @click.self="close">
+  <div v-if="visible" data-modal-id="help-guide" class="modal-overlay" :style="{ zIndex: modalQueue.getZIndex('help-guide') }" @click.self="close">
     <section class="help-modal" role="dialog" aria-modal="true" aria-label="应用教学指南">
       <header class="help-header">
         <div>
           <h2>应用教学指南</h2>
           <p>按创作顺序阅读，遇到哪个板块就看哪一节。每一节都按“这是干什么的、怎么点、出问题怎么办”来讲。</p>
         </div>
-        <button class="help-close" type="button" aria-label="关闭教学指南" @click="close">×</button>
+        <button class="help-close" type="button" aria-label="关闭教学指南" @click="close"><AppIcon name="x" /></button>
       </header>
 
       <div class="help-layout">
@@ -263,7 +263,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useModalQueue } from '../../composables/useModalQueue'
 
 const visible = ref(false)
@@ -288,6 +288,11 @@ const sections = [
 
 const activeSection = computed(() => sections.find(item => item.id === activeId.value))
 
+function handleOpenGuideEvent() {
+  activeId.value = 'start'
+  open()
+}
+
 function open() {
   visible.value = true
   modalQueue.open('help-guide')
@@ -300,25 +305,19 @@ function close() {
 
 onMounted(() => {
   window.electronAPI?.onOpenHelpGuide?.(() => {
-    activeId.value = 'start'
-    open()
+    handleOpenGuideEvent()
   })
+  window.addEventListener('open-help-guide', handleOpenGuideEvent)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('open-help-guide', handleOpenGuideEvent)
 })
 
 defineExpose({ open, activeSection })
 </script>
 
 <style scoped>
-.help-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-8);
-  background: var(--bg-overlay, rgba(0, 0, 0, 0.55));
-}
 
 .help-modal {
   width: min(1080px, 100%);
@@ -338,7 +337,7 @@ defineExpose({ open, activeSection })
   align-items: center;
   justify-content: space-between;
   gap: var(--space-6);
-  padding: 1var(--space-4) 2var(--space-1);
+  padding: var(--space-7) var(--space-8);
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
 }
@@ -348,31 +347,31 @@ defineExpose({ open, activeSection })
   border-top: 1px solid var(--border-color);
   border-bottom: 0;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .help-header h2 {
   margin: 0;
   color: var(--text-primary);
-  font-size: 20px;
+  font-size: var(--font-size-xxl);
   line-height: 1.3;
 }
 
 .help-header p {
   margin: var(--space-2) 0 0;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
 }
 
 .help-close {
   width: 32px;
-  height: 32px;
+  height: var(--density-btn-sm-height);
   flex: 0 0 auto;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-secondary);
-  font-size: 20px;
+  font-size: var(--font-size-xxl);
   line-height: 1;
   cursor: pointer;
 }
@@ -400,14 +399,14 @@ defineExpose({ open, activeSection })
 }
 
 .help-nav button {
-  min-height: 34px;
+  min-height: var(--density-form-height);
   padding: var(--space-4) var(--space-5);
   border: 0;
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-secondary);
   text-align: left;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   cursor: pointer;
 }
 
@@ -423,25 +422,25 @@ defineExpose({ open, activeSection })
 
 .help-content {
   min-width: 0;
-  padding: var(--space-8) 2var(--space-4) 2var(--space-4);
+  padding: var(--space-8);
   overflow-y: auto;
   color: var(--text-primary);
 }
 
 .help-content h3 {
   margin: 0 0 var(--space-5);
-  font-size: 19px;
+  font-size: var(--font-size-heading);
   line-height: 1.3;
 }
 
 .help-content h4 {
   margin: var(--space-7) 0 var(--space-4);
-  font-size: 15px;
+  font-size: var(--font-size-body);
 }
 
 .help-content p {
   margin: 0 0 var(--space-5);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   line-height: 1.75;
   color: var(--text-secondary);
   overflow-wrap: anywhere;
@@ -456,7 +455,7 @@ defineExpose({ open, activeSection })
   margin: 0 0 var(--space-5);
   padding-left: 20px;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   line-height: 1.75;
 }
 
@@ -469,27 +468,27 @@ defineExpose({ open, activeSection })
 
 .help-content dt {
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 650;
 }
 
 .help-content dd {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   line-height: 1.7;
   overflow-wrap: anywhere;
 }
 
 .help-footer button {
   min-width: 84px;
-  height: 32px;
+  height: var(--density-btn-sm-height);
   padding: 0 var(--space-5);
   border: 0;
   border-radius: var(--radius-sm);
   background: var(--accent);
   color: var(--text-on-accent);
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   cursor: pointer;
 }
 
@@ -498,10 +497,6 @@ defineExpose({ open, activeSection })
 }
 
 @media (max-width: 760px) {
-  .help-overlay {
-    padding: var(--space-5);
-  }
-
   .help-modal {
     max-height: calc(100vh - 20px);
   }
@@ -530,7 +525,7 @@ defineExpose({ open, activeSection })
   }
 
   .help-content {
-    padding: 1var(--space-4);
+    padding: var(--space-7);
   }
 
   .help-content dl {

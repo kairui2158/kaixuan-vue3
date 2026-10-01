@@ -24,8 +24,6 @@
         </div>
         <div v-if="editingId !== a.id" class="agent-card-summary">
           <span class="agent-card-meta">温度: {{ a.temperature }}</span>
-          <span class="agent-card-meta" v-if="a.maxTokens > 0">输出上限: {{ a.maxTokens }}</span>
-          <span class="agent-card-meta" v-else>输出上限: 无上限</span>
         </div>
         <div v-if="editingId === a.id" id="agent-form" class="agent-card-body">
           <h4 id="agent-form-title">智能体设置</h4>
@@ -43,8 +41,6 @@
            </select>
             <label>温度: <span id="af-temp-val">{{ a.temperature }}</span></label>
             <input type="range" id="af-temperature" min="0" max="2" step="0.1" v-model.number="a.temperature" class="range-full" @change="agentStore.saveAgents()" />
-            <label>输出上限（maxTokens）</label>
-            <input id="af-max-tokens" type="number" v-model.number="a.maxTokens" class="input-field full-width" @change="agentStore.saveAgents()" />
             <label>系统提示词</label>
             <textarea id="af-prompt" v-model="a.systemPrompt" class="textarea-field full-width" rows="6" placeholder="设定AI的角色、行为、语气..." @change="agentStore.saveAgents()"></textarea>
           </div>
@@ -60,58 +56,60 @@
       <option v-for="m in allModelOptions" :key="m" :value="m"></option>
     </datalist>
 
-    <div v-if="importPreviewVisible" class="agent-import-overlay" :style="{ zIndex: modalQueue.getZIndex('agent-import-preview') }" @click.self="cancelImport">
+    <div v-if="importPreviewVisible" data-modal-id="agent-import-preview" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('agent-import-preview') }" @click.self="cancelImport">
       <div class="agent-import-modal" role="dialog" aria-modal="true" aria-labelledby="agent-import-title">
         <div class="agent-import-header">
           <h4 id="agent-import-title">导入预览</h4>
-          <button class="icon-close" type="button" aria-label="关闭导入预览" @click="cancelImport">×</button>
+          <button class="icon-close" type="button" aria-label="关闭导入预览" @click="cancelImport"><AppIcon name="x" /></button>
         </div>
-        <p class="agent-import-source" :title="importSource">{{ importSource || '配置文件' }}</p>
-        <div v-if="importSourceInfo" class="agent-import-origin" aria-label="导入来源与协议状态">
-          <span class="agent-import-chip">来源：{{ formatSource(importSourceInfo) }}</span>
-          <span class="agent-import-chip" :class="protocolClass(importSourceInfo)">
-            {{ formatProtocol(importSourceInfo) }}
-          </span>
-        </div>
-        <div v-if="importFieldTrace.length" class="agent-import-fields">
-          <div class="agent-import-section-title">字段读取</div>
-          <div v-for="trace in importFieldTrace" :key="trace.field" class="agent-import-field">
-            <span class="agent-import-field-name">{{ trace.field }}</span>
-            <span class="agent-import-field-origin">{{ formatOrigin(trace.origin) }}</span>
-            <span v-if="trace.sourceField" class="agent-import-field-source">来自 {{ trace.sourceField }}</span>
+        <div class="agent-import-scroll">
+          <p class="agent-import-source" :data-tooltip="importSource">{{ importSource || '配置文件' }}</p>
+          <div v-if="importSourceInfo" class="agent-import-origin" aria-label="导入来源与协议状态">
+            <span class="agent-import-chip">来源：{{ formatSource(importSourceInfo) }}</span>
+            <span class="agent-import-chip" :class="protocolClass(importSourceInfo)">
+              {{ formatProtocol(importSourceInfo) }}
+            </span>
           </div>
-        </div>
-        <div v-if="importDiagnostics.length" class="agent-import-diagnostics">
-          <div class="agent-import-section-title">解析诊断</div>
-          <div v-for="(diagnostic, index) in importDiagnostics" :key="diagnostic.code + '-' + index" class="agent-import-diagnostic" :class="'is-' + diagnostic.level">
-            <strong>{{ formatDiagnosticLevel(diagnostic.level) }}</strong>
-            <span>{{ diagnostic.message }}</span>
+          <div v-if="importFieldTrace.length" class="agent-import-fields">
+            <div class="agent-import-section-title">字段读取</div>
+            <div v-for="trace in importFieldTrace" :key="trace.field" class="agent-import-field">
+              <span class="agent-import-field-name">{{ trace.field }}</span>
+              <span class="agent-import-field-origin">{{ formatOrigin(trace.origin) }}</span>
+              <span v-if="trace.sourceField" class="agent-import-field-source">来自 {{ trace.sourceField }}</span>
+            </div>
           </div>
-        </div>
-        <div v-if="importUnknownFields.length" class="agent-import-unknown">
-          未识别字段：{{ importUnknownFields.join('、') }}
-        </div>
-        <div v-if="importIssues.length" class="agent-import-issues">
-          <div v-for="(issue, index) in importIssues" :key="issue.field + '-' + index" class="agent-import-issue">
-            {{ issue.field }}：{{ issue.message }}
+          <div v-if="importDiagnostics.length" class="agent-import-diagnostics">
+            <div class="agent-import-section-title">解析诊断</div>
+            <div v-for="(diagnostic, index) in importDiagnostics" :key="diagnostic.code + '-' + index" class="agent-import-diagnostic" :class="'is-' + diagnostic.level">
+              <strong>{{ formatDiagnosticLevel(diagnostic.level) }}</strong>
+              <span>{{ diagnostic.message }}</span>
+            </div>
           </div>
-        </div>
-        <div class="agent-import-summary">共 {{ importPlan.length }} 个配置，新增 {{ importAddCount }} 个，重复 {{ importConflictCount }} 个</div>
-        <div class="agent-import-plan">
-          <div v-for="item in importPlan" :key="item.id" class="agent-import-plan-item">
-            <span class="agent-import-name">{{ item.name }}</span>
-            <span class="agent-import-id">{{ item.id }}</span>
-            <span class="agent-import-action" :class="'is-' + item.action">{{ item.reason }}</span>
+          <div v-if="importUnknownFields.length" class="agent-import-unknown">
+            未识别字段：{{ importUnknownFields.join('、') }}
           </div>
-          <p v-if="importPlan.length === 0" class="agent-import-empty">没有可导入的有效配置。</p>
+          <div v-if="importIssues.length" class="agent-import-issues">
+            <div v-for="(issue, index) in importIssues" :key="issue.field + '-' + index" class="agent-import-issue">
+              {{ issue.field }}：{{ issue.message }}
+            </div>
+          </div>
+          <div class="agent-import-summary">共 {{ importPlan.length }} 个配置，新增 {{ importAddCount }} 个，重复 {{ importConflictCount }} 个</div>
+          <div class="agent-import-plan">
+            <div v-for="item in importPlan" :key="item.id" class="agent-import-plan-item">
+              <span class="agent-import-name">{{ item.name }}</span>
+              <span class="agent-import-id">{{ item.id }}</span>
+              <span class="agent-import-action" :class="'is-' + item.action">{{ item.reason }}</span>
+            </div>
+            <p v-if="importPlan.length === 0" class="agent-import-empty">没有可导入的有效配置。</p>
+          </div>
+          <label class="agent-import-strategy">
+            <span>重复配置处理</span>
+            <select v-model="importStrategy" class="input-field" @change="refreshImportPlan">
+              <option value="skip">跳过重复（推荐）</option>
+              <option value="overwrite">覆盖已有配置</option>
+            </select>
+          </label>
         </div>
-        <label class="agent-import-strategy">
-          <span>重复配置处理</span>
-          <select v-model="importStrategy" class="input-field" @change="refreshImportPlan">
-            <option value="skip">跳过重复（推荐）</option>
-            <option value="overwrite">覆盖已有配置</option>
-          </select>
-        </label>
         <div class="agent-import-actions">
           <button class="btn-secondary" type="button" @click="cancelImport">取消</button>
           <button class="btn-primary" type="button" :disabled="importPlan.length === 0 || exchangeLoading" @click="confirmImport">确认导入</button>
@@ -159,6 +157,27 @@ watch(() => importPreviewVisible.value, visible => {
   if (visible) modalQueue.open('agent-import-preview')
   else modalQueue.close('agent-import-preview')
 }, { immediate: true })
+
+// Verification bridge for responsive E2E; no runtime behavior depends on it.
+;(globalThis as any).__agentSettingsState = {
+  get agentStore() { return agentStore },
+  get importPreviewVisible() { return importPreviewVisible.value },
+  set importPreviewVisible(value: boolean) { importPreviewVisible.value = value },
+  get importSource() { return importSource.value },
+  set importSource(value: string) { importSource.value = value },
+  get importSourceInfo() { return importSourceInfo.value },
+  set importSourceInfo(value: ConfigSourceInfo | undefined) { importSourceInfo.value = value },
+  get importFieldTrace() { return importFieldTrace.value },
+  set importFieldTrace(value: ConfigFieldTrace[]) { importFieldTrace.value = value },
+  get importDiagnostics() { return importDiagnostics.value },
+  set importDiagnostics(value: ConfigDiagnostic[]) { importDiagnostics.value = value },
+  get importUnknownFields() { return importUnknownFields.value },
+  set importUnknownFields(value: string[]) { importUnknownFields.value = value },
+  get importIssues() { return importIssues.value },
+  set importIssues(value: ConfigIssue[]) { importIssues.value = value },
+  get importPlan() { return importPlan.value },
+  set importPlan(value: ImportPlanItem[]) { importPlan.value = value }
+}
 const importAddCount = computed(() => importPlan.value.filter(item => item.action === 'add').length)
 const importConflictCount = computed(() => importPlan.value.filter(item => item.action !== 'add').length)
 
@@ -309,12 +328,11 @@ function addAgent() {
 .agent-card-body { margin-top: 8px; min-width: 0; }
 .agent-fields { display: grid; grid-template-columns: minmax(0, 80px) minmax(0, 1fr); gap: var(--space-2) var(--space-4); align-items: center; margin-bottom: 8px; min-width: 0; }
 .agent-fields label { min-width: 0; max-width: 100%; font-size: var(--font-size-md); color: var(--text-secondary); overflow-wrap: anywhere; word-break: break-word; }
-.input-field { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: var(--space-3) var(--space-5); font-size: var(--font-size-md); height: 34px; outline: none; }
-.textarea-field { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: var(--space-4) var(--space-6); font-size: var(--font-size-md); outline: none; resize: vertical; grid-column: 2; }
-.btn-add { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: var(--radius-sm); padding: var(--space-4) 1var(--space-4); cursor: pointer; font-size: var(--font-size-md); margin-top: 12px; }
-.agent-import-overlay { position: fixed; inset: 0; z-index: var(--z-modal-nested); display: flex; align-items: center; justify-content: center; padding: var(--modal-gutter); background: var(--bg-overlay); }
-.agent-import-modal { width: min(680px, 100%); max-width: 100%; min-width: 0; max-height: var(--modal-max-height); overflow-y: auto; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--modal-padding); color: var(--text-primary); box-shadow: var(--shadow-lg); }
-.agent-import-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-5); margin-bottom: 8px; }
+.input-field { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: var(--space-3) var(--space-5); font-size: var(--font-size-md); height: var(--density-form-height); }
+.textarea-field { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: var(--space-4) var(--space-6); font-size: var(--font-size-md); resize: vertical; grid-column: 2; }
+.btn-add { background: var(--accent); color: var(--text-on-accent); border: none; border-radius: var(--radius-sm); padding: var(--space-4); cursor: pointer; font-size: var(--font-size-md); margin-top: 12px; }
+.agent-import-modal { width: min(680px, 100%); max-width: 100%; min-width: 0; max-height: var(--modal-max-height); overflow: hidden; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--modal-padding); color: var(--text-primary); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; }
+.agent-import-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-5); margin-bottom: 8px; flex-shrink: 0; }
 .agent-import-header h4 { margin: 0; font-size: var(--font-size-lg); }
 .icon-close { flex: 0 0 auto; border: 0; background: transparent; color: var(--text-muted); cursor: pointer; font-size: var(--font-size-xl); line-height: 1; }
 .agent-import-source { margin: 0 0 var(--space-5); color: var(--text-muted); font-size: var(--font-size-sm); overflow-wrap: anywhere; }
@@ -343,7 +361,7 @@ function addAgent() {
 .agent-import-plan-item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, auto); align-items: center; gap: var(--space-4); min-width: 0; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border-color); }
 .agent-import-plan-item:last-child { border-bottom: 0; }
 .agent-import-name, .agent-import-id, .agent-import-action { min-width: 0; overflow-wrap: anywhere; }
-.agent-import-id { color: var(--text-muted); font-family: monospace; font-size: var(--font-size-sm); }
+.agent-import-id { color: var(--text-muted); font-family: var(--font-family-mono); font-size: var(--font-size-sm); }
 .agent-import-action { color: var(--text-secondary); font-size: var(--font-size-sm); text-align: right; }
 .agent-import-action.is-add { color: var(--success); }
 .agent-import-action.is-update { color: var(--warning); }
@@ -351,8 +369,9 @@ function addAgent() {
 .agent-import-empty { margin: var(--space-4); color: var(--text-muted); }
 .agent-import-strategy { display: grid; grid-template-columns: minmax(0, 120px) minmax(0, 1fr); align-items: center; gap: var(--space-4); margin-top: 12px; min-width: 0; }
 .agent-import-strategy .input-field { width: 100%; min-width: 0; }
-.agent-import-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: var(--space-4); margin-top: 16px; }
-@media (max-width: 560px) {
+.agent-import-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: var(--space-4); margin-top: 16px; flex-shrink: 0; }
+.agent-import-scroll { min-height: 0; overflow-y: auto; padding-right: var(--space-2); }
+@media (max-width: 600px) {
   .agent-fields { grid-template-columns: minmax(0, 1fr); }
   .textarea-field { grid-column: 1; }
   .agent-import-plan-item { grid-template-columns: 1fr; gap: var(--space-3); }

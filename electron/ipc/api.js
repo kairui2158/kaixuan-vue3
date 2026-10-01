@@ -6,6 +6,7 @@ const {
 } = require('../../dist-renderer/providerProtocols.cjs')
 
 const activeStreams = new Map()
+const PROVIDER_NET_STREAM_IDLE_TIMEOUT_MS = Number(process.env.SHENYI_PROVIDER_NET_STREAM_IDLE_TIMEOUT_MS || 15 * 60_000)
 
 function errorKindForStatus(statusCode) {
   if (statusCode === 401 || statusCode === 403) return 'auth'
@@ -29,8 +30,8 @@ function parseErrorBody(buffer) {
   }
 }
 
-function registerProviderNetHandlers() {
-  ipcMain.handle('providerNet:request', async function(event, request) {
+function registerProviderNetHandlers(ipc) {
+  ipc.handle('providerNet:request', async function(event, request) {
     if (!request || typeof request.url !== 'string') {
       return { ok: false, kind: 'http', message: '请求缺少有效 URL' }
     }
@@ -77,14 +78,22 @@ function registerProviderNetHandlers() {
     }
   })
 
-  ipcMain.handle('providerNet:stream', async function(event, request) {
+  ipc.handle('providerNet:stream', async function(event, request) {
     if (!request || typeof request.url !== 'string') {
       return { ok: false, kind: 'http', message: '请求缺少有效 URL' }
     }
     const signalId = request.signalId
     if (!signalId) return { ok: false, kind: 'http', message: '流式请求缺少 signalId' }
+    const slowStreamTolerant = request.slowStreamTolerant === true
     const controller = new AbortController()
     activeStreams.set(signalId, controller)
+    let idleTimedOut = false
+    let idleTimer = null
+    const clearIdleTimer = () => {
+      if (idleTimer == null) return
+      clearTimeout(idleTimer)
+      idleTimer = null
+    }
     try {
       const response = await fetch(request.url, {
         method: 'POST',
@@ -111,9 +120,19 @@ function registerProviderNetHandlers() {
       })
       const decoder = new TextDecoder()
       const reader = response.body.getReader()
+      const armIdleTimer = () => {
+        clearIdleTimer()
+        idleTimer = setTimeout(() => {
+          idleTimedOut = true
+          controller.abort()
+        }, PROVIDER_NET_STREAM_IDLE_TIMEOUT_MS)
+      }
+      if (!slowStreamTolerant) armIdleTimer()
       while (true) {
         const chunk = await reader.read()
+        if (!slowStreamTolerant) clearIdleTimer()
         if (chunk.done) break
+        if (!slowStreamTolerant) armIdleTimer()
         event.sender.send('providerNet:streamChunk', {
           signalId,
           event: 'chunk',
@@ -124,28 +143,37 @@ function registerProviderNetHandlers() {
       return { ok: true, statusCode: response.status }
     } catch (e) {
       if (e.name === 'AbortError') {
+        if (idleTimedOut) {
+          event.sender.send('providerNet:streamChunk', {
+            signalId,
+            event: 'error',
+            message: '流式响应长时间无输出，已按网络断流处理',
+          })
+          return { ok: false, kind: 'network', message: '流式响应长时间无输出，已按网络断流处理' }
+        }
         event.sender.send('providerNet:streamChunk', { signalId, event: 'canceled' })
         return { ok: false, kind: 'canceled', message: '请求已取消' }
       }
       event.sender.send('providerNet:streamChunk', { signalId, event: 'error', message: e.message })
       return { ok: false, kind: 'network', message: e.message || '网络错误' }
     } finally {
+      clearIdleTimer()
       activeStreams.delete(signalId)
     }
   })
 
-  ipcMain.handle('providerNet:abort', async function(event, signalId) {
+  ipc.handle('providerNet:abort', async function(event, signalId) {
     const controller = activeStreams.get(signalId)
     if (controller) controller.abort()
     return { aborted: Boolean(controller) }
   })
 }
 
-function registerApiHandlers() {
-  registerProviderNetHandlers()
+function registerApiHandlers(ipc = ipcMain) {
+  registerProviderNetHandlers(ipc)
   // Legacy bridge kept for old callers. It delegates to the shared protocol
   // layer so no second URL/header rule can drift from aiService.
-  ipcMain.handle('api:fetchModels', async function(event, baseUrl, apiKey) {
+  ipc.handle('api:fetchModels', async function(event, baseUrl, apiKey) {
     var url = ''
     try {
       url = buildProviderModelsUrl({ baseUrl: baseUrl, providerType: 'openai-compatible' })

@@ -203,17 +203,8 @@ try {
     .locator('.ow-msg-actions button', { hasText: '回滚批次' })
   assert(await directWriteActions.count() > 0, 'assistant bubble exposes the direct-write rollback action')
 
-  const toolToggle = page.locator('.ow-tool-stream-toggle').first()
-  assert(await toolToggle.count() > 0, 'assistant bubble exposes tool process stream')
-  await toolToggle.click()
-  await page.waitForSelector('.ow-tool-stream-item.tool_error')
-  const errorStreamLocator = page.locator('#ow-chat-messages .ow-msg.assistant').last()
-    .locator('.ow-tool-stream-item.tool_error')
-  const errorStreamText = await errorStreamLocator.textContent()
-  assert(
-    (errorStreamText || '').includes('1 条命令需要修正'),
-    'tool stream shows one command needs repair'
-  )
+  const outlineChatText = await page.locator('#ow-chat-messages').textContent()
+  assert(!(outlineChatText || '').includes('editor.write'), 'assistant bubble never shows tool identity')
 
   const finalOutlineText = await page.locator('#outline-editor').inputValue()
   assert(

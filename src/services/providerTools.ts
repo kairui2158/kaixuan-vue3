@@ -1,4 +1,5 @@
 import type { AgentToolDefinition } from './editorTools'
+import { normalizeToolCallId } from './traceFieldNormalizer'
 
 export type ToolCapableProviderType =
   | 'openai-compatible'
@@ -28,14 +29,70 @@ export interface ProviderToolRequest {
   messages: Array<Record<string, unknown>>
 }
 
+export type StreamingToolCallStatus = 'implemented' | 'unverified'
+
+export type ToolResultWireFormat =
+  | 'openai-tool-role'
+  | 'anthropic-tool-result'
+  | 'gemini-function-response'
+
+export interface ProviderToolCapability {
+  nativeTools: boolean
+  streamingToolCalls: StreamingToolCallStatus | null
+  strictSchema: boolean
+  toolResultWireFormat: ToolResultWireFormat
+  inheritsToolProtocolFrom?: ToolCapableProviderType
+}
+
+export const providerToolCapabilities: Record<ToolCapableProviderType, ProviderToolCapability> = {
+  'openai-compatible': {
+    nativeTools: true,
+    streamingToolCalls: 'implemented',
+    strictSchema: false,
+    toolResultWireFormat: 'openai-tool-role',
+  },
+  deepseek: {
+    nativeTools: true,
+    streamingToolCalls: 'implemented',
+    strictSchema: false,
+    toolResultWireFormat: 'openai-tool-role',
+    inheritsToolProtocolFrom: 'openai-compatible',
+  },
+  'azure-openai': {
+    nativeTools: true,
+    streamingToolCalls: 'implemented',
+    strictSchema: false,
+    toolResultWireFormat: 'openai-tool-role',
+    inheritsToolProtocolFrom: 'openai-compatible',
+  },
+  anthropic: {
+    nativeTools: true,
+    streamingToolCalls: 'implemented',
+    strictSchema: false,
+    toolResultWireFormat: 'anthropic-tool-result',
+  },
+  gemini: {
+    nativeTools: true,
+    streamingToolCalls: 'implemented',
+    strictSchema: false,
+    toolResultWireFormat: 'gemini-function-response',
+  },
+}
+
+export function getProviderToolCapability(providerType: string): ProviderToolCapability | null {
+  return (providerToolCapabilities as Record<string, ProviderToolCapability | undefined>)[providerType] || null
+}
+
 export function supportsNativeTools(providerType: string): boolean {
-  return [
-    'openai-compatible',
-    'deepseek',
-    'anthropic',
-    'gemini',
-    'azure-openai',
-  ].includes(providerType)
+  return getProviderToolCapability(providerType)?.nativeTools === true
+}
+
+function encodeGeminiToolName(name: string): string {
+  return name.replace(/\./g, '_')
+}
+
+function decodeGeminiToolName(name: string): string {
+  return name.replace(/_(?=[^.]*$)/, '.')
 }
 
 export function buildProviderTools(
@@ -54,7 +111,7 @@ export function buildProviderTools(
 
   if (providerType === 'gemini') {
     return tools.map(tool => ({
-      name: tool.name.replace(/\./g, '_'),
+      name: encodeGeminiToolName(tool.name),
       description: tool.description,
       parameters: tool.inputSchema,
     }))
@@ -80,8 +137,8 @@ export function extractProviderToolCalls(
     const content = Array.isArray(data?.content) ? data.content : []
     return content
       .filter((item: any) => item?.type === 'tool_use')
-      .map((item: any) => ({
-        id: String(item.id || `anthropic-tool-${Math.random().toString(36).slice(2)}`),
+      .map((item: any, index: number) => ({
+        id: normalizeToolCallId(providerType, item.id, `anthropic-${index}`).id,
         name: String(item.name || ''),
         input: item.input ?? {},
       }))
@@ -92,11 +149,11 @@ export function extractProviderToolCalls(
     if (!Array.isArray(parts)) return []
     return parts
       .filter((part: any) => part?.functionCall)
-      .map((part: any) => {
+      .map((part: any, index: number) => {
         const call = part.functionCall
         return {
-          id: String(call?.name || `gemini-tool-${Math.random().toString(36).slice(2)}`),
-          name: String(call?.name || '').replace(/_(?=[^.]*$)/, '.'),
+          id: normalizeToolCallId(providerType, call?.name, `gemini-${index}`).id,
+          name: decodeGeminiToolName(String(call?.name || '')),
           input: call?.args ?? {},
         }
       })
@@ -116,7 +173,7 @@ export function extractProviderToolCalls(
       input = call.function.arguments
     }
     return {
-      id: String(call?.id || `openai-tool-${index}`),
+      id: normalizeToolCallId(providerType, call?.id, `openai-${index}`).id,
       name: String(call?.function?.name || ''),
       input,
     }
@@ -164,13 +221,13 @@ export function buildToolResultChatMessages(
     const next = messages.map(message => ({ ...message }))
     const assistantParts: Array<Record<string, unknown>> = []
     const calls = extractProviderToolCalls(providerType, assistantPayload)
-    for (const call of calls) assistantParts.push({ functionCall: { name: call.name.replace(/\./g, '_'), args: call.input } })
+    for (const call of calls) assistantParts.push({ functionCall: { name: encodeGeminiToolName(call.name), args: call.input } })
     next.push({ role: 'assistant', geminiParts: assistantParts })
     next.push({
       role: 'user',
       geminiParts: toolResults.map(item => ({
         functionResponse: {
-          name: item.call.name.replace(/\./g, '_'),
+          name: encodeGeminiToolName(item.call.name),
           response: item.result,
         },
       })),

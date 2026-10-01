@@ -3,9 +3,35 @@ import { validateDialogueToolSet } from './dialogueFoundation'
 import type { EditorTargetSnapshot } from './editorTarget'
 import { locateEditorFragment } from './editorEditLocator'
 import type { EditorEditCommand } from './editorEditProtocol'
-import { diagnoseEditorEditBatch } from './editorEditDiagnostics'
-import { mergeRetriedCommands, planEditorEditBatch } from './editorEditBatch'
+import { buildEditorWriteFailedDiagnostics } from './editorEditDiagnostics'
+import {
+  EDITOR_EDIT_PROTOCOL_VERSION,
+  SUPPORTED_EDITOR_EDIT_PROTOCOL_VERSIONS,
+  EDITOR_EDIT_OPERATIONS,
+  EDITOR_EDIT_POSITIONS,
+  doesEditorEditOperationRequireNonEmptyContent,
+  doesEditorEditOperationRequireTarget,
+  isEditorEditPositionAllowed,
+  normalizeEditorEditOperation,
+  normalizeEditorEditPosition,
+} from './editorEditSemantics'
+import { planEditorEditBatch } from './editorEditBatch'
+import type {
+  LongDocumentExecutionPlan,
+  LongDocumentExecutionPlanSegment,
+  LongDocumentInvariant,
+} from './longDocumentExecutionPlanner'
+import {
+  buildLongDocumentWriteRejectionMessage,
+  resolveLongDocumentWriteOperations,
+} from './longDocumentWriteProtocol'
+import {
+  buildEditorDocumentMap,
+  createEditorDocumentMapTools,
+  enhanceEditorSearchWithDocumentMap,
+} from './editorDocumentMap'
 import { parseOutlineStructure, type OutlineStructureNode } from './outlineStructure'
+import { validateSkillInput, type JsonSchema } from './skillValidation'
 
 export type AgentToolPolicy = 'read' | 'write'
 
@@ -34,10 +60,13 @@ export interface AgentToolDefinition {
   name: string
   description: string
   policy: AgentToolPolicy
+  /** External skills must mark ownership so built-in-name collisions are rejected safely. */
+  origin?: 'built-in' | 'external'
   inputSchema: {
     type: 'object'
     properties: Record<string, unknown>
     required?: string[]
+    additionalProperties?: boolean
   }
   timeoutMs?: number
   execute(input: unknown, context: AgentToolContext): Promise<ToolResult>
@@ -45,14 +74,50 @@ export interface AgentToolDefinition {
 
 export interface ToolCallEvent {
   toolName: string
+  toolCallId?: string
   policy: AgentToolPolicy
   iteration: number
   input: unknown
   result: ToolResult
   durationMs: number
+  protocolVersion?: number
 }
 
 export type ToolEventSink = (event: ToolCallEvent) => void
+
+function batchDetailFromPlan(
+  plan: LongDocumentExecutionPlan | undefined,
+): EditorWriteApplyInput['batchDetail'] {
+  const segment = plan?.segments[0]
+  if (!segment) return undefined
+  const invariantResult = plan.invariants[0]
+  return {
+    segmentId: segment.segmentId,
+    expectedChange: segment.expectedChange,
+    ...(invariantResult ? { invariantResult } : {}),
+  }
+}
+
+/**
+ * Bind each EditTask batch to the planner segment that produced it. Callers
+ * may preselect a segment; otherwise the first segment remains the documented
+ * initial target.
+ */
+function batchDetailFromPlanForBatch(
+  plan: LongDocumentExecutionPlan | undefined,
+  input: Pick<EditorWriteApplyInput, 'batchDetail'>,
+): EditorWriteApplyInput['batchDetail'] {
+  if (!plan) return input.batchDetail
+  const segment = plan.segments.find(item => item.segmentId === input.batchDetail?.segmentId)
+    || plan.segments[0]
+  if (!segment) return input.batchDetail
+  const invariantResult = input.batchDetail?.invariantResult || plan.invariants[0]
+  return {
+    segmentId: segment.segmentId,
+    expectedChange: segment.expectedChange,
+    ...(invariantResult ? { invariantResult } : {}),
+  }
+}
 
 export type EditorWriteMode = 'direct'
 
@@ -63,6 +128,11 @@ export interface EditorWriteApplyInput {
   next: string
   original: string
   commands: EditorEditCommand[]
+  batchDetail?: {
+    segmentId: string
+    expectedChange: string
+    invariantResult?: string
+  }
   reason?: string
   reveal: {
     mode: 'stream' | 'instant'
@@ -71,7 +141,7 @@ export interface EditorWriteApplyInput {
 }
 
 export type EditorWriteApplier = (input: EditorWriteApplyInput) => Promise<
-  | { ok: true; rollbackAvailable: boolean }
+  | { ok: true; rollbackAvailable: boolean; documentVersion?: number; contentHash?: string }
   | { ok: false; code: string; message: string }
 >
 
@@ -110,7 +180,7 @@ export type EditorRevealer = (request: EditorRevealRequest) => Promise<void>
 
 const MAX_CONTEXT_WINDOW = 300
 const MAX_SEARCH_RESULTS = 20
-const MAX_PLAN_STEPS = 20
+const MAX_SEARCH_PAGE_RESULTS = 50
 const MAX_REVEAL_RANGE = 20000
 
 interface RevealSuccess {
@@ -270,6 +340,47 @@ function contextWindow(content: string, start: number, end: number): string {
   return content.slice(from, to)
 }
 
+function collectLeafBodyMultiset(content: string): string[] {
+  const structure = parseOutlineStructure(content)
+  const bodies: string[] = []
+  const walk = (nodes: OutlineStructureNode[]) => {
+    for (const node of nodes) {
+      if (node.children.length) {
+        walk(node.children)
+      } else {
+        bodies.push(content.slice(node.contentStart, node.end).trim())
+      }
+    }
+  }
+  walk(structure.nodes)
+  return bodies.length ? bodies : [content.trim()]
+}
+
+function hasSameLeafBodyMultiset(before: string, after: string): boolean {
+  const beforeBodies = collectLeafBodyMultiset(before)
+  const afterBodies = collectLeafBodyMultiset(after)
+  if (beforeBodies.length !== afterBodies.length) return false
+  const counts = new Map<string, number>()
+  for (const body of beforeBodies) counts.set(body, (counts.get(body) ?? 0) + 1)
+  for (const body of afterBodies) {
+    const count = counts.get(body)
+    if (!count) return false
+    counts.set(body, count - 1)
+  }
+  return true
+}
+
+function collectStructureSegments(content: string): Array<{
+  id: string
+  start: number
+  end: number
+}> {
+  const structure = parseOutlineStructure(content)
+  // Top-level nodes cover the whole document exactly once. Descending here
+  // would make a parent segment overlap its children and duplicate content.
+  return structure.nodes.map(node => ({ id: node.id, start: node.start, end: node.end }))
+}
+
 function findMatches(content: string, query: string, caseSensitive: boolean): Array<{ start: number; end: number }> {
   if (!query) return []
   const haystack = caseSensitive ? content : content.toLowerCase()
@@ -286,13 +397,14 @@ function findMatches(content: string, query: string, caseSensitive: boolean): Ar
 export function createEditorTools(options: {
   getSnapshot: () => EditorTargetSnapshot | null
   getAllSnapshots?: () => EditorTargetSnapshot[]
-  onPlanUpdate?: (plan: { stage: string; steps: string[] }) => void
   mode?: EditorWriteMode
   applyWrite?: EditorWriteApplier
   revealTarget?: EditorRevealer
   workspace?: DialogueWorkspace
   onFailedBatch?: (batch: EditorWriteRetryCarrier | null) => void
   takeFailedBatch?: () => EditorWriteRetryCarrier | null
+  maxReadChars?: () => number
+  executionPlan?: LongDocumentExecutionPlan
 }): AgentToolDefinition[] {
   const getState: AgentToolDefinition = {
     name: 'editor.get_state',
@@ -330,30 +442,37 @@ export function createEditorTools(options: {
       properties: {
         query: { type: 'string', description: '搜索文本' },
         caseSensitive: { type: 'boolean', description: '是否区分大小写，默认 false' },
+        offset: { type: 'number', description: '命中分页偏移，默认 0' },
+        limit: { type: 'number', description: '单次返回命中数量，默认 20，最大 50' },
       },
       required: ['query'],
     },
     async execute(input) {
       const snapshot = options.getSnapshot()
       if (!snapshot) return toolError('target_missing', '当前没有可编辑目标')
-      const params = input as { query?: unknown; caseSensitive?: unknown }
+      const params = input as { query?: unknown; caseSensitive?: unknown; offset?: unknown; limit?: unknown }
       if (typeof params.query !== 'string' || !params.query.trim()) {
         return toolError('invalid_input', 'query 必须是非空字符串')
       }
       const caseSensitive = params.caseSensitive === true
-      const matches = findMatches(snapshot.content, params.query, caseSensitive)
-      return {
-        ok: true,
-        data: {
-          total: Math.min(matches.length, MAX_SEARCH_RESULTS),
-          truncated: matches.length > MAX_SEARCH_RESULTS,
-          matches: matches.slice(0, MAX_SEARCH_RESULTS).map(match => ({
-            start: match.start,
-            end: match.end,
-            context: contextWindow(snapshot.content, match.start, match.end),
-          })),
-        },
+      const offset = typeof params.offset === 'number' && Number.isFinite(params.offset) && params.offset >= 0
+        ? Math.floor(params.offset)
+        : 0
+      const limit = typeof params.limit === 'number' && Number.isFinite(params.limit) && params.limit >= 0
+        ? Math.min(Math.floor(params.limit), MAX_SEARCH_PAGE_RESULTS)
+        : MAX_SEARCH_RESULTS
+      const result = enhanceEditorSearchWithDocumentMap({
+        content: snapshot.content,
+        map: buildEditorDocumentMap(snapshot.content),
+        query: params.query,
+        caseSensitive,
+        offset,
+        limit: Math.max(1, limit),
+      })
+      if (!result.ok) {
+        return { ok: false, error: { code: result.error.code, message: result.error.message, retryable: true } }
       }
+      return { ok: true, data: result.data }
     },
   }
 
@@ -410,21 +529,33 @@ export function createEditorTools(options: {
 
   const writeEdits: AgentToolDefinition = {
     name: 'editor.write',
-    description: '立即写入当前编辑器。提交 1-10 条受限编辑命令；应用执行唯一性、版本与锁定校验，通过后立即写入并返回结果；失败返回结构化错误供修正重试。',
+    description: '立即写入当前编辑器。提交 1-10 条受限编辑命令；允许操作由当前执行计划决定，应用执行唯一性、版本与锁定校验，通过后立即写入并返回结果；失败返回结构化错误供修正重试。',
     policy: 'write',
     inputSchema: {
       type: 'object',
       properties: {
+        protocolVersion: {
+          type: 'number',
+          description: `编辑直写协议版本，当前为 ${EDITOR_EDIT_PROTOCOL_VERSION}；省略时按 v1 解析`,
+        },
         commands: {
           type: 'array',
           description: '1-10 条受限编辑命令',
           items: {
             type: 'object',
+            additionalProperties: false,
             properties: {
-              operation: { type: 'string' },
+              operation: { type: 'string', enum: [...EDITOR_EDIT_OPERATIONS] },
               content: { type: 'string' },
               target: { type: 'string' },
-              position: { type: 'string' },
+              destination: { type: 'string', description: 'move 专用：目标位置的唯一原文片段' },
+              destinationPosition: { type: 'string', enum: ['before', 'after'], description: 'move 专用：插入到 destination 之前或之后' },
+              order: {
+                type: 'array',
+                description: 'reorder_sections 专用：完整有序结构 ID 列表，集合必须与当前结构完全一致',
+                items: { type: 'string' },
+              },
+              position: { type: 'string', enum: [...EDITOR_EDIT_POSITIONS] },
               reason: { type: 'string' },
             },
             required: ['operation'],
@@ -441,6 +572,7 @@ export function createEditorTools(options: {
         reason: { type: 'string', description: '整批写入说明' },
       },
       required: ['commands'],
+      additionalProperties: false,
     },
     async execute(input, context) {
       if (options.mode !== 'direct' || !options.applyWrite) {
@@ -471,15 +603,149 @@ export function createEditorTools(options: {
         return toolError('batch_too_large', '批次内容超过 60000 字符上限')
       }
 
-      const commands: EditorEditCommand[] = (params.commands as Array<Record<string, unknown>>).map(rawCommand => ({
-        type: 'editor_edit' as const,
-        version: 1 as const,
-        operation: (typeof rawCommand.operation === 'string' ? rawCommand.operation : '') as EditorEditCommand['operation'],
-        content: typeof rawCommand.content === 'string' ? rawCommand.content : undefined,
-        target: typeof rawCommand.target === 'string' ? rawCommand.target : undefined,
-        position: (typeof rawCommand.position === 'string' ? rawCommand.position : 'cursor') as EditorEditCommand['position'],
-        reason: typeof rawCommand.reason === 'string' ? rawCommand.reason : undefined
-      }))
+      const rawCommands = params.commands as Array<Record<string, unknown>>
+      const isRestructurePlan = options.executionPlan?.mode === 'edit-task' &&
+        options.executionPlan.operation === 'restructure'
+      if (
+        isRestructurePlan &&
+        rawCommands.some(rawCommand => normalizeEditorEditOperation(rawCommand.operation) === 'move') &&
+        collectStructureSegments(snapshot.content).length > 10
+      ) {
+        return toolError(
+          'reorder_requires_atomic_command',
+          '当前结构节点数超过单批 move 命令上限，整篇重排必须提交单条 reorder_sections 命令，order 包含完整有序结构 ID 列表。',
+          true,
+        )
+      }
+      const allowedOperations = resolveLongDocumentWriteOperations(options.executionPlan)
+      if (options.executionPlan?.mode === 'final-draft') {
+        return toolError(
+          'final_draft_mode_active',
+          buildLongDocumentWriteRejectionMessage(options.executionPlan),
+          true,
+        )
+      }
+      const disallowedCommand = rawCommands.find(rawCommand => {
+        const operation = normalizeEditorEditOperation(rawCommand.operation)
+        return operation !== null && !allowedOperations.includes(operation)
+      })
+      if (disallowedCommand) {
+        return toolError(
+          'operation_not_allowed_by_execution_plan',
+          buildLongDocumentWriteRejectionMessage(options.executionPlan),
+          true,
+        )
+      }
+      const hasReplaceDocument = rawCommands.some(rawCommand =>
+        normalizeEditorEditOperation(rawCommand.operation) === 'replace_document')
+      if (hasReplaceDocument && rawCommands.length !== 1) {
+        return toolError('invalid_input', 'replace_document 必须单独成批；局部修改请改用受限编辑命令')
+      }
+      const hasReorderSections = rawCommands.some(rawCommand =>
+        normalizeEditorEditOperation(rawCommand.operation) === 'reorder_sections')
+      if (hasReorderSections && rawCommands.length !== 1) {
+        return toolError('invalid_input', 'reorder_sections 必须单独成批；请提交完整有序结构 ID 列表')
+      }
+      const commands: EditorEditCommand[] = rawCommands.map(rawCommand => {
+        const operation = normalizeEditorEditOperation(rawCommand.operation)
+        const position = normalizeEditorEditPosition(rawCommand.position) || 'cursor'
+        return {
+          type: 'editor_edit' as const,
+          version: 1 as const,
+          operation: operation as EditorEditCommand['operation'],
+          order: Array.isArray(rawCommand.order)
+            && rawCommand.order.every(id => typeof id === 'string' && id.trim())
+            && (
+              normalizeEditorEditOperation(rawCommand.operation) === 'reorder_sections' ||
+              new Set(rawCommand.order.map(id => String(id).trim())).size === rawCommand.order.length
+            )
+              ? rawCommand.order.map(id => String(id).trim())
+              : undefined,
+          content: typeof rawCommand.content === 'string' ? rawCommand.content : undefined,
+          target: typeof rawCommand.target === 'string' ? rawCommand.target : undefined,
+          destination: typeof rawCommand.destination === 'string' ? rawCommand.destination : undefined,
+          destinationPosition: rawCommand.destinationPosition === 'before' || rawCommand.destinationPosition === 'after'
+            ? rawCommand.destinationPosition
+            : undefined,
+          position,
+          reason: typeof rawCommand.reason === 'string' ? rawCommand.reason : undefined,
+          ...(!operation ? { __invalidOperation: rawCommand.operation } : {})
+        }
+      })
+
+      for (const [index, command] of commands.entries()) {
+        if (!command.operation) {
+          return {
+            ok: false,
+            error: {
+              code: 'invalid_input',
+              message: `commands[${index}].operation 非法；合法值为 ${EDITOR_EDIT_OPERATIONS.join(' | ')}，旧别名 replace_section/rewrite_section 会自动迁移`,
+              retryable: true,
+            },
+            data: buildEditorWriteFailedDiagnostics({
+              version: 1,
+              ok: false,
+              commandCount: commands.length,
+              succeededIndexes: commands.map((_, itemIndex) => itemIndex).filter(itemIndex => itemIndex !== index),
+              failedItems: [{
+                index,
+                operation: 'rewrite',
+                reason: 'invalid_command',
+                message: `operation 非法：${String((command as { __invalidOperation?: unknown }).__invalidOperation ?? '（缺失）')}`,
+                suggestion: 'check_operation'
+              }],
+              invalidValue: String((command as { __invalidOperation?: unknown }).__invalidOperation ?? '（缺失）'),
+              validValues: [...EDITOR_EDIT_OPERATIONS],
+              summary: `commands[${index}].operation 非法；合法值为 ${EDITOR_EDIT_OPERATIONS.join(' | ')}。批次原子执行，请整批重新提交。`
+            }),
+          }
+        }
+        if (doesEditorEditOperationRequireTarget(command.operation) && !command.target) {
+          return toolError('invalid_input', `commands[${index}]：${command.operation} 必须携带 target`)
+        }
+        if (!doesEditorEditOperationRequireTarget(command.operation) && command.target) {
+          return toolError('invalid_input', `commands[${index}]：${command.operation} 不允许携带 target，请改用 replace_match/delete/rewrite`)
+        }
+        if (
+          command.operation !== 'replace_document' &&
+          doesEditorEditOperationRequireNonEmptyContent(command.operation) &&
+          !command.content?.trim()
+        ) {
+          return toolError('invalid_input', `commands[${index}]：${command.operation} 必须同时携带 target（原文）与 content（新文）；缺失 content 会被视为替换为空，已拒绝写入`)
+        }
+        if (command.operation === 'move' && command.content !== undefined && !command.content.trim()) {
+          return toolError('invalid_input', `commands[${index}]：move 的 content 可选，但提交时必须是非空追加文本；无需追加请删除 content 字段`)
+        }
+        if (command.operation === 'replace_document') {
+          if (!command.content?.trim()) {
+            return toolError('invalid_input', 'replace_document 必须携带完整整理后的全文 content')
+          }
+          if (command.destination || command.destinationPosition || command.position !== 'cursor') {
+            return toolError('invalid_input', 'replace_document 不允许携带 target/destination/position')
+          }
+        }
+        if (command.operation === 'move' && (!command.destination || !command.destinationPosition)) {
+          return toolError('invalid_input', `commands[${index}]：move 必须携带唯一 destination 与 destinationPosition(before|after)`)
+        }
+        if (command.operation === 'reorder_sections') {
+          const forbidden = [
+            command.content !== undefined ? 'content' : null,
+            command.target !== undefined ? 'target' : null,
+            command.destination !== undefined ? 'destination' : null,
+            command.destinationPosition !== undefined ? 'destinationPosition' : null,
+          ].filter(Boolean)
+          if (forbidden.length || !command.order?.length) {
+            return toolError('invalid_input', `reorder_sections 仅允许 order 与 reason${forbidden.length ? `，禁止携带 ${forbidden.join('/')}` : '，order 必须是非空字符串数组'}`)
+          }
+        }
+        if (command.operation !== 'move' && (command.destination || command.destinationPosition)) {
+          return toolError('invalid_input', `commands[${index}]：${command.operation} 不允许携带 destination，destination 仅 move 可用`)
+        }
+        const position = command.position
+        if (position && !isEditorEditPositionAllowed(command.operation, position)) {
+          return toolError('invalid_input', `commands[${index}]：${command.operation} 不允许 position=${command.position}`)
+        }
+      }
 
       const batch = {
         type: 'editor_edit_batch' as const,
@@ -492,57 +758,105 @@ export function createEditorTools(options: {
         commands,
         reason: typeof params.reason === 'string' ? params.reason : undefined,
       }
-      const failedBatch = options.takeFailedBatch?.()
-      const failedIndexes = failedBatch
-        ? failedBatch.commands.map((_, index) => index).filter(index => !failedBatch.succeededIndexes.includes(index))
-        : []
-      const retrySource = failedBatch
-        && failedBatch.workspace === snapshot.workspace
-        && failedBatch.targetId === snapshot.targetId
-        && failedBatch.contentVersion === snapshot.contentVersion
-        && failedIndexes.length > 0
-        && failedIndexes.length === commands.length
-        ? failedBatch
-        : null
-      const canRetryFailedBatch = retrySource !== null
-      const retryCursor = { value: 0 }
-      const mergedCommands = canRetryFailedBatch
-        ? retrySource?.commands.map((command, index) =>
-          retrySource?.succeededIndexes.includes(index)
-            ? command
-            : commands[retryCursor.value++]
-        )
-        : commands
-      const plan = canRetryFailedBatch
-        ? mergeRetriedCommands(
-          { ...batch, commands: retrySource?.commands || [] },
-          retrySource?.succeededIndexes || [],
-          commands,
-          snapshot,
-          { content: snapshot.content }
-        )
-        : planEditorEditBatch(batch, snapshot, { content: snapshot.content })
+      // A failed batch is never partially applied. Clear any stale retry
+      // carrier, then validate the complete batch the model just submitted.
+      options.takeFailedBatch?.()
+      if (hasReorderSections) {
+        const reorderCommand = commands[0] as EditorEditCommand & { order: string[] }
+        const segments = collectStructureSegments(snapshot.content)
+        const segmentIds = segments.map(segment => segment.id)
+        const requestedIds = reorderCommand.order
+        const segmentIdSet = new Set(segmentIds)
+        const requestedSet = new Set(requestedIds)
+        if (segmentIds.length !== requestedIds.length || requestedIds.some(id => !segmentIdSet.has(id)) || segmentIds.some(id => !requestedSet.has(id))) {
+          return toolError(
+            'reorder_id_set_mismatch',
+            `reorder_sections 的 order 必须与当前结构 ID 集合完全一致；缺失 ${segmentIds.filter(id => !requestedSet.has(id)).slice(0, 5).join(' | ') || '无'}，多余 ${requestedIds.filter(id => !segmentIdSet.has(id)).slice(0, 5).join(' | ') || '无'}`,
+            true,
+          )
+        }
+        const segmentById = new Map(segments.map(segment => [segment.id, segment]))
+        const next = requestedIds
+          .map(id => segmentById.get(id)!)
+          .map(segment => snapshot.content.slice(segment.start, segment.end))
+          .join('')
+        if (
+          options.executionPlan?.invariants.includes('leaf-body-multiset-unchanged') &&
+          !hasSameLeafBodyMultiset(snapshot.content, next)
+        ) {
+          return toolError(
+            'invariant_violation',
+            '结构重排校验失败：叶子正文集合发生变化。reorder_sections 只能重排结构 ID，不能增删或改写正文。',
+            true,
+          )
+        }
+        const reveal = (params.reveal && typeof params.reveal === 'object' && !Array.isArray(params.reveal))
+          ? params.reveal as { mode?: unknown; firstChange?: unknown }
+          : {}
+        const revealMode = reveal.mode === 'instant' ? 'instant' : 'stream'
+        const applied = await options.applyWrite({
+          workspace: snapshot.workspace,
+          targetId: snapshot.targetId,
+          batchId: `reorder-${Date.now().toString(36)}`,
+          next,
+          original: snapshot.content,
+          commands: [reorderCommand],
+          batchDetail: batchDetailFromPlanForBatch(options.executionPlan, {
+            batchDetail: batchDetailFromPlan(options.executionPlan),
+          }),
+          reason: typeof params.reason === 'string' ? params.reason : undefined,
+          reveal: {
+            mode: revealMode,
+            firstChange: reveal.firstChange !== false,
+          },
+        })
+        if (!applied.ok) {
+          return toolError(applied.code || 'write_failed', applied.message || '编辑器写入失败，原文未修改', true)
+        }
+        return {
+          ok: true,
+          data: {
+            status: 'written',
+            batchId: applied.documentVersion !== undefined ? `reorder-${applied.documentVersion}` : `reorder-${Date.now().toString(36)}`,
+            repairPolicy: '该批次已按结构 ID 原子重排写入成功。后续修正请基于当前编辑器内容提交新命令。',
+            commandCount: 1,
+            writtenLength: next.length,
+            reorderSections: requestedIds.length,
+            reveal: { mode: revealMode, firstChange: reveal.firstChange !== false },
+            rollbackAvailable: applied.rollbackAvailable,
+          },
+        }
+      }
+      const plan = planEditorEditBatch(batch, snapshot, { content: snapshot.content })
       if (!plan.ok) {
-        if (canRetryFailedBatch) {
-          options.onFailedBatch?.({
-            workspace: snapshot.workspace,
-            targetId: snapshot.targetId,
-            contentVersion: snapshot.contentVersion,
-            commands: retrySource?.commands || [],
-            succeededIndexes: retrySource?.succeededIndexes || [],
-          })
-        } else {
-          const succeededIndexes = plan.diagnostics?.succeededIndexes || []
-          options.onFailedBatch?.(
-            succeededIndexes.length > 0 && succeededIndexes.length < commands.length
-              ? {
-                workspace: snapshot.workspace,
-                targetId: snapshot.targetId,
-                contentVersion: snapshot.contentVersion,
-                commands,
-                succeededIndexes,
+        options.onFailedBatch?.(null)
+        const deleteAmbiguousItem = plan.diagnostics?.failedItems.find(item =>
+          item.reason === 'ambiguous_target' && item.operation === 'delete')
+        const deleteAmbiguousTarget = deleteAmbiguousItem?.target
+        if (deleteAmbiguousTarget) {
+          const sectionMatches: string[] = []
+          const structure = parseOutlineStructure(snapshot.content)
+          const collectMatches = (nodes: OutlineStructureNode[]): void => {
+            for (const node of nodes) {
+              if (node.kind === 'section' || node.kind === 'chapter' || node.kind === 'volume' || node.kind === 'heading') {
+                if (snapshot.content.slice(node.start, node.end).includes(deleteAmbiguousTarget)) {
+                  sectionMatches.push(node.title)
+                }
               }
-              : null
+              collectMatches(node.children)
+            }
+          }
+          collectMatches(structure.nodes)
+          const matchingSections = sectionMatches.length
+            ? sectionMatches
+            : structure.nodes
+              .map(node => ({ title: node.title, summaryHead: node.summaryHead }))
+              .filter(item => item.summaryHead.includes(deleteAmbiguousTarget))
+              .map(item => item.title)
+          return toolError(
+            'ambiguous_target',
+            `commands[${deleteAmbiguousItem.index}]：删除目标出现多次，必须扩展 target 使其在全文唯一，或在 sectionTitle/chapterTitle/volumeTitle 中写明目标标题。候选章节：${matchingSections.slice(0, 5).join(' | ') || '未解析出候选'}`,
+            true,
           )
         }
         return {
@@ -552,10 +866,21 @@ export function createEditorTools(options: {
             message: plan.diagnostics?.summary || '编辑批次校验失败，原文未修改',
             retryable: true,
           },
-          data: plan.diagnostics,
+          data: plan.diagnostics ? buildEditorWriteFailedDiagnostics(plan.diagnostics) : undefined,
         }
       }
       options.onFailedBatch?.(null)
+
+      if (
+        options.executionPlan?.invariants.includes('leaf-body-multiset-unchanged') &&
+        !hasSameLeafBodyMultiset(snapshot.content, plan.next)
+      ) {
+        return toolError(
+          'invariant_violation',
+          '结构重排校验失败：叶子正文集合发生变化。重排只能移动标题及其整节内容，不能增删或改写正文。',
+          true,
+        )
+      }
 
       const reveal = (params.reveal && typeof params.reveal === 'object' && !Array.isArray(params.reveal))
         ? params.reveal as { mode?: unknown; firstChange?: unknown }
@@ -567,7 +892,10 @@ export function createEditorTools(options: {
         batchId: plan.batchId,
         next: plan.next,
         original: plan.original,
-        commands: mergedCommands,
+          commands,
+        batchDetail: batchDetailFromPlanForBatch(options.executionPlan, {
+          batchDetail: batchDetailFromPlan(options.executionPlan),
+        }),
         reason: typeof params.reason === 'string' ? params.reason : undefined,
         reveal: {
           mode: revealMode,
@@ -583,7 +911,8 @@ export function createEditorTools(options: {
         data: {
           status: 'written',
           batchId: plan.batchId,
-          commandCount: mergedCommands.length,
+          repairPolicy: '该批次已写入成功。后续修正请基于当前编辑器内容提交新命令，禁止重复提交本 batchId 的相同参数。',
+          commandCount: commands.length,
           writtenLength: plan.next.length,
           reveal: { mode: revealMode, firstChange: reveal.firstChange !== false },
           rollbackAvailable: applied.rollbackAvailable,
@@ -700,32 +1029,6 @@ export function createEditorTools(options: {
       }
     }
   }
-
-  const updatePlan: AgentToolDefinition = {
-    name: 'task.update_plan',
-    description: '更新当前编辑任务计划，仅用于界面状态，不修改正文。',
-    policy: 'read',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        stage: { type: 'string', description: '当前阶段说明' },
-        steps: { type: 'array', items: { type: 'string' }, description: '计划步骤' },
-      },
-      required: ['stage', 'steps'],
-    },
-    async execute(input) {
-      const params = input as { stage?: unknown; steps?: unknown }
-      if (typeof params.stage !== 'string' || !params.stage.trim()) {
-        return toolError('invalid_input', 'stage 必须是非空字符串')
-      }
-      if (!Array.isArray(params.steps) || params.steps.some(step => typeof step !== 'string')) {
-        return toolError('invalid_input', 'steps 必须是字符串数组')
-      }
-      const steps = params.steps.slice(0, MAX_PLAN_STEPS)
-      options.onPlanUpdate?.({ stage: params.stage, steps })
-     return { ok: true, data: { stage: params.stage, steps } }
-   },
- }
 
   const multiGetState: AgentToolDefinition = {
     name: 'editor.multi_get_state',
@@ -857,11 +1160,14 @@ export function createEditorTools(options: {
     workspace: options.workspace || 'main',
     tools: [
       getState,
+      ...createEditorDocumentMapTools({
+        getSnapshot: options.getSnapshot,
+        maxReadChars: options.maxReadChars,
+      }),
       search,
       locate,
       ...writeTools,
       revealTargetTool,
-      updatePlan,
       multiGetState,
       globalSearch,
       workspaceSummary,
@@ -892,6 +1198,80 @@ export function buildDialogueToolSet(input: {
 }
 
 const MAX_READABLE_TARGETS = 5
+
+export function validateAgentToolInput(tool: AgentToolDefinition, input: unknown): ToolResult | null {
+  if (input == null || typeof input !== 'object' || Array.isArray(input)) {
+    return toolError('invalid_input', '工具参数必须是对象')
+  }
+  if (tool.name === 'editor.write') {
+    const requestedVersion = (input as { protocolVersion?: unknown }).protocolVersion
+    if (requestedVersion !== undefined) {
+      if (
+        typeof requestedVersion !== 'number'
+        || !Number.isInteger(requestedVersion)
+        || !SUPPORTED_EDITOR_EDIT_PROTOCOL_VERSIONS.includes(requestedVersion)
+      ) {
+        return toolError(
+          'unsupported_protocol_version',
+          `不支持的编辑协议版本：${String(requestedVersion)}；当前支持 ${SUPPORTED_EDITOR_EDIT_PROTOCOL_VERSIONS.join(' | ')}`
+        )
+      }
+    }
+  }
+  const structured = validateSkillInput(input, { inputSchema: tool.inputSchema as JsonSchema })
+  const missingRequiredFields = (tool.inputSchema.required || []).filter(key => !(key in (input as Record<string, unknown>)))
+  if (tool.name === 'editor.write' && missingRequiredFields.length > 0) {
+    const key = missingRequiredFields[0]
+    const hint = tool.name === 'editor.write' && key === 'commands'
+      ? '请提交 1-10 条受限编辑命令，例如 {"commands":[{"operation":"replace_match","target":"唯一原文片段","content":"新文"}]}'
+      : ''
+    return {
+      ok: false,
+      error: {
+        code: 'missing_field',
+        message: `缺少必填参数：${key}${hint ? `。${hint}` : ''}`,
+        retryable: true,
+      },
+    }
+  }
+  if (!structured.valid) {
+    return {
+      ok: false,
+      error: {
+        code: 'invalid_input',
+        message: `工具参数校验失败：${structured.errors.join('；')}。请按错误信息修正后重试失败条目。`,
+        retryable: true,
+      },
+      data: tool.name === 'editor.write' ? buildEditorWriteFailedDiagnostics({
+        version: 1,
+        ok: false,
+        commandCount: Array.isArray((input as { commands?: unknown }).commands)
+          ? ((input as { commands: unknown[] }).commands.length)
+          : 0,
+        succeededIndexes: [],
+        failedItems: [],
+        invalidValue: undefined,
+        validValues: [...EDITOR_EDIT_OPERATIONS],
+        summary: structured.errors.join('；')
+      }) : undefined,
+    }
+  }
+  return null
+}
+
+export function resolveEditorToolProtocolVersion(
+  input: unknown,
+): { version: number; defaulted: boolean } {
+  const requested = (input as { protocolVersion?: unknown } | null | undefined)?.protocolVersion
+  if (
+    typeof requested === 'number'
+    && Number.isInteger(requested)
+    && SUPPORTED_EDITOR_EDIT_PROTOCOL_VERSIONS.includes(requested)
+  ) {
+    return { version: requested, defaulted: false }
+  }
+  return { version: EDITOR_EDIT_PROTOCOL_VERSION, defaulted: requested === undefined }
+}
 
 function isAbortError(error: unknown): boolean {
   return error instanceof DOMException
@@ -928,15 +1308,7 @@ export class ToolGateway {
   }
 
   private validateInput(tool: AgentToolDefinition, input: unknown): ToolResult | null {
-    if (input == null || typeof input !== 'object' || Array.isArray(input)) {
-      return toolError('invalid_input', '工具参数必须是对象')
-    }
-    for (const key of tool.inputSchema.required || []) {
-      if (!(key in (input as Record<string, unknown>))) {
-        return toolError('missing_field', `缺少必填参数：${key}`)
-      }
-    }
-    return null
+    return validateAgentToolInput(tool, input)
   }
 
   async execute(name: string, input: unknown, context: AgentToolContext): Promise<ToolResult> {

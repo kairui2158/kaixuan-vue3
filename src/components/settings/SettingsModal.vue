@@ -1,9 +1,9 @@
 <template>
-  <div class="modal-overlay" :class="{ 'modal-hidden': !visible }" :style="{ zIndex: modalQueue.getZIndex('settings-modal') }" @click.self="$emit('close')">
+  <div data-modal-id="settings-modal" class="modal-overlay" :class="{ 'modal-hidden': !visible }" :style="{ zIndex: modalQueue.getZIndex('settings-modal') }" @click.self="$emit('close')">
     <div class="modal-content modal-lg" :class="{ 'modal-closing': closing }">
       <div class="modal-header">
         <h3>设置</h3>
-        <button id="btn-close-settings" class="modal-close" @click="handleClose">x</button>
+        <button id="btn-close-settings" class="modal-close" aria-label="关闭设置" @click="handleClose"><AppIcon name="x" /></button>
       </div>
       <div id="settings-modal-body" class="modal-body">
         <div id="settings-modal" class="settings-tabs">
@@ -38,6 +38,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref, watch } from 'vue'
 import { useModalQueue } from '../../composables/useModalQueue'
+import AppIcon from '../common/AppIcon.vue'
 import { useSettingsStore } from '../../stores/settings'
 import { useProviderStore } from '../../stores/provider'
 import { useSkillStore } from '../../stores/skill'
@@ -91,10 +92,6 @@ function handleSave() {
 </script>
 
 <style scoped>
-@keyframes modalIn {
-  from { opacity: 0; transform: scale(0.95) translateY(-10px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
 @keyframes modalOut {
   from { opacity: 1; transform: scale(1) translateY(0); }
   to { opacity: 0; transform: scale(0.95) translateY(-10px); }
@@ -108,7 +105,7 @@ function handleSave() {
 
 /* modal-body override: flex layout for settings sidebar (old arch L2052) */
 .modal-body {
-  padding: var(--space-md, var(--space-6));
+  padding: var(--space-6);
   overflow: hidden;
   flex: 1;
   min-height: 0;
@@ -117,9 +114,9 @@ function handleSave() {
 
 /* footer buttons (old arch L1879-1897) */
 .modal-footer button {
-  height: var(--btn-md-height, 32px);
+  height: var(--density-btn-md-height);
   min-width: 80px;
-  padding: 0 var(--space-md, var(--space-6));
+  padding: 0 var(--space-6);
   font-size: var(--font-size-md);
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -128,7 +125,7 @@ function handleSave() {
 .modal-footer .footer-left {
   margin-right: auto;
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--text-mid);
   border: 1px solid var(--border-color);
 }
 .modal-footer .footer-left:hover {
@@ -149,7 +146,7 @@ function handleSave() {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  padding: var(--space-sm, var(--space-4));
+  padding: var(--space-4);
   border-right: 1px solid var(--border-color);
   flex-shrink: 0;
 }
@@ -158,19 +155,19 @@ function handleSave() {
   padding: var(--space-5) var(--space-5);
   background: transparent;
   border: none;
-  color: var(--text-secondary);
+  color: var(--text-mid);
   cursor: pointer;
-  border-radius: var(--radius-sm, 6px);
+  border-radius: var(--radius-sm);
   font-size: var(--font-size-md);
   position: relative;
   transition: background var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
 }
 .settings-tab:hover {
   background: var(--bg-hover);
-  color: var(--text-primary);
+  color: var(--text-ink);
 }
 .settings-tab.active {
-  background: var(--accent-dim, var(--bg-hover));
+  background: var(--accent-dim);
   color: var(--accent);
   font-weight: 500;
 }
@@ -183,12 +180,12 @@ function handleSave() {
   bottom: 6px;
   width: 3px;
   background: var(--accent);
-  border-radius: 0 3px 3px 0;
+  border-radius: 0 var(--radius-2xs) var(--radius-2xs) 0;
 }
 
 .settings-panel {
   flex: 1;
-  padding: var(--space-7) 2var(--space-4);
+  padding: var(--space-7) var(--space-8);
   overflow-y: auto;
   overflow-x: hidden;
   min-width: 0;
@@ -222,9 +219,9 @@ function handleSave() {
   max-width: 100%;
 }
 
-@media (max-width: 560px) {
+@media (max-width: 600px) {
   .modal-content.modal-lg { width: 100%; max-width: 100vw; min-width: 0; }
-  .modal-body { padding: var(--space-sm, var(--space-4)); }
+  .modal-body { padding: var(--space-4); }
   .settings-tabs { width: 132px; }
   .settings-panel { padding: var(--space-6); }
 }

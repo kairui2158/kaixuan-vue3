@@ -1,9 +1,9 @@
 <template>
-  <div id="exit-confirm-modal" v-if="visible" class="modal-overlay" @click.self="cancel">
+  <div id="exit-confirm-modal" v-if="visible" data-modal-id="exit-confirm-modal" class="modal-overlay" @click.self="cancel">
     <div class="modal-content modal-content-sm">
       <div class="modal-header">
         <h3>确认退出</h3>
-        <button class="btn-close" @click="cancel">&times;</button>
+        <button class="btn-close" type="button" aria-label="取消退出" @click="cancel"><AppIcon name="x" /></button>
       </div>
       <div class="modal-body">
         <template v-if="!saveFailed">
@@ -38,6 +38,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { onBeforeUnmount } from 'vue'
 import { useProjectStore } from '../../stores/project'
 import { useProviderStore } from '../../stores/provider'
 import { useEditorStore } from '../../stores/editor'
@@ -50,8 +51,18 @@ const projectStore = useProjectStore()
 const providerStore = useProviderStore()
 const editorStore = useEditorStore()
 
+;(globalThis as any).__exitConfirmState = {
+  get visible() { return visible.value },
+  set visible(value: boolean) { visible.value = value },
+  get saveFailed() { return saveFailed.value },
+  set saveFailed(value: boolean) { saveFailed.value = value }
+}
+
 function show() { visible.value = true }
 function hide() { visible.value = false }
+
+window.addEventListener('show-exit-confirm', show)
+onBeforeUnmount(() => window.removeEventListener('show-exit-confirm', show))
 // Listen for close request from main process
 window.electronAPI?.onCloseRequest?.(() => {
   show()

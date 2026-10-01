@@ -2,12 +2,27 @@ export type JsonSchema = {
   type?: string
   required?: string[]
   properties?: Record<string, JsonSchema>
+  additionalProperties?: boolean
   items?: JsonSchema
   minItems?: number
   maxItems?: number
   minLength?: number
   maxLength?: number
   enum?: unknown[]
+}
+
+export type SchemaNormalizationEvent = {
+  type: string
+  path: string
+  from: unknown
+  to: unknown
+}
+
+export type SchemaValidationResult = {
+  valid: boolean
+  schema?: JsonSchema
+  errors: string[]
+  normalizations?: SchemaNormalizationEvent[]
 }
 
 export type SkillRetryPolicy = {
@@ -28,6 +43,8 @@ export type ValidationResult = {
   errors: string[]
 }
 
+const MAX_SCHEMA_DEPTH = 100
+
 function parseSchema(schema: JsonSchema | string | undefined): { schema?: JsonSchema; errors: string[] } {
   if (!schema) return { schema: undefined, errors: [] }
   if (typeof schema !== 'string') return { schema, errors: [] }
@@ -40,6 +57,127 @@ function parseSchema(schema: JsonSchema | string | undefined): { schema?: JsonSc
   } catch {
     return { errors: ['schema 不是合法 JSON'] }
   }
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+}
+
+export function validateAndNormalizeSchema(schema: JsonSchema | string | undefined): SchemaValidationResult {
+  const parsed = parseSchema(schema)
+  if (parsed.errors.length) return { valid: false, errors: parsed.errors }
+  if (!parsed.schema) return { valid: true, schema: undefined, errors: [] }
+
+  const errors: string[] = []
+  const normalizations: SchemaNormalizationEvent[] = []
+  const seen = new WeakSet<object>()
+  const visit = (node: unknown, path: string, depth: number): unknown => {
+    if (!isPlainObject(node)) {
+      if (node !== undefined) errors.push(`${path} schema 节点必须是对象`)
+      return undefined
+    }
+    if (seen.has(node)) {
+      errors.push(`${path} schema 存在循环引用`)
+      return undefined
+    }
+    if (depth > MAX_SCHEMA_DEPTH) {
+      errors.push(`${path} schema 深度超过 ${MAX_SCHEMA_DEPTH}`)
+      return undefined
+    }
+    seen.add(node)
+
+    const result: Record<string, unknown> = {}
+    const type = node.type
+    if (type !== undefined) {
+      if (typeof type !== 'string') {
+        errors.push(`${path}.type 必须是字符串`)
+      } else if (!['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'].includes(type)) {
+        errors.push(`${path}.type 不是受支持的类型`)
+      } else {
+        result.type = type
+      }
+    }
+
+    if (node.required !== undefined) {
+      if (!Array.isArray(node.required) || node.required.some(item => typeof item !== 'string')) {
+        errors.push(`${path}.required 必须是字符串数组`)
+      } else {
+        result.required = node.required
+      }
+    }
+
+    if (node.additionalProperties !== undefined) {
+      if (node.additionalProperties !== false && node.additionalProperties !== true) {
+        errors.push(`${path}.additionalProperties 必须是布尔值`)
+      } else if (node.additionalProperties === false && result.type && result.type !== 'object') {
+        errors.push(`${path}.additionalProperties:false 只能用于 object schema`)
+      } else {
+        result.additionalProperties = node.additionalProperties
+      }
+    }
+
+    if (node.properties !== undefined) {
+      if (!isPlainObject(node.properties)) {
+        errors.push(`${path}.properties 必须是对象`)
+      } else if (result.type && result.type !== 'object') {
+        errors.push(`${path}.properties 只能用于 object schema`)
+      } else {
+        const properties: Record<string, unknown> = {}
+        for (const [key, child] of Object.entries(node.properties)) {
+          const childResult = visit(child, `${path}.properties.${key}`, depth + 1)
+          if (childResult !== undefined) properties[key] = childResult
+        }
+        result.properties = properties
+      }
+    }
+
+    if (node.items !== undefined) {
+      if (result.type && result.type !== 'array') {
+        errors.push(`${path}.items 只能用于 array schema`)
+      } else {
+        const items = visit(node.items, `${path}.items`, depth + 1)
+        if (items !== undefined) result.items = items
+      }
+    }
+
+    for (const key of ['minItems', 'maxItems', 'minLength', 'maxLength'] as const) {
+      const value = node[key]
+      if (value === undefined) continue
+      if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) {
+        errors.push(`${path}.${key} 必须是非负数字`)
+      } else {
+        result[key] = value
+      }
+    }
+
+    if (node.enum !== undefined) {
+      if (!Array.isArray(node.enum)) errors.push(`${path}.enum 必须是数组`)
+      else result.enum = node.enum
+    }
+
+    if (result.type === 'object' && node.additionalProperties === undefined && isPlainObject(node.properties)) {
+      const hasProperties = Object.keys(node.properties).length > 0
+      if (hasProperties) {
+        result.additionalProperties = false
+        normalizations.push({
+          type: 'additional-properties-defaulted',
+          path,
+          from: undefined,
+          to: false,
+        })
+      }
+    }
+
+    return result
+  }
+
+  const normalized = visit(parsed.schema, '$', 1)
+  if (errors.length > 0) return { valid: false, errors, normalizations }
+  if (!isPlainObject(normalized)) return { valid: false, errors: ['$ schema 必须是对象'] }
+  if (parsed.schema.type !== undefined && parsed.schema.type !== 'object') {
+    return { valid: false, errors: ['顶层 schema 必须是 object'] }
+  }
+  return { valid: true, schema: normalized as JsonSchema, errors: [], normalizations }
 }
 
 function typeMatches(value: unknown, type?: string): boolean {
@@ -69,13 +207,21 @@ function validateValue(value: unknown, schema: JsonSchema, path: string, errors:
     if (schema.maxItems !== undefined && value.length > schema.maxItems) errors.push(`${path} 数量超过 maxItems`)
     if (schema.items) value.forEach((item, index) => validateValue(item, schema.items!, `${path}[${index}]`, errors))
   }
-  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
     const objectValue = value as Record<string, unknown>
     for (const key of schema.required || []) {
-      if (!(key in objectValue)) errors.push(`${path}.${key} 缺少必填字段`)
+      if (objectValue[key] === undefined) errors.push(`${path}.${key} 缺少必填字段`)
+    }
+    if (schema.additionalProperties === false) {
+      const allowed = new Set(Object.keys(schema.properties || {}))
+      for (const key of Object.keys(objectValue)) {
+        if (!allowed.has(key) && objectValue[key] !== undefined) {
+          errors.push(`${path}.${key} 不是允许的字段`)
+        }
+      }
     }
     for (const [key, childSchema] of Object.entries(schema.properties || {})) {
-      if (key in objectValue) validateValue(objectValue[key], childSchema, `${path}.${key}`, errors)
+      if (objectValue[key] !== undefined) validateValue(objectValue[key], childSchema, `${path}.${key}`, errors)
     }
   }
 }
@@ -90,9 +236,10 @@ export function parseStructuredOutput(text: string): { value?: unknown; errors: 
 }
 
 export function validateStructuredValue(value: unknown, schema: JsonSchema | string | undefined): ValidationResult {
-  const parsed = parseSchema(schema)
-  if (parsed.errors.length) return { valid: false, errors: parsed.errors }
-  if (!parsed.schema) return { valid: true, value, errors: [] }
+  const parsed = validateAndNormalizeSchema(schema)
+  if (!parsed.valid || !parsed.schema) {
+    return { valid: false, value, errors: parsed.errors }
+  }
   const errors: string[] = []
   validateValue(value, parsed.schema, '$', errors)
   return { valid: errors.length === 0, value, errors }

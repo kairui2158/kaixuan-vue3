@@ -42,7 +42,7 @@ import { useAiCallTrace } from './useAiCallTrace'
     const agent = agentStore.activeAgent
     const model = agent?.model || provider.models?.[0] || provider.selectedModel || ''
     const temperature = agent?.temperature ?? 0.7
-    const maxTokens = agent?.maxTokens || 8192
+    const maxTokens = agent?.maxTokens || null
     const trace = useAiCallTrace({
       source: 'eval',
       stepName: '技能测试',
@@ -262,7 +262,7 @@ import { useAiCallTrace } from './useAiCallTrace'
         providerName: provider.name,
         model,
         temperature: agent.temperature ?? 0.7,
-        maxTokens: agent.maxTokens || 8192,
+        maxTokens: agent.maxTokens || null,
         requestMessages: messages
       })
       try {
@@ -271,7 +271,7 @@ import { useAiCallTrace } from './useAiCallTrace'
           messages,
           model,
           temperature: agent.temperature ?? 0.7,
-          maxTokens: agent.maxTokens || 8192,
+          maxTokens: agent.maxTokens || null,
           stream: false,
           retry: true,
           meta: { source: 'useSkillTest.runAgentTest', agentId: agentId }
@@ -319,7 +319,7 @@ import { useAiCallTrace } from './useAiCallTrace'
      const agent = agentStore.activeAgent
      const model = agent?.model || provider.models?.[0] || provider.selectedModel || ''
      const temperature = agent?.temperature ?? 0.7
-     const maxTokens = agent?.maxTokens || 8192
+    const maxTokens = agent?.maxTokens || null
      const evalAgent = agent
        ? {
            id: agent.id,

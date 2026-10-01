@@ -1,7 +1,9 @@
 # UI设计规格参考书
 
 创建日期: 2026-08-08
-来源: styles/tokens.css + renderer.html + style.css
+现役版本: Graphite Ink 设计融合 v2
+更新日期: 2026-09-20
+来源: src/styles/tokens.css + src/styles/{global,base-components,modal,ai-content}.css + 现役 Vue 组件
 
 ---
 
@@ -15,9 +17,10 @@
 | --bg-tertiary | #1a1a1f | 三级背景(卡片/面板) |
 | --bg-elevated | #212129 | 悬浮元素 |
 | --bg-input | #15151c | 输入框 |
-| --bg-glass | rgba(20,20,28,0.85) | 模态框背景 |
+| --bg-glass | dark rgba(20,20,28,0.85) / light rgba(255,255,255,0.88) | 主题化玻璃背景（面板/加载遮罩） |
 | --bg-hover | rgba(124,140,248,0.06) | 悬浮态背景 |
-| --bg-overlay | rgba(0,0,0,0.5) | 遮罩层 |
+| --overlay-level-1 | dark rgba(0,0,0,0.55) / light rgba(0,0,0,0.34) | 模态遮罩唯一背景 token |
+| --overlay-blur | none | 模态遮罩唯一模糊 token；需要时按主题整体调整 |
 
 ## 1.2 文字
 | 变量名 | 值 | 用途 |
@@ -86,7 +89,6 @@
 | --space-6 | 16px |
 | --space-8 | 24px |
 | --space-10 | 32px |
-| --space-12 | 40px |
 
 ---
 
@@ -95,9 +97,11 @@
 | 变量名 | 值 |
 |--------|-----|
 | --radius-xs | 4px |
-| --radius-sm / --radius-btn | 6px |
+| --radius-sm | 6px |
 | --radius-md | 8px |
 | --radius-lg / --card-radius | 12px |
+
+圆角使用 `--radius-*` token，不再维护 `--radius-btn` 别名；按钮统一消费 `--btn-radius`。
 
 ---
 
@@ -133,14 +137,17 @@ padding: xs(2px 8px) / sm(4px 12px) / md(6px 16px) / lg(8px 20px)
 
 | 属性 | 值 |
 |------|-----|
-| 模态框背景 | bg-glass (rgba(20,20,28,0.85)) |
-| 遮罩层 | bg-overlay (rgba(0,0,0,0.5)) |
+| 模态框背景 | bg-elevated / bg-elevated-1 |
+| 模态遮罩 | .modal-overlay + --overlay-level-1 + --overlay-blur |
+| 嵌套模态 | .modal-overlay.modal-nested |
 | 模态框宽度 | sm(400px) / md(512px) / lg(640px) / xl(800px) |
 | 模态框圆角 | 12px |
 | 模态框padding | 24px |
 | 面板宽度 | sm(280px) / md(320px) / lg(400px) |
 | 面板圆角 | 8px |
-| z-index | base(1) / dropdown(100) / overlay(500) / modal(1000) / toast(2000) / tooltip(3000) |
+| z-index | inline(20) / dropdown(100) / overlay(500) / modal(1000) / modal-content(1001) / modal-nested(1100) / modal-nested-content(1101) / toast(2000) / tooltip(3000) / diagnostics(4000) |
+
+遮罩、面板加载层与弹窗共用 `--overlay-level-1`、`--overlay-blur`、`.modal-overlay` 单源规则；组件不得再新建 overlay 类名。`app-confirm=9000` 是全局确认链路专用层级，由 `scripts/verify-app-confirm-layering.mjs` 守护，不纳入普通设计层级表。
 
 ---
 
@@ -200,7 +207,6 @@ padding: xs(2px 8px) / sm(4px 12px) / md(6px 16px) / lg(8px 20px)
 
 | 变量名 | 值 |
 |--------|-----|
-| --shadow-xs | 0 1px 2px rgba(0,0,0,0.25) |
 | --shadow-sm | 0 2px 8px rgba(0,0,0,0.3) |
 | --shadow-md | 0 4px 16px rgba(0,0,0,0.4) |
 | --shadow-lg | 0 8px 32px rgba(0,0,0,0.5) |
@@ -220,6 +226,48 @@ padding: xs(2px 8px) / sm(4px 12px) / md(6px 16px) / lg(8px 20px)
 | --hover-lift | translateY(-1px) |
 | --hover-press | scale(0.97) |
 
+动画门禁：
+
+1. 每个全局 keyframes 必须有活跃消费者；无引用动画一律删除。
+2. 禁止常驻 `will-change: transform/opacity`；仅允许在明确动画周期内临时提升。
+3. 遮罩模糊只能消费 `--overlay-blur`，禁止组件内写死 `backdrop-filter` 数值。
+4. `prefers-reduced-motion` 规则保留且只允许收紧。
+
+现役 keyframes：全局 `wh-spin`、`menuFadeIn`；共享组件 `modal-spring-in`、`skeleton-shimmer`；组件级 `modalOut`、`flash-fade`、`deai-pulse`、`toastSlideIn`、`toastSlideOut` 均有活跃消费者。
+
 ---
 
-本规格书基于 tokens.css 完整提取, 用作Vue 3组件开发的核对标准。
+# 十四、密度与布局规格
+
+| 属性 | 值 |
+|------|-----|
+| 密度机制 | `[data-density]` 单源控制 |
+| 密度档位 | default / comfortable / compact |
+| 布局服务 | `useResizers` |
+| 章节树宽度 key | `shenyi_resizer_chapter` |
+| 对话框宽度 key | `shenyi_resizer_chat` |
+| 布局预设 key | `shenyi_layout_preset` |
+| 专注写作 | chapter 28% / chat 16% |
+| 均衡 | chapter 18% / chat 28% |
+| 对话优先 | chapter 12% / chat 42% |
+
+密度与布局不得在组件内另建三档样式或旁路改宽逻辑；持久化 key 保持现名，新增设置不得复用旧 key。
+
+### 响应式断点规格
+
+| 边界 | 语义 |
+|------|------|
+| max-width 600 | 小屏模态与设置表单收敛为单列 |
+| max-width 760 | 纵向工作区/详情面板切换单列 |
+| max-width 799 | 隐藏章节树，进入非桌面布局 |
+| 800 - 1023 | 章节树折叠，侧栏低密度布局 |
+| 1024 - 1279 | 恢复三栏，内容宽度按桌面收窄 |
+| 1280 - 1599 | 标准桌面密度 |
+| 1600+ | 宽屏放大间距与内容容器 |
+| 2560+ | 超宽屏全局缩放 |
+
+断点单源：组件样式只允许使用 `600 / 760 / 799 / 1023 / 1279` 的 `max-width` 边界和 `800 / 1024 / 1280 / 1600 / 2560` 的 `min-width` 边界；新增断点必须先改 `scripts/verify-design-fusion-legacy.mjs` 白名单并同步本表。
+
+---
+
+本规格书基于 2026-09-20 现役源码提取，用作 Vue 3 组件开发的核对标准；后续 UI 改动必须同步更新本文档。

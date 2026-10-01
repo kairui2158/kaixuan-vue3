@@ -23,6 +23,7 @@ import type { MemoryData } from '../../types/memory'
 import { adaptTreeForG6 } from '../../composables/useG6Graph'
 import { useMemoryGraph } from '../../composables/useMemoryGraph'
 import G6Canvas from './G6Canvas.vue'
+import { g6Token } from './g6Theme'
 
 const props = defineProps<{ memories: MemoryData; volumes?: Array<{ id?: string; name?: string }>; chapters?: Record<string, Array<{ id?: string; title?: string }>> }>()
 const emit = defineEmits<{ openSource: [payload: { kind: 'event'; id: string }] }>()
@@ -51,12 +52,12 @@ const graphOptions: GraphOptions = {
   transforms: ['collapse-expand-node'],
   layout: { type: 'mindmap', direction: 'H' },
   node: {
-    style: { size: d => (d.data?.kind === 'event' ? 20 : 26), fill: '#2c3a5d', stroke: '#4d5f8a' },
-    state: { selected: { stroke: '#7c8cf8', lineWidth: 3 } }
+    style: { size: d => (d.data?.kind === 'event' ? 20 : 26), fill: g6Token('--g6-node-fill'), stroke: g6Token('--g6-node-stroke') },
+    state: { selected: { stroke: g6Token('--g6-selected'), lineWidth: 3 } }
   },
   edge: {
-    style: { stroke: '#4d5f8a', lineWidth: 1.5 },
-    state: { selected: { stroke: '#7c8cf8', lineWidth: 2.5 } }
+    style: { stroke: g6Token('--g6-node-stroke'), lineWidth: 1.5 },
+    state: { selected: { stroke: g6Token('--g6-selected'), lineWidth: 2.5 } }
   },
   behaviors: ['drag-canvas', 'zoom-canvas', 'collapse-expand', { type: 'click-select' }],
   animation: false

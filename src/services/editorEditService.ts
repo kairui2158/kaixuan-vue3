@@ -2,6 +2,23 @@ import type { EditorEditCommand, EditorEditFailureReason } from './editorEditPro
 import { locateEditorFragment } from './editorEditLocator'
 import { validateEditorTarget, type EditorTargetSnapshot } from './editorTarget'
 
+const HEADING_LINE_PATTERN = /^#{1,6}[ \t]+[^\n]*$/
+
+function findHeadingSectionEnd(content: string, headingEnd: number, level: number): number {
+  let cursor = headingEnd
+  while (cursor < content.length) {
+    const lineEnd = content.indexOf('\n', cursor)
+    const lineEndIndex = lineEnd === -1 ? content.length : lineEnd
+    const heading = /^(#{1,6})[ \t]+/.exec(content.slice(cursor, lineEndIndex))
+    if (heading && heading[1].length <= level) return cursor
+    cursor = lineEndIndex
+    while (cursor < content.length && (content[cursor] === '\n' || content[cursor] === '\r')) {
+      cursor += 1
+    }
+  }
+  return cursor
+}
+
 export interface EditPlan {
   ok: boolean
   operation: EditorEditCommand['operation']
@@ -45,6 +62,17 @@ export function buildEditPlan(
   const content = target.content
   const replacement = command.content || ''
 
+  if (command.operation === 'replace_document') {
+    return {
+      ok: true,
+      operation: 'replace_document',
+      original: content,
+      next: replacement,
+      range: { start: 0, end: content.length },
+      reason: command.reason
+    }
+  }
+
   if (command.operation === 'append') {
     return {
       ok: true,
@@ -86,6 +114,101 @@ export function buildEditPlan(
       original: content,
       next,
       range: { start: anchor, end: anchor },
+      reason: command.reason
+    }
+  }
+
+  if (command.operation === 'move') {
+    const targetText = command.target || ''
+    const destinationText = command.destination || ''
+    if (!targetText || !destinationText) {
+      return failed(command, target, 'invalid_command')
+    }
+    const locatedTarget = locateEditorFragment({ content, fragment: targetText })
+    if (!locatedTarget.ok) {
+      return failed(
+        command,
+        target,
+        locatedTarget.reason === 'ambiguous_target' ? 'ambiguous_target' : 'target_not_found'
+      )
+    }
+    const targetAtLineStart = locatedTarget.start === 0 || content[locatedTarget.start - 1] === '\n'
+    let cutStart = locatedTarget.start
+    let cutEnd = locatedTarget.end
+    let movedSourceText = targetText
+    let movedWholeHeading = false
+    if (targetAtLineStart && HEADING_LINE_PATTERN.test(content.slice(locatedTarget.start, locatedTarget.end))) {
+      // Moving a heading without its section body would leave orphan text behind.
+      const level = /^#{1,6}/.exec(content.slice(locatedTarget.start, locatedTarget.end))?.[0].length ?? 1
+      cutEnd = findHeadingSectionEnd(content, locatedTarget.end, level)
+      movedSourceText = content.slice(cutStart, cutEnd)
+      movedWholeHeading = true
+    } else {
+      // Keep paragraph boundaries stable when a model omits the trailing newline.
+      const targetAtLineEnd = locatedTarget.end === content.length || content[locatedTarget.end] === '\n'
+      if (targetAtLineStart && targetAtLineEnd) {
+        if (content[locatedTarget.end] === '\n') {
+          cutEnd += 1
+        } else if (cutStart > 0 && content[cutStart - 1] === '\n') {
+          cutStart -= 1
+        }
+      }
+    }
+    const contentWithoutTarget = content.slice(0, cutStart) + content.slice(cutEnd)
+    const locatedDestination = locateEditorFragment({ content: contentWithoutTarget, fragment: destinationText })
+    if (!locatedDestination.ok) {
+      return failed(
+        command,
+        target,
+        locatedDestination.reason === 'ambiguous_target' ? 'ambiguous_target' : 'target_not_found'
+      )
+    }
+    const movedText = movedSourceText + (command.content || '')
+    let insertionIndex = command.destinationPosition === 'before'
+      ? locatedDestination.start
+      : locatedDestination.end
+    let insertionText = movedText
+    if (movedWholeHeading) {
+      if (command.destinationPosition === 'after') {
+        const destinationLevel = /^#{1,6}/.exec(
+          contentWithoutTarget.slice(locatedDestination.start, locatedDestination.end)
+        )?.[0].length ?? 1
+        insertionIndex = findHeadingSectionEnd(
+          contentWithoutTarget,
+          locatedDestination.end,
+          destinationLevel,
+        )
+      }
+      // Normalize a moved heading section to one trailing newline, then keep
+      // one blank line between adjacent heading sections in either direction.
+      insertionText = movedText.replace(/(?:\r?\n)+$/, '') + '\n'
+      const hasTextBefore = insertionIndex > 0 && contentWithoutTarget.slice(0, insertionIndex).trim() !== ''
+      const needsLeadingBlankLine = hasTextBefore
+        && !contentWithoutTarget.slice(0, insertionIndex).endsWith('\n\n')
+      if (needsLeadingBlankLine) insertionText = '\n' + insertionText
+      if (insertionIndex < contentWithoutTarget.length) insertionText += '\n'
+    } else if (movedText) {
+      const destinationAtLineStart = locatedDestination.start === 0
+        || contentWithoutTarget[locatedDestination.start - 1] === '\n'
+      const destinationAtLineEnd = locatedDestination.end < contentWithoutTarget.length
+        && contentWithoutTarget[locatedDestination.end] === '\n'
+      if (command.destinationPosition === 'before' && destinationAtLineStart && !movedText.endsWith('\n')) {
+        insertionText += '\n'
+      } else if (command.destinationPosition === 'after' && destinationAtLineEnd) {
+        insertionIndex = locatedDestination.end + 1
+        if (!movedText.endsWith('\n')) insertionText += '\n'
+      }
+    }
+    const next = contentWithoutTarget.slice(0, insertionIndex)
+      + insertionText
+      + contentWithoutTarget.slice(insertionIndex)
+    const finalStart = next.indexOf(insertionText)
+    return {
+      ok: true,
+      operation: 'move',
+      original: content,
+      next,
+      range: { start: finalStart, end: finalStart + insertionText.length },
       reason: command.reason
     }
   }

@@ -166,7 +166,8 @@ describe('skillRouter composite mapping', () => {
         budget: budget(),
         systemPromptSuffix: '降AI约束',
         baseTemplateOverride: 'compose合并模板',
-        resolvedTemplate: 'chain解析后模板'
+        resolvedTemplate: 'chain解析后模板',
+        activeEditTask: { id: 'task-1', status: 'awaiting_batch' } as any
       }
     )
 
@@ -174,7 +175,8 @@ describe('skillRouter composite mapping', () => {
     expect(executeRealSkillMock).toHaveBeenCalledWith(expect.objectContaining({
       systemPromptSuffix: '降AI约束',
       baseTemplateOverride: 'compose合并模板',
-      resolvedTemplate: 'chain解析后模板'
+      resolvedTemplate: 'chain解析后模板',
+      activeEditTask: { id: 'task-1', status: 'awaiting_batch' }
     }))
   })
 })

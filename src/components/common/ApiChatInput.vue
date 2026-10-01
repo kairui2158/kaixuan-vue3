@@ -24,7 +24,7 @@
         class="api-chat-btn api-chat-btn-send"
         type="button"
         :disabled="sendDisabled"
-        :title="sendDisabled ? '生成中' : '发送'"
+        :data-tooltip="sendDisabled ? '生成中' : '发送'"
         @click="$emit('send')"
       >{{ sendLabel }}</button>
       <button
@@ -149,7 +149,6 @@ onMounted(autosize)
   padding: var(--space-3) var(--space-4);
   font-size: var(--font-size-md);
   line-height: 1.6;
-  outline: none;
   overflow-y: auto;
 }
 .api-chat-input:focus {
@@ -175,7 +174,7 @@ onMounted(autosize)
 }
 .api-chat-btn-cancel {
   background: var(--danger);
-  color: #fff;
+  color: var(--text-on-accent);
 }
 .api-chat-btn-reset {
   background: var(--bg-input);
@@ -197,7 +196,7 @@ onMounted(autosize)
   background: transparent;
   color: var(--text-muted);
   padding: 2px 8px;
-  font-size: 11px;
+  font-size: var(--font-size-xxs);
   cursor: pointer;
 }
 .api-chat-mode-btn.is-active {

@@ -48,7 +48,13 @@ try {
   electron = spawn(EXE, ['.', `--remote-debugging-port=${PORT}`, '--remote-allow-origins=*', `--user-data-dir=${PROFILE}`], {
     cwd: ROOT,
     stdio: ['ignore', 'pipe', 'pipe'],
-    env: { ...process.env, NODE_ENV: 'development', SHENYI_TEST_USER_DATA_DIR: PROFILE }
+    env: {
+      ...process.env,
+      NODE_ENV: 'development',
+      SHENYI_TEST_USER_DATA_DIR: PROFILE,
+      SHENYI_ALLOW_TEST_ISOLATION: '1',
+      SHENYI_DATA_DIR: path.join(PROFILE, 'documents-data')
+    }
   })
 
   let version = null
@@ -233,8 +239,28 @@ try {
 } finally {
   if (browser) await browser.close().catch(() => {})
   if (electron && !electron.killed) electron.kill()
-  await new Promise(resolve => setTimeout(resolve, 500))
-  fs.rmSync(PROFILE, { recursive: true, force: true })
+  // Windows can keep profile handles open briefly after Electron exits.
+  let cleanupCode = ''
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    await new Promise(resolve => setTimeout(resolve, 200))
+    try {
+      fs.rmSync(PROFILE, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 })
+      break
+    } catch (error) {
+      if (['EBUSY', 'EPERM', 'ENOTEMPTY'].includes(error?.code)) cleanupCode = error.code
+      else throw error
+    }
+  }
+  if (cleanupCode) {
+    const stale = `${PROFILE}-stale-${Date.now()}`
+    try {
+      fs.renameSync(PROFILE, stale)
+      fs.rmSync(stale, { recursive: true, force: true })
+      cleanupCode = ''
+    } catch {
+      console.warn(`profile cleanup retained after retries: ${cleanupCode}`)
+    }
+  }
   console.log('profile removed=' + !fs.existsSync(PROFILE))
 }
 

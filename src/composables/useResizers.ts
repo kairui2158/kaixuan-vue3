@@ -1,4 +1,4 @@
-import { ref, type Ref } from 'vue'
+import { ref, watch, type Ref } from 'vue'
 
 interface PaneConfig {
   selector: string
@@ -14,6 +14,27 @@ interface DragState {
   startX: number
   startPercent: number
   rafId: number | null
+}
+
+export type LayoutPreset = 'focus-writing' | 'balanced' | 'chat-first'
+
+export const LAYOUT_PRESETS: Record<LayoutPreset, { chapter: number; chat: number }> = {
+  'focus-writing': { chapter: 28, chat: 16 },
+  balanced: { chapter: 18, chat: 28 },
+  'chat-first': { chapter: 12, chat: 42 },
+}
+
+const LAYOUT_PRESET_STORAGE_KEY = 'shenyi_layout_preset'
+const layoutPresetRequest = ref<{ preset: LayoutPreset; nonce: number } | null>(null)
+const CHAPTER_HIDDEN_MEDIA_QUERY = '(max-width: 799px)'
+
+export function requestLayoutPreset(preset: LayoutPreset) {
+  layoutPresetRequest.value = { preset, nonce: Date.now() }
+}
+
+export function getSavedLayoutPreset(): LayoutPreset | 'custom' {
+  const saved = localStorage.getItem(LAYOUT_PRESET_STORAGE_KEY)
+  return saved === 'focus-writing' || saved === 'balanced' || saved === 'chat-first' ? saved : 'custom'
 }
 
 export function useResizers(containerRef: Ref<HTMLElement | null>, panes: PaneConfig[]) {
@@ -72,6 +93,9 @@ export function useResizers(containerRef: Ref<HTMLElement | null>, panes: PaneCo
   }
 
   function onDragStart(e: MouseEvent | TouchEvent, target: string) {
+    const paneConfig = panes.find(p => p.selector === target)
+    if (!paneConfig) return
+    if (window.matchMedia(CHAPTER_HIDDEN_MEDIA_QUERY).matches && paneConfig.selector.includes('chapter')) return
     e.preventDefault()
     dragState.active = true
     dragState.target = target
@@ -150,6 +174,31 @@ export function useResizers(containerRef: Ref<HTMLElement | null>, panes: PaneCo
     saveWidths()
   }
 
+  function applyPreset(preset: LayoutPreset) {
+    const values = LAYOUT_PRESETS[preset]
+    for (const pane of panes) {
+      const key = pane.selector.includes('chapter') ? 'chapter' : 'chat'
+      const value = values[key]
+      widths.value[pane.selector] = Math.max(pane.minPercent, Math.min(pane.maxPercent, value))
+    }
+    localStorage.setItem(LAYOUT_PRESET_STORAGE_KEY, preset)
+    applyWidthsToDOM()
+    saveWidths()
+  }
+
+  function resetAll() {
+    for (const pane of panes) {
+      widths.value[pane.selector] = pane.defaultPercent
+    }
+    localStorage.removeItem(LAYOUT_PRESET_STORAGE_KEY)
+    applyWidthsToDOM()
+    saveWidths()
+  }
+
+  watch(layoutPresetRequest, request => {
+    if (request) applyPreset(request.preset)
+  })
+
   // Double-tap detection for touch (500ms window, same splitter)
   const splitterTaps: { target: string | null; timeoutId: number | null } = {
     target: null,
@@ -205,6 +254,7 @@ export function useResizers(containerRef: Ref<HTMLElement | null>, panes: PaneCo
     init,
     rebind,
     resetWidth,
+    resetAll,
     onDragStart,
     onDragMove,
     onDragEnd,

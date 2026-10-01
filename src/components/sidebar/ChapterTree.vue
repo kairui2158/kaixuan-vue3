@@ -3,14 +3,17 @@
     <div id="current-project-name" class="tree-header">
       <span class="project-name">{{ projectStore.projectName || '未打开项目' }}</span>
       <div class="tree-header-actions">
-        <button id="btn-tree-gen" class="btn-sm btn-secondary" title="生成流水线" @click="$emit('navigate', 'pipeline')">生成</button>
-        <button id="btn-open-project" class="btn-sm btn-secondary" title="项目管理" @click="projectModalVisible=true">项目</button>
+        <button id="btn-tree-gen" class="btn-sm btn-secondary" data-tooltip="生成流水线" @click="$emit('navigate', 'pipeline')">生成</button>
+        <button id="btn-open-project" class="btn-sm btn-secondary" data-tooltip="项目管理" @click="projectModalVisible=true">项目</button>
       </div>
     </div>
     <div id="tree-body" class="tree-body" @click="closeCtxMenu">
-      <div v-if="volumes.length === 0" class="empty-hint">
-        请先通过大纲工作台导入小说项目
-      </div>
+      <EmptyState
+        v-if="volumes.length === 0"
+        icon="outline"
+        title="还没有章节"
+        description="请先通过大纲工作台导入小说项目"
+      />
       <div v-else class="tree-list" ref="treeList">
         <template v-for="(vol, vi) in volumes" :key="vol.id || vol.name">
           <div class="volume-group">
@@ -29,7 +32,7 @@
                 v-model="renameValue" @blur="commitRenameVol(vol)" @keydown.enter="commitRenameVol(vol)" @keydown.esc="cancelRename"
                 class="rename-input" />
               <span v-else class="vol-name">{{ vol.name }}</span>
-              <button class="btn-tree-vol-outline" :id="'btn-tree-vol-outline-' + (vol.id || vol.name)" title="查看卷纲" @click.stop="openVolumeOutline(vol)">纲</button>
+              <button class="btn-tree-vol-outline" :id="'btn-tree-vol-outline-' + (vol.id || vol.name)" data-tooltip="查看卷纲" @click.stop="openVolumeOutline(vol)">纲</button>
               <span class="vol-count">{{ getVolChapters(vol).length }}章</span>
             </div>
             <div v-if="expandedVolumes.has(vol.id || vol.name)" class="chapter-list">
@@ -48,7 +51,7 @@
                   v-model="renameValue" @blur="commitRenameCh(ch)" @keydown.enter="commitRenameCh(ch)" @keydown.esc="cancelRename"
                   class="rename-input" />
                 <span v-else>{{ ch.title }}</span>
-                <button class="btn-tree-ch-plot" :id="'btn-tree-ch-plot-' + ch.id" title="查看章节概要" @click.stop="openChapterPlot(ch)">概</button>
+                <button class="btn-tree-ch-plot" :id="'btn-tree-ch-plot-' + ch.id" data-tooltip="查看章节概要" @click.stop="openChapterPlot(ch)">概</button>
               </div>
             </div>
           </div>
@@ -82,6 +85,7 @@ import { useEditorStore } from '../../stores/editor'
 import { useAppConfirm } from '../../composables/useAppConfirm'
 import TopSheet from '../common/TopSheet.vue'
 import ProjectModal from '../common/ProjectModal.vue'
+import EmptyState from '../common/EmptyState.vue'
 
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
@@ -102,6 +106,12 @@ const renameValue = ref('')
 const volRenameInput = ref<HTMLInputElement | null>(null)
 const chRenameInput = ref<HTMLInputElement | null>(null)
 const ctxMenu = ref({ visible: false, x: 0, y: 0, type: '', vol: null as any, ch: null as any })
+
+// Verification bridge for responsive E2E; no runtime behavior depends on it.
+;(globalThis as any).__chapterTreeState = {
+  get ctxMenu() { return ctxMenu.value },
+  set ctxMenu(value: any) { ctxMenu.value = value }
+}
 
 // P0-1: 监听 restore-session 事件，恢复上次展开的卷
 function handleRestoreSession(event: Event) {
@@ -337,29 +347,34 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.chapter-tree { width: 200px; min-width: 140px; max-width: 300px; background: var(--bg-secondary); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
-.tree-header { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border-color); font-size: var(--font-size-sm); }
-.project-name { flex: 1 1 auto; min-width: 0; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tree-header-actions { display: flex; gap: var(--space-2); flex-shrink: 0; }
+.chapter-tree { width: 200px; min-width: 140px; max-width: 300px; background: var(--surface-chrome); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
+.tree-header { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-4) var(--space-2); border-bottom: 1px solid var(--border-color); font-size: var(--font-size-sm); }
+.project-name { flex: 1 1 auto; min-width: 0; color: var(--text-mid); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tree-header-actions { display: flex; gap: var(--space-2); flex: 0 0 auto; min-width: 0; }
+.tree-header-actions .btn-sm { flex: 0 0 auto; padding-inline: var(--space-1); }
+@media (max-width: 1023px) {
+  .tree-header { flex-wrap: wrap; }
+  .tree-header-actions { max-width: 100%; }
+  .tree-header-actions .btn-sm { max-width: 100%; }
+}
 .tree-body { flex: 1; overflow-y: auto; padding: var(--space-2) 0; }
-.empty-hint { padding: var(--space-8) var(--space-5); text-align: center; color: var(--text-muted); font-size: var(--font-size-sm); line-height: 1.8; }
 .tree-list { padding: 0 var(--space-2); }
 .volume-group { margin-bottom: 2px; }
-.volume-item { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); cursor: pointer; border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-primary); }
+.volume-item { display: flex; align-items: center; gap: var(--space-2); min-width: 0; overflow: hidden; padding: var(--space-2) var(--space-4); cursor: pointer; border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-ink); white-space: nowrap; }
 .volume-item:hover { background: var(--bg-hover); }
 .volume-item.drag-over { background: var(--accent); color: var(--text-on-accent); }
-.vol-arrow { font-size: var(--font-size-xxs); color: var(--text-muted); transition: transform var(--duration-fast); display: inline-block; }
+.vol-arrow { flex: 0 0 15px; width: 15px; text-align: center; font-size: var(--font-size-xxs); color: var(--text-hollow); transition: transform var(--duration-fast); display: inline-block; }
 .vol-arrow.expanded { transform: rotate(90deg); }
-.vol-name { flex: 1; }
-.vol-count { font-size: var(--font-size-xxs); color: var(--text-muted); }
+.vol-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.vol-count { flex: 0 0 auto; max-width: 5em; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: var(--font-size-xxs); color: var(--text-hollow); }
 .chapter-list { padding-left: 20px; }
-.chapter-item { display: flex; align-items: center; gap: var(--space-2); min-width: 0; padding: var(--space-3) var(--space-4); cursor: pointer; border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-secondary); white-space: nowrap; overflow: hidden; }
-.chapter-item > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.chapter-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.chapter-item { display: flex; align-items: center; gap: var(--space-2); min-width: 0; overflow: hidden; padding: var(--space-3) var(--space-4); cursor: pointer; border-radius: var(--radius-xs); font-size: var(--font-size-sm); color: var(--text-mid); white-space: nowrap; }
+.chapter-item > span:not(.rename-input) { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.chapter-item:hover { background: var(--bg-hover); color: var(--text-ink); }
 .chapter-item.active { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
 .chapter-item.drag-over { background: var(--accent); color: var(--text-on-accent); }
-.rename-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--accent); border-radius: var(--radius-xs); padding: var(--space-1) var(--space-2); font-size: var(--font-size-xs); width: 100%; outline: none; }
-.ctx-item { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--text-primary); padding: var(--space-3) var(--space-5); font-size: var(--font-size-sm); border-radius: var(--radius-xs); cursor: pointer; }
+.rename-input { flex: 1 1 auto; min-width: 0; width: auto; background: var(--bg-input); color: var(--text-ink); border: 1px solid var(--accent); border-radius: var(--radius-xs); padding: var(--space-1) var(--space-2); font-size: var(--font-size-xs); }
+.ctx-item { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--text-ink); padding: var(--space-3) var(--space-5); font-size: var(--font-size-sm); border-radius: var(--radius-xs); cursor: pointer; }
 .ctx-item:hover { background: var(--bg-hover); }
 .ctx-item.danger { color: var(--danger); }
 .ctx-item.danger:hover { background: var(--danger); color: var(--text-on-accent); }

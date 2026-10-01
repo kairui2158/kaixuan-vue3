@@ -1,6 +1,6 @@
 {
   "name": "shenyi-assistant",
-  "version": "3.53.6",
+  "version": "3.70.0",
   "description": "神意助手 - AI驱动的桌面小说写作应用",
   "main": "electron/main.js",
   "scripts": {
@@ -16,12 +16,18 @@
     "sync:phrase-corpus": "node scripts/sync-chain-intent-phrase-corpus.cjs",
     "verify:phrase-corpus-sync": "node scripts/verify-phrase-corpus-sync.cjs",
     "evaluate:chain-intent": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/evaluate-chain-intent-router.mjs",
+    "verify:intent-embedding-node": "node scripts/verify-intent-embedding-node.mjs",
+    "verify:intent-embedding-electron": "node scripts/verify-intent-embedding-electron.mjs",
+    "verify:provider-wire-electron": "node scripts/verify-api-direct-write-provider-wire-electron.mjs",
     "verify:production-wiring": "depcruise src --config .dependency-cruiser.cjs"
   },
   "author": "kaixuan",
   "license": "MIT",
   "dependencies": {
     "@antv/g6": "^5.1.1",
+    "@huggingface/transformers": "^3.7.5",
+    "@node-rs/jieba": "^2.0.3",
+    "@node-rs/jieba-wasm32-wasi": "^2.0.3",
     "@shikijs/langs": "^4.4.3",
     "@shikijs/themes": "^4.4.3",
     "dompurify": "^3.4.14",
@@ -30,7 +36,6 @@
     "idb": "^8.0.3",
     "jschardet": "^3.1.4",
     "marked": "^18.0.5",
-    "notyf": "^3.10.0",
     "pinia": "^4.0.2",
     "shiki": "^4.4.3",
     "vue": "^3.5.41",
@@ -42,6 +47,7 @@
     "@biomejs/cli-win32-x64": "^2.5.2",
     "@playwright/test": "^1.61.1",
     "@vitejs/plugin-vue": "^6.0.8",
+    "dependency-cruiser": "^18.3.1",
     "electron": "^33.0.0",
     "electron-builder": "^25.0.0",
     "playwright": "^1.61.1",
@@ -60,6 +66,15 @@
       "output": "dist",
       "buildResources": "build"
     },
+    "extraResources": [
+      {
+        "from": "resources/models/bge-small-zh-v1.5",
+        "to": "models/bge-small-zh-v1.5",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
     "files": [
       "electron/**/*",
       "dist-renderer/**/*",
@@ -88,7 +103,8 @@
       "!node_modules/**/*.d.ts",
       "!node_modules/**/*.md",
       "!node_modules/**/*.map",
-      "package.json"
+      "package.json",
+      "!electron/**/*.spec.js"
     ],
     "win": {
       "icon": "build/icon.ico",

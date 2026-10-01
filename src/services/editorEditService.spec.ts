@@ -125,6 +125,68 @@ describe('buildEditPlan', () => {
     expect(rewrite.operation).toBe('rewrite')
     expect(rewrite.next).toContain('拿到钥匙')
   })
+
+  it('replaces the whole document atomically for replace_document', () => {
+    const target = createTarget()
+    const next = '整理后的第一段。\n整理后的第二段。\n整理后的第三段。'
+    const plan = buildEditPlan(target, {
+      type: 'editor_edit',
+      version: 1,
+      operation: 'replace_document',
+      content: next,
+      reason: '整理整篇文档'
+    }, { content })
+
+    expect(plan.ok).toBe(true)
+    expect(plan.operation).toBe('replace_document')
+    expect(plan.original).toBe(content)
+    expect(plan.next).toBe(next)
+    expect(plan.range).toEqual({ start: 0, end: content.length })
+  })
+
+  it('moves a whole heading section when the move target is a heading line', () => {
+    const sectionContent = [
+      '# 第一卷',
+      '第一卷正文甲。',
+      '',
+      '# 第二卷',
+      '第二卷正文乙。',
+      '',
+      '# 第三卷',
+      '第三卷正文丙。',
+      '',
+    ].join('\n')
+    const target = createEditorTargetSnapshot({
+      workspace: 'outline',
+      targetId: 'outline-tab',
+      label: '大纲编辑器',
+      mode: 'outline',
+      content: sectionContent,
+    })
+
+    const plan = buildEditPlan(target, {
+      type: 'editor_edit',
+      version: 1,
+      operation: 'move',
+      target: '# 第二卷',
+      destination: '# 第三卷',
+      destinationPosition: 'after',
+      reason: '整节移动',
+    }, { content: sectionContent })
+
+    expect(plan.ok).toBe(true)
+    expect(plan.next).toBe([
+      '# 第一卷',
+      '第一卷正文甲。',
+      '',
+      '# 第三卷',
+      '第三卷正文丙。',
+      '',
+      '# 第二卷',
+      '第二卷正文乙。',
+      '',
+    ].join('\n'))
+  })
 })
 
 describe('buildEditorEditPrompt', () => {

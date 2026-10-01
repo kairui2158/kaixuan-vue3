@@ -34,7 +34,8 @@ export interface AiApiCallOptions {
   providerName?: string
   model?: string
   temperature?: number
-  maxTokens?: number
+  /** Null means the output limit was intentionally omitted from the request. */
+  maxTokens?: number | null
   requestMessages: RunTraceMessageLike[]
 }
 

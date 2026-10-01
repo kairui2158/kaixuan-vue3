@@ -36,7 +36,7 @@ export interface NamingTraceContext {
     providerName?: string
     model?: string
     temperature?: number
-    maxTokens?: number
+    maxTokens?: number | null
     requestMessages: Array<{ role: string; content: string }>
   }): string
   finishApiCall(callId: string, patch: {
@@ -140,7 +140,7 @@ export async function generateNames(
   const agent = agentStore.activeAgent
   const model = agent?.model || provider.selectedModel || ''
   const temperature = agent?.temperature ?? 0.8
-  const maxTokens = agent?.maxTokens || 4096
+  const maxTokens = agent?.maxTokens || null
 
   const { system, user } = buildNamingPrompt(options)
   const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)

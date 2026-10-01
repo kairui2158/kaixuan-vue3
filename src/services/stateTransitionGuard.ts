@@ -45,6 +45,9 @@ export const LIFECYCLE_MAPPINGS: Record<string, Record<string, LifecycleStatus>>
   RunTraceStatus: {
     running: 'active',
     success: 'completed',
+    partially_applied: 'completed_partial',
+    failed_after_write: 'failed',
+    success_with_warnings: 'degraded',
     degraded: 'degraded',
     failed: 'failed',
     canceled: 'canceled',
@@ -53,6 +56,9 @@ export const LIFECYCLE_MAPPINGS: Record<string, Record<string, LifecycleStatus>>
   AiTraceStatus: {
     running: 'active',
     success: 'completed',
+    partially_applied: 'completed_partial',
+    failed_after_write: 'failed',
+    success_with_warnings: 'degraded',
     degraded: 'degraded',
     failed: 'failed',
     canceled: 'canceled',
@@ -180,6 +186,19 @@ export function mapToLifecycle(moduleName: string, status: string): LifecycleSta
   const mapped = mapping?.[status]
   if (!mapped) return 'blocked'
   return mapped
+}
+
+export function isKnownLifecycleStatus(moduleName: string, status: string): boolean {
+  return Boolean(LIFECYCLE_MAPPINGS[moduleName]?.[status])
+}
+
+export function isLegalKnownLifecycleTransition(
+  fromStatus: string,
+  toStatus: string,
+  moduleName = 'RunTraceStatus',
+): boolean {
+  if (!isKnownLifecycleStatus(moduleName, fromStatus) || !isKnownLifecycleStatus(moduleName, toStatus)) return false
+  return isLegalLifecycleTransition(fromStatus, toStatus, moduleName)
 }
 
 export function mapToResource(moduleName: string, status: string): ResourceStatus | null {

@@ -60,14 +60,24 @@ export interface ResolvedProvider {
   providerId: string
 }
 
+function findProviderById(store: ProviderStoreLike, providerId?: string): ProviderLike | undefined {
+  if (!providerId) return undefined
+  return store.providers.find(item => item.id === providerId)
+}
+
 /**
  * Resolves a provider for the given purpose.
+ * An explicit request-level providerId wins; an unknown id falls back to purpose routing.
  * Returns { provider, providerId } or throws with a clear Chinese message.
  */
 export function resolveProvider(
   store: ProviderStoreLike,
-  purpose: ProviderPurpose
+  purpose: ProviderPurpose,
+  providerId?: string
 ): ResolvedProvider {
+  const explicit = findProviderById(store, providerId)
+  if (explicit) return { provider: explicit, providerId: explicit.id }
+
   // 1. Try purpose-specific provider
   const p = getterForPurpose(store, purpose)
   if (p) return { provider: p, providerId: p.id }

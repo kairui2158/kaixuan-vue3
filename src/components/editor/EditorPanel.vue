@@ -6,20 +6,23 @@
       <span id="editor-title" class="editor-title">{{ activeTab ? activeTab.title : '选择章节开始写作' }}</span>
       <div class="editor-toolbar">
         <div class="editor-toolbar-group">
-          <button id="btn-undo" class="btn-sm btn-secondary" title="Ctrl+Z" @click="undo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg></button>
-          <button id="btn-redo" class="btn-sm btn-secondary" title="Ctrl+Y" @click="redo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg></button>
+          <button id="btn-undo" class="btn-sm btn-secondary" type="button" data-tooltip="Ctrl+Z" @click="undo"><AppIcon name="undo" /></button>
+          <button id="btn-redo" class="btn-sm btn-secondary" type="button" data-tooltip="Ctrl+Y" @click="redo"><AppIcon name="redo" /></button>
         </div>
         <span class="sep"></span>
        <div class="editor-toolbar-group">
           <button id="btn-generate-content" class="btn-sm btn-secondary" @click="generateContent">生成</button>
-          <button id="btn-save-editor" class="btn-sm btn-secondary" title="Ctrl+S" @click="save">保存</button>
+          <button id="btn-save-editor" class="btn-sm btn-secondary" data-tooltip="Ctrl+S" @click="save">保存</button>
           <button v-if="isBodyMode" id="btn-extract-memory" class="btn-sm btn-secondary" :disabled="memoryExtraction.loading || !activeTab?.content?.trim()" @click="extractCurrentMemory">
             {{ memoryExtraction.loading ? '抽取中...' : '提取记忆' }}
           </button>
         </div>
        <span class="sep"></span>
        <div class="editor-toolbar-group" style="position:relative">
-          <button id="btn-find" class="btn-sm btn-secondary" title="查找替换 (Ctrl+F)" @click="editorStore.toggleFind()">查找</button>
+          <button id="btn-find" class="btn-sm btn-secondary" data-tooltip="查找替换 (Ctrl+F)" @click="editorStore.toggleFind()">查找</button>
+          <button id="btn-fold" class="btn-sm btn-secondary" :disabled="!canFold" data-tooltip="折叠当前标题" @click="toggleCurrentFold">折叠</button>
+          <button id="btn-outline" class="btn-sm btn-secondary" type="button" :disabled="!activeTab" data-tooltip="大纲导航" @click="outlineVisible = !outlineVisible">大纲</button>
+          <button id="btn-bookmark" class="btn-sm btn-secondary" type="button" :disabled="!activeTab" data-tooltip="书签列表" @click="bookmarkVisible = !bookmarkVisible"><AppIcon name="bookmark" /></button>
           <button id="btn-export" class="btn-sm btn-secondary" @click="exportMenu = !exportMenu">导出</button>
           <div v-if="exportMenu" id="export-dropdown" class="export-dropdown">
             <button id="btn-export-md" data-format="md" @click="exportChapter('md')">Markdown (.md)</button>
@@ -34,12 +37,12 @@
             v-if="deAiStore.hardruleEnabled && deAiStore.hardRuleMode !== 'legacy-auto'"
             id="btn-deai-report"
             class="btn-sm btn-secondary"
-            title="查看最近一次降AI检测报告"
+            data-tooltip="查看最近一次降AI检测报告"
             :disabled="!deAiStore.lastDetectReport"
             @click="showDeAiReport"
           >检测报告</button>
-          <button id="btn-ai-names" class="btn-sm btn-secondary" title="AI命名" @click="aiNames">AI命名</button>
-          <button id="btn-editor-run-trace" class="btn-sm btn-secondary" title="查看主页编辑器运行记录" @click="showRunTrace = true">运行记录</button>
+          <button id="btn-ai-names" class="btn-sm btn-secondary" data-tooltip="AI命名" @click="aiNames">AI命名</button>
+          <button id="btn-editor-run-trace" class="btn-sm btn-secondary" data-tooltip="查看主页编辑器运行记录" @click="showRunTrace = true">运行记录</button>
        </div>
         <span id="word-count" class="word-count">{{ wordCount }} 字</span>
       </div>
@@ -51,46 +54,88 @@
         :key="tab.id"
         class="tab"
         :class="{ active: tab.id === editorStore.activeTabId }"
-        @click="editorStore.activeTabId = tab.id"
+        @click="switchEditorTab(tab.id)"
       >
         <span>{{ tab.title }}</span>
         <span v-if="tab.isDirty" class="dot">*</span>
-        <button class="tab-close" @click.stop="editorStore.closeTab(tab.id)">x</button>
+        <button class="tab-close" type="button" aria-label="关闭章节标签" @click.stop="editorStore.closeTab(tab.id)"><AppIcon name="x" /></button>
       </div>
     </div>
 
     <div id="find-replace-bar" class="find-bar" v-if="editorStore.findVisible">
       <span id="find-count" class="find-count" v-if="findMatchCount > 0">{{ findMatchIndex + 1 }}/{{ findMatchCount }}</span>
+      <span id="find-error" class="find-error" v-if="searchError">{{ searchError }}</span>
+      <span id="find-feedback" class="find-feedback" v-if="searchFeedback">{{ searchFeedback }}</span>
       <input id="find-input" v-model="editorStore.findQuery" placeholder="查找..." class="find-input" @keydown.enter.exact.prevent="findNext" @keydown.enter.shift.prevent="findPrev" />
       <input id="replace-input" v-model="editorStore.replaceQuery" placeholder="替换为..." class="find-input" />
-          <button id="btn-find-prev" class="btn-sm btn-secondary" @click="findPrev">上一个</button>
+      <label class="find-option"><input id="find-case-sensitive" v-model="searchCaseSensitive" type="checkbox">区分大小写</label>
+      <label class="find-option"><input id="find-whole-word" v-model="searchWholeWord" type="checkbox">全词匹配</label>
+      <label class="find-option"><input id="find-use-regex" v-model="searchUseRegex" type="checkbox">正则</label>
+      <button id="btn-find-prev" class="btn-sm btn-secondary" @click="findPrev">上一个</button>
       <button id="btn-find-next" class="btn-sm btn-secondary" @click="findNext">下一个</button>
-          <button id="btn-replace-one" class="btn-sm btn-secondary" @click="replaceOne">替换</button>
+      <button id="btn-find-all" class="btn-sm btn-secondary" :disabled="folded" @click="selectAllMatches">全部选中</button>
+      <button id="btn-replace-one" class="btn-sm btn-secondary" @click="replaceOne">替换</button>
           <button id="btn-replace-all" class="btn-sm btn-secondary" @click="replaceAll">全部替换</button>
-      <button id="btn-find-close" class="find-close" @click="editorStore.toggleFind()">x</button>
+      <button id="btn-find-close" class="find-close" type="button" aria-label="关闭查找替换" @click="editorStore.toggleFind()"><AppIcon name="x" /></button>
     </div>
 
+    <div v-if="bookmarkVisible" id="editor-bookmark-bar" class="bookmark-bar">
+      <button id="btn-bookmark-add" class="btn-sm btn-secondary" type="button" :disabled="!activeTab" @click="addBookmarkAtCursor">添加当前光标书签</button>
+      <div v-if="activeBookmarks.length === 0" id="bookmark-empty" class="bookmark-empty">当前页签暂无书签</div>
+      <div v-else id="bookmark-list" class="bookmark-list">
+        <button
+          v-for="bookmark in activeBookmarks"
+          :id="'bookmark-item-' + bookmark.id"
+          :key="bookmark.id"
+          class="bookmark-item"
+          type="button"
+          @click="goToBookmark(bookmark)"
+        >
+          <span class="bookmark-label">{{ bookmark.label || ('第 ' + (bookmark.line + 1) + ' 行') }}</span>
+          <span class="bookmark-line">第 {{ bookmark.line + 1 }} 行</span>
+          <span class="bookmark-remove" role="button" tabindex="0" :data-bookmark-id="bookmark.id" @click.stop="removeBookmark(bookmark.id)">删除</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="editor-main-area">
     <div class="editor-viewport-wrap">
+    <div v-if="folded" class="editor-fold-banner">
+      <span>折叠视图只读</span>
+      <button id="btn-fold-expand" class="btn-sm btn-secondary" type="button" @click="unfoldAll">展开</button>
+    </div>
     <textarea id="editor-content"
       ref="editorTextarea"
       class="editor-content"
-      :value="activeTab ? activeTab.content : ''"
+      :value="displayedContent"
       @input="onInput"
       placeholder="请先创建或打开项目，然后选择左侧章节开始写作..."
       :disabled="!activeTab"
       @keydown="onKeydown"
+      @compositionstart="multiCursorComposing = true"
+      @compositionend="multiCursorComposing = false"
+      @select="captureSelectionSnapshot(activeTab?.content || '')"
       @mouseup="checkInlineMenu"
       @blur="hideInlineMenu"
     ></textarea>
     <div ref="editorViewportMirror" class="editor-viewport-mirror" aria-hidden="true"></div>
     <div ref="editorViewportHighlight" class="editor-viewport-highlight-layer" aria-hidden="true"></div>
+    <div ref="editorSearchHighlightLayer" class="editor-search-highlight-layer" aria-hidden="true"></div>
+    <div ref="editorMultiCursorLayer" class="editor-multi-cursor-layer" aria-hidden="true"></div>
+    </div>
+    <EditorOutlinePanel
+      :visible="outlineVisible"
+      :content="activeTab?.content || ''"
+      @close="outlineVisible = false"
+      @locate="goToOutlineHeading"
+    />
     </div>
    <div v-if="inlineMenuVisible" class="inline-menu" :style="{ left: inlineMenuPos.x + 'px', top: inlineMenuPos.y + 'px' }">
      <button v-for="a in inlineActions" :key="a.key" class="inline-menu-btn" @mousedown.prevent="applyInlineAction(a.key, a.label)">{{ a.label }}</button>
    </div>
-    <div v-if="memoryExtraction.previewVisible" class="editor-memory-overlay" :style="{ zIndex: modalQueue.getZIndex('editor-memory-preview') }" @click.self="closeMemoryPreview">
+    <div v-if="memoryExtraction.previewVisible" data-modal-id="editor-memory-preview" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('editor-memory-preview') }" @click.self="closeMemoryPreview">
       <section class="editor-memory-modal" role="dialog" aria-modal="true" aria-labelledby="editor-memory-title">
-        <header class="editor-memory-header"><strong id="editor-memory-title">记忆变更预览</strong><button class="modal-close" type="button" @click.stop="closeMemoryPreview">&times;</button></header>
+        <header class="editor-memory-header"><strong id="editor-memory-title">记忆变更预览</strong><button class="modal-close" type="button" aria-label="关闭记忆变更预览" @click.stop="closeMemoryPreview"><AppIcon name="x" /></button></header>
         <div class="editor-memory-body">
           <p class="editor-memory-hint">正文已经保存。确认后才会写入记忆库，可逐条拒绝或锁定。</p>
           <p v-if="memoryExtraction.loading">正在提取正文中的人物、事件、关系和世界观...</p>
@@ -113,7 +158,6 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useUndoRedo } from '../../composables/useUndoRedo'
 import { useDeAi } from '../../composables/useDeAi'
 import { useAppConfirm } from '../../composables/useAppConfirm'
 import { useEditorStore } from '../../stores/editor'
@@ -125,9 +169,26 @@ import { useModalQueue } from '../../composables/useModalQueue'
 import { unifiedMemoryAiCall } from '../../services/memoryExtractor'
 import { useProviderStore } from '../../stores/provider'
 import RunTracePanel from '../common/RunTracePanel.vue'
+import EditorOutlinePanel from './EditorOutlinePanel.vue'
 import { useRunTraceStore } from '../../stores/runTrace'
 import { useAiCallTrace } from '../../composables/useAiCallTrace'
 import { createTextareaViewport, type EditorViewport } from '../../services/editorViewport'
+import { applyFold, computeFoldRanges, toggleFoldForSelection, type FoldRange } from '../../services/editorFolding'
+import { buildEditorReplacementPlan, computeEditorMatches, type SearchOptions } from '../../services/editorReplace'
+import { buildSearchHighlightPlan, computeSearchMatches } from '../../services/editorSearch'
+import {
+  advanceSnapshotAfterExternalWrite,
+  planExternalWriteSelectionRestore,
+  planFoldSelectionRestore,
+  planTabSwitchSelectionRestore,
+  type EditorSelectionSnapshot,
+} from '../../services/editorSelectionRestore'
+import {
+  buildMultiCursorEditPlan,
+  buildSelectionSetFromMatches,
+  type MultiCursorCommand,
+  type NormalizedSelection,
+} from '../../services/editorSelectionModel'
 
 const editorStore = useEditorStore()
 const projectStore = useProjectStore()
@@ -145,16 +206,38 @@ watch(() => memoryExtraction.previewVisible, visible => {
   if (visible) modalQueue.open('editor-memory-preview')
   else modalQueue.close('editor-memory-preview')
 }, { immediate: true })
+
+// Verification bridge for responsive E2E; no runtime behavior depends on it.
+;(globalThis as any).__editorMemoryState = {
+  get previewVisible() { return memoryExtraction.previewVisible },
+  set previewVisible(value: boolean) { memoryExtraction.previewVisible = value },
+  get loading() { return memoryExtraction.loading },
+  set loading(value: boolean) { memoryExtraction.loading = value },
+  get error() { return memoryExtraction.error },
+  set error(value: string) { memoryExtraction.error = value },
+  get changes() { return memoryExtraction.changes },
+  set changes(value: any[]) { memoryExtraction.changes = value }
+}
 const editorTextarea = ref<HTMLTextAreaElement | null>(null)
 const editorViewportMirror = ref<HTMLDivElement | null>(null)
 const editorViewportHighlight = ref<HTMLDivElement | null>(null)
+const editorSearchHighlightLayer = ref<HTMLDivElement | null>(null)
+const editorMultiCursorLayer = ref<HTMLDivElement | null>(null)
 let editorViewport: EditorViewport | null = null
 const exportMenu = ref(false)
-const undoRedo = useUndoRedo(50)
 let autoSaveTimer: ReturnType<typeof setInterval> | null = null
 
 const findMatchCount = ref(0)
 const findMatchIndex = ref(-1)
+const searchCaseSensitive = ref(true)
+const searchWholeWord = ref(false)
+const searchUseRegex = ref(false)
+const searchFeedback = ref('')
+const multiCursorSelection = ref<NormalizedSelection | null>(null)
+const multiCursorBaseContent = ref('')
+const multiCursorComposing = ref(false)
+const bookmarkVisible = ref(false)
+const outlineVisible = ref(false)
 
 const inlineActions = [
   {key:'rewrite',label:'改写'},{key:'expand',label:'扩写'},
@@ -169,7 +252,64 @@ const inlineActions = [
   {key:'conflict',label:'冲突强化'},{key:'emotion',label:'情感强化'}
 ]
 const inlineMenuVisible = ref(false)
- const inlineMenuPos = ref({ x: 0, y: 0 })
+const collapsedFoldIds = ref<string[]>([])
+const inlineMenuPos = ref({ x: 0, y: 0 })
+let selectionSnapshot: EditorSelectionSnapshot | null = null
+
+function captureSelectionSnapshot(originalContent: string) {
+  if (!activeTab.value || !editorTextarea.value) return
+  selectionSnapshot = {
+    documentId: activeTab.value.id,
+    content: originalContent,
+    start: folded.value
+      ? foldedDocument.value?.toOriginalOffset(editorTextarea.value.selectionStart) ?? 0
+      : editorTextarea.value.selectionStart,
+    end: folded.value
+      ? foldedDocument.value?.toOriginalOffset(editorTextarea.value.selectionEnd) ?? 0
+      : editorTextarea.value.selectionEnd,
+  }
+}
+
+function recordSelectionRestore(
+  source: 'external-write' | 'fold' | 'tab-switch',
+  plan: ReturnType<typeof planExternalWriteSelectionRestore>,
+) {
+  const diag = (window as any).DiagLogger
+  const detail = {
+    source,
+    mode: plan.mode,
+    reason: plan.reason,
+    start: plan.start,
+    end: plan.end,
+  }
+  runTraceStore.addSourceEvent('home', {
+    type: 'selection-restore',
+    level: plan.mode === 'reset' ? 'warn' : 'info',
+    label: `编辑器选区恢复：${plan.mode}`,
+    detail: JSON.stringify(detail),
+    selectionRestoreMode: plan.mode,
+  })
+  diag?.log?.(plan.mode === 'reset' ? 'warn' : 'info', 'editor-selection', '编辑器选区恢复', detail)
+}
+
+function applySelectionRestorePlan(
+  source: 'external-write' | 'fold' | 'tab-switch',
+  plan: ReturnType<typeof planExternalWriteSelectionRestore>,
+) {
+  if (plan.mode === 'auto' && typeof plan.start === 'number' && typeof plan.end === 'number') {
+    const textarea = editorTextarea.value
+    if (textarea) {
+      textarea.setSelectionRange(plan.start, plan.end)
+    }
+  } else if (plan.mode === 'reset') {
+    const textarea = editorTextarea.value
+    if (textarea) {
+      textarea.setSelectionRange(0, 0)
+    }
+    if (source !== 'fold') selectionSnapshot = null
+  }
+  recordSelectionRestore(source, plan)
+}
 
 type HomeToolTrace = ReturnType<typeof useAiCallTrace>
 
@@ -216,6 +356,273 @@ async function runTracedHomeTool(
 }
 
  const activeTab = computed(() => editorStore.activeTab)
+const foldRanges = computed<FoldRange[]>(() => activeTab.value ? computeFoldRanges(activeTab.value.content || '') : [])
+const foldedDocument = computed(() => collapsedFoldIds.value.length > 0
+  ? applyFold(activeTab.value?.content || '', collapsedFoldIds.value)
+  : null)
+const folded = computed(() => !!foldedDocument.value)
+const displayedContent = computed(() => foldedDocument.value?.content ?? activeTab.value?.content ?? '')
+const canFold = computed(() => foldRanges.value.length > 0)
+const searchOptions = computed<SearchOptions>(() => ({
+  caseSensitive: searchCaseSensitive.value,
+  wholeWord: searchWholeWord.value,
+  useRegex: searchUseRegex.value,
+}))
+const searchModel = computed(() => computeEditorMatches(
+  activeTab.value?.content || '',
+  editorStore.findVisible ? editorStore.findQuery : '',
+  searchOptions.value,
+))
+const searchError = computed(() => searchModel.value.error)
+const searchMatches = computed(() => computeSearchMatches(
+  folded.value ? '' : activeTab.value?.content || '',
+  editorStore.findVisible ? editorStore.findQuery : '',
+  searchOptions.value,
+))
+
+function renderSearchHighlights() {
+  const layer = editorSearchHighlightLayer.value
+  if (!layer) return
+  if (!editorStore.findVisible || folded.value || !editorStore.findQuery.trim()) {
+    layer.replaceChildren()
+    return
+  }
+  const textarea = editorTextarea.value
+  if (!textarea || !editorViewport) {
+    layer.replaceChildren()
+    return
+  }
+  const plan = buildSearchHighlightPlan({
+    matches: searchMatches.value,
+    activeIndex: findMatchIndex.value,
+    measureOffset: offset => editorViewport!.measureOffset(offset),
+    viewportWidth: textarea.clientWidth,
+    lineWindow: editorViewport.getLineWindow(),
+    getLine: offset => editorViewport!.getLine(offset),
+  })
+  layer.replaceChildren(...plan.map(rectangle => {
+    const item = document.createElement('div')
+    item.className = rectangle.active
+      ? 'editor-search-highlight editor-search-highlight-active'
+      : 'editor-search-highlight'
+    item.style.left = `${rectangle.left}px`
+    item.style.top = `${rectangle.top}px`
+    item.style.width = `${rectangle.width}px`
+    item.style.height = `${rectangle.height}px`
+    return item
+  }))
+}
+
+function recordMultiCursorEvent(
+  type: 'find-all' | 'multi-cursor-edit' | 'multi-cursor-conflict' | 'multi-cursor-downgrade',
+  level: 'info' | 'warn',
+  detail: Record<string, unknown>,
+) {
+  const labels = {
+    'find-all': '查找全部选中',
+    'multi-cursor-edit': '多光标编辑',
+    'multi-cursor-conflict': '多光标版本冲突',
+    'multi-cursor-downgrade': '多光标降级',
+  } as const
+  const payload = { documentId: activeTab.value?.id, ...detail }
+  runTraceStore.addSourceEvent('home', {
+    type,
+    level,
+    label: labels[type],
+    detail: JSON.stringify(payload),
+  })
+  ;(typeof window !== 'undefined' ? (window as any).DiagLogger : null)?.log?.(
+    level,
+    type,
+    labels[type],
+    payload,
+  )
+}
+
+function renderMultiCursors() {
+  const layer = editorMultiCursorLayer.value
+  if (!layer) return
+  const selection = multiCursorSelection.value
+  if (!selection || folded.value) {
+    layer.replaceChildren()
+    return
+  }
+  const textarea = editorTextarea.value
+  if (!textarea || !editorViewport) {
+    layer.replaceChildren()
+    return
+  }
+  const lineWindow = editorViewport.getLineWindow()
+  const primary = selection.cursors[selection.primaryIndex ?? 0]
+  layer.replaceChildren(...selection.cursors.map((cursor, index) => {
+    const offset = Math.min(cursor.anchor, cursor.focus)
+    const item = document.createElement('div')
+    item.className = index === (selection.primaryIndex ?? 0)
+      ? 'editor-multi-cursor editor-multi-cursor-primary'
+      : 'editor-multi-cursor'
+    if (editorViewport!.getLine(offset) >= lineWindow.startLine
+      && editorViewport!.getLine(offset) <= lineWindow.endLine) {
+      const rect = editorViewport!.measureOffset(offset)
+      item.style.left = `${rect.left}px`
+      item.style.top = `${rect.top}px`
+      item.style.height = `${rect.height}px`
+    } else {
+      item.style.display = 'none'
+    }
+    return item
+  }))
+  if (primary) {
+    const primaryOffset = Math.min(primary.anchor, primary.focus)
+    textarea.setSelectionRange(primaryOffset, primaryOffset)
+  }
+}
+
+function scheduleMultiCursorRepaint() {
+  requestAnimationFrame(renderMultiCursors)
+}
+
+function clearMultiCursorSelection(reason: string, level: 'info' | 'warn' = 'info') {
+  if (!multiCursorSelection.value) return
+  multiCursorSelection.value = null
+  multiCursorBaseContent.value = ''
+  const type = level === 'warn' ? 'multi-cursor-conflict' : 'multi-cursor-downgrade'
+  recordMultiCursorEvent(type, level, { reason, cursorCount: 0 })
+  scheduleMultiCursorRepaint()
+}
+
+function selectAllMatches() {
+  if (folded.value || !activeTab.value) return
+  const content = activeTab.value.content || ''
+  if (searchError.value || searchMatches.value.length === 0) return
+  multiCursorSelection.value = buildSelectionSetFromMatches({
+    matches: searchMatches.value,
+    contentLength: content.length,
+    primaryIndex: 0,
+  })
+  multiCursorBaseContent.value = content
+  recordMultiCursorEvent('find-all', 'info', {
+    cursorCount: multiCursorSelection.value.cursors.length,
+    matchCount: searchMatches.value.length,
+  })
+  editorTextarea.value?.focus()
+  scheduleMultiCursorRepaint()
+}
+
+function runMultiCursorCommand(command: MultiCursorCommand) {
+  const selection = multiCursorSelection.value
+  const textarea = editorTextarea.value
+  const content = activeTab.value?.content || ''
+  if (!selection || !textarea || !activeTab.value) return false
+  if (multiCursorComposing.value || folded.value) return false
+  if (multiCursorBaseContent.value !== content) {
+    clearMultiCursorSelection('document-version-changed', 'warn')
+    return false
+  }
+  const plan = buildMultiCursorEditPlan({ content, selection, command })
+  if (plan.status !== 'applied') {
+    clearMultiCursorSelection('version-conflict', 'warn')
+    return false
+  }
+  editorStore.pushUndoTransactionForTab(activeTab.value.id, content, 'manual', '多光标编辑')
+  editorStore.updateContent(activeTab.value.id, plan.next)
+  multiCursorSelection.value = plan.selection
+  multiCursorBaseContent.value = plan.next
+  recordMultiCursorEvent('multi-cursor-edit', 'info', {
+    command: command.type,
+    cursorCount: plan.selection.cursors.length,
+    changedCursors: plan.changedCursors,
+    beforeLength: content.length,
+    afterLength: plan.next.length,
+  })
+  scheduleMultiCursorRepaint()
+  return true
+}
+
+function syncTextareaContent() {
+  if (editorTextarea.value && activeTab.value) {
+    if (editorTextarea.value.value !== displayedContent.value) {
+      editorTextarea.value.value = displayedContent.value
+    }
+  }
+}
+
+function unfoldAll() {
+  const snapshot = selectionSnapshot
+  collapsedFoldIds.value = []
+  requestAnimationFrame(() => {
+    syncTextareaContent()
+    if (snapshot) {
+      applySelectionRestorePlan('fold', planFoldSelectionRestore({ snapshot, foldedDocument: null }))
+    }
+  })
+}
+
+function toggleCurrentFold() {
+  if (!editorTextarea.value || !activeTab.value) return
+  const snapshot = folded.value
+    ? selectionSnapshot
+    : {
+        documentId: activeTab.value.id,
+        content: activeTab.value.content || '',
+        start: foldedDocument.value?.toOriginalOffset(editorTextarea.value.selectionStart)
+          ?? editorTextarea.value.selectionStart,
+        end: foldedDocument.value?.toOriginalOffset(editorTextarea.value.selectionEnd)
+          ?? editorTextarea.value.selectionEnd,
+      }
+  if (snapshot) selectionSnapshot = snapshot
+  const selectionStart = folded.value
+    ? foldedDocument.value?.toOriginalOffset(editorTextarea.value.selectionStart)
+      ?? editorTextarea.value.selectionStart
+    : editorTextarea.value.selectionStart
+  const selectionEnd = folded.value
+    ? foldedDocument.value?.toOriginalOffset(editorTextarea.value.selectionEnd)
+      ?? editorTextarea.value.selectionEnd
+    : editorTextarea.value.selectionEnd
+  collapsedFoldIds.value = toggleFoldForSelection(
+    collapsedFoldIds.value,
+    foldRanges.value,
+    selectionStart,
+    selectionEnd,
+  )
+  requestAnimationFrame(() => {
+    syncTextareaContent()
+    if (snapshot) {
+      applySelectionRestorePlan('fold', planFoldSelectionRestore({
+        snapshot,
+        foldedDocument: foldedDocument.value,
+      }))
+    }
+  })
+}
+
+function switchEditorTab(tabId: string) {
+  if (editorStore.activeTabId === tabId) return
+  const snapshot = selectionSnapshot
+  editorStore.activeTabId = tabId
+  requestAnimationFrame(() => {
+    if (snapshot) {
+      applySelectionRestorePlan('tab-switch', planTabSwitchSelectionRestore(snapshot))
+    }
+  })
+}
+
+watch(displayedContent, () => {
+  requestAnimationFrame(() => syncTextareaContent())
+  requestAnimationFrame(renderSearchHighlights)
+  scheduleMultiCursorRepaint()
+})
+watch([
+  () => editorStore.findVisible,
+  () => editorStore.findQuery,
+  () => editorStore.activeTabId,
+  searchOptions,
+  searchMatches,
+  findMatchIndex,
+  findMatchCount,
+], () => {
+  requestAnimationFrame(renderSearchHighlights)
+  scheduleMultiCursorRepaint()
+})
 const modeLabel = computed(() => {
   const m = activeTab.value?.mode
   if (m === 'vol-outline') return '卷纲层'
@@ -228,17 +635,94 @@ const wordCount = computed(() => {
   if (!activeTab.value) return 0
   return (activeTab.value.content || '').length
 })
+const activeBookmarks = computed(() => activeTab.value ? editorStore.listBookmarks(activeTab.value.id) : [])
+
+function goToOutlineHeading(heading: { startOffset: number }) {
+  if (!activeTab.value) return
+  if (folded.value) unfoldAll()
+  const offset = Math.max(0, Math.min(activeTab.value.content.length, heading.startOffset))
+  requestAnimationFrame(() => {
+    if (!editorTextarea.value || !activeTab.value) return
+    editorTextarea.value.focus()
+    editorViewport?.revealTarget({ start: offset, end: offset, focus: 'center' })
+  })
+}
+
+function addBookmarkAtCursor() {
+  if (!activeTab.value || !editorTextarea.value) return
+  const offset = folded.value
+    ? Math.max(0, Math.min(activeTab.value.content.length, foldedDocument.value?.toOriginalOffset(editorTextarea.value.selectionStart) ?? 0))
+    : editorTextarea.value.selectionStart
+  editorStore.addBookmark(activeTab.value.id, activeTab.value.content || '', offset, '')
+  projectStore.setEditorBookmarks(editorStore.bookmarks)
+  projectStore.saveProject()
+}
+
+function goToBookmark(bookmark: { id: string; documentId: string; offset: number }) {
+  if (!activeTab.value || activeTab.value.id !== bookmark.documentId) return
+  if (folded.value) unfoldAll()
+  const offset = Math.max(0, Math.min(activeTab.value.content.length, bookmark.offset))
+  requestAnimationFrame(() => {
+    if (!editorTextarea.value || !activeTab.value) return
+    editorTextarea.value.focus()
+    editorTextarea.value.setSelectionRange(offset, offset)
+    editorViewport?.revealTarget({ start: offset, end: offset, focus: 'center' })
+  })
+}
+
+function removeBookmark(bookmarkId: string) {
+  editorStore.deleteBookmark(bookmarkId)
+  projectStore.setEditorBookmarks(editorStore.bookmarks)
+  projectStore.saveProject()
+}
+
+function sameBookmarks(left: unknown, right: unknown): boolean {
+  return JSON.stringify(left ?? []) === JSON.stringify(right ?? [])
+}
+
+watch(() => editorStore.bookmarks, () => {
+  if (!sameBookmarks(projectStore.editorBookmarks, editorStore.bookmarks)) {
+    projectStore.setEditorBookmarks(editorStore.bookmarks)
+    projectStore.saveProject()
+  }
+}, { deep: true })
+
+watch(() => projectStore.editorBookmarks, (persisted) => {
+  if (!sameBookmarks(persisted, editorStore.bookmarks)) {
+    editorStore.setBookmarks(persisted)
+  }
+}, { deep: true })
 
 function onInput(e: Event) {
+  if (folded.value) {
+    unfoldAll()
+    return
+  }
   const target = e.target as HTMLTextAreaElement
   if (activeTab.value) {
-    undoRedo.pushState(target.value)
     editorStore.updateContent(activeTab.value.id, target.value)
   }
 }
 
 function onKeydown(e: KeyboardEvent) {
   const key = e.key.toLowerCase()
+  if (multiCursorSelection.value && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      runMultiCursorCommand({ type: 'newline' })
+      return
+    }
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      e.preventDefault()
+      runMultiCursorCommand({ type: e.key === 'Delete' ? 'delete_forward' : 'delete_backward' })
+      return
+    }
+    if (e.key.length === 1 && !multiCursorComposing.value) {
+      e.preventDefault()
+      runMultiCursorCommand({ type: 'insert', text: e.key })
+      return
+    }
+  }
   if (e.ctrlKey && key === 's') {
     e.preventDefault()
     save()
@@ -250,6 +734,7 @@ function onKeydown(e: KeyboardEvent) {
 }
 
 async function save() {
+  if (folded.value) unfoldAll()
   if (!activeTab.value) {
     void appConfirm.alert('请先选择或创建一个章节');
     return;
@@ -322,19 +807,44 @@ function closeMemoryPreview() {
 }
 
 function undo() {
-  const prev = undoRedo.undo()
+  if (folded.value) unfoldAll()
+  const prev = activeTab.value ? editorStore.undoTab(activeTab.value.id) : null
   if (prev !== null && activeTab.value) {
     editorStore.updateContent(activeTab.value.id, prev)
     if (editorTextarea.value) editorTextarea.value.value = prev
+    recordUndoAction('undo', prev)
   }
 }
 
 function redo() {
-  const next = undoRedo.redo()
+  if (folded.value) unfoldAll()
+  const next = activeTab.value ? editorStore.redoTab(activeTab.value.id) : null
   if (next !== null && activeTab.value) {
     editorStore.updateContent(activeTab.value.id, next)
     if (editorTextarea.value) editorTextarea.value.value = next
+    recordUndoAction('redo', next)
   }
+}
+
+function recordUndoAction(action: 'undo' | 'redo', content: string) {
+  const detail = {
+    documentId: activeTab.value?.id,
+    action,
+    origin: 'manual',
+    contentLength: content.length,
+  }
+  runTraceStore.addSourceEvent('home', {
+    type: 'editor-undo',
+    level: 'info',
+    label: `主页编辑器${action === 'undo' ? '撤销' : '重做'}：manual`,
+    detail: JSON.stringify(detail),
+  })
+  ;(typeof window !== 'undefined' ? (window as any).DiagLogger : null)?.log?.(
+    'info',
+    'editor-undo',
+    `主页编辑器${action === 'undo' ? '撤销' : '重做'}`,
+    detail,
+  )
 }
 
 function generateContent() {
@@ -422,10 +932,18 @@ onMounted(() => {
       mirror: editorViewportMirror.value || document.createElement('div'),
       highlightLayer: editorViewportHighlight.value || undefined,
     })
+    unsubscribeSearchHighlightScroll = editorViewport.onViewportScroll(scheduleSearchHighlightRepaint)
   }
+  requestAnimationFrame(renderSearchHighlights)
 })
 projectStore.startProjectAutoSave(settingsStore.autoSaveInterval || 30)
 onUnmounted(() => {
+  unsubscribeSearchHighlightScroll?.()
+  unsubscribeSearchHighlightScroll = null
+  if (searchHighlightScrollFrame !== null) {
+    cancelAnimationFrame(searchHighlightScrollFrame)
+    searchHighlightScrollFrame = null
+  }
   editorViewport?.dispose()
   editorViewport = null
   if (autoSaveTimer) clearInterval(autoSaveTimer)
@@ -438,7 +956,6 @@ onUnmounted(() => {
   window.removeEventListener('diff-locate', handleDiffLocate)
   window.removeEventListener('editor-follow-progress', handleEditorFollowProgress)
   window.removeEventListener('editor-stop-follow', handleEditorStopFollow)
-  window.removeEventListener('editor-ai-batch-checkpoint', handleAiBatchCheckpoint)
   window.removeEventListener('tool-activity', handleToolActivity)
   window.removeEventListener('restore-session', handleRestoreSession)
 })
@@ -447,13 +964,41 @@ function handleRedoEvent() { redo() }
 function handleExternalChangeEvent(event: Event) {
   const detail = (event as CustomEvent).detail
   if (!activeTab.value || detail?.tabId !== activeTab.value.id || typeof detail?.content !== 'string') return
-  if (typeof detail.silentUndo === 'boolean') {
-    undoRedo.replaceCurrentSnapshot(detail.content, undefined, detail.silentUndo)
-  } else {
-    undoRedo.replaceCurrentSnapshot(detail.content)
-  }
+  clearMultiCursorSelection('external-write', 'info')
+  const snapshotBeforeWrite = selectionSnapshot
+    ?? (editorTextarea.value
+      ? {
+          documentId: activeTab.value.id,
+          content: editorTextarea.value.value,
+          start: folded.value
+            ? foldedDocument.value?.toOriginalOffset(editorTextarea.value.selectionStart) ?? 0
+            : editorTextarea.value.selectionStart,
+          end: folded.value
+            ? foldedDocument.value?.toOriginalOffset(editorTextarea.value.selectionEnd) ?? 0
+            : editorTextarea.value.selectionEnd,
+        }
+      : null)
+  selectionSnapshot = snapshotBeforeWrite
+  if (folded.value) unfoldAll()
   if (editorTextarea.value && editorTextarea.value.value !== detail.content) {
     editorTextarea.value.value = detail.content
+  }
+  if (snapshotBeforeWrite) {
+    const plan = planExternalWriteSelectionRestore({
+      snapshot: snapshotBeforeWrite,
+      documentId: activeTab.value.id,
+      nextContent: detail.content,
+    })
+    applySelectionRestorePlan('external-write', plan)
+    selectionSnapshot = advanceSnapshotAfterExternalWrite({
+      snapshot: snapshotBeforeWrite,
+      documentId: activeTab.value.id,
+      nextContent: detail.content,
+      plan,
+    })
+  } else {
+    selectionSnapshot = null
+    recordSelectionRestore('external-write', { mode: 'none', reason: 'no-snapshot' })
   }
 }
 function handleSaveEvent() {
@@ -490,19 +1035,9 @@ onMounted(() => {
   window.addEventListener('diff-locate', handleDiffLocate)
   window.addEventListener('editor-follow-progress', handleEditorFollowProgress)
   window.addEventListener('editor-stop-follow', handleEditorStopFollow)
-  window.addEventListener('editor-ai-batch-checkpoint', handleAiBatchCheckpoint)
   window.addEventListener('tool-activity', handleToolActivity)
   window.addEventListener('restore-session', handleRestoreSession)
 })
-
-function handleAiBatchCheckpoint(event: Event) {
-  const detail = (event as CustomEvent).detail
-  if (!detail || !detail.tabId || !detail.batchId) return
-  // P3: AI 批次以 checkpoint 进入 undo 栈
-  // 经验引用: §1 规则6（不得重新赋值）、§7 规则19（AI 批次专用回滚栈）
-  if (detail.tabId !== activeTab.value?.id) return
-  undoRedo.pushAiBatchCheckpoint(detail.content, detail.batchId)
-}
 
 // P7: 编辑器实时反馈 — AI 读写时高亮/闪烁/滚动
 // 经验引用: §1 M4（隐藏状态保护）闪烁标记是临时状态，不改 tab.isDirty
@@ -528,10 +1063,22 @@ function handleToolActivity(event: Event) {
 }
 
 const flashClass = ref('')
+let searchHighlightScrollFrame: number | null = null
+let unsubscribeSearchHighlightScroll: (() => void) | null = null
+
+function scheduleSearchHighlightRepaint() {
+  if (searchHighlightScrollFrame !== null) return
+  searchHighlightScrollFrame = requestAnimationFrame(() => {
+    searchHighlightScrollFrame = null
+    renderSearchHighlights()
+    renderMultiCursors()
+  })
+}
 
 function handleDiffLocate(event: Event) {
   const detail = (event as CustomEvent).detail
   if (!detail || detail.workspace !== 'main' || !editorTextarea.value) return
+  if (folded.value) unfoldAll()
   if (detail.targetId && editorStore.activeTabId !== detail.targetId) {
     editorStore.activeTabId = detail.targetId
   }
@@ -547,6 +1094,7 @@ function handleDiffLocate(event: Event) {
 function handleEditorFollowProgress(event: Event) {
   const detail = (event as CustomEvent).detail
   if (!detail || detail.workspace !== 'main' || !editorTextarea.value) return
+  if (folded.value) unfoldAll()
   if (detail.targetId && editorStore.activeTabId !== detail.targetId) {
     editorStore.activeTabId = detail.targetId
   }
@@ -557,35 +1105,36 @@ function handleEditorFollowProgress(event: Event) {
 function handleEditorStopFollow() {
   editorViewport?.stopFollow()
 }
-watch(activeTab, (newTab) => {
-  if (newTab) undoRedo.reset(newTab.content)
-})
-
 function findNext() {
+  if (folded.value) unfoldAll()
   if (!editorTextarea.value || !editorStore.findQuery) return
-  const text = editorTextarea.value.value
-  // P7: count all matches
-  findMatchCount.value = 0
-  findMatchIndex.value = -1
-  const matches = []
-  let si = 0
-  while ((si = text.indexOf(editorStore.findQuery, si)) !== -1) {
-    matches.push(si)
-    si += editorStore.findQuery.length
+  if (searchError.value) {
+    showSearchFeedback(searchError.value)
+    return
   }
+  const text = editorTextarea.value.value
+  const matches = searchMatches.value
   findMatchCount.value = matches.length
-  if (matches.length === 0) return
+  if (matches.length === 0) {
+    findMatchIndex.value = -1
+    return
+  }
   // find current position
  let curPos = editorTextarea.value.selectionEnd
-  let nextIdx = matches.findIndex(m => m >= curPos)
+  let nextIdx = matches.findIndex(match => match.start >= curPos)
   if (nextIdx < 0) nextIdx = 0
   findMatchIndex.value = nextIdx
-  const idx = matches[nextIdx]
+  const idx = matches[nextIdx].start
   editorTextarea.value.setSelectionRange(idx, idx + editorStore.findQuery.length)
-  // P7: scroll to match
-  const lineHeight = 20
-  const linesBefore = text.substring(0, idx).split('\n').length
-  editorTextarea.value.scrollTop = Math.max(0, (linesBefore - 3) * lineHeight)
+  editorViewport?.revealTarget({ start: idx, end: idx + editorStore.findQuery.length, focus: 'center' })
+  requestAnimationFrame(renderSearchHighlights)
+}
+
+function showSearchFeedback(message: string) {
+  searchFeedback.value = message
+  setTimeout(() => {
+    if (searchFeedback.value === message) searchFeedback.value = ''
+  }, 2500)
 }
 
 function buildEpubZip(files: any[]): Uint8Array {
@@ -674,50 +1223,94 @@ async function showDeAiReport() {
 }
 
 function findPrev() {
+  if (folded.value) unfoldAll()
   if (!editorTextarea.value || !editorStore.findQuery) return
-  const text = editorTextarea.value.value
-  // P7: count all matches
-  const matches = []
-  let si = 0
-  while ((si = text.indexOf(editorStore.findQuery, si)) !== -1) {
-    matches.push(si)
-    si += editorStore.findQuery.length
+  if (searchError.value) {
+    showSearchFeedback(searchError.value)
+    return
   }
+  const text = editorTextarea.value.value
+  const matches = searchMatches.value
   findMatchCount.value = matches.length
-  if (matches.length === 0) return
+  if (matches.length === 0) {
+    findMatchIndex.value = -1
+    return
+  }
   let curPos = editorTextarea.value.selectionStart
   let prevIdx = matches.length - 1
   for (let i = matches.length - 1; i >= 0; i--) {
-    if (matches[i] < curPos) { prevIdx = i; break }
+    if (matches[i].start < curPos) { prevIdx = i; break }
   }
   findMatchIndex.value = prevIdx
-  const idx = matches[prevIdx]
+  const idx = matches[prevIdx].start
   editorTextarea.value.setSelectionRange(idx, idx + editorStore.findQuery.length)
-  const lineHeight = 20
-  const linesBefore = text.substring(0, idx).split('\n').length
-  editorTextarea.value.scrollTop = Math.max(0, (linesBefore - 3) * lineHeight)
+  editorViewport?.revealTarget({ start: idx, end: idx + editorStore.findQuery.length, focus: 'center' })
+  requestAnimationFrame(renderSearchHighlights)
 }
 
 function replaceOne() {
   if (!activeTab.value || !editorStore.findQuery) return
+  if (searchError.value) {
+    showSearchFeedback(searchError.value)
+    return
+  }
   const text = activeTab.value.content
   const selStart = editorTextarea.value?.selectionStart || 0
   const selEnd = editorTextarea.value?.selectionEnd || 0
-  const selectedText = text.substring(selStart, selEnd)
-  if (selectedText === editorStore.findQuery) {
-    const newContent = text.substring(0, selStart) + editorStore.replaceQuery + text.substring(selEnd)
-    editorStore.updateContent(activeTab.value.id, newContent)
-    editorTextarea.value?.setSelectionRange(selStart, selStart + editorStore.replaceQuery.length)
-  } else {
-    findNext()
+  const plan = buildEditorReplacementPlan(text, editorStore.findQuery, editorStore.replaceQuery, searchOptions.value)
+  if (plan.status === 'invalid-pattern') {
+    showSearchFeedback(plan.error || '查找内容无效')
+    return
   }
+  const item = plan.items.find(candidate => candidate.start === selStart && candidate.end === selEnd)
+  if (!item) {
+    findNext()
+    return
+  }
+  const newContent = text.substring(0, item.start) + item.after + text.substring(item.end)
+  recordEditorReplace('one', item.before, item.after, plan.matches.length)
+  editorStore.updateContent(activeTab.value.id, newContent)
+  editorTextarea.value?.setSelectionRange(item.start, item.start + item.after.length)
 }
 
 function replaceAll() {
   if (!activeTab.value || !editorStore.findQuery) return
   const content = activeTab.value.content
-  const newContent = content.split(editorStore.findQuery).join(editorStore.replaceQuery)
-  editorStore.updateContent(activeTab.value.id, newContent)
+  const plan = buildEditorReplacementPlan(content, editorStore.findQuery, editorStore.replaceQuery, searchOptions.value)
+  if (plan.status === 'invalid-pattern') {
+    showSearchFeedback(plan.error || '查找内容无效')
+    return
+  }
+  if (plan.status !== 'ready' || !plan.next) {
+    showSearchFeedback(plan.status === 'no-match' ? '未找到匹配' : '替换结果与原文相同')
+    return
+  }
+  recordEditorReplace('all', content, plan.next, plan.matches.length)
+  editorStore.updateContent(activeTab.value.id, plan.next)
+  requestAnimationFrame(renderSearchHighlights)
+}
+
+function recordEditorReplace(mode: 'one' | 'all', before: string, after: string, matchCount: number) {
+  const detail = {
+    documentId: activeTab.value?.id,
+    mode,
+    options: searchOptions.value,
+    matchCount,
+    beforeLength: before.length,
+    afterLength: after.length,
+  }
+  runTraceStore.addSourceEvent('home', {
+    type: 'editor-replace',
+    level: 'info',
+    label: `主页编辑器替换${mode === 'one' ? '当前匹配' : '全部匹配'}：${matchCount} 处`,
+    detail: JSON.stringify(detail),
+  })
+  ;(typeof window !== 'undefined' ? (window as any).DiagLogger : null)?.log?.(
+    'info',
+    'editor-replace',
+    `主页编辑器替换${mode === 'one' ? '当前匹配' : '全部匹配'}`,
+    detail,
+  )
 }
 
 function checkInlineMenu() {
@@ -775,6 +1368,57 @@ function applyInlineAction(action: string, label: string) {
   background: var(--bg-primary);
   overflow: hidden;
   min-width: 0;
+}
+.bookmark-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 42px;
+  padding: var(--space-2) var(--space-6);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  overflow-x: auto;
+}
+.bookmark-empty {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+.bookmark-list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.bookmark-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 28px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+.bookmark-item:hover {
+  border-color: var(--accent);
+}
+.bookmark-label {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bookmark-line,
+.bookmark-remove {
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+}
+.bookmark-remove:hover {
+  color: var(--accent);
 }
 .editor-header {
   min-height: 56px;
@@ -917,8 +1561,26 @@ function applyInlineAction(action: string, label: string) {
   border-radius: var(--radius-xs);
   padding: var(--space-1) var(--space-4);
   font-size: var(--font-size-sm);
-  height: 24px;
-  outline: none;
+  height: var(--density-form-height);
+}
+.find-error,
+.find-feedback {
+  color: var(--danger);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+}
+.find-option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  user-select: none;
+}
+.find-option input {
+  accent-color: var(--primary);
+  margin: 0;
 }
 .find-close {
   background: none;
@@ -931,12 +1593,11 @@ function applyInlineAction(action: string, label: string) {
   flex: 1;
   width: 100%;
   border: none;
-  outline: none;
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: var(--editor-font, serif);
-  font-size: var(--font-size-lg);
-  line-height: 1.8;
+  font-family: var(--editor-font);
+  font-size: var(--font-size-editor);
+  line-height: var(--line-height-editor);
   padding: var(--space-8) var(--space-10);
   resize: none;
   overflow-y: auto;
@@ -949,6 +1610,25 @@ function applyInlineAction(action: string, label: string) {
   flex: 1;
   min-height: 0;
   display: flex;
+  flex-direction: column;
+}
+.editor-main-area {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+.editor-fold-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 30px;
+  padding: var(--space-2) var(--space-6);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  flex-shrink: 0;
 }
 .editor-viewport-wrap .editor-content {
   flex: 1;
@@ -974,6 +1654,39 @@ function applyInlineAction(action: string, label: string) {
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 38%, transparent);
 }
+.editor-multi-cursor-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.editor-multi-cursor {
+  position: absolute;
+  width: 2px;
+  background: var(--accent, #2563eb);
+}
+
+.editor-multi-cursor-primary {
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.35);
+}
+
+.editor-search-highlight-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.editor-search-highlight {
+  position: absolute;
+  pointer-events: none;
+  border-radius: var(--radius-xs);
+  background: color-mix(in srgb, var(--warning, var(--accent)) 24%, transparent);
+}
+.editor-search-highlight-active {
+  background: color-mix(in srgb, var(--accent) 42%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 62%, transparent);
+}
 .export-dropdown {
   position: absolute;
   top: 100%;
@@ -982,7 +1695,7 @@ function applyInlineAction(action: string, label: string) {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   padding: var(--space-2);
-  z-index: 100;
+  z-index: var(--z-dropdown);
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
@@ -1004,11 +1717,11 @@ function applyInlineAction(action: string, label: string) {
 
 #btn-de-ai { color: var(--warning); font-weight: 600; }
 #btn-de-ai:hover { background: var(--warning-dim); }
-#btn-de-ai:disabled { color: var(--text-tertiary); font-weight: 400; }
+#btn-de-ai:disabled { color: var(--text-muted); font-weight: 400; }
 
 .inline-menu {
   position: fixed;
-  z-index: 10000;
+  z-index: var(--z-tooltip);
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
@@ -1034,25 +1747,15 @@ function applyInlineAction(action: string, label: string) {
   background: var(--bg-hover);
   color: var(--accent);
  }
- .editor-memory-overlay {
-   position: fixed;
-   inset: 0;
-   z-index: calc(var(--z-modal, 1000) + 1);
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   padding: var(--space-8);
-  background: var(--bg-overlay);
- }
  .editor-memory-modal {
    width: min(720px, 100%);
    max-height: min(720px, calc(100vh - 48px));
    display: flex;
    flex-direction: column;
    overflow: hidden;
-   background: var(--bg-panel, var(--bg-secondary));
+   background: var(--bg-secondary);
    border: 1px solid var(--border-color);
-   border-radius: var(--radius-md, 8px);
+   border-radius: var(--radius-md);
    box-shadow: var(--shadow-lg);
  }
  .editor-memory-header,
@@ -1068,16 +1771,16 @@ function applyInlineAction(action: string, label: string) {
  .editor-memory-hint { color: var(--text-secondary); }
  .editor-memory-error { color: var(--danger); }
  .editor-memory-list { display: flex; flex-direction: column; gap: var(--space-4); padding: 0; margin: var(--space-5) 0 0; list-style: none; }
- .editor-memory-list li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-5); padding: var(--space-5) var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm, 6px); }
+ .editor-memory-list li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-5); padding: var(--space-5) var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); }
  .editor-memory-list li.rejected { opacity: .55; text-decoration: line-through; }
  .editor-memory-list li.locked { border-color: var(--accent); }
  .editor-memory-actions { display: flex; flex: 0 0 auto; gap: var(--space-3); }
  .editor-memory-footer { justify-content: flex-end; border-top: 1px solid var(--border-color); }
 </style>
 <style>
-.tool-flash-overlay { position: absolute; top: 0; left: 0; right: 0; height: 3px; z-index: 10; pointer-events: none; }
-.tool-flash-read { background: var(--accent); animation: flash-fade 1.5s ease-out; }
-.tool-flash-write { background: var(--chat-status-error); animation: flash-fade 1.5s ease-out; }
+.tool-flash-overlay { position: absolute; top: 0; left: 0; right: 0; height: 3px; z-index: var(--z-sticky); pointer-events: none; }
+.tool-flash-read { background: var(--accent); animation: flash-fade var(--duration-flash) var(--ease-standard); }
+.tool-flash-write { background: var(--chat-status-error); animation: flash-fade var(--duration-flash) var(--ease-standard); }
 @keyframes flash-fade { 0% { opacity: 1; } 100% { opacity: 0; } }
 </style>
 

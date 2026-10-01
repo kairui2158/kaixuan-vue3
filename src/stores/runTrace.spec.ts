@@ -49,14 +49,27 @@ describe('runTrace store', () => {
     const exported = store.exportRunToJson(liveRun!) as unknown as RunTrace
 
     expect(liveRun?.status).toBe('running')
-    expect(exported.status).toBe('success')
+    expect(exported.status).toBe('running')
     expect(exported.sessionSnapshot).toBe(true)
-    expect(exported.durationMs || 0).toBeGreaterThan(0)
+    expect(exported.endedAt).toBeUndefined()
+    expect(exported.durationMs).toBeUndefined()
+    expect(exported.turns?.at(-1)?.status).toBe('success')
+    expect(exported.stateHistory?.some(item => item.reason === 'export_snapshot_synthesized_from_last_turn')).toBe(false)
     expect(store.exportRunToText(liveRun!)).toContain('会话快照：导出时会话仍在应用内继续')
 
     const secondTurnId = store.startTurn(runId, { userRequest: '第二轮', mode: 'chat' })
     expect(store.getRun(runId)?.turns).toHaveLength(2)
     store.finishTurn(runId, secondTurnId, 'success')
+
+    vi.useFakeTimers()
+    const thirdTurnId = store.startTurn(runId, { userRequest: '第三轮', mode: 'chat' })
+    store.finishTurn(runId, thirdTurnId, 'success')
+    vi.advanceTimersByTime(600_001)
+    const liveThirdRun = store.getRun(runId)!
+    expect(liveThirdRun.events.some(event =>
+      event.turnId === thirdTurnId && event.type === 'state-stuck-detected'
+    )).toBe(false)
+    vi.useRealTimers()
   })
 
   it('keeps the last failed or canceled chat turn visible in export snapshots', () => {
@@ -75,8 +88,10 @@ describe('runTrace store', () => {
     const exported = store.exportRunToJson(liveRun!) as unknown as RunTrace
 
     expect(liveRun?.status).toBe('running')
-    expect(exported.status).toBe('canceled')
+    expect(exported.status).toBe('running')
     expect(exported.sessionSnapshot).toBe(true)
+    expect(exported.turns?.at(-1)?.status).toBe('canceled')
+    expect(exported.stateHistory?.some(item => item.reason === 'export_snapshot_synthesized_from_last_turn')).toBe(false)
   })
 
   it('marks an abandoned running run as failed before starting a new one', () => {
@@ -226,6 +241,34 @@ describe('runTrace store', () => {
     expect(physical?.responseText).toBe('第一次物理响应')
   })
 
+  it('does not mark usage unavailable while a physical call is still running', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: ['卷纲技能'] })
+    const callId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '生成卷纲' }]
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'physical-usage-state',
+      status: 'running',
+      requestMessages: [{ role: 'user', content: '生成卷纲' }],
+      responseText: '',
+      streamText: '',
+      reasoningText: ''
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'physical-usage-state',
+      status: 'success',
+      requestMessages: [{ role: 'user', content: '生成卷纲' }],
+      responseText: '响应正文',
+      streamText: '响应正文',
+      reasoningText: '',
+      usage: { inputTokens: 10, outputTokens: 3, totalTokens: 13 }
+    })
+
+    const call = store.getRun(runId)?.apiCalls[0]
+    expect(call?.physicalCalls?.[0]?.usageUnavailable).toBe(false)
+  })
+
   it('keeps physical request messages when a later update has an empty message list', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: ['卷纲技能'] })
@@ -306,7 +349,7 @@ describe('runTrace store', () => {
     store.appendPhysicalCall(runId, callId, {
       physicalCallId: 'physical-retry-buffer',
       phase: 'normal',
-      status: 'failed',
+      status: 'failed' as const,
       requestMessages: [{ role: 'user', content: '生成卷纲' }],
       responseText: '网络错误前已取得的正文',
       streamText: '',
@@ -683,6 +726,32 @@ describe('runTrace store', () => {
     expect(store.getRun(runId)?.turns?.find(item => item.id === turnId)?.intent).toBe('edit')
   })
 
+  it('preserves the folded intent when a late no-match event only records fallback', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'home',
+      stepName: '主页对话',
+      mode: 'direct',
+      skillNames: [],
+      sessionKind: 'chat'
+    })
+    const turnId = store.startTurn(runId, {
+      userRequest: '开篇那个吸引点我不太满意',
+      mode: 'direct',
+      intent: 'discuss'
+    })
+
+    const updated = store.updateTurnIntent(runId, turnId, {
+      routingFallback: 'readonly-discuss'
+    })
+    store.finishTurn(runId, turnId, 'success')
+
+    const turn = store.getRun(runId)?.turns?.find(item => item.id === turnId)
+    expect(updated).toBe(true)
+    expect(turn?.intent).toBe('discuss')
+    expect(turn?.routingFallback).toBe('readonly-discuss')
+  })
+
   it('keeps cancellation terminal and preserves the original cancellation reason', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({
@@ -735,6 +804,39 @@ describe('runTrace store', () => {
     expect(physical?.endedAt).toBeGreaterThan(0)
     expect(physical?.durationMs).toBeGreaterThanOrEqual(0)
     expect(physical?.error).toBe('用户取消生成')
+  })
+
+  it('keeps real provider failures failed and ignores a late success callback', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲共创',
+      mode: 'direct',
+      sessionKind: 'chat',
+      skillNames: []
+    })
+    store.startTurn(runId, { userRequest: '整理大纲', mode: 'direct' })
+    const callId = store.startApiCall(runId, {
+      source: 'outline',
+      requestMessages: [{ role: 'user', content: '整理大纲' }]
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'physical-failure',
+      status: 'running',
+      phase: 'normal',
+      requestMessages: [{ role: 'user', content: '整理大纲' }]
+    })
+
+    store.failRunningApiCalls(runId, '供应商网络断流')
+    store.finishApiCall(runId, callId, { status: 'success', responseText: '迟到回调' })
+
+    const call = store.getRun(runId)?.apiCalls[0]
+    const physical = call?.physicalCalls?.[0]
+    expect(call?.status).toBe('failed')
+    expect(call?.error).toBe('供应商网络断流')
+    expect(call?.responseText).toBe('')
+    expect(physical?.status).toBe('failed')
+    expect(physical?.error).toBe('供应商网络断流')
   })
 
   it('stores cumulative stream callbacks as deltas without quadratic growth', () => {
@@ -849,7 +951,9 @@ describe('runTrace store', () => {
       name: 'editor.write',
       input: { anchor: '第一行', text: '测试' },
       result: { status: 'written' },
-      durationMs: 12
+      durationMs: 12,
+      protocolVersion: 1,
+      protocolVersionDefaulted: true
     })
     store.finishApiCall(runId, callId, {
       status: 'success',
@@ -862,10 +966,136 @@ describe('runTrace store', () => {
     expect(turn?.toolCalls).toHaveLength(1)
     expect(turn?.toolCalls?.[0]).toMatchObject({
       name: 'editor.write',
-      status: 'success'
+      status: 'success',
+      protocolVersion: 1,
+      protocolVersionDefaulted: true
     })
     expect(turn?.toolCallCount).toBe(1)
     expect(turn?.apiCallIds).toContain(callId)
+  })
+
+  it('upserts duplicate tool-call records by provider toolCallId within one api call', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'home',
+      stepName: '主页对话',
+      mode: 'direct',
+      skillNames: [],
+      sessionKind: 'chat'
+    })
+    const callId = store.startApiCall(runId, {
+      source: 'home',
+      requestMessages: [{ role: 'user', content: '写入测试' }]
+    })
+    const input = {
+      name: 'editor.write',
+      toolCallId: 'provider-tool-call-1',
+      input: { anchor: '第一段', text: '新段落' },
+      result: { ok: true, status: 'written' },
+      durationMs: 12,
+      protocolVersion: 1
+    }
+    store.appendToolCall(runId, callId, input)
+    store.appendToolCall(runId, callId, {
+      ...input,
+      durationMs: 20,
+      result: { ok: true, status: 'written', applied: 1 }
+    })
+
+    const call = store.getRun(runId)?.apiCalls.find(item => item.id === callId)
+    expect(call?.toolCalls).toHaveLength(1)
+    expect(call?.toolCalls?.[0]).toMatchObject({
+      toolCallId: 'provider-tool-call-1',
+      durationMs: 20,
+      protocolVersion: 1
+    })
+  })
+
+  it('records tool protocol capability and normalized rejection category for failed direct writes', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲共创',
+      mode: 'direct',
+      skillNames: [],
+      sessionKind: 'chat'
+    })
+    const callId = store.startApiCall(runId, {
+      source: 'outline',
+      intent: 'edit',
+      toolSurface: [{ name: 'editor.write', policy: 'write' }],
+      actualToolSurface: [{ name: 'editor.write', policy: 'write' }],
+      requestMessages: [{ role: 'user', content: '写入测试' }]
+    })
+    const input = {
+      name: 'editor.write',
+      toolCallId: 'provider-tool-call-rejected',
+      input: { protocolVersion: 99, commands: [] },
+      result: { ok: false, error: { code: 'unsupported_protocol_version', message: '不支持的编辑协议版本' } },
+      status: 'failed' as const,
+      error: '不支持的编辑协议版本',
+      durationMs: 8,
+      protocolVersion: 99,
+      toolCapability: 'native_tools' as const,
+      rejectionCategory: 'invalid_protocol' as const
+    }
+    store.appendToolCall(runId, callId, input)
+    store.finishApiCall(runId, callId, { status: 'failed', responseText: '', error: '协议拒绝' })
+
+    const call = store.getRun(runId)?.apiCalls.find(item => item.id === callId)
+    expect(call?.toolCalls?.[0]).toMatchObject({
+      toolCapability: 'native_tools',
+      rejectionCategory: 'invalid_protocol',
+      status: 'failed',
+      errorCode: 'unsupported_protocol_version'
+    })
+    const text = store.exportRunToText(store.getRun(runId)!)
+    expect(text).toContain('协议能力：native_tools')
+    expect(text).toContain('拒绝分类：invalid_protocol')
+    expect(text).toContain('错误码：unsupported_protocol_version')
+  })
+
+  it('keeps tool capability and rejection category when a duplicate tool-call record is updated', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'home',
+      stepName: '主页对话',
+      mode: 'direct',
+      skillNames: [],
+      sessionKind: 'chat'
+    })
+    const callId = store.startApiCall(runId, {
+      source: 'home',
+      requestMessages: [{ role: 'user', content: '写入测试' }]
+    })
+    const base = {
+      name: 'editor.write',
+      toolCallId: 'provider-tool-call-duplicate',
+      input: { commands: [] },
+      durationMs: 5,
+      protocolVersion: 1,
+      toolCapability: 'json_protocol' as const
+    }
+    store.appendToolCall(runId, callId, {
+      ...base,
+      result: { ok: false, error: { code: 'invalid_input', message: '参数错误' } },
+      rejectionCategory: 'schema_invalid'
+    })
+    store.appendToolCall(runId, callId, {
+      ...base,
+      durationMs: 9,
+      result: { ok: false, error: { code: 'permission_denied', message: '权限不足' } },
+      rejectionCategory: 'permission_denied'
+    })
+
+    const call = store.getRun(runId)?.apiCalls.find(item => item.id === callId)
+    expect(call?.toolCalls).toHaveLength(1)
+    expect(call?.toolCalls?.[0]).toMatchObject({
+      toolCapability: 'json_protocol',
+      rejectionCategory: 'permission_denied',
+      durationMs: 9,
+      errorCode: 'permission_denied'
+    })
   })
 
   it('upserts running physical calls by physicalCallId without duplicate records', () => {
@@ -922,7 +1152,8 @@ describe('runTrace store', () => {
       inputTokens: 10,
       outputTokens: 5,
       cacheReadInputTokens: 3,
-      reasoningOutputTokens: 2
+      reasoningOutputTokens: 2,
+      totalTokens: 15
     })
   })
 
@@ -960,7 +1191,177 @@ describe('runTrace store', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
     const exported = store.exportRunToJson(store.getRun(runId)!) as Record<string, unknown>
-    expect(exported.schemaVersion).toBe(9)
+    expect(exported.schemaVersion).toBe(10)
+  })
+
+  it('records physical, stream, tool, and edit-task activity without firing false stuck warnings', () => {
+    vi.useFakeTimers()
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲共创',
+      mode: 'chat',
+      sessionKind: 'chat',
+      skillNames: []
+    })
+    store.startTurn(runId, { userRequest: '整理整篇大纲', mode: 'chat' })
+    const callId = store.startApiCall(runId, {
+      source: 'outline',
+      requestMessages: [{ role: 'user', content: '整理整篇大纲' }]
+    })
+
+    store.appendPhysicalCall(runId, callId, {
+      phase: 'normal',
+      status: 'running',
+      requestMessages: [{ role: 'user', content: '整理整篇大纲' }]
+    })
+    store.appendStream(runId, callId, '第一段')
+    store.appendToolCall(runId, callId, {
+      name: 'editor.write',
+      input: { commands: [] },
+      status: 'success'
+    })
+    store.reportEditTaskActivity(runId, {
+      taskId: 'edit-task-1',
+      status: 'running_batch',
+      source: 'outline',
+      targetId: 'outline',
+      goal: '整理整篇大纲',
+      executedBatches: [],
+      pendingBatches: ['batch-1'],
+      failedBatches: [],
+      activeBatchId: 'batch-1',
+      executionPlan: {
+        goal: '整理整篇大纲',
+        batches: ['batch-1'],
+        batchDetails: {
+          'batch-1': {
+            segmentId: 'segment-0001',
+            expectedChange: 'reorder-only',
+            invariantResult: 'structure-preserved'
+          }
+        }
+      }
+    })
+
+    const run = store.getRun(runId)!
+    const activity = run.events.filter(event => event.type === 'run-activity')
+    expect(activity.map(event => (event.payload as { source: string }).source)).toEqual([
+      'physical_call_running',
+      'stream_delta',
+      'tool_call',
+      'edit_task'
+    ])
+    expect(run.events.some(event => event.type === 'state-stuck-detected')).toBe(false)
+    expect(run.events.some(event =>
+      event.type === 'edit-task-plan-detail'
+      && event.detail?.includes('segmentId=segment-0001')
+      && event.detail?.includes('expectedChange=reorder-only')
+      && event.detail?.includes('invariantResult=structure-preserved')
+    )).toBe(true)
+    vi.advanceTimersByTime(600_001)
+    expect(run.events.some(event => event.type === 'state-stuck-detected')).toBe(true)
+    store.finishRun(runId, 'success')
+    vi.useRealTimers()
+  })
+
+  it('records long physical requests and terminal merge as distinct run semantics without duplication', () => {
+    vi.useFakeTimers()
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲共创',
+      mode: 'chat',
+      sessionKind: 'chat',
+      skillNames: []
+    })
+    store.startTurn(runId, { userRequest: '整理整篇大纲', mode: 'chat' })
+    const callId = store.startApiCall(runId, {
+      source: 'outline',
+      requestMessages: [{ role: 'user', content: '整理整篇大纲' }]
+    })
+
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'physical-1',
+      phase: 'normal',
+      status: 'running',
+      requestMessages: [{ role: 'user', content: '整理整篇大纲' }]
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'physical-1',
+      phase: 'normal',
+      status: 'running',
+      heartbeat: true,
+      requestMessages: [{ role: 'user', content: '整理整篇大纲' }]
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'physical-2',
+      phase: 'tool_iteration',
+      status: 'running',
+      requestMessages: [{ role: 'user', content: '继续读取下一批' }]
+    })
+
+    const run = store.getRun(runId)!
+    const longRequests = run.events.filter(event => event.type === 'long-request-in-progress')
+    expect(longRequests).toHaveLength(2)
+    expect(longRequests[0].detail).toContain('physicalCall=1')
+    expect(longRequests[1].detail).toContain('physicalCall=2')
+    expect(run.events.some(event => event.type === 'awaiting-terminal-merge')).toBe(false)
+
+    const executionPlan = {
+      goal: '整理整篇大纲',
+      batches: ['batch-1'],
+      batchDetails: {
+        'batch-1': {
+          segmentId: 'segment-0001',
+          expectedChange: 'reorder-only',
+          invariantResult: 'structure-preserved'
+        }
+      }
+    }
+    store.reportEditTaskActivity(runId, {
+      taskId: 'edit-task-1',
+      status: 'running_batch',
+      source: 'outline',
+      targetId: 'outline',
+      goal: '整理整篇大纲',
+      executedBatches: [],
+      pendingBatches: ['batch-1'],
+      failedBatches: [],
+      activeBatchId: 'batch-1',
+      executionPlan
+    })
+    store.reportEditTaskActivity(runId, {
+      taskId: 'edit-task-1',
+      status: 'awaiting_batch',
+      source: 'outline',
+      targetId: 'outline',
+      goal: '整理整篇大纲',
+      executedBatches: ['batch-1'],
+      pendingBatches: [],
+      failedBatches: [],
+      executionPlan
+    })
+    store.reportEditTaskActivity(runId, {
+      taskId: 'edit-task-1',
+      status: 'awaiting_batch',
+      source: 'outline',
+      targetId: 'outline',
+      goal: '整理整篇大纲',
+      executedBatches: ['batch-1'],
+      pendingBatches: [],
+      failedBatches: [],
+      executionPlan
+    })
+
+    const terminalMerges = run.events.filter(event => event.type === 'awaiting-terminal-merge')
+    expect(terminalMerges).toHaveLength(1)
+    expect(terminalMerges[0].detail).toContain('taskId=edit-task-1')
+    expect(terminalMerges[0].detail).toContain('batches=1/1')
+    vi.advanceTimersByTime(600_001)
+    expect(run.events.some(event => event.type === 'state-stuck-detected')).toBe(true)
+    store.finishRun(runId, 'success')
+    vi.useRealTimers()
   })
 
   it('keeps logical initial requests separate from tool-round deltas', () => {
@@ -1003,7 +1404,7 @@ describe('runTrace store', () => {
     const run = store.getRun(runId)!
     expect(run.events.some(event => event.type === 'chain-handoff-delivery')).toBe(true)
     expect(run.processingReports?.some(report => report.processor === 'chain-handoff')).toBe(true)
-    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(9)
+    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(10)
   })
 
   it('records the requested and actual tool surface separately', () => {
@@ -1029,7 +1430,7 @@ describe('runTrace store', () => {
     expect(turn?.actualToolSurface).toEqual([{ name: 'editor.write', policy: 'write' }])
   })
 
-  it('adds a reason-backed state history entry when a completed chat snapshot is synthesized', () => {
+  it('exports live chat runs as an explicit open-session snapshot without synthesizing a terminal status', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({
       source: 'home',
@@ -1042,14 +1443,54 @@ describe('runTrace store', () => {
     store.finishTurn(runId, turnId, 'success')
     const exported = store.exportRunToJson(store.getRun(runId)!) as unknown as {
       status: string
+      endedAt?: number
+      durationMs?: number
       stateHistory?: Array<{ fromStatus: string; toStatus: string; reason?: string }>
     }
-    expect(exported.status).toBe('success')
-    expect(exported.stateHistory?.at(-1)).toMatchObject({
-      fromStatus: 'running',
-      toStatus: 'success',
-      reason: 'export_snapshot_synthesized_from_last_turn'
+    expect(exported.status).toBe('running')
+    expect(exported.endedAt).toBeUndefined()
+    expect(exported.durationMs).toBeUndefined()
+    expect(exported.stateHistory?.some(item => item.reason === 'export_snapshot_synthesized_from_last_turn')).toBe(false)
+  })
+
+  it('keeps the last failed or partially applied chat turn visible in export snapshots', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'home',
+      stepName: '主页对话',
+      mode: 'chat',
+      sessionKind: 'chat',
+      skillNames: []
     })
+    const turnId = store.startTurn(runId, { userRequest: '统一时间线', mode: 'chat' })
+    store.finishTurn(runId, turnId, 'partially_applied', '批次 2 失败，已写入 2/4', 'edit_task_batch_failed')
+
+    const exported = store.exportRunToJson(store.getRun(runId)!) as unknown as RunTrace
+
+    expect(exported.status).toBe('running')
+    expect(exported.turns?.at(-1)?.status).toBe('partially_applied')
+    expect(exported.turns?.at(-1)?.reason).toBe('edit_task_batch_failed')
+    expect(exported.stateHistory?.some(item => item.reason === 'export_snapshot_synthesized_from_last_turn')).toBe(false)
+  })
+
+  it('describes EditTask terminal statuses in run and turn labels', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲共创',
+      mode: 'chat',
+      sessionKind: 'chat',
+      skillNames: []
+    })
+    const turnId = store.startTurn(runId, { userRequest: '重排大纲', mode: 'chat' })
+    store.finishTurn(runId, turnId, 'failed_after_write', '批次已写入但任务失败', 'edit_task_failed_after_write')
+    store.finishRun(runId, 'failed_after_write', '任务写入后失败', 'edit_task_failed_after_write')
+
+    const run = store.getRun(runId)!
+    expect(run.turns?.at(-1)?.status).toBe('failed_after_write')
+    expect(run.status).toBe('failed_after_write')
+    expect(run.events.some(event => event.type === 'turn-finished' && event.label.includes('写入后失败'))).toBe(true)
+    expect(run.events.some(event => event.type === 'finished' && event.label.includes('写入后失败'))).toBe(true)
   })
 
   it('does not reject generation when run trace persistence fails', async () => {

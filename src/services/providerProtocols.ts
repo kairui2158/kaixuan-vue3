@@ -38,7 +38,7 @@ export interface ProviderProtocol {
     messages: Array<ProviderToolMessage>
     stream: boolean
     temperature: number
-    maxTokens: number
+    maxTokens: number | null
     tools?: unknown
     reasoning?: {
       mode: 'off'
@@ -133,7 +133,7 @@ const openAICompatibleProtocol: ProviderProtocol = {
       messages,
       stream: config.stream,
       temperature: config.temperature,
-      max_tokens: config.maxTokens,
+      ...(config.maxTokens == null ? {} : { max_tokens: config.maxTokens }),
     }
     if (config.tools !== undefined) body.tools = config.tools
     if (config.reasoning?.mode === 'off') body.reasoning_effort = 'none'
@@ -221,7 +221,7 @@ const anthropicProtocol: ProviderProtocol = {
       messages,
       stream: config.stream,
       temperature: config.temperature,
-      max_tokens: Math.max(1, config.maxTokens || 8192),
+      max_tokens: config.maxTokens == null ? 32_768 : Math.max(1, config.maxTokens),
     }
     if (system) body.system = system
     if (config.tools !== undefined) body.tools = config.tools
@@ -240,6 +240,9 @@ const anthropicProtocol: ProviderProtocol = {
   },
   extractFinishReason(data) {
     return data?.stop_reason
+  },
+  extractUsage(data) {
+    return data?.usage ?? data?.message?.usage
   },
   extractModels(data) {
     if (Array.isArray(data?.data)) return data.data.map((m: any) => m?.id).filter(Boolean)
@@ -269,8 +272,11 @@ const geminiProtocol: ProviderProtocol = {
     if (/\/v\d+\w*$/i.test(base)) return base + '/models'
     return base + '/v1beta/models'
   },
-  buildHeaders() {
-    return { 'Content-Type': 'application/json' }
+  buildHeaders({ apiKey }) {
+    return {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey,
+    }
   },
   buildModelsHeaders({ apiKey }) {
     return { 'x-goog-api-key': apiKey }
@@ -287,7 +293,7 @@ const geminiProtocol: ProviderProtocol = {
       contents,
       generationConfig: {
         temperature: config.temperature,
-        maxOutputTokens: config.maxTokens,
+        ...(config.maxTokens == null ? {} : { maxOutputTokens: config.maxTokens }),
       },
     }
     if (system) body.systemInstruction = { parts: [{ text: system }] }

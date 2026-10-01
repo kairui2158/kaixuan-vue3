@@ -1,9 +1,9 @@
 <template>
-  <div v-if="visible" class="mem-overlay" :style="{ zIndex: modalQueue.getZIndex('memory-history') }" @click.self="$emit('close')">
+  <div v-if="visible" data-modal-id="memory-history" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('memory-history') }" @click.self="$emit('close')">
     <div class="mem-history-modal">
       <div class="mem-history-header">
         <h3>记忆版本历史</h3>
-        <button class="btn-close" @click="$emit('close')">&times;</button>
+        <button class="btn-close" type="button" aria-label="关闭记忆版本历史" @click="$emit('close')"><AppIcon name="x" /></button>
       </div>
       <div class="mem-history-summary">
         <span>共 {{ records.length }} 次变更</span>
@@ -17,7 +17,13 @@
         </select>
       </div>
       <div class="mem-history-list">
-        <div v-if="filteredRecords.length === 0" class="empty-hint">暂无历史记录</div>
+        <EmptyState
+          v-if="filteredRecords.length === 0"
+          variant="compact"
+          icon="history"
+          title="暂无历史记录"
+          description="当前筛选条件下没有记忆变更记录，可调整时间或类型"
+        />
         <div v-for="record in filteredRecords" :key="record.id" class="mem-history-item">
           <div class="mem-history-item-main">
             <div class="mem-history-title">
@@ -54,6 +60,7 @@
 import { computed, ref, watch } from 'vue'
 import type { MemoryChangeRecord } from '../../types/memory'
 import { useModalQueue } from '../../composables/useModalQueue'
+import EmptyState from '../common/EmptyState.vue'
 
 const props = defineProps<{ visible: boolean; records: MemoryChangeRecord[] }>()
 const emit = defineEmits<{
@@ -121,7 +128,6 @@ function rollbackByChapter() {
 </script>
 
 <style scoped>
-.mem-overlay { position: fixed; inset: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: 2100; }
 .mem-history-modal { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); width: min(760px, 92vw); max-height: 86vh; display: flex; flex-direction: column; padding: var(--space-8); gap: var(--space-5); }
 .mem-history-header { display: flex; align-items: center; justify-content: space-between; }
 .mem-history-header h3 { margin: 0; font-size: var(--font-size-lg); }

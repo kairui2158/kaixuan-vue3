@@ -319,6 +319,58 @@ describe('workspace skill engine', () => {
     ])
   })
 
+  it('reuses precomputed routing without calling the LLM classifier again', async () => {
+    const context = makeContextService()
+    const classifier = vi.fn(async () => ({
+      intent: 'discuss',
+      confidence: 0.9,
+      reason: 'late fallback',
+    }))
+    const adapter = makeAdapter({ classifyIntentWithLlm: classifier })
+    const { aiService, calls } = makeAiService(['讨论结果'])
+    const routingEvents: string[] = []
+
+    await runWorkspaceSkills({
+      requestText: '这句话没有路由关键词',
+      templates: [makeTemplate('s1', '诊断', { intents: ['discuss'] })],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+      routingOverride: {
+        precomputedRouting: {
+          kind: 'no_match',
+          confidence: 0.2,
+          reason: 'no-keyword-overlap',
+          fallbackMode: 'readonly-discuss',
+          decisionLayer: 'keyword',
+          diagnostics: {
+            router: {
+              version: 'v6.1',
+              layers: ['rule', 'keyword'],
+              decisionLayer: 'keyword',
+              embeddingModel: null,
+              scores: {},
+              thresholds: { generate: 0, discuss: 0, analyze: 0, edit: 0 },
+              ambiguityThreshold: 0,
+              ambiguityThresholds: { generate: 0, discuss: 0, analyze: 0, edit: 0 },
+              oosThreshold: 0,
+              thresholdSource: 'test',
+            },
+          },
+        },
+      },
+      callbacks: {
+        onRoutingEvent: event => routingEvents.push(event.type),
+      },
+    })
+
+    expect(classifier).not.toHaveBeenCalled()
+    expect(calls).toHaveLength(1)
+    expect(routingEvents).toContain('routing_diagnostics')
+    expect(routingEvents).toContain('routing_result')
+  })
+
   it('exposes direct write tools only for edit or generate intents', async () => {
     const context = makeContextService()
     const adapter = makeAdapter({
@@ -1128,6 +1180,8 @@ describe('workspace skill engine', () => {
       apiBudget: createApiCallBudget(2),
     })
     expect(result.runState).toBe('budget_exhausted')
+    expect(result.terminalStatus).toBe('blocked')
+    expect(result.terminalReason).toBe('budget_exhausted')
     expect(result.text).toBe('B')
     expect(result.budgetSnapshot).toMatchObject({ used: 2, limit: 2 })
     expect(calls).toHaveLength(2)

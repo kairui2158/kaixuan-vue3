@@ -196,6 +196,9 @@ function collectPayloads(run) {
       add('processing-output', item.postProcessReport.output)
     }
   })
+  ;(run.events || []).forEach(function(event) {
+    if (event && event.payload !== undefined) add('agent-event', event.payload)
+  })
   return payloads
 }
 
@@ -308,6 +311,15 @@ function replacePayloadFields(run, byIdentity) {
         item.postProcessReport.outputPreview = item.postProcessReport.output.slice(0, 500)
         item.postProcessReport.output = undefined
       }
+    }
+  })
+  ;(output.events || []).forEach(function(event) {
+    if (event && event.payload !== undefined) {
+      var agentItem = byIdentity.get('agent-event:' + payloadIdentity('agent-event', event.payload))
+      if (agentItem) {
+        event.payloadRefs = [agentItem.duplicateOf || agentItem.id]
+      }
+      event.payload = undefined
     }
   })
   return output

@@ -38,6 +38,35 @@ async function appendCorruptionLog(key, err, restored) {
   } catch (e) { /* logging must never break read/write */ }
 }
 
+async function readJsonOrNull(filePath) {
+  var raw = null
+  try {
+    raw = await fs.readFile(filePath, 'utf8')
+  } catch (readErr) {
+    return { missing: true, value: null }
+  }
+  try {
+    return { missing: false, value: JSON.parse(raw) }
+  } catch (parseErr) {
+    return { missing: false, value: null, parseError: parseErr }
+  }
+}
+
+// atomicWriteJson crashes between "json -> bak" and "tmp -> json" leave a
+// state where the primary file is absent but the last committed value is in
+// .bak. Recovery-time reads must use it instead of reporting a missing key.
+async function recoverBakIfPrimaryMissing(filePath) {
+  try {
+    await fs.access(filePath)
+    return false
+  } catch (missingPrimary) {
+    var bak = await readJsonOrNull(filePath + '.bak')
+    if (bak.missing || bak.value === null) return false
+    await fs.rename(filePath + '.bak', filePath)
+    return true
+  }
+}
+
 async function migrateOldDataIfNeeded() {
   try {
     var targetDir = getPrimaryDataDir()
@@ -125,32 +154,25 @@ async function atomicWriteJson(key, data) {
   }
 }
 
-function registerStorageHandlers() {
-  ipcMain.handle('storage:read', async function(event, key) {
+function registerStorageHandlers(targetIpc) {
+  var ipc = targetIpc || ipcMain
+  ipc.handle('storage:read', async function(event, key) {
     try {
       await migrateOldDataIfNeeded()
       var filePath = path.join(dataDir, safeKey(key) + '.json')
-      var raw = null
-      try {
-        await fs.access(filePath)
-        raw = await fs.readFile(filePath, 'utf8')
-      } catch(e) { /* not found */ }
-      if (raw !== null) {
-        try {
-          return JSON.parse(raw)
-        } catch (parseErr) {
-          var restoredValue = null
-          var restored = false
-          try {
-            var bakRaw = await fs.readFile(filePath + '.bak', 'utf8')
-            restoredValue = JSON.parse(bakRaw)
-            await fs.rename(filePath + '.bak', filePath)
-            restored = true
-          } catch (bakErr) { restored = false }
-          await appendCorruptionLog(key, parseErr, restored)
-          return restored ? restoredValue : null
+      var recoveredFromMissingPrimary = await recoverBakIfPrimaryMissing(filePath)
+      var primary = await readJsonOrNull(filePath)
+      if (!primary.missing && primary.value === null) {
+        var bak = await readJsonOrNull(filePath + '.bak')
+        var restoredValue = bak.missing ? null : bak.value
+        var restored = restoredValue !== null
+        if (restored) {
+          await fs.rename(filePath + '.bak', filePath)
         }
+        await appendCorruptionLog(key, primary.parseError, restored)
+        return restoredValue
       }
+      if (!primary.missing || recoveredFromMissingPrimary) return primary.value
       if (legacyDir) {
         var legacyPath = path.join(legacyDir, safeKey(key) + '.json')
         try {
@@ -165,7 +187,7 @@ function registerStorageHandlers() {
     }
   })
 
-  ipcMain.handle('storage:write', async function(event, key, data) {
+  ipc.handle('storage:write', async function(event, key, data) {
     return enqueueWrite(key, async function() {
       try {
         await atomicWriteJson(key, data)
@@ -176,7 +198,7 @@ function registerStorageHandlers() {
     })
   })
 
-  ipcMain.handle('storage:corruptionLog', async function() {
+  ipc.handle('storage:corruptionLog', async function() {
     try {
       var raw = await fs.readFile(path.join(dataDir, 'storage-corruption.log'), 'utf8')
       var lines = raw.split('\n').filter(function(l) { return l.trim() })
@@ -186,7 +208,7 @@ function registerStorageHandlers() {
     }
   })
 
-  ipcMain.handle('storage:remove', async function(event, key) {
+  ipc.handle('storage:remove', async function(event, key) {
     try {
       await migrateOldDataIfNeeded()
       var filePath = path.join(dataDir, safeKey(key) + '.json')
@@ -201,7 +223,7 @@ function registerStorageHandlers() {
     }
   })
 
-  ipcMain.handle('storage:list', async function(event) {
+  ipc.handle('storage:list', async function(event) {
     try {
       await migrateOldDataIfNeeded()
       var files = await fs.readdir(dataDir)
@@ -221,7 +243,7 @@ function registerStorageHandlers() {
     }
   })
 
-  ipcMain.handle('storage:export', async function(event, exportPath) {
+  ipc.handle('storage:export', async function(event, exportPath) {
     try {
       await migrateOldDataIfNeeded()
       var files = await fs.readdir(dataDir)
@@ -238,7 +260,7 @@ function registerStorageHandlers() {
     }
   })
 
-  ipcMain.handle('storage:import', async function(event, importPath) {
+  ipc.handle('storage:import', async function(event, importPath) {
     try {
       await migrateOldDataIfNeeded()
       var content = await fs.readFile(importPath, 'utf8')
@@ -254,12 +276,12 @@ function registerStorageHandlers() {
     }
   })
 
-  ipcMain.handle('storage:getDataDir', async function(event) {
+  ipc.handle('storage:getDataDir', async function(event) {
     await migrateOldDataIfNeeded()
     return dataDir
   })
 
-  ipcMain.handle('storage:openDataDir', async function(event) {
+  ipc.handle('storage:openDataDir', async function(event) {
     return await openDataDir()
   })
 }

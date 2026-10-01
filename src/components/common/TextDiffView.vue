@@ -89,22 +89,22 @@ function marker(type: 'unchanged' | 'added' | 'removed') {
 
 <style scoped>
 .tdv { display: flex; flex-direction: column; gap: var(--space-2); }
-.tdv-reason { color: var(--warning); font-size: 12px; }
-.tdv-stats { display: flex; flex-wrap: wrap; gap: var(--space-3); color: var(--text-secondary); font-size: 12px; }
-.tdv-toolbar { display: flex; align-items: center; gap: var(--space-2); color: var(--text-secondary); font-size: 12px; }
+.tdv-reason { color: var(--warning); font-size: var(--font-size-xs); }
+.tdv-stats { display: flex; flex-wrap: wrap; gap: var(--space-3); color: var(--text-secondary); font-size: var(--font-size-xs); }
+.tdv-toolbar { display: flex; align-items: center; gap: var(--space-2); color: var(--text-secondary); font-size: var(--font-size-xs); }
 .tdv-single { display: flex; flex-direction: column; border: 1px solid var(--border-color); border-radius: var(--radius-sm); overflow: auto; max-height: 360px; }
 .tdv-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--border-color); border-radius: var(--radius-sm); overflow: hidden; max-height: 360px; overflow-y: auto; }
 .tdv-column { min-width: 0; }
-.tdv-column > strong { display: block; padding: var(--space-2); border-bottom: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); font-size: 12px; }
+.tdv-column > strong { display: block; padding: var(--space-2); border-bottom: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); font-size: var(--font-size-xs); }
 .tdv-column + .tdv-column { border-left: 1px solid var(--border-color); }
 .tdv-line { display: grid; grid-template-columns: 24px minmax(0, 1fr); min-height: 22px; }
-.tdv-marker { display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--border-color); color: var(--text-secondary); font-size: 12px; user-select: none; }
-.tdv-line pre { margin: 0; padding: var(--space-1) var(--space-2); white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text-primary); font-size: 12px; line-height: 1.55; user-select: text; }
+.tdv-marker { display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--border-color); color: var(--text-secondary); font-size: var(--font-size-xs); user-select: none; }
+.tdv-line pre { margin: 0; padding: var(--space-1) var(--space-2); white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text-primary); font-size: var(--font-size-xs); line-height: 1.55; user-select: text; }
 .tdv-line.is-added { background: color-mix(in srgb, var(--success) 14%, transparent); }
 .tdv-line.is-added pre { color: var(--success); }
 .tdv-line.is-removed { background: color-mix(in srgb, var(--danger) 14%, transparent); }
 .tdv-line.is-removed pre { color: var(--danger); }
 .tdv-line.is-empty { opacity: .45; }
-.tdv-text { margin: 0; max-height: 360px; padding: var(--space-3); overflow: auto; border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary); font-size: 12px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; user-select: text; }
-@media (max-width: 900px) { .tdv-columns { grid-template-columns: 1fr; } }
+.tdv-text { margin: 0; max-height: 360px; padding: var(--space-3); overflow: auto; border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary); font-size: var(--font-size-xs); line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; user-select: text; }
+@media (max-width: 760px) { .tdv-columns { grid-template-columns: 1fr; } }
 </style>

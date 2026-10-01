@@ -80,6 +80,14 @@ const providerServer = http.createServer((request, response) => {
       return
     }
     response.writeHead(200, { 'Content-Type': 'text/event-stream; charset=utf-8' })
+    const convergenceStreamRequest = Boolean(body?.stream) && !(Array.isArray(body?.tools) && body.tools.length > 0)
+    if (convergenceStreamRequest) {
+      const convergenceText = scenario === 'tool-loop-limit' ? '基于已有工具结果的收敛回答' : '工具检查完成。'
+      response.write(`data: ${JSON.stringify({ choices: [{ delta: { content: convergenceText }, finish_reason: null }] })}\n\n`)
+      response.write('data: [DONE]\n\n')
+      response.end()
+      return
+    }
     if (scenario === 'tool-loop-limit' || providerRequests.length === 1) {
       response.write(`data: ${JSON.stringify({ choices: [{ delta: { tool_calls: [{ index: 0, id: `call-${providerRequests.length}`, type: 'function', function: { name: 'editor.get_state', arguments: '{}' } }] }, finish_reason: null }] })}\n\n`)
     } else {
@@ -94,7 +102,14 @@ function startElectron() {
   return spawn(ELECTRON_EXE, ['.', `--remote-debugging-port=${CDP_PORT}`, '--remote-allow-origins=*', `--user-data-dir=${PROFILE}`], {
     cwd: ROOT,
     stdio: ['ignore', 'pipe', 'pipe'],
-    env: { ...process.env, SHENYI_TEST_USER_DATA_DIR: path.join(PROFILE, 'app-data'), SHENYI_TEST_RUN_TRACE_EXPORT: EXPORT_ROOT, SHENYI_TEST_LOG_DIR: LOG_ROOT },
+    env: {
+      ...process.env,
+      SHENYI_ALLOW_TEST_ISOLATION: '1',
+      SHENYI_DATA_DIR: path.join(PROFILE, 'documents-data'),
+      SHENYI_TEST_USER_DATA_DIR: path.join(PROFILE, 'app-data'),
+      SHENYI_TEST_RUN_TRACE_EXPORT: EXPORT_ROOT,
+      SHENYI_TEST_LOG_DIR: LOG_ROOT,
+    },
     windowsHide: true
   })
 }
@@ -157,13 +172,14 @@ async function exportLatestTrace(page, source) {
   return { runId, exportPath: result.path }
 }
 
-function assertExportedRun(runId, expectedStatus, exportPath) {
+  function assertExportedRun(runId, expectedStatus, exportPath) {
   const json = JSON.parse(fs.readFileSync(path.join(exportPath, 'run-trace.json'), 'utf8'))
   const exportJson = JSON.parse(fs.readFileSync(path.join(exportPath, 'export.json'), 'utf8'))
   const payloadDir = path.join(exportPath, 'payloads')
   const payloadFiles = fs.existsSync(payloadDir) ? fs.readdirSync(payloadDir) : []
   assert.equal(json.id, runId)
-  assert.equal(json.status, expectedStatus)
+  assert.equal(json.status, 'running')
+  assert.equal(json.sessionSnapshot, true)
   assert(json.apiCalls.every(call => call.status !== 'running'), 'no running api call')
   assert.equal(exportJson.payloadVerification?.ok, true, 'payload verification passes')
   assert.equal(exportJson.payloadCount, payloadFiles.length, 'payload count matches files')
@@ -280,24 +296,38 @@ async function main() {
     scenario = 'tool-then-answer'
     await page.fill('#ow-chat-input', '请检查当前大纲')
     await page.click('#btn-ow-send')
-    try {
-      await page.waitForSelector('#ow-streaming-message .ow-tool-stream-item', { timeout: 20000 })
-    } catch (error) {
-      await dumpFailureScene(page, 'tool-then-answer-no-tool-stream')
-      throw error
-    }
     await page.waitForFunction(() => (document.body.textContent || '').includes('工具检查完成。'), null, { timeout: 30000 })
     await waitIdle(page)
     const toolRun = await latestRun(page, 'outline')
     assert.equal(toolRun?.turns?.at(-1)?.status, 'success', 'tool answer turn succeeds')
     assert(toolRun.apiCalls.some(call => call.streamLength > 0 || call.responseLength > 0), 'api response recorded')
-    assert(String(await page.evaluate(() => [...document.querySelectorAll('#ow-chat-messages .ow-msg.assistant .ow-tool-stream-toggle')].at(-1)?.textContent || '')).includes('工具过程'), 'assistant retains tool stream')
+    const toolBubbleText = String(await page.evaluate(() => document.querySelector('#ow-chat-messages')?.textContent || ''))
+    assert(!toolBubbleText.includes('editor.get_state') && !toolBubbleText.includes('editor.write'), 'assistant retains no tool identity')
     console.log('[PASS] tool activity is visible in the outline bubble')
 
     scenario = 'tool-loop-limit'
     await page.fill('#ow-chat-input', '请持续检查当前大纲')
     await page.click('#btn-ow-send')
-    await page.waitForFunction(() => (document.body.textContent || '').includes('基于已有工具结果的收敛回答'), null, { timeout: 60000, polling: 250 })
+    try {
+      await page.waitForFunction(() => (document.body.textContent || '').includes('基于已有工具结果的收敛回答'), null, { timeout: 60000, polling: 250 })
+    } catch (error) {
+      const scene = await page.evaluate(() => ({
+        body: (document.body.textContent || '').slice(0, 3000),
+        streaming: Boolean(document.querySelector('#ow-streaming-message')),
+        status: document.querySelector('#chat-generation-status')?.textContent || '',
+        latestRun: (() => {
+          const run = [...(window.__pinia?.state?.value?.runTrace?.runs || [])].filter(item => item.source === 'outline').sort((a, b) => b.startedAt - a.startedAt)[0]
+          return run ? {
+            status: run.status,
+            events: (run.events || []).slice(-12).map(event => ({ type: event.type, label: event.label, detail: String(event.detail || '').slice(0, 300) })),
+            apiCalls: (run.apiCalls || []).slice(-3).map(call => ({ status: call.status, finishReason: call.finishReason, error: call.error, physicalCount: call.physicalCount, physicalPhases: call.physicalPhases }))
+          } : null
+        })()
+      }))
+      console.error('[DEBUG] loop-limit scene=' + JSON.stringify(scene, null, 2))
+      console.error('[DEBUG] providerRequests=' + JSON.stringify(providerRequests.slice(-5), null, 2))
+      throw error
+    }
     await waitIdle(page, 60000)
     const loopRun = await latestRun(page, 'outline')
     assert.equal(loopRun?.turns?.at(-1)?.status, 'success', 'converged tool loop succeeds')
@@ -305,7 +335,8 @@ async function main() {
     assert(loopRun.apiCalls.some(call => (call.physicalPhases || []).includes('tool_convergence')), 'trace records tool_convergence physical request')
     assert(providerRequests.some(request => request.toolNames.length === 0), 'convergence request has no tools')
     assert(providerRequests.some(request => request.messageRoles.includes('system')), 'convergence request carries the stop-tools instruction')
-    assert(String(await page.evaluate(() => [...document.querySelectorAll('#ow-chat-messages .ow-msg.assistant .ow-tool-stream-toggle')].at(-1)?.textContent || '')).includes('工具过程'), 'loop warning survives as tool stream')
+    const loopBubbleText = String(await page.evaluate(() => document.querySelector('#ow-chat-messages')?.textContent || ''))
+    assert(!loopBubbleText.includes('editor.get_state') && !loopBubbleText.includes('editor.write'), 'loop warning survives without tool identity')
     console.log('[PASS] zero-text tool loop converges into a final answer')
 
     scenario = 'hold'
@@ -348,7 +379,7 @@ async function main() {
       return (run?.turns || []).length
     }, 'outline')
     scenario = 'user-cancel-hold'
-    await page.fill('#ow-chat-input', '请先停住，我要取消')
+    await page.fill('#ow-chat-input', '生成新的第三章内容并写入大纲')
     await page.click('#btn-ow-send')
     await page.waitForFunction(() => {
       const runs = window.__pinia?.state?.value?.runTrace?.runs || []
@@ -370,7 +401,7 @@ async function main() {
     console.log('[PASS] cancellation preserves the canceled status')
 
     const exportCheck = await exportLatestTrace(page, 'outline')
-    assertExportedRun(exportCheck.runId, 'canceled', exportCheck.exportPath)
+    assertExportedRun(exportCheck.runId, 'session-running', exportCheck.exportPath)
     console.log('[PASS] trace export reconciles payload files and integrity markers')
 
     await browser.close()

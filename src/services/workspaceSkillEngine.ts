@@ -33,8 +33,11 @@ import {
   type ChainIntentHistoryMessage,
   classifyChainIntent,
   filterTemplatesByIntent,
+  routeChainIntentDetailed,
   routeChainIntent,
+  type ChainRoutingDiagnostics,
   type ChainRoutingResult,
+  type DetailedChainRoutingResult,
 } from './chainIntentRouter'
 import type {
   ContextBuildInput,
@@ -45,9 +48,11 @@ import { hashEditorContent } from './editorTarget'
 import type {
   RealSkillExecuteOptions,
   RealSkillPostProcessReport,
+  RealSkillExecutionResult,
 } from './realSkillTypes'
 import { type RoutedSkill, routeSkill } from './skillRouter'
-import { authorizeDialogueTools } from './dialogueToolSurface'
+import { authorizeDialogueTools, type DialogueToolSurfaceTaskContext } from './dialogueToolSurface'
+import type { EditTask } from './editTaskService'
 import {
   getSkillMaxAttempts,
   type JsonSchema,
@@ -131,6 +136,7 @@ export type WorkspaceSkillToolAccess = 'read' | 'write'
 export type WorkspaceSkillTemplate = {
   id: string
   name: string
+  version?: string
   template: string
   skill?: RoutedSkill
   customVars?: Record<string, unknown>
@@ -153,7 +159,8 @@ export type WorkspaceAgentConfig = {
   provider?: string
   model?: string
   temperature?: number
-  maxTokens?: number
+  /** null means the request intentionally omitted the output limit. */
+  maxTokens?: number | null
   systemPrompt?: string
 }
 
@@ -162,7 +169,8 @@ export type WorkspaceProviderConfig = {
   selectedModel?: string
   models?: string[]
   temperature?: number
-  maxTokens?: number
+  /** null means the request intentionally omitted the output limit. */
+  maxTokens?: number | null
 }
 
 export type WorkspaceContextOptions = {
@@ -185,6 +193,7 @@ type AuthorizedWorkspaceToolSurface = {
   tools: AgentToolDefinition[]
   toolPolicy?: CallAiParams['toolPolicy']
   actualToolSurface: Array<{ name: string; policy: 'read' | 'write' }>
+  activeEditTask: EditTask | null
 }
 
 export type WorkspaceSkillRunMeta = {
@@ -198,7 +207,12 @@ export type WorkspaceSkillRunMeta = {
   responseText?: string
   reasoningText?: string
   usage?: unknown
-  maxTokens?: number
+  /** null means the request intentionally omitted the output limit. */
+  maxTokens?: number | null
+  contextBudget?: RealSkillExecutionResult['apiMeta'] extends infer T
+    ? T extends { contextBudget?: infer B } ? B : never
+    : never
+  usageReconciliation?: unknown
   diagnostics?: Array<{
     type: 'info' | 'warning' | 'error'
     code: string
@@ -208,9 +222,10 @@ export type WorkspaceSkillRunMeta = {
   budget?: { used: number; limit: number }
   folderPackageCache?: boolean
   postProcessReport?: RealSkillPostProcessReport
-  toolCalls?: Array<{ name: string; input: unknown }>
-  toolResults?: Array<{ call: { name: string; input: unknown }; result: unknown }>
+  toolCalls?: Array<{ name: string; input?: unknown }>
+  toolResults?: Array<{ call: { id?: string; name: string; input?: unknown }; result: unknown }>
   toolRequestDeltas?: Array<{ role: string; content: string }>
+  toolAudit?: unknown
 }
 
 export type WorkspaceSkillRunResult = {
@@ -252,6 +267,10 @@ export type ChainRunState =
 export type ChainRoutingEvent =
   | { type: 'routing_started'; requestText: string }
   | { type: 'routing_result'; result: ChainRoutingResult }
+  | {
+      type: 'routing_diagnostics'
+      diagnostics: ChainRoutingDiagnostics
+    }
   | { type: 'fallback_requested'; result: ChainRoutingResult }
   | {
       type: 'chain_handoff'
@@ -305,6 +324,7 @@ export type WorkspaceSkillEngineCallbacks = {
   onPromptBuilt?: (input: {
     skillId: string
     skillName: string
+    skillVersion?: string
     mode: string
     systemPrompt: string
     userPrompt: string
@@ -396,6 +416,7 @@ export type WorkspaceContextBlock = {
   version: string
   coverage:
     | 'full'
+    | 'packed'
     | 'partial'
     | 'structure_map'
     | 'reference'
@@ -434,6 +455,10 @@ export interface WorkspaceSkillEngineAdapter {
   ): Record<string, unknown>
   getWorkspaceState(): Partial<ContextWorkspaceState>
   getLegacyMessages(requestText: string): ContextMessage[]
+  /** Tool audit from the workspace's previous completed turn. */
+  getToolAudit?(): unknown
+  /** Current edit-task context; used to remove editor.write while task controls are active. */
+  getEditTaskContext?(): DialogueToolSurfaceTaskContext
   loadBreakpoint(): Promise<ChainBreakpoint | null>
   saveBreakpoint(breakpoint: ChainBreakpoint): Promise<void>
   clearBreakpoint(): Promise<void>
@@ -445,6 +470,12 @@ export interface WorkspaceSkillEngineAdapter {
     tools?: AgentToolDefinition[]
     toolPolicy?: CallAiParams['toolPolicy']
   }
+  /** Optional L4 semantic classifier for low-confidence routing. */
+  classifyIntentWithLlm?(requestText: string): Promise<{
+    intent?: unknown
+    confidence?: unknown
+    reason?: unknown
+  } | null>
 }
 
 export interface RunWorkspaceSkillsInput {
@@ -459,6 +490,8 @@ export interface RunWorkspaceSkillsInput {
   routingOverride?: {
     bypass?: boolean
     forcedIntent?: Exclude<ChainIntent, 'auto'>
+    /** Reuse a caller-side detailed routing result; prevents duplicate LLM fallback calls. */
+    precomputedRouting?: DetailedChainRoutingResult
   }
   callbacks?: WorkspaceSkillEngineCallbacks
 }
@@ -667,9 +700,10 @@ function resolveAuthorizedToolSurface(
     requestedSurface.tools || [],
     intent,
     'direct',
+    adapter.getEditTaskContext?.(),
   )
   const authorizedToolPolicy = requestedSurface.toolPolicy
-    ? { ...requestedSurface.toolPolicy, intent }
+    ? { ...requestedSurface.toolPolicy, intent, scenario: 'folder-chain' as const }
     : undefined
   return {
     tools: authorizedTools,
@@ -678,6 +712,7 @@ function resolveAuthorizedToolSurface(
       name: tool.name,
       policy: tool.policy,
     })),
+    activeEditTask: adapter.getEditTaskContext?.().activeEditTask || null,
   }
 }
 
@@ -744,6 +779,9 @@ async function callWorkspaceSkill(
         contextOptions.includeHistory === false
           ? []
           : adapter.getLegacyMessages(contextOptions.requestText),
+      ...(adapter.getToolAudit?.() !== undefined
+        ? { toolAudit: adapter.getToolAudit() }
+        : {}),
     })
     const policy = contextPolicy(
       contextService,
@@ -797,6 +835,7 @@ async function callWorkspaceSkill(
           input.callbacks?.onPromptBuilt?.({
             skillId: template.id,
             skillName: template.name || template.id,
+            skillVersion: template.version,
             mode: input.mode,
             systemPrompt,
             userPrompt,
@@ -811,6 +850,8 @@ async function callWorkspaceSkill(
       ...(toolSurface.tools?.length
         ? { tools: toolSurface.tools, toolPolicy: toolSurface.toolPolicy }
         : {}),
+      toolSurface: toolSurface.actualToolSurface,
+      activeEditTask: toolSurface.activeEditTask,
     })
     if (route.mode === 'folder' && route.folderResult) {
       const folderResult = route.folderResult
@@ -842,6 +883,8 @@ async function callWorkspaceSkill(
         reasoningText: folderResult.apiMeta?.reasoningText,
         usage: folderResult.apiMeta?.usage,
         maxTokens: folderResult.apiMeta?.maxTokens,
+        contextBudget: folderResult.apiMeta?.contextBudget,
+        usageReconciliation: folderResult.apiMeta?.usageReconciliation,
         diagnostics: folderResult.diagnostics,
         budget: budget.snapshot(),
         folderPackageCache: folderResult.folderPackageCache === true,
@@ -849,6 +892,7 @@ async function callWorkspaceSkill(
         toolCalls: folderResult.apiMeta?.toolCalls,
         toolResults: folderResult.apiMeta?.toolResults,
         toolRequestDeltas: folderResult.apiMeta?.toolRequestDeltas,
+        toolAudit: folderResult.apiMeta?.toolAudit,
       })
       return output
     }
@@ -874,7 +918,7 @@ async function callWorkspaceSkill(
     provider.models?.[0] ||
     'gpt-4o'
   const temperature = agentConfig?.temperature ?? provider.temperature ?? 0.7
-  const maxTokens = agentConfig?.maxTokens || provider.maxTokens || 8192
+  const maxTokens = agentConfig?.maxTokens || provider.maxTokens || null
   const systemPrompt =
     [injection.systemSkill, agentConfig?.systemPrompt]
       .filter(Boolean)
@@ -902,6 +946,9 @@ async function callWorkspaceSkill(
       contextOptions.includeHistory === false
         ? []
         : adapter.getLegacyMessages(contextOptions.requestText),
+    ...(adapter.getToolAudit?.() !== undefined
+      ? { toolAudit: adapter.getToolAudit() }
+      : {}),
   })
   const policy = contextPolicy(
     contextService,
@@ -931,6 +978,7 @@ async function callWorkspaceSkill(
         input.callbacks?.onPromptBuilt?.({
           skillId: template.id,
           skillName: template.name || template.id,
+          skillVersion: template.version,
           mode: input.mode,
           systemPrompt,
           userPrompt: attemptPrompt,
@@ -983,6 +1031,7 @@ async function callWorkspaceSkill(
         maxTokens: result.maxTokens,
         toolCalls: result.toolCalls,
         toolResults: result.toolResults,
+        toolAudit: result.toolAudit,
       })
       if (!output.trim()) throw new Error('API 返回为空')
       validateOutput(template, output)
@@ -1010,6 +1059,7 @@ async function callWorkspaceSkill(
         maxTokens: result.maxTokens,
         toolCalls: lastResult.toolCalls,
         toolResults: lastResult.toolResults,
+        toolAudit: lastResult.toolAudit,
       })
       if (folderFallbackReason) {
         const meta = lastRunMeta.get(input)
@@ -1055,6 +1105,7 @@ async function callWorkspaceSkill(
         usage: lastResult.usage,
         toolCalls: lastResult.toolCalls,
         toolResults: lastResult.toolResults,
+        toolAudit: lastResult.toolAudit,
       })
   }
   throw lastError instanceof Error ? lastError : new Error('技能输出校验失败')
@@ -1089,12 +1140,12 @@ function getRecentHistoryForIntent(
     )
 }
 
-function resolveWorkspaceIntentRouting(
+async function resolveWorkspaceIntentRouting(
   input: RunWorkspaceSkillsInput,
   adapter: WorkspaceSkillEngineAdapter,
   templates: WorkspaceSkillTemplate[],
   callbacks: WorkspaceSkillEngineCallbacks,
-): ChainRoutingResult {
+): Promise<ChainRoutingResult> {
   if (input.routingOverride?.bypass === true) {
     const bypassedResult: ChainRoutingResult = {
       kind: 'matched',
@@ -1113,22 +1164,67 @@ function resolveWorkspaceIntentRouting(
     return bypassedResult
   }
 
+  if (input.routingOverride?.precomputedRouting) {
+    const precomputed = input.routingOverride.precomputedRouting
+    callbacks.onRoutingEvent?.({
+      type: 'routing_started',
+      requestText: input.requestText,
+    })
+    callbacks.onRoutingEvent?.({
+      type: 'routing_diagnostics',
+      diagnostics: precomputed.diagnostics,
+    })
+    if (
+      input.routingOverride.forcedIntent &&
+      (precomputed.kind !== 'matched' ||
+        precomputed.intent !== input.routingOverride.forcedIntent)
+    ) {
+      const forcedResult: ChainRoutingResult = {
+        kind: 'matched',
+        intent: input.routingOverride.forcedIntent,
+        confidence: 1,
+        reason: 'user-confirmed-recommendation',
+      }
+      callbacks.onRoutingEvent?.({
+        type: 'routing_result',
+        result: forcedResult,
+      })
+      return forcedResult
+    }
+    callbacks.onRoutingEvent?.({
+      type: 'routing_result',
+      result: precomputed,
+    })
+    return precomputed
+  }
+
   const recentHistory = getRecentHistoryForIntent(adapter, input.requestText)
   callbacks.onRoutingEvent?.({
     type: 'routing_started',
     requestText: input.requestText,
   })
-  const routingResult = routeChainIntent(input.requestText, {
+  const routingResult = await routeChainIntentDetailed(input.requestText, {
     projectId: adapter.projectId,
     workspace:
       adapter.workspace === 'outline' ? 'outline-workbench' : 'home-editor',
+    activeEditTaskStatus:
+      adapter.getEditTaskContext?.().activeEditTask?.status === 'awaiting_batch'
+        ? 'awaiting_batch'
+        : undefined,
     recentUserMessages: recentHistory
       .filter((message) => message.role === 'user')
       .map((message) => message.content),
     recentHistory,
     activeSkillIds: templates.map((template) => template.id),
+    ...(adapter.classifyIntentWithLlm
+      ? { llmClassifier: adapter.classifyIntentWithLlm }
+      : {}),
   })
-  const effectiveRoutingResult = routingResult
+  callbacks.onRoutingEvent?.({
+    type: 'routing_diagnostics',
+    diagnostics: routingResult.diagnostics,
+  })
+  const effectiveRoutingResult: ChainRoutingResult = routingResult
   if (
     input.routingOverride?.forcedIntent &&
     (effectiveRoutingResult.kind !== 'matched' ||
@@ -1162,7 +1258,7 @@ export async function runWorkspaceSkills(
 
   if (input.mode === 'chain') {
     const bypassed = input.routingOverride?.bypass === true
-    const effectiveRoutingResult = resolveWorkspaceIntentRouting(
+    const effectiveRoutingResult = await resolveWorkspaceIntentRouting(
       input,
       adapter,
       templates,
@@ -1282,6 +1378,8 @@ export async function runWorkspaceSkills(
           text: current,
           meta: allMetas[allMetas.length - 1] || null,
           allMetas,
+          terminalStatus: 'blocked',
+          terminalReason: 'budget_exhausted',
           mode: 'chain',
           intent: intentResult.intent,
           routing: effectiveRoutingResult,
@@ -1493,7 +1591,7 @@ export async function runWorkspaceSkills(
   }
 
   const context = adapter.buildTemplateContext(input.requestText)
-  const composeRouting = resolveWorkspaceIntentRouting(
+  const composeRouting = await resolveWorkspaceIntentRouting(
     input,
     adapter,
     templates,

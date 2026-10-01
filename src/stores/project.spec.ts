@@ -76,3 +76,93 @@ describe('project store recordSourceVersion', () => {
     expect(store.memories.sourceVersions || []).toHaveLength(0)
   })
 })
+
+describe('project store editor bookmarks persistence', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    storageWrite.mockClear()
+    storageRead.mockClear()
+    vi.stubGlobal('window', {
+      electronAPI: { storageWrite, storageRead, storageRemove, storageList },
+    })
+  })
+
+  it('persists bookmarks through saveProject and reloads them through loadProject', async () => {
+    const store = useProjectStore()
+    store.currentProjectId = 'test-bookmarks'
+
+    const bookmark = {
+      id: 'bm-1',
+      documentId: 'tab-1',
+      offset: 3,
+      line: 0,
+      label: '开头',
+      contentHash: 'hash-1',
+      createdAt: '2026-09-24T00:00:00.000Z',
+    }
+    store.setEditorBookmarks([bookmark])
+    await store.saveProject()
+    await new Promise(resolve => setTimeout(resolve, 50))
+
+    const persistedCall = storageWrite.mock.calls.find(call => call[0].includes('project_test-bookmarks'))
+    expect(persistedCall?.[1]?.editorBookmarks).toEqual([bookmark])
+
+    storageRead.mockResolvedValueOnce({
+      schemaVersion: 3,
+      projectName: '书签项目',
+      outlineText: '# 大纲',
+      editorBookmarks: [bookmark, { invalid: true }],
+    })
+    await store.loadProject('test-bookmarks')
+
+    expect(store.editorBookmarks).toEqual([bookmark])
+  })
+
+  it('clears editor bookmarks with the current project', () => {
+    const store = useProjectStore()
+    store.currentProjectId = 'test-bookmarks-clear'
+    store.setEditorBookmarks([{
+      id: 'bm-1',
+      documentId: 'tab-1',
+      offset: 0,
+      line: 0,
+      label: '',
+      contentHash: 'hash-1',
+      createdAt: '',
+    }])
+
+    store.clearCurrent()
+
+    expect(store.editorBookmarks).toEqual([])
+  })
+
+  it('resets project state when loading a project with no stored data', async () => {
+    const store = useProjectStore()
+    store.currentProjectId = 'project-before'
+    store.projectName = '旧项目'
+    store.outlineText = '# 旧大纲'
+    store.volumes = [{ id: 'vol-old', name: '旧卷' }]
+    store.chapters = { 'vol-old': [{ id: 'ch-old', title: '旧章' }] }
+    store.outlineChat = [{ role: 'user', content: '旧对话' }]
+    store.setEditorBookmarks([{
+      id: 'bm-old',
+      documentId: 'tab-old',
+      offset: 0,
+      line: 0,
+      label: '',
+      contentHash: 'hash-old',
+      createdAt: '',
+    }])
+
+    storageRead.mockResolvedValue(null)
+    await store.loadProject('project-empty')
+
+    expect(store.currentProjectId).toBe('project-empty')
+    expect(store.projectName).toBe('')
+    expect(store.outlineText).toBe('')
+    expect(store.volumes).toEqual([])
+    expect(store.chapters).toEqual({})
+    expect(store.outlineChat).toEqual([])
+    expect(store.editorBookmarks).toEqual([])
+  })
+})

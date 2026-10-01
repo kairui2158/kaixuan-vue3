@@ -50,7 +50,7 @@ function handleAction(action: string) {
 
 <style scoped>
 .inline-menu {
-  position: fixed; z-index: 5000;
+  position: fixed; z-index: var(--z-tooltip);
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);

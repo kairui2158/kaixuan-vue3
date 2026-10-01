@@ -15,6 +15,8 @@ import type {
   MemoryChangeRecord
 } from '../types/memory'
 import { getChangeHistory, rollbackByChapter, rollbackTo, saveChangeRecord } from '../services/memoryVersion'
+import type { EditorBookmark } from '../services/editorBookmarks'
+import { useEditorStore } from './editor'
 
 function toPlain(value: unknown): unknown {
   try {
@@ -161,7 +163,8 @@ export const useProjectStore = defineStore('project', () => {
   const pipelineConfig = ref<{ volumeCount: number; volumeWords: number; chapterWords: number }>({ volumeCount: 3, volumeWords: 100000, chapterWords: 3500 })
   const memories = ref<MemoryData>(createDefaultMemories())
   const aiNaming = ref<AiNamingData>(createDefaultAiNamingData())
-  const outlineChat = ref<any[]>([])
+ const outlineChat = ref<any[]>([])
+ const editorBookmarks = ref<EditorBookmark[]>([])
 
   function nameFromOutline(text: string): string {
     const raw = text || ''
@@ -198,16 +201,20 @@ export const useProjectStore = defineStore('project', () => {
     return Object.values(chapters.value).reduce((sum, chs) => sum + chs.length, 0)
   })
 
-async function loadProject(id: string) {
-  pendingLoadId.value = id
-  let data = await window.electronAPI.storageRead(storageKey('project_' + id))
-  if (!data) data = await window.electronAPI.storageRead(storageKey('project-' + id))
-  // P1-3: 期间如果用户又切了别的项目，丢弃本次结果
-  if (pendingLoadId.value !== id) return
-  currentProjectId.value = id
-  pendingLoadId.value = null
-  if (data) {
-    data = migrateProjectData(data)
+  async function loadProject(id: string) {
+    pendingLoadId.value = id
+    let data = await window.electronAPI.storageRead(storageKey('project_' + id))
+    if (!data) data = await window.electronAPI.storageRead(storageKey('project-' + id))
+    // P1-3: 期间如果用户又切了别的项目，丢弃本次结果
+    if (pendingLoadId.value !== id) return
+    currentProjectId.value = id
+    pendingLoadId.value = null
+    // A project switch is a hard editor boundary: tabs, bookmarks, undo
+    // history, and find state never cross into the next project.
+    useEditorStore().resetEditorSession()
+    resetProjectState()
+    if (data) {
+      data = migrateProjectData(data)
     projectName.value = readProjectName(data)
      outlineText.value = data.outlineText || ''
      outlineLocked.value = data.outlineLocked || false
@@ -230,10 +237,13 @@ async function loadProject(id: string) {
      chapters.value = data.chapters || {}
      settingsCollection.value = data.settingsCollection || { categories: [], items: {} }
      settingBindings.value = data.settingBindings || {}
-     memories.value = normalizeMemories(data.memories)
-     memoryBlacklist.value = Array.isArray(data.memoryBlacklist) ? data.memoryBlacklist : []
+    memories.value = normalizeMemories(data.memories)
+    memoryBlacklist.value = Array.isArray(data.memoryBlacklist) ? data.memoryBlacklist : []
     aiNaming.value = normalizeAiNaming(data.aiNaming)
      outlineChat.value = data.outlineChat || []
+     editorBookmarks.value = Array.isArray(data.editorBookmarks)
+       ? data.editorBookmarks.filter((item: any) => item && typeof item.id === 'string' && typeof item.documentId === 'string')
+       : []
      const rawMemories = data.memories || {}
      const needsMemoryUpgrade =
        !Array.isArray(rawMemories.sourceVersions) ||
@@ -277,8 +287,14 @@ async function loadProject(id: string) {
       settingsCollection: toPlain(settingsCollection.value),
       memories: toPlain(memories.value),
       memoryBlacklist: toPlain(memoryBlacklist.value),
-      aiNaming: toPlain(aiNaming.value),
-      outlineChat: toPlain(outlineChat.value)
+     aiNaming: toPlain(aiNaming.value),
+     outlineChat: (toPlain(outlineChat.value) as Array<Record<string, unknown>>).map(message => {
+       if (!message || typeof message !== 'object' || !('outlineDeletionConfirmation' in message)) return message
+       const next = { ...message } as Record<string, unknown>
+       delete next.outlineDeletionConfirmation
+       return next
+     }),
+     editorBookmarks: toPlain(editorBookmarks.value)
     }
    const failedKeys: string[] = []
     const projectOk = await window.electronAPI.storageWrite(storageKey('project_' + currentProjectId.value), data)
@@ -343,6 +359,8 @@ async function loadProject(id: string) {
       const next = { ...outlineChat.value[index], ...patch }
       if (patch.routingFallback === undefined) delete next.routingFallback
       if (patch.budgetExhausted === undefined) delete next.budgetExhausted
+      if (patch.outlineBatchDiff === undefined) delete next.outlineBatchDiff
+      if (patch.outlineDeletionConfirmation === undefined) delete next.outlineDeletionConfirmation
       outlineChat.value[index] = next
       saveProject()
     }
@@ -881,8 +899,7 @@ async function loadProject(id: string) {
     }
   }
 
-  function clearCurrent() {
-    currentProjectId.value = null
+  function resetProjectState() {
     projectName.value = ''
     outlineText.value = ''
     outlineLocked.value = false
@@ -901,6 +918,17 @@ async function loadProject(id: string) {
     memoryBlacklist.value = []
     aiNaming.value = createDefaultAiNamingData()
     outlineChat.value = []
+    editorBookmarks.value = []
+  }
+
+  function clearCurrent() {
+    currentProjectId.value = null
+    resetProjectState()
+    useEditorStore().resetEditorSession()
+  }
+
+  function setEditorBookmarks(bookmarks: EditorBookmark[]) {
+    editorBookmarks.value = Array.isArray(bookmarks) ? bookmarks : []
   }
 
   function createProject(name: string, outline: string) {
@@ -988,6 +1016,7 @@ async function loadProject(id: string) {
     updateMemoryMeta, recalculateMemoryTotals, recordMemoryChange, recordSourceVersion, getMemoryChangeHistory,
     rollbackMemoryTo, rollbackMemoryByChapter,
     outlineChat, appendOutlineChat, removeOutlineChatAt, updateOutlineChatAt,
+    editorBookmarks, setEditorBookmarks,
    aiNaming, addNamingFavorite, removeNamingFavorite, addNamingHistory, clearNamingHistory
    ,startProjectAutoSave, stopProjectAutoSave
  }

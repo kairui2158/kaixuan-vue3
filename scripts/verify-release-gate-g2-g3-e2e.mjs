@@ -114,6 +114,8 @@ function startElectron() {
     env: {
       ...process.env,
       SHENYI_TEST_USER_DATA_DIR: DATA_DIR,
+      SHENYI_ALLOW_TEST_ISOLATION: '1',
+      SHENYI_DATA_DIR: path.join(PROFILE, 'documents-data'),
     },
     windowsHide: true,
   })

@@ -1,12 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
-// electron-log requires its preload bridge before renderer code runs.
-try {
-  require('electron-log/renderer')
-} catch (e) {
-  console.error('electron-log renderer bridge failed', e)
-}
-
 // Backward-compatible API (matches original preload.js)
 contextBridge.exposeInMainWorld('electronAPI', {
   platform: process.platform,
@@ -68,6 +61,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
   windowSetCurrentProject: function(pid) { return ipcRenderer.invoke('window:setCurrentProject', pid) },
   windowGetInitialProjectId: function() { return ipcRenderer.invoke('window:getInitialProjectId') },
 
+  // Agent
+  agentStateSave: function(payload) { return ipcRenderer.invoke('agent:state:save', payload || {}) },
+  agentStatus: function(target) { return ipcRenderer.invoke('agent:status', target) },
+  agentCancel: function(agentId, reason) { return ipcRenderer.invoke('agent:cancel', agentId, reason) },
+  agentCancelToken: function(payload) { return ipcRenderer.invoke('agent:cancel-token', payload || {}) },
+  agentCheckpointSave: function(payload) { return ipcRenderer.invoke('agent:checkpoint:save', payload || {}) },
+  agentCheckpointLoad: function(checkpointId) { return ipcRenderer.invoke('agent:checkpoint:load', checkpointId) },
+  agentCheckpointList: function() { return ipcRenderer.invoke('agent:checkpoint:list') },
+  agentRecover: function() { return ipcRenderer.invoke('agent:recover') },
+
   // Diag
   diagWrite: function(entries) { return ipcRenderer.invoke('diag:write', entries) },
   diagRead: function(date) { return ipcRenderer.invoke('diag:read', date || '') },
@@ -79,36 +82,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   runTraceSave: function(payload) { return ipcRenderer.invoke('runTrace:save', payload || {}) },
   runTraceRemove: function(payload) { return ipcRenderer.invoke('runTrace:remove', payload || {}) },
   runTraceOpenFolder: function(source) { return ipcRenderer.invoke('runTrace:openFolder', source || 'pipeline') },
+  intentCorpusAppend: function(payload) { return ipcRenderer.invoke('intentCorpus:append', payload || {}) },
+  intentCorpusStatus: function() { return ipcRenderer.invoke('intentCorpus:status') },
+  intentCorpusExportPackage: function(payload) { return ipcRenderer.invoke('intentCorpus:exportPackage', payload || {}) },
 
-  // API
-  fetchModels: function(baseUrl, apiKey) {
-    if (typeof baseUrl !== 'string' || typeof apiKey !== 'string')
-      throw new TypeError('fetchModels: baseUrl and apiKey must be strings')
-    return ipcRenderer.invoke('api:fetchModels', baseUrl, apiKey)
-  },
-
-  // New channels (Vue 3 migration)
-  // Agent
-  agentExecute: function(config) { return ipcRenderer.invoke('agent:execute', config) },
-  agentSpawn: function(config) { return ipcRenderer.invoke('agent:spawn', config) },
-  agentStatus: function(agentId) { return ipcRenderer.invoke('agent:status', agentId) },
-  agentCancel: function(agentId) { return ipcRenderer.invoke('agent:cancel', agentId) },
-
-  // Pipeline
-  pipelineGenerate: function(config) { return ipcRenderer.invoke('pipeline:generate', config) },
-  pipelineResume: function(breakpoint) { return ipcRenderer.invoke('pipeline:resume', breakpoint) },
-
-  // DeAI
-  deaiProcess: function(config) { return ipcRenderer.invoke('deai:process', config) },
-  deaiCancel: function() { return ipcRenderer.invoke('deai:cancel') },
-
-  // Skill
-  skillExecute: function(config) { return ipcRenderer.invoke('skill:execute', config) },
-  skillValidate: function(output, rules) { return ipcRenderer.invoke('skill:validate', output, rules) },
-  skillLoadFolder: function(folderPath) { return ipcRenderer.invoke('skill:loadFolder', folderPath) },
+  // Skills
   skillListFolders: function(rootPath) { return ipcRenderer.invoke('skill:listFolders', rootPath) },
-  skillOpenFolder: function(folderPath) { return ipcRenderer.invoke('skill:openFolder', folderPath) },
-  skillExecuteScript: function(script, payload) { return ipcRenderer.invoke('skill:executeScript', script, payload) },
   skillPackageOpenDialog: function() { return ipcRenderer.invoke('skillPackage:openDialog') },
   skillPackagePreview: function(zipPath) { return ipcRenderer.invoke('skillPackage:preview', zipPath) },
   skillPackageInstall: function(zipPath, skillId, version) {
@@ -120,26 +99,34 @@ contextBridge.exposeInMainWorld('electronAPI', {
   skillPackageExport: function(skillId, targetPath) {
     return ipcRenderer.invoke('skillPackage:export', skillId, targetPath)
   },
+  skillOpenFolder: function(folderPath) { return ipcRenderer.invoke('skill:openFolder', folderPath) },
+  skillLoadFolder: function(folderPath) { return ipcRenderer.invoke('skill:loadFolder', folderPath) },
+  skillExecuteScript: function(script, payload) { return ipcRenderer.invoke('skill:executeScript', script, payload) },
 
-  // Provider
-  providerTestConnection: function(baseUrl, apiKey) {
+  // API providers
+  providerTestConnection: function(baseUrl, apiKey) { return ipcRenderer.invoke('provider:testConnection', baseUrl, apiKey) },
+  fetchModels: function(baseUrl, apiKey) {
     if (typeof baseUrl !== 'string' || typeof apiKey !== 'string')
-      throw new TypeError('providerTestConnection: baseUrl and apiKey must be strings')
-    return ipcRenderer.invoke('provider:testConnection', baseUrl, apiKey)
+      throw new TypeError('fetchModels: baseUrl and apiKey must be strings')
+    return ipcRenderer.invoke('api:fetchModels', baseUrl, apiKey)
   },
-
-  providerNetRequest: function(request) {
-    return ipcRenderer.invoke('providerNet:request', request)
-  },
-  providerNetStream: function(request) {
-    return ipcRenderer.invoke('providerNet:stream', request)
-  },
-  providerNetAbort: function(signalId) {
-    return ipcRenderer.invoke('providerNet:abort', signalId)
-  },
+  providerNetStream: function(payload) { return ipcRenderer.invoke('providerNet:stream', payload || {}) },
+  providerNetRequest: function(request) { return ipcRenderer.invoke('providerNet:request', request) },
+  providerNetAbort: function(signalId) { return ipcRenderer.invoke('providerNet:abort', signalId) },
   onProviderNetStreamChunk: function(callback) {
-    const listener = function(event, payload) { callback(payload) }
+    var listener = function(event, payload) { callback(payload) }
     ipcRenderer.on('providerNet:streamChunk', listener)
     return function() { ipcRenderer.removeListener('providerNet:streamChunk', listener) }
-  }
+  },
+
+  // Intent routing is synchronous, so the native Chinese tokenizer lives in
+  // the main process and is bridged synchronously here.
+  jiebaCut: function(text, hmm) {
+    return ipcRenderer.sendSync('jieba:cut', text, Boolean(hmm))
+  },
+
+  // Local embedding is a main-process-only capability and stays offline.
+  intentEmbed: function(texts) { return ipcRenderer.invoke('intent:embed', texts || []) },
+  intentEmbeddingStatus: function() { return ipcRenderer.invoke('intent:embeddingStatus') },
+  intentEmbeddingWarmup: function() { return ipcRenderer.invoke('intent:embeddingWarmup') }
 })

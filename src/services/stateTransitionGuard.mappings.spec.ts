@@ -13,6 +13,9 @@ const expectedLifecycleMappings: Record<string, Record<string, string>> = {
   RunTraceStatus: {
     running: 'active',
     success: 'completed',
+    partially_applied: 'completed_partial',
+    failed_after_write: 'failed',
+    success_with_warnings: 'degraded',
     degraded: 'degraded',
     failed: 'failed',
     canceled: 'canceled',
@@ -21,6 +24,9 @@ const expectedLifecycleMappings: Record<string, Record<string, string>> = {
   AiTraceStatus: {
     running: 'active',
     success: 'completed',
+    partially_applied: 'completed_partial',
+    failed_after_write: 'failed',
+    success_with_warnings: 'degraded',
     degraded: 'degraded',
     failed: 'failed',
     canceled: 'canceled',

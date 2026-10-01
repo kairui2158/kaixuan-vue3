@@ -141,16 +141,16 @@
   white-space: nowrap;
 }
 :is(.message-content, .ow-msg-bubble) .md-status.is-success {
-  background: #d1fae5;
-  color: #067647;
+  background: var(--success-dim);
+  color: var(--success);
 }
 :is(.message-content, .ow-msg-bubble) .md-status.is-warning {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--warning-dim);
+  color: var(--warning);
 }
 :is(.message-content, .ow-msg-bubble) .md-status.is-danger {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--danger-dim);
+  color: var(--danger);
 }
 
 :is(.message-content, .ow-msg-bubble) strong {

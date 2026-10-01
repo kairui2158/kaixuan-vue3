@@ -1,9 +1,9 @@
 <template>
-  <div v-if="props.visible" id="skill-bind-modal" class="skill-bind-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-bind-modal') }" @click.self="closeModal">
+  <div v-if="props.visible" id="skill-bind-modal" data-modal-id="skill-bind-modal" class="modal-overlay" :style="{ zIndex: modalQueue.getZIndex('skill-bind-modal') }" @click.self="closeModal">
     <div class="skill-bind-content">
       <div class="skill-bind-header">
         <h3 id="sbm-title">绑定技能</h3>
-        <button class="sbm-close" @click="closeModal">&times;</button>
+        <button class="sbm-close" type="button" aria-label="关闭绑定技能" @click="closeModal"><AppIcon name="x" /></button>
       </div>
       <div class="sbm-step-select">
         <label>绑定到流水线步骤：</label>
@@ -16,7 +16,12 @@
         </select>
       </div>
       <div id="sbm-skill-list" class="sbm-skill-list">
-        <div v-if="skillStore.skills.length === 0" class="empty-hint">暂无可用技能，请先在设置中添加</div>
+        <EmptyState
+          v-if="skillStore.skills.length === 0"
+          icon="settings"
+          title="暂无可用技能"
+          description="请先在设置中添加技能，再绑定到当前对象"
+        />
         <label v-for="s in skillStore.skills" :key="s.id" class="sbm-skill-item">
           <input type="checkbox" :value="s.id" v-model="selectedIds" />
           <span>{{ skillStore.displaySkillName(s) }}</span>
@@ -37,6 +42,7 @@ import { useSkillStore } from '../../stores/skill'
 import { useProjectStore } from '../../stores/project'
 import { usePipelineStore } from '../../stores/pipeline'
 import { useModalQueue } from '../../composables/useModalQueue'
+import EmptyState from './EmptyState.vue'
 
 const props = defineProps<{ visible: boolean; type: string; id: string }>()
 const emit = defineEmits<{ close: [] }>()
@@ -112,21 +118,12 @@ function closeModal() {
 </script>
 
 <style scoped>
-.skill-bind-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-overlay);
-}
 .skill-bind-content {
   width: min(520px, 90vw);
   max-height: 75vh;
   display: flex;
   flex-direction: column;
-  background: var(--bg-glass, var(--bg-secondary));
+  background: var(--bg-glass);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
@@ -197,12 +194,6 @@ function closeModal() {
 .sbm-skill-cat {
   color: var(--text-muted);
   font-size: var(--font-size-xs);
-}
-.empty-hint {
-  padding: var(--space-7) 0;
-  text-align: center;
-  color: var(--text-secondary);
-  font-size: var(--font-size-md);
 }
 .sbm-actions {
   display: flex;

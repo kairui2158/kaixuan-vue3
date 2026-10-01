@@ -10,14 +10,18 @@ const corpus = JSON.parse(fs.readFileSync(jsonFile, 'utf8'))
 const categoryByGroup = new Map([
   ['strong-write-actions', 'strongWriteActions'],
   ['weak-write-actions', 'weakWriteActions'],
+  ['community-write-actions', 'strongWriteActions'],
+  ['community-write-intensifiers', 'writeIntensifiers'],
   ['write-intensifiers', 'writeIntensifiers'],
   ['write-targets', 'writeTargets'],
   ['interrogative-location', 'readOnlyLocationQuestion'],
   ['structural-anchors', 'readOnlyLocationQuestion'],
   ['location-request-verbs', 'readOnlyLocationRequest'],
   ['permission-questions', 'readOnlyPermissionQuestion'],
+  ['community-permission-questions', 'readOnlyPermissionQuestion'],
   ['status-questions', 'readOnlyStatusQuestion'],
   ['prohibition-rollback', 'readOnlyProhibition'],
+  ['community-prohibition', 'readOnlyProhibition'],
   ['request-reference', 'readOnlyReference'],
   ['how-to-questions', 'readOnlyReference'],
   ['preview-and-explain', 'readOnlyReference'],
@@ -69,10 +73,11 @@ const samplesBlock = corpus.sampleGroups
 let source = fs.readFileSync(tsFile, 'utf8')
 
 const groupsStart = source.indexOf('export const PHRASE_CORPUS_GROUPS: PhraseCorpusGroup[] = [')
-const groupsEndMarker = '\n]\n\nexport const SATURATED_PHRASE_ENTRIES'
-const groupsEnd = source.indexOf(groupsEndMarker, groupsStart)
+const groupsEndRegex = /\r?\n\]\r?\n\r?\nexport const SATURATED_PHRASE_ENTRIES/
+const groupsEndMatch = groupsEndRegex.exec(source.slice(groupsStart))
+const groupsEnd = groupsEndMatch ? groupsStart + groupsEndMatch.index + groupsEndMatch[0].length : -1
 if (groupsStart < 0 || groupsEnd < 0) throw new Error('PHRASE_CORPUS_GROUPS block not found')
-source = `${source.slice(0, groupsStart)}export const PHRASE_CORPUS_GROUPS: PhraseCorpusGroup[] = [\n${groupsBlock}\n]\n\nexport const SATURATED_PHRASE_ENTRIES${source.slice(groupsEnd + groupsEndMarker.length)}`
+source = `${source.slice(0, groupsStart)}export const PHRASE_CORPUS_GROUPS: PhraseCorpusGroup[] = [\n${groupsBlock}\n]\n\nexport const SATURATED_PHRASE_ENTRIES${source.slice(groupsEnd)}`
 
 const samplesStart = source.indexOf('export const SATURATED_INTENT_SAMPLES: readonly SaturatedIntentSample[] = [')
 if (samplesStart < 0) throw new Error('SATURATED_INTENT_SAMPLES block not found')

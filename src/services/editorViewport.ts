@@ -1,3 +1,11 @@
+import {
+  buildLocalMeasureText,
+  computeTextareaLineWindow,
+  countNewlinesBefore,
+  createLineIndexCache,
+  offsetToLine,
+} from './editorVirtualization'
+
 export type EditorViewportScrollStrategy = 'start' | 'end' | 'center' | 'nearest'
 export type EditorViewportFocus = 'auto' | 'start' | 'end' | 'center'
 
@@ -25,10 +33,14 @@ export interface EditorViewportScrollInput {
 
 export interface EditorViewport {
   measureOffset(offset: number): EditorViewportMeasurement
+  getLine(offset: number): number
+  getLineHeight(): number
+  getLineWindow(bufferRatio?: number): { startLine: number; endLine: number }
   revealTarget(target: EditorViewportTarget): void
   followWriteProgress(start: number, end: number): void
   stopFollow(): void
   dispose(): void
+  onViewportScroll(listener: () => void): () => void
 }
 
 const MIRROR_STYLE_PROPERTIES = [
@@ -78,8 +90,12 @@ function createTextareaViewport(options: {
 }): EditorViewport {
   const { textarea, mirror, highlightLayer } = options
   let followEnabled = true
+  let cachedLineHeight = 20
+  let cachedClientWidth = 0
   let followResumeTimer: ReturnType<typeof setTimeout> | null = null
   let highlightTimer: ReturnType<typeof setTimeout> | null = null
+  const lineIndexCache = createLineIndexCache()
+  const scrollListeners = new Set<() => void>()
 
   mirror.setAttribute('aria-hidden', 'true')
   mirror.style.position = 'absolute'
@@ -96,10 +112,44 @@ function createTextareaViewport(options: {
     mirror.style.width = `${textarea.clientWidth}px`
   }
 
+  function measureLocalLineHeight(content: string): number {
+    mirror.textContent = content
+    const height = mirror.offsetHeight
+    mirror.textContent = ''
+    return Math.max(1, height || 20)
+  }
+
+  function getLineHeight(): number {
+    syncMirrorStyle()
+    if (cachedClientWidth !== textarea.clientWidth) {
+      cachedClientWidth = textarea.clientWidth
+      cachedLineHeight = measureLocalLineHeight('测')
+    }
+    return cachedLineHeight
+  }
+
+  function getLineWindow(bufferRatio = 0.25) {
+    const value = textarea.value
+    return computeTextareaLineWindow({
+      textarea,
+      lineHeight: getLineHeight(),
+      bufferRatio,
+      lineCount: lineIndexCache.getLineCount(value),
+    })
+  }
+
   function measureOffset(offset: number): EditorViewportMeasurement {
     syncMirrorStyle()
-    const safeOffset = Math.max(0, Math.min(offset, textarea.value.length))
-    mirror.textContent = textarea.value.slice(0, safeOffset)
+    const content = textarea.value
+    const safeOffset = Math.max(0, Math.min(offset, content.length))
+    const index = lineIndexCache.getIndex(content)
+    const local = buildLocalMeasureText({
+      content,
+      offset: safeOffset,
+      maxCharacters: 240,
+      lineIndex: index,
+    })
+    mirror.textContent = local.line > 0 ? `${'\n'.repeat(local.line)}${local.text}` : local.text
     const textNode = mirror.firstChild
     let top = mirror.offsetTop
     let left = mirror.offsetLeft
@@ -116,9 +166,19 @@ function createTextareaViewport(options: {
         height = rect.height
       }
     }
-    const line = textarea.value.slice(0, safeOffset).split('\n').length
+    const line = local.line
+    if (local.line > 0) {
+      top += local.line * getLineHeight()
+    }
     mirror.textContent = ''
     return { top, left, height, line }
+  }
+
+  function getLine(offset: number): number {
+    const content = textarea.value
+    const safeOffset = Math.max(0, Math.min(offset, content.length))
+    const index = lineIndexCache.getIndex(content)
+    return index ? offsetToLine(index, safeOffset) : countNewlinesBefore(content, safeOffset)
   }
 
   function showHighlight(start: number, end: number, active: boolean, highlightMs?: number) {
@@ -170,6 +230,12 @@ function createTextareaViewport(options: {
 
   function onUserScroll() {
     pauseFollowTemporarily()
+    scrollListeners.forEach(listener => listener())
+  }
+
+  function onViewportScroll(listener: () => void) {
+    scrollListeners.add(listener)
+    return () => scrollListeners.delete(listener)
   }
 
   function onUserInteraction() {
@@ -218,9 +284,13 @@ function createTextareaViewport(options: {
 
   return {
     measureOffset,
+    getLine,
+    getLineHeight,
+    getLineWindow,
     revealTarget,
     followWriteProgress,
     stopFollow,
+    onViewportScroll,
     dispose,
   }
 }

@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   createLifecycleTransitionEvent,
   isLegalLifecycleTransition,
+  isLegalKnownLifecycleTransition,
+  mapToLifecycle,
 } from './stateTransitionGuard'
 import {
   getStateTimeout,
@@ -22,6 +24,15 @@ describe('state transition guard', () => {
     const event = createLifecycleTransitionEvent('RunTraceStatus', 'success', 'running')
     expect(event.type).toBe('state-transition-violation')
     expect(event.level).toBe('warn')
+  })
+
+  it('maps EditTask terminal statuses to distinct lifecycle semantics', () => {
+    expect(isLegalLifecycleTransition('running', 'partially_applied')).toBe(true)
+    expect(isLegalLifecycleTransition('running', 'failed_after_write')).toBe(true)
+    expect(isLegalLifecycleTransition('running', 'success_with_warnings')).toBe(true)
+    expect(isLegalLifecycleTransition('running', 'success')).toBe(true)
+    expect(mapToLifecycle('RunTraceStatus', 'unknown_status')).toBe('blocked')
+    expect(isLegalKnownLifecycleTransition('running', 'unknown_status')).toBe(false)
   })
 })
 
@@ -51,6 +62,22 @@ describe('state watchdog', () => {
     expect(watchdog).not.toBeNull()
     vi.advanceTimersByTime(600_001)
     expect(fired).toEqual(['awaiting_user'])
+    watchdog?.clear()
+    vi.useRealTimers()
+  })
+
+  it('resets the stuck deadline on reported progress', () => {
+    vi.useFakeTimers()
+    let fired = 0
+    const watchdog = startStateWatchdog(() => {
+      fired += 1
+    }, 'active', { timeoutHint: { active: 30_000 } })
+    vi.advanceTimersByTime(29_000)
+    watchdog?.reportProgress()
+    vi.advanceTimersByTime(29_000)
+    expect(fired).toBe(0)
+    vi.advanceTimersByTime(1_000)
+    expect(fired).toBe(1)
     watchdog?.clear()
     vi.useRealTimers()
   })

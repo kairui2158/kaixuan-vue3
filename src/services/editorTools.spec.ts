@@ -1,6 +1,20 @@
 import { describe, expect, it } from 'vitest'
-import { createEditorTools, ToolGateway, type ToolCallEvent } from './editorTools'
+import {
+  createEditorTools,
+  resolveEditorToolProtocolVersion,
+  ToolGateway,
+  type ToolCallEvent,
+} from './editorTools'
 import { createEditorTargetSnapshot } from './editorTarget'
+import { buildLongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
+import type { LongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
+
+function editTaskPlan(
+  input: Parameters<typeof buildLongDocumentExecutionPlan>[0],
+): LongDocumentExecutionPlan {
+  const plan = buildLongDocumentExecutionPlan(input)
+  return { ...plan, mode: 'edit-task' }
+}
 
 const snapshot = createEditorTargetSnapshot({
   workspace: 'main',
@@ -23,6 +37,11 @@ function makeContext(abortSignal?: AbortSignal) {
 }
 
 describe('editorTools', () => {
+  it('resolves editor tool protocol versions with a v1 default', () => {
+    expect(resolveEditorToolProtocolVersion({ commands: [] })).toEqual({ version: 1, defaulted: true })
+    expect(resolveEditorToolProtocolVersion({ protocolVersion: 1, commands: [] })).toEqual({ version: 1, defaulted: false })
+  })
+
   it('get_state returns a summary instead of full content', async () => {
     const gateway = new ToolGateway()
     gateway.registerAll(createEditorTools({ getSnapshot: () => snapshot }))
@@ -62,6 +81,20 @@ describe('editorTools', () => {
     expect(gateway.has('editor.propose_edits')).toBe(false)
   })
 
+  it('returns a correction hint when editor.write is called without commands', async () => {
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      applyWrite: async () => ({ ok: true, rollbackAvailable: true }),
+    }))
+    const result = await gateway.execute('editor.write', {}, makeContext())
+    expect(result.ok).toBe(false)
+    expect(result.error?.code).toBe('missing_field')
+    expect(result.error?.message).toContain('commands')
+    expect(result.error?.message).toContain('replace_match')
+  })
+
   it('editor.write applies a validated batch immediately', async () => {
     const appliedBatches: any[] = []
     const gateway = new ToolGateway()
@@ -85,6 +118,7 @@ describe('editorTools', () => {
       rollbackAvailable: true,
       reveal: { mode: 'instant', firstChange: false },
     })
+    expect((result.data as any).repairPolicy).toContain('禁止重复提交本 batchId')
     expect(appliedBatches).toHaveLength(1)
     expect(appliedBatches[0].next).toBe('新主角第二段落提到主角。第三段提到伏笔。')
     expect(appliedBatches[0].original).toBe(snapshot.content)
@@ -109,9 +143,304 @@ describe('editorTools', () => {
     expect(result.error?.code).toBe('ambiguous_target')
     expect(result.error?.retryable).toBe(true)
     expect(appliedBatches).toHaveLength(0)
+    expect((result.data as any).failedItems[0]).toMatchObject({
+      reason: 'ambiguous_target',
+      suggestion: 'extend_fragment',
+    })
+    expect((result.data as any).repairPolicy).toContain('完整批次')
   })
 
-  it('editor.write retries a partial-failure batch while keeping validated commands', async () => {
+  it('editor.write rejects invalid operation and unknown fields before planning', async () => {
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      applyWrite: async () => ({ ok: true, rollbackAvailable: true }),
+    }))
+
+    const invalidOperation = await gateway.execute('editor.write', {
+      commands: [{ operation: 'insertAfter', content: '新主角' }],
+    }, { ...makeContext(), workspace: 'outline' })
+    expect(invalidOperation.ok).toBe(false)
+    expect(invalidOperation.error?.code).toBe('invalid_input')
+    expect(invalidOperation.error?.message).toContain('operation 不在 enum 范围内')
+    expect((invalidOperation.data as any).validValues).toEqual([
+      'insert',
+      'replace_selection',
+      'replace_match',
+      'append',
+      'delete',
+      'move',
+      'reorder_sections',
+      'rewrite',
+      'replace_document',
+    ])
+    expect((invalidOperation.data as any).repairPolicy).toContain('完整批次')
+
+    const unknownField = await gateway.execute('editor.write', {
+      commands: [{ operation: 'insert', content: '新主角' }],
+      insertAfter: true,
+    }, { ...makeContext(), workspace: 'outline' })
+    expect(unknownField.ok).toBe(false)
+    expect(unknownField.error?.code).toBe('invalid_input')
+    expect(unknownField.error?.message).toContain('insertAfter 不是允许的字段')
+  })
+
+  it('editor.write applies replace_document as a single-command atomic replacement', async () => {
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const replacement = '整理后的完整正文。'
+    const result = await gateway.execute('editor.write', {
+      commands: [{ operation: 'replace_document', content: replacement, reason: '整理整篇文档' }],
+      reveal: { mode: 'instant' },
+    }, makeContext())
+
+    expect(result.ok).toBe(true)
+    expect(appliedBatches).toHaveLength(1)
+    expect(appliedBatches[0].original).toBe(snapshot.content)
+    expect(appliedBatches[0].next).toBe(replacement)
+    expect((result.data as any)).toMatchObject({
+      status: 'written',
+      commandCount: 1,
+      writtenLength: replacement.length,
+    })
+  })
+
+  it('editor.write rejects replace_document mixed with other commands or missing content', async () => {
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const mixed = await gateway.execute('editor.write', {
+      commands: [
+        { operation: 'replace_document', content: '新全文' },
+        { operation: 'append', content: '追加' },
+      ],
+    }, makeContext())
+    expect(mixed.ok).toBe(false)
+    expect(mixed.error?.code).toBe('invalid_input')
+    expect(mixed.error?.message).toContain('replace_document 必须单独成批')
+
+    const missingContent = await gateway.execute('editor.write', {
+      commands: [{ operation: 'replace_document' }],
+    }, makeContext())
+    expect(missingContent.ok).toBe(false)
+    expect(missingContent.error?.code).toBe('invalid_input')
+    expect(missingContent.error?.message).toContain('replace_document 必须携带完整整理后的全文 content')
+
+    const withTarget = await gateway.execute('editor.write', {
+      commands: [{ operation: 'replace_document', content: '新全文', target: '第一段' }],
+    }, makeContext())
+    expect(withTarget.ok).toBe(false)
+    expect(withTarget.error?.code).toBe('invalid_input')
+    expect(withTarget.error?.message).toContain('replace_document 不允许携带 target')
+
+    expect(appliedBatches).toHaveLength(0)
+  })
+
+  it('editor.write blocks all commands in final-draft mode', async () => {
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      executionPlan: buildLongDocumentExecutionPlan({
+        requestText: '把整篇大纲重新整理排序',
+        content: `# 第一卷\n\n${'雨'.repeat(12_000)}\n\n# 第二卷\n\n${'雨'.repeat(12_000)}`,
+        contextWindowTokens: 128_000,
+        maxOutputTokens: 8_192,
+      }),
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [{ operation: 'replace_document', content: '整篇替换内容' }],
+    }, makeContext())
+    expect(result.ok).toBe(false)
+    expect(result.error?.code).toBe('final_draft_mode_active')
+    expect(result.error?.message).toContain('终稿生成模式')
+    expect(appliedBatches).toHaveLength(0)
+
+    const rewrite = await gateway.execute('editor.write', {
+      commands: [{ operation: 'rewrite', target: '第一段落提到主角。', content: '改写' }],
+    }, makeContext())
+    expect(rewrite.ok).toBe(false)
+    expect(rewrite.error?.code).toBe('final_draft_mode_active')
+    expect(appliedBatches).toHaveLength(0)
+  })
+
+  it('editor.write allows only normalize operations under an explicit EditTask normalize plan', async () => {
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      executionPlan: editTaskPlan({
+        requestText: '整理整篇大纲的标点符号和格式',
+        content: Array.from({ length: 12 }, (_, index) => `# 第${index + 1}卷\n\n${'雨'.repeat(2_000)}\n\n`).join(''),
+        contextWindowTokens: 12_000,
+        maxOutputTokens: 4_096,
+      }),
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const move = await gateway.execute('editor.write', {
+      commands: [{
+        operation: 'move',
+        target: '第一段落提到主角。',
+        destination: '第三段提到伏笔。',
+        destinationPosition: 'after',
+      }],
+    }, makeContext())
+    expect(move.ok).toBe(false)
+    expect(move.error?.code).toBe('operation_not_allowed_by_execution_plan')
+
+    const rewrite = await gateway.execute('editor.write', {
+      commands: [{ operation: 'rewrite', target: '第一段落提到主角。', content: '第一段落提到主角，' }],
+    }, makeContext())
+    expect(rewrite.ok).toBe(true)
+    expect(appliedBatches).toHaveLength(1)
+  })
+
+  it('editor.write rejects replacement commands that omit content', async () => {
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const missingContent = await gateway.execute('editor.write', {
+      commands: [{
+        operation: 'replace_match',
+        target: '第一段落提到主角。',
+        reason: '模型只提交 target、未提交新文',
+      }],
+    }, makeContext())
+    expect(missingContent.ok).toBe(false)
+    expect(missingContent.error?.code).toBe('invalid_input')
+    expect(missingContent.error?.message).toContain('replace_match 必须同时携带 target（原文）与 content（新文）')
+    expect(appliedBatches).toHaveLength(0)
+
+    const blankContent = await gateway.execute('editor.write', {
+      commands: [{ operation: 'rewrite', target: '主角', content: '   ' }],
+    }, makeContext())
+    expect(blankContent.ok).toBe(false)
+    expect(blankContent.error?.code).toBe('invalid_input')
+    expect(blankContent.error?.message).toContain('rewrite 必须同时携带 target（原文）与 content（新文）')
+
+    const emptyMoveContent = await gateway.execute('editor.write', {
+      commands: [{
+        operation: 'move',
+        target: '第一段落提到主角。',
+        destination: '第三段提到伏笔。',
+        destinationPosition: 'after',
+        content: '  ',
+      }],
+    }, makeContext())
+    expect(emptyMoveContent.ok).toBe(false)
+    expect(emptyMoveContent.error?.code).toBe('invalid_input')
+    expect(emptyMoveContent.error?.message).toContain('move 的 content 可选，但提交时必须是非空追加文本')
+    expect(appliedBatches).toHaveLength(0)
+  })
+
+  it('editor.write lists section candidates when delete target is ambiguous', async () => {
+    const duplicatedContent = '## 第1节 出发\n船工喊号的声音被雨压低。\n\n## 第11节 渡口\n船工喊号的声音被雨压低。\n'
+    const duplicatedSnapshot = {
+      ...snapshot,
+      content: duplicatedContent,
+    }
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => duplicatedSnapshot,
+      mode: 'direct',
+      applyWrite: async () => ({ ok: true, rollbackAvailable: true }),
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [{ operation: 'delete', target: '船工喊号的声音被雨压低' }],
+    }, makeContext())
+
+    expect(result.ok).toBe(false)
+    expect(result.error?.code).toBe('ambiguous_target')
+    expect(result.error?.message).toContain('删除目标出现多次')
+    expect(result.error?.message).toContain('第1节')
+    expect(result.error?.message).toContain('第11节')
+  })
+
+  it('editor.write rejects unsupported protocol versions before execution', async () => {
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      applyWrite: async () => ({ ok: true, rollbackAvailable: true }),
+    }))
+
+    const unsupported = await gateway.execute('editor.write', {
+      protocolVersion: 2,
+      commands: [{ operation: 'append', content: '新段落' }],
+    }, makeContext())
+    expect(unsupported.ok).toBe(false)
+    expect(unsupported.error?.code).toBe('unsupported_protocol_version')
+    expect(unsupported.error?.message).toContain('当前支持 1')
+
+    const explicitV1 = await gateway.execute('editor.write', {
+      protocolVersion: 1,
+      commands: [{ operation: 'append', content: '新段落' }],
+    }, makeContext())
+    expect(explicitV1.ok).toBe(true)
+  })
+
+  it('editor.write rejects semantically invalid operation combinations', async () => {
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      applyWrite: async () => ({ ok: true, rollbackAvailable: true }),
+    }))
+
+    const insertWithTarget = await gateway.execute('editor.write', {
+      commands: [{ operation: 'insert', content: '新主角', target: '主角' }],
+    }, makeContext())
+    expect(insertWithTarget.ok).toBe(false)
+    expect(insertWithTarget.error?.code).toBe('invalid_input')
+    expect(insertWithTarget.error?.message).toContain('不允许携带 target')
+
+    const replaceSelectionAtCursor = await gateway.execute('editor.write', {
+      commands: [{ operation: 'replace_selection', content: '新主角', position: 'cursor' }],
+    }, makeContext())
+    expect(replaceSelectionAtCursor.ok).toBe(false)
+    expect(replaceSelectionAtCursor.error?.code).toBe('invalid_input')
+    expect(replaceSelectionAtCursor.error?.message).toContain('不允许 position=cursor')
+  })
+
+  it('editor.write keeps failed batches atomic and requires a full retry', async () => {
     let failedBatch: any = null
     const appliedBatches: any[] = []
     const gateway = new ToolGateway()
@@ -133,11 +462,17 @@ describe('editorTools', () => {
       ],
     }, makeContext())
     expect(failed.ok).toBe(false)
-    expect(failedBatch?.succeededIndexes).toEqual([0])
+    expect(failedBatch).toBeNull()
+    expect((failed.data as any).repairPolicy).toContain('完整批次')
+    expect((failed.data as any).repairPolicy).toContain('move')
+    expect((failed.data as any).summary).toContain('原文保持不变')
 
     const retried = await gateway.execute('editor.write', {
-      commands: [{ operation: 'replace_match', content: '新伏笔', target: '第三段提到伏笔。' }],
-      reason: '只重提失败条目',
+      commands: [
+        { operation: 'replace_match', content: '新主角', target: '第一段落提到主角。' },
+        { operation: 'replace_match', content: '新伏笔', target: '第三段提到伏笔。' },
+      ],
+      reason: '整批重提',
     }, makeContext())
 
     expect(retried.ok).toBe(true)
@@ -145,6 +480,316 @@ describe('editorTools', () => {
     expect(appliedBatches).toHaveLength(1)
     expect(appliedBatches[0].next).toBe('新主角第二段落提到主角。新伏笔')
     expect(failedBatch).toBeNull()
+  })
+
+  it('editor.write moves a unique fragment atomically', async () => {
+    const moveSnapshot = createEditorTargetSnapshot({
+      workspace: 'main',
+      targetId: 'move-tab',
+      label: '移动测试',
+      content: '第一段。\n第二段。\n第三段。',
+    })
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => moveSnapshot,
+      mode: 'direct',
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [{
+        operation: 'move',
+        target: '第二段。',
+        destination: '第一段。',
+        destinationPosition: 'after',
+        reason: '保持原位验证',
+      }],
+    }, { ...makeContext(), targetId: 'move-tab' })
+
+    expect(result.ok).toBe(true)
+    expect(appliedBatches).toHaveLength(1)
+    expect(appliedBatches[0].commands).toHaveLength(1)
+
+    const moved = await gateway.execute('editor.write', {
+      commands: [{
+        operation: 'move',
+        target: '第三段。',
+        destination: '第一段。',
+        destinationPosition: 'before',
+        reason: '把第三段移动到第一段之前',
+      }],
+    }, { ...makeContext(), targetId: 'move-tab' })
+
+    expect(moved.ok).toBe(true)
+    expect(appliedBatches[1].next).toBe('第三段。\n第一段。\n第二段。')
+  })
+
+  it('editor.write moves a whole heading section without an execution plan', async () => {
+    const longContent = [
+      '第1节',
+      '',
+      '甲'.repeat(5200),
+      '',
+      '第2节',
+      '',
+      '乙'.repeat(5200),
+      '',
+      '第3节',
+      '',
+      '丙'.repeat(1000),
+      '',
+    ].join('\n')
+    const restructureSnapshot = createEditorTargetSnapshot({
+      workspace: 'outline',
+      targetId: 'chapter-1',
+      label: '长文档',
+      content: longContent,
+    })
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => restructureSnapshot,
+      mode: 'direct',
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [{
+        operation: 'move',
+        target: '第2节',
+        destination: '第3节',
+        destinationPosition: 'after',
+        reason: '整节重排',
+      }],
+    }, { ...makeContext(), workspace: 'outline' })
+
+    expect(result.ok).toBe(true)
+    expect(appliedBatches).toHaveLength(1)
+    expect(appliedBatches[0].next.indexOf('第3节')).toBeLessThan(
+      appliedBatches[0].next.indexOf('第2节')
+    )
+    expect(appliedBatches[0].next).toContain('乙'.repeat(5200))
+  })
+
+  it('editor.write rejects move under a restructure plan so reorder stays atomic', async () => {
+    const longContent = [
+      '第1节',
+      '',
+      '甲'.repeat(5200),
+      '',
+      '第2节',
+      '',
+      '乙'.repeat(5200),
+      '',
+    ].join('\n')
+    const restructureSnapshot = createEditorTargetSnapshot({
+      workspace: 'outline',
+      targetId: 'chapter-1',
+      label: '长文档',
+      content: longContent,
+    })
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => restructureSnapshot,
+      mode: 'direct',
+      executionPlan: editTaskPlan({
+        requestText: '把整篇大纲重新整理排序',
+        content: longContent,
+        contextWindowTokens: 12_000,
+        maxOutputTokens: 2_048,
+      }),
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [{
+        operation: 'move',
+        target: '第2节',
+        destination: '第1节',
+        destinationPosition: 'before',
+        reason: '旧协议试图用 move 拼接整篇重排',
+      }],
+    }, { ...makeContext(), workspace: 'outline' })
+
+    expect(result.ok).toBe(false)
+    expect(result.error?.code).toBe('operation_not_allowed_by_execution_plan')
+    expect(result.error?.message).toContain('reorder_sections')
+    expect(result.error?.retryable).toBe(true)
+    expect(appliedBatches).toHaveLength(0)
+  })
+
+  it('editor.write atomically reorders all sections by structure id under a restructure plan', async () => {
+    const longContent = [
+      '第1节',
+      '',
+      '甲'.repeat(5200),
+      '',
+      '第2节',
+      '',
+      '乙'.repeat(5200),
+      '',
+      '第3节',
+      '',
+      '丙'.repeat(1000),
+      '',
+    ].join('\n')
+    const restructureSnapshot = createEditorTargetSnapshot({
+      workspace: 'outline',
+      targetId: 'chapter-1',
+      label: '长文档',
+      content: longContent,
+    })
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => restructureSnapshot,
+      mode: 'direct',
+      executionPlan: editTaskPlan({
+        requestText: '把整篇大纲重新整理排序',
+        content: longContent,
+        contextWindowTokens: 12_000,
+        maxOutputTokens: 2_048,
+      }),
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [{
+        operation: 'reorder_sections',
+        order: ['section-3', 'section-1', 'section-2'],
+        reason: '整篇原子重排',
+      }],
+    }, { ...makeContext(), workspace: 'outline' })
+
+    expect(result.ok).toBe(true)
+    expect(appliedBatches).toHaveLength(1)
+    expect(appliedBatches[0].next.indexOf('第3节')).toBeLessThan(appliedBatches[0].next.indexOf('第1节'))
+    expect(appliedBatches[0].next.indexOf('第1节')).toBeLessThan(appliedBatches[0].next.indexOf('第2节'))
+    expect(appliedBatches[0].next).toContain('乙'.repeat(5200))
+  })
+
+  it('editor.write rejects reorder sections when ids are missing, duplicated, or content changes', async () => {
+    const longContent = [
+      '第1节',
+      '',
+      '甲'.repeat(5200),
+      '',
+      '第2节',
+      '',
+      '乙'.repeat(5200),
+      '',
+    ].join('\n')
+    const restructureSnapshot = createEditorTargetSnapshot({
+      workspace: 'outline',
+      targetId: 'chapter-1',
+      label: '长文档',
+      content: longContent,
+    })
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => restructureSnapshot,
+      mode: 'direct',
+      executionPlan: editTaskPlan({
+        requestText: '把整篇大纲重新整理排序',
+        content: longContent,
+        contextWindowTokens: 12_000,
+        maxOutputTokens: 2_048,
+      }),
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const missing = await gateway.execute('editor.write', {
+      commands: [{ operation: 'reorder_sections', order: ['section-2'] }],
+    }, { ...makeContext(), workspace: 'outline' })
+    expect(missing.ok).toBe(false)
+    expect(missing.error?.code).toBe('reorder_id_set_mismatch')
+
+    const duplicated = await gateway.execute('editor.write', {
+      commands: [{ operation: 'reorder_sections', order: ['section-1', 'section-1', 'section-2'] }],
+    }, { ...makeContext(), workspace: 'outline' })
+    expect(duplicated.ok).toBe(false)
+    expect(duplicated.error?.code).toBe('reorder_id_set_mismatch')
+
+    expect(appliedBatches).toHaveLength(0)
+  })
+
+  it('editor.write points large restructures to the atomic reorder command', async () => {
+    const longContent = Array.from({ length: 12 }, (_, index) =>
+      `# 第${index + 1}节\n\n${'雨'.repeat(1_000)}\n\n`).join('')
+    const restructureSnapshot = createEditorTargetSnapshot({
+      workspace: 'outline',
+      targetId: 'chapter-1',
+      label: '长文档',
+      content: longContent,
+    })
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => restructureSnapshot,
+      mode: 'direct',
+      executionPlan: editTaskPlan({
+        requestText: '把整篇大纲重新整理排序',
+        content: longContent,
+        contextWindowTokens: 12_000,
+        maxOutputTokens: 2_048,
+      }),
+      applyWrite: async () => ({ ok: true, rollbackAvailable: true }),
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [
+        { operation: 'move', target: '# 第1节', destination: '# 第2节', destinationPosition: 'after' },
+      ],
+    }, { ...makeContext(), workspace: 'outline' })
+
+    expect(result.ok).toBe(false)
+    expect(result.error?.code).toBe('reorder_requires_atomic_command')
+    expect(result.error?.message).toContain('reorder_sections')
+  })
+
+  it('editor.write rejects move with missing or ambiguous destination', async () => {
+    const moveSnapshot = createEditorTargetSnapshot({
+      workspace: 'main',
+      targetId: 'move-tab',
+      label: '移动测试',
+      content: '第一段。\n重复。\n重复。',
+    })
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => moveSnapshot,
+      mode: 'direct',
+      applyWrite: async () => ({ ok: true, rollbackAvailable: true }),
+    }))
+
+    const missing = await gateway.execute('editor.write', {
+      commands: [{ operation: 'move', target: '第一段。', destinationPosition: 'after' }],
+    }, { ...makeContext(), targetId: 'move-tab' })
+    expect(missing.ok).toBe(false)
+    expect(missing.error?.code).toBe('invalid_input')
+
+    const ambiguous = await gateway.execute('editor.write', {
+      commands: [{ operation: 'move', target: '第一段。', destination: '重复。', destinationPosition: 'after' }],
+    }, { ...makeContext(), targetId: 'move-tab' })
+    expect(ambiguous.ok).toBe(false)
+    expect(ambiguous.error?.code).toBe('ambiguous_target')
+    expect((ambiguous.data as any).repairPolicy).toContain('完整批次')
   })
 
   it('editor.write allows insert and append on an empty editor', async () => {
@@ -271,7 +916,8 @@ describe('editorTools', () => {
     expect(missing.error?.code).toBe('tool_not_found')
 
     const invalid = await gateway.execute('editor.search', { caseSensitive: true }, makeContext())
-    expect(invalid.error?.code).toBe('missing_field')
+    expect(invalid.error?.code).toBe('invalid_input')
+    expect(invalid.error?.message).toContain('query 缺少必填字段')
   })
 
   it('supports abort before execution and emits every call event', async () => {
@@ -287,18 +933,12 @@ describe('editorTools', () => {
     expect(events[0].toolName).toBe('editor.get_state')
   })
 
-  it('update_plan updates UI state without touching content', async () => {
-    let plan: { stage: string; steps: string[] } | null = null
-    const gateway = new ToolGateway()
-    gateway.registerAll(createEditorTools({
+  it('does not expose the retired task.update_plan tool', () => {
+    const tools = createEditorTools({
       getSnapshot: () => snapshot,
-      onPlanUpdate: value => { plan = value },
-    }))
-    const result = await gateway.execute('task.update_plan', {
-      stage: '定位伏笔',
-      steps: ['搜索伏笔', '提出修改'],
-    }, makeContext())
-    expect(result.ok).toBe(true)
-    expect(plan).toEqual({ stage: '定位伏笔', steps: ['搜索伏笔', '提出修改'] })
+    })
+    const result = tools.some(tool => tool.name === 'task.update_plan')
+
+    expect(result).toBe(false)
   })
 })

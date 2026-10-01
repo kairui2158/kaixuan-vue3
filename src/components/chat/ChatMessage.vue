@@ -5,7 +5,7 @@
       <div
         v-if="message.role === 'assistant' && message.editorBatch && message.editorBatchRecord"
         class="chat-edit-command"
-        title="API 已直接写入编辑器，可通过批次记录回滚"
+        data-tooltip="API 已直接写入编辑器，可通过批次记录回滚"
       >
         已写入编辑器：{{ message.editorBatch.commands.length }} 条
         <span class="chat-direct-write-badge">可回滚</span>
@@ -14,46 +14,30 @@
           class="msg-btn"
           :disabled="busy"
           type="button"
-          title="恢复该批次应用前的内容"
+          data-tooltip="恢复该批次应用前的内容"
           @click="$emit('rollback')"
         >回滚此批次</button>
         <button
           class="msg-btn"
           type="button"
-          title="在编辑器中定位首处变更"
+          data-tooltip="在编辑器中定位首处变更"
           @click="$emit('reveal')"
         >查看位置</button>
+        <EditorDiffLayer
+          v-if="message.editorBatchDiff"
+          :batch-plan="{
+            ok: true,
+            original: message.editorBatchDiff.original,
+            next: message.editorBatchDiff.next,
+            items: [],
+          }"
+          :current-content="currentContentForDiff || ''"
+          :stored-hunks="message.editorBatchDiff.hunks"
+          :busy="busy"
+          @rollback-hunk="index => $emit('rollback-hunk', index)"
+          @reveal-hunk="hunk => $emit('reveal-hunk', hunk)"
+        />
       </div>
-      <div
-        v-if="message.role === 'assistant' && message.editorToolPlan?.steps?.length"
-        class="chat-tool-plan"
-      >
-        <div class="chat-tool-plan-title">AI 执行计划：{{ message.editorToolPlan.stage }}</div>
-        <ol class="chat-tool-plan-steps">
-          <li v-for="(step, index) in message.editorToolPlan.steps" :key="index">{{ step }}</li>
-       </ol>
-     </div>
-      <div
-        v-if="message.role === 'assistant' && message.toolCallStream?.length"
-        class="chat-tool-stream"
-      >
-        <div class="chat-tool-stream-title" @click="toolStreamExpanded = !toolStreamExpanded">
-          <span>工具调用过程</span>
-          <span class="chat-tool-stream-count">{{ message.toolCallStream.length }} 步</span>
-        </div>
-        <ol v-if="toolStreamExpanded" class="chat-tool-stream-list">
-          <li
-            v-for="(ev, idx) in message.toolCallStream"
-            :key="idx"
-            :class="['tool-stream-item', ev.type]"
-          >
-            <span class="tool-stream-icon">{{ ev.ok ? '✓' : '✗' }}</span>
-            <span class="tool-stream-name">{{ ev.toolName }}</span>
-            <span class="tool-stream-desc">{{ ev.stepDescription }}</span>
-            <span class="tool-stream-time">{{ ev.iteration }}轮</span>
-          </li>
-       </ol>
-     </div>
     <div
       v-if="message.role === 'assistant' && activeTask"
       class="chat-task-status"
@@ -79,6 +63,53 @@
       </div>
     </div>
     <div
+      v-if="message.role === 'assistant' && message.finalDraftTask"
+      class="chat-task-status chat-final-draft-status"
+      :class="message.finalDraftTask.status"
+    >
+      <div class="chat-task-title">
+        <span class="chat-task-name">终稿生成</span>
+        <span class="chat-task-state">{{ finalDraftStatusLabel }}</span>
+      </div>
+      <div class="chat-task-steps">
+        <span class="chat-task-step">{{ finalDraftStatusMeta }}</span>
+        <span v-if="finalDraftStalled" class="chat-task-step stalled">流式停滞：长时间无新增或持续低速输出</span>
+      </div>
+      <div v-if="finalDraftStalled" class="chat-final-draft-stalled-actions">
+        <span class="chat-final-draft-hint">可继续等待、重试当前段或取消生成；重试会保留已完成分段。</span>
+        <select
+          v-if="providerOptions.length > 0"
+          v-model="selectedProviderId"
+          class="chat-final-draft-provider-select"
+          aria-label="停滞重试供应商"
+        >
+          <option value="">使用当前供应商</option>
+          <option v-for="provider in providerOptions" :key="provider.id" :value="provider.id">
+            {{ provider.name }}（{{ provider.model }}）
+          </option>
+        </select>
+      </div>
+      <div class="chat-task-actions" v-if="canContinueFinalDraft || finalDraftStalled">
+        <button class="msg-btn" :disabled="busy" type="button" @click="$emit('continue-final-draft')">继续生成终稿</button>
+        <button
+          v-if="canRetryFinalDraftSegment"
+          class="msg-btn"
+          :class="{ 'is-stalled': finalDraftStalled }"
+          :disabled="busy && !finalDraftStalled"
+          type="button"
+          data-tooltip="停滞时可重试当前分段，已完成分段不会被重做"
+          @click="emit('retry-final-draft-segment-with-provider', selectedProviderId)"
+        >重试当前段</button>
+        <button
+          v-if="canResumeFinalDraft"
+          class="msg-btn"
+          :disabled="busy"
+          type="button"
+          @click="$emit('resume-final-draft')"
+        >从检查点恢复</button>
+      </div>
+    </div>
+    <div
       v-if="message.role === 'assistant' && props.chainBreakpoint"
       class="chat-breakpoint-status"
     >
@@ -93,23 +124,21 @@
       </div>
     </div>
     <div class="message-actions" v-if="message.role === 'assistant'">
-        <button class="msg-btn" :disabled="busy" title="复制" @click="runAction('copy', message.content)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <button class="msg-btn" :disabled="busy" data-tooltip="复制" @click="runAction('copy', message.content)">
+          <AppIcon name="copy" :size="12" />
           <span>复制</span>
         </button>
-        <button v-if="canContinue(message.continuation)" class="msg-btn continuation-btn" :disabled="busy" title="继续生成" @click="runAction('continue')">续 <span>续生成</span></button>
-        <button class="msg-btn" :disabled="busy" title="重新生成" @click="runAction('regenerate')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+        <button v-if="canContinue(message.continuation)" class="msg-btn continuation-btn" :disabled="busy" data-tooltip="继续生成" @click="runAction('continue')">续 <span>续生成</span></button>
+        <button class="msg-btn" :disabled="busy" data-tooltip="重新生成" @click="runAction('regenerate')">
+          <AppIcon name="refresh" :size="12" />
           <span>重生成</span>
         </button>
-        <button class="msg-btn" :disabled="busy" title="插入到光标处" @click="runAction('apply', message.content)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <button class="msg-btn" :disabled="busy" data-tooltip="插入到光标处" @click="runAction('apply', message.content)">
+          <AppIcon name="insert" :size="12" />
           <span>插入</span>
         </button>
-        <button class="msg-btn" :disabled="busy" title="整章替换为消息内容" @click="runAction('replace', message.content)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M3 16v5h5"/><path d="M16 21h5v-5"/>
-          </svg>
+        <button class="msg-btn" :disabled="busy" data-tooltip="整章替换为消息内容" @click="runAction('replace', message.content)">
+          <AppIcon name="replace" :size="12" />
           <span>替换</span>
         </button>
         <span v-if="actionFeedback" class="action-feedback" role="status">{{ actionFeedback }}</span>
@@ -158,20 +187,22 @@ import { renderMarkdown } from '../../utils/markdownService'
 import { canContinue as isContinuationAvailable } from '../../services/continuation'
 import type { EditorEditBatchCommand } from '../../services/editorEditProtocol'
 import type { EditorBatchRecord } from '../../services/editorBatchRecord'
-import type { EditorToolPlan } from '../../stores/chat'
-import type { ToolCallStreamEvent } from '../../stores/chat'
 import type { ChatMessage as ChatMessageType } from '../../stores/chat'
 import RealSkillDiagnosticsPanel from '../common/RealSkillDiagnosticsPanel.vue'
+import AppIcon from '../common/AppIcon.vue'
+import EditorDiffLayer from '../editor/EditorDiffLayer.vue'
+import type { EditorDiffHunk } from '../../services/editorDiffHunks'
 
 const props = defineProps<{
-  message: { role: string; content: string; continuation?: unknown; editorBatch?: EditorEditBatchCommand; editorBatchRecord?: EditorBatchRecord; editorToolPlan?: EditorToolPlan; toolCallStream?: ToolCallStreamEvent[]; skillRunDiagnostics?: ChatMessageType['skillRunDiagnostics']; routingFallback?: ChatMessageType['routingFallback']; budgetExhausted?: ChatMessageType['budgetExhausted'] }
+  message: { role: string; content: string; continuation?: unknown; editorBatch?: EditorEditBatchCommand; editorBatchRecord?: EditorBatchRecord; editorBatchDiff?: ChatMessageType['editorBatchDiff']; skillRunDiagnostics?: ChatMessageType['skillRunDiagnostics']; routingFallback?: ChatMessageType['routingFallback']; budgetExhausted?: ChatMessageType['budgetExhausted']; finalDraftTask?: ChatMessageType['finalDraftTask'] }
   busy?: boolean
+  currentContentForDiff?: string
+  providers?: Array<{ id: string; name: string; models?: string[]; selectedModel?: string; apiKey?: string }>
   chainBreakpoint?: { skillId: string; step: number; error: string; retryCount: number } | null
 }>()
 const aiTaskStore = useAiTaskStore()
 const activeTask = computed(() => aiTaskStore.activeTask)
 const actionFeedback = ref('')
-const toolStreamExpanded = ref(true)
 
 const taskStateLabel = computed(() => {
   const labels: Record<string, string> = {
@@ -201,6 +232,64 @@ function canContinueSnapshot(value: unknown) {
 }
 
 const canContinue = canContinueSnapshot
+const finalDraftTask = computed(() => props.message.finalDraftTask)
+const canContinueFinalDraft = computed(() =>
+  finalDraftTask.value?.status === 'awaiting_continuation'
+  || (finalDraftTask.value?.status === 'generating' && (finalDraftTask.value.activeSegmentIndex || 0) > 0)
+  || finalDraftTask.value?.status === 'interrupted'
+)
+const canResumeFinalDraft = computed(() =>
+  finalDraftTask.value?.status === 'generating' && (finalDraftTask.value.activeSegmentIndex || 0) > 0
+)
+const canRetryFinalDraftSegment = computed(() =>
+  finalDraftTask.value?.status === 'generating'
+  || finalDraftTask.value?.status === 'awaiting_continuation'
+  || finalDraftTask.value?.status === 'interrupted'
+)
+const finalDraftStalled = computed(() =>
+  (finalDraftTask.value?.status === 'generating'
+    && finalDraftTask.value.lastTelemetry?.throughputStatus === 'stalled')
+  || finalDraftTask.value?.status === 'interrupted'
+)
+const providerOptions = computed(() => {
+  const current = finalDraftTask.value
+  if (!finalDraftStalled.value || !current) return []
+  const providers = (props.providers || []) as Array<{ id: string; name: string; models?: string[]; selectedModel?: string; apiKey?: string }>
+  return providers
+    .filter(provider => provider.apiKey)
+    .map(provider => ({
+      id: provider.id,
+      name: provider.name,
+      model: provider.selectedModel || provider.models?.[0] || '',
+    }))
+})
+const selectedProviderId = ref('')
+const finalDraftStatusLabel = computed(() => {
+  const labels: Record<string, string> = {
+    planning: '准备中',
+    generating: '生成中',
+    interrupted: '慢流中断',
+    awaiting_continuation: '等待续生成',
+    writing: '写入中',
+    completed: '已写入',
+    failed: '失败',
+    rolled_back: '已回滚',
+    canceled: '已取消',
+  }
+  return labels[finalDraftTask.value?.status || ''] || '未知状态'
+})
+const finalDraftStatusMeta = computed(() => {
+  const task = finalDraftTask.value
+  if (!task) return ''
+  const draftChars = (task.completedText || task.accumulatedText).length
+  const parts = [
+    `源文 ${task.sourceContent.length} 字`,
+    `终稿 ${draftChars} 字`,
+    `续生成 ${task.continuationCount} 次`,
+  ]
+  if (task.error) parts.push(task.error)
+  return parts.join(' · ')
+})
 const contentRef = ref<HTMLElement | null>(null)
 const emit = defineEmits<{
   copy: [string]
@@ -210,6 +299,8 @@ const emit = defineEmits<{
   continue: []
   rollback: []
   reveal: []
+  'rollback-hunk': [index: number]
+  'reveal-hunk': [hunk: EditorDiffHunk]
   'resume-task': []
   'pause-task': []
   'retry-step': []
@@ -218,6 +309,9 @@ const emit = defineEmits<{
   'routing-continue': []
   'routing-bypass': []
   'budget-extend': []
+  'continue-final-draft': []
+  'resume-final-draft': []
+  'retry-final-draft-segment-with-provider': [providerId: string]
 }>()
 
 const canRollbackBatch = computed(() => props.message.editorBatchRecord?.status === 'applied' && props.message.editorBatchRecord?.undoAvailable === true)
@@ -310,7 +404,7 @@ watch(() => props.busy, (busy, previousBusy) => {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-height: 30px;
+  min-height: var(--density-btn-sm-height);
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
@@ -360,69 +454,13 @@ watch(() => props.busy, (busy, previousBusy) => {
   align-items: center;
   height: 20px;
   padding: 0 var(--space-2);
-  border-radius: var(--radius-sm, 4px);
-  background: color-mix(in srgb, var(--success, #2f855a) 14%, transparent);
-  color: var(--success, #2f855a);
-  font-size: var(--font-size-xs, 12px);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--success) 14%, transparent);
+  color: var(--success);
+  font-size: var(--font-size-xs);
   line-height: 1;
 }
 
-.chat-tool-plan {
-  margin-top: 8px;
-  padding: var(--space-4) var(--space-5);
-  border-left: 3px solid var(--border-color);
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-}
-
-.chat-tool-plan-title {
-  margin-bottom: 4px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.chat-tool-plan-steps {
-  margin: 0;
-  padding-left: 18px;
-  display: grid;
-  gap: var(--space-1);
-}
-.chat-tool-stream {
-  margin-top: 8px;
-  padding: var(--space-3) var(--space-5);
-  border-left: 3px solid var(--accent);
-  background: var(--bg-secondary);
-  font-size: var(--font-size-sm);
-}
-.chat-tool-stream-title {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  cursor: pointer;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-.chat-tool-stream-count {
-  color: var(--text-muted);
-  font-weight: 400;
-}
-.chat-tool-stream-list {
-  margin: var(--space-2) 0 0;
-  padding-left: 18px;
-  display: grid;
-  gap: var(--space-1);
-}
-.tool-stream-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-.tool-stream-item.tool_error { color: var(--chat-status-error); }
-.tool-stream-icon { flex: 0 0 auto; }
-.tool-stream-name { font-weight: 500; }
-.tool-stream-desc { color: var(--text-muted); flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tool-stream-time { color: var(--text-muted); font-size: var(--font-size-xs); flex: 0 0 auto; }
 /* task status */
 .chat-task-status { margin-top: 8px; padding: var(--space-4) var(--space-5); border-left: 3px solid var(--accent); background: var(--bg-secondary); font-size: var(--font-size-sm); }
 .chat-task-title { display: flex; align-items: center; gap: var(--space-3); font-weight: 600; color: var(--text-primary); }
@@ -437,6 +475,11 @@ watch(() => props.busy, (busy, previousBusy) => {
 .chat-task-step.done { color: var(--chat-status-success); }
 .chat-task-step.failed { color: var(--chat-status-error); }
 .chat-task-step.running { color: var(--accent); font-weight: 500; }
+.chat-task-step.stalled { color: var(--warning); font-weight: 600; }
+.chat-final-draft-stalled-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: var(--space-2) 0; }
+.chat-final-draft-hint { color: var(--text-secondary); font-size: var(--font-size-xs); }
+.chat-final-draft-provider-select { max-width: 100%; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-primary); font-size: var(--font-size-sm); }
+.msg-btn.is-stalled { border-color: var(--warning); }
 .chat-task-actions { display: flex; gap: var(--space-2); margin-top: 4px; }
 .chat-breakpoint-status { margin-top: 8px; padding: var(--space-4) var(--space-5); border-left: 3px solid var(--chat-status-error); background: var(--bg-secondary); font-size: var(--font-size-sm); }
 .chat-routing-fallback, .chat-routing-budget { margin-top: 8px; padding: var(--space-4) var(--space-5); border-left: 3px solid var(--accent); background: var(--bg-secondary); font-size: var(--font-size-sm); }

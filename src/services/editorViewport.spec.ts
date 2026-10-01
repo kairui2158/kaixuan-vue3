@@ -3,6 +3,11 @@ import {
   computeViewportScroll,
   resolveScrollStrategy,
 } from './editorViewport'
+import {
+  buildLocalMeasureText,
+  computeTextareaLineWindow,
+  countLinesInContent,
+} from './editorVirtualization'
 
 describe('editorViewport scroll strategies', () => {
   it('centers a target with the center strategy', () => {
@@ -57,5 +62,63 @@ describe('editorViewport scroll strategies', () => {
     expect(resolveScrollStrategy('start')).toBe('start')
     expect(resolveScrollStrategy('end')).toBe('end')
     expect(resolveScrollStrategy('center')).toBe('center')
+  })
+})
+
+describe('editor viewport local measurement', () => {
+  it('keeps the offset as a stable column and reports its logical line', () => {
+    const result = buildLocalMeasureText({
+      content: '第一行\n第二行\n第三行\n第四行',
+      offset: 10,
+      maxCharacters: 8,
+    })
+
+    expect(result).toMatchObject({ text: '第三', column: 2, line: 2 })
+  })
+
+  it('builds a bounded local measurement prefix for the target line', () => {
+    const result = buildLocalMeasureText({
+      content: '第一行\n第二行\n第三行\n第四行',
+      offset: 10,
+      maxCharacters: 8,
+    })
+
+    expect(result).toMatchObject({
+      text: '第三',
+      column: 2,
+      line: 2,
+    })
+  })
+
+  it('limits an extremely long line to the measured suffix and reports its column', () => {
+    const longLine = '甲'.repeat(100)
+    const result = buildLocalMeasureText({
+      content: `${longLine}\n下一行`,
+      offset: 90,
+      maxCharacters: 10,
+    })
+
+    expect(result).toMatchObject({
+      text: `${'甲'.repeat(5)}\n`,
+      column: 5,
+      line: 0,
+    })
+  })
+
+  it('computes a textarea render window with buffered lines', () => {
+    expect(computeTextareaLineWindow({
+      textarea: { scrollTop: 100, clientHeight: 300, value: 'a\nb\nc\nd\ne\nf\ng' },
+      lineHeight: 20,
+      bufferRatio: 0.5,
+    })).toEqual({ startLine: 0, endLine: 6 })
+  })
+
+  it('accepts a precomputed line count to avoid rescanning the document', () => {
+    expect(computeTextareaLineWindow({
+      textarea: { scrollTop: 100, clientHeight: 300, value: 'a\nb\nc\nd\ne\nf\ng' },
+      lineHeight: 20,
+      bufferRatio: 0.5,
+      lineCount: countLinesInContent('a\nb\nc\nd\ne\nf\ng'),
+    })).toEqual({ startLine: 0, endLine: 6 })
   })
 })

@@ -16,22 +16,25 @@
 - overlay 用 flex 居中内容，不依赖 margin:auto
 - 点击 overlay 背景关闭（@click.self），但内容区不透传
 
-神意当前问题：
-- 5 种 overlay 写法：.modal-overlay / .pl-overlay / .ow-overlay / .pm-overlay / .dash-overlay
-- DashboardModal 用 width:100%; height:100% 而非 inset:0
-- MemoryPanel 用 position: absolute 而非 fixed，导致只在父容器内遮罩
-- z-index 混乱：100 / 1000 / 2200 / 10000 四种值
+神意现役实现（2026-09-20）：
+- 所有弹窗 overlay 统一为 `.modal-overlay`，面板加载层使用共享 overlay 样式，旧 overlay 类名已清零。
+- 嵌套弹窗使用 `.modal-overlay.modal-nested`，内容层使用 `--z-modal-nested-content`。
+- 遮罩背景与模糊只走 `--overlay-level-1`、`--overlay-blur` 两个 token。
+- z-index 全部走层级 token，禁止组件硬编码。
 
-应统一为：
+统一写法：
 ```css
-.wh-overlay {
-  position: fixed; inset: 0;
-  background: var(--bg-overlay);
-  backdrop-filter: blur(4px);
-  display: flex; align-items: center; justify-content: center;
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-level-1);
+  backdrop-filter: var(--overlay-blur);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: var(--z-modal);
 }
-.wh-overlay-nested { z-index: var(--z-modal-high); }
+.modal-overlay.modal-nested { z-index: var(--z-modal-nested); }
 ```
 
 ### 1.2 弹窗内容容器
@@ -73,13 +76,22 @@ footer: 固定高度 52-56px，含操作按钮，右对齐，不滚动
 | toast | 2000 | 通知 |
 | tooltip | 3000 | 气泡提示 |
 
-神意当前 z-index 混乱清单：
-- MemoryPanel: 100（应该是 1000）
-- PipelinePanel overlay: var(--z-modal) = 1000
-- SkillBindModal: 2200（应该是 1500）
-- DashboardModal: 10000（应该是 1100）
-- Memory dropdown: 2000（应该是 100）
-- Memory inline overlay: 2000（应该是 1500）
+神意现役 z-index 表（2026-09-20）：
+
+| 层级 token | 值 | 用途 |
+|------|-----|------|
+| --z-inline | 20 | 行内浮层 |
+| --z-dropdown | 100 | 下拉菜单 |
+| --z-overlay | 500 | 面板遮罩/加载层 |
+| --z-modal | 1000 | 模态遮罩 |
+| --z-modal-content | 1001 | 模态内容 |
+| --z-modal-nested | 1100 | 嵌套模态遮罩 |
+| --z-modal-nested-content | 1101 | 嵌套模态内容 |
+| --z-toast | 2000 | 通知 |
+| --z-tooltip | 3000 | 气泡提示 |
+| --z-diagnostics | 4000 | 诊断面板 |
+
+`app-confirm=9000` 为全局确认链路专用层级，由独立脚本守护，不进入普通组件层级表。
 
 ---
 
@@ -102,9 +114,7 @@ footer: 固定高度 52-56px，含操作按钮，右对齐，不滚动
 - 侧边面板：push 模式（推挤主内容区）或 overlay 模式（浮在主内容区上）
 - 弹出面板和主界面共享同一套字体、颜色、间距
 
-神意当前问题：
-- MemoryPanel 用 absolute 而非 fixed，且 left:48px 硬编码
-- 各面板用不同的 overlay 类名，不共享 modal.css 基类
+神意现役状态：全局面板复用 `modal-overlay` 基类与层级 token，MemoryPanel 不再使用 absolute 旁路和硬编码 left；宽度拖拽与预设统一走 `useResizers`。
 
 ### 2.3 响应式断点
 
@@ -225,21 +235,19 @@ footer: 固定高度 52-56px，含操作按钮，右对齐，不滚动
 
 ## 六、神意专属改进清单
 
-### 必须修（影响用户体验）
-1. 统一所有 overlay 类名为 .modal-overlay，删除 .pl-overlay .ow-overlay .pm-overlay .dash-overlay
-2. z-index 统一用 tokens 变量，禁止硬编码 100 / 2200 / 10000
-3. MemoryPanel 从 absolute 改为 fixed overlay
-4. 正文字号从 13px 提到 14px（--font-size-md）
-5. 次级字号从 12px 提到 13px（--font-size-sm）
-6. 编辑器字号从 14px 提到 15-16px
-7. AI 气泡字号从 12px 提到 14px
+### 已按本方案完成（2026-09-20）
+1. 统一所有 overlay 类名为 .modal-overlay，.pl-overlay / .ow-overlay / .pm-overlay / .dash-overlay 等旧类名已删除
+2. z-index 统一用 tokens 变量，硬编码层级值已清零
+3. MemoryPanel 已改为 fixed overlay
+4. 正文字号、次级字号、编辑器字号、AI 气泡字号已按 Graphite Ink v2 token 收口
+5. Toast、Tooltip、EmptyState 已统一为单源实现
+6. G6 图谱与诊断面板颜色已 token 化
+7. 未引用动画、常驻 will-change、组件级 blur 数值已清零
 
-### 建议修（提升一致性）
-1. 所有弹窗统一引用 modal.css 基类，不用各组件自定义 overlay
-2. 按钮 md 高度从 32px 提到 34-36px
-3. 弹窗 border-radius 统一 12px
-4. 卡片 border-radius 统一 8px
-5. 设置面板子页面字号检查，确保最小 13px
+### 后续仍可继续观察
+1. 双主题 + 三密度的截图矩阵可以继续扩容，作为视觉回归资产
+2. 长列表滚动帧率可以做专项抽样，确认 token 化后的渲染开销
+3. 极端长度文案与多语言文案需要持续做溢出检查
 
 ### 不需要改
 1. 配色系统（健康）
@@ -270,5 +278,5 @@ footer: 固定高度 52-56px，含操作按钮，右对齐，不滚动
 3. z-index 必须用 tokens 变量，禁止硬编码
 4. 字号必须用 tokens 变量，禁止硬编码
 5. 弹窗宽度超过 720px 必须用 .modal-content.modal-lg
-6. 面板内嵌套弹窗用 z-index: var(--z-modal-high)
+6. 面板内嵌套弹窗用 .modal-overlay.modal-nested + var(--z-modal-nested-content)
 7. 所有 overlay 必须用 position: fixed; inset: 0

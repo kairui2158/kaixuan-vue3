@@ -56,12 +56,12 @@ export function canContinue(snapshot: Pick<ContinuationSnapshot, 'status' | 'acc
   )
 }
 
-export function mergeContinuationText(existing: string, next: string): string {
+export function mergeContinuationText(existing: string, next: string, maxOverlapChars = 2000): string {
   const left = existing || ''
   const right = next || ''
   if (!left) return right
   if (!right) return left
-  const maxOverlap = Math.min(left.length, right.length, 2000)
+  const maxOverlap = Math.min(left.length, right.length, maxOverlapChars)
   for (let size = maxOverlap; size >= 1; size -= 1) {
     if (left.slice(-size) === right.slice(0, size)) return left + right.slice(size)
   }

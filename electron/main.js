@@ -84,6 +84,10 @@ const { registerStorageHandlers, setDataDir, getDataDir, setLegacyDir } = requir
 const { registerSkillLoaderHandlers } = require('./ipc/skill-loader')
 const { registerSkillPackageHandlers } = require('./ipc/skill-package')
 const { registerRunTraceHandlers, setDataDir: setRunTraceDataDir } = require('./ipc/runTrace')
+const { registerIntentCorpusHandlers, setDataDir: setIntentCorpusDataDir } = require('./ipc/intentCorpus')
+const { registerJiebaHandlers } = require('./ipc/jieba')
+const { registerIntentEmbeddingHandlers } = require('./ipc/intentEmbedding')
+const { registerAgentStateHandlers, setDataDir: setAgentStateDataDir } = require('./ipc/agentState')
 
 function registerApplicationMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate([
@@ -180,10 +184,14 @@ function createWindow(projectId) {
   }
 
   var isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
+  var explicitIsolation = process.env.SHENYI_DATA_DIR && process.env.SHENYI_ALLOW_TEST_ISOLATION === '1'
   var testDataDir = isDev && process.env.SHENYI_TEST_USER_DATA_DIR
     ? path.resolve(process.env.SHENYI_TEST_USER_DATA_DIR)
     : ''
-  var docsDir = testDataDir || (isDev
+  var isolationDataDir = explicitIsolation
+    ? path.resolve(process.env.SHENYI_DATA_DIR)
+    : ''
+  var docsDir = isolationDataDir || testDataDir || (isDev
     ? path.join(process.cwd(), '_data')
     : path.join(app.getPath('documents'), '神意助手数据'))
   var dataDir = docsDir
@@ -194,6 +202,8 @@ function createWindow(projectId) {
 
   setDataDir(dataDir)
   setRunTraceDataDir(dataDir)
+  setIntentCorpusDataDir(dataDir)
+  setAgentStateDataDir(dataDir)
   setLegacyDir(path.join(app.getPath('documents'), '写作助手数据'))
   setLogDir(logDir)
 
@@ -207,6 +217,10 @@ function createWindow(projectId) {
     registerSkillLoaderHandlers()
     registerSkillPackageHandlers(require('electron'))
     registerRunTraceHandlers()
+    registerIntentCorpusHandlers()
+    registerJiebaHandlers()
+    registerIntentEmbeddingHandlers()
+    registerAgentStateHandlers()
 
     ipcMain.handle('window:getInitialProjectId', function(event) {
       var wc = event.sender
@@ -253,37 +267,6 @@ function createWindow(projectId) {
     })
     ipcMain.handle('clipboard:read', function(event) {
       return clipboard.readText()
-    })
-
-    ipcMain.handle('agent:execute', async function(event, config) {
-      return { status: 'renderer_handled' }
-    })
-    ipcMain.handle('agent:spawn', async function(event, config) {
-      return { status: 'renderer_handled' }
-    })
-    ipcMain.handle('agent:status', function(event, agentId) {
-      return { status: 'renderer_handled' }
-    })
-    ipcMain.handle('agent:cancel', function(event, agentId) {
-      return { status: 'ok' }
-    })
-    ipcMain.handle('pipeline:generate', async function(event, config) {
-      return { status: 'renderer_handled' }
-    })
-    ipcMain.handle('pipeline:resume', async function(event, breakpoint) {
-      return { status: 'renderer_handled' }
-    })
-    ipcMain.handle('deai:process', async function(event, config) {
-      return { status: 'renderer_handled' }
-    })
-    ipcMain.handle('deai:cancel', function(event) {
-      return { status: 'ok' }
-    })
-    ipcMain.handle('skill:execute', async function(event, config) {
-      return { status: 'renderer_handled' }
-    })
-    ipcMain.handle('skill:validate', function(event, output, rules) {
-      return { valid: true, errors: [] }
     })
 
     ipcMain.handle('provider:testConnection', async function(event, baseUrl, apiKey) {

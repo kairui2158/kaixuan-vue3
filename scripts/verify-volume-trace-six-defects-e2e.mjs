@@ -22,6 +22,8 @@ const child = spawn(electronExe, [
     ...process.env,
     ELECTRON_ENABLE_LOGGING: '1',
     SHENYI_TEST_USER_DATA_DIR: userDataDir,
+    SHENYI_ALLOW_TEST_ISOLATION: '1',
+    SHENYI_DATA_DIR: path.join(userDataDir, 'documents-data'),
     SHENYI_TEST_RUN_TRACE_EXPORT: exportDir
   },
   stdio: ['ignore', 'pipe', 'pipe'],

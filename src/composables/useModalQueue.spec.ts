@@ -2,6 +2,7 @@ import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('useModalQueue', () => {
   const originalWindow = globalThis.window
+  const originalDocument = globalThis.document
   const listeners = new Map<string, EventListener>()
 
   beforeEach(() => {
@@ -9,8 +10,9 @@ describe('useModalQueue', () => {
     ;(globalThis as { window?: unknown }).window = {
       addEventListener: vi.fn((type: string, listener: EventListener) => {
         listeners.set(type, listener)
-      })
+      }),
     }
+    ;(globalThis as { document?: unknown }).document = undefined
     vi.resetModules()
   })
 
@@ -78,6 +80,62 @@ describe('useModalQueue', () => {
     expect(queue.getZIndex('unknown')).toBe(3000)
   })
 
+  it('focuses the first modal control and returns focus to the trigger', async () => {
+    const trigger = focusElement()
+    const control = focusElement()
+    const dialog = focusElement([control])
+    mockDocument(trigger, dialog)
+
+    const queue = (await import('./useModalQueue')).useModalQueue()
+    queue.open('settings')
+    await flushMicrotasks()
+    expect(control.focus).toHaveBeenCalledWith({ preventScroll: true })
+
+    queue.close('settings')
+    await flushMicrotasks()
+    expect(trigger.focus).toHaveBeenCalledWith({ preventScroll: true })
+  })
+
+  it('wraps Tab focus inside the top modal', async () => {
+    const first = focusElement()
+    const last = focusElement()
+    const dialog = focusElement([first, last])
+    mockDocument(first, dialog)
+
+    const queue = (await import('./useModalQueue')).useModalQueue()
+    queue.open('settings')
+    const listener = listeners.get('keydown') as unknown as (event: KeyboardEvent) => void
+    const event = { key: 'Tab', preventDefault: vi.fn(), shiftKey: true }
+    listener(event as unknown as KeyboardEvent)
+
+    expect(event.preventDefault).toHaveBeenCalled()
+    expect(last.focus).toHaveBeenCalledWith({ preventScroll: true })
+  })
+
+  it('returns focus to the parent control when a nested modal closes', async () => {
+    const parentControl = focusElement()
+    const nestedTrigger = focusElement()
+    const nestedControl = focusElement()
+    const parentDialog = focusElement([parentControl, nestedTrigger])
+    const nestedDialog = focusElement([nestedControl])
+    mockDocument(parentControl, parentDialog, {
+      element: nestedDialog,
+      activeElement: nestedControl,
+      trigger: nestedTrigger,
+    })
+
+    const queue = (await import('./useModalQueue')).useModalQueue()
+    queue.open('settings')
+    setDocumentActiveElement(nestedTrigger)
+    queue.open('nested')
+    await flushMicrotasks()
+    setDocumentActiveElement(nestedControl)
+
+    queue.close('nested')
+    await flushMicrotasks()
+    expect(nestedTrigger.focus).toHaveBeenCalledWith({ preventScroll: true })
+  })
+
   it('keeps the global confirm dialog above every modal in the queue', async () => {
     const queue = (await import('./useModalQueue')).useModalQueue()
     queue.open('settings')
@@ -94,5 +152,43 @@ describe('useModalQueue', () => {
 
   afterAll(() => {
     ;(globalThis as { window?: unknown }).window = originalWindow
+    ;(globalThis as { document?: unknown }).document = originalDocument
   })
+
+  function focusElement(children: HTMLElement[] = [], tabIndex = -1) {
+    const element = {
+      tabIndex,
+      children,
+      focus: vi.fn(),
+      hasAttribute: vi.fn(() => false),
+      contains: vi.fn((candidate: unknown) => children.includes(candidate as HTMLElement)),
+      querySelector: vi.fn(() => children[0] ?? null),
+      querySelectorAll: vi.fn(() => (children.length > 0 ? children : [element as unknown as HTMLElement])),
+    }
+    return element as unknown as HTMLElement
+  }
+
+  function mockDocument(activeElement: HTMLElement, dialog: HTMLElement, nested?: {
+    element: HTMLElement
+    activeElement: HTMLElement
+    trigger: HTMLElement
+  }) {
+    const dialogs: Record<string, HTMLElement> = { settings: dialog }
+    if (nested) dialogs.nested = nested.element
+    ;(globalThis as { document?: unknown }).document = {
+      activeElement,
+      getElementById: (id: string) => dialogs[id] ?? null,
+      querySelector: vi.fn(() => null),
+      contains: vi.fn(() => true),
+    }
+  }
+
+  function setDocumentActiveElement(element: HTMLElement) {
+    ;(globalThis.document as { activeElement?: HTMLElement | null }).activeElement = element
+  }
+
+  async function flushMicrotasks() {
+    await Promise.resolve()
+    await Promise.resolve()
+  }
 })

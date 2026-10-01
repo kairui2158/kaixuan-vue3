@@ -105,6 +105,8 @@ export interface ContextExecutionState {
   skillId?: string
   agentId?: string
   previousSkillOutput?: string
+  /** 上一轮工具调用的 compact 审计；只进 system context，不进聊天文本。 */
+  toolAudit?: unknown
 }
 
 export interface ContextBundle {
@@ -121,14 +123,58 @@ export interface ContextBundle {
 export interface ContextCompactionObserver {
   onContextCompacted?: (result: ContextCompactionResult) => void
   onContextCompactionSkipped?: (result: ContextCompactionResult) => void
+  onContextCompactionLifecycle?: (event: ContextCompactionLifecycleEvent) => void
+}
+
+export type ContextCompactionLifecycleStage =
+  | 'pre_compact'
+  | 'summarizing'
+  | 'checkpoint'
+  | 'post_compact'
+  | 'window_switch'
+  | 'checkpoint_failed'
+
+export interface ContextCompactionLifecycleEvent {
+  stage: ContextCompactionLifecycleStage
+  workspace?: ContextWorkspace
+  sessionId?: string
+  checkpointId?: string
+  compactionId?: string
+  status: 'success' | 'failed' | 'needs_user'
+  detail?: string
+  usageSource?: 'actual' | 'estimated' | 'unavailable'
+  usageReconciliation?: {
+    status: 'available' | 'unavailable'
+    estimatedInputTokens: number
+    actualInputTokens?: number
+    driftRatio?: number
+    correctedRatio?: number
+  }
 }
 
 export interface ContextTurn {
   user: string
   assistant: string
   /** 本轮真实请求的实际输出上限，用于压缩预算；缺省回落到 workspace 路由配置。 */
-  reservedOutputTokens?: number
+  reservedOutputTokens?: number | null
   meta?: Record<string, unknown>
+}
+
+/** 跨轮工具审计元数据；由 crossTurnToolAudit 单源构建。 */
+export interface ContextTurnToolAudit {
+  version: 1
+  entries: Array<{
+    toolCallId: string
+    toolName: string
+    status: 'success' | 'failed'
+    policy: 'read' | 'write' | 'unknown'
+    inputSummary: string
+    resultSummary: string
+    errorCode?: string
+    protocolVersion?: number
+  }>
+  orphanToolCallIds: string[]
+  truncated: boolean
 }
 
 export interface StoredContextSession {

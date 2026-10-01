@@ -89,7 +89,12 @@ function startElectron() {
   electronProcess = spawn(ELECTRON_EXE, ['.', `--remote-debugging-port=${CDP_PORT}`, '--remote-allow-origins=*', `--user-data-dir=${PROFILE}`], {
     cwd: ROOT,
     stdio: ['ignore', 'pipe', 'pipe'],
-    env: { ...process.env, SHENYI_TEST_USER_DATA_DIR: DATA_DIR }
+    env: {
+      ...process.env,
+      SHENYI_TEST_USER_DATA_DIR: DATA_DIR,
+      SHENYI_ALLOW_TEST_ISOLATION: '1',
+      SHENYI_DATA_DIR: path.join(PROFILE, 'documents-data')
+    }
   })
   electronProcess.stdout.on('data', d => { const t = String(d); if (/Uncaught|unhandledRejection/i.test(t)) console.log('[ELECTRON:stdout] ' + t.slice(0, 400)) })
   electronProcess.stderr.on('data', d => { const t = String(d); if (/Uncaught|unhandledRejection|EADDRINUSE/i.test(t)) console.log('[ELECTRON:stderr] ' + t.slice(0, 400)) })

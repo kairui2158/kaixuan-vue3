@@ -83,6 +83,47 @@ export interface ProcessingReportDiff extends PairedItem<RunTraceProcessingRepor
   issuesDiff: TextDiff
 }
 
+export interface TemplateVersionEntry {
+  key: string
+  skillId?: string
+  skillName?: string
+  aVersion?: string
+  bVersion?: string
+  aFingerprint?: string
+  bFingerprint?: string
+  changed: boolean
+}
+
+export interface ToolSequenceStep {
+  index: number
+  apiSeqA?: number
+  apiSeqB?: number
+  nameA?: string
+  nameB?: string
+  statusA?: string
+  statusB?: string
+  changed: boolean
+  onlyIn?: DiffSide
+}
+
+export interface ToolSequenceDiff {
+  steps: ToolSequenceStep[]
+  firstDivergence?: ToolSequenceStep
+}
+
+export interface SkillDebugSummary {
+  templateVersionChanged: number
+  toolSequenceChanged: boolean
+  firstDifferentApiCall?: {
+    index: number
+    seqA?: number
+    seqB?: number
+    idA?: string
+    idB?: string
+    reason: string
+  }
+}
+
 export interface RunTraceDiffResult {
   schema: 'shenyi.run-trace-diff'
   schemaVersion: number
@@ -110,6 +151,9 @@ export interface RunTraceDiffResult {
     onlyIn?: DiffSide
   }>
   processingReports: ProcessingReportDiff[]
+  templateVersions: TemplateVersionEntry[]
+  toolSequence: ToolSequenceDiff
+  skillDebugSummary: SkillDebugSummary
   folderDiagnostics: Array<{ index: number; onlyIn?: DiffSide; diff: TextDiff }>
   events: {
     pairs: PairedItem<RunTraceEvent>[]
@@ -486,6 +530,120 @@ function buildToolSurfaces(pairs: ApiCallDiff[], surfaceKey: 'toolSurface' | 'ac
   }))
 }
 
+function buildTemplateVersionDiff(pairs: ApiCallDiff[], runA: RunTrace, runB: RunTrace): TemplateVersionEntry[] {
+  const snapshotsFor = (run: RunTrace, callA?: RunTraceApiCall | null, callB?: RunTraceApiCall | null) => {
+    if (!run) return []
+    const ids = new Set([...(callA?.promptSnapshotIds || []), ...(callB?.promptSnapshotIds || [])])
+    return (run.promptSnapshots || []).filter(snapshot =>
+      ids.has(snapshot.id) || snapshot.apiCallId === callA?.id || snapshot.apiCallId === callB?.id
+    )
+  }
+
+  const entries = new Map<string, TemplateVersionEntry>()
+  pairs.forEach((pair, pairIndex) => {
+    const aItems = snapshotsFor(runA, pair.a, pair.b)
+    const bItems = snapshotsFor(runB, pair.a, pair.b)
+    const length = Math.max(aItems.length, bItems.length)
+    for (let index = 0; index < length; index++) {
+      const a = aItems[index] || null
+      const b = bItems[index] || null
+      const fingerprint = (item?: typeof a) =>
+        (item?.folderFingerprint || [])
+          .map(file => `${file.file}:${file.hash}`)
+          .join(',')
+      const key = `${pairIndex}|${a?.skillId || b?.skillId || 'skill'}|${index}`
+      entries.set(key, {
+        key,
+        skillId: a?.skillId || b?.skillId,
+        skillName: a?.skillName || b?.skillName,
+        aVersion: a?.skillVersion,
+        bVersion: b?.skillVersion,
+        aFingerprint: a ? fingerprint(a) : undefined,
+        bFingerprint: b ? fingerprint(b) : undefined,
+        changed: valuesEqual(a?.skillVersion, b?.skillVersion)
+          && valuesEqual(a ? fingerprint(a) : undefined, b ? fingerprint(b) : undefined)
+          ? false
+          : true
+      })
+    }
+  })
+  return [...entries.values()]
+}
+
+function buildToolSequenceDiff(pairs: ApiCallDiff[]): ToolSequenceDiff {
+  const aCalls = pairs.map(pair => pair.a).filter(Boolean) as RunTraceApiCall[]
+  const bCalls = pairs.map(pair => pair.b).filter(Boolean) as RunTraceApiCall[]
+  const aSequence = aCalls.flatMap((call, callIndex) =>
+    (call.toolCalls || []).map((tool, index) => ({ call, callIndex, tool }))
+  )
+  const bSequence = bCalls.flatMap((call, callIndex) =>
+    (call.toolCalls || []).map((tool, index) => ({ call, callIndex, tool }))
+  )
+  const length = Math.max(aSequence.length, bSequence.length)
+  const steps: ToolSequenceStep[] = []
+  for (let index = 0; index < length; index++) {
+    const a = aSequence[index]
+    const b = bSequence[index]
+    const changed = Boolean(
+      (!a || !b)
+      || a.tool.name !== b.tool.name
+      || a.tool.status !== b.tool.status
+      || a.call.seq !== b.call.seq
+    )
+    steps.push({
+      index,
+      apiSeqA: a?.call.seq,
+      apiSeqB: b?.call.seq,
+      nameA: a?.tool.name,
+      nameB: b?.tool.name,
+      statusA: a?.tool.status,
+      statusB: b?.tool.status,
+      changed,
+      onlyIn: !a ? 'B' : (!b ? 'A' : undefined)
+    })
+  }
+  return {
+    steps,
+    firstDivergence: steps.find(step => step.changed)
+  }
+}
+
+function buildSkillDebugSummary(
+  apiCalls: ApiCallDiff[],
+  templateVersions: TemplateVersionEntry[],
+  toolSequence: ToolSequenceDiff
+): SkillDebugSummary {
+  const firstDifferentPair = apiCalls.find(pair =>
+    pair.onlyIn
+    || (pair.a?.toolCalls?.length || 0) !== (pair.b?.toolCalls?.length || 0)
+    || pair.a?.toolCalls?.some((tool, index) =>
+      tool.name !== pair.b?.toolCalls?.[index]?.name
+      || tool.status !== pair.b?.toolCalls?.[index]?.status
+    )
+    || pair.fields.some(field => field.changed)
+    || !pair.requestDiffs.every(request => request.diff.same)
+    || !pair.responseDiff.same
+    || !pair.streamDiff.same
+    || !pair.reasoningDiff.same
+  )
+  return {
+    templateVersionChanged: templateVersions.filter(entry => entry.changed).length,
+    toolSequenceChanged: toolSequence.steps.some(step => step.changed),
+    firstDifferentApiCall: firstDifferentPair
+      ? {
+        index: apiCalls.indexOf(firstDifferentPair),
+        seqA: firstDifferentPair.a?.seq,
+        seqB: firstDifferentPair.b?.seq,
+        idA: firstDifferentPair.a?.id,
+        idB: firstDifferentPair.b?.id,
+        reason: firstDifferentPair.onlyIn
+          ? `API 调用仅存在于 ${firstDifferentPair.onlyIn} 侧`
+          : '字段、请求消息或输出全文开始出现差异'
+      }
+      : undefined
+  }
+}
+
 function eventKey(event: RunTraceEvent) {
   return [event.turnId || '-', event.seq ?? '-', event.type].join('|')
 }
@@ -550,6 +708,9 @@ export function buildRunTraceDiff(runA: RunTrace, runB: RunTrace): RunTraceDiffR
 
   const apiPairs = alignApiCalls(runA.apiCalls || [], runB.apiCalls || [])
   const apiCalls = apiPairs.map(buildApiCallDiff)
+  const templateVersions = buildTemplateVersionDiff(apiCalls, runA, runB)
+  const toolSequence = buildToolSequenceDiff(apiCalls)
+  const skillDebugSummary = buildSkillDebugSummary(apiCalls, templateVersions, toolSequence)
   return {
     schema: 'shenyi.run-trace-diff',
     schemaVersion: RUN_TRACE_DIFF_SCHEMA_VERSION,
@@ -582,6 +743,9 @@ export function buildRunTraceDiff(runA: RunTrace, runB: RunTrace): RunTraceDiffR
     toolSurfaces: buildToolSurfaces(apiCalls),
     actualToolSurfaces: buildToolSurfaces(apiCalls, 'actualToolSurface'),
     processingReports: buildProcessingReportDiffs(apiCalls, runA, runB),
+    templateVersions,
+    toolSequence,
+    skillDebugSummary,
     folderDiagnostics: (() => {
       const a = runA.folderDiagnostics || []
       const b = runB.folderDiagnostics || []
@@ -698,6 +862,31 @@ export function buildRunTraceDiffText(result: RunTraceDiffResult) {
     renderTextDiffBlock('问题', item.issuesDiff, lines)
   })
 
+  lines.push('', '===== 模板版本 =====')
+  if (!result.templateVersions.length) lines.push('没有模板版本证据')
+  result.templateVersions.forEach(item => {
+    lines.push(
+      `${item.skillName || item.skillId || '-'}：A=${item.aVersion || '-'} / B=${item.bVersion || '-'}`
+      + `${item.changed ? ' [版本或 folder 指纹不同]' : ''}`
+    )
+    if (item.aFingerprint || item.bFingerprint) {
+      lines.push(`folder 指纹：A=${item.aFingerprint || '-'} / B=${item.bFingerprint || '-'}`)
+    }
+  })
+
+  lines.push('', '===== 工具序列 =====')
+  if (!result.toolSequence.steps.length) lines.push('两次运行都没有工具调用')
+  result.toolSequence.steps.forEach(item => {
+    lines.push(
+      `#${item.index + 1} API A=${item.apiSeqA ?? '-'} B=${item.apiSeqB ?? '-'}：`
+      + `${item.nameA || '-'}(${item.statusA || '-'}) -> ${item.nameB || '-'}(${item.statusB || '-'})`
+      + `${item.changed ? ' [不同]' : ''}`
+    )
+  })
+  if (result.toolSequence.firstDivergence) {
+    lines.push(`工具序列首次分叉：第 ${result.toolSequence.firstDivergence.index + 1} 个工具调用`)
+  }
+
   lines.push('', '===== folder 诊断 =====')
   result.folderDiagnostics.forEach(item => {
     lines.push(`--- diagnostic-${item.index + 1} ${item.onlyIn ? `仅存在于 ${item.onlyIn}` : '已对齐'} ---`)
@@ -739,6 +928,9 @@ export function buildRunTraceDiffExport(result: RunTraceDiffResult, maskValue: (
     toolCalls: result.toolCalls,
     toolSurfaces: result.toolSurfaces,
     processingReports: result.processingReports,
+    templateVersions: result.templateVersions,
+    toolSequence: result.toolSequence,
+    skillDebugSummary: result.skillDebugSummary,
     folderDiagnostics: result.folderDiagnostics,
     events: result.events,
     stateHistory: result.stateHistory

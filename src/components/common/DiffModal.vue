@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-overlay" :class="{ 'modal-hidden': !visible }" :style="{ zIndex: modalQueue.getZIndex('diff-modal') }" @click.self="$emit('close')">
+  <div data-modal-id="diff-modal" class="modal-overlay" :class="{ 'modal-hidden': !visible }" :style="{ zIndex: modalQueue.getZIndex('diff-modal') }" @click.self="$emit('close')">
     <div class="modal-content diff-modal-content">
       <div class="modal-header">
         <h3>AI 修改对比</h3>
@@ -50,7 +50,7 @@
           </div>
         </div>
         <span id="diff-count" class="diff-count">{{ changeCount }} 处变更</span>
-        <button class="btn-close" id="btn-close-diff" @click="$emit('close')">&times;</button>
+        <button class="btn-close" id="btn-close-diff" type="button" aria-label="关闭修改对比" @click="$emit('close')"><AppIcon name="x" /></button>
       </div>
       <div class="modal-body diff-modal-body">
         <div class="diff-toolbar">
@@ -75,7 +75,7 @@
                 <button
                   class="batch-card-toggle"
                   type="button"
-                  :title="batchAccepted[item.index] ? '本次应用中排除' : '本次应用中包含'"
+                  :data-tooltip="batchAccepted[item.index] ? '本次应用中排除' : '本次应用中包含'"
                   @click="toggleBatchItem(item.index)"
                 >{{ batchAccepted[item.index] ? '已选择' : '已排除' }}</button>
               </div>
@@ -93,7 +93,7 @@
                 class="batch-card-locate"
                 type="button"
                 :disabled="!item.range"
-                title="定位到编辑器"
+                data-tooltip="定位到编辑器"
                 @click.stop="locateBatchItem(item)"
               >定位原文</button>
             </div>
@@ -109,7 +109,7 @@
                 :class="lineClass(line)"
                 :data-idx="line.changeIdx !== undefined ? line.changeIdx : undefined"
                 :style="lineStyle(line)">
-                <span class="diff-action reject" v-if="line.type === 'removed'" @click="rejectLine(line.changeIdx)">x</span>
+                <button type="button" class="diff-action reject" v-if="line.type === 'removed'" aria-label="拒绝此行" @click="rejectLine(line.changeIdx)"><AppIcon name="x" /></button>
                 <span class="diff-line-text">{{ line.text }}</span>
               </div>
               <div v-if="windowStart + windowSize < originalLines.length" class="diff-window-hint" @click="windowStart += windowSize">向下加载</div>
@@ -124,7 +124,7 @@
                 :class="lineClass(line)"
                 :data-idx="line.changeIdx !== undefined ? line.changeIdx : undefined"
                 :style="lineStyle(line)">
-                <span class="diff-action accept" v-if="line.type === 'added'" @click="acceptLine(line.changeIdx)">v</span>
+                <button type="button" class="diff-action accept" v-if="line.type === 'added'" aria-label="采纳此行" @click="acceptLine(line.changeIdx)"><AppIcon name="check" /></button>
                 <span class="diff-line-text">{{ line.text }}</span>
               </div>
               <div v-if="windowStart + windowSize < modifiedLines.length" class="diff-window-hint" @click="windowStart += windowSize">向下加载</div>
@@ -358,7 +358,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
   max-height: 80vh;
   display: flex;
   flex-direction: column;
-  z-index: 1001;
+  z-index: var(--z-modal-content);
 }
 .diff-count {
   font-size: var(--font-size-sm);
@@ -380,6 +380,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
 }
 .diff-toolbar {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-4);
   padding: var(--space-4) var(--space-6);
   border-bottom: 1px solid var(--border-color);
@@ -410,7 +411,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
 .diff-content {
   flex: 1;
   overflow-y: auto;
-  font-family: 'Consolas', 'Monaco', monospace;
+  font-family: var(--font-family-mono);
   font-size: var(--font-size-sm);
   line-height: 1.6;
 }
@@ -520,7 +521,7 @@ watch(() => [props.visible, props.original, props.modified], () => {
   opacity: 0.5;
 }
 .batch-card.is-active {
-  border-color: var(--primary);
+  border-color: var(--accent);
 }
 .batch-card-header {
   display: flex;

@@ -1,9 +1,9 @@
 <template>
-  <div id="dashboard-modal" class="dash-overlay" :style="{ zIndex: modalQueue.getZIndex('dashboard-modal') }" @click.self="emit('close')">
+  <div id="dashboard-modal" data-modal-id="dashboard-modal" class="modal-overlay" :style="{ zIndex: modalQueue.getZIndex('dashboard-modal') }" @click.self="emit('close')">
     <div class="dash-modal">
       <div class="dash-header">
         <h3>写作仪表盘</h3>
-        <button class="btn-close" @click="emit('close')">&times;</button>
+        <button class="btn-close" type="button" aria-label="关闭写作仪表盘" @click="emit('close')"><AppIcon name="x" /></button>
       </div>
       <div class="dash-body">
         <div class="dash-grid">
@@ -66,43 +66,39 @@ onBeforeUnmount(() => modalQueue.close('dashboard-modal'))
 </script>
 
 <style scoped>
-.dash-overlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: var(--bg-overlay-strong); z-index: var(--z-modal);
-  display: flex; align-items: center; justify-content: center;
-}
 .dash-modal {
   background: var(--bg-secondary); border: 1px solid var(--border-color);
   border-radius: var(--radius-md); box-shadow: var(--shadow-lg);
-  width: 92vw; max-width: 680px; max-height: 86vh; overflow: auto;
+  width: 92vw; max-width: 680px; max-height: 86vh;
+  display: flex; flex-direction: column; overflow: hidden;
 }
 .dash-header {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 0 var(--space-md); border-bottom: 1px solid var(--border-color);
+  padding: 0 var(--space-6); border-bottom: 1px solid var(--border-color);
   color: var(--text-primary); height: 48px; min-height: 48px;
 }
 .dash-header h3 { margin: 0; color: var(--text-primary); }
 .dash-header .btn-close {
   background: none; border: none; color: var(--text-secondary);
-  cursor: pointer; font-size: 24px; line-height: 1; padding: var(--space-xs) var(--space-sm);
+  cursor: pointer; font-size: var(--text-display); line-height: 1; padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-sm); transition: var(--transition-fast);
 }
 .dash-header .btn-close:hover { color: var(--text-primary); background: var(--bg-tertiary); }
-.dash-body { padding: var(--space-md); }
+.dash-body { padding: var(--space-6); overflow-y: auto; min-height: 0; }
 .dash-grid {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--space-md); margin-bottom: var(--space-md);
+  gap: var(--space-6); margin-bottom: var(--space-6);
 }
 .dash-card {
   background: var(--bg-tertiary); border: 1px solid var(--border-color);
-  border-radius: var(--radius-md); padding: var(--space-md); text-align: center;
+  border-radius: var(--radius-md); padding: var(--space-6); text-align: center;
 }
-.dash-card-title { font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-sm); }
+.dash-card-title { font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-4); }
 .dash-card-value { font-size: var(--font-size-lg); font-weight: 600; color: var(--text-primary); }
-.dash-chart-title { margin: 0 0 var(--space-sm); font-size: var(--font-size-md); color: var(--text-primary); }
-.dash-bar-chart { display: flex; flex-direction: column; gap: var(--space-sm); }
-.dash-bar-row { display: flex; align-items: center; gap: var(--space-sm); }
-.dash-bar-label { width: 80px; font-size: var(--font-size-sm); color: var(--text-secondary); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dash-chart-title { margin: 0 0 var(--space-4); font-size: var(--font-size-md); color: var(--text-primary); }
+.dash-bar-chart { display: flex; flex-direction: column; gap: var(--space-4); }
+.dash-bar-row { display: flex; align-items: center; gap: var(--space-4); }
+.dash-bar-label { width: 80px; max-width: 32%; font-size: var(--font-size-sm); color: var(--text-secondary); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dash-bar-track { flex: 1; height: 20px; background: var(--bg-input); border-radius: var(--radius-sm); overflow: hidden; }
 .dash-bar-fill { height: 100%; border-radius: var(--radius-sm); transition: width var(--duration-normal) var(--ease-standard); }
 .dash-bar-fill.accent { background: var(--accent); }

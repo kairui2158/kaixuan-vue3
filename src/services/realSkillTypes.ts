@@ -117,13 +117,24 @@ export interface RealSkillExecutionResult {
     providerId?: string
     usage?: Record<string, unknown>
     /** Final effective output token limit for the physical API request. */
-    maxTokens?: number
+    /** null means the request intentionally omitted the output limit. */
+    maxTokens?: number | null
     /** Full reasoning text from the final physical API request. */
     reasoningText?: string
+    /** Context budget evidence from the final accepted physical API request. */
+    contextBudget?: {
+      providerContextWindowTokens: number
+      estimatedInputTokens: number
+      decision: 'fits' | 'needs_segmentation' | 'exceeds_provider'
+      reason: string
+    }
+    usageReconciliation?: unknown
     requestMessages: Array<{ role: string; content: string }>
-    toolCalls?: Array<{ name: string; input: unknown }>
-    toolResults?: Array<{ call: { name: string; input: unknown }; result: unknown }>
+    toolCalls?: Array<{ name: string; input?: unknown }>
+    toolResults?: Array<{ call: { id?: string; name: string; input?: unknown }; result: unknown }>
     toolRequestDeltas?: Array<{ role: string; content: string }>
+    /** Compact cross-turn tool audit for the next request's system context. */
+    toolAudit?: unknown
   }
 }
 
@@ -131,7 +142,8 @@ export interface RealSkillAgentContext {
   systemPrompt?: string
   model?: string
   temperature?: number
-  maxTokens?: number
+  /** null means the request intentionally omitted the output limit. */
+  maxTokens?: number | null
   id?: string
 }
 
@@ -148,6 +160,10 @@ export interface RealSkillExecuteOptions {
   agent?: RealSkillAgentContext | null
   /** App-level prompt appended after the folder template (for example body-layer DEAI rules). */
   systemPromptSuffix?: string
+  /** Actual authorized tool surface for this step; declared in the system prompt. */
+  toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
+  /** Active edit-task state used to declare restored write permission consistently. */
+  activeEditTask?: import('./editTaskService').EditTask | null
   /** Marks that `agent` is an explicit user binding, which takes priority over meta.agent. */
   agentSource?: 'user-binding' | 'step-default' | 'none'
   /** Compose-mode merged template. When present it replaces the folder's static template. */
@@ -181,7 +197,8 @@ export interface RealSkillExecuteOptions {
     durationMs?: number
     success?: boolean
     retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
-    maxTokens?: number
+    /** null means the request intentionally omitted the output limit. */
+    maxTokens?: number | null
   }) => void
   /** Fires once when the real request messages have been built, before the API call. */
   onRequestBuilt?: (messages: Array<{ role: string; content: string }>) => void
@@ -191,6 +208,7 @@ export interface RealSkillExecuteOptions {
   /** Optional agent tools. Callers keep write access intent-scoped; folder scripts never gain direct writes. */
   tools?: import('./editorTools').AgentToolDefinition[]
   toolPolicy?: {
+    scenario?: 'direct' | 'direct-tool-intensive' | 'folder-chain' | 'compatibility-json'
     maxToolIterations?: number
     intent?: import('./dialogueFoundation').DialogueIntent
     onCompatibilityMode?: (reason: string) => void

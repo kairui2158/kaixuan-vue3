@@ -318,7 +318,7 @@ async function verifyRunTraceThroughHomeUi() {
 }
 
 async function closeTestModal() {
-  await page.locator('#skill-test-modal .modal-close, #skill-test-modal button[title="关闭"]').first().click()
+  await page.locator('#skill-test-modal .modal-close').first().click()
   await page.waitForTimeout(300)
 }
 

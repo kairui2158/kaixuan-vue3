@@ -108,8 +108,9 @@
         </div>
       </div>
       <div class="form-group">
-        <label>MaxTokens (0=不限)</label>
-        <input id="cfg-max-tokens" type="number" v-model.number="editingProvider.maxTokens" min="0" class="input-field input-w-120" />
+        <label>上下文窗口 Tokens (0=未声明)</label>
+        <input id="cfg-context-window" type="number" v-model.number="editingProvider.contextWindowTokens" min="0" class="input-field input-w-120" />
+        <small class="form-hint">{{ contextWindowHint }}</small>
       </div>
       <div class="form-group">
         <label>用途</label>
@@ -159,6 +160,11 @@
             <label>API 版本</label>
             <input id="cfg-api-version" v-model="editingProvider.apiVersion" class="input-field" placeholder="2024-02-01" />
           </div>
+          <div class="form-group">
+            <label>输出上限覆盖 (0=不传)</label>
+            <input id="cfg-max-tokens" type="number" v-model.number="editingProvider.maxTokens" min="0" class="input-field input-w-120" />
+            <small class="form-hint">默认不发送输出上限；仅供应商协议要求或实测 400 降级时使用</small>
+          </div>
         </div>
       </details>
       <div class="form-group">
@@ -188,6 +194,12 @@ const fetchingModels = ref(false)
 const testingConn = ref(false)
 const connStatus = ref('')
 const fetchMsg = ref('')
+
+const contextWindowHint = computed(() => {
+  const value = Number(editingProvider.value?.contextWindowTokens)
+  if (!Number.isFinite(value) || value <= 0) return '未声明窗口：请求前按保守窗口预算，长文会进入分段链路'
+  return `已声明 ${Math.floor(value).toLocaleString()} tokens 输入窗口`
+})
 
 const connStatusClass = computed(() => {
   if (connStatus.value.includes('成功') || connStatus.value.includes('OK')) return 'conn-ok'
@@ -293,6 +305,7 @@ function enterProviderEdit(id: string | null) {
       selectedModel: '',
       temperature: 0.7,
       maxTokens: 0,
+      contextWindowTokens: 0,
       streamMode: false,
       systemPrompt: '',
       providerType: 'openai-compatible',
@@ -415,7 +428,9 @@ function importConfig() {
     const text = await file.text()
     try {
       const data = JSON.parse(text)
-      data.forEach((p: Provider) => providerStore.addProvider(p))
+      const providers = Array.isArray(data) ? data : data.providers
+      if (!Array.isArray(providers)) throw new Error('导入内容不是供应商数组')
+      providers.forEach((p: Provider) => providerStore.addProvider({ ...p, contextWindowTokens: Number(p.contextWindowTokens) > 0 ? Math.floor(Number(p.contextWindowTokens)) : 0 }))
     } catch (err) {
       console.error("import failed", err)
     }
@@ -429,21 +444,21 @@ function importConfig() {
 .api-settings h3 { font-size: var(--font-size-lg); margin-bottom: 16px; }
 .api-settings { display: flex; flex-direction: column; gap: var(--space-5); }
 .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.section-title { font-size: var(--font-size-lg, 16px); font-weight: 600; color: var(--text-primary); }
-.provider-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-md); align-items: stretch; }
+.section-title { font-size: var(--font-size-lg); font-weight: 600; color: var(--text-primary); }
+.provider-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-6); align-items: stretch; }
 .provider-card {
   min-width: 0;
   max-width: none;
   background: var(--settings-card-bg);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg, 8px);
-  padding: var(--space-md, var(--space-5));
-  box-shadow: var(--shadow-);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
   transition: transform var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard);
 }
 .provider-card:hover {
   transform: translateY(-1px);
-  box-shadow: var(--shadow-);
+  box-shadow: var(--shadow-md);
   border-color: var(--settings-card-hover-border);
 }
 .provider-card.is-active,
@@ -460,10 +475,10 @@ function importConfig() {
 .provider-card-name { font-weight: 600; font-size: var(--font-size-lg); flex: 1; color: var(--text-primary); }
 .provider-type-badge {
   padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-sm, 4px);
+  border-radius: var(--radius-sm);
   background: var(--bg-input);
   color: var(--text-muted);
-  font-size: var(--font-size-xs, 12px);
+  font-size: var(--font-size-xs);
   white-space: nowrap;
 }
 
@@ -473,8 +488,8 @@ function importConfig() {
   align-items: center;
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-pill);
-  font-size: var(--font-size-xs, 12px);
-  font-weight: var(--fw-medium, 500);
+  font-size: var(--font-size-xs);
+  font-weight: var(--fw-medium);
   line-height: 1.4;
 }
 /* card actions row */
@@ -499,9 +514,9 @@ function importConfig() {
   background: var(--bg-input);
   color: var(--text-muted);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm, 4px);
+  border-radius: var(--radius-sm);
   padding: var(--space-1) var(--space-4);
-  font-size: var(--font-size-xs, 12px);
+  font-size: var(--font-size-xs);
   cursor: pointer;
   box-sizing: border-box;
   line-height: 18px;
@@ -537,7 +552,7 @@ function importConfig() {
 }
 .provider-advanced {
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm, 4px);
+  border-radius: var(--radius-sm);
   padding: var(--space-4) var(--space-5);
   background: var(--bg-input);
 }
@@ -559,13 +574,12 @@ function importConfig() {
   background: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm, 4px);
+  border-radius: var(--radius-sm);
   padding: var(--space-3) var(--space-5);
   font-size: var(--font-size-md);
-  height: 34px;
-  outline: none;
+  height: var(--density-form-height);
 }
-.provider-card-url:hover { color: var(--accent-hover, var(--accent)); }
+.provider-card-url:hover { color: var(--accent-hover); }
 .provider-card-url-input { font-size: var(--font-size-sm); color: var(--text-muted); }
 .model-row { display: flex; gap: var(--space-2); }
 .btn-test { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
@@ -580,7 +594,7 @@ function importConfig() {
 }
 .model-tag {
   padding: var(--space-1) var(--space-4);
-  border-radius: var(--radius-sm, 4px);
+  border-radius: var(--radius-sm);
   background: var(--bg-input);
   font-size: var(--font-size-sm);
   color: var(--text-muted);
@@ -591,8 +605,8 @@ function importConfig() {
   background: var(--accent);
   color: var(--text-on-accent);
   border: none;
-  border-radius: var(--radius-sm, 6px);
-  padding: var(--space-4) 1var(--space-4);
+  border-radius: var(--radius-sm);
+  padding: var(--space-4);
   cursor: pointer;
   font-size: var(--font-size-md);
 }
@@ -603,7 +617,7 @@ function importConfig() {
   min-width: 300px;
   max-width: 460px;
   border: 2px dashed var(--settings-card-add-border);
-  border-radius: var(--radius-md, 8px);
+  border-radius: var(--radius-md);
   padding: var(--space-8) var(--space-5);
   display: flex;
   align-items: center;
@@ -622,7 +636,7 @@ function importConfig() {
 .provider-card-add-text { font-size: var(--font-size-md); }
 .stream-toggle { display: flex; align-items: center; gap: var(--space-3); font-size: var(--font-size-md); color: var(--text-secondary); cursor: pointer; }
 .stream-toggle input { cursor: pointer; }
-.config-actions { display: flex; gap: var(--space-4); margin-bottom: 12px; }
+.config-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-bottom: 12px; }
 
 /* === Edit View === */
 .provider-edit-view { display: flex; flex-direction: column; gap: var(--space-6); padding: var(--space-7); background: var(--settings-card-bg); border: 1px solid var(--settings-card-border); border-radius: var(--radius-md); }
@@ -630,20 +644,20 @@ function importConfig() {
 .btn-back { padding: var(--space-2) var(--space-5); font-size: var(--font-size-md); }
 .provider-edit-title-text { font-size: var(--font-size-lg); font-weight: 600; color: var(--text-primary); flex: 1; }
 .provider-conn-status { font-size: var(--font-size-md); padding: var(--space-3) var(--space-5); border-radius: var(--radius-pill); }
-.conn-ok { background: var(--success-dim, rgba(76,175,80,0.15)); color: var(--success); }
-.conn-fail { background: var(--danger-dim, rgba(244,67,54,0.15)); color: var(--danger); }
+.conn-ok { background: var(--success-dim); color: var(--success); }
+.conn-fail { background: var(--danger-dim); color: var(--danger); }
 .form-group { display: flex; flex-direction: column; gap: var(--space-2); }
 .form-group label { font-size: var(--font-size-md); color: var(--text-secondary); font-weight: 500; }
 .form-hint { font-size: var(--font-size-md); color: var(--text-muted); }
 .password-row { display: flex; gap: var(--space-2); }
-.btn-toggle { background: var(--bg-input); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm, 4px); padding: var(--space-2) var(--space-5); font-size: var(--font-size-md); cursor: pointer; white-space: nowrap; }
+.btn-toggle { background: var(--bg-input); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-5); font-size: var(--font-size-md); cursor: pointer; white-space: nowrap; }
 .btn-toggle:hover { border-color: var(--accent); color: var(--accent); }
 .model-fetch-row { display: flex; gap: var(--space-4); margin-bottom: 4px; }
 .fetch-feedback { font-size: var(--font-size-md); padding: var(--space-2) 0; }
 .fetch-ok { color: var(--success); }
 .fetch-fail { color: var(--danger); }
 .model-select-row { margin-top: 8px; }
-.model-list-box { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: 8px; padding: var(--space-4); background: var(--bg-input); border-radius: var(--radius-sm, 4px); max-height: 120px; overflow-y: auto; }
+.model-list-box { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: 8px; padding: var(--space-4); background: var(--bg-input); border-radius: var(--radius-sm); max-height: 120px; overflow-y: auto; }
 .checkbox-label { display: flex; align-items: center; gap: var(--space-4); cursor: pointer; font-size: var(--font-size-md); color: var(--text-primary); }
 .checkbox-label input { cursor: pointer; }
 .temp-row { display: flex; align-items: center; gap: var(--space-4); }
@@ -655,6 +669,6 @@ function importConfig() {
 .provider-card-url { font-size: var(--font-size-sm); color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .provider-card-model { font-size: var(--font-size-sm); color: var(--accent); overflow-wrap: anywhere; }
 .provider-card-actions :deep(.btn-sm),
-.provider-card-actions .btn-sm { box-sizing: border-box; line-height: 18px; min-height: 30px; height: 30px; white-space: nowrap; }
+.provider-card-actions .btn-sm { box-sizing: border-box; line-height: 18px; min-height: var(--density-btn-sm-height); height: var(--density-btn-sm-height); white-space: nowrap; }
 .provider-card-add { box-sizing: border-box; min-width: 0; max-width: 100%; }
 </style>

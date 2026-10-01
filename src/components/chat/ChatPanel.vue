@@ -1,23 +1,29 @@
 <template>
   <section id="chat-panel" class="chat-panel">
     <div id="messages-container" class="messages-container" ref="messagesContainer">
-      <div v-if="messages.length === 0" id="chat-empty-state" class="empty-state">
-        <div class="empty-state-icon">&#9997;&#65039;</div>
-        <div class="empty-title">开始对话</div>
-        <div class="empty-desc">在下方输入框输入消息，与 AI 助手开始创作</div>
-      </div>
+      <EmptyState
+        v-if="messages.length === 0"
+        id="chat-empty-state"
+        icon="spark"
+        title="开始对话"
+        description="在下方输入框输入消息，与 AI 助手开始创作"
+      />
       <div id="messages-list" class="messages-list">
         <ChatMessageComponent
           v-for="(msg, i) in messages"
           :key="i"
           :message="msg"
-          :busy="isStreaming"
+        :busy="isStreaming"
+        :current-content-for-diff="editorContentForBatch(msg)"
+        :providers="providerStore.providers"
           @copy="copyMessage"
           @regenerate="regenerateMessage(i)"
           @apply="insertToEditor(msg.content)" @replace="replaceWhole(msg.content)"
           @continue="continueMessage(msg)"
          @rollback="rollbackEditorBatch(msg)"
          @reveal="revealEditorBatch(msg)"
+         @rollback-hunk="rollbackEditorBatchHunk(msg, $event)"
+         @reveal-hunk="revealEditorBatchHunk(msg, $event)"
         @resume-task="aiTaskStore.resumeTask(aiTaskStore.activeTaskId!)"
         @pause-task="aiTaskStore.pauseTask(aiTaskStore.activeTaskId!)"
          @retry-step="aiTaskStore.retryStep(aiTaskStore.activeTaskId!)"
@@ -26,6 +32,9 @@
         @routing-continue="continueRoutingFallback(msg)"
         @routing-bypass="bypassRoutingFallback(msg)"
         @budget-extend="extendRoutingBudget(msg)"
+        @continue-final-draft="continueFinalDraftMessage(msg)"
+        @resume-final-draft="resumeFinalDraftMessage(msg)"
+        @retry-final-draft-segment-with-provider="retryFinalDraftSegmentMessage(msg, $event)"
         :chain-breakpoint="chainBreakpointInfo"
      />
       </div>
@@ -33,7 +42,14 @@
 
     <div v-if="isStreaming || generationMessage" id="chat-generation-status" class="chat-generation-status" :class="generationStatus">
       <span class="generation-status-dot" aria-hidden="true"></span>
-      <span class="generation-status-text">{{ generationMessage || (isStreaming ? '正在生成…' : '') }}</span>
+      <span class="generation-status-text">
+        <span
+          v-for="(line, idx) in liveApiStatusLines"
+          :key="`${line.kind}-${idx}`"
+          class="chat-live-status-line"
+          :class="`is-${line.kind}`"
+        >{{ line.text }}</span>
+      </span>
       <button v-if="isStreaming" id="btn-cancel-generation" class="generation-action generation-cancel" type="button" @click="cancelGeneration">取消生成</button>
       <button v-if="generationStatus === 'error' && lastFailedText" id="btn-retry-generation" class="generation-action" type="button" @click="retryLastRequest">重试</button>
     </div>
@@ -41,6 +57,12 @@
       <span>{{ compatibilityNotice }}</span>
       <button type="button" @click="compatibilityNotice = ''">知道了</button>
     </div>
+    <EditTaskBanner
+      :task="homeEditTask"
+      :busy="isStreaming"
+      @resume="resumeHomeEditTask"
+      @cancel="cancelHomeEditTask"
+    />
     <div id="chat-input-row" class="chat-input-row">
       <ApiChatInput
         v-model="inputText"
@@ -65,7 +87,7 @@
             id="co-skill-select"
             v-model="coCreationSkillToAdd"
             class="select-standard"
-            title="选择后添加到主页共创"
+            aria-label="选择后添加到主页共创"
             @change="addCoCreationSkill"
           >
             <option value="">添加技能</option>
@@ -78,7 +100,7 @@
             id="co-agent-select"
             v-model="coCreationAgentId"
             class="select-standard"
-            title="主页共创默认智能体"
+            aria-label="主页共创默认智能体"
           >
             <option value="">默认</option>
             <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
@@ -90,7 +112,7 @@
             id="co-mode-select"
             v-model="coCreationMode"
             class="select-standard"
-            title="串行逐步传递，并行合并请求"
+            aria-label="串行逐步传递，并行合并请求"
           >
             <option value="compose">并行</option>
             <option value="chain">串行</option>
@@ -102,7 +124,7 @@
           v-for="(skill, index) in selectedCoCreationSkills"
           :key="skill.id"
           class="co-skill-chip"
-          :title="skillStore.displaySkillName(skill)"
+          :data-tooltip="skillStore.displaySkillName(skill)"
         >
           <span class="co-skill-seq">{{ index + 1 }}</span>
           <span class="co-skill-name">{{ skillStore.displaySkillName(skill) }}</span>
@@ -110,13 +132,13 @@
             v-if="coCreationMode === 'chain'"
             :value="coCreation.config.skillAgents[homeSkillAgentKey(skill.id)] || ''"
             class="co-skill-agent"
-            title="当前技能绑定的智能体"
+            aria-label="当前技能绑定的智能体"
             @change="handleCoSkillAgentChange(skill.id, ($event.target as HTMLSelectElement).value)"
           >
             <option value="">默认</option>
             <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
           </select>
-          <button class="co-skill-close" type="button" title="移除技能" @click="removeCoCreationSkill(skill.id)">&times;</button>
+          <button class="co-skill-close" type="button" aria-label="移除技能" @click="removeCoCreationSkill(skill.id)"><AppIcon name="x" /></button>
         </span>
       </div>
     </div>
@@ -139,40 +161,76 @@ import { useEditorStore } from '../../stores/editor'
 import { useProjectStore } from '../../stores/project'
 import { useSettingsStore } from '../../stores/settings'
 import ChatMessageComponent from './ChatMessage.vue'
+import EditTaskBanner from '../common/EditTaskBanner.vue'
 import ApiChatInput from '../common/ApiChatInput.vue'
+import EmptyState from '../common/EmptyState.vue'
 import { useSkillStore } from '../../stores/skill'
 import { useChatStore } from '../../stores/chat'
 import { useCoCreationStore } from '../../stores/coCreation'
 import { useAiTaskStore } from '../../stores/aiTaskStore'
-import { getAiService, type PhysicalCallEvent } from '../../services/aiService'
+import {
+  getAiService,
+  type PhysicalCallEvent,
+} from '../../services/aiService'
+import { extractJsonCandidates } from '../../services/jsonExtraction'
+import { createIntentLlmFallback } from '../../services/intentLlmFallback'
+import {
+  consumeIntentCorpusInference,
+  recordIntentRoutingConfirmation,
+  recordIntentRoutingSample,
+  stageIntentCorpusInference,
+} from '../../services/intentCorpusCollector'
 import { getProviderReasoningControl } from '../../services/providerProtocols'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from '../../services/generationValidity'
 import { createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceSkillEngineAdapter, type WorkspaceSkillToolRequest, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
-import type { ChainRoutingResult } from '../../services/chainIntentRouter'
+import {
+  classifyPlainDialogueIntentDetailed,
+  routeChainIntentDetailed,
+  type DetailedChainRoutingResult,
+  type ChainRoutingResult,
+  type PlainDialogueIntentDetailed,
+} from '../../services/chainIntentRouter'
 import { createApiCallBudget } from '../../services/apiCallBudget'
 import type { ApiCallBudget } from '../../services/apiCallBudget'
 import { getWorkspaceSkillAgentKey } from '../../services/skillAgentBinding'
 import { MCPProtocol } from '../../services/mcp-protocol'
 import { retrieveContext } from '../../services/memoryRetriever'
-import { conversationContextService, resolveModelContextWindow } from '../../services/conversationContextService'
+import { conversationContextService, resolveEffectiveModelContextWindow } from '../../services/conversationContextService'
+import {
+  buildSnapshot,
+  buildContextPack,
+  buildMainSnapshot,
+  getReadCapChars,
+} from '../../services/editorEntryFacade'
+import type { ContextBudgetDecision } from '../../services/contextBudget'
+import {
+  buildLongDocumentExecutionPlan,
+  toLongDocumentOperationType,
+} from '../../services/longDocumentExecutionPlanner'
+import type { LongDocumentExecutionPlan } from '../../services/longDocumentExecutionPlanner'
+import type { LongDocumentOperationType } from '../../services/longDocumentPolicy'
 import type { ContextMessage } from '../../types/context'
 import { buildContinuationMessages, continueSnapshot } from '../../services/continuationService'
 import { slimContinuationMessages } from '../../services/continuationSlim'
 import { canContinue, continuationStatusFor, type ContinuationSnapshot } from '../../services/continuation'
 import { saveContinuation, loadContinuation, removeContinuation } from '../../services/continuationStorage'
 import { buildEditorReadonlyPrompt, type EditorEditCommand } from '../../services/editorEditProtocol'
-import { createEditorTargetSnapshot, hashEditorContent, validateEditorTarget, type EditorTargetSnapshot } from '../../services/editorTarget'
+import { hashEditorContent, validateEditorTarget, type EditorTargetSnapshot } from '../../services/editorTarget'
 import { buildEditPlan } from '../../services/editorEditService'
 import { canRollbackEditorBatch, createEditorBatchRecord, findEditorBatchUndoContent, normalizeEditorBatchRecord, toDialogueBatchEvent, updateEditorBatchRecord } from '../../services/editorBatchRecord'
+import { applyAcceptedItems, planEditorEditBatch } from '../../services/editorEditBatch'
+import { buildEditHunks, rebaseHunksAfterReject, type EditorDiffHunk } from '../../services/editorDiffHunks'
 import { logEditorEdit, logEditorPresentation } from '../../services/editorEditDiagnostics'
 import { captureWorkspaceSnapshot, clearWorkspaceSnapshot, hasWorkspaceSnapshot, restoreWorkspaceSnapshot } from '../../services/workspaceSnapshot'
 import {
+  appendDialogueToolSurfaceDeclaration,
   authorizeDialogueTools,
   type AgentToolDefinition,
   buildDialogueToolSurface,
   describeDialogueToolSurface,
   type EditorRevealer,
   type EditorWriteApplier,
+  type EditorWriteApplyInput,
   type ToolResult,
   type DialogueToolSurfaceIntent,
   type DialogueToolSurfaceSummary,
@@ -181,6 +239,32 @@ import {
 import { classifyPlainDialogueIntent, type PlainDialogueIntent } from '../../services/plainDialogueIntent'
 import type { ChatMessage } from '../../stores/chat'
 import { useRunTraceStore, type RunTraceMessage, type RunTraceStatus } from '../../stores/runTrace'
+import { createAgentDialogueRuntime } from '../../services/agentDialogueRuntime'
+import { isAgentRuntimeToolName } from '../../services/agentToolConflict'
+import { useLiveApiStatus, type LiveApiStatusInput } from '../../composables/useLiveApiStatus'
+import {
+  continueFinalDraftTask,
+  createFinalDraftStatusMessage,
+  finalDraftStatusNeedsAction,
+  finalDraftSourceHash,
+  resumeFinalDraftTask,
+  retryFinalDraftSegmentTask,
+  runFinalDraft,
+  snapshotFinalDraftTask,
+} from '../../services/finalDraftRunner'
+import { createElectronFinalDraftCheckpointStore } from '../../services/finalDraftCheckpointElectron'
+import { finalDraftCheckpointId } from '../../services/finalDraftCheckpoint'
+import { formatFinalDraftProgress } from '../../services/finalDraftProgress'
+import {
+  type FinalDraftEvent as FinalDraftRunnerTaskEvent,
+  describeFinalDraftEvent,
+  type FinalDraftDocumentState,
+  type FinalDraftEditorAdapter,
+  type FinalDraftTask,
+} from '../../services/finalDraftService'
+import type { FinalDraftEvent } from '../../services/finalDraftService'
+import { useEditTaskSession, type EditTaskSessionLifecycleEvent } from '../../composables/useEditTaskSession'
+import { describeRoutingDiagEvent } from '../../services/routingDiagBridge'
 
 const agentStore = useAgentStore()
 const providerStore = useProviderStore()
@@ -204,6 +288,65 @@ let homeLastDirectRequestId = 0
 let homeStreamLength = 0
 let homeRunTurnId: string | null = null
 let homeSessionId = ''
+let lastHomeToolAudit: unknown
+let homeLongDocumentEditTaskPlan = false
+let activeHomeExecutionPlan: LongDocumentExecutionPlan | null = null
+
+const homeEditTaskSession = useEditTaskSession({
+  sessionId: 'home',
+  source: 'editor',
+  hashContent: hashEditorContent,
+  onLifecycle: event => recordHomeEditTaskEvent(event),
+})
+const homeEditTask = computed(() => homeEditTaskSession.activeTaskRef().value)
+
+function recordHomeEditTaskEvent(event: EditTaskSessionLifecycleEvent) {
+  const activeBatchId = event.task.activeBatchId
+  const activeBatchDetail = activeBatchId ? event.task.plan.batchDetails?.[activeBatchId] : undefined
+  const payload = {
+    taskId: event.task.id,
+    status: event.task.status,
+    source: event.task.source,
+    targetId: event.task.target.targetId,
+    goal: event.task.goal,
+    executedBatches: event.task.executedBatches,
+    pendingBatches: event.task.pendingBatches,
+    failedBatches: event.task.failedBatchIds,
+    activeBatchId: event.task.activeBatchId,
+    executionPlan: event.task.plan,
+    batchId: activeBatchId,
+    segmentId: activeBatchDetail?.segmentId,
+    expectedChange: activeBatchDetail?.expectedChange,
+    invariantResult: activeBatchDetail?.invariantResult,
+  }
+  addHomeTraceEvent({
+    type: `edit-task-${event.type.replace(/_/g, '-')}`,
+    level: event.type === 'batch_failed' ? 'warn' : 'info',
+    label: `编辑任务：${event.type}`,
+    detail: JSON.stringify(payload).slice(0, 20000),
+    payload,
+  })
+  if (homeRunTraceId) {
+    runTraceStore.reportEditTaskActivity(homeRunTraceId, payload, {
+      persist: event.type === 'batch_failed' || event.type === 'task_finished' || event.type === 'task_failed',
+    })
+  }
+  const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+  diag?.log?.(
+    event.type === 'batch_failed' ? 'warn' : 'info',
+    `edit-task/${event.type}`,
+    `编辑任务事件：${event.type}`,
+    payload,
+  )
+}
+
+async function resumeHomeEditTask(task: { id: string }) {
+  await homeEditTaskSession.resumeEditTask(task.id)
+}
+
+async function cancelHomeEditTask(task: { id: string }) {
+  await homeEditTaskSession.onCancelEditTask(task.id)
+}
 
 function homeTraceTarget() {
   const tab = editorStore.activeTab
@@ -341,14 +484,15 @@ function finishHomeTraceSession(status: RunTraceStatus, error?: string, reason?:
   activeHomeApiCallId = null
 }
 
-function addHomeTraceEvent(event: { type: string; label: string; level?: 'info' | 'warn' | 'error'; detail?: string }) {
+function addHomeTraceEvent(event: { type: string; label: string; level?: 'info' | 'warn' | 'error'; detail?: string; payload?: unknown }) {
   const runId = homeRunTraceId
   if (!runId) return
   runTraceStore.addEvent(runId, {
     level: event.level || 'info',
     type: event.type,
     label: event.label,
-    detail: event.detail?.slice(0, 20000)
+    detail: event.detail?.slice(0, 20000),
+    ...(event.payload !== undefined ? { payload: event.payload } : {})
   })
 }
 
@@ -384,6 +528,7 @@ function finishHomeApiCall(callId: string | undefined, result: {
   reasoningText?: string
   finishReason?: string
   usage?: unknown
+  usageUnavailable?: boolean
   durationMs?: number
   error?: string
   compatibilityMode?: 'json-protocol'
@@ -391,7 +536,13 @@ function finishHomeApiCall(callId: string | undefined, result: {
   toolsDowngraded?: boolean | 'json-protocol'
   downgradeReason?: string
   retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
-  maxTokens?: number
+    maxTokens?: number | null
+  providerContextWindowTokens?: number
+  estimatedInputTokens?: number
+  contextBudgetDecision?: ContextBudgetDecision
+  contextBudgetReason?: string
+  usageReconciliation?: unknown
+  toolAudit?: unknown
 }) {
   const runId = homeRunTraceId
   if (!runId || !callId) return
@@ -400,8 +551,9 @@ function finishHomeApiCall(callId: string | undefined, result: {
 }
 
 function closeActiveHomeApiCall(status: RunTraceStatus, error?: string) {
-  if (!activeHomeApiCallId) return
-  finishHomeApiCall(activeHomeApiCallId, { status, error })
+  const callId = activeHomeApiCallId
+  if (!callId) return
+  finishHomeApiCall(callId, { status, error })
 }
 
 function recordHomePhysicalCall(callId: string | undefined, event: PhysicalCallEvent) {
@@ -416,6 +568,7 @@ function recordHomePhysicalCall(callId: string | undefined, event: PhysicalCallE
     reasoningText: event.reasoningText,
     finishReason: event.finishReason,
     usage: event.usage,
+    usageUnavailable: event.usageUnavailable,
     durationMs: event.durationMs,
     error: event.error,
     toolsEnabled: event.toolsEnabled,
@@ -423,23 +576,42 @@ function recordHomePhysicalCall(callId: string | undefined, event: PhysicalCallE
     downgradeReason: event.downgradeReason,
     retryStrategy: event.retryStrategy,
     maxTokens: event.maxTokens,
+    modelCapability: event.modelCapability,
+    providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
+    estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
+    contextBudgetDecision: event.contextBudget?.decision,
+    contextBudgetReason: event.contextBudget?.reason,
+    usageReconciliation: event.usageReconciliation,
+    interruptionCode: event.interruptionCode,
+    heartbeat: event.heartbeat,
   })
 }
 
   function recordHomeToolCall(callId: string | undefined, event: {
   toolName: string
+  toolCallId?: string
   input: unknown
-  result: ToolResult
-  durationMs: number
+    result: ToolResult
+    durationMs: number
+    protocolVersion?: number
+    protocolVersionDefaulted?: boolean
+    toolCapability?: 'native_tools' | 'json_protocol'
+    rejectionCategory?: 'unknown_tool' | 'schema_invalid' | 'permission_denied' | 'range_invalid' | 'invalid_protocol' | 'other'
 }) {
   if (!homeRunTraceId || !callId) return
   runTraceStore.appendToolCall(homeRunTraceId, callId, {
     name: event.toolName,
+    toolCallId: event.toolCallId,
     input: event.input,
     result: event.result,
     status: event.result.ok ? 'success' : 'failed',
     durationMs: event.durationMs,
     error: event.result.ok ? undefined : event.result.error?.message,
+    errorCode: event.result.ok ? undefined : event.result.error?.code,
+    protocolVersion: event.protocolVersion,
+    protocolVersionDefaulted: event.protocolVersionDefaulted,
+    toolCapability: event.toolCapability,
+    rejectionCategory: event.rejectionCategory,
   })
 }
 
@@ -490,10 +662,508 @@ const messagesContainer = ref<HTMLElement | null>(null)
 const isStreaming = computed(() => chatStore.generationStatus === 'preparing' || chatStore.generationStatus === 'streaming' || chatStore.generationStatus === 'retrying')
 const generationStatus = computed(() => chatStore.generationStatus)
 const generationMessage = computed(() => chatStore.generationMessage)
+const liveApiStatusLines = useLiveApiStatus(computed<LiveApiStatusInput>(() => ({
+  active: isStreaming.value,
+  message: generationMessage.value,
+  latestCall: (() => {
+    const runId = runTraceStore.getRunId('home')
+    const call = runId ? runTraceStore.getRun(runId)?.apiCalls.at(-1) : undefined
+    if (!call) return null
+    return {
+      status: call.status,
+      streamLength: call.streamText.length,
+      retrying: chatStore.generationStatus === 'retrying'
+    }
+  })()
+})))
 const lastFailedText = ref('')
 const homeApiBudget = ref<ApiCallBudget | null>(null)
+const homeBudgetTokens = new WeakMap<ApiCallBudget, string>()
+let homeBudgetTokenSeq = 0
+
+function pinnedHomeTab(targetId: string) {
+  return editorStore.tabs.find(tab => tab.id === targetId)
+}
+
+function homeFinalDraftAdapter(targetId: string): FinalDraftEditorAdapter {
+  return {
+    getDocumentState: async (): Promise<FinalDraftDocumentState> => {
+      const tab = pinnedHomeTab(targetId)
+      if (!tab) throw new Error(`终稿目标页签不存在：${targetId}`)
+      return {
+        targetId,
+        documentVersion: tab.isDirty ? 1 : 0,
+        content: tab.content || '',
+        contentHash: finalDraftSourceHash(tab.content || ''),
+      }
+    },
+    writeDocument: async content => {
+      const tab = pinnedHomeTab(targetId)
+      if (!tab) throw new Error(`终稿目标页签不存在：${targetId}`)
+      editorStore.pushUndoTransactionForTab(targetId, tab.content || '', 'api', '终稿写入')
+      editorStore.updateContent(targetId, content)
+      const next = pinnedHomeTab(targetId)
+      return {
+        targetId,
+        documentVersion: (next?.isDirty ? 1 : 0) + 1,
+        contentHash: finalDraftSourceHash(content),
+      }
+    },
+    restoreDocument: async content => {
+      const tab = pinnedHomeTab(targetId)
+      if (!tab) throw new Error(`终稿目标页签不存在：${targetId}`)
+      editorStore.updateContent(targetId, content)
+      return {
+        targetId,
+        documentVersion: (tab.isDirty ? 1 : 0) + 1,
+        contentHash: finalDraftSourceHash(content),
+      }
+    },
+  }
+}
+
+function homeFinalDraftTraceHooks() {
+  return {
+    startApiCall: startHomeApiCall,
+    finishApiCall: finishHomeApiCall,
+    recordPhysicalCall: recordHomePhysicalCall,
+    appendStream: (text: string) => appendHomeStream(text, true),
+    appendReasoning: appendHomeReasoning,
+    addEvent: addHomeTraceEvent,
+  }
+}
+
+function recordHomeFinalDraftTaskEvent(task: FinalDraftTask, event: FinalDraftEvent) {
+  const described = describeFinalDraftEvent(event)
+  addHomeTraceEvent({
+    type: described.type,
+    label: described.label,
+    level: described.level,
+    detail: JSON.stringify({
+      taskId: task.taskId,
+      status: task.status,
+      activeSegmentIndex: task.activeSegmentIndex,
+      segments: task.sourceSegments.length,
+      accumulatedChars: task.accumulatedText.length,
+      completedChars: task.completedText.length,
+      continuationCount: task.continuationCount,
+    }),
+    payload: described.payload,
+  })
+}
+
+function isHomeFinalDraftRequest(plan: LongDocumentExecutionPlan, requestText: string, targetContent: string) {
+  return plan.mode === 'final-draft'
+    && Boolean(targetContent)
+    && selectedCoCreationSkills.value.length === 0
+    && !requestText.trim().startsWith('@')
+}
+
+async function runHomeFinalDraft(options: {
+  requestText: string
+  targetId: string
+  messageId: string
+  sourceContent: string
+  model: string
+  plan: LongDocumentExecutionPlan
+  abortSignal: AbortSignal
+  cancelSignal: AbortSignal
+}): Promise<FinalDraftTask | undefined> {
+  let latestTask: FinalDraftTask | undefined
+  const aiService = await getAiService()
+  const adapter = homeFinalDraftAdapter(options.targetId)
+  const task = await runFinalDraft({
+    aiService,
+    adapter,
+    destination: 'home-editor',
+    targetId: options.targetId,
+    sourceContent: options.sourceContent,
+    instruction: options.requestText,
+    model: options.model,
+    signal: options.abortSignal,
+    cancelSignal: options.cancelSignal,
+    checkpointStore: createElectronFinalDraftCheckpointStore(),
+    sourceSegments: options.plan.finalDraftPlan?.segments?.map(segment => ({
+      segmentId: segment.segmentId,
+      start: segment.start,
+      end: segment.end,
+    })) || undefined,
+    onTaskChange: task => {
+      latestTask = task
+      syncHomeFinalDraftMessage(options.messageId, task)
+    },
+    onProgress: event => {
+      const segments = latestTask?.sourceSegments.length || 1
+      const segmentIndex = Math.min((latestTask?.activeSegmentIndex || 0) + 1, segments)
+      const completedChars = latestTask?.completedText.length || 0
+      chatStore.setGenerationState('streaming', formatFinalDraftProgress({
+        action: '生成',
+        segmentIndex,
+        segments,
+        completedChars,
+        streamingChars: event.streamingChars,
+        telemetry: event.telemetry,
+      }))
+    },
+    onTaskEvent: recordHomeFinalDraftTaskEvent,
+  }, homeFinalDraftTraceHooks())
+  return task || latestTask
+}
+
+function syncHomeFinalDraftMessage(messageId: string, task: FinalDraftTask) {
+  chatStore.updateMessageFinalDraftTask(messageId, task, chatStore.activeSession?.id)
+  chatStore.updateMessageContent(messageId, createFinalDraftStatusMessage(task), chatStore.activeSession?.id)
+}
+
+async function runHomeFinalDraftTurn(options: {
+  requestText: string
+  targetId: string
+  sourceContent: string
+  model: string
+  plan: LongDocumentExecutionPlan
+}) {
+  const projId = projectId.value
+  const abortController = activeAbortController || new AbortController()
+  activeAbortController = abortController
+  if ((window as any).__SHENYI_FINAL_DRAFT_TEST_OVERRIDES__) {
+    ;(window as any).__SHENYI_FINAL_DRAFT_ACTIVE_CONTROLLER__ = abortController
+  }
+  const cancelController = new AbortController()
+  const releaseRunTracking = beginActiveHomeRunTracking()
+  chatStore.addMessage({ role: 'user', content: options.requestText, tabId: chatStore.currentContext?.tabId || '' }, projId)
+    const placeholder = chatStore.addMessage({
+    role: 'assistant',
+    content: '终稿任务已创建，正在准备生成。',
+    tabId: chatStore.currentContext?.tabId || '',
+  }, projId)
+  if (!placeholder) {
+    releaseRunTracking()
+    return
+  }
+  await nextTick()
+  scrollToBottom()
+  try {
+    chatStore.setGenerationState('preparing', '正在准备终稿生成…')
+    const finalDraftTask = await runHomeFinalDraft({
+      requestText: options.requestText,
+      targetId: options.targetId,
+      messageId: placeholder.id,
+      sourceContent: options.sourceContent,
+      model: options.model,
+      plan: options.plan,
+      abortSignal: abortController.signal,
+      cancelSignal: cancelController.signal,
+    })
+    if (finalDraftTask) syncHomeFinalDraftMessage(placeholder.id, finalDraftTask)
+    if (finalDraftTask?.status === 'completed') {
+      finishHomeRun('success', undefined, createFinalDraftStatusMessage(finalDraftTask), 'final_draft_complete')
+    } else if (finalDraftTask?.status === 'canceled') {
+      finishHomeRun('canceled', '终稿任务已取消', undefined, 'final_draft_canceled')
+    } else if (finalDraftTask?.status === 'awaiting_continuation') {
+      finishHomeRun('success', undefined, createFinalDraftStatusMessage(finalDraftTask), 'final_draft_awaiting_continuation')
+    } else if (finalDraftTask?.status === 'interrupted') {
+      finishHomeRun('degraded', finalDraftTask.error || '终稿慢流中断，等待用户选择', createFinalDraftStatusMessage(finalDraftTask), 'final_draft_interrupted')
+    } else {
+      finishHomeRun('failed', finalDraftTask?.error || '终稿生成失败', undefined, 'final_draft_failed')
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    chatStore.updateMessageContent(placeholder.id, '终稿任务失败：' + message, chatStore.activeSession?.id)
+    finishHomeRun('failed', message, undefined, 'final_draft_runtime_exception')
+  } finally {
+    if (chatStore.generationStatus !== 'idle') chatStore.setGenerationState('idle')
+    closeActiveHomeApiCall('failed', '终稿运行收尾时仍未闭合')
+    activeAbortController = null
+    releaseRunTracking()
+    await nextTick()
+    scrollToBottom()
+  }
+}
+
+async function continueFinalDraftMessage(message: ChatMessage) {
+  if (isStreaming.value) return
+  const task = message.finalDraftTask
+  if (!task || !finalDraftStatusNeedsAction(task)) return
+  const provider = providerStore.activeGenerateProvider
+  if (!provider?.apiKey) {
+    await appConfirm.alert('未配置 API 提供方或 API Key，无法继续生成终稿')
+    return
+  }
+  const abortController = new AbortController()
+  activeAbortController = abortController
+  const cancelController = new AbortController()
+  const releaseRunTracking = beginActiveHomeRunTracking()
+  startHomeRun('continue-final-draft', '继续生成终稿', [], {
+    intent: 'generate',
+    writeMode: 'direct',
+  })
+  const aiService = await getAiService()
+  chatStore.setGenerationState('preparing', '正在继续生成终稿…')
+  let latestTask: FinalDraftTask | undefined
+  try {
+    latestTask = await continueFinalDraftTask({
+      aiService,
+      adapter: homeFinalDraftAdapter(task.targetId),
+      task,
+      model: provider.selectedModel || provider.models?.[0] || 'gpt-4o',
+      signal: abortController.signal,
+      cancelSignal: cancelController.signal,
+      checkpointStore: createElectronFinalDraftCheckpointStore(),
+      onProgress: event => {
+        const segments = latestTask?.sourceSegments.length || task.sourceSegments.length || 1
+        const segmentIndex = Math.min((latestTask?.activeSegmentIndex ?? task.activeSegmentIndex) + 1, segments)
+        const completedChars = latestTask?.completedText.length ?? task.completedText.length
+        chatStore.setGenerationState('streaming', formatFinalDraftProgress({
+          action: '续生成',
+          segmentIndex,
+          segments,
+          completedChars,
+          streamingChars: event.streamingChars,
+          telemetry: event.telemetry,
+        }))
+      },
+      onTaskChange: changed => {
+        latestTask = changed
+        syncHomeFinalDraftMessage(message.id, changed)
+      },
+      onTaskEvent: recordHomeFinalDraftTaskEvent,
+    }, homeFinalDraftTraceHooks())
+    syncHomeFinalDraftMessage(message.id, latestTask)
+    if (latestTask.status === 'completed') {
+      finishHomeRun('success', undefined, createFinalDraftStatusMessage(latestTask), 'final_draft_continuation_complete')
+    } else if (latestTask.status === 'awaiting_continuation') {
+      finishHomeRun('success', undefined, createFinalDraftStatusMessage(latestTask), 'final_draft_awaiting_continuation')
+    } else {
+      finishHomeRun('failed', latestTask.error || '终稿续生成失败', undefined, 'final_draft_continuation_failed')
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    if (latestTask) syncHomeFinalDraftMessage(message.id, latestTask)
+    finishHomeRun('failed', errorMessage, undefined, 'final_draft_continuation_runtime_exception')
+  } finally {
+    if (chatStore.generationStatus !== 'idle') chatStore.setGenerationState('idle')
+    closeActiveHomeApiCall('failed', '终稿续生成收尾时仍未闭合')
+    activeAbortController = null
+    releaseRunTracking()
+    await nextTick()
+    scrollToBottom()
+  }
+}
+
+const FINAL_DRAFT_RESUME_REASONS: Record<string, string> = {
+  checkpoint_not_found: '未找到分段检查点，可能尚未完成第一段，请重新发起终稿生成。',
+  schema_version_mismatch: '分段检查点版本不兼容，请重新发起终稿生成。',
+  task_not_resumable: '该检查点已完成或不可恢复。',
+  checkpoint_corrupted: '分段检查点校验失败，请重新发起终稿生成。',
+  source_content_mismatch: '源文内容已变化，为避免拼接错文，请重新发起终稿生成。',
+  browser: '当前环境不支持持久化检查点，请在 Electron 应用内恢复。',
+}
+
+function finalDraftResumeErrorText(reason: string) {
+  return FINAL_DRAFT_RESUME_REASONS[reason] || `终稿恢复失败：${reason}`
+}
+
+async function resumeFinalDraftMessage(message: ChatMessage) {
+  if (isStreaming.value) return
+  const task = message.finalDraftTask
+  if (!task || task.status !== 'generating') return
+  const provider = providerStore.activeGenerateProvider
+  if (!provider?.apiKey) {
+    await appConfirm.alert('未配置 API 提供方或 API Key，无法恢复终稿生成')
+    return
+  }
+  const tab = editorStore.tabs.find(item => item.id === task.targetId)
+  if (!tab) {
+    await appConfirm.alert('终稿目标页签不存在，无法恢复。请重新打开源文页签后再试。')
+    return
+  }
+  const abortController = new AbortController()
+  activeAbortController = abortController
+  const cancelController = new AbortController()
+  const releaseRunTracking = beginActiveHomeRunTracking()
+  startHomeRun('resume-final-draft', '从检查点恢复终稿', [], {
+    intent: 'generate',
+    writeMode: 'direct',
+  })
+  const aiService = await getAiService()
+  chatStore.setGenerationState('preparing', '正在恢复终稿检查点…')
+  let latestTask: FinalDraftTask | undefined
+  try {
+    latestTask = await resumeFinalDraftTask({
+      aiService,
+      adapter: homeFinalDraftAdapter(task.targetId),
+      checkpointId: finalDraftCheckpointId(task.taskId),
+      sourceContent: tab.content || '',
+      checkpointStore: createElectronFinalDraftCheckpointStore(),
+      model: provider.selectedModel || provider.models?.[0] || 'gpt-4o',
+      signal: abortController.signal,
+      cancelSignal: cancelController.signal,
+      onTaskChange: changed => {
+        latestTask = changed
+        syncHomeFinalDraftMessage(message.id, changed)
+      },
+      onTaskEvent: recordHomeFinalDraftTaskEvent,
+    }, homeFinalDraftTraceHooks())
+    syncHomeFinalDraftMessage(message.id, latestTask)
+    if (latestTask.status === 'completed') {
+      finishHomeRun('success', undefined, createFinalDraftStatusMessage(latestTask), 'final_draft_resume_complete')
+    } else if (latestTask.status === 'awaiting_continuation') {
+      finishHomeRun('success', undefined, createFinalDraftStatusMessage(latestTask), 'final_draft_resume_awaiting_continuation')
+    } else {
+      finishHomeRun('failed', latestTask.error || '终稿恢复后未完成', undefined, 'final_draft_resume_failed')
+    }
+  } catch (error) {
+    const rawMessage = error instanceof Error ? error.message : String(error)
+    const reason = rawMessage.startsWith('final_draft_resume_failed:')
+      ? rawMessage.slice('final_draft_resume_failed:'.length)
+      : rawMessage
+    const text = finalDraftResumeErrorText(reason)
+    chatStore.updateMessageContent(message.id, text, chatStore.activeSession?.id)
+    finishHomeRun('failed', text, undefined, 'final_draft_resume_runtime_exception')
+  } finally {
+    if (chatStore.generationStatus !== 'idle') chatStore.setGenerationState('idle')
+    closeActiveHomeApiCall('failed', '终稿恢复收尾时仍未闭合')
+    activeAbortController = null
+    releaseRunTracking()
+    await nextTick()
+    scrollToBottom()
+  }
+}
+
+async function retryFinalDraftSegmentMessage(message: ChatMessage, providerId?: string) {
+  const existingTask = message.finalDraftTask
+  if (
+    !existingTask
+    || (
+      existingTask.status !== 'generating'
+      && existingTask.status !== 'awaiting_continuation'
+      && existingTask.status !== 'interrupted'
+    )
+  ) return
+  const stalled = existingTask.status === 'generating'
+    && existingTask.lastTelemetry?.throughputStatus === 'stalled'
+  if (isStreaming.value && !stalled) return
+  // Capture the retry snapshot before aborting; abort marks the live task canceled/failed.
+  const retryTaskSnapshot = snapshotFinalDraftTask(
+    chatStore.activeSession?.messages.find(item => item.id === message.id)?.finalDraftTask
+    || message.finalDraftTask,
+  )
+  if (isStreaming.value) {
+    activeAbortController?.abort()
+    await activeHomeRunPromise?.catch(() => {})
+  }
+  const task = retryTaskSnapshot
+  if (
+    !task
+    || (
+      task.status !== 'generating'
+      && task.status !== 'awaiting_continuation'
+      && task.status !== 'interrupted'
+    )
+  ) return
+  const activeProvider = providerStore.activeGenerateProvider
+  const provider = providerId
+    ? providerStore.getProvider(providerId)
+    : activeProvider
+  if (!provider?.apiKey) {
+    await appConfirm.alert('未配置 API 提供方或 API Key，无法重试当前终稿分段')
+    return
+  }
+  const tab = editorStore.tabs.find(item => item.id === task.targetId)
+  if (!tab) {
+    await appConfirm.alert('终稿目标页签不存在，无法重试当前段。请重新打开源文页签后再试。')
+    return
+  }
+  const abortController = new AbortController()
+  activeAbortController = abortController
+  const cancelController = new AbortController()
+  const releaseRunTracking = beginActiveHomeRunTracking()
+  const aiService = await getAiService()
+  chatStore.setGenerationState('preparing', '正在重试当前终稿分段…')
+  let latestTask: FinalDraftTask | undefined
+  try {
+    latestTask = await retryFinalDraftSegmentTask({
+      aiService,
+      adapter: homeFinalDraftAdapter(task.targetId),
+      task,
+      model: provider.selectedModel || provider.models?.[0] || 'gpt-4o',
+      providerId,
+      providerSwitch: providerId
+        ? {
+            fromProviderId: activeProvider?.id,
+            fromProviderName: activeProvider?.name,
+            fromModel: activeProvider?.selectedModel || activeProvider?.models?.[0],
+            toProviderId: provider.id,
+            toProviderName: provider.name,
+            toModel: provider.selectedModel || provider.models?.[0] || 'gpt-4o',
+            beforeTelemetry: task.lastTelemetry,
+          }
+        : undefined,
+      signal: abortController.signal,
+      cancelSignal: cancelController.signal,
+      checkpointStore: createElectronFinalDraftCheckpointStore(),
+      onProgress: event => {
+        const segments = latestTask?.sourceSegments.length || task.sourceSegments.length || 1
+        const segmentIndex = Math.min((latestTask?.activeSegmentIndex ?? task.activeSegmentIndex) + 1, segments)
+        const completedChars = latestTask?.completedText.length ?? task.completedText.length
+        chatStore.setGenerationState('streaming', formatFinalDraftProgress({
+          action: '重试当前段',
+          segmentIndex,
+          segments,
+          completedChars,
+          streamingChars: event.streamingChars,
+          telemetry: event.telemetry,
+        }))
+      },
+      onTaskChange: changed => {
+        latestTask = changed
+        syncHomeFinalDraftMessage(message.id, changed)
+      },
+      onTaskEvent: recordHomeFinalDraftTaskEvent,
+    }, homeFinalDraftTraceHooks())
+    syncHomeFinalDraftMessage(message.id, latestTask)
+    const statusMessage = createFinalDraftStatusMessage(latestTask)
+    if (latestTask.status === 'completed') {
+      finishHomeRun('success', undefined, statusMessage, 'final_draft_segment_retry_complete')
+    } else if (latestTask.status === 'awaiting_continuation') {
+      finishHomeRun('success', undefined, statusMessage, 'final_draft_segment_retry_awaiting_continuation')
+    } else if (latestTask.status === 'canceled') {
+      finishHomeRun('canceled', '终稿当前段重试已取消', undefined, 'final_draft_segment_retry_canceled')
+    } else if (latestTask.status === 'interrupted') {
+      finishHomeRun('degraded', latestTask.error || '终稿慢流中断，等待用户选择', statusMessage, 'final_draft_segment_retry_interrupted')
+    } else {
+      finishHomeRun('failed', latestTask.error || '终稿当前段重试失败', statusMessage, 'final_draft_segment_retry_failed')
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    if (latestTask) syncHomeFinalDraftMessage(message.id, latestTask)
+    finishHomeRun('failed', errorMessage, undefined, 'final_draft_segment_retry_runtime_exception')
+  } finally {
+    if (chatStore.generationStatus !== 'idle') chatStore.setGenerationState('idle')
+    closeActiveHomeApiCall('failed', '终稿当前段重试收尾时仍未闭合')
+    activeAbortController = null
+    releaseRunTracking()
+    await nextTick()
+    scrollToBottom()
+  }
+}
+
+function currentHomeBudgetToken() {
+  const budget = homeApiBudget.value
+  if (!budget) return undefined
+  let token = homeBudgetTokens.get(budget)
+  if (!token) {
+    homeBudgetTokenSeq += 1
+    token = `home-budget-${homeBudgetTokenSeq}`
+    homeBudgetTokens.set(budget, token)
+  }
+  return token
+}
 
 function recordHomeRoutingEvent(event: ChainRoutingEvent) {
+  const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+  const diagEvent = describeRoutingDiagEvent(event)
+  diag?.log?.(diagEvent.level, diagEvent.category, diagEvent.message, diagEvent.payload)
   if (event.type === 'routing_started') {
     addHomeTraceEvent({ type: 'routing-started', label: '开始意图路由', detail: event.requestText })
   } else if (event.type === 'routing_result') {
@@ -504,18 +1174,9 @@ function recordHomeRoutingEvent(event: ChainRoutingEvent) {
       homeRunTurnId
     ) {
       const matchedIntent = routing.intent
-      const requestTarget = createEditorTargetSnapshot({
-        workspace: 'main',
-        targetId: editorStore.activeTab?.id || projectId.value,
-        label: editorStore.activeTab?.title || '主页编辑器',
-        chapterId: editorStore.activeTab?.chapterId,
-        mode: editorStore.activeTab?.mode || 'ch-body',
-        content: editorStore.activeTab?.content || '',
-        selectionStart: 0,
-        selectionEnd: 0
-      })
+      const requestTarget = createMainEditorTargetSnapshot(editorStore.activeTab)
       const reroutedSurface = requestTarget.content
-        ? buildHomeDialogueToolSurface(requestTarget, matchedIntent)
+        ? buildHomeDialogueToolSurface(requestTarget, matchedIntent, undefined, activeHomeExecutionPlan ?? undefined)
         : { tools: [] as AgentToolDefinition[] }
       const authorizedSurface = authorizeDialogueTools(reroutedSurface.tools, matchedIntent)
       runTraceStore.updateTurnIntent(homeRunTraceId, homeRunTurnId, {
@@ -547,6 +1208,12 @@ function recordHomeRoutingEvent(event: ChainRoutingEvent) {
       type: 'skill-skipped',
       label: `跳过技能：${event.skillId}`,
       detail: event.reason
+    })
+  } else if (event.type === 'routing_diagnostics') {
+    addHomeTraceEvent({
+      type: 'routing-diagnostics',
+      label: `意图路由诊断：${event.diagnostics.router.decisionLayer}`,
+      detail: JSON.stringify(event.diagnostics)
     })
   } else if (event.type === 'chain_handoff') {
     addHomeTraceEvent({
@@ -602,6 +1269,19 @@ async function continueRoutingFallback(message: { id?: string; routingFallback?:
   if (isStreaming.value || !message.routingFallback) return
   const fallback = message.routingFallback
   if (!fallback.requestText) return
+  recordIntentRoutingConfirmation({
+    projectId: projectId.value,
+    projectName: projectStore.projectName,
+    workspace: 'home-editor',
+    runId: fallback.runId,
+    requestText: fallback.requestText,
+    intent: inferRoutingFallbackIntent(fallback.routing || {
+      kind: 'no_match',
+      confidence: 0,
+      reason: 'low-confidence',
+      fallbackMode: 'await-user',
+    }),
+  })
   const tokenValid =
     fallback.runId === homeRunTraceId &&
     validateRoutingResumeToken(fallback, homeRunTraceId)
@@ -616,7 +1296,6 @@ async function continueRoutingFallback(message: { id?: string; routingFallback?:
     runTraceStore.finishAwaitingUser(fallback.runId, `resume:${fallback.requestText.slice(0, 80)}`)
   }
   if (message.id) clearRoutingFallback(message.id)
-  homeApiBudget.value = createApiCallBudget(8)
   await sendMessage(fallback.requestText, {
     forcedIntent: inferRoutingFallbackIntent(fallback.routing || {
       kind: 'no_match',
@@ -646,16 +1325,22 @@ async function bypassRoutingFallback(message: { id?: string; routingFallback?: {
     detail: '本次直接全链执行，不写入配置'
   })
   if (message.id) clearRoutingFallback(message.id)
-  homeApiBudget.value = createApiCallBudget(8)
   await sendMessage(requestText, { bypass: true })
 }
 
-async function extendRoutingBudget(message: { id?: string; budgetExhausted?: { requestText?: string } }) {
+async function extendRoutingBudget(message: {
+  id?: string
+  budgetExhausted?: { requestText?: string; budgetToken?: string }
+}) {
   if (isStreaming.value || !message.budgetExhausted?.requestText) return
   const requestText = message.budgetExhausted.requestText
   const budget = homeApiBudget.value
   if (!budget) {
     await appConfirm.alert('本次执行的预算对象已释放，请重新发起请求')
+    return
+  }
+  if (message.budgetExhausted.budgetToken && message.budgetExhausted.budgetToken !== currentHomeBudgetToken()) {
+    await appConfirm.alert('已有更新的执行占用预算，请从最新一条预算提示继续')
     return
   }
   const next = budget.extend(4)
@@ -666,16 +1351,29 @@ async function extendRoutingBudget(message: { id?: string; budgetExhausted?: { r
     detail: `追加 4 次；当前 ${next.used}/${next.limit}`
   })
   if (message.id) clearRoutingFallback(message.id)
-  await sendMessage(requestText)
+  await sendMessage(requestText, { resumedApiBudget: budget })
 }
 
 type HomeRoutingDecision = {
   bypass?: boolean
   forcedIntent?: 'analyze' | 'edit' | 'generate' | 'discuss'
+  resumedApiBudget?: ApiCallBudget
+  precomputedRouting?: DetailedChainRoutingResult
 }
 
 const compatibilityNotice = ref('')
 let activeAbortController: AbortController | null = null
+let activeHomeRunPromise: Promise<unknown> | null = null
+function beginActiveHomeRunTracking(): () => void {
+  let resolveRun!: () => void
+  activeHomeRunPromise = new Promise<void>(resolve => {
+    resolveRun = resolve
+  })
+  return () => {
+    resolveRun()
+    activeHomeRunPromise = null
+  }
+}
 const tokenCount = ref(0)
 const maxDepthRef = ref(21)
 const coCreationSkillToAdd = ref('')
@@ -695,14 +1393,50 @@ const coCreationAgentId = computed({
   set: (v: string) => { coCreation.setAgent(v) }
 })
 
-function classifyHomeIntent(requestText: string): PlainDialogueIntent {
+async function classifyHomeIntentDetailed(
+  requestText: string,
+): Promise<DetailedChainRoutingResult> {
   const recentHistory = getChatContextMessages(requestText)
     .slice(-4)
     .map(message => ({
       role: message.role,
       content: String(message.content || ''),
     }))
-  return classifyPlainDialogueIntent(requestText, recentHistory)
+  const result = await routeChainIntentDetailed(requestText, {
+    projectId: projectId.value,
+    workspace: 'home-editor',
+    activeEditTaskStatus: homeEditTask.value?.status === 'awaiting_batch'
+      ? 'awaiting_batch'
+      : undefined,
+    recentUserMessages: recentHistory
+      .filter(message => message.role === 'user')
+      .map(message => message.content),
+    recentHistory,
+    activeSkillIds: selectedCoCreationSkills.value.map(skill => skill.id),
+    llmClassifier: createIntentLlmFallback({
+      activeVerifyProvider: providerStore.activeVerifyProvider,
+      activeGenerateProvider: providerStore.activeGenerateProvider,
+      onTraceEvent: event => addHomeTraceEvent({
+        type: event.type,
+        label: event.type === 'intent-llm-fallback-start'
+          ? '意图 LLM 兜底开始'
+          : `意图 LLM 兜底${event.status === 'success' ? '成功' : event.status === 'canceled' ? '取消' : '失败'}`,
+        level: event.type === 'intent-llm-fallback-start' || event.status === 'success' ? 'info' : 'error',
+        detail: JSON.stringify(event),
+      }),
+      }),
+  })
+  return result
+}
+
+function addHomeRoutingDiagnostics(
+  diagnostics: PlainDialogueIntentDetailed['diagnostics'],
+) {
+  addHomeTraceEvent({
+    type: 'routing-diagnostics',
+    label: `意图路由诊断：${diagnostics.router.decisionLayer}`,
+    detail: JSON.stringify(diagnostics),
+  })
 }
 
 const coCreationMode = computed({
@@ -750,6 +1484,7 @@ function getHomeSkillTemplates(): WorkspaceSkillTemplate[] {
     .map(skill => ({
       id: skill.id,
       name: skillStore.displaySkillName(skill),
+      version: skill.version,
       template: skill.template,
       skill,
       customVars: skill.customVars || {},
@@ -838,16 +1573,7 @@ function buildSOI(mode: string | undefined, activeTab: any): string {
 function createHomeSkillAdapter(
   fallbackIntent: PlainDialogueIntent = 'discuss',
 ): WorkspaceSkillEngineAdapter {
-  const requestTarget = createEditorTargetSnapshot({
-    workspace: 'main',
-    targetId: editorStore.activeTab?.id || projectId.value,
-    label: editorStore.activeTab?.title || '主页编辑器',
-    chapterId: editorStore.activeTab?.chapterId,
-    mode: editorStore.activeTab?.mode || 'ch-body',
-    content: editorStore.activeTab?.content || '',
-    selectionStart: 0,
-    selectionEnd: 0
-  })
+  const requestTarget = createMainEditorTargetSnapshot(editorStore.activeTab)
   return {
     workspace: 'main',
     source: 'HomeCoCreation.skill',
@@ -932,13 +1658,33 @@ function createHomeSkillAdapter(
     }),
     getLegacyMessages: requestText => getChatContextMessages(requestText)
       .slice(-DEFAULT_CO_CREATION_HISTORY_TURNS * 2),
+    getToolAudit: () => lastHomeToolAudit,
+    getEditTaskContext: () => ({
+      activeEditTask: homeEditTask.value,
+      onResumeEditTask: taskId => homeEditTaskSession.resumeEditTask(taskId),
+      onCancelEditTask: taskId => homeEditTaskSession.onCancelEditTask(taskId),
+    }),
     buildTools: (request) => ({
       tools: requestTarget.content
-        ? buildHomeDialogueToolSurface(requestTarget, request.intent === 'auto' ? fallbackIntent : request.intent).tools
+        ? buildHomeDialogueToolSurface(
+          requestTarget,
+          request.intent === 'auto' ? fallbackIntent : request.intent,
+          undefined,
+          activeHomeExecutionPlan ?? undefined,
+          Boolean(activeHomeExecutionPlan?.mode === 'edit-task'),
+        ).tools
         : [],
       toolPolicy: requestTarget.content ? {
-        maxToolIterations: 6,
+        scenario: 'direct-tool-intensive',
         intent: request.intent,
+        onConvergenceStart: () => {
+          addHomeTraceEvent({
+            type: 'tool-convergence-started',
+            level: 'info',
+            label: '开始收敛最终回答',
+            detail: '工具调用轮次达到上限，已停止工具执行并开始最终回答请求'
+          })
+        },
         onPermissionDenied: event => {
           addHomeTraceEvent({
             type: 'tool-permission-denied',
@@ -947,22 +1693,55 @@ function createHomeSkillAdapter(
             detail: `${event.toolName}：${event.reason}`
           })
         },
-          onRepeatedWriteBlocked: event => {
+          onCompatibilityMode: () => {
+            compatibilityNotice.value = '当前供应商未启用原生工具调用，已使用兼容模式'
+          },
+          onConvergencePseudoCall: event => {
             addHomeTraceEvent({
-              type: 'write-duplicate-blocked',
+              type: 'tool-convergence-pseudo-call',
               level: 'warn',
-              label: '重复写入已拦截',
-              detail: `${event.toolName}：连续 ${event.repeatCount} 次提交完全相同的写入参数，本次已拦截`
+              label: '收敛回答疑似伪工具调用',
+              detail: event.text.slice(0, 2000)
+            })
+            const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+            diag?.log?.('warn', 'tool/convergence-pseudo-call', '收敛回答疑似伪工具调用，已发起一次强纠正请求', {
+              workspace: 'home',
+              text: event.text.slice(0, 2000),
+              reason: event.reason,
             })
           },
-        onCompatibilityMode: () => {
-          compatibilityNotice.value = '当前供应商未启用原生工具调用，已使用兼容模式'
-        }
+          onConvergenceCorrected: () => {
+            addHomeTraceEvent({
+              type: 'tool-convergence-corrected',
+              level: 'info',
+              label: '收敛回答已纠正为自然语言',
+              detail: '伪工具调用已被拦截，强纠正请求返回可用正文'
+            })
+            const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+            diag?.log?.('info', 'tool/convergence-corrected', '收敛伪工具调用已通过强纠正请求修复')
+          },
+          onConvergenceLocalFallback: reason => {
+            addHomeTraceEvent({
+              type: 'tool-convergence-local-fallback',
+              level: 'warn',
+              label: '收敛失败，返回本地摘要',
+              detail: reason
+            })
+            const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+            diag?.log?.('warn', 'tool/convergence-local-fallback', '收敛请求未得到可用正文，已返回本地工具结果摘要', {
+              workspace: 'home',
+              reason,
+            })
+          }
       } : undefined
     }),
     loadBreakpoint: () => coCreation.loadBreakpoint(),
     saveBreakpoint: breakpoint => coCreation.saveBreakpoint(breakpoint),
-    clearBreakpoint: () => coCreation.clearBreakpoint()
+    clearBreakpoint: () => coCreation.clearBreakpoint(),
+    classifyIntentWithLlm: createIntentLlmFallback({
+      activeVerifyProvider: providerStore.activeVerifyProvider,
+      activeGenerateProvider: providerStore.activeGenerateProvider,
+    })
   }
 }
 
@@ -974,6 +1753,50 @@ function requestTargetFromEditor(): { selectedText: string } {
   return { selectedText: start < end ? content.slice(start, end) : '' }
 }
 
+function currentMainSelection(): { selectionStart: number; selectionEnd: number } {
+  const editor = document.getElementById('editor-content') as HTMLTextAreaElement | null
+  if (!editor) return { selectionStart: 0, selectionEnd: 0 }
+  return { selectionStart: editor.selectionStart, selectionEnd: editor.selectionEnd }
+}
+
+function createMainEditorTargetSnapshot(
+  tab: { id: string; title: string; chapterId?: string; mode?: string; content?: string } | null | undefined,
+  fallbackTargetId = projectId.value,
+): EditorTargetSnapshot {
+  const selection = currentMainSelection()
+  return buildMainSnapshot(
+    tab
+      ? {
+          workspace: 'main',
+          targetId: tab.id,
+          label: tab.title,
+          chapterId: tab.chapterId,
+          mode: tab.mode,
+          content: tab.content || '',
+        }
+      : null,
+    fallbackTargetId,
+    selection,
+  )
+}
+
+function createInactiveMainEditorTargetSnapshot(tab: {
+  id: string
+  title: string
+  chapterId?: string
+  mode?: string
+  content?: string
+}): EditorTargetSnapshot {
+  return buildMainSnapshot({
+    workspace: 'main',
+    targetId: tab.id,
+    label: tab.title,
+    chapterId: tab.chapterId,
+    mode: tab.mode,
+    content: tab.content || '',
+  }, tab.id)
+}
+
 function firstContentDifference(previous: string, next: string): number {
   const length = Math.min(previous.length, next.length)
   let index = 0
@@ -983,8 +1806,15 @@ function firstContentDifference(previous: string, next: string): number {
 
 const DIRECT_WRITE_INSTANT_LINE_THRESHOLD = 3000
 
-function configureHomeContextCompaction(model: string, reservedOutputTokens?: number): void {
-  const modelContextWindow = resolveModelContextWindow(model)
+function configureHomeContextCompaction(
+  model: string,
+  providerContextWindowTokens: number | string | null | undefined,
+  reservedOutputTokens?: number,
+): void {
+  const modelContextWindow = resolveEffectiveModelContextWindow({
+    model,
+    providerContextWindowTokens,
+  })
   conversationContextService.setCompactionRouting({
     workspace: 'main',
     ...(modelContextWindow
@@ -1021,9 +1851,40 @@ function configureHomeContextCompaction(model: string, reservedOutputTokens?: nu
           messageCount: result.retainedMessageCount,
         })
       },
+      onContextCompactionLifecycle: event => {
+        const detail = [
+          `stage=${event.stage}`,
+          `status=${event.status}`,
+          event.checkpointId ? `checkpointId=${event.checkpointId}` : '',
+          event.compactionId ? `compactionId=${event.compactionId}` : '',
+          event.detail || '',
+        ].filter(Boolean).join('; ')
+        addHomeTraceEvent({
+          type: `context-compaction-${event.stage.replace(/_/g, '-')}`,
+          level: event.status === 'failed' ? 'warn' : 'info',
+          label: `上下文压缩生命周期：${event.stage}`,
+          detail
+        })
+        const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+        diag?.log?.(
+          event.status === 'failed' ? 'warn' : 'info',
+          'context/compaction',
+          `主页上下文压缩生命周期：${event.stage}`,
+          {
+            workspace: 'main',
+            model,
+            stage: event.stage,
+            status: event.status,
+            checkpointId: event.checkpointId,
+            compactionId: event.compactionId,
+            detail: event.detail,
+          }
+        )
+      },
     },
   })
 }
+
 
 function presentDirectWrite(options: {
   targetId: string
@@ -1077,7 +1938,7 @@ async function runHomeCoCreationSkills(
   } = {},
 ): Promise<{
   text: string
-  maxTokens?: number
+  maxTokens?: number | null
   toolCallSummary: string | null
   terminalStatus?: 'success' | 'degraded' | 'blocked'
   terminalReason?: string
@@ -1086,7 +1947,7 @@ async function runHomeCoCreationSkills(
   const model = provider?.selectedModel || provider?.models?.[0] || ''
   // Compaction input windows are set per turn from the actual request result;
   // this only ensures the model-window routing exists before the first turn.
-  configureHomeContextCompaction(model)
+  configureHomeContextCompaction(model, provider?.contextWindowTokens)
   const placeholderMessage = chatStore.addMessage(
     { role: 'assistant', content: '', tabId: chatStore.currentContext?.tabId || '' },
     projectId.value
@@ -1099,7 +1960,9 @@ async function runHomeCoCreationSkills(
   let homeSkillTerminalReason: string | undefined
   const runStartedAt = performance.now()
   const skillNames = selectedCoCreationSkills.value.map(skill => skillStore.displaySkillName(skill))
-  const apiBudget = createApiCallBudget(8)
+  // A budget-exhausted resume must keep the spent count and the user's
+  // extension on the same budget object; minting a fresh one resets 8/12 to 0/8.
+  const apiBudget = routingDecision.resumedApiBudget || createApiCallBudget(8)
   homeApiBudget.value = apiBudget
   addHomeTraceEvent({
     type: 'skill-start',
@@ -1118,8 +1981,13 @@ async function runHomeCoCreationSkills(
     routingOverride: routingDecision.bypass
       ? { bypass: true }
       : routingDecision.forcedIntent
-        ? { forcedIntent: routingDecision.forcedIntent }
-        : undefined,
+        ? {
+            forcedIntent: routingDecision.forcedIntent,
+            precomputedRouting: routingDecision.precomputedRouting,
+          }
+        : routingDecision.precomputedRouting
+          ? { precomputedRouting: routingDecision.precomputedRouting }
+          : undefined,
     callbacks: {
       onFirstChunk: () => {
         firstChunkSeen = true
@@ -1175,9 +2043,11 @@ async function runHomeCoCreationSkills(
             content: String(message.content || '')
           }))
           if (toolRequestDeltas.length) runTraceStore.setApiCallToolRequestDeltas(homeRunTraceId || '', callId, toolRequestDeltas)
+          if (meta.toolAudit !== undefined) runTraceStore.setApiCallToolAudit(homeRunTraceId || '', callId, meta.toolAudit)
           for (const toolResult of meta.toolResults || []) {
             recordHomeToolCall(callId, {
               toolName: toolResult.call.name,
+              toolCallId: toolResult.call.id,
               input: toolResult.call.input,
               result: toolResult.result as ToolResult,
               durationMs: 0
@@ -1189,6 +2059,11 @@ async function runHomeCoCreationSkills(
             reasoningText: meta.reasoningText || result?.reasoning || '',
             finishReason: meta.finishReason,
             usage: meta.usage,
+            providerContextWindowTokens: meta.contextBudget?.providerContextWindowTokens,
+            estimatedInputTokens: meta.contextBudget?.estimatedInputTokens,
+            contextBudgetDecision: meta.contextBudget?.decision,
+            contextBudgetReason: meta.contextBudget?.reason,
+            usageReconciliation: meta.usageReconciliation,
             durationMs
             })
           }
@@ -1203,6 +2078,7 @@ async function runHomeCoCreationSkills(
           apiCallId: callId,
           skillId: event.skillId,
           skillName: event.skillName,
+          skillVersion: event.skillVersion,
           mode: event.mode,
           systemPrompt: event.systemPrompt,
           userPrompt: event.userPrompt,
@@ -1277,7 +2153,8 @@ async function runHomeCoCreationSkills(
       budgetExhausted: {
         used: result.budgetSnapshot?.used || 0,
         limit: result.budgetSnapshot?.limit || 0,
-        requestText
+        requestText,
+        budgetToken: currentHomeBudgetToken()
       }
     })
     if (result.text) chatStore.updateLastMessage(result.text)
@@ -1287,7 +2164,12 @@ async function runHomeCoCreationSkills(
       label: 'API 调用预算已用尽',
       detail: `已用 ${result.budgetSnapshot?.used || 0}/${result.budgetSnapshot?.limit || 0}，已保留断点`
     })
-    return { text: result.text, toolCallSummary: null }
+    return {
+      text: result.text,
+      toolCallSummary: null,
+      terminalStatus: result.terminalStatus || 'blocked',
+      terminalReason: result.terminalReason || 'budget_exhausted'
+    }
   }
   if (result.text.trim()) chatStore.updateLastMessage(result.text)
   if (result.meta && (result.meta.diagnostics?.length || result.meta.status === 'degraded')) {
@@ -1500,7 +2382,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
   _pendingInlineOriginal.value = ''
   lastToolCallSummary = null
   homeFailedWriteBatch = null
-  const requestTarget = createEditorTargetSnapshot({
+  const requestTarget = buildSnapshot({
     workspace: 'main',
     targetId: editorStore.activeTab?.id || 'main',
     label: editorStore.activeTab?.title || '主页编辑器',
@@ -1510,11 +2392,54 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     selectionStart: _pendingInlineSelection.value?.start,
     selectionEnd: _pendingInlineSelection.value?.end
   })
-  const requestIntent = classifyHomeIntent(text)
+  const requestIntentDetailed = await classifyHomeIntentDetailed(text)
+  const requestIntent: PlainDialogueIntent =
+    requestIntentDetailed.kind === 'matched' ? requestIntentDetailed.intent : 'discuss'
+  const homeProviderForRouting = providerStore.activeGenerateProvider
+  const homeModelForRouting = homeProviderForRouting?.selectedModel || homeProviderForRouting?.models?.[0] || ''
+  const homeProviderWindow = resolveEffectiveModelContextWindow({
+    model: homeModelForRouting,
+    providerContextWindowTokens: homeProviderForRouting?.contextWindowTokens,
+  })
+  const homeMaxOutputTokens = Number(homeProviderForRouting?.maxTokens) > 0
+    ? Number(homeProviderForRouting?.maxTokens)
+    : null
+  const homeExecutionPlan = buildLongDocumentExecutionPlan({
+    requestText: text,
+    content: requestTarget.content,
+    contextWindowTokens: typeof homeProviderWindow === 'number' ? homeProviderWindow : null,
+    maxOutputTokens: homeMaxOutputTokens,
+  })
+  homeLongDocumentEditTaskPlan = homeExecutionPlan.mode === 'edit-task'
+  activeHomeExecutionPlan = homeExecutionPlan
+  const homeLongDocumentOperationType = toLongDocumentOperationType(homeExecutionPlan.operation)
+  const useHomeFinalDraft = isHomeFinalDraftRequest(homeExecutionPlan, text, requestTarget.content)
+  const skillSurfaceModel = providerStore.activeGenerateProvider?.selectedModel
+    || providerStore.activeGenerateProvider?.models?.[0] || ''
   const skillSurface = requestTarget.content
-    ? buildHomeDialogueToolSurface(requestTarget, requestIntent)
+    ? buildHomeDialogueToolSurface(
+      requestTarget,
+      requestIntent,
+      skillSurfaceModel,
+      homeExecutionPlan,
+      homeLongDocumentEditTaskPlan,
+    )
     : undefined
-  const skillToolSurface = skillSurface?.actualToolSurface
+  const skillToolSurface = useHomeFinalDraft ? undefined : skillSurface?.actualToolSurface
+  for (const conflict of skillSurface?.toolConflicts || []) {
+    addHomeTraceEvent({
+      type: 'tool-conflict',
+      level: 'warn',
+      label: conflict.label,
+      detail: conflict.detail,
+    })
+    ;(typeof window !== 'undefined' ? (window as any).DiagLogger : null)?.log?.(
+      'warn',
+      'home/tool-conflict',
+      conflict.label,
+      { detail: conflict.detail, payload: conflict.payload },
+    )
+  }
   startHomeRun(
     selectedCoCreationSkills.value.length > 0 ? coCreationMode.value : 'direct',
     text,
@@ -1526,17 +2451,113 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       actualToolSurface: skillToolSurface,
     }
   )
+  if (useHomeFinalDraft) {
+    const providerForFinalDraft = providerStore.activeGenerateProvider
+    if (!providerForFinalDraft) {
+      chatStore.addMessage({ role: 'user', content: text, tabId: chatStore.currentContext?.tabId || '' }, projId)
+      chatStore.addMessage({ role: 'assistant', content: '未配置 API 提供方。请在设置中配置后重试。', tabId: chatStore.currentContext?.tabId || '' }, projId)
+      finishHomeRun('failed', '未配置 API 提供方', undefined, 'provider_not_configured')
+      inputText.value = ''
+      return
+    }
+    if (!providerForFinalDraft.apiKey) {
+      chatStore.addMessage({ role: 'user', content: text, tabId: chatStore.currentContext?.tabId || '' }, projId)
+      chatStore.addMessage({ role: 'assistant', content: '未配置 API Key。请在设置中填写后重试。', tabId: chatStore.currentContext?.tabId || '' }, projId)
+      finishHomeRun('failed', '未配置 API Key', undefined, 'api_key_missing')
+      inputText.value = ''
+      return
+    }
+    inputText.value = ''
+    await runHomeFinalDraftTurn({
+      requestText: text,
+      targetId: requestTarget.targetId,
+      sourceContent: requestTarget.content,
+      model: providerForFinalDraft.selectedModel || providerForFinalDraft.models?.[0] || 'gpt-4o',
+      plan: homeExecutionPlan,
+    })
+    return
+  }
+  addHomeTraceEvent({
+    type: 'long-document-policy',
+    level: 'info',
+    label: homeExecutionPlan.mode === 'edit-task'
+      ? '长文档进入 EditTask 多批执行'
+      : homeExecutionPlan.decision !== 'fits'
+        ? '启用长文档工具任务策略'
+        : '使用短文档工具任务策略',
+    detail: JSON.stringify({
+      planId: homeExecutionPlan.planId,
+      operation: homeExecutionPlan.operation,
+      legacyOperationType: homeLongDocumentOperationType,
+      mode: homeExecutionPlan.mode,
+      decision: homeExecutionPlan.decision,
+      reason: homeLongDocumentEditTaskPlan
+        ? 'execution-plan-edit-task'
+        : homeExecutionPlan.decision !== 'fits'
+          ? 'execution-plan-long-document'
+          : 'execution-plan-direct',
+      segments: homeExecutionPlan.segments.length,
+      invariants: homeExecutionPlan.invariants,
+      estimatedPhysicalRequests: homeExecutionPlan.estimatedPhysicalRequests,
+      contextWindow: homeExecutionPlan.contextWindow,
+      estimatedDocumentTokens: homeExecutionPlan.estimatedDocumentTokens,
+      targetChars: homeExecutionPlan.totalChars,
+      request: text.slice(0, 120),
+    })
+  })
+  const homeLongDocumentDiag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+  homeLongDocumentDiag?.log?.('info', 'home/long-document-policy', `executionPlan=${homeExecutionPlan.planId}`, {
+    reason: `execution-plan-${homeExecutionPlan.decision}`,
+    executionMode: homeExecutionPlan.mode,
+    executionModeReason: `operation=${homeExecutionPlan.operation}`,
+    planId: homeExecutionPlan.planId,
+    decision: homeExecutionPlan.decision,
+    contextWindow: homeExecutionPlan.contextWindow,
+    estimatedDocumentTokens: homeExecutionPlan.estimatedDocumentTokens,
+    requestText: text,
+    targetChars: homeExecutionPlan.totalChars,
+  })
+  consumeIntentCorpusInference({
+    projectId: projectId.value,
+    projectName: projectStore.projectName,
+    workspace: 'home-editor',
+    runId: homeRunTraceId,
+    turnId: homeRunTurnId,
+    requestText: text,
+    routing: requestIntentDetailed,
+  })
+  if (requestIntentDetailed.kind === 'no_match' || requestIntentDetailed.kind === 'ambiguous') {
+    stageIntentCorpusInference({
+      projectId: projectId.value,
+      projectName: projectStore.projectName,
+      workspace: 'home-editor',
+      runId: homeRunTraceId,
+      requestText: text,
+      routing: requestIntentDetailed,
+    })
+  }
+  recordIntentRoutingSample({
+    projectId: projectId.value,
+    projectName: projectStore.projectName,
+    workspace: 'home-editor',
+    runId: homeRunTraceId,
+    turnId: homeRunTurnId || undefined,
+    requestText: text,
+    routing: requestIntentDetailed,
+  })
 
   chatStore.addMessage({ role: 'user', content: text, tabId: chatStore.currentContext?.tabId || '' }, projId)
+  addHomeRoutingDiagnostics(requestIntentDetailed.diagnostics)
   inputText.value = ''
   await nextTick()
   scrollToBottom()
 
   chatStore.setGenerationState('preparing', '正在准备请求…')
   let response = ''
-  let failedTurnMaxTokens: number | undefined
+  let failedTurnMaxTokens: number | null | undefined
   let homeSkillTerminalStatus: 'success' | 'degraded' | 'blocked' | undefined
   let homeSkillTerminalReason: string | undefined
+  let homeTurnSucceeded = false
   try {
     const provider = providerStore.activeGenerateProvider
     if (!provider) {
@@ -1552,6 +2573,11 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       return
     }
     const agent = agentStore.getAgent(coCreationAgentId.value)
+    const mainContextPack = buildContextPack(requestTarget, undefined, {
+      provider,
+      model: provider.selectedModel || provider.models?.[0] || 'gpt-4o',
+      maxOutputTokens: Number(provider.maxTokens) > 0 ? Number(provider.maxTokens) : null,
+    })
     const agentPrompt = agent?.systemPrompt || '你是写作助手。'
     const systemParts: string[] = []
     systemParts.push(agentPrompt)
@@ -1717,7 +2743,11 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     if (chatCtx.editorContent && chatCtx.editorContent === chatCtx.referenceOutline) {
       chatCtx.referenceOutline = ''
     }
-    if (chatCtx.editorContent) { systemParts.push('主创作上下文（编辑器内容）：\n' + chatCtx.editorContent) }
+    if (chatCtx.editorContent) {
+      if (mainContextPack) {
+        systemParts.push('主创作上下文（编辑器内容）：\n' + mainContextPack.content)
+      }
+    }
     if (chatCtx.referenceOutline) { systemParts.push('参考资料-大纲索引：\n' + chatCtx.referenceOutline) }
 
     const memoryContext = retrieveContext(projectStore.memories, {
@@ -1733,9 +2763,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
         requestTarget.selectedText
           ? `当前选区：${requestTarget.selectedText}`
           : '当前无选区：请使用 insert/replace_match/append，禁止 replace_selection。',
-        requestTarget.content.length > 12000
-          ? `长文档目标总长度 ${requestTarget.content.length} 字符；如需修改焦点外内容，必须先用只读工具读取对应范围。`
-          : `当前编辑内容：\n${requestTarget.content}`
+        `当前编辑内容总长度 ${requestTarget.content.length} 字符；当前选区 ${requestTarget.selectionStart}-${requestTarget.selectionEnd}；如需修改焦点外内容，必须先用只读工具读取对应范围。`
       ].join('\n'))
     } else if (editorStore.activeTab) {
       systemParts.push(buildEditorReadonlyPrompt({
@@ -1745,7 +2773,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       }))
     }
 
-    const systemPrompt = systemParts.join('\n\n---\n\n')
+    const baseSystemPrompt = systemParts.join('\n\n---\n\n')
     const model = provider.selectedModel || 'gpt-4o'
     const maxDepth = getHomeSkillMaxDepth()
     maxDepthRef.value = maxDepth
@@ -1773,8 +2801,11 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
           detail: toolName + '：' + (toolErr?.message || String(toolErr))
         })
       }
-    } else if (selectedCoCreationSkills.value.length > 0) {
-    const skillRun = await runHomeCoCreationSkills(originalRequest, routingDecision, {
+  } else if (selectedCoCreationSkills.value.length > 0) {
+    const skillRun = await runHomeCoCreationSkills(originalRequest, {
+      ...routingDecision,
+      precomputedRouting: requestIntentDetailed,
+    }, {
         intent: requestIntent,
       toolSurface: skillToolSurface,
       actualToolSurface: skillToolSurface
@@ -1788,10 +2819,38 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       // 3) 常规对话走统一意图授权：讨论/分析只读，编辑/生成才提供提案工具
       const useTools = Boolean(editorStore.activeTab)
       const plainIntent = requestIntent
+      const plainRequestTarget = requestTarget.targetId === (editorStore.activeTab?.id || projectId.value)
+        ? createMainEditorTargetSnapshot(editorStore.activeTab)
+        : requestTarget
       const plainSurface = useTools
-        ? buildHomeDialogueToolSurface(requestTarget, plainIntent)
+        ? buildHomeDialogueToolSurface(
+          plainRequestTarget,
+          plainIntent,
+          model,
+          homeExecutionPlan,
+          homeLongDocumentEditTaskPlan,
+        )
         : undefined
       const plainTools = plainSurface?.tools
+      for (const conflict of plainSurface?.toolConflicts || []) {
+        addHomeTraceEvent({
+          type: 'tool-conflict',
+          level: 'warn',
+          label: conflict.label,
+          detail: conflict.detail,
+        })
+        ;(typeof window !== 'undefined' ? (window as any).DiagLogger : null)?.log?.(
+          'warn',
+          'home/tool-conflict',
+          conflict.label,
+          { detail: conflict.detail, payload: conflict.payload },
+        )
+      }
+      const systemPrompt = appendDialogueToolSurfaceDeclaration(
+        baseSystemPrompt,
+        plainSurface?.actualToolSurface,
+        { activeEditTask: homeEditTask.value },
+      )
      const plainResult = await callApi(
        provider,
        model,
@@ -1801,9 +2860,12 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       projId,
       text,
       plainTools,
-      requestTarget,
+      plainRequestTarget,
       plainIntent,
-      plainSurface?.actualToolSurface
+      plainSurface?.actualToolSurface,
+      homeLongDocumentEditTaskPlan ? 'long-document-workflow' : undefined,
+      homeExecutionPlan,
+      homeLongDocumentOperationType
     )
       response = plainResult.text
       failedTurnMaxTokens = plainResult.maxTokens
@@ -1827,7 +2889,12 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       }
     }
 
-    if (!response && selectedCoCreationSkills.value.length > 0 && coCreationMode.value === 'chain') {
+    if (
+      !response &&
+      selectedCoCreationSkills.value.length > 0 &&
+      coCreationMode.value === 'chain' &&
+      homeSkillTerminalStatus !== 'blocked'
+    ) {
       // Awaiting confirmation keeps its dedicated bubble and the chat run open;
       // the next user action resumes the active watchdog instead of minting a
       // false success terminal state.
@@ -1872,6 +2939,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       response,
       homeSkillTerminalReason || (selectedCoCreationSkills.value.length > 0 ? 'co_creation_complete' : 'dialogue_complete'),
     )
+    homeTurnSucceeded = true
  } catch (e: any) {
    if (e?.kind === 'canceled' || activeAbortController?.signal.aborted) {
      closeActiveHomeApiCall('canceled', '用户取消生成')
@@ -1898,6 +2966,17 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
      }).catch(() => undefined)
    }
 } finally {
+ const activeHomeEditTask = homeEditTaskSession.activeTask()
+ if (homeLongDocumentEditTaskPlan && activeHomeEditTask?.status === 'awaiting_batch') {
+    const allBatchesWritten = activeHomeEditTask.executedBatches.length > 0
+      && activeHomeEditTask.pendingBatches.length === 0
+      && activeHomeEditTask.failedBatchIds.length === 0
+    if (!homeTurnSucceeded && allBatchesWritten) {
+      homeEditTaskSession.finishActiveTask({ succeeded: false, summaryFailed: true })
+    } else {
+      homeEditTaskSession.finishActiveTask({ succeeded: homeTurnSucceeded })
+    }
+ }
   if (homeRunTraceId && runTraceStore.isAwaitingUser(homeRunTraceId)) {
     closeActiveHomeApiCall('canceled', '等待用户确认，未发起 API 调用')
   } else {
@@ -1935,23 +3014,17 @@ async function callApi(
  externalRequestTarget?: EditorTargetSnapshot,
  plainIntent?: PlainDialogueIntent,
  actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>,
+ workflowWrite?: 'long-document-workflow' | undefined,
+ executionPlan?: LongDocumentExecutionPlan,
+ operationType?: LongDocumentOperationType,
 ): Promise<{
   text: string
-  maxTokens?: number
+  maxTokens?: number | null
   toolCallSummary: string | null
 }> {
   // The per-turn token limit is recorded from the actual request result.
-  configureHomeContextCompaction(model)
-  const requestTarget = externalRequestTarget || createEditorTargetSnapshot({
-    workspace: 'main',
-    targetId: editorStore.activeTab?.id || projId,
-    label: editorStore.activeTab?.title || '',
-    chapterId: editorStore.activeTab?.chapterId,
-    mode: editorStore.activeTab?.mode || 'ch-body',
-    content: editorStore.activeTab?.content || '',
-    selectionStart: 0,
-    selectionEnd: 0
-  })
+  configureHomeContextCompaction(model, provider.contextWindowTokens)
+  const requestTarget = externalRequestTarget || createMainEditorTargetSnapshot(editorStore.activeTab, projId)
   // P4: AI 任务开始前创建工作区快照
   // 经验引用: §1 M1（影响圈声明）、§7 规则6（项目 ID 前缀）
   if (!hasWorkspaceSnapshot()) {
@@ -1965,6 +3038,7 @@ async function callApi(
    workspace: 'main',
    purpose: 'generate',
    legacyMessages: getChatContextMessages(userText),
+   toolAudit: lastHomeToolAudit,
    workspaceState: {
      editorContent: requestTarget.content,
      referenceOutline: projectStore.outlineText || '',
@@ -1995,7 +3069,12 @@ async function callApi(
   const ctxTurns = messages.filter(message => message.role === 'user' || message.role === 'assistant').length / 2
 
   const service = await getAiService()
-  const requestMaxTokens = Number(provider.maxTokens) > 0 ? Number(provider.maxTokens) : 128000
+  const requestMaxTokens = Number(provider.maxTokens) > 0 ? Number(provider.maxTokens) : null
+  const tracePipelineMetadata = buildContextPack(requestTarget, undefined, {
+    provider,
+    model,
+    maxOutputTokens: requestMaxTokens,
+  })?.pipeline ?? null
   const traceApiCallId = startHomeApiCall({
     skillName: selectedCoCreationSkills.value.length > 0 ? '主页共创' : '直接对话',
     requestMessages: messages.map(message => ({ role: message.role, content: String(message.content || '') })),
@@ -2003,6 +3082,26 @@ async function callApi(
     intent: plainIntent,
     toolSurface: actualToolSurface,
     actualToolSurface
+  })
+  addHomeTraceEvent({
+    type: 'editor-context-policy',
+    label: '编辑目标上下文策略',
+    detail: JSON.stringify({
+      targetId: requestTarget.targetId,
+      label: requestTarget.label,
+      targetLength: requestTarget.content.length,
+      contentVersion: requestTarget.contentVersion,
+      versionSource: 'stable_content_version',
+      selectionSource: requestTarget.targetId === editorStore.activeTab?.id ? 'real' : 'inactive',
+      selectionStart: requestTarget.selectionStart,
+      selectionEnd: requestTarget.selectionEnd,
+      pipeline: tracePipelineMetadata,
+    })
+  })
+  const editorContextDiag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+  editorContextDiag?.log?.('info', 'home/editor-context-pipeline', '编辑上下文管道元数据', {
+    targetId: requestTarget.targetId,
+    pipeline: tracePipelineMetadata,
   })
   const requestId = ++homeLastDirectRequestId
   const reportDirectGenerationEvent = (type: 'generation-invalid' | 'direct-retry-start' | 'direct-retry-finished', detail: Record<string, unknown>) => {
@@ -2016,9 +3115,106 @@ async function callApi(
   }
   let directStreamText = ''
   const reasoningControl = getProviderReasoningControl(provider.providerType)
-    const result = await service.callAi({
-    purpose: 'generate',
-    messages,
+    const agentRuntime = createAgentDialogueRuntime({
+      source: 'home',
+      taskId: `home-direct-${traceApiCallId || Date.now().toString(36)}`,
+      goal: engineInput.slice(0, 200) || '完成本轮主页直接对话',
+      document: {
+        content: requestTarget.content,
+        operationType,
+        executionPlan,
+      },
+      getContextRemaining: () => ({
+        contextWindowTokens: resolveEffectiveModelContextWindow({
+          model,
+          providerContextWindowTokens: provider.contextWindowTokens,
+        }) ?? null,
+        maxOutputTokens: requestMaxTokens,
+      }),
+      onEvent: event => {
+        addHomeTraceEvent({
+          type: `agent-${event.type}`,
+          level: event.level === 'warning' ? 'warn' : event.level,
+          label: event.label,
+          detail: event.detail,
+        })
+        const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+        diag?.log?.(
+          event.level === 'error' ? 'error' : event.level === 'warning' ? 'warn' : 'info',
+          `home/agent-orchestrator/${event.type}`,
+          event.label,
+          { reason: event.detail, payload: event.payload },
+        )
+      },
+      runSubAgent: async ({ taskId, goal }) => {
+        const subAgentRuntime = createAgentDialogueRuntime({
+          source: 'home',
+          taskId,
+          goal,
+          subAgentDepth: 1,
+          document: {
+            content: requestTarget.content,
+            operationType,
+            executionPlan,
+          },
+          getContextRemaining: () => ({
+            contextWindowTokens: resolveEffectiveModelContextWindow({
+              model,
+              providerContextWindowTokens: provider.contextWindowTokens,
+            }) ?? null,
+            maxOutputTokens: requestMaxTokens,
+          }),
+          onEvent: event => {
+            addHomeTraceEvent({
+              type: `agent-sub-agent-${event.type}`,
+              level: event.level === 'warning' ? 'warn' : event.level,
+              label: event.label,
+              detail: event.detail,
+            })
+            const subAgentDiag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+            subAgentDiag?.log?.(
+              event.level === 'error' ? 'error' : event.level === 'warning' ? 'warn' : 'info',
+              `home/agent-sub-agent/${event.type}`,
+              event.label,
+              { reason: event.detail, payload: event.payload },
+            )
+          },
+        })
+        return await subAgentRuntime.run({
+          purpose: 'generate',
+          messages: [{ role: 'user', content: goal }],
+          model,
+          stream: true,
+          temperature: provider.temperature ?? 0.7,
+          maxTokens: requestMaxTokens,
+          retry: true,
+          signal: activeAbortController?.signal,
+          tools,
+          onPhysicalCall: event => recordHomePhysicalCall(traceApiCallId, event),
+          onReasoning: (text: string) => appendHomeReasoning(traceApiCallId, text),
+          toolPolicy: {
+            scenario: 'direct-tool-intensive',
+            intent: plainIntent === 'discuss' && workflowWrite ? 'edit' : plainIntent,
+            writeAuthorization: workflowWrite,
+            onToolStart: event => {
+              if (!isAgentRuntimeToolName(event.toolName)) {
+                window.dispatchEvent(new CustomEvent('tool-activity', { detail: { type: 'tool_start', toolName: event.toolName, targetId: requestTarget.targetId, policy: event.policy } }))
+              }
+            },
+            onToolCall: event => {
+              recordHomeToolCall(traceApiCallId, event)
+              if (!isAgentRuntimeToolName(event.toolName)) {
+                window.dispatchEvent(new CustomEvent('tool-activity', { detail: { type: event.result.ok ? 'tool_result' : 'tool_error', toolName: event.toolName, targetId: requestTarget.targetId, policy: event.policy } }))
+              }
+            },
+          },
+          callAi: params => service.callAi(params),
+        })
+      },
+    })
+    const agentResult = await agentRuntime.run({
+      purpose: 'generate',
+      messages,
     model,
     stream: true,
     temperature: provider.temperature ?? 0.7,
@@ -2032,9 +3228,18 @@ async function callApi(
     onReasoning: (text: string) => {
       appendHomeReasoning(traceApiCallId, text)
     },
-    toolPolicy: tools ? {
-   maxToolIterations: 6,
-   intent: plainIntent,
+    toolPolicy: {
+   scenario: 'direct-tool-intensive',
+   intent: plainIntent === 'discuss' && workflowWrite ? 'edit' : plainIntent,
+   writeAuthorization: workflowWrite,
+   onConvergenceStart: () => {
+     addHomeTraceEvent({
+       type: 'tool-convergence-started',
+       level: 'info',
+       label: '开始收敛最终回答',
+       detail: '工具调用轮次达到上限，已停止工具执行并开始最终回答请求'
+     })
+   },
    onPermissionDenied: event => {
      addHomeTraceEvent({
        type: 'tool-permission-denied',
@@ -2043,30 +3248,48 @@ async function callApi(
        detail: `${event.toolName}：${event.reason}`
      })
    },
-   onRepeatedWriteBlocked: event => {
+   onConvergencePseudoCall: event => {
      addHomeTraceEvent({
-       type: 'write-duplicate-blocked',
+       type: 'tool-convergence-pseudo-call',
        level: 'warn',
-       label: '重复写入已拦截',
-       detail: `${event.toolName}：连续 ${event.repeatCount} 次提交完全相同的写入参数，本次已拦截`
+       label: '收敛回答疑似伪工具调用',
+       detail: event.text.slice(0, 2000)
+     })
+     const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+     diag?.log?.('warn', 'tool/convergence-pseudo-call', '收敛回答疑似伪工具调用，已发起一次强纠正请求', {
+       workspace: 'home',
+       text: event.text.slice(0, 2000),
+       reason: event.reason,
      })
    },
+   onConvergenceCorrected: () => {
+     addHomeTraceEvent({
+       type: 'tool-convergence-corrected',
+       level: 'info',
+       label: '收敛回答已纠正为自然语言',
+       detail: '伪工具调用已被拦截，强纠正请求返回可用正文'
+     })
+     const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+     diag?.log?.('info', 'tool/convergence-corrected', '收敛伪工具调用已通过强纠正请求修复')
+   },
+   onConvergenceLocalFallback: reason => {
+     addHomeTraceEvent({
+       type: 'tool-convergence-local-fallback',
+       level: 'warn',
+       label: '收敛失败，返回本地摘要',
+       detail: reason
+     })
+     const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+     diag?.log?.('warn', 'tool/convergence-local-fallback', '收敛请求未得到可用正文，已返回本地工具结果摘要', {
+       workspace: 'home',
+       reason,
+     })
+  },
   onToolStart: (event) => {
-    // P6: 工具调用开始 -> 流式 tool_start 事件
     // P7: 通知编辑器实时反馈
-    window.dispatchEvent(new CustomEvent('tool-activity', { detail: { type: 'tool_start', toolName: event.toolName, targetId: requestTarget.targetId, policy: event.policy } }))
-    const activeMsg = chatStore.activeSession?.messages[chatStore.activeSession.messages.length - 1]
-     if (activeMsg?.role === 'assistant') {
-       chatStore.appendToolCallStream(activeMsg.id, {
-         type: 'tool_start',
-         toolName: event.toolName,
-         stepDescription: `正在执行 ${event.toolName}…`,
-         targetId: requestTarget.targetId,
-         iteration: event.iteration,
-         timestamp: Date.now(),
-         ok: false,
-       }, chatStore.activeSession?.id)
-     }
+    if (!isAgentRuntimeToolName(event.toolName)) {
+      window.dispatchEvent(new CustomEvent('tool-activity', { detail: { type: 'tool_start', toolName: event.toolName, targetId: requestTarget.targetId, policy: event.policy } }))
+    }
     addHomeTraceEvent({
       type: 'tool_start',
       label: '工具调用开始',
@@ -2084,20 +3307,8 @@ async function callApi(
          console.warn('[P2 写入安全] AI 尝试写入非当前目标', { writableTarget, expected: requestTarget.targetId })
        }
      }
-      // P6: 工具调用过程流式事件
-      const activeMsg = chatStore.activeSession?.messages[chatStore.activeSession.messages.length - 1]
-      if (activeMsg?.role === 'assistant') {
-       chatStore.appendToolCallStream(activeMsg.id, {
-         type: event.result.ok ? 'tool_result' : 'tool_error',
-          toolName: event.toolName,
-          stepDescription: event.result.ok ? '已完成' : (event.result.error?.message || '失败'),
-          targetId: requestTarget.targetId,
-          iteration: event.iteration,
-          timestamp: Date.now(),
-          ok: event.result.ok,
-          error: event.result.ok ? undefined : event.result.error?.message
-        }, chatStore.activeSession?.id)
-       // P7: 通知编辑器工具完成
+     // P7: 通知编辑器工具完成
+     if (!isAgentRuntimeToolName(event.toolName)) {
        window.dispatchEvent(new CustomEvent('tool-activity', { detail: { type: event.result.ok ? 'tool_result' : 'tool_error', toolName: event.toolName, targetId: requestTarget.targetId, policy: event.policy } }))
      }
      addHomeTraceEvent({
@@ -2106,8 +3317,8 @@ async function callApi(
        label: event.result.ok ? '工具调用完成' : '工具调用失败',
        detail: `${event.toolName}：${event.result.ok ? '成功' : (event.result.error?.message || '失败')}`
      })
-     // P5: 记录工具调用到任务状态机
-     if (!aiTaskStore.hasActiveTask) {
+     // P5: 记录编辑器工具调用到任务状态机；Agent 运行时工具只进 trace，不进入对话 UI。
+     if (!isAgentRuntimeToolName(event.toolName) && !aiTaskStore.hasActiveTask) {
        aiTaskStore.createTask({
          description: '编辑器共创',
          projectId: projId,
@@ -2119,7 +3330,7 @@ async function callApi(
       // P5: requestTarget 从外部闭包传入，此处直接使用 callApi 参数
       // requestTarget 在 sendMessage 闭包中定义，callApi 内部需要通过参数传入
      const activeTask = aiTaskStore.activeTask
-     if (activeTask) {
+     if (activeTask && !isAgentRuntimeToolName(event.toolName)) {
        const currentStep = activeTask.steps[activeTask.currentStep]
        if (currentStep && currentStep.action === event.toolName) {
          aiTaskStore.updateStepStatus(
@@ -2139,7 +3350,7 @@ async function callApi(
     onCompatibilityMode: () => {
         compatibilityNotice.value = '当前供应商未启用原生工具调用，已使用 JSON 兼容模式'
       }
-    } : undefined,
+    },
     meta: {
       source: 'ChatPanel.callApi',
       workspace: 'main',
@@ -2154,8 +3365,16 @@ async function callApi(
       appendHomeStream(text, true)
       chatStore.updateLastMessage(directStreamText)
       nextTick().then(() => scrollToBottom())
+    },
+     callAi: params => service.callAi(params),
+    })
+    const result = agentResult.result
+    if (!result) throw new Error(agentResult.reason || 'Agent 编排器未返回 API 结果')
+    if (agentResult.toolSurface?.length) {
+      runTraceStore.updateApiCallToolSurface(homeRunTraceId || '', traceApiCallId || '', {
+        actualToolSurface: agentResult.toolSurface,
+      })
     }
-  })
   const validity = classifyGenerationValidity({
     text: result.text,
     reasoning: result.reasoning,
@@ -2178,7 +3397,9 @@ async function callApi(
       retryStrategy: reasoningControl.supported ? 'thinking_disabled' : 'max_tokens_raised',
       maxTokens: reasoningControl.supported
         ? requestMaxTokens
-        : Math.max(requestMaxTokens, Math.round(requestMaxTokens * 1.5)),
+        : requestMaxTokens == null
+          ? 32_768
+          : Math.max(requestMaxTokens, Math.round(requestMaxTokens * 1.5)),
     })
     chatStore.setGenerationState('retrying', '正文为空，正在切换直出模式重试')
     const retryStrategy: 'thinking_disabled' | 'max_tokens_raised' = reasoningControl.supported
@@ -2186,7 +3407,9 @@ async function callApi(
       : 'max_tokens_raised'
     const retryMaxTokens = retryStrategy === 'thinking_disabled'
       ? requestMaxTokens
-      : Math.max(requestMaxTokens, Math.round(requestMaxTokens * 1.5))
+      : requestMaxTokens == null
+        ? 32_768
+        : Math.max(requestMaxTokens, Math.round(requestMaxTokens * 1.5))
     const retryResult = await service.callAi({
       purpose: 'generate',
       messages: [...messages, { role: 'system', content: '请直接输出最终正文，不要输出思考过程。' }],
@@ -2226,7 +3449,7 @@ async function callApi(
       reasoning: retryResult.reasoning,
       finishReason: retryResult.finishReason,
       usage: retryResult.usage,
-      maxTokens: retryResult.maxTokens ?? retryMaxTokens,
+      maxTokens: retryResult.maxTokens ?? retryMaxTokens ?? null,
       toolCalls: retryResult.toolCalls,
       canceled: activeAbortController?.signal.aborted,
     })
@@ -2247,7 +3470,7 @@ async function callApi(
       reasoningLength: (retryResult.reasoning || '').length,
       textLength: (retryResult.text || '').length,
       retryStrategy,
-      maxTokens: retryResult.maxTokens ?? retryMaxTokens,
+      maxTokens: retryResult.maxTokens ?? retryMaxTokens ?? null,
     })
     finishHomeApiCall(traceApiCallId, {
       status: 'success',
@@ -2256,12 +3479,12 @@ async function callApi(
       finishReason: retryResult.finishReason,
       usage: retryResult.usage,
       retryStrategy,
-      maxTokens: retryResult.maxTokens ?? retryMaxTokens,
+      maxTokens: retryResult.maxTokens ?? retryMaxTokens ?? null,
     })
     chatStore.updateLastMessage(retryResult.text || '')
     return {
       text: retryResult.text || '',
-      maxTokens: retryResult.maxTokens ?? retryMaxTokens,
+      maxTokens: retryResult.maxTokens ?? retryMaxTokens ?? null,
       toolCallSummary: null
     }
   }
@@ -2271,9 +3494,10 @@ async function callApi(
   const toolCallSummary = result.toolCalls?.length
     ? result.toolCalls.map(call => call.name).join(' → ')
     : null
+  lastHomeToolAudit = result.toolAudit
   finishHomeApiCall(traceApiCallId, {
     status: 'success',
-    responseText: toolCallSummary || result.text || '',
+    responseText: result.text || '',
     reasoningText: result.reasoning || '',
     finishReason: result.finishReason,
     usage: result.usage,
@@ -2281,7 +3505,8 @@ async function callApi(
     compatibilityWrite: result.compatibilityWrite,
     toolsDowngraded: result.toolsDowngraded,
     downgradeReason: result.compatibilityWrite ? 'compatibility_write' : undefined,
-    maxTokens: result.maxTokens
+    maxTokens: result.maxTokens,
+    toolAudit: result.toolAudit
   })
   if (result.toolsDowngraded === 'json-protocol' && !compatibilityNotice.value) {
     compatibilityNotice.value = '供应商拒绝原生工具调用，已降级为 JSON 兼容模式'
@@ -2320,7 +3545,7 @@ async function callApi(
   }
   return {
     text: responseText,
-    maxTokens: result.maxTokens ?? requestMaxTokens,
+    maxTokens: result.maxTokens ?? requestMaxTokens ?? null,
     toolCallSummary
   }
 }
@@ -2346,6 +3571,7 @@ async function resetConversation() {
   if (!confirmed) return
   if (homeRunTraceId) runTraceStore.markContextCompacted(homeRunTraceId, '用户点击清空记忆')
   sealHomeTraceSession()
+  lastHomeToolAudit = undefined
   try {
     chatStore.clearSession()
     await conversationContextService.clearSession({
@@ -2517,7 +3743,7 @@ async function insertToEditor(content: string) {
   const editor = document.getElementById('editor-content') as HTMLTextAreaElement | null
   const selectionStart = editor?.selectionStart ?? (tab.content || '').length
   const selectionEnd = editor?.selectionEnd ?? selectionStart
-  const target = createEditorTargetSnapshot({
+  const target = buildSnapshot({
     workspace: 'main',
     targetId: tab.id,
     label: tab.title,
@@ -2556,8 +3782,17 @@ async function insertToEditor(content: string) {
 }
 
 function buildChatEditorTools(requestTarget: EditorTargetSnapshot) {
-  const applyDirectWrite = async (input: Parameters<EditorWriteApplier>[0]): Promise<
-    { ok: true; rollbackAvailable: boolean } | { ok: false; code: string; message: string }
+  const getCurrentTarget = (): EditorTargetSnapshot | null => {
+    if (requestTarget.targetId === editorStore.activeTab?.id) {
+      return createMainEditorTargetSnapshot(editorStore.activeTab)
+    }
+    const tab = editorStore.tabs.find(item => item.id === requestTarget.targetId)
+    if (!tab) return null
+    return createInactiveMainEditorTargetSnapshot(tab)
+  }
+  const applyDirectWrite = async (input: EditorWriteApplyInput): Promise<
+    | { ok: true; rollbackAvailable: boolean; documentVersion: number; contentHash: string }
+    | { ok: false; code: string; message: string }
   > => {
     const tab = editorStore.tabs.find(item => item.id === input.targetId)
     if (!tab) return { ok: false, code: 'target_missing', message: '编辑目标已关闭，无法写入' }
@@ -2594,7 +3829,13 @@ function buildChatEditorTools(requestTarget: EditorTargetSnapshot) {
       sourceContent: input.original,
       batchId: input.batchId,
     })
-    editorStore.pushUndoState(tab.id, currentContent)
+    const batchDiffPlan = planEditorEditBatch({
+      type: 'editor_edit_batch',
+      version: 1,
+      commands: input.commands,
+      reason: input.reason,
+    }, createInactiveMainEditorTargetSnapshot({ ...tab, content: input.original }), { content: input.original })
+    editorStore.pushAiBatchCheckpoint(tab.id, currentContent, record.batchId)
     const finishWrite = () => {
       editorStore.updateContent(tab.id, input.next)
       window.dispatchEvent(new CustomEvent('editor-ai-batch-checkpoint', {
@@ -2638,6 +3879,11 @@ function buildChatEditorTools(requestTarget: EditorTargetSnapshot) {
           undoAvailable: true,
         }),
         chatStore.activeSession?.id,
+        batchDiffPlan.ok && hashEditorContent(input.next) === hashEditorContent(batchDiffPlan.next) ? {
+          original: batchDiffPlan.original,
+          next: batchDiffPlan.next,
+          hunks: buildEditHunks(batchDiffPlan),
+        } : undefined,
       )
     }
     recordHomeBatchEvent(record, 'applied', `已直接写入 ${input.commands.length} 条修改`)
@@ -2649,7 +3895,10 @@ function buildChatEditorTools(requestTarget: EditorTargetSnapshot) {
       operation: 'editor_write',
       result: 'applied',
       targetLength: input.original.length,
-      contentLength: input.commands.reduce((sum, command) => sum + (command.content?.length || 0), 0),
+      contentLength: input.commands.reduce(
+        (sum: number, command: { content?: string }) => sum + (command.content?.length || 0),
+        0,
+      ),
       durationMs: 0,
       detail: `API 直写已应用 ${input.commands.length} 条命令`,
     })
@@ -2671,30 +3920,40 @@ function buildChatEditorTools(requestTarget: EditorTargetSnapshot) {
       commands: input.commands.length,
       reason: input.reason,
     })
-    return { ok: true, rollbackAvailable: true }
+    const after = createInactiveMainEditorTargetSnapshot({ ...tab, content: input.next })
+    return {
+      ok: true,
+      rollbackAvailable: true,
+      documentVersion: after.contentVersion,
+      contentHash: hashEditorContent(input.next),
+    }
   }
   return {
-    getSnapshot: () => requestTarget,
-    getAllSnapshots: () => editorStore.tabs.map(tab => ({
-      workspace: 'main' as const,
-      targetId: tab.id,
-      label: tab.title,
-      chapterId: tab.chapterId,
-      mode: tab.mode,
-      content: tab.content,
-      contentVersion: 0,
-      selectionStart: 0,
-      selectionEnd: 0,
-      selectedText: '',
-    })),
-    onPlanUpdate: (plan: Parameters<NonNullable<Parameters<typeof buildDialogueToolSurface>[0]['onPlanUpdate']>>[0]) => {
-      const activeMessage = chatStore.activeSession?.messages[chatStore.activeSession.messages.length - 1]
-      if (activeMessage?.role === 'assistant') {
-        chatStore.updateMessageEditorToolPlan(activeMessage.id, plan, chatStore.activeSession?.id)
-      }
-    },
+    getSnapshot: getCurrentTarget,
+    getAllSnapshots: () => editorStore.tabs.map(tab => createInactiveMainEditorTargetSnapshot(tab)),
     mode: 'direct' as const,
-    applyWrite: applyDirectWrite,
+    applyWrite: async (input: EditorWriteApplyInput) => {
+      const beforeTab = editorStore.tabs.find(item => item.id === input.targetId)
+      const before = beforeTab ? createInactiveMainEditorTargetSnapshot(beforeTab) : null
+      const result = await homeEditTaskSession.startOrContinueBatch({
+        target: { workspace: 'editor', targetId: input.targetId },
+        goal: input.reason || '主页编辑器 API 直写',
+      batchId: input.batchId,
+      batchDetail: input.batchDetail,
+      snapshot: {
+          contentVersion: before?.contentVersion || 0,
+          contentHash: hashEditorContent(input.original),
+        },
+      }, () => applyDirectWrite(input), { multiBatch: homeLongDocumentEditTaskPlan })
+      if (result.ok) {
+        return { ok: true, rollbackAvailable: true } as const
+      }
+      return {
+        ok: false,
+        code: result.code || 'write_failed',
+        message: result.message || '编辑任务批次执行失败',
+      } as const
+    },
     onFailedBatch: (batch: EditorWriteRetryCarrier | null) => { homeFailedWriteBatch = batch },
     takeFailedBatch: () => homeFailedWriteBatch,
     revealTarget: async (request: Parameters<EditorRevealer>[0]) => {
@@ -2713,11 +3972,26 @@ function buildChatEditorTools(requestTarget: EditorTargetSnapshot) {
 function buildHomeDialogueToolSurface(
   requestTarget: EditorTargetSnapshot,
   intent: PlainDialogueIntent,
+  model?: string,
+  executionPlan?: LongDocumentExecutionPlan,
+  editTaskWorkflow?: boolean,
 ): ReturnType<typeof buildDialogueToolSurface> {
   return buildDialogueToolSurface({
     workspace: 'main',
     intent,
+    writeAuthorization: editTaskWorkflow
+      ? { source: 'long-document-workflow' }
+      : null,
+    maxReadChars: () => getReadCapChars(
+      providerStore.activeGenerateProvider,
+      model || providerStore.activeGenerateProvider?.selectedModel
+        || providerStore.activeGenerateProvider?.models?.[0] || '',
+    ),
     ...buildChatEditorTools(requestTarget),
+    executionPlan,
+    activeEditTask: homeEditTask.value,
+    onResumeEditTask: taskId => homeEditTaskSession.resumeEditTask(taskId),
+    onCancelEditTask: taskId => homeEditTaskSession.onCancelEditTask(taskId),
     readableTargets: [requestTarget.targetId, ...editorStore.tabs.map(tab => tab.id)]
       .filter((id, index, all) => Boolean(id) && all.indexOf(id) === index),
     writableTarget: requestTarget.targetId,
@@ -2750,7 +4024,7 @@ function rollbackEditorBatch(message: ChatMessage) {
     void appConfirm.alert('编辑器内容在批次应用后已有修改，请使用对比预览手动处理')
     return
   }
-  const undoContent = findEditorBatchUndoContent(editorStore.tabUndoStacks[record.targetId] || [], record)
+  const undoContent = findEditorBatchUndoContent(editorStore.listUndoContentsForTab(record.targetId), record)
   if (!undoContent) {
     logEditorEdit({
       requestId: `chat-edit_${Date.now()}`,
@@ -2781,7 +4055,8 @@ function rollbackEditorBatch(message: ChatMessage) {
       rolledBackAt: Date.now(),
       undoAvailable: false
     }),
-    chatStore.activeSession?.id
+    chatStore.activeSession?.id,
+    null,
   )
   recordHomeBatchEvent(record, 'rolled_back', `已回滚 AI 批次，消耗 ${undoContent.consumed} 条撤销历史`)
   logEditorEdit({
@@ -2839,7 +4114,7 @@ function handleDiffApplied(event: Event) {
     editorStore.updateContent(tab.id, finalText)
     // P3: AI 批次 checkpoint 通过 editorStore undo 栈联动
     // 经验引用: §1 规则6（不得重新赋值）、§7 规则19（AI 批次专用回滚栈）
-    // ChatPanel 不持有 useUndoRedo 实例，通过事件通知 EditorPanel 联动
+    // ChatPanel 不持有撤销栈，通过事件通知 EditorPanel 同步展示
     window.dispatchEvent(new CustomEvent('editor-external-change', {
       detail: { tabId: tab.id, content: finalText }
     }))
@@ -2861,6 +4136,196 @@ function handleDiffApplied(event: Event) {
   }
 }
 
+function editorContentForBatch(message: ChatMessage): string {
+  const record = normalizeEditorBatchRecord(message.editorBatchRecord)
+  if (!record) return ''
+  const tab = editorStore.tabs.find(item => item.id === record.targetId)
+  return tab?.content || ''
+}
+
+function batchPlanForMessage(
+  message: ChatMessage,
+  sourceContent: string,
+): ReturnType<typeof planEditorEditBatch> | null {
+  const record = normalizeEditorBatchRecord(message.editorBatchRecord)
+  const batch = message.editorBatch
+  if (!record || !batch || batch.type !== 'editor_edit_batch') return null
+  return planEditorEditBatch(batch, {
+    ...createInactiveMainEditorTargetSnapshot({
+      id: record.targetId,
+      title: record.targetId,
+      content: sourceContent,
+    }),
+    content: sourceContent,
+  }, { content: sourceContent })
+}
+
+function rollbackEditorBatchHunk(message: ChatMessage, hunkIndex: number) {
+  if (isStreaming.value) return
+  const record = normalizeEditorBatchRecord(message.editorBatchRecord)
+  const tab = record ? editorStore.tabs.find(item => item.id === record.targetId) : null
+  if (!record || !tab) {
+    void appConfirm.alert('编辑目标已关闭，无法回滚这一条修改')
+    return
+  }
+  const currentContent = tab.content || ''
+  if (!canRollbackEditorBatch(record, currentContent)) {
+    recordHomeBatchEvent(record, 'version_changed', '单命令回滚前校验失败：编辑器版本已变化')
+    void appConfirm.alert('编辑器内容已变化，请使用整批回滚或重新读取当前文档')
+    return
+  }
+  const batch = message.editorBatch
+  if (!batch || batch.type !== 'editor_edit_batch') {
+    void appConfirm.alert('批次命令记录缺失，无法单条回滚')
+    return
+  }
+  const undoContent = findEditorBatchUndoContent(editorStore.listUndoContentsForTab(record.targetId), record)
+  if (!undoContent) {
+    void appConfirm.alert('撤销历史不足，无法回滚这一条修改')
+    return
+  }
+  const originalPlan = planEditorEditBatch(batch, createInactiveMainEditorTargetSnapshot({
+    id: record.targetId,
+    title: record.targetId,
+    content: undoContent.content,
+  }), { content: undoContent.content })
+  if (!originalPlan.ok) {
+    void appConfirm.alert('批次无法重放，已拒绝单条回滚')
+    return
+  }
+  const rejected = [hunkIndex]
+  const replanned = applyAcceptedItems(originalPlan, originalPlan.items
+    .map(item => item.index)
+    .filter(index => index !== hunkIndex))
+  if (!replanned.ok) {
+    logEditorEdit({
+      requestId: `chat-direct-write-hunk_${record.batchId}_${hunkIndex}`,
+      batchId: record.batchId,
+      workspace: 'main',
+      tabId: record.targetId,
+      operation: 'editor_write',
+      result: 'rejected',
+      targetLength: currentContent.length,
+      failureReason: 'invalid_command',
+      durationMs: 0,
+      detail: `单命令回滚重放失败：${replanned.failureReason || 'invalid_command'}`
+    })
+    void appConfirm.alert('单条回滚重放失败，原文未修改')
+    return
+  }
+  if (originalPlan.next !== currentContent) {
+    logEditorEdit({
+      requestId: `chat-direct-write-hunk_${record.batchId}_${hunkIndex}`,
+      batchId: record.batchId,
+      workspace: 'main',
+      tabId: record.targetId,
+      operation: 'editor_write',
+      result: 'rejected',
+      targetLength: currentContent.length,
+      failureReason: 'version_changed',
+      durationMs: 0,
+      detail: '撤销栈中批次应用前内容与当前批次命令重放结果不一致，拒绝单条回滚'
+    })
+    void appConfirm.alert('批次历史与当前内容不匹配，已拒绝单条回滚')
+    return
+  }
+  editorStore.pushUndoState(tab.id, currentContent)
+  editorStore.updateContent(tab.id, replanned.next)
+  window.dispatchEvent(new CustomEvent('editor-external-change', {
+    detail: { tabId: tab.id, content: replanned.next }
+  }))
+  const rebased = rebaseHunksAfterReject(originalPlan, rejected)
+  chatStore.updateMessageEditorBatch(
+    message.id,
+    undefined,
+    undefined,
+    updateEditorBatchRecord(record, {
+      status: 'applied',
+      appliedContentHash: hashEditorContent(replanned.next),
+      acceptedIndexes: originalPlan.items.map(item => item.index).filter(index => index !== hunkIndex),
+      rejectedIndexes: rejected,
+      undoAvailable: true,
+    }),
+    chatStore.activeSession?.id,
+    {
+      original: replanned.original,
+      next: replanned.next,
+      hunks: rebased.hunks,
+    },
+  )
+  addHomeTraceEvent({
+    type: 'editor-diff-hunk-rollback',
+    label: '单命令回滚',
+    detail: JSON.stringify({
+      batchId: record.batchId,
+      rejectedIndex: hunkIndex,
+      hunkCount: rebased.hunks.length,
+      rebaseEvents: rebased.rebaseEvents,
+      appliedChars: currentContent.length,
+      nextChars: replanned.next.length,
+    }),
+  })
+  recordHomeBatchEvent(record, 'applied', `已回滚第 ${hunkIndex + 1} 条修改并重放其余命令`)
+  logEditorEdit({
+    requestId: `chat-direct-write-hunk_${record.batchId}_${hunkIndex}`,
+    batchId: record.batchId,
+    workspace: 'main',
+    tabId: record.targetId,
+    operation: 'editor_write',
+    result: 'applied',
+    targetLength: currentContent.length,
+    contentLength: replanned.next.length,
+    durationMs: 0,
+    detail: `已回滚单条命令并重放其余命令；hunkCount=${rebased.hunks.length}; rebaseEvents=${rebased.rebaseEvents.length}`
+  })
+  const firstChange = firstContentDifference(currentContent, replanned.next)
+  window.dispatchEvent(new CustomEvent('diff-locate', {
+    detail: {
+      workspace: 'main',
+      targetId: record.targetId,
+      range: { start: firstChange, end: Math.max(firstChange + 1, firstChange + (replanned.next.length - currentContent.length)) },
+    },
+  }))
+}
+
+function revealEditorBatchHunk(message: ChatMessage, hunk: EditorDiffHunk) {
+  const record = normalizeEditorBatchRecord(message.editorBatchRecord)
+  if (!record) return
+  const currentContent = editorContentForBatch(message)
+  if (!currentContent) {
+    void appConfirm.alert('编辑目标已关闭，无法定位这一条修改')
+    return
+  }
+  // Rejected hunks have already been rebased out of the stored diff. Replaying
+  // the original batch here would always mismatch, so validate the stored range.
+  const storedHunks = message.editorBatchDiff?.hunks || []
+  const hasStoredHunk = storedHunks.some(item => item.index === hunk.index)
+  const boundedStart = Math.max(0, Math.min(hunk.range.start, currentContent.length))
+  const boundedEnd = Math.max(boundedStart + 1, Math.min(hunk.range.end, currentContent.length))
+  if (!hasStoredHunk || boundedEnd > currentContent.length || hunk.range.start < 0 || hunk.range.end < hunk.range.start) {
+    void appConfirm.alert('编辑器内容已变化，请重新读取当前文档后再定位')
+    return
+  }
+  window.dispatchEvent(new CustomEvent('diff-locate', {
+    detail: {
+      workspace: 'main',
+      targetId: record.targetId,
+      range: { start: boundedStart, end: boundedEnd },
+    },
+  }))
+  logEditorEdit({
+    requestId: `chat-direct-write-hunk-reveal_${record.batchId}_${hunk.index}`,
+    batchId: record.batchId,
+    workspace: 'main',
+    tabId: record.targetId,
+    operation: 'editor_write',
+    result: 'applied',
+    targetLength: currentContent.length,
+    durationMs: 0,
+    detail: `用户定位单条修改：index=${hunk.index}; kind=${hunk.kind}; range=${hunk.range.start}-${hunk.range.end}`
+  })
+}
+
 function revealEditorBatch(message: ChatMessage) {
   const record = normalizeEditorBatchRecord(message.editorBatchRecord)
   if (!record) return
@@ -2870,7 +4335,7 @@ function revealEditorBatch(message: ChatMessage) {
     return
   }
   const content = tab.content || ''
-  const sourceContent = findEditorBatchUndoContent(editorStore.tabUndoStacks[record.targetId] || [], record)?.content
+  const sourceContent = findEditorBatchUndoContent(editorStore.listUndoContentsForTab(record.targetId), record)?.content
   if (!sourceContent) {
     void appConfirm.alert('找不到批次应用前内容，无法计算首处变更')
     return
@@ -2978,18 +4443,6 @@ function scrollToBottom() {
   overflow-y: auto;
   padding: var(--space-5);
 }
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  gap: var(--space-4);
-  color: var(--text-muted);
-}
-.empty-icon { font-size: 32px; }
-.empty-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-secondary); }
-.empty-desc { font-size: var(--font-size-md); text-align: center; }
 .chat-input-row {
   display: flex;
   gap: var(--space-4);
@@ -3020,6 +4473,19 @@ function scrollToBottom() {
   min-width: 0;
   flex: 1 1 auto;
   overflow-wrap: anywhere;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 88px;
+  overflow: hidden;
+}
+.chat-live-status-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chat-live-status-line.is-retrying {
+  color: var(--warning);
 }
 .chat-compatibility-notice {
   display: flex;
@@ -3039,7 +4505,7 @@ function scrollToBottom() {
 }
 .chat-compatibility-notice button {
   flex: 0 0 auto;
-  min-height: 28px;
+  min-height: var(--density-btn-sm-height);
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xs);
@@ -3049,7 +4515,7 @@ function scrollToBottom() {
 }
 .generation-action {
   flex: 0 0 auto;
-  min-height: 28px;
+  min-height: var(--density-btn-sm-height);
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xs);
@@ -3060,7 +4526,7 @@ function scrollToBottom() {
   white-space: nowrap;
 }
 .generation-action:hover { background: var(--bg-hover); }
-.generation-cancel { color: var(--accent-lighter, var(--accent)); }
+.generation-cancel { color: var(--accent-lighter); }
 .chat-context-bar {
   height: 0;
   overflow: hidden;
@@ -3098,14 +4564,13 @@ function scrollToBottom() {
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
-  height: 26px;
+  height: var(--density-form-height);
   background: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xs);
-  padding: var(--space-1) var(--space-2);
+  padding: var(--density-form-padding);
   font-size: var(--font-size-sm);
-  outline: none;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3115,7 +4580,7 @@ function scrollToBottom() {
 }
 .co-creation-action {
   flex: 0 0 auto;
-  min-height: 26px;
+  min-height: var(--density-btn-sm-height);
   padding: var(--space-3) var(--space-5);
   border: none;
   border-radius: var(--radius-xs);

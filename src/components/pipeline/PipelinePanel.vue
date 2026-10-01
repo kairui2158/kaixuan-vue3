@@ -1,20 +1,20 @@
 <template>
-  <div id="pipeline-panel" class="pl-overlay pl-fullscreen" :style="{ zIndex: modalQueue.getZIndex('pipeline-panel') }" @click.self="$emit('close')">
+  <div id="pipeline-panel" data-modal-id="pipeline-panel" class="modal-overlay pl-fullscreen" :style="{ zIndex: modalQueue.getZIndex('pipeline-panel') }" @click.self="$emit('close')">
     <div class="pl-content pl-content-fullscreen">
       <div class="pl-header">
         <span class="pl-header-title">生成流水线</span>
         <div class="pl-header-actions">
-          <button class="btn-sm btn-secondary" id="btn-pl-minimize" title="缩小到顶栏" @click="$emit('minimize')">缩小</button>
+          <button class="btn-sm btn-secondary" id="btn-pl-minimize" data-tooltip="缩小到顶栏" @click="$emit('minimize')">缩小</button>
           <button class="btn-sm btn-secondary" id="btn-run-trace" @click="openRunTracePanel">运行记录</button>
           <button class="btn-sm btn-secondary" id="btn-export-pipeline-bindings" @click="exportPipelineBindings">导出绑定</button>
           <button class="btn-sm btn-secondary" id="btn-import-pipeline-bindings" @click="importPipelineBindings">导入绑定</button>
           <button class="btn-sm btn-secondary" id="btn-flow-toggle" @click="showFlowView = !showFlowView">{{ showFlowView ? '步骤视图' : '流程视图' }}</button>
           <button v-if="pipelineStore.isGenerating" id="btn-pl-cancel-generation" class="btn-sm btn-danger" @click="pipelineStore.cancelGeneration()">取消生成</button>
-          <button id="btn-close-pl" class="modal-close" @click="$emit('close')">&times;</button>
+          <button id="btn-close-pl" class="modal-close" type="button" aria-label="关闭流水线" @click="$emit('close')"><AppIcon name="x" /></button>
         </div>
       </div>
       <div class="pl-body">
-        <div v-if="bindingImportPreview" id="pl-binding-import-preview" class="pl-binding-import-preview" :style="{ zIndex: modalQueue.getZIndex('pl-binding-import-preview') }" role="dialog" aria-modal="true">
+        <div v-if="bindingImportPreview" id="pl-binding-import-preview" data-modal-id="pl-binding-import-preview" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('pl-binding-import-preview') }" role="dialog" aria-modal="true">
           <div class="pl-binding-import-card">
             <h3>确认导入流水线绑定</h3>
             <p class="pl-binding-import-source">来源：{{ bindingImportPreview.source || '未知文件' }}</p>
@@ -36,7 +36,7 @@
           >
             <span class="pl-step-num">{{ i + 1 }}</span>
             <span class="pl-step-label">{{ step.name }}</span>
-            <span v-if="step.completed" class="pl-step-check">&#10003;</span>
+            <AppIcon v-if="step.completed" name="check" class="pl-step-check" />
           </div>
         </div>
         
@@ -102,7 +102,7 @@
                 <option value="">无</option>
                 <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ skillStore.displaySkillName(s) }}</option>
               </select>
-              <button class="btn-icon" id="pl-s2-add-skill" title="添加技能" @click="addStepSkill(2)">+</button>
+              <button class="btn-icon" id="pl-s2-add-skill" data-tooltip="添加技能" @click="addStepSkill(2)">+</button>
               <span class="pl-mode-label">技能模式:</span>
               <select id="pl-s2-mode" v-model="stepSkillModes[1]" class="select-standard pl-mode-select" @change="saveStepConfig">
                 <option value="compose">并行</option>
@@ -118,7 +118,7 @@
                     <option value="">默认</option>
                     <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
                   </select>
-                  <button class="btn-icon pl-chip-close" title="移除" @click="removeStepSkill(2, si)">&times;</button>
+                  <button class="btn-icon pl-chip-close" type="button" aria-label="移除技能" @click="removeStepSkill(2, si)"><AppIcon name="x" /></button>
                 </span>
               </template>
             </div>
@@ -198,10 +198,10 @@
                     @click="selectedSettingCategory = cat"
                   >
                     <span class="pl-sc-cat-label">{{ cat }}</span>
-                    <span v-if="isCategoryConfirmed(cat)" class="pl-sc-cat-check" aria-label="已确认">✓</span>
-                    <span v-else-if="cat !== '设定类'" class="pl-sc-cat-delete" title="删除分类" @click.stop="deleteCategory(cat)">&times;</span>
+                    <AppIcon v-if="isCategoryConfirmed(cat)" name="check" class="pl-sc-cat-check" aria-hidden="true" />
+                    <button v-else-if="cat !== '设定类'" type="button" class="pl-sc-cat-delete" aria-label="删除分类" @click.stop="deleteCategory(cat)"><AppIcon name="x" /></button>
                   </button>
-                  <button id="btn-pl-add-cat" type="button" class="pl-sc-add-cat" title="新增分类" @click="showAddCategory = true">+ 新增分类</button>
+                  <button id="btn-pl-add-cat" type="button" class="pl-sc-add-cat" data-tooltip="新增分类" @click="showAddCategory = true">+ 新增分类</button>
                 </div>
               </div>
 
@@ -244,7 +244,7 @@
                           type="button"
                           class="btn-sm btn-secondary pl-setting-info-btn"
                           :aria-label="`查看${s.name || '未命名设定'}信息`"
-                          title="查看信息"
+                          data-tooltip="查看信息"
                           @click.stop="openSettingDetailModal(s)"
                         >
                           信息
@@ -252,7 +252,13 @@
                       </div>
                       <span class="pl-setting-item-index" aria-hidden="true">{{ i + 1 }}</span>
                     </article>
-                    <p v-if="filteredSettings.length === 0" class="empty-hint">该分类还没有设定内容</p>
+                    <EmptyState
+                      v-if="filteredSettings.length === 0"
+                      variant="compact"
+                      icon="inbox"
+                      title="该分类还没有设定内容"
+                      description="点击生成设定，或直接新增该分类条目"
+                    />
                   </div>
 
                   <div class="pl-sc-category-actions">
@@ -262,7 +268,12 @@
                   </div>
                 </section>
               </div>
-              <p v-else class="empty-hint">解析大纲后，分类和设定内容会显示在这里</p>
+              <EmptyState
+                v-else
+                icon="outline"
+                title="还没有设定分类"
+                description="解析大纲后，分类和设定内容会显示在这里"
+              />
             </div>
             <div class="pl-actions pl-settings-footer-actions">
               <button id="btn-pl-gen-settings" class="btn-primary" @click="genSettings" :disabled="pipelineStore.isGenerating || !projectStore.hasOutline || !projectStore.outlineLocked">
@@ -297,7 +308,7 @@
                 <option value="">无</option>
                 <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ skillStore.displaySkillName(s) }}</option>
               </select>
-              <button class="btn-icon" id="pl-s3-add-skill" title="添加技能" @click="addStepSkill(3)">+</button>
+              <button class="btn-icon" id="pl-s3-add-skill" data-tooltip="添加技能" @click="addStepSkill(3)">+</button>
               <span class="pl-mode-label">技能模式:</span>
               <select id="pl-s3-mode" v-model="stepSkillModes[2]" class="select-standard pl-mode-select" @change="saveStepConfig">
                 <option value="compose">并行</option>
@@ -313,7 +324,7 @@
                   <option value="">默认</option>
                   <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
                 </select>
-                <button class="btn-icon pl-chip-close" title="移除" @click="removeStepSkill(3, si)">&times;</button>
+                <button class="btn-icon pl-chip-close" type="button" aria-label="移除技能" @click="removeStepSkill(3, si)"><AppIcon name="x" /></button>
               </span>
             </template>
           </div>
@@ -346,8 +357,8 @@
                     @click="selectedVolumeIndex = i"
                   >
                     <span class="pl-volume-col pl-volume-col-index">{{ volumeCount }}/{{ i + 1 }}</span>
-                    <span class="pl-volume-col pl-volume-col-name" :title="vol.name">{{ vol.name || '未命名卷' }}</span>
-                    <span class="pl-volume-col pl-volume-col-outline" :title="vol.outline || ''">{{ volumeOutlineExcerpt(vol.outline) }}</span>
+                    <span class="pl-volume-col pl-volume-col-name" :data-tooltip="vol.name">{{ vol.name || '未命名卷' }}</span>
+                    <span class="pl-volume-col pl-volume-col-outline" :data-tooltip="vol.outline || ''">{{ volumeOutlineExcerpt(vol.outline) }}</span>
                     <span class="pl-volume-col pl-volume-col-words">{{ formatVolumeWords(vol) }}</span>
                     <span class="pl-volume-col pl-volume-col-status" :class="volumeStatusClass(vol)">{{ volumeStatusText(vol) }}</span>
                     <span class="pl-volume-col pl-volume-col-actions" @click.stop>
@@ -356,7 +367,7 @@
                         class="btn-sm"
                         :class="vol.isBound ? 'btn-secondary' : 'btn-primary'"
                         :disabled="!vol.confirmed"
-                        :title="vol.confirmed ? '' : '请先保存并锁定本卷'"
+                        :data-tooltip="vol.confirmed ? '' : '请先保存并锁定本卷'"
                         @click="toggleVolumeBinding(i)"
                       >
                         {{ vol.isBound ? '解除绑定' : '绑定到章节层' }}
@@ -369,7 +380,7 @@
                         :id="'btn-pl-continue-volume-' + i"
                         class="btn-sm btn-secondary"
                         :disabled="pipelineStore.isGenerating"
-                        title="以上一卷为记忆基准，本次只生成下一卷"
+                        data-tooltip="以上一卷为记忆基准，本次只生成下一卷"
                         @click="genVolumes('continue')"
                       >
                         续生成
@@ -397,7 +408,12 @@
                   </section>
                 </template>
               </div>
-              <p v-else class="empty-hint">暂无卷纲，请先生成或确认大纲字数</p>
+              <EmptyState
+                v-else
+                icon="pipeline"
+                title="暂无卷纲"
+                description="请先生成或确认大纲字数，再进入卷纲层"
+              />
             </div>
 <GenerationProgressBar
   v-if="volumeGenerationFeedbackVisible"
@@ -432,7 +448,7 @@
                 <option value="">无</option>
                 <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ skillStore.displaySkillName(s) }}</option>
               </select>
-              <button class="btn-icon" id="pl-s4-add-skill" title="添加技能" @click="addStepSkill(4)">+</button>
+              <button class="btn-icon" id="pl-s4-add-skill" data-tooltip="添加技能" @click="addStepSkill(4)">+</button>
               <span class="pl-mode-label">技能模式:</span>
               <select id="pl-s4-mode" v-model="stepSkillModes[3]" class="select-standard pl-mode-select" @change="saveStepConfig">
                 <option value="compose">并行</option>
@@ -449,7 +465,7 @@
                   <option value="">默认</option>
                   <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
                 </select>
-                <button class="btn-icon pl-chip-close" title="移除" @click="removeStepSkill(4, si)">&times;</button>
+                <button class="btn-icon pl-chip-close" type="button" aria-label="移除技能" @click="removeStepSkill(4, si)"><AppIcon name="x" /></button>
               </span>
             </template>
           </div>
@@ -466,8 +482,19 @@
               <label>预计章数</label>
               <span id="pl-ch-est-count" class="pl-gen-hint">{{ estimatedChapters }}</span>
             </div>
-            <p id="pl-ch-empty-no-volume" v-if="boundVolumes.length === 0" class="empty-hint">暂无已绑定卷纲，请先在卷纲层保存并锁定本卷，再点击「绑定到章节层」</p>
-            <p id="pl-ch-empty-no-chapters" v-else-if="currentVolumeChapters.length === 0" class="empty-hint">暂无章节，请先生成</p>
+            <EmptyState
+              v-if="boundVolumes.length === 0"
+              icon="pipeline"
+              title="暂无已绑定卷纲"
+              description="请先在卷纲层保存并锁定本卷，再点击「绑定到章节层」"
+            />
+            <EmptyState
+              v-else-if="currentVolumeChapters.length === 0"
+              variant="compact"
+              icon="pipeline"
+              title="暂无章节"
+              description="生成章节后，这里会显示章节工作区"
+            />
             <div v-if="currentVolumeChapters.length > 0" id="pl-ch-cards-area" class="pl-ch-workspace">
               <div class="pl-ch-table-wrap">
                 <div class="pl-ch-thead">
@@ -495,9 +522,9 @@
                       </span>
                     </span>
                     <span class="pl-ch-col-ops pl-ch-cell-ops">
-                      <button class="btn-sm btn-secondary" :id="'pl-ch-edit-' + i" title="编辑" @click.stop="openChapterDetail(i)">编辑</button>
-                      <button class="btn-sm btn-secondary" :id="'pl-ch-body-' + i" title="生成正文" :disabled="pipelineStore.isGenerating" @click.stop="genBody(selectedVolumeIndex, i)">正文</button>
-                      <button class="btn-sm btn-danger" :id="'pl-ch-del-' + i" title="删除此章" @click.stop="deleteChapterCard(selectedVolumeIndex, i)">删除</button>
+                      <button class="btn-sm btn-secondary" :id="'pl-ch-edit-' + i" data-tooltip="编辑" @click.stop="openChapterDetail(i)">编辑</button>
+                      <button class="btn-sm btn-secondary" :id="'pl-ch-body-' + i" data-tooltip="生成正文" :disabled="pipelineStore.isGenerating" @click.stop="genBody(selectedVolumeIndex, i)">正文</button>
+                      <button class="btn-sm btn-danger" :id="'pl-ch-del-' + i" type="button" aria-label="删除此章" @click.stop="deleteChapterCard(selectedVolumeIndex, i)">删除</button>
                     </span>
                   </div>
                 </div>
@@ -508,11 +535,11 @@
               <button id="btn-pl-autogen-chapters" class="btn-secondary" @click="genChapters" :disabled="pipelineStore.isGenerating || !selectedVolumeChapterLocked">自动生成章节</button>
              <button id="btn-pl-confirm-chapters" class="btn-secondary" @click="confirmStep(3)" :disabled="currentVolumeChapters.length === 0">确认完成</button>
            </div>
-            <div v-if="chapterDetailVisible" id="pl-chapter-detail-overlay" class="pl-ch-detail-overlay" :style="{ zIndex: modalQueue.getZIndex('pl-chapter-detail') }" @click.self="closeChapterDetail">
+            <div v-if="chapterDetailVisible" id="pl-chapter-detail-overlay" data-modal-id="pl-chapter-detail" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('pl-chapter-detail') }" @click.self="closeChapterDetail">
               <section id="pl-chapter-detail-modal" class="pl-ch-detail-modal" role="dialog" aria-modal="true" aria-labelledby="pl-chapter-detail-title">
                 <div class="pl-ch-detail-header">
                   <strong id="pl-chapter-detail-title">{{ chapterDetailEditTitle || '未命名章节' }}</strong>
-                  <button type="button" class="modal-close" title="关闭" @click="closeChapterDetail">&times;</button>
+                  <button type="button" class="modal-close" aria-label="关闭章节详情" @click="closeChapterDetail"><AppIcon name="x" /></button>
                 </div>
                 <div class="pl-ch-detail-content">
                   <div class="pl-ch-detail-meta">
@@ -568,7 +595,7 @@
                 <option value="">无</option>
                 <option v-for="s in skillStore.skills" :key="s.id" :value="s.id">{{ skillStore.displaySkillName(s) }}</option>
               </select>
-              <button class="btn-icon" id="pl-s5-add-skill" title="添加技能" @click="addStepSkill(5)">+</button>
+              <button class="btn-icon" id="pl-s5-add-skill" data-tooltip="添加技能" @click="addStepSkill(5)">+</button>
             </div>
           </div>
           <div id="pl-s5-skills-list" class="pl-skills-list">
@@ -580,7 +607,7 @@
                   <option value="">默认</option>
                   <option v-for="a in agentStore.agents" :key="a.id" :value="a.id">{{ a.name }}</option>
                 </select>
-                <button class="btn-icon pl-chip-close" title="移除" @click="removeStepSkill(5, si)">&times;</button>
+                <button class="btn-icon pl-chip-close" type="button" aria-label="移除技能" @click="removeStepSkill(5, si)"><AppIcon name="x" /></button>
               </span>
             </template>
           </div>
@@ -601,7 +628,7 @@
               <button id="btn-pl-gen-body" class="btn-primary" @click="genBodyForSelected" :disabled="pipelineStore.isGenerating">
                 {{ pipelineStore.isGenerating ? '生成中...' : 'AI生成正文' }}
               </button>
-              <span class="pl-deai-badge" title="本层已内嵌降AI方法论（17条前置约束 + 硬规则后处理），生成时自动执行">已内嵌降AI</span>
+              <span class="pl-deai-badge" data-tooltip="本层已内嵌降AI方法论（17条前置约束 + 硬规则后处理），生成时自动执行">已内嵌降AI</span>
               <button id="btn-pl-insert-body" class="btn-secondary" @click="insertToEditor" :disabled="!(currentBodyContent || bodyResult)">插入到编辑器</button>
               <button id="btn-pl-confirm-body" class="btn-secondary" @click="confirmBodyWithMemory" :disabled="!(currentBodyContent || bodyResult) || memoryPreviewLoading">确认完成</button>
             </div>
@@ -625,11 +652,11 @@
     </div>
   </div>
 
-  <div v-if="showAddSettingModal" class="pl-add-setting-overlay" :style="{ zIndex: modalQueue.getZIndex('pl-add-setting') }">
+  <div v-if="showAddSettingModal" data-modal-id="pl-add-setting" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('pl-add-setting') }">
     <div class="pl-add-setting-modal">
       <div class="pl-add-setting-header">
         <span>新增设定</span>
-        <button class="modal-close" @click="cancelAddSetting">&times;</button>
+        <button class="modal-close" type="button" aria-label="关闭新增设定" @click="cancelAddSetting"><AppIcon name="x" /></button>
       </div>
       <div class="pl-add-setting-body">
         <label>名称</label>
@@ -651,14 +678,15 @@
   <div
     v-if="showSettingDetailModal && editingSettingItem"
     id="pl-setting-detail-overlay"
-    class="pl-add-setting-overlay"
+    data-modal-id="pl-setting-detail"
+    class="modal-overlay modal-nested"
     :style="{ zIndex: modalQueue.getZIndex('pl-setting-detail') }"
     @click.self="closeSettingDetailModal"
   >
     <section id="pl-setting-detail-modal" class="pl-add-setting-modal" role="dialog" aria-modal="true" aria-labelledby="pl-setting-detail-title">
       <div class="pl-add-setting-header">
         <span id="pl-setting-detail-title">{{ editingSettingItem.name || '未命名设定' }}</span>
-        <button type="button" class="modal-close" title="关闭" @click="closeSettingDetailModal">&times;</button>
+                <button type="button" class="modal-close" aria-label="关闭设定详情" @click="closeSettingDetailModal"><AppIcon name="x" /></button>
       </div>
       <div class="pl-add-setting-body">
         <label for="pl-setting-detail-name-input">名称</label>
@@ -676,17 +704,23 @@
     </section>
   </div>
 
-  <div v-if="memoryPreviewVisible" class="pl-memory-preview-overlay" :style="{ zIndex: modalQueue.getZIndex('pl-memory-preview') }" @click.self="closeMemoryPreview">
+  <div v-if="memoryPreviewVisible" data-modal-id="pl-memory-preview" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('pl-memory-preview') }" @click.self="closeMemoryPreview">
     <section class="pl-memory-preview-modal" role="dialog" aria-modal="true" aria-labelledby="pl-memory-preview-title">
       <header class="pl-memory-preview-header">
         <div>
           <strong id="pl-memory-preview-title">记忆变更预览</strong>
           <span class="pl-memory-preview-subtitle">正文已保存，确认后才写入记忆库</span>
         </div>
-        <button type="button" class="modal-close" title="关闭" @click="closeMemoryPreview">&times;</button>
+                <button type="button" class="modal-close" aria-label="关闭记忆预览" @click="closeMemoryPreview"><AppIcon name="x" /></button>
       </header>
       <div class="pl-memory-preview-body">
-        <p v-if="memoryPreviewChanges.length === 0" class="empty-hint">本章没有检测到新的记忆变更。</p>
+        <EmptyState
+          v-if="memoryPreviewChanges.length === 0"
+          variant="compact"
+          icon="memory"
+          title="本章没有检测到新的记忆变更"
+          description="内容与现有记忆一致，无需写入新条目"
+        />
         <ul v-else class="pl-memory-change-list">
           <li v-for="(change, index) in memoryPreviewChanges" :key="index" class="pl-memory-change-item">
             <span class="pl-memory-change-kind">{{ change.kind }}</span>
@@ -735,7 +769,7 @@
             <span>{{ log.mode }}</span>
             <span>{{ log.skillNames.join('、') }}</span>
             <span>{{ log.duration }}ms</span>
-            <button type="button" class="btn-icon" title="删除摘要" @click="execLogStore.removeLog(log.id)">&times;</button>
+            <button type="button" class="btn-icon" aria-label="删除摘要" @click="execLogStore.removeLog(log.id)"><AppIcon name="x" /></button>
           </div>
           <details>
             <summary>查看提示词与结果</summary>
@@ -783,6 +817,8 @@ import type { PipelineBindingRecord } from "../../services/configExchange"
 import { storageKey } from "../../utils/storage-key"
 import PipelineFlow from "./PipelineFlow.vue"
 import GenerationProgressBar from "./GenerationProgressBar.vue"
+import EmptyState from "../common/EmptyState.vue"
+import AppIcon from "../common/AppIcon.vue"
 import { useDragSort } from "../../composables/useDragSort"
 import { extractMemory, unifiedMemoryAiCall } from "../../services/memoryExtractor"
 import { mergeMemory } from "../../services/memoryMerger"
@@ -1237,6 +1273,37 @@ watch(() => ({
     else modalQueue.close(ids[key])
   }
 }, { immediate: true })
+
+// Verification bridge for responsive E2E; no runtime behavior depends on it.
+;(globalThis as any).__pipelinePanelState = {
+  get bindingImportPreview() { return bindingImportPreview.value },
+  set bindingImportPreview(value: any) { bindingImportPreview.value = value },
+  get showAddSettingModal() { return showAddSettingModal.value },
+  set showAddSettingModal(value: boolean) { showAddSettingModal.value = value },
+  get showSettingDetailModal() { return showSettingDetailModal.value },
+  set showSettingDetailModal(value: boolean) { showSettingDetailModal.value = value },
+  get selectedSettingCategory() { return selectedSettingCategory.value },
+  set selectedSettingCategory(value: string) { selectedSettingCategory.value = value },
+  get editingSettingId() { return editingSettingId.value },
+  set editingSettingId(value: string) { editingSettingId.value = value },
+  get settingCategories() { return settingCategories.value },
+  get filteredSettings() { return filteredSettings.value },
+  get editingSettingItem() { return editingSettingItem.value },
+  get memoryPreviewVisible() { return memoryPreviewVisible.value },
+  set memoryPreviewVisible(value: boolean) { memoryPreviewVisible.value = value },
+  get memoryPreviewChanges() { return memoryPreviewChanges.value },
+  set memoryPreviewChanges(value: any[]) { memoryPreviewChanges.value = value },
+  get projectStore() { return projectStore },
+  get pipelineStore() { return pipelineStore },
+  get chapterDetailVisible() { return chapterDetailVisible.value },
+  set chapterDetailVisible(value: boolean) { chapterDetailVisible.value = value },
+  get chapterDetailEditTitle() { return chapterDetailEditTitle.value },
+  set chapterDetailEditTitle(value: string) { chapterDetailEditTitle.value = value },
+  get chapterDetailEditPlot() { return chapterDetailEditPlot.value },
+  set chapterDetailEditPlot(value: string) { chapterDetailEditPlot.value = value },
+  get currentVolumeChapters() { return currentVolumeChapters.value },
+  get selectedVolume() { return selectedVolume.value }
+}
 
 const memoryPreviewLoading = ref(false)
 const memoryPreviewSaving = ref(false)
@@ -1885,7 +1952,12 @@ async function callValidatedSkill(
         durationMs: Date.now() - startedAt,
         finishReason: apiMeta?.finishReason,
         reasoningText: apiMeta?.reasoningText,
-        usage: apiMeta?.usage
+        usage: apiMeta?.usage,
+        providerContextWindowTokens: apiMeta?.contextBudget?.providerContextWindowTokens,
+        estimatedInputTokens: apiMeta?.contextBudget?.estimatedInputTokens,
+        contextBudgetDecision: apiMeta?.contextBudget?.decision,
+        contextBudgetReason: apiMeta?.contextBudget?.reason,
+        usageReconciliation: apiMeta?.usageReconciliation
       })
     }
     let route: Awaited<ReturnType<typeof routeSkill>>
@@ -1956,7 +2028,14 @@ async function callValidatedSkill(
       toolsDowngraded: event.toolsDowngraded,
       downgradeReason: event.downgradeReason,
       retryStrategy: event.retryStrategy,
-      maxTokens: event.maxTokens
+      maxTokens: event.maxTokens,
+      providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
+      estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
+      contextBudgetDecision: event.contextBudget?.decision,
+            contextBudgetReason: event.contextBudget?.reason,
+            usageReconciliation: event.usageReconciliation,
+            interruptionCode: event.interruptionCode,
+            heartbeat: event.heartbeat
           })
         }
       })
@@ -2520,7 +2599,7 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
   const activeProvider = provider || preferredProvider
   const model = agentConfig?.model || activeProvider?.selectedModel || activeProvider?.models?.[0] || ""
   const temperature = agentConfig?.temperature ?? activeProvider?.temperature ?? 0.7
-  const maxTokens = agentConfig?.maxTokens || activeProvider?.maxTokens || 8192
+  const maxTokens = agentConfig?.maxTokens || activeProvider?.maxTokens || null
  const skillPart = promptParts?.systemSkill ?? skillTemplate ?? ""
  const agentPart = agentConfig?.systemPrompt || ""
  // P1: 正文层注入降AI方法论（17条生成阶段约束）
@@ -2573,7 +2652,14 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
             toolsDowngraded: event.toolsDowngraded,
             downgradeReason: event.downgradeReason,
             retryStrategy: event.retryStrategy,
-            maxTokens: event.maxTokens
+            maxTokens: event.maxTokens,
+            providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
+            estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
+            contextBudgetDecision: event.contextBudget?.decision,
+            contextBudgetReason: event.contextBudget?.reason,
+            usageReconciliation: event.usageReconciliation,
+            interruptionCode: event.interruptionCode,
+            heartbeat: event.heartbeat
       })
     },
     signal: signal || pipelineStore.getGenerationSignal(),
@@ -2676,7 +2762,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           messages: opts.messages || [],
           model: opts.model || undefined,
           temperature: opts.temperature != null ? opts.temperature : undefined,
-          maxTokens: opts.maxTokens || 128000,
+          maxTokens: opts.maxTokens || null,
           stream: opts.stream !== false,
           retry: true,
           signal: pipelineStore.getGenerationSignal(),
@@ -2706,7 +2792,14 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             toolsDowngraded: event.toolsDowngraded,
               downgradeReason: event.downgradeReason,
               retryStrategy: event.retryStrategy,
-              maxTokens: event.maxTokens
+              maxTokens: event.maxTokens,
+              providerContextWindowTokens: event.contextBudget?.providerContextWindowTokens,
+              estimatedInputTokens: event.contextBudget?.estimatedInputTokens,
+              contextBudgetDecision: event.contextBudget?.decision,
+              contextBudgetReason: event.contextBudget?.reason,
+              usageReconciliation: event.usageReconciliation,
+              interruptionCode: event.interruptionCode,
+              heartbeat: event.heartbeat
             })
           }
           })
@@ -4550,14 +4643,13 @@ function toolAction(action: string) {
 .pl-run-trace-legacy-top { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); color: var(--text-secondary); font-size: var(--font-size-sm); }
 .pl-run-trace-legacy-item details { color: var(--text-secondary); font-size: var(--font-size-sm); }
 .pl-run-trace-legacy-item summary { cursor: pointer; }
-.pl-run-trace-legacy-item pre { margin: var(--space-2) 0 0; padding: var(--space-3); max-height: 260px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary); font-size: 12px; line-height: 1.6; user-select: text; }
+.pl-run-trace-legacy-item pre { margin: var(--space-2) 0 0; padding: var(--space-3); max-height: 260px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary); font-size: var(--font-size-xs); line-height: 1.6; user-select: text; }
 .pl-run-trace-feedback { display: flex; gap: var(--space-2); }
-.pl-run-trace-feedback .active { border-color: var(--primary); color: var(--primary); }
+.pl-run-trace-feedback .active { border-color: var(--accent); color: var(--accent); }
 .pl-run-trace-suggestions { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-secondary); font-size: var(--font-size-sm); }
 .pl-run-trace-suggestions p { margin: 0; }
 .pl-run-trace-legacy-empty { padding: var(--space-4); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-secondary); font-size: var(--font-size-sm); line-height: 1.6; }
-.pl-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal); }
-.pl-deai-badge { display: inline-flex; align-items: center; padding: var(--space-1) var(--space-4); font-size: var(--font-size-xs, 12px); color: var(--color-success, #4caf50); background: var(--color-success-surface, rgba(76,175,80,0.12)); border-radius: var(--radius-sm, 4px); white-space: nowrap; }
+.pl-deai-badge { display: inline-flex; align-items: center; padding: var(--space-1) var(--space-4); font-size: var(--font-size-xs); color: var(--success); background: var(--success-dim); border-radius: var(--radius-sm); white-space: nowrap; }
 .pl-style-card { margin-bottom: var(--space-4); border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-input); overflow: visible; }
 .pl-style-card-header { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-4); cursor: pointer; user-select: none; }
 .pl-style-card-title { font-weight: 600; font-size: var(--font-size-sm); white-space: nowrap; }
@@ -4581,29 +4673,33 @@ function toolAction(action: string) {
 .pl-pacing-slider input[type=range] { flex: 1; }
 .pl-pacing-slider span { font-size: var(--font-size-xs); white-space: nowrap; }
 .pl-pacing-restore { margin-top: var(--space-2); }
-.pl-overlay.pl-fullscreen { align-items: stretch; justify-content: stretch; }
+.pl-fullscreen { align-items: stretch; justify-content: stretch; }
 .pl-content-fullscreen { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; border-radius: 0 !important; border: none !important; }
-.pl-memory-preview-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: var(--modal-gutter); background: var(--bg-overlay); z-index: var(--z-modal-nested); pointer-events: auto; }
 .pl-memory-preview-modal { position: relative; z-index: var(--z-modal-nested-content); width: min(var(--modal-width-lg), 100%); max-height: var(--modal-max-height); min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); pointer-events: auto; }
 .pl-memory-preview-header, .pl-memory-preview-footer { display: flex; align-items: center; justify-content: space-between; gap: var(--space-6); padding: var(--space-6) var(--space-7); }
 .pl-memory-preview-header { border-bottom: 1px solid var(--border-color); }
-.pl-memory-preview-subtitle { display: block; margin-top: 4px; color: var(--text-secondary); font-size: 12px; }
+.pl-memory-preview-subtitle { display: block; margin-top: 4px; color: var(--text-secondary); font-size: var(--font-size-xs); }
 .pl-memory-preview-body { min-height: 120px; overflow: auto; padding: var(--space-6) var(--space-7); }
 .pl-memory-preview-footer { justify-content: flex-end; border-top: 1px solid var(--border-color); }
 .pl-memory-change-list { display: grid; gap: var(--space-5); margin: 0; padding: 0; list-style: none; }
 .pl-memory-change-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-4) var(--space-5); padding: var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); }
-.pl-memory-change-kind { color: var(--text-secondary); font-size: 12px; }
+.pl-memory-change-kind { color: var(--text-secondary); font-size: var(--font-size-xs); }
 .pl-memory-change-item small { grid-column: 1 / -1; color: var(--text-secondary); }
 .pl-memory-change-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: var(--space-4); }
 .pl-memory-preview-error { color: var(--danger); }
 .pl-content { width: min(1400px, 96vw); height: min(920px, 96vh); max-width: 1400px; max-height: 96vh; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; }
-.pl-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-5) var(--space-8); border-bottom: 1px solid var(--border-color); font-size: var(--font-size-xl); font-weight: 600; }
-.pl-header-title { }
+.pl-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-width: 0; padding: var(--space-5) var(--space-8); border-bottom: 1px solid var(--border-color); font-size: var(--font-size-xl); font-weight: 600; }
+.pl-header-title { min-width: 0; }
 .pl-header-actions { display: flex; align-items: center; gap: var(--space-2); }
+@media (max-width: 479px) {
+  .pl-header { flex-wrap: wrap; padding: var(--space-4) var(--space-5); }
+  .pl-header-title { flex: 1 0 100%; }
+  .pl-header-actions { flex: 1 1 100%; justify-content: flex-start; flex-wrap: wrap; }
+}
 .pl-body { display: flex; flex: 1; overflow: hidden; }
 /* 左侧五层步骤导航 - 竖排 */
 .pl-steps { width: clamp(200px, 18vw, 280px); background: var(--pipeline-step-bg); border-right: 1px solid var(--border-color); padding: var(--space-6) var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); flex-shrink: 0; }
-.pl-step { display: flex; align-items: center; gap: var(--space-5); padding: var(--space-6) 1var(--space-4); cursor: pointer; border-radius: var(--radius-lg); opacity: 0.5; transition: opacity var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard); }
+.pl-step { display: flex; align-items: center; gap: var(--space-5); padding: var(--space-6) var(--space-4); cursor: pointer; border-radius: var(--radius-lg); opacity: 0.5; transition: opacity var(--duration-fast) var(--ease-standard), background var(--duration-fast) var(--ease-standard); }
 .pl-step:hover { opacity: 0.8; background: var(--bg-hover); }
 .pl-step.active { opacity: 1; background: var(--pipeline-step-active-bg); border: 1px solid var(--pipeline-step-active-border); }
 .pl-step.completed { opacity: 1; }
@@ -4621,10 +4717,10 @@ function toolAction(action: string) {
   overflow-x: hidden;
 }
 .pl-step-panel h3 { font-size: var(--font-size-xxl); margin-bottom: 20px; }
-.pl-textarea { width: 100%; min-height: 400px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--space-6); font-size: var(--font-size-lg); line-height: 1.8; resize: vertical; outline: none; }
-.pl-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-3) var(--space-5); font-size: var(--font-size-md); height: 36px; outline: none; flex: 1; }
-.pl-input-sm { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-3) var(--space-5); font-size: var(--font-size-md); height: var(--input-height, 34px); outline: none; }
-.pl-attrs-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-4) var(--space-6); font-size: var(--font-size-md); min-height: 80px; flex: 1; resize: vertical; outline: none; }
+.pl-textarea { width: 100%; min-height: 400px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--space-6); font-size: var(--font-size-lg); line-height: 1.8; resize: vertical; }
+.pl-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-3) var(--space-5); font-size: var(--font-size-md); height: var(--density-form-height); flex: 1; }
+.pl-input-sm { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-3) var(--space-5); font-size: var(--font-size-md); height: var(--density-form-height); }
+.pl-attrs-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-4) var(--space-6); font-size: var(--font-size-md); min-height: 80px; flex: 1; resize: vertical; }
 .pl-vol-config { display: flex; align-items: center; gap: var(--space-5); margin-bottom: 20px; font-size: var(--font-size-lg); flex-wrap: wrap; }
 .pl-vol-config label { color: var(--text-secondary); }
 .pl-volume-linked-book-words { display: inline-flex; align-items: baseline; gap: var(--space-4); width: 100%; padding: var(--space-4) var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-secondary); }
@@ -4810,7 +4906,7 @@ function toolAction(action: string) {
 .pl-object-editor-status.locked { color: var(--success); }
 .pl-vol-header { display: flex; align-items: center; gap: var(--space-4); margin-bottom: 8px; }
 .vol-words { font-size: var(--font-size-md); color: var(--text-muted); flex-shrink: 0; }
-.pl-vol-outline { width: 100%; min-height: 100px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-5); font-size: var(--font-size-md); resize: vertical; outline: none; margin-bottom: 10px; }
+.pl-vol-outline { width: 100%; min-height: 100px; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: var(--space-5); font-size: var(--font-size-md); resize: vertical; margin-bottom: 10px; }
 .pl-volume-card-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-4); padding-top: 4px; }
 .pl-ch-config { display: flex; align-items: center; gap: var(--space-5); margin-bottom: 20px; font-size: var(--font-size-lg); flex-wrap: wrap; }
 .pl-ch-config label { color: var(--text-secondary); }
@@ -4836,7 +4932,7 @@ function toolAction(action: string) {
   height: 38px;
   color: var(--text-muted);
   font-size: var(--font-size-sm);
-  background: var(--bg-elevated, var(--bg-tertiary));
+  background: var(--bg-elevated);
   border-bottom: 1px solid var(--border-color);
 }
 .pl-ch-tbody {
@@ -4880,22 +4976,12 @@ function toolAction(action: string) {
   font-size: var(--font-size-sm);
   white-space: nowrap;
 }
-.pl-ch-state-tag.locked { color: var(--success); background: rgba(76,175,136,.1); }
-.pl-ch-state-tag.editing { color: var(--text-muted); background: rgba(255,255,255,.04); }
+.pl-ch-state-tag.locked { color: var(--success); background: var(--success-dim); }
+.pl-ch-state-tag.editing { color: var(--text-muted); background: var(--hover-veil); }
 .pl-ch-cell-ops {
   display: flex;
   justify-content: flex-end;
   gap: var(--space-2);
-}
-.pl-ch-detail-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-modal-nested);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--modal-gutter);
-  background: var(--bg-overlay);
 }
 .pl-ch-detail-modal {
   display: flex;
@@ -4914,7 +5000,7 @@ function toolAction(action: string) {
   justify-content: space-between;
   padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--border-color);
-  background: var(--bg-elevated, var(--bg-secondary));
+  background: var(--bg-elevated);
 }
 .pl-ch-detail-header strong { font-size: var(--font-size-md); color: var(--text-primary); }
 .pl-ch-detail-content {
@@ -4934,14 +5020,13 @@ function toolAction(action: string) {
 .pl-ch-detail-label { color: var(--text-secondary); font-size: var(--font-size-sm); }
 .pl-ch-detail-input {
   width: 100%;
-  height: var(--input-height, 34px);
+  height: var(--density-form-height);
   padding: 0 var(--space-5);
   background: var(--bg-input);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-size: var(--font-size-md);
-  outline: none;
 }
 .pl-ch-detail-plot {
   width: 100%;
@@ -4954,7 +5039,6 @@ function toolAction(action: string) {
   font-size: var(--font-size-md);
   line-height: 1.7;
   resize: vertical;
-  outline: none;
   font-family: var(--font-family-editor);
 }
 .pl-ch-detail-footer {
@@ -4964,7 +5048,7 @@ function toolAction(action: string) {
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border-top: 1px solid var(--border-color);
-  background: var(--bg-elevated, var(--bg-secondary));
+  background: var(--bg-elevated);
 }
 .pl-ch-detail-hint { color: var(--text-muted); font-size: var(--font-size-sm); }
 .pl-ch-detail-actions { display: flex; gap: var(--space-2); }
@@ -5014,7 +5098,6 @@ function toolAction(action: string) {
   color: var(--text-primary);
   font-size: var(--font-size-md);
 }
-.empty-hint { color: var(--text-muted); font-size: var(--font-size-lg); text-align: center; padding: var(--space-10); }
 .input-w-60 { width: 60px; }
 .input-w-80 { width: 80px; }
 
@@ -5028,49 +5111,48 @@ function toolAction(action: string) {
   align-items: center;
   gap: var(--space-5);
   padding: var(--space-3) var(--space-4);
-  background: var(--bg-elevated, var(--bg-secondary));
+  background: var(--bg-elevated);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
 }
 .pl-settings-control-row .pl-label,
-.pl-settings-control-row .pl-mode-label { font-size: var(--font-size-md); color: var(--text-secondary); white-space: nowrap; }
-.pl-settings-control-row .select-standard { min-width: 0; height: var(--input-height, 34px); padding: 0 var(--space-5); background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; }
+.pl-settings-control-row .pl-mode-label { font-size: var(--font-size-md); color: var(--text-secondary); white-space: normal; overflow-wrap: anywhere; }
+.pl-settings-control-row .select-standard { min-width: 0; height: var(--density-form-height); padding: 0 var(--space-5); background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; }
 .pl-selected-skills-row {
   align-items: center;
-  min-height: 34px;
+  min-height: var(--density-form-height);
   padding: var(--space-2) var(--space-2);
   margin-bottom: 0;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  background: var(--bg-elevated, var(--bg-secondary));
+  background: var(--bg-elevated);
 }
-.pl-agent-mode-bar { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); padding: var(--space-4) var(--space-6); background: var(--bg-elevated, var(--bg-secondary)); border: 1px solid var(--border-color); border-radius: var(--radius-md); }
+.pl-agent-mode-bar { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); padding: var(--space-4) var(--space-6); background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-md); }
 .pl-agent-mode-bar .pl-label, .pl-agent-mode-bar .pl-mode-label { font-size: var(--font-size-md); color: var(--text-secondary); white-space: nowrap; }
-.pl-agent-mode-bar .select-standard { height: var(--input-height, 34px); padding: 0 var(--space-5); background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; }
+.pl-agent-mode-bar .select-standard { height: var(--density-form-height); padding: 0 var(--space-5); background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; }
 .pl-agent-select { flex: 1 1 160px; min-width: 160px; }
 .pl-mode-select { flex: 1 1 150px; min-width: 150px; }
-.pl-skill-bar { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4) var(--space-6); margin-bottom: 12px; background: var(--bg-elevated, var(--bg-secondary)); border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: var(--font-size-md); color: var(--text-primary); }
+.pl-skill-bar { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4) var(--space-6); margin-bottom: 12px; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: var(--font-size-md); color: var(--text-primary); }
 .pl-skill-bar .pl-label { font-size: var(--font-size-md); color: var(--text-secondary); white-space: nowrap; }
-.pl-skill-bar .select-standard { flex: 1; height: var(--input-height, 34px); padding: 0 var(--space-4); background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; min-width: 100px; }
-.pl-skill-bar .btn-icon { height: 28px; width: 28px; padding: 0; font-size: var(--font-size-lg); line-height: 1; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); border-radius: var(--radius-xs); background: var(--bg-input); color: var(--text-primary); cursor: pointer; }
+.pl-skill-bar .select-standard { flex: 1; height: var(--density-form-height); padding: 0 var(--space-4); background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); font-size: var(--font-size-md); cursor: pointer; min-width: 100px; }
+.pl-skill-bar .btn-icon { height: var(--density-btn-xs-height); width: var(--density-btn-xs-height); padding: 0; font-size: var(--font-size-lg); line-height: 1; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); border-radius: var(--radius-xs); background: var(--bg-input); color: var(--text-primary); cursor: pointer; }
 .pl-skill-bar .btn-icon:hover { background: var(--accent-dim); color: var(--accent); }
-.pl-chip-close { height: 28px; width: 28px; padding: 0; font-size: var(--font-size-lg); line-height: 1; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); border-radius: var(--radius-xs); background: var(--bg-input); color: var(--text-primary); cursor: pointer; }
+.pl-chip-close { height: var(--density-btn-xs-height); width: var(--density-btn-xs-height); padding: 0; font-size: var(--font-size-lg); line-height: 1; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); border-radius: var(--radius-xs); background: var(--bg-input); color: var(--text-primary); cursor: pointer; }
 .pl-chip-close:hover { background: var(--accent-dim); color: var(--accent); }
 .pl-tools-label { font-size: var(--font-size-sm); color: var(--text-muted); white-space: nowrap; }
 .pl-skills-list { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-bottom: 10px; min-height: 24px; }
-.pl-skill-chip { padding: var(--space-1) var(--space-4); border-radius: var(--radius-lg); font-size: var(--font-size-xs); background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-glow, transparent); display: inline-flex; align-items: center; gap: var(--space-2); }
+.pl-skill-chip { padding: var(--space-1) var(--space-4); border-radius: var(--radius-lg); font-size: var(--font-size-xs); background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-glow); display: inline-flex; align-items: center; gap: var(--space-2); }
 .pl-skill-chip[draggable="true"] { cursor: grab; position: relative; }
 .pl-skill-chip[draggable="true"]:active { cursor: grabbing; }
-.pl-skill-chip.drag-over::before { content: ''; position: absolute; left: 0; top: -2px; width: 100%; height: 2px; background: var(--accent); border-radius: 1px; }
-.pl-chip-seq { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: var(--text-on-accent); font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pl-skill-chip.drag-over::before { content: ''; position: absolute; left: 0; top: -2px; width: 100%; height: 2px; background: var(--accent); border-radius: var(--radius-hairline); }
+.pl-chip-seq { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: var(--text-on-accent); font-size: var(--font-size-micro); font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .pl-tools-section { padding: var(--space-3) 0; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); }
 .pl-tools-grid { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
 .pl-tool-result { margin-top: 6px; padding: var(--space-3) var(--space-5); background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--font-size-sm); color: var(--text-primary); max-height: 180px; overflow-y: auto; user-select: text; cursor: text; }
 .pl-tool-result .message-content { font-size: inherit; }
 .pl-tool-loading { margin-top: 4px; font-size: var(--font-size-sm); color: var(--accent); }
 
-.pl-chip-agent { height: 22px; padding: 0 var(--space-3); font-size: 10px; min-width: 60px; width: auto; border-radius: var(--radius-sm); background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; }
-.pl-add-setting-overlay { position: fixed; inset: 0; padding: var(--modal-gutter); background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal-nested); }
+.pl-chip-agent { height: 22px; padding: 0 var(--space-3); font-size: var(--font-size-micro); min-width: 60px; width: auto; border-radius: var(--radius-sm); background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; }
 .pl-add-setting-modal { width: min(var(--modal-width), 100%); max-height: var(--modal-max-height); min-height: 0; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; }
 .pl-add-setting-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-6) var(--space-7); border-bottom: 1px solid var(--border-color); font-size: var(--font-size-lg); font-weight: 600; }
 .pl-add-setting-body { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-7); }
@@ -5080,12 +5162,11 @@ function toolAction(action: string) {
 .pl-add-setting-footer { display: flex; justify-content: flex-end; gap: var(--space-5); padding: var(--space-5) var(--space-7); border-top: 1px solid var(--border-color); }
 .pl-setting-detail-modal-footer { justify-content: space-between; }
 .pl-setting-detail-modal-actions { display: flex; align-items: center; gap: var(--space-5); }
-.pl-binding-import-preview { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: var(--modal-gutter); background: var(--bg-overlay); }
 .pl-binding-import-card { width: min(520px, 100%); background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: var(--space-7); display: flex; flex-direction: column; gap: var(--space-4); }
 .pl-binding-import-card h3 { margin: 0; color: var(--text-primary); font-size: var(--font-size-lg); font-weight: 600; }
 .pl-binding-import-card p { margin: 0; color: var(--text-secondary); font-size: var(--font-size-sm); line-height: 1.6; }
 .pl-binding-import-source { color: var(--text-primary); font-weight: 600; word-break: break-all; }
-.pl-binding-import-warnings { color: var(--danger, #d9534f); }
+.pl-binding-import-warnings { color: var(--danger); }
 .pl-binding-import-card .pl-actions { justify-content: flex-end; display: flex; gap: var(--space-4); }
 
 
@@ -5111,11 +5192,12 @@ function toolAction(action: string) {
   min-width: 0;
   margin-bottom: var(--space-4);
   padding: var(--space-4) var(--space-6);
-  background: var(--bg-elevated, var(--bg-secondary));
+  background: var(--bg-elevated);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
 }
 .pl-outline-info-main {
+  flex: 1 1 auto;
   min-width: 0;
 }
 .pl-outline-info-title {
@@ -5179,7 +5261,7 @@ function toolAction(action: string) {
   width: auto;
   max-width: 100%;
   flex-shrink: 0;
-  min-height: var(--input-height);
+  min-height: var(--density-btn-sm-height);
   padding: 0 var(--space-3);
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
@@ -5206,7 +5288,7 @@ function toolAction(action: string) {
   white-space: nowrap;
 }
 .pl-sc-cat-check { color: var(--success); flex-shrink: 0; }
-.pl-sc-cat-delete { color: var(--text-muted); flex-shrink: 0; }
+.pl-sc-cat-delete { display: inline-flex; align-items: center; border: 0; background: transparent; color: var(--text-muted); cursor: pointer; flex-shrink: 0; }
 .pl-sc-add-cat {
   border-color: var(--border-color);
   color: var(--text-secondary);
@@ -5317,7 +5399,7 @@ function toolAction(action: string) {
   padding: var(--space-1) var(--space-2);
 }
 .pl-setting-info-btn { flex-shrink: 0; }
-.pl-setting-item-index { position: absolute; left: 4px; top: 2px; color: var(--text-muted); font-size: 10px; }
+.pl-setting-item-index { position: absolute; left: 4px; top: 2px; color: var(--text-muted); font-size: var(--font-size-micro); }
 .pl-sc-category-actions {
   display: flex;
   flex-wrap: wrap;
@@ -5329,13 +5411,23 @@ function toolAction(action: string) {
 .pl-sc-category-actions button { min-width: 120px; }
 .pl-settings-footer-actions { margin-top: var(--space-4); }
 
-@media (max-width: 1200px) {
+@media (max-width: 1023px) {
   .pl-settings-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 760px) {
+  .pl-outline-info {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .pl-outline-info-main {
+    flex: 0 0 auto;
+  }
+  .pl-outline-info .btn-sm {
+    padding-inline: var(--space-1);
+  }
   .pl-settings-workspace {
     gap: var(--space-3);
   }

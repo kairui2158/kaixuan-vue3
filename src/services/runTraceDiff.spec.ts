@@ -224,6 +224,62 @@ describe('runTraceDiff', () => {
     expect(result.processingReports[0].ruleHitsDiff.same).toBe(false)
   })
 
+  it('compares template versions and tool sequences with first divergence', () => {
+    const callA = makeCall('a1', 1, {
+      toolCalls: [
+        { id: 'ta1', name: 'editor.read', input: {}, result: { ok: true }, status: 'success', startedAt: 1 },
+        { id: 'ta2', name: 'editor.write', input: {}, result: { ok: true }, status: 'success', startedAt: 2 }
+      ]
+    })
+    const callB = makeCall('b1', 1, {
+      toolCalls: [
+        { id: 'tb1', name: 'editor.read', input: {}, result: { ok: true }, status: 'success', startedAt: 1 },
+        { id: 'tb2', name: 'editor.write', input: {}, result: { ok: true }, status: 'failed', startedAt: 2 }
+      ]
+    })
+    const snapshotBase = { builtAt: 1, contextBlocks: [], finalMessages: [] }
+    const a = makeRun({
+      id: 'a',
+      apiCalls: [callA],
+      promptSnapshots: [{
+        ...snapshotBase,
+        id: 'snapshot-a',
+        apiCallId: 'a1',
+        skillId: 'outline-skill',
+        skillName: '大纲技能',
+        skillVersion: '1.0.0',
+        folderFingerprint: [{ file: 'template.md', hash: 'hash-a', mtime: 1, bytes: 10 }]
+      }]
+    })
+    const b = makeRun({
+      id: 'b',
+      apiCalls: [callB],
+      promptSnapshots: [{
+        ...snapshotBase,
+        id: 'snapshot-b',
+        apiCallId: 'b1',
+        skillId: 'outline-skill',
+        skillName: '大纲技能',
+        skillVersion: '1.1.0',
+        folderFingerprint: [{ file: 'template.md', hash: 'hash-b', mtime: 2, bytes: 12 }]
+      }]
+    })
+    const result = buildRunTraceDiff(a, b)
+    expect(result.templateVersions[0].aVersion).toBe('1.0.0')
+    expect(result.templateVersions[0].bVersion).toBe('1.1.0')
+    expect(result.templateVersions[0].changed).toBe(true)
+    expect(result.toolSequence.steps).toHaveLength(2)
+    expect(result.toolSequence.steps[1].statusA).toBe('success')
+    expect(result.toolSequence.steps[1].statusB).toBe('failed')
+    expect(result.toolSequence.firstDivergence?.index).toBe(1)
+    expect(result.skillDebugSummary.templateVersionChanged).toBe(1)
+    expect(result.skillDebugSummary.toolSequenceChanged).toBe(true)
+    expect(result.skillDebugSummary.firstDifferentApiCall?.idA).toBe('a1')
+    const text = buildRunTraceDiffText(result)
+    expect(text).toContain('模板版本')
+    expect(text).toContain('工具序列首次分叉')
+  })
+
   it('degrades oversized text to stats mode without changing source text', () => {
     const longTextA = Array.from({ length: 40000 }, (_, index) => `line-a-${index}`).join('\n')
     const longTextB = Array.from({ length: 40001 }, (_, index) => `line-b-${index}`).join('\n')

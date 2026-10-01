@@ -32,6 +32,7 @@ import type { MemoryData } from '../../types/memory'
 import { timelineToG6Data } from '../../composables/useG6Graph'
 import { useMemoryGraph } from '../../composables/useMemoryGraph'
 import G6Canvas from './G6Canvas.vue'
+import { g6Token } from './g6Theme'
 
 const props = defineProps<{ memories: MemoryData }>()
 const emit = defineEmits<{ openSource: [payload: { kind: 'event'; id: string }] }>()
@@ -60,12 +61,12 @@ const selectedEvent = computed(() => timeline.value.find(event => event.id === s
 const graphOptions: GraphOptions = {
   layout: { type: 'snake', indent: 40, fixSize: 30 },
   node: {
-    style: { size: 30, fill: '#2c3a5d', stroke: '#4d5f8a' },
-    state: { selected: { stroke: '#7c8cf8', lineWidth: 3 } }
+    style: { size: 30, fill: g6Token('--g6-node-fill'), stroke: g6Token('--g6-node-stroke') },
+    state: { selected: { stroke: g6Token('--g6-selected'), lineWidth: 3 } }
   },
   edge: {
-    style: { stroke: '#4d5f8a', lineWidth: 1 },
-    state: { selected: { stroke: '#7c8cf8', lineWidth: 2 } }
+    style: { stroke: g6Token('--g6-node-stroke'), lineWidth: 1 },
+    state: { selected: { stroke: g6Token('--g6-selected'), lineWidth: 2 } }
   },
   behaviors: ['drag-canvas', 'zoom-canvas', 'scroll-canvas', { type: 'click-select' }],
   animation: false
@@ -83,7 +84,7 @@ function openSource() {
 .memory-timeline { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; color: var(--text-primary); background: var(--g6-bg); }
 .timeline-toolbar { display: flex; align-items: center; gap: var(--space-4); min-height: 38px; border-bottom: 1px solid var(--border-color); }
 .timeline-toolbar span { flex: 1; color: var(--text-secondary); font-size: var(--font-size-sm); }
-.timeline-toolbar select, .timeline-filter { height: 30px; max-width: 150px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-xs); color: var(--text-primary); padding: var(--space-2) var(--space-4); font-size: var(--font-size-sm); }
+.timeline-toolbar select, .timeline-filter { height: var(--density-form-height); max-width: 150px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: var(--radius-xs); color: var(--text-primary); padding: var(--space-2) var(--space-4); font-size: var(--font-size-sm); }
 .timeline-canvas-wrap { position: relative; display: flex; flex: 1; min-height: 0; }
 .timeline-range { display: flex; align-items: center; gap: var(--space-4); position: absolute; right: 12px; bottom: 12px; padding: var(--space-3) var(--space-5); background: var(--g6-timebar-bg); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--font-size-sm); }
 .timeline-range input { width: 140px; }

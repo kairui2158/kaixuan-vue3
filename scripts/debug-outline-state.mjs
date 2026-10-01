@@ -5,7 +5,7 @@ const page = browser.contexts()[0].pages().find(item => !item.url().startsWith('
 console.log('url:', page.url())
 console.log('title:', await page.title())
 console.log('overlays:', await page.evaluate(() => {
-  return [...document.querySelectorAll('.modal-overlay, .ow-overlay, #pipeline-panel')].map(item => ({
+  return [...document.querySelectorAll('.modal-overlay, #pipeline-panel')].map(item => ({
     className: item.className,
     id: item.id,
     visible: getComputedStyle(item).display !== 'none' && getComputedStyle(item).visibility !== 'hidden',

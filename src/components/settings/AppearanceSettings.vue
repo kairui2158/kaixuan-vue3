@@ -77,6 +77,22 @@
       </div>
     </div>
     <div class="settings-section">
+      <h4>布局</h4>
+      <div class="settings-row layout-preset-row">
+        <label>三栏预设</label>
+        <div class="layout-preset-actions">
+          <button
+            v-for="preset in layoutPresetOptions"
+            :key="preset.id"
+            class="btn-toggle"
+            :class="{ active: layoutPreset === preset.id }"
+            @click="applyLayoutPreset(preset.id)"
+          >{{ preset.label }}</button>
+          <button class="btn-secondary" @click="resetLayout">恢复默认布局</button>
+        </div>
+      </div>
+    </div>
+    <div class="settings-section">
       <h4>数据管理</h4>
       <div class="settings-row">
         <label>数据目录</label>
@@ -124,15 +140,24 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useAppConfirm } from '../../composables/useAppConfirm'
+import { getSavedLayoutPreset, requestLayoutPreset, type LayoutPreset } from '../../composables/useResizers'
+import { useThemeStore } from '../../stores/theme'
 
 const appConfirm = useAppConfirm()
+const themeStore = useThemeStore()
 const isDark = ref(false)
 const themeMode = ref<'light' | 'dark'>('light')
 const densityMode = ref<'default' | 'comfortable' | 'compact'>('default')
 const githubToken = ref('')
+const layoutPreset = ref<LayoutPreset | 'custom'>(getSavedLayoutPreset())
+const layoutPresetOptions: Array<{ id: LayoutPreset; label: string }> = [
+  { id: 'focus-writing', label: '专注写作' },
+  { id: 'balanced', label: '平衡' },
+  { id: 'chat-first', label: '对话优先' },
+]
 onMounted(() => {
-  isDark.value = document.body.classList.contains('dark-theme')
-  themeMode.value = isDark.value ? 'dark' : 'light'
+  themeMode.value = themeStore.theme
+  isDark.value = themeMode.value === 'dark'
  const savedDensity = localStorage.getItem('wa-density')
   if (savedDensity === 'default' || savedDensity === 'compact' || savedDensity === 'comfortable') {
     densityMode.value = savedDensity
@@ -149,29 +174,16 @@ onMounted(() => {
   })()
 })
 function onThemeChange() {
-  if (themeMode.value === 'dark') {
-    document.body.classList.add('dark-theme')
-    document.body.classList.remove('light-theme')
-    isDark.value = true
-  } else {
-    document.body.classList.add('light-theme')
-    document.body.classList.remove('dark-theme')
-    isDark.value = false
-  }
-  window.electronAPI?.storageWrite?.('theme_dark', isDark.value)
+  isDark.value = themeMode.value === 'dark'
+  void themeStore.setTheme(themeMode.value)
 }
 function onDensityChange() {
   document.documentElement.setAttribute('data-density', densityMode.value)
   localStorage.setItem('wa-density', densityMode.value)
 }
 function toggleTheme() {
-  isDark.value = !isDark.value
-  if (isDark.value) {
-    document.body.classList.remove('light-theme')
-  } else {
-    document.body.classList.add('light-theme')
-  }
-  window.electronAPI?.storageWrite?.('theme_dark', isDark.value)
+  themeMode.value = isDark.value ? 'light' : 'dark'
+  onThemeChange()
 }
 async function exportData() {
   try {
@@ -224,6 +236,14 @@ function saveMemoryTimeout() {
   settingsStore.memoryExtractionTimeoutSeconds = Math.min(600, Math.max(60, Math.round(settingsStore.memoryExtractionTimeoutSeconds) || 300))
   settingsStore.saveSettings()
 }
+function applyLayoutPreset(preset: LayoutPreset) {
+  requestLayoutPreset(preset)
+  layoutPreset.value = preset
+}
+function resetLayout() {
+  requestLayoutPreset('balanced')
+  layoutPreset.value = 'balanced'
+}
 const dataDirPath = ref('')
 
 onMounted(() => {
@@ -248,7 +268,7 @@ async function saveAll() {
 .settings-row input[type="number"], .settings-row select {
   background: var(--bg-input); color: var(--text-primary);
   border: 1px solid var(--border-color); border-radius: var(--radius-xs);
-  padding: var(--space-3) var(--space-5); font-size: var(--font-size-md); height: 34px; outline: none; width: 84px;
+  padding: var(--space-3) var(--space-5); font-size: var(--font-size-md); height: var(--density-form-height); width: 84px;
 }
 .settings-row input[type="range"] { flex: 1; max-width: 200px; }
 .settings-row span { font-size: var(--font-size-md); color: var(--text-muted); }
@@ -258,7 +278,7 @@ async function saveAll() {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: monospace;
+  font-family: var(--font-family-mono);
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xs);
@@ -268,12 +288,15 @@ async function saveAll() {
 .settings-section h4 { font-size: var(--font-size-md); margin-bottom: 8px; color: var(--text-secondary); }
 .btn-toggle { padding: var(--space-2) var(--space-6); border-radius: var(--radius-xs); border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-secondary); cursor: pointer; font-size: var(--font-size-md); }
 .btn-toggle.active { background: var(--accent); color: var(--text-on-accent); border-color: var(--accent); }
-.gh-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: var(--space-3) var(--space-5); font-size: var(--font-size-md); height: 34px; width: 220px; outline: none; }
+.layout-preset-row { align-items: flex-start; }
+.layout-preset-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.layout-preset-actions .btn-toggle { padding: var(--space-3) var(--space-5); }
+.gh-input { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: var(--space-3) var(--space-5); font-size: var(--font-size-md); height: var(--density-form-height); width: 220px; }
 
 .appearance-divider { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color); }
 .appearance-divider > label { display: block; margin-bottom: 8px; font-size: var(--font-size-md); color: var(--text-secondary); font-weight: 500; }
 .kbd-shortcuts { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4) var(--space-8); width: 100%; }
-.kbd-row { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-2) var(--space-4); border-radius: var(--radius-xs, 3px); background: var(--bg-hover); font-size: var(--font-size-md); color: var(--text-secondary); }
-.kbd { display: inline-block; padding: var(--space-3) var(--space-3); background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); font-size: var(--font-size-sm); font-family: monospace; color: var(--text-primary); min-width: 20px; text-align: center; }
+.kbd-row { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-2) var(--space-4); border-radius: var(--radius-xs); background: var(--bg-hover); font-size: var(--font-size-md); color: var(--text-secondary); }
+.kbd { display: inline-block; padding: var(--space-3) var(--space-3); background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); font-size: var(--font-size-sm); font-family: var(--font-family-mono); color: var(--text-primary); min-width: 20px; text-align: center; }
 </style>
 

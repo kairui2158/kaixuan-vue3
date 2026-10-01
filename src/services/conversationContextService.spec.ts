@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { ConversationContextService, conversationContextService, resolveModelContextWindow } from './conversationContextService'
+import {
+  ConversationContextService,
+  conversationContextService,
+  resolveEffectiveModelContextWindow,
+  resolveModelContextWindow,
+} from './conversationContextService'
+import { buildCrossTurnToolAudit } from './crossTurnToolAudit'
 import type { ContextMessage, ContextPolicy, StoredContextState } from '../types/context'
 
 function createStorage(initial: Record<string, unknown> = {}) {
@@ -35,6 +41,21 @@ const baseMessages: ContextMessage[] = [
 ]
 
 describe('ConversationContextService', () => {
+  it('供应商声明窗口优先于模型名推断，未声明时才回退模型名', () => {
+    expect(resolveEffectiveModelContextWindow({
+      model: 'unknown-gateway-model',
+      providerContextWindowTokens: 1_000_000,
+    })).toBe(1_000_000)
+    expect(resolveEffectiveModelContextWindow({
+      model: 'gpt-4o',
+      providerContextWindowTokens: 0,
+    })).toBe(128_000)
+    expect(resolveEffectiveModelContextWindow({
+      model: 'unknown-gateway-model',
+      providerContextWindowTokens: 0,
+    })).toBeUndefined()
+  })
+
   it('预算超过时非破坏性压缩历史，原文保留且组装请求不再携带已折叠消息', async () => {
     const storage = createStorage()
     const service = new ConversationContextService({
@@ -326,6 +347,33 @@ describe('ConversationContextService', () => {
     expect(blocks.find(block => block.source === 'referenceOutline')?.coverage).toBe('reference')
   })
 
+  it('主页长文 blocks 使用 packed 口径，不再把全文标成 full', async () => {
+    const service = new ConversationContextService({
+      storage: createStorage(),
+      projectReader: async () => ({ outline: '大纲参考', settings: {}, memories: null })
+    })
+    const bundle = await service.buildContextBundle({
+      projectId: 'p-main-packed-blocks',
+      workspace: 'main',
+      purpose: 'generate',
+      workspaceState: {
+        editorContent: '长'.repeat(12001)
+      }
+    })
+    const blocks = service.buildDialogueContextBlocks(
+      bundle,
+      { ...service.getPolicy('generate'), includeSettings: false, includeMemory: false }
+    )
+    const editorBlock = blocks.find(block => block.source === 'editorContent')
+
+    expect(editorBlock?.coverage).toBe('packed')
+    expect(editorBlock?.truncated).toBe(true)
+    expect(editorBlock?.content).toContain('长文档目标总长度：12001 字符')
+    expect(editorBlock?.content).toContain('editor.document_map')
+    expect(editorBlock?.content?.length).toBeLessThan(12001)
+    expect(validateDialogueContextBlocks(blocks).valid).toBe(true)
+  })
+
   it('按 none/recent/summary/full 裁剪会话，而不改写当前请求', async () => {
     const storage = createStorage()
     const service = new ConversationContextService({
@@ -523,6 +571,41 @@ describe('ConversationContextService', () => {
     expect(retained.session.recentMessages.map(message => message.content)).toEqual(['保留请求', '保留回答'])
   })
 
+  it('注入上一轮工具审计为 system context，且不污染聊天历史', async () => {
+    const storage = createStorage()
+    const service = new ConversationContextService({
+      storage,
+      projectReader: async () => ({ outline: '', settings: {}, memories: null })
+    })
+    const ref = { projectId: 'audit-project', workspace: 'main' as const, purpose: 'generate' as const }
+    await service.recordTurn(ref, { user: '请插入一段设定', assistant: '已插入' })
+    const audit = buildCrossTurnToolAudit({
+      toolResults: [{
+        call: { id: 'call_1', name: 'editor.write', input: { operation: 'append', content: '新设定' } },
+        result: { ok: true, data: { batchId: 'batch_1' } },
+      }],
+    })
+
+    const bundle = await service.buildContextBundle({
+      ...ref,
+      toolAudit: audit,
+      workspaceState: { editorContent: '正文' },
+    })
+    const messages = service.assembleMessages(bundle, service.getPolicy('generate'), [
+      { role: 'system', content: '系统提示' },
+      { role: 'user', content: '继续写' },
+    ])
+
+    const auditMessage = messages.find(message =>
+      message.role === 'system' && message.content.includes('[上一轮工具审计]')
+    )
+    expect(auditMessage).toBeTruthy()
+    expect(auditMessage?.content).toContain('call_1 editor.write success')
+    expect(auditMessage?.content).toContain('batch_1')
+    expect(auditMessage?.content).toContain('protocolVersion=1')
+    expect(bundle.session.recentMessages.some(message => message.content.includes('[上一轮工具审计]'))).toBe(false)
+  })
+
   it('切换同一 SKILL 的 Agent 不会切断既有会话', async () => {
     const storage = createStorage()
     const service = new ConversationContextService({
@@ -539,6 +622,194 @@ describe('ConversationContextService', () => {
     })
 
     expect(bundle.session.recentMessages.map(message => message.content)).toEqual(['第一轮', '第一轮回答'])
+  })
+
+  it('压缩触发时输出完整生命周期事件并保存可校验 checkpoint', async () => {
+    const storage = createStorage()
+    const stages: Array<{ stage: string; status: string; checkpointId?: string }> = []
+    const service = new ConversationContextService({
+      storage,
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+    })
+    const ref = { projectId: 'p-lifecycle', workspace: 'outline' as const, purpose: 'generate' as const }
+    const checkpointWrites: unknown[] = []
+    service.setCompactionRouting({
+      workspace: 'outline',
+      budget: { modelContextWindow: 250, reservedOutputTokens: 20 },
+      observer: {
+        onContextCompactionLifecycle: event => stages.push({
+          stage: event.stage,
+          status: event.status,
+          checkpointId: event.checkpointId,
+        }),
+      },
+    })
+    const baseStorage = (service as any).storage
+    ;(service as any).storage = {
+      ...baseStorage,
+      async write(key: string, value: unknown) {
+        if (key.startsWith('wa_ctxcp_')) checkpointWrites.push(value)
+        return baseStorage.write(key, value)
+      },
+    }
+    const long = '这是一段足够长的上下文，用于验证压缩生命周期。'.repeat(40)
+    await service.recordTurn(ref, {
+      user: long,
+      assistant: long,
+      meta: {
+        goal: '整理第两卷卷纲',
+        keyFacts: ['第一卷主线已经确定'],
+        hardConstraints: ['不得改写锁定设定'],
+        openQuestions: ['第三卷反派动机'],
+        necessaryFragments: ['第一卷结尾伏笔'],
+        toolState: { editor: { targetId: 'outline' } },
+      },
+    })
+    await service.recordTurn(ref, { user: long, assistant: long, meta: { goal: '整理第两卷卷纲' } })
+    await service.recordTurn(ref, { user: long, assistant: long })
+
+    expect(stages.map(event => event.stage)).toEqual([
+      'pre_compact',
+      'summarizing',
+      'checkpoint',
+      'post_compact',
+      'window_switch',
+    ])
+    expect(stages.every(event => event.status === 'success')).toBe(true)
+    const checkpoint = await service.loadCompactionCheckpoint(ref)
+    expect(checkpoint?.status).toBe('saved')
+    expect(checkpoint?.goal).toBe('整理第两卷卷纲')
+    expect(checkpoint?.keyFacts).toEqual(['第一卷主线已经确定'])
+    expect(checkpoint?.hardConstraints).toEqual(['不得改写锁定设定'])
+    expect(checkpoint?.openQuestions).toEqual(['第三卷反派动机'])
+    expect(checkpoint?.necessaryFragments).toEqual(['第一卷结尾伏笔'])
+    expect(checkpoint?.toolState).toEqual({ editor: { targetId: 'outline' } })
+    const verified = await service.verifyCompactionCheckpoint(ref, checkpoint!)
+    expect(verified.status).toBe('restored')
+    expect(checkpointWrites.length).toBeGreaterThan(0)
+    expect((checkpointWrites.at(-1) as any)?.goal).toBe('整理第两卷卷纲')
+  })
+
+  it('checkpoint 写盘失败时不压缩，历史保持原样并输出失败事件', async () => {
+    const storage = createStorage()
+    const failedStorage = {
+      ...storage,
+      async write(key: string, value: unknown) {
+        if (key.startsWith('wa_ctxcp_')) return false
+        return storage.write(key, value)
+      },
+    }
+    const stages: string[] = []
+    const service = new ConversationContextService({
+      storage: failedStorage,
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+    })
+    service.setCompactionRouting({
+      workspace: 'outline',
+      budget: { modelContextWindow: 250, reservedOutputTokens: 20 },
+      observer: {
+        onContextCompactionLifecycle: event => stages.push(`${event.stage}:${event.status}`),
+      },
+    })
+    const ref = { projectId: 'p-checkpoint-fail', workspace: 'outline' as const, purpose: 'generate' as const }
+    const long = '这是一段足够长的上下文，用于验证压缩失败回退。'.repeat(40)
+    await service.recordTurn(ref, { user: long, assistant: long })
+    await service.recordTurn(ref, { user: long, assistant: long })
+    await service.recordTurn(ref, { user: long, assistant: long })
+
+    expect(stages).toContain('checkpoint:failed')
+    expect(stages).toContain('checkpoint_failed:failed')
+    const bundle = await service.buildContextBundle(ref)
+    expect(bundle.session.recentMessages.some(message => message.meta?.compaction)).toBe(false)
+    expect(await service.loadCompactionCheckpoint(ref)).toBeNull()
+  })
+
+  it('checkpoint hash 不匹配时标记 needs_user，不把恢复当成功', async () => {
+    const storage = createStorage()
+    const service = new ConversationContextService({
+      storage,
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+      compaction: { budget: { modelContextWindow: 250, reservedOutputTokens: 20 } },
+    })
+    const ref = { projectId: 'p-hash-mismatch', workspace: 'outline' as const, purpose: 'generate' as const, skillId: 's1' }
+    await service.saveCompactionCheckpoint(ref, {})
+    await service.recordTurn(ref, { user: '新的一轮', assistant: '新的回答' })
+    const checkpoint = await service.loadCompactionCheckpoint(ref)
+    const verified = await service.verifyCompactionCheckpoint(ref, checkpoint!)
+
+    expect(verified.status).toBe('hash_mismatch')
+    const stored = await service.loadCompactionCheckpoint(ref)
+    expect(stored?.status).toBe('hash_mismatch')
+  })
+
+  it('压缩在 checkpoint 后被中断时，重启后原始历史可恢复', async () => {
+    const storage = createStorage()
+    const writes = {
+      contextWrites: 0,
+      blockedContextWrite: false,
+    }
+    const interruptedStorage = {
+      ...storage,
+      async write(key: string, value: unknown) {
+        if (key.startsWith('wa_ctx_') && !key.startsWith('wa_ctxcp_')) {
+          writes.contextWrites += 1
+          if (writes.blockedContextWrite) return false
+        }
+        return storage.write(key, value)
+      },
+    }
+    const service = new ConversationContextService({
+      storage: interruptedStorage,
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+    })
+    service.setCompactionRouting({
+      workspace: 'outline',
+      budget: { modelContextWindow: 250, reservedOutputTokens: 20 },
+    })
+    const ref = { projectId: 'p-interrupted-compaction', workspace: 'outline' as const, purpose: 'generate' as const }
+    const long = '这是一段足够长的上下文，用于模拟压缩中断恢复。'.repeat(40)
+    await service.recordTurn(ref, { user: long, assistant: long, meta: { goal: '整理第二卷卷纲' } })
+    await service.recordTurn(ref, { user: long, assistant: long })
+    writes.blockedContextWrite = true
+    await expect(service.recordTurn(ref, { user: long, assistant: long })).rejects.toThrow('上下文写盘失败')
+    const checkpoint = await service.getActiveCompactionCheckpoint()
+
+    expect(checkpoint?.status).toBe('saved')
+    expect(checkpoint?.postCompactionHash).toBeUndefined()
+
+    const restarted = new ConversationContextService({
+      storage,
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+    })
+    const loaded = await restarted.loadCompactionCheckpoint(ref)
+    const verified = await restarted.verifyCompactionCheckpoint(ref, loaded!)
+    expect(verified.status).toBe('restored')
+    expect(verified.goal).toBe('整理第二卷卷纲')
+    const bundle = await restarted.buildContextBundle(ref)
+    expect(bundle.session.recentMessages.length).toBeGreaterThan(0)
+  })
+
+  it('恢复校验不允许不同长度的会话冒充 checkpoint 原始历史', async () => {
+    const storage = createStorage()
+    const service = new ConversationContextService({
+      storage,
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+    })
+    const ref = { projectId: 'p-length-mismatch', workspace: 'outline' as const, purpose: 'generate' as const }
+    await service.recordTurn(ref, { user: '原始第一轮', assistant: '原始回答' })
+    await service.saveCompactionCheckpoint(ref, {})
+    const rawCheckpoint = await storage.read(`wa_ctxcp_${ref.projectId}_outline__generate__default`)
+    await storage.write(`wa_ctxcp_${ref.projectId}_outline__generate__default`, {
+      ...rawCheckpoint,
+      messageCount: 4,
+    })
+    const restarted = new ConversationContextService({
+      storage,
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+    })
+    const loaded = await restarted.loadCompactionCheckpoint(ref)
+    const verified = await restarted.verifyCompactionCheckpoint(ref, loaded!)
+    expect(verified.status).toBe('hash_mismatch')
   })
 
   it('单例代理调用实例方法时保持服务上下文', () => {

@@ -46,7 +46,7 @@ async function callAiApi(
         providerName: provider?.name,
         model,
         temperature: agent?.temperature,
-        maxTokens: agent?.maxTokens,
+        maxTokens: agent?.maxTokens ?? undefined,
         requestMessages: messages
       })
       : ''
@@ -58,7 +58,7 @@ async function callAiApi(
         retry: true,
         model: agent?.model || undefined,
         temperature: agent?.temperature,
-        maxTokens: agent?.maxTokens,
+        maxTokens: agent?.maxTokens ?? undefined,
         meta: { source: 'useDeAi.callAiApi' }
       })
       if (deAiTrace && callId) {

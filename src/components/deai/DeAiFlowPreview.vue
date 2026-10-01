@@ -63,8 +63,8 @@ function isDone(index: number): boolean {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  padding: var(--space-sm, var(--space-4));
-  font-size: var(--font-size-sm, 13px);
+  padding: var(--space-4);
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
   line-height: 1.8;
 }
@@ -81,7 +81,7 @@ function isDone(index: number): boolean {
   border-radius: var(--radius-sm);
   background: var(--bg-elevated);
   color: var(--text-primary);
-  font-size: var(--font-size-sm, 13px);
+  font-size: var(--font-size-sm);
 }
 .deai-flow-step.active {
   background: var(--accent);
@@ -94,13 +94,13 @@ function isDone(index: number): boolean {
 .deai-flow-arrow {
   color: var(--text-muted);
   margin: 0 var(--space-1);
-  font-size: var(--font-size-sm, 13px);
+  font-size: var(--font-size-sm);
 }
 /* time estimate - matches old arch .deai-flow-time */
 .deai-flow-time {
   font-weight: 600;
   color: var(--text-primary);
-  margin-top: var(--space-xs, 4px);
-  font-size: var(--font-size-sm, 13px);
+  margin-top: var(--space-2);
+  font-size: var(--font-size-sm);
 }
 </style>

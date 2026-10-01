@@ -8,6 +8,29 @@ export type ChainRoutingContext = {
   recentHistory?: readonly ChainIntentHistoryMessage[]
   recentAssistantSummaries?: string[]
   activeSkillIds?: string[]
+  activeEditTaskStatus?: 'awaiting_batch'
+  llmClassifier?: LlmIntentClassifier
+}
+
+export type LlmIntentClassifier = (
+  input: string,
+  options?: { signal?: AbortSignal },
+) => Promise<{
+  intent?: unknown
+  confidence?: unknown
+  reason?: unknown
+} | null>
+
+export type LlmIntentFallbackConfig = {
+  enabled: boolean
+  timeoutMs: number
+  minConfidence: number
+}
+
+export const LLM_INTENT_FALLBACK_CONFIG: LlmIntentFallbackConfig = {
+  enabled: true,
+  timeoutMs: 6000,
+  minConfidence: 0.6,
 }
 
 export type ChainRoutingResult =
@@ -16,16 +39,19 @@ export type ChainRoutingResult =
       intent: Exclude<ChainIntent, 'auto'>
       confidence: number
       reason: string
+      decisionLayer?: 'rule' | 'keyword'
     }
   | {
       kind: 'no_match'
       confidence: number
       reason:
         | 'low-confidence'
+        | 'out-of-scope'
         | 'no-keyword-overlap'
         | 'empty-input'
         | 'router-degraded'
       fallbackMode: RoutingFallbackMode
+      decisionLayer?: 'rule' | 'keyword'
     }
   | {
       kind: 'ambiguous'
@@ -33,9 +59,34 @@ export type ChainRoutingResult =
       confidence: number
       reason: string
       fallbackMode: RoutingFallbackMode
+      decisionLayer?: 'rule' | 'keyword'
     }
 
 export type RoutingFallbackMode = 'readonly-discuss' | 'await-user'
+
+export type ChainRoutingDiagnostics = {
+  router: {
+    version: 'v6.1'
+    layers: Array<'rule' | 'keyword' | 'embedding' | 'llm-fallback'>
+    decisionLayer: 'rule' | 'keyword' | 'embedding' | 'llm-fallback' | 'fallback'
+    embeddingModel: string | null
+    embeddingState?: 'idle' | 'loading' | 'ready' | 'unavailable'
+    scores: Partial<Record<Exclude<ChainIntent, 'auto'>, number>>
+    thresholds: Record<Exclude<ChainIntent, 'auto'>, number>
+    ambiguityThreshold: number
+    ambiguityThresholds: Record<Exclude<ChainIntent, 'auto'>, number>
+    oosThreshold: number
+    thresholdSource: string
+    failure?: {
+      stage: 'embedding' | 'llm-fallback'
+      message: string
+    }
+  }
+}
+
+export type DetailedChainRoutingResult = ChainRoutingResult & {
+  diagnostics: ChainRoutingDiagnostics
+}
 
 export function isIntentRouterDegraded(): boolean {
   return jiebaLoadFailed
@@ -51,10 +102,10 @@ export const CHAIN_ROUTING_CONFIDENCE_THRESHOLD = 0.45
 export const CHAIN_ROUTING_AMBIGUITY_THRESHOLD = 0.08
 
 export const ROUTE_THRESHOLDS: Record<ChainIntent, number> = {
-  analyze: 0.45,
-  edit: 0.45,
-  generate: 0.45,
-  discuss: 0.45,
+  analyze: 0.42,
+  edit: 0.4,
+  generate: 0.38,
+  discuss: 0.36,
   auto: 0.45,
 }
 
@@ -113,6 +164,188 @@ const INTENT_KEYWORD_CATEGORIES: Array<{
   { intent: 'discuss', category: 'discussKeywords' },
 ]
 
+export const EMBEDDING_INTENT_MODEL_ID = 'Xenova/bge-small-zh-v1.5'
+export const EMBEDDING_ROUTING_THRESHOLD_SOURCE =
+  'calibrated:v6.1-phase6:79-samples:151-examples:train-dev-test:oos-audited'
+
+const EMBEDDING_ROUTE_THRESHOLDS: Record<
+  Exclude<ChainIntent, 'auto'>,
+  number
+> = {
+  analyze: 0.3,
+  edit: 0.34,
+  generate: 0.34,
+  discuss: 0.3,
+}
+
+export const EMBEDDING_ROUTING_THRESHOLDS = Object.freeze({
+  ...EMBEDDING_ROUTE_THRESHOLDS,
+})
+
+export const EMBEDDING_ROUTING_AMBIGUITY_THRESHOLDS: Record<
+  Exclude<ChainIntent, 'auto'>,
+  number
+> = {
+  analyze: 0.06,
+  edit: 0.08,
+  generate: 0.08,
+  discuss: 0.06,
+}
+
+export const EMBEDDING_ROUTING_OOS_THRESHOLD = 0.24
+
+type EmbeddingApi = {
+  intentEmbed?: (texts: string[]) => Promise<{
+    vectors?: number[][]
+    dims?: number
+    error?: string
+  }>
+  intentEmbeddingStatus?: () => Promise<{
+    state?: 'idle' | 'loading' | 'ready'
+    model?: string
+  }>
+  intentEmbeddingWarmup?: () => Promise<{
+    state?: 'idle' | 'loading' | 'ready'
+    model?: string
+    error?: string
+  }>
+}
+
+function getEmbeddingApi(): EmbeddingApi | null {
+  const electronAPI = (globalThis as { window?: { electronAPI?: EmbeddingApi } })
+    .window?.electronAPI
+  if (
+    electronAPI &&
+    typeof electronAPI.intentEmbed === 'function' &&
+    typeof electronAPI.intentEmbeddingStatus === 'function'
+  ) {
+    return electronAPI
+  }
+  return null
+}
+
+type IntentVectorCache = {
+  model: string | null
+  vectors: Record<Exclude<ChainIntent, 'auto'>, number[][]>
+  failure?: string
+}
+
+let intentVectorCache: IntentVectorCache | null = null
+let pendingIntentVectorCache: { model: string | null; promise: Promise<IntentVectorCache> } | null = null
+
+export function resetIntentRoutingEmbeddingCacheForTests(): void {
+  intentVectorCache = null
+  pendingIntentVectorCache = null
+}
+
+export async function warmupIntentRoutingEmbedding(): Promise<unknown> {
+  const api = getEmbeddingApi()
+  if (!api?.intentEmbeddingWarmup) return Promise.resolve(null)
+  try {
+    await api.intentEmbeddingWarmup()
+    const status = await api.intentEmbeddingStatus?.()
+    const model = status?.model || EMBEDDING_INTENT_MODEL_ID
+    // Prebuild the static intent-example cache so the first low-confidence
+    // request only pays for its own input vector, not the whole corpus.
+    await getIntentVectorCache(api, model)
+    return null
+  } catch {
+    return null
+  }
+}
+
+async function embedTexts(
+  embeddingApi: EmbeddingApi,
+  texts: string[],
+): Promise<{ vectors: number[][]; error?: string }> {
+  const response = await embeddingApi.intentEmbed?.(texts)
+  if (!response || response.error || response.vectors?.length !== texts.length) {
+    return {
+      vectors: [],
+      error:
+        response?.error ||
+        `embedding returned ${response?.vectors?.length ?? 0}/${texts.length} vectors`,
+    }
+  }
+  return { vectors: response.vectors }
+}
+
+async function getIntentVectorCache(
+  embeddingApi: EmbeddingApi,
+  model: string | null,
+): Promise<IntentVectorCache> {
+  if (
+    intentVectorCache &&
+    intentVectorCache.model === model &&
+    !intentVectorCache.failure
+  ) {
+    return intentVectorCache
+  }
+  if (
+    pendingIntentVectorCache &&
+    pendingIntentVectorCache.model === model &&
+    !intentVectorCache
+  ) {
+    return pendingIntentVectorCache.promise
+  }
+
+  const buildCache = async (): Promise<IntentVectorCache> => {
+    const cache: IntentVectorCache = {
+      model,
+      vectors: {
+        analyze: [],
+        edit: [],
+        generate: [],
+        discuss: [],
+      },
+    }
+    for (const intent of Object.keys(INTENT_EXAMPLES) as Array<
+      Exclude<ChainIntent, 'auto'>
+    >) {
+      const examples = INTENT_EXAMPLES[intent]
+      // IPC enforces a hard batch limit; examples stay static and are embedded
+      // once per model lifecycle, then reused for every user request.
+      for (let start = 0; start < examples.length; start += 16) {
+        const batch = examples.slice(start, start + 16)
+        const result = await embedTexts(embeddingApi, batch)
+        if (result.error) {
+          cache.failure = `intent:${intent} batch ${Math.floor(start / 16) + 1}: ${result.error}`
+          return cache
+        }
+        cache.vectors[intent].push(...result.vectors)
+      }
+    }
+    return cache
+  }
+
+  const pendingCache = { model, promise: buildCache() }
+  let cacheResult: IntentVectorCache
+  pendingIntentVectorCache = pendingCache
+  try {
+    cacheResult = await pendingCache.promise
+    intentVectorCache = cacheResult
+    if (intentVectorCache.failure) {
+      // Keep a failed cache out of the process-global slot; otherwise a later
+      // call with a working bridge can never recover because the guard sees a
+      // non-null intentVectorCache.
+      intentVectorCache = null
+    }
+    return intentVectorCache || cacheResult
+  } finally {
+    if (pendingIntentVectorCache === pendingCache) {
+      pendingIntentVectorCache = null
+    }
+  }
+}
+
+function hasIntentKeywordSignal(input: string): boolean {
+  return (
+    findPhrases(input, [
+      ...INTENT_KEYWORD_CATEGORIES.map((entry) => entry.category),
+    ]).length > 0
+  )
+}
+
 const CONTINUATION_INPUTS = new Set([
   '继续',
   '接着来',
@@ -123,6 +356,43 @@ const CONTINUATION_INPUTS = new Set([
   '就按这个来',
   '照这个继续',
 ])
+const EDIT_TASK_CONTINUATION_PATTERN =
+  /^(?:请|麻烦|帮我|先)?(?:继续|接着|恢复)(?:执行|重试|运行|完成)?(?:刚才的|当前的|这个|该)?(?:编辑)?任务[吧呗。！？!，,.~～\s]*$/
+const WORKSPACE_DOMAIN_PATTERN =
+  /(大纲|卷纲|章节|正文|设定|人物|角色|伏笔|钩子|时间线|叙事|故事|情节|主线|支线|世界观|编辑器|文本|文案|开篇|结尾|节奏|弧光|场景|对话|标题|书名|简介|命名|前史|反转|反派|背景|悬念|下一章|结构|断层|顺便问一下|过渡|番外|梗概|关系图|体系|三幕|描写|节点|稿子|文稿|文档)/
+const WORKSPACE_GENERATIVE_ACTION_PATTERN =
+  /^(?:扩写|续写|展开写|写细|细化|丰富|充实|起草|撰写|构思|创作)/
+
+const TYPO_NORMALIZATION_MAP: ReadonlyArray<[RegExp, string]> = [
+  [/勾子/g, '钩子'],
+  [/设订/g, '设定'],
+  [/脚裸/g, '脚踝'],
+  [/时间现/g, '时间线'],
+  [/副笔/g, '伏笔'],
+  [/大刚/g, '大纲'],
+  [/卷冈/g, '卷纲'],
+  [/捡查/g, '检查'],
+]
+
+function normalizeTypoInput(input: string): string {
+  return TYPO_NORMALIZATION_MAP.reduce(
+    (text, [pattern, replacement]) => text.replace(pattern, replacement),
+    input,
+  )
+}
+
+function isExplicitEditTaskContinuationInput(input: string): boolean {
+  return EDIT_TASK_CONTINUATION_PATTERN.test(input.trim())
+}
+
+const KEEP_UNCHANGED_QUALIFIER_PATTERN =
+  /(?:其他|其余|剩余|别的|其他内容|其余内容|剩余内容|别的内容|其他部分|其余部分)[^。！？!?,，]{0,8}(?:保持不变|保持原样|保持原文不变|不要动|不要改|不要修改)/
+const BARE_KEEP_UNCHANGED_QUALIFIER_PATTERN =
+  /(?:^|[，,。；;])\s*(?:保持不变|保持原样|保持原文不变)/
+const NON_ACTIONABLE_PROHIBITION_PATTERN =
+  /先别|先不|不要|请勿|别动|不用|无需|等.{0,4}(?:再|确认)|暂时/
+const SCOPED_WRITE_TARGET_PATTERN =
+  /(?:第\s*[0-9一二三四五六七八九十百两]+\s*(?:到|至|-|—|~)\s*[0-9一二三四五六七八九十百两]+\s*(?:节|段|章|卷)|第\s*[0-9一二三四五六七八九十百两]+\s*(?:节|段|章|卷)|(?:首尾|开头|结尾)\s*(?:两|二|三|几)?\s*(?:节|段|章|卷)|全文|整篇|全篇)/
 
 export type ResolvedPermissionIntent =
   | 'status-permission-question'
@@ -137,8 +407,31 @@ function resolvePermissionIntent(input: string): {
   reason: ResolvedPermissionIntent
   hits: PhraseHit[]
 } {
+  input = normalizeTypoInput(input)
+  // Punctuation-stripped affirmations such as "好的按你的方案..." are
+  // discussion responses, even when the sentence is no longer a question.
+  if (AFFIRMATIVE_DISCUSSION_PATTERN.test(input.trim())) {
+    return { reason: 'contextual-discussion', hits: [] }
+  }
   const statusHits = findPhrases(input, STATUS_PERMISSION_CATEGORIES)
   const hasStatusQuestion = statusHits.length > 0 || isQuestionInput(input)
+  const isGenericAnalysisQuestion =
+    GENERIC_ANALYSIS_QUESTION_PATTERN.test(input.trim())
+  const prohibitionHits = findPhrases(input, PROHIBITION_CATEGORIES)
+  const hasAnalysisDirective = findPhrases(input, ['analyzeKeywords']).some(
+    hit =>
+      hit.phrase !== '时间线' &&
+      hit.phrase !== '逻辑' &&
+      hit.phrase !== '有什么问题' &&
+      hit.phrase !== '哪里有问题' &&
+      hit.phrase !== '哪里不对' &&
+      hit.phrase !== '哪里怪' &&
+      hit.phrase !== '合理吗' &&
+      hit.phrase !== '合理不' &&
+      hit.phrase !== '可信吗' &&
+      hit.phrase !== '成立吗' &&
+      hit.phrase !== '站得住吗',
+  ) && !isGenericAnalysisQuestion
   if (hasStatusQuestion) {
     // A permission question is context, not an override. An imperative such as
     // "try editing this to verify your permission" is still a write request.
@@ -152,9 +445,43 @@ function resolvePermissionIntent(input: string): {
         ]),
       }
     }
-    return { reason: 'status-permission-question', hits: statusHits }
+    if (AFFIRMATIVE_DISCUSSION_PATTERN.test(input.trim())) {
+      return { reason: 'contextual-discussion', hits: [] }
+    }
+    if (NON_WORKSPACE_GREETING_PATTERN.test(input.trim())) {
+      return { reason: null, hits: [] }
+    }
+    if (hasAnalysisDirective) {
+      return { reason: null, hits: [] }
+    }
+    // A leading "有没有/是不是" alone is not an analysis request when the
+    // matched phrase is itself a permission question. Letting it fall through
+    // would let the write keyword layer promote the question to edit.
+    if (
+      statusHits.length === 0 &&
+      GENERIC_ANALYSIS_QUESTION_PATTERN.test(input.trim())
+    ) {
+      return { reason: null, hits: [] }
+    }
+    if (statusHits.length > 0) {
+      return { reason: 'status-permission-question', hits: statusHits }
+    }
+    return { reason: 'contextual-discussion', hits: [] }
   }
-  const prohibitionHits = findPhrases(input, PROHIBITION_CATEGORIES)
+  const hasKeepUnchangedQualifier =
+    KEEP_UNCHANGED_QUALIFIER_PATTERN.test(input) ||
+    BARE_KEEP_UNCHANGED_QUALIFIER_PATTERN.test(input)
+  if (
+    hasKeepUnchangedQualifier &&
+    !NON_ACTIONABLE_PROHIBITION_PATTERN.test(input) &&
+    (hasWriteDirective(input) || hasScopedWeakWriteDirective(input))
+  ) {
+    return { reason: 'explicit-write', hits: findPhrases(input, [
+      ...STRONG_WRITE_CATEGORIES,
+      ...WEAK_WRITE_CATEGORIES,
+      ...WRITE_TARGET_CATEGORIES,
+    ]) }
+  }
   if (prohibitionHits.length > 0) {
     return { reason: 'prohibition-rollback', hits: prohibitionHits }
   }
@@ -177,32 +504,122 @@ function resolvePermissionIntent(input: string): {
     hasLocationRequestSignal ||
     (hasStructuralAnchor && PLACEMENT_PATTERN.test(input) && !hasWriteAction)
   const hasImperativeWriteMarker = /把|将/.test(input)
+  const referenceHits = findPhrases(input, REFERENCE_CATEGORIES)
+  const contextualHits = findPhrases(input, CONTEXTUAL_CATEGORIES)
+  const hasStructuredReplaceDirective =
+    (STRUCTURED_REPLACE_IMPERATIVE_PATTERN.test(input) ||
+      STRUCTURED_REPLACE_TOPIC_PATTERN.test(input)) &&
+    !STRUCTURED_REPLACE_PREVIEW_PATTERN.test(input)
+  const hasReplacePreviewQuestion =
+    STRUCTURED_REPLACE_ACTION_PATTERN.test(input) &&
+    STRUCTURED_REPLACE_PREVIEW_PATTERN.test(input)
+  const hasWriteQualifier =
+    writeTargetHits.length > 0 ||
+    hasImperativeWriteMarker ||
+    findPhrases(input, ['writeIntensifiers']).length > 0
+  const hasDiscussionRequest = DISCUSSION_REQUEST_PATTERN.test(input)
+  const hasGenerateAction = findPhrases(input, ['generateKeywords']).length > 0
+  // Some generate words are nouns when attached to a preview verb: "看看成稿"
+  // reads an existing deliverable instead of requesting a new one.
+  const hasReadonlyGeneratePreview =
+    READONLY_GENERATE_PREVIEW_PATTERN.test(input) &&
+    findPhrases(input, ['generateKeywords']).length > 0
+  const hasFinalGenerateDeliverable =
+    FINAL_GENERATE_DELIVERABLE_PATTERNS.some(pattern => pattern.test(input))
+  const hasNewContentComposition =
+    NEW_CONTENT_COMPOSITION_PATTERN.test(input) &&
+    !NEW_CONTENT_COMPOSITION_EXCLUSION_PATTERN.test(input)
+  const hasEditorWriteAction = strongWriteHits.some(hit =>
+    EDITOR_WRITE_ACTION_PATTERN.test(hit.phrase),
+  )
+  // "替换方案" is a noun here, not an editor action: "给我看看第 3 个替换方案"
+  // asks for a read-only preview and must never trigger a write route.
+  const hasReadonlyReplacePlanRequest =
+    /替换方案/.test(input) &&
+    /(给我看看|给我看一眼|看看|看一眼|预览|先看)/.test(input)
+  const hasDomainWriteAction =
+    strongWriteHits.some(hit => !EDITOR_WRITE_ACTION_PATTERN.test(hit.phrase)) &&
+    (writeTargetHits.length > 0 || WORKSPACE_DOMAIN_PATTERN.test(input))
+  const hasDirectEditorWriteContext = EDITOR_WRITE_CONTEXT_PATTERN.test(input)
+  const hasDiscussionIntent =
+    hasDiscussionRequest &&
+    !hasGenerateAction &&
+    !hasAnalysisDirective &&
+    !hasFinalGenerateDeliverable
   const hasExplicitWrite =
     !hasLocationSignal &&
     !isQuestionInput(input) &&
-    (strongWriteHits.length > 0 ||
+    !LEADING_MODAL_WRITE_QUESTION_PATTERN.test(input.trim()) &&
+    !hasReplacePreviewQuestion &&
+    !hasDiscussionIntent &&
+    !hasFinalGenerateDeliverable &&
+    !hasNewContentComposition &&
+    (hasEditorWriteAction && !hasReadonlyReplacePlanRequest ||
+      (hasDirectEditorWriteContext && strongWriteHits.length > 0) ||
+      (strongWriteHits.length > 0 &&
+        (hasDomainWriteAction || hasImperativeWriteMarker)) ||
       EXPLORATORY_WRITE_PATTERN.test(input) ||
+      hasStructuredReplaceDirective ||
       (weakWriteHits.length > 0 &&
         (writeTargetHits.length > 0 || hasImperativeWriteMarker)))
   if (hasLocationSignal) {
     return { reason: 'location-consult', hits: locationHits }
   }
-  const referenceHits = findPhrases(input, REFERENCE_CATEGORIES)
-  const contextualHits = findPhrases(input, CONTEXTUAL_CATEGORIES)
   if (
-    referenceHits.length > 0 ||
-    (contextualHits.length > 0 &&
-      contextualHits.every(hit => hit.category === 'contextualReplies'))
+    referenceHits.length > 0 &&
+    !hasWriteQualifier &&
+    (!hasGenerateAction || hasReadonlyGeneratePreview) &&
+    !hasFinalGenerateDeliverable
   ) {
     return { reason: 'reference-request', hits: referenceHits }
   }
-  if (hasExplicitWrite) {
+  if (hasExplicitWrite && !hasDiscussionIntent) {
     return {
       reason: 'explicit-write',
       hits: [...strongWriteHits, ...weakWriteHits, ...writeTargetHits],
     }
   }
-  if (contextualHits.length > 0) {
+  if (hasDiscussionIntent) {
+    return { reason: 'contextual-discussion', hits: findPhrases(input, ['discussKeywords']) }
+  }
+  if (
+    LEADING_MODAL_QUESTION_PATTERN.test(input) ||
+    (isQuestionInput(input) &&
+      !/^(看看|看一眼|检查|分析|评估|诊断|审查|审视|复核|排查|找找|找一找|挑一挑|列出|列出来|通读)/.test(
+        input,
+      ))
+  ) {
+    return { reason: 'contextual-discussion', hits: contextualHits }
+  }
+  if (
+    referenceHits.length > 0 ||
+    (contextualHits.length > 0 &&
+      !hasIntentKeywordSignal(input) &&
+      contextualHits.every(hit => hit.category === 'contextualReplies'))
+  ) {
+    // The late reference branch must obey the same generate guards as the
+    // early branch. Otherwise "先审一遍，再给我一版修改后的钩子" falls back
+    // to reference-request after the final-deliverable guard already passed.
+    if (
+      (hasGenerateAction && !hasReadonlyGeneratePreview) ||
+      hasFinalGenerateDeliverable
+    ) {
+      return { reason: null, hits: [...weakWriteHits, ...writeTargetHits] }
+    }
+    return { reason: 'reference-request', hits: referenceHits }
+  }
+  const hasPreferenceConstraint = contextualHits.some(
+    hit => hit.group === 'desire-and-preference',
+  )
+  const hasModalClarification = contextualHits.some(
+    hit => hit.group === 'interrogative-modal',
+  )
+  if (
+    contextualHits.length > 0 &&
+    ((hasPreferenceConstraint && !hasGenerateAction) ||
+      (hasModalClarification && !DIRECTIVE_VERB_PATTERN.test(input)) ||
+      (!hasIntentKeywordSignal(input) && !DIRECTIVE_VERB_PATTERN.test(input)))
+  ) {
     return { reason: 'contextual-discussion', hits: contextualHits }
   }
   return { reason: null, hits: [...weakWriteHits, ...writeTargetHits] }
@@ -238,6 +655,45 @@ const PLACEMENT_PATTERN =
 const EXPLICIT_INTENT_PATTERN =
   /(生成|写|创作|修改|改|调整|分析|检查|诊断|评估|讨论|聊聊|你觉得|商量|探讨)/
 const QUESTION_MARKER_PATTERN = /(?:[?？]|[么吗呢])[。！？!?]*$/
+const AFFIRMATIVE_DISCUSSION_PATTERN =
+  /^(好的|好呀|可以|行|明白|明白了|嗯|哦|对|同意).{0,12}(按你说的|按你的方案|照你说的|听你的)/
+const READONLY_GENERATE_PREVIEW_PATTERN =
+  /(给我看|给我看看|看看|看一眼|展示|预览|先看|(?:写出来|输出|成稿|正文|定稿)[^。！？]{0,8}(?:什么样|什么样子|什么效果|怎么样))/
+const NON_WORKSPACE_GREETING_PATTERN =
+  /^(在吗|在么|你好|您好|嗨|哈喽|hello|hi)(?![^。！？!?]{0,12}(大纲|卷纲|章节|正文|设定|人物|角色|伏笔|钩子|时间线|故事|情节|开篇|结尾))$/i
+const STRUCTURED_REPLACE_ACTION_PATTERN = /(?:换成|改成|改为|替换成|替换为)/
+const STRUCTURED_REPLACE_IMPERATIVE_PATTERN = new RegExp(
+  `(?:把|将)[^。！？!?]{1,80}?${STRUCTURED_REPLACE_ACTION_PATTERN.source}[^。！？!?]{1,80}$`,
+)
+const STRUCTURED_REPLACE_TOPIC_PATTERN = new RegExp(
+  `(?:这几个字|这几个词|这个词|这些字|这句话)[^。！？!?]{0,30}${STRUCTURED_REPLACE_ACTION_PATTERN.source}`,
+)
+const STRUCTURED_REPLACE_PREVIEW_PATTERN =
+  /[?？]$|(?:什么样|什么样子|什么效果|怎么样|如何|什么)/
+const EDITOR_WRITE_ACTION_PATTERN =
+  /(写入|写进|写回去|写回|回填|回写|直写|直接写|录入|填入|填进|保存到|存进|存到|存入|同步到|同步进|落实到|落盘|落进|在后面补|在后面加|帮我补|帮我加|补一句|补一段|新增|新增一句|新增一段|加一句|加一段|添一句|添一段|添上|增加|补全|定稿|敲定|确认修改|确认写入|重新排版|重新整理格式|统一标点|统一格式|格式排版|替换|重写|删除|删掉|移除|去掉|清除掉)/
+const EDITOR_WRITE_CONTEXT_PATTERN =
+  /直接|编辑器|第\s*[一二三四五六七八九十\d]+\s*(?:段|节|章|卷|行)|当前段落|目标段落/
+const FINAL_GENERATE_DELIVERABLE_PATTERNS: readonly RegExp[] = [
+  /先[^，。！？]{0,8}(?:审一遍|审查|检查|分析|评估|诊断)[^，。！？]{0,20}[，,]?\s*(?:再|然后)[^，。！？]{0,24}(?:给我一版|给我一版修改后的|写出来|输出一版)/,
+  /(?:再|然后)[^，。！？]{0,24}(?:给我一版|给我一版修改后的|写出来|输出一版)[^，。！？]{0,20}[，,]?\s*先[^，。！？]{0,8}(?:审一遍|审查|检查|分析|评估|诊断)/,
+]
+const NEW_CONTENT_COMPOSITION_PATTERN =
+  /^(?:为|给|帮)(?:我)?[^，。！？]{0,12}(?:补一段|补个|写一段|写个|加一段|想一个|想几个)(?![^。！？]{0,6}(?:就行|就好))/
+const NEW_CONTENT_COMPOSITION_EXCLUSION_PATTERN =
+  /(在后面|当前段落|目标段落|第[一二三四五六七八九十\d]+段|编辑器)/
+const GENERIC_ANALYSIS_QUESTION_PATTERN =
+  /^(?:有什么|有没有|需不需要|要不要|是不是|会不会)/
+const DISCUSSION_REQUEST_PATTERN =
+  /(讨论一下|商量一下|商量怎么|聊聊|聊一聊|谈一谈|探讨一下|给我看看|给我参考|不要按|不要按照|先不动|暂不动|暂不)/
+const LEADING_MODAL_QUESTION_PATTERN = /^(要不要|能不能|会不会|有没有|是不是)/
+const MODAL_QUESTION_PATTERN = /(要不要|能不能|会不会|有没有|是不是)/
+const LEADING_MODAL_WRITE_QUESTION_PATTERN =
+  /^(?:要不要|能不能|能否|是不是|需不需要|用不用|该不该)[^。！？!?]{0,30}(?:新增|加一句|加一段|添加|修改|写入|编辑|删除|移除)/
+const DIRECTIVE_VERB_PATTERN =
+  /(看看|看一眼|检查|分析|评估|诊断|审查|审一遍|审核|审视|复核|排查|找找|找一找|挑一挑|列出|列出来|通读|写|生成|起草|创作|编写|续写|扩写|输出|起名|命名|整理成|归纳成|总结成)/
+const AUTHOR_PREFERENCE_PATTERN =
+  /^(?:我|我们|这个|这|那|它|他|她)?(?:设计的是|设计意图是|不是要|不是这个意思|不同意|比较倾向|倾向于)/
 const EXPLORATORY_WRITE_PATTERN =
   /(试着|尝试|测试|验证)[^。！？!?]*(修改|改|写入|编辑)|随意加几个字|随便加几个字|加几个字/
 const AWAIT_USER_MARKERS = [
@@ -280,13 +736,28 @@ function hasWriteDirective(input: string): boolean {
   ]
   const hasImperativeWriteMarker = /把|将/.test(input)
   return (
-    (hasImperativeWriteMarker && writeActionHits.length > 0) ||
+    (hasImperativeWriteMarker &&
+      writeActionHits.length > 0 &&
+      !DISCUSSION_REQUEST_PATTERN.test(input) &&
+      !isQuestionInput(input) &&
+      !MODAL_QUESTION_PATTERN.test(input)) ||
     EXPLORATORY_WRITE_PATTERN.test(input)
   )
 }
 
+function hasScopedWeakWriteDirective(input: string): boolean {
+  const weakWriteHits = findPhrases(input, WEAK_WRITE_CATEGORIES)
+  if (weakWriteHits.length === 0) return false
+  return (
+    SCOPED_WRITE_TARGET_PATTERN.test(input) &&
+    !DISCUSSION_REQUEST_PATTERN.test(input) &&
+    !isQuestionInput(input) &&
+    !MODAL_QUESTION_PATTERN.test(input)
+  )
+}
+
 // --- 示例语句库（每意图30条）---
-const INTENT_EXAMPLES: Record<Exclude<ChainIntent, 'auto'>, string[]> = {
+export const INTENT_EXAMPLES: Record<Exclude<ChainIntent, 'auto'>, string[]> = {
   analyze: [
     '审核大纲看看缺什么',
     '从长篇小说角度检查这个大纲',
@@ -350,6 +821,21 @@ const INTENT_EXAMPLES: Record<Exclude<ChainIntent, 'auto'>, string[]> = {
     '精简过长的设定描述',
     '把叙事节奏改快一点',
     '修改角色关系的描述方式',
+    '第一卷钩子要重新弄一下',
+    '开篇抓人的地方再强化一点',
+    '开头吸引点不够，直接改强',
+    '把开篇亮点再打磨一下',
+    '第一卷新引子重做',
+    '开篇勾子不行，改一下',
+    '钩子需要重新设订',
+    '脚裸伏笔补到第二卷',
+    '人物弧光衔接断了，修一下',
+    '第二卷节奏点重新排',
+    '这个方案我不满意，直接改',
+    '把不够吸引的开场改抓人',
+    '把这条伏笔补进后续',
+    '把这个断点接上',
+    '把节奏点重新排一遍',
   ],
   generate: [
     '生成一个完整大纲',
@@ -382,6 +868,9 @@ const INTENT_EXAMPLES: Record<Exclude<ChainIntent, 'auto'>, string[]> = {
     '生成一个反派的设计方案',
     '创作一个完整的情节链',
     '帮我起草一个世界观设定',
+    '帮我想一个更抓人的开篇',
+    '帮我想三个可选钩子',
+    '麻烦你起草第二卷的三个节点',
   ],
   discuss: [
     '讨论一下主角应该用什么视角',
@@ -420,6 +909,16 @@ const INTENT_EXAMPLES: Record<Exclude<ChainIntent, 'auto'>, string[]> = {
     '构思一下主角的成长方向',
     '共创一个合理的角色弧光',
     '构思反派的行为逻辑',
+    '钩子二我设计的是一次性伤害，先说明一下',
+    '这个伏笔不是永久性的，先澄清',
+    '我不同意这个判断，理由后面说',
+    '我觉得这个开篇有问题，想听你的看法',
+    '我对这个方案有意见',
+    '这个设定我想解释一下设计意图',
+    '我说明一下这段的设计意图',
+    '这里我不是要改，只是想澄清',
+    '这个设定我不是这个意思',
+    '这条线的设计目的我说一下',
   ],
 }
 // --- 停用词表 ---
@@ -481,6 +980,29 @@ let jiebaLoadFailed = false
 async function ensureJieba(): Promise<boolean> {
   if (jiebaCut) return true
   jiebaLoadFailed = false
+
+  // Electron renderer must use the main-process native binding. The bundled
+  // browser build cannot read dict.txt and must never be treated as available.
+  const electronJieba = (globalThis as { window?: { electronAPI?: { jiebaCut?: (text: string, hmm?: boolean) => { ok: boolean; words?: string[]; error?: string } } } })
+    .window?.electronAPI?.jiebaCut
+  if (typeof electronJieba === 'function') {
+    try {
+      const probe = electronJieba('初始化', false)
+      if (!probe?.ok || !Array.isArray(probe.words)) {
+        jiebaLoadFailed = true
+        return false
+      }
+      jiebaCut = (text: string, hmm?: boolean) => {
+        const result = electronJieba(text, hmm ?? false)
+        return result?.ok && Array.isArray(result.words) ? result.words : []
+      }
+      return true
+    } catch {
+      jiebaLoadFailed = true
+      return false
+    }
+  }
+
   try {
     const { Jieba } = await import('@node-rs/jieba')
     let dict: Uint8Array
@@ -663,6 +1185,16 @@ export function classifyChainIntent(
     }
   }
 
+  // Final deliverable phrasing has a clear generation target and must not be
+  // dragged back to edit by words such as "修改后的".
+  if (FINAL_GENERATE_DELIVERABLE_PATTERNS.some(pattern => pattern.test(normalizedInput))) {
+    return {
+      intent: 'generate',
+      matchedKeywords: ['final-deliverable-generation'],
+      confidence: 0.9,
+    }
+  }
+
   // 短答复是在回答上一轮问题，不是新的创作指令；避免重启完整生成链。
   if (
     isLikelyContextualReply(userInput) &&
@@ -679,6 +1211,13 @@ export function classifyChainIntent(
   if (keywordScores.length > 0) {
     const top = keywordScores[0]
     const total = keywordScores.reduce((sum, entry) => sum + entry.score, 0)
+    if (isQuestionOnlyIntent(normalizedInput, top.intent)) {
+      return {
+        intent: 'discuss',
+        matchedKeywords: [`question-only:${top.intent}`],
+        confidence: top.score / total,
+      }
+    }
     if (top.score / total >= ROUTE_THRESHOLDS[top.intent]) {
       return {
         intent: top.intent,
@@ -723,6 +1262,29 @@ export function classifyChainIntent(
 function scoreIntentsByKeywords(
   text: string,
 ): Array<{ intent: Exclude<ChainIntent, 'auto'>; score: number }> {
+  const intentActionHits = findPhrases(text, [
+    ...INTENT_KEYWORD_CATEGORIES.map((entry) => entry.category),
+  ]).filter(
+    hit =>
+      hit.category === 'generateKeywords' ||
+      (hit.category === 'analyzeKeywords' &&
+        hit.phrase !== '时间线' &&
+        hit.phrase !== '逻辑' &&
+        hit.phrase !== '有什么问题' &&
+        hit.phrase !== '哪里有问题' &&
+        hit.phrase !== '哪里不对' &&
+        hit.phrase !== '哪里怪' &&
+        hit.phrase !== '合理吗' &&
+        hit.phrase !== '合理不' &&
+        hit.phrase !== '可信吗' &&
+        hit.phrase !== '成立吗' &&
+        hit.phrase !== '站得住吗'),
+  )
+  const hasDiscussionRequest =
+    DISCUSSION_REQUEST_PATTERN.test(text) &&
+    intentActionHits.length === 0
+  const hasGenerateDeliverable =
+    findPhrases(text, ['generateKeywords']).some(hit => hit.group === 'generate')
   const keywordHits = INTENT_KEYWORD_CATEGORIES.map(
     ({ intent, category }) => ({
       intent,
@@ -732,21 +1294,36 @@ function scoreIntentsByKeywords(
       ),
     }),
   )
+  if (hasDiscussionRequest) {
+    const hasAggregatedGenerate =
+      findPhrases(text, ['generateKeywords']).some(hit =>
+        hit.group === 'generate' && hit.phrase === '给我一版',
+      ) && /再来一版|再出一版|第\s*\d+\s*版|第\s*[一二三四五六七八九十]+\s*版/.test(text)
+    if (!hasAggregatedGenerate) {
+      keywordHits.push({ intent: 'discuss', score: 1000 })
+    }
+  }
   const strongWriteHits = findPhrases(text, [
     'strongWriteActions',
     'writeIntensifiers',
   ])
   const weakWriteHits = findPhrases(text, ['weakWriteActions'])
   const writeTargetHits = findPhrases(text, ['writeTargets'])
+  const hasScopedWriteTarget = SCOPED_WRITE_TARGET_PATTERN.test(text)
   const hasStrongWriteAction = strongWriteHits.length > 0
   const editHitLength =
     strongWriteHits.reduce((sum, hit) => sum + hit.phrase.length, 0) +
     (hasStrongWriteAction ||
     writeTargetHits.length > 0 ||
+    hasScopedWriteTarget ||
     /把|将/.test(text)
       ? weakWriteHits.reduce((sum, hit) => sum + hit.phrase.length, 0)
       : 0)
-  if (editHitLength > 0) {
+  if (
+    editHitLength > 0 &&
+    !hasDiscussionRequest &&
+    !hasGenerateDeliverable
+  ) {
     keywordHits.push({ intent: 'edit', score: editHitLength })
   }
   return keywordHits
@@ -758,8 +1335,14 @@ function isQuestionOnlyIntent(
   text: string,
   intent: Exclude<ChainIntent, 'auto'>,
 ): boolean {
-  if (intent !== 'analyze' && intent !== 'discuss') return false
-  return /[?？]$/.test(text)
+  const trimmed = text.trim()
+  const hasDirective = DIRECTIVE_VERB_PATTERN.test(trimmed)
+  return (
+    /[?？]$/.test(trimmed) ||
+    /[吗呢][。！？!?]*$/.test(trimmed) ||
+    (/什么[。！？!?]*$/.test(trimmed) && !hasDirective) ||
+    (LEADING_MODAL_QUESTION_PATTERN.test(trimmed) && !hasDirective)
+  )
 }
 
 function hasWriteDirectiveSignal(text: string): boolean {
@@ -767,6 +1350,7 @@ function hasWriteDirectiveSignal(text: string): boolean {
   const weakHits = findPhrases(text, WEAK_WRITE_CATEGORIES)
   const targetHits = findPhrases(text, WRITE_TARGET_CATEGORIES)
   const contextualHits = findPhrases(text, CONTEXTUAL_CATEGORIES)
+  if (DISCUSSION_REQUEST_PATTERN.test(text)) return false
   if (strongHits.length > 0 && contextualHits.length === 0) return true
   if (weakHits.length > 0 && targetHits.length > 0) return true
   return (
@@ -780,7 +1364,7 @@ export function routeChainIntent(
   userInput: string,
   context?: ChainRoutingContext,
 ): ChainRoutingResult {
-  const normalizedInput = (userInput || '').trim()
+  const normalizedInput = normalizeTypoInput((userInput || '').trim())
   if (!normalizedInput) {
     return {
       kind: 'no_match',
@@ -800,6 +1384,19 @@ export function routeChainIntent(
   }
 
   if (
+    context?.activeEditTaskStatus === 'awaiting_batch' &&
+    isExplicitEditTaskContinuationInput(normalizedInput)
+  ) {
+    return {
+      kind: 'matched',
+      intent: 'edit',
+      confidence: 0.96,
+      reason: 'active-edit-task-continuation',
+      decisionLayer: 'rule',
+    }
+  }
+
+  if (
     isLikelyContextualReply(normalizedInput) &&
     findAwaitingUserMessage(context?.recentHistory)
   ) {
@@ -808,6 +1405,7 @@ export function routeChainIntent(
       intent: 'discuss',
       confidence: 0.8,
       reason: 'await-user-contextual-reply',
+      decisionLayer: 'rule',
     }
   }
 
@@ -827,6 +1425,7 @@ export function routeChainIntent(
         intent: recent.intent,
         confidence: CHAIN_ROUTING_CONFIDENCE_THRESHOLD,
         reason: `continuation-resolved:${recent.intent}`,
+        decisionLayer: 'rule',
       }
     }
     return {
@@ -846,6 +1445,7 @@ export function routeChainIntent(
         intent: 'edit',
         confidence: 0.95,
         reason: 'explicit-write-directive',
+        decisionLayer: 'rule',
       }
     }
     if (permissionIntent.reason === 'status-permission-question') {
@@ -857,6 +1457,7 @@ export function routeChainIntent(
           permissionIntent.hits.length > 0
             ? 'status-permission-question'
             : 'question-marker-only',
+        decisionLayer: 'rule',
       }
     }
     return {
@@ -864,6 +1465,30 @@ export function routeChainIntent(
       intent: 'discuss',
       confidence: 0.9,
       reason: permissionIntent.reason,
+      decisionLayer: 'rule',
+    }
+  }
+
+  if (FINAL_GENERATE_DELIVERABLE_PATTERNS.some(pattern => pattern.test(normalizedInput))) {
+    return {
+      kind: 'matched',
+      intent: 'generate',
+      confidence: 0.9,
+      reason: 'final-deliverable-generation',
+      decisionLayer: 'rule',
+    }
+  }
+
+  const readonlyReplacePlanRequest =
+    /替换方案/.test(normalizedInput) &&
+    /(给我看看|给我看一眼|看看|看一眼|预览|先看)/.test(normalizedInput)
+  if (readonlyReplacePlanRequest) {
+    return {
+      kind: 'matched',
+      intent: 'discuss',
+      confidence: 0.9,
+      reason: 'readonly-replace-plan-request',
+      decisionLayer: 'rule',
     }
   }
 
@@ -873,6 +1498,50 @@ export function routeChainIntent(
   const keywordConfidence = top
     ? top.score / keywordScores.reduce((sum, entry) => sum + entry.score, 0)
     : 0
+  // Callers that provide a workspace context are already inside a document
+  // editing surface, so the request text itself does not need to repeat a
+  // domain keyword for write intents to be considered in scope.
+  const inWorkspace =
+    context?.workspace === 'outline-workbench' ||
+    context?.workspace === 'home-editor' ||
+    WORKSPACE_DOMAIN_PATTERN.test(normalizedInput) ||
+    (top?.intent === 'generate' &&
+      WORKSPACE_GENERATIVE_ACTION_PATTERN.test(normalizedInput))
+  const topIsWrite = top?.intent === 'edit' || top?.intent === 'generate'
+  const hasDiscussAlternative =
+    second?.intent === 'discuss' &&
+    top.score - second.score < CHAIN_ROUTING_AMBIGUITY_THRESHOLD
+  if (!inWorkspace && (!top || (topIsWrite && !hasDiscussAlternative))) {
+    if (!top) {
+    return {
+      kind: 'no_match',
+      confidence: keywordConfidence,
+      reason: 'no-keyword-overlap',
+      fallbackMode: 'readonly-discuss',
+      decisionLayer: 'rule',
+    }
+    }
+    return {
+      kind: 'no_match',
+      confidence: keywordConfidence,
+      reason: 'out-of-scope',
+      fallbackMode: 'readonly-discuss',
+      decisionLayer: 'rule',
+    }
+  }
+  const authorPreferenceDiscussion =
+    AUTHOR_PREFERENCE_PATTERN.test(normalizedInput) &&
+    top?.intent !== 'analyze' &&
+    !hasWriteDirectiveSignal(normalizedInput)
+  if (authorPreferenceDiscussion) {
+    return {
+      kind: 'matched',
+      intent: 'discuss',
+      confidence: 0.9,
+      reason: 'author-preference-discussion',
+      decisionLayer: 'rule',
+    }
+  }
   if (!top || keywordConfidence < ROUTE_THRESHOLDS[top.intent]) {
     return {
       kind: 'no_match',
@@ -882,6 +1551,7 @@ export function routeChainIntent(
         top && hasWriteDirectiveSignal(normalizedInput)
           ? 'await-user'
           : 'readonly-discuss',
+      decisionLayer: 'keyword',
     }
   }
   if (second && top.score - second.score < CHAIN_ROUTING_AMBIGUITY_THRESHOLD) {
@@ -891,6 +1561,7 @@ export function routeChainIntent(
       confidence: keywordConfidence,
       reason: 'ambiguous-top2',
       fallbackMode: awaitUserIfWriteCandidate([top.intent, second.intent]),
+      decisionLayer: 'keyword',
     }
   }
 
@@ -900,6 +1571,7 @@ export function routeChainIntent(
       intent: 'discuss',
       confidence: keywordConfidence,
       reason: `question-only:${top.intent}`,
+      decisionLayer: 'keyword',
     }
   }
 
@@ -914,6 +1586,7 @@ export function routeChainIntent(
       intent: 'edit',
       confidence: keywordConfidence,
       reason: 'write-directive-with-analysis-context',
+      decisionLayer: 'keyword',
     }
   }
 
@@ -922,7 +1595,375 @@ export function routeChainIntent(
     intent: top.intent,
     confidence: keywordConfidence,
     reason: 'keyword-top1',
+    decisionLayer: 'keyword',
   }
+}
+
+function buildRoutingDiagnostics(input: {
+  decisionLayer: ChainRoutingDiagnostics['router']['decisionLayer']
+  scores?: Partial<Record<Exclude<ChainIntent, 'auto'>, number>>
+  embeddingModel?: string | null
+  embeddingState?: ChainRoutingDiagnostics['router']['embeddingState']
+  failure?: ChainRoutingDiagnostics['router']['failure']
+}): ChainRoutingDiagnostics {
+  return {
+    router: {
+      version: 'v6.1',
+      layers: ['rule', 'keyword', 'embedding', 'llm-fallback'],
+      decisionLayer: input.decisionLayer,
+      embeddingModel: input.embeddingModel ?? null,
+      embeddingState: input.embeddingState,
+      scores: input.scores || {},
+      thresholds: { ...EMBEDDING_ROUTE_THRESHOLDS },
+      ambiguityThreshold: CHAIN_ROUTING_AMBIGUITY_THRESHOLD,
+      ambiguityThresholds: { ...EMBEDDING_ROUTING_AMBIGUITY_THRESHOLDS },
+      oosThreshold: EMBEDDING_ROUTING_OOS_THRESHOLD,
+      thresholdSource:
+        input.decisionLayer === 'keyword'
+          ? 'cold-start'
+          : EMBEDDING_ROUTING_THRESHOLD_SOURCE,
+      failure: input.failure,
+    },
+  }
+}
+
+function parseLlmIntentFallbackResult(
+  raw: Awaited<ReturnType<LlmIntentClassifier>>,
+): {
+  ok: boolean
+  intent: Exclude<ChainIntent, 'auto'> | null
+  confidence: number
+  reason: string
+} {
+  if (
+    !raw ||
+    typeof raw.intent !== 'string' ||
+    !VALID_CHAIN_INTENTS.has(raw.intent as Exclude<ChainIntent, 'auto'>)
+  ) {
+    return {
+      ok: false,
+      intent: null,
+      confidence: 0,
+      reason: 'invalid-intent-json',
+    }
+  }
+  const confidence =
+    typeof raw.confidence === 'number' && Number.isFinite(raw.confidence)
+      ? Math.min(Math.max(raw.confidence, 0), 1)
+      : 0
+  return {
+    ok: true,
+    intent: raw.intent as Exclude<ChainIntent, 'auto'>,
+    confidence,
+    reason:
+      typeof raw.reason === 'string' && raw.reason.trim()
+        ? raw.reason.trim().slice(0, 160)
+        : `llm-fallback:${raw.intent}`,
+  }
+}
+
+async function runLlmIntentFallback(
+  normalizedInput: string,
+  syncResult: ChainRoutingResult,
+  context?: ChainRoutingContext,
+): Promise<DetailedChainRoutingResult> {
+  if (
+    !LLM_INTENT_FALLBACK_CONFIG.enabled ||
+    typeof context?.llmClassifier !== 'function' ||
+    (syncResult.kind !== 'no_match' && syncResult.kind !== 'ambiguous')
+  ) {
+    return syncResult as DetailedChainRoutingResult
+  }
+
+  let raw: Awaited<ReturnType<LlmIntentClassifier>>
+  try {
+    const controller = new AbortController()
+    const timer = setTimeout(
+      () => controller.abort(),
+      LLM_INTENT_FALLBACK_CONFIG.timeoutMs,
+    )
+    const classifier = context.llmClassifier
+    raw = await classifier(normalizedInput, { signal: controller.signal })
+    clearTimeout(timer)
+  } catch (error) {
+    return {
+      ...syncResult,
+      diagnostics: buildRoutingDiagnostics({
+        decisionLayer: 'llm-fallback',
+        failure: {
+          stage: 'llm-fallback',
+          message: error instanceof Error ? error.message : String(error),
+        },
+      }),
+    }
+  }
+
+  const parsed = parseLlmIntentFallbackResult(raw)
+  if (
+    !parsed.ok ||
+    !parsed.intent ||
+    parsed.confidence < LLM_INTENT_FALLBACK_CONFIG.minConfidence
+  ) {
+    return {
+      ...syncResult,
+      diagnostics: buildRoutingDiagnostics({
+        decisionLayer: 'llm-fallback',
+        failure: {
+          stage: 'llm-fallback',
+          message: parsed.ok
+            ? `low-confidence:${parsed.confidence}`
+            : parsed.reason,
+        },
+      }),
+    }
+  }
+
+  // The LLM fallback can only classify low-confidence input. It can never
+  // bypass the synchronous write-safety gates that already rejected a write.
+  return {
+    kind: 'matched',
+    intent: parsed.intent,
+    confidence: parsed.confidence,
+    reason: parsed.reason,
+    diagnostics: buildRoutingDiagnostics({
+      decisionLayer: 'llm-fallback',
+    }),
+  }
+}
+
+async function routeChainIntentWithEmbedding(
+  userInput: string,
+  context?: ChainRoutingContext,
+): Promise<DetailedChainRoutingResult> {
+  const normalizedInput = (userInput || '').trim()
+  const syncResult = routeChainIntent(normalizedInput, context)
+
+  const needsEmbedding =
+    syncResult.kind === 'no_match' &&
+    (syncResult.reason === 'low-confidence' ||
+      syncResult.reason === 'no-keyword-overlap') &&
+    normalizedInput.length > 0
+
+  if (!needsEmbedding) {
+    const decisionLayer = syncResult.decisionLayer || (
+      syncResult.kind === 'matched' ? 'keyword' : 'rule'
+    )
+    return {
+      ...syncResult,
+      diagnostics: buildRoutingDiagnostics({ decisionLayer }),
+    }
+  }
+
+  const embeddingApi = getEmbeddingApi()
+  if (!embeddingApi) {
+    return {
+      ...syncResult,
+      diagnostics: buildRoutingDiagnostics({
+        decisionLayer: 'rule',
+        embeddingModel: null,
+        embeddingState: 'unavailable',
+        failure: {
+          stage: 'embedding',
+          message: 'embedding api unavailable',
+        },
+      }),
+    }
+  }
+
+  let embeddingModel: string | null = null
+  try {
+    const status = await embeddingApi.intentEmbeddingStatus?.()
+    embeddingModel = status?.model || EMBEDDING_INTENT_MODEL_ID
+    const intentCache = await getIntentVectorCache(embeddingApi, embeddingModel)
+    if (intentCache.failure) {
+      return {
+        ...syncResult,
+        diagnostics: buildRoutingDiagnostics({
+          decisionLayer: 'rule',
+          embeddingModel,
+          embeddingState: 'unavailable',
+          failure: {
+            stage: 'embedding',
+            message: intentCache.failure,
+          },
+        }),
+      }
+    }
+
+    const inputResponse = await embedTexts(embeddingApi, [normalizedInput])
+    const inputVector = inputResponse.vectors[0]
+    if (!inputVector) {
+      return {
+        ...syncResult,
+        diagnostics: buildRoutingDiagnostics({
+          decisionLayer: 'rule',
+          embeddingModel,
+          embeddingState: 'unavailable',
+          failure: {
+            stage: 'embedding',
+            message: inputResponse.error || 'embedding input vector missing',
+          },
+        }),
+      }
+    }
+
+    const scores: Array<{ intent: Exclude<ChainIntent, 'auto'>; score: number }> = []
+    const intentEntries = Object.entries(intentCache.vectors) as Array<
+      [Exclude<ChainIntent, 'auto'>, number[][]]
+    >
+    for (const [intent, exampleVectors] of intentEntries) {
+      const intentScore = exampleVectors.reduce((sum, vector) => {
+        return sum + cosineSimilarityNumber(inputVector, vector)
+      }, 0)
+      scores.push({
+        intent,
+        score: exampleVectors.length ? intentScore / exampleVectors.length : 0,
+      })
+    }
+    scores.sort((a, b) => b.score - a.score)
+    const best = scores[0]
+    const second = scores[1]
+    const scoreMap = scores.reduce<Partial<Record<Exclude<ChainIntent, 'auto'>, number>>>(
+      (acc, entry) => {
+        acc[entry.intent] = entry.score
+        return acc
+      },
+      {},
+    )
+
+    if (
+      syncResult.kind === 'no_match' &&
+      best.score < EMBEDDING_ROUTING_OOS_THRESHOLD
+    ) {
+      return {
+        ...syncResult,
+        confidence: best.score,
+        reason: 'out-of-scope',
+        diagnostics: buildRoutingDiagnostics({
+          decisionLayer: 'embedding',
+          scores: scoreMap,
+          embeddingModel,
+          embeddingState: 'ready',
+        }),
+      }
+    }
+
+    if (best.score < EMBEDDING_ROUTE_THRESHOLDS[best.intent]) {
+      return {
+        ...syncResult,
+        diagnostics: buildRoutingDiagnostics({
+          decisionLayer: 'embedding',
+          scores: scoreMap,
+          embeddingModel,
+          embeddingState: 'ready',
+        }),
+      }
+    }
+
+    const ambiguityThreshold =
+      EMBEDDING_ROUTING_AMBIGUITY_THRESHOLDS[best.intent]
+    if (second && best.score - second.score < ambiguityThreshold) {
+      return {
+        kind: 'ambiguous',
+        candidates: [best.intent, second.intent],
+        confidence: best.score,
+        reason: 'embedding-ambiguous-top2',
+        fallbackMode: awaitUserIfWriteCandidate([best.intent, second.intent]),
+        diagnostics: buildRoutingDiagnostics({
+          decisionLayer: 'embedding',
+          scores: scoreMap,
+          embeddingModel,
+          embeddingState: 'ready',
+        }),
+      }
+    }
+
+    // The embedding layer only upgrades semantic classification. It can never
+    // promote a write request past the existing user-confirmation boundary.
+    const safeIntent = best.intent
+    return {
+      kind: 'matched',
+      intent: safeIntent,
+      confidence: best.score,
+      reason: `embedding-top1:${best.intent}`,
+      diagnostics: buildRoutingDiagnostics({
+        decisionLayer: 'embedding',
+        scores: scoreMap,
+        embeddingModel,
+        embeddingState: 'ready',
+      }),
+    }
+  } catch (error) {
+    return {
+      ...syncResult,
+      diagnostics: buildRoutingDiagnostics({
+        decisionLayer: 'rule',
+        embeddingModel,
+        embeddingState: 'unavailable',
+        failure: {
+          stage: 'embedding',
+          message: error instanceof Error ? error.message : String(error),
+        },
+      }),
+    }
+  }
+}
+
+export async function routeChainIntentDetailed(
+  userInput: string,
+  context?: ChainRoutingContext,
+): Promise<DetailedChainRoutingResult> {
+  const embeddingResult = await routeChainIntentWithEmbedding(userInput, context)
+  if (
+    embeddingResult.kind !== 'no_match' &&
+    embeddingResult.kind !== 'ambiguous'
+  ) {
+    return embeddingResult
+  }
+  return runLlmIntentFallback((userInput || '').trim(), embeddingResult, context)
+}
+
+export async function classifyPlainDialogueIntentDetailed(
+  requestText: string,
+  recentHistory: readonly ChainIntentHistoryMessage[] = [],
+  options?: {
+    workspace?: ChainRoutingContext['workspace']
+    projectId?: string
+    activeSkillIds?: string[]
+    activeEditTaskStatus?: ChainRoutingContext['activeEditTaskStatus']
+    llmClassifier?: LlmIntentClassifier
+  },
+): Promise<PlainDialogueIntentDetailed> {
+  const result = await routeChainIntentDetailed(requestText, {
+    workspace: options?.workspace,
+    projectId: options?.projectId,
+    activeSkillIds: options?.activeSkillIds,
+    recentHistory,
+    ...(options?.llmClassifier ? { llmClassifier: options.llmClassifier } : {}),
+    ...(options?.activeEditTaskStatus
+      ? { activeEditTaskStatus: options.activeEditTaskStatus }
+      : {}),
+  })
+  const intent: PlainDialogueIntentDetailed['intent'] =
+    result.kind === 'matched' ? result.intent : 'discuss'
+  return {
+    intent,
+    diagnostics: result.diagnostics,
+    routing: result,
+  }
+}
+
+export type PlainDialogueIntentDetailed = {
+  intent: Exclude<ChainIntent, 'auto'>
+  diagnostics: ChainRoutingDiagnostics
+  routing: DetailedChainRoutingResult
+}
+
+function cosineSimilarityNumber(a: number[], b: number[]): number {
+  let dot = 0
+  const length = Math.min(a.length, b.length)
+  for (let i = 0; i < length; i++) dot += a[i] * b[i]
+  return dot
 }
 
 export function filterTemplatesByIntent<

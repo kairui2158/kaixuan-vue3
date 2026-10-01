@@ -1,4 +1,5 @@
 import { getAiService } from './aiService'
+import { appendDialogueToolSurfaceDeclaration } from './dialogueToolSurface'
 import { DeAiSamples } from './deai-samples.js'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from './generationValidity'
 import { loadRealSkill } from './realSkillLoader'
@@ -26,9 +27,12 @@ const DIRECT_OUTPUT_SUFFIX = [
 
 type CallAiToolResultLike = {
   toolCalls?: Array<{ name: string; input: unknown }>
-  toolResults?: Array<{ call: { name: string; input: unknown }; result: unknown }>
+  toolResults?: Array<{ call: { id?: string; name: string; input?: unknown }; result: unknown }>
   toolRequestDeltas?: Array<{ role: string; content: string }>
+  toolAudit?: unknown
   reasoning?: string
+  contextBudget?: NonNullable<RealSkillExecutionResult['apiMeta']>['contextBudget']
+  usageReconciliation?: unknown
 }
 
 function diagnostic(
@@ -544,12 +548,15 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
   let finishReason: string | undefined
   let providerId: string | undefined
   let usage: Record<string, unknown> | undefined
-  let finalMaxTokens: number | undefined
+  let finalMaxTokens: number | null | undefined
   let finalReasoningText: string | undefined
+  let finalContextBudget: NonNullable<RealSkillExecutionResult['apiMeta']>['contextBudget']
+  let finalUsageReconciliation: unknown
   let postProcessReport: RealSkillPostProcessReport | undefined
   let toolCalls: NonNullable<RealSkillExecutionResult['apiMeta']>['toolCalls']
   let toolResults: NonNullable<RealSkillExecutionResult['apiMeta']>['toolResults']
   let toolRequestDeltas: NonNullable<RealSkillExecutionResult['apiMeta']>['toolRequestDeltas']
+  let toolAudit: NonNullable<RealSkillExecutionResult['apiMeta']>['toolAudit']
   const capturedRequestMessages: Array<{ role: string; content: string }> = []
 
   function captureRequestMessages(messages: CallAiToolResultLike['toolRequestDeltas']) {
@@ -593,7 +600,11 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         pkg.body,
         template,
         pkg.resources,
-        options.systemPromptSuffix
+        appendDialogueToolSurfaceDeclaration(
+          options.systemPromptSuffix || '',
+          options.toolSurface,
+          { activeEditTask: options.activeEditTask },
+        )
       )
       const buildRequest = (promptSuffix?: string) => {
         const effectiveSystemPrompt = promptSuffix
@@ -620,7 +631,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           promptSuffix?: string,
           retryOptions?: {
             reasoningRetry?: RealSkillExecuteOptions['reasoningRetry']
-            maxTokens?: number
+            maxTokens?: number | null
           }
         ) => {
           const budgetStep = `real-skill:${options.skillId || pkg.id}${isMultiPass ? `:pass-${passIndex + 1}` : ''}`
@@ -665,7 +676,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             ...(options.tools?.length
             ? { tools: options.tools, toolPolicy: options.toolPolicy }
             : {})
-          })) as { text: string; reasoning?: string; providerId?: string; finishReason?: string; usage?: Record<string, unknown>; maxTokens?: number }
+          })) as { text: string; reasoning?: string; providerId?: string; finishReason?: string; usage?: Record<string, unknown>; maxTokens?: number | null } & CallAiToolResultLike
         }
 
         let result = await callAiOnce(requestMessages)
@@ -674,7 +685,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           reasoning: (result as { reasoning?: string }).reasoning,
           finishReason: result.finishReason,
           usage: result.usage,
-          maxTokens: result.maxTokens ?? agent?.maxTokens
+        maxTokens: result.maxTokens ?? agent?.maxTokens ?? null
         })
 
         if (!validity.usable && (validity.kind === 'reasoning_exhausted' || validity.kind === 'empty')) {
@@ -695,9 +706,10 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           const retryStrategy: NonNullable<Required<RealSkillExecuteOptions>['reasoningRetry']> = reasoningControl.supported
             ? 'thinking_disabled'
             : 'max_tokens_raised'
-          const retryMaxTokens = retryStrategy === 'max_tokens_raised'
-            ? Math.max(Number(agent?.maxTokens || 8192), Math.round(Number(agent?.maxTokens || 8192) * 1.5)) || 12288
-            : agent?.maxTokens || 8192
+  const baseMaxTokens = Number(agent?.maxTokens) > 0 ? Number(agent?.maxTokens) : null
+  const retryMaxTokens = retryStrategy === 'max_tokens_raised'
+    ? Math.max(baseMaxTokens ?? 32_768, Math.round((baseMaxTokens ?? 32_768) * 1.5))
+    : baseMaxTokens
           options.onGenerationEvent?.({
             type: 'direct-retry-start',
             kind: validity.kind,
@@ -705,18 +717,18 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
               ? '正文为空，已关闭模型思考并切换直出模式重试'
               : '正文为空，已提高输出上限并切换直出模式重试',
             retryStrategy,
-            maxTokens: retryMaxTokens ?? 8192,
+          maxTokens: retryMaxTokens ?? null,
           })
           result = await callAiOnce(retryMessages, DIRECT_OUTPUT_SUFFIX, {
             reasoningRetry: retryStrategy,
-            maxTokens: retryMaxTokens ?? 8192,
+            maxTokens: retryMaxTokens,
           })
           validity = classifyGenerationValidity({
             text: result.text,
             reasoning: (result as { reasoning?: string }).reasoning,
             finishReason: result.finishReason,
             usage: result.usage,
-            maxTokens: result.maxTokens ?? agent?.maxTokens
+          maxTokens: result.maxTokens ?? agent?.maxTokens ?? null
           })
           if (!validity.usable) {
             options.onGenerationEvent?.({
@@ -847,9 +859,12 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           usage = result.usage
           finalMaxTokens = result.maxTokens ?? agent?.maxTokens
           finalReasoningText = (result as CallAiToolResultLike).reasoning || finalReasoningText
+          finalContextBudget = (result as CallAiToolResultLike).contextBudget || finalContextBudget
+          finalUsageReconciliation = (result as CallAiToolResultLike).usageReconciliation ?? finalUsageReconciliation
           toolCalls = (result as CallAiToolResultLike).toolCalls
           toolResults = (result as CallAiToolResultLike).toolResults
           toolRequestDeltas = (result as CallAiToolResultLike).toolRequestDeltas
+          toolAudit = (result as CallAiToolResultLike).toolAudit
           if (isMultiPass) {
             dispatchPassEvent({ skillId: pkg.id, index: passIndex, total: passList.length, name: passName, status: 'done' })
           }
@@ -887,10 +902,13 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           usage,
           maxTokens: finalMaxTokens,
           reasoningText: finalReasoningText || '',
+          contextBudget: finalContextBudget,
+          usageReconciliation: finalUsageReconciliation,
           requestMessages: capturedRequestMessages,
             toolCalls,
             toolResults,
-            toolRequestDeltas
+            toolRequestDeltas,
+            toolAudit
           }
         }
       }
@@ -917,10 +935,13 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           usage,
           maxTokens: finalMaxTokens,
           reasoningText: finalReasoningText || '',
+          contextBudget: finalContextBudget,
+          usageReconciliation: finalUsageReconciliation,
           requestMessages: capturedRequestMessages,
           toolCalls,
           toolResults,
-          toolRequestDeltas
+          toolRequestDeltas,
+          toolAudit
         }
       }
     }
@@ -947,10 +968,13 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       usage,
       maxTokens: finalMaxTokens,
       reasoningText: finalReasoningText || '',
+      contextBudget: finalContextBudget,
+      usageReconciliation: finalUsageReconciliation,
       requestMessages: capturedRequestMessages,
       toolCalls,
       toolResults,
-      toolRequestDeltas
+      toolRequestDeltas,
+      toolAudit
     }
   }
 }

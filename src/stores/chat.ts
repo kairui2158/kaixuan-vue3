@@ -3,25 +3,11 @@ import { ref, computed } from 'vue'
 import { storageKey } from '../utils/storage-key'
 import type { ContinuationSnapshot } from '../services/continuation'
 import type { EditorEditBatchCommand } from '../services/editorEditProtocol'
+import type { EditorDiffHunkView } from '../services/editorDiffHunks'
 import type { EditorBatchRecord } from '../services/editorBatchRecord'
 import type { WorkspaceSkillRunMeta } from '../services/workspaceSkillEngine'
 import type { ChainRoutingResult } from '../services/chainIntentRouter'
-
-export interface EditorToolPlan {
-  stage: string
-  steps: string[]
-}
-
-export interface ToolCallStreamEvent {
-  type: 'tool_start' | 'tool_progress' | 'tool_result' | 'tool_error'
-  toolName: string
-  stepDescription: string
-  targetId?: string
-  iteration: number
-  timestamp: number
-  ok: boolean
-  error?: string
-}
+import type { FinalDraftTask } from '../services/finalDraftService'
 
 export interface ChatMessage {
   id: string
@@ -39,8 +25,11 @@ export interface ChatMessage {
     contentHash: string
   }
   editorBatchRecord?: EditorBatchRecord
-  editorToolPlan?: EditorToolPlan
-  toolCallStream?: ToolCallStreamEvent[]
+  editorBatchDiff?: {
+    original: string
+    next: string
+    hunks: EditorDiffHunkView['hunks']
+  }
   routingFallback?: {
     routing?: ChainRoutingResult
     skillNames: string[]
@@ -54,8 +43,10 @@ export interface ChatMessage {
     used: number
     limit: number
     requestText: string
+    budgetToken?: string
   }
   skillRunDiagnostics?: Pick<WorkspaceSkillRunMeta, 'status' | 'diagnostics' | 'requestMessages' | 'budget' | 'folderPackageCache'>
+  finalDraftTask?: FinalDraftTask
 }
 
 export interface ChatSession {
@@ -175,6 +166,16 @@ export const useChatStore = defineStore('chat', () => {
     return true
   }
 
+  function updateMessageFinalDraftTask(messageId: string, task: FinalDraftTask, sessionId?: string) {
+    const session = sessions.value.find(item => item.id === (sessionId || activeSessionId.value))
+    const message = session?.messages.find(item => item.id === messageId)
+    if (!session || !message) return false
+    message.finalDraftTask = task
+    session.updatedAt = Date.now()
+    void saveSessions(currentProjectId.value)
+    return true
+  }
+
   function updateMessageRoutingState(
     messageId: string,
     patch: { routingFallback?: ChatMessage['routingFallback']; budgetExhausted?: ChatMessage['budgetExhausted'] },
@@ -195,7 +196,8 @@ export const useChatStore = defineStore('chat', () => {
     editorBatch?: EditorEditBatchCommand | null,
     editorBatchTarget?: ChatMessage['editorBatchTarget'] | null,
     editorBatchRecord?: EditorBatchRecord | null,
-    sessionId?: string
+    sessionId?: string,
+    editorBatchDiff?: ChatMessage['editorBatchDiff'] | null
   ) {
     const session = sessions.value.find(item => item.id === (sessionId || activeSessionId.value))
     const message = session?.messages.find(item => item.id === messageId)
@@ -210,29 +212,8 @@ export const useChatStore = defineStore('chat', () => {
     else if (editorBatchTarget === null) delete message.editorBatchTarget
     if (editorBatchRecord !== undefined && editorBatchRecord !== null) message.editorBatchRecord = editorBatchRecord
     else if (editorBatchRecord === null) delete message.editorBatchRecord
-    session.updatedAt = Date.now()
-    void saveSessions(currentProjectId.value)
-    return true
-  }
-
-  function updateMessageEditorToolPlan(messageId: string, plan?: EditorToolPlan, sessionId?: string) {
-    const session = sessions.value.find(item => item.id === (sessionId || activeSessionId.value))
-    const message = session?.messages.find(item => item.id === messageId)
-    if (!session || !message || message.role !== 'assistant') return false
-  if (plan) message.editorToolPlan = plan
-  else delete message.editorToolPlan
-  if (message.toolCallStream === undefined) message.toolCallStream = []
-  session.updatedAt = Date.now()
-  void saveSessions(currentProjectId.value)
-  return true
-  }
-
-  function appendToolCallStream(messageId: string, event: ToolCallStreamEvent, sessionId?: string) {
-    const session = sessions.value.find(item => item.id === (sessionId || activeSessionId.value))
-    const message = session?.messages.find(item => item.id === messageId)
-    if (!session || !message || message.role !== 'assistant') return false
-    if (!message.toolCallStream) message.toolCallStream = []
-    message.toolCallStream.push(event)
+    if (editorBatchDiff !== undefined && editorBatchDiff !== null) message.editorBatchDiff = editorBatchDiff
+    else if (editorBatchDiff === null) delete message.editorBatchDiff
     session.updatedAt = Date.now()
     void saveSessions(currentProjectId.value)
     return true
@@ -248,8 +229,7 @@ export const useChatStore = defineStore('chat', () => {
     delete assistant.editorBatch
     delete assistant.editorBatchTarget
     delete assistant.editorBatchRecord
-    delete assistant.editorToolPlan
-    delete assistant.toolCallStream
+    delete assistant.editorBatchDiff
     session.messages.splice(userIndex, 2)
     session.updatedAt = Date.now()
     saveSessions(projectId)
@@ -294,8 +274,8 @@ export const useChatStore = defineStore('chat', () => {
     sessions, activeSessionId, activeSession, activeMessages, currentContext,
     generationStatus, generationMessage, generationStartedAt,
     loadSessions, saveSessions, ensureSession, addMessage, updateLastMessage, updateLastMessageSkillDiagnostics, updateMessageContent, updateMessageRoutingState, replaceMessagePair, setGenerationState,
-    clearSession, removeSession, setCurrentContext, updateMessageContinuation, updateMessageEditorBatch, updateMessageEditorToolPlan
-    , appendToolCallStream
+    clearSession, removeSession, setCurrentContext, updateMessageContinuation, updateMessageEditorBatch,
+    updateMessageFinalDraftTask
   }
 })
 

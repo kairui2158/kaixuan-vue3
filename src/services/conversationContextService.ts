@@ -1,7 +1,12 @@
 import { storageKey } from '../utils/storage-key'
 import { retrieveContext } from './memoryRetriever'
+import {
+  formatCrossTurnToolAudit,
+  hasCrossTurnToolAudit,
+} from './crossTurnToolAudit'
 import type { MemoryData } from '../types/memory'
 import { parseOutlineStructure } from './outlineStructure'
+import { buildMainEditorContextPack, editorContextInjectionMode } from './editorContextPolicy'
 import { validateDialogueContextBlocks, type DialogueContextBlock } from './dialogueFoundation'
 import type {
   ContextBudget,
@@ -43,6 +48,8 @@ export interface ContextBuildInput extends ContextRef {
   workspaceState?: Partial<ContextWorkspaceState>
   /** 旧项目聊天记录的只读兼容入口，仅在新会话尚不存在时使用。 */
   legacyMessages?: ContextMessage[]
+  /** 上一轮工具调用的 compact 审计；由调用方在写入完成后登记。 */
+  toolAudit?: unknown
 }
 
 export interface ConversationContextServiceOptions {
@@ -59,6 +66,28 @@ export interface ContextCompactionRouting {
   workspace?: ContextWorkspace
   budget?: ContextBudget
   observer?: ContextCompactionObserver
+}
+
+export interface ContextCompactionCheckpoint {
+  version: 1
+  checkpointId: string
+  compactionId: string
+  createdAt: number
+  projectId: string
+  workspace: ContextWorkspace
+  sessionId: string
+  messageCount: number
+  contentHash: string
+  /** Hash of the compacted session produced by this checkpoint's compaction. */
+  postCompactionHash?: string
+  /** Compaction is only allowed to start after its pre-write checkpoint lands. */
+  status: 'saved' | 'restored' | 'failed' | 'hash_mismatch'
+  goal?: string
+  keyFacts?: string[]
+  hardConstraints?: string[]
+  openQuestions?: string[]
+  necessaryFragments?: string[]
+  toolState?: Record<string, unknown>
 }
 
 const DEFAULT_POLICY: ContextPolicy = {
@@ -96,6 +125,46 @@ function messageTokens(messages: ContextMessage[]): number {
 
 function identityKey(message: ContextMessage): string {
   return JSON.stringify([message.ts ?? 0, message.role, message.content])
+}
+
+function checkpointHash(messages: ContextMessage[], summary?: string): string {
+  let hash = 0x811c9dc5
+  const source = JSON.stringify([messages.map(message => identityKey(message)), summary || ''])
+  for (let index = 0; index < source.length; index += 1) {
+    hash ^= source.charCodeAt(index)
+    hash = Math.imul(hash, 0x01000193) >>> 0
+  }
+  return `fnv1a32_${hash.toString(16).padStart(8, '0')}`
+}
+
+function normalizeCheckpoint(raw: unknown): ContextCompactionCheckpoint | null {
+  if (!raw || typeof raw !== 'object') return null
+  const value = raw as Partial<ContextCompactionCheckpoint>
+  if (value.version !== 1) return null
+  const required = [value.checkpointId, value.compactionId, value.projectId, value.workspace, value.sessionId, value.contentHash]
+  if (required.some(item => typeof item !== 'string' || !item)) return null
+  const status = value.status
+  if (status !== 'saved' && status !== 'restored' && status !== 'failed' && status !== 'hash_mismatch') return null
+  if (!Number.isFinite(Number(value.createdAt))) return null
+  return {
+    version: 1,
+    checkpointId: String(value.checkpointId),
+    compactionId: String(value.compactionId),
+    createdAt: Number(value.createdAt),
+    projectId: String(value.projectId),
+    workspace: value.workspace as ContextWorkspace,
+    sessionId: String(value.sessionId),
+    messageCount: Number(value.messageCount) || 0,
+    contentHash: String(value.contentHash),
+    status,
+    ...(typeof value.goal === 'string' && value.goal ? { goal: value.goal } : {}),
+    ...(Array.isArray(value.keyFacts) ? { keyFacts: value.keyFacts.map(item => String(item)) } : {}),
+    ...(Array.isArray(value.hardConstraints) ? { hardConstraints: value.hardConstraints.map(item => String(item)) } : {}),
+    ...(Array.isArray(value.openQuestions) ? { openQuestions: value.openQuestions.map(item => String(item)) } : {}),
+    ...(Array.isArray(value.necessaryFragments) ? { necessaryFragments: value.necessaryFragments.map(item => String(item)) } : {}),
+    ...(typeof value.postCompactionHash === 'string' && value.postCompactionHash ? { postCompactionHash: value.postCompactionHash } : {}),
+    ...(value.toolState && typeof value.toolState === 'object' ? { toolState: value.toolState as Record<string, unknown> } : {}),
+  }
 }
 
 function allowedInputTokens(budget?: ContextBudget): number | undefined {
@@ -138,6 +207,24 @@ export function resolveModelContextWindow(model: unknown): number | undefined {
     if (name.includes('2.5')) return 1_000_000
   }
   return undefined
+}
+
+export interface EffectiveModelContextWindowInput {
+  model?: unknown
+  providerContextWindowTokens?: number | string | null
+}
+
+/**
+ * Single source for dialogue-side context windows. A provider-declared window
+ * is authoritative; model-name parsing is only a fallback for undeclared
+ * providers. Unknown stays unknown so compaction never guesses.
+ */
+export function resolveEffectiveModelContextWindow(
+  input: EffectiveModelContextWindowInput,
+): number | undefined {
+  const declared = Number(input.providerContextWindowTokens)
+  if (Number.isFinite(declared) && declared > 0) return Math.floor(declared)
+  return resolveModelContextWindow(input.model)
 }
 
 function compactedMessages(messages: ContextMessage[]): ContextMessage[] {
@@ -190,7 +277,7 @@ function contentVersion(value: unknown): string {
   return `v-${hash.toString(16).padStart(8, '0')}`
 }
 
-function buildOutlineContextPack(outline: string, selectedText: string): string {
+export function buildOutlineContextPack(outline: string, selectedText: string): string {
   const source = clean(outline)
   if (!source) return ''
   const structure = parseOutlineStructure(source)
@@ -352,6 +439,13 @@ function contextMessage(bundle: ContextBundle, policy: ContextPolicy): ContextMe
   return { role: 'system', content: `[工作区上下文]\n${sections.join('\n\n')}` }
 }
 
+function toolAuditMessage(bundle: ContextBundle): ContextMessage | null {
+  const audit = bundle.execution.toolAudit
+  if (!hasCrossTurnToolAudit(audit)) return null
+  const content = formatCrossTurnToolAudit(audit)
+  return content ? { role: 'system', content } : null
+}
+
 function recentMessages(messages: ContextMessage[], turns: number): ContextMessage[] {
   const limit = Math.max(0, Math.floor(turns)) * 2
   return limit > 0 ? messages.slice(-limit) : []
@@ -363,6 +457,9 @@ export class ConversationContextService {
   private readonly writeQueues = new Map<string, Promise<unknown>>()
   private readonly compaction: NonNullable<ConversationContextServiceOptions['compaction']>
   private readonly routedCompaction = new Map<ContextWorkspace, ContextCompactionRouting>()
+  private checkpoint?: ContextCompactionCheckpoint
+  private checkpointVerifyMessages?: ContextMessage[]
+  private checkpointContext: Omit<ContextCompactionCheckpoint, 'version' | 'checkpointId' | 'compactionId' | 'createdAt' | 'projectId' | 'workspace' | 'sessionId' | 'messageCount' | 'contentHash' | 'status'> = {}
 
   constructor(options: ConversationContextServiceOptions = {}) {
     this.storage = options.storage || defaultStorage()
@@ -392,6 +489,95 @@ export class ConversationContextService {
 
   setCompactionObserver(observer: ContextCompactionObserver | undefined): void {
     this.compaction.observer = observer
+  }
+
+  getActiveCompactionCheckpoint(): ContextCompactionCheckpoint | null {
+    return this.checkpoint ? { ...this.checkpoint } : null
+  }
+
+  /**
+   * Pre-compaction snapshot. Compaction never runs unless this write lands;
+   * a write failure is reported so the caller can keep the untouched history.
+   */
+  async saveCompactionCheckpoint(
+    ref: ContextRef,
+    input: Omit<ContextCompactionCheckpoint, 'version' | 'checkpointId' | 'compactionId' | 'createdAt' | 'projectId' | 'workspace' | 'sessionId' | 'messageCount' | 'contentHash' | 'status'> & {
+      summary?: string
+    },
+  ): Promise<ContextCompactionCheckpoint | null> {
+    const session = await this.readSession(ref)
+    const messages = session?.messages || []
+    const now = Date.now()
+    const checkpoint: ContextCompactionCheckpoint = {
+      version: 1,
+      checkpointId: `ctxcp-${now.toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+      compactionId: `ctx-${now.toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+      createdAt: now,
+      projectId: ref.projectId,
+      workspace: ref.workspace,
+      sessionId: sessionIdFor(ref),
+      messageCount: messages.length,
+      contentHash: checkpointHash(messages, input.summary),
+      status: 'saved',
+      ...(input.goal ? { goal: input.goal } : {}),
+      ...(input.keyFacts?.length ? { keyFacts: input.keyFacts } : {}),
+      ...(input.hardConstraints?.length ? { hardConstraints: input.hardConstraints } : {}),
+      ...(input.openQuestions?.length ? { openQuestions: input.openQuestions } : {}),
+      ...(input.necessaryFragments?.length ? { necessaryFragments: input.necessaryFragments } : {}),
+      ...(input.toolState && Object.keys(input.toolState).length ? { toolState: input.toolState } : {}),
+      ...(input.postCompactionHash ? { postCompactionHash: input.postCompactionHash } : {}),
+    }
+    const key = storageKey(`ctxcp_${ref.projectId}_${checkpoint.sessionId}`)
+    const written = await this.storage.write(key, checkpoint)
+    if (written === false) return null
+    this.checkpoint = checkpoint
+    // Verification is a recovery-time gate: compare against the pre-compaction
+    // snapshot, because successful compaction intentionally changes the session.
+    this.checkpointVerifyMessages = messages.map(message => clone(message))
+    return { ...checkpoint }
+  }
+
+  async loadCompactionCheckpoint(ref: ContextRef): Promise<ContextCompactionCheckpoint | null> {
+    const raw = await this.storage.read(
+      storageKey(`ctxcp_${ref.projectId}_${sessionIdFor(ref)}`)
+    )
+    const checkpoint = normalizeCheckpoint(raw)
+    this.checkpoint = checkpoint || undefined
+    return checkpoint ? { ...checkpoint } : null
+  }
+
+  async verifyCompactionCheckpoint(
+    ref: ContextRef,
+    checkpoint: ContextCompactionCheckpoint,
+  ): Promise<ContextCompactionCheckpoint> {
+    const session = await this.readSession(ref)
+    // A crash can land between the checkpoint write and the compacted session
+    // write. Both states are therefore legal at recovery time: the untouched
+    // pre-compaction history, or the committed compacted history.
+    const hasPreSnapshot = (this.checkpointVerifyMessages?.length || 0) > 0
+    const actualPreHash = hasPreSnapshot
+      ? checkpointHash(this.checkpointVerifyMessages as ContextMessage[], undefined)
+      : undefined
+    const actualPostHash = checkpointHash(session?.messages || [], session?.summary)
+    const rawMessages = session?.messages || []
+    const rawPreHash = checkpointHash(rawMessages, undefined)
+    const matchesRawHistory = !hasPreSnapshot
+      && rawMessages.length === checkpoint.messageCount
+      && rawPreHash === checkpoint.contentHash
+    if (actualPreHash === checkpoint.contentHash
+      || matchesRawHistory
+      || (!hasPreSnapshot && actualPostHash === checkpoint.postCompactionHash)) {
+      const restored: ContextCompactionCheckpoint = { ...checkpoint, status: 'restored' }
+      this.checkpoint = restored
+      return restored
+    }
+    const mismatch: ContextCompactionCheckpoint = { ...checkpoint, status: 'hash_mismatch' }
+    this.checkpoint = mismatch
+    await this.storage.write(
+      storageKey(`ctxcp_${ref.projectId}_${checkpoint.sessionId}`),
+      mismatch,
+    )
+    return mismatch
   }
 
   private contextKey(projectId: string): string {
@@ -500,7 +686,8 @@ export class ConversationContextService {
         purpose: input.purpose,
         ...(input.skillId ? { skillId: input.skillId } : {}),
         ...(input.agentId ? { agentId: input.agentId } : {}),
-        ...(input.previousSkillOutput !== undefined ? { previousSkillOutput: input.previousSkillOutput } : {})
+        ...(input.previousSkillOutput !== undefined ? { previousSkillOutput: input.previousSkillOutput } : {}),
+        ...(input.toolAudit !== undefined ? { toolAudit: input.toolAudit } : {})
       }
     }
   }
@@ -513,6 +700,8 @@ export class ConversationContextService {
     const output: ContextMessage[] = [...systemMessages]
     const workspace = contextMessage(bundle, policy)
     if (workspace) output.push(workspace)
+    const toolAudit = toolAuditMessage(bundle)
+    if (toolAudit) output.push(toolAudit)
 
     const history = policy.chatHistory === 'full'
       ? compactedMessages(bundle.session.recentMessages)
@@ -548,7 +737,7 @@ export class ConversationContextService {
     messages: ContextMessage[],
     budget?: ContextBudget,
     workspace?: ContextWorkspace,
-    requestReservedOutputTokens?: number,
+    requestReservedOutputTokens?: number | null,
   ): ContextCompactionResult {
     const routed = workspace ? this.routedCompaction.get(workspace) : undefined
     const requestBudget = Number(requestReservedOutputTokens)
@@ -577,6 +766,14 @@ export class ConversationContextService {
     }
     if (allowed === undefined) {
       observer?.onContextCompactionSkipped?.({ ...none, reason: 'unknown-window' })
+      observer?.onContextCompactionLifecycle?.({
+        stage: 'window_switch',
+        workspace: workspace || 'main',
+        sessionId: '',
+        status: 'failed',
+        detail: 'unknown-window: compaction skipped',
+        usageSource: 'unavailable',
+      })
       return { ...none, reason: 'unknown-window' }
     }
     if (history.length <= DEFAULT_PRESERVE_RECENT_MESSAGES) return { ...none }
@@ -644,11 +841,19 @@ export class ConversationContextService {
     }
     const editorContent = clean(bundle.workspace.editorContent)
     if (editorContent) {
+      const injectionMode = editorContextInjectionMode(editorContent.length)
       blocks.push({
         source: 'editorContent',
         version: contentVersion(editorContent),
-        coverage: 'full',
-        content: editorContent,
+        coverage: injectionMode,
+        ...(injectionMode === 'packed' ? { truncated: true } : {}),
+        content: injectionMode === 'full'
+          ? editorContent
+          : buildMainEditorContextPack({
+            label: '当前编辑目标',
+            content: editorContent,
+            selection: { selectionStart: 0, selectionEnd: 0, selectedText: '' },
+          }),
       })
     }
     const referenceOutline = clean(bundle.workspace.referenceOutline)
@@ -711,6 +916,15 @@ export class ConversationContextService {
     const id = sessionIdFor(ref)
     const now = Date.now()
     const turnMeta = turn.meta ? clone(turn.meta) : undefined
+    const routedObserver = this.routedCompaction.get(ref.workspace)?.observer || this.compaction.observer
+    const lifecycle = (event: Parameters<NonNullable<ContextCompactionObserver['onContextCompactionLifecycle']>>[0]) => {
+      routedObserver?.onContextCompactionLifecycle?.({
+        ...event,
+        workspace: ref.workspace,
+        sessionId: id,
+      })
+    }
+    let lifecycleEnabled = false
     const result = await this.enqueueWrite(this.contextKey(ref.projectId), async () => {
       const state = await this.readState(ref.projectId)
       const id = sessionIdFor(ref)
@@ -734,17 +948,108 @@ export class ConversationContextService {
         { role: 'user', content: turn.user, ts: now },
         { role: 'assistant', content: turn.assistant, ts: now, ...(turnMeta ? { meta: turnMeta } : {}) }
       )
-      const compaction = this.compactContext(
+      const routedBudget = this.routedCompaction.get(ref.workspace)?.budget || this.compaction.budget
+      const allowedTokens = allowedInputTokens({
+        ...routedBudget,
+        ...(turn.reservedOutputTokens != null ? { reservedOutputTokens: turn.reservedOutputTokens } : {}),
+      })
+      const history = compactedMessages(session.messages)
+      const estimatedTokens = messageTokens(history)
+      const turnCheckpointContext = {
+        ...(this.checkpointContext.goal ? { goal: this.checkpointContext.goal } : {}),
+        ...(this.checkpointContext.keyFacts?.length ? { keyFacts: this.checkpointContext.keyFacts } : {}),
+        ...(this.checkpointContext.hardConstraints?.length ? { hardConstraints: this.checkpointContext.hardConstraints } : {}),
+        ...(this.checkpointContext.openQuestions?.length ? { openQuestions: this.checkpointContext.openQuestions } : {}),
+        ...(this.checkpointContext.necessaryFragments?.length ? { necessaryFragments: this.checkpointContext.necessaryFragments } : {}),
+        ...(this.checkpointContext.toolState && Object.keys(this.checkpointContext.toolState).length ? { toolState: this.checkpointContext.toolState } : {}),
+        ...(typeof turn.meta?.goal === 'string' ? { goal: turn.meta.goal } : {}),
+        ...(Array.isArray(turn.meta?.keyFacts) ? { keyFacts: turn.meta.keyFacts.map(String) } : {}),
+        ...(Array.isArray(turn.meta?.hardConstraints) ? { hardConstraints: turn.meta.hardConstraints.map(String) } : {}),
+        ...(Array.isArray(turn.meta?.openQuestions) ? { openQuestions: turn.meta.openQuestions.map(String) } : {}),
+        ...(Array.isArray(turn.meta?.necessaryFragments) ? { necessaryFragments: turn.meta.necessaryFragments.map(String) } : {}),
+        ...(turn.meta?.toolState && typeof turn.meta.toolState === 'object' ? { toolState: turn.meta.toolState as Record<string, unknown> } : {}),
+      }
+      // Metadata must inherit across turns: compaction may only trigger after the turn
+      // that originally carried goal/facts/constraints has already completed.
+      this.checkpointContext = turnCheckpointContext
+      const willCompact = Boolean(
+        allowedTokens !== undefined
+        && history.length > DEFAULT_PRESERVE_RECENT_MESSAGES
+        && estimatedTokens > allowedTokens
+      )
+      if (!willCompact && allowedTokens === undefined) {
+        routedObserver?.onContextCompactionSkipped?.({
+          performed: false,
+          strategy: 'none',
+          reason: 'unknown-window',
+          compactedMessageCount: 0,
+          retainedMessageCount: history.length,
+          beforeChars: history.reduce((total, message) => total + message.content.length, 0),
+          afterChars: history.reduce((total, message) => total + message.content.length, 0),
+          estimatedBeforeTokens: estimatedTokens,
+          estimatedAfterTokens: estimatedTokens,
+          allowedInputTokens: allowedTokens,
+        })
+      }
+      let checkpoint: ContextCompactionCheckpoint | null = null
+      if (willCompact) {
+        lifecycleEnabled = true
+        lifecycle({
+          stage: 'pre_compact',
+          status: 'success',
+          detail: `beforeTokens=${estimatedTokens}; allowedTokens=${allowedTokens}; messageCount=${history.length}`,
+          usageSource: 'estimated',
+        })
+        lifecycle({
+          stage: 'summarizing',
+          status: 'success',
+          detail: 'preserve recent turns and generate non-destructive summary',
+          usageSource: 'estimated',
+        })
+        checkpoint = await this.saveCompactionCheckpoint(ref, {
+          summary: session.summary,
+          ...turnCheckpointContext,
+        })
+        lifecycle({
+          stage: 'checkpoint',
+          status: checkpoint ? 'success' : 'failed',
+          ...(checkpoint ? { checkpointId: checkpoint.checkpointId, compactionId: checkpoint.compactionId } : {}),
+          detail: checkpoint
+            ? `saved messageCount=${checkpoint.messageCount}; hash=${checkpoint.contentHash}`
+            : 'checkpoint storage write failed; keep original history',
+          usageSource: 'estimated',
+        })
+      }
+      const compaction = checkpoint
+        ? this.compactContext(
         session.messages,
         undefined,
         ref.workspace,
         turn.reservedOutputTokens,
       )
+        : { performed: false } as ContextCompactionResult
+      if (lifecycleEnabled && !compaction.performed) {
+        lifecycle({
+          stage: 'checkpoint_failed',
+          status: 'failed',
+          ...(checkpoint ? { checkpointId: checkpoint.checkpointId, compactionId: checkpoint.compactionId } : {}),
+          detail: 'compaction did not perform after checkpoint; original history retained',
+        })
+      }
       if (compaction.performed && compaction.markerMessage) {
         const compactionId = String(
           (compaction.markerMessage.meta?.compactionMarker as ContextCompactionMarker | undefined)?.compactionId || ''
         )
         const reason: ContextMessageCompaction['reason'] = compaction.strategy === 'summary' ? 'summary' : 'budget'
+        const markerData = compaction.markerMessage.meta?.compactionMarker as ContextCompactionMarker | undefined
+        if (checkpoint && markerData?.compactionId) {
+          markerData.compactionId = checkpoint.compactionId
+          compaction.markerMessage.content = compaction.markerMessage.content.replace(
+            `compactionId=${compactionId}`,
+            `compactionId=${checkpoint.compactionId}`,
+          )
+        }
+        const foldedCompactionId = checkpoint?.compactionId || compactionId
         const retained = compaction.retainedMessages || []
         const retainedIdentities = new Set(retained.map(message => identityKey(message)))
         const folded = session.messages
@@ -753,7 +1058,7 @@ export class ConversationContextService {
             ...message,
             meta: {
               ...(message.meta || {}),
-              compaction: { compactionId, foldedAt: now, reason },
+              compaction: { compactionId: foldedCompactionId, foldedAt: now, reason },
             },
           }))
         session.messages = [...folded, compaction.markerMessage, ...retained]
@@ -761,9 +1066,30 @@ export class ConversationContextService {
       }
       session.messages = session.messages.slice(-MAX_STORED_MESSAGES)
       session.updatedAt = now
+      if (checkpoint && compaction.performed) {
+        checkpoint.postCompactionHash = checkpointHash(session.messages, session.summary)
+        await this.storage.write(
+          storageKey(`ctxcp_${ref.projectId}_${checkpoint.sessionId}`),
+          checkpoint,
+        )
+      }
       return this.storage.write(this.contextKey(ref.projectId), state)
     })
     if (result === false) throw new Error(`上下文写盘失败：${this.contextKey(ref.projectId)}`)
+    if (lifecycleEnabled && result !== false) {
+      const finalCheckpoint = this.getActiveCompactionCheckpoint()
+      lifecycle({
+        stage: 'post_compact',
+        status: 'success',
+        ...(finalCheckpoint ? { checkpointId: finalCheckpoint.checkpointId, compactionId: finalCheckpoint.compactionId } : {}),
+        detail: 'non-destructive compaction committed',
+      })
+      lifecycle({
+        stage: 'window_switch',
+        status: 'success',
+        detail: 'next request consumes compacted history',
+      })
+    }
   }
 
   async recordEditorEvent(ref: ContextRef, text: string, meta?: Record<string, unknown>): Promise<void> {

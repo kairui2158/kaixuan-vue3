@@ -21,6 +21,8 @@ export interface Provider {
   selectedModel: string
   temperature: number
   maxTokens: number
+  /** Input context window in tokens; 0 means undeclared. */
+  contextWindowTokens?: number
   timeoutMs?: number
   purpose: ('generate' | 'rewrite' | 'verify' | 'detect' | 'image' | 'video')[]
   streamMode?: boolean
@@ -69,6 +71,7 @@ async function loadProviders() {
         if (typeof p.purpose === 'string') p.purpose = [p.purpose]
         if (!Array.isArray(p.purpose) || p.purpose.length === 0) p.purpose = ['generate']
         p.providerType = normalizeProviderType(p.providerType)
+        normalizeContextWindow(p)
       })
       var gen = data.find(function(p) { return p.purpose.indexOf('generate') >= 0 })
       var ver = data.find(function(p) { return p.purpose.indexOf('verify') >= 0 })
@@ -94,6 +97,7 @@ async function loadProviders() {
         if (typeof p.purpose === 'string') p.purpose = [p.purpose]
         if (!Array.isArray(p.purpose) || p.purpose.length === 0) p.purpose = ['generate']
         p.providerType = normalizeProviderType(p.providerType)
+        normalizeContextWindow(p)
       })
     }
   }
@@ -118,6 +122,7 @@ async function saveProviders() {
 }
 
   function addProvider(provider: Provider) {
+    normalizeContextWindow(provider)
     providers.value.push(provider)
     saveProviders()
   }
@@ -126,6 +131,7 @@ async function saveProviders() {
     const idx = providers.value.findIndex(p => p.id === id)
     if (idx >= 0) {
       providers.value[idx] = { ...providers.value[idx], ...data }
+      normalizeContextWindow(providers.value[idx])
       saveProviders()
     }
   }
@@ -199,5 +205,10 @@ function getActiveProviders(): Provider[] {
     getGenerateProvider, getVerifyProvider, getDetectProvider, getActiveProviders
   }
 })
+
+function normalizeContextWindow(provider: Provider) {
+  const value = Number((provider as Provider & { contextWindowTokens?: number | string | null }).contextWindowTokens)
+  provider.contextWindowTokens = Number.isFinite(value) && value > 0 ? Math.floor(value) : 0
+}
 
 

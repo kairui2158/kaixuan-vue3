@@ -13,6 +13,7 @@ export interface StateTimeoutHint {
 
 export interface StateWatchdog {
   clear(): void
+  reportProgress(): void
 }
 
 export function getStateTimeout(
@@ -31,10 +32,14 @@ export function startStateWatchdog(
 ): StateWatchdog | null {
   const timeoutMs = getStateTimeout(status, hint)
   if (!onStuck || timeoutMs <= 0) return null
-  const timer = setTimeout(() => onStuck(status, timeoutMs), timeoutMs)
+  let timer = setTimeout(() => onStuck(status, timeoutMs), timeoutMs)
   return {
     clear() {
       clearTimeout(timer)
+    },
+    reportProgress() {
+      clearTimeout(timer)
+      timer = setTimeout(() => onStuck(status, timeoutMs), timeoutMs)
     },
   }
 }

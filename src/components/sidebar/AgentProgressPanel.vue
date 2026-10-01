@@ -31,11 +31,31 @@ async function pollAgentStatus() {
     if (window.electronAPI?.agentStatus) {
       const status = await window.electronAPI.agentStatus('all')
       if (Array.isArray(status)) {
-        agents.splice(0, agents.length, ...status)
+        agents.splice(0, agents.length, ...status.map(mapAgentRecord))
       }
     }
   } catch (e) {
     console.warn('[AgentProgressPanel] agent status poll failed:', e)
+  }
+}
+
+function mapAgentRecord(record: any) {
+  const snapshot = record?.snapshot || {}
+  const status = String(record?.status || snapshot?.status || 'idle')
+  return {
+    id: String(record?.taskId || snapshot?.taskId || 'agent'),
+    status: status === 'running' || status === 'planning' || status === 'compacting'
+      ? 'running'
+      : status.startsWith('waiting')
+        ? 'waiting'
+        : status === 'completed'
+          ? 'completed'
+          : status === 'failed'
+            ? 'failed'
+            : 'idle',
+    name: `任务 ${String(record?.taskId || snapshot?.taskId || '').slice(0, 8)}`,
+    task: String(snapshot?.goal || record?.reason || snapshot?.reason || status),
+    progress: ['completed', 'failed', 'stalled', 'needs_user', 'canceled'].includes(status) ? 100 : 0
   }
 }
 
@@ -73,8 +93,8 @@ onUnmounted(() => {
   background: var(--bg-tertiary);
   border-right: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
-  border-radius: 0 0 8px 0;
-  z-index: 100;
+  border-radius: 0 0 var(--radius-md) 0;
+  z-index: var(--z-dropdown);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;

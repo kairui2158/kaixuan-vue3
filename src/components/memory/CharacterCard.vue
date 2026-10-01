@@ -86,5 +86,5 @@ function openSource() {
 .character-card-label { flex:0 0 52px; }
 .character-card-footer { flex-wrap:wrap; border-top:1px solid var(--border-color); padding-top:8px; }
 .character-card-source-count { flex:1; }
-@media (max-width:700px) { .character-card-fields { grid-template-columns:1fr; } }
+@media (max-width:600px) { .character-card-fields { grid-template-columns:1fr; } }
 </style>

@@ -1,4 +1,5 @@
 import { assertStructureCoverage, parseOutlineStructure } from './outlineStructure'
+import type { OutlineStructureNode } from './outlineStructure'
 
 export interface OutlineIntegrityIssue {
   level: 'critical' | 'warning'
@@ -8,6 +9,14 @@ export interface OutlineIntegrityIssue {
 
 export interface OutlineIntegrityOptions {
   allowCritical?: boolean
+  /** Allows a user-approved heading deletion batch; other critical guards remain active. */
+  allowHeadingDeletion?: boolean
+  /** Allows a user-approved deletion batch's expected heading/body reduction; all other critical guards remain active. */
+  allowAuthorizedDeletion?: boolean
+  /** Exact deletion length covered by the user-approved command batch. */
+  authorizedDeletedLength?: number
+  /** Enables whole-document body-preservation checks; leave false for ordinary scoped edits. */
+  validateDocumentBody?: boolean
 }
 
 export interface OutlineIntegrityReport {
@@ -16,6 +25,25 @@ export interface OutlineIntegrityReport {
   warningCount: number
   issues: OutlineIntegrityIssue[]
   summary: string
+}
+
+const normalizeBodyText = (value: string): string => value.replace(/\s+/g, '')
+
+const STRUCTURAL_NODE_KINDS = new Set<OutlineStructureNode['kind']>(['volume', 'chapter', 'section', 'heading'])
+
+function collectSectionBodies(nodes: OutlineStructureNode[], text: string, output: string[]): void {
+  for (const node of nodes) {
+    if (node.kind === 'section' || node.kind === 'heading') {
+      // A container heading's node range includes all child sections. Compare
+      // only its own lead text; child bodies are checked separately so that a
+      // whole-document reorder is not falsely reported as content loss.
+      const firstStructuralChild = node.children.find(child => STRUCTURAL_NODE_KINDS.has(child.kind))
+      const bodyEnd = firstStructuralChild ? firstStructuralChild.start : node.end
+      const body = normalizeBodyText(text.slice(node.contentStart, bodyEnd))
+      if (body) output.push(body)
+    }
+    collectSectionBodies(node.children, text, output)
+  }
 }
 
 export function validateOutlineIntegrity(
@@ -44,9 +72,24 @@ export function validateOutlineIntegrity(
   if (beforeHeadingCount > 0 && afterHeadingCount < beforeHeadingCount) {
     issues.push({
       level: 'critical',
-      type: 'structure_broken',
+      type: 'heading_count_reduced',
       message: `标题数量从 ${beforeHeadingCount} 降到 ${afterHeadingCount}，可能破坏层级`
     })
+  }
+
+  if (options.validateDocumentBody) {
+    const beforeBodies: string[] = []
+    const afterBodies: string[] = []
+    collectSectionBodies(before.nodes, original, beforeBodies)
+    collectSectionBodies(after.nodes, next, afterBodies)
+    const missingBodies = beforeBodies.filter(body => !afterBodies.some(candidate => candidate.includes(body)))
+    if (missingBodies.length) {
+      issues.push({
+        level: 'critical',
+        type: 'body_content_lost',
+        message: `整篇替换后有 ${missingBodies.length} 个小节正文丢失，需保留全部小节正文`
+      })
+    }
   }
 
   const nonEmptyBefore = original.replace(/\s/g, '').length
@@ -74,10 +117,24 @@ export function validateOutlineIntegrity(
     })
   }
 
+  const expectedDeletionAuthorized = options.allowAuthorizedDeletion
+    && options.authorizedDeletedLength !== undefined
+    && Math.max(0, original.length - next.length) === options.authorizedDeletedLength
+  // A whole-section deletion naturally reduces both heading count and body
+  // length. The exact-length check above proves the model replayed the exact
+  // authorized batch, so these two consequences may be waived together.
+  const authorizedDeletionTypes = new Set(['heading_count_reduced', 'content_loss'])
+  const blockingIssues = options.allowAuthorizedDeletion
+    ? issues.filter(issue => issue.level === 'critical' && !(
+      expectedDeletionAuthorized && authorizedDeletionTypes.has(issue.type)
+    ))
+    : options.allowHeadingDeletion
+      ? issues.filter(issue => issue.level === 'critical' && issue.type !== 'heading_count_reduced')
+      : issues.filter(issue => issue.level === 'critical')
   const criticalCount = issues.filter(issue => issue.level === 'critical').length
   const warningCount = issues.filter(issue => issue.level === 'warning').length
   return {
-    ok: options.allowCritical ? true : criticalCount === 0,
+    ok: options.allowCritical ? true : blockingIssues.length === 0,
     criticalCount,
     warningCount,
     issues,

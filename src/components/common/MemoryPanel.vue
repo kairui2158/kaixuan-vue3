@@ -1,5 +1,5 @@
 <template>
-  <div id="memory-panel" class="memory-panel">
+  <div id="memory-panel" data-modal-id="memory-panel" class="memory-panel">
     <div class="mem-header">
       <h4>记忆管理</h4>
        <div class="mem-header-actions">
@@ -27,7 +27,7 @@
             <button id="btn-import-character-card" @click="showMoreMenu=false; importCharacterCard()">导入角色卡</button>
           </div>
         </div>
-        <button id="btn-close-mem" class="btn-close" @click="$emit('close')">&times;</button>
+        <button id="btn-close-mem" class="btn-close" type="button" aria-label="关闭记忆面板" @click="$emit('close')"><AppIcon name="x" /></button>
        </div>
     </div>
     <div class="mem-body">
@@ -62,7 +62,12 @@
           </button>
         </div>
         <div id="mem-list" class="mem-list card-grid">
-          <div v-if="filteredItems.length===0 && !showingForm" class="empty-hint">暂无记忆条目</div>
+          <EmptyState
+            v-if="filteredItems.length===0 && !showingForm"
+            icon="memory"
+            title="暂无记忆条目"
+            description="生成或编辑章节后，系统会提取人物、设定和关系到这里"
+          />
           <div v-if="showingForm" class="mem-form">
             <h4>{{ editingIdx>=0 ? '编辑记忆' : '新增记忆' }}</h4>
             <div class="form-group">
@@ -143,29 +148,41 @@
         <TimelineView v-else :memories="projectStore.memories || { categories: [], entities: [], relations: [], events: [], world: [], foreshadowing: [], items: [] }" @open-source="openMemorySource" />
       </div>
     </div>
-    <div v-if="blacklistVisible" class="mem-overlay" :style="{ zIndex: modalQueue.getZIndex('memory-blacklist') }" @click.self="blacklistVisible = false">
+    <div v-if="blacklistVisible" data-modal-id="memory-blacklist" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('memory-blacklist') }" @click.self="blacklistVisible = false">
       <div class="mem-inline-box mem-blacklist-box">
         <h3>黑名单管理</h3>
-        <button class="btn-close" type="button" aria-label="关闭黑名单管理" @click="blacklistVisible = false">&times;</button>
-        <div v-if="blacklistedEntities.length === 0" class="empty-hint">暂无黑名单实体</div>
+        <button class="btn-close" type="button" aria-label="关闭黑名单管理" @click="blacklistVisible = false"><AppIcon name="x" /></button>
+        <EmptyState
+          v-if="blacklistedEntities.length === 0"
+          variant="compact"
+          icon="memory"
+          title="暂无黑名单实体"
+          description="在记忆条目中屏蔽实体后，会出现在这里"
+        />
         <div v-for="entity in blacklistedEntities" :key="entity.id" class="mem-blacklist-row">
           <span>{{ entity.name }}</span>
           <button class="btn-sm btn-secondary" @click="toggleBlacklist(entity.id)">移除</button>
         </div>
       </div>
     </div>
-    <div v-if="mergeVisible" class="mem-overlay" :style="{ zIndex: modalQueue.getZIndex('memory-merge') }" @click.self="mergeVisible = false">
+    <div v-if="mergeVisible" data-modal-id="memory-merge" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('memory-merge') }" @click.self="mergeVisible = false">
       <div class="mem-inline-box mem-merge-box">
         <h3>实体合并建议</h3>
-        <button class="btn-close" type="button" aria-label="关闭实体合并建议" @click="mergeVisible = false">&times;</button>
-        <div v-if="mergeSuggestions.length === 0" class="empty-hint">暂无合并建议</div>
+        <button class="btn-close" type="button" aria-label="关闭实体合并建议" @click="mergeVisible = false"><AppIcon name="x" /></button>
+        <EmptyState
+          v-if="mergeSuggestions.length === 0"
+          variant="compact"
+          icon="memory"
+          title="暂无合并建议"
+          description="检测到疑似同一实体时，会在这里给出合并建议"
+        />
         <div v-for="pair in mergeSuggestions" :key="pair.source.id + pair.target.id" class="mem-merge-row">
           <span>{{ pair.source.name }} → {{ pair.target.name }}</span>
           <button class="btn-sm btn-primary" @click="mergeEntityPair(pair.source.id, pair.target.id)">合并</button>
         </div>
       </div>
     </div>
-    <div v-if="conflictItem" class="mem-overlay" :style="{ zIndex: modalQueue.getZIndex('memory-conflict') }" @click.self="conflictItem = null">
+    <div v-if="conflictItem" data-modal-id="memory-conflict" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('memory-conflict') }" @click.self="conflictItem = null">
       <div class="mem-inline-box mem-conflict-box">
         <h3>冲突审查</h3>
         <div class="mem-conflict-list">
@@ -182,7 +199,7 @@
       </div>
     </div>
     <!-- 内联输入框弹窗替代 prompt -->
-    <div v-if="showCatInput" class="mem-overlay" :style="{ zIndex: modalQueue.getZIndex('memory-category') }" @click.self="showCatInput = false">
+    <div v-if="showCatInput" data-modal-id="memory-category" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('memory-category') }" @click.self="showCatInput = false">
       <div class="mem-inline-box">
         <h3>新增分类</h3>
         <input ref="catInputRef" v-model="newCatName" class="mem-input" placeholder="输入新分类名称" @keyup.enter="confirmAddCat" />
@@ -192,7 +209,7 @@
         </div>
       </div>
     </div>
-    <div v-if="editDialogVisible" class="mem-overlay" :style="{ zIndex: modalQueue.getZIndex('memory-edit') }" @click.self="closeEditDialog">
+    <div v-if="editDialogVisible" data-modal-id="memory-edit" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('memory-edit') }" @click.self="closeEditDialog">
       <div class="mem-edit-dialog">
         <h3>{{ editDialogTitle }}</h3>
         <div class="mem-edit-scroll">
@@ -211,7 +228,7 @@
         </div>
       </div>
     </div>
-    <div v-if="profileExportVisible" class="mem-overlay" :style="{ zIndex: modalQueue.getZIndex('memory-profile-export') }" @click.self="profileExportVisible = false">
+    <div v-if="profileExportVisible" data-modal-id="memory-profile-export" class="modal-overlay modal-nested" :style="{ zIndex: modalQueue.getZIndex('memory-profile-export') }" @click.self="profileExportVisible = false">
       <div class="mem-inline-box">
         <h3>选择要导出的角色</h3>
         <div class="mem-profile-export-list">
@@ -235,7 +252,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, computed, nextTick, watch } from 'vue'
+import { defineAsyncComponent, ref, computed, nextTick, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useProjectStore } from '../../stores/project'
 import { useEditorStore } from '../../stores/editor'
 const RelationGraph = defineAsyncComponent(() => import('../memory/RelationGraph.vue'))
@@ -244,6 +261,7 @@ const MindMap = defineAsyncComponent(() => import('../memory/MindMap.vue'))
 const TimelineView = defineAsyncComponent(() => import('../memory/TimelineView.vue'))
 import CharacterCard from '../memory/CharacterCard.vue'
 import MemoryHistoryModal from '../memory/MemoryHistoryModal.vue'
+import EmptyState from './EmptyState.vue'
 import type { MemoryEntity, MemoryRelation, MemoryEvent, WorldEntry, Foreshadowing, MemoryChangeRecord } from '../../types/memory'
 import { useAppConfirm } from '../../composables/useAppConfirm'
 import { storageKey } from '../../utils/storage-key'
@@ -256,6 +274,9 @@ const editorStore = useEditorStore()
 const appConfirm = useAppConfirm()
 const modalQueue = useModalQueue()
 const emit = defineEmits<{ close: [] }>()
+
+onMounted(() => modalQueue.open('memory-panel'))
+onBeforeUnmount(() => modalQueue.close('memory-panel'))
 
 const selectedCat = ref('all')
 const showingForm = ref(false)
@@ -295,6 +316,7 @@ const editDialog = ref<EditDialog>(emptyEditDialog)
 const editDialogVisible = ref(false)
 
 const memoryModalVisibility = computed(() => ({
+  'memory-panel': true,
   'memory-blacklist': blacklistVisible.value,
   'memory-merge': mergeVisible.value,
   'memory-conflict': Boolean(conflictItem.value),
@@ -309,6 +331,22 @@ watch(memoryModalVisibility, visibility => {
     else modalQueue.close(id)
   }
 }, { immediate: true })
+
+// Verification bridge for responsive E2E; no runtime behavior depends on it.
+;(globalThis as any).__memoryPanelState = {
+  get projectStore() { return projectStore },
+  get memories() { return projectStore.memories },
+  get showCatInput() { return showCatInput.value },
+  set showCatInput(value: boolean) { showCatInput.value = value },
+  get profileExportVisible() { return profileExportVisible.value },
+  set profileExportVisible(value: boolean) { profileExportVisible.value = value },
+  get conflictItem() { return conflictItem.value },
+  set conflictItem(value: any) { conflictItem.value = value },
+  get editDialog() { return editDialog.value },
+  set editDialog(value: any) { editDialog.value = value },
+  get editDialogVisible() { return editDialogVisible.value },
+  set editDialogVisible(value: boolean) { editDialogVisible.value = value }
+}
 
 type MemoryDisplayItem = {
   key: string
@@ -953,7 +991,7 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
   position: absolute;
   top: 0; left: 48px; right: 0; bottom: 0;
   background: var(--memory-panel-bg);
-  z-index: 100;
+  z-index: var(--z-dropdown);
   display: flex;
   flex-direction: column;
 }
@@ -993,7 +1031,7 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
 .mem-header-divider { width: 1px; height: 20px; background: var(--border-color); flex-shrink: 0; }
 .mem-more-menu { position: relative; flex-shrink: 0; }
 .mem-more-btn {
-  padding: var(--space-5) 1var(--space-4); border: none; background: transparent;
+  padding: var(--space-5) var(--space-4); border: none; background: transparent;
   color: var(--text-secondary); cursor: pointer; border-radius: var(--radius-xs);
   font-size: var(--font-size-md); white-space: nowrap; transition: all var(--duration-fast);
 }
@@ -1002,7 +1040,7 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
   position: absolute; top: 100%; right: 0; margin-top: 4px;
   background: var(--memory-card-bg); border: 1px solid var(--memory-card-border);
   border-radius: var(--radius-sm); box-shadow: var(--shadow-panel-sm);
-  display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-2); z-index: 2000; min-width: 120px;
+  display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-2); z-index: var(--z-tooltip); min-width: 120px;
 }
 .mem-more-dropdown button {
   padding: var(--space-4) var(--space-5); border: none; background: transparent;
@@ -1030,18 +1068,19 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
   margin-bottom: 8px; font-size: var(--font-size-md); color: var(--text-secondary);
 }
 .mem-toolbar { display:flex; align-items:center; gap:var(--space-3); margin-bottom:var(--space-3); flex-wrap:wrap; }
-.mem-toolbar input { flex:1; min-width:160px; padding:var(--space-2) var(--space-4); border:1px solid var(--border-color); border-radius:var(--radius-xs); background:var(--bg-input,var(--bg-primary)); color:var(--text-primary); }
-.mem-toolbar select { padding:var(--space-2) var(--space-3); border:1px solid var(--border-color); border-radius:var(--radius-xs); background:var(--bg-input,var(--bg-primary)); color:var(--text-primary); }
+.mem-toolbar input { flex:1; min-width:160px; padding:var(--space-2) var(--space-4); border:1px solid var(--border-color); border-radius:var(--radius-xs); background:var(--bg-input); color:var(--text-primary); }
+.mem-toolbar select { padding:var(--space-2) var(--space-3); border:1px solid var(--border-color); border-radius:var(--radius-xs); background:var(--bg-input); color:var(--text-primary); }
 .mem-stats { display:flex; flex-wrap:wrap; gap:var(--space-3); margin-bottom:var(--space-4); }
-.mem-stat { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-2) var(--space-4); border:1px solid var(--border-color); border-radius:var(--radius-sm); background:var(--bg-card,var(--bg-secondary)); color:var(--text-secondary); cursor:pointer; }
+.mem-stat { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-2) var(--space-4); border:1px solid var(--border-color); border-radius:var(--radius-sm); background:var(--bg-card); color:var(--text-secondary); cursor:pointer; }
 .mem-stat strong { color:var(--text-primary); }
 .mem-status { font-size:var(--font-size-xs); padding:var(--space-1) var(--space-3); border-radius:var(--radius-xs); }
-.mem-status.pending { background:rgba(245,158,11,.18); color:#f59e0b; }
-.mem-status.confirmed { background:rgba(16,185,129,.18); color:#10b981; }
-.mem-status.conflicted { background:rgba(239,68,68,.18); color:#ef4444; }
-.mem-status.stale, .mem-status.rejected { background:var(--bg-hover); color:var(--text-secondary); }
+.mem-status.pending { background:var(--warning-dim); color:var(--warning); }
+.mem-status.confirmed { background:var(--success-dim); color:var(--success); }
+.mem-status.conflicted { background:var(--danger-dim); color:var(--danger); }
+.mem-status.stale { background:var(--bg-hover); color:var(--text-secondary); }
+.mem-status.rejected { background:var(--danger-dim); color:var(--memory-state-rejected); }
 .mem-conflict-inline { margin:var(--space-2) 0; }
-.mem-blacklist-box, .mem-merge-box, .mem-conflict-box { position:relative; width:min(520px,88vw); }
+.mem-blacklist-box, .mem-merge-box, .mem-conflict-box { position:relative; width:min(520px,88vw); max-height:min(82vh,720px); overflow:auto; }
 .mem-blacklist-box > .btn-close, .mem-merge-box > .btn-close { position:absolute; top:var(--space-4); right:var(--space-4); }
 .mem-blacklist-row, .mem-merge-row { display:flex; align-items:center; justify-content:space-between; gap:var(--space-4); }
 .mem-conflict-list { display:flex; flex-direction:column; gap:var(--space-4); max-height:50vh; overflow:auto; }
@@ -1051,7 +1090,6 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
 .mem-conflict-value label { color:var(--text-secondary); font-size:var(--font-size-sm); }
 .mem-conflict-value p { margin:0; white-space:pre-wrap; overflow-wrap:anywhere; }
 .mem-list { display: flex; flex-direction: column; gap: var(--space-4); }
-.empty-hint { color: var(--memory-empty-text); text-align: center; padding: var(--space-8); font-size: var(--font-size-md); }
 .mem-item-header { display: flex; align-items: center; gap: var(--space-4); margin-bottom: 4px; }
 .mem-select { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-xs); color: var(--text-secondary); }
 .mem-item-key { font-weight: 600; font-size: var(--font-size-md); }
@@ -1072,20 +1110,19 @@ function openMemorySource(payload: { kind: 'entity' | 'event'; id: string }) {
 .form-group input, .form-group select, .form-group textarea {
   width: 100%; padding: var(--space-2) var(--space-4); border: 1px solid var(--border-color);
   border-radius: var(--radius-xs); background: var(--bg-primary);
-  color: var(--text-primary); font-size: var(--font-size-md); outline: none;
+  color: var(--text-primary); font-size: var(--font-size-md);
 }
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
   border-color: var(--accent);
 }
-.mem-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: 2000; }
 .mem-inline-box { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--space-8); width: min(360px, 80vw); display: flex; flex-direction: column; gap: var(--space-5); }
 .mem-inline-box h3 { margin: 0; font-size: var(--font-size-lg); }
 .mem-profile-export-list { display: flex; flex-direction: column; gap: var(--space-2); max-height: 320px; overflow-y: auto; margin: 4px 0; }
 .mem-profile-export-list button { text-align: left; padding: var(--space-2) var(--space-3); border-radius: var(--radius-xs); background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; }
 .mem-profile-export-list button:hover { background: var(--bg-hover); }
-.mem-input { width: 100%; padding: var(--space-3) var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-primary); color: var(--text-primary); font-size: var(--font-size-md); outline: none; box-sizing: border-box; }
+.mem-input { width: 100%; padding: var(--space-3) var(--space-5); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-primary); color: var(--text-primary); font-size: var(--font-size-md); box-sizing: border-box; }
 .mem-input:focus { border-color: var(--accent); }
-.mem-edit-dialog { display:flex; flex-direction:column; gap: var(--space-5); width:min(520px,88vw); max-height:82vh; padding: 2var(--space-1); background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:var(--radius-lg); }
+.mem-edit-dialog { display:flex; flex-direction:column; gap: var(--space-5); width:min(520px,88vw); max-height:82vh; padding: var(--space-8); background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:var(--radius-lg); }
 .mem-edit-dialog h3 { margin: 0; font-size:var(--font-size-lg); }
 .mem-edit-scroll { overflow:auto; min-height:0; }
 .mem-inline-actions { display:flex; justify-content:flex-end; gap: var(--space-4); }

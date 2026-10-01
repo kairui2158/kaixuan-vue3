@@ -4,7 +4,7 @@
       <span class="diag-title">诊断日志</span>
       <span v-if="appVersion" class="diag-version">应用版本 {{ appVersion }}</span>
       <span v-if="stats.errorCount > 0" class="diag-error-count">{{ stats.errorCount }} 错误</span>
-      <button class="btn-close" @click="$emit('close')">&times;</button>
+        <button class="btn-close" aria-label="关闭诊断日志" @click="$emit('close')"><AppIcon name="x" /></button>
     </div>
     <div class="diag-toolbar">
       <label class="diag-toggle-label"><input id="diag-enabled" type="checkbox" checked> 启用诊断</label>
@@ -63,6 +63,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { subscribe } from '../../services/diag.js'
+import AppIcon from '../common/AppIcon.vue'
 
 const props = defineProps<{ visible?: boolean }>()
 const isInline = computed(() => props.visible === undefined)
@@ -234,7 +235,7 @@ onUnmounted(() => {
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
-  z-index: 9997;
+  z-index: var(--z-diagnostics);
   box-shadow: var(--shadow-lg);
   opacity: 0;
   pointer-events: none;
@@ -254,16 +255,16 @@ onUnmounted(() => {
 .diag-title { font-size: var(--font-size-md); font-weight: 600; color: var(--text-primary); }
 .diag-version { font-size: var(--font-size-xs); color: var(--text-muted); }
 .diag-error-count { font-size: var(--font-size-xs); color: var(--danger); font-weight: 600; background: var(--danger-dim); padding: var(--space-1) var(--space-4); border-radius: var(--radius-lg); }
-.btn-close { margin-left: auto; background: none; border: none; color: var(--text-muted); font-size: var(--font-size-xl, 18px); cursor: pointer; padding: 0 var(--space-2); height: var(--space-lg, 24px); line-height: var(--space-lg, 24px); }
+.btn-close { margin-left: auto; background: none; border: none; color: var(--text-muted); font-size: var(--font-size-xl); cursor: pointer; padding: 0 var(--space-2); height: var(--space-8); line-height: var(--space-8); }
 .btn-close:hover { color: var(--text-primary); }
 .diag-toolbar { display: flex; gap: var(--space-3); padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border-color); align-items: center; }
-.select-standard { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: var(--space-3) var(--space-3); font-size: var(--font-size-xs); height: 26px; }
-.diag-search { flex: 1; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: var(--space-3) var(--space-4); font-size: var(--font-size-xs); height: 26px; }
+.select-standard { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: var(--space-3) var(--space-3); font-size: var(--font-size-xs); height: var(--density-form-height); }
+.diag-search { flex: 1; background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); padding: var(--space-3) var(--space-4); font-size: var(--font-size-xs); height: var(--density-form-height); }
 .diag-log-list { flex: 1; overflow-y: auto; padding: var(--space-3); user-select: text; cursor: text; }
 .diag-empty { padding: var(--space-8); text-align: center; color: var(--text-muted); font-size: var(--font-size-sm); }
 .diag-log-item { display: flex; gap: var(--space-3); padding: var(--space-3) var(--space-3); border-bottom: 1px solid var(--diagnostic-divider); font-size: var(--font-size-xs); line-height: 1.4; align-items: baseline; }
 .diag-log-item:last-child { border-bottom: none; }
-.diag-log-time { color: var(--text-muted); flex-shrink: 0; font-family: monospace; }
+.diag-log-time { color: var(--text-muted); flex-shrink: 0; font-family: var(--font-family-mono); }
 .diag-log-level { min-width: 40px; flex-shrink: 0; font-weight: 600; font-size: var(--font-size-xxs); }
 .diag-log-item.error .diag-log-level { color: var(--danger); }
 .diag-log-item.warn .diag-log-level { color: var(--warning); }
@@ -271,14 +272,14 @@ onUnmounted(() => {
 .diag-log-item.debug .diag-log-level { color: var(--text-muted); }
 .diag-log-cat { color: var(--text-muted); flex-shrink: 0; font-size: var(--font-size-xxs); }
 .diag-log-msg { flex: 1; color: var(--text-secondary); word-break: break-all; }
-.diag-log-trace { color: var(--diagnostic-trace); font-size: var(--font-size-xxs); flex-shrink: 0; font-family: monospace; }
+.diag-log-trace { color: var(--diagnostic-trace); font-size: var(--font-size-xxs); flex-shrink: 0; font-family: var(--font-family-mono); }
 .diag-log-provider { color: var(--diagnostic-provider); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
 .diag-log-purpose { color: var(--text-secondary); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
 .diag-log-model { color: var(--diagnostic-model); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
 .diag-log-agent { color: var(--info); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
-.diag-log-skill { color: var(--diagnostic-trace); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; font-family: monospace; }
+.diag-log-skill { color: var(--diagnostic-trace); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; font-family: var(--font-family-mono); }
 .diag-log-capability { color: var(--info); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
-.diag-log-batch { color: var(--text-muted); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; font-family: monospace; }
+.diag-log-batch { color: var(--text-muted); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; font-family: var(--font-family-mono); }
 .diag-log-downgrade { color: var(--warning); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
 .diag-log-duration { color: var(--diagnostic-duration); font-size: var(--font-size-xxs); margin-right: 4px; flex-shrink: 0; }
 .diag-footer { display: flex; justify-content: space-between; align-items: center; padding: var(--space-3) var(--space-5); border-top: 1px solid var(--border-color); font-size: var(--font-size-xxs); color: var(--text-muted); }

@@ -35,7 +35,7 @@ function _levelNum(lv) { return _levels[lv] !== undefined ? _levels[lv] : 2; }
 function _shouldLog(lv) { return _enabled && _levelNum(lv) <= _minLevel; }
 
 // detail 顶层白名单：DiagLogPanel 列直接读取这些字段
-var _topLevelKeys = ['providerId', 'purpose', 'model', 'durationMs', 'skillId', 'agentId', 'batchId', 'toolName', 'toolCapability', 'downgradeReason'];
+var _topLevelKeys = ['providerId', 'purpose', 'model', 'durationMs', 'skillId', 'agentId', 'batchId', 'toolName', 'toolCapability', 'rejectionCategory', 'downgradeReason'];
 
 function _push(level, cat, msg, detail) {
   if (!_shouldLog(level)) return;

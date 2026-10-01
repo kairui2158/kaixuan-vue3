@@ -8,17 +8,17 @@
          <BreadcrumbBar :items="breadcrumbItems" @home="activePanel=''; breadcrumbItems=[]" @navigate="(i) => breadcrumbItems.splice(i+1)" @close="(i) => breadcrumbItems.splice(i)" />
         <div ref="appMainRef" class="app-main-content">
           <ChapterTree @navigate="handleNavigate" />
-          <div id="resizer-chapter" class="resizer-v" data-target="chapter" title="拖动调整宽度"></div>
+          <div id="resizer-chapter" class="resizer-v" data-target="chapter" data-tooltip="拖动调整宽度"></div>
           <EditorPanel />
-          <div id="resizer-editor-chat" class="resizer-v" data-target="chat" title="拖动调整宽度"></div>
+          <div id="resizer-editor-chat" class="resizer-v" data-target="chat" data-tooltip="拖动调整宽度"></div>
           <ChatPanel />
          </div>
         </div>
       </div>
         <!-- Panel overlays: outside app-body to avoid overflow:hidden clipping -->
         <SettingsModal v-if="activePanel === 'settings'" :visible="activePanel === 'settings'" @close="activePanel=''" />
-        <PipelinePanel v-if="activePanel === 'pipeline' && !pipelineMinimized" @close="activePanel=''; pipelineMinimized = false" @minimize="pipelineMinimized = true" @open-outline="handleNavigate('outline')" />
-        <OutlineWorkspace v-if="activePanel === 'outline'" @close="activePanel=''" @navigate="handleNavigate" />
+        <PipelinePanel v-if="activePanel === 'pipeline' && !pipelineMinimized" @close="activePanel=''; pipelineMinimized = false" @minimize="pipelineMinimized = true" @open-outline="handleNavigate('outline-workspace')" />
+        <OutlineWorkspace v-if="activePanel === 'outline-workspace'" @close="activePanel=''" @navigate="handleNavigate" />
         <MemoryPanel v-if="activePanel === 'memory'" @close="activePanel=''" />
         <DashboardModal v-if="activePanel === 'dashboard'" :stats="dashboardStats" @close="activePanel=''" />
         <PluginMarket v-if="activePanel === 'plugin-market'" @close="activePanel=''" />
@@ -26,7 +26,12 @@
 
     <DeAiProgress v-if="deAiStore.isProcessing || deAiStore.errorMessage" />
     <div v-if="isResizing" class="resizer-overlay"></div>
-    <div v-if="resizerTooltip" class="drag-tooltip" :style="{ left: resizerTooltip.x + 'px' }">{{ resizerTooltip.text }}</div>
+    <div
+      v-if="resizerTooltip"
+      class="drag-tooltip"
+      role="status"
+      :style="{ left: resizerTooltip.x + 'px', top: resizerTooltip.y + 'px' }"
+    >{{ resizerTooltip.text }}</div>
     <ExitConfirmModal ref="exitModal" />
     <AppConfirmModal />
     <div v-if="projectStore.lastSaveError" id="save-error-banner" class="save-error-banner" role="alert">
@@ -44,6 +49,7 @@
     <SkillBindModal :visible="skillBindVisible" :type="skillBindType" :id="skillBindId" @close="skillBindVisible=false" />
     <AgentProgressPanel />
     <AiNamingModal />
+    <ToastViewport />
     <HelpGuide />
     <div id="statusbar" class="statusbar">
       <span id="status-cursor"></span>
@@ -53,17 +59,6 @@
       <span id="status-words">字数: {{ editorStore.activeTab?.content?.length || 0 }}</span>
     </div>
   </div>
-
-  <!-- audit-v5 -->
-  <div id="toast-container" style="display:none" data-audit="v5"></div>
-  <div id="dom-toast" style="display:none" data-audit="v5"></div>
-  <div id="tooltip" style="display:none" data-audit="v5"></div>
-  <div id="loading-indicator" style="display:none" data-audit="v5"></div>
-  <div id="loading-text" style="display:none" data-audit="v5"></div>
-  <div id="inline-menu" style="display:none" data-audit="v5"></div>
-  <div id="github-status-text" style="display:none" data-audit="v5"></div>
-  <div id="token-bar" style="display:none" data-audit="v5"></div>
-  <div id="token-count" style="display:none" data-audit="v5"></div>
 </template>
 
 <script setup lang="ts">
@@ -96,6 +91,7 @@ import SkillBindModal from './components/common/SkillBindModal.vue'
 import AgentProgressPanel from './components/sidebar/AgentProgressPanel.vue'
 import AiNamingModal from './components/naming/AiNamingModal.vue'
 import HelpGuide from './components/common/HelpGuide.vue'
+import ToastViewport from './components/common/ToastViewport.vue'
 import BreadcrumbBar from './components/common/BreadcrumbBar.vue'
 import DashboardModal from './components/dashboard/DashboardModal.vue'
 import { useShortcuts } from './composables/useShortcuts'
@@ -135,7 +131,7 @@ const dashboardStats = computed(() => {
 })
 
 useShortcuts({
-  onOpenOutline: () => handleNavigate('outline'),
+  onOpenOutline: () => handleNavigate('outline-workspace'),
   onOpenPipeline: () => handleNavigate('pipeline'),
   onOpenMemory: () => handleNavigate('memory'),
   onOpenPluginMarket: () => handleNavigate('plugin-market'),
@@ -345,8 +341,8 @@ onUnmounted(() => {
  const appMainEl = document.querySelector('.app-main-content')
  if (appMainEl) observer.observe(appMainEl, { childList: true, subtree: false })
   const labels: Record<string, string> = {
-    'pipeline': '生成流水线', 'settings': '设置', 'outline': '大纲工作台',
-    'memory': '记忆管理'
+    'pipeline': '生成流水线', 'settings': '设置', 'outline-workspace': '大纲工作台',
+    'memory': '记忆管理', 'dashboard': '写作仪表盘', 'plugin-market': '插件市场'
   }
   watch(activePanel, (v) => {
    breadcrumbItems.value = v && labels[v] ? [labels[v]] : []
@@ -377,7 +373,11 @@ onUnmounted(() => {
   }, { immediate: true })
 if (typeof window !== 'undefined') {
    ;(window as any).__getActivePanel = () => activePanel.value
- }
+   ;(window as any).__uiCoverage = {
+     get activePanel() { return activePanel.value },
+     get breadcrumbItems() { return [...breadcrumbItems.value] }
+   }
+}
 
  // Multi-window: respond to main process requesting current project ID (for "open in new window")
  if (typeof window !== 'undefined' && (window as any).electronAPI?.onGetCurrentProjectId) {
@@ -404,23 +404,23 @@ if (typeof window !== 'undefined') {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: var(--surface-canvas);
+  color: var(--text-ink);
   font-family: var(--font-family);
   overflow: hidden;
 }
 .btn-icon {
   background: transparent;
   border: none;
-  color: var(--text-secondary);
+  color: var(--text-mid);
   cursor: pointer;
   padding: var(--space-2);
   border-radius: var(--radius-sm);
-  font-size: 16px;
+  font-size: var(--font-size-lg);
 }
 .btn-icon:hover {
   background: var(--bg-hover);
-  color: var(--text-primary);
+  color: var(--text-ink);
 }
 main {
   flex: 1;
@@ -444,12 +444,13 @@ main {
   min-width: 0;
 }
 .resizer-v {
-  width: 6px;
+  --resizer-hit: 6px;
+  width: var(--resizer-hit);
   background: var(--border-color);
   cursor: col-resize;
   flex-shrink: 0;
   position: relative;
-  z-index: 5;
+  z-index: var(--z-inline);
 }
 .resizer-v::before {
   content: '';
@@ -459,12 +460,12 @@ main {
   transform: translate(-50%, -50%);
   width: 2px;
   height: 30px;
-  border-radius: 1px;
+  border-radius: var(--radius-hairline);
   background: transparent;
-  transition: background 150ms ease;
+  transition: background var(--duration-fast) var(--ease-standard);
 }
 .resizer-v:hover::before, .resizer-v.dragging::before {
-  background: var(--text-secondary, rgba(255,255,255,0.3));
+  background: var(--text-secondary);
 }
 .resizer-v:hover, .resizer-v.dragging {
   background: var(--accent);
@@ -475,22 +476,22 @@ main {
 }
 .drag-tooltip {
   position: fixed;
-  top: 50px;
   transform: translateX(-50%);
-  background: var(--bg-elevated, #1a1a2e);
-  color: var(--text-primary, #e0e0e0);
-  border: 1px solid var(--accent, #4a9);
-  border-radius: 6px;
-  padding: var(--space-2) var(--space-5);
-  font-size: 12px;
-  z-index: 10000;
+  background: var(--bg-elevated);
+  color: var(--text-ink);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-xs);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-xs);
+  box-shadow: var(--shadow-sm);
+  z-index: var(--z-tooltip);
   pointer-events: none;
   white-space: nowrap;
 }
 .resizer-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: var(--z-toast);
   cursor: col-resize;
   user-select: none;
 }
@@ -501,8 +502,8 @@ main {
   position: fixed;
   top: 0; left: 0;
   width: 100vw; height: 100vh;
-  background: var(--bg-overlay, rgba(0,0,0,0.4));
-  z-index: 900;
+  background: var(--overlay-level-1);
+  z-index: var(--z-panel);
 }
 /* The active panel is rendered after the backdrop and must remain interactive. */
 :deep(.memory-panel),
@@ -511,7 +512,7 @@ main {
 :deep(.outline-workspace),
 :deep(.dashboard-modal),
 :deep(.plugin-market) {
-  z-index: 901;
+  z-index: calc(var(--z-panel) + 1);
 }
 
 .save-error-banner {

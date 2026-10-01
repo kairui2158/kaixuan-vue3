@@ -4,7 +4,7 @@
        <span class="breadcrumb-sep">/</span>
        <span class="breadcrumb-item" @click="emit('navigate', i)">
          {{ item }}
-         <span class="breadcrumb-close" @click.stop="emit('close', i)">x</span>
+         <button class="breadcrumb-close" type="button" aria-label="关闭此层级" @click.stop="emit('close', i)"><AppIcon name="x" /></button>
        </span>
      </template>
    </div>
@@ -42,6 +42,12 @@
 }
 .breadcrumb-item:hover { color: var(--accent); }
 .breadcrumb-close {
+  display: inline-flex;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
   font-size: var(--font-size-xxs);
   opacity: 0.5;
   padding: 0 var(--space-1);

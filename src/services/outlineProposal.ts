@@ -1,4 +1,9 @@
-import type { EditorEditBatchCommand, EditorEditCommand, EditorEditOperation } from './editorEditProtocol'
+import type { EditorEditBatchCommand, EditorEditCommand } from './editorEditProtocol'
+import {
+  doesEditorEditOperationRequireTarget,
+  normalizeEditorEditOperation,
+  type EditorEditOperation,
+} from './editorEditSemantics'
 import { parseOutlineStructure, type OutlineNodeKind, type OutlineStructureNode } from './outlineStructure'
 
 export interface OutlineProposalAnchor {
@@ -46,14 +51,6 @@ export interface OutlineImpactReport {
   summary: string
 }
 
-const operations = new Set<EditorEditOperation>([
-  'insert',
-  'replace_selection',
-  'replace_match',
-  'append',
-  'delete',
-  'rewrite'
-])
 const MAX_PROPOSAL_LENGTH = 80000
 const MAX_COMMAND_LENGTH = 20000
 const MAX_IMPACT_ITEMS = 10
@@ -80,14 +77,6 @@ function extractJsonCandidate(raw: string): Record<string, unknown> | null {
   }
 }
 
-function normalizeOperation(value: unknown): EditorEditOperation | null {
-  if (value === 'replace_section') return 'replace_match'
-  if (value === 'rewrite_section') return 'rewrite'
-  return typeof value === 'string' && operations.has(value as EditorEditOperation)
-    ? value as EditorEditOperation
-    : null
-}
-
 function normalizeAnchor(value: unknown): OutlineProposalAnchor | undefined {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined
   const source = value as Record<string, unknown>
@@ -107,13 +96,14 @@ export function parseOutlineProposal(raw: string): OutlineProposalResult | null 
   const parsed = extractJsonCandidate(raw)
   if (!parsed || parsed.type !== 'outline_proposal') return null
 
-  const operation = normalizeOperation(parsed.operation)
+  const operation = normalizeEditorEditOperation(parsed.operation)
   if (!operation) return null
   const content = typeof parsed.content === 'string' ? parsed.content : undefined
   const target = typeof parsed.target === 'string' ? parsed.target.trim() : undefined
   if (content !== undefined && content.length > MAX_COMMAND_LENGTH) return null
   if (operation !== 'delete' && typeof content !== 'string') return null
-  if (['replace_match', 'delete', 'rewrite'].includes(operation) && !target) return null
+  if (doesEditorEditOperationRequireTarget(operation) && !target) return null
+  if (!doesEditorEditOperationRequireTarget(operation) && target) return null
   if (typeof parsed.reason !== 'string' || !parsed.reason.trim()) return null
   if (!Array.isArray(parsed.impact) || parsed.impact.length === 0 || parsed.impact.length > MAX_IMPACT_ITEMS) return null
   const impact = parsed.impact.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)

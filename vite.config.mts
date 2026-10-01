@@ -25,7 +25,8 @@ export default defineConfig({
   },
   test: {
     include: [
-      'src/**/*.{test,spec}.{js,ts,jsx,tsx}'
+      'src/**/*.{test,spec}.{js,ts,jsx,tsx}',
+      'electron/**/*.spec.js'
     ],
     exclude: [
       '**/node_modules/**',

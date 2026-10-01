@@ -33,6 +33,7 @@ import type { GraphOptions, IElementEvent } from '@antv/g6'
 import type { MemoryData } from '../../types/memory'
 import { toG6Data } from '../../composables/useG6Graph'
 import G6Canvas from './G6Canvas.vue'
+import { g6Token } from './g6Theme'
 
 const props = defineProps<{ memories: MemoryData }>()
 const emit = defineEmits<{
@@ -74,17 +75,17 @@ const neighborCount = computed(() => new Set(visibleEdges.value.flatMap(edge => 
 const graphOptions: GraphOptions = {
   layout: { type: 'force', preventOverlap: true, nodeSize: 40, linkDistance: 120 },
   node: {
-    style: { size: 40, fill: '#2c3a5d', stroke: '#4d5f8a' },
+    style: { size: 40, fill: g6Token('--g6-node-fill'), stroke: g6Token('--g6-node-stroke') },
     state: {
-      selected: { stroke: '#7c8cf8', lineWidth: 3 },
-      active: { stroke: '#a5b4fc', lineWidth: 3 }
+      selected: { stroke: g6Token('--g6-selected'), lineWidth: 3 },
+      active: { stroke: g6Token('--g6-hover'), lineWidth: 3 }
     }
   },
   edge: {
-    style: { stroke: '#4d5f8a', lineWidth: 1.5 },
+    style: { stroke: g6Token('--g6-node-stroke'), lineWidth: 1.5 },
     state: {
-      selected: { stroke: '#7c8cf8', lineWidth: 2.5 },
-      active: { stroke: '#a5b4fc', lineWidth: 2.5 }
+      selected: { stroke: g6Token('--g6-selected'), lineWidth: 2.5 },
+      active: { stroke: g6Token('--g6-hover'), lineWidth: 2.5 }
     }
   },
   behaviors: [

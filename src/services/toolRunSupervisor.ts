@@ -6,7 +6,7 @@ export type ToolRunSupervisorReason =
 export interface ToolRunSupervisorOptions {
   signal?: AbortSignal
   idleTimeoutMs?: number
-  hardDeadlineMs?: number
+  hardDeadlineMs?: number | null
   controller?: AbortController
   onStuck?: (event: {
     reason: ToolRunSupervisorReason
@@ -30,13 +30,17 @@ export type ToolRunSupervisor = ReturnType<typeof createToolRunSupervisor>
 export const DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS = 150_000
 export const DIRECT_TOOL_RUN_HARD_DEADLINE_MS = 300_000
 
-const readTestOverrides = (): { idleTimeoutMs?: number; hardDeadlineMs?: number } => {
+const readTestOverrides = (): { idleTimeoutMs?: number; hardDeadlineMs?: number | null } => {
   if (typeof window === 'undefined') return {}
   const overrides = (window as any).__SHENYI_TOOL_RUN_TEST_OVERRIDES__
   if (!overrides || typeof overrides !== 'object') return {}
   return {
     idleTimeoutMs: Number(overrides.idleTimeoutMs) > 0 ? Number(overrides.idleTimeoutMs) : undefined,
-    hardDeadlineMs: Number(overrides.hardDeadlineMs) > 0 ? Number(overrides.hardDeadlineMs) : undefined,
+    hardDeadlineMs: overrides.hardDeadlineMs === null
+      ? null
+      : Number(overrides.hardDeadlineMs) > 0
+        ? Number(overrides.hardDeadlineMs)
+        : undefined,
   }
 }
 
@@ -50,11 +54,14 @@ const readTestOverrides = (): { idleTimeoutMs?: number; hardDeadlineMs?: number 
 export function createToolRunSupervisor(options: ToolRunSupervisorOptions = {}) {
   const testOverrides = readTestOverrides()
   const idleTimeoutMs = options.idleTimeoutMs ?? testOverrides.idleTimeoutMs ?? DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS
-  const hardDeadlineMs = options.hardDeadlineMs ?? testOverrides.hardDeadlineMs ?? DIRECT_TOOL_RUN_HARD_DEADLINE_MS
+  const hardDeadlineMs = options.hardDeadlineMs !== undefined
+    ? options.hardDeadlineMs
+    : testOverrides.hardDeadlineMs ?? DIRECT_TOOL_RUN_HARD_DEADLINE_MS
   const startedAt = Date.now()
   let lastProgressAt = startedAt
   let lastErrorKey: string | null = null
   let repeatedErrorCount = 0
+  let lastErrorScope: string | number | null = null
   let idleTimer: ReturnType<typeof setTimeout> | null = null
   let hardTimer: ReturnType<typeof setTimeout> | null = null
   let disposed = false
@@ -86,7 +93,9 @@ export function createToolRunSupervisor(options: ToolRunSupervisorOptions = {}) 
     hardTimer = null
   }
 
-  hardTimer = setTimeout(() => dispatch('hard_deadline', '工具任务达到总上限，已自动中止'), hardDeadlineMs)
+  hardTimer = typeof hardDeadlineMs === 'number'
+    ? setTimeout(() => dispatch('hard_deadline', '工具任务达到总上限，已自动中止'), hardDeadlineMs)
+    : null
   scheduleIdle()
 
   return {
@@ -95,13 +104,22 @@ export function createToolRunSupervisor(options: ToolRunSupervisorOptions = {}) 
       lastProgressAt = Date.now()
       scheduleIdle()
     },
-    reportToolError(key: string, threshold = 3) {
+    /**
+     * Report a failed tool. `scope` identifies the model iteration (or another
+     * caller-defined batch): parallel failures inside one iteration count once,
+     * because a model can legitimately recover from them on the next request.
+     */
+    reportToolError(key: string, threshold = 3, scope?: string | number) {
       if (disposed) return
+      const sameScope = scope !== undefined && scope === lastErrorScope
+      if (sameScope && key === lastErrorKey) return
       if (key === lastErrorKey) repeatedErrorCount += 1
       else {
         lastErrorKey = key
         repeatedErrorCount = 1
       }
+      if (scope !== undefined) lastErrorScope = scope
+      else lastErrorScope = null
       if (repeatedErrorCount >= threshold) {
         dispatch('repeated_tool_error', `同一工具连续失败 ${repeatedErrorCount} 次，已自动中止`)
       }

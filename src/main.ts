@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
+import AppIcon from './components/common/AppIcon.vue'
 import './styles/tokens.css'
 import './styles/global.css'
 import './styles/base-components.css'
@@ -17,12 +18,17 @@ Object.assign(console, log.functions)
 import { DiagLogger } from './services/diag.js'
 DiagLogger.init()
 
+// Tooltip boundary controller: keeps CSS pseudo-element labels inside the viewport.
+import { initTooltipController } from './services/tooltipController'
+initTooltipController()
+
 // MCP protocol adapter: enable tool execution from renderer/window scope
 import { MCPProtocol } from './services/mcp-protocol'
 import { ToolRegistry } from './services/tool-registry'
 import { buildProviderModelsUrl, buildProviderHeaders } from './services/providerProtocols'
 // Intent router: jieba + TF-IDF + cosine for chain mode intent classification
-import { initIntentRouter, isIntentRouterDegraded } from './services/chainIntentRouter'
+import { initIntentRouter, isIntentRouterDegraded, warmupIntentRoutingEmbedding } from './services/chainIntentRouter'
+import { useDeAiStore } from './stores/deai'
 ;(globalThis as any).MCPProtocol = MCPProtocol
 ;(globalThis as any).ToolRegistry = ToolRegistry
 
@@ -91,10 +97,14 @@ if (!(window as any).electronAPI) {
     decrypt: (val: string) => {
       try { return decodeURIComponent(escape(atob(val))) } catch { return val }
     },
-    agentStatus: async (_target: string) => {
-      // Dev mode: return idle status
-      return { status: 'idle', message: 'No agents running in dev mode' }
-    }
+    agentStatus: async (_target: string) => [],
+    agentStateSave: async () => ({ ok: false, reason: 'browser' }),
+    agentCancel: async () => ({ ok: false, reason: 'browser' }),
+    agentCancelToken: async () => ({ ok: false, reason: 'browser' }),
+    agentCheckpointSave: async () => ({ ok: false, reason: 'browser' }),
+    agentCheckpointLoad: async () => ({ ok: false, reason: 'browser' }),
+    agentCheckpointList: async () => [],
+    agentRecover: async () => ({ ok: false, reason: 'browser', recovered: [] })
   }
 }
 
@@ -106,6 +116,9 @@ const pinia = createPinia()
 
 app.use(pinia)
 app.use(VueVirtualScroller)
+app.component('AppIcon', AppIcon)
+
+;(globalThis as any).__deAiStore = useDeAiStore(pinia)
 
 // Expose app instance for debugging/testing
 ;(globalThis as any).__app = app
@@ -119,5 +132,13 @@ initIntentRouter()
     }
   })
   .catch((e) => console.error('[chainIntentRouter] init failed:', e))
+
+// Warm the local embedding model after first paint. Low-confidence routing
+// still degrades safely while this runs; it must never block app startup.
+queueMicrotask(() => {
+  void warmupIntentRoutingEmbedding().catch((e) =>
+    console.warn('[chainIntentRouter] embedding warmup failed:', e),
+  )
+})
 
 app.mount('#app')

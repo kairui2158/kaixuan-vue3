@@ -42,6 +42,8 @@ export interface SkillRouteOptions {
   validateOutputSchema?: boolean
   tools?: RealSkillExecuteOptions['tools']
   toolPolicy?: RealSkillExecuteOptions['toolPolicy']
+  toolSurface?: RealSkillExecuteOptions['toolSurface']
+  activeEditTask?: RealSkillExecuteOptions['activeEditTask']
 }
 
 export interface SkillRouteResult {
@@ -133,7 +135,9 @@ export async function routeSkill(
     templateVariables: options.templateVariables,
     validateOutputSchema: options.validateOutputSchema,
     tools: options.tools,
-    toolPolicy: options.toolPolicy
+    toolPolicy: options.toolPolicy,
+    toolSurface: options.toolSurface,
+    activeEditTask: options.activeEditTask
   }
 
   if (probe.package.meta.executionMode === 'composite') {

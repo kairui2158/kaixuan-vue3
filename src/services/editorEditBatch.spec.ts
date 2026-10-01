@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { applyAcceptedItems, mergeRetriedCommands, planEditorEditBatch } from './editorEditBatch'
+import { applyAcceptedItems, planEditorEditBatch } from './editorEditBatch'
 import {
   buildEditorWriteProtocolPrompt,
   parseEditorEditBatch,
@@ -7,6 +7,7 @@ import {
   type EditorEditBatchCommand,
 } from './editorEditProtocol'
 import { createEditorTargetSnapshot } from './editorTarget'
+import { buildLongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
 
 const content = '第一段：男主出发。\n第二段：进入遗迹。\n第三段：拿到线索。'
 
@@ -42,6 +43,23 @@ describe('parseEditorEditBatch', () => {
     const many = Array.from({ length: 10 }, () => '{"operation":"append","content":"' + 'x'.repeat(6500) + '"}').join(',')
     expect(parseEditorEditBatch(`{"type":"editor_edit_batch","commands":[${many}]}`)).toBeNull()
   })
+
+  it('accepts replace_document only as a single-command document replacement', () => {
+    const single = parseEditorEditBatch([
+      '{"type":"editor_edit_batch","version":1,',
+      '"commands":[{"operation":"replace_document","content":"整理后的全文。"}],',
+      '"reason":"整理整篇文档"}'
+    ].join(''))
+    expect(single?.commands).toHaveLength(1)
+    expect(single?.commands[0]).toMatchObject({
+      operation: 'replace_document',
+      content: '整理后的全文。'
+    })
+
+    expect(parseEditorEditBatch('{"type":"editor_edit_batch","commands":[{"operation":"replace_document","content":"新全文"},{"operation":"append","content":"x"}]}')).toBeNull()
+    expect(parseEditorEditBatch('{"type":"editor_edit_batch","commands":[{"operation":"replace_document","target":"第一段","content":"新全文"}]}')).toBeNull()
+    expect(parseEditorEditBatch('{"type":"editor_edit_batch","commands":[{"operation":"replace_document"}]}')).toBeNull()
+  })
 })
 
 describe('editor.write JSON compatibility protocol', () => {
@@ -73,6 +91,31 @@ describe('editor.write JSON compatibility protocol', () => {
     expect(prompt).toContain('"tool":"editor.write"')
     expect(prompt).toContain('1-10 条')
     expect(prompt).toContain('定位可靠性较低')
+  })
+
+  it('binds JSON protocol guidance to the execution plan operation allowlist', () => {
+    const finalDraftPrompt = buildEditorWriteProtocolPrompt(buildLongDocumentExecutionPlan({
+      requestText: '把整篇大纲重新整理排序',
+      content: `# 第一卷\n\n${'雨'.repeat(12_000)}\n\n# 第二卷\n\n${'雨'.repeat(12_000)}`,
+      contextWindowTokens: 128_000,
+      maxOutputTokens: 8_192,
+    }))
+    expect(finalDraftPrompt).toContain('当前请求处于终稿生成模式')
+    expect(finalDraftPrompt).not.toContain('"tool":"editor.write"')
+    expect(finalDraftPrompt).not.toContain('当前允许的写入操作：')
+
+    const normalizePlan = {
+      ...buildLongDocumentExecutionPlan({
+        requestText: '整理整篇大纲的标点符号和格式',
+        content: Array.from({ length: 12 }, (_, index) => `# 第${index + 1}卷\n\n${'雨'.repeat(2_000)}\n\n`).join(''),
+        contextWindowTokens: 12_000,
+        maxOutputTokens: 4_096,
+      }),
+      mode: 'edit-task',
+    } as const
+    const normalizePrompt = buildEditorWriteProtocolPrompt(normalizePlan)
+    expect(normalizePrompt).toContain('当前允许的写入操作：replace_match|rewrite')
+    expect(normalizePrompt).toContain('禁止整篇 replace_document')
   })
 })
 
@@ -109,7 +152,7 @@ describe('planEditorEditBatch', () => {
     expect(plan.next).toBe(content)
   })
 
-  it('diagnoses partial failures without weakening batch atomicity', () => {
+  it('diagnoses preflight failures without weakening batch atomicity', () => {
     const target = createTarget()
     const plan = planEditorEditBatch({
       type: 'editor_edit_batch',
@@ -134,9 +177,11 @@ describe('planEditorEditBatch', () => {
     })
     expect(JSON.parse(plan.diagnostics?.retryCommand?.content || '{}')).toMatchObject({
       failedIndexes: [1],
-      keepIndexes: [0]
+      repair: '请整批重新提交修正后的命令'
     })
-    expect(plan.diagnostics?.retryCommand?.reason).toContain('只重提失败条目')
+    expect(plan.diagnostics?.retryCommand?.reason).toContain('必须整批重提')
+    expect(plan.diagnostics?.summary).toContain('原文保持不变')
+    expect(plan.diagnostics?.summary).toContain('预演通过条目未写入')
   })
 
   it('protects target identity and snapshot version', () => {
@@ -176,60 +221,73 @@ describe('planEditorEditBatch', () => {
     expect(accepted.items).toHaveLength(1)
   })
 
-  it('merges retried commands while revalidating the whole batch', () => {
+  it('moves a unique fragment as one atomic command', () => {
     const target = createTarget()
-    const originalBatch: EditorEditBatchCommand = {
-      type: 'editor_edit_batch' as const,
+    const plan = planEditorEditBatch({
+      type: 'editor_edit_batch',
       version: 1,
-      commands: [
-        { type: 'editor_edit' as const, version: 1, operation: 'replace_match' as const, content: '禁地', target: '遗迹' },
-        { type: 'editor_edit' as const, version: 1, operation: 'delete' as const, target: '不存在的线索' },
-        { type: 'editor_edit' as const, version: 1, operation: 'append' as const, content: '尾声' },
-      ],
-    }
-    const failed = planEditorEditBatch(originalBatch, target, { content })
-    expect(failed.ok).toBe(false)
-    expect(failed.diagnostics?.succeededIndexes).toEqual([0])
-
-    const merged = mergeRetriedCommands(
-      originalBatch,
-      failed.diagnostics?.succeededIndexes || [],
-      [
-        { type: 'editor_edit', version: 1, operation: 'delete', target: '拿到线索' },
-        { type: 'editor_edit', version: 1, operation: 'append', content: '尾声' },
-      ],
-      target,
-      { content }
-    )
-    expect(merged.ok).toBe(true)
-    expect(merged.next).toBe('第一段：男主出发。\n第二段：进入禁地。\n第三段：。\n尾声')
-    expect(merged.items.map(item => item.index)).toEqual([0, 1, 2])
-    expect(merged.reason).toContain('重新校验')
+      commands: [{
+        type: 'editor_edit',
+        version: 1,
+        operation: 'move',
+        target: '第三段：拿到线索。',
+        destination: '第一段：男主出发。',
+        destinationPosition: 'before',
+        reason: '把第三段移动到开头',
+      }],
+    }, target, { content })
+    expect(plan.ok).toBe(true)
+    expect(plan.items).toHaveLength(1)
+    expect(plan.next).toBe('第三段：拿到线索。\n第一段：男主出发。\n第二段：进入遗迹。')
   })
 
-  it('rejects mismatched retry counts without partial application', () => {
+  it('plans a single replace_document as a complete document replacement', () => {
     const target = createTarget()
-    const originalBatch: EditorEditBatchCommand = {
-      type: 'editor_edit_batch' as const,
+    const next = '整理后的第一段。\n整理后的第二段。\n整理后的第三段。'
+    const plan = planEditorEditBatch({
+      type: 'editor_edit_batch',
       version: 1,
-      commands: [
-        { type: 'editor_edit' as const, version: 1, operation: 'replace_match' as const, content: '禁地', target: '遗迹' },
-        { type: 'editor_edit' as const, version: 1, operation: 'delete' as const, target: '不存在的线索' },
-      ],
-    }
-    const failed = planEditorEditBatch(originalBatch, target, { content })
+      commands: [{
+        type: 'editor_edit',
+        version: 1,
+        operation: 'replace_document',
+        content: next,
+        reason: '整理整篇文档',
+      }],
+    }, target, { content })
 
-    const merged = mergeRetriedCommands(
-      originalBatch,
-      failed.diagnostics?.succeededIndexes || [],
-      [],
-      target,
-      { content }
-    )
-    expect(merged.ok).toBe(false)
-    expect(merged.failureReason).toBe('invalid_command')
-    expect(merged.items).toHaveLength(0)
-    expect(merged.next).toBe(content)
-    expect(merged.diagnostics?.summary).toContain('重提命令数量不匹配')
+    expect(plan.ok).toBe(true)
+    expect(plan.next).toBe(next)
+    expect(plan.original).toBe(content)
+    expect(plan.items).toHaveLength(1)
+  })
+
+  it('rejects a move when target or destination is ambiguous and keeps text unchanged', () => {
+    const target = createTarget()
+    const ambiguousContent = content + '\n重复片段\n重复片段'
+    const ambiguousTarget = createEditorTargetSnapshot({
+      workspace: 'main',
+      targetId: 'tab-1',
+      label: '第一章',
+      chapterId: 'chapter-1',
+      mode: 'ch-body',
+      content: ambiguousContent,
+    })
+    const plan = planEditorEditBatch({
+      type: 'editor_edit_batch',
+      version: 1,
+      commands: [{
+        type: 'editor_edit',
+        version: 1,
+        operation: 'move',
+        target: '男主出发',
+        destination: '重复片段',
+        destinationPosition: 'after',
+      }],
+    }, ambiguousTarget, { content: ambiguousContent })
+    expect(plan.ok).toBe(false)
+    expect(plan.failureReason).toBe('ambiguous_target')
+    expect(plan.next).toBe(ambiguousContent)
+    expect(plan.items).toHaveLength(0)
   })
 })

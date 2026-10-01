@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div v-if="naming.visible.value" class="naming-overlay" :style="{ zIndex: modalQueue.getZIndex('ai-naming') }" @click.self="handleOverlayClick">
+    <div v-if="naming.visible.value" data-modal-id="ai-naming" class="modal-overlay" :style="{ zIndex: modalQueue.getZIndex('ai-naming') }" @click.self="handleOverlayClick">
       <section
         class="naming-modal"
         role="dialog"
@@ -14,7 +14,7 @@
             <h3 id="naming-modal-title" class="naming-modal-title">AI 命名工作台</h3>
             <span class="naming-modal-sub">为你的世界，找到恰到好处的名字</span>
           </div>
-          <button class="btn-close naming-close" aria-label="关闭" @click="handleClose">×</button>
+          <button class="btn-close naming-close" aria-label="关闭" @click="handleClose"><AppIcon name="x" /></button>
         </header>
 
         <nav class="naming-tabs" aria-label="命名类别">
@@ -132,10 +132,12 @@
               </div>
 
               <!-- 空状态 -->
-              <div v-if="!naming.isLoading.value && !naming.hasResults.value && !naming.hasError.value" class="naming-empty">
-                <div class="naming-empty-icon">✦</div>
-                <div class="naming-empty-text">填写命名条件后，点击下方按钮开始生成</div>
-              </div>
+              <EmptyState
+                v-if="!naming.isLoading.value && !naming.hasResults.value && !naming.hasError.value"
+                icon="spark"
+                title="还没有生成结果"
+                description="填写命名条件后，点击下方按钮开始生成"
+              />
 
               <!-- 结果卡片 -->
               <article
@@ -167,16 +169,16 @@
                   <button
                     class="naming-icon-btn"
                     :class="{ fav: naming.isFavorited(item) }"
-                    :title="naming.isFavorited(item) ? '取消收藏' : '收藏'"
+                    :data-tooltip="naming.isFavorited(item) ? '取消收藏' : '收藏'"
                     @click="naming.toggleFavorite(item)"
                   >{{ naming.isFavorited(item) ? '★' : '☆' }}</button>
-                  <button class="naming-icon-btn" title="复制" @click="handleCopy(item)">⧉</button>
-                  <button class="naming-icon-btn" title="重新生成" :disabled="naming.isLoading.value" @click="naming.doRegenerateSingle(idx)">↻</button>
-                  <button class="naming-icon-btn naming-insert-btn" title="插入编辑器光标处" @click="naming.insertToEditor(item)">↥</button>
+                  <button class="naming-icon-btn" data-tooltip="复制" @click="handleCopy(item)">⧉</button>
+                  <button class="naming-icon-btn" data-tooltip="重新生成" :disabled="naming.isLoading.value" @click="naming.doRegenerateSingle(idx)">↻</button>
+                  <button class="naming-icon-btn naming-insert-btn" data-tooltip="插入编辑器光标处" @click="naming.insertToEditor(item)">↥</button>
                   <button
                     v-if="naming.openOptions.value?.target && naming.openOptions.value.target.selectionStart !== naming.openOptions.value.target.selectionEnd"
                     class="naming-icon-btn naming-insert-btn"
-                    title="替换选中文本"
+                    data-tooltip="替换选中文本"
                     @click="naming.replaceSelection(item)"
                   >⇄</button>
                 </div>
@@ -185,10 +187,12 @@
 
             <!-- 收藏子标签 -->
             <div v-show="subTab === 'favorites'" class="naming-results-scroll">
-              <div v-if="!naming.favorites.value.length" class="naming-empty">
-                <div class="naming-empty-icon">☆</div>
-                <div class="naming-empty-text">还没有收藏的名字</div>
-              </div>
+              <EmptyState
+                v-if="!naming.favorites.value.length"
+                icon="star"
+                title="还没有收藏的名字"
+                description="生成后点击结果卡片中的收藏，名字会保存在这里"
+              />
               <article
                 v-for="item in naming.favorites.value"
                 :key="item.id"
@@ -200,19 +204,21 @@
                   <div v-if="item.usage" class="naming-result-usage">适用场景：{{ item.usage }}</div>
                 </div>
                 <div class="naming-result-actions">
-                  <button class="naming-icon-btn fav" title="取消收藏" @click="naming.toggleFavorite(item)">★</button>
-                  <button class="naming-icon-btn" title="复制" @click="handleCopy(item)">⧉</button>
-                  <button class="naming-icon-btn naming-insert-btn" title="插入编辑器" @click="naming.insertToEditor(item)">↥</button>
+                  <button class="naming-icon-btn fav" data-tooltip="取消收藏" @click="naming.toggleFavorite(item)">★</button>
+                  <button class="naming-icon-btn" data-tooltip="复制" @click="handleCopy(item)">⧉</button>
+                  <button class="naming-icon-btn naming-insert-btn" data-tooltip="插入编辑器" @click="naming.insertToEditor(item)">↥</button>
                 </div>
               </article>
             </div>
 
             <!-- 历史子标签 -->
             <div v-show="subTab === 'history'" class="naming-results-scroll">
-              <div v-if="!naming.history.value.length" class="naming-empty">
-                <div class="naming-empty-icon">⌚</div>
-                <div class="naming-empty-text">还没有历史记录</div>
-              </div>
+              <EmptyState
+                v-if="!naming.history.value.length"
+                icon="history"
+                title="还没有历史记录"
+                description="完成一次命名生成后，历史会自动记录在这里"
+              />
               <div class="naming-history-toolbar">
                 <button v-if="naming.history.value.length" class="btn-sm btn-danger" @click="confirmClearHistory">清空历史</button>
               </div>
@@ -225,10 +231,10 @@
                   <span class="naming-history-type">{{ getTypeLabel(rec.request.type) }}</span>
                   <span class="naming-hist-results">{{ rec.results.length }} 个结果</span>
                   <span class="naming-history-time">{{ formatTime(rec.createdAt) }}</span>
-                  <button class="naming-icon-btn" title="恢复" @click="restoreHistory(rec.id)">↻</button>
+                  <button class="naming-icon-btn" data-tooltip="恢复" @click="restoreHistory(rec.id)">↻</button>
                 </div>
                 <div class="naming-hist-names">
-                  <span v-for="r in rec.results" :key="r.id" class="naming-hist-name-tag" :title="r.meaning">{{ r.name }}</span>
+                  <span v-for="r in rec.results" :key="r.id" class="naming-hist-name-tag" :data-tooltip="r.meaning">{{ r.name }}</span>
                 </div>
               </article>
             </div>
@@ -256,6 +262,8 @@ import { useAiNaming } from '../../composables/useAiNaming'
 import { useAppConfirm } from '../../composables/useAppConfirm'
 import { NAMING_TYPE_LABELS, type NamingType } from '../../types/aiNaming'
 import { useModalQueue } from '../../composables/useModalQueue'
+import EmptyState from '../common/EmptyState.vue'
+import { toast } from '../../services/toastService'
 
 const naming = useAiNaming()
 const appConfirm = useAppConfirm()
@@ -288,12 +296,7 @@ async function handleCopy(item: { name: string; meaning: string }) {
   const text = `${item.name} — ${item.meaning}`
   const ok = await naming.copyToClipboard(text)
   if (ok) {
-    // 简单 toast 提示
-    const el = document.createElement('div')
-    el.textContent = '已复制'
-    el.style.cssText = 'position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:var(--success);color:#fff;padding: var(--space-3) var(--space-6);border-radius:var(--radius-sm);z-index:9999;font-size:13px;pointer-events:none;opacity:1;transition:opacity .3s'
-    document.body.appendChild(el)
-    setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300) }, 1200)
+    toast.success('已复制到剪贴板')
   }
 }
 
@@ -346,13 +349,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.naming-overlay {
-  position: fixed; inset: 0;
-  background: rgba(3, 4, 6, 0.72);
-  backdrop-filter: var(--glass-blur) var(--glass-saturate); -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-  z-index: var(--z-modal-high, 1500);
-  display: flex; align-items: center; justify-content: center;
-}
 
 .naming-modal {
   position: relative;
@@ -361,8 +357,8 @@ onBeforeUnmount(() => {
   display: flex; flex-direction: column;
   background: var(--bg-primary);
   border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg, 12px);
-  box-shadow: var(--shadow-);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 
@@ -380,28 +376,30 @@ onBeforeUnmount(() => {
   display: grid; place-items: center;
   color: var(--accent);
   border: 1px solid var(--accent-dim);
-  border-radius: var(--radius-sm, 6px);
+  border-radius: var(--radius-sm);
   background: var(--accent-soft);
-  font-size: 15px;
+  font-size: var(--font-size-body);
 }
-.naming-modal-title { margin: 0; font-size: var(--font-size-lg, 16px); font-weight: 600; color: var(--text-primary); }
-.naming-modal-sub { margin-left: 4px; color: var(--text-muted); font-size: var(--font-size-xs, 12px); }
+.naming-modal-title { margin: 0; font-size: var(--font-size-lg); font-weight: 600; color: var(--text-primary); }
+.naming-modal-sub { margin-left: 4px; color: var(--text-muted); font-size: var(--font-size-xs); }
 .naming-close { margin-left: auto; }
 
 .naming-tabs {
-  display: flex; gap: var(--space-1);
+  display: flex; gap: var(--space-1); min-width: 0;
+  overflow-x: auto; scrollbar-width: thin;
   padding: var(--space-5) var(--space-7) 0;
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
 }
 .naming-tab {
+  flex: 0 0 auto; min-width: 0; max-width: 100%;
   padding: var(--space-4) var(--space-5) var(--space-5);
   color: var(--text-muted);
   border: 0; border-bottom: 2px solid transparent;
   background: transparent;
   cursor: pointer;
-  font-size: var(--font-size-sm, 13px);
-  transition: color var(--transition-fast, var(--duration-fast) var(--ease-standard)), border-color var(--transition-fast, var(--duration-fast) var(--ease-standard));
+  font-size: var(--font-size-sm);
+  transition: color var(--transition-fast), border-color var(--transition-fast);
 }
 .naming-tab:hover { color: var(--text-secondary); }
 .naming-tab.active { color: var(--text-primary); border-bottom-color: var(--accent); }
@@ -419,19 +417,18 @@ onBeforeUnmount(() => {
   border-right: 1px solid var(--border-color);
   overflow-y: auto;
 }
-.naming-section-label { margin: 0 0 var(--space-3); color: var(--text-primary); font-size: var(--font-size-sm, 13px); font-weight: 600; }
-.naming-field-label { display: block; margin: var(--space-5) 0 var(--space-2); color: var(--text-muted); font-size: var(--font-size-xs, 12px); }
+.naming-section-label { margin: 0 0 var(--space-3); color: var(--text-primary); font-size: var(--font-size-sm); font-weight: 600; }
+.naming-field-label { display: block; margin: var(--space-5) 0 var(--space-2); color: var(--text-muted); font-size: var(--font-size-xs); }
 
 .naming-input {
   width: 100%;
   resize: none;
   border: 1px solid var(--border-light);
-  border-radius: var(--radius-xs, 4px);
-  outline: none;
+  border-radius: var(--radius-xs);
   color: var(--text-primary);
   background: var(--bg-input);
   padding: var(--space-4) var(--space-4);
-  font-size: var(--font-size-sm, 13px);
+  font-size: var(--font-size-sm);
   font-family: inherit;
 }
 .naming-input:focus { border-color: var(--accent); box-shadow: var(--shadow-focus-ring); }
@@ -439,43 +436,39 @@ onBeforeUnmount(() => {
 
 .naming-control-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
 .naming-control-cell { display: flex; flex-direction: column; }
-.naming-stepper { display: flex; height: 32px; }
-.naming-step-btn { width: 30px; color: var(--text-muted); background: var(--bg-tertiary); border: 1px solid var(--border-light); cursor: pointer; font-size: 16px; }
-.naming-step-input { flex: 1; border: 0; border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); text-align: center; background: var(--bg-input); color: var(--text-primary); outline: none; font-size: var(--font-size-sm, 13px); min-width: 0; padding: 0; }
+.naming-stepper { display: flex; height: var(--density-btn-md-height); }
+.naming-step-btn { width: 30px; color: var(--text-muted); background: var(--bg-tertiary); border: 1px solid var(--border-light); cursor: pointer; font-size: var(--font-size-lg); }
+.naming-step-input { flex: 1; border: 0; border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); text-align: center; background: var(--bg-input); color: var(--text-primary); font-size: var(--font-size-sm); min-width: 0; padding: 0; }
 .naming-length-input { text-align: center; }
 
-.naming-hint { margin-top: 12px; color: var(--text-muted); font-size: var(--font-size-xxs, 11px); line-height: 1.65; }
+.naming-hint { margin-top: 12px; color: var(--text-muted); font-size: var(--font-size-xxs); line-height: 1.65; }
 
 .naming-results-area { display: flex; flex-direction: column; min-height: 0; }
 
 .naming-sub-tabs { display: flex; gap: var(--space-1); padding: var(--space-5) var(--space-6) 0; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
-.naming-sub-tab { padding: var(--space-3) var(--space-5) var(--space-4); color: var(--text-muted); border: 0; border-bottom: 2px solid transparent; background: transparent; cursor: pointer; font-size: var(--font-size-xs, 12px); }
+.naming-sub-tab { padding: var(--space-3) var(--space-5) var(--space-4); color: var(--text-muted); border: 0; border-bottom: 2px solid transparent; background: transparent; cursor: pointer; font-size: var(--font-size-xs); }
 .naming-sub-tab.active { color: var(--text-primary); border-bottom-color: var(--accent); }
-.naming-badge { display: inline-block; margin-left: 4px; min-width: 16px; height: 14px; line-height: 14px; text-align: center; font-size: 10px; color: var(--accent); }
+.naming-badge { display: inline-block; margin-left: 4px; min-width: 16px; height: 14px; line-height: 14px; text-align: center; font-size: var(--font-size-micro); color: var(--accent); }
 
 .naming-results-scroll { flex: 1; overflow-y: auto; padding: var(--space-5) var(--space-6); overscroll-behavior: contain; }
 
 .naming-results-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.naming-results-title { font-size: var(--font-size-sm, 13px); font-weight: 600; color: var(--text-primary); }
+.naming-results-title { font-size: var(--font-size-sm); font-weight: 600; color: var(--text-primary); }
 .naming-results-count { color: var(--text-muted); font-weight: 400; }
-.naming-status { display: flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-xxs, 11px); }
+.naming-status { display: flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-xxs); }
 .naming-status-ok { color: var(--success); }
 .naming-status-err { color: var(--danger); }
 .naming-status-muted { color: var(--text-muted); }
 .naming-status-loading { color: var(--accent); }
 .naming-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); box-shadow: 0 0 8px var(--success); }
 
-.naming-error-box { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-5) var(--space-5); margin-bottom: 10px; background: var(--danger-dim); border: 1px solid var(--danger); border-radius: var(--radius-sm, 6px); }
-.naming-error-text { color: var(--danger); font-size: var(--font-size-sm, 13px); }
+.naming-error-box { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-5) var(--space-5); margin-bottom: 10px; background: var(--danger-dim); border: 1px solid var(--danger); border-radius: var(--radius-sm); }
+.naming-error-text { color: var(--danger); font-size: var(--font-size-sm); }
 
 .naming-loading-area { }
-.naming-skeleton-card { padding: var(--space-5) var(--space-5); margin-bottom: 8px; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-sm, 6px); }
+.naming-skeleton-card { padding: var(--space-5) var(--space-5); margin-bottom: 8px; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-sm); }
 .naming-skeleton-name { height: 20px; width: 60%; background: var(--bg-tertiary); border-radius: var(--radius-xs); margin-bottom: 8px; }
 .naming-skeleton-line { height: 12px; width: 90%; background: var(--bg-tertiary); border-radius: var(--radius-xs); }
-
-.naming-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-4); padding: var(--space-10) 0; color: var(--text-muted); }
-.naming-empty-icon { font-size: 28px; opacity: 0.4; }
-.naming-empty-text { font-size: var(--font-size-sm, 13px); }
 
 .naming-result-card {
   display: grid;
@@ -485,53 +478,53 @@ onBeforeUnmount(() => {
   padding: var(--space-5) var(--space-5);
   background: var(--bg-elevated);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm, 6px);
+  border-radius: var(--radius-sm);
 }
 .naming-result-card:hover { border-color: var(--accent-dim); }
 
 .naming-result-main { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
 .naming-result-name-input {
-  width: 100%; border: 0; background: transparent; outline: none;
-  font: 20px var(--font-family-editor, serif); color: var(--text-primary);
+  width: 100%; border: 0; background: transparent;
+  font: 20px var(--font-family-editor); color: var(--text-primary);
   letter-spacing: 0.04em; padding: 0; user-select: text; cursor: text;
 }
 .naming-result-meaning-input {
-  width: 100%; border: 0; background: transparent; outline: none;
-  color: var(--text-secondary); font-size: var(--font-size-xs, 12px); padding: 0; user-select: text; cursor: text;
+  width: 100%; border: 0; background: transparent;
+  color: var(--text-secondary); font-size: var(--font-size-xs); padding: 0; user-select: text; cursor: text;
 }
 .naming-result-usage-input {
-  width: 100%; border: 0; background: transparent; outline: none;
-  color: var(--text-muted); font-size: var(--font-size-xxs, 11px); padding: 0; user-select: text; cursor: text;
+  width: 100%; border: 0; background: transparent;
+  color: var(--text-muted); font-size: var(--font-size-xxs); padding: 0; user-select: text; cursor: text;
 }
 
-.naming-result-name { font: 20px var(--font-family-editor, serif); color: var(--text-primary); letter-spacing: 0.04em; user-select: text; cursor: text; }
-.naming-result-meaning { color: var(--text-secondary); font-size: var(--font-size-xs, 12px); user-select: text; cursor: text; }
-.naming-result-usage { color: var(--text-muted); font-size: var(--font-size-xxs, 11px); padding-top: 2px; user-select: text; cursor: text; }
+.naming-result-name { font: 20px var(--font-family-editor); color: var(--text-primary); letter-spacing: 0.04em; user-select: text; cursor: text; }
+.naming-result-meaning { color: var(--text-secondary); font-size: var(--font-size-xs); user-select: text; cursor: text; }
+.naming-result-usage { color: var(--text-muted); font-size: var(--font-size-xxs); padding-top: 2px; user-select: text; cursor: text; }
 
 .naming-result-actions { display: flex; align-items: flex-start; gap: var(--space-3); flex-shrink: 0; }
 .naming-icon-btn {
   width: 26px; height: 26px;
-  border: 0; border-radius: var(--radius-xs, 4px);
+  border: 0; border-radius: var(--radius-xs);
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--font-size-md);
   display: grid; place-items: center;
-  transition: color var(--transition-fast, var(--duration-fast) var(--ease-standard)), background var(--transition-fast, var(--duration-fast) var(--ease-standard));
+  transition: color var(--transition-fast), background var(--transition-fast);
 }
 .naming-icon-btn:hover { color: var(--text-primary); background: var(--bg-hover); }
-.naming-icon-btn.fav { color: var(--warning); background: rgba(240,160,80,0.1); }
+.naming-icon-btn.fav { color: var(--warning); background: var(--warning-dim); }
 .naming-icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .naming-insert-btn { color: var(--accent); }
 
 .naming-history-toolbar { margin-bottom: 8px; display: flex; justify-content: flex-end; }
-.naming-history-card { padding: var(--space-5) var(--space-5); margin-bottom: 8px; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-sm, 6px); }
+.naming-history-card { padding: var(--space-5) var(--space-5); margin-bottom: 8px; background: var(--bg-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-sm); }
 .naming-history-head { display: flex; align-items: center; gap: var(--space-4); margin-bottom: 6px; }
-.naming-history-type { font-size: var(--font-size-xs, 12px); font-weight: 600; color: var(--accent); }
-.naming-hist-results { font-size: var(--font-size-xxs, 11px); color: var(--text-muted); }
-.naming-history-time { font-size: var(--font-size-xxs, 11px); color: var(--text-muted); margin-left: auto; }
+.naming-history-type { font-size: var(--font-size-xs); font-weight: 600; color: var(--accent); }
+.naming-hist-results { font-size: var(--font-size-xxs); color: var(--text-muted); }
+.naming-history-time { font-size: var(--font-size-xxs); color: var(--text-muted); margin-left: auto; }
 .naming-hist-names { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.naming-hist-name-tag { display: inline-block; padding: var(--space-1) var(--space-4); background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-xs, 4px); font-size: var(--font-size-xxs, 11px); color: var(--text-secondary); cursor: default; user-select: text; }
+.naming-hist-name-tag { display: inline-block; padding: var(--space-1) var(--space-4); background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-xs); font-size: var(--font-size-xxs); color: var(--text-secondary); cursor: default; user-select: text; }
 
 .naming-modal-footer {
   min-height: 56px;
@@ -541,17 +534,21 @@ onBeforeUnmount(() => {
   background: var(--bg-secondary);
   flex-shrink: 0;
 }
-.naming-footer-note { color: var(--text-muted); font-size: var(--font-size-xxs, 11px); }
+.naming-footer-note { color: var(--text-muted); font-size: var(--font-size-xxs); }
 .naming-footer-actions { display: flex; gap: var(--space-4); }
 
-.btn { height: 32px; padding: 0 var(--space-5); border-radius: var(--radius-sm, 6px); border: 1px solid var(--border-light); color: var(--text-secondary); background: var(--bg-tertiary); cursor: pointer; font-size: var(--font-size-sm, 13px); }
+.btn { height: var(--density-btn-md-height); padding: 0 var(--space-5); border-radius: var(--radius-sm); border: 1px solid var(--border-light); color: var(--text-secondary); background: var(--bg-tertiary); cursor: pointer; font-size: var(--font-size-sm); }
 .btn:hover { border-color: var(--accent-dim); color: var(--text-primary); }
 .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--text-on-accent); font-weight: 600; }
 .btn-primary:hover { background: var(--accent-hover); }
-.btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+.btn-danger { background: var(--danger); border-color: var(--danger); color: var(--text-on-accent); }
 
 @media (max-width: 760px) {
   .naming-body { grid-template-columns: 1fr; }
-  .naming-controls { display: none; }
+  .naming-controls {
+    border-right: 0;
+    border-bottom: 1px solid var(--border-color);
+    max-height: 42%;
+  }
 }
 </style>

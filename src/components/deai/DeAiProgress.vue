@@ -1,5 +1,5 @@
 <template>
-  <div class="deai-progress-overlay" :style="{ zIndex: modalQueue.getZIndex('deai-progress') }">
+  <div data-modal-id="deai-progress" class="modal-overlay" :style="{ zIndex: modalQueue.getZIndex('deai-progress') }">
     <div class="deai-progress-modal">
       <div class="deai-progress-header">
         <span>去AI味处理中</span>
@@ -84,20 +84,11 @@ function getStepStatusText(index: number): string {
 </script>
 
 <style scoped>
-.deai-progress-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: var(--bg-overlay);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
 .deai-progress-modal {
   width: min(540px, 92vw);
-  background: var(--bg-elevated, var(--bg-tertiary));
+  background: var(--bg-elevated);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md, 12px);
+  border-radius: var(--radius-md);
   padding: var(--space-8);
   box-shadow: var(--shadow-lg);
 }
@@ -105,13 +96,13 @@ function getStepStatusText(index: number): string {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-md, 16px);
-  font-size: var(--font-size-lg, 16px);
-  font-weight: var(--fw-semibold, 600);
+  margin-bottom: var(--space-6);
+  font-size: var(--font-size-lg);
+  font-weight: var(--fw-semibold);
 }
 .deai-percent {
-  font-size: var(--font-size-lg, 16px);
-  font-weight: var(--fw-semibold, 600);
+  font-size: var(--font-size-lg);
+  font-weight: var(--fw-semibold);
   color: var(--accent);
 }
 /* progress bar */
@@ -121,7 +112,7 @@ function getStepStatusText(index: number): string {
   background: var(--bg-tertiary);
   border-radius: var(--radius-sm);
   overflow: hidden;
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-4);
 }
 .deai-progress-fill {
   height: 100%;
@@ -134,40 +125,40 @@ function getStepStatusText(index: number): string {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-md, 16px);
+  margin-bottom: var(--space-6);
 }
 .deai-progress-step {
-  font-size: var(--font-size-sm, 13px);
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
 }
 .deai-error {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  margin: 0 0 var(--space-md, var(--space-6));
+  margin: 0 0 var(--space-6);
   padding: var(--space-5) var(--space-5);
   border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
-  border-radius: var(--radius-sm, 6px);
+  border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--danger) 10%, transparent);
   color: var(--danger);
-  font-size: var(--font-size-sm, 13px);
+  font-size: var(--font-size-sm);
   line-height: 1.5;
 }
-.deai-error strong { font-weight: var(--fw-semibold, 600); }
+.deai-error strong { font-weight: var(--fw-semibold); }
 /* step list with dot indicators - matches old arch style.css L7370-7385 */
 .deai-step-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs, var(--space-2));
-  margin-bottom: var(--space-md, 16px);
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
 }
 .deai-step-item {
   display: flex;
   align-items: center;
-  gap: var(--space-sm, var(--space-4));
-  padding: var(--space-xs, var(--space-2)) var(--space-sm, var(--space-4));
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-sm);
-  font-size: var(--font-size-sm, 13px);
+  font-size: var(--font-size-sm);
 }
 .deai-step-item .deai-step-dot {
   width: 10px;
@@ -182,7 +173,7 @@ function getStepStatusText(index: number): string {
   color: var(--text-secondary);
 }
 .deai-step-item .deai-step-status {
-  font-size: var(--font-size-xs, 12px);
+  font-size: var(--font-size-xs);
   color: var(--text-muted);
 }
 /* pending state */
@@ -194,11 +185,11 @@ function getStepStatusText(index: number): string {
 .deai-step-item.active .deai-step-dot {
   border-color: var(--accent);
   background: var(--accent);
-  animation: deai-pulse 1s ease-in-out infinite;
+  animation: deai-pulse var(--duration-pulse) var(--ease-standard) infinite;
 }
 .deai-step-item.active .deai-step-label {
   color: var(--text-primary);
-  font-weight: var(--fw-medium, 500);
+  font-weight: var(--fw-medium);
 }
 .deai-step-item.active .deai-step-status {
   color: var(--accent);

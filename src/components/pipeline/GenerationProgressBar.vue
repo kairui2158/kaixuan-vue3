@@ -87,24 +87,24 @@ function stepStatusLabel(status: SkillStepStatus) {
 .pl-gen-bar-track {
   flex: 1 1 auto;
   height: 6px;
-  border-radius: 3px;
-  background: var(--bg-tertiary);
+  border-radius: var(--radius-2xs);
+  background: var(--pipeline-progress-track);
   overflow: hidden;
 }
 .pl-gen-bar-fill {
   height: 100%;
   border-radius: inherit;
-  background: var(--accent, #4a9);
-  transition: width 180ms ease;
+  background: var(--pipeline-progress-value);
+  transition: width var(--duration-progress) var(--ease-standard);
 }
 .pl-gen-bar-percent {
   flex: 0 0 auto;
-  font-size: var(--font-size-xs, 12px);
+  font-size: var(--font-size-xs);
   color: var(--text-secondary);
 }
 .pl-gen-bar-status {
   flex: 1 1 auto;
-  font-size: var(--font-size-sm, 13px);
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
@@ -113,14 +113,14 @@ function stepStatusLabel(status: SkillStepStatus) {
 .pl-gen-bar-cancel, .pl-gen-bar-close {
   flex: 0 0 auto;
   border: none;
-  border-radius: var(--radius-xs, 4px);
+  border-radius: var(--radius-xs);
   padding: var(--space-2) var(--space-5);
-  font-size: var(--font-size-xs, 12px);
+  font-size: var(--font-size-xs);
   cursor: pointer;
 }
 .pl-gen-bar-cancel {
-  background: var(--danger, #e44);
-  color: #fff;
+  background: var(--danger);
+  color: var(--text-on-accent);
 }
 .pl-gen-bar-close {
   background: var(--bg-tertiary);
@@ -139,35 +139,35 @@ function stepStatusLabel(status: SkillStepStatus) {
   padding: var(--space-2) var(--space-5);
   margin: 0 auto;
   width: fit-content;
-  font-size: var(--font-size-xs, 12px);
-  color: var(--accent, #4a9);
-  background: var(--accent-dim, rgba(74,169,153,0.12));
-  border: 1px solid var(--accent, #4a9);
-  border-radius: var(--radius-sm, 6px);
+  font-size: var(--font-size-xs);
+  color: var(--accent);
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   user-select: none;
-  transition: all 150ms ease;
+  transition: all var(--duration-fast) var(--ease-standard);
 }
 .pl-gen-bar-stream-toggle:hover {
   filter: brightness(1.15);
 }
 .pl-gen-bar-stream-toggle-active {
-  background: var(--accent, #4a9);
-  color: var(--text-on-accent, #fff);
+  background: var(--accent);
+  color: var(--text-on-accent);
 }
 .pl-gen-bar-stream-toggle-icon {
-  font-size: 11px;
+  font-size: var(--font-size-xxs);
   line-height: 1;
 }
 .pl-gen-bar-stream-toggle-text {
   font-weight: 600;
 }
 .pl-gen-bar-stream-toggle-count {
-  font-size: 10px;
+  font-size: var(--font-size-micro);
   opacity: 0.8;
   padding: var(--space-1) var(--space-2);
-  border-radius: 8px;
-  background: rgba(0,0,0,0.15);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--text-on-accent) 15%, transparent);
 }
 .pl-gen-bar-stream-body {
   max-height: 120px;
@@ -181,7 +181,7 @@ function stepStatusLabel(status: SkillStepStatus) {
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
-  font-size: var(--font-size-xs, 12px);
+  font-size: var(--font-size-xs);
   color: var(--text-secondary);
   line-height: 1.5;
 }
@@ -191,7 +191,7 @@ function stepStatusLabel(status: SkillStepStatus) {
   flex: 0 0 6px;
   margin-top: 6px;
   border-radius: 50%;
-  background: var(--accent, #4a9);
+  background: var(--accent);
 }
 .pl-gen-bar-steps {
   display: grid;
@@ -200,7 +200,7 @@ function stepStatusLabel(status: SkillStepStatus) {
   border-top: 1px dashed var(--border-color);
 }
 .pl-gen-bar-steps-header {
-  font-size: var(--font-size-xs, 12px);
+  font-size: var(--font-size-xs);
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -210,9 +210,9 @@ function stepStatusLabel(status: SkillStepStatus) {
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-xs, 4px);
-  background: var(--bg-tertiary);
-  font-size: var(--font-size-xs, 12px);
+  border-radius: var(--radius-xs);
+  background: var(--pipeline-card-bg);
+  font-size: var(--font-size-xs);
 }
 .pl-gen-bar-step-name {
   min-width: 0;
@@ -226,10 +226,10 @@ function stepStatusLabel(status: SkillStepStatus) {
 }
 .pl-gen-bar-step-running .pl-gen-bar-step-state,
 .pl-gen-bar-step-done .pl-gen-bar-step-state {
-  color: var(--accent, #4a9);
+  color: var(--accent);
 }
 .pl-gen-bar-step-failed .pl-gen-bar-step-state {
-  color: var(--danger, #e44);
+  color: var(--danger);
 }
 .pl-gen-bar-step-attempts {
   color: var(--text-secondary);

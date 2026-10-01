@@ -18,7 +18,7 @@
 
     <div class="rtd-section">
       <template v-if="activeTab === 'overview'">
-        <div v-if="hasNoChanges" class="rtd-empty">两次运行没有差异。</div>
+        <EmptyState v-if="hasNoChanges" variant="compact" icon="search" title="两次运行没有差异" description="核心状态与请求计数保持一致" />
         <div v-else class="rtd-grid">
           <div
             v-for="field in diffResult.overview.filter(item => item.changed)"
@@ -33,7 +33,7 @@
       </template>
 
       <template v-else-if="activeTab === 'api'">
-        <div v-if="diffResult.apiCalls.length === 0" class="rtd-empty">两次运行都没有 API 调用。</div>
+        <EmptyState v-if="diffResult.apiCalls.length === 0" variant="compact" icon="search" title="没有 API 调用" description="两次运行都没有产生 API 调用记录" />
         <article v-for="item in diffResult.apiCalls" :key="item.key" class="rtd-item">
           <header>
             <strong>API {{ item.a?.seq ?? item.b?.seq }} / {{ pairLabel(item) }}</strong>
@@ -66,7 +66,7 @@
       </template>
 
       <template v-else-if="activeTab === 'prompt'">
-        <div v-if="diffResult.promptSnapshots.length === 0" class="rtd-empty">两次运行都没有提示词快照。</div>
+        <EmptyState v-if="diffResult.promptSnapshots.length === 0" variant="compact" icon="search" title="没有提示词快照" description="两次运行都没有暴露提示词快照" />
         <article v-for="item in diffResult.promptSnapshots" :key="item.key" class="rtd-item">
           <header>
             <strong>{{ item.a?.skillName || item.b?.skillName || '提示词快照' }} / {{ pairLabel(item) }}</strong>
@@ -103,7 +103,7 @@
       </template>
 
       <template v-else-if="activeTab === 'output'">
-        <div v-if="diffResult.physicalCalls.length === 0" class="rtd-empty">两次运行都没有物理请求。</div>
+        <EmptyState v-if="diffResult.physicalCalls.length === 0" variant="compact" icon="search" title="没有物理请求" description="两次运行都没有发起物理请求" />
         <article v-for="item in diffResult.physicalCalls" :key="item.key" class="rtd-item">
           <header>
             <strong>物理请求 #{{ item.a?.seq ?? item.b?.seq }} / {{ pairLabel(item) }}</strong>
@@ -128,6 +128,51 @@
       </template>
 
       <template v-else-if="activeTab === 'tools'">
+        <div class="rtd-grid" v-if="diffResult.skillDebugSummary">
+          <div class="rtd-field">
+            <strong>模板版本差异数</strong>
+            <span>{{ diffResult.skillDebugSummary.templateVersionChanged }}</span>
+          </div>
+          <div class="rtd-field">
+            <strong>工具序列是否变化</strong>
+            <span>{{ diffResult.skillDebugSummary.toolSequenceChanged ? '有变化' : '一致' }}</span>
+          </div>
+          <div
+            v-if="diffResult.skillDebugSummary.firstDifferentApiCall"
+            class="rtd-field"
+          >
+            <strong>首个不同 API 调用</strong>
+            <span>A #{{ diffResult.skillDebugSummary.firstDifferentApiCall.seqA ?? '-' }} / B #{{ diffResult.skillDebugSummary.firstDifferentApiCall.seqB ?? '-' }}</span>
+            <span>{{ diffResult.skillDebugSummary.firstDifferentApiCall.reason }}</span>
+          </div>
+        </div>
+        <div v-if="diffResult.templateVersions.length" class="rtd-subtitle">模板版本</div>
+        <div v-if="diffResult.templateVersions.length" class="rtd-grid">
+          <div v-for="item in diffResult.templateVersions" :key="item.key" class="rtd-field">
+            <strong>{{ item.skillName || item.skillId || '技能' }}</strong>
+            <span>A：{{ item.aVersion || '未记录版本' }}</span>
+            <span>B：{{ item.bVersion || '未记录版本' }}</span>
+            <span v-if="item.changed">模板版本或 folder 指纹存在差异</span>
+          </div>
+        </div>
+        <div v-if="diffResult.toolSequence.steps.length" class="rtd-subtitle">工具序列</div>
+        <div v-if="diffResult.toolSequence.steps.length" class="rtd-state">
+          <div>
+            <strong>A</strong>
+            <p v-for="item in diffResult.toolSequence.steps" :key="'tool-a-' + item.index">
+              API {{ item.apiSeqA ?? '-' }} / {{ item.nameA || '-' }} / {{ item.statusA || '-' }}
+            </p>
+          </div>
+          <div>
+            <strong>B</strong>
+            <p v-for="item in diffResult.toolSequence.steps" :key="'tool-b-' + item.index">
+              API {{ item.apiSeqB ?? '-' }} / {{ item.nameB || '-' }} / {{ item.statusB || '-' }}
+            </p>
+          </div>
+        </div>
+        <div v-if="diffResult.toolSequence.firstDivergence" class="rtd-warning">
+          工具序列首次分叉：第 {{ diffResult.toolSequence.firstDivergence.index + 1 }} 个工具调用
+        </div>
         <div v-if="diffResult.toolSurfaces.length" class="rtd-grid">
           <div v-for="item in diffResult.toolSurfaces" :key="item.name" class="rtd-field">
             <strong>{{ item.name }}</strong>
@@ -142,7 +187,7 @@
             <span>B：{{ item.policyB || '未暴露' }}</span>
           </div>
         </div>
-        <div v-if="diffResult.toolCalls.length === 0" class="rtd-empty">两次运行都没有工具调用。</div>
+        <EmptyState v-if="diffResult.toolCalls.length === 0" variant="compact" icon="search" title="没有工具调用" description="两次运行都没有记录工具调用" />
         <article v-for="item in diffResult.toolCalls" :key="item.key" class="rtd-item">
           <header>
             <strong>{{ item.a?.name || item.b?.name || '工具调用' }} / {{ pairLabel(item) }}</strong>
@@ -195,7 +240,7 @@
             <span>B：{{ item.countB }} 次</span>
           </div>
         </div>
-        <div v-else class="rtd-empty">事件类型计数没有差异。</div>
+        <EmptyState v-else variant="compact" icon="search" title="事件计数没有差异" description="各事件类型数量保持一致" />
         <div class="rtd-subtitle">状态历史</div>
         <div class="rtd-state">
           <div>
@@ -223,6 +268,7 @@
 import { computed, ref } from 'vue'
 import type { RunTraceDiffResult, TextDiff } from '../../services/runTraceDiff'
 import TextDiffView from './TextDiffView.vue'
+import EmptyState from './EmptyState.vue'
 
 const props = defineProps<{
   diffResult: RunTraceDiffResult
@@ -282,28 +328,27 @@ function diffStats(diff: TextDiff) {
 .rtd-warnings p { margin: 0; color: var(--warning); font-size: var(--font-size-sm); }
 .rtd-tabs { display: flex; flex-wrap: wrap; gap: var(--space-1); padding: var(--space-3) var(--space-5) 0; border-bottom: 1px solid var(--border-color); }
 .rtd-tabs button { padding: var(--space-2) var(--space-3); border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: var(--font-size-sm); }
-.rtd-tabs button.active { border-bottom-color: var(--primary); color: var(--text-primary); font-weight: 600; }
+.rtd-tabs button.active { border-bottom-color: var(--accent); color: var(--text-primary); font-weight: 600; }
 .rtd-section { display: flex; flex: 1; flex-direction: column; gap: var(--space-3); min-height: 0; padding: var(--space-4) var(--space-5) var(--space-5); overflow-y: auto; }
 .rtd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-3); }
 .rtd-field { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-secondary); }
 .rtd-field strong { color: var(--text-primary); font-size: var(--font-size-sm); }
-.rtd-field span { color: var(--text-secondary); font-size: 12px; overflow-wrap: anywhere; }
+.rtd-field span { color: var(--text-secondary); font-size: var(--font-size-xs); overflow-wrap: anywhere; }
 .rtd-item { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-secondary); }
 .rtd-item header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); }
 .rtd-item header strong { color: var(--text-primary); font-size: var(--font-size-sm); }
-.rtd-item header span { color: var(--text-secondary); font-size: 12px; }
+.rtd-item header span { color: var(--text-secondary); font-size: var(--font-size-xs); }
 .rtd-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-2); }
 .rtd-fields div { display: flex; flex-direction: column; gap: 2px; }
-.rtd-fields strong { color: var(--text-primary); font-size: 12px; }
-.rtd-fields span { color: var(--text-secondary); font-size: 12px; overflow-wrap: anywhere; }
+.rtd-fields strong { color: var(--text-primary); font-size: var(--font-size-xs); }
+.rtd-fields span { color: var(--text-secondary); font-size: var(--font-size-xs); overflow-wrap: anywhere; }
 .rtd-item details { color: var(--text-secondary); font-size: var(--font-size-sm); }
 .rtd-item summary { cursor: pointer; }
 .rtd-subtitle { padding-top: var(--space-2); border-top: 1px solid var(--border-color); color: var(--text-primary); font-size: var(--font-size-sm); font-weight: 600; }
 .rtd-state { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
 .rtd-state div { padding: var(--space-3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-secondary); }
 .rtd-state strong { color: var(--text-primary); }
-.rtd-state p { margin: var(--space-1) 0 0; color: var(--text-secondary); font-size: 12px; }
+.rtd-state p { margin: var(--space-1) 0 0; color: var(--text-secondary); font-size: var(--font-size-xs); }
 .rtd-warning { padding: var(--space-3); border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--warning); font-size: var(--font-size-sm); }
-.rtd-empty { padding: var(--space-4); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-secondary); font-size: var(--font-size-sm); }
-@media (max-width: 900px) { .rtd-state { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .rtd-state { grid-template-columns: 1fr; } }
 </style>

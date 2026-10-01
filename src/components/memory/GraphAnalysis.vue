@@ -23,7 +23,12 @@
       </article>
     </div>
     <div class="analysis-body">
-      <div v-if="graph.nodes.length === 0" class="analysis-empty">暂无实体数据</div>
+      <EmptyState
+        v-if="graph.nodes.length === 0"
+        icon="memory"
+        title="暂无实体数据"
+        description="生成或确认记忆实体后，这里会显示中心性图谱"
+      />
       <G6Canvas v-else :options="graphOptions" :data="graphData" aria-label="实体中心性图谱" @node-click="selectEntity" />
       <div v-if="graph.nodes.length > 0" class="analysis-legend" aria-label="图谱图例">
         <span><i class="legend-core"></i>核心实体</span>
@@ -34,7 +39,13 @@
     </div>
     <div class="analysis-section">
       <h4>实体中心性</h4>
-      <div v-if="rankedEntities.length === 0" class="analysis-empty">暂无实体数据</div>
+      <EmptyState
+        v-if="rankedEntities.length === 0"
+        variant="compact"
+        icon="memory"
+        title="暂无实体数据"
+        description="实体中心性会随着记忆确认自动更新"
+      />
       <button v-for="item in rankedEntities" :key="item.id" class="rank-row" type="button" @click="selectEntity(item.id)">
         <span class="rank-name">{{ item.label }}</span>
         <span class="rank-bar"><i :style="{ width: `${item.percent}%` }"></i></span>
@@ -59,6 +70,8 @@ import type { GraphOptions } from '@antv/g6'
 import type { MemoryData } from '../../types/memory'
 import { toG6Data } from '../../composables/useG6Graph'
 import G6Canvas from './G6Canvas.vue'
+import EmptyState from '../common/EmptyState.vue'
+import { g6Token } from './g6Theme'
 
 const props = defineProps<{ memories: MemoryData }>()
 const emit = defineEmits<{ openSource: [payload: { kind: 'entity'; id: string }] }>()
@@ -96,12 +109,12 @@ const warnings = computed(() => props.memories.relations
 const graphOptions: GraphOptions = {
   layout: { type: 'concentric', minNodeSpacing: 30, preventOverlap: true },
   node: {
-    style: { size: 36, fill: (datum: { data?: { degree?: number } }) => centralityFill(datum.data?.degree || 0), stroke: '#4d5f8a' },
-    state: { selected: { stroke: '#7c8cf8', lineWidth: 3 } }
+    style: { size: 36, fill: (datum: { data?: { degree?: number } }) => centralityFill(datum.data?.degree || 0), stroke: g6Token('--g6-node-stroke') },
+    state: { selected: { stroke: g6Token('--g6-selected'), lineWidth: 3 } }
   },
   edge: {
-    style: { stroke: '#4d5f8a', lineWidth: 1 },
-    state: { selected: { stroke: '#7c8cf8', lineWidth: 2 } }
+    style: { stroke: g6Token('--g6-node-stroke'), lineWidth: 1 },
+    state: { selected: { stroke: g6Token('--g6-selected'), lineWidth: 2 } }
   },
   behaviors: [
     'drag-canvas',
@@ -128,10 +141,10 @@ function centralityTier(degree: number) {
 }
 function centralityFill(degree: number) {
   const degreeTier = centralityDegree(degree)
-  if (degreeTier === 'core') return '#7c8cf8'
-  if (degreeTier === 'active') return '#4d5f8a'
-  if (degreeTier === 'isolated') return '#6b7280'
-  return '#2c3a5d'
+  if (degreeTier === 'core') return g6Token('--g6-core')
+  if (degreeTier === 'active') return g6Token('--g6-active')
+  if (degreeTier === 'isolated') return g6Token('--g6-isolated')
+  return g6Token('--g6-normal')
 }
 
 function selectEntity(id: string) {
@@ -151,13 +164,13 @@ function openSource() {
 .analysis-card strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .analysis-card small, .analysis-label { color: var(--text-secondary); font-size: var(--font-size-sm); }
 .analysis-body { position: relative; display: flex; min-height: 260px; }
-.analysis-legend { position: absolute; right: 12px; bottom: 12px; display: flex; gap: var(--space-5); align-items: center; padding: var(--space-3) var(--space-5); background: var(--memory-card-bg); border: 1px solid var(--memory-card-border); border-radius: var(--radius-sm); color: var(--text-secondary); font-size: var(--font-size-sm); z-index: 2; }
+.analysis-legend { position: absolute; right: 12px; bottom: 12px; display: flex; gap: var(--space-5); align-items: center; padding: var(--space-3) var(--space-5); background: var(--memory-card-bg); border: 1px solid var(--memory-card-border); border-radius: var(--radius-sm); color: var(--text-secondary); font-size: var(--font-size-sm); z-index: var(--z-base); }
 .analysis-legend span { display: inline-flex; align-items: center; gap: var(--space-2); }
 .analysis-legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-.legend-core { background: #7c8cf8; }
-.legend-active { background: #4d5f8a; }
-.legend-normal { background: #2c3a5d; }
-.legend-isolated { background: #6b7280; }
+.legend-core { background: var(--g6-core); }
+.legend-active { background: var(--g6-active); }
+.legend-normal { background: var(--g6-normal); }
+.legend-isolated { background: var(--g6-isolated); }
 .analysis-section { border-top: 1px solid var(--border-color); padding: var(--space-5) 0; }
 .analysis-section h4 { margin: 0 0 var(--space-4); font-size: var(--font-size-md); }
 .rank-row { display: flex; align-items: center; gap: var(--space-4); width: 100%; border: 0; background: transparent; color: var(--text-primary); padding: var(--space-3) 0; text-align: left; cursor: pointer; }
@@ -165,8 +178,8 @@ function openSource() {
 .rank-bar { flex: 1; height: 8px; background: var(--bg-hover); border-radius: var(--radius-xs); overflow: hidden; }
 .rank-bar i { display: block; height: 100%; background: var(--accent); }
 .rank-value { width: 24px; text-align: right; color: var(--text-secondary); }
-.analysis-empty, .analysis-ok { color: var(--text-secondary); }
+.analysis-ok { color: var(--text-secondary); }
 .analysis-warning { color: var(--memory-state-pending); margin: var(--space-2) 0; }
 .analysis-selected { border-top: 1px solid var(--border-color); padding-top: 10px; color: var(--accent); }
-@media (max-width: 700px) { .analysis-grid { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .analysis-grid { grid-template-columns: 1fr; } }
 </style>

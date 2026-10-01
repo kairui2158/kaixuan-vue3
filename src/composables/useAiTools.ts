@@ -14,7 +14,7 @@ import { useAiCallTrace } from './useAiCallTrace'
    model: string
    messages: Array<{ role: string; content: string }>
    temperature?: number
-   maxTokens?: number
+   maxTokens?: number | null
    stream?: boolean
    signal?: AbortSignal
    onChunk?: (text: string) => void
@@ -56,7 +56,7 @@ import { useAiCallTrace } from './useAiCallTrace'
     const agent = agentStore.activeAgent
     const model = agent?.model || provider.selectedModel || ''
     const temperature = agent?.temperature ?? 0.7
-    const maxTokens = agent?.maxTokens || 8192
+    const maxTokens = agent?.maxTokens || null
 
     const trace = useAiCallTrace({
       source: options.source || 'home',
