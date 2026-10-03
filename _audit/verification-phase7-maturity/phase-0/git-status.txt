@@ -1,0 +1,53 @@
+ M "_audit/\347\245\236\346\204\217\345\274\200\345\217\221\347\273\217\351\252\214\346\200\273\347\273\223_v6.md"
+ M src/components/chat/ChatPanel.vue
+ M src/components/common/OutlineWorkspace.vue
+ M src/composables/useEditTaskSession.spec.ts
+ M src/composables/useEditTaskSession.ts
+ M src/composables/useLiveApiStatus.spec.ts
+ M src/composables/useLiveApiStatus.ts
+ M src/services/agentDialogueRuntime.spec.ts
+ M src/services/agentDialogueRuntime.ts
+ M src/services/agentOrchestrator.spec.ts
+ M src/services/agentOrchestrator.ts
+ M src/services/agentToolConflict.spec.ts
+ M src/services/agentTraceBridge.spec.ts
+ M src/services/aiService.spec.ts
+ M src/services/aiService.ts
+ M src/services/chainIntentRouter.spec.ts
+ M src/services/chainIntentRouter.ts
+ M src/services/dialogueToolSurface.spec.ts
+ M src/services/dialogueToolSurface.ts
+ M src/services/editTaskService.ts
+ M src/services/editorDocumentMap.spec.ts
+ M src/services/editorDocumentMap.ts
+ M src/services/editorEditBatch.spec.ts
+ M src/services/editorTools.spec.ts
+ M src/services/editorTools.ts
+ M src/services/finalDraftCheckpoint.spec.ts
+ M src/services/finalDraftCheckpoint.ts
+ M src/services/finalDraftRunner.spec.ts
+ M src/services/finalDraftRunner.ts
+ M src/services/finalDraftService.spec.ts
+ M src/services/finalDraftService.ts
+ M src/services/longDocumentExecutionPlanner.spec.ts
+ M src/services/longDocumentExecutionPlanner.ts
+ M src/services/longDocumentPolicy.spec.ts
+ M src/services/longDocumentPolicy.ts
+ M src/services/longDocumentWriteProtocol.spec.ts
+ M src/services/longDocumentWriteProtocol.ts
+ M src/services/toolRunSupervisor.spec.ts
+ M src/services/toolRunSupervisor.ts
+ M src/services/workspaceSkillEngine.spec.ts
+ M src/services/workspaceSkillEngine.ts
+ M src/stores/runTrace.spec.ts
+ M src/stores/runTrace.ts
+?? _audit/PROPOSAL_2026-10-01_LONG_DOCUMENT_OPERATION_EXECUTION_ALIGNMENT.md
+?? _audit/PROPOSAL_2026-10-02_PHASE7_SKILL_EXECUTION_ALIGNMENT.md
+?? _audit/verification-live-api-status-electron/
+?? _audit/verification-long-document-operation-phase7/
+?? scripts/verify-live-api-status-electron.mjs
+?? scripts/verify-long-document-operation-phase7-electron.mjs
+?? src/services/editTaskCompletion.spec.ts
+?? src/services/editTaskCompletion.ts
+?? src/services/sourceContaminationDetector.spec.ts
+?? src/services/sourceContaminationDetector.ts

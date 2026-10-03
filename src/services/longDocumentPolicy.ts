@@ -59,13 +59,22 @@ export function analyzeLongDocumentRequest(
     finalDraftCandidate: boolean
     executionModeReason: string
   }): LongDocumentDecision => ({ ...base, ...input })
-  if (WHOLE_DOCUMENT_REQUEST_PATTERN.test(requestText)) {
+  if (WHOLE_DOCUMENT_REPLACEMENT_PATTERN.test(requestText)) {
     return buildDecision({
       longDocument: true,
       reason: 'whole-document-request',
       editTaskExecution: false,
       finalDraftCandidate: true,
-      executionModeReason: 'whole-document-request-final-draft',
+      executionModeReason: 'whole-document-replacement-final-draft',
+    })
+  }
+  if (WHOLE_DOCUMENT_REQUEST_PATTERN.test(requestText)) {
+    return buildDecision({
+      longDocument: true,
+      reason: 'whole-document-request',
+      editTaskExecution: false,
+      finalDraftCandidate: false,
+      executionModeReason: 'whole-document-request-edit-task',
     })
   }
   if (STRUCTURAL_MOVE_REQUEST_PATTERN.test(requestText)) {
@@ -128,11 +137,27 @@ export function shouldAutoRouteToEditTask(input: {
   availableContextTokens?: number | null
   estimatedDocumentTokens?: number | null
 }): LongDocumentAutoRouteResult {
-  if (isFinalDraftOperation(input.operationType)) {
+  if (input.operationType === 'whole-document-replacement') {
     return {
       editTask: false,
       finalDraft: true,
-      reason: 'whole-document-operation-final-draft',
+      reason: 'whole-document-replacement-final-draft',
+    }
+  }
+
+  if (input.operationType === 'whole-document-restructure') {
+    return {
+      editTask: true,
+      finalDraft: false,
+      reason: 'whole-document-restructure-edit-task',
+    }
+  }
+
+  if (input.operationType === 'large-scope-edit') {
+    return {
+      editTask: true,
+      finalDraft: false,
+      reason: 'large-scope-edit-edit-task',
     }
   }
 
@@ -150,7 +175,5 @@ export function shouldAutoRouteToEditTask(input: {
 export function isFinalDraftOperation(
   operationType: LongDocumentOperationType,
 ): boolean {
-  return operationType === 'whole-document-restructure'
-    || operationType === 'whole-document-replacement'
-    || operationType === 'large-scope-edit'
+  return operationType === 'whole-document-replacement'
 }

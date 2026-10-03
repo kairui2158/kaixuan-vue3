@@ -33,6 +33,15 @@ const STALLED_TIMEOUT_MS = Number(process.env.SHENYI_FINAL_DRAFT_STALLED_TIMEOUT
 const PROGRESS_POLL_INTERVAL_MS = Number(process.env.SHENYI_FINAL_DRAFT_PROGRESS_POLL_INTERVAL_MS ?? 1_000)
 const BUTTON_TIMEOUT_MS = Number(process.env.SHENYI_FINAL_DRAFT_BUTTON_TIMEOUT_MS ?? 30_000)
 const HEARTBEAT_INTERVAL_MS = Number(process.env.SHENYI_FINAL_DRAFT_HEARTBEAT_INTERVAL_MS || 15_000)
+// The stalled-recovery scenario needs provider A to keep the stream open
+// after its first chunk so throughput telemetry can surface a recoverable
+// stalled card. Destroying the socket early turns the scenario into the
+// network retry/heartbeat path instead. Opt in explicitly when testing that
+// path.
+const FAST_STALL_MS = Math.max(
+  0,
+  Number(process.env.SHENYI_FINAL_DRAFT_FAST_STALL_MS ?? 0),
+)
 
 const ALL_SIZES = [
   { id: 'S100', targetChars: 100_000, tolerance: 2_000 },
@@ -298,7 +307,7 @@ function startFinalDraftMockServer() {
     '## 第三章\n\n第三段源文内容。\n',
   ]
   const stallResponses = []
-  const fastStallMs = Math.max(0, Number(process.env.SHENYI_FINAL_DRAFT_FAST_STALL_MS || 0))
+  const fastStallMs = FAST_STALL_MS
   const server = http.createServer((request, response) => {
     let body = ''
     request.on('data', chunk => {
@@ -710,6 +719,15 @@ async function waitForSourceProgress(page, source, isComplete, label) {
   for (;;) {
     const snapshot = await readSourceProgress(page, source)
     if (isComplete(snapshot)) return snapshot
+    if (snapshot.turnStatus === 'failed' && !snapshot.task) {
+      const failure = await collectFailureEvidence(page, source)
+      const failurePath = path.join(EVIDENCE_ROOT, `${source}-turn-failure-${Date.now()}.json`)
+      fs.writeFileSync(failurePath, JSON.stringify(failure, null, 2), 'utf8')
+      throw new Error(
+        `${label}: turn failed without a final-draft task; evidence saved to ${failurePath}; `
+        + `progress=${describeProgress(snapshot)}`,
+      )
+    }
     if (snapshot.task?.status === 'failed' || snapshot.task?.status === 'rolled_back') {
       const failure = await collectFailureEvidence(page, source)
       const failurePath = path.join(EVIDENCE_ROOT, `${source}-task-failure-${Date.now()}.json`)
@@ -965,7 +983,7 @@ async function exportTrace(page, source, runId, evidenceDir) {
   assert(result?.success, `trace export succeeds: ${result?.reason || ''}`)
   const exportPath = path.join(result.path, 'run-trace.json')
   const exported = JSON.parse(fs.readFileSync(exportPath, 'utf8'))
-  assert.equal(exported.schemaVersion, 11, 'exported trace uses schema v11')
+  assert.equal(exported.schemaVersion, 12, 'exported trace uses schema v12')
   return {
     path: path.relative(ROOT, exportPath),
     schemaVersion: exported.schemaVersion,

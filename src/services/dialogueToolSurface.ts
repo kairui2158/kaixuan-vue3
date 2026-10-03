@@ -13,7 +13,11 @@ import {
   type EditorWriteRetryCarrier,
   type ToolResult,
 } from './editorTools'
-import type { LongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
+import type {
+  LongDocumentExecutionMode,
+  LongDocumentExecutionOperation,
+  LongDocumentExecutionPlan,
+} from './longDocumentExecutionPlanner'
 import type { EditorTargetSnapshot } from './editorTarget'
 import type { EditTask } from './editTaskService'
 import {
@@ -63,13 +67,33 @@ export interface DialogueToolSurfaceEntry {
 
 export interface DialogueWriteAuthorization {
   source: 'long-document-workflow'
+  intent: 'edit' | 'generate'
+  operation: LongDocumentExecutionOperation
+  mode: LongDocumentExecutionMode
   reason?: string
+}
+
+export interface DialoguePermissionDecision {
+  source: 'dialogue-intent' | 'long-document-workflow'
+  decision: 'read-only' | 'write-authorized'
+  intent: DialogueIntent
+  operation: LongDocumentExecutionOperation
+  mode: LongDocumentExecutionMode
+  reason: string
 }
 
 export interface DialogueToolSurface {
   tools: AgentToolDefinition[]
   actualToolSurface: Array<{ name: string; policy: 'read' | 'write' }>
   permission: ReturnType<typeof resolveDialoguePermission>
+  permissionDecision: DialoguePermissionDecision
+  toolPolicyDiagnostics?: Array<{
+    type: 'tool_policy_mismatch'
+    level: 'warning'
+    label: string
+    detail?: string
+    payload?: unknown
+  }>
   toolConflicts?: Array<{
     type: 'tool_conflict'
     level: 'warning'
@@ -114,7 +138,13 @@ export function buildDialogueToolSurface(
         getAllSnapshots: entry.getAllSnapshots,
         mode: entry.mode || 'direct',
         maxReadChars: entry.maxReadChars,
-    executionPlan: entry.executionPlan,
+        executionPlan: entry.executionPlan,
+        writeAuthorization: resolveDialoguePermissionDecision(
+          entry.intent,
+          entry.writeAuthorization,
+        ).decision === 'write-authorized'
+          ? entry.writeAuthorization ?? undefined
+          : undefined,
         applyWrite: entry.applyWrite,
         revealTarget: entry.revealTarget,
         onFailedBatch: entry.onFailedBatch,
@@ -134,6 +164,54 @@ export function buildDialogueToolSurface(
   return {
     ...authorized,
     toolConflicts: conflictDiagnostics,
+    toolPolicyDiagnostics: authorized.toolPolicyDiagnostics,
+  }
+}
+
+function resolveDialoguePermissionDecision(
+  intent: DialogueIntent,
+  authorization: DialogueWriteAuthorization | null | undefined,
+): DialoguePermissionDecision {
+  const normalizedIntent = intent === 'auto' ? 'discuss' : intent
+  const dialogueDecision: DialoguePermissionDecision = {
+    source: 'dialogue-intent',
+    decision: 'read-only',
+    intent: normalizedIntent,
+    operation: 'discussion',
+    mode: 'direct',
+    reason: 'discuss/analyze intents are always read-only',
+  }
+  if (normalizedIntent !== 'edit' && normalizedIntent !== 'generate') return dialogueDecision
+  if (!authorization || authorization.source !== 'long-document-workflow') {
+    return {
+      ...dialogueDecision,
+      reason: normalizedIntent === 'generate'
+        ? 'generate intent authorizes editor writes through the dialogue intent source'
+        : 'edit intent without a workflow authorization uses the dialogue intent source',
+    }
+  }
+  if (authorization.intent !== normalizedIntent) return dialogueDecision
+  if (authorization.operation === 'discussion') return dialogueDecision
+  if (authorization.mode === 'final-draft') return dialogueDecision
+  if (authorization.mode === 'edit-task') {
+    return {
+      source: 'long-document-workflow',
+      decision: 'write-authorized',
+      intent: normalizedIntent,
+      operation: authorization.operation,
+      mode: authorization.mode,
+      reason: authorization.reason || 'workflow authorization triple matched (edit-task mode)',
+    }
+  }
+  if (authorization.mode !== 'direct') return dialogueDecision
+  if (authorization.operation !== 'targeted_edit') return dialogueDecision
+  return {
+    source: 'long-document-workflow',
+    decision: 'write-authorized',
+    intent: normalizedIntent,
+    operation: authorization.operation,
+    mode: authorization.mode,
+    reason: authorization.reason || 'workflow authorization triple matched',
   }
 }
 
@@ -153,13 +231,67 @@ export function authorizeDialogueTools(
   tools: AgentToolDefinition[]
   actualToolSurface: DialogueToolSurfaceSummary
   permission: ReturnType<typeof resolveDialoguePermission>
+  permissionDecision: DialoguePermissionDecision
+  toolPolicyDiagnostics?: DialogueToolSurface['toolPolicyDiagnostics']
 } {
   const basePermission = resolveDialoguePermission(intent, writeMode)
-  const workflowWriteAuthorized = taskContext?.writeAuthorization?.source === 'long-document-workflow'
-  const permission = workflowWriteAuthorized
+  const permissionDecision = resolveDialoguePermissionDecision(
+    intent,
+    taskContext?.writeAuthorization,
+  )
+  const permission = permissionDecision.decision === 'write-authorized'
     ? { ...basePermission, writeEditor: true }
     : basePermission
   const sourceTools = Array.isArray(input) ? input : input.tools
+  const toolPolicyDiagnostics: NonNullable<DialogueToolSurface['toolPolicyDiagnostics']> = []
+  const staticPolicyValid = (tool: AgentToolDefinition): boolean => {
+    if (tool.defaultToolPolicy === 'disabled') {
+      toolPolicyDiagnostics.push({
+        type: 'tool_policy_mismatch',
+        level: 'warning',
+        label: `工具被默认策略禁用：${tool.name}`,
+        detail: `defaultToolPolicy=${tool.defaultToolPolicy}`,
+        payload: { toolName: tool.name, defaultToolPolicy: tool.defaultToolPolicy },
+      })
+      return false
+    }
+    if (!tool.defaultToolPolicy) {
+      toolPolicyDiagnostics.push({
+        type: 'tool_policy_mismatch',
+        level: 'warning',
+        label: `外部工具未声明默认策略：${tool.name}`,
+        detail: 'external tools without defaultToolPolicy are disabled',
+        payload: { toolName: tool.name, defaultToolPolicy: null },
+      })
+      return false
+    }
+    if (tool.policy === 'write' && tool.defaultToolPolicy !== 'allowedWithPermission') {
+      toolPolicyDiagnostics.push({
+        type: 'tool_policy_mismatch',
+        level: 'warning',
+        label: `写入工具策略不一致：${tool.name}`,
+        detail: `policy=write, defaultToolPolicy=${tool.defaultToolPolicy}`,
+        payload: { toolName: tool.name, policy: tool.policy, defaultToolPolicy: tool.defaultToolPolicy },
+      })
+      return false
+    }
+    if (tool.policy !== 'write' && tool.defaultToolPolicy === 'allowedWithPermission') {
+      toolPolicyDiagnostics.push({
+        type: 'tool_policy_mismatch',
+        level: 'warning',
+        label: `读取工具策略不一致：${tool.name}`,
+        detail: `policy=${tool.policy}, defaultToolPolicy=${tool.defaultToolPolicy}`,
+        payload: { toolName: tool.name, policy: tool.policy, defaultToolPolicy: tool.defaultToolPolicy },
+      })
+      return false
+    }
+    return true
+  }
+  const staticallyValidTools = sourceTools.filter(tool => {
+    const builtIn = tool.origin !== 'external'
+    if (builtIn) return true
+    return staticPolicyValid(tool)
+  })
   const task = taskContext?.activeEditTask
   const activeTask = task && isActiveEditTask(task) ? task : null
   const taskAwaitsRetry = activeTask?.status === 'awaiting_batch'
@@ -170,11 +302,11 @@ export function authorizeDialogueTools(
   const taskToolNames = new Set(taskTools.map(tool => tool.name))
   const taskIsTerminal = Boolean(task) && !activeTask
   const authorizedReadToolNames = new Set(
-    sourceTools
+    staticallyValidTools
       .filter(tool => tool.policy !== 'write' && permission.readTarget)
       .map(tool => tool.name),
   )
-  const authorizedTools = sourceTools
+  const authorizedTools = staticallyValidTools
     .filter(tool => tool.policy !== 'write'
       ? permission.readTarget && !taskToolNames.has(tool.name)
       : writeToolsAllowed)
@@ -187,6 +319,8 @@ export function authorizeDialogueTools(
     tools: authorizedTools,
     actualToolSurface: describeDialogueToolSurface(authorizedTools),
     permission,
+    permissionDecision,
+    toolPolicyDiagnostics,
   }
 }
 
@@ -209,6 +343,8 @@ function buildEditTaskControlTools(
     const resume = handlers.resume
     tools.push({
       name: 'task.resume',
+      defaultToolPolicy: 'allowedWithPermission',
+      riskLevel: 'high',
       description: '恢复当前编辑任务。恢复后由任务执行器按批次校验并写入，不直接开放 editor.write。',
       policy: 'read',
       inputSchema: {
@@ -234,6 +370,8 @@ function buildEditTaskControlTools(
     const cancel = handlers.cancel
     tools.push({
       name: 'task.cancel',
+      defaultToolPolicy: 'allowedWithoutPermission',
+      riskLevel: 'medium',
       description: '取消当前编辑任务并保留已写入批次，执行器负责后续状态收敛。',
       policy: 'read',
       inputSchema: {

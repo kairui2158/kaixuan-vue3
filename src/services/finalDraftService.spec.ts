@@ -940,6 +940,41 @@ describe('finalDraftService state machine', () => {
     expect(String(messages[1].content)).toContain('段落开头的编号、标识和冒号前缀必须保留')
   })
 
+  it('allows an authorized rewrite to change leaf text without losing headings', () => {
+    const sourceContent = '## 第一节\n\n1-1：第一段源文。\n\n## 第二节\n\n2-1：第二段源文。'
+    const draft = '## 第一节\n\n1-1：第一段重写后的正文。\n\n## 第二节\n\n2-1：第二段重写后的正文。'
+    const result = validateFinalDraft(draft, { sourceContent, operation: 'rewrite_segments' })
+    expect(result.valid).toBe(true)
+  })
+
+  it('still blocks an authorized rewrite when a heading boundary is lost', () => {
+    const sourceContent = '## 第一节\n\n1-1：第一段源文。\n\n## 第二节\n\n2-1：第二段源文。'
+    const draft = '## 第一节\n\n1-1：第一段重写后的正文。\n\n2-1：第二节正文被合并。'
+    const result = validateFinalDraft(draft, { sourceContent, operation: 'rewrite_segments' })
+    expect(result.valid).toBe(false)
+    expect(result.issues.map(issue => issue.code)).toContain('heading_boundary_lost')
+  })
+
+  it('allows deduplicate to remove duplicate leaves but not unique leaves', () => {
+    const sourceContent = '## 第一节\n\n1-1：重复正文。\n\n1-2：重复正文。\n\n1-3：唯一正文。'
+    const duplicateRemoved = '## 第一节\n\n1-1：重复正文。\n\n1-3：唯一正文。'
+    expect(
+      validateFinalDraft(duplicateRemoved, { sourceContent, operation: 'deduplicate' }).valid,
+    ).toBe(true)
+
+    const uniqueRemoved = '## 第一节\n\n1-1：重复正文。'
+    const result = validateFinalDraft(uniqueRemoved, { sourceContent, operation: 'deduplicate' })
+    expect(result.valid).toBe(false)
+    expect(result.issues.map(issue => issue.code)).toContain('leaf_body_integrity_lost')
+  })
+
+  it('keeps the conservative gate when the operation is unknown or missing', () => {
+    const sourceContent = '## 第一节\n\n1-1：第一段源文。\n\n## 第二节\n\n2-1：第二段源文。'
+    const draft = '## 第一节\n\n1-1：第一段重写后的正文。\n\n## 第二节\n\n2-1：第二段重写后的正文。'
+    expect(validateFinalDraft(draft, { sourceContent }).valid).toBe(false)
+    expect(validateFinalDraft(draft, { sourceContent, operation: 'normalize' }).valid).toBe(false)
+  })
+
   it('reports source and draft block counts when paragraph structure is lost', () => {
     const sourceContent = '第一段源文。\n\n第二段源文。\n\n第三段源文。'
     const result = validateFinalDraft('第一段源文。第二段源文。第三段源文。', { sourceContent })

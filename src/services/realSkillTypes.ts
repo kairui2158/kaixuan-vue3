@@ -211,6 +211,8 @@ export interface RealSkillExecuteOptions {
     scenario?: 'direct' | 'direct-tool-intensive' | 'folder-chain' | 'compatibility-json'
     maxToolIterations?: number
     intent?: import('./dialogueFoundation').DialogueIntent
+    /** Single-source permission decision; SKILL declarations never become execution authority. */
+    permissionDecision?: import('./dialogueToolSurface').DialoguePermissionDecision
     onCompatibilityMode?: (reason: string) => void
     onToolStart?: (event: {
       toolName: string

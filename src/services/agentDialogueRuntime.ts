@@ -18,6 +18,10 @@ export interface AgentDialogueRuntimeEntry {
     executionPlan?: LongDocumentExecutionPlan
   }
   editTaskWorkflow?: boolean
+  skillGuidance?: string
+  skillIds?: string[]
+  promptSource?: string
+  maxPhysicalRequests?: number
   getContextRemaining?: (input: { messages: CallAiParams['messages'] }) => {
     contextWindowTokens?: number | null
     maxOutputTokens?: number | null
@@ -78,6 +82,10 @@ export function createAgentDialogueRuntime(entry: AgentDialogueRuntimeEntry) {
           getContextRemaining: entry.getContextRemaining,
           document: entry.document,
           editTaskWorkflow: entry.editTaskWorkflow,
+          skillGuidance: entry.skillGuidance,
+          skillIds: entry.skillIds,
+          promptSource: entry.promptSource,
+          maxPhysicalRequests: entry.maxPhysicalRequests,
           runSubAgent: entry.runSubAgent,
         },
       })

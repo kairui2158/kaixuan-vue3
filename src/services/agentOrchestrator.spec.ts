@@ -97,6 +97,31 @@ describe('AgentOrchestrator state machine', () => {
     expect(runtime.callAi).toHaveBeenCalledTimes(3)
   })
 
+  it('stalls at the physical request limit even when every round reports progress', async () => {
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn(async (): Promise<CallAiResult> => ({
+        ...successResult(''),
+        toolResults: [{
+          call: { name: 'editor.write' },
+          result: { ok: true, data: { written: true } },
+        }],
+      }) as CallAiResult),
+      maxPhysicalRequests: 3,
+    }
+    const events: unknown[] = []
+    runtime.onEvent = event => {
+      if ((event as { type?: string }).type === 'physical_request_limit') events.push(event)
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+    expect(result.status).toBe('stalled')
+    expect(result.reason).toBe('physical_request_limit')
+    expect(runtime.callAi).toHaveBeenCalledTimes(3)
+    expect(result.snapshot.callCount).toBe(3)
+    expect((result.snapshot as any).maxPhysicalRequests).toBe(3)
+    expect(events).toHaveLength(1)
+  })
+
   it('enters needs_user when a tool result asks for user input', async () => {
     const runtime: AgentOrchestratorRuntime = {
       callAi: vi.fn(async () => ({
@@ -156,6 +181,7 @@ describe('AgentOrchestrator state machine', () => {
       successfulWriteCount: 0,
       noProgressRounds: 0,
       repeatedCallCount: 0,
+      maxPhysicalRequests: 8,
       updatedAt: 0,
     }), () => ({ contextWindowTokens: null, estimatedInputTokens: 120 }))
     const remainingResult = await remaining.execute({}, {
@@ -228,13 +254,74 @@ describe('AgentOrchestrator state machine', () => {
     expect(result.toolSurface?.every(tool => tool.policy === 'read')).toBe(true)
   })
 
-  it('routes whole-document long tasks to final draft before physical calls', async () => {
+  it('keeps agent fallback readonly when the production execution plan is missing', async () => {
     const runtime: AgentOrchestratorRuntime = {
       goal: '统一大纲时间线并整理排序',
       callAi: vi.fn(async (): Promise<CallAiResult> => successResult() as CallAiResult),
       document: {
         content: '段'.repeat(12_000),
         operationType: 'whole-document-restructure',
+      },
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+    expect(result.status).toBe('completed')
+    expect(runtime.callAi).toHaveBeenCalled()
+    expect(result.reason).not.toContain('edit_task_required')
+    expect(result.reason).not.toContain('final_draft_required')
+    const fallback = agent.getEvents().find(
+      event => event.type === 'plan-origin'
+        && (event.payload as { source?: string } | undefined)?.source === 'agent-fallback',
+    )
+    expect(Boolean(fallback)).toBe(true)
+    expect(fallback?.payload).toMatchObject({
+      source: 'agent-fallback',
+      mode: 'readonly-fallback',
+    })
+  })
+
+  it('routes whole-document restructure to EditTask only from the supplied execution plan', async () => {
+    const runtime: AgentOrchestratorRuntime = {
+      goal: '统一大纲时间线并整理排序',
+      callAi: vi.fn(async (): Promise<CallAiResult> => successResult() as CallAiResult),
+      document: {
+        content: '段'.repeat(12_000),
+        operationType: 'whole-document-restructure',
+        executionPlan: buildLongDocumentExecutionPlan({
+          requestText: '统一大纲时间线并整理排序',
+          content: '段'.repeat(12_000),
+          contextWindowTokens: 120_000,
+          maxOutputTokens: 8_000,
+        }),
+      },
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+    expect(result.status).toBe('needs_user')
+    expect(result.reason).toContain('edit_task_required')
+    expect(runtime.callAi).not.toHaveBeenCalled()
+    expect(agent.getEvents().some(event => event.label === '长文档任务自动路由 EditTask')).toBe(true)
+    expect(agent.getEvents().some(
+      event => event.type === 'plan-origin'
+        && (event.payload as { source?: string } | undefined)?.source === 'agent-fallback',
+    )).toBe(false)
+  })
+
+  it('routes whole-document replacement to final draft from a supplied execution plan', async () => {
+    const runtime: AgentOrchestratorRuntime = {
+      goal: '全文重写为更精炼的大纲',
+      callAi: vi.fn(async (): Promise<CallAiResult> => successResult() as CallAiResult),
+      document: {
+        content: '段'.repeat(12_000),
+        operationType: 'whole-document-replacement',
+        executionPlan: {
+          ...buildLongDocumentExecutionPlan({
+            requestText: '全文重写为更精炼的大纲',
+            content: '段'.repeat(12_000),
+            contextWindowTokens: 120_000,
+            maxOutputTokens: 8_000,
+          }),
+        },
       },
     }
     const agent = new AgentOrchestrator({ plan, runtime })
@@ -243,31 +330,6 @@ describe('AgentOrchestrator state machine', () => {
     expect(result.reason).toContain('final_draft_required')
     expect(runtime.callAi).not.toHaveBeenCalled()
     expect(agent.getEvents().some(event => event.label === '长文档任务自动进入终稿生成')).toBe(true)
-  })
-
-  it('still routes explicit EditTask plans before physical calls', async () => {
-    const runtime: AgentOrchestratorRuntime = {
-      goal: '统一大纲时间线并整理排序',
-      callAi: vi.fn(async (): Promise<CallAiResult> => successResult() as CallAiResult),
-      document: {
-        content: '段'.repeat(12_000),
-        operationType: 'whole-document-restructure',
-        executionPlan: {
-          ...buildLongDocumentExecutionPlan({
-            requestText: '统一大纲时间线并整理排序',
-            content: '段'.repeat(12_000),
-            contextWindowTokens: 120_000,
-            maxOutputTokens: 8_000,
-          }),
-          mode: 'edit-task',
-        },
-      },
-    }
-    const agent = new AgentOrchestrator({ plan, runtime })
-    const result = await agent.run(runInput)
-    expect(result.status).toBe('needs_user')
-    expect(result.reason).toContain('edit_task_required')
-    expect(runtime.callAi).not.toHaveBeenCalled()
   })
 
   it('uses the supplied execution plan as the single planning source', async () => {
@@ -331,6 +393,7 @@ describe('AgentOrchestrator state machine', () => {
             successfulWriteCount: 0,
             noProgressRounds: 0,
             repeatedCallCount: 0,
+            maxPhysicalRequests: 8,
             updatedAt: Date.now(),
           },
         }

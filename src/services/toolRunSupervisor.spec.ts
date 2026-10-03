@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createToolRunSupervisor } from './toolRunSupervisor'
+import { buildToolErrorKey, createToolRunSupervisor } from './toolRunSupervisor'
 
 describe('createToolRunSupervisor', () => {
   it('aborts the controller when the idle timeout expires', () => {
@@ -99,6 +99,48 @@ describe('createToolRunSupervisor', () => {
     expect(onStuck).toHaveBeenCalledWith(expect.objectContaining({ reason: 'repeated_tool_error' }))
     supervisor.dispose()
     vi.useRealTimers()
+  })
+
+  it('does not treat different input signatures as the same repeated error', () => {
+    vi.useFakeTimers()
+    const controller = new AbortController()
+    const onStuck = vi.fn()
+    const supervisor = createToolRunSupervisor({
+      controller,
+      idleTimeoutMs: 500,
+      hardDeadlineMs: 1_000,
+      onStuck,
+    })
+    const makeKey = (sectionId: string) => buildToolErrorKey(
+      'editor.read_range',
+      'section_not_found',
+      { sectionId },
+    )
+    supervisor.reportToolError(makeKey('heading-1'), 3, 14)
+    supervisor.reportToolError(makeKey('heading-2'), 3, 15)
+    supervisor.reportToolError(makeKey('heading-3'), 3, 16)
+    supervisor.reportToolError(makeKey('heading-4'), 3, 17)
+    supervisor.reportToolError(makeKey('heading-5'), 3, 18)
+    expect(controller.signal.aborted).toBe(false)
+    expect(onStuck).not.toHaveBeenCalled()
+
+    supervisor.reportToolError(makeKey('heading-1'), 3, 19)
+    supervisor.reportToolError(makeKey('heading-1'), 3, 20)
+    supervisor.reportToolError(makeKey('heading-1'), 3, 21)
+    expect(controller.signal.aborted).toBe(true)
+    expect(onStuck).toHaveBeenCalledWith(expect.objectContaining({ reason: 'repeated_tool_error' }))
+    supervisor.dispose()
+    vi.useRealTimers()
+  })
+
+  it('normalizes object key order when building error keys', () => {
+    expect(buildToolErrorKey('editor.read_range', 'section_not_found', {
+      maxChars: 12000,
+      sectionId: 'heading-1',
+    })).toBe(buildToolErrorKey('editor.read_range', 'section_not_found', {
+      sectionId: 'heading-1',
+      maxChars: 12000,
+    }))
   })
 
   it('supports explicit long-document runs without the default hard deadline', () => {

@@ -68,6 +68,8 @@ export interface RunTraceEditTaskPayload {
       segmentId: string
       expectedChange: string
       invariantResult?: string
+      range?: { startLine: number; endLine: number }
+      writeStrategy?: string
     }>
   }
   batchId?: string
@@ -76,9 +78,31 @@ export interface RunTraceEditTaskPayload {
   invariantResult?: string
 }
 
+export interface RunTraceEditTaskCompletionPayload {
+  verified: boolean
+  invariant?: string
+  violations: Array<{
+    code: string
+    message: string
+    batchId?: string
+    target?: string
+    beforeCount?: number
+    afterCount?: number
+  }>
+}
+
 export interface RunTraceMessage {
   role: string
   content: string
+}
+
+export interface RunTracePermissionDecision {
+  source: 'dialogue-intent' | 'long-document-workflow'
+  decision: 'read-only' | 'write-authorized'
+  intent: string
+  operation: string
+  mode: string
+  reason: string
 }
 
 export interface RunTraceApiCall {
@@ -99,6 +123,7 @@ export interface RunTraceApiCall {
   intent?: string
   toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
+  permissionDecision?: RunTracePermissionDecision
   providerContextWindowTokens?: number
   estimatedInputTokens?: number
   contextBudgetDecision?: ContextBudgetDecision
@@ -111,6 +136,10 @@ export interface RunTraceApiCall {
   responseText: string
   streamText: string
   reasoningText: string
+  /** Wall clock of the latest response-body delta; distinguishes live streaming from tool rounds. */
+  lastStreamActivityAt?: number
+  /** Wall clock of the latest physical request or tool activity, including body-less tool rounds. */
+  lastExecutionActivityAt?: number
   finishReason?: string
   usage?: unknown
   usageUnavailable?: boolean
@@ -164,6 +193,8 @@ export interface RunTraceSemantic {
 export interface RunTraceToolDefinition {
   name: string
   policy: 'read' | 'write'
+  defaultToolPolicy?: 'allowedWithoutPermission' | 'allowedWithPermission' | 'disabled'
+  riskLevel?: 'low' | 'medium' | 'high'
   description?: string
   parameters?: unknown
 }
@@ -194,6 +225,8 @@ export interface RunTraceToolCall {
   errorCode?: string
   toolCapability?: RunTraceToolCapability
   rejectionCategory?: RunTraceToolRejectionCategory
+  defaultToolPolicy?: 'allowedWithoutPermission' | 'allowedWithPermission' | 'disabled'
+  riskLevel?: 'low' | 'medium' | 'high'
 }
 
 export interface RunTracePhysicalCall {
@@ -260,6 +293,7 @@ export interface RunTraceTurn {
   writeMode?: string
   toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
+  permissionDecision?: RunTracePermissionDecision
   /** Provenance for surfaces recorded from projection paths rather than live execution. */
   surfaceSource?: 'trace-projection'
   error?: string
@@ -472,6 +506,7 @@ export interface StartTurnInput {
   skillNames?: string[]
   mode?: string
   intent?: string
+  permissionDecision?: RunTracePermissionDecision
   writeMode?: string
   toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
@@ -479,6 +514,7 @@ export interface StartTurnInput {
 
 export interface UpdateTurnIntentInput {
   intent?: string
+  permissionDecision?: RunTracePermissionDecision
   routingFallback?: string
   toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
@@ -499,6 +535,7 @@ export interface StartApiCallInput {
   /** null records an undeclared output limit; a number records the effective wire limit. */
   maxTokens?: number | null
   intent?: string
+  permissionDecision?: RunTracePermissionDecision
   toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   requestMessages: RunTraceMessage[]
@@ -585,6 +622,8 @@ export interface ToolCallInput {
   errorCode?: string
   toolCapability?: RunTraceToolCapability
   rejectionCategory?: RunTraceToolRejectionCategory
+  defaultToolPolicy?: RunTraceToolCall['defaultToolPolicy']
+  riskLevel?: RunTraceToolCall['riskLevel']
 }
 
 export interface PromptSnapshotInput {
@@ -626,7 +665,7 @@ export interface RunMetadataInput {
   model?: string
 }
 
-const RUN_TRACE_SCHEMA_VERSION = 11
+const RUN_TRACE_SCHEMA_VERSION = 12
 const reportedLongRequestPhysicalIds = new Set<string>()
 const reportedTerminalMergeTaskIds = new Set<string>()
 
@@ -677,10 +716,14 @@ export const useRunTraceStore = defineStore('runTrace', () => {
   const maxRuns = 20
   const stateWatchdogByRunId = new Map<string, StateWatchdog>()
   const awaitingUserRunIds = new Set<string>()
+  const editTaskPlannedBatchIds = new Set<string>()
 
   function resetRunActivityDeduplication(runId: string) {
     reportedLongRequestPhysicalIds.delete(runId)
     reportedTerminalMergeTaskIds.delete(runId)
+    for (const key of [...editTaskPlannedBatchIds]) {
+      if (key.startsWith(`${runId}:`)) editTaskPlannedBatchIds.delete(key)
+    }
   }
 
   const currentRunId = computed(() => currentRunIdBySource.value.pipeline)
@@ -942,7 +985,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     runId: string,
     source: RunActivitySource,
     detail?: string,
-    options?: { persist?: boolean },
+    options?: { persist?: boolean; turnId?: string | null },
   ) {
     const run = getRun(runId)
     if (!run || run.status !== 'running') return false
@@ -952,7 +995,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       level: 'info',
       label: '运行活性证据',
       detail: [source, detail].filter(Boolean).join(' / '),
-      payload: { source, detail }
+      payload: { source, detail },
+      turnId: options?.turnId || undefined,
     })
     if (options?.persist) void saveRunToDisk(run)
     return true
@@ -977,6 +1021,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       skillNames: input.skillNames?.slice(),
       mode: input.mode,
       intent: input.intent,
+      permissionDecision: input.permissionDecision ? { ...input.permissionDecision } : undefined,
       writeMode: input.writeMode,
       toolSurface: input.toolSurface?.map(item => ({ ...item })),
       actualToolSurface: input.actualToolSurface?.map(item => ({ ...item }))
@@ -1025,6 +1070,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     const turn = run?.turns?.find(item => item.id === turnId)
     if (!run || !turn || turn.status !== 'running') return false
     if (input.intent !== undefined) turn.intent = input.intent
+    if (input.permissionDecision) turn.permissionDecision = { ...input.permissionDecision }
     turn.routingFallback = input.routingFallback || turn.routingFallback
     if (input.toolSurface) {
       turn.toolSurface = input.toolSurface.map(item => ({ ...item }))
@@ -1084,6 +1130,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       temperature: input.temperature,
       maxTokens: input.maxTokens,
       intent: input.intent,
+      permissionDecision: input.permissionDecision ? { ...input.permissionDecision } : undefined,
       toolSurface: input.toolSurface,
       actualToolSurface: input.actualToolSurface,
       requestMessages: input.requestMessages.map(m => ({ role: m.role, content: m.content })),
@@ -1103,7 +1150,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       detail: JSON.stringify({
         skillName: input.skillName,
         model: input.model,
-        actualToolSurface: input.actualToolSurface?.map(item => ({ ...item })) || []
+        actualToolSurface: input.actualToolSurface?.map(item => ({ ...item })) || [],
+        permissionDecision: input.permissionDecision || null
       })
     })
     return call.id
@@ -1112,17 +1160,28 @@ export const useRunTraceStore = defineStore('runTrace', () => {
   function updateApiCallToolSurface(
     runId: string,
     callId: string,
-    input: { actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }> },
+    input: {
+      actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
+      permissionDecision?: RunTracePermissionDecision
+    },
   ) {
     const run = getRun(runId)
     const call = run?.apiCalls.find(item => item.id === callId)
-    if (!run || !call || !input.actualToolSurface) return false
-    call.actualToolSurface = input.actualToolSurface.map(item => ({ ...item }))
+    if (!run || !call || (!input.actualToolSurface && !input.permissionDecision)) return false
+    if (input.actualToolSurface) {
+      call.actualToolSurface = input.actualToolSurface.map(item => ({ ...item }))
+    }
+    if (input.permissionDecision) {
+      call.permissionDecision = { ...input.permissionDecision }
+    }
     addEvent(runId, {
       type: 'api-tool-surface-updated',
       level: 'info',
       label: `第 ${call.seq} 次 API 调用工具面已回填`,
-      detail: call.actualToolSurface.map(item => item.name).join(',')
+      detail: [
+        call.actualToolSurface?.map(item => item.name).join(','),
+        call.permissionDecision ? `${call.permissionDecision.decision}/${call.permissionDecision.source}` : undefined,
+      ].filter(Boolean).join(' / ')
     })
     void saveRunToDisk(run)
     return true
@@ -1234,6 +1293,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     }
     call.physicalCalls.push(physical)
     if (physical.status === 'running') {
+      call.lastExecutionActivityAt = Date.now()
       reportRunActivity(runId, physical.heartbeat ? 'physical_call_heartbeat' : 'physical_call_running', `${physical.seq}/${call.skillName || call.id}`)
       reportLongRequestInProgress(runId, physical)
     }
@@ -1249,6 +1309,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
   function appendToolCall(runId: string, callId: string, input: ToolCallInput): string {
     const call = getRun(runId)?.apiCalls.find(item => item.id === callId)
     if (!call) return ''
+    if (call.status === 'running') call.lastExecutionActivityAt = Date.now()
     call.toolCalls = call.toolCalls || []
     if (input.toolCallId) {
       const duplicate = call.toolCalls.find(item => item.toolCallId === input.toolCallId)
@@ -1270,6 +1331,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
         duplicate.protocolVersionDefaulted = input.protocolVersionDefaulted ?? duplicate.protocolVersionDefaulted
         duplicate.toolCapability = input.toolCapability ?? duplicate.toolCapability
         duplicate.rejectionCategory = input.rejectionCategory ?? duplicate.rejectionCategory
+        duplicate.defaultToolPolicy = input.defaultToolPolicy ?? duplicate.defaultToolPolicy
+        duplicate.riskLevel = input.riskLevel ?? duplicate.riskLevel
         duplicate.endedAt = Date.now()
         return duplicate.id
       }
@@ -1299,6 +1362,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       ),
       toolCapability: input.toolCapability,
       rejectionCategory: input.rejectionCategory,
+      defaultToolPolicy: input.defaultToolPolicy,
+      riskLevel: input.riskLevel,
     }
     call.toolCalls.push(toolCall)
     reportRunActivity(runId, 'tool_call', `${toolCall.name}/${toolCall.status}`, { persist: toolCall.status === 'failed' })
@@ -1466,6 +1531,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     if (call.status !== 'running') return
     if (text) reportRunActivity(runId, 'stream_delta', `apiCall=${call.seq}`)
     call.streamText += text
+    call.lastStreamActivityAt = Date.now()
+    call.lastExecutionActivityAt = call.lastStreamActivityAt
     const run = getRun(runId)
     if (run) currentApiCallIdBySource.value[run.source] = call.id
     scheduleStreamSave(runId)
@@ -1785,8 +1852,9 @@ export const useRunTraceStore = defineStore('runTrace', () => {
   function reportEditTaskActivity(
     runId: string,
     payload: RunTraceEditTaskPayload,
-    options?: { persist?: boolean },
+    options?: { persist?: boolean; turnId?: string | null },
   ) {
+    const turnId = options?.turnId || undefined
     const activeBatchId = payload.activeBatchId || payload.batchId
     const batchDetail = activeBatchId ? payload.executionPlan.batchDetails?.[activeBatchId] : undefined
     reportRunActivity(runId, 'edit_task', [payload.taskId, activeBatchId, payload.status].filter(Boolean).join('/'), options)
@@ -1807,6 +1875,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
           `batches=${payload.executedBatches.length}/${payload.executionPlan.batches.length}`,
           payload.goal,
         ].filter(Boolean).join(' / '),
+        turnId,
         payload: {
           taskId: payload.taskId,
           executedBatches: payload.executedBatches.length,
@@ -1825,9 +1894,65 @@ export const useRunTraceStore = defineStore('runTrace', () => {
           `segmentId=${batchDetail.segmentId}`,
           `expectedChange=${batchDetail.expectedChange}`,
           batchDetail.invariantResult ? `invariantResult=${batchDetail.invariantResult}` : '',
-        ].filter(Boolean).join(' / ')
+        ].filter(Boolean).join(' / '),
+        turnId,
       })
     }
+    for (const batchId of payload.executionPlan.batches) {
+      const dedupeKey = `${runId}:${payload.taskId}:${turnId || 'run'}:${batchId}`
+      if (editTaskPlannedBatchIds.has(dedupeKey)) continue
+      editTaskPlannedBatchIds.add(dedupeKey)
+      const detail = payload.executionPlan.batchDetails?.[batchId]
+      addEvent(runId, {
+        type: 'edit-task-batch-planned',
+        level: 'info',
+        label: '编辑任务批次前瞻',
+        detail: [
+          `taskId=${payload.taskId}`,
+          `batchId=${batchId}`,
+          detail ? `segmentId=${detail.segmentId}` : '',
+          detail?.range ? `range=${detail.range.startLine}-${detail.range.endLine}` : '',
+          detail?.writeStrategy ? `writeStrategy=${detail.writeStrategy}` : '',
+          detail ? `expectedChange=${detail.expectedChange}` : '',
+          `estimatedBatches=${payload.executionPlan.batches.length}`,
+        ].filter(Boolean).join(' / '),
+        turnId,
+        payload: {
+          taskId: payload.taskId,
+          batchId,
+          segmentId: detail?.segmentId,
+          range: detail?.range,
+          writeStrategy: detail?.writeStrategy,
+          expectedChange: detail?.expectedChange,
+          estimatedBatches: payload.executionPlan.batches.length
+        }
+      })
+    }
+  }
+
+  function reportEditTaskCompletion(
+    runId: string,
+    payload: RunTraceEditTaskCompletionPayload,
+    options?: { persist?: boolean; turnId?: string | null },
+  ) {
+    addEvent(runId, {
+      type: payload.verified ? 'edit-task-completion-verified' : 'edit-task-completion-violation',
+      level: payload.verified ? 'info' : 'warn',
+      label: payload.verified ? '编辑任务完成度校验通过' : '编辑任务完成度校验失败',
+      detail: [
+        payload.invariant ? `invariant=${payload.invariant}` : '',
+        ...payload.violations.map(violation =>
+          [
+            violation.code,
+            violation.batchId ? `batchId=${violation.batchId}` : '',
+            violation.target ? `target=${violation.target}` : '',
+            violation.beforeCount !== undefined ? `before=${violation.beforeCount}` : '',
+            violation.afterCount !== undefined ? `after=${violation.afterCount}` : '',
+          ].filter(Boolean).join('/')),
+      ].filter(Boolean).join(' | ') || 'no-violation',
+      turnId: options?.turnId || undefined,
+      payload,
+    })
   }
 
   async function saveRunToDisk(run: RunTrace) {
@@ -2136,6 +2261,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     addAgentEvent,
     addBatchEvent,
     reportEditTaskActivity,
+    reportEditTaskCompletion,
     reportRunActivity,
     startRun,
     startTurn,

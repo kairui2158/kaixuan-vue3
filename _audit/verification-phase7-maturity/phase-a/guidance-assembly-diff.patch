@@ -1,0 +1,270 @@
+diff --git a/src/services/workspaceSkillEngine.spec.ts b/src/services/workspaceSkillEngine.spec.ts
+index 63cca9e..6afc9d5 100644
+--- a/src/services/workspaceSkillEngine.spec.ts
++++ b/src/services/workspaceSkillEngine.spec.ts
+@@ -24,6 +24,8 @@ import {
+   getPromptParts,
+   mergePromptParts,
+   runWorkspaceSkills,
++  buildWorkspaceSkillGuidance,
++  WORKSPACE_SKILL_GUIDANCE_CHAR_LIMIT,
+   type WorkspaceSkillEngineAdapter,
+   type WorkspaceSkillTemplate,
+ } from './workspaceSkillEngine'
+@@ -158,6 +160,97 @@ function makeAiService(outputs: string[]) {
+ }
+ 
+ describe('workspace skill engine', () => {
++  it('builds SKILL guidance without changing the execution surface', () => {
++    const adapter = makeAdapter()
++    const noTemplates = buildWorkspaceSkillGuidance({
++      templates: [],
++      requestText: '请修改大纲',
++      adapter,
++    })
++    expect(noTemplates).toEqual({
++      guidance: '',
++      skillIds: [],
++      promptSource: 'none',
++      guidanceChars: 0,
++      truncated: false,
++    })
++
++    const emptyTemplate = buildWorkspaceSkillGuidance({
++      templates: [makeTemplate('empty', '空模板', { template: '   ' })],
++      requestText: '请修改大纲',
++      adapter,
++    })
++    expect(emptyTemplate.promptSource).toBe('none')
++    expect(emptyTemplate.skillIds).toEqual(['empty'])
++
++    const multiple = buildWorkspaceSkillGuidance({
++      templates: [
++        makeTemplate('s1', '主编'),
++        makeTemplate('s2', '审校'),
++      ],
++      requestText: '请修改大纲',
++      adapter,
++    })
++    expect(multiple.guidance).toBe('执行 主编\n\n执行 审校')
++    expect(multiple.skillIds).toEqual(['s1', 's2'])
++    expect(multiple.promptSource).toBe('template-system-prefix')
++    expect(multiple.truncated).toBe(false)
++  })
++
++  it('limits workspace SKILL guidance to the shared 8000-character budget', () => {
++    const adapter = makeAdapter()
++    const oversized = '领'.repeat(
++      WORKSPACE_SKILL_GUIDANCE_CHAR_LIMIT + 25,
++    )
++    const result = buildWorkspaceSkillGuidance({
++      templates: [makeTemplate('long', '长模板', { template: oversized })],
++      requestText: '请修改大纲',
++      adapter,
++    })
++    expect(result.guidance).toHaveLength(WORKSPACE_SKILL_GUIDANCE_CHAR_LIMIT)
++    expect(result.guidanceChars).toBe(WORKSPACE_SKILL_GUIDANCE_CHAR_LIMIT)
++    expect(result.truncated).toBe(true)
++    expect(result.promptSource).toBe('template-system-prefix')
++  })
++
++  it('derives guidance prompt source from templates and folder packages', () => {
++    const adapter = makeAdapter()
++    const userAffix = buildWorkspaceSkillGuidance({
++      templates: [
++        makeTemplate('user-affix', '用户前缀', {
++          template: '前缀',
++          injectMode: 'user_prefix',
++        }),
++      ],
++      requestText: '请修改大纲',
++      adapter,
++    })
++    expect(userAffix.guidance).toBe('')
++    expect(userAffix.promptSource).toBe('template-user-affixes')
++
++    const folderSystemPrompt = 'folder 系统提示'
++    const folder = buildWorkspaceSkillGuidance({
++      templates: [
++        makeTemplate('folder', 'folder 技能', {
++          template: '模板正文',
++          skill: {
++            id: 'folder',
++            format: 'folder',
++            folderPath: 'D:/skills/folder',
++            systemPrompt: folderSystemPrompt,
++          } as WorkspaceSkillTemplate['skill'] & {
++            systemPrompt?: string
++          },
++        }),
++      ],
++      requestText: '请修改大纲',
++      adapter,
++    })
++    expect(folder.guidance).toBe(folderSystemPrompt)
++    expect(folder.promptSource).toBe('folder-system-prompt')
++    expect(folder.skillIds).toEqual(['folder'])
++  })
++
+   it('creates and validates routing resume tokens', () => {
+     const runId = 'run-1'
+     const requestText = '请确认这段大纲的意图'
+@@ -473,6 +566,35 @@ describe('workspace skill engine', () => {
+     expect(calls[0].tools?.map(tool => tool.name)).toContain('editor.write')
+   })
+ 
++  it('keeps short replies on a pending long-document operation in the skill engine router', async () => {
++    const context = makeContextService()
++    const adapter = makeAdapter({
++      getPendingLongDocumentOperation: () => ({
++        planId: 'plan-1',
++        operation: 'normalize',
++      }),
++    })
++    const { aiService, calls } = makeAiService(['继续结果'])
++    const routingResults: string[] = []
++
++    await runWorkspaceSkills({
++      requestText: '继续',
++      templates: [makeTemplate('s1', '编辑', { intents: ['edit'] })],
++      mode: 'chain',
++      aiService,
++      contextService: context,
++      adapter,
++      callbacks: {
++        onRoutingEvent: event => {
++          if (event.type === 'routing_result') routingResults.push(event.result.reason)
++        },
++      },
++    })
++
++    expect(routingResults).toContain('pending-long-document-continuation')
++    expect(calls[0].tools || []).toEqual([])
++  })
++
+   it('records compose API calls for success and failure paths', async () => {
+     const context = makeContextService()
+     const adapter = makeAdapter()
+diff --git a/src/services/workspaceSkillEngine.ts b/src/services/workspaceSkillEngine.ts
+index 58e2987..8d1900f 100644
+--- a/src/services/workspaceSkillEngine.ts
++++ b/src/services/workspaceSkillEngine.ts
+@@ -35,6 +35,7 @@ import {
+   filterTemplatesByIntent,
+   routeChainIntentDetailed,
+   routeChainIntent,
++  type ChainRoutingContext,
+   type ChainRoutingDiagnostics,
+   type ChainRoutingResult,
+   type DetailedChainRoutingResult,
+@@ -473,6 +474,11 @@ export interface WorkspaceSkillEngineAdapter {
+     executionPlan?: LongDocumentExecutionPlan
+     writeAuthorization?: DialogueWriteAuthorization | null
+   }
++  /**
++   * Session-owned pending long-document operation. Used only for routing
++   * continuity; SKILL packages cannot supply execution authority.
++   */
++  getPendingLongDocumentOperation?(): ChainRoutingContext['pendingLongDocumentOperation'] | null
+   loadBreakpoint(): Promise<ChainBreakpoint | null>
+   saveBreakpoint(breakpoint: ChainBreakpoint): Promise<void>
+   clearBreakpoint(): Promise<void>
+@@ -564,6 +570,88 @@ export function resolveWorkspaceTemplate(
+   return template
+ }
+ 
++export type WorkspaceSkillGuidancePromptSource =
++  | 'folder-system-prompt'
++  | 'template-system-prefix'
++  | 'template-user-affixes'
++  | 'none'
++
++export type WorkspaceSkillGuidance = {
++  guidance: string
++  skillIds: string[]
++  promptSource: WorkspaceSkillGuidancePromptSource
++  guidanceChars: number
++  truncated: boolean
++}
++
++export const WORKSPACE_SKILL_GUIDANCE_CHAR_LIMIT = 8000
++
++export function buildWorkspaceSkillGuidance(input: {
++  templates: WorkspaceSkillTemplate[]
++  requestText: string
++  adapter: WorkspaceSkillEngineAdapter
++  previousSkillOutput?: string
++}): WorkspaceSkillGuidance {
++  const templates = input.templates.filter(Boolean)
++  if (templates.length === 0) {
++    return {
++      guidance: '',
++      skillIds: [],
++      promptSource: 'none',
++      guidanceChars: 0,
++      truncated: false,
++    }
++  }
++  const baseContext = input.adapter.buildTemplateContext(
++    input.requestText,
++    input.previousSkillOutput,
++  )
++  const parts = templates.map((template) => {
++    const templateContext = {
++      ...baseContext,
++      ...(template.customVars || {}),
++    }
++    return getPromptParts(
++      resolveWorkspaceTemplate(template.template, templateContext),
++      template.injectMode || 'system_prefix',
++    )
++  })
++  const merged = mergePromptParts(parts)
++  const folderTemplate = templates.find(isFolderTemplate)
++  const folderSystemPrompt = folderTemplate?.skill
++    ? resolveFolderSystemPrompt(folderTemplate.skill)
++    : ''
++  const guidance = folderTemplate ? folderSystemPrompt : merged.systemSkill
++  const text = (guidance || '').trim()
++  const promptSource: WorkspaceSkillGuidancePromptSource = folderTemplate
++    ? 'folder-system-prompt'
++    : text
++      ? 'template-system-prefix'
++      : merged.userPrefix || merged.userSuffix
++        ? 'template-user-affixes'
++        : 'none'
++  const truncated = text.length > WORKSPACE_SKILL_GUIDANCE_CHAR_LIMIT
++  return {
++    guidance: truncated
++      ? text.slice(0, WORKSPACE_SKILL_GUIDANCE_CHAR_LIMIT)
++      : text,
++    skillIds: templates.map((template) => template.id),
++    promptSource,
++    guidanceChars: Math.min(
++      text.length,
++      WORKSPACE_SKILL_GUIDANCE_CHAR_LIMIT,
++    ),
++    truncated,
++  }
++}
++
++function resolveFolderSystemPrompt(skill: RoutedSkill): string {
++  const folderSkill = skill as RoutedSkill & {
++    systemPrompt?: string
++  }
++  return folderSkill.systemPrompt || ''
++}
++
+ function isFolderTemplate(
+   template: WorkspaceSkillTemplate,
+ ): template is WorkspaceSkillTemplate & {
+@@ -1238,6 +1326,9 @@ async function resolveWorkspaceIntentRouting(
+       .filter((message) => message.role === 'user')
+       .map((message) => message.content),
+     recentHistory,
++    ...(adapter.getPendingLongDocumentOperation?.()
++      ? { pendingLongDocumentOperation: adapter.getPendingLongDocumentOperation() || undefined }
++      : {}),
+     activeSkillIds: templates.map((template) => template.id),
+     ...(adapter.classifyIntentWithLlm
+       ? { llmClassifier: adapter.classifyIntentWithLlm }

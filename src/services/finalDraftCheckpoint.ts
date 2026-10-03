@@ -11,6 +11,7 @@ export interface FinalDraftCheckpointPayload {
   sourceContent: string
   sourceContentHash: string
   instruction: string
+  operation?: FinalDraftTask['operation']
   constraints: string[]
   protectedRanges: FinalDraftTask['protectedRanges']
   sourceSegments: FinalDraftTask['sourceSegments']
@@ -104,6 +105,7 @@ export async function saveFinalDraftCheckpoint(
     sourceContent: task.sourceContent,
     sourceContentHash: task.sourceContentHash,
     instruction: task.instruction,
+    operation: task.operation,
     constraints: task.constraints,
     protectedRanges: task.protectedRanges,
     sourceSegments: task.sourceSegments,
@@ -169,6 +171,7 @@ export function restoreFinalDraftTaskFromCheckpoint(
       destination: payload.destination,
       targetId: payload.targetId,
       instruction: payload.instruction,
+      operation: payload.operation,
       constraints: payload.constraints,
       protectedRanges: payload.protectedRanges,
       sourceContent: payload.sourceContent,

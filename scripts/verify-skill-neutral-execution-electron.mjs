@@ -31,6 +31,15 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
+function parseEventDetail(value) {
+  if (typeof value !== 'string') return value || {}
+  try {
+    return JSON.parse(value)
+  } catch {
+    return value
+  }
+}
+
 function assertFreshRendererBuild() {
   const rendererIndex = path.join(ROOT, 'dist-renderer', 'index.html')
   assert(fs.existsSync(rendererIndex), 'dist-renderer/index.html exists; run npm run build:vue first')
@@ -112,6 +121,8 @@ function startMockProvider() {
         .join('\n')
       const wantsGuidance = systemPrompt.includes(GUIDANCE_MARKER)
       const isTargetedEdit = userPrompt.includes('把第二章灯塔的旧信内容修改为')
+      const isWholeDocumentRewrite = userPrompt.includes('全文重写') && userPrompt.includes('输出完整终稿')
+      const isRestructure = userPrompt.includes('整理排序') && userPrompt.includes('统一格式')
       const hasToolResult = (body?.messages || []).some(message => message?.role === 'tool')
       const tools = Array.isArray(body?.tools) ? body.tools : []
       const requestRecord = {
@@ -157,6 +168,53 @@ function startMockProvider() {
           choices: [{
             finish_reason: 'stop',
             message: { role: 'assistant', content: '已按指令完成第二章局部修改，并保持其余大纲内容不变。' },
+          }],
+        }))
+        return
+      }
+
+      if (isWholeDocumentRewrite) {
+        response.writeHead(200, { 'content-type': 'application/json; charset=utf-8' })
+        response.end(JSON.stringify({
+          choices: [{
+            finish_reason: 'stop',
+            message: {
+              role: 'assistant',
+              content: wantsGuidance
+                ? '# SKILL中立矩阵\n\n## 第一章 夜行\n\n男主在风暴中找到旧信，SKILL领域能力已注入。\n\n## 第二章 灯塔\n\n他确认了寄信人的身份。\n\n## 第三章 南下\n\n旧信把航线指向南方。\n'
+                : '# SKILL中立矩阵\n\n## 第一章 夜行\n\n男主在风暴中找到旧信。\n\n## 第二章 灯塔\n\n他确认了寄信人的身份。\n\n## 第三章 南下\n\n旧信把航线指向南方。\n',
+            },
+          }],
+        }))
+        return
+      }
+
+      if (isRestructure && !hasToolResult) {
+        response.writeHead(200, { 'content-type': 'application/json; charset=utf-8' })
+        response.end(JSON.stringify({
+          choices: [{
+            finish_reason: 'tool_calls',
+            message: {
+              role: 'assistant',
+              content: '',
+              tool_calls: [{
+                id: `skill-neutral-restructure-${requests.length}`,
+                type: 'function',
+                function: {
+                  name: 'editor.write',
+                  arguments: JSON.stringify({
+                    commands: [{
+                      operation: 'replace_document',
+                      content: wantsGuidance
+                        ? '# SKILL中立矩阵\n\n## 第一章 夜行\n\n男主在风暴中找到旧信，SKILL领域能力已注入。\n\n## 第二章 灯塔\n\n他确认了寄信人的身份。\n\n## 第三章 南下\n\n旧信把航线指向南方。\n'
+                        : '# SKILL中立矩阵\n\n## 第一章 夜行\n\n男主在风暴中找到旧信。\n\n## 第二章 灯塔\n\n他确认了寄信人的身份。\n\n## 第三章 南下\n\n旧信把航线指向南方。\n',
+                    }],
+                    reason: '按用户请求整理排序并统一格式',
+                    reveal: { mode: 'instant', firstChange: true },
+                  }),
+                },
+              }],
+            },
           }],
         }))
         return
@@ -288,6 +346,9 @@ async function latestRun(page, source) {
       id: run.id,
       status: run.status,
       events: (run.events || []).map(event => ({ type: event.type, level: event.level, payload: event.payload || null })),
+      longDocumentEvents: (run.events || [])
+        .filter(event => ['long-document-policy', 'edit-task-batch-planned'].includes(event.type))
+        .map(event => ({ type: event.type, detail: event.detail || null })),
       turns: (run.turns || []).map(turn => ({
         status: turn.status,
         actualToolSurface: turn.actualToolSurface || [],
@@ -329,9 +390,11 @@ async function runHomeCase(page, mockProvider, caseName, requestText, expectedTe
     await page.waitForFunction(expected => (window.__pinia?._s?.get('editor')?.activeTab?.content || '').includes(expected), expectedText, { timeout: 60_000, polling: 250 })
   } catch (error) {
     const content = await page.evaluate(() => window.__pinia?._s?.get('editor')?.activeTab?.content || '')
+    const failedRun = await latestRun(page, 'home')
     console.error(`[CASE DUMP] ${caseName}`)
     console.error(content.slice(0, 800))
     console.error(JSON.stringify(mockProvider.requests().slice(-3), null, 2))
+    console.error(JSON.stringify(failedRun, null, 2))
     throw error
   }
   await waitIdle(page, '#btn-send')
@@ -362,6 +425,36 @@ async function runOutlineCase(page, caseName, requestText, expectedText) {
   return { caseName, after, run }
 }
 
+function assertEditTaskRestructureNeutral(result, withSkill, mockProvider, entry) {
+  const label = `${entry}:${result.caseName}`
+  assert(result.after.includes('## 第三章 南下'), `${label}: content is written back`)
+  const requests = mockProvider.requests()
+  const writeRequest = requests.findLast(request => request.tools.includes('editor.write'))
+  assert(writeRequest, `${label}: edit-task exposes editor.write`)
+  assert.equal(writeRequest.guidance, withSkill, `${label}: guidance presence matches SKILL state`)
+  const modeEvent = result.run?.longDocumentEvents?.find(event => event.type === 'long-document-policy')
+  assert(modeEvent, `${label}: long-document-policy event exists`)
+  const modeDetail = parseEventDetail(modeEvent.detail)
+  assert.equal(modeDetail.mode, 'edit-task', `${label}: restructure routes to edit-task`)
+  assert.equal(modeDetail.operation, 'restructure', `${label}: operation is restructure`)
+  const guidanceEvents = result.run?.events.filter(event => event.type === 'agent-skill-guidance-injected') || []
+  if (withSkill) {
+    assert(guidanceEvents.length > 0, `${label}: unified guidance event exists`)
+    assert.equal(guidanceEvents[0].level, 'info', `${label}: unified guidance event is info`)
+    assert.equal(Boolean(guidanceEvents[0].payload?.skillGuidancePresent), true, `${label}: guidance payload reports guidance present`)
+  } else {
+    assert.equal(guidanceEvents.length, 0, `${label}: no unified guidance event is emitted without SKILL`)
+  }
+  assert(
+    result.run.turns.some(turn => (turn.actualToolSurface || []).some(tool => tool.name === 'editor.write')),
+    `${label}: trace records editor.write tool surface`,
+  )
+  assert(
+    result.run?.events.every(event => event.type !== 'final-draft-created'),
+    `${label}: restructure does not enter final-draft runner`,
+  )
+}
+
 function assertFinalDraftNeutral(result, withSkill, mockProvider, entry) {
   const label = `${entry}:${result.caseName}`
   assert(result.after.includes('## 第三章 南下'), `${label}: content is written back`)
@@ -371,8 +464,8 @@ function assertFinalDraftNeutral(result, withSkill, mockProvider, entry) {
   assert.equal(request.guidance, withSkill, `${label}: guidance presence matches SKILL state`)
   assert(result.run?.events.some(event => event.type === 'final-draft-created'), `${label}: final-draft runner event exists`)
   const guidanceEvent = result.run?.events.find(event => event.type === 'final-draft-skill-guidance')
-  assert(guidanceEvent, `${label}: guidance event exists`)
-  assert.equal(guidanceEvent.level, 'info', `${label}: guidance event is info`)
+  assert(guidanceEvent, `${label}: final-draft guidance event exists`)
+  assert.equal(guidanceEvent.level, 'info', `${label}: final-draft guidance event is info`)
   assert.equal(Boolean(guidanceEvent.payload?.skillGuidancePresent), withSkill, `${label}: guidance payload matches SKILL state`)
   assert(
     result.run.turns.some(turn => (turn.actualToolSurface || []).length === 0),
@@ -463,16 +556,24 @@ async function main() {
     await seedApplication(page, mockProvider, { withSkill: false })
     let before = requestCountBefore()
     let result = await runHomeCase(page, mockProvider, 'home-final-draft-no-skill', '请对当前编辑器全文进行整理排序，并统一格式。', '## 第三章 南下')
-    assertFinalDraftNeutral(result, false, mockProvider, 'home')
+    assertEditTaskRestructureNeutral(result, false, mockProvider, 'home')
     result = await runOutlineCase(page, 'outline-final-draft-no-skill', '请对全文大纲进行整理排序，并统一格式。', '## 第三章 南下')
+    assertEditTaskRestructureNeutral(result, false, mockProvider, 'outline')
+    result = await runHomeCase(page, mockProvider, 'home-whole-rewrite-no-skill', '请全文重写当前编辑器内容，输出完整终稿。', '## 第三章 南下')
+    assertFinalDraftNeutral(result, false, mockProvider, 'home')
+    result = await runOutlineCase(page, 'outline-whole-rewrite-no-skill', '请全文重写大纲内容，输出完整终稿。', '## 第三章 南下')
     assertFinalDraftNeutral(result, false, mockProvider, 'outline')
     report.cases.push({ skill: false, requests: mockProvider.requests().slice(before) })
 
     await seedApplication(page, mockProvider, { withSkill: true })
     before = requestCountBefore()
     result = await runHomeCase(page, mockProvider, 'home-final-draft-with-skill', '请对当前编辑器全文进行整理排序，并统一格式。', '旧信把航线指向南方。')
-    assertFinalDraftNeutral(result, true, mockProvider, 'home')
+    assertEditTaskRestructureNeutral(result, true, mockProvider, 'home')
     result = await runOutlineCase(page, 'outline-final-draft-with-skill', '请对全文大纲进行整理排序，并统一格式。', '旧信把航线指向南方。')
+    assertEditTaskRestructureNeutral(result, true, mockProvider, 'outline')
+    result = await runHomeCase(page, mockProvider, 'home-whole-rewrite-with-skill', '请全文重写当前编辑器内容，输出完整终稿。', '旧信把航线指向南方。')
+    assertFinalDraftNeutral(result, true, mockProvider, 'home')
+    result = await runOutlineCase(page, 'outline-whole-rewrite-with-skill', '请全文重写大纲内容，输出完整终稿。', '旧信把航线指向南方。')
     assertFinalDraftNeutral(result, true, mockProvider, 'outline')
     result = await runHomeCase(page, mockProvider, 'home-targeted-edit-with-skill', '请把第二章灯塔的旧信内容修改为确认身份并决定南下。', '他在灯塔下确认了寄信人的身份，并决定南下。')
     assertTargetedEdit(result, mockProvider, 'home')
@@ -481,11 +582,11 @@ async function main() {
     report.cases.push({ skill: true, requests: mockProvider.requests().slice(before) })
 
     const homeTrace = await exportLatestTrace(page, 'home')
-    assert.equal(homeTrace.schemaVersion, 11, 'home exported trace uses schema v11')
+    assert.equal(homeTrace.schemaVersion, 12, 'home exported trace uses schema v12')
     await page.click('#btn-outline-workspace')
     await page.waitForSelector('#btn-ow-run-trace', { timeout: 20_000 })
     const outlineTrace = await exportLatestTrace(page, 'outline')
-    assert.equal(outlineTrace.schemaVersion, 11, 'outline exported trace uses schema v11')
+    assert.equal(outlineTrace.schemaVersion, 12, 'outline exported trace uses schema v12')
     report.exportedSchemaVersion = homeTrace.schemaVersion
 
     fs.writeFileSync(path.join(EVIDENCE_ROOT, 'summary.json'), JSON.stringify(report, null, 2), 'utf8')

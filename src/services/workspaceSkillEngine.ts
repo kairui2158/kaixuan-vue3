@@ -35,6 +35,7 @@ import {
   filterTemplatesByIntent,
   routeChainIntentDetailed,
   routeChainIntent,
+  type ChainRoutingContext,
   type ChainRoutingDiagnostics,
   type ChainRoutingResult,
   type DetailedChainRoutingResult,
@@ -199,6 +200,7 @@ type AuthorizedWorkspaceToolSurface = {
   tools: AgentToolDefinition[]
   toolPolicy?: CallAiParams['toolPolicy']
   actualToolSurface: Array<{ name: string; policy: 'read' | 'write' }>
+  permissionDecision: ReturnType<typeof authorizeDialogueTools>['permissionDecision']
   activeEditTask: EditTask | null
 }
 
@@ -225,6 +227,7 @@ export type WorkspaceSkillRunMeta = {
     message: string
     at?: string
   }>
+  skillToolDeclarationsIgnored?: number
   budget?: { used: number; limit: number }
   folderPackageCache?: boolean
   postProcessReport?: RealSkillPostProcessReport
@@ -473,6 +476,11 @@ export interface WorkspaceSkillEngineAdapter {
     executionPlan?: LongDocumentExecutionPlan
     writeAuthorization?: DialogueWriteAuthorization | null
   }
+  /**
+   * Session-owned pending long-document operation. Used only for routing
+   * continuity; SKILL packages cannot supply execution authority.
+   */
+  getPendingLongDocumentOperation?(): ChainRoutingContext['pendingLongDocumentOperation'] | null
   loadBreakpoint(): Promise<ChainBreakpoint | null>
   saveBreakpoint(breakpoint: ChainBreakpoint): Promise<void>
   clearBreakpoint(): Promise<void>
@@ -562,6 +570,92 @@ export function resolveWorkspaceTemplate(
     }
   }
   return template
+}
+
+export type WorkspaceSkillGuidancePromptSource =
+  | 'folder-system-prompt'
+  | 'template-system-prefix'
+  | 'template-user-affixes'
+  | 'none'
+
+export type WorkspaceSkillGuidance = {
+  guidance: string
+  skillIds: string[]
+  promptSource: WorkspaceSkillGuidancePromptSource
+  guidanceChars: number
+  truncated: boolean
+}
+
+export const WORKSPACE_SKILL_GUIDANCE_CHAR_LIMIT = 8000
+
+export function buildWorkspaceSkillGuidance(input: {
+  templates: WorkspaceSkillTemplate[]
+  requestText: string
+  adapter: WorkspaceSkillEngineAdapter
+  previousSkillOutput?: string
+}): WorkspaceSkillGuidance {
+  const templates = input.templates.filter(Boolean)
+  if (templates.length === 0) {
+    return {
+      guidance: '',
+      skillIds: [],
+      promptSource: 'none',
+      guidanceChars: 0,
+      truncated: false,
+    }
+  }
+  const baseContext = input.adapter.buildTemplateContext(
+    input.requestText,
+    input.previousSkillOutput,
+  )
+  const parts = templates.map((template) => {
+    const templateContext = {
+      ...baseContext,
+      ...(template.customVars || {}),
+    }
+    return getPromptParts(
+      resolveWorkspaceTemplate(template.template, templateContext),
+      template.injectMode || 'system_prefix',
+    )
+  })
+  const merged = mergePromptParts(parts)
+  const folderTemplate = templates.find(isFolderTemplate)
+  const folderSystemPrompt = folderTemplate?.skill
+    ? resolveFolderSystemPrompt(folderTemplate.skill)
+      // Imported folder skills keep their domain capability in template.md;
+      // the store record intentionally has no systemPrompt field.
+      || folderTemplate.template
+      || folderTemplate.skill?.description
+    : ''
+  const guidance = folderTemplate ? folderSystemPrompt : merged.systemSkill
+  const text = (guidance || '').trim()
+  const promptSource: WorkspaceSkillGuidancePromptSource = folderTemplate
+    ? 'folder-system-prompt'
+    : text
+      ? 'template-system-prefix'
+      : merged.userPrefix || merged.userSuffix
+        ? 'template-user-affixes'
+        : 'none'
+  const truncated = text.length > WORKSPACE_SKILL_GUIDANCE_CHAR_LIMIT
+  return {
+    guidance: truncated
+      ? text.slice(0, WORKSPACE_SKILL_GUIDANCE_CHAR_LIMIT)
+      : text,
+    skillIds: templates.map((template) => template.id),
+    promptSource,
+    guidanceChars: Math.min(
+      text.length,
+      WORKSPACE_SKILL_GUIDANCE_CHAR_LIMIT,
+    ),
+    truncated,
+  }
+}
+
+function resolveFolderSystemPrompt(skill: RoutedSkill): string {
+  const folderSkill = skill as RoutedSkill & {
+    systemPrompt?: string
+  }
+  return folderSkill.systemPrompt || ''
 }
 
 function isFolderTemplate(
@@ -718,14 +812,19 @@ function resolveAuthorizedToolSurface(
       ? { writeAuthorization: executionContext.writeAuthorization }
       : {}),
   }
-  const { tools: authorizedTools } = authorizeDialogueTools(
+  const { tools: authorizedTools, permissionDecision } = authorizeDialogueTools(
     requestedSurface.tools || [],
     intent,
     'direct',
     taskContext,
   )
   const authorizedToolPolicy = requestedSurface.toolPolicy
-    ? { ...requestedSurface.toolPolicy, intent, scenario: 'folder-chain' as const }
+    ? {
+        ...requestedSurface.toolPolicy,
+        intent,
+        scenario: 'folder-chain' as const,
+        permissionDecision,
+      }
     : undefined
   return {
     tools: authorizedTools,
@@ -734,6 +833,7 @@ function resolveAuthorizedToolSurface(
       name: tool.name,
       policy: tool.policy,
     })),
+    permissionDecision,
     activeEditTask: adapter.getEditTaskContext?.().activeEditTask || null,
   }
 }
@@ -911,6 +1011,9 @@ async function callWorkspaceSkill(
         diagnostics: folderResult.diagnostics,
         budget: budget.snapshot(),
         folderPackageCache: folderResult.folderPackageCache === true,
+        skillToolDeclarationsIgnored: folderResult.diagnostics?.filter(
+          diagnostic => diagnostic.code === 'folder-package:manifest-protocol-fields-ignored',
+        ).length || 0,
         postProcessReport: folderResult.postProcessReport,
         toolCalls: folderResult.apiMeta?.toolCalls,
         toolResults: folderResult.apiMeta?.toolResults,
@@ -1238,6 +1341,9 @@ async function resolveWorkspaceIntentRouting(
       .filter((message) => message.role === 'user')
       .map((message) => message.content),
     recentHistory,
+    ...(adapter.getPendingLongDocumentOperation?.()
+      ? { pendingLongDocumentOperation: adapter.getPendingLongDocumentOperation() || undefined }
+      : {}),
     activeSkillIds: templates.map((template) => template.id),
     ...(adapter.classifyIntentWithLlm
       ? { llmClassifier: adapter.classifyIntentWithLlm }

@@ -16,34 +16,36 @@ function makeInput(overrides: Partial<LongDocumentExecutionPlannerInput> = {}): 
 }
 
 describe('buildLongDocumentExecutionPlan', () => {
-  it('classifies whole-document restructure as an atomic reorder operation', () => {
+  it('plans whole-document restructure as an atomic EditTask reorder operation', () => {
     const plan = buildLongDocumentExecutionPlan(makeInput({
       content: `# 第一卷\n\n${'雨'.repeat(12_000)}\n\n# 第二卷\n\n${'雨'.repeat(12_000)}`,
     }))
 
     expect(plan.operation).toBe('restructure')
-    expect(plan.mode).toBe('final-draft')
-    expect(plan.finalDraft).toBe(true)
-    expect(plan.finalDraftPlan).toEqual({
-      sourceChars: plan.totalChars,
-      instruction: '把整篇大纲重新整理排序，统一编号',
-      continuationEnabled: true,
-      segmented: false,
-      segments: [{ segmentId: 'segment-1', start: 0, end: plan.totalChars }],
-    })
-    expect(plan.segments).toEqual([])
-    expect(plan.invariants).toEqual([])
+    expect(plan.mode).toBe('edit-task')
+    expect(plan.finalDraft).toBe(false)
+    expect(plan.finalDraftPlan).toBeNull()
+    expect(plan.segments).toEqual([{
+      segmentId: 'structure-reorder',
+      range: { startLine: 0, endLine: plan.totalChars },
+      readStrategy: 'outline-plus-slice',
+      writeStrategy: 'reorder_sections',
+      expectedChange: 'reorder',
+      commandLimit: 1,
+    }])
+    expect(plan.invariants).toEqual(['leaf-body-multiset-unchanged'])
   })
 
-  it('keeps final-draft planning independent of document size', () => {
+  it('keeps EditTask restructure planning independent of document size', () => {
     const content = Array.from({ length: 240 }, (_, index) =>
       `# 第${index + 1}节\n\n${'雨'.repeat(1_000)}\n\n`).join('')
 
     const plan = buildLongDocumentExecutionPlan(makeInput({ content }))
 
     expect(plan.operation).toBe('restructure')
-    expect(plan.mode).toBe('final-draft')
-    expect(plan.segments).toEqual([])
+    expect(plan.mode).toBe('edit-task')
+    expect(plan.segments).toHaveLength(1)
+    expect(plan.segments[0].writeStrategy).toBe('reorder_sections')
     expect(plan.estimatedPhysicalRequests).toBe(1)
   })
 
@@ -61,7 +63,7 @@ describe('buildLongDocumentExecutionPlan', () => {
     expect(plan.estimatedPhysicalRequests).toBe(1)
   })
 
-  it('plans normalize work as final-draft generation instead of segment commands', () => {
+  it('plans normalize work as segmented EditTask commands instead of final-draft generation', () => {
     const plan = buildLongDocumentExecutionPlan(makeInput({
       requestText: '整理整篇大纲的标点符号和格式',
       content: Array.from({ length: 12 }, (_, index) => `# 第${index + 1}卷\n\n${'雨'.repeat(2_000)}\n\n`).join(''),
@@ -69,22 +71,62 @@ describe('buildLongDocumentExecutionPlan', () => {
     }))
 
     expect(plan.operation).toBe('normalize')
-    expect(plan.mode).toBe('final-draft')
-    expect(plan.finalDraft).toBe(true)
-    expect(plan.segments).toEqual([])
-    expect(plan.invariants).toEqual([])
+    expect(plan.mode).toBe('edit-task')
+    expect(plan.finalDraft).toBe(false)
+    expect(plan.finalDraftPlan).toBeNull()
+    expect(plan.segments.length).toBeGreaterThan(1)
+    expect(plan.invariants).toEqual(['normalize-changes-punctuation-whitespace-format-only'])
   })
 
-  it('plans duplicate removal as final-draft generation', () => {
+  it('plans duplicate removal as an EditTask deletion operation', () => {
     const plan = buildLongDocumentExecutionPlan(makeInput({
       requestText: '删除大纲里重复的章节条目',
       content: `# 第一章\n\n${'重复内容'.repeat(2_000)}\n\n# 第一章\n\n${'重复内容'.repeat(2_000)}`,
     }))
 
     expect(plan.operation).toBe('deduplicate')
-    expect(plan.mode).toBe('final-draft')
-    expect(plan.finalDraft).toBe(true)
-    expect(plan.segments).toEqual([])
+    expect(plan.mode).toBe('edit-task')
+    expect(plan.finalDraft).toBe(false)
+    expect(plan.finalDraftPlan).toBeNull()
+    expect(plan.segments).toEqual([{
+      segmentId: 'structure-plan',
+      range: { startLine: 0, endLine: plan.totalChars },
+      readStrategy: 'outline-plus-slice',
+      writeStrategy: 'delete',
+      expectedChange: 'remove_duplicate',
+      commandLimit: 10,
+    }])
+    expect(plan.invariants).toEqual(['planned-deletion-only'])
+  })
+
+  it('does not treat a normalize instruction that merely mentions duplicates as deletion work', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '整理整篇大纲的标点符号，未重复的游离段落保持不动',
+      content: Array.from({ length: 12 }, (_, index) => `# 第${index + 1}卷\n\n${'雨'.repeat(2_000)}\n\n`).join(''),
+      contextWindowTokens: 12_000,
+    }))
+
+    expect(plan.operation).toBe('normalize')
+    expect(plan.mode).toBe('edit-task')
+    expect(plan.segments[0].writeStrategy).toBe('replace_match')
+    expect(plan.invariants).toEqual(['normalize-changes-punctuation-whitespace-format-only'])
+  })
+
+  it('plans compound duplicate cleanup and normalization as staged EditTask work', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '1，三处重复项，删 。 2，是在编辑器里统一标题层级、编号和标点',
+      content: `# 第一卷\n\n${'雨'.repeat(12_000)}\n\n# 第一卷\n\n${'雨'.repeat(12_000)}`,
+      contextWindowTokens: 128_000,
+    }))
+
+    expect(plan.operation).toBe('deduplicate_and_normalize')
+    expect(plan.mode).toBe('edit-task')
+    expect(plan.finalDraft).toBe(false)
+    expect(plan.segments.map(segment => segment.writeStrategy)).toEqual(['delete', 'replace_match'])
+    expect(plan.invariants).toEqual([
+      'planned-deletion-only',
+      'normalize-changes-punctuation-whitespace-format-only',
+    ])
   })
 
   it('keeps a whole-document rewrite on the final-draft path', () => {
@@ -98,10 +140,27 @@ describe('buildLongDocumentExecutionPlan', () => {
     expect(plan.mode).toBe('final-draft')
     expect(plan.finalDraft).toBe(true)
     expect(plan.segments).toEqual([])
+    expect(plan.invariants).toEqual(['authorized-rewrite'])
+  })
+
+  it('keeps an explicit whole-document final-draft delivery request on the final-draft path', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '请对当前编辑器全文进行整理排序，并统一格式。不要改写正文含义，输出完整终稿。',
+      content: Array.from({ length: 8 }, (_, index) => `# 第${index + 1}卷\n\n${'雨'.repeat(3_000)}\n\n`).join(''),
+      contextWindowTokens: 12_000,
+      intent: 'edit',
+    }))
+
+    expect(plan.operation).toBe('rewrite_segments')
+    expect(plan.mode).toBe('final-draft')
+    expect(plan.finalDraft).toBe(true)
+    expect(plan.segments).toEqual([])
+    expect(plan.invariants).toEqual(['authorized-rewrite'])
   })
 
   it('does not treat a missing window as an application cap and uses the unknown planning window', () => {
     const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '全文重写为更精炼的大纲',
       contextWindowTokens: null,
       maxOutputTokens: null,
       content: `${'雨'.repeat(100_000)}`,
@@ -115,7 +174,7 @@ describe('buildLongDocumentExecutionPlan', () => {
   it('segments a final draft when the document exceeds the effective window', () => {
     const content = Array.from({ length: 4 }, (_, index) => `# 第${index + 1}卷\n\n${'雨'.repeat(5_000)}\n\n`).join('')
     const plan = buildLongDocumentExecutionPlan(makeInput({
-      requestText: '整理整篇大纲的标点符号和格式',
+      requestText: '全文重写为更精炼的大纲',
       content,
       contextWindowTokens: 4_000,
       maxOutputTokens: 1_000,
@@ -150,6 +209,7 @@ describe('buildLongDocumentExecutionPlan', () => {
 
   it('marks self-contradictory provider windows instead of planning on zero input', () => {
     const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '全文重写为更精炼的大纲',
       contextWindowTokens: 128_000,
       maxOutputTokens: 128_000,
       content: `${'雨'.repeat(74_841)}`,
@@ -180,6 +240,7 @@ describe('buildLongDocumentExecutionPlan', () => {
     expect(toLongDocumentOperationType('rewrite_segments')).toBe('whole-document-replacement')
     expect(toLongDocumentOperationType('normalize')).toBe('large-scope-edit')
     expect(toLongDocumentOperationType('deduplicate')).toBe('large-scope-edit')
+    expect(toLongDocumentOperationType('deduplicate_and_normalize')).toBe('large-scope-edit')
     expect(toLongDocumentOperationType('targeted_edit')).toBe('targeted-edit')
   })
 
@@ -191,6 +252,47 @@ describe('buildLongDocumentExecutionPlan', () => {
     }))
 
     expect(plan.operation).toBe('restructure')
-    expect(plan.mode).toBe('final-draft')
+    expect(plan.mode).toBe('edit-task')
+  })
+
+  it('keeps routed discussion intent read-only even when the sentence mentions edit verbs', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '我想解释一下第一卷钩子为什么这样修改，你先帮我分析利弊',
+      content: '段'.repeat(12_000),
+      intent: 'discuss',
+    }))
+
+    expect(plan.operation).toBe('discussion')
+    expect(plan.mode).toBe('direct')
+    expect(plan.segments).toEqual([])
+    expect(plan.invariants).toEqual([])
+    expect(toLongDocumentOperationType(plan.operation)).toBe('discussion')
+  })
+
+  it('keeps analyze and auto intents on the discussion path', () => {
+    for (const intent of ['analyze', 'auto'] as const) {
+      const plan = buildLongDocumentExecutionPlan(makeInput({
+        requestText: '继续按照刚才的方向处理',
+        content: '段'.repeat(12_000),
+        intent,
+      }))
+
+      expect(plan.operation).toBe('discussion')
+      expect(plan.mode).toBe('direct')
+      expect(plan.segments).toEqual([])
+      expect(plan.invariants).toEqual([])
+    }
+  })
+
+  it('defaults unknown long-document requests to discussion instead of targeted edit', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '这一段设定后面还有呼应吗',
+      content: '段'.repeat(12_000),
+    }))
+
+    expect(plan.operation).toBe('discussion')
+    expect(plan.mode).toBe('direct')
+    expect(plan.segments).toEqual([])
+    expect(plan.invariants).toEqual([])
   })
 })

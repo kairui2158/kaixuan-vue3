@@ -431,9 +431,119 @@ describe('runTrace store', () => {
       JSON.stringify({
         skillName: undefined,
         model: 'test-model',
-        actualToolSurface: [{ name: 'editor.write', policy: 'write' }]
+        actualToolSurface: [{ name: 'editor.write', policy: 'write' }],
+        permissionDecision: null
       })
     )
+  })
+
+  it('persists permission decisions on turns and API calls and exports them', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲共创',
+      mode: 'direct',
+      skillNames: [],
+      sessionKind: 'chat',
+    })
+    const permissionDecision = {
+      source: 'dialogue-intent',
+      decision: 'write-authorized',
+      intent: 'edit',
+      operation: 'targeted_edit',
+      mode: 'direct',
+      reason: '用户明确要求修改编辑器内容',
+    } as const
+    const turnId = store.startTurn(runId, {
+      userRequest: '直接修改第一段',
+      intent: 'edit',
+      permissionDecision,
+      actualToolSurface: [{ name: 'editor.write', policy: 'write' }],
+    })
+    const callId = store.startApiCall(runId, {
+      source: 'outline',
+      requestMessages: [{ role: 'user', content: '直接修改第一段' }],
+      intent: 'edit',
+      permissionDecision,
+      actualToolSurface: [{ name: 'editor.write', policy: 'write' }],
+    })
+    store.appendToolCall(runId, callId, {
+      name: 'editor.write',
+      input: { commands: [] },
+      status: 'success',
+      defaultToolPolicy: 'allowedWithPermission',
+      riskLevel: 'medium',
+    })
+    store.finishApiCall(runId, callId, {
+      status: 'success',
+      responseText: '写入完成',
+    })
+    store.finishTurn(runId, turnId, 'success')
+
+    const exported = store.exportRunToJson(store.getRun(runId)!) as unknown as {
+      turns?: Array<{ permissionDecision?: unknown }>
+      apiCalls?: Array<{
+        permissionDecision?: unknown
+        toolCalls?: Array<{ defaultToolPolicy?: string; riskLevel?: string }>
+      }>
+    }
+    expect(exported.turns?.[0]?.permissionDecision).toEqual(permissionDecision)
+    expect(exported.apiCalls?.[0]?.permissionDecision).toEqual(permissionDecision)
+    expect(exported.apiCalls?.[0]?.toolCalls?.[0]).toMatchObject({
+      defaultToolPolicy: 'allowedWithPermission',
+      riskLevel: 'medium',
+    })
+  })
+
+  it('keeps permission decisions and optional for legacy v11 traces', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲共创',
+      mode: 'direct',
+      skillNames: [],
+      sessionKind: 'chat',
+    })
+    const turnId = store.startTurn(runId, {
+      userRequest: '旧版本只读讨论',
+      intent: 'discuss',
+      actualToolSurface: [],
+    })
+    const callId = store.startApiCall(runId, {
+      source: 'outline',
+      requestMessages: [{ role: 'user', content: '旧版本只读讨论' }],
+      intent: 'discuss',
+      actualToolSurface: [],
+    })
+    store.finishApiCall(runId, callId, { status: 'success', responseText: '旧版本返回' })
+    store.finishTurn(runId, turnId, 'success')
+    const current = JSON.parse(JSON.stringify(store.getRun(runId)!)) as {
+      turns: Array<Record<string, unknown>>
+      apiCalls: Array<Record<string, unknown>>
+    }
+    const legacy = {
+      ...current,
+      schemaVersion: 11,
+      turns: current.turns.map((turn: Record<string, unknown>) => ({
+        ...turn,
+        permissionDecision: undefined,
+      })),
+      apiCalls: current.apiCalls.map((call: Record<string, unknown>) => ({
+        ...call,
+        permissionDecision: undefined,
+        toolCalls: ((call.toolCalls || []) as Array<Record<string, unknown>>).map((tool: Record<string, unknown>) => ({
+          ...tool,
+          defaultToolPolicy: undefined,
+          riskLevel: undefined,
+        })),
+      })),
+    }
+
+    const exported = store.exportRunToJson(legacy as any) as any
+    expect(exported.schemaVersion).toBe(11)
+    expect(exported.turns[0].permissionDecision).toBeUndefined()
+    expect(exported.apiCalls[0].permissionDecision).toBeUndefined()
+    expect(exported.apiCalls[0].responseText).toBe('旧版本返回')
   })
 
   it('records degraded api calls and run state', () => {
@@ -1276,7 +1386,7 @@ describe('runTrace store', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
     const exported = store.exportRunToJson(store.getRun(runId)!) as Record<string, unknown>
-    expect(exported.schemaVersion).toBe(11)
+    expect(exported.schemaVersion).toBe(12)
   })
 
   it('records physical, stream, tool, and edit-task activity without firing false stuck warnings', () => {
@@ -1348,6 +1458,130 @@ describe('runTrace store', () => {
     expect(run.events.some(event => event.type === 'state-stuck-detected')).toBe(true)
     store.finishRun(runId, 'success')
     vi.useRealTimers()
+  })
+
+  it('records newly planned edit-task batches once with forward-looking metadata', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲共创',
+      mode: 'chat',
+      sessionKind: 'chat',
+      skillNames: []
+    })
+    const executionPlan = {
+      goal: '清理错误标点并删除重复项',
+      batches: ['batch-1'],
+      batchDetails: {
+        'batch-1': {
+          segmentId: 'segment-0001',
+          expectedChange: 'normalize',
+          invariantResult: 'normalize-changes-punctuation-whitespace-format-only',
+          range: { startLine: 1, endLine: 12 },
+          writeStrategy: 'replace_match'
+        }
+      }
+    }
+    const payload = {
+      taskId: 'edit-task-1',
+      status: 'running_batch',
+      source: 'outline',
+      targetId: 'outline',
+      goal: '清理错误标点并删除重复项',
+      executedBatches: [],
+      pendingBatches: ['batch-1'],
+      failedBatches: [],
+      activeBatchId: 'batch-1',
+      executionPlan
+    }
+
+    store.reportEditTaskActivity(runId, payload)
+    store.reportEditTaskActivity(runId, { ...payload, status: 'awaiting_batch' })
+    store.reportEditTaskActivity(runId, {
+      ...payload,
+      executedBatches: ['batch-1'],
+      pendingBatches: ['batch-2'],
+      activeBatchId: 'batch-2',
+      executionPlan: {
+        ...executionPlan,
+        batches: ['batch-1', 'batch-2'],
+        batchDetails: {
+          ...executionPlan.batchDetails,
+          'batch-2': {
+            segmentId: 'segment-0002',
+            expectedChange: 'remove_duplicate',
+            invariantResult: 'planned-deletion-only',
+            range: { startLine: 13, endLine: 20 },
+            writeStrategy: 'delete'
+          }
+        }
+      }
+    })
+
+    const run = store.getRun(runId)!
+    const planned = run.events.filter(event => event.type === 'edit-task-batch-planned')
+    expect(planned).toHaveLength(2)
+    expect(planned[0].detail).toContain('taskId=edit-task-1')
+    expect(planned[0].detail).toContain('batchId=batch-1')
+    expect(planned[0].detail).toContain('segmentId=segment-0001')
+    expect(planned[0].detail).toContain('range=1-12')
+    expect(planned[0].detail).toContain('writeStrategy=replace_match')
+    expect(planned[0].detail).toContain('expectedChange=normalize')
+    expect(planned[0].detail).toContain('estimatedBatches=1')
+    expect(planned[1].detail).toContain('estimatedBatches=2')
+    store.finishRun(runId, 'success')
+  })
+
+  it('keeps edit-task planning observable when a task continues in a later turn', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲共创',
+      mode: 'chat',
+      sessionKind: 'chat',
+      skillNames: []
+    })
+    const firstTurnId = store.startTurn(runId, { userRequest: '整理第一段', mode: 'chat' })
+    const executionPlan = {
+      goal: '删除重复项并统一标点',
+      batches: ['batch-1'],
+      batchDetails: {
+        'batch-1': {
+          segmentId: 'segment-0001',
+          expectedChange: 'remove_duplicate',
+          invariantResult: 'planned-deletion-only',
+          range: { startLine: 1, endLine: 12 },
+          writeStrategy: 'delete'
+        }
+      }
+    }
+    const payload = {
+      taskId: 'edit-task-1',
+      status: 'running_batch',
+      source: 'outline',
+      targetId: 'outline',
+      goal: '删除重复项并统一标点',
+      executedBatches: [],
+      pendingBatches: ['batch-1'],
+      failedBatches: [],
+      activeBatchId: 'batch-1',
+      executionPlan
+    }
+
+    store.reportEditTaskActivity(runId, payload, { turnId: firstTurnId })
+    store.finishTurn(runId, firstTurnId, 'success', undefined, 'plain_dialogue_complete')
+    const secondTurnId = store.startTurn(runId, { userRequest: '继续删除重复项', mode: 'chat' })
+    store.reportEditTaskActivity(runId, { ...payload, status: 'awaiting_batch' }, { turnId: secondTurnId })
+
+    const run = store.getRun(runId)!
+    const planned = run.events.filter(event => event.type === 'edit-task-batch-planned')
+    expect(planned).toHaveLength(2)
+    expect(planned.map(event => event.turnId)).toEqual([firstTurnId, secondTurnId])
+    const activity = run.events.filter(event => event.type === 'run-activity' && event.turnId === secondTurnId)
+    expect(activity).toHaveLength(1)
+    const planDetail = run.events.filter(event => event.type === 'edit-task-plan-detail')
+    expect(planDetail.map(event => event.turnId)).toEqual([firstTurnId, secondTurnId])
+    store.finishRun(runId, 'success')
   })
 
   it('records long physical requests and terminal merge as distinct run semantics without duplication', () => {
@@ -1449,6 +1683,40 @@ describe('runTrace store', () => {
     vi.useRealTimers()
   })
 
+  it('records edit task completion verification and violations', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ stepName: '大纲共创', mode: 'chain', skillNames: ['S1'] })
+
+    store.reportEditTaskCompletion(runId, {
+      verified: true,
+      invariant: 'planned-deletion-only',
+      violations: [],
+    })
+    store.reportEditTaskCompletion(runId, {
+      verified: false,
+      invariant: 'planned-deletion-only',
+      violations: [{
+        code: 'planned_deletion_not_removed',
+        message: '计划删除目标仍然存在：重复段落',
+        batchId: 'batch-1',
+        target: '重复段落',
+        beforeCount: 2,
+        afterCount: 2,
+      }],
+    }, { turnId: null })
+
+    const run = store.getRun(runId)!
+    const verified = run.events.find(event => event.type === 'edit-task-completion-verified')
+    const violation = run.events.find(event => event.type === 'edit-task-completion-violation')
+    expect(verified?.level).toBe('info')
+    expect(violation?.level).toBe('warn')
+    expect(violation?.detail).toContain('batchId=batch-1')
+    expect(violation?.detail).toContain('target=重复段落')
+    expect(violation?.detail).toContain('before=2')
+    expect(violation?.detail).toContain('after=2')
+    store.finishRun(runId, 'success')
+  })
+
   it('keeps logical initial requests separate from tool-round deltas', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ stepName: '大纲共创', mode: 'chain', skillNames: ['S1'] })
@@ -1489,7 +1757,7 @@ describe('runTrace store', () => {
     const run = store.getRun(runId)!
     expect(run.events.some(event => event.type === 'chain-handoff-delivery')).toBe(true)
     expect(run.processingReports?.some(report => report.processor === 'chain-handoff')).toBe(true)
-    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(11)
+    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(12)
   })
 
   it('records the requested and actual tool surface separately', () => {

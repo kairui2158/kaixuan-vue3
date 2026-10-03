@@ -88,6 +88,12 @@
         </div>
         <div v-show="chatAreaOpen" class="ow-chat">
           <div id="ow-chat-messages" ref="msgContainer" class="ow-messages">
+            <div v-if="sourceContaminationNotice" id="ow-source-contamination-notice" class="ow-msg assistant ow-source-contamination">
+              <div class="ow-msg-bubble">
+                <span>{{ sourceContaminationNotice }}</span>
+                <button type="button" @click="sourceContaminationNotice = ''">知道了</button>
+              </div>
+            </div>
             <div v-if="compatibilityNotice" id="ow-compatibility-notice" class="ow-msg assistant">
               <div class="ow-msg-bubble">{{ compatibilityNotice }}</div>
             </div>
@@ -347,10 +353,12 @@ import { usePipelineStore } from '../../stores/pipeline'
 import { useSkillStore } from '../../stores/skill'
 import { useAgentStore } from '../../stores/agent'
 import { migrateSkillAgentBindings } from '../../services/skillAgentBinding'
-import { createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceSkillEngineAdapter, type WorkspaceSkillRunMeta, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
+import { buildWorkspaceSkillGuidance, createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceSkillEngineAdapter, type WorkspaceSkillRunMeta, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
+import { collectSkillPackageProtocolDiagnostics, type RealSkillDiagnostic } from '../../services/realSkillExecutor'
 import {
   classifyPlainDialogueIntentDetailed,
   type ChainIntent,
+  type ChainRoutingContext,
   type ChainRoutingResult,
   type DetailedChainRoutingResult,
   type PlainDialogueIntentDetailed,
@@ -419,6 +427,7 @@ import {
   toLongDocumentOperationType,
   type LongDocumentExecutionPlan,
 } from '../../services/longDocumentExecutionPlanner'
+import type { LongDocumentWriteAuthorization as DialogueWriteAuthorization } from '../../services/editorTools'
 import {
   continueFinalDraftTask,
   createFinalDraftStatusMessage,
@@ -442,6 +451,7 @@ import {
 import type { FinalDraftEvent } from '../../services/finalDraftService'
 import type { ContextBudgetDecision } from '../../services/contextBudget'
 import {
+  buildToolErrorKey,
   createToolRunSupervisor,
   DIRECT_TOOL_RUN_HARD_DEADLINE_MS,
   DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS,
@@ -459,7 +469,9 @@ import {
   type NormalizedSelection,
 } from '../../services/editorSelectionModel'
 import { useEditTaskSession, type EditTaskSessionLifecycleEvent } from '../../composables/useEditTaskSession'
+import type { EditTaskCompletionReport } from '../../services/editTaskCompletion'
 import type { EditTask } from '../../services/editTaskService'
+import { detectSourceContamination } from '../../services/sourceContaminationDetector'
 import { describeRoutingDiagEvent } from '../../services/routingDiagBridge'
 
 const emit = defineEmits<{ close: []; navigate: [target: string] }>()
@@ -500,6 +512,7 @@ const pendingOutlineDeletionReplay = ref<{
     invariantResult?: string
   }
   reason?: string
+  writeAuthorization?: DialogueWriteAuthorization
   reveal: { mode: 'stream' | 'instant'; firstChange: boolean }
   multiBatch?: boolean
 } | null>(null)
@@ -546,7 +559,9 @@ const chatAreaOpen = ref(false)
 const isFullscreen = ref(false)
 const saveFeedback = ref('')
 const lastUserRequest = ref('')
+const currentRoutingIntent = ref<PlainDialogueIntent>('discuss')
 const compatibilityNotice = ref('')
+const sourceContaminationNotice = ref('')
 const showRunTrace = ref(false)
 
 const OUTLINE_WORKSPACE_ID = 'outline'
@@ -589,6 +604,7 @@ function recordOutlineEditTaskEvent(event: EditTaskSessionLifecycleEvent) {
   })
   if (outlineRunTraceId) {
     runTraceStore.reportEditTaskActivity(outlineRunTraceId, payload, {
+      turnId: outlineRunTurnId,
       persist: event.type === 'batch_failed' || event.type === 'task_finished' || event.type === 'task_failed',
     })
   }
@@ -607,6 +623,64 @@ async function resumeOutlineEditTask(task: { id: string }) {
 
 async function cancelOutlineEditTask(task: { id: string }) {
   await outlineEditTaskSession.onCancelEditTask(task.id)
+}
+
+function reportOutlineEditTaskCompletion(report: EditTaskCompletionReport | null) {
+  if (!report) return
+  const verified = report.verified
+  const payload = {
+    verified,
+    invariant: report.invariant,
+    violations: report.violations,
+  }
+  addOutlineTraceEvent({
+    type: verified ? 'edit-task-completion-verified' : 'edit-task-completion-violation',
+    level: verified ? 'info' : 'warn',
+    label: verified ? '编辑任务完成度校验通过' : '编辑任务完成度校验失败',
+    detail: JSON.stringify(payload).slice(0, 20000),
+    payload,
+    turnId: outlineRunTurnId,
+  })
+  if (outlineRunTraceId) {
+    runTraceStore.reportEditTaskCompletion(outlineRunTraceId, payload, {
+      turnId: outlineRunTurnId,
+      persist: !verified,
+    })
+  }
+  const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+  diag?.log?.(
+    verified ? 'info' : 'warn',
+    `edit-task/completion-${verified ? 'verified' : 'violation'}`,
+    verified ? '编辑任务完成度校验通过' : '编辑任务完成度校验失败',
+    payload,
+  )
+}
+
+function reportOutlineSourceContamination(sourceContent: string) {
+  const contamination = detectSourceContamination(sourceContent, buildOutlineConversationMarkers())
+  if (!contamination.detected) return
+  sourceContaminationNotice.value = '源文疑似包含上一轮对话说明文本，本次仍按你的当前指令执行，请在结果中重点核对插入说明附近的内容'
+  const payload = {
+    workspace: 'outline-editor',
+    sourceChars: sourceContent.length,
+    matchCount: contamination.matches.length,
+    truncated: contamination.truncated,
+    matches: contamination.matches,
+  }
+  addOutlineTraceEvent({
+    type: 'source-contamination-detected',
+    label: '源文疑似包含上一轮对话说明文本',
+    level: 'warn',
+    detail: JSON.stringify(payload),
+    payload,
+    turnId: outlineRunTurnId,
+  })
+  ;(typeof window !== 'undefined' ? (window as any).DiagLogger : null)?.log?.(
+    'warn',
+    'outline/source-contamination-detected',
+    '源文疑似包含上一轮对话说明文本',
+    payload,
+  )
 }
 let lastWorkspaceSkillMeta: WorkspaceSkillRunMeta | null = null
 let outlineRunTurnId: string | null = null
@@ -654,6 +728,7 @@ function recordOutlineRoutingEvent(event: ChainRoutingEvent, requestText = curre
       )
       runTraceStore.updateTurnIntent(outlineRunTraceId, outlineRunTurnId, {
         intent: matchedIntent,
+        permissionDecision: authorizedSurface.permissionDecision,
         routingFallback: 'none',
         surfaceSource: 'trace-projection',
         toolSurface: reroutedToolSurface.map(tool => ({
@@ -828,6 +903,12 @@ function outlineProjectId() {
   return String(projectStore.currentProjectId || 'default')
 }
 
+function buildOutlineConversationMarkers(limit = 8): Array<{ role: string; content: string }> {
+  return messages.value
+    .slice(-limit)
+    .map(message => ({ role: message.role, content: String(message.content || '') }))
+}
+
 function outlineTraceTarget() {
   return {
     type: 'outline',
@@ -844,6 +925,7 @@ function startOutlineRun(
   skillNames: string[] = [],
   options: {
     intent?: PlainDialogueIntent
+    permissionDecision?: ReturnType<typeof buildDialogueToolSurface>['permissionDecision']
     toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
     actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   } = {},
@@ -883,6 +965,7 @@ function startOutlineRun(
     skillNames,
     mode,
     intent: options.intent,
+    permissionDecision: options.permissionDecision,
     writeMode: 'direct',
     toolSurface: options.toolSurface,
     actualToolSurface: options.actualToolSurface
@@ -925,6 +1008,7 @@ async function runOutlineFinalDraftTurn(options: {
   model: string
   plan: LongDocumentExecutionPlan
   skillGuidance?: string
+  conversationMarkers: Array<{ role: string; content: string }>
 }) {
   const placeholderIndex = projectStore.outlineChat.length
   projectStore.appendOutlineChat({ role: 'assistant', content: '终稿任务已创建，正在准备生成。' })
@@ -958,8 +1042,10 @@ async function runOutlineFinalDraftTurn(options: {
       targetId: 'outline',
       sourceContent: options.sourceContent,
       instruction: options.requestText,
+      operation: options.plan.operation,
       model: options.model,
       skillGuidance: options.skillGuidance,
+      conversationMarkers: options.conversationMarkers,
       signal: abortController.signal,
       cancelSignal,
       checkpointStore: createElectronFinalDraftCheckpointStore(),
@@ -1608,6 +1694,7 @@ function startOutlineApiCall(input: {
   requestMessages: RunTraceMessage[]
   model?: string
   intent?: string
+  permissionDecision?: ReturnType<typeof buildDialogueToolSurface>['permissionDecision']
   toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
 }) {
@@ -1622,6 +1709,7 @@ function startOutlineApiCall(input: {
     providerName: provider?.name,
     model: input.model || provider?.selectedModel || provider?.models?.[0],
     intent: input.intent,
+    permissionDecision: input.permissionDecision,
     toolSurface: input.toolSurface,
     actualToolSurface: input.actualToolSurface,
     requestMessages: input.requestMessages
@@ -1710,6 +1798,8 @@ function recordOutlineToolCall(callId: string | undefined, event: {
     protocolVersionDefaulted?: boolean
     toolCapability?: 'native_tools' | 'json_protocol'
     rejectionCategory?: 'unknown_tool' | 'schema_invalid' | 'permission_denied' | 'range_invalid' | 'invalid_protocol' | 'other'
+    defaultToolPolicy?: 'allowedWithoutPermission' | 'allowedWithPermission' | 'disabled'
+    riskLevel?: 'low' | 'medium' | 'high'
 }) {
   if (!outlineRunTraceId || !callId) return
   runTraceStore.appendToolCall(outlineRunTraceId, callId, {
@@ -1725,6 +1815,8 @@ function recordOutlineToolCall(callId: string | undefined, event: {
     protocolVersionDefaulted: event.protocolVersionDefaulted,
     toolCapability: event.toolCapability,
     rejectionCategory: event.rejectionCategory,
+    defaultToolPolicy: event.defaultToolPolicy,
+    riskLevel: event.riskLevel,
   })
 }
 
@@ -1890,15 +1982,23 @@ async function applyOutlineDirectWrite(input: {
   reason?: string
   reveal: { mode: 'stream' | 'instant'; firstChange: boolean }
   multiBatch?: boolean
+  writeAuthorization?: DialogueWriteAuthorization
   authorizationTurnId?: string
-}): Promise<{ ok: true; rollbackAvailable: boolean } | { ok: false; code: string; message: string }> {
+}): Promise<
+  | { ok: true; rollbackAvailable: boolean; documentVersion?: number; contentHash?: string }
+  | { ok: false; code: string; message: string }
+> {
+  reportOutlineSourceContamination(input.original)
   const writeGoal = input.reason || `API 直写 ${input.commands.length} 条大纲命令`
   const beforeSnapshot = createOutlineRequestTarget()
   if (!beforeSnapshot) {
     return { ok: false, code: 'target_missing', message: '大纲编辑目标不可用' }
   }
   const recordBatchResult = async (
-    run: () => Promise<{ ok: true; rollbackAvailable: boolean } | { ok: false; code: string; message: string }>,
+    run: () => Promise<
+      | { ok: true; rollbackAvailable: boolean; documentVersion?: number; contentHash?: string }
+      | { ok: false; code: string; message: string }
+    >,
   ) => {
     const result = await outlineEditTaskSession.startOrContinueBatch({
       target: { workspace: 'outline', targetId: input.targetId },
@@ -1922,7 +2022,12 @@ async function applyOutlineDirectWrite(input: {
       }
     }, { multiBatch: input.multiBatch === true })
     return result.ok
-      ? { ok: true, rollbackAvailable: true } as const
+      ? {
+        ok: true,
+        rollbackAvailable: true,
+        ...(result.documentVersion !== undefined ? { documentVersion: result.documentVersion } : {}),
+        ...(result.contentHash !== undefined ? { contentHash: result.contentHash } : {}),
+      } as const
       : {
         ok: false,
         code: result.code || 'write_failed',
@@ -1971,10 +2076,17 @@ async function applyOutlineDirectWrite(input: {
   const authorizationMatches = authorization?.status === 'granted'
     && authorization.targetSignature === buildOutlineDeletionTargetSignature(input.commands)
     && authorization.commandHash === buildOutlineDeletionCommandHash(input.commands)
+  const workflowDeletionAuthorized = isWorkflowDeletionAuthorization(input.writeAuthorization)
+    && input.batchDetail?.invariantResult === 'planned-deletion-only'
+    && input.batchDetail.expectedChange === 'remove_duplicate'
   const integrity = validateOutlineIntegrity(input.original, input.next, {
     validateDocumentBody: isWholeDocumentReplacement,
-    allowAuthorizedDeletion: authorizationMatches,
-    ...(authorizationMatches ? { authorizedDeletedLength: authorization.expectedDeletedLength } : {}),
+    allowAuthorizedDeletion: authorizationMatches || workflowDeletionAuthorized,
+    ...(authorizationMatches
+      ? { authorizedDeletedLength: authorization.expectedDeletedLength }
+      : workflowDeletionAuthorized
+        ? { authorizedDeletedLength: Math.max(0, input.original.length - input.next.length) }
+        : {}),
   })
   if (!integrity.ok) {
     const decision = resolveOutlineDeletionGate({ commands: input.commands, integrity })
@@ -2142,11 +2254,13 @@ async function applyOutlineDirectWrite(input: {
 
 let currentOutlineUserRequest = ''
 let activeOutlineExecutionPlan: LongDocumentExecutionPlan | null = null
+let activePendingOutlineLongDocumentOperation: ChainRoutingContext['pendingLongDocumentOperation'] | null = null
 
 function buildOutlineExecutionPlanForRequest(options: {
   requestText: string
   content: string
   provider: NonNullable<typeof providerStore.activeGenerateProvider>
+  intent?: PlainDialogueIntent
 }): { plan: LongDocumentExecutionPlan; providerWindow: number | null } {
   const model = options.provider.selectedModel || options.provider.models?.[0] || 'gpt-4o'
   const providerWindow = resolveEffectiveModelContextWindow({
@@ -2161,8 +2275,40 @@ function buildOutlineExecutionPlanForRequest(options: {
       content: options.content,
       contextWindowTokens: typeof providerWindow === 'number' ? providerWindow : null,
       maxOutputTokens,
+      intent: options.intent,
     }),
   }
+}
+
+function buildWorkflowWriteAuthorization(input: {
+  intent: PlainDialogueIntent | ChainIntent
+  plan: LongDocumentExecutionPlan
+}): DialogueWriteAuthorization | null {
+  const intent = input.intent === 'auto' ? 'discuss' : input.intent
+  if (intent !== 'edit' && intent !== 'generate') return null
+  if (input.plan.mode === 'final-draft') return null
+  if (input.plan.operation === 'discussion') return null
+  if (input.plan.mode !== 'edit-task' && input.plan.operation !== 'targeted_edit') return null
+  return {
+    source: 'long-document-workflow',
+    intent,
+    operation: input.plan.operation,
+    mode: input.plan.mode,
+    reason: 'outline-execution-plan',
+  }
+}
+
+function isWorkflowDeletionAuthorization(
+  writeAuthorization: unknown,
+): writeAuthorization is DialogueWriteAuthorization {
+  if (!writeAuthorization || typeof writeAuthorization !== 'object') return false
+  const authorization = writeAuthorization as Partial<DialogueWriteAuthorization>
+  return authorization.source === 'long-document-workflow'
+    && (authorization.intent === 'edit' || authorization.intent === 'generate')
+    && authorization.operation !== undefined
+    && authorization.operation !== 'discussion'
+    && authorization.mode !== undefined
+    && authorization.mode !== 'final-draft'
 }
 
 function buildOutlineSkillGuidance(): string {
@@ -2227,6 +2373,13 @@ const findRef = ref<HTMLInputElement | null>(null)
 const isGenerating = ref(false)
 const generationStatus = ref('')
 const streamingContent = ref('')
+// Test-only hook for Electron CDP verification of the live API status surface.
+;(window as any).__shenyiOutlineStatusTestHook = {
+  set(active: boolean, message: string) {
+    isGenerating.value = active
+    generationStatus.value = message
+  },
+}
 const liveApiStatusLines = useLiveApiStatus(computed<LiveApiStatusInput>(() => ({
   active: isGenerating.value,
   message: generationStatus.value,
@@ -2237,6 +2390,8 @@ const liveApiStatusLines = useLiveApiStatus(computed<LiveApiStatusInput>(() => (
     return {
       status: call.status,
       streamLength: call.streamText.length,
+      lastStreamActivityAt: call.lastStreamActivityAt,
+      lastExecutionActivityAt: call.lastExecutionActivityAt,
       retrying: Boolean(call.retryStrategy)
     }
   })()
@@ -2375,9 +2530,13 @@ function createWorkspaceSkillAdapter(
         requestText: currentOutlineUserRequest,
         content: requestTarget.content,
         provider: providerStore.activeGenerateProvider!,
+        intent: intent === 'auto' ? 'discuss' : intent,
       }).plan
     const outlineSkillExecutionPlanFallback = !activeOutlineExecutionPlan
-    const outlineSkillEditTaskPlan = outlineSkillExecutionPlan.mode === 'edit-task'
+    const outlineSkillWriteAuthorization = buildWorkflowWriteAuthorization({
+      intent,
+      plan: outlineSkillExecutionPlan,
+    })
     const surface = buildDialogueToolSurface({
       workspace: 'outline',
       intent,
@@ -2389,7 +2548,7 @@ function createWorkspaceSkillAdapter(
       getAllSnapshots: buildOutlineWorkspaceSnapshots,
       mode: 'direct',
       executionPlan: outlineSkillExecutionPlan,
-      writeAuthorization: outlineSkillEditTaskPlan ? { source: 'long-document-workflow' } : null,
+      writeAuthorization: outlineSkillWriteAuthorization,
       applyWrite: async input => applyOutlineDirectWrite(input),
       onFailedBatch: batch => { outlineFailedWriteBatch = batch },
       takeFailedBatch: () => outlineFailedWriteBatch,
@@ -2476,10 +2635,14 @@ function createWorkspaceSkillAdapter(
     }),
     getExecutionContext: () => ({
       executionPlan: activeOutlineExecutionPlan ?? undefined,
-      writeAuthorization: activeOutlineExecutionPlan?.mode === 'edit-task'
-        ? { source: 'long-document-workflow' }
+      writeAuthorization: activeOutlineExecutionPlan
+        ? buildWorkflowWriteAuthorization({
+          intent: currentRoutingIntent.value,
+          plan: activeOutlineExecutionPlan,
+        })
         : null,
     }),
+    getPendingLongDocumentOperation: () => activePendingOutlineLongDocumentOperation,
     buildTools: (request) => {
       const surface = buildOutlineToolSurface(request.intent)
       for (const conflict of surface.toolConflicts || []) {
@@ -3862,6 +4025,7 @@ async function classifyHomeIntentDetailed(requestText: string): Promise<PlainDia
     activeEditTaskStatus: outlineEditTask.value?.status === 'awaiting_batch'
       ? 'awaiting_batch'
       : undefined,
+    pendingLongDocumentOperation: activePendingOutlineLongDocumentOperation ?? undefined,
     llmClassifier: createIntentLlmFallback({
       activeVerifyProvider: providerStore.activeVerifyProvider,
       activeGenerateProvider: providerStore.activeGenerateProvider,
@@ -3918,6 +4082,10 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     provider,
   })
   activeOutlineExecutionPlan = outlinePlan.plan
+  activePendingOutlineLongDocumentOperation = {
+    planId: outlinePlan.plan.planId,
+    operation: outlinePlan.plan.operation,
+  }
   if (isOutlineFinalDraftRequest(outlinePlan.plan, requestText, requestTarget.content)) {
     startOutlineRun(workspaceSkillMode.value, requestText, templates.map(template => template.name), {
       intent: routingDecision.forcedIntent || 'generate',
@@ -3944,11 +4112,29 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
       model,
       plan: outlinePlan.plan,
       skillGuidance: buildOutlineSkillGuidance(),
+      conversationMarkers: buildOutlineConversationMarkers(),
     })
     return
   }
   if (templates.length === 0) {
     await askPlainAi(requestText)
+    return
+  }
+  const composeSkillGuidance = workspaceSkillMode.value === 'compose'
+    ? buildWorkspaceSkillGuidance({
+        templates,
+        requestText,
+        adapter: createWorkspaceSkillAdapter(),
+      })
+    : undefined
+  if (composeSkillGuidance) {
+    await askPlainAi(requestText, {
+      skillGuidance: composeSkillGuidance.guidance,
+      skillIds: composeSkillGuidance.skillIds,
+      promptSource: composeSkillGuidance.promptSource,
+      resumedApiBudget: routingDecision.resumedApiBudget,
+      skillProtocolDiagnostics: await collectSkillPackageProtocolDiagnostics(templates),
+    })
     return
   }
   let systemPrompt = buildOutlineSystemPrompt()
@@ -3984,6 +4170,9 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     let outlineSkillTerminalReason: string | undefined
   try {
     const aiService = await getAiService()
+    if (workspaceSkillMode.value !== 'chain') {
+      throw new Error('compose SKILL 路径必须走统一 Agent 执行底座')
+    }
     let responseText = ''
     // Resume keeps the exhausted run's used count and user-approved extension.
     const apiBudget = routingDecision.resumedApiBudget || createApiCallBudget(8)
@@ -4164,6 +4353,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     generationStatus.value = '等待意图确认'
     if (outlineRunTraceId) runTraceStore.startAwaitingUser(outlineRunTraceId, 'awaiting_confirmation')
     activeOutlineExecutionPlan = null
+    activePendingOutlineLongDocumentOperation = null
     return
   }
   if (result.runState === 'budget_exhausted') {
@@ -4185,6 +4375,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     })
     finishOutlineRun('blocked', 'API 调用预算已用尽，等待用户追加', result.text, 'budget_exhausted')
     activeOutlineExecutionPlan = null
+    activePendingOutlineLongDocumentOperation = null
     return
   }
     responseText = result.text
@@ -4203,6 +4394,14 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     }
     if (result.meta?.diagnostics?.length) {
       runTraceStore.setFolderDiagnostics(outlineRunTraceId || '', result.meta.diagnostics)
+    }
+    if (result.meta?.skillToolDeclarationsIgnored) {
+      addOutlineTraceEvent({
+        type: 'skill-tool-declarations-ignored',
+        level: 'info',
+        label: 'SKILL 工具/授权声明已忽略',
+        detail: `声明 ${result.meta.skillToolDeclarationsIgnored} 项，启用 0 项`
+      })
     }
     if (outlineRunTraceId && result.meta?.postProcessReport) {
       const report = result.meta.postProcessReport
@@ -4340,6 +4539,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     generationController = null
     isGenerating.value = false
     activeOutlineExecutionPlan = null
+    activePendingOutlineLongDocumentOperation = null
     pendingOutlineDeletionConfirmation.value = null
     if (generationStatus.value !== '已取消生成' && generationStatus.value !== '等待意图确认') generationStatus.value = ''
     streamingContent.value = ''
@@ -4360,9 +4560,19 @@ function handleEditorBeforeInput() {
   lastEditorHistoryAt = now
 }
 
-async function askPlainAi(requestText: string) {
+async function askPlainAi(
+  requestText: string,
+  options: {
+    skillGuidance?: string
+    skillIds?: string[]
+    promptSource?: string
+    resumedApiBudget?: ApiCallBudget
+    skillProtocolDiagnostics?: RealSkillDiagnostic[]
+  } = {},
+) {
   currentOutlineUserRequest = requestText
   activeOutlineExecutionPlan = null
+  activePendingOutlineLongDocumentOperation = null
   const provider = providerStore.activeGenerateProvider
   if (!provider) {
     projectStore.appendOutlineChat({ role: 'assistant', content: '请先配置API供应商' })
@@ -4374,17 +4584,23 @@ async function askPlainAi(requestText: string) {
   let requestMessages: Array<{ role: string; content: string }> = []
   const plainIntentDetailed = await classifyHomeIntentDetailed(requestText)
   const plainIntent: PlainDialogueIntent = plainIntentDetailed.intent
+  currentRoutingIntent.value = plainIntent
   const requestTarget = createOutlineRequestTarget()
   const outlinePlan = buildOutlineExecutionPlanForRequest({
     requestText,
     content: requestTarget.content,
     provider,
+    intent: plainIntent,
   })
   const outlineExecutionPlan = outlinePlan.plan
   const outlineProviderWindowDeclared = typeof outlinePlan.providerWindow === 'number'
   const outlineProviderWindow = outlinePlan.providerWindow
   const outlineMaxOutputTokens = Number(provider.maxTokens) > 0 ? Number(provider.maxTokens) : null
   activeOutlineExecutionPlan = outlineExecutionPlan
+  activePendingOutlineLongDocumentOperation = {
+    planId: outlineExecutionPlan.planId,
+    operation: outlineExecutionPlan.operation,
+  }
   const useOutlineFinalDraft = isOutlineFinalDraftRequest(outlineExecutionPlan, requestText, requestTarget.content)
   if (useOutlineFinalDraft) {
     startOutlineRun('direct', requestText, [], {
@@ -4425,15 +4641,17 @@ async function askPlainAi(requestText: string) {
       model,
       plan: outlineExecutionPlan,
       skillGuidance: buildOutlineSkillGuidance(),
+      conversationMarkers: buildOutlineConversationMarkers(),
     })
     return
   }
   const useOutlineEditTaskPlan = outlineExecutionPlan.mode === 'edit-task'
   const outlineLongDocumentOperationType = toLongDocumentOperationType(outlineExecutionPlan.operation)
   outlineDirectWriteMultiBatch = useOutlineEditTaskPlan
-  const workflowWriteAuthorization = useOutlineEditTaskPlan
-    ? { source: 'long-document-workflow' as const }
-    : null
+  const workflowWriteAuthorization = buildWorkflowWriteAuthorization({
+    intent: plainIntent,
+    plan: outlineExecutionPlan,
+  })
   const plainSurface = requestTarget.content
     ? buildDialogueToolSurface({
       workspace: 'outline',
@@ -4471,6 +4689,7 @@ async function askPlainAi(requestText: string) {
     })
     : undefined
   const tools = plainSurface?.tools
+  const outlinePermissionDecision = plainSurface?.permissionDecision
   const plainToolSurface = plainSurface?.actualToolSurface
   for (const conflict of plainSurface?.toolConflicts || []) {
     addOutlineTraceEvent({
@@ -4486,10 +4705,10 @@ async function askPlainAi(requestText: string) {
       { detail: conflict.detail, payload: conflict.payload },
     )
   }
-  const toolPolicyIntent = workflowWriteAuthorization ? 'edit' : plainIntent
   const systemPrompt = buildOutlineSystemPrompt(plainToolSurface)
   startOutlineRun('direct', requestText, [], {
     intent: plainIntent,
+    permissionDecision: outlinePermissionDecision,
     toolSurface: plainToolSurface,
     actualToolSurface: plainToolSurface,
   })
@@ -4518,6 +4737,20 @@ async function askPlainAi(requestText: string) {
     routing: plainIntentDetailed.routing,
   })
   addOutlineRoutingDiagnostics(plainIntentDetailed.diagnostics)
+  if (options.skillProtocolDiagnostics?.length) {
+    runTraceStore.appendFolderDiagnostics(outlineRunTraceId || '', options.skillProtocolDiagnostics)
+    const ignoredCount = options.skillProtocolDiagnostics
+      .filter(item => item.code === 'folder-package:manifest-protocol-fields-ignored')
+      .length
+    if (ignoredCount > 0) {
+      addOutlineTraceEvent({
+        type: 'skill-tool-declarations-ignored',
+        level: 'info',
+        label: 'SKILL 工具/授权声明已忽略',
+        detail: `声明 ${ignoredCount} 项，启用 0 项`
+      })
+    }
+  }
   generationController = new AbortController()
   cancelController = new AbortController()
   isGenerating.value = true
@@ -4653,6 +4886,7 @@ async function askPlainAi(requestText: string) {
       })),
       model,
       intent: plainIntent,
+      permissionDecision: outlinePermissionDecision,
       toolSurface: plainToolSurface,
       actualToolSurface
     })
@@ -4666,6 +4900,13 @@ async function askPlainAi(requestText: string) {
         executionPlan: outlineExecutionPlan,
       },
       editTaskWorkflow: useOutlineEditTaskPlan,
+      skillGuidance: options.skillGuidance,
+      skillIds: options.skillIds,
+      promptSource: options.promptSource,
+      maxPhysicalRequests: Math.max(
+        1,
+        options.resumedApiBudget?.snapshot().limit ?? 8,
+      ),
       getContextRemaining: () => ({
         contextWindowTokens: outlineProviderWindowDeclared ? outlineProviderWindow : null,
         maxOutputTokens: outlineMaxOutputTokens,
@@ -4676,6 +4917,7 @@ async function askPlainAi(requestText: string) {
           level: event.level === 'warning' ? 'warn' : event.level,
           label: event.label,
           detail: event.detail,
+          payload: event.payload,
         })
         const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
         diag?.log?.(
@@ -4709,6 +4951,7 @@ async function askPlainAi(requestText: string) {
               level: event.level === 'warning' ? 'warn' : event.level,
               label: event.label,
               detail: event.detail,
+              payload: event.payload,
             })
             const subAgentDiag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
             subAgentDiag?.log?.(
@@ -4736,9 +4979,9 @@ async function askPlainAi(requestText: string) {
           onReasoning: (text: string) => appendOutlineReasoning(text),
           toolPolicy: tools ? {
             scenario: 'direct-tool-intensive',
-            maxToolIterations: (window as any).__outlineDeletionReplayMaxToolIterations || 12,
-            intent: toolPolicyIntent,
-            writeAuthorization: workflowWriteAuthorization?.source,
+            maxToolIterations: (window as any).__outlineDeletionReplayMaxToolIterations || 24,
+            intent: plainIntent,
+            permissionDecision: outlinePermissionDecision,
             onToolStart: event => {
               toolRunSupervisor.reportProgress()
               if (!isAgentRuntimeToolName(event.toolName)) {
@@ -4790,9 +5033,10 @@ async function askPlainAi(requestText: string) {
       },
       toolPolicy: tools ? {
         scenario: 'direct-tool-intensive',
-        maxToolIterations: (window as any).__outlineDeletionReplayMaxToolIterations || 12,
-          intent: toolPolicyIntent,
-          writeAuthorization: workflowWriteAuthorization?.source,
+        maxToolIterations: (window as any).__outlineDeletionReplayMaxToolIterations
+          || Math.min(64, 24 + Math.max(0, outlineExecutionPlan.segments.length - 1) * 6),
+          intent: plainIntent,
+          permissionDecision: outlinePermissionDecision,
         onPermissionDenied: event => {
           addOutlineTraceEvent({
             type: 'tool-permission-denied',
@@ -4857,7 +5101,11 @@ async function askPlainAi(requestText: string) {
         onToolCall: (event) => {
           toolRunSupervisor.reportProgress()
           if (!event.result.ok) toolRunSupervisor.reportToolError(
-            `${event.toolName}:${event.result.error?.code || event.result.error?.message || 'unknown'}`,
+            buildToolErrorKey(
+              event.toolName,
+              event.result.error?.code || event.result.error?.message,
+              event.input,
+            ),
             3,
             event.iteration,
           )
@@ -4908,6 +5156,7 @@ async function askPlainAi(requestText: string) {
     if (agentResult.toolSurface?.length) {
       runTraceStore.updateApiCallToolSurface(outlineRunTraceId || '', traceApiCallId || '', {
         actualToolSurface: agentResult.toolSurface,
+        permissionDecision: outlinePermissionDecision,
       })
     }
     plainAiResult = result
@@ -5013,18 +5262,18 @@ async function askPlainAi(requestText: string) {
     const supervisorReason: string = toolRunSupervisor.reason || ''
     if (generationController?.signal.aborted || error?.name === 'AbortError' || error?.code === 'canceled') {
       if (supervisorReason === 'stuck_timeout' || supervisorReason === 'hard_deadline' || supervisorReason === 'repeated_tool_error') {
+        finishOutlineApiCall(traceApiCallId, {
+          status: 'failed',
+          responseText: streamingContent.value || '',
+          finishReason: supervisorReason,
+          durationMs: Date.now() - requestStartedAt,
+          error: toolRunSupervisorReadableMessage(supervisorReason),
+        })
         const canRetryStuckRequest =
           supervisorReason === 'stuck_timeout' &&
           plainIntent === 'edit' &&
           (plainToolSurface?.some(tool => tool.policy === 'write') ?? false)
         if (canRetryStuckRequest) {
-          finishOutlineApiCall(traceApiCallId, {
-            status: 'failed',
-            responseText: '',
-            finishReason: supervisorReason,
-            durationMs: Date.now() - requestStartedAt,
-            error: '原请求停滞，已中止并自动隔离重试',
-          })
           addOutlineTraceEvent({
             type: 'state-stuck-retry',
             level: 'warn',
@@ -5046,6 +5295,7 @@ async function askPlainAi(requestText: string) {
               })),
               model,
               intent: plainIntent,
+              permissionDecision: outlinePermissionDecision,
               toolSurface: plainToolSurface,
               actualToolSurface: plainToolSurface,
             })
@@ -5078,8 +5328,8 @@ async function askPlainAi(requestText: string) {
       toolPolicy: tools ? {
         scenario: 'direct-tool-intensive',
           maxToolIterations: (window as any).__outlineDeletionReplayMaxToolIterations || 12,
-                intent: toolPolicyIntent,
-                writeAuthorization: workflowWriteAuthorization?.source,
+                intent: plainIntent,
+                permissionDecision: outlinePermissionDecision,
                 onPermissionDenied: event => {
                   addOutlineTraceEvent({
                     type: 'tool-permission-denied',
@@ -5138,7 +5388,11 @@ async function askPlainAi(requestText: string) {
                 onToolCall: (event: OutlineToolCallEvent) => {
                   toolRunSupervisor.reportProgress()
                   if (!event.result.ok) toolRunSupervisor.reportToolError(
-                    `${event.toolName}:${event.result.error?.code || event.result.error?.message || 'unknown'}`,
+                    buildToolErrorKey(
+                      event.toolName,
+                      event.result.error?.code || event.result.error?.message,
+                      event.input,
+                    ),
                     3,
                     event.iteration,
                   )
@@ -5294,15 +5548,52 @@ async function askPlainAi(requestText: string) {
       const allBatchesWritten = activeEditTask.executedBatches.length > 0
         && activeEditTask.pendingBatches.length === 0
         && activeEditTask.failedBatchIds.length === 0
+      const outlineCompletion = {
+        target: {
+          workspace: 'outline' as const,
+          targetId: activeEditTask.target.targetId,
+        },
+          before: createOutlineRequestTarget()?.content ?? (projectStore.outlineText || ''),
+        after: projectStore.outlineText || '',
+      }
       if (!plainAiTurnSucceeded && allBatchesWritten) {
         const writtenCount = activeEditTask.executedBatches.length
-        outlineEditTaskSession.finishActiveTask({ succeeded: false, summaryFailed: true })
+        outlineEditTaskSession.finishActiveTask({
+          succeeded: false,
+          summaryFailed: true,
+          completion: outlineCompletion,
+        })
         projectStore.appendOutlineChat({
           role: 'assistant',
           content: `编辑任务已完成 ${writtenCount}/${writtenCount} 批写入；仅最终总结未生成。文档内容已落盘，可继续追问写入结果。`,
         })
+        if (outlineRunTraceId && runTraceStore.getRun(outlineRunTraceId)?.status === 'running') {
+          addOutlineTraceEvent({
+            type: 'edit-task-summary-failed-content-verified',
+            level: 'warn',
+            label: '写入已完成，仅总结回复失败',
+            detail: '所有计划批次已落盘；供应商总结请求失败，不视为写入失败',
+          })
+          finishOutlineRunIfRunning(
+            'success',
+            undefined,
+            `编辑任务已完成 ${writtenCount}/${writtenCount} 批写入；仅最终总结未生成。文档内容已落盘。`,
+            'edit_task_written_summary_failed',
+          )
+        }
       } else {
-        outlineEditTaskSession.finishActiveTask({ succeeded: plainAiTurnSucceeded })
+        outlineEditTaskSession.finishActiveTask({
+          succeeded: plainAiTurnSucceeded,
+          completion: outlineCompletion,
+        })
+      }
+      reportOutlineEditTaskCompletion(outlineEditTaskSession.completionReport())
+      const completionReport = outlineEditTaskSession.completionReport()
+      if (completionReport && !completionReport.verified) {
+        projectStore.appendOutlineChat({
+          role: 'assistant',
+          content: `编辑任务完成度校验未通过：${completionReport.violations.map(item => item.message).join('；')}`,
+        })
       }
     }
     pendingOutlineDirectWrite.value = null
@@ -5313,6 +5604,7 @@ async function askPlainAi(requestText: string) {
     cancelController = null
     isGenerating.value = false
     activeOutlineExecutionPlan = null
+    activePendingOutlineLongDocumentOperation = null
     toolRunSupervisor.dispose()
     if (generationStatus.value !== '已取消生成') generationStatus.value = ''
     streamingContent.value = ''
@@ -5779,6 +6071,28 @@ function handleUnlockOutline() {
 }
 .ow-msg-streaming .ow-msg-bubble {
   min-height: 24px;
+}
+.ow-source-contamination .ow-msg-bubble {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: 100%;
+  color: var(--text-secondary);
+}
+.ow-source-contamination span {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow-wrap: anywhere;
+}
+.ow-source-contamination button {
+  flex: 0 0 auto;
+  min-height: var(--density-btn-sm-height);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xs);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  cursor: pointer;
 }
 .ow-msg-actions {
   display: flex;

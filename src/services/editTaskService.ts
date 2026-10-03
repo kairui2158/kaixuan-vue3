@@ -20,6 +20,19 @@ export interface EditTaskBatchDetail {
   segmentId: string
   expectedChange: string
   invariantResult?: string
+  range?: { startLine: number; endLine: number }
+  writeStrategy?: string
+}
+
+export interface EditTaskBatchCommandSnapshot {
+  batchId: string
+  operation: string
+  target?: string
+  content?: string
+  order?: string[]
+  destination?: string
+  reason?: string
+  batchDetail?: EditTaskBatchDetail
 }
 
 export interface EditTaskCheckpoint {
@@ -41,6 +54,7 @@ export interface EditTask {
   executedBatches: string[]
   pendingBatches: string[]
   failedBatchIds: string[]
+  batchCommandSnapshots?: Record<string, EditTaskBatchCommandSnapshot[]>
   checkpoints: EditTaskCheckpoint[]
   status: EditTaskStatus
   createdAt: number
@@ -122,6 +136,7 @@ export function createEditTask(input: {
     executedBatches: [],
     pendingBatches: [],
     failedBatchIds: [],
+    batchCommandSnapshots: {},
     checkpoints: [
       {
         id: `checkpoint-${input.now}-${checkpointCounter}`,
@@ -163,6 +178,21 @@ export function appendEditTaskPlanBatch(
       ? task.pendingBatches
       : [...task.pendingBatches, batchId],
     updatedAt: now,
+  }
+}
+
+export function recordEditTaskBatchCommands(
+  task: EditTask,
+  batchId: string,
+  commands: EditTaskBatchCommandSnapshot[],
+): EditTask {
+  if (!commands.length) return task
+  return {
+    ...task,
+    batchCommandSnapshots: {
+      ...(task.batchCommandSnapshots || {}),
+      [batchId]: commands,
+    },
   }
 }
 

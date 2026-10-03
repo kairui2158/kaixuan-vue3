@@ -1,3 +1,4 @@
+import assert from 'node:assert'
 import { describe, expect, it } from 'vitest'
 import {
   authorizeDialogueTools,
@@ -13,6 +14,8 @@ const readTool: AgentToolDefinition = {
   name: 'editor.get_state',
   description: 'read',
   policy: 'read',
+  defaultToolPolicy: 'allowedWithoutPermission',
+  riskLevel: 'low',
   inputSchema: { type: 'object', properties: {} },
   async execute(): Promise<ToolResult> {
     return { ok: true }
@@ -23,6 +26,8 @@ const writeTool: AgentToolDefinition = {
   name: 'editor.write',
   description: 'write',
   policy: 'write',
+  defaultToolPolicy: 'allowedWithPermission',
+  riskLevel: 'medium',
   inputSchema: { type: 'object', properties: {} },
   async execute(): Promise<ToolResult> {
     return { ok: true }
@@ -67,6 +72,40 @@ function entry(intent: DialogueToolSurfaceEntry['intent']): DialogueToolSurfaceE
 }
 
 describe('authorizeDialogueTools', () => {
+  it('disables external tools that do not declare a static tool policy', () => {
+    const result = authorizeDialogueTools([
+      readTool,
+      {
+        ...readTool,
+        name: 'external.unverified',
+        origin: 'external',
+        defaultToolPolicy: undefined,
+      },
+      writeTool,
+    ], 'edit')
+
+    expect(result.actualToolSurface.map(tool => tool.name))
+      .toEqual(['editor.get_state', 'editor.write'])
+    expect(result.toolPolicyDiagnostics?.map(item => item.label)).toEqual([
+      '外部工具未声明默认策略：external.unverified',
+    ])
+  })
+
+  it('removes tools whose static policy contradicts their runtime policy', () => {
+    const result = authorizeDialogueTools([
+      readTool,
+      {
+        ...writeTool,
+        name: 'external.fake-write',
+        origin: 'external',
+        defaultToolPolicy: 'allowedWithoutPermission',
+      },
+    ], 'edit')
+
+    expect(result.actualToolSurface.map(tool => tool.name)).toEqual(['editor.get_state'])
+    expect(result.toolPolicyDiagnostics?.map(item => item.type)).toEqual(['tool_policy_mismatch'])
+  })
+
   it('keeps discuss read-only when no active task exists', () => {
     const result = authorizeDialogueTools([readTool, writeTool], 'discuss')
 
@@ -74,9 +113,50 @@ describe('authorizeDialogueTools', () => {
     expect(result.permission.writeEditor).toBe(false)
   })
 
-  it('keeps a long-document workflow turn write-capable when routing reads it as discussion', () => {
+  it('keeps discuss read-only even when a legacy workflow authorization is present', () => {
     const result = authorizeDialogueTools([readTool, writeTool], 'discuss', 'direct', {
-      writeAuthorization: { source: 'long-document-workflow' },
+      writeAuthorization: {
+        source: 'long-document-workflow',
+        intent: 'edit',
+        operation: 'targeted_edit',
+        mode: 'direct',
+      },
+    })
+
+    expect(result.actualToolSurface).toEqual([{ name: 'editor.get_state', policy: 'read' }])
+    expect(result.permission.writeEditor).toBe(false)
+    expect(result.permissionDecision).toEqual({
+      source: 'dialogue-intent',
+      decision: 'read-only',
+      intent: 'discuss',
+      operation: 'discussion',
+      mode: 'direct',
+      reason: 'discuss/analyze intents are always read-only',
+    })
+  })
+
+  it('does not authorize workflow writes without a matching structured authorization triple', () => {
+    const result = authorizeDialogueTools([readTool, writeTool], 'discuss', 'direct', {
+      writeAuthorization: {
+        source: 'long-document-workflow',
+        intent: 'edit',
+        operation: 'discussion',
+        mode: 'edit-task',
+      },
+    })
+
+    expect(result.actualToolSurface).toEqual([{ name: 'editor.get_state', policy: 'read' }])
+    expect(result.permission.writeEditor).toBe(false)
+  })
+
+  it('authorizes a workflow write only for a matching intent, operation, and plan mode', () => {
+    const result = authorizeDialogueTools([readTool, writeTool], 'edit', 'direct', {
+      writeAuthorization: {
+        source: 'long-document-workflow',
+        intent: 'edit',
+        operation: 'targeted_edit',
+        mode: 'direct',
+      },
     })
 
     expect(result.actualToolSurface).toEqual([
@@ -84,6 +164,14 @@ describe('authorizeDialogueTools', () => {
       { name: 'editor.write', policy: 'write' },
     ])
     expect(result.permission.writeEditor).toBe(true)
+    expect(result.permissionDecision).toEqual({
+      source: 'long-document-workflow',
+      decision: 'write-authorized',
+      intent: 'edit',
+      operation: 'targeted_edit',
+      mode: 'direct',
+      reason: 'workflow authorization triple matched',
+    })
   })
 
   it('keeps editor.write available for edit without a task', () => {
@@ -176,6 +264,57 @@ describe('authorizeDialogueTools', () => {
     expect(names).not.toContain('task.cancel')
     expect(result.actualToolSurface.every(tool => tool.policy !== 'write')).toBe(true)
     expect(result.permission.writeEditor).toBe(false)
+  })
+
+  it('does not pass a read-only workflow authorization into editor writes', async () => {
+    const appliedWrites: Array<{ writeAuthorization?: unknown }> = []
+    const result = buildDialogueToolSurface({
+      ...entry('discuss'),
+      writeAuthorization: {
+        source: 'long-document-workflow',
+        intent: 'edit',
+        operation: 'targeted_edit',
+        mode: 'direct',
+      },
+      applyWrite: async input => {
+        appliedWrites.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    })
+    const writeTool = result.tools.find(tool => tool.name === 'editor.write')
+    expect(writeTool).toBeUndefined()
+    expect(appliedWrites).toEqual([])
+  })
+
+  it('passes a matching workflow authorization into editor writes', async () => {
+    const appliedWrites: Array<{ writeAuthorization?: unknown }> = []
+    const result = buildDialogueToolSurface({
+      ...entry('edit'),
+      writeAuthorization: {
+        source: 'long-document-workflow',
+        intent: 'edit',
+        operation: 'targeted_edit',
+        mode: 'direct',
+      },
+      applyWrite: async input => {
+        appliedWrites.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    })
+    const writeTool = result.tools.find(tool => tool.name === 'editor.write')
+    assert(writeTool, 'editor.write is present')
+    const executed = await writeTool.execute({
+      commands: [{ operation: 'append', content: '新增' }],
+    }, { projectId: 'p1', workspace: 'outline', targetId: 'outline', sessionId: 's1', iteration: 1 })
+
+    expect(executed.ok).toBe(true)
+    expect(appliedWrites).toHaveLength(1)
+    expect(appliedWrites[0].writeAuthorization).toEqual({
+      source: 'long-document-workflow',
+      intent: 'edit',
+      operation: 'targeted_edit',
+      mode: 'direct',
+    })
   })
 
   it('does not duplicate task controls when authorization runs twice', () => {

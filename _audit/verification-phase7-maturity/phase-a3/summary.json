@@ -1,0 +1,46 @@
+{
+  "phase": "7-A3",
+  "title": "Unified Agent compose runtime wiring",
+  "date": "2026-10-03",
+  "objective": "Route outline workbench and home compose paths through the unified Agent runtime with real SKILL guidance injection.",
+  "codeChanges": [
+    {
+      "file": "src/components/common/OutlineWorkspace.vue",
+      "summary": "Compose builds workspace skill guidance and calls askPlainAi with guidance, skillIds, promptSource, and resumed budget; chain entry has a mode guard."
+    },
+    {
+      "file": "src/components/chat/ChatPanel.vue",
+      "summary": "Home compose builds workspace skill guidance and passes it through callApi to createAgentDialogueRuntime; chain execution is explicitly guarded."
+    }
+  ],
+  "verification": [
+    {
+      "command": "npx vitest run src/services/workspaceSkillEngine.spec.ts src/services/agentDialogueRuntime.spec.ts src/services/agentOrchestrator.spec.ts --reporter=verbose",
+      "result": "passed",
+      "evidence": "compose-runtime-focused-tests.log",
+      "summary": "3 files / 64 tests passed"
+    },
+    {
+      "command": "npm run type-check",
+      "result": "passed",
+      "evidence": "type-check.log"
+    },
+    {
+      "command": "npm run test:services",
+      "result": "passed",
+      "evidence": "services-regression.log",
+      "summary": "126 files / 1357 tests passed"
+    }
+  ],
+  "lineageAudit": {
+    "compose": "Unified Agent runtime; SKILL guidance injected as system guidance only.",
+    "chain": "Legacy workspace skill engine retained by design for sequential chain execution.",
+    "finalDraft": "Final-draft runner retained; guidance continues through its dedicated path.",
+    "noSkill": "Direct Agent runtime path unchanged."
+  },
+  "scopeNotes": [
+    "No tool surface, permission semantics, batch protocol, or EditTask state machine changes.",
+    "SKILL guidance is advisory prompt text and does not alter execution protocol.",
+    "Real Electron and live API validation are Phase E follow-up and are not claimed here."
+  ]
+}

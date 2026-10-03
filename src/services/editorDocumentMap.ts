@@ -191,6 +191,8 @@ export function createEditorDocumentMapTools(options: {
     name: 'editor.document_map',
     description: '读取当前编辑目标的文档地图：总字符、估算 token、节列表、节范围与摘要头。长文档必须先调用本工具，再分段读取。',
     policy: 'read',
+    defaultToolPolicy: 'allowedWithoutPermission',
+    riskLevel: 'low',
     inputSchema: {
       type: 'object',
       properties: {
@@ -233,8 +235,10 @@ export function createEditorDocumentMapTools(options: {
 
   const readRange: AgentToolDefinition = {
     name: 'editor.read_range',
-    description: '按 sectionId 或 cursor 分段读取编辑目标内容。返回 nextCursor / hasMore / range；禁止请求全文。',
+    description: '按 sectionId 或 cursor 分段读取编辑目标内容；分页只用 cursor，不支持 offset。写入后节 id 可能变化，读取失败时先刷新 editor.document_map 并使用当前版本 id。',
     policy: 'read',
+    defaultToolPolicy: 'allowedWithoutPermission',
+    riskLevel: 'low',
     inputSchema: {
       type: 'object',
       properties: {
@@ -247,6 +251,13 @@ export function createEditorDocumentMapTools(options: {
       const current = getState()
       if (!current) return toolError('target_missing', '当前没有可编辑目标')
       const params = isPlainObject(input) ? input : {}
+      const unsupportedPaginationKeys = ['offset', 'limit'].filter(key => key in params)
+      if (unsupportedPaginationKeys.length > 0) {
+        return toolError(
+          'invalid_input',
+          `editor.read_range 不支持 offset/limit 分页（收到不支持字段：${unsupportedPaginationKeys.join(', ')}）。请传 nextCursor 继续读取当前节，或用 editor.document_map 返回的 sectionId 开始读取。`,
+        )
+      }
       const cursor = decodeCursor(params.cursor)
       const hasSectionId = typeof params.sectionId === 'string' && params.sectionId.trim().length > 0
       if (!cursor && !hasSectionId) {
@@ -258,15 +269,25 @@ export function createEditorDocumentMapTools(options: {
 
       let section: EditorDocumentSection
       let path = ''
+      const sectionNotFound = (source: 'cursor' | 'sectionId', requestedId: string): ToolResult => ({
+        ok: false,
+        error: {
+          code: 'section_not_found',
+          message: `${source === 'cursor' ? 'cursor 中的节' : '节'}不存在：${requestedId}。写入会改变节 id，请重新调用 editor.document_map，并使用当前版本返回的 sectionId；本次失败前的 cursor 不可复用。`,
+          retryable: true,
+        },
+        data: {
+          candidates: sectionCandidates(current.entries, requestedId),
+          contentVersion: current.snapshot.contentVersion,
+          recovery: [
+            '重新调用 editor.document_map',
+            '使用当前 document_map 返回的 sectionId',
+          ],
+        },
+      })
       if (cursor) {
         const entry = current.entries.get(cursor.sectionId)
-        if (!entry) {
-          return {
-            ok: false,
-            error: { code: 'section_not_found', message: `cursor 中的节不存在：${cursor.sectionId}` },
-            data: { candidates: sectionCandidates(current.entries, cursor.sectionId) },
-          }
-        }
+        if (!entry) return sectionNotFound('cursor', cursor.sectionId)
         section = entry.section
         path = entry.path
         if (cursor.offset >= section.charCount) {
@@ -274,13 +295,7 @@ export function createEditorDocumentMapTools(options: {
         }
       } else {
         const entry = current.entries.get((params.sectionId as string).trim())
-        if (!entry) {
-          return {
-            ok: false,
-            error: { code: 'section_not_found', message: `节不存在：${params.sectionId}` },
-            data: { candidates: sectionCandidates(current.entries, params.sectionId as string) },
-          }
-        }
+        if (!entry) return sectionNotFound('sectionId', (params.sectionId as string).trim())
         section = entry.section
         path = entry.path
       }

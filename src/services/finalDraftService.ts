@@ -1,5 +1,6 @@
 import { mergeContinuationText, type ContinuationSnapshot } from './continuation'
 import type { AiService, CallAiParams, CallAiResult } from './aiService'
+import type { LongDocumentExecutionOperation } from './longDocumentExecutionPlanner'
 import { parseOutlineStructure } from './outlineStructure'
 
 const SEGMENT_SEAM_MAX_OVERLAP_CHARS = 8000
@@ -36,6 +37,8 @@ export interface FinalDraftTask {
   destination: FinalDraftDestination
   targetId: string
   instruction: string
+  /** Execution-plan operation. Legacy checkpoints without it keep the conservative gate. */
+  operation?: LongDocumentExecutionOperation
   skillGuidance?: string
   constraints: string[]
   protectedRanges: FinalDraftProtectedRange[]
@@ -136,6 +139,7 @@ export interface FinalDraftValidationIssue {
     | 'unfinished_draft'
     | 'paragraph_structure_lost'
     | 'leaf_body_integrity_lost'
+    | 'heading_boundary_lost'
     | 'duplicate_seam'
     | 'duplicate_block'
     | 'tool_protocol_residue'
@@ -207,6 +211,7 @@ export function createFinalDraftTask(input: {
   targetId: string
   sourceContent: string
   instruction: string
+  operation?: LongDocumentExecutionOperation
   skillGuidance?: string
   constraints?: string[]
   protectedRanges?: FinalDraftProtectedRange[]
@@ -223,6 +228,7 @@ export function createFinalDraftTask(input: {
     destination: input.destination,
     targetId: input.targetId,
     instruction: input.instruction,
+    operation: input.operation,
     skillGuidance: normalizeFinalDraftSkillGuidance(input.skillGuidance)?.text,
     constraints: input.constraints || [],
     protectedRanges: input.protectedRanges || [],
@@ -350,6 +356,7 @@ export function validateFinalDraft(
     finishReason?: string
     acceptTruncated?: boolean
     sourceContent?: string
+    operation?: LongDocumentExecutionOperation
   } = {},
 ): FinalDraftValidationResult {
   const issues: FinalDraftValidationIssue[] = []
@@ -360,7 +367,11 @@ export function validateFinalDraft(
   if (options.finishReason === 'length' && !options.acceptTruncated) {
     issues.push({ code: 'unfinished_draft', message: '终稿仍处于截断状态，未执行写入。' })
   }
+  const authorizedRewrite = options.operation === 'rewrite_segments'
+  const authorizedDeletion = options.operation === 'deduplicate'
+    || options.operation === 'deduplicate_and_normalize'
   if (
+    !authorizedRewrite && !authorizedDeletion &&
     options.sourceContent !== undefined &&
     countFinalDraftBlocks(text) < countFinalDraftBlocks(options.sourceContent)
   ) {
@@ -380,9 +391,21 @@ export function validateFinalDraft(
   if (
     options.sourceContent !== undefined
     && hasMarkdownHeadings(options.sourceContent)
-    && hasFinalDraftLeafBodyDifference(text, options.sourceContent)
+    && hasFinalDraftHeadingDifference(text, options.sourceContent)
   ) {
-    const summary = summarizeFinalDraftLeafBodyDifference(text, options.sourceContent)
+    const summary = summarizeFinalDraftHeadingDifference(text, options.sourceContent)
+    issues.push({
+      code: 'heading_boundary_lost',
+      message: `终稿标题边界校验失败，未执行写入。（${summary}）`,
+    })
+  }
+  if (
+    !authorizedRewrite
+    && options.sourceContent !== undefined
+    && hasMarkdownHeadings(options.sourceContent)
+    && summarizeFinalDraftLeafBodyDifference(text, options.sourceContent, options.operation).length > 0
+  ) {
+    const summary = summarizeFinalDraftLeafBodyDifference(text, options.sourceContent, options.operation)
     issues.push({
       code: 'leaf_body_integrity_lost',
       message: `终稿叶子正文完整性校验失败，未执行写入。（${summary}）`,
@@ -434,6 +457,40 @@ function hasMarkdownHeadings(text: string): boolean {
   return /^#{1,6}\s+/m.test(String(text || ''))
 }
 
+function headingMultiset(text: string): string[] {
+  return String(text || '')
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(line => /^#{1,6}\s+/.test(line))
+}
+
+function hasFinalDraftHeadingDifference(draft: string, source: string): boolean {
+  return summarizeFinalDraftHeadingDifference(draft, source).length > 0
+}
+
+function summarizeFinalDraftHeadingDifference(draft: string, source: string): string {
+  const expected = new Map<string, number>()
+  for (const heading of headingMultiset(source)) {
+    expected.set(heading, (expected.get(heading) || 0) + 1)
+  }
+  const actual = new Map<string, number>()
+  for (const heading of headingMultiset(draft)) {
+    actual.set(heading, (actual.get(heading) || 0) + 1)
+  }
+  let missingCount = 0
+  let addedCount = 0
+  for (const [heading, count] of expected) {
+    missingCount += Math.max(0, count - (actual.get(heading) || 0))
+  }
+  for (const [heading, count] of actual) {
+    addedCount += Math.max(0, count - (expected.get(heading) || 0))
+  }
+  if (!missingCount && !addedCount) return ''
+  return `源文标题 ${[...expected.values()].reduce((sum, count) => sum + count, 0)} / 终稿标题 ${
+    [...actual.values()].reduce((sum, count) => sum + count, 0)
+  }，缺失 ${missingCount}，新增 ${addedCount}`
+}
+
 function leafBodyMultiset(text: string): string[] {
   const lines = String(text || '').split(/\r?\n/)
   const headingIndexes = lines
@@ -456,23 +513,36 @@ function normalizeLeafBodyForIntegrity(text: string): string {
   return String(text || '').replace(/[\s\p{P}\p{S}]/gu, '')
 }
 
-function hasFinalDraftLeafBodyDifference(draft: string, source: string): boolean {
-  return summarizeFinalDraftLeafBodyDifference(draft, source).length > 0
+function normalizeLeafBodyForDuplicateIntegrity(text: string): string {
+  // Deduplication compares prose; paragraph identifiers only locate the duplicate.
+  const withoutParagraphId = String(text || '')
+    .replace(/^\s*\d+(?:[-.．、]\d+)*\s*[：:]\s*/u, '')
+  return normalizeLeafBodyForIntegrity(withoutParagraphId)
 }
 
-function summarizeFinalDraftLeafBodyDifference(draft: string, source: string): string {
+function summarizeFinalDraftLeafBodyDifference(
+  draft: string,
+  source: string,
+  operation?: LongDocumentExecutionOperation,
+): string {
+  const normalizeLeafBody = operation === 'deduplicate' || operation === 'deduplicate_and_normalize'
+    ? normalizeLeafBodyForDuplicateIntegrity
+    : normalizeLeafBodyForIntegrity
   const expected = new Map<string, number>()
-  for (const body of leafBodyMultiset(source).map(normalizeLeafBodyForIntegrity)) {
+  for (const body of leafBodyMultiset(source).map(normalizeLeafBody)) {
     expected.set(body, (expected.get(body) || 0) + 1)
   }
   const actual = new Map<string, number>()
-  for (const body of leafBodyMultiset(draft).map(normalizeLeafBodyForIntegrity)) {
+  for (const body of leafBodyMultiset(draft).map(normalizeLeafBody)) {
     actual.set(body, (actual.get(body) || 0) + 1)
   }
   let missingCount = 0
   let addedCount = 0
   for (const [body, count] of expected) {
-    missingCount += Math.max(0, count - (actual.get(body) || 0))
+    const allowedRemovals = operation === 'deduplicate' || operation === 'deduplicate_and_normalize'
+      ? Math.max(0, count - 1)
+      : 0
+    missingCount += Math.max(0, count - (actual.get(body) || 0) - allowedRemovals)
   }
   for (const [body, count] of actual) {
     addedCount += Math.max(0, count - (expected.get(body) || 0))
@@ -561,6 +631,7 @@ export async function continueFinalDraft(
       finishReason: current.finishReason,
       acceptTruncated: true,
       sourceContent: activeSegmentSource(current),
+      operation: current.operation,
     })
     if (!continuationValidation.valid) {
       const failed = applyFinalDraftEventWithHooks(current, {
@@ -627,6 +698,7 @@ async function writeCompletedDraft(
   const validation = validateFinalDraft(normalizedDraft, {
     finishReason: task.finishReason,
     sourceContent: deps.sourceContent || task.sourceContent,
+    operation: task.operation,
   })
   if (!validation.valid) {
     const failed = applyFinalDraftEventWithHooks(task, {
@@ -775,6 +847,7 @@ async function runPendingSegments(
       finishReason: result.finishReason,
       acceptTruncated: true,
       sourceContent: activeSegmentSource(task),
+      operation: task.operation,
     })
     const retryableStructureLoss = !segmentValidation.valid
       && !isTruncated(result.finishReason)
@@ -801,6 +874,7 @@ async function runPendingSegments(
         finishReason: retryResult.finishReason,
         acceptTruncated: true,
         sourceContent: activeSegmentSource(task),
+        operation: task.operation,
       })
       if (!retryValidation.valid) {
         const failed = applyFinalDraftEventWithHooks(task, {

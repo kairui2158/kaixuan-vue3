@@ -1,0 +1,49 @@
+{
+  "schema": "shenyi.live-api-status-electron",
+  "version": 1,
+  "generatedAt": "2026-10-02T14:21:51.008Z",
+  "script": "verify-live-api-status-electron.mjs",
+  "streamActivityWindowMs": 8000,
+  "cases": [
+    {
+      "name": "home",
+      "source": "home",
+      "streamingLines": [
+        "现场复刻：正在等待 API 返回",
+        "流式接收中 · 已接收 32 字"
+      ],
+      "toolRoundLines": [
+        "现场复刻：正在等待 API 返回",
+        "正在执行编辑任务，等待正文输出…"
+      ],
+      "resumedLines": [
+        "现场复刻：正在等待 API 返回",
+        "流式接收中 · 已接收 36 字"
+      ],
+      "finalLines": []
+    },
+    {
+      "name": "outline",
+      "source": "outline",
+      "streamingLines": [
+        "现场复刻：正在等待 API 返回",
+        "流式接收中 · 已接收 32 字"
+      ],
+      "toolRoundLines": [
+        "现场复刻：正在等待 API 返回",
+        "正在执行编辑任务，等待正文输出…"
+      ],
+      "resumedLines": [
+        "现场复刻：正在等待 API 返回",
+        "流式接收中 · 已接收 36 字"
+      ],
+      "finalLines": []
+    }
+  ],
+  "assertions": {
+    "staleThirtyTwoCharStreamNotPresentedAsStreaming": true,
+    "toolRoundShowsWaitingForBodyWithoutToolIdentity": true,
+    "resumedBodyDeltaRestoresStreamingCount": true,
+    "statusSurfaceExcludesToolNames": true
+  }
+}

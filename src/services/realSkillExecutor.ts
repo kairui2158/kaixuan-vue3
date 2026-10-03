@@ -14,6 +14,8 @@ import type {
   RealSkillResource,
 } from './realSkillTypes'
 
+export type { RealSkillDiagnostic } from './realSkillTypes'
+
 const ALLOWED_PRE_FIELDS = new Set(['input', 'template', 'samples'])
 const ALLOWED_POST_FIELDS = new Set(['output', 'valid', 'message', 'errors', 'issues'])
 const TEMPLATE_LIMIT = 20000
@@ -41,6 +43,37 @@ function diagnostic(
   message: string
 ): RealSkillDiagnostic {
   return { type, code, message, at: new Date().toISOString() }
+}
+
+/**
+ * Compose-mode Agent runs never enter the folder executor. This single-source
+ * collector keeps their protocol observability aligned with executor runs:
+ * SKILL declarations are visible as warnings, but never as execution authority.
+ */
+export async function collectSkillPackageProtocolDiagnostics(templates: Array<{
+  skill?: {
+    format?: string
+    folderPath?: string
+  }
+}>): Promise<RealSkillDiagnostic[]> {
+  const folderPaths = [...new Set(
+    templates
+      .filter(template => template.skill?.format === 'folder' && template.skill.folderPath)
+      .map(template => String(template.skill?.folderPath))
+  )]
+  const diagnostics: RealSkillDiagnostic[] = []
+  for (const folderPath of folderPaths) {
+    const loaded = await loadRealSkill(folderPath)
+    if (!loaded.package) continue
+    for (const warning of loaded.warnings || loaded.package.warnings || []) {
+      diagnostics.push(diagnostic(
+        'warning',
+        `folder-package:${warning.code}`,
+        warning.message
+      ))
+    }
+  }
+  return diagnostics
 }
 
 /**

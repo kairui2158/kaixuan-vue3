@@ -8,9 +8,16 @@ import {
   appendEditTaskPlanBatch,
   applyEditTaskEvent,
   createEditTask,
+  recordEditTaskBatchCommands,
   type EditTask,
   type EditTaskBatchDetail,
+  type EditTaskBatchCommandSnapshot,
 } from '../services/editTaskService'
+import {
+  verifyEditTaskCompletion,
+  type EditTaskCompletionReport,
+} from '../services/editTaskCompletion'
+import type { EditorEditCommand } from '../services/editorEditProtocol'
 import type { ToolResult } from '../services/editorTools'
 
 export interface EditTaskSessionBatchInput {
@@ -25,6 +32,17 @@ export interface EditTaskSessionBatchInput {
     contentHash: string
   }
   batchDetail?: EditTaskBatchDetail
+  /** Structured commands of this batch; required for task-level goal verification. */
+  commands?: EditorEditCommand[]
+}
+
+export interface EditTaskSessionFinishInput {
+  target: {
+    workspace: 'outline' | 'editor'
+    targetId: string
+  }
+  before: string
+  after: string
 }
 
 export interface EditTaskSessionBatchResult {
@@ -73,7 +91,14 @@ export interface EditTaskSession {
   ) => Promise<EditTaskSessionBatchResult>
   reset: () => void
   beginTask: (input: EditTaskSessionBatchInput) => EditTask
-  finishActiveTask: (options?: { succeeded?: boolean; summaryFailed?: boolean }) => EditTask | null
+  completionReport: () => EditTaskCompletionReport | null
+  finishActiveTask: (
+    options?: {
+      succeeded?: boolean
+      summaryFailed?: boolean
+      completion?: EditTaskSessionFinishInput
+    },
+  ) => EditTask | null
 }
 
 export function useEditTaskSession(
@@ -90,6 +115,37 @@ export function useEditTaskSession(
     activeTask.value = manager.getActiveTask()
       || (isActiveTask(task) ? task : null)
     input.onLifecycle?.({ type, task })
+  }
+
+  const batchCommandSnapshots = (
+    batchInput: EditTaskSessionBatchInput,
+  ): EditTaskBatchCommandSnapshot[] => {
+    if (!batchInput.commands?.length) return []
+    return batchInput.commands.map(command => ({
+      batchId: batchInput.batchId,
+      operation: command.operation,
+      ...(command.target !== undefined ? { target: command.target } : {}),
+      ...(command.content !== undefined ? { content: command.content } : {}),
+      ...(command.order !== undefined ? { order: command.order } : {}),
+      ...(command.destination !== undefined ? { destination: command.destination } : {}),
+      ...(command.reason !== undefined ? { reason: command.reason } : {}),
+      ...(batchInput.batchDetail ? { batchDetail: batchInput.batchDetail } : {}),
+    }))
+  }
+
+  let lastCompletionReport: EditTaskCompletionReport | null = null
+
+  const verifyCompletion = (completion?: EditTaskSessionFinishInput): EditTaskCompletionReport | null => {
+    const current = manager.getActiveTask()
+    if (!current || !completion) return null
+    if (current.target.targetId !== completion.target.targetId) return null
+    const report = verifyEditTaskCompletion({
+      task: current,
+      before: completion.before,
+      after: completion.after,
+    })
+    lastCompletionReport = report
+    return report
   }
 
   const resumeEditTask = (taskId: string): Promise<ToolResult> => {
@@ -251,6 +307,7 @@ export function useEditTaskSession(
     activeTask: () => activeTask.value,
     activeTaskRef: () => activeTask,
     busy: () => busy.value,
+    completionReport: () => lastCompletionReport,
     resumeEditTask,
     ...buildEditTaskControlHandlers(manager, {
       onResume: task => emit('task_resumed', task),
@@ -268,8 +325,21 @@ export function useEditTaskSession(
           && activeTaskBefore.target.targetId === batchInput.target.targetId
           && activeTaskBefore.status !== 'planning'
         const task = canAppendToActiveTask
-          ? appendRunningBatch(batchInput)
-          : startBatch(batchInput)
+          ? (() => {
+            const appended = appendRunningBatch(batchInput)
+            return appended
+              ? recordEditTaskBatchCommands(
+                appended,
+                batchInput.batchId,
+                batchCommandSnapshots(batchInput),
+              )
+              : null
+          })()
+          : recordEditTaskBatchCommands(
+            startBatch(batchInput),
+            batchInput.batchId,
+            batchCommandSnapshots(batchInput),
+          )
         if (!task) {
           return { ok: false, code: 'task_not_appendable', message: '当前编辑任务无法追加批次' }
         }
@@ -313,8 +383,9 @@ export function useEditTaskSession(
         busy.value = false
       }
     },
-    reset() {
-      const current = manager.getActiveTask()
+  reset() {
+    lastCompletionReport = null
+    const current = manager.getActiveTask()
       if (current) {
         const canceled = manager.cancelTask(current.id)
         if (canceled) emit('task_canceled', canceled)
@@ -328,6 +399,17 @@ export function useEditTaskSession(
       const current = manager.getActiveTask()
       if (!current) return null
       if (!isActiveTask(current)) return null
+      const completionReport = verifyCompletion(options.completion)
+      if (completionReport && !completionReport.verified) {
+        const withWarnings = applyEditTaskEvent(current, {
+          type: 'task_succeeded_with_warnings',
+          now: Date.now(),
+        })
+        const next = manager.finishTaskWithWarnings(withWarnings.id) || withWarnings
+        emit('task_succeeded_with_warnings', next)
+        activeTask.value = manager.getActiveTask() || (isActiveTask(next) ? next : null)
+        return next
+      }
       if (options.succeeded === false && options.summaryFailed) {
         const withWarnings = applyEditTaskEvent(current, {
           type: 'task_succeeded_with_warnings',

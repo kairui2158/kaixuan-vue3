@@ -13,6 +13,7 @@ const snapshot: AgentOrchestratorSnapshot = {
   successfulWriteCount: 0,
   noProgressRounds: 0,
   repeatedCallCount: 0,
+  maxPhysicalRequests: 8,
   updatedAt: 1,
 }
 
@@ -71,5 +72,35 @@ describe('agentTraceBridge', () => {
     expect(event?.level).toBe('warn')
     expect(event?.label).toContain('editor.write')
     expect(event?.payload).toEqual({ toolName: 'editor.write', reason: 'built-in' })
+  })
+
+  it('maps physical request limit events to the agent trace event type', () => {
+    const pinia = createPinia()
+    const store = useRunTraceStore(pinia)
+    const runId = store.startRun({ source: 'outline', mode: 'agent', projectId: 'p1' })
+    const bridge = createAgentTraceBridge({ pinia, source: 'outline' })
+    const stalledSnapshot: AgentOrchestratorSnapshot = {
+      ...snapshot,
+      status: 'stalled',
+      callCount: 8,
+      reason: 'physical_request_limit',
+    }
+
+    bridge.attach()({
+      type: 'physical_request_limit',
+      level: 'warning',
+      label: '物理请求次数达到上限：8/8',
+      detail: 'stalled',
+      payload: { maxPhysicalRequests: 8 },
+    }, stalledSnapshot)
+
+    const event = store.getRun(runId)?.events.find(item => item.type === 'agent-physical_request_limit')
+    expect(event?.level).toBe('warn')
+    expect(event?.label).toContain('8/8')
+    expect(event?.payload).toEqual({ maxPhysicalRequests: 8 })
+    const snapshotEvent = store.getRun(runId)?.events
+      .filter(item => item.type === 'agent-snapshot')
+      .at(-1)
+    expect(snapshotEvent?.payload).toEqual({ snapshot: stalledSnapshot })
   })
 })

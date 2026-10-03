@@ -95,7 +95,7 @@ describe('editor.write JSON compatibility protocol', () => {
 
   it('binds JSON protocol guidance to the execution plan operation allowlist', () => {
     const finalDraftPrompt = buildEditorWriteProtocolPrompt(buildLongDocumentExecutionPlan({
-      requestText: '把整篇大纲重新整理排序',
+      requestText: '全文重写整篇大纲',
       content: `# 第一卷\n\n${'雨'.repeat(12_000)}\n\n# 第二卷\n\n${'雨'.repeat(12_000)}`,
       contextWindowTokens: 128_000,
       maxOutputTokens: 8_192,
@@ -111,7 +111,6 @@ describe('editor.write JSON compatibility protocol', () => {
         contextWindowTokens: 12_000,
         maxOutputTokens: 4_096,
       }),
-      mode: 'edit-task',
     } as const
     const normalizePrompt = buildEditorWriteProtocolPrompt(normalizePlan)
     expect(normalizePrompt).toContain('当前允许的写入操作：replace_match|rewrite')

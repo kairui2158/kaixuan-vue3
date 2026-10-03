@@ -1,0 +1,615 @@
+{
+  "caseId": "outline-with-skill",
+  "at": "2026-10-02T15:06:36.648Z",
+  "message": "outline-with-skill: exactly one skill guidance event is recorded\n\n0 !== 1\n",
+  "stack": "AssertionError [ERR_ASSERTION]: outline-with-skill: exactly one skill guidance event is recorded\n\n0 !== 1\n\n    at assertCase (file:///D:/codex/novel-workshop-vue3/scripts/verify-long-document-operation-phase7-electron.mjs:916:10)\n    at main (file:///D:/codex/novel-workshop-vue3/scripts/verify-long-document-operation-phase7-electron.mjs:1144:9)",
+  "completedTurns": [
+    {
+      "request": "按照Word文档的形式重构大纲，不要缩减内容。",
+      "turnStatus": "success",
+      "turnReason": "skill_execution_complete",
+      "responseChars": 964,
+      "toolCalls": [
+        {
+          "name": "outline.read_range",
+          "status": "success",
+          "errorCode": null
+        },
+        {
+          "name": "outline.read_range",
+          "status": "success",
+          "errorCode": null
+        }
+      ]
+    },
+    {
+      "request": "A",
+      "turnStatus": "success",
+      "turnReason": "skill_execution_complete",
+      "responseChars": 900,
+      "toolCalls": []
+    },
+    {
+      "request": "1，三处重复项，删 。 2，是在编辑器里统一标题层级、编号和标点",
+      "turnStatus": "success",
+      "turnReason": "skill_execution_complete",
+      "responseChars": 969,
+      "toolCalls": [
+        {
+          "name": "outline.read_range",
+          "status": "success",
+          "errorCode": null
+        },
+        {
+          "name": "outline.read_range",
+          "status": "success",
+          "errorCode": null
+        },
+        {
+          "name": "outline.read_range",
+          "status": "success",
+          "errorCode": null
+        },
+        {
+          "name": "outline.search",
+          "status": "success",
+          "errorCode": null
+        },
+        {
+          "name": "outline.search",
+          "status": "success",
+          "errorCode": null
+        },
+        {
+          "name": "outline.search",
+          "status": "success",
+          "errorCode": null
+        },
+        {
+          "name": "outline.read_range",
+          "status": "success",
+          "errorCode": null
+        }
+      ]
+    }
+  ],
+  "runBindingSnapshot": {
+    "runId": "run-1790953516652-1",
+    "runStatus": "running",
+    "currentTurnId": null,
+    "turns": [
+      {
+        "id": "turn-1790953516653-3",
+        "seq": 1,
+        "status": "success",
+        "reason": "skill_execution_complete",
+        "startedAt": 1790953516653,
+        "endedAt": 1790953544079
+      },
+      {
+        "id": "turn-1790953545453-40",
+        "seq": 2,
+        "status": "success",
+        "reason": "skill_execution_complete",
+        "startedAt": 1790953545453,
+        "endedAt": 1790953557125
+      },
+      {
+        "id": "turn-1790953558600-60",
+        "seq": 3,
+        "status": "success",
+        "reason": "skill_execution_complete",
+        "startedAt": 1790953558600,
+        "endedAt": 1790953595431
+      }
+    ],
+    "apiCalls": [
+      {
+        "id": "api-1790953516698-9",
+        "seq": 1,
+        "turnId": "turn-1790953516653-3",
+        "status": "success",
+        "responseChars": 964,
+        "toolCallCount": 2
+      },
+      {
+        "id": "api-1790953545466-46",
+        "seq": 2,
+        "turnId": "turn-1790953545453-40",
+        "status": "success",
+        "responseChars": 900,
+        "toolCallCount": 0
+      },
+      {
+        "id": "api-1790953558616-66",
+        "seq": 3,
+        "turnId": "turn-1790953558600-60",
+        "status": "success",
+        "responseChars": 969,
+        "toolCallCount": 7
+      }
+    ],
+    "events": [
+      {
+        "type": "tool-call",
+        "turnId": null,
+        "level": "info",
+        "label": "工具调用完成：outline.read_range"
+      },
+      {
+        "type": "run-activity",
+        "turnId": null,
+        "level": "info",
+        "label": "运行活性证据"
+      },
+      {
+        "type": "long-request-in-progress",
+        "turnId": null,
+        "level": "info",
+        "label": "长物理请求进行中"
+      },
+      {
+        "type": "physical-call",
+        "turnId": null,
+        "level": "info",
+        "label": "第 2 次物理请求进行中"
+      },
+      {
+        "type": "physical-call",
+        "turnId": null,
+        "level": "info",
+        "label": "第 2 次物理请求完成"
+      },
+      {
+        "type": "run-activity",
+        "turnId": null,
+        "level": "info",
+        "label": "运行活性证据"
+      },
+      {
+        "type": "tool-call",
+        "turnId": null,
+        "level": "info",
+        "label": "工具调用完成：outline.read_range"
+      },
+      {
+        "type": "run-activity",
+        "turnId": null,
+        "level": "info",
+        "label": "运行活性证据"
+      },
+      {
+        "type": "long-request-in-progress",
+        "turnId": null,
+        "level": "info",
+        "label": "长物理请求进行中"
+      },
+      {
+        "type": "physical-call",
+        "turnId": null,
+        "level": "info",
+        "label": "第 3 次物理请求进行中"
+      },
+      {
+        "type": "physical-call",
+        "turnId": null,
+        "level": "info",
+        "label": "第 3 次物理请求完成"
+      },
+      {
+        "type": "state-transition",
+        "turnId": null,
+        "level": "info",
+        "label": "RunTraceStatus：running → success"
+      },
+      {
+        "type": "api-success",
+        "turnId": null,
+        "level": "info",
+        "label": "第 1 次 API 调用完成"
+      },
+      {
+        "type": "tool-call",
+        "turnId": null,
+        "level": "info",
+        "label": "技能工具调用完成"
+      },
+      {
+        "type": "skill-run-complete",
+        "turnId": null,
+        "level": "info",
+        "label": "技能执行完成"
+      },
+      {
+        "type": "turn-finished",
+        "turnId": null,
+        "level": "info",
+        "label": "第 1 轮完成"
+      },
+      {
+        "type": "session-active",
+        "turnId": null,
+        "level": "info",
+        "label": "会话仍在进行"
+      },
+      {
+        "type": "user-request",
+        "turnId": "turn-1790953545453-40",
+        "level": "info",
+        "label": "用户请求"
+      },
+      {
+        "type": "routing-started",
+        "turnId": "turn-1790953545453-40",
+        "level": "info",
+        "label": "开始意图路由"
+      },
+      {
+        "type": "routing-diagnostics",
+        "turnId": "turn-1790953545453-40",
+        "level": "info",
+        "label": "意图路由诊断：rule"
+      },
+      {
+        "type": "turn-intent-updated",
+        "turnId": "turn-1790953545453-40",
+        "level": "info",
+        "label": "第 2 轮意图已修正"
+      },
+      {
+        "type": "routing-result",
+        "turnId": "turn-1790953545453-40",
+        "level": "info",
+        "label": "意图路由结果：matched"
+      },
+      {
+        "type": "api-start",
+        "turnId": "turn-1790953545453-40",
+        "level": "info",
+        "label": "第 2 次 API 调用开始"
+      },
+      {
+        "type": "prompt-built",
+        "turnId": null,
+        "level": "info",
+        "label": "提示词快照已创建"
+      },
+      {
+        "type": "run-activity",
+        "turnId": null,
+        "level": "info",
+        "label": "运行活性证据"
+      },
+      {
+        "type": "long-request-in-progress",
+        "turnId": null,
+        "level": "info",
+        "label": "长物理请求进行中"
+      },
+      {
+        "type": "physical-call",
+        "turnId": null,
+        "level": "info",
+        "label": "第 1 次物理请求进行中"
+      },
+      {
+        "type": "physical-call",
+        "turnId": null,
+        "level": "info",
+        "label": "第 1 次物理请求完成"
+      },
+      {
+        "type": "state-transition",
+        "turnId": null,
+        "level": "info",
+        "label": "RunTraceStatus：running → success"
+      },
+      {
+        "type": "api-success",
+        "turnId": null,
+        "level": "info",
+        "label": "第 2 次 API 调用完成"
+      },
+      {
+        "type": "skill-run-complete",
+        "turnId": null,
+        "level": "info",
+        "label": "技能执行完成"
+      },
+      {
+        "type": "turn-finished",
+        "turnId": null,
+        "level": "info",
+        "label": "第 2 轮完成"
+      },
+      {
+        "type": "session-active",
+        "turnId": null,
+        "level": "info",
+        "label": "会话仍在进行"
+      },
+      {
+        "type": "user-request",
+        "turnId": "turn-1790953558600-60",
+        "level": "info",
+        "label": "用户请求"
+      },
+      {
+        "type": "routing-started",
+        "turnId": "turn-1790953558600-60",
+        "level": "info",
+        "label": "开始意图路由"
+      },
+      {
+        "type": "routing-diagnostics",
+        "turnId": "turn-1790953558600-60",
+        "level": "info",
+        "label": "意图路由诊断：rule"
+      },
+      {
+        "type": "turn-intent-updated",
+        "turnId": "turn-1790953558600-60",
+        "level": "info",
+        "label": "第 3 轮意图已修正"
+      },
+      {
+        "type": "routing-result",
+        "turnId": "turn-1790953558600-60",
+        "level": "info",
+        "label": "意图路由结果：matched"
+      },
+      {
+        "type": "api-start",
+        "turnId": "turn-1790953558600-60",
+        "level": "info",
+        "label": "第 3 次 API 调用开始"
+      },
+      {
+        "type": "prompt-built",
+        "turnId": null,
+        "level": "info",
+        "label": "提示词快照已创建"
+      },
+      {
+        "type": "run-activity",
+        "turnId": null,
+        "level": "info",
+        "label": "运行活性证据"
+      },
+      {
+        "type": "long-request-in-progress",
+        "turnId": null,
+        "level": "info",
+        "label": "长物理请求进行中"
+      },
+      {
+        "type": "physical-call",
+        "turnId": null,
+        "level": "info",
+        "label": "第 1 次物理请求进行中"
+      },
+      {
+        "type": "physical-call",
+        "turnId": null,
+        "level": "info",
+        "label": "第 1 次物理请求完成"
+      },
+      {
+        "type": "run-activity",
+        "turnId": null,
+        "level": "info",
+        "label": "运行活性证据"
+      },
+      {
+        "type": "tool-call",
+        "turnId": null,
+        "level": "info",
+        "label": "工具调用完成：outline.read_range"
+      },
+      {
+        "type": "run-activity",
+        "turnId": null,
+        "level": "info",
+        "label": "运行活性证据"
+      },
+      {
+        "type": "long-request-in-progress",
+        "turnId": null,
+        "level": "info",
+        "label": "长物理请求进行中"
+      },
+      {
+        "type": "physical-call",
+        "turnId": null,
+        "level": "info",
+        "label": "第 2 次物理请求进行中"
+      },
+      {
+        "type": "physical-call",
+        "turnId": null,
+        "level": "info",
+        "label": "第 2 次物理请求完成"
+      },
+      {
+        "type": "run-activity",
+        "turnId": null,
+        "level": "info",
+        "label": "运行活性证据"
+      },
+      {
+        "type": "tool-call",
+        "turnId": null,
+        "level": "info",
+        "label": "工具调用完成：outline.read_range"
+      },
+      {
+        "type": "run-activity",
+        "turnId": null,
+        "level": "info",
+        "label": "运行活性证据"
+      },
+      {
+        "type": "long-request-in-progress",
+        "turnId": null,
+        "level": "info",
+        "label": "长物理请求进行中"
+      },
+      {
+        "type": "physical-call",
+        "turnId": null,
+        "level": "info",
+        "label": "第 3 次物理请求进行中"
+      },
+      {
+        "type": "physical-call",
+        "turnId": null,
+        "level": "info",
+        "label": "第 3 次物理请求完成"
+      },
+      {
+        "type": "run-activity",
+        "turnId": null,
+        "level": "info",
+        "label": "运行活性证据"
+      },
+      {
+        "type": "tool-call",
+        "turnId": null,
+        "level": "info",
+        "label": "工具调用完成：outline.read_range"
+      },
+      {
+        "type": "run-activity",
+        "turnId": null,
+        "level": "info",
+        "label": "运行活性证据"
+      },
+      {
+        "type": "tool-call",
+        "turnId": null,
+        "level": "info",
+        "label": "工具调用完成：outline.search"
+      },
+      {
+        "type": "run-activity",
+        "turnId": null,
+        "level": "info",
+        "label": "运行活性证据"
+      },
+      {
+        "type": "tool-call",
+        "turnId": null,
+        "level": "info",
+        "label": "工具调用完成：outline.search"
+      },
+      {
+        "type": "run-activity",
+        "turnId": null,
+        "level": "info",
+        "label": "运行活性证据"
+      },
+      {
+        "type": "tool-call",
+        "turnId": null,
+        "level": "info",
+        "label": "工具调用完成：outline.search"
+      },
+      {
+        "type": "run-activity",
+        "turnId": null,
+        "level": "info",
+        "label": "运行活性证据"
+      },
+      {
+        "type": "long-request-in-progress",
+        "turnId": null,
+        "level": "info",
+        "label": "长物理请求进行中"
+      },
+      {
+        "type": "physical-call",
+        "turnId": null,
+        "level": "info",
+        "label": "第 4 次物理请求进行中"
+      },
+      {
+        "type": "physical-call",
+        "turnId": null,
+        "level": "info",
+        "label": "第 4 次物理请求完成"
+      },
+      {
+        "type": "run-activity",
+        "turnId": null,
+        "level": "info",
+        "label": "运行活性证据"
+      },
+      {
+        "type": "tool-call",
+        "turnId": null,
+        "level": "info",
+        "label": "工具调用完成：outline.read_range"
+      },
+      {
+        "type": "run-activity",
+        "turnId": null,
+        "level": "info",
+        "label": "运行活性证据"
+      },
+      {
+        "type": "long-request-in-progress",
+        "turnId": null,
+        "level": "info",
+        "label": "长物理请求进行中"
+      },
+      {
+        "type": "physical-call",
+        "turnId": null,
+        "level": "info",
+        "label": "第 5 次物理请求进行中"
+      },
+      {
+        "type": "physical-call",
+        "turnId": null,
+        "level": "info",
+        "label": "第 5 次物理请求完成"
+      },
+      {
+        "type": "state-transition",
+        "turnId": null,
+        "level": "info",
+        "label": "RunTraceStatus：running → success"
+      },
+      {
+        "type": "api-success",
+        "turnId": null,
+        "level": "info",
+        "label": "第 3 次 API 调用完成"
+      },
+      {
+        "type": "tool-call",
+        "turnId": null,
+        "level": "info",
+        "label": "技能工具调用完成"
+      },
+      {
+        "type": "skill-run-complete",
+        "turnId": null,
+        "level": "info",
+        "label": "技能执行完成"
+      },
+      {
+        "type": "turn-finished",
+        "turnId": null,
+        "level": "info",
+        "label": "第 3 轮完成"
+      },
+      {
+        "type": "session-active",
+        "turnId": null,
+        "level": "info",
+        "label": "会话仍在进行"
+      }
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "capturedAt": "2026-10-02T15:54:19.0461119Z",
+  "phase": "phase-a",
+  "guidanceAssemblyReady": true,
+  "runtimeGuidanceReady": true,
+  "changedFiles": [
+    "src/services/workspaceSkillEngine.ts",
+    "src/services/workspaceSkillEngine.spec.ts"
+  ],
+  "focusedTests": {
+    "command": "npx vitest run src/services/workspaceSkillEngine.spec.ts --reporter=verbose",
+    "testFiles": 1,
+    "tests": 36,
+    "passed": 36,
+    "failed": 0,
+    "log": "_audit/verification-phase7-maturity/phase-a/guidance-assembly-tests.log"
+  },
+  "typeCheck": {
+    "command": "npm run type-check",
+    "status": "pass"
+  },
+  "runtimeGuidanceTests": {
+    "command": "npx vitest run src/services/agentDialogueRuntime.spec.ts src/services/agentOrchestrator.spec.ts --reporter=verbose",
+    "testFiles": 2,
+    "tests": 28,
+    "passed": 28,
+    "failed": 0,
+    "log": "_audit/verification-phase7-maturity/phase-a/runtime-guidance-tests.log"
+  },
+  "behaviorSwitched": false,
+  "notes": [
+    "buildWorkspaceSkillGuidance is a read-only projection and does not call the API, change authorization, or change model selection.",
+    "The 8000-character guidance limit reuses the final-draft guidance budget and records truncated state.",
+    "Existing runWorkspaceSkills behavior is unchanged in Phase A1."
+    ,
+    "Phase A2 keeps runtime/orchestrator fields read-only: skillGuidance, skillIds, promptSource, and maxPhysicalRequests are transported without changing tool permissions or execution semantics.",
+    "The one earlier red runtime test was an obsolete assertion expecting an empty tool surface; the test contract now asserts the real read-only surface with context.remaining and agent.plan."
+  ]
+}

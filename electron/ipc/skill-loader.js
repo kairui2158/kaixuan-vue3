@@ -3,6 +3,7 @@ const path = require('path')
 const crypto = require('crypto')
 const { ipcMain, shell, utilityProcess } = require('electron')
 const log = require('electron-log/main')
+const SKILL_PACKAGE_PROTOCOL = require('../../src/services/skillPackageProtocol.json')
 
 const SKILL_ENTRY = 'SKILL.md'
 const OPTIONAL_FILES = ['template.md', 'meta.json', 'script.js', 'samples.txt', 'schema.json']
@@ -137,6 +138,20 @@ function addWarning(warnings, code, message) {
   warnings.push({ code, message })
 }
 
+function collectManifestIgnoredProtocolFields(manifest, warnings) {
+  if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) return 0
+  const ignoredFields = SKILL_PACKAGE_PROTOCOL.forbiddenFields
+    .filter(field => manifest[field] !== undefined)
+  if (ignoredFields.length > 0) {
+    addWarning(
+      warnings,
+      'manifest-protocol-fields-ignored',
+      `SKILL 包声明的执行协议字段已忽略：${ignoredFields.join(', ')}；执行器、工具面与权限由应用单源管理`
+    )
+  }
+  return ignoredFields.length
+}
+
 function collectResourceFiles(directory, warnings) {
   const resources = []
   const knownFiles = new Set([SKILL_ENTRY, ...OPTIONAL_FILES, MANIFEST_FILE, EVALS_FILE])
@@ -235,6 +250,7 @@ function loadSkillFolder(folderPath) {
       ? manifest.name.trim()
       : (markdown && markdown.name ? markdown.name : id)
   if (manifest) {
+    collectManifestIgnoredProtocolFields(manifest, warnings)
     if (markdown && markdown.id && manifest.id !== undefined && String(manifest.id) !== markdown.id) {
       addWarning(warnings, 'manifest-id-conflict', `skill.json 显式声明 id=${manifest.id}，已优先于 SKILL.md 的 id=${markdown.id}`)
     }

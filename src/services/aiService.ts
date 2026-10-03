@@ -68,6 +68,7 @@ import {
 } from './editorTools'
 import { EDITOR_EDIT_PROTOCOL_VERSION } from './editorEditSemantics'
 import type { DialogueIntent } from './dialogueFoundation'
+import type { DialoguePermissionDecision } from './dialogueToolSurface'
 import { extractJsonCandidates } from './jsonExtraction'
 import {
   normalizeUsage as normalizeTraceUsage,
@@ -128,8 +129,10 @@ export interface CallAiParams {
     scenario?: 'direct' | 'direct-tool-intensive' | 'folder-chain' | 'compatibility-json'
     maxToolIterations?: number
     intent?: DialogueIntent
-    /** Session-state authorization for a long-document multi-batch workflow. */
-    writeAuthorization?: 'long-document-workflow'
+    /** Single-source permission decision; execution authorization never comes from SKILL. */
+    permissionDecision?: DialoguePermissionDecision
+    /** True while the entry-level edit-task workflow owns editor writes. */
+    editTaskWorkflow?: boolean
     /** Single-source execution plan used for steering and tool policy. */
     executionPlan?: LongDocumentExecutionPlan
     onCompatibilityMode?: (reason: string) => void
@@ -142,6 +145,7 @@ export interface CallAiParams {
       toolName: string
       policy: 'read' | 'write'
       intent?: DialogueIntent
+      permissionDecision?: DialoguePermissionDecision
       writeMode: 'direct'
       reason: string
       durationMs: number
@@ -169,6 +173,8 @@ export interface CallAiParams {
       protocolVersionDefaulted?: boolean
       toolCapability?: 'native_tools' | 'json_protocol'
       rejectionCategory?: ToolRejectionCategory
+      defaultToolPolicy?: AgentToolDefinition['defaultToolPolicy']
+      riskLevel?: AgentToolDefinition['riskLevel']
     }) => void
   }
   /** Explicit timeout; null means "no application-side timeout" (long-document runs). */
@@ -567,7 +573,6 @@ function evaluateWritePermission(
     }
   }
   if (policy.intent !== 'edit' && policy.intent !== 'generate') {
-    if (policy.writeAuthorization === 'long-document-workflow') return null
     return {
       ok: false,
       error: {
@@ -660,6 +665,7 @@ async function executeCompatibilityEditorWrite(
       toolName: writeTool.name,
       policy: writeTool.policy,
       intent: params.toolPolicy?.intent,
+      permissionDecision: params.toolPolicy?.permissionDecision,
       writeMode: 'direct',
       reason: permissionError.error?.message || '编辑器写入权限不足',
       durationMs: Date.now() - started,
@@ -687,6 +693,8 @@ async function executeCompatibilityEditorWrite(
       protocolVersionDefaulted: compatibilityProtocolResolution.defaulted,
       toolCapability: 'json_protocol',
       rejectionCategory: classifyToolRejection(permissionError),
+      defaultToolPolicy: writeTool.defaultToolPolicy,
+      riskLevel: writeTool.riskLevel,
     })
     return {
       call,
@@ -722,6 +730,8 @@ async function executeCompatibilityEditorWrite(
       protocolVersionDefaulted: compatibilityProtocolResolution.defaulted,
       toolCapability: 'json_protocol',
       rejectionCategory: classifyToolRejection(result),
+      defaultToolPolicy: writeTool.defaultToolPolicy,
+      riskLevel: writeTool.riskLevel,
     })
     logToolRequest(logger, {
       purpose: params.purpose,
@@ -760,6 +770,8 @@ async function executeCompatibilityEditorWrite(
       protocolVersionDefaulted: compatibilityProtocolResolution.defaulted,
       toolCapability: 'json_protocol',
       rejectionCategory: classifyToolRejection(invalidInput),
+      defaultToolPolicy: writeTool.defaultToolPolicy,
+      riskLevel: writeTool.riskLevel,
     })
     return { call, result: invalidInput }
   }
@@ -804,6 +816,8 @@ async function executeCompatibilityEditorWrite(
     protocolVersionDefaulted: compatibilityProtocolResolution.defaulted,
     toolCapability: 'json_protocol',
     rejectionCategory: classifyToolRejection(result),
+    defaultToolPolicy: writeTool.defaultToolPolicy,
+    riskLevel: writeTool.riskLevel,
   })
   logToolRequest(logger, {
     purpose: params.purpose,
@@ -1082,6 +1096,19 @@ function streamToolCallRaw(protocolName: string, state: StreamToolCallState): an
   return { choices: [{ message: { tool_calls: state.openAIToolCalls } }] }
 }
 
+function looksLikePlainJsonResponseBody(json: any): boolean {
+  if (json === null || typeof json !== 'object' || Array.isArray(json)) return false
+  if (json?.candidates?.[0]?.content?.parts?.some((part: any) => part?.functionCall?.name)) {
+    return true
+  }
+  if (json?.content?.some((block: any) => block?.type === 'tool_use' && block?.name)) {
+    return true
+  }
+  return Array.isArray(json?.choices)
+    || Array.isArray(json?.content)
+    || Array.isArray(json?.candidates)
+}
+
 /**
  * Unified SSE stream parser. Handles data: prefix, [DONE],
  * reasoning_content, and thinking-tag filtering.
@@ -1089,7 +1116,8 @@ function streamToolCallRaw(protocolName: string, state: StreamToolCallState): an
 async function parseSSEStream(
   reader: ReadableStreamDefaultReader<Uint8Array>,
   cb: StreamCallbacks,
-  protocolName: string = 'openai-compatible'
+  protocolName: string = 'openai-compatible',
+  nativeToolExchange = false
 ): Promise<MainNetStreamResult> {
   const decoder = new TextDecoder()
   let fullText = ''
@@ -1113,6 +1141,18 @@ async function parseSSEStream(
     }
   }
   let streamUsage: Record<string, any> | undefined
+  let plainJsonBody: any | undefined
+  const tryCapturePlainToolCallBody = (candidate: string) => {
+    if (plainJsonBody || !nativeToolExchange) return
+    const trimmedCandidate = candidate.trim()
+    if (!trimmedCandidate.startsWith('{') || !trimmedCandidate.endsWith('}')) return
+    try {
+      const json = JSON.parse(trimmedCandidate)
+      if (looksLikePlainJsonResponseBody(json)) plainJsonBody = json
+    } catch {
+      // Fall through to the normal SSE parser.
+    }
+  }
   const mergeUsageAndEmit = (usage: unknown) => {
     if (!usage || typeof usage !== 'object') return
     // Anthropic streams input/output usage in different SSE frames. Merge
@@ -1125,10 +1165,12 @@ async function parseSSEStream(
     const chunk = await reader.read()
     if (chunk.done) break
     buffer += decoder.decode(chunk.value, { stream: true })
+    tryCapturePlainToolCallBody(buffer)
     const lines = buffer.split('\n')
     buffer = lines.pop() || ''
     for (const line of lines) {
       const trimmed = line.trim()
+      tryCapturePlainToolCallBody(trimmed)
       if (!trimmed || !isSSEDataLine(trimmed)) continue
       const payload = trimmed.slice(6)
       if (isSSEDone(payload)) continue
@@ -1184,6 +1226,16 @@ async function parseSSEStream(
   if (finalReasoning) {
     reasoningText += finalReasoning
     cb.onReasoning?.(finalReasoning)
+  }
+  if (plainJsonBody) {
+    const plainProtocol = getProviderProtocol(protocolName)
+    return {
+      text: plainProtocol.extractText(plainJsonBody),
+      reasoning: plainProtocol.extractReasoning(plainJsonBody),
+      finishReason: plainProtocol.extractFinishReason(plainJsonBody),
+      usage: plainProtocol.extractUsage(plainJsonBody),
+      raw: plainJsonBody,
+    }
   }
   return {
     text: fullText,
@@ -1574,7 +1626,8 @@ async function mainNetStream(
   protocolName: string,
   externalSignal?: AbortSignal,
   timeoutMs?: number | null,
-  slowStreamTolerant = false
+  slowStreamTolerant = false,
+  nativeToolExchange = false
 ): Promise<MainNetStreamResult> {
   const signalId = 'provider-net-' + Date.now() + '-' + Math.random().toString(36).slice(2)
   const chunkQueue: string[] = []
@@ -1589,6 +1642,18 @@ async function mainNetStream(
   const chunkFilter = createThinkingTagStreamFilter()
   const reasoningFilter = createThinkingTagStreamFilter()
   const toolCallState = createStreamToolCallState()
+  let plainJsonBody: any | undefined
+  const tryCapturePlainToolCallBody = (candidate: string) => {
+    if (plainJsonBody || !nativeToolExchange) return
+    const trimmedCandidate = candidate.trim()
+    if (!trimmedCandidate.startsWith('{') || !trimmedCandidate.endsWith('}')) return
+    try {
+      const json = JSON.parse(trimmedCandidate)
+      if (looksLikePlainJsonResponseBody(json)) plainJsonBody = json
+    } catch {
+      // Keep the normal SSE parser for partial or non-JSON responses.
+    }
+  }
 
   const offChunk = (window as any).electronAPI.onProviderNetStreamChunk((payload: any) => {
     if (payload.signalId !== signalId) return
@@ -1718,6 +1783,7 @@ async function mainNetStream(
         sawFirstByte = true
       }
       buffer += text
+      tryCapturePlainToolCallBody(buffer)
       const lines = buffer.split('\n')
       buffer = lines.pop() || ''
       for (const line of lines) {
@@ -1791,6 +1857,16 @@ async function mainNetStream(
     if (streamError) {
       throw new AiServiceErrorImpl({ kind: 'network', message: streamError })
     }
+    if (plainJsonBody) {
+      const plainProtocol = getProviderProtocol(protocolName)
+      return {
+        text: plainProtocol.extractText(plainJsonBody),
+        reasoning: plainProtocol.extractReasoning(plainJsonBody),
+        finishReason: plainProtocol.extractFinishReason(plainJsonBody),
+        usage: plainProtocol.extractUsage(plainJsonBody),
+        raw: plainJsonBody,
+      }
+    }
     const finalChunk = chunkFilter.flush()
     if (finalChunk) callbacks.onChunk?.(finalChunk)
     const finalReasoning = reasoningFilter.flush()
@@ -1844,8 +1920,9 @@ export function createAiService(
       ? params.signal
       : combineSignals(params.signal, makeTimeoutSignal(timeoutMs))
     const protocol = getProviderProtocol(providerType)
-      const nativeTools = params.tools && params.tools.length > 0 && supportsNativeTools(providerType)
-      ? buildProviderTools(providerType, params.tools)
+    const nativeToolExchange = Boolean(params.tools?.length) && supportsNativeTools(providerType)
+    const nativeTools = nativeToolExchange
+      ? buildProviderTools(providerType, params.tools as AgentToolDefinition[])
       : undefined
     const requestParams = params
     const wantStream = requestParams.stream ?? (
@@ -1905,7 +1982,8 @@ export function createAiService(
           providerType,
           signal,
           timeoutMs,
-          params.slowStreamTolerant === true
+          params.slowStreamTolerant === true,
+          nativeToolExchange
         )
       } else {
         const reader = resp!.body!.getReader()
@@ -1919,7 +1997,8 @@ export function createAiService(
               if (requestParams.onUsage) requestParams.onUsage(u)
             },
           },
-          providerType
+          providerType,
+          nativeToolExchange
         )
       }
       const usage = normalizeTraceUsage(providerType, streamUsage ?? result.usage)
@@ -2002,8 +2081,11 @@ export function createAiService(
     let readOnlySteeringSent = false
     let steerAfterToolResults = false
     let lastRoundToolResults: Array<{ call: NormalizedToolCall; result: ToolResult }> = []
+    let consecutiveInvalidInputRounds = 0
+    let invalidInputLoopSignature = ''
     const zeroTextWarnThreshold = 2
     const readOnlyConvergenceThreshold = 2
+    const invalidInputConvergenceThreshold = 3
     let effectiveTools = params.tools
     let lastResult: CallAiResult | null = null
     let lastRawResponse: any = null
@@ -2230,6 +2312,7 @@ export function createAiService(
             toolName: tool.name,
             policy: tool.policy,
             intent: params.toolPolicy?.intent,
+            permissionDecision: params.toolPolicy?.permissionDecision,
             writeMode: 'direct' as const,
             reason: permissionError.error?.message || '编辑器写入权限不足',
             durationMs: 0,
@@ -2248,6 +2331,8 @@ export function createAiService(
             protocolVersionDefaulted: protocolResolution?.defaulted,
             toolCapability: 'native_tools',
             rejectionCategory: classifyToolRejection(permissionError),
+            defaultToolPolicy: tool.defaultToolPolicy,
+            riskLevel: tool.riskLevel,
           })
           logToolRequest(log, {
             purpose: params.purpose,
@@ -2286,6 +2371,8 @@ export function createAiService(
             protocolVersionDefaulted: protocolResolution?.defaulted,
             toolCapability: 'native_tools',
             rejectionCategory: classifyToolRejection(result),
+            defaultToolPolicy: tool.defaultToolPolicy,
+            riskLevel: tool.riskLevel,
           })
           logToolRequest(log, {
             purpose: params.purpose,
@@ -2325,6 +2412,8 @@ export function createAiService(
             protocolVersionDefaulted: protocolResolution?.defaulted,
             toolCapability: 'native_tools',
             rejectionCategory: classifyToolRejection(invalidInput),
+            defaultToolPolicy: tool.defaultToolPolicy,
+            riskLevel: tool.riskLevel,
           })
           logToolRequest(log, {
             purpose: params.purpose,
@@ -2365,6 +2454,8 @@ export function createAiService(
           protocolVersionDefaulted: protocolResolution?.defaulted,
           toolCapability: 'native_tools',
           rejectionCategory: classifyToolRejection(result),
+          defaultToolPolicy: tool.defaultToolPolicy,
+          riskLevel: tool.riskLevel,
         })
         logToolRequest(log, {
           purpose: params.purpose,
@@ -2382,6 +2473,28 @@ export function createAiService(
 
       const previousMessageCount = messages.length
       lastRoundToolResults = toolResults
+      const invalidInputResults = toolResults.filter(item =>
+        item.result.ok === false && item.result.error?.code === 'invalid_input')
+      if (invalidInputResults.length > 0) {
+        const signature = invalidInputResults
+          .map(item => `${item.call.name}::${stableToolSignature(item.call.input)}`)
+          .join('|')
+        if (signature === invalidInputLoopSignature) {
+          consecutiveInvalidInputRounds += 1
+        } else {
+          invalidInputLoopSignature = signature
+          consecutiveInvalidInputRounds = 1
+        }
+      } else {
+        invalidInputLoopSignature = ''
+        consecutiveInvalidInputRounds = 0
+      }
+      const hitInvalidInputConvergence = consecutiveInvalidInputRounds >= invalidInputConvergenceThreshold
+      if (hitInvalidInputConvergence) {
+        params.toolPolicy?.onToolWarning?.(
+          `模型连续 ${consecutiveInvalidInputRounds} 轮相同参数校验失败；已停止工具循环并要求直接说明失败原因`,
+        )
+      }
       messages = buildToolResultChatMessages(
         providerType,
         messages,
@@ -2393,9 +2506,13 @@ export function createAiService(
       )
       if (steerAfterToolResults) {
         const writeDirective = buildLongDocumentWriteDirective(params.toolPolicy?.executionPlan)
-        const finalDraftDirective = params.toolPolicy?.executionPlan?.mode === 'final-draft'
+        const discussionDirective = params.toolPolicy?.executionPlan?.operation === 'discussion'
+          ? `${writeDirective}下一轮必须停止调用工具，直接输出自然语言回答。`
+          : ''
+        const finalDraftDirective = discussionDirective
+          || (params.toolPolicy?.executionPlan?.mode === 'final-draft'
           ? `${writeDirective}下一轮必须停止调用工具，直接输出终稿正文。`
-          : `下一轮必须直接提交 editor.write 写入；${writeDirective}如果确实无法完成写入，必须停止调用工具并输出“本轮未写入”及具体原因。禁止继续无计划读取。`
+          : `下一轮必须直接提交 editor.write 写入；${writeDirective}如果已执行部分计划批次但尚未覆盖全部计划范围，必须继续执行剩余批次。如果确实无法完成写入，必须停止调用工具并输出“本轮未写入”及具体原因。禁止继续无计划读取。`)
         const steeringSystem = {
           role: 'system' as const,
           content: `你已连续 ${consecutiveToolOnlyRounds} 轮只调用读取工具。当前请求仍携带工具面。${finalDraftDirective}`,
@@ -2403,6 +2520,23 @@ export function createAiService(
         messages = [...messages, steeringSystem]
         toolRequestDeltas.push({ ...steeringSystem })
         steerAfterToolResults = false
+      }
+      if (hitInvalidInputConvergence) {
+        const convergence = await requestToolConvergence({
+          reason: 'repeated identical invalid tool inputs',
+          systemPrompt: '工具连续多次返回相同参数校验失败，模型未能修正调用参数。当前请求不携带任何工具。禁止继续调用工具或输出调用计划；直接基于已获得的错误说明哪一次调用失败、失败字段是什么、本轮未完成什么任务。',
+          params,
+          messages,
+          startTime,
+          providerId,
+          model,
+          lastResult,
+          allToolCalls,
+          allToolResults,
+          toolRequestDeltas,
+          lastToolAudit,
+        })
+        return convergence
       }
       if (iteration === maxIterations) hitToolLoopLimit = true
       lastToolAudit = buildCrossTurnToolAudit({
@@ -2680,6 +2814,7 @@ export function createAiService(
     const startTime = Date.now()
     const requestedTools = Boolean(params.tools?.length)
     const { provider, providerId } = resolveProvider(providerStore, params.purpose, params.providerId)
+    const providerType = normalizeProviderType(provider.providerType)
     // Default stream: true for generate/rewrite (long text), false for others (short/JSON).
     // Native tool exchanges use non-streaming JSON because some compatible providers
     // ignore stream=true and return a plain JSON tool_calls body.
@@ -2690,7 +2825,6 @@ export function createAiService(
     const doRetry = params.retry !== false
     const maxRetries = doRetry ? MAX_RETRIES : 0
     const physicalRetryCeiling = doRetry ? maxRetries : NETWORK_RETRY_FLOOR
-    const providerType = normalizeProviderType(provider.providerType)
     const finalUrl = (() => {
       try {
         return sanitizeUrlForLog(buildProviderChatUrl({

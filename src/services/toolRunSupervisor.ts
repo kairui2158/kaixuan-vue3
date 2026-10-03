@@ -30,6 +30,30 @@ export type ToolRunSupervisor = ReturnType<typeof createToolRunSupervisor>
 export const DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS = 150_000
 export const DIRECT_TOOL_RUN_HARD_DEADLINE_MS = 300_000
 
+function stableErrorInput(value: unknown): string {
+  if (value === undefined) return ''
+  if (value === null || typeof value !== 'object') return JSON.stringify(value) ?? ''
+  if (Array.isArray(value)) return `[${value.map(stableErrorInput).join(',')}]`
+  return `{${
+    Object.keys(value as Record<string, unknown>)
+      .filter(key => (value as Record<string, unknown>)[key] !== undefined)
+      .sort()
+      .map(key => `${JSON.stringify(key)}:${stableErrorInput((value as Record<string, unknown>)[key])}`)
+      .join(',')
+  }}`
+}
+
+/**
+ * Error identity must include the normalized request input. Two failures with
+ * the same tool/error code but different arguments (for example different stale
+ * section ids) are recovery attempts, not the same repeated fault.
+ */
+export function buildToolErrorKey(toolName: string, errorCode: string | undefined, input: unknown): string {
+  const signature = stableErrorInput(input)
+  const clipped = signature.length > 512 ? `${signature.slice(0, 512)}…` : signature
+  return `${toolName}:${errorCode || 'unknown'}#${clipped}`
+}
+
 const readTestOverrides = (): { idleTimeoutMs?: number; hardDeadlineMs?: number | null } => {
   if (typeof window === 'undefined') return {}
   const overrides = (window as any).__SHENYI_TOOL_RUN_TEST_OVERRIDES__

@@ -67,6 +67,54 @@ describe('runTraceDiff', () => {
     expect(changed).toContain('status')
   })
 
+  it('compares permission decisions and tool safety metadata', () => {
+    const a = makeRun({ id: 'a', apiCalls: [makeCall('a1', 1, {
+      permissionDecision: {
+        source: 'dialogue-intent',
+        decision: 'read-only',
+        intent: 'discuss',
+        operation: 'discussion',
+        mode: 'discussion',
+        reason: 'readonly-discussion'
+      },
+      toolCalls: [{
+        id: 'tool-a',
+        name: 'editor.get_state',
+        input: { targetId: 'outline' },
+        status: 'success',
+        startedAt: 1,
+        defaultToolPolicy: 'allowedWithoutPermission',
+        riskLevel: 'low'
+      }]
+    })] })
+    const b = makeRun({ id: 'b', apiCalls: [makeCall('b1', 1, {
+      permissionDecision: {
+        source: 'long-document-workflow',
+        decision: 'write-authorized',
+        intent: 'edit',
+        operation: 'targeted_edit',
+        mode: 'edit-task',
+        reason: 'outline-execution-plan'
+      },
+      toolCalls: [{
+        id: 'tool-b',
+        name: 'editor.write',
+        input: { commands: [] },
+        status: 'success',
+        startedAt: 1,
+        defaultToolPolicy: 'allowedWithPermission',
+        riskLevel: 'high'
+      }]
+    })] })
+
+    const result = buildRunTraceDiff(a, b)
+    const changedFields = result.apiCalls[0].fields.filter(field => field.changed).map(field => field.key)
+    expect(changedFields).toContain('permissionDecision')
+    expect(result.toolCalls[0].fields.filter(field => field.changed).map(field => field.key)).toEqual(
+      expect.arrayContaining(['name', 'defaultToolPolicy', 'riskLevel'])
+    )
+  })
+
   it('compares declared and actual tool surfaces separately', () => {
     const a = makeRun({ id: 'a', apiCalls: [makeCall('a1', 1, {
       toolSurface: [{ name: 'editor.write', policy: 'write' }],

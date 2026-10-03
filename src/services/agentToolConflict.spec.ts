@@ -38,6 +38,7 @@ function completedTask(taskId: string): AgentOrchestratorTaskResult {
       successfulWriteCount: 0,
       noProgressRounds: 0,
       repeatedCallCount: 0,
+      maxPhysicalRequests: 8,
       updatedAt: 1,
     },
   }

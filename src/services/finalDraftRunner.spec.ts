@@ -113,6 +113,49 @@ describe('finalDraftRunner', () => {
     expect(task.completedText).toBe('完整终稿。')
   })
 
+  it('reports source contamination before the first API call', async () => {
+    const contamination = '建议将下面这一段插入到第三章之后，用于补齐人物动机。'
+    const sourceContent = `第一卷 钩子\n\n${contamination}\n\n沈萤站在栈桥尽头。`
+    const { adapter } = createAdapter(sourceContent)
+    const { aiService } = createAi([aiResult({ text: '整理后的终稿正文。' })])
+    const { hooks, events, calls } = createRecordingHooks()
+    const order: string[] = []
+    const traceHooks = {
+      ...hooks,
+      startApiCall: (() => {
+        order.push('api-call')
+        return 'call-contamination'
+      }) as typeof hooks.startApiCall,
+      addEvent: (event: { type: string; payload?: unknown }) => {
+        order.push(`event:${event.type}`)
+        events.push({ type: event.type, payload: event.payload })
+      },
+    }
+
+    const task = await runFinalDraft({
+      aiService,
+      adapter,
+      destination: 'home-editor',
+      targetId: 'home-tab-1',
+      sourceContent,
+      instruction: '全文整理',
+      operation: 'rewrite_segments',
+      conversationMarkers: [{ role: 'assistant', content: `我先说明：\n${contamination}` }],
+    }, traceHooks)
+
+    expect(task.status).toBe('completed')
+    const contaminationEvents = events.filter(event => event.type === 'source-contamination-detected')
+    expect(contaminationEvents).toHaveLength(1)
+    expect(contaminationEvents[0].payload).toMatchObject({
+      destination: 'home-editor',
+      sourceChars: sourceContent.length,
+      markerCount: 1,
+      matches: [expect.objectContaining({ matchKind: 'exact' })],
+    })
+    expect(order.indexOf('event:source-contamination-detected')).toBeLessThan(order.indexOf('api-call'))
+    expect(calls.length).toBeGreaterThan(0)
+  })
+
   it('emits chunk progress while a final draft streams', async () => {
     const { adapter, getContent } = createAdapter()
     const { aiService, callAi } = createAi([aiResult({ text: '完整终稿。' })])

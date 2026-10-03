@@ -55,4 +55,40 @@ describe('useLiveApiStatus', () => {
       { kind: 'streaming', text: '流式接收中 · 已接收 26 字' }
     ])
   })
+
+  it('does not present a stale tool-round stream length as active streaming', () => {
+    const lines = buildLiveApiStatusLines({
+      active: true,
+      message: '正在等待 API 返回',
+      latestCall: {
+        status: 'running',
+        streamLength: 32,
+        lastStreamActivityAt: Date.now() - 60_000,
+        lastExecutionActivityAt: Date.now() - 1_000,
+        retrying: false,
+      }
+    })
+    expect(lines).toEqual([
+      { kind: 'connecting', text: '正在等待 API 返回' },
+      { kind: 'connecting', text: '正在执行编辑任务，等待正文输出…' }
+    ])
+  })
+
+  it('keeps streaming live when a body delta arrived within the active window', () => {
+    const lines = buildLiveApiStatusLines({
+      active: true,
+      message: '正在接收 AI 输出…',
+      latestCall: {
+        status: 'running',
+        streamLength: 33,
+        lastStreamActivityAt: Date.now() - 1_000,
+        lastExecutionActivityAt: Date.now() - 1_000,
+        retrying: false,
+      }
+    })
+    expect(lines).toEqual([
+      { kind: 'connecting', text: '正在接收 AI 输出…' },
+      { kind: 'streaming', text: '流式接收中 · 已接收 33 字' }
+    ])
+  })
 })

@@ -7,14 +7,6 @@ import {
 } from './editorTools'
 import { createEditorTargetSnapshot } from './editorTarget'
 import { buildLongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
-import type { LongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
-
-function editTaskPlan(
-  input: Parameters<typeof buildLongDocumentExecutionPlan>[0],
-): LongDocumentExecutionPlan {
-  const plan = buildLongDocumentExecutionPlan(input)
-  return { ...plan, mode: 'edit-task' }
-}
 
 const snapshot = createEditorTargetSnapshot({
   workspace: 'main',
@@ -119,9 +111,32 @@ describe('editorTools', () => {
       reveal: { mode: 'instant', firstChange: false },
     })
     expect((result.data as any).repairPolicy).toContain('禁止重复提交本 batchId')
+    expect((result.data as any).repairPolicy).toContain('文档版本已变化')
     expect(appliedBatches).toHaveLength(1)
     expect(appliedBatches[0].next).toBe('新主角第二段落提到主角。第三段提到伏笔。')
     expect(appliedBatches[0].original).toBe(snapshot.content)
+  })
+
+  it('editor.write returns the document version from the workspace applier', async () => {
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      applyWrite: async () => ({
+        ok: true,
+        rollbackAvailable: true,
+        documentVersion: 7,
+        contentHash: 'hash-after-write',
+      }),
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [{ operation: 'append', content: '新增段。' }],
+    }, makeContext())
+
+    expect(result.ok).toBe(true)
+    expect((result.data as any).documentVersion).toBe(7)
+    expect((result.data as any).contentHash).toBe('hash-after-write')
   })
 
   it('editor.write rejects validation failures without calling applyWrite', async () => {
@@ -261,7 +276,7 @@ describe('editorTools', () => {
       getSnapshot: () => snapshot,
       mode: 'direct',
       executionPlan: buildLongDocumentExecutionPlan({
-        requestText: '把整篇大纲重新整理排序',
+        requestText: '全文重写整篇大纲',
         content: `# 第一卷\n\n${'雨'.repeat(12_000)}\n\n# 第二卷\n\n${'雨'.repeat(12_000)}`,
         contextWindowTokens: 128_000,
         maxOutputTokens: 8_192,
@@ -294,7 +309,7 @@ describe('editorTools', () => {
     gateway.registerAll(createEditorTools({
       getSnapshot: () => snapshot,
       mode: 'direct',
-      executionPlan: editTaskPlan({
+      executionPlan: buildLongDocumentExecutionPlan({
         requestText: '整理整篇大纲的标点符号和格式',
         content: Array.from({ length: 12 }, (_, index) => `# 第${index + 1}卷\n\n${'雨'.repeat(2_000)}\n\n`).join(''),
         contextWindowTokens: 12_000,
@@ -322,6 +337,185 @@ describe('editorTools', () => {
     }, makeContext())
     expect(rewrite.ok).toBe(true)
     expect(appliedBatches).toHaveLength(1)
+  })
+
+  it('editor.write applies deduplicate deletions in sequential batches and blocks collateral rewrites', async () => {
+    const longContent = [
+      '## 第1节',
+      '船工喊号的声音被雨压低。',
+      '',
+      '## 第2节',
+      '同一句重复内容。',
+      '',
+      '## 第3节',
+      '同一句重复内容。',
+      '',
+      '## 第4节',
+      '未重复的游离段落。',
+      '',
+    ].join('\n')
+    const deduplicateSnapshot = createEditorTargetSnapshot({
+      workspace: 'outline',
+      targetId: 'chapter-1',
+      label: '去重测试',
+      content: longContent,
+    })
+    const appliedBatches: any[] = []
+    let currentContent = longContent
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => ({ ...deduplicateSnapshot, content: currentContent }),
+      mode: 'direct',
+      executionPlan: buildLongDocumentExecutionPlan({
+        requestText: '删除大纲里的重复项，未重复的游离段落不动',
+        content: longContent,
+        contextWindowTokens: 12_000,
+        maxOutputTokens: 2_048,
+      }),
+      applyWrite: async input => {
+        currentContent = input.next
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const collateralRewrite = await gateway.execute('editor.write', {
+      commands: [{ operation: 'rewrite', target: '未重复的游离段落。', content: '顺手改写未重复段落。' }],
+    }, { ...makeContext(), workspace: 'outline' })
+    expect(collateralRewrite.ok).toBe(false)
+    expect(collateralRewrite.error?.code).toBe('operation_not_allowed_by_execution_plan')
+    expect(appliedBatches).toHaveLength(0)
+
+    const firstBatch = await gateway.execute('editor.write', {
+      commands: [{ operation: 'delete', target: '## 第2节\n同一句重复内容。', reason: '删除第2节重复项' }],
+    }, { ...makeContext(), workspace: 'outline' })
+    expect(firstBatch.ok).toBe(true)
+
+    const secondBatch = await gateway.execute('editor.write', {
+      commands: [{ operation: 'delete', target: '## 第3节\n同一句重复内容。', reason: '删除第3节重复项' }],
+    }, { ...makeContext(), workspace: 'outline' })
+    expect(secondBatch.ok).toBe(true)
+
+    expect(appliedBatches).toHaveLength(2)
+    expect(appliedBatches[0].next).not.toContain('第2节')
+    expect(appliedBatches[0].next).toContain('第3节')
+    expect(appliedBatches[1].next).not.toContain('第3节')
+    expect(currentContent).toContain('未重复的游离段落。')
+    expect(currentContent).not.toContain('同一句重复内容。')
+  })
+
+  it('editor.write applies normalize replacements across multiple EditTask batches', async () => {
+    let content = ''
+    const duplicateSnapshot = () => {
+      const next = createEditorTargetSnapshot({
+        workspace: 'outline',
+        targetId: 'chapter-1',
+        label: '格式整理',
+        content,
+      })
+      return next
+    }
+    const longContent = [
+      '## 第1节',
+      '第一段文字,需要整理标点。',
+      '',
+      '## 第2节',
+      '第二段文字,需要整理标点。',
+      '',
+    ].join('\n')
+    content = longContent
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => duplicateSnapshot(),
+      mode: 'direct',
+      executionPlan: buildLongDocumentExecutionPlan({
+        requestText: '整理整篇大纲的标点符号，未重复的游离段落保持不动',
+        content: longContent,
+        contextWindowTokens: 12_000,
+        maxOutputTokens: 2_048,
+      }),
+      applyWrite: async input => {
+        content = input.next
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const firstBatch = await gateway.execute('editor.write', {
+      commands: [{ operation: 'replace_match', target: '第一段文字,需要整理标点。', content: '第一段文字，需要整理标点。', reason: '整理第1节标点' }],
+    }, { ...makeContext(), workspace: 'outline' })
+    expect(firstBatch.ok).toBe(true)
+
+    const secondBatch = await gateway.execute('editor.write', {
+      commands: [{ operation: 'replace_match', target: '第二段文字,需要整理标点。', content: '第二段文字，需要整理标点。', reason: '整理第2节标点' }],
+    }, { ...makeContext(), workspace: 'outline' })
+    expect(secondBatch.ok).toBe(true)
+
+    expect(appliedBatches).toHaveLength(2)
+    expect(appliedBatches[0].next).toContain('第一段文字，需要整理标点。')
+    expect(appliedBatches[0].next).toContain('第二段文字,需要整理标点。')
+    expect(content).toContain('第二段文字，需要整理标点。')
+    expect(content).not.toContain('第二段文字,需要整理标点。')
+  })
+
+  it('editor.write maps compound batches to their matching planner segments and invariants', async () => {
+    const longContent = [
+      '## 第1节',
+      '同一句重复内容,标点待整理。',
+      '',
+      '## 第2节',
+      '同一句重复内容,标点待整理。',
+      '',
+      '## 第3节',
+      '未重复的游离段落,标点待整理。',
+      '',
+    ].join('\n')
+    let content = longContent
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => createEditorTargetSnapshot({
+        workspace: 'outline',
+        targetId: 'chapter-1',
+        label: '复合整理',
+        content,
+      }),
+      mode: 'direct',
+      executionPlan: buildLongDocumentExecutionPlan({
+        requestText: '重复项删除，同时统一标题层级、编号和标点',
+        content: longContent,
+        contextWindowTokens: 128_000,
+        maxOutputTokens: 8_192,
+      }),
+      applyWrite: async input => {
+        content = input.next
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const deletion = await gateway.execute('editor.write', {
+      commands: [{ operation: 'delete', target: '## 第2节\n同一句重复内容,标点待整理。', reason: '删除第2节重复项' }],
+    }, { ...makeContext(), workspace: 'outline' })
+    expect(deletion.ok).toBe(true)
+    expect(appliedBatches[0].batchDetail).toMatchObject({
+      segmentId: 'structure-plan',
+      writeStrategy: 'delete',
+      invariantResult: 'planned-deletion-only',
+    })
+
+    const normalize = await gateway.execute('editor.write', {
+      commands: [{ operation: 'replace_match', target: '未重复的游离段落,标点待整理。', content: '未重复的游离段落，标点已整理。' }],
+    }, { ...makeContext(), workspace: 'outline' })
+    expect(normalize.ok).toBe(true)
+    expect(appliedBatches[1].batchDetail).toMatchObject({
+      segmentId: 'normalize-segment-1',
+      writeStrategy: 'replace_match',
+      invariantResult: 'normalize-changes-punctuation-whitespace-format-only',
+    })
+    expect(content).not.toContain('## 第2节')
+    expect(content).toContain('未重复的游离段落，标点已整理。')
   })
 
   it('editor.write rejects replacement commands that omit content', async () => {
@@ -600,7 +794,7 @@ describe('editorTools', () => {
     gateway.registerAll(createEditorTools({
       getSnapshot: () => restructureSnapshot,
       mode: 'direct',
-      executionPlan: editTaskPlan({
+      executionPlan: buildLongDocumentExecutionPlan({
         requestText: '把整篇大纲重新整理排序',
         content: longContent,
         contextWindowTokens: 12_000,
@@ -655,7 +849,7 @@ describe('editorTools', () => {
     gateway.registerAll(createEditorTools({
       getSnapshot: () => restructureSnapshot,
       mode: 'direct',
-      executionPlan: editTaskPlan({
+      executionPlan: buildLongDocumentExecutionPlan({
         requestText: '把整篇大纲重新整理排序',
         content: longContent,
         contextWindowTokens: 12_000,
@@ -704,7 +898,7 @@ describe('editorTools', () => {
     gateway.registerAll(createEditorTools({
       getSnapshot: () => restructureSnapshot,
       mode: 'direct',
-      executionPlan: editTaskPlan({
+      executionPlan: buildLongDocumentExecutionPlan({
         requestText: '把整篇大纲重新整理排序',
         content: longContent,
         contextWindowTokens: 12_000,
@@ -744,7 +938,7 @@ describe('editorTools', () => {
     gateway.registerAll(createEditorTools({
       getSnapshot: () => restructureSnapshot,
       mode: 'direct',
-      executionPlan: editTaskPlan({
+      executionPlan: buildLongDocumentExecutionPlan({
         requestText: '把整篇大纲重新整理排序',
         content: longContent,
         contextWindowTokens: 12_000,

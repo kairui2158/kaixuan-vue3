@@ -1,0 +1,198 @@
+{
+  "generatedAt": "2026-10-03T20:51:05.549Z",
+  "source": "home",
+  "snapshot": {
+    "runId": "run-1791060394335-1",
+    "runStatus": "failed",
+    "userCount": 1,
+    "turnCount": 1,
+    "turnId": "turn-1791060394336-3",
+    "turnStatus": "failed",
+    "turnCallCount": 1,
+    "turnCallStatuses": [
+      "failed"
+    ],
+    "apiCallCount": 1,
+    "runningApiCallCount": 0,
+    "physicalCallCount": 4,
+    "physicalCalls": [
+      {
+        "status": "failed",
+        "error": "terminated",
+        "interruptionCode": null
+      },
+      {
+        "status": "failed",
+        "error": "terminated",
+        "interruptionCode": null
+      },
+      {
+        "status": "failed",
+        "error": "terminated",
+        "interruptionCode": null
+      },
+      {
+        "status": "failed",
+        "error": "terminated",
+        "interruptionCode": null
+      }
+    ],
+    "activeStreamChars": 0,
+    "logicalStreamChars": 0,
+    "lastStreamActivityAt": 0,
+    "eventCount": 54,
+    "lastEventType": "session-closed",
+    "task": null,
+    "sendEnabled": true
+  },
+  "conversationState": {
+    "runId": "run-1791060394335-1",
+    "turnId": "turn-1791060394336-3",
+    "turnStatus": "failed",
+    "apiStatuses": [
+      "failed"
+    ],
+    "physicalCalls": [
+      {
+        "seq": 1,
+        "status": "failed",
+        "finishReason": null,
+        "error": "terminated",
+        "interruptionCode": null,
+        "responseChars": 0,
+        "requestChars": 827
+      },
+      {
+        "seq": 2,
+        "status": "failed",
+        "finishReason": null,
+        "error": "terminated",
+        "interruptionCode": null,
+        "responseChars": 0,
+        "requestChars": 827
+      },
+      {
+        "seq": 3,
+        "status": "failed",
+        "finishReason": null,
+        "error": "terminated",
+        "interruptionCode": null,
+        "responseChars": 0,
+        "requestChars": 827
+      },
+      {
+        "seq": 4,
+        "status": "failed",
+        "finishReason": null,
+        "error": "terminated",
+        "interruptionCode": null,
+        "responseChars": 0,
+        "requestChars": 827
+      }
+    ],
+    "toolCalls": [],
+    "toolSurface": [
+      {
+        "name": "editor.get_state",
+        "policy": "read"
+      },
+      {
+        "name": "editor.document_map",
+        "policy": "read"
+      },
+      {
+        "name": "editor.read_range",
+        "policy": "read"
+      },
+      {
+        "name": "editor.search",
+        "policy": "read"
+      },
+      {
+        "name": "editor.locate",
+        "policy": "read"
+      },
+      {
+        "name": "editor.write",
+        "policy": "write"
+      },
+      {
+        "name": "editor.reveal",
+        "policy": "read"
+      },
+      {
+        "name": "editor.multi_get_state",
+        "policy": "read"
+      },
+      {
+        "name": "editor.global_search",
+        "policy": "read"
+      },
+      {
+        "name": "editor.workspace_summary",
+        "policy": "read"
+      }
+    ],
+    "eventTypes": [
+      "started",
+      "user-request",
+      "long-document-policy",
+      "routing-diagnostics",
+      "api-start",
+      "editor-context-policy",
+      "agent-plan",
+      "agent-snapshot",
+      "agent-plan",
+      "agent-state",
+      "agent-snapshot",
+      "agent-state",
+      "agent-state",
+      "agent-snapshot",
+      "agent-state",
+      "run-activity",
+      "long-request-in-progress",
+      "physical-call",
+      "run-activity",
+      "physical-call",
+      "run-activity",
+      "long-request-in-progress",
+      "physical-call",
+      "run-activity",
+      "physical-call",
+      "run-activity",
+      "long-request-in-progress",
+      "physical-call",
+      "run-activity",
+      "physical-call",
+      "run-activity",
+      "long-request-in-progress",
+      "physical-call",
+      "run-activity",
+      "physical-call",
+      "run-activity",
+      "physical-call",
+      "run-activity",
+      "physical-call",
+      "run-activity",
+      "physical-call",
+      "agent-state",
+      "agent-snapshot",
+      "agent-state",
+      "agent-error",
+      "agent-snapshot",
+      "agent-error",
+      "state-transition",
+      "api-failed",
+      "turn-finished",
+      "session-active",
+      "finished",
+      "state-transition",
+      "session-closed"
+    ],
+    "finalDraftEvents": [],
+    "lastTask": null,
+    "outlineChars": 62,
+    "editorTabCount": 1,
+    "editorActiveContent": "# 停滞恢复测试\n\n## 第一章\n\n第一段源文内容。\n\n## 第二章\n\n第二段源文内容。\n\n## 第三章\n\n第三段源文内容。"
+  }
+}

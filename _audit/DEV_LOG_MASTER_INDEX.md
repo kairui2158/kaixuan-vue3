@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-10-01
+更新日期：2026-10-04
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -76,6 +76,17 @@
 | 285 | 2026-09-26 | Agent Orchestrator V3 Phase 6B 用户可见矩阵 | 50 万字五类任务各 3 轮、1M 窗口、压缩后强制中断恢复、可见 Electron 窗口与供应商 live 分层 | 用户亲眼确认长文档读、改、删、重排、标点整理与恢复链路真实可跑；证据与用户观察层对齐 | [DEV_LOG_2026-09-26_agent_orchestrator_v3_phase6b.md](DEV_LOG_2026-09-26_agent_orchestrator_v3_phase6b.md) |
 | 286 | 2026-09-27 | 客户大纲删除确认 trace 可见复刻 | 21 物理请求、41 工具调用、授权/拒绝双分支 Electron 复刻，修复工具轮上限钳制与并行失败误判 | 客户第 6 轮死锁路径可真实重放并收敛；历史 write_only_mode 缺陷以双语义对账，防止旧缺陷被误当成回归 | [DEV_LOG_2026-09-27-outline-deletion-confirmation-replay.md](DEV_LOG_2026-09-27-outline-deletion-confirmation-replay.md) |
 | 287 | 2026-09-27 | 长文档重排架构 V2 Phase 1-2 | 执行计划单源、供应商窗口冲突纠偏、EditTask plan_ready 事件顺序与批次元数据修复 | 长文档整理按计划分段执行，不再出现 0 可用上下文、计划缺失与 steering/toolPolicy 互相矛盾 | [DEV_LOG_2026-09-27_long_document_restructure_phase1_phase2.md](DEV_LOG_2026-09-27_long_document_restructure_phase1_phase2.md) |
+| 288 | 2026-10-03 | Phase 7-A3 compose 统一 Agent runtime | 大纲工作台与首页 compose 路径接入统一 Agent runtime，SKILL guidance 真实注入，旧 chain 引擎在 compose 模式下防御性抛错 | compose 对话不再回退旧引擎；SKILL 只影响提示词与领域能力，不改变应用执行协议 | [DEV_LOG_2026-10-03_phase7-a3-compose-unified-runtime.md](DEV_LOG_2026-10-03_phase7-a3-compose-unified-runtime.md) |
+| 289 | 2026-10-03 | 3.72.0 Phase 7-A3 收尾封装 | 更新经验门禁、归档并清理旧运行日志、删除调试脚本、升版 NSIS 封装并完成真实启动核验 | 交付包含 compose 统一 runtime 的 3.72.0 安装包；工作区无 3.71.0 旧安装产物与临时运行目录 | [DEV_LOG_2026-10-03_phase7-a3-packaging-3-72-0.md](DEV_LOG_2026-10-03_phase7-a3-packaging-3-72-0.md) |
+| 290 | 2026-10-03 | SKILL/Agent 权限单源化 | 写入授权改为“意图 + 操作类型 + 执行计划模式”三元组单源，长文档 discussion 只读，SKILL 仅提供 guidance | `discuss/analyze` 加载 SKILL 后不再被 workflow 授权推向写入或 tool-loop；合法 edit/generate 直写链路保持可用 | [DEV_LOG_2026-10-03_skill_agent_authority_single_source.md](DEV_LOG_2026-10-03_skill_agent_authority_single_source.md) |
+| 291 | 2026-10-03 | 3.73.0 封装 | 升版、构建 NSIS 安装包并执行 asar、真实启动、electronAPI、安装路径与 SHA256 核验 | 交付包含 SKILL/Agent 权限单源化修复的 3.73.0 安装包 | [DEV_LOG_2026-10-03_skill_agent_authority_single_source.md](DEV_LOG_2026-10-03_skill_agent_authority_single_source.md) |
+| 292 | 2026-10-03 | 开发经验文件 v7 去旧补新重整 | v6 四层门禁升级为 v7：取消 G0.11 平行优先级、通用化执行路径迁移防御、吸收 SKILL / 无 SKILL 同一执行方案，删除 v6 并更新活跃引用 | 后续任务只读一份最新经验规则，消除特殊优先级矛盾与新旧规则并存风险 | [DEV_LOG_2026-10-03_experience-file-v7.md](DEV_LOG_2026-10-03_experience-file-v7.md) |
+| 293 | 2026-10-03 | SKILL/Agent 权限单源化社区验证 | 8 个真实开源项目源码取证，对照 3.73.0 三元组授权、SKILL guidance、服务层守卫与 Electron 证据 | 确认权限单源方向与社区主流一致；登记观测性与防御纵深增强项，不改生产代码 | [DEV_LOG_2026-10-03_skill_agent_authority_community_validation.md](DEV_LOG_2026-10-03_skill_agent_authority_community_validation.md) |
+| 294 | 2026-10-04 | SKILL/Agent 权限单源化 R1-R5 收尾 | folder 技能导入 guidance 缺失修复、RoutedSkill 类型补齐、Electron folder 夹具纠偏、R5 跨轮确认绑定门禁登记 | 真实 UI 下拉选择 folder SKILL 后，discuss/analyze 保持只读、edit/generate 才可写入，且 guidance 不再虚假为空 | [DEV_LOG_2026-10-03_skill_agent_authority_single_source.md](DEV_LOG_2026-10-03_skill_agent_authority_single_source.md) |
+| 295 | 2026-10-04 | 3.74.0 封装 | 版本升级、NSIS 构建与安装包核验、清理旧 3.73.0 安装产物、主索引与 DEV_LOG 收口 | 交付包含 folder guidance 修复与权限单源化完整验证的 3.74.0 安装包 | [DEV_LOG_2026-10-03_skill_agent_authority_single_source.md](DEV_LOG_2026-10-03_skill_agent_authority_single_source.md) |
+| 296 | 2026-10-04 | 3.74.0 终稿生产回归修复 | 意图路由“约束性不要改写”误判修复、执行计划补“输出/生成完整终稿”交付语义、验证器 turn failed 快速失败 | 客户终稿指令重新进入 final-draft runner；停滞、重试、供应商切换与三段完成在可见 Electron 中通过 | [DEV_LOG_2026-10-04-final-draft-production-regression.md](DEV_LOG_2026-10-04-final-draft-production-regression.md) |
+| 297 | 2026-10-04 | SKILL/Agent 权限 R4 真实链路闭环 | `onToolCall` 事件、native/JSON 双协议发射点、双入口 runTrace 投影与 ToolGateway 透传 `defaultToolPolicy/riskLevel`；新增 legacy trace 回放校验 | 运行记录可区分“工具面声明”与“真实执行事件”的静态策略；旧客户 trace 不伪造新字段，R4 不再是存储层假闭环 | [DEV_LOG_2026-10-03_skill_agent_authority_single_source.md](DEV_LOG_2026-10-03_skill_agent_authority_single_source.md) |
+| 298 | 2026-10-04 | 3.74.0 R4 后最终重封装 | 重建 renderer 与 NSIS 安装包，真实启动打包应用并核验 `electronAPI`、renderer 新鲜度与 SHA256 | 交付包含 R4 真实链路修复的最终 3.74.0 安装包，消除重打包前旧哈希口径 | [DEV_LOG_2026-10-03_skill_agent_authority_single_source.md](DEV_LOG_2026-10-03_skill_agent_authority_single_source.md) |
 
 | 序号 | 日期 | 开发工作 | 开发功能 | 用途 | 日志文件 |
 |---:|---|---|---|---|---|
@@ -582,6 +593,14 @@
 
 # 2026-09-27 长文档重排架构 V2 Phase 6
 
+# 2026-10-03 SKILL/Agent 权限单源化
+
+- 文件：[_audit/DEV_LOG_2026-10-03_skill_agent_authority_single_source.md](_audit/DEV_LOG_2026-10-03_skill_agent_authority_single_source.md)
+- 范围：写入授权改为“意图 + 操作类型 + 执行计划模式”三元组单源；`discuss/analyze` 长文档计划进入 `discussion`；删除双入口 workflow 授权伪造意图；Agent 进展与收敛按 discussion 分叉；SKILL adapter 只透传单源授权；trace guidance 事件补 payload；完成结构化授权调用点类型改造。
+- 验证：type-check、build:vue 通过；Electron 真实 UI 双入口 × 无 SKILL/真实下拉选择 SKILL 矩阵 4/4 通过（8 只读轮、4 写入轮）；126 文件 1364 条服务测试通过；旧 workflow 覆盖语义无生产残留。
+- 封装：版本升为 3.73.0；真实供应商 smoke 按既有登记保留 `untested`。
+- 客户重点复验：加载 SKILL 后进行只读讨论不应出现 tool-loop、写入等待或“无权限”话术；局部修改仍应真实 `editor.write`。
+
 - 文件：[_audit/DEV_LOG_2026-09-27_long_document_restructure_phase6.md](_audit/DEV_LOG_2026-09-27_long_document_restructure_phase6.md)
 - 范围：S200 与 S1M 真实 Electron + 真实 API 全操作矩阵、网络断流保留一次物理重连、runTrace 失败终态不被 canceled 覆盖、M17 测试标题语义残留修复。
 - 验证：S200 200,066 字符与 S1M 1,000,024 字符各 6 项操作全部 success；190 条定向、1,196 条全量服务测试、type-check、build:vue、M17 后 139 条定向回归全部通过。
@@ -617,3 +636,39 @@
 - 验证：1303 条服务测试、type-check、build:vue、Electron 可见 UI 双入口矩阵（无 SKILL / 有 SKILL × final-draft / targeted edit）全部通过；真实外部供应商未执行，已按 G1.4 登记 untested。
 - 封装：3.71.0 安装包、asar 协议文件核验、真实启动与 SHA256 核验；旧 3.70.0 安装产物清理。
 - 客户重点复验：加载任意 SKILL 后发出“整篇重排 / 格式整理 / 去重”请求，仍进入终稿 runner 并写回编辑器；局部修改仍走工具循环且 `editor.write` 可用；API 对话框不出现工具 JSON，明细查运行记录。
+
+# 2026-10-04 SKILL/Agent 权限单源化 R1-R5 收尾
+
+- 文件：[_audit/DEV_LOG_2026-10-03_skill_agent_authority_single_source.md](_audit/DEV_LOG_2026-10-03_skill_agent_authority_single_source.md)
+- 范围：R1-R4 补齐 folder 诊断与协议边界观测；Electron 验证夹具修正为真实 folder 格式后暴露并修复导入 folder 技能 guidance 缺失的生产缺陷（`template.md` / `description` 回退链）；`RoutedSkill` 补 `description` 类型；R5 登记跨轮确认必须绑定 toolCallId/批次、工具名与参数 hash 的设计门禁。
+- 验证：`workspaceSkillEngine.spec.ts` 38/38；Electron 真实 UI 下拉选择 SKILL 矩阵 4/4 case，8/8 只读对话不越权、4/4 编辑对话执行 `editor.write`；证据在 `_audit/verification-skill-agent-authority-v2/`。
+- 客户重点复验：在大纲工作台和首页真实下拉选择 folder SKILL 后，讨论/分析类请求仍保持只读，编辑请求才可写入编辑器；运行记录中 folder 诊断与 guidance 来源一致。
+
+# 2026-10-04 3.74.0 封装
+
+- 文件：[_audit/verification-packaging-3-74-0/packaging-evidence.json](_audit/verification-packaging-3-74-0/packaging-evidence.json)
+- 范围：版本升级到 3.74.0；新增 3.74.0 封装校验器；全量服务测试、type-check、build 与安装包核验；清理 3.73.0 旧安装产物。
+- 验证：126 files / 1372 tests 全绿；安装器 `dist\神意助手-Setup-3.74.0.exe`，SHA256 `d5cf431eb273377a566abbb9737ebec439f5602099b64693474be5172dd37624`（该值为重打包前版本；最终 3.74.0 安装包哈希见下方终稿生产回归修复记录）；打包应用真实启动，renderer 74 文件、`electronAPI` 75 方法。
+- 客户重点复验：安装 3.74.0 后确认可选择安装目录；加载 SKILL/Agent 的两条入口均保持权限单源语义，明细查运行记录。
+
+# 2026-10-04 3.74.0 终稿生产回归修复
+
+- 文件：[_audit/DEV_LOG_2026-10-04-final-draft-production-regression.md](_audit/DEV_LOG_2026-10-04-final-draft-production-regression.md)
+- 范围：路由层将“不要改写正文含义”识别为约束而非禁止写入；planner 将“输出/生成完整终稿”识别为整篇替换；Electron 验证器在 turn failed 且无 task 时立即保存证据并失败。
+- 验证：87 条终稿/路由/planner 专项、126 files / 1375 tests 全量服务测试、type-check、build:vue 通过；stalled-recovery Electron live PASS，`finalTask=completed`，三段完成并保留停滞、重试与 provider switch 事件。
+- 封装：修复后重跑 `npm run build` 与 `node scripts/verify-packaging-3-74-0.mjs`；安装器 `dist\神意助手-Setup-3.74.0.exe`，SHA256 `de4b5a27a5bd48820ebc4c09b00a442fd4b09294abf2bead23fb3f8eb3d7e50d`，真实启动、renderer 74 文件与 `electronAPI` 75 方法核验通过。
+- 客户重点复验：重新安装封装后的 3.74.0，发送“整理排序，统一格式，不要改写正文含义，输出完整终稿”，应出现终稿任务并支持停滞重试与供应商切换。
+
+# 2026-10-04 SKILL/Agent 权限 R4 真实链路闭环
+
+- 文件：[_audit/DEV_LOG_2026-10-03_skill_agent_authority_single_source.md](_audit/DEV_LOG_2026-10-03_skill_agent_authority_single_source.md)
+- 范围：`defaultToolPolicy/riskLevel` 从工具定义贯通到 `onToolCall` 事件、native tools 与 compatibility JSON 双协议发射点、首页/大纲双入口 runTrace 投影及 `ToolGateway`；`tool_not_found` 不伪造工具元数据；新增真实客户 legacy trace 回放脚本。
+- 验证：目标 spec 217/217；服务总套件 126 文件 1376 测试；type-check、build:vue、Electron 4/4 case 与 legacy trace 2/2 通过。证据在 `_audit/verification-skill-agent-authority-v2/`。
+- 客户重点复验：导出运行记录后查看 `editor.write` 工具调用，应看到 `defaultToolPolicy: allowedWithPermission` 与 `riskLevel: medium`；旧版本导出的记录没有这两个字段属预期，不表示权限缺失。
+
+# 2026-10-04 3.74.0 R4 后最终重封装
+
+- 文件：[_audit/verification-packaging-3-74-0/packaging-evidence.json](_audit/verification-packaging-3-74-0/packaging-evidence.json)
+- 范围：在 R4 真实链路修复后重跑完整 `npm run build`，重建 renderer 与 x64 NSIS 安装包，并再次执行打包应用真实启动核验。
+- 验证：打包应用真实启动通过，renderer 74 文件均新于最新源码变更，`electronAPI` 暴露 75 个方法；安装器 `dist\神意助手-Setup-3.74.0.exe`，SHA256 `AD28C51B627D1D787958A0F6A004E04FDBD1B303E0CC1B744AF9664D11FA2E97`。
+- 客户重点复验：重新安装本版 3.74.0 后，加载 SKILL/Agent 的编辑对话中导出运行记录，`editor.write` 应带 `defaultToolPolicy: allowedWithPermission` 与 `riskLevel: medium`。

@@ -245,6 +245,43 @@ describe('useEditTaskSession', () => {
     testSession.finishActiveTask()
   })
 
+  it('resumes a partially applied task by retrying only the failed batch', async () => {
+    const testSession = session([])
+    const first = await testSession.startOrContinueBatch(batchInput, async () => ({
+      ok: true,
+      documentVersion: 2,
+      contentHash: hashEditorContent('第一批完成'),
+    }), { multiBatch: true })
+    await testSession.startOrContinueBatch(
+      { ...batchInput, batchId: 'batch-2' },
+      async () => ({
+        ok: false,
+        code: 'version_changed',
+        message: '文档已变化',
+        applied: true,
+        documentVersion: 3,
+        contentHash: hashEditorContent('第二批前'),
+      }),
+      { multiBatch: true },
+    )
+
+    const resumed = await testSession.resumeEditTask(testSession.activeTask()!.id)
+    const active = testSession.activeTask()
+
+    expect(first.ok).toBe(true)
+    expect(resumed).toMatchObject({
+      ok: true,
+      data: {
+        batchId: 'batch-2',
+        retryProtocol: 'batch_atomic_full_retry',
+      },
+    })
+    expect(active?.status).toBe('awaiting_batch')
+    expect(active?.executedBatches).toEqual(['batch-1'])
+    expect(active?.failedBatchIds).toEqual([])
+    expect(active?.pendingBatches).toContain('batch-2')
+  })
+
   it('keeps every multi-batch checkpoint with its own document version', async () => {
     const testSession = session([])
     await testSession.startOrContinueBatch(batchInput, async () => ({
@@ -312,5 +349,82 @@ describe('useEditTaskSession', () => {
     expect(events).not.toContain('task_failed')
     expect(events).not.toContain('task_finished')
     expect(testSession.activeTask()).toBeNull()
+  })
+
+  it('blocks completed status when a planned deletion target remains', async () => {
+    const events: string[] = []
+    const testSession = session(events)
+    await testSession.startOrContinueBatch({
+      ...batchInput,
+      commands: [{
+        type: 'editor_edit',
+        version: 1,
+        operation: 'delete',
+        target: '重复段落',
+      }],
+      batchDetail: {
+        segmentId: 'segment-0001',
+        expectedChange: 'remove_duplicate',
+        invariantResult: 'planned-deletion-only',
+      },
+    }, async () => ({
+      ok: true,
+      documentVersion: 2,
+      contentHash: hashEditorContent('重复段落\n重复段落'),
+    }), { multiBatch: true })
+
+    const finished = testSession.finishActiveTask({
+      completion: {
+        target: batchInput.target,
+        before: '重复段落\n重复段落',
+        after: '重复段落\n重复段落',
+      },
+    })
+
+    expect(finished?.status).toBe('completed_with_warnings')
+    expect(testSession.completionReport()).toMatchObject({
+      verified: false,
+      violations: [expect.objectContaining({
+        code: 'planned_deletion_not_removed',
+        batchId: 'batch-1',
+      })],
+    })
+    expect(events).toContain('task_succeeded_with_warnings')
+    expect(events).not.toContain('task_finished')
+  })
+
+  it('allows completed status when the structured goal was achieved', async () => {
+    const events: string[] = []
+    const testSession = session(events)
+    await testSession.startOrContinueBatch({
+      ...batchInput,
+      commands: [{
+        type: 'editor_edit',
+        version: 1,
+        operation: 'delete',
+        target: '重复段落',
+      }],
+      batchDetail: {
+        segmentId: 'segment-0001',
+        expectedChange: 'remove_duplicate',
+        invariantResult: 'planned-deletion-only',
+      },
+    }, async () => ({
+      ok: true,
+      documentVersion: 2,
+      contentHash: hashEditorContent('重复段落'),
+    }), { multiBatch: true })
+
+    const finished = testSession.finishActiveTask({
+      completion: {
+        target: batchInput.target,
+        before: '重复段落\n重复段落',
+        after: '重复段落',
+      },
+    })
+
+    expect(finished?.status).toBe('completed')
+    expect(testSession.completionReport()?.verified).toBe(true)
+    expect(events).toContain('task_finished')
   })
 })

@@ -1,0 +1,42 @@
+{
+  "capturedAt": "2026-10-02T15:47:26.8941347Z",
+  "phase": "phase-0",
+  "files": [
+    {
+      "file": "git-status.txt",
+      "exists": true,
+      "bytes": 2389
+    },
+    {
+      "file": "git-diff-stat.txt",
+      "exists": true,
+      "bytes": 2870
+    },
+    {
+      "file": "test-services-before.log",
+      "exists": true,
+      "bytes": 297
+    },
+    {
+      "file": "type-check-before.log",
+      "exists": true,
+      "bytes": 62
+    },
+    {
+      "file": "build-vue-before.log",
+      "exists": true,
+      "bytes": 8086
+    },
+    {
+      "file": "production-wiring-before.log",
+      "exists": true,
+      "bytes": 187
+    }
+  ],
+  "testFiles": 126,
+  "tests": 1352,
+  "typeCheck": "pass",
+  "buildVue": "pass",
+  "productionWiring": "pass",
+  "status": "baseline-captured"
+}

@@ -258,6 +258,8 @@ export function createAgentSubAgentTools(input: {
       name: 'agent.spawn',
       description: '顺序启动一个子 Agent 任务。当前版本只支持顺序执行，不支持并行。',
       policy: 'read',
+      defaultToolPolicy: 'allowedWithoutPermission',
+      riskLevel: 'medium',
       inputSchema: {
         type: 'object',
         properties: {
@@ -288,6 +290,8 @@ export function createAgentSubAgentTools(input: {
       name: 'agent.wait',
       description: '等待一个子 Agent 任务进入终态。超时会返回明确错误，不静默重跑。',
       policy: 'read',
+      defaultToolPolicy: 'allowedWithoutPermission',
+      riskLevel: 'low',
       inputSchema: {
         type: 'object',
         properties: {
@@ -314,6 +318,8 @@ export function createAgentSubAgentTools(input: {
       name: 'agent.cancel',
       description: '取消一个子 Agent 任务，任务必须进入终态 canceled。',
       policy: 'read',
+      defaultToolPolicy: 'allowedWithoutPermission',
+      riskLevel: 'medium',
       inputSchema: {
         type: 'object',
         properties: {

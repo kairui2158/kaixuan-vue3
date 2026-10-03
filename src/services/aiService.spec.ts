@@ -1589,10 +1589,39 @@ describe('createAiService.callAi tools', () => {
       ...tool,
       name: 'editor.write',
       policy: 'write' as const,
+      inputSchema: {
+        type: 'object' as const,
+        properties: {
+          commands: {
+            type: 'array' as const,
+            items: {
+              type: 'object' as const,
+              properties: {
+                operation: { type: 'string' as const },
+                content: { type: 'string' as const },
+              },
+              required: ['operation'],
+              additionalProperties: false,
+            },
+          },
+        },
+        required: ['commands'],
+        additionalProperties: false,
+      },
       async execute() {
         return { ok: true, data: { status: 'written' } }
       },
     }
+    const toolBody = JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_stream_guard', type: 'function', function: { name: 'editor.write', arguments: '{"commands":[{"operation":"append","content":"x"}]}' } }]
+        }
+      }]
+    });
     const toolResponse = () => new Response(JSON.stringify({
       choices: [{
         finish_reason: 'tool_calls',
@@ -1766,6 +1795,17 @@ describe('createAiService.callAi tools', () => {
       ...tool,
       name: 'editor.write',
       policy: 'write' as const,
+      inputSchema: {
+        type: 'object' as const,
+        properties: {
+          commands: {
+            type: 'array' as const,
+            items: { type: 'object' as const, additionalProperties: false },
+          },
+        },
+        required: ['commands'],
+        additionalProperties: false,
+      },
       async execute() {
         return { ok: true, data: { status: 'written' } }
       },
@@ -1847,6 +1887,25 @@ describe('createAiService.callAi tools', () => {
       ...tool,
       name: 'editor.write',
       policy: 'write' as const,
+      inputSchema: {
+        type: 'object' as const,
+        properties: {
+          commands: {
+            type: 'array' as const,
+            items: {
+              type: 'object' as const,
+              properties: {
+                operation: { type: 'string' as const },
+                content: { type: 'string' as const },
+              },
+              required: ['operation'],
+              additionalProperties: false,
+            },
+          },
+        },
+        required: ['commands'],
+        additionalProperties: false,
+      },
       async execute() {
         return { ok: true, data: { status: 'written' } }
       },
@@ -1923,6 +1982,25 @@ describe('createAiService.callAi tools', () => {
       ...tool,
       name: 'editor.write',
       policy: 'write' as const,
+      inputSchema: {
+        type: 'object' as const,
+        properties: {
+          commands: {
+            type: 'array' as const,
+            items: {
+              type: 'object' as const,
+              properties: {
+                operation: { type: 'string' as const },
+                content: { type: 'string' as const },
+              },
+              required: ['operation'],
+              additionalProperties: false,
+            },
+          },
+        },
+        required: ['commands'],
+        additionalProperties: false,
+      },
       async execute() {
         return { ok: true, data: { status: 'written' } }
       },
@@ -2005,6 +2083,25 @@ describe('createAiService.callAi tools', () => {
       ...tool,
       name: 'editor.write',
       policy: 'write' as const,
+      inputSchema: {
+        type: 'object' as const,
+        properties: {
+          commands: {
+            type: 'array' as const,
+            items: {
+              type: 'object' as const,
+              properties: {
+                operation: { type: 'string' as const },
+                content: { type: 'string' as const },
+              },
+              required: ['operation'],
+              additionalProperties: false,
+            },
+          },
+        },
+        required: ['commands'],
+        additionalProperties: false,
+      },
       async execute() {
         return { ok: true, data: { status: 'written' } }
       },
@@ -2036,13 +2133,13 @@ describe('createAiService.callAi tools', () => {
     vi.stubGlobal('fetch', fetchMock)
     const service = createAiService(runtimeStore())
     const executionPlan = buildLongDocumentExecutionPlan({
-      requestText: '重新整理排序整篇大纲',
+      requestText: '全文重写整篇大纲',
       content: '第一卷\n第一章\n第二卷'.repeat(1000),
       contextWindowTokens: 120_000,
       maxOutputTokens: 8_000,
     })
     expect(executionPlan.mode).toBe('final-draft')
-    expect(executionPlan.operation).toBe('restructure')
+    expect(executionPlan.operation).toBe('rewrite_segments')
     await service.callAi({
       purpose: 'generate',
       messages: [{ role: 'user', content: '重新整理排序整篇大纲' }],
@@ -2738,6 +2835,73 @@ describe('createAiService.callAi tools', () => {
     vi.unstubAllGlobals();
   });
 
+  it('converges after repeated identical schema invalid inputs instead of looping', async () => {
+    const invalidReadTool = {
+      ...tool,
+      name: 'editor.read_range',
+      inputSchema: {
+        type: 'object' as const,
+        properties: {
+          cursor: { type: 'string' },
+          sectionId: { type: 'string' },
+        },
+        additionalProperties: false,
+      },
+      async execute() { return { ok: true, data: { content: 'ok' } } },
+    }
+    const toolResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{
+            id: 'call_invalid_pagination',
+            type: 'function',
+            function: { name: 'editor.read_range', arguments: '{"sectionId":"section-0","limit":10}' },
+          }],
+        },
+      }],
+    }), { status: 200 });
+    const convergenceResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'stop',
+        message: { role: 'assistant', content: '工具连续参数错误，本轮未完成读取。' },
+      }],
+    }), { status: 200 });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(async () => convergenceResponse());
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const warnings: string[] = [];
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '读取第一节' }],
+      tools: [invalidReadTool],
+      toolPolicy: {
+        maxToolIterations: 8,
+        onToolWarning: warning => warnings.push(warning),
+      },
+      retry: false,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(result.toolResults ?? []).toHaveLength(3);
+    expect(result.toolResults?.map(item => item.result.error?.code)).toEqual([
+      'invalid_input',
+      'invalid_input',
+      'invalid_input',
+    ]);
+    expect(result.finishReason).toBe('tool_converged');
+    expect(result.text).toContain('本轮未完成读取');
+    expect(warnings.join('\n')).toContain('连续 3 轮相同参数校验失败');
+    const convergenceBody = JSON.parse((fetchMock.mock.calls[3][1] as RequestInit).body as string);
+    expect(convergenceBody.tools).toBeUndefined();
+    vi.unstubAllGlobals();
+  });
+
   it('continues the tool loop after one direct editor write', async () => {
     const writeTool = {
       ...tool,
@@ -2788,6 +2952,59 @@ describe('createAiService.callAi tools', () => {
     vi.unstubAllGlobals();
   });
 
+  it('still executes plain-JSON tool_calls returned while a native tool request asked for streaming', async () => {
+    const toolBody = JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_stream_guard', type: 'function', function: { name: 'editor.write', arguments: '{"commands":[{"operation":"append","content":"x"}]}' } }]
+        }
+      }]
+    });
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      async execute() {
+        return { ok: true, data: { status: 'written' } }
+      },
+    }
+    const toolResponse = () => new Response(new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(toolBody));
+        controller.close();
+      },
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const finalResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'stop',
+        message: { role: 'assistant', content: '写入完成' }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(async () => finalResponse());
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '整理全文并写入' }],
+      tools: [writeTool],
+      stream: true,
+      retry: false,
+      toolPolicy: { maxToolIterations: 2, intent: 'edit' },
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string).stream)
+      .toBe(true);
+    expect(result.toolResults?.[0].result.ok).toBe(true);
+    expect(result.text).toBe('写入完成');
+    expect(result.finishReason).toBe('stop');
+    vi.unstubAllGlobals();
+  });
+
   it('rejects a native editor.write call with unknown top-level fields before execution', async () => {
     const executed: unknown[] = [];
     const writeTool = {
@@ -2834,7 +3051,7 @@ describe('createAiService.callAi tools', () => {
           }],
         },
       }],
-    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }), { status: 200, headers: { 'Content-Type': 'text/plain' } });
     const finalResponse = () => new Response(JSON.stringify({
       choices: [{ finish_reason: 'stop', message: { role: 'assistant', content: '已拒绝非法参数' } }],
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
@@ -3052,6 +3269,51 @@ describe('createAiService.callAi tools', () => {
     vi.unstubAllGlobals();
   });
 
+  it('propagates static tool policy metadata on native tool call events', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      defaultToolPolicy: 'allowedWithPermission' as const,
+      riskLevel: 'medium' as const,
+      async execute() {
+        return { ok: true, data: { status: 'written' } }
+      },
+    }
+    const response = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_write', type: 'function', function: { name: 'editor.write', arguments: '{"commands":[{"operation":"append","content":"x"}]}' } }]
+        }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const fetchMock = vi.fn().mockImplementation(async () => response());
+    vi.stubGlobal('fetch', fetchMock);
+    const toolCallEvents: any[] = [];
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '直写正文' }],
+      tools: [writeTool],
+      toolPolicy: {
+        onToolCall: event => toolCallEvents.push(event),
+      },
+      retry: false,
+    });
+    expect(result.toolResults?.[0].result.ok).toBe(false);
+    expect(toolCallEvents[0]).toMatchObject({
+      toolName: 'editor.write',
+      toolCapability: 'native_tools',
+      rejectionCategory: 'permission_denied',
+      defaultToolPolicy: 'allowedWithPermission',
+      riskLevel: 'medium',
+    });
+    vi.unstubAllGlobals();
+  });
+
   it('rejects discuss-intent write tools even in direct mode', async () => {
     const writeTool = {
       ...tool,
@@ -3095,7 +3357,7 @@ describe('createAiService.callAi tools', () => {
     vi.unstubAllGlobals();
   });
 
-  it('allows a long-document workflow write despite a discussion intent', async () => {
+  it('rejects a workflow write marker when the routed intent is discuss', async () => {
     const writeTool = {
       ...tool,
       name: 'editor.write',
@@ -3128,11 +3390,19 @@ describe('createAiService.callAi tools', () => {
       tools: [writeTool],
       toolPolicy: {
         intent: 'discuss',
-        writeAuthorization: 'long-document-workflow',
+        permissionDecision: {
+          source: 'dialogue-intent',
+          decision: 'read-only',
+          intent: 'discuss',
+          operation: 'discussion',
+          mode: 'direct',
+          reason: 'discuss/analyze intents are always read-only',
+        },
       },
       retry: false,
-    });
-    expect(result.toolResults?.[0].result.ok).toBe(true);
+  });
+    expect(result.toolResults?.[0].result.ok).toBe(false);
+    expect(result.toolResults?.[0].result.error?.code).toBe('permission_denied');
     expect(result.text).toBe('已读取并准备好分批修改');
     vi.unstubAllGlobals();
   });
@@ -3184,6 +3454,8 @@ describe('createAiService.callAi tools', () => {
       ...tool,
       name: 'editor.write',
       policy: 'write' as const,
+      defaultToolPolicy: 'allowedWithPermission' as const,
+      riskLevel: 'medium' as const,
       async execute(input: unknown) {
         const params = input as { commands?: unknown[] }
         return { ok: true, data: { status: 'written', commandCount: params.commands?.length || 0 } }
@@ -3198,6 +3470,7 @@ describe('createAiService.callAi tools', () => {
     const toolEvents: any[] = [];
     const service = createAiService(runtimeStore());
     const protocolEvents: Array<{ protocolVersion?: number; protocolVersionDefaulted?: boolean }> = [];
+    const staticPolicyEvents: Array<{ defaultToolPolicy?: string; riskLevel?: string }> = [];
     const rejectionCategories: Array<string | undefined> = [];
     const result = await service.callAi({
       purpose: 'generate',
@@ -3213,6 +3486,10 @@ describe('createAiService.callAi tools', () => {
           protocolEvents.push({
             protocolVersion: event.protocolVersion,
             protocolVersionDefaulted: event.protocolVersionDefaulted,
+          })
+          staticPolicyEvents.push({
+            defaultToolPolicy: event.defaultToolPolicy,
+            riskLevel: event.riskLevel,
           })
           rejectionCategories.push(event.rejectionCategory)
         },
@@ -3236,6 +3513,9 @@ describe('createAiService.callAi tools', () => {
     ]);
     expect(protocolEvents).toEqual([
       { protocolVersion: 1, protocolVersionDefaulted: true },
+    ]);
+    expect(staticPolicyEvents).toEqual([
+      { defaultToolPolicy: 'allowedWithPermission', riskLevel: 'medium' },
     ]);
     expect(rejectionCategories).toEqual([undefined]);
     vi.unstubAllGlobals();
@@ -3263,7 +3543,6 @@ describe('createAiService.callAi tools', () => {
       contextWindowTokens: 120_000,
       maxOutputTokens: 8_000,
     });
-    executionPlan.mode = 'edit-task';
     await service.callAi({
       purpose: 'generate',
       messages: [{ role: 'user', content: '重新整理排序整篇大纲' }],

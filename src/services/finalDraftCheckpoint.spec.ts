@@ -28,6 +28,23 @@ function createSegmentedTask() {
   return { sourceContent, task: generating }
 }
 
+function createAuthorizedRewriteTask() {
+  const sourceContent = '## 第一节\n\n1-1：第一段源文。\n\n## 第二节\n\n2-1：第二段源文。'
+  const task = createFinalDraftTask({
+    destination: 'home-editor',
+    targetId: 'home-tab-1',
+    sourceContent,
+    instruction: '整篇重写',
+    operation: 'rewrite_segments',
+    sourceSegments: [{ segmentId: 'segment-1', start: 0, end: sourceContent.length }],
+    now: 1000,
+  })
+  return {
+    sourceContent,
+    task: applyFinalDraftEvent(task, { type: 'generation_started', now: 1001 }),
+  }
+}
+
 describe('finalDraftCheckpoint', () => {
   it('marks interrupted generating tasks and awaiting continuation as resumable', () => {
     const { task } = createSegmentedTask()
@@ -61,6 +78,20 @@ describe('finalDraftCheckpoint', () => {
     expect(loaded.checkpoint?.payload.completedText).toBe('')
     expect(loaded.checkpoint?.payload.activeSegmentIndex).toBe(1)
     expect(loaded.checkpoint?.payload.sourceContent).toBe(sourceContent)
+  })
+
+  it('preserves the authorized rewrite operation across checkpoint restore', async () => {
+    const { sourceContent, task } = createAuthorizedRewriteTask()
+    const store = createInMemoryFinalDraftCheckpointStore()
+    await saveFinalDraftCheckpoint(task, store, 1004)
+    const loaded = await loadFinalDraftCheckpoint(`final-draft-${task.taskId}`, store)
+    expect(loaded.ok).toBe(true)
+    if (!loaded.ok) throw new Error('checkpoint missing')
+
+    const restored = restoreFinalDraftTaskFromCheckpoint(loaded.checkpoint, sourceContent)
+    expect(restored.ok).toBe(true)
+    if (!restored.ok) throw new Error('restore rejected')
+    expect(restored.task.operation).toBe('rewrite_segments')
   })
 
   it('restores a non-terminal checkpoint and validates the source hash', async () => {

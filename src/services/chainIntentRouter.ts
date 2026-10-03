@@ -1,3 +1,5 @@
+import type { LongDocumentExecutionOperation } from './longDocumentExecutionPlanner'
+
 export type ChainIntent = 'analyze' | 'edit' | 'generate' | 'discuss' | 'auto'
 
 export type ChainRoutingContext = {
@@ -9,6 +11,10 @@ export type ChainRoutingContext = {
   recentAssistantSummaries?: string[]
   activeSkillIds?: string[]
   activeEditTaskStatus?: 'awaiting_batch'
+  pendingLongDocumentOperation?: {
+    planId: string
+    operation: LongDocumentExecutionOperation
+  }
   llmClassifier?: LlmIntentClassifier
 }
 
@@ -358,6 +364,8 @@ const CONTINUATION_INPUTS = new Set([
 ])
 const EDIT_TASK_CONTINUATION_PATTERN =
   /^(?:请|麻烦|帮我|先)?(?:继续|接着|恢复)(?:执行|重试|运行|完成)?(?:刚才的|当前的|这个|该)?(?:编辑)?任务[吧呗。！？!，,.~～\s]*$/
+const PENDING_LONG_DOCUMENT_CONTINUATION_PATTERN =
+  /^(?:A|B|C|D|好|好的|行|可以|确认|确定|继续|接着来|接着写|就这样|就按这个来|照这个继续)[吧呗。！？!，,.\s]*$/i
 const WORKSPACE_DOMAIN_PATTERN =
   /(大纲|卷纲|章节|正文|设定|人物|角色|伏笔|钩子|时间线|叙事|故事|情节|主线|支线|世界观|编辑器|文本|文案|开篇|结尾|节奏|弧光|场景|对话|标题|书名|简介|命名|前史|反转|反派|背景|悬念|下一章|结构|断层|顺便问一下|过渡|番外|梗概|关系图|体系|三幕|描写|节点|稿子|文稿|文档)/
 const WORKSPACE_GENERATIVE_ACTION_PATTERN =
@@ -389,6 +397,10 @@ const KEEP_UNCHANGED_QUALIFIER_PATTERN =
   /(?:其他|其余|剩余|别的|其他内容|其余内容|剩余内容|别的内容|其他部分|其余部分)[^。！？!?,，]{0,8}(?:保持不变|保持原样|保持原文不变|不要动|不要改|不要修改)/
 const BARE_KEEP_UNCHANGED_QUALIFIER_PATTERN =
   /(?:^|[，,。；;])\s*(?:保持不变|保持原样|保持原文不变)/
+// Whole-document constraints describe what a write may not change, not that
+// the write should not happen: "不要改写正文含义，输出完整终稿".
+const NON_REWRITE_CONSTRAINT_PATTERN =
+  /(?:不要|请勿|别)(?:改写|改变)(?:正文|原文|原意|含义|内容)/
 const NON_ACTIONABLE_PROHIBITION_PATTERN =
   /先别|先不|不要|请勿|别动|不用|无需|等.{0,4}(?:再|确认)|暂时/
 const SCOPED_WRITE_TARGET_PATTERN =
@@ -482,7 +494,11 @@ function resolvePermissionIntent(input: string): {
       ...WRITE_TARGET_CATEGORIES,
     ]) }
   }
-  if (prohibitionHits.length > 0) {
+  const prohibitionIsWriteConstraint =
+    prohibitionHits.length > 0
+    && NON_REWRITE_CONSTRAINT_PATTERN.test(input)
+    && (hasWriteDirective(input) || hasWholeDocumentWriteDirective(input))
+  if (prohibitionHits.length > 0 && !prohibitionIsWriteConstraint) {
     return { reason: 'prohibition-rollback', hits: prohibitionHits }
   }
   const locationHits = findPhrases(input, LOCATION_CATEGORIES)
@@ -743,6 +759,18 @@ function hasWriteDirective(input: string): boolean {
       !MODAL_QUESTION_PATTERN.test(input)) ||
     EXPLORATORY_WRITE_PATTERN.test(input)
   )
+}
+
+function hasWholeDocumentWriteDirective(input: string): boolean {
+  const writeActionHits = [
+    ...findPhrases(input, STRONG_WRITE_CATEGORIES),
+    ...findPhrases(input, WEAK_WRITE_CATEGORIES),
+  ]
+  if (writeActionHits.length === 0) return false
+  return SCOPED_WRITE_TARGET_PATTERN.test(input)
+    && !DISCUSSION_REQUEST_PATTERN.test(input)
+    && !isQuestionInput(input)
+    && !MODAL_QUESTION_PATTERN.test(input)
 }
 
 function hasScopedWeakWriteDirective(input: string): boolean {
@@ -1397,6 +1425,19 @@ export function routeChainIntent(
   }
 
   if (
+    context?.pendingLongDocumentOperation &&
+    PENDING_LONG_DOCUMENT_CONTINUATION_PATTERN.test(normalizedInput)
+  ) {
+    return {
+      kind: 'matched',
+      intent: 'edit',
+      confidence: 0.96,
+      reason: 'pending-long-document-continuation',
+      decisionLayer: 'rule',
+    }
+  }
+
+  if (
     isLikelyContextualReply(normalizedInput) &&
     findAwaitingUserMessage(context?.recentHistory)
   ) {
@@ -1931,6 +1972,7 @@ export async function classifyPlainDialogueIntentDetailed(
     projectId?: string
     activeSkillIds?: string[]
     activeEditTaskStatus?: ChainRoutingContext['activeEditTaskStatus']
+    pendingLongDocumentOperation?: ChainRoutingContext['pendingLongDocumentOperation']
     llmClassifier?: LlmIntentClassifier
   },
 ): Promise<PlainDialogueIntentDetailed> {
@@ -1942,6 +1984,9 @@ export async function classifyPlainDialogueIntentDetailed(
     ...(options?.llmClassifier ? { llmClassifier: options.llmClassifier } : {}),
     ...(options?.activeEditTaskStatus
       ? { activeEditTaskStatus: options.activeEditTaskStatus }
+      : {}),
+    ...(options?.pendingLongDocumentOperation
+      ? { pendingLongDocumentOperation: options.pendingLongDocumentOperation }
       : {}),
   })
   const intent: PlainDialogueIntentDetailed['intent'] =

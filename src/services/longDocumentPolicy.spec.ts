@@ -44,13 +44,13 @@ describe('analyzeLongDocumentRequest', () => {
 
   it('keeps whole-document work on the final-draft path regardless of document length', () => {
     const decision = analyzeLongDocumentRequest(
-      '整理整篇文章，统一编号',
+      '全文重写这篇文章，统一编号',
       '雨'.repeat(90_000),
     )
     expect(decision.longDocument).toBe(true)
     expect(decision.editTaskExecution).toBe(false)
     expect(decision.finalDraftCandidate).toBe(true)
-    expect(decision.executionModeReason).toBe('whole-document-request-final-draft')
+    expect(decision.executionModeReason).toBe('whole-document-replacement-final-draft')
   })
 
   it('does not mark ordinary long-document edits as final-draft candidates', () => {
@@ -66,11 +66,19 @@ describe('analyzeLongDocumentRequest', () => {
   })
 
   it('keeps a short whole-document request as a final-draft candidate', () => {
-    const decision = analyzeLongDocumentRequest('整理整篇文章', '第一节\n短文')
+    const decision = analyzeLongDocumentRequest('全文重写这篇文章', '第一节\n短文')
     expect(decision.longDocument).toBe(true)
     expect(decision.editTaskExecution).toBe(false)
     expect(decision.finalDraftCandidate).toBe(true)
-    expect(decision.executionModeReason).toBe('whole-document-request-final-draft')
+    expect(decision.executionModeReason).toBe('whole-document-replacement-final-draft')
+  })
+
+  it('routes whole-document cleanup and restructure requests to EditTask', () => {
+    const decision = analyzeLongDocumentRequest('整理整篇文章，统一编号', '第一节\n短文')
+    expect(decision.longDocument).toBe(true)
+    expect(decision.editTaskExecution).toBe(false)
+    expect(decision.finalDraftCandidate).toBe(false)
+    expect(decision.executionModeReason).toBe('whole-document-request-edit-task')
   })
 
   it('keeps structural moves on targeted commands without forcing batch execution', () => {
@@ -84,23 +92,23 @@ describe('analyzeLongDocumentRequest', () => {
     expect(decision.executionModeReason).toBe('structural-move-targeted-commands')
   })
 
-  it('auto-routes whole-document operations to final draft instead of EditTask', () => {
+  it('auto-routes structural restructure and large-scope cleanup operations to EditTask', () => {
     expect(shouldAutoRouteToEditTask({
       length: 10_001,
       operationType: 'whole-document-restructure',
     })).toEqual({
-      editTask: false,
-      finalDraft: true,
-      reason: 'whole-document-operation-final-draft',
+      editTask: true,
+      finalDraft: false,
+      reason: 'whole-document-restructure-edit-task',
     })
 
     expect(shouldAutoRouteToEditTask({
       length: 9_999,
       operationType: 'whole-document-restructure',
     })).toEqual({
-      editTask: false,
-      finalDraft: true,
-      reason: 'whole-document-operation-final-draft',
+      editTask: true,
+      finalDraft: false,
+      reason: 'whole-document-restructure-edit-task',
     })
 
     expect(shouldAutoRouteToEditTask({
@@ -113,16 +121,38 @@ describe('analyzeLongDocumentRequest', () => {
     })
   })
 
-  it('keeps whole-document operations on final draft even when the document exceeds the window', () => {
+  it('keeps whole-document replacement on final draft while other long operations use EditTask', () => {
+    expect(shouldAutoRouteToEditTask({
+      length: 9_000,
+      operationType: 'whole-document-replacement',
+      availableContextTokens: 1_000,
+      estimatedDocumentTokens: 5_000,
+    })).toEqual({
+      editTask: false,
+      finalDraft: true,
+      reason: 'whole-document-replacement-final-draft',
+    })
+
     expect(shouldAutoRouteToEditTask({
       length: 9_000,
       operationType: 'whole-document-restructure',
       availableContextTokens: 1_000,
       estimatedDocumentTokens: 5_000,
     })).toEqual({
-      editTask: false,
-      finalDraft: true,
-      reason: 'whole-document-operation-final-draft',
+      editTask: true,
+      finalDraft: false,
+      reason: 'whole-document-restructure-edit-task',
+    })
+
+    expect(shouldAutoRouteToEditTask({
+      length: 9_000,
+      operationType: 'large-scope-edit',
+      availableContextTokens: 1_000,
+      estimatedDocumentTokens: 5_000,
+    })).toEqual({
+      editTask: true,
+      finalDraft: false,
+      reason: 'large-scope-edit-edit-task',
     })
 
     expect(shouldAutoRouteToEditTask({
@@ -149,10 +179,10 @@ describe('classifyLongDocumentOperation', () => {
 })
 
 describe('isFinalDraftOperation', () => {
-  it('separates final-draft operations from targeted work', () => {
-    expect(isFinalDraftOperation('whole-document-restructure')).toBe(true)
+  it('limits final-draft candidacy to explicit whole-document replacement', () => {
     expect(isFinalDraftOperation('whole-document-replacement')).toBe(true)
-    expect(isFinalDraftOperation('large-scope-edit')).toBe(true)
+    expect(isFinalDraftOperation('whole-document-restructure')).toBe(false)
+    expect(isFinalDraftOperation('large-scope-edit')).toBe(false)
     expect(isFinalDraftOperation('targeted-edit')).toBe(false)
     expect(isFinalDraftOperation('discussion')).toBe(false)
   })

@@ -24,6 +24,8 @@ import {
   getPromptParts,
   mergePromptParts,
   runWorkspaceSkills,
+  buildWorkspaceSkillGuidance,
+  WORKSPACE_SKILL_GUIDANCE_CHAR_LIMIT,
   type WorkspaceSkillEngineAdapter,
   type WorkspaceSkillTemplate,
 } from './workspaceSkillEngine'
@@ -158,6 +160,120 @@ function makeAiService(outputs: string[]) {
 }
 
 describe('workspace skill engine', () => {
+  it('builds SKILL guidance without changing the execution surface', () => {
+    const adapter = makeAdapter()
+    const noTemplates = buildWorkspaceSkillGuidance({
+      templates: [],
+      requestText: '请修改大纲',
+      adapter,
+    })
+    expect(noTemplates).toEqual({
+      guidance: '',
+      skillIds: [],
+      promptSource: 'none',
+      guidanceChars: 0,
+      truncated: false,
+    })
+
+    const emptyTemplate = buildWorkspaceSkillGuidance({
+      templates: [makeTemplate('empty', '空模板', { template: '   ' })],
+      requestText: '请修改大纲',
+      adapter,
+    })
+    expect(emptyTemplate.promptSource).toBe('none')
+    expect(emptyTemplate.skillIds).toEqual(['empty'])
+
+    const multiple = buildWorkspaceSkillGuidance({
+      templates: [
+        makeTemplate('s1', '主编'),
+        makeTemplate('s2', '审校'),
+      ],
+      requestText: '请修改大纲',
+      adapter,
+    })
+    expect(multiple.guidance).toBe('执行 主编\n\n执行 审校')
+    expect(multiple.skillIds).toEqual(['s1', 's2'])
+    expect(multiple.promptSource).toBe('template-system-prefix')
+    expect(multiple.truncated).toBe(false)
+  })
+
+  it('limits workspace SKILL guidance to the shared 8000-character budget', () => {
+    const adapter = makeAdapter()
+    const oversized = '领'.repeat(
+      WORKSPACE_SKILL_GUIDANCE_CHAR_LIMIT + 25,
+    )
+    const result = buildWorkspaceSkillGuidance({
+      templates: [makeTemplate('long', '长模板', { template: oversized })],
+      requestText: '请修改大纲',
+      adapter,
+    })
+    expect(result.guidance).toHaveLength(WORKSPACE_SKILL_GUIDANCE_CHAR_LIMIT)
+    expect(result.guidanceChars).toBe(WORKSPACE_SKILL_GUIDANCE_CHAR_LIMIT)
+    expect(result.truncated).toBe(true)
+    expect(result.promptSource).toBe('template-system-prefix')
+  })
+
+  it('derives guidance prompt source from templates and folder packages', () => {
+    const adapter = makeAdapter()
+    const userAffix = buildWorkspaceSkillGuidance({
+      templates: [
+        makeTemplate('user-affix', '用户前缀', {
+          template: '前缀',
+          injectMode: 'user_prefix',
+        }),
+      ],
+      requestText: '请修改大纲',
+      adapter,
+    })
+    expect(userAffix.guidance).toBe('')
+    expect(userAffix.promptSource).toBe('template-user-affixes')
+
+    const folderSystemPrompt = 'folder 系统提示'
+    const folder = buildWorkspaceSkillGuidance({
+      templates: [
+        makeTemplate('folder', 'folder 技能', {
+          template: '模板正文',
+          skill: {
+            id: 'folder',
+            format: 'folder',
+            folderPath: 'D:/skills/folder',
+            systemPrompt: folderSystemPrompt,
+          } as WorkspaceSkillTemplate['skill'] & {
+            systemPrompt?: string
+          },
+        }),
+      ],
+      requestText: '请修改大纲',
+      adapter,
+    })
+    expect(folder.guidance).toBe(folderSystemPrompt)
+    expect(folder.promptSource).toBe('folder-system-prompt')
+    expect(folder.skillIds).toEqual(['folder'])
+  })
+
+  it('uses folder template.md as imported guidance when the store record has no systemPrompt', () => {
+    const adapter = makeAdapter()
+    const folderTemplateText = '# 职责：大纲共创主编\n\n领域提示正文'
+    const result = buildWorkspaceSkillGuidance({
+      templates: [
+        makeTemplate('folder-imported', '导入的 folder 技能', {
+          template: folderTemplateText,
+          skill: {
+            id: 'folder-imported',
+            format: 'folder',
+            folderPath: 'D:/skills/imported',
+            description: '导入的 folder 技能',
+          } as WorkspaceSkillTemplate['skill'],
+        }),
+      ],
+      requestText: '请修改大纲',
+      adapter,
+    })
+    expect(result.guidance).toBe(folderTemplateText)
+    expect(result.promptSource).toBe('folder-system-prompt')
+    expect(result.guidanceChars).toBe(folderTemplateText.length)
+  })
+
   it('creates and validates routing resume tokens', () => {
     const runId = 'run-1'
     const requestText = '请确认这段大纲的意图'
@@ -452,7 +568,12 @@ describe('workspace skill engine', () => {
     const adapter = makeAdapter({
       buildTools,
       getExecutionContext: () => ({
-        writeAuthorization: { source: 'long-document-workflow' },
+        writeAuthorization: {
+          source: 'long-document-workflow',
+          intent: 'edit',
+          operation: 'targeted_edit',
+          mode: 'direct',
+        },
       }),
     })
     const { aiService, calls } = makeAiService(['修改结果'])
@@ -471,6 +592,35 @@ describe('workspace skill engine', () => {
       expect.objectContaining({ requestText: '把第一卷的目标改成复仇' }),
     )
     expect(calls[0].tools?.map(tool => tool.name)).toContain('editor.write')
+  })
+
+  it('keeps short replies on a pending long-document operation in the skill engine router', async () => {
+    const context = makeContextService()
+    const adapter = makeAdapter({
+      getPendingLongDocumentOperation: () => ({
+        planId: 'plan-1',
+        operation: 'normalize',
+      }),
+    })
+    const { aiService, calls } = makeAiService(['继续结果'])
+    const routingResults: string[] = []
+
+    await runWorkspaceSkills({
+      requestText: '继续',
+      templates: [makeTemplate('s1', '编辑', { intents: ['edit'] })],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+      callbacks: {
+        onRoutingEvent: event => {
+          if (event.type === 'routing_result') routingResults.push(event.result.reason)
+        },
+      },
+    })
+
+    expect(routingResults).toContain('pending-long-document-continuation')
+    expect(calls[0].tools || []).toEqual([])
   })
 
   it('records compose API calls for success and failure paths', async () => {
@@ -834,6 +984,150 @@ describe('workspace skill engine', () => {
     expect(secondPrompt.split(previousOutput).length - 1).toBe(1)
     expect(calls).toHaveLength(1)
     expect(calls[0].messages[1]?.content).not.toContain(previousOutput)
+  })
+
+  it('records real SKILL protocol-field warnings without granting execution authority', async () => {
+    const context = makeContextService()
+    const buildTools = vi.fn<
+      NonNullable<WorkspaceSkillEngineAdapter['buildTools']>
+    >(({ intent }) => ({
+      toolPolicy: { scenario: 'folder-chain' },
+      tools: intent === 'edit'
+        ? [
+          {
+            name: 'editor.get_state',
+            description: 'Read editor state',
+            policy: 'read',
+            inputSchema: { type: 'object', properties: {} },
+            defaultToolPolicy: 'allowedWithoutPermission',
+            riskLevel: 'low',
+            execute: async () => ({ ok: true }),
+          },
+          {
+            name: 'editor.write',
+            description: 'Direct write',
+            policy: 'write',
+            inputSchema: { type: 'object', properties: {} },
+            defaultToolPolicy: 'allowedWithPermission',
+            riskLevel: 'high',
+            execute: async () => ({ ok: true }),
+          },
+        ]
+        : [
+          {
+            name: 'editor.get_state',
+            description: 'Read editor state',
+            policy: 'read',
+            inputSchema: { type: 'object', properties: {} },
+            defaultToolPolicy: 'allowedWithoutPermission',
+            riskLevel: 'low',
+            execute: async () => ({ ok: true }),
+          },
+        ],
+    }))
+    const adapter = makeAdapter({
+      buildTools,
+      getExecutionContext: () => ({
+        writeAuthorization: {
+          source: 'long-document-workflow',
+          intent: 'edit',
+          operation: 'targeted_edit',
+          mode: 'direct',
+        },
+      }),
+    })
+    loadRealSkillMock.mockResolvedValue({
+      package: {
+        id: 'folder-authority',
+        name: 'folder-authority',
+        description: '',
+        template: 'folder template',
+        meta: {},
+        script: '',
+        samples: '',
+        schema: null,
+        folderPath: 'D:/skills/folder-authority',
+        manifest: {
+          tools: [{ name: 'editor.write' }],
+          writeAuthorization: { decision: 'write-authorized' },
+        },
+      } as any,
+      warnings: [{
+        code: 'manifest-protocol-fields-ignored',
+        message: 'SKILL 包声明的执行协议字段已忽略：tools, writeAuthorization；执行器、工具面与权限由应用单源管理',
+      }],
+      error: null,
+      folderPackageCache: false,
+    })
+    executeRealSkillMock.mockImplementation(async () => ({
+      status: 'success',
+      output: 'folder 结果',
+      errors: [],
+      diagnostics: [{
+        type: 'warning',
+        code: 'folder-package:manifest-protocol-fields-ignored',
+        message: 'SKILL 包声明的执行协议字段已忽略：tools, writeAuthorization；执行器、工具面与权限由应用单源管理',
+        at: '2026-10-03T00:00:00.000Z',
+      }],
+      folderPackageCache: false,
+      apiMeta: { requestMessages: [] },
+    } as any))
+    const { aiService } = makeAiService(['folder 结果'])
+    const folderTemplate: WorkspaceSkillTemplate = {
+      ...makeTemplate('folder-authority', 'folder-authority', {
+        intents: ['discuss', 'edit'],
+      }),
+      skill: {
+        format: 'folder',
+        folderPath: 'D:/skills/folder-authority',
+      } as any,
+    }
+
+    const readonlyRun = await runWorkspaceSkills({
+      requestText: '先讨论这一卷，不要写入',
+      templates: [folderTemplate],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+      routingOverride: { forcedIntent: 'discuss' },
+    })
+    const editRun = await runWorkspaceSkills({
+      requestText: '把稳定段落末尾追加一个标记',
+      templates: [folderTemplate],
+      mode: 'chain',
+      aiService,
+      contextService: context,
+      adapter,
+      routingOverride: { forcedIntent: 'edit' },
+    })
+
+    expect(readonlyRun.meta?.skillToolDeclarationsIgnored).toBe(1)
+    expect(editRun.meta?.skillToolDeclarationsIgnored).toBe(1)
+    expect(readonlyRun.meta?.diagnostics?.some(item =>
+      item.code === 'folder-package:manifest-protocol-fields-ignored')).toBe(true)
+    expect(executeRealSkillMock).toHaveBeenCalledTimes(2)
+    const readonlyArgs = executeRealSkillMock.mock.calls[0]?.[0]
+    const editArgs = executeRealSkillMock.mock.calls[1]?.[0]
+    expect(readonlyArgs.tools?.map(tool => tool.name)).toEqual([
+      'editor.get_state',
+    ])
+    expect(readonlyArgs.tools?.some(tool => tool.name === 'editor.write')).toBe(false)
+    expect(editArgs.tools?.map(tool => tool.name)).toEqual([
+      'editor.get_state',
+      'editor.write',
+    ])
+    const readonlyDecision = readonlyArgs.toolPolicy?.permissionDecision
+    const editDecision = editArgs.toolPolicy?.permissionDecision
+    expect(readonlyDecision?.decision).toBe('read-only')
+    expect(readonlyDecision?.intent).toBe('discuss')
+    expect(editDecision?.decision).toBe('write-authorized')
+    expect(editDecision?.intent).toBe('edit')
+    expect({
+      mode: readonlyDecision?.mode,
+    }).toEqual({
+      mode: editDecision?.mode,
+    })
   })
 
   it('routes short contextual replies to discussion skills only', async () => {

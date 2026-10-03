@@ -1,0 +1,555 @@
+{
+  "caseId": "outline-no-skill",
+  "turns": [
+    {
+      "before": "# 权限单源化实测大纲\n\n## 第一章 灯塔与旧信\n沈萤沿着灯塔石阶往上走，潮声在礁石外退成一线。\n她在灯芯旁摊开旧信，纸面被潮气晕开了一角。\n\n## 第二章 菌膜外套\n数据板的光落在菌膜外套上，短促地闪了两下。\n这是用于验证编辑写入的稳定段落。\n",
+      "after": "# 权限单源化实测大纲\n\n## 第一章 灯塔与旧信\n沈萤沿着灯塔石阶往上走，潮声在礁石外退成一线。\n她在灯芯旁摊开旧信，纸面被潮气晕开了一角。\n\n## 第二章 菌膜外套\n数据板的光落在菌膜外套上，短促地闪了两下。\n这是用于验证编辑写入的稳定段落。\n",
+      "request": "先不动正文，解释一下第一卷钩子的设计目的。",
+      "turnStatus": "success",
+      "turnReason": "plain_dialogue_complete",
+      "intent": "discuss",
+      "actualToolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_structure",
+          "policy": "read"
+        },
+        {
+          "name": "outline.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "outline.search",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_summary",
+          "policy": "read"
+        }
+      ],
+      "apiStatuses": [
+        "success"
+      ],
+      "responseChars": 27,
+      "toolCalls": [],
+      "eventTypes": [
+        "user-request",
+        "routing-diagnostics",
+        "long-document-policy",
+        "editor-context-policy",
+        "api-start",
+        "agent-plan",
+        "agent-snapshot",
+        "agent-plan",
+        "agent-state",
+        "agent-snapshot",
+        "agent-state",
+        "agent-state",
+        "agent-snapshot",
+        "agent-state",
+        "long-request-in-progress",
+        "physical-call",
+        "physical-call",
+        "agent-state",
+        "agent-snapshot",
+        "agent-state",
+        "agent-state",
+        "agent-snapshot",
+        "agent-state",
+        "api-tool-surface-updated",
+        "state-transition",
+        "api-success"
+      ],
+      "turnPermissionDecision": {
+        "source": "dialogue-intent",
+        "decision": "read-only",
+        "intent": "discuss",
+        "operation": "discussion",
+        "mode": "direct",
+        "reason": "discuss/analyze intents are always read-only"
+      },
+      "permissionDecisions": [
+        {
+          "source": "dialogue-intent",
+          "decision": "read-only",
+          "intent": "discuss",
+          "operation": "discussion",
+          "mode": "direct",
+          "reason": "discuss/analyze intents are always read-only"
+        }
+      ],
+      "folderDiagnostics": [],
+      "longDocumentEvents": [
+        {
+          "type": "long-document-policy",
+          "detail": {
+            "planId": "long-document-muswjd33",
+            "operation": "discussion",
+            "legacyOperationType": "discussion",
+            "mode": "direct",
+            "decision": "fits",
+            "reason": "execution-plan-direct",
+            "segments": 0,
+            "invariants": [],
+            "estimatedPhysicalRequests": 1,
+            "contextWindow": {
+              "status": "unknown",
+              "contextWindowTokens": 1000000,
+              "maxOutputTokens": null,
+              "effectiveInputTokens": 900000
+            },
+            "estimatedDocumentTokens": 65,
+            "outlineChars": 124,
+            "request": "先不动正文，解释一下第一卷钩子的设计目的。"
+          }
+        }
+      ],
+      "skillGuidanceEvents": [],
+      "assistantReply": "这段钩子的作用是把旧信和灯塔并置，让悬念先于设定出现。"
+    },
+    {
+      "before": "# 权限单源化实测大纲\n\n## 第一章 灯塔与旧信\n沈萤沿着灯塔石阶往上走，潮声在礁石外退成一线。\n她在灯芯旁摊开旧信，纸面被潮气晕开了一角。\n\n## 第二章 菌膜外套\n数据板的光落在菌膜外套上，短促地闪了两下。\n这是用于验证编辑写入的稳定段落。\n",
+      "after": "# 权限单源化实测大纲\n\n## 第一章 灯塔与旧信\n沈萤沿着灯塔石阶往上走，潮声在礁石外退成一线。\n她在灯芯旁摊开旧信，纸面被潮气晕开了一角。\n\n## 第二章 菌膜外套\n数据板的光落在菌膜外套上，短促地闪了两下。\n这是用于验证编辑写入的稳定段落。\n",
+      "request": "修改后是什么样？只预览，不要写入。",
+      "turnStatus": "success",
+      "turnReason": "plain_dialogue_complete",
+      "intent": "discuss",
+      "actualToolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_structure",
+          "policy": "read"
+        },
+        {
+          "name": "outline.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "outline.search",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_summary",
+          "policy": "read"
+        }
+      ],
+      "apiStatuses": [
+        "success"
+      ],
+      "responseChars": 29,
+      "toolCalls": [],
+      "eventTypes": [
+        "user-request",
+        "routing-diagnostics",
+        "long-document-policy",
+        "editor-context-policy",
+        "api-start",
+        "agent-plan",
+        "agent-snapshot",
+        "agent-plan",
+        "agent-state",
+        "agent-snapshot",
+        "agent-state",
+        "agent-state",
+        "agent-snapshot",
+        "agent-state",
+        "long-request-in-progress",
+        "physical-call",
+        "physical-call",
+        "agent-state",
+        "agent-snapshot",
+        "agent-state",
+        "agent-state",
+        "agent-snapshot",
+        "agent-state",
+        "api-tool-surface-updated",
+        "state-transition",
+        "api-success"
+      ],
+      "turnPermissionDecision": {
+        "source": "dialogue-intent",
+        "decision": "read-only",
+        "intent": "discuss",
+        "operation": "discussion",
+        "mode": "direct",
+        "reason": "discuss/analyze intents are always read-only"
+      },
+      "permissionDecisions": [
+        {
+          "source": "dialogue-intent",
+          "decision": "read-only",
+          "intent": "discuss",
+          "operation": "discussion",
+          "mode": "direct",
+          "reason": "discuss/analyze intents are always read-only"
+        }
+      ],
+      "folderDiagnostics": [],
+      "longDocumentEvents": [
+        {
+          "type": "long-document-policy",
+          "detail": {
+            "planId": "long-document-muswjdva",
+            "operation": "discussion",
+            "legacyOperationType": "discussion",
+            "mode": "direct",
+            "decision": "fits",
+            "reason": "execution-plan-direct",
+            "segments": 0,
+            "invariants": [],
+            "estimatedPhysicalRequests": 1,
+            "contextWindow": {
+              "status": "unknown",
+              "contextWindowTokens": 1000000,
+              "maxOutputTokens": null,
+              "effectiveInputTokens": 900000
+            },
+            "estimatedDocumentTokens": 65,
+            "outlineChars": 124,
+            "request": "修改后是什么样？只预览，不要写入。"
+          }
+        }
+      ],
+      "skillGuidanceEvents": [],
+      "assistantReply": "如果修改，旧信信息会提前半段出现；本次保持只读，没有写入。"
+    },
+    {
+      "before": "# 权限单源化实测大纲\n\n## 第一章 灯塔与旧信\n沈萤沿着灯塔石阶往上走，潮声在礁石外退成一线。\n她在灯芯旁摊开旧信，纸面被潮气晕开了一角。\n\n## 第二章 菌膜外套\n数据板的光落在菌膜外套上，短促地闪了两下。\n这是用于验证编辑写入的稳定段落。\n",
+      "after": "# 权限单源化实测大纲\n\n## 第一章 灯塔与旧信\n沈萤沿着灯塔石阶往上走，潮声在礁石外退成一线。\n她在灯芯旁摊开旧信，纸面被潮气晕开了一角。\n\n## 第二章 菌膜外套\n数据板的光落在菌膜外套上，短促地闪了两下。\n这是用于验证编辑写入的稳定段落。【AUTHORITY-TEST】\n",
+      "request": "直接修改第三章：在稳定段落末尾追加【AUTHORITY-TEST】。",
+      "turnStatus": "success",
+      "turnReason": "plain_dialogue_complete",
+      "intent": "edit",
+      "actualToolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.write",
+          "policy": "write"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_structure",
+          "policy": "read"
+        },
+        {
+          "name": "outline.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "outline.search",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_summary",
+          "policy": "read"
+        }
+      ],
+      "apiStatuses": [
+        "success"
+      ],
+      "responseChars": 22,
+      "toolCalls": [
+        {
+          "name": "editor.write",
+          "status": "success",
+          "errorCode": null,
+          "defaultToolPolicy": "allowedWithPermission",
+          "riskLevel": "medium"
+        }
+      ],
+      "eventTypes": [
+        "user-request",
+        "routing-diagnostics",
+        "long-document-policy",
+        "editor-context-policy",
+        "api-start",
+        "agent-plan",
+        "agent-snapshot",
+        "agent-plan",
+        "agent-state",
+        "agent-snapshot",
+        "agent-state",
+        "agent-state",
+        "agent-snapshot",
+        "agent-state",
+        "long-request-in-progress",
+        "physical-call",
+        "physical-call",
+        "edit-task-task-started",
+        "run-activity",
+        "edit-task-plan-detail",
+        "edit-task-batch-planned",
+        "edit-task-batch-started",
+        "run-activity",
+        "edit-task-plan-detail",
+        "editor-presentation-start",
+        "batch_event",
+        "editor-presentation-finished",
+        "edit-task-batch-succeeded",
+        "run-activity",
+        "edit-task-task-finished",
+        "run-activity"
+      ],
+      "turnPermissionDecision": {
+        "source": "long-document-workflow",
+        "decision": "write-authorized",
+        "intent": "edit",
+        "operation": "targeted_edit",
+        "mode": "direct",
+        "reason": "outline-execution-plan"
+      },
+      "permissionDecisions": [
+        {
+          "source": "long-document-workflow",
+          "decision": "write-authorized",
+          "intent": "edit",
+          "operation": "targeted_edit",
+          "mode": "direct",
+          "reason": "outline-execution-plan"
+        }
+      ],
+      "folderDiagnostics": [],
+      "longDocumentEvents": [
+        {
+          "type": "long-document-policy",
+          "detail": {
+            "planId": "long-document-muswjeoa",
+            "operation": "targeted_edit",
+            "legacyOperationType": "targeted-edit",
+            "mode": "direct",
+            "decision": "fits",
+            "reason": "execution-plan-direct",
+            "segments": 1,
+            "invariants": [],
+            "estimatedPhysicalRequests": 1,
+            "contextWindow": {
+              "status": "unknown",
+              "contextWindowTokens": 1000000,
+              "maxOutputTokens": null,
+              "effectiveInputTokens": 900000
+            },
+            "estimatedDocumentTokens": 65,
+            "outlineChars": 124,
+            "request": "直接修改第三章：在稳定段落末尾追加【AUTHORITY-TEST】。"
+          }
+        }
+      ],
+      "skillGuidanceEvents": [],
+      "assistantReply": "已完成合法写入，稳定段落末尾已追加测试标记。"
+    }
+  ],
+  "requestWindows": [
+    [
+      {
+        "scenario": "discuss",
+        "requestCount": 1,
+        "isIntentClassifier": false,
+        "tools": [
+          "editor.get_state",
+          "editor.document_map",
+          "editor.read_range",
+          "editor.search",
+          "editor.locate",
+          "editor.reveal",
+          "editor.multi_get_state",
+          "editor.global_search",
+          "editor.workspace_summary",
+          "outline.get_structure",
+          "outline.read_range",
+          "outline.search",
+          "outline.get_summary",
+          "context.remaining",
+          "agent.plan",
+          "agent.spawn",
+          "agent.wait",
+          "agent.cancel"
+        ]
+      }
+    ],
+    [
+      {
+        "scenario": "discuss",
+        "requestCount": 1,
+        "isIntentClassifier": false,
+        "tools": [
+          "editor.get_state",
+          "editor.document_map",
+          "editor.read_range",
+          "editor.search",
+          "editor.locate",
+          "editor.reveal",
+          "editor.multi_get_state",
+          "editor.global_search",
+          "editor.workspace_summary",
+          "outline.get_structure",
+          "outline.read_range",
+          "outline.search",
+          "outline.get_summary",
+          "context.remaining",
+          "agent.plan",
+          "agent.spawn",
+          "agent.wait",
+          "agent.cancel"
+        ]
+      }
+    ],
+    [
+      {
+        "scenario": "edit",
+        "requestCount": 1,
+        "isIntentClassifier": false,
+        "tools": [
+          "editor.get_state",
+          "editor.document_map",
+          "editor.read_range",
+          "editor.search",
+          "editor.locate",
+          "editor.write",
+          "editor.reveal",
+          "editor.multi_get_state",
+          "editor.global_search",
+          "editor.workspace_summary",
+          "outline.get_structure",
+          "outline.read_range",
+          "outline.search",
+          "outline.get_summary",
+          "context.remaining",
+          "agent.plan",
+          "agent.spawn",
+          "agent.wait",
+          "agent.cancel"
+        ]
+      },
+      {
+        "scenario": "edit",
+        "requestCount": 2,
+        "isIntentClassifier": false,
+        "tools": [
+          "editor.get_state",
+          "editor.document_map",
+          "editor.read_range",
+          "editor.search",
+          "editor.locate",
+          "editor.write",
+          "editor.reveal",
+          "editor.multi_get_state",
+          "editor.global_search",
+          "editor.workspace_summary",
+          "outline.get_structure",
+          "outline.read_range",
+          "outline.search",
+          "outline.get_summary",
+          "context.remaining",
+          "agent.plan",
+          "agent.spawn",
+          "agent.wait",
+          "agent.cancel"
+        ]
+      }
+    ]
+  ]
+}

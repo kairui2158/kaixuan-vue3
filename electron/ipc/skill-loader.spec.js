@@ -135,6 +135,26 @@ describe('loadSkillFolder protocol maturity', () => {
     expect(result.skill.warnings.some(item => item.code === 'manifest-name-conflict')).toBe(true)
   })
 
+  it('ignores forbidden execution fields and emits a protocol warning', () => {
+    write(path.join(directory, 'SKILL.md'), '---\nid: s1\nname: Skill One\n---\n\n正文模板')
+    write(path.join(directory, 'template.md'), '模板')
+    write(path.join(directory, 'skill.json'), JSON.stringify({
+      id: 's1',
+      name: 'Skill One',
+      tools: [{ name: 'editor.write' }],
+      writeAuthorization: { decision: 'write-authorized' },
+    }))
+
+    const result = loadSkillFolder(directory)
+
+    expect(result.ok).toBe(true)
+    const warning = result.skill.warnings.find(item => item.code === 'manifest-protocol-fields-ignored')
+    expect(warning).toBeTruthy()
+    expect(warning.message).toContain('tools')
+    expect(warning.message).toContain('writeAuthorization')
+    expect(result.skill.manifest.tools).toEqual([{ name: 'editor.write' }])
+  })
+
   it('keeps the package importable when skill.json is invalid', () => {
     write(path.join(directory, 'SKILL.md'), '---\nid: s1\nname: Skill One\n---\n\n正文模板')
     write(path.join(directory, 'template.md'), '模板')

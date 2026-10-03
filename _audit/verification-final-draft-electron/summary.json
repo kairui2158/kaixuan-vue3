@@ -1,9 +1,9 @@
 {
   "schema": "shenyi.final-draft.electron-live",
   "version": 1,
-  "generatedAt": "2026-09-30T22:48:45.523Z",
+  "generatedAt": "2026-10-03T20:56:13.275Z",
   "model": "deepseek-v4-pro",
-  "electronPid": 17024,
+  "electronPid": 68100,
   "scales": [
     {
       "scale": "STALLED_RECOVERY",
@@ -13,7 +13,7 @@
         {
           "status": "success",
           "stalledTask": {
-            "taskId": "final-draft-1790808533179-1",
+            "taskId": "final-draft-1791060980994-1",
             "status": "generating",
             "activeSegmentIndex": 0,
             "segments": 3,
@@ -24,13 +24,14 @@
             "sixtySecondCharsPerSecond": 0,
             "continuationCount": 0,
             "error": null,
-            "updatedAt": 1790808533296
+            "updatedAt": 1791060981118
           },
           "finalTask": {
-            "taskId": "final-draft-1790808533179-1",
+            "taskId": "final-draft-1791060980994-1",
             "destination": "home-editor",
             "targetId": "final-draft-stall-recovery",
             "instruction": "请对当前编辑器全文进行整理排序，并统一格式。不要改写正文含义，输出完整终稿。",
+            "operation": "rewrite_segments",
             "constraints": [],
             "protectedRanges": [],
             "sourceContent": "# 停滞恢复测试\n\n## 第一章\n\n第一段源文内容。\n\n## 第二章\n\n第二段源文内容。\n\n## 第三章\n\n第三段源文内容。",
@@ -62,15 +63,15 @@
             "continuationCount": 0,
             "status": "completed",
             "sourceContentHash": "fnv1a32_fffffb7b",
-            "createdAt": 1790808533179,
-            "updatedAt": 1790808535657,
+            "createdAt": 1791060980994,
+            "updatedAt": 1791060983757,
             "lastTelemetry": {
               "tenSecondCharsPerSecond": 0,
               "sixtySecondCharsPerSecond": 0,
               "throughputStatus": "stalled",
               "estimatedRemainingMs": null
             },
-            "lastStreamActivityAt": 1790808533296,
+            "lastStreamActivityAt": 1791060981118,
             "finishReason": "stop",
             "documentVersionBeforeWrite": 0
           },

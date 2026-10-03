@@ -22,6 +22,10 @@ import {
   type FinalDraftCheckpointStore,
 } from './finalDraftCheckpoint'
 import type { FinalDraftProgressTelemetry } from './finalDraftProgress'
+import {
+  detectSourceContamination,
+  type SourceContaminationConversationMessage,
+} from './sourceContaminationDetector'
 
 export { snapshotFinalDraftTask } from './finalDraftService'
 
@@ -69,6 +73,7 @@ export interface FinalDraftRunInput {
   targetId: string
   sourceContent: string
   instruction: string
+  operation?: FinalDraftTask['operation']
   /** App-owned SKILL guidance. It never changes the final-draft execution protocol. */
   skillGuidance?: string
   constraints?: string[]
@@ -77,6 +82,8 @@ export interface FinalDraftRunInput {
   signal?: AbortSignal
   cancelSignal?: AbortSignal
   sourceSegments?: FinalDraftTask['sourceSegments']
+  /** Recent conversation text used only to warn when it has leaked into the source. */
+  conversationMarkers?: SourceContaminationConversationMessage[]
   checkpointStore?: FinalDraftCheckpointStore
   onTaskChange?: (task: FinalDraftTask) => void
   onTaskEvent?: (task: FinalDraftTask, event: FinalDraftTaskEvent) => void
@@ -137,15 +144,35 @@ export interface FinalDraftResumeInput {
 
 export async function runFinalDraft(input: FinalDraftRunInput, hooks: FinalDraftTraceHooks): Promise<FinalDraftTask> {
   const guidance = normalizeFinalDraftSkillGuidance(input.skillGuidance)
+  const contamination = detectSourceContamination(input.sourceContent, input.conversationMarkers || [])
   const task = createFinalDraftTask({
     destination: input.destination,
     targetId: input.targetId,
     sourceContent: input.sourceContent,
     instruction: input.instruction,
+    operation: input.operation,
     skillGuidance: guidance?.text,
     constraints: input.constraints,
     sourceSegments: input.sourceSegments,
   })
+  if (contamination.detected) {
+    const payload = {
+      taskId: task.taskId,
+      destination: task.destination,
+      sourceChars: input.sourceContent.length,
+      markerCount: (input.conversationMarkers || []).length,
+      matchCount: contamination.matches.length,
+      truncated: contamination.truncated,
+      matches: contamination.matches,
+    }
+    hooks.addEvent({
+      type: 'source-contamination-detected',
+      label: '源文疑似包含上一轮对话说明文本',
+      level: 'warn',
+      detail: JSON.stringify(payload),
+      payload,
+    })
+  }
   if (guidance?.truncated) {
     hooks.addEvent({
       type: 'skill-guidance-truncated',

@@ -345,6 +345,7 @@ function buildApiCallDiff(pair: PairedItem<RunTraceApiCall>): ApiCallDiff {
       fieldDiff('temperature', a?.temperature, b?.temperature),
       fieldDiff('maxTokens', a?.maxTokens, b?.maxTokens),
       fieldDiff('intent', a?.intent, b?.intent),
+      fieldDiff('permissionDecision', a?.permissionDecision, b?.permissionDecision),
       fieldDiff('finishReason', a?.finishReason, b?.finishReason),
       fieldDiff('usage', a?.usage, b?.usage),
       fieldDiff('durationMs', a?.durationMs, b?.durationMs),
@@ -460,6 +461,8 @@ function buildToolCallDiffs(pairs: ApiCallDiff[]): ToolCallDiff[] {
         fields: [
           fieldDiff('name', a?.name, b?.name),
           fieldDiff('status', a?.status, b?.status),
+          fieldDiff('defaultToolPolicy', a?.defaultToolPolicy, b?.defaultToolPolicy),
+          fieldDiff('riskLevel', a?.riskLevel, b?.riskLevel),
           fieldDiff('durationMs', a?.durationMs, b?.durationMs),
           fieldDiff('error', a?.error, b?.error)
         ],

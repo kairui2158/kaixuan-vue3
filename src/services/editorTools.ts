@@ -17,8 +17,10 @@ import {
 } from './editorEditSemantics'
 import { planEditorEditBatch } from './editorEditBatch'
 import type {
+  LongDocumentExecutionMode,
   LongDocumentExecutionPlan,
   LongDocumentExecutionPlanSegment,
+  LongDocumentExecutionOperation,
   LongDocumentInvariant,
 } from './longDocumentExecutionPlanner'
 import {
@@ -60,6 +62,14 @@ export interface AgentToolDefinition {
   name: string
   description: string
   policy: AgentToolPolicy
+  /**
+   * Static execution policy. Built-in read tools are available without write
+   * permission, editor.write requires permission, and external tools that do
+   * not declare this field are disabled at the authorization boundary.
+   */
+  defaultToolPolicy?: 'allowedWithoutPermission' | 'allowedWithPermission' | 'disabled'
+  /** Diagnostic-only risk label; it never participates in authorization. */
+  riskLevel?: 'low' | 'medium' | 'high'
   /** External skills must mark ownership so built-in-name collisions are rejected safely. */
   origin?: 'built-in' | 'external'
   inputSchema: {
@@ -81,6 +91,8 @@ export interface ToolCallEvent {
   result: ToolResult
   durationMs: number
   protocolVersion?: number
+  defaultToolPolicy?: AgentToolDefinition['defaultToolPolicy']
+  riskLevel?: AgentToolDefinition['riskLevel']
 }
 
 export type ToolEventSink = (event: ToolCallEvent) => void
@@ -94,6 +106,8 @@ function batchDetailFromPlan(
   return {
     segmentId: segment.segmentId,
     expectedChange: segment.expectedChange,
+    range: segment.range,
+    writeStrategy: segment.writeStrategy,
     ...(invariantResult ? { invariantResult } : {}),
   }
 }
@@ -105,16 +119,40 @@ function batchDetailFromPlan(
  */
 function batchDetailFromPlanForBatch(
   plan: LongDocumentExecutionPlan | undefined,
-  input: Pick<EditorWriteApplyInput, 'batchDetail'>,
+  input: Pick<EditorWriteApplyInput, 'batchDetail'> & Pick<EditorWriteApplyInput, 'commands'>,
 ): EditorWriteApplyInput['batchDetail'] {
   if (!plan) return input.batchDetail
-  const segment = plan.segments.find(item => item.segmentId === input.batchDetail?.segmentId)
+  const inferredOperation = input.commands.length === 1 && input.commands[0].operation === 'reorder_sections'
+    ? 'reorder_sections'
+    : input.commands.some(command => command.operation === 'delete')
+      ? 'delete'
+      : input.commands.some(command => command.operation === 'replace_match' || command.operation === 'rewrite')
+        ? 'normalize'
+        : null
+  const allowedSegmentStrategies: Record<'reorder_sections' | 'delete' | 'normalize', string[]> = {
+    reorder_sections: ['reorder_sections'],
+    delete: ['delete'],
+    normalize: ['replace_match', 'rewrite'],
+  }
+  const matchingSegment = inferredOperation
+    ? plan.segments.find(segment =>
+      allowedSegmentStrategies[inferredOperation].includes(segment.writeStrategy))
+    : undefined
+  const segment = matchingSegment
+    || plan.segments.find(item => item.segmentId === input.batchDetail?.segmentId)
     || plan.segments[0]
   if (!segment) return input.batchDetail
-  const invariantResult = input.batchDetail?.invariantResult || plan.invariants[0]
+  const segmentInvariant = segment.writeStrategy === 'delete'
+    ? plan.invariants.find(invariant => invariant === 'planned-deletion-only')
+    : ['replace_match', 'rewrite'].includes(segment.writeStrategy)
+      ? plan.invariants.find(invariant => invariant === 'normalize-changes-punctuation-whitespace-format-only')
+      : undefined
+  const invariantResult = segmentInvariant || input.batchDetail?.invariantResult || plan.invariants[0]
   return {
     segmentId: segment.segmentId,
     expectedChange: segment.expectedChange,
+    range: segment.range,
+    writeStrategy: segment.writeStrategy,
     ...(invariantResult ? { invariantResult } : {}),
   }
 }
@@ -132,12 +170,24 @@ export interface EditorWriteApplyInput {
     segmentId: string
     expectedChange: string
     invariantResult?: string
+    range?: { startLine: number; endLine: number }
+    writeStrategy?: string
   }
   reason?: string
+  /** Session-state authorization for long-document multi-batch workflows. */
+  writeAuthorization?: LongDocumentWriteAuthorization
   reveal: {
     mode: 'stream' | 'instant'
     firstChange: boolean
   }
+}
+
+export interface LongDocumentWriteAuthorization {
+  source: 'long-document-workflow'
+  intent: 'edit' | 'generate'
+  operation: LongDocumentExecutionOperation
+  mode: LongDocumentExecutionMode
+  reason?: string
 }
 
 export type EditorWriteApplier = (input: EditorWriteApplyInput) => Promise<
@@ -405,11 +455,14 @@ export function createEditorTools(options: {
   takeFailedBatch?: () => EditorWriteRetryCarrier | null
   maxReadChars?: () => number
   executionPlan?: LongDocumentExecutionPlan
+  writeAuthorization?: LongDocumentWriteAuthorization
 }): AgentToolDefinition[] {
   const getState: AgentToolDefinition = {
     name: 'editor.get_state',
     description: '读取当前编辑目标摘要：目标、字数、选区、快照版本。不返回全文。',
     policy: 'read',
+    defaultToolPolicy: 'allowedWithoutPermission',
+    riskLevel: 'low',
     inputSchema: { type: 'object', properties: {} },
     async execute() {
       const snapshot = options.getSnapshot()
@@ -437,6 +490,8 @@ export function createEditorTools(options: {
     name: 'editor.search',
     description: '按关键词搜索编辑内容，返回少量位置和上下文窗口。',
     policy: 'read',
+    defaultToolPolicy: 'allowedWithoutPermission',
+    riskLevel: 'low',
     inputSchema: {
       type: 'object',
       properties: {
@@ -480,6 +535,8 @@ export function createEditorTools(options: {
     name: 'editor.locate',
     description: '验证候选片段是否唯一存在，并返回位置。精确匹配失败时返回Top-3模糊候选。',
     policy: 'read',
+    defaultToolPolicy: 'allowedWithoutPermission',
+    riskLevel: 'low',
     inputSchema: {
       type: 'object',
       properties: { fragment: { type: 'string', description: '从原文逐字复制的候选片段' } },
@@ -531,6 +588,8 @@ export function createEditorTools(options: {
     name: 'editor.write',
     description: '立即写入当前编辑器。提交 1-10 条受限编辑命令；允许操作由当前执行计划决定，应用执行唯一性、版本与锁定校验，通过后立即写入并返回结果；失败返回结构化错误供修正重试。',
     policy: 'write',
+    defaultToolPolicy: 'allowedWithPermission',
+    riskLevel: 'medium',
     inputSchema: {
       type: 'object',
       properties: {
@@ -800,9 +859,11 @@ export function createEditorTools(options: {
           batchId: `reorder-${Date.now().toString(36)}`,
           next,
           original: snapshot.content,
-          commands: [reorderCommand],
-          batchDetail: batchDetailFromPlanForBatch(options.executionPlan, {
+        commands: [reorderCommand],
+        writeAuthorization: options.writeAuthorization,
+        batchDetail: batchDetailFromPlanForBatch(options.executionPlan, {
             batchDetail: batchDetailFromPlan(options.executionPlan),
+            commands: [reorderCommand],
           }),
           reason: typeof params.reason === 'string' ? params.reason : undefined,
           reveal: {
@@ -892,9 +953,11 @@ export function createEditorTools(options: {
         batchId: plan.batchId,
         next: plan.next,
         original: plan.original,
-          commands,
+        commands,
+        writeAuthorization: options.writeAuthorization,
         batchDetail: batchDetailFromPlanForBatch(options.executionPlan, {
           batchDetail: batchDetailFromPlan(options.executionPlan),
+          commands,
         }),
         reason: typeof params.reason === 'string' ? params.reason : undefined,
         reveal: {
@@ -911,7 +974,9 @@ export function createEditorTools(options: {
         data: {
           status: 'written',
           batchId: plan.batchId,
-          repairPolicy: '该批次已写入成功。后续修正请基于当前编辑器内容提交新命令，禁止重复提交本 batchId 的相同参数。',
+          documentVersion: applied.documentVersion,
+          contentHash: applied.contentHash,
+          repairPolicy: '该批次已写入成功，文档版本已变化。后续读取或写入前必须重新调用 editor.document_map / editor.get_state 获取当前 sectionId 与版本；后续修正请基于当前编辑器内容提交新命令，禁止重复提交本 batchId 的相同参数。',
           commandCount: commands.length,
           writtenLength: plan.next.length,
           reveal: { mode: revealMode, firstChange: reveal.firstChange !== false },
@@ -925,6 +990,8 @@ export function createEditorTools(options: {
     name: 'editor.reveal',
     description: '定位并高亮编辑器中的目标位置，不修改内容。用于回答写入位置、展示候选节点或写入前确认位置。',
     policy: 'read',
+    defaultToolPolicy: 'allowedWithoutPermission',
+    riskLevel: 'low',
     inputSchema: {
       type: 'object',
       properties: {
@@ -1034,6 +1101,8 @@ export function createEditorTools(options: {
     name: 'editor.multi_get_state',
     description: '获取多个编辑目标的摘要（最多 5 个）。用于跨目标读取上下文。',
     policy: 'read',
+    defaultToolPolicy: 'allowedWithoutPermission',
+    riskLevel: 'low',
     inputSchema: {
       type: 'object',
       properties: {
@@ -1081,6 +1150,8 @@ export function createEditorTools(options: {
     name: 'editor.global_search',
     description: '跨所有编辑目标搜索关键词，返回每个目标中的匹配位置和上下文。',
     policy: 'read',
+    defaultToolPolicy: 'allowedWithoutPermission',
+    riskLevel: 'low',
     inputSchema: {
       type: 'object',
       properties: {
@@ -1126,6 +1197,8 @@ export function createEditorTools(options: {
     name: 'editor.workspace_summary',
     description: '获取整个工作区结构概览：所有打开的编辑目标列表及摘要。',
     policy: 'read',
+    defaultToolPolicy: 'allowedWithoutPermission',
+    riskLevel: 'low',
     inputSchema: { type: 'object', properties: {} },
     async execute() {
       if (!options.getAllSnapshots) return toolError('not_available', '当前工作区不支持多目标概览')
@@ -1235,6 +1308,17 @@ export function validateAgentToolInput(tool: AgentToolDefinition, input: unknown
     }
   }
   if (!structured.valid) {
+    if (tool.name === 'editor.read_range') {
+      const inputRecord = input as Record<string, unknown>
+      const unsupportedPaginationKeys = ['offset', 'limit'].filter(key => key in inputRecord)
+      if (unsupportedPaginationKeys.length > 0) {
+        return toolError(
+          'invalid_input',
+          `editor.read_range 不支持 offset/limit 分页（收到不支持字段：$.${unsupportedPaginationKeys.join('、$.')}）。请传 nextCursor 继续读取当前节，或用 editor.document_map 返回的 sectionId 开始读取。`,
+          true,
+        )
+      }
+    }
     return {
       ok: false,
       error: {
@@ -1316,29 +1400,29 @@ export class ToolGateway {
     const tool = this.tools.get(name)
     if (!tool) {
       const result = toolError('tool_not_found', `工具不存在：${name}`)
-      this.emit({ toolName: name, policy: 'write', iteration: context.iteration, input, result, durationMs: 0 })
+      this.emit({ toolName: name, policy: 'write', iteration: context.iteration, input, result, durationMs: 0, defaultToolPolicy: 'disabled' })
       return result
     }
     if (context.abortSignal?.aborted) {
       const result = toolError('canceled', '工具调用已被用户取消', true)
-      this.emit({ toolName: name, policy: tool.policy, iteration: context.iteration, input, result, durationMs: 0 })
+      this.emit({ toolName: name, policy: tool.policy, iteration: context.iteration, input, result, durationMs: 0, defaultToolPolicy: tool.defaultToolPolicy, riskLevel: tool.riskLevel })
       return result
     }
     const invalid = this.validateInput(tool, input)
     if (invalid) {
-      this.emit({ toolName: name, policy: tool.policy, iteration: context.iteration, input, result: invalid, durationMs: Date.now() - started })
+      this.emit({ toolName: name, policy: tool.policy, iteration: context.iteration, input, result: invalid, durationMs: Date.now() - started, defaultToolPolicy: tool.defaultToolPolicy, riskLevel: tool.riskLevel })
       return invalid
     }
 
     try {
       const result = await tool.execute(input, context)
-      this.emit({ toolName: name, policy: tool.policy, iteration: context.iteration, input, result, durationMs: Date.now() - started })
+      this.emit({ toolName: name, policy: tool.policy, iteration: context.iteration, input, result, durationMs: Date.now() - started, defaultToolPolicy: tool.defaultToolPolicy, riskLevel: tool.riskLevel })
       return result
     } catch (error) {
       const result = isAbortError(error)
         ? toolError('canceled', '工具调用已被用户取消', true)
         : toolError('tool_execution_failed', `工具执行失败：${(error as Error)?.message || String(error)}`)
-      this.emit({ toolName: name, policy: tool.policy, iteration: context.iteration, input, result, durationMs: Date.now() - started })
+      this.emit({ toolName: name, policy: tool.policy, iteration: context.iteration, input, result, durationMs: Date.now() - started, defaultToolPolicy: tool.defaultToolPolicy, riskLevel: tool.riskLevel })
       return result
     }
   }

@@ -57,6 +57,10 @@
       <span>{{ compatibilityNotice }}</span>
       <button type="button" @click="compatibilityNotice = ''">知道了</button>
     </div>
+    <div v-if="sourceContaminationNotice" id="chat-source-contamination-notice" class="chat-compatibility-notice">
+      <span>{{ sourceContaminationNotice }}</span>
+      <button type="button" @click="sourceContaminationNotice = ''">知道了</button>
+    </div>
     <EditTaskBanner
       :task="homeEditTask"
       :busy="isStreaming"
@@ -182,7 +186,8 @@ import {
 } from '../../services/intentCorpusCollector'
 import { getProviderReasoningControl } from '../../services/providerProtocols'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from '../../services/generationValidity'
-import { createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceSkillEngineAdapter, type WorkspaceSkillToolRequest, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
+import { buildWorkspaceSkillGuidance, createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceSkillEngineAdapter, type WorkspaceSkillToolRequest, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
+import { collectSkillPackageProtocolDiagnostics, type RealSkillDiagnostic } from '../../services/realSkillExecutor'
 import {
   classifyPlainDialogueIntentDetailed,
   routeChainIntentDetailed,
@@ -208,6 +213,7 @@ import {
   toLongDocumentOperationType,
 } from '../../services/longDocumentExecutionPlanner'
 import type { LongDocumentExecutionPlan } from '../../services/longDocumentExecutionPlanner'
+import type { DialoguePermissionDecision, DialogueWriteAuthorization } from '../../services/dialogueToolSurface'
 import type { LongDocumentOperationType } from '../../services/longDocumentPolicy'
 import type { ContextMessage } from '../../types/context'
 import { buildContinuationMessages, continueSnapshot } from '../../services/continuationService'
@@ -215,6 +221,7 @@ import { slimContinuationMessages } from '../../services/continuationSlim'
 import { canContinue, continuationStatusFor, type ContinuationSnapshot } from '../../services/continuation'
 import { saveContinuation, loadContinuation, removeContinuation } from '../../services/continuationStorage'
 import { buildEditorReadonlyPrompt, type EditorEditCommand } from '../../services/editorEditProtocol'
+import type { EditTaskCompletionReport } from '../../services/editTaskCompletion'
 import { hashEditorContent, validateEditorTarget, type EditorTargetSnapshot } from '../../services/editorTarget'
 import { buildEditPlan } from '../../services/editorEditService'
 import { canRollbackEditorBatch, createEditorBatchRecord, findEditorBatchUndoContent, normalizeEditorBatchRecord, toDialogueBatchEvent, updateEditorBatchRecord } from '../../services/editorBatchRecord'
@@ -264,6 +271,7 @@ import {
 } from '../../services/finalDraftService'
 import type { FinalDraftEvent } from '../../services/finalDraftService'
 import { useEditTaskSession, type EditTaskSessionLifecycleEvent } from '../../composables/useEditTaskSession'
+import { detectSourceContamination } from '../../services/sourceContaminationDetector'
 import { describeRoutingDiagEvent } from '../../services/routingDiagBridge'
 
 const agentStore = useAgentStore()
@@ -291,6 +299,41 @@ let homeSessionId = ''
 let lastHomeToolAudit: unknown
 let homeLongDocumentEditTaskPlan = false
 let activeHomeExecutionPlan: LongDocumentExecutionPlan | null = null
+let activePendingHomeLongDocumentOperation: {
+  planId: string
+  operation: LongDocumentExecutionPlan['operation']
+} | null = null
+let activeHomeRoutingIntent: PlainDialogueIntent = 'discuss'
+
+function buildHomeWorkflowWriteAuthorization(input: {
+  intent: PlainDialogueIntent
+  plan: LongDocumentExecutionPlan
+}): DialogueWriteAuthorization | null {
+  if (input.intent !== 'edit' && input.intent !== 'generate') return null
+  if (input.plan.mode === 'final-draft') return null
+  if (input.plan.operation === 'discussion') return null
+  if (input.plan.mode !== 'edit-task' && input.plan.operation !== 'targeted_edit') return null
+  return {
+    source: 'long-document-workflow',
+    intent: input.intent,
+    operation: input.plan.operation,
+    mode: input.plan.mode,
+    reason: 'home-execution-plan',
+  }
+}
+
+function isHomeWorkflowWriteAuthorization(
+  writeAuthorization: unknown,
+): writeAuthorization is DialogueWriteAuthorization {
+  if (!writeAuthorization || typeof writeAuthorization !== 'object') return false
+  const authorization = writeAuthorization as Partial<DialogueWriteAuthorization>
+  return authorization.source === 'long-document-workflow'
+    && (authorization.intent === 'edit' || authorization.intent === 'generate')
+    && authorization.operation !== undefined
+    && authorization.operation !== 'discussion'
+    && authorization.mode !== undefined
+    && authorization.mode !== 'final-draft'
+}
 
 const homeEditTaskSession = useEditTaskSession({
   sessionId: 'home',
@@ -325,9 +368,11 @@ function recordHomeEditTaskEvent(event: EditTaskSessionLifecycleEvent) {
     label: `编辑任务：${event.type}`,
     detail: JSON.stringify(payload).slice(0, 20000),
     payload,
+    turnId: homeRunTurnId,
   })
   if (homeRunTraceId) {
     runTraceStore.reportEditTaskActivity(homeRunTraceId, payload, {
+      turnId: homeRunTurnId,
       persist: event.type === 'batch_failed' || event.type === 'task_finished' || event.type === 'task_failed',
     })
   }
@@ -348,6 +393,63 @@ async function cancelHomeEditTask(task: { id: string }) {
   await homeEditTaskSession.onCancelEditTask(task.id)
 }
 
+function reportHomeEditTaskCompletion(report: EditTaskCompletionReport | null) {
+  if (!report) return
+  const verified = report.verified
+  const payload = {
+    verified,
+    invariant: report.invariant,
+    violations: report.violations,
+  }
+  addHomeTraceEvent({
+    type: verified ? 'edit-task-completion-verified' : 'edit-task-completion-violation',
+    level: verified ? 'info' : 'warn',
+    label: verified ? '编辑任务完成度校验通过' : '编辑任务完成度校验失败',
+    detail: JSON.stringify(payload).slice(0, 20000),
+    payload,
+    turnId: homeRunTurnId,
+  })
+  if (homeRunTraceId) {
+    runTraceStore.reportEditTaskCompletion(homeRunTraceId, payload, {
+      turnId: homeRunTurnId,
+      persist: !verified,
+    })
+  }
+  const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+  diag?.log?.(
+    verified ? 'info' : 'warn',
+    `edit-task/completion-${verified ? 'verified' : 'violation'}`,
+    verified ? '编辑任务完成度校验通过' : '编辑任务完成度校验失败',
+    payload,
+  )
+}
+
+function reportHomeSourceContamination(sourceContent: string) {
+  const contamination = detectSourceContamination(sourceContent, buildHomeConversationMarkers())
+  if (!contamination.detected) return
+  sourceContaminationNotice.value = '源文疑似包含上一轮对话说明文本，本次仍按你的当前指令执行，请在结果中重点核对插入说明附近的内容'
+  const payload = {
+    workspace: 'home-editor',
+    sourceChars: sourceContent.length,
+    matchCount: contamination.matches.length,
+    truncated: contamination.truncated,
+    matches: contamination.matches,
+  }
+  addHomeTraceEvent({
+    type: 'source-contamination-detected',
+    label: '源文疑似包含上一轮对话说明文本',
+    level: 'warn',
+    detail: JSON.stringify(payload),
+    payload,
+  })
+  ;(typeof window !== 'undefined' ? (window as any).DiagLogger : null)?.log?.(
+    'warn',
+    'home/source-contamination-detected',
+    '源文疑似包含上一轮对话说明文本',
+    payload,
+  )
+}
+
 function homeTraceTarget() {
   const tab = editorStore.activeTab
   return {
@@ -365,6 +467,7 @@ function startHomeRun(
   skillNames: string[] = [],
   options: {
     intent?: PlainDialogueIntent
+    permissionDecision?: DialoguePermissionDecision
     writeMode?: 'direct'
     toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
     actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
@@ -405,6 +508,7 @@ function startHomeRun(
     skillNames,
     mode,
     intent: options.intent,
+    permissionDecision: options.permissionDecision,
     writeMode: options.writeMode,
     toolSurface: options.toolSurface,
     actualToolSurface: options.actualToolSurface
@@ -484,7 +588,7 @@ function finishHomeTraceSession(status: RunTraceStatus, error?: string, reason?:
   activeHomeApiCallId = null
 }
 
-function addHomeTraceEvent(event: { type: string; label: string; level?: 'info' | 'warn' | 'error'; detail?: string; payload?: unknown }) {
+function addHomeTraceEvent(event: { type: string; label: string; level?: 'info' | 'warn' | 'error'; detail?: string; payload?: unknown; turnId?: string | null }) {
   const runId = homeRunTraceId
   if (!runId) return
   runTraceStore.addEvent(runId, {
@@ -501,6 +605,7 @@ function startHomeApiCall(input: {
   requestMessages: RunTraceMessage[]
   model?: string
   intent?: PlainDialogueIntent
+  permissionDecision?: DialoguePermissionDecision
   toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
 }) {
@@ -515,6 +620,7 @@ function startHomeApiCall(input: {
     model: input.model || providerStore.activeGenerateProvider?.selectedModel || providerStore.activeGenerateProvider?.models?.[0],
     requestMessages: input.requestMessages,
     intent: input.intent,
+    permissionDecision: input.permissionDecision,
     toolSurface: input.toolSurface,
     actualToolSurface: input.actualToolSurface
   })
@@ -597,6 +703,8 @@ function recordHomePhysicalCall(callId: string | undefined, event: PhysicalCallE
     protocolVersionDefaulted?: boolean
     toolCapability?: 'native_tools' | 'json_protocol'
     rejectionCategory?: 'unknown_tool' | 'schema_invalid' | 'permission_denied' | 'range_invalid' | 'invalid_protocol' | 'other'
+    defaultToolPolicy?: 'allowedWithoutPermission' | 'allowedWithPermission' | 'disabled'
+    riskLevel?: 'low' | 'medium' | 'high'
 }) {
   if (!homeRunTraceId || !callId) return
   runTraceStore.appendToolCall(homeRunTraceId, callId, {
@@ -612,6 +720,8 @@ function recordHomePhysicalCall(callId: string | undefined, event: PhysicalCallE
     protocolVersionDefaulted: event.protocolVersionDefaulted,
     toolCapability: event.toolCapability,
     rejectionCategory: event.rejectionCategory,
+    defaultToolPolicy: event.defaultToolPolicy,
+    riskLevel: event.riskLevel,
   })
 }
 
@@ -672,6 +782,8 @@ const liveApiStatusLines = useLiveApiStatus(computed<LiveApiStatusInput>(() => (
     return {
       status: call.status,
       streamLength: call.streamText.length,
+      lastStreamActivityAt: call.lastStreamActivityAt,
+      lastExecutionActivityAt: call.lastExecutionActivityAt,
       retrying: chatStore.generationStatus === 'retrying'
     }
   })()
@@ -768,6 +880,7 @@ async function runHomeFinalDraft(options: {
   skillGuidance?: string
   abortSignal: AbortSignal
   cancelSignal: AbortSignal
+  conversationMarkers: Array<{ role: string; content: string }>
 }): Promise<FinalDraftTask | undefined> {
   let latestTask: FinalDraftTask | undefined
   const aiService = await getAiService()
@@ -779,8 +892,10 @@ async function runHomeFinalDraft(options: {
     targetId: options.targetId,
     sourceContent: options.sourceContent,
     instruction: options.requestText,
+    operation: options.plan.operation,
     model: options.model,
     skillGuidance: options.skillGuidance,
+    conversationMarkers: options.conversationMarkers,
     signal: options.abortSignal,
     cancelSignal: options.cancelSignal,
     checkpointStore: createElectronFinalDraftCheckpointStore(),
@@ -823,6 +938,7 @@ async function runHomeFinalDraftTurn(options: {
   model: string
   plan: LongDocumentExecutionPlan
   skillGuidance?: string
+  conversationMarkers: Array<{ role: string; content: string }>
 }) {
   const projId = projectId.value
   const abortController = activeAbortController || new AbortController()
@@ -854,6 +970,7 @@ async function runHomeFinalDraftTurn(options: {
       model: options.model,
       plan: options.plan,
       skillGuidance: options.skillGuidance,
+      conversationMarkers: options.conversationMarkers,
       abortSignal: abortController.signal,
       cancelSignal: cancelController.signal,
     })
@@ -1184,6 +1301,7 @@ function recordHomeRoutingEvent(event: ChainRoutingEvent) {
       const authorizedSurface = authorizeDialogueTools(reroutedSurface.tools, matchedIntent)
       runTraceStore.updateTurnIntent(homeRunTraceId, homeRunTurnId, {
         intent: matchedIntent,
+        permissionDecision: authorizedSurface.permissionDecision,
         routingFallback: 'none',
         toolSurface: reroutedSurface.tools.map(tool => ({
           name: tool.name,
@@ -1365,6 +1483,7 @@ type HomeRoutingDecision = {
 }
 
 const compatibilityNotice = ref('')
+const sourceContaminationNotice = ref('')
 let activeAbortController: AbortController | null = null
 let activeHomeRunPromise: Promise<unknown> | null = null
 function beginActiveHomeRunTracking(): () => void {
@@ -1415,6 +1534,7 @@ async function classifyHomeIntentDetailed(
       .filter(message => message.role === 'user')
       .map(message => message.content),
     recentHistory,
+    pendingLongDocumentOperation: activePendingHomeLongDocumentOperation ?? undefined,
     activeSkillIds: selectedCoCreationSkills.value.map(skill => skill.id),
     llmClassifier: createIntentLlmFallback({
       activeVerifyProvider: providerStore.activeVerifyProvider,
@@ -1669,10 +1789,14 @@ function createHomeSkillAdapter(
     }),
     getExecutionContext: () => ({
       executionPlan: activeHomeExecutionPlan ?? undefined,
-      writeAuthorization: activeHomeExecutionPlan?.mode === 'edit-task'
-        ? { source: 'long-document-workflow' }
+      writeAuthorization: activeHomeExecutionPlan
+        ? buildHomeWorkflowWriteAuthorization({
+          intent: activeHomeRoutingIntent,
+          plan: activeHomeExecutionPlan,
+        })
         : null,
     }),
+    getPendingLongDocumentOperation: () => activePendingHomeLongDocumentOperation,
     buildTools: (request) => ({
       tools: requestTarget.content
         ? buildHomeDialogueToolSurface(
@@ -1689,7 +1813,12 @@ function createHomeSkillAdapter(
           request.intent === 'auto' ? fallbackIntent : request.intent,
           undefined,
           activeHomeExecutionPlan ?? undefined,
-          Boolean(activeHomeExecutionPlan?.mode === 'edit-task'),
+          activeHomeExecutionPlan
+            ? buildHomeWorkflowWriteAuthorization({
+              intent: activeHomeRoutingIntent,
+              plan: activeHomeExecutionPlan,
+            })
+            : null,
         ).tools
         : [],
       toolPolicy: requestTarget.content ? {
@@ -1961,6 +2090,9 @@ async function runHomeCoCreationSkills(
   terminalStatus?: 'success' | 'degraded' | 'blocked'
   terminalReason?: string
 }> {
+  if (coCreationMode.value !== 'chain') {
+    throw new Error('compose SKILL 路径必须走统一 Agent 执行底座')
+  }
   const provider = providerStore.activeGenerateProvider
   const model = provider?.selectedModel || provider?.models?.[0] || ''
   // Compaction input windows are set per turn from the actual request result;
@@ -2165,6 +2297,7 @@ async function runHomeCoCreationSkills(
     })
     if (homeRunTraceId) runTraceStore.startAwaitingUser(homeRunTraceId, 'awaiting_confirmation')
     activeHomeExecutionPlan = null
+    activePendingHomeLongDocumentOperation = null
     return { text: '', toolCallSummary: null }
   }
   if (result.runState === 'budget_exhausted' && placeholderMessage) {
@@ -2184,6 +2317,7 @@ async function runHomeCoCreationSkills(
       detail: `已用 ${result.budgetSnapshot?.used || 0}/${result.budgetSnapshot?.limit || 0}，已保留断点`
     })
     activeHomeExecutionPlan = null
+    activePendingHomeLongDocumentOperation = null
     return {
       text: result.text,
       toolCallSummary: null,
@@ -2195,6 +2329,14 @@ async function runHomeCoCreationSkills(
   if (result.meta && (result.meta.diagnostics?.length || result.meta.status === 'degraded')) {
     chatStore.updateLastMessageSkillDiagnostics(result.meta)
     runTraceStore.setFolderDiagnostics(homeRunTraceId || '', result.meta.diagnostics || [])
+  }
+  if (result.meta?.skillToolDeclarationsIgnored) {
+    addHomeTraceEvent({
+      type: 'skill-tool-declarations-ignored',
+      level: 'info',
+      label: 'SKILL 工具/授权声明已忽略',
+      detail: `声明 ${result.meta.skillToolDeclarationsIgnored} 项，启用 0 项`
+    })
   }
   if (homeRunTraceId && result.meta?.postProcessReport) {
     const report = result.meta.postProcessReport
@@ -2398,6 +2540,12 @@ function buildHomeSkillGuidance(): string {
     .join('\n\n')
 }
 
+function buildHomeConversationMarkers(limit = 8): Array<{ role: string; content: string }> {
+  return messages.value
+    .slice(-limit)
+    .map(message => ({ role: message.role, content: String(message.content || '') }))
+}
+
 async function sendMessage(requestText?: string, routingDecision: HomeRoutingDecision = {}) {
   const editRequestId = `chat-edit_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
   const editStartedAt = performance.now()
@@ -2428,6 +2576,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
   const requestIntentDetailed = await classifyHomeIntentDetailed(text)
   const requestIntent: PlainDialogueIntent =
     requestIntentDetailed.kind === 'matched' ? requestIntentDetailed.intent : 'discuss'
+  activeHomeRoutingIntent = requestIntent
   const homeProviderForRouting = providerStore.activeGenerateProvider
   const homeModelForRouting = homeProviderForRouting?.selectedModel || homeProviderForRouting?.models?.[0] || ''
   const homeProviderWindow = resolveEffectiveModelContextWindow({
@@ -2442,9 +2591,18 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     content: requestTarget.content,
     contextWindowTokens: typeof homeProviderWindow === 'number' ? homeProviderWindow : null,
     maxOutputTokens: homeMaxOutputTokens,
+    intent: requestIntent,
   })
   homeLongDocumentEditTaskPlan = homeExecutionPlan.mode === 'edit-task'
+  const homeWorkflowWriteAuthorization = buildHomeWorkflowWriteAuthorization({
+    intent: requestIntent,
+    plan: homeExecutionPlan,
+  })
   activeHomeExecutionPlan = homeExecutionPlan
+  activePendingHomeLongDocumentOperation = {
+    planId: homeExecutionPlan.planId,
+    operation: homeExecutionPlan.operation,
+  }
   const homeLongDocumentOperationType = toLongDocumentOperationType(homeExecutionPlan.operation)
   const useHomeFinalDraft = isHomeFinalDraftRequest(homeExecutionPlan, text, requestTarget.content)
   const skillSurfaceModel = providerStore.activeGenerateProvider?.selectedModel
@@ -2455,7 +2613,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       requestIntent,
       skillSurfaceModel,
       homeExecutionPlan,
-      homeLongDocumentEditTaskPlan,
+      homeWorkflowWriteAuthorization,
     )
     : undefined
   const skillToolSurface = useHomeFinalDraft ? undefined : skillSurface?.actualToolSurface
@@ -2479,6 +2637,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     selectedCoCreationSkills.value.map(skill => skillStore.displaySkillName(skill)),
     {
       intent: requestIntent,
+      permissionDecision: skillSurface?.permissionDecision,
       writeMode: requestTarget.content ? 'direct' : undefined,
       toolSurface: skillToolSurface,
       actualToolSurface: skillToolSurface,
@@ -2508,6 +2667,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       model: providerForFinalDraft.selectedModel || providerForFinalDraft.models?.[0] || 'gpt-4o',
       plan: homeExecutionPlan,
       skillGuidance: buildHomeSkillGuidance(),
+      conversationMarkers: buildHomeConversationMarkers(),
     })
     return
   }
@@ -2809,8 +2969,18 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
 
     const baseSystemPrompt = systemParts.join('\n\n---\n\n')
     const model = provider.selectedModel || 'gpt-4o'
-    const maxDepth = getHomeSkillMaxDepth()
-    maxDepthRef.value = maxDepth
+  const maxDepth = getHomeSkillMaxDepth()
+  maxDepthRef.value = maxDepth
+  const composeSkillGuidance = coCreationMode.value === 'compose'
+    ? buildWorkspaceSkillGuidance({
+        templates: getHomeSkillTemplates(),
+        requestText: originalRequest,
+        adapter: createHomeSkillAdapter(requestIntent),
+      })
+    : undefined
+  const composeSkillProtocolDiagnostics: RealSkillDiagnostic[] = composeSkillGuidance
+    ? await collectSkillPackageProtocolDiagnostics(getHomeSkillTemplates())
+    : []
 
     // 2) MCP 工具执行：前缀 @tool-name 的命令直接调用 ToolRegistry
     if (text.startsWith('@')) {
@@ -2835,7 +3005,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
           detail: toolName + '：' + (toolErr?.message || String(toolErr))
         })
       }
-  } else if (selectedCoCreationSkills.value.length > 0) {
+  } else if (selectedCoCreationSkills.value.length > 0 && coCreationMode.value === 'chain') {
     const skillRun = await runHomeCoCreationSkills(originalRequest, {
       ...routingDecision,
       precomputedRouting: requestIntentDetailed,
@@ -2862,10 +3032,11 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
           plainIntent,
           model,
           homeExecutionPlan,
-          homeLongDocumentEditTaskPlan,
+          homeWorkflowWriteAuthorization,
         )
         : undefined
       const plainTools = plainSurface?.tools
+      const homePermissionDecision = plainSurface?.permissionDecision
       for (const conflict of plainSurface?.toolConflicts || []) {
         addHomeTraceEvent({
           type: 'tool-conflict',
@@ -2897,9 +3068,16 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       plainRequestTarget,
       plainIntent,
       plainSurface?.actualToolSurface,
-      homeLongDocumentEditTaskPlan ? 'long-document-workflow' : undefined,
+      homeWorkflowWriteAuthorization ?? undefined,
+      homePermissionDecision,
       homeExecutionPlan,
-      homeLongDocumentOperationType
+      homeLongDocumentOperationType,
+      composeSkillGuidance?.skillIds.length ? {
+        guidance: composeSkillGuidance.guidance,
+        skillIds: composeSkillGuidance.skillIds,
+        promptSource: composeSkillGuidance.promptSource,
+        protocolDiagnostics: composeSkillProtocolDiagnostics,
+      } : undefined,
     )
       response = plainResult.text
       failedTurnMaxTokens = plainResult.maxTokens
@@ -3005,11 +3183,35 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     const allBatchesWritten = activeHomeEditTask.executedBatches.length > 0
       && activeHomeEditTask.pendingBatches.length === 0
       && activeHomeEditTask.failedBatchIds.length === 0
-    if (!homeTurnSucceeded && allBatchesWritten) {
-      homeEditTaskSession.finishActiveTask({ succeeded: false, summaryFailed: true })
-    } else {
-      homeEditTaskSession.finishActiveTask({ succeeded: homeTurnSucceeded })
+    const currentHomeTab = editorStore.tabs.find(item => item.id === activeHomeEditTask.target.targetId)
+    const homeCompletion = {
+      target: {
+        workspace: 'editor' as const,
+        targetId: activeHomeEditTask.target.targetId,
+      },
+      before: requestTarget.content,
+      after: currentHomeTab?.content ?? requestTarget.content,
     }
+    if (!homeTurnSucceeded && allBatchesWritten) {
+      homeEditTaskSession.finishActiveTask({ succeeded: false, summaryFailed: true, completion: homeCompletion })
+      if (homeRunTraceId && runTraceStore.getRun(homeRunTraceId)?.status === 'running') {
+        addHomeTraceEvent({
+          type: 'edit-task-summary-failed-content-verified',
+          level: 'warn',
+          label: '写入已完成，仅总结回复失败',
+          detail: '所有计划批次已落盘；供应商总结请求失败，不视为写入失败',
+        })
+        finishHomeRun(
+          'success',
+          undefined,
+          `编辑任务已完成 ${activeHomeEditTask.executedBatches.length}/${activeHomeEditTask.executedBatches.length} 批写入；仅最终总结未生成。文档内容已落盘。`,
+          'edit_task_written_summary_failed',
+        )
+      }
+    } else {
+      homeEditTaskSession.finishActiveTask({ succeeded: homeTurnSucceeded, completion: homeCompletion })
+    }
+    reportHomeEditTaskCompletion(homeEditTaskSession.completionReport())
  }
   if (homeRunTraceId && runTraceStore.isAwaitingUser(homeRunTraceId)) {
     closeActiveHomeApiCall('canceled', '等待用户确认，未发起 API 调用')
@@ -3019,6 +3221,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     clearWorkspaceSnapshotIfSafe()
     activeAbortController = null
     activeHomeExecutionPlan = null
+    activePendingHomeLongDocumentOperation = null
     if (chatStore.generationStatus === 'preparing' || chatStore.generationStatus === 'streaming' || chatStore.generationStatus === 'retrying') {
       chatStore.setGenerationState('idle')
     }
@@ -3049,9 +3252,16 @@ async function callApi(
  externalRequestTarget?: EditorTargetSnapshot,
  plainIntent?: PlainDialogueIntent,
  actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>,
- workflowWrite?: 'long-document-workflow' | undefined,
+ workflowWrite?: DialogueWriteAuthorization | undefined,
+ permissionDecision?: DialoguePermissionDecision | undefined,
  executionPlan?: LongDocumentExecutionPlan,
- operationType?: LongDocumentOperationType,
+  operationType?: LongDocumentOperationType,
+  skill?: {
+    guidance: string
+    skillIds: string[]
+    promptSource: string
+    protocolDiagnostics?: RealSkillDiagnostic[]
+  },
 ): Promise<{
   text: string
   maxTokens?: number | null
@@ -3115,9 +3325,24 @@ async function callApi(
     requestMessages: messages.map(message => ({ role: message.role, content: String(message.content || '') })),
     model,
     intent: plainIntent,
+    permissionDecision,
     toolSurface: actualToolSurface,
     actualToolSurface
   })
+  if (skill?.protocolDiagnostics?.length) {
+    runTraceStore.appendFolderDiagnostics(homeRunTraceId || '', skill.protocolDiagnostics)
+    const ignoredCount = skill.protocolDiagnostics
+      .filter(item => item.code === 'folder-package:manifest-protocol-fields-ignored')
+      .length
+    if (ignoredCount > 0) {
+      addHomeTraceEvent({
+        type: 'skill-tool-declarations-ignored',
+        level: 'info',
+        label: 'SKILL 工具/授权声明已忽略',
+        detail: `声明 ${ignoredCount} 项，启用 0 项`
+      })
+    }
+  }
   addHomeTraceEvent({
     type: 'editor-context-policy',
     label: '编辑目标上下文策略',
@@ -3159,6 +3384,10 @@ async function callApi(
         operationType,
         executionPlan,
       },
+      editTaskWorkflow: homeLongDocumentEditTaskPlan,
+      skillGuidance: skill?.guidance,
+      skillIds: skill?.skillIds,
+      promptSource: skill?.promptSource,
       getContextRemaining: () => ({
         contextWindowTokens: resolveEffectiveModelContextWindow({
           model,
@@ -3172,6 +3401,7 @@ async function callApi(
           level: event.level === 'warning' ? 'warn' : event.level,
           label: event.label,
           detail: event.detail,
+          payload: event.payload,
         })
         const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
         diag?.log?.(
@@ -3192,6 +3422,7 @@ async function callApi(
             operationType,
             executionPlan,
           },
+          editTaskWorkflow: homeLongDocumentEditTaskPlan,
           getContextRemaining: () => ({
             contextWindowTokens: resolveEffectiveModelContextWindow({
               model,
@@ -3205,6 +3436,7 @@ async function callApi(
               level: event.level === 'warning' ? 'warn' : event.level,
               label: event.label,
               detail: event.detail,
+              payload: event.payload,
             })
             const subAgentDiag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
             subAgentDiag?.log?.(
@@ -3227,10 +3459,10 @@ async function callApi(
           tools,
           onPhysicalCall: event => recordHomePhysicalCall(traceApiCallId, event),
           onReasoning: (text: string) => appendHomeReasoning(traceApiCallId, text),
-          toolPolicy: {
-            scenario: 'direct-tool-intensive',
-            intent: plainIntent === 'discuss' && workflowWrite ? 'edit' : plainIntent,
-            writeAuthorization: workflowWrite,
+    toolPolicy: {
+      scenario: 'direct-tool-intensive',
+      intent: plainIntent,
+    permissionDecision,
             onToolStart: event => {
               if (!isAgentRuntimeToolName(event.toolName)) {
                 window.dispatchEvent(new CustomEvent('tool-activity', { detail: { type: 'tool_start', toolName: event.toolName, targetId: requestTarget.targetId, policy: event.policy } }))
@@ -3265,8 +3497,8 @@ async function callApi(
     },
     toolPolicy: {
    scenario: 'direct-tool-intensive',
-   intent: plainIntent === 'discuss' && workflowWrite ? 'edit' : plainIntent,
-   writeAuthorization: workflowWrite,
+   intent: plainIntent,
+  permissionDecision,
    onConvergenceStart: () => {
      addHomeTraceEvent({
        type: 'tool-convergence-started',
@@ -3408,6 +3640,7 @@ async function callApi(
     if (agentResult.toolSurface?.length) {
       runTraceStore.updateApiCallToolSurface(homeRunTraceId || '', traceApiCallId || '', {
         actualToolSurface: agentResult.toolSurface,
+        permissionDecision,
       })
     }
   const validity = classifyGenerationValidity({
@@ -3829,6 +4062,7 @@ function buildChatEditorTools(requestTarget: EditorTargetSnapshot) {
     | { ok: true; rollbackAvailable: boolean; documentVersion: number; contentHash: string }
     | { ok: false; code: string; message: string }
   > => {
+    reportHomeSourceContamination(input.original)
     const tab = editorStore.tabs.find(item => item.id === input.targetId)
     if (!tab) return { ok: false, code: 'target_missing', message: '编辑目标已关闭，无法写入' }
     const currentContent = tab.content || ''
@@ -4009,14 +4243,12 @@ function buildHomeDialogueToolSurface(
   intent: PlainDialogueIntent,
   model?: string,
   executionPlan?: LongDocumentExecutionPlan,
-  editTaskWorkflow?: boolean,
+  writeAuthorization?: DialogueWriteAuthorization | null,
 ): ReturnType<typeof buildDialogueToolSurface> {
   return buildDialogueToolSurface({
     workspace: 'main',
     intent,
-    writeAuthorization: editTaskWorkflow
-      ? { source: 'long-document-workflow' }
-      : null,
+    writeAuthorization: writeAuthorization || null,
     maxReadChars: () => getReadCapChars(
       providerStore.activeGenerateProvider,
       model || providerStore.activeGenerateProvider?.selectedModel

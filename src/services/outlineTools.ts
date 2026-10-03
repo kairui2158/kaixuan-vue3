@@ -109,6 +109,8 @@ export function createOutlineTools(options: {
     name: 'outline.get_structure',
     description: '读取大纲结构地图：卷/章/节数量、节点 id、标题与字符区间。超长地图自动分页。',
     policy: 'read',
+    defaultToolPolicy: 'allowedWithoutPermission',
+    riskLevel: 'low',
     inputSchema: {
       type: 'object',
       properties: {
@@ -156,6 +158,8 @@ export function createOutlineTools(options: {
     name: 'outline.read_range',
     description: '按结构节点 id 或字符区间读取大纲局部全文。超过单次上限时自动分页，不截断信息。',
     policy: 'read',
+    defaultToolPolicy: 'allowedWithoutPermission',
+    riskLevel: 'low',
     inputSchema: {
       type: 'object',
       properties: {
@@ -254,6 +258,8 @@ export function createOutlineTools(options: {
     name: 'outline.search',
     description: '在大纲内做词法检索，返回命中节点、位置与上下文。空结果会返回引导信息。',
     policy: 'read',
+    defaultToolPolicy: 'allowedWithoutPermission',
+    riskLevel: 'low',
     inputSchema: {
       type: 'object',
       properties: {
@@ -325,6 +331,8 @@ export function createOutlineTools(options: {
     name: 'outline.get_summary',
     description: '读取节点摘要头、长度与直接子节点列表。摘要只用于导航，不能替代局部全文。',
     policy: 'read',
+    defaultToolPolicy: 'allowedWithoutPermission',
+    riskLevel: 'low',
     inputSchema: {
       type: 'object',
       properties: {

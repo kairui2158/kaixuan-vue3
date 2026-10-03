@@ -12,6 +12,7 @@ export interface RoutedSkill {
   id: string
   format?: 'text' | 'folder'
   folderPath?: string
+  description?: string
 }
 
 export interface SkillRouteOptions {

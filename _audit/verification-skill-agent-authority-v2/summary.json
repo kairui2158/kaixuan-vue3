@@ -1,0 +1,280 @@
+{
+  "schema": "shenyi.skill-agent-authority.electron",
+  "version": 1,
+  "generatedAt": "2026-10-03T21:26:16.486Z",
+  "script": "verify-skill-agent-authority-electron.mjs",
+  "provider": "http://127.0.0.1:59951",
+  "skillId": "folder:L1-B",
+  "fixture": {
+    "folder": "D:\\codex\\novel-workshop-vue3\\_data\\skill-agent-authority-fixture\\L1-B-大纲共创主编",
+    "forbiddenFieldsDeclared": [
+      "tools",
+      "writeAuthorization"
+    ]
+  },
+  "cases": [
+    {
+      "id": "outline-no-skill",
+      "entry": "outline",
+      "withSkill": false,
+      "durationMs": 5993,
+      "turns": [
+        {
+          "request": "先不动正文，解释一下第一卷钩子的设计目的。",
+          "status": "success",
+          "intent": "discuss",
+          "permissionDecision": {
+            "source": "dialogue-intent",
+            "decision": "read-only",
+            "intent": "discuss",
+            "operation": "discussion",
+            "mode": "direct",
+            "reason": "discuss/analyze intents are always read-only"
+          },
+          "contentChanged": false,
+          "toolCalls": [],
+          "skillGuidancePresent": null
+        },
+        {
+          "request": "修改后是什么样？只预览，不要写入。",
+          "status": "success",
+          "intent": "discuss",
+          "permissionDecision": {
+            "source": "dialogue-intent",
+            "decision": "read-only",
+            "intent": "discuss",
+            "operation": "discussion",
+            "mode": "direct",
+            "reason": "discuss/analyze intents are always read-only"
+          },
+          "contentChanged": false,
+          "toolCalls": [],
+          "skillGuidancePresent": null
+        },
+        {
+          "request": "直接修改第三章：在稳定段落末尾追加【AUTHORITY-TEST】。",
+          "status": "success",
+          "intent": "edit",
+          "permissionDecision": {
+            "source": "long-document-workflow",
+            "decision": "write-authorized",
+            "intent": "edit",
+            "operation": "targeted_edit",
+            "mode": "direct",
+            "reason": "outline-execution-plan"
+          },
+          "contentChanged": true,
+          "toolCalls": [
+            {
+              "name": "editor.write",
+              "status": "success",
+              "errorCode": null,
+              "defaultToolPolicy": "allowedWithPermission",
+              "riskLevel": "medium"
+            }
+          ],
+          "skillGuidancePresent": null
+        }
+      ]
+    },
+    {
+      "id": "outline-with-skill",
+      "entry": "outline",
+      "withSkill": true,
+      "durationMs": 5868,
+      "turns": [
+        {
+          "request": "先不动正文，解释一下第一卷钩子的设计目的。",
+          "status": "success",
+          "intent": "discuss",
+          "permissionDecision": {
+            "source": "dialogue-intent",
+            "decision": "read-only",
+            "intent": "discuss",
+            "operation": "discussion",
+            "mode": "direct",
+            "reason": "discuss/analyze intents are always read-only"
+          },
+          "contentChanged": false,
+          "toolCalls": [],
+          "skillGuidancePresent": true
+        },
+        {
+          "request": "修改后是什么样？只预览，不要写入。",
+          "status": "success",
+          "intent": "discuss",
+          "permissionDecision": {
+            "source": "dialogue-intent",
+            "decision": "read-only",
+            "intent": "discuss",
+            "operation": "discussion",
+            "mode": "direct",
+            "reason": "discuss/analyze intents are always read-only"
+          },
+          "contentChanged": false,
+          "toolCalls": [],
+          "skillGuidancePresent": true
+        },
+        {
+          "request": "直接修改第三章：在稳定段落末尾追加【AUTHORITY-TEST】。",
+          "status": "success",
+          "intent": "edit",
+          "permissionDecision": {
+            "source": "long-document-workflow",
+            "decision": "write-authorized",
+            "intent": "edit",
+            "operation": "targeted_edit",
+            "mode": "direct",
+            "reason": "outline-execution-plan"
+          },
+          "contentChanged": true,
+          "toolCalls": [
+            {
+              "name": "editor.write",
+              "status": "success",
+              "errorCode": null,
+              "defaultToolPolicy": "allowedWithPermission",
+              "riskLevel": "medium"
+            }
+          ],
+          "skillGuidancePresent": true
+        }
+      ]
+    },
+    {
+      "id": "home-no-skill",
+      "entry": "home",
+      "withSkill": false,
+      "durationMs": 5724,
+      "turns": [
+        {
+          "request": "先不动正文，解释一下第一卷钩子的设计目的。",
+          "status": "success",
+          "intent": "discuss",
+          "permissionDecision": {
+            "source": "dialogue-intent",
+            "decision": "read-only",
+            "intent": "discuss",
+            "operation": "discussion",
+            "mode": "direct",
+            "reason": "discuss/analyze intents are always read-only"
+          },
+          "contentChanged": false,
+          "toolCalls": [],
+          "skillGuidancePresent": null
+        },
+        {
+          "request": "修改后是什么样？只预览，不要写入。",
+          "status": "success",
+          "intent": "discuss",
+          "permissionDecision": {
+            "source": "dialogue-intent",
+            "decision": "read-only",
+            "intent": "discuss",
+            "operation": "discussion",
+            "mode": "direct",
+            "reason": "discuss/analyze intents are always read-only"
+          },
+          "contentChanged": false,
+          "toolCalls": [],
+          "skillGuidancePresent": null
+        },
+        {
+          "request": "直接修改第三章：在稳定段落末尾追加【AUTHORITY-TEST】。",
+          "status": "success",
+          "intent": "edit",
+          "permissionDecision": {
+            "source": "long-document-workflow",
+            "decision": "write-authorized",
+            "intent": "edit",
+            "operation": "targeted_edit",
+            "mode": "direct",
+            "reason": "home-execution-plan"
+          },
+          "contentChanged": true,
+          "toolCalls": [
+            {
+              "name": "editor.write",
+              "status": "success",
+              "errorCode": null,
+              "defaultToolPolicy": "allowedWithPermission",
+              "riskLevel": "medium"
+            }
+          ],
+          "skillGuidancePresent": null
+        }
+      ]
+    },
+    {
+      "id": "home-with-skill",
+      "entry": "home",
+      "withSkill": true,
+      "durationMs": 5918,
+      "turns": [
+        {
+          "request": "先不动正文，解释一下第一卷钩子的设计目的。",
+          "status": "success",
+          "intent": "discuss",
+          "permissionDecision": {
+            "source": "dialogue-intent",
+            "decision": "read-only",
+            "intent": "discuss",
+            "operation": "discussion",
+            "mode": "direct",
+            "reason": "discuss/analyze intents are always read-only"
+          },
+          "contentChanged": false,
+          "toolCalls": [],
+          "skillGuidancePresent": true
+        },
+        {
+          "request": "修改后是什么样？只预览，不要写入。",
+          "status": "success",
+          "intent": "discuss",
+          "permissionDecision": {
+            "source": "dialogue-intent",
+            "decision": "read-only",
+            "intent": "discuss",
+            "operation": "discussion",
+            "mode": "direct",
+            "reason": "discuss/analyze intents are always read-only"
+          },
+          "contentChanged": false,
+          "toolCalls": [],
+          "skillGuidancePresent": true
+        },
+        {
+          "request": "直接修改第三章：在稳定段落末尾追加【AUTHORITY-TEST】。",
+          "status": "success",
+          "intent": "edit",
+          "permissionDecision": {
+            "source": "long-document-workflow",
+            "decision": "write-authorized",
+            "intent": "edit",
+            "operation": "targeted_edit",
+            "mode": "direct",
+            "reason": "home-execution-plan"
+          },
+          "contentChanged": true,
+          "toolCalls": [
+            {
+              "name": "editor.write",
+              "status": "success",
+              "errorCode": null,
+              "defaultToolPolicy": "allowedWithPermission",
+              "riskLevel": "medium"
+            }
+          ],
+          "skillGuidancePresent": true
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "casesPassed": 4,
+    "expectedCases": 4,
+    "readonlyTurnsPassed": 8,
+    "editTurnsPassed": 4,
+    "editorWriteExecuted": 4
+  }
+}

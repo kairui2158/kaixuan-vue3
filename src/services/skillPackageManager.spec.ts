@@ -90,6 +90,9 @@ describe('skillPackageManager manifest validation', () => {
       toolSurface: { tools: [] },
       writeAuthorization: { source: 'skill' },
       executionPlan: { mode: 'final-draft' },
+      permissionDecision: { decision: 'write-authorized' },
+      defaultToolPolicy: 'allowedWithPermission',
+      riskLevel: 'low',
     }, '3.71.0')
 
     expect(result.valid).toBe(false)
@@ -99,6 +102,9 @@ describe('skillPackageManager manifest validation', () => {
       'toolSurface',
       'writeAuthorization',
       'executionPlan',
+      'permissionDecision',
+      'defaultToolPolicy',
+      'riskLevel',
     ])
   })
 

@@ -114,6 +114,47 @@ describe('chain intent router v3', () => {
       && result.reason === 'active-edit-task-continuation').toBe(false)
   })
 
+  it('keeps short replies on an active long-document operation instead of degrading to discuss', () => {
+    for (const input of ['A', '确认', '继续']) {
+      const result = routeChainIntent(input, {
+        pendingLongDocumentOperation: {
+          operation: 'normalize',
+          planId: 'plan-1',
+        },
+        recentHistory: [{
+          role: 'assistant',
+          content: 'await_user: true',
+        }],
+      })
+      expect(result).toMatchObject({
+        kind: 'matched',
+        intent: 'edit',
+        reason: 'pending-long-document-continuation',
+      })
+    }
+  })
+
+  it('does not give pending long-document status to explicit new goals', () => {
+    for (const input of [
+      '先别动，我们讨论一下第一卷钩子',
+      '重新整理排序全文，并清理错误标点符号',
+    ]) {
+      const result = routeChainIntent(input, {
+        pendingLongDocumentOperation: {
+          operation: 'normalize',
+          planId: 'plan-1',
+        },
+        recentHistory: [{
+          role: 'assistant',
+          content: 'await_user: true',
+        }],
+      })
+      expect(result.kind === 'matched'
+        && result.intent === 'edit'
+        && result.reason === 'pending-long-document-continuation').toBe(false)
+    }
+  })
+
   it('returns no match for low-confidence chit-chat', () => {
     const result = routeChainIntent('今天天气不错呀')
     expect(result.kind).toBe('no_match')
@@ -209,6 +250,22 @@ describe('chain intent router v3', () => {
     expect(routeChainIntent('大纲里的第一卷钩子需要重新设定吗')).toMatchObject({
       kind: 'matched',
       intent: 'discuss',
+    })
+  })
+
+  it('keeps whole-document rewrite constraints from canceling the write intent', () => {
+    expect(routeChainIntent(
+      '请对当前编辑器全文进行整理排序，并统一格式。不要改写正文含义，输出完整终稿。',
+      { workspace: 'home-editor' },
+    )).toMatchObject({
+      kind: 'matched',
+      intent: 'edit',
+      reason: 'explicit-write-directive',
+    })
+    expect(routeChainIntent('不要改写正文含义')).toMatchObject({
+      kind: 'matched',
+      intent: 'discuss',
+      reason: 'prohibition-rollback',
     })
   })
 

@@ -128,9 +128,21 @@ describe('editorDocumentMap', () => {
     const malformed = await gateway.execute('editor.read_range', { cursor: 'bad-cursor' }, makeContext())
     expect(malformed.error?.code).toBe('invalid_input')
 
+    const paginationMismatch = await gateway.execute('editor.read_range', {
+      sectionId: 'section-0',
+      limit: 10,
+    }, makeContext())
+    expect(paginationMismatch.ok).toBe(false)
+    expect(paginationMismatch.error?.code).toBe('invalid_input')
+    expect(paginationMismatch.error?.message).toContain('read_range 不支持 offset/limit 分页')
+    expect(paginationMismatch.error?.message).toContain('请传 nextCursor')
+
     const missing = await gateway.execute('editor.read_range', { sectionId: 'not-exists' }, makeContext())
     expect(missing.error?.code).toBe('section_not_found')
     expect(Array.isArray((missing.data as any).candidates)).toBe(true)
+    expect((missing.error as any).retryable).toBe(true)
+    expect((missing.data as any).contentVersion).toBeGreaterThan(0)
+    expect((missing.data as any).recovery).toContain('重新调用 editor.document_map')
 
     const map = buildEditorDocumentMap(structuredContent)
     const section = map.sections[0]

@@ -3,10 +3,7 @@ import { judgeConvergenceText } from './aiService'
 import { estimateInputTokens } from './contextBudget'
 import type { AgentToolDefinition, ToolResult } from './editorTools'
 import type { LongDocumentOperationType } from './longDocumentPolicy'
-import {
-  buildLongDocumentExecutionPlan,
-  type LongDocumentExecutionPlan,
-} from './longDocumentExecutionPlanner'
+import type { LongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
 import {
   findAgentToolNameConflicts,
   createAgentSubAgentTools,
@@ -55,6 +52,7 @@ export interface AgentOrchestratorEvent {
     | 'plan'
     | 'tool'
     | 'no_progress'
+    | 'physical_request_limit'
     | 'repeated_call'
     | 'pseudo_tool'
     | 'idle_timeout'
@@ -63,6 +61,7 @@ export interface AgentOrchestratorEvent {
     | 'tool_conflict'
     | 'sub_agent'
     | 'plan-origin'
+    | 'skill-guidance-injected'
   level: 'info' | 'warning' | 'error'
   label: string
   detail?: string
@@ -79,6 +78,7 @@ export interface AgentOrchestratorSnapshot {
   successfulWriteCount: number
   noProgressRounds: number
   repeatedCallCount: number
+  maxPhysicalRequests: number
   updatedAt: number
 }
 
@@ -119,6 +119,9 @@ export type AgentOrchestratorRunInput = Omit<CallAiParams, 'tools'> & {
 
 export interface AgentOrchestratorRuntime {
   goal?: string
+  skillGuidance?: string
+  skillIds?: string[]
+  promptSource?: string
   callAi: (params: CallAiParams) => Promise<CallAiResult>
   persistState?: (snapshot: AgentOrchestratorSnapshot) => void | Promise<void>
   onEvent?: (event: AgentOrchestratorEvent, snapshot: AgentOrchestratorSnapshot) => void
@@ -141,10 +144,12 @@ export interface AgentOrchestratorRuntime {
   runSubAgent?: (input: AgentOrchestratorSubAgentRequest) => Promise<AgentOrchestratorTaskResult>
   subAgentDepth?: number
   maxNoProgressRounds?: number
+  maxPhysicalRequests?: number
   idleTimeoutMs?: number
 }
 
 const DEFAULT_MAX_NO_PROGRESS_ROUNDS = 3
+const DEFAULT_MAX_PHYSICAL_REQUESTS = 8
 const STATE_TRANSITIONS: Record<AgentOrchestratorStatus, AgentOrchestratorStatus[]> = {
   planning: ['running', 'failed', 'canceled'],
   running: [
@@ -218,6 +223,8 @@ export function createContextRemainingTool(
     name: 'context.remaining',
     description: '读取当前任务状态与上下文水位。上下文未知时保持 unknown，不合成假窗口。',
     policy: 'read',
+    defaultToolPolicy: 'allowedWithoutPermission',
+    riskLevel: 'low',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
     async execute() {
       const context = getContextRemaining()
@@ -259,6 +266,7 @@ function shouldRouteAwayFromDirectToolsBeforeRun(input: {
   finalDraft: boolean
   reason: string
   operationType?: LongDocumentOperationType
+  fallbackEvent?: Pick<AgentOrchestratorEvent, 'payload'>
 } {
   const document = input.runtime.document
   if (input.runtime.editTaskWorkflow) {
@@ -275,42 +283,23 @@ function shouldRouteAwayFromDirectToolsBeforeRun(input: {
   if (document.operationType === 'discussion') {
     return { editTask: false, finalDraft: false, reason: 'discussion-operation' }
   }
-  const context = resolveRuntimeContextRemaining(input.runtime, input.messages)
-  const suppliedContext = input.runtime.getContextRemaining?.({ messages: input.messages })
-  const plan = document.executionPlan || buildLongDocumentExecutionPlan({
-    requestText: input.runtime.goal
-      || input.planGoal
-      || String(input.messages.at(-1)?.content || ''),
-    content: document.content,
-    contextWindowTokens: context.contextWindowTokens ?? null,
-    maxOutputTokens: suppliedContext?.maxOutputTokens ?? null,
-    operationHint: document.operationType,
-  })
   if (!document.executionPlan) {
     const fallbackEvent = {
-      type: 'plan-origin',
-      level: 'warning',
-      label: '使用降级执行计划',
-      detail: '生产链路未传入 document.executionPlan，Agent 已按当前文档重建计划',
-      payload: { planId: plan.planId, source: 'agent-fallback' },
-    } as const satisfies AgentOrchestratorEvent
-    input.runtime.onEvent?.(fallbackEvent, {
-      taskId: 'agent-fallback-event',
-      status: 'running',
-      reason: '',
-      goal: input.planGoal,
-      stepIndex: 0,
-      callCount: 0,
-      successfulWriteCount: 0,
-      noProgressRounds: 0,
-      repeatedCallCount: 0,
-      updatedAt: Date.now(),
-    })
+      payload: { source: 'agent-fallback', mode: 'readonly-fallback' },
+    }
+    return {
+      editTask: false,
+      finalDraft: false,
+      reason: 'agent-fallback-readonly',
+      operationType: document.operationType,
+      fallbackEvent,
+    }
   }
+  const plan = document.executionPlan
   return {
     editTask: plan.mode === 'edit-task',
     finalDraft: plan.mode === 'final-draft',
-    reason: `execution-plan-${plan.operation}:${plan.decision}`,
+    reason: `execution-plan-${plan.operation}:${plan.decision}:${plan.segments.length}batches`,
     operationType: document.operationType,
   }
 }
@@ -322,6 +311,8 @@ export function createAgentPlanTool(
     name: 'agent.plan',
     description: '读取当前任务计划、完成判据与失败判据。',
     policy: 'read',
+    defaultToolPolicy: 'allowedWithoutPermission',
+    riskLevel: 'low',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
     async execute() {
       return { ok: true, data: getPlan() }
@@ -339,6 +330,7 @@ export class AgentOrchestrator {
   private successfulWriteCount = 0
   private noProgressRounds = 0
   private repeatedCallCount = 0
+  private maxPhysicalRequests: number
   private lastToolSignature = ''
   private lastRoundToolSignature = ''
   private events: AgentOrchestratorEvent[] = []
@@ -362,6 +354,22 @@ export class AgentOrchestrator {
     this.subAgentDepth = typeof input.subAgentDepth === 'number' && Number.isFinite(input.subAgentDepth)
       ? Math.max(0, Math.floor(input.subAgentDepth))
       : 0
+    this.maxPhysicalRequests = this.normalizeMaxPhysicalRequests(input.runtime.maxPhysicalRequests)
+    if (input.runtime.skillGuidance !== undefined) {
+      this.emit({
+        type: 'skill-guidance-injected',
+        level: 'info',
+        label: input.runtime.skillGuidance.trim()
+          ? 'SKILL guidance 已接入统一执行底座'
+          : 'SKILL guidance 无可注入内容',
+        payload: {
+          skillIds: input.runtime.skillIds || [],
+          promptSource: input.runtime.promptSource || 'unknown',
+          guidanceChars: input.runtime.skillGuidance.length,
+          skillGuidancePresent: input.runtime.skillGuidance.length > 0,
+        },
+      })
+    }
     this.emit({
       type: 'plan',
       level: 'info',
@@ -382,8 +390,34 @@ export class AgentOrchestrator {
       successfulWriteCount: this.successfulWriteCount,
       noProgressRounds: this.noProgressRounds,
       repeatedCallCount: this.repeatedCallCount,
+      maxPhysicalRequests: this.maxPhysicalRequests,
       updatedAt: Date.now(),
     }
+  }
+
+  private normalizeMaxPhysicalRequests(value: number | undefined): number {
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
+      return DEFAULT_MAX_PHYSICAL_REQUESTS
+    }
+    return Math.max(1, Math.floor(value))
+  }
+
+  private appendSkillGuidance(messages: CallAiParams['messages']): CallAiParams['messages'] {
+    const guidance = String(this.runtime.skillGuidance || '').trim()
+    if (!guidance) return messages
+
+    const systemIndex = messages.findIndex(message => message.role === 'system')
+    if (systemIndex === -1) {
+      return [{ role: 'system', content: guidance }, ...messages]
+    }
+
+    const nextMessages = [...messages]
+    const systemMessage = nextMessages[systemIndex]
+    nextMessages[systemIndex] = {
+      ...systemMessage,
+      content: `${String(systemMessage.content || '').trim()}\n\n${guidance}`.trimStart(),
+    }
+    return nextMessages
   }
 
   getPlan(): AgentOrchestratorPlan {
@@ -493,6 +527,15 @@ export class AgentOrchestrator {
       messages: input.messages,
       planGoal: this.plan.goal,
     })
+    if (directToolRouting.fallbackEvent) {
+      this.emit({
+        type: 'plan-origin',
+        level: 'warning',
+        label: '使用降级执行计划',
+        detail: '生产链路未传入 document.executionPlan，Agent 降级为只读执行；写入类长文档任务由生产入口重建计划',
+        payload: directToolRouting.fallbackEvent.payload,
+      })
+    }
     if (directToolRouting.editTask) {
       this.transition('needs_user', `edit_task_required:${directToolRouting.reason}`)
       this.emit({
@@ -558,6 +601,8 @@ export class AgentOrchestrator {
 
     const idleTimeoutMs = this.runtime.idleTimeoutMs ?? 0
     const maxNoProgressRounds = this.runtime.maxNoProgressRounds ?? DEFAULT_MAX_NO_PROGRESS_ROUNDS
+    const discussionOperation = this.runtime.document?.operationType === 'discussion'
+      || this.runtime.document?.executionPlan?.operation === 'discussion'
     let lastResult: CallAiResult | null = null
 
     while (!isTerminal(this.status)) {
@@ -577,12 +622,16 @@ export class AgentOrchestrator {
         const callerOnToolCall = input.toolPolicy?.onToolCall
         result = await this.runtime.callAi({
           ...input,
+          messages: this.appendSkillGuidance(input.messages),
           tools,
           toolPolicy: {
             ...input.toolPolicy,
             scenario: input.toolPolicy?.scenario || 'direct-tool-intensive',
             ...(this.runtime.document?.executionPlan
               ? { executionPlan: this.runtime.document.executionPlan }
+              : {}),
+            ...(this.runtime.editTaskWorkflow
+              ? { editTaskWorkflow: true }
               : {}),
             onToolCall: event => {
               const repeated = this.recordObservation({
@@ -667,7 +716,9 @@ export class AgentOrchestrator {
         this.transition('needs_user', verdict.needsUser)
         break
       }
-      if (!verdict.progress) {
+      const isDiscussionProgress = discussionOperation
+        && Boolean(String(result.text || '').trim())
+      if (!verdict.progress && !isDiscussionProgress) {
         this.noProgressRounds += 1
         this.emit({
           type: 'no_progress',
@@ -682,8 +733,23 @@ export class AgentOrchestrator {
       } else {
         this.noProgressRounds = 0
       }
-      if (verdict.complete) {
+      if (verdict.complete || (discussionOperation && isDiscussionProgress)) {
         this.transition('completed', 'completion criteria satisfied')
+        break
+      }
+      if (this.callCount >= this.maxPhysicalRequests) {
+        this.emit({
+          type: 'physical_request_limit',
+          level: 'warning',
+          label: `物理请求次数达到上限：${this.callCount}/${this.maxPhysicalRequests}`,
+          detail: '每轮仍有局部进展，但任务未满足完成条件；停止继续请求，避免长文档工具循环失控',
+          payload: {
+            callCount: this.callCount,
+            maxPhysicalRequests: this.maxPhysicalRequests,
+            successfulWriteCount: this.successfulWriteCount,
+          },
+        })
+        this.transition('stalled', 'physical_request_limit')
         break
       }
       if (this.plan.steps[this.stepIndex + 1]) {

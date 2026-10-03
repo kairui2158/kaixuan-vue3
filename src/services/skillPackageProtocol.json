@@ -4,7 +4,10 @@
     "toolPolicy",
     "toolSurface",
     "writeAuthorization",
-    "executionPlan"
+    "executionPlan",
+    "permissionDecision",
+    "defaultToolPolicy",
+    "riskLevel"
   ],
   "deprecatedFields": ["meta.agent"],
   "messages": {
