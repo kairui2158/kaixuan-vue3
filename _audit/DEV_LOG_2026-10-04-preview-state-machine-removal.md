@@ -84,6 +84,16 @@
 2. Node 专属 API（`createRequire`、Electron 主进程模块）不得进入 `page.evaluate` 浏览器上下文；验证器必须先 `node --check`，再跑完整 Electron 链路。
 3. 第一次完整复刻虽然业务链路成功，但验证器末尾脚本缺陷导致整体失败；最终结论必须以修复后完整重跑的最后一次运行为准。
 
+## 2026-10-05 最终封装收口
+
+1. `npm run test:services`：128 个测试文件、1431 条测试全部通过。
+2. `npm run type-check`：通过。
+3. `git diff --check`：无空白错误；针对用户提供的真实 API key 做全库精确扫描，未命中。
+4. 提交 `8636a20 fix: close direct-write live replay trace evidence`，移除旧的 `verification-outline-20261004-live-replay` 证据，保留最终通过证据 `verification-outline-20261004-162304-live-replay`。
+5. `npm run build`：renderer 与 NSIS 构建成功。
+6. `node scripts/verify-packaging-3-75-0.mjs`：通过。安装包 `dist\神意助手-Setup-3.75.0.exe`，231,497,587 字节，SHA256 `4d8ec52ba374ac27d376b8e6442c8c78b51867a5099373645df4106abcf9eb43`；renderer 74 个文件，electronAPI 75 个方法，NSIS 保留自选安装目录。
+7. `dist` 内安装产物复核仅存在 3.75.0 的 `.exe` 与 `.blockmap`；临时 profile、导出目录与清理脚本均已删除并复核不存在。
+
 ## G0.5 回头看
 
 1. 逐行审阅本轮 diff，所有改动均归入“删除旧预览状态机并统一直写协议”目标。
