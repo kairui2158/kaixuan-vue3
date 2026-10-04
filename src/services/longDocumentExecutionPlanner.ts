@@ -97,6 +97,12 @@ export interface LongDocumentExecutionPlannerInput {
   maxOutputTokens?: number | null
   /** Routed dialogue intent; read-only intents override lexical fallback. */
   intent?: PlannerIntent
+  /** Active compound task supplied by the workspace; continuation only, never a SKILL grant. */
+  activeTask?: {
+    taskId: string
+    operation: LongDocumentExecutionOperation
+    originalRequest: string
+  }
 }
 
 const RESTRUCTURE_PATTERN = /(重排|排序|重新整理排序|整理排序|统一编号|统一格式|调整顺序)/
@@ -143,6 +149,10 @@ function hasDeduplicateIntent(text: string): boolean {
   return DEDUPLICATE_PATTERN.test(text.replace(DEDUPLICATE_NEGATED_CONTEXT_PATTERN, ''))
 }
 
+function hasContinuationSemantics(text: string): boolean {
+  return /(符合我的要求|符合要求|分叉一|允许去重|不用出预览|直接写入|继续|上一轮|上一条|刚才)/.test(text)
+}
+
 function resolveOperation(
   input: LongDocumentExecutionPlannerInput,
 ): {
@@ -187,10 +197,76 @@ function resolveOperation(
       resolution: { source: 'intent', intent: input.intent, matched: 'deduplicate_and_normalize' },
     }
   }
+  if (
+    input.activeTask &&
+    input.activeTask.operation !== 'discussion' &&
+    input.activeTask.operation !== 'rewrite_segments' &&
+    hasContinuationSemantics(input.requestText)
+  ) {
+    const base = input.activeTask.operation
+    const addDeduplicate = hasDeduplicateIntent(input.requestText)
+    const addNormalize = hasNormalizeIntent(input.requestText)
+    if (
+      (base === 'restructure' || hasRestructureIntent(input.activeTask.originalRequest)) &&
+      (addDeduplicate || addNormalize || hasNormalizeIntent(input.activeTask.originalRequest) || hasDeduplicateIntent(input.activeTask.originalRequest))
+    ) {
+      return {
+        operation: 'restructure_and_cleanup',
+        resolution: {
+          source: 'active-task-continuation',
+          intent: input.intent,
+          matched: 'restructure_and_cleanup',
+        },
+      }
+    }
+    if (base === 'deduplicate' && addNormalize) {
+      return {
+        operation: 'deduplicate_and_normalize',
+        resolution: {
+          source: 'active-task-continuation',
+          intent: input.intent,
+          matched: 'deduplicate_and_normalize',
+        },
+      }
+    }
+  }
   if (intentRequiresWrite) {
     return {
       operation: classified,
       resolution: { source: 'intent', intent: input.intent, matched: classified },
+    }
+  }
+  if (
+    input.activeTask &&
+    input.activeTask.operation !== 'discussion' &&
+    input.activeTask.operation !== 'rewrite_segments' &&
+    hasContinuationSemantics(input.requestText)
+  ) {
+    const base = input.activeTask.operation
+    const addDeduplicate = hasDeduplicateIntent(input.requestText)
+    const addNormalize = hasNormalizeIntent(input.requestText)
+    if (
+      (base === 'restructure' || hasRestructureIntent(input.activeTask.originalRequest)) &&
+      (addDeduplicate || addNormalize || hasNormalizeIntent(input.activeTask.originalRequest) || hasDeduplicateIntent(input.activeTask.originalRequest))
+    ) {
+      return {
+        operation: 'restructure_and_cleanup',
+        resolution: {
+          source: 'active-task-continuation',
+          intent: input.intent,
+          matched: 'restructure_and_cleanup',
+        },
+      }
+    }
+    if (base === 'deduplicate' && addNormalize) {
+      return {
+        operation: 'deduplicate_and_normalize',
+        resolution: {
+          source: 'active-task-continuation',
+          intent: input.intent,
+          matched: 'deduplicate_and_normalize',
+        },
+      }
     }
   }
   return {

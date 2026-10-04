@@ -45,6 +45,82 @@ describe('AgentOrchestrator state machine', () => {
     expect(agent.getEvents().some(event => event.type === 'state' && event.label.includes('completed'))).toBe(true)
   })
 
+  it('does not complete an authorized write task from preview-only text', async () => {
+    const executionPlan = buildLongDocumentExecutionPlan({
+      requestText: '按照Word文档的形式重构大纲，不要缩减内容',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      contextWindowTokens: 120_000,
+      maxOutputTokens: 8_000,
+      intent: 'edit',
+    })
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn(async (): Promise<CallAiResult> => ({
+        ...successResult('【修改预览】\n本轮先给出重构预览，等待确认。'),
+      }) as CallAiResult),
+      document: {
+        content: '段'.repeat(74_841),
+        operationType: 'whole-document-restructure',
+        executionPlan,
+      },
+      editTaskWorkflow: true,
+      maxPhysicalRequests: 1,
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+
+    expect(result.status).toBe('stalled')
+    expect(result.reason).toBe('legacy_preview_response')
+    expect(agent.getEvents().some(event =>
+      event.type === 'no_progress'
+      && (event.payload as { reason?: string } | undefined)?.reason === 'legacy_preview_response',
+    )).toBe(true)
+  })
+
+  it('does not complete a write task when only part of the planned writes succeed', async () => {
+    const executionPlan = buildLongDocumentExecutionPlan({
+      requestText: '按照Word文档的形式重构大纲，删除重复项，统一标题层级、编号和标点',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      contextWindowTokens: 120_000,
+      maxOutputTokens: 8_000,
+      intent: 'edit',
+    })
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn(async (params: CallAiParams): Promise<CallAiResult> => {
+        params.toolPolicy?.onToolCall?.({
+          toolName: 'editor.write',
+          policy: 'write',
+          iteration: 1,
+          input: { commands: [{ operation: 'delete' }] },
+          result: { ok: true, data: { written: true } },
+          durationMs: 1,
+        })
+        return {
+          ...successResult('部分写入完成，仍有批次未执行'),
+          toolResults: [{
+            call: { name: 'editor.write' },
+            result: { ok: true, data: { written: true } },
+          }],
+        }
+      }),
+      document: {
+        content: '段'.repeat(74_841),
+        operationType: 'whole-document-restructure',
+        executionPlan,
+      },
+      editTaskWorkflow: true,
+      maxPhysicalRequests: 1,
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+
+    expect(result.status).toBe('stalled')
+    expect(result.reason).toBe('partially_applied')
+    expect(agent.getEvents().some(event =>
+      event.type === 'tool'
+      && (event.payload as { reason?: string } | undefined)?.reason === 'partially_applied',
+    )).toBe(true)
+  })
+
   it('rejects invalid plans before execution', async () => {
     const runtime: AgentOrchestratorRuntime = { callAi: vi.fn(async () => successResult()) }
     const emptyGoal = new AgentOrchestrator({

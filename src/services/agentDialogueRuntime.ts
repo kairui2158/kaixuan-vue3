@@ -6,6 +6,7 @@ import type { LongDocumentOperationType } from './longDocumentPolicy'
 import type { LongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
 import type { AgentOrchestratorSnapshot } from './agentOrchestrator'
 import type { AgentOrchestratorEvent } from './agentOrchestrator'
+import type { AgentOrchestratorPlan } from './agentOrchestrator'
 
 export interface AgentDialogueRuntimeEntry {
   source: RunTraceSource
@@ -40,6 +41,94 @@ interface AgentDialogueRunInput extends CallAiParams {
   callAi: (params: CallAiParams) => Promise<CallAiResult>
 }
 
+function deriveAgentPlan(input: {
+  goal: string
+  executionPlan?: LongDocumentExecutionPlan
+}): AgentOrchestratorPlan {
+  const plan = input.executionPlan
+  if (!plan) {
+    return {
+      goal: input.goal,
+      steps: [{ id: 'dialogue', description: '完成本轮用户请求' }],
+      completionCriteria: ['返回用户可见正文或进入明确终态'],
+    }
+  }
+  if (plan.operation === 'discussion') {
+    return {
+      goal: input.goal,
+      steps: [{ id: 'discuss', description: '回答本轮讨论请求' }],
+      completionCriteria: ['返回用户可见正文或进入明确终态'],
+    }
+  }
+
+  const steps: AgentOrchestratorPlan['steps'] = []
+  const completionCriteria: string[] = []
+  const operation = plan.operation
+  if (operation === 'restructure' || operation === 'restructure_and_cleanup') {
+    steps.push({
+      id: 'read-structure',
+      description: '读取文档结构并确认目标层级',
+      requiredTools: ['editor.document_map'],
+    })
+    steps.push({
+      id: 'execute-restructure',
+      description: '执行标题层级修复或章节重排',
+      requiredTools: ['editor.write'],
+    })
+  }
+  if (operation === 'deduplicate' || operation === 'restructure_and_cleanup' || operation === 'deduplicate_and_normalize') {
+    steps.push({
+      id: 'confirm-duplicates',
+      description: '用只读工具确认重复项',
+      requiredTools: ['editor.locate'],
+    })
+    steps.push({
+      id: 'delete-duplicates',
+      description: '只删除已确认的重复项',
+      requiredTools: ['editor.write'],
+    })
+  }
+  if (operation === 'normalize' || operation === 'restructure_and_cleanup' || operation === 'deduplicate_and_normalize') {
+    steps.push({
+      id: 'normalize-segments',
+      description: '按计划批次整理格式',
+      requiredTools: ['editor.write'],
+    })
+  }
+  if (operation === 'targeted_edit') {
+    steps.push({
+      id: 'locate-target',
+      description: '定位用户指定目标',
+      requiredTools: ['editor.locate'],
+    })
+    steps.push({
+      id: 'write-target',
+      description: '写入局部修改',
+      requiredTools: ['editor.write'],
+    })
+  }
+  if (operation === 'rewrite_segments') {
+    steps.push({
+      id: 'generate-final-draft',
+      description: '按终稿计划生成内容',
+    })
+  }
+  steps.push({ id: 'verify-plan', description: '核对写入覆盖与不变量' })
+  completionCriteria.push('执行计划中的全部写入批次成功或明确进入终态')
+  if (plan.invariants.length) {
+    completionCriteria.push(`完成不变量校验：${plan.invariants.join(', ')}`)
+  }
+  return {
+    goal: input.goal,
+    steps,
+    completionCriteria,
+    failureCriteria: [
+      '未发生成功写入却输出修改预览或完成说明',
+      '写入操作被执行计划拒绝',
+    ],
+  }
+}
+
 export function createAgentDialogueRuntime(entry: AgentDialogueRuntimeEntry) {
   const bridge = createAgentTraceBridge({ source: entry.source, pinia: entry.pinia })
   const persistState = async (snapshot: AgentOrchestratorSnapshot) => {
@@ -64,13 +153,10 @@ export function createAgentDialogueRuntime(entry: AgentDialogueRuntimeEntry) {
       const orchestrator = new AgentOrchestrator({
         taskId: entry.taskId,
         subAgentDepth: entry.subAgentDepth,
-        plan: {
+        plan: deriveAgentPlan({
           goal: entry.goal,
-          steps: [
-            { id: 'dialogue', description: '完成本轮用户请求', requiredTools: undefined },
-          ],
-          completionCriteria: ['返回用户可见正文或进入明确终态'],
-        },
+          executionPlan: entry.document?.executionPlan,
+        }),
         runtime: {
           callAi,
           goal: entry.goal,

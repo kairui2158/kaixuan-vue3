@@ -107,6 +107,47 @@ describe('createAgentDialogueRuntime', () => {
     expect(forwarded?.toolPolicy?.editTaskWorkflow).toBe(true)
   })
 
+  it('derives the agent plan from a supplied long-document execution plan', async () => {
+    const executionPlan = buildLongDocumentExecutionPlan({
+      requestText: '按照Word文档的形式重构大纲，删除重复项，统一标题层级、编号和标点',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      contextWindowTokens: 120_000,
+      maxOutputTokens: 8_000,
+      intent: 'edit',
+    })
+    const callAi = vi.fn(async (): Promise<CallAiResult> => successResult())
+    const runtime = createAgentDialogueRuntime({
+      ...entry,
+      document: {
+        content: entry.document!.content,
+        operationType: entry.document!.operationType,
+        executionPlan,
+      },
+    })
+    const result = await runtime.run({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '整理全篇' }],
+      callAi,
+    })
+
+    const planEvent = result.events.find(event => event.type === 'plan')
+    expect(planEvent?.payload).toMatchObject({
+      goal: entry.goal,
+      steps: [
+        { id: 'read-structure' },
+        { id: 'execute-restructure' },
+        { id: 'confirm-duplicates' },
+        { id: 'delete-duplicates' },
+        { id: 'normalize-segments' },
+        { id: 'verify-plan' },
+      ],
+      completionCriteria: expect.arrayContaining([
+        '执行计划中的全部写入批次成功或明确进入终态',
+        '完成不变量校验：planned-deletion-only, normalize-changes-punctuation-whitespace-format-only',
+      ]),
+    })
+  })
+
   it('injects SKILL guidance into the first system message before each physical request', async () => {
     const callAi = vi.fn(async (): Promise<CallAiResult> => successResult())
     const runtime = createAgentDialogueRuntime({

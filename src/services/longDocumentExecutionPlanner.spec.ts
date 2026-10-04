@@ -346,6 +346,31 @@ describe('buildLongDocumentExecutionPlan', () => {
     expect(plan.mode).toBe('edit-task')
   })
 
+  it('extends an active restructure task with a continuation that permits deduplication', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '符合我的要求，分叉一允许去重。不用出预览，直接写入',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      intent: 'edit',
+      activeTask: {
+        taskId: 'active-task-1',
+        operation: 'restructure',
+        originalRequest: '按照Word文档的形式重构大纲，不要缩减内容',
+      },
+    }))
+
+    expect(plan.operation).toBe('restructure_and_cleanup')
+    expect(plan.operationResolution).toMatchObject({
+      source: 'active-task-continuation',
+      intent: 'edit',
+      matched: 'restructure_and_cleanup',
+    })
+    expect(plan.mode).toBe('edit-task')
+    expect(plan.invariants).toEqual([
+      'planned-deletion-only',
+      'normalize-changes-punctuation-whitespace-format-only',
+    ])
+  })
+
   it('keeps routed discussion intent read-only even when the sentence mentions edit verbs', () => {
     const plan = buildLongDocumentExecutionPlan(makeInput({
       requestText: '我想解释一下第一卷钩子为什么这样修改，你先帮我分析利弊',

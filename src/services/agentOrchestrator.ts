@@ -111,6 +111,7 @@ export interface AgentOrchestratorRoundVerdict {
   progress: boolean
   complete?: boolean
   needsUser?: string
+  reason?: string
 }
 
 export type AgentOrchestratorRunInput = Omit<CallAiParams, 'tools'> & {
@@ -213,6 +214,40 @@ function defaultEvaluateRound(result: CallAiResult): AgentOrchestratorRoundVerdi
     progress: hasText || hasSuccessfulWrite,
     complete: hasText,
   }
+}
+
+function evaluateWriteTaskRound(input: {
+  result: CallAiResult
+  plan: LongDocumentExecutionPlan
+  successfulWriteCount: number
+}): AgentOrchestratorRoundVerdict {
+  const text = String(input.result.text || '').trim()
+  const toolResults = input.result.toolResults || []
+  const hasSuccessfulWrite = toolResults.some(item =>
+    item.result.ok && String(item.call.name).startsWith('editor.write'))
+  const hasLegacyPreview = text.startsWith('【修改预览】') || text.includes('等待确认')
+  if (hasLegacyPreview && !hasSuccessfulWrite) {
+    return {
+      progress: false,
+      complete: false,
+      reason: 'legacy_preview_response',
+    } as AgentOrchestratorRoundVerdict
+  }
+  if (!hasSuccessfulWrite && text) {
+    return {
+      progress: true,
+      complete: false,
+      reason: 'write_not_executed',
+    } as AgentOrchestratorRoundVerdict
+  }
+  if (input.successfulWriteCount < input.plan.segments.length) {
+    return {
+      progress: true,
+      complete: false,
+      reason: 'partially_applied',
+    } as AgentOrchestratorRoundVerdict
+  }
+  return { progress: true, complete: true }
 }
 
 export function createContextRemainingTool(
@@ -456,6 +491,17 @@ export class AgentOrchestrator {
     this.runtime.onEvent?.(event, this.getSnapshot())
   }
 
+  private isWriteExecutionPlan(): this is AgentOrchestrator & {
+    runtime: AgentOrchestratorRuntime & {
+      document: NonNullable<AgentOrchestratorRuntime['document']> & {
+        executionPlan: LongDocumentExecutionPlan
+      }
+    }
+  } {
+    const plan = this.runtime.document?.executionPlan
+    return Boolean(plan && plan.operation !== 'discussion')
+  }
+
   private createIdleSupervisor(timeoutMs: number): {
     start: () => void
     stop: () => void
@@ -693,7 +739,16 @@ export class AgentOrchestrator {
         break
       }
 
-      const verdict = (this.runtime.evaluateRound || defaultEvaluateRound)(result)
+      const suppliedEvaluator = this.runtime.evaluateRound
+      const verdict = suppliedEvaluator
+        ? suppliedEvaluator(result)
+        : this.isWriteExecutionPlan()
+          ? evaluateWriteTaskRound({
+            result,
+            plan: this.runtime.document!.executionPlan!,
+            successfulWriteCount: this.successfulWriteCount,
+          })
+          : defaultEvaluateRound(result)
       const signature = observedRuntimeToolCalls
         .map(item => `${item.toolName}::${stableSignature(item.input)}`)
         .join('|')
@@ -718,6 +773,22 @@ export class AgentOrchestrator {
       }
       const isDiscussionProgress = discussionOperation
         && Boolean(String(result.text || '').trim())
+      if (verdict.reason && !verdict.progress && !isDiscussionProgress) {
+        this.emit({
+          type: 'no_progress',
+          level: 'warning',
+          label: `写入任务未完成：${verdict.reason}`,
+          payload: { reason: verdict.reason },
+        })
+      }
+      if (verdict.reason && verdict.progress && !verdict.complete) {
+        this.emit({
+          type: 'tool',
+          level: 'warning',
+          label: `写入覆盖不足：${verdict.reason}`,
+          payload: { reason: verdict.reason },
+        })
+      }
       if (!verdict.progress && !isDiscussionProgress) {
         this.noProgressRounds += 1
         this.emit({
@@ -727,7 +798,7 @@ export class AgentOrchestrator {
           payload: { maxNoProgressRounds },
         })
         if (this.noProgressRounds >= maxNoProgressRounds) {
-          this.transition('stalled', 'no_progress')
+          this.transition('stalled', verdict.reason || 'no_progress')
           break
         }
       } else {
@@ -749,7 +820,7 @@ export class AgentOrchestrator {
             successfulWriteCount: this.successfulWriteCount,
           },
         })
-        this.transition('stalled', 'physical_request_limit')
+        this.transition('stalled', verdict.reason || 'physical_request_limit')
         break
       }
       if (this.plan.steps[this.stepIndex + 1]) {
