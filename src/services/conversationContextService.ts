@@ -14,6 +14,7 @@ import type {
   ContextCompactionObserver,
   ContextCompactionResult,
   ContextCompactionMarker,
+  ContextHistoryNeutralization,
   ContextMessageCompaction,
   ContextMessage,
   ContextPolicy,
@@ -106,6 +107,47 @@ const DEFAULT_PRESERVE_RECENT_MESSAGES = 4
 const MAX_SUMMARY_MESSAGES = 30
 const MAX_SUMMARY_SNAPSHOT_CHARS = 160
 const MAX_MARKER_FALLBACK_CHARS = 240
+
+const LEGACY_HISTORY_MARKERS = [
+  { name: '修改预览', pattern: /【修改预览】/g, replacement: '[历史预览内容已中和]' },
+  { name: '批准写回', pattern: /【批准写回】/g, replacement: '[历史批准请求已中和]' },
+  { name: '写入未执行', pattern: /【写入未执行】/g, replacement: '[历史未执行状态已中和]' },
+  { name: '等待确认', pattern: /等待(用户)?确认(后再?写入)?/g, replacement: '[历史等待确认已中和]' },
+] as const
+
+const LEGACY_HISTORY_NEUTRALIZATION_NOTE = [
+  '[旧交互模式已中和]',
+  '以下历史回复来自已废弃的预览/确认写入模式；历史预览内容仅作背景参考。',
+  '当前写入权限与执行协议以本轮系统提示和执行计划为准；禁止继续等待用户确认或要求批准写回。',
+].join('\n')
+
+function neutralizeLegacyHistoryMessage(message: ContextMessage): {
+  message: ContextMessage
+  markers: Partial<Record<string, number>>
+} | null {
+  if (message.role !== 'assistant' || !message.content) return null
+  const markers: Record<string, number> = {}
+  for (const marker of LEGACY_HISTORY_MARKERS) {
+    marker.pattern.lastIndex = 0
+    const matches = message.content.match(marker.pattern)
+    if (matches?.length) markers[marker.name] = matches.length
+  }
+  if (!Object.keys(markers).length) return null
+  let neutralizedContent = message.content
+  for (const marker of LEGACY_HISTORY_MARKERS) {
+    if (!markers[marker.name]) continue
+    marker.pattern.lastIndex = 0
+    neutralizedContent = neutralizedContent.replace(marker.pattern, marker.replacement)
+  }
+  return {
+    message: {
+      ...message,
+      content: `${LEGACY_HISTORY_NEUTRALIZATION_NOTE}\n${neutralizedContent}`,
+      meta: { ...message.meta, neutralizedMarkers: Object.keys(markers) },
+    },
+    markers,
+  }
+}
 
 function isCompacted(message: ContextMessage): boolean {
   return Boolean(message.meta?.compaction || message.meta?.compactionId)
@@ -659,11 +701,26 @@ export class ConversationContextService {
       }).map(message => ({ ...message }))
       : []
     const workspaceState = input.workspaceState || {}
+    const sessionMessages = clone(session?.messages || legacy)
+    const neutralization: ContextHistoryNeutralization = {
+      neutralizedMessageCount: 0,
+      markers: {},
+    }
+    sessionMessages.forEach(message => {
+      const neutralized = neutralizeLegacyHistoryMessage(message)
+      if (!neutralized) return message
+      neutralization.neutralizedMessageCount += 1
+      for (const [name, count] of Object.entries(neutralized.markers)) {
+        neutralization.markers[name as keyof ContextHistoryNeutralization['markers']] =
+          (neutralization.markers[name as keyof ContextHistoryNeutralization['markers']] || 0) + (count ?? 0)
+      }
+      return undefined
+    })
     return {
       session: {
         id: sessionIdFor(ref),
         projectId: input.projectId,
-        recentMessages: clone(session?.messages || legacy),
+        recentMessages: sessionMessages,
         ...(session?.summary ? { summary: session.summary } : {})
       },
       workspace: {
@@ -687,7 +744,8 @@ export class ConversationContextService {
         ...(input.skillId ? { skillId: input.skillId } : {}),
         ...(input.agentId ? { agentId: input.agentId } : {}),
         ...(input.previousSkillOutput !== undefined ? { previousSkillOutput: input.previousSkillOutput } : {}),
-        ...(input.toolAudit !== undefined ? { toolAudit: input.toolAudit } : {})
+        ...(input.toolAudit !== undefined ? { toolAudit: input.toolAudit } : {}),
+        historyNeutralization: neutralization,
       }
     }
   }
@@ -703,9 +761,11 @@ export class ConversationContextService {
     const toolAudit = toolAuditMessage(bundle)
     if (toolAudit) output.push(toolAudit)
 
-    const history = policy.chatHistory === 'full'
+    const storedHistory = policy.chatHistory === 'full'
       ? compactedMessages(bundle.session.recentMessages)
       : bundle.session.recentMessages
+    const history = storedHistory
+      .map(message => neutralizeLegacyHistoryMessage(message)?.message || message)
     const compactionMarker = [...bundle.session.recentMessages].reverse()
       .find((message: ContextMessage) => isCompactionMarker(message))
     if (policy.chatHistory === 'summary' && bundle.session.summary) {

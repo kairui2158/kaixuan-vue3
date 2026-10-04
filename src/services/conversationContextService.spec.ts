@@ -812,6 +812,43 @@ describe('ConversationContextService', () => {
     expect(verified.status).toBe('hash_mismatch')
   })
 
+  it('发送前中和旧预览话术，用户可见历史保持不变', async () => {
+    const storage = createStorage()
+    const service = new ConversationContextService({
+      storage,
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+    })
+    const ref = { projectId: 'p-neutralize-legacy-preview', workspace: 'outline' as const, purpose: 'generate' as const }
+    await service.recordTurn(ref, {
+      user: '重构整篇大纲',
+      assistant: '【修改预览】\n这是旧版预览内容。\n【批准写回】请等待确认后再写入。\n【写入未执行】本轮未执行写入。',
+    })
+    await service.recordTurn(ref, { user: '符合我的要求，分叉一允许去重', assistant: '已按当前协议处理。' })
+    const bundle = await service.buildContextBundle(ref)
+
+    const assembled = service.assembleMessages(
+      bundle,
+      { ...service.getPolicy('generate'), chatHistory: 'full', includeOutline: false, includeSettings: false, includeMemory: false },
+      baseMessages,
+    )
+
+    const neutralized = assembled.filter(message => message.role === 'assistant' && message.content.includes('[旧交互模式已中和]'))
+    expect(neutralized).toHaveLength(1)
+    expect(neutralized[0].content).toContain('历史预览内容仅作背景参考')
+    expect(neutralized[0].content).toContain('当前写入权限与执行协议以本轮系统提示和执行计划为准')
+    expect(neutralized[0].content).toContain('禁止继续等待用户确认')
+    expect(neutralized[0].meta?.neutralizedMarkers).toEqual(['修改预览', '批准写回', '写入未执行', '等待确认'])
+
+    const stored = bundle.session.recentMessages
+    expect(stored.some(message => message.content.includes('【修改预览】'))).toBe(true)
+    expect(stored.some(message => message.content.includes('请等待确认后再写入'))).toBe(true)
+    expect(bundle.execution.historyNeutralization).toEqual({
+      neutralizedMessageCount: 1,
+      markers: { '修改预览': 1, '批准写回': 1, '写入未执行': 1, '等待确认': 1 },
+    })
+    expect(assembled.some(message => message.content.includes('【修改预览】'))).toBe(false)
+  })
+
   it('单例代理调用实例方法时保持服务上下文', () => {
     const service = new ConversationContextService({ storage: createStorage() })
     const previous = (globalThis as any).__conversationContextService

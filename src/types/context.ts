@@ -107,6 +107,15 @@ export interface ContextExecutionState {
   previousSkillOutput?: string
   /** 上一轮工具调用的 compact 审计；只进 system context，不进聊天文本。 */
   toolAudit?: unknown
+  /** Provider 请求组装时旧预览/确认话术的中和统计；用户可见历史保持原文。 */
+  historyNeutralization?: ContextHistoryNeutralization
+}
+
+export type LegacyHistoryMarker = '修改预览' | '批准写回' | '写入未执行' | '等待确认'
+
+export interface ContextHistoryNeutralization {
+  neutralizedMessageCount: number
+  markers: Partial<Record<LegacyHistoryMarker, number>>
 }
 
 export interface ContextBundle {

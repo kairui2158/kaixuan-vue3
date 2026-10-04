@@ -93,6 +93,14 @@ describe('editor.write JSON compatibility protocol', () => {
     expect(prompt).toContain('定位可靠性较低')
   })
 
+  it('prohibits preview-only replies after JSON write authorization', () => {
+    const prompt = buildEditorWriteProtocolPrompt()
+    expect(prompt).toContain('写入授权后禁止输出【修改预览】')
+    expect(prompt).toContain('禁止再次请求用户确认')
+    expect(prompt).toContain('必须调用 editor.write')
+    expect(prompt).toContain('必须停止调用工具并说明')
+  })
+
   it('binds JSON protocol guidance to the execution plan operation allowlist', () => {
     const finalDraftPrompt = buildEditorWriteProtocolPrompt(buildLongDocumentExecutionPlan({
       requestText: '全文重写整篇大纲',

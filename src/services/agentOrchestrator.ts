@@ -491,17 +491,6 @@ export class AgentOrchestrator {
     this.runtime.onEvent?.(event, this.getSnapshot())
   }
 
-  private isWriteExecutionPlan(): this is AgentOrchestrator & {
-    runtime: AgentOrchestratorRuntime & {
-      document: NonNullable<AgentOrchestratorRuntime['document']> & {
-        executionPlan: LongDocumentExecutionPlan
-      }
-    }
-  } {
-    const plan = this.runtime.document?.executionPlan
-    return Boolean(plan && plan.operation !== 'discussion')
-  }
-
   private createIdleSupervisor(timeoutMs: number): {
     start: () => void
     stop: () => void
@@ -740,12 +729,13 @@ export class AgentOrchestrator {
       }
 
       const suppliedEvaluator = this.runtime.evaluateRound
+      const executionPlan = this.runtime.document?.executionPlan
       const verdict = suppliedEvaluator
         ? suppliedEvaluator(result)
-        : this.isWriteExecutionPlan()
+        : executionPlan && executionPlan.operation !== 'discussion'
           ? evaluateWriteTaskRound({
             result,
-            plan: this.runtime.document!.executionPlan!,
+            plan: executionPlan,
             successfulWriteCount: this.successfulWriteCount,
           })
           : defaultEvaluateRound(result)

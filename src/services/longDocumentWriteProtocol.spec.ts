@@ -103,4 +103,20 @@ describe('longDocumentWriteProtocol', () => {
     expect(buildLongDocumentWriteDirective(plan)).toContain('再只读确认重复项')
     expect(buildLongDocumentWriteDirective(plan)).toContain('禁止整篇 replace_document')
   })
+
+  it('binds the same post-authorization rules to native tool guidance', () => {
+    const plan = buildLongDocumentExecutionPlan({
+      requestText: '重构整篇大纲并清理重复与格式',
+      content: `# 根标题\n\n## 第一卷\n\n${'雨'.repeat(12_000)}\n\n## 第二卷\n\n${'雨'.repeat(12_000)}`,
+      contextWindowTokens: 128_000,
+      maxOutputTokens: 8_192,
+      intent: 'edit',
+    })
+
+    const directive = buildLongDocumentWriteDirective(plan)
+    expect(directive).toContain('写入授权后禁止输出【修改预览】')
+    expect(directive).toContain('禁止再次请求用户确认')
+    expect(directive).toContain('必须调用 editor.write')
+    expect(directive).toContain('必须停止调用工具并说明')
+  })
 })

@@ -4843,6 +4843,7 @@ async function askPlainAi(
       ]
     )
     const actualToolSurface = plainToolSurface
+    const historyNeutralization = contextBundle.execution.historyNeutralization
     addOutlineTraceEvent({
       type: 'editor-context-policy',
       label: '编辑目标上下文策略',
@@ -4857,12 +4858,14 @@ async function askPlainAi(
         selectionEnd: requestTarget.selectionEnd,
         contextInjectionMode: requestContextPack?.mode || 'none',
         pipeline: requestContextPack?.pipeline || null,
+        historyNeutralization: historyNeutralization || null,
       })
     })
     const outlineEditorContextDiag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
     outlineEditorContextDiag?.log?.('info', 'outline/editor-context-pipeline', '编辑上下文管道元数据', {
       targetId: requestTarget.targetId,
       pipeline: requestContextPack?.pipeline || null,
+      historyNeutralization: historyNeutralization || null,
     })
     traceApiCallId = startOutlineApiCall({
       skillName: '直接对话',

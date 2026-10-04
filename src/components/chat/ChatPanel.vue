@@ -3299,6 +3299,7 @@ async function callApi(
     ]
   )
   const ctxTurns = messages.filter(message => message.role === 'user' || message.role === 'assistant').length / 2
+  const historyNeutralization = contextBundle.execution.historyNeutralization
 
   const service = await getAiService()
   const requestMaxTokens = Number(provider.maxTokens) > 0 ? Number(provider.maxTokens) : null
@@ -3343,12 +3344,14 @@ async function callApi(
       selectionStart: requestTarget.selectionStart,
       selectionEnd: requestTarget.selectionEnd,
       pipeline: tracePipelineMetadata,
+      historyNeutralization: historyNeutralization || null,
     })
   })
   const editorContextDiag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
   editorContextDiag?.log?.('info', 'home/editor-context-pipeline', '编辑上下文管道元数据', {
     targetId: requestTarget.targetId,
     pipeline: tracePipelineMetadata,
+    historyNeutralization: historyNeutralization || null,
   })
   const requestId = ++homeLastDirectRequestId
   const reportDirectGenerationEvent = (type: 'generation-invalid' | 'direct-retry-start' | 'direct-retry-finished', detail: Record<string, unknown>) => {

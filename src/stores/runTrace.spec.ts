@@ -427,6 +427,52 @@ describe('runTrace store', () => {
     vi.useRealTimers()
   })
 
+  it('persists editor context policy events with legacy history neutralization fields', async () => {
+    vi.useFakeTimers()
+    const runTraceSave = vi.fn(async (_payload: unknown) => ({ success: true, dirName: 'run-history-neutralization' }))
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: { electronAPI: { runTraceSave } }
+    })
+    const store = useRunTraceStore()
+    const runId = store.startRun({ source: 'outline', stepName: '大纲共创', mode: 'chat', skillNames: [] })
+    const detail = JSON.stringify({
+      historyNeutralization: {
+        neutralizedMessageCount: 1,
+        markers: { '修改预览': 1, '等待确认': 1 },
+      },
+    })
+    store.addEvent(runId, {
+      type: 'editor-context-policy',
+      level: 'info',
+      label: '编辑目标上下文策略',
+      detail,
+    })
+
+    store.finishRun(runId, 'success')
+    await vi.advanceTimersByTimeAsync(0)
+
+    const savedEvent = store.getRun(runId)?.events.find(item => item.type === 'editor-context-policy')
+    expect(savedEvent?.type).toBe('editor-context-policy')
+    expect(JSON.parse(String(savedEvent?.detail || '{}'))).toEqual({
+      historyNeutralization: {
+        neutralizedMessageCount: 1,
+        markers: { '修改预览': 1, '等待确认': 1 },
+      },
+    })
+    const persisted = runTraceSave.mock.calls.at(-1)?.[0] as
+      | { run?: { events?: Array<{ type?: string; detail?: string }> } }
+      | undefined
+    const persistedEvent = persisted?.run?.events?.find(item => item.type === 'editor-context-policy')
+    expect(JSON.parse(String(persistedEvent?.detail || '{}'))).toEqual({
+      historyNeutralization: {
+        neutralizedMessageCount: 1,
+        markers: { '修改预览': 1, '等待确认': 1 },
+      },
+    })
+    vi.useRealTimers()
+  })
+
   it('backfills empty top-level reasoning from the last non-empty physical reasoning', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: ['卷纲技能'] })

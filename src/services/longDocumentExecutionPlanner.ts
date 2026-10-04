@@ -67,7 +67,7 @@ export interface LongDocumentExecutionPlan {
   planId: string
   operation: LongDocumentExecutionOperation
   operationResolution: {
-    source: 'intent' | 'intent-fallback' | 'lexical'
+    source: 'intent' | 'intent-fallback' | 'lexical' | 'active-task-continuation'
     intent?: PlannerIntent
     matched: LongDocumentOperationType | LongDocumentExecutionOperation
   }

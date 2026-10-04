@@ -352,7 +352,10 @@ export function buildEditorWriteProtocolPrompt(
     describeLongDocumentWriteProtocol(executionPlan),
     'target 必须逐字复制当前编辑内容；多命中或未命中会拒绝写入，原文保持不变。',
     'JSON 之外禁止附加说明文字；写入失败时会返回结构化错误，请根据错误修正后再次输出 JSON。',
-    '兼容模式下定位可靠性较低；如需说明位置，请在 reason 中写明段落或标题位置。'
+    '兼容模式下定位可靠性较低；如需说明位置，请在 reason 中写明段落或标题位置。',
+    '当执行计划已授权写入且本轮请求需要修改编辑器时，必须调用 editor.write 执行写入。',
+    '写入授权后禁止输出【修改预览】、完成总结或仅描述将要执行的动作；除非工具明确返回 needs_user，禁止再次请求用户确认。',
+    '如果无法完成写入，必须停止调用工具并说明具体失败原因、被拒绝的操作和剩余执行计划。',
   ].join('\n')
 }
 
