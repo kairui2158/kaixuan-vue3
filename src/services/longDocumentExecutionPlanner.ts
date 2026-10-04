@@ -236,39 +236,6 @@ function resolveOperation(
       resolution: { source: 'intent', intent: input.intent, matched: classified },
     }
   }
-  if (
-    input.activeTask &&
-    input.activeTask.operation !== 'discussion' &&
-    input.activeTask.operation !== 'rewrite_segments' &&
-    hasContinuationSemantics(input.requestText)
-  ) {
-    const base = input.activeTask.operation
-    const addDeduplicate = hasDeduplicateIntent(input.requestText)
-    const addNormalize = hasNormalizeIntent(input.requestText)
-    if (
-      (base === 'restructure' || hasRestructureIntent(input.activeTask.originalRequest)) &&
-      (addDeduplicate || addNormalize || hasNormalizeIntent(input.activeTask.originalRequest) || hasDeduplicateIntent(input.activeTask.originalRequest))
-    ) {
-      return {
-        operation: 'restructure_and_cleanup',
-        resolution: {
-          source: 'active-task-continuation',
-          intent: input.intent,
-          matched: 'restructure_and_cleanup',
-        },
-      }
-    }
-    if (base === 'deduplicate' && addNormalize) {
-      return {
-        operation: 'deduplicate_and_normalize',
-        resolution: {
-          source: 'active-task-continuation',
-          intent: input.intent,
-          matched: 'deduplicate_and_normalize',
-        },
-      }
-    }
-  }
   return {
     operation: classified,
     resolution: { source: 'lexical', matched: classified },
