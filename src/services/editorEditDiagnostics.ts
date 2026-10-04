@@ -213,6 +213,7 @@ export function diagnoseEditorEditBatch(input: {
       const located = locateEditorFragment({
         content: input.content,
         fragment: command.target || '',
+        exactOnly: true,
         anchor: {
           ...(command.volumeTitle ? { volumeTitle: command.volumeTitle } : {}),
           ...(command.chapterTitle ? { chapterTitle: command.chapterTitle } : {}),

@@ -39,7 +39,7 @@ function isValidTask(
   documentVersion: number,
   contentHash: string,
 ): boolean {
-  return task.status === 'active'
+  return (task.status === 'active' || task.status === 'completed')
     && task.documentVersion === documentVersion
     && task.contentHash === contentHash
 }
@@ -87,6 +87,21 @@ export class ActiveExecutionTaskStore {
   ): ActiveExecutionTask | null {
     const task = activeTasks.get(key(workspace, projectId))
     if (!task || task.status !== 'active') return null
+    task.documentVersion = documentVersion
+    task.contentHash = contentHash
+    task.updatedAt = Date.now()
+    return { ...task }
+  }
+
+  complete(
+    workspace: ActiveExecutionWorkspace,
+    projectId: string,
+    documentVersion: number,
+    contentHash: string,
+  ): ActiveExecutionTask | null {
+    const task = activeTasks.get(key(workspace, projectId))
+    if (!task || task.status !== 'active') return null
+    task.status = 'completed'
     task.documentVersion = documentVersion
     task.contentHash = contentHash
     task.updatedAt = Date.now()

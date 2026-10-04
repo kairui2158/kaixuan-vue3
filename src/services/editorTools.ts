@@ -32,6 +32,11 @@ import {
   createEditorDocumentMapTools,
   enhanceEditorSearchWithDocumentMap,
 } from './editorDocumentMap'
+import {
+  buildSourceContaminationMarkers,
+  SOURCE_CONTAMINATION_MARKER_MIN_CHARS,
+  type SourceContaminationConversationMessage,
+} from './sourceContaminationDetector'
 import { parseOutlineStructure, type OutlineStructureNode } from './outlineStructure'
 import { validateSkillInput, type JsonSchema } from './skillValidation'
 
@@ -96,6 +101,94 @@ export interface ToolCallEvent {
 }
 
 export type ToolEventSink = (event: ToolCallEvent) => void
+
+export interface EditorWriteContaminationDecision {
+  type: 'write-contamination-rejected' | 'write-contamination-bypassed'
+  payload: {
+    decision: 'rejected' | 'user_provided'
+    commandIndexes: number[]
+    markerCount: number
+    excerpt: string
+  }
+}
+
+function collectWriteContamination(
+  commands: EditorEditCommand[],
+  conversationMarkers: SourceContaminationConversationMessage[] | undefined,
+): { markers: ReturnType<typeof buildSourceContaminationMarkers>; commandIndexes: number[]; excerpt: string[] } {
+  const markers = buildSourceContaminationMarkers(conversationMarkers || [])
+  const commandIndexes: number[] = []
+  const excerpt: string[] = []
+  const normalizeFragment = (text: string) => text.replace(/\s+/g, '')
+  for (const [index, command] of commands.entries()) {
+    const fragments = [command.content, command.target, command.destination]
+      .filter((text): text is string => typeof text === 'string' && text.trim().length > 0)
+    const normalizedFragments = fragments.map(normalizeFragment)
+    const contaminated = normalizedFragments.some(fragment =>
+      markers.some(marker =>
+        marker.normalized.length >= SOURCE_CONTAMINATION_MARKER_MIN_CHARS
+        && fragment.includes(marker.normalized)))
+    if (contaminated) {
+      commandIndexes.push(index)
+      excerpt.push(...fragments.filter((fragment, fragmentIndex) =>
+        markers.some(marker =>
+          marker.normalized.length >= SOURCE_CONTAMINATION_MARKER_MIN_CHARS
+          && normalizedFragments[fragmentIndex].includes(marker.normalized))))
+    }
+  }
+  return { markers, commandIndexes, excerpt }
+}
+
+function isUserProvidedWriteContent(
+  command: EditorEditCommand,
+  userRequestText: string | undefined,
+): boolean {
+  if (!userRequestText) return false
+  return [command.content, command.target, command.destination]
+    .some(fragment => typeof fragment === 'string' && userRequestText.includes(fragment))
+}
+
+function guardEditorWriteContamination(
+  commands: EditorEditCommand[],
+  options: {
+    conversationMarkers?: SourceContaminationConversationMessage[]
+    userRequestText?: string
+    onContaminationDecision?: (decision: EditorWriteContaminationDecision) => void
+  },
+): ToolResult | null {
+  if (!options.conversationMarkers?.length) return null
+  const contamination = collectWriteContamination(commands, options.conversationMarkers)
+  if (!contamination.commandIndexes.length) return null
+  const userProvidedIndexes = contamination.commandIndexes.filter(index =>
+    isUserProvidedWriteContent(commands[index], options.userRequestText))
+  const bypassed = contamination.commandIndexes.length === userProvidedIndexes.length
+  options.onContaminationDecision?.({
+    type: bypassed ? 'write-contamination-bypassed' : 'write-contamination-rejected',
+    payload: {
+      decision: bypassed ? 'user_provided' : 'rejected',
+      commandIndexes: contamination.commandIndexes,
+      markerCount: contamination.markers.length,
+      excerpt: contamination.excerpt.join('\n').slice(0, 160),
+    },
+  })
+  if (bypassed) return null
+  return {
+    ok: false,
+    error: {
+      code: 'conversation_contamination',
+      message: '写入内容包含历史对话表述，已整批拒绝。请基于编辑器原文重新生成，不要把对话里的说明当成正文写入。',
+      retryable: true,
+    },
+    data: {
+      guard: {
+        decision: 'rejected',
+        commandIndexes: contamination.commandIndexes,
+        markerCount: contamination.markers.length,
+        repairPolicy: '请重新读取目标原文，并只提交用户明确要求写入的新内容。',
+      },
+    },
+  }
+}
 
 function batchDetailFromPlan(
   plan: LongDocumentExecutionPlan | undefined,
@@ -457,6 +550,9 @@ export function createEditorTools(options: {
   maxReadChars?: () => number
   executionPlan?: LongDocumentExecutionPlan
   writeAuthorization?: LongDocumentWriteAuthorization
+  conversationMarkers?: SourceContaminationConversationMessage[]
+  userRequestText?: string
+  onContaminationDecision?: (decision: EditorWriteContaminationDecision) => void
 }): AgentToolDefinition[] {
   const getState: AgentToolDefinition = {
     name: 'editor.get_state',
@@ -558,6 +654,7 @@ export function createEditorTools(options: {
           data: {
             unique: true,
             fuzzy: false,
+            normalized: located.normalized,
             start: match.start,
             end: match.end,
             context: located.context,
@@ -685,6 +782,18 @@ export function createEditorTools(options: {
           true,
         )
       }
+      const hasReplaceDocument = rawCommands.some(rawCommand =>
+        normalizeEditorEditOperation(rawCommand.operation) === 'replace_document')
+      if (
+        hasReplaceDocument
+        && options.executionPlan?.mode === 'edit-task'
+      ) {
+        return toolError(
+          'document_too_large_for_whole_replacement',
+          buildLongDocumentWriteRejectionMessage(options.executionPlan),
+          true,
+        )
+      }
       const disallowedCommand = rawCommands.find(rawCommand => {
         const operation = normalizeEditorEditOperation(rawCommand.operation)
         return operation !== null && !allowedOperations.includes(operation)
@@ -696,8 +805,6 @@ export function createEditorTools(options: {
           true,
         )
       }
-      const hasReplaceDocument = rawCommands.some(rawCommand =>
-        normalizeEditorEditOperation(rawCommand.operation) === 'replace_document')
       if (hasReplaceDocument && rawCommands.length !== 1) {
         return toolError('invalid_input', 'replace_document 必须单独成批；局部修改请改用受限编辑命令')
       }
@@ -806,6 +913,9 @@ export function createEditorTools(options: {
           return toolError('invalid_input', `commands[${index}]：${command.operation} 不允许 position=${command.position}`)
         }
       }
+
+      const contamination = guardEditorWriteContamination(commands, options)
+      if (contamination) return contamination
 
       const batch = {
         type: 'editor_edit_batch' as const,

@@ -14,6 +14,7 @@ export interface EditorLocateSuccess {
   ok: true
   unique: true
   fuzzy: false
+  normalized: boolean
   start: number
   end: number
   context: string
@@ -48,6 +49,69 @@ export interface EditorStructureAnchor {
 const CONTEXT_RADIUS = 150
 const FUZZY_MIN_SIMILARITY = 0.6
 const FUZZY_WINDOW = 200
+
+interface NormalizedTextIndex {
+  normalized: string
+  sourceStarts: number[]
+  sourceEnds: number[]
+}
+
+const LOCATE_WHITESPACE_PATTERN = /[\u0009\u000A\u000B\u000C\u000D\u001C-\u0020\u0085\u00A0\u1680\u2000-\u200F\u2028\u2029\u202F\u205F\u3000]/
+
+function buildNormalizedTextIndex(text: string): NormalizedTextIndex {
+  const sourceStarts: number[] = []
+  const sourceEnds: number[] = []
+  let normalized = ''
+  let lastNormalizedIndex: number | null = null
+  for (let index = 0; index < text.length; index += 1) {
+    const rawStart = index
+    let char = text[index]
+    if (char === '\\' && text[index + 1] === '\\') {
+      const afterSecondBackslash = text[index + 2]
+      if (afterSecondBackslash === 'r' || afterSecondBackslash === 'n' || afterSecondBackslash === 't') {
+        char = afterSecondBackslash === 'r' ? '\r' : afterSecondBackslash === 'n' ? '\n' : '\t'
+        index += 2
+      }
+    } else if (char === '\\' && index + 1 < text.length) {
+      const escaped = text[index + 1]
+      if (escaped === 'r' || escaped === 'n' || escaped === 't') {
+        char = escaped === 'r' ? '\r' : escaped === 'n' ? '\n' : '\t'
+        index += 1
+      }
+    }
+    if (LOCATE_WHITESPACE_PATTERN.test(char)) continue
+    normalized += char
+    const normalizedIndex = normalized.length - 1
+    if (lastNormalizedIndex !== null) {
+      sourceEnds[lastNormalizedIndex] = rawStart
+    }
+    sourceStarts[normalizedIndex] = rawStart
+    sourceEnds[normalizedIndex] = text.length
+    lastNormalizedIndex = normalizedIndex
+  }
+  return { normalized, sourceStarts, sourceEnds }
+}
+
+function normalizedMatches(
+  sourceIndex: NormalizedTextIndex,
+  fragmentIndex: NormalizedTextIndex,
+): Array<{ start: number; end: number }> {
+  if (!fragmentIndex.normalized) return []
+  const matches: Array<{ start: number; end: number }> = []
+  let searchFrom = 0
+  let index = sourceIndex.normalized.indexOf(fragmentIndex.normalized, searchFrom)
+  while (index >= 0) {
+    const start = sourceIndex.sourceStarts[index]
+    const endIndex = index + fragmentIndex.normalized.length - 1
+    const end = sourceIndex.sourceEnds[endIndex]
+    if (start !== null && start !== undefined && end !== null && end !== undefined) {
+      matches.push({ start, end })
+    }
+    const nextIndex = sourceIndex.normalized.indexOf(fragmentIndex.normalized, index + 1)
+    index = nextIndex
+  }
+  return matches
+}
 
 function exactMatches(content: string, fragment: string): Array<{ start: number; end: number }> {
   const matches: Array<{ start: number; end: number }> = []
@@ -164,6 +228,7 @@ export function locateEditorFragment(input: {
   fragment: string
   anchor?: EditorStructureAnchor
   allowFuzzyDiagnostics?: boolean
+  exactOnly?: boolean
 }): EditorLocateResult {
   const content = typeof input.content === 'string' ? input.content : ''
   const fragment = typeof input.fragment === 'string' ? input.fragment.trim() : ''
@@ -200,15 +265,32 @@ export function locateEditorFragment(input: {
       anchorCandidates: anchorCandidates(content, input.anchor!)
     }
   }
-  const matches = scoped
+  let normalized = false
+  let matches = scoped
     ? exactMatches(content.slice(scoped.start, scoped.end), fragment)
       .map(match => ({ start: scoped.start + match.start, end: scoped.start + match.end }))
     : exactMatches(content, fragment)
 
+  if (matches.length === 0 && input.exactOnly !== true) {
+    const scopedContent = scoped
+      ? content.slice(scoped.start, scoped.end)
+      : content
+    const normalizedScopedMatches = normalizedMatches(
+      buildNormalizedTextIndex(scopedContent),
+      buildNormalizedTextIndex(fragment),
+    ).map(match => scoped
+      ? { start: scoped.start + match.start, end: scoped.start + match.end }
+      : match)
+    if (normalizedScopedMatches.length > 0) {
+      matches = normalizedScopedMatches
+      normalized = true
+    }
+  }
+
   if (matches.length === 0) {
     const scopeStart = scoped?.start || 0
     const scopeEnd = scoped?.end || content.length
-    const candidates = input.allowFuzzyDiagnostics === false
+    const candidates = input.allowFuzzyDiagnostics === false || input.exactOnly === true
       ? []
       : fuzzyCandidates(content.slice(scopeStart, scopeEnd), fragment)
         .map(candidate => ({
@@ -251,6 +333,7 @@ export function locateEditorFragment(input: {
     ok: true,
     unique: true,
     fuzzy: false,
+    normalized,
     start: match.start,
     end: match.end,
     context: contextWindow(content, match.start, match.end)

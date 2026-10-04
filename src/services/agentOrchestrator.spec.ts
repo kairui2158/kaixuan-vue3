@@ -121,6 +121,80 @@ describe('AgentOrchestrator state machine', () => {
     )).toBe(true)
   })
 
+  it('stops immediately after a terminal write convergence', async () => {
+    const executionPlan = buildLongDocumentExecutionPlan({
+      requestText: '按照Word文档的形式重构大纲，不要缩减内容',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      contextWindowTokens: 120_000,
+      maxOutputTokens: 8_000,
+      intent: 'edit',
+    })
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn(async (): Promise<CallAiResult> => ({
+        ...successResult('本轮未写入：整篇替换已被应用拒绝。'),
+        finishReason: 'tool_converged',
+        convergenceReason: 'terminal write failure: document_too_large_for_whole_replacement',
+        toolResults: [{
+          call: { name: 'editor.write' },
+          result: {
+            ok: false,
+            error: {
+              code: 'document_too_large_for_whole_replacement',
+              message: '整篇替换在 1M 档必须被拒绝',
+            },
+          },
+        }],
+      }) as CallAiResult),
+      document: {
+        content: '段'.repeat(74_841),
+        operationType: 'whole-document-restructure',
+        executionPlan,
+      },
+      editTaskWorkflow: true,
+      maxPhysicalRequests: 8,
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+
+    expect(result.status).toBe('stalled')
+    expect(result.reason).toBe('write_not_executed')
+    expect(runtime.callAi).toHaveBeenCalledTimes(1)
+    expect(result.text).toContain('本轮未写入')
+  })
+
+  it('does not treat ordinary tool convergence as a failed write task', async () => {
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn(async (): Promise<CallAiResult> => ({
+        ...successResult('已根据地图读取结果完成分析。'),
+        finishReason: 'tool_converged',
+        convergenceReason: 'final answer after tool execution looked like a tool-call protocol',
+        toolResults: [{
+          call: { name: 'editor.document_map' },
+          result: { ok: true, data: { sections: [] } },
+        }],
+      }) as CallAiResult),
+      document: {
+        content: '段'.repeat(74_841),
+        operationType: 'whole-document-restructure',
+        executionPlan: buildLongDocumentExecutionPlan({
+          requestText: '请先读取第20000节附近的地图，再读取首尾两节',
+          content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+          contextWindowTokens: 120_000,
+          maxOutputTokens: 8_000,
+          intent: 'discuss',
+        }),
+      },
+      editTaskWorkflow: true,
+      maxPhysicalRequests: 1,
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+
+    expect(result.status).toBe('completed')
+    expect(result.reason).not.toBe('write_not_executed')
+    expect(runtime.callAi).toHaveBeenCalledTimes(1)
+  })
+
   it('rejects invalid plans before execution', async () => {
     const runtime: AgentOrchestratorRuntime = { callAi: vi.fn(async () => successResult()) }
     const emptyGoal = new AgentOrchestrator({

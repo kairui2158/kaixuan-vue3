@@ -38,6 +38,52 @@
 - 产品执行语义迁移时，验证器请求文案、外呼分支、断言值必须同批迁移，mock 必须覆盖意图分类器等全部真实外呼。
 - mock 必须提交当前协议合法命令；结构重排必须断言前后真实顺序变化。
 
+## 2026-10-04 复合任务成熟度补收口
+
+### 修复内容
+
+1. `aiService.ts` 新增终态写失败识别：`editor.write` 返回 `permission_denied`、`document_too_large_for_whole_replacement`、`invariant_violation`、`write_target_mismatch`、`final_draft_mode_active` 等不可修正错误时，立即停止工具循环并进入无工具收敛请求，禁止继续物理请求。
+2. `CallAiResult.convergenceReason` 记录收敛触发原因；`agentOrchestrator.ts` 只有在 `terminal write failure:` 收敛时才转入 `stalled/write_not_executed`，普通讨论收敛与伪工具收敛不再被误判为写任务失败。
+3. 1M 验证器旧断言“地图读取轮仍可写”与 2026-10-03 权限单源契约冲突；本轮改为断言地图读取轮不暴露 `editor.write`，后续明确编辑轮仍恢复写入。历史 Phase 7 的“讨论意图下长文档可写”授权已被 2026-10-03 方案明确废弃，本轮不复活旧语义。
+
+### 验证
+
+- `node --check scripts/verify-api-direct-write-electron.mjs`：通过。
+- `npx vitest run src/services/agentOrchestrator.spec.ts src/services/agentTerminalMapping.spec.ts src/services/aiService.spec.ts src/services/editorTools.spec.ts`：4 个文件、208 条测试通过。
+- `npm run build:vue`：通过。
+- `node scripts/verify-api-direct-write-electron.mjs`：完整通过，末行 `===== API DIRECT WRITE ELECTRON STRESS E2E PASSED =====`；1M 场景覆盖整篇替换拒绝、只读地图轮无写工具、后续两批真实写入。
+- `npm run test:services`：128 个文件、1427 条测试通过。
+- `npm run type-check`：通过。
+
+## 2026-10-05 直写复合任务实测收口
+
+### 根因补充
+
+1. 2026-10-04 16:23:04 运行记录并非“API 无回复”：deep 导出把正文外置到 `payload + apiResponseIndex`，不是数据丢失。旧验证器只统计内联 `responseText`，把 indexed response 误判为空回复，进而误判“卡住/未输出”。
+2. `runTrace.ts` 存在两类响应证据回填缺陷：空 `responseText` patch 会覆盖已收到的正文；工具循环 finish 后顶层聚合为空时没有从 `streamText` / 物理请求回填。
+3. API call 与 turn 的隐式绑定依赖 `currentTurnId`，跨异步边界启动 API call 时可能挂错 turn，导致导出的 `apiResponseIndex` 无法按 turn 对账。
+
+### 修复
+
+1. `StartApiCallInput` 支持显式 `turnId`；空 `responseText` patch 不再覆盖已有正文；finish 后顶层为空时回填 `streamText` / 物理请求响应；物理请求终态可把新正文回填到顶层。
+2. `RUN_TRACE_SCHEMA_VERSION` 升到 14，导出断言要求每个 API call 都有 indexed response，且每个 exported turn 都能通过 `apiResponseIndex` 找到响应。
+3. live 复刻验证器改为统计 `responseTextPreview`、`streamText`、`physicalCalls` 三类响应证据；修复 Node `createRequire`/Electron `safeStorage` 误入浏览器上下文的问题；补齐 `successfulWriteTurns` 等断言变量。
+
+### 验证
+
+1. `npx vitest run src/stores/runTrace.spec.ts`：75 条测试通过。
+2. `node --check scripts/verify-outline-20261004-live-replay-electron.mjs`：通过。
+3. `npm run type-check`：通过。
+4. `npm run build:vue`：通过。
+5. 真实 Electron + 真实 API 复刻：3/3 通过。前两轮为 `edit / restructure_and_cleanup`，完成 Word 格式重排、去重、格式与标点处理，共 12 次 `editor.write` 成功；第三轮为 `discuss`，只读且工具面不含 `editor.write`。导出 `apiResponseIndex` 覆盖 3 条响应、2717 字符，哈希与长度校验通过。证据：`_audit/verification-outline-20261004-162304-live-replay/result.json`。
+6. `node scripts/verify-skill-agent-authority-electron.mjs`：4/4 用例通过；8 个 discuss 轮次全部只读，4 个 edit 轮次均由执行计划授权并成功执行 `editor.write`。证据：`_audit/verification-skill-agent-authority-v2/summary.json`。
+
+### 教训
+
+1. 验证器不允许只用单一内联字段判定“无回复”；deep 导出必须对 `apiResponseIndex` 与 payload 做完整性校验。
+2. Node 专属 API（`createRequire`、Electron 主进程模块）不得进入 `page.evaluate` 浏览器上下文；验证器必须先 `node --check`，再跑完整 Electron 链路。
+3. 第一次完整复刻虽然业务链路成功，但验证器末尾脚本缺陷导致整体失败；最终结论必须以修复后完整重跑的最后一次运行为准。
+
 ## G0.5 回头看
 
 1. 逐行审阅本轮 diff，所有改动均归入“删除旧预览状态机并统一直写协议”目标。

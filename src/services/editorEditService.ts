@@ -124,7 +124,7 @@ export function buildEditPlan(
     if (!targetText || !destinationText) {
       return failed(command, target, 'invalid_command')
     }
-    const locatedTarget = locateEditorFragment({ content, fragment: targetText })
+    const locatedTarget = locateEditorFragment({ content, fragment: targetText, exactOnly: true })
     if (!locatedTarget.ok) {
       return failed(
         command,
@@ -155,7 +155,7 @@ export function buildEditPlan(
       }
     }
     const contentWithoutTarget = content.slice(0, cutStart) + content.slice(cutEnd)
-    const locatedDestination = locateEditorFragment({ content: contentWithoutTarget, fragment: destinationText })
+    const locatedDestination = locateEditorFragment({ content: contentWithoutTarget, fragment: destinationText, exactOnly: true })
     if (!locatedDestination.ok) {
       return failed(
         command,
@@ -218,6 +218,7 @@ export function buildEditPlan(
     ? locateEditorFragment({
       content,
       fragment: targetText,
+      exactOnly: true,
       anchor: {
         ...(command.volumeTitle ? { volumeTitle: command.volumeTitle } : {}),
         ...(command.chapterTitle ? { chapterTitle: command.chapterTitle } : {}),

@@ -91,6 +91,14 @@ describe('chain intent router v3', () => {
     })
   })
 
+  it('keeps a qualified active edit-task continuation writable', () => {
+    const result = routeChainIntent('继续执行刚才的任务，改成安全的新增内容', {
+      activeEditTaskStatus: 'awaiting_batch',
+    })
+    expect(result.kind).toBe('matched')
+    expect(result.kind === 'matched' && result.intent).toBe('edit')
+  })
+
   it('does not turn generic task mentions into write routing', () => {
     for (const input of [
       '这个任务现在卡住了，你先解释一下',

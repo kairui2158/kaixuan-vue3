@@ -361,6 +361,7 @@ import { useAgentStore } from '../../stores/agent'
 import { migrateSkillAgentBindings } from '../../services/skillAgentBinding'
 import { buildWorkspaceSkillGuidance, createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceSkillEngineAdapter, type WorkspaceSkillRunMeta, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
 import { collectSkillPackageProtocolDiagnostics, type RealSkillDiagnostic } from '../../services/realSkillExecutor'
+import type { EditorWriteContaminationDecision } from '../../services/editorTools'
 import {
   classifyPlainDialogueIntentDetailed,
   type ChainIntent,
@@ -583,6 +584,7 @@ const outlineEditTaskSession = useEditTaskSession({
 const outlineEditTask = computed(() => outlineEditTaskSession.activeTaskRef().value)
 
 function recordOutlineEditTaskEvent(event: EditTaskSessionLifecycleEvent) {
+  closeInvalidActiveExecutionTaskForEditTask(event.task)
   const activeBatchId = event.task.activeBatchId
   const activeBatchDetail = activeBatchId ? event.task.plan.batchDetails?.[activeBatchId] : undefined
   const payload = {
@@ -622,6 +624,32 @@ function recordOutlineEditTaskEvent(event: EditTaskSessionLifecycleEvent) {
     `编辑任务事件：${event.type}`,
     payload,
   )
+}
+
+function isTerminalEditTaskStatus(status: EditTask['status']): boolean {
+  return status === 'completed'
+    || status === 'completed_with_warnings'
+    || status === 'failed_before_write'
+    || status === 'failed_after_write'
+    || status === 'canceled'
+}
+
+function closeInvalidActiveExecutionTaskForEditTask(task: EditTask): void {
+  if (!isTerminalEditTaskStatus(task.status)) return
+  if (
+    task.status === 'completed'
+    || task.status === 'completed_with_warnings'
+  ) {
+    const snapshot = createOutlineRequestTarget()
+    activeExecutionTaskStore.complete(
+      'outline',
+      outlineProjectId(),
+      snapshot?.contentVersion || 0,
+      hashOutlineContent(snapshot?.content || projectStore.outlineText || ''),
+    )
+    return
+  }
+  activeExecutionTaskStore.clear('outline', outlineProjectId())
 }
 
 async function resumeOutlineEditTask(task: { id: string }) {
@@ -2588,6 +2616,18 @@ function createWorkspaceSkillAdapter(
       executionPlan: outlineSkillExecutionPlan,
       writeAuthorization: outlineSkillWriteAuthorization,
       applyWrite: async input => applyOutlineDirectWrite(input),
+      conversationMarkers: buildOutlineConversationMarkers(),
+      userRequestText: currentOutlineUserRequest,
+      onContaminationDecision: (decision: EditorWriteContaminationDecision) => addOutlineTraceEvent({
+        type: decision.type,
+        level: decision.type === 'write-contamination-rejected' ? 'warn' : 'info',
+        label: decision.type === 'write-contamination-rejected'
+          ? '写入内容包含历史对话表述，已整批拒绝'
+          : '写入内容由当前用户请求显式提供，允许通过',
+        detail: JSON.stringify(decision.payload),
+        payload: decision.payload,
+        turnId: outlineRunTurnId,
+      }),
       onFailedBatch: batch => { outlineFailedWriteBatch = batch },
       takeFailedBatch: () => outlineFailedWriteBatch,
       revealTarget: async request => {
@@ -4698,6 +4738,18 @@ async function askPlainAi(
       mode: 'direct',
       executionPlan: outlineExecutionPlan,
       writeAuthorization: workflowWriteAuthorization,
+      conversationMarkers: buildOutlineConversationMarkers(),
+      userRequestText: requestText,
+      onContaminationDecision: (decision: EditorWriteContaminationDecision) => addOutlineTraceEvent({
+        type: decision.type,
+        level: decision.type === 'write-contamination-rejected' ? 'warn' : 'info',
+        label: decision.type === 'write-contamination-rejected'
+          ? '写入内容包含历史对话表述，已整批拒绝'
+          : '写入内容由当前用户请求显式提供，允许通过',
+        detail: JSON.stringify(decision.payload),
+        payload: decision.payload,
+        turnId: outlineRunTurnId,
+      }),
       applyWrite: async input => applyOutlineDirectWrite({
         ...input,
         multiBatch: useOutlineEditTaskPlan,

@@ -39,6 +39,25 @@ describe('direct write production wiring', () => {
     }
   })
 
+  it('keeps completed tasks continuable and closes failed or canceled tasks in both production entries', () => {
+    for (const relativePath of [
+      'src/components/common/OutlineWorkspace.vue',
+      'src/components/chat/ChatPanel.vue',
+    ]) {
+      const source = readComponentSource(relativePath)
+      expect(source).toContain('closeInvalidActiveExecutionTaskForEditTask')
+      expect(source).toContain('isTerminalEditTaskStatus')
+      expect(source).toContain("status === 'completed'")
+      expect(source).toContain("status === 'completed_with_warnings'")
+      expect(source).toContain("status === 'failed_before_write'")
+      expect(source).toContain("status === 'failed_after_write'")
+      expect(source).toContain("status === 'canceled'")
+      expect(source).toContain("task.status === 'completed'"
+        + "\n    || task.status === 'completed_with_warnings'")
+      expect(source).not.toContain("status === 'completed'\n    || task.status === 'completed_with_warnings'\n    || task.status === 'failed_before_write'")
+    }
+  })
+
   it('maps outer terminal states from the Agent verdict in both production entries', () => {
     const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
     const home = readComponentSource('src/components/chat/ChatPanel.vue')
@@ -72,5 +91,31 @@ describe('direct write production wiring', () => {
       hashEditorContent('新文档'),
     )).toBeNull()
     expect(activeExecutionTaskStore.get('outline', 'project-stale')).toBeNull()
+  })
+
+  it('wires write contamination guards through both production dialogue surfaces', () => {
+    const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
+    const home = readComponentSource('src/components/chat/ChatPanel.vue')
+
+    expect(outline).toContain('conversationMarkers: buildOutlineConversationMarkers()')
+    expect(home).toContain('conversationMarkers: buildHomeConversationMarkers()')
+    expect(outline).toContain('userRequestText: requestText')
+    expect(home).toContain('requestText?: string')
+    expect(home).toContain('userRequestText: requestText')
+    expect(home).toContain('      text,')
+  })
+
+  it('binds write contamination traces to the active run turn in both workspaces', () => {
+    const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
+    const home = readComponentSource('src/components/chat/ChatPanel.vue')
+
+    expect(outline).toContain("decision.type === 'write-contamination-rejected'")
+    expect(home).toContain("decision.type === 'write-contamination-rejected'")
+    expect(outline).toContain('type: decision.type')
+    expect(home).toContain('type: decision.type')
+    expect(outline).toContain("label: decision.type === 'write-contamination-rejected'")
+    expect(home).toContain("label: decision.type === 'write-contamination-rejected'")
+    expect(outline).toContain('turnId: outlineRunTurnId')
+    expect(home).toContain('turnId: homeRunTurnId')
   })
 })

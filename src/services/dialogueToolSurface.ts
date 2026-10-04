@@ -7,6 +7,7 @@ import {
 import {
   createEditorTools,
   type AgentToolDefinition,
+  type EditorWriteContaminationDecision,
   type EditorWriteApplier,
   type EditorWriteMode,
   type EditorRevealer,
@@ -24,6 +25,7 @@ import {
   findAgentToolNameConflicts,
   removeConflictingExternalTools,
 } from './agentToolConflict'
+import type { SourceContaminationConversationMessage } from './sourceContaminationDetector'
 
 export type {
   AgentToolDefinition,
@@ -60,6 +62,9 @@ export interface DialogueToolSurfaceEntry {
   takeFailedBatch?: () => EditorWriteRetryCarrier | null
   extraTools?: AgentToolDefinition[]
   writeAuthorization?: DialogueWriteAuthorization | null
+  conversationMarkers?: SourceContaminationConversationMessage[]
+  userRequestText?: string
+  onContaminationDecision?: (decision: EditorWriteContaminationDecision) => void
   activeEditTask?: EditTask | null
   onResumeEditTask?: (taskId: string) => Promise<ToolResult>
   onCancelEditTask?: (taskId: string) => Promise<ToolResult>
@@ -149,6 +154,9 @@ export function buildDialogueToolSurface(
         revealTarget: entry.revealTarget,
         onFailedBatch: entry.onFailedBatch,
         takeFailedBatch: entry.takeFailedBatch,
+        conversationMarkers: entry.conversationMarkers,
+        userRequestText: entry.userRequestText,
+        onContaminationDecision: entry.onContaminationDecision,
       }),
       ...safeExternalTools,
     ],

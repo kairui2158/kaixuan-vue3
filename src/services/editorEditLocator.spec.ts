@@ -66,4 +66,35 @@ describe('locateEditorFragment', () => {
     const result = locateEditorFragment({ content: '', fragment: 'x' })
     expect(failure(result).reason).toBe('invalid_input')
   })
+
+  it('locates a fragment that only differs from the source by escaped whitespace', () => {
+    const source = '第一卷 北境\n\n少年穿过风暴。\n\t他在灯塔下停下。'
+    const result = locateEditorFragment({
+      content: source,
+      fragment: '少年穿过风暴。\\n\t他在灯塔下停下。',
+    })
+
+    expect(result).toMatchObject({ ok: true, unique: true, fuzzy: false, normalized: true })
+    expect(result.ok && result.start).toBe(source.indexOf('少年穿过风暴'))
+    expect(result.ok && result.end).toBe(source.length)
+  })
+
+  it('maps normalized matching back to exact source offsets for every normalized difference', () => {
+    const source = '甲　段  内容\n\n\n乙　段  内容'
+    const result = locateEditorFragment({ content: source, fragment: '甲段 内容\\n\\n乙段 内容' })
+    console.log('DEBUG normalized result', JSON.stringify(result))
+
+    expect(result).toMatchObject({ ok: true, unique: true, normalized: true })
+    expect(result.ok && result.start).toBe(0)
+    expect(result.ok && result.end).toBe(source.length)
+  })
+
+  it('keeps normalized matching unique and does not relax an ambiguous target', () => {
+    const source = '重复目标。\\n重复目标。'
+    const result = locateEditorFragment({ content: source, fragment: '重复目标。' })
+    const failed = failure(result)
+
+    expect(failed.reason).toBe('ambiguous_target')
+    expect(failed.matches).toHaveLength(2)
+  })
 })

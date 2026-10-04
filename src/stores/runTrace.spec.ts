@@ -809,6 +809,7 @@ describe('runTrace store', () => {
     })
     const secondCall = store.startApiCall(runId, {
       source: 'outline',
+      turnId: secondTurn,
       requestMessages: [{ role: 'user', content: '第二轮请求' }]
     })
     store.appendStream(runId, secondCall, '第二轮流式')
@@ -1502,7 +1503,7 @@ describe('runTrace store', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
     const exported = store.exportRunToJson(store.getRun(runId)!) as Record<string, unknown>
-    expect(exported.schemaVersion).toBe(13)
+    expect(exported.schemaVersion).toBe(14)
   })
 
   it('records physical, stream, tool, and edit-task activity without firing false stuck warnings', () => {
@@ -1873,7 +1874,7 @@ describe('runTrace store', () => {
     const run = store.getRun(runId)!
     expect(run.events.some(event => event.type === 'chain-handoff-delivery')).toBe(true)
     expect(run.processingReports?.some(report => report.processor === 'chain-handoff')).toBe(true)
-    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(13)
+    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(14)
   })
 
   it('records the requested and actual tool surface separately', () => {
@@ -2055,6 +2056,55 @@ describe('runTrace store', () => {
     const call = store.getRun(runId)!.apiCalls.find(item => item.id === callId)!
     expect(call.streamText).toBe('运行中流式迟到 delta')
     expect(call.responseText).toBe('运行中流式迟到 delta')
+  })
+
+  it('keeps stream fallback text when a terminal patch sends an empty response', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ stepName: '大纲工作台', mode: 'direct', skillNames: [] })
+    const callId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '整理大纲' }]
+    })
+
+    store.appendStream(runId, callId, '完整流式回复')
+    store.finishApiCall(runId, callId, { status: 'success', responseText: '', durationMs: 100 })
+
+    const call = store.getRun(runId)!.apiCalls.find(item => item.id === callId)!
+    expect(call.responseText).toBe('完整流式回复')
+    expect(call.streamText).toBe('完整流式回复')
+    expect(store.exportRunToJson(store.getRun(runId)!)).toMatchObject({
+      apiCalls: [{ responseText: '完整流式回复' }]
+    })
+  })
+
+  it('backfills a late terminal physical response after the API call already finished', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲工作台',
+      mode: 'direct',
+      skillNames: [],
+      sessionKind: 'chat'
+    })
+    const turnId = store.startTurn(runId, { userRequest: '整理大纲', mode: 'direct' })
+    const callId = store.startApiCall(runId, {
+      turnId,
+      requestMessages: [{ role: 'user', content: '整理大纲' }]
+    })
+
+    store.finishApiCall(runId, callId, { status: 'success', responseText: '', durationMs: 100 })
+    store.appendPhysicalCall(runId, callId, {
+      requestMessages: [{ role: 'user', content: '整理大纲' }],
+      responseText: '迟到的终态物理响应'
+    })
+    store.finishTurn(runId, turnId, 'success')
+
+    const call = store.getRun(runId)!.apiCalls.find(item => item.id === callId)!
+    expect(call.turnId).toBe(turnId)
+    expect(call.responseText).toBe('迟到的终态物理响应')
+    expect(call.physicalCalls?.at(-1)?.responseText).toBe('迟到的终态物理响应')
+    expect(store.exportRunToJson(store.getRun(runId)!)).toMatchObject({
+      apiCalls: [{ responseText: '迟到的终态物理响应' }]
+    })
   })
 
   it('keeps pipeline runs task-scoped and unaffected by turn APIs', () => {

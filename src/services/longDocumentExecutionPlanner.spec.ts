@@ -246,12 +246,12 @@ describe('buildLongDocumentExecutionPlan', () => {
       intent: 'edit',
     }))
 
-    expect(plan.operation).toBe('restructure')
+    expect(plan.operation).toBe('restructure_and_cleanup')
     expect(plan.mode).toBe('edit-task')
     expect(plan.operationResolution).toEqual({
       source: 'intent',
       intent: 'edit',
-      matched: 'restructure',
+      matched: 'restructure_and_cleanup',
     })
     expect(plan.segments[0]).toMatchObject({
       segmentId: 'structure-repair',
@@ -267,9 +267,18 @@ describe('buildLongDocumentExecutionPlan', () => {
       intent: 'edit',
     }))
 
-    expect(resolveLongDocumentWriteOperations(plan)).toEqual(['move', 'replace_match', 'rewrite'])
-    expect(buildLongDocumentWriteDirective(plan)).toContain('reorder_sections 必然空转')
-    expect(plan.invariants).toEqual([])
+    expect(resolveLongDocumentWriteOperations(plan)).toEqual([
+      'move',
+      'insert',
+      'delete',
+      'replace_match',
+      'rewrite',
+    ])
+    expect(buildLongDocumentWriteDirective(plan)).toContain('复合重构请分三阶段执行')
+    expect(plan.invariants).toEqual([
+      'planned-deletion-only',
+      'normalize-changes-punctuation-whitespace-format-only',
+    ])
   })
 
   it('classifies explicit follow-up write instructions from the current sentence', () => {
@@ -290,17 +299,28 @@ describe('buildLongDocumentExecutionPlan', () => {
   it('never degrades a routed edit intent to discussion', () => {
     const plan = buildLongDocumentExecutionPlan(makeInput({
       requestText: '这一版结构帮我处理一下',
-      content: '段'.repeat(74_841),
+      content: '# 第一卷\n\n第一卷内容\n\n# 第二卷\n\n第二卷内容',
       intent: 'edit',
     }))
 
-    expect(plan.operation).not.toBe('discussion')
-    expect(plan.mode).not.toBe('direct')
+    expect(plan.operation).toBe('targeted_edit')
     expect(plan.operationResolution).toEqual({
       source: 'intent',
       intent: 'edit',
-      matched: 'normalize',
+      matched: 'targeted_edit',
     })
+    expect(plan.mode).toBe('direct')
+    expect(resolveLongDocumentWriteOperations(plan)).toEqual([
+      'insert',
+      'replace_selection',
+      'replace_match',
+      'append',
+      'delete',
+      'move',
+      'reorder_sections',
+      'rewrite',
+      'replace_document',
+    ])
   })
 
   it('maps execution operations onto the legacy agent operation vocabulary', () => {
@@ -342,8 +362,109 @@ describe('buildLongDocumentExecutionPlan', () => {
       intent: 'edit',
     }))
 
-    expect(plan.operation).toBe('normalize')
-    expect(plan.mode).toBe('edit-task')
+    expect(plan.operation).toBe('targeted_edit')
+    expect(plan.operationResolution).toEqual({
+      source: 'intent',
+      intent: 'edit',
+      matched: 'targeted_edit',
+    })
+    expect(plan.mode).toBe('direct')
+  })
+
+  it('classifies an end-of-document append request as targeted editing', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '请在文末追加 双入口对照：追加段。',
+      content: '# 第一卷\n\n第一卷内容\n\n# 第二卷\n\n第二卷内容',
+      intent: 'edit',
+    }))
+
+    expect(plan.operation).toBe('targeted_edit')
+    expect(plan.operationResolution).toEqual({
+      source: 'intent',
+      intent: 'edit',
+      matched: 'targeted_edit',
+    })
+    expect(plan.mode).toBe('direct')
+  })
+
+  it('classifies a casual append sentence as targeted editing', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '随便帮我在后面补一句 潮声压过礁石。',
+      content: '# 第一卷\n\n第一卷内容\n\n# 第二卷\n\n第二卷内容',
+      intent: 'edit',
+    }))
+
+    expect(plan.operation).toBe('targeted_edit')
+    expect(plan.operationResolution).toEqual({
+      source: 'intent',
+      intent: 'edit',
+      matched: 'targeted_edit',
+    })
+    expect(plan.mode).toBe('direct')
+  })
+
+  it('classifies casual deletion wording as targeted editing', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '刚才授权节点那一行我不要了 删掉',
+      content: '# 第一卷\n\n第一卷内容\n\n第二轮明确授权后的新增卷纲节点。',
+      intent: 'edit',
+      activeTask: {
+        taskId: 'active-normalize-task',
+        operation: 'normalize',
+        originalRequest: '全文统一标点符号',
+      },
+    }))
+
+    expect(plan.operation).toBe('targeted_edit')
+    expect(plan.operationResolution).toEqual({
+      source: 'intent',
+      intent: 'edit',
+      matched: 'targeted_edit',
+    })
+    expect(plan.mode).toBe('direct')
+    expect(resolveLongDocumentWriteOperations(plan)).toContain('delete')
+  })
+
+  it('classifies an explicit whole-document replacement request as final-draft work', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '请把整篇大纲一次性替换成新版本',
+      content: Array.from({ length: 8 }, (_, index) => `# 第${index + 1}卷\n\n${'雨'.repeat(3_000)}\n\n`).join(''),
+      intent: 'edit',
+    }))
+
+    expect(plan.operation).toBe('rewrite_segments')
+    expect(plan.mode).toBe('final-draft')
+    expect(plan.operationResolution).toEqual({
+      source: 'intent',
+      intent: 'edit',
+      matched: 'rewrite_segments',
+    })
+  })
+
+  it('starts a fresh targeted edit after a failed terminal task instead of extending it', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '继续执行刚才的任务，改成安全的新增内容',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(12_000)}`,
+      intent: 'edit',
+      activeTask: {
+        taskId: 'terminal-task-1',
+        operation: 'normalize',
+        originalRequest: '全文统一标点符号',
+        status: 'terminal' as const,
+      },
+    }))
+
+    expect(plan.operation).toBe('targeted_edit')
+    expect(plan.operationResolution).toEqual({
+      source: 'intent',
+      intent: 'edit',
+      matched: 'targeted_edit',
+    })
+    expect(plan.mode).toBe('direct')
+    expect(plan.segments[0]).toMatchObject({
+      writeStrategy: 'replace_match',
+      expectedChange: 'rewrite',
+    })
   })
 
   it('extends an active restructure task with a continuation that permits deduplication', () => {

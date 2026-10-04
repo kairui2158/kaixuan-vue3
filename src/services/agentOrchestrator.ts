@@ -250,6 +250,16 @@ function evaluateWriteTaskRound(input: {
   return { progress: true, complete: true }
 }
 
+function isTerminalWriteConvergence(result: CallAiResult): boolean {
+  // aiService has already stopped the tool loop and asked the model for a
+  // final user-visible explanation. The orchestrator must consume that verdict
+  // instead of dispatching more physical requests against a rejected write.
+  if (result.finishReason !== 'tool_converged' && result.finishReason !== 'tool_converged_local') {
+    return false
+  }
+  return String(result.convergenceReason || '').startsWith('terminal write failure:')
+}
+
 export function createContextRemainingTool(
   getSnapshot: () => AgentOrchestratorSnapshot,
   getContextRemaining: () => { contextWindowTokens?: number | null; estimatedInputTokens?: number | null },
@@ -730,6 +740,20 @@ export class AgentOrchestrator {
 
       const suppliedEvaluator = this.runtime.evaluateRound
       const executionPlan = this.runtime.document?.executionPlan
+      if (isTerminalWriteConvergence(result)) {
+        this.transition('stalled', 'write_not_executed')
+        this.emit({
+          type: 'tool',
+          level: 'warning',
+          label: '写入任务终局收敛',
+          detail: 'editor.write 已被应用终态拒绝；保留收敛回复，不再发起物理请求',
+          payload: {
+            reason: 'write_not_executed',
+            finishReason: result.finishReason,
+          },
+        })
+        break
+      }
       const verdict = suppliedEvaluator
         ? suppliedEvaluator(result)
         : executionPlan && executionPlan.operation !== 'discussion'

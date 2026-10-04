@@ -188,6 +188,7 @@ import { getProviderReasoningControl } from '../../services/providerProtocols'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from '../../services/generationValidity'
 import { buildWorkspaceSkillGuidance, createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceSkillEngineAdapter, type WorkspaceSkillToolRequest, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
 import { collectSkillPackageProtocolDiagnostics, type RealSkillDiagnostic } from '../../services/realSkillExecutor'
+import type { EditorWriteContaminationDecision } from '../../services/editorTools'
 import {
   classifyPlainDialogueIntentDetailed,
   routeChainIntentDetailed,
@@ -275,7 +276,11 @@ import {
   type FinalDraftTask,
 } from '../../services/finalDraftService'
 import type { FinalDraftEvent } from '../../services/finalDraftService'
-import { useEditTaskSession, type EditTaskSessionLifecycleEvent } from '../../composables/useEditTaskSession'
+import {
+  useEditTaskSession,
+  type EditTaskSessionLifecycleEvent,
+} from '../../composables/useEditTaskSession'
+import type { EditTask } from '../../services/editTaskService'
 import { detectSourceContamination } from '../../services/sourceContaminationDetector'
 import { describeRoutingDiagEvent } from '../../services/routingDiagBridge'
 
@@ -366,6 +371,7 @@ const homeEditTaskSession = useEditTaskSession({
 const homeEditTask = computed(() => homeEditTaskSession.activeTaskRef().value)
 
 function recordHomeEditTaskEvent(event: EditTaskSessionLifecycleEvent) {
+  closeInvalidActiveExecutionTaskForEditTask(event.task)
   const activeBatchId = event.task.activeBatchId
   const activeBatchDetail = activeBatchId ? event.task.plan.batchDetails?.[activeBatchId] : undefined
   const payload = {
@@ -405,6 +411,39 @@ function recordHomeEditTaskEvent(event: EditTaskSessionLifecycleEvent) {
     `编辑任务事件：${event.type}`,
     payload,
   )
+}
+
+function isTerminalEditTaskStatus(status: EditTask['status']): boolean {
+  return status === 'completed'
+    || status === 'completed_with_warnings'
+    || status === 'failed_before_write'
+    || status === 'failed_after_write'
+    || status === 'canceled'
+}
+
+function closeInvalidActiveExecutionTaskForEditTask(task: EditTask): void {
+  if (!isTerminalEditTaskStatus(task.status)) return
+  if (
+    task.status === 'completed'
+    || task.status === 'completed_with_warnings'
+  ) {
+    const snapshot = buildSnapshot({
+      workspace: 'main',
+      targetId: task.target.targetId,
+      label: editorStore.activeTab?.title || '主页编辑器',
+      chapterId: editorStore.activeTab?.chapterId,
+      mode: editorStore.activeTab?.mode,
+      content: editorStore.activeTab?.content || '',
+    })
+    activeExecutionTaskStore.complete(
+      'main',
+      String(projectId.value),
+      snapshot.contentVersion,
+      hashEditorContent(snapshot.content),
+    )
+    return
+  }
+  activeExecutionTaskStore.clear('main', String(projectId.value))
 }
 
 async function resumeHomeEditTask(task: { id: string }) {
@@ -1318,7 +1357,14 @@ function recordHomeRoutingEvent(event: ChainRoutingEvent) {
       const matchedIntent = routing.intent
       const requestTarget = createMainEditorTargetSnapshot(editorStore.activeTab)
       const reroutedSurface = requestTarget.content
-        ? buildHomeDialogueToolSurface(requestTarget, matchedIntent, undefined, activeHomeExecutionPlan ?? undefined)
+        ? buildHomeDialogueToolSurface(
+          requestTarget,
+          matchedIntent,
+          undefined,
+          activeHomeExecutionPlan ?? undefined,
+          undefined,
+          event.requestText,
+        )
         : { tools: [] as AgentToolDefinition[] }
       const authorizedSurface = authorizeDialogueTools(reroutedSurface.tools, matchedIntent)
       runTraceStore.updateTurnIntent(homeRunTraceId, homeRunTurnId, {
@@ -1839,6 +1885,7 @@ function createHomeSkillAdapter(
               plan: activeHomeExecutionPlan,
             })
             : null,
+          request.requestText,
         ).tools
         : [],
       toolPolicy: requestTarget.content ? {
@@ -2643,6 +2690,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       skillSurfaceModel,
       homeExecutionPlan,
       homeWorkflowWriteAuthorization,
+      text,
     )
     : undefined
   const skillToolSurface = useHomeFinalDraft ? undefined : skillSurface?.actualToolSurface
@@ -3065,6 +3113,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
           model,
           homeExecutionPlan,
           homeWorkflowWriteAuthorization,
+          text,
         )
         : undefined
       const plainTools = plainSurface?.tools
@@ -4332,6 +4381,7 @@ function buildHomeDialogueToolSurface(
   model?: string,
   executionPlan?: LongDocumentExecutionPlan,
   writeAuthorization?: DialogueWriteAuthorization | null,
+  requestText?: string,
 ): ReturnType<typeof buildDialogueToolSurface> {
   return buildDialogueToolSurface({
     workspace: 'main',
@@ -4343,6 +4393,18 @@ function buildHomeDialogueToolSurface(
         || providerStore.activeGenerateProvider?.models?.[0] || '',
     ),
     ...buildChatEditorTools(requestTarget),
+    conversationMarkers: buildHomeConversationMarkers(),
+    userRequestText: requestText,
+    onContaminationDecision: (decision: EditorWriteContaminationDecision) => addHomeTraceEvent({
+      type: decision.type,
+      level: decision.type === 'write-contamination-rejected' ? 'warn' : 'info',
+      label: decision.type === 'write-contamination-rejected'
+        ? '写入内容包含历史对话表述，已整批拒绝'
+        : '写入内容由当前用户请求显式提供，允许通过',
+      detail: JSON.stringify(decision.payload),
+      payload: decision.payload,
+      turnId: homeRunTurnId,
+    }),
     executionPlan,
     activeEditTask: homeEditTask.value,
     onResumeEditTask: taskId => homeEditTaskSession.resumeEditTask(taskId),

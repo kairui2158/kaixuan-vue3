@@ -194,7 +194,14 @@ const server = http.createServer((request, response) => {
 
     if (isIntentClassifier) {
       assert.equal(record.tools.length, 0, 'intent classifier request must not carry editor tools')
-      respond(response, body, textCompletion('{"intent":"discuss","confidence":0.92,"reason":"读取或讨论状态"}'))
+      const classifierInput = (body?.messages || [])
+        .filter(message => message?.role === 'user')
+        .map(message => String(message.content || ''))
+        .join('\n')
+      const intent = /重新整理排序/.test(classifierInput)
+        ? 'edit'
+        : 'discuss'
+      respond(response, body, textCompletion(`{"intent":"${intent}","confidence":0.95,"reason":"按用户请求语义分类"}`))
       return
     }
 
@@ -1425,19 +1432,20 @@ async function main() {
     setScenario('million-document-edit-task')
     const millionForbiddenRequests = await sendOutlineExpectEvents(
       page,
-      '请把整篇大纲一次性替换成新版本',
+      '请把整篇大纲重新整理排序',
       ['long-document-policy', 'tool-call'],
     )
+    const millionForbiddenDialogueRequests = millionForbiddenRequests.filter(item => !item.isIntentClassifier)
     assert.equal(
-      millionForbiddenRequests.length,
+      millionForbiddenDialogueRequests.length,
       2,
       'forbidden whole-document replacement performs one write attempt and one convergence request',
     )
-    assertWriteSurface(millionForbiddenRequests[0], 'million forbidden write request')
+    assertWriteSurface(millionForbiddenDialogueRequests[0], 'million forbidden write request')
     const millionContentAfterForbidden = await outlineContent(page)
     assert.equal(millionContentAfterForbidden, beforeMillion, 'forbidden whole-document replacement does not change content')
     const forbiddenRun = await latestRun(page, 'outline')
-    const forbiddenTurn = (forbiddenRun?.turns || []).find(turn => turn.userRequest === '请把整篇大纲一次性替换成新版本')
+    const forbiddenTurn = (forbiddenRun?.turns || []).find(turn => turn.userRequest === '请把整篇大纲重新整理排序')
     assert(forbiddenTurn, 'forbidden whole-document replacement turn is recorded')
     const forbiddenWrites = (forbiddenRun?.apiCalls || [])
       .filter(call => call.turnId === forbiddenTurn?.id)
@@ -1459,7 +1467,10 @@ async function main() {
     assert(millionMapRequests.length >= 3, 'million map turn performs map and segmented read requests')
     assert(millionMapRequests.some(record => record.tools.includes('editor.document_map')), 'million turn can call editor.document_map')
     assert(millionMapRequests.some(record => record.tools.includes('editor.read_range')), 'million turn can call editor.read_range')
-    assert(millionMapRequests.some(record => record.tools.includes('editor.write')), 'million map turn remains write-capable')
+    assert(
+      millionMapRequests.every(record => !record.tools.includes('editor.write')),
+      'million map read-only turn must not expose editor.write',
+    )
 
     const millionWriteRequests = await sendOutlineExpectEvents(
       page,

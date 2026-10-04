@@ -125,7 +125,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muswji3o",
+            "planId": "long-document-muuebeej",
             "operation": "discussion",
             "legacyOperationType": "discussion",
             "mode": "direct",
@@ -154,7 +154,7 @@
               "folder:L1-B"
             ],
             "promptSource": "folder-system-prompt",
-            "guidanceChars": 6481,
+            "guidanceChars": 5754,
             "skillGuidancePresent": true
           }
         },
@@ -165,7 +165,7 @@
               "folder:L1-B"
             ],
             "promptSource": "folder-system-prompt",
-            "guidanceChars": 6481,
+            "guidanceChars": 5754,
             "skillGuidancePresent": true
           }
         }
@@ -297,7 +297,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muswjivb",
+            "planId": "long-document-muuebf6p",
             "operation": "discussion",
             "legacyOperationType": "discussion",
             "mode": "direct",
@@ -326,7 +326,7 @@
               "folder:L1-B"
             ],
             "promptSource": "folder-system-prompt",
-            "guidanceChars": 6481,
+            "guidanceChars": 5754,
             "skillGuidancePresent": true
           }
         },
@@ -337,7 +337,7 @@
               "folder:L1-B"
             ],
             "promptSource": "folder-system-prompt",
-            "guidanceChars": 6481,
+            "guidanceChars": 5754,
             "skillGuidancePresent": true
           }
         }
@@ -349,7 +349,7 @@
       "after": "# 权限单源化实测大纲\n\n## 第一章 灯塔与旧信\n沈萤沿着灯塔石阶往上走，潮声在礁石外退成一线。\n她在灯芯旁摊开旧信，纸面被潮气晕开了一角。\n\n## 第二章 菌膜外套\n数据板的光落在菌膜外套上，短促地闪了两下。\n这是用于验证编辑写入的稳定段落。【AUTHORITY-TEST】\n",
       "request": "直接修改第三章：在稳定段落末尾追加【AUTHORITY-TEST】。",
       "turnStatus": "success",
-      "turnReason": "plain_dialogue_complete",
+      "turnReason": "write_task_complete",
       "intent": "edit",
       "actualToolSurface": [
         {
@@ -487,7 +487,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muswjjmx",
+            "planId": "long-document-muuebg02",
             "operation": "targeted_edit",
             "legacyOperationType": "targeted-edit",
             "mode": "direct",
@@ -516,7 +516,7 @@
               "folder:L1-B"
             ],
             "promptSource": "folder-system-prompt",
-            "guidanceChars": 6481,
+            "guidanceChars": 5754,
             "skillGuidancePresent": true
           }
         },
@@ -527,7 +527,7 @@
               "folder:L1-B"
             ],
             "promptSource": "folder-system-prompt",
-            "guidanceChars": 6481,
+            "guidanceChars": 5754,
             "skillGuidancePresent": true
           }
         }

@@ -259,6 +259,8 @@ export interface CallAiResult {
   /** True when the provider response carried no usage block. */
   usageUnavailable?: boolean
   finishReason?: string
+  /** Why a tool-loop convergence round was requested; distinguishes terminal write failures from discussion convergence. */
+  convergenceReason?: string
   toolCalls?: NormalizedToolCall[]
   toolResults?: Array<{ call: { id?: string; name: string; input?: unknown }; result: ToolResult }>
   /** Compact cross-turn audit for the next request's system context. */
@@ -530,6 +532,26 @@ function hasModelCorrectableToolFailure(
   ])
   return results.some(item => item.result.ok === false
     && correctableCodes.has(item.result.error?.code || ''))
+}
+
+const TERMINAL_WRITE_FAILURE_CODES = new Set([
+  'permission_denied',
+  'document_too_large_for_whole_replacement',
+  'invariant_violation',
+  'write_target_mismatch',
+  'final_draft_mode_active',
+])
+
+function findTerminalWriteFailure(
+  results: Array<{ call: NormalizedToolCall; result: ToolResult }>,
+): { call: NormalizedToolCall; result: ToolResult } | undefined {
+  // A correctable error means the model still has a meaningful next tool
+  // call; stripping the tool surface there would strand an ambiguous target.
+  return results.find(item =>
+    item.call.name === 'editor.write'
+    && item.result.ok === false
+    && !hasModelCorrectableToolFailure([item])
+    && TERMINAL_WRITE_FAILURE_CODES.has(item.result.error?.code || ''))
 }
 
 function getCompatibilityWriteGuard(
@@ -2079,6 +2101,7 @@ export function createAiService(
     let lastToolAudit: CallAiResult['toolAudit']
     let consecutiveToolOnlyRounds = 0
     let readOnlySteeringSent = false
+    let writeContinuationSteeringSent = false
     let steerAfterToolResults = false
     let lastRoundToolResults: Array<{ call: NormalizedToolCall; result: ToolResult }> = []
     let consecutiveInvalidInputRounds = 0
@@ -2205,6 +2228,31 @@ export function createAiService(
           })
           lastResult = convergence
           return convergence
+        }
+        const executionPlan = params.toolPolicy?.executionPlan
+        const successfulWriteCount = allToolResults.filter(item =>
+          item.result.ok
+          && String(item.call.name).startsWith('editor.write')).length
+        const planRequiresMoreWrites = Boolean(executionPlan
+          && executionPlan.mode === 'edit-task'
+          && executionPlan.operation !== 'discussion'
+          && successfulWriteCount < executionPlan.segments.length)
+        if (planRequiresMoreWrites && !writeContinuationSteeringSent) {
+          writeContinuationSteeringSent = true
+          params.toolPolicy?.onToolWarning?.(
+            `写入计划尚未完成（${successfulWriteCount}/${executionPlan!.segments.length} 批），模型停止调用工具；本轮继续携带工具面，要求其执行剩余批次`,
+          )
+          const continuationSystem = {
+            role: 'system' as const,
+            content: [
+              '执行计划尚未完成，禁止把问题或计划当作最终回复。',
+              buildLongDocumentWriteDirective(executionPlan),
+              `当前已成功写入 ${successfulWriteCount} 批，计划共 ${executionPlan!.segments.length} 批。必须继续调用工具执行剩余批次；只有全部批次完成或遇到终态失败后，才能输出给用户看的最终总结。`,
+            ].join('\n'),
+          }
+          messages = [...messages, continuationSystem]
+          toolRequestDeltas.push({ ...continuationSystem })
+          continue
         }
         return {
           ...response,
@@ -2538,6 +2586,34 @@ export function createAiService(
         })
         return convergence
       }
+      const terminalWriteFailure = findTerminalWriteFailure(toolResults)
+      if (terminalWriteFailure) {
+        const errorCode = terminalWriteFailure.result.error?.code || 'unknown'
+        const errorMessage = terminalWriteFailure.result.error?.message || '写入被拒绝'
+        params.toolPolicy?.onToolWarning?.(
+          `editor.write 返回终态拒绝（${errorCode}）；已停止工具循环并要求模型直接向用户说明原因`,
+        )
+        const convergence = await requestToolConvergence({
+          reason: `terminal write failure: ${errorCode}`,
+          systemPrompt: [
+            `上一次 editor.write 已被应用终态拒绝，错误码：${errorCode}。`,
+            `拒绝原因：${errorMessage}`,
+            '当前请求不携带任何工具。禁止再次调用工具、输出工具协议或提出新的执行计划；直接向用户说明本轮未写入、被拒绝的操作、具体原因，以及用户可以采取的下一步操作。',
+          ].join('\n'),
+          params,
+          messages,
+          startTime,
+          providerId,
+          model,
+          lastResult,
+          allToolCalls,
+          allToolResults,
+          toolRequestDeltas,
+          lastToolAudit,
+        })
+        lastResult = convergence
+        return convergence
+      }
       if (iteration === maxIterations) hitToolLoopLimit = true
       lastToolAudit = buildCrossTurnToolAudit({
         toolCalls: allToolCalls,
@@ -2673,6 +2749,7 @@ export function createAiService(
           toolRequestDeltas,
           toolAudit: lastToolAudit,
           finishReason: 'tool_converged',
+          convergenceReason: reason,
         }
       }
       if (verdict.kind === 'empty_or_failed') {
@@ -2699,6 +2776,7 @@ export function createAiService(
       toolRequestDeltas,
       toolAudit: lastToolAudit,
       finishReason: 'tool_converged_local',
+      convergenceReason: reason,
     }
   }
 

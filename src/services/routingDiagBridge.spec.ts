@@ -14,6 +14,7 @@ describe('describeRoutingDiagEvent', () => {
   it('describes matched routing result as info with decision fields', () => {
     const event = describeRoutingDiagEvent({
       type: 'routing_result',
+      requestText: '帮我修改第一段',
       result: { kind: 'matched', intent: 'edit', confidence: 0.92, reason: 'edit-phrase' } as any,
     })
     expect(event.level).toBe('info')
@@ -25,6 +26,7 @@ describe('describeRoutingDiagEvent', () => {
   it('describes unmatched routing result as warn with fallback mode', () => {
     const event = describeRoutingDiagEvent({
       type: 'routing_result',
+      requestText: '随便聊聊',
       result: { kind: 'no_match', confidence: 0.2, reason: 'low-confidence', fallbackMode: 'await-user' } as any,
     })
     expect(event.level).toBe('warn')

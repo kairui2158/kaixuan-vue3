@@ -44,15 +44,46 @@ describe('ActiveExecutionTaskStore', () => {
     expect(store.get('outline', 'project-1')).toBeNull()
   })
 
-  it('clears the active task on reset, replacement, or terminal status', () => {
+  it('clears the active task on reset, replacement, or failed terminal status', () => {
     const store = new ActiveExecutionTaskStore()
     store.create(makeTask())
     store.clear('outline', 'project-1')
     expect(store.get('outline', 'project-1')).toBeNull()
 
     store.create(makeTask({ taskId: 'task-2' }))
-    store.markStatus('outline', 'project-1', 'completed')
+    store.markStatus('outline', 'project-1', 'failed')
     expect(store.get('outline', 'project-1')).toBeNull()
+  })
+
+  it('keeps a successfully completed task continuable until reset or invalidation', () => {
+    const store = new ActiveExecutionTaskStore()
+    const task = store.create(makeTask())
+
+    const completed = store.complete(
+      'outline',
+      'project-1',
+      2,
+      hashEditorContent('# 大纲\n\n第一卷\n\nAPI 已写入'),
+    )
+
+    expect(completed?.taskId).toBe(task.taskId)
+    expect(completed?.status).toBe('completed')
+    expect(store.getValidSnapshot(
+      'outline',
+      'project-1',
+      2,
+      hashEditorContent('# 大纲\n\n第一卷\n\nAPI 已写入'),
+    )).toEqual({
+      taskId: task.taskId,
+      operation: task.operation,
+      originalRequest: task.originalRequest,
+    })
+    expect(store.getValid(
+      'outline',
+      'project-1',
+      1,
+      hashEditorContent('# 大纲\n\n第一卷'),
+    )).toBeNull()
   })
 
   it('keeps a task continuable after its own successful write refreshes the document fingerprint', () => {

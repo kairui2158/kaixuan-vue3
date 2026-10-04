@@ -552,6 +552,7 @@ export interface UpdateTurnIntentInput {
 
 export interface StartApiCallInput {
   source?: RunTraceSource
+  turnId?: string
   step?: number
   skillId?: string
   skillName?: string
@@ -694,7 +695,7 @@ export interface RunMetadataInput {
   model?: string
 }
 
-const RUN_TRACE_SCHEMA_VERSION = 13
+const RUN_TRACE_SCHEMA_VERSION = 14
 const reportedLongRequestPhysicalIds = new Set<string>()
 const reportedTerminalMergeTaskIds = new Set<string>()
 
@@ -1146,7 +1147,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     backfillRunMetadata(runId, input)
     const call: RunTraceApiCall = {
       id: nextId('api'),
-      turnId: run.currentTurnId,
+      turnId: input.turnId || run.currentTurnId,
       seq: run.apiCalls.length + 1,
       step: input.step,
       skillId: input.skillId,
@@ -1332,6 +1333,22 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       label: `第 ${physical.seq} 次物理请求${physical.status === 'success' ? '完成' : physical.status === 'running' ? '进行中' : '失败'}`,
       detail: [physical.phase, call.skillName, call.model, physical.finishReason, physical.error].filter(Boolean).join(' / ')
     })
+    if (physical.status !== 'running') {
+      const priorPhysicalResponses = new Set((call.physicalCalls || [])
+        .filter(item => item !== physical)
+        .flatMap(item => [item.responseText, item.streamText])
+        .filter((text): text is string => typeof text === 'string' && Boolean(text)))
+      backfillApiResponseFromPhysicalCalls(call)
+      if (
+        priorPhysicalResponses.has(call.responseText || '')
+        && ((physical.responseText || '').trim() || (physical.streamText || '').trim())
+      ) {
+        call.responseText = physical.responseText || physical.streamText || ''
+      }
+      if (!String(call.responseText || '').trim() && String(call.streamText || '').trim()) {
+        call.responseText = call.streamText
+      }
+    }
     return physical.id
   }
 
@@ -1671,7 +1688,9 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     call.contextBudgetDecision = patch.contextBudgetDecision ?? call.contextBudgetDecision
     call.contextBudgetReason = patch.contextBudgetReason ?? call.contextBudgetReason
     call.usageReconciliation = patch.usageReconciliation ?? call.usageReconciliation
-    call.responseText = patch.responseText ?? call.responseText
+    // Tool-loop wrappers can finish with an empty aggregate while stream
+    // callbacks already produced the complete user-visible reply.
+    if (patch.responseText) call.responseText = patch.responseText
     const patchReasoning = patch.reasoningText || ''
     if (patchReasoning && patchReasoning.length >= call.reasoningText.length) {
       call.reasoningText = patchReasoning
@@ -1691,6 +1710,9 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     call.endedAt = Date.now()
     if (!String(call.responseText || '').trim() || !String(call.reasoningText || '').trim()) {
       backfillApiResponseFromPhysicalCalls(call)
+    }
+    if (!String(call.responseText || '').trim() && String(call.streamText || '').trim()) {
+      call.responseText = call.streamText
     }
     if (patch.usage) {
       call.semantic = {

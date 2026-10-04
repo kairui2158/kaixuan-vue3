@@ -275,7 +275,7 @@ export type ChainRunState =
 
 export type ChainRoutingEvent =
   | { type: 'routing_started'; requestText: string }
-  | { type: 'routing_result'; result: ChainRoutingResult }
+  | { type: 'routing_result'; requestText: string; result: ChainRoutingResult }
   | {
       type: 'routing_diagnostics'
       diagnostics: ChainRoutingDiagnostics
@@ -1280,6 +1280,7 @@ async function resolveWorkspaceIntentRouting(
     })
     callbacks.onRoutingEvent?.({
       type: 'routing_result',
+      requestText: input.requestText,
       result: bypassedResult,
     })
     return bypassedResult
@@ -1308,12 +1309,14 @@ async function resolveWorkspaceIntentRouting(
       }
       callbacks.onRoutingEvent?.({
         type: 'routing_result',
+        requestText: input.requestText,
         result: forcedResult,
       })
       return forcedResult
     }
     callbacks.onRoutingEvent?.({
       type: 'routing_result',
+      requestText: input.requestText,
       result: precomputed,
     })
     return precomputed
@@ -1359,12 +1362,14 @@ async function resolveWorkspaceIntentRouting(
     }
     callbacks.onRoutingEvent?.({
       type: 'routing_result',
+      requestText: input.requestText,
       result: forcedResult,
     })
     return forcedResult
   }
   callbacks.onRoutingEvent?.({
     type: 'routing_result',
+    requestText: input.requestText,
     result: effectiveRoutingResult,
   })
   return effectiveRoutingResult

@@ -5,16 +5,22 @@ import crypto from 'node:crypto'
 import { execFileSync, spawn } from 'node:child_process'
 import assert from 'node:assert/strict'
 import { chromium } from 'playwright'
+import { createRequire } from 'node:module'
+
+const require = createRequire(import.meta.url)
 
 const ROOT = process.cwd()
-const TRACE_ROOT = path.resolve('C:/Users/凯瑞/Desktop/SKILL调试文件/run-trace-outline-20261004-075619-deep')
-const OUTLINE_PATH = path.resolve('C:/Users/凯瑞/Desktop/测试/《绿潮》大纲总纲.md')
+const TRACE_ROOT = path.resolve(process.env.SHENYI_TRACE_ROOT
+  || 'C:/Users/凯瑞/Desktop/SKILL调试文件/run-trace-outline-20261004-075619-deep')
+const OUTLINE_PATH = path.resolve(process.env.SHENYI_OUTLINE_PATH
+  || path.join(ROOT, '_data', 'outline-20261004-replay-source.md'))
 const ELECTRON_EXE = path.join(ROOT, 'node_modules', 'electron', 'dist', 'electron.exe')
 const CDP_PORT = 9394
-const EXPORT_ROOT = path.join(ROOT, '_data', 'outline-20261004-live-replay-exports')
-const EVIDENCE_DIR = path.join(ROOT, '_audit', 'verification-outline-20261004-live-replay')
-const PROFILE = path.join(ROOT, '_data', 'outline-20261004-live-replay-profile')
-const PROJECT_ID = 'outline-20261004-live-replay'
+const REPLAY_ID = process.env.SHENYI_REPLAY_ID || '20261004'
+const EXPORT_ROOT = path.join(ROOT, '_data', `outline-${REPLAY_ID}-live-replay-exports`)
+const EVIDENCE_DIR = path.join(ROOT, '_audit', `verification-outline-${REPLAY_ID}-live-replay`)
+const PROFILE = path.join(ROOT, '_data', `outline-${REPLAY_ID}-live-replay-profile`)
+const PROJECT_ID = process.env.SHENYI_REPLAY_PROJECT_ID || 'outline-20261004-live-replay'
 const API_KEY = process.env.SHENYI_LIVE_API_KEY
 const BASE_URL = process.env.SHENYI_LIVE_BASE_URL || 'https://openapi.cloud-ai.cn/v1'
 const MODEL = process.env.SHENYI_LIVE_MODEL || 'deepseek-v4-pro'
@@ -34,9 +40,55 @@ const clientTurns = clientTrace.turns.map(turn => ({
 }))
 assert.equal(clientTrace.source, 'outline', 'client trace source is outline')
 assert.equal(clientTrace.model, MODEL, `client trace model matches ${MODEL}`)
-assert.equal(clientTurns.length, 6, 'client live replay covers all six turns')
+const EXPECTED_TURN_COUNT = Number(process.env.SHENYI_REPLAY_TURN_COUNT || 6)
+assert.equal(clientTurns.length, EXPECTED_TURN_COUNT, `client live replay covers all ${EXPECTED_TURN_COUNT} turns`)
 assert.equal(clientOutline.length, 74841, 'live replay uses the customer 74,841-character outline')
-assert(API_KEY && API_KEY.length >= 20, 'SHENYI_LIVE_API_KEY is required')
+const CREDENTIAL_PROFILE_FALLBACKS = [
+  path.join(ROOT, '_data', 'long-document-restructure-phase6-credentials'),
+  path.join(ROOT, '_data', 'long-document-restructure-phase6-profile'),
+  path.join(ROOT, '_data', 'outline-deletion-live-replay-profile'),
+]
+
+function restoreLiveCredentialsFromPreviousProfile() {
+  if (API_KEY) return
+  for (const credentialProfile of CREDENTIAL_PROFILE_FALLBACKS) {
+    const providerPath = path.join(credentialProfile, 'documents-data', 'wa_providers.json')
+    if (!fs.existsSync(providerPath)) continue
+    const stored = JSON.parse(fs.readFileSync(providerPath, 'utf8'))
+    const provider = (stored?.providers || []).find(item =>
+      item?.baseUrl
+      && typeof item?.apiKey === 'string'
+      && (item.apiKey.startsWith('enc:') || item.apiKey.startsWith('sk-')))
+    if (!provider) continue
+    const apiKey = provider.apiKey.startsWith('enc:')
+      ? require('electron').safeStorage.decryptString(Buffer.from(provider.apiKey.slice(4), 'base64'))
+      : provider.apiKey
+    if (!apiKey) continue
+    process.env.SHENYI_LIVE_API_KEY = apiKey
+    if (!process.env.SHENYI_LIVE_BASE_URL) process.env.SHENYI_LIVE_BASE_URL = provider.baseUrl
+    return
+  }
+  assert(false, 'live credentials are not available from SHENYI_LIVE_* env vars or previous encrypted profiles')
+}
+
+restoreLiveCredentialsFromPreviousProfile()
+assert(process.env.SHENYI_LIVE_API_KEY && process.env.SHENYI_LIVE_API_KEY.length >= 20,
+  'SHENYI_LIVE_API_KEY is required')
+
+function countVisibleResponseText(calls) {
+  return calls.reduce((sum, call) => sum + countResponseFromApiCall(call), 0)
+}
+
+function countResponseFromApiCall(call) {
+  const physicalResponseChars = (call.physicalCalls || []).reduce((sum, physical) =>
+    sum + Math.max((physical.responseText || '').length, (physical.streamText || '').length), 0)
+  return Math.max(
+    (call.responseText || '').length,
+    (call.responseTextPreview || '').length,
+    (call.streamText || '').length,
+    physicalResponseChars,
+  )
+}
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -109,12 +161,12 @@ async function closeProjectModal(page) {
 }
 
 async function seedProject(page) {
-  await page.evaluate(async ({ baseUrl, model, apiKey, projectId }) => {
+  await page.evaluate(async ({ baseUrl, model, apiKey, projectId, replayId }) => {
     await window.electronAPI.storageWrite('wa_lastProjectId', projectId)
     await window.electronAPI.storageWrite('wa_providers', {
       providers: [{
-        id: 'outline-20261004-live-provider',
-        name: 'Outline 20261004 Live',
+        id: `outline-${replayId}-live-provider`,
+        name: `Outline ${replayId} Live`,
         baseUrl,
         apiKey,
         models: [model],
@@ -126,11 +178,11 @@ async function seedProject(page) {
         providerType: 'openai-compatible',
         streamMode: true,
       }],
-      generateProvider: 'outline-20261004-live-provider',
+      generateProvider: `outline-${replayId}-live-provider`,
     })
     await window.electronAPI.storageWrite(`wa_project_${projectId}`, {
       schemaVersion: 3,
-      projectName: 'Outline 20261004 Live Replay',
+      projectName: `Outline ${replayId} Live Replay`,
       outlineText: '',
       outlineLocked: false,
       outlineLockedText: '',
@@ -155,7 +207,7 @@ async function seedProject(page) {
     await window.electronAPI.storageWrite('wa_skills', { skills: [] })
     await window.electronAPI.storageWrite('wa_pipeline_step_config', { agents: { 0: '' }, skills: { 0: [] }, modes: { 0: 'compose' }, skillAgents: {} })
     await window.electronAPI.storageWrite('wa_co_creation_config', { agentId: '', skillIds: [], mode: 'compose', skillAgents: {} })
-  }, { baseUrl: BASE_URL, model: MODEL, apiKey: API_KEY, projectId: PROJECT_ID })
+  }, { baseUrl: BASE_URL, model: MODEL, apiKey: API_KEY, projectId: PROJECT_ID, replayId: REPLAY_ID })
   await page.reload({ waitUntil: 'domcontentloaded' })
   await page.waitForSelector('#app', { timeout: 20000 })
   await sleep(1200)
@@ -199,7 +251,17 @@ async function sampleProgress(page, expectedUserCount) {
       turnStatus: target?.status || null,
       apiCalls: calls.length,
       toolCalls: calls.reduce((sum, call) => sum + (call.toolCalls || []).length, 0),
-      responseChars: calls.reduce((sum, call) => sum + (call.responseText || '').length, 0),
+      responseChars: calls.reduce((sum, call) => {
+        const physicalResponseChars = (call.physicalCalls || []).reduce((physicalSum, physical) =>
+          physicalSum + Math.max((physical.responseText || '').length, (physical.streamText || '').length), 0)
+        return sum + Math.max(
+          (call.responseText || '').length,
+          (call.responseTextPreview || '').length,
+          (call.streamText || '').length,
+          physicalResponseChars,
+        )
+      }, 0),
+      physicalCalls: calls.reduce((sum, call) => sum + (call.physicalCalls || []).length, 0),
       events: (run?.events || []).length,
       assistantChars: chat.filter(item => item?.role === 'assistant').at(-1)?.content?.length || 0,
       lastEventType: (run?.events || []).at(-1)?.type || null,
@@ -259,16 +321,36 @@ async function sendTurn(page, turn, index) {
       .sort((a, b) => b.startedAt - a.startedAt)[0]
     const target = (run?.turns || [])[count - 1]
     const calls = (run?.apiCalls || []).filter(call => call.turnId === target?.id)
+    const turnEvents = (run?.events || []).filter(event => event.turnId === target?.id)
+    let executionOperation = null
+    const policyEvent = turnEvents.find(event => event.type === 'long-document-policy')
+    if (policyEvent) {
+      try {
+        executionOperation = JSON.parse(String(policyEvent.detail || '{}')).operation || null
+      } catch {}
+    }
     const chat = window.__pinia?._s?.get('project')?.outlineChat || []
     return {
       turnStatus: target?.status || null,
-      intent: target?.intent || null,
       reason: target?.reason || null,
+      intent: target?.intent || null,
+      executionOperation,
+      actualToolSurface: target?.actualToolSurface || [],
+      editTaskBatchesSucceeded: turnEvents.filter(event => event.type === 'edit-task-batch-succeeded').length,
+      editTaskCompletionVerified: turnEvents.some(event => event.type === 'edit-task-completion-verified'),
       assistantReply: (chat.filter(item => item.role === 'assistant').at(-1)?.content || '').slice(0, 1000),
       apiCalls: calls.map(call => ({
         status: call.status,
-        responseChars: (call.responseText || '').length,
-        responsePreview: (call.responseText || '').slice(0, 300),
+        responseChars: Math.max(
+          (call.responseText || '').length,
+          (call.responseTextPreview || '').length,
+          (call.streamText || '').length,
+          (call.physicalCalls || []).reduce((sum, physical) =>
+            sum + Math.max((physical.responseText || '').length, (physical.streamText || '').length), 0),
+        ),
+        responsePreview: (call.responseText || call.responseTextPreview || call.streamText || '').slice(0, 300),
+        physicalResponseChars: (call.physicalCalls || []).reduce((sum, physical) =>
+          sum + Math.max((physical.responseText || '').length, (physical.streamText || '').length), 0),
       })),
       toolCalls: calls.flatMap(call => (call.toolCalls || []).map(tool => ({
         name: tool.name,
@@ -281,13 +363,54 @@ async function sendTurn(page, turn, index) {
   console.log(`[LIVE TURN ${index}/${clientTurns.length}] ${JSON.stringify({ ...details, contentBefore: before.length, contentAfter: after.length })}`)
   assert.equal(details.turnStatus, 'success', `turn ${index} closes successfully`)
   assert(details.apiCalls.length > 0, `turn ${index} records API calls`)
-  assert(details.apiCalls.every(call => call.status === 'success'), `turn ${index} API calls close successfully`)
+  const summaryFailureIsAllowed = details.reason === 'edit_task_written_summary_failed'
+  assert(
+    details.apiCalls.every(call => call.status === 'success' || (summaryFailureIsAllowed && call.status === 'failed')),
+    `turn ${index} API calls close successfully unless only the post-write summary failed`,
+  )
   assert(details.apiCalls.some(call => call.responseChars > 0), `turn ${index} exposes the model response in trace`)
   assert(details.assistantReply.trim().length > 0, `turn ${index} leaves a visible assistant reply`)
   assert(!details.toolCalls.some(tool => tool.errorCode === 'operation_not_allowed_by_execution_plan'), `turn ${index} must not reject editor.write by execution plan`)
   assert(!/(?:没有|无法|不能|没).{0,8}写入权限|写入权限.{0,8}(?:不存在|已关闭|没有)/.test(details.assistantReply), `turn ${index} must not claim missing write permission`)
-  if (turn.intent === 'edit') assert.equal(details.intent, 'edit', `turn ${index} keeps the client edit intent`)
-  return { before, after, ...details }
+  const successfulWrites = details.toolCalls.filter(tool => tool.name === 'editor.write' && tool.status === 'success').length
+  if (turn.intent === 'edit') {
+    assert.equal(details.intent, 'edit', `turn ${index} keeps the client edit intent`)
+    assert(details.executionOperation && details.executionOperation !== 'discussion', `turn ${index} records a writable execution operation`)
+    if (index === 2) {
+      assert.equal(details.executionOperation, 'restructure_and_cleanup', 'turn 2 continues the compound task as restructure_and_cleanup')
+    }
+    assert(
+      details.actualToolSurface.some(tool => tool.name === 'editor.write'),
+      `turn ${index} exposes editor.write on the actual tool surface`,
+    )
+    assert(
+      ['write_task_complete', 'edit_task_written_summary_failed'].includes(details.reason),
+      `turn ${index} completes through a write-task terminal, not plain dialogue: ${details.reason}`,
+    )
+    assert(
+      successfulWrites > 0 || details.editTaskBatchesSucceeded > 0,
+      `turn ${index} proves completion with editor.write or EditTask batches`,
+    )
+    assert(
+      after !== before || details.editTaskCompletionVerified,
+      `turn ${index} changes the editor or passes EditTask completion verification`,
+    )
+  } else {
+    assert.equal(details.intent, 'discuss', `turn ${index} keeps the client discuss intent`)
+    assert.equal(details.reason, 'plain_dialogue_complete', `turn ${index} completes as plain dialogue`)
+    assert(
+      !details.actualToolSurface.some(tool => tool.name === 'editor.write'),
+      `turn ${index} remains read-only for discussion`,
+    )
+    assert.equal(successfulWrites, 0, `turn ${index} must not write during discussion`)
+  }
+  return {
+    index,
+    turnId: clientTurns[index - 1]?.id || null,
+    before,
+    after,
+    ...details,
+  }
 }
 
 async function capture(page, name) {
@@ -321,7 +444,7 @@ async function main() {
   const electronProcess = startElectron()
   let browser = null
   const evidence = {
-    schema: 'shenyi.outline-20261004.live-replay.electron',
+    schema: `shenyi.outline-${REPLAY_ID}.live-replay.electron`,
     version: 1,
     generatedAt: new Date().toISOString(),
     model: MODEL,
@@ -355,12 +478,17 @@ async function main() {
       const result = await sendTurn(page, turn, index)
       evidence.turns.push({
         index,
+        turnId: result.turnId,
         user: turn.user,
         clientIntent: turn.intent,
         currentIntent: result.intent,
+        executionOperation: result.executionOperation,
         turnStatus: result.turnStatus,
+        reason: result.reason,
         responseChars: result.apiCalls.reduce((sum, call) => sum + call.responseChars, 0),
         toolCallSummary: result.toolCalls.map(tool => `${tool.name}:${tool.status}${tool.errorCode ? `/${tool.errorCode}` : ''}`),
+        editTaskBatchesSucceeded: result.editTaskBatchesSucceeded,
+        editTaskCompletionVerified: result.editTaskCompletionVerified,
         contentBefore: result.before.length,
         contentAfter: result.after.length,
       })
@@ -387,9 +515,10 @@ async function main() {
       })
     }, { exportRoot: EXPORT_ROOT, runId: run.id })
     assert(exportResult?.success, `trace export succeeds: ${exportResult?.reason || ''}`)
-    const exportDir = path.dirname(exportResult.path)
-    const exportedTrace = JSON.parse(fs.readFileSync(exportResult.path, 'utf8'))
-    assert.equal(exportedTrace.schemaVersion, 13, 'live replay export uses schema v13')
+    const exportDir = exportResult.path
+    const exportedTracePath = path.join(exportDir, 'run-trace.json')
+    const exportedTrace = JSON.parse(fs.readFileSync(exportedTracePath, 'utf8'))
+    assert.equal(exportedTrace.schemaVersion, 14, 'live replay export uses schema v14')
     const exportedData = JSON.parse(fs.readFileSync(path.join(exportDir, 'export.json'), 'utf8'))
     assert.equal(exportedData.apiResponseIndexVerification?.ok, true,
       `exported apiResponseIndex passes ref verification: ${JSON.stringify(exportedData.apiResponseIndexVerification)}`)
@@ -397,6 +526,25 @@ async function main() {
       'live replay export contains apiResponseIndex')
     const indexedResponses = exportedTrace.apiResponseIndex.filter(entry => entry.response)
     assert(indexedResponses.length > 0, 'live replay export indexes API responses')
+    assert.equal(
+      indexedResponses.length,
+      exportedTrace.apiResponseIndex.length,
+      'every API call in the live replay export has an indexed response',
+    )
+    const exportedTurnIds = new Set((exportedTrace.turns || []).map(turn => turn.id))
+    const indexedTurnIds = new Set(indexedResponses.map(entry => entry.turnId))
+    assert(exportedTurnIds.size > 0, 'exported trace contains turn ids')
+    for (const turnId of exportedTurnIds) {
+      assert(
+        indexedTurnIds.has(turnId),
+        `exported apiResponseIndex covers every exported turn: missing ${turnId}`,
+      )
+    }
+    assert(
+      indexedResponses.length >= evidence.turns.filter(turn => turn.editTaskBatchesSucceeded > 0
+        || turn.toolCallSummary.some(summary => summary.startsWith('editor.write:success'))).length,
+      'exported apiResponseIndex covers at least every write turn',
+    )
     for (const entry of indexedResponses) {
       const payloadPath = path.join(exportDir, 'payloads', entry.response.file)
       assert(fs.existsSync(payloadPath), `indexed response payload exists: ${entry.response.file}`)
@@ -408,7 +556,7 @@ async function main() {
     evidence.indexedResponseCount = indexedResponses.length
     evidence.indexedResponseChars = indexedResponses.reduce((sum, entry) => sum + entry.response.chars, 0)
     console.log(`[PASS] exported apiResponseIndex: ${indexedResponses.length} responses, ${evidence.indexedResponseChars} chars`)
-    evidence.exportPath = exportResult.path
+    evidence.exportPath = exportedTracePath
     evidence.finalWriteCount = finalWrite
     fs.writeFileSync(path.join(EVIDENCE_DIR, 'result.json'), JSON.stringify(evidence, null, 2), 'utf8')
     console.log(`===== OUTLINE 20261004 LIVE REPLAY PASSED (${MODEL}) =====`)

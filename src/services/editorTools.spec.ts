@@ -7,6 +7,7 @@ import {
 } from './editorTools'
 import { createEditorTargetSnapshot } from './editorTarget'
 import { buildLongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
+import type { ToolEventSink } from './editorTools'
 
 const snapshot = createEditorTargetSnapshot({
   workspace: 'main',
@@ -117,6 +118,56 @@ describe('editorTools', () => {
     expect(appliedBatches[0].original).toBe(snapshot.content)
   })
 
+  it('locate normalizes escaped whitespace without exposing a write path', async () => {
+    const escapedSnapshot = createEditorTargetSnapshot({
+      workspace: 'outline',
+      targetId: 'outline',
+      label: '大纲',
+      content: '第一段 沈萤停下。\n\t她在灯塔下看旧信。',
+    })
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({ getSnapshot: () => escapedSnapshot }))
+
+    const result = await gateway.execute('editor.locate', {
+      fragment: '沈萤停下。\\n\\t她在灯塔下看旧信。',
+    }, { ...makeContext(), workspace: 'outline', targetId: 'outline' })
+
+    expect(result.ok).toBe(true)
+    expect((result.data as any)).toMatchObject({
+      unique: true,
+      fuzzy: false,
+      normalized: true,
+      start: escapedSnapshot.content.indexOf('沈萤停下'),
+      end: escapedSnapshot.content.length,
+    })
+  })
+
+  it('does not relax exact write matching through locate normalization', async () => {
+    const escapedSnapshot = createEditorTargetSnapshot({
+      workspace: 'outline',
+      targetId: 'outline',
+      label: '大纲',
+      content: '第一段 沈萤停下。\n\t她在灯塔下看旧信。',
+    })
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => escapedSnapshot,
+      mode: 'direct',
+      applyWrite: async () => ({ ok: true, rollbackAvailable: true }),
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [{
+        operation: 'replace_match',
+        target: '沈萤停下。\\n\\t她在灯塔下看旧信。',
+        content: '新主角',
+      }],
+    }, { ...makeContext(), workspace: 'outline', targetId: 'outline' })
+
+    expect(result.ok).toBe(false)
+    expect(result.error?.code).toBe('target_not_found')
+  })
+
   it('editor.write returns the document version from the workspace applier', async () => {
     const gateway = new ToolGateway()
     gateway.registerAll(createEditorTools({
@@ -137,6 +188,73 @@ describe('editorTools', () => {
     expect(result.ok).toBe(true)
     expect((result.data as any).documentVersion).toBe(7)
     expect((result.data as any).contentHash).toBe('hash-after-write')
+  })
+
+  it('rejects an entire contaminated write batch without calling applyWrite and emits a trace event', async () => {
+    const appliedWrites: any[] = []
+    const events: any[] = []
+    const decisions: any[] = []
+    const onEvent: ToolEventSink = event => events.push(event)
+    const gateway = new ToolGateway()
+    gateway.onEvent(onEvent)
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      applyWrite: async input => {
+        appliedWrites.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+      conversationMarkers: [
+        { role: 'assistant', content: '我已经完成了灯塔回收和风暴伏笔的统一整理。' },
+      ],
+      onContaminationDecision: decision => decisions.push(decision),
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [{ operation: 'append', content: '我已经完成了灯塔回收和风暴伏笔的统一整理。' }],
+    }, makeContext())
+
+    expect(result.ok).toBe(false)
+    expect(result.error?.code).toBe('conversation_contamination')
+    expect(result.error?.retryable).toBe(true)
+    expect((result.data as any).guard).toMatchObject({ decision: 'rejected' })
+    expect(appliedWrites).toHaveLength(0)
+    expect(decisions.at(-1)).toMatchObject({
+      type: 'write-contamination-rejected',
+      payload: { decision: 'rejected' },
+    })
+  })
+
+  it('allows a conversation fragment when the current user request explicitly provided it', async () => {
+    const appliedWrites: any[] = []
+    const events: any[] = []
+    const decisions: any[] = []
+    const gateway = new ToolGateway()
+    gateway.onEvent(event => events.push(event))
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      applyWrite: async input => {
+        appliedWrites.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+      conversationMarkers: [
+        { role: 'assistant', content: '我已经完成了灯塔回收和风暴伏笔的统一整理。' },
+      ],
+      userRequestText: '请把这句话写入正文：我已经完成了灯塔回收和风暴伏笔的统一整理。',
+      onContaminationDecision: decision => decisions.push(decision),
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [{ operation: 'append', content: '我已经完成了灯塔回收和风暴伏笔的统一整理。' }],
+    }, makeContext())
+
+    expect(result.ok).toBe(true)
+    expect(appliedWrites).toHaveLength(1)
+    expect(decisions.at(-1)).toMatchObject({
+      type: 'write-contamination-bypassed',
+      payload: { decision: 'user_provided' },
+    })
   })
 
   it('editor.write rejects validation failures without calling applyWrite', async () => {
@@ -337,6 +455,60 @@ describe('editorTools', () => {
     }, makeContext())
     expect(rewrite.ok).toBe(true)
     expect(appliedBatches).toHaveLength(1)
+  })
+
+  it('editor.write keeps the dedicated protocol rejection for whole-document replacement under an edit task', async () => {
+    const longContent = [
+      '第1节',
+      '',
+      '甲'.repeat(5200),
+      '',
+      '第2节',
+      '',
+      '乙'.repeat(5200),
+      '',
+    ].join('\n')
+    const longDocumentSnapshot = createEditorTargetSnapshot({
+      workspace: 'outline',
+      targetId: 'million-outline',
+      label: '百万字大纲',
+      content: longContent,
+    })
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => longDocumentSnapshot,
+      mode: 'direct',
+      executionPlan: buildLongDocumentExecutionPlan({
+        requestText: '把整篇大纲重新整理排序',
+        content: longContent,
+        contextWindowTokens: 12_000,
+        maxOutputTokens: 2_048,
+      }),
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [{
+        operation: 'replace_document',
+        content: '整篇替换在长文档计划下必须被拒绝。',
+        reason: '长文档整篇替换负向测试',
+      }],
+    }, {
+      ...makeContext(),
+      workspace: 'outline',
+      targetId: 'million-outline',
+      writableTarget: 'million-outline',
+    })
+
+    expect(result.ok).toBe(false)
+    expect(result.error?.code).toBe('document_too_large_for_whole_replacement')
+    expect(result.error?.message).toContain('禁止整篇 replace_document')
+    expect(result.error?.retryable).toBe(true)
+    expect(appliedBatches).toHaveLength(0)
   })
 
   it('editor.write applies deduplicate deletions in sequential batches and blocks collateral rewrites', async () => {

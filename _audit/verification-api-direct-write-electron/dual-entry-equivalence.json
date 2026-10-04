@@ -1,7 +1,7 @@
 {
   "schema": "shenyi.api-direct-write-dual-entry-equivalence",
   "version": 1,
-  "generatedAt": "2026-09-24T19:01:43.493Z",
+  "generatedAt": "2026-10-04T14:32:17.611Z",
   "documentChars": 5046,
   "operations": [
     "append",

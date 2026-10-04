@@ -102,17 +102,19 @@ export interface LongDocumentExecutionPlannerInput {
     taskId: string
     operation: LongDocumentExecutionOperation
     originalRequest: string
+    status?: 'active' | 'terminal'
   }
 }
 
 const RESTRUCTURE_PATTERN = /(重排|排序|重新整理排序|整理排序|统一编号|统一格式|调整顺序)/
 const RESTRUCTURE_ALIAS_PATTERN = /(重构|重新组织|Word文档|word文档|WORD文档)/
+const WORD_FORMAT_RESTRUCTURE_PATTERN = /(?:Word|word|WORD)文档(?:的)?(?:形式|格式|样式|排版|结构)/
 const NORMALIZE_PATTERN = /(标点|格式整理|整理.*格式|符号|排版)/
 const DEDUPLICATE_PATTERN = /(重复项|重复的|重复内容|重复章节|去重|删.*重复|重复.*删)/
 const DEDUPLICATE_NEGATED_CONTEXT_PATTERN = /(未|不|没(?:有)?|无|非)重复/g
 const NORMALIZE_HEADING_PATTERN = /(标题层级|编号.*标点|标点.*编号)/
-const REWRITE_PATTERN = /(全文重写|重写全文|整篇重写|重写整篇|全文替换|全部替换|输出完整终稿|生成完整终稿)/
-const TARGETED_EDIT_PATTERN = /(修改|删除|插入|替换|增加|添加|改写|微调|润色|移动|写入)/
+const REWRITE_PATTERN = /(全文重写|重写全文|整篇重写|重写整篇|全文替换|全部替换|一次性替换|替换成新版本|输出完整终稿|生成完整终稿)/
+const TARGETED_EDIT_PATTERN = /(修改|删除|删掉|删了|划掉|移除|不要了|插入|替换|增加|新增|添加|追加|补一句|补一段|补上|帮我补|改写|微调|润色|移动|写入)/
 
 function resolvePositiveNumber(value: unknown): number | null {
   const parsed = Number(value)
@@ -139,7 +141,9 @@ function hasRestructureIntent(text: string): boolean {
 }
 
 function hasNormalizeIntent(text: string): boolean {
-  return NORMALIZE_PATTERN.test(text) || NORMALIZE_HEADING_PATTERN.test(text)
+  return NORMALIZE_PATTERN.test(text)
+    || NORMALIZE_HEADING_PATTERN.test(text)
+    || WORD_FORMAT_RESTRUCTURE_PATTERN.test(text)
 }
 
 function hasDeduplicateIntent(text: string): boolean {
@@ -201,6 +205,7 @@ function resolveOperation(
     input.activeTask &&
     input.activeTask.operation !== 'discussion' &&
     input.activeTask.operation !== 'rewrite_segments' &&
+    input.activeTask.status !== 'terminal' &&
     hasContinuationSemantics(input.requestText)
   ) {
     const base = input.activeTask.operation
@@ -244,7 +249,10 @@ function resolveOperation(
 
 function classifyWritableOperation(requestText: string): LongDocumentExecutionOperation {
   const classified = classifyOperation(requestText)
-  return classified === 'discussion' ? 'normalize' : classified
+  // A routed write intent already carries the authority signal. Unknown
+  // wording must stay targeted and retain the full edit operation set; mapping
+  // it to normalize silently forbids deletes and inserts.
+  return classified === 'discussion' ? 'targeted_edit' : classified
 }
 
 function resolveExecutionMode(input: {

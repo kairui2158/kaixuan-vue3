@@ -6,7 +6,7 @@
       "after": "# 权限单源化实测大纲\n\n## 第一章 灯塔与旧信\n沈萤沿着灯塔石阶往上走，潮声在礁石外退成一线。\n她在灯芯旁摊开旧信，纸面被潮气晕开了一角。\n\n## 第二章 菌膜外套\n数据板的光落在菌膜外套上，短促地闪了两下。\n这是用于验证编辑写入的稳定段落。\n",
       "request": "先不动正文，解释一下第一卷钩子的设计目的。",
       "turnStatus": "success",
-      "turnReason": "co_creation_complete",
+      "turnReason": "plain_dialogue_complete",
       "intent": "discuss",
       "actualToolSurface": [
         {
@@ -109,7 +109,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muswjrlh",
+            "planId": "long-document-muuebob5",
             "operation": "discussion",
             "legacyOperationType": "discussion",
             "mode": "direct",
@@ -138,7 +138,7 @@
               "folder:L1-B"
             ],
             "promptSource": "folder-system-prompt",
-            "guidanceChars": 6481,
+            "guidanceChars": 5754,
             "skillGuidancePresent": true
           }
         },
@@ -149,7 +149,7 @@
               "folder:L1-B"
             ],
             "promptSource": "folder-system-prompt",
-            "guidanceChars": 6481,
+            "guidanceChars": 5754,
             "skillGuidancePresent": true
           }
         }
@@ -161,7 +161,7 @@
       "after": "# 权限单源化实测大纲\n\n## 第一章 灯塔与旧信\n沈萤沿着灯塔石阶往上走，潮声在礁石外退成一线。\n她在灯芯旁摊开旧信，纸面被潮气晕开了一角。\n\n## 第二章 菌膜外套\n数据板的光落在菌膜外套上，短促地闪了两下。\n这是用于验证编辑写入的稳定段落。\n",
       "request": "修改后是什么样？只预览，不要写入。",
       "turnStatus": "success",
-      "turnReason": "co_creation_complete",
+      "turnReason": "plain_dialogue_complete",
       "intent": "discuss",
       "actualToolSurface": [
         {
@@ -265,7 +265,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muswjsd7",
+            "planId": "long-document-muuebp28",
             "operation": "discussion",
             "legacyOperationType": "discussion",
             "mode": "direct",
@@ -294,7 +294,7 @@
               "folder:L1-B"
             ],
             "promptSource": "folder-system-prompt",
-            "guidanceChars": 6481,
+            "guidanceChars": 5754,
             "skillGuidancePresent": true
           }
         },
@@ -305,7 +305,7 @@
               "folder:L1-B"
             ],
             "promptSource": "folder-system-prompt",
-            "guidanceChars": 6481,
+            "guidanceChars": 5754,
             "skillGuidancePresent": true
           }
         }
@@ -317,7 +317,7 @@
       "after": "# 权限单源化实测大纲\n\n## 第一章 灯塔与旧信\n沈萤沿着灯塔石阶往上走，潮声在礁石外退成一线。\n她在灯芯旁摊开旧信，纸面被潮气晕开了一角。\n\n## 第二章 菌膜外套\n数据板的光落在菌膜外套上，短促地闪了两下。\n这是用于验证编辑写入的稳定段落。【AUTHORITY-TEST】\n",
       "request": "直接修改第三章：在稳定段落末尾追加【AUTHORITY-TEST】。",
       "turnStatus": "success",
-      "turnReason": "co_creation_complete",
+      "turnReason": "write_task_complete",
       "intent": "edit",
       "actualToolSurface": [
         {
@@ -441,7 +441,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muswjt56",
+            "planId": "long-document-muuebpu7",
             "operation": "targeted_edit",
             "legacyOperationType": "targeted-edit",
             "mode": "direct",
@@ -470,7 +470,7 @@
               "folder:L1-B"
             ],
             "promptSource": "folder-system-prompt",
-            "guidanceChars": 6481,
+            "guidanceChars": 5754,
             "skillGuidancePresent": true
           }
         },
@@ -481,7 +481,7 @@
               "folder:L1-B"
             ],
             "promptSource": "folder-system-prompt",
-            "guidanceChars": 6481,
+            "guidanceChars": 5754,
             "skillGuidancePresent": true
           }
         }
