@@ -2561,6 +2561,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
   activeAbortController = new AbortController()
   const pendingOriginal = _pendingInlineOriginal.value
   _pendingInlineOriginal.value = ''
+  const previousPendingHomeLongDocumentOperation = activePendingHomeLongDocumentOperation
   lastToolCallSummary = null
   homeFailedWriteBatch = null
   const requestTarget = buildSnapshot({
@@ -2592,6 +2593,9 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     contextWindowTokens: typeof homeProviderWindow === 'number' ? homeProviderWindow : null,
     maxOutputTokens: homeMaxOutputTokens,
     intent: requestIntent,
+    operationHint: toLongDocumentOperationType(
+      previousPendingHomeLongDocumentOperation?.operation ?? 'discussion',
+    ),
   })
   homeLongDocumentEditTaskPlan = homeExecutionPlan.mode === 'edit-task'
   const homeWorkflowWriteAuthorization = buildHomeWorkflowWriteAuthorization({

@@ -582,11 +582,11 @@ async function main() {
     report.cases.push({ skill: true, requests: mockProvider.requests().slice(before) })
 
     const homeTrace = await exportLatestTrace(page, 'home')
-    assert.equal(homeTrace.schemaVersion, 12, 'home exported trace uses schema v12')
+    assert.equal(homeTrace.schemaVersion, 13, 'home exported trace uses schema v13')
     await page.click('#btn-outline-workspace')
     await page.waitForSelector('#btn-ow-run-trace', { timeout: 20_000 })
     const outlineTrace = await exportLatestTrace(page, 'outline')
-    assert.equal(outlineTrace.schemaVersion, 12, 'outline exported trace uses schema v12')
+    assert.equal(outlineTrace.schemaVersion, 13, 'outline exported trace uses schema v13')
     report.exportedSchemaVersion = homeTrace.schemaVersion
 
     fs.writeFileSync(path.join(EVIDENCE_ROOT, 'summary.json'), JSON.stringify(report, null, 2), 'utf8')

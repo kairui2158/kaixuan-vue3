@@ -395,6 +395,38 @@ describe('runTrace store', () => {
     expect(call?.responseText).toBe('最终响应')
   })
 
+  it('backfills and persists an empty top-level response from physical stream text', async () => {
+    vi.useFakeTimers()
+    const runTraceSave = vi.fn(async (_payload: unknown) => ({ success: true, dirName: 'run-stream-backfill' }))
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: { electronAPI: { runTraceSave } }
+    })
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: ['卷纲技能'] })
+    const callId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '生成卷纲' }]
+    })
+    store.appendPhysicalCall(runId, callId, {
+      requestMessages: [{ role: 'user', content: '生成卷纲' }],
+      responseText: '',
+      streamText: '物理请求里的完整流式正文'
+    })
+
+    store.finishApiCall(runId, callId, { status: 'success', responseText: '' })
+    await vi.advanceTimersByTimeAsync(0)
+
+    const call = store.getRun(runId)?.apiCalls[0]
+    expect(call?.responseText).toBe('物理请求里的完整流式正文')
+    const exported = call ? store.exportRunToJson(store.getRun(runId)!) as unknown as RunTrace : undefined
+    expect(exported?.apiCalls?.[0]?.responseText).toBe('物理请求里的完整流式正文')
+    const persisted = runTraceSave.mock.calls.at(-1)?.[0] as
+      | { run?: { apiCalls?: Array<{ responseText?: string }> } }
+      | undefined
+    expect(persisted?.run?.apiCalls?.[0]?.responseText).toBe('物理请求里的完整流式正文')
+    vi.useRealTimers()
+  })
+
   it('backfills empty top-level reasoning from the last non-empty physical reasoning', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: ['卷纲技能'] })
@@ -1327,6 +1359,44 @@ describe('runTrace store', () => {
     ])
   })
 
+  it('rejects non-string stream deltas and records a serialization guard event', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'single', skillNames: [] })
+    const callId = store.startApiCall(runId, {
+      step: 4,
+      requestMessages: [{ role: 'user', content: '请求' }]
+    })
+
+    store.appendStream(runId, callId, { text: '对象 delta' } as unknown as string)
+
+    const call = store.getRun(runId)?.apiCalls[0]!
+    expect(call.streamText).toBe('')
+    expect(store.getRun(runId)?.events.at(-1)).toMatchObject({
+      type: 'stream-serialization-guard',
+      level: 'error',
+    })
+  })
+
+  it('appends a final physical stream delta even after the call reaches a terminal state', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'single', skillNames: [] })
+    const callId = store.startApiCall(runId, {
+      step: 4,
+      requestMessages: [{ role: 'user', content: '请求' }]
+    })
+    store.appendStream(runId, callId, '前半')
+    store.finishApiCall(runId, callId, {
+      status: 'success',
+      responseText: '',
+    })
+
+    store.appendStream(runId, callId, '后半')
+
+    const call = store.getRun(runId)?.apiCalls[0]!
+    expect(call.streamText).toBe('前半后半')
+    expect(call.responseText).toBe('前半后半')
+  })
+
   it('normalizes common provider usage shapes without inventing values', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ step: 4, stepName: '正文层', mode: 'single', skillNames: [] })
@@ -1386,7 +1456,7 @@ describe('runTrace store', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
     const exported = store.exportRunToJson(store.getRun(runId)!) as Record<string, unknown>
-    expect(exported.schemaVersion).toBe(12)
+    expect(exported.schemaVersion).toBe(13)
   })
 
   it('records physical, stream, tool, and edit-task activity without firing false stuck warnings', () => {
@@ -1757,7 +1827,7 @@ describe('runTrace store', () => {
     const run = store.getRun(runId)!
     expect(run.events.some(event => event.type === 'chain-handoff-delivery')).toBe(true)
     expect(run.processingReports?.some(report => report.processor === 'chain-handoff')).toBe(true)
-    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(12)
+    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(13)
   })
 
   it('records the requested and actual tool surface separately', () => {
@@ -1925,7 +1995,7 @@ describe('runTrace store', () => {
     vi.useRealTimers()
   })
 
-  it('ignores late stream deltas after an API call reaches a terminal state', () => {
+  it('keeps a terminal physical stream delta when the call has no final response', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: [] })
     const callId = store.startApiCall(runId, {
@@ -1933,11 +2003,12 @@ describe('runTrace store', () => {
     })
 
     store.appendStream(runId, callId, '运行中流式')
-    store.finishApiCall(runId, callId, { status: 'success', responseText: '最终返回', durationMs: 100 })
+    store.finishApiCall(runId, callId, { status: 'success', responseText: '', durationMs: 100 })
     store.appendStream(runId, callId, '迟到 delta')
 
     const call = store.getRun(runId)!.apiCalls.find(item => item.id === callId)!
-    expect(call.streamText).toBe('运行中流式')
+    expect(call.streamText).toBe('运行中流式迟到 delta')
+    expect(call.responseText).toBe('运行中流式迟到 delta')
   })
 
   it('keeps pipeline runs task-scoped and unaffected by turn APIs', () => {

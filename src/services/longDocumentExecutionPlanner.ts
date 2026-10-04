@@ -6,6 +6,7 @@ type PlannerIntent = 'analyze' | 'edit' | 'generate' | 'discuss' | 'auto'
 
 export type LongDocumentExecutionOperation =
   | 'restructure'
+  | 'restructure_and_cleanup'
   | 'normalize'
   | 'deduplicate'
   | 'deduplicate_and_normalize'
@@ -24,12 +25,14 @@ export type LongDocumentExecutionDecision =
 export type LongDocumentExpectedChange =
   | 'none'
   | 'reorder'
+  | 'restructure'
   | 'normalize'
   | 'remove_duplicate'
   | 'rewrite'
 
 export type LongDocumentWriteStrategy =
   | 'move'
+  | 'structure_repair'
   | 'reorder_sections'
   | 'replace_match'
   | 'rewrite'
@@ -63,6 +66,11 @@ export interface LongDocumentExecutionPlannerWindow {
 export interface LongDocumentExecutionPlan {
   planId: string
   operation: LongDocumentExecutionOperation
+  operationResolution: {
+    source: 'session-operation' | 'intent' | 'intent-fallback' | 'lexical'
+    intent?: PlannerIntent
+    matched: LongDocumentOperationType | LongDocumentExecutionOperation
+  }
   mode: LongDocumentExecutionMode
   segments: LongDocumentExecutionPlanSegment[]
   invariants: LongDocumentInvariant[]
@@ -94,6 +102,7 @@ export interface LongDocumentExecutionPlannerInput {
 }
 
 const RESTRUCTURE_PATTERN = /(重排|排序|重新整理排序|整理排序|统一编号|统一格式|调整顺序)/
+const RESTRUCTURE_ALIAS_PATTERN = /(重构|重新组织|Word文档|word文档|WORD文档)/
 const NORMALIZE_PATTERN = /(标点|格式整理|整理.*格式|符号|排版)/
 const DEDUPLICATE_PATTERN = /(重复项|重复的|重复内容|重复章节|去重|删.*重复|重复.*删)/
 const DEDUPLICATE_NEGATED_CONTEXT_PATTERN = /(未|不|没(?:有)?|无|非)重复/g
@@ -111,6 +120,7 @@ function classifyOperation(requestText: string): LongDocumentExecutionOperation 
   if (REWRITE_PATTERN.test(text)) return 'rewrite_segments'
   if (hasDeduplicateIntent(text)) return 'deduplicate'
   if (RESTRUCTURE_PATTERN.test(text)) return 'restructure'
+  if (RESTRUCTURE_ALIAS_PATTERN.test(text)) return 'restructure'
   if (NORMALIZE_PATTERN.test(text)) return 'normalize'
   if (TARGETED_EDIT_PATTERN.test(text)) return 'targeted_edit'
   return 'discussion'
@@ -118,6 +128,10 @@ function classifyOperation(requestText: string): LongDocumentExecutionOperation 
 
 function isReadOnlyIntent(intent: PlannerIntent): boolean {
   return intent === 'discuss' || intent === 'analyze' || intent === 'auto'
+}
+
+function hasRestructureIntent(text: string): boolean {
+  return RESTRUCTURE_PATTERN.test(text) || RESTRUCTURE_ALIAS_PATTERN.test(text)
 }
 
 function hasNormalizeIntent(text: string): boolean {
@@ -133,19 +147,87 @@ function hasDeduplicateIntent(text: string): boolean {
 
 function resolveOperation(
   input: LongDocumentExecutionPlannerInput,
-): LongDocumentExecutionOperation {
-  if (input.intent && isReadOnlyIntent(input.intent)) return 'discussion'
-  if (input.operationHint === 'whole-document-restructure') return 'restructure'
-  if (input.operationHint === 'whole-document-replacement') return 'rewrite_segments'
+): {
+  operation: LongDocumentExecutionOperation
+  resolution: LongDocumentExecutionPlan['operationResolution']
+} {
+  if (input.intent && isReadOnlyIntent(input.intent)) {
+    return {
+      operation: 'discussion',
+      resolution: { source: 'intent', intent: input.intent, matched: 'discussion' },
+    }
+  }
+  if (input.operationHint === 'whole-document-restructure') {
+    return {
+      operation: 'restructure',
+      resolution: { source: 'session-operation', intent: input.intent, matched: 'restructure' },
+    }
+  }
+  if (input.operationHint === 'whole-document-replacement') {
+    return {
+      operation: 'rewrite_segments',
+      resolution: { source: 'session-operation', intent: input.intent, matched: 'rewrite_segments' },
+    }
+  }
   if (input.operationHint === 'large-scope-edit') {
     if (hasDeduplicateIntent(input.requestText) && hasNormalizeIntent(input.requestText)) {
-      return 'deduplicate_and_normalize'
+      return {
+        operation: 'deduplicate_and_normalize',
+        resolution: { source: 'session-operation', intent: input.intent, matched: 'deduplicate_and_normalize' },
+      }
     }
-    return hasDeduplicateIntent(input.requestText) ? 'deduplicate' : 'normalize'
+    return {
+      operation: hasDeduplicateIntent(input.requestText) ? 'deduplicate' : 'normalize',
+      resolution: { source: 'session-operation', intent: input.intent, matched: 'large-scope-edit' },
+    }
   }
-  const classified = classifyOperation(input.requestText)
-  if (classified === 'deduplicate' && hasNormalizeIntent(input.requestText)) return 'deduplicate_and_normalize'
-  return classified
+  const intentRequiresWrite = input.intent === 'edit' || input.intent === 'generate'
+  const classifiedForIntent = intentRequiresWrite
+    ? classifyWritableOperation(input.requestText)
+    : classifyOperation(input.requestText)
+  if (
+    intentRequiresWrite &&
+    classifiedForIntent === 'rewrite_segments' &&
+    hasRestructureIntent(input.requestText) &&
+    (hasDeduplicateIntent(input.requestText) || hasNormalizeIntent(input.requestText))
+  ) {
+    return {
+      operation: 'rewrite_segments',
+      resolution: { source: 'intent', intent: input.intent, matched: 'rewrite_segments' },
+    }
+  }
+  if (
+    intentRequiresWrite &&
+    hasRestructureIntent(input.requestText) &&
+    (hasDeduplicateIntent(input.requestText) || hasNormalizeIntent(input.requestText))
+  ) {
+    return {
+      operation: 'restructure_and_cleanup',
+      resolution: { source: 'intent', intent: input.intent, matched: 'restructure_and_cleanup' },
+    }
+  }
+  const classified = classifiedForIntent
+  if (classified === 'deduplicate' && hasNormalizeIntent(input.requestText)) {
+    return {
+      operation: 'deduplicate_and_normalize',
+      resolution: { source: 'intent', intent: input.intent, matched: 'deduplicate_and_normalize' },
+    }
+  }
+  if (intentRequiresWrite) {
+    return {
+      operation: classified,
+      resolution: { source: 'intent', intent: input.intent, matched: classified },
+    }
+  }
+  return {
+    operation: classified,
+    resolution: { source: 'lexical', matched: classified },
+  }
+}
+
+function classifyWritableOperation(requestText: string): LongDocumentExecutionOperation {
+  const classified = classifyOperation(requestText)
+  return classified === 'discussion' ? 'normalize' : classified
 }
 
 function resolveExecutionMode(input: {
@@ -164,12 +246,25 @@ function resolveExecutionMode(input: {
 
 function resolveInvariants(
   operation: LongDocumentExecutionOperation,
+  segments: LongDocumentExecutionPlanSegment[],
 ): LongDocumentInvariant[] {
+  // Structure repair intentionally turns untitled body lines into headings and
+  // moves their content into the right section. The multiset invariant only
+  // guards pure section reordering, so keeping it here rejects every repair.
+  const hasStructureRepair = segments.some(segment => segment.writeStrategy === 'structure_repair')
   switch (operation) {
     case 'discussion':
       return []
     case 'restructure':
-      return ['leaf-body-multiset-unchanged']
+      return hasStructureRepair ? [] : ['leaf-body-multiset-unchanged']
+    case 'restructure_and_cleanup':
+      return [
+        ...(hasStructureRepair
+          ? []
+          : ['leaf-body-multiset-unchanged'] as LongDocumentInvariant[]),
+        'planned-deletion-only',
+        'normalize-changes-punctuation-whitespace-format-only',
+      ]
     case 'normalize':
       return ['normalize-changes-punctuation-whitespace-format-only']
     case 'deduplicate':
@@ -190,6 +285,7 @@ export function toLongDocumentOperationType(
   if (operation === 'discussion') return 'discussion'
   if (operation === 'rewrite_segments') return 'whole-document-replacement'
   if (operation === 'restructure') return 'whole-document-restructure'
+  if (operation === 'restructure_and_cleanup') return 'whole-document-restructure'
   if (operation === 'normalize' || operation === 'deduplicate'
     || operation === 'deduplicate_and_normalize') return 'large-scope-edit'
   return 'targeted-edit'
@@ -327,6 +423,23 @@ function buildSegments(input: {
     }, ...normalizeSegments]
   }
 
+  if (input.operation === 'restructure_and_cleanup') {
+    const structureSegments = buildSegments({
+      operation: 'restructure',
+      mode: input.mode,
+      content: input.content,
+      effectiveInputTokens: input.effectiveInputTokens,
+    })
+    return [{
+      ...structureSegments[0],
+    }, ...buildSegments({
+      operation: 'deduplicate_and_normalize',
+      mode: input.mode,
+      content: input.content,
+      effectiveInputTokens: input.effectiveInputTokens,
+    })]
+  }
+
   if (input.operation === 'deduplicate') {
     return [{
       segmentId: 'structure-plan',
@@ -339,6 +452,17 @@ function buildSegments(input: {
   }
 
   if (input.operation === 'restructure') {
+    const topLevelNodes = parseOutlineStructure(input.content).nodes
+    if (topLevelNodes.length <= 1) {
+      return [{
+        segmentId: 'structure-repair',
+        range: { startLine: 0, endLine: input.content.length },
+        readStrategy: 'outline-plus-slice',
+        writeStrategy: 'structure_repair',
+        expectedChange: 'restructure',
+        commandLimit: 10,
+      }]
+    }
     return [{
       segmentId: 'structure-reorder',
       range: { startLine: 0, endLine: input.content.length },
@@ -422,7 +546,7 @@ function buildSegments(input: {
 export function buildLongDocumentExecutionPlan(
   input: LongDocumentExecutionPlannerInput,
 ): LongDocumentExecutionPlan {
-  const operation = resolveOperation(input)
+  const { operation, resolution: operationResolution } = resolveOperation(input)
   const window = resolveWindow(input)
   const estimatedDocumentTokens = estimateInputTokens(input.content)
   const decision = resolveDecision({ window, estimatedDocumentTokens })
@@ -439,9 +563,10 @@ export function buildLongDocumentExecutionPlan(
       content: input.content,
       effectiveInputTokens: window.effectiveInputTokens,
     })
-  const invariants = resolveInvariants(operation)
+  const invariants = resolveInvariants(operation, segments)
   const operationLabels: Record<LongDocumentExecutionOperation, string> = {
     restructure: '结构重排',
+    restructure_and_cleanup: '结构重排与整理',
     normalize: '格式整理',
     deduplicate: '重复删除',
     deduplicate_and_normalize: '重复删除与格式整理',
@@ -452,6 +577,7 @@ export function buildLongDocumentExecutionPlan(
   return {
     planId: `long-document-${Date.now().toString(36)}`,
     operation,
+    operationResolution,
     mode,
     segments,
     invariants,

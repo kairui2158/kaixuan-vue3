@@ -983,7 +983,7 @@ async function exportTrace(page, source, runId, evidenceDir) {
   assert(result?.success, `trace export succeeds: ${result?.reason || ''}`)
   const exportPath = path.join(result.path, 'run-trace.json')
   const exported = JSON.parse(fs.readFileSync(exportPath, 'utf8'))
-  assert.equal(exported.schemaVersion, 12, 'exported trace uses schema v12')
+  assert.equal(exported.schemaVersion, 13, 'exported trace uses schema v13')
   return {
     path: path.relative(ROOT, exportPath),
     schemaVersion: exported.schemaVersion,

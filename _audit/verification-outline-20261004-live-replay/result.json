@@ -1,0 +1,139 @@
+{
+  "schema": "shenyi.outline-20261004.live-replay.electron",
+  "version": 1,
+  "generatedAt": "2026-10-04T03:16:55.396Z",
+  "model": "deepseek-v4-pro",
+  "baseUrl": "https://openapi.cloud-ai.cn/v1",
+  "electronPid": 69880,
+  "outlineChars": 74841,
+  "turns": [
+    {
+      "index": 1,
+      "user": "按照Word文档的形式重构大纲，不要缩减内容。",
+      "clientIntent": "edit",
+      "currentIntent": "edit",
+      "turnStatus": "success",
+      "responseChars": 1394,
+      "toolCallSummary": [
+        "outline.read_range:success",
+        "outline.read_range:success",
+        "editor.get_state:success",
+        "editor.document_map:success",
+        "editor.locate:success",
+        "editor.locate:success",
+        "editor.write:success",
+        "outline.read_range:success",
+        "outline.read_range:success",
+        "editor.locate:success",
+        "editor.locate:failed/ambiguous_target",
+        "editor.locate:success",
+        "editor.locate:success",
+        "editor.locate:success",
+        "outline.read_range:success",
+        "editor.write:failed/target_not_found",
+        "editor.search:success",
+        "editor.get_state:success",
+        "editor.read_range:failed/invalid_input",
+        "editor.write:success"
+      ],
+      "contentBefore": 74841,
+      "contentAfter": 74286
+    },
+    {
+      "index": 2,
+      "user": "按照Word文档的形式重构大纲，不要缩减内容。",
+      "clientIntent": "edit",
+      "currentIntent": "edit",
+      "turnStatus": "success",
+      "responseChars": 1201,
+      "toolCallSummary": [
+        "editor.get_state:success",
+        "editor.document_map:success"
+      ],
+      "contentBefore": 74286,
+      "contentAfter": 74286
+    },
+    {
+      "index": 3,
+      "user": "A",
+      "clientIntent": "discuss",
+      "currentIntent": "edit",
+      "turnStatus": "success",
+      "responseChars": 1113,
+      "toolCallSummary": [
+        "editor.locate:success",
+        "editor.locate:success",
+        "editor.locate:success",
+        "editor.locate:success",
+        "editor.locate:success",
+        "editor.locate:success",
+        "editor.write:success",
+        "editor.locate:success",
+        "editor.locate:success",
+        "editor.locate:success",
+        "editor.locate:success",
+        "editor.write:success",
+        "editor.locate:success",
+        "editor.locate:success",
+        "editor.locate:success",
+        "editor.write:success",
+        "editor.document_map:success"
+      ],
+      "contentBefore": 74286,
+      "contentAfter": 74396
+    },
+    {
+      "index": 4,
+      "user": "归位 2（圣萌会叙事段）是保留为叙事版，归位 1 同意，归位 3（终局叙事段）是否同意新增「终局方向」小节放入叙事框架？ 不需要",
+      "clientIntent": "edit",
+      "currentIntent": "edit",
+      "turnStatus": "success",
+      "responseChars": 284,
+      "toolCallSummary": [],
+      "contentBefore": 74396,
+      "contentAfter": 74396
+    },
+    {
+      "index": 5,
+      "user": "写入",
+      "clientIntent": "edit",
+      "currentIntent": "edit",
+      "turnStatus": "success",
+      "responseChars": 490,
+      "toolCallSummary": [
+        "editor.get_state:success",
+        "outline.get_structure:success",
+        "outline.get_structure:success",
+        "editor.read_range:success",
+        "editor.search:success",
+        "editor.search:success",
+        "editor.search:success",
+        "editor.search:success",
+        "editor.search:success",
+        "editor.search:success"
+      ],
+      "contentBefore": 74396,
+      "contentAfter": 74396
+    },
+    {
+      "index": 6,
+      "user": "把上一轮预览写入大纲",
+      "clientIntent": "edit",
+      "currentIntent": "edit",
+      "turnStatus": "success",
+      "responseChars": 595,
+      "toolCallSummary": [
+        "editor.get_state:success",
+        "editor.document_map:success",
+        "editor.search:success",
+        "editor.search:success",
+        "editor.search:success",
+        "editor.search:success"
+      ],
+      "contentBefore": 74396,
+      "contentAfter": 74396
+    }
+  ],
+  "exportPath": "D:\\codex\\novel-workshop-vue3\\_data\\outline-20261004-live-replay-exports\\run-trace-outline-20261004-111703-deep",
+  "finalWriteCount": 5
+}

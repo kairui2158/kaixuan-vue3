@@ -4,6 +4,10 @@ import {
   type LongDocumentExecutionPlannerInput,
   toLongDocumentOperationType,
 } from './longDocumentExecutionPlanner'
+import {
+  buildLongDocumentWriteDirective,
+  resolveLongDocumentWriteOperations,
+} from './longDocumentWriteProtocol'
 
 function makeInput(overrides: Partial<LongDocumentExecutionPlannerInput> = {}): LongDocumentExecutionPlannerInput {
   return {
@@ -235,6 +239,71 @@ describe('buildLongDocumentExecutionPlan', () => {
     expect(plan.mode).toBe('direct')
   })
 
+  it('keeps a routed edit intent writable for real customer restructure wording', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '按照Word文档的形式重构大纲，不要缩减内容',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      intent: 'edit',
+    }))
+
+    expect(plan.operation).toBe('restructure')
+    expect(plan.mode).toBe('edit-task')
+    expect(plan.operationResolution).toEqual({
+      source: 'intent',
+      intent: 'edit',
+      matched: 'restructure',
+    })
+    expect(plan.segments[0]).toMatchObject({
+      segmentId: 'structure-repair',
+      writeStrategy: 'structure_repair',
+      expectedChange: 'restructure',
+    })
+  })
+
+  it('keeps single-root restructure executable with structure repair commands', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '按照Word文档的形式重构大纲，不要缩减内容',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      intent: 'edit',
+    }))
+
+    expect(resolveLongDocumentWriteOperations(plan)).toEqual(['move', 'replace_match', 'rewrite'])
+    expect(buildLongDocumentWriteDirective(plan)).toContain('reorder_sections 必然空转')
+    expect(plan.invariants).toEqual([])
+  })
+
+  it('keeps a routed edit intent writable for a follow-up write instruction', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '把上一轮预览写入大纲',
+      content: '段'.repeat(74_841),
+      intent: 'edit',
+      operationHint: 'whole-document-restructure',
+    }))
+
+    expect(plan.operation).toBe('restructure')
+    expect(plan.operationResolution).toEqual({
+      source: 'session-operation',
+      intent: 'edit',
+      matched: 'restructure',
+    })
+  })
+
+  it('never degrades a routed edit intent to discussion', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '这一版结构帮我处理一下',
+      content: '段'.repeat(74_841),
+      intent: 'edit',
+    }))
+
+    expect(plan.operation).not.toBe('discussion')
+    expect(plan.mode).not.toBe('direct')
+    expect(plan.operationResolution).toEqual({
+      source: 'intent',
+      intent: 'edit',
+      matched: 'normalize',
+    })
+  })
+
   it('maps execution operations onto the legacy agent operation vocabulary', () => {
     expect(toLongDocumentOperationType('restructure')).toBe('whole-document-restructure')
     expect(toLongDocumentOperationType('rewrite_segments')).toBe('whole-document-replacement')
@@ -242,6 +311,29 @@ describe('buildLongDocumentExecutionPlan', () => {
     expect(toLongDocumentOperationType('deduplicate')).toBe('large-scope-edit')
     expect(toLongDocumentOperationType('deduplicate_and_normalize')).toBe('large-scope-edit')
     expect(toLongDocumentOperationType('targeted_edit')).toBe('targeted-edit')
+  })
+
+  it('authorizes compound restructure, deduplication, and format cleanup as one staged plan', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '按照Word文档形式重构大纲，删除重复项，统一标题层级、编号和标点，调整错误段落的归位',
+      content: '段'.repeat(74_841),
+      intent: 'edit',
+    }))
+
+    expect(plan.operation).toBe('restructure_and_cleanup')
+    expect(plan.mode).toBe('edit-task')
+    expect(plan.invariants).toEqual([
+      'planned-deletion-only',
+      'normalize-changes-punctuation-whitespace-format-only',
+    ])
+    expect(plan.segments[0]).toMatchObject({
+      segmentId: 'structure-repair',
+      writeStrategy: 'structure_repair',
+      expectedChange: 'restructure',
+    })
+    expect(plan.segments.some(segment => segment.segmentId === 'structure-plan')).toBe(true)
+    expect(plan.segments.some(segment => segment.segmentId.startsWith('normalize-'))).toBe(true)
+    expect(toLongDocumentOperationType(plan.operation)).toBe('whole-document-restructure')
   })
 
   it('respects a session operation hint over single-sentence lexical fallback', () => {

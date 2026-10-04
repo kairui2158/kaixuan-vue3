@@ -75,4 +75,32 @@ describe('longDocumentWriteProtocol', () => {
     expect(buildLongDocumentWriteDirective(plan)).toContain('禁止无依据地把标题层级改深或改浅')
     expect(buildLongDocumentWriteDirective(plan)).toContain('半角标点（, . ; : ! ?）必须统一为对应全角')
   })
+
+  it('keeps compound restructure and cleanup executable instead of a dead-end plan', () => {
+    const plan = buildLongDocumentExecutionPlan({
+      requestText: '按照Word文档形式重构大纲，删除重复项，统一标题层级、编号和标点，调整错误段落的归位',
+      content: `# 根标题\n\n## 第一卷\n\n${'雨'.repeat(12_000)}\n\n## 第二卷\n\n${'雨'.repeat(12_000)}`,
+      contextWindowTokens: 128_000,
+      maxOutputTokens: 8_192,
+      intent: 'edit',
+    })
+
+    expect(plan.operation).toBe('restructure_and_cleanup')
+    expect(plan.segments[0]).toMatchObject({
+      segmentId: 'structure-repair',
+      writeStrategy: 'structure_repair',
+      expectedChange: 'restructure',
+    })
+    expect(resolveLongDocumentWriteOperations(plan)).toEqual([
+      'move',
+      'insert',
+      'delete',
+      'replace_match',
+      'rewrite',
+    ])
+    expect(buildLongDocumentWriteDirective(plan)).toContain('用 move 把误归位标题与段落移动到正确层级')
+    expect(buildLongDocumentWriteDirective(plan)).toContain('用 insert 为无标题正文补标题')
+    expect(buildLongDocumentWriteDirective(plan)).toContain('再只读确认重复项')
+    expect(buildLongDocumentWriteDirective(plan)).toContain('禁止整篇 replace_document')
+  })
 })

@@ -87,6 +87,7 @@
 | 296 | 2026-10-04 | 3.74.0 终稿生产回归修复 | 意图路由“约束性不要改写”误判修复、执行计划补“输出/生成完整终稿”交付语义、验证器 turn failed 快速失败 | 客户终稿指令重新进入 final-draft runner；停滞、重试、供应商切换与三段完成在可见 Electron 中通过 | [DEV_LOG_2026-10-04-final-draft-production-regression.md](DEV_LOG_2026-10-04-final-draft-production-regression.md) |
 | 297 | 2026-10-04 | SKILL/Agent 权限 R4 真实链路闭环 | `onToolCall` 事件、native/JSON 双协议发射点、双入口 runTrace 投影与 ToolGateway 透传 `defaultToolPolicy/riskLevel`；新增 legacy trace 回放校验 | 运行记录可区分“工具面声明”与“真实执行事件”的静态策略；旧客户 trace 不伪造新字段，R4 不再是存储层假闭环 | [DEV_LOG_2026-10-03_skill_agent_authority_single_source.md](DEV_LOG_2026-10-03_skill_agent_authority_single_source.md) |
 | 298 | 2026-10-04 | 3.74.0 R4 后最终重封装 | 重建 renderer 与 NSIS 安装包，真实启动打包应用并核验 `electronAPI`、renderer 新鲜度与 SHA256 | 交付包含 R4 真实链路修复的最终 3.74.0 安装包，消除重打包前旧哈希口径 | [DEV_LOG_2026-10-03_skill_agent_authority_single_source.md](DEV_LOG_2026-10-03_skill_agent_authority_single_source.md) |
+| 299 | 2026-10-04 | 大纲导出 API 回复索引与 3.74.1 封装 | trace schema 13、`apiResponseIndex`、导出索引完整性校验、流式回填守卫与 3.74.1 重封装 | SKILL 层可直接从主 JSON 定位每个 API 回复 payload，不再被外置 `responseText` 断链 | [DEV_LOG_2026-10-04-outline-export-response-index.md](DEV_LOG_2026-10-04-outline-export-response-index.md) |
 
 | 序号 | 日期 | 开发工作 | 开发功能 | 用途 | 日志文件 |
 |---:|---|---|---|---|---|
@@ -672,3 +673,11 @@
 - 范围：在 R4 真实链路修复后重跑完整 `npm run build`，重建 renderer 与 x64 NSIS 安装包，并再次执行打包应用真实启动核验。
 - 验证：打包应用真实启动通过，renderer 74 文件均新于最新源码变更，`electronAPI` 暴露 75 个方法；安装器 `dist\神意助手-Setup-3.74.0.exe`，SHA256 `AD28C51B627D1D787958A0F6A004E04FDBD1B303E0CC1B744AF9664D11FA2E97`。
 - 客户重点复验：重新安装本版 3.74.0 后，加载 SKILL/Agent 的编辑对话中导出运行记录，`editor.write` 应带 `defaultToolPolicy: allowedWithPermission` 与 `riskLevel: medium`。
+
+# 2026-10-04 大纲导出 API 回复索引
+
+- 文件：[_audit/DEV_LOG_2026-10-04-outline-export-response-index.md](_audit/DEV_LOG_2026-10-04-outline-export-response-index.md)
+- 范围：导出的 `run-trace.json` 新增 `apiResponseIndex`，每个逻辑/物理 API 调用直接给出 response、stream、reasoning 的 payload ref、文件名、hash、长度与 preview；`export.json` 增加索引完整性校验；trace schema 升至 13。
+- 验证：runTrace 导出/存储专项 81 测试通过，type-check 通过；旧 2026-10-04 导出证据确认正文存在于 payload 文件，本修复让其在主 JSON 中可直接定位。
+- 客户重点复验：导出深度运行记录后，SKILL 层应能直接读取 `apiResponseIndex` 中每个 API 回复的 payload 文件，不再依赖已被外置清空的 `responseText` 字段。
+- 封装：升级 3.74.1 并执行完整 `npm run build` 与 `node scripts/verify-packaging-3-74-1.mjs`；安装器 `dist\神意助手-Setup-3.74.1.exe`，SHA256 `0c3ac48cae8845135e567def24b3c4343de5c5e88fc58f450076fda13b1008cc`，真实启动、renderer 74 文件、`electronAPI` 75 方法与可自选安装目录核验通过。

@@ -50,6 +50,8 @@ describe('outlineTools', () => {
     expect(data.chapterCount).toBe(1)
     expect(data.sectionCount).toBe(1)
     expect(data.mapText).toContain('[volume-1] 第一卷 风暴起点')
+    expect(data.reorderTopLevelIds).toEqual(['volume-1', 'volume-2'])
+    expect(data.reorderScope).toBe('top-level')
     expect(data.next_steps.join('\n')).toContain('outline.read_range')
   })
 

@@ -431,6 +431,7 @@ function collectStructureSegments(content: string): Array<{
   return structure.nodes.map(node => ({ id: node.id, start: node.start, end: node.end }))
 }
 
+
 function findMatches(content: string, query: string, caseSensitive: boolean): Array<{ start: number; end: number }> {
   if (!query) return []
   const haystack = caseSensitive ? content : content.toLowerCase()
@@ -611,7 +612,7 @@ export function createEditorTools(options: {
               destinationPosition: { type: 'string', enum: ['before', 'after'], description: 'move 专用：插入到 destination 之前或之后' },
               order: {
                 type: 'array',
-                description: 'reorder_sections 专用：完整有序结构 ID 列表，集合必须与当前结构完全一致',
+                description: 'reorder_sections 专用：当前编辑目标的完整有序顶层结构 ID 列表。不是 document_map 的全部层级 ID；集合必须与顶层结构完全一致',
                 items: { type: 'string' },
               },
               position: { type: 'string', enum: [...EDITOR_EDIT_POSITIONS] },
@@ -828,11 +829,19 @@ export function createEditorTools(options: {
         const segmentIdSet = new Set(segmentIds)
         const requestedSet = new Set(requestedIds)
         if (segmentIds.length !== requestedIds.length || requestedIds.some(id => !segmentIdSet.has(id)) || segmentIds.some(id => !requestedSet.has(id))) {
-          return toolError(
-            'reorder_id_set_mismatch',
-            `reorder_sections 的 order 必须与当前结构 ID 集合完全一致；缺失 ${segmentIds.filter(id => !requestedSet.has(id)).slice(0, 5).join(' | ') || '无'}，多余 ${requestedIds.filter(id => !segmentIdSet.has(id)).slice(0, 5).join(' | ') || '无'}`,
-            true,
-          )
+          const expectedTopLevelIds = segmentIds
+          return {
+            ok: false,
+            error: {
+              code: 'reorder_id_set_mismatch',
+              message: `reorder_sections 的 order 必须与当前顶层结构 ID 集合完全一致（共 ${expectedTopLevelIds.length} 个）：${expectedTopLevelIds.join(' | ')}。document_map 返回的子节点 ID 不参与整篇重排；缺失 ${segmentIds.filter(id => !requestedSet.has(id)).slice(0, 5).join(' | ') || '无'}，多余 ${requestedIds.filter(id => !segmentIdSet.has(id)).slice(0, 5).join(' | ') || '无'}`,
+              retryable: true,
+            },
+            data: {
+              expectedTopLevelIds,
+              repairPolicy: '请仅使用 expectedTopLevelIds 中的 ID 重新提交一次完整有序列表；不要混入子节点 ID，不要改写正文。',
+            },
+          }
         }
         const segmentById = new Map(segments.map(segment => [segment.id, segment]))
         const next = requestedIds

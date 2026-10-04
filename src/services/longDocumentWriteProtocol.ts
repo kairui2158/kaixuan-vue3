@@ -25,7 +25,18 @@ export function resolveLongDocumentWriteOperations(
   if (!plan || plan.mode !== 'edit-task') return EDITOR_EDIT_OPERATIONS
   switch (plan.operation) {
     case 'restructure':
-      return ['reorder_sections']
+      return plan.segments.some(segment => segment.writeStrategy === 'structure_repair')
+        ? ['move', 'replace_match', 'rewrite']
+        : ['reorder_sections']
+    case 'restructure_and_cleanup':
+      return [
+        ...(plan.segments.some(segment => segment.writeStrategy === 'structure_repair')
+          ? ['move', 'insert'] as const
+          : ['reorder_sections'] as const),
+        'delete',
+        'replace_match',
+        'rewrite',
+      ]
     case 'normalize':
       return ['replace_match', 'rewrite']
     case 'deduplicate':
@@ -54,7 +65,19 @@ export function buildLongDocumentWriteDirective(
   }
   switch (plan.operation) {
     case 'restructure':
-      return '结构重排只允许提交单条 reorder_sections 命令：order 必须包含全部结构 ID 且仅重排，保持叶子正文集合不变；禁止多条 move 拼接，禁止整篇 replace_document，禁止重写正文。'
+      return plan.segments.some(segment => segment.writeStrategy === 'structure_repair')
+        ? '当前顶层结构只有单一根节点，reorder_sections 必然空转；请先读取结构，然后用 move 把误归位的标题与段落移动到正确层级，并用 replace_match/rewrite 仅修正标题层级，保持正文内容不丢失。禁止整篇 replace_document，禁止无依据重写正文。'
+        : '结构重排只允许提交单条 reorder_sections 命令：order 必须包含当前编辑目标的全部顶层结构 ID（不是 document_map 的全部子节点 ID），且仅重排顶层结构、保持叶子正文集合不变；禁止多条 move 拼接，禁止整篇 replace_document，禁止重写正文。'
+    case 'restructure_and_cleanup':
+      return [
+        plan.segments.some(segment => segment.writeStrategy === 'structure_repair')
+          ? '复合重构请分三阶段执行：先读取结构，用 move 把误归位标题与段落移动到正确层级，用 insert 为无标题正文补标题、用 replace_match/rewrite 仅修正既有标题层级；再只读确认重复项并提交唯一目标删除命令；最后提交 replace_match/rewrite 命令完成标点、空白、编号与标题层级整理。新增标题必须紧贴对应正文且不得改写正文内容；删除重复段落后必须校验有效正文未丢失。'
+          : '复合重构请分三阶段执行：先提交唯一顶层结构重排命令，再只读确认重复项并提交唯一目标删除命令，最后提交 replace_match/rewrite 命令完成标点、空白、编号与标题层级整理。',
+        '禁止整篇 replace_document，禁止把未确认内容当作重复项删除，禁止丢弃有效正文内容。',
+        `整理阶段必须覆盖全部计划段落（${describePlannedSegments(plan)}）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令，禁止把同段多条命令拆成多次调用；未覆盖全部计划段落前，禁止输出“任务完成”总结。计划批次数量是 ${plan.segments.length}；执行侧允许的物理请求轮次为 ${describePhysicalRequestBudget(plan)} 轮，尚未完成前不要把工具轮次耗尽。`,
+        '中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）；这是完成校验的强制条件，不是可选项。',
+        '统一标题层级前必须先读取结构：消除层级跳变并把标题归位到文档既有层级体系，禁止无依据地把标题层级改深或改浅。',
+      ].join('')
     case 'normalize':
       return [
         '格式整理请按分段 replace_match/rewrite 提交，只改变标点、空白、编号与标题层级；禁止整篇 replace_document。',

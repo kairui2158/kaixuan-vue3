@@ -365,7 +365,7 @@ const CONTINUATION_INPUTS = new Set([
 const EDIT_TASK_CONTINUATION_PATTERN =
   /^(?:请|麻烦|帮我|先)?(?:继续|接着|恢复)(?:执行|重试|运行|完成)?(?:刚才的|当前的|这个|该)?(?:编辑)?任务[吧呗。！？!，,.~～\s]*$/
 const PENDING_LONG_DOCUMENT_CONTINUATION_PATTERN =
-  /^(?:A|B|C|D|好|好的|行|可以|确认|确定|继续|接着来|接着写|就这样|就按这个来|照这个继续)[吧呗。！？!，,.\s]*$/i
+  /^(?:(?:A|B|C|D|好|好的|行|可以|确认|确定|继续|接着来|接着写|就这样|就按这个来|照这个继续)|(?:把|将)?.{0,20}(?:写入|写回|回填|回写|落盘)|把上一轮预览写入大纲)[吧呗。！？!，,.\s]*$/i
 const WORKSPACE_DOMAIN_PATTERN =
   /(大纲|卷纲|章节|正文|设定|人物|角色|伏笔|钩子|时间线|叙事|故事|情节|主线|支线|世界观|编辑器|文本|文案|开篇|结尾|节奏|弧光|场景|对话|标题|书名|简介|命名|前史|反转|反派|背景|悬念|下一章|结构|断层|顺便问一下|过渡|番外|梗概|关系图|体系|三幕|描写|节点|稿子|文稿|文档)/
 const WORKSPACE_GENERATIVE_ACTION_PATTERN =
@@ -403,6 +403,8 @@ const NON_REWRITE_CONSTRAINT_PATTERN =
   /(?:不要|请勿|别)(?:改写|改变)(?:正文|原文|原意|含义|内容)/
 const NON_ACTIONABLE_PROHIBITION_PATTERN =
   /先别|先不|不要|请勿|别动|不用|无需|等.{0,4}(?:再|确认)|暂时/
+const WRITE_PROHIBITION_PATTERN =
+  /(?:先别|先不|不要|请勿|暂不|暂且|暂时)[^。！？!？]{0,12}(?:写入|写回|回填|回写|落盘)|(?:写入|写回|回填|回写|落盘)[^。！？!？]{0,12}[^。！？!？]{0,0}(?:先|等)[^。！？!？]{0,12}(?:确认|再说|等一等)/
 const SCOPED_WRITE_TARGET_PATTERN =
   /(?:第\s*[0-9一二三四五六七八九十百两]+\s*(?:到|至|-|—|~)\s*[0-9一二三四五六七八九十百两]+\s*(?:节|段|章|卷)|第\s*[0-9一二三四五六七八九十百两]+\s*(?:节|段|章|卷)|(?:首尾|开头|结尾)\s*(?:两|二|三|几)?\s*(?:节|段|章|卷)|全文|整篇|全篇)/
 
@@ -1426,6 +1428,7 @@ export function routeChainIntent(
 
   if (
     context?.pendingLongDocumentOperation &&
+    !WRITE_PROHIBITION_PATTERN.test(normalizedInput) &&
     PENDING_LONG_DOCUMENT_CONTINUATION_PATTERN.test(normalizedInput)
   ) {
     return {

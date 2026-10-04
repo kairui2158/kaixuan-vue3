@@ -915,6 +915,8 @@ describe('editorTools', () => {
     }, { ...makeContext(), workspace: 'outline' })
     expect(missing.ok).toBe(false)
     expect(missing.error?.code).toBe('reorder_id_set_mismatch')
+    expect((missing.data as any).expectedTopLevelIds).toEqual(['section-1', 'section-2'])
+    expect((missing.data as any).repairPolicy).toContain('不要混入子节点 ID')
 
     const duplicated = await gateway.execute('editor.write', {
       commands: [{ operation: 'reorder_sections', order: ['section-1', 'section-1', 'section-2'] }],

@@ -323,6 +323,7 @@ export interface RunTrace {
   promptSnapshots?: RunTracePromptSnapshot[]
   processingReports?: RunTraceProcessingReport[]
   payloads?: RunTracePayloadRef[]
+  apiResponseIndex?: RunTraceApiResponseIndexEntry[]
   payloadIntegrityWarnings?: string[]
   dirName?: string
   currentTurnId?: string
@@ -432,6 +433,34 @@ export interface RunTracePayloadRef {
   chars: number
   sha256: string
   createdAt: number
+}
+
+export interface RunTraceApiResponseRef {
+  ref: string
+  file: string
+  sha256: string
+  bytes: number
+  chars: number
+  preview?: string
+}
+
+export interface RunTraceApiResponseIndexEntry {
+  apiCallId: string
+  turnId?: string
+  seq: number
+  status: RunTraceStatus
+  response?: RunTraceApiResponseRef
+  stream?: RunTraceApiResponseRef
+  reasoning?: RunTraceApiResponseRef
+  physicalCalls?: Array<{
+    physicalCallId?: string
+    seq: number
+    phase?: RunTracePhysicalCall['phase']
+    status: RunTraceStatus
+    response?: RunTraceApiResponseRef
+    stream?: RunTraceApiResponseRef
+    reasoning?: RunTraceApiResponseRef
+  }>
 }
 
 export interface RunTraceFolderDiagnostic {
@@ -665,7 +694,7 @@ export interface RunMetadataInput {
   model?: string
 }
 
-const RUN_TRACE_SCHEMA_VERSION = 12
+const RUN_TRACE_SCHEMA_VERSION = 13
 const reportedLongRequestPhysicalIds = new Set<string>()
 const reportedTerminalMergeTaskIds = new Set<string>()
 
@@ -1528,14 +1557,34 @@ export const useRunTraceStore = defineStore('runTrace', () => {
   function appendStream(runId: string, callId: string, text: string) {
     const call = getRun(runId)?.apiCalls.find(item => item.id === callId)
     if (!call) return
-    if (call.status !== 'running') return
+    if (typeof text !== 'string') {
+      addEvent(runId, {
+        type: 'stream-serialization-guard',
+        level: 'error',
+        label: '流式 delta 类型异常',
+        detail: `expected string, received ${Object.prototype.toString.call(text)}`,
+      })
+      return
+    }
+    const terminalAppendWindowMs = 2000
+    const terminalAppendAllowed = call.status === 'running'
+      || (call.endedAt !== undefined && Date.now() - call.endedAt <= terminalAppendWindowMs)
+    if (!terminalAppendAllowed || !text) return
     if (text) reportRunActivity(runId, 'stream_delta', `apiCall=${call.seq}`)
+    const previousStreamText = call.streamText
     call.streamText += text
+    const responseWasStreamFallback = !String(call.responseText || '').trim()
+      || (call.responseText === previousStreamText && call.streamText.startsWith(call.responseText))
+    if (responseWasStreamFallback) call.responseText = call.streamText
     call.lastStreamActivityAt = Date.now()
     call.lastExecutionActivityAt = call.lastStreamActivityAt
     const run = getRun(runId)
     if (run) currentApiCallIdBySource.value[run.source] = call.id
     scheduleStreamSave(runId)
+    // Tool-loop runtimes can deliver the final stream delta just after
+    // finishApiCall. Persist that suffix too, or the on-disk trace keeps the
+    // pre-delta response while the in-memory export already has the reply.
+    if (call.status !== 'running' && run) void saveRunToDisk(run)
   }
 
   /** Reasoning callbacks are delta-only; the store accumulates the final text. */
@@ -1586,18 +1635,19 @@ export const useRunTraceStore = defineStore('runTrace', () => {
   }
 
   function backfillApiResponseFromPhysicalCalls(call: RunTraceApiCall): void {
-    const physical = [...(call.physicalCalls || [])]
-      .reverse()
-      .find(item => (
-        (typeof item.responseText === 'string' && item.responseText.trim())
-        || (typeof item.reasoningText === 'string' && item.reasoningText.trim())
-      ))
-    if (!physical) return
-    if (!String(call.responseText || '').trim() && typeof physical.responseText === 'string') {
-      call.responseText = physical.responseText
+    const physicals = [...(call.physicalCalls || [])].reverse()
+    const response = physicals.find(item => (
+      (typeof item.responseText === 'string' && item.responseText.trim())
+      || (typeof item.streamText === 'string' && item.streamText.trim())
+    ))
+    const reasoning = physicals.find(item => (
+      typeof item.reasoningText === 'string' && item.reasoningText.trim()
+    ))
+    if (!String(call.responseText || '').trim() && response) {
+      call.responseText = response.responseText || response.streamText || ''
     }
-    if (!String(call.reasoningText || '').trim() && typeof physical.reasoningText === 'string') {
-      call.reasoningText = physical.reasoningText
+    if (!String(call.reasoningText || '').trim() && reasoning?.reasoningText) {
+      call.reasoningText = reasoning.reasoningText
     }
   }
 

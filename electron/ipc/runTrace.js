@@ -89,6 +89,20 @@ function payloadFileName(index, kind) {
   return String(index + 1).padStart(3, '0') + '-' + kind + '.json'
 }
 
+function payloadRefDetail(item, index, value) {
+  if (!item) return undefined
+  var content = payloadContent(item.kind, value)
+  var text = typeof content === 'string' ? content : JSON.stringify(content, null, 2)
+  return {
+    ref: item.duplicateOf || item.id,
+    file: payloadFileName(index, item.kind),
+    sha256: payloadIdentity(item.kind, value),
+    bytes: Buffer.from(text, 'utf8').length,
+    chars: text.length,
+    preview: item.kind === 'response' ? responsePreview(text) : undefined
+  }
+}
+
 function requestMessagesPreview(messages) {
   if (!Array.isArray(messages)) return []
   return messages.map(function(message) {
@@ -374,6 +388,7 @@ function buildRunWithPayloadRefs(run) {
   })
   var builtRun = replacePayloadFields(normalizedRun, deduplicated.byIdentity)
   builtRun.payloads = refs
+  builtRun.apiResponseIndex = buildApiResponseIndex(normalizedRun, deduplicated, refs)
   return {
     run: builtRun,
     payloads: deduplicated.unique.map(function(item) {
@@ -381,6 +396,41 @@ function buildRunWithPayloadRefs(run) {
     }),
     refs: refs
   }
+}
+
+function buildApiResponseIndex(run, deduplicated, refs) {
+  var canonicalRefByItem = new Map()
+  deduplicated.unique.forEach(function(candidate, index) {
+    canonicalRefByItem.set(candidate.id, payloadRefDetail(candidate, index, candidate.value))
+  })
+  var detailFor = function(kind, value) {
+    if (value === undefined || value === null || value === '') return undefined
+    var item = deduplicated.byIdentity.get(kind + ':' + payloadIdentity(kind, value))
+    if (!item) return undefined
+    return canonicalRefByItem.get(item.duplicateOf || item.id)
+  }
+  return (run.apiCalls || []).map(function(call, callIndex) {
+    return {
+      apiCallId: call.id,
+      turnId: call.turnId,
+      seq: call.seq || callIndex + 1,
+      status: call.status,
+      response: detailFor('response', call.responseText),
+      stream: detailFor('stream', call.streamText),
+      reasoning: detailFor('reasoning', call.reasoningText),
+      physicalCalls: (call.physicalCalls || []).map(function(physical, physicalIndex) {
+        return {
+          physicalCallId: physical.physicalCallId || physical.id,
+          seq: physical.seq || physicalIndex + 1,
+          phase: physical.phase,
+          status: physical.status,
+          response: detailFor('response', physical.responseText),
+          stream: detailFor('stream', physical.streamText),
+          reasoning: detailFor('reasoning', physical.reasoningText)
+        }
+      })
+    }
+  })
 }
 
 function payloadIntegrityWarnings(run) {
@@ -449,6 +499,37 @@ async function verifyPayloadFiles(dir, run) {
     missing: missing,
     hashMismatch: hashMismatch,
     ok: missing.length === 0 && hashMismatch.length === 0
+  }
+}
+
+function verifyApiResponseIndex(run) {
+  var refsById = new Map()
+  ;((run && run.payloads) || []).forEach(function(ref) {
+    if (ref && ref.id) refsById.set(ref.id, ref)
+  })
+  var broken = []
+  var entries = (run && run.apiResponseIndex) || []
+  entries.forEach(function(entry) {
+    var collect = function(detail) {
+      if (!detail || !detail.ref) return
+      var ref = refsById.get(detail.ref)
+      if (!ref || ref.file !== detail.file || ref.sha256 !== detail.sha256 || ref.chars !== detail.chars) {
+        broken.push(detail.ref)
+      }
+    }
+    collect(entry.response)
+    collect(entry.stream)
+    collect(entry.reasoning)
+    ;(entry.physicalCalls || []).forEach(function(physical) {
+      collect(physical.response)
+      collect(physical.stream)
+      collect(physical.reasoning)
+    })
+  })
+  return {
+    total: entries.length,
+    brokenRefs: broken,
+    ok: broken.length === 0
   }
 }
 
@@ -547,6 +628,7 @@ function registerRunTraceHandlers() {
       exportData.payloadCount = written.payloadCount
       var verification = await verifyPayloadFiles(destination, exportData.run)
       exportData.payloadVerification = verification
+      exportData.apiResponseIndexVerification = verifyApiResponseIndex(exportData.run)
       var outputJson = JSON.stringify(exportData, null, 2)
       await fs.promises.writeFile(path.join(destination, 'export.json'), outputJson, 'utf8')
 
@@ -604,5 +686,6 @@ module.exports = {
   setDataDir,
   buildRunWithPayloadRefs,
   deduplicatePayloads,
+  verifyApiResponseIndex,
   uniqueExportFile
 }

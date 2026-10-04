@@ -4,7 +4,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-const { buildRunWithPayloadRefs, deduplicatePayloads, uniqueExportFile } = await import('./runTrace')
+const { buildRunWithPayloadRefs, deduplicatePayloads, uniqueExportFile, verifyApiResponseIndex } = await import('./runTrace')
 
 describe('run trace payload deduplication', () => {
   it('deduplicates identical logical and physical payloads', () => {
@@ -131,6 +131,80 @@ describe('run trace payload deduplication', () => {
 
     const serialized = JSON.stringify(built.run)
     expect(serialized).not.toContain('"value":"旧版本导出的完整响应"')
+  })
+
+  it('indexes every exported API response so consumers can locate full replies after responseText is externalized', () => {
+    const request = [{ role: 'user', content: '整理大纲' }]
+    const response = '整理后的完整大纲响应'
+    const reasoning = '模型思考内容'
+    const run = {
+      apiCalls: [
+        {
+          id: 'call-001',
+          turnId: 'turn-001',
+          seq: 1,
+          status: 'success',
+          requestMessages: request,
+          responseText: response,
+          streamText: response,
+          reasoningText: reasoning,
+          physicalCalls: [
+            {
+              id: 'physical-001',
+              physicalCallId: 'physical-call-001',
+              seq: 1,
+              phase: 'normal',
+              status: 'success',
+              requestMessages: request,
+              responseText: response,
+              streamText: response,
+              reasoningText: reasoning
+            }
+          ]
+        }
+      ]
+    }
+
+    const built = buildRunWithPayloadRefs(run)
+    const indexEntry = built.run.apiResponseIndex[0]
+    expect(indexEntry.apiCallId).toBe('call-001')
+    expect(indexEntry.turnId).toBe('turn-001')
+    expect(indexEntry.response.ref).toBe(built.run.apiCalls[0].responseTextPayloadRef)
+    expect(indexEntry.response.chars).toBe(response.length)
+    expect(indexEntry.response.preview).toBe(response)
+    expect(indexEntry.stream.sha256).toBe(indexEntry.response.sha256)
+    expect(indexEntry.reasoning.ref).toBeTruthy()
+    expect(indexEntry.physicalCalls[0].physicalCallId).toBe('physical-call-001')
+    expect(indexEntry.physicalCalls[0].response.ref).toBe(built.run.apiCalls[0].physicalCalls[0].responseTextPayloadRef)
+
+    const responseRef = built.refs.find(ref => ref.id === indexEntry.response.ref)
+    const responsePayload = built.payloads.find(item => item.kind === 'response').value
+    expect(indexEntry.response.file).toBe(responseRef.file)
+    expect(responseRef.sha256).toBe(
+      crypto.createHash('sha256').update(responsePayload, 'utf8').digest('hex')
+    )
+    expect(indexEntry.response.bytes).toBe(Buffer.byteLength(responsePayload, 'utf8'))
+  })
+
+  it('reports an invalid apiResponseIndex instead of silently trusting broken refs', () => {
+    const built = buildRunWithPayloadRefs({
+      apiCalls: [{
+        id: 'call-001',
+        seq: 1,
+        status: 'success',
+        requestMessages: [{ role: 'user', content: '读取大纲' }],
+        responseText: '完整响应'
+      }]
+    })
+    const run = JSON.parse(JSON.stringify(built.run))
+    run.apiResponseIndex[0].response.file = '999-response.json'
+    const broken = verifyApiResponseIndex(run)
+    expect(broken.ok).toBe(false)
+    expect(broken.brokenRefs).toEqual([run.apiResponseIndex[0].response.ref])
+
+    const intact = verifyApiResponseIndex(built.run)
+    expect(intact.ok).toBe(true)
+    expect(intact.total).toBe(1)
   })
 
   it('keeps folder fingerprints and deduplicates prompt snapshots by content', () => {

@@ -81,6 +81,17 @@ describe('editorDocumentMap', () => {
     expect(invalid.error?.code).toBe('invalid_range')
   })
 
+  it('document map exposes reorder top-level section ids', async () => {
+    const { gateway } = makeGateway()
+    const result = await gateway.execute('editor.document_map', { limit: 2 }, makeContext())
+    const data = result.data as any
+    const map = buildEditorDocumentMap(structuredContent)
+    const expectedTopLevelIds = map.topLevelSectionIds
+    expect(result.ok).toBe(true)
+    expect(data.reorderTopLevelIds).toEqual(expectedTopLevelIds)
+    expect(data.reorderScope).toBe('top-level')
+  })
+
   it('read_range reads a section and follows the cursor', async () => {
     const longBody = '雨'.repeat(2000)
     const content = `## 第1节 出发\n${longBody}\n## 第2节 渡口\n灯塔。`

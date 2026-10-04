@@ -33,6 +33,8 @@ export interface EditorDocumentMap {
   totalChars: number
   estimatedTokens: number
   sectionCount: number
+  /** Top-level nodes only. `sections` is recursive and must not be used for reorder_sections. */
+  topLevelSectionIds: string[]
   degraded: boolean
   degradedReason?: string
   sections: EditorDocumentSection[]
@@ -111,6 +113,7 @@ export function buildEditorDocumentMap(content: string): EditorDocumentMap {
     totalChars: structure.totalChars,
     estimatedTokens: estimateInputTokens(content),
     sectionCount: sections.length,
+    topLevelSectionIds: structure.nodes.map(node => node.id),
     degraded: structure.degraded,
     degradedReason: structure.degradedReason ?? undefined,
     sections,
@@ -218,6 +221,8 @@ export function createEditorDocumentMapTools(options: {
           totalChars: current.map.totalChars,
           estimatedTokens: current.map.estimatedTokens,
           sectionCount: current.map.sectionCount,
+          reorderTopLevelIds: current.map.topLevelSectionIds,
+          reorderScope: 'top-level',
           degraded: current.map.degraded,
           degradedReason: current.map.degradedReason,
           sections: selected,

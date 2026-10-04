@@ -115,7 +115,7 @@ describe('chain intent router v3', () => {
   })
 
   it('keeps short replies on an active long-document operation instead of degrading to discuss', () => {
-    for (const input of ['A', '确认', '继续']) {
+    for (const input of ['A', '确认', '继续', '写入', '把上一轮预览写入大纲']) {
       const result = routeChainIntent(input, {
         pendingLongDocumentOperation: {
           operation: 'normalize',
@@ -131,6 +131,48 @@ describe('chain intent router v3', () => {
         intent: 'edit',
         reason: 'pending-long-document-continuation',
       })
+    }
+  })
+
+  it('keeps an explicit long-document write command on the pending operation', () => {
+    const result = routeChainIntent('把上一轮预览写入大纲', {
+      pendingLongDocumentOperation: {
+        operation: 'restructure',
+        planId: 'plan-outline-1',
+      },
+      recentHistory: [{
+        role: 'assistant',
+        content: 'await_user: true',
+      }],
+    })
+
+    expect(result).toMatchObject({
+      kind: 'matched',
+      intent: 'edit',
+      reason: 'pending-long-document-continuation',
+    })
+  })
+
+  it('keeps pending long-document write prohibitions readonly', () => {
+    for (const input of [
+      '先别写入，我们再讨论',
+      '不要写入，先讨论一下',
+      '暂不写入，等确认后再写',
+      '写入先等确认',
+    ]) {
+      const result = routeChainIntent(input, {
+        pendingLongDocumentOperation: {
+          operation: 'normalize',
+          planId: 'plan-1',
+        },
+        recentHistory: [{
+          role: 'assistant',
+          content: 'await_user: true',
+        }],
+      })
+      expect(result.kind === 'matched'
+        && result.intent === 'edit'
+        && result.reason === 'pending-long-document-continuation').toBe(false)
     }
   })
 

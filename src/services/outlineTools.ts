@@ -138,6 +138,8 @@ export function createOutlineTools(options: {
           volumeCount: current.index.structure.volumeCount,
           chapterCount: current.index.structure.chapterCount,
           sectionCount: current.index.structure.sectionCount,
+          reorderTopLevelIds: current.index.structure.nodes.map(node => node.id),
+          reorderScope: 'top-level',
           degraded: current.index.structure.degraded,
           degradedReason: current.index.structure.degradedReason,
           mapText: selected.join('\n'),

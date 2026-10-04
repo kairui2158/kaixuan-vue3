@@ -422,12 +422,13 @@ import {
   getReadCapChars,
 } from '../../services/editorEntryFacade'
 import { createOutlineTools } from '../../services/outlineTools'
+import type { LongDocumentOperationType } from '../../services/longDocumentPolicy'
 import {
   buildLongDocumentExecutionPlan,
   toLongDocumentOperationType,
   type LongDocumentExecutionPlan,
 } from '../../services/longDocumentExecutionPlanner'
-import type { LongDocumentWriteAuthorization as DialogueWriteAuthorization } from '../../services/editorTools'
+import type { DialogueWriteAuthorization } from '../../services/dialogueToolSurface'
 import {
   continueFinalDraftTask,
   createFinalDraftStatusMessage,
@@ -2261,6 +2262,7 @@ function buildOutlineExecutionPlanForRequest(options: {
   content: string
   provider: NonNullable<typeof providerStore.activeGenerateProvider>
   intent?: PlainDialogueIntent
+  operationHint?: LongDocumentOperationType
 }): { plan: LongDocumentExecutionPlan; providerWindow: number | null } {
   const model = options.provider.selectedModel || options.provider.models?.[0] || 'gpt-4o'
   const providerWindow = resolveEffectiveModelContextWindow({
@@ -2276,6 +2278,7 @@ function buildOutlineExecutionPlanForRequest(options: {
       contextWindowTokens: typeof providerWindow === 'number' ? providerWindow : null,
       maxOutputTokens,
       intent: options.intent,
+      operationHint: options.operationHint,
     }),
   }
 }
@@ -4572,7 +4575,7 @@ async function askPlainAi(
 ) {
   currentOutlineUserRequest = requestText
   activeOutlineExecutionPlan = null
-  activePendingOutlineLongDocumentOperation = null
+  const previousPendingOutlineLongDocumentOperation = activePendingOutlineLongDocumentOperation
   const provider = providerStore.activeGenerateProvider
   if (!provider) {
     projectStore.appendOutlineChat({ role: 'assistant', content: '请先配置API供应商' })
@@ -4591,6 +4594,9 @@ async function askPlainAi(
     content: requestTarget.content,
     provider,
     intent: plainIntent,
+    operationHint: toLongDocumentOperationType(
+      previousPendingOutlineLongDocumentOperation?.operation ?? 'discussion',
+    ),
   })
   const outlineExecutionPlan = outlinePlan.plan
   const outlineProviderWindowDeclared = typeof outlinePlan.providerWindow === 'number'
@@ -4996,10 +5002,28 @@ async function askPlainAi(
               }
             },
           } : undefined,
+          onChunk: agentOnChunk,
           callAi: params => activeAiService.callAi(params),
         })
       },
     })
+    const agentOnChunk = (text: string) => {
+      directStreamText += text
+      streamingContent.value = directStreamText
+      appendOutlineStream(text, true)
+      if (!firstChunkSeen) {
+        firstChunkSeen = true
+        if (traceApiCallId) {
+          runTraceStore.attachSemantic(outlineRunTraceId || '', traceApiCallId, {
+            timeToFirstChunkMs: Math.round(performance.now() - startedAt)
+          })
+        }
+        generationStatus.value = `已收到内容 · 首字节 ${Math.round(performance.now() - startedAt)}ms`
+      } else {
+        generationStatus.value = '正在生成...'
+      }
+      void scrollToBottom()
+    }
     const agentResult = await agentRuntime.run({
       purpose: 'generate',
       messages: requestMessages,
@@ -5007,23 +5031,7 @@ async function askPlainAi(
       stream: true,
       signal: generationController.signal,
       cancelSignal: cancelController?.signal,
-      onChunk: (text: string) => {
-        directStreamText += text
-        streamingContent.value = directStreamText
-        appendOutlineStream(text, true)
-        if (!firstChunkSeen) {
-          firstChunkSeen = true
-          if (traceApiCallId) {
-            runTraceStore.attachSemantic(outlineRunTraceId || '', traceApiCallId, {
-              timeToFirstChunkMs: Math.round(performance.now() - startedAt)
-            })
-          }
-          generationStatus.value = `已收到内容 · 首字节 ${Math.round(performance.now() - startedAt)}ms`
-        } else {
-          generationStatus.value = '正在生成...'
-        }
-        void scrollToBottom()
-      },
+      onChunk: agentOnChunk,
       retry: false,
       tools,
       timeoutMs: isLongDocumentRequest ? null : DIRECT_TOOL_RUN_HARD_DEADLINE_MS,
