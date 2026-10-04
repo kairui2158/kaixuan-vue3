@@ -272,19 +272,18 @@ describe('buildLongDocumentExecutionPlan', () => {
     expect(plan.invariants).toEqual([])
   })
 
-  it('keeps a routed edit intent writable for a follow-up write instruction', () => {
+  it('classifies explicit follow-up write instructions from the current sentence', () => {
     const plan = buildLongDocumentExecutionPlan(makeInput({
       requestText: '把上一轮预览写入大纲',
       content: '段'.repeat(74_841),
       intent: 'edit',
-      operationHint: 'whole-document-restructure',
     }))
 
-    expect(plan.operation).toBe('restructure')
+    expect(plan.operation).toBe('targeted_edit')
     expect(plan.operationResolution).toEqual({
-      source: 'session-operation',
+      source: 'intent',
       intent: 'edit',
-      matched: 'restructure',
+      matched: 'targeted_edit',
     })
   })
 
@@ -336,14 +335,14 @@ describe('buildLongDocumentExecutionPlan', () => {
     expect(toLongDocumentOperationType(plan.operation)).toBe('whole-document-restructure')
   })
 
-  it('respects a session operation hint over single-sentence lexical fallback', () => {
+  it('keeps explicit restructure wording writable without a session hint', () => {
     const plan = buildLongDocumentExecutionPlan(makeInput({
       requestText: '继续执行刚才的任务',
       content: '段'.repeat(12_000),
-      operationHint: 'whole-document-restructure',
+      intent: 'edit',
     }))
 
-    expect(plan.operation).toBe('restructure')
+    expect(plan.operation).toBe('normalize')
     expect(plan.mode).toBe('edit-task')
   })
 

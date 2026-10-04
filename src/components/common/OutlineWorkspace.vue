@@ -2255,14 +2255,12 @@ async function applyOutlineDirectWrite(input: {
 
 let currentOutlineUserRequest = ''
 let activeOutlineExecutionPlan: LongDocumentExecutionPlan | null = null
-let activePendingOutlineLongDocumentOperation: ChainRoutingContext['pendingLongDocumentOperation'] | null = null
 
 function buildOutlineExecutionPlanForRequest(options: {
   requestText: string
   content: string
   provider: NonNullable<typeof providerStore.activeGenerateProvider>
   intent?: PlainDialogueIntent
-  operationHint?: LongDocumentOperationType
 }): { plan: LongDocumentExecutionPlan; providerWindow: number | null } {
   const model = options.provider.selectedModel || options.provider.models?.[0] || 'gpt-4o'
   const providerWindow = resolveEffectiveModelContextWindow({
@@ -2278,7 +2276,6 @@ function buildOutlineExecutionPlanForRequest(options: {
       contextWindowTokens: typeof providerWindow === 'number' ? providerWindow : null,
       maxOutputTokens,
       intent: options.intent,
-      operationHint: options.operationHint,
     }),
   }
 }
@@ -2645,7 +2642,6 @@ function createWorkspaceSkillAdapter(
         })
         : null,
     }),
-    getPendingLongDocumentOperation: () => activePendingOutlineLongDocumentOperation,
     buildTools: (request) => {
       const surface = buildOutlineToolSurface(request.intent)
       for (const conflict of surface.toolConflicts || []) {
@@ -4028,7 +4024,6 @@ async function classifyHomeIntentDetailed(requestText: string): Promise<PlainDia
     activeEditTaskStatus: outlineEditTask.value?.status === 'awaiting_batch'
       ? 'awaiting_batch'
       : undefined,
-    pendingLongDocumentOperation: activePendingOutlineLongDocumentOperation ?? undefined,
     llmClassifier: createIntentLlmFallback({
       activeVerifyProvider: providerStore.activeVerifyProvider,
       activeGenerateProvider: providerStore.activeGenerateProvider,
@@ -4085,10 +4080,6 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     provider,
   })
   activeOutlineExecutionPlan = outlinePlan.plan
-  activePendingOutlineLongDocumentOperation = {
-    planId: outlinePlan.plan.planId,
-    operation: outlinePlan.plan.operation,
-  }
   if (isOutlineFinalDraftRequest(outlinePlan.plan, requestText, requestTarget.content)) {
     startOutlineRun(workspaceSkillMode.value, requestText, templates.map(template => template.name), {
       intent: routingDecision.forcedIntent || 'generate',
@@ -4356,7 +4347,6 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     generationStatus.value = '等待意图确认'
     if (outlineRunTraceId) runTraceStore.startAwaitingUser(outlineRunTraceId, 'awaiting_confirmation')
     activeOutlineExecutionPlan = null
-    activePendingOutlineLongDocumentOperation = null
     return
   }
   if (result.runState === 'budget_exhausted') {
@@ -4378,7 +4368,6 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     })
     finishOutlineRun('blocked', 'API 调用预算已用尽，等待用户追加', result.text, 'budget_exhausted')
     activeOutlineExecutionPlan = null
-    activePendingOutlineLongDocumentOperation = null
     return
   }
     responseText = result.text
@@ -4542,7 +4531,6 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     generationController = null
     isGenerating.value = false
     activeOutlineExecutionPlan = null
-    activePendingOutlineLongDocumentOperation = null
     pendingOutlineDeletionConfirmation.value = null
     if (generationStatus.value !== '已取消生成' && generationStatus.value !== '等待意图确认') generationStatus.value = ''
     streamingContent.value = ''
@@ -4575,7 +4563,6 @@ async function askPlainAi(
 ) {
   currentOutlineUserRequest = requestText
   activeOutlineExecutionPlan = null
-  const previousPendingOutlineLongDocumentOperation = activePendingOutlineLongDocumentOperation
   const provider = providerStore.activeGenerateProvider
   if (!provider) {
     projectStore.appendOutlineChat({ role: 'assistant', content: '请先配置API供应商' })
@@ -4594,19 +4581,12 @@ async function askPlainAi(
     content: requestTarget.content,
     provider,
     intent: plainIntent,
-    operationHint: toLongDocumentOperationType(
-      previousPendingOutlineLongDocumentOperation?.operation ?? 'discussion',
-    ),
   })
   const outlineExecutionPlan = outlinePlan.plan
   const outlineProviderWindowDeclared = typeof outlinePlan.providerWindow === 'number'
   const outlineProviderWindow = outlinePlan.providerWindow
   const outlineMaxOutputTokens = Number(provider.maxTokens) > 0 ? Number(provider.maxTokens) : null
   activeOutlineExecutionPlan = outlineExecutionPlan
-  activePendingOutlineLongDocumentOperation = {
-    planId: outlineExecutionPlan.planId,
-    operation: outlineExecutionPlan.operation,
-  }
   const useOutlineFinalDraft = isOutlineFinalDraftRequest(outlineExecutionPlan, requestText, requestTarget.content)
   if (useOutlineFinalDraft) {
     startOutlineRun('direct', requestText, [], {
@@ -5612,7 +5592,6 @@ async function askPlainAi(
     cancelController = null
     isGenerating.value = false
     activeOutlineExecutionPlan = null
-    activePendingOutlineLongDocumentOperation = null
     toolRunSupervisor.dispose()
     if (generationStatus.value !== '已取消生成') generationStatus.value = ''
     streamingContent.value = ''
@@ -6107,16 +6086,6 @@ function handleUnlockOutline() {
   gap: var(--space-2);
   margin-top: 6px;
   padding-left: 2px;
-}
-.ow-edit-command {
-  display: inline-block;
-  margin-top: 6px;
-  padding: var(--space-2) var(--space-4);
-  color: var(--accent);
-  background: var(--accent-dim);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-sm);
 }
 .ow-routing-fallback {
   margin-top: 6px;

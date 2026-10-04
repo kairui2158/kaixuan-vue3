@@ -299,10 +299,6 @@ let homeSessionId = ''
 let lastHomeToolAudit: unknown
 let homeLongDocumentEditTaskPlan = false
 let activeHomeExecutionPlan: LongDocumentExecutionPlan | null = null
-let activePendingHomeLongDocumentOperation: {
-  planId: string
-  operation: LongDocumentExecutionPlan['operation']
-} | null = null
 let activeHomeRoutingIntent: PlainDialogueIntent = 'discuss'
 
 function buildHomeWorkflowWriteAuthorization(input: {
@@ -1534,7 +1530,6 @@ async function classifyHomeIntentDetailed(
       .filter(message => message.role === 'user')
       .map(message => message.content),
     recentHistory,
-    pendingLongDocumentOperation: activePendingHomeLongDocumentOperation ?? undefined,
     activeSkillIds: selectedCoCreationSkills.value.map(skill => skill.id),
     llmClassifier: createIntentLlmFallback({
       activeVerifyProvider: providerStore.activeVerifyProvider,
@@ -1796,7 +1791,6 @@ function createHomeSkillAdapter(
         })
         : null,
     }),
-    getPendingLongDocumentOperation: () => activePendingHomeLongDocumentOperation,
     buildTools: (request) => ({
       tools: requestTarget.content
         ? buildHomeDialogueToolSurface(
@@ -2297,7 +2291,6 @@ async function runHomeCoCreationSkills(
     })
     if (homeRunTraceId) runTraceStore.startAwaitingUser(homeRunTraceId, 'awaiting_confirmation')
     activeHomeExecutionPlan = null
-    activePendingHomeLongDocumentOperation = null
     return { text: '', toolCallSummary: null }
   }
   if (result.runState === 'budget_exhausted' && placeholderMessage) {
@@ -2317,7 +2310,6 @@ async function runHomeCoCreationSkills(
       detail: `已用 ${result.budgetSnapshot?.used || 0}/${result.budgetSnapshot?.limit || 0}，已保留断点`
     })
     activeHomeExecutionPlan = null
-    activePendingHomeLongDocumentOperation = null
     return {
       text: result.text,
       toolCallSummary: null,
@@ -2561,7 +2553,6 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
   activeAbortController = new AbortController()
   const pendingOriginal = _pendingInlineOriginal.value
   _pendingInlineOriginal.value = ''
-  const previousPendingHomeLongDocumentOperation = activePendingHomeLongDocumentOperation
   lastToolCallSummary = null
   homeFailedWriteBatch = null
   const requestTarget = buildSnapshot({
@@ -2593,9 +2584,6 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     contextWindowTokens: typeof homeProviderWindow === 'number' ? homeProviderWindow : null,
     maxOutputTokens: homeMaxOutputTokens,
     intent: requestIntent,
-    operationHint: toLongDocumentOperationType(
-      previousPendingHomeLongDocumentOperation?.operation ?? 'discussion',
-    ),
   })
   homeLongDocumentEditTaskPlan = homeExecutionPlan.mode === 'edit-task'
   const homeWorkflowWriteAuthorization = buildHomeWorkflowWriteAuthorization({
@@ -2603,10 +2591,6 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     plan: homeExecutionPlan,
   })
   activeHomeExecutionPlan = homeExecutionPlan
-  activePendingHomeLongDocumentOperation = {
-    planId: homeExecutionPlan.planId,
-    operation: homeExecutionPlan.operation,
-  }
   const homeLongDocumentOperationType = toLongDocumentOperationType(homeExecutionPlan.operation)
   const useHomeFinalDraft = isHomeFinalDraftRequest(homeExecutionPlan, text, requestTarget.content)
   const skillSurfaceModel = providerStore.activeGenerateProvider?.selectedModel
@@ -3225,7 +3209,6 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     clearWorkspaceSnapshotIfSafe()
     activeAbortController = null
     activeHomeExecutionPlan = null
-    activePendingHomeLongDocumentOperation = null
     if (chatStore.generationStatus === 'preparing' || chatStore.generationStatus === 'streaming' || chatStore.generationStatus === 'retrying') {
       chatStore.setGenerationState('idle')
     }

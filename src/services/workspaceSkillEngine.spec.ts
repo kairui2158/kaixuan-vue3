@@ -594,14 +594,9 @@ describe('workspace skill engine', () => {
     expect(calls[0].tools?.map(tool => tool.name)).toContain('editor.write')
   })
 
-  it('keeps short replies on a pending long-document operation in the skill engine router', async () => {
+  it('does not give short replies pending-preview write authority in the skill engine router', async () => {
     const context = makeContextService()
-    const adapter = makeAdapter({
-      getPendingLongDocumentOperation: () => ({
-        planId: 'plan-1',
-        operation: 'normalize',
-      }),
-    })
+    const adapter = makeAdapter()
     const { aiService, calls } = makeAiService(['继续结果'])
     const routingResults: string[] = []
 
@@ -619,8 +614,8 @@ describe('workspace skill engine', () => {
       },
     })
 
-    expect(routingResults).toContain('pending-long-document-continuation')
-    expect(calls[0].tools || []).toEqual([])
+    expect(routingResults).not.toContain('pending-long-document-continuation')
+    expect(calls).toHaveLength(0)
   })
 
   it('records compose API calls for success and failure paths', async () => {

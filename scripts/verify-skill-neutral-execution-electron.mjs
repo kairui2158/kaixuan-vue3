@@ -122,7 +122,7 @@ function startMockProvider() {
       const wantsGuidance = systemPrompt.includes(GUIDANCE_MARKER)
       const isTargetedEdit = userPrompt.includes('把第二章灯塔的旧信内容修改为')
       const isWholeDocumentRewrite = userPrompt.includes('全文重写') && userPrompt.includes('输出完整终稿')
-      const isRestructure = userPrompt.includes('整理排序') && userPrompt.includes('统一格式')
+      const isRestructure = userPrompt.includes('整理排序')
       const hasToolResult = (body?.messages || []).some(message => message?.role === 'tool')
       const tools = Array.isArray(body?.tools) ? body.tools : []
       const requestRecord = {
@@ -131,6 +131,20 @@ function startMockProvider() {
         tools: tools.map(tool => tool?.function?.name || tool?.name),
       }
       requests.push(requestRecord)
+
+      if (systemPrompt.includes('意图分类器')) {
+        response.writeHead(200, { 'content-type': 'application/json; charset=utf-8' })
+        response.end(JSON.stringify({
+          choices: [{
+            finish_reason: 'stop',
+            message: {
+              role: 'assistant',
+              content: '{"intent":"edit","confidence":0.98,"reason":"验证器路由用编辑意图"}',
+            },
+          }],
+        }))
+        return
+      }
 
       if (isTargetedEdit && !hasToolResult) {
         response.writeHead(200, { 'content-type': 'application/json; charset=utf-8' })
@@ -204,12 +218,13 @@ function startMockProvider() {
                   name: 'editor.write',
                   arguments: JSON.stringify({
                     commands: [{
-                      operation: 'replace_document',
-                      content: wantsGuidance
-                        ? '# SKILL中立矩阵\n\n## 第一章 夜行\n\n男主在风暴中找到旧信，SKILL领域能力已注入。\n\n## 第二章 灯塔\n\n他确认了寄信人的身份。\n\n## 第三章 南下\n\n旧信把航线指向南方。\n'
-                        : '# SKILL中立矩阵\n\n## 第一章 夜行\n\n男主在风暴中找到旧信。\n\n## 第二章 灯塔\n\n他确认了寄信人的身份。\n\n## 第三章 南下\n\n旧信把航线指向南方。\n',
+                      operation: 'move',
+                      target: '## 第三章 南下',
+                      destination: '## 第二章 灯塔',
+                      destinationPosition: 'before',
+                      reason: '将第三章移动到第二章之前，完成结构重排',
                     }],
-                    reason: '按用户请求整理排序并统一格式',
+                    reason: '按用户请求完成整理排序',
                     reveal: { mode: 'instant', firstChange: true },
                   }),
                 },
@@ -428,6 +443,10 @@ async function runOutlineCase(page, caseName, requestText, expectedText) {
 function assertEditTaskRestructureNeutral(result, withSkill, mockProvider, entry) {
   const label = `${entry}:${result.caseName}`
   assert(result.after.includes('## 第三章 南下'), `${label}: content is written back`)
+  assert(
+    result.after.indexOf('## 第三章 南下') < result.after.indexOf('## 第二章 灯塔'),
+    `${label}: restructure really reorders sections`,
+  )
   const requests = mockProvider.requests()
   const writeRequest = requests.findLast(request => request.tools.includes('editor.write'))
   assert(writeRequest, `${label}: edit-task exposes editor.write`)
@@ -555,9 +574,9 @@ async function main() {
 
     await seedApplication(page, mockProvider, { withSkill: false })
     let before = requestCountBefore()
-    let result = await runHomeCase(page, mockProvider, 'home-final-draft-no-skill', '请对当前编辑器全文进行整理排序，并统一格式。', '## 第三章 南下')
+    let result = await runHomeCase(page, mockProvider, 'home-final-draft-no-skill', '请对当前编辑器全文进行整理排序。', '## 第三章 南下')
     assertEditTaskRestructureNeutral(result, false, mockProvider, 'home')
-    result = await runOutlineCase(page, 'outline-final-draft-no-skill', '请对全文大纲进行整理排序，并统一格式。', '## 第三章 南下')
+    result = await runOutlineCase(page, 'outline-final-draft-no-skill', '请对全文大纲进行整理排序。', '## 第三章 南下')
     assertEditTaskRestructureNeutral(result, false, mockProvider, 'outline')
     result = await runHomeCase(page, mockProvider, 'home-whole-rewrite-no-skill', '请全文重写当前编辑器内容，输出完整终稿。', '## 第三章 南下')
     assertFinalDraftNeutral(result, false, mockProvider, 'home')
@@ -567,9 +586,9 @@ async function main() {
 
     await seedApplication(page, mockProvider, { withSkill: true })
     before = requestCountBefore()
-    result = await runHomeCase(page, mockProvider, 'home-final-draft-with-skill', '请对当前编辑器全文进行整理排序，并统一格式。', '旧信把航线指向南方。')
+    result = await runHomeCase(page, mockProvider, 'home-final-draft-with-skill', '请对当前编辑器全文进行整理排序。', '旧信把航线指向南方。')
     assertEditTaskRestructureNeutral(result, true, mockProvider, 'home')
-    result = await runOutlineCase(page, 'outline-final-draft-with-skill', '请对全文大纲进行整理排序，并统一格式。', '旧信把航线指向南方。')
+    result = await runOutlineCase(page, 'outline-final-draft-with-skill', '请对全文大纲进行整理排序。', '旧信把航线指向南方。')
     assertEditTaskRestructureNeutral(result, true, mockProvider, 'outline')
     result = await runHomeCase(page, mockProvider, 'home-whole-rewrite-with-skill', '请全文重写当前编辑器内容，输出完整终稿。', '旧信把航线指向南方。')
     assertFinalDraftNeutral(result, true, mockProvider, 'home')

@@ -1,12 +1,17 @@
 {
   "schema": "shenyi.skill-neutral-execution.electron",
   "version": 1,
-  "generatedAt": "2026-10-03T18:59:09.043Z",
-  "electronPid": 64232,
+  "generatedAt": "2026-10-04T07:21:41.245Z",
+  "electronPid": 79764,
   "cases": [
     {
       "skill": false,
       "requests": [
+        {
+          "url": "/v1/chat/completions",
+          "guidance": false,
+          "tools": []
+        },
         {
           "url": "/v1/chat/completions",
           "guidance": false,
@@ -48,6 +53,11 @@
             "agent.wait",
             "agent.cancel"
           ]
+        },
+        {
+          "url": "/v1/chat/completions",
+          "guidance": false,
+          "tools": []
         },
         {
           "url": "/v1/chat/completions",
@@ -116,6 +126,11 @@
       "requests": [
         {
           "url": "/v1/chat/completions",
+          "guidance": false,
+          "tools": []
+        },
+        {
+          "url": "/v1/chat/completions",
           "guidance": true,
           "tools": [
             "editor.get_state",
@@ -155,6 +170,11 @@
             "agent.wait",
             "agent.cancel"
           ]
+        },
+        {
+          "url": "/v1/chat/completions",
+          "guidance": false,
+          "tools": []
         },
         {
           "url": "/v1/chat/completions",
@@ -311,5 +331,5 @@
       ]
     }
   ],
-  "exportedSchemaVersion": 12
+  "exportedSchemaVersion": 13
 }

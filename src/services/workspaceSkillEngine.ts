@@ -476,11 +476,6 @@ export interface WorkspaceSkillEngineAdapter {
     executionPlan?: LongDocumentExecutionPlan
     writeAuthorization?: DialogueWriteAuthorization | null
   }
-  /**
-   * Session-owned pending long-document operation. Used only for routing
-   * continuity; SKILL packages cannot supply execution authority.
-   */
-  getPendingLongDocumentOperation?(): ChainRoutingContext['pendingLongDocumentOperation'] | null
   loadBreakpoint(): Promise<ChainBreakpoint | null>
   saveBreakpoint(breakpoint: ChainBreakpoint): Promise<void>
   clearBreakpoint(): Promise<void>
@@ -1341,9 +1336,6 @@ async function resolveWorkspaceIntentRouting(
       .filter((message) => message.role === 'user')
       .map((message) => message.content),
     recentHistory,
-    ...(adapter.getPendingLongDocumentOperation?.()
-      ? { pendingLongDocumentOperation: adapter.getPendingLongDocumentOperation() || undefined }
-      : {}),
     activeSkillIds: templates.map((template) => template.id),
     ...(adapter.classifyIntentWithLlm
       ? { llmClassifier: adapter.classifyIntentWithLlm }

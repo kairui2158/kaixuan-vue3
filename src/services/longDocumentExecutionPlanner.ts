@@ -67,7 +67,7 @@ export interface LongDocumentExecutionPlan {
   planId: string
   operation: LongDocumentExecutionOperation
   operationResolution: {
-    source: 'session-operation' | 'intent' | 'intent-fallback' | 'lexical'
+    source: 'intent' | 'intent-fallback' | 'lexical'
     intent?: PlannerIntent
     matched: LongDocumentOperationType | LongDocumentExecutionOperation
   }
@@ -95,8 +95,6 @@ export interface LongDocumentExecutionPlannerInput {
   content: string
   contextWindowTokens?: number | null
   maxOutputTokens?: number | null
-  /** Session-level operation carried over from the already routed workflow. */
-  operationHint?: LongDocumentOperationType
   /** Routed dialogue intent; read-only intents override lexical fallback. */
   intent?: PlannerIntent
 }
@@ -108,7 +106,7 @@ const DEDUPLICATE_PATTERN = /(重复项|重复的|重复内容|重复章节|去�
 const DEDUPLICATE_NEGATED_CONTEXT_PATTERN = /(未|不|没(?:有)?|无|非)重复/g
 const NORMALIZE_HEADING_PATTERN = /(标题层级|编号.*标点|标点.*编号)/
 const REWRITE_PATTERN = /(全文重写|重写全文|整篇重写|重写整篇|全文替换|全部替换|输出完整终稿|生成完整终稿)/
-const TARGETED_EDIT_PATTERN = /(修改|删除|插入|替换|增加|添加|改写|微调|润色|移动)/
+const TARGETED_EDIT_PATTERN = /(修改|删除|插入|替换|增加|添加|改写|微调|润色|移动|写入)/
 
 function resolvePositiveNumber(value: unknown): number | null {
   const parsed = Number(value)
@@ -155,30 +153,6 @@ function resolveOperation(
     return {
       operation: 'discussion',
       resolution: { source: 'intent', intent: input.intent, matched: 'discussion' },
-    }
-  }
-  if (input.operationHint === 'whole-document-restructure') {
-    return {
-      operation: 'restructure',
-      resolution: { source: 'session-operation', intent: input.intent, matched: 'restructure' },
-    }
-  }
-  if (input.operationHint === 'whole-document-replacement') {
-    return {
-      operation: 'rewrite_segments',
-      resolution: { source: 'session-operation', intent: input.intent, matched: 'rewrite_segments' },
-    }
-  }
-  if (input.operationHint === 'large-scope-edit') {
-    if (hasDeduplicateIntent(input.requestText) && hasNormalizeIntent(input.requestText)) {
-      return {
-        operation: 'deduplicate_and_normalize',
-        resolution: { source: 'session-operation', intent: input.intent, matched: 'deduplicate_and_normalize' },
-      }
-    }
-    return {
-      operation: hasDeduplicateIntent(input.requestText) ? 'deduplicate' : 'normalize',
-      resolution: { source: 'session-operation', intent: input.intent, matched: 'large-scope-edit' },
     }
   }
   const intentRequiresWrite = input.intent === 'edit' || input.intent === 'generate'
