@@ -247,6 +247,7 @@ import { classifyPlainDialogueIntent, type PlainDialogueIntent } from '../../ser
 import type { ChatMessage } from '../../stores/chat'
 import { useRunTraceStore, type RunTraceMessage, type RunTraceStatus } from '../../stores/runTrace'
 import { createAgentDialogueRuntime } from '../../services/agentDialogueRuntime'
+import { mapAgentResultToRunTrace } from '../../services/agentTerminalMapping'
 import {
   activeExecutionTaskStore,
   type ActiveExecutionTask,
@@ -2127,6 +2128,9 @@ async function runHomeCoCreationSkills(
   let firstChunkSeen = false
   let homeSkillTerminalStatus: 'success' | 'degraded' | 'blocked' | undefined
   let homeSkillTerminalReason: string | undefined
+  let homeAgentTerminalStatus: RunTraceStatus | undefined
+  let homeAgentTerminalReason: string | undefined
+  let homeTurnOutcomeVerified = false
   const runStartedAt = performance.now()
   const skillNames = selectedCoCreationSkills.value.map(skill => skillStore.displaySkillName(skill))
   // A budget-exhausted resume must keep the spent count and the user's
@@ -2776,6 +2780,9 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
   let failedTurnMaxTokens: number | null | undefined
   let homeSkillTerminalStatus: 'success' | 'degraded' | 'blocked' | undefined
   let homeSkillTerminalReason: string | undefined
+  let homeAgentTerminalStatus: RunTraceStatus | undefined
+  let homeAgentTerminalReason: string | undefined
+  let homeTurnOutcomeVerified = false
   let homeTurnSucceeded = false
   try {
     const provider = providerStore.activeGenerateProvider
@@ -3107,6 +3114,8 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       response = plainResult.text
       failedTurnMaxTokens = plainResult.maxTokens
       lastToolCallSummary = plainResult.toolCallSummary
+      homeAgentTerminalStatus = plainResult.terminalStatus
+      homeAgentTerminalReason = plainResult.terminalReason
       if (response?.trim()) {
         await conversationContextService.recordTurn({
           projectId: projId,
@@ -3171,11 +3180,14 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
         }));
     }
     finishHomeRun(
-      homeSkillTerminalStatus || 'success',
+      homeAgentTerminalStatus ?? homeSkillTerminalStatus ?? 'success',
       undefined,
       response,
-      homeSkillTerminalReason || (selectedCoCreationSkills.value.length > 0 ? 'co_creation_complete' : 'dialogue_complete'),
+      homeAgentTerminalReason
+        ?? homeSkillTerminalReason
+        ?? (selectedCoCreationSkills.value.length > 0 ? 'co_creation_complete' : 'dialogue_complete'),
     )
+    homeTurnOutcomeVerified = true
     homeTurnSucceeded = true
  } catch (e: any) {
    if (e?.kind === 'canceled' || activeAbortController?.signal.aborted) {
@@ -3190,7 +3202,12 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
      lastFailedText.value = text
      chatStore.setGenerationState('error', '生成失败：' + (e?.message || String(e)))
      chatStore.addMessage({ role: 'assistant', content: '请求失败：' + (e?.message || String(e)), tabId: chatStore.currentContext?.tabId || '' }, projId)
-     finishHomeRun('failed', e?.message || String(e), undefined, 'runtime_exception')
+     finishHomeRun(
+       'failed',
+       e?.message || String(e),
+       undefined,
+       homeTurnOutcomeVerified ? 'post_outcome_runtime_exception' : 'runtime_exception',
+     )
      void conversationContextService.recordTurn({
        projectId: projId,
        workspace: 'main',
@@ -3203,6 +3220,14 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
      }).catch(() => undefined)
    }
 } finally {
+ if (homeRunTraceId && !homeTurnOutcomeVerified) {
+   addHomeTraceEvent({
+     type: 'turn-outcome-unverified',
+     level: 'error',
+     label: '本轮未获得已验证终态',
+     detail: '运行进入收尾但未发生任何经写入或讨论判定的完成路径',
+   })
+ }
  const activeHomeEditTask = homeEditTaskSession.activeTask()
  if (homeLongDocumentEditTaskPlan && activeHomeEditTask?.status === 'awaiting_batch') {
     const allBatchesWritten = activeHomeEditTask.executedBatches.length > 0
@@ -3290,6 +3315,8 @@ async function callApi(
   text: string
   maxTokens?: number | null
   toolCallSummary: string | null
+  terminalStatus?: RunTraceStatus
+  terminalReason?: string
 }> {
   // The per-turn token limit is recorded from the actual request result.
   configureHomeContextCompaction(model, provider.contextWindowTokens)
@@ -3664,6 +3691,10 @@ async function callApi(
     })
     const result = agentResult.result
     if (!result) throw new Error(agentResult.reason || 'Agent 编排器未返回 API 结果')
+    const agentTerminal = mapAgentResultToRunTrace({
+      agentResult,
+      executionPlan,
+    })
     if (agentResult.toolSurface?.length) {
       runTraceStore.updateApiCallToolSurface(homeRunTraceId || '', traceApiCallId || '', {
         actualToolSurface: agentResult.toolSurface,
@@ -3776,11 +3807,31 @@ async function callApi(
       retryStrategy,
       maxTokens: retryResult.maxTokens ?? retryMaxTokens ?? null,
     })
+    if (
+      agentTerminal.status !== 'success'
+      && agentTerminal.status !== 'partially_applied'
+      && agentTerminal.status !== 'failed_after_write'
+    ) {
+      addHomeTraceEvent({
+        type: 'agent-terminal-overridden',
+        level: 'warn',
+        label: 'Agent 终态已被直出重试覆盖',
+        detail: `${agentTerminal.status}/${agentTerminal.reason} -> success/direct_retry_valid`,
+        payload: {
+          agentStatus: agentTerminal.status,
+          agentReason: agentTerminal.reason,
+          overriddenStatus: 'success',
+          overriddenReason: 'direct_retry_valid',
+        },
+      })
+    }
     chatStore.updateLastMessage(retryResult.text || '')
     return {
       text: retryResult.text || '',
       maxTokens: retryResult.maxTokens ?? retryMaxTokens ?? null,
-      toolCallSummary: null
+      toolCallSummary: null,
+      terminalStatus: 'success',
+      terminalReason: 'direct_retry_valid',
     }
   }
   if (!validity.usable) {
@@ -3841,7 +3892,9 @@ async function callApi(
   return {
     text: responseText,
     maxTokens: result.maxTokens ?? requestMaxTokens ?? null,
-    toolCallSummary
+    toolCallSummary,
+    terminalStatus: agentTerminal.status,
+    terminalReason: agentTerminal.reason,
   }
 }
 

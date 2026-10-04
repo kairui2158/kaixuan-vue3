@@ -39,6 +39,18 @@ describe('direct write production wiring', () => {
     }
   })
 
+  it('maps outer terminal states from the Agent verdict in both production entries', () => {
+    const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
+    const home = readComponentSource('src/components/chat/ChatPanel.vue')
+
+    expect(outline).toContain('mapAgentResultToRunTrace')
+    expect(home).toContain('mapAgentResultToRunTrace')
+    expect(outline).not.toContain(
+      "finishOutlineRunIfRunning('success', undefined, streamingContent.value, 'plain_dialogue_complete')",
+    )
+    expect(home).not.toContain("homeSkillTerminalStatus || 'success'")
+  })
+
   it('invalidates stale task state instead of leaking it into a new document', () => {
     const task: ActiveExecutionTask = {
       taskId: 'task-stale',

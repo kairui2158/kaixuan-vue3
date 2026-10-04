@@ -345,6 +345,7 @@ import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useModalQueue } from '../../composables/useModalQueue'
 import { useRunTraceStore, type RunTraceMessage, type RunTraceStatus } from '../../stores/runTrace'
 import { createAgentDialogueRuntime } from '../../services/agentDialogueRuntime'
+import { mapAgentResultToRunTrace } from '../../services/agentTerminalMapping'
 import {
   activeExecutionTaskStore,
   type ActiveExecutionTask,
@@ -4799,6 +4800,7 @@ async function askPlainAi(
   let directStreamText = ''
   let compatibilityModeUsed = false
   let plainAiResult: { finishReason?: string; maxTokens?: number | null } | null = null
+  let outlineAgentTerminal: { status: RunTraceStatus; reason: string } | undefined
   let aiService: Awaited<ReturnType<typeof getAiService>> | null = null
   let contextRef: Parameters<typeof conversationContextService.recordTurn>[0] | null = null
   let traceApiCallId: string | undefined
@@ -5193,6 +5195,10 @@ async function askPlainAi(
     })
     const result = agentResult.result
     if (!result) throw new Error(agentResult.reason || 'Agent 编排器未返回 API 结果')
+    outlineAgentTerminal = mapAgentResultToRunTrace({
+      agentResult,
+      executionPlan: outlineExecutionPlan,
+    })
     if (agentResult.toolSurface?.length) {
       runTraceStore.updateApiCallToolSurface(outlineRunTraceId || '', traceApiCallId || '', {
         actualToolSurface: agentResult.toolSurface,
@@ -5638,7 +5644,9 @@ async function askPlainAi(
     }
     pendingOutlineDirectWrite.value = null
     if (outlineRunTraceId) {
-      finishOutlineRunIfRunning('success', undefined, streamingContent.value, 'plain_dialogue_complete')
+      const outlineTerminal = outlineAgentTerminal
+        || { status: 'success' as RunTraceStatus, reason: 'plain_dialogue_complete' }
+      finishOutlineRunIfRunning(outlineTerminal.status, undefined, streamingContent.value, outlineTerminal.reason)
     }
     generationController = null
     cancelController = null
