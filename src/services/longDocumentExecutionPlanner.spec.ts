@@ -371,6 +371,67 @@ describe('buildLongDocumentExecutionPlan', () => {
     ])
   })
 
+  it('keeps an unambiguous narrowing request out of the active compound task', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '这一轮只去重，其他整理先不要做',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      intent: 'edit',
+      activeTask: {
+        taskId: 'active-task-1',
+        operation: 'restructure_and_cleanup',
+        originalRequest: '按照Word文档的形式重构大纲，删除重复项并统一格式',
+      },
+    }))
+
+    expect(plan.operation).toBe('deduplicate')
+    expect(plan.operationResolution).toEqual({
+      source: 'intent',
+      intent: 'edit',
+      matched: 'deduplicate',
+    })
+    expect(plan.mode).toBe('edit-task')
+    expect(plan.invariants).toEqual(['planned-deletion-only'])
+  })
+
+  it('keeps a continuation answer from being treated as an unambiguous narrowing request', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '只去重，其他要求继续符合我的要求，直接写入',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      intent: 'edit',
+      activeTask: {
+        taskId: 'active-task-1',
+        operation: 'restructure_and_cleanup',
+        originalRequest: '按照Word文档的形式重构大纲，删除重复项并统一格式',
+      },
+    }))
+
+    expect(plan.operation).toBe('restructure_and_cleanup')
+    expect(plan.operationResolution).toMatchObject({
+      source: 'active-task-continuation',
+      intent: 'edit',
+    })
+  })
+
+  it('preserves the active task origin across a later generic continuation turn', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '继续完成剩下的整理，直接写入',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      intent: 'edit',
+      activeTask: {
+        taskId: 'active-task-1',
+        operation: 'restructure_and_cleanup',
+        originalRequest: '按照Word文档格式重构整篇大纲，删除重复项并统一格式',
+      },
+    }))
+
+    expect(plan.operation).toBe('restructure_and_cleanup')
+    expect(plan.operationResolution).toMatchObject({
+      source: 'active-task-continuation',
+      intent: 'edit',
+      matched: 'restructure_and_cleanup',
+    })
+  })
+
   it('keeps routed discussion intent read-only even when the sentence mentions edit verbs', () => {
     const plan = buildLongDocumentExecutionPlan(makeInput({
       requestText: '我想解释一下第一卷钩子为什么这样修改，你先帮我分析利弊',

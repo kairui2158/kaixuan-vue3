@@ -345,6 +345,11 @@ import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useModalQueue } from '../../composables/useModalQueue'
 import { useRunTraceStore, type RunTraceMessage, type RunTraceStatus } from '../../stores/runTrace'
 import { createAgentDialogueRuntime } from '../../services/agentDialogueRuntime'
+import {
+  activeExecutionTaskStore,
+  type ActiveExecutionTask,
+  type ActiveExecutionTaskSnapshot,
+} from '../../services/activeExecutionTaskStore'
 import { isAgentRuntimeToolName } from '../../services/agentToolConflict'
 import { useProjectStore } from '../../stores/project'
 import { useEditorStore } from '../../stores/editor'
@@ -2195,6 +2200,15 @@ async function applyOutlineDirectWrite(input: {
     } : undefined,
   }
   recordOutlineBatchEvent(record, 'applied', `API 已直接写入 ${input.commands.length} 条大纲修改`)
+  const refreshedSnapshot = createOutlineRequestTarget()
+  if (refreshedSnapshot) {
+    activeExecutionTaskStore.refresh(
+      'outline',
+      outlineProjectId(),
+      refreshedSnapshot.contentVersion,
+      hashOutlineContent(input.next),
+    )
+  }
   logEditorEdit({
     requestId: `outline-direct-write_${record.batchId}`,
     batchId: record.batchId,
@@ -2256,11 +2270,33 @@ async function applyOutlineDirectWrite(input: {
 let currentOutlineUserRequest = ''
 let activeOutlineExecutionPlan: LongDocumentExecutionPlan | null = null
 
+function createOutlineActiveTask(input: {
+  requestText: string
+  plan: LongDocumentExecutionPlan
+  snapshot: ReturnType<typeof createOutlineRequestTarget>
+}): ActiveExecutionTask | null {
+  if (input.plan.operation === 'discussion' || input.plan.mode === 'final-draft') return null
+  const now = Date.now()
+  return activeExecutionTaskStore.create({
+    taskId: `outline-${input.plan.planId}`,
+    workspace: 'outline',
+    projectId: outlineProjectId(),
+    originalRequest: input.requestText,
+    operation: input.plan.operation,
+    documentVersion: input.snapshot.contentVersion,
+    contentHash: hashOutlineContent(input.snapshot.content),
+    createdAt: now,
+    updatedAt: now,
+    status: 'active',
+  })
+}
+
 function buildOutlineExecutionPlanForRequest(options: {
   requestText: string
   content: string
   provider: NonNullable<typeof providerStore.activeGenerateProvider>
   intent?: PlainDialogueIntent
+  activeTask?: ActiveExecutionTaskSnapshot
 }): { plan: LongDocumentExecutionPlan; providerWindow: number | null } {
   const model = options.provider.selectedModel || options.provider.models?.[0] || 'gpt-4o'
   const providerWindow = resolveEffectiveModelContextWindow({
@@ -2276,6 +2312,7 @@ function buildOutlineExecutionPlanForRequest(options: {
       contextWindowTokens: typeof providerWindow === 'number' ? providerWindow : null,
       maxOutputTokens,
       intent: options.intent,
+      activeTask: options.activeTask,
     }),
   }
 }
@@ -4576,13 +4613,25 @@ async function askPlainAi(
   const plainIntent: PlainDialogueIntent = plainIntentDetailed.intent
   currentRoutingIntent.value = plainIntent
   const requestTarget = createOutlineRequestTarget()
+  const activeOutlineTask = activeExecutionTaskStore.getValidSnapshot(
+    'outline',
+    outlineProjectId(),
+    requestTarget.contentVersion,
+    hashOutlineContent(requestTarget.content),
+  )
   const outlinePlan = buildOutlineExecutionPlanForRequest({
     requestText,
     content: requestTarget.content,
     provider,
     intent: plainIntent,
+    activeTask: activeOutlineTask || undefined,
   })
   const outlineExecutionPlan = outlinePlan.plan
+  createOutlineActiveTask({
+    requestText,
+    plan: outlineExecutionPlan,
+    snapshot: requestTarget,
+  })
   const outlineProviderWindowDeclared = typeof outlinePlan.providerWindow === 'number'
   const outlineProviderWindow = outlinePlan.providerWindow
   const outlineMaxOutputTokens = Number(provider.maxTokens) > 0 ? Number(provider.maxTokens) : null
@@ -5731,6 +5780,8 @@ async function resetConversation() {
   if (outlineRunTraceId) runTraceStore.markContextCompacted(outlineRunTraceId, '用户点击清空记忆')
   sealOutlineTraceSession()
   lastOutlineToolAudit = undefined
+  activeExecutionTaskStore.clear('outline', outlineProjectId())
+  activeOutlineExecutionPlan = null
     try {
     projectStore.outlineChat = []
     await nextTick()

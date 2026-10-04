@@ -247,6 +247,10 @@ import { classifyPlainDialogueIntent, type PlainDialogueIntent } from '../../ser
 import type { ChatMessage } from '../../stores/chat'
 import { useRunTraceStore, type RunTraceMessage, type RunTraceStatus } from '../../stores/runTrace'
 import { createAgentDialogueRuntime } from '../../services/agentDialogueRuntime'
+import {
+  activeExecutionTaskStore,
+  type ActiveExecutionTask,
+} from '../../services/activeExecutionTaskStore'
 import { isAgentRuntimeToolName } from '../../services/agentToolConflict'
 import { useLiveApiStatus, type LiveApiStatusInput } from '../../composables/useLiveApiStatus'
 import {
@@ -300,6 +304,27 @@ let lastHomeToolAudit: unknown
 let homeLongDocumentEditTaskPlan = false
 let activeHomeExecutionPlan: LongDocumentExecutionPlan | null = null
 let activeHomeRoutingIntent: PlainDialogueIntent = 'discuss'
+
+function createHomeActiveTask(input: {
+  requestText: string
+  plan: LongDocumentExecutionPlan
+  snapshot: EditorTargetSnapshot
+}): ActiveExecutionTask | null {
+  if (input.plan.operation === 'discussion' || input.plan.mode === 'final-draft') return null
+  const now = Date.now()
+  return activeExecutionTaskStore.create({
+    taskId: `home-${input.plan.planId}`,
+    workspace: 'main',
+    projectId: String(projectId.value),
+    originalRequest: input.requestText,
+    operation: input.plan.operation,
+    documentVersion: input.snapshot.contentVersion,
+    contentHash: hashEditorContent(input.snapshot.content),
+    createdAt: now,
+    updatedAt: now,
+    status: 'active',
+  })
+}
 
 function buildHomeWorkflowWriteAuthorization(input: {
   intent: PlainDialogueIntent
@@ -2578,12 +2603,24 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
   const homeMaxOutputTokens = Number(homeProviderForRouting?.maxTokens) > 0
     ? Number(homeProviderForRouting?.maxTokens)
     : null
+  const activeHomeTask = activeExecutionTaskStore.getValidSnapshot(
+    'main',
+    String(projectId.value),
+    requestTarget.contentVersion,
+    hashEditorContent(requestTarget.content),
+  )
   const homeExecutionPlan = buildLongDocumentExecutionPlan({
     requestText: text,
     content: requestTarget.content,
     contextWindowTokens: typeof homeProviderWindow === 'number' ? homeProviderWindow : null,
     maxOutputTokens: homeMaxOutputTokens,
     intent: requestIntent,
+    activeTask: activeHomeTask || undefined,
+  })
+  createHomeActiveTask({
+    requestText: text,
+    plan: homeExecutionPlan,
+    snapshot: requestTarget,
   })
   homeLongDocumentEditTaskPlan = homeExecutionPlan.mode === 'edit-task'
   const homeWorkflowWriteAuthorization = buildHomeWorkflowWriteAuthorization({
@@ -3830,6 +3867,8 @@ async function resetConversation() {
   if (homeRunTraceId) runTraceStore.markContextCompacted(homeRunTraceId, '用户点击清空记忆')
   sealHomeTraceSession()
   lastHomeToolAudit = undefined
+  activeExecutionTaskStore.clear('main', String(projectId.value))
+  activeHomeExecutionPlan = null
   try {
     chatStore.clearSession()
     await conversationContextService.clearSession({
@@ -4146,6 +4185,13 @@ function buildChatEditorTools(requestTarget: EditorTargetSnapshot) {
       )
     }
     recordHomeBatchEvent(record, 'applied', `已直接写入 ${input.commands.length} 条修改`)
+    const after = createInactiveMainEditorTargetSnapshot({ ...tab, content: input.next })
+    const refreshedTask = activeExecutionTaskStore.refresh(
+      'main',
+      String(projectId.value),
+      after.contentVersion,
+      hashEditorContent(input.next),
+    )
     logEditorEdit({
       requestId: `chat-direct-write_${record.batchId}`,
       batchId: record.batchId,
@@ -4179,11 +4225,10 @@ function buildChatEditorTools(requestTarget: EditorTargetSnapshot) {
       commands: input.commands.length,
       reason: input.reason,
     })
-    const after = createInactiveMainEditorTargetSnapshot({ ...tab, content: input.next })
     return {
       ok: true,
       rollbackAvailable: true,
-      documentVersion: after.contentVersion,
+      documentVersion: refreshedTask?.documentVersion ?? after.contentVersion,
       contentHash: hashEditorContent(input.next),
     }
   }
