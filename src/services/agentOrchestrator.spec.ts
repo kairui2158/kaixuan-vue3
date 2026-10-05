@@ -121,6 +121,98 @@ describe('AgentOrchestrator state machine', () => {
     )).toBe(true)
   })
 
+  it('keeps partial-write state when later rounds return text without a new write', async () => {
+    const executionPlan = buildLongDocumentExecutionPlan({
+      requestText: '按照Word文档的形式重构大纲，删除重复项，统一标题层级、编号和标点',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      contextWindowTokens: 120_000,
+      maxOutputTokens: 8_000,
+      intent: 'edit',
+    })
+    let physicalRequests = 0
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn(async (params: CallAiParams): Promise<CallAiResult> => {
+        physicalRequests += 1
+        if (physicalRequests === 1) {
+          params.toolPolicy?.onToolCall?.({
+            toolName: 'editor.write',
+            policy: 'write',
+            iteration: 1,
+            input: { commands: [{ operation: 'delete' }] },
+            result: { ok: true, data: { written: true } },
+            durationMs: 1,
+          })
+          return {
+            ...successResult('部分写入完成，仍有批次未执行'),
+            toolResults: [{
+              call: { name: 'editor.write' },
+              result: { ok: true, data: { written: true } },
+            }],
+          } as CallAiResult
+        }
+        return {
+          ...successResult('写入尚未覆盖全部计划批次。'),
+          toolResults: [],
+        } as CallAiResult
+      }),
+      document: {
+        content: '段'.repeat(74_841),
+        operationType: 'whole-document-restructure',
+        executionPlan,
+      },
+      editTaskWorkflow: true,
+      maxPhysicalRequests: 2,
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+
+    expect(result.status).toBe('stalled')
+    expect(result.reason).toBe('partially_applied')
+    expect(result.snapshot.successfulWriteCount).toBe(1)
+  })
+
+  it('does not complete a multi-segment write task from unbound successful calls', async () => {
+    const executionPlan = buildLongDocumentExecutionPlan({
+      requestText: '请整理全文标点符号',
+      content: `# 根标题\n\n${Array.from({ length: 400 }, () => '长文档段落,标点未整理。').join('\n\n')}`,
+      contextWindowTokens: 12_000,
+      maxOutputTokens: 2_048,
+      intent: 'edit',
+    })
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn(async (params: CallAiParams): Promise<CallAiResult> => {
+        params.toolPolicy?.onToolCall?.({
+          toolName: 'editor.write',
+          policy: 'write',
+          iteration: 1,
+          input: { commands: [{ operation: 'replace_match' }] },
+          result: { ok: true, data: { coverageTrusted: true, commands: [{ operation: 'replace_match', start: 0, end: 10 }] } },
+          durationMs: 1,
+        })
+        return {
+          ...successResult('已经完成整理'),
+          toolResults: [{
+            call: { name: 'editor.write' },
+            result: { ok: true, data: { coverageTrusted: true, commands: [{ operation: 'replace_match', start: 0, end: 10 }] } },
+          }],
+        } as CallAiResult
+      }),
+      document: {
+        content: '长文档',
+        operationType: 'whole-document-restructure',
+        executionPlan,
+      },
+      editTaskWorkflow: true,
+      maxPhysicalRequests: 1,
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+
+    expect(result.status).toBe('stalled')
+    expect(result.reason).toBe('partially_applied')
+    expect(result.snapshot.successfulWriteCount).toBe(1)
+  })
+
   it('stops immediately after a terminal write convergence', async () => {
     const executionPlan = buildLongDocumentExecutionPlan({
       requestText: '按照Word文档的形式重构大纲，不要缩减内容',

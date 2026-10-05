@@ -1,0 +1,798 @@
+{
+  "schema": "shenyi.direct-write-negative-paths-electron",
+  "version": 1,
+  "generatedAt": "2026-10-05T00:59:25.363Z",
+  "liveApi": "untested",
+  "scenarios": {
+    "previewOnlyRejection": {
+      "request": "请把第二章大纲修改为：男主确认旧信来源。",
+      "physicalRequests": 3,
+      "turnStatus": "failed",
+      "turnReason": "write_not_executed",
+      "agentEvents": [
+        {
+          "type": "agent-plan",
+          "reason": null
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null
+        },
+        {
+          "type": "agent-plan",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-no_progress",
+          "reason": "legacy_preview_response"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-no_progress",
+          "reason": "legacy_preview_response"
+        },
+        {
+          "type": "agent-no_progress",
+          "reason": null
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-no_progress",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-no_progress",
+          "reason": "legacy_preview_response"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-no_progress",
+          "reason": "legacy_preview_response"
+        },
+        {
+          "type": "agent-no_progress",
+          "reason": null
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-no_progress",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-no_progress",
+          "reason": "legacy_preview_response"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-no_progress",
+          "reason": "legacy_preview_response"
+        },
+        {
+          "type": "agent-no_progress",
+          "reason": null
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-no_progress",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "legacy_preview_response"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "legacy_preview_response"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "legacy_preview_response"
+        }
+      ],
+      "contentChanged": false,
+      "beforeSha256": "3054473189179bbc71584424af2a553256dbfe366f4574a4ee4e88ab2268df78",
+      "afterSha256": "3054473189179bbc71584424af2a553256dbfe366f4574a4ee4e88ab2268df78",
+      "editorWriteCalls": 0,
+      "liveApi": "untested (mock Electron path)"
+    },
+    "partialWriteTerminal": {
+      "request": "请整理全文标点符号",
+      "documentChars": 95704,
+      "documentSections": 2200,
+      "successfulEditorWriteCalls": 8,
+      "turnStatus": "partially_applied",
+      "turnReason": "partially_applied",
+      "agentEvents": [
+        {
+          "type": "agent-plan",
+          "reason": null
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null
+        },
+        {
+          "type": "agent-plan",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-tool",
+          "reason": null
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-tool",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-tool",
+          "reason": "partially_applied"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-tool",
+          "reason": "partially_applied"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-tool",
+          "reason": null
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-tool",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-tool",
+          "reason": "partially_applied"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-tool",
+          "reason": "partially_applied"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-tool",
+          "reason": null
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-tool",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-tool",
+          "reason": "partially_applied"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-tool",
+          "reason": "partially_applied"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-tool",
+          "reason": null
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-tool",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-tool",
+          "reason": "partially_applied"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-tool",
+          "reason": "partially_applied"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-tool",
+          "reason": null
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-tool",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-tool",
+          "reason": "partially_applied"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-tool",
+          "reason": "partially_applied"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-tool",
+          "reason": null
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-tool",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-tool",
+          "reason": "partially_applied"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-tool",
+          "reason": "partially_applied"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-tool",
+          "reason": null
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-tool",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-tool",
+          "reason": "partially_applied"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-tool",
+          "reason": "partially_applied"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-tool",
+          "reason": null
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical request dispatched"
+        },
+        {
+          "type": "agent-tool",
+          "reason": null
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-tool",
+          "reason": "partially_applied"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-tool",
+          "reason": "partially_applied"
+        },
+        {
+          "type": "agent-physical_request_limit",
+          "reason": null,
+          "detail": "每轮仍有局部进展，但任务未满足完成条件；停止继续请求，避免长文档工具循环失控"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "physical response received"
+        },
+        {
+          "type": "agent-physical_request_limit",
+          "reason": null,
+          "detail": "每轮仍有局部进展，但任务未满足完成条件；停止继续请求，避免长文档工具循环失控"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "partially_applied"
+        },
+        {
+          "type": "agent-snapshot",
+          "reason": null,
+          "detail": "partially_applied"
+        },
+        {
+          "type": "agent-state",
+          "reason": null,
+          "detail": "partially_applied"
+        }
+      ],
+      "diff": {
+        "beforeChars": 95704,
+        "afterChars": 95704,
+        "beforeLines": 2201,
+        "afterLines": 2201,
+        "changedLines": 8,
+        "firstChanges": [
+          {
+            "line": 2,
+            "before": "第1节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+            "after": "第1节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。"
+          },
+          {
+            "line": 3,
+            "before": "第2节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+            "after": "第2节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。"
+          },
+          {
+            "line": 4,
+            "before": "第3节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+            "after": "第3节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。"
+          },
+          {
+            "line": 5,
+            "before": "第4节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+            "after": "第4节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。"
+          },
+          {
+            "line": 6,
+            "before": "第5节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+            "after": "第5节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。"
+          },
+          {
+            "line": 7,
+            "before": "第6节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+            "after": "第6节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。"
+          },
+          {
+            "line": 8,
+            "before": "第7节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+            "after": "第7节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。"
+          },
+          {
+            "line": 9,
+            "before": "第8节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+            "after": "第8节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。"
+          }
+        ]
+      },
+      "beforeSha256": "8feee286559d3dc65c100f6088511cc39753bba56bc387196f443a700b8a2b9a",
+      "afterSha256": "7a5729481b851da59620b05334941a171eac775cdaa1c4380eed38c25c6eb104",
+      "liveApi": "untested (mock Electron path)"
+    }
+  },
+  "export": {
+    "runId": "run-1791161979069-1",
+    "apiCalls": 1,
+    "events": 336,
+    "hasRunningApiCall": false
+  }
+}

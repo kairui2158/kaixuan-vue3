@@ -5,6 +5,10 @@ import type { AgentToolDefinition, ToolResult } from './editorTools'
 import type { LongDocumentOperationType } from './longDocumentPolicy'
 import type { LongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
 import {
+  collectLongDocumentWriteCoverage,
+  summarizeLongDocumentWriteCoverage,
+} from './longDocumentWriteCoverage'
+import {
   findAgentToolNameConflicts,
   createAgentSubAgentTools,
   createSequentialSubAgentManager,
@@ -220,6 +224,7 @@ function evaluateWriteTaskRound(input: {
   result: CallAiResult
   plan: LongDocumentExecutionPlan
   successfulWriteCount: number
+  coverageRecords: ReturnType<typeof collectLongDocumentWriteCoverage>
 }): AgentOrchestratorRoundVerdict {
   const text = String(input.result.text || '').trim()
   const toolResults = input.result.toolResults || []
@@ -233,14 +238,19 @@ function evaluateWriteTaskRound(input: {
       reason: 'legacy_preview_response',
     } as AgentOrchestratorRoundVerdict
   }
-  if (!hasSuccessfulWrite && text) {
+  if (!hasSuccessfulWrite && input.successfulWriteCount === 0 && text) {
     return {
       progress: true,
       complete: false,
       reason: 'write_not_executed',
     } as AgentOrchestratorRoundVerdict
   }
-  if (input.successfulWriteCount < input.plan.segments.length) {
+  const coverage = summarizeLongDocumentWriteCoverage({
+    plan: input.plan,
+    coverageRecords: input.coverageRecords,
+    toolResults: input.result.toolResults,
+  })
+  if (!coverage.complete) {
     return {
       progress: true,
       complete: false,
@@ -373,6 +383,7 @@ export class AgentOrchestrator {
   private stepIndex = 0
   private callCount = 0
   private successfulWriteCount = 0
+  private writeCoverageRecords: ReturnType<typeof collectLongDocumentWriteCoverage> = []
   private noProgressRounds = 0
   private repeatedCallCount = 0
   private maxPhysicalRequests: number
@@ -553,6 +564,15 @@ export class AgentOrchestrator {
     return false
   }
 
+  private recordWriteCoverage(result: ToolResult): void {
+    if (!result.ok) return
+    const record = collectLongDocumentWriteCoverage([{
+      call: { name: 'editor.write' },
+      result,
+    }])[0]
+    if (record) this.writeCoverageRecords.push(record)
+  }
+
   async run(input: AgentOrchestratorRunInput): Promise<AgentOrchestratorTaskResult> {
     if (!String(this.plan.goal || '').trim()) {
       this.transition('failed', 'invalid_plan_goal')
@@ -687,6 +707,7 @@ export class AgentOrchestrator {
                 result: event.result,
               })
               if (event.result.ok && event.policy === 'write') this.successfulWriteCount += 1
+              this.recordWriteCoverage(event.result)
               if (repeated) {
                 this.transition('stalled', 'repeated_tool_call')
               }
@@ -761,6 +782,7 @@ export class AgentOrchestrator {
             result,
             plan: executionPlan,
             successfulWriteCount: this.successfulWriteCount,
+            coverageRecords: this.writeCoverageRecords,
           })
           : defaultEvaluateRound(result)
       const signature = observedRuntimeToolCalls

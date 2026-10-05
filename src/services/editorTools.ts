@@ -250,6 +250,45 @@ function batchDetailFromPlanForBatch(
   }
 }
 
+function buildBatchCoverage(input: {
+  plan: LongDocumentExecutionPlan | undefined
+  batchId: string
+  commands: EditorEditCommand[]
+  items?: Array<{ command: EditorEditCommand; plan: { range: { start: number; end: number } } }>
+}): NonNullable<EditorWriteApplyInput['coverage']> | undefined {
+  if (!input.plan || input.plan.segments.length === 0) return undefined
+  const declaredSegmentId = input.plan.segments.length > 1
+    ? undefined
+    : input.plan.segments[0].segmentId
+  const coverageReason = input.plan.segments.length === 1
+    ? 'single_segment_plan' as const
+    : 'declared_segment' as const
+  const segment = declaredSegmentId ? input.plan.segments[0] : undefined
+  const commands = input.items
+    ? input.items.map(item => ({
+      operation: item.command.operation,
+      ...(segment ? { segmentId: segment.segmentId } : {}),
+      start: item.plan.range.start,
+      end: item.plan.range.end,
+    }))
+    : input.commands.map(command => ({
+      operation: command.operation,
+      start: 0,
+      end: 0,
+    }))
+  return {
+    batchId: input.batchId,
+    ...(segment ? {
+      segmentId: segment.segmentId,
+      expectedChange: segment.expectedChange,
+      writeStrategy: segment.writeStrategy,
+    } : {}),
+    coverageTrusted: Boolean(input.items && input.items.length === input.commands.length),
+    reason: coverageReason,
+    commands,
+  }
+}
+
 export type EditorWriteMode = 'direct'
 
 export interface EditorWriteApplyInput {
@@ -265,6 +304,23 @@ export interface EditorWriteApplyInput {
     invariantResult?: string
     range?: { startLine: number; endLine: number }
     writeStrategy?: string
+  }
+  /** Structured execution-coverage record used by task completion checks. */
+  coverage?: {
+    batchId?: string
+    documentVersion?: number
+    contentHash?: string
+    segmentId?: string
+    expectedChange?: string
+    writeStrategy?: string
+    coverageTrusted: boolean
+    reason?: 'single_segment_plan' | 'declared_segment' | 'undeclared_segment' | 'invalid_segment_id' | 'range_mismatch' | 'invalid_coverage'
+    commands: Array<{
+      operation: string
+      segmentId?: string
+      start: number
+      end: number
+    }>
   }
   reason?: string
   /** Session-state authorization for long-document multi-batch workflows. */
@@ -972,14 +1028,21 @@ export function createEditorTools(options: {
           ? params.reveal as { mode?: unknown; firstChange?: unknown }
           : {}
         const revealMode = reveal.mode === 'instant' ? 'instant' : 'stream'
-        const applied = await options.applyWrite({
+        const reorderBatchId = `reorder-${Date.now().toString(36)}`
+        const reorderCoverage = buildBatchCoverage({
+          plan: options.executionPlan,
+          batchId: reorderBatchId,
+          commands: [reorderCommand],
+        })
+        const applyInput = {
           workspace: snapshot.workspace,
           targetId: snapshot.targetId,
-          batchId: `reorder-${Date.now().toString(36)}`,
+          batchId: reorderBatchId,
           next,
           original: snapshot.content,
         commands: [reorderCommand],
         writeAuthorization: options.writeAuthorization,
+          coverage: reorderCoverage,
         batchDetail: batchDetailFromPlanForBatch(options.executionPlan, {
             batchDetail: batchDetailFromPlan(options.executionPlan),
             commands: [reorderCommand],
@@ -989,7 +1052,8 @@ export function createEditorTools(options: {
             mode: revealMode,
             firstChange: reveal.firstChange !== false,
           },
-        })
+        } satisfies EditorWriteApplyInput
+        const applied = await options.applyWrite(applyInput)
         if (!applied.ok) {
           return toolError(applied.code || 'write_failed', applied.message || '编辑器写入失败，原文未修改', true)
         }
@@ -997,13 +1061,20 @@ export function createEditorTools(options: {
           ok: true,
           data: {
             status: 'written',
-            batchId: applied.documentVersion !== undefined ? `reorder-${applied.documentVersion}` : `reorder-${Date.now().toString(36)}`,
+            batchId: reorderBatchId,
             repairPolicy: '该批次已按结构 ID 原子重排写入成功。后续修正请基于当前编辑器内容提交新命令。',
             commandCount: 1,
             writtenLength: next.length,
             reorderSections: requestedIds.length,
             reveal: { mode: revealMode, firstChange: reveal.firstChange !== false },
             rollbackAvailable: applied.rollbackAvailable,
+            ...(reorderCoverage ? {
+              coverage: {
+                ...reorderCoverage,
+                documentVersion: applied.documentVersion,
+                contentHash: applied.contentHash,
+              },
+            } : {}),
           },
         }
       }
@@ -1066,6 +1137,12 @@ export function createEditorTools(options: {
         ? params.reveal as { mode?: unknown; firstChange?: unknown }
         : {}
       const revealMode = reveal.mode === 'instant' ? 'instant' : 'stream'
+      const batchCoverage = buildBatchCoverage({
+        plan: options.executionPlan,
+        batchId: plan.batchId,
+        commands,
+        items: plan.items,
+      })
       const applied = await options.applyWrite({
         workspace: snapshot.workspace,
         targetId: snapshot.targetId,
@@ -1074,6 +1151,7 @@ export function createEditorTools(options: {
         original: plan.original,
         commands,
         writeAuthorization: options.writeAuthorization,
+        coverage: batchCoverage,
         batchDetail: batchDetailFromPlanForBatch(options.executionPlan, {
           batchDetail: batchDetailFromPlan(options.executionPlan),
           commands,
@@ -1100,6 +1178,13 @@ export function createEditorTools(options: {
           writtenLength: plan.next.length,
           reveal: { mode: revealMode, firstChange: reveal.firstChange !== false },
           rollbackAvailable: applied.rollbackAvailable,
+          ...(batchCoverage ? {
+            coverage: {
+              ...batchCoverage,
+              documentVersion: applied.documentVersion,
+              contentHash: applied.contentHash,
+            },
+          } : {}),
         },
       }
     }

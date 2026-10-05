@@ -105,3 +105,50 @@
    - 旧产物清理：删除 `dist\神意助手-Setup-3.74.1.exe` 与 `.blockmap`，复核不存在；`dist` 仅保留 3.75.0 一套安装产物。
    - 验证 profile `_data/skill-neutral-execution-profile` 由验证器清理，复核不存在。
    - 保留 `_audit` 历史证据与打包验证脚本，不作为旧执行链路残留。
+
+## 2026-10-05 长文档写入覆盖判定收口
+
+### 根因
+
+多段长文档任务旧完成判定使用“成功调用次数对比计划批数”。模型在 2200 节文档上重复写同一小范围 8 次即可触发 `write_task_complete`，但真实覆盖只有 8 节，形成假完成。证据：`_audit/verification-direct-write-negative-paths/partial-write-diagnostics.json`。
+
+### 修复
+
+1. 新增 `longDocumentWriteCoverage.ts` 单源覆盖判定：多段计划必须显式 `segmentId` 且命令真实范围与 segment 相交才可信；未声明 segment 可执行但不计覆盖；错误 `segmentId`、范围不符进入 `invalidRecords`；单段计划通过 `single_segment_plan` 自动绑定，避免误伤。
+2. `editorTools.ts` 在普通批次与 `reorder_sections` 批次返回 `data.coverage`，包含 `documentVersion`、`contentHash`、真实命令范围；`reorder_sections` 无逐命令真实范围时 `coverageTrusted: false`。
+3. `agentOrchestrator.ts` 与 `aiService.ts` 共用同一覆盖摘要：未覆盖全部 segment 时继续携带工具面并提示缺失批次；达到物理请求上限后终态为 `partially_applied` 或 `stalled/physical_request_limit`，禁止按调用次数判完成。
+4. 修复测试夹具：200 个短段在 12k 预算下只切出 1 个 segment，无法验证多段语义；扩到 800 段后回到目标场景。
+
+### 验证
+
+1. `npx tsc --noEmit --pretty false`：仅剩既有 `src/main.ts` 两条 Vue 声明错误，无新增错误。
+2. `npx vitest run src/services/longDocumentWriteCoverage.spec.ts src/services/agentOrchestrator.spec.ts src/services/agentTerminalMapping.spec.ts src/services/editorTools.spec.ts`：4 文件、79 条测试通过。
+3. `npm run build:vue`：通过。
+4. `node scripts/verify-direct-write-negative-paths-electron.mjs`：通过。95,704 字 / 2200 节，仅 8 次成功写入时终态 `partially_applied`，trace 保留 `agent-physical_request_limit`，实际 diff 仅 8 行，未伪造全文完成。证据：`_audit/verification-direct-write-negative-paths/result.json`。
+5. `npm run test:services`：129 文件、1437 条测试通过。
+
+## 2026-10-05 PROPOSAL Phase 0-5 完成审计
+
+### Phase 对账
+
+1. Phase 0：trace 派生回归已落在 `agentOrchestrator.spec.ts`、`longDocumentExecutionPlanner.spec.ts`、`agentTerminalMapping.spec.ts`；覆盖授权预览不完成、延续轮选择 `restructure_and_cleanup`、部分写入不得映射 `success/plain_dialogue_complete`。
+2. Phase 1：`conversationContextService.ts` 中和旧预览历史并记录 marker 数；`editorEditProtocol.ts` / `longDocumentWriteProtocol.ts` 统一“授权后禁止预览、禁止再确认”指令；`directWriteWiring.spec.ts` 断言大纲与首页双出口。
+3. Phase 2：`activeExecutionTaskStore.ts` 保存活动任务；`longDocumentExecutionPlanner.ts` 支持 `restructure_and_cleanup`、`deduplicate_and_normalize`、延续扩展、明确收窄、版本/hash 失效与只读意图覆盖。
+4. Phase 3：`agentDialogueRuntime.ts` 从执行计划派生步骤与完成判据；`agentOrchestrator.ts` / `agentTerminalMapping.ts` 将 `write_not_executed`、`partially_applied`、`physical_request_limit` 映射为非 success 终态；外层不再兜底 `plain_dialogue_complete`。
+5. Phase 4：`editorEditLocator.ts` 支持归一化定位与失败提示；`editorTools.ts` 写入侧污染防护；trace schema 14 保留响应索引、决策、覆盖与终态证据。
+6. Phase 5：本日志各节记录了 type-check、全量服务测试、Electron 负路径、真实 API 三轮复刻、SKILL/无 SKILL 双态矩阵与封装验证。
+
+### 验收证据映射
+
+1. 授权写入任务不得预览完成：`agentOrchestrator.spec.ts` 预览-only 用例判 `legacy_preview_response/write_not_executed`；Electron 负路径 `previewOnlyRejection` 终态 `failed/write_not_executed`。
+2. Turn 2 延续轮选择复合操作：真实 API 复刻 Turn 2 `executionOperation=restructure_and_cleanup`，5 批写入、completion verified。
+3. 拒绝/部分写入不得伪装成功：真实复刻 Turn 1/2 中失败命令未阻断最终完成，但终态依赖真实批次与校验；Electron 负路径 2200 节仅 8 节写入终态 `partially_applied`。
+4. Agent 计划来自执行计划：`agentDialogueRuntime.spec.ts` 断言复合计划包含结构、去重、归一化步骤与不变量。
+5. 双入口同一底座：`directWriteWiring.spec.ts` 覆盖历史中和、活动任务、终态映射、污染防护与 trace 绑定。
+6. 有/无 SKILL 权限一致：`verification-skill-agent-authority-v2/summary.json` 4/4，8 个只读轮次一致，4 个编辑轮次均成功 `editor.write`。
+7. Trace schema 14：`runTrace.ts` schema 14；真实复刻导出 3 条 indexed response、2717 字符。
+8. 未回退旧状态机、token budget 或 SKILL 权限：生产源码扫描旧预览状态机 0；SKILL fixture 声明 `tools/writeAuthorization` 为 forbidden fields。
+
+### 结论
+
+`PROPOSAL_2026-10-04_DIRECT_WRITE_COMPOUND_TASK_MATURITY_V1.md` Phase 0-5 已完成。live API 证据来自真实供应商复刻；当前后续负路径补强中的 mock Electron 明确标记为 mock 负路径证据，不冒充 live。

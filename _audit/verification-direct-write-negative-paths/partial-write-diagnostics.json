@@ -1,0 +1,2025 @@
+{
+  "turn": {
+    "id": "turn-1791161979070-3",
+    "status": "partially_applied",
+    "reason": "partially_applied",
+    "userRequest": "请整理全文标点符号",
+    "intent": "edit",
+    "toolSurface": [
+      {
+        "name": "editor.get_state",
+        "policy": "read"
+      },
+      {
+        "name": "editor.document_map",
+        "policy": "read"
+      },
+      {
+        "name": "editor.read_range",
+        "policy": "read"
+      },
+      {
+        "name": "editor.search",
+        "policy": "read"
+      },
+      {
+        "name": "editor.locate",
+        "policy": "read"
+      },
+      {
+        "name": "editor.write",
+        "policy": "write"
+      },
+      {
+        "name": "editor.reveal",
+        "policy": "read"
+      },
+      {
+        "name": "editor.multi_get_state",
+        "policy": "read"
+      },
+      {
+        "name": "editor.global_search",
+        "policy": "read"
+      },
+      {
+        "name": "editor.workspace_summary",
+        "policy": "read"
+      },
+      {
+        "name": "outline.get_structure",
+        "policy": "read"
+      },
+      {
+        "name": "outline.read_range",
+        "policy": "read"
+      },
+      {
+        "name": "outline.search",
+        "policy": "read"
+      },
+      {
+        "name": "outline.get_summary",
+        "policy": "read"
+      }
+    ]
+  },
+  "apiCalls": [
+    {
+      "id": "api-1791161979157-8",
+      "turnId": "turn-1791161979070-3",
+      "status": "success",
+      "error": null,
+      "errorCode": null,
+      "finishReason": "stop",
+      "actualToolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.write",
+          "policy": "write"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_structure",
+          "policy": "read"
+        },
+        {
+          "name": "outline.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "outline.search",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_summary",
+          "policy": "read"
+        },
+        {
+          "name": "context.remaining",
+          "policy": "read"
+        },
+        {
+          "name": "agent.plan",
+          "policy": "read"
+        },
+        {
+          "name": "agent.spawn",
+          "policy": "read"
+        },
+        {
+          "name": "agent.wait",
+          "policy": "read"
+        },
+        {
+          "name": "agent.cancel",
+          "policy": "read"
+        }
+      ],
+      "toolCalls": [
+        {
+          "toolCallId": "partial-write-1",
+          "name": "editor.write",
+          "status": "success",
+          "input": {
+            "commands": [
+              {
+                "operation": "replace_match",
+                "target": "第1节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+                "content": "第1节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。",
+                "reason": "部分写入第1批"
+              }
+            ],
+            "reveal": {
+              "mode": "instant",
+              "firstChange": true
+            },
+            "reason": "部分写入第1批"
+          },
+          "error": null,
+          "errorCode": null
+        },
+        {
+          "toolCallId": "partial-write-2",
+          "name": "editor.write",
+          "status": "success",
+          "input": {
+            "commands": [
+              {
+                "operation": "replace_match",
+                "target": "第2节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+                "content": "第2节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。",
+                "reason": "部分写入第2批"
+              }
+            ],
+            "reveal": {
+              "mode": "instant",
+              "firstChange": true
+            },
+            "reason": "部分写入第2批"
+          },
+          "error": null,
+          "errorCode": null
+        },
+        {
+          "toolCallId": "partial-write-3",
+          "name": "editor.write",
+          "status": "success",
+          "input": {
+            "commands": [
+              {
+                "operation": "replace_match",
+                "target": "第3节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+                "content": "第3节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。",
+                "reason": "部分写入第3批"
+              }
+            ],
+            "reveal": {
+              "mode": "instant",
+              "firstChange": true
+            },
+            "reason": "部分写入第3批"
+          },
+          "error": null,
+          "errorCode": null
+        },
+        {
+          "toolCallId": "partial-write-4",
+          "name": "editor.write",
+          "status": "success",
+          "input": {
+            "commands": [
+              {
+                "operation": "replace_match",
+                "target": "第4节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+                "content": "第4节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。",
+                "reason": "部分写入第4批"
+              }
+            ],
+            "reveal": {
+              "mode": "instant",
+              "firstChange": true
+            },
+            "reason": "部分写入第4批"
+          },
+          "error": null,
+          "errorCode": null
+        },
+        {
+          "toolCallId": "partial-write-5",
+          "name": "editor.write",
+          "status": "success",
+          "input": {
+            "commands": [
+              {
+                "operation": "replace_match",
+                "target": "第5节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+                "content": "第5节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。",
+                "reason": "部分写入第5批"
+              }
+            ],
+            "reveal": {
+              "mode": "instant",
+              "firstChange": true
+            },
+            "reason": "部分写入第5批"
+          },
+          "error": null,
+          "errorCode": null
+        },
+        {
+          "toolCallId": "partial-write-6",
+          "name": "editor.write",
+          "status": "success",
+          "input": {
+            "commands": [
+              {
+                "operation": "replace_match",
+                "target": "第6节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+                "content": "第6节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。",
+                "reason": "部分写入第6批"
+              }
+            ],
+            "reveal": {
+              "mode": "instant",
+              "firstChange": true
+            },
+            "reason": "部分写入第6批"
+          },
+          "error": null,
+          "errorCode": null
+        },
+        {
+          "toolCallId": "partial-write-7",
+          "name": "editor.write",
+          "status": "success",
+          "input": {
+            "commands": [
+              {
+                "operation": "replace_match",
+                "target": "第7节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+                "content": "第7节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。",
+                "reason": "部分写入第7批"
+              }
+            ],
+            "reveal": {
+              "mode": "instant",
+              "firstChange": true
+            },
+            "reason": "部分写入第7批"
+          },
+          "error": null,
+          "errorCode": null
+        },
+        {
+          "toolCallId": "partial-write-8",
+          "name": "editor.write",
+          "status": "success",
+          "input": {
+            "commands": [
+              {
+                "operation": "replace_match",
+                "target": "第8节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+                "content": "第8节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。",
+                "reason": "部分写入第8批"
+              }
+            ],
+            "reveal": {
+              "mode": "instant",
+              "firstChange": true
+            },
+            "reason": "部分写入第8批"
+          },
+          "error": null,
+          "errorCode": null
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-plan",
+      "level": "info",
+      "label": "任务计划已建立",
+      "payload": {
+        "goal": "请整理全文标点符号",
+        "steps": [
+          {
+            "id": "normalize-segments",
+            "description": "按计划批次整理格式",
+            "requiredTools": [
+              "editor.write"
+            ]
+          },
+          {
+            "id": "verify-plan",
+            "description": "核对写入覆盖与不变量"
+          }
+        ],
+        "completionCriteria": [
+          "执行计划中的全部写入批次成功或明确进入终态",
+          "完成不变量校验：normalize-changes-punctuation-whitespace-format-only"
+        ],
+        "failureCriteria": [
+          "未发生成功写入却输出修改预览或完成说明",
+          "写入操作被执行计划拒绝"
+        ]
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：planning",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "planning",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 0,
+          "callCount": 0,
+          "successfulWriteCount": 0,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161979158
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-plan",
+      "level": "info",
+      "label": "任务计划已建立",
+      "payload": {
+        "goal": "请整理全文标点符号",
+        "steps": [
+          {
+            "id": "normalize-segments",
+            "description": "按计划批次整理格式",
+            "requiredTools": [
+              "editor.write"
+            ]
+          },
+          {
+            "id": "verify-plan",
+            "description": "核对写入覆盖与不变量"
+          }
+        ],
+        "completionCriteria": [
+          "执行计划中的全部写入批次成功或明确进入终态",
+          "完成不变量校验：normalize-changes-punctuation-whitespace-format-only"
+        ],
+        "failureCriteria": [
+          "未发生成功写入却输出修改预览或完成说明",
+          "写入操作被执行计划拒绝"
+        ]
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 0,
+          "callCount": 0,
+          "successfulWriteCount": 0,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161979159
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "waiting_tool",
+          "reason": "physical request dispatched",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 0,
+          "callCount": 1,
+          "successfulWriteCount": 0,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161979160
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "info",
+      "label": "工具完成：editor.write",
+      "payload": {
+        "iteration": 1
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "waiting_tool",
+          "reason": "physical request dispatched",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 0,
+          "callCount": 1,
+          "successfulWriteCount": 0,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161979364
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "info",
+      "label": "工具完成：editor.write",
+      "payload": {
+        "iteration": 1
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 0,
+          "callCount": 1,
+          "successfulWriteCount": 1,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161979662
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "warn",
+      "label": "写入覆盖不足：partially_applied",
+      "payload": {
+        "reason": "partially_applied"
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 0,
+          "callCount": 1,
+          "successfulWriteCount": 1,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161979667
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "warn",
+      "label": "写入覆盖不足：partially_applied",
+      "payload": {
+        "reason": "partially_applied"
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "waiting_tool",
+          "reason": "physical request dispatched",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 2,
+          "successfulWriteCount": 1,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161979669
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "info",
+      "label": "工具完成：editor.write",
+      "payload": {
+        "iteration": 1
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "waiting_tool",
+          "reason": "physical request dispatched",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 2,
+          "successfulWriteCount": 1,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161979855
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "info",
+      "label": "工具完成：editor.write",
+      "payload": {
+        "iteration": 1
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 2,
+          "successfulWriteCount": 2,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161980184
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "warn",
+      "label": "写入覆盖不足：partially_applied",
+      "payload": {
+        "reason": "partially_applied"
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 2,
+          "successfulWriteCount": 2,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161980185
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "warn",
+      "label": "写入覆盖不足：partially_applied",
+      "payload": {
+        "reason": "partially_applied"
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "waiting_tool",
+          "reason": "physical request dispatched",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 3,
+          "successfulWriteCount": 2,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161980189
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "info",
+      "label": "工具完成：editor.write",
+      "payload": {
+        "iteration": 1
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "waiting_tool",
+          "reason": "physical request dispatched",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 3,
+          "successfulWriteCount": 2,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161980442
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "info",
+      "label": "工具完成：editor.write",
+      "payload": {
+        "iteration": 1
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 3,
+          "successfulWriteCount": 3,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161980847
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "warn",
+      "label": "写入覆盖不足：partially_applied",
+      "payload": {
+        "reason": "partially_applied"
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 3,
+          "successfulWriteCount": 3,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161980849
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "warn",
+      "label": "写入覆盖不足：partially_applied",
+      "payload": {
+        "reason": "partially_applied"
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "waiting_tool",
+          "reason": "physical request dispatched",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 4,
+          "successfulWriteCount": 3,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161980850
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "info",
+      "label": "工具完成：editor.write",
+      "payload": {
+        "iteration": 1
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "waiting_tool",
+          "reason": "physical request dispatched",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 4,
+          "successfulWriteCount": 3,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161981065
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "info",
+      "label": "工具完成：editor.write",
+      "payload": {
+        "iteration": 1
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 4,
+          "successfulWriteCount": 4,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161981326
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "warn",
+      "label": "写入覆盖不足：partially_applied",
+      "payload": {
+        "reason": "partially_applied"
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 4,
+          "successfulWriteCount": 4,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161981329
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "warn",
+      "label": "写入覆盖不足：partially_applied",
+      "payload": {
+        "reason": "partially_applied"
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "waiting_tool",
+          "reason": "physical request dispatched",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 5,
+          "successfulWriteCount": 4,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161981331
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "info",
+      "label": "工具完成：editor.write",
+      "payload": {
+        "iteration": 1
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "waiting_tool",
+          "reason": "physical request dispatched",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 5,
+          "successfulWriteCount": 4,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161981510
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "info",
+      "label": "工具完成：editor.write",
+      "payload": {
+        "iteration": 1
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 5,
+          "successfulWriteCount": 5,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161981706
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "warn",
+      "label": "写入覆盖不足：partially_applied",
+      "payload": {
+        "reason": "partially_applied"
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 5,
+          "successfulWriteCount": 5,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161981709
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "warn",
+      "label": "写入覆盖不足：partially_applied",
+      "payload": {
+        "reason": "partially_applied"
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "waiting_tool",
+          "reason": "physical request dispatched",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 6,
+          "successfulWriteCount": 5,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161981710
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "info",
+      "label": "工具完成：editor.write",
+      "payload": {
+        "iteration": 1
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "waiting_tool",
+          "reason": "physical request dispatched",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 6,
+          "successfulWriteCount": 5,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161981860
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "info",
+      "label": "工具完成：editor.write",
+      "payload": {
+        "iteration": 1
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 6,
+          "successfulWriteCount": 6,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161982129
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "warn",
+      "label": "写入覆盖不足：partially_applied",
+      "payload": {
+        "reason": "partially_applied"
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 6,
+          "successfulWriteCount": 6,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161982130
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "warn",
+      "label": "写入覆盖不足：partially_applied",
+      "payload": {
+        "reason": "partially_applied"
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "waiting_tool",
+          "reason": "physical request dispatched",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 7,
+          "successfulWriteCount": 6,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161982131
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "info",
+      "label": "工具完成：editor.write",
+      "payload": {
+        "iteration": 1
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "waiting_tool",
+          "reason": "physical request dispatched",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 7,
+          "successfulWriteCount": 6,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161982268
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "info",
+      "label": "工具完成：editor.write",
+      "payload": {
+        "iteration": 1
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 7,
+          "successfulWriteCount": 7,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161982541
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "warn",
+      "label": "写入覆盖不足：partially_applied",
+      "payload": {
+        "reason": "partially_applied"
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 7,
+          "successfulWriteCount": 7,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161982543
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "warn",
+      "label": "写入覆盖不足：partially_applied",
+      "payload": {
+        "reason": "partially_applied"
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "waiting_tool",
+          "reason": "physical request dispatched",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 8,
+          "successfulWriteCount": 7,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161982544
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "info",
+      "label": "工具完成：editor.write",
+      "payload": {
+        "iteration": 1
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "waiting_tool",
+          "reason": "physical request dispatched",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 8,
+          "successfulWriteCount": 7,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161982721
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "info",
+      "label": "工具完成：editor.write",
+      "payload": {
+        "iteration": 1
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 8,
+          "successfulWriteCount": 8,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161982922
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "warn",
+      "label": "写入覆盖不足：partially_applied",
+      "payload": {
+        "reason": "partially_applied"
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 8,
+          "successfulWriteCount": 8,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161982923
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-tool",
+      "level": "warn",
+      "label": "写入覆盖不足：partially_applied",
+      "payload": {
+        "reason": "partially_applied"
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-physical_request_limit",
+      "level": "warn",
+      "label": "物理请求次数达到上限：8/8",
+      "detail": "每轮仍有局部进展，但任务未满足完成条件；停止继续请求，避免长文档工具循环失控",
+      "payload": {
+        "callCount": 8,
+        "maxPhysicalRequests": 8,
+        "successfulWriteCount": 8
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "running",
+          "reason": "physical response received",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 8,
+          "successfulWriteCount": 8,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161982925
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-physical_request_limit",
+      "level": "warn",
+      "label": "物理请求次数达到上限：8/8",
+      "detail": "每轮仍有局部进展，但任务未满足完成条件；停止继续请求，避免长文档工具循环失控",
+      "payload": {
+        "callCount": 8,
+        "maxPhysicalRequests": 8,
+        "successfulWriteCount": 8
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "warn",
+      "label": "任务状态：stalled",
+      "detail": "partially_applied",
+      "payload": null
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：stalled",
+      "detail": "partially_applied",
+      "payload": {
+        "snapshot": {
+          "taskId": "outline-direct-api-1791161979157-8",
+          "status": "stalled",
+          "reason": "partially_applied",
+          "goal": "请整理全文标点符号",
+          "stepIndex": 1,
+          "callCount": 8,
+          "successfulWriteCount": 8,
+          "noProgressRounds": 0,
+          "repeatedCallCount": 0,
+          "maxPhysicalRequests": 8,
+          "updatedAt": 1791161982926
+        }
+      }
+    },
+    {
+      "turnId": "turn-1791161979070-3",
+      "type": "agent-state",
+      "level": "warn",
+      "label": "任务状态：stalled",
+      "detail": "partially_applied",
+      "payload": null
+    }
+  ],
+  "editorContentHash": "7a5729481b851da59620b05334941a171eac775cdaa1c4380eed38c25c6eb104",
+  "editorContentTail": "复退去。\n第2192节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\n第2193节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\n第2194节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\n第2195节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\n第2196节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\n第2197节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\n第2198节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\n第2199节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\n第2200节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。",
+  "physicalRequests": [
+    {
+      "turn": 1,
+      "requestCount": 1,
+      "assistantToolCalls": [],
+      "lastRole": "user"
+    },
+    {
+      "turn": 1,
+      "requestCount": 2,
+      "assistantToolCalls": [
+        {
+          "id": "partial-write-1",
+          "name": "editor.write",
+          "arguments": "{\"commands\":[{\"operation\":\"replace_match\",\"target\":\"第1节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\",\"content\":\"第1节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。\",\"reason\":\"部分写入第1批\"}],\"reveal\":{\"mode\":\"instant\",\"firstChange\":true},\"reason\":\"部分写入第1批\"}"
+        }
+      ],
+      "lastRole": "tool"
+    },
+    {
+      "turn": 1,
+      "requestCount": 3,
+      "assistantToolCalls": [
+        {
+          "id": "partial-write-1",
+          "name": "editor.write",
+          "arguments": "{\"commands\":[{\"operation\":\"replace_match\",\"target\":\"第1节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\",\"content\":\"第1节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。\",\"reason\":\"部分写入第1批\"}],\"reveal\":{\"mode\":\"instant\",\"firstChange\":true},\"reason\":\"部分写入第1批\"}"
+        }
+      ],
+      "lastRole": "system"
+    },
+    {
+      "turn": 1,
+      "requestCount": 4,
+      "assistantToolCalls": [],
+      "lastRole": "user"
+    },
+    {
+      "turn": 1,
+      "requestCount": 5,
+      "assistantToolCalls": [
+        {
+          "id": "partial-write-2",
+          "name": "editor.write",
+          "arguments": "{\"commands\":[{\"operation\":\"replace_match\",\"target\":\"第2节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\",\"content\":\"第2节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。\",\"reason\":\"部分写入第2批\"}],\"reveal\":{\"mode\":\"instant\",\"firstChange\":true},\"reason\":\"部分写入第2批\"}"
+        }
+      ],
+      "lastRole": "tool"
+    },
+    {
+      "turn": 1,
+      "requestCount": 6,
+      "assistantToolCalls": [
+        {
+          "id": "partial-write-2",
+          "name": "editor.write",
+          "arguments": "{\"commands\":[{\"operation\":\"replace_match\",\"target\":\"第2节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\",\"content\":\"第2节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。\",\"reason\":\"部分写入第2批\"}],\"reveal\":{\"mode\":\"instant\",\"firstChange\":true},\"reason\":\"部分写入第2批\"}"
+        }
+      ],
+      "lastRole": "system"
+    },
+    {
+      "turn": 1,
+      "requestCount": 7,
+      "assistantToolCalls": [],
+      "lastRole": "user"
+    },
+    {
+      "turn": 1,
+      "requestCount": 8,
+      "assistantToolCalls": [
+        {
+          "id": "partial-write-3",
+          "name": "editor.write",
+          "arguments": "{\"commands\":[{\"operation\":\"replace_match\",\"target\":\"第3节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\",\"content\":\"第3节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。\",\"reason\":\"部分写入第3批\"}],\"reveal\":{\"mode\":\"instant\",\"firstChange\":true},\"reason\":\"部分写入第3批\"}"
+        }
+      ],
+      "lastRole": "tool"
+    },
+    {
+      "turn": 1,
+      "requestCount": 9,
+      "assistantToolCalls": [
+        {
+          "id": "partial-write-3",
+          "name": "editor.write",
+          "arguments": "{\"commands\":[{\"operation\":\"replace_match\",\"target\":\"第3节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\",\"content\":\"第3节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。\",\"reason\":\"部分写入第3批\"}],\"reveal\":{\"mode\":\"instant\",\"firstChange\":true},\"reason\":\"部分写入第3批\"}"
+        }
+      ],
+      "lastRole": "system"
+    },
+    {
+      "turn": 1,
+      "requestCount": 10,
+      "assistantToolCalls": [],
+      "lastRole": "user"
+    },
+    {
+      "turn": 1,
+      "requestCount": 11,
+      "assistantToolCalls": [
+        {
+          "id": "partial-write-4",
+          "name": "editor.write",
+          "arguments": "{\"commands\":[{\"operation\":\"replace_match\",\"target\":\"第4节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\",\"content\":\"第4节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。\",\"reason\":\"部分写入第4批\"}],\"reveal\":{\"mode\":\"instant\",\"firstChange\":true},\"reason\":\"部分写入第4批\"}"
+        }
+      ],
+      "lastRole": "tool"
+    },
+    {
+      "turn": 1,
+      "requestCount": 12,
+      "assistantToolCalls": [
+        {
+          "id": "partial-write-4",
+          "name": "editor.write",
+          "arguments": "{\"commands\":[{\"operation\":\"replace_match\",\"target\":\"第4节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\",\"content\":\"第4节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。\",\"reason\":\"部分写入第4批\"}],\"reveal\":{\"mode\":\"instant\",\"firstChange\":true},\"reason\":\"部分写入第4批\"}"
+        }
+      ],
+      "lastRole": "system"
+    },
+    {
+      "turn": 1,
+      "requestCount": 13,
+      "assistantToolCalls": [],
+      "lastRole": "user"
+    },
+    {
+      "turn": 1,
+      "requestCount": 14,
+      "assistantToolCalls": [
+        {
+          "id": "partial-write-5",
+          "name": "editor.write",
+          "arguments": "{\"commands\":[{\"operation\":\"replace_match\",\"target\":\"第5节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\",\"content\":\"第5节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。\",\"reason\":\"部分写入第5批\"}],\"reveal\":{\"mode\":\"instant\",\"firstChange\":true},\"reason\":\"部分写入第5批\"}"
+        }
+      ],
+      "lastRole": "tool"
+    },
+    {
+      "turn": 1,
+      "requestCount": 15,
+      "assistantToolCalls": [
+        {
+          "id": "partial-write-5",
+          "name": "editor.write",
+          "arguments": "{\"commands\":[{\"operation\":\"replace_match\",\"target\":\"第5节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\",\"content\":\"第5节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。\",\"reason\":\"部分写入第5批\"}],\"reveal\":{\"mode\":\"instant\",\"firstChange\":true},\"reason\":\"部分写入第5批\"}"
+        }
+      ],
+      "lastRole": "system"
+    },
+    {
+      "turn": 1,
+      "requestCount": 16,
+      "assistantToolCalls": [],
+      "lastRole": "user"
+    },
+    {
+      "turn": 1,
+      "requestCount": 17,
+      "assistantToolCalls": [
+        {
+          "id": "partial-write-6",
+          "name": "editor.write",
+          "arguments": "{\"commands\":[{\"operation\":\"replace_match\",\"target\":\"第6节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\",\"content\":\"第6节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。\",\"reason\":\"部分写入第6批\"}],\"reveal\":{\"mode\":\"instant\",\"firstChange\":true},\"reason\":\"部分写入第6批\"}"
+        }
+      ],
+      "lastRole": "tool"
+    },
+    {
+      "turn": 1,
+      "requestCount": 18,
+      "assistantToolCalls": [
+        {
+          "id": "partial-write-6",
+          "name": "editor.write",
+          "arguments": "{\"commands\":[{\"operation\":\"replace_match\",\"target\":\"第6节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\",\"content\":\"第6节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。\",\"reason\":\"部分写入第6批\"}],\"reveal\":{\"mode\":\"instant\",\"firstChange\":true},\"reason\":\"部分写入第6批\"}"
+        }
+      ],
+      "lastRole": "system"
+    },
+    {
+      "turn": 1,
+      "requestCount": 19,
+      "assistantToolCalls": [],
+      "lastRole": "user"
+    },
+    {
+      "turn": 1,
+      "requestCount": 20,
+      "assistantToolCalls": [
+        {
+          "id": "partial-write-7",
+          "name": "editor.write",
+          "arguments": "{\"commands\":[{\"operation\":\"replace_match\",\"target\":\"第7节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\",\"content\":\"第7节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。\",\"reason\":\"部分写入第7批\"}],\"reveal\":{\"mode\":\"instant\",\"firstChange\":true},\"reason\":\"部分写入第7批\"}"
+        }
+      ],
+      "lastRole": "tool"
+    },
+    {
+      "turn": 1,
+      "requestCount": 21,
+      "assistantToolCalls": [
+        {
+          "id": "partial-write-7",
+          "name": "editor.write",
+          "arguments": "{\"commands\":[{\"operation\":\"replace_match\",\"target\":\"第7节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\",\"content\":\"第7节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。\",\"reason\":\"部分写入第7批\"}],\"reveal\":{\"mode\":\"instant\",\"firstChange\":true},\"reason\":\"部分写入第7批\"}"
+        }
+      ],
+      "lastRole": "system"
+    },
+    {
+      "turn": 1,
+      "requestCount": 22,
+      "assistantToolCalls": [],
+      "lastRole": "user"
+    },
+    {
+      "turn": 1,
+      "requestCount": 23,
+      "assistantToolCalls": [
+        {
+          "id": "partial-write-8",
+          "name": "editor.write",
+          "arguments": "{\"commands\":[{\"operation\":\"replace_match\",\"target\":\"第8节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\",\"content\":\"第8节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。\",\"reason\":\"部分写入第8批\"}],\"reveal\":{\"mode\":\"instant\",\"firstChange\":true},\"reason\":\"部分写入第8批\"}"
+        }
+      ],
+      "lastRole": "tool"
+    },
+    {
+      "turn": 1,
+      "requestCount": 24,
+      "assistantToolCalls": [
+        {
+          "id": "partial-write-8",
+          "name": "editor.write",
+          "arguments": "{\"commands\":[{\"operation\":\"replace_match\",\"target\":\"第8节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。\",\"content\":\"第8节：长文档部分写入终态抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。\",\"reason\":\"部分写入第8批\"}],\"reveal\":{\"mode\":\"instant\",\"firstChange\":true},\"reason\":\"部分写入第8批\"}"
+        }
+      ],
+      "lastRole": "system"
+    }
+  ]
+}

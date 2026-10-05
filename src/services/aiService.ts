@@ -57,6 +57,10 @@ import {
   type ProviderToolMessage,
 } from './providerTools'
 import { buildCrossTurnToolAudit } from './crossTurnToolAudit'
+import {
+  collectLongDocumentWriteCoverage,
+  summarizeLongDocumentWriteCoverage,
+} from './longDocumentWriteCoverage'
 import { getToolLoopPolicy, normalizeToolIterations } from './toolLoopPolicy'
 import {
   buildEditorWriteProtocolPrompt,
@@ -2230,13 +2234,21 @@ export function createAiService(
           return convergence
         }
         const executionPlan = params.toolPolicy?.executionPlan
-        const successfulWriteCount = allToolResults.filter(item =>
+        const coverageSummary = executionPlan
+          ? summarizeLongDocumentWriteCoverage({
+            plan: executionPlan,
+            coverageRecords: collectLongDocumentWriteCoverage(allToolResults),
+            toolResults: allToolResults,
+          })
+          : null
+        const successfulWriteCount = coverageSummary?.successfulWriteCount ?? allToolResults.filter(item =>
           item.result.ok
           && String(item.call.name).startsWith('editor.write')).length
-        const planRequiresMoreWrites = Boolean(executionPlan
+        const planRequiresMoreWrites = Boolean(coverageSummary
+          && executionPlan
           && executionPlan.mode === 'edit-task'
           && executionPlan.operation !== 'discussion'
-          && successfulWriteCount < executionPlan.segments.length)
+          && !coverageSummary.complete)
         if (planRequiresMoreWrites && !writeContinuationSteeringSent) {
           writeContinuationSteeringSent = true
           params.toolPolicy?.onToolWarning?.(
@@ -2247,7 +2259,7 @@ export function createAiService(
             content: [
               '执行计划尚未完成，禁止把问题或计划当作最终回复。',
               buildLongDocumentWriteDirective(executionPlan),
-              `当前已成功写入 ${successfulWriteCount} 批，计划共 ${executionPlan!.segments.length} 批。必须继续调用工具执行剩余批次；只有全部批次完成或遇到终态失败后，才能输出给用户看的最终总结。`,
+              `当前已成功写入 ${successfulWriteCount} 批（可信覆盖 ${coverageSummary!.trustedWriteCount} 批），计划共 ${executionPlan!.segments.length} 批，未覆盖批次：${coverageSummary!.missingSegments.slice(0, 12).join(' | ') || '无'}。必须继续调用工具执行剩余批次；只有全部批次完成或遇到终态失败后，才能输出给用户看的最终总结。`,
             ].join('\n'),
           }
           messages = [...messages, continuationSystem]
