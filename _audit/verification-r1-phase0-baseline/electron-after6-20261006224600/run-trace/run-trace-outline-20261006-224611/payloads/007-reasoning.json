@@ -1,0 +1,927 @@
+Let me understand the task. The user wants to restructure the outline in the form of a Word document, without reducing content.
+
+I need to understand what "Word document form" means here. Likely it means proper heading hierarchy and structure. Let me look at the current structure and think about what "Word document form" means.
+
+Actually, I need to understand what the user actually wants. "按照Word文档的形式重构大纲，不要缩减内容" = "Restructure the outline in the form of a Word document, don't reduce content."
+
+Let me first read the document map to understand the current structure. I already have a detailed structure map in the workspace context. The document is a Markdown outline.
+
+"Word文档的形式" might mean: proper hierarchical headings (一级标题、二级标题...), a title page style, table of contents, etc. But I need to be careful not to over-interpret.
+
+Actually, the key insight: the current document has a problem - there are duplicate sections. Looking at the structure map and the "当前焦点全文", I can see there's duplication:
+
+1. "数据板的局限" appears TWICE:
+   - As a heading-2 at 16801-17356 (in 背景参考资料 section, at the end of the 背景参考资料 content)
+   - As a separate heading-2 at 16801-17356... wait let me look more carefully.
+
+Structure map shows:
+- [heading-2-10q4nra] 菌膜外套：有限资源的临时通行方案 (17356-18104)
+- [heading-2-28do6r] 菌膜外套与共存补丁的关系 (18104-22619)
+- [heading-2-sd0mn1] 世界设定声明 (22619-22716)
+
+And before that:
+- [heading-2-1lka0h8] 背景参考资料 (10230-16801)
+- [heading-2-z4sxm8] 数据板的局限 (16801-17356)
+
+But the full text shows that within "背景参考资料" section, at the end, there's "数据板的局限" content AND then a separate "## 数据板的局限" heading.
+
+Let me look at the full text again. The "背景参考资料" section contains a lot of content, ending with "...数据板提供的是火种，不是火炬。" Then there's "## 数据板的局限" as a new heading-2 with the SAME content duplicated, then "## 菌膜外套：有限资源的临时通行方案" and "## 菌膜外套与共存补丁的关系".
+
+So there's clear duplication:
+- "数据板的局限" content appears at end of 背景参考资料 (as un-headered content) AND again as its own "## 数据板的局限" section.
+
+Similarly "菌膜外套：有限资源的临时通行方案" and "菌膜外套与共存补丁的关系" appear both inside 背景参考资料 flow AND as separate heading-2 sections, AND again inside 卷一 under 7.8 and 7.9.
+
+Actually, let me carefully map this out. This is complex.
+
+The document structure appears to be:
+1. # 《绿潮》大纲总纲
+2. ## 叙事框架 (13-10230)
+   - ### 故事核心 (23-1002)
+   - ### 第一卷·觉醒与扎根 (1002-7377)
+   - ### 第二卷·连接与陷落 (7377-9401)
+   - ### 第三卷·远征与暗流 (9401-10230)
+3. ## 背景参考资料 (10230-16801)
+4. ## 数据板的局限 (16801-17356)
+5. ## 菌膜外套：有限资源的临时通行方案 (17356-18104)
+6. ## 菌膜外套与共存补丁的关系 (18104-22619)
+7. ## 世界设定声明 (22619-22716)
+8. ## 卷一：基石设定层 (22716-56222)
+9. ## 卷二：核心人物群像 (56222-60736)
+10. ## 卷三：势力与格局层 (60736-73000)
+11. ## 卷四：叙事工具箱层 (73000-74841)
+
+But the full text (当前焦点全文) shows that "背景参考资料" (heading 2) contains a LOT of content, including:
+- 背景参考资料 narrative (four亿年前...)
+- 灾前军事基准线与菌毯的不可根除性
+- 数据板的局限 (this content)
+- 菌膜外套：有限资源的临时通行方案 (content)
+- 菌膜外套与共存补丁的关系 (content)
+- 六大势力 overview
+- 圣萌会 origin
+- 巨树
+- 终局之战
+- 共存补丁
+- 结局
+
+So actually the "背景参考资料" heading-2 section (10230-16801) contains content that flows INTO "数据板的局限" and "菌膜外套" and "菌膜外套与共存补丁的关系".
+
+The structure map shows:
+- heading-2-1lka0h8 背景参考资料 (10230-16801, 6561字)
+- heading-2-z4sxm8 数据板的局限 (16801-17356, 545字)
+- heading-2-10q4nra 菌膜外套：有限资源的临时通行方案 (17356-18104, 728字)
+- heading-2-28do6r 菌膜外套与共存补丁的关系 (18104-22619, 4499字)
+
+But wait, the full text shows the "背景参考资料" section content extends beyond 16801? No. Let me re-read.
+
+The full text structure (from 当前焦点全文):
+```
+## 背景参考资料
+
+四亿年前...（背景参考资料内容）
+
+方岫岩用柴油发电机...（方岫岩 legacy content）
+
+灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么
+...（military content）
+数据板的局限
+数据板不是百宝箱。...（数据板内容）
+
+## 数据板的局限
+
+数据板不是百宝箱。...（重复的数据板内容）
+
+## 菌膜外套：有限资源的临时通行方案
+
+陈暮的菌膜装甲...（菌膜外套内容）
+
+## 菌膜外套与共存补丁的关系
+
+菌膜外套是...（内容）
+
+（六大势力 overview content - no heading）
+
+在远西大陆，另一种力量正在凝聚。...（圣萌会 content）
+
+2043年春，巨树...（巨树 content）
+
+噬神计划进入最后阶段...（终局 content）
+
+...（结局 content）
+
+## 世界设定声明
+
+本书为完全架空世界设定...
+
+## 卷一：基石设定层
+...
+```
+
+So there are several issues:
+1. "数据板的局限" appears twice: once as un-headered content inside 背景参考资料 (right before "## 数据板的局限"), and once as the "## 数据板的局限" heading section.
+2. "菌膜外套：有限资源的临时通行方案" appears twice: content inside 背景参考资料, and as its own "## 菌膜外套" section.
+3. "菌膜外套与共存补丁的关系" appears twice: content inside 背景参考资料 flow, and as its own heading-2.
+4. Also, 卷一 contains 7.8 菌膜外套 and 7.9 与终局的衔接：菌膜外套与共存补丁的关系 - these are ANOTHER duplication of the 菌膜外套 content (but these are properly part of 卷一's structure).
+
+Wait, let me check. 卷一 7.8 菌膜外套：有限资源的临时通行方案 (48127-48816) and 7.9 与终局的衔接：菌膜外套与共存补丁的关系 (48816-49296).
+
+So the "菌膜外套" content appears in THREE places:
+1. Inside 背景参考资料 flow (un-headered, or with a non-heading label)
+2. As heading-2 菌膜外套：有限资源的临时通行方案 (17356-18104)
+3. As heading-4 7.8 inside 卷一 (48127-48816)
+
+And "菌膜外套与共存补丁的关系" in THREE places:
+1. Inside 背景参考资料 flow
+2. As heading-2 (18104-22619)
+3. As heading-4 7.9 inside 卷一 (48816-49296)
+
+Hmm wait, but 7.9's content is a bit different from heading-2 28do6r's content. Let me verify by reading.
+
+Actually, this is getting complicated. Let me step back and think about what the user actually wants.
+
+"按照Word文档的形式重构大纲，不要缩减内容" — "Restructure the outline in the form of a Word document, don't reduce content."
+
+This is somewhat ambiguous. It could mean:
+1. Format it like a Word document (with proper heading hierarchy, numbering, table of contents).
+2. Remove duplicates to make it clean.
+
+Given the plan is "执行标题层级修复或章节重排" (fix heading hierarchy or chapter reordering) and "删除已确认的重复项" (delete confirmed duplicates), the task seems to be:
+- Fix the heading hierarchy
+- Remove duplicate sections
+- Don't reduce content (so don't delete non-duplicate content)
+
+But wait, the plan says "只删除已确认的重复项" (only delete confirmed duplicates). So the task involves deleting duplicates.
+
+Let me understand the actual duplication more precisely. Let me read the relevant sections.
+
+Actually, I need to be very careful here. This is a large document (74841 chars). The user wants "Word document form" restructuring without reducing content.
+
+Let me think about what "Word document form" means more concretely:
+- A Word document typically has: Title, headings with numbering (1, 1.1, 1.1.1), consistent heading levels, possibly a table of contents.
+- The current document uses Markdown headings (#, ##, ###, ####, #####).
+
+Actually, the current document ALREADY uses a heading hierarchy (# = Title, ## = 卷/大章, ### = 章, #### = 节, ##### = 小节).
+
+Wait, looking at the structure map again:
+- heading-1: 《绿潮》大纲总纲 (this is the # level)
+- heading-2: 叙事框架, 背景参考资料, 数据板的局限, 菌膜外套..., 世界设定声明, 卷一, 卷二, 卷三, 卷四
+- heading-3: 故事核心, 第一卷..., 第二卷..., 第三卷..., 一、书名定义..., etc.
+- heading-4: 1.1, 3.1, 4.1, etc.
+- heading-5: 4.1.1, etc.
+
+So the structure seems mostly fine EXCEPT for the duplication issues and some inconsistent placement.
+
+Let me focus on identifying the real issues by reading the document around the problem areas.
+
+Actually, I realize I should read the actual content more carefully. The full text provided in the workspace context (当前焦点全文) is quite long but I have it. Let me analyze the duplication.
+
+Key observation from the full text:
+
+The "背景参考资料" section (## 背景参考资料) contains a long block of narrative content. Looking at the full text, after "## 背景参考资料" there's the 四亿年前 story, then 方岫岩 legacy, then "灾前军事基准线与菌毯的不可根除性" (which appears as a heading-like text but is NOT captured as a heading in the structure map - it's just bold-ish text within the flow), then "数据板的局限" text (not captured as heading), then the actual "## 数据板的局限" heading, then "## 菌膜外套：有限资源的临时通行方案" heading, then "## 菌膜外套与共存补丁的关系" heading, then the 六大势力/圣萌会/巨树/终局 content (still within... hmm).
+
+Wait, actually I need to determine the exact heading boundaries. Let me look at the structure map char ranges:
+
+- 背景参考资料: 10230-16801 (6561字)
+- 数据板的局限: 16801-17356 (545字)
+- 菌膜外套：有限资源的临时通行方案: 17356-18104 (728字)
+- 菌膜外套与共存补丁的关系: 18104-22619 (4499字)
+- 世界设定声明: 22619-22716 (87字)
+
+So the "菌膜外套与共存补丁的关系" heading-2 spans 18104-22619, which is 4499 chars. This includes the 六大势力 overview, 圣萌会, 巨树, 终局之战 content!
+
+That means the "## 菌膜外套与共存补丁的关系" section is being used as a catch-all for all the remaining narrative content (六大势力, 圣萌会, 巨树, 终局) which is structurally WRONG. The content from 18104 to 22619 is:
+1. 菌膜外套与共存补丁的关系 (the short 2-paragraph content)
+2. 六大势力 overview ("在大裂谷走廊...")
+3. 圣萌会 ("在远西大陆...")
+4. 巨树 ("2043年春...")
+5. 终局之战 ("噬神计划进入最后阶段...")
+6. 结局 ("菌毯不再调动变异体围杀人类...")
+7. "知识锁在抽屉里" ending line
+
+So actually, the "背景参考资料" area (10230-22619) is one big narrative appendix, but it got split by the duplicated "## 数据板的局限", "## 菌膜外套", "## 菌膜外套与共存补丁的关系" headings which are DUPLICATES of content that appears both:
+(a) within the 背景参考资料 flow, AND
+(b) as separate top-level sections.
+
+Let me carefully re-read the full text to understand.
+
+From full text, in order:
+
+1. "## 背景参考资料" then:
+   - 四亿年前...（long narrative）
+   - "方岫岩用柴油发电机..." paragraph
+   - "灾前军事基准线与菌毯的不可根除性" + "一、2042年，人类手里有什么" + tables + "二、菌毯为什么火力推不平" + "三、总结"
+   - "数据板的局限" + "数据板不是百宝箱。..." (full 数据板 content, un-headered)
+   - Then "## 数据板的局限" heading, followed by "数据板不是百宝箱。..." (duplicate content)
+   - Then "## 菌膜外套：有限资源的临时通行方案" heading, followed by "陈暮的菌膜装甲..." content
+   - Then "## 菌膜外套与共存补丁的关系" heading, followed by "菌膜外套是..." content
+   - Then "在大裂谷走廊..." (六大势力 overview)
+   - "在远西大陆..." (圣萌会)
+   - "2043年春..." (巨树)
+   - "噬神计划进入最后阶段..." (终局)
+   - "菌毯不再调动变异体围杀人类..." (结局)
+   - "'知识锁在抽屉里...'" ending
+
+So the structure map assigns:
+- 背景参考资料 = 10230-16801: this is everything from "四亿年前..." through the un-headered "数据板的局限" content, ending right before "## 数据板的局限".
+- 数据板的局限 = 16801-17356: the "## 数据板的局限" heading + its duplicate content.
+- 菌膜外套 = 17356-18104: "## 菌膜外套" heading + content.
+- 菌膜外套与共存补丁的关系 = 18104-22619: "## 菌膜外套与共存补丁的关系" heading + its content + 六大势力 + 圣萌会 + 巨树 + 终局 + 结局 + ending line.
+
+So the DUPLICATES are:
+1. "数据板的局限" content appears TWICE:
+   - un-headered at end of 背景参考资料 (within 10230-16801)
+   - as "## 数据板的局限" (16801-17356)
+   
+   Wait, but is the un-headered version at end of 背景参考资料 actually there, or is it the heading "## 数据板的局限" content? Let me look at the full text more carefully.
+
+The full text shows:
+```
+...数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。...
+...
+数据板提供的是火种，不是火炬。
+
+
+## 菌膜外套：有限资源的临时通行方案
+```
+
+So YES, there are TWO copies of "数据板不是百宝箱...数据板提供的是火种，不是火炬。"
+
+The first copy is un-headered (right after the military content "三、总结" section ending), and the second copy is under "## 数据板的局限".
+
+Actually wait, let me look even more carefully. In the full text, I see:
+
+```
+三、总结：人类真正被压制的根本机制
+...
+人类能做的不是击败菌毯，而是在它的覆盖范围内找到一种与它共存的方式——让菌丝网络不再认为人类是异己。终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。
+
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的...（full 数据板 content）
+数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。方岫岩在八个月里记录下的...（duplicate）
+数据板提供的是火种，不是火炬。
+```
+
+Yes. So "数据板的局限" appears:
+1. As a plain-text label (not Markdown heading) "数据板的局限" followed by content, at the end of 背景参考资料 section.
+2. As "## 数据板的局限" Markdown heading with duplicate content.
+
+Similarly, I need to check "菌膜外套" and "菌膜外套与共存补丁的关系".
+
+From the full text:
+```
+## 菌膜外套：有限资源的临时通行方案
+
+陈暮的菌膜装甲是独一无二的...（菌膜外套 content）
+
+## 菌膜外套与共存补丁的关系
+
+菌膜外套是"让系统暂时看不到我们"...（content）
+```
+
+Hmm, in the full text I see "## 菌膜外套：有限资源的临时通行方案" only ONCE in the 背景参考资料 area? Let me re-read.
+
+Actually, looking at the full text very carefully, the sequence is:
+
+```
+三、总结：人类真正被压制的根本机制
+孢子云剥夺了电磁层...
+...人类对"不可战胜"的承认。
+
+数据板的局限
+数据板不是百宝箱。...
+...数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。...
+...数据板提供的是火种，不是火炬。
+
+
+## 菌膜外套：有限资源的临时通行方案
+
+陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。...
+...他的勘探是不可替代的。
+
+
+## 菌膜外套与共存补丁的关系
+
+菌膜外套是"让系统暂时看不到我们"——临时伪装...
+...共存补丁是终极解法。
+
+
+在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。...
+```
+
+So the duplication is:
+- "数据板的局限" content: appears TWICE (once un-headered after 三、总结, once under ## 数据板的局限).
+- "菌膜外套" content: appears ONCE here (under ## 菌膜外套), but ALSO appears inside 卷一 as 7.8.
+- "菌膜外套与共存补丁的关系" content: appears ONCE here (under ## 菌膜外套与共存补丁的关系), but ALSO inside 卷一 as 7.9.
+
+Hmm wait, so what's the actual issue? Let me reconsider.
+
+Actually, the "背景参考资料" section seems to have been intended to be the big narrative appendix. It contains:
+1. 四亿年前 story (background)
+2. 方岫岩 legacy
+3. 灾前军事基准线 (military)
+4. 数据板的局限 (un-headered)
+5. [## 数据板的局限 - DUPLICATE]
+6. [## 菌膜外套 - this is new content, part of the appendix]
+7. [## 菌膜外套与共存补丁的关系 - new content, part of appendix]
+8. 六大势力 overview
+9. 圣萌会
+10. 巨树
+11. 终局之战
+12. 结局
+
+So the problems are:
+A. "数据板的局限" is duplicated (un-headered version + ## version).
+B. The narrative appendix content (六大势力, 圣萌会, 巨树, 终局, 结局) is incorrectly nested under "## 菌膜外套与共存补丁的关系" heading — these should be their own sections, not children of 菌膜外套.
+C. "菌膜外套" and "菌膜外套与共存补丁的关系" also appear inside 卷一 (as 7.8 and 7.9). Is this intentional? Possibly intentional because 卷一 is the "基石设定层" and 7.8/7.9 are the formal settings. But the "背景参考资料" area versions are narrative.
+
+Hmm, but actually, wait. Let me reconsider whether 7.8 and 7.9 in 卷一 are duplicates or the "canonical" location.
+
+卷一's 7.8 菌膜外套：有限资源的临时通行方案 (48127-48816, 663字) and the heading-2 version (17356-18104, 728字). These have slightly different lengths (663 vs 728). The 7.9 version is 451字, the heading-2 28do6r is 4499字 (which includes all the narrative). 
+
+Actually, looking at the full text content of 7.8 in 卷一:
+```
+#### 7.8 菌膜外套：有限资源的临时通行方案
+
+陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。...
+陈暮的角色：路线勘探者。...他的勘探是不可替代的。
+```
+
+And the heading-2 菌膜外套 (17356-18104) content in the full text:
+```
+## 菌膜外套：有限资源的临时通行方案
+
+陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。...
+陈暮的角色：路线勘探者。...他的勘探是不可替代的。
+```
+
+These appear to be near-identical (728 vs 663 chars difference might be because the 卷一 7.8 version uses different quote characters or minor wording). Actually, looking at the full text, the "## 菌膜外套" version uses "——" and "**单件有效时间约4-6小时**" etc., same as 7.8.
+
+Similarly 7.9:
+```
+#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系
+
+菌膜外套是"让系统暂时看不到我们"——在穿戴者身上覆盖一层伪装层...
+从那一刻起，人类在菌毯的感知中不再是异常信号源。
+...
+菌丝网络的排异反应不再将人类识别为需要排除的异己。...天空的绿色边缘，在十四年后，终于隐约透出一丝蓝。
+```
+
+Wait, the 7.9 content in the full text (卷一) is longer than 451 chars? Let me check. The structure map says 7.9 = 48816-49296 = 451字. But the full text of 7.9 shows a lot more content (ending with 天空的绿色边缘).
+
+Hmm, let me re-read the full text of 卷一 7.9 section:
+
+```
+#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系
+
+菌膜外套是"让系统暂时看不到我们"——在穿戴者身上覆盖一层伪装层，不改变菌丝网络对人类信号的认证逻辑。共存补丁是"让系统认识我们"——将人类物种标签写入菌丝网络的认证数据库，让系统在探询时查到人类注册记录后自动放行。
+
+菌膜外套能做的：让几百人/年短暂穿越菌毯，依赖岫岩城的工业生产，每次通行都有时间限制。共存补丁才能做到的：让全人类在任何时间、任何地点踩上菌毯都不触发排异反应，不依赖任何势力的技术或资源，永久有效。
+
+终局之后，人类踩在菌毯上，脚底角质层中的应答器返回合法的身份确认信号。信息素标签同步更新——汗液中开始携带微量的盖亚签名片段。双重交叉验证通过。
+
+从那一刻起，人类在菌毯的感知中不再是异常信号源。
+
+菌丝网络的排异反应不再将人类识别为需要排除的异己。全球生态从战争状态过渡到共存状态。菌毯不再调动变异体围杀人类。孢子云开始缓慢变薄——不是因为巨树主动停止释放，而是因为主树干生长停滞导致有机物过剩量下降，孢子排泄量自然回落。天空的绿色边缘，在十四年后，终于隐约透出一丝蓝。
+```
+
+That's more than 451 chars. Maybe the structure map char count is off, or maybe I'm miscounting. Anyway.
+
+And the heading-2 "菌膜外套与共存补丁的关系" (18104-22619):
+```
+## 菌膜外套与共存补丁的关系
+
+菌膜外套是"让系统暂时看不到我们"——临时伪装，不改变菌丝网络对人类信号的认证逻辑。共存补丁是"让系统认识我们"——将人类物种标签写入菌丝网络的认证数据库，让系统在探询时查到人类注册记录后自动放行。
+
+菌膜外套能做的：让几百人/年短暂穿越菌毯，依赖岫岩城的工业生产，每次通行都有时间限制。共存补丁才能做到的：让全人类在任何时间、任何地点踩上菌毯都不触发排异反应，不依赖任何势力的技术或资源，永久有效。
+
+从"让系统暂时看不到我们"到"让系统认识我们"——这就是菌膜外套与共存补丁之间不可跨越的鸿沟。菌膜外套是权宜之计，共存补丁是终极解法。
+```
+
+So these two are different in the last paragraph. The heading-2 version ends with "菌膜外套是权宜之计，共存补丁是终极解法。" while the 7.9 version goes on to describe 终局之后 (which is actually the 终局 content).
+
+OK this is getting really complicated. Let me step back and think about the actual goal.
+
+The plan steps are:
+1. read-structure: 读取文档结构并确认目标层级 (done, I have the structure map)
+2. execute-restructure: 执行标题层级修复或章节重排
+3. confirm-duplicates: 用只读工具确认重复项 (editor.locate)
+4. delete-duplicates: 只删除已确认的重复项
+5. normalize-segments: 按计划批次整理格式
+6. verify-plan: 核对写入覆盖与不变量
+
+Completion criteria:
+- 执行计划中的全部写入批次成功或明确进入终态
+- 完成不变量校验：planned-deletion-only, normalize-changes-punctuation-whitespace-format-only
+
+Failure criteria:
+- 未发生成功写入却输出修改预览或完成说明
+- 写入操作被执行计划拒绝
+
+So the task is to restructure the outline in "Word document form" (i.e., proper heading hierarchy, remove duplicates), WITHOUT reducing content (except confirmed duplicates).
+
+Now, I need to be careful about scope. This is a huge document. I should:
+
+1. First understand the exact current structure and identify all issues.
+2. Identify the duplicates precisely using editor.locate.
+3. Fix the heading hierarchy.
+4. Delete confirmed duplicates.
+
+But wait — the user said "不要缩减内容" (don't reduce content). Deleting duplicates is technically reducing content, but duplicates are redundant. The plan explicitly says "只删除已确认的重复项" (only delete confirmed duplicates). So deleting duplicates is acceptable and expected.
+
+Let me think about what "Word document form" specifically means for the restructuring:
+
+The document currently is a Markdown outline with #/##/###/####/##### headings. A "Word document" would have:
+- A clear title
+- Numbered hierarchical headings (一、二、三... / 1.1 / 1.1.1)
+- Consistent structure
+
+Actually, I think the core issue the user wants fixed is:
+1. The heading hierarchy is broken in the "背景参考资料" region — narrative content is wrongly nested under "菌膜外套与共存补丁的关系".
+2. There are duplicated sections.
+3. The overall organization should follow a clean Word-like structure.
+
+Let me reconsider. Maybe I'm overcomplicating this. Let me re-read the user request: "按照Word文档的形式重构大纲，不要缩减内容。"
+
+This likely means: The current outline is a Markdown document with a somewhat messy structure. The user wants it reorganized into a clean, hierarchical "Word document" style — with proper headings, no duplicate sections, consistent numbering — while keeping ALL the content.
+
+Given the plan's focus on "标题层级修复或章节重排" (heading level fix or chapter reordering) and "删除已确认的重复项" (delete confirmed duplicates), the main work is:
+
+1. Fix the heading hierarchy in the "背景参考资料" region (where narrative content is wrongly nested).
+2. Remove the duplicated "数据板的局限" content.
+
+Let me read the actual document content to get the exact text for the problematic regions, so I can craft precise edit commands.
+
+Actually, I already have the full text in the workspace context. But I should read the specific ranges to be safe and get exact text for editor.locate and editor.write.
+
+Let me read the problematic region: 10230-22619 (背景参考资料 through 菌膜外套与共存补丁的关系).
+
+Actually, given the size, let me use editor.read_range to read specific sections. Let me first get the document_map to have section IDs, but I already have them from the workspace context. Let me read the ranges.
+
+Actually, I have the full text already in the workspace context (当前焦点全文). But that might be truncated or might not have exact whitespace. For editor.write operations, I need exact text fragments.
+
+Let me plan the reading:
+1. Read 背景参考资料 section (10230-16801) to see the exact content including the un-headered "数据板的局限".
+2. Read 数据板的局限 (16801-17356), 菌膜外套 (17356-18104), 菌膜外套与共存补丁的关系 (18104-22619).
+
+Actually, these are all in the full text I already have. Let me carefully identify the exact duplication and structure issues.
+
+Let me re-examine the full text (当前焦点全文) which I have in full. I'll trace through it.
+
+Actually, I realize the full text in the workspace context IS the complete document (74841 chars). It's presented as "当前焦点全文". So I have everything. Let me use it to plan.
+
+Let me identify the key structural problems and the exact fixes needed.
+
+**Problem 1: Duplicate "数据板的局限"**
+
+The content "数据板的局限" appears twice:
+- Position A: Un-headered, right after the military "三、总结" section, still within "## 背景参考资料" (ends at char 16801).
+- Position B: As "## 数据板的局限" heading (16801-17356).
+
+Actually wait — let me look at whether the un-headered "数据板的局限" has a label. In the full text:
+
+```
+三、总结：人类真正被压制的根本机制
+孢子云剥夺了电磁层，粉碎了所有依赖精确定位和远程指挥链的武器体系...人类对"不可战胜"的承认。
+
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的...
+...
+数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。...
+```
+
+So "数据板的局限" appears as a plain text line (not a Markdown heading, since it's not preceded by #) before the first copy, then "## 数据板的局限" as a heading before the second copy.
+
+So there are two copies of the 数据板 content, one with a plain-text label and one with a ## heading.
+
+**Problem 2: The narrative content wrongly nested under "## 菌膜外套与共存补丁的关系"**
+
+After "## 菌膜外套与共存补丁的关系" and its 3 paragraphs, the content continues with:
+- 六大势力 overview ("在大裂谷走廊...")
+- 圣萌会 ("在远西大陆...")
+- 巨树 ("2043年春...")
+- 终局之战 ("噬神计划进入最后阶段...")
+- 结局 ("菌毯不再调动变异体围杀人类...")
+- ending line ("知识锁在抽屉里...")
+
+These should NOT be children of "菌膜外套与共存补丁的关系". They should be promoted to their own headings or to a proper parent section.
+
+**Problem 3: 卷一 contains 7.8 菌膜外套 and 7.9 菌膜外套与共存补丁的关系 which duplicate the heading-2 versions**
+
+Hmm, but is this a problem? The 卷一 is "基石设定层" and 7.8/7.9 are the formal settings. The "背景参考资料" area also has these. 
+
+Actually, wait. Let me reconsider the whole document organization. The document has:
+
+1. ## 叙事框架 (13-10230) — the story outline (故事核心 + 卷一/卷二/卷三 story beats)
+2. ## 背景参考资料 (10230-16801) — background reference material (narrative appendix)
+3. ## 数据板的局限 (16801-17356) — DUPLICATE section
+4. ## 菌膜外套：有限资源的临时通行方案 (17356-18104) — duplicate of 卷一 7.8?
+5. ## 菌膜外套与共存补丁的关系 (18104-22619) — duplicate of 卷一 7.9 + narrative content
+6. ## 世界设定声明 (22619-22716)
+7. ## 卷一：基石设定层 (22716-56222)
+8. ## 卷二：核心人物群像 (56222-60736)
+9. ## 卷三：势力与格局层 (60736-73000)
+10. ## 卷四：叙事工具箱层 (73000-74841)
+
+So the document has:
+- Part 1: 叙事框架 (story framework)
+- Part 2: 背景参考资料 (background reference) — this is a narrative appendix containing: 四亿年前 background, 方岫岩 legacy, 灾前军事基准线, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 六大势力 overview, 圣萌会, 巨树, 终局之战, 结局.
+- Part 3: 世界设定声明
+- Part 4-7: 卷一~卷四 (the formal setting layers)
+
+The issue is that within Part 2 (背景参考资料), the content was partially given ## headings (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) which BROKE the hierarchy — because these ## headings are at the same level as "背景参考资料" itself, so they "escape" from the 背景参考资料 section and the subsequent narrative content (六大势力, 圣萌会, etc.) gets orphaned under the last heading.
+
+So the fix is:
+1. Within 背景参考资料, demote "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" from ## to ### (or ### level), so they become sub-sections of 背景参考资料.
+2. Give proper headings to the 六大势力/圣萌会/巨树/终局/结局 content.
+3. Delete the duplicated "数据板的局限" content (keep one copy).
+
+Actually, but wait. Should "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" be sub-sections of 背景参考资料, OR should they be their own top-level sections?
+
+Looking at the overall doc, the top-level (##) sections are the major parts: 叙事框架, 背景参考资料, 世界设定声明, 卷一, 卷二, 卷三, 卷四.
+
+The "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" are clearly SUBSECTIONS of 背景参考资料 (they're part of the narrative appendix). So they should be ### level.
+
+And the narrative content (六大势力, 圣萌会, 巨树, 终局, 结局) should ALSO be ### level (or ### with #### sub-levels).
+
+So my restructuring plan for the 背景参考资料 region:
+
+Current (broken):
+```
+## 背景参考资料
+[四亿年前 narrative]
+[方岫岩 legacy]
+[灾前军事基准线 content]
+[数据板的局限 - plain label + content]  ← duplicate
+## 数据板的局限                              ← should be ###, and is duplicate
+[数据板 content - duplicate]
+## 菌膜外套：有限资源的临时通行方案          ← should be ###
+[菌膜外套 content]
+## 菌膜外套与共存补丁的关系                 ← should be ###
+[菌膜外套与共存补丁 content]
+[六大势力 overview]                        ← orphaned, needs heading
+[圣萌会 content]                           ← orphaned, needs heading
+[巨树 content]                             ← orphaned, needs heading
+[终局 content]                             ← orphaned, needs heading
+[结局 content]                             ← orphaned, needs heading
+[ending line]
+```
+
+Target (fixed):
+```
+## 背景参考资料
+[四亿年前 narrative]
+[方岫岩 legacy]
+[灾前军事基准线 content]
+### 数据板的局限
+[数据板 content - single copy]
+### 菌膜外套：有限资源的临时通行方案
+[菌膜外套 content]
+### 菌膜外套与共存补丁的关系
+[菌膜外套与共存补丁 content]
+### 六大势力 overview (need appropriate heading)
+[六大势力 content]
+### 圣萌会 (heading)
+[圣萌会 content]
+### 巨树 (heading)
+[巨树 content]
+### 终局之战 (heading)
+[终局 content]
+### 结局 (heading)
+[结局 content]
+[ending line]
+```
+
+Wait, but this might not be exactly what the user wants. Let me reconsider.
+
+Actually, "按照Word文档的形式重构大纲" — the key insight might be simpler than I think. A "Word document" (Word文档) has a specific structure with proper hierarchical numbering. The user might just want:
+
+1. Clean heading hierarchy (no broken nesting).
+2. No duplicate content.
+3. Consistent heading levels throughout.
+
+Let me now think about the SCOPE of my changes. I should be conservative and focus on the clearly-broken parts:
+
+1. **Fix the heading levels** in the 背景参考资料 region (demote ## to ### for 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系).
+
+2. **Delete the duplicate** 数据板的局限 (the un-headered copy, OR the ## copy).
+
+3. **Add headings** to the orphaned narrative content (六大势力, 圣萌会, 巨树, 终局, 结局) — OR these might already have implicit headings that I'm missing.
+
+Wait, actually, let me look at the full text again for the 六大势力/圣萌会/巨树/终局 content to see if they have any heading markers.
+
+From full text:
+```
+## 菌膜外套与共存补丁的关系
+
+菌膜外套是"让系统暂时看不到我们"——临时伪装...共存补丁是终极解法。
+
+
+在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。韩啸天在废墟上定下名字的那一刻说...
+
+在垅原，复兴会经历了...李信说...
+
+在环障盆地，天府都白启炸掉了...
+
+在南角双港，天网城邦...
+
+在海棘三角洲，镇海双枢城...
+
+远中大陆六大势力，各有各的绝境...直到陈暮出现...
+
+
+在远西大陆，另一种力量正在凝聚。
+
+塞缪尔·赫兹是...
+
+...
+
+
+2043年春，巨树从深根大陆中部悄然破土而出...
+
+...
+
+
+噬神计划进入最后阶段。海底巨型管虫网络...
+
+...
+
+
+菌毯不再调动变异体围杀人类。孢子云开始缓慢变薄...
+
+...
+
+盖亚巨树它只是一株植物...
+
+而人类——在付出了近乎灭顶的代价之后...
+
+"知识锁在抽屉里，和不存在没有区别。"
+
+林觉民把知识从抽屉里拿出来，打开，撒进风中。
+```
+
+So there are NO headings for these narrative blocks. They're just paragraphs. This is actually fine as a narrative appendix — they read as flowing prose. But the issue is that they're all nested under "## 菌膜外套与共存补丁的关系" because that's the last ## heading before them.
+
+Hmm. So actually the minimal fix might be:
+1. Delete the duplicate 数据板 content.
+2. Demote "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" to ### level so they don't break out of 背景参考资料.
+
+Then the narrative content (六大势力 etc.) would fall under 背景参考资料 as ### ... wait no, they'd fall under "菌膜外套与共存补丁的关系" ### heading still.
+
+Hmm, actually if I demote "菌膜外套与共存补丁的关系" to ###, then the subsequent narrative content (六大势力, 圣萌会, 巨树, 终局, 结局) would still be "under" it in the Markdown sense (they're paragraphs after a ### heading until the next heading). But that's not a "heading nesting" issue per se — in Markdown, plain paragraphs after a heading are just part of that section until the next heading.
+
+But structurally, the narrative content (六大势力 etc.) is NOT about 菌膜外套与共存补丁的关系. So they should be promoted out.
+
+Actually, I think the cleanest interpretation is:
+
+The "背景参考资料" section should be a container with multiple sub-sections:
+- 四亿年前的故事 (background)
+- 方岫岩的遗产 (legacy)
+- 灾前军事基准线与菌毯的不可根除性 (military)
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系
+- 六大势力速写 (overview)
+- 圣萌会 (overview)
+- 巨树 (overview)
+- 终局之战 (overview)
+- 结局 (overview)
+
+But the first three (四亿年前, 方岫岩, military) are also just flowing prose without headings.
+
+Hmm. This is getting complicated. Let me think about what a minimal, safe restructuring looks like.
+
+Actually, let me reconsider the whole thing from a different angle. What does "Word文档的形式" most likely mean for a Chinese user editing an outline?
+
+I think it means: The outline should look like a proper Word document with:
+- 标题 (title)
+- 一级标题 (Heading 1): major sections
+- 二级标题 (Heading 2): subsections
+- 三级标题 (Heading 3): sub-subsections
+- Proper numbering
+
+The current document mostly has this, but the "背景参考资料" region is broken.
+
+Actually, maybe I'm overthinking this. Let me look at what's actually broken and fix it minimally:
+
+The clearest issues:
+1. **Duplicate "数据板的局限"** — clear duplicate, should delete one copy.
+2. **Heading level inconsistency** — "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" are at ## level (same as 背景参考资料), breaking the hierarchy. They should be ### under 背景参考资料.
+
+Actually, wait. Let me reconsider. Maybe these SHOULD be top-level ## sections, and the problem is different.
+
+Let me reconsider the document intent. The document seems to be organized as:
+- 叙事框架 (story outline: 故事核心, 第一卷, 第二卷, 第三卷)
+- 背景参考资料 (background reference material — narrative appendix)
+- 世界设定声明 (world setting statement)
+- 卷一：基石设定层 (volume 1: foundation settings)
+- 卷二：核心人物群像 (volume 2: characters)
+- 卷三：势力与格局层 (volume 3: factions)
+- 卷四：叙事工具箱层 (volume 4: narrative toolbox)
+
+The "背景参考资料" is a narrative appendix. Its content includes the 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, and the 六大势力/圣萌会/巨树/终局/结局 narrative.
+
+But these same topics (数据板, 菌膜外套, 菌膜外套与共存补丁) ALSO appear in 卷一 (as 7.8, 7.9) and elsewhere.
+
+Actually, I realize the duplication is more extensive than I thought. Let me check:
+
+1. "数据板的局限" appears:
+   - In 背景参考资料 (un-headered)
+   - As ## 数据板的局限 (16801-17356)
+   
+   But NOT in 卷一 as a separate section (卷一 doesn't have a "数据板的局限" section — it's mentioned in various places but not duplicated as a full section).
+
+2. "菌膜外套：有限资源的临时通行方案" appears:
+   - As ## heading (17356-18104)
+   - In 卷一 as 7.8 (48127-48816)
+   
+3. "菌膜外套与共存补丁的关系" appears:
+   - As ## heading (18104-22619)
+   - In 卷一 as 7.9 (48816-49296)
+
+So the question is: which is the "canonical" location, and which is the "duplicate"?
+
+Given the document structure:
+- 背景参考资料 is the narrative appendix (背景故事/参考资料)
+- 卷一 is the formal 基石设定层
+
+It seems like the "菌膜外套" content was MEANT to be in 卷一 (as 7.8) and 卷一's 7.9, but it was ALSO placed in 背景参考资料 (possibly as a copy-paste error, or as a "summary" for the narrative appendix).
+
+Hmm, this is ambiguous. Let me look at the actual content differences.
+
+Actually, I think I need to read the actual content of these sections to determine which is canonical and which is duplicate. Let me read the specific ranges.
+
+Let me read:
+1. 16801-22619 (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系)
+2. 48127-49296 (卷一 7.8, 7.9)
+
+Actually, I already have all this in the full text. Let me compare.
+
+The "## 数据板的局限" content (from full text):
+```
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是"推测"和"可能"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。
+
+数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。
+
+数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。
+
+后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从"起点"到"成果"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。
+```
+
+This is the canonical "数据板的局限" content. It's duplicated (un-headered + ## heading).
+
+The "## 菌膜外套" content and "## 菌膜外套与共存补丁的关系" content — these are in 背景参考资料 AND in 卷一 7.8/7.9.
+
+Wait, actually, let me reconsider. Maybe the intent is:
+- 背景参考资料 contains the narrative-style explanations of these concepts.
+- 卷一 contains the formal settings.
+
+But they're near-duplicates, which is redundant. However, the user said "不要缩减内容" (don't reduce content). So I should NOT delete these cross-references unless they're EXACT duplicates within the same logical section.
+
+The plan says "只删除已确认的重复项" (only delete confirmed duplicates). The confirmed duplicate is clearly the "数据板的局限" (which appears twice back-to-back). The 菌膜外套 in 背景参考资料 vs 卷一 is a cross-reference that might be intentional.
+
+OK let me take a pragmatic approach. The clearest, most defensible restructuring is:
+
+1. **Delete the duplicate "数据板的局限"** — specifically, delete the un-headered copy (the plain-text label + content) that appears at the end of 背景参考资料, keeping the "## 数据板的局限" heading version. OR delete the "## 数据板的局限" heading version and keep the un-headered. 
+
+   Actually, which to delete? The un-headered copy is "inside" 背景参考资料 (it's plain text). The "## 数据板的局限" is a heading that breaks out of 背景参考资料.
+
+   If my goal is to fix the hierarchy (make 数据板的局限 a sub-section of 背景参考资料), I should:
+   - Demote "## 数据板的局限" to "### 数据板的局限" (making it a sub-section of 背景参考资料).
+   - Delete the un-headered duplicate content.
+
+   That way, 背景参考资料 has a clean "### 数据板的局限" sub-section with a single copy of the content.
+
+2. **Demote "## 菌膜外套" and "## 菌膜外套与共存补丁的关系" to ###** so they become sub-sections of 背景参考资料.
+
+3. **Fix the orphaned narrative content** — add appropriate headings for 六大势力/圣萌会/巨树/终局/结局, OR at least ensure they're not nested under 菌膜外套与共存补丁的关系.
+
+Hmm, but this is a lot of changes, and I need to be careful about the "不要缩减内容" constraint.
+
+Actually, wait. Let me reconsider the scope. Maybe I should NOT try to add new headings to the narrative content, because that might be considered "adding content" or over-restructuring. The user just wants "Word document form" — which is mainly about heading hierarchy consistency.
+
+Let me reconsider: what's the MINIMAL change to make this a clean "Word document"?
+
+Actually, I think the key realization is this: the document currently has TWO top-level sections that contain overlapping/duplicate content, and the "背景参考资料" region has broken hierarchy.
+
+Let me reconsider the ACTUAL intent of the document by looking at it holistically:
+
+The document is an OUTLINE (大纲) for a novel 《绿潮》. It's organized as:
+1. 叙事框架 — the story structure (volumes 1-3 story beats)
+2. 背景参考资料 — background reference (the world's backstory as narrative)
+3. 世界设定声明 — world setting statement
+4. 卷一：基石设定层 — foundation settings (formal)
+5. 卷二：核心人物群像 — characters (formal)
+6. 卷三：势力与格局层 — factions (formal)
+7. 卷四：叙事工具箱层 — narrative toolbox (formal)
+
+The "背景参考资料" section is a narrative appendix. It should probably be a single ## section with ### subsections, OR the narrative content should be broken into multiple ## sections.
+
+Hmm. Actually, looking at the current state, I think the "背景参考资料" heading was meant to cover ONLY the first part (四亿年前 + 方岫岩 legacy + military), and then "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" were meant to be SEPARATE top-level ## sections (they're distinct concepts).
+
+But then the 六大势力/圣萌会/巨树/终局/结局 narrative content was left WITHOUT headings, so it got orphaned under the last ## heading (菌膜外套与共存补丁的关系).
+
+So the fix might be:
+- Keep "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" as ## (they're fine as top-level).
+- Add ## headings to the orphaned narrative content.
+
+OR:
+
+- Make everything a sub-section of 背景参考资料.
+
+I think I need to look at this more holistically and also consider what would make the document cleanest as a "Word document".
+
+Actually, let me step back and think about the RISK here. I'm about to make edits to a 74841-char document. I need to be precise and not break anything. The key constraint is "不要缩减内容" (don't reduce content), so my edits should only:
+1. Fix heading levels (add/remove # markers).
+2. Delete confirmed exact duplicates.
+
+Let me now identify the EXACT edits needed with high confidence.
+
+Let me carefully re-read the full text to find ALL duplicates and heading issues. Let me list them:
+
+**Duplicate 1: "数据板的局限" full section**
+- Copy 1: un-headered, with plain-text label "数据板的局限", at the end of 背景参考资料 (before "## 数据板的局限").
+- Copy 2: "## 数据板的局限" heading + content.
+
+The content is IDENTICAL (I can verify with editor.locate).
+
+**Duplicate 2: "菌膜外套" content in 背景参考资料 vs 卷一 7.8**
+- 背景参考资料 "## 菌膜外套：有限资源的临时通行方案" (17356-18104)
+- 卷一 "#### 7.8 菌膜外套：有限资源的临时通行方案" (48127-48816)
+
+Need to check if identical.
+
+**Duplicate 3: "菌膜外套与共存补丁的关系" content in 背景参考资料 vs 卷一 7.9**
+- 背景参考资料 "## 菌膜外套与共存补丁的关系" (18104-22619) — but this section's 4499 chars include MORE than just the 菌膜外套与共存补丁 content (it includes the orphaned narrative).
+- 卷一 "#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系" (48816-49296)
+
+Need to check.
+
+Actually, this is getting quite complex. Given the plan and the risk, let me focus on the CLEAREST, most defensible changes first, and verify duplicates precisely.
+
+Let me read the actual content of the problematic regions to get exact text. Let me use editor.read_range for:
+1. 16801-18104 (数据板的局限 + 菌膜外套)
+2. 18104-22619 (菌膜外套与共存补丁的关系 + orphaned narrative)
+3. 48127-49296 (卷一 7.8 + 7.9)
+
+Actually, since I have the full text already, let me just carefully use editor.locate to confirm duplicates, then make precise edits.
+
+Wait, but I should reconsider whether I even have the full text correctly. The "当前焦点全文" in the workspace context appears to be the full document. But it might have been slightly truncated in the middle. Let me verify by reading specific ranges.
+
+Actually, I notice the full text in the workspace context seems complete (it goes from # 《绿潮》大纲总纲 through 卷四 end). But the middle "背景参考资料" region — I need to check if the "灾前军事基准线" section's tables are complete.
+
+Let me plan my reads. I'll read the key regions to get exact text.
+
+Let me read:
+1. editor.read_range for 背景参考资料 region around 16801-22619 to see exact duplicate boundaries.
+
+Actually, I'll use editor.document_map first to refresh, then read ranges. But I already have the structure map. Let me just read the specific ranges I need.
+
+Let me read 10230-22619 (the whole 背景参考资料 + 数据板 + 菌膜外套 + 菌膜外套与共存补丁 region). That's about 12389 chars, within the 12000 limit... just over. Let me read in two parts.
+
+Actually, let me read:
+1. 10230-18104 (背景参考资料 + 数据板的局限 + 菌膜外套) = 7874 chars
+2. 18104-22619 (菌膜外套与共存补丁的关系 + orphaned narrative) = 4515 chars
+
+And separately:
+3. 48127-49296 (卷一 7.8 + 7.9) = 1169 chars
+
+Let me do these reads.
+
+Actually, I realize I should first understand the exact structure better. Let me also check: is the "数据板的局限" heading in the structure map actually at heading-2 level? Yes: [heading-2-z4sxm8] 数据板的局限 (16801-17356).
+
+And "菌膜外套：有限资源的临时通行方案" = heading-2-10q4nra (17356-18104).
+And "菌膜外套与共存补丁的关系" = heading-2-28do6r (18104-22619).
+
+OK. Let me read the exact content now.
+
+Let me proceed with reading the key regions.
+
+Actually, given the complexity and risk, let me be very systematic. I'll:
+
+1. Read the problematic regions to get exact text.
+2. Confirm duplicates with editor.locate.
+3. Formulate a precise edit plan.
+4. Execute edits with editor.write.
+
+Let me start reading.

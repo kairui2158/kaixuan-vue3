@@ -139,6 +139,13 @@ export interface CallAiParams {
     editTaskWorkflow?: boolean
     /** Single-source execution plan used for steering and tool policy. */
     executionPlan?: LongDocumentExecutionPlan
+    /**
+     * Shared physical-request budget for orchestrator and in-call tool
+     * iterations. The orchestrator prepays one request per outer round; an
+     * in-call tool iteration must pass `inCall: true` so the additional
+     * provider call is charged against the same task-level limit.
+     */
+    consumePhysicalRequestBudget?: (input?: { inCall?: boolean }) => boolean
     onCompatibilityMode?: (reason: string) => void
     onConvergenceStart?: () => void
     onConvergencePseudoCall?: (event: { text: string; reason: string }) => void
@@ -171,6 +178,7 @@ export interface CallAiParams {
       policy: 'read' | 'write'
       iteration: number
       input: unknown
+      argumentsRaw?: string
       result: ToolResult
       durationMs: number
       protocolVersion?: number
@@ -263,10 +271,10 @@ export interface CallAiResult {
   /** True when the provider response carried no usage block. */
   usageUnavailable?: boolean
   finishReason?: string
-  /** Why a tool-loop convergence round was requested; distinguishes terminal write failures from discussion convergence. */
+  /** Why a tool-loop convergence/checkpoint result was produced; distinguishes terminal write failures and budget stops from discussion convergence. */
   convergenceReason?: string
   toolCalls?: NormalizedToolCall[]
-  toolResults?: Array<{ call: { id?: string; name: string; input?: unknown }; result: ToolResult }>
+  toolResults?: Array<{ call: { id?: string; name: string; input?: unknown; argumentsRaw?: string }; result: ToolResult }>
   /** Compact cross-turn audit for the next request's system context. */
   toolAudit?: ReturnType<typeof buildCrossTurnToolAudit>
   /** Initial request plus only the messages appended in later native-tool rounds. */
@@ -275,6 +283,8 @@ export interface CallAiResult {
   compatibilityMode?: 'json-protocol'
   /** Present when a compatibility-mode response executed editor.write through the unified tool. */
   compatibilityWrite?: boolean
+  /** Marks locally composed terminal text so traces can distinguish it from model prose. */
+  textOrigin?: 'application' | 'model'
   /** Present when a provider with declared native-tool support rejected tools at request time. */
   toolsDowngraded?: 'json-protocol'
   /** Pre-request input context budget decision for the initial physical call. */
@@ -1930,12 +1940,21 @@ export function createAiService(
 ): AiService {
   const log = logger || null
   const compatibilityWriteGuards = new Map<string, RepeatedWriteGuard>()
+  let sharedPhysicalRequestBudget: (() => boolean) | undefined
 
   async function _rawCall(
     provider: ProviderLike,
     params: CallAiParams,
     timeoutMs: number | null
   ): Promise<{ text: string; reasoning: string; usage?: any; finishReason?: string; raw?: any; maxTokens?: number | null; modelCapability?: ModelCapability }> {
+    if (sharedPhysicalRequestBudget && !sharedPhysicalRequestBudget()) {
+      throw new AiServiceErrorImpl({
+        kind: 'network',
+        message: '任务级物理请求预算已耗尽，已阻止本次供应商外呼',
+        providerId: provider.id,
+        purpose: params.purpose,
+      })
+    }
     const model = resolveModel(provider, params.model)
     const providerType = normalizeProviderType(provider.providerType)
     const headers = buildProviderHeaders(providerType, provider.apiKey)
@@ -1952,8 +1971,7 @@ export function createAiService(
       : undefined
     const requestParams = params
     const wantStream = requestParams.stream ?? (
-      !params.tools?.length &&
-      (params.purpose === 'generate' || params.purpose === 'rewrite')
+      params.purpose === 'generate' || params.purpose === 'rewrite'
     )
     const url = buildProviderChatUrl({
       baseUrl: provider.baseUrl,
@@ -2076,8 +2094,14 @@ export function createAiService(
    */
   async function callAi(params: CallAiParams): Promise<CallAiResult> {
     const prepared = resolveFinalDraftToolSurface(params)
-    if (!prepared.tools || prepared.tools.length === 0) return callAiWithoutTools(prepared)
-    return callAiWithToolFallback(prepared)
+    const previousSharedPhysicalRequestBudget = sharedPhysicalRequestBudget
+    sharedPhysicalRequestBudget = prepared.toolPolicy?.consumePhysicalRequestBudget
+    try {
+      if (!prepared.tools || prepared.tools.length === 0) return await callAiWithoutTools(prepared)
+      return await callAiWithToolFallback(prepared)
+    } finally {
+      sharedPhysicalRequestBudget = previousSharedPhysicalRequestBudget
+    }
   }
 
   async function callAiWithTools(params: CallAiParams): Promise<CallAiResult> {
@@ -2092,11 +2116,12 @@ export function createAiService(
       messages: params.messages,
       maxOutputTokens: modelCapability.maxOutputTokens,
     })
-        const loopScenario = params.toolPolicy?.scenario || (compatibleMode ? 'compatibility-json' : 'direct')
-        const maxIterations = normalizeToolIterations(
-          loopScenario,
-          params.toolPolicy?.maxToolIterations,
-        )
+    const loopScenario = params.toolPolicy?.scenario || (compatibleMode ? 'compatibility-json' : 'direct')
+    const maxIterations = normalizeToolIterations(
+      loopScenario,
+      params.toolPolicy?.maxToolIterations,
+    )
+    const sharedPhysicalBudget = params.toolPolicy?.consumePhysicalRequestBudget
     let messages: CallAiParams['messages'] = params.messages.map(message => ({ ...message }))
     const allToolCalls: NormalizedToolCall[] = []
     const allToolResults: Array<{ call: NormalizedToolCall; result: ToolResult }> = []
@@ -2183,6 +2208,26 @@ export function createAiService(
     }
 
     for (let iteration = 1; iteration <= maxIterations; iteration++) {
+      if (iteration > 1 && sharedPhysicalBudget && !sharedPhysicalBudget({ inCall: true })) {
+        params.toolPolicy?.onToolWarning?.(
+          `任务级物理请求预算已耗尽，已停止第 ${iteration} 轮工具迭代并转入终局收口`,
+        )
+        return {
+          text: '本轮未完整执行写入计划：任务级物理请求预算已耗尽。已执行的写入与工具结果已保存到运行记录，请根据剩余批次继续下一轮。',
+          reasoning: '',
+          usage: lastResult?.usage,
+          usageUnavailable: !lastResult?.usage,
+          providerId,
+          model,
+          durationMs: Date.now() - startTime,
+          toolCalls: allToolCalls,
+          toolResults: allToolResults,
+          toolRequestDeltas,
+          toolAudit: lastToolAudit,
+          finishReason: 'physical_request_budget_exhausted',
+          convergenceReason: 'shared physical request budget exhausted during tool iteration',
+        }
+      }
       const response = await callAiWithoutTools({
         ...params,
         messages,
@@ -2203,6 +2248,15 @@ export function createAiService(
 
       const calls = extractProviderToolCallsFromResponse(providerType, response)
       if (calls.length === 0) {
+        if (hasProviderSoftQuotaError(response.text || '')) {
+          throwProviderSoftError(
+            { message: response.text },
+            provider,
+            params.purpose,
+            response.usage,
+            false,
+          )
+        }
         lastToolAudit = buildCrossTurnToolAudit({
           toolCalls: allToolCalls,
           toolResults: allToolResults,
@@ -2259,12 +2313,33 @@ export function createAiService(
             content: [
               '执行计划尚未完成，禁止把问题或计划当作最终回复。',
               buildLongDocumentWriteDirective(executionPlan),
-              `当前已成功写入 ${successfulWriteCount} 批（可信覆盖 ${coverageSummary!.trustedWriteCount} 批），计划共 ${executionPlan!.segments.length} 批，未覆盖批次：${coverageSummary!.missingSegments.slice(0, 12).join(' | ') || '无'}。必须继续调用工具执行剩余批次；只有全部批次完成或遇到终态失败后，才能输出给用户看的最终总结。`,
+            `当前事实：已成功写入 ${successfulWriteCount} 批（可信覆盖 ${coverageSummary!.trustedWriteCount} 批），计划共 ${executionPlan!.segments.length} 批，未覆盖批次：${coverageSummary!.missingSegments.slice(0, 12).join(' | ') || '无'}。本请求仍携带原工具面；应用只按写入覆盖结果校验，不依据回复措辞判定完成。`,
             ].join('\n'),
           }
           messages = [...messages, continuationSystem]
           toolRequestDeltas.push({ ...continuationSystem })
           continue
+        }
+        if (planRequiresMoreWrites && writeContinuationSteeringSent) {
+          params.toolPolicy?.onToolWarning?.(
+            `模型已输出终局总结，但写入覆盖仍未完整（可信覆盖 ${coverageSummary!.trustedWriteCount}/${successfulWriteCount} 批，未覆盖批次：${coverageSummary!.missingSegments.slice(0, 12).join(' | ') || '无'}）；已停止静默续发请求`,
+          )
+          return {
+            text: `本轮未完整执行写入计划。模型已输出终局总结，但覆盖校验仍未确认全部批次完成；未覆盖批次：${coverageSummary!.missingSegments.join(' | ') || '无'}。已执行的写入与工具结果已保存到运行记录，请继续剩余批次。`,
+            textOrigin: 'application' as const,
+            reasoning: '',
+            usage: response.usage,
+            usageUnavailable: response.usageUnavailable,
+            providerId,
+            model,
+            durationMs: Date.now() - startTime,
+            toolCalls: allToolCalls,
+            toolResults: allToolResults,
+            toolRequestDeltas,
+            toolAudit: lastToolAudit,
+            finishReason: 'incomplete_write_coverage_checkpoint',
+            convergenceReason: 'model emitted a final summary before long-document coverage was complete',
+          }
         }
         return {
           ...response,
@@ -2324,6 +2399,47 @@ export function createAiService(
       for (const call of calls) {
         allToolCalls.push(call)
         const tool = params.tools?.find(item => item.name === call.name)
+        if (call.argumentsError) {
+          const rawSummary = (call.argumentsRaw || '')
+            .slice(0, 300)
+            .replace(/\s+/g, ' ')
+          const result: ToolResult = {
+            ok: false,
+            error: {
+              code: call.argumentsError.code,
+              message: `${call.argumentsError.message}${rawSummary ? `原始参数前 300 字符：${rawSummary}` : ''}`,
+              retryable: true,
+            },
+          }
+          toolResults.push({ call, result })
+          allToolResults.push({ call, result })
+          params.toolPolicy?.onToolStart?.({ toolName: call.name, policy: tool?.policy || 'read', iteration, input: call.input })
+          params.toolPolicy?.onToolCall?.({
+            toolName: call.name,
+            toolCallId: call.id,
+            policy: tool?.policy || 'read',
+            iteration,
+            input: call.input,
+            argumentsRaw: call.argumentsRaw,
+            result,
+            durationMs: 0,
+            toolCapability: 'native_tools',
+            rejectionCategory: classifyToolRejection(result),
+          })
+          logToolRequest(log, {
+            purpose: params.purpose,
+            providerId,
+            model,
+            toolName: call.name,
+            iteration,
+            input: call.input,
+            result,
+            durationMs: 0,
+            toolCapability: 'native_tools',
+            rejectionCategory: classifyToolRejection(result),
+          })
+          continue
+        }
         const protocolResolution = tool?.name === 'editor.write'
           ? resolveEditorToolProtocolVersion(call.input)
           : null
@@ -2346,6 +2462,7 @@ export function createAiService(
             policy: 'read',
             iteration,
             input: call.input,
+            argumentsRaw: call.argumentsRaw,
             result,
             durationMs: 0,
             toolCapability: 'native_tools',
@@ -2385,6 +2502,7 @@ export function createAiService(
             policy: tool.policy,
             iteration,
             input: call.input,
+            argumentsRaw: call.argumentsRaw,
             result: permissionError,
             durationMs: 0,
             protocolVersion: protocolResolution?.version,
@@ -2425,6 +2543,7 @@ export function createAiService(
             policy: tool.policy,
             iteration,
             input: call.input,
+            argumentsRaw: call.argumentsRaw,
             result,
             durationMs: 0,
             protocolVersion: protocolResolution?.version,
@@ -2466,6 +2585,7 @@ export function createAiService(
             policy: tool.policy,
             iteration,
             input: call.input,
+            argumentsRaw: call.argumentsRaw,
             result: invalidInput,
             durationMs: 0,
             protocolVersion: protocolResolution?.version,
@@ -2508,6 +2628,7 @@ export function createAiService(
           policy: tool.policy,
           iteration,
           input: call.input,
+          argumentsRaw: call.argumentsRaw,
           result,
           durationMs,
           protocolVersion: protocolResolution?.version,
@@ -2777,6 +2898,7 @@ export function createAiService(
     params.toolPolicy?.onToolWarning?.('本轮未完成写入；返回本地拼接的工具结果摘要')
     return {
       text: `本轮未完成写入，API 未返回可用正文（${reason}）。工具过程与结果已保存到运行记录。建议缩小问题范围后重试，或分轮继续处理。`,
+      textOrigin: 'application' as const,
       reasoning: '',
       usage: lastResult?.usage,
       usageUnavailable: !lastResult?.usage,
@@ -2800,6 +2922,19 @@ export function createAiService(
     try {
       return await callAiWithTools(params)
     } catch (error: any) {
+      if (error?.message?.includes('任务级物理请求预算已耗尽')) {
+        return {
+          text: '本轮未完整执行写入计划：任务级物理请求预算已耗尽。已执行的写入与工具结果已保存到运行记录，请根据剩余批次继续下一轮。',
+          textOrigin: 'application' as const,
+          reasoning: '',
+          providerId: error?.providerId,
+          durationMs: 0,
+          toolCalls: [],
+          toolResults: [],
+          finishReason: 'physical_request_budget_exhausted',
+          convergenceReason: 'shared physical request budget exhausted before provider dispatch',
+        }
+      }
       const isClientError = error?.statusCode === 400 || error?.statusCode === 422
       const requestedTools = Boolean(params.tools?.length)
       const toolsRejected = requestedTools && (Boolean(error?.providerErrorSummary?.includes('tools unsupported')) || error?.message?.includes('tools unsupported'))
@@ -2905,11 +3040,9 @@ export function createAiService(
     const requestedTools = Boolean(params.tools?.length)
     const { provider, providerId } = resolveProvider(providerStore, params.purpose, params.providerId)
     const providerType = normalizeProviderType(provider.providerType)
-    // Default stream: true for generate/rewrite (long text), false for others (short/JSON).
-    // Native tool exchanges use non-streaming JSON because some compatible providers
-    // ignore stream=true and return a plain JSON tool_calls body.
-    const defaultStream = !requestedTools &&
-      (params.purpose === 'generate' || params.purpose === 'rewrite')
+    // Default stream: true for generate/rewrite, including tool rounds. The native
+    // tool exchange has a stream guard that still accepts plain-JSON tool_calls bodies.
+    const defaultStream = params.purpose === 'generate' || params.purpose === 'rewrite'
     const wantStream = params.stream ?? defaultStream
     const timeoutMs = resolveRequestTimeout(params.timeoutMs, provider, wantStream)
     const doRetry = params.retry !== false

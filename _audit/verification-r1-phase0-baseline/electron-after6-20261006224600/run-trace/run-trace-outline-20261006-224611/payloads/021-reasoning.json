@@ -1,0 +1,17 @@
+The duplicate content spans from 16290 to 16853 (including "数据板的局限\n" heading text at start and ends before "## 数据板的局限" heading at 16856). Let me read the exact boundary to craft a precise delete.
+
+The duplicate block starts with "数据板的局限\n数据板不是百宝箱..." and ends with "数据板提供的是火种，不是火炬。"
+
+Then there's "## 数据板的局限" at 16856.
+
+So I need to delete from "数据板的局限\n数据板不是百宝箱" (16290) through "不是火炬。" (16853), but keep the "## 数据板的局限" heading.
+
+Wait, actually the duplicate block contains a plain-text "数据板的局限" heading (no ##). So I should delete the whole block including that plain heading, up to just before "## 数据板的局限".
+
+Let me use delete operation with target being the full duplicate block. But delete operation - what's the target format? The editor.write delete operation likely requires "target" (the fragment to delete) and "reason". Let me check the schema: operation "delete" — target is "原文片段". Actually looking at command schema, only "move" mentions destination/destinationPosition. For delete, there's "target" field presumably for the fragment to delete.
+
+Let me craft delete with target being the exact text. The fragment is long. I'll use the full block text.
+
+Actually, let me reconsider. The duplicate block is 563 chars. I need the exact text. From locate result, start=16290, end=16853.
+
+Let me read that range precisely to get exact text.

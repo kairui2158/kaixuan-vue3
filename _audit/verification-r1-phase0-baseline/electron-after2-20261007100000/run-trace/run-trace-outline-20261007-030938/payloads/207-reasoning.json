@@ -1,0 +1,45 @@
+Let me analyze what's left in the three-phase plan:
+
+1. **structure-repair** - Fixing misplaced headings and adding missing titles. Already done in batch B (added H3 titles for the three untitled sections in background reference).
+
+2. **structure-plan** - Removing duplicates. Already done in batch A (removed duplicate 7.8 菌膜外套 section from 卷一, renumbered 7.9→7.8).
+
+3. **normalize-segment-1** - Standardizing punctuation, whitespace, numbering, heading levels across the full document. Partially done in batch B.
+
+Now I need to complete normalize-segment-1. Let me check what needs to be done:
+
+- The search for `:` (half-width colons) found 3 results. The ones at 52618 and 52630 are within `18:2` and `18:3` which are chemical formulas (fatty acid notation), so those should stay as half-width. The one at 41914 is in `11月19日3:14` which is a time notation - this is a borderline case but "3:14" is standard time notation even in Chinese text and could be argued either way.
+
+- The `内容块` search returned 0 results, meaning those empty paragraph markers seem to have been cleaned up already.
+
+- The `. ` (period-space) search found many results earlier - the half-width period followed by space in Chinese text. Let me check more systematically.
+
+Let me search for specific half-width punctuation in Chinese text that needs to be converted:
+- `,` (comma) - 0 results
+- `;` (semicolon) - 0 results  
+- `!` (exclamation) - 0 results
+- `?` (question mark) - 0 results
+- `.` (period) - many results
+
+The `.` search found English period usage. Let me look at the matches more carefully. Many of them are:
+- In table cells (GFM tables with `|` separators)
+- In chemical/mathematical notations
+- In proper nouns/abbreviations
+- In `§6.6` style references
+- Some may be Chinese text with half-width periods
+
+Let me search for `. ` (period followed by space) in Chinese text context to find the ones that need fixing.
+
+Actually, looking back at the earlier search results for `.` - most seem to be in valid contexts (tables, numbers, technical notations). But some earlier batch operations fixed `. ` (period+space after Chinese text). Let me do a more targeted search for half-width period within Chinese text contexts.
+
+Let me also think about what else needs to be done for the normalize phase. The document now has:
+- Proper heading structure
+- Removed duplicate content
+- Added missing headings in background reference section
+
+The remaining tasks for normalize-segment-1 would be:
+1. Fix any remaining half-width punctuation in Chinese text
+2. Ensure consistent line spacing between sections
+3. Verify heading numbering is consistent
+
+Let me search for cases where a Chinese character is followed by a half-width period:

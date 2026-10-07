@@ -45,6 +45,15 @@ const HEADING_MAX_CHARS = 80
 const MAX_PARAGRAPH_CHARS = 800
 const SUMMARY_HEAD_CHARS = 80
 
+function stableIdentitySuffix(text: string): string {
+  let hash = 0x811c9dc5
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index)
+    hash = Math.imul(hash, 0x01000193) >>> 0
+  }
+  return hash.toString(36)
+}
+
 function normalizeChineseNumber(value: string): string {
   const trimmed = value.replace(/\s+/g, '')
   if (/^[0-9]+$/.test(trimmed)) return String(Number(trimmed))
@@ -122,17 +131,20 @@ function hasDuplicateHeadings(candidates: HeadingCandidate[]): boolean {
 function buildHeadingTree(candidates: HeadingCandidate[], textLength: number): OutlineStructureNode[] {
   const roots: OutlineStructureNode[] = []
   const stack: Array<{ node: OutlineStructureNode; candidate: HeadingCandidate }> = []
-  let volumeSeq = 0
-  let chapterSeq = 0
-  let sectionSeq = 0
+  const occurrences = new Map<string, number>()
 
   const makeNode = (candidate: HeadingCandidate): OutlineStructureNode => {
-    if (candidate.kind === 'volume') volumeSeq += 1
-    if (candidate.kind === 'chapter') chapterSeq += 1
-    if (candidate.kind === 'section') sectionSeq += 1
-    const seq = candidate.kind === 'volume' ? volumeSeq : candidate.kind === 'chapter' ? chapterSeq : candidate.kind === 'section' ? sectionSeq : candidate.start
+    const identityKey = `${candidate.kind}:${candidate.normalizedId}`
+    const occurrence = (occurrences.get(identityKey) ?? 0) + 1
+    occurrences.set(identityKey, occurrence)
+    // Node ids are semantic identities, not positions. Numbered volume/chapter/
+    // section ids stay stable across insertion, deletion, and reorder; markdown
+    // headings and fallback blocks use content hashes with occurrence suffixes.
+    const baseId = candidate.kind === 'heading'
+      ? `heading-${candidate.level}-${stableIdentitySuffix(candidate.title)}`
+      : `${candidate.kind}-${candidate.normalizedId.slice(candidate.kind.length + 1)}`
     return {
-      id: `${candidate.kind}-${seq}`,
+      id: occurrence > 1 ? `${baseId}~${occurrence}` : baseId,
       title: candidate.title,
       kind: candidate.kind,
       level: candidate.level,
@@ -201,18 +213,25 @@ function fallbackParagraphNodes(text: string): OutlineStructureNode[] {
   blocks[0].start = 0
   for (let i = 0; i < blocks.length - 1; i += 1) blocks[i].end = blocks[i + 1].start
   blocks[blocks.length - 1].end = text.length
-  return blocks.map((block, index) => ({
-    id: `paragraph-${index + 1}`,
-    title: `段落块 ${index + 1}`,
-    kind: 'paragraph' as const,
-    level: 1,
-    start: block.start,
-    contentStart: block.start,
-    end: block.end,
-    charCount: block.end - block.start,
-    summaryHead: text.slice(block.start, Math.min(block.end, block.start + SUMMARY_HEAD_CHARS)).trim(),
-    children: []
-  }))
+  const occurrences = new Map<string, number>()
+  return blocks.map((block, index) => {
+    const body = text.slice(block.start, block.end)
+    const identity = stableIdentitySuffix(body)
+    const occurrence = (occurrences.get(identity) ?? 0) + 1
+    occurrences.set(identity, occurrence)
+    return {
+      id: occurrence > 1 ? `paragraph-${identity}~${occurrence}` : `paragraph-${identity}`,
+      title: `段落块 ${index + 1}`,
+      kind: 'paragraph' as const,
+      level: 1,
+      start: block.start,
+      contentStart: block.start,
+      end: block.end,
+      charCount: block.end - block.start,
+      summaryHead: text.slice(block.start, Math.min(block.end, block.start + SUMMARY_HEAD_CHARS)).trim(),
+      children: []
+    }
+  })
 }
 
 function decorate(nodes: OutlineStructureNode[], text: string): void {
@@ -246,10 +265,15 @@ export function parseOutlineStructure(text: string): OutlineStructure {
   const candidates = buildHeadingCandidates(source)
   const useFallback = candidates.length === 0 || hasDuplicateHeadings(candidates)
   let paragraphSeq = 0
+  const paragraphOccurrences = new Map<string, number>()
   const makeParagraph = (start: number, end: number): OutlineStructureNode => {
     paragraphSeq += 1
+    const body = source.slice(start, end)
+    const identity = stableIdentitySuffix(body)
+    const occurrence = (paragraphOccurrences.get(identity) ?? 0) + 1
+    paragraphOccurrences.set(identity, occurrence)
     return {
-      id: `paragraph-${paragraphSeq}`,
+      id: occurrence > 1 ? `paragraph-${identity}~${occurrence}` : `paragraph-${identity}`,
       title: `内容块 ${paragraphSeq}`,
       kind: 'paragraph',
       level: 1,

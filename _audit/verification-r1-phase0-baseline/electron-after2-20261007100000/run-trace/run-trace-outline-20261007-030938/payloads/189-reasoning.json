@@ -1,0 +1,1260 @@
+Let me analyze the situation. The user said "符合我的要求，分叉一允许去重。不用出预览，直接写入" - meaning "meets my requirements, branch one allows deduplication. Don't show preview, write directly."
+
+So I need to execute the write. The task is to restructure the outline as a Word document. There are duplicate sections that need deduplication.
+
+Let me understand the duplicates:
+
+1. "菌膜外套：有限资源的临时通行方案" appears twice:
+   - heading-3-10q4nra (in 背景参考资料, H3, start 16861-17610) — this one has MORE content (includes "这里需要强调的是：..." and "方岫岩没有留下任何关于菌膜外套的设计方案或配方。")
+   - heading-4-896l1n (7.8, in 卷一 七、变异体主动攻击人类核心机制, H4, start 47539-48228) — this one has LESS content
+
+2. "菌膜外套与共存补丁的关系" appears twice:
+   - heading-3-28do6r (in 背景参考资料, H3, start 17610-22128) — this includes additional content about 六大势力 and 圣萌会/马格努斯 (the big background content)
+   - heading-4-1au19n4 (7.9 与终局的衔接, H4, start 48228-48708) — has 终局之后 content
+
+Wait, let me think more carefully. These are actually different in important ways. Let me compare.
+
+Actually the heading-3-28do6r "菌膜外套与共存补丁的关系" contains: the 菌膜外套 vs 共存补丁 comparison, THEN "在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮..." the 六大势力 summary, and 圣萌会/马格努斯 content. This is the "背景参考资料" section that includes the big world summary.
+
+Hmm, this is tricky. The content in heading-3-28do6r spans from 17610 to 22128 (4501 chars) and includes:
+1. 菌膜外套与共存补丁的关系 (short comparison)
+2. 六大势力 summary (远中大陆六大势力)
+3. 圣萌会/马格努斯 origin story
+
+And heading-4-1au19n4 "7.9 与终局的衔接：菌膜外套与共存补丁的关系" (48228-48708) contains:
+1. 菌膜外套 vs 共存补丁 comparison
+2. 终局之后 content
+
+These are not exact duplicates. The "菌膜外套与共存补丁的关系" paragraph appears in both, but each has additional unique content.
+
+Wait, let me re-read the user's instruction. The user said "符合我的要求，分叉一允许去重" - "meets my requirements, branch one allows deduplication."
+
+So the user is referring to a previous discussion (not visible to me fully) about "分叉一" (branch one). It seems there was a discussion about how to handle the duplicate sections. The user is now confirming: "分叉一允许去重" = branch one allows deduplication.
+
+Given the context of the whole conversation, I think the task is: restructure the outline as a Word document, and deduplication is allowed.
+
+Let me look at what the actual duplicates are more carefully.
+
+The document has these "菌膜外套" related sections:
+1. 背景参考资料 section (10280-22128):
+   - heading-3-19902vk 灾前军事基准线与菌毯的不可根除性 (12171-16305)
+   - heading-3-z4sxm8 数据板的局限 (16305-16861)
+   - heading-3-10q4nra 菌膜外套：有限资源的临时通行方案 (16861-17610)
+   - heading-3-28do6r 菌膜外套与共存补丁的关系 (17610-22128)
+
+2. 卷一 section (22128-55634):
+   - 七、变异体主动攻击人类核心机制 (43840-48708):
+     - 7.8 菌膜外套：有限资源的临时通行方案 (47539-48228)
+     - 7.9 与终局的衔接：菌膜外套与共存补丁的关系 (48228-48708)
+
+So there ARE duplicates. The question is which to keep and which to delete.
+
+The user said "分叉一允许去重" - branch one allows dedup. This likely refers to a plan where "branch one" = keep the 背景参考资料 version (more complete) and delete the 卷一 duplicates (7.8 and 7.9), OR vice versa.
+
+Actually, wait. Let me think about what "分叉一" means. It's likely from a previous conversation where I (the assistant) presented options/branches for how to handle the restructuring. "分叉一" (branch one) might mean a specific approach.
+
+Given I don't have the full previous conversation, I need to make a reasonable decision based on the current state and the system instructions.
+
+The system prompt says: "符合我的要求，分叉一允许去重。不用出预览，直接写入" - this is the current user request. It's telling me that the previous approach "符合我的要求" (meets requirements), "分叉一允许去重" (branch one allows dedup), "不用出预览，直接写入" (no preview, write directly).
+
+So I need to write directly.
+
+The key question: what exactly should I deduplicate?
+
+Looking at the duplicates:
+
+**Duplicate 1: 菌膜外套：有限资源的临时通行方案**
+- 背景参考资料 H3 version (16861-17610): FULL version with "这里需要强调的是：..." and "方岫岩没有留下任何关于菌膜外套的设计方案或配方。"
+- 卷一 7.8 H4 version (47539-48228): SHORT version (missing the "这里需要强调的是" sentence)
+
+These have near-identical content, but the 背景 version is more complete. 
+
+**Duplicate 2: 菌膜外套与共存补丁的关系**
+- 背景参考资料 H3 version (17610-22128): has the comparison + 六大势力 + 圣萌会 origin
+- 卷一 7.9 H4 version (48228-48708): has the comparison + 终局之后 content
+
+These are DIFFERENT - the comparison paragraph is duplicated, but the surrounding content is unique.
+
+Hmm wait, actually let me reconsider. The heading-3-28do6r title is "菌膜外套与共存补丁的关系" but it contains a LOT of content that isn't about 菌膜外套与共存补丁 - it contains the 六大势力 summary and 圣萌会 origin story. This looks like the "背景参考资料" section where multiple world-building summaries got lumped together.
+
+This is getting complex. Let me step back and think about what "分叉一" likely meant.
+
+Actually, I think I'm overcomplicating this. Let me re-read the system's strong constraints:
+
+The system says I must:
+1. First read structure (done)
+2. Use move to relocate mispositioned titles/paragraphs, use insert to add titles, use replace_match/rewrite to fix heading levels
+3. Then read-only confirm duplicates and submit unique target deletion commands
+4. Finally submit replace_match/rewrite for punctuation, whitespace, numbering, heading levels
+
+The system also says:
+- "删除重复段落后必须校验有效正文未丢失" - after deleting duplicate paragraphs, must verify valid content isn't lost
+- "禁止把未确认内容当作重复项删除" - don't delete unconfirmed content as duplicate
+- "禁止丢弃有效正文内容" - don't discard valid content
+
+And the current user says "分叉一允许去重" - branch one allows dedup.
+
+Given the ambiguity, and the fact that I need to write NOW (the system is warning me I've been reading too much), let me focus on what's clearly the right action.
+
+Actually, let me reconsider the whole picture. The previous conversation (from the "上一轮工具审计") shows a lot of work was already done:
+- Removed half-width spaces (call_qqpg1bi74mt3zfrisfot4igw)
+- Compressed blank lines (call_sh0i51jxg0gsxq50clsnfbmx, call_ljf5uk25fbo3zc2vy4qupmd5)
+- Various formatting
+
+So the "重构" (restructure) work has been partially done. The current task seems to be about finishing the deduplication and heading level normalization.
+
+The key remaining issue I can see from the document_map:
+
+1. The heading levels in 背景参考资料 are H3 (###), which is correct since 背景参考资料 is H2 (##).
+
+2. In 卷一, the section "七、变异体主动攻击人类核心机制" has 7.8 and 7.9 which duplicate content from 背景参考资料.
+
+Wait, but actually looking more carefully - the "数据板的局限" also appears to be duplicated? Let me check. In the document map, "数据板的局限" is at heading-3-z4sxm8 (16305-16861) in 背景参考资料. Is there another "数据板的局限" elsewhere?
+
+From the 叙事框架 content at the top, I saw "### 数据板的局限" was listed in the 背景参考资料. And in the outline structure map provided in the system prompt (the initial context), the structure showed:
+
+背景参考资料 (10280-22128):
+- 内容块 3 (10290-12171)
+- 灾前军事基准线与菌毯的不可根除性 (12171-16305)
+- 数据板的局限 (16305-16861)
+- 菌膜外套：有限资源的临时通行方案 (16861-17610)
+- 菌膜外套与共存补丁的关系 (17610-22128)
+
+So the 背景参考资料 already has proper structure with 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 as H3.
+
+But wait, in the original document (from the "当前焦点全文" in the system prompt), I can see the structure was:
+
+## 背景参考资料
+四亿年前... (content block)
+### 灾前军事基准线与菌毯的不可根除性
+...
+### 数据板的局限
+...
+### 菌膜外套：有限资源的临时通行方案
+...
+### 菌膜外套与共存补丁的关系
+...
+(六大势力 summary)
+(圣萌会 origin)
+
+And then in 卷一:
+### 七、变异体主动攻击人类核心机制
+...
+#### 7.8 菌膜外套：有限资源的临时通行方案
+...
+#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系
+...
+
+So the "重构" work has already been done to the 背景参考资料 section (it now has proper H3 titles). The remaining duplicates are:
+- 7.8 (duplicate of 菌膜外套 content in 背景)
+- 7.9 (duplicate of 菌膜外套与共存补丁 comparison in 背景)
+
+Actually, wait. Let me reconsider. The 7.8 and 7.9 sections in 卷一 (七、变异体主动攻击人类核心机制) are actually part of the logical structure there:
+- 7.7 唯一例外：菌膜装甲的原理
+- 7.8 菌膜外套：有限资源的临时通行方案
+- 7.9 与终局的衔接：菌膜外套与共存补丁的关系
+
+These are the "cross-reference" sections that logically belong to chapter 七 (变异体主动攻击人类核心机制). They explain how 菌膜外套 relates to the attack mechanism.
+
+The 背景参考资料 versions are the "reference" versions.
+
+So this is a case of content being intentionally duplicated in two places (reference + main setting).
+
+"分叉一允许去重" = branch one allows dedup. This suggests the user chose an option where deduplication is allowed, meaning I should remove one copy of the duplicates.
+
+Given the constraints, I need to decide: which copy to delete?
+
+Looking at the content:
+- 7.8 (卷一) is a SHORTER version of the 菌膜外套 content - it's missing "这里需要强调的是..." and "方岫岩没有留下任何关于菌膜外套的设计方案或配方。" So the 背景 version is more complete.
+
+- 7.9 (卷一) has "终局之后..." content that's NOT in the 背景 version. The 背景 version has 六大势力+圣萌会 content that's NOT in 7.9.
+
+So these are actually NOT pure duplicates. Each has unique content.
+
+This is getting really complicated. Let me focus on what I can clearly do without risking content loss.
+
+Actually, let me step back and reconsider the whole task. The user's original request (in the very first message) was "按照Word文档的形式重构大纲，不要缩减内容" - restructure the outline as a Word document, don't reduce content.
+
+The previous assistant already did a bunch of restructuring and reported completion. But then the user said "符合我的要求，分叉一允许去重。不用出预览，直接写入".
+
+This implies there was a follow-up where the assistant presented "分叉" (branches) options, and the user is now confirming: branch one (分叉一) allows dedup, write directly without preview.
+
+So "分叉一" is a specific plan that I (in a previous turn, now lost) proposed. The plan likely involved:
+- Restructuring headings
+- Deduplicating repeated content
+- Normalizing punctuation
+
+The user confirmed branch one allows dedup.
+
+Since I don't have the exact "分叉一" plan text, I need to reconstruct it from context and the system's execution plan hints.
+
+The system prompt's execution plan hints strongly suggest:
+1. Read structure, use move to relocate mispositioned titles/paragraphs, insert titles for untitled body, replace_match/rewrite for heading levels
+2. Confirm duplicates and delete
+3. Normalize punctuation, whitespace, numbering, heading levels
+
+The "分叉一" likely = "去重方案一" = delete the duplicate 菌膜外套 sections from 卷一 (7.8, 7.9), keeping the 背景参考资料 versions.
+
+But wait, 7.9 has "终局之后" content that's unique and important (it's the ending of chapter 7's argument about 共存补丁). Deleting it entirely would lose content.
+
+Hmm, actually let me look again. The 7.9 section content is:
+
+```
+#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系
+
+菌膜外套是"让系统暂时看不到我们"——在穿戴者身上覆盖一层伪装层，不改变菌丝网络对人类信号的认证逻辑。共存补丁是"让系统认识我们"——将人类物种标签写入菌丝网络的认证数据库，让系统在探询时查到人类注册记录后自动放行。
+
+菌膜外套能做的：让几百人/年短暂穿越菌毯，依赖岫岩城的工业生产，每次通行都有时间限制。共存补丁才能做到的：让全人类在任何时间、任何地点踩上菌毯都不触发排异反应，不依赖任何势力的技术或资源，永久有效。
+
+终局之后，人类踩在菌毯上，脚底角质层中的应答器返回合法的身份确认信号。信息素标签同步更新——汗液中开始携带微量的盖亚签名片段。双重交叉验证通过。
+
+从那一刻起，人类在菌毯的感知中不再是异常信号源。
+
+菌丝网络的排异反应不再将人类识别为需要排除的异己。全球生态从战争状态过渡到共存状态。菌毯不再调动变异体围杀人类。孢子云开始缓慢变薄——不是因为巨树主动停止释放，而是因为主树干生长停滞导致有机物过剩量下降，孢子排泄量自然回落。天空的绿色边缘，在十四年后，终于隐约透出一丝蓝。
+```
+
+The first two paragraphs duplicate the 背景 菌膜外套与共存补丁 relationship content. The "终局之后..." onwards is unique.
+
+And the 背景 version (heading-3-28do6r) has:
+```
+### 菌膜外套与共存补丁的关系
+
+菌膜外套是"让系统暂时看不到我们"——临时伪装，不改变菌丝网络对人类信号的认证逻辑。共存补丁是"让系统认识我们"——将人类物种标签写入菌丝网络的认证数据库，让系统在探询时查到人类注册记录后自动放行。
+
+菌膜外套能做的：让几百人/年短暂穿越菌毯，依赖岫岩城的工业生产，每次通行都有时间限制。共存补丁才能做到的：让全人类在任何时间、任何地点踩上菌毯都不触发排异反应，不依赖任何势力的技术或资源，永久有效。
+
+从"让系统暂时看不到我们"到"让系统认识我们"——这就是菌膜外套与共存补丁之间不可跨越的鸿沟。菌膜外套是权宜之计，共存补丁是终极解法。
+
+(然后是大裂谷走廊六大势力 summary)
+(圣萌会 origin)
+```
+
+So the 背景 version has the "从...到...鸿沟" sentence that 7.9 doesn't have.
+
+These are genuinely different sections serving different purposes. This is not a simple dedup.
+
+OK, I think I need to be more careful and pragmatic here. Let me reconsider.
+
+Actually, the most important realization: The system is strongly telling me to WRITE NOW. I've been reading too much. I need to submit editor.write.
+
+But I also need to make sure I do the RIGHT thing and don't lose content.
+
+Let me identify the CLEAR, SAFE deduplication actions:
+
+1. **7.8 菌膜外套** in 卷一 (47539-48228) is a near-verbatim duplicate of the 背景 菌膜外套 section (16861-17610), EXCEPT the 背景 version is MORE complete (has extra sentence). So I could:
+   - Option A: Delete 7.8 entirely (it's fully covered by 背景 version)
+   - Option B: Keep 7.8 as a cross-reference
+
+Actually, given "分叉一允许去重" and the fact that 7.8 is a strict subset of the 背景 version, deleting 7.8 is safe (no content loss, since 背景 has everything 7.8 has plus more).
+
+2. **7.9 与终局的衔接** in 卷一 (48228-48708) has:
+   - Two paragraphs duplicating 背景 菌膜外套与共存补丁 comparison
+   - Unique "终局之后" content
+
+So I can't just delete 7.9 - I'd lose the 终局之后 content. But the 终局之后 content... let me check if it appears elsewhere. 
+
+Looking at the 背景参考资料 section content in the "当前焦点全文" (from system prompt), the 终局 content (马格努斯 writing 补丁, 陈暮 writing 共存补丁, etc.) appears in the big 背景 narrative. But the specific "终局之后，人类踩在菌毯上，脚底角质层中的应答器返回合法的身份确认信号..." paragraph - is that unique to 7.9?
+
+Yes, I believe it's unique to 7.9. So I should keep the "终局之后" content.
+
+Hmm. This is getting too complicated for a safe automated edit. Let me reconsider what "分叉一" means.
+
+Actually, maybe I'm overanalyzing. Let me re-read the very first system message context which describes the document state, and the "上一轮工具审计" which shows what was already done.
+
+The "上一轮工具审计" shows the previous assistant was doing:
+1. Removing half-width spaces (call_qqpg1bi74mt3zfrisfot4igw - "火力轰炸。 菌毯在第一周内" → "火力轰炸。菌毯在第一周内")
+2. Compressing blank lines (call_sh0i51jxg0gsxq50clsnfbmx - "## 叙事框架\n\n\n### 故事核心" → "## 叙事框架\n\n### 故事核心")
+3. More blank line normalization (call_ljf5uk25fbo3zc2vy4qupmd5)
+
+And there were searches for "内容块", "粘贴" which returned no results, suggesting the assistant was checking for leftover "内容块" markers and "粘贴" text.
+
+So the previous assistant was in the MIDDLE of the restructuring. The current state (from document_map) shows the structure is now:
+- H1 《绿潮》大纲总纲
+  - H2 世界设定声明
+  - H2 叙事框架
+    - H3 故事核心
+    - H3 第一卷·觉醒与扎根
+    - H3 第二卷·连接与陷落
+    - H3 第三卷·远征与暗流
+  - H2 背景参考资料
+    - H3 灾前军事基准线与菌毯的不可根除性
+    - H3 数据板的局限
+    - H3 菌膜外套：有限资源的临时通行方案
+    - H3 菌膜外套与共存补丁的关系
+  - H2 卷一：基石设定层
+    - H3 一、书名定义与核心术语定调
+    - ...
+    - H3 七、变异体主动攻击人类核心机制
+      - H4 7.8 菌膜外套：有限资源的临时通行方案
+      - H4 7.9 与终局的衔接：菌膜外套与共存补丁的关系
+    - ...
+  - H2 卷二：核心人物群像
+  - H2 卷三：势力与格局层
+  - H2 卷四：叙事工具箱层
+
+So the structure is now mostly correct. The remaining issues are:
+1. Duplicate content (7.8, 7.9 in 卷一 vs 背景参考资料)
+2. Punctuation normalization (half-width to full-width)
+
+The user said "分叉一允许去重" - so dedup is allowed (branch one).
+
+Now, "不用出预览，直接写入" - no preview, write directly.
+
+So I should now EXECUTE the dedup + remaining normalization.
+
+For the dedup, the safest interpretation given the system's strict "禁止丢弃有效正文内容":
+
+Actually, let me reconsider. The system says "禁止丢弃有效正文内容" (don't discard valid body content) and "删除重复段落后必须校验有效正文未丢失" (after deleting duplicate paragraphs, must verify valid content isn't lost).
+
+For 7.8: It's a strict subset of 背景 菌膜外套. Deleting it loses NO unique content. ✓ Safe to delete.
+
+For 7.9: The first two paragraphs are duplicates, but "终局之后" onwards is unique. 
+
+Wait, actually, let me reconsider whether I should delete 7.9's duplicate paragraphs and keep the unique part, or delete the whole thing.
+
+Actually, the cleanest approach for "分叉一允许去重":
+- Delete 7.8 entirely (subset of 背景)
+- For 7.9, the comparison paragraphs are duplicated in 背景, but the 终局之后 content is unique to 7.9. 
+
+Hmm, but actually there's a subtlety: the 背景 version of "菌膜外套与共存补丁的关系" has the comparison, and 7.9 has comparison + 终局之后. If I delete the duplicate comparison from 7.9, I'd keep "终局之后" as a continuation.
+
+But this is getting into fine-grained editing that risks breaking the flow.
+
+Alternatively, maybe "分叉一" means: keep 卷一's 7.8/7.9 (they're part of the logical chapter), and delete the 背景 duplicates. But then I'd lose the extra "这里需要强调的是" sentence and the 六大势力/圣萌会 content.
+
+No wait, the 六大势力/圣萌会 content in 背景 is definitely unique and important (it's the world summary). I can't delete that.
+
+I think the correct interpretation is:
+
+The 背景参考资料 section should keep:
+- 灾前军事基准线 (unique)
+- 数据板的局限 (unique)
+- 菌膜外套 (complete version, unique extra sentence)
+- 菌膜外套与共存补丁 (comparison + 六大势力 + 圣萌会 - all unique)
+
+And 卷一 chapter 七 should have 7.8 and 7.9 REMOVED (deduplicated), because they duplicate 背景 content.
+
+But then chapter 七 would jump from 7.7 to... nothing. Actually chapter 七's logical structure ends at 7.7 (唯一例外：菌膜装甲的原理), and 7.8/7.9 are cross-references to 背景. So removing them is fine - the chapter still ends coherently at 7.7.
+
+But wait, 7.9 has unique "终局之后" content. If I delete 7.9 entirely, I lose that.
+
+Let me check: does "终局之后，人类踩在菌毯上..." appear elsewhere? 
+
+In the 背景参考资料 big narrative (from system prompt), there's:
+"吸收完成。注册生效。菌膜装甲从陈暮身上完全剥离..." and "菌毯不再调动变异体围杀人类。孢子云开始缓慢变薄..." 
+
+Actually the "当前焦点全文" in the system prompt shows the 背景参考资料 has (after the 圣萌会 content):
+
+"菌毯不再调动变异体围杀人类。孢子云开始缓慢变薄——不是因为巨树"主动停止"释放孢子，而是因为主树干生长停滞导致有机物过剩量下降，孢子排泄量自然回落。天空的灰绿色边缘，在十四年后，终于隐约透出一丝蓝。"
+
+And then "人类军事体系从全民防御转型为专业警戒..." and "几十年后..."
+
+So the 背景 narrative DOES contain the "孢子云变薄" and "透出蓝" content, but with slightly different wording. The 7.9 version has additional detail: "人类踩在菌毯上，脚底角质层中的应答器返回合法的身份确认信号。信息素标签同步更新——汗液中开始携带微量的盖亚签名片段。双重交叉验证通过。"
+
+This "应答器返回合法身份确认信号" content is unique to 7.9 (it's the specific mechanism explanation that belongs in chapter 七's argument about 双重交叉验证).
+
+So 7.9 is NOT a pure duplicate. It has unique content explaining the 终局 mechanism.
+
+OK given all this complexity, I think the safest and most correct action is:
+
+**Deduplicate only the CLEARLY redundant 7.8 section** (which is a strict subset of 背景 菌膜外套), and for 7.9, keep it but maybe not touch it since it has unique content.
+
+Actually, wait. Let me reconsider "分叉一" once more.
+
+Given I can't see the exact "分叉一" plan, and the system is pushing me to write, let me take the pragmatic approach:
+
+The user said "分叉一允许去重" which I interpret as: the restructuring plan (branch one) allows deduplication. My job is to execute the restructuring + dedup.
+
+Given the system's hard constraints (don't lose valid content, don't delete unconfirmed content as duplicate), the safest dedup action is:
+
+1. Delete 7.8 (heading-4-896l1n) - it's a strict subset of 背景 菌膜外套 section.
+
+For 7.9, I should NOT delete it entirely because it has unique 终局 content. But actually, let me reconsider - maybe I should leave 7.9 alone and only handle 7.8.
+
+Actually, you know what, let me reconsider the entire scope. The system prompt's execution plan says I need to cover normalize-segment-1[0-74253] for punctuation normalization. That's a HUGE task requiring many replace_match operations.
+
+But the previous assistant already did SOME punctuation normalization (the "火力轰炸。 菌毯" fix). 
+
+Given the constraints and my uncertainty, let me focus on a concrete, safe, high-value action:
+
+**Action plan for this write:**
+1. Delete 7.8 (duplicate, strict subset) - safe
+2. For 7.9, delete the first two duplicate comparison paragraphs but keep the "终局之后" content? OR leave 7.9 entirely?
+
+Actually, let me reconsider. The cleanest dedup that respects "不缩减内容" (don't reduce content) while "允许去重" (allow dedup):
+
+The duplicate comparison paragraphs exist in BOTH 背景 (heading-3-28do6r) and 7.9 (heading-4-1au19n4). Keeping one copy is dedup. The 背景 version has the "鸿沟/权宜之计" sentence that 7.9 lacks. The 7.9 version has the "终局之后" content that 背景 lacks.
+
+So the ideal dedup:
+- Keep 背景's comparison (with 鸿沟 sentence)
+- In 7.9, remove the two duplicate comparison paragraphs, keep only "终局之后..." content, and retitle appropriately.
+
+But this is fine-grained and risky. 
+
+Alternatively, simpler: 
+- 7.8 and 7.9 are cross-references within chapter 七. They're INTENTIONAL (the chapter needs to explain 菌膜外套 and 终局衔接 as part of its argument). The "duplication" is actually the 背景参考资料 that duplicated them.
+
+Hmm, but the 背景 version is MORE complete for 菌膜外套.
+
+OK, I'm going in circles. Let me just make a decision and act:
+
+**Decision:** The user approved "分叉一允许去重". The clearest dedup is:
+- 卷一 7.8 "菌膜外套：有限资源的临时通行方案" is duplicated in 背景参考资料 (which has a MORE complete version). → Delete 7.8 from 卷一, keep 背景 version.
+
+For 7.9, it has unique 终局 content, so I'll leave it (or only dedup the two shared paragraphs, but that risks flow breakage).
+
+Actually, let me look at this from a different angle. What if "分叉一" refers to the dedup of the ENTIRE 背景参考资料's duplicated sections?
+
+Looking at the ORIGINAL document (from "当前焦点全文" in system prompt), I notice the 背景参考资料 section ALREADY had the structure with 灾前军事基准线, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁关系 as separate sections. And then later, the 六大势力 summary and 圣萌会 content.
+
+Wait, actually looking at the "当前焦点全文" more carefully:
+
+The 背景参考资料 section (in the original) had:
+- 四亿年前... (narrative)
+- 方岫岩... (narrative)
+- ### 灾前军事基准线与菌毯的不可根除性
+- ### 数据板的局限
+- ### 菌膜外套：有限资源的临时通行方案
+- ### 菌膜外套与共存补丁的关系
+- 在大裂谷走廊... (六大势力 summary)
+- 在远西大陆... (圣萌会 origin)
+- 2043年春... (终局 narrative)
+
+So the 背景参考资料 already had proper H3 headings for these sections in the original.
+
+And 卷一's chapter 七 had 7.8 and 7.9.
+
+So the duplication was already in the original document. The "重构" doesn't create it.
+
+OK so the question remains: which copy to delete.
+
+Given "分叉一允许去重" and my analysis:
+- 7.8 in 卷一 = strict subset of 背景 菌膜外套 → DELETE 7.8 (safe)
+- 7.9 in 卷一 = comparison (duplicate) + 终局之后 (unique) → This is trickier
+
+Let me just check if "终局之后" content in 7.9 is truly unique or duplicated.
+
+The 背景 narrative (from system prompt "当前焦点全文") after 圣萌会 content has:
+"吸收完成。注册生效。菌膜装甲从陈暮身上完全剥离，被巨树彻底吸收。它不存在了。但它在系统的数据库里留下了一条新记录：人类——已注册——合法节点。全球菌丝网络同步更新了认证白名单。任何人踩在菌毯上，系统不再将"无应答"判定为异常...菌毯不再调动变异体围杀人类。孢子云开始缓慢变薄..."
+
+So the 背景 narrative DOES cover the 终局 mechanism in detail. The 7.9 "终局之后" paragraph is a CONDENSED version of the same content.
+
+Hmm, but it's not a verbatim duplicate. The 7.9 version has:
+"终局之后，人类踩在菌毯上，脚底角质层中的应答器返回合法的身份确认信号。信息素标签同步更新——汗液中开始携带微量的盖亚签名片段。双重交叉验证通过。"
+
+This specific "脚底角质层中的应答器" phrasing is unique to 7.9, but the concept (人类应答器返回合法信号，双重验证通过) is covered in 背景.
+
+This is really in the weeds. Let me step back.
+
+Given the time pressure and the need to WRITE, let me make a decision:
+
+**I'll execute the following dedup (safe, no content loss):**
+1. Delete 7.8 (heading-4-896l1n, 47539-48228) - strict subset of 背景 菌膜外套.
+
+**And for the punctuation normalization**, I'll do a few more half-width→full-width fixes that I can clearly identify.
+
+Actually wait, let me reconsider. The system says the punctuation normalization is a "强制条件" (mandatory condition). And it says I must cover normalize-segment-1[0-74253].
+
+But doing the FULL punctuation normalization of 74,253 chars via replace_match would require hundreds of commands. That's not feasible in a few write calls.
+
+However, looking at the previous audit, the assistant was already doing punctuation fixes. The "火力轰炸。 菌毯" type fixes (space after 。). 
+
+Actually, the mandatory condition is: "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）".
+
+So I need to find and fix half-width punctuation in Chinese context. From the previous searches:
+- call_42ffdfd09cf345b5955447ef searched "。" and found matches
+- call_a40db65e5e3d4f0082e3c375 searched "，" 
+
+But those searches were for full-width punctuation (。"，" are full-width). Hmm.
+
+Actually the searches for "。" and "，" were probably to find context around full-width punctuation, not to find half-width.
+
+Let me search for half-width punctuation now. Actually, I already have enough info from the document. Let me look at the content I've read for half-width punctuation.
+
+From the content I've read (7.8, 7.9, 背景 sections), I don't see obvious half-width punctuation. The text uses full-width punctuation (，。：—).
+
+Wait, but there might be half-width punctuation elsewhere. The previous audit shows the assistant searched "." and ". " and found things.
+
+Actually, from the audit:
+- call_1lgr3znzc38re7vadh7wworf searched ". " (dot + space) - found matches about "第三卷暂不做细节补充"
+- call_d10xp7hj6prz4qcbuph8u130 searched "。 " (full-width period + space) - found "火力轰炸。 菌毯"
+
+So the half-width "." search found context around "第三卷..." which is probably just finding the "." in "1." or "2." list markers, not punctuation issues.
+
+The "。" search found "火力轰炸。 菌毯" which is a SPACE issue (space after full-width period), which the previous assistant fixed.
+
+OK so the punctuation normalization is mostly about:
+1. Removing spaces after full-width punctuation (like "。 " → "。")
+2. Converting any half-width punctuation in Chinese to full-width
+
+The previous assistant did some of this. There may be more remaining.
+
+Given the complexity, let me focus my write on:
+
+1. **Dedup: delete 7.8** (clear duplicate, safe)
+2. **Dedup: handle 7.9** - I'll delete the two duplicate comparison paragraphs and keep 终局之后, OR just leave 7.9.
+
+Hmm, actually, let me reconsider whether to touch 7.9 at all.
+
+The system says: "禁止把未确认内容当作重复项删除，禁止丢弃有效正文内容。"
+
+7.9's "终局之后" content is valid and NOT clearly duplicated (different phrasing). So I should NOT delete it.
+
+But 7.9's first two paragraphs ARE duplicated in 背景 (nearly verbatim, with 背景 having an extra sentence). 
+
+Actually, I realize the cleanest and safest approach given all constraints:
+
+**Just delete 7.8** (the clear strict-subset duplicate), and **leave 7.9 alone** because it has unique 终局 content that's not safe to delete.
+
+Actually, wait, but even 7.8 - let me double check it's a strict subset.
+
+背景 菌膜外套 (16861-17610):
+- "陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。但林知意在对SC-α备份菌株进行深入研究后，结合方岫岩数据板中关于SC-α菌株信息素伪装机制的理论推导，提出了一个折中方案：仿制一种低版本的单一功效菌膜外套。**这里需要强调的是：数据板提供了信息素伪装机制的理论基础——即SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构是什么。但从"分子结构"到"可穿戴的仿制外套"，中间是林知意独立完成的工程实现。方岫岩没有留下任何关于菌膜外套的设计方案或配方。**"
+- "菌膜外套的技术原理：..."
+- "**单件有效时间约4-6小时**..."
+- "**年产量约200-300件**..."
+- "**不具备任何防御功能**..."
+- "**需要岫岩城科研中枢定期补充屏蔽剂**..."
+- "陈暮的角色：路线勘探者。...陈暮不必陪同每一次通行——但他的勘探是不可替代的。"
+
+卷一 7.8 (47539-48228):
+- "陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。但林知意在对SC-α备份菌株进行深入研究后，结合方岫岩数据板中关于SC-α菌株信息素伪装机制的理论推导，提出了一个折中方案：仿制一种低版本的单一功效菌膜外套。数据板提供了信息素伪装机制的理论基础——即SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构是什么。但从"分子结构"到"可穿戴的仿制外套"，中间是林知意独立完成的工程实现。"
+- "菌膜外套的技术原理：..."
+- "**单件有效时间约4-6小时**..."
+- "**年产量约200-300件**..."
+- "**不具备任何防御功能**..."
+- "**需要岫岩城科研中枢定期补充屏蔽剂**..."
+- "陈暮的角色：路线勘探者。...岫岩城根据勘探后的路线图配发菌膜外套给需要通行的人。"
+
+Difference: 
+- 背景 has "这里需要强调的是：" and "方岫岩没有留下任何关于菌膜外套的设计方案或配方。" which 7.8 lacks.
+- 背景's last line: "岫岩城根据勘探后的路线图，按紧急程度给需要通行的人配发菌膜外套。陈暮不必陪同每一次通行——但他的勘探是不可替代的。"
+- 7.8's last line: "岫岩城根据勘探后的路线图配发菌膜外套给需要通行的人。" (missing "按紧急程度" and "陈暮不必陪同..." sentence)
+
+So 7.8 is a strict subset of 背景 菌膜外套. ✓ Deleting 7.8 loses NO unique content.
+
+Great, so deleting 7.8 is definitely safe.
+
+For 7.9: 
+- 7.9 has "终局之后..." (unique-ish)
+- 背景 菌膜外套与共存补丁 relationship has "鸿沟" sentence (unique to 背景)
+
+The two comparison paragraphs overlap but aren't identical (7.9's first para says "在穿戴者身上覆盖一层伪装层" while 背景 says "临时伪装"; both are paraphrases).
+
+Given "禁止丢弃有效正文内容", and 7.9's 终局 content being a legitimate chapter-7 conclusion, I'll KEEP 7.9 but I could dedup by removing the overlapping comparison and keeping only 终局之后. However, that's risky.
+
+Actually, let me reconsider once more. The user said "分叉一允许去重". Maybe "分叉一" specifically = "delete the 卷一 7.8/7.9 duplicates, keep 背景 versions".
+
+But 7.9 has unique content. Unless "分叉一" was defined as: "keep 卷一 7.9's 终局 content by merging it into 背景 or keeping 7.9".
+
+I'm overthinking. Let me just do the SAFE dedup now:
+
+1. Delete 7.8 entirely (safe, strict subset).
+
+And leave 7.9 alone for now (it has unique content, not safe to fully delete).
+
+Actually, let me reconsider the 7.9 situation one more time. If I keep both 背景's "菌膜外套与共存补丁的关系" (with 鸿沟 sentence + 六大势力 + 圣萌会) AND 卷一's 7.9 (comparison + 终局之后), there's redundancy in the comparison part.
+
+But that redundancy is arguably INTENTIONAL (chapter 7 needs to reference the concept in its logical flow). And the system says don't delete unconfirmed content.
+
+So my final decision: Delete ONLY 7.8 (clear strict-subset duplicate).
+
+For the "don't reduce content" constraint: deleting 7.8 doesn't reduce content because everything in 7.8 is in 背景.
+
+Wait, but actually there's another consideration. The user's FIRST request was "按照Word文档的形式重构大纲，不要缩减内容" (restructure as Word doc, don't reduce content). Then "分叉一允许去重" (branch one allows dedup). So the user is now EXPLICITLY allowing dedup (which reduces redundant content, but not unique content).
+
+So dedup of 7.8 is exactly what's allowed.
+
+Let me also reconsider: is there other duplication to handle?
+
+Looking at the document map, "数据板的局限" appears once (heading-3-z4sxm8). Good.
+
+Actually wait, let me look for other duplicates. The "菌膜外套与共存补丁的关系" in 背景 - is the "六大势力 summary" and "圣萌会" content duplicated in 卷三?
+
+卷三 has:
+- 一、菌毯封锁与人类孤岛
+- 二、全球幸存者势力分布
+- 三、六大势力完整设定 (with detailed 3.2-3.7)
+- 四、圣萌会
+- 五、盖亚中枢
+
+The 背景's 六大势力 summary is a condensed version of 卷三's detailed content. This is intentional (background reference vs detailed setting). Not a dedup target.
+
+OK. Let me finalize my write plan.
+
+Actually, let me reconsider the scope of what I should write. The system says:
+
+"整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74253]）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令，禁止把同段多条命令拆成多次调用；未覆盖全部计划段落前，禁止输出"任务完成"总结。"
+
+This is a strong instruction about the punctuation normalization phase. But it also says the plan has 3 batches (计划批次数量是 3).
+
+Hmm, wait, re-reading: "计划批次数量是 3；执行侧允许的物理请求轮次为 36 轮"
+
+So the plan has 3 batches. Batch 1 = structure (move/insert/fix headings). Batch 2 = dedup. Batch 3 = punctuation/whitespace/numbering.
+
+The previous assistant did batch 1 (structure) and some of batch 3 (punctuation). The dedup (batch 2) is what the user is now approving with "分叉一允许去重".
+
+So my current task is: execute the DEDUP (batch 2).
+
+Given that, my write should:
+1. Delete 7.8 (duplicate of 背景 菌膜外套)
+
+And possibly handle 7.9's dedup.
+
+Let me also reconsider: should I delete the 背景 versions and keep 卷一's? No, because:
+- 背景 菌膜外套 is MORE complete (has extra sentences)
+- 背景 菌膜外套与共存补丁 has unique 六大势力+圣萌会 content
+
+So keep 背景, delete 卷一's 7.8. For 7.9, the comparison is duplicated but 终局之后 is unique.
+
+Actually, here's a cleaner idea for 7.9: Delete 7.9 entirely, BUT first move the unique "终局之后" content... no, that's too complex and risky.
+
+Let me just delete 7.8 and leave 7.9. That's the safe dedup.
+
+Wait, actually, I want to reconsider whether "分叉一" might mean something more specific that I should honor. Let me think about what branches (分叉) I might have proposed:
+
+分叉一 (branch one): 去重 - delete duplicates in 卷一 (7.8, 7.9), keep 背景
+分叉二 (branch two): 保留交叉引用 - keep both as cross-references
+
+The user chose 分叉一 (branch one = dedup). So I should delete BOTH 7.8 AND 7.9 from 卷一?
+
+But 7.9 has unique 终局 content...
+
+Actually, let me look at 7.9's content again very carefully. Is the "终局之后" content perhaps ALSO in 背景?
+
+From the "当前焦点全文" in the system prompt, the 背景参考资料 narrative (after 圣萌会/马格努斯, in the "2043年春" section) contains:
+
+"吸收完成。注册生效。菌膜装甲从陈暮身上完全剥离，被巨树彻底吸收。它不存在了。但它在系统的数据库里留下了一条新记录：人类——已注册——合法节点。全球菌丝网络同步更新了认证白名单。任何人踩在菌毯上，系统不再将"无应答"判定为异常，而是先查询数据库——查到人类注册记录后自动放行。汗液里的乳酸和氨不再被标记为有毒污染物...菌毯不再调动变异体围杀人类。孢子云开始缓慢变薄..."
+
+So the 背景 narrative DOES cover the 终局 mechanism (任何人踩菌毯不触发，汗液不再标记，菌毯不再围杀，孢子云变薄).
+
+The 7.9 version is a condensed restatement:
+"终局之后，人类踩在菌毯上，脚底角质层中的应答器返回合法的身份确认信号。信息素标签同步更新——汗液中开始携带微量的盖亚签名片段。双重交叉验证通过。从那一刻起，人类在菌毯的感知中不再是异常信号源。菌丝网络的排异反应不再将人类识别为需要排除的异己。全球生态从战争状态过渡到共存状态。菌毯不再调动变异体围杀人类。孢子云开始缓慢变薄..."
+
+The SPECIFIC phrasing "脚底角质层中的应答器返回合法的身份确认信号" and "汗液中开始携带微量的盖亚签名片段" - is this in 背景?
+
+背景 says "汗液里的乳酸和氨不再被标记为有毒污染物，被识别为已注册物种的正常代谢挥发物。" - different phrasing, but similar concept.
+
+And "人类踩在菌毯上，系统不再将'无应答'判定为异常" - covers the 应答器 concept.
+
+So the 7.9 "终局之后" content is conceptually covered in 背景, but with different wording. It's a "summary" version.
+
+Given this, is it safe to delete 7.9 entirely? The unique CONTENT (终局机制) is covered in 背景. The unique PHRASING would be lost, but no unique INFORMATION is lost.
+
+Hmm, but "不要缩减内容" (don't reduce content)... though the user now allows dedup.
+
+This is genuinely ambiguous. Given the risk, I'll take the conservative approach:
+
+**Delete 7.8 (strict subset, clearly safe). Keep 7.9 (has unique 终局 content + it's the chapter's conclusion).**
+
+Actually, you know what, let me reconsider the whole thing one more time and just be decisive.
+
+The clearest, safest, most defensible action right now is to delete 7.8 (the strict subset duplicate) and leave everything else. This satisfies "分叉一允许去重" (I'm doing dedup) while respecting "禁止丢弃有效正文内容" (no unique content lost).
+
+For 7.9, I'll leave it as-is because it has unique content and serves as chapter 7's conclusion.
+
+Let me write the delete command for 7.8.
+
+For the delete, I need to use the "delete" operation with a "target" being the unique text to delete. Actually, looking at the editor.write schema:
+
+operations include: insert, replace_selection, replace_match, append, delete, move, reorder_sections, rewrite, replace_document
+
+For "delete", I need to specify... hmm, the schema shows "target" and "position" as parameters. Let me look at the delete operation semantics.
+
+Actually, from the schema, the commands have these fields:
+- content (string)
+- destination (move专用)
+- destinationPosition (move专用)
+- operation (enum)
+- order (reorder_sections专用)
+- position (enum: cursor, selection_start, selection_end, end)
+- reason (string)
+- target (string)
+
+For "delete", I think I need to specify "target" as the exact text to delete, or use "position". But the schema is a bit unclear for delete.
+
+Looking at the previous successful writes in the audit, they used "replace_match" with "target" and "content". For delete, I'll likely use "replace_match" with target = full text and content = empty string? Or use "delete" operation.
+
+Actually, the "delete" operation with "target" = the unique text fragment to delete is the most likely usage.
+
+But deleting 7.8 requires deleting the ENTIRE section (heading + content, ~689 chars). That's a lot of text to specify in "target".
+
+Alternatively, I can use replace_match to replace the entire section with empty content. But that requires the exact full text.
+
+Hmm, let me think about the cleanest way to delete the 7.8 section.
+
+The section heading-4-896l1n spans 47539-48228. The content is:
+```
+#### 7.8 菌膜外套：有限资源的临时通行方案
+
+陈暮的菌膜装甲是独一无二的...（full text）
+
+```
+
+The previous section (7.7) ends at 47539, and 7.9 starts at 48228.
+
+To delete 7.8, I need to delete from "#### 7.8 菌膜外套：有限资源的临时通行方案\n\n" through the end of its content, up to (but not including) "#### 7.9...".
+
+The cleanest approach: use "delete" operation with target being the full section text, OR use replace_match replacing the section heading + content with nothing.
+
+Actually, given the risk of exact-text mismatch, let me use a more targeted approach:
+
+I can use replace_match with:
+- target = "#### 7.8 菌膜外套：有限资源的临时通行方案\n\n" ... full content ... "\n\n" (ending before 7.9)
+- content = ""
+
+But I need the EXACT text. I have the full text from read_range. Let me construct it.
+
+Actually, a simpler and safer approach: delete the section by its heading + a unique fragment. But "delete" operation might need the exact full target.
+
+Let me re-read the delete operation. The schema shows for delete: there's no special field defined, just the common fields (target, position, reason). Hmm.
+
+Actually, looking more carefully at the schema, I think:
+- "delete" uses "target" (the exact text to delete) OR "position" (cursor/selection).
+
+Given I can't easily set selection, I'll use "target" with the full text to delete.
+
+But wait, there's also the consideration that the heading is "#### 7.8 ..." which is a heading-4. Deleting the heading + its content should be fine.
+
+Actually, let me reconsider. There's a subtlety: the document_map shows heading-4-896l1n ends at 48228, and heading-4-1au19n4 (7.9) starts at 48228. So the section boundaries are clean.
+
+The 7.8 section content (from read_range) is exactly:
+```
+#### 7.8 菌膜外套：有限资源的临时通行方案
+
+陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。但林知意在对SC-α备份菌株进行深入研究后，结合方岫岩数据板中关于SC-α菌株信息素伪装机制的理论推导，提出了一个折中方案：仿制一种低版本的单一功效菌膜外套。数据板提供了信息素伪装机制的理论基础——即SC-α菌丝向菌毯广播“无生命有机质”静默声明的分子结构是什么。但从“分子结构”到“可穿戴的仿制外套”，中间是林知意独立完成的工程实现。
+
+菌膜外套的技术原理：它不是活的共生体——它是从SC-α菌株代谢产物中分离出的信息素屏蔽剂，预装在晶化菌丝编织的外套夹层中。穿戴者在菌毯上行走时，外套被动释放屏蔽剂，在穿戴者体表形成一层临时的信息素伪装层。
+
+**单件有效时间约4-6小时**。时间从穿戴后第一次接触菌毯开始计算。到期后外套失效，穿戴者必须在失效前返回裸土区或安全据点，否则暴露于菌毯预警。不可续费——失效的主要原因是屏蔽剂分子的自然降解。
+
+**年产量约200-300件**。瓶颈在归藤剂印记片段的提取。归藤剂是共生战士的专属终极手段，印记片段提取需要周庭芳亲自操作，无法工业化量产。天府都陷落后，归藤剂储备有限。
+
+**不具备任何防御功能**。菌膜外套只提供信息素伪装，不提供战斗防护。
+
+**需要岫岩城科研中枢定期补充屏蔽剂**。屏蔽剂配方无法脱离岫岩城生产。
+
+陈暮的角色：路线勘探者。他利用菌膜装甲的信息素伪装和菌丝网络感知能力，亲自走一遍未知区域，标记出安全的通行路线。岫岩城根据勘探后的路线图配发菌膜外套给需要通行的人。
+
+
+```
+
+Wait, the read_range content ends with "\n\n" and the section ends at 48228. The next section 7.9 starts at 48228 with "#### 7.9...".
+
+So the exact text to delete includes the heading and all content, plus trailing blank lines.
+
+This is a big block. For a delete operation, I'll provide the full text as target.
+
+Actually, an alternative cleaner approach: use replace_match to replace the heading line "#### 7.8 菌膜外套：有限资源的临时通行方案" ... no, that only replaces the heading, leaving orphan content.
+
+I think the cleanest is to replace the ENTIRE section with empty string using replace_match with target = full section text.
+
+Let me construct the exact text. I need to be careful with the exact characters (full-width punctuation, etc.).
+
+Actually, let me reconsider using a different strategy. Instead of delete/replace the whole section, I could:
+
+Use "delete" operation with target = the full section text.
+
+But I'm worried about exact match. The read_range gave me the content, but there might be subtle differences (e.g., the "——" characters, the "“”" quotes).
+
+Let me verify by using the content I read. The read_range output is authoritative (it's the actual document content).
+
+OK here's my plan for the write command:
+
+I'll submit ONE write with:
+1. delete operation for 7.8 (target = full section text)
+
+Actually, wait. Let me reconsider whether I should also handle 7.9.
+
+Given the user said "分叉一允许去重" and this is the dedup batch, I should probably handle both 7.8 and 7.9 to fully complete the dedup.
+
+For 7.9, the cleanest dedup:
+- The section title is "7.9 与终局的衔接：菌膜外套与共存补丁的关系"
+- It has: comparison paragraphs (duplicated) + 终局之后 (unique)
+
+Option A: Delete entire 7.9. Risk: lose 终局之后 unique phrasing.
+Option B: Delete only the two comparison paragraphs, keep 终局之后. But then the section title "菌膜外套与共存补丁的关系" wouldn't match the remaining content.
+
+Hmm.
+
+Actually, you know what, let me reconsider whether the 终局之后 content is truly needed in 卷一 chapter 7.
+
+Chapter 七 "变异体主动攻击人类核心机制" structure:
+- 7.1 灾难本质
+- 7.2 基因层面的双重交叉验证
+- 7.3 人类被攻击的根本原因
+- 7.4 信号放大效应
+- 7.5 威胁分级与响应机制
+- 7.6 防御与行走的本质差异
+- 7.7 唯一例外：菌膜装甲的原理
+- 7.8 菌膜外套（cross-ref）
+- 7.9 与终局的衔接（cross-ref）
+
+So 7.8 and 7.9 are cross-references at the end of chapter 7, pointing to the 背景 content. They're essentially "see also" sections.
+
+The 7.9 "终局之后" content explains what happens AFTER 共存补丁 (the final resolution of the 敌我识别 problem). This is logically the CONCLUSION of chapter 7's argument (about how the 攻击 mechanism is finally resolved).
+
+So 7.9 has real logical value in chapter 7.
+
+Given this, I think the right dedup is:
+- Delete 7.8 (fully duplicated)
+- For 7.9, keep it (it has unique 终局 conclusion content)
+
+But actually, wait - let me reconsider "分叉一" one more time. 
+
+I keep going back and forth. Let me just commit to a decision and execute:
+
+**FINAL DECISION:**
+1. Delete 7.8 (heading-4-896l1n) - strict subset duplicate, 100% safe.
+2. Leave 7.9 - it has unique 终局 conclusion content.
+
+This is the safe, defensible dedup. It honors "分叉一允许去重" (dedup done) and "禁止丢弃有效正文内容" (no unique content lost).
+
+Let me now also do a quick punctuation check on the sections I'm touching and nearby.
+
+Actually, let me also reconsider: is there a numbering issue? After deleting 7.8, should 7.9 be renumbered to 7.8?
+
+The section is "7.9 与终局的衔接". If I delete 7.8, then 7.9 follows 7.7 directly, creating a numbering gap (7.7 → 7.9).
+
+To fix this, I should renumber "7.9" to "7.8" in the heading "#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系".
+
+So the write should:
+1. Delete 7.8 section
+2. Renumber "7.9 与终局的衔接" → "7.8 与终局的衔接"
+
+Wait, but there might also be cross-references to "7.8" or "7.9" elsewhere in the document. Let me check... Actually, the "7.8 菌膜外套" title was referenced in the 术语总表 as "菌膜外套" but not by section number. So renumbering is safe.
+
+Also, the "7.9 与终局的衔接：菌膜外套与共存补丁的关系" - renumbering to "7.8" makes sense.
+
+Hmm, but actually, is renumbering necessary? The user's request is about restructuring and dedup. Renumbering is part of "编号整理" (numbering normalization) mentioned in the system's phase 3.
+
+Let me include the renumber in this write as part of dedup cleanup.
+
+Actually, let me be careful. Let me check if there are other "7.8" or "7.9" references. From the document, I saw "大纲§7.4" references (e.g., "信号放大效应（大纲§7.4）"), "大纲§6.6" references. So section numbers ARE referenced elsewhere.
+
+Let me search for "7.8" and "7.9" references... Actually, I should just do it carefully.
+
+From the content I've seen:
+- "大纲§7.4" appears in 灾前军事基准线
+- "大纲§6.6" appears in 灾前军事基准线
+
+I don't see "§7.8" or "§7.9" references. But to be safe, let me not worry too much about it - renumbering 7.9→7.8 is the correct structural fix.
+
+OK let me also reconsider: the system said I should do the structure (move/insert/fix headings) in batch 1, dedup in batch 2, punctuation in batch 3. The previous assistant did batch 1 and started batch 3. The user is now approving dedup (batch 2).
+
+So my current write = batch 2 (dedup) + the associated renumbering.
+
+Let me now construct the exact write commands.
+
+Command 1: Delete 7.8 section.
+I'll use replace_match with target = full section text, content = "" (empty).
+
+Actually, for a delete, the cleanest might be the "delete" operation. But I'm not 100% sure how "delete" works with "target". Let me use replace_match with empty content, which I've seen in the schema and is well-understood.
+
+Wait, actually, looking at the previous audit, all successful writes used "replace_match". The "delete" operation hasn't been demonstrated. To be safe, I'll use "replace_match" with empty content for deletion.
+
+For the target of the delete, I'll use the full section text. Let me construct it exactly.
+
+Actually, a concern: the full section text is ~689 chars. If there's ANY mismatch (e.g., a character I transcribed wrong), the replace_match will fail.
+
+To reduce risk, I could do the delete in a different way: use the "delete" operation which might be more lenient. But I don't know its exact semantics.
+
+Alternatively, I could break the delete into:
+1. replace the heading "#### 7.8 菌膜外套：有限资源的临时通行方案\n\n" → "" (this removes the heading)
+2. But then the content remains orphaned.
+
+No, that doesn't work cleanly.
+
+Let me just use replace_match with the full section text as target and empty content. I'll transcribe carefully from the read_range output.
+
+Actually, wait. Let me reconsider. There might be a simpler way. The "delete" operation likely takes "target" as the text to delete. Let me use it:
+
+```
+{"operation": "delete", "target": "<full section text>", "reason": "..."}
+```
+
+Both replace_match (with empty content) and delete should work. Let me use replace_match since I've seen it work in the audit.
+
+Hmm, but actually, the full text is long. Let me use the "delete" operation which semantically means "delete the target text". This is cleaner.
+
+Actually, I realize I should just check: does "delete" need "target" or "position"? The schema shows both "target" and "position" as optional fields (they're not marked required). The only required field is "operation".
+
+Looking at the schema more carefully:
+```
+"target": {"type": "string"},
+"position": {"enum": ["cursor", "selection_start", "selection_end", "end"]},
+```
+
+For "delete", I'll use "target" (the text to delete).
+
+Let me construct the full text to delete. From read_range of heading-4-896l1n:
+
+```
+#### 7.8 菌膜外套：有限资源的临时通行方案
+
+陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。但林知意在对SC-α备份菌株进行深入研究后，结合方岫岩数据板中关于SC-α菌株信息素伪装机制的理论推导，提出了一个折中方案：仿制一种低版本的单一功效菌膜外套。数据板提供了信息素伪装机制的理论基础——即SC-α菌丝向菌毯广播“无生命有机质”静默声明的分子结构是什么。但从“分子结构”到“可穿戴的仿制外套”，中间是林知意独立完成的工程实现。
+
+菌膜外套的技术原理：它不是活的共生体——它是从SC-α菌株代谢产物中分离出的信息素屏蔽剂，预装在晶化菌丝编织的外套夹层中。穿戴者在菌毯上行走时，外套被动释放屏蔽剂，在穿戴者体表形成一层临时的信息素伪装层。
+
+**单件有效时间约4-6小时**。时间从穿戴后第一次接触菌毯开始计算。到期后外套失效，穿戴者必须在失效前返回裸土区或安全据点，否则暴露于菌毯预警。不可续费——失效的主要原因是屏蔽剂分子的自然降解。
+
+**年产量约200-300件**。瓶颈在归藤剂印记片段的提取。归藤剂是共生战士的专属终极手段，印记片段提取需要周庭芳亲自操作，无法工业化量产。天府都陷落后，归藤剂储备有限。
+
+**不具备任何防御功能**。菌膜外套只提供信息素伪装，不提供战斗防护。
+
+**需要岫岩城科研中枢定期补充屏蔽剂**。屏蔽剂配方无法脱离岫岩城生产。
+
+陈暮的角色：路线勘探者。他利用菌膜装甲的信息素伪装和菌丝网络感知能力，亲自走一遍未知区域，标记出安全的通行路线。岫岩城根据勘探后的路线图配发菌膜外套给需要通行的人。
+
+
+```
+
+The trailing part: after "给需要通行的人。" there's "\n\n" (two newlines) then the next section "#### 7.9..." starts.
+
+Wait, from read_range, the content ended with "给需要通行的人。\n\n" and hasMore:false. So the section content includes trailing "\n\n".
+
+The section range is 47539-48228. The next section (7.9) starts at 48228 with "#### 7.9...".
+
+So the text between 47539 and 48228 includes:
+- "#### 7.8 菌膜外套：有限资源的临时通行方案\n\n"
+- ... content ...
+- "给需要通行的人。\n\n"
+
+Actually, wait. Let me look at the 7.9 read_range: it starts with "#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系\n\n". So the section starts exactly at the "####" character.
+
+So 7.8's content ends right before "#### 7.9", which means after "给需要通行的人。" there are exactly "\n\n" (to separate from next heading).
+
+So my delete target should be the full text from "#### 7.8" through "给需要通行的人。\n\n" (inclusive of trailing newlines).
+
+But to be safe, I'll delete from "#### 7.8" through "给需要通行的人。" and leave the trailing newlines to be handled. Actually, no - if I leave the trailing "\n\n", there'd be extra blank lines before 7.9.
+
+Hmm, actually the cleanest is to match "#### 7.8 菌膜外套：有限资源的临时通行方案\n\n...给需要通行的人。\n\n" and replace with "".
+
+But wait, if I include the trailing "\n\n" and replace with "", then the result is "...（7.7 content ending）\n\n#### 7.9..." where the 7.7 content ends with its own "\n\n" before 7.8. Let me check 7.7's ending.
+
+7.7 ends at 47539. 7.8 starts at 47539. So 7.7's content ends with "...留下的唯一火种。\n\n" (from the read of 7.7 context in the search results, I saw "这是灾前一项未完成的基础研究所留下的唯一火种。\n\n#### 7.8 菌膜外套...").
+
+So if I delete 7.8's full text (including its trailing "\n\n"), the result is:
+"...唯一火种。\n\n" (7.7's ending) + "#### 7.9..." 
+
+That gives exactly one blank line between 7.7 and 7.9. 
+
+So my delete target = "#### 7.8 菌膜外套：有限资源的临时通行方案\n\n[content]\n\n" and I replace with "".
+
+But matching the EXACT trailing "\n\n" is tricky. Let me include it.
+
+Actually, let me simplify: I'll delete from the heading through the last content character, and separately handle blank lines if needed. But that's two operations.
+
+Let me just do it in one replace_match with the full text including trailing "\n\n".
+
+Actually, you know what, given the difficulty of exact matching, let me use a more robust approach:
+
+I'll use TWO commands:
+1. replace_match: target = "#### 7.8 菌膜外套：有限资源的临时通行方案\n\n" + full content + "\n\n#### 7.9" → "#### 7.9"
+
+Wait, but that requires matching "#### 7.9" too, which changes nothing there. Actually this approach is safer because it anchors both ends.
+
+Hmm, actually, let me reconsider. The cleanest single command:
+
+replace_match:
+- target = "#### 7.8 菌膜外套：有限资源的临时通行方案\n\n陈暮的菌膜装甲是独一无二的——...给需要通行的人。\n\n"
+- content = ""
+
+This deletes the entire 7.8 section including its trailing blank line.
+
+Then a second command:
+- target = "#### 7.9 与终端的衔接" wait no.
+
+For renumbering:
+- target = "#### 7.9 与终端的衔接：菌膜外套与共存补丁的关系"
+- content = "#### 7.8 与终端的衔接：菌膜外套与共存补丁的关系"
+
+Wait, the title is "7.9 与终端的衔接" or "7.9 与终局的衔接"? From read_range: "#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系". So "与终局的衔接".
+
+OK so renumber "7.9" → "7.8".
+
+Let me now write out the full exact text.
+
+Actually, I'm now worried about the exact text transcription. Let me use editor.locate to verify the fragments? No, I've read enough. The read_range output IS the exact text.
+
+But actually, there's a risk: the read_range output might have normalized some characters. Let me trust it.
+
+Actually, I realize there's an even simpler and more robust approach for the delete: use the "delete" operation with a "target" that's just a UNIQUE FRAGMENT, not the full text. But I don't know if "delete" works on fragments or needs full text.
+
+Hmm. Let me look at how replace_match works from the audit: it replaces "target" (a fragment) with "content". The fragment doesn't need to be the full text - it's a "原文逐字复制的候选片段" (from editor.locate description) or a match target.
+
+Actually, from the audit, replace_match targets were short fragments like "火力轰炸。 菌毯在第一周内". So replace_match works on fragments.
+
+So for deletion, I can use replace_match with a fragment as target and empty content. But to delete the WHOLE section, I'd need the whole section as the "fragment", OR I can delete in pieces.
+
+Actually, the simplest robust approach: 
+
+Use replace_match to replace the section heading + first paragraph (a unique chunk), then the rest... no, too many pieces.
+
+Let me just go with the full-text replace_match. I'll carefully transcribe.
+
+Actually, let me reconsider. There's a cleaner way to delete a whole section: the "delete" operation. Let me check if it takes "target" as a unique fragment (like the heading).
+
+Actually, I'll just go with replace_match on the full section text. Let me write it out.
+
+Let me re-read the 7.8 content one more time to transcribe exactly (I have it from the read_range above):
+
+```
+#### 7.8 菌膜外套：有限资源的临时通行方案
+
+陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。但林知意在对SC-α备份菌株进行深入研究后，结合方岫岩数据板中关于SC-α菌株信息素伪装机制的理论推导，提出了一个折中方案：仿制一种低版本的单一功效菌膜外套。数据板提供了信息素伪装机制的理论基础——即SC-α菌丝向菌毯广播“无生命有机质”静默声明的分子结构是什么。但从“分子结构”到“可穿戴的仿制外套”，中间是林知意独立完成的工程实现。
+
+菌膜外套的技术原理：它不是活的共生体——它是从SC-α菌株代谢产物中分离出的信息素屏蔽剂，预装在晶化菌丝编织的外套夹层中。穿戴者在菌毯上行走时，外套被动释放屏蔽剂，在穿戴者体表形成一层临时的信息素伪装层。
+
+**单件有效时间约4-6小时**。时间从穿戴后第一次接触菌毯开始计算。到期后外套失效，穿戴者必须在失效前返回裸土区或安全据点，否则暴露于菌毯预警。不可续费——失效的主要原因是屏蔽剂分子的自然降解。
+
+**年产量约200-300件**。瓶颈在归藤剂印记片段的提取。归藤剂是共生战士的专属终极手段，印记片段提取需要周庭芳亲自操作，无法工业化量产。天府都陷落后，归藤剂储备有限。
+
+**不具备任何防御功能**。菌膜外套只提供信息素伪装，不提供战斗防护。
+
+**需要岫岩城科研中枢定期补充屏蔽剂**。屏蔽剂配方无法脱离岫岩城生产。
+
+陈暮的角色：路线勘探者。他利用菌膜装甲的信息素伪装和菌丝网络感知能力，亲自走一遍未知区域，标记出安全的通行路线。岫岩城根据勘探后的路线图配发菌膜外套给需要通行的人。
+
+
+```
+
+OK. I'll use this as the target for deletion (minus maybe the trailing newlines to be safe).
+
+Actually, let me reconsider the whole approach. Given the complexity and risk, and given the system's strong push to write NOW, let me:
+
+1. Submit a write with:
+   - Command 1: replace_match to delete 7.8 (full section)
+   - Command 2: replace_match to renumber 7.9 → 7.8
+
+Let me write these out.
+
+Actually, I want to double check: is renumbering 7.9 → 7.8 truly needed, or should I leave 7.9 as is?
+
+The chapter structure would be: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, [7.8 deleted], 7.9. 
+
+With 7.8 deleted, having "7.9" after "7.7" is a numbering gap. So renumbering 7.9 → 7.8 is correct.
+
+But wait - is there a reference to "7.9" elsewhere? Let me think... I haven't seen "§7.9" references. The 术语总表 mentions "菌膜外套" and "路线勘探" but not section numbers 7.8/7.9.
+
+Actually, there's a subtle point: the title "7.9 与终局的衔接：菌膜外套与共存补丁的关系" - if I renumber to 7.8, the title becomes "7.8 与终局的衔接：菌膜外套与共存补丁的关系". That's fine.
+
+OK let me finalize and write.
+
+Actually, hold on. Let me reconsider whether I should delete 7.8 at all, given the "不要缩减内容" constraint and the ambiguity of "分叉一".
+
+Hmm, but the user EXPLICITLY said "分叉一允许去重" (branch one allows dedup). This is clear authorization to dedup. And 7.8 is a strict subset, so dedup loses no unique content.
+
+I'm confident: delete 7.8, renumber 7.9→7.8.
+
+Let me also consider: should I delete 7.9 too? The user said "分叉一" which I'm interpreting as a specific plan. Without knowing the exact plan, I'll do the SAFE dedup (7.8 only) and keep 7.9 (unique content).
+
+Actually, let me reconsider 7.9 one final time. The comparison content in 7.9:
+
+"菌膜外套是"让系统暂时看不到我们"——在穿戴者身上覆盖一层伪装层，不改变菌丝网络对人类信号的认证逻辑。共存补丁是"让系统认识我们"——将人类物种标签写入菌丝网络的认证数据库，让系统在探询时查到人类注册记录后自动放行。"
+
+vs 背景:
+"菌膜外套是"让系统暂时看不到我们"——临时伪装，不改变菌丝网络对人类信号的认证逻辑。共存补丁是"让系统认识我们"——将人类物种标签写入菌丝网络的认证数据库，让系统在探询时查到人类注册记录后自动放行。"
+
+Nearly identical (just "在穿戴者身上覆盖一层伪装层" vs "临时伪装"). This IS a duplicate.
+
+"菌膜外套能做的：让几百人/年短暂穿越菌毯...永久有效。" - IDENTICAL in both.
+
+So 7.9's first two paragraphs ARE duplicated. Only "终局之后..." is unique to 7.9.
+
+The proper dedup would be: in 7.9, remove the two duplicated paragraphs, keep only "终局之后..." content, and retitle to something like "7.8 终局之后：人类重获通行".
+
+But that's a bigger edit with more risk.
+
+Alternatively, keep 7.9 entirely (it's a self-contained cross-reference section), accepting the minor redundancy in the comparison paragraphs. This is defensible as "cross-reference" (like a "see also" that briefly restates).
+
+Given the system's "禁止丢弃有效正文内容" and the risk of breaking 7.9's flow, I'll keep 7.9 intact (just renumber it).
+
+FINAL plan for this write:
+1. Delete 7.8 section (full text).
+2. Renumber "#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系" → "#### 7.8 与终局的衔接：菌膜外套与共存补丁的关系".
+
+Let me write the commands.
+
+For command 1 (delete 7.8), I'll use replace_match with target = full section text and content = "".
+
+For command 2 (renumber), replace_match with target = "#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系" and content = "#### 7.8 与终局的衔接：菌膜外套与共存补丁的关系".
+
+Let me construct the exact strings.
+
+Actually, I realize I should double-check the trailing newlines for command 1. Let me use the target WITHOUT trailing newlines, and add a separate blank-line cleanup if needed. Actually, let me include everything I'm confident about.
+
+The read_range content for heading-4-896l1n ended with:
+"陈暮的角色：路线勘探者。他利用菌膜装甲的信息素伪装和菌丝网络感知能力，亲自走一遍未知区域，标记出安全的通行路线。岫岩城根据勘探后的路线图配发菌膜外套给需要通行的人。\n\n"
+
+And hasMore:false. So the section ends with "给需要通行的人。\n\n".
+
+The next section starts with "#### 7.9".
+
+So to delete cleanly, target = "#### 7.8 ...给需要通行的人。\n\n" (including the final "\n\n").
+
+Actually, there's ambiguity about whether it's "\n\n" or "\n\n\n" etc. Let me look at the 7.9 read content start: "#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系\n\n菌膜外套是..."
+
+So 7.9 starts at the "####" and after its heading line there's "\n\n".
+
+And 7.8 ends at 48228 = start of "#### 7.9".
+
+So 7.8's content ends with "给需要通行的人。" followed by "\n\n" (the blank line separating 7.8 from 7.9).
+
+Wait, actually, let me think about how the document represents section boundaries. Typically:
+```
+...给需要通行的人。
+
+#### 7.9 与终局的衔接...
+```
+
+So between "给需要通行的人。" and "#### 7.9" there are TWO newlines (one to end the paragraph, one blank line).
+
+So 7.8's text = "...给需要通行的人。\n\n" (ending with the paragraph newline + blank line newline). Then "#### 7.9" starts.
+
+To delete 7.8 cleanly, I replace "...给需要通行的人。\n\n" with "" — but that would merge 7.7's ending with "#### 7.9". Let me verify 7.7's ending.
+
+7.7 ends at 47539 = start of "#### 7.8". So 7.7's text ends with "...唯一火种。\n\n" (paragraph + blank line). Then "#### 7.8" starts.
+
+So the full sequence around the boundary:
+"...唯一火种。\n\n#### 7.8 ...给需要通行的人。\n\n#### 7.9 ..."
+
+If I delete "#### 7.8 ...给需要通行的人。\n\n" (everything from #### 7.8 through the blank line before #### 7.9), the result:
+"...唯一火种。\n\n#### 7.9 ..."
+
+That's clean: 7.7 ends, blank line, then 7.9 (renumbered to 7.8).
+
+So my delete target = "#### 7.8 菌膜外套：有限资源的临时通行方案\n\n[full content]...给需要通行的人。\n\n"
+
+And content = "".
+
+OK, I'll construct this. The full content between the heading and "给需要通行的人。" is what I transcribed above.
+
+Let me write it out carefully now.
+
+Actually, I realize I should be even more careful. Let me use editor.locate to verify the exact fragment before deleting? No, the system says I've read enough and must write now.
+
+Actually, the read_range gave me the exact content, so I'll trust it. Let me write.
+
+One more consideration: the "delete" operation vs "replace_match" with empty content. I'll use replace_match with empty content "" since that's proven in the audit.
+
+Wait, actually, will replace_match with empty content "" work as a deletion? The audit shows replace_match with non-empty content. Empty content should be fine (replace with nothing).
+
+Let me also reconsider: should I worry about the "——" and "“”" characters being exactly right? The read_range output uses "——" (em-dash) and "“”" (full-width quotes). I'll copy them exactly.
+
+Let me now also double-check: are there any half-width punctuation in the text I'm deleting that might cause mismatch? No, I'm deleting, not matching specific punctuation. I just need the target text to EXACTLY match.
+
+OK, writing now.
+
+Let me construct the two commands. Actually, I'll do them in a single editor.write call with 2 commands.
+
+Command 1:
+operation: replace_match
+target: "#### 7.8 菌膜外套：有限资源的临时通行方案\n\n陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。但林知意在对SC-α备份菌株进行深入研究后，结合方岫岩数据板中关于SC-α菌株信息素伪装机制的理论推导，提出了一个折中方案：仿制一种低版本的单一功效菌膜外套。数据板提供了信息素伪装机制的理论基础——即SC-α菌丝向菌毯广播“无生命有机质”静默声明的分子结构是什么。但从“分子结构”到“可穿戴的仿制外套”，中间是林知意独立完成的工程实现。\n\n菌膜外套的技术原理：它不是活的共生体——它是从SC-α菌株代谢产物中分离出的信息素屏蔽剂，预装在晶化菌丝编织的外套夹层中。穿戴者在菌毯上行走时，外套被动释放屏蔽剂，在穿戴者体表形成一层临时的信息素伪装层。\n\n**单件有效时间约4-6小时**。时间从穿戴后第一次接触菌毯开始计算。到期后外套失效，穿戴者必须在失效前返回裸土区或安全据点，否则暴露于菌毯预警。不可续费——失效的主要原因是屏蔽剂分子的自然降解。\n\n**年产量约200-300件**。瓶颈在归藤剂印记片段的提取。归藤剂是共生战士的专属终极手段，印记片段提取需要周庭芳亲自操作，无法工业化量产。天府都陷落后，归藤剂储备有限。\n\n**不具备任何防御功能**。菌膜外套只提供信息素伪装，不提供战斗防护。\n\n**需要岫岩城科研中枢定期补充屏蔽剂**。屏蔽剂配方无法脱离岫岩城生产。\n\n陈暮的角色：路线勘探者。他利用菌膜装甲的信息素伪装和菌丝网络感知能力，亲自走一遍未知区域，标记出安全的通行路线。岫岩城根据勘探后的路线图配发菌膜外套给需要通行的人。\n\n"
+content: ""
+
+Command 2:
+operation: replace_match
+target: "#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系"
+content: "#### 7.8 与终局的衔接：菌膜外套与共存补丁的关系"
+
+This looks right. Let me write.
+
+Actually, wait - I want to reconsider whether the target for command 1 should include the trailing "\n\n". If the actual document has different whitespace (e.g., only "\n" or "\n\n\n"), my match fails.
+
+From read_range, the content ended with "...给需要通行的人。\n\n" (I saw "给需要通行的人。\n\n" in the output, followed by hasMore:false).
+
+Actually, looking at the read output again:
+```
+陈暮的角色：路线勘探者。他利用菌膜装甲的信息素伪装和菌丝网络感知能力，亲自走一遍未知区域，标记出安全的通行路线。岫岩城根据勘探后的路线图配发菌膜外套给需要通行的人。\n\n\n
+```
+
+Hmm, I need to look more carefully. The read output showed:
+"陈暮的角色：路线勘探者。他利用菌膜装甲的信息素伪装和菌丝网络感知能力，亲自走一遍未知区域，标记出安全的通行路线。岫岩城根据勘探后的路线图配发菌膜外套给需要通行的人。\n\n"
+
+Then the JSON shows `"hasMore":false`.
+
+Wait, in the actual output text I received, it ended with:
+"岫岩城根据勘探后的路线图配发菌膜外套给需要通行的人。\n\n"
+
+So there are 2 newlines at the end (paragraph break + one blank line). But it could be 2 or 3.
+
+To be SAFE, let me NOT include the trailing "\n\n" in my target. Instead, I'll delete from "#### 7.8" through "给需要通行的人。" (no trailing newlines), and then handle the leftover blank line separately.
+
+Actually, simpler: let me include the heading through "给需要通行的人。\n\n" but if there are 3 newlines it fails. 
+
+Hmm. To minimize risk, let me structure the delete differently:
+
+Target 1: "#### 7.8 菌膜外套：有限资源的临时通行方案\n\n陈暮的菌膜装甲是独一无二的——...给需要通行的人。" (no trailing newline)
+content: ""
+
+This deletes the heading + content but leaves trailing "\n\n" before "#### 7.9". Result: "...唯一火种。\n\n\n\n#### 7.9..." (7.7's ending "\n\n" + leftover "\n\n" + 7.9).
+
+That gives extra blank lines. I'd need a follow-up blank line cleanup.
+
+Alternatively, I can anchor the delete with the NEXT heading:
+Target: "#### 7.8 菌膜外套：有限资源的临时通行方案\n\n[content]给需要通行的人。\n\n#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系"
+content: "#### 7.8 与终局的衔接：菌膜外套与共存补丁的关系"
+
+This single command BOTH deletes 7.8 AND renumbers 7.9! Because I replace the whole span (7.8 heading + content + blank + 7.9 heading) with just the renumbered 7.9 heading.
+
+But the risk is that the "\n\n" between "给需要通行的人。" and "#### 7.9" must match exactly.
+
+Hmm, this is getting too fiddly. Let me just do the straightforward approach:
+
+Command 1: delete 7.8 content (heading through last char, no trailing newline).
+Command 2: renumber 7.9 → 7.8.
+
+And accept there might be extra blank lines, which I can clean later.
+
+Actually, you know what, let me just include the trailing "\n\n" in the delete target and hope it matches. The read_range clearly showed "\n\n" at the end.
+
+Actually, let me reconsider. I'll look at the EXACT read output one more time from what I received:
+
+```
+"content":"#### 7.8 菌膜外套：有限资源的临时通行方案\n\n陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。...陈暮的角色：路线勘探者。他利用菌膜装甲的信息素伪装和菌丝网络感知能力，亲自走一遍未知区域，标记出安全的通行路线。岫岩城根据勘探后的路线图配发菌膜外套给需要通行的人。\n\n","hasMore":false
+```
+
+So the content string ends with "给需要通行的人。\n\n". That's confirmed: 2 newlines.
+
+So my delete target ends with "给需要通行的人。\n\n" and this is the full section content (since hasMore:false and range 47539-48228).
+
+So the full section text = "#### 7.8 ...给需要通行的人。\n\n" (exactly as read).
+
+I'll use this as target, content = "".
+
+Result: "...唯一火种。\n\n" (7.7 ending) + "" + "#### 7.9..." = "...唯一火种。\n\n#### 7.9..."
+
+Clean!
+
+OK, final. Let me write.
+
+Let me carefully write out the full target text. I need to be meticulous.
+
+Target for command 1 (exact):
+"#### 7.8 菌膜外套：有限资源的临时通行方案\n\n陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。但林知意在对SC-α备份菌株进行深入研究后，结合方岫岩数据板中关于SC-α菌株信息素伪装机制的理论推导，提出了一个折中方案：仿制一种低版本的单一功效菌膜外套。数据板提供了信息素伪装机制的理论基础——即SC-α菌丝向菌毯广播“无生命有机质”静默声明的分子结构是什么。但从“分子结构”到“可穿戴的仿制外套”，中间是林知意独立完成的工程实现。\n\n菌膜外套的技术原理：它不是活的共生体——它是从SC-α菌株代谢产物中分离出的信息素屏蔽剂，预装在晶化菌丝编织的外套夹层中。穿戴者在菌毯上行走时，外套被动释放屏蔽剂，在穿戴者体表形成一层临时的信息素伪装层。\n\n**单件有效时间约4-6小时**。时间从穿戴后第一次接触菌毯开始计算。到期后外套失效，穿戴者必须在失效前返回裸土区或安全据点，否则暴露于菌毯预警。不可续费——失效的主要原因是屏蔽剂分子的自然降解。\n\n**年产量约200-300件**。瓶颈在归藤剂印记片段的提取。归藤剂是共生战士的专属终极手段，印记片段提取需要周庭芳亲自操作，无法工业化量产。天府都陷落后，归藤剂储备有限。\n\n**不具备任何防御功能**。菌膜外套只提供信息素伪装，不提供战斗防护。\n\n**需要岫岩城科研中枢定期补充屏蔽剂**。屏蔽剂配方无法脱离岫岩城生产。\n\n陈暮的角色：路线勘探者。他利用菌膜装甲的信息素伪装和菌丝网络感知能力，亲自走一遍未知区域，标记出安全的通行路线。岫岩城根据勘探后的路线图配发菌膜外套给需要通行的人。\n\n"
+
+That's the target. content = "".
+
+Command 2 target: "#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系"
+content: "#### 7.8 与终局的衔接：菌膜外套与共存补丁的关系"
+
+Let me submit.
+
+Actually, one concern: the JSON string will contain "\n" as literal backslash-n or actual newlines? In the tool call, I need to write actual newlines in the string. The tool schema says "content": {"type": "string"}. I'll write the string with actual newlines (which the JSON encoder will handle).
+
+Wait, but when I write the target with actual newlines, they'll be interpreted as newline characters. Good.
+
+Let me write the tool call now.
+
+I'll also add a brief reason and note in the final response that I've executed the dedup.
+
+Actually, the system says "写入授权后禁止输出【修改预览】、完成总结或仅描述将要执行的动作". So after writing, I should give a brief factual statement, not a full summary. But I can briefly state what was done.
+
+Let me write the editor.write call.
+
+Let me be careful with the exact punctuation in the target. I'll copy from the read output.
+
+Actually, let me reconsider if there's risk in the full-text match. If it fails, I'll get an error and can retry with editor.locate.
+
+Let me submit now.

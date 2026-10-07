@@ -1,0 +1,54 @@
+{
+  "taskId": "edit-task-1791312523257-2",
+  "status": "awaiting_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "去重：删除卷一中与总纲重复的7.8、7.9节，并将7.9独有的终局内容合并至总纲『菌膜外套与共存补丁的关系』章节，确保信息无损",
+  "executedBatches": [
+    "ai-edit-mux184wt-h",
+    "ai-edit-mux1adu3-i",
+    "ai-edit-mux1ef5a-j"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "去重：删除卷一中与总纲重复的7.8、7.9节，并将7.9独有的终局内容合并至总纲『菌膜外套与共存补丁的关系』章节，确保信息无损",
+    "batches": [
+      "ai-edit-mux184wt-h",
+      "ai-edit-mux1adu3-i",
+      "ai-edit-mux1ef5a-j"
+    ],
+    "batchDetails": {
+      "ai-edit-mux184wt-h": {
+        "segmentId": "structure-plan",
+        "expectedChange": "remove_duplicate",
+        "range": {
+          "startLine": 0,
+          "endLine": 74479
+        },
+        "writeStrategy": "delete",
+        "invariantResult": "planned-deletion-only"
+      },
+      "ai-edit-mux1adu3-i": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74479
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      },
+      "ai-edit-mux1ef5a-j": {
+        "segmentId": "structure-repair",
+        "expectedChange": "restructure",
+        "range": {
+          "startLine": 0,
+          "endLine": 74479
+        },
+        "writeStrategy": "structure_repair",
+        "invariantResult": "planned-deletion-only"
+      }
+    }
+  }
+}

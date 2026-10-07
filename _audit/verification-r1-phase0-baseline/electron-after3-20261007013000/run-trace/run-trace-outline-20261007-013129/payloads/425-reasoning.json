@@ -1,0 +1,86 @@
+Let me analyze the current state. I need to continue the normalization work. The last locates failed because the fragment used smart quotes (") instead of straight quotes ("). Let me use the actual text from the document.
+
+From the previous read of `heading-4-8ex97`, the actual text is:
+```
+共存补丁完成后，人类不再被巨树的排异反应识别为竞争者。共存不是和解，是重新分类。人类从"竞争者"变成了"树荫下的苔藓"。
+```
+
+Wait, the locate failed because I used smart quotes `"` and `"`. Let me use the actual straight quotes from the document. Let me try again with the fragment from heading-4-8ex97.
+
+But actually, looking at the earlier read, the text in heading-4-8ex97 shows:
+```
+人类从"竞争者"变成了"树荫下的苔藓"。
+```
+
+These are straight quotes in the document. Let me look more carefully at what we need to fix:
+
+1. The `heading-4-8ex97` ends with the text ending in `。` followed by `\n\n` then `## 卷四：叙事工具箱层`
+2. The `heading-4-l3l5bh` - already fixed
+3. The `heading-4-2lgyj9` - already fixed
+4. The `heading-2-sd0mn1` → `heading-2-171cwmj` - already fixed
+
+Now I need to fix the remaining transitions, looking at:
+- heading-4-8ex97 (5.4 终局之后) → heading-2-12ruweg (卷四)
+
+Let me locate the exact text:
+- End of heading-4-8ex97: `人类从"竞争者"变成了"树荫下的苔藓"。\n\n`
+- Start of heading-2-12ruweg: `## 卷四：叙事工具箱层`
+
+So between those two there should be exactly one blank line. Let me check - the read of heading-4-8ex97 shows `。\n\n` at the end. That's one trailing newline (the end of paragraph) plus one blank line before the next heading. That should be fine actually.
+
+But the locate failed with smart quotes. Let me try with exact straight quotes from the document.
+
+Actually wait, I need to step back and assess what's actually remaining. The search results showed:
+- `,` (comma) - no results found. So there are no half-width commas in Chinese context.
+- `.` (period) - 272 results. These are mostly in table headers, markdown formatting, numbers, etc.
+- `;` (semicolon) - no results found.
+- `!` - no results found.
+- `?` - no results found.
+- `:` - 3 results, in legitimate contexts (time notations like "11月19日3:14" and chemical notations like "18:2", "18:3")
+
+So the Chinese half-width punctuation issue seems minimal. The `.` matches are mostly in structural contexts (markdown headers, table formatting, number notation, abbreviations like "§6.6").
+
+Let me focus on what structural issues remain:
+
+1. `heading-4-8ex97` trailing newlines → `heading-2-12ruweg`: The read shows `。\n\n` at end which is just one trailing newline after content + blank line before next heading. That's actually correct.
+
+Wait, actually looking at the read more carefully for heading-4-8ex97:
+```
+#### 5.4 终局之后
+
+共存补丁完成后，人类不再被巨树的排异反应识别为竞争者。共存不是和解，是重新分类。人类从"竞争者"变成了"树荫下的苔藓"。
+
+
+```
+
+That's `\n\n\n` at the end (one after the paragraph, plus two empty lines). Let me check the exact bytes. The read shows `。\n\n\n` at the end. That's one blank line too many.
+
+But I can't locate it using smart quotes. Let me try using the actual straight quotes from the document. The document reads `人类从"竞争者"变成了"树荫下的苔藓"。` - these are using the standard ASCII quotes `"`.
+
+Let me try locating with the exact text including the period and newlines. But the locate function expects a unique fragment - let me just use the actual tail text.
+
+Actually, the issue is that my previous locate used smart/curly quotes (`"` and `"`) but the document uses straight quotes (`"`). Let me try again with straight quotes.
+
+But wait - I should also check if there are more issues I'm missing. Let me look at the document structure more holistically. The main remaining tasks seem to be:
+
+1. Fix the `heading-4-8ex97` trailing newlines before `heading-2-12ruweg`
+2. Check if there are any `.` instances that need to be converted to `。` in Chinese context
+
+The `.` search returned 272 results, mostly in markdown structural contexts or numbers. Let me look at a few of these to determine if any are in Chinese prose context that should be `。`.
+
+Actually, looking at the document structure, most `.` instances are:
+- In markdown headers like `### 1.1` or `#### 7.2.1` - fine
+- In table cells - fine
+- In decimal numbers - fine
+- In abbreviations like "§6.6" - fine
+- In URLs or technical notations - fine
+
+The real concern is: are there any `.` in Chinese prose text? The search results from section `heading-5-1h8zl26` at positions 24927, 24929 etc. - these are in the format `##### 4.1.2` - these are markdown headers, not Chinese prose. Similarly the section `heading-4-k50yzv` and others.
+
+Let me focus on what I can verify: the `.` at position 22666 in section `heading-4-1vn8oly` and 22772 in `heading-4-ggkfny` - these are in the section titles themselves (like `##### 4.1.1 时间与地点`) which are header markers. The actual prose content doesn't seem to have half-width periods.
+
+OK, my assessment is that the `.` matches are all in technical/proper contexts (headers, numbers, table formatting). There don't seem to be half-width periods in Chinese prose that need conversion.
+
+Now let me focus on the remaining structural fix: the extra newlines at the end of heading-4-8ex97.
+
+Let me try to locate using the actual text from the document (with straight quotes):

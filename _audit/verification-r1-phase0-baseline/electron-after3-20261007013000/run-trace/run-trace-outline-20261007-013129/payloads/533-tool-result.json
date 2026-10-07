@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-3-xco0i6",
+      "title": "二、术语统一总表",
+      "kind": "heading",
+      "level": 3,
+      "path": "二、术语统一总表"
+    },
+    "range": {
+      "start": 73449,
+      "end": 73509
+    },
+    "offset": 1450,
+    "maxChars": 60,
+    "content": "方案、操作流程、技术图纸 |\n| 绿潮 | 专有名词，指代2042年灾难爆发时菌毯以惊人速度覆盖全球的历史事件 | 全书",
+    "hasMore": true,
+    "nextCursor": "section:heading-3-xco0i6:1510",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

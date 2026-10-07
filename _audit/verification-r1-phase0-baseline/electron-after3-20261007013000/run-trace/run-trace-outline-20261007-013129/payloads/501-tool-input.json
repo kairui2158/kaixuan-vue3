@@ -1,0 +1,17 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "content": "重新划定敌我边界。\n\n### 第一卷",
+      "reason": "修复故事核心节尾与第一卷标题之间多余空行（四空行→一空行），符合Word排版",
+      "target": "重新划定敌我边界。\n\n\n\n### 第一卷"
+    },
+    {
+      "operation": "replace_match",
+      "content": "不是地图，是一块可以撕掉的地图。\n\n## 背景参考资料",
+      "reason": "修复第三卷节尾与背景参考资料标题之间多余空行，符合Word排版",
+      "target": "不是地图，是一块可以撕掉的地图。\n\n\n## 背景参考资料"
+    }
+  ],
+  "reason": "normalize-segment-1 继续：修复章节间多余空行（故事核心→第一卷、第三卷→背景参考资料）"
+}

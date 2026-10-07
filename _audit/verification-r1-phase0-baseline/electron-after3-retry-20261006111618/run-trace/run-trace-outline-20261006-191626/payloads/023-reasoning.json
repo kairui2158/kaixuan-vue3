@@ -1,0 +1,169 @@
+Batch 2 wrote successfully. Now I've added structure headings for the military section. Let me check the "菌膜外套与共存补丁的关系" section which contains a lot of merged content that should arguably be split. But user said "不要缩减内容" (don't reduce content). Restructuring into Word document form means organizing headings properly.
+
+The section "菌膜外套与共存补丁的关系" (heading-2-28do6r) contains:
+1. 菌膜外套与共存补丁的关系 (short intro)
+2. 六大势力各卷概述 (大裂谷走廊/垅原/环障盆地/南角双港/海棘三角洲)
+3. 圣萌会起源 (远西大陆)
+4. 巨树/终局之战
+5. 共存补丁结局
+
+This is a huge mixed section. But the user's request is "按照Word文档的形式重构大纲" — restructure into Word document form. The main structural issue is that some content is duplicated (already removed) and some "无标题正文" lacks headings.
+
+However, I should be careful. The task plan says: "执行标题层级修复或章节重排" and "normalize-segments 按计划批次整理格式". The completion criteria includes "normalize-changes-punctuation-whitespace-format-only" meaning format-only changes.
+
+So the key work is:
+1. Remove duplicates (done)
+2. Normalize headings (partially done)
+
+I should also check whether there are remaining structural issues. Let me think about what "按照Word文档的形式重构" means. It likely means:
+- Proper heading hierarchy
+- Remove leftover editing instructions (the "粘贴到..." line — done)
+- Remove duplicate content blocks
+
+The document has a big structural problem: the "背景参考资料" section contains a giant block of content that seems to be at the wrong level, and "菌膜外套与共存补丁的关系" contains what should be separate chapters.
+
+But I must be cautious about not over-restructuring. The user said "不要缩减内容" (don't reduce/cut content). So I should focus on:
+1. Formatting normalization (headings)
+2. Removing obvious duplicates and editing artifacts
+
+Let me continue checking the document map for any other leftover editing instructions or duplicates. Let me search for other artifacts.
+
+Let me search for things like "补充钩子" which are legitimate content, and other possible leftover instructions. Let me also check if there are other duplicated blocks. I noticed the "背景参考资料" (heading-2-1lka0h8) previously contained a copy of "数据板的局限" which I deleted. Now it ends with "数据板提供的是火种，不是火炬。" followed by the heading "## 数据板的局限".
+
+Wait, actually looking at my deletion: I deleted the text starting "数据板的局限\n数据板不是百宝箱..." from within 背景参考资料 section. But the original 背景参考资料 section ended with "...数据板提供的是火种，不是火炬。\n\n" and then there was the duplicate "数据板的局限" heading + full text.
+
+Actually wait, looking more carefully. The 背景参考资料 read_range showed:
+- ends with "数据板提供的是火种，不是火炬。\n\n\n" 
+
+Then the document had "## 数据板的局限" as a separate heading-2 section.
+
+But wait, the read showed the 背景参考资料 content (heading-2-1lka0h8, range 10230-16801) contained at its end:
+
+"...数据板提供的是火种，不是火炬。\n\n\n"
+
+That's the end of 背景参考资料 at 16801. Then heading-2-z4sxm8 "数据板的局限" starts at 16801.
+
+But actually the read_range for 背景参考资料 showed it includes "数据板的局限\n数据板不是百宝箱..." text at the end! Let me re-read.
+
+Looking at the read output for heading-2-1lka0h8 (背景参考资料), the content ends with:
+
+"...后来林知意研发的菌膜外套、禁声幕墙...数据板提供的是火种，不是火炬。\n\n\n"
+
+Hmm wait, that's the end. But the earlier search result showed:
+
+Search for "数据板提供的是火种，不是火炬" returned 2 matches:
+1. start 16783 in section heading-2-1lka0h8 (背景参考资料)
+2. start 17338 in section heading-2-z4sxm8 (数据板的局限)
+
+So 背景参考资料 DID contain a full duplicate copy of "数据板的局限" text (with straight quotes "), ending at 16797-ish, and then heading-2-z4sxm8 (数据板的局限) had the version with curly quotes.
+
+My delete command targeted the version with straight quotes. The delete target was the full text starting "数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播\"无生命有机质\"..." 
+
+Wait, but I need to verify my delete actually removed the correct thing. The delete target I specified started with "数据板的局限\n数据板不是百宝箱" and used straight quotes \". 
+
+But wait — was the duplicate in 背景参考资料 actually a standalone "数据板的局限" heading? Looking at the search context:
+"数据板提供的是火种，不是火炬。\n\n\n## 数据板的局限\n\n数据板不是百宝箱..."
+
+So the first match (16783) was the tail of a duplicate "数据板的局限" content block that lived INSIDE 背景参考资料 (before the separate ## 数据板的局限 heading at 16801).
+
+Actually the structure map showed:
+- heading-2-1lka0h8 背景参考资料 (10230-16801)
+- heading-2-z4sxm8 数据板的局限 (16801-17356)
+
+So the duplicate text "数据板的局限\n数据板不是百宝箱..." ending at ~16797 was inside 背景参考资料, and it was a FLAT text (not a real heading, just literal text "数据板的局限" as a paragraph). My delete removed that flat duplicate text. Good.
+
+But wait — the delete target string I gave started with "数据板的局限\n数据板不是百宝箱。..." and the actual text in 背景参考资料 was "...数据板提供的是火种，不是火炬。\n\n数据板的局限\n数据板不是百宝箱。..." — no, actually it was "火种，不是火炬。\n\n\n数据板的局限\n数据板不是百宝箱..." 
+
+My delete target was: "数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的..." — this matched the flat duplicate inside 背景参考资料. And the delete succeeded (written). Good.
+
+Actually wait, there's a subtlety. The delete target I gave used straight double quotes \". The actual text in 背景参考资料 used straight quotes " (ASCII). The locate/search confirmed straight quotes in that section. So it matched.
+
+Now after deletion, the 背景参考资料 section now ends with "...数据板提供的是火种，不是火炬。" (the first, straight-quote version from the military section? no).
+
+Hmm, actually let me not overthink. The write was successful and coverage confirmed deletions at 16211-16759 (which is within 背景参考资料). Good.
+
+Now the total chars went from 74841 → 74254 (deleted 587 chars = the paste instruction ~39 chars + duplicate data板局限 ~548 chars). 
+
+Now I've added headings to the military section. Total now 74307.
+
+Let me verify the current state of the military section and check for other artifacts/duplicates. Let me also check if there are more leftover instructions or duplicates elsewhere in the document.
+
+Key remaining concern: The section "菌膜外套与共存补丁的关系" (heading-2-28do6r) mixes multiple topics. But this is existing structure, not an editing artifact. The user wants Word document form. Should I split it? That would be a larger restructure. 
+
+Given the plan's completion criteria emphasize "format-only" normalization and "planned-deletion-only", and the user said "不要缩减内容", I think the safest interpretation is:
+1. Fix heading hierarchy issues (无标题正文 → give headings)
+2. Remove duplicates and editing artifacts
+3. Don't cut content
+
+Let me check for other issues. Let me search for common artifacts:
+- "粘贴到" (already found 1, deleted)
+- Other possible "TODO" or editing notes
+
+Let me also check the "故事核心" section — there was the "【核心张力：保护即加速】" block which was meant to be pasted. The paste instruction said "粘贴到「故事核心」下，紧接原文...之后". The block itself is legitimate content (it's the actual content to be inserted). I removed only the instruction line, keeping the 【核心张力】 block. That's correct — it stays as content.
+
+But wait — should the 【核心张力】 block be repositioned to right after "陈暮是唯一踩在菌毯上不被判定为敌人的人" sentence? The instruction said to paste it there. Currently it's at the end of 故事核心 section. This is a positioning issue, not a content cut issue.
+
+Hmm, the user's current request is just "按照Word文档的形式重构大纲，不要缩减内容" — restructure into Word doc form without cutting content. This doesn't explicitly ask me to reposition the 核心张力 block. But "重构" (restructure) could include fixing the position.
+
+Actually, let me reconsider. The instruction "粘贴到「故事核心」下，紧接原文..." was an editing note left by the user (or previous assistant). It indicates the 【核心张力】 block was meant to be moved to right after "陈暮是唯一踩在菌毯上不被判定为敌人的人" sentence. 
+
+Since I removed the instruction but left the block at the end, the content is technically "not reduced" but the structure still has the block in a suboptimal position. However, moving it would change the narrative flow. Actually, the current position at the end of 故事核心 after "人类的一切挣扎..." is also a reasonable place — it's a concluding tension statement.
+
+I think the safest approach is to leave it where it is (content preserved), just removing the editing instruction. This satisfies "不缩减内容".
+
+Actually, let me reconsider whether I should move it. The instruction explicitly says to paste it right after the first sentence. But this is a formatting/structure question. Given ambiguity and the risk of over-editing, I'll note this in my final response as a suggestion rather than doing it, OR I could do it since it's clearly what was intended.
+
+Hmm, but moving content is riskier. Let me focus on clear structural issues first.
+
+Let me now check the rest of the document map (sections 30-235) to find any other issues. Let me continue reading the document map.
+
+Actually, I already have the full structure from the first document_map call (offset 0, limit 120, hasMore true). I saw sections up to heading-4-1doqxwp (10.4 武器系统更新换代). I need the rest. But the structure seems well-formed already for the 卷一/卷二/卷三 sections.
+
+The main structural issues are in the 背景参考资料 and surrounding sections, which I've been addressing.
+
+Let me verify my heading additions didn't break anything, and check if the "核心逻辑" line etc. need anything. Let me read the updated military section to confirm it's clean.
+
+Actually, let me step back and think about what "Word文档形式" means more concretely. A Word document form typically has:
+1. A title (already: 《绿潮》大纲总纲)
+2. Clear heading hierarchy (H1/H2/H3...)
+3. No leftover editing notes/instructions
+4. No duplicate content
+
+The document already mostly has good heading hierarchy. The issues are:
+1. Leftover "粘贴到..." instruction → FIXED
+2. Duplicate "数据板的局限" → FIXED
+3. Unheaded military section (灾前军事基准线...) → FIXED with headings
+4. Possibly other unheaded blocks
+
+Let me search for other unheaded content. Let me look at whether there are other places with missing headings or leftover notes.
+
+Let me check the "故事核心" for the 【菌毯的本质】 and 【核心张力】 blocks — these are bolded block headers, not real headings, but they're content-style, which is fine for an outline.
+
+Let me do a few more searches to catch artifacts:
+- Search for "补充钩子" to confirm those are content (they are)
+- Search for any "TODO", "待补充", "暂不做" — these are legitimate content notes
+
+Let me check if there are more duplicate blocks. Earlier searches showed:
+- "数据板提供的是火种，不是火炬" → 2 matches (one in 背景参考资料, one in 数据板的局限). After deletion, should be 1 match now.
+
+Let me verify and also check the military section heading placement. Let me read the updated section.
+
+Actually, I realize I should also verify the "菌膜外套" duplicate. Earlier search for "菌膜外套是"让系统暂时看不到我们"" returned 2 matches: heading-2-28do6r (菌膜外套与共存补丁的关系) and heading-4-1au19n4 (7.9 与终局的衔接). These are DIFFERENT sections with similar but not identical content (one is a standalone 卷-level section, one is within 卷一的7.9). This is arguably intentional (the standalone section is like an expanded reference). I should NOT delete these — they're different levels of detail.
+
+Actually wait, let me check: heading-2-10q4nra "菌膜外套：有限资源的临时通行方案" (卷-level standalone, 728 chars) and heading-4-896l1n "7.8 菌膜外套：有限资源的临时通行方案" (within 卷一, 663 chars). These are near-duplicates. But again, one is a standalone reference section and one is a numbered chapter section. This appears to be a deliberate structure (the document has both a "背景参考资料"-style standalone sections AND the 卷一 numbered chapters). 
+
+Similarly, "菌膜外套与共存补丁的关系" (heading-2-28do6r, standalone) vs "7.9 与终局的衔接：菌膜外套与共存补丁的关系" (heading-4-1au19n4, in 卷一).
+
+This is a deliberate dual-structure in the outline. I should NOT remove these as "duplicates" — they serve different structural purposes (a narrative/overview part and a detailed setting part).
+
+OK so I've done the safe, clearly-correct edits. Let me verify the current state and then finalize.
+
+Let me verify the military section now has proper headings and check for any remaining issues by reading it.
+
+Actually, let me also reconsider: the "背景参考资料" section (heading-2-1lka0h8) now has my added headings "### 灾前军事基准线与菌毯的不可根除性" etc. as H3/H4 within a H2 section. That's fine.
+
+But wait — there might be an issue. The military section is currently under "背景参考资料" (H2). It has H3 "灾前军事基准线" and H4 "一、二、三". That's a proper hierarchy. Good.
+
+Let me verify by reading the current state of that section briefly.
+
+Let me also search for any remaining editing artifacts throughout the doc.

@@ -1,14 +1,13 @@
-import { describe, expect, it, vi } from 'vitest'
-import type { AgentOrchestratorTaskResult } from './agentOrchestrator'
+import { describe, expect, it } from 'vitest'
+import type { AgentToolDefinition, ToolResult } from './editorTools'
 import {
-  createAgentSubAgentTools,
-  createSequentialSubAgentManager,
+  AGENT_RUNTIME_TOOL_NAMES,
+  BUILT_IN_TOOL_NAMES,
   createToolConflictDiagnostic,
   findAgentToolNameConflicts,
   isAgentRuntimeToolName,
   removeConflictingExternalTools,
 } from './agentToolConflict'
-import type { AgentToolDefinition, ToolResult } from './editorTools'
 
 function tool(name: string, origin?: 'built-in' | 'external'): AgentToolDefinition {
   return {
@@ -23,39 +22,20 @@ function tool(name: string, origin?: 'built-in' | 'external'): AgentToolDefiniti
   }
 }
 
-function completedTask(taskId: string): AgentOrchestratorTaskResult {
-  return {
-    taskId,
-    status: 'completed',
-    text: '完成',
-    events: [],
-    snapshot: {
-      taskId,
-      status: 'completed',
-      goal: 'goal',
-      stepIndex: 0,
-      callCount: 1,
-      successfulWriteCount: 0,
-      noProgressRounds: 0,
-      repeatedCallCount: 0,
-      maxPhysicalRequests: 8,
-      updatedAt: 1,
-    },
-  }
-}
-
 describe('agent tool conflict protection', () => {
-  it('identifies built-in agent runtime tools without treating editor tools as runtime tools', () => {
-    expect([
-      'context.remaining',
-      'agent.plan',
-      'agent.spawn',
-      'agent.wait',
-      'agent.cancel',
-    ].map(isAgentRuntimeToolName)).toEqual([true, true, true, true, true])
+  it('keeps context and plan tools as the only agent runtime tools', () => {
+    expect(AGENT_RUNTIME_TOOL_NAMES).toEqual(['context.remaining', 'agent.plan'])
+    expect(['context.remaining', 'agent.plan'].map(isAgentRuntimeToolName)).toEqual([true, true])
     expect(isAgentRuntimeToolName('editor.write')).toBe(false)
     expect(isAgentRuntimeToolName('custom.tool')).toBe(false)
     expect(isAgentRuntimeToolName(undefined)).toBe(false)
+  })
+
+  it('treats retired sub-agent control names as external names, not reserved runtime names', () => {
+    for (const name of ['agent.spawn', 'agent.wait', 'agent.cancel']) {
+      expect(isAgentRuntimeToolName(name)).toBe(false)
+      expect(BUILT_IN_TOOL_NAMES).not.toContain(name)
+    }
   })
 
   it('rejects an external tool that occupies a built-in name', () => {
@@ -101,94 +81,5 @@ describe('agent tool conflict protection', () => {
     expect(names.filter(name => name === 'custom.lookup')).toHaveLength(1)
     expect(names).toContain('custom.safe')
     expect(safeTools.find(item => item.name === 'editor.write')?.origin).toBe('built-in')
-  })
-})
-
-describe('sequential sub-agent manager', () => {
-  it('runs spawned tasks one at a time in spawn order', async () => {
-    let releaseFirst: (() => void) | undefined
-    const started: string[] = []
-    const manager = createSequentialSubAgentManager({
-      runTask: input => new Promise(resolve => {
-        started.push(input.taskId)
-        if (input.taskId === 'a') {
-          releaseFirst = () => resolve(completedTask(input.taskId))
-          return
-        }
-        resolve(completedTask(input.taskId))
-      }),
-    })
-
-    await manager.spawn({ taskId: 'a', goal: 'first' })
-    await manager.spawn({ taskId: 'b', goal: 'second' })
-    expect(started).toEqual(['a'])
-
-    releaseFirst?.()
-    const second = await manager.wait({ taskId: 'b' })
-    expect(started).toEqual(['a', 'b'])
-    expect(second).toEqual({ ok: true, status: 'completed' })
-    expect(manager.getRecord('a')?.status).toBe('completed')
-    expect(manager.getRecord('b')?.status).toBe('completed')
-  })
-
-  it('moves a timed-out sub-agent into a failed terminal state', async () => {
-    let ticks = 0
-    const manager = createSequentialSubAgentManager({
-      runTask: () => new Promise(() => {}),
-      now: () => ticks++ * 10,
-      sleep: async () => {},
-    })
-    await manager.spawn({ taskId: 'slow', goal: 'never finishes' })
-
-    const waited = await manager.wait({ taskId: 'slow', timeoutMs: 10 })
-    const record = manager.getRecord('slow')
-
-    expect(waited.ok).toBe(false)
-    expect(waited.error?.code).toBe('sub_agent_timeout')
-    expect(record?.status).toBe('failed')
-    expect(record?.reason).toBe('sub_agent_timeout')
-  })
-
-  it('exposes spawn, wait, and cancel as read-only built-in tools', async () => {
-    let releaseRunning: (() => void) | undefined
-    const manager = createSequentialSubAgentManager({
-      runTask: input => new Promise(resolve => {
-        if (input.taskId === 'running') {
-          releaseRunning = () => resolve(completedTask(input.taskId))
-          return
-        }
-        resolve(completedTask(input.taskId))
-      }),
-    })
-    const tools = createAgentSubAgentTools({ manager })
-    const context = {} as Parameters<AgentToolDefinition['execute']>[1]
-
-    expect(tools.map(item => item.name)).toEqual(['agent.spawn', 'agent.wait', 'agent.cancel'])
-    expect(tools.every(item => item.policy === 'read')).toBe(true)
-
-    const invalidSpawn = await tools[0].execute({ taskId: ' ', goal: 'x' }, context)
-    expect(invalidSpawn.ok).toBe(false)
-    expect((invalidSpawn.error as { code: string }).code).toBe('invalid_task_id')
-
-    const spawned = await tools[0].execute({ taskId: 'child', goal: '整理一节' }, context)
-    expect(spawned.ok).toBe(true)
-    const waited = await tools[1].execute({ taskId: 'child' }, context)
-    expect(waited).toMatchObject({ ok: true, data: { taskId: 'child', status: 'completed' } })
-
-    const missing = await tools[1].execute({ taskId: 'missing' }, context)
-    expect(missing.ok).toBe(false)
-    expect((missing.error as { code: string }).code).toBe('sub_agent_not_found')
-
-    await manager.spawn({ taskId: 'running', goal: 'waiting' })
-    const canceled = await tools[2].execute({ taskId: 'running', reason: '用户取消' }, context)
-    expect(canceled).toMatchObject({ ok: true, data: { taskId: 'running', status: 'canceled' } })
-    expect(manager.getRecord('running')?.reason).toBe('用户取消')
-    releaseRunning?.()
-  })
-
-  it('propagates conflicts through the optional conflict callback', () => {
-    const onConflict = vi.fn()
-    createAgentSubAgentTools({ manager: createSequentialSubAgentManager(), onConflict })
-    expect(onConflict).not.toHaveBeenCalled()
   })
 })

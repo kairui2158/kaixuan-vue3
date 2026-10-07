@@ -1,0 +1,146 @@
+I need to continue executing the write. Let me look at what needs to be fixed. The search results showed punctuation issues. Let me focus on the remaining normalization tasks.
+
+The key remaining issue from the search: the ":" search found 3 matches with half-width colons in Chinese text context:
+1. `start:42335` - "11月19日3:14" and "11月20日至22日" etc. — actually these are time/date ranges with colons "3:14" which is a time notation. The instruction says 中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角. But "3:14" is a time notation within Chinese text. Hmm. Let me think. The instruction is strict: half-width punctuation in Chinese context must be unified to full-width. But "3:14" is a time. This is ambiguous. Actually the requirement says 标点, and ":" in "3:14" is a colon as time separator. Converting "3:14" to "3：14" would be odd but the rule says unify. However, this is risky—time notation and ratios like "18:2" (fatty acid ratio) and "18:3" should NOT be converted because they are numeric notations, not Chinese punctuation.
+
+Let me reconsider. The matches for ":" are:
+1. "11月19日3:14" — time notation
+2. "亚油酸（18:2）和α-亚麻酸（18:3）" — fatty acid carbon:double bond ratio notation
+
+These are numeric/scientific notations, not Chinese punctuation. Converting them would corrupt content. The rule about half-width punctuation (，。；：！？) is about punctuation marks in prose, not numeric ratios/time. I should not convert these. Actually "3:14" time could arguably be "3：14" but that's unusual. I'll leave numeric notations alone since they're not Chinese punctuation.
+
+The ":" search only returned 3 matches total, so there are no other stray half-width colons in prose. Good.
+
+The "." search returned 272 matches. But wait — "." matches every period, but in the document, most periods should already be full-width "。". Let me check: the search for "." returned matches at positions like 9958, 10095 etc. But looking at the context, these are actually full-width "。"? No wait, the search matched "." (half-width period) literally. Let me look at the contexts.
+
+Actually, looking more carefully at the search results for ".", the matches show context like "第三卷暂不做细节补充。**" — wait the matched character at 9958-9959... Let me look at the context. The context shows "……陈暮决定先回岫岩城。\n\n**第三卷暂不做细节补充。**" Hmm, but the match is at 9958. 
+
+Wait, actually I need to understand: the search query was "." (a half-width period). It returned 272 matches. But the contexts shown all contain full-width "。" and "、" and "，" etc. This is confusing.
+
+Actually, look at the context more carefully. For match at 9958: context is "聚集地的坐标，剩下所有势力在这里全部揭幕。陈暮决定先回岫岩城。\n\n**第三卷暂不做细节补充。** 等第二卷落地后再回来补。"
+
+The matched character at position 9958-9959 — what is it? The context window shows text around it. Position 9958 might be the "。" after "补充" or somewhere. Actually, hard to tell.
+
+Wait, the issue: the search might be matching "." inside the context, but the context display shows surrounding text. The match itself is the half-width period ".". But all the displayed text seems to use full-width punctuation.
+
+Hmm, actually I bet the document contains half-width periods "." somewhere. But 272 matches for "." is a LOT. Given the document is 73549 chars, 272 half-width periods is plausible if there are decimal numbers, version numbers, section numbers like "7.2.1", "1.2", "3.14", percentages "0.3%", etc.
+
+Indeed! The "." matches are almost certainly from:
+- Section numbers: "7.2.1", "4.2.5", "1.1", "3.2.1", etc.
+- Decimal numbers: "0.3%", "1.8GPa", "2.8兆", "0.5-1%", "36.5°C", "0.8°C", "1.5米", "3.2米", "2.8吨"
+- Version/technical: "SC-α", "fnv1a32"
+
+These are NOT Chinese punctuation — they are numeric/decimal/version notation. Converting "7.2.1" to "7。2。1" would be absurd and corrupt the document.
+
+So the "." search matches are all legitimate decimal/version/section-number periods, not Chinese punctuation. I should NOT convert them.
+
+Similarly "," search returned 0 matches — meaning no half-width commas. Good.
+
+";" returned 0 matches. Good.
+
+"!" returned 0 matches. Good.
+
+"?" returned 0 matches. Good.
+
+":" returned 3 matches, all numeric (time 3:14 and fatty acid 18:2, 18:3). These are numeric notations, not Chinese punctuation. Should I convert? The rule is about 标点 (punctuation). Time "3:14" — the colon here is arguably a time separator, part of numeric notation. Converting to "3：14" would be stylistically unusual. The fatty acid "18:2" and "18:3" definitely should stay as-is (scientific notation for carbon chain length: double bond count).
+
+I'll leave these numeric notations alone. They are not Chinese punctuation marks.
+
+So actually, the punctuation normalization is essentially already complete — the document uses full-width Chinese punctuation for prose, and the only half-width "." and ":" are legitimate numeric/decimal/section-number notations.
+
+Wait, but let me double check the "." search results more carefully. The first few matches:
+- 9958: context "第三卷暂不做细节补充。**" — this is "。" but match at 9958...
+
+Actually, I'm now unsure whether the match is a half-width period. Let me reconsider. The search function returned matches with `start` and `end` offsets. For match at 9958-9959, the character there should be "." (half-width period). But the context shows surrounding text with full-width punctuation.
+
+Actually the context might be showing a broader window, and the half-width "." could be inside something like "1." (numbered list) or "第4卷" ... 
+
+Wait, look at match at 10095: context "这样第三卷的"人性之恶"..." and "2. **铁壁城主给出的"坐标"，到第四卷再验证。**" — the "2." here is a numbered list marker "2." with a half-width period! That's a numbered list, which is a legit use but in Chinese typography should arguably be "2." or "2、" or "2．".
+
+Hmm. The instruction says half-width punctuation in Chinese prose must be unified. But numbered list markers "1." "2." are borderline. Converting "1." to "1．" (full-width period) or "1." ... 
+
+Actually, this is getting into over-thinking. Let me step back and focus on what's actually important and achievable.
+
+The core task from the user's latest instruction: "符合我的要求，分叉一允许去重。不用出预览，直接写入" — meaning "meets my requirements, branch one allows dedup. No preview, write directly."
+
+The execution plan has 3 batches:
+1. structure-repair
+2. structure-plan (dedup)
+3. normalize-segment-1
+
+I've already:
+- Done dedup (7.8/7.9 removed, content merged) — batch "structure-plan" covered
+- Done some structure repair (fixed opening blank lines) — batch "structure-repair" 
+- Done some normalization (blank lines between sections)
+
+The coverage shows:
+- Batch ai-edit-mux1ef5a-j → segmentId "structure-repair"
+- Batch ai-edit-mux184wt-h → segmentId "structure-plan" (the dedup)
+- Various normalize-segment-1 batches
+
+The remaining instruction demands: "整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74479]）" — normalize must cover the whole document range [0-74479].
+
+But I can't literally do a whole-document normalize in one write without replace_document (which is forbidden). I've been doing targeted blank-line fixes.
+
+Given the constraints and the risk of over-engineering, let me now do a final meaningful write that addresses the remaining clear issues:
+
+1. The blank lines at section boundaries I've been fixing.
+2. The "故事核心" ending blank lines — already done.
+3. Remaining blank lines at 卷二→卷三, 卷三→卷四 boundaries.
+
+I already located:
+- "这份日历是用无数条人命换来的。\n\n## 卷二" — has 2 blank lines (double \n\n means one empty line actually). Wait, "换来的。\n\n## 卷二" — that's "。" then newline newline then "## 卷二". That's ONE blank line between, which is correct! So no fix needed there.
+
+Wait let me re-read. The locate result context showed:
+"这份日历是用无数条人命换来的。\n\n## 卷二：核心人物群像"
+
+"\n\n" = one blank line. That's correct Word formatting. Good.
+
+"不参与争论但事后默默补上遗漏事实。\n\n## 卷三" — also "\n\n" = one blank line. Correct.
+
+The third locate (卷四) failed because I used straight quotes instead of curly quotes. The actual text uses curly quotes “竞争者”. Let me check the 卷四 boundary.
+
+Actually, from the document_map earlier, heading-2-12ruweg (卷四) starts at 71708, and heading-4-8ex97 (5.4 终局之后) ends at 71702. The read showed "5.4 终局之后" content ends with "人类从"竞争者"变成了"树荫下的苔藓"。\n\n" — wait the read output showed:
+
+"共存补丁完成后，人类不再被巨树的排异反应识别为竞争者。共存不是和解，是重新分类。人类从“竞争者”变成了“树荫下的苔藓”。\n\n"
+
+So it ends with "\n\n" (one blank line). Correct.
+
+So actually the blank line normalization is mostly done. The document is now in good shape.
+
+Let me verify the current state is good and do a final check. Actually, I've been told I must submit editor.write next round. Let me think about what remaining legitimate fixes exist.
+
+Looking at the search results again for ".":
+The match at 22666-22667 context: "系之外。\n\n\n## 卷一：基石设定层" — wait! There's a "\n\n\n## 卷一" — that's TWO blank lines before 卷一 heading. But wait, this context was from the OLD document state (before my recent edits). The search was run before some edits.
+
+Actually, let me re-examine. The search for "." was run after the dedup but the match at 22666 shows context "系之外。\n\n\n## 卷一：基石设定层" — hmm, but actually this is the boundary between 世界设定声明 and 卷一.
+
+Wait, let me look at the document_map from the latest state (version 52+). heading-2-sd0mn1 (世界设定声明) at 22496-22593, and heading-2-171cwmj (卷一) at 22593-54930.
+
+So between 世界设定声明 and 卷一, there might be blank line issues. Let me check.
+
+Actually, I'm overthinking this. The document has a systematic pattern where headings are separated. Let me do one more targeted check and fix.
+
+Actually, the most important remaining thing per the instruction is to make sure I've covered the normalization. I've done:
+1. Opening title blank lines ✓
+2. 故事核心→第一卷 ✓
+3. 第三卷→背景参考资料 ✓
+
+Let me check a few more boundaries and fix any remaining multi-blank issues. But I should batch them into ONE write call.
+
+Let me search for triple-newline patterns. Actually I can't easily search for "\n\n\n" via the search tool (it searches text content). 
+
+Let me look at specific boundaries from the document_map and read them. Key boundaries to verify:
+- 世界设定声明 → 卷一 (around 22593)
+- 卷二 title area already checked
+- 卷四 title area
+
+Let me check the 世界设定声明 section end.
+
+Actually, let me just do the writes I'm confident about. From the earlier search result at 22666, there was context showing "\n\n\n## 卷一：基石设定层" suggesting two blank lines before 卷一. But that was in an older snapshot.
+
+Let me read the current state of that boundary and then write.
+
+Actually, given the repeated warnings and that I need to make progress efficiently, let me do a focused batch: read the 世界设定声明→卷一 boundary and 卷二/卷三/卷四 boundaries are already confirmed fine.
+
+Let me check 世界设定声明 section and 卷一 opening.

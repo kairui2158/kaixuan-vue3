@@ -1,0 +1,44 @@
+The document structure now looks good. Let me verify the whole structure is coherent. The task is "按照Word文档的形式重构大纲，不要缩减内容" (Restructure the outline in the form of a Word document, don't reduce content).
+
+I've done:
+1. Deleted duplicate "数据板的局限" block that was embedded in 背景参考资料 (it exists as its own section now)
+2. Added a heading to the untitled "灾前军事基准线与菌毯的不可根除性" block
+3. Moved 世界设定声明 to the front as 序
+4. Added numbered prefixes to all ##-level sections
+5. Normalized half-width quotes to full-width in one section
+
+Let me check if there are remaining issues. The document now has:
+- 序 世界设定声明
+- 第一部分 叙事框架
+- 第二部分 背景参考资料
+- 第三部分 数据板的局限
+- 第四部分 菌膜外套：有限资源的临时通行方案
+- 第五部分 菌膜外套与共存补丁的关系
+- 第六部分 卷一：基石设定层
+- 第七部分 卷二：核心人物群像
+- 第八部分 卷三：势力与格局层
+- 第九部分 卷四：叙事工具箱层
+
+Wait, but "卷一/卷二/卷三/卷四" now have both a numbered prefix "第六部分" and their own "卷一" label. That's a bit awkward but it's consistent. Actually, the original had "卷一：基石设定层" etc as ##-level. These are the "设定卷" while "叙事框架" contains 第一卷/第二卷/第三卷 as ###-level (story arcs). There's a naming collision/confusion between "卷一：基石设定层" (setting volume 1) and "第一卷·觉醒与扎根" (story arc 1).
+
+Actually this is a pre-existing distinction in the source: "卷一：基石设定层" is a setting reference volume, while "第一卷·觉醒与扎根" is the actual story arc. They coexist in the original. My restructure keeps them all, just adds "第X部分" numbering.
+
+The task is essentially complete. Let me verify there are no remaining half-width quotes in the military section I partially fixed, and check the overall document is clean.
+
+Actually, let me not over-engineer. The core request was "按照Word文档的形式重构大纲，不要缩减内容" - restructure in Word document form, don't reduce content.
+
+I've:
+- Established a clear document skeleton (序 + 9 parts)
+- Fixed duplicate content (deleted exact duplicate)
+- Added missing heading
+- Normalized punctuation in a section
+
+Let me do a final verification of the structure and report. Let me check the document map one more time to confirm final state, and also verify no content was lost.
+
+Actually I already have good confirmation. The contentLength went from 74841 → 74298 (deleted 543-char duplicate) → 74340 → 74341 → 74346. So net content is preserved except the one duplicate deletion which was appropriate (the exact duplicate content still exists in its own section).
+
+Let me verify the duplicate deletion didn't lose content - the "数据板的局限" content exists in "第三部分 数据板的局限" section. Confirmed earlier via read_range of heading-2-z4sxm8 which showed the full content still exists.
+
+The task is essentially complete. Let me do a final check to see if there are any more obvious format issues, and then report.
+
+Let me check remaining half-width quotes in the document more broadly.

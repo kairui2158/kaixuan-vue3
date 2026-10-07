@@ -128,7 +128,7 @@ function decodeCursor(value: unknown): EditorDocumentCursor | null {
   if (typeof value !== 'string' || !value.trim()) return null
   const [kind, sectionId, offsetText] = value.trim().split(':')
   if (kind !== 'section' || !sectionId) return null
-  const offset = Number(offsetText)
+  const offset = offsetText === undefined ? 0 : Number(offsetText)
   if (!Number.isInteger(offset) || offset < 0) return null
   return { kind: 'section', sectionId, offset }
 }
@@ -240,7 +240,7 @@ export function createEditorDocumentMapTools(options: {
 
   const readRange: AgentToolDefinition = {
     name: 'editor.read_range',
-    description: '按 sectionId 或 cursor 分段读取编辑目标内容；分页只用 cursor，不支持 offset。写入后节 id 可能变化，读取失败时先刷新 editor.document_map 并使用当前版本 id。',
+    description: '按 sectionId + offset/limit 分段读取编辑目标内容；也可使用上一页 nextCursor。cursor 与 offset/limit/sectionId 分页只能选择一种。结构 ID 基于语义稳定；若 editor.write 回执提示新增、删除或冲突消歧，先刷新 editor.document_map。',
     policy: 'read',
     defaultToolPolicy: 'allowedWithoutPermission',
     riskLevel: 'low',
@@ -249,6 +249,8 @@ export function createEditorDocumentMapTools(options: {
       properties: {
         cursor: { type: 'string', description: '上一页返回的 nextCursor' },
         sectionId: { type: 'string', description: 'editor.document_map 返回的节 id' },
+        offset: { type: 'number', description: '节内起始字符位置，默认 0；与 cursor 互斥' },
+        limit: { type: 'number', description: '本次读取字符数上限；与 cursor 互斥' },
         maxChars: { type: 'number', description: `单次读取字符数，默认 ${EDITOR_DOCUMENT_MAP_DEFAULT_READ_CHARS}，最大 ${EDITOR_DOCUMENT_MAP_MAX_READ_CHARS}` },
       },
     },
@@ -256,20 +258,28 @@ export function createEditorDocumentMapTools(options: {
       const current = getState()
       if (!current) return toolError('target_missing', '当前没有可编辑目标')
       const params = isPlainObject(input) ? input : {}
-      const unsupportedPaginationKeys = ['offset', 'limit'].filter(key => key in params)
-      if (unsupportedPaginationKeys.length > 0) {
-        return toolError(
-          'invalid_input',
-          `editor.read_range 不支持 offset/limit 分页（收到不支持字段：${unsupportedPaginationKeys.join(', ')}）。请传 nextCursor 继续读取当前节，或用 editor.document_map 返回的 sectionId 开始读取。`,
-        )
-      }
       const cursor = decodeCursor(params.cursor)
       const hasSectionId = typeof params.sectionId === 'string' && params.sectionId.trim().length > 0
+      const hasExplicitOffset = 'offset' in params
+      const hasExplicitLimit = 'limit' in params
       if (!cursor && !hasSectionId) {
         return toolError('invalid_input', '必须提供 sectionId，或传入 document map/read_range 返回的 cursor')
       }
-      if (cursor && hasSectionId) {
-        return toolError('invalid_input', 'cursor 与 sectionId 二选一，不要同时传入')
+      if (cursor && (hasSectionId || hasExplicitOffset || hasExplicitLimit)) {
+        return toolError(
+          'invalid_input',
+          'cursor 与 offset/limit/sectionId 分页只能选择一种：继续读取当前节请只传 nextCursor；切换节或显式分页请传 sectionId/offset/limit。',
+        )
+      }
+      const explicitOffset = readInteger(params.offset, Number.NaN)
+      const explicitLimit = readInteger(params.limit, Number.NaN)
+      const invalidOffset = hasExplicitOffset && (!Number.isFinite(explicitOffset) || typeof params.offset !== 'number')
+      const invalidLimit = hasExplicitLimit && (!Number.isFinite(explicitLimit) || typeof params.limit !== 'number')
+      if (invalidOffset || invalidLimit) {
+        return toolError('invalid_input', 'offset/limit 必须是非负整数；继续读取当前节也可只传 nextCursor。')
+      }
+      if (!cursor && (hasExplicitOffset || hasExplicitLimit) && !hasSectionId) {
+        return toolError('invalid_input', '使用 offset/limit 分页时必须提供 sectionId；跨节顺序读取请使用 nextCursor。')
       }
 
       let section: EditorDocumentSection
@@ -305,7 +315,10 @@ export function createEditorDocumentMapTools(options: {
         path = entry.path
       }
 
-      const requestedMaxChars = readInteger(params.maxChars, EDITOR_DOCUMENT_MAP_DEFAULT_READ_CHARS)
+      const requestedMaxChars = hasExplicitLimit
+        ? Math.min(explicitLimit, EDITOR_DOCUMENT_MAP_MAX_READ_CHARS)
+        : readInteger(params.maxChars, EDITOR_DOCUMENT_MAP_DEFAULT_READ_CHARS)
+      const minimumReadChars = hasExplicitLimit ? 1 : EDITOR_DOCUMENT_MAP_MIN_READ_CHARS
       const providerCap = options.maxReadChars?.()
       const hardCap = providerCap !== undefined && Number.isFinite(providerCap) && providerCap > 0
         ? Math.floor(providerCap)
@@ -315,13 +328,16 @@ export function createEditorDocumentMapTools(options: {
       }
       const maxChars = clamp(
         requestedMaxChars,
-        EDITOR_DOCUMENT_MAP_MIN_READ_CHARS,
+        minimumReadChars,
         Math.min(EDITOR_DOCUMENT_MAP_MAX_READ_CHARS, hardCap),
       )
-      if (maxChars < EDITOR_DOCUMENT_MAP_MIN_READ_CHARS) {
-        return toolError('range_too_large', `当前上下文预算过小，单次至少需要 ${EDITOR_DOCUMENT_MAP_MIN_READ_CHARS} 字符`)
+      if (maxChars < minimumReadChars) {
+        return toolError('range_too_large', `当前上下文预算过小，单次至少需要 ${minimumReadChars} 字符`)
       }
-      const offset = cursor ? cursor.offset : 0
+      const offset = cursor ? cursor.offset : (hasExplicitOffset ? explicitOffset : 0)
+      if (offset >= section.charCount) {
+        return toolError('invalid_range', `offset ${offset} 超出节内容长度 ${section.charCount}`)
+      }
       const readStart = section.start + offset
       const readEnd = Math.min(section.end, readStart + maxChars)
       if (readEnd <= readStart) {

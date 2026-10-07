@@ -1,11 +1,12 @@
 {
-  "schemaVersion": "agent-sub-agent-electron-v1",
-  "generatedAt": "2026-09-26T03:08:34.563Z",
+  "schemaVersion": "agent-sub-agent-electron-retired-v2",
+  "generatedAt": "2026-10-06T11:14:00.000+08:00",
   "checks": [
-    "outline: outer agent tools exposed, sub-agent tools hidden, trace closed, final body visible",
-    "home: outer agent tools exposed, sub-agent tools hidden, trace closed, final body visible"
+    "historical evidence retained from 2026-10-05 run",
+    "2026-10-06 retirement: production source no longer exposes agent.spawn, agent.wait, or agent.cancel; this file is no longer a current verifier contract",
+    "replaced by scripts/verify-component-lifecycle-electron.mjs and R2 reference-closure evidence"
   ],
-  "verdict": "pass",
+  "verdict": "historical",
   "requests": [
     {
       "mode": "outline",

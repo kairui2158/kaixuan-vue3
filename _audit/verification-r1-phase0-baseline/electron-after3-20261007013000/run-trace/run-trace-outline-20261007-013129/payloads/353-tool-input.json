@@ -1,0 +1,35 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "reason": "规范标题前多余空行，符合 Word 排版",
+      "target": "不可替代的。\n\n\n## 菌膜外套与共存补丁的关系",
+      "content": "不可替代的。\n\n## 菌膜外套与共存补丁的关系"
+    },
+    {
+      "operation": "replace_match",
+      "reason": "规范标题前多余空行",
+      "target": "终极解法。\n\n\n## 六大势力概览",
+      "content": "终极解法。\n\n## 六大势力概览"
+    },
+    {
+      "operation": "replace_match",
+      "reason": "规范标题前多余空行",
+      "target": "忽略了他的存在。\n\n\n## 圣萌会的崛起",
+      "content": "忽略了他的存在。\n\n## 圣萌会的崛起"
+    },
+    {
+      "operation": "replace_match",
+      "reason": "规范标题前多余空行",
+      "target": "铺满了石头。\n\n\n## 巨树生长与天府都陷落",
+      "content": "铺满了石头。\n\n## 巨树生长与天府都陷落"
+    },
+    {
+      "operation": "replace_match",
+      "reason": "规范标题前多余空行",
+      "target": "撒进风中。\n\n\n## 世界设定声明",
+      "content": "撒进风中。\n\n## 世界设定声明"
+    }
+  ],
+  "reason": "规范章节标题前的多余空行为单个空行，符合 Word 文档排版，不缩减内容"
+}

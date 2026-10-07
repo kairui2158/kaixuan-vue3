@@ -1,0 +1,30 @@
+{
+  "taskId": "edit-task-1791279237812-1",
+  "status": "awaiting_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "structure-repair：为背景参考资料中的无标题伪标题段落补标题层级，不缩减内容",
+  "executedBatches": [
+    "ai-edit-muwheppf-1"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "structure-repair：为背景参考资料中的无标题伪标题段落补标题层级，不缩减内容",
+    "batches": [
+      "ai-edit-muwheppf-1"
+    ],
+    "batchDetails": {
+      "ai-edit-muwheppf-1": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      }
+    }
+  }
+}

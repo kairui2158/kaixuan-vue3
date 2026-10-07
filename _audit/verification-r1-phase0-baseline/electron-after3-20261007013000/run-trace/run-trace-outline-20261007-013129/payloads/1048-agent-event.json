@@ -1,0 +1,12 @@
+{
+  "taskId": "edit-task-1791312523257-2",
+  "batchId": "ai-edit-mux1ef5a-j",
+  "segmentId": "structure-repair",
+  "range": {
+    "startLine": 0,
+    "endLine": 74479
+  },
+  "writeStrategy": "structure_repair",
+  "expectedChange": "restructure",
+  "estimatedBatches": 3
+}

@@ -63,6 +63,48 @@ describe('editorTools', () => {
     expect(gateway.has('editor.propose_edits')).toBe(false)
   })
 
+  it('locate returns structural anchors when a fragment is ambiguous', async () => {
+    const structuredSnapshot = createEditorTargetSnapshot({
+      workspace: 'outline',
+      targetId: 'outline',
+      label: '大纲',
+      content: '# 第一卷\n\n## 第1节 主角出发\n沈萤停下。\n\n## 第2节 旧信\n沈萤停下。\n',
+    })
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({ getSnapshot: () => structuredSnapshot }))
+
+    const result = await gateway.execute('editor.locate', {
+      fragment: '沈萤停下。',
+    }, { ...makeContext(), workspace: 'outline', targetId: 'outline' })
+
+    expect(result.ok).toBe(false)
+    expect(result.error?.code).toBe('ambiguous_target')
+    expect(result.error?.message).toContain('第1节 主角出发')
+    expect(result.error?.message).toContain('第2节 旧信')
+    expect(result.error?.message).toContain('优先使用结构锚点')
+  })
+
+  it('locate returns structural anchors when a fragment is not found', async () => {
+    const structuredSnapshot = createEditorTargetSnapshot({
+      workspace: 'outline',
+      targetId: 'outline',
+      label: '大纲',
+      content: '# 第一卷\n\n## 第1节 主角出发\n她在灯塔下看旧信。\n\n## 第2节 渡口\n潮水退去。\n',
+    })
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({ getSnapshot: () => structuredSnapshot }))
+
+    const result = await gateway.execute('editor.locate', {
+      fragment: '沈萤停下。',
+    }, { ...makeContext(), workspace: 'outline', targetId: 'outline' })
+
+    expect(result.ok).toBe(false)
+    expect(result.error?.code).toBe('target_not_found')
+    expect(result.error?.message).toContain('第1节 主角出发')
+    expect(result.error?.message).toContain('第2节 渡口')
+    expect(result.error?.message).toContain('优先使用结构锚点')
+  })
+
   it('direct mode exposes the unified direct write tool', async () => {
     const gateway = new ToolGateway()
     gateway.registerAll(createEditorTools({
@@ -676,6 +718,12 @@ describe('editorTools', () => {
       writeStrategy: 'delete',
       invariantResult: 'planned-deletion-only',
     })
+    expect(appliedBatches[0].coverage).toMatchObject({
+      segmentId: 'structure-plan',
+      reason: 'declared_segment',
+      coverageTrusted: true,
+      commands: [expect.objectContaining({ operation: 'delete', segmentId: 'structure-plan' })],
+    })
 
     const normalize = await gateway.execute('editor.write', {
       commands: [{ operation: 'replace_match', target: '未重复的游离段落,标点待整理。', content: '未重复的游离段落，标点已整理。' }],
@@ -686,8 +734,22 @@ describe('editorTools', () => {
       writeStrategy: 'replace_match',
       invariantResult: 'normalize-changes-punctuation-whitespace-format-only',
     })
+    expect(appliedBatches[1].coverage).toMatchObject({
+      segmentId: 'normalize-segment-1',
+      reason: 'declared_segment',
+      coverageTrusted: true,
+      commands: [expect.objectContaining({
+        operation: 'replace_match',
+        segmentId: 'normalize-segment-1',
+      })],
+    })
     expect(content).not.toContain('## 第2节')
     expect(content).toContain('未重复的游离段落，标点已整理。')
+
+    const coverageRecords = (deletion.data as any).coverage && (normalize.data as any).coverage
+      ? [deletion.data, normalize.data]
+      : []
+    expect(coverageRecords).toHaveLength(2)
   })
 
   it('editor.write rejects replacement commands that omit content', async () => {
@@ -712,6 +774,7 @@ describe('editorTools', () => {
     expect(missingContent.ok).toBe(false)
     expect(missingContent.error?.code).toBe('invalid_input')
     expect(missingContent.error?.message).toContain('replace_match 必须同时携带 target（原文）与 content（新文）')
+    expect(missingContent.error?.message).toContain('若目的是删除原文，请使用 delete 操作')
     expect(appliedBatches).toHaveLength(0)
 
     const blankContent = await gateway.execute('editor.write', {
@@ -1046,6 +1109,433 @@ describe('editorTools', () => {
     expect(appliedBatches[0].next.indexOf('第3节')).toBeLessThan(appliedBatches[0].next.indexOf('第1节'))
     expect(appliedBatches[0].next.indexOf('第1节')).toBeLessThan(appliedBatches[0].next.indexOf('第2节'))
     expect(appliedBatches[0].next).toContain('乙'.repeat(5200))
+    expect((result.data as any).structureIdentity).toMatchObject({
+      stableIds: ['section-1', 'section-2', 'section-3'],
+      migratedIds: [],
+      addedIds: [],
+      removedIds: [],
+    })
+    expect(appliedBatches[0].coverage).toMatchObject({
+      coverageTrusted: true,
+      reason: 'single_segment_plan',
+      commands: [expect.objectContaining({
+        operation: 'reorder_sections',
+        reorderedRanges: [
+          expect.objectContaining({ start: expect.any(Number), end: expect.any(Number) }),
+          expect.objectContaining({ start: expect.any(Number), end: expect.any(Number) }),
+          expect.objectContaining({ start: expect.any(Number), end: expect.any(Number) }),
+        ],
+      })],
+    })
+  })
+
+  it('editor.write keeps structure-repair coverage aligned with the staged plan', async () => {
+    const longContent = [
+      '# 第一卷',
+      '',
+      '## 第1节 主角出发',
+      '她在灯塔下看旧信。',
+      '',
+      '## 第2节 渡口',
+      '潮水退去。',
+      '',
+      '## 第3节 旧信',
+      '同一句重复内容。',
+      '',
+    ].join('\n')
+    let content = longContent
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => createEditorTargetSnapshot({
+        workspace: 'outline',
+        targetId: 'chapter-1',
+        label: '结构修复',
+        content,
+      }),
+      mode: 'direct',
+      executionPlan: buildLongDocumentExecutionPlan({
+        requestText: '重排全文结构并清理重复内容',
+        content: longContent,
+        contextWindowTokens: 12_000,
+        maxOutputTokens: 2_048,
+        intent: 'edit',
+      }),
+      applyWrite: async input => {
+        content = input.next
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const structureRepair = await gateway.execute('editor.write', {
+      commands: [{
+        operation: 'move',
+        target: '## 第1节 主角出发',
+        destination: '## 第3节 旧信',
+        destinationPosition: 'after',
+      }],
+    }, { ...makeContext(), workspace: 'outline' })
+    expect(structureRepair.ok).toBe(true)
+    expect(appliedBatches[0].coverage).toMatchObject({
+      coverageTrusted: true,
+      commands: [expect.objectContaining({
+        operation: 'move',
+        segmentId: 'structure-repair',
+      })],
+    })
+
+    const normalize = await gateway.execute('editor.write', {
+      commands: [{
+        operation: 'replace_match',
+        target: '同一句重复内容。',
+        content: '同一句重复内容，已整理。',
+      }],
+    }, { ...makeContext(), workspace: 'outline' })
+    expect(normalize.ok).toBe(true)
+    expect(appliedBatches[1].coverage).toMatchObject({
+      coverageTrusted: true,
+      commands: [expect.objectContaining({
+        operation: 'replace_match',
+        segmentId: 'normalize-segment-1',
+      })],
+    })
+
+    const coverageRecords = [
+      structureRepair.data as { coverage?: { segmentId?: string } },
+      normalize.data as { coverage?: { segmentId?: string } },
+    ]
+    expect(coverageRecords.map(record => record.coverage?.segmentId)).toEqual([
+      'structure-repair',
+      'normalize-segment-1',
+    ])
+  })
+
+  it('maps heading-level replacements to structure repair without misclassifying normalize commands', async () => {
+    const longContent = [
+      '# 第一卷',
+      '',
+      '第1节 主角出发',
+      '她在灯塔下看旧信。',
+      '',
+      '第2节 渡口',
+      '潮水退去。',
+    ].join('\n')
+    let content = longContent
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => createEditorTargetSnapshot({
+        workspace: 'outline',
+        targetId: 'chapter-1',
+        label: '复合重构',
+        content,
+      }),
+      mode: 'direct',
+      executionPlan: buildLongDocumentExecutionPlan({
+        requestText: '重排全文结构并清理重复内容，同时统一标题层级和标点',
+        content: longContent,
+        contextWindowTokens: 12_000,
+        maxOutputTokens: 2_048,
+        intent: 'edit',
+      }),
+      applyWrite: async input => {
+        content = input.next
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [
+        {
+          operation: 'replace_match',
+          target: '第1节 主角出发',
+          content: '## 第1节 主角出发',
+          reason: '为裸标题补层级',
+        },
+        {
+          operation: 'replace_match',
+          target: '她在灯塔下看旧信。',
+          content: '她在灯塔下看旧信！',
+          reason: '统一标点',
+        },
+      ],
+    }, { ...makeContext(), workspace: 'outline' })
+
+    expect(result.ok).toBe(true)
+    expect(appliedBatches).toHaveLength(1)
+    expect(appliedBatches[0].batchDetail).toMatchObject({
+      segmentId: 'structure-repair',
+      writeStrategy: 'structure_repair',
+    })
+    expect(appliedBatches[0].coverage).toMatchObject({
+      coverageTrusted: true,
+      commands: [
+        expect.objectContaining({
+          operation: 'replace_match',
+          segmentId: 'structure-repair',
+        }),
+        expect.objectContaining({
+          operation: 'replace_match',
+          segmentId: 'normalize-segment-1',
+        }),
+      ],
+    })
+    expect(content).toContain('## 第1节 主角出发')
+    expect(content).toContain('她在灯塔下看旧信！')
+  })
+
+  it('maps same-text heading level upgrades with surrounding body to structure repair', async () => {
+    const longContent = [
+      '# 第一卷',
+      '',
+      '### 六大势力总览',
+      '',
+      '潮水退去。',
+    ].join('\n')
+    let content = longContent
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => createEditorTargetSnapshot({
+        workspace: 'outline',
+        targetId: 'chapter-1',
+        label: '标题升级',
+        content,
+      }),
+      mode: 'direct',
+      executionPlan: buildLongDocumentExecutionPlan({
+        requestText: '重排全文结构并清理重复内容，同时统一标题层级和标点',
+        content: longContent,
+        contextWindowTokens: 12_000,
+        maxOutputTokens: 2_048,
+        intent: 'edit',
+      }),
+      applyWrite: async input => {
+        content = input.next
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [{
+        operation: 'replace_match',
+        target: '### 六大势力总览\n\n潮水退去。',
+        content: '## 六大势力总览\n\n潮水退去。',
+        reason: 'structure-repair：板块应提升为二级章节',
+      }],
+    }, { ...makeContext(), workspace: 'outline' })
+
+    expect(result.ok).toBe(true)
+    expect(appliedBatches[0].batchDetail).toMatchObject({
+      segmentId: 'structure-repair',
+      writeStrategy: 'structure_repair',
+    })
+    expect(appliedBatches[0].coverage).toMatchObject({
+      coverageTrusted: true,
+      commands: [expect.objectContaining({
+        operation: 'replace_match',
+        segmentId: 'structure-repair',
+      })],
+    })
+    expect(content).toContain('## 六大势力总览')
+  })
+
+  it('editor.write builds trusted direct coverage for authorized targeted edits without a batch declaration', async () => {
+    const directContent = '第一段：旧句。\n第二段：验证正文。'
+    const directSnapshot = createEditorTargetSnapshot({
+      workspace: 'main',
+      targetId: 'chapter-1',
+      label: '主页直写',
+      content: directContent,
+    })
+    const plan = buildLongDocumentExecutionPlan({
+      requestText: '把第一段的旧句改成新句',
+      content: directContent,
+      contextWindowTokens: 128_000,
+      maxOutputTokens: 8_000,
+      intent: 'edit',
+    })
+    expect(plan.mode).toBe('direct')
+    expect(plan.segments).toHaveLength(1)
+
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => directSnapshot,
+      mode: 'direct',
+      executionPlan: plan,
+      writeAuthorization: {
+        source: 'long-document-workflow',
+        intent: 'edit',
+        operation: plan.operation,
+        mode: plan.mode,
+        reason: 'test-direct-write',
+      },
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [{
+        operation: 'replace_match',
+        target: '第一段：旧句。',
+        content: '第一段：新句。',
+        reason: '授权 direct 写入',
+      }],
+    }, makeContext())
+
+    expect(result.ok).toBe(true)
+    expect((result.data as any).coverage).toMatchObject({
+      coverageTrusted: true,
+      reason: 'single_segment_plan',
+      commands: [expect.objectContaining({
+        operation: 'replace_match',
+        segmentId: plan.segments[0].segmentId,
+      })],
+    })
+    expect(appliedBatches).toHaveLength(1)
+  })
+
+  it('editor.write keeps direct coverage semantics independent of write authorization', async () => {
+    const directContent = '第一段：旧句。\n第二段：验证正文。'
+    const plan = buildLongDocumentExecutionPlan({
+      requestText: '把第一段的旧句改成新句',
+      content: directContent,
+      contextWindowTokens: 128_000,
+      maxOutputTokens: 8_000,
+      intent: 'edit',
+    })
+    expect(plan.mode).toBe('direct')
+    expect(plan.segments).toHaveLength(1)
+
+    const coverageByAuthorization = new Map<string, unknown>()
+    for (const withAuthorization of [true, false]) {
+      const directSnapshot = createEditorTargetSnapshot({
+        workspace: 'main',
+        targetId: 'chapter-1',
+        label: '主页直写',
+        content: directContent,
+      })
+      const gateway = new ToolGateway()
+      gateway.registerAll(createEditorTools({
+        getSnapshot: () => directSnapshot,
+        mode: 'direct',
+        executionPlan: plan,
+        ...(withAuthorization ? {
+          writeAuthorization: {
+            source: 'long-document-workflow',
+            intent: 'edit',
+            operation: plan.operation,
+            mode: plan.mode,
+            reason: 'test-direct-write',
+          },
+        } : {}),
+        applyWrite: async input => {
+          if (withAuthorization) coverageByAuthorization.set('authorized', input.coverage)
+          else coverageByAuthorization.set('unauthorized', input.coverage)
+          return { ok: true, rollbackAvailable: true }
+        },
+      }))
+
+      const result = await gateway.execute('editor.write', {
+        commands: [{
+          operation: 'replace_match',
+          target: '第一段：旧句。',
+          content: '第一段：新句。',
+          reason: 'direct 写入',
+        }],
+      }, makeContext())
+
+      expect(result.ok).toBe(true)
+      expect((result.data as any).coverage).toMatchObject({
+        coverageTrusted: true,
+        reason: 'single_segment_plan',
+        commands: [expect.objectContaining({
+          operation: 'replace_match',
+          segmentId: plan.segments[0].segmentId,
+        })],
+      })
+    }
+
+    const normalizeCoverage = (coverage: any) => ({ ...coverage, batchId: undefined })
+    expect(normalizeCoverage(coverageByAuthorization.get('unauthorized')))
+      .toEqual(normalizeCoverage(coverageByAuthorization.get('authorized')))
+  })
+
+  it('editor.write does not trust a partial direct write in a multi-segment plan', async () => {
+    const longContent = [
+      '第1节',
+      '',
+      '甲'.repeat(5200),
+      '',
+      '第2节',
+      '',
+      '乙'.repeat(5200),
+      '',
+      '第3节',
+      '',
+      '丙'.repeat(1000),
+      '',
+    ].join('\n')
+    const plan = buildLongDocumentExecutionPlan({
+      requestText: '整理整篇大纲',
+      content: longContent,
+      contextWindowTokens: 12_000,
+      maxOutputTokens: 2_048,
+      intent: 'edit',
+    })
+    expect(plan.mode).toBe('direct')
+    expect(plan.segments.length).toBe(1)
+    const firstSectionRange = plan.segments[0].range
+    const directMultiSegmentPlan: typeof plan = {
+      ...plan,
+      mode: 'direct',
+      segments: [
+        plan.segments[0],
+        {
+          ...plan.segments[0],
+          segmentId: 'segment-second-half',
+          range: {
+            startLine: Math.max(firstSectionRange.startLine + 1, 1),
+            endLine: firstSectionRange.endLine,
+          },
+        },
+      ],
+    }
+    const longSnapshot = createEditorTargetSnapshot({
+      workspace: 'outline',
+      targetId: 'chapter-1',
+      label: '长文档',
+      content: longContent,
+    })
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => longSnapshot,
+      mode: 'direct',
+      executionPlan: directMultiSegmentPlan,
+      applyWrite: async () => ({ ok: true, rollbackAvailable: true }),
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [{
+        operation: 'insert',
+        position: 'cursor',
+        content: '第二节新增说明。',
+        reason: '只写入第一节',
+      }],
+    }, { ...makeContext(), workspace: 'outline' })
+
+    expect(result.ok).toBe(true)
+    expect((result.data as any).coverage).toMatchObject({
+      coverageTrusted: false,
+      reason: 'undeclared_segment',
+    })
+    expect(longContent.indexOf('第1节')).toBeGreaterThanOrEqual(0)
   })
 
   it('editor.write rejects reorder sections when ids are missing, duplicated, or content changes', async () => {

@@ -1,0 +1,16 @@
+Let me check what remains to be done. The plan has 3 batches: `structure-repair`, `structure-plan`, and `normalize-segment-1`. 
+
+From the coverage records:
+- `structure-plan` - has coverage from batch `ai-edit-mux184wt-h` (deletion of duplicates 7.8/7.9)
+- `structure-repair` - has coverage from batch `ai-edit-mux1ef5a-j` (fixed document opening whitespace)
+- `normalize-segment-1` - has coverage from batches `ai-edit-mux1ghh9-k` and `ai-edit-mux1j5if-l`
+
+Now I need to check if there are more normalize steps needed. Let me look at what's remaining:
+
+1. Check for the end of 卷三 → 卷四 junction (5.4 终局之后 → 卷四)
+2. Check if there are other excess blank lines throughout the document
+3. Check for half-width punctuation in Chinese contexts
+
+Let me read around the 卷三 end area and check the overall document.
+
+Looking at the current state: 73540 chars, seems we're making good progress. Let me check the 终局之后 to 卷四 junction.

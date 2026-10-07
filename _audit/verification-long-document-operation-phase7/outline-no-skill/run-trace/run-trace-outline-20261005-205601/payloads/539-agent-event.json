@@ -1,0 +1,15 @@
+{
+  "snapshot": {
+    "taskId": "outline-direct-api-1791204961552-8",
+    "status": "running",
+    "reason": "physical response received",
+    "goal": "按照Word文档的形式重构大纲，不要缩减内容。",
+    "stepIndex": 0,
+    "callCount": 1,
+    "successfulWriteCount": 10,
+    "noProgressRounds": 0,
+    "repeatedCallCount": 0,
+    "maxPhysicalRequests": 8,
+    "updatedAt": 1791207074382
+  }
+}

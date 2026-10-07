@@ -1,0 +1,642 @@
+The user wants me to restructure the outline into a Word document form, without reducing content. Let me understand what this means. The outline currently has some structural issues - there appear to be duplicated sections. Let me look at the document structure more carefully.
+
+Looking at the structure map, I can see there are some issues:
+1. The document has content that appears twice - for example, "数据板的局限" appears as a heading-2 under "叙事框架" area (after 背景参考资料), but also the content seems to be embedded in the "背景参考资料" section.
+
+Actually, let me analyze what "Word文档形式" means. The user wants the outline restructured to look like a Word document. This likely means:
+1. Clean heading hierarchy
+2. Remove duplicate content blocks
+3. Proper structure
+
+Let me look at the current structure more carefully. There are several issues:
+
+1. Under "叙事框架" heading-2, there's content that goes beyond "故事核心" and "第一卷" "第二卷" "第三卷" - it seems like "背景参考资料" content is actually embedded inside 叙事框架? No wait, let me re-read the structure map.
+
+Structure map:
+- 叙事框架 (13-10230)
+  - 故事核心 (23-1002)
+  - 第一卷·觉醒与扎根 (1002-7377)
+  - 第二卷·连接与陷落 (7377-9401)
+  - 第三卷·远征与暗流 (9401-10230)
+- 背景参考资料 (10230-16801)
+- 数据板的局限 (16801-17356)
+- 菌膜外套：有限资源的临时通行方案 (17356-18104)
+- 菌膜外套与共存补丁的关系 (18104-22619)
+- 世界设定声明 (22619-22716)
+- 卷一：基石设定层 (22716-56222)
+  - 一、书名定义与核心术语定调
+  - 二、灵魂语句
+  - 三、地名架空化对照总表
+  - 四、灾难源头：共生蕨
+  - 五、方岫岩：菌膜装甲的起源
+  - 六、灾难爆发完整链条
+  - 七、变异体主动攻击人类核心机制
+  - 八、变异生物体系
+  - 九、真菌网络、水体净化与大地之变
+  - 十、灾后科技更新换代体系
+  - 十一、生物油脂兼容性
+  - 十二、末日食物与营养供给体系
+- 卷二：核心人物群像 (56222-60736)
+- 卷三：势力与格局层 (60736-73000)
+- 卷四：叙事工具箱层 (73000-74841)
+
+Now the "当前焦点全文" (current focus full text) shows the actual content. Let me look at it.
+
+In the "当前焦点全文" I see:
+1. 故事核心 content - includes the pasted 【核心张力：保护即加速】 text that was pasted after "陈暮是唯一踩在菌毯上不被判定为敌人的人"
+
+Wait, actually looking at the "当前焦点全文" more carefully, I see there's a note:
+
+"粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：
+【核心张力：保护即加速】..."
+
+Hmm, this is interesting. This text "粘贴到「故事核心」下..." appears to be an instruction that was captured in the document. Actually, this seems to be leftover instruction text in the document.
+
+Actually wait, looking more carefully, this is the current focus full text which includes this paste instruction. This suggests the document has this instruction text embedded, OR the focus full text is showing me a "current focus" that includes context.
+
+Actually, I think what I'm seeing is the full text of the outline as it currently exists. Let me note the issues:
+
+1. The "背景参考资料" section (10230-16801) contains a lot of content, but then there are separate sections "数据板的局限" (16801-17356), "菌膜外套..." (17356-18104), "菌膜外套与共存补丁的关系" (18104-22619).
+
+Looking at the focus full text, I see:
+- "背景参考资料" content ends with "数据板提供的是火种，不是火炬。"
+- Then "## 数据板的局限" heading with duplicated content
+- Then "## 菌膜外套..." heading with duplicated content
+- Then "## 菌膜外套与共存补丁的关系" with duplicated content
+
+So there ARE duplicates. The content in "背景参考资料" section already includes "数据板的局限", "菌膜外套...", "菌膜外套与共存补丁的关系" content, and then these are repeated as separate top-level sections.
+
+Wait, let me look more carefully. In the focus full text:
+
+After "数据板提供的是火种，不是火炬。" (end of 背景参考资料 content, which includes 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 as subsections within it)
+
+Then:
+"## 数据板的局限
+
+数据板不是百宝箱。..." - this is a duplicate
+
+"## 菌膜外套：有限资源的临时通行方案
+
+陈暮的菌膜装甲是独一无二的..." - duplicate
+
+"## 菌膜外套与共存补丁的关系
+
+菌膜外套是..." - duplicate
+
+So these three sections are duplicated. They appear once inside "背景参考资料" (as part of the flow), and once as separate heading-2 sections.
+
+Actually, this is the key issue. The user wants a "Word document form" restructure. This likely means:
+1. Fix the heading hierarchy - these sections should be properly nested
+2. Remove duplicates
+
+But wait, the instruction says "不要缩减内容" (don't reduce content). So I should not delete content, but I should remove duplicates (duplicates aren't "content reduction" in the meaningful sense, they're errors).
+
+Actually, let me think about what "Word文档的形式" (Word document form) means more precisely.
+
+A Word document typically has:
+- Title (heading 1)
+- Proper heading hierarchy (heading 2, 3, 4, 5)
+- Numbered sections
+- Tables
+- No markdown-style artifacts
+
+The current outline is mostly markdown with `#`, `##`, `###`, etc. and `---` separators. The structure map shows it's already parsed with headings.
+
+Hmm, but "按照Word文档的形式重构大纲" could mean:
+1. Restructure the document so it reads like a proper Word document (with 卷/章/节 numbering)
+2. Clean up the hierarchy
+
+Let me think about what the actual issues are that need fixing:
+
+1. **Duplicate sections**: "数据板的局限", "菌膜外套：有限资源的临时通行方案", "菌膜外套与共存补丁的关系" appear twice.
+
+2. **Structure issues**: 
+   - "背景参考资料" (heading-2) contains content that should probably be split up
+   - The paste instruction text "粘贴到「故事核心」下..." is embedded in the document (this is leftover instruction text)
+   - "卷一：基石设定层" has a "本卷声明" but its content includes "背景参考资料" content
+
+Actually wait, let me reconsider. The document has these top-level (heading-2) sections:
+1. 叙事框架
+2. 背景参考资料
+3. 数据板的局限 (duplicate)
+4. 菌膜外套：有限资源的临时通行方案 (duplicate)
+5. 菌膜外套与共存补丁的关系 (duplicate)
+6. 世界设定声明
+7. 卷一：基石设定层
+8. 卷二：核心人物群像
+9. 卷三：势力与格局层
+10. 卷四：叙事工具箱层
+
+The "背景参考资料" section seems to be a catch-all that contains: 故事核心背景, 灾前军事基准线, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 圣萌会背景, 天府都背景, etc.
+
+Actually, looking at the focus full text again, the "背景参考资料" content is quite long (10230-16801 = 6561字), and it includes:
+- 四亿年前... 共生蕨 background (这是"灾难源头"的背景)
+- 方岫岩... (这是"菌膜装甲起源"的背景)
+- 陈暮苏醒 (这是故事开端)
+- 灾前军事基准线与菌毯的不可根除性 (军事背景)
+- 数据板的局限
+- 菌膜外套
+- 菌膜外套与共存补丁的关系
+- 大裂谷走廊铁壁... 各势力介绍
+- 圣萌会 background
+- 巨树 background
+- 噬神计划... 终局
+
+This is a big block of prose that reads like "背景参考资料" - essentially a summary/background reference section.
+
+Then "卷一：基石设定层" has the detailed structured version.
+
+OK here's my understanding of the situation:
+
+The document currently has a mix of:
+1. A "背景参考资料" section (narrative prose form)
+2. Duplicated sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) that are already in 背景参考资料
+3. The "卷一：基石设定层" with detailed structured content
+
+The user wants me to "restructure the outline in Word document form, without reducing content."
+
+Hmm, but I need to be careful. The task is somewhat ambiguous. Let me think about what concrete, safe actions I can take.
+
+Actually, re-reading the plan steps from agent.plan:
+1. read-structure: 读取文档结构并确认目标层级
+2. execute-restructure: 执行标题层级修复或章节重排
+3. confirm-duplicates: 用只读工具确认重复项
+4. delete-duplicates: 只删除已确认的重复项
+5. normalize-segments: 按计划批次整理格式
+6. verify-plan: 核对写入覆盖与不变量
+
+So the plan is:
+- Fix heading hierarchy
+- Reorder sections
+- Confirm and delete duplicates
+- Normalize format
+
+The completion criteria mention:
+- planned-deletion-only
+- normalize-changes-punctuation-whitespace-format-only
+
+So this is a structure/format normalization task with duplicate removal.
+
+Let me understand what "Word文档的形式" (Word document form) means concretely for this document. I think it means:
+
+1. The document should have a clean hierarchy: 总纲 > 卷 > 章 > 节, with consistent numbering.
+2. Currently the document has a weird structure where "叙事框架", "背景参考资料", "世界设定声明", "卷一", "卷二", "卷三", "卷四" are all at the same level (heading-2), but "背景参考资料" is prose while the 卷s are structured.
+
+Actually, I wonder if the real intent is more specific. Let me look at the document title structure. The document is "《绿潮》大纲总纲". It has these parts at heading-2 level:
+- 叙事框架
+- 背景参考资料
+- 数据板的局限 (should be part of 背景参考资料, duplicate)
+- 菌膜外套 (duplicate)
+- 菌膜外套与共存补丁的关系 (duplicate)
+- 世界设定声明
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+The "Word document form" likely means:
+1. A proper title
+2. Proper 卷 (volume) structure with all content organized under 卷一/卷二/卷三/卷四
+3. Consistent numbering
+
+Hmm, but actually the current structure already has 卷一/卷二/卷三/卷四. The "叙事框架" contains 第一卷/第二卷/第三卷 (故事卷), while "卷一/卷二/卷三/卷四" are 设定卷.
+
+This is getting complicated. Let me take a step back and focus on what I can concretely do safely:
+
+1. **Remove duplicates**: The three duplicate sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) appear both inside 背景参考资料 and as separate sections. I should remove one copy. But which one?
+
+Actually, let me check: is the content actually duplicated, or is the structure map just showing them as separate but the content flows?
+
+From the focus full text, I can see:
+- In "背景参考资料", after "数据板提供的是火种，不是火炬。" there's a paragraph about 大裂谷走廊/铁壁 etc. Wait no.
+
+Let me re-read the focus full text carefully.
+
+The focus full text shows (in order):
+1. `# 《绿潮》大纲总纲`
+2. `## 叙事框架` > `### 故事核心` (with the paste instruction + 核心张力 text)
+3. `### 第一卷·觉醒与扎根` (with hooks + 概要)
+4. `### 第二卷·连接与陷落` (with hooks)
+5. `### 第三卷·远征与暗流`
+6. `## 背景参考资料` (long prose: 四亿年前... 终局... "知识锁在抽屉里...")
+7. `## 数据板的局限` (prose, SAME as in 背景参考资料)
+8. `## 菌膜外套：有限资源的临时通行方案` (prose, SAME)
+9. `## 菌膜外套与共存补丁的关系` (prose, SAME)
+10. `## 世界设定声明` (one line)
+11. `## 卷一：基石设定层` (with 一 through 十二)
+12. `## 卷二：核心人物群像`
+13. `## 卷三：势力与格局层`
+14. `## 卷四：叙事工具箱层`
+
+So the "背景参考资料" section contains (as prose within it):
+- 灾难源头背景 (四亿年前... 共生蕨... 林觉民... 方岫岩... 陈暮苏醒... 岫岩镇建立)
+- 灾前军事基准线与菌毯的不可根除性 (with tables)
+- 数据板的局限 (prose)
+- 菌膜外套 (prose)
+- 菌膜外套与共存补丁的关系 (prose)
+- 各势力介绍 (大裂谷走廊铁壁... 垅原复兴会... 环障盆地天府都... 南角双港天网... 海棘三角洲镇海)
+- 圣萌会背景 (塞缪尔·赫兹... 马格努斯... 圣婴计划)
+- 巨树背景 (2043年春... 终局... 共存补丁)
+
+Wait, actually looking at the focus full text again, I see the 背景参考资料 section ends with:
+
+"林觉民把知识从抽屉里拿出来，打开，撒进风中。"
+
+Then immediately after that comes "## 数据板的局限" section.
+
+But wait, in the 背景参考资料 prose, is there a "数据板的局限" sub-part? Let me look...
+
+In the 背景参考资料 section, after "灾前军事基准线与菌毯的不可根除性" content (which ends with "...是人类对"不可战胜"的承认。"), there's:
+
+"数据板的局限
+数据板不是百宝箱。..." 
+
+Hmm wait, actually the focus full text shows:
+
+```
+...终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。
+
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的...
+
+...
+
+数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。...
+```
+
+So yes, the "数据板的局限" text appears TWICE:
+1. Once inside "背景参考资料" (as a sub-part, without ## heading, just plain text "数据板的局限" as a line)
+2. Once as a separate `## 数据板的局限` section
+
+Similarly for 菌膜外套 and 菌膜外套与共存补丁的关系.
+
+Actually wait, let me look at the structure map again. The structure map shows:
+
+- heading-2-1lka0h8 背景参考资料 (10230-16801)
+- heading-2-z4sxm8 数据板的局限 (16801-17356)
+- heading-2-10q4nra 菌膜外套：有限资源的临时通行方案 (17356-18104)
+- heading-2-28do6r 菌膜外套与共存补丁的关系 (18104-22619)
+
+So the structure map shows these as separate top-level sections. But the focus full text shows the 背景参考资料 section CONTAINS the "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" text (without ## headings, just as plain text with a blank line before "数据板的局限").
+
+Hmm wait, but actually the focus full text might be showing the content in a way that's confusing. Let me re-read.
+
+Actually, looking very carefully at the focus full text provided in the system message, the "背景参考资料" section content is:
+
+Starting "四亿年前，一株不属于植物..." and continuing through various parts, ending with "林觉民把知识从抽屉里拿出来，打开，撒进风中。"
+
+Within this, I see (as plain text, not headings):
+- "数据板的局限" ... "数据板提供的是火种，不是火炬。" 
+- "菌膜外套：有限资源的临时通行方案" ... "但他的勘探是不可替代的。"
+- "菌膜外套与共存补丁的关系" ... "菌膜外套是权宜之计，共存补丁是终极解法。"
+
+Then after "林觉民把知识从抽屉里拿出来，打开，撒进风中。" comes "## 数据板的局限" as a heading-2 section, which repeats the same content.
+
+So indeed, the content is duplicated. The "背景参考资料" section is a narrative/background reference section that ALREADY includes these three subsections as prose, and then they're ALSO present as separate heading-2 sections.
+
+Wait, actually no. Let me reconsider. Maybe I'm misreading the focus full text. The focus full text is the FULL document text. Let me trace through it more carefully.
+
+Actually, I realize the focus full text is quite long and I should read it as the full document. Let me identify the key structural issues:
+
+**Issue 1: Paste instruction text embedded in 故事核心**
+
+"粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：
+
+【核心张力：保护即加速】
+
+..."
+
+This "粘贴到「故事核心」下，紧接原文..." is an instruction, not content. It seems like a previous edit left this instruction text in the document. This should probably be cleaned up - the 【核心张力：保护即加速】 content should be properly integrated, and the instruction text removed.
+
+Actually, wait. Let me re-read. The focus full text shows:
+
+"全书围绕"敌我识别"展开：...复兴会和天网各有各的争法。
+【菌毯的本质：竞争对手文明】
+...它是无解的。
+
+人类的一切挣扎都不是为了"打败菌毯"，而是在它的碾压下多活一天。
+
+粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：
+
+【核心张力：保护即加速】
+
+陈暮是唯一被菌毯忽略的人类..."
+
+So the "粘贴到「故事核心」下..." text is literally in the document. This is leftover instruction that needs to be cleaned up.
+
+Hmm, this is a significant finding. The document contains:
+1. A paste instruction line "粘贴到「故事核心」下，紧接原文..." that should be removed
+2. The 【核心张力：保护即加速】 content that follows
+
+Actually, the 【核心张力：保护即加速】 block was supposed to be pasted right after "陈暮是唯一踩在菌毯上不被判定为敌人的人", but instead the instruction + content got appended at the end of the 故事核心 section.
+
+This is getting complex. Let me think about the overall goal.
+
+The user's request: "按照Word文档的形式重构大纲，不要缩减内容。"
+
+Translation: "Restructure the outline in the form of a Word document, without reducing content."
+
+Given the plan steps, this is a structural cleanup task:
+1. Fix heading hierarchy
+2. Remove duplicate sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系)
+3. Clean up leftover instruction text
+4. Normalize format
+
+But I need to be very careful about:
+- "不要缩减内容" - don't reduce content. So I should preserve all unique content, only remove true duplicates and leftover instructions.
+
+Let me get the full document text first to understand exactly what's there. I should read the document via editor.read_range or use document_map.
+
+Actually, I already have the focus full text in the system message. But it might be truncated or I should verify by reading ranges.
+
+Let me plan my approach:
+
+1. First, read the document map (already have it from system, but let me get it fresh via editor.document_map to be safe).
+
+2. Read the full document to identify exact boundaries of duplicates.
+
+3. Plan the restructure:
+   - Remove the paste instruction line in 故事核心 (this is not content, it's an instruction)
+   - Fix the 【核心张力】 placement (or just keep it where it is but remove the instruction line)
+   - Remove the three duplicate sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) - but wait, are they truly duplicates? Need to verify.
+
+Actually, let me reconsider whether "数据板的局限" etc. are truly duplicated.
+
+Looking at structure map ranges:
+- 背景参考资料: 10230-16801 (6561字)
+- 数据板的局限: 16801-17356 (545字)
+- 菌膜外套：有限资源的临时通行方案: 17356-18104 (728字)
+- 菌膜外套与共存补丁的关系: 18104-22619 (4499字)
+
+Wait, 菌膜外套与共存补丁的关系 is 4499字? That's a lot for that section. Let me check the focus full text for that section...
+
+The "菌膜外套与共存补丁的关系" section in the focus full text (the duplicate one at 18104-22619) contains:
+
+"菌膜外套是"让系统暂时看不到我们"...
+
+菌膜外套是权宜之计，共存补丁是终极解法。
+
+在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。韩啸天...
+
+...在远西大陆，另一种力量正在凝聚...
+
+塞缪尔·赫兹...
+
+...通往神座的台阶铺满了石头。
+
+2043年春，巨树从深根大陆中部悄然破土而出...
+
+...噬神计划进入最后阶段...
+
+...终局之战...
+
+...马格努斯没有被陈暮打败...
+
+...菌毯不再调动变异体围杀人类...
+
+...几十年后，人类习惯于在一棵遮住了半边天空的巨树阴影下生活...
+
+...林觉民把知识从抽屉里拿出来，打开，撒进风中。"
+
+Wait! So the section "菌膜外套与共存补丁的关系" (heading-2 at 18104-22619, 4499字) actually contains ALL the following content:
+- 菌膜外套与共存补丁的关系 (short)
+- 各势力介绍 (大裂谷走廊铁壁...)
+- 圣萌会背景 (塞缪尔·赫兹...)
+- 巨树/终局背景 (2043年春...)
+- 共存补丁终局
+- 林觉民结尾
+
+This is a HUGE section that contains a lot of content. And this same content ALSO appears in the "背景参考资料" section (10230-16801)?
+
+Hmm, this is confusing. Let me carefully compare.
+
+Actually, I think what's happening is:
+- The "背景参考资料" section (10230-16801) contains the prose summary: 四亿年前... 方岫岩... 陈暮苏醒... 灾前军事基准线... 数据板的局限... 菌膜外套... 菌膜外套与共存补丁的关系...
+
+Wait, but the 菌膜外套与共存补丁的关系 in 背景参考资料 ends at "菌膜外套是权宜之计，共存补丁是终极解法。" Then the 背景参考资料 section continues with 大裂谷走廊铁壁... 圣萌会... 巨树... 终局... 林觉民结尾.
+
+Hmm, but the structure map says 背景参考资料 ends at 16801, and 数据板的局限 starts at 16801.
+
+So let me reconsider. The 背景参考资料 section (10230-16801) content, as shown in focus full text, is:
+
+"四亿年前... [共生蕨背景] ... 人类恰好挡在了它生存的道路上。
+
+方岫岩... [菌膜装甲起源背景] ... 这些民生技术在末日世界里比任何武器都更珍贵。
+
+灾前军事基准线与菌毯的不可根除性 ... [军事背景，含多个表格] ... 是人类对"不可战胜"的承认。
+
+数据板的局限 ... [数据板局限] ... 数据板提供的是火种，不是火炬。"
+
+Hmm wait, but where does the 菌膜外套 and 菌膜外套与共存补丁的关系 content go in 背景参考资料?
+
+Let me look again at the focus full text structure. After "数据板提供的是火种，不是火炬。" there's a blank line, then:
+
+"## 数据板的局限
+
+数据板不是百宝箱。..."
+
+So actually, the "数据板的局限" content in 背景参考资料 ENDS at "数据板提供的是火种，不是火炬。" (which is at 16801, the end of 背景参考资料).
+
+Then "## 数据板的局限" (16801-17356) is the SEPARATE section that repeats "数据板不是百宝箱...数据板提供的是火种，不是火炬。"
+
+Then "## 菌膜外套：有限资源的临时通行方案" (17356-18104) repeats the 菌膜外套 content.
+
+Then "## 菌膜外套与共存补丁的关系" (18104-22619) contains:
+- 菌膜外套与共存补丁的关系 (short)
+- 大裂谷走廊铁壁... (各势力)
+- 塞缪尔·赫兹... (圣萌会)
+- 2043年春巨树... (终局)
+- 林觉民结尾
+
+Wait, but where is this content in 背景参考资料?
+
+Let me re-read the 背景参考资料 content in focus full text very carefully.
+
+The 背景参考资料 section content (after "## 背景参考资料"):
+
+Para 1: "四亿年前，一株不属于植物、真菌、动物任何一界的古老生命体在竞争中落败...它等的不是苏醒，是再也没有天敌的时代。"
+
+Para 2: "2038年，松涛山脉鬼林峡...他将这个新物种命名为"共生蕨"。"
+
+Para 3: "林觉民的导师周仰川...点燃了整个世界。"
+
+Para 4: "2041年，灰链群岛团队发现了...紧随其后。"
+
+Para 5: "2042年4月17日...维持着脆弱的代谢平衡。"
+
+Para 6: "同年11月19日凌晨3时14分...文明正式崩溃。"
+
+Para 7: "孢子云遮天蔽日...人类第一次发现，自己在这颗星球上成了需要被清除的异己。"
+
+Para 8: "极少量菌核微粒...活下去，长更大。"
+
+Para 9: "到2056年，全球年均气温下降...人类恰好挡在了它生存的道路上。"
+
+Para 10: "方岫岩用柴油发电机和太阳能板...消失在菌毯覆盖的山路上，没有人知道他最终走了多远。"
+
+Para 11: "约2051年，陈暮从低温休眠中苏醒...他是末日世界里唯一一个踩在菌毯上不会触发警报的人类。"
+
+Para 12: "他在独行中找到了少量幸存者...这些民生技术在末日世界里比任何武器都更珍贵。"
+
+Then: "灾前军事基准线与菌毯的不可根除性" (a sub-heading in plain text)
+
+Then the military content with tables, ending: "终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。"
+
+Then: "数据板的局限" (plain text sub-heading)
+
+Then: "数据板不是百宝箱。...数据板提供的是火种，不是火炬。"
+
+Then the 背景参考资料 section ends.
+
+Then "## 数据板的局限" separate section repeats the 数据板内容.
+
+Then "## 菌膜外套：有限资源的临时通行方案" repeats 菌膜外套 content.
+
+Then "## 菌膜外套与共存补丁的关系" section contains:
+"菌膜外套是"让系统暂时看不到我们"..." (菌膜外套与共存补丁关系，short)
+
+Then "在大裂谷走廊..." (各势力介绍)
+Then "在远西大陆，另一种力量正在凝聚。塞缪尔·赫兹..." (圣萌会)
+Then "2043年春，巨树..." (终局)
+Then "林觉民把知识从抽屉里拿出来，打开，撒进风中。" (结尾)
+
+So, comparing:
+- 背景参考资料 contains: 灾难源头背景 + 方岫岩背景 + 陈暮苏醒 + 军事基准线 + 数据板的局限
+- 数据板的局限 (separate) = duplicate of "数据板的局限" part in 背景参考资料
+- 菌膜外套 (separate) = this content appears ONLY here? Let me check if 背景参考资料 has 菌膜外套 content...
+
+Actually, looking at the 背景参考资料, I don't see the 菌膜外套 content there. The 背景参考资料 goes from 军事基准线 (ends "是人类对"不可战胜"的承认。") directly to "数据板的局限".
+
+So the 菌膜外套 content is NOT duplicated - it only appears in the separate section "## 菌膜外套：有限资源的临时通行方案".
+
+Wait, but then what about "菌膜外套与共存补丁的关系"? It appears in the separate section "## 菌膜外套与共存补丁的关系" (18104-22619). Is it also in 背景参考资料?
+
+Looking at 背景参考资料 content again... no, I don't see it there. The 背景参考资料 ends with "数据板提供的是火种，不是火炬。"
+
+So actually, only "数据板的局限" is duplicated (appears in both 背景参考资料 and as separate section). The 菌膜外套 and 菌膜外套与共存补丁的关系 sections are NOT duplicated - they only appear as separate sections.
+
+Hmm wait, but that doesn't quite make sense either. Let me re-examine.
+
+Actually, the key question is: what does "Word文档形式" restructuring mean for this document?
+
+Let me reconsider the whole thing. The document currently has this top-level structure:
+
+```
+# 《绿潮》大纲总纲
+## 叙事框架
+  ### 故事核心
+  ### 第一卷·觉醒与扎根
+  ### 第二卷·连接与陷落
+  ### 第三卷·远征与暗流
+## 背景参考资料
+## 数据板的局限
+## 菌膜外套：有限资源的临时通行方案
+## 菌膜外套与共存补丁的关系
+## 世界设定声明
+## 卷一：基石设定层
+## 卷二：核心人物群像
+## 卷三：势力与格局层
+## 卷四：叙事工具箱层
+```
+
+A "Word document form" would likely reorganize this into:
+
+```
+# 《绿潮》大纲总纲
+## 第一部分：叙事框架 (故事梗概)
+## 第一部分（或卷一）：...
+```
+
+Hmm, actually I think I'm overcomplicating this. Let me think about what the user most likely wants.
+
+"按照Word文档的形式重构大纲" - restructure the outline in Word document form.
+
+In Chinese context, "Word文档的形式" (Word document form) typically means:
+1. Proper heading styles (标题1, 标题2, 标题3) with hierarchical numbering
+2. Clean, professional layout
+3. Consistent formatting
+
+Given that this is a plain-text/markdown editor, the restructure would mean:
+1. Convert markdown `#` headings to proper Word-style numbered headings? Or keep markdown but organize hierarchically?
+
+Actually, I think the most likely interpretation, given the context (this is an outline editing assistant), is:
+
+The user wants the outline reorganized into a clean, hierarchical structure like a Word document's outline view - with proper 卷/章/节 levels, no duplicate content, no leftover editing instructions.
+
+Let me focus on concrete, verifiable improvements:
+
+1. **Remove the leftover paste instruction** in 故事核心 ("粘贴到「故事核心」下，紧接原文...之后：")
+2. **Properly place/format the 【核心张力：保护即加速】 block**
+3. **Remove the duplicate "数据板的局限" section** (appears in both 背景参考资料 and as separate heading-2)
+4. **Reorganize the top-level structure** so that:
+   - 叙事框架 (故事梗概)
+   - 背景参考资料 (should contain 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 as subsections)
+   - 世界设定声明
+   - 卷一/卷二/卷三/卷四
+
+Actually, I realize I need to be more careful and actually READ the document rather than relying on the focus full text which may have formatting quirks.
+
+Let me read the document in detail using editor.read_range and editor.document_map.
+
+Actually, I already have the structure map from the system message. And I have the focus full text. But to make edits, I need exact text fragments. Let me use editor.locate and editor.search to find exact text.
+
+Let me first verify the exact content around the paste instruction and the duplicate sections.
+
+Let me read specific ranges. Actually, let me use editor.read_range with section IDs or use editor.document_map to get fresh structure.
+
+Let me get fresh document map first.
+
+Actually, I have the structure map in the system message already, but it might be stale. The task plan says to read structure first. Let me call editor.document_map.
+
+Let me also think about whether I should read the whole document. It's 74841 chars, which is large but I can read it in chunks of 12000.
+
+Actually, the focus full text in the system message seems to already contain the full document text (it's labeled "当前焦点全文"). Let me trust that but verify key parts with editor.read_range.
+
+Let me plan my concrete edits:
+
+**Edit 1: Remove paste instruction in 故事核心**
+
+Find: "人类的一切挣扎都不是为了"打败菌毯"，而是在它的碾压下多活一天。\n\n粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：\n\n【核心张力：保护即加速】"
+
+The instruction line "粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：" should be removed.
+
+Also, the 【核心张力：保护即加速】 block was meant to be pasted after "陈暮是唯一踩在菌毯上不被判定为敌人的人". But moving it there is more complex. The user said "不要缩减内容", so I should preserve the content. The instruction line itself is not content (it's an instruction), so removing it is fine.
+
+Actually, should I move the 【核心张力：保护即加速】 block to right after "陈暮是唯一踩在菌毯上不被判定为敌人的人"? That would be the "correct" placement per the instruction. But the instruction is now historical - the user just wants a clean Word document.
+
+Hmm, let me think. The 【核心张力：保护即加速】 block currently sits at the END of 故事核心, after "人类的一切挣扎都不是为了"打败菌毯"，而是在它的碾压下多活一天。". The instruction says it should go right after "陈暮是唯一踩在菌毯上不被判定为敌人的人" (which is in the FIRST paragraph of 故事核心).
+
+For a clean Word document, I think:
+1. Remove the instruction line (it's not content)
+2. Keep 【核心张力：保护即加速】 where it is, OR move it to the intended location
+
+Given "不要缩减内容" and the goal of clean structure, I'll remove the instruction line and keep the content blocks in a clean order. Actually, moving it might be more "correct" but also riskier. Let me think...
+
+Actually, the simplest clean approach: remove just the instruction line "粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：", leaving 【核心张力：保护即加速】 as its own block at the end of 故事核心. This removes non-content without losing content.
+
+But wait, actually there might be value in moving it. But given the ambiguity and risk, I'll be conservative: remove the instruction line only.
+
+Actually, let me reconsider the whole task scope. The user wants "重构大纲" (restructure the outline) "按照Word文档的形式" (in Word document form) "不要缩减内容" (without reducing content).
+
+This is a fairly large task. Let me focus on the most impactful, clear improvements:
+
+1. Remove leftover instruction text (paste instruction)
+2. Remove true duplicates
+3. Normalize heading structure
+
+Let me first verify the exact state by reading the document.
+
+Let me start by reading the document map fresh and then reading key sections.
+
+Actually, I'll proceed to read the document. Given it's 74K chars, and I have maxChars 12000 per read, I need ~7 reads. But I already have the focus full text. Let me instead verify specific critical areas with locate/search.
+
+Let me search for key markers:
+1. "粘贴到" - the paste instruction
+2. "数据板提供的是火种，不是火炬" - appears multiple times (end of 数据板的局限)
+
+Let me do these searches.

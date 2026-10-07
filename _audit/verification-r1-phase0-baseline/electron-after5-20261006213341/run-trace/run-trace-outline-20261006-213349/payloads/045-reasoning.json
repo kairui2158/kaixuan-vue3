@@ -1,0 +1,5 @@
+I've been reviewing the document structure. The main issue I've found is that the "背景参考资料" section contains an embedded block about military baseline and indestructibility that's formatted as a heading. I need to continue normalizing the table structure since the existing tables use tab separators which aren't valid in the expected format.
+
+Looking at the headings more carefully, I realize the "背景参考资料" section itself has paragraphs that should probably be structured as a level-3 heading for the "灾难前史" content, though the instruction is to not compress content. The key remaining work is converting the tab-separated tables into proper pipe-separated Markdown format.
+
+Now I'm checking the current state of the military baseline and indestructibility section to see what formatting still needs to be converted.

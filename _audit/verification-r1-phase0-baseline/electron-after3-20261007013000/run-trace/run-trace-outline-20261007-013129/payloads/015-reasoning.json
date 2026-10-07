@@ -1,0 +1,143 @@
+Let me analyze the situation. The user wants to "restructure the outline in Word document format, without reducing content." 
+
+The current outline has a clear structure but has some issues:
+1. Content that looks like it should be under one section but is spread across different heading levels
+2. The second-level headings (`##`) under the main `#` heading seem to have some organizational issues
+3. "背景参考资料" contains content that is duplicated or should be part of the main narrative framework
+4. Some sections like "菌膜外套" and "菌膜外套与共存补丁的关系" are at level 2 when they might belong as sub-sections
+
+Let me look at the current structure more carefully:
+
+The main `#` heading is "《绿潮》大纲总纲"
+
+Under it, we have `##` headings:
+- `## 叙事框架` (includes sub-sections: 故事核心, 第一卷, 第二卷, 第三卷)
+- `## 背景参考资料` 
+- `## 数据板的局限`
+- `## 菌膜外套：有限资源的临时通行方案`
+- `## 菌膜外套与共存补丁的关系`
+- `## 世界设定声明`
+- `## 卷一：基石设定层`
+- `## 卷二：核心人物群像`
+- `## 卷三：势力与格局层`
+- `## 卷四：叙事工具箱层`
+
+The user wants to restructure this as a Word document format. Looking at the content more carefully:
+
+The "背景参考资料" section seems to contain a lot of narrative content that should be organized differently. And then there's "数据板的局限", "菌膜外套" etc. at level 2 which could be reorganized.
+
+Wait - I need to understand what "Word document form" means. Looking at the content, I think the user wants:
+
+1. A clean, well-structured outline with proper heading hierarchy
+2. No duplicate content
+3. Consistent formatting
+
+But the instructions say:
+- "禁止整篇 replace_document" - Can't replace the whole document
+- Need to work in phases: first fix structure (move/insert), then delete duplicates, then normalize formatting
+
+Let me think about what the actual restructuring should look like. The current structure has "背景参考资料" as a level-2 heading that contains narrative content that seems to overlap with other sections. And "菌膜外套" and "菌膜外套与共存补丁的关系" are level-2 headings that seem like they should be sub-sections of something else.
+
+Looking more carefully at the content - "背景参考资料" contains content that is also found in the narrative framework and in other sections. This seems like duplicated/redundant content.
+
+But wait - the user said "不要缩减内容" (don't reduce content). So I need to be very careful about not deleting actual content, only reorganizing.
+
+Let me look at the plan more carefully:
+1. Read structure and confirm target hierarchy
+2. Execute restructure (fix heading levels)
+3. Confirm duplicates (read-only)
+4. Delete confirmed duplicates
+5. Normalize formatting by segment
+6. Verify
+
+The plan says "3 batches" for normalization. And I have 36 physical request rounds.
+
+Let me first understand what "Word document form" means in context. I think it means:
+- A well-organized document with proper headings
+- Moving sections to their proper places
+- Eliminating any duplicate content
+- Having a clean "卷" structure
+
+Looking at the current structure, the issue is that after "叙事框架" (which contains 故事核心, 第一卷, 第二卷, 第三卷), we have "背景参考资料" at the same level (##). The "背景参考资料" contains a lot of narrative storytelling that overlaps with content in other sections. Then we have "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" as separate level-2 sections.
+
+Then "世界设定声明" followed by "卷一", "卷二", "卷三", "卷四".
+
+I think the ideal structure might be:
+
+```
+# 《绿潮》大纲总纲
+
+## 叙事框架
+### 故事核心
+### 第一卷·觉醒与扎根
+### 第二卷·连接与陷落
+### 第三卷·远征与暗流
+
+## 背景参考资料
+(keep as is - narrative reference material)
+
+## 数据板的局限
+(keep as is)
+
+## 菌膜外套：有限资源的临时通行方案
+(keep as is)
+
+## 菌膜外套与共存补丁的关系
+(keep as is)
+
+## 世界设定声明
+(keep as is)
+
+## 卷一：基石设定层
+...
+## 卷二：核心人物群像
+...
+## 卷三：势力与格局层
+...
+## 卷四：叙事工具箱层
+...
+```
+
+Hmm, but the user said "按照Word文档的形式重构大纲" - restructure the outline in Word document format. I think this might mean making it look more like a proper Word document with consistent formatting, proper numbering, etc.
+
+Actually, re-reading the user's request: "按照Word文档的形式重构大纲，不要缩减内容" - this is quite broad. Let me think about what makes this a "Word document" vs the current format.
+
+Looking at the current document, it has:
+- Many `##` level headings that seem oddly placed
+- Content blocks that feel duplicated
+- Some sections that might be better organized differently
+
+I think the key changes should be:
+1. Fix the hierarchy - some level-2 headings should be level-3 or level-4
+2. Remove any actual duplicate content (but don't reduce unique content)
+3. Normalize punctuation (half-width to full-width for Chinese)
+4. Clean up whitespace
+
+Let me look at what's actually duplicated. The "背景参考资料" section seems to contain the same narrative content that appears in "故事核心" and elsewhere. Actually, looking more carefully at the outline summary, "背景参考资料" at 10230-16801 contains the full narrative from 四亿年前 through to the post-disaster content. This seems like it was a "reference" version of the story that overlaps with content in other sections. But since the user says "不要缩减内容", I should be careful.
+
+Let me focus on what I can do:
+1. Fix heading hierarchy issues
+2. Normalize punctuation (half-width → full-width for Chinese)
+3. Clean up extra whitespace
+
+Actually, I think the main thing the user wants is to reorganize the structure so it reads more like a standard Word document outline. Let me focus on:
+
+1. Making sure the heading hierarchy is consistent (no level jumps)
+2. Moving sections to proper locations
+3. Normalizing formatting
+
+But the instructions are very strict - work in phases, don't replace the whole document, etc. And I need to read first, then write.
+
+Let me start by reading key sections to understand what needs to change, then make targeted edits.
+
+Actually, given the complexity, let me take a different approach. The user's instruction is fairly simple: "按照Word文档的形式重构大纲，不要缩减内容". I think the most practical interpretation is:
+
+1. Make the overall document look like a proper Word document outline
+2. The main change would be: the "背景参考资料" section appears to be a narrative reference that was pasted in, and some sections are at odd levels
+
+Given the constraint that I can't replace the whole document, let me focus on:
+- Moving the "背景参考资料" section so it's more logically placed
+- Fixing heading levels
+- Normalizing punctuation
+
+Let me read some key sections first to understand the content better.

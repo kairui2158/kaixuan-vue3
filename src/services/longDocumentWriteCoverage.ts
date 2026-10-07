@@ -6,6 +6,7 @@ export interface LongDocumentWriteCoverageCommand {
   segmentId?: string
   start: number
   end: number
+  reorderedRanges?: Array<{ start: number; end: number }>
 }
 
 export interface LongDocumentWriteCoverageRecord {
@@ -49,6 +50,15 @@ function readCoverageRecord(value: unknown): LongDocumentWriteCoverageRecord | n
           : {}),
         start: candidate.start,
         end: candidate.end,
+        ...(Array.isArray(candidate.reorderedRanges)
+          && candidate.reorderedRanges.every(range => range
+            && typeof range.start === 'number'
+            && Number.isFinite(range.start)
+            && typeof range.end === 'number'
+            && Number.isFinite(range.end)
+            && range.end >= range.start)
+          ? { reorderedRanges: candidate.reorderedRanges }
+          : {}),
       }
     })
     .filter((command): command is LongDocumentWriteCoverageCommand => command !== null)
@@ -68,10 +78,15 @@ function readCoverageRecord(value: unknown): LongDocumentWriteCoverageRecord | n
 }
 
 function segmentRangeMatches(
+  record: LongDocumentWriteCoverageCommand,
   segment: LongDocumentExecutionPlan['segments'][number],
-  start: number,
-  end: number,
 ): boolean {
+  if (record.operation === 'reorder_sections' && record.reorderedRanges?.length) {
+    return record.reorderedRanges.some(range =>
+      record.start < range.end && record.end > range.start)
+  }
+  const start = record.start
+  const end = record.end
   const segmentStart = segment.range.startLine
   const segmentEnd = segment.range.endLine
   return start < segmentEnd && end > segmentStart
@@ -87,7 +102,12 @@ export function collectLongDocumentWriteCoverage(
 ): LongDocumentWriteCoverageRecord[] {
   return (toolResults || [])
     .filter(item => item.result.ok && String(item.call.name).startsWith('editor.write'))
-    .map(item => readCoverageRecord(item.result.data))
+    .map(item => {
+      // editor.write returns coverage as a nested field of its success data.
+      // Accepting the whole data object is only a legacy compatibility path.
+      const data = item.result.data as { coverage?: unknown } | undefined
+      return readCoverageRecord(data?.coverage ?? item.result.data)
+    })
     .filter((record): record is LongDocumentWriteCoverageRecord => record !== null)
 }
 
@@ -112,38 +132,90 @@ export function summarizeLongDocumentWriteCoverage(input: {
   }
 
   const covered = new Set<string>()
-  const trustedRecords: LongDocumentWriteCoverageRecord[] = []
   const invalidRecords: Array<Pick<LongDocumentWriteCoverageRecord, 'reason' | 'segmentId'>> = []
+  let trustedWriteCount = 0
   for (const record of input.coverageRecords) {
-    const segment = record.segmentId
-      ? segments.find(item => item.segmentId === record.segmentId)
-      : undefined
-    if (record.segmentId && !segment) {
+    const recordDeclaredSegments = new Set(
+      record.commands.flatMap(command => (command.segmentId ? [command.segmentId] : [])),
+    )
+    if (record.segmentId && !segments.some(segment => segment.segmentId === record.segmentId)) {
       invalidRecords.push({ reason: 'invalid_segment_id', segmentId: record.segmentId })
       continue
     }
-    const targetSegment = segment
-      || (segments.length === 1 && record.reason === 'single_segment_plan' ? segments[0] : undefined)
-    if (!targetSegment) {
+    if (record.segmentId) recordDeclaredSegments.add(record.segmentId)
+    for (const segmentId of recordDeclaredSegments) {
+      if (!segments.some(segment => segment.segmentId === segmentId)) {
+        invalidRecords.push({ reason: 'invalid_segment_id', segmentId })
+      }
+    }
+    if (invalidRecords.some(item => item.reason === 'invalid_segment_id'
+      && (item.segmentId === record.segmentId || recordDeclaredSegments.has(item.segmentId || '')))) continue
+
+    let candidates: typeof segments
+    if (record.segmentId) {
+      candidates = segments.filter(item => item.segmentId === record.segmentId)
+    } else if (recordDeclaredSegments.size > 0) {
+      candidates = segments.filter(item => recordDeclaredSegments.has(item.segmentId))
+    } else if (segments.length === 1 && record.reason === 'single_segment_plan') {
+      candidates = segments.filter(segment => record.commands.some(command =>
+        (!command.segmentId || command.segmentId === segment.segmentId)
+        && segmentRangeMatches(command, segment)))
+    } else {
+      const rangeMatched = segments.filter(segment =>
+        record.commands.some(command => segmentRangeMatches(command, segment)))
+      // Undeclared partial writes must never satisfy a multi-segment plan.
+      // Only a command spanning the whole plan may be credited as a fallback.
+      candidates = rangeMatched.length === segments.length ? segments : []
+    }
+    if (record.segmentId) {
+      const segment = segments.find(item => item.segmentId === record.segmentId)
+      if (!segment) {
+        invalidRecords.push({ reason: 'invalid_segment_id', segmentId: record.segmentId })
+        continue
+      }
+      recordDeclaredSegments.add(segment.segmentId)
+    }
+    for (const segmentId of recordDeclaredSegments) {
+      if (!segments.some(segment => segment.segmentId === segmentId)) {
+        invalidRecords.push({ reason: 'invalid_segment_id', segmentId })
+      }
+    }
+    if (candidates.length === 0) {
       invalidRecords.push({ reason: 'undeclared_segment' })
       continue
     }
-    const rangeMatches = record.commands.some(command =>
-      (!command.segmentId || command.segmentId === targetSegment.segmentId)
-      && segmentRangeMatches(targetSegment, command.start, command.end))
-    if (!rangeMatches) {
-      invalidRecords.push({ reason: 'range_mismatch', segmentId: targetSegment.segmentId })
+    const rangeMatchedSegments = candidates.filter(segment => record.commands.some(command =>
+      (!command.segmentId || command.segmentId === segment.segmentId)
+      && segmentRangeMatches(command, segment)))
+    const commandDeclaredSegments = recordDeclaredSegments
+    const unmatchedDeclaredSegments = [...commandDeclaredSegments].filter(segmentId =>
+      !rangeMatchedSegments.some(segment => segment.segmentId === segmentId))
+    if (unmatchedDeclaredSegments.length > 0) {
+      invalidRecords.push(...unmatchedDeclaredSegments.map(segmentId => ({
+        reason: 'range_mismatch' as const,
+        segmentId,
+      })))
       continue
     }
-    covered.add(targetSegment.segmentId)
-    trustedRecords.push(record)
+    if (candidates.length > 0 && rangeMatchedSegments.length === 0) {
+      invalidRecords.push({ reason: 'undeclared_segment' })
+      continue
+    }
+    if (candidates.length === 0) {
+      invalidRecords.push({ reason: 'undeclared_segment' })
+      continue
+    }
+    // A command range may cross several planned segments. Credit each one,
+    // but count the batch once so trustedWriteCount stays a write count.
+    for (const segment of rangeMatchedSegments) covered.add(segment.segmentId)
+    if (rangeMatchedSegments.length > 0) trustedWriteCount += 1
   }
 
   return {
     complete: segments.every(segment => covered.has(segment.segmentId)),
-    trusted: trustedRecords.length === successfulWriteCount,
+    trusted: trustedWriteCount === successfulWriteCount,
     successfulWriteCount,
-    trustedWriteCount: trustedRecords.length,
+    trustedWriteCount,
     coveredSegments: segments
       .filter(segment => covered.has(segment.segmentId))
       .map(segment => segment.segmentId),

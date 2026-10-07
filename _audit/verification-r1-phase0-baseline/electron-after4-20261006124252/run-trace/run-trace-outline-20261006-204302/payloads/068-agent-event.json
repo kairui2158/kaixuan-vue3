@@ -1,0 +1,14 @@
+{
+  "snapshot": {
+    "taskId": "outline-direct-api-1791290582917-8",
+    "status": "planning",
+    "goal": "按照Word文档的形式重构大纲，不要缩减内容。",
+    "stepIndex": 0,
+    "callCount": 0,
+    "successfulWriteCount": 0,
+    "noProgressRounds": 0,
+    "repeatedCallCount": 0,
+    "maxPhysicalRequests": 36,
+    "updatedAt": 1791290582918
+  }
+}

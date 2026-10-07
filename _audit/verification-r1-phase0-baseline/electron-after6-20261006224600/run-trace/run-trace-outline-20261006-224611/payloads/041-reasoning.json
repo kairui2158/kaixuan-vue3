@@ -1,0 +1,127 @@
+Now I understand the exact content. The "粘贴到「故事核心」下..." line is a leftover instruction, not actual content. The user's request is to restructure the outline in Word document form without reducing content.
+
+Let me plan the cleanup of the "故事核心" section. The section has:
+1. Opening paragraphs (核心设定)
+2. 【菌毯的本质：竞争对手文明】 block — this is a header that should probably become a subheading or stay as a bold marker
+3. A leftover instruction line "粘贴到「故事核心」下，紧接原文..." that should be removed (it's an instruction, not content)
+4. 【核心张力：保护即加速】 block
+
+The leftover instruction "粘贴到「故事核心」下，紧接原文..." is clearly an editing instruction that got pasted into the document. Removing it is content reduction? No — it's not content, it's an accidental instruction. But the user said "不要缩减内容" (don't reduce content). However, this instruction line is not content — it's a stray editing note. Removing it is part of formatting/restructuring, not reducing substantive content.
+
+Actually, let me be careful. The task says "按照Word文档的形式重构大纲，不要缩减内容" = "Restructure the outline in Word document form, don't reduce content."
+
+The key issues to fix:
+1. Stray instruction line "粘贴到「故事核心」下..." — should be removed (it's a leftover paste instruction, not content)
+2. 【菌毯的本质：竞争对手文明】 and 【核心张力：保护即加速】 are inline 【】headers — in Word form these might become proper subheadings (#### or bold). But they're content blocks. I could convert them to proper headings like "#### 菌毯的本质：竞争对手文明" and "#### 核心张力：保护即加速".
+
+Let me think about what "Word document form" restructuring means precisely. It likely means:
+- Proper heading hierarchy (no stray instruction lines, no broken headings)
+- Tables rendered properly
+- Duplicate content removed
+- Consistent formatting
+
+I already did:
+1. Fixed "灾前军事基准线" heading levels
+2. Removed duplicate "数据板的局限" body
+3. Normalized 2 tab-separated tables to GFM
+
+Now I should:
+- Remove the stray "粘贴到..." instruction line
+- Convert 【】 markers to proper headings or bold
+
+Let me handle the 故事核心 section carefully. The content:
+- "【菌毯的本质：竞争对手文明】" — this is a section title in the content
+- "粘贴到「故事核心」下，紧接原文..." — stray instruction
+- "【核心张力：保护即加速】" — section title
+
+I'll convert these to proper subheadings. In Word form, under "### 故事核心", these could be "#### 菌毯的本质：竞争对手文明" and "#### 核心张力：保护即加速".
+
+And remove the stray instruction line.
+
+But wait — the user said "不要缩减内容". Removing the stray instruction line is technically removing text. However, it's clearly not content — it's a leftover edit instruction that would look wrong in a Word document. I should remove it as part of restructuring. This is defensible.
+
+Actually, let me reconsider. The instruction line reads "粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：". This is an editing instruction that got left in. It's not meaningful content. Removing it improves the Word document. I'll remove it and note this in my final summary.
+
+Let me now do the edits. I need to be careful with exact text matching.
+
+The exact text from the read:
+```
+全书围绕"敌我识别"展开：菌毯如何识别人类、人类如何识别彼此、陈暮如何在被菌毯忽略的。每一卷都是"敌我边界"的一次重新定义。圣萌会利用灾难，铁壁和镇海自保，复兴会和天网各有各的争法。
+【菌毯的本质：竞争对手文明】
+```
+
+Note: the full-width quotes in the actual doc. Let me check — the read shows "敌我识别" with full-width quotes " ". And 【菌毯的本质：竞争对手文明】 uses 【 】.
+
+Let me craft edits:
+
+1. Convert "【菌毯的本质：竞争对手文明】" → "#### 菌毯的本质：竞争对手文明"
+
+2. Remove the stray instruction line "粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：" — I need to delete this line. It's preceded by blank line and followed by blank line then "【核心张力：保护即加速】".
+
+Actually the instruction line is:
+"粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后："
+
+This is a standalone line. I'll delete it.
+
+3. Convert "【核心张力：保护即加速】" → "#### 核心张力：保护即加速"
+
+Let me do these three edits.
+
+For the delete, I'll target the full line including surrounding newlines carefully. The line content is:
+"粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后："
+
+Wait, the actual quotes in the text — I need to check whether they're straight quotes " or full-width " ". From the read output, it shows: 紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：
+
+These are full-width curly quotes " and " (U+201C and U+201D). Let me copy exactly from the read output.
+
+From read: `粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：`
+
+The quotes around 陈暮... appear as " and " (full-width curly). I'll copy exactly.
+
+Actually, let me use editor.locate first to be safe? I already have the exact text. But to be safe with the quotes, I could target a smaller unique fragment. Let me target the line with a fragment that avoids the tricky quotes.
+
+The delete operation requires exact target match. Let me use the full line. Actually, the line contains "粘贴到「故事核心」下，紧接原文" — I can target from "粘贴到" to "之后：" but I need exact quotes.
+
+Let me just try the replace_match/delete with careful copy. Actually, better to do a replace that changes the instruction line to nothing — but delete is the right operation.
+
+Let me use editor.locate to confirm the exact text with quotes first. Actually, I'll just do the edits directly since I have the exact text from read_range. The read_range returned content with the exact characters. Let me trust it.
+
+Let me write the three commands:
+
+Command 1: replace_match "【菌毯的本质：竞争对手文明】" → "#### 菌毯的本质：竞争对手文明"
+
+Command 2: delete "粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后："
+
+Command 3: replace_match "【核心张力：保护即加速】" → "#### 核心张力：保护即加速"
+
+For command 2, I need to be careful. If there might be multiple matches of "【菌毯的本质：竞争对手文明】" — no, it's unique.
+
+Let me also consider: the delete of the instruction line — the line ends with "之后：" and then there's "\n\n【核心张力...". I should delete just the line content, leaving the surrounding blank lines intact, or include the newlines. Delete operation with target = the line text (without newlines) will leave blank lines. That's fine.
+
+Actually wait — if I delete just "粘贴到...之后：" the surrounding "\n\n" remain, giving a blank line before 【核心张力】. That's fine (blank line separation).
+
+But there's a subtlety: the line is:
+```
+\n\n粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：\n\n【核心张力：保护即加速】\n
+```
+
+If I delete just the instruction text, result:
+```
+\n\n\n\n【核心张力：保护即加速】\n
+```
+That leaves 4 newlines (2 blank lines). Slightly excessive but acceptable. To be cleaner, I could include one trailing "\n" in target. But delete with newline is fine too. Let me include the full line plus one newline to be cleaner. Actually, simpler to just delete the line text and leave the blank lines. The document already has irregular blank lines everywhere (multiple \n\n\n). So it's consistent with existing style.
+
+Actually, let me reconsider — for a clean Word document, I'd want consistent blank lines. But the whole doc has inconsistent blank lines. I won't over-engineer.
+
+Let me proceed with the three edits.
+
+Actually, I realize I should think about whether 【菌毯的本质：竞争对手文明】 should become a #### heading. The structure is:
+
+### 故事核心 (heading 3)
+Then content, then 【菌毯的本质】, then 【核心张力】.
+
+In Word form, these 【】 blocks are like subsections. Making them "#### " (heading 4) would create proper navigable subheadings. That's reasonable for a Word document.
+
+Alternatively, they could stay as bold paragraph markers. But the user wants "Word文档形式" restructuring, which suggests proper heading hierarchy. I'll make them #### headings.
+
+Let me execute.

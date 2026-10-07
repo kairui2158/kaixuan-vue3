@@ -21,6 +21,19 @@ const child = spawn(electronExe, [
   windowsHide: true
 })
 
+function removeTempDir(target) {
+  for (let attempt = 1; attempt <= 10; attempt++) {
+    try {
+      fs.rmSync(target, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 })
+      return
+    } catch (error) {
+      if (error?.code !== 'EPERM') throw error
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 200)
+    }
+  }
+  console.warn(`[WARN] settings-skill temp profile retained: ${target}`)
+}
+
 let output = ''
 child.stdout.on('data', chunk => { output += String(chunk) })
 child.stderr.on('data', chunk => { output += String(chunk) })
@@ -75,4 +88,5 @@ console.log('[PASS] settings skill page opens without renderer errors')
 
 await browser.close()
 try { execFileSync('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore' }) } catch {}
-fs.rmSync(userDataDir, { recursive: true, force: true })
+await new Promise(resolve => setTimeout(resolve, 500))
+removeTempDir(userDataDir)

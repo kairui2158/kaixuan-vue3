@@ -116,5 +116,5 @@
     }
   ],
   "assertions": "10 rounds: total match count, windowed rendering with active-match retention, one active rectangle, rectangle dimensions, store/textarea unchanged, close/empty-query cleanup, no page errors",
-  "generatedAt": "2026-09-25T01:46:18.594Z"
+  "generatedAt": "2026-10-05T03:58:51.640Z"
 }

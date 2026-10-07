@@ -1,0 +1,16 @@
+The user wants me to continue with the normalize-segment-1 plan: fixing whitespace, punctuation, and formatting issues across the entire document. Let me check what needs to be done:
+
+1. The `## 卷二：核心人物群像` section follows `12.7 小型据点食物体系的整体特征` - need to check the gap between them
+2. I need to check the end of `卷二` before `卷三`
+3. I also need to check the end of `卷三` before `卷四`
+4. Need to check for the `卷四` ending
+
+Let me look at what's happening. The search for `,` returned 0 results (meaning no half-width commas - they may have already been normalized). The search for `;` returned 0. The search for `.` returned many results - but these are likely HTML dots/periods in URLs, numbers, etc. The search for `:` returned 3 results with colons in legitimate places (time references like 18:2, chain reactions using →). The search for `!` and `?` returned 0.
+
+Let me focus on:
+1. The end of 12.7 before 卷二 - I saw `\n\n\n` in the 12.7 section
+2. The end of 2.5 before 卷三 - I saw `\n\n\n` in the 2.5 section
+3. The end of 5.4 before 卷四 - I saw `\n\n\n` in 5.4 section
+4. The end of 卷四
+
+Let me fix these.

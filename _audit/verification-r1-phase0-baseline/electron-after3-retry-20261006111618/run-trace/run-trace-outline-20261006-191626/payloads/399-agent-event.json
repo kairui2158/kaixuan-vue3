@@ -1,0 +1,4 @@
+{
+  "source": "tool_call",
+  "detail": "editor.write/failed"
+}

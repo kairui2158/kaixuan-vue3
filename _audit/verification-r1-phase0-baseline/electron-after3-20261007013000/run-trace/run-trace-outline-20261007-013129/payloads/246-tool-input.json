@@ -1,0 +1,35 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "reason": "灾前军事基准线：为无标题的一级小节补四级标题",
+      "target": "灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么",
+      "content": "灾前军事基准线与菌毯的不可根除性\n#### 一、2042年，人类手里有什么"
+    },
+    {
+      "operation": "replace_match",
+      "reason": "灾前军事基准线：为无标题的二级小节补四级标题",
+      "target": "\n二、菌毯为什么火力推不平\n",
+      "content": "\n#### 二、菌毯为什么火力推不平\n"
+    },
+    {
+      "operation": "replace_match",
+      "reason": "灾前军事基准线：为无标题的第三小节补四级标题",
+      "target": "\n三、总结：人类真正被压制的根本机制\n",
+      "content": "\n#### 三、总结：人类真正被压制的根本机制\n"
+    },
+    {
+      "operation": "replace_match",
+      "reason": "灾前军事基准线：半角引号改全角",
+      "target": "长距通讯中断，\"各自为战\"",
+      "content": "长距通讯中断，“各自为战”"
+    },
+    {
+      "operation": "replace_match",
+      "reason": "灾前军事基准线：半角引号改全角",
+      "target": "它摧毁的是\"精确\"这个词。",
+      "content": "它摧毁的是“精确”这个词。"
+    }
+  ],
+  "reason": "补标题+标点规范化：将灾前军事基准线内无 markdown 标记的三个一级小节补为四级标题，并修正两处半角引号"
+}

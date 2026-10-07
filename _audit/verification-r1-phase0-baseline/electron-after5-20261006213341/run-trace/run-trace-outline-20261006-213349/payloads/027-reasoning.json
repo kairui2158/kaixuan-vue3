@@ -1,0 +1,25 @@
+Let me review what I've done so far and what still needs to be done:
+
+1. ✅ Deleted the duplicate "数据板的局限" paragraph that appeared both as a standalone section and inside "背景参考资料"
+2. ✅ Added a proper heading "### 灾前军事基准线与菌毯的不可根除性" for the untitled text block
+3. ✅ Moved "世界设定声明" to the beginning (before 叙事框架)
+4. ✅ Renamed all `##`-level sections with numbered prefixes
+5. ✅ Fixed some half-width quotes to full-width quotes
+6. ✅ Fixed missing blank line between 序 and 第一部分
+
+Now I need to continue the restructure. Let me think about what's left:
+
+The user asked to restructure the outline "按照Word文档的形式" (in Word document format) without reducing content. The key things remaining:
+
+- The "卷四：叙事工具箱层" is still `## 卷四：叙事工具箱层` without the numbered prefix. Let me check... Looking at the document_map, the new IDs show: `heading-2-12ruweg` with title "卷四：叙事工具箱层" - this was NOT included in the batch because the match was for "## 卷四：叙事工具箱层" but the document map shows it's just "卷四：叙事工具箱层" (without the ## prefix? No, it should have ## since it's a heading-2).
+
+Wait, looking back at my batch, I had `replace_match` for "## 卷四：叙事工具箱层" but that didn't get listed as a section in the new stableIds. Let me check - the structureIdentity shows `heading-2-12ruweg` is still there, meaning the replace didn't match because the text changed. The issue is that after previous changes, the heading might have the old format. Let me look at what I have: the removedIds include `heading-2-1kq6z0v` (卷三) and the addedIds include `heading-2-h1wtmi` (this must be 第八部分　卷三).
+
+But `heading-2-12ruweg` (卷四) is still there - I didn't match this one correctly. Let me also check if there are other half-width quotes to fix.
+
+Let me now focus on:
+1. Renaming "## 卷四：叙事工具箱层" → "## 第九部分　卷四：叙事工具箱层"
+2. Continue fixing remaining half-width quotes
+3. Make sure all formatting is consistent
+
+Let me search for more half-width quotes and fix the remaining issues.

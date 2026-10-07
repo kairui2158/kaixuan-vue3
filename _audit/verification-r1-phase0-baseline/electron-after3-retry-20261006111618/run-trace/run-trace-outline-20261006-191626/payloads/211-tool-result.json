@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-2-1lka0h8",
+      "title": "背景参考资料",
+      "kind": "heading",
+      "level": 2,
+      "path": "背景参考资料"
+    },
+    "range": {
+      "start": 10197,
+      "end": 10317
+    },
+    "offset": 0,
+    "maxChars": 120,
+    "content": "## 背景参考资料\n\n四亿年前，一株不属于植物、真菌、动物任何一界的古老生命体在竞争中落败，将自身封存于深根大陆地下深处，进入完全代谢休眠。十到十二亿年前，它的祖先就已走上独立的演化道路，保留着三界分化前的原始基因模块——光合作用、几丁质合",
+    "hasMore": true,
+    "nextCursor": "section:heading-2-1lka0h8:120",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

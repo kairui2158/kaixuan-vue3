@@ -1,0 +1,272 @@
+{
+  "schema": "shenyi.model-interference.electron",
+  "version": 1,
+  "generatedAt": "2026-10-05T20:04:03.550Z",
+  "checks": [
+    {
+      "id": "edit-intent",
+      "requestCount": 2,
+      "streamRequests": 2,
+      "messageGrowthSamples": [
+        9,
+        69,
+        385,
+        699,
+        1013,
+        1248,
+        1484,
+        1797,
+        1898,
+        1937
+      ],
+      "statusSamples": [
+        "正在准备请求…取消生成"
+      ],
+      "traceCalls": 1,
+      "textOrigins": [
+        "model"
+      ],
+      "declarationOrigin": "application",
+      "visibleToModel": true,
+      "toolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.write",
+          "policy": "write"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "context.remaining",
+          "policy": "read"
+        },
+        {
+          "name": "agent.plan",
+          "policy": "read"
+        },
+        {
+          "name": "agent.spawn",
+          "policy": "read"
+        },
+        {
+          "name": "agent.wait",
+          "policy": "read"
+        },
+        {
+          "name": "agent.cancel",
+          "policy": "read"
+        }
+      ]
+    },
+    {
+      "id": "discuss-intent",
+      "requestCount": 1,
+      "streamRequests": 1,
+      "messageGrowthSamples": [
+        193,
+        507,
+        742,
+        978,
+        1213,
+        1449,
+        1684,
+        1863,
+        1902
+      ],
+      "statusSamples": [
+        "正在接收 AI 输出…流式接收中 · 已接收 160 字取消生成"
+      ],
+      "traceCalls": 1,
+      "textOrigins": [
+        "model"
+      ],
+      "declarationOrigin": "application",
+      "visibleToModel": true,
+      "toolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "context.remaining",
+          "policy": "read"
+        },
+        {
+          "name": "agent.plan",
+          "policy": "read"
+        },
+        {
+          "name": "agent.spawn",
+          "policy": "read"
+        },
+        {
+          "name": "agent.wait",
+          "policy": "read"
+        },
+        {
+          "name": "agent.cancel",
+          "policy": "read"
+        }
+      ]
+    },
+    {
+      "id": "chat-session-seal",
+      "runStatus": "success",
+      "notice": "上下文已重置，API 将从当前编辑器内容重新开始。知道了"
+    }
+  ],
+  "requests": [
+    {
+      "seq": 1,
+      "phase": "write-tool-first",
+      "scenarioRequestIndex": 1,
+      "model": "model-interference-model",
+      "stream": true,
+      "messageCount": 5,
+      "toolCount": 15,
+      "toolNames": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.write",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "context.remaining",
+        "agent.plan",
+        "agent.spawn",
+        "agent.wait",
+        "agent.cancel"
+      ],
+      "declarationPresent": true,
+      "writeToolPresent": true,
+      "hasAssistantToolResult": false
+    },
+    {
+      "seq": 2,
+      "phase": "write-tool-first",
+      "scenarioRequestIndex": 2,
+      "model": "model-interference-model",
+      "stream": true,
+      "messageCount": 7,
+      "toolCount": 15,
+      "toolNames": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.write",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "context.remaining",
+        "agent.plan",
+        "agent.spawn",
+        "agent.wait",
+        "agent.cancel"
+      ],
+      "declarationPresent": true,
+      "writeToolPresent": true,
+      "hasAssistantToolResult": true
+    },
+    {
+      "seq": 3,
+      "phase": "text",
+      "scenarioRequestIndex": 1,
+      "model": "model-interference-model",
+      "stream": true,
+      "messageCount": 6,
+      "toolCount": 14,
+      "toolNames": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "context.remaining",
+        "agent.plan",
+        "agent.spawn",
+        "agent.wait",
+        "agent.cancel"
+      ],
+      "declarationPresent": true,
+      "writeToolPresent": false,
+      "hasAssistantToolResult": false
+    }
+  ],
+  "verdict": "pass"
+}

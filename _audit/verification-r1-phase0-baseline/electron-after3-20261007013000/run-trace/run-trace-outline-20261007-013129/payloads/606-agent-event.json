@@ -1,0 +1,33 @@
+{
+  "taskId": "edit-task-1791308266964-1",
+  "status": "running_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "重构大纲：删除粘贴指令、背景参考资料无标题段落添加标题、中文引号统一全角",
+  "executedBatches": [],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "activeBatchId": "ai-edit-muwyowqi-1",
+  "executionPlan": {
+    "goal": "重构大纲：删除粘贴指令、背景参考资料无标题段落添加标题、中文引号统一全角",
+    "batches": [
+      "ai-edit-muwyowqi-1"
+    ],
+    "batchDetails": {
+      "ai-edit-muwyowqi-1": {
+        "segmentId": "structure-repair",
+        "expectedChange": "restructure",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "structure_repair",
+        "invariantResult": "planned-deletion-only"
+      }
+    }
+  },
+  "batchId": "ai-edit-muwyowqi-1",
+  "segmentId": "structure-repair",
+  "expectedChange": "restructure",
+  "invariantResult": "planned-deletion-only"
+}

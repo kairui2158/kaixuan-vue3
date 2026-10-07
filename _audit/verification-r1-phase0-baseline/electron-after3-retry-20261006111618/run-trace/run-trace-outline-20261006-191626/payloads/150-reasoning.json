@@ -1,0 +1,646 @@
+The user wants me to restructure the outline into a "Word document" format. Let me understand what this means:
+
+1. The user previously mentioned "分叉一允许去重" (branch one allows deduplication) - I've now deleted the duplicate 7.8 section.
+2. Now the main task is to restructure the outline into a Word document format - meaning proper hierarchical structure with consistent heading levels, clean formatting, etc.
+
+Let me look at what needs to be done:
+
+1. The current structure has some issues - there are heading level mismatches, some sections are under the wrong parent, etc.
+2. The "叙事框架" (Narrative Framework) section currently contains content that should be organized differently.
+
+Looking at the structure more carefully:
+
+Current top-level structure:
+- # 《绿潮》大纲总纲
+  - ## 叙事框架
+    - ### 故事核心
+    - ### 第一卷·觉醒与扎根
+    - ### 第二卷·连接与陷落
+    - ### 第三卷·远征与暗流
+  - ## 背景参考资料
+    - ### 灾前军事基准线与菌毯的不可根除性
+  - ## 数据板的局限
+  - ## 菌膜外套：有限资源的临时通行方案
+  - ## 菌膜外套与共存补丁的关系
+    - ### 六大势力总览
+    - ### 圣萌会的崛起
+    - ### 盖亚巨树的生长与天府都陷落
+    - ### 终局之战
+    - ### 终局之后
+  - ## 世界设定声明
+  - ## 卷一：基石设定层
+  - ## 卷二：核心人物群像
+  - ## 卷三：势力与格局层
+  - ## 卷四：叙事工具箱层
+
+The issue is that "背景参考资料", "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" are top-level (##) alongside the formal 卷 structure. In a Word document format, these should probably be organized into the proper volume structure or made into appendices.
+
+Also, "菌膜外套与共存补丁的关系" contains "六大势力总览", "圣萌会的崛起", "盖亚巨树的生长与天府都陷落", "终局之战", "终局之后" as ### sections - but these are narrative summaries that also appear in more detail elsewhere.
+
+Let me think about what "Word文档的形式重构大纲" means more carefully. The user wants me to reorganize the outline so it flows like a proper Word document - with a clear table of contents hierarchy. The key structural issues:
+
+1. "背景参考资料" is at level 2, but it contains the military baseline analysis which could be part of 卷一 or an appendix.
+2. "数据板的局限" is at level 2 - standalone, should be under 卷一 as a section.
+3. "菌膜外套" is at level 2 - standalone, should be under 卷一.
+4. "菌膜外套与共存补丁的关系" is at level 2 and contains subsections that are essentially narrative summaries that overlap with content elsewhere.
+
+Let me look at the actual document map more carefully to understand the full structure. The user already confirmed "分叉一允许去重" so I should check for other duplicates and restructure.
+
+Actually, looking at the data more carefully, the key issue is:
+
+The narrative framework section (## 叙事框架) covers story beats for volumes 1-3, but then there are separate ## 背景参考资料, ## 数据板的局限, ## 菌膜外套, and ## 菌膜外套与共存补丁的关系 that sit at the same level as ## 卷一, ## 卷二, etc. This creates a flat, non-document-like structure.
+
+In a Word document format, the outline should be:
+- Part 1: 基石设定层 (卷一)
+- Part 2: 核心人物群像 (卷二)
+- Part 3: 势力与格局层 (卷三)
+- Part 4: 叙事工具箱层 (卷四)
+
+And the "叙事框架" with its story beats should be separate from the formal worldbuilding volumes. The background reference materials and standalone sections should be integrated into the proper volumes or placed in a consistent position.
+
+Let me think about what the user really wants. They said "按照Word文档的形式重构大纲，不要缩减内容" - restructure into Word document form without reducing content.
+
+This likely means:
+1. Consistent heading levels throughout
+2. Proper hierarchical organization
+3. All content preserved
+4. The 叙事框架 content moves into a proper position
+5. The scattered ## level sections get integrated into the right volumes
+
+Let me look at this more carefully. The current structure has these issues:
+
+The "叙事框架" is a level-2 heading that contains the story narrative. After it come several level-2 headings that are essentially worldbuilding materials. Then come 卷一 through 卷四 at level 2. This is actually a reasonable structure for a novel outline - the narrative first, then the worldbuilding reference materials.
+
+But in "Word文档形式", the structure should be more like:
+- 封面/总纲
+- 第一部分：叙事框架（故事梗概）
+- 第二部分：背景参考资料
+- 卷一部分
+- 卷二部分
+- etc.
+
+Actually, I think the user might just want me to clean up the structure so that:
+
+1. The scattered level-2 sections ("数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系") are placed under appropriate parent sections (likely 卷一: 基石设定层)
+2. The sub-sections of "菌膜外套与共存补丁的关系" (六大势力总览, 圣萌会的崛起, etc.) are either removed as duplicates or integrated properly since they overlap with content in 卷三
+
+Wait, let me re-examine. The "背景参考资料" section contains detailed narratives that are essentially the story's background - they're part of the narrative framework. "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" are worldbuilding clarifications.
+
+I think the proper Word document structure would be:
+
+```
+# 《绿潮》大纲总纲
+
+## 第一部分：故事叙事框架
+### 故事核心
+#### 菌毯的本质：竞争对手文明
+#### 核心张力：保护即加速
+### 第一卷·觉醒与扎根
+### 第二卷·连接与陷落
+### 第三卷·远征与暗流
+
+## 第二部分：背景参考资料
+### 灾前军事基准线与菌毯的不可根除性
+### 数据板的局限
+### 菌膜外套：有限资源的临时通行方案
+### 菌膜外套与共存补丁的关系
+### 六大势力总览
+### 圣萌会的崛起
+### 盖亚巨树的生长与天府都陷落
+### 终局之战
+### 终局之后
+
+## 世界设定声明
+
+## 卷一：基石设定层
+...
+
+## 卷二：核心人物群像
+...
+
+## 卷三：势力与格局层
+...
+
+## 卷四：叙事工具箱层
+...
+```
+
+Hmm, but that still leaves "背景参考资料" and its subsections as a separate chunk. And the "六大势力总览" through "终局之后" are under "菌膜外套与共存补丁的关系" which is weird.
+
+Actually, I think the real issue is simpler than I'm making it. Let me re-read the user's request... "按照Word文档的形式重构大纲，不要缩减内容" - the user wants it to look like a Word document outline.
+
+The current structure is already fairly hierarchical. The main issue is that some ## sections that should be grouped together are scattered. Let me think about what the ideal Word document structure would be:
+
+A good Word document outline for a novel would be:
+
+```
+# 《绿潮》大纲总纲
+
+## 故事梗概与叙事框架
+   (contains the narrative summary - 故事核心, 第一卷, 第二卷, 第三卷, plus background reference materials like 六大势力总览, 圣萌会的崛起, etc.)
+
+## 世界设定声明
+
+## 卷一：基石设定层
+   ...
+
+## 卷二：核心人物群像
+   ...
+
+## 卷三：势力与格局层
+   ...
+
+## 卷四：叙事工具箱层
+   ...
+```
+
+But this would require moving "背景参考资料" (which is a long section about the military baseline) into either "故事梗概" or "卷一".
+
+And "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" should go under 卷一.
+
+And the sub-sections under "菌膜外套与共存补丁的关系" (六大势力总览, 圣萌会的崛起, etc.) - these are narrative summaries that overlap with content in 卷三. They should probably stay where they are as part of the narrative framework, or be integrated.
+
+Let me just focus on the most obvious structural fix: moving the standalone ## sections into proper parent sections.
+
+Actually wait - the user said "按照Word文档的形式重构大纲" which is quite broad. Let me focus on the concrete structural issues:
+
+1. "背景参考资料" is a standalone ## section that should probably be under "叙事框架" as a subsection, or reorganized.
+
+2. "数据板的局限" is a standalone ## section that should be under 卷一.
+
+3. "菌膜外套：有限资源的临时通行方案" is a standalone ## section that should be under 卷一.
+
+4. "菌膜外套与共存补丁的关系" is a standalone ## section with sub-sections that should be reorganized.
+
+5. Inside "菌膜外套与共存补丁的关系", the ### subsections (六大势力总览, 圣萌会的崛起, etc.) are essentially the same as the narrative summary in "叙事框架". They should stay as part of the narrative.
+
+The most impactful change would be to:
+- Move "背景参考资料" under "叙事框架" as a subsection (it's part of the narrative background)
+- Move "数据板的局限" under 卷一
+- Move "菌膜外套" under 卷一
+- Move "菌膜外套与共存补丁的关系" under 卷一 (or integrate with 叙事框架)
+
+But wait - moving content will change the heading levels significantly. If I move ## sections to be ### under another ## section, I need to downgrade all their sub-headings too.
+
+This is getting complex. Let me think about what the minimal changes are that would make it look like a Word document:
+
+Option A: Group everything under a clear Part structure
+- 第一部分：故事与叙事 (contains 叙事框架 + 背景参考资料 + 数据板的局限 + 菌膜外套 + 菌膜外套与共存补丁的关系)
+- 世界设定声明
+- 卷一 through 卷四
+
+Option B: Restructure to eliminate standalone ## sections by moving them into proper volumes
+- 叙事框架 stays as is
+- 背景参考资料 → under 叙事框架 or 卷一
+- 数据板的局限 → under 卷一
+- 菌膜外套 → under 卷一
+- 菌膜外套与共存补丁的关系 → under 叙事框架 or 卷一
+
+I think Option A is cleaner and more "Word document" like. Let me go with:
+
+```
+# 《绿潮》大纲总纲
+
+## 第一部分：故事叙事框架
+### 故事核心
+...
+### 第一卷·觉醒与扎根
+...
+### 第二卷·连接与陷落
+...
+### 第三卷·远征与暗流
+...
+
+## 第二部分：背景参考资料
+### 灾前军事基准线与菌毯的不可根除性
+...
+
+## 数据板的局限
+...
+
+## 菌膜外套：有限资源的临时通行方案
+...
+
+## 菌膜外套与共存补丁的关系
+### 六大势力总览
+### 圣萌会的崛起
+### 盖亚巨树的生长与天府都陷落
+### 终局之战
+### 终局之后
+
+## 世界设定声明
+
+## 卷一：基石设定层
+...
+
+## 卷二：核心人物群像
+...
+
+## 卷三：势力与格局层
+...
+
+## 卷四：叙事工具箱层
+...
+```
+
+Actually, this is already close to the current structure. The only change is renaming "叙事框架" to "第一部分：故事叙事框架" or something similar.
+
+Let me re-read the current structure from the document map:
+
+```
+# 《绿潮》大纲总纲
+  ## 叙事框架
+    ### 故事核心
+      #### 菌毯的本质：竞争对手文明
+      #### 核心张力：保护即加速
+    ### 第一卷·觉醒与扎根
+    ### 第二卷·连接与陷落
+    ### 第三卷·远征与暗流
+  ## 背景参考资料
+    ### 灾前军事基准线与菌毯的不可根除性
+  ## 数据板的局限
+  ## 菌膜外套：有限资源的临时通行方案
+  ## 菌膜外套与共存补丁的关系
+    ### 六大势力总览
+    ### 圣萌会的崛起
+    ### 盖亚巨树的生长与天府都陷落
+    ### 终局之战
+    ### 终局之后
+  ## 世界设定声明
+  ## 卷一：基石设定层
+  ## 卷二：核心人物群像
+  ## 卷三：势力与格局层
+  ## 卷四：叙事工具箱层
+```
+
+The problem is clear: the structure has scattered ## sections between "叙事框架" and "卷一". In a proper Word document, these would be organized into a clear hierarchy.
+
+I think the best approach is:
+1. Rename "叙事框架" to something more document-like
+2. Move "背景参考资料", "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" under a unified parent section, or integrate them.
+
+But the user said "不要缩减内容" - don't reduce content. So I should just reorganize the hierarchy without deleting anything (except the already-approved dedup of 7.8).
+
+Let me propose a restructure where:
+
+- "叙事框架" becomes the narrative overview section
+- "背景参考资料" through "菌膜外套与共存补丁的关系" become subsections of the "叙事框架" (since they're all narrative/background material)
+- 卷一 through 卷四 remain as worldbuilding volumes
+
+The issue is that "背景参考资料" contains very long, detailed content that doesn't feel like it belongs under "叙事框架". 
+
+Actually, I think the most "Word document"-like structure would be to create clear parts:
+
+```
+# 《绿潮》大纲总纲
+
+## 第一部分：故事框架与背景
+### 第一章 故事核心
+### 第二章 第一卷·觉醒与扎根
+### 第三章 第二卷·连接与陷落
+### 第四章 第三卷·远征与暗流
+### 第五章 背景参考资料
+### 第六章 数据板的局限
+### 第七章 菌膜外套：有限资源的临时通行方案
+### 第八章 菌膜外套与共存补丁的关系
+
+## 世界设定声明
+
+## 第二部分：基石设定层（卷一）
+
+## 第三部分：核心人物群像（卷二）
+
+## 第四部分：势力与格局层（卷三）
+
+## 第五部分：叙事工具箱层（卷四）
+```
+
+But this would require massive renumbering and heading level changes. And the sub-sections within each need to be adjusted too.
+
+This is a very large restructuring task. Let me think about what's actually feasible and what the user really wants.
+
+Actually, I think I'm overthinking this. The user probably wants a clean Word-document-like structure where:
+
+1. All content is preserved
+2. The hierarchy is consistent (no orphan ## sections floating between major parts)
+3. The TOC would look clean in Word's navigation pane
+
+The simplest impactful change would be to:
+
+1. Group "背景参考资料", "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" under the "叙事框架" as ### subsections. This means they become part of the narrative framework section.
+
+But "背景参考资料" has a lot of detailed info that's more worldbuilding than narrative...
+
+Alternatively, group them under a new "## 背景资料与设定补充" section.
+
+Or, the simplest approach: just ensure consistent heading levels. The current structure is actually not bad for a novel outline - it's just that the scattered ## sections look odd in Word's navigation pane.
+
+Let me look at this from a practical standpoint. The user said "按照Word文档的形式重构大纲". In Chinese writing contexts, a "Word文档形式" outline typically means:
+
+1. A clear hierarchical number system (一、二、三、 or 1. 1.1 1.2)
+2. Consistent indentation
+3. Clean TOC structure
+4. All sections properly nested
+
+I think the best practical approach is:
+
+1. Keep all content
+2. Restructure so that the outline flows naturally:
+   - Top-level: 总纲
+   - Level 2: 叙事框架 (story overview), 背景参考资料 (background materials), 设定声明, 卷一-卷四
+
+But the current structure already does this! The only issue is that "数据板的局限" and "菌膜外套" are standalone ## sections that could be grouped.
+
+OK let me just propose concrete changes and do them. Here's my plan:
+
+**Restructure plan:**
+
+Current ## sections between 叙事框架 and 世界设定声明:
+- ## 背景参考资料 (contains ### 灾前军事基准线...)
+- ## 数据板的局限
+- ## 菌膜外套：有限资源的临时通行方案
+- ## 菌膜外套与共存补丁的关系 (contains ### subsections)
+
+These should become ### under a unified ## parent. Let me create:
+
+```
+## 叙事框架
+  (existing content stays)
+
+## 背景资料与核心设定补充
+  ### 背景参考资料
+    #### 灾前军事基准线与菌毯的不可根除性
+  ### 数据板的局限
+  ### 菌膜外套：有限资源的临时通行方案
+  ### 菌膜外套与共存补丁的关系
+    #### 六大势力总览
+    #### 圣萌会的崛起
+    #### 盖亚巨树的生长与天府都陷落
+    #### 终局之战
+    #### 终局之后
+```
+
+This would:
+- Move the existing ## sections down one level to ###
+- Move their subsections down one level (### → ####, #### → #####, etc.)
+- Create a clean Word-document hierarchy
+
+But this is a massive restructuring that would require many replace operations. Let me think about whether this is what the user actually wants or if there's a simpler interpretation.
+
+Actually, re-reading the user's message: "按照Word文档的形式重构大纲，不要缩减内容" - this is a high-level request. The user wants the outline to look like a proper Word document with clear heading hierarchy. The dedup of 7.8 was step one. Now we need the full restructure.
+
+Given the complexity, let me focus on the most impactful changes:
+
+1. **Create a unified "背景资料与设定补充" section** to house the scattered ## sections
+2. **Adjust heading levels** throughout to maintain consistency
+
+This is a large operation. Let me break it down into manageable steps.
+
+Actually, wait. I need to be more careful here. The user might have a specific vision. Let me consider: maybe the user just wants me to make the heading levels consistent without moving content around too much. The current structure already flows well for a novel outline - it's just that some ## sections feel orphaned.
+
+The most conservative interpretation: ensure that:
+1. No duplicate content (already done for 7.8)
+2. Heading hierarchy makes sense for a Word TOC
+3. The narrative framework, background references, and worldbuilding volumes are clearly separated
+
+Let me propose a simpler approach:
+
+Instead of massive restructuring, I'll:
+1. Rename "叙事框架" to a broader category that encompasses the following sections too
+2. Or keep the current structure but ensure heading consistency
+
+Actually, you know what, let me just do the most natural Word-document restructure. The key insight is:
+
+In a Word document, the top-level structure should be:
+- 封面/总纲 (level 1)
+- 各部分 (level 2)
+
+The current level 2 sections are:
+- 叙事框架
+- 背景参考资料
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系
+- 世界设定声明
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+This is 10 level-2 sections, which is fine for a Word document. The issue isn't the number but that some of them feel like they belong together (背景参考资料 through 菌膜外套与共存补丁的关系).
+
+I think the cleanest approach is:
+
+```
+# 《绿潮》大纲总纲
+
+## 一、故事叙事框架
+### 1. 故事核心
+### 2. 第一卷·觉醒与扎根
+### 3. 第二卷·连接与陷落
+### 4. 第三卷·远征与暗流
+
+## 二、背景资料与设定
+### 1. 背景参考资料（含灾前军事基准线）
+### 2. 数据板的局限
+### 3. 菌膜外套：有限资源的临时通行方案
+### 4. 菌膜外套与共存补丁的关系（含六大势力总览、圣萌会崛起、终局等）
+
+## 三、世界设定声明
+
+## 四、卷一：基石设定层
+
+## 五、卷二：核心人物群像
+
+## 六、卷三：势力与格局层
+
+## 七、卷四：叙事工具箱层
+```
+
+Hmm, but this would require changing all the headings which is a lot of work and risks errors. And the user said "不要缩减内容."
+
+Let me go with a middle ground: add parent grouping sections but keep the original headings mostly intact. The main structural changes:
+
+1. Add `## 背景资料与核心设定` as a parent for the scattered ## sections
+2. Downgrade those sections to ###
+3. Adjust their sub-sections accordingly
+
+Let me trace through the exact changes needed:
+
+Current:
+```
+## 背景参考资料
+  [paragraph content]
+  ### 灾前军事基准线与菌毯的不可根除性
+    #### 一、2042年，人类手里有什么
+    #### 二、菌毯为什么火力推不平
+    #### 三、总结：人类真正被压制的根本机制
+
+## 数据板的局限
+
+## 菌膜外套：有限资源的临时通行方案
+
+## 菌膜外套与共存补丁的关系
+  [paragraph content]
+  ### 六大势力总览
+  ### 圣萌会的崛起
+  ### 盖亚巨树的生长与天府都陷落
+  ### 终局之战
+  ### 终局之后
+```
+
+Target:
+```
+## 背景资料与核心设定补充
+  ### 背景参考资料
+    [paragraph content]
+    #### 灾前军事基准线与菌毯的不可根除性
+      ##### 一、2042年，人类手里有什么
+      ##### 二、菌毯为什么火力推不平
+      ##### 三、总结：人类真正被压制的根本机制
+  ### 数据板的局限
+  ### 菌膜外套：有限资源的临时通行方案
+  ### 菌膜外套与共存补丁的关系
+    [paragraph content]
+    #### 六大势力总览
+    #### 圣萌会的崛起
+    #### 盖亚巨树的生长与天府都陷落
+    #### 终局之战
+    #### 终局之后
+```
+
+This would require:
+1. Insert `## 背景资料与核心设定补充` before "背景参考资料"
+2. Change `## 背景参考资料` to `### 背景参考资料`
+3. Change `### 灾前军事基准线...` to `#### 灾前军事基准线...`
+4. Change `#### 一、2042年...` to `##### 一、2042年...` (and similar for the other ####)
+5. Change `## 数据板的局限` to `### 数据板的局限`
+6. Change `## 菌膜外套：有限资源的临时通行方案` to `### 菌膜外套：有限资源的临时通行方案`
+7. Change `## 菌膜外套与共存补丁的关系` to `### 菌膜外套与共存补丁的关系`
+8. Change `### 六大势力总览` to `#### 六大势力总览`
+9. Change `### 圣萌会的崛起` to `#### 圣萌会的崛起`
+10. Change `### 盖亚巨树的生长与天府都陷落` to `#### 盖亚巨树的生长与天府都陷落`
+11. Change `### 终局之战` to `#### 终局之战`
+12. Change `### 终局之后` to `#### 终局之后`
+
+This is a lot of operations (12). Let me see if I can batch them efficiently.
+
+Actually, I realize this is going to be extremely complex due to the write API limitations (10 commands per batch max) and the need to locate exact fragments. Let me think about whether there's a simpler approach.
+
+Actually, the user said "按照Word文档的形式重构大纲". Maybe the simplest interpretation is:
+
+The current structure already works as a Word document. The only thing that doesn't fit is the scattered ## sections. Instead of a massive restructure, I could:
+
+1. Ensure consistent formatting
+2. Remove duplicates (done)
+3. Make minor adjustments to heading consistency
+
+Given the complexity of the full restructure and the risk of errors, let me focus on what would make the most impact:
+
+The key "un-Word-like" aspect is that "背景参考资料", "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" are standalone ## sections that feel like they should be grouped. But actually, in a technical outline for a novel, having them as separate ## sections is not wrong. It's just a bit flat.
+
+Let me just propose the restructure and execute it step by step. Given the write API constraints, I'll need multiple batches.
+
+Batch 1: Insert the parent heading and downgrade first section
+Batch 2: Downgrade remaining sections
+...
+
+Actually, let me take a step back. The user's request is "按照Word文档的形式重构大纲，不要缩减内容". I think the most important thing is to make the document structure clean and consistent. Let me check if there are other issues beyond the scattered ## sections.
+
+Looking at the structure again:
+
+1. "叙事框架" contains story summaries for volumes 1-3
+2. "背景参考资料" is detailed worldbuilding background
+3. "数据板的局限" is a clarification note
+4. "菌膜外套" is a worldbuilding element
+5. "菌膜外套与共存补丁的关系" contains narrative summaries (六大势力总览, etc.) that overlap with later content
+6. 卷一-卷四 are the formal worldbuilding volumes
+
+The "菌膜外套与共存补丁的关系" section is particularly notable because it contains narrative summaries that also appear in 卷三 (势力与格局层). The sub-sections like "六大势力总览", "圣萌会的崛起", "终局之战", "终局之后" are essentially compressed versions of the full story.
+
+Given the complexity, let me focus on what I can actually do efficiently. The most impactful changes:
+
+1. ✅ Already deleted duplicate 7.8
+2. Check if "菌膜外套与共存补丁的关系" sub-sections are duplicates of content in other volumes - if so, mark them but don't delete (user said don't reduce content)
+
+Actually, the sub-sections under "菌膜外套与共存补丁的关系" are narrative summaries that serve a different purpose than the detailed worldbuilding in 卷三. They're not duplicates in the strict sense - they're the narrative version vs the worldbuilding version. So they should stay.
+
+Let me focus on the structural reorganization. I'll:
+
+1. Create a new parent heading `## 背景资料与核心设定` 
+2. Move the scattered sections under it by downgrading their heading levels
+
+Let me execute this in 2-3 batches.
+
+First, let me verify the exact text of the headings I need to change by reading the relevant ranges.
+
+Actually, for efficiency, let me just do the heading replacements directly. I know the exact headings from the document map.
+
+Batch 1 (heading insert + first few downgrades):
+- Insert `\n\n## 背景资料与核心设定\n\n` before `## 背景参考资料`
+- `## 背景参考资料` → `### 背景参考资料`
+- `### 灾前军事基准线与菌毯的不可根除性` → `#### 灾前军事基准线与菌毯的不可根除性`
+- `#### 一、2042年，人类手里有什么` → `##### 一、2042年，人类手里有什么`
+- `#### 二、菌毯为什么火力推不平` → `##### 二、菌毯为什么火力推不平`
+- `#### 三、总结：人类真正被压制的根本机制` → `##### 三、总结：人类真正被压制的根本机制`
+
+Wait, this is getting very complex. Let me reconsider whether this level of restructuring is what the user wants.
+
+The user said "按照Word文档的形式重构大纲" which could simply mean:
+- Make it look like a clean Word document with proper heading hierarchy
+- No orphan sections
+- Clean numbering
+
+I think the most pragmatic approach given the constraints is:
+
+1. ✅ Remove the duplicate 7.8 (already done)
+2. Add a parent heading to group the scattered sections
+3. Downgrade the scattered sections' heading levels
+
+Let me try to do this efficiently. I'll use individual replace operations for each heading change.
+
+Let me verify the exact text first by reading the boundaries.
+
+Actually, let me just go ahead and execute. I need to be strategic about batching.
+
+Plan:
+- Batch A: Insert `## 背景资料与核心设定\n\n` before `## 背景参考资料` + downgrade first headings
+- Batch B: Continue downgrading remaining headings
+- Batch C: Final adjustments
+
+Let me start with Batch A.
+
+Actually wait - the writer limits me to 10 commands per batch. Let me plan carefully.
+
+Commands needed:
+1. Insert `\n\n## 背景资料与核心设定\n\n` before `## 背景参考资料` - this is tricky, I need to locate the exact position
+2. `## 背景参考资料` → `### 背景参考资料`
+3. `### 灾前军事基准线与菌毯的不可根除性` → `#### 灾前军事基准线与菌毯的不可根除性`
+4. `#### 一、2042年，人类手里有什么` → `##### 一、2042年，人类手里有什么`
+5. `#### 二、菌毯为什么火力推不平` → `##### 二、菌毯为什么火力推不平`
+6. `#### 三、总结：人类真正被压制的根本机制` → `##### 三、总结：人类真正被压制的根本机制`
+7. `## 数据板的局限` → `### 数据板的局限`
+8. `## 菌膜外套：有限资源的临时通行方案` → `### 菌膜外套：有限资源的临时通行方案`
+9. `## 菌膜外套与共存补丁的关系` → `### 菌膜外套与共存补丁的关系`
+10. `### 六大势力总览` → `#### 六大势力总览`
+
+That's 10 commands for Batch A. Then I'll need more batches for the remaining sub-sections.
+
+But wait - for command 1, I need to insert before "## 背景参考资料". The `replace_match` operation requires a target fragment. I can use:
+- target: `## 背景参考资料` and replace with `\n\n## 背景资料与核心设定\n\n## 背景参考资料`
+But then I also need to change `## 背景参考资料` to `### 背景参考资料` in a separate command. These would conflict if done in the same batch.
+
+So I should first insert the parent heading, then in the next batch downgrade the sub-headings.
+
+Let me reconsider. I'll do:
+
+Batch A: Insert parent heading
+- target: `## 背景参考资料\n\n四亿年前` (enough context to be unique), content: `## 背景资料与核心设定\n\n### 背景参考资料\n\n四亿年前`
+
+Actually, this changes "## 背景参考资料" to "### 背景参考资料" in the same operation. Let me verify the exact text around "## 背景参考资料".
+
+From the document map:
+- `## 背景参考资料` starts at position 10197
+- Before it is the end of `### 第三卷·远征与暗流` 
+
+Let me read the transition area to get the exact text.

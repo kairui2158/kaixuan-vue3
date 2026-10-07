@@ -804,6 +804,60 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   });
 
+  it('rejects a plain-text provider quota notice during an authorized tool run', async () => {
+    const quotaNotice = [
+      '您的Coding Plan套餐的额度已用完！',
+      '请等待周期时间刷新',
+      '如全部额度已用完，可前往订购页面重新购买。',
+      '购买后，请新建会话，解锁AI完整体验。',
+      'https://desk.ctyun.cn/selforder/#/avt/tokens',
+    ].join('\n');
+    const response = () => new Response(JSON.stringify({
+      choices: [{ message: { content: quotaNotice }, finish_reason: 'stop' }],
+    }), { status: 200 });
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(response()));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    await expect(service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '整理这份长文大纲' }],
+      tools: [{
+        name: 'editor.write',
+        description: '写入编辑器',
+        policy: 'write' as const,
+        inputSchema: { type: 'object' as const, properties: {} },
+        async execute() { return { ok: true } },
+      }],
+      stream: false,
+      retry: false,
+      toolPolicy: {
+        intent: 'edit',
+        executionPlan: {
+          planId: 'plan-quota',
+          operation: 'normalize',
+          operationResolution: { source: 'intent', matched: 'normalize' },
+          mode: 'edit-task',
+          segments: [{ segmentId: 'normalize-1', range: { startLine: 1, endLine: 2 }, readStrategy: 'slice', writeStrategy: 'replace_match', expectedChange: 'normalize', commandLimit: 10 }],
+          invariants: [],
+          estimatedPhysicalRequests: 1,
+          progressLabel: '整理',
+          finalDraft: false,
+          finalDraftPlan: null,
+          totalChars: 100,
+          estimatedDocumentTokens: 100,
+          contextWindow: { status: 'provider-declared', contextWindowTokens: 128000, maxOutputTokens: null, effectiveInputTokens: 100 },
+          decision: 'fits',
+        },
+      },
+    })).rejects.toMatchObject({
+      kind: 'auth',
+      statusCode: 402,
+      message: expect.stringContaining('quota_exhausted'),
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    vi.unstubAllGlobals();
+  });
+
   it('rejects an HTTP 200 streaming soft error with abnormal usage', async () => {
     const sse = [
       'data: {"choices":[{"delta":{}}],"usage":{"prompt_tokens":0,"completion_tokens":0,"total_tokens":1}}\n\n',
@@ -3121,7 +3175,67 @@ describe('createAiService.callAi tools', () => {
     vi.unstubAllGlobals();
   });
 
-  it('steers a stalled question back to unfinished edit-task batches', async () => {
+  it('exhausts the shared physical budget during tool iterations and stops extra provider calls', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      async execute() {
+        return { ok: true, data: { status: 'written' } }
+      },
+    }
+    const toolResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_budget', type: 'function', function: { name: 'editor.write', arguments: '{"commands":[{"operation":"append","content":"x"}]}' } }],
+        },
+      }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const finalResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'stop',
+        message: { role: 'assistant', content: '写入完成' },
+      }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(async () => finalResponse());
+    vi.stubGlobal('fetch', fetchMock);
+    const warnings: string[] = [];
+    const service = createAiService(runtimeStore());
+    // The orchestrator prepays the first request. The first in-call request
+    // consumes the second slot, and the third iteration must be stopped.
+    let remaining = 1;
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '分批写入长文档' }],
+      tools: [writeTool],
+      toolPolicy: {
+        maxToolIterations: 3,
+        intent: 'edit',
+        consumePhysicalRequestBudget: ({ inCall } = {}) => {
+          if (!inCall) return true
+          if (remaining <= 0) return false
+          remaining -= 1
+          return true
+        },
+        onToolWarning: warning => warnings.push(warning),
+      },
+      retry: false,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(result.finishReason).toBe('physical_request_budget_exhausted');
+    expect(result.convergenceReason).toBe('shared physical request budget exhausted during tool iteration');
+    expect(result.text).toContain('任务级物理请求预算已耗尽');
+    expect(warnings.join('\n')).toContain('已停止第 3 轮工具迭代');
+    vi.unstubAllGlobals();
+  });
+
+  it('steers once, then checkpoints an unfinished edit-task batch instead of silently looping', async () => {
     const writeTool = {
       ...tool,
       name: 'editor.write',
@@ -3154,7 +3268,7 @@ describe('createAiService.callAi tools', () => {
         message: { role: 'assistant', content: '我已完成第一段，是否继续处理第二段？' }
       }]
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-    const finalResponse = () => new Response(JSON.stringify({
+    const falseCompletionResponse = () => new Response(JSON.stringify({
       choices: [{
         finish_reason: 'stop',
         message: { role: 'assistant', content: '已按计划完成全部批次' }
@@ -3163,7 +3277,7 @@ describe('createAiService.callAi tools', () => {
     const fetchMock = vi.fn()
       .mockImplementationOnce(async () => toolResponse())
       .mockImplementationOnce(async () => questionResponse())
-      .mockImplementationOnce(async () => finalResponse());
+      .mockImplementationOnce(async () => falseCompletionResponse());
     vi.stubGlobal('fetch', fetchMock);
     const service = createAiService(runtimeStore());
     const warnings: string[] = [];
@@ -3182,10 +3296,15 @@ describe('createAiService.callAi tools', () => {
     });
     expect(fetchMock).toHaveBeenCalledTimes(3);
     expect(result.toolResults ?? []).toHaveLength(1);
-    expect(result.text).toBe('已按计划完成全部批次');
+    expect(result.text).toContain('本轮未完整执行写入计划');
+    expect(result.finishReason).toBe('incomplete_write_coverage_checkpoint');
     expect(warnings.join('\n')).toContain('写入计划尚未完成');
+    expect(warnings.join('\n')).toContain('已停止静默续发请求');
     const continuationBody = JSON.parse((fetchMock.mock.calls[2][1] as RequestInit).body as string);
-    expect(continuationBody.messages.at(-1).content).toContain('必须继续调用工具执行剩余批次');
+    expect(continuationBody.messages.at(-1).content).toContain('当前事实');
+    expect(continuationBody.messages.at(-1).content).toContain('未覆盖批次');
+    expect(continuationBody.messages.at(-1).content).not.toContain('必须继续调用工具');
+    expect(result.textOrigin).toBe('application');
     vi.unstubAllGlobals();
   });
 
@@ -3239,6 +3358,40 @@ describe('createAiService.callAi tools', () => {
     expect(result.toolResults?.[0].result.ok).toBe(true);
     expect(result.text).toBe('写入完成');
     expect(result.finishReason).toBe('stop');
+    vi.unstubAllGlobals();
+  });
+
+  it('defaults tool rounds to streaming for generate and rewrite', async () => {
+    const sse = [
+      'data: {"choices":[{"delta":{"content":"已写入"}}]}\n\n',
+      'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const streamResponse = () => new Response(new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(sse));
+        controller.close();
+      },
+    }), { status: 200 });
+    const fetchMock = vi.fn().mockImplementation(async () => streamResponse());
+    vi.stubGlobal('fetch', fetchMock);
+    const chunks: string[] = [];
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '读取编辑器状态' }],
+      tools: [{
+        ...tool,
+        name: 'editor.get_state',
+        async execute() { return { ok: true, data: { length: 12 } } },
+      }],
+      retry: false,
+      onChunk: text => chunks.push(text),
+    });
+    const body = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);
+    expect(body.stream).toBe(true);
+    expect(chunks.join('')).toBe('已写入');
+    expect(result.text).toBe('已写入');
     vi.unstubAllGlobals();
   });
 

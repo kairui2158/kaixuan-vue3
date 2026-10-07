@@ -1,0 +1,33 @@
+Let me analyze what's been done and what still needs to be done:
+
+1. **Batch 1 (done)**: Deleted the "粘贴到" instruction line and the duplicate "数据板的局限" text from "背景参考资料" section.
+
+2. **Batch 2 (done)**: Added proper heading levels to the unheaded text within "背景参考资料" section (the military baseline section).
+
+Now I need to complete:
+- **Batch 3**: The remaining structure repairs. This includes:
+  - Finding and fixing any remaining duplicate content
+  - Normalizing punctuation (half-width to full-width for Chinese text)
+  - Ensuring heading levels are consistent throughout
+
+Let me first refresh the document map to see current state, then search for any remaining issues.
+
+Key things to check:
+1. The "背景参考资料" section now ends before "数据板的局限" (since we removed the duplicate). Good.
+2. "数据板的局限" now exists as a standalone heading-2. Good.
+3. The "粘贴到" line was removed. Verified - 0 matches found. Good.
+4. The duplicate "数据板提供的是火种，不是火炬" - now only 1 match (in heading-2-z4sxm8). Good.
+
+Now I need to check for:
+1. Any remaining half-width punctuation in Chinese text that should be full-width
+2. Any remaining duplicate content
+3. Any remaining structural issues
+
+Let me read the current state more carefully and check the heading levels for the new headings I added. Let me also check what the newly added headings look like.
+
+The plan says I need to:
+- Normalize punctuation (half-width → full-width in Chinese context)
+- Check heading level consistency
+- Delete any remaining duplicates
+
+Let me read the newly modified sections to verify they look correct, and search for half-width punctuation patterns in Chinese text.

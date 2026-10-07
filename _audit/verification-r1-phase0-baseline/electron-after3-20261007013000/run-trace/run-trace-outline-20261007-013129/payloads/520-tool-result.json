@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-2-171cwmj",
+      "title": "卷一：基石设定层",
+      "kind": "heading",
+      "level": 2,
+      "path": "卷一：基石设定层"
+    },
+    "range": {
+      "start": 22588,
+      "end": 22708
+    },
+    "offset": 0,
+    "maxChars": 120,
+    "content": "## 卷一：基石设定层\n\n本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作。\n\n### 一、书名定义与核心术语定调\n\n#### 1.1 关于“绿潮”的名称定义\n\n在本书中，“绿潮”是一个具有特定历史含义的专有名词，指代204",
+    "hasMore": true,
+    "nextCursor": "section:heading-2-171cwmj:120",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

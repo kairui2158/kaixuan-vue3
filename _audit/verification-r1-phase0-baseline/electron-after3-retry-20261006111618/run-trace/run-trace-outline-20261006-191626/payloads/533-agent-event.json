@@ -1,0 +1,15 @@
+{
+  "snapshot": {
+    "taskId": "outline-direct-api-1791286803745-1070",
+    "status": "waiting_tool",
+    "reason": "physical request dispatched",
+    "goal": "符合我的要求，分叉一允许去重。不用出预览，直接写入",
+    "stepIndex": 0,
+    "callCount": 1,
+    "successfulWriteCount": 3,
+    "noProgressRounds": 0,
+    "repeatedCallCount": 0,
+    "maxPhysicalRequests": 36,
+    "updatedAt": 1791288538032
+  }
+}

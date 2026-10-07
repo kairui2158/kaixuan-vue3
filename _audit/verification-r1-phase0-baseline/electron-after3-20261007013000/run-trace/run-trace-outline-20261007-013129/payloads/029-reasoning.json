@@ -1,0 +1,98 @@
+The user wants me to restructure the outline into a Word document format. Let me analyze the current structure and understand what needs to be done.
+
+Looking at the current structure:
+
+1. The document has a single top-level heading `# 《绿潮》大纲总纲`
+2. Second-level headings include: 叙事框架, 背景参考资料, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 世界设定声明, 卷一：基石设定层, 卷二：核心人物群像, 卷三：势力与格局层, 卷四：叙事工具箱层
+3. There are many "内容块" (content blocks) that are just empty paragraphs with newlines
+
+Issues I've identified:
+1. There's a "paragraph-1kd06wy" (内容块 3) that contains content that was originally under "背景参考资料" - it seems to be body text that lost its heading association
+2. The "粘贴到「故事核心」下..." line has been removed but there might be other artifacts
+3. Many empty "内容块" paragraphs that are just whitespace
+4. Redundant content: "菌膜外套" and "菌膜外套与共存补丁的关系" appear both as separate h2 sections AND within the 卷一 section
+5. Chinese punctuation issues - half-width punctuation in Chinese text context
+
+Let me plan the restructuring:
+
+Phase 1: Structure repair - fix heading levels, move misplaced content, add missing headings
+Phase 2: Remove duplicates - identify and remove truly duplicated content blocks
+Phase 3: Normalize - fix punctuation, whitespace, formatting
+
+Let me focus on what I can do now. Looking at the document map, the main issues are:
+
+1. "背景参考资料" h2 (10188-16763) now contains:
+   - paragraph-1kd06wy (内容块 3): body text that used to be under the h2
+   - heading-3-19902vk "灾前军事基准线与菌毯的不可根除性": a new h3 heading
+
+This is actually fine - the "背景参考资料" was too long and needed sub-structure.
+
+The key structural issue is that there are empty paragraph "内容块" elements scattered throughout. These are essentially noise.
+
+And there's the redundancy: 菌膜外套 and 菌膜外套与共存补丁的关系 appear at both h2 level and within 卷一 as h4 sections (7.8 and 7.9).
+
+Let me focus on:
+1. Phase 1: Fix structure issues
+   - The duplicate 菌膜外套 and 菌膜外套与共存补丁的关系 at h2 level need to stay as they are standalone reference sections, while the versions under 卷一 section 7.8 and 7.9 are also valid as part of the systematic setting documentation
+   - Actually, looking more carefully: the h2 versions are standalone sections between 背景参考资料 and 世界设定声明, and the h4 versions are under 七、变异体主动攻击人类核心机制. These are genuinely different positions in the document - the h2 ones are high-level summaries and the h4 ones are detailed technical sections. They contain similar but not identical content. So perhaps they're intentionally duplicated for different organizational purposes.
+
+Actually, let me re-read the instructions more carefully. The user said "按照Word文档的形式重构大纲，不要缩减内容" - restructure the outline in Word document format, don't reduce content. This means:
+- Clean up the structure to be more readable
+- Fix heading levels to be consistent
+- Remove empty noise paragraphs
+- But keep ALL meaningful content
+
+Let me focus on what I can concretely fix:
+
+1. Remove empty paragraph blocks (the "内容块" items that are just newlines)
+2. Fix any remaining half-width punctuation in Chinese text
+3. Ensure consistent heading hierarchy
+
+Let me start with Phase 1: clean up empty content blocks and fix structure issues.
+
+Looking at the empty content blocks:
+- paragraph-11m2iyd (内容块 1): just "\n\n" at position 11-13
+- paragraph-11m2iyd~2 (内容块 2): just "\n\n" at position 21-23
+- paragraph-46bd25 (内容块 5): just "\n" at position 22744-22745
+- And many more...
+
+These are essentially noise. But I can't delete them safely without knowing if they're between important headings. They appear to be just empty newlines.
+
+Actually, wait - these are paragraph blocks that are just whitespace. They're probably artifacts of how the document was parsed. They don't contain any meaningful content. But I shouldn't delete content en masse.
+
+Let me focus on what's achievable and meaningful:
+
+1. First, clean up the "故事核心" section - I already removed the paste instruction line
+2. Fix half-width punctuation throughout Chinese text
+3. The "背景参考资料" now has a proper h3 subheading "灾前军事基准线与菌毯的不可根除性"
+
+Let me think about what the "Word document format" means. I think the user wants:
+- A clean, hierarchical outline
+- Consistent heading levels
+- No noise/meta content
+- Clean formatting
+
+Since the document is 74K chars, I need to be strategic. Let me tackle this in batches:
+
+Batch 1: Clean up remaining half-width quotes/punctuation in critical sections and remove the empty paragraph noise
+Batch 2: Ensure consistent heading hierarchy 
+Batch 3: Any remaining formatting
+
+Actually, I realize I need to just start executing writes. Let me focus on what the plan says:
+
+Phase 1: Structure repair - Fix heading levels, move content, add missing headings
+Phase 2: Remove duplicates
+Phase 3: Normalize punctuation, whitespace, format
+
+For Phase 1, the main action I already took was:
+- Deleted the paste instruction line ✓
+- Added "灾前军事基准线与菌毯的不可根除性" as h3 ✓
+- Fixed half-width quotes in 故事核心 ✓
+
+For the next batch, I need to scan through the entire document for Chinese text with half-width punctuation. This is a massive task for 74K chars.
+
+Let me focus on the most impactful changes. Let me search for half-width punctuation patterns in Chinese text contexts.
+
+Let me proceed with batched writes. Given the document size, I'll need to be efficient.
+
+Let me start by searching for common half-width patterns.

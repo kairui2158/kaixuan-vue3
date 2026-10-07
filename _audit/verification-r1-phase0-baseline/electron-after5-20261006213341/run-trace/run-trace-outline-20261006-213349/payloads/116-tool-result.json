@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "data": {
+    "total": 1,
+    "truncated": false,
+    "offset": 0,
+    "limit": 30,
+    "hasMore": false,
+    "matches": [
+      {
+        "start": 16162,
+        "end": 16165,
+        "sectionId": "heading-3-19902vk",
+        "sectionTitle": "灾前军事基准线与菌毯的不可根除性",
+        "context": "轰炸它的爪子，便刺激它生出更密的新爪。\n\n信号放大效应让你永远无法把足以推平菌毯地表层的人力和装备集中到同一地点——你还没聚拢，它先已围堵了你。\n\n核弹是唯一\"打得疼\"的武器，但疼的是菌毯加上人类自身——核辐射创造出一批更不可控的独立掠食者，炸过的区域成为受辐射而畸变的新威胁。\n\n末日十年后，所有人类势力都明白了一个道理：菌"
+      }
+    ],
+    "next_steps": [
+      "调用 editor.read_range 传入 sectionId 读取命中节全文"
+    ]
+  }
+}

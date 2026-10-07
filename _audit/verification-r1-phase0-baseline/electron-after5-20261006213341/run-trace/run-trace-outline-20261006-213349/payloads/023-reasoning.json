@@ -1,0 +1,31 @@
+Let me now check what the current top-level structure looks like by reading the first section to verify the changes are correct. Let me look at the current state after the restructure.
+
+The user wants to restructure the outline in "Word document format" without reducing content. So far I've:
+
+1. Deleted duplicate "数据板的局限" paragraph from the end of 背景参考资料
+2. Added a ### heading for "灾前军事基准线与菌毯的不可根除性"
+3. Moved "世界设定声明" to before "叙事框架"
+4. Renamed all ## headings with numbered prefix:
+   - 序 世界设定声明
+   - 第一部分 叙事框架
+   - 第二部分 背景参考资料
+   - 第三部分 数据板的局限
+   - 第四部分 菌膜外套：有限资源的临时通行方案
+   - 第五部分 菌膜外套与共存补丁的关系
+   - 第六部分 卷一：基石设定层
+   - 第七部分 卷二：核心人物群像
+   - 第八部分 卷三：势力与格局层
+
+But I notice that "卷四：叙事工具箱层" was not renamed. Let me fix that. Also, I should check if the document structure makes sense now after the moves.
+
+Let me also check if the "菌膜外套与共存补丁的关系" section has extra content after the main text (the part about 六大势力 and 圣萌会 that is embedded within it). That content seems like it should either be a separate section or part of the narrative. Looking at the original, the "菌膜外套与共存补丁的关系" section contains:
+1. The actual comparison
+2. A long narrative about 六大势力 (铁壁, 复兴会, 天府都, etc.)
+3. The 圣萌会 story
+4. The 终局 story
+
+This is messy. But the user said "不要缩减内容" (don't reduce content), so I should keep all content. However, I should at least rename "卷四" as well.
+
+Let me also see if there are issues with content organization. The "## 菌膜外套与共存补丁的关系" section actually contains much more than just that topic - it has the entire narrative from 六大势力 summary through 马格努斯 and the end game. This feels like it should maybe be split, but the user said "Word文档形式" - this might mean they want the content organized more like a formal document structure, with proper section numbering and hierarchy.
+
+Let me fix the remaining issue: rename "卷四" and possibly clean up the structure more.

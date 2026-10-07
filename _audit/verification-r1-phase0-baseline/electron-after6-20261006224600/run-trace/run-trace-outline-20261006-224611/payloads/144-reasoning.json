@@ -1,0 +1,9 @@
+The locate shows the exact text around the target. I can see:
+
+```
+人类的一切挣扎都不是为了\"打败菌毯\"，而是在它的碾压下多活一天。\n\n\n\n#### 核心张力：保护即加速
+```
+
+So the target should use `\"` (escaped quotes) rather than `"` (curly quotes). Let me read the exact raw text to get the precise characters. The locate result shows `\"` which in JSON means escaped double quotes, but the actual content in the editor has `"` (Chinese/curly quotes).
+
+Let me also check the second target - the data board one.

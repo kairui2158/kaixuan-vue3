@@ -8,6 +8,7 @@ import {
 import {
   getStateTimeout,
   startStateWatchdog,
+  LONG_DOCUMENT_ACTIVE_TIMEOUT_MS,
   type StateWatchdog,
 } from './stateWatchdog'
 import { checkStateIntegrity } from './stateIntegrityCheck'
@@ -40,6 +41,12 @@ describe('state watchdog', () => {
   it('allows skill timeout hints to override defaults', () => {
     expect(getStateTimeout('active')).toBe(600_000)
     expect(getStateTimeout('active', { timeoutHint: { active: 900_000 } })).toBe(900_000)
+  })
+
+  it('keeps a dedicated long-document active timeout constant for both workspaces', () => {
+    expect(LONG_DOCUMENT_ACTIVE_TIMEOUT_MS).toBe(3_600_000)
+    expect(getStateTimeout('active', { timeoutHint: { active: LONG_DOCUMENT_ACTIVE_TIMEOUT_MS } }))
+      .toBe(LONG_DOCUMENT_ACTIVE_TIMEOUT_MS)
   })
 
   it('fires once and can be cleared before firing', () => {

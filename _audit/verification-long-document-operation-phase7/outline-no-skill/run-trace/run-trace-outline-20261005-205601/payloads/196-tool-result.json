@@ -1,0 +1,8 @@
+{
+  "ok": false,
+  "error": {
+    "code": "invalid_input",
+    "message": "editor.read_range 不支持 offset/limit 分页（收到不支持字段：$.offset）。请传 nextCursor 继续读取当前节，或用 editor.document_map 返回的 sectionId 开始读取。",
+    "retryable": true
+  }
+}

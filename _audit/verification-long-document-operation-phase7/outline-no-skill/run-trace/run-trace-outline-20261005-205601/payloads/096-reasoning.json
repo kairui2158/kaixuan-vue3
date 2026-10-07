@@ -1,0 +1,726 @@
+The user is asking to restructure the outline into a Word document format, without reducing content.
+
+Let me understand the current state. The outline is a large document (75024 characters). The user wants me to "按照Word文档的形式重构大纲，不要缩减内容" - restructure the outline in Word document format without reducing content.
+
+First, I need to understand what "Word文档的形式" means here. This is likely asking for a specific formatting/structure. But wait - I'm a fiction outline creation assistant working in an editor. The user is asking to restructure the outline into "Word document form".
+
+Let me think about what this actually means. The current outline has some issues visible in the text:
+1. There are "PHASE7-PUNCT-PROBE" markers that seem to be leftover test/probe text
+2. There are duplicated sections (e.g., "数据板的局限" appears twice, "菌膜外套" appears multiple times)
+3. The structure is a bit messy with content blocks
+
+Actually, let me re-read. The user wants to restructure the outline "按照Word文档的形式" - in the form of a Word document. This likely means:
+- Clean hierarchical structure with proper heading levels
+- Proper formatting
+- No leftover probe/marker text
+- Possibly a title page/table of contents style
+
+But "不要缩减内容" means "don't reduce content" - so I must keep everything.
+
+Wait, I need to be careful here. This is a large task. The document is 75024 characters. Restructuring it fully would be a massive operation.
+
+Let me first understand the actual current state better by looking at the document map and reading key sections.
+
+Actually, I already have a very detailed document map in the context. Let me analyze what needs restructuring.
+
+Key observations from the current state:
+1. The document starts with "《绿潮》大纲总纲" as heading-0
+2. There are probe markers: "【PHASE7-PUNCT-PROBE-A】", "【PHASE7-PUNCT-PROBE-B】", "【PHASE7-PUNCT-PROBE-C】" - these are test/detection text that should be removed (they're not content)
+3. There's a "【核心张力：保护即加速】" section that appears to be pasted into the story core area - actually looking closely, it says "粘贴到「故事核心」下，紧接原文..." which reads like an instruction that was pasted in
+
+Let me look at the structure more carefully:
+
+The document structure:
+- 《绿潮》大纲总纲 (heading-0)
+  - 叙事框架 (heading-74)
+    - 故事核心 (heading-84)
+    - 第一卷·觉醒与扎根 (heading-1063)
+    - 第二卷·连接与陷落 (heading-7438)
+    - 第三卷·远征与暗流 (heading-9462)
+  - 背景参考资料 (heading-10291)
+  - 数据板的局限 (heading-16862)
+  - 菌膜外套：有限资源的临时通行方案 (heading-17417)
+  - 菌膜外套与共存补丁的关系 (heading-18165)
+  - 世界设定声明 (heading-22680)
+  - 卷一：基石设定层 (heading-22777)
+  - 卷二：核心人物群像 (heading-56283)
+  - 卷三：势力与格局层 (heading-60858)
+  - 卷四：叙事工具箱层 (heading-73122)
+
+So there's an inconsistency: 叙事框架 has 第一卷/第二卷/第三卷 (story volumes), but then later there's 卷一：基石设定层/卷二：核心人物群像/卷三：势力与格局层/卷四：叙事工具箱层 (reference/world-building volumes).
+
+The "Word document form" restructuring would involve:
+1. Creating a proper title/header
+2. Organizing the content with clear hierarchical heading levels
+3. Removing the probe markers and leftover instructions
+4. Deduplicating repeated sections
+
+But wait - I need to be careful. The user said "不要缩减内容" (don't reduce content). Removing probe markers is not "reducing content" in the meaningful sense - they're artifacts, not content. But deduplication IS reducing content.
+
+Actually, let me reconsider. The duplicates:
+- "数据板的局限" appears in 背景参考资料 (as part of it, but also... let me check) and again as standalone "## 数据板的局限" at heading-16862
+- "菌膜外套：有限资源的临时通行方案" appears in 背景参考资料, then standalone at heading-17417, and again in 卷一 section 7.8
+- "菌膜外套与共存补丁的关系" appears standalone at heading-18165 and again in 卷一 7.9
+
+These are genuine duplicates. But the user says don't reduce content. Hmm.
+
+Actually, let me think about what "按照Word文档的形式重构大纲" really means. This is likely a request to convert the outline from its current messy/markdown-ish state into a clean, properly structured document - like what you'd see in a Word document with proper heading hierarchy, numbered sections, table of contents, etc.
+
+The key question is: what exactly does the user want? Given the ambiguity, I should:
+1. First understand the current state thoroughly
+2. Propose a restructuring plan
+3. Ask for clarification if needed, OR just do a sensible restructuring
+
+Actually, given the instruction "不要缩减内容" is clear, and the task is "重构" (restructure), I think the main goal is:
+- Clean up the structure/hierarchy
+- Fix the heading levels to be consistent
+- Remove obvious artifacts (probe markers, pasted instructions)
+- Keep all actual content
+
+This is a big task. Let me plan carefully.
+
+Actually, wait. Let me reconsider the scope. The document is 75024 chars. Rewriting the entire document would require the `replace_document` operation or many edits. This is very large.
+
+Let me first check the current state via tools to understand better. Let me get the state and read key parts.
+
+Actually, I have a lot of context already. Let me think about what a "Word document form" restructuring would look like and what changes are needed.
+
+Let me first look at the actual issues more precisely by reading some sections. But actually, I have the full text in the "当前焦点全文" (current focus full text) in the context. Let me analyze it.
+
+The full text is provided. Let me identify the restructuring needs:
+
+1. **Title**: Currently "《绿潮》大纲总纲" as H1. In Word form, might want a title page or just keep it.
+
+2. **Probe markers** to remove:
+   - "【PHASE7-PUNCT-PROBE-A】这是前段标点整理探测句..." (right after title)
+   - "【PHASE7-PUNCT-PROBE-B】这是中段标点整理探测句..." (before 卷三)
+   - "【PHASE7-PUNCT-PROBE-C】这是后段标点整理探测句..." (near end, before 绿潮 term row)
+
+3. **Pasted instruction** to handle:
+   - "粘贴到「故事核心」下，紧接原文...之后：【核心张力：保护即加速】..." - this whole block contains an instruction "粘贴到...之下" followed by the actual content 【核心张力：保护即加速】. The instruction itself should probably be removed/absorbed, and the content should be properly placed under 故事核心.
+
+4. **Structural reorganization**: The "叙事框架" section contains 故事核心 + 第一卷/第二卷/第三卷 (these are the story narrative outline). Then later there's 背景参考资料, 数据板的局限, 菌膜外套..., 世界设定声明, and then 卷一/卷二/卷三/卷四 (reference volumes).
+
+In Word document form, the logical structure would be:
+
+《绿潮》大纲总纲
+
+第一部分：叙事框架（故事卷）
+- 故事核心
+- 第一卷·觉醒与扎根
+- 第二卷·连接与陷落
+- 第三卷·远征与暗流
+
+第二部分：背景参考资料（含 数据板的局限、菌膜外套、共存补丁关系）
+- 背景参考资料
+- 数据板的局限
+- 菌膜外套
+- 菌膜外套与共存补丁的关系
+
+第三部分：世界设定声明
+
+第四部分：卷一·基石设定层
+- 一至十二
+
+第五部分：卷二·核心人物群像
+
+第六部分：卷三·势力与格局层
+
+第七部分：卷四·叙事工具箱层
+
+Actually, this is getting complex. Let me think about what's really being asked and whether I should do a full document rewrite.
+
+Given the scale (75024 chars), doing a full restructure with proper Word-like formatting is a massive undertaking. But the user asked for it explicitly.
+
+Let me consider: what tools do I have? I have `editor.write` with operations like `replace_document`, `reorder_sections`, `replace_selection`, `replace_match`, `insert`, `append`, `delete`, `move`, `rewrite`, `replace_selection`.
+
+For a full restructure, `replace_document` would replace everything with new content. But I need to provide the full new content (75024 chars). That's a lot but doable in principle. However, generating 75000+ chars of content in one tool call is risky and error-prone.
+
+Alternatively, I could do targeted edits:
+1. Remove probe markers (3 deletions)
+2. Fix the pasted instruction block
+3. Maybe reorder/restructure headings
+
+But "按照Word文档的形式重构" suggests a more thorough reformatting.
+
+Hmm, let me step back. I think the right approach is:
+
+1. First, understand the current document precisely by reading it (I have most of it in context already).
+2. Identify the concrete restructuring steps.
+3. Since this is a huge task and I want to be careful, I should probably present a plan and confirm with the user? No wait - the user gave a clear instruction. They want me to do it.
+
+Actually, let me reconsider the nature of this request. The user says "按照Word文档的形式重构大纲，不要缩减内容". 
+
+I think the most important interpretation is: The current outline is in a somewhat flat/messy markdown form with many top-level sections. The user wants it organized into a proper hierarchical document like a Word doc with:
+- A clear title
+- Proper section/chapter numbering
+- Consistent heading hierarchy
+- A table of contents maybe
+
+And "不要缩减内容" means don't cut any actual content while doing this.
+
+Given the risk of a full rewrite, let me think about whether I can do this incrementally with targeted edits.
+
+Actually, the key insight is that the content is ALREADY quite well structured with headings. The main "restructuring" needed is:
+
+1. Fix the top-level organization: Currently everything is under one H1 "《绿潮》大纲总纲" with H2/H3 subsections. This is actually already Word-like. But there are issues:
+   - "叙事框架" section has 故事核心 + 卷 volumes
+   - Then "背景参考资料" through "世界设定声明" are loose H2 sections
+   - Then "卷一：基石设定层" ... "卷四" are the reference volumes
+
+2. The numbering is inconsistent: "叙事框架" uses "### 故事核心", "### 第一卷·觉醒与扎根", etc. (H3 level). "卷一：基石设定层" uses "### 一、...", "#### 1.1" etc.
+
+Actually, the document is already fairly well structured. The main issues are:
+- The probe markers (artifacts)
+- The pasted instruction block
+- The duplicate sections
+- Possibly the overall "卷" numbering conflict (叙事框架 has 第一卷/第二卷/第三卷, and then there are 卷一/卷二/卷三/卷四 for reference)
+
+Wait, this is actually a real conflict. There are TWO sets of "卷":
+- 叙事框架's 第一卷·觉醒与扎根 / 第二卷·连接与陷落 / 第三卷·远征与暗流 (story volumes)
+- 卷一：基石设定层 / 卷二：核心人物群像 / 卷三：势力与格局层 / 卷四：叙事工具箱层 (reference volumes)
+
+These use different numbering conventions (第一卷 vs 卷一), so they're distinguishable, but in a Word doc you'd want to clearly separate them, e.g.:
+
+第一部分 故事大纲
+- 第一章（第一卷）·觉醒与扎根
+...
+
+第二部分 设定资料
+- 卷一：基石设定层
+...
+
+Hmm, but the user might not want me to rename their "卷" system. Let me not over-engineer.
+
+Let me reconsider. Maybe the simplest and most valuable interpretation of "按照Word文档的形式重构" is:
+
+The current outline is a continuous text with markdown-style headings (##, ###, ####) and lots of inline content. The user wants it converted to a proper Word document format, which in this editor context means:
+- Clean heading hierarchy
+- Removed markdown artifacts
+- Proper document structure with title, and clearly numbered sections
+
+Actually, I realize I might be overcomplicating this. Let me focus on concrete, valuable restructuring:
+
+**What needs to happen (concrete):**
+
+1. Remove the 3 probe markers (PHASE7-PUNCT-PROBE-A/B/C) - these are clearly test artifacts.
+
+2. Fix the "【核心张力：保护即加速】" block - it has a pasted instruction ("粘贴到「故事核心」下，紧接原文...之后：") followed by content. The instruction line should be removed, and the content integrated properly under 故事核心.
+
+3. The duplicate sections: "数据板的局限" (appears twice - once in 背景参考资料 flow and once as standalone), "菌膜外套" (appears 3x), "菌膜外套与共存补丁的关系" (appears 2x). These should be deduplicated... but wait, "不要缩减内容" - don't reduce content.
+
+Hmm, but duplicates aren't "content" - they're accidental duplication. Still, the user explicitly said don't reduce content. I should be conservative and NOT delete duplicates unless I'm confident they're accidental. Actually, looking more carefully:
+
+- "数据板的局限" standalone section (heading-16862) is IDENTICAL to the "数据板的局限" content within 背景参考资料. Wait, let me check. The 背景参考资料 section ends with "...数据板提供的是火种，不是火炬。" then "## 数据板的局限" appears again with identical content. So it IS a duplicate.
+
+Actually wait, looking at the structure map again:
+- 背景参考资料 (10291-16862, 6561字) - contains the full background reference, ending with "数据板提供的是火种，不是火炬。"
+- 数据板的局限 (16862-17417, 545字) - standalone, duplicate of the last part of 背景参考资料
+
+Looking at the full text provided, I see "数据板的局限" appears twice with identical content. And "菌膜外套" and "菌膜外套与共存补丁的关系" also appear duplicated.
+
+These look like content that got pasted twice during editing. Deduplicating is reasonable "restructuring" but conflicts with "don't reduce content".
+
+I think the safest interpretation: "不要缩减内容" means "don't summarize/condense the content" - i.e., don't turn detailed sections into summaries. It doesn't necessarily mean "keep accidental duplicate paragraphs". But to be safe, I should probably flag duplicates and ask, OR keep them and just note.
+
+Actually, let me reconsider the whole thing. Given the massive scope and ambiguity, maybe I should:
+
+1. Do a careful read of the actual current document (using tools to confirm the exact current state).
+2. Present a restructuring plan.
+3. Execute the restructuring.
+
+But given the instruction is clear ("按照Word文档的形式重构大纲，不要缩减内容"), and I have write access, I should execute.
+
+Let me think about what "Word document form" concretely means for the final deliverable and how to achieve it.
+
+I think the cleanest approach given the tools:
+
+Option A: Full `replace_document` with the restructured full text.
+- Pros: Complete control, clean result.
+- Cons: 75000+ chars in one call is very long and error-prone. Risk of truncation or errors.
+
+Option B: Targeted edits (delete probes, fix instruction block, maybe reorganize headings).
+- Pros: Safer, incremental, verifiable.
+- Cons: Can't easily do full renumbering/reordering.
+
+Given the constraints, I'll go with a hybrid: primarily targeted edits to fix the clear artifacts and structural issues, and if reordering is needed, use `reorder_sections`.
+
+Actually, wait. Let me reconsider what "重构" (restructure) requires here. The document's fundamental structure is actually OK - it's a big outline with volumes and sections. The "Word document form" request most likely means:
+
+1. Give it a proper document title/header structure
+2. Clean heading hierarchy (H1 for title, H2 for major parts, H3 for chapters, H4 for subsections, etc.)
+3. Remove the markdown clutter and artifacts
+4. Number things properly
+
+The biggest actual structural issues I can see:
+1. Probe markers (3x) - remove
+2. Pasted instruction in 故事核心 - fix
+3. Duplicate sections - handle
+4. The overall heading levels need to be made consistent
+
+Let me read the actual current document to confirm before making changes. Let me use tools to check the current state.
+
+Actually, I have the full text in context already (the "当前焦点全文" section). But the context might be a snapshot. Let me verify current state with tools, and also check the outline structure.
+
+Wait, I should note something important: there are TWO targets here - the editor (编辑目标) and the outline (大纲). The context shows both "当前焦点全文" (which is the outline content) and mentions outline ContextPack. The tools include both `editor.*` and `outline.*`.
+
+The "当前编辑区（来源=active_tab）：大纲编辑器" suggests the active tab is the outline editor. And "当前焦点全文" shows the outline content.
+
+So the outline IS the editing target, and I should use the `outline.*` tools? Or `editor.*`? 
+
+Actually, looking more carefully:
+- "当前大纲 ContextPack（来源=outline，版本=v-4ebffbff）" - this is the outline content
+- "当前编辑区（来源=active_tab）：大纲编辑器" - active tab is outline editor
+
+The editor tools operate on "当前编辑目标" (current editing target). The outline tools operate on "大纲" (outline).
+
+Given the system prompt says "用户正在编辑大纲" (user is editing the outline), and the content shown is the outline, I should focus on the outline.
+
+But which write tool do I use? The `editor.write` tool says "立即写入当前编辑器". The `outline` tools don't have a write method listed... let me check. The outline tools are: get_structure, read_range, search, get_summary. No write.
+
+The editor tools include: get_state, document_map, read_range, search, locate, write, reveal, multi_get_state, global_search, workspace_summary.
+
+So to WRITE to the outline, I'd use `editor.write` (since the active tab is the outline editor). The editor.write operates on "当前编辑目标" which is the outline editor.
+
+Hmm wait, but there's a distinction. Let me check `editor.get_state` first to understand what the current editing target is.
+
+Actually, let me also check `outline.get_structure` vs `editor.document_map` - they might point to the same content.
+
+Let me start by getting the current state and confirming the document.
+
+Let me plan my tool calls:
+1. `editor.get_state()` - get current editing target summary
+2. `outline.get_structure()` - get outline structure (I already have this in context, but confirm)
+
+Actually, I already have the full structure map and full text in context. Let me be efficient. But I should verify the current state isn't stale.
+
+Let me first call editor.get_state and editor.document_map to understand the current editing target and confirm I'm working with the right document.
+
+Actually, given the complexity and risk, let me think carefully about my approach and be transparent with the user about the plan.
+
+Let me reconsider the scope once more. "按照Word文档的形式重构大纲，不要缩减内容" 
+
+I think the deliverable should be a properly structured document. Let me define the target structure:
+
+**《绿潮》大纲总纲** (Title / H1)
+
+**第一部分 故事大纲** (叙事框架)
+- 一、故事核心
+- 二、第一卷·觉醒与扎根
+- 三、第二卷·连接与陷落
+- 四、第三卷·远征与暗流
+
+**第二部分 背景设定**
+- 一、背景参考资料（灾前军事基准线与菌毯不可根除性）
+- 二、数据板的局限
+- 三、菌膜外套：有限资源的临时通行方案
+- 四、菌膜外套与共存补丁的关系
+- 五、世界设定声明
+
+**第三部分 卷一：基石设定层**
+- 一、书名定义与核心术语定调
+- 二、灵魂语句
+- ...（等12章）
+
+**第四部分 卷二：核心人物群像**
+- 一、陈暮
+- 二、五位女主
+
+**第五部分 卷三：势力与格局层**
+- 一、菌毯封锁与人类孤岛
+- ...（等5章）
+
+**第六部分 卷四：叙事工具箱层**
+- 一、核心主题清单
+- 二、术语统一总表
+
+This is a clean Word-like structure. But renumbering everything would be a massive rewrite.
+
+Hmm. Actually, I wonder if the user just wants me to reorganize the TOP-LEVEL structure (the parts/volumes) into a clean Word document, keeping the internal content as-is. The "不要缩减内容" strongly suggests they're worried I'll summarize/cut. So they want a faithful restructure.
+
+Given all this, I think the best approach is:
+
+1. First, confirm the current document state (get_state, document_map).
+2. Then do the restructuring via a full document replacement OR careful targeted edits.
+
+Given the size, I'm leaning toward careful targeted edits for the clear fixes, plus potentially a restructure of the top-level headings.
+
+Actually, let me reconsider whether a full `replace_document` is feasible. The document is 75024 chars. If I do replace_document, I need to reproduce all 75000 chars with corrections. That's a LOT of output, and there's high risk of introducing errors (typos, missing content), which would violate "不要缩减内容" if I accidentally drop something.
+
+Therefore, targeted edits are safer. Let me identify the minimal set of edits to achieve a "Word document form":
+
+1. **Remove probe markers** (3 edits):
+   - "【PHASE7-PUNCT-PROBE-A】这是前段标点整理探测句,需要把半角逗号改成全角逗号;这是必须处理的半角分号." → delete
+   - "【PHASE7-PUNCT-PROBE-B】..." → delete
+   - "【PHASE7-PUNCT-PROBE-C】..." → delete
+
+2. **Fix the pasted instruction in 故事核心**:
+   - Remove "粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：" line, keep the 【核心张力：保护即加速】 content properly integrated.
+
+3. **Handle duplicates**:
+   - "数据板的局限" standalone section duplicates the end of 背景参考资料 → remove the standalone duplicate OR the one in 背景参考资料.
+   - "菌膜外套" and "菌膜外套与共存补丁的关系" duplicates.
+
+Wait, but this contradicts "不要缩减内容". Let me re-examine whether these are truly duplicates.
+
+From the full text, I see:
+
+In 背景参考资料 section, at the end:
+"数据板提供的是火种，不是火炬。" — this ends the 背景参考资料.
+
+Then "## 数据板的局限" heading, followed by the exact same 数据板的局限 content.
+
+Then "## 菌膜外套：有限资源的临时通行方案" with content.
+
+Then "## 菌膜外套与共存补丁的关系" with content.
+
+Then "## 世界设定声明".
+
+Then "## 卷一：基石设定层" which contains 7.8 菌膜外套 and 7.9 菌膜外套与共存补丁的关系 as subsections.
+
+So the duplicates are:
+- 数据板的局限: appears as standalone (## level) AND its content is at the end of 背景参考资料. Actually, is it "in" 背景参考资料 or just adjacent? The 背景参考资料 section (10291-16862) ENDS with "数据板提供的是火种，不是火炬。" Then "数据板的局限" (16862-17417) is a SEPARATE heading with identical content.
+
+Wait, so the "数据板的局限" content appears TWICE: once as the ending of 背景参考资料, once as its own section. This is a duplication.
+
+Similarly, "菌膜外套" standalone (17417-18165) vs the same content in 背景参考资料... wait let me check. The 背景参考资料 contains "菌膜外套" content? Let me look at the full text.
+
+Looking at the full text "当前焦点全文", the 背景参考资料 section contains the 灾前军事基准线 content. Then after "人类能做的不是击败菌毯...承认" comes "数据板的局限" (first instance, in bold as "数据板的局限" but it's actually...).
+
+Hmm, this is getting confusing. Let me actually re-read the full text structure from the context.
+
+Actually, I realize the full text in "当前焦点全文" has this flow:
+
+1. 标题《绿潮》大纲总纲
+2. 【PHASE7-PUNCT-PROBE-A】...
+3. ## 叙事框架
+4. ### 故事核心 (contains 核心张力 pasted block)
+5. ### 第一卷·觉醒与扎根
+6. ### 第二卷·连接与陷落
+7. ### 第三卷·远征与暗流
+8. ## 背景参考资料 (long, ends with "数据板提供的是火种，不是火炬。" and 灾前军事基准线...)
+9. ## 数据板的局限 (duplicate)
+10. ## 菌膜外套：有限资源的临时通行方案 (duplicate-ish)
+11. ## 菌膜外套与共存补丁的关系 (duplicate)
+12. ## 世界设定声明
+13. ## 卷一：基石设定层 (with 一~十二 chapters)
+14. ## 卷二：核心人物群像
+15. ## 卷三：势力与格局层
+16. ## 卷四：叙事工具箱层
+
+So the duplicates (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) appear as standalone top-level sections between 背景参考资料 and 世界设定声明, AND their content also appears:
+- 数据板的局限 content also appears at end of 背景参考资料? Let me check... Actually the 背景参考资料 text I see ends with the 灾前军事基准线 content and "人类能做的不是击败菌毯，而是在它的覆盖范围内找到一种与它共存的方式——让菌丝网络不再认为人类是异己。终局时那行写入的共存补丁，不是胜利，是人类对'不可战胜'的承认。"
+
+Then "数据板的局限" appears. Then "菌膜外套" appears. Then "菌膜外套与共存补丁的关系" appears. Then "世界设定声明".
+
+And separately, within 卷一, sections 7.8 and 7.9 contain the 菌膜外套 and 共存补丁 content again.
+
+So actually, the "数据板的局限" only appears once as standalone? Wait no. Let me look at the structure map again:
+
+- 背景参考资料 (10291-16862, 6561字) - 6561 chars. This is a big section.
+- 数据板的局限 (16862-17417, 545字)
+- 菌膜外套：有限资源的临时通行方案 (17417-18165, 728字)
+- 菌膜外套与共存补丁的关系 (18165-22680, 4499字)
+- 世界设定声明 (22680-22777, 87字)
+
+So 数据板的局限 (545字) is a separate section. But in the full text, I see "数据板的局限" content appears... let me look. The full text shows:
+
+"...终局时那行写入的共存补丁，不是胜利，是人类对'不可战胜'的承认。
+
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的...数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。方岫岩在八个月里记录下的...数据板提供的是火种，不是火炬。
+
+
+## 菌膜外套：有限资源的临时通行方案
+..."
+
+So YES, "数据板的局限" appears TWICE:
+1. Once right after 背景参考资料 ends (unheadered, or as part of 背景参考资料's flow) - actually it seems to be an unheadered duplicate paragraph.
+2. Once as "## 数据板的局限" heading.
+
+Wait, looking at the full text again very carefully:
+
+"...
+
+在远西大陆，另一种力量正在凝聚。
+...（圣萌会内容）...
+
+人类能做的不是击败菌毯，而是在它的覆盖范围内找到一种与它共存的方式——让菌丝网络不再认为人类是异己。终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。
+
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的...数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。...数据板提供的是火种，不是火炬。
+"
+
+So indeed there's a duplicate: "数据板的局限" content appears once without ## (as bold text "数据板的局限" + content) and once with "## 数据板的局限" heading + identical content.
+
+Similarly for 菌膜外套: appears once with "## 菌膜外套：有限资源的临时通行方案" and the content, then... hmm actually let me check if it's duplicated at the top level.
+
+From the full text:
+"## 菌膜外套：有限资源的临时通行方案
+陈暮的菌膜装甲是独一无二的...陈暮不必陪同每一次通行——但他的勘探是不可替代的。
+
+## 菌膜外套与共存补丁的关系
+菌膜外套是"让系统暂时看不到我们"...共存补丁是终极解法。
+
+在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。...（this is more 背景参考资料 style content）..."
+
+So the standalone sections "菌膜外套" and "菌膜外套与共存补丁的关系" appear ONCE at the top level. Then WITHIN 卷一, sections 7.8 and 7.9 repeat this content.
+
+So the duplication pattern is:
+1. "数据板的局限" - appears twice (once unheadered/bold at end of 背景参考资料 flow, once as ## heading)
+2. "菌膜外套" - appears at top level (## ) AND in 卷一 7.8
+3. "菌膜外套与共存补丁的关系" - appears at top level (## ) AND in 卷一 7.9
+
+These are clearly editorial duplicates/leftovers. In a proper Word document restructure, these should be consolidated.
+
+But again, "不要缩减内容". Removing duplicates technically reduces total character count but doesn't reduce CONTENT (information). I think it's fine to deduplicate as part of "restructuring", but I should be transparent about it.
+
+OK here's my concern: this is getting very complex, and I'm at risk of over-analyzing. Let me take a pragmatic approach:
+
+1. Confirm current state with tools.
+2. Present a clear plan to the user of what "Word document form" restructuring entails.
+3. Execute the concrete changes.
+
+Actually, let me just start executing since the instruction is clear. But given the scale, I'll do it in a controlled way.
+
+Let me first verify the current state and figure out exactly what the current document looks like via tools. I'll get the editor state and document map.
+
+Actually, I realize I should think about whether to use editor tools or outline tools. The active tab is "大纲编辑器" (outline editor). The `editor.write` tool writes to "当前编辑器" (current editor). Since the outline is the active editing target, `editor.write` should write to it.
+
+But wait, there's also the possibility that `editor.*` tools point to a different document. Let me check with `editor.get_state()` and `editor.workspace_summary()`.
+
+Let me make the initial tool calls to understand the current state. I'll call multiple independent tools at once.
+
+Actually, I already have extensive context. The key uncertainty is: (a) what's the current editing target, (b) exact current text (the context might be slightly stale).
+
+Let me call editor.get_state() and editor.document_map() to confirm.
+
+Let me proceed with these calls.
+
+Actually, let me also reconsider: is there a simpler, more useful response here? The user's request "按照Word文档的形式重构大纲，不要缩减内容" might actually be asking me to produce a PLAN/proposal for how to restructure into Word form, or to actually perform the restructure.
+
+Given I have write access and the instruction is imperative ("重构大纲"), I should perform the restructure.
+
+But 75000 chars is huge. Let me think about what "Word document form" changes are actually needed vs. what's already there.
+
+The document is ALREADY in a hierarchical outline form. The main things that make it "not Word document form":
+1. The probe markers (test artifacts)
+2. The pasted instruction text in 故事核心
+3. Duplicate sections
+4. Possibly inconsistent heading levels (## vs ### usage)
+5. No clear "document header"/title block
+
+I think the highest-value, lowest-risk restructure is:
+1. Remove probe markers
+2. Fix the 故事核心 pasted block (remove instruction, integrate content)
+3. Deduplicate (remove the standalone duplicate sections that are clearly leftovers)
+4. Ensure consistent heading structure
+
+For #4, I could renumber headings, but that's risky and the user said don't reduce content (renumbering doesn't reduce content, but it's a lot of edits).
+
+Let me focus on #1-3 first, which are the clear "cleanup" items, and present the result as "restructured in Word document form".
+
+Actually, you know what, let me just carefully read the current document using tools first, then decide. I don't want to act on potentially stale context.
+
+Let me call:
+1. editor.get_state()
+2. editor.document_map()
+
+These are independent, so I can call them together.
+
+Wait, but I also want to understand the relationship between editor and outline. Let me also get outline.get_structure() — but I already have that in context (v-4ebffbff). The context says the outline ContextPack version is v-4ebffbff.
+
+Let me just verify the editor state and map first.
+
+Actually, let me step back and think about the most efficient path. I have the full text in context. The document is 75024 chars. To restructure, I need to:
+
+1. Confirm the exact current text (to make precise edit commands).
+2. Make targeted edits.
+
+For targeted edits with `editor.write`, I can use:
+- `delete` with target (the probe marker text)
+- `replace_match` with target and content
+- `insert` with target
+
+These require exact text fragments. I have the text in context, so I can construct these.
+
+But there's risk: if the context text has subtle differences from the actual document (e.g., full-width vs half-width punctuation), my fragments won't match. The `editor.locate` tool helps verify fragments.
+
+Given the probe markers contain specific text like "【PHASE7-PUNCT-PROBE-A】这是前段标点整理探测句,需要把半角逗号改成全角逗号;这是必须处理的半角分号.", these are quite distinctive. I can use `editor.locate` or `editor.search` to find exact occurrences.
+
+Let me start by searching for the probe markers and key fragments to get exact text.
+
+Plan for this turn:
+1. Call editor.get_state() to understand target.
+2. Call editor.search for "PHASE7-PUNCT-PROBE" to find probe markers.
+3. Call editor.search for "粘贴到" to find the pasted instruction.
+4. Call editor.search for "数据板的局限" to find duplicates.
+
+Actually, let me be more focused. Let me get state first, then search.
+
+I'll do the first batch: get_state + search for probes + search for the pasted instruction + search for 数据板的局限. These are independent.
+
+Wait, actually editor.search requires knowing the target. editor.get_state first might be needed. But I can call them in parallel since they're independent reads.
+
+Let me do it.
+
+Actually, let me reconsider the overall strategy once more, because I want to give the user a genuinely good result.
+
+The user wants a "Word document form" restructure. In Word, an outline document would typically have:
+
+**《绿潮》大纲总纲** (Document Title)
+
+**目录** (optional TOC)
+
+**一、叙事框架**
+  1.1 故事核心
+  1.2 第一卷·觉醒与扎根
+  1.3 第二卷·连接与陷落
+  1.4 第三卷·远征与暗流
+
+**二、背景参考资料**（含灾前军事基准线等）
+
+**三、数据板的局限**
+
+**四、菌膜外套**
+
+**五、菌膜外套与共存补丁的关系**
+
+**六、世界设定声明**
+
+**七、卷一：基石设定层**（一~十二）
+
+**八、卷二：核心人物群像**
+
+**九、卷三：势力与格局层**
+
+**十、卷四：叙事工具箱层**
+
+Hmm, but this would require renumbering all the H2 sections. That's a big change.
+
+Alternatively, keep the existing structure but clean it up:
+- Title stays
+- 叙事框架 stays (with its subsections)
+- 背景参考资料 etc. stay
+- Remove probes and pasted instruction and duplicates
+
+This is more conservative and aligns with "不要缩减内容".
+
+I think the cleanest deliverable that honors "Word document form" AND "don't reduce content" is:
+
+1. Add/keep a clear document title.
+2. Organize into clearly separated "部分" (parts) at the top level:
+   - 第一部分 故事框架（叙事框架）
+   - 第二部分 背景资料与设定声明（背景参考资料、数据板的局限、菌膜外套、菌膜外套与共存补丁、世界设定声明）
+   - 第三部分 卷一：基石设定层
+   - 第四部分 卷二：核心人物群像
+   - 第五部分 卷三：势力与格局层
+   - 第六部分 卷四：叙事工具箱层
+3. Clean artifacts (probes, pasted instruction).
+4. Deduplicate.
+
+This gives a clean Word-like structure without touching the internal content.
+
+But honestly, this is a big undertaking and I'm not 100% sure of the exact desired output. Given the ambiguity, maybe I should:
+
+1. Quickly verify state.
+2. Present a concrete restructuring proposal (the target structure).
+3. Ask a couple of clarifying questions OR just proceed with the most reasonable interpretation.
+
+Given the user's instruction is imperative and they seem to want action (not discussion), I'll proceed with the reasonable interpretation but be transparent.
+
+Actually, let me reconsider the effort budget. This is a huge document. A full restructure via targeted edits would involve:
+- ~3 probe deletions
+- 1 pasted instruction fix
+- ~2-3 deduplications
+- Potential heading restructuring
+
+That's maybe 6-10 edit commands, which is manageable within editor.write's "1-10 commands" per call.
+
+But wait, the heading restructuring (adding "第一部分/第二部分" labels, or renumbering) would require more edits. Let me see if it's actually necessary.
+
+Actually, re-reading the user request once more: "按照Word文档的形式重构大纲，不要缩减内容。"
+
+"按照Word文档的形式" = "in the form of a Word document". 
+
+I think this means: make it look like a proper Word document - clean, structured, with proper hierarchy and formatting. The key deliverable is a clean, well-organized document.
+
+Given the current document already has a reasonable hierarchy, the main "restructuring" is really the cleanup + organization.
+
+Let me make a decision and proceed:
+
+**My plan:**
+1. Verify current state (get_state, search for artifacts).
+2. Make targeted edits:
+   a. Delete 3 probe markers.
+   b. Fix 故事核心 pasted block: remove the instruction line "粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：", keep the 【核心张力：保护即加速】 content, and place it properly after the 故事核心 first paragraph.
+   c. Deduplicate: remove the standalone "## 数据板的局限" section (since its content already exists), remove standalone "## 菌膜外套" and "## 菌膜外套与共存补丁" IF their content is already in 卷一 7.8/7.9. Actually, wait - I need to check whether removing them loses anything. The 卷一 7.8/7.9 content appears identical. So removing top-level duplicates is safe for content.
+
+   Actually, hold on. Let me reconsider the duplicates more carefully by looking at the exact text.
+
+From full text:
+
+Standalone "## 数据板的局限" content:
+"数据板不是百宝箱。方岫岩在八个月里记录下的...数据板提供的是火种，不是火炬。" (545字)
+
+卷一 has NO 数据板的局限 section. So 数据板的局限 only relates to the standalone + the unheadered duplicate.
+
+Wait, let me look again. In the full text, right before "## 数据板的局限", there's:
+
+"...人类能做的不是击败菌毯，而是在它的覆盖范围内找到一种与它共存的方式——让菌丝网络不再认为人类是异己。终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。
+
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。...数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。方岫岩在八个月里记录下的...数据板提供的是火种，不是火炬。
+"
+
+So there are indeed two copies of "数据板的局限" content, one under a plain-text "数据板的局限" line (no ##), and one under "## 数据板的局限".
+
+Hmm wait, actually, is the first "数据板的局限" part of 背景参考资料 section, or is it a separate unheadered blob? The structure map shows 背景参考资料 ends at 16862, and 数据板的局限 starts at 16862. So the "数据板的局限" with ## is the standalone section. The unheadered "数据板的局限" content right before it is... part of 背景参考资料? But 背景参考资料's content should end with the 灾前军事基准线 stuff.
+
+This is confusing because the 背景参考资料 section (6561字) is very long and contains a lot. Let me actually READ the 背景参考资料 section and the surrounding area to understand the exact boundaries.
+
+OK, I think I really need to read the actual document carefully using tools before making any edits. Let me do that.
+
+Let me start with:
+1. editor.get_state()
+2. editor.document_map() (to get current section structure with IDs)
+
+Then read the relevant ranges.
+
+Let me make these calls now.
+
+Actually, I realize I should also consider: the context shows "当前焦点全文" which is a complete dump of the outline. This might BE the current state. But the structure map in context shows specific char ranges. The probe markers and duplicates are clearly visible in this text.
+
+Given I have the full text, I can construct edit commands. But to be safe about exact matching, I'll verify key fragments with locate/search.
+
+Let me proceed step by step. First, get state and search for the artifacts.
+
+I'll make these parallel calls:
+1. editor.get_state()
+2. editor.search(query="PHASE7-PUNCT-PROBE")
+3. editor.search(query="粘贴到「故事核心」下")
+
+Let me do this.
+
+Actually, thinking about efficiency and the fact that I'll likely need multiple rounds, let me just start.
+
+One more consideration: the user might expect me to actually produce a Word document (like .docx) — but in this context, I can only edit text in the editor. So "Word文档的形式" means the FORMAT/STRUCTURE of a Word document (headings, hierarchy, clean layout), not literally generating a .docx file. I'll interpret it as restructuring the text into a clean, Word-document-style hierarchy.
+
+Let me begin.
+
+I'll first gather exact info.

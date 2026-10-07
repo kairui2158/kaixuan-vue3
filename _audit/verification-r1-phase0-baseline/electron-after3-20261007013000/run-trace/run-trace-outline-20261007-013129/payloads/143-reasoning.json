@@ -1,0 +1,107 @@
+The user wants me to restructure the outline like a Word document format. Let me assess what's been done so far and what still needs to be done:
+
+1. **Completed so far:**
+   - Fixed "粘贴" instruction impurity - the search showed none found (already fixed in a previous session)
+   - Fixed "子云" → "孢子云", "物量储备" → "生物量储备" typos
+   - Fixed "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" from H3 → H2 (为顶层章节)
+   - Normalized story core: comma fix and blank line formatting
+   - Converted two tab-separated tables in 背景参考资料 to GFM tables
+
+Now I need to continue the normalization work. Let me think about what a "Word document format" means:
+
+The current outline structure has:
+- # 《绿潮》大纲总纲 (heading-1)
+  - ## 叙事框架 (heading-2)
+    - ### 故事核心 (heading-3)
+    - ### 第一卷·觉醒与扎根 (heading-3)
+    - ### 第二卷·连接与陷落 (heading-3)
+    - ### 第三卷·远征与暗流 (heading-3)
+  - ## 背景参考资料 (heading-2)
+    - ### 灾前军事基准线与菌毯的不可根除性 (heading-3)
+  - ## 数据板的局限 (heading-2)
+  - ## 菌膜外套：有限资源的临时通行方案 (heading-2)
+  - ## 菌膜外套与共存补丁的关系 (heading-2)
+  - ## 六大势力概览 (heading-2) - just fixed
+  - ## 圣萌会的崛起 (heading-2) - just fixed
+  - ## 巨树生长与天府都陷落 (heading-2) - just fixed
+  - ## 世界设定声明 (heading-2)
+  - ## 卷一：基石设定层 (heading-2)
+    - Various H3-H5 subsections
+  - ## 卷二：核心人物群像 (heading-2)
+  - ## 卷三：势力与格局层 (heading-2)
+  - ## 卷四：叙事工具箱层 (heading-2)
+
+For a Word document format, the key issues are:
+1. The "背景参考资料" section contains narrative content that's interleaved with reference content - the "灾前军事基准线" section seems like it should be part of 卷一 or a separate reference section
+2. The "数据板的局限" and "菌膜外套" sections are duplicated content (also appear in 卷一)
+3. The "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" are now top-level H2 sections
+
+Let me check what was the original issue - the user said "按照Word文档的形式重构大纲，不要缩减内容" (restructure the outline in Word document format, don't reduce content).
+
+The main issues I can see:
+1. The "背景参考资料" section contains mixed content - some is narrative reference, some is detailed technical exposition
+2. There are content duplications (数据板的局限 appears as a standalone H2 AND is referenced elsewhere; 菌膜外套 appears multiple times)
+3. The structure could be cleaner for a Word document
+
+But wait - we must NOT delete content. The user specifically said "不要缩减内容" (don't reduce content). However, there are clearly duplicated sections that are word-for-word the same. Let me check.
+
+Looking at the content more carefully:
+- `## 数据板的局限` (H2 at 16234-16789) - standalone section after 背景参考资料
+- Then `## 菌膜外套：有限资源的临时通行方案` (H2 at 16789-17537) - standalone
+- Then `## 菌膜外套与共存补丁的关系` (H2 at 17537-17826) - standalone
+- These same topics also appear within `卷一·基石设定层` under section 七
+
+The structure maps show these are independent H2 sections sitting between 背景参考资料 and 世界设定声明.
+
+For a "Word document format", the logical structure should be:
+1. An overview/introduction section
+2. The four volumes as main divisions
+3. Appendices/reference material at the end
+
+Currently, the document has scattered reference material between the narrative framework and the volumes. Let me think about what restructuring would make sense:
+
+The current top-level structure (after the H2 fixes):
+1. ## 叙事框架 (includes story core + three volumes summary)
+2. ## 背景参考资料 (with military baseline sub-section)
+3. ## 数据板的局限
+4. ## 菌膜外套：有限资源的临时通行方案
+5. ## 菌膜外套与共存补丁的关系
+6. ## 六大势力概览
+7. ## 圣萌会的崛起
+8. ## 巨树生长与天府都陷落
+9. ## 世界设定声明
+10. ## 卷一：基石设定层
+11. ## 卷二：核心人物群像
+12. ## 卷三：势力与格局层
+13. ## 卷四：叙事工具箱层
+
+The issue is that items 2-8 are reference/narrative material scattered between the framework and the volumes. For a clean Word document:
+- Items 2-5 ("背景参考资料" through "菌膜外套与共存补丁的关系") are reference/concept material that should either be integrated into the volumes or placed as appendices
+- Items 6-8 ("六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落") are narrative/summary material that could serve as an overview
+
+But restructuring by moving entire sections is complex and risky with the tools available. Let me focus on what I can do:
+
+1. Fix the tab-separated tables to GFM tables ✓ (done for 背景参考资料)
+2. Fix title hierarchy issues
+3. Clean up formatting
+4. Remove true duplicates (if any)
+
+Let me check for more tab-separated tables that need GFM conversion. The earlier document map showed several tables in the outline. Let me search for tab characters.
+
+Actually, I should continue with the normalization plan. The plan says I have 3 batches to complete, and I've done 2 (the structure repair + the table conversion). Let me continue.
+
+Let me check what else needs normalization - the semi-colon/comma normalization for Chinese text, any remaining tab-separated tables, and any other formatting issues.
+
+Actually, the prompt says:
+- "整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74841]）"
+- "计划批次数量是 3"
+
+So I have one more batch to complete (batch 3 of 3). Let me make it comprehensive.
+
+Key things to normalize in this final batch:
+1. Search for any remaining tab-separated tables
+2. Fix any remaining punctuation issues (half-width punctuation in Chinese context)
+3. Check for title hierarchy consistency
+4. Any other formatting issues
+
+Let me search for remaining tab-separated content and half-width punctuation issues.

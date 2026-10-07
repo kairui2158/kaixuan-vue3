@@ -1,0 +1,133 @@
+I've now gathered enough information about the structure. Let me analyze what needs to be done in the normalize-segment-1 phase:
+
+Key observations from structure and searches:
+1. No half-width punctuation `,` `;` `!` `?` `.` found in searches (only `:` which appear in chemical formulas like "18:2" and time notations like "3:14" which are legitimate)
+2. The document appears to already use full-width punctuation
+3. Duplicate "数据板的局限" content was already deleted in batch 2
+
+Now I need to execute the normalize-segment-1 phase. Looking at the document:
+
+The main issues I can identify:
+- "背景参考资料" section has had headings added (structure-repair batch)
+- Duplicate "数据板的局限" removed (structure-plan batch)
+- The "paragraph-4mh893" reads as "本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作" - this statement is already inline with the heading "卷一：基石设定层"
+
+Let me now check: the user wants the outline restructured "按照Word文档的形式重构大纲，不要缩减内容" - "restructure the outline in Word document format, don't reduce content."
+
+Actually wait, let me re-read the plan steps. The plan has:
+1. read-structure ✓ (done)
+2. execute-restructure - structure repair already done (added headings)
+3. confirm-duplicates - already confirmed and deleted duplicate "数据板的局限"
+4. delete-duplicates - done
+5. normalize-segments - needs to be done (normalize-segment-1)
+6. verify-plan
+
+The plan has 3 batches, and I've completed 2:
+- Batch 1 (structure-repair): ✅
+- Batch 2 (structure-plan): ✅ 
+- Batch 3 (normalize-segment-1): needs to be done
+
+For normalize-segment-1, I need to:
+- Fix any remaining formatting issues
+- The searches showed no half-width punctuation issues (`,` `;` `!` `?` `.` all returned 0 results in general search)
+- The `:` results are in chemical formulas (18:2, 18:3) and time (3:14) - these are legitimate and should not be changed
+
+Let me look more carefully at what the normalize step should do. The document seems clean already. Let me check if there are any remaining things to normalize - perhaps whitespace issues or paragraph numbering.
+
+Actually, let me look at the "paragraph-4mh893" - it says "本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作" which is already duplicated inside heading-2-171cwmj ("卷一：基石设定层"). This is part of the heading text itself, not a separate duplicate.
+
+Let me look for any remaining normalization issues. The document seems quite well-structured. Let me do a search for potential issues like missing newlines between sections, extra whitespace, etc.
+
+Actually, the key remaining task is probably about normalizing whitespace - there are spots with too many blank lines between sections. Let me check a few areas.
+
+Let me also look at the "内容块" paragraphs - these are orphan content blocks that are just newlines or duplicated content. For instance:
+- paragraph-11m2iyd: just "\n\n" - empty whitespace
+- paragraph-4mh893: "\n本卷声明...\n\n" - this is a statement that's already part of heading-2-171cwmj
+
+These orphan paragraphs that are just newlines should be cleaned up. And the duplicate "本卷声明" should be removed from paragraph-4mh893 since it's already in the heading.
+
+Wait, I need to be careful. The "本卷声明" text at paragraph-4mh893 (start 22199-22235 in current version) - is this actually duplicated content? The heading-2-171cwmj "卷一：基石设定层" likely includes this text in its content. Let me check.
+
+Actually looking at the original structure, heading-2-171cwmj starts at 22716 in the original version. But paragraph-4mh893 starts at 22728 (original), which would be inside heading-2-171cwmj. In the current version (after deletions), these offsets have shifted.
+
+The paragraph-4mh893 content "本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作" appears to be part of the heading-2-171cwmj content - it's the "本卷声明" that introduces the section. This is NOT a duplicate - it's the natural content of the section.
+
+Let me focus on what normalizing actually needs to do:
+1. Remove orphan empty paragraph blocks (the "内容块" paragraphs that contain only whitespace)
+2. Fix any remaining formatting issues
+
+Actually, these "内容块" paragraphs are just structural artifacts - empty newlines between sections. They don't harm the document. The main thing is that the document is already quite clean.
+
+Let me check for any issues with the "菌膜外套与共存补丁的关系" section that appears both as a level-2 heading and as content within the level-4 heading 7.9. This section under heading-2-28do6r contains a lot of narrative content that seems to overlap with material elsewhere. But these are not exact duplicates - they're related but different content.
+
+Let me focus on what I can actually do for normalize-segment-1:
+- The document doesn't have half-width punctuation issues (confirmed by search)
+- The structure is already good
+- The duplicate paragraph was already deleted
+
+What remains is verifying and cleaning up any minor issues. Let me do a few more targeted searches and then submit the normalize write if there's anything to fix.
+
+Let me search for multi-newline patterns or potential issues.
+
+Actually, I think the main remaining work in normalize-segment-1 is to clean up the orphan "内容块" paragraphs that are just whitespace. These are paragraph blocks that contain only empty newlines or newlines. Let me also check if the "paragraph-4mh893" content is a duplicate.
+
+The paragraph-4mh893 content is "本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作" - this text appears inside heading-2-171cwmj "卷一：基石设定层". Let me verify if it's duplicated.
+
+Looking at the structure: heading-2-171cwmj starts, then paragraph-4mh893 has this content, then heading-3-m3hh8a starts. This means the "本卷声明" text is the natural inline text of the 卷一 section - it's NOT a duplicate, it's the section's introductory text. The paragraph-4mh893 is an orphaned structural artifact (the text got parsed as a separate paragraph node), but the content is valid and not duplicated.
+
+Similarly, paragraph-109ssix contains the intro text for "7.2 基因层面的双重交叉验证" section - this is valid content, not a duplicate.
+
+And paragraph-1xz6gg3 contains intro text for "7.5 威胁分级与响应机制" - valid content.
+
+These "paragraph" nodes are structurally orphan text that should ideally be merged into their parent heading sections, but the editor's structure model may not allow that directly. They serve as lead-in paragraphs to their sections.
+
+For the normalize step, I think the main actionable items are:
+1. Clean up empty paragraph blocks (those with just whitespace)
+2. Fix any remaining formatting issues
+
+Let me identify empty paragraphs from the structure:
+- paragraph-11m2iyd: "\n\n" (empty - between heading-1 and heading-2-kwf15x)
+- paragraph-11m2iyd~2: probably just "\n\n" (empty - inside 叙事框架)
+- paragraph-46bd25: just 1 char (inside 一、书名定义)
+- paragraph-46bd25~2: just 1 char
+- Many more "paragraph-46bd25~N" with just 1 char
+
+These 1-char paragraphs are likely just newlines. Let me check a few.
+
+Actually, the key issue is: the user asked to "按照Word文档的形式重构大纲" - "restructure the outline in Word document format." This might mean they want the content reorganized into a cleaner hierarchical Word-style document with proper heading levels, consistent formatting, etc.
+
+Given that I've already:
+- Added missing headings in 背景参考资料 (batch 1)
+- Deleted duplicate content (batch 2)
+
+The normalize phase should focus on:
+- Cleaning up unnecessary whitespace/empty blocks
+- Ensuring consistent section formatting
+- Any remaining structural issues
+
+Let me proceed with the normalize write. I'll clean up the orphan empty paragraph blocks and ensure proper spacing.
+
+Actually, I realize I need to be more careful. Let me just submit the normalize write with the changes I can confidently make. The document is already in very good shape - no half-width punctuation issues found, duplicates removed, headings added. The main remaining task might just be to verify and finalize.
+
+Let me do one more targeted check and then submit the write.
+
+Wait - I should look more carefully. The "菌膜外套：有限资源的临时通行方案" heading-2-10q4nra and the "菌膜外套与共存补丁的关系" heading-2-28do6r both appear after "背景参考资料" in the original structure. But in the current structure, after the 背景参考资料 heading with its new sub-sections, these two headings exist as separate top-level (level 2) sections. 
+
+These are NOT duplicates of the level-4 sections (7.8 and 7.9) that appear inside 卷一 - they're separate treatments that appear in a different context. The heading-2 versions appear before 卷一 (between 世界设定声明 and 卷一), and the level-4 versions appear inside 卷一 under section 七.
+
+So these are independent sections, not duplicates. Good.
+
+Let me now focus on what I need to do for normalize-segment-1:
+- The document appears clean - no half-width punctuation in Chinese text
+- No remaining duplicates
+- Structure is good
+
+The normalize phase should be about final cleanup. Let me submit a write that handles any remaining whitespace normalization and confirms the document is clean.
+
+Actually, the main thing I notice is that the "empty" paragraph blocks could potentially be cleaned up. But they're structural artifacts that don't affect the rendered output - they're just newlines between sections. Removing them would actually make sections run together.
+
+Let me just submit a final normalize write to clean up obvious issues. Let me look for any multi-newline patterns (more than 2 consecutive newlines) that could be normalized to 2 newlines.
+
+OK, I think I've been overthinking this. Let me submit the normalize write now. The document is clean, and the main remaining task is to verify and finalize the normalization. Let me do a write that handles any final formatting issues.
+
+Since the searches showed no half-width punctuation issues and the structure is good, let me just submit a final verification write to clean up any minor issues.

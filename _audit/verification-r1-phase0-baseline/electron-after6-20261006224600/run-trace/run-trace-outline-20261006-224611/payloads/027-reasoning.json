@@ -1,0 +1,141 @@
+The tables in these two sections use tab-separated content (显示为 `\t`). The user wants Word document format — these should be GFM markdown tables. Let me convert the tab-separated tables into markdown tables.
+
+Table 1: "被孢子云直接废掉的武器系统"
+Columns: 系统类型 | 直接致死原因 | 失效时间线
+
+Rows:
+1. 卫星制导武器（GPS/北斗/格洛纳斯制导） | 低轨道卫星全部坠入大气层（大纲§6.6），天基导航信号源永久消失 | 数月内全部失效，首批卫星在数周内坠毁
+2. 无人机蜂群（全球鹰/XQ-58/暗剑级别） | 卫星中继链路中断→编队协同瘫痪；低空无人机可惯性导航但精度急剧下降；高空无人机发动机吸入孢子颗粒→压气机叶片磨损→机械故障率飙升 | 24小时内失去超视距作战能力，72小时内高空无人机大面积坠毁
+3. 精确制导弹药（JDAM/制导炮弹/激光制导） | 激光制导透过孢子云严重衰减；毫米波雷达被孢子颗粒散射；末端成像制导饱和度和对比度不足 | 命中精度从米级退化至百米级，沦为"昂贵的铁炸弹"
+4. 天基预警与侦察 | 可见光/红外/合成孔径雷达卫星全部被孢子云遮蔽，对地观测能力归零 | 72小时内全球侦察能力丧失
+5. 全球战略通讯 | 卫星通讯链路全断，高频无线电受孢子电离层干扰，超视距通讯退化为地面中继 | 72小时内长距通讯中断，"各自为战"
+6. 弹道导弹防御 | 预警卫星全瞎+拦截器末端制导依赖雷达/红外（被孢子云衰减） | 24小时内丧失战略预警能力
+7. 核武器精确投送 | 洲际导弹依赖天文惯性导航+星载修正；失去卫星修正后圆误差概率从百米级退化至千米级 | 已部署的弹头仍可发射，但命中精度不足以区分目标
+8. 舰船/潜艇远洋导航 | 依赖GPS/惯导+海图，失去GPS后远洋定位退化为数公里误差 | 逐渐累积，远洋舰队陆续失能
+
+Table 2: "生物量储备的物理事实" - 层级表
+Columns: 层级 | 成分与结构 | 生物量占比（估算） | 武器可触及性
+
+Rows:
+1. 地表菌丝层 | 编织状菌丝交织成毡，厚实度从数厘米（新生区）到数十米（成熟区），附生孢子荚、荧光苔和变异植物根茎 | 约5% | 武直、轰炸机、地面部队均可触及，是最容易摧毁的表层
+2. 菌丝毡下层 | 松散的垂直菌丝束，将地表菌丝层与地下主根须连接，负责物质上下输送，厚度不定（数米到数十米） | 约10% | 钻地弹可触及，但菌丝的粘弹性吸收冲击波，毁灭范围远小于对混凝土的
+3. 地下主根须网络 | 菌丝沿基岩裂缝和含水层向下扎根，直径从数厘米到数米，将整片大陆的菌毯连接成单一网络。最深处可延伸到地下数千米 | 约60% | 钻地弹的穿透深度有限（核钻地弹最多数百米），常规弹药完全够不到
+4. 深层菌丝基质 | 嵌在岩层和含水层中的菌丝细胞悬浮液与钙化菌丝碎片，类似"菌丝矿脉"，是地下分支休眠期和复苏初期的物质库 | 约25% | 完全无法触及
+
+These are tab-separated tables. I should convert them to proper markdown tables for Word format. This is a "normalize-segments" formatting change (punctuation/whitespace/format only), which is allowed by the completion criteria.
+
+Let me write these conversions. I'll use replace_match to convert the whole tab-separated table block into markdown table.
+
+For table 1, the target is the full content after the heading. Let me construct the markdown table. The cells contain `"` (straight quotes) which is fine, I'll keep them as-is to not change content. Actually I should keep quotes as-is (straight quotes) since normalize only changes format, not content. But wait, the content has `\"` as escaped straight quotes. In my replacement I should use the same straight quotes. Actually the text shows `"昂贵的铁炸弹"` with straight double quotes in the source. I'll keep them.
+
+Let me do the replacement for the tab-separated table content. I need to be careful about exact match with tabs. The target text I'll copy from the read result but replace `\t` with actual tab characters. However, in the read result, tabs are shown as `\t` literal? The content shows "系统类型\t直接致死原因\t失效时间线" — this is the JSON representation where `\t` is a literal tab? No, in JSON `\t` would be an escaped tab. The read result shows `\t` which in the actual content is a tab character. When I provide target in the write command, I need to reproduce the actual tab characters.
+
+Actually, providing exact tab characters in the target is tricky. Let me think. The `editor.locate` and `replace_match` match against the actual document content. The document content contains tab characters (U+0009). I need to include those tab characters in my target string.
+
+In my tool call, I write JSON. I can include actual tab characters or `\t` escapes. When I write the JSON parameter, I should use `\t` to represent tab. But the issue is whether the system will interpret `\t` correctly. Since I'm writing the tool call as text that gets parsed as JSON, using `\t` in a JSON string is the correct way to represent a tab character.
+
+So I'll write target with `\t` escapes where tabs are.
+
+Actually, this is risky because if I get the exact tab count wrong, the match fails. Let me be very careful.
+
+Alternative: I could use replace_match on just the header line + first row, but it's a whole table. Let me just replace the entire table block in one command per table.
+
+Let me carefully reconstruct table 1 with tab characters. The rows are:
+
+Header: 系统类型\t直接致死原因\t失效时间线
+
+Row1: 卫星制导武器（GPS/北斗/格洛纳斯制导）\t低轨道卫星全部坠入大气层（大纲§6.6），天基导航信号源永久消失\t数月内全部失效，首批卫星在数周内坠毁
+
+Row2: 无人机蜂群（全球鹰/XQ-58/暗剑级别）\t卫星中继链路中断→编队协同瘫痪；低空无人机可惯性导航但精度急剧下降；高空无人机发动机吸入孢子颗粒→压气机叶片磨损→机械故障率飙升\t24小时内失去超视距作战能力，72小时内高空无人机大面积坠毁
+
+Row3: 精确制导弹药（JDAM/制导炮弹/激光制导）\t激光制导透过孢子云严重衰减；毫米波雷达被孢子颗粒散射；末端成像制导饱和度和对比度不足\t命中精度从米级退化至百米级，沦为"昂贵的铁炸弹"
+
+Row4: 天基预警与侦察\t可见光/红外/合成孔径雷达卫星全部被孢子云遮蔽，对地观测能力归零\t72小时内全球侦察能力丧失
+
+Row5: 全球战略通讯\t卫星通讯链路全断，高频无线电受孢子电离层干扰，超视距通讯退化为地面中继\t72小时内长距通讯中断，"各自为战"
+
+Row6: 弹道导弹防御\t预警卫星全瞎+拦截器末端制导依赖雷达/红外（被孢子云衰减）\t24小时内丧失战略预警能力
+
+Row7: 核武器精确投送\t洲际导弹依赖天文惯性导航+星载修正；失去卫星修正后圆误差概率从百米级退化至千米级\t已部署的弹头仍可发射，但命中精度不足以区分目标
+
+Row8: 舰船/潜艇远洋导航\t依赖GPS/惯导+海图，失去GPS后远洋定位退化为数公里误差\t逐渐累积，远洋舰队陆续失能
+
+This is a lot of exact-match risk. An alternative approach: replace each line separately. But even more commands.
+
+Actually, maybe a simpler and safer approach: use `replace_match` with smaller, unique targets. But converting a tab-separated table to markdown requires replacing tabs with ` | ` and adding header separator.
+
+Hmm, but actually the completion criteria says "normalize-changes-punctuation-whitespace-format-only" — this is format only. The plan seems to expect these table conversions.
+
+Let me reconsider: is converting tab-separated tables to markdown tables actually necessary for "Word document form"? The user said "按照Word文档的形式重构大纲" (restructure the outline in Word document form). This likely means: proper heading hierarchy, proper tables, proper formatting. The tab-separated "tables" are not proper markdown tables, so they'd render as plain text in Word. Converting them to GFM tables is appropriate.
+
+But there's risk in exact matching with tabs. Let me verify the exact tab representation by using editor.locate with a smaller fragment containing a tab.
+
+Actually, let me check: does the document contain actual tabs, or literal backslash-t? The read result shows `\t` in the JSON string, which means the actual content has a tab character (JSON escapes tab as \t). So yes, actual tab characters.
+
+Let me use editor.locate on a short fragment to confirm exact match works with tabs. Actually, I'll just attempt the replace_match and see.
+
+Let me be strategic. I'll do one command per table, replacing the whole tab table with a markdown table. If it fails, I'll fall back to smaller fragments.
+
+Actually, a cleaner approach: since the tables are small enough, I can replace just the "header + separator" pattern and individual rows won't need changing if I only need to add `|` around cells... no, each row needs conversion.
+
+Let me just carefully do full-table replacement.
+
+For the markdown table, cell content should not contain `|` characters. Let me check each cell for `|` — none contain pipe. Good.
+
+Let me write table 1 replacement.
+
+I need to write the target with actual tab characters. In my JSON, I'll write `\t`.
+
+Let me proceed with both tables in one batch. Each is a separate replace_match command.
+
+Let me carefully write out the content.
+
+For table 1, target (tab-separated, starting right after heading line). The heading is "##### 被孢子云直接废掉的武器系统\n" then the table.
+
+I'll set target to start from "系统类型\t直接致死原因\t失效时间线" through "...最昂贵的废铁。" — wait, the last paragraph "核心逻辑：..." is prose, not part of the table. I should only replace the table rows, keep "核心逻辑" paragraph.
+
+So target = from "系统类型" to "远洋舰队陆续失能" (the last row). Then content = markdown table.
+
+Let me write it.
+
+Actually, to reduce exact-match risk, I can replace just the header line and then... no, each row needs `|` added on both sides and tabs→` | `. 
+
+Let me just do it. I'll write both tables.
+
+Table 1 markdown:
+| 系统类型 | 直接致死原因 | 失效时间线 |
+|---------|------|------|
+| 卫星制导武器（GPS/北斗/格洛纳斯制导） | 低轨道卫星全部坠入大气层（大纲§6.6），天基导航信号源永久消失 | 数月内全部失效，首批卫星在数周内坠毁 |
+| 无人机蜂群（全球鹰/XQ-58/暗剑级别） | 卫星中继链路中断→编队协同瘫痪；低空无人机可惯性导航但精度急剧下降；高空无人机发动机吸入孢子颗粒→压气机叶片磨损→机械故障率飙升 | 24小时内失去超视距作战能力，72小时内高空无人机大面积坠毁 |
+| 精确制导弹药（JDAM/制导炮弹/激光制导） | 激光制导透过孢子云严重衰减；毫米波雷达被孢子颗粒散射；末端成像制导饱和度和对比度不足 | 命中精度从米级退化至百米级，沦为"昂贵的铁炸弹" |
+| 天基预警与侦察 | 可见光/红外/合成孔径雷达卫星全部被孢子云遮蔽，对地观测能力归零 | 72小时内全球侦察能力丧失 |
+| 全球战略通讯 | 卫星通讯链路全断，高频无线电受孢子电离层干扰，超视距通讯退化为地面中继 | 72小时内长距通讯中断，"各自为战" |
+| 弹道导弹防御 | 预警卫星全瞎+拦截器末端制导依赖雷达/红外（被孢子云衰减） | 24小时内丧失战略预警能力 |
+| 核武器精确投送 | 洲际导弹依赖天文惯性导航+星载修正；失去卫星修正后圆误差概率从百米级退化至千米级 | 已部署的弹头仍可发射，但命中精度不足以区分目标 |
+| 舰船/潜艇远洋导航 | 依赖GPS/惯导+海图，失去GPS后远洋定位退化为数公里误差 | 逐渐累积，远洋舰队陆续失能 |
+
+Table 2 markdown:
+| 层级 | 成分与结构 | 生物量占比（估算） | 武器可触及性 |
+|------|------|------|------|
+| 地表菌丝层 | 编织状菌丝交织成毡，厚实度从数厘米（新生区）到数十米（成熟区），附生孢子荚、荧光苔和变异植物根茎 | 约5% | 武直、轰炸机、地面部队均可触及，是最容易摧毁的表层 |
+| 菌丝毡下层 | 松散的垂直菌丝束，将地表菌丝层与地下主根须连接，负责物质上下输送，厚度不定（数米到数十米） | 约10% | 钻地弹可触及，但菌丝的粘弹性吸收冲击波，毁灭范围远小于对混凝土的 |
+| 地下主根须网络 | 菌丝沿基岩裂缝和含水层向下扎根，直径从数厘米到数米，将整片大陆的菌毯连接成单一网络。最深处可延伸到地下数千米 | 约60% | 钻地弹的穿透深度有限（核钻地弹最多数百米），常规弹药完全够不到 |
+| 深层菌丝基质 | 嵌在岩层和含水层中的菌丝细胞悬浮液与钙化菌丝碎片，类似"菌丝矿脉"，是地下分支休眠期和复苏初期的物质库 | 约25% | 完全无法触及 |
+
+Now, the target strings. For the tab characters, I'll write them as `\t` in JSON. The quotes inside (like `"昂贵的铁炸弹"`) are straight double quotes in the original. In JSON I need to escape them as `\"`.
+
+Let me build the target carefully.
+
+Actually, there's risk: the original uses `"昂贵的铁炸弹"` — these are ASCII double quotes? Looking at the read output: `沦为\"昂贵的铁炸弹\"` — the JSON escaped them with `\"`, meaning they are ASCII double quote characters in the content. Yes, straight quotes.
+
+OK let me write the batch. I'll do 2 replace_match commands.
+
+Actually wait — I should double-check whether the match needs to be "唯一存在". The `replace_match` operation requires target to uniquely identify. These table blocks are unique. Good.
+
+Let me write.
+
+For safety, let me also consider: should I keep the straight quotes as-is in content? Yes, keep as straight quotes to avoid content changes (normalize is format-only, quotes are part of content, though converting to curly quotes would also be "format" arguably). The completion criteria says "normalize-changes-punctuation-whitespace-format-only" — changing straight quotes to curly is punctuation change, allowed. But to be safe and minimal, I'll keep straight quotes as they are. The rest of the document already uses curly quotes "..." for Chinese quotes in many places, but these specific table cells use straight quotes. I'll leave them to minimize risk and content changes.
+
+Actually, let me keep it simple and just convert tab→pipe table format, keeping all cell text exactly as-is.
+
+Let me write the commands now.

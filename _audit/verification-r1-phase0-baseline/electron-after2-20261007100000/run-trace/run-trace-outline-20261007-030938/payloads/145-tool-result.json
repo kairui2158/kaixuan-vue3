@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "data": {
+    "total": 0,
+    "truncated": false,
+    "offset": 0,
+    "limit": 10,
+    "hasMore": false,
+    "matches": [],
+    "next_steps": [
+      "调用 editor.read_range 传入 sectionId 读取命中节全文"
+    ]
+  }
+}

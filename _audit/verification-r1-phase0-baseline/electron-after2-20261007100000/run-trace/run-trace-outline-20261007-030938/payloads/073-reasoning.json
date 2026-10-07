@@ -1,0 +1,84 @@
+The execution plan has 3 batches and 36 physical request rounds. I've done quite a few edits. Let me now do a thorough normalization pass. The key mandatory requirement is converting half-width punctuation in Chinese context to full-width. But the search shows the document already uses full-width punctuation (，。；：！？) throughout. There are some half-width quotes in certain sections that appear intentional or are within quotes. Actually there are lots of `\"` characters (escaped double quotes in JSON = actual `"`). Wait, the search results show `"` characters in context like `\"无生命有机质，免检通过\"` — these are actually straight double quotes `"` in the document, not Chinese quotes `""`.
+
+Wait, let me look more carefully. The story核心 section uses `"` (straight quotes) in places, but also `“”` curly quotes in the 补充钩子 sections. This is inconsistent.
+
+Actually, looking at the original content, the 故事核心 section was pasted with straight quotes `"`, while other sections use proper Chinese curly quotes `“”`. The normalize requirement says half-width punctuation in Chinese context must be converted. But `"` is a quote mark, not one of the listed `, . ; : ! ?`. The listed mandatory ones are `, . ; : ! ?`. Let me search for those specific half-width ones in Chinese context.
+
+Actually I already searched for `,` `.` `;` `:` `!` `?` as half-width. Results:
+- `,` → 0 matches (good)
+- `.` → 274 matches (but these are likely decimal points like `0.3%`, `1.8GPa`, `SC-α`, `Magnus`, etc., and periods in Latin abbreviations like `Sancta Germinatio`... wait search for `.` returned matches in Chinese text context? Let me check. The `. ` search (period+space) returned 7 matches which I fixed. The bare `.` search returns 274 matches, most are decimal points and abbreviations which are NOT Chinese punctuation issues.)
+- `;` → 0 matches (good)
+- `:` → 3 matches (all are time `3:14`, `18:2`, `18:3` — not Chinese colon issues, legit)
+- `!` → 0 matches
+- `?` → 0 matches
+
+So the half-width punctuation normalization for the listed chars is essentially complete. The `.` matches are decimal/abbreviation, legit.
+
+The `. ` (period + space) I fixed 4 instances. There were 7 matches in `. ` search but only 4 were "句号+空格" in Chinese; the other 3 were:
+- `**第三卷暂不做细节补充。** 等` — that's `。` (fullwidth) + space? No wait, search for `. ` (half-width period + space) returned 7 matches at 10054, 10191, 62070, 62139, 62200, 62267, 62340. Let me check: these are `。 ` (fullwidth period followed by space)? No.
+
+Actually the `. ` search matched `. ` where `.` is half-width period. Let me look at context: `1. **陈暮远征路上带一个伤员走。** 这个伤员` — here `走。** ` contains `。** ` not `. `. Hmm wait the match at 10054-10056 spans 2 chars. The context shows `...不细化：\n\n1. **陈暮远征路上带一个伤员走。** 这个伤员...`. The match is at position 10054-10056. Looking at `。** ` there's no half-width period. 
+
+Actually wait — these might be matching `。`? No, search for `. ` (period space). Let me re-read: the 7 matches were at 10054, 10191, 62070, 62139, 62200, 62267, 62340. These are in 第三卷 and 3.2.2 sections. The context at 62070 shows `1. 铁与血的军事秩序：` — this has `1. ` (digit + halfwidth period + space) which is a numbered list marker! That's a legit half-width period in a list marker "1. ".
+
+Similarly `2. **...` etc. These are list markers `1. `, `2. `, `3. `, `4. `, `5. ` — these are legit and should probably stay as half-width list numbering, OR convert to `1、`? In Chinese Word documents, list markers often use `1.` or `1、`. This is a style choice. The mandate is only about `, . ; : ! ?` in "中文正文语境" (Chinese prose context). List markers like "1. " are borderline. I'll leave them since converting "1." to "1。" would be wrong, and "1、" is a bigger style change not clearly required.
+
+Actually, wait, let me reconsider. The matches at 10054 and 10191 in 第三卷: context shows `1. **陈暮远征路上带一个伤员走。**` and `2. **铁壁城主给出的...**`. These are list items "1." and "2." — legit half-width period as list marker.
+
+So my punctuation normalization is essentially done. Good.
+
+Now the main remaining task per the plan is:
+1. ✅ Structure fixes (done: moved 世界设定声明 to front, demoted 3 floating H2 to H3, added H3 title for 灾前军事基准线)
+2. ✅ Duplicate deletion (deleted 数据板的局限 duplicate, deleted residual edit instruction)
+3. Format normalization (mostly done; punctuation largely full-width already)
+
+Let me verify there are no remaining structural issues and check the overall document is coherent. Let me also check the 卷一 section's "本卷声明" — it's a paragraph that appears right after "## 卷一：基石设定层" heading. That's fine.
+
+Also I should check: are there any other stray "粘贴到" or edit instructions? Let me search for suspicious markers.
+
+Also there's the issue of straight quotes `"` vs curly `“”`. The 故事核心 section (pasted content) uses straight quotes `"`. This is a formatting inconsistency. The mandate doesn't explicitly list `"` but "标点、空白、编号与标题层级整理" (punctuation, whitespace, numbering, heading level cleanup) is in the plan. Converting straight quotes to Chinese curly quotes would be appropriate for Word formatting. But this is a large number of replacements and risky. Let me check how many straight quotes exist.
+
+Actually, let me focus. The plan's normalize requirement is clear on the 6 half-width punctuation chars. Those are done. Straight quotes are a separate concern not explicitly mandated, and there are hundreds of them. Given the risk and the note "normalize-changes-punctuation-whitespace-format-only", I think converting straight quotes is within scope but high-effort and risky.
+
+Let me be pragmatic. The document is largely already in good shape. The main structural issues are fixed. Let me do a final verification of the structure and then report.
+
+Let me check the current document map for remaining structural anomalies, and verify no leftover "粘贴" text or duplicate content remains.
+
+Actually, I realize I should double check whether the "菌膜外套" and "菌膜外套与共存补丁的关系" content is duplicated elsewhere (in 卷一 §7.8 and §7.9). Yes! Looking at the original structure, there are:
+- 背景参考资料 section now has "### 菌膜外套：有限资源的临时通行方案" and "### 菌膜外套与共存补丁的关系" (these were originally floating H2s at top level)
+- 卷一 §7.8 "菌膜外套：有限资源的临时通行方案" and §7.9 "与终局的衔接：菌膜外套与共存补丁的关系"
+
+These are DUPLICATE content! §7.8 duplicates "菌膜外套" and §7.9 duplicates "菌膜外套与共存补丁的关系". But wait — the user said "不要缩减内容" (don't reduce content). So should I delete these duplicates?
+
+The plan step 2 says "只读确认重复项并提交唯一目标删除命令" (confirm duplicates read-only and submit unique target deletion). So duplicates SHOULD be deleted to make it a proper Word doc, but ONLY confirmed duplicates where the content is truly redundant.
+
+Let me check: the 背景参考资料 "菌膜外套与共存补丁的关系" section (heading-3-28do6r) actually contains MORE content than just the 菌膜外套/共存补丁 relationship — it also contains the 六大势力 overview (大裂谷走廊/垅原/环障盆地...), 远西大陆/马格努斯/圣萌会, 巨树破土, 终局之战, 共存补丁, 结尾等 — a huge chunk of 4499 chars. So that section is NOT a simple duplicate; it's a "story summary" that happens to start with the 菌膜外套与共存补丁关系 text.
+
+Similarly, the 菌膜外套 section (heading-3-10q4nra, 728 chars) in 背景参考资料 appears to be a duplicate of §7.8.
+
+This is getting complicated. The user's instruction is "按照Word文档的形式重构大纲，不要缩减内容" — restructure into Word form, don't reduce content. The safest interpretation: reorganize the hierarchy/order and clean formatting, but DON'T delete content unless it's a true duplicate that would otherwise be confusing.
+
+Given the complexity and risk, and that I've already made the key structural fixes, let me verify the current state and check for the duplicate situation more carefully.
+
+Actually, the plan is fairly explicit:
+- Phase 1: read structure, use move to fix misplaced headings, insert titles for untitled body, use replace_match/rewrite to fix heading levels
+- Phase 2: read-only confirm duplicates, submit unique target deletion
+- Phase 3: replace_match/rewrite for punctuation/whitespace/numbering/heading cleanup
+
+I've done phase 1 mostly, phase 2 partially (deleted 数据板局限 duplicate + residual instruction), phase 3 partially.
+
+For the 菌膜外套 duplicate: heading-3-10q4nra content vs §7.8 content. Let me read §7.8 to compare.
+
+Actually, given the token budget and that I've already done substantial work, and the risk of over-deleting content the user wants ("不要缩减内容"), I think the best approach now is:
+
+1. Verify current structure is clean
+2. Confirm no residual edit-instruction text remains
+3. Do a final check that content wasn't lost
+
+Let me search for "粘贴" and other residual markers, and verify the document end.
+
+Let me also reconsider: I already moved 世界设定声明 to front (a move, not content change), demoted 3 headings (level change only), added 1 heading title (adds content but that's required), deleted 1 confirmed duplicate (数据板局限) and 1 residual instruction. These are all appropriate.
+
+The 菌膜外套 and 菌膜外套与共存补丁关系 in 背景参考资料 vs 卷一 §7.8/§7.9 — I should check if they're exact duplicates. If §7.8 is identical to 菌膜外套 section, I could delete one. But "不要缩减内容" makes me cautious. Let me read §7.8 and §7.9 to compare.
+
+Let me do targeted reads.

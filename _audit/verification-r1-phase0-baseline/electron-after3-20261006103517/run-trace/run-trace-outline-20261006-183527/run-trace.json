@@ -1,0 +1,2224 @@
+{
+  "schemaVersion": 15,
+  "id": "run-1791282927207-1",
+  "source": "outline",
+  "sourceName": "大纲工作台",
+  "stepName": "大纲共创",
+  "mode": "direct",
+  "projectId": "r1-phase0-baseline",
+  "projectName": "R1 Phase0 Baseline",
+  "providerId": "r1-phase0-live-provider",
+  "providerName": "R1 Phase0 Live Provider",
+  "model": "deepseek-v4-pro",
+  "skillNames": [],
+  "target": {
+    "type": "outline",
+    "id": "outline",
+    "name": "R1 Phase0 Baseline",
+    "activeTab": "大纲编辑器",
+    "locked": false
+  },
+  "context": {
+    "turns": 1
+  },
+  "status": "running",
+  "startedAt": 1791282927207,
+  "stateHistory": [],
+  "events": [
+    {
+      "id": "event-1791282927208-2",
+      "ts": 1791282927208,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始大纲工作台 大纲共创运行"
+    },
+    {
+      "id": "event-1791282927209-4",
+      "ts": 1791282927209,
+      "turnId": "turn-1791282927208-3",
+      "seq": 2,
+      "type": "user-request",
+      "level": "info",
+      "label": "用户请求",
+      "detail": "按照Word文档的形式重构大纲，不要缩减内容。"
+    },
+    {
+      "id": "event-1791282927210-5",
+      "ts": 1791282927210,
+      "turnId": "turn-1791282927208-3",
+      "seq": 3,
+      "level": "info",
+      "type": "routing-diagnostics",
+      "label": "意图路由诊断：rule",
+      "detail": "{\"router\":{\"version\":\"v6.1\",\"layers\":[\"rule\",\"keyword\",\"embedding\",\"llm-fallback\"],\"decisionLayer\":\"rule\",\"embeddingModel\":null,\"scores\":{},\"thresholds\":{\"analyze\":0.3,\"edit\":0.34,\"generate\":0.34,\"discuss\":0.3},\"ambiguityThreshold\":0.08,\"ambiguityThresholds\":{\"analyze\":0.06,\"edit\":0.08,\"generate\":0.08,\"discuss\":0.06},\"oosThreshold\":0.24,\"thresholdSource\":\"calibrated:v6.1-phase6:79-samples:151-examples:train-dev-test:oos-audited\"}}"
+    },
+    {
+      "id": "event-1791282927216-6",
+      "ts": 1791282927216,
+      "turnId": "turn-1791282927208-3",
+      "seq": 4,
+      "level": "info",
+      "type": "long-document-policy",
+      "label": "长文档进入 EditTask 多批执行",
+      "detail": "{\"planId\":\"long-document-muwjlsgy\",\"operation\":\"restructure_and_cleanup\",\"legacyOperationType\":\"whole-document-restructure\",\"mode\":\"edit-task\",\"decision\":\"fits\",\"reason\":\"execution-plan-edit-task\",\"segments\":3,\"invariants\":[\"planned-deletion-only\",\"normalize-changes-punctuation-whitespace-format-only\"],\"estimatedPhysicalRequests\":3,\"contextWindow\":{\"status\":\"unknown\",\"contextWindowTokens\":1000000,\"maxOutputTokens\":null,\"effectiveInputTokens\":900000},\"estimatedDocumentTokens\":38909,\"outlineChars\":74841,\"request\":\"按照Word文档的形式重构大纲，不要缩减内容。\"}"
+    },
+    {
+      "id": "event-1791282927276-7",
+      "ts": 1791282927276,
+      "turnId": "turn-1791282927208-3",
+      "seq": 5,
+      "level": "info",
+      "type": "editor-context-policy",
+      "label": "编辑目标上下文策略",
+      "detail": "{\"targetId\":\"outline\",\"label\":\"大纲编辑器\",\"targetLength\":74841,\"contentVersion\":1,\"versionSource\":\"stable_content_version\",\"selectionSource\":\"real\",\"selectionStart\":74841,\"selectionEnd\":74841,\"contextInjectionMode\":\"packed\",\"pipeline\":{\"stages\":[\"retrieve\",\"filter\",\"rank\",\"assemble\",\"validate\"],\"estimatedInputTokens\":43185,\"availableContextTokens\":null,\"windowDeclared\":false,\"validationReason\":\"unknown-window-skipped\",\"validationValid\":true},\"historyNeutralization\":{\"neutralizedMessageCount\":0,\"markers\":{}}}"
+    },
+    {
+      "id": "event-1791282927280-9",
+      "ts": 1791282927280,
+      "turnId": "turn-1791282927208-3",
+      "seq": 6,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 1 次 API 调用开始",
+      "detail": "{\"skillName\":\"直接对话\",\"model\":\"deepseek-v4-pro\",\"actualToolSurface\":[{\"name\":\"editor.get_state\",\"policy\":\"read\"},{\"name\":\"editor.document_map\",\"policy\":\"read\"},{\"name\":\"editor.read_range\",\"policy\":\"read\"},{\"name\":\"editor.search\",\"policy\":\"read\"},{\"name\":\"editor.locate\",\"policy\":\"read\"},{\"name\":\"editor.write\",\"policy\":\"write\"},{\"name\":\"editor.reveal\",\"policy\":\"read\"},{\"name\":\"editor.multi_get_state\",\"policy\":\"read\"},{\"name\":\"editor.global_search\",\"policy\":\"read\"},{\"name\":\"editor.workspace_summary\",\"policy\":\"read\"},{\"name\":\"outline.get_structure\",\"policy\":\"read\"},{\"name\":\"outline.read_range\",\"policy\":\"read\"},{\"name\":\"outline.search\",\"policy\":\"read\"},{\"name\":\"outline.get_summary\",\"policy\":\"read\"}],\"permissionDecision\":{\"source\":\"long-document-workflow\",\"decision\":\"write-authorized\",\"intent\":\"edit\",\"operation\":\"restructure_and_cleanup\",\"mode\":\"edit-task\",\"reason\":\"outline-execution-plan\"}}"
+    },
+    {
+      "id": "event-1791282927283-10",
+      "ts": 1791282927283,
+      "turnId": "turn-1791282927208-3",
+      "seq": 7,
+      "type": "agent-plan",
+      "level": "info",
+      "label": "任务计划已建立",
+      "payloadRefs": [
+        "payload-004"
+      ]
+    },
+    {
+      "id": "event-1791282927283-11",
+      "ts": 1791282927283,
+      "turnId": "turn-1791282927208-3",
+      "seq": 8,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：planning",
+      "payloadRefs": [
+        "payload-005"
+      ]
+    },
+    {
+      "id": "event-1791282927283-12",
+      "ts": 1791282927283,
+      "turnId": "turn-1791282927208-3",
+      "seq": 9,
+      "level": "info",
+      "type": "agent-plan",
+      "label": "任务计划已建立",
+      "payloadRefs": [
+        "payload-004"
+      ]
+    },
+    {
+      "id": "event-1791282927289-13",
+      "ts": 1791282927289,
+      "turnId": "turn-1791282927208-3",
+      "seq": 10,
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running"
+    },
+    {
+      "id": "event-1791282927289-14",
+      "ts": 1791282927289,
+      "turnId": "turn-1791282927208-3",
+      "seq": 11,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "payloadRefs": [
+        "payload-006"
+      ]
+    },
+    {
+      "id": "event-1791282927290-15",
+      "ts": 1791282927290,
+      "turnId": "turn-1791282927208-3",
+      "seq": 12,
+      "level": "info",
+      "type": "agent-state",
+      "label": "任务状态：running"
+    },
+    {
+      "id": "event-1791282927294-16",
+      "ts": 1791282927294,
+      "turnId": "turn-1791282927208-3",
+      "seq": 13,
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1791282927295-17",
+      "ts": 1791282927295,
+      "turnId": "turn-1791282927208-3",
+      "seq": 14,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payloadRefs": [
+        "payload-007"
+      ]
+    },
+    {
+      "id": "event-1791282927295-18",
+      "ts": 1791282927295,
+      "turnId": "turn-1791282927208-3",
+      "seq": 15,
+      "level": "info",
+      "type": "agent-state",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1791282927332-20",
+      "ts": 1791282927332,
+      "seq": 16,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/直接对话",
+      "payloadRefs": [
+        "payload-008"
+      ]
+    },
+    {
+      "id": "event-1791282927332-21",
+      "ts": 1791282927332,
+      "turnId": "turn-1791282927208-3",
+      "seq": 17,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payloadRefs": [
+        "payload-009"
+      ]
+    },
+    {
+      "id": "event-1791282927332-22",
+      "ts": 1791282927332,
+      "turnId": "turn-1791282927208-3",
+      "seq": 18,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / 直接对话 / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791282928760-23",
+      "ts": 1791282928760,
+      "turnId": "turn-1791282927208-3",
+      "seq": 19,
+      "type": "physical-call",
+      "level": "error",
+      "label": "第 1 次物理请求失败",
+      "detail": "normal / 直接对话 / deepseek-v4-pro / 500: Error 1040: Too many connections (request id: 202610061035278349021908268d9d6w6i1uIf5)"
+    },
+    {
+      "id": "event-1791282928762-24",
+      "ts": 1791282928762,
+      "turnId": "turn-1791282927208-3",
+      "seq": 20,
+      "type": "agent-state",
+      "level": "warn",
+      "label": "任务状态：failed",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035278349021908268d9d6w6i1uIf5)"
+    },
+    {
+      "id": "event-1791282928762-25",
+      "ts": 1791282928762,
+      "turnId": "turn-1791282927208-3",
+      "seq": 21,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：failed",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035278349021908268d9d6w6i1uIf5)",
+      "payloadRefs": [
+        "payload-010"
+      ]
+    },
+    {
+      "id": "event-1791282928762-26",
+      "ts": 1791282928762,
+      "turnId": "turn-1791282927208-3",
+      "seq": 22,
+      "level": "warn",
+      "type": "agent-state",
+      "label": "任务状态：failed",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035278349021908268d9d6w6i1uIf5)"
+    },
+    {
+      "id": "event-1791282928763-27",
+      "ts": 1791282928763,
+      "turnId": "turn-1791282927208-3",
+      "seq": 23,
+      "type": "agent-error",
+      "level": "error",
+      "label": "任务执行失败",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035278349021908268d9d6w6i1uIf5)"
+    },
+    {
+      "id": "event-1791282928764-28",
+      "ts": 1791282928764,
+      "turnId": "turn-1791282927208-3",
+      "seq": 24,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：failed",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035278349021908268d9d6w6i1uIf5)",
+      "payloadRefs": [
+        "payload-011"
+      ]
+    },
+    {
+      "id": "event-1791282928764-29",
+      "ts": 1791282928764,
+      "turnId": "turn-1791282927208-3",
+      "seq": 25,
+      "level": "error",
+      "type": "agent-error",
+      "label": "任务执行失败",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035278349021908268d9d6w6i1uIf5)"
+    },
+    {
+      "id": "event-1791282928766-30",
+      "ts": 1791282928766,
+      "turnId": "turn-1791282927208-3",
+      "seq": 26,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → failed",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035278349021908268d9d6w6i1uIf5) / apiCall=api-1791282927279-8 seq=1"
+    },
+    {
+      "id": "event-1791282928766-31",
+      "ts": 1791282928766,
+      "turnId": "turn-1791282927208-3",
+      "seq": 27,
+      "type": "api-failed",
+      "level": "error",
+      "label": "第 1 次 API 调用失败",
+      "detail": "直接对话 / deepseek-v4-pro / 供应商服务异常：Error 1040: Too many connections (request id: 202610061035278349021908268d9d6w6i1uIf5)"
+    },
+    {
+      "id": "event-1791282928766-32",
+      "ts": 1791282928766,
+      "turnId": "turn-1791282927208-3",
+      "seq": 28,
+      "type": "turn-finished",
+      "level": "error",
+      "label": "第 1 轮失败",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035278349021908268d9d6w6i1uIf5) / plain_dialogue_failed"
+    },
+    {
+      "id": "event-1791282928766-33",
+      "ts": 1791282928766,
+      "seq": 29,
+      "type": "session-active",
+      "level": "info",
+      "label": "会话仍在进行",
+      "detail": "第 1 轮已失败；本条 chat run 保持 running，等待下一轮用户输入"
+    },
+    {
+      "id": "event-1791282930368-34",
+      "ts": 1791282930368,
+      "seq": 30,
+      "level": "info",
+      "type": "dialogue-tool-surface-declaration",
+      "label": "应用注入工具面事实声明",
+      "detail": "{\"type\":\"dialogue-tool-surface-declaration\",\"source\":\"outline\",\"trigger\":\"request-built\",\"visibleToModel\":true,\"toolSurface\":[{\"name\":\"editor.get_state\",\"policy\":\"read\"},{\"name\":\"editor.document_map\",\"policy\":\"read\"},{\"name\":\"editor.read_range\",\"policy\":\"read\"},{\"name\":\"editor.search\",\"policy\":\"read\"},{\"name\":\"editor.locate\",\"policy\":\"read\"},{\"name\":\"editor.write\",\"policy\":\"write\"},{\"name\":\"editor.reveal\",\"policy\":\"read\"},{\"name\":\"editor.multi_get_state\",\"policy\":\"read\"},{\"name\":\"editor.global_search\",\"policy\":\"read\"},{\"name\":\"editor.workspace_summary\",\"policy\":\"read\"},{\"name\":\"outline.get_structure\",\"policy\":\"read\"},{\"name\":\"outline.read_range\",\"policy\":\"read\"},{\"name\":\"outline.search\",\"policy\":\"read\"},{\"name\":\"outline.get_summary\",\"policy\":\"read\"}],\"text\":\"系统提示\\n\\n本轮实际可调用的工具：editor.get_state(read)、editor.document_map(read)、editor.read_range(read)、editor.search(read)、editor.locate(read)、editor.write(write)、editor.reveal(read)、editor.multi_get_state(read)、editor.global_search(read)、editor.workspace_summary(read)、outline.get_structure(read)、outline.read_range(read)、outline.search(read)、outline.get_summary(read)。\\n\\n本轮工具面包含 editor.write(write)。\",\"origin\":\"application\"}"
+    },
+    {
+      "id": "event-1791282930368-36",
+      "ts": 1791282930368,
+      "turnId": "turn-1791282930368-35",
+      "seq": 31,
+      "type": "user-request",
+      "level": "info",
+      "label": "用户请求",
+      "detail": "符合我的要求，分叉一允许去重。不用出预览，直接写入"
+    },
+    {
+      "id": "event-1791282930368-37",
+      "ts": 1791282930368,
+      "turnId": "turn-1791282930368-35",
+      "seq": 32,
+      "level": "info",
+      "type": "routing-diagnostics",
+      "label": "意图路由诊断：rule",
+      "detail": "{\"router\":{\"version\":\"v6.1\",\"layers\":[\"rule\",\"keyword\",\"embedding\",\"llm-fallback\"],\"decisionLayer\":\"rule\",\"embeddingModel\":null,\"scores\":{},\"thresholds\":{\"analyze\":0.3,\"edit\":0.34,\"generate\":0.34,\"discuss\":0.3},\"ambiguityThreshold\":0.08,\"ambiguityThresholds\":{\"analyze\":0.06,\"edit\":0.08,\"generate\":0.08,\"discuss\":0.06},\"oosThreshold\":0.24,\"thresholdSource\":\"calibrated:v6.1-phase6:79-samples:151-examples:train-dev-test:oos-audited\"}}"
+    },
+    {
+      "id": "event-1791282930384-38",
+      "ts": 1791282930384,
+      "turnId": "turn-1791282930368-35",
+      "seq": 33,
+      "level": "info",
+      "type": "long-document-policy",
+      "label": "长文档进入 EditTask 多批执行",
+      "detail": "{\"planId\":\"long-document-muwjluwt\",\"operation\":\"restructure_and_cleanup\",\"legacyOperationType\":\"whole-document-restructure\",\"mode\":\"edit-task\",\"decision\":\"fits\",\"reason\":\"execution-plan-edit-task\",\"segments\":3,\"invariants\":[\"planned-deletion-only\",\"normalize-changes-punctuation-whitespace-format-only\"],\"estimatedPhysicalRequests\":3,\"contextWindow\":{\"status\":\"unknown\",\"contextWindowTokens\":1000000,\"maxOutputTokens\":null,\"effectiveInputTokens\":900000},\"estimatedDocumentTokens\":38909,\"outlineChars\":74841,\"request\":\"符合我的要求，分叉一允许去重。不用出预览，直接写入\"}"
+    },
+    {
+      "id": "event-1791282930425-39",
+      "ts": 1791282930425,
+      "turnId": "turn-1791282930368-35",
+      "seq": 34,
+      "level": "info",
+      "type": "editor-context-policy",
+      "label": "编辑目标上下文策略",
+      "detail": "{\"targetId\":\"outline\",\"label\":\"大纲编辑器\",\"targetLength\":74841,\"contentVersion\":1,\"versionSource\":\"stable_content_version\",\"selectionSource\":\"real\",\"selectionStart\":74841,\"selectionEnd\":74841,\"contextInjectionMode\":\"packed\",\"pipeline\":{\"stages\":[\"retrieve\",\"filter\",\"rank\",\"assemble\",\"validate\"],\"estimatedInputTokens\":43185,\"availableContextTokens\":null,\"windowDeclared\":false,\"validationReason\":\"unknown-window-skipped\",\"validationValid\":true},\"historyNeutralization\":{\"neutralizedMessageCount\":0,\"markers\":{}}}"
+    },
+    {
+      "id": "event-1791282930425-41",
+      "ts": 1791282930425,
+      "turnId": "turn-1791282930368-35",
+      "seq": 35,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 2 次 API 调用开始",
+      "detail": "{\"skillName\":\"直接对话\",\"model\":\"deepseek-v4-pro\",\"actualToolSurface\":[{\"name\":\"editor.get_state\",\"policy\":\"read\"},{\"name\":\"editor.document_map\",\"policy\":\"read\"},{\"name\":\"editor.read_range\",\"policy\":\"read\"},{\"name\":\"editor.search\",\"policy\":\"read\"},{\"name\":\"editor.locate\",\"policy\":\"read\"},{\"name\":\"editor.write\",\"policy\":\"write\"},{\"name\":\"editor.reveal\",\"policy\":\"read\"},{\"name\":\"editor.multi_get_state\",\"policy\":\"read\"},{\"name\":\"editor.global_search\",\"policy\":\"read\"},{\"name\":\"editor.workspace_summary\",\"policy\":\"read\"},{\"name\":\"outline.get_structure\",\"policy\":\"read\"},{\"name\":\"outline.read_range\",\"policy\":\"read\"},{\"name\":\"outline.search\",\"policy\":\"read\"},{\"name\":\"outline.get_summary\",\"policy\":\"read\"}],\"permissionDecision\":{\"source\":\"long-document-workflow\",\"decision\":\"write-authorized\",\"intent\":\"edit\",\"operation\":\"restructure_and_cleanup\",\"mode\":\"edit-task\",\"reason\":\"outline-execution-plan\"}}"
+    },
+    {
+      "id": "event-1791282930426-42",
+      "ts": 1791282930426,
+      "turnId": "turn-1791282930368-35",
+      "seq": 36,
+      "type": "agent-plan",
+      "level": "info",
+      "label": "任务计划已建立",
+      "payloadRefs": [
+        "payload-012"
+      ]
+    },
+    {
+      "id": "event-1791282930426-43",
+      "ts": 1791282930426,
+      "turnId": "turn-1791282930368-35",
+      "seq": 37,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：planning",
+      "payloadRefs": [
+        "payload-013"
+      ]
+    },
+    {
+      "id": "event-1791282930426-44",
+      "ts": 1791282930426,
+      "turnId": "turn-1791282930368-35",
+      "seq": 38,
+      "level": "info",
+      "type": "agent-plan",
+      "label": "任务计划已建立",
+      "payloadRefs": [
+        "payload-012"
+      ]
+    },
+    {
+      "id": "event-1791282930427-45",
+      "ts": 1791282930427,
+      "turnId": "turn-1791282930368-35",
+      "seq": 39,
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running"
+    },
+    {
+      "id": "event-1791282930427-46",
+      "ts": 1791282930427,
+      "turnId": "turn-1791282930368-35",
+      "seq": 40,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "payloadRefs": [
+        "payload-014"
+      ]
+    },
+    {
+      "id": "event-1791282930427-47",
+      "ts": 1791282930427,
+      "turnId": "turn-1791282930368-35",
+      "seq": 41,
+      "level": "info",
+      "type": "agent-state",
+      "label": "任务状态：running"
+    },
+    {
+      "id": "event-1791282930433-48",
+      "ts": 1791282930433,
+      "turnId": "turn-1791282930368-35",
+      "seq": 42,
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1791282930433-49",
+      "ts": 1791282930433,
+      "turnId": "turn-1791282930368-35",
+      "seq": 43,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payloadRefs": [
+        "payload-015"
+      ]
+    },
+    {
+      "id": "event-1791282930433-50",
+      "ts": 1791282930433,
+      "turnId": "turn-1791282930368-35",
+      "seq": 44,
+      "level": "info",
+      "type": "agent-state",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1791282930450-52",
+      "ts": 1791282930450,
+      "seq": 45,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/直接对话",
+      "payloadRefs": [
+        "payload-008"
+      ]
+    },
+    {
+      "id": "event-1791282930450-53",
+      "ts": 1791282930450,
+      "turnId": "turn-1791282930368-35",
+      "seq": 46,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payloadRefs": [
+        "payload-016"
+      ]
+    },
+    {
+      "id": "event-1791282930450-54",
+      "ts": 1791282930450,
+      "turnId": "turn-1791282930368-35",
+      "seq": 47,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / 直接对话 / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791282931908-55",
+      "ts": 1791282931908,
+      "turnId": "turn-1791282930368-35",
+      "seq": 48,
+      "type": "physical-call",
+      "level": "error",
+      "label": "第 1 次物理请求失败",
+      "detail": "normal / 直接对话 / deepseek-v4-pro / 500: Error 1040: Too many connections (request id: 202610061035305454899398268d9d6D83wNEzi)"
+    },
+    {
+      "id": "event-1791282931909-56",
+      "ts": 1791282931909,
+      "turnId": "turn-1791282930368-35",
+      "seq": 49,
+      "type": "agent-state",
+      "level": "warn",
+      "label": "任务状态：failed",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035305454899398268d9d6D83wNEzi)"
+    },
+    {
+      "id": "event-1791282931909-57",
+      "ts": 1791282931909,
+      "turnId": "turn-1791282930368-35",
+      "seq": 50,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：failed",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035305454899398268d9d6D83wNEzi)",
+      "payloadRefs": [
+        "payload-017"
+      ]
+    },
+    {
+      "id": "event-1791282931910-58",
+      "ts": 1791282931910,
+      "turnId": "turn-1791282930368-35",
+      "seq": 51,
+      "level": "warn",
+      "type": "agent-state",
+      "label": "任务状态：failed",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035305454899398268d9d6D83wNEzi)"
+    },
+    {
+      "id": "event-1791282931910-59",
+      "ts": 1791282931910,
+      "turnId": "turn-1791282930368-35",
+      "seq": 52,
+      "type": "agent-error",
+      "level": "error",
+      "label": "任务执行失败",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035305454899398268d9d6D83wNEzi)"
+    },
+    {
+      "id": "event-1791282931910-60",
+      "ts": 1791282931910,
+      "turnId": "turn-1791282930368-35",
+      "seq": 53,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：failed",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035305454899398268d9d6D83wNEzi)",
+      "payloadRefs": [
+        "payload-018"
+      ]
+    },
+    {
+      "id": "event-1791282931910-61",
+      "ts": 1791282931910,
+      "turnId": "turn-1791282930368-35",
+      "seq": 54,
+      "level": "error",
+      "type": "agent-error",
+      "label": "任务执行失败",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035305454899398268d9d6D83wNEzi)"
+    },
+    {
+      "id": "event-1791282931911-62",
+      "ts": 1791282931911,
+      "turnId": "turn-1791282930368-35",
+      "seq": 55,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → failed",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035305454899398268d9d6D83wNEzi) / apiCall=api-1791282930425-40 seq=2"
+    },
+    {
+      "id": "event-1791282931911-63",
+      "ts": 1791282931911,
+      "turnId": "turn-1791282930368-35",
+      "seq": 56,
+      "type": "api-failed",
+      "level": "error",
+      "label": "第 2 次 API 调用失败",
+      "detail": "直接对话 / deepseek-v4-pro / 供应商服务异常：Error 1040: Too many connections (request id: 202610061035305454899398268d9d6D83wNEzi)"
+    },
+    {
+      "id": "event-1791282931911-64",
+      "ts": 1791282931911,
+      "turnId": "turn-1791282930368-35",
+      "seq": 57,
+      "type": "turn-finished",
+      "level": "error",
+      "label": "第 2 轮失败",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035305454899398268d9d6D83wNEzi) / plain_dialogue_failed"
+    },
+    {
+      "id": "event-1791282931911-65",
+      "ts": 1791282931911,
+      "seq": 58,
+      "type": "session-active",
+      "level": "info",
+      "label": "会话仍在进行",
+      "detail": "第 2 轮已失败；本条 chat run 保持 running，等待下一轮用户输入"
+    },
+    {
+      "id": "event-1791282933923-66",
+      "ts": 1791282933923,
+      "seq": 59,
+      "level": "info",
+      "type": "intent-llm-fallback-start",
+      "label": "意图 LLM 兜底开始",
+      "detail": "{\"type\":\"intent-llm-fallback-start\"}"
+    },
+    {
+      "id": "event-1791282933972-67",
+      "ts": 1791282933972,
+      "seq": 60,
+      "level": "error",
+      "type": "intent-llm-fallback-finish",
+      "label": "意图 LLM 兜底失败",
+      "detail": "{\"type\":\"intent-llm-fallback-finish\",\"status\":\"failed\",\"durationMs\":50,\"error\":\"供应商服务异常：Error 1040: Too many connections (request id: 202610061035339620693098268d9d6gVmkKQ5y)\"}"
+    },
+    {
+      "id": "event-1791282933979-68",
+      "ts": 1791282933979,
+      "seq": 61,
+      "level": "info",
+      "type": "dialogue-tool-surface-declaration",
+      "label": "应用注入工具面事实声明",
+      "detail": "{\"type\":\"dialogue-tool-surface-declaration\",\"source\":\"outline\",\"trigger\":\"request-built\",\"visibleToModel\":true,\"toolSurface\":[{\"name\":\"editor.get_state\",\"policy\":\"read\"},{\"name\":\"editor.document_map\",\"policy\":\"read\"},{\"name\":\"editor.read_range\",\"policy\":\"read\"},{\"name\":\"editor.search\",\"policy\":\"read\"},{\"name\":\"editor.locate\",\"policy\":\"read\"},{\"name\":\"editor.reveal\",\"policy\":\"read\"},{\"name\":\"editor.multi_get_state\",\"policy\":\"read\"},{\"name\":\"editor.global_search\",\"policy\":\"read\"},{\"name\":\"editor.workspace_summary\",\"policy\":\"read\"},{\"name\":\"outline.get_structure\",\"policy\":\"read\"},{\"name\":\"outline.read_range\",\"policy\":\"read\"},{\"name\":\"outline.search\",\"policy\":\"read\"},{\"name\":\"outline.get_summary\",\"policy\":\"read\"}],\"text\":\"系统提示\\n\\n本轮实际可调用的工具：editor.get_state(read)、editor.document_map(read)、editor.read_range(read)、editor.search(read)、editor.locate(read)、editor.reveal(read)、editor.multi_get_state(read)、editor.global_search(read)、editor.workspace_summary(read)、outline.get_structure(read)、outline.read_range(read)、outline.search(read)、outline.get_summary(read)。\\n\\n本轮工具面未包含 editor.write。\",\"origin\":\"application\"}"
+    },
+    {
+      "id": "event-1791282933979-70",
+      "ts": 1791282933979,
+      "turnId": "turn-1791282933979-69",
+      "seq": 62,
+      "type": "user-request",
+      "level": "info",
+      "label": "用户请求",
+      "detail": "** 为什么会有这个符号"
+    },
+    {
+      "id": "event-1791282933980-71",
+      "ts": 1791282933980,
+      "turnId": "turn-1791282933979-69",
+      "seq": 63,
+      "level": "info",
+      "type": "routing-diagnostics",
+      "label": "意图路由诊断：llm-fallback",
+      "detail": "{\"router\":{\"version\":\"v6.1\",\"layers\":[\"rule\",\"keyword\",\"embedding\",\"llm-fallback\"],\"decisionLayer\":\"llm-fallback\",\"embeddingModel\":null,\"scores\":{},\"thresholds\":{\"analyze\":0.3,\"edit\":0.34,\"generate\":0.34,\"discuss\":0.3},\"ambiguityThreshold\":0.08,\"ambiguityThresholds\":{\"analyze\":0.06,\"edit\":0.08,\"generate\":0.08,\"discuss\":0.06},\"oosThreshold\":0.24,\"thresholdSource\":\"calibrated:v6.1-phase6:79-samples:151-examples:train-dev-test:oos-audited\",\"failure\":{\"stage\":\"llm-fallback\",\"message\":\"供应商服务异常：Error 1040: Too many connections (request id: 202610061035339620693098268d9d6gVmkKQ5y)\"}}}"
+    },
+    {
+      "id": "event-1791282933995-72",
+      "ts": 1791282933995,
+      "turnId": "turn-1791282933979-69",
+      "seq": 64,
+      "level": "info",
+      "type": "long-document-policy",
+      "label": "使用短文档工具任务策略",
+      "detail": "{\"planId\":\"long-document-muwjlxp5\",\"operation\":\"discussion\",\"legacyOperationType\":\"discussion\",\"mode\":\"direct\",\"decision\":\"fits\",\"reason\":\"execution-plan-direct\",\"segments\":0,\"invariants\":[],\"estimatedPhysicalRequests\":1,\"contextWindow\":{\"status\":\"unknown\",\"contextWindowTokens\":1000000,\"maxOutputTokens\":null,\"effectiveInputTokens\":900000},\"estimatedDocumentTokens\":38909,\"outlineChars\":74841,\"request\":\"** 为什么会有这个符号\"}"
+    },
+    {
+      "id": "event-1791282934017-73",
+      "ts": 1791282934017,
+      "turnId": "turn-1791282933979-69",
+      "seq": 65,
+      "level": "info",
+      "type": "editor-context-policy",
+      "label": "编辑目标上下文策略",
+      "detail": "{\"targetId\":\"outline\",\"label\":\"大纲编辑器\",\"targetLength\":74841,\"contentVersion\":1,\"versionSource\":\"stable_content_version\",\"selectionSource\":\"real\",\"selectionStart\":74841,\"selectionEnd\":74841,\"contextInjectionMode\":\"packed\",\"pipeline\":{\"stages\":[\"retrieve\",\"filter\",\"rank\",\"assemble\",\"validate\"],\"estimatedInputTokens\":43185,\"availableContextTokens\":null,\"windowDeclared\":false,\"validationReason\":\"unknown-window-skipped\",\"validationValid\":true},\"historyNeutralization\":{\"neutralizedMessageCount\":0,\"markers\":{}}}"
+    },
+    {
+      "id": "event-1791282934018-75",
+      "ts": 1791282934018,
+      "turnId": "turn-1791282933979-69",
+      "seq": 66,
+      "type": "api-start",
+      "level": "info",
+      "label": "第 3 次 API 调用开始",
+      "detail": "{\"skillName\":\"直接对话\",\"model\":\"deepseek-v4-pro\",\"actualToolSurface\":[{\"name\":\"editor.get_state\",\"policy\":\"read\"},{\"name\":\"editor.document_map\",\"policy\":\"read\"},{\"name\":\"editor.read_range\",\"policy\":\"read\"},{\"name\":\"editor.search\",\"policy\":\"read\"},{\"name\":\"editor.locate\",\"policy\":\"read\"},{\"name\":\"editor.reveal\",\"policy\":\"read\"},{\"name\":\"editor.multi_get_state\",\"policy\":\"read\"},{\"name\":\"editor.global_search\",\"policy\":\"read\"},{\"name\":\"editor.workspace_summary\",\"policy\":\"read\"},{\"name\":\"outline.get_structure\",\"policy\":\"read\"},{\"name\":\"outline.read_range\",\"policy\":\"read\"},{\"name\":\"outline.search\",\"policy\":\"read\"},{\"name\":\"outline.get_summary\",\"policy\":\"read\"}],\"permissionDecision\":{\"source\":\"dialogue-intent\",\"decision\":\"read-only\",\"intent\":\"discuss\",\"operation\":\"discussion\",\"mode\":\"direct\",\"reason\":\"discuss/analyze intents are always read-only\"}}"
+    },
+    {
+      "id": "event-1791282934019-76",
+      "ts": 1791282934019,
+      "turnId": "turn-1791282933979-69",
+      "seq": 67,
+      "type": "agent-plan",
+      "level": "info",
+      "label": "任务计划已建立",
+      "payloadRefs": [
+        "payload-019"
+      ]
+    },
+    {
+      "id": "event-1791282934019-77",
+      "ts": 1791282934019,
+      "turnId": "turn-1791282933979-69",
+      "seq": 68,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：planning",
+      "payloadRefs": [
+        "payload-020"
+      ]
+    },
+    {
+      "id": "event-1791282934019-78",
+      "ts": 1791282934019,
+      "turnId": "turn-1791282933979-69",
+      "seq": 69,
+      "level": "info",
+      "type": "agent-plan",
+      "label": "任务计划已建立",
+      "payloadRefs": [
+        "payload-019"
+      ]
+    },
+    {
+      "id": "event-1791282934020-79",
+      "ts": 1791282934020,
+      "turnId": "turn-1791282933979-69",
+      "seq": 70,
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running"
+    },
+    {
+      "id": "event-1791282934020-80",
+      "ts": 1791282934020,
+      "turnId": "turn-1791282933979-69",
+      "seq": 71,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "payloadRefs": [
+        "payload-021"
+      ]
+    },
+    {
+      "id": "event-1791282934020-81",
+      "ts": 1791282934020,
+      "turnId": "turn-1791282933979-69",
+      "seq": 72,
+      "level": "info",
+      "type": "agent-state",
+      "label": "任务状态：running"
+    },
+    {
+      "id": "event-1791282934022-82",
+      "ts": 1791282934022,
+      "turnId": "turn-1791282933979-69",
+      "seq": 73,
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1791282934022-83",
+      "ts": 1791282934022,
+      "turnId": "turn-1791282933979-69",
+      "seq": 74,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payloadRefs": [
+        "payload-022"
+      ]
+    },
+    {
+      "id": "event-1791282934022-84",
+      "ts": 1791282934022,
+      "turnId": "turn-1791282933979-69",
+      "seq": 75,
+      "level": "info",
+      "type": "agent-state",
+      "label": "任务状态：waiting_tool",
+      "detail": "physical request dispatched"
+    },
+    {
+      "id": "event-1791282934045-86",
+      "ts": 1791282934045,
+      "seq": 76,
+      "type": "run-activity",
+      "level": "info",
+      "label": "运行活性证据",
+      "detail": "physical_call_running / 1/直接对话",
+      "payloadRefs": [
+        "payload-008"
+      ]
+    },
+    {
+      "id": "event-1791282934045-87",
+      "ts": 1791282934045,
+      "turnId": "turn-1791282933979-69",
+      "seq": 77,
+      "type": "long-request-in-progress",
+      "level": "info",
+      "label": "长物理请求进行中",
+      "detail": "physicalCall=1 / heartbeat=false / normal",
+      "payloadRefs": [
+        "payload-023"
+      ]
+    },
+    {
+      "id": "event-1791282934045-88",
+      "ts": 1791282934045,
+      "turnId": "turn-1791282933979-69",
+      "seq": 78,
+      "type": "physical-call",
+      "level": "info",
+      "label": "第 1 次物理请求进行中",
+      "detail": "normal / 直接对话 / deepseek-v4-pro"
+    },
+    {
+      "id": "event-1791282934653-89",
+      "ts": 1791282934653,
+      "turnId": "turn-1791282933979-69",
+      "seq": 79,
+      "type": "physical-call",
+      "level": "error",
+      "label": "第 1 次物理请求失败",
+      "detail": "normal / 直接对话 / deepseek-v4-pro / 500: Error 1040: Too many connections (request id: 202610061035340955769108268d9d6Za5kBuWG)"
+    },
+    {
+      "id": "event-1791282934655-90",
+      "ts": 1791282934655,
+      "turnId": "turn-1791282933979-69",
+      "seq": 80,
+      "type": "agent-state",
+      "level": "warn",
+      "label": "任务状态：failed",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035340955769108268d9d6Za5kBuWG)"
+    },
+    {
+      "id": "event-1791282934655-91",
+      "ts": 1791282934655,
+      "turnId": "turn-1791282933979-69",
+      "seq": 81,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：failed",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035340955769108268d9d6Za5kBuWG)",
+      "payloadRefs": [
+        "payload-024"
+      ]
+    },
+    {
+      "id": "event-1791282934655-92",
+      "ts": 1791282934655,
+      "turnId": "turn-1791282933979-69",
+      "seq": 82,
+      "level": "warn",
+      "type": "agent-state",
+      "label": "任务状态：failed",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035340955769108268d9d6Za5kBuWG)"
+    },
+    {
+      "id": "event-1791282934655-93",
+      "ts": 1791282934655,
+      "turnId": "turn-1791282933979-69",
+      "seq": 83,
+      "type": "agent-error",
+      "level": "error",
+      "label": "任务执行失败",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035340955769108268d9d6Za5kBuWG)"
+    },
+    {
+      "id": "event-1791282934656-94",
+      "ts": 1791282934656,
+      "turnId": "turn-1791282933979-69",
+      "seq": 84,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：failed",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035340955769108268d9d6Za5kBuWG)",
+      "payloadRefs": [
+        "payload-024"
+      ]
+    },
+    {
+      "id": "event-1791282934656-95",
+      "ts": 1791282934656,
+      "turnId": "turn-1791282933979-69",
+      "seq": 85,
+      "level": "error",
+      "type": "agent-error",
+      "label": "任务执行失败",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035340955769108268d9d6Za5kBuWG)"
+    },
+    {
+      "id": "event-1791282934656-96",
+      "ts": 1791282934656,
+      "turnId": "turn-1791282933979-69",
+      "seq": 86,
+      "type": "state-transition",
+      "level": "info",
+      "label": "RunTraceStatus：running → failed",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035340955769108268d9d6Za5kBuWG) / apiCall=api-1791282934018-74 seq=3"
+    },
+    {
+      "id": "event-1791282934656-97",
+      "ts": 1791282934656,
+      "turnId": "turn-1791282933979-69",
+      "seq": 87,
+      "type": "api-failed",
+      "level": "error",
+      "label": "第 3 次 API 调用失败",
+      "detail": "直接对话 / deepseek-v4-pro / 供应商服务异常：Error 1040: Too many connections (request id: 202610061035340955769108268d9d6Za5kBuWG)"
+    },
+    {
+      "id": "event-1791282934656-98",
+      "ts": 1791282934656,
+      "turnId": "turn-1791282933979-69",
+      "seq": 88,
+      "type": "turn-finished",
+      "level": "error",
+      "label": "第 3 轮失败",
+      "detail": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035340955769108268d9d6Za5kBuWG) / plain_dialogue_failed"
+    },
+    {
+      "id": "event-1791282934656-99",
+      "ts": 1791282934656,
+      "seq": 89,
+      "type": "session-active",
+      "level": "info",
+      "label": "会话仍在进行",
+      "detail": "第 3 轮已失败；本条 chat run 保持 running，等待下一轮用户输入"
+    }
+  ],
+  "apiCalls": [
+    {
+      "id": "api-1791282927279-8",
+      "turnId": "turn-1791282927208-3",
+      "seq": 1,
+      "skillName": "直接对话",
+      "providerId": "r1-phase0-live-provider",
+      "providerName": "R1 Phase0 Live Provider",
+      "model": "deepseek-v4-pro",
+      "intent": "edit",
+      "permissionDecision": {
+        "source": "long-document-workflow",
+        "decision": "write-authorized",
+        "intent": "edit",
+        "operation": "restructure_and_cleanup",
+        "mode": "edit-task",
+        "reason": "outline-execution-plan"
+      },
+      "toolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.write",
+          "policy": "write"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_structure",
+          "policy": "read"
+        },
+        {
+          "name": "outline.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "outline.search",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_summary",
+          "policy": "read"
+        }
+      ],
+      "actualToolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.write",
+          "policy": "write"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_structure",
+          "policy": "read"
+        },
+        {
+          "name": "outline.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "outline.search",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_summary",
+          "policy": "read"
+        }
+      ],
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-001"
+        }
+      },
+      "responseText": "",
+      "status": "failed",
+      "startedAt": 1791282927279,
+      "physicalCalls": [
+        {
+          "id": "physical-1791282927332-19",
+          "physicalCallId": "physical-1791282927321-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "failed",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-001"
+            }
+          },
+          "responseText": "",
+          "usageUnavailable": true,
+          "startedAt": 1791282927332,
+          "durationMs": 1438,
+          "endedAt": 1791282928760,
+          "error": "500: Error 1040: Too many connections (request id: 202610061035278349021908268d9d6w6i1uIf5)",
+          "toolsEnabled": true,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "modelCapability": {
+            "contextWindowTokens": 0,
+            "contextWindowSource": "unknown",
+            "maxOutputTokens": 0,
+            "maxOutputSource": "unknown",
+            "protocolRequiresMaxTokens": false,
+            "protocolRequiredMaxTokens": 32768
+          },
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 43463,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 43463 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "unavailable",
+            "estimatedInputTokens": 43463
+          },
+          "heartbeat": false
+        }
+      ],
+      "lastExecutionActivityAt": 1791282927332,
+      "endedAt": 1791282928765,
+      "durationMs": 1486,
+      "error": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035278349021908268d9d6w6i1uIf5)"
+    },
+    {
+      "id": "api-1791282930425-40",
+      "turnId": "turn-1791282930368-35",
+      "seq": 2,
+      "skillName": "直接对话",
+      "providerId": "r1-phase0-live-provider",
+      "providerName": "R1 Phase0 Live Provider",
+      "model": "deepseek-v4-pro",
+      "intent": "edit",
+      "permissionDecision": {
+        "source": "long-document-workflow",
+        "decision": "write-authorized",
+        "intent": "edit",
+        "operation": "restructure_and_cleanup",
+        "mode": "edit-task",
+        "reason": "outline-execution-plan"
+      },
+      "toolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.write",
+          "policy": "write"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_structure",
+          "policy": "read"
+        },
+        {
+          "name": "outline.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "outline.search",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_summary",
+          "policy": "read"
+        }
+      ],
+      "actualToolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.write",
+          "policy": "write"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_structure",
+          "policy": "read"
+        },
+        {
+          "name": "outline.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "outline.search",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_summary",
+          "policy": "read"
+        }
+      ],
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-002"
+        }
+      },
+      "responseText": "",
+      "status": "failed",
+      "startedAt": 1791282930425,
+      "physicalCalls": [
+        {
+          "id": "physical-1791282930450-51",
+          "physicalCallId": "physical-1791282930445-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "failed",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-002"
+            }
+          },
+          "responseText": "",
+          "usageUnavailable": true,
+          "startedAt": 1791282930450,
+          "durationMs": 1463,
+          "endedAt": 1791282931908,
+          "error": "500: Error 1040: Too many connections (request id: 202610061035305454899398268d9d6D83wNEzi)",
+          "toolsEnabled": true,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "modelCapability": {
+            "contextWindowTokens": 0,
+            "contextWindowSource": "unknown",
+            "maxOutputTokens": 0,
+            "maxOutputSource": "unknown",
+            "protocolRequiresMaxTokens": false,
+            "protocolRequiredMaxTokens": 32768
+          },
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 43505,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 43505 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "unavailable",
+            "estimatedInputTokens": 43505
+          },
+          "heartbeat": false
+        }
+      ],
+      "lastExecutionActivityAt": 1791282930450,
+      "endedAt": 1791282931911,
+      "durationMs": 1486,
+      "error": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035305454899398268d9d6D83wNEzi)"
+    },
+    {
+      "id": "api-1791282934018-74",
+      "turnId": "turn-1791282933979-69",
+      "seq": 3,
+      "skillName": "直接对话",
+      "providerId": "r1-phase0-live-provider",
+      "providerName": "R1 Phase0 Live Provider",
+      "model": "deepseek-v4-pro",
+      "intent": "discuss",
+      "permissionDecision": {
+        "source": "dialogue-intent",
+        "decision": "read-only",
+        "intent": "discuss",
+        "operation": "discussion",
+        "mode": "direct",
+        "reason": "discuss/analyze intents are always read-only"
+      },
+      "toolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_structure",
+          "policy": "read"
+        },
+        {
+          "name": "outline.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "outline.search",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_summary",
+          "policy": "read"
+        }
+      ],
+      "actualToolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_structure",
+          "policy": "read"
+        },
+        {
+          "name": "outline.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "outline.search",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_summary",
+          "policy": "read"
+        }
+      ],
+      "requestMessages": {
+        "__payload": {
+          "id": "payload-003"
+        }
+      },
+      "responseText": "",
+      "status": "failed",
+      "startedAt": 1791282934018,
+      "physicalCalls": [
+        {
+          "id": "physical-1791282934044-85",
+          "physicalCallId": "physical-1791282934039-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "failed",
+          "requestMessages": {
+            "__payload": {
+              "id": "payload-003"
+            }
+          },
+          "responseText": "",
+          "usageUnavailable": true,
+          "startedAt": 1791282934044,
+          "durationMs": 614,
+          "endedAt": 1791282934653,
+          "error": "500: Error 1040: Too many connections (request id: 202610061035340955769108268d9d6Za5kBuWG)",
+          "toolsEnabled": true,
+          "toolsDowngraded": false,
+          "maxTokens": null,
+          "modelCapability": {
+            "contextWindowTokens": 0,
+            "contextWindowSource": "unknown",
+            "maxOutputTokens": 0,
+            "maxOutputSource": "unknown",
+            "protocolRequiresMaxTokens": false,
+            "protocolRequiredMaxTokens": 32768
+          },
+          "providerContextWindowTokens": 1000000,
+          "estimatedInputTokens": 43534,
+          "contextBudgetDecision": "fits",
+          "contextBudgetReason": "上下文可容纳：输入 43534 / 可用 967232（未声明窗口，按保守值处理）",
+          "usageReconciliation": {
+            "status": "unavailable",
+            "estimatedInputTokens": 43534
+          },
+          "heartbeat": false
+        }
+      ],
+      "lastExecutionActivityAt": 1791282934044,
+      "endedAt": 1791282934656,
+      "durationMs": 638,
+      "error": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035340955769108268d9d6Za5kBuWG)"
+    }
+  ],
+  "sessionKind": "chat",
+  "turns": [
+    {
+      "id": "turn-1791282927208-3",
+      "seq": 1,
+      "startedAt": 1791282927208,
+      "status": "failed",
+      "userRequest": "按照Word文档的形式重构大纲，不要缩减内容。",
+      "skillNames": [],
+      "mode": "direct",
+      "intent": "edit",
+      "permissionDecision": {
+        "source": "long-document-workflow",
+        "decision": "write-authorized",
+        "intent": "edit",
+        "operation": "restructure_and_cleanup",
+        "mode": "edit-task",
+        "reason": "outline-execution-plan"
+      },
+      "writeMode": "direct",
+      "toolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.write",
+          "policy": "write"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_structure",
+          "policy": "read"
+        },
+        {
+          "name": "outline.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "outline.search",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_summary",
+          "policy": "read"
+        }
+      ],
+      "actualToolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.write",
+          "policy": "write"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_structure",
+          "policy": "read"
+        },
+        {
+          "name": "outline.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "outline.search",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_summary",
+          "policy": "read"
+        }
+      ],
+      "reason": "plain_dialogue_failed",
+      "endedAt": 1791282928766,
+      "durationMs": 1558,
+      "error": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035278349021908268d9d6w6i1uIf5)"
+    },
+    {
+      "id": "turn-1791282930368-35",
+      "seq": 2,
+      "startedAt": 1791282930368,
+      "status": "failed",
+      "userRequest": "符合我的要求，分叉一允许去重。不用出预览，直接写入",
+      "skillNames": [],
+      "mode": "direct",
+      "intent": "edit",
+      "permissionDecision": {
+        "source": "long-document-workflow",
+        "decision": "write-authorized",
+        "intent": "edit",
+        "operation": "restructure_and_cleanup",
+        "mode": "edit-task",
+        "reason": "outline-execution-plan"
+      },
+      "writeMode": "direct",
+      "toolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.write",
+          "policy": "write"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_structure",
+          "policy": "read"
+        },
+        {
+          "name": "outline.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "outline.search",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_summary",
+          "policy": "read"
+        }
+      ],
+      "actualToolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.write",
+          "policy": "write"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_structure",
+          "policy": "read"
+        },
+        {
+          "name": "outline.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "outline.search",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_summary",
+          "policy": "read"
+        }
+      ],
+      "reason": "plain_dialogue_failed",
+      "endedAt": 1791282931911,
+      "durationMs": 1543,
+      "error": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035305454899398268d9d6D83wNEzi)"
+    },
+    {
+      "id": "turn-1791282933979-69",
+      "seq": 3,
+      "startedAt": 1791282933979,
+      "status": "failed",
+      "userRequest": "** 为什么会有这个符号",
+      "skillNames": [],
+      "mode": "direct",
+      "intent": "discuss",
+      "permissionDecision": {
+        "source": "dialogue-intent",
+        "decision": "read-only",
+        "intent": "discuss",
+        "operation": "discussion",
+        "mode": "direct",
+        "reason": "discuss/analyze intents are always read-only"
+      },
+      "writeMode": "direct",
+      "toolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_structure",
+          "policy": "read"
+        },
+        {
+          "name": "outline.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "outline.search",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_summary",
+          "policy": "read"
+        }
+      ],
+      "actualToolSurface": [
+        {
+          "name": "editor.get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.document_map",
+          "policy": "read"
+        },
+        {
+          "name": "editor.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "editor.search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.locate",
+          "policy": "read"
+        },
+        {
+          "name": "editor.reveal",
+          "policy": "read"
+        },
+        {
+          "name": "editor.multi_get_state",
+          "policy": "read"
+        },
+        {
+          "name": "editor.global_search",
+          "policy": "read"
+        },
+        {
+          "name": "editor.workspace_summary",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_structure",
+          "policy": "read"
+        },
+        {
+          "name": "outline.read_range",
+          "policy": "read"
+        },
+        {
+          "name": "outline.search",
+          "policy": "read"
+        },
+        {
+          "name": "outline.get_summary",
+          "policy": "read"
+        }
+      ],
+      "reason": "plain_dialogue_failed",
+      "endedAt": 1791282934656,
+      "durationMs": 677,
+      "error": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035340955769108268d9d6Za5kBuWG)"
+    }
+  ],
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [
+    {
+      "id": "payload-001",
+      "kind": "request",
+      "file": "001-request.json",
+      "bytes": 229709,
+      "chars": 92624,
+      "sha256": "40d621a5602eaef0900a7c3c0d53ebf5e6308060fda4871704ed593eeb45cb5c",
+      "duplicateCount": 2,
+      "createdAt": 1791282934745
+    },
+    {
+      "id": "payload-002",
+      "kind": "request",
+      "file": "002-request.json",
+      "bytes": 230002,
+      "chars": 92847,
+      "sha256": "a4b200cb857f30808604b90750450e7ad7b418cd7f655dfd70753ffc5a39a481",
+      "duplicateCount": 2,
+      "createdAt": 1791282934749
+    },
+    {
+      "id": "payload-003",
+      "kind": "request",
+      "file": "003-request.json",
+      "bytes": 230224,
+      "chars": 93031,
+      "sha256": "33beff328979344fac058200506bc1e257b762d11653677fe44235b74bdb1c2d",
+      "duplicateCount": 2,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-004",
+      "kind": "agent-event",
+      "file": "004-agent-event.json",
+      "bytes": 1338,
+      "chars": 1052,
+      "sha256": "ed8d59f1bd5ea1f5a46dc0e49a853316c9d21fbd6f7ad0ce675def67d6d0cb9b",
+      "duplicateCount": 2,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-005",
+      "kind": "agent-event",
+      "file": "005-agent-event.json",
+      "bytes": 366,
+      "chars": 328,
+      "sha256": "e141736e902ed7e00a61b3ba71749591e3f197f33435bf99f0624b8b535efe79",
+      "duplicateCount": 1,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-006",
+      "kind": "agent-event",
+      "file": "006-agent-event.json",
+      "bytes": 365,
+      "chars": 327,
+      "sha256": "32bdabd926232aa0cb7aa799ff1642d4d93f72663007fe85c54baa58ce44c503",
+      "duplicateCount": 1,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-007",
+      "kind": "agent-event",
+      "file": "007-agent-event.json",
+      "bytes": 415,
+      "chars": 377,
+      "sha256": "c143b236fa8200bfd456de2a2f8ec2b2ece33424d6404c409aedda86f08fe188",
+      "duplicateCount": 1,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-008",
+      "kind": "agent-event",
+      "file": "008-agent-event.json",
+      "bytes": 69,
+      "chars": 61,
+      "sha256": "59eaa9e903f20d3e3d7791d3357f2aa19224db60862306f6469659587f409c49",
+      "duplicateCount": 3,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-009",
+      "kind": "agent-event",
+      "file": "009-agent-event.json",
+      "bytes": 85,
+      "chars": 85,
+      "sha256": "7401da397da7634a39ae5bc94f80ca520dfc38101509072688527b8b5e1659ee",
+      "duplicateCount": 1,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-010",
+      "kind": "agent-event",
+      "file": "010-agent-event.json",
+      "bytes": 492,
+      "chars": 438,
+      "sha256": "d8985ea968560c2cbe2de90376a3b9e22c9bf3cb66794ab56e950e9f4d01dd62",
+      "duplicateCount": 1,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-011",
+      "kind": "agent-event",
+      "file": "011-agent-event.json",
+      "bytes": 492,
+      "chars": 438,
+      "sha256": "b00db1dea28316e4bf722c5644e2714fe60bcbc8919e100f1642f7d60a90ba87",
+      "duplicateCount": 1,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-012",
+      "kind": "agent-event",
+      "file": "012-agent-event.json",
+      "bytes": 1352,
+      "chars": 1054,
+      "sha256": "215f4567dc866173aa77230de6556ec42f6bbfc371c599dbd1d98322c84c3868",
+      "duplicateCount": 2,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-013",
+      "kind": "agent-event",
+      "file": "013-agent-event.json",
+      "bytes": 381,
+      "chars": 331,
+      "sha256": "e05cfe931e30596ee89122b027bb178eaa5b7c4ec2254271b25c40c63833dc86",
+      "duplicateCount": 1,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-014",
+      "kind": "agent-event",
+      "file": "014-agent-event.json",
+      "bytes": 380,
+      "chars": 330,
+      "sha256": "4130a8a36268c777a5c6e7b6608c55d8da87ad43af0b2c9e0e4818a7ad05fa12",
+      "duplicateCount": 1,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-015",
+      "kind": "agent-event",
+      "file": "015-agent-event.json",
+      "bytes": 430,
+      "chars": 380,
+      "sha256": "7ef6662b64e2e2225803f3282a1a261f43c1445889e46027c1f8106bc2e77106",
+      "duplicateCount": 1,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-016",
+      "kind": "agent-event",
+      "file": "016-agent-event.json",
+      "bytes": 85,
+      "chars": 85,
+      "sha256": "2b4347b985bd376dd99c3a95319c3b85492b731209a53212b431278c3ff897f8",
+      "duplicateCount": 1,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-017",
+      "kind": "agent-event",
+      "file": "017-agent-event.json",
+      "bytes": 507,
+      "chars": 441,
+      "sha256": "73dcf81a95e0d9e23e923de16fb0511e0a4b71861060f54b9445c99e71e7d9b7",
+      "duplicateCount": 1,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-018",
+      "kind": "agent-event",
+      "file": "018-agent-event.json",
+      "bytes": 507,
+      "chars": 441,
+      "sha256": "43b485f8004731c1a9ffa6598173d4db3d5f7fc5f79f54d10ffd051dc81580ae",
+      "duplicateCount": 1,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-019",
+      "kind": "agent-event",
+      "file": "019-agent-event.json",
+      "bytes": 230,
+      "chars": 166,
+      "sha256": "1a52383964a5ecf434c2abd3767c19cee0f8ae64b37ce4a03dc175238f4ca5cd",
+      "duplicateCount": 2,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-020",
+      "kind": "agent-event",
+      "file": "020-agent-event.json",
+      "bytes": 336,
+      "chars": 318,
+      "sha256": "3640681241d14c4e87d509eb043bb1299eb6c66e612f7929d0d843a06e7f78e7",
+      "duplicateCount": 1,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-021",
+      "kind": "agent-event",
+      "file": "021-agent-event.json",
+      "bytes": 335,
+      "chars": 317,
+      "sha256": "11f89b4e9ad384b4c60d1b19368897f9f4081d0e5247d53996b31548bf3699b7",
+      "duplicateCount": 1,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-022",
+      "kind": "agent-event",
+      "file": "022-agent-event.json",
+      "bytes": 385,
+      "chars": 367,
+      "sha256": "dcf1cb30a6f0912851ff25606da5af7041b7c3976211c14568347c15a2238463",
+      "duplicateCount": 1,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-023",
+      "kind": "agent-event",
+      "file": "023-agent-event.json",
+      "bytes": 85,
+      "chars": 85,
+      "sha256": "95d98ad05c413b2ed8f20d0e08bb0be3ba6966eb35a8d5258f56f033425b165b",
+      "duplicateCount": 1,
+      "createdAt": 1791282934754
+    },
+    {
+      "id": "payload-024",
+      "kind": "agent-event",
+      "file": "024-agent-event.json",
+      "bytes": 462,
+      "chars": 428,
+      "sha256": "78149af6b2a5aa5894dfcdb2a7c168a395e1798622e384ee1259df7ae85869d1",
+      "duplicateCount": 2,
+      "createdAt": 1791282934754
+    }
+  ],
+  "sessionSnapshot": true,
+  "apiResponseIndex": [
+    {
+      "apiCallId": "api-1791282927279-8",
+      "turnId": "turn-1791282927208-3",
+      "seq": 1,
+      "status": "failed",
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1791282927321-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "apiCallId": "api-1791282930425-40",
+      "turnId": "turn-1791282930368-35",
+      "seq": 2,
+      "status": "failed",
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1791282930445-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "failed"
+        }
+      ]
+    },
+    {
+      "apiCallId": "api-1791282934018-74",
+      "turnId": "turn-1791282933979-69",
+      "seq": 3,
+      "status": "failed",
+      "physicalCalls": [
+        {
+          "physicalCallId": "physical-1791282934039-0",
+          "seq": 1,
+          "phase": "normal",
+          "status": "failed"
+        }
+      ]
+    }
+  ],
+  "payloadIntegrityWarnings": []
+}

@@ -1,0 +1,30 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "多活一天。\n\n\n\n\n\n\n### 第一卷·觉醒与扎根",
+      "content": "多活一天。\n\n### 第一卷·觉醒与扎根",
+      "reason": "压缩故事核心末尾多余空行"
+    },
+    {
+      "operation": "replace_match",
+      "target": "人类对\"不可战胜\"的承认。\n\n\n\n\n### 数据板的局限",
+      "content": "人类对\"不可战胜\"的承认。\n\n### 数据板的局限",
+      "reason": "压缩终局之战与数据板节之间的多余空行"
+    },
+    {
+      "operation": "replace_match",
+      "target": "终极解法。\n\n\n### 六大势力总览",
+      "content": "终极解法。\n\n### 六大势力总览",
+      "reason": "压缩菌膜外套关系与六大势力总览之间的多余空行"
+    },
+    {
+      "operation": "replace_match",
+      "target": "忽略了他的存在。\n\n\n### 圣萌会与马格努斯",
+      "content": "忽略了他的存在。\n\n### 圣萌会与马格努斯",
+      "reason": "压缩六大势力总览与圣萌会之间的多余空行"
+    }
+  ],
+  "protocolVersion": 1,
+  "reason": "压缩背景参考资料内多余空行，统一节间间距"
+}

@@ -1,0 +1,137 @@
+Let me analyze the situation. I've been reading the document extensively. Now I need to:
+
+1. The document has duplicate sections like "数据板的局限" and "菌膜外套：有限资源的临时通行方案" appearing both in the "背景参考资料" section and again before "卷一" — this needs deduplication.
+
+2. The original "background" section (背景参考资料) contains: 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 六大势力速写, 圣萌会与马格努斯, 终局：共存补丁 — all now at ### level.
+
+3. And then the same content appears again after 世界设定声明, before 卷一 (as ## level originally, now fixed to ###).
+
+Wait, looking more carefully: the content after "背景参考资料" heading includes the narrative content about 方岫岩, 陈暮苏醒, then 灾前军事基准线, then 数据板的局限, 菌膜外套... and then there's "## 世界设定声明" and "## 卷一：基石设定层".
+
+But wait - those "### 数据板的局限" and "### 菌膜外套" appear IN the 背景参考资料 section. Then later in 卷一, sections 7.8 and 7.9 repeat the same 菌膜外套 and 共存补丁 content. This is intentional design - the background section has summary versions, and the detailed versions appear in 卷一.
+
+Let me re-read the structure more carefully...
+
+The document structure as I understand it now:
+- # 《绿潮》大纲总纲
+  - ## 叙事框架
+    - ### 故事核心
+    - ### 第一卷·觉醒与扎根
+    - ### 第二卷·连接与陷落
+    - ### 第三卷·远征与暗流
+  - ## 背景参考资料
+    - (narrative text about 共生蕨 history, 方岫岩, 陈暮)
+    - ### 灾前军事基准线与菌毯的不可根除性
+    - ### 数据板的局限
+    - ### 菌膜外套：有限资源的临时通行方案
+    - ### 菌膜外套与共存补丁的关系
+    - ### 六大势力速写
+    - ### 圣萌会与马格努斯
+    - ### 终局：共存补丁
+  - ## 世界设定声明
+  - ## 卷一：基石设定层
+    - ...
+  - ## 卷二：核心人物群像
+  - ## 卷三：势力与格局层
+  - ## 卷四：叙事工具箱层
+
+Now the user wants to "按照Word文档的形式重构大纲，不要缩减内容" - reformat the outline as a Word document structure without losing content.
+
+The key issues I see:
+1. Background reference section (背景参考资料) contains duplicated content that also appears in 卷一. The background version is a narrative summary, while 卷一 has the detailed formal version. This seems intentional.
+2. "世界设定声明" is at ## level (too high) - should it be merged into 卷一 as an intro?
+3. The overall structure needs to follow a proper Word document hierarchy.
+
+Actually, looking at this again, the user said "按照Word文档的形式重构大纲". This likely means:
+- Proper heading hierarchy (no skipped levels)
+- Clean formatting
+- No duplicate content
+
+The main structural issue is that "背景参考资料" contains narrative content that seems to be duplicated from or overlapping with 卷一 content. The background section has summary narrative, while 卷一 has the formal detailed version.
+
+But the user said "不要缩减内容" - don't reduce content. So I should NOT delete anything.
+
+Let me think about what "Word文档形式" means:
+- Proper hierarchical headings
+- Consistent formatting
+- Maybe removing the duplication between background and 卷一
+
+Wait, actually the duplication is by design. The "背景参考资料" section is a narrative summary/backstory reference. The "卷一" is the formal, structured setting document. They contain the same information but in different forms. The user said don't reduce content.
+
+Given the constraints and what I've read, I think the main things to do are:
+
+1. Fix the heading hierarchy issues:
+   - "世界设定声明" is at ## level but logically belongs to or before 卷一
+   - Ensure consistent levels throughout
+
+2. Address the repeated content blocks (数据板的局限, 菌膜外套:..., 菌膜外套与共存补丁的关系) - these appear both in 背景参考资料 and in 卷一. In the background section they're now at ### level. In 卷一 they have dedicated sections (七.7.8, 七.7.9, etc.)
+
+Actually, I realize the background section's content on these topics is summary/narrative, while 卷一 has the formal setting version. This is likely intentional for different reading purposes.
+
+Let me focus on what I can actually do:
+- The "世界设定声明" section (##, at position ~22066-22163) - this is a standalone declaration. It could be placed before 卷一 as a preface, or kept as-is.
+- Clean up heading hierarchy
+
+Actually, I think I need to just present what I've found and ask for clearer direction. The document is complex with intentional overlaps. 
+
+But the instructions say I must write. Let me focus on the practical issues:
+
+1. "世界设定声明" is ## level. It should probably remain as its own section - it's a legal declaration.
+2. The main structure seems correct as-is after my earlier heading fixes.
+
+The user's request is "按照Word文档的形式重构大纲" - this is quite broad. I think the main things they want are:
+- Proper headings (done)
+- Clean structure 
+- Maybe move "世界设定声明" to be a front matter section rather than in the middle
+
+Given all the context, let me think about what concrete changes to make:
+
+1. "世界设定声明" should probably be moved to the very beginning (before 叙事框架) or kept as a standalone ## section - but it currently sits between 背景参考资料 and 卷一 which is odd.
+
+Actually, I think the most reasonable interpretation of "Word文档形式" is:
+- The document should have clear parts with proper numbering
+- One approach: Move 世界设定声明 to be the first section (front matter)
+- Keep the rest as-is
+
+Let me just focus on the actionable items now and make writes. I've been reading too long.
+
+The key actionable items:
+1. The document structure is mostly correct after my earlier heading fixes
+2. "世界设定声明" is oddly placed - should be at the very beginning or very end
+3. Check for any remaining structural issues
+
+Let me just submit a write to move "世界设定声明" to be the first section after the title, which would make it proper front matter for a Word document.
+
+Actually wait - I can't do a "move" easily with replace_match because I'd need to find exact positions. Let me think about what concrete changes are needed and if they're worth it.
+
+Also, looking back at the user's request: "按照Word文档的形式重构大纲，不要缩减内容" - maybe they want me to:
+- Add proper numbering (第一章, 第一节, etc.)
+- Clean up the structure
+- Ensure consistency
+
+I think the main issues are:
+1. Some duplicated content between "背景参考资料" and "卷一" - but user says don't reduce, so keep
+2. "世界设定声明" placement 
+3. General formatting
+
+I think I should just present the analysis and make targeted fixes. Let me submit the write for what I can fix now.
+
+Actually, I realize I should just move forward. Let me write the changes I can make:
+
+1. Move "世界设定声明" to be the first section after the title (like a disclaimer in a Word doc)
+2. Clean up any remaining issues
+
+But moving text requires exact position tracking which is complex. Let me instead just fix what I can:
+
+The document already has reasonable structure. Let me make one more improvement: ensure that the "背景参考资料" and its subsections flow correctly.
+
+OK, I think the practical thing now is to submit a write to:
+1. Make "世界设定声明" a front matter item (preface before all content)
+
+Let me do this by replacing the existing placement and inserting at the top.
+
+Actually, this is getting too complex with move operations. Let me just report findings and do what I can.
+
+The truth is: after my earlier fixes (converting ## to ### for the 6 headings under 背景参考资料, and adding #### and ##### headings to 灾前军事基准线 subsections), the document hierarchy is already quite clean. The main remaining question is whether "世界设定声明" should be moved.
+
+Let me just submit what I can and not over-think this. The user asked for "Word文档形式" and I've made significant heading hierarchy fixes already. Let me check if there are any remaining issues I should fix in this batch.

@@ -67,6 +67,8 @@ export interface AgentToolDefinition {
   name: string
   description: string
   policy: AgentToolPolicy
+  /** Control tools start requests, cancel runs, or manage lifecycle; read-only rounds reject them even when policy is read. */
+  control?: boolean
   /**
    * Static execution policy. Built-in read tools are available without write
    * permission, editor.write requires permission, and external tools that do
@@ -215,15 +217,18 @@ function batchDetailFromPlanForBatch(
   input: Pick<EditorWriteApplyInput, 'batchDetail'> & Pick<EditorWriteApplyInput, 'commands'>,
 ): EditorWriteApplyInput['batchDetail'] {
   if (!plan) return input.batchDetail
+  const inferredOperations = input.commands.map(command => inferPlannedOperationFromCommand(command))
+  const primaryInferredOperation = inferredOperations.includes('structure_repair')
+    ? 'structure_repair'
+    : inferredOperations.includes('delete')
+      ? 'delete'
+      : inferredOperations[0]
   const inferredOperation = input.commands.length === 1 && input.commands[0].operation === 'reorder_sections'
     ? 'reorder_sections'
-    : input.commands.some(command => command.operation === 'delete')
-      ? 'delete'
-      : input.commands.some(command => command.operation === 'replace_match' || command.operation === 'rewrite')
-        ? 'normalize'
-        : null
-  const allowedSegmentStrategies: Record<'reorder_sections' | 'delete' | 'normalize', string[]> = {
+    : primaryInferredOperation || null
+  const allowedSegmentStrategies: Record<'reorder_sections' | 'structure_repair' | 'delete' | 'normalize', string[]> = {
     reorder_sections: ['reorder_sections'],
+    structure_repair: ['structure_repair'],
     delete: ['delete'],
     normalize: ['replace_match', 'rewrite'],
   }
@@ -250,29 +255,145 @@ function batchDetailFromPlanForBatch(
   }
 }
 
+function segmentRangeIntersects(
+  range: { start: number; end: number },
+  segment: LongDocumentExecutionPlanSegment,
+): boolean {
+  return range.start < segment.range.endLine && range.end > segment.range.startLine
+}
+
+function inferCommandSegmentsForPlan(
+  item: { command: EditorEditCommand; plan: { range: { start: number; end: number } } },
+  plan: LongDocumentExecutionPlan,
+): LongDocumentExecutionPlan['segments'][number][] {
+  const commandSegments = plan.segments.filter(segment => segmentRangeIntersects(item.plan.range, segment))
+  const inferredOperation = inferPlannedOperationFromCommand(item.command)
+  const strategySegments = plan.segments.filter(segment =>
+    isCommandStrategyMatch(item.command.operation, inferredOperation, segment.writeStrategy))
+  const strategyMatchedRanges = commandSegments.filter(segment => strategySegments.includes(segment))
+  return strategyMatchedRanges.length
+    ? strategyMatchedRanges
+    : commandSegments
+}
+
+type InferredPlannedOperation =
+  | 'reorder_sections'
+  | 'structure_repair'
+  | 'delete'
+  | 'normalize'
+
+function inferPlannedOperationFromCommand(command: EditorEditCommand): InferredPlannedOperation {
+  if (command.operation === 'reorder_sections') return 'reorder_sections'
+  if (['move', 'insert'].includes(command.operation)) return 'structure_repair'
+  if (command.operation === 'delete') return 'delete'
+  if (command.operation === 'replace_match' || command.operation === 'rewrite') {
+    return isHeadingLevelRepair(command) ? 'structure_repair' : 'normalize'
+  }
+  return 'normalize'
+}
+
+function isHeadingLevelRepair(command: EditorEditCommand): boolean {
+  if (command.operation !== 'replace_match' && command.operation !== 'rewrite') return false
+  const target = command.target?.trim()
+  const content = command.content?.trim()
+  if (!target || !content) return false
+  const firstHeadingLine = (value: string) => {
+    const line = value.split(/\r?\n/, 1)[0]?.trim() || ''
+    return /^(#{1,6})\s*(.+)$/.exec(line)
+  }
+  const contentHeading = firstHeadingLine(content)
+  if (!contentHeading) return false
+  const targetHeading = firstHeadingLine(target)
+  return targetHeading
+    ? targetHeading[2].trim() === contentHeading[2].trim()
+    : target === contentHeading[2].trim()
+}
+
+function isCommandStrategyMatch(
+  operation: EditorEditCommand['operation'],
+  inferredOperation: InferredPlannedOperation,
+  writeStrategy: string,
+): boolean {
+  if (inferredOperation === 'reorder_sections') return writeStrategy === 'reorder_sections'
+  if (inferredOperation === 'delete') return writeStrategy === 'delete'
+  if (inferredOperation === 'structure_repair') {
+    return ['move', 'insert', 'replace_match', 'rewrite'].includes(operation)
+      && writeStrategy === 'structure_repair'
+  }
+  return ['replace_match', 'rewrite'].includes(operation)
+    && ['replace_match', 'rewrite'].includes(writeStrategy)
+}
+
 function buildBatchCoverage(input: {
   plan: LongDocumentExecutionPlan | undefined
   batchId: string
   commands: EditorEditCommand[]
+  batchDetail?: EditorWriteApplyInput['batchDetail']
+  structureSegments?: Array<{ id: string; start: number; end: number }>
   items?: Array<{ command: EditorEditCommand; plan: { range: { start: number; end: number } } }>
 }): NonNullable<EditorWriteApplyInput['coverage']> | undefined {
   if (!input.plan || input.plan.segments.length === 0) return undefined
-  const declaredSegmentId = input.plan.segments.length > 1
-    ? undefined
-    : input.plan.segments[0].segmentId
+  const inferredSegment = input.batchDetail?.segmentId
+    ? input.plan.segments.find(segment => segment.segmentId === input.batchDetail?.segmentId)
+    : undefined
+  const declaredSegmentId = inferredSegment?.segmentId
+    || (input.plan.segments.length > 1 ? undefined : input.plan.segments[0].segmentId)
   const coverageReason = input.plan.segments.length === 1
-    ? 'single_segment_plan' as const
+    ? (declaredSegmentId ? 'single_segment_plan' as const : 'declared_segment' as const)
     : 'declared_segment' as const
-  const segment = declaredSegmentId ? input.plan.segments[0] : undefined
+  const segment = declaredSegmentId
+    ? input.plan.segments.find(item => item.segmentId === declaredSegmentId)
+    : undefined
+  const findSegmentsByRange = (range: { start: number; end: number }) =>
+    input.plan!.segments.filter(item => segmentRangeIntersects(range, item))
+  if (input.commands.length === 1 && input.commands[0].operation === 'reorder_sections' && input.structureSegments?.length) {
+    const command = input.commands[0]
+    const orderedIds = (command as EditorEditCommand & { order?: string[] }).order || []
+    const orderedRanges: Array<{ start: number; end: number }> = []
+    for (const id of orderedIds) {
+      const range = input.structureSegments.find(item => item.id === id)
+      if (range) orderedRanges.push({ start: range.start, end: range.end })
+    }
+    if (orderedRanges.length === input.structureSegments.length) {
+      return {
+        batchId: input.batchId,
+        ...(segment ? {
+          segmentId: segment.segmentId,
+          expectedChange: segment.expectedChange,
+          writeStrategy: segment.writeStrategy,
+        } : {}),
+        coverageTrusted: true,
+        reason: coverageReason,
+        commands: [{
+          operation: command.operation,
+          ...(segment ? { segmentId: segment.segmentId } : {}),
+          start: input.structureSegments[0].start,
+          end: input.structureSegments[input.structureSegments.length - 1].end,
+          reorderedRanges: orderedRanges,
+        }],
+      }
+    }
+  }
   const commands = input.items
-    ? input.items.map(item => ({
-      operation: item.command.operation,
-      ...(segment ? { segmentId: segment.segmentId } : {}),
-      start: item.plan.range.start,
-      end: item.plan.range.end,
-    }))
+    ? input.items.map(item => {
+      const commandSegments = inferCommandSegmentsForPlan(item, input.plan!)
+      const declaredSegment = input.batchDetail?.segmentId
+        ? input.plan!.segments.find(segment => segment.segmentId === input.batchDetail?.segmentId)
+        : undefined
+      const commandSegment = commandSegments.length === 1
+        ? commandSegments[0]
+        : commandSegments.find(segment => segment.segmentId === declaredSegment?.segmentId)
+          || commandSegments.find(segment => segment.segmentId !== declaredSegment?.segmentId)
+      return {
+        operation: item.command.operation,
+        ...(commandSegment ? { segmentId: commandSegment.segmentId } : {}),
+        start: item.plan.range.start,
+        end: item.plan.range.end,
+      }
+    })
     : input.commands.map(command => ({
       operation: command.operation,
+      ...(segment ? { segmentId: segment.segmentId } : {}),
       start: 0,
       end: 0,
     }))
@@ -286,6 +407,39 @@ function buildBatchCoverage(input: {
     coverageTrusted: Boolean(input.items && input.items.length === input.commands.length),
     reason: coverageReason,
     commands,
+  }
+}
+
+function buildDirectWriteCoverage(input: {
+  plan: LongDocumentExecutionPlan
+  batchId: string
+  items: Array<{ command: EditorEditCommand; plan: { range: { start: number; end: number } } }>
+}): NonNullable<EditorWriteApplyInput['coverage']> {
+  const range = input.items.reduce((total, item) => ({
+    start: Math.min(total.start, item.plan.range.start),
+    end: Math.max(total.end, item.plan.range.end),
+  }), { start: Number.POSITIVE_INFINITY, end: Number.NEGATIVE_INFINITY })
+  const rangeSegments = input.plan.segments.filter(segment =>
+    segmentRangeIntersects(range, segment))
+  // Direct writes are model-initiated and carry no batch declaration. A
+  // single-segment plan is trusted as a whole; multi-segment plans are trusted
+  // only when the actual changed range spans every planned segment.
+  const trusted = input.plan.segments.length === 1
+    || rangeSegments.length === input.plan.segments.length
+  return {
+    batchId: input.batchId,
+    coverageTrusted: trusted,
+    reason: trusted
+      ? input.plan.segments.length === 1 ? 'single_segment_plan' : 'declared_segment'
+      : 'undeclared_segment',
+    commands: input.items.map(item => ({
+      operation: item.command.operation,
+      ...(trusted && input.plan.segments.length === 1
+        ? { segmentId: input.plan.segments[0].segmentId }
+        : {}),
+      start: item.plan.range.start,
+      end: item.plan.range.end,
+    })),
   }
 }
 
@@ -320,6 +474,7 @@ export interface EditorWriteApplyInput {
       segmentId?: string
       start: number
       end: number
+      reorderedRanges?: Array<{ start: number; end: number }>
     }>
   }
   reason?: string
@@ -343,6 +498,44 @@ export type EditorWriteApplier = (input: EditorWriteApplyInput) => Promise<
   | { ok: true; rollbackAvailable: boolean; documentVersion?: number; contentHash?: string }
   | { ok: false; code: string; message: string }
 >
+
+export interface EditorStructureIdentityReceipt {
+  stableIds: string[]
+  migratedIds: Array<{ from: string; to: string }>
+  addedIds: string[]
+  removedIds: string[]
+}
+
+function collectStructureIds(nodes: OutlineStructureNode[], into: string[] = []): string[] {
+  for (const node of nodes) {
+    into.push(node.id)
+    collectStructureIds(node.children, into)
+  }
+  return into
+}
+
+function collectStructureNodeIds(node: OutlineStructureNode, into: string[] = []): string[] {
+  into.push(node.id)
+  for (const child of node.children) collectStructureNodeIds(child, into)
+  return into
+}
+
+export function buildStructureIdentityReceipt(original: string, next: string): EditorStructureIdentityReceipt {
+  const beforeStructure = parseOutlineStructure(original)
+  const afterStructure = parseOutlineStructure(next)
+  const beforeIds = collectStructureIds(beforeStructure.nodes)
+  const afterIds = collectStructureIds(afterStructure.nodes)
+  const beforeSet = new Set(beforeIds)
+  const afterSet = new Set(afterIds)
+  return {
+    stableIds: beforeIds.filter(id => afterSet.has(id)),
+    migratedIds: afterIds
+      .filter(id => id.includes('~') && beforeSet.has(id.split('~')[0]))
+      .map(id => ({ from: id.split('~')[0], to: id })),
+    addedIds: afterIds.filter(id => !beforeSet.has(id)),
+    removedIds: beforeIds.filter(id => !afterSet.has(id)),
+  }
+}
 
 export interface EditorWriteRetryCarrier {
   workspace: string
@@ -533,6 +726,34 @@ function toolError(code: string, message: string, retryable = false): ToolResult
   return { ok: false, error: { code, message, retryable } }
 }
 
+function collectStructureAnchors(content: string, fragment: string): Array<{
+  sectionId: string
+  sectionTitle: string
+}> {
+  const anchors: Array<{ sectionId: string; sectionTitle: string }> = []
+  const walk = (nodes: OutlineStructureNode[]): void => {
+    for (const node of nodes) {
+      if (node.kind === 'volume' || node.kind === 'chapter' || node.kind === 'section' || node.kind === 'heading') {
+        const nodeText = content.slice(node.start, node.end)
+        if (!fragment || nodeText.includes(fragment) || node.summaryHead.includes(fragment)) {
+          anchors.push({ sectionId: node.id, sectionTitle: node.title })
+        }
+      }
+      walk(node.children)
+    }
+  }
+  walk(parseOutlineStructure(content).nodes)
+  return anchors
+}
+
+function locateErrorMessage(base: string, anchors: Array<{ sectionId: string; sectionTitle: string }>): string {
+  if (!anchors.length) return base
+  const anchorText = anchors.slice(0, 5)
+    .map(anchor => `${anchor.sectionId} ${anchor.sectionTitle}`)
+    .join(' | ')
+  return `${base}；优先使用结构锚点缩小目标：${anchorText}`
+}
+
 function contextWindow(content: string, start: number, end: number): string {
   const from = Math.max(0, Math.floor((start + end) / 2) - MAX_CONTEXT_WINDOW / 2)
   const to = Math.min(content.length, from + MAX_CONTEXT_WINDOW)
@@ -718,7 +939,12 @@ export function createEditorTools(options: {
         }
       }
       if (located.reason === 'ambiguous_target') {
-        return toolError('ambiguous_target', '片段出现多次，必须扩展片段使其唯一')
+        const anchors = collectStructureAnchors(snapshot.content, params.fragment)
+        return toolError(
+          'ambiguous_target',
+          locateErrorMessage('片段出现多次，必须扩展片段使其唯一', anchors),
+          true,
+        )
       }
       if (located.reason === 'target_not_found' && located.candidates?.length) {
         return {
@@ -732,7 +958,12 @@ export function createEditorTools(options: {
         }
       }
       if (located.reason === 'target_not_found') {
-        return toolError('target_not_found', '片段不存在，请重新复制原文')
+        const anchors = collectStructureAnchors(snapshot.content, '')
+        return toolError(
+          'target_not_found',
+          locateErrorMessage('片段不存在，请重新复制原文', anchors),
+          true,
+        )
       }
       return toolError('invalid_input', '定位请求无效，请提供非空原文片段')
     },
@@ -934,7 +1165,7 @@ export function createEditorTools(options: {
           doesEditorEditOperationRequireNonEmptyContent(command.operation) &&
           !command.content?.trim()
         ) {
-          return toolError('invalid_input', `commands[${index}]：${command.operation} 必须同时携带 target（原文）与 content（新文）；缺失 content 会被视为替换为空，已拒绝写入`)
+          return toolError('invalid_input', `commands[${index}]：${command.operation} 必须同时携带 target（原文）与 content（新文）；缺失 content 会被视为替换为空，已拒绝写入；若目的是删除原文，请使用 delete 操作`)
         }
         if (command.operation === 'move' && command.content !== undefined && !command.content.trim()) {
           return toolError('invalid_input', `commands[${index}]：move 的 content 可选，但提交时必须是非空追加文本；无需追加请删除 content 字段`)
@@ -1029,10 +1260,16 @@ export function createEditorTools(options: {
           : {}
         const revealMode = reveal.mode === 'instant' ? 'instant' : 'stream'
         const reorderBatchId = `reorder-${Date.now().toString(36)}`
+        const reorderBatchDetail = batchDetailFromPlanForBatch(options.executionPlan, {
+          batchDetail: batchDetailFromPlan(options.executionPlan),
+          commands: [reorderCommand],
+        })
         const reorderCoverage = buildBatchCoverage({
           plan: options.executionPlan,
           batchId: reorderBatchId,
           commands: [reorderCommand],
+          batchDetail: reorderBatchDetail,
+          structureSegments: segments.map(segment => ({ id: segment.id, start: segment.start, end: segment.end })),
         })
         const applyInput = {
           workspace: snapshot.workspace,
@@ -1043,10 +1280,7 @@ export function createEditorTools(options: {
         commands: [reorderCommand],
         writeAuthorization: options.writeAuthorization,
           coverage: reorderCoverage,
-        batchDetail: batchDetailFromPlanForBatch(options.executionPlan, {
-            batchDetail: batchDetailFromPlan(options.executionPlan),
-            commands: [reorderCommand],
-          }),
+        batchDetail: reorderBatchDetail,
           reason: typeof params.reason === 'string' ? params.reason : undefined,
           reveal: {
             mode: revealMode,
@@ -1057,12 +1291,13 @@ export function createEditorTools(options: {
         if (!applied.ok) {
           return toolError(applied.code || 'write_failed', applied.message || '编辑器写入失败，原文未修改', true)
         }
-        return {
-          ok: true,
-          data: {
-            status: 'written',
-            batchId: reorderBatchId,
-            repairPolicy: '该批次已按结构 ID 原子重排写入成功。后续修正请基于当前编辑器内容提交新命令。',
+      return {
+        ok: true,
+        data: {
+          status: 'written',
+          batchId: reorderBatchId,
+          structureIdentity: buildStructureIdentityReceipt(snapshot.content, next),
+          repairPolicy: '该批次已按结构 ID 原子重排写入成功。结构 ID 已按语义稳定，未改写的节无需重新取 map；新增/删除/冲突消歧以 structureIdentity 回执为准。',
             commandCount: 1,
             writtenLength: next.length,
             reorderSections: requestedIds.length,
@@ -1141,8 +1376,19 @@ export function createEditorTools(options: {
         plan: options.executionPlan,
         batchId: plan.batchId,
         commands,
+        batchDetail: batchDetailFromPlanForBatch(options.executionPlan, {
+          batchDetail: batchDetailFromPlan(options.executionPlan),
+          commands,
+        }),
         items: plan.items,
       })
+      const effectiveCoverage = options.executionPlan?.mode === 'direct'
+        ? buildDirectWriteCoverage({
+          plan: options.executionPlan,
+          batchId: plan.batchId,
+          items: plan.items,
+        })
+        : batchCoverage
       const applied = await options.applyWrite({
         workspace: snapshot.workspace,
         targetId: snapshot.targetId,
@@ -1151,7 +1397,7 @@ export function createEditorTools(options: {
         original: plan.original,
         commands,
         writeAuthorization: options.writeAuthorization,
-        coverage: batchCoverage,
+        coverage: effectiveCoverage,
         batchDetail: batchDetailFromPlanForBatch(options.executionPlan, {
           batchDetail: batchDetailFromPlan(options.executionPlan),
           commands,
@@ -1173,14 +1419,15 @@ export function createEditorTools(options: {
           batchId: plan.batchId,
           documentVersion: applied.documentVersion,
           contentHash: applied.contentHash,
-          repairPolicy: '该批次已写入成功，文档版本已变化。后续读取或写入前必须重新调用 editor.document_map / editor.get_state 获取当前 sectionId 与版本；后续修正请基于当前编辑器内容提交新命令，禁止重复提交本 batchId 的相同参数。',
+          structureIdentity: buildStructureIdentityReceipt(snapshot.content, plan.next),
+          repairPolicy: '该批次已写入成功，文档版本已变化。未改写的结构 ID 已保持稳定；仅当 structureIdentity 提示新增、删除或冲突消歧时才需要刷新 editor.document_map。后续修正请基于当前编辑器内容提交新命令，禁止重复提交本 batchId 的相同参数。',
           commandCount: commands.length,
           writtenLength: plan.next.length,
           reveal: { mode: revealMode, firstChange: reveal.firstChange !== false },
           rollbackAvailable: applied.rollbackAvailable,
-          ...(batchCoverage ? {
+          ...(effectiveCoverage ? {
             coverage: {
-              ...batchCoverage,
+              ...effectiveCoverage,
               documentVersion: applied.documentVersion,
               contentHash: applied.contentHash,
             },
@@ -1512,17 +1759,6 @@ export function validateAgentToolInput(tool: AgentToolDefinition, input: unknown
     }
   }
   if (!structured.valid) {
-    if (tool.name === 'editor.read_range') {
-      const inputRecord = input as Record<string, unknown>
-      const unsupportedPaginationKeys = ['offset', 'limit'].filter(key => key in inputRecord)
-      if (unsupportedPaginationKeys.length > 0) {
-        return toolError(
-          'invalid_input',
-          `editor.read_range 不支持 offset/limit 分页（收到不支持字段：$.${unsupportedPaginationKeys.join('、$.')}）。请传 nextCursor 继续读取当前节，或用 editor.document_map 返回的 sectionId 开始读取。`,
-          true,
-        )
-      }
-    }
     return {
       ok: false,
       error: {

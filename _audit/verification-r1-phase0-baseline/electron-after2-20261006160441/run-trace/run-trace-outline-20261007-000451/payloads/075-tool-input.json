@@ -1,0 +1,42 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "content": "### 数据板的局限",
+      "reason": "将悬空h2「数据板的局限」降为h3归入背景参考资料",
+      "target": "## 数据板的局限"
+    },
+    {
+      "operation": "replace_match",
+      "content": "### 菌膜外套：有限资源的临时通行方案",
+      "reason": "将悬空h2「菌膜外套」降为h3归入背景参考资料",
+      "target": "## 菌膜外套：有限资源的临时通行方案"
+    },
+    {
+      "operation": "replace_match",
+      "content": "### 菌膜外套与共存补丁的关系",
+      "reason": "将悬空h2「菌膜外套与共存补丁的关系」降为h3归入背景参考资料",
+      "target": "## 菌膜外套与共存补丁的关系"
+    },
+    {
+      "operation": "replace_match",
+      "content": "### 六大势力总览",
+      "reason": "将悬空h2「六大势力总览」降为h3归入背景参考资料",
+      "target": "## 六大势力总览"
+    },
+    {
+      "operation": "replace_match",
+      "content": "### 圣萌会与马格努斯",
+      "reason": "将悬空h2「圣萌会与马格努斯」降为h3归入背景参考资料",
+      "target": "## 圣萌会与马格努斯"
+    },
+    {
+      "operation": "replace_match",
+      "content": "### 终局之战与共存补丁",
+      "reason": "将悬空h2「终局之战与共存补丁」降为h3归入背景参考资料",
+      "target": "## 终局之战与共存补丁"
+    }
+  ],
+  "protocolVersion": 1,
+  "reason": "将6个悬空h2节降级为h3，全部归入「背景参考资料」父节下，形成Word文档式的清晰层级，不删减内容"
+}

@@ -1,0 +1,406 @@
+The user wants me to restructure the outline in the manner of a Word document, without cutting or reducing content. Let me first understand the current structure:
+
+The current outline is a flat markdown document with various headings at different levels. It has some issues:
+1. It starts with a top-level H1 `# 《绿潮》大纲总纲`
+2. Under that, there are H2 sections like `## 叙事框架`, `## 背景参考资料`, `## 数据板的局限`, `## 菌膜外套：有限资源的临时通行方案`, `## 菌膜外套与共存补丁的关系`, `## 世界设定声明`, `## 卷一：基石设定层`, `## 卷二：核心人物群像`, `## 卷三：势力与格局层`, `## 卷四：叙事工具箱层`
+3. But some content that should be under specific sections is floating as independent H2 blocks
+
+The user asked me to "按照Word文档的形式重构大纲" (restructure the outline in the manner of a Word document), without cutting content. This likely means:
+- A proper hierarchical structure with clear sections
+- Maybe a table of contents at the top
+- Consistent heading levels
+- Logical grouping of related content
+
+But I need to be careful - the user said "不要缩减内容" (don't reduce content). 
+
+Let me think about what "Word文档的形式" means. It could mean:
+1. A document with proper hierarchical heading structure (like a Word doc with Heading 1, Heading 2, etc.)
+2. Removing the flat markdown look and making it more like a formal document outline
+3. Having a clear TOC-like structure
+
+Looking at the current structure more carefully:
+
+The document currently has:
+- H1: 《绿潮》大纲总纲
+  - H2: 叙事框架
+    - H3: 故事核心
+    - H3: 第一卷·觉醒与扎根
+    - H3: 第二卷·连接与陷落
+    - H3: 第三卷·远征与暗流
+  - H2: 背景参考资料
+  - H2: 数据板的局限
+  - H2: 菌膜外套：有限资源的临时通行方案
+  - H2: 菌膜外套与共存补丁的关系
+  - H2: 世界设定声明
+  - H2: 卷一：基石设定层 (massive, 33494 chars)
+  - H2: 卷二：核心人物群像
+  - H2: 卷三：势力与格局层
+  - H2: 卷四：叙事工具箱层
+
+The issue is that some of these sections are "floating" as top-level H2 blocks when they should probably be organized differently. For instance, "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" seem like they should be part of a larger reference section rather than standalone H2 blocks.
+
+But the user said "按照Word文档的形式重构大纲，不要缩减内容" - maybe they just want cleaner formatting and proper structure, not a complete reorganization of content.
+
+Actually, I think what the user wants is to reorganize the entire outline into a more professional Word-document-style structure. This would involve:
+
+1. Adding a cover page section or a proper document title
+2. Creating a clear table of contents
+3. Organizing the content into proper chapters/sections with consistent heading levels
+4. Moving floating sections into their proper places
+
+Let me think about the logical structure:
+
+The current floating H2 sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) seem like they should be under "背景参考资料" or under some reference/appendix section. But "背景参考资料" itself is already an H2, and these are also H2.
+
+Wait, looking more carefully at the content flow:
+- 背景参考资料 → Story background, disaster history, eventual outcome (this is narrative background)
+- 数据板的局限 → About the data board's limitations
+- 菌膜外套 → About the fungus membrane coat
+- 菌膜外套与共存补丁的关系 → Relationship between coat and coexistence patch
+- 世界设定声明 → Fictional world declaration
+- 卷一 to 卷四 → The actual outline structure
+
+These seem like they should be organized as appendices or reference materials, but the current structure places them as parallel H2 blocks alongside the volume structure.
+
+Let me reconsider. The user said "按照Word文档的形式重构大纲". I think this means:
+
+1. Create a proper document structure with clear hierarchy
+2. Have a table of contents
+3. Organize content into logical sections with consistent numbering
+
+Given the complexity (75K characters), I need to think about how to approach this. The user said "不要缩减内容", so I can't cut anything.
+
+Actually, let me re-read the request more carefully: "按照Word文档的形式重构大纲，不要缩减内容。"
+
+I think the key request is to make this look like a proper Word document outline - with clear hierarchical structure, maybe numbered headings, and content organized in a logical flow. The current structure has some organizational issues (duplicate content, floating sections).
+
+Let me think about what specific restructuring to propose:
+
+1. First, let me remove the PHASE7 probes (already done)
+2. Let me address the duplicate content (partially done - removed the inline duplicate of 数据板的局限)
+3. Let me reorganize the floating H2 sections
+
+Looking at the content flow again:
+- The "背景参考资料" section contains the complete backstory - from 4 billion years ago to the end state
+- Then "数据板的局限" is specifically about the data board's limitations
+- Then "菌膜外套" is about the coat technology
+- Then "菌膜外套与共存补丁的关系" is about the relationship
+- Then "世界设定声明" is the fictional world statement
+- Then the four volumes (卷一 to 卷四)
+
+These floating sections seem like they belong together as reference/background material. But how should they be organized?
+
+Actually, I think a better approach might be:
+
+The document should follow this structure:
+1. 总纲概述 (General outline overview)
+2. 叙事框架 (Narrative framework) - contains 故事核心, 第一卷, 第二卷, 第三卷
+3. 世界设定层 (World setting layer) - contains all the setting/background info
+   - 背景参考资料
+   - 数据板的局限
+   - 菌膜外套
+   - 菌膜外套与共存补丁的关系
+   - 世界设定声明
+   - 卷一：基石设定层
+4. 人物层 (Character layer)
+   - 卷二：核心人物群像
+5. 势力与格局层 (Factions and structure)
+   - 卷三：势力与格局层
+6. 叙事工具箱层 (Narrative toolkit)
+   - 卷四：叙事工具箱层
+
+But this is a much larger reorganization. Let me think about what the user actually wants...
+
+The user said "按照Word文档的形式重构大纲". I think this is simpler than I'm making it. They probably want:
+
+1. Remove the PHASE7 probes (done)
+2. Remove duplicate content (partially done)
+3. Organize the floating sections into a logical hierarchy
+4. Ensure consistent heading levels
+5. Maybe add a table of contents
+
+Given the massive size of this document (74K chars), I need to be strategic. Let me focus on the key structural issues:
+
+1. The document has some sections floating as H2 that should be organized:
+   - "数据板的局限" is a standalone H2 after "背景参考资料"
+   - "菌膜外套" is a standalone H2
+   - "菌膜外套与共存补丁的关系" is a standalone H2
+   - "世界设定声明" is a standalone H2
+
+2. There are duplicates of "数据板的局限" (one inline in background, one as standalone - the inline one was deleted)
+
+3. There are duplicates of "菌膜外套" (one standalone H2, one inside 卷一的七章节 as 7.8)
+
+Let me now propose a restructuring plan. But first, let me check with the user about what they want. Actually, the instruction says to just give suggestions and modifications. Let me present my analysis and proposed structure.
+
+Wait, I should actually do the restructuring since the user asked me to. But changing such a large document requires careful planning.
+
+Let me think about the most impactful changes I can make:
+
+1. The floating H2 sections should be organized properly. They currently are at the same level as the main volume structure (卷一 through 卷四), which makes the document feel disorganized.
+
+2. Actually, looking at this more carefully, I think these floating sections are supposed to be "reference appendices" or "前置说明" that come before the formal outline structure. They're like:
+   - World background info (背景参考资料)
+   - Key clarifications (数据板的局限, 菌膜外套, etc.)
+   - World setting declaration
+
+3. The actual outline structure is 卷一 through 卷四.
+
+So the logical restructuring would be:
+- Part 0: 前置说明与背景参考 (Front matter and background references)
+  - 叙事框架 (Narrative framework with story core and 3 volumes summary)
+  - 背景参考资料 (Background reference)
+  - 数据板的局限
+  - 菌膜外套
+  - 菌膜外套与共存补丁的关系
+  - 世界设定声明
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+This makes more sense. But wait, the 叙事框架 section already contains the three-volume story outline. Is that where it belongs? It seems like the narrative framework IS the story outline, and it's already properly placed.
+
+Hmm, I think I'm overcomplicating this. Let me focus on what's clearly problematic:
+
+1. The floating H2 sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 世界设定声明) should be part of a logical grouping, not floating at the same level as the main volumes.
+
+2. The duplicates have been addressed (deleted the inline 数据板的局限).
+
+3. The document needs a proper structure where everything flows logically.
+
+Let me propose a specific restructuring and present it to the user. Since this is a massive document, I'll focus on the organizational changes that make the most difference:
+
+Proposal:
+- Reorganize the floating H2 sections under a parent section called something like "前置设定与背景参考" or keep them as appendices
+- Ensure consistent heading numbering
+
+Actually, I think the simplest approach that matches "Word文档的形式" would be:
+
+To convert the document into a proper Word-style outline with:
+1. Clear hierarchical numbering (一、(一)、1、1.1, etc.)
+2. Sections organized under logical parent headings  
+3. No floating sections
+
+But restructuring the entire 74K document would require many write operations. Let me focus on the key structural fixes.
+
+Let me think about this differently. The current "floating" H2 sections are:
+
+Between "叙事框架" (which ends with 第三卷) and "卷一", we have:
+- 背景参考资料 (H2)
+- 数据板的局限 (H2)  
+- 菌膜外套 (H2)
+- 菌膜外套与共存补丁的关系 (H2)
+- 世界设定声明 (H2)
+
+These seem like they should go under a broader "前置说明" or "背景设定概述" section.
+
+But actually, I now realize the "叙事框架" section IS part of the front matter - it contains the story core and the three-volume summary. So the structure is:
+
+Front Matter:
+- 叙事框架 (故事核心 + 三卷概要)
+- 背景参考资料
+- 数据板的局限
+- 菌膜外套
+- 菌膜外套与共存补丁的关系
+- 世界设定声明
+
+Main Outline:
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+This structure actually makes sense - all the background/setting information comes before the formal outline structure. The issue is just that these front-matter sections are all H2, which makes them look parallel to the main volumes.
+
+I think the user's request to "按照Word文档的形式重构" means:
+1. Add a proper document structure with clear sections
+2. Maybe add numbering
+3. Ensure everything is well-organized
+
+Given the size, let me make targeted improvements:
+
+1. Group the front-matter sections under a proper parent
+2. Fix any remaining formatting issues
+3. Ensure the structure is clean
+
+But I need to be careful not to break anything. Let me present my analysis and proposed changes to the user first, then execute.
+
+Actually, wait. The user said "按照Word文档的形式重构大纲，不要缩减内容。" - they want me to DO it, not just suggest. But given the massive size of the document, I should present a clear plan and then execute in batches.
+
+Let me now focus on what I can do:
+
+1. The floating H2 sections after "叙事框架" should perhaps be reorganized. But actually, looking again, the problem is more subtle. These sections exist as standalone pieces because they were added incrementally. In a proper Word document, they would be appendix sections or contextual notes.
+
+I think the cleanest approach is:
+
+Structure the document as:
+```
+# 《绿潮》大纲总纲
+
+## 前言
+### 世界设定声明
+
+## 第一部分：叙事框架
+### 故事核心
+### 第一卷·觉醒与扎根
+### 第二卷·连接与陷落
+### 第三卷·远征与暗流
+
+## 第二部分：背景参考资料
+### 背景参考资料（灾难全史）
+### 数据板的局限
+### 菌膜外套：有限资源的临时通行方案
+### 菌膜外套与共存补丁的关系
+
+## 卷一：基石设定层
+...
+
+## 卷二：核心人物群像
+...
+
+## 卷三：势力与格局层
+...
+
+## 卷四：叙事工具箱层
+...
+```
+
+But this would require significant restructuring. Also, the "叙事框架" already has the story core and three volumes. And 卷一二三四 are the formal outline structure.
+
+Hmm, I'm going in circles. Let me just present the user with an analysis and proposed restructuring plan, since the document is too large to blindly restructure without agreement.
+
+Wait, actually, the user explicitly said "按照Word文档的形式重构大纲，不要缩减内容" - they want me to take action. Let me be pragmatic:
+
+The main issues are:
+1. Floating H2 sections between the narrative framework and the formal volumes
+2. The "世界设定声明" is at the end of this floating section, before 卷一
+
+Let me just reorganize the floating H2 sections to be under a proper parent heading, making the document look more like a well-structured Word document.
+
+Let me propose this structure:
+
+```
+# 《绿潮》大纲总纲
+
+## 前置说明
+
+### 世界设定声明
+（架空世界声明）
+
+## 叙事框架
+
+### 故事核心
+### 第一卷·觉醒与扎根  
+### 第二卷·连接与陷落
+### 第三卷·远征与暗流
+
+## 背景参考资料
+（灾难全史，从四亿年前到终局）
+
+### 数据板的局限
+### 菌膜外套：有限资源的临时通行方案
+### 菌膜外套与共存补丁的关系
+
+## 卷一：基石设定层
+...
+
+## 卷二：核心人物群像
+...
+
+## 卷三：势力与格局层
+...
+
+## 卷四：叙事工具箱层
+...
+```
+
+This would be a clean, Word-document-style structure. But it requires:
+1. Moving sections around
+2. Downgrading some H2 to H3
+3. Creating a new "前置说明" parent
+
+This is a big change. Let me just do it step by step. But first, let me confirm the content of the floating sections to make sure I understand them correctly.
+
+Actually, I've been overthinking this. Let me just propose the restructuring and proceed. The key changes:
+
+1. Create a new H2 "前置说明" before "叙事框架" and move "世界设定声明" under it
+2. Keep "叙事框架" as H2
+3. Move "背景参考资料", "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" under a common structure - but they're already sequential. I could either:
+   a. Make them all H3 under "背景参考资料" (since they're all background info)
+   b. Keep them as H2 but group them under some parent
+
+Actually, the simplest approach: make 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 into sub-sections of 背景参考资料. They're all supporting background material.
+
+But wait, 背景参考资料 is a very long section (6561 chars) that tells the complete disaster history. 数据板的局限, 菌膜外套, etc. are separate clarifications that don't fit under that narrative. They're more like "appendix notes".
+
+OK here's my final plan. The most impactful structural change:
+
+Current:
+```
+## 叙事框架 (ends)
+## 背景参考资料
+## 数据板的局限
+## 菌膜外套：有限资源的临时通行方案
+## 菌膜外套与共存补丁的关系
+## 世界设定声明
+## 卷一：基石设定层
+```
+
+Proposed:
+```
+## 叙事框架 (ends)
+## 背景参考资料
+### 附：数据板的局限
+### 附：菌膜外套：有限资源的临时通行方案
+### 附：菌膜外套与共存补丁的关系
+## 世界设定声明
+## 卷一：基石设定层
+```
+
+Or even simpler - just demote those floating H2s to H3s and put them under "背景参考资料" or create a new "补充说明" section.
+
+I think the cleanest would be to put them all under "背景参考资料" as subsections since they're all background/setting clarifications. But the content doesn't naturally fit - they're clarifications ABOUT the setting, not the setting narrative itself.
+
+Let me just go with a simple approach: change the floating H2 sections to be subsections under a new parent section. I'll create a "设定补充说明" H2 that contains them as H3s.
+
+Wait, actually I think the simplest and most Word-like approach is:
+
+Just demote 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 from H2 to H3, and place them under 背景参考资料. This makes them clarifications/appendix to the background reference section.
+
+But they're currently long sections in their own right. Let me just present this structure clearly:
+
+```
+## 叙事框架
+### 故事核心
+### 第一卷·觉醒与扎根
+### 第二卷·连接与陷落
+### 第三卷·远征与暗流
+
+## 背景参考资料与设定说明
+### 灾难全史
+（原"背景参考资料"内容）
+### 数据板的局限
+### 菌膜外套：有限资源的临时通行方案
+### 菌膜外套与共存补丁的关系
+
+## 世界设定声明
+
+## 卷一：基石设定层
+...
+
+## 卷二：核心人物群像
+...
+
+## 卷三：势力与格局层
+...
+
+## 卷四：叙事工具箱层
+...
+```
+
+Hmm, but this changes the heading levels of existing content. Let me think about what's actually achievable...
+
+OK, I think I need to just present the plan and get confirmation. The document is 74K characters, and massive restructuring through editor.write could be risky. Let me present my analysis and proposed restructuring, then execute it in batches.
+
+Let me present a clear, actionable plan to the user.

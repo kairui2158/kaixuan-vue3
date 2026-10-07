@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "data": {
+    "total": 1,
+    "truncated": false,
+    "offset": 0,
+    "limit": 50,
+    "hasMore": false,
+    "matches": [
+      {
+        "start": 53323,
+        "end": 53327,
+        "sectionId": "heading-4-17qqsa1",
+        "sectionTitle": "11.3 菌膜装甲外部营养液用途",
+        "context": "理，制成“通用燃料油”——统一标准，无需区分来源。\n\n#### 11.3 菌膜装甲外部营养液用途\n\n菌膜装甲的外部营养液需要的是“必需脂肪酸”——主要是亚油酸（18:2）和α-亚麻酸（18:3）。这两类脂肪酸是菌丝细胞膜磷脂双分子层的重要组分，菌丝自身无法合成，必须从外部获取。\n\n三类油脂中必需脂肪酸的含量差异极大：油脂树提取"
+      }
+    ],
+    "next_steps": [
+      "调用 editor.read_range 传入 sectionId 读取命中节全文"
+    ]
+  }
+}

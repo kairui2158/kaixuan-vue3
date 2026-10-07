@@ -1,0 +1,47 @@
+{
+  "ok": true,
+  "data": {
+    "status": "written",
+    "batchId": "ai-edit-muva97w5-8",
+    "documentVersion": 15,
+    "contentHash": "fnv1a32_b81c03a7",
+    "repairPolicy": "该批次已写入成功，文档版本已变化。后续读取或写入前必须重新调用 editor.document_map / editor.get_state 获取当前 sectionId 与版本；后续修正请基于当前编辑器内容提交新命令，禁止重复提交本 batchId 的相同参数。",
+    "commandCount": 3,
+    "writtenLength": 74255,
+    "reveal": {
+      "mode": "stream",
+      "firstChange": true
+    },
+    "rollbackAvailable": true,
+    "coverage": {
+      "batchId": "ai-edit-muva97w5-8",
+      "segmentId": "normalize-segment-1",
+      "expectedChange": "normalize",
+      "writeStrategy": "replace_match",
+      "coverageTrusted": true,
+      "reason": "declared_segment",
+      "commands": [
+        {
+          "operation": "replace_match",
+          "segmentId": "normalize-segment-1",
+          "start": 947,
+          "end": 973
+        },
+        {
+          "operation": "replace_match",
+          "segmentId": "normalize-segment-1",
+          "start": 17518,
+          "end": 17540
+        },
+        {
+          "operation": "replace_match",
+          "segmentId": "normalize-segment-1",
+          "start": 12071,
+          "end": 12097
+        }
+      ],
+      "documentVersion": 15,
+      "contentHash": "fnv1a32_b81c03a7"
+    }
+  }
+}

@@ -1,6 +1,8 @@
 import type { RunTraceStatus } from '../stores/runTrace'
 import type { AgentOrchestratorTaskResult } from './agentOrchestrator'
 import type { LongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
+import type { EditTask } from './editTaskService'
+import type { EditTaskCompletionReport } from './editTaskCompletion'
 
 export interface AgentRunTraceTerminal {
   status: RunTraceStatus
@@ -10,6 +12,23 @@ export interface AgentRunTraceTerminal {
 export interface AgentRunTraceTerminalInput {
   agentResult: Pick<AgentOrchestratorTaskResult, 'status' | 'reason' | 'snapshot'>
   executionPlan?: LongDocumentExecutionPlan
+}
+
+export interface EditTaskTerminalEvidenceInput {
+  agentTerminal: AgentRunTraceTerminal
+  editTask: Pick<EditTask,
+    'status'
+    | 'executedBatches'
+    | 'pendingBatches'
+    | 'failedBatchIds'
+  > | null
+  completionReport?: EditTaskCompletionReport | null
+}
+
+export interface EditTaskTerminalEvidence {
+  terminal: AgentRunTraceTerminal
+  override: boolean
+  evidenceReason: string
 }
 
 /**
@@ -52,5 +71,41 @@ export function mapAgentResultToRunTrace(input: AgentRunTraceTerminalInput): Age
   return {
     status: 'degraded',
     reason: agentResult.reason || `agent_non_terminal:${agentResult.status}`,
+  }
+}
+
+/**
+ * EditTask is the single source of truth once a write task reaches its terminal
+ * state. The original plan's segment coverage stays strict for steering, but a
+ * content-verified completed task must not be downgraded by stale coverage
+ * derived from the initial execution plan.
+ */
+export function mergeEditTaskTerminal(input: EditTaskTerminalEvidenceInput): EditTaskTerminalEvidence {
+  const { agentTerminal, editTask } = input
+  if (!editTask) return { terminal: agentTerminal, override: false, evidenceReason: 'edit_task_missing' }
+
+  const allBatchesWritten = editTask.executedBatches.length > 0
+    && editTask.pendingBatches.length === 0
+    && editTask.failedBatchIds.length === 0
+  const verified = input.completionReport?.verified === true
+  const editTaskVerifiedComplete = editTask.status === 'completed' && allBatchesWritten && verified
+
+  if (!editTaskVerifiedComplete) {
+    return {
+      terminal: agentTerminal,
+      override: false,
+      evidenceReason: `edit_task_not_authoritative:${editTask.status}`,
+    }
+  }
+
+  return {
+    terminal: {
+      status: 'success',
+      reason: agentTerminal.status === 'partially_applied'
+        ? 'edit_task_completed_verified'
+        : 'edit_task_completed',
+    },
+    override: true,
+    evidenceReason: `dynamic_batches_completed:${editTask.executedBatches.length}`,
   }
 }

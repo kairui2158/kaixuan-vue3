@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "data": {
+    "total": 1,
+    "truncated": false,
+    "offset": 0,
+    "limit": 20,
+    "hasMore": false,
+    "matches": [
+      {
+        "start": 22126,
+        "end": 22132,
+        "sectionId": "heading-22123",
+        "sectionTitle": "世界设定声明",
+        "context": "在时，最有效的生存策略不是对抗，而是让它不再觉得你是异己。\n\n“知识锁在抽屉里，和不存在没有区别。”\n\n林觉民把知识从抽屉里拿出来，打开，撒进风中。\n\n\n## 世界设定声明\n\n本书为完全架空世界设定。故事中所有地名、区域名、山川河流名均为虚构创作，不与任何现实地理位置、国家、行政区划存在对应关系。势力名称为故事核心资产，独立于地名"
+      }
+    ],
+    "next_steps": [
+      "调用 editor.read_range 传入 sectionId 读取命中节全文"
+    ]
+  }
+}

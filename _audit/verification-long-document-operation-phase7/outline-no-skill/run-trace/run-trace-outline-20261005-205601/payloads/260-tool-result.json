@@ -1,0 +1,83 @@
+{
+  "ok": true,
+  "data": {
+    "status": "written",
+    "batchId": "ai-edit-muvavlfu-c",
+    "documentVersion": 34,
+    "contentHash": "fnv1a32_227941fa",
+    "repairPolicy": "该批次已写入成功，文档版本已变化。后续读取或写入前必须重新调用 editor.document_map / editor.get_state 获取当前 sectionId 与版本；后续修正请基于当前编辑器内容提交新命令，禁止重复提交本 batchId 的相同参数。",
+    "commandCount": 9,
+    "writtenLength": 74344,
+    "reveal": {
+      "mode": "instant",
+      "firstChange": true
+    },
+    "rollbackAvailable": true,
+    "coverage": {
+      "batchId": "ai-edit-muvavlfu-c",
+      "segmentId": "normalize-segment-1",
+      "expectedChange": "normalize",
+      "writeStrategy": "replace_match",
+      "coverageTrusted": true,
+      "reason": "declared_segment",
+      "commands": [
+        {
+          "operation": "replace_match",
+          "segmentId": "normalize-segment-1",
+          "start": 12099,
+          "end": 12114
+        },
+        {
+          "operation": "replace_match",
+          "segmentId": "normalize-segment-1",
+          "start": 14395,
+          "end": 14407
+        },
+        {
+          "operation": "replace_match",
+          "segmentId": "normalize-segment-1",
+          "start": 15800,
+          "end": 15817
+        },
+        {
+          "operation": "replace_match",
+          "segmentId": "normalize-segment-1",
+          "start": 12341,
+          "end": 12354
+        },
+        {
+          "operation": "replace_match",
+          "segmentId": "normalize-segment-1",
+          "start": 13060,
+          "end": 13069
+        },
+        {
+          "operation": "replace_match",
+          "segmentId": "normalize-segment-1",
+          "start": 13944,
+          "end": 13958
+        },
+        {
+          "operation": "replace_match",
+          "segmentId": "normalize-segment-1",
+          "start": 14431,
+          "end": 14441
+        },
+        {
+          "operation": "replace_match",
+          "segmentId": "normalize-segment-1",
+          "start": 14995,
+          "end": 15004
+        },
+        {
+          "operation": "replace_match",
+          "segmentId": "normalize-segment-1",
+          "start": 15551,
+          "end": 15563
+        }
+      ],
+      "documentVersion": 34,
+      "contentHash": "fnv1a32_227941fa"
+    }
+  }
+}

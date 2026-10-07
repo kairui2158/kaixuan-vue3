@@ -1,0 +1,20 @@
+Let me analyze what needs to be done for the remaining batches:
+
+1. **structure-repair** - Already covered (fixed document opening spacing)
+2. **structure-plan** - Already covered (deleted duplicate 7.8/7.9 sections in 卷一, merged content into 总纲)
+3. **normalize-segment-1** - Partially covered, need to complete all normalization across the full document
+
+Remaining normalization tasks:
+- Fix chapter-end extra blank lines: 卷一末→卷二, 卷二末→卷三, 卷三末→卷四
+- Check for the "世界设定声明" end → "卷一" start spacing
+- Check for "终局之后" end → "卷四" start 
+
+From what I've already located:
+- `这份日历是用无数条人命换来的。\n\n\n## 卷二` - has extra newline before 卷二
+- `不参与争论但事后默默补上遗漏事实。\n\n\n## 卷三` - has extra newline before 卷三
+- Need to find 卷三 end → 卷四 spacing
+- Need to find "世界设定声明" end spacing
+
+The 5.4 终局之后 search failed because the fragment used regular quotes but the text has curly quotes `"竞争者"` and `"树荫下的苔藓"`. Let me just fix the ones I've confirmed.
+
+Let me also check the 世界设定声明→卷一 spacing and fix all remaining extra blank lines in one batch.

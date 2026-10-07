@@ -1,0 +1,32 @@
+{
+  "schema": "shenyi.component-lifecycle.electron",
+  "version": 1,
+  "generatedAt": "2026-10-05T16:25:18.182Z",
+  "checks": [
+    "follow-write: scrollTop=17528, highlight=editor-viewport-highlight-layer editor-viewport-active-line, selection=28790",
+    "user-takeover: scrollTop=0",
+    "paused-follow: scrollTop=0",
+    "follow-resume: scrollTop=17528",
+    "stop-follow: scrollTop=17528, highlight=",
+    "programmatic-scroll-search: active=1, total=33, count=630/640",
+    "pipeline-toolbar: retired=0/8, ai-names=true",
+    "deai-budget: visible -> clicked -> running, limit=12, extensions=1, resume=true",
+    "outline-auto-decompose: 2 API calls, 2 trace calls, 2 step events, success, useAiTools=0",
+    "timeout-hint: active=3600000ms"
+  ],
+  "requests": [
+    {
+      "url": "/v1/chat/completions",
+      "model": "component-lifecycle-model",
+      "messageCount": 2,
+      "stream": false
+    },
+    {
+      "url": "/v1/chat/completions",
+      "model": "component-lifecycle-model",
+      "messageCount": 2,
+      "stream": false
+    }
+  ],
+  "verdict": "pass"
+}

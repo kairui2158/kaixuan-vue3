@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-3-1heodug",
+      "title": "故事核心",
+      "kind": "heading",
+      "level": 3,
+      "path": "故事核心"
+    },
+    "range": {
+      "start": 903,
+      "end": 963
+    },
+    "offset": 880,
+    "maxChars": 80,
+    "content": "对自己加速人类倒计时的事实。他必须在\"保护\"和\"放手\"之间找到一条菌毯和人类都未曾走过的路——重新划定敌我边界。\n\n\n\n",
+    "hasMore": false,
+    "next_steps": [
+      "基于已读取内容回答或写入；需要其他节时先调用 editor.document_map"
+    ]
+  }
+}

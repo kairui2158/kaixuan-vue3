@@ -1,0 +1,53 @@
+Let me analyze the current state. I've completed two batches:
+
+1. **Batch 1 (structure-repair)**: Added heading levels for the untitled pseudo-headings in "背景参考资料" section (灾前军事基准线, 一/二/三)
+
+2. **Batch 2 (structure-plan)**: Deleted the duplicate "数据板的局限" paragraph at the end of "背景参考资料" that was identical to the standalone heading-2 version
+
+Now I need to execute Batch 3 (normalize-segment-1): This is about punctuation normalization - converting half-width punctuation to full-width in Chinese contexts. The search results show that the document already uses mostly full-width punctuation (no half-width commas, semicolons, exclamation marks, question marks found). The colon search only found "18:2" and "18:3" which are fatty acid chemical formulas (correct half-width usage), and "3:14" (time notation).
+
+Let me also check if there are other normalization issues. The structure looks reasonable now. Let me look at the broader document to see if there are any remaining issues.
+
+Actually, the search for `\.` returned 0 results (no half-width periods in Chinese context). The `,` search returned 0. `;` returned 0. `!` returned 0. `?` returned 0. The `:` hits are all legitimate chemical/formula uses like "18:2". So it seems the document already has proper full-width Chinese punctuation.
+
+But wait - I should verify more thoroughly. Let me check a few segments directly for any remaining half-width punctuation or formatting issues. Let me also check for other normalization needs like duplicate blank lines, inconsistent numbering, etc.
+
+Actually, let me also check if the "菌膜外套" section and the "菌膜外套与共存补丁的关系" section at heading-2 level, plus their duplicates at heading-4 level (7.8 and 7.9), are intentional duplicates or need attention. These were noted earlier:
+
+- `heading-2-10q4nra` "菌膜外套：有限资源的临时通行方案" (level 2, standalone)
+- `heading-4-896l1n` "7.8 菌膜外套：有限资源的临时通行方案" (level 4, under 七)
+- `heading-2-28do6r` "菌膜外套与共存补丁的关系" (level 2, standalone)
+- `heading-4-1au19n4` "7.9 与终局的衔接：菌膜外套与共存补丁的关系" (level 4, under 七)
+
+These appear to be the same content repeated in different locations - the heading-2 versions are standalone sections, and the heading-4 versions are within the "七、变异体主动攻击人类核心机制" section. Let me verify if they are indeed duplicates.
+
+Let me re-read the content of heading-2-10q4nra and heading-4-896l1n more carefully to compare. From the earlier reads:
+
+heading-2-10q4nra (start 17375): "菌膜外套：有限资源的临时通行方案" - this has the additional note: "这里需要强调的是：数据板提供了信息素伪装机制的理论基础..." and ends with "陈暮不必陪同每一次通行——但他的勘探是不可替代的。"
+
+heading-4-896l1n (start 48146): "7.8 菌膜外套：有限资源的临时通行方案" - this seems similar but slightly different, missing the emphasis note.
+
+These might be intentional duplicates (cross-references) but the user asked to "按照Word文档的形式重构大纲，不要缩减内容" which means not to reduce content but to restructure. So I should not delete these unless they are exact duplicates. Let me check more carefully.
+
+Actually wait - looking at the user's instruction more carefully: "按照Word文档的形式重构大纲". This sounds like they want the outline restructured into a Word-document-like format. But the execution plan says to do structure repair, duplicate removal, and normalization.
+
+Let me focus on what the plan asks: normalize-segment-1 covering [0-74841]. I need to:
+1. Fix half-width punctuation in Chinese context
+2. Clean up formatting issues
+
+Let me do a broader search for potential issues.
+
+Actually, looking at the search results more carefully:
+- No half-width commas, periods (outside tables), semicolons, exclamation marks, or question marks found in Chinese text
+- The colon hits are legitimate (fatty acid notation, time notation)
+
+This suggests the document is already fairly clean. But let me check for other normalization issues like:
+- Inconsistent blank lines
+- Missing section breaks
+- Inconsistent numbering
+
+Let me read a few more sections to check, then submit the normalize write if nothing major is needed, or just submit what's needed.
+
+Actually, let me just do the normalize batch. The plan says I must cover normalize-segment-1[0-74841]. Let me check a broader range for any remaining issues and then submit the write.
+
+Let me check for any remaining issues by reading a few key transition points and verify.

@@ -1,0 +1,33 @@
+Let me analyze the current state of the document and plan the remaining work. 
+
+The task is to restructure the outline like a Word document without reducing content. I've already:
+1. Fixed title hierarchy in "背景参考资料" - added proper heading levels for "灾前军事基准线" and its subsections
+2. Deleted a duplicate "数据板的局限" section from the end of "背景参考资料"
+3. Converted two tab-separated pseudo-tables into proper GFM tables
+
+Now I need to continue with the normalization phase. Let me identify remaining issues from the narrative framework section I just read:
+
+Looking at the "故事核心" section (starting at 23), I can see some issues:
+
+1. There's an inline instruction text "粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：" - this is an editor instruction that should be removed, followed by the content that was actually pasted.
+
+2. The subheading "【菌毯的本质：竞争对手文明】" and "【核心张力：保护即加速】" use 【】 brackets which could be formatted as proper headings.
+
+3. In the first volume summary, there's a long continuous narrative paragraph.
+
+4. The structure overall seems to have no major issues that need fixing at this point beyond some formatting.
+
+Let me focus on what's remaining. The document now has:
+- All tab-separated tables converted to GFM
+- Duplicate "数据板的局限" removed
+- Military baseline section properly leveled
+
+What I should check next: Are there any other formatting issues? Let me search for the instruction text that was accidentally left in.
+
+Let me focus on cleaning up the "故事核心" section to remove the inline editor instruction, and check for any remaining issues.
+
+The key items to fix:
+1. Remove the instruction line "粘贴到「故事核心」下..." 
+2. Check if there are remaining issues with content
+
+Let me plan the next write operation to clean up the narrative framework section.

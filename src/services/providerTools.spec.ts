@@ -145,7 +145,7 @@ describe('providerTools', () => {
     expect(calls[1].input).toEqual({ commands: [] })
   })
 
-  it('downgrades invalid JSON tool arguments to an empty object', () => {
+  it('downgrades invalid JSON tool arguments while preserving the raw string', () => {
     const calls = extractProviderToolCalls('deepseek', {
       choices: [{
         message: {
@@ -153,7 +153,85 @@ describe('providerTools', () => {
         },
       }],
     })
-    expect(calls).toEqual([{ id: 'call_bad', name: 'editor.write', input: {} }])
+    expect(calls).toEqual([{
+      id: 'call_bad',
+      name: 'editor.write',
+      input: {},
+      argumentsRaw: '{"commands":',
+      argumentsError: {
+        code: 'arguments_invalid_json',
+        message: expect.stringContaining('供应商返回的工具参数不是合法 JSON'),
+        repairable: false,
+      },
+    }])
+  })
+
+  it('repairs unescaped quotes in string values and keeps the original raw arguments', () => {
+    const argumentsRaw = '{"commands":[{"operation":"replace_match","target":"广播"无生命有机质"声明","content":""}],"reason":"去重"}'
+    const calls = extractProviderToolCalls('deepseek', {
+      choices: [{
+        message: {
+          tool_calls: [{ id: 'call_repair', type: 'function', function: { name: 'editor.write', arguments: argumentsRaw } }],
+        },
+      }],
+    })
+    expect(calls).toEqual([{
+      id: 'call_repair',
+      name: 'editor.write',
+      input: {
+        commands: [{ operation: 'replace_match', target: '广播"无生命有机质"声明', content: '' }],
+        reason: '去重',
+      },
+      argumentsRaw,
+      argumentsRepaired: true,
+    }])
+  })
+
+  it('marks irreparable JSON with a provider diagnostics field instead of a silent empty input', () => {
+    const calls = extractProviderToolCalls('deepseek', {
+      choices: [{
+        message: {
+          tool_calls: [{ id: 'call_bad', type: 'function', function: { name: 'editor.write', arguments: '{"commands":' } }],
+        },
+      }],
+    })
+    expect(calls[0].argumentsError).toMatchObject({
+      code: 'arguments_invalid_json',
+      repairable: false,
+    })
+    expect(calls[0].input).toEqual({})
+  })
+
+  it('marks repaired arguments without a provider error', () => {
+    const argumentsRaw = '{"target":"他说"你好"，然后离开"}'
+    const calls = extractProviderToolCalls('openai-compatible', {
+      choices: [{
+        message: {
+          tool_calls: [{ id: 'call_repaired', type: 'function', function: { name: 'editor.write', arguments: argumentsRaw } }],
+        },
+      }],
+    })
+    expect(calls[0]).toMatchObject({
+      input: { target: '他说"你好"，然后离开' },
+      argumentsRaw,
+      argumentsRepaired: true,
+    })
+    expect(calls[0].argumentsError).toBeUndefined()
+  })
+
+  it('preserves raw arguments for empty and non-object tool arguments', () => {
+    const calls = extractProviderToolCalls('openai-compatible', {
+      choices: [{
+        message: {
+          tool_calls: [
+            { id: 'call_empty', type: 'function', function: { name: 'editor.write', arguments: '' } },
+            { id: 'call_array', type: 'function', function: { name: 'editor.write', arguments: '[1,2]' } },
+          ],
+        },
+      }],
+    })
+    expect(calls[0]).toMatchObject({ input: {}, argumentsRaw: '' })
+    expect(calls[1]).toMatchObject({ input: {}, argumentsRaw: '[1,2]' })
   })
 
   it('does not emit a tools field when the tool list is empty', () => {

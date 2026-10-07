@@ -1,0 +1,46 @@
+{
+  "taskId": "edit-task-1791299837199-2",
+  "status": "running_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "批次3·空白规范化：压缩正文残留的过度空行为单空行，不改动正文。",
+  "executedBatches": [
+    "ai-edit-muwto8a0-9"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "activeBatchId": "ai-edit-muwtu0uu-a",
+  "executionPlan": {
+    "goal": "批次3·空白规范化：压缩正文残留的过度空行为单空行，不改动正文。",
+    "batches": [
+      "ai-edit-muwto8a0-9",
+      "ai-edit-muwtu0uu-a"
+    ],
+    "batchDetails": {
+      "ai-edit-muwto8a0-9": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74491
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      },
+      "ai-edit-muwtu0uu-a": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74491
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      }
+    }
+  },
+  "batchId": "ai-edit-muwtu0uu-a",
+  "segmentId": "normalize-segment-1",
+  "expectedChange": "normalize",
+  "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+}

@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-1-mizom9",
+      "title": "《绿潮》大纲总纲",
+      "kind": "heading",
+      "level": 1,
+      "path": "《绿潮》大纲总纲"
+    },
+    "range": {
+      "start": 0,
+      "end": 100
+    },
+    "offset": 0,
+    "maxChars": 100,
+    "content": "# 《绿潮》大纲总纲\n\n## 世界设定声明\n\n本书为完全架空世界设定。故事中所有地名、区域名、山川河流名均为虚构创作，不与任何现实地理位置、国家、行政区划存在对应关系。势力名称为故事核心资产，独立于地",
+    "hasMore": true,
+    "nextCursor": "section:heading-1-mizom9:100",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

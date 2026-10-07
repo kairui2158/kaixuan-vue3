@@ -1,0 +1,29 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "content": "火力轰炸。菌毯在第一周内",
+      "reason": "去除半角空格，统一为中文排版",
+      "target": "火力轰炸。 菌毯在第一周内"
+    },
+    {
+      "operation": "replace_match",
+      "content": "核打击。在轰炸无效后",
+      "reason": "去除半角空格，统一为中文排版",
+      "target": "核打击。 在轰炸无效后"
+    },
+    {
+      "operation": "replace_match",
+      "content": "化学/生物武器。针对共生蕨",
+      "reason": "去除半角空格，统一为中文排版",
+      "target": "化学/生物武器。 针对共生蕨"
+    },
+    {
+      "operation": "replace_match",
+      "content": "电磁脉冲。高空中引爆",
+      "reason": "去除半角空格，统一为中文排版",
+      "target": "电磁脉冲。 高空中引爆"
+    }
+  ],
+  "reason": "阶段三格式整理：去除中文正文中句号后的半角空格"
+}

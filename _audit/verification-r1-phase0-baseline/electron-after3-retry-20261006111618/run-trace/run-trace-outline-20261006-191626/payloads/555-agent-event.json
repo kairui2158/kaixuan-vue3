@@ -1,0 +1,12 @@
+{
+  "goal": "** 为什么会有这个符号",
+  "steps": [
+    {
+      "id": "discuss",
+      "description": "回答本轮讨论请求"
+    }
+  ],
+  "completionCriteria": [
+    "返回用户可见正文或进入明确终态"
+  ]
+}

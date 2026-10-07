@@ -1,0 +1,122 @@
+{
+  "ok": true,
+  "data": {
+    "totalChars": 74252,
+    "estimatedTokens": 38589,
+    "sectionCount": 235,
+    "reorderTopLevelIds": [
+      "heading-0"
+    ],
+    "reorderScope": "top-level",
+    "degraded": false,
+    "sections": [
+      {
+        "id": "heading-0",
+        "title": "《绿潮》大纲总纲",
+        "kind": "heading",
+        "level": 1,
+        "start": 0,
+        "end": 74252,
+        "charCount": 74241,
+        "summaryHead": "# 《绿潮》大纲总纲 ## 叙事框架 ### 故事核心 自然成了人类最大的灾难，人类在灾难面前分裂成利用者、自保者和争权者。陈暮是唯一踩在菌毯上不被判定为敌人的人——他从一个人活下来，最后成了自然和人类重新划定敌我边界的那个变量。 全书围绕"
+      },
+      {
+        "id": "paragraph-1",
+        "title": "内容块 1",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 11,
+        "end": 13,
+        "charCount": 2,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-13",
+        "title": "叙事框架",
+        "kind": "heading",
+        "level": 2,
+        "start": 13,
+        "end": 10189,
+        "charCount": 10168,
+        "summaryHead": "## 叙事框架 ### 故事核心 自然成了人类最大的灾难，人类在灾难面前分裂成利用者、自保者和争权者。陈暮是唯一踩在菌毯上不被判定为敌人的人——他从一个人活下来，最后成了自然和人类重新划定敌我边界的那个变量。 全书围绕“敌我识别”展开：菌毯"
+      },
+      {
+        "id": "paragraph-2",
+        "title": "内容块 2",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 21,
+        "end": 23,
+        "charCount": 2,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-23",
+        "title": "故事核心",
+        "kind": "heading",
+        "level": 3,
+        "start": 23,
+        "end": 961,
+        "charCount": 929,
+        "summaryHead": "自然成了人类最大的灾难，人类在灾难面前分裂成利用者、自保者和争权者。陈暮是唯一踩在菌毯上不被判定为敌人的人——他从一个人活下来，最后成了自然和人类重新划定敌我边"
+      },
+      {
+        "id": "heading-961",
+        "title": "第一卷·觉醒与扎根",
+        "kind": "heading",
+        "level": 3,
+        "start": 961,
+        "end": 7336,
+        "charCount": 6361,
+        "summaryHead": "第一卷主要聚焦陈暮刚从休眠仓出来，然后探知灾后世界。前因是陈暮遭遇了幸存者，遇见第一批伙伴和大纲里的两位女主，然后共同经历了若干个小故事。这些小故事补全了他的灾"
+      },
+      {
+        "id": "heading-7336",
+        "title": "第二卷·连接与陷落",
+        "kind": "heading",
+        "level": 3,
+        "start": 7336,
+        "end": 9360,
+        "charCount": 2010,
+        "summaryHead": "第二卷的故事重点是开始与其他势力接触，慢慢铺开更大的世界观和势力观。前期聚焦实验室的改造和内部小故事，然后循序渐进推开其他势力。第一个登场的是天府都。陈暮和天府"
+      },
+      {
+        "id": "heading-9360",
+        "title": "第三卷·远征与暗流",
+        "kind": "heading",
+        "level": 3,
+        "start": 9360,
+        "end": 10189,
+        "charCount": 815,
+        "summaryHead": "第三卷开始依旧是岫岩镇的故事。庞大的迁移人口所需事情很多，这里可以详细地展开故事，把岫岩镇的变化展现出来。由于在第二卷陈暮和天府都的深入交流知道了这片大陆不止天"
+      },
+      {
+        "id": "heading-10189",
+        "title": "背景参考资料",
+        "kind": "heading",
+        "level": 2,
+        "start": 10189,
+        "end": 16212,
+        "charCount": 6013,
+        "summaryHead": "四亿年前，一株不属于植物、真菌、动物任何一界的古老生命体在竞争中落败，将自身封存于深根大陆地下深处，进入完全代谢休眠。十到十二亿年前，它的祖先就已走上独立的演化"
+      },
+      {
+        "id": "heading-16212",
+        "title": "数据板的局限",
+        "kind": "heading",
+        "level": 2,
+        "start": 16212,
+        "end": 16767,
+        "charCount": 545,
+        "summaryHead": "数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播“无生命有机质”静默声明的分"
+      }
+    ],
+    "offset": 0,
+    "limit": 10,
+    "hasMore": true,
+    "nextOffset": 10,
+    "next_steps": [
+      "继续调用 editor.document_map 并传入 nextOffset 获取剩余节"
+    ]
+  }
+}

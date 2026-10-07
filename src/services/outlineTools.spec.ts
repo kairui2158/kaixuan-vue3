@@ -99,8 +99,13 @@ describe('outlineTools', () => {
     const data = result.data as any
     expect(data.total).toBe(3)
     expect(data.matches[0].nodeId).toBe('volume-1')
-    expect(data.matches[1].nodeId).toBe('paragraph-1')
-    expect(data.matches[2].nodeId).toBe('paragraph-2')
+    const structure = await call('outline.get_structure', {})
+    const paragraphIds = Array.from(
+      ((structure.data as any).mapText as string).matchAll(/\[(paragraph-[^\]]+)\]/g),
+      match => match[1]
+    )
+    expect(data.matches[1].nodeId).toBe(paragraphIds[0])
+    expect(data.matches[2].nodeId).toBe(paragraphIds[1])
     expect(data.matches[2].context).toContain('男主在夜路中遇到风暴')
     expect(data.next_steps.join('\n')).toContain('outline.read_range')
   })

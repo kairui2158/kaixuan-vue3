@@ -1,0 +1,11 @@
+The user is asking: "为什么会有这个符号" — referring to `**`. They're asking why the document uses `**...**` (Markdown bold syntax) in various places.
+
+Looking at the search results, I can see many instances of `**补充钩子一：菌膜的试探**`, `**补充钩子二：沈萤的脚踝**`, `**补充钩子三：阿黎的账本**`, etc. Also things like `**单件有效时间约4-6小时**`, `**年产量约200-300件**`, `**不具备任何防御功能**`, etc.
+
+These are Markdown bold markers (`**...**`). The user is asking why these symbols are there.
+
+The reason: In Markdown, `**text**` is the syntax for bold text. The author is using `**...**` to denote bold formatting for emphasis — they're using it for sub-headings like "补充钩子" entries, and for key data points.
+
+However, the user might be asking because when rendered, these just show as `**` without actually being rendered as bold (in the outline editor, which may not be a full Markdown renderer). Or they might be confused about why these formatting marks exist.
+
+Let me explain.

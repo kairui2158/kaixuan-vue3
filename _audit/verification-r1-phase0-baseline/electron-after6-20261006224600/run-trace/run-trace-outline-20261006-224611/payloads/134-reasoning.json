@@ -1,0 +1,169 @@
+Let me analyze the current state of the outline and plan the restructuring. The user wants to reorganize the outline into a "Word document" format without reducing content. Let me understand what needs to be done:
+
+1. **Phase 1 (Structure/Headings)**: Fix heading levels, eliminate jumps, normalize the hierarchy
+2. **Phase 2 (Deduplication)**: Confirm and delete duplicates
+3. **Phase 3 (Punctuation/Normalization)**: Convert half-width punctuation to full-width in Chinese contexts
+
+Let me first understand the current heading hierarchy:
+
+Current structure:
+- `#` 《绿潮》大纲总纲 (heading-1)
+  - `##` 叙事框架 (heading-2)
+    - `###` 故事核心 (heading-3)
+      - `####` 菌毯的本质 (heading-4)
+      - `####` 核心张力 (heading-4)
+    - `###` 第一卷·觉醒与扎根 (heading-3)
+    - `###` 第二卷·连接与陷落 (heading-3)
+    - `###` 第三卷·远征与暗流 (heading-3)
+  - `##` 背景参考资料 (heading-2)
+    - `###` 灾前军事基准线与菌毯的不可根除性 (heading-3)
+      - `####` 一、2042年，人类手里有什么 (heading-4)
+      - `####` 二、菌毯为什么火力推不平 (heading-4)
+      - `####` 三、总结 (heading-4)
+  - `##` 数据板的局限 (heading-2)
+  - `##` 菌膜外套：有限资源的临时通行方案 (heading-2)
+  - `##` 菌膜外套与共存补丁的关系 (heading-2)
+  - `##` 世界设定声明 (heading-2)
+  - `##` 卷一：基石设定层 (heading-2)
+    - `###` 一~十二 (heading-3)
+      - `####` x.x (heading-4)
+        - `#####` x.x.x (heading-5)
+  - `##` 卷二：核心人物群像 (heading-2)
+    - `###` 一、陈暮 / 二、五位女主 (heading-3)
+      - `####` x.x (heading-4)
+  - `##` 卷三：势力与格局层 (heading-2)
+    - `###` 一~五 (heading-3)
+      - `####` x.x (heading-4)
+        - `#####` x.x.x (heading-5)
+  - `##` 卷四：叙事工具箱层 (heading-2)
+    - `###` 一、核心主题清单 / 二、术语统一总表 (heading-3)
+
+The hierarchy looks broadly consistent: # → ## → ### → #### → #####. But there are issues:
+
+1. The "故事核心" section has `####` sub-headings under `###` which is correct, but the "背景参考资料" section has military content under `###` with `####` sub-headings. This is consistent.
+
+2. The main issue is the "背景参考资料" section - it has a long narrative text AND the military analysis under its own `###` heading. The military analysis heading "灾前军事基准线..." should probably remain as `###` under `##` 背景参考资料.
+
+3. Need to check for duplicate content - "数据板的局限" exists as a `##` heading but might also appear inside 背景参考资料.
+
+4. Need to scan for half-width punctuation in Chinese context.
+
+Let me focus on what the user asked: "按照Word文档的形式重构大纲，不要缩减内容" - restructure like a Word document, no content reduction.
+
+The previous round already handled:
+- Fixed military reference titles to proper heading levels
+- Deleted duplicate 数据板的局限 copies
+- Converted tab-separated pseudo-tables to GFM tables
+- Cleaned up stray edit instructions
+
+Now for the current round, I need to execute the 3-phase plan:
+- Phase 1: Fix heading structure
+- Phase 2: Confirm/delete duplicates
+- Phase 3: Normalize punctuation/whitespace
+
+Let me look at what specific issues remain. From the earlier audit, I can see:
+- The "背景参考资料" section has a large block of narrative text followed by structured military analysis
+- The military section headings are now properly formatted as `###`, `####`, `#####`
+- But we need to verify the entire document for half-width punctuation
+
+Given the size of the document (74491 chars), I need to process segment by segment. Let me start with Phase 1 - structural fixes, then Phase 2 - dedup, then Phase 3 - punctuation.
+
+Actually, looking at this more carefully - the user said "按照Word文档的形式重构大纲" - meaning restructure the outline in Word document form. This could mean:
+
+1. Adding "第X卷" numbering consistently
+2. Ensuring proper heading hierarchy
+3. Maybe adding some structural elements like "目录" or page-break-like markers
+
+But re-reading the previous conversation, the system said the user approved Phase 1 (structural fixes), Phase 2 (dedup), Phase 3 (punctuation/format normalization).
+
+Let me look at the actual issues more carefully. I need to read more of the document to find specific problems.
+
+Actually, let me just start executing. I'll begin with Phase 1: Read the structure and fix heading issues.
+
+Looking at the map again, I notice the "背景参考资料" section has an internal structure that's a bit odd - it has a huge narrative paragraph followed by the military analysis under `###`. This is actually fine as-is.
+
+Let me focus on concrete issues:
+
+1. The section "故事核心" is under "叙事框架" which is correct. But "叙事框架" as a `##` contains three `###` sections (故事核心, 第一卷, 第二卷, 第三卷) plus the "背景参考资料" as a separate `##` - wait, no. "背景参考资料" is a separate `##` section, not under "叙事框架".
+
+Looking at the structure more carefully from the read_range output:
+- `##` 叙事框架 (contains 故事核心, 第一卷, 第二卷, 第三卷)
+- `##` 背景参考资料 (contains the narrative background and military analysis)
+- `##` 数据板的局限
+- `##` 菌膜外套...
+- `##` 菌膜外套与共存补丁的关系
+- `##` 世界设定声明
+- `##` 卷一：基石设定层
+- `##` 卷二：核心人物群像
+- `##` 卷三：势力与格局层
+- `##` 卷四：叙事工具箱层
+
+This is a bit odd - the "叙事框架" `##` contains the three volumes narrative, and then there are separate `##` sections that seem more like reference material. Then "卷一" through "卷四" at the bottom are the actual reference/设定 sections.
+
+Actually, this structure makes sense conceptually - the top part is the narrative framework (story outline), and the rest is world-building reference. But for a "Word document" restructuring, it might make more sense to have all `##` sections at the same level without the narrative framework containing the volumes.
+
+But wait - the user said not to reduce content. The current structure has:
+- 叙事框架 as ## containing the story outline (故事核心 + 三卷 narrative)
+- Then a bunch of standalone ## sections
+- Then 卷一 through 卷四 as ## reference sections
+
+This is somewhat logical already. The "问题" is that in a Word document, you'd expect all top-level headings to be at the same level.
+
+Hmm, but looking at this more carefully, the structure IS already Word-document-like. The `##` sections are all peers except the "叙事框架" contains the story narrative, and then other `##` sections are reference material. This is fine.
+
+Let me focus on what's actually broken:
+
+1. **Phase 1 - Heading structure**: The main issue I see is that some sections under `## 背景参考资料` might need restructuring. The military analysis "灾前军事基准线..." is properly under `###` which is correct. But there may be some narrative text between `## 背景参考资料` and `### 灾前军事基准线...` that isn't properly sectioned.
+
+Looking at the read output, the "背景参考资料" section starts with a long narrative block, then has `### 灾前军事基准线与菌毯的不可根除性`. This is actually fine - the narrative text serves as the introduction to the reference section, and the military analysis is a structured sub-section.
+
+2. **Phase 2 - Dedup**: I need to check if "数据板的局限" content is duplicated anywhere. Earlier audit says this was already handled (duplicate copy deleted from 背景参考资料).
+
+3. **Phase 3 - Punctuation normalization**: This is the big one. I need to find all half-width punctuation in Chinese contexts and convert to full-width.
+
+Let me search for half-width punctuation patterns. In Chinese text, we need:
+- `,` → `，`
+- `.` → `。` (but careful with numbered lists)
+- `;` → `；`
+- `:` → `：` (but careful with time formats like "3:14")
+- `!` → `！`
+- `?` → `？`
+
+Given the document is 74491 chars, I need to process this systematically. Let me search for these patterns.
+
+Actually, from the editor.search results in the audit, searches for `;`, `!`, `?`, `, ` returned no matches, which means those punctuation marks don't appear in Chinese contexts (or the search didn't find them). This is a good sign - it means the document might already be clean.
+
+But wait - the audit also showed searches for `\t` and `粘贴到` which found hits that were then cleaned up. So the document has been partially cleaned.
+
+Let me now search for remaining issues. But I need to be strategic - I can't search the entire document in one go. Let me focus on the key areas.
+
+Actually, I think the most important thing now is to just proceed with the 3-phase plan. Let me:
+
+1. First, read the full structure and identify any heading-level issues
+2. Search for duplicates
+3. Search for half-width punctuation
+
+But I've been told not to keep reading without writing. Let me try to identify the specific issues and write fixes.
+
+Let me search for specific patterns that need fixing. Given the document is large, let me focus on what I can identify from the structure map and the first chunk I've read.
+
+From the first 12000 chars I've read, I see:
+- The text quality looks good overall
+- Heading levels are consistent
+- No obvious half-width punctuation issues in the Chinese text (the dialogue uses full-width quotes and punctuation)
+
+Let me now proceed with the three-phase plan. I'll search for the key issues first.
+
+For Phase 1, I need to check if there are heading level jumps. Looking at the map:
+- `#` → `##` → `###` → `####` → `#####` - this is consistent
+- But wait, there are "内容块" paragraphs at level 1 which are just empty separators. These are fine to keep.
+
+For Phase 2, I need to verify no duplicates remain. The earlier audit said the duplicate of "数据板的局限" was already deleted.
+
+For Phase 3, I need to check for half-width punctuation. Let me search for `\b[A-Za-z\u4e00-\u9fff], ` pattern... but I can't use regex in the search tool. Let me just search for `, ` which would find comma-space patterns.
+
+Actually wait - the audit showed that searches for `;`, `!`, `?`, `, ` all returned no matches. This means the document is already clean of these specific half-width punctuation marks in problematic positions. But what about `.` (period)? And what about `:` in non-time contexts?
+
+Let me just proceed with the execution. I'll do a targeted search for remaining issues and then write fixes.
+
+Let me search for some common patterns that might need fixing, then proceed to write.

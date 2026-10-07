@@ -1,0 +1,23 @@
+{
+  "commands": [
+    {
+      "content": "共存补丁是终极解法。\n\n## 六大势力速写\n\n在大裂谷走廊",
+      "operation": "replace_match",
+      "reason": "structure-repair：为误归入菌膜外套章节的六大势力总览正文补二级标题",
+      "target": "共存补丁是终极解法。\n\n\n在大裂谷走廊"
+    },
+    {
+      "content": "忽略了他的存在。\n\n## 圣萌会与马格努斯\n\n在远西大陆",
+      "operation": "replace_match",
+      "reason": "structure-repair：为误归位正文补二级标题",
+      "target": "忽略了他的存在。\n\n\n在远西大陆"
+    },
+    {
+      "content": "铺满了石头。\n\n## 终局：共存补丁\n\n2043年春",
+      "operation": "replace_match",
+      "reason": "structure-repair：为终局叙事正文补二级标题",
+      "target": "铺满了石头。\n\n\n2043年春"
+    }
+  ],
+  "reason": "structure-repair 批次：将误归入“菌膜外套与共存补丁的关系”章节的三段叙事正文提升为独立二级标题，恢复Word式层级结构，不缩减内容"
+}

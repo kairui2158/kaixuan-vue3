@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-4-l3l5bh",
+      "title": "12.7 小型据点食物体系的整体特征",
+      "kind": "heading",
+      "level": 4,
+      "path": "12.7 小型据点食物体系的整体特征"
+    },
+    "range": {
+      "start": 54407,
+      "end": 54437
+    },
+    "offset": 0,
+    "maxChars": 30,
+    "content": "#### 12.7 小型据点食物体系的整体特征\n\n每个小型据",
+    "hasMore": true,
+    "nextCursor": "section:heading-4-l3l5bh:30",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

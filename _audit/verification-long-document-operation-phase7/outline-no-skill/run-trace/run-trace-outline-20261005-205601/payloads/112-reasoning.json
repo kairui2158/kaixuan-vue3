@@ -1,0 +1,220 @@
+Let me analyze what I see so far. The user wants me to restructure the outline to look more like a Word document format without reducing content. 
+
+Looking at the current structure, there are several issues:
+
+1. The "背景参考资料" section has sub-headings that were at ## level (now corrected to ### level) - "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系", "六大势力速写", "圣萌会与马格努斯", "终局：共存补丁", and also "灾前军事基准线与菌毯的不可根除性" - these should all be under 背景参考资料.
+
+2. There appears to be duplicate content - "数据板的局限", "菌膜外套：有限资源的临时通行方案", and "菌膜外套与共存补丁的关系" appear both under 背景参考资料 AND as separate ## level sections. I need to check and remove duplicates.
+
+3. The overall structure has some inconsistencies in heading levels.
+
+Let me look more carefully at what we have:
+
+The main structure is:
+- # 《绿潮》大纲总纲
+  - ## 叙事框架
+    - ### 故事核心
+    - ### 第一卷·觉醒与扎根
+    - ### 第二卷·连接与陷落
+    - ### 第三卷·远征与暗流
+  - ## 背景参考资料
+    - ### 灾前军事基准线与菌毯的不可根除性
+    - ### 数据板的局限
+    - ### 菌膜外套：有限资源的临时通行方案
+    - ### 菌膜外套与共存补丁的关系
+    - ### 六大势力速写
+    - ### 圣萌会与马格努斯
+    - ### 终局：共存补丁
+  - ## 世界设定声明
+  - ## 卷一：基石设定层
+    - ...
+  - ## 卷二：核心人物群像
+    - ...
+  - ## 卷三：势力与格局层
+    - ...
+  - ## 卷四：叙事工具箱层
+    - ...
+
+Wait, let me re-check. I see from the document map that after 背景参考资料, there are separate ## sections for "世界设定声明", then "卷一", "卷二", "卷三", "卷四". 
+
+But looking at the content, I also noticed that "数据板的局限", "菌膜外套：有限资源的临时通行方案", and "菌膜外套与共存补丁的关系" previously appeared as ## headings but I've now changed them to ### under 背景参考资料.
+
+However, looking at the document map again, I see:
+
+- heading-16215: "数据板的局限" (was ## but now ###)
+- heading-16770: "菌膜外套：有限资源的临时通行方案" (was ## but now ###)
+- heading-17518: "菌膜外套与共存补丁的关系" (was ## but now ###)
+
+And then within "卷一：基石设定层", there are also sections about 菌膜外套 (sections 7.8 and 7.9). But looking at the content read, those are different - they're more detailed versions within the 卷一 structure. 
+
+Wait, looking at outline structure more carefully. There are duplicate sections:
+- "数据板的局限" appears as a ## section (now ###) under 背景参考资料, AND also appears again later as a ## section
+- "菌膜外套" appears similarly
+- "菌膜外套与共存补丁的关系" appears similarly
+
+Let me look at the document map again for the duplicates. The outline search didn't find matches for "粘贴到「故事核心」下" - that means those inline editor notes have been removed or don't exist as literal text.
+
+Now let me check what duplicates exist. From the document_map:
+
+After 背景参考资料 section (heading-10186, which runs from 10186 to 16215), we have:
+- paragraph-3 (10196-12077) - that's the 背景参考资料 content
+- heading-12077 "灾前军事基准线与菌毯的不可根除性" (12077-16215)
+- heading-16215 "数据板的局限" (16215-16770)
+- heading-16770 "菌膜外套：有限资源的临时通行方案" (16770-17518)
+- heading-17518 "菌膜外套与共存补丁的关系" (17518-17806)
+- heading-17806 "六大势力速写" (17806-18540)
+- heading-18540 "圣萌会与马格努斯" (18540-19597)
+- heading-19597 "终局：共存补丁" (19597-22066)
+- heading-22066 "世界设定声明" (22066-22163)
+
+Then later in 卷三 (势力与格局层):
+- heading-47574 "7.8 菌膜外套：有限资源的临时通行方案"
+- heading-48263 "7.9 与终局的衔接：菌膜外套与共存补丁的关系"
+
+And the content I just read (12000-20000) shows the "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" as triple-### sections under what was presumably 背景参考资料. These are indeed separate from the ones in 卷一.
+
+Now I also see in the original outline structure (from outline.get_structure) that there were sections like:
+- heading-16862 "数据板的局限" (16862-17417)
+- heading-17417 "菌膜外套：有限资源的临时通行方案" (17417-18165)  
+- heading-18165 "菌膜外套与共存补丁的关系" (18165-22680)
+
+These seem to be at the same level as other ## sections. But now I've converted them to ### under 背景参考资料. Wait, looking at the structure more carefully from the outline (outline.get_structure), I see that BEFORE the 世界设定声明 section, there were:
+- heading-16862 "数据板的局限"
+- heading-17417 "菌膜外套：有限资源的临时通行方案"
+- heading-18165 "菌膜外套与共存补丁的关系"
+
+These were at the same level as 背景参考资料, 世界设定声明, etc. But they should either be under 背景参考资料 OR they are separate top-level sections. Looking at their content, they seem like standalone sections that should probably be under 背景参考资料 as sub-sections. But I've already corrected that.
+
+Now let me think about what "Word文档的形式" means. The user wants:
+1. A clean document structure with proper heading hierarchy
+2. No content reduction
+3. Likely wants the outline to flow like a proper Word document
+
+Current issues I see:
+1. 内容块 paragraphs (empty paragraphs with just placeholders) - these are structural artifacts and don't contain real content
+2. The "背景参考资料" section is quite long and contains multiple sub-sections
+3. There may be duplicate content between the 背景参考资料 subsections and the subsections in 卷一
+
+Let me continue reading the remaining content to fully understand the document. I need to see if there are duplicate sections that need to be removed.
+
+The key question: are "数据板的局限" and related sections truly duplicates? Let me look at the remaining read. The content I read from 12000-20000 shows the "数据板的局限" section under 背景参考资料. The outline structure shows these were ##-level sections, now converted to ###.
+
+But wait - from the outline.get_structure original map, I see that:
+- heading-16862 "数据板的局限" (16862-17417, 545字) - this was ## level
+- heading-17417 "菌膜外套：有限资源的临时通行方案" (17417-18165, 728字) - this was ## level
+- heading-18165 "菌膜外套与共存补丁的关系" (18165-22680, 4499字) - this was ## level
+
+And these appear to be the same sections that I've now changed to ###. But from the content I read, following "菌膜外套与共存补丁的关系" there's "六大势力速写", "圣萌会与马格努斯", and "终局：共存补丁" - all in the 背景参考资料 region.
+
+So the structure after 背景参考资料 seems to be a collection of various reference essays/explanations. The heading level adjustment I made is correct - they should be ### under 背景参考资料.
+
+Now I need to continue reading the rest of the document and understand the full structure. Let me focus on what restructuring is needed:
+
+Looking at the overall Word document structure, the hierarchy should be:
+- # 大纲总纲 (H1)
+  - ## 卷一：基石设定层 (H2)
+  - ## 卷二：核心人物群像 (H2)  
+  - ## 卷三：势力与格局层 (H2)
+  - ## 卷四：叙事工具箱层 (H2)
+  - ## 背景参考资料 (H2)
+  - ## 世界设定声明 (H2)
+
+But the current structure has 叙事框架 as ## with 故事核心, 第一卷, 第二卷, 第三卷 under it as ###. These are the story outline/narrative framework. This is a different type of content from the 卷 system.
+
+Actually, rethinking - the user said "按照Word文档的形式重构大纲". A Word document format typically has:
+- Clear heading hierarchy (H1 → H2 → H3 → H4)
+- Consistent numbering
+- No duplicates
+- Clean structure
+
+The current structure has some issues:
+1. "叙事框架" containing story volumes which are duplicated (conceptually) with the detailed "卷" sections
+2. "内容块" paragraphs are artifacts
+3. Some sections appear to be at wrong heading levels
+
+But the user said "不要缩减内容" (don't reduce content), so I must keep all content.
+
+Let me think about what the ideal Word document structure should look like:
+
+1. Cover page / Title
+2. 叙事框架 (Story framework - the narrative outline)
+3. 背景参考资料 (Background reference materials)
+4. 世界设定声明 (World setting declaration)
+5. 卷一：基石设定层
+6. 卷二：核心人物群像
+7. 卷三：势力与格局层
+8. 卷四：叙事工具箱层
+
+This is essentially what we already have but with cleaner heading hierarchy.
+
+Now, there might be a duplicate issue. The outline content from 背景参考资料 sections ("数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系") appears to have identical content to some subsections in 卷一. Let me check...
+
+From what I read, the "数据板的局限" section in 背景参考资料 appears after "灾前军事基准线与菌毯的不可根除性" and before 世界设定声明. These are at positions 16215-22066 in the document.
+
+And in 卷一 section 7.8 and 7.9 we have "菌膜外套" and "与终局的衔接" - these are part of the detailed world-building.
+
+These could be duplicates, but they could also be placed in different contexts intentionally. Let me check more carefully.
+
+Actually, looking at the outline structure from outline.get_structure:
+- heading-16862 "数据板的局限" → This was originally at ## level, outside of any 卷
+- heading-17417 "菌膜外套：有限资源的临时通行方案" → Also ## level
+- heading-18165 "菌膜外套与共存补丁的关系" → Also ## level, extends to 22680
+
+And within 卷一 we have sections 7.8 and 7.9 that cover similar topics.
+
+These are likely the SAME content duplicated for convenience - placed both as standalone reference sections AND within the detailed 卷一 structure. But the user said "不要缩减内容" so I should keep both.
+
+OK let me now think about the actual restructuring:
+
+The main structural changes needed:
+1. Remove empty "内容块" paragraphs (they're 1-2 char placeholders with no real content)
+2. Fix heading hierarchy
+3. Possibly consolidate the standalone duplicate sections into appendices or keep them as is
+
+But wait, "内容块" paragraphs are artifacts from the editing system. They contain 1 character (probably a newline marker). They don't add any value and removing them wouldn't reduce actual content.
+
+Let me now focus on what the user actually wants. They said "按照Word文档的形式重构大纲，不要缩减内容". This means:
+1. Make it look like a proper Word document (clean heading hierarchy, proper formatting)
+2. Don't lose any content
+
+The key actions:
+1. Fix heading levels throughout
+2. Remove empty "内容块" placeholder paragraphs  
+3. Clean up any formatting issues
+
+Let me read more of the document to understand the full picture, particularly the latter portions.
+
+Actually, let me step back and think about this differently. The document is 74K+ characters. Doing a complete restructure would require many operations. Let me focus on the most impactful changes:
+
+1. Remove empty "内容块" paragraphs (they're just noise)
+2. Ensure consistent heading hierarchy
+3. Keep all substantive content
+
+But the empty paragraphs might actually be meaningful in the editing system - they might be markers. Let me check what they contain. From the document map, they're described as "内容块 N" with 1-2 characters. These are likely just empty paragraphs or whitespace markers.
+
+Actually, looking more carefully, some "内容块" have more content. For example:
+- paragraph-3: 36 chars (this is "本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作。")
+- paragraph-19: 180 chars (actual content)
+
+So some are genuinely empty (1 char) and some contain content. Let me be careful.
+
+Let me think about what concrete restructuring to apply. The user wants a "Word文档" format. In a Word document:
+
+1. Proper heading numbering/levels
+2. Consistent formatting
+3. Clean structure
+
+The current structure has issues:
+- "内容块" paragraphs scattered throughout
+- Some sections have inconsistent heading levels
+- "背景参考资料" has sub-headings that were at wrong level (now fixed)
+
+Let me focus on the most impactful changes and continue reading the document. After I've read it all, I'll propose a restructuring plan.
+
+Actually, wait. The user's request is to "按照Word文档的形式重构大纲". Given the size of this document (74K chars), I should read the rest first and then propose a comprehensive restructuring. But since I can only do a limited number of operations per batch, let me focus on the most critical issues:
+
+1. Already fixed: 6 headings under 背景参考资料 from ## to ###
+2. Next: clean up or remove empty 内容块 paragraphs
+3. Ensure consistent hierarchy
+
+Let me read the remaining sections to check for more issues.

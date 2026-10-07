@@ -1,0 +1,9 @@
+The structure-repair batch has been successfully written. Now I need to do the final verification - check that the three planned batches have all been completed:
+
+1. **dedup**: 7.8 deletion + blank line cleanup + 7.9→7.8 renumbering + comma fix → DONE (batches 8, 9, a)
+2. **normalize**: blank line fix between story core and subsection title → DONE (batch 9)
+3. **structure-repair**: The five storyline sections under "菌膜外套与共存补丁的关系" were promoted from h3 to h2 → DONE (batch c)
+
+The 7.2.3 heading level fix was blocked by integrity check - but actually looking at the locate results, the heading already has `#####` (h5) markers, so it was already correct! The search found `## 7.2.3` at position 45801 but the locate confirmed the actual heading is `##### 7.2.3` at 45718/45721. So the heading is already at h5 level, and the integrity error was because I was trying to change something that was already correct.
+
+Now let me verify: all three planned batches are complete. Let me do a final check on the document state.

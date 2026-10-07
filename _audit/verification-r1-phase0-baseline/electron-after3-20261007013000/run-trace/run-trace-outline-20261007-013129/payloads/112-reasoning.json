@@ -1,0 +1,460 @@
+Let me understand the user's request: "按照Word文档的形式重构大纲，不要缩减内容。" This means they want me to restructure the outline in a Word document format without reducing any content.
+
+Looking at the current outline structure, it follows this pattern:
+- `# 《绿潮》大纲总纲` (H1)
+  - `## 叙事框架` (H2)
+  - `## 背景参考资料` (H2)
+  - `## 数据板的局限` (H2)
+  - `## 菌膜外套：有限资源的临时通行方案` (H2)
+  - `## 菌膜外套与共存补丁的关系` (H2) - This section has nested content: 六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落, and 终局之战
+  - `## 世界设定声明` (H2)
+  - `## 卷一：基石设定层` (H2)
+  - `## 卷二：核心人物群像` (H2)
+  - `## 卷三：势力与格局层` (H2)
+  - `## 卷四：叙事工具箱层` (H2)
+
+Wait, "按照Word文档的形式重构大纲" - this likely means the user wants the outline restructured to look like a proper Word document, perhaps with proper chapters/volumes structure, or maybe they want the content reorganized into a clearer, more standard document format. 
+
+Let me think about what "Word文档的形式" means in context. The current outline has content spread across multiple H2 sections that don't form a coherent document structure. Some content is duplicated (e.g., 菌膜外套 appears both as an H2 section and within 卷三). The "背景参考资料" section has narrative content mixed in. The "菌膜外套与共存补丁的关系" section has whole sub-stories (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落, 终局之战) embedded in it.
+
+A Word document format would typically have:
+- A clear title/cover
+- A table of contents
+- Content organized into logical chapters/parts
+- Clear heading hierarchy
+- No duplicated content
+
+I think the user wants me to reorganize the outline into a clean, logical document structure without losing any content. Let me think about what that would look like:
+
+Current issues:
+1. "背景参考资料" (H2) section at the top level is actually narrative/story content, not reference. It contains the background story of the disaster from 4 billion years ago to 2056.
+2. "菌膜外套与共存补丁的关系" (H2) contains embedded sub-sections: 六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落 - these seem like they should be part of the narrative framework.
+3. "数据板的局限" and "菌膜外套：有限资源的临时通行方案" are standalone H2 sections that are reference/worldbuilding.
+4. The "叙事框架" (H2) has the three volumes stories under it.
+
+The user said "不要缩减内容" - don't reduce content. So I need to reorganize without cutting anything.
+
+Actually, wait. Let me reconsider. The user might simply want me to clean up the structure - perhaps merge duplicate content, fix the hierarchy so it reads like a proper document. But since the plan says the steps include finding duplicates and deleting only confirmed ones, and normalizing format...
+
+But the plan's completion criteria mention "normalize-changes-punctuation-whitespace-format-only" which suggests only formatting changes, not structural reorganization.
+
+Hmm, but the user explicitly asked to "按照Word文档的形式重构大纲" - restructure the outline in Word document format. This is a structural request.
+
+Let me think about what restructuring makes sense:
+
+The current outline has these top-level H2 sections:
+1. 叙事框架 - contains 故事核心, 第一卷, 第二卷, 第三卷
+2. 背景参考资料 - narrative background + 灾前军事基准线与菌毯的不可根除性
+3. 数据板的局限
+4. 菌膜外套：有限资源的临时通行方案
+5. 菌膜外套与共存补丁的关系 - contains 六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落, 终局之战
+6. 世界设定声明
+7. 卷一：基石设定层
+8. 卷二：核心人物群像
+9. 卷三：势力与格局层
+10. 卷四：叙事工具箱层
+
+Issues:
+- "菌膜外套" content is duplicated: it appears as a standalone H2 section and also embedded in 卷三 under 7.8 and 7.9
+- "背景参考资料" is a narrative summary that overlaps with content in 卷一的 detailed sections
+- "菌膜外套与共存补丁的关系" contains narrative content (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落, 终局之战) that reads like a synopsis
+
+For a "Word document format" restructuring, I think the cleanest approach would be:
+
+1. Keep the title
+2. Move "叙事框架" as the core story outline
+3. The "背景参考资料" narrative should probably be re-labeled or reorganized - it's really a synopsis of the entire story/background
+4. "菌膜外套与共存补丁的关系" contains content that should be properly organized - the 六大势力概览 is already covered in 卷三 in more detail, 圣萌会的崛起 is covered in 卷三 四, 巨树生长与天府都陷落 is narrative, and 终局之战 is essentially the ending synopsis
+
+Actually, I think the issue is more nuanced. Let me look at the content more carefully. The section "菌膜外套与共存补丁的关系" has content that doesn't all belong under that title. The subsections like 六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落 are not really about "菌膜外套与共存补丁的关系" - they're narrative overviews.
+
+This is a big restructuring task. Given the tool constraints, I can only write via the limited editor.write commands. Let me think about what's feasible.
+
+Actually wait - I should re-read the user's request more carefully. "按照Word文档的形式重构大纲" - "restructure the outline in Word document format." This could mean:
+
+1. Make the heading hierarchy clean and proper (like a Word document TOC)
+2. Remove duplicates
+3. Maybe add page/section breaks in the structure
+
+But with the tool constraints, I can't do a full document restructure easily. The `editor.write` tool has limited operations.
+
+Actually, let me reconsider. The user seems to want me to reorganize the document into a more readable "Word document" style. The main structural issues are:
+
+1. The "背景参考资料" section is a narrative story summary at the H2 level - it should perhaps be integrated differently
+2. "菌膜外套与共存补丁的关系" has content that's structurally misplaced
+3. Content duplication between sections
+
+Given the complexity, maybe I should:
+1. First, identify the key structural issues
+2. Fix what can be fixed with the available tools
+3. Present a clear before/after structure
+
+But wait, the tool says I have editor.write with operations like insert, replace_selection, replace_match, append, delete, move, reorder_sections, rewrite, replace_document.
+
+The plan says the completion criteria include "normalize-changes-punctuation-whitespace-format-only" - this is quite restrictive. But the user asked for restructuring...
+
+Let me think about this differently. Perhaps the user wants me to:
+1. Remove the "背景参考资料" H2 section (it's redundant with 卷一-卷四 content)
+2. Remove the duplicate "菌膜外套" content
+3. Organize the "菌膜外套与共存补丁的关系" subsections properly
+4. Clean up heading hierarchy
+
+But "不要缩减内容" - don't reduce content. So I can't delete anything.
+
+Hmm, this is tricky. Let me think about what minimal structural changes would make the document feel more like a "Word document":
+
+1. The "背景参考资料" section should probably be renamed or reorganized - it's actually a narrative synopsis that covers the entire story arc
+2. The subsections under "菌膜外套与共存补丁的关系" (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) should be promoted or moved to more appropriate locations
+
+Actually, I think I'm overthinking this. Let me just propose a plan and start working on it. The user wants the outline restructured like a Word document. In a Word document, you typically have:
+
+- Table of Contents
+- Chapters/Volumes with clear numbering
+- No orphan sections
+- No duplicated content
+
+The most impactful change would be to merge the "背景参考资料" narrative content and the stray subsections under "菌膜外套与共存补丁的关系" into a proper flow. But given the tool limitations and the "don't delete content" constraint...
+
+Let me take a step back. The current structure has these issues that make it "not like a Word document":
+
+1. "背景参考资料" is floating at the H2 level between 叙事框架 and the rest. It's narrative content that overlaps with 卷一-卷四.
+2. "菌膜外套与共存补丁的关系" has subsection content (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) that belongs in the narrative framework, not under the "关系" heading.
+3. There's some duplication of 菌膜外套 content.
+4. The order doesn't flow naturally.
+
+For a Word document format, I think the ideal structure would be something like:
+
+```
+# 《绿潮》大纲总纲
+
+## 第一部分：故事框架
+### 故事核心
+### 第一卷·觉醒与扎根
+### 第二卷·连接与陷落
+### 第三卷·远征与暗流
+
+## 第二部分：背景与世界观
+（整合背景参考资料、数据板的局限等内容）
+
+## 第三部分：设定资料库
+（卷一至卷四的详细设定）
+```
+
+But this is a massive restructuring that would be very hard to do with the limited editor.write commands. Each operation can only do small changes.
+
+Actually, let me look at the available operations more carefully:
+
+- `replace_document` - This can replace the entire document! That might be the right approach.
+
+Let me think about this. If I can use `replace_document`, I can restructure the entire outline in one go. But that's risky because if there's any issue with the content, I'd lose the original.
+
+Actually, let me reconsider the user's intent once more. Maybe they're not asking for a radical reorganization. Maybe they just want me to:
+1. Fix the heading hierarchy so it flows properly
+2. Remove obvious structural issues (like content under wrong headings)
+3. Make sure there are no duplicates
+
+Let me look at the current structure again and identify what's clearly wrong:
+
+- "背景参考资料" as an H2 section between 叙事框架 and 卷一 is awkward. It's actually a narrative overview/synopsis, not "reference material."
+- "菌膜外套与共存补丁的关系" has nested subsections (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) that are narrative and don't belong under this heading.
+
+These are the two biggest structural issues. The rest of the document (卷一 through 卷四) is well-organized.
+
+OK, I think the practical approach is:
+1. Keep the overall structure but fix the two major issues
+2. The "背景参考资料" content is actually important narrative - it could be renamed or repositioned
+3. The nested subsections under "菌膜外套与共存补丁的关系" should be extracted
+
+But with the tools available, doing major restructuring is difficult. Let me think about what's practical...
+
+Actually, looking at the `reorder_sections` operation, I could potentially reorder top-level sections. And `replace_match` could rename headings. Let me think about a minimal but effective restructuring:
+
+Plan:
+1. Rename "背景参考资料" to something more appropriate (like "故事全景概览" or move it)
+2. Promote the nested subsections under "菌膜外套与共存补丁的关系" to proper H2 level
+3. Remove duplicate 菌膜外套 content
+
+Wait, but the plan says the completion criteria include "normalize-changes-punctuation-whitespace-format-only" which suggests I should only do formatting changes, not structural reorganization. That contradicts what the user is asking.
+
+Let me re-read the plan more carefully...
+
+The plan steps are:
+1. read-structure - Read document structure and confirm target hierarchy
+2. execute-restructure - Execute heading hierarchy repair or chapter reordering
+3. confirm-duplicates - Confirm duplicates with read-only tools
+4. delete-duplicates - Only delete confirmed duplicates
+5. normalize-segments - Organize formatting by batch
+6. verify-plan - Verify write coverage and invariants
+
+The completion criteria mentions "normalize-changes-punctuation-whitespace-format-only" as one of the invariants to verify, but step 2 explicitly mentions "execute-restructure" with "heading hierarchy repair or chapter reordering." So restructuring IS part of the plan.
+
+I think the practical approach given the tools is:
+
+1. The "背景参考资料" section is essentially a narrative synopsis. In a Word document, this would either be an introduction/overview chapter or part of the framework. Let me keep it but perhaps rename it.
+
+2. The biggest structural issue is the "菌膜外套与共存补丁的关系" section which has major narrative content embedded inside it: 六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落 (which includes the full 终局之战 narrative). These should be separate sections.
+
+3. There's duplicate 菌膜外套 content between the standalone H2 and the content in 卷三.
+
+Let me focus on what's achievable:
+
+Given the massive scale of this document (74,314 characters), and the tool limitations, I think the best approach is to:
+
+1. Use `replace_document` to rewrite the entire document with proper structure. This is the only practical way to do a comprehensive restructuring.
+
+But that's extremely risky. Let me think of smaller, incremental changes...
+
+Actually, I think the most useful thing I can do is:
+
+1. Move the "背景参考资料" content - it's narrative and overlaps heavily with content in 卷一-卷四. But I can't delete it per "不缩减内容".
+
+2. Fix the hierarchy under "菌膜外套与共存补丁的关系" by promoting its subsections.
+
+Let me look at what the document actually looks like now and identify concrete changes I can make.
+
+After carefully reviewing, I think the most impactful restructuring would be:
+
+A. The "背景参考资料" section (H2) contains a narrative overview that essentially retells the whole story from 4 billion years ago to the end. This is actually a great "故事全景概览" or could be integrated into the narrative framework section. But since I can't delete content, I should at minimum rename it to clarify it's a narrative synopsis, not reference material.
+
+B. The "菌膜外套与共存补丁的关系" section has major subsections that are narrative/synopsis content (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落 including 终局之战). These should be promoted or moved.
+
+C. Remove duplication between the standalone "菌膜外套" H2 section and the content in 卷三.
+
+OK, I think I'm overcomplicating this. Let me just present a plan to the user and execute it step by step. Given the tool constraints, I'll focus on the most impactful changes:
+
+1. Rename headings for clarity
+2. Fix the hierarchy where subsections are misplaced
+3. Address any duplication
+
+But honestly, with the tool limitations (especially the inability to easily move large blocks of text between sections), a full restructuring to "Word document format" is going to be very difficult.
+
+Let me try a different approach - present a clear analysis to the user of what the "Word document format" would look like, then execute what's feasible with the tools.
+
+Actually, let me just ask... no, the user asked me to do it, not discuss it.
+
+OK let me take a practical approach. I'll identify the specific structural issues and fix them one by one:
+
+1. The heading "背景参考资料" is misleading - it's actually a narrative synopsis. I'll rename it.
+2. The subsections under "菌膜外套与共存补丁的关系" (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) don't belong there. I'll promote them.
+3. I'll address the duplicate 菌膜外套 content.
+
+But I need to be careful about what tools allow. Let me think about what `replace_match` and `insert` operations I can use...
+
+Actually, let me step way back. I think the user's request is simpler than I'm making it. They want the outline to be structured like a proper Word document - meaning:
+
+- Clear chapter/section numbering
+- Logical flow
+- No weird structural anomalies
+- Content organized in a way that reads like a document
+
+The biggest issues to fix:
+1. "背景参考资料" section is narrative, not reference → should be properly integrated
+2. "菌膜外套与共存补丁的关系" has major narrative content embedded → should be reorganized
+3. Some duplicate content exists
+
+Let me just start executing changes. I'll use editor.write to make specific fixes.
+
+Given the complexity, let me try the `replace_document` approach - but that requires me to have the ENTIRE document content ready to replace. That's impractical for 74K characters.
+
+OK, my final approach: I'll make targeted structural fixes using replace_match and insert operations. The key changes:
+
+1. Fix "背景参考资料" → This is actually a narrative synopsis. I'll keep it but rename the heading to clarify.
+2. Fix the hierarchy under "菌膜外套与共存补丁的关系" - promote the three narrative subsections (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) to H2 level.
+3. Address duplicates.
+
+Let me start by reading the parts I haven't read yet, then make the changes.
+
+Actually, I realize I should just get started. Let me formulate a clear plan:
+
+The current document has these top-level H2 sections:
+1. 叙事框架 (good)
+2. 背景参考资料 (→ rename to something clearer, or keep)
+3. 数据板的局限 (good - reference material)
+4. 菌膜外套：有限资源的临时通行方案 (good - but duplicated with content in 卷三)
+5. 菌膜外套与共存补丁的关系 (problematic - has narrative subsections)
+6. 世界设定声明 (good)
+7. 卷一：基石设定层 (good)
+8. 卷二：核心人物群像 (good)
+9. 卷三：势力与格局层 (good)
+10. 卷四：叙事工具箱层 (good)
+
+The main issues:
+- #2's name is misleading
+- #5 has narrative subsections that need promoting
+
+For a "Word document format", I think the following restructuring makes sense:
+
+H2 sections in order:
+1. 叙事框架 (story framework with three volumes)
+2. 故事全景概览 (formerly "背景参考资料" + the narrative content from #5)
+3. 数据板的局限
+4. 菌膜外套：有限资源的临时通行方案
+5. 菌膜外套与共存补丁的关系 (just the relationship explanation, without narrative subsections)
+6. 世界设定声明
+7. 卷一：基石设定层
+8. 卷二：核心人物群像
+9. 卷三：势力与格局层
+10. 卷四：叙事工具箱层
+
+But moving the narrative subsections from #5 into #2 is complex with the available tools...
+
+Let me simplify. What if I:
+1. Promote the three subsections under "菌膜外套与共存补丁的关系" (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) from H3 to H2
+2. Keep "背景参考资料" as is (name change only)
+3. The rest stays
+
+This would give us:
+- 叙事框架
+- 背景参考资料 (→ rename)
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系 (stripped of narrative subsections)
+- 六大势力概览 (promoted)
+- 圣萌会的崛起 (promoted)
+- 巨树生长与天府都陷落 (promoted)
+- 世界设定声明
+- 卷一 through 卷四
+
+But this still doesn't look like a great Word document. The promoted sections would be short H2 sections.
+
+Actually, let me reconsider. Maybe the user just wants:
+1. The document to have a clear, standard outline structure
+2. No weird nesting
+3. Clean heading hierarchy
+
+The biggest win would be to:
+1. Promote the three narrative subsections from under "菌膜外套与共存补丁的关系" 
+2. Rename "背景参考资料" 
+
+Let me just do it. I'll use replace_match to change heading levels.
+
+But wait, changing heading levels by just replacing "### " with "## " won't work properly because the subsections might have their own nested content.
+
+Let me read the full content of the problematic section to understand its structure better.
+
+Actually, I already read it. The "菌膜外套与共存补丁的关系" section (H2) has:
+- Opening paragraphs about the relationship
+- ### 六大势力概览 (H3)
+- ### 圣萌会的崛起 (H3)
+- ### 巨树生长与天府都陷落 (H3) - this includes 终局之战 narrative
+
+These three H3 sections are clearly narrative content that shouldn't be nested under "菌膜外套与共存补丁的关系."
+
+OK here's my plan. I'll make the following changes using `replace_match`:
+
+1. Change "## 背景参考资料" to "## 故事全景概览" (rename to better reflect content)
+
+2. For the "菌膜外套与共存补丁的关系" section:
+   - Keep the opening content about the relationship
+   - Change "### 六大势力概览" to "## 六大势力概览" (promote to H2)
+   - Change "### 圣萌会的崛起" to "## 圣萌会的崛起" (promote to H2)
+   - Change "### 巨树生长与天府都陷落" to "## 巨树生长与天府都陷落" (promote to H2)
+
+This would make the document flow:
+1. 叙事框架
+2. 背景参考资料 → 故事全景概览
+3. 数据板的局限
+4. 菌膜外套：有限资源的临时通行方案
+5. 菌膜外套与共存补丁的关系 (just the relationship, stripped of subsections)
+6. 六大势力概览 (promoted from H3)
+7. 圣萌会的崛起 (promoted from H3)
+8. 巨树生长与天府都陷落 (promoted from H3)
+9. 世界设定声明
+10. 卷一：基石设定层
+11. 卷二：核心人物群像
+12. 卷三：势力与格局层
+13. 卷四：叙事工具箱层
+
+This is a much cleaner structure!
+
+However, I need to be careful. The six sub-sections under 六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落 might have their own content. And the终局之战 is embedded within 巨树生长与天府都陷落, not as a separate heading.
+
+Let me make these changes. I'll use `replace_match` operations.
+
+Also, there might be content between the title "菌膜外套与共存补丁的关系" and "### 六大势力概览" that I need to preserve. Let me re-read to understand the exact structure.
+
+From what I read earlier, the structure is:
+
+```
+## 菌膜外套与共存补丁的关系
+[content about relationship]
+### 六大势力概览
+[content about six factions]
+### 圣萌会的崛起
+[content about 圣萌会]
+### 巨树生长与天府都陷落
+[content about the giant tree and fall of 天府都, including 终局之战]
+```
+
+So the opening content of "菌膜外套与共存补丁的关系" would remain as a short H2 section, and the three subsections would become separate H2 sections.
+
+Now let me also think about the duplicate 菌膜外套 content. The standalone "## 菌膜外套：有限资源的临时通行方案" section and the "#### 7.8 菌膜外套：有限资源的临时通行方案" in 卷三 are nearly identical. The standalone H2 version has some additional framing. Since the user said "不要缩减内容", I should keep both... or merge them. But merging is complex.
+
+Actually, looking at it again, the standalone H2 section and the section 7.8 in 卷三 are essentially the same content. The user might have added the standalone version for easier reference and then also included it in 卷三. In a "Word document format," having the same content in two places is bad. But the user said don't delete content...
+
+Let me just focus on the structural fixes for now and leave the duplication issue for later.
+
+OK, let me execute the changes:
+
+1. Rename "## 背景参考资料" to "## 故事全景概览"
+2. Promote the three H3 sections under "菌膜外套与共存补丁的关系" to H2
+
+Let me find the exact text to match.
+
+From the content I've read:
+- "## 背景参考资料" is at the beginning of the "背景参考资料" section
+- "### 六大势力概览" is inside "菌膜外套与共存补丁的关系"
+- "### 圣萌会的崛起" is inside "菌膜外套与共存补丁的关系"
+- "### 巨树生长与天府都陷落" is inside "菌膜外套与共存补丁的关系"
+
+Let me use editor.locate to find these exactly, then use replace_match.
+
+Actually, I can just use replace_match directly since these are unique headings. Let me do it.
+
+Wait, I also need to think about the content flow after promotion. When I promote "### 六大势力概览" to "## 六大势力概览", the content "远中大陆六大势力，各有各的绝境..." at the end of 六大势力概览 will flow naturally. Then "## 圣萌会的崛起" follows, then "## 巨树生长与天府都陷落" follows.
+
+But there's a potential issue: the "菌膜外套与共存补丁的关系" section's opening paragraphs about the relationship end, then 六大势力概览 starts. If I promote 六大势力概览 to H2, the relationship content stays as a short H2 section with just the theoretical explanation - which is fine and actually makes it cleaner.
+
+However, after "巨树生长与天府都陷落" section, the next H2 is "世界设定声明". Let me verify the document flow. Looking at the structure map:
+
+- heading-2-28do6r: "菌膜外套与共存补丁的关系" (17537-22092)
+  - paragraph-a97lus: 内容块 (17553-17826)
+  - heading-3-199sgzp: "六大势力概览" (17826-18562)
+  - heading-3-3ul1xi: "圣萌会的崛起" (18562-19619)
+  - heading-3-ihid8i: "巨树生长与天府都陷落" (19619-22092)
+
+Then:
+- heading-2-sd0mn1: "世界设定声明" (22092-22189)
+
+So the flow after promotion would be:
+- [菌膜外套与共存补丁的关系 - short content]
+- [六大势力概览 - promoted]
+- [圣萌会的崛起 - promoted]
+- [巨树生长与天府都陷落 - promoted, includes 终局之战]
+- [世界设定声明]
+
+This flows nicely.
+
+Let me now execute. I'll use:
+1. `replace_match` "## 背景参考资料" → "## 故事全景概览"
+2. `replace_match` "### 六大势力概览" → "## 六大势力概览" 
+3. `replace_match` "### 圣萌会的崛起" → "## 圣萌会的崛起"
+4. `replace_match` "### 巨树生长与天府都陷落" → "## 巨树生长与天府都陷落"
+
+But wait, are these unique? "六大势力概览" only appears once. "圣萌会的崛起" only appears once. "巨树生长与天府都陷落" only appears once.
+
+However, I need to make sure I'm matching the exact headings with the markdown prefix. Let me use the full line.
+
+Actually, `replace_match` matches on the target text fragment, so I just need unique text within those headings. Let me use the exact heading text without the markdown prefix for matching, then provide the full replacement.
+
+Wait, `replace_match` replaces the target with content. So:
+- target: "### 六大势力概览", content: "## 六大势力概览"
+- This replaces "### " with "## " for these headings.
+
+But I need to be careful - `replace_match` might find partial matches. Let me use more unique fragments.
+
+Actually the target parameter is described as "唯一原文片段" - a unique fragment. So "### 六大势力概览" should be unique enough.
+
+Let me also handle the "背景参考资料" rename carefully. The target "## 背景参考资料" should be unique.
+
+Let me now execute these 4 changes in one batch.

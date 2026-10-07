@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mapAgentResultToRunTrace } from './agentTerminalMapping'
+import { mapAgentResultToRunTrace, mergeEditTaskTerminal } from './agentTerminalMapping'
 import type { AgentOrchestratorTaskResult } from './agentOrchestrator'
 import { buildLongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
 
@@ -144,5 +144,90 @@ describe('agent terminal mapping', () => {
       status: 'blocked',
       reason: 'agent_needs_user',
     })
+  })
+})
+
+describe('EditTask terminal evidence', () => {
+  const writePlan = buildLongDocumentExecutionPlan({
+    requestText: '按照Word文档的形式重构大纲，删除重复项，统一标题层级、编号和标点',
+    content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+    contextWindowTokens: 120_000,
+    maxOutputTokens: 8_000,
+    intent: 'edit',
+  })
+  const agentTerminal = mapAgentResultToRunTrace({
+    agentResult: agentResult('stalled', 'partially_applied'),
+    executionPlan: writePlan,
+  })
+
+  it('lets a content-verified completed EditTask supersede stale plan coverage', () => {
+    const merged = mergeEditTaskTerminal({
+      agentTerminal,
+      editTask: {
+        status: 'completed',
+        executedBatches: [
+          'ai-edit-muwto8a0-9',
+          'ai-edit-muwtu0uu-a',
+          'ai-edit-muwu3vpb-b',
+          'ai-edit-muwu8l7y-c',
+        ],
+        pendingBatches: [],
+        failedBatchIds: [],
+      },
+      completionReport: { verified: true, violations: [] },
+    })
+
+    expect(merged.terminal).toMatchObject({
+      status: 'success',
+      reason: 'edit_task_completed_verified',
+    })
+    expect(merged.override).toBe(true)
+    expect(merged.evidenceReason).toBe('dynamic_batches_completed:4')
+  })
+
+  it('keeps the agent verdict when EditTask is not a verified completed task', () => {
+    const merged = mergeEditTaskTerminal({
+      agentTerminal,
+      editTask: {
+        status: 'partially_applied',
+        executedBatches: ['batch-1'],
+        pendingBatches: [],
+        failedBatchIds: ['batch-2'],
+      },
+      completionReport: { verified: false, violations: [] },
+    })
+
+    expect(merged.terminal).toMatchObject({
+      status: 'partially_applied',
+      reason: 'partially_applied',
+    })
+    expect(merged.override).toBe(false)
+    expect(merged.evidenceReason).toBe('edit_task_not_authoritative:partially_applied')
+  })
+
+  it('keeps the agent verdict when all batches are written but completion is unverified', () => {
+    const merged = mergeEditTaskTerminal({
+      agentTerminal,
+      editTask: {
+        status: 'completed',
+        executedBatches: ['batch-1', 'batch-2'],
+        pendingBatches: [],
+        failedBatchIds: [],
+      },
+      completionReport: { verified: false, violations: [] },
+    })
+
+    expect(merged.terminal.status).toBe('partially_applied')
+    expect(merged.override).toBe(false)
+  })
+
+  it('keeps the agent verdict when no EditTask exists', () => {
+    const merged = mergeEditTaskTerminal({
+      agentTerminal,
+      editTask: null,
+    })
+
+    expect(merged.terminal).toEqual(agentTerminal)
+    expect(merged.evidenceReason).toBe('edit_task_missing')
   })
 })

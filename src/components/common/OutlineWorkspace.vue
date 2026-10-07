@@ -343,9 +343,9 @@ import { applyOutlineReplacement } from '../../services/outlineReplace'
 import { computeEditorMatches, type SearchOptions } from '../../services/editorReplace'
 import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useModalQueue } from '../../composables/useModalQueue'
-import { useRunTraceStore, type RunTraceMessage, type RunTraceStatus } from '../../stores/runTrace'
+import { useRunTraceStore, type RunTrace, type RunTraceMessage, type RunTraceStatus } from '../../stores/runTrace'
 import { createAgentDialogueRuntime } from '../../services/agentDialogueRuntime'
-import { mapAgentResultToRunTrace } from '../../services/agentTerminalMapping'
+import { mapAgentResultToRunTrace, mergeEditTaskTerminal } from '../../services/agentTerminalMapping'
 import {
   activeExecutionTaskStore,
   type ActiveExecutionTask,
@@ -361,7 +361,6 @@ import { useAgentStore } from '../../stores/agent'
 import { migrateSkillAgentBindings } from '../../services/skillAgentBinding'
 import { buildWorkspaceSkillGuidance, createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceSkillEngineAdapter, type WorkspaceSkillRunMeta, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
 import { collectSkillPackageProtocolDiagnostics, type RealSkillDiagnostic } from '../../services/realSkillExecutor'
-import type { EditorWriteContaminationDecision } from '../../services/editorTools'
 import {
   classifyPlainDialogueIntentDetailed,
   type ChainIntent,
@@ -385,9 +384,11 @@ import {
 } from '../../services/intentCorpusCollector'
 import {
   appendDialogueToolSurfaceDeclaration,
+  buildDialogueToolSurfaceDeclarationAudit,
   authorizeDialogueTools,
   buildDialogueToolSurface,
   type DialogueToolSurfaceSummary,
+  type EditorWriteContaminationDecision,
   type ToolResult,
 } from '../../services/dialogueToolSurface'
 import type { PlainDialogueIntent } from '../../services/plainDialogueIntent'
@@ -398,8 +399,8 @@ import EditTaskBanner from './EditTaskBanner.vue'
 import ApiChatInput from './ApiChatInput.vue'
 import AppIcon from './AppIcon.vue'
 import { createApiCallBudget, type ApiCallBudget } from '../../services/apiCallBudget'
+import { LONG_DOCUMENT_ACTIVE_TIMEOUT_MS } from '../../services/stateWatchdog'
 import { importFile } from '../../services/file-import'
-import { useAiTools } from '../../composables/useAiTools'
 import { useAiCallTrace } from '../../composables/useAiCallTrace'
 import { useLiveApiStatus, type LiveApiStatusInput } from '../../composables/useLiveApiStatus'
 import { useAppConfirm } from '../../composables/useAppConfirm'
@@ -429,12 +430,13 @@ import {
   getReadCapChars,
 } from '../../services/editorEntryFacade'
 import { createOutlineTools } from '../../services/outlineTools'
-import type { LongDocumentOperationType } from '../../services/longDocumentPolicy'
+import { LONG_DOCUMENT_CHAR_THRESHOLD, type LongDocumentOperationType } from '../../services/longDocumentPolicy'
 import {
   buildLongDocumentExecutionPlan,
   toLongDocumentOperationType,
   type LongDocumentExecutionPlan,
 } from '../../services/longDocumentExecutionPlanner'
+import { calculateLongDocumentPhysicalRequestBudget } from '../../services/longDocumentWriteProtocol'
 import type { DialogueWriteAuthorization } from '../../services/dialogueToolSurface'
 import {
   continueFinalDraftTask,
@@ -492,7 +494,6 @@ const pipelineStore = usePipelineStore()
 const skillStore = useSkillStore()
 const agentStore = useAgentStore()
 const runTraceStore = useRunTraceStore()
-const { callAi } = useAiTools()
 
 const modalQueue = useModalQueue()
 onMounted(() => modalQueue.open('outline-workspace'))
@@ -960,12 +961,16 @@ function startOutlineRun(
   skillNames: string[] = [],
   options: {
     intent?: PlainDialogueIntent
+    longDocument?: boolean
     permissionDecision?: ReturnType<typeof buildDialogueToolSurface>['permissionDecision']
     toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
     actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   } = {},
 ) {
   const provider = providerStore.activeGenerateProvider
+  const timeoutHint: RunTrace['timeoutHint'] = options.longDocument
+    ? { active: LONG_DOCUMENT_ACTIVE_TIMEOUT_MS }
+    : undefined
   outlineStreamLength = 0
   const activeRun = outlineRunTraceId ? runTraceStore.getRun(outlineRunTraceId) : null
   if (
@@ -988,6 +993,7 @@ function startOutlineRun(
       model: provider?.selectedModel || provider?.models?.[0],
       skillNames,
       skillMode: skillNames.length ? mode : undefined,
+      timeoutHint,
       target: outlineTraceTarget(),
       context: {
         turns: messages.value.filter(item => item.role === 'user').length
@@ -1000,6 +1006,7 @@ function startOutlineRun(
     skillNames,
     mode,
     intent: options.intent,
+    timeoutHint,
     permissionDecision: options.permissionDecision,
     writeMode: 'direct',
     toolSurface: options.toolSurface,
@@ -1159,6 +1166,7 @@ async function continueOutlineFinalDraft(index: number) {
   const releaseRunTracking = beginActiveOutlineRunTracking()
   startOutlineRun('continue-final-draft', '继续生成终稿', [], {
     intent: 'generate',
+    longDocument: true,
   })
   generationController = abortController
   cancelController = activeCancelController
@@ -1293,6 +1301,7 @@ async function retryOutlineFinalDraftSegment(index: number, providerId?: string)
   const releaseRunTracking = beginActiveOutlineRunTracking()
   startOutlineRun('retry-final-draft-segment', '重试当前终稿分段', [], {
     intent: 'generate',
+    longDocument: true,
   })
   generationController = abortController
   cancelController = activeCancelController
@@ -1767,6 +1776,7 @@ function finishOutlineApiCall(callId: string | undefined, result: {
     contextBudgetDecision?: ContextBudgetDecision
     contextBudgetReason?: string
     usageReconciliation?: unknown
+    textOrigin?: 'application' | 'model'
     toolAudit?: unknown
 }) {
   const runId = outlineRunTraceId
@@ -1827,6 +1837,7 @@ function recordOutlineToolCall(callId: string | undefined, event: {
   toolName: string
   toolCallId?: string
   input: unknown
+    argumentsRaw?: string
     result: ToolResult
     durationMs: number
     protocolVersion?: number
@@ -1841,6 +1852,7 @@ function recordOutlineToolCall(callId: string | undefined, event: {
     name: event.toolName,
     toolCallId: event.toolCallId,
     input: event.input,
+    argumentsRaw: event.argumentsRaw,
     result: event.result,
     status: event.result.ok ? 'success' : 'failed',
     durationMs: event.durationMs,
@@ -1898,18 +1910,39 @@ function buildOutlineSystemPrompt(
   toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>,
   activeTask?: EditTask | null,
 ) {
-  return appendDialogueToolSurfaceDeclaration(
+  const prompt = appendDialogueToolSurfaceDeclaration(
     '你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。',
     toolSurface,
-    { activeEditTask: activeTask ?? outlineEditTask.value },
+    {
+      activeEditTask: activeTask ?? outlineEditTask.value,
+      executionPlan: activeOutlineExecutionPlan,
+    },
   )
+  addOutlineTraceEvent({
+    type: 'dialogue-tool-surface-declaration',
+    label: '应用注入工具面事实声明',
+      detail: JSON.stringify(buildDialogueToolSurfaceDeclarationAudit({
+        source: 'outline',
+        toolSurface,
+        activeEditTask: activeTask ?? outlineEditTask.value,
+        executionPlan: activeOutlineExecutionPlan,
+      })).slice(0, 20000),
+  })
+  return prompt
 }
 
 function readableToolLoopError(error: any, finishReason?: string) {
   const effectiveReason = error?.finishReason || finishReason
-  return effectiveReason === 'tool_loop_limit'
-    ? 'AI 连续尝试工具调用但未能产出回答，已中止。请简化问题或更换模型。'
-    : error?.message || String(error)
+  if (effectiveReason === 'tool_loop_limit') {
+    return 'AI 连续尝试工具调用但未能产出回答，已中止。请简化问题或更换模型。'
+  }
+  if (effectiveReason === 'physical_request_budget_exhausted') {
+    return '长文档任务已达到本轮物理请求预算，已停止继续外呼。已执行内容已保存，请继续剩余批次或重新发起下一轮。'
+  }
+  if (effectiveReason === 'incomplete_write_coverage_checkpoint') {
+    return '模型声称完成，但写入覆盖校验仍未确认全部批次完成。已执行内容已保存，请继续剩余批次。'
+  }
+  return error?.message || String(error)
 }
 
 type OutlineToolCallEvent = Parameters<
@@ -3834,6 +3867,9 @@ async function autoDecompose(outline: string) {
   if (!outline || outline.trim().length < 50) return
   const provider = providerStore.activeGenerateProvider
   if (!provider || !provider.apiKey) return
+  const timeoutHint: RunTrace['timeoutHint'] = outline.length >= LONG_DOCUMENT_CHAR_THRESHOLD
+    ? { active: LONG_DOCUMENT_ACTIVE_TIMEOUT_MS }
+    : undefined
 
   const trace = useAiCallTrace({
     source: 'outline',
@@ -3843,7 +3879,8 @@ async function autoDecompose(outline: string) {
     projectName: projectStore.projectName,
     providerId: provider.id,
     providerName: provider.name,
-    model: agentStore.activeAgent?.model || provider.selectedModel || provider.models?.[0] || ''
+    model: agentStore.activeAgent?.model || provider.selectedModel || provider.models?.[0] || '',
+    timeoutHint
   })
   const runLabel = (kind: string, index: number, total: number) => `大纲自动拆解 ${index}/${total}：${kind}`
   let worstStatus: RunTraceStatus = 'success'
@@ -3856,17 +3893,43 @@ async function autoDecompose(outline: string) {
       detail: error
     })
   }
+  const aiService = await getAiService()
+  const agent = agentStore.activeAgent
   try {
     trace.begin()
     const decomposePrompt =
       '请从以下小说大纲中提取设定信息，根据大纲内容自行决定需要哪些分类（如角色、世界观、物种、物品、势力、地理、魔法体系、技术、组织等），不要限定在固定分类里。\n返回JSON数组，每项包含 category、name、content 字段。只返回JSON数组，不要其他文字。\n\n大纲：\n' +
       outline
-    const decomposeResult = await callAi(
-      decomposePrompt,
-      '你是专业的小说设定编辑，擅长从大纲中提取各类设定信息，能根据大纲内容灵活判断需要哪些分类。',
-      [],
-      { source: 'outline', stepName: runLabel('设定拆解', 1, 2) }
-    )
+    const decomposeCallId = trace.beginApiCall({
+      providerId: provider.id,
+      providerName: provider.name,
+      model: agent?.model || provider.selectedModel || provider.models?.[0] || '',
+      requestMessages: [
+        { role: 'system', content: '你是专业的小说设定编辑，擅长从大纲中提取各类设定信息，能根据大纲内容灵活判断需要哪些分类。' },
+        { role: 'user', content: decomposePrompt }
+      ]
+    })
+    const decomposeResponse = await aiService.callAi({
+      purpose: 'generate',
+      messages: [
+        { role: 'system', content: '你是专业的小说设定编辑，擅长从大纲中提取各类设定信息，能根据大纲内容灵活判断需要哪些分类。' },
+        { role: 'user', content: decomposePrompt }
+      ],
+      model: agent?.model || provider.selectedModel || provider.models?.[0] || undefined,
+      temperature: agent?.temperature ?? 0.7,
+      maxTokens: agent?.maxTokens ?? null,
+      stream: false,
+      retry: true,
+      meta: { source: 'outline.autoDecompose' }
+    })
+    trace.finishApiCall(decomposeCallId, {
+      status: decomposeResponse.text ? 'success' : 'degraded',
+      responseText: decomposeResponse.text || '',
+      reasoningText: decomposeResponse.reasoning || '',
+      usage: decomposeResponse.usage,
+      finishReason: decomposeResponse.finishReason
+    })
+    const decomposeResult = decomposeResponse.text || ''
     parseDecomposedSettings(decomposeResult)
     finishStep(1, decomposeResult ? 'success' : 'degraded', decomposeResult ? undefined : 'API 无返回')
   } catch (e) {
@@ -3878,12 +3941,36 @@ async function autoDecompose(outline: string) {
     const foreshadowPrompt =
       '请从以下小说大纲中识别所有的伏笔（铺垫、暗示、悬念、未解之谜等）。\n返回JSON数组，每项包含 name、content 字段。只返回JSON数组，不要其他文字。\n\n大纲：\n' +
       outline
-    const foreshadowResult = await callAi(
-      foreshadowPrompt,
-      '你是专业的小说结构分析师，擅长识别伏笔和铺垫。',
-      [],
-      { source: 'outline', stepName: runLabel('伏笔提取', 2, 2) }
-    )
+    const foreshadowCallId = trace.beginApiCall({
+      providerId: provider.id,
+      providerName: provider.name,
+      model: agent?.model || provider.selectedModel || provider.models?.[0] || '',
+      requestMessages: [
+        { role: 'system', content: '你是专业的小说结构分析师，擅长识别伏笔和铺垫。' },
+        { role: 'user', content: foreshadowPrompt }
+      ]
+    })
+    const foreshadowResponse = await aiService.callAi({
+      purpose: 'generate',
+      messages: [
+        { role: 'system', content: '你是专业的小说结构分析师，擅长识别伏笔和铺垫。' },
+        { role: 'user', content: foreshadowPrompt }
+      ],
+      model: agent?.model || provider.selectedModel || provider.models?.[0] || undefined,
+      temperature: agent?.temperature ?? 0.7,
+      maxTokens: agent?.maxTokens ?? null,
+      stream: false,
+      retry: true,
+      meta: { source: 'outline.autoDecompose' }
+    })
+    trace.finishApiCall(foreshadowCallId, {
+      status: foreshadowResponse.text ? 'success' : 'degraded',
+      responseText: foreshadowResponse.text || '',
+      reasoningText: foreshadowResponse.reasoning || '',
+      usage: foreshadowResponse.usage,
+      finishReason: foreshadowResponse.finishReason
+    })
+    const foreshadowResult = foreshadowResponse.text || ''
     parseForeshadows(foreshadowResult)
     finishStep(2, foreshadowResult ? 'success' : 'degraded', foreshadowResult ? undefined : 'API 无返回')
   } catch (e) {
@@ -4161,6 +4248,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
   if (isOutlineFinalDraftRequest(outlinePlan.plan, requestText, requestTarget.content)) {
     startOutlineRun(workspaceSkillMode.value, requestText, templates.map(template => template.name), {
       intent: routingDecision.forcedIntent || 'generate',
+      longDocument: outlinePlan.plan.mode === 'edit-task' || outlinePlan.plan.decision !== 'fits',
       toolSurface: [],
       actualToolSurface: [],
     })
@@ -4213,6 +4301,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
   const fallbackMessages = buildOutlineFallbackMessages(requestText)
   startOutlineRun(workspaceSkillMode.value, requestText, templates.map(template => template.name), {
     intent: routingDecision.forcedIntent,
+    longDocument: outlinePlan.plan.mode === 'edit-task' || outlinePlan.plan.decision !== 'fits',
     toolSurface: [],
     actualToolSurface: [],
   })
@@ -4336,6 +4425,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
               contextBudgetDecision: meta.contextBudget?.decision,
               contextBudgetReason: meta.contextBudget?.reason,
               usageReconciliation: meta.usageReconciliation,
+              textOrigin: meta.textOrigin,
               durationMs,
               error: outcome.error
             })
@@ -4393,7 +4483,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
       onRoutingEvent: event => recordOutlineRoutingEvent(event)
     }
   })
-  if (result.runState === 'awaiting_confirmation') {
+  if (result.runState === 'awaiting_user') {
     const fallbackRouting = result.awaiting?.routing || result.routing
     const recommendedSkillIds = (result.awaiting?.recommendedSkills || []).map(template => template.id)
     const awaitingState = outlineRunTraceId
@@ -4423,7 +4513,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     })
     // BUG-2 修复：等待用户确认时不收尾，trace 保持 running；用户确认后由正常链路 finishRun
     generationStatus.value = '等待意图确认'
-    if (outlineRunTraceId) runTraceStore.startAwaitingUser(outlineRunTraceId, 'awaiting_confirmation')
+    if (outlineRunTraceId) runTraceStore.startAwaitingUser(outlineRunTraceId, 'awaiting_user')
     activeOutlineExecutionPlan = null
     return
   }
@@ -4590,10 +4680,10 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     if (outlineRunTraceId) {
       if (runTraceStore.isAwaitingUser(outlineRunTraceId)) {
         runTraceStore.cancelRunningApiCalls(outlineRunTraceId, '等待用户确认，未发起 API 调用')
-      } else if (outlineSkillTerminalStatus === 'failed') {
-        runTraceStore.failRunningApiCalls(outlineRunTraceId, '运行收尾时仍未闭合（失败）')
+      } else if (generationStatus.value === '已取消生成') {
+        runTraceStore.cancelRunningApiCalls(outlineRunTraceId, '用户取消生成')
       } else {
-        runTraceStore.cancelRunningApiCalls(outlineRunTraceId, generationStatus.value === '已取消生成' ? '用户取消生成' : '运行收尾时仍未闭合')
+        runTraceStore.failRunningApiCalls(outlineRunTraceId, '运行收尾时仍未闭合')
       }
       finishOutlineRunIfRunning(
         generationStatus.value === '已取消生成'
@@ -4681,6 +4771,7 @@ async function askPlainAi(
   if (useOutlineFinalDraft) {
     startOutlineRun('direct', requestText, [], {
       intent: plainIntent,
+      longDocument: true,
       toolSurface: [],
       actualToolSurface: [],
     })
@@ -4722,6 +4813,7 @@ async function askPlainAi(
     return
   }
   const useOutlineEditTaskPlan = outlineExecutionPlan.mode === 'edit-task'
+  const isLongDocumentRequest = useOutlineEditTaskPlan || outlineExecutionPlan.decision !== 'fits'
   const outlineLongDocumentOperationType = toLongDocumentOperationType(outlineExecutionPlan.operation)
   outlineDirectWriteMultiBatch = useOutlineEditTaskPlan
   const workflowWriteAuthorization = buildWorkflowWriteAuthorization({
@@ -4796,6 +4888,7 @@ async function askPlainAi(
   const systemPrompt = buildOutlineSystemPrompt(plainToolSurface)
   startOutlineRun('direct', requestText, [], {
     intent: plainIntent,
+    longDocument: isLongDocumentRequest,
     permissionDecision: outlinePermissionDecision,
     toolSurface: plainToolSurface,
     actualToolSurface: plainToolSurface,
@@ -4861,7 +4954,6 @@ async function askPlainAi(
     model,
     maxOutputTokens: Number(provider.maxTokens) > 0 ? Number(provider.maxTokens) : null,
   })
-  const isLongDocumentRequest = useOutlineEditTaskPlan || outlineExecutionPlan.decision !== 'fits'
   let plainAiTurnSucceeded = false
   addOutlineTraceEvent({
     type: 'long-document-policy',
@@ -4995,10 +5087,9 @@ async function askPlainAi(
       skillGuidance: options.skillGuidance,
       skillIds: options.skillIds,
       promptSource: options.promptSource,
-      maxPhysicalRequests: Math.max(
-        1,
-        options.resumedApiBudget?.snapshot().limit ?? 8,
-      ),
+      maxPhysicalRequests: outlineExecutionPlan
+        ? calculateLongDocumentPhysicalRequestBudget(outlineExecutionPlan.segments.length)
+        : Math.max(1, options.resumedApiBudget?.snapshot().limit ?? 8),
       getContextRemaining: () => ({
         contextWindowTokens: outlineProviderWindowDeclared ? outlineProviderWindow : null,
         maxOutputTokens: outlineMaxOutputTokens,
@@ -5018,79 +5109,6 @@ async function askPlainAi(
           event.label,
           { reason: event.detail, payload: event.payload },
         )
-      },
-      runSubAgent: async ({ taskId, goal }) => {
-        const activeAiService = aiService
-        if (!activeAiService) throw new Error('AI service unavailable for sub agent')
-        const subAgentRuntime = createAgentDialogueRuntime({
-          source: 'outline',
-          taskId,
-          goal,
-          subAgentDepth: 1,
-          document: {
-            content: requestTarget.content,
-            operationType: outlineLongDocumentOperationType,
-            executionPlan: outlineExecutionPlan,
-          },
-          editTaskWorkflow: useOutlineEditTaskPlan,
-          getContextRemaining: () => ({
-            contextWindowTokens: outlineProviderWindowDeclared ? outlineProviderWindow : null,
-            maxOutputTokens: outlineMaxOutputTokens,
-          }),
-          onEvent: event => {
-            addOutlineTraceEvent({
-              type: `agent-sub-agent-${event.type}`,
-              level: event.level === 'warning' ? 'warn' : event.level,
-              label: event.label,
-              detail: event.detail,
-              payload: event.payload,
-            })
-            const subAgentDiag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
-            subAgentDiag?.log?.(
-              event.level === 'error' ? 'error' : event.level === 'warning' ? 'warn' : 'info',
-              `outline/agent-sub-agent/${event.type}`,
-              event.label,
-              { reason: event.detail, payload: event.payload },
-            )
-          },
-        })
-        return await subAgentRuntime.run({
-          purpose: 'generate',
-          messages: [{ role: 'user', content: goal }],
-          model,
-          stream: true,
-          retry: false,
-          tools,
-          timeoutMs: isLongDocumentRequest ? null : DIRECT_TOOL_RUN_HARD_DEADLINE_MS,
-          signal: generationController?.signal,
-          cancelSignal: cancelController?.signal,
-          onPhysicalCall: event => {
-            recordOutlinePhysicalCall(traceApiCallId, event)
-            if (event.status === 'running' || event.heartbeat || event.streamText || event.responseText) toolRunSupervisor.reportProgress()
-          },
-          onReasoning: (text: string) => appendOutlineReasoning(text),
-          toolPolicy: tools ? {
-            scenario: 'direct-tool-intensive',
-            maxToolIterations: (window as any).__outlineDeletionReplayMaxToolIterations || 24,
-            intent: plainIntent,
-            permissionDecision: outlinePermissionDecision,
-            onToolStart: event => {
-              toolRunSupervisor.reportProgress()
-              if (!isAgentRuntimeToolName(event.toolName)) {
-                window.dispatchEvent(new CustomEvent('tool-activity', { detail: { type: 'tool_start', toolName: event.toolName, targetId: 'outline', policy: event.policy } }))
-              }
-            },
-            onToolCall: event => {
-              toolRunSupervisor.reportProgress()
-              recordOutlineToolCall(traceApiCallId, event)
-              if (!isAgentRuntimeToolName(event.toolName)) {
-                window.dispatchEvent(new CustomEvent('tool-activity', { detail: { type: event.result.ok ? 'tool_result' : 'tool_error', toolName: event.toolName, targetId: 'outline', policy: event.policy } }))
-              }
-            },
-          } : undefined,
-          onChunk: agentOnChunk,
-          callAi: params => activeAiService.callAi(params),
-        })
       },
     })
     const agentOnChunk = (text: string) => {
@@ -5277,6 +5295,7 @@ async function askPlainAi(
       error: plainOutcome.error,
       retryStrategy: result.retryStrategy,
       maxTokens: result.maxTokens,
+      textOrigin: result.textOrigin,
       providerContextWindowTokens: result.contextBudget?.providerContextWindowTokens,
       estimatedInputTokens: result.contextBudget?.estimatedInputTokens,
       contextBudgetDecision: result.contextBudget?.decision,
@@ -5643,6 +5662,7 @@ async function askPlainAi(
   } finally {
     const activeEditTask = outlineEditTaskSession.activeTask()
     if (useOutlineEditTaskPlan && activeEditTask?.status === 'awaiting_batch') {
+      let finishedOutlineEditTask: EditTask | null = null
       const allBatchesWritten = activeEditTask.executedBatches.length > 0
         && activeEditTask.pendingBatches.length === 0
         && activeEditTask.failedBatchIds.length === 0
@@ -5656,7 +5676,7 @@ async function askPlainAi(
       }
       if (!plainAiTurnSucceeded && allBatchesWritten) {
         const writtenCount = activeEditTask.executedBatches.length
-        outlineEditTaskSession.finishActiveTask({
+        finishedOutlineEditTask = outlineEditTaskSession.finishActiveTask({
           succeeded: false,
           summaryFailed: true,
           completion: outlineCompletion,
@@ -5680,13 +5700,30 @@ async function askPlainAi(
           )
         }
       } else {
-        outlineEditTaskSession.finishActiveTask({
+        finishedOutlineEditTask = outlineEditTaskSession.finishActiveTask({
           succeeded: plainAiTurnSucceeded,
           completion: outlineCompletion,
         })
       }
       reportOutlineEditTaskCompletion(outlineEditTaskSession.completionReport())
       const completionReport = outlineEditTaskSession.completionReport()
+      const finalOutlineEditTask = finishedOutlineEditTask || outlineEditTaskSession.activeTask()
+      if (outlineAgentTerminal) {
+        const mergedOutlineTerminal = mergeEditTaskTerminal({
+          agentTerminal: outlineAgentTerminal,
+          editTask: finalOutlineEditTask,
+          completionReport,
+        })
+        if (mergedOutlineTerminal.override) {
+          addOutlineTraceEvent({
+            type: 'edit-task-terminal-override',
+            level: 'warn',
+            label: '动态批次完成度覆盖旧计划口径',
+            detail: `EditTask 已完成并通过内容级校验；${mergedOutlineTerminal.evidenceReason}`,
+          })
+        }
+        outlineAgentTerminal = mergedOutlineTerminal.terminal
+      }
       if (completionReport && !completionReport.verified) {
         projectStore.appendOutlineChat({
           role: 'assistant',

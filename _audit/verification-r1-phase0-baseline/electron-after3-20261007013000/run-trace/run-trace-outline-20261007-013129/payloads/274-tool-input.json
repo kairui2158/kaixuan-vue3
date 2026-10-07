@@ -1,0 +1,5 @@
+{
+  "caseSensitive": true,
+  "limit": 10,
+  "query": "\\t"
+}

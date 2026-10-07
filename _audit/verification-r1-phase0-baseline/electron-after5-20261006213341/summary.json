@@ -1,0 +1,238 @@
+{
+  "outcome": "completed",
+  "error": null,
+  "baselineFinding": null,
+  "runBinding": {
+    "runId": "run-1791293629290-1",
+    "runStatus": "running",
+    "currentTurnId": null,
+    "turns": [
+      {
+        "id": "turn-1791293629290-3",
+        "seq": 1,
+        "status": "partially_applied",
+        "reason": "partially_applied",
+        "startedAt": 1791293629290,
+        "endedAt": 1791294872829
+      },
+      {
+        "id": "turn-1791294877252-946",
+        "seq": 2,
+        "status": "failed",
+        "reason": "repeated_tool_call",
+        "startedAt": 1791294877252,
+        "endedAt": 1791297027622
+      },
+      {
+        "id": "turn-1791297040557-2150",
+        "seq": 3,
+        "status": "success",
+        "reason": "plain_dialogue_complete",
+        "startedAt": 1791297040557,
+        "endedAt": 1791297066459
+      }
+    ],
+    "apiCalls": [
+      {
+        "id": "api-1791293629336-8",
+        "seq": 1,
+        "turnId": "turn-1791293629290-3",
+        "status": "success",
+        "responseChars": 106,
+        "toolCallCount": 44,
+        "physicalCallCount": 27
+      },
+      {
+        "id": "api-1791294877304-951",
+        "seq": 2,
+        "turnId": "turn-1791294877252-946",
+        "status": "success",
+        "responseChars": 89,
+        "toolCallCount": 62,
+        "physicalCallCount": 35
+      },
+      {
+        "id": "api-1791297040628-2155",
+        "seq": 3,
+        "turnId": "turn-1791297040557-2150",
+        "status": "success",
+        "responseChars": 816,
+        "toolCallCount": 2,
+        "physicalCallCount": 2
+      }
+    ],
+    "eventCount": 2508,
+    "lastEventTypes": [
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "physical-call",
+      "agent-state",
+      "agent-snapshot",
+      "agent-state",
+      "agent-state",
+      "agent-snapshot",
+      "agent-state",
+      "api-tool-surface-updated",
+      "state-transition",
+      "api-success",
+      "tool-call",
+      "turn-finished",
+      "session-active"
+    ]
+  },
+  "sourceOutlineChars": 74841,
+  "turns": [
+    {
+      "request": "按照Word文档的形式重构大纲，不要缩减内容。",
+      "turnStatus": "partially_applied",
+      "intent": "edit",
+      "durationMs": 1245401,
+      "physicalCallCount": 27,
+      "toolCallCount": 44,
+      "responseChars": 106,
+      "contentChanged": true,
+      "actualToolSurface": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.write",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "outline.get_structure",
+        "outline.read_range",
+        "outline.search",
+        "outline.get_summary"
+      ]
+    },
+    {
+      "request": "符合我的要求，分叉一允许去重。不用出预览，直接写入",
+      "turnStatus": "failed",
+      "intent": "edit",
+      "durationMs": 2153337,
+      "physicalCallCount": 35,
+      "toolCallCount": 62,
+      "responseChars": 89,
+      "contentChanged": true,
+      "actualToolSurface": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.write",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "outline.get_structure",
+        "outline.read_range",
+        "outline.search",
+        "outline.get_summary"
+      ]
+    },
+    {
+      "request": "** 为什么会有这个符号",
+      "turnStatus": "success",
+      "intent": "discuss",
+      "durationMs": 36665,
+      "physicalCallCount": 2,
+      "toolCallCount": 2,
+      "responseChars": 816,
+      "contentChanged": false,
+      "actualToolSurface": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "outline.get_structure",
+        "outline.read_range",
+        "outline.search",
+        "outline.get_summary"
+      ]
+    }
+  ],
+  "totals": {
+    "completedTurns": 3,
+    "physicalCalls": 64,
+    "physicalSuccesses": 64,
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "toolCalls": 108,
+    "toolSuccesses": 103,
+    "toolFailures": [
+      {
+        "name": "editor.locate",
+        "status": "failed",
+        "errorCode": "target_not_found"
+      },
+      {
+        "name": "editor.write",
+        "status": "failed",
+        "errorCode": "missing_field"
+      },
+      {
+        "name": "editor.write",
+        "status": "failed",
+        "errorCode": "invalid_input"
+      },
+      {
+        "name": "editor.write",
+        "status": "failed",
+        "errorCode": "missing_field"
+      },
+      {
+        "name": "editor.write",
+        "status": "failed",
+        "errorCode": "missing_field"
+      }
+    ],
+    "retiredToolsPresent": []
+  },
+  "copiedRunTraces": [
+    "run-trace-outline-20261006-213349"
+  ],
+  "runTraceExport": {
+    "success": true,
+    "path": "D:\\codex\\novel-workshop-vue3\\_data\\r1-phase0-baseline-exports\\run-trace-outline-20261006-213349-deep",
+    "reason": null
+  },
+  "observability": {
+    "logPath": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-r1-phase0-baseline\\electron-after5-20261006213341\\observability.jsonl",
+    "pageErrors": 5,
+    "requestFailures": 0
+  }
+}

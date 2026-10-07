@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-2-9m9hul",
+      "title": "卷二：核心人物群像",
+      "kind": "heading",
+      "level": 2,
+      "path": "卷二：核心人物群像"
+    },
+    "range": {
+      "start": 54924,
+      "end": 54954
+    },
+    "offset": 0,
+    "maxChars": 30,
+    "content": "## 卷二：核心人物群像\n\n### 一、陈暮\n\n#### 1",
+    "hasMore": true,
+    "nextCursor": "section:heading-2-9m9hul:30",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

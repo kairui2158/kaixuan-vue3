@@ -1,0 +1,24 @@
+{
+  "workspace": "outline-editor",
+  "sourceChars": 74356,
+  "matchCount": 2,
+  "truncated": false,
+  "matches": [
+    {
+      "markerIndex": 7,
+      "markerRole": "assistant",
+      "matchKind": "exact",
+      "start": 12120,
+      "end": 12140,
+      "excerpt": "菌膜净水壶、菌膜睡袋、菌膜粮仓——这些民生技术在末日世界里比任何武器都更珍贵。\n### 灾前军事基准线与菌毯的不可根除性\n#### 一、2042年，人类手里有什么\n2042年的人类文明正处于一个技术拐"
+    },
+    {
+      "markerIndex": 8,
+      "markerRole": "assistant",
+      "matchKind": "exact",
+      "start": 16828,
+      "end": 16848,
+      "excerpt": "、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。\n\n\n### 菌膜外套：有限资源的临时通行方案\n\n陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法"
+    }
+  ]
+}

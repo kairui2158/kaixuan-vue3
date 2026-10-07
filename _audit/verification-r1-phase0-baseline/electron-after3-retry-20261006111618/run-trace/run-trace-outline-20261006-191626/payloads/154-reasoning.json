@@ -1,0 +1,174 @@
+Let me analyze the current state after the successful deletion of section 7.8. The plan calls for a comprehensive restructuring of the outline into a Word-document-like format. Let me understand what's been done and what still needs to be done.
+
+The plan has three phases:
+1. Structure repair: Fix title hierarchies, eliminate level jumps, and reposition mis-categorized headings
+2. Duplicate removal: Delete confirmed duplicates (7.8 was deleted - that's the "分叉一")
+3. Format normalization: Punctuation, whitespace, numbering, title levels across all segments
+
+Now I need to continue with the remaining phases. Let me first check the current structure after the deletion, then proceed with the normalization phase.
+
+The plan says there are 3 planned batches. I need to:
+- First read the structure to understand what needs fixing
+- Execute the remaining batches
+
+Let me first check what happened with the deletion - the 7.8 section was removed. Now I need to focus on:
+1. Standardizing punctuation (half-width to full-width for Chinese text: , → ， . → 。 ; → ； : → ： ! → ！ ? → ？)
+2. Fixing title level jumps
+3. Normalizing format
+
+Let me start by reading the full document structure to identify title hierarchy issues and then proceed with normalization.
+
+Actually, let me re-read the current state more carefully. The plan says I need to:
+- Phase 1 (structure-repair): Fix title hierarchies
+- Phase 2 (duplicate removal): Already done - 7.8 deleted
+- Phase 3 (normalize): Punctuation, whitespace, format across all planned segments
+
+But the plan instruction says "计划批次数量是 3". Let me figure out what the three batches are:
+1. structure-repair batch
+2. duplicate-removal batch (DONE)
+3. normalize batch
+
+Now I need to execute the structure-repair and normalize batches. But the instruction says I must cover all planned segments (normalize-segment-1[0-74586]). That's the entire document. This is going to be massive.
+
+Wait, let me re-read: "整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74586]）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令"
+
+But the document is now ~73899 characters. I can't normalize the entire document in a single write batch with 10 commands max.
+
+Let me think about what's practical here. The user said "按照Word文档的形式重构大纲，不要缩减内容" - restructure the outline in Word document form, don't reduce content. And then "符合我的要求，分叉一允许去重。不用出预览，直接写入" - this matches my requirements, fork one allows dedup, no preview, write directly.
+
+The key remaining tasks are:
+1. Title hierarchy normalization
+2. Punctuation normalization (half-width → full-width in Chinese context)
+
+But normalizing the entire 74K document character by character is going to require many batches. Let me focus on what's most impactful: title hierarchy fixes and major punctuation issues.
+
+Actually, let me reconsider. The plan execution requirement says:
+- Phase 2 (duplicate removal): DONE ✓
+- Phase 1 (structure-repair): Need to fix title hierarchies 
+- Phase 3 (normalize): Need to normalize punctuation etc.
+
+But doing full punctuation normalization across 74K characters is extremely expensive with the 10-command-per-batch limit. Each replace_match can only handle one specific target.
+
+Let me take a practical approach. Let me first read the structure to identify title hierarchy issues, fix those, and then address the most critical punctuation issues. For full punctuation normalization, I might need to use a broader approach.
+
+Wait, actually, let me re-read the constraints more carefully:
+
+"整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74586]）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令，禁止把同段多条命令拆成多次调用；未覆盖全部计划段落前，禁止输出「任务完成」总结。"
+
+So I need to normalize ALL planned segments. This is essentially the whole document. Each segment I need to read, identify issues, and batch commands.
+
+But with 10 commands per batch, and the document being 74K characters, this will take many rounds. Let me be strategic.
+
+The main normalization tasks are:
+1. Chinese punctuation: half-width → full-width (, . ; : ! ? → ，。；：！？)
+2. Title hierarchy: ensure no level jumps
+
+For punctuation, I can't replace each comma individually - I need to find patterns. But the problem is that half-width punctuation in tables and code blocks should remain half-width.
+
+Let me think about what's realistically doable. The document has many tables with pipe characters that are fine. The main issue would be Chinese text containing half-width commas (which the search tool earlier found none of - it found 0 matches for "," which is interesting).
+
+Wait, the earlier search for "," returned no matches across the whole document. That could mean all commas are already full-width. Let me check what other punctuation issues exist.
+
+Actually, let me focus on the most important things:
+1. Fix title hierarchies
+2. Check for and fix any remaining format issues
+
+Let me start by reading the structure to identify title level problems. I already have the document_map. Let me analyze it for level jumps.
+
+Looking at the structure:
+- h1: 《绿潮》大纲总纲
+  - h2: 叙事框架
+    - h3: 故事核心
+      - h4: 菌毯的本质：竞争对手文明
+      - h4: 核心张力：保护即加速
+    - h3: 第一卷·觉醒与扎根
+    - h3: 第二卷·连接与陷落
+    - h3: 第三卷·远征与暗流
+  - h2: 背景参考资料
+    - h3: 灾前军事基准线与菌毯的不可根除性
+      - h4: 一、2042年，人类手里有什么
+      - h4: 二、菌毯为什么火力推不平
+      - h4: 三、总结
+  - h2: 数据板的局限
+  - h2: 菌膜外套：有限资源的临时通行方案
+  - h2: 菌膜外套与共存补丁的关系
+    - h3: 六大势力总览
+    - h3: 圣萌会的崛起
+    - h3: 盖亚巨树的生长与天府都陷落
+    - h3: 终局之战
+    - h3: 终局之后
+  - h2: 世界设定声明
+  - h2: 卷一：基石设定层
+    - h3: 一、书名定义与核心术语定调 → h4: 1.1, 1.2
+    - h3: 二、灵魂语句
+    - h3: 三、地名架空化对照总表 → h4: 3.1-3.6
+    - h3: 四、灾难源头：共生蕨 → h4: 4.1, 4.2, 4.3 → h5: 4.1.1, 4.1.2, etc.
+    - h3: 五、方岫岩：菌膜装甲的起源 → h4: 5.1-5.8 → h5
+    - h3: 六、灾难爆发完整链条 → h4: 6.1-6.6 → h5
+    - h3: 七、变异体主动攻击人类核心机制 → h4: 7.1-7.7, 7.9 (7.8 deleted) → h5
+    - h3: 八、变异生物体系 → h4: 8.1-8.7
+    - h3: 九、真菌网络... → (no h4 children)
+    - h3: 十、灾后科技更新换代体系 → h4: 10.1-10.4 → h5
+    - h3: 十一、生物油脂兼容性 → h4: 11.1-11.4
+    - h3: 十二、末日食物与营养供给体系 → h4: 12.1-12.7
+  - h2: 卷二：核心人物群像
+    - h3: 一、陈暮 → h4: 1.1, 1.2, 1.3
+    - h3: 二、五位女主 → h4: 2.1-2.5
+  - h2: 卷三：势力与格局层
+    - h3: 一、菌毯封锁与人类孤岛 → h4: 1.1, 1.2
+    - h3: 二、全球幸存者势力分布
+    - h3: 三、六大势力完整设定 → h4: 3.1-3.7 → h5
+    - h3: 四、圣萌会 → h4: 4.1-4.10
+    - h3: 五、盖亚中枢 → h4: 5.1-5.4
+  - h2: 卷四：叙事工具箱层
+    - h3: 一、核心主题清单
+    - h3: 二、术语统一总表
+
+The structure looks mostly reasonable. The h2-level sections are:
+1. 叙事框架
+2. 背景参考资料
+3. 数据板的局限
+4. 菌膜外套：有限资源的临时通行方案
+5. 菌膜外套与共存补丁的关系
+6. 世界设定声明
+7. 卷一：基石设定层
+8. 卷二：核心人物群像
+9. 卷三：势力与格局层
+10. 卷四：叙事工具箱层
+
+The main issue I see is that "背景参考资料" contains narrative content that seems more like it should be under 叙事框架 or should be its own separate thing. But the user said to restructure as Word document form - which likely means keeping the content but organizing it more like a proper document outline.
+
+Wait, actually let me re-read the situation. The user said "按照Word文档的形式重构大纲，不要缩减内容" - this seems like they want the outline to be formatted like a Word document. The previous round already did some work (adding titles, fixing GFM tables, etc.). Then the user said "符合我的要求，分叉一允许去重。不用出预览，直接写入" - this means "matches my requirements, fork one allows dedup, don't show preview, just write."
+
+So the main remaining work after the 7.8 deletion is the normalization phase. But normalizing the entire 74K document for punctuation is going to be extremely intensive.
+
+Let me focus on what's most practical and impactful. Let me:
+1. First, check if there are any obvious title hierarchy issues
+2. Then do a targeted punctuation normalization
+
+Actually, wait - I need to be more careful about what "normalize" means here. Let me re-read the plan:
+
+"normalize-segment-1[0-74586]" - this is the entire document. 
+
+"整理阶段必须覆盖全部计划段落" - the normalization phase must cover all planned segments.
+
+But the plan also says "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）；这是完成校验的强制条件"
+
+Let me check: earlier searches for "," "." ";" "?" "!" returned no matches in the document. So it seems like punctuation is already mostly full-width. The search for ":" returned some matches but those are likely in contexts where colons are appropriate (time notations like "3:14", etc.).
+
+Actually, the earlier search for "," returned "hasMore":false,"matches":[] - zero matches. And the search for "." returned matches but those could be in URLs, version numbers, etc. The search for ":" returned matches including "11月19日3:14" which is a time format - that should probably stay as half-width colon in time notation.
+
+So it seems like the document may already have mostly correct Chinese punctuation. The main remaining task would be to verify and fix any issues.
+
+Given the constraints, let me focus on:
+1. Verifying the structure after 7.8 deletion
+2. Checking for any remaining obvious issues
+3. Making targeted fixes
+
+Actually, I think the best approach now is to focus on the most impactful changes. The 7.8 deletion was done. Let me now check if there are any remaining title hierarchy or formatting issues that need fixing, and address those.
+
+Let me read a few key sections to check for issues, then make targeted writes.
+
+Actually, I think I should be more strategic. Let me read some key transition points to verify structural integrity after the deletion, and then address any remaining issues.
+
+Let me read around where 7.8 was deleted to make sure 7.9 flows properly from 7.7.

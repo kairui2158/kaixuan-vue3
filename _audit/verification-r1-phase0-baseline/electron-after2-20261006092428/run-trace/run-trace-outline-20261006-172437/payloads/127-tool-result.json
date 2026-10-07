@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "data": {
+    "total": 1,
+    "truncated": false,
+    "offset": 0,
+    "limit": 20,
+    "hasMore": false,
+    "matches": [
+      {
+        "start": 41930,
+        "end": 41932,
+        "sectionId": "heading-5-tkuh00",
+        "sectionTitle": "6.3.3 扩散体",
+        "context": "胀——孢子囊的持续膨胀使内部气压不断升高。当体内孢子囊的压力超过皮肤和结缔组织的承受极限时，尸体爆裂。\n\n- 全球同步爆发的链式反应：零号裸鼹鼠爆裂（11月19日3：14）→深根大陆局部爆发（11月19日至20日）→全球同步爆发（11月20日至22日）→文明崩溃（11月22日至12月1日）。\n\n##### 6.3.4 孢子"
+      }
+    ],
+    "next_steps": [
+      "调用 editor.read_range 传入 sectionId 读取命中节全文"
+    ]
+  }
+}

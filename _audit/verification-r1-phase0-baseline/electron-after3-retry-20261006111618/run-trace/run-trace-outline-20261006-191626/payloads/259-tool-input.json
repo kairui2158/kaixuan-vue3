@@ -1,0 +1,35 @@
+{
+  "commands": [
+    {
+      "content": "## 六大势力总览\n\n在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。",
+      "operation": "replace_match",
+      "reason": "structure-repair：六大势力总览为主线剧情板块，与“菌膜外套与共存补丁的关系”技术说明并列，提升为二级标题",
+      "target": "### 六大势力总览\n\n在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。"
+    },
+    {
+      "content": "## 圣萌会的崛起\n\n在远西大陆，另一种力量正在凝聚。",
+      "operation": "replace_match",
+      "reason": "structure-repair：圣萌会的崛起为主线剧情板块，提升为二级标题",
+      "target": "### 圣萌会的崛起\n\n在远西大陆，另一种力量正在凝聚。"
+    },
+    {
+      "content": "## 盖亚巨树的生长与天府都陷落\n\n2043年春，巨树从深根大陆中部悄然破土而出",
+      "operation": "replace_match",
+      "reason": "structure-repair：盖亚巨树生长与天府都陷落为主线剧情板块，提升为二级标题",
+      "target": "### 盖亚巨树的生长与天府都陷落\n\n2043年春，巨树从深根大陆中部悄然破土而出"
+    },
+    {
+      "content": "## 终局之战\n\n噬神计划进入最后阶段。",
+      "operation": "replace_match",
+      "reason": "structure-repair：终局之战为主线剧情板块，提升为二级标题",
+      "target": "### 终局之战\n\n噬神计划进入最后阶段。"
+    },
+    {
+      "content": "## 终局之后\n\n菌毯不再调动变异体围杀人类。",
+      "operation": "replace_match",
+      "reason": "structure-repair：终局之后为主线剧情板块，提升为二级标题",
+      "target": "### 终局之后\n\n菌毯不再调动变异体围杀人类。"
+    }
+  ],
+  "reason": "structure-repair 批次：将挂在“菌膜外套与共存补丁的关系”技术说明下的五个主线剧情小节提升为独立二级章节，使层级与语义并列关系一致"
+}

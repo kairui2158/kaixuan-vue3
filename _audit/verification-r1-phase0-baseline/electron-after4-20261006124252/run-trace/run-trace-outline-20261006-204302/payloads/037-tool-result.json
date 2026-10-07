@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-2-28do6r",
+      "title": "菌膜外套与共存补丁的关系",
+      "kind": "heading",
+      "level": 2,
+      "path": "菌膜外套与共存补丁的关系"
+    },
+    "range": {
+      "start": 22504,
+      "end": 22619
+    },
+    "offset": 4400,
+    "maxChars": 200,
+    "content": "许是对人类文明最冷静的刻画：当面对一个你无法战胜、无法控制、甚至无法沟通的存在时，最有效的生存策略不是对抗，而是让它不再觉得你是异己。\n\n“知识锁在抽屉里，和不存在没有区别。”\n\n林觉民把知识从抽屉里拿出来，打开，撒进风中。\n\n\n",
+    "hasMore": false,
+    "next_steps": [
+      "基于已读取内容回答或写入；需要其他节时先调用 editor.document_map"
+    ]
+  }
+}

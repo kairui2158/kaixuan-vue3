@@ -21,6 +21,7 @@ export interface UseAiCallTraceOptions {
   model?: string
   skillNames?: string[]
   skillMode?: string
+  timeoutHint?: RunTrace['timeoutHint']
   target?: RunTrace['target']
   context?: RunTrace['context']
 }
@@ -95,6 +96,7 @@ export function useAiCallTrace(options: UseAiCallTraceOptions): AiCallContext {
       model: options.model,
       skillNames: options.skillNames,
       skillMode: options.skillMode,
+      timeoutHint: options.timeoutHint,
       target: options.target,
       context: options.context
     })

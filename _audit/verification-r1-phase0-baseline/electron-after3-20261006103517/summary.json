@@ -1,0 +1,212 @@
+{
+  "outcome": "completed",
+  "error": null,
+  "baselineFinding": null,
+  "runBinding": {
+    "runId": "run-1791282927207-1",
+    "runStatus": "running",
+    "currentTurnId": null,
+    "turns": [
+      {
+        "id": "turn-1791282927208-3",
+        "seq": 1,
+        "status": "failed",
+        "reason": "plain_dialogue_failed",
+        "startedAt": 1791282927208,
+        "endedAt": 1791282928766
+      },
+      {
+        "id": "turn-1791282930368-35",
+        "seq": 2,
+        "status": "failed",
+        "reason": "plain_dialogue_failed",
+        "startedAt": 1791282930368,
+        "endedAt": 1791282931911
+      },
+      {
+        "id": "turn-1791282933979-69",
+        "seq": 3,
+        "status": "failed",
+        "reason": "plain_dialogue_failed",
+        "startedAt": 1791282933979,
+        "endedAt": 1791282934656
+      }
+    ],
+    "apiCalls": [
+      {
+        "id": "api-1791282927279-8",
+        "seq": 1,
+        "turnId": "turn-1791282927208-3",
+        "status": "failed",
+        "responseChars": 0,
+        "toolCallCount": 0,
+        "physicalCallCount": 1
+      },
+      {
+        "id": "api-1791282930425-40",
+        "seq": 2,
+        "turnId": "turn-1791282930368-35",
+        "status": "failed",
+        "responseChars": 0,
+        "toolCallCount": 0,
+        "physicalCallCount": 1
+      },
+      {
+        "id": "api-1791282934018-74",
+        "seq": 3,
+        "turnId": "turn-1791282933979-69",
+        "status": "failed",
+        "responseChars": 0,
+        "toolCallCount": 0,
+        "physicalCallCount": 1
+      }
+    ],
+    "eventCount": 89,
+    "lastEventTypes": [
+      "agent-snapshot",
+      "agent-state",
+      "agent-error",
+      "agent-snapshot",
+      "agent-error",
+      "state-transition",
+      "api-failed",
+      "turn-finished",
+      "session-active",
+      "intent-llm-fallback-start",
+      "intent-llm-fallback-finish",
+      "dialogue-tool-surface-declaration",
+      "user-request",
+      "routing-diagnostics",
+      "long-document-policy",
+      "editor-context-policy",
+      "api-start",
+      "agent-plan",
+      "agent-snapshot",
+      "agent-plan",
+      "agent-state",
+      "agent-snapshot",
+      "agent-state",
+      "agent-state",
+      "agent-snapshot",
+      "agent-state",
+      "run-activity",
+      "long-request-in-progress",
+      "physical-call",
+      "physical-call",
+      "agent-state",
+      "agent-snapshot",
+      "agent-state",
+      "agent-error",
+      "agent-snapshot",
+      "agent-error",
+      "state-transition",
+      "api-failed",
+      "turn-finished",
+      "session-active"
+    ]
+  },
+  "sourceOutlineChars": 74841,
+  "turns": [
+    {
+      "request": "按照Word文档的形式重构大纲，不要缩减内容。",
+      "turnStatus": "failed",
+      "intent": "edit",
+      "durationMs": 2491,
+      "physicalCallCount": 1,
+      "toolCallCount": 0,
+      "responseChars": 0,
+      "contentChanged": false,
+      "actualToolSurface": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.write",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "outline.get_structure",
+        "outline.read_range",
+        "outline.search",
+        "outline.get_summary"
+      ]
+    },
+    {
+      "request": "符合我的要求，分叉一允许去重。不用出预览，直接写入",
+      "turnStatus": "failed",
+      "intent": "edit",
+      "durationMs": 2809,
+      "physicalCallCount": 1,
+      "toolCallCount": 0,
+      "responseChars": 0,
+      "contentChanged": false,
+      "actualToolSurface": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.write",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "outline.get_structure",
+        "outline.read_range",
+        "outline.search",
+        "outline.get_summary"
+      ]
+    },
+    {
+      "request": "** 为什么会有这个符号",
+      "turnStatus": "failed",
+      "intent": "discuss",
+      "durationMs": 1802,
+      "physicalCallCount": 1,
+      "toolCallCount": 0,
+      "responseChars": 0,
+      "contentChanged": false,
+      "actualToolSurface": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "outline.get_structure",
+        "outline.read_range",
+        "outline.search",
+        "outline.get_summary"
+      ]
+    }
+  ],
+  "totals": {
+    "completedTurns": 3,
+    "physicalCalls": 3,
+    "physicalSuccesses": 0,
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "toolCalls": 0,
+    "toolSuccesses": 0,
+    "toolFailures": [],
+    "retiredToolsPresent": []
+  },
+  "copiedRunTraces": [
+    "run-trace-outline-20261006-183527"
+  ],
+  "runTraceExport": {
+    "success": true,
+    "path": "D:\\codex\\novel-workshop-vue3\\_data\\r1-phase0-baseline-exports\\run-trace-outline-20261006-183527-deep",
+    "reason": null
+  },
+  "observability": {
+    "logPath": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-r1-phase0-baseline\\electron-after3-20261006103517\\observability.jsonl",
+    "pageErrors": 14,
+    "requestFailures": 0
+  }
+}

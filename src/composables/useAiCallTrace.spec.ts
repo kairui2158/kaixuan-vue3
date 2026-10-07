@@ -40,6 +40,20 @@ describe('useAiCallTrace', () => {
     expect(run?.apiCalls[0].error).toBe('generation failed')
   })
 
+  it('forwards long-document timeout hints to the trace run', () => {
+    const trace = useAiCallTrace({
+      source: 'outline',
+      stepName: '大纲自动拆解',
+      mode: 'auto-decompose',
+      timeoutHint: { active: 3_600_000 }
+    })
+    trace.begin()
+
+    const run = useRunTraceStore().getRun(trace.runId as string)
+    expect(run?.timeoutHint).toEqual({ active: 3_600_000 })
+    trace.finish('success')
+  })
+
   it('records api call lifecycle and duration', () => {
     const trace = useAiCallTrace({ source: 'home', stepName: '去AI味', mode: 'body' })
     trace.begin()

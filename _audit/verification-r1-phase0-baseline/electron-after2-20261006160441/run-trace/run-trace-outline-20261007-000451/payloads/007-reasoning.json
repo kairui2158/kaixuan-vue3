@@ -1,0 +1,1043 @@
+Let me understand the task. The user wants to "按照Word文档的形式重构大纲，不要缩减内容" - restructure the outline in the form of a Word document, without reducing content.
+
+The plan says: read structure, execute restructure, confirm duplicates, delete duplicates, normalize segments.
+
+Let me think about what "Word文档的形式" means here. This likely means:
+1. Proper heading hierarchy
+2. Proper document structure with Title, headings, body paragraphs
+3. Removing duplicates (there are obvious duplicates in the outline - e.g., "数据板的局限" section appears both as heading-2 and within 背景参考资料)
+4. Formatting normalization (punctuation, whitespace)
+
+The outline currently has:
+- Multiple heading levels (H1-H5)
+- Some duplicate content (数据板的局限 appears twice, 菌膜外套 appears twice, etc.)
+- Content that needs reorganization
+
+Wait, but the instruction says "不要缩减内容" (don't reduce content). So I need to be careful about deleting duplicates - only delete actual duplicate content that's confirmed as duplicate, not unique content.
+
+Let me first read the document map and understand the full structure. Actually I already have the structure map in the context. Let me look at what's there.
+
+The structure shows a lot of "内容块" (content blocks) which are just 1-2 character artifacts (paragraphs with 1-2 chars), probably empty paragraphs or stray characters.
+
+Let me think about what "按照Word文档的形式重构" means concretely. This is a fairly vague instruction. Let me consider the most reasonable interpretation:
+
+1. The document currently uses markdown-style headings (#, ##, ###). "Word文档的形式" might mean converting to a Word-compatible format. But we're working in an editor that uses markdown headings.
+
+Actually, given the context (this is a 大纲/outline editor), "按照Word文档的形式重构" probably means:
+- Organize the document in a clean, hierarchical Word-like document structure
+- Fix heading levels
+- Remove duplicate sections (there are clear duplicates)
+- Normalize formatting
+
+But "不要缩减内容" is critical - don't reduce content.
+
+Hmm, but there ARE genuine duplicates in this document. For example:
+1. "数据板的局限" appears as a heading-2 at position 16801-17356, AND the same content appears inside "背景参考资料" (10230-16801) - wait, let me check. Actually the 背景参考资料 section ends at 16801, and then "数据板的局限" is a separate heading-2 at 16801-17356.
+
+Wait, looking more carefully at the structure and the full text provided:
+
+The full text shows:
+- ## 叙事框架
+  - ### 故事核心 (with 菌毯的本质 content)
+  - ### 第一卷
+  - ### 第二卷
+  - ### 第三卷
+- ## 背景参考资料 (ends with "方岫岩... 数据板提供的是火种，不是火炬。")
+  - Wait, actually the 背景参考资料 text includes "数据板的局限" section content at the end. Let me re-read.
+
+Actually looking at the full text, after 背景参考资料 there's:
+"数据板的局限\n数据板不是百宝箱..."
+
+Then there's a separate "## 数据板的局限" heading.
+
+And then "## 菌膜外套：有限资源的临时通行方案" and "## 菌膜外套与共存补丁的关系".
+
+And then "## 世界设定声明".
+
+So there's a clear structural issue: 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 are all top-level (heading-2) sections that seem to be scattered between 背景参考资料 and 卷一.
+
+Actually, these might be content that got placed at the wrong level. Let me look at the full text again:
+
+```
+## 背景参考资料
+[big content about 四亿年前...]
+
+方岫岩用柴油发电机...
+[content about 方岫岩]
+
+灾前军事基准线与菌毯的不可根除性
+[content]
+
+数据板的局限
+数据板不是百宝箱...
+
+
+## 数据板的局限
+[duplicate content - 数据板不是百宝箱...]
+
+## 菌膜外套：有限资源的临时通行方案
+[content]
+
+## 菌膜外套与共存补丁的关系
+[content]
+
+## 世界设定声明
+[content]
+
+## 卷一：基石设定层
+...
+```
+
+So the "背景参考资料" section contains, at its end, "数据板的局限" content (not as a heading, just plain text with "数据板的局限" as a bold/plain marker). Then there's a separate "## 数据板的局限" section that duplicates it.
+
+This is clearly messy and duplicated.
+
+The task is huge and vague. Given the scale (74841 chars), and the requirement "不要缩减内容" (don't reduce content), I need to be very careful.
+
+Actually, let me step back. This is a big restructuring task. The key question is: what does the user actually want?
+
+"按照Word文档的形式重构大纲" - Restructure the outline in Word document form.
+
+I think this means:
+1. Proper document title
+2. Clean heading hierarchy (章节 with proper numbering)
+3. Remove duplicate sections
+4. Normalize formatting (punctuation, whitespace)
+
+But "不要缩减内容" means I should NOT cut content. However, removing TRUE duplicates (where the exact same content appears twice) is not "缩减" - it's deduplication. The plan explicitly has "delete-duplicates" step: "只删除已确认的重复项" (only delete confirmed duplicates).
+
+Let me analyze the actual duplicates more carefully by reading the document.
+
+Given the enormous size, I should:
+1. Read the document in full to understand what's there
+2. Identify duplicates
+3. Identify formatting issues
+4. Plan the restructure
+
+Actually, given the constraints (editor.write allows 1-10 commands per call, and this is a 74841 char document), a full restructure would be massive. Let me think about what's feasible.
+
+Actually, the plan from agent.plan suggests a structured approach:
+1. read-structure: read document map ✓ (already have it)
+2. execute-restructure: fix heading levels or reorder
+3. confirm-duplicates: use locate to confirm
+4. delete-duplicates: only delete confirmed duplicates
+5. normalize-segments: format normalization in batches
+6. verify-plan
+
+The completion criteria: "执行计划中的全部写入批次成功或明确进入终态" and "完成不变量校验：planned-deletion-only, normalize-changes-punctuation-whitespace-format-only".
+
+So the plan is:
+- planned-deletion-only: only delete planned (duplicate) content
+- normalize-changes-punctuation-whitespace-format-only: normalization only changes punctuation/whitespace/format
+
+This confirms my understanding: I should (a) restructure heading levels/order, (b) delete only confirmed duplicates, (c) normalize punctuation/whitespace/format.
+
+Given the scale, I need to be systematic. Let me read the full document first to understand it. But actually, the full text is already provided in the context (当前焦点全文). Let me use that.
+
+Wait, actually the full text provided is quite complete. Let me analyze it.
+
+Let me identify the issues:
+
+1. **Duplicate content**: 
+   - "数据板的局限" appears in 背景参考资料 (as inline text at the end) AND as a separate ## section with identical content.
+   - Actually wait, let me check the exact duplication.
+
+Looking at the full text carefully:
+
+In 背景参考资料 section, near the end:
+```
+林觉民把知识从抽屉里拿出来，打开，撒进风中。
+
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的...
+
+...数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的...
+...数据板提供的是火种，不是火炬。
+```
+
+So YES, "数据板的局限" content is duplicated. It appears:
+1. As inline content at the end of 背景参考资料 (with "数据板的局限" as a plain text header)
+2. As a separate "## 数据板的局限" heading-2 section
+
+2. **Other potential duplicates**: 
+   - "菌膜外套：有限资源的临时通行方案" appears as a ## heading-2 section (17356-18104) AND as 7.8 inside 卷一 (48127-48816). Let me check if they're identical.
+   - "菌膜外套与共存补丁的关系" appears as ## heading-2 (18104-22619) AND as 7.9 inside 卷一 (48816-49296).
+
+Looking at the content:
+- The ## 菌膜外套 section (17356-18104) has 728 chars
+- The 7.8 菌膜外套 section (48127-48816) has 663 chars
+
+These are likely near-duplicates but maybe slightly different. Let me check.
+
+Actually, from the full text:
+
+## 菌膜外套：有限资源的临时通行方案 (the standalone one at 17356):
+"陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。但林知意在对SC-α备份菌株进行深入研究后，结合方岫岩数据板中关于SC-α菌株信息素伪装机制的理论推导，提出了一个折中方案：仿制一种低版本的单一功效菌膜外套。这里需要强调的是：数据板提供了信息素伪装机制的理论基础——即SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构是什么。但从"分子结构"到"可穿戴的仿制外套"，中间是林知意独立完成的工程实现。方岫岩没有留下任何关于菌膜外套的设计方案或配方。
+...单件有效时间约4-6小时...年产量约200-300件...不具备任何防御功能...需要岫岩城科研中枢定期补充屏蔽剂...陈暮的角色：路线勘探者..."
+
+7.8 菌膜外套 (48127):
+"陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。但林知意在对SC-α备份菌株进行深入研究后，结合方岫岩数据板中关于SC-α菌株信息素伪装机制的理论推导，提出了一个折中方案：仿制一种低版本的单一功效菌膜外套。数据板提供了信息素伪装机制的理论基础——即SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构是什么。但从"分子结构"到"可穿戴的仿制外套"，中间是林知意独立完成的工程实现。
+菌膜外套的技术原理...单件有效时间约4-6小时...年产量约200-300件...不具备任何防御功能...需要岫岩城科研中枢定期补充屏蔽剂...陈暮的角色：路线勘探者..."
+
+These are near-identical but with slight wording differences. The 7.8 version doesn't have "这里需要强调的是：...方岫岩没有留下任何关于菌膜外套的设计方案或配方。" and has "菌膜外套的技术原理：" which the standalone doesn't have.
+
+Similarly 菌膜外套与共存补丁的关系 (standalone 18104) vs 7.9 (48816).
+
+The standalone one (18104):
+"菌膜外套是"让系统暂时看不到我们"——临时伪装，不改变菌丝网络对人类信号的认证逻辑。共存补丁是"让系统认识我们"——将人类物种标签写入菌丝网络的认证数据库，让系统在探询时查到人类注册记录后自动放行。
+菌膜外套能做的：让几百人/年短暂穿越菌毯...共存补丁才能做到的：让全人类在任何时间...永久有效。
+从"让系统暂时看不到我们"到"让系统认识我们"——这就是菌膜外套与共存补丁之间不可跨越的鸿沟。菌膜外套是权宜之计，共存补丁是终极解法。"
+
+7.9 (48816):
+"菌膜外套是"让系统暂时看不到我们"——在穿戴者身上覆盖一层伪装层，不改变菌丝网络对人类信号的认证逻辑。共存补丁是"让系统认识我们"——将人类物种标签写入菌丝网络的认证数据库，让系统在探询时查到人类注册记录后自动放行。
+菌膜外套能做的...共存补丁才能做到的...
+终局之后，人类踩在菌毯上...
+从那一刻起，人类在菌毯的感知中不再是异常信号源。
+...天空的绿色边缘，在十四年后，终于隐约透出一丝蓝。"
+
+These are related but 7.9 has additional content about 终局之后.
+
+So these are near-duplicates but not exact duplicates. The plan says "只删除已确认的重复项" - only delete CONFIRMED duplicates. 
+
+Hmm, this is tricky. The word "重复项" (duplicates) is ambiguous. If I delete one of two near-identical sections, I might be "缩减内容" if the sections have unique content.
+
+Actually, let me reconsider the whole task. Given the ambiguity and the enormous scale, and given that this is a delicate editing task where I could easily destroy content, I should be very careful.
+
+Let me think about what's the safest, most valuable interpretation:
+
+The document is a 大纲 (outline) that currently has a messy structure. Key structural issues visible:
+
+1. Top-level sections are inconsistent. Some are "## 叙事框架", "## 背景参考资料", "## 数据板的局限", "## 菌膜外套...", "## 菌膜外套与共存补丁的关系", "## 世界设定声明", "## 卷一：基石设定层", "## 卷二：核心人物群像", "## 卷三：势力与格局层", "## 卷四：叙事工具箱层".
+
+2. "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" are standalone heading-2 sections that ALSO appear within 背景参考资料 (数据板的局限) and within 卷一 (菌膜外套 7.8, 7.9).
+
+3. There are many empty "内容块" paragraphs (1-2 chars).
+
+The "Word document form" restructure would likely mean:
+- A proper title (already exists: # 《绿潮》大纲总纲)
+- Clean numbered chapters
+- Remove the duplicated standalone sections (since they're duplicated elsewhere)
+- Fix heading levels
+
+But this is a MASSIVE undertaking. And the risk of losing content is high.
+
+Let me reconsider. Given:
+- The task instruction from the user is "按照Word文档的形式重构大纲，不要缩减内容" (Restructure the outline in Word document form, don't reduce content)
+- The plan has specific steps
+- The completion criteria emphasize "planned-deletion-only" and "normalize-changes-punctuation-whitespace-format-only"
+
+I think the most important and safe actions are:
+1. Identify and delete CONFIRMED EXACT duplicates (where identical content appears twice)
+2. Restructure heading hierarchy to be consistent
+3. Normalize punctuation/whitespace
+
+But honestly, given the scale and ambiguity, I need to first READ the document thoroughly to understand it, then form a concrete plan.
+
+Actually, wait. Let me re-read the plan's steps more carefully:
+
+"steps":[
+  {"id":"read-structure","description":"读取文档结构并确认目标层级","requiredTools":["editor.document_map"]},
+  {"id":"execute-restructure","description":"执行标题层级修复或章节重排","requiredTools":["editor.write"]},
+  {"id":"confirm-duplicates","description":"用只读工具确认重复项","requiredTools":["editor.locate"]},
+  {"id":"delete-duplicates","description":"只删除已确认的重复项","requiredTools":["editor.write"]},
+  {"id":"normalize-segments","description":"按计划批次整理格式","requiredTools":["editor.write"]},
+  {"id":"verify-plan","description":"核对写入覆盖与不变量"}
+]
+
+So the plan is:
+1. Read structure ✓
+2. Restructure heading levels/reorder sections
+3. Confirm duplicates with locate
+4. Delete only confirmed duplicates
+5. Normalize format in batches
+6. Verify
+
+This is what I should do. But the document is 74K chars. I have the full text in context. Let me analyze it thoroughly.
+
+Actually, I realize I should think about what "Word文档的形式" specifically means in terms of concrete changes. Let me think about common issues in a markdown outline that needs to become "Word form":
+
+1. **Title**: Use a proper Title style (Word's "标题" style). In markdown, this is `# 《绿潮》大纲总纲`. ✓ exists.
+
+2. **Heading hierarchy**: Word documents have 标题1 (Heading 1), 标题2 (Heading 2), etc. The document should have:
+   - 标题1: Main chapters (卷一、卷二、卷三、卷四, plus 叙事框架, 背景参考资料, etc.)
+   - 标题2: Sections within chapters
+   - 标题3, 4, 5: Subsections
+
+Currently the document has:
+- # 《绿潮》大纲总纲 (Title/Heading 1)
+- ## 叙事框架, ## 背景参考资料, ## 数据板的局限, ## 菌膜外套..., ## 世界设定声明, ## 卷一, ## 卷二, ## 卷三, ## 卷四 (Heading 2)
+- ### 故事核心, ### 第一卷·觉醒与扎根, etc. (Heading 3)
+- #### 1.1, #### 4.1, etc. (Heading 4)
+- ##### 4.1.1, etc. (Heading 5)
+
+So the heading levels are mostly fine, but there's an issue: the top-level should probably be consistent.
+
+Actually, the main structural issue I see is that:
+- "数据板的局限", "菌膜外套：有限资源的临时通行方案", "菌膜外套与共存补丁的关系" are standalone ## sections that are DUPLICATES of content elsewhere.
+
+Specifically:
+- "数据板的局限" ## section = exact duplicate of the "数据板的局限" text at the end of 背景参考资料.
+- "菌膜外套：有限资源的临时通行方案" ## section = near-duplicate of 7.8.
+- "菌膜外套与共存补丁的关系" ## section = near-duplicate of 7.9.
+
+Wait, but actually, looking again, these standalone sections might be INTENTIONAL "reference" sections that are cross-referenced. The structure shows they're between 背景参考资料 and 世界设定声明, before 卷一.
+
+Hmm. Actually, I notice something. The document has these top-level sections in this order:
+1. ## 叙事框架
+2. ## 背景参考资料
+3. ## 数据板的局限
+4. ## 菌膜外套：有限资源的临时通行方案
+5. ## 菌膜外套与共存补丁的关系
+6. ## 世界设定声明
+7. ## 卷一：基石设定层
+8. ## 卷二：核心人物群像
+9. ## 卷三：势力与格局层
+10. ## 卷四：叙事工具箱层
+
+This looks like it was built up over time with content pasted in, creating duplicates.
+
+The "数据板的局限" appears BOTH as inline text in 背景参考资料 (ending with "数据板提供的是火种，不是火炬。") AND as a standalone ## section with the same content.
+
+Similarly, "菌膜外套" and "菌膜外套与共存补丁的关系" appear as standalone ## sections AND as 7.8/7.9 in 卷一.
+
+For a clean "Word document form" restructure, these standalone duplicate sections should probably be:
+- 数据板的局限: kept as part of 背景参考资料 (or kept as standalone, but not both)
+- 菌膜外套 / 菌膜外套与共存补丁的关系: these are already in 卷一 as 7.8 and 7.9, so the standalone duplicates should be removed.
+
+But "不要缩减内容" - if I remove the standalone "数据板的局限" ## section, but keep the identical text in 背景参考资料, no content is lost. Same for 菌膜外套.
+
+OK here's my concern: this is a huge task and I have limited ability to verify everything. Let me be strategic.
+
+Actually, I realize the key insight: the plan says "只删除已确认的重复项" (only delete confirmed duplicates). So the safe approach is:
+
+1. Confirm the exact duplicate: "数据板的局限" content appears twice (once inline in 背景参考资料, once as standalone ## section). These are EXACTLY identical based on the full text I have.
+
+2. The 菌膜外套 and 菌膜外套与共存补丁的关系 standalone sections vs 7.8/7.9 are NEAR-duplicates but NOT exact. Deleting one might lose content. I should be careful here.
+
+Let me focus on what I can confidently do.
+
+Actually, let me step back and reconsider the whole thing. Given the massive scope, maybe the best approach is to:
+
+1. First, read the actual document content to verify exact duplicates (using editor.read_range or editor.locate).
+
+2. Then make targeted edits.
+
+Let me start by reading the specific sections to confirm duplicates.
+
+Actually, I have the full text in the context already (当前焦点全文). But it's a rendering, not exact byte content. To confirm exact duplicates, I should use editor.locate or read specific ranges.
+
+Let me plan my reads:
+1. Read 背景参考资料 end (around 16000-17356) to see the inline "数据板的局限" text.
+2. Read the standalone "## 数据板的局限" (16801-17356).
+3. Read "## 菌膜外套" (17356-18104) and 7.8 (48127-48816).
+4. Read "## 菌膜外套与共存补丁的关系" (18104-22619) and 7.9 (48816-49296).
+
+Wait, actually, looking at the structure map again:
+- 数据板的局限 (16801-17356, 545字) - standalone ## section
+- 菌膜外套：有限资源的临时通行方案 (17356-18104, 728字) - standalone ## section
+- 菌膜外套与共存补丁的关系 (18104-22619, 4499字) - standalone ## section
+
+But the 背景参考资料 is (10230-16801, 6561字), and the inline "数据板的局限" text is at the end of it.
+
+Hmm wait, actually, looking at the full text rendering again, I see the 背景参考资料 section ends with:
+
+"...林觉民把知识从抽屉里拿出来，打开，撒进风中。"
+
+Then immediately after (still within 背景参考资料, before the "## 数据板的局限" heading):
+
+"数据板的局限
+数据板不是百宝箱。...数据板提供的是火种，不是火炬。"
+
+Wait, let me look at the exact rendering. In the full text:
+
+```
+林觉民把知识从抽屉里拿出来，打开，撒进风中。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。方岫岩在八个月里记录下的...
+
+...数据板提供的是火种，不是火炬。
+
+
+## 菌膜外套：有限资源的临时通行方案
+```
+
+So actually, looking at the rendering again, the "数据板的局限" text appears:
+1. As "## 数据板的局限" heading + content (this is the standalone section at 16801-17356)
+2. NOT as inline text in 背景参考资料...
+
+Wait, but the structure map says:
+- 背景参考资料 (10230-16801, 6561字)
+- 数据板的局限 (16801-17356, 545字)
+
+And the full text rendering shows 背景参考资料 content ending with "林觉民把知识从抽屉里拿出来，打开，撒进风中。" followed by "## 数据板的局限".
+
+But wait, in the very FIRST part of the full text rendering (the 叙事框架 part and 背景参考资料 part), I see:
+
+Actually, let me look at the full text more carefully. The context provides TWO renderings:
+1. "[当前焦点全文]" - the full editor text
+2. "[大纲结构地图]" - the structure map
+
+In the 当前焦点全文, the content flows as:
+- # 《绿潮》大纲总纲
+- ## 叙事框架
+- ### 故事核心 (with 菌毯的本质 content)
+- ### 第一卷·觉醒与扎根 (with 补充钩子 etc.)
+- ### 第二卷·连接与陷落
+- ### 第三卷·远征与暗流
+- ## 背景参考资料 (big content)
+- ## 数据板的局限 (content)
+- ## 菌膜外套：有限资源的临时通行方案 (content)
+- ## 菌膜外套与共存补丁的关系 (content)
+- ## 世界设定声明 (content)
+- ## 卷一：基石设定层
+  - ### 一、书名定义...
+  - ### 二、灵魂语句
+  - ### 三、地名...
+  - ### 四、灾难源头
+  - ### 五、方岫岩
+  - ### 六、灾难爆发完整链条
+  - ### 七、变异体主动攻击人类核心机制 (7.8 菌膜外套, 7.9 与终局衔接)
+  - ### 八、变异生物体系
+  - ### 九、真菌网络
+  - ### 十、灾后科技
+  - ### 十一、生物油脂
+  - ### 十二、末日食物
+- ## 卷二：核心人物群像
+  - ### 一、陈暮
+  - ### 二、五位女主
+- ## 卷三：势力与格局层
+  - ### 一、菌毯封锁
+  - ### 二、全球幸存者势力分布
+  - ### 三、六大势力
+  - ### 四、圣萌会
+  - ### 五、盖亚中枢
+- ## 卷四：叙事工具箱层
+  - ### 一、核心主题清单
+  - ### 二、术语统一总表
+
+So the current structure is actually reasonably well organized. The main issues are:
+
+1. **背景参考资料** contains, at its end, content that duplicates the standalone "## 数据板的局限" section? Let me verify by looking at the exact full text.
+
+Actually, in the full text, I need to look at where "数据板的局限" text appears. Let me search the rendering.
+
+In the 当前焦点全文, I see:
+
+After "## 背景参考资料" and its content ending with "林觉民把知识从抽屉里拿出来，打开，撒进风中。":
+
+```
+林觉民把知识从抽屉里拿出来，打开，撒进风中。
+
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。...数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。方岫岩在八个月里记录下的...
+```
+
+Hmm wait, actually I need to look very carefully. Let me re-read the full text rendering provided in the context.
+
+Looking at the full text section, after the 背景参考资料 content (which includes the "灾前军事基准线与菌毯的不可根除性" content ending with "...人类对"不可战胜"的承认。"), there's:
+
+"数据板的局限
+数据板不是百宝箱。...数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。..."
+
+Hmm, actually I'm now not 100% sure. The rendering shows the 背景参考资料 section content, then there's a plain-text "数据板的局限" line, then content, then "## 数据板的局限" heading, then the same content again.
+
+Wait, let me look at the actual structure map more carefully:
+
+```
+- [heading-2-1lka0h8] 背景参考资料 (10230-16801, 6561字)
+- [heading-2-z4sxm8] 数据板的局限 (16801-17356, 545字)
+```
+
+The 背景参考资料 heading-2 spans 10230-16801. The 数据板的局限 heading-2 spans 16801-17356.
+
+So 背景参考资料 (10230-16801) is 6561 chars. Its content includes everything up to position 16801.
+
+The full text rendering shows 背景参考资料 content ending with "林觉民把知识从抽屉里拿出来，打开，撒进风中。" and then "## 数据板的局限".
+
+Wait, but that's 6561 chars ending at "林觉民把知识从抽屉里拿出来，打开，撒进风中。"? That doesn't seem right. Let me count roughly. The 背景参考资料 content includes:
+1. 四亿年前的故事 (~500 chars)
+2. 林觉民的故事 (~500 chars)
+3. 灾难爆发 (~500 chars)
+4. 方岫岩坚守 (~500 chars)
+5. 灾前军事基准线与菌毯的不可根除性 (~3000 chars)
+
+That's about 5000-6000 chars. And it ends with "林觉民把知识从抽屉里拿出来，打开，撒进风中。" (which is the end of the 军事基准线 section, actually no...).
+
+Hmm wait, actually the "林觉民把知识从抽屉里拿出来，打开，撒进风中。" appears at the end of the "灾前军事基准线" section? Let me look at the full text again.
+
+The full text shows:
+
+"灾前军事基准线与菌毯的不可根除性
+...
+菌毯是不可根除的。不是暂时打不过，是永远打不完。...人类能做的不是击败菌毯，而是在它的覆盖范围内找到一种与它共存的方式——让菌丝网络不再认为人类是异己。终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。
+
+数据板的局限
+数据板不是百宝箱。...
+
+
+## 数据板的局限
+
+数据板不是百宝箱。...
+数据板提供的是火种，不是火炬。
+"
+
+Hmm, wait. So actually, looking at the full text rendering, there IS a "数据板的局限" plain-text line at the end of 背景参考资料, followed by content, followed by "## 数据板的局限" heading with the SAME content.
+
+Let me carefully trace through the 当前焦点全文 rendering. The 背景参考资料 section:
+
+```
+## 背景参考资料
+
+四亿年前，一株不属于植物... 
+
+[content about 林觉民]
+
+[content about 灾难]
+
+方岫岩用柴油发电机...
+
+灾前军事基准线与菌毯的不可根除性
+[content]
+
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的...数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。...数据板提供的是火种，不是火炬。
+```
+
+YES. So the "数据板的局限" content is DUPLICATED:
+1. Once as inline content at the end of 背景参考资料 (with "数据板的局限" as a plain-text header, not a markdown heading)
+2. Once as a standalone "## 数据板的局限" section
+
+This is a confirmed duplicate based on the full text rendering.
+
+Similarly, let me check 菌膜外套. The full text shows:
+
+After "## 数据板的局限" section content ending "数据板提供的是火种，不是火炬。":
+
+```
+## 菌膜外套：有限资源的临时通行方案
+
+陈暮的菌膜装甲是独一无二的...陈暮不必陪同每一次通行——但他的勘探是不可替代的。
+
+
+## 菌膜外套与共存补丁的关系
+
+菌膜外套是"让系统暂时看不到我们"...菌膜外套是权宜之计，共存补丁是终极解法。
+```
+
+And then in 卷一 (## 卷一：基石设定层), under ### 七、变异体主动攻击人类核心机制:
+- 7.8 菌膜外套：有限资源的临时通行方案 (content)
+- 7.9 与终局的衔接：菌膜外套与共存补丁的关系 (content)
+
+So the 菌膜外套 and 菌膜外套与共存补丁的关系 appear BOTH:
+1. As standalone ## sections (between 数据板的局限 and 世界设定声明)
+2. As 7.8 and 7.9 within 卷一
+
+These are near-duplicates.
+
+OK, so my understanding of the document's issues is now clear. The document has duplicate sections that need deduplication, and the overall structure needs to be organized into a clean "Word document" form.
+
+Now, what's the concrete restructure?
+
+Given "按照Word文档的形式重构大纲，不要缩减内容", I think the target structure should be:
+
+A clean Word-style document:
+- 标题 (Title): 《绿潮》大纲总纲
+- 一级标题 (Heading 1): 各卷
+- 二级标题 (Heading 2): 各章
+- 三级标题 (Heading 3): 各节
+- 正文 (Normal): 内容
+
+And remove duplicates.
+
+The key deduplication targets:
+1. "数据板的局限" - appears twice (inline in 背景参考资料 + standalone ## section). The standalone ## section is a duplicate of the inline text. Delete the standalone ## section OR delete the inline text. Since the standalone is a proper ## section and the inline is just plain text, I should probably keep the standalone ## section as a proper section, and remove the inline duplicate from 背景参考资料. OR keep inline and remove standalone.
+
+Hmm, actually, which to keep? Looking at the logical flow: "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" are all "补充/参考" topics. They're currently standalone ## sections. But "数据板的局限" is ALSO inline in 背景参考资料.
+
+The cleanest approach: 
+- Keep "数据板的局限" as a standalone ## section (it's a proper section).
+- Remove the inline "数据板的局限" content from the end of 背景参考资料 (it's duplicated).
+
+But wait, actually, that would change the 背景参考资料 section, and might be risky if the inline text has slightly different wording.
+
+Let me verify the exact duplicate status using editor.locate and editor.read_range.
+
+Actually, given the complexity and risk, let me take a more careful, methodical approach:
+
+Step 1: Read the specific boundary regions to confirm exact duplicates.
+
+Let me read:
+- Region around 背景参考资料 end (16000-16801)
+- Region around 数据板的局限 standalone (16801-17356)
+- Region around 菌膜外套 standalone (17356-18104)
+- Region 7.8 (48127-48816)
+- Region 7.9 (48816-49296)
+
+Actually, I can use editor.read_range with sectionId or character ranges.
+
+Let me read the key regions. I'll do multiple reads in parallel.
+
+Actually, editor.read_range uses sectionId + offset/limit OR start/end? Let me check the schema. It has: sectionId, offset, limit, cursor, start, end, maxChars. 
+
+Actually looking at the outline.read_range, it has start/end. And editor.read_range has sectionId, offset, limit, cursor.
+
+Let me use editor.read_range with sectionId to read specific sections.
+
+For the document, I need to identify section IDs. From the structure map:
+- 背景参考资料: heading-2-1lka0h8
+- 数据板的局限: heading-2-z4sxm8
+- 菌膜外套: heading-2-10q4nra
+- 菌膜外套与共存补丁的关系: heading-2-28do6r
+- 7.8: heading-4-896l1n
+- 7.9: heading-4-1au19n4
+
+Let me read these sections to confirm.
+
+Actually, I already have the full text in the context (当前焦点全文), which shows the content. But to be safe and precise for editing (editor.write needs exact fragments for replace/delete), I need exact text.
+
+Let me read the specific sections.
+
+Actually, let me think about the overall approach and how much I can accomplish.
+
+The task is enormous. Given the constraints, I think the most valuable and safe actions are:
+
+1. **Delete confirmed exact duplicates**: 
+   - The inline "数据板的局限" content in 背景参考资料 (if it's an exact duplicate of the standalone ## section) OR vice versa.
+
+2. **Restructure headings**: Fix the heading hierarchy so it's consistent.
+
+3. **Normalize formatting**: Fix punctuation (there's inconsistent use of " and "), whitespace, etc.
+
+But honestly, given the scale (74K chars) and the 10-command-per-write limit, doing a full "normalize" would require hundreds of write calls. This is not feasible in one turn.
+
+Let me focus on the HIGHEST VALUE, SAFEST changes:
+
+1. The document title and heading structure - ensure consistent.
+2. Remove the obvious duplicates (数据板的局限 inline duplicate).
+
+Actually, wait. Let me reconsider the scope. Maybe "按照Word文档的形式重构" is a simpler ask than I think. Maybe the user just wants me to:
+
+1. Ensure the document has a proper title and heading structure (Word-style).
+2. Remove duplicate sections that were accidentally pasted multiple times.
+3. Not lose any content.
+
+Given the plan's completion criteria and the "planned-deletion-only" invariant, I think the core work is:
+- Identify duplicates → delete only confirmed duplicates
+- Normalize format (punctuation/whitespace only)
+
+Let me first do a thorough analysis of duplicates by reading the document carefully, then execute.
+
+Let me read the key sections now. I'll read multiple sections in parallel.
+
+Actually, let me reconsider. The context already gives me the FULL TEXT (当前焦点全文). This is the actual content. I can analyze duplicates from this. But for editor.write, I need exact fragments. The full text rendering should be close enough, but I should verify exact text with editor.locate before deleting.
+
+Let me identify the exact duplicate:
+
+Duplicate 1: "数据板的局限"
+- Location A: Inline at end of 背景参考资料 (before ## 数据板的局限 heading)
+- Location B: Standalone ## 数据板的局限 section
+
+From the full text rendering:
+
+Inline (Location A):
+```
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播“无生命有机质”静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是“推测”和“可能”，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。
+
+数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。
+
+数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。
+
+后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从“起点”到“成果”之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。
+```
+
+Standalone (Location B):
+```
+## 数据板的局限
+
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。...数据板提供的是火种，不是火炬。
+```
+
+These appear identical (the standalone ## section content matches the inline content).
+
+So I should delete the inline "数据板的局限" content from 背景参考资料 (keeping the standalone ## section), OR delete the standalone ## section (keeping the inline).
+
+Hmm. Which is more "Word-like"? A proper Word document would have "数据板的局限" as a proper section heading (## = Heading 2). The inline version has "数据板的局限" as a plain-text paragraph (not a heading).
+
+Actually, thinking about it more holistically: the document has these "reference" sections scattered at the top level:
+- ## 数据板的局限
+- ## 菌膜外套：有限资源的临时通行方案
+- ## 菌膜外套与共存补丁的关系
+
+These three are top-level ## sections between 背景参考资料 and 世界设定声明. But they logically belong to different places:
+- 数据板的局限: could be a subsection of 背景参考资料, OR its own reference section
+- 菌膜外套: already exists as 7.8 in 卷一
+- 菌膜外套与共存补丁: already exists as 7.9 in 卷一
+
+Actually, wait. Let me reconsider. Maybe these standalone sections are intentional "expanded reference" sections, and 7.8/7.9 are "summary" versions. In that case, deleting them would lose content.
+
+But the plan says "只删除已确认的重复项" (only delete confirmed duplicates). So I need to confirm they're duplicates.
+
+Given the risk, let me focus ONLY on the EXACT duplicate (数据板的局限) which I can confirm, and on heading structure fixes.
+
+Actually, let me reconsider the whole thing once more. I'm overthinking this. Let me re-read the user request: "按照Word文档的形式重构大纲，不要缩减内容。"
+
+This is a directive to restructure. The plan has been generated. I should execute the plan:
+
+1. Read structure ✓
+2. Execute restructure (heading fixes/reorder)
+3. Confirm duplicates (locate)
+4. Delete only confirmed duplicates
+5. Normalize format
+6. Verify
+
+The most important realization: I have limited tool calls (maxPhysicalRequests: 36). I need to be efficient.
+
+Let me now plan my concrete actions:
+
+**Action 1: Read the boundary regions to confirm duplicates.**
+
+I'll read:
+- 背景参考资料 end region (to see inline 数据板的局限)
+- The standalone 数据板的局限, 菌膜外套, 菌膜外套与共存补丁 sections
+- 7.8 and 7.9 sections
+
+Actually, I already have the full text. But for exact fragment matching, let me verify key duplicates with editor.locate.
+
+Let me identify what to locate:
+1. The inline "数据板的局限" text in 背景参考资料 - I need to find the exact fragment.
+2. The standalone "## 数据板的局限" - find exact.
+
+Actually, for a more efficient approach, let me use editor.search to find occurrences of "数据板不是百宝箱" - this will show me how many times it appears and where.
+
+Let me search for key duplicate phrases:
+- "数据板不是百宝箱" - should appear twice if duplicated
+- "陈暮的菌膜装甲是独一无二的" - should appear twice (standalone 菌膜外套 + 7.8)
+- "菌膜外套是"让系统暂时看不到我们"" - should appear twice (standalone + 7.9)
+
+Let me do these searches in parallel.
+
+Actually, let me be even more efficient and thorough. Let me do the searches to confirm duplicates, and read the specific sections to understand exact content.
+
+Let me plan the tool calls:
+
+Batch 1 (parallel):
+- editor.search "数据板不是百宝箱"
+- editor.search "陈暮的菌膜装甲是独一无二的"
+- editor.search "让系统暂时看不到我们"
+
+This will confirm how many occurrences of each.
+
+Then based on results, I'll read exact ranges and delete duplicates.
+
+Let me proceed.
+
+Actually, wait. Let me reconsider whether I should even delete the near-duplicate 菌膜外套 sections. The completion criteria says "planned-deletion-only" and "normalize-changes-punctuation-whitespace-format-only". This suggests the ONLY content changes allowed are:
+1. Planned deletions (of duplicates)
+2. Normalization of punctuation/whitespace/format
+
+So I CAN delete duplicates as long as they're "planned" (i.e., I've confirmed they're duplicates and documented the plan).
+
+But the "不要缩减内容" constraint means I must NOT delete unique content. So I should only delete:
+- Exact duplicates (identical content appearing twice)
+- Where deleting one copy loses NO information
+
+The 数据板的局限 inline vs standalone: these are EXACT duplicates (same content). Safe to delete one.
+
+The 菌膜外套 standalone vs 7.8: these are NEAR duplicates with slight wording differences. Deleting one might lose a few words of unique content. To be safe, I should NOT delete these unless I can confirm they're exact duplicates.
+
+Let me verify with search + read.
+
+OK let me start executing. First, searches to confirm duplicates.
+
+Let me also think about the "restructure" part. What heading fixes are needed?
+
+Looking at the structure, the document is already fairly well-organized. The main "restructure" would be:
+1. Ensure the top-level sections are consistent.
+2. Move/remove the duplicate standalone sections.
+
+Actually, I think the cleanest restructure is:
+1. Remove the inline "数据板的局限" duplicate from 背景参考资料 (keep the standalone ## section). This is a pure dedup.
+2. Remove the standalone "菌膜外套" and "菌膜外套与共存补丁的关系" ## sections IF they're exact/near duplicates of 7.8/7.9. But this is risky.
+
+Hmm, wait. Actually, let me reconsider. The standalone sections might serve a purpose: they're "quick reference" sections that appear BEFORE 卷一, while 7.8/7.9 are deep inside 卷一. But having them duplicated is definitely a problem for a "clean Word document".
+
+Let me check if the standalone 菌膜外套 section (728字) vs 7.8 (663字) - the standalone has MORE chars, suggesting it has extra content. Similarly 菌膜外套与共存补丁 (4499字) vs 7.9 (451字) - the standalone has WAY more content (4499 vs 451).
+
+Wait, that's interesting. The standalone "菌膜外套与共存补丁的关系" (18104-22619, 4499字) has 4499 chars, while 7.9 (48816-49296, 451字) has only 451 chars.
+
+So they're NOT duplicates! The standalone "菌膜外套与共存补丁的关系" (4499字) is a MUCH LONGER section that probably contains a lot more content (maybe the full 终局 story, 噬神计划, etc.), while 7.9 is a short summary.
+
+Let me look at the full text rendering again to see what the standalone "菌膜外套与共存补丁的关系" section contains.
+
+From the full text:
+
+```
+## 菌膜外套与共存补丁的关系
+
+菌膜外套是"让系统暂时看不到我们"——临时伪装，不改变菌丝网络对人类信号的认证逻辑。共存补丁是"让系统认识我们"——将人类物种标签写入菌丝网络的认证数据库，让系统在探询时查到人类注册记录后自动放行。
+
+菌膜外套能做的：让几百人/年短暂穿越菌毯，依赖岫岩城的工业生产，每次通行都有时间限制。共存补丁才能做到的：让全人类在任何时间、任何地点踩上菌毯都不触发排异反应，不依赖任何势力的技术或资源，永久有效。
+
+从"让系统暂时看不到我们"到"让系统认识我们"——这就是菌膜外套与共存补丁之间不可跨越的鸿沟。菌膜外套是权宜之计，共存补丁是终极解法。
+
+
+在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。韩啸天...直到陈暮出现。他不是靠武力突破了菌毯封锁——他是靠方岫岩留下的SC-α菌株，让菌丝网络主动忽略了他的存在。
+
+
+在远西大陆，另一种力量正在凝聚。
+塞缪尔·赫兹...圣萌会...噬神计划...圣婴计划...
+
+2043年春，巨树...天府都陷落了...
+
+噬神计划进入最后阶段...马格努斯的成神仪式瓦解了...
+
+菌毯不再调动变异体围杀人类...孢子云开始缓慢变薄...
+
+...盖亚巨树它只是一株植物...
+
+"知识锁在抽屉里，和不存在没有区别。"
+林觉民把知识从抽屉里拿出来，打开，撒进风中。
+```
+
+Wait, this is confusing. The standalone "## 菌膜外套与共存补丁的关系" section (18104-22619) actually contains a HUGE amount of content, including:
+- 菌膜外套与共存补丁的关系 (short)
+- 六大势力 overview (在大裂谷走廊...)
+- 圣萌会/塞缪尔·赫兹/马格努斯
+- 天府都陷落
+- 噬神计划/终局之战
+- 终局之后
+- 盖亚中枢
+
+Wait, that doesn't make sense for a section titled "菌膜外套与共存补丁的关系". This looks like a DUMP of content that was pasted under the wrong heading.
+
+Actually, wait. Let me re-read the full text more carefully. I think I may have misread the structure.
+
+Let me re-examine. The structure map says:
+- 菌膜外套与共存补丁的关系 (18104-22619, 4499字)
+
+And the full text rendering after "## 菌膜外套与共存补丁的关系" shows:
+
+"菌膜外套是"让系统暂时看不到我们"...菌膜外套是权宜之计，共存补丁是终极解法。
+
+在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。..."
+
+So the "## 菌膜外套与共存补丁的关系" section contains:
+1. The 菌膜外套 vs 共存补丁 comparison (short)
+2. A bunch of other content (六大势力 overview, 圣萌会, 天府都陷落, 终局, etc.)
+
+This is a mess. The section titled "菌膜外套与共存补丁的关系" actually contains a huge dump of UNRELATED content (六大势力, 圣萌会, 终局之战, etc.).
+
+Hmm wait, actually, let me reconsider. Maybe this content is NOT unrelated. Let me look at the full text rendering flow again very carefully.
+
+Actually, I realize I need to look at the raw rendering order. Let me re-read the 当前焦点全文 from the beginning, paying attention to headings.
+
+The 当前焦点全文 structure (from the rendering):
+
+1. `# 《绿潮》大纲总纲`
+2. `## 叙事框架`
+3. `### 故事核心` - 敌我识别 content + 菌毯的本质 content
+4. `### 第一卷·觉醒与扎根` - lots of content (概要, 补充钩子, etc.)
+5. `### 第二卷·连接与陷落` - content
+6. `### 第三卷·远征与暗流` - content
+7. `## 背景参考资料` - big content about 四亿年前, 林觉民, 灾难, 方岫岩, 灾前军事基准线, then 数据板的局限 (inline)
+8. `## 数据板的局限` - content (DUPLICATE of inline)
+9. `## 菌膜外套：有限资源的临时通行方案` - content
+10. `## 菌膜外套与共存补丁的关系` - content about 菌膜外套 vs 共存补丁, THEN a bunch of content (六大势力, 圣萌会, 终局)
+11. `## 世界设定声明` - content
+12. `## 卷一：基石设定层` - content
+13. `## 卷二：核心人物群像` - content
+14. `## 卷三：势力与格局层` - content
+15. `## 卷四：叙事工具箱层` - content
+
+So the "## 菌膜外套与共存补丁的关系" section (10) contains a LOT of content that seems to be a "story overview" (六大势力, 圣萌会, 终局之战, etc.).
+
+Actually, wait. Let me look at the full text rendering more carefully. After "## 菌膜外套与共存补丁的关系" and its short content, there's:
+
+"在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。韩啸天在废墟上定下名字..."
+
+Hmm, this content describes 六大势力. Then:
+
+"在远西大陆，另一种力量正在凝聚。塞缪尔·赫兹..."
+
+This describes 圣萌会 origin.
+
+Then:
+
+"2043年春，巨树从深根大陆中部悄然破土而出..."
+
+This describes 巨树 growth and 天府都陷落.
+
+Then:
+
+"噬神计划进入最后阶段..."
+
+终局之战.
+
+Then:
+
+"菌毯不再调动变异体围杀人类..."
+
+终局之后.
+
+Then:
+
+"盖亚巨树它只是一株植物..."
+
+Then:
+
+""知识锁在抽屉里，和不存在没有区别。" 林觉民把知识从抽屉里拿出来，打开，撒进风中。"
+
+So this whole chunk (六大势力 overview + 圣萌会 + 终局 + 盖亚中枢 conclusion) is sitting UNDER the "## 菌膜外套与共存补丁的关系" heading, which is clearly wrong - it's a content dump.
+
+Wait, but actually, maybe I'm misreading. Let me reconsider the structure map again:
+
+- 菌膜外套与共存补丁的关系 (18104-22619, 4499字)
+
+4499 chars is not that much for all that content (六大势力 overview, 圣萌会, 终局, etc.). That content looks like it would be 4000+ chars.
+
+Actually, let me estimate:
+- 菌膜外套 vs 共存补丁: ~350 chars
+- 六大势力 overview (在大裂谷走廊...): ~1000 chars
+- 圣萌会 origin: ~800 chars
+- 巨树 + 天府都陷落: ~800 chars
+- 终局之战: ~800 chars
+- 终局之后: ~800 chars
+- 盖亚中枢 conclusion: ~400 chars
+
+Total: ~5000 chars. Close to 4499. So yes, all this content IS under the "## 菌膜外套与共存补丁的关系" heading.
+
+This is a structural mess. This content should be reorganized. But wait - "不要缩减内容" - I can't just delete it.
+
+OK, this is getting very complex. Let me step back and think about what's realistically achievable and valuable.
+
+Given the scale and risk, I think the right approach is:
+
+1. **Confirm and delete the ONE clear exact duplicate**: "数据板的局限" inline text in 背景参考资料 (duplicated by the standalone ## section). This is a safe, clear win.
+
+2. **Fix heading structure issues** that are clear and safe.
+
+3. **Report** the larger structural issues (the content dump under 菌膜外套与共存补丁的关系, near-duplicate 菌膜外套 sections) as findings, possibly fixing them carefully.
+
+Actually, wait. Let me reconsider the "菌膜外套与共存补丁的关系" section. Maybe this content is actually a "剧情总览" (story overview) that's meant to be there but with a wrong heading? The content reads like a synopsis of the whole story (六大势力 → 圣萌会 → 巨树/天府都陷落 → 终局之战 → 终局之后 → 结论).
+
+Hmm, this content appears to be a "全书故事总览" that got pasted under the wrong heading.
+
+OK, I think I'm overanalyzing. Let me take a concrete, safe approach.
+
+Let me first do the searches to confirm the exact duplicates, and read the specific regions. Then I'll make a concrete plan.
+
+Let me search for:
+1. "数据板不是百宝箱" - confirm 2 occurrences
+2. "陈暮的菌膜装甲是独一无二的" - confirm occurrences
+3. "让系统暂时看不到我们" - confirm occurrences
+
+Let me do these searches now.
+
+Actually, I realize I should also think about whether I need to read more. The full text is already provided. Let me just do the searches to get exact positions, then use editor.locate/read_range to get exact text for deletion.
+
+Let me proceed with searches.
+
+Let me also reconsider: is the title correct? "# 《绿潮》大纲总纲" - this is the document title (Heading 1). In a Word document, this would be the Title style. That's fine.
+
+Actually, one important consideration: "按照Word文档的形式重构" might specifically mean converting markdown to Word-style formatting. But since we're in a markdown editor, the markdown headings ARE the way to represent Word's heading hierarchy. So "Word form" = clean heading hierarchy + proper structure + no duplicates + consistent formatting.
+
+Let me focus on the concrete, valuable, safe actions:
+
+1. **Deduplicate "数据板的局限"**: Delete the inline copy in 背景参考资料 (keep the ## section). This removes ~545 chars of duplicate but loses NO unique content.
+
+2. **Fix the "菌膜外套与共存补丁的关系" content dump**: This is harder. The content under it (六大势力 overview, 圣萌会, 终局) is NOT about 菌膜外套 vs 共存补丁. But it's not duplicated elsewhere exactly... Actually wait, is it? Let me check.
+
+The content under "## 菌膜外套与共存补丁的关系" includes:
+- 六大势力 overview (在大裂谷走廊...直到陈暮出现)
+- 圣萌会 origin (在远西大陆...圣婴计划...)
+- 巨树 + 天府都陷落 (2043年春...天府都陷落了)
+- 终局之战 (噬神计划进入最后阶段...马格努斯的成神仪式瓦解了)
+- 终局之后 (菌毯不再调动...天空的绿色边缘)
+- 盖亚中枢 conclusion (盖亚巨树它只是一株植物...)
+- 林觉民 quote
+
+Is this content duplicated elsewhere? Let me check:
+- 六大势力 overview: This is similar to content in 卷三 (势力与格局层). But 卷三 has the FULL 六大势力设定, while this is a SHORT overview. Not exact duplicate.
+- 圣萌会 origin: 卷三 has "四、圣萌会" with 4.1-4.10. The content here is similar to 4.1-4.9 but condensed. Not exact duplicate.
+- 天府都陷落: 卷二 mentions it briefly. This is more detailed. Not exact duplicate.
+- 终局之战: This is the 终局 story. Not elsewhere in detail.
+- 终局之后: Similar content.
+
+So this content is NOT duplicated - it's UNIQUE content (a story synopsis) that's been placed under the wrong heading. I should NOT delete it. I should RECATEGORIZE it.
+
+This is getting really complex. Given the "不要缩减内容" constraint and the risk, let me focus on:
+
+1. The clear exact duplicate (数据板的局限 inline) - delete it.
+2. Heading fixes.
+
+And for the big content dump under "菌膜外套与共存补丁的关系", I could:
+- Add a proper heading for the story synopsis content, OR
+- Leave it as-is and note it.
+
+Actually, let me reconsider the scope once more. The user said "按照Word文档的形式重构大纲，不要缩减内容". Maybe the user just wants me to do a reasonable restructuring. Given I have 36 physical requests max, and each write can have up to 10 commands, I can do a fair amount.
+
+Let me focus on concrete, verifiable, safe changes:
+
+**Change 1: Delete the inline "数据板的局限" duplicate from 背景参考资料.**
+This is safe (exact duplicate).
+
+**Change 2: Fix the heading of the content dump.** The content under "## 菌膜外套与共存补丁的关系" (the 六大势力/圣萌会/终局 synopsis) needs a proper heading. But what heading? Looking at the content, it's a "全书故事总览" or "剧情总览". 
+
+Actually, wait. Let me reconsider. Looking at the structure again, the "## 菌膜外套与共存补丁的关系" section content is:
+
+Short 菌膜外套 vs 共存补丁 comparison, THEN a big synopsis.
+
+Actually, maybe the intent was:
+- "菌膜外套与共存补丁的关系" = the short comparison (first ~350 chars)
+- Then a NEW section (unlabeled) = the story synopsis
+
+Hmm. But I can't easily split without knowing the exact intent.
+
+OK, let me take yet another step back. I think I'm overcomplicating this. Let me just:
+
+1. Confirm duplicates with search.
+2. Delete the exact duplicate (数据板的局限 inline).
+3. Do safe heading normalization.
+
+And document my findings.
+
+Let me start with searches. Let me also read the actual current document state via document_map to refresh (I have it in context, but let me confirm via search results).
+
+Actually, let me just do the searches now and then decide.
+
+Let me run searches in parallel:
+1. editor.search "数据板不是百宝箱"
+2. editor.search "陈暮的菌膜装甲是独一无二"
+3. editor.search "菌膜外套与共存补丁的关系"
+
+Actually "菌膜外套与共存补丁的关系" appears in multiple headings. Let me search for the content phrase instead.
+
+Let me search:
+1. "数据板不是百宝箱" (confirm duplicate)
+2. "陈暮的菌膜装甲是独一无二" (confirm 菌膜外套 duplicate)
+3. "让系统暂时看不到我们" (confirm 共存补丁关系 duplicate)
+
+Let me go.

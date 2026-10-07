@@ -1,0 +1,34 @@
+The "故事核心" section now looks good. The 【核心张力：保护即加速】 block has been moved to the right place (right after "重新划定敌我边界的那个变量。") and the paste instruction line has been removed. 
+
+Now let me check if there are any other cleanup issues remaining. Let me look at the current state:
+
+The section now reads:
+```
+### 故事核心
+
+自然成了人类最大的灾难...陈暮是唯一踩在菌毯上不被判定为敌人的人——他从一个人活下来，最后成了自然和人类重新划定敌我边界的那个变量。
+【核心张力：保护即加速】
+...
+全书围绕"敌我识别"展开...
+【菌毯的本质：竞争对手文明】
+...
+人类的一切挣扎都不是为了"打败菌毯"，而是在它的碾压下多活一天。
+```
+
+This looks clean and well-structured. The paste instruction is gone, and the 【核心张力】 block is now part of the narrative flow rather than being a raw paste instruction.
+
+But wait - there are still some formatting issues I should check. The blocks like `【核心张力：保护即加速】` and `【菌毯的本质：竞争对手文明】` look like they might be intended as sub-headings within the "故事核心" section. But they use 【】 brackets rather than markdown headings. This seems intentional - they're "concept blocks" within the narrative rather than separate sections.
+
+Now, let me check if there's anything else that looks like a paste instruction or structural issue remaining. Let me search for other potential cleanup issues.
+
+Let me also check if there are any obvious duplicate sections remaining. From the previous session's audit, the user mentioned "分叉一允许去重" (branch one allows deduplication). Let me check for any remaining duplicates.
+
+The key duplicates that were already handled:
+1. Deleted the duplicate "数据板的局限" paragraph from the background reference section
+2. Added missing titles to untitled text blocks
+3. Split misplaced content and added titles
+4. Unified heading levels
+
+The story core paste instruction was just cleaned up.
+
+Let me check if there are any other clear structural issues. Let me search for "粘贴" (paste) which would indicate remaining paste instructions, and also look for any other obvious issues.

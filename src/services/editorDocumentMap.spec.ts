@@ -125,10 +125,68 @@ describe('editorDocumentMap', () => {
     expect(snapshot.content).toBe(content)
   })
 
+  it('read_range supports sectionId offset/limit pagination and cursor shorthand', async () => {
+    const longBody = '雨'.repeat(2000)
+    const content = `## 第1节 出发\n${longBody}\n## 第2节 渡口\n灯塔。`
+    const { gateway } = makeGateway(content)
+    const map = buildEditorDocumentMap(content)
+    const section = map.sections.find(item => item.title === '第1节 出发')
+    expect(section).toBeTruthy()
+
+    const page1 = await gateway.execute('editor.read_range', {
+      sectionId: section!.id,
+      offset: 500,
+      limit: 700,
+      maxChars: 12000,
+    }, makeContext())
+    expect(page1.ok).toBe(true)
+    expect((page1.data as any).offset).toBe(500)
+    expect((page1.data as any).content).toBe(content.slice(section!.start + 500, section!.start + 1200))
+    expect((page1.data as any).hasMore).toBe(true)
+    expect(typeof (page1.data as any).nextCursor).toBe('string')
+
+    const page2 = await gateway.execute('editor.read_range', {
+      sectionId: section!.id,
+      offset: 1200,
+      limit: 1000,
+    }, makeContext())
+    expect(page2.ok).toBe(true)
+    expect((page2.data as any).content).toBe(content.slice(section!.start + 1200, section!.end))
+    expect((page2.data as any).hasMore).toBe(false)
+
+    const shorthand = await gateway.execute('editor.read_range', {
+      cursor: `section:${section!.id}`,
+    }, makeContext())
+    expect(shorthand.ok).toBe(true)
+    expect((shorthand.data as any).offset).toBe(0)
+    expect((shorthand.data as any).content.startsWith('## 第1节 出发')).toBe(true)
+  })
+
+  it('read_range rejects mixed pagination modes with one unambiguous rule', async () => {
+    const { gateway } = makeGateway()
+    const map = buildEditorDocumentMap(structuredContent)
+    const section = map.sections[0]
+
+    const mixed = await gateway.execute('editor.read_range', {
+      sectionId: section.id,
+      cursor: `section:${section.id}:0`,
+    }, makeContext())
+    expect(mixed.ok).toBe(false)
+    expect(mixed.error?.code).toBe('invalid_input')
+    expect(mixed.error?.message).toContain('cursor 与 offset/limit/sectionId 分页只能选择一种')
+  })
+
   it('read_range rejects invalid cursors and full-document requests', async () => {
     const { gateway } = makeGateway()
     const empty = await gateway.execute('editor.read_range', {}, makeContext())
     expect(empty.error?.code).toBe('invalid_input')
+
+    const documentLevelPagination = await gateway.execute('editor.read_range', {
+      offset: 0,
+      limit: 60,
+    }, makeContext())
+    expect(documentLevelPagination.error?.code).toBe('invalid_input')
+    expect(documentLevelPagination.error?.message).toContain('必须提供 sectionId')
 
     const both = await gateway.execute('editor.read_range', {
       cursor: 'section:chapter-0:0',
@@ -138,15 +196,6 @@ describe('editorDocumentMap', () => {
 
     const malformed = await gateway.execute('editor.read_range', { cursor: 'bad-cursor' }, makeContext())
     expect(malformed.error?.code).toBe('invalid_input')
-
-    const paginationMismatch = await gateway.execute('editor.read_range', {
-      sectionId: 'section-0',
-      limit: 10,
-    }, makeContext())
-    expect(paginationMismatch.ok).toBe(false)
-    expect(paginationMismatch.error?.code).toBe('invalid_input')
-    expect(paginationMismatch.error?.message).toContain('read_range 不支持 offset/limit 分页')
-    expect(paginationMismatch.error?.message).toContain('请传 nextCursor')
 
     const missing = await gateway.execute('editor.read_range', { sectionId: 'not-exists' }, makeContext())
     expect(missing.error?.code).toBe('section_not_found')

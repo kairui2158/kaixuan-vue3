@@ -243,7 +243,7 @@ export function resolveModelContextWindow(model: unknown): number | undefined {
   if (name.includes('gpt-4o') || name.includes('gpt-4.1')) return 128_000
   if (name.includes('gpt-4-turbo')) return 128_000
   if (name.includes('gpt-4')) return 8_192
-  if (name.includes('deepseek')) return name.includes('reasoner') ? 128_000 : 64_000
+  if (name.includes('deepseek')) return name.includes('reasoner') ? 128_000 : undefined
   if (name.includes('gemini')) {
     if (name.includes('1.5')) return 1_000_000
     if (name.includes('2.5')) return 1_000_000

@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-2-12ruweg",
+      "title": "卷四：叙事工具箱层",
+      "kind": "heading",
+      "level": 2,
+      "path": "卷四：叙事工具箱层"
+    },
+    "range": {
+      "start": 71699,
+      "end": 71729
+    },
+    "offset": 0,
+    "maxChars": 30,
+    "content": "## 卷四：叙事工具箱层\n\n### 一、核心主题清单\n\n知识",
+    "hasMore": true,
+    "nextCursor": "section:heading-2-12ruweg:30",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "data": {
+    "node": {
+      "id": "heading-2-sd0mn1",
+      "title": "世界设定声明",
+      "kind": "heading",
+      "level": 2,
+      "path": "《绿潮》大纲总纲 / 世界设定声明"
+    },
+    "rangeStart": 22619,
+    "rangeEnd": 22716,
+    "readStart": 22619,
+    "readEnd": 22716,
+    "offset": 0,
+    "limit": 500,
+    "content": "## 世界设定声明\n\n本书为完全架空世界设定。故事中所有地名、区域名、山川河流名均为虚构创作，不与任何现实地理位置、国家、行政区划存在对应关系。势力名称为故事核心资产，独立于地名体系之外。\n\n\n",
+    "rangeChars": 97,
+    "readChars": 97,
+    "hasMore": false,
+    "next_steps": [
+      "基于已读取全文回答或提案，不要凭摘要推测细节"
+    ]
+  }
+}

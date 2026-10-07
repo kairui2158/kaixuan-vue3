@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "paragraph-46bd25",
+      "title": "内容块 1",
+      "kind": "paragraph",
+      "level": 1,
+      "path": "内容块 1"
+    },
+    "range": {
+      "start": 11,
+      "end": 12
+    },
+    "offset": 0,
+    "maxChars": 10,
+    "content": "\n",
+    "hasMore": false,
+    "next_steps": [
+      "基于已读取内容回答或写入；需要其他节时先调用 editor.document_map"
+    ]
+  }
+}

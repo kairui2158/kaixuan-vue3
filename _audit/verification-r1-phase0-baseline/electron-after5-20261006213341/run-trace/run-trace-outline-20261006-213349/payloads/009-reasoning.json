@@ -1,0 +1,1293 @@
+Let me understand the task. The user wants to restructure the outline "按照Word文档的形式重构大纲，不要缩减内容" (restructure the outline in Word document form, without reducing content).
+
+The plan has steps:
+1. read-structure (done)
+2. execute-restructure: 执行标题层级修复或章节重排
+3. confirm-duplicates
+4. delete-duplicates
+5. normalize-segments: 按计划批次整理格式
+6. verify-plan
+
+The completion criteria:
+- 执行计划中的全部写入批次成功或明确进入终态
+- 完成不变量校验：planned-deletion-only, normalize-changes-punctuation-whitespace-format-only
+
+The failure criteria:
+- 未发生成功写入却输出修改预览或完成说明
+- 写入操作被执行计划拒绝
+
+I need to understand what "按照Word文档的形式重构" means. The outline currently has a structure issue: it has a "卷一：基石设定层" that's actually a heading-2 (##), but within the document structure, the "叙事框架" section contains "第一卷·觉醒与扎根", "第二卷", "第三卷" as heading-3. Then "背景参考资料" is heading-2, followed by "数据板的局限" heading-2, "菌膜外套" heading-2, "菌膜外套与共存补丁的关系" heading-2, "世界设定声明" heading-2, then "卷一：基石设定层" heading-2 (containing 一、二、三... 十二), then "卷二：核心人物群像" heading-2, "卷三：势力与格局层" heading-2, "卷四：叙事工具箱层" heading-2.
+
+Wait, looking more carefully at the structure map:
+
+- heading-1: 《绿潮》大纲总纲 (top level, # )
+  - heading-2 叙事框架
+    - heading-3 故事核心
+    - heading-3 第一卷·觉醒与扎根
+    - heading-3 第二卷·连接与陷落
+    - heading-3 第三卷·远征与暗流
+  - heading-2 背景参考资料
+  - heading-2 数据板的局限
+  - heading-2 菌膜外套：有限资源的临时通行方案
+  - heading-2 菌膜外套与共存补丁的关系
+  - heading-2 世界设定声明
+  - heading-2 卷一：基石设定层
+    - heading-3 一、书名定义与核心术语定调
+    - heading-3 二、灵魂语句
+    - ...
+    - heading-3 十二、末日食物与营养供给体系
+  - heading-2 卷二：核心人物群像
+    - heading-3 一、陈暮
+    - heading-3 二、五位女主
+  - heading-2 卷三：势力与格局层
+    - heading-3 一、菌毯封锁与人类孤岛
+    - ...
+  - heading-2 卷四：叙事工具箱层
+    - heading-3 一、核心主题清单
+    - heading-3 二、术语统一总表
+
+So the structure is a bit inconsistent. The document "总纲" has top-level sections that are heading-2. But there's "叙事框架" (narrative framework) which is heading-2 and contains the story core and volumes 1-3 (which are actually the "故事" outline). Meanwhile the "背景参考资料" section contains lots of loose content.
+
+Wait, actually there's a key observation. Looking at the "背景参考资料" heading-2 (10230-16801), it contains content that includes:
+- The whole backstory (四亿年前... 林觉民... 方岫岩... 陈暮苏醒...)
+- Then "灾前军事基准线与菌毯的不可根除性" content (this is a heading-less block starting with "灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么...")
+- Then "数据板的局限" content (which duplicates the heading-2 数据板的局限 that follows)
+
+So there's a big problem: The "背景参考资料" heading-2 section (10230-16801) ends with the content of "数据板的局限" which is then ALSO present as its own heading-2 section (16801-17356).
+
+Let me look at this more carefully.
+
+The "背景参考资料" section (10230-16801) contains:
+1. 四亿年前... 人类恰好挡在了它生存的道路上。
+2. 方岫岩用柴油发电机... 比任何武器都更珍贵。
+3. 灾前军事基准线与菌毯的不可根除性 (一、二、三 - this is a full block with tab-separated tables)
+4. 数据板的局限 (full text)
+
+Then the next heading-2 is "数据板的局限" (16801-17356) which is the same "数据板的局限" content.
+
+So the "数据板的局限" content is duplicated: once at the end of "背景参考资料" section, and once as its own section.
+
+Also, the "菌膜外套：有限资源的临时通行方案" heading-2 (17356-18104) is a standalone section, but this content ALSO appears inside 卷三 as 7.8 (heading-4-896l1n). And the "菌膜外套与共存补丁的关系" heading-2 (18104-22619) content also appears inside 卷三 as 7.9 (heading-4-1au19n4).
+
+Wait, but those are under different top sections. Let me check.
+
+Actually, looking at the structure, the document has these heading-2 sections in order:
+1. 叙事框架
+2. 背景参考资料
+3. 数据板的局限
+4. 菌膜外套：有限资源的临时通行方案
+5. 菌膜外套与共存补丁的关系
+6. 世界设定声明
+7. 卷一：基石设定层
+8. 卷二：核心人物群像
+9. 卷三：势力与格局层
+10. 卷四：叙事工具箱层
+
+The "菌膜外套与共存补丁的关系" section (18104-22619) contains:
+- 菌膜外套与共存补丁的关系 (short intro)
+- Then: 在大裂谷走廊... (this is a 六大势力 overview)
+- Then: 在远西大陆... 马格努斯... 圣萌会... 噬神计划... 脑干
+- Then: 2043年春，巨树... 天府都陷落... 岫岩城
+- Then: 噬神计划进入最后阶段... 终局之战... 共存补丁... 马格努斯被清除
+- Then: 菌毯不再调动变异体... 结局
+- Then: 盖亚巨树... 林觉民把知识撒进风中
+
+This is essentially a huge narrative summary/backstory that belongs in "背景参考资料" but is placed under "菌膜外套与共存补丁的关系" heading.
+
+This is very messy. The user wants "按照Word文档的形式重构大纲" - restructure as a Word document form. This means organizing into a clean hierarchical structure.
+
+But wait - the instructions say:
+- "禁止整篇 replace_document"
+- "删除重复段落后必须校验有效正文未丢失"
+- "新增标题必须紧贴对应正文且不得改写正文内容"
+- "统一标题层级前必须先读取结构：消除层级跳变并把标题归位到文档既有层级体系，禁止无依据地把标题层级改深或改浅"
+
+So I need to be careful. The main tasks are:
+1. Fix title hierarchy (消除层级跳变)
+2. Move misplaced headings/paragraphs to correct level
+3. Add titles for untitled blocks
+4. Delete confirmed duplicates
+5. Normalize punctuation (half-width to full-width), whitespace, numbering, title levels
+
+The normalization is required: "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）".
+
+Wait, but this is a huge document (74841 chars). Normalizing all punctuation across the whole document via editor.write would require many replace_match operations. That seems impractical, but the plan says "normalize-segments... 计划批次数量是 3" and "每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令".
+
+Hmm, but I can't do a full-text replace easily. Let me think about what's actually feasible.
+
+Actually wait - let me re-read the plan. The plan steps are:
+1. read-structure (已完成)
+2. execute-restructure: 执行标题层级修复或章节重排
+3. confirm-duplicates: 用只读工具确认重复项
+4. delete-duplicates: 只删除已确认的重复项
+5. normalize-segments: 按计划批次整理格式
+6. verify-plan
+
+The completion criteria says: "执行计划中的全部写入批次成功或明确进入终态" and "完成不变量校验：planned-deletion-only, normalize-changes-punctuation-whitespace-format-only".
+
+So I need to do 3 batches of writes. Let me think about the most important restructuring tasks.
+
+Actually, let me reconsider. The key issues I've identified from reading:
+
+1. **Duplicate content**: "数据板的局限" appears twice - once at the end of "背景参考资料" (in section 背景参考资料), and once as its own heading-2 section. This is a confirmed duplicate that should be deleted.
+
+2. **Misplaced heading/paragraphs**: The "背景参考资料" section contains loose content that should be organized. Specifically:
+   - The "灾前军事基准线与菌毯的不可根除性" block has no heading (it's just "灾前军事基准线与菌毯的不可根除性\n一、2042年..." with tab-separated tables)
+   - The "数据板的局限" content at the end of 背景参考资料 is duplicated
+
+3. **"菌膜外套与共存补丁的关系" heading-2 (18104-22619)** contains a huge amount of content that isn't about "菌膜外套与共存补丁的关系" - it contains the 六大势力 overview, 圣萌会 backstory, 终局之战, 结局. This content seems like it should be under "背景参考资料" or a different section. But moving it might be too aggressive.
+
+Actually, wait. Let me reconsider the whole thing. The user's instruction is "按照Word文档的形式重构大纲，不要缩减内容" (restructure as Word document form, don't reduce content).
+
+This is quite ambiguous. The most literal interpretation: the current outline has a flat/inconsistent structure, and the user wants it organized like a proper Word document (proper hierarchical headings).
+
+But given the constraints and the plan, I think the key concrete actions are:
+
+1. **Fix title hierarchy**: The document currently has:
+   - `# 《绿潮》大纲总纲` (heading-1, the only H1)
+   - `## 叙事框架` etc. (heading-2)
+   - But there might be hierarchy jumps.
+
+Actually, let me look at the structure map again. The heading levels seem consistent: H1 → H2 → H3 → H4 → H5.
+
+Wait, but there's an issue. "卷一：基石设定层" is heading-2 (##). But "叙事框架" is also heading-2 (##). These are sibling sections. But "叙事框架" contains "第一卷·觉醒与扎根" as heading-3 (###). And "卷一：基石设定层" contains "一、书名定义..." as heading-3 (###).
+
+Hmm, so there are TWO "卷" systems:
+- 叙事框架 → 第一卷·觉醒与扎根 / 第二卷·连接与陷落 / 第三卷·远征与暗流 (these are story volumes)
+- 卷一：基石设定层 / 卷二：核心人物群像 / 卷三：势力与格局层 / 卷四：叙事工具箱层 (these are setting/reference volumes)
+
+This is actually a reasonable structure. The document has:
+- 叙事框架 (story outline)
+- 背景参考资料 (backstory)
+- 数据板的局限
+- 菌膜外套
+- 菌膜外套与共存补丁的关系
+- 世界设定声明
+- 卷一：基石设定层 (setting layer)
+- 卷二：核心人物群像 (characters)
+- 卷三：势力与格局层 (factions)
+- 卷四：叙事工具箱层 (toolbox)
+
+The issue is the loose content sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) are floating between "背景参考资料" and "世界设定声明" / "卷一". These seem like they should be organized.
+
+Actually, I realize I'm overcomplicating this. Let me step back and think about what's actually achievable and most valuable.
+
+Given the constraints:
+- Can't replace whole document
+- Can use move, insert, replace_match, rewrite, delete, append
+- Must normalize punctuation (half-width → full-width) — but this is a MASSIVE task across 74841 chars
+
+Actually, wait. Let me reconsider. The normalization requirement says "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角". This is stated in the instruction as a mandatory condition. But doing this across the whole 74841-char document via replace_match operations would be impractical (thousands of individual replacements).
+
+Hmm, but actually, looking at the content I've read, the content is already mostly in full-width punctuation. The main half-width issues I noticed are:
+- The tab-separated "tables" in the "灾前军事基准线" section use `\t` as column separators instead of GFM `|` tables. These are actually NOT markdown tables - they're tab-separated text that looks like a table in the raw content.
+
+Wait, let me look again. The content in "背景参考资料" has things like:
+```
+被孢子云直接废掉的武器系统
+系统类型\t直接致死原因\t失效时间线
+卫星制导武器（GPS/北斗/格洛纳斯制导）\t低轨道卫星全部坠入大气层（大纲§6.6）...
+```
+
+These are tab-separated tables. In a Word document, these should be actual tables. In markdown, they should be GFM tables with `|`.
+
+So "按照Word文档的形式重构" might mean: convert these tab-separated pseudo-tables into proper tables, and fix the document structure.
+
+Hmm, this is getting complicated. Let me think about what the most valuable, concrete, and achievable actions are.
+
+Actually, I think I'm overanalyzing. Let me focus on the plan's concrete steps and do them:
+
+**Step 2 (execute-restructure)**: Fix title hierarchy. The main concrete issues:
+- "数据板的局限" is duplicated (once in 背景参考资料, once as its own section) → delete one
+- The "灾前军事基准线与菌毯的不可根除性" block in 背景参考资料 lacks a proper heading
+
+Let me focus on the duplicates first since the plan explicitly mentions "confirm-duplicates" and "delete-duplicates".
+
+Confirmed duplicate: "数据板的局限" content appears at end of "背景参考资料" (in the read output, the last part is "数据板的局限\n数据板不是百宝箱...") AND as its own heading-2 section (16801-17356).
+
+Let me verify the exact text of both instances to confirm they're identical (or near-identical).
+
+From the read of "背景参考资料" (heading-2-1lka0h8), the ending is:
+```
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的...数据板提供的是火种，不是火炬。
+```
+
+From the read of "数据板的局限" (heading-2-z4sxm8), it's:
+```
+## 数据板的局限
+
+数据板不是百宝箱。方岫岩在八个月里记录下的...数据板提供的是火种，不是火炬。
+```
+
+These are essentially identical (the 背景参考资料 version uses straight quotes "" and the standalone version uses curly quotes ""). The standalone heading-2 version is the "canonical" one (it has the proper ## heading and curly quotes).
+
+So the duplicate to delete is the one at the end of "背景参考资料" (the plain-text "数据板的局限\n数据板不是百宝箱..." block, without the ## heading).
+
+Let me locate the exact text to delete. The end of "背景参考资料" section (ending at char 16801) is:
+```
+...数据板提供的是火种，不是火炬。
+
+
+```
+
+Wait, but the standalone "数据板的局限" section starts at 16801. And "背景参考资料" ends at 16801. So the duplicate "数据板的局限" text is at the END of the 背景参考资料 section, right before char 16801.
+
+Let me get the exact text. From the read of heading-2-1lka0h8 (背景参考资料), the content ends with:
+
+```
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是"推测"和"可能"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。
+
+数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。
+
+数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。
+
+后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从"起点"到"成果"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。
+```
+
+This is the duplicate. The standalone section (heading-2-z4sxm8) has the same content with curly quotes and a ## heading.
+
+So I should delete this duplicate block from the end of 背景参考资料.
+
+Now, there's another thing: the "菌膜外套：有限资源的临时通行方案" (heading-2-10q4nra) content appears in TWO places:
+1. As its own heading-2 section (17356-18104)
+2. Inside 卷三 as 7.8 (heading-4-896l1n, 48127-48816)
+
+Wait, let me check. In the structure map:
+- heading-4-896l1n: 7.8 菌膜外套：有限资源的临时通行方案 (48127-48816, 663字)
+- heading-4-1au19n4: 7.9 与终局的衔接：菌膜外套与共存补丁的关系 (48816-49296, 451字)
+
+And:
+- heading-2-10q4nra: 菌膜外套：有限资源的临时通行方案 (17356-18104, 728字)
+- heading-2-28do6r: 菌膜外套与共存补丁的关系 (18104-22619, 4499字)
+
+So the "菌膜外套" content appears both as a top-level heading-2 AND inside 卷三's 七、变异体主动攻击人类核心机制 as 7.8 and 7.9.
+
+Hmm, but these might not be exact duplicates - the heading-2 versions might be more detailed. Let me check by reading 7.8 and 7.9.
+
+Actually, I already have the heading-2 versions from my reads. Let me read 7.8 and 7.9 (heading-4-896l1n and heading-4-1au19n4) to compare.
+
+Also, "菌膜外套与共存补丁的关系" heading-2 (18104-22619) contains a LOT of extra content beyond just the relationship - it contains the 六大势力 overview, 圣萌会 backstory, 终局之战, 结局. This content seems misplaced.
+
+Let me read the 卷三 7.8 and 7.9 sections to compare.
+
+Actually, I realize I need to be efficient with my tool calls. The instructions say I've already done 2 rounds of reading and must now submit editor.write. But I also need to read more to understand the duplicates.
+
+Wait, let me re-read the instruction: "你已连续 2 轮只调用读取工具。当前请求仍携带工具面。下一轮必须直接提交 editor.write 写入".
+
+Hmm, but I also need to understand the content better. Let me think about whether I can do the writes with what I know.
+
+Actually, the instruction is quite clear: I must submit editor.write in the next round. I can't keep reading indefinitely. But I can combine reading with... no, the instruction says "下一轮必须直接提交 editor.write".
+
+Wait, but I need to confirm the duplicate content for deletion. Let me use editor.locate to confirm (that's a read tool though). Actually, let me just do the writes based on what I know.
+
+Let me plan the concrete edits:
+
+**Batch 1: Restructure (title hierarchy + move misplaced content)**
+
+Actually, let me think about what "restructure" concretely means and what's achievable.
+
+The most concrete, defensible restructuring actions:
+
+1. **Delete the duplicate "数据板的局限" block** at the end of "背景参考资料" (this is a confirmed duplicate of the standalone section).
+
+2. **Add proper headings to untitled blocks** in "背景参考资料":
+   - "灾前军事基准线与菌毯的不可根除性" is currently a plain text line (not a heading). It should probably become a heading.
+
+3. **Fix title hierarchy**: The "灾前军事基准线与菌毯的不可根除性" block has "一、2042年，人类手里有什么" and "二、菌毯为什么火力推不平" and "三、总结..." as plain text that should be sub-headings.
+
+Actually, this is getting really complex. Let me focus on the most impactful and clearly-correct changes.
+
+Let me reconsider what "按照Word文档的形式重构" means more carefully. In a Word document, you'd have:
+- 标题1 (Heading 1): 《绿潮》大纲总纲
+- 标题2 (Heading 2): 叙事框架, 背景参考资料, 卷一：基石设定层, etc.
+- 标题3 (Heading 3): subsections
+- etc.
+
+The current structure already roughly follows this. The main problems are:
+1. Loose content blocks without proper headings (灾前军事基准线 block, and the content at the end of 菌膜外套与共存补丁的关系)
+2. Duplicate content (数据板的局限)
+3. Half-width punctuation in some places (the tab-separated tables use tabs, but the actual Chinese text is mostly full-width)
+
+Actually, wait. Let me look at the tab-separated tables again. In the read output, I see:
+
+```
+被孢子云直接废掉的武器系统
+系统类型\t直接致死原因\t失效时间线
+卫星制导武器（GPS/北斗/格洛纳斯制导）\t低轨道卫星全部坠入大气层（大纲§6.6）...
+```
+
+These `\t` are tab characters. In a Word document / markdown, these should be proper tables with `|` separators. This is a "Word document form" issue - the tables aren't formatted as tables.
+
+But converting these tab-separated tables to GFM tables would be a huge task and would essentially be "改写正文内容" (rewriting content). Actually, it's formatting, not content reduction. But it's risky.
+
+Hmm. Let me step back and think about what's the MINIMUM viable, clearly-correct set of edits that satisfies the plan:
+
+The plan's key steps are:
+1. read-structure ✓
+2. execute-restructure (标题层级修复或章节重排) - fix title hierarchy
+3. confirm-duplicates ✓ (I've confirmed 数据板的局限 is duplicated)
+4. delete-duplicates - delete the confirmed duplicate
+5. normalize-segments - normalize punctuation/whitespace/numbering/title levels
+6. verify-plan
+
+The completion criteria require:
+- All write batches succeed
+- Invariants: planned-deletion-only, normalize-changes-punctuation-whitespace-format-only
+
+So I need to:
+1. Delete the duplicate 数据板的局限 block (planned deletion)
+2. Normalize some punctuation/format issues
+
+For the title hierarchy, I should:
+1. Make "灾前军事基准线与菌毯的不可根除性" a proper heading (it's currently plain text)
+
+Actually, let me look at what's clearly wrong with the title hierarchy.
+
+The document top-level (heading-2) sections are:
+1. 叙事框架
+2. 背景参考资料
+3. 数据板的局限
+4. 菌膜外套：有限资源的临时通行方案
+5. 菌膜外套与共存补丁的关系
+6. 世界设定声明
+7. 卷一：基石设定层
+8. 卷二：核心人物群像
+9. 卷三：势力与格局层
+10. 卷四：叙事工具箱层
+
+There's no H1 under 《绿潮》大纲总纲 except... wait, the H1 is 《绿潮》大纲总纲 itself.
+
+Hmm, actually the issue is: "叙事框架", "背景参考资料", "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系", "世界设定声明", "卷一", "卷二", "卷三", "卷四" are all heading-2 (##). But some of these are "卷" (volumes) and some are "资料" (reference materials). In a Word document, this might be OK, or the "卷" should be H1 and the others H2.
+
+But the instruction says "禁止无依据地把标题层级改深或改浅" - I shouldn't change heading levels without basis.
+
+Given the complexity and the risk, let me focus on:
+
+**The clearest, most defensible actions:**
+
+1. **Delete duplicate "数据板的局限"** from end of 背景参考资料 (confirmed duplicate).
+
+2. **Add heading for "灾前军事基准线与菌毯的不可根除性"** - this is a clearly untitled block.
+
+Actually, wait. Let me reconsider. There might be more going on. The "背景参考资料" section (10230-16801) contains:
+1. The backstory (四亿年前 → 陈暮苏醒)
+2. "灾前军事基准线与菌毯的不可根除性" (a large block, 一/二/三)
+3. "数据板的局限" (duplicate)
+
+The "菌膜外套与共存补丁的关系" section (18104-22619) contains:
+1. 菌膜外套与共存补丁的关系 (intro)
+2. 六大势力 overview (在大裂谷走廊...)
+3. 圣萌会 backstory (在远西大陆...)
+4. 巨树/终局之战/结局
+
+This is really messy. The "菌膜外套与共存补丁的关系" heading doesn't describe most of its content.
+
+OK here's my decision. Given the constraints and risk, I'll do a focused, conservative restructuring:
+
+**Batch 1: Delete confirmed duplicate + add missing heading**
+
+Commands:
+1. Delete the duplicate "数据板的局限" block at end of 背景参考资料.
+2. Add a heading for the "灾前军事基准线与菌毯的不可根除性" block.
+
+**Batch 2: Fix the "菌膜外套与共存补丁的关系" section** - actually, this is risky. Let me not do aggressive restructuring here.
+
+Actually, let me reconsider the whole thing once more.
+
+Hmm, actually I wonder if the real intent is simpler than I think. "按照Word文档的形式重构大纲，不要缩减内容" = "Restructure the outline into a Word document format, without reducing content."
+
+The current outline is a flat markdown document with some structural issues. The "Word document form" likely means:
+1. Proper heading hierarchy (H1 → H2 → H3 → ...)
+2. Proper tables (convert tab-separated to | tables)
+3. Clean paragraph structure
+
+Given the plan steps and the 3-batch constraint, let me define 3 batches:
+
+**Batch 1 (restructure - title hierarchy):**
+- Add heading "灾前军事基准线与菌毯的不可根除性" as a proper sub-heading
+- Fix any title hierarchy jumps
+
+**Batch 2 (delete duplicates):**
+- Delete the duplicate "数据板的局限" block
+
+**Batch 3 (normalize format):**
+- Normalize punctuation, tables
+
+Actually, I think the order in the plan is: restructure → delete duplicates → normalize. But I can do them in any order as long as I cover everything.
+
+Let me now figure out the exact edits.
+
+First, let me identify the exact text for the duplicate "数据板的局限" block.
+
+The standalone section "## 数据板的局限" (heading-2-z4sxm8) content is:
+```
+## 数据板的局限
+
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是"推测"和"可能"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。
+
+数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。
+
+数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。
+
+后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从"起点"到"成果"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。
+```
+
+The duplicate in 背景参考资料 (at the end) uses straight quotes (") instead of curly quotes (" "). But the content is the same.
+
+For deletion, I need to delete from "数据板的局限\n数据板不是百宝箱..." at the end of 背景参考资料.
+
+Actually, the delete operation in editor.write uses "replace_match" or "delete" with a "target" that's the exact text. Let me check the editor.write schema.
+
+Looking at the editor.write commands schema:
+- operation: "insert", "replace_selection", "replace_match", "append", "delete", "move", "reorder_sections", "rewrite", "replace_document"
+- For "delete", there's likely a "target" field.
+
+Actually, let me look at the schema more carefully. The commands have:
+- content (for insert/replace)
+- destination (move)
+- destinationPosition (move)
+- operation
+- order (reorder_sections)
+- position (cursor/selection_start/selection_end/end)
+- reason
+- target (probably for delete/replace_match - the target text)
+
+So "delete" with "target" = the exact text to delete. Or "replace_match" with "target" (old text) and "content" (new text).
+
+For deleting the duplicate, I'd use "delete" with target being the duplicate text. But the target needs to be the EXACT text. Since the duplicate uses straight quotes, I need to match those exactly.
+
+Alternatively, I could use "replace_match" with target = "数据板的局限\n数据板不是百宝箱..." (the whole duplicate) and content = "" (empty). But delete operation is cleaner.
+
+Hmm, actually, the safest approach: use "delete" operation with a target that's a unique fragment of the duplicate text.
+
+Actually, let me reconsider. The duplicate text is LONG. For "delete", I probably need to provide the full text as target. Let me think about a unique shorter approach.
+
+Actually, maybe I should use "replace_match" where target is a distinctive portion. But replace_match likely replaces only the exact matched text, not a range. So I'd need to match the ENTIRE duplicate text to delete it entirely.
+
+This is getting complicated. Let me look at how editor.write's delete works. Since I don't have detailed docs, I'll assume:
+- "delete" with "target" = exact text to delete (must be unique)
+- "replace_match" with "target" = old text, "content" = new text
+
+For the duplicate deletion, I need to delete ~900 chars of text. That's a lot for a target, but it's doable.
+
+Actually, let me reconsider. Maybe a simpler approach: I can use "replace_match" to replace the duplicate block (including its preceding context) with just the context.
+
+Actually, the cleanest: The duplicate block is at the very end of 背景参考资料 section, right before the "## 数据板的局限" heading. So the text is:
+
+```
+...这些技术在末日世界里比任何武器都更珍贵。
+灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么
+...
+末日十年后，所有人类势力都明白了一个道理：...是人类对"不可战胜"的承认。
+
+数据板的局限
+数据板不是百宝箱。...数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+```
+
+Wait, actually the "数据板的局限" text at end of 背景参考资料 is followed by blank lines, then "## 数据板的局限" heading.
+
+So I need to delete:
+```
+数据板的局限
+数据板不是百宝箱。...数据板提供的是火种，不是火炬。
+
+```
+(the duplicate, keeping the "## 数据板的局限" heading and its content)
+
+Hmm wait, but actually I need to be careful. The "背景参考资料" section ends at 16801, and "数据板的局限" heading-2 starts at 16801. So the duplicate "数据板的局限" text is the last ~900 chars of 背景参考资料.
+
+Let me define the deletion target precisely. The text to delete is:
+
+```
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是"推测"和"可能"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。
+
+数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。
+
+数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。
+
+后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从"起点"到"成果"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。
+```
+
+Note: this version uses straight quotes " (since it's from the 背景参考资料 section which I read shows "无生命有机质" with straight quotes).
+
+Wait, let me check. In the read output of heading-2-1lka0h8, the "数据板的局限" content at the end shows:
+
+"他推导了SC-α菌丝向菌毯广播\"无生命有机质\"静默声明的分子结构"
+
+Yes, straight quotes. And:
+
+"但从\"起点\"到\"成果\"之间"
+
+Straight quotes.
+
+OK so the duplicate uses straight quotes, while the standalone uses curly quotes "".
+
+For the delete target, I need to match the straight-quote version exactly.
+
+This is risky because I'm reconstructing the exact text. Let me use editor.locate to verify a fragment first. Actually, the instruction says I must submit editor.write next round, but I can include editor.locate in the same round? No, locate is a read tool and I should be writing.
+
+Actually, let me just do the write with replace_match using a distinctive fragment as target, and be careful.
+
+Hmm, actually there's a simpler, safer approach for deletion. I can use "replace_match" with:
+- target: a short unique fragment that spans the boundary
+
+Actually, no. Let me think differently.
+
+The safest deletion: replace the ENTIRE duplicate text (from "数据板的局限\n数据板不是百宝箱" to "数据板提供的是火种，不是火炬。") with empty string.
+
+But actually, since the duplicate text is LONG and I might get the exact characters wrong (straight vs curly quotes), let me use a more surgical approach.
+
+Alternative: I can use "replace_match" to replace:
+- target: "这些民生技术在末日世界里比任何武器都更珍贵。\n灾前军事基准线与菌毯的不可根除性" — no wait, that's a different issue.
+
+Let me reconsider. Actually, the issue is that I need to delete ~900 chars exactly. Let me just carefully reconstruct it.
+
+Actually, I realize I should re-read the exact text more carefully. I have the read output. Let me extract the exact duplicate text from the read output of heading-2-1lka0h8.
+
+From the read output (heading-2-1lka0h8 背景参考资料), the ending portion is:
+
+```
+...这些技术在末日世界里比任何武器都更珍贵。
+灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么
+...
+末日十年后，所有人类势力都明白了一个道理：菌毯是不可根除的。不是暂时打不过，是永远打不完。弹药用光之前它不会死。人类能做的不是击败菌毯，而是在它的覆盖范围内找到一种与它共存的方式——让菌丝网络不再认为人类是异己。终局时那行写入的共存补丁，不是胜利，是人类对\"不可战胜\"的承认。
+
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播\"无生命有机质\"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是\"推测\"和\"可能\"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。
+
+数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。
+
+数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。
+
+后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从\"起点\"到\"成果\"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+```
+
+So the duplicate is exactly the text between "末日十年后...是人类对\"不可战胜\"的承认。\n\n" and "\n\n## 数据板的局限".
+
+Actually, the section "背景参考资料" (10230-16801) ends at 16801, which is where "## 数据板的局限" starts. So the duplicate is the last block.
+
+OK, I'll do the delete with the full target text. But I'm worried about exact matching. Let me use a distinctive approach.
+
+Actually, you know what, let me reconsider whether deleting is even necessary for the "restructure as Word document" task. 
+
+Actually, the plan explicitly includes "delete-duplicates" step, and I've confirmed a duplicate. So I should delete it.
+
+But given the matching risk, let me think about the best deletion strategy.
+
+Option A: Use "delete" operation with the full duplicate text as target.
+
+Option B: Use "replace_match" with target being a unique substring and content being empty. But this only removes the substring, not the whole block.
+
+I think for a multi-paragraph deletion, I need to provide the full text. Let me do that carefully.
+
+Actually, wait. Let me reconsider the whole approach. There might be additional duplicates I should check:
+
+1. "菌膜外套：有限资源的临时通行方案" - appears as heading-2 (17356-18104) AND inside 卷三 as 7.8 (heading-4-896l1n).
+
+2. "菌膜外套与共存补丁的关系" - appears as heading-2 (18104-22619) AND inside 卷三 as 7.9 (heading-4-1au19n4).
+
+Let me read these 卷三 sections to check if they're duplicates.
+
+Actually, I've already used 2 read rounds. But I need to read more to confirm. The instruction says "下一轮必须直接提交 editor.write". But I think I can still read in the SAME round as long as I also write? No, the instruction is clear: I must submit editor.write.
+
+Hmm, but actually, let me reconsider. The instruction says "复合重构请分三阶段执行：先读取结构，用 move 把误归位标题与段落移动到正确层级...再只读确认重复项并提交唯一目标删除命令；最后提交...".
+
+So the three stages are:
+1. Read structure + move misplaced content + insert missing headings + fix heading levels
+2. Read-only confirm duplicates + delete
+3. Normalize
+
+I'm now at the point where I need to do stage 1 (move/insert/fix headings) via editor.write.
+
+Given I've already read a lot, let me now decide on stage 1 edits.
+
+Actually, let me simplify and be pragmatic. The key structural fixes I'm confident about:
+
+1. **"灾前军事基准线与菌毯的不可根除性"** is a plain-text pseudo-heading. It should be a proper heading. But wait - this is inside "背景参考资料" section. It's a sub-topic. Currently it's just a paragraph line. Making it a heading (### level, since 背景参考资料 is ##) would be correct.
+
+Actually, looking at the structure map, within "背景参考资料" (##), there are no ### sub-headings at all - it's all flat content. The content is:
+- Backstory paragraphs
+- "灾前军事基准线与菌毯的不可根除性" block (with 一、二、三)
+- "数据板的局限" (duplicate)
+
+So the "背景参考资料" section is flat, containing a mix of narrative backstory and reference blocks.
+
+For a "Word document" structure, I might want to add ### headings to organize 背景参考资料. But the instruction says "禁止无依据地把标题层级改深或改浅" and "新增标题必须紧贴对应正文且不得改写正文内容".
+
+Hmm. Let me focus on what's clearly needed and defensible.
+
+Actually, I think the biggest, clearest issue is the duplicate "数据板的局限". Let me prioritize that.
+
+And the second clearest issue: the "菌膜外套与共存补丁的关系" heading-2 section contains a huge amount of content that doesn't belong there (六大势力 overview, 圣萌会, 终局之战, 结局). This is a "误归位" (misplaced) issue.
+
+But moving all that content would be very complex and risky.
+
+OK, let me make a final decision on a conservative, achievable plan:
+
+**Stage 1 (this round's write): Fix title hierarchy for clear cases**
+
+1. Delete the duplicate "数据板的局限" block (from end of 背景参考资料).
+
+Actually wait, that's stage 2 (delete duplicates). Let me do stage 1 first: move/insert/fix headings.
+
+Hmm, but honestly, the clearest actionable items are:
+1. Delete duplicate 数据板的局限 (stage 2)
+2. Add heading to "灾前军事基准线" block (stage 1)
+
+Let me combine what I can and be efficient.
+
+Actually, let me reconsider the editor.write command structure. It allows 1-10 commands per call. So in one editor.write, I can submit multiple commands.
+
+Let me plan the actual commands:
+
+**Command 1 (delete duplicate 数据板的局限):**
+Operation: delete
+Target: the full duplicate text
+
+Actually, I realize I should double-check whether "delete" operation takes "target" or "content". Looking at the schema:
+- content: string
+- destination: move专用
+- destinationPosition: move专用
+- operation
+- order: reorder_sections专用
+- position: cursor/selection_start/selection_end/end
+- reason
+- target: string
+
+So "target" is a generic field. For "delete", target = text to delete. For "replace_match", target = text to replace, content = replacement.
+
+For "delete", I'll provide target = the full duplicate text.
+
+Let me write out the exact duplicate text (using straight quotes as in the source).
+
+Actually, this is where I'm uncertain about exact characters. The read output shows the text with escaped quotes in JSON, but the actual content has straight double quotes ".
+
+Let me reconstruct carefully. Actually, to minimize risk, let me use a SHORTER but still unique deletion approach.
+
+Alternative: Instead of deleting the whole block at once, I can use "replace_match" with target being the unique boundary.
+
+Hmm, actually, here's a cleaner idea. The duplicate block is:
+
+```
+数据板的局限
+数据板不是百宝箱。...[straight quote version]...
+
+```
+
+I can replace this entire block (the "数据板的局限" plain-text heading + content) with empty. To do this safely, I'll match from "数据板的局限\n数据板不是百宝箱" through "数据板提供的是火种，不是火炬。"
+
+The issue is the straight vs curly quotes in the middle. If I get even one character wrong, the match fails.
+
+Let me use editor.locate to verify the exact text first. Actually, I can call editor.locate in parallel with... no.
+
+Hmm, let me reconsider. The instruction says "再只读确认重复项并提交唯一目标删除命令" - so stage 2 is "read-only confirm duplicates AND submit the deletion command". So I can do reads to confirm + write in the same stage.
+
+OK given the constraints, let me structure my approach as follows:
+
+This round: Submit editor.write with the structural fixes I'm confident about, PLUS use editor.locate to verify the duplicate text (locate is a read tool but it's for confirmation).
+
+Wait, actually the instruction said "下一轮必须直接提交 editor.write 写入". So this round = editor.write. But I can ALSO include editor.locate in the same round since they're independent? Actually, editor.locate would help me confirm exact text before writing. But the write depends on the locate result...
+
+Let me just do the write with my best reconstruction, and if it fails, I'll get an error and retry.
+
+Actually, a safer approach for the delete: use "replace_match" to replace a UNIQUE SHORT fragment with something, rather than matching the entire long block.
+
+But that doesn't delete the whole block.
+
+OK let me think about this differently. What if I use the "delete" operation with a short unique target? The delete operation might delete just the matched text, not a range. If I match only "数据板的局限" (the plain text line), I'd only delete that line, leaving the duplicate content.
+
+Actually, I think the editor.write "delete" operation probably requires the full text to delete. Let me look at how it's typically used...
+
+Given uncertainty, let me use a robust approach: replace_match with a carefully reconstructed full target.
+
+Actually, you know what, let me reconsider the ENTIRE task scope and be more strategic.
+
+The task is "按照Word文档的形式重构大纲，不要缩减内容". The plan has 3 stages. Let me map concrete actions:
+
+**Stage 1: Restructure (move misplaced + insert missing headings + fix levels)**
+
+The clearest issues:
+1. "灾前军事基准线与菌毯的不可根除性" should be a ### heading (it's currently plain text at the start of a block).
+
+Actually, wait - looking again at the content, "灾前军事基准线与菌毯的不可根除性" is on its own line followed by "一、2042年，人类手里有什么". This reads like it SHOULD be a heading, but someone pasted it as body text.
+
+2. The "菌膜外套与共存补丁的关系" section (18104-22619) contains misplaced content.
+
+**Stage 2: Delete duplicates**
+1. Delete duplicate "数据板的局限".
+
+**Stage 3: Normalize punctuation/whitespace/numbering/title levels**
+1. Convert half-width punctuation to full-width where present.
+
+OK, let me be decisive and do the following in this round:
+
+Actually, I realize the most important realization: I've spent a lot of analysis. Let me just execute a clean, conservative set of edits.
+
+Let me define the edits for THIS round (batch 1 of 3):
+
+**Edit 1**: Delete the duplicate "数据板的局限" block from the end of 背景参考资料.
+
+For this, I need the exact target. Let me carefully reconstruct using the read output.
+
+From the read of heading-2-1lka0h8, the text after "末日十年后...承认。\n\n" is:
+
+```
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是"推测"和"可能"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。
+
+数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。
+
+数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。
+
+后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从"起点"到"成果"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。
+```
+
+The quotes here are STRAIGHT quotes (") based on the read output showing \" (escaped straight quote).
+
+Hmm wait, actually let me look more carefully at the read output. In the JSON, the content field shows:
+
+```
+他推导了SC-α菌丝向菌毯广播\"无生命有机质\"静默声明的分子结构
+```
+
+The `\"` in JSON represents a straight double quote ". So yes, straight quotes.
+
+But wait, actually the read output I got shows the content with `"无生命有机质"` in some places and `\"无生命有机质\"` in the JSON. Let me look at the actual raw content.
+
+In the read output for heading-2-1lka0h8, I see:
+
+"他推导了SC-α菌丝向菌毯广播\"无生命有机质\"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。"
+
+So `\"` = straight double quote.
+
+In the read output for heading-2-z4sxm8 (the standalone section), I see:
+
+"他推导了SC-α菌丝向菌毯广播“无生命有机质”静默声明的分子结构"
+
+So the standalone uses curly quotes " ".
+
+This confirms: the duplicate in 背景参考资料 uses straight quotes, and the standalone (canonical) uses curly quotes.
+
+For the delete target, I'll use the straight-quote version.
+
+Actually, this is really error-prone. Let me use a different, more robust strategy:
+
+Instead of deleting the entire ~900-char block in one "delete" command (risky due to quote matching), I'll use "replace_match" with a target that's a UNIQUE FRAGMENT and content being empty, but do it multiple times? No, that leaves fragments.
+
+Alternatively, I can use "replace_match" to replace the boundary: replace "承认。\n\n数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的" ... no.
+
+OK, let me just try the full-text delete and accept the risk. If it fails, the tool will return an error and I can retry with editor.locate.
+
+Actually, wait. Let me reconsider using editor.locate FIRST to get the exact text. The locate tool "验证候选片段是否唯一存在，并返回位置。精确匹配失败时返回Top-3模糊候选。" So if I provide a fragment with slightly wrong quotes, it'll return fuzzy candidates showing the exact text.
+
+But the instruction says next round must be editor.write. Hmm. But I think I can do BOTH: call editor.locate and editor.write in the same round? They're independent in the sense that locate confirms, but write needs the confirmed text.
+
+Actually, let me just do editor.write with my best reconstruction. The delete target for the full block. If the straight quotes are correct, it'll work.
+
+Let me reconstruct the FULL duplicate text exactly:
+
+```
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是"推测"和"可能"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。
+
+数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。
+
+数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。
+
+后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从"起点"到"成果"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。
+```
+
+Wait, but there might also be a trailing "数据板的局限" plain-text line at the very start of the duplicate. Let me check the read output again.
+
+From the read output, the ending of 背景参考资料 is:
+
+```
+...终局时那行写入的共存补丁，不是胜利，是人类对\"不可战胜\"的承认。
+
+数据板的局限
+数据板不是百宝箱。...
+...
+数据板提供的是火种，不是火炬。
+
+
+```
+
+Then the next section starts with "## 数据板的局限".
+
+So the duplicate includes:
+1. "数据板的局限" (plain text line)
+2. The 4 paragraphs
+
+And there are blank lines after.
+
+For the delete, I should delete from "数据板的局限\n数据板不是百宝箱..." through "...不是火炬。" (the full duplicate), leaving the blank lines + "## 数据板的局限" heading intact.
+
+Actually, to be safe, I'll delete exactly:
+```
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是"推测"和"可能"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。
+
+数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。
+
+数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。
+
+后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从"起点"到"成果"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。
+```
+
+This is the target for delete.
+
+OK, I think I'm overthinking the matching risk. Let me just do it and handle errors.
+
+Now, for stage 1 (restructure), what else should I do in this round?
+
+Let me think about the "灾前军事基准线与菌毯的不可根除性" block. It's currently:
+```
+...比任何武器都更珍贵。
+灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么
+2042年的人类文明正处于一个技术拐点...
+```
+
+"灾前军事基准线与菌毯的不可根除性" should be a ### heading (since 背景参考资料 is ##).
+
+I can use "replace_match" to replace:
+- target: "灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么"
+- content: "### 灾前军事基准线与菌毯的不可根除性\n\n#### 一、2042年，人类手里有什么"
+
+Wait, but should "一、2042年，人类手里有什么" also be a heading? In the source, it's plain text "一、2042年，人类手里有什么". Looking at the structure, the "一、二、三" are sub-sections.
+
+Hmm, this is getting into deep restructuring territory. Let me be conservative and just:
+1. Make "灾前军事基准线与菌毯的不可根除性" a ### heading.
+
+Actually, adding headings to untitled blocks is explicitly mentioned in the plan: "用 insert 为无标题正文补标题". So yes, this is a planned action.
+
+Let me also consider: are there other untitled blocks?
+
+Looking at the structure map, the "背景参考资料" section (##) has NO ### sub-headings. Its content includes several logical blocks:
+1. Backstory (四亿年前...)
+2. 方岫岩 summary
+3. 灾前军事基准线 (untitled, has 一/二/三)
+4. 数据板的局限 (duplicate)
+
+For a Word document, these should have headings. But adding headings to the backstory paragraphs is ambiguous.
+
+Let me be conservative and only add the clearest heading: "灾前军事基准线与菌毯的不可根除性" → ###.
+
+Actually, wait. Let me reconsider. There's also the issue that the "菌膜外套与共存补丁的关系" section contains a LOT of extra content. Let me look at what's there:
+
+Section "菌膜外套与共存补丁的关系" (18104-22619) contains:
+1. "菌膜外套是"让系统暂时看不到我们"..." (the actual relationship content, ~450 chars)
+2. "在大裂谷走廊...远中大陆六大势力..." (六大势力 overview)
+3. "在远西大陆...圣萌会...噬神计划...脑干" (圣萌会 backstory)
+4. "2043年春，巨树...天府都陷落...岫岩城" (终局 setup)
+5. "噬神计划进入最后阶段...终局之战...共存补丁...马格努斯被清除" (终局)
+6. "菌毯不再调动...结局...林觉民把知识撒进风中" (结局)
+
+This is clearly a case where a huge narrative summary got dumped under the "菌膜外套与共存补丁的关系" heading.
+
+But this content ALSO appears elsewhere:
+- 六大势力 overview appears in 卷三 (势力与格局层) in detail
+- 圣萌会 backstory appears in 卷三 四、圣萌会 in detail
+- 终局之战 appears in ... hmm, where? Let me check.
+
+Actually, the "菌膜外套与共存补丁的关系" section seems to be a NARRATIVE SUMMARY (概要) of the whole story, similar to "背景参考资料" and "叙事框架". It's like a "story summary" that includes the ending.
+
+This is complex. Restructuring this properly would require moving ~4500 chars of content to appropriate places, which is very risky.
+
+Let me NOT aggressively restructure this. Instead, I'll focus on:
+1. Delete the confirmed duplicate (数据板的局限).
+2. Add the missing heading (灾前军事基准线).
+3. Normalize punctuation in key spots.
+
+Actually, wait. Let me reconsider the whole thing ONE more time, because I want to make sure I'm doing what's actually valuable.
+
+The user says "按照Word文档的形式重构大纲，不要缩减内容". The most likely intent:
+- The current outline has some formatting issues (tab-separated tables that should be Word tables, loose structure, duplicates).
+- The user wants a clean Word-document-style outline.
+
+The tab-separated tables are a big issue. There are several in the "背景参考资料" section:
+1. "被孢子云直接废掉的武器系统" table (系统类型/直接致死原因/失效时间线)
+2. "层级/成分与结构/生物量占比/武器可触及性" table
+
+These use `\t` (tabs) as separators. In a Word document, these would be actual tables. In markdown, they should be GFM tables with `|`.
+
+Converting these is part of "Word document form" restructure. But it's a big formatting task.
+
+Actually, the instruction mentions "normalize-segments... 计划批次数量是 3" and "normalize-changes-punctuation-whitespace-format-only". So the normalize step is about punctuation/whitespace/format.
+
+The tab-separated tables → GFM tables would be a "format" change. But it's substantial.
+
+Hmm, I think the tab-separated tables might actually be the KEY issue the user wants fixed. "按照Word文档的形式" = the tables should be real tables, not tab-separated text.
+
+But wait, converting tab-separated to GFM tables requires rewriting each row. That's a lot of content rewriting, which conflicts with "不要缩减内容" and "不得改写正文内容".
+
+Actually, converting `\t` to `|` is just changing the separator character, not rewriting content. So it's a "format-only" change, which is allowed.
+
+Let me look at the tables:
+
+Table 1 (武器系统):
+```
+系统类型\t直接致死原因\t失效时间线
+卫星制导武器（GPS/北斗/格洛纳斯制导）\t低轨道卫星全部坠入大气层（大纲§6.6），天基导航信号源永久消失\t数月内全部失效，首批卫星在数周内坠毁
+...
+```
+
+Converting to GFM:
+```
+| 系统类型 | 直接致死原因 | 失效时间线 |
+|---------|------|------|
+| 卫星制导武器（GPS/北斗/格洛纳斯制导） | 低轨道卫星全部坠入大气层（大纲§6.6），天基导航信号源永久消失 | 数月内全部失效，首批卫星在数周内坠毁 |
+...
+```
+
+This is a LOT of rows (8 rows in table 1, 4 rows in table 2). Converting each would be tedious but doable via replace_match for each table.
+
+Actually, this is getting really big. Let me estimate the total scope and decide if it's feasible in 3 batches.
+
+Given the constraints (3 batches, 36 physical request rounds), and that each editor.write can have up to 10 commands, I can do a lot.
+
+But honestly, I think I should focus on the MOST IMPACTFUL and CLEARLY-CORRECT changes, and not try to convert every tab-separated table (which is error-prone and might be considered "rewriting content").
+
+Let me finalize my plan:
+
+**Round 1 (editor.write) - Stage 1 restructure + Stage 2 delete:**
+Actually, the plan says 3 stages. Let me map to 3 editor.write calls (batches).
+
+**Batch 1: Structural fixes**
+1. Delete duplicate "数据板的局限" block (delete operation).
+2. Convert "灾前军事基准线与菌毯的不可根除性" plain text → "### 灾前军事基准线与菌毯的不可根除性" heading (replace_match).
+
+Wait, but delete is stage 2, and heading is stage 1. The plan order is restructure → delete → normalize. But I can combine for efficiency. Actually, the plan's "计划批次数量是 3" and the instruction says "复合重构请分三阶段执行". Let me follow the 3-stage order strictly to be safe:
+
+Stage 1 (restructure): move/insert/fix headings
+Stage 2 (delete duplicates)
+Stage 3 (normalize)
+
+But I can also interpret "3 batches" more flexibly. Let me do:
+
+**Batch 1 (this round): restructure + delete** (combining stage 1 and 2 since I've already confirmed the duplicate via reading)
+
+Actually, the instruction says "再只读确认重复项并提交唯一目标删除命令" for stage 2. I've already confirmed via reading (the read outputs clearly show the duplicate). So I can delete now.
+
+Let me combine into a focused set of commands for this round:
+
+Commands for this round:
+1. **Delete duplicate "数据板的局限"** (from 背景参考资料 end)
+2. **Add heading to "灾前军事基准线与菌毯的不可根除性"**
+
+Then in subsequent rounds, I'll do the normalization (punctuation, tables).
+
+Actually, let me also reconsider: is there a simpler, more impactful normalization I should prioritize?
+
+The mandatory requirement: "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）".
+
+Looking at the content I've read, most Chinese text already uses full-width punctuation. The main half-width usage I noticed:
+- The tab-separated tables (no commas/periods issue really)
+- Some "2042年11月19日" etc. (numbers, no punctuation)
+
+Actually, wait, there might be half-width punctuation scattered throughout. But I've only read a portion of the document.
+
+Let me focus. For THIS round, I'll do:
+1. Delete duplicate 数据板的局限
+2. Add heading 灾前军事基准线
+
+These are the clearest, highest-value structural fixes.
+
+Let me write the commands.
+
+For the delete, target = the full duplicate text (with straight quotes).
+
+Actually, I just realized I should double check: does the "delete" operation use "target" or "content"? The schema shows both "content" and "target" fields exist. Let me infer:
+- "insert" uses "content" + "position" (or "destination")
+- "replace_selection" uses "content"
+- "replace_match" uses "target" + "content"
+- "append" uses "content"
+- "delete" uses "target"
+- "move" uses "destination" + "destinationPosition" + (target?)
+- "reorder_sections" uses "order"
+- "rewrite" uses "content" + "target"?
+- "replace_document" uses "content"
+
+So "delete" uses "target" = text to delete.
+
+For "replace_match", "target" = old text, "content" = new text.
+
+OK let me write it.
+
+Actually, let me reconsider the delete target once more. To minimize risk of mismatch, maybe I should delete in a way that avoids the long quote-heavy text.
+
+Alternative approach: Instead of deleting the whole duplicate block, I can use "replace_match" to replace the transition:
+
+Target: "比任何武器都更珍贵。\n灾前军事基准线与菌毯的不可根除性" — no, this is before the duplicate.
+
+Hmm, actually the cleanest approach for deleting the duplicate: 
+
+The duplicate starts after "承认。\n\n" and before "\n\n## 数据板的局限".
+
+Actually, here's an even cleaner idea. What if I replace the ENTIRE duplicate text (which I have from the read) using replace_match with content = ""? Same as delete.
+
+Or, I could replace:
+- target: "数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的" (a short unique prefix of the duplicate)
+- But replace_match only replaces what's matched, not the rest.
+
+So I MUST match the full block.
+
+OK, let me just carefully write the full block with straight quotes. I'm fairly confident the straight quotes are correct based on the read output.
+
+Actually, wait. Let me reconsider. Maybe I should verify with editor.locate FIRST in this round (as part of the "确认重复项" step), and then do the delete in the NEXT round.
+
+The instruction says "下一轮必须直接提交 editor.write 写入". But it also says stage 2 is "再只读确认重复项并提交唯一目标删除命令" - meaning confirm (read-only) AND submit delete command.
+
+I think the safest path is: this round, do editor.write with:
+1. The heading fix (低风险, replace_match)
+2. The delete (medium risk)
+
+And if the delete fails, retry next round.
+
+Actually, let me simplify further. Let me reduce risk by doing the delete as a replace_match where I'm confident about the START and END, using the full text I reconstructed.
+
+Let me also think about whether I should convert the tab tables this round. Given they're a clear "Word document" formatting issue, and the plan includes "normalize-segments", maybe I should. But it's a lot of content.
+
+Let me decide: This round, do the 2 structural fixes (delete duplicate + add heading). Then evaluate.
+
+Actually, I realize I keep going back and forth. Let me COMMIT to a plan and execute.
+
+FINAL PLAN:
+
+**Round 1 (this editor.write):**
+Commands:
+1. `replace_match`: target = "灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么" → content = "### 灾前军事基准线与菌毯的不可根除性\n\n#### 一、2042年，人类手里有什么"
+
+Wait, should I make "一、2042年" a #### heading? The "灾前军事基准线" block has "一、二、三" as sub-sections. In a Word document, these would be headings.
+
+Actually, let me keep it simpler. Just make "灾前军事基准线" a heading, leave "一、二、三" as bold/plain text for now.
+
+Hmm, but actually "一、2042年，人类手里有什么" looks like it should be a heading too. But there are also "被孢子云直接废掉的武器系统", "打上去但无效的武器", "打得动但代价人类付不起的武器", "二、菌毯为什么火力推不平", "生物量储备的物理事实", "火力触发报复性生长", "信号放大效应锁死兵力集结", "三、总结：人类真正被压制的根本机制" - these are all sub-blocks.
+
+This is a deeply nested structure. Restructuring all of these into headings would be extensive.
+
+Let me be conservative: only make the TOP block "灾前军事基准线与菌毯的不可根除性" a heading, and leave the rest as-is for now.
+
+Actually, you know what, I think the cleanest interpretation of "按照Word文档的形式重构" combined with the plan (标题层级修复, 章节重排, 补标题, 删除重复, 整理格式) is:
+
+The document has a structural problem where content that should be in a hierarchical Word structure is in a flat/duplicated mess. My job is to clean it up WITHOUT reducing content.
+
+Given the risk, let me do the SAFE, high-value edits:
+
+**Round 1 commands:**
+1. Delete duplicate "数据板的局限" (full block).
+2. Convert "灾前军事基准线与菌毯的不可根除性" to a heading (replace_match).
+
+Let me now also plan rounds 2 and 3:
+
+**Round 2: Normalize the tab-separated tables** in 背景参考资料 to GFM tables (2 tables), and add headings for the "一、二、三" sub-sections if needed.
+
+**Round 3: Normalize any remaining punctuation issues + verify.**
+
+Actually, given the huge scope and my uncertainty, let me just do round 1 now and see the results, then continue.
+
+Let me write the commands now.
+
+For the delete target, here's my reconstruction (with straight quotes " for the 背景参考资料 version):
+
+Target (delete):
+```
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是"推测"和"可能"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。
+
+数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。
+
+数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。
+
+后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从"起点"到"成果"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。
+```
+
+For the heading fix:
+Target (replace_match):
+```
+灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么
+```
+Content:
+```
+### 灾前军事基准线与菌毯的不可根除性
+
+一、2042年，人类手里有什么
+```
+
+Wait, but "一、2042年，人类手里有什么" is followed directly by "2042年的人类文明正处于..." on the next line (no blank line). Let me check.
+
+From the read:
+```
+灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么
+2042年的人类文明正处于一个技术拐点：...
+```
+
+So "一、2042年，人类手里有什么" is immediately followed by "2042年的人类文明..." (no blank line).
+
+So my replace_match target should be:
+"灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么"
+
+And content:
+"### 灾前军事基准线与菌毯的不可根除性\n\n一、2042年，人类手里有什么"
+
+This adds a blank line and converts the first line to a heading.
+
+Hmm, but should I also add a blank line after "一、2042年，人类手里有什么"? That would separate the "一、" heading from its content. But "一、2042年，人类手里有什么" is currently NOT a heading (it's plain text). If I leave it as plain text, no blank line needed.
+
+Actually, for Word document form, "一、2042年，人类手里有什么" should probably be a sub-heading. But let me keep it simple and just make the top-level block a heading.
+
+OK, actually, let me reconsider whether "灾前军事基准线" should be a heading or stay as bold text. Looking at the structure, this whole "背景参考资料" section is meant to be reference material. "灾前军事基准线与菌毯的不可根除性" is a major reference topic. Making it a ### heading is appropriate.
+
+Alright, let me also think: should I add "一、二、三" as #### headings? They're:
+- 一、2042年，人类手里有什么
+- 二、菌毯为什么火力推不平
+- 三、总结：人类真正被压制的根本机制
+
+These are clear sub-sections. For Word form, they'd be #### headings.
+
+And within "一", there are:
+- 被孢子云直接废掉的武器系统
+- 打上去但无效的武器
+- 打得动但代价人类付不起的武器
+
+And within "二":
+- 生物量储备的物理事实
+- 火力触发报复性生长
+- 信号放大效应锁死兵力集结
+
+These would be ##### headings.
+
+This is a deep hierarchy. Restructuring ALL of these is extensive but would genuinely make it "Word document form".
+
+Given the constraints, let me do a REASONABLE subset: make the top block + 一/二/三 into headings.
+
+Actually, let me reconsider the scope and just be pragmatic. I'll do the following in this round:
+
+1. Delete duplicate 数据板的局限.
+2. Make "灾前军事基准线与菌毯的不可根除性" a ### heading.
+
+Then in round 2, I'll make "一、二、三" into #### headings and convert the tab tables.
+
+Then round 3, final normalization + verification.
+
+Actually, I realize I should also verify: are there OTHER duplicates I'm missing? Let me note that "菌膜外套" and "菌膜外套与共存补丁的关系" appear both as top-level heading-2 AND inside 卷三 as 7.8/7.9. I haven't read 7.8/7.9 to confirm they're duplicates. But given the instruction to be careful about deleting only confirmed duplicates, I'll leave those alone unless I can confirm.
+
+Let me proceed with round 1 now.
+
+Actually, one more consideration: the editor.write "reveal" parameter and "reason" parameter. I'll set reveal to instant and provide a reason.
+
+Let me write the editor.write call now.
+
+For the delete, I'll use operation "delete" with target.
+
+Actually, wait - I want to reconsider whether "delete" needs "target" or "content". Let me think about the most likely API design. The schema has both "content" and "target". For "delete", the natural field is "target" (the text to find and delete). For "insert", "content". For "replace_match", "target" (old) + "content" (new).
+
+I'll use "delete" with "target".
+
+Let me also include the heading fix as a "replace_match".
+
+Here's my editor.write:
+
+```json
+{
+  "protocolVersion": 1,
+  "reason": "重构大纲：删除重复的「数据板的局限」段落，并为无标题正文块「灾前军事基准线与菌毯的不可根除性」补充标题",
+  "reveal": {"firstChange": true, "mode": "instant"},
+  "commands": [
+    {
+      "operation": "delete",
+      "target": "数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播\"无生命有机质\"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是\"推测\"和\"可能\"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。\n\n数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。\n\n数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。\n\n后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从\"起点\"到\"成果\"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。",
+      "reason": "删除与独立「## 数据板的局限」章节完全重复的段落"
+    },
+    {
+      "operation": "replace_match",
+      "target": "灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么",
+      "content": "### 灾前军事基准线与菌毯的不可根除性\n\n一、2042年，人类手里有什么",
+      "reason": "为无标题正文块补充标题"
+    }
+  ]
+}
+```
+
+This is 2 commands. Let me submit this.
+
+Wait, but I should double-check: is there any risk that "delete" with a huge target fails due to whitespace/quote mismatch? Yes. But let me try.
+
+Actually, one concern: the straight quotes. In my JSON, I'm writing `\"` for straight quotes. When the tool receives the target string, it should be a straight double quote ". But I need to make sure the source document actually has straight quotes there.
+
+From the read output of heading-2-1lka0h8, I saw:
+- `\"无生命有机质\"` → straight quotes
+- `\"推测\"和\"可能\"` → straight quotes
+- `\"起点\"到\"成果\"` → straight quotes
+- `\"不可战胜\"` → straight quotes (in the summary paragraph, not the duplicate)
+
+So the duplicate uses straight quotes. My target should match.
+
+But wait, let me re-examine. The read output JSON I received earlier... let me look at the actual text again from the tool result.
+
+The content field in the read result for heading-2-1lka0h8 shows (I'll quote relevant parts):
+
+"他推导了SC-α菌丝向菌毯广播\"无生命有机质\"静默声明的分子结构"
+
+Yes, `\"` = straight quote.
+
+OK, I'm confident. Let me submit.
+
+Actually, let me also reconsider: should I worry that "delete" might require the target to be found as-is including trailing newlines? The block I'm deleting ends with "不是火炬。" and there's a trailing "\n\n" before "## 数据板的局限". My target ends with "不是火炬。" (no trailing newline). The delete should remove just that text, leaving "\n\n\n## 数据板的局限" (the existing blank lines).
+
+Actually, looking at the read output end:
+```
+...数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+```
+
+Wait, the read output for heading-2-1lka0h8 ended with:
+"数据板提供的是火种，不是火炬。\n\n\n" (the section ends at 16801).
+
+And then heading-2-z4sxm8 starts at 16801 with "## 数据板的局限\n\n数据板不是百宝箱..." (the standalone).
+
+So between the duplicate's end ("不是火炬。") and the standalone heading ("## 数据板的局限"), there are 2-3 blank lines.
+
+If I delete "数据板的局限\n数据板不是百宝箱...不是火炬。", the result would be:
+"...承认。\n\n\n\n\n## 数据板的局限" (the blank lines before + after the deletion).
+
+That's fine - just extra blank lines. I could clean those up later.
+
+Actually, to be cleaner, maybe I should include the trailing blank lines in the deletion. But that's more risk. Let me leave it and clean up in the normalize stage.
+
+Hmm, actually, extra blank lines are a whitespace issue that I can normalize later. For now, just delete the duplicate text.
+
+Let me finalize and submit.
+
+Actually, I realize I should reconsider the heading fix target. "灾前军事基准线与菌毯的不可根除性" - let me verify this exact text from the read.
+
+From read: "灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么\n2042年的人类文明正处于一个技术拐点："
+
+Yes. My target "灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么" is correct.
+
+OK, submitting now.
+
+Actually, let me reconsider one more time if I should do MORE in this round to be efficient. The instruction warns against exhausting tool rounds (36 max). But I have plenty. Let me do a focused round 1, see results, then continue.
+
+Actually, let me also add the conversion of the first tab-table as a third command? No, let me keep round 1 focused on structure. I'll do normalization in later rounds.
+
+Let me submit round 1 now.
+
+One more thing: I should make sure the delete target is UNIQUE. Since the standalone "## 数据板的局限" section uses CURLY quotes and has "## " prefix, my straight-quote target should be unique to the 背景参考资料 duplicate. Good.
+
+Let me write the tool call.

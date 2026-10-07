@@ -1,0 +1,25 @@
+{
+  "reason": "重构第一批：修正三处探测句的半角标点为全角，删除故事核心下遗留的粘贴指令文本，不缩减正文内容。",
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "【PHASE7-PUNCT-PROBE-A】这是前段标点整理探测句,需要把半角逗号改成全角逗号;这是必须处理的半角分号.",
+      "content": "【PHASE7-PUNCT-PROBE-A】这是前段标点整理探测句，需要把半角逗号改成全角逗号；这是必须处理的半角分号。"
+    },
+    {
+      "operation": "replace_match",
+      "target": "【PHASE7-PUNCT-PROBE-B】这是中段标点整理探测句,需要把半角逗号改成全角逗号;这是必须处理的半角分号.",
+      "content": "【PHASE7-PUNCT-PROBE-B】这是中段标点整理探测句，需要把半角逗号改成全角逗号；这是必须处理的半角分号。"
+    },
+    {
+      "operation": "replace_match",
+      "target": "【PHASE7-PUNCT-PROBE-C】这是后段标点整理探测句,需要把半角逗号改成全角逗号;这是必须处理的半角分号.",
+      "content": "【PHASE7-PUNCT-PROBE-C】这是后段标点整理探测句，需要把半角逗号改成全角逗号；这是必须处理的半角分号。"
+    },
+    {
+      "operation": "replace_match",
+      "target": "粘贴到「故事核心」下，紧接原文\"陈暮是唯一踩在菌毯上不被判定为敌人的人\"之后：\n\n",
+      "content": ""
+    }
+  ]
+}

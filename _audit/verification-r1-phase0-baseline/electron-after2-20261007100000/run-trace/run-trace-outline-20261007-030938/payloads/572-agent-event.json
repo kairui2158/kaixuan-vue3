@@ -1,0 +1,54 @@
+{
+  "taskId": "edit-task-1791315804836-2",
+  "status": "completed",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "分叉一允许去重：删除卷一中重复的 7.8 菌膜外套小节，并顺延重编号后续小节",
+  "executedBatches": [
+    "ai-edit-mux36h06-a",
+    "ai-edit-mux3c3tq-b",
+    "ai-edit-mux3gtkw-c"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "分叉一允许去重：删除卷一中重复的 7.8 菌膜外套小节，并顺延重编号后续小节",
+    "batches": [
+      "ai-edit-mux36h06-a",
+      "ai-edit-mux3c3tq-b",
+      "ai-edit-mux3gtkw-c"
+    ],
+    "batchDetails": {
+      "ai-edit-mux36h06-a": {
+        "segmentId": "structure-plan",
+        "expectedChange": "remove_duplicate",
+        "range": {
+          "startLine": 0,
+          "endLine": 74253
+        },
+        "writeStrategy": "delete",
+        "invariantResult": "planned-deletion-only"
+      },
+      "ai-edit-mux3c3tq-b": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74253
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      },
+      "ai-edit-mux3gtkw-c": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74253
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      }
+    }
+  }
+}

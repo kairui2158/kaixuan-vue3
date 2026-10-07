@@ -1,0 +1,144 @@
+The user wants me to restructure the outline to be in a "Word document format" without reducing any content. Let me first understand what the current outline looks like and what "Word document format" means.
+
+Looking at the current outline structure, it has:
+- A main heading: # 《绿潮》大纲总纲
+- Then various sections with ## and ### headings
+- It has some probe sentences like "PHASE7-PUNCT-PROBE-A/B/C" that seem to be marker sentences
+- Some redundant/duplicate content (e.g., "数据板的局限" appears twice, "菌膜外套" appears in multiple places)
+- The "【PHASE7-PUNCT-PROBE】" sentences look like internal markers that should be cleaned up
+
+The user wants me to restructure this into a Word document format. I interpret this as:
+1. Clean up the structure - remove duplicate content
+2. Organize it properly with a clear hierarchy
+3. Remove the probe/marker sentences
+4. Make it flow like a proper document
+
+But the user said "不要缩减内容" (don't reduce content), so I need to keep all the substantive content while reorganizing.
+
+Let me think about what needs to happen:
+
+1. Remove the PHASE7-PUNCT-PROBE sentences (these are clearly internal markers, not actual content)
+2. Remove duplicate sections (数据板的局限 appears twice, 菌膜外套 appears multiple times)
+3. Restructure to have a cleaner hierarchy
+4. Keep all substantive content
+
+Wait, the user said "按照Word文档的形式重构大纲" - restructure the outline in Word document format. This could mean:
+- A proper table of contents style
+- Clean hierarchical structure
+- No markdown artifacts that are internal
+- Remove the probe sentences
+
+Let me read the full document to understand the complete structure and identify what needs cleaning.
+
+Actually, given the size (74,287 chars), I should approach this systematically. Let me first get the document map to understand the structure, then read key sections.
+
+The document map was already shown in the context. Let me look at the key issues:
+
+1. PHASE7-PUNCT-PROBE-A/B/C - these are clearly internal processing markers, should be removed
+2. "粘贴到「故事核心」下" - this is an instruction, not content. The content after it (【核心张力：保护即加速】) seems to have already been pasted into the story core section.
+3. "数据板的局限" appears as both a standalone section AND embedded in the narrative framework. Let me check.
+4. "菌膜外套：有限资源的临时通行方案" appears as both standalone and in section 7.8
+
+Let me read the full outline to understand what needs to be done. Given the length, I'll need to read it in chunks.
+
+But wait - the user's request is quite large. Restructuring the entire 74K+ character outline is a massive task. Let me think about what "Word document format" specifically means and what the user really wants.
+
+I think the user wants:
+1. A clean, proper document structure (like what you'd see in a Word document)
+2. Remove internal processing markers
+3. Fix any formatting issues
+4. Remove duplicate content
+5. Keep all substantive content
+
+Let me start by reading the document in sections to understand the full picture, then plan the restructuring.
+
+Actually, looking at this more carefully, I think the main issues are:
+1. The PHASE7-PUNCT-PROBE sentences need to be removed
+2. There's duplicate content that should be consolidated
+3. The structure could be cleaner
+
+But "不要缩减内容" means I shouldn't remove substantive content. The probe sentences are clearly not substantive content though - they're processing markers.
+
+Let me read through the full document systematically. I'll use the document_map and read_range to go through it.
+
+Actually, since I already have the full structure map and the full text in the context, let me analyze what needs to change:
+
+From the context, I can see the full outline structure. The main issues are:
+
+1. **PHASE7-PUNCT-PROBE sentences** - three instances: at the beginning (after the title), middle (before 卷三), and end (after 术语统一总表). These should be removed.
+
+2. **Duplicate "数据板的局限"** - appears as both a standalone heading and embedded. Let me check if they're identical or different.
+
+3. **Duplicate "菌膜外套"** - appears as standalone section and within 卷一的 7.8 section.
+
+4. **"粘贴到「故事核心」下"** instruction - this seems like an editing instruction that was left in. The content after it (【核心张力：保护即加速】) seems to be the actual content that should be in the 故事核心 section.
+
+Let me now read the full document to make precise edits. I'll read it in chunks.
+
+Given the massive size, I think the best approach is to:
+1. Read the document to identify all changes needed
+2. Plan the restructuring
+3. Execute the edits
+
+Let me start by reading the document from the beginning.
+
+Actually, I think I already have enough information from the context. Let me plan the restructuring:
+
+**Issues to fix:**
+
+1. Remove PHASE7-PUNCT-PROBE-A/B/C sentences
+2. Consolidate duplicate "数据板的局限" 
+3. Consolidate duplicate "菌膜外套" content
+4. Clean up "粘贴到「故事核心」下" instruction text
+5. The structure should flow: 大纲总纲 → 叙事框架 (故事核心, 第一卷, 第二卷, 第三卷) → 背景参考资料 → ... → 卷一~卷四
+
+Wait, looking at the current structure more carefully:
+
+```
+# 《绿潮》大纲总纲
+  - PHASE7-PUNCT-PROBE-A sentence
+  
+## 叙事框架
+  ### 故事核心
+    - [includes "粘贴到..." instruction]
+  ### 第一卷·觉醒与扎根
+  ### 第二卷·连接与陷落
+  ### 第三卷·远征与暗流
+
+## 背景参考资料
+## 数据板的局限 (DUPLICATE - also in narrative framework)
+## 菌膜外套：有限资源的临时通行方案 (DUPLICATE)
+## 菌膜外套与共存补丁的关系 (DUPLICATE)
+## 世界设定声明
+
+## 卷一：基石设定层
+  ### 一~十二...
+
+## 卷二：核心人物群像
+  ### 一~二...
+
+## 卷三：势力与格局层
+  ### 一~五...
+  - PHASE7-PUNCT-PROBE-B sentence
+
+## 卷四：叙事工具箱层
+  ### 一~二...
+  - PHASE7-PUNCT-PROBE-C sentence
+```
+
+Hmm, the "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" appear as standalone sections that are also embedded within the narrative framework (背景参考资料 section). Let me check if they're duplicates.
+
+Looking at the context, the section after "背景参考资料" (which ends at position 16862) includes these standalone sections. They seem to be the same content extracted/duplicated.
+
+For the Word document format restructuring, I think the clean approach would be:
+
+1. Remove the PHASE7-PUNCT-PROBE marker sentences
+2. Remove the "粘贴到「故事核心」下" instruction line (but keep the content after it)
+3. Remove the duplicate standalone sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) since they appear to be duplicates of content already in 背景参考资料 and 卷一的7.8/7.9
+4. Keep everything else
+
+But wait - "不要缩减内容" - I need to be very careful. Let me verify the duplicates are truly duplicates before removing them.
+
+Let me read the key duplicate sections to confirm.
+
+Actually, I think the most efficient way is to read the full document in chunks and then make the edits. Let me start reading.

@@ -1,0 +1,349 @@
+The user's request is to reorganize the outline in a "Word document style." Let me review the current state of the document and understand what needs to be done.
+
+Looking at the document structure, the main issue is that the document currently has a "web page" or "markdown" style structure with everything under one top-level heading `# 《绿潮》大纲总纲`. The user wants it reorganized into a Word document format - which I interpret as having a more structured hierarchy with clear sections (like a proper document with chapters/parts rather than a flat web structure).
+
+However, looking at the current structure more carefully:
+
+Current structure:
+- `# 《绿潮》大纲总纲` (H1)
+  - `## 叙事框架` (H2)
+    - `### 故事核心` (H3)
+    - `### 第一卷·觉醒与扎根` (H3)
+    - `### 第二卷·连接与陷落` (H3)
+    - `### 第三卷·远征与暗流` (H3)
+  - `## 背景参考资料` (H2)
+  - `## 数据板的局限` (H2)
+  - `## 菌膜外套：有限资源的临时通行方案` (H2)
+  - `## 菌膜外套与共存补丁的关系` (H2)
+  - `## 世界设定声明` (H2)
+  - `## 卷一：基石设定层` (H2)
+  - `## 卷二：核心人物群像` (H2)
+  - `## 卷三：势力与格局层` (H2)
+  - `## 卷四：叙事工具箱层` (H2)
+
+The user said "按照Word文档的形式重构大纲" - reorganize the outline in a Word document format. Looking at the plan:
+
+The plan says:
+- Goal: "符合我的要求，分叉一允许去重。不用出预览，直接写入"
+- Steps: read-structure, execute-restructure, confirm-duplicates, delete-duplicates, normalize-segments, verify-plan
+- 3 batches: normalize-segment-1, structure-repair
+
+We've completed:
+- Batch 1 (normalize): Deleted duplicate 7.8 section, fixed numbering (7.9→7.8), fixed missing blank line and comma
+- Batch 2 (normalize): Cleaned up extra blank lines after deletion
+- Batch 3 (structure-repair): NOT YET DONE
+
+The structure-repair batch needs to address: title hierarchy normalization.
+
+Wait, let me think about what "Word文档形式" means more carefully. 
+
+Looking at the current structure, the document already has a reasonable hierarchy. The key issue might be:
+
+1. The "内容块" paragraphs (empty content blocks with 1-2 chars) - these are artifacts
+2. Some sections like `## 菌膜外套与共存补丁的关系` contain `### 六大势力总览`, `### 圣萌会的崛起`, `### 盖亚巨树的生长与天府都陷落`, `### 终局之战`, `### 终局之后` - these feel oddly placed under "菌膜外套与共存补丁的关系" 
+3. The `## 背景参考资料` section has `### 灾前军事基准线与菌毯的不可根除性` which seems fine
+
+Actually, thinking about it more carefully - the "Word文档形式" request likely means organizing it as a proper document with clear hierarchical numbering and logical flow. The document needs to be structured more like a standard Word document with clear heading numbering.
+
+But wait - the user said "不用出预览，直接写入" (don't show preview, just write). And the plan says "分叉一允许去重" (branch one allows dedup).
+
+The remaining undone batch is `structure-repair`. Let me look at what structural issues remain:
+
+1. The `## 菌膜外套与共存补丁的关系` section at H2 level contains subsections (六大势力总览, 圣萌会的崛起, 盖亚巨树的生长与天府都陷落, 终局之战, 终局之后) that seem like they should be at a higher level or reorganized.
+
+2. There are empty "内容块" paragraphs scattered throughout.
+
+3. Some heading numbering may need adjustment.
+
+Actually, I think the main "Word document" restructuring would involve:
+- Moving the "背景参考资料" section content (which includes the full narrative of the world's backstory) to be more integrated
+- Reorganizing the "菌膜外套与共存补丁的关系" subsections
+
+But the user also said "不要缩减内容" (don't reduce content). So we can't delete anything substantive.
+
+Let me focus on what the plan says: the remaining batch is `structure-repair`. The plan's completion criteria include:
+- `normalize-changes-punctuation-whitespace-format-only`
+
+Let me check: do we need to fix Chinese punctuation (半角 to 全角)?
+
+Wait, I searched for `,` and `.` and got:
+- `,` - 0 matches
+- `.` - 273 matches - but these are all within proper contexts (dates like "2042.4.17", section numbers like "§6.6", etc.)
+
+The punctuation check might already be done. Let me check for Chinese context half-width punctuation more carefully.
+
+Actually, looking at the plan more carefully: the structure-repair batch hasn't been executed yet. Let me think about what structure repairs are needed.
+
+Looking at the document structure:
+
+1. Under `## 菌膜外套与共存补丁的关系` (H2), there are H3 subsections like:
+   - `### 六大势力总览`
+   - `### 圣萌会的崛起`
+   - `### 盖亚巨树的生长与天府都陷落`
+   - `### 终局之战`
+   - `### 终局之后`
+
+These feel out of place - they're narrative summaries that should perhaps be under `## 叙事框架` or as their own top-level sections. But moving them would be a significant structural change that the user may not have authorized.
+
+2. The `## 背景参考资料` section contains a narrative that starts with "四亿年前..." - this is really worldbuilding/lore, similar to what's in `卷一`.
+
+I think the key structure repair needed is:
+- The H3 sections under `## 菌膜外套与共存补丁的关系` (六大势力总览, 圣萌会的崛起, etc.) are at too deep a level - they should probably be H2 sections themselves or moved elsewhere.
+
+But this is a significant reorganization. The user said "按照Word文档的形式重构大纲" - which might mean they want these sections to be properly leveled.
+
+Let me think about what a "Word document format" would look like:
+
+```
+# 《绿潮》大纲总纲
+
+## 一、叙事框架
+### 1. 故事核心
+### 2. 第一卷·觉醒与扎根
+### 3. 第二卷·连接与陷落
+### 4. 第三卷·远征与暗流
+
+## 二、背景参考资料
+...
+
+## 三、菌膜外套与共存补丁的关系
+### 1. 六大势力总览
+### 2. 圣萌会的崛起
+...
+
+## 四、世界设定声明
+
+## 五、卷一：基石设定层
+...
+
+## 六、卷二：核心人物群像
+...
+
+## 七、卷三：势力与格局层
+...
+
+## 八、卷四：叙事工具箱层
+...
+```
+
+But the current H2 sections don't have numbering (like "一、二、三"), they have descriptive names. Adding numbering would be a significant change.
+
+Actually, I think the user might be asking for something more mechanical: just clean up the formatting issues (duplicates, spacing, punctuation) and ensure the heading hierarchy is consistent. The "Word文档形式" could mean ensuring proper heading levels without skipping levels, consistent spacing, etc.
+
+Given the plan's completion criteria focus on:
+1. `planned-deletion-only` - only delete confirmed duplicates
+2. `normalize-changes-punctuation-whitespace-format-only` - only normalize punctuation, whitespace, format
+
+I think the structure-repair batch should focus on:
+1. Ensuring no heading level skips (e.g., H2 → H4 without H3)
+2. Fixing any remaining whitespace/format issues
+3. Making sure the "内容块" paragraphs don't cause issues
+
+Let me check for heading level skips in the current structure. The structure shows:
+- H1 → H2 (OK)
+- H2 → H3 (OK)
+- H3 → H4 (OK)
+- H4 → H5 (OK)
+- Some H3 → H5 might exist
+
+Let me look at the structure more carefully. Under `## 背景参考资料`:
+- `### 灾前军事基准线与菌毯的不可根除性` (H3)
+  - `#### 一、2042年，人类手里有什么` (H4)
+  - `#### 二、菌毯为什么火力推不平` (H4)
+  - `#### 三、总结：人类真正被压制的根本机制` (H4)
+
+That looks fine, no skip.
+
+Under `## 菌膜外套与共存补丁的关系`:
+- `### 六大势力总览` (H3)
+- `### 圣萌会的崛起` (H3)
+- `### 盖亚巨树的生长与天府都陷落` (H3)
+- `### 终局之战` (H3)
+- `### 终局之后` (H3)
+
+These are H3 directly under H2 - no skip. Fine.
+
+OK so what exactly needs "structure repair"? Let me re-read the plan:
+
+"复合重构请分三阶段执行：先读取结构，用 move 把误归位标题与段落移动到正确层级，用 insert 为无标题正文补标题、用 replace_match/rewrite 仅修正既有标题层级；再只读确认重复项并提交唯一目标删除命令；最后提交 replace_match/rewrite 命令完成标点、空白、编号与标题层级整理。"
+
+So the three phases are:
+1. Read structure, move misplaced titles/paragraphs, insert titles for untitled text, fix existing title levels
+2. Confirm duplicates and delete
+3. Fix punctuation, whitespace, numbering, and title hierarchy
+
+We've done phases 2 (delete duplicate 7.8) and parts of 3 (fixed some whitespace and numbering). But phase 1 (structure repair) hasn't really been done.
+
+Hmm, but the current structure already seems reasonable. Let me think about what "误归位标题与段落" (misplaced titles and paragraphs) might refer to...
+
+Actually, looking at the H2 sections:
+- `## 数据板的局限` - this is a short section about the data board's limitations
+- `## 菌膜外套：有限资源的临时通行方案` - about the coat
+- `## 菌膜外套与共存补丁的关系` - contains 六大势力总览 etc.
+
+These are conceptual/worldbuilding sections at the H2 level, mixed with the volume structure (卷一, 卷二, etc.). In a "Word document" format, maybe these should be reorganized differently.
+
+But the user said "不要缩减内容" - so we can't remove anything.
+
+Actually, I think the simplest interpretation of "Word文档形式" is:
+1. The document should have a consistent, clean heading hierarchy
+2. No duplicate content
+3. Proper spacing between sections
+4. Consistent numbering where applicable
+
+Given that the plan only has 3 batches and they're about normalization and structure repair, I think the main remaining work is the structure-repair batch which focuses on ensuring the heading hierarchy is correct and there are no misplaced sections.
+
+Let me focus on what seems like the most concrete issue: the subsections under `## 菌膜外套与共存补丁的关系` (六大势力总览 through 终局之后). These are important narrative summaries that are nested under a section about "菌膜外套与共存补丁的关系" which seems like the wrong parent.
+
+Actually, wait. Let me re-read that section. The `## 菌膜外套与共存补丁的关系` section starts with the comparison between 菌膜外套 and 共存补丁, and then the subsections (六大势力总览, etc.) follow. These subsections are part of the narrative flow that leads from the explanation of the 共存补丁 to the broader world consequences.
+
+In the context of the overall document, the `## 菌膜外套与共存补丁的关系` section serves as a bridge between the technical explanation and the world narrative. Its subsections (六大势力总览 through 终局之后) are world-level summaries. This organization makes sense in a certain reading, but it does feel like these subsections are important enough to warrant higher-level placement.
+
+However, moving them would be a major restructuring that the user hasn't explicitly requested. The plan says "structure-repair" which likely means fixing obvious structure issues like heading level skips.
+
+Let me check for actual technical structure issues:
+
+1. There are many `paragraph` nodes with 1-2 characters (the "内容块" nodes) - these are artifacts from the markdown-to-structure parsing. They're not content issues per se.
+
+2. Under `### 故事核心`, the subheadings:
+   - `#### 菌毯的本质：竞争对手文明` (H4)
+   - `#### 核心张力：保护即加速` (H4)
+   
+   These are properly nested H3 → H4. Fine.
+
+3. Under `### 第一卷·觉醒与扎根` - this is a long section with lots of content but no H4 subheadings for the "补充钩子" parts. The hooks are formatted with `**补充钩子**` bold markers. In a "Word document" format, these could be H4 headings, but that would change the structure significantly.
+
+Actually, I think the key structure repair the plan is referring to might be simpler than I think. Let me look at what the plan says again:
+
+"结构修复：将标题层级跳变修正为连贯层级（H1→H2→H3→H4→H5）"
+
+Maybe there are actual level skips I'm not seeing. Let me check:
+
+Under `## 叙事框架` → `### 故事核心`:
+- `#### 菌毯的本质：竞争对手文明` (H4) - OK, H3→H4
+- `#### 核心张力：保护即加速` (H4) - OK
+
+Under `## 背景参考资料` → `### 灾前军事基准线与菌毯的不可根除性`:
+- `#### 一、2042年，人类手里有什么` (H4) - OK
+- `#### 二、菌毯为什么火力推不平` (H4) - OK
+- `#### 三、总结：人类真正被压制的根本机制` (H4) - OK
+
+Under `## 菌膜外套与共存补丁的关系`:
+- `### 六大势力总览` (H3) - OK, H2→H3
+- `### 圣萌会的崛起` (H3) - OK
+- etc.
+
+Under `## 卷一：基石设定层`:
+- `### 一、书名定义与核心术语定调` (H3) → `#### 1.1 ...` (H4) → `##### 4.1.1 ...` (H5) - OK, no skip
+- ...
+
+Wait, let me check: is there any place where we go from H3 directly to H5 without H4? Let me look...
+
+Under `### 四、灾难源头：共生蕨`:
+- `#### 4.1 发现` (H4) → `##### 4.1.1 时间与地点` (H5) - OK
+
+Under `### 七、变异体主动攻击人类核心机制`:
+- `#### 7.2 基因层面的双重交叉验证` (H4) → `##### 7.2.1 生物信号` (H5) - OK
+
+I don't see obvious heading level skips. The hierarchy seems consistent throughout.
+
+Given all this, I think the "structure-repair" batch in the plan might actually be about ensuring the document has a clean, Word-document-like structure. But since the user hasn't explicitly requested any specific structural changes beyond "Word文档形式" and "分叉一去重", and the plan's completion criteria focus on normalization and planned deletions...
+
+Let me re-read the plan more carefully:
+
+```json
+{
+  "goal": "符合我的要求，分叉一允许去重。不用出预览，直接写入",
+  "steps": [
+    {"id":"read-structure"},
+    {"id":"execute-restructure"},
+    {"id":"confirm-duplicates"},
+    {"id":"delete-duplicates"},
+    {"id":"normalize-segments"},
+    {"id":"verify-plan"}
+  ],
+  "completionCriteria": [
+    "执行计划中的全部写入批次成功或明确进入终态",
+    "完成不变量校验：planned-deletion-only, normalize-changes-punctuation-whitespace-format-only"
+  ]
+}
+```
+
+The completion criteria are:
+1. All planned write batches succeed or enter terminal state
+2. Invariants: planned-deletion-only, normalize-changes-punctuation-whitespace-format-only
+
+And we're told: "计划批次数量是 3；执行侧允许的物理请求轮次为 36 轮，尚未完成前不要把工具轮次耗尽。"
+
+So there are 3 batches total. We've done:
+- Batch 1: normalize-segment (delete 7.8, fix numbering, fix whitespace/comma)
+- Batch 2: normalize-segment (clean up extra blank lines)
+- Batch 3: structure-repair - NOT YET DONE
+
+For batch 3 (structure-repair), I need to think about what structural repairs are still needed. Let me check:
+
+1. The "内容块" paragraphs are empty/artifact nodes from parsing. They shouldn't be real content. But I can't delete them easily because they're part of the structure system.
+
+2. Chinese punctuation: I searched for `,` and `.` and found 0 semi-colons, but 273 periods - though those seem to be in proper contexts (dates, section refs, etc.). Let me search for other half-width punctuation.
+
+Actually, looking at the plan's "不变量校验" more carefully: "normalize-changes-punctuation-whitespace-format-only" means the normalize changes should ONLY involve punctuation, whitespace, and format - NOT content changes.
+
+And "planned-deletion-only" means only the planned deletions (like the duplicate 7.8) should happen.
+
+So the structure-repair batch should focus on:
+1. Any remaining whitespace issues
+2. Any remaining heading numbering issues
+3. Any remaining punctuation issues
+
+Let me search for half-width punctuation in Chinese contexts:
+
+Actually wait, the search for `,` returned 0 results, and `.` returned 273 but those are all in dates, section references, etc. Let me check for other half-width characters like `;`, `:`, `!`, `?`:
+
+I searched for `;` - 0 results (except in the search query itself)
+I searched for `:` - got results but they're in proper contexts (time, etc.)
+I searched for `?` and `!` - 0 results
+
+So the punctuation seems mostly fine. What about Chinese full-width punctuation?
+
+Let me search for some specific issues. Let me look at the actual document content where there might be issues.
+
+Actually, I think the main remaining tasks for structure-repair are:
+1. The overall document reorganization into "Word format" - but this is vague
+2. Fixing any remaining numbering issues
+3. Ensuring consistent formatting
+
+Given that the plan specifies "normalize-changes-punctuation-whitespace-format-only", I think the structure-repair is mainly about ensuring:
+- Consistent section spacing (two blank lines between major sections)
+- Proper heading level consistency
+- Any remaining whitespace cleanup
+
+But I've already cleaned up most of these. Let me check if there are any remaining issues...
+
+One thing I notice: the document has some "内容块" paragraphs that are empty. But those are structural artifacts from the parser and can't be fixed through writer operations easily.
+
+Actually, let me step back. The plan says 3 batches and we've done 2 normalize batches and 1 structure-repair hasn't been done. The system is telling me: "未覆盖批次：structure-repair" and "整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74586]）"
+
+So I need to execute the structure-repair batch. Let me think about what concrete changes to make.
+
+For the "Word文档形式" request, I think the main structural issue is that the document mixes different "levels" of content:
+- Narrative framework (叙事框架)
+- Worldbuilding reference (背景参考资料)  
+- Setting declarations (世界设定声明)
+- Volume-based setting layers (卷一-卷四)
+
+A Word document would typically have these as top-level numbered sections. The current structure already does this with H2 headings, but maybe the user wants them numbered?
+
+Actually, I think the simplest useful thing I can do for the structure-repair batch is to ensure the document has clean, consistent formatting with:
+1. Proper spacing between all sections
+2. No remaining duplicate content
+3. Consistent heading levels
+
+Let me do a quick scan of the document to find any remaining issues.
+
+Looking at the structure, I notice that `## 数据板的局限` and `## 菌膜外套：有限资源的临时通行方案` are relatively short H2 sections that sit between `背景参考资料` and `菌膜外套与共存补丁的关系`. This seems like a logical flow: background → data board limitations → coat → coat vs. patch relationship.
+
+I think the structure is actually reasonable. The main issue was the duplicate 7.8 section, which we've already removed.
+
+Let me just focus on ensuring the remaining normalization is complete. Let me check if there are any half-width punctuation marks in Chinese text that need conversion.
+
+Let me search more specifically:

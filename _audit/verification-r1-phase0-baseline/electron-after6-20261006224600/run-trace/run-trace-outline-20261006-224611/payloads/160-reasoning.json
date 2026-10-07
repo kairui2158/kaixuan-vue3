@@ -1,0 +1,255 @@
+Now I need to complete the remaining batch (structure-repair, which is batch 1 of 3 in the plan). Let me analyze the current structure:
+
+The document has this hierarchy:
+- # 《绿潮》大纲总纲 (level 1)
+  - ## 叙事框架 (level 2)
+    - ### 故事核心 (level 3)
+      - #### 菌毯的本质：竞争对手文明 (level 4)
+      - #### 核心张力：保护即加速 (level 4)
+    - ### 第一卷·觉醒与扎根 (level 3)
+    - ### 第二卷·连接与陷落 (level 3)
+    - ### 第三卷·远征与暗流 (level 3)
+  - ## 背景参考资料 (level 2)
+    - ### 灾前军事基准线与菌毯的不可根除性 (level 3)
+      - #### 一、2042年，人类手里有什么 (level 4)
+        - ##### 被孢子云直接废掉的武器系统 (level 5)
+        - ##### 打上去但无效的武器 (level 5)
+        - ##### 打得动但代价人类付不起的武器 (level 5)
+      - #### 二、菌毯为什么火力推不平 (level 4)
+        - ##### 生物量储备的物理事实 (level 5)
+        - ##### 火力触发报复性生长 (level 5)
+        - ##### 信号放大效应锁死兵力集结 (level 5)
+      - #### 三、总结：人类真正被压制的根本机制 (level 4)
+  - ## 数据板的局限 (level 2)
+  - ## 菌膜外套：有限资源的临时通行方案 (level 2)
+  - ## 菌膜外套与共存补丁的关系 (level 2)
+  - ## 世界设定声明 (level 2)
+  - ## 卷一：基石设定层 (level 2)
+    - ### 一、书名定义与核心术语定调 (level 3)
+    - ### 二、灵魂语句 (level 3)
+    - ### 三、地名架空化对照总表 (level 3)
+    - ### 四、灾难源头：共生蕨 (level 3)
+    - ### 五、方岫岩：菌膜装甲的起源 (level 3)
+    - ### 六、灾难爆发完整链条 (level 3)
+    - ### 七、变异体主动攻击人类核心机制 (level 3)
+    - ### 八、变异生物体系 (level 3)
+    - ### 九、真菌网络、水体净化与大地之变 (level 3)
+    - ### 十、灾后科技更新换代体系 (level 3)
+    - ### 十一、生物油脂兼容性 (level 3)
+    - ### 十二、末日食物与营养供给体系 (level 3)
+  - ## 卷二：核心人物群像 (level 2)
+    - ### 一、陈暮 (level 3)
+    - ### 二、五位女主（性格独立编制） (level 3)
+  - ## 卷三：势力与格局层 (level 2)
+    - ### 一、菌毯封锁与人类孤岛：末日格局 (level 3)
+    - ### 二、全球幸存者势力分布 (level 3)
+    - ### 三、六大势力完整设定 (level 3)
+    - ### 四、圣萌会：人类第二灾害 (level 3)
+    - ### 五、盖亚中枢（巨树） (level 3)
+  - ## 卷四：叙事工具箱层 (level 2)
+    - ### 一、核心主题清单 (level 3)
+    - ### 二、术语统一总表 (level 3)
+
+Now, looking at this structure, I see that the "背景参考资料" section has some narrative content that's essentially a compressed retelling of what also appears in the detailed "卷一" sections later. But the user said "分叉一允许去重" - so the user said the only deletion allowed is duplicates. Let me focus on what "structure-repair" means.
+
+Looking at the document, I see that the "背景参考资料" section (## level 2) contains both a narrative overview AND a ## 数据板的局限 section. The "背景参考资料" section actually contains narrative prose that's NOT under any heading - it's just body text under the ## heading. Then it has ### 灾前军事基准线与菌毯的不可根除性.
+
+Wait - let me look more carefully. The "背景参考资料" heading is at level 2. After the narrative paragraphs, we then see:
+- ### 灾前军事基准线与菌毯的不可根除性
+
+But wait, there was also a long narrative passage about the history (from "四亿年前..." through "这些民生技术在末日世界里比任何武器都更珍贵") that was originally under "背景参考资料". But in the document map, that original paragraph block (paragraph-1kd06wy) was removed in the last write operation and replaced with paragraph-1ky4plk. This happened when I added the blank line before "### 灾前军事基准线...".
+
+OK so now let me think about what "structure-repair" needs to do. The plan has 3 batches:
+1. structure-repair
+2. confirm-duplicates (already done - user authorized fork 1)
+3. normalize-format (already partially done)
+
+Now that I've done 2 successful writes (batches for formatting), and the plan says there are 3 batches total, I need to handle structure-repair.
+
+Looking at the document more carefully, the user wants a Word-style document. The issues I should address:
+
+1. The "背景参考资料" section has a long narrative passage (history overview) that's not under any heading - it's just body paragraphs under the ## heading. This is actually fine for Word format.
+
+2. The "## 数据板的局限", "## 菌膜外套", "## 菌膜外套与共存补丁的关系", "## 世界设定声明" are all at level 2, but they appear between "背景参考资料" and "卷一". These are standalone sections and their placement is intentional.
+
+Let me check if there are textual duplicates. The plan says "分叉一允许去重" meaning duplicate text can be removed. Let me search for the actual duplicate content between "背景参考资料" narrative and the "卷一" detailed sections.
+
+The background references section has a narrative about:
+- 四亿年前 history
+- 2038 discovery
+- 2040 open sourcing
+- 2041 carrier fungus discovery
+- 2042 April 17 Chen Mu accident
+- 2042 Nov 19 disaster
+- Global spread
+- Spore cloud effects
+- Underground branch awakening
+- Climate effects
+- Fang Xiuyan's lab work
+- Chen Mu awakening ~2051
+- Chen Mu's early survival
+
+Then 卷一:基石设定层 has detailed breakdowns of ALL of these same topics but in much more detail with specific character profiles, scientific mechanisms, etc.
+
+The background reference section is essentially a compressed summary/overview, while 卷一 has the detailed version. These are NOT exact duplicates - the background is a narrative summary while 卷一 is structured reference material.
+
+The user said "分叉一允许去重" - meaning they allow the deletion of duplicate content. But since the background overview and the detailed 卷一 sections are different in granularity and purpose, I don't think they should be considered duplicates to be removed. The overview serves as a quick reference while 卷一 serves as detailed worldbuilding.
+
+Wait, let me re-read the execution plan steps more carefully. The plan says:
+- structure-repair: fix heading levels, move misplaced items
+- confirm-duplicates: confirm duplicates then delete
+- normalize-format: punctuation, whitespace, numbering
+
+The "structure-repair" is about fixing the heading hierarchy. Let me look at the current structure for issues:
+
+Looking at the document map, the heading levels are:
+- h1: 《绿潮》大纲总纲
+  - h2: 叙事框架
+    - h3: 故事核心
+      - h4: 菌毯的本质/核心张力
+    - h3: 第一卷/第二卷/第三卷
+  - h2: 背景参考资料
+    - (body text - narrative)
+    - h3: 灾前军事基准线...
+      - h4: 一/二/三
+        - h5: 各小节
+  - h2: 数据板的局限
+  - h2: 菌膜外套...
+  - h2: 菌膜外套与共存补丁...
+  - h2: 世界设定声明
+  - h2: 卷一：基石设定层
+    - h3: 一至十二
+      - h4: 各小节
+        - h5: 各子小节
+  - h2: 卷二
+    - h3: 一/二
+      - h4: 各小节
+  - h2: 卷三
+    - h3: 一至五
+      - h4: 各小节
+        - h5: 各子小节
+  - h2: 卷四
+    - h3: 一/二
+
+This looks structurally consistent. No level jumps. All headings follow a logical hierarchy. 
+
+The main formatting issues to address now would be:
+1. Chinese punctuation: check for half-width punctuation in Chinese text
+2. Blank line normalization between sections
+3. Any remaining structural issues
+
+But I've already done several blank-line normalizations. Let me now focus on the Chinese punctuation issue. The plan says this is a "强制条件" (mandatory condition).
+
+Let me check the content for half-width punctuation in Chinese text. From the reads I've done, I can see the content uses full-width punctuation (，。；：！？) throughout most of it. Let me verify by searching for specific half-width marks.
+
+Actually, from the search results earlier, searching for "." returned 274 matches, but many of those are in GFM tables, numerical data, file extensions (like "§6.6", "SC-α", "18:2"), and other technical content where half-width is correct. The search for ":" returned only 3 matches, and "!" and "?" returned 0. So the Chinese punctuation seems largely consistent.
+
+Let me now focus on completing the structure-repair batch. The plan says there are 3 batches total and I've done 2 writes. Let me think about what "structure-repair" should do:
+
+Actually, looking at the plan again more carefully:
+
+The plan steps are:
+1. read-structure ✓
+2. execute-restructure - need to check if there's anything to restructure
+3. confirm-duplicates - already done (user authorized fork 1 for dedup)
+4. delete-duplicates - need to find and delete actual duplicates
+5. normalize-segments - partially done
+6. verify-plan
+
+The plan says there are 3 batches: structure-repair, confirm-duplicates, normalize-format.
+
+Actually wait, let me re-read the plan more carefully. It says:
+
+"整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74491]）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令"
+
+So I need to cover the entire document in the formatting pass. Let me now focus on the structure-repair batch.
+
+Looking at the document, I think the key structural issue is that "背景参考资料" section contains body paragraphs that are essentially the same narrative that appears in structured form throughout 卷一. But the user explicitly said "分叉一允许去重" - they allow deleting duplicates.
+
+Let me now focus on finding actual textual duplicates. The most obvious candidate is the narrative in "背景参考资料" that duplicates content in the detailed sections of 卷一. But since these are at different levels of detail (background is summary, 卷一 is detailed), I think the plan wants me to check for exact text duplicates rather than conceptual duplicates.
+
+Let me now focus on what I can do in the structure-repair batch:
+
+I think the main remaining tasks are:
+1. Normalize blank lines consistently across the whole document (single blank line before headings, no excessive blank lines)
+2. Verify that all Chinese punctuation is correct (full-width in prose, half-width in technical)
+3. Complete the structure verification
+
+Given the current state of the document and what I've already done, I think the most impactful remaining work is to search for and fix any remaining formatting inconsistencies.
+
+Let me search for common half-width punctuation in Chinese text contexts, and also check for excessive blank lines.
+
+Actually, let me re-read the plan constraints more carefully:
+
+"中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）；这是完成校验的强制条件，不是可选项。"
+
+This is mandatory - I must convert half-width punctuation to full-width in Chinese prose context. But from my extensive reading of the text, the author already uses full-width punctuation consistently. The search for "!" and "?" returned 0 results, and the "." matches were all in technical contexts.
+
+Let me now focus on what remains to be done. The plan says there are 3 batches and I've completed 2 successful writes. Let me now execute the structure-repair batch which should normalize any remaining structural issues.
+
+Given all the analysis, I believe the remaining work is:
+1. Normalize blank lines throughout (single blank line before headings, single blank line after headings)
+2. Verify there are no remaining half-width punctuation issues in Chinese text
+3. Final verification pass
+
+Let me do a comprehensive blank-line normalization pass. From my readings, I've seen some areas with multiple blank lines and some with none. Let me normalize the key ones.
+
+Let me look at what I can do in a single write batch. The document is ~74K characters so I can't do it all at once. Let me focus on the remaining problematic areas.
+
+From my reading, I noticed:
+- After "故事核心" heading, there's variable spacing
+- The "核心张力：保护即加速" section already fixed
+- "背景参考资料" section heading spacing already fixed
+- "数据板的局限" section already fixed
+
+Let me now check the remaining sections. I'll look at areas that might still need normalization.
+
+Actually, I think rather than trying to find every single blank line issue, let me focus on the most impactful remaining changes. The document is already in good shape after the previous passes. Let me:
+
+1. Search for any remaining half-width punctuation in Chinese prose
+2. Do a final blank-line sweep for consistency
+
+Let me search for half-width commas in Chinese context. In Chinese, a half-width comma "," followed by a Chinese character would be an error. But most commas in the document appear to be full-width already.
+
+Let me now do the final write batch to complete structure-repair. I'll focus on any remaining issues I can identify.
+
+From my extensive reading, I'd say the document is largely well-formatted now. The remaining "structure-repair" work would be to verify and fix any edge cases. Let me just do one final pass for any remaining blank line inconsistencies.
+
+Let me search for triple-newline patterns (excessive blank lines) and fix them.
+
+Actually, I think I need to be more careful about what "structure-repair" means. Let me re-read the plan:
+
+The plan has these steps:
+1. read-structure ✓
+2. execute-restructure - "执行标题层级修复或章节重排"
+3. confirm-duplicates - "用只读工具确认重复项"
+4. delete-duplicates - "只删除已确认的重复项"
+5. normalize-segments - "按计划批次整理格式"
+6. verify-plan
+
+And the plan says there are 3 batches:
+- structure-repair
+- confirm-duplicates  
+- normalize-format
+
+I've done 2 write batches, both focused on formatting/blank-line normalization. The "structure-repair" batch hasn't been done yet. Let me think about what structural repairs are needed.
+
+Looking at the document structure again, I think the main structural concern is about the "背景参考资料" section. This section at heading level 2 contains both:
+- Free-flowing narrative text (a compressed history overview)
+- A structured subsection "灾前军事基准线..."
+
+But this is actually fine - it's just a section that has both body text and subsections. No structural repair needed there.
+
+Wait, I just realized something. The "背景参考资料" section narrative flows directly into the structured subsections without any clear separation. And then after that, there are separate level-2 headings ("数据板的局限", "菌膜外套", etc.) that logically belong to the same reference material. But since they're at level 2, they're treated as siblings of "背景参考资料", not children. This is actually fine for a Word document.
+
+OK, I think the structure is actually fine. Let me focus on what the plan really wants me to do for "structure-repair": fix any heading level issues, and handle the "卷一" statement about not participating in main plot.
+
+Actually, now I realize: the plan says 3 batches total and I should not stop until all are covered. Let me focus on doing the remaining work efficiently.
+
+The remaining work I can identify:
+1. Search for and fix any remaining half-width punctuation in Chinese prose contexts
+2. Final blank-line consistency pass
+
+Let me search for specific patterns that might indicate half-width punctuation in Chinese text.
+
+Let me just do the final write pass and be done. I'll search for specific patterns and fix them.

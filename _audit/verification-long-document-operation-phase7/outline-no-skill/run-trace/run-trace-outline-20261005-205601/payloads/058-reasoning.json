@@ -1,0 +1,85 @@
+Let me assess the current state. I've completed:
+
+1. ✅ Removed the 3 PHASE7-PUNCT-PROBE sentences
+2. ✅ Deleted the duplicate "数据板的局限" content in the 背景参考资料 section
+3. ✅ Added proper spacing before 【菌毯的本质：竞争对手文明】
+4. ✅ Added a heading "灾前军事基准线与菌毯的不可根除性" as ### in the 背景参考资料 section
+
+Now I need to continue with:
+- Confirm and delete any remaining duplicate sections (菌膜外套 and 菌膜外套与共存补丁的关系 appear twice - once as top-level ## headings and once within 卷一中 as #### 7.8 and 7.9)
+- Normalize Chinese punctuation throughout the document
+- Ensure proper heading hierarchies
+
+Let me search for the duplicate sections more carefully. The "菌膜外套" and "菌膜外套与共存补丁的关系" appear twice:
+1. As top-level ## headings (after 数据板的局限, before 世界设定声明)
+2. As #### 7.8 and 7.9 within 卷一
+
+The "数据板的局限" appeared to also be duplicated - we already deleted one copy.
+
+Now let me check if the 菌膜外套 duplicate is intentional (cross-reference) or should be deleted. Looking at the plan: these appear to be intentional cross-references, so I should NOT delete them. Let me verify by reading the content.
+
+Actually wait - the plan says "只读确认重复项并提交唯一目标删除命令". Let me check what duplicates remain. The "数据板的局限" was a true duplicate (one in 背景参考资料 without a heading, one as its own ## heading). We deleted the one without heading.
+
+For 菌膜外套 and 菌膜外套与共存补丁的关系 - these appear to be legitimate cross-references within the 卷一 structure, so I should not delete these.
+
+Now I need to focus on the normalize-segment tasks:
+- normalize-segment-1 [0-46748]: Fix Chinese punctuation in the first half
+- normalize-segment-2 [46748-75024]: Fix Chinese punctuation in the second half
+
+But the search for half-width punctuation marks (`,` `;` `:` etc.) returned 0 results for `,` and `;`, and only a few `:` results which are in GFM tables (which require half-width colons per the GFM spec). The `?` and `!` searches also returned 0.
+
+Wait, that can't be right. Let me re-read the search results more carefully. The search for `.` returned 274 results but many of those seem to be inside code/table contexts or in fragments like "4.1" etc. Let me check if there are actual half-width punctuation issues in Chinese running text.
+
+Let me think about what else needs to be done structurally. The document map shows the current structure is:
+
+```
+# 《绿潮》大纲总纲 (h1)
+  ## 叙事框架 (h2)
+    ### 故事核心 (h3)
+    ### 第一卷·觉醒与扎根 (h3)
+    ### 第二卷·连接与陷落 (h3)
+    ### 第三卷·远征与暗流 (h3)
+  ## 背景参考资料 (h2)
+    ### 灾前军事基准线与菌毯的不可根除性 (h3) -- just added
+  ## 数据板的局限 (h2)
+  ## 菌膜外套：有限资源的临时通行方案 (h2)
+  ## 菌膜外套与共存补丁的关系 (h2)
+  ## 世界设定声明 (h2)
+  ## 卷一：基石设定层 (h2)
+    ### 一、书名定义与核心术语定调 (h3)
+    ...
+  ## 卷二：核心人物群像 (h2)
+  ## 卷三：势力与格局层 (h2)
+  ## 卷四：叙事工具箱层 (h2)
+```
+
+This looks reasonable. The top-level H2 sections are: 叙事框架, 背景参考资料, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 世界设定声明, 卷一, 卷二, 卷三, 卷四.
+
+Now for the punctuation normalization - the search showed:
+- `,` (half-width comma): 0 results - all commas appear to be full-width already
+- `;` (half-width semicolon): 0 results - all semicolons appear to be full-width
+- `:` (half-width colon): 3 results but they're in GFM table context (脂肪酸 notation like 18:2) which should remain half-width
+- `?` half-width: 0 results
+- `!` half-width: 0 results
+- `.` (half-width period): 274 results - but most of these look like they're in decimal numbers, table cell content, GFM table separators, or code references. Let me verify some of these more carefully.
+
+Actually, the search for `.` returned many matches but looking at the context, they seem to be:
+- Numbers like "3.2", "7.8", "§6.6"
+- Abbreviations
+- GFM table formatting
+
+These are all valid uses of half-width period in Chinese document context.
+
+So it appears the document may already have proper Chinese punctuation. Let me now focus on what remains:
+
+The plan requires me to normalize segments. Since the punctuation search didn't find problematic instances in Chinese running text, let me now focus on structure and final cleanup.
+
+Let me look for any remaining issues:
+1. Are there empty paragraph blocks (内容块 with 1-2 chars) that should be cleaned?
+2. Are there remaining duplicate sections?
+
+The "内容块" paragraphs seem to be auto-generated from empty lines in the markdown. They're harmless.
+
+Let me now check if the "菌膜外套" and "菌膜外套与共存补丁的关系" sections are true duplicates (identical content) or if they serve different purposes. If they're identical, one copy should be removed.
+
+Let me read both instances to compare.

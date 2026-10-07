@@ -1,0 +1,27 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "### 六大势力概览",
+      "content": "## 六大势力概览",
+      "reason": "六大势力概览被误归位为「菌膜外套与共存补丁的关系」的次级标题，应作为顶层章节"
+    },
+    {
+      "operation": "replace_match",
+      "target": "### 圣萌会的崛起",
+      "content": "## 圣萌会的崛起",
+      "reason": "圣萌会的崛起被误归位为「菌膜外套与共存补丁的关系」的次级标题，应作为顶层章节"
+    },
+    {
+      "operation": "replace_match",
+      "target": "### 巨树生长与天府都陷落",
+      "content": "## 巨树生长与天府都陷落",
+      "reason": "巨树生长与天府都陷落被误归位为「菌膜外套与共存补丁的关系」的次级标题，应作为顶层章节"
+    }
+  ],
+  "reason": "第一阶段：修正三处被误归位到「菌膜外套与共存补丁的关系」之下的章节标题层级，提升为顶层章节，不改动任何正文内容",
+  "reveal": {
+    "mode": "instant",
+    "firstChange": true
+  }
+}

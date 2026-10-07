@@ -1,0 +1,103 @@
+Now I have a clear picture. The document already has proper structure after my edits. The main remaining task per the plan is the "normalize" phase covering normalize-segment-1[0-74841] - punctuation, whitespace, numbering and heading level normalization.
+
+The document is 74298 chars. I need to normalize half-width punctuation (,) . ; : ! ? in Chinese context to full-width. But this is a huge document. The plan says "normalize-segment-1[0-74841]" must be covered.
+
+Let me think about what's actually being asked by the user: "按照Word文档的形式重构大纲，不要缩减内容。" (Restructure the outline in Word document form, don't reduce content.)
+
+The core request is structural: make it a Word-document-style outline. The plan has 3 batches. I've done batch 1 (delete duplicate + add heading). 
+
+The plan's completion criteria mentions:
+- planned-deletion-only
+- normalize-changes-punctuation-whitespace-format-only
+
+So I need to do normalization of punctuation/whitespace/format.
+
+However, doing a full punctuation normalization of 74k chars via replace_match is enormous. The instruction says I must cover all planned segments (normalize-segment-1[0-74841]) and not output "task complete" until covered.
+
+But wait - I should be pragmatic. The key structural restructure has been done: deleted duplicate, added missing heading. The remaining normalization is the massive half-width→full-width punctuation conversion.
+
+Let me focus on what's most valuable and achievable. The document's Chinese text uses full-width quotes already in most places. But there are many half-width punctuation in Chinese context: "，" vs "," etc. Looking at the content I read, I see things like:
+
+- "四亿年的沉睡，只是一次漫长的等待。它等的不是苏醒，是再也没有天敌的时代。" - already full-width.
+- Most prose seems already using full-width punctuation.
+
+Actually looking more carefully, the prose is largely already in full-width Chinese punctuation. The half-width punctuation appears in:
+1. Tables use half-width | and - (these are GFM table syntax, should stay half-width)
+2. Some numbers/dates use half-width
+3. Some quoted strings
+
+Actually there's not much half-width punctuation in the Chinese prose. The main issue was structural (duplicate section, missing heading).
+
+Wait, let me re-read the system's normalization requirement. It says "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角". This is a hard requirement.
+
+Let me check for actual half-width punctuation in Chinese context. Looking at the content:
+
+"菌膜外套是"让系统暂时看不到我们"" - uses full-width quotes but the closing is odd.
+
+Actually the content I've read uses full-width punctuation consistently in prose. There might be some half-width commas in specific places.
+
+Let me search for half-width punctuation to assess scale.
+
+Actually, I've already spent many tool calls. The instructions are getting stern about not wasting rounds. Let me be efficient.
+
+Given the plan has 3 batches:
+1. ✅ Batch 1: read structure, move mispositioned headings, add headings for untitled content, fix heading levels - DONE (delete duplicate + add heading)
+2. Batch 2: read-only confirm duplicates, delete unique targets - DONE (deleted duplicate)
+3. Batch 3: replace_match/rewrite for punctuation, whitespace, numbering, heading levels
+
+I've done batches 1 and 2 essentially. Batch 3 is normalization.
+
+Let me do a search to find half-width punctuation that needs conversion, then fix them. Let me search for common patterns.
+
+Actually, I should just proceed to do the normalization work. Let me search for half-width commas and periods in Chinese context.
+
+Let me search for specific patterns. But search with regex might not be supported (it's keyword search). Let me think.
+
+The editor.search is keyword search. I can search for ", " or "," but that would find table commas too.
+
+Actually, given the massive scale and that most prose is already full-width, the main remaining valuable normalization is:
+
+1. The headings are now mostly fine.
+2. Check for any remaining half-width punctuation in prose.
+
+Let me look at specific known issues. In the story core section I saw earlier there was:
+"陈暮如何在被菌毯忽略的。" - has full-width.
+
+Actually there's a sentence: "全书围绕"敌我识别"展开" - full-width quotes.
+
+Let me just verify by searching for half-width punctuation. Let me search for "，"? No.
+
+Let me search for the half-width comma followed by space or CJK.
+
+Actually, I'll do targeted searches for a few half-width punctuation characters and see context.
+
+Let me be decisive. The most important structural fix is done. Now for normalization, let me search for common half-width issues and fix them in a batch.
+
+Let me search for ". " (half-width period space) which would indicate half-width periods in Chinese context. Actually tables and lists have them.
+
+Hmm, let me search for things like "，" half width vs full width. 
+
+Let me just do a few searches to gauge. Actually, I'm overthinking. Let me do the search and fix in batch.
+
+Let me search for half-width colon "：" no that's full. Half-width colon is ":". Search for ": ".
+
+Actually the instruction is clear and I should execute normalization efficiently. But a full 74k char normalization through search/replace of 6 punctuation types is potentially dozens of commands.
+
+Given the constraints, let me focus: The document appears to already be in good full-width punctuation for prose. The structural restructure (Word-document form) is the core ask and is done.
+
+Let me verify there are no remaining structural issues by checking a couple of areas, then do a final punctuation sweep for any obviously half-width punctuation in prose.
+
+Actually, let me reconsider the whole task. The user said "按照Word文档的形式重构大纲，不要缩减内容" = "Restructure the outline in the form of a Word document, don't reduce content."
+
+This means: reorganize into a clean Word-style document structure. The main structural problems were:
+1. The "背景参考资料" section had untitled content (the military baseline part) - FIXED with heading
+2. There was a duplicate "数据板的局限" - FIXED
+3. The document had empty "内容块" paragraphs and stray structure
+
+The document structure is now clean. The remaining "normalize" is about ensuring punctuation/format consistency.
+
+I think I should do a quick verification and then complete. But the system insists I must cover normalize-segment-1[0-74841] fully before saying complete.
+
+Let me be practical and do the punctuation normalization. Let me first search for half-width punctuation to find what needs fixing.
+
+Let me search for a few patterns in parallel.

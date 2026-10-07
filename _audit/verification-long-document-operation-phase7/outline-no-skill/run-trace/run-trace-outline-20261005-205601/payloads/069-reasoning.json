@@ -1,0 +1,57 @@
+Let me analyze the current state of the document. The user wants me to restructure the outline as a Word document without reducing content.
+
+I've already done:
+1. Fixed the PHASE punctuation probes (A, B, C) - but then deleted them
+2. Deleted the "粘贴到「故事核心」下" paste instruction text
+3. Deleted duplicate "数据板的局限" in 背景参考资料 section (the one without heading)
+4. Added a heading "灾前军事基准线与菌毯的不可根除性" to the previously unheaded section in 背景参考资料
+5. Added proper spacing for 【菌毯的本质：竞争对手文明】
+6. Normalized heading spacing at document top
+7. Fixed 本卷声明 punctuation
+
+Now let me check for remaining issues:
+- The search for half-width punctuation showed no remaining `,` or `;` but there were some `.` in English-like contexts
+- The search for `?` and `!` showed no matches
+- There are duplicate sections for "菌膜外套：有限资源的临时通行方案" and "菌膜外套与共存补丁的关系" - they appear both as level-2 headings under 叙事框架 area AND within the 卷一 section (7.8 and 7.9). These are intentional duplicates per the document structure, not errors.
+
+Let me continue with the normalize-segment-2 work. I need to check the second half of the document (from ~46748 onwards).
+
+Let me also check the overall structure more carefully. The document currently has:
+
+1. 叙事框架 (level 2) - contains story core, 3 volumes
+2. 背景参考资料 (level 2)
+3. 灾前军事基准线与菌毯的不可根除性 (level 3, under 背景参考资料)
+4. 数据板的局限 (level 2)
+5. 菌膜外套：有限资源的临时通行方案 (level 2)
+6. 菌膜外套与共存补丁的关系 (level 2)
+7. [background narrative content about forces]
+8. 世界设定声明 (level 2)
+9. 卷一：基石设定层 (level 2)
+10. 卷二：核心人物群像 (level 2)
+11. 卷三：势力与格局层 (level 2)
+12. 卷四：叙事工具箱层 (level 2)
+
+Now, looking at this more carefully, there's a structural issue: items 2-8 seem to be independent top-level sections but they're all level-2 headings mixed with the 卷 structure. In a Word document, the hierarchy should be clean.
+
+But wait - the user says "按照Word文档的形式重构大纲，不要缩减内容" (restructure as a Word document without reducing content). The current structure already uses Markdown headings which map well to Word styles. The main issues are:
+
+1. Clean up formatting/whitespace
+2. Ensure consistent heading hierarchy
+3. Remove duplicate content
+4. Fix punctuation issues
+
+The structure as-is with # for title, ## for major sections, ### for subsections, etc. is already quite Word-like. The key remaining tasks are:
+- Check for and fix any remaining formatting issues in the second half (normalize-segment-2)
+- Verify no remaining duplicate content
+
+Let me now focus on what remains. I should look at the structure map for the second half of the document and check for issues.
+
+Actually, let me look at the bigger picture. The document has some structural oddities:
+
+Between "菌膜外套与共存补丁的关系" and "世界设定声明", there's a long narrative section about the six forces that doesn't have a heading. Let me check what's there.
+
+Also, there are sections that appear in multiple places - like 菌膜外套 appears as both a standalone level-2 section AND within 卷一 as 7.8. This is by design since 卷一 is the "基石设定层" that collects all the setting details including the duplicated content from earlier standalone explanations.
+
+Let me now focus on the normalize-segment-2 work and any remaining structure issues.
+
+Let me read the current structure map more carefully to understand the gap between 菌膜外套与共存补丁的关系 and 世界设定声明.

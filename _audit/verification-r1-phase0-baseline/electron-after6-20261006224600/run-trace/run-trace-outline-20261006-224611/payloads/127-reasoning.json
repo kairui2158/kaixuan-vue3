@@ -1,0 +1,55 @@
+The user asked me to restructure the outline in Word document format without shrinking content. I've been working through the plan. Let me check what's remaining:
+
+1. Structure repair - Done (moved "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" from h2 to h3 under 背景参考资料; fixed title-level blank lines)
+2. Blank normalization - Done (compressed excessive blank lines around titles)
+3. Now need to check for remaining issues:
+   - punctuations: semi-colons, colons, etc. - but the searches for `,` `;` `!` `?` showed 0 results, and `.` searches return results but those are all periods which should be Chinese periods in Chinese context... Let me think about this.
+
+Wait, the user said "按照Word文档的形式重构大纲，不要缩减内容" - restructure the outline in Word document format, don't shrink content. 
+
+I've done significant work:
+- Compressed excessive blank lines to single blank lines between sections
+- Fixed title hierarchy issues (three h2 sections under 背景参考资料 were promoted to h3)
+- Added missing blank lines after titles in the military baseline section
+
+Let me check if there are remaining issues. The plan says 3 batches and I've written 3 batches (batches 3, "a", "b", "c" - though the batchIds are different). Let me check:
+
+- Batch "9" (ai-edit-muwto8a0-9): Blank normalization (compressed empty lines in story core)
+- Batch "a" (ai-edit-muwtu0uu-a): Added blank line before military section title
+- Batch "b" (ai-edit-muwu3vpb-b): Compressed excessive blank lines around volume titles
+- Batch "c" (ai-edit-muwu8l7y-c): Structure repair + blank lines after titles
+
+The plan said 3 batches. I've done 4 writes. The structure-repair and structure-plan segments have been covered. But I should check if there are remaining format issues.
+
+Let me verify: The plan said "标点、空白、编号与标题层级整理" - punctuation, whitespace, numbering, and title hierarchy. 
+
+I need to also check for Chinese punctuation issues. Let me search for common half-width punctuation in Chinese contexts and also verify there aren't remaining structural problems.
+
+Actually, it seems like the document is now properly structured. The key question is: am I done with the plan? Let me check the plan again:
+
+Steps:
+1. read-structure ✓
+2. execute-restructure - I did structure repair (h2→h3 for three sections) ✓
+3. confirm-duplicates - earlier batches already handled duplicates ✓
+4. delete-duplicates - earlier batches handled this ✓
+5. normalize-segments - blank normalization done ✓
+6. verify-plan ✓
+
+The plan says: "整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74491]）" - must cover the entire normalize-segment-1 range.
+
+The structure-repair and normalize segments seem covered. Let me check if there's anything else needed. The plan had "structure-repair" and "structure-plan" as uncovered batches earlier, but now with the last write covering "structure-repair" segment, I think we're good.
+
+Let me also consider: the plan says 3 batches total and I should "禁止把同段多条命令拆成多次调用". I've now covered all the planned segments. 
+
+I think the work is largely done. The document now has:
+- Consistent title hierarchy (root h1 → h2 for major sections, h3 for chapters, h4 for sections, h5 for subsections)
+- Normalized blank lines (single blank line before titles, no excessive blank lines)
+- The three mis-leveled h2 sections under 背景参考资料 are now correctly h3
+
+The remaining question is about Chinese punctuation normalization. The plan says: "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）". But the search for `,` `;` `!` `?` returned 0 results, and the `.` results are all periods within sentences (which in Chinese should be `。`). However, looking at the actual text content I've been reading, the periods are already Chinese `。` in narrative text. The `.` matches I saw were in technical annotations like "0.5-1%" or "§6.6" or version notes. These are legitimate half-width uses in technical/scientific contexts.
+
+Actually wait, let me reconsider. The plan says this is a mandatory condition. But my searches for `,` showed 0 results, `;` showed 0, `!` showed 0, `?` showed 0. The `.` results were all in technical contexts. So either there are no half-width punctuation issues in Chinese text, or the search is not picking them up. Let me verify by reading a few key sections more carefully.
+
+Actually, looking at the content from earlier reads, I can see the Chinese text uses proper Chinese punctuation (。，：！？) throughout. The `.` matches are all in things like "§6.6", "0.5-1%", "约40-50%", etc. - these are legitimate.
+
+So I believe the work is complete. Let me provide a summary of what was done.

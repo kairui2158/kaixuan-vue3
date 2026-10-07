@@ -1,0 +1,86 @@
+Let me assess where we are in the execution plan. The plan has 3 batches:
+
+1. **structure-repair** - Fix heading hierarchy issues and structure problems
+2. **confirm-duplicates / delete-duplicates** - Find and remove duplicates
+3. **normalize-segments** - Format punctuation, whitespace, headings
+
+We've successfully written 2 batches so far:
+- Batch 1 (stage 5): Normalized blank lines in story core - removed `【】` markers, cleaned residual edit instruction text
+- Batch 2 (stage 3): Normalized blank lines - compressed excess blank lines before "数据板的局限" and added blank line before "灾前军事基准线"
+
+Now I need to execute the remaining batches. Let me think about what structural issues remain:
+
+1. **structure-repair**: Looking at the document map, I see:
+   - The heading hierarchy is: # → ## → ### → #### → ##### 
+   - The structure looks basically sound. The "背景参考资料" section has headings like "### 灾前军事基准线与菌毯的不可根除性" with sub-headings, which look correct.
+   
+   The key structural issue I can see: in the "背景参考资料" section, there's a paragraph block `paragraph-1kd06wy` that was removed and replaced with `paragraph-1ky4plk` (this happened in our last write). That should be fine.
+
+   Actually let me look more carefully. The structure seems mostly OK from what I can see. The main thing I notice is that the document has clean heading hierarchy with `#`, `##`, `###`, `####`, `#####`.
+
+2. **confirm-duplicates**: I should check for duplicate content. The main duplicate I'm aware of is the "数据板的局限" section appearing both as a standalone `##` heading and potentially within "背景参考资料". But actually looking at the document map, "数据板的局限" is only at `heading-2-z4sxm8` (start: 16451), and I don't see a duplicate in "背景参考资料". The earlier search showed only one match for "数据板的局限".
+
+Wait, let me re-read the earlier audit trail. It says: "删除与顶层「## 数据板的局限」逐字重复的正文副本，保留规范标题版本". So this was already done in an earlier session. 
+
+3. **normalize-segments**: This is about punctuation, whitespace, headings. 
+
+Let me think about what specifically needs to be done for the structure and normalization:
+
+Given the current state, the document seems structurally sound. The main normalization tasks are:
+- Ensure consistent blank lines between sections
+- Check for any remaining `【】` markers (already cleaned)
+- Ensure all markdown tables are properly formatted
+- Check for any half-width punctuation in Chinese text
+
+Let me do a targeted search for remaining issues and then write a batch of fixes.
+
+Actually, looking at the plan more carefully:
+
+The execution plan says I need to:
+1. **structure-repair**: Fix heading hierarchy - but looking at the document, the hierarchy seems correct already. The main structural fix was done in the prior session (converting `【】` markers to proper headings).
+
+2. **confirm-duplicates / delete-duplicates**: We've already deleted duplicates.
+
+3. **normalize-segments**: Format punctuation, whitespace, headings across the entire document.
+
+The plan is 3 batches and we've done 2. The remaining batch is likely structure-repair or normalization of punctuation.
+
+Let me check for any remaining issues and submit a comprehensive normalization batch. Given the large document, I should focus on the most impactful fixes.
+
+Looking at the document content I've read (0-74487), I notice:
+
+1. The document structure is consistent: `#` → `##` → `###` → `####` → `#####`
+2. Tables use GFM format
+3. Blank lines between sections seem generally consistent now
+
+Key remaining tasks:
+- Check for half-width punctuation in Chinese text
+- Ensure consistent blank line spacing throughout
+
+Let me search for common half-width punctuation issues in the Chinese text portions.
+
+Actually, let me just write the final normalization batch. I need to fix things like:
+- Half-width commas/periods in Chinese text
+- Any remaining spacing issues
+- The "背景参考资料" section's heading structure
+
+Let me look at what specifically needs fixing. From what I've read, the document is largely well-formatted. Let me do a final batch of fixes on the remaining issues I can identify:
+
+1. The `## 背景参考资料` section seems to have been restructured - the military baseline content was pulled into proper headings within it.
+
+2. Let me look for specific issues I can fix now.
+
+I think the best approach is to write a normalization batch. Let me scan through what I've read and identify concrete issues to fix.
+
+Key findings from my reads:
+- "背景参考资料" section has proper hierarchy now
+- Most blank lines are normalized
+- One remaining issue: in the military baseline section titles, the `###` heading `灾前军事基准线与菌毯的不可根除性` has `#### 一、2042年，人类手里有什么` as a subheading, which is correct.
+
+Let me just submit the final normalization batch focusing on any remaining blank line issues and punctuation.
+
+Actually, looking at this more carefully, I think what's needed is a comprehensive sweep. Let me check for:
+1. Any `\n\n\n\n` (4+ consecutive newlines) - already searched and found 0
+2. Any half-width , . ; : ! ? in Chinese context
+
+Let me search for specific half-width punctuation patterns in Chinese text.

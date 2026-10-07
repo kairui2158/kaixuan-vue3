@@ -1,0 +1,13 @@
+Let me now understand the current state and plan the remaining normalization work. The user wants me to reorganize the outline into a Word document format. I've done some initial work:
+
+1. Added H3 title for "灾前军事基准线与菌毯的不可根除性" inside 背景参考资料
+2. Deleted a stray editing instruction text in 故事核心
+3. Downgraded three floating H2 sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁) to H3, making them children of 背景参考资料
+4. Deleted the duplicate "数据板的局限" body text that was inside 背景参考资料
+
+Now I need to:
+- Check the current document structure to understand what the top-level sections look like now
+- The execution plan says I need to normalize punctuation (half-width to full-width for Chinese context) across the entire document
+- Check for any remaining structural issues
+
+Let me now check the current document state and continue with normalization. Let me read the current document map to understand what the structure looks like now.

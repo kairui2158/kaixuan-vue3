@@ -1,0 +1,48 @@
+The user wants me to restructure the outline into a Word document format without reducing content. I've successfully:
+
+1. Deleted the paste instruction line in the "故事核心" section
+2. Replaced some half-width quotes with full-width quotes in "故事核心"
+3. Created a new heading "### 灾前军事基准线与菌毯的不可根除性" for the untitled body text in "背景参考资料"
+
+Now I need to check the current state and continue. Let me verify the "粘贴" text is gone, and look for other formatting issues.
+
+The search for "粘贴" and "粘贴到" and "紧接原文" all returned 0 results - good, those are cleaned.
+
+Now I need to think about what "Word文档形式" means. The user wants the outline restructured in a Word document format. This likely means:
+
+1. Clean up any markdown-heavy formatting that doesn't work well in Word
+2. Ensure consistent heading structures
+3. Remove any editing instructions/metadata
+4. Maybe adjust tables to be more Word-compatible
+5. Clean up content that looks like internal editor notes
+
+Let me look at the overall structure again. The current structure is:
+
+- # 《绿潮》大纲总纲 (H1)
+  - ## 叙事框架 (H2)
+    - ### 故事核心 (H3)
+    - ### 第一卷·觉醒与扎根 (H3)
+    - ### 第二卷·连接与陷落 (H3)
+    - ### 第三卷·远征与暗流 (H3)
+  - ## 背景参考资料 (H2) - contains embedded untitled body text and sub-headings
+  - ## 数据板的局限 (H2)
+  - ## 菌膜外套：有限资源的临时通行方案 (H2)
+  - ## 菌膜外套与共存补丁的关系 (H2)
+  - ## 世界设定声明 (H2)
+  - ## 卷一：基石设定层 (H2)
+    - (various H3-H5 sub-sections)
+  - ## 卷二：核心人物群像 (H2)
+  - ## 卷三：势力与格局层 (H2)
+  - ## 卷四：叙事工具箱层 (H2)
+
+Issues I need to fix for a "Word document format":
+
+1. The "背景参考资料" section has embedded sub-content that should be structured properly. I already created the "灾前军事基准线与菌毯的不可根除性" heading. But there's also the body text before it and after it.
+
+2. Check for duplicate/repeated content - the "菌膜外套" section appears both as a top-level H2 and within the "卷三" content.
+
+3. Check for any remaining editorial notes/instructions.
+
+Let me continue by reading more of the "背景参考资料" section to understand its structure.
+
+Actually, let me re-read the editor document map to see the current state after my changes.

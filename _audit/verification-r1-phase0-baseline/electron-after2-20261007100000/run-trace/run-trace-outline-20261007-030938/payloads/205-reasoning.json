@@ -1,0 +1,44 @@
+I've added the three H3 headings. Now let me continue with the punctuation normalization and title level checks. Let me search for remaining half-width punctuation in Chinese text context.
+
+The `.` search showed 273 matches, but most are legitimate (decimal points, version numbers, table content, GPS/北斗, etc.). The `.` in Chinese text context is rare. Let me focus on the ones I can identify. Actually the search for `,` `;` `!` `?` returned 0 matches (those are half-width). Only `.` returned matches, but those are almost all legitimate (decimal numbers, abbreviations like "0.1-0.5毫米", "1.8GPa", "§6.6", etc.).
+
+Wait, the search for `,` returned 0, `;` returned 0, `!` returned 0, `?` returned 0. That's because the search treats these specially? No, earlier the audit showed searching `,` returned matches. Actually in my current search I got 0 for `,` `;` `!` `?`. That suggests the document already has no half-width `,` `;` `!` `?` in Chinese context (or these were already full-width).
+
+But wait, the previous turn's audit showed the document had these. Now they show 0, meaning the earlier normalization batches already fixed them. Good.
+
+For `.` there are 273 matches. These are mostly legitimate: decimals (0.3%, 45%, 800°C, 1.8GPa), abbreviations (SC-α, XQ-58, R-55), section refs (§6.6, §7.4), table cells (these are inside tables), and things like "Magnus" no. Also "GPS/北斗" etc.
+
+Actually I need to check: are there half-width periods `.` used as sentence-ending periods in Chinese prose? Let me check specific contexts. The matches I see are all legitimate technical notations.
+
+Let me not over-normalize. The key requirement from the system: "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）". But I must be careful not to convert legitimate decimals/abbreviations. Actually the requirement says "中文正文语境" (in Chinese prose context). Decimals like "0.3%" are numbers, not prose punctuation. Section refs "§6.6" use period as part of notation. So those should stay.
+
+Let me check whether there are actual sentence-period `.` in Chinese prose. The matches shown are all in table headers like "系统类型\t直接致死原因" and numbers. Let me look more carefully at a few. Actually let me search for patterns like "。" followed by content, or check specific problematic spots.
+
+Actually, I should verify: the search result for `.` shows 273 matches total, hasMore true. The contexts shown are mostly numbers/technical. But there could be some true Chinese sentence periods buried. However, given the original text was already largely in Chinese with full-width punctuation, and previous normalization batches handled the known half-width spaces, the `.` matches are almost certainly all legitimate technical dots.
+
+Let me check the table in 灾前军事基准线 section - the table "系统类型 直接致死原因 失效时间线" is using tabs not pipes, meaning it's not a GFM table but a tab-separated table. That's in the source and I shouldn't restructure it (that would change content).
+
+Let me now focus on completing the remaining work. I've completed:
+1. structure-repair (headings归位) - partially done in previous turns (already done by earlier batches)
+2. structure-plan (dedup) - done (deleted 7.8, renumbered 7.9→7.8)
+3. normalize-segment-1 (punctuation/blank/level) - in progress
+
+I've now added 3 H3 headings to 背景参考资料. 
+
+Now I need to verify the title hierarchy is correct. The document_map shows the structure is now clean:
+- H1: 《绿潮》大纲总纲
+- H2: 世界设定声明, 叙事框架, 背景参考资料, 卷一, 卷二, 卷三, 卷四
+- H3 under 叙事框架: 故事核心, 第一卷, 第二卷, 第三卷
+- H3 under 背景参考资料: 灾前军事基准线, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, + 3 new (六大势力速览, 圣萌会与马格努斯, 终局)
+- H3 under 卷一: 一～十二
+- H3 under 卷二: 一、陈暮, 二、五位女主
+- H3 under 卷三: 一～五
+- H3 under 卷四: 一、二
+
+This looks clean. No level jumps.
+
+Now let me verify there are no remaining half-width punctuation issues. The `,` `;` `!` `?` all return 0. The `.` returns 273 but all technical.
+
+Let me check a couple more: colon `:` search. Actually `:` (half-width) - let me search it.
+
+Let me also check for half-width colon `:`.

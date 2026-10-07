@@ -1,0 +1,27 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "# 《绿潮》大纲总纲\n\n\n## 序　世界设定声明",
+      "content": "# 《绿潮》大纲总纲\n\n## 序　世界设定声明",
+      "reason": "规范文档开头：标题与序言之间保留一个空行"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 第一部分　叙事框架\n\n\n### 故事核心",
+      "content": "## 第一部分　叙事框架\n\n### 故事核心",
+      "reason": "规范标题间空行：二级标题与三级标题之间保留一个空行"
+    },
+    {
+      "operation": "replace_match",
+      "target": "更珍贵。\n### 灾前军事基准线与菌毯的不可根除性",
+      "content": "更珍贵。\n\n### 灾前军事基准线与菌毯的不可根除性",
+      "reason": "为无标题正文段落补标题后补足空行，标题与正文之间保持空行"
+    }
+  ],
+  "reason": "normalize-segment-1 覆盖：统一标题与正文之间的空行格式，确保Word文档式排版一致",
+  "reveal": {
+    "firstChange": true,
+    "mode": "instant"
+  }
+}

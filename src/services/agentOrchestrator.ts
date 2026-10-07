@@ -10,8 +10,6 @@ import {
 } from './longDocumentWriteCoverage'
 import {
   findAgentToolNameConflicts,
-  createAgentSubAgentTools,
-  createSequentialSubAgentManager,
   removeConflictingExternalTools,
 } from './agentToolConflict'
 
@@ -19,9 +17,7 @@ export type AgentOrchestratorStatus =
   | 'planning'
   | 'running'
   | 'waiting_tool'
-  | 'waiting_agent'
   | 'waiting_user'
-  | 'compacting'
   | 'completed'
   | 'stalled'
   | 'needs_user'
@@ -60,10 +56,8 @@ export interface AgentOrchestratorEvent {
     | 'repeated_call'
     | 'pseudo_tool'
     | 'idle_timeout'
-    | 'compaction'
     | 'error'
     | 'tool_conflict'
-    | 'sub_agent'
     | 'plan-origin'
     | 'skill-guidance-injected'
   level: 'info' | 'warning' | 'error'
@@ -105,12 +99,6 @@ export interface AgentOrchestratorToolObservation {
   result: ToolResult
 }
 
-export interface AgentOrchestratorSubAgentRequest {
-  taskId: string
-  goal: string
-  tools?: AgentToolDefinition[]
-}
-
 export interface AgentOrchestratorRoundVerdict {
   progress: boolean
   complete?: boolean
@@ -132,10 +120,6 @@ export interface AgentOrchestratorRuntime {
   onEvent?: (event: AgentOrchestratorEvent, snapshot: AgentOrchestratorSnapshot) => void
   evaluateRound?: (result: CallAiResult) => AgentOrchestratorRoundVerdict
   observeToolCall?: (event: AgentOrchestratorToolObservation) => void
-  compact?: (input: {
-    result: CallAiResult
-    snapshot: AgentOrchestratorSnapshot
-  }) => Promise<CallAiResult>
   getContextRemaining?: (input: { messages: CallAiParams['messages'] }) => {
     contextWindowTokens?: number | null
     maxOutputTokens?: number | null
@@ -146,8 +130,6 @@ export interface AgentOrchestratorRuntime {
     executionPlan?: LongDocumentExecutionPlan
   }
   editTaskWorkflow?: boolean
-  runSubAgent?: (input: AgentOrchestratorSubAgentRequest) => Promise<AgentOrchestratorTaskResult>
-  subAgentDepth?: number
   maxNoProgressRounds?: number
   maxPhysicalRequests?: number
   idleTimeoutMs?: number
@@ -159,9 +141,7 @@ const STATE_TRANSITIONS: Record<AgentOrchestratorStatus, AgentOrchestratorStatus
   planning: ['running', 'failed', 'canceled'],
   running: [
     'waiting_tool',
-    'waiting_agent',
     'waiting_user',
-    'compacting',
     'completed',
     'stalled',
     'needs_user',
@@ -169,9 +149,7 @@ const STATE_TRANSITIONS: Record<AgentOrchestratorStatus, AgentOrchestratorStatus
     'canceled',
   ],
   waiting_tool: ['running', 'stalled', 'needs_user', 'failed', 'canceled'],
-  waiting_agent: ['running', 'stalled', 'failed', 'canceled'],
   waiting_user: ['running', 'needs_user', 'canceled'],
-  compacting: ['running', 'failed', 'canceled'],
   completed: [],
   stalled: [],
   needs_user: [],
@@ -261,9 +239,11 @@ function evaluateWriteTaskRound(input: {
 }
 
 function isTerminalWriteConvergence(result: CallAiResult): boolean {
-  // aiService has already stopped the tool loop and asked the model for a
-  // final user-visible explanation. The orchestrator must consume that verdict
-  // instead of dispatching more physical requests against a rejected write.
+  // aiService and the shared budget are the only authorities that can stop a
+  // physical dispatch. Once either emits a terminal verdict, the orchestrator
+  // must consume it instead of dispatching another request.
+  if (result.finishReason === 'physical_request_budget_exhausted') return true
+  if (result.finishReason === 'incomplete_write_coverage_checkpoint') return true
   if (result.finishReason !== 'tool_converged' && result.finishReason !== 'tool_converged_local') {
     return false
   }
@@ -396,21 +376,19 @@ export class AgentOrchestrator {
   private roundToolSignatures = new Set<string>()
   private cancelRequested = false
   private effectiveToolSurface: Array<{ name: string; policy: 'read' | 'write' }> = []
-  private subAgentDepth: number
+  private sharedPhysicalRequestBudget: (input?: { inCall?: boolean }) => boolean
 
   constructor(input: {
     taskId?: string
     plan: AgentOrchestratorPlan
     runtime: AgentOrchestratorRuntime
-    subAgentDepth?: number
   }) {
     this.taskId = input.taskId || `agent-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
     this.plan = input.plan
     this.runtime = input.runtime
-    this.subAgentDepth = typeof input.subAgentDepth === 'number' && Number.isFinite(input.subAgentDepth)
-      ? Math.max(0, Math.floor(input.subAgentDepth))
-      : 0
     this.maxPhysicalRequests = this.normalizeMaxPhysicalRequests(input.runtime.maxPhysicalRequests)
+    this.sharedPhysicalRequestBudget = ({ inCall } = {}) => this.callCount
+      < this.maxPhysicalRequests - (inCall ? 1 : 0)
     if (input.runtime.skillGuidance !== undefined) {
       this.emit({
         type: 'skill-guidance-injected',
@@ -633,20 +611,6 @@ export class AgentOrchestrator {
       ),
       createAgentPlanTool(() => this.getPlan()),
     ]
-    if (this.runtime.runSubAgent && this.subAgentDepth < 1) {
-      tools = [
-        ...tools,
-        ...createAgentSubAgentTools({
-          manager: createSequentialSubAgentManager({
-            runTask: ({ taskId, goal }) => this.runtime.runSubAgent!({
-              taskId,
-              goal,
-              tools: input.tools || [],
-            }),
-          }),
-        }),
-      ]
-    }
     const toolConflicts = findAgentToolNameConflicts(tools)
     for (const conflict of toolConflicts) {
       this.emit({
@@ -698,6 +662,8 @@ export class AgentOrchestrator {
             ...(this.runtime.editTaskWorkflow
               ? { editTaskWorkflow: true }
               : {}),
+            consumePhysicalRequestBudget: ({ inCall } = {}) =>
+              this.sharedPhysicalRequestBudget({ inCall }),
             onToolCall: event => {
               const repeated = this.recordObservation({
                 toolName: event.toolName,
@@ -762,14 +728,24 @@ export class AgentOrchestrator {
       const suppliedEvaluator = this.runtime.evaluateRound
       const executionPlan = this.runtime.document?.executionPlan
       if (isTerminalWriteConvergence(result)) {
-        this.transition('stalled', 'write_not_executed')
+        const terminalReason = result.finishReason === 'physical_request_budget_exhausted'
+          ? 'physical_request_limit'
+                  : result.finishReason === 'incomplete_write_coverage_checkpoint'
+                    ? 'partially_applied'
+                    : 'write_not_executed'
+        this.transition('stalled', terminalReason)
         this.emit({
           type: 'tool',
           level: 'warning',
-          label: '写入任务终局收敛',
-          detail: 'editor.write 已被应用终态拒绝；保留收敛回复，不再发起物理请求',
+          label: result.finishReason === 'physical_request_budget_exhausted'
+            ? '物理请求预算耗尽'
+            : result.finishReason === 'incomplete_write_coverage_checkpoint'
+              ? '写入覆盖不完整'
+              : '写入任务终局收敛',
+          detail: result.convergenceReason
+            || 'editor.write 已被应用终态拒绝；保留收敛回复，不再发起物理请求',
           payload: {
-            reason: 'write_not_executed',
+            reason: terminalReason,
             finishReason: result.finishReason,
           },
         })

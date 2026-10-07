@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "data": {
+    "total": 1,
+    "truncated": false,
+    "offset": 0,
+    "limit": 20,
+    "hasMore": false,
+    "matches": [
+      {
+        "start": 763,
+        "end": 767,
+        "sectionId": "heading-3-1heodug",
+        "sectionTitle": "故事核心",
+        "context": "这个循环没有上限，菌毯不存在资源枯竭或结构崩溃的代价。它是无解的。\n\n人类的一切挣扎都不是为了“打败菌毯”，而是在它的碾压下多活一天。\n\n粘贴到「故事核心」下，紧接原文“陈暮是唯一踩在菌毯上不被判定为敌人的人”之后：\n\n【核心张力：保护即加速】\n\n陈暮是唯一被菌毯忽略的人类——他的菌膜装甲向菌丝网络广播“无生命有机质，免检通过"
+      }
+    ],
+    "next_steps": [
+      "调用 editor.read_range 传入 sectionId 读取命中节全文"
+    ]
+  }
+}

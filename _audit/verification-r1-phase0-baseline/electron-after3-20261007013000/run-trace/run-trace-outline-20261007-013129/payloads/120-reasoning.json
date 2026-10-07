@@ -1,0 +1,206 @@
+Let me analyze the current state of the outline and plan the restructuring. The user wants the outline to be restructured like a Word document format. Let me understand what needs to be done:
+
+1. The current structure has some issues:
+   - "背景参考资料" section contains narrative content that should be part of the main narrative framework
+   - "菌膜外套与共存补丁的关系" section contains sub-sections that were incorrectly nested (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) - I've already fixed their heading levels
+   - The top-level structure has "叙事框架", "背景参考资料", "数据板的局限", "菌膜外套：有限资源的临时通行方案", "菌膜外套与共存补丁的关系", "世界设定声明", "卷一：基石设定层", "卷二：核心人物群像", "卷三：势力与格局层", "卷四：叙事工具箱层"
+
+2. The "Word document format" restructuring means I need to create a clean hierarchical structure. Looking at the content, the proper logical organization should be:
+
+The current top-level items under the H1 "《绿潮》大纲总纲" are all H2:
+- 叙事框架
+- 背景参考资料
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系
+- 六大势力概览 (now H2)
+- 圣萌会的崛起 (now H2)
+- 巨树生长与天府都陷落 (now H2)
+- 世界设定声明
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+But wait - the "背景参考资料" section contains the "灾前军事基准线与菌毯的不可根除性" analysis which is world-building material. And the sections "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" were originally H3 under "菌膜外套与共存补丁的关系" - but they're actually narrative/plot-related content, not about 菌膜外套 at all.
+
+Actually, looking more carefully at the structure, "菌膜外套与共存补丁的关系" is a short section (about the relationship between 菌膜外套 and 共存补丁), and then the "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" are actually part of the overall story/background narrative. They were originally placed as subsections under that heading which was incorrect.
+
+Now, the user wants the outline restructured like a Word document. I think the key issues are:
+
+1. The "背景参考资料" section contains the long "灾前军事基准线" analysis and the initial background summary
+2. "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" have been promoted to H2 but they might be better organized differently
+
+Actually, let me re-read the user's request: "按照Word文档的形式重构大纲，不要缩减内容" - Restructure the outline in the form of a Word document, without reducing content.
+
+I think this means creating a cleaner document structure. The current outline has some narrative prose mixed in with outline format. The "Word document" format likely means having clear hierarchical headings and organized sections.
+
+But wait - I need to be careful. The user said "重构" (restructure) not "rewrite". Let me look at what structural issues exist:
+
+Looking at the document more carefully:
+
+1. **Top-level structure issues**: Under the H1 title, we have:
+   - 叙事框架 (H2) - contains story core, volumes 1-3
+   - 背景参考资料 (H2) - contains world background + military analysis
+   - 数据板的局限 (H2)
+   - 菌膜外套：有限资源的临时通行方案 (H2) 
+   - 菌膜外套与共存补丁的关系 (H2) - now ends at 17826
+   - 六大势力概览 (H2) - 17826-18562
+   - 圣萌会的崛起 (H2) - 18562-19619
+   - 巨树生长与天府都陷落 (H2) - 19619-22092
+   - 世界设定声明 (H2)
+   - 卷一：基石设定层 (H2)
+   - 卷二：核心人物群像 (H2)
+   - 卷三：势力与格局层 (H2)
+   - 卷四：叙事工具箱层 (H2)
+
+The main structural issue I see is that "背景参考资料", "数据板的局限", "菌膜外套：有限资源的临时通行方案", "菌膜外套与共存补丁的关系", "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" are all narrative/world-building content that's floating at the top level without a clear organizational container.
+
+For a "Word document" format, typically:
+- Part 1: Narrative Framework (故事核心 + 三卷概要)
+- Part 2: World Background Reference (背景参考资料 + 灾前军事基准线)
+- Part 3: Key Technical Concepts (数据板, 菌膜外套, 共存补丁)
+- Part 4: World Setting Statement
+- Part 5-8: The four 卷 (基石设定层, 核心人物群像, 势力与格局层, 叙事工具箱层)
+
+But the user said "不要缩减内容" - don't reduce content. So I should keep everything.
+
+Actually, I think the main restructuring needed is:
+
+1. The "背景参考资料" section currently contains a long narrative about the disaster, which overlaps with content in 卷一. The background section at the end has "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" which were promoted to H2. These are actually part of the world-building narrative.
+
+2. The structure could be cleaner. But I need to be careful not to change content.
+
+Let me think about what "Word document format" means concretely:
+
+- Clear hierarchical numbering (第一章, 第一节, etc.)?
+- Consistent heading styles?
+- Better nested structure?
+
+Actually, looking at this more carefully, I think the main issue is that the current document has some sections that don't follow a clear logical flow. The "叙事框架" section contains story outlines, but then "背景参考资料" through "巨树生长与天府都陷落" are all background/world-building material that should probably be organized differently.
+
+But the user already has a clear four-volume structure (卷一 through 卷四). The content before those volumes is essentially the narrative framework and background material.
+
+I think the most useful restructuring would be:
+
+1. Keep the top-level H1 title
+2. Below that, organize into clean parts with consistent heading levels
+3. The sections "背景参考资料", "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" are all background/reference material that could be grouped
+4. "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" are narrative summaries that could be part of the narrative framework
+
+Actually, wait. Let me re-read the core issue. The problem might be simpler than I think.
+
+The current document has these mid-level sections floating between 叙事框架 and the formal 卷 structure:
+- 背景参考资料 (10189-16234)
+- 数据板的局限 (16234-16789)
+- 菌膜外套：有限资源的临时通行方案 (16789-17537)
+- 菌膜外套与共存补丁的关系 (17537-17826)
+- 六大势力概览 (17826-18562, now H2)
+- 圣萌会的崛起 (18562-19619, now H2)
+- 巨树生长与天府都陷落 (19619-22092, now H2)
+- 世界设定声明 (22089-22186)
+
+These sections are part of the comprehensive outline but are organized somewhat haphazardly. For a "Word document" style, they should be organized under clear parts.
+
+Let me propose a restructured top-level:
+
+```
+# 《绿潮》大纲总纲
+
+## 第一部分：叙事框架
+### 故事核心
+### 第一卷·觉醒与扎根
+### 第二卷·连接与陷落
+### 第三卷·远征与暗流
+
+## 第二部分：背景设定总览
+### 背景参考资料
+### 灾前军事基准线与菌毯的不可根除性
+### 六大势力概览
+### 圣萌会的崛起
+### 巨树生长与天府都陷落
+
+## 第三部分：核心技术概念
+### 数据板的局限
+### 菌膜外套：有限资源的临时通行方案
+### 菌膜外套与共存补丁的关系
+
+## 世界设定声明
+
+## 卷一：基石设定层
+...
+
+## 卷二：核心人物群像
+...
+
+## 卷三：势力与格局层
+...
+
+## 卷四：叙事工具箱层
+...
+```
+
+Hmm, but this would require restructuring headings which changes the semantic meaning. The user said "按照Word文档的形式重构" - I think this is about making the document structure cleaner and more organized, like a well-structured Word document would be.
+
+But I need to be very careful. The user said "不要缩减内容" - don't reduce content. And the plan says "normalize-changes-punctuation-whitespace-format-only" and "planned-deletion-only".
+
+Let me look at the execution plan more carefully. The plan steps are:
+1. read-structure
+2. execute-restructure (标题层级修复或章节重排)
+3. confirm-duplicates
+4. delete-duplicates
+5. normalize-segments (标点、空白、编号与标题层级整理)
+6. verify-plan
+
+The completion criteria say: "normalize-changes-punctuation-whitespace-format-only" - so the normalization is about punctuation, whitespace, and format.
+
+I think the "Word document format" restructuring is primarily about:
+1. Fixing heading levels to be consistent
+2. Ensuring proper hierarchical nesting
+3. Standardizing punctuation (half-width to full-width for Chinese)
+4. Removing duplicate content
+
+Let me focus on what I can do concretely:
+
+1. I've already fixed three H3→H2 heading level corrections ("六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落")
+2. I fixed two typos ("物量储备"→"生物量储备", "子云"→"孢子云")
+
+Now for the Word document restructuring, I think what's needed is:
+- The "叙事框架" H2 contains H3 sub-sections (故事核心, 第一卷, 第二卷, 第三卷) - this is correct
+- The "背景参考资料" H2 contains "灾前军事基准线与菌毯的不可根除性" as H3 - this seems correct
+- The floating H2 sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁, 六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) need to be organized
+
+Actually, I think the answer might be simpler. A "Word document" has parts/chapters. The current document has:
+- 叙事框架 (framework)
+- Background sections
+- Four volumes (卷一 to 卷四)
+
+The background sections could be organized under a parent "背景设定总览" or similar, but that would be adding new headings. Or they could stay as-is but with cleaned up formatting.
+
+Let me focus on what's actually broken and fixable:
+
+1. ✅ Fixed 标题层级 (H3→H2 for three sections)
+2. ✅ Fixed typos
+3. Need to check for half-width punctuation in Chinese text
+4. Need to check for duplicate content
+5. Need to ensure consistent heading hierarchy
+
+Let me search for duplicates and half-width punctuation in the Chinese text.
+
+Actually, I think the most impactful "Word document" restructuring would be:
+
+1. Group the standalone background sections under a clear parent heading
+2. Clean up the heading hierarchy so it's consistent
+
+Let me check if there are duplicates first, and then normalize punctuation.
+
+Let me focus on the next steps from the execution plan:
+- confirm-duplicates (check for repeated content)
+- delete-duplicates (remove confirmed duplicates)
+- normalize-segments (fix punctuation, whitespace, numbering, heading levels)
+
+Let me search for potential duplicate content. The sections "菌膜外套：有限资源的临时通行方案" (16789-17537) and "7.8 菌膜外套：有限资源的临时通行方案" (47600-48289) appear to be about the same topic. Let me check.
+
+Also "菌膜外套与共存补丁的关系" (17537-17826) and "7.9 与终局的衔接：菌膜外套与共存补丁的关系" (48289-48769) appear to be similar.
+
+Let me read these sections to confirm.

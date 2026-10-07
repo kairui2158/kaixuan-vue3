@@ -1,0 +1,106 @@
+Let me assess the current state of the document. I've completed 4 write batches so far. Let me analyze what's been done:
+
+1. Batch 1: Deleted the "粘贴到" instruction line in 故事核心, and deleted the duplicate "数据板的局限" section at the end of 背景参考资料 (keeping the standalone chapter).
+
+2. Batch 2: Added heading titles to the "灾前军事基准线与菌毯的不可根除性" section within 背景参考资料.
+
+3. Batch 3-A: Converted the "被孢子云直接废掉的武器系统" table from tab-separated to GFM pipe format (10 rows including header).
+
+4. Batch 3-B: Converted the "生物量储备" table data rows from tab-separated to GFM pipe format (4 data rows).
+
+Now I need to check what else needs to be done. The plan says 3 batches: structure-repair is the remaining one.
+
+Let me think about what structure issues remain:
+
+1. The `heading-3-19902vk` is the "灾前军事基准线与菌毯的不可根除性" - it's a heading-3 which nests under heading-2 (背景参考资料). That seems correct.
+
+2. The `heading-4-1h0cojh` is "一、2042年，人类手里有什么" - this is a heading-4. But looking at the actual content, this was originally a section within the disaster/military analysis, and I made it a heading-4. The parent is heading-3-19902vk (灾前军事基准线...). The numbering uses "一、二、三" which suggests they should be at heading-3 level rather than heading-4. But they are sub-sections of the larger topic. Let me check the structure more carefully.
+
+The hierarchy should be:
+- ## 背景参考资料 (h2)
+  - ### 灾前军事基准线与菌毯的不可根除性 (h3)
+    - #### 一、2042年，人类手里有什么 (h4)
+    - #### 二、菌毯为什么火力推不平 (h4)
+    - #### 三、总结：人类真正被压制的根本机制 (h4)
+
+Actually wait, in the original content, the "一、二、三" were not headings at all - they were just bold text within the body. I added heading tags to them. The heading levels I used (h4 for 一/二/三) seem appropriate since they nest under the h3 "灾前军事基准线..." section.
+
+Let me check - the "二、菌毯为什么火力推不平" is at `heading-4-k50yzv`. And "三、总结" is at `heading-4-1tkh81d`. That's consistent.
+
+Now let me think about what remains: the plan says "normalize-segment-1[0-74841]" needs to be fully covered. The main normalization work is:
+- Tables converted to GFM (done for the two main tables)
+- No remaining `粘贴到` instructions (confirmed deleted)
+- No duplicate "数据板的局限" (confirmed deleted)
+- Semi-colon punctuation check: the searches for `,` `;` `?` `!` returned 0 results for standalone characters (though `.` and `:` searches returned many results - but those are likely in numbers and legitimate usage)
+
+Wait, the `.` search returned 274 matches and `:` 3 matches. Let me look at the `.` matches - most of them seem to be in legitimate places like "0.3%", "§6.6", "0.5", numbers, or headings like "4.1.1". These are not punctuation issues in Chinese text - they're numeric/technical notation which is fine.
+
+For `:`, the matches are in "18:2" and "18:3" (fatty acid notation) and a time notation "11月19日3:14→..." - those are all technical notation.
+
+So the punctuation check seems clean. The document uses Chinese punctuation properly where it should.
+
+Let me think about what "structure-repair" might still need:
+
+1. The "背景参考资料" section now has proper sub-headings for the military analysis part.
+2. I need to check if the section under "菌膜外套与共存补丁的关系" (which contains the long narrative about the six forces, Magnus, the endgame, etc.) has proper structure. Looking at the document_map, this is a single h2 with 4499 chars. It contains narrative text about 铁壁, 复兴会, 天府都, 天网城邦, 镇海双枢城, Magnus/圣萌会, 终局之战, and the ending narration. This is a literary narrative section and doesn't necessarily need sub-headings - it flows as one continuous narrative.
+
+Actually, wait - let me re-read the document_map more carefully. The `heading-2-28do6r` "菌膜外套与共存补丁的关系" starts at 17517 and ends at 22032. It contains the narrative about the six forces and the endgame. But in the original document, this section title was "菌膜外套与共存补丁的关系" - the content about the six forces and endgame seems like it should be elsewhere. But the user said "不要缩减内容" - don't reduce content. So I should leave this as-is.
+
+Let me also check if there are any remaining issues with the `heading-3-19902vk` structure. The newly created headings:
+- `heading-3-19902vk`: "灾前军事基准线与菌毯的不可根除性" - level 3, under h2 背景参考资料 ✓
+- `heading-4-1h0cojh`: "一、2042年，人类手里有什么" - level 4 ✓ 
+- `heading-4-k50yzv`: "二、菌毯为什么火力推不平" - level 4 ✓
+- `heading-4-1tkh81d`: "三、总结：人类真正被压制的根本机制" - level 4 ✓
+
+This all looks correct.
+
+Let me now focus on what the structure-repair batch should cover. Looking at the overall document structure:
+
+1. The top-level h1 is "《绿潮》大纲总纲"
+2. Under it, there are several h2 sections:
+   - 叙事框架
+   - 背景参考资料
+   - 数据板的局限
+   - 菌膜外套：有限资源的临时通行方案
+   - 菌膜外套与共存补丁的关系
+   - 世界设定声明
+   - 卷一：基石设定层
+   - 卷二：核心人物群像
+   - 卷三：势力与格局层
+   - 卷四：叙事工具箱层
+
+I think the key remaining issue might be about the "菌膜外套与共存补丁的关系" section - it contains a LOT of narrative content that goes beyond what the title suggests. But again, the user said don't reduce content.
+
+Let me verify there aren't any remaining structural anomalies. Let me search for things like missing newlines between sections, or content that should be headings but isn't.
+
+Actually, let me re-examine the structure more carefully. The h2 sections like "菌膜外套：有限资源的临时通行方案", "菌膜外套与共存补丁的关系" are at h2 level - same as "叙事框架", "卷一", "卷二", etc. But they seem more like they should be sub-sections within a larger "设定" umbrella. However, restructuring the document hierarchy is a major change and the user asked to "按照Word文档的形式重构大纲" - which I interpret as making the document look like a properly formatted Word document with consistent heading levels, proper table formatting, and clean structure.
+
+Let me check: the "背景参考资料" section ends, then "数据板的局限" starts. Both are h2. Then "菌膜外套" and "菌膜外套与共存补丁的关系" are also h2. Then "世界设定声明" is h2. Then "卷一：基石设定层" starts the numbered volumes.
+
+I think the issue is that the headings between "背景参考资料" and "世界设定声明" should perhaps be nested differently. But that would be a significant structural change and the user didn't specifically ask for that.
+
+Let me focus on what I can still fix:
+- Remove the empty "内容块" paragraphs (they're just 1-2 char empty paragraphs)
+- Check for any remaining formatting issues
+
+Actually, those empty "内容块" paragraphs are artifacts of the document - they appear between sections. They're just blank lines in the original. I don't think I should delete them as they serve as visual spacing.
+
+Let me now think about what the "structure-repair" batch should actually do:
+
+The search for `,` `;` `?` `!` returned 0 results for standalone semi-colon/English punctuation in Chinese text. The `.` search showed only legitimate numeric/technical notation. The `:` search showed only fatty acid notation and timestamps. So punctuation normalization seems complete.
+
+I think the main remaining task is to verify that all table formatting is correct. Let me check the original tab-separated tables I might have missed. Let me search for any remaining tab characters in tables.
+
+Actually, wait - I should also check if there are any other tables in the document that use tabs. The document has many GFM tables already (in 卷一). Let me focus on verifying the ones I might have missed.
+
+Let me also check: the `heading-2-28do6r` section ("菌膜外套与共存补丁的关系") contains a lot of narrative text that flows from the explanation of the relationship between 菌膜外套 and 共存补丁, then continues into the six forces summary, Magnus/圣萌会 origin, endgame, and conclusion. This is one continuous narrative section. While it might make sense to split it, the user said not to reduce content, and restructuring it would be invasive.
+
+I think the structure-repair batch should focus on:
+1. Verifying no remaining formatting issues
+2. Making sure all heading levels are consistent
+
+Let me do one more check - search for any remaining tab characters or formatting anomalies.
+
+Actually, let me also check: there was a "paragraph-46bd25~35" added in the structureIdentity of batch 2. This might be from a new paragraph block being created. Let me check what's around that area.
+
+Let me just do a final verification pass. Let me search for tabs to ensure no remaining tab-separated tables.

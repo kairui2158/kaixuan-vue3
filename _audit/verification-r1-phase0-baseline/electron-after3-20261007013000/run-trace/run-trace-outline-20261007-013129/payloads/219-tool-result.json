@@ -1,0 +1,8 @@
+{
+  "ok": false,
+  "error": {
+    "code": "missing_field",
+    "message": "缺少必填参数：commands。请提交 1-10 条受限编辑命令，例如 {\"commands\":[{\"operation\":\"replace_match\",\"target\":\"唯一原文片段\",\"content\":\"新文\"}]}",
+    "retryable": true
+  }
+}

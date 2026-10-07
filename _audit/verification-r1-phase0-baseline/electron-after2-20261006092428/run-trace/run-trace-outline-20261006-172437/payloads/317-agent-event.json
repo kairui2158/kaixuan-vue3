@@ -1,0 +1,46 @@
+{
+  "taskId": "edit-task-1791279237812-1",
+  "status": "running_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "structure-repair：为背景参考资料中的无标题伪标题段落补标题层级，不缩减内容",
+  "executedBatches": [
+    "ai-edit-muwheppf-1"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "activeBatchId": "ai-edit-muwhld08-2",
+  "executionPlan": {
+    "goal": "structure-repair：为背景参考资料中的无标题伪标题段落补标题层级，不缩减内容",
+    "batches": [
+      "ai-edit-muwheppf-1",
+      "ai-edit-muwhld08-2"
+    ],
+    "batchDetails": {
+      "ai-edit-muwheppf-1": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      },
+      "ai-edit-muwhld08-2": {
+        "segmentId": "structure-plan",
+        "expectedChange": "remove_duplicate",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "delete",
+        "invariantResult": "planned-deletion-only"
+      }
+    }
+  },
+  "batchId": "ai-edit-muwhld08-2",
+  "segmentId": "structure-plan",
+  "expectedChange": "remove_duplicate",
+  "invariantResult": "planned-deletion-only"
+}

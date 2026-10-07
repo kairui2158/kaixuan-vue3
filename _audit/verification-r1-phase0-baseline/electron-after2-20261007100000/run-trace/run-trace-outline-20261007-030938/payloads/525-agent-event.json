@@ -1,0 +1,12 @@
+{
+  "taskId": "edit-task-1791315804836-2",
+  "batchId": "ai-edit-mux36h06-a",
+  "segmentId": "structure-plan",
+  "range": {
+    "startLine": 0,
+    "endLine": 74253
+  },
+  "writeStrategy": "delete",
+  "expectedChange": "remove_duplicate",
+  "estimatedBatches": 1
+}

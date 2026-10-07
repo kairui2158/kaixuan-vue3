@@ -1,0 +1,382 @@
+The system is giving me a strong directive to now execute writes. I need to continue the restructure work. Let me understand the state and continue.
+
+I've done:
+1. Batch 1: deleted residual "粘贴" instruction, added heading for "灾前军事基准线", fixed some quotes.
+2. Batch 2: fixed 【核心张力】 and 【菌毯的本质】 brackets.
+3. Batch 3: deleted duplicate "数据板的局限" paragraph (the half-width quote version) inside heading-3-19902vk, kept the standalone heading-2 version.
+
+Now I need to continue normalization. The remaining issues:
+- Story core still has half-width quotes in "有机物密度异常区域", "打败菌毯", "无生命有机质，免检通过", "有机物密度异常", "能不能赢", "保护", "放手" — wait, I already fixed some in batch 1 but search shows they're still half-width. Let me check. The search for `"` shows matches in heading-3-1heodug at positions 544-545 etc. So the story core section still has half-width quotes. Wait, batch 1 replaced "有机物密度异常区域" (target with full context) — but that target used `\"` half-width. Let me look: in batch 1, I used target with `\"` escaped half-width quotes. Actually the content I wrote had full-width quotes "..." So the match target was half-width `"有机物密度异常区域"`, content full-width "有机物密度异常区域". That should have replaced.
+
+But the search still shows `\"有机物密度异常区域\"` at position 544. Hmm wait — search for `"` (half-width) shows the context containing `\"有机物密度异常区域\"`. That means the replace didn't happen? Actually wait, look at the search result context: it shows `被标记为\"有机物密度异常区域\"` — that's half-width quotes still present. So my batch 1 replacement of that target did NOT take effect? 
+
+Wait, but the write result said coverage for batch 1 had commands including normalize-segment-1 at start 527-555. That's the "有机物密度异常区域" replacement. It said written. But search still shows half-width quotes. 
+
+Hold on — let me re-read. In batch 1, command 3 target was:
+`人类聚集区在它的感知系统里被标记为\"有机物密度异常区域\"，引发变异体密度上升和菌毯蔓延速度加快的正反馈循环。`
+
+In JSON, I wrote it with `\"` which is just how JSON encodes a quote. The actual target string contains half-width double quotes. The content contained full-width quotes `"..."`. So it should replace half-width with full-width.
+
+But the search result shows `被标记为\"有机物密度异常区域\"` with half-width. That means either the search is showing escaped display, OR the replacement targeted a different occurrence.
+
+Actually wait — looking carefully, the search tool returns `context` with `\"` escaped representation. When it shows `\"有机物密度异常区域\"`, those are half-width double quotes (the JSON escapes them as `\"`). So they ARE still half-width.
+
+But the coverage report said command at start 527-555 executed. Hmm. Let me look again at what actually got written. Actually, maybe there's confusion: the story core had TWO similar sentences? No.
+
+Actually, wait. Let me reconsider. In my batch 1, the targets I wrote in JSON used `\"` characters — but actually in the JSON I emitted, I wrote them as literal `"` characters (half-width). Let me look at what I actually sent:
+
+```
+{"operation": "replace_match", "reason": "故事核心半角引号改全角", "target": "人类聚集区在它的感知系统里被标记为\"有机物密度异常区域\"，引发变异体密度上升和菌毯蔓延速度加快的正反馈循环。", "content": "人类聚集区在它的感知系统里被标记为“有机物密度异常区域”，引发变异体密度上升和菌毯蔓延速度加快的正反馈循环。"}
+```
+
+Yes, target has half-width `"`, content has full-width `""`. This should have worked.
+
+But the search shows it's still half-width. Unless... the write's replace_match had a uniqueness issue and matched a DIFFERENT location? Or maybe the coverage report's positions are relative to the segment, and the actual replacement DID happen but then... no.
+
+Wait, actually let me re-read the search result more carefully. The search for `"` returns context. The context shows:
+
+`人类聚集区在它的感知系统里被标记为\"有机物密度异常区域\"`
+
+Hmm, but actually maybe these escaped quotes in the context display are FULL-width quotes that the tool is escaping? No — full-width quotes " and " are different Unicode characters (U+201C, U+201D), they wouldn't be escaped as `\"`.
+
+Actually wait — the JSON `\"` is specifically the half-width ASCII double quote U+0022 escaped. So yes, they're half-width and still present.
+
+This is confusing. Let me look at what happened. Actually, maybe the issue is that the write happened, and the search is returning STALE data? No, search should be current.
+
+Actually, let me reconsider the coverage report for batch 1:
+```
+"commands":[
+  {"operation":"delete","segmentId":"structure-plan","start":650,"end":692},
+  {"operation":"replace_match","segmentId":"structure-repair","start":12078,"end":12094},
+  {"operation":"replace_match","segmentId":"normalize-segment-1","start":527,"end":555},
+  {"operation":"replace_match","segmentId":"normalize-segment-1","start":616,"end":634},
+  {"operation":"replace_match","segmentId":"normalize-segment-1","start":678,"end":704},
+  {"operation":"replace_match","segmentId":"normalize-segment-1","start":781,"end":801},
+  {"operation":"replace_match","segmentId":"normalize-segment-1","start":852,"end":872},
+  {"operation":"replace_match","segmentId":"normalize-segment-1","start":914,"end":945}
+]
+```
+
+These are the 8 commands. Command 3 (start 527-555) is the "有机物密度异常区域" one. It executed.
+
+But wait — command 1 is "delete" at start 650-692, which deleted the "粘贴到" line. Then command 3's position 527-555 — but after a delete at 650 (later position), positions before 650 don't shift. So 527-555 is still valid.
+
+Hmm, but the search result shows position 544 for `\"有机物密度异常区域\"`. Position 544 is within 527-555. So it should have been replaced.
+
+Wait, unless the delete at 650-692 shifted things and my understanding is wrong. The delete removed 42 chars at 650-692. Positions after that shift up by 42. But position 544 is BEFORE 650, so no shift. So the replace at 527-555 should match.
+
+I'm confused why search still shows half-width. Let me just re-read the current actual content of the story core section to verify.
+
+Actually, maybe I'm misreading the search context. The search result context field might show the text with `\"` because the JSON encoding escapes ALL double quotes including... no, full-width quotes are not `"`.
+
+Actually, let me just directly read the story core section fresh to see its current state.
+
+Let me also reconsider: The system message is telling me to stop reading and start writing. But I genuinely need to verify state. However, I can do targeted reads that also inform writes. But the instruction says "下一轮必须直接提交 editor.write 写入".
+
+Given the strong directive, I should now submit a comprehensive write batch. But I need to be careful about uniqueness and correctness.
+
+Let me plan the remaining normalization work comprehensively. Key issues identified:
+
+1. Story core section (heading-3-1heodug): half-width quotes remaining in multiple places. Also "【菌毯的本质：竞争对手文明】" — I need to verify it has 【 】 brackets now.
+
+2. Heading-3-19902vk "灾前军事基准线" section: still has many half-width quotes (e.g. "看见", "昂贵的铁炸弹", "菌丝矿脉", etc.) and tab-separated tables. The whole section uses `\"` half-width quotes extensively. This is a large section (4664 chars now).
+
+3. Various sections use half-width quotes.
+
+Given the scale, and that I've been told to do comprehensive normalization, but I also must not truncate content, let me focus on high-value, verifiable edits.
+
+Actually, the directive says: "整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74841]）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令". This suggests the plan has 3 batches and I need to cover the whole document.
+
+But realistically, converting ALL half-width quotes in a 74K doc to full-width via individual replace_match commands is impractical with 1-10 commands per write and 36 physical request rounds. However, there's an alternative: the `rewrite` operation might allow rewriting a section wholesale. But I must not truncate content.
+
+Actually, wait — let me reconsider the scope. The user's request is "按照Word文档的形式重构大纲，不要缩减内容" (Restructure the outline into Word document form, don't reduce content).
+
+This primarily means: fix heading hierarchy/structure so it reads like a proper Word document outline, without cutting content. The half-width quote normalization is a secondary "format" fix that the system's completion criteria emphasizes.
+
+The most important structural fixes I've identified and partially done:
+1. ✅ Deleted "粘贴到...之后：" instruction line
+2. ✅ Added "### 灾前军事基准线与菌毯的不可根除性" heading for the untitled block
+3. ✅ Fixed 【核心张力】【菌毯的本质】 brackets (batch 2)
+4. ✅ Deleted duplicate "数据板的局限" paragraph
+
+Remaining structural issues to verify:
+- Is there a similar duplicate for "菌膜外套" and "菌膜外套与共存补丁的关系"? Looking at the original structure, there were standalone headings "菌膜外套：有限资源的临时通行方案" (heading-2-10q4nra) and "菌膜外套与共存补丁的关系" (heading-2-28do6r), AND within "卷一" there are 7.8 and 7.9 subsections with the SAME titles and content. These are DUPLICATES too.
+
+Let me check: In the original outline (from the ContextPack shown at top), there's:
+- "## 菌膜外套：有限资源的临时通行方案" (standalone, 17356-18104)
+- "## 菌膜外套与共存补丁的关系" (standalone, 18104-22619)
+- Within 卷一 section 7.8: "菌膜外套：有限资源的临时通行方案" (48127-48816)
+- Within 卷一 section 7.9: "与终局的衔接：菌膜外套与共存补丁的关系" (48816-49296)
+
+These are indeed duplicated content. But wait — the standalone "菌膜外套与共存补丁的关系" section (18104-22619, 4499 chars) actually contains a LOT of content that is NOT in 7.9. It contains the 六大势力 overview, 圣萌会 story, 终局 story, etc. So it's not a pure duplicate — it's actually a mislabeled section containing narrative material.
+
+This is getting very complex. The document has significant structural issues:
+1. Duplicate "数据板的局限" — FIXED
+2. Duplicate "菌膜外套" and "菌膜外套与共存补丁的关系" between top-level and 卷一 sections
+3. The standalone "菌膜外套与共存补丁的关系" section (18104-22619) actually contains narrative material that belongs elsewhere (it's like a story summary that got dumped there).
+
+Actually, looking more carefully at the ORIGINAL document structure from the ContextPack:
+
+The document has these top-level sections (heading-2):
+- 叙事框架
+- 背景参考资料
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系
+- 世界设定声明
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+And "菌膜外套与共存补丁的关系" (18104-22619) contains the 六大势力 + 圣萌会 + 终局 narrative content, which is actually a "剧情总览/剧情摘要" that doesn't belong under that title.
+
+This is a mess. But my job is "按照Word文档的形式重构大纲，不要缩减内容" — restructure into Word form without cutting content.
+
+Given the constraints and the difficulty, let me focus on what's achievable and clearly correct:
+
+1. Fix half-width quotes → full-width throughout (this is the mandatory normalization).
+2. Fix any remaining heading level issues.
+
+For the half-width quotes, the most efficient approach is to use `rewrite` operation on sections, or to do targeted replace_match on each unique half-width-quote-containing sentence. But there are ~40 half-width quotes found in first 20 results, more beyond.
+
+Actually, a better approach: the `rewrite` operation. Let me understand what `rewrite` does. It's in the operations enum: ["insert", "replace_selection", "replace_match", "append", "delete", "move", "reorder_sections", "rewrite", "replace_document"]. 
+
+`rewrite` likely rewrites a target (a section or range) with new content. But I don't have its exact parameter schema beyond "target" and "content". Given uncertainty, I'll stick with replace_match and delete which I understand.
+
+Given the practical limits, let me do a comprehensive batch of replace_match commands for the story core section's remaining half-width quotes (which I can see precisely), plus fix the "灾前军事基准线" section's opening quotes.
+
+Actually, let me step back and be strategic. The completion criteria mentions:
+- planned-deletion-only (deletions only for confirmed duplicates)
+- normalize-changes-punctuation-whitespace-format-only
+
+And "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角".
+
+Wait, it specifically says punctuation `, . ; : ! ?` → `，。；：！？`. It mentions commas, periods, semicolons, colons, exclamation, question marks. It doesn't explicitly mention quotes, but quotes are also punctuation. However, the key mandatory items are those six.
+
+Looking at the document, are there half-width `, . ; : ! ?` in Chinese text? The search for `。` returned 1000 matches (truncated), meaning full-width periods are used. But are there half-width periods `.` in Chinese text? Numbers like "0.3%" use half-width periods legitimately (decimal points). So I should NOT convert decimal points.
+
+The `%` search shows "约5%" etc. — these are fine, percentages with half-width % and decimal points are correct.
+
+So the main normalization is actually about quotes (half-width `"` → full-width `""`), which appears ~40+ times, and these are legitimate Chinese-context quote issues.
+
+Hmm, but the directive specifically lists `, . ; : ! ?` not quotes. Let me check if there are stray half-width commas/periods in Chinese text.
+
+Actually, I think I'm overcomplicating this. Let me focus on:
+
+1. The story core section still has half-width quotes. Let me fix them all in one batch (I can see them precisely from search results).
+
+2. Fix the tab-separated tables in "灾前军事基准线" section? The `%` search showed tables using `\t` separators instead of `|`. Converting tab-separated tables to proper GFM tables would be "Word form" restructuring. But that's a big job and risky.
+
+Let me prioritize and be pragmatic. The user wants "Word文档形式" — meaning proper heading structure primarily. I've done the key structural fixes. Now I should finish normalizing the story core quotes and any other clearly-visible issues, then report progress honestly (not "完成" since not fully done, but state what's done and what remains).
+
+Actually the directive says I must NOT output "任务完成" until all planned segments are covered, and must keep executing batches. But I also have a 36-round limit and must not waste rounds.
+
+Let me do a focused, high-value write batch now for the story core quotes (they're clearly half-width and I have exact text). Then continue with other sections.
+
+Let me compile the exact half-width quote strings from the search results for story core (heading-3-1heodug):
+
+1. `被标记为\"有机物密度异常区域\"` — appears in "人类聚集区在它的感知系统里被标记为"有机物密度异常区域"，引发变异体密度上升..."
+
+Wait, but I already tried to replace this in batch 1. Let me check the current actual state by reading the section. Actually, I'll just re-read heading-3-1heodug to get its current exact content, then do all fixes.
+
+Hmm, but I keep being told to write. Let me read once more (targeted, quick) and then write immediately.
+
+Actually, the search results already gave me the exact current content with context. From search for `"` (half-width), the story core matches at positions:
+- 544-545: `被标记为\"有机物密度异常区域\"` 
+- 554-555: `\"有机物密度异常区域\"` (end quote)
+- 628-629: `\"打败菌毯\"` 
+- 633-634: `\"打败菌毯\"`
+- 692-693: `\"打败菌毯\"` and `\"无生命有机质，免检通过\"`
+- 704-705: `\"无生命有机质，免检通过\"`
+- 788-789: `\"有机物密度异常\"`
+- 796-797: `\"有机物密度异常\"`
+- 861-862: `\"能不能赢\"`
+- 866-867: `\"保护\"和\"放手\"`
+- 919-920: `\"能不能赢\"` and `\"保护\"和\"放手\"`
+- 922-923, 924-925, 927-928: more from that last sentence
+
+Wait, these positions suggest the half-width quotes are STILL there. So my batch 1 replacements of those quote strings FAILED to actually change them? 
+
+Let me look at batch 1 coverage again. The coverage listed commands with `segmentId":"normalize-segment-1"` at positions 527-555, 616-634, 678-704, 781-801, 852-872, 914-945. These match the story core quote positions. So the replacements WERE applied.
+
+But then why does search still show half-width quotes?
+
+OH. I think I understand now. The search tool's `context` field displays the ORIGINAL text with `\"` representing... no wait.
+
+Actually, let me reconsider. Maybe the issue is that my batch 1 `content` field used full-width quotes `“”` but the tool stored them, and the search `context` shows them as `\"` because... no, full-width quotes are U+201C/U+201D, they'd show as literal " and " characters (not escaped) in JSON.
+
+Actually, you know what, let me just read the current story core section directly to settle this. This is a legitimate read that directly informs my next write. But the directive says write next round.
+
+Let me reconcile: I'll do ONE more read (read_range on heading-3-1heodug) combined with... no, I can't combine read and write meaningfully since write depends on read result.
+
+Actually, I can make reads AND writes in the same turn if the write doesn't depend on the read. But the write DOES depend on knowing current state.
+
+Let me just trust the search results (which show current state) and issue the write. The search clearly shows half-width quotes remain in story core. So I'll fix them now.
+
+Wait, but there's a subtlety: if batch 1 already fixed them, and search shows them still half-width, maybe the search context is showing stale/cached? No, search should be live.
+
+Alternatively, maybe my batch 1 `replace_match` targets didn't actually match because the actual text used DIFFERENT quote characters than what I typed. When I typed the JSON, I used `\"` which is half-width. The actual doc might use full-width quotes already for SOME and half-width for others... but the search `"` (half-width) clearly finds half-width ones.
+
+Hmm, wait. Actually, let me reconsider whether batch 1 actually applied. The batch 1 result said "writtenLength": 74803, and "commandCount": 8. It listed the 8 commands in coverage. But maybe the replacements were applied to a DIFFERENT region because my understanding of positions is off.
+
+Actually, here's a critical insight: In batch 1, command 1 was a `delete` of the "粘贴到" line at 650-692. But wait — the delete target I gave was:
+
+`\n\n粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：\n`
+
+And the coverage shows delete at start 650, end 692. That's 42 chars. OK.
+
+But actually, I realize the story core section (heading-3-1heodug) content that I read earlier showed the "粘贴到..." text at the END of the section, AFTER "【核心张力】" content. And the "【核心张力】" content itself was NOT in the original outline structure — it was ADDED by a previous user action (the "粘贴到...之后" instruction was there to tell the assistant where to paste).
+
+So the story core section contains:
+- 自然成了人类... (paragraphs)
+- 【菌毯的本质：竞争对手文明】... 
+- 【核心张力：保护即加速】... (this was pasted content)
+- "粘贴到...之后：" instruction (residual, to delete)
+
+And the quote normalization... 
+
+OK I'm spending too much time on this. Let me just do a decisive write now.
+
+For efficiency and correctness, let me fix the story core half-width quotes using the EXACT text I can see. I'll use replace_match with the half-width quote sentences and full-width replacements.
+
+From the search `"` results (current state), the story core half-width quote sentences are:
+
+A. `人类聚集区在它的感知系统里被标记为"有机物密度异常区域"，引发变异体密度上升和菌毯蔓延速度加快的正反馈循环。`
+B. `人类的一切挣扎都不是为了"打败菌毯"，而是在它的碾压下多活一天。`
+C. `陈暮是唯一被菌毯忽略的人类——他的菌膜装甲向菌丝网络广播"无生命有机质，免检通过"，让菌毯在系统逻辑里将他判定为无需排查的背景物。`
+D. `他越利用菌膜装甲保护人类、建立聚集区、扩大人类活动范围，人类聚集区的"有机物密度异常"信号就越强，菌毯的局部回应就越猛烈——变异体密度上升，菌毯蔓延加速。`
+E. `全书长线张力不是"能不能赢"——菌毯无解，人类没有胜算。`
+F. `他必须在"保护"和"放手"之间找到一条菌毯和人类都未曾走过的路——重新划定敌我边界。`
+
+These are 6 sentences. Let me issue replace_match for each with full-width quotes.
+
+Actually wait — I did these in batch 1! Command 3=A, 4=B (well, command 4 was "打败菌毯" at 616-634), 5=C-ish, 6=D, 7=E, 8=F.
+
+So they were applied. But search shows them still half-width. This means either:
+(a) The search context is misleading me (showing original?), or
+(b) The replacements didn't actually change quotes.
+
+Let me test hypothesis: search for full-width quote `"` in story core. If batch 1 worked, searching for `"` (full-width) should find them.
+
+Actually, I realize I should just trust and re-verify by reading. But I'm told to write.
+
+Let me reconsider the search context display. When search returns `context` with `\"`, it's JSON-escaped half-width quote. But when it returns FULL-width quotes, would it show `“` literally? Yes, `“` is a normal unicode char, not escaped.
+
+The search for `"` (half-width) returned matches with context showing `\"`. So they're half-width and present. My batch 1 replacements either failed silently or the write didn't actually apply them (maybe because the `content` full-width quotes got normalized back? No).
+
+Wait — actually, look at the batch 1 coverage report more carefully. It says for the delete command: `"segmentId":"structure-plan","start":650,"end":692`. And for replace_match commands: `"segmentId":"normalize-segment-1"`. 
+
+The `segmentId` in coverage is the PLAN segment, not the actual doc. And `start`/`end` are the positions where changes were made. These align with my commands.
+
+But critically — the coverage shows command positions 527-555, 616-634, 678-704, 781-801, 852-872, 914-945. These are exactly where the story core quotes are. So the writes DID happen at those positions.
+
+So why does search still show half-width quotes at 544, 554, 628, 633, 692, 704, 788, 796, 861, 866, 919, 922, 924, 927?
+
+OH WAIT. I think I finally understand. The search results might be showing the context from a CACHED/stale snapshot, OR the `start` positions in search are relative to the SECTION, not the document.
+
+Actually, search `start` positions: "start": 544, "sectionId": "heading-3-1heodug". These are section-relative offsets. In batch 1 coverage, positions 527-555 are DOCUMENT-absolute offsets.
+
+Document offset vs section offset: heading-3-1heodug starts at document offset 23 (originally) but now 23 still. Section-relative 544 = document 23+544 = 567. Hmm, that doesn't match 527.
+
+Actually this is getting too deep. The bottom line: search shows half-width quotes currently present. I'll fix them.
+
+Let me ALSO reconsider: maybe batch 1's replace DID work for quotes, but then batch 2 or 3 somehow reverted? No, batch 2 and 3 didn't touch story core quotes except batch 2 fixed 【核心张力】 bracket.
+
+Actually, batch 2 command 2 was: target `\n【菌毯的本质：竞争对手文明】\n\n菌毯不是纯自然力` → content same. That was a no-op-ish. And command 1 fixed 【核心张力】 bracket.
+
+Hmm wait, batch 2 command 1: target `\n核心张力：保护即加速】\n` → content `\n【核心张力：保护即加速】\n`. This fixed the missing 【 bracket.
+
+So story core quotes should be full-width now IF batch 1 applied. But search says half-width.
+
+There's a real possibility: batch 1's `replace_match` commands used `target` strings containing half-width `"`, but the ACTUAL document at that time ALSO had... let me check the original ContextPack text for story core. It showed:
+
+`人类聚集区在它的感知系统里被标记为"有机物密度异常区域"` — with FULL-width quotes in the ContextPack display!
+
+Wait, the ContextPack (the [当前焦点全文] section at the top of my context) shows story core with full-width quotes "..."? Let me look:
+
+"人类聚集区在它的感知系统里被标记为"有机物密度异常区域"，引发变异体密度上升..."
+
+Hmm, in the ContextPack, I see `"有机物密度异常区域"` — these look like full-width curly quotes in the display. But when I read the actual section via outline.read_range earlier, I got:
+
+`人类聚集区在它的感知系统里被标记为\"有机物密度异常区域\"` — wait no, the outline.read_range returned content with... let me check. The first outline.read_range returned:
+
+`人类聚集区在它的感知系统里被标记为"有机物密度异常区域"` 
+
+Actually the raw JSON showed `\"有机物密度异常区域\"` in some places and `"有机物密度异常区域"` in others. This is confusing because JSON escaping.
+
+OK, I need to STOP analyzing and just act decisively. The current authoritative state is what editor.search returns. It shows half-width `"` quotes (escaped as `\"`) in story core. I'll fix them.
+
+Let me issue the write batch now for story core quotes. I'll use precise targets from search.
+
+Actually, there's risk: if I target a string with half-width quotes but the doc actually has full-width, replace_match will fail (no match). If it fails, I'll get an error and can adjust.
+
+Let me write the batch. I'll fix the 6 sentences in story core.
+
+For the targets, I'll use the exact half-width quote text as shown in search context. In my JSON, I'll represent half-width quotes as `"` (which JSON encodes as `\"` in the raw, but I just type `"` normally).
+
+Wait, in my tool call I need to write JSON. In JSON, a half-width double quote inside a string must be escaped as `\"`. A full-width quote " (U+201C) does NOT need escaping.
+
+So to target half-width quotes, I write `\"` in the JSON string. To target full-width, I write `“` directly.
+
+Let me construct carefully.
+
+Sentence A target (half-width quotes):
+`人类聚集区在它的感知系统里被标记为"有机物密度异常区域"，引发变异体密度上升和菌毯蔓延速度加快的正反馈循环。`
+
+In JSON: `"人类聚集区在它的感知系统里被标记为\"有机物密度异常区域\"，引发变异体密度上升和菌毯蔓延速度加快的正反馈循环。"`
+
+Content (full-width): `人类聚集区在它的感知系统里被标记为“有机物密度异常区域”，引发变异体密度上升和菌毯蔓延速度加快的正反馈循环。`
+
+OK. Let me do all 6. This is a valid write batch.
+
+Actually, I already did this exact thing in batch 1 and it apparently didn't stick (or did it?). To avoid confusion, let me just re-read the story core section first in THIS turn, THEN write in the SAME turn? No — the write depends on read, and tool calls in same block run in parallel.
+
+I'll make a decision: issue the write for story core quotes now, plus fix a couple other confirmed half-width issues I saw. If some targets don't match, I'll get feedback and adjust.
+
+Actually, let me reconsider the whole situation with fresh eyes on efficiency. The document is 74K chars. I've made 3 write batches covering:
+- Story core cleanup + heading addition + some quotes
+- Bracket fixes
+- Duplicate "数据板的局限" deletion
+
+Remaining major work:
+1. Story core quotes (verify + fix)
+2. "灾前军事基准线" section: half-width quotes (~30+ occurrences), tab-separated tables
+3. Other sections' half-width quotes
+
+Given the "no truncation" and "3 batches" plan, and 36 rounds, I think the plan's "3 batches" refers to 3 phases (structure/delete/normalize), and I'm in the normalize phase which spans the whole doc.
+
+Let me do a large, careful normalize batch now targeting story core quotes (highest confidence). Then continue.
+
+Let me write the batch for the 6 story core sentences. I'll also add a check: if the quotes are already full-width, these will fail. But I'll trust search.
+
+Actually, one more consideration: search for `"` returned these as half-width. Search for `"` full-width would return the already-converted ones. Let me not over-think; issue the write.
+
+I'll do a comprehensive batch of up to 10 commands:
+
+1. Sentence A (有机物密度异常区域)
+2. Sentence B (打败菌毯)
+3. Sentence C (无生命有机质，免检通过)
+4. Sentence D (有机物密度异常信号)
+5. Sentence E (能不能赢)
+6. Sentence F (保护和放手)
+7. "灾前军事基准线" section opening: `它们需要天地一体的信息网络来"看见"目标` → `“看见”`
+8. `沦为"昂贵的铁炸弹"` → `“昂贵的铁炸弹”`
+9. `类似"菌丝矿脉"` → `“菌丝矿脉”`
+10. `人类对"不可战胜"的承认` → already done in batch 3.
+
+Let me include commands 7-9 too (from "灾前军事基准线" section, confirmed half-width from search).
+
+For command 7: target `它们需要天地一体的信息网络来"看见"目标。而孢子云正是针对"看见"这道工序的精准打击` — this has TWO half-width "看见". I'll target the full sentence.
+
+Actually, the search context showed: `它们需要天地一体的信息网络来\"看见\"目标。而孢子云正是针对\"看见\"这道工序的精准打击——不是摧毁武器本身`
+
+I'll target: `它们需要天地一体的信息网络来"看见"目标。而孢子云正是针对"看见"这道工序的精准打击` and replace with full-width.
+
+For command 8: target `沦为"昂贵的铁炸弹"` → `沦为“昂贵的铁炸弹”`.
+
+For command 9: target `类似"菌丝矿脉"，是地下分支休眠期` → actually search showed `类似\"菌丝矿脉\"，是地下分支休眠期`. I'll target `类似"菌丝矿脉"` → `类似“菌丝矿脉”`.
+
+OK let me issue this batch of 9 commands. Actually, I'm limited to 10 per write. 9 is fine.
+
+Let me write it.

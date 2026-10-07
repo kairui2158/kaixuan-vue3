@@ -201,6 +201,37 @@ describe('useEditTaskSession', () => {
     expect(events).toContain('task_finished')
   })
 
+  it('returns the finished task after activeTask is cleared', async () => {
+    const testSession = session([])
+    await testSession.startOrContinueBatch(batchInput, async () => ({
+      ok: true,
+      documentVersion: 2,
+      contentHash: hashEditorContent('第一批完成'),
+    }), { multiBatch: true })
+    await testSession.startOrContinueBatch(
+      { ...batchInput, batchId: 'batch-2' },
+      async () => ({
+        ok: true,
+        documentVersion: 3,
+        contentHash: hashEditorContent('第二批完成'),
+      }),
+      { multiBatch: true },
+    )
+
+    const finished = testSession.finishActiveTask({
+      completion: {
+        target: batchInput.target,
+        before: '大纲',
+        after: '第二批完成',
+      },
+    })
+
+    expect(finished?.status).toBe('completed')
+    expect(finished?.executedBatches).toEqual(['batch-1', 'batch-2'])
+    expect(testSession.activeTask()).toBeNull()
+    expect(testSession.completionReport()?.verified).toBe(true)
+  })
+
   it('keeps planner segment metadata for every multi-batch checkpoint', async () => {
     const testSession = session([])
     await testSession.startOrContinueBatch({

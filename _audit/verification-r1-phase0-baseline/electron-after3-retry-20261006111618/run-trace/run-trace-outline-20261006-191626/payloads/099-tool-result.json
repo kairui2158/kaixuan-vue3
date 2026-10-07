@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "data": {
+    "total": 1,
+    "truncated": false,
+    "offset": 0,
+    "limit": 20,
+    "hasMore": false,
+    "matches": [
+      {
+        "start": 12962,
+        "end": 12980,
+        "sectionId": "heading-4-1h0cojh",
+        "sectionTitle": "一、2042年，人类手里有什么",
+        "context": "\t已部署的弹头仍可发射，但命中精度不足以区分目标\n舰船/潜艇远洋导航\t依赖GPS/惯导+海图，失去GPS后远洋定位退化为数公里误差\t逐渐累积，远洋舰队陆续失能\n核心逻辑：孢子云没有摧毁任何一发子弹或一枚核弹头。它摧毁的是\"精确\"这个词。人类在2042年设计武器体系时，默认的预设是天地一体的信息网络永远存在。当天这个预设崩塌时，最先进的武器倒退为最昂贵的废"
+      }
+    ],
+    "next_steps": [
+      "调用 editor.read_range 传入 sectionId 读取命中节全文"
+    ]
+  }
+}

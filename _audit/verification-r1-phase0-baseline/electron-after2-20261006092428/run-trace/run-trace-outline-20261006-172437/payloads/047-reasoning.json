@@ -1,0 +1,49 @@
+Let me now analyze what's been accomplished and what remains. The user wants to restructure the outline "按照Word文档的形式重构大纲，不要缩减内容" — basically reorganize it into a proper Word document-style format.
+
+The plan has 3 batches:
+1. structure-repair (done): Added headings for the "灾前军事基准线" subsection in 背景参考资料
+2. structure-plan (done): Deleted the duplicate "数据板的局限" paragraph from 背景参考资料 (kept the standalone heading version)
+3. normalize-segment-1 (in progress): Normalize punctuation/formatting across [0-74312]
+
+The normalize phase needs to cover the entire document [0-74312]. Let me check what has been done:
+- Batch 3: Only changed one colon (11月19日3:14 → 11月19日3：14)
+
+Now I need to check: are there half-width punctuation marks in Chinese contexts that should be converted? Let me search more carefully. The searches for `,` `;` `!` `?` returned 0 results, which means the document is already using full-width punctuation for those? But wait, the search for `:` returned 3 results (18:2, 18:3 fatty acid notations which are chemical formulas so they should stay as half-width). The search for `.` returned 0.
+
+Let me think about what other normalization is needed. The plan says:
+- "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）"
+- But the searches show minimal half-width punctuation issues
+
+Given the searches returned almost no half-width punctuation in Chinese contexts, the normalize phase seems largely complete already. 
+
+Let me also check for other issues like:
+- Double blank lines 
+- Title numbering consistency
+- Heading level issues
+
+Looking at the structure, the document has:
+- h1: 《绿潮》大纲总纲 (root)
+  - h2: 叙事框架, 背景参考资料, 数据板的局限, 菌膜外套..., 菌膜外套与共存补丁的关系, 世界设定声明, 卷一, 卷二, 卷三, 卷四
+  - h3/h4/h5 sub-headings under each
+
+The structure seems logical. The "背景参考资料" section had the "灾前军事基准线" content that was at the wrong level (plain text), now fixed to h3/h4.
+
+The "菌膜外套与共存补丁的关系" section at h2 level contains content about 六大势力 overview + 圣萌会 overview + 终局之战 overview — this is essentially a summary of the entire story. It sits between "菌膜外套" and "世界设定声明" sections. This seems intentional as it's a narrative bridge section.
+
+I think the main structure repair and duplicate deletion are complete. For normalize, the document appears to already have proper full-width punctuation for the most part. The `18:2` and `18:3` are chemical notations (fatty acid nomenclature) that should remain half-width.
+
+Let me check if there are other format issues — double consecutive blank lines, trailing spaces, etc. Let me also check the "11月19日3:14" type time notations more broadly, since I only fixed one occurrence.
+
+Actually, let me search for more time patterns like `日\d+:` or `:\d+` in Chinese contexts.
+
+Let me also check if there are other things that would benefit from normalization, like:
+- Consecutive blank lines could be normalized
+- Paragraph spacing
+
+But the plan says "normalize-changes-punctuation-whitespace-format-only" — so only punctuation, whitespace, and formatting changes.
+
+Let me do a broader search for half-width colons used as time separators in Chinese text.
+
+Actually, I think the core issue is that the document is already in pretty good shape in terms of punctuation. Let me verify this by checking for the main patterns, then complete the normalize phase.
+
+Let me search for time patterns like `：` vs `:` and check a few more potential issues.

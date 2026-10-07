@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-4-8ex97",
+      "title": "5.4 终局之后",
+      "kind": "heading",
+      "level": 4,
+      "path": "5.4 终局之后"
+    },
+    "range": {
+      "start": 71249,
+      "end": 71279
+    },
+    "offset": 0,
+    "maxChars": 30,
+    "content": "#### 5.4 终局之后\n\n共存补丁完成后，人类不再被巨树",
+    "hasMore": true,
+    "nextCursor": "section:heading-4-8ex97:30",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

@@ -1,0 +1,383 @@
+Now I need to continue the restructure. The key issue: the user wants "按照Word文档的形式重构大纲" - reconstruct in Word document form, without reducing content.
+
+The current structure has an issue: the "数据板的局限", "菌膜外套...", "菌膜外套与共存补丁的关系" are standalone H2 sections at top level, while "背景参考资料" also contains a duplicate "数据板的局限" text and "灾前军事基准线与菌毯的不可根除性" content. 
+
+The proper Word document structure should be:
+1. 《绿潮》大纲总纲 (H1)
+2. 世界设定声明 (H2)
+3. 叙事框架 (H2) - containing 故事核心, 第一卷, 第二卷, 第三卷
+4. 卷一：基石设定层 (H2)
+5. 卷二：核心人物群像 (H2)
+6. 卷三：势力与格局层 (H2)
+7. 卷四：叙事工具箱层 (H2)
+8. 背景参考资料 (H2) - should contain 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, and 灾前军事基准线 as subsections
+
+Wait, but currently:
+- "数据板的局限" is H2 standalone
+- "菌膜外套：有限资源的临时通行方案" is H2 standalone
+- "菌膜外套与共存补丁的关系" is H2 standalone
+
+These are actually content that belongs under "背景参考资料" or as appendices. Actually looking more carefully:
+
+The "背景参考资料" section (10230-16801) ends with:
+1. 灾前军事基准线与菌毯的不可根除性 (now has H3 heading I added)
+2. Then "数据板的局限" text duplicated (16801 area... wait no)
+
+Actually looking at the map again:
+- heading-2-1lka0h8 背景参考资料 (10230-16801)
+- heading-2-z4sxm8 数据板的局限 (16801-17356)
+- heading-2-10q4nra 菌膜外套 (17356-18104)
+- heading-2-28do6r 菌膜外套与共存补丁的关系 (18104-22619)
+
+So "背景参考资料" ends at 16801, and the read of heading-2-1lka0h8 showed the content ends with "数据板的局限" text (duplicate), which is actually inside 背景参考资料 range but then the standalone "## 数据板的局限" H2 is at 16801.
+
+Wait, let me re-check. The read of heading-2-1lka0h8 at offset 4000 showed content ending at 16807 with the "数据板的局限" text. So the "数据板的局限" text appears TWICE:
+1. At end of 背景参考资料 (as plain text without heading, ending ~16801)
+2. As standalone "## 数据板的局限" section (16801-17356)
+
+So I need to delete the duplicate plain-text version at the end of 背景参考资料, and keep the H2 standalone.
+
+But wait - actually the better "Word document form" would be to make 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 into H3 subsections under 背景参考资料, OR keep them as H2 appendix sections.
+
+Actually, let me think about what "Word文档的形式" means. The user wants it structured like a Word document with proper heading hierarchy, no leftover edit instructions, no duplicate content, consistent numbering.
+
+Given the complexity and the execution plan constraints (3 batches, must cover all normalize-segment-1[0-74841]), and the strict instructions about half-width punctuation conversion, this is a massive task.
+
+Let me focus on what's actually achievable and valuable:
+
+1. **Fix the top-level structure**: The 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 are H2 standalone sections that logically belong as subsections. But they're already duplicated content-wise.
+
+Actually, looking at it more carefully:
+
+The content in 背景参考资料 (H2) currently contains:
+- Background story (四亿年前...)
+- 方岫岩... (continuation)
+- 灾前军事基准线与菌毯的不可根除性 (I added H3)
+- 数据板的局限 (duplicate plain text, NO heading)
+
+Then separately:
+- ## 数据板的局限 (H2, 16801-17356)
+- ## 菌膜外套：有限资源的临时通行方案 (H2, 17356-18104)
+- ## 菌膜外套与共存补丁的关系 (H2, 18104-22619)
+
+So the "数据板的局限" is duplicated: once as plain text in 背景参考资料, once as proper H2.
+
+My plan:
+1. Delete the duplicate plain-text "数据板的局限" from 背景参考资料 (keep the H2 version)
+2. Move 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 to be H3 subsections under 背景参考资料? OR keep as H2 appendix.
+
+Actually the cleaner Word structure would be to make these three (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) subsections (H3) under 背景参考资料. But they're currently H2. That would be a "move" + heading level change.
+
+Given the constraints and risk, let me be conservative and focus on:
+
+1. Delete the duplicate 数据板的局限 plain text at end of 背景参考资料.
+2. The three standalone H2 sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) can stay as H2 but ideally should be under 背景参考资料.
+
+Actually, let me reconsider. The instruction from the execution plan error said:
+
+"复合重构请分三阶段执行：先读取结构，用 move 把误归位标题与段落移动到正确层级，用 insert 为无标题正文补标题、用 replace_match/rewrite 仅修正既有标题层级"
+
+So I should use `move` to relocate misplaced headings/paragraphs to correct level, `insert` to add headings for untitled content, and `replace_match`/`rewrite` to fix heading levels.
+
+The three standalone sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) are misplaced - they should be under 背景参考资料 as subsections.
+
+But move requires a destination. The `move` operation moves to before/after a destination fragment.
+
+Actually, given the massive scope and risk, and that my primary job is to "按Word文档形式重构大纲，不要缩减内容", let me focus on the most impactful structural fixes:
+
+1. ✅ Added H3 heading "灾前军事基准线与菌毯的不可根除性" for untitled content
+2. ✅ Deleted leftover edit instruction "粘贴到「故事核心」下..."
+3. Delete duplicate 数据板的局限 plain text
+4. Move/relevel the three standalone sections to H3 under 背景参考资料
+
+Actually, for the duplicate 数据板的局限 deletion, I already attempted it but it failed because replace_match with empty content is rejected. I need to use `delete` operation instead.
+
+The duplicate text is: at the end of 背景参考资料, from "数据板的局限\n数据板不是百宝箱..." to "...数据板提供的是火种，不是火炬。"
+
+Let me use delete with the full text. But delete requires target to be unique. The problem is the standalone H2 "## 数据板的局限" contains the SAME text. So there are two copies of "数据板不是百宝箱..." text.
+
+One has "数据板的局限\n数据板不是..." (no ## prefix, plain text version)
+One has "## 数据板的局限\n\n数据板不是..." (H2 version)
+
+So the plain-text version's target string "数据板的局限\n数据板不是百宝箱。方岫岩..." — wait, but the H2 version also starts with "## 数据板的局限\n\n数据板不是百宝箱。方岫岩...".
+
+The difference: plain text version is "数据板的局限\n数据板不是百宝箱..." (single newline, no ##). H2 version is "## 数据板的局限\n\n数据板不是百宝箱...".
+
+So the fragment "数据板的局限\n数据板不是百宝箱" (without ##) would match only the plain text version, because in H2 version there's "## 数据板的局限\n\n数据板" — the "数据板的局限\n数据板" substring doesn't exist there (there's an extra \n and ##).
+
+Wait, actually in H2 version: "## 数据板的局限\n\n数据板不是百宝箱". So "数据板的局限\n数据板不是百宝箱" would NOT match because between "局限" and "数据板" there are two newlines "\n\n", not one "\n".
+
+In plain text version: "数据板的局限\n数据板不是百宝箱" - here it's "局限" then single "\n" then "数据板不是".
+
+So the target "数据板的局限\n数据板不是百宝箱" is unique to the plain version. Good.
+
+But actually, I need to delete the ENTIRE duplicate block, which is ~550 chars. Using `delete` with the full text is safer. But the full text includes quotes "" which I need to match exactly. The read showed the plain version uses \" escaped (in JSON it's regular quotes in actual content).
+
+Let me get the exact text. From the read at offset 4000, the plain version text (in 背景参考资料) uses \" (which in actual content is just "). Actually the JSON showed \" because of JSON escaping, meaning actual content has " (straight quotes? or curly?).
+
+Hmm, this is tricky. The 背景参考资料 content read showed:
+"他推导了SC-α菌丝向菌毯广播\"无生命有机质\"静默声明的分子结构"
+
+The \" in JSON = " straight double quote in actual content.
+
+But the standalone "## 数据板的局限" section (read via outline.read_range) showed:
+"他推导了SC-α菌丝向菌毯广播“无生命有机质”静默声明的分子结构"
+
+Here it's “ ” curly quotes.
+
+So the two versions use DIFFERENT quote styles! The plain-text version in 背景参考资料 uses straight quotes ", while the standalone H2 uses curly quotes “ ”.
+
+This makes them non-identical, which actually makes deletion easier (target is more unique).
+
+Let me verify by reading the exact text. Actually I already have both:
+
+Plain version (背景参考资料, offset 4000 read):
+"数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构..."
+
+Standalone H2 (outline.read_range):
+"## 数据板的局限\n\n数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播“无生命有机质”静默声明的分子结构..."
+
+So they differ in: heading, blank line, and quote style (straight vs curly).
+
+For deletion, I'll use `delete` with the plain text version content. The target must be unique. Since the plain version uses straight quotes, it's distinguishable from the H2 version with curly quotes.
+
+Actually, let me reconsider the whole approach. The task is huge and I'm spending a lot of effort. Let me be strategic.
+
+The user's actual request: "按照Word文档的形式重构大纲，不要缩减内容" (Reconstruct the outline in Word document form, don't reduce content).
+
+Key deliverables:
+1. Proper heading hierarchy (Word-like)
+2. No content reduction
+3. Clean structure
+
+The most important structural fixes:
+1. The three standalone sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) should be nested under 背景参考资料 as H3 subsections (they're currently H2, floating).
+2. Delete the duplicate 数据板的局限 plain text.
+3. The "灾前军事基准线" content got its H3 heading (done).
+
+But actually, wait - is "数据板的局限" etc really supposed to be under "背景参考资料"? Let me reconsider. 
+
+Looking at the original map, the top-level structure was:
+- 叙事框架 (H2)
+- 背景参考资料 (H2)
+- 数据板的局限 (H2)
+- 菌膜外套 (H2)
+- 菌膜外套与共存补丁的关系 (H2)
+- 世界设定声明 (H2)
+- 卷一 (H2)
+- 卷二 (H2)
+- 卷三 (H2)
+- 卷四 (H2)
+
+So originally they were all H2 siblings. The "Word document form" would probably group them more logically:
+
+Option A: Keep them as H2 but reorder so 世界设定声明 comes first, then 叙事框架, then 卷一-卷四, then appendices (背景参考资料, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系).
+
+Option B: Nest 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 under 背景参考资料 as H3.
+
+Given the reorder_sections was rejected (not allowed), I can use `move` to reorder. But move requires target fragment and position.
+
+Actually, let me reconsider what's feasible within the execution plan. The plan error message said the allowed operations are: move|insert|delete|replace_match|rewrite. And reorder_sections is NOT in that list (it was rejected).
+
+So to reorder top-level sections, I'd need to use `move` repeatedly. That's complex and risky.
+
+Given time/effort constraints, let me focus on the highest-value, lowest-risk changes:
+
+1. ✅ H3 heading for 灾前军事基准线 (done)
+2. ✅ Delete leftover instruction (done)
+3. Delete duplicate 数据板的局限 plain text (pending)
+4. Fix the three floating H2 sections → nest under 背景参考资料 as H3
+
+For #4, I can use `rewrite` to change "## 数据板的局限" → "### 数据板的局限", "## 菌膜外套：有限资源的临时通行方案" → "### ...", "## 菌膜外套与共存补丁的关系" → "### ...". This changes them from H2 to H3, nesting them under the preceding 背景参考资料 H2 (since they come right after it, and 背景参考资料 is H2, they'd become its children).
+
+Wait, but the order currently is:
+- 背景参考资料 (H2, ends 16801)
+- 数据板的局限 (H2, 16801-17356)
+- 菌膜外套 (H2, 17356-18104)
+- 菌膜外套与共存补丁的关系 (H2, 18104-22619)
+- 世界设定声明 (H2, 22619-22716)
+
+If I change the three to H3, they'd nest under 背景参考资料. Then 世界设定声明 (H2) would start a new H2 section. That works.
+
+But actually, semantically, should 世界设定声明 come first? It's a "声明" (declaration). In Word form, typically you'd put it near the beginning. But it's currently in the middle. Moving it is complex.
+
+Let me also reconsider: is the duplicate 数据板的局限 actually a duplicate? Yes - the plain text at end of 背景参考资料 duplicates the standalone H2. I should delete the plain text version (in 背景参考资料), keeping the H2 (which I'll convert to H3).
+
+Let me proceed with:
+
+Batch: 
+1. delete duplicate 数据板的局限 plain text
+2. rewrite "## 数据板的局限" → "### 数据板的局限"
+3. rewrite "## 菌膜外套：有限资源的临时通行方案" → "### 菌膜外套：有限资源的临时通行方案"
+4. rewrite "## 菌膜外套与共存补丁的关系" → "### 菌膜外套与共存补丁的关系"
+
+For the delete, I need the exact text. Let me construct the delete target from what I read.
+
+The plain version text (from offset 4000 read, at end):
+
+"数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播\"无生命有机质\"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。..."
+
+I need the full text. Let me read it more carefully - actually I have the full text from the read. The read ended at 16807 with "数据板提供的是火种，不是火炬。\n\n\n"
+
+Let me construct the full delete target. Actually, this is risky because of exact quote matching. Let me use editor.locate to verify, or just read the exact range.
+
+Actually, a simpler approach: the plain text version and H2 version differ. Let me just delete using a unique distinguishing fragment.
+
+The plain version starts with "数据板的局限\n数据板不是百宝箱" (single \n, straight quote in "无生命有机质").
+
+Hmm wait, actually let me check the quotes more carefully. In the 背景参考资料 read (which uses editor.read_range, not outline), the output showed:
+
+"他推导了SC-α菌丝向菌毯广播\"无生命有机质\"静默声明的分子结构——"
+
+The \" is JSON escaping for straight double-quote ". So actual content = straight quotes.
+
+In the outline.read_range of heading-2-z4sxm8, output showed:
+
+"他推导了SC-α菌丝向菌毯广播“无生命有机质”静默声明的分子结构——"
+
+Actual content = curly quotes “ ”.
+
+So the two versions genuinely differ in quote style. This confirms they're not byte-identical.
+
+For the delete, I'll target the plain version. Since I need exact match, let me use a smaller unique target. But delete deletes the matched fragment only. I need to delete the WHOLE block (~550 chars), not just a fragment.
+
+So I need to provide the full text as target. Let me reconstruct it exactly from the read output, converting \" to ".
+
+Actually, this is getting very complex and error-prone. Let me use a different strategy: use `rewrite` on the plain-text version to remove it, or better, just leave the duplicate? No, the user wants clean Word form.
+
+Alternative: I can read the exact plain text via editor.read_range with the exact offsets, then delete.
+
+Actually I already have the text from the read at offset 4000. Let me reconstruct it. The full plain text block (from "数据板的局限\n" to "...火种，不是火炬。") is:
+
+Actually, the read showed the content starting after "让菌毯继续蔓延。\n\n" then "二、菌毯为什么火力推不平..." etc, and at the very end "数据板的局限\n数据板不是百宝箱。..."
+
+Let me re-read that section to get exact text. Actually, I have it. The read content (offset 4000) ends with:
+
+"终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。\n\n数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是"推测"和"可能"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。\n\n数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。\n\n数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。\n\n后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从"起点"到"成果"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。\n\n\n"
+
+Where the quotes are straight " (actual content).
+
+This is the duplicate to delete. But note: this exact text with straight quotes appears ONCE (the H2 version uses curly quotes). So it's unique.
+
+However, constructing this exactly is error-prone. Let me instead just delete from "数据板的局限\n数据板不是百宝箱" up to a unique end. But delete needs exact full fragment.
+
+Actually, simpler: I can delete using two smaller deletes, or use one delete with the full text.
+
+Let me just carefully reconstruct and use editor.locate to verify first? Actually locate would help confirm uniqueness. But I'm fairly confident.
+
+Actually, let me step back and be pragmatic. The risk of a failed delete (due to quote mismatch) is high. Let me instead just do the heading level rewrites (low risk) and skip the duplicate deletion for now, or do a more careful deletion.
+
+Actually, the cleanest solution for the duplicate: The plain-text version is inside 背景参考资料. The H2 version "## 数据板的局限" is separate. If I convert H2→H3, both "数据板的局限" (plain) and "### 数据板的局限" (H3) would exist, still duplicated.
+
+Let me delete the plain-text duplicate. I'll reconstruct carefully.
+
+Let me actually just verify with editor.locate on a distinctive fragment first.
+
+Actually, given the effort, let me proceed with the rewrites and deletion in one batch. I'll carefully build the delete target.
+
+For the rewrites, these are safe:
+- target "## 数据板的局限" → "### 数据板的局限" (but wait, this might also match? No, "## 数据板的局限" with ## is unique to the H2 heading)
+- "## 菌膜外套：有限资源的临时通行方案" → "### 菌膜外套：有限资源的临时通行方案"
+- "## 菌膜外套与共存补丁的关系" → "### 菌膜外套与共存补丁的关系"
+
+These use replace_match with content being the replacement.
+
+Wait, but if I change "## 数据板的局限" to "### 数据板的局限", and the plain text "数据板的局限" (no ##) also exists... The replace_match target "## 数据板的局限" is specific enough (requires ## prefix).
+
+For the delete of plain text duplicate, let me use the full text. I'll reconstruct with straight quotes.
+
+Actually, I realize I should double check: in the editor content, are the quotes in 背景参考资料 straight or curly? The editor.read_range output showed \" (JSON escape = straight quote). But editor content vs outline content should be the same document. Wait, the outline.read_range showed curly “ ” for the standalone section. But the editor.read_range (for 背景参考资料) showed \" straight quotes.
+
+Hmm, that's suspicious. Let me check: the editor.get_state contentPreview at the very start showed:
+
+"引发变异体密度上升和菌毯蔓延速度加快的正反馈循环。这个循环没有上限" - no quotes there.
+
+The 故事核心 read via outline showed: "菌毯在重塑一个属于菌毯的地球" and "人类聚集区在它的感知系统里被标记为\"有机物密度异常区域\"" - wait that's straight quotes \" in outline too!
+
+Let me look again. In the outline.read_range of heading-3-1heodug (故事核心), the output showed:
+"人类聚集区在它的感知系统里被标记为\"有机物密度异常区域\""
+
+So \" = straight quote ".
+
+But in the outline.read_range of heading-2-z4sxm8 (数据板的局限 standalone), the output showed:
+"他推导了SC-α菌丝向菌毯广播“无生命有机质”静默声明的分子结构"
+
+So “ ” = curly quotes.
+
+So indeed, the document has MIXED quote styles: 故事核心 uses straight quotes, 数据板的局限 standalone uses curly quotes, 背景参考资料's plain-text 数据板的局限 uses straight quotes (from editor.read_range showing \").
+
+This means:
+- Plain text duplicate (背景参考资料): straight quotes
+- Standalone H2 (数据板的局限): curly quotes
+
+So they differ. Good for uniqueness.
+
+OK let me just do it. I'll reconstruct the delete target using straight quotes. To minimize error, let me use editor.locate first on a fragment to verify.
+
+Actually, let me be more efficient. I'll do the 3 heading rewrites now (safe), and separately handle the duplicate deletion with locate+delete.
+
+Let me reconsider whether I even need to delete the duplicate. The user said "不要缩减内容" (don't reduce content). Deleting a DUPLICATE is not reducing content - it's removing redundancy. But to be safe and avoid losing content, I should keep ONE copy. The standalone H2 (with curly quotes) is the "proper" copy that's referenced in the TOC/map.
+
+So: delete the plain-text duplicate, keep the H2 (→H3).
+
+Let me do the batch now.
+
+Actually, I also need to think about whether changing these to H3 is correct. Let me look at the overall structure after my changes:
+
+- 《绿潮》大纲总纲 (H1)
+  - 叙事框架 (H2)
+    - 故事核心 (H3)
+    - 第一卷 (H3)
+    - 第二卷 (H3)
+    - 第三卷 (H3)
+  - 背景参考资料 (H2)
+    - [灾前军事基准线 content with H3 heading]
+    - 数据板的局限 (→H3)
+    - 菌膜外套 (→H3)
+    - 菌膜外套与共存补丁的关系 (→H3)
+  - 世界设定声明 (H2)
+  - 卷一 (H2)
+  - 卷二 (H2)
+  - 卷三 (H2)
+  - 卷四 (H2)
+
+This is a reasonable Word structure. But ideally 世界设定声明 should be first. However, moving it is risky. I'll leave the order but could consider moving 世界设定声明 to before 叙事框架.
+
+Actually, "Word文档形式" mainly means: proper heading hierarchy, no stray edit instructions, no duplicates, consistent formatting. The order 世界设定声明 in the middle is slightly odd but acceptable for an outline document. 
+
+Given the effort budget, let me:
+1. Delete duplicate plain 数据板的局限
+2. Rewrite 3 headings H2→H3
+3. Possibly move 世界设定声明 to top (skip for now - too risky)
+
+Let me proceed with batch 2.
+
+For the delete, I'll reconstruct the full plain-text block. Let me write it out carefully. From the read, the plain text block is (straight quotes):
+
+"数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是"推测"和"可能"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。\n\n数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。\n\n数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。\n\n后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从"起点"到"成果"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。"
+
+This is very long and error-prone. Let me use a smarter approach: delete in the editor using a target that starts with "数据板的局限\n数据板不是百宝箱。方岫岩在八个月里" and ends uniquely. But delete only deletes what's in target, so I need the full thing.
+
+Alternatively, I can use `rewrite`? No, rewrite replaces matched text.
+
+Actually, let me reconsider. Maybe I should just do the heading conversions and LEAVE the duplicate for now, then note it. But the execution plan requires covering all segments.
+
+Hmm, actually the duplicate "数据板的局限" is a genuine duplication that should be removed for Word form. But given the quote-matching risk, let me verify with locate first.
+
+Let me do: editor.locate on "数据板的局限" to see how many matches and their contexts. Actually locate returns top-3 fuzzy candidates if exact fails.
+
+Let me be efficient and just do the locate for a key fragment, then do the batch.
+
+Actually, I'll take a step back. I've already spent significant effort. Let me do the highest-value safe operations in the next batch:
+
+Batch: 3 heading rewrites (H2→H3 for the three floating sections). This nests them under 背景参考资料. Then handle the duplicate.
+
+Let me do the heading rewrites now, and use locate to verify the duplicate for deletion.
+
+Actually, I can combine: do the 3 rewrites + locate in parallel? No, locate should be done before delete, but rewrites are independent. Let me do rewrites + locate in one block.
+
+Wait, actually, I realize the rewrites might have an issue: after I change "## 数据板的局限" to "### 数据板的局限", the text "## 数据板的局限" no longer exists. But the plain text "数据板的局限" (no ##) still exists in 背景参考资料. So locate on "数据板的局限" would find both the plain text and the new "### 数据板的局限".
+
+Let me just do the rewrites first, then locate, then delete.
+
+Let me do the rewrites now.

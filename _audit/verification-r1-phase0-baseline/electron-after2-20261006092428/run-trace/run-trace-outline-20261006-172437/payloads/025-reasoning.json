@@ -1,0 +1,167 @@
+Let me analyze the current state. The user wants to restructure the outline to be like a Word document format without reducing content. The plan has 3 batches: structure-repair, structure-plan, normalize-segment-1.
+
+I've already completed one write batch (structure-repair for background references). Now I need to:
+
+1. First, identify and delete the duplicate "数据板的局限" section - there are two copies: one at the end of "背景参考资料" (heading-2-1lka0h8) and one as a standalone heading-2-z4sxm8.
+
+2. Also, "菌膜外套" appears twice: once as heading-2-10q4nra and once as heading-4-896l1n under section 七.
+
+3. "菌膜外套与共存补丁的关系" appears twice: once as heading-2-28do6r and once as heading-4-1au19n4.
+
+Let me first deal with the duplicates. The ones in the main body (heading-4 versions) are the canonical ones within their parent sections. The standalone heading-2 versions seem to be misplaced duplicates or previews.
+
+Looking more carefully:
+- heading-2-10q4nra "菌膜外套：有限资源的临时通行方案" (17356-18104) - this is between "数据板的局限" and "菌膜外套与共存补丁的关系" at level 2
+- heading-4-896l1n "7.8 菌膜外套：有限资源的临时通行方案" (48127-48816) - this is under section 七
+- heading-2-28do6r "菌膜外套与共存补丁的关系" (18104-22619) - standalone level 2
+- heading-4-1au19n4 "7.9 与终局的衔接：菌膜外套与共存补丁的关系" (48816-49296) - under section 七
+
+And "数据板的局限" also appears twice - once at end of "背景参考资料" and once as its own heading-2.
+
+These h2 headings (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) between the "背景参考资料" and "世界设定声明" appear to be duplicates of content that appears later in the proper locations. They seem to be previews or misplaced standalone sections.
+
+The big heading-2-28do6r "菌膜外套与共存补丁的关系" (18104-22619) contains a huge amount of content that is essentially the entire story summary - the six factions overview, Magnus, the endgame, etc. This is actually a massive narrative summary that doesn't belong as a subheading. This content spans from 18104 to 22619 and seems to be a narrative treatment.
+
+Let me now take action. I need to:
+
+1. Delete the duplicate "数据板的局限" at end of 背景参考资料 (the one at ~16276 area)
+2. Determine what to do with heading-2-10q4nra (菌膜外套 standalone) and heading-2-28do6r (菌膜外套与共存补丁的关系 standalone)
+
+But wait - the agent plan says I should:
+- Phase 1: structure-repair - move misplaced headings, add headings for untitled text, fix heading levels
+- Phase 2: confirm duplicates with read-only tools, then delete
+- Phase 3: normalize format (punctuation, whitespace, numbering, heading levels)
+
+I already did one structure-repair batch. Let me now handle the duplicates.
+
+Looking at the search results:
+- "数据板的局限" appears at start 16276 (in background refs section) and at start 16831 (as standalone heading-2-z4sxm8)
+
+So the content at end of heading-2-1lka0h8 (背景参考资料) starting around 16276 is a duplicate of heading-2-z4sxm8 (数据板的局限).
+
+And the content of heading-2-10q4nra (菌膜外套) is essentially the same as heading-4-896l1n (7.8).
+
+And heading-2-28do6r (菌膜外套与共存补丁的关系) contains the first part that matches heading-4-1au19n4 (7.9) but then has massive additional narrative content (the story overview, Magnus, endgame, etc.) that doesn't belong there.
+
+This is complex. Let me first deal with the clear duplicates - the "数据板的局限" that appears at the end of 背景参考资料 and the standalone versions.
+
+Actually, I need to be more careful. Let me verify what content is at 16276 by reading it.
+
+From the search, the first match at 16276 is in section "heading-4-1tkh81d" which is "三、总结：人类真正被压制的根本机制". So the "数据板的局限" text at the end of "背景参考资料" is actually part of the newly-added heading-4 section. Wait, the search shows it's in the heading-4-1tkh81d section which spans from ~15842 to ~16276+ area. Let me re-check.
+
+The search showed:
+- Match 1 at 16276 in section heading-4-1tkh81d "三、总结..." - this is within the background refs, after the military analysis
+- Match 2 at 16831 in section heading-2-z4sxm8 "数据板的局限" - standalone
+
+So the text "数据板的局限\n数据板不是百宝箱..." appears at the end of the background refs section (作为 transitional text at 16276) and then again as its own heading-2-z4sxm8.
+
+The copy at end of background refs (16276) is actually NOT a heading - it's just plain text "数据板的局限" followed by the content. It was supposed to be a transition but then got its own section.
+
+Now, heading-2-z4sxm8 (16820-17356) is the proper standalone "数据板的局限" section.
+
+I need to check: does the background refs section end with this duplicate "数据板的局限" text? Let me read the area.
+
+From the earlier read of heading-2-1lka0h8 offset 6250:
+- It shows "数据板的局限\n数据板不是百宝箱..." starting at around 16276 in that section
+- Then the section ends at 16820
+- Then heading-2-z4sxm8 starts at 16820
+
+So yes, the背景参考资料 section contains within it a copy of "数据板的局限" at its tail (16276-16820), and then the proper heading-2-z4sxm8 starts right after at 16820.
+
+This means: the text block at 16276-16820 within 背景参考资料 is a duplicate of heading-2-z4sxm8 (16820-17356).
+
+I need to delete the duplicate within 背景参考资料. Let me identify the exact text to delete.
+
+Now let me also figure out the larger structure issue. The heading-2-28do6r "菌膜外套与共存补丁的关系" (18104-22619) contains massive content that goes far beyond just "菌膜外套与共存补丁的关系" - it includes the six-faction overview, Magnus/圣萌会 story, endgame, and post-endgame world. This is essentially a narrative treatment / story summary that doesn't belong under that heading.
+
+But the user said "不要缩减内容" (don't reduce content). So I can't just cut things. 
+
+OK let me focus on the clear structural issues:
+
+1. **DELETE**: The duplicate "数据板的局限" text block within 背景参考资料 (at end of section, before heading-2-z4sxm8 starts)
+
+2. For heading-2-10q4nra (菌膜外套) and heading-2-28do6r (菌膜外套与共存补丁的关系): These are standalone top-level sections that duplicate content found in the proper location (heading-4-896l1n and heading-4-1au19n4). But heading-2-28do6r also contains the massive narrative treatment.
+
+Actually, let me reconsider. Looking at the structure again:
+
+The document structure between "背景参考资料" and "世界设定声明":
+- 背景参考资料 (h2) ends at 16820
+- 数据板的局限 (h2) 16820-17356  
+- 菌膜外套：有限资源的临时通行方案 (h2) 17356-18104
+- 菌膜外套与共存补丁的关系 (h2) 18104-22619
+
+Then:
+- 世界设定声明 (h2) 22619-22716
+- 卷一：基石设定层 (h2) 22716-56222
+
+Inside 卷一, under section 七:
+- 7.8 菌膜外套 (h4) - same content as h2 version
+- 7.9 与终局的衔接：菌膜外套与共存补丁的关系 (h4) - first part same as h2 version, then continues
+
+And heading-2-28do6r contains NOT just the 菌膜外套与共存补丁的关系 discussion but also:
+- Six factions overview
+- Magnus/Saint Germination story
+- Endgame
+- Post-endgame world
+- The final closing
+
+This is essentially a story summary / narrative treatment. It seems like it was supposed to be a separate top-level section but got buried.
+
+Let me think about what the user wants: "按照Word文档的形式重构大纲，不要缩减内容。"
+
+This means they want a clean Word-document-like outline structure. The key structural issues I see:
+
+1. Duplicate "数据板的局限" - need to remove the inline copy in 背景参考资料
+2. The h2 sections "菌膜外套", "菌膜外套与共存补丁的关系" are standalone duplicates of content that also appears in section 七
+3. The h2 "菌膜外套与共存补丁的关系" contains the massive narrative treatment
+
+But I can't just delete the h2 versions if they contain unique content. Let me verify.
+
+"菌膜外套" h2 (17356-18104): Same content as 7.8 h4 (48127-48816). The h2 version has slightly more detail (it mentions "这里需要强调的是" which the h4 doesn't have). So they're nearly identical but not exactly.
+
+"菌膜外套与共存补丁的关系" h2 (18104-22619): This is HUGE. The first ~200 chars match the 7.9 h4 content, but then it continues with the massive narrative treatment. This is unique content that spans 18104-22619.
+
+So I can't just delete the h2 versions. The h2 "菌膜外套与共存补丁的关系" section contains a massive narrative that needs to be preserved.
+
+What I should do:
+1. Delete the duplicate "数据板的局限" within 背景参考资料
+2. The h2 "菌膜外套" and h2 "菌膜外套与共存补丁的关系" - these are NOT pure duplicates, the latter contains massive unique content. I should keep them but fix their structure.
+
+Actually wait, let me re-read the structure. The h2-28do6r section from 18104 to 22619 contains:
+- "菌膜外套与共存补丁的关系" opening (duplicate of 7.9)
+- Then: 六大势力 overview narrative
+- Then: Magnus/圣萌会 narrative  
+- Then: Endgame narrative
+- Then: Post-endgame world
+- Then: Closing with 林觉民 quote
+
+This is essentially a "故事概述" or "全书概要" that was misplaced. It should probably be retitled to something like "全书故事概要" or similar.
+
+But the user's instruction is "按照Word文档的形式重构大纲，不要缩减内容" - restructure as Word document, don't reduce content. I think the main things to do are:
+
+1. Fix the duplicate "数据板的局限"
+2. The rest is structural cleanup
+
+Let me now proceed with the concrete actions. I'll:
+
+Step 1: Delete the duplicate "数据板的局限" text block in 背景参考资料
+Step 2: Rename heading-2-28do6r from "菌膜外套与共存补丁的关系" to something appropriate since it contains far more than that topic
+
+Actually, the content in heading-2-28do6r from the "在大裂谷走廊" part onward is essentially the story overview/treatment. Let me look more carefully at what content follows the initial "菌膜外套与共存补丁的关系" paragraph...
+
+From the read: The initial ~200 chars match 7.9. Then after the "鸿沟" line, it jumps to:
+"在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮..."
+
+This is a completely different narrative - a story summary of all factions, Magnus, endgame, etc. It reads like a synopsis/story treatment.
+
+I think the best approach is to:
+1. Remove the duplicate "数据板的局限" from 背景参考资料 
+2. Take the narrative content from heading-2-28do6r and move it to become a proper section - maybe rename it to something like "全书故事概要" or place it at a more appropriate location.
+
+But the plan says I need to handle structure-repair first, then duplicates, then normalization. Let me proceed with the duplicate deletion now, and then handle the remaining structure issues.
+
+Let me first delete the duplicate "数据板的局限" within 背景参考资料. I need to find the exact text.
+
+From searches: "数据板的局限" appears at position 16276 within the background refs. And heading-2-z4sxm8 starts at 16820. So the duplicate span is roughly 16276-16820.
+
+Let me locate the exact fragment.

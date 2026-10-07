@@ -7,6 +7,8 @@ export const DEFAULT_STATE_TIMEOUTS: Partial<Record<LifecycleStatus, number>> = 
   awaiting_user: 600_000,
 }
 
+export const LONG_DOCUMENT_ACTIVE_TIMEOUT_MS = 3_600_000
+
 export interface StateTimeoutHint {
   timeoutHint?: Partial<Record<'active' | 'routing' | 'retrying' | 'awaiting_user', number>>
 }

@@ -1,0 +1,655 @@
+The user wants me to restructure the outline "按照Word文档的形式重构大纲，不要缩减内容" (restructure the outline into Word document form, without reducing content).
+
+I've read the document map and some sections. The task plan says to execute in 3 stages:
+1. Read structure, use move to relocate mis-assigned headings/paragraphs, insert missing headings, fix heading levels with replace_match/rewrite.
+2. Read-only confirm duplicates, then delete unique targets.
+3. Submit replace_match/rewrite to fix punctuation, whitespace, numbering, heading levels.
+
+But I need to think carefully. The instruction says the whole document is 74841 chars. "按照Word文档的形式重构" - restructure into Word document form. What does this mean exactly?
+
+Looking at the current document, it's already a markdown outline with heading levels. There are issues:
+1. Some content is misplaced. For example, in "背景参考资料" (heading-2-1lka0h8), there's a chunk about "灾前军事基准线与菌毯的不可根除性" that appears without a heading, plus "数据板的局限" text that appears duplicated inside "背景参考资料" but also has its own standalone heading-2 later.
+2. There are duplicated sections - "数据板的局限" appears both inside "背景参考资料" content AND as a separate heading-2 at 16801-17356. Also "菌膜外套：有限资源的临时通行方案" appears as heading-2 at 17356, and "菌膜外套与共存补丁的关系" at 18104.
+3. The "背景参考资料" section contains content that should be structured.
+
+Actually, wait. Let me re-read the task. The core goal is "按照Word文档的形式重构大纲，不要缩减内容" - restructure into Word document form without reducing content.
+
+The plan says the normal segments cover [0-74841] - the entire document.
+
+But this is a huge task. Let me think about what "Word文档形式" means. It likely means:
+- Proper hierarchical heading structure (no level jumps)
+- Proper punctuation (full-width for Chinese)
+- Proper tables (GFM tables already exist)
+- Proper numbering
+
+The completion criteria mentions:
+- "normalize-changes-punctuation-whitespace-format-only" - normalize changes punctuation/whitespace/format only
+- "planned-deletion-only" - only planned deletions
+
+The plan steps:
+1. read-structure: read document structure, confirm target hierarchy
+2. execute-restructure: execute heading level fix or chapter reorder
+3. confirm-duplicates: confirm duplicates with read-only tools
+4. delete-duplicates: delete only confirmed duplicates
+5. normalize-segments: format in planned batches
+6. verify-plan: verify write coverage and invariants
+
+The final instruction from the user (the system reminder) says I must now submit editor.write. I've done 2 rounds of read-only. I need to write now.
+
+Let me focus on what I can concretely do:
+
+The document has clear issues I've identified from reading:
+
+1. **"背景参考资料" (heading-2-1lka0h8)** section contains:
+   - The background reference narrative
+   - A section "灾前军事基准线与菌毯的不可根除性" (which should probably be a heading, currently plain text)
+   - "一、2042年，人类手里有什么" (should be heading level 3)
+   - "被孢子云直接废掉的武器系统" (table with tab separators - should be GFM table)
+   - "打上去但无效的武器", "打得动但代价人类付不起的武器" (should be headings)
+   - "二、菌毯为什么火力推不平", "生物量储备的物理事实", "火力触发报复性生长", "信号放大效应锁死兵力集结" (headings)
+   - "三、总结：人类真正被压制的根本机制" (heading)
+   - "数据板的局限" text (DUPLICATE of the standalone heading-2 section!)
+
+2. **"菌膜外套与共存补丁的关系" (heading-2-28do6r)** section contains:
+   - The core relationship explanation
+   - Then a bunch of content about 六大势力 overview, 圣萌会 origin, 终局之战 - which seems misplaced. This content doesn't belong under "菌膜外套与共存补丁的关系".
+
+Actually, looking more carefully, the document seems to have some content that was pasted without proper headings. The "菌膜外套与共存补丁的关系" section (18104-22619) contains content about:
+- 菌膜外套 vs 共存补丁 (belongs here)
+- 六大势力 overview (大裂谷走廊铁壁, 垅原复兴会, 环障盆地天府都, 南角双港天网, 海棘三角洲镇海双枢城) - this is a "势力总览" that seems orphaned
+- 远西大陆圣萌会 origin (塞缪尔·赫兹, 马格努斯)
+- 巨树 growth + 天府都陷落
+- 终局之战
+- 终局之后
+
+This is a lot of misplaced content. These seem to be "卷三：势力与格局层" content that got pasted into the wrong place, OR they're summary content.
+
+Actually, wait. Looking at the structure map, "卷三：势力与格局层" is at 60736-73000 and contains the full 势力 content including 圣萌会 (四、圣萌会) and 盖亚中枢 (五、盖亚中枢). So the content in "菌膜外套与共存补丁的关系" (18104-22619) is DUPLICATE content - these are summaries that appear again in fuller form in 卷三.
+
+Hmm, but this is getting very complex. Let me focus on the concrete, verifiable tasks:
+
+The instruction is very specific:
+1. Stage 1: move mis-assigned headings/paragraphs, insert missing headings, fix heading levels
+2. Stage 2: confirm duplicates, delete them
+3. Stage 3: normalize punctuation/whitespace/numbering/heading levels
+
+Given the huge scope and the constraint that I've already used 2 read rounds, I should now execute a first write batch.
+
+Let me think about the most important, concrete, verifiable fixes I can make:
+
+**Priority 1: The duplicate "数据板的局限"**
+- Inside "背景参考资料" (heading-2-1lka0h8), near the end (around char 16300-16801), there's a full "数据板的局限" text.
+- There's ALSO a standalone heading-2 "数据板的局限" at 16801-17356.
+
+These are duplicated. But the plan says: confirm with read-only tools (editor.locate) before deleting.
+
+Actually, I already read the full "背景参考资料" section (10230-16801) and it ENDS with the "数据板的局限" text. The standalone "数据板的局限" heading-2 is at 16801-17356.
+
+Wait, but the structure map shows:
+- [heading-2-1lka0h8] 背景参考资料 (10230-16801)
+- [heading-2-z4sxm8] 数据板的局限 (16801-17356)
+
+So the "背景参考资料" section (10230-16801) already includes the "数据板的局限" text at its end. And then "数据板的局限" repeats as a standalone heading at 16801.
+
+This is a clear duplication. But the content is IDENTICAL (I read it, and it matches the "数据板的局限" standalone section).
+
+Actually, let me be careful. The "数据板的局限" standalone section (heading-2-z4sxm8, 16801-17356) content I need to verify is identical to the text at the end of "背景参考资料".
+
+From my read of "背景参考资料" (which ends at 16801), the last content is:
+
+"数据板的局限\n数据板不是百宝箱...数据板提供的是火种，不是火炬。"
+
+And the standalone "数据板的局限" (heading-2-z4sxm8) at 16801-17356 should be the same.
+
+Also, the "菌膜外套：有限资源的临时通行方案" (heading-2-10q4nra, 17356-18104) and "菌膜外套与共存补丁的关系" (heading-2-28do6r, 18104-22619) - these are ALSO duplicated because:
+- The "菌膜外套" content appears in 卷一 "7.8 菌膜外套" (48127-48816)
+- The "菌膜外套与共存补丁的关系" content appears in 卷一 "7.9 与终局的衔接" (48816-49296)
+
+So the sections 16801-22619 (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) are duplicates that got pasted as standalone heading-2 sections at the top level, while the actual content belongs in 卷一.
+
+But wait, the "菌膜外套与共存补丁的关系" section (18104-22619) is NOT just the 菌膜外套 content - it contains a LOT more (六大势力 summary, 圣萌会 origin, 终局之战). This extra content is unique and shouldn't be deleted.
+
+Hmm, this is getting really complicated. Let me reconsider.
+
+Actually, the goal is "按照Word文档的形式重构大纲" - restructure the outline in Word document form. The key deliverable is a well-structured document.
+
+Let me focus on what's clearly verifiable and high-value:
+
+**Issue A: Duplicate "数据板的局限"**
+- The text appears twice: once at end of "背景参考资料" section, once as standalone heading-2 "数据板的局限".
+
+I can delete the duplicate. Which one to keep? The standalone heading-2 is properly placed. The text at the end of "背景参考资料" is the duplicate. But actually, "背景参考资料" as a section should end after the background narrative, not include "数据板的局限".
+
+Actually, let me look at the structure again. The "背景参考资料" (heading-2-1lka0h8) is at level 2, same as "数据板的局限" (heading-2-z4sxm8). So they're siblings.
+
+The "背景参考资料" section contains:
+1. Background narrative (四亿年前...人类恰好挡在了它生存的道路上)
+2. 方岫岩's story summary
+3. 灾前军事基准线与菌毯的不可根除性 (military content, misplaced - should have its own heading)
+4. 数据板的局限 (duplicate)
+
+So there are actually TWO problems in "背景参考资料":
+- The military content "灾前军事基准线与菌毯的不可根除性" is plain text without a heading and doesn't belong in "背景参考资料"
+- "数据板的局限" is duplicated
+
+This is very complex. Given the constraints, let me take a pragmatic approach.
+
+Given the extreme complexity and the risk of losing content, I think the safest high-value action right now is:
+
+1. Fix the clear heading structure issues where I'm confident.
+2. Normalize punctuation (the mandatory requirement).
+
+But the punctuation normalization across 74841 chars is a massive task that can't be done in a few writes. The plan says "normalize-segment-1[0-74841]" covering everything.
+
+Wait, let me reconsider the scope. The instruction says "计划批次数量是 3" (plan batch count is 3). So there are 3 batches expected. And "执行侧允许的物理请求轮次为 36 轮".
+
+Given I've already done read rounds, I need to make progress with writes.
+
+Let me focus on the MOST IMPACTFUL concrete fixes I can verify:
+
+**Batch 1 (this round): Fix heading structure in "背景参考资料"**
+
+The "背景参考资料" section has these plain-text pseudo-headings that should be actual markdown headings:
+- "灾前军事基准线与菌毯的不可根除性" → should be `### 灾前军事基准线与菌毯的不可根除性` (heading 3)
+- "一、2042年，人类手里有什么" → `### 一、2042年，人类手里有什么`
+- "被孢子云直接废掉的武器系统" → `#### 被孢子云直接废掉的武器系统` (heading 4)
+- "打上去但无效的武器" → `#### 打上去但无效的武器`
+- "打得动但代价人类付不起的武器" → `#### 打得动但代价人类付不起的武器`
+- "二、菌毯为什么火力推不平" → `### 二、菌毯为什么火力推不平`
+- "生物量储备的物理事实" → `#### 生物量储备的物理事实`
+- "火力触发报复性生长" → `#### 火力触发报复性生长`
+- "信号放大效应锁死兵力集结" → `#### 信号放大效应锁死兵力集结`
+- "三、总结：人类真正被压制的根本机制" → `### 三、总结：人类真正被压制的根本机制`
+- "数据板的局限" (inside 背景参考资料) → this is a duplicate that should be DELETED (not just given a heading)
+
+Also, "打上去但无效的武器" and "打得动但代价人类付不起的武器" - these two are at the same level. And "一、二、三" are higher level. The three "被孢子云直接废掉的武器系统" / "打上去但无效的武器" / "打得动但代价人类付不起的武器" are all under "一、2042年，人类手里有什么".
+
+Wait let me re-read:
+- "一、2042年，人类手里有什么" - main section 1
+  - "被孢子云直接废掉的武器系统" - subsection
+  - "打上去但无效的武器" - subsection
+  - "打得动但代价人类付不起的武器" - subsection
+- "二、菌毯为什么火力推不平" - main section 2
+  - "生物量储备的物理事实" - subsection
+  - "火力触发报复性生长" - subsection
+  - "信号放大效应锁死兵力集结" - subsection
+- "三、总结：人类真正被压制的根本机制" - main section 3
+
+So the hierarchy would be:
+- `## 背景参考资料` (level 2, existing)
+  - `### 灾前军事基准线与菌毯的不可根除性` (level 3, new) - this is the title of the whole military block
+    - `#### 一、2042年，人类手里有什么` (level 4, new)
+      - `##### 被孢子云直接废掉的武器系统` (level 5, new)
+      - `##### 打上去但无效的武器` (level 5, new)
+      - `##### 打得动但代价人类付不起的武器` (level 5, new)
+    - `#### 二、菌毯为什么火力推不平` (level 4, new)
+      - `##### 生物量储备的物理事实` (level 5)
+      - `##### 火力触发报复性生长` (level 5)
+      - `##### 信号放大效应锁死兵力集结` (level 5)
+    - `#### 三、总结：人类真正被压制的根本机制` (level 4, new)
+
+Hmm, but the document's existing hierarchy uses heading levels 2, 3, 4, 5. Looking at the structure map:
+- heading-1: 《绿潮》大纲总纲
+- heading-2: 叙事框架, 背景参考资料, 数据板的局限, ..., 卷一, 卷二, 卷三, 卷四
+- heading-3: 故事核心, 第一卷, 第二卷, 第三卷 (under 叙事框架), and 一、二、三... (under 卷一/卷二/卷三/卷四)
+- heading-4: subsections
+- heading-5: sub-subsections
+
+So the document uses heading 2 = 卷/大章, heading 3 = 章内大节, heading 4 = 小节, heading 5 = 更细。
+
+For "背景参考资料" (heading 2), the content "灾前军事基准线与菌毯的不可根除性" would be heading 3, and "一、二、三" would be heading 4, and the subsections would be heading 5.
+
+Actually, this is getting too deep. Let me simplify: I should just add the headings at appropriate levels matching the document's existing pattern.
+
+Actually, the key insight from the system reminder: "统一标题层级前必须先读取结构：消除层级跳变并把标题归位到文档既有层级体系，禁止无依据地把标题层级改深或改浅。"
+
+I've read the structure. The document's hierarchy is clear: h1 > h2 > h3 > h4 > h5.
+
+Given the "背景参考资料" is h2, its direct subsections should be h3.
+
+So:
+- "灾前军事基准线与菌毯的不可根除性" → h3 (###)
+- "一、2042年，人类手里有什么" → h4 (####) — because it's under "灾前军事基准线" which is h3
+
+Wait, but "一、二、三" are numbered main points under "灾前军事基准线与菌毯的不可根除性". So "灾前军事基准线" = h3, "一、二、三" = h4, subsections = h5.
+
+Hmm, actually let me reconsider. Maybe "灾前军事基准线与菌毯的不可根除性" should be the h3 title, and "一、二、三" are h4.
+
+OK let me just do it. This is a reasonable interpretation.
+
+Actually, I realize I'm overcomplicating this. Let me step back and think about what's the MINIMUM viable high-quality action for this round.
+
+The system reminder is pushing me hard to write. I should make a focused, correct write batch.
+
+Given the complexity, let me focus this round on:
+
+**The clearest, most verifiable fix: add headings to the military content block in "背景参考资料"**
+
+The military content "灾前军事基准线与菌毯的不可根除性" and its subsections are currently plain text. They should be markdown headings.
+
+Let me identify the exact strings to target with replace_match:
+
+1. `灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么` → replace with headings
+
+Actually, using replace_match, I need unique fragments. Let me think about the exact text.
+
+From my read, the text is:
+
+"...这些民生技术在末日世界里比任何武器都更珍贵。\n灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么\n2042年的人类文明正处于..."
+
+So I can do:
+- replace_match: "灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么" → "### 灾前军事基准线与菌毯的不可根除性\n\n#### 一、2042年，人类手里有什么"
+
+But wait, this would require knowing the exact whitespace/newlines. The read shows "灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么" - with no blank line between them? Let me look at the raw content again:
+
+"这些民生技术在末日世界里比任何武器都更珍贵。\n灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么\n2042年的人类文明正处于一个技术拐点..."
+
+Yes, there are single newlines, no blank lines. So the pseudo-headings are on their own lines.
+
+Actually, using replace_match on multi-line content with \n might be tricky. Let me use individual replace_match operations on single-line fragments.
+
+For each pseudo-heading, I can do:
+- replace_match: `灾前军事基准线与菌毯的不可根除性` → `### 灾前军事基准线与菌毯的不可根除性`
+
+But wait, "灾前军事基准线与菌毯的不可根除性" might not be unique. Let me check - it appears once in the document (in 背景参考资料). I should verify with editor.locate, but I've already read it and it seems unique.
+
+Actually, the problem with replace_match on a single line is that if the fragment "灾前军事基准线与菌毯的不可根除性" appears elsewhere, it would match wrong. From my reading, this exact phrase only appears once.
+
+But actually, there's a subtlety: some of these pseudo-headings might already be partially formatted. Let me list the exact pseudo-headings I need to convert:
+
+In "背景参考资料" (10230-16801):
+1. `灾前军事基准线与菌毯的不可根除性` (plain line) → h3
+2. `一、2042年，人类手里有什么` (plain line) → h4
+3. `被孢子云直接废掉的武器系统` (plain line) → h5
+4. `打上去但无效的武器` (plain line) → h5
+5. `打得动但代价人类付不起的武器` (plain line) → h5
+6. `二、菌毯为什么火力推不平` (plain line) → h4
+7. `生物量储备的物理事实` (plain line) → h5
+8. `火力触发报复性生长` (plain line) → h5
+9. `信号放大效应锁死兵力集结` (plain line) → h5
+10. `三、总结：人类真正被压制的根本机制` (plain line) → h4
+11. `数据板的局限` (plain line, the duplicate at end of 背景参考资料) → DELETE
+
+Also the tables with tab separators need to be converted to GFM tables:
+- "被孢子云直接废掉的武器系统" table (系统类型\t直接致死原因\t失效时间线)
+- "生物量储备的物理事实" table (层级\t成分与结构\t生物量占比（估算）\t武器可触及性)
+
+These tab-separated tables should become GFM pipe tables. This is part of "normalize format".
+
+This is a LOT for one write. But editor.write accepts 1-10 commands per call.
+
+Let me focus on the heading fixes first (the most impactful, and the plan says stage 1 is "execute-restructure").
+
+Actually, wait. I need to reconsider the overall approach given the constraints:
+
+1. The plan has 3 batches.
+2. I've done 2 read rounds already.
+3. I need to write now.
+
+Let me structure my approach:
+
+**This round: Write batch 1** - Fix the "背景参考资料" section:
+- Add headings to the military content block
+- Delete the duplicate "数据板的局限" text (the one inside 背景参考资料, keeping the standalone heading-2)
+
+But wait, I should be careful about deleting. The plan says: "删除重复段落后必须校验有效正文未丢失" and "禁止把未确认内容当作重复项删除".
+
+I've confirmed the "数据板的局限" text at the end of "背景参考资料" is identical to the standalone "数据板的局限" section. Let me verify by comparing:
+
+From "背景参考资料" read (ending):
+"数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的...数据板提供的是火种，不是火炬。"
+
+From the document map, "数据板的局限" (heading-2-z4sxm8, 16801-17356) is 545 chars.
+
+The "数据板的局限" text I read at the end of "背景参考资料" is:
+"数据板的局限\n数据板不是百宝箱。...数据板提供的是火种，不是火炬。\n\n"
+
+This is the SAME content. So the text inside "背景参考资料" (from "数据板的局限" line to "火种，不是火炬。") is a duplicate of the standalone heading-2 "数据板的局限".
+
+I should delete the duplicate text inside "背景参考资料" (the "数据板的局限\n...火种，不是火炬。" block), keeping the standalone heading-2.
+
+But actually, wait - is the standalone "数据板的局限" section actually a proper part of the document, or is IT the duplicate? Both could be seen as duplicated. The point is to keep ONE.
+
+Looking at the structure, "数据板的局限" as a standalone heading-2 is listed in the document map between "背景参考资料" and "菌膜外套". It's part of the top-level flow. So I'll keep the standalone heading-2 and delete the duplicate text at the end of "背景参考资料".
+
+Actually, hmm. Let me reconsider. Maybe the cleaner interpretation is that "背景参考资料" should just contain the background narrative, and the military content + 数据板的局限 should be moved out.
+
+But moving is risky. Let me keep it simple:
+1. The military content "灾前军事基准线与菌毯的不可根除性" stays in "背景参考资料" but gets proper headings (it's reference material after all).
+2. The duplicate "数据板的局限" text gets deleted (keeping the standalone section).
+
+Actually, thinking more about it, "灾前军事基准线与菌毯的不可根除性" is military reference material, and it does fit under "背景参考资料". So giving it headings is the right call.
+
+OK, let me also think about the tables. The tab-separated tables need to become GFM. This is more complex and error-prone. Let me defer that to a later batch and focus on headings + duplicate deletion this round.
+
+Actually, given the system reminder emphasizes "中文正文语境中的半角标点必须统一为对应全角" as a MANDATORY completion check, and "整理阶段必须覆盖全部计划段落", I should also start punctuation normalization.
+
+But 74841 chars of punctuation normalization is huge. I can't do it all. Let me focus on what I can do in this round and continue in subsequent rounds.
+
+Actually, wait. Let me re-read the system reminder more carefully:
+
+"整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74841]）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令，禁止把同段多条命令拆成多次调用；未覆盖全部计划段落前，禁止输出"任务完成"总结。"
+
+So there's ONE normalize-segment covering [0-74841]. I need to cover all of it. But that's impossible in a single write (max 10 commands per write).
+
+Hmm, but actually the constraint is about not splitting commands for the SAME segment across multiple calls, and not declaring "task complete" before covering all segments.
+
+Wait, this is contradictory: "每段一次 editor.write 打包全部整理命令" but a segment is [0-74841] which is the whole document. With max 10 commands per write, I can't do the whole document in one write.
+
+Let me re-read: "normalize-segment-1[0-74841]" - maybe this means the normalize segment is the whole document range, but the "段" (segments) are smaller units.
+
+Actually, I think the practical interpretation is: I should do as much as I can with writes, and not claim "complete" until I've actually covered everything. Given the physical request limit (36 rounds), I should be efficient.
+
+Let me just make progress. This round, I'll do the heading fixes + duplicate deletion in "背景参考资料" and the misplaced content in "菌膜外套与共存补丁的关系".
+
+Actually, let me reconsider the "菌膜外套与共存补丁的关系" section (18104-22619). It contains:
+1. 菌膜外套 vs 共存补丁 explanation (belongs)
+2. 六大势力 summary (orphaned content - should this have a heading?)
+3. 圣萌会 origin (orphaned)
+4. 巨树 growth + 天府都陷落 (orphaned)
+5. 终局之战 (orphaned)
+6. 终局之后 (orphaned)
+
+These are orphaned summary blocks. In "Word document form", they should have headings or be recognized as part of a "总纲" narrative.
+
+Actually, looking at the overall structure, this content at 18104-22619 is essentially the "全书总纲/故事梗概" - the full story arc from 六大势力 → 圣萌会 → 终局. It's the "故事核心" expanded into a full plot summary.
+
+Hmm, but it's placed under "菌膜外套与共存补丁的关系" which is wrong. The "菌膜外套与共存补丁的关系" heading only covers the first few paragraphs (the relationship explanation).
+
+This is a structural problem: the "菌膜外套与共存补丁的关系" section (18104-22619) has content that extends far beyond its title.
+
+Actually, wait. Let me look at what comes before and after:
+- heading-2-z4sxm8: 数据板的局限 (16801-17356)
+- heading-2-10q4nra: 菌膜外套：有限资源的临时通行方案 (17356-18104)
+- heading-2-28do6r: 菌膜外套与共存补丁的关系 (18104-22619)
+- heading-2-sd0mn1: 世界设定声明 (22619-22716)
+- heading-2-171cwmj: 卷一：基石设定层 (22716-56222)
+
+So 18104-22619 is all under "菌膜外套与共存补丁的关系". This content (六大势力, 圣萌会, 终局) is the "全书故事总览" that's been stuffed under the wrong heading.
+
+This is a significant mis-structure. The correct fix would be to add a new heading-2 like "全书故事总览" or "故事梗概" before the 六大势力 content.
+
+But this is getting very complex and risky. Given the constraints, let me focus on the clearest wins:
+
+1. Add headings to the military content in "背景参考资料" (clear win)
+2. Delete duplicate "数据板的局限" text in "背景参考资料" (clear win, verified)
+
+Let me do these two things this round. Actually, let me also handle the tab-separated tables since they're clearly non-Word format and need conversion.
+
+Actually, let me be strategic. The most impactful and verifiable action is:
+
+**Add proper headings to the military block in "背景参考资料"** - this converts plain-text pseudo-headings to real markdown headings.
+
+Let me prepare the write commands.
+
+For the headings, I'll use replace_match with unique fragments. The issue is that some fragments might be ambiguous. Let me use distinctive fragments with context.
+
+Actually, replace_match replaces the first occurrence of the target fragment. If I use a unique multi-line fragment, it's safer.
+
+Let me use these replace_match commands (targeting exact text):
+
+1. Target: `灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么`
+   Replacement: `### 灾前军事基准线与菌毯的不可根除性\n\n#### 一、2042年，人类手里有什么`
+
+2. Target: `但任何依赖电磁频谱...` no wait, let me just do individual lines.
+
+Actually, the problem is I need to know the EXACT text including whether there are blank lines. From my read, the raw content shows:
+
+```
+...这些民生技术在末日世界里比任何武器都更珍贵。\n灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么\n2042年的人类文明正处于一个技术拐点...
+```
+
+So the lines are adjacent (single \n between them, no blank lines).
+
+For replace_match, I'll match on the single-line strings. But the single line "被孢子云直接废掉的武器系统" - is it unique? It appears once. "生物量储备的物理事实" appears once. Etc.
+
+But wait, there's a risk: "数据板的局限" appears TWICE (once in 背景参考资料 as plain text, once as heading-2). So if I try to replace_match "数据板的局限", it would match the first occurrence (in 背景参考资料). 
+
+For the duplicate deletion, I need to delete the block in 背景参考资料. The block is:
+```
+\n数据板的局限\n数据板不是百宝箱。...数据板提供的是火种，不是火炬。\n\n
+```
+at the end of 背景参考资料 (before the standalone heading-2).
+
+Actually, let me use delete with a unique fragment. The delete operation needs a target fragment. Let me delete the text "数据板的局限\n数据板不是百宝箱..." but this is long.
+
+Hmm, actually let me think about whether I should delete at all this round. The plan says stage 2 is "confirm duplicates then delete". I've confirmed via reading. But maybe I should be more careful.
+
+Actually, you know what, let me simplify and be surgical. This round I'll do the heading fixes only (insert headings via replace_match). That's clearly correct and low-risk. Then in subsequent rounds I'll handle the duplicate deletion and tables.
+
+Wait, but the system reminder says I've done 2 read rounds and MUST write now. And it says "计划批次数量是 3". So I have limited rounds. Let me be efficient and do a comprehensive batch.
+
+Let me prepare a comprehensive write batch for "背景参考资料" restructuring:
+
+Commands (using replace_match to convert plain-text pseudo-headings to markdown headings):
+
+1. `### ` before "灾前军事基准线与菌毯的不可根除性"
+   - replace_match "灾前军事基准线与菌毯的不可根除性" → "### 灾前军事基准线与菌毯的不可根除性"
+
+2. `#### ` before "一、2042年，人类手里有什么"
+   - replace_match "一、2042年，人类手里有什么" → "#### 一、2042年，人类手里有什么"
+
+3. `##### ` before "被孢子云直接废掉的武器系统"
+   - replace_match "被孢子云直接废掉的武器系统" → "##### 被孢子云直接废掉的武器系统"
+
+4. `##### ` before "打上去但无效的武器"
+5. `##### ` before "打得动但代价人类付不起的武器"
+6. `#### ` before "二、菌毯为什么火力推不平"
+7. `##### ` before "生物量储备的物理事实"
+8. `##### ` before "火力触发报复性生长"
+9. `##### ` before "信号放大效应锁死兵力集结"
+10. `#### ` before "三、总结：人类真正被压制的根本机制"
+
+That's 10 commands. But I also want to handle the duplicate deletion and tables. I can't fit everything in 10 commands.
+
+Let me prioritize: The headings are the most important for "Word document form" structure.
+
+But actually, wait. Let me reconsider whether these are unique fragments.
+
+- "灾前军事基准线与菌毯的不可根除性" - appears once. ✓
+- "一、2042年，人类手里有什么" - appears once. ✓
+- "被孢子云直接废掉的武器系统" - appears once. ✓
+- "打上去但无效的武器" - appears once. ✓
+- "打得动但代价人类付不起的武器" - appears once. ✓
+- "二、菌毯为什么火力推不平" - appears once. ✓
+- "生物量储备的物理事实" - appears once. ✓
+- "火力触发报复性生长" - appears once. ✓
+- "信号放大效应锁死兵力集结" - appears once. ✓
+- "三、总结：人类真正被压制的根本机制" - appears once. ✓
+
+Good, all unique.
+
+But there's a subtlety with replace_match: if I replace "灾前军事基准线与菌毯的不可根除性" with "### 灾前军事基准线与菌毯的不可根除性", and this phrase also appears INSIDE the new heading? No, replace_match is a one-time operation, it won't recurse.
+
+However, there's another subtlety: the fragment "被孢子云直接废掉的武器系统" - does it appear in the heading text elsewhere? In the content, there's "被孢子云直接废掉的武器系统" as a plain line. Is there any other mention? In my read, I see it once. But actually, in section 6.6 or elsewhere, is there "被孢子云直接废掉"? Let me not worry, I'll trust my reading.
+
+Actually, wait - there's a real concern. The replace_match target needs to match EXACTLY including surrounding whitespace? No, replace_match replaces the matched substring. So replacing "灾前军事基准线与菌毯的不可根除性" with "### 灾前军事基准线与菌毯的不可根除性" would work if the substring exists exactly.
+
+But if "灾前军事基准线与菌毯的不可根除性" is on its own line, replacing it with "### 灾前军事基准线与菌毯的不可根除性" gives "### 灾前军事基准线与菌毯的不可根除性" on its own line - which is a valid markdown heading. 
+
+OK. Let me also think about whether I should add a blank line before headings for proper markdown. The instruction says "新增标题必须紧贴对应正文" - new headings must be adjacent to corresponding body text. So no extra blank lines needed beyond what markdown requires.
+
+Actually, for markdown to render properly, headings need to be at the start of a line (they already are) and ideally have a blank line before them. But since these lines already have \n before them (they're separate lines), they'll render as headings.
+
+Let me proceed with 10 replace_match commands for headings.
+
+Actually, I realize I should also consider: should these military sections really be under "背景参考资料" as h3/h4/h5? The document already has "背景参考资料" as h2. The content under it is:
+- Background narrative (plain text, no heading)
+- Military content (should be h3 "灾前军事基准线与菌毯的不可根除性")
+- 数据板的局限 (duplicate, delete)
+
+So the hierarchy is fine. Let me proceed.
+
+Actually, one more consideration: I should verify these fragments are unique using editor.locate before doing replace_match, per the plan's "confirm duplicates" step. But I've already read the full "背景参考资料" section and confirmed these phrases appear once there. And "灾前军事基准线" etc. are quite distinctive. I'll trust my reading but note the risk.
+
+Actually, the plan explicitly says for stage 1 (execute-restructure): use move/insert/replace_match/rewrite. For stage 2 (delete duplicates): confirm with read-only then delete. For stage 3: normalize.
+
+Since I'm doing stage 1 (headings) now, I can proceed with replace_match.
+
+Let me write the batch now. I'll do 10 heading fixes.
+
+Wait, actually, let me reconsider. Is it better to also handle the "被孢子云直接废掉的武器系统" as h4 rather than h5? Let me look at the hierarchy again.
+
+"背景参考资料" = h2
+"灾前军事基准线与菌毯的不可根除性" = h3 (a subsection of 背景参考资料)
+"一、2042年，人类手里有什么" = h4 (numbered point under 灾前军事基准线)
+"被孢子云直接废掉的武器系统" = h5 (sub-point under 一)
+
+This matches the document's existing pattern where:
+- heading-3 under heading-2
+- heading-4 under heading-3
+- heading-5 under heading-4
+
+Yes, this is correct.
+
+But wait, there's a question: is "灾前军事基准线与菌毯的不可根除性" really at the same level as "故事核心", "第一卷·觉醒与扎根" (which are h3 under "叙事框架" h2)? 
+
+Looking at "叙事框架" (h2), its h3 children are: 故事核心, 第一卷·觉醒与扎根, 第二卷·连接与陷落, 第三卷·远征与暗流.
+
+And "背景参考资料" (h2) currently has NO h3 children (the content is all plain text).
+
+So adding "灾前军事基准线与菌毯的不可根除性" as h3 under "背景参考资料" is consistent - it's a subsection of 背景参考资料, just like "故事核心" is a subsection of "叙事框架".
+
+But actually, the "背景参考资料" content is one big narrative block. Should the background narrative (四亿年前...人类恰好挡在了它生存的道路上) also get a heading? 
+
+Hmm, the background narrative is the main content of "背景参考资料", so it doesn't need a separate heading - it's the section's intro. The "灾前军事基准线" is a distinct sub-topic that gets h3.
+
+OK, I'm confident. Let me write.
+
+Actually, let me reconsider one more time about the scope. The reminder says I should be covering the whole document eventually, and there are 3 batches. Let me plan:
+
+**Batch 1 (now)**: Fix "背景参考资料" - add headings to military block (10 commands)
+**Batch 2**: Delete duplicate "数据板的局限" + handle "菌膜外套与共存补丁的关系" orphaned content (add headings or move)
+**Batch 3**: Convert tab-tables to GFM + punctuation normalization
+
+But actually, given each write call is limited to 10 commands, and there's a lot to do, I should combine where possible.
+
+Let me just do batch 1 now: 10 heading fixes in "背景参考资料".
+
+Actually, I want to also make sure I'm being efficient. Let me think about whether I can do more in one call. The 10 commands limit means I can do exactly 10 heading fixes. That's fine for this round.
+
+Let me write the commands.
+
+For the reveal, I'll set firstChange to true.
+
+Let me draft the exact commands:
+
+```json
+{
+  "commands": [
+    {"operation": "replace_match", "target": "灾前军事基准线与菌毯的不可根除性", "content": "### 灾前军事基准线与菌毯的不可根除性", "reason": "为背景参考资料中的军事基准线内容补标题"},
+    {"operation": "replace_match", "target": "一、2042年，人类手里有什么", "content": "#### 一、2042年，人类手里有什么", "reason": "补标题"},
+    {"operation": "replace_match", "target": "被孢子云直接废掉的武器系统", "content": "##### 被孢子云直接废掉的武器系统", "reason": "补标题"},
+    {"operation": "replace_match", "target": "打上去但无效的武器", "content": "##### 打上去但无效的武器", "reason": "补标题"},
+    {"operation": "replace_match", "target": "打得动但代价人类付不起的武器", "content": "##### 打得动但代价人类付不起的武器", "reason": "补标题"},
+    {"operation": "replace_match", "target": "二、菌毯为什么火力推不平", "content": "#### 二、菌毯为什么火力推不平", "reason": "补标题"},
+    {"operation": "replace_match", "target": "生物量储备的物理事实", "content": "##### 生物量储备的物理事实", "reason": "补标题"},
+    {"operation": "replace_match", "target": "火力触发报复性生长", "content": "##### 火力触发报复性生长", "reason": "补标题"},
+    {"operation": "replace_match", "target": "信号放大效应锁死兵力集结", "content": "##### 信号放大效应锁死兵力集结", "reason": "补标题"},
+    {"operation": "replace_match", "target": "三、总结：人类真正被压制的根本机制", "content": "#### 三、总结：人类真正被压制的根本机制", "reason": "补标题"}
+  ],
+  "reason": "将背景参考资料中误为正文的军事基准线各级小标题恢复为正式标题层级",
+  "reveal": {"firstChange": true, "mode": "stream"}
+}
+```
+
+Wait, but there's a concern about replace_match uniqueness. "被孢子云直接废掉的武器系统" - I need to make sure it only matches the pseudo-heading, not something else.
+
+Actually, I already verified these are unique in my read. But to be safe, maybe I should check for potential conflicts:
+- "生物量储备的物理事实" - appears once ✓
+- "火力触发报复性生长" - appears once ✓
+- "信号放大效应锁死兵力集结" - appears once ✓
+
+But wait, "生物量储备的物理事实" - is there a similar phrase elsewhere? In section about "菌毯为什么火力推不平" content, there's "生物量储备的物理事实" as a plain line. And in "背景参考资料" earlier, no. OK.
+
+Also, "信号放大效应" appears in multiple places (7.4 信号放大效应, 7.6 防御与行走的本质差异 mentions it, etc.). But "信号放大效应锁死兵力集结" as a full phrase appears only once (in the military block). Good.
+
+"火力触发报复性生长" - appears once. Good.
+
+"被孢子云直接废掉的武器系统" - appears once. Good.
+
+Let me also double check "一、2042年，人类手里有什么" - the "一、" prefix makes it unique. Good.
+
+"二、菌毯为什么火力推不平" - unique. Good.
+
+"三、总结：人类真正被压制的根本机制" - unique. Good.
+
+"灾前军事基准线与菌毯的不可根除性" - unique. Good.
+
+OK, I'm confident. Let me submit.
+
+Actually, one more thing: I should consider whether the duplicate "数据板的局限" deletion should also be in this batch. But I already have 10 commands. And the plan says stage 2 is separate (confirm then delete). Let me defer deletion to next round.
+
+Actually, wait - I realize I should reconsider. The reminder said "复合重构请分三阶段执行" (complex restructuring should be executed in 3 stages):
+1. Read structure, move/insert/fix headings
+2. Confirm duplicates, delete
+3. Normalize punctuation/whitespace/numbering/headings
+
+And "计划批次数量是 3" (plan batch count is 3).
+
+So my 3 stages/batches are:
+- Stage 1: restructure (move/insert/fix headings)
+- Stage 2: delete duplicates
+- Stage 3: normalize
+
+I'm in stage 1 now. Let me focus on headings.
+
+But there's more heading work beyond "背景参考资料". Let me think about what other heading fixes are needed:
+
+1. "背景参考资料" military block (10 headings) ✓ doing now
+2. "菌膜外套与共存补丁的关系" orphaned content (六大势力, 圣萌会, 终局) - needs headings or restructuring
+3. Other plain-text pseudo-headings throughout?
+
+From the structure map, most sections already have proper headings. The main problem areas are:
+- "背景参考资料" military block
+- "菌膜外套与共存补丁的关系" orphaned content
+
+Let me focus this round on the military block (10 commands), and handle the orphaned content next round.
+
+Actually, I realize I should also verify: is there anything else in "背景参考资料" that's a plain-text pseudo-heading I missed? From my read:
+
+"这些民生技术在末日世界里比任何武器都更珍贵。\n灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么\n..."
+
+Then:
+"核心逻辑：孢子云没有摧毁任何一发子弹或一枚核弹头..." - this is a paragraph, not a heading. Keep as-is.
+
+"打上去但无效的武器\n火力轰炸。菌毯..." - "打上去但无效的武器" is the heading, "火力轰炸。" starts the paragraph.
+
+"打得动但代价人类付不起的武器\n化学/生物武器。..." - heading + paragraph.
+
+"二、菌毯为什么火力推不平\n生物量储备的物理事实\n菌毯不是一层皮..." - two headings stacked.
+
+"这就是为什么火力推不平——..." - paragraph.
+
+"火力触发报复性生长\n菌毯对物理损伤的响应..." - heading + paragraph.
+
+"信号放大效应锁死兵力集结\n人类能集结的数量级..." - heading + paragraph.
+
+"三、总结：人类真正被压制的根本机制\n孢子云剥夺了电磁层..." - heading + paragraph.
+
+"数据板的局限\n数据板不是百宝箱..." - this is the duplicate heading + duplicate content.
+
+So the 10 headings I listed are correct. Plus "数据板的局限" is a duplicate to delete (stage 2).
+
+OK let me submit batch 1 now.
+
+Actually, I want to reconsider whether I should use "### " or "## " or "#### " for these. Let me look at the document's existing conventions once more.
+
+The document structure (from map):
+- h1: 《绿潮》大纲总纲
+- h2: 叙事框架, 背景参考资料, 数据板的局限, 菌膜外套..., 世界设定声明, 卷一, 卷二, 卷三, 卷四
+- h3: (under 叙事框架) 故事核心, 第一卷, 第二卷, 第三卷; (under 卷一) 一、二、三、四...十二
+- h4: (under 卷一's sections) 1.1, 3.1, 4.1, 5.1, etc.
+- h5: (under h4) 4.1.1, 5.3.1, etc.
+
+So "背景参考资料" is h2. Its subsections would be h3. The military block "灾前军事基准线与菌毯的不可根除性" is a subsection → h3. The "一、二、三" under it → h4. The sub-points → h5.
+
+This matches what I planned. 
+
+But wait, actually, let me reconsider "背景参考资料". Is "背景参考资料" itself a top-level section (h2) whose content is just reference material? Its content "四亿年前...人类恰好挡在了它生存的道路上" is the main reference narrative. Then "灾前军事基准线与菌毯的不可根除性" is additional reference material.
+
+So "灾前军事基准线" = h3 is correct.
+
+OK, final answer: submit the 10 replace_match commands.
+
+Let me write it out properly.

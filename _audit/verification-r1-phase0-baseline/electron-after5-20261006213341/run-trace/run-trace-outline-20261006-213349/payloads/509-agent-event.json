@@ -1,0 +1,90 @@
+{
+  "taskId": "edit-task-1791294091895-1",
+  "status": "completed",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "重构大纲结构：删除已确认的重复段落，并为无标题正文块补充标题（不缩减内容）",
+  "executedBatches": [
+    "ai-edit-muwq936y-1",
+    "ai-edit-muwqfdcl-2",
+    "ai-edit-muwqj3ka-3",
+    "ai-edit-muwqjo08-4",
+    "ai-edit-muwqly83-5",
+    "ai-edit-muwqod3q-6"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "重构大纲结构：删除已确认的重复段落，并为无标题正文块补充标题（不缩减内容）",
+    "batches": [
+      "ai-edit-muwq936y-1",
+      "ai-edit-muwqfdcl-2",
+      "ai-edit-muwqj3ka-3",
+      "ai-edit-muwqjo08-4",
+      "ai-edit-muwqly83-5",
+      "ai-edit-muwqod3q-6"
+    ],
+    "batchDetails": {
+      "ai-edit-muwq936y-1": {
+        "segmentId": "structure-plan",
+        "expectedChange": "remove_duplicate",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "delete",
+        "invariantResult": "planned-deletion-only"
+      },
+      "ai-edit-muwqfdcl-2": {
+        "segmentId": "structure-repair",
+        "expectedChange": "restructure",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "structure_repair",
+        "invariantResult": "planned-deletion-only"
+      },
+      "ai-edit-muwqj3ka-3": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      },
+      "ai-edit-muwqjo08-4": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      },
+      "ai-edit-muwqly83-5": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      },
+      "ai-edit-muwqod3q-6": {
+        "segmentId": "structure-repair",
+        "expectedChange": "restructure",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "structure_repair",
+        "invariantResult": "planned-deletion-only"
+      }
+    }
+  }
+}

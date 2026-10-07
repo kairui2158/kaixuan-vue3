@@ -1,0 +1,19 @@
+The target with "“主动停止”" is the one at 21672 (in the 菌膜外套与共存补丁的关系 chapter). The other at 48870 is in 7.9 section. So I need to disambiguate using the specific phrase with the quote style.
+
+Let me use a unique longer fragment that includes the following paragraph to distinguish. In the 28do6r chapter, after "孢子云开始缓慢变薄——不是因为巨树“主动停止”释放孢子..." there follows "人类军事体系从全民防御转型为专业警戒...". The other one is followed by different content.
+
+So I'll retry the batch, using for item 5 a longer target including following text "天空的灰绿色边缘，在十四年后，终于隐约透出一丝蓝。\n\n人类军事体系从全民防御转型为专业警戒。"
+
+Let me construct all 5 commands again, with item 5's target extended to be unique.
+
+Actually, all 5 commands failed as a batch (atomic), so none were written. I need to resubmit the whole batch of 5 with corrected item 5.
+
+Let me verify the other 4 targets are unique to avoid re-failure.
+
+1. "在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。" — appears once (in 28do6r chapter). Good.
+2. "在远西大陆，另一种力量正在凝聚。" — once. Good.
+3. "2043年春，巨树从深根大陆中部悄然破土而出持续生长" — once. Good.
+4. "噬神计划进入最后阶段。海底巨型管虫网络" — once. Good.
+5. extend.
+
+Let me submit.

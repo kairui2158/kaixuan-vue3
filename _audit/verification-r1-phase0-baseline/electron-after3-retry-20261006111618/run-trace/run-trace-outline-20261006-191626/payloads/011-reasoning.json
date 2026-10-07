@@ -1,0 +1,36 @@
+The user wants me to restructure the outline in a Word document format without reducing content. Let me first understand the current structure and identify the issues:
+
+1. There's a "粘贴到" (paste to) instruction in the story core section that shouldn't be there - it's a work-in-progress instruction
+2. There are duplicate content blocks: "数据板的局限" appears both as a section under "背景参考资料" and as a standalone heading-2 section. Similarly, "菌膜外套：有限资源的临时通行方案" and "菌膜外套与共存补丁的关系" appear in multiple places.
+3. There are empty "内容块" paragraphs that need to be cleaned up
+4. The structure needs to follow Word document format with proper heading hierarchy
+
+Let me first read the full content to understand the complete structure before making changes. Let me focus on what the plan says:
+
+Phase 1: Read structure, use move to fix misplaced headings/paragraphs, use insert to add headings for untitled text, use replace_match/rewrite to fix heading levels.
+
+Phase 2: Confirm duplicates and delete only confirmed duplicates.
+
+Phase 3: Submit replace_match/rewrite commands for punctuation, whitespace, numbering, and heading level fixes.
+
+Let me first understand the exact issues:
+
+1. The "背景参考资料" section (heading-2-1lka0h8) contains content that extends to "数据板提供的是火种，不是火炬" - but "数据板的局限", "菌膜外套", and "菌膜外套与共存补丁的关系" are also standalone heading-2 sections that seem duplicated.
+
+Let me read the key sections to understand the overlaps and duplicates.
+
+I need to read the relevant sections to identify which content is duplicated and how to clean up the structure. Let me start by reading the content around the problematic areas.
+
+Let me read the key areas systematically:
+- The "故事核心" section to see the "粘贴到" issue
+- The "背景参考资料" to see the duplicate content
+- Sections around heading-2-z4sxm8, heading-2-10q4nra, heading-2-28do6r
+
+Then I'll restructure into a clean Word document format.
+
+Plan of action:
+1. First, read the full structure and identify all issues
+2. Create a clean, non-redundant structure
+3. Use editor.write to restructure
+
+Let me start by reading the problem areas.

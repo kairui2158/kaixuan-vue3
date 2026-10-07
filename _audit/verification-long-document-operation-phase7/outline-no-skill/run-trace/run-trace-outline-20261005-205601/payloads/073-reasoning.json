@@ -1,0 +1,88 @@
+Let me now focus on what needs to be done. The plan has 4 batches: structure-repair, structure-plan (remove duplicates), normalize-segment-1[0-46748], and normalize-segment-2[46748-75024].
+
+I've already done:
+- structure-plan batch: Deleted duplicate "数据板的局限" from background section, deleted 3 PHASE probe sentences
+- structure-repair batch: Added heading for "灾前军事基准线与菌毯的不可根除性"
+- normalize-segment-1 batch: Fixed spacing, added period to 本卷声明, fixed paragraph separations
+
+Now I need to:
+1. Complete normalize-segment-1[0-46748]: This covers all content from start to around position 46748 (end of section 七)
+2. Complete normalize-segment-2[46748-75024]: Content from 7.8 through the end
+
+For normalize-segment-1, I need to check for:
+- Title level consistency
+- Punctuation normalization (half-width to full-width for Chinese text)
+- Proper spacing between sections
+
+For normalize-segment-2, same checks.
+
+Let me look at the search results. The `.` search returned hits that seem to be just section references (like `6.6`, `5.1`, etc.) and some dots in the text. Let me check - the `search` for `?` returned 0, `!` returned 0, `,` returned 0, `;` returned 0 - so it seems the half-width punctuation issue is mostly resolved. The `:` search returned only 3 hits - those are in sections like `11.3` (the section heading includes `18:2` and `18:3` which use colons for fatty acid notation, and that's correct scientific notation).
+
+Let me now focus on the remaining structure issues. Let me look at the structure more carefully.
+
+Looking at the document structure, I notice:
+1. `背景参考资料` is level 2, but it contains a level 3 `灾前军事基准线与菌毯的不可根除性` - this seems fine
+2. The `数据板的局限` and `菌膜外套` and `菌膜外套与共存补丁的关系` are all level 2 - these are independent sections between 背景参考资料 and 世界设定声明
+3. `世界设定声明` is level 2
+4. Then `卷一：基石设定层` is level 2, with level 3 sections inside
+
+There are some structural issues I can see:
+- Between `菌膜外套与共存补丁的关系` (ends at ~22035) and `世界设定声明` (starts at ~22035), the text flows from one to the other via a long narrative section that seems to be "六大势力概述" type content that's embedded inside the `菌膜外套与共存补丁的关系` section. This is actually the "终局" content that describes the fate of all six major forces and the ending.
+
+Let me check if there are any duplicate sections. The `菌膜外套：有限资源的临时通行方案` appears twice - once as a level 2 heading (around 16772) and a second time as level 4 heading (7.8, around 47543). But the one at 16772 is the standalone section between 背景参考资料 and the narrative ending, while the one at 47543 is part of 卷一的 七、变异体主动攻击人类核心机制 section. These are in different positions in the document so they might not be "duplicates" per se - they're the same content used in different contexts. Let me verify.
+
+Actually wait - looking at the search results more carefully:
+- The standalone `菌膜外套` section at 16772 has the full content
+- The `7.8 菌膜外套` section at 47543 also has the same content (from what I read)
+
+These appear to be duplicates: the same content appears in two places. Similarly, `7.9 与终局的衔接` at 48232 likely duplicates the standalone `菌膜外套与共存补丁的关系` at 17520.
+
+But the execution plan says I need to confirm duplicates with read-only tools before deleting. Let me now focus on the normalize-segment-1 work which covers [0-46748] range. This is the main task.
+
+For normalize-segment-1, I need to:
+1. Check for half-width punctuation issues in Chinese text
+2. Normalize title levels
+3. Fix spacing
+
+Let me look at the key findings:
+- The `search` for half-width `.` found 274 hits, but many appear to be in section numbers and tables. Let me check if there are actual half-width periods in Chinese text.
+- The `search` for `:` found only 3 hits, all in scientific notation (18:2, 18:3) which is correct.
+- The `search` for `?` and `!` found 0 hits.
+
+Let me search for more specific half-width punctuation patterns in Chinese context.
+
+Actually, looking at the data again, the `.` search returned many matches but they all look like section references (like `6.6`), table dots, or legitimate uses. I need to check for actual half-width periods used where full-width ones should be (like end of Chinese sentences).
+
+Let me search for patterns like `。` to confirm that the document uses full-width periods correctly, and then search for any remaining half-width periods that should be full-width.
+
+Wait, I should just move forward with the normalize batches. Let me read the data I need from segment-2 (46748-75024) and then submit the normalize commands.
+
+Actually, let me take a different approach. Since the search for half-width `,`, `;`, `?`, `!` returned 0 results, and the search for `:` returned only 3 that are in scientific notation (which is correct), and the `.` search returns section numbers and table dots, the punctuation issue is mostly handled. 
+
+For the normalize segments, I should focus on:
+1. Fixing any remaining structural issues (like misplaced headings)
+2. Ensuring consistent blank line spacing between sections
+3. Any remaining formatting inconsistencies
+
+Let me now focus on executing the normalize-segment-1 and normalize-segment-2 commands. I'll scan for specific issues.
+
+For normalize-segment-1 [0-46748], the main things I've identified:
+- Fixed: title spacing at the top of document ✓
+- Fixed: 本卷声明 period ✓
+- Fixed: 故事核心 paragraph separation ✓
+- Need to check: consistent blank lines between all major sections
+
+For normalize-segment-2 [46748-75024], I need to read that section.
+
+Let me just proceed to submit the normalize commands. Let me check if there are any odd blank line patterns.
+
+From what I read earlier, the document structure looks fairly clean now. Let me focus on any remaining issues:
+
+1. The `故事核心` section has `【菌毯的本质：竞争对手文明】` and `【核心张力：保护即加速】` as content blocks - these look like they could use proper subheadings but they're content markers
+2. Some sections may have inconsistent blank line counts
+
+Let me look for patterns like `\n\n\n\n` (4+ blank lines) or `\n\n\n` (3 blank lines) which should be normalized.
+
+Actually, let me just submit the remaining normalize commands. I'll read segment-2 first, then submit both normalize batches.
+
+Let me focus on what I can do now. Let me read the segment-2 range and submit normalize commands for both segments.

@@ -1,0 +1,40 @@
+{
+  "workspace": "outline-editor",
+  "sourceChars": 74486,
+  "matchCount": 4,
+  "truncated": false,
+  "matches": [
+    {
+      "markerIndex": 2,
+      "markerRole": "assistant",
+      "matchKind": "exact",
+      "start": 42239,
+      "end": 42264,
+      "excerpt": "\n| 阶段 | 时间 | 孢子来源 | 浓度 | 标志性事件 |\n|------|------|---------|------|----------|\n| 前期 | 2042年11月19日-12月中旬 | 扩"
+    },
+    {
+      "markerIndex": 2,
+      "markerRole": "assistant",
+      "matchKind": "exact",
+      "start": 56919,
+      "end": 56944,
+      "excerpt": "者协同决定装甲在持续战斗中的存活时间。\n\n| 阶段 | 修复速度 | 表现 |\n|------|---------|------|\n| 第一阶段 | 基础 | 浅表划痕数分钟消失；局部撕裂（≤手掌大小）约48小"
+    },
+    {
+      "markerIndex": 2,
+      "markerRole": "assistant",
+      "matchKind": "exact",
+      "start": 64696,
+      "end": 64721,
+      "excerpt": ".4 政治体制：九人议会\n\n| 席位 | 代表职能 | 现任 | 派系倾向 |\n|------|---------|------|---------|\n| 第一席（议长） | 总体战略与对外关系 | 李信 | "
+    },
+    {
+      "markerIndex": 2,
+      "markerRole": "assistant",
+      "matchKind": "exact",
+      "start": 72991,
+      "end": 73016,
+      "excerpt": "、术语统一总表\n\n| 术语 | 定义 | 适用范围 | 说明 |\n|------|------|---------|------|\n| 共生体 | 陈暮菌膜装甲“共生体-α”专有名称 | 仅陈暮 | 全书唯一合"
+    }
+  ]
+}

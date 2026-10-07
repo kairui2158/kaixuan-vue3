@@ -1,0 +1,348 @@
+The structure repair was successful. The three mis-nested headings are now top-level (##) sections. The `heading-2-28do6r` (菌膜外套与共存补丁的关系) now ends at 17826, which means the 六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落 are now separate top-level sections following it.
+
+Now let me look at the overall document structure. The current top-level (## level 2) sections are:
+
+1. 叙事框架 (heading-2-kwf15x)
+2. 背景参考资料 (heading-2-1lka0h8)
+3. 数据板的局限 (heading-2-z4sxm8)
+4. 菌膜外套：有限资源的临时通行方案 (heading-2-10q4nra)
+5. 菌膜外套与共存补丁的关系 (heading-2-28do6r)
+6. 六大势力概览 (heading-2-199sgzp)
+7. 圣萌会的崛起 (heading-2-3ul1xi)
+8. 巨树生长与天府都陷落 (heading-2-ihid8i)
+9. 世界设定声明 (heading-2-sd0mn1)
+10. 卷一：基石设定层 (heading-2-171cwmj)
+11. 卷二：核心人物群像 (heading-2-9m9hul)
+12. 卷三：势力与格局层 (heading-2-1kq6z0v)
+13. 卷四：叙事工具箱层 (heading-2-12ruweg)
+
+Wait, but the document has a problem: the top-level heading is `# 《绿潮》大纲总纲` and then all the main content is at `##` level. The 卷一/卷二/卷三/卷四 are at `##` level but they're really major divisions. And the 叙事框架/背景参考资料 etc are also `##` level.
+
+Actually, looking at the original structure, the document already has a coherent Word-document style hierarchy:
+- # 大纲总纲 (H1 title)
+- ## 叙事框架 (H2)
+  - ### 故事核心
+  - ### 第一卷·觉醒与扎根
+  - ### 第二卷·连接与陷落
+  - ### 第三卷·远征与暗流
+- ## 背景参考资料
+- ## 数据板的局限
+- ## 菌膜外套...
+- ## 菌膜外套与共存补丁的关系
+- ## 世界设定声明
+- ## 卷一：基石设定层
+- ## 卷二：核心人物群像
+- ## 卷三：势力与格局层
+- ## 卷四：叙事工具箱层
+
+The user wants "按照Word文档的形式重构大纲，不要缩减内容" (restructure the outline in the form of a Word document, without reducing content).
+
+This is somewhat vague. But given the context of the plan (structure repair, normalize segments), the key task is to fix the document structure to be a clean Word-document-like hierarchy.
+
+The main issues I've identified:
+1. The three sections (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) were incorrectly nested under 菌膜外套与共存补丁的关系 — now fixed.
+
+2. There are "内容块 N" (content block N) empty paragraphs scattered throughout that are artifacts of parsing (they show as charCount 1-2, basically empty). These are likely just empty lines/whitespace in the markdown.
+
+Actually, looking more carefully — the "内容块" entries are just empty paragraphs (whitespace) that the parser is treating as separate blocks. They're not real content. In a "Word document form" these would just be blank lines.
+
+3. The 卷一：基石设定层 has a "本卷声明" that is a paragraph but might need formatting.
+
+Let me think about what "重构大纲" actually means here and what's achievable with editor.write operations.
+
+The core deliverable: restructure the outline into Word-document form (clean heading hierarchy, no content reduction).
+
+Key issues to fix:
+1. ✅ Fixed: three mis-nested sections.
+2. The document has a duplicate 菌膜外套 section — there's a top-level `## 菌膜外套：有限资源的临时通行方案` AND a `#### 7.8 菌膜外套：有限资源的临时通行方案` inside 卷一卷. This is content duplication but they serve different purposes (one standalone reference, one inside the chapter). The plan mentions "确认重复项" and "只删除已确认的重复项".
+
+Actually wait — let me check. The plan says confirm-duplicates then delete-duplicates. But the user said "不要缩减内容" (don't reduce content). So I should NOT delete content. The duplicates are intentional in the original (菌膜外套 appears both as standalone reference and within section 7.8). 
+
+Actually the instructions say: "确认重复项...只删除已确认的重复项". But the user's directive "不要缩减内容" is the highest priority. So I should be very conservative about deletions.
+
+Let me reconsider. The user's actual request is "按照Word文档的形式重构大纲，不要缩减内容。" This means:
+- Restructure the outline into Word document form (clean hierarchy, proper headings)
+- Don't reduce/shorten content
+
+So my job is to fix the STRUCTURE (heading hierarchy) without deleting any content.
+
+What structural issues remain?
+
+Let me map the intended Word-document structure:
+
+Level 1 (Title): # 《绿潮》大纲总纲
+Level 2 (Chapters): 
+- 叙事框架
+- 背景参考资料
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系
+- 六大势力概览
+- 圣萌会的崛起
+- 巨树生长与天府都陷落
+- 世界设定声明
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+This is now correct after my fix.
+
+Wait, but there's an issue. The "背景参考资料" section contains "灾前军事基准线与菌毯的不可根除性" as ### subsection. And 六大势力概览/圣萌会的崛起/巨树生长与天府都陷落 are now separate ## sections. But they were originally grouped under "菌膜外套与共存补丁的关系"? No, that seems like an artifact of the original paste.
+
+Actually, looking at the "当前焦点全文" (focus full text) provided in the context, I can see the original intended structure. Let me look at it:
+
+In the focus full text, the order is:
+- ## 叙事框架 (with 故事核心, 第一卷, 第二卷, 第三卷)
+- ## 背景参考资料 (with 灾前军事基准线... content)
+- 数据板的局限 (## - actually shown as ## 数据板的局限)
+- ## 菌膜外套：有限资源的临时通行方案
+- ## 菌膜外套与共存补丁的关系
+- ## 世界设定声明
+- ## 卷一：基石设定层
+- ## 卷二：核心人物群像
+- ## 卷三：势力与格局层
+- ## 卷四：叙事工具箱层
+
+But wait — the focus full text shows "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" as subsections within "菌膜外套与共存补丁的关系"? No. Let me look at the focus text again.
+
+Actually in the focus full text I see:
+
+"## 菌膜外套与共存补丁的关系 ... 菌膜外套是权宜之计，共存补丁是终极解法。"
+
+Then immediately after:
+
+"在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮..." (六大势力概览 content, without a heading shown)
+
+"在远西大陆，另一种力量正在凝聚..." (圣萌会的崛起 content)
+
+"2043年春，巨树从深根大陆中部悄然破土而出..." (巨树生长与天府都陷落)
+
+So in the focus text these three sections appear WITHOUT explicit headings — they're just flowing text after 菌膜外套与共存补丁的关系. The parser auto-generated ### headings for them (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落).
+
+Hmm, wait. That means the original document actually has these three as unlabeled content blocks, and the parser detected implicit section boundaries and named them. My fix promoted them to ## level with their auto-generated titles.
+
+But is that the right "Word document form"? The content flows:
+1. 菌膜外套与共存补丁的关系 (a short relationship explanation)
+2. [六大势力概览 content]
+3. [圣萌会的崛起 content]
+4. [巨树生长与天府都陷落 content]
+
+These three content blocks seem like they should be part of a coherent narrative. Actually they read like "全局剧情大纲/终局流程" — the overview of factions, the rise of 圣萌会, the 巨树 growth and 天府都 fall, ending with the 终局 (共存补丁).
+
+So actually these three blocks + the 菌膜外套与共存补丁 relationship might form a larger section about the "全局脉络" or "终局剧情". But the original paste didn't give them headings.
+
+This is getting into interpretation territory. The user said "按照Word文档的形式重构大纲" — restructure into Word document form. The key deliverable is probably just making sure the heading hierarchy is clean and consistent, not guessing at new content.
+
+Given the constraints and the risk, I think the safest interpretation is:
+
+1. The document already has a mostly-clean structure.
+2. The main defect was the 3 mis-nested headings, which I fixed.
+3. There might be other minor formatting issues (the "内容块" empty paragraphs, spacing).
+
+Actually, let me reconsider the whole task. The plan (agent.plan) gives steps:
+1. read-structure ✅
+2. execute-restructure (标题层级修复或章节重排)
+3. confirm-duplicates
+4. delete-duplicates (只删除已确认的重复项)
+5. normalize-segments (按计划批次整理格式)
+6. verify-plan
+
+And completion criteria:
+- "完成不变量校验：planned-deletion-only, normalize-changes-punctuation-whitespace-format-only"
+
+So the plan is: restructure + delete confirmed duplicates + normalize formatting (punctuation/whitespace/format only).
+
+But the user's hard constraint "不要缩减内容" conflicts with "delete-duplicates". 
+
+Let me think about what duplicates actually exist. Looking at the document:
+
+1. `## 菌膜外套：有限资源的临时通行方案` (standalone, top-level) — content about 菌膜外套.
+2. `#### 7.8 菌膜外套：有限资源的临时通行方案` (inside 卷一卷 section 7) — SAME content about 菌膜外套.
+
+These are literal duplicates! Both contain identical text. This is a real duplicate.
+
+3. `## 菌膜外套与共存补丁的关系` (standalone) vs `#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系` (inside 卷一卷 section 7) — these are related but slightly different wording (7.9 has extra "与终局的衔接" prefix and slightly different intro).
+
+4. `## 数据板的局限` (standalone) — content about 数据板. Is there a duplicate inside 卷一卷? I don't see one.
+
+5. 背景参考资料 contains a lot of content that overlaps with 卷一卷 sections (林觉民发现共生蕨, 方岫岩, etc.) — but these are summarized versions, not literal duplicates.
+
+So the "duplicates" issue is mainly the 菌膜外套 appearing both as a standalone ## section AND as 7.8 within 卷一.
+
+But the user said "不要缩减内容". So deleting the standalone ## 菌膜外套 section would be removing content. Even though it's a duplicate.
+
+Hmm. This is a tension. Let me re-read the user request: "按照Word文档的形式重构大纲，不要缩减内容。"
+
+I think "不要缩减内容" means "don't cut down/summarize the content" — i.e., don't lose any of the actual text. It's a guard against over-aggressive editing.
+
+The duplicates (菌膜外套 standalone vs 7.8) are genuinely redundant. But deleting one copy doesn't lose information — it just removes redundancy. However, the safer reading is to keep everything.
+
+Given the plan explicitly includes "只删除已确认的重复项" (only delete CONFIRMED duplicates), and the completion criteria mentions "planned-deletion-only", I think the intended task DOES include deleting literal duplicates.
+
+But wait — I need to be careful. The plan was auto-generated (from agent.plan). It might not perfectly match the user's intent. The user's intent is the highest priority: "按照Word文档的形式重构大纲，不要缩减内容。"
+
+"不要缩减内容" is pretty explicit. I should err on the side of NOT deleting anything.
+
+Let me reconsider what "重构大纲" needs beyond the heading fix:
+
+Actually, maybe the issue is bigger. Let me look at the document more holistically.
+
+The document title is "# 《绿潮》大纲总纲" and everything is under it. In Word form, this would be:
+
+标题（Title）: 《绿潮》大纲总纲
+一级标题（Heading 1）: 叙事框架 / 背景参考资料 / 卷一：基石设定层 / 卷二... / 卷三... / 卷四...
+二级标题（Heading 2）: 故事核心 / 第一卷·觉醒与扎根 / ...
+
+Currently:
+- # = H1 (Title, but should be Title style)
+- ## = H2 (should be H1/章节)
+- ### = H3 (should be H2)
+- #### = H4 (should be H3)
+- ##### = H5 (should be H4)
+
+There's an off-by-one in the heading levels! The title `# 《绿潮》大纲总纲` is H1, but it should be the document title, and the chapter divisions (叙事框架, 卷一, 卷二...) should be H1.
+
+But actually, this is a markdown document being edited in an outline editor. The heading levels are what they are. Changing # → Title and ## → # etc. would be a huge reformatting that's risky and probably not what's wanted.
+
+Actually, "按照Word文档的形式" likely just means: make it look like a properly structured Word document — i.e., clean hierarchical headings, consistent numbering, no mis-nested sections. The off-by-one (having a single # title then ## chapters) is actually a very common and acceptable markdown convention.
+
+Let me focus on what's clearly broken and fixable without losing content:
+
+1. ✅ Fixed: 3 mis-nested headings (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落).
+
+2. The "内容块 N" empty paragraphs — these are just blank whitespace lines. In Word form they'd be empty paragraphs. Not really a problem to fix; they're invisible.
+
+3. Potential remaining issue: Is the `## 世界设定声明` in the right place? It comes after 巨树生长与天府都陷落 and before 卷一. That seems fine — it's a brief declaration.
+
+4. Are there any other mis-nested headings? Let me check the document_map output for the remaining sections (offset 200+).
+
+Actually, I already have a fairly complete picture. Let me check if there are more sections beyond offset 200 in the document_map.
+
+The document_map showed sections up to "3.5 岫岩城（云岭山脉）" area with hasMore: true at offset 200. The remaining sections are 3.6 天网城邦, 3.7 镇海双枢城, 四、圣萌会, 五、盖亚中枢, 卷四 content.
+
+From the original structure map in the context, I know:
+- 卷三 ends with 五、盖亚中枢（巨树）
+- 卷四 has 一、核心主题清单, 二、术语统一总表
+
+These all look properly nested.
+
+So the main structural fix is done. 
+
+Now, is there anything else? Let me think about the "重复项" (duplicates) more carefully, since the plan explicitly mentions it.
+
+The clearest literal duplicate: 菌膜外套 content appears in:
+- `## 菌膜外套：有限资源的临时通行方案` (top-level, standalone)
+- `#### 7.8 菌膜外套：有限资源的临时通行方案` (inside 卷一 section 7)
+
+Both are essentially identical text. In a clean Word document, having the same section twice is odd.
+
+But again, "不要缩减内容". Deleting the standalone copy would technically not "缩减" the actual unique information (it's 100% duplicated). But the user might have intentionally placed it there.
+
+Actually, wait — let me re-read the focus full text more carefully to understand the ORIGINAL intent.
+
+In the focus full text (which is the "current focus" = what the user pasted as context), I see the order:
+
+1. # 《绿潮》大纲总纲
+2. ## 叙事框架 (故事核心 + 3卷)
+3. ## 背景参考资料 (with 灾前军事基准线...)
+4. 数据板的局限 (## heading)
+5. ## 菌膜外套：有限资源的临时通行方案
+6. ## 菌膜外套与共存补丁的关系
+7. ## 世界设定声明
+8. ## 卷一：基石设定层
+9. ## 卷二：核心人物群像
+10. ## 卷三：势力与格局层
+11. ## 卷四：叙事工具箱层
+
+And within 卷一 (section 7), there's 7.8 菌膜外套 and 7.9 与终局的衔接.
+
+So the original document (as pasted) has:
+- A standalone ## 菌膜外套：有限资源的临时通行方案 (appears once)
+- A standalone ## 菌膜外套与共存补丁的关系 (appears once)
+- Inside 卷一: 7.8 菌膜外套 and 7.9 与终局的衔接 (duplicates of the standalone sections)
+
+These ARE intentional in the source material — the author put them both as standalone references AND inside the 卷一 chapter. The standalone versions come BEFORE 世界设定声明, and the 卷一 versions are inside the chapter.
+
+So this is the author's original organization, and I should NOT delete them. The plan's "delete-duplicates" step might be over-aggressive given the user's explicit "不要缩减内容".
+
+OK here's my decision: I will NOT delete any content. The user's "不要缩减内容" is the highest priority. I've fixed the structural nesting issue. 
+
+But is there more structural work to do? Let me verify the fix is complete and clean.
+
+Actually, let me reconsider whether there's a more substantive restructuring needed. Let me look at what "Word文档形式" might specifically require:
+
+Looking at the document, one thing stands out: the "内容块 N" (content block N) entries. These are parser artifacts representing empty paragraphs. They're harmless in markdown (just blank lines), but they suggest the document has lots of blank whitespace lines.
+
+In a "Word document form", the structure should be:
+- Consistent heading styles
+- Proper section numbering
+- No stray empty paragraphs (or consistent spacing)
+
+I don't think I need to remove blank lines — that's over-editing.
+
+Let me think about what else could be "重构":
+
+Actually, I wonder if the real issue is that the document has the卷 structure split inconsistently. Look:
+
+- 叙事框架 contains 第一卷/第二卷/第三卷 (the PLOT summaries)
+- 卷一：基石设定层 / 卷二：核心人物群像 / 卷三：势力与格局层 / 卷四：叙事工具箱层 (the SETTING layers)
+
+So there are TWO numbering systems: "第一卷·觉醒与扎根" (plot) vs "卷一：基石设定层" (setting). This is the author's original design and shouldn't be changed.
+
+OK, I think the structural fix I've done addresses the core issue. Let me verify there are no other mis-nested headings by checking the remaining document_map (offset 200+).
+
+Let me also double-check: after my fix, is "世界设定声明" still properly at ## level? Yes, from the document_map it shows heading-2-sd0mn1 at level 2.
+
+Let me get the rest of the document map to confirm no other nesting issues.
+
+Actually, I should be efficient. Let me check the remaining sections.
+
+Let me also reconsider — maybe I'm overthinking this. The plan's steps are clear. Let me follow them:
+
+1. ✅ read-structure
+2. ✅ execute-restructure (fixed 3 mis-nested headings)
+3. confirm-duplicates — need to confirm what's duplicated
+4. delete-duplicates — ONLY confirmed duplicates, but user says don't reduce content
+5. normalize-segments — format only
+6. verify
+
+For step 3-4, given "不要缩减内容", I'll treat the standalone 菌膜外套/菌膜外套与共存补丁 sections as intentional and NOT delete them. The "duplicates" within the document (standalone vs 卷一卷 7.8/7.9) are part of the author's original structure.
+
+Actually, wait. Let me reconsider the duplicate question more carefully by comparing the exact text.
+
+Standalone `## 菌膜外套：有限资源的临时通行方案`:
+"陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。但林知意在对SC-α备份菌株进行深入研究后，结合方岫岩数据板中关于SC-α菌株信息素伪装机制的理论推导，提出了一个折中方案：仿制一种低版本的单一功效菌膜外套。这里需要强调的是：..."
+
+卷一 7.8 `#### 菌膜外套：有限资源的临时通行方案`:
+"陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。但林知意在对SC-α备份菌株进行深入研究后，结合方岫岩数据板中关于SC-α菌株信息素伪装机制的理论推导，提出了一个折中方案：仿制一种低版本的单一功效菌膜外套。数据板提供了信息素伪装机制的理论基础..."
+
+These are nearly identical but with slight wording differences (7.8 omits "这里需要强调的是" and has slightly different phrasing). They're near-duplicates but not exact.
+
+Given the ambiguity, and "不要缩减内容" being explicit, I'll leave all content as-is.
+
+For step 5 (normalize-segments), the completion criteria says "normalize-changes-punctuation-whitespace-format-only". I already fixed two typos (子云→孢子云, 物量储备→生物量储备) in the first batch. Those are typo fixes, not really "normalization", but they're safe and correct.
+
+Actually wait, let me re-read those two fixes. The first batch I did:
+- "子云剥夺了电磁层" → "孢子云剥夺了电磁层" (typo fix - "子云" should be "孢子云")
+- "物量储备的物理事实" → "生物量储备的物理事实" (typo fix - "物量" should be "生物量")
+
+These were in the "背景参考资料" section's "灾前军事基准线" subsection. In the focus full text (the source), these read "孢子云剥夺了电磁层" and "生物量储备的物理事实". So my fixes restored them to match the source. These are correct typo fixes.
+
+Wait, but actually I need to verify these were actually typos in the CURRENT document, not just my imagination. When I read the section via read_range, I saw:
+- "子云剥夺了电磁层" (in heading-2-1lka0h8 read, "三、总结" section: "子云剥夺了电磁层")
+- "物量储备的物理事实" (in "二、菌毯为什么火力推不平")
+
+Yes, these were confirmed typos in the current document. The source (focus full text) shows "孢子云" and "生物量". My fixes were correct.
+
+OK so I've done:
+1. Two typo fixes (safe, correct)
+2. Three heading-level fixes (structural, correct)
+
+Is there more to do? Let me check the remaining document sections for any other structural issues.
+
+Let me get the rest of the document_map.
+
+Actually, I realize I should verify the overall structure is now clean and then provide a summary to the user. Let me do a final check of the remaining sections and confirm no other mis-nesting.
+
+Let me read the remaining document map (offset 200+).

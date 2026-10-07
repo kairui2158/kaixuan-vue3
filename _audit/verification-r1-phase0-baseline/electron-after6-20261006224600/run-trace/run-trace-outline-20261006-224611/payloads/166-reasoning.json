@@ -1,0 +1,11 @@
+Let me now check the remaining areas that need normalization. I need to continue the normalization across the full document. Let me search for remaining double/triple blank lines and also check the areas between the background references section and the rest of the document.
+
+Let me now look at the remaining parts of the document that might need blank line normalization, particularly:
+- The "背景参考资料" section (10198-16451)
+- The section between "菌膜外套与共存补丁的关系" and "世界设定声明" (17754-22366)
+- The sections in "卷一：基石设定层" after where I normalized
+- Any remaining areas
+
+Also need to check for the structure repair: the `paragraph-1ky4plk` in the background references section - the paragraph between the heading and the next heading was moved. Let me also check if the `paragraph-4mh893` (本卷声明) was properly handled.
+
+Now let me continue with more blank normalization across the rest of the document. Let me search for remaining areas that might have excessive blank lines.

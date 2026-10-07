@@ -1,0 +1,41 @@
+The duplicate "数据板的局限" appears at 16215 in the 背景参考资料 node (the new H3 title "灾前军事基准线..." node). Wait, actually the locate result shows "数据板的局限" at position 16215-16230, within the 背景参考资料 content. This is the duplicated "数据板的局限" paragraph that appears at the end of 背景参考资料, before the actual H2/H3 "数据板的局限" section.
+
+Let me understand the structure. Original structure had:
+- 背景参考资料 (heading-2-1lka0h8) 10230-16801
+- 数据板的局限 (heading-2-z4sxm8) 16801-17356
+- 菌膜外套... (heading-2-10q4nra) 17356-18104
+- 菌膜外套与共存补丁的关系 (heading-2-28do6r) 18104-22619
+
+The 背景参考资料 content (10230-16801) ENDS with a duplicated "数据板的局限" paragraph (the full text). So the "数据板的局限" content appears TWICE:
+1. At the end of 背景参考资料 (as plain text, no heading, ending around 16801)
+2. As its own H2 section (16801-17356)
+
+So I need to delete the duplicated text at the end of 背景参考资料. The locate confirmed "数据板的局限\n数据板不是百宝箱" is unique at position 16215.
+
+Wait, but there are two "数据板的局限" strings now. The locate returned unique:true for the fragment "数据板的局限\n数据板不是百宝箱" — meaning this exact two-line combination is unique. Because in the standalone section, it's "## 数据板的局限\n\n数据板不是百宝箱" (with ## and blank line). So the fragment "数据板的局限\n数据板不是百宝箱" (no ## prefix, no blank line) only matches the duplicated plain-text version inside 背景参考资料.
+
+So I need to delete the duplicated text. The duplicated text is the full "数据板的局限" paragraph (the content I already read). Let me read it exactly to get the full text to delete.
+
+Actually I already have the full text from the earlier read of heading-2-1lka0h8 (the 4000-6700 range read). It ends with:
+
+"后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从\"起点\"到\"成果\"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。\n\n\n"
+
+This is the duplicated text at the end of 背景参考资料. It starts right after "...承认。\n\n数据板的局限\n数据板不是百宝箱..."
+
+Let me verify the exact text. From the read_range of heading-2-1lka0h8 (offset 4000), the content ended with:
+
+"...终局时那行写入的共存补丁，不是胜利，是人类对\"不可战胜\"的承认。\n\n数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的...数据板提供的是火种，不是火炬。\n\n\n"
+
+Note: this duplicate uses straight quotes \" (escaped in JSON, actually half-width double quotes " in the actual text). Whereas the standalone section uses full-width "..." curly quotes.
+
+So I need to delete this duplicate. The duplicate text (in actual file) uses half-width quotes ". Let me construct the delete target carefully.
+
+Actually, I need to be careful. The delete operation needs an exact fragment. Let me construct the fragment from the read content. The read content showed (JSON-escaped) with \" representing " (straight quotes).
+
+The duplicated text to delete is from "数据板的局限\n数据板不是百宝箱" through "...不是火炬。\n"
+
+Let me construct the full target. I'll use the delete operation with the full duplicated text.
+
+Actually, let me re-read the exact tail of the 背景参考资料 to get the exact characters, including the quote style. The read_range output earlier for heading-2-1lka0h8 (offset 4000) showed the text with \" (escaped straight quotes). Let me confirm by reading that specific region.
+
+Let me read the tail of heading-2-1lka0h8 (背景参考资料) to get exact text.

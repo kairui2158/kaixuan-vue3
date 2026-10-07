@@ -1,0 +1,296 @@
+Let me analyze the current state of the document. The user wants me to restructure the outline to look like a Word document format, without reducing any content. Let me understand what's been done so far and what still needs to be done.
+
+So far I've:
+1. Deleted a duplicate "数据板的局限" section that appeared after "背景参考资料"
+2. Converted bare text headings in "背景参考资料" (灾前军事基准线...) to proper heading levels
+3. Added proper h2 headings for the three blocks of content that were misplaced under "菌膜外套与共存补丁的关系"
+
+Now let me look at the current structure from the document map. The top-level h2 sections are:
+
+1. 叙事框架 (h2) - starts at 13
+2. 背景参考资料 (h2) - starts at 10230
+3. 数据板的局限 (h2) - starts at 16272
+4. 菌膜外套：有限资源的临时通行方案 (h2) - starts at 16827
+5. 菌膜外套与共存补丁的关系 (h2) - starts at 17575
+6. 六大势力总览 (h2) - starts at 17864
+7. 圣萌会与马格努斯 (h2) - starts at 18599
+8. 终局之战与共存补丁 (h2) - starts at 19657
+9. 世界设定声明 (h2) - starts at 22128
+10. 卷一：基石设定层 (h2) - starts at 22225
+11. 卷二：核心人物群像 (h2) - starts at 55731
+12. 卷三：势力与格局层 (h2) - starts at 60245
+13. 卷四：叙事工具箱层 (h2) - starts at 72509
+
+Now let me think about the "Word document format" - the user likely wants a cleaner, more organized structure. Looking at the current structure:
+
+- The "背景参考资料" section currently contains the origin story and then the "灾前军事基准线" section
+- The "数据板的局限", "菌膜外套：有限资源的临时通行方案", "菌膜外套与共存补丁的关系", "六大势力总览", "圣萌会与马格努斯", "终局之战与共存补丁" are all hanging at h2 level between "背景参考资料" and "世界设定声明"
+
+These sections seem to be miscellaneous reference material that doesn't fit neatly into any of the four volumes. In a Word document format, these should probably be organized under a clear parent heading or organized as separate reference sections.
+
+But actually, the user said "按照Word文档的形式重构大纲，不要缩减内容" - restructure as a Word document format without reducing content. This is more about giving the document a clean, professional structure like a Word document would have. Let me think about what needs to happen:
+
+Looking at the current hierarchy more carefully:
+
+The document has:
+- # 《绿潮》大纲总纲 (h1) - the root
+  - ## 叙事框架 (h2)
+    - ### 故事核心 (h3)
+    - ### 第一卷·觉醒与扎根 (h3)
+    - ### 第二卷·连接与陷落 (h3)
+    - ### 第三卷·远征与暗流 (h3)
+  - ## 背景参考资料 (h2)
+    - ### 灾前军事基准线与菌毯的不可根除性 (h3)
+      - #### 一、2042年，人类手里有什么 (h4)
+      - #### 二、菌毯为什么火力推不平 (h4)
+      - #### 三、总结：人类真正被压制的根本机制 (h4)
+  - ## 数据板的局限 (h2)
+  - ## 菌膜外套：有限资源的临时通行方案 (h2)
+  - ## 菌膜外套与共存补丁的关系 (h2)
+  - ## 六大势力总览 (h2)
+  - ## 圣萌会与马格努斯 (h2)
+  - ## 终局之战与共存补丁 (h2)
+  - ## 世界设定声明 (h2)
+  - ## 卷一：基石设定层 (h2)
+  - ## 卷二：核心人物群像 (h2)
+  - ## 卷三：势力与格局层 (h2)
+  - ## 卷四：叙事工具箱层 (h2)
+
+Now, several of the sections (数据板的局限 through 终局之战与共存补丁) are reference/world-building material at the top level. In a Word document format, these should be organized properly.
+
+I think the user's intent is that the current document has some structural issues:
+1. "背景参考资料" has mixed content - the origin story and the military analysis
+2. Several h2 sections between "背景参考资料" and "世界设定声明" seem loosely organized
+3. There are duplicate sections (the background story in "背景参考资料" is largely duplicated in "卷一：基石设定层")
+
+But the user said "不要缩减内容" - don't reduce content. So I can't delete sections.
+
+Let me re-read the document structure carefully. The main structural issue seems to be:
+
+The sections from "背景参考资料" through "终局之战与共存补丁" are a mix of background narrative and reference material. In a Word document, they might be better organized as part of a larger "参考资料" section, or as appendices.
+
+Actually, I think the key structural issue is:
+
+1. The "背景参考资料" section contains: origin story (which is similar to the detailed version in 卷一) + 灾前军事基准线 (which is reference/world-building analysis)
+2. Then there are several orphan h2 sections that don't belong to any parent "卷":
+   - 数据板的局限
+   - 菌膜外套：有限资源的临时通行方案
+   - 菌膜外套与共存补丁的关系
+   - 六大势力总览
+   - 圣萌会与马格努斯
+   - 终局之战与共存补丁
+
+These should probably all be grouped under a common parent like "参考资料" or "附录". 
+
+In a Word document format, the ideal structure would be something like:
+
+Part 1: 叙事框架 (narrative framework with the 3 volumes)
+Part 2: 背景参考资料 (background reference materials - merged/common parent for all the loose sections)
+Part 3: 卷一：基石设定层
+Part 4: 卷二：核心人物群像
+Part 5: 卷三：势力与格局层
+Part 6: 卷四：叙事工具箱层
+
+But wait, this would mean nesting the loose h2 sections under a common h2, which would make them h3. And "背景参考资料" would become the common parent for all those sections at h3 level.
+
+Actually, the simplest Word-document restructuring would be: group the loose sections (数据板的局限 through 终局之战与共存补丁) under "背景参考资料" as h3 subsections, since they're all background/reference material.
+
+Let me think about this differently. The user said "按照Word文档的形式重构大纲" - structure it like a Word document. In a Word document, you'd typically have:
+
+1. A clear table of contents
+2. Major parts/sections with consistent numbering
+3. Subsections nested properly
+4. No orphan sections
+
+The current document has these orphan sections at h2 level. The cleanest approach would be to make "背景参考资料" the parent for all reference material, turning the loose h2 sections into h3 subsections under it.
+
+But wait - some of these sections (like 六大势力总览, 圣萌会与马格努斯, 终局之战与共存补丁) are narrative/plot material, not "reference" per se. They contain the actual story outline for the ending.
+
+Let me reconsider. The document's structure by content type:
+- 叙事框架: Plot outline (volumes 1-3)
+- 背景参考资料: Background world-building
+- 数据板的局限: Background / meta
+- 菌膜外套: Background / world-building
+- 菌膜外套与共存补丁的关系: Background / world-building
+- 六大势力总览: Narrative summary
+- 圣萌会与马格努斯: Narrative summary / character
+- 终局之战与共存补丁: Narrative climax summary
+- 世界设定声明: Meta
+- 卷一~卷四: Detailed world-building and character profiles
+
+Hmm. Actually, looking more carefully, I think the structure the user likely wants is:
+
+The "orphan" h2 sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 六大势力总览, 圣萌会与马格努斯, 终局之战与共存补丁) should be reorganized. 
+
+In a Word document, I think the cleanest approach would be to:
+1. Group "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" under the "背景参考资料" parent
+2. Move "六大势力总览", "圣萌会与马格努斯", "终局之战与共存补丁" to be part of the narrative framework, perhaps after the three volumes
+
+Actually, looking at the content again:
+- 六大势力总览 - this is a narrative summary of all six factions, it fits well as a narrative overview
+- 圣萌会与马格努斯 - this is the origin of St. Germination and Magnus
+- 终局之战与共存补丁 - this is the final battle and the coexistence patch
+
+These three are essentially the story's climax/ending outline. They should perhaps be part of the narrative framework (as "第四卷" or "终局").
+
+But wait, the document map already shows "卷三" and then "卷四". So the narrative 3 volumes are in "叙事框架", and volumes 1-4 (detailed) are in separate sections. This is actually a two-tier structure:
+- Top level: Narrative framework (with 3 volumes outlined)
+- Detailed volumes (卷一 to 卷四)
+
+The loose sections seem to be content that was added later and not properly integrated. Let me think about the cleanest Word document structure...
+
+Actually, I think the simplest and most Word-document-like approach is:
+
+The h2 sections between "背景参考资料" and "世界设定声明" are all reference/background material. They should all be h3 under "背景参考资料". This would mean:
+
+- ## 背景参考资料
+  - ### 灾前军事基准线与菌毯的不可根除性 (already h3)
+  - ### 数据板的局限 (currently h2 → make h3)
+  - ### 菌膜外套：有限资源的临时通行方案 (currently h2 → make h3)
+  - ### 菌膜外套与共存补丁的关系 (currently h2 → make h3)
+  - ### 六大势力总览 (currently h2 → make h3)
+  - ### 圣萌会与马格努斯 (currently h2 → make h3)
+  - ### 终局之战与共存补丁 (currently h2 → make h3)
+
+Then ## 世界设定声明 remains h2.
+
+But wait, that doesn't work because "六大势力总览", "圣萌会与马格努斯", and "终局之战与共存补丁" are not really "背景参考资料" - they contain the narrative climax.
+
+Let me try a different approach. Maybe the loose h2 sections should become part of a new parent section that sits between "背景参考资料" and the formal "卷" structure.
+
+Actually, I think the most Word-like approach is to keep things simple:
+- The document already has a clear hierarchy
+- The issue is the loose h2 sections
+
+Let me reconsider what "Word文档的形式" means. Maybe the user just wants:
+1. Consistent heading levels
+2. No duplicate content
+3. Clear section breaks
+4. Everything properly nested
+
+I've already fixed the duplicates and the bare-text headings. The remaining issue is the loose h2 sections. 
+
+For a Word document look, I could:
+1. Make "背景参考资料" a parent h2 that encompasses everything from "背景参考资料" through "终局之战与共存补丁" by making all those loose sections h3 under it
+2. Then the rest follows naturally: 世界设定声明 (h2), 卷一 (h2), etc.
+
+But I can't just change heading levels of existing h2 sections - that would require re-writing each one. The `replace_match` approach would work for each heading marker.
+
+Actually wait, let me reconsider the whole structure. The "背景参考资料" section already contains the origin story (about 共生蕨, 林觉民, 方岫岩, etc.) AND the 灾前军事基准线 analysis. Then after that, the sections about 数据板, 菌膜外套, etc. are all separate.
+
+In a Word document, these would all be part of one large "参考资料" or "背景设定" section. Then the formal "卷" structure would follow.
+
+Let me go with this plan:
+1. Convert the loose h2 sections (数据板的局限 through 终局之战与共存补丁) to h3, making them subsections of a parent. But what parent?
+
+Hmm, "背景参考资料" already ends at 16272 (before 数据板的局限 starts at 16272). So they're currently siblings, not parent-child.
+
+The cleanest Word doc approach: Make all these loose sections h3 under "背景参考资料". But that would require changing the h2 markers to h3 markers for sections 数据板的局限 through 终局之战与共存补丁. The current "背景参考资料" section would need to extend to cover all of them.
+
+But the section boundaries are already set by the markdown headings. When I change `## 数据板的局限` to `### 数据板的局限`, the parser will make it a child of `## 背景参考资料` (if it's placed before the next h2).
+
+Currently:
+```
+## 背景参考资料
+...content...
+### 灾前军事基准线...
+#### 一、...
+#### 二、...
+#### 三、...
+## 数据板的局限    ← Currently h2, sibling of 背景参考资料
+## 菌膜外套        ← Currently h2
+...
+```
+
+If I change them to h3:
+```
+## 背景参考资料
+...content...
+### 灾前军事基准线...
+#### 一、...
+#### 二、...
+#### 三、...
+### 数据板的局限    ← Now h3, child of 背景参考资料
+### 菌膜外套        ← Now h3
+...
+```
+
+This would work! But then "世界设定声明" (h2) would signal the end of "背景参考资料".
+
+Let me do this: convert ## → ### for: 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 六大势力总览, 圣萌会与马格努斯, 终局之战与共存补丁.
+
+But wait, these converted h3 sections would have their own h4 subsections. Like 数据板的局限 has no subsections (just ##), 菌膜外套 has no subsections, 菌膜外套与共存补丁的关系 has no subsections. 六大势力总览, 圣萌会与马格努斯, 终局之战与共存补丁 also have no subsections. So they'd all just be h3.
+
+That's fine. Then after 终局之战与共存补丁, the next h2 would be 世界设定声明.
+
+OK let me also think about whether "背景参考资料" is the right parent. The content of these sections:
+- 数据板的局限 - reference/meta about the data slate
+- 菌膜外套 - world-building about the mycelial coat
+- 菌膜外套与共存补丁的关系 - world-building
+- 六大势力总览 - narrative summary
+- 圣萌会与马格努斯 - narrative character intro
+- 终局之战与共存补丁 - narrative climax
+
+The first 3 are definitely reference/background. The last 3 are more narrative. But they're all "extra" content that was placed before the formal volume structure. In a Word document, they'd be "前置材料" or "总览" before the detailed volumes.
+
+I think the cleanest approach is:
+- 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 → make h3 under 背景参考资料
+- 六大势力总览, 圣萌会与马格努斯, 终局之战与共存补丁 → these are narrative overviews. They could stay as separate h2 sections, but that's not "Word-like"
+
+Actually, you know what, let me step back and think about what a "Word文档" format actually looks like for a novel outline:
+
+1. Cover/Title
+2. 故事核心 / 概述
+3. 叙事框架 (各卷概要)
+4. 背景设定 / 世界观
+5. 人物设定
+6. 势力设定
+7. 附录
+
+The current structure roughly follows this. The main issues are:
+- Duplicate content (already fixed)
+- Loose h2 sections
+- Some bare-text headings (already fixed)
+
+For the loose h2 sections, I think the best Word-document approach is to make them subsections of 背景参考资料. Let me do that.
+
+Let me check - are there any h3/h4 headings inside these sections that would need adjustment? Let me look:
+
+- 数据板的局限: Just ##, no subsections
+- 菌膜外套: Just ##, no subsections  
+- 菌膜外套与共存补丁的关系: Just ##, no subsections
+- 六大势力总览: Just ##, no subsections
+- 圣萌会与马格努斯: Just ##, no subsections
+- 终局之战与共存补丁: Just ##, no subsections
+
+Great, they're all simple sections. Changing them from ## to ### will make them h3 children of 背景参考资料.
+
+Let me also check - within 背景参考资料, the existing h3 is "灾前军事基准线与菌毯的不可根除性" which has h4 subsections. After the loose sections become h3, they'd be siblings of "灾前军事基准线".
+
+This structure would look like:
+
+```
+## 背景参考资料
+[origin story content...]
+### 灾前军事基准线与菌毯的不可根除性
+#### 一、2042年，人类手里有什么
+#### 二、菌毯为什么火力推不平
+#### 三、总结：人类真正被压制的根本机制
+### 数据板的局限
+### 菌膜外套：有限资源的临时通行方案
+### 菌膜外套与共存补丁的关系
+### 六大势力总览
+### 圣萌会与马格努斯
+### 终局之战与共存补丁
+## 世界设定声明
+## 卷一：基石设定层
+...
+```
+
+This looks clean and Word-like! Let me do this.
+
+Actually wait, I need to be careful. The origin story in "背景参考资料" is quite long (from position 10240 to 12120, about 1880 chars). Then "灾前军事基准线" (12120-16272) follows. Then "数据板的局限" (16272-16827).
+
+The origin story in "背景参考资料" actually overlaps significantly with the detailed content in "卷一". But the user said don't reduce content, so I'll leave both.
+
+OK, let me proceed with the conversion. I need to change 6 headings from ## to ###.

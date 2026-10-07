@@ -1,0 +1,83 @@
+Let me verify the final structure by refreshing document_map and checking the "背景参考资料" section's remaining structure. Also I should check whether there are more un-titled body blocks that need headings. Let me look at the full document map remaining (nextOffset 120 onwards) and the top part of 背景参考资料.
+
+Actually, let me reconsider. The current structure of "背景参考资料" section (heading-2-1lka0h8) now contains:
+- 内容块 3 (paragraph-1kd06wy) — the four-billion-year-old origin story + 方岫岩 + 陈暮独行 + 菌膜民生技术 (this is body text, 1880 chars)
+- heading-3-19902vk 灾前军事基准线与菌毯的不可根除性 (with three h4 subsections)
+
+Then "数据板的局限" h2, "菌膜外套" h2, "菌膜外套与共存补丁" h2, then inside that now three new h2 sections (六大势力总览, 圣萌会与马格努斯, 终局之战与共存补丁).
+
+Wait — but that's structurally odd: the "菌膜外套与共存补丁的关系" h2 section now contains three h2 subsections. That's still not "Word-document-like" because h2 nested inside h2 content is weird. Actually the issue is those blocks were inserted after the 菌膜外套 section's content but before "世界设定声明". 
+
+Let me look at the document flow around start 17575-22090. The "菌膜外套与共存补丁的关系" section starts at 17575 and ends at 22090 (before 世界设定声明 at 22090). It contains:
+1. 菌膜外套与共存补丁的关系 content (h2 heading + body)
+2. 六大势力总览 (new h2)
+3. 圣萌会与马格努斯 (new h2)
+4. 终局之战与共存补丁 (new h2)
+
+So now within "菌膜外套与共存补丁的关系" section there are nested h2 headings. In Markdown/Word outline terms, this means the section "菌膜外套与共存补丁的关系" (h2) has sub-sections at h2 level — that's a hierarchy violation.
+
+Hmm, but wait. Actually, in the document map, these new h2 sections are direct children of... let me check. The structureIdentity stableIds list shows heading-2-28do6r followed by heading-2-sd0mn1 etc. But the new h2 headings (heading-2-1ctnag4, heading-2-wvivz1, heading-2-rfqjen) appear in addedIds but their position in stableIds isn't fully shown (the list was truncated at 240? No, it showed the full stableIds list ending with heading-3-xco0i6, and I see heading-2-28do6r then heading-2-sd0mn1 — the new ones aren't in the visible stableIds list actually).
+
+Wait, let me look again. The stableIds list in the last write response ends with:
+"...heading-2-9m9hul ... heading-2-1kq6z0v ... heading-2-12ruweg ... heading-3-xco0i6"
+
+And near the beginning: "heading-2-1lka0h8, paragraph-1kd06wy, heading-3-19902vk, heading-4-1h0cojh, heading-4-k50yzv, heading-4-1tkh81d, heading-2-z4sxm8, heading-2-10q4nra, heading-2-28do6r, heading-2-sd0mn1, ..."
+
+So the new h2 headings (heading-2-1ctnag4 etc.) are NOT in the stableIds list — they're only in addedIds. That means they were added as content INSIDE the heading-2-28do6r section, not as top-level sections. So structurally they are h2 headings nested inside another h2 section's body.
+
+This is actually a bit problematic for a clean "Word document" structure. But it does fix the "un-titled body text" problem somewhat by giving them headings.
+
+However, the user's request is "按照Word文档的形式重构大纲，不要缩减内容" (reconstruct the outline in Word document form, don't reduce content). The main issues I've been fixing are:
+1. Duplicate content (数据板的局限 appears twice) — deleted the stray copy ✓
+2. Un-titled body text blocks that should have headings — added headings ✓
+
+The remaining question is whether the hierarchy is clean enough. Let me think about what "Word document form" really means here. It likely means: proper heading levels (标题1/2/3...), no floating un-headered paragraphs, clean document structure.
+
+The current document has a deeper issue: there's a "卷一：基石设定层" (h2) which contains numbered sections, but before it there are h2 sections like "数据板的局限", "菌膜外套", etc. These are actually part of "背景参考资料" conceptually, but they're at h2 level.
+
+Actually, let me step back and look at the overall top-level structure. The document title is h1 "《绿潮》大纲总纲". Then h2 sections:
+- 叙事框架
+- 背景参考资料
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系
+- 世界设定声明
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+This is already reasonably Word-like at the top level. The "数据板的局限", "菌膜外套", "菌膜外套与共存补丁" are top-level h2 sections which is fine.
+
+The problem is inside "菌膜外套与共存补丁的关系" there were 3 floating blocks (六大势力总览, 圣萌会, 终局之战) that are actually independent h2-level content, but they got placed inside that section.
+
+Actually wait — is that where they belong? Let me reconsider. Looking at the original content flow (from the focus full text I was given):
+
+After "菌膜外套与共存补丁的关系" content ends ("...菌膜外套是权宜之计，共存补丁是终极解法。"), there's:
+
+"在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。..." (六大势力总览)
+"在远西大陆，另一种力量正在凝聚。..." (圣萌会)
+"2043年春，巨树从深根大陆中部悄然破土而出..." (终局之战)
+then "世界设定声明"
+
+So these 3 blocks are between "菌膜外套与共存补丁的关系" and "世界设定声明". They were un-titled floating paragraphs. Now I've given them h2 headings.
+
+The question: should they be promoted to top-level h2 sections (siblings of "菌膜外套与共存补丁的关系"), or kept nested?
+
+Since I used "## " (h2) for them, but they're physically located inside the "菌膜外套与共存补丁的关系" section's text range... Actually no. Let me check the actual text position. The write was "replace_match" which replaced the first line of those paragraphs with "## 六大势力总览\n\n" + original text. So the h2 headings are now in the text flow at those positions.
+
+The document_map shows they were "added" as new heading IDs but their parent in the map... The map's hierarchical structure would now show them as children of heading-2-28do6r? Or as siblings?
+
+Looking at the stableIds list more carefully: it goes "...heading-2-28do6r, heading-2-sd0mn1, heading-2-171cwmj..." — no new headings between 28do6r and sd0mn1. And addedIds = ["heading-2-1ctnag4","heading-2-wvivz1","heading-2-rfqjen"]. This suggests the new headings are NOT top-level in the structure map; they're embedded inside heading-2-28do6r's content.
+
+Hmm, but actually the structure map (document_map) uses heading level to determine hierarchy. If these are h2 headings physically located within the range of heading-2-28do6r, the parser might treat them as... Actually the document map parser works by scanning heading levels sequentially. An h2 heading encountered after an h2 heading at the same level should be a sibling, not a child. But the "range" (start/end) of heading-2-28do6r is 17575-22090, which now CONTAINS the three new h2 headings. That means the parser kept them inside heading-2-28do6r's range because... hmm.
+
+Actually, I think the issue is that these headings ARE at h2 level, and the parser should have made them siblings. But the document_map shows heading-2-28do6r's end still at 22090 (encompassing them), and the new headings are only in "addedIds" not in the main stableIds list.
+
+Wait, let me re-read the stableIds list. It's possible the list I'm seeing IS complete and the new h2 headings genuinely aren't showing as separate top-level entries. That's confusing.
+
+Let me just refresh document_map to see the current actual state.
+
+Actually, more important: is my restructuring correct and complete? Let me get the current document map to verify, and check if there are remaining un-titled body blocks.
+
+Let me get document_map with full range.

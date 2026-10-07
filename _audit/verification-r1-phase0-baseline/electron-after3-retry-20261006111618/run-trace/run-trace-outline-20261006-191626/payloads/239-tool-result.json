@@ -1,0 +1,511 @@
+{
+  "ok": true,
+  "data": {
+    "totalChars": 73899,
+    "estimatedTokens": 38322,
+    "sectionCount": 249,
+    "reorderTopLevelIds": [
+      "heading-1-mizom9"
+    ],
+    "reorderScope": "top-level",
+    "degraded": false,
+    "sections": [
+      {
+        "id": "heading-5-1nnmys5",
+        "title": "3.4.5 归藤剂：共生战士专属设定",
+        "kind": "heading",
+        "level": 5,
+        "start": 65343,
+        "end": 65389,
+        "charCount": 21,
+        "summaryHead": "单支注射燃烧生命，双支注射归于大地。"
+      },
+      {
+        "id": "heading-5-1rrp42l",
+        "title": "3.4.6 归藤剂的具体使用方法和时间窗口",
+        "kind": "heading",
+        "level": 5,
+        "start": 65389,
+        "end": 67089,
+        "charCount": 1672,
+        "summaryHead": "**归藤剂的本质**\n\n归藤剂不是毒药。它是一种基因表达开关——激活共生战士体内绞杀藤基因模块中一段在正常共生状态下被表观遗传沉默的序列。这段序列一旦激活，会释"
+      },
+      {
+        "id": "heading-5-9rihfi",
+        "title": "3.4.7 资源依赖",
+        "kind": "heading",
+        "level": 5,
+        "start": 67089,
+        "end": 67148,
+        "charCount": 42,
+        "summaryHead": "菌丝网络节点、菌丝蜜蜂养殖。能源结构：储能孢子+光合苔毯+盆地温室农业自循环。"
+      },
+      {
+        "id": "heading-4-uoait2",
+        "title": "3.5 岫岩城（云岭山脉）",
+        "kind": "heading",
+        "level": 4,
+        "start": 67148,
+        "end": 68313,
+        "charCount": 1146,
+        "summaryHead": "#### 3.5 岫岩城（云岭山脉） ##### 3.5.1 基本信息 - 正式名称：岫岩城。 - 地理位置：云岭山脉南延区域，以方岫岩生前实验室建筑群为核心扩建而成。核心区位于一处三面环山、一面临湍流河支流的古河蚀盆地中。 - 控制人口："
+      },
+      {
+        "id": "paragraph-46bd25~30",
+        "title": "内容块 38",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 67167,
+        "end": 67168,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-5-47zml8",
+        "title": "3.5.1 基本信息",
+        "kind": "heading",
+        "level": 5,
+        "start": 67168,
+        "end": 67325,
+        "charCount": 140,
+        "summaryHead": "- 正式名称：岫岩城。\n- 地理位置：云岭山脉南延区域，以方岫岩生前实验室建筑群为核心扩建而成。核心区位于一处三面环山、一面临湍流河支流的古河蚀盆地中。\n- 控"
+      },
+      {
+        "id": "heading-5-1pbrtm1",
+        "title": "3.5.2 据点概况",
+        "kind": "heading",
+        "level": 5,
+        "start": 67325,
+        "end": 67469,
+        "charCount": 127,
+        "summaryHead": "岫岩城以方岫岩生前工作的云岭生物多样性研究中心为原点扩建而成。核心区原有建筑全部保留原貌——这是陈暮定下的规矩。\n\n盆地腹地是裸土覆盖的核心生活区，外围聚居点沿"
+      },
+      {
+        "id": "heading-5-46tk2b",
+        "title": "3.5.3 发育三阶段",
+        "kind": "heading",
+        "level": 5,
+        "start": 67469,
+        "end": 67665,
+        "charCount": 178,
+        "summaryHead": "| 阶段 | 对应时期 | 人口规模 | 核心需求 |\n|------|---------|---------|---------|\n| 萌芽期 | 约2051"
+      },
+      {
+        "id": "heading-5-1br5ses",
+        "title": "3.5.4 独有科技树",
+        "kind": "heading",
+        "level": 5,
+        "start": 67665,
+        "end": 67822,
+        "charCount": 139,
+        "summaryHead": "民用菌膜雨衣、共生医疗凝胶、菌膜净水壶、菌膜睡袋、菌膜粮仓。菌膜外套：SC-α菌株简化仿制版穿戴装备，其研发起点是方岫岩数据板中关于信息素伪装机制的理论推导，但"
+      },
+      {
+        "id": "heading-5-1ivwdzh",
+        "title": "3.5.5 核心人员",
+        "kind": "heading",
+        "level": 5,
+        "start": 67822,
+        "end": 67883,
+        "charCount": 44,
+        "summaryHead": "科研中枢（林知意全权接管）、内务与后勤部、医疗卫生部、侦察与作战部、外交与情报部。"
+      },
+      {
+        "id": "heading-5-15mup8n",
+        "title": "3.5.6 防御系统：禁声幕墙",
+        "kind": "heading",
+        "level": 5,
+        "start": 67883,
+        "end": 68232,
+        "charCount": 327,
+        "summaryHead": "核心资产：陈暮手中保存着方岫岩留下的最后一株SC-α菌株备份样品。禁声幕墙的配方由林知意在方岫岩数据板提供的SC-α菌株基础研究数据之上，结合归藤剂印记片段技术"
+      },
+      {
+        "id": "heading-5-1q20l4y",
+        "title": "3.5.7 地理与防御的配合",
+        "kind": "heading",
+        "level": 5,
+        "start": 68232,
+        "end": 68313,
+        "charCount": 60,
+        "summaryHead": "湍流河向西约一百二十公里注入瘴江。瘴江上游约一百八十公里为天府都隘口卫城。水路是岫岩城能接收数十万难民的物理前提。"
+      },
+      {
+        "id": "heading-4-1x0uxw6",
+        "title": "3.6 天网城邦（南角双港）——末日唯一完整保留现代工业体系的城邦",
+        "kind": "heading",
+        "level": 4,
+        "start": 68313,
+        "end": 68878,
+        "charCount": 526,
+        "summaryHead": "#### 3.6 天网城邦（南角双港）——末日唯一完整保留现代工业体系的城邦 ##### 3.6.1 基本信息 - 正式名称：天网城邦。 - 地理位置：南角双港，以原深槽工业区为核心。 - 控制人口：约147万。 - 核心据点：深槽地下工业"
+      },
+      {
+        "id": "paragraph-46bd25~31",
+        "title": "内容块 39",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 68352,
+        "end": 68353,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-5-mdiqyf",
+        "title": "3.6.1 基本信息",
+        "kind": "heading",
+        "level": 5,
+        "start": 68353,
+        "end": 68495,
+        "charCount": 125,
+        "summaryHead": "- 正式名称：天网城邦。\n- 地理位置：南角双港，以原深槽工业区为核心。\n- 控制人口：约147万。\n- 核心据点：深槽地下工业基地（总部）、南角地表卫城、双港"
+      },
+      {
+        "id": "heading-5-198flsq",
+        "title": "3.6.2 灾前基底与灾变建城",
+        "kind": "heading",
+        "level": 5,
+        "start": 68495,
+        "end": 68597,
+        "charCount": 80,
+        "summaryHead": "深槽工业区灾前占地512平方公里，拥有全国唯一完整建制的方舟量子计算机组和全套工业级淀粉合成器量产生产线。2042年灾变后，烬岳率重装旅死守三个月后立城。"
+      },
+      {
+        "id": "heading-5-c8gxbf",
+        "title": "3.6.3 核心算力：方舟量子计算机组",
+        "kind": "heading",
+        "level": 5,
+        "start": 68597,
+        "end": 68689,
+        "charCount": 66,
+        "summaryHead": "算力分配：70%全产业链智能调度，20%无人机蜂群指挥，10%绿潮数据测算。核心短板：芯片存量逐年损耗，剩余服役年限约29年。"
+      },
+      {
+        "id": "heading-5-c9j9zr",
+        "title": "3.6.4 军事与防御体系",
+        "kind": "heading",
+        "level": 5,
+        "start": 68689,
+        "end": 68745,
+        "charCount": 36,
+        "summaryHead": "作战主力：50万台无人机、10万台战斗机器人，由方舟算力统一调度。"
+      },
+      {
+        "id": "heading-5-107r7i9",
+        "title": "3.6.5 核心人物谱系",
+        "kind": "heading",
+        "level": 5,
+        "start": 68745,
+        "end": 68816,
+        "charCount": 52,
+        "summaryHead": "烬岳（执政总长）、砚沉（首席科研官）、肃珩（防务总司令）、归芜（市政执行官）、零（首席外交代表）。"
+      },
+      {
+        "id": "heading-5-132cj6r",
+        "title": "3.6.6 内部核心矛盾",
+        "kind": "heading",
+        "level": 5,
+        "start": 68816,
+        "end": 68878,
+        "charCount": 43,
+        "summaryHead": "终极生存矛盾（芯片不可逆损耗）、路线派系矛盾（保守派与开放派）、粮食结构性矛盾。"
+      },
+      {
+        "id": "heading-4-tvq28n",
+        "title": "3.7 镇海双枢城（海棘三角洲）——末日世界的海上浮城",
+        "kind": "heading",
+        "level": 4,
+        "start": 68878,
+        "end": 69408,
+        "charCount": 497,
+        "summaryHead": "#### 3.7 镇海双枢城（海棘三角洲）——末日世界的海上浮城 ##### 3.7.1 基本信息 - 正式名称：镇海双枢城。 - 前身：海军东海舰队航母战斗群+沉舟湾修理基地留守部队+火种舰队。 - 地理位置：无岸海浮锚群岛及周边海域，以"
+      },
+      {
+        "id": "paragraph-46bd25~32",
+        "title": "内容块 40",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 68911,
+        "end": 68912,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-5-174pkxe",
+        "title": "3.7.1 基本信息",
+        "kind": "heading",
+        "level": 5,
+        "start": 68912,
+        "end": 69080,
+        "charCount": 151,
+        "summaryHead": "- 正式名称：镇海双枢城。\n- 前身：海军东海舰队航母战斗群+沉舟湾修理基地留守部队+火种舰队。\n- 地理位置：无岸海浮锚群岛及周边海域，以沉舟湾为核心陆基据点"
+      },
+      {
+        "id": "heading-5-s15m07",
+        "title": "3.7.2 历史背景：从双航母巅峰到海上浮城",
+        "kind": "heading",
+        "level": 5,
+        "start": 69080,
+        "end": 69238,
+        "charCount": 129,
+        "summaryHead": "2042年11月20日，参演舰艇接到返航命令。37艘参演舰艇中只有16艘幸存——“幽灵舰队”。2043年春浮锚保卫战后，项胤宣布永久封存所有进攻性武器。2045"
+      },
+      {
+        "id": "heading-5-swe128",
+        "title": "3.7.3 核心军事科技",
+        "kind": "heading",
+        "level": 5,
+        "start": 69238,
+        "end": 69289,
+        "charCount": 32,
+        "summaryHead": "全球水下菌丝预警网、船舶生物改造技术、海洋变异体驯化技术。"
+      },
+      {
+        "id": "heading-5-1cvgqd",
+        "title": "3.7.4 核心人物谱系",
+        "kind": "heading",
+        "level": 5,
+        "start": 69289,
+        "end": 69353,
+        "charCount": 45,
+        "summaryHead": "项胤（总司令）、沈明远（副总司令）、苏晚（科研教育部部长）、老海（装备维修部部长）。"
+      },
+      {
+        "id": "heading-5-wyus8f",
+        "title": "3.7.5 食物与文化",
+        "kind": "heading",
+        "level": 5,
+        "start": 69353,
+        "end": 69408,
+        "charCount": 37,
+        "summaryHead": "核心口粮：人工合成淀粉+水产蛋白。特色：浮城咖喱、海藻汤、海魂酒。"
+      },
+      {
+        "id": "heading-3-cnkt1u",
+        "title": "四、圣萌会：人类第二灾害",
+        "kind": "heading",
+        "level": 3,
+        "start": 69408,
+        "end": 71545,
+        "charCount": 2120,
+        "summaryHead": "### 四、圣萌会：人类第二灾害 #### 4.1 前身 灾前，远西大陆最大的教派组织叫圣座教会。菌丝共生适应性研究项目设在远西大陆中部白障山脉北麓一座老修道院里，对外挂牌“圣方济各生物研究所”。研究所配置极高：菌丝培养室、生化分析仪、独立"
+      },
+      {
+        "id": "paragraph-46bd25~33",
+        "title": "内容块 41",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 69425,
+        "end": 69426,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-4-fyvry",
+        "title": "4.1 前身",
+        "kind": "heading",
+        "level": 4,
+        "start": 69426,
+        "end": 69555,
+        "charCount": 117,
+        "summaryHead": "灾前，远西大陆最大的教派组织叫圣座教会。菌丝共生适应性研究项目设在远西大陆中部白障山脉北麓一座老修道院里，对外挂牌“圣方济各生物研究所”。研究所配置极高：菌丝培"
+      },
+      {
+        "id": "heading-4-1g5176g",
+        "title": "4.2 塞缪尔·赫兹",
+        "kind": "heading",
+        "level": 4,
+        "start": 69555,
+        "end": 69674,
+        "charCount": 103,
+        "summaryHead": "塞缪尔·赫兹，圣座教会研究部直属的信仰与伦理监督员，驻圣方济各生物研究所。他在这个位置上坐了六年，认得清研究所里每一个人——不是在礼拜堂里认的，是在档案柜里认的"
+      },
+      {
+        "id": "heading-4-1h32pu6",
+        "title": "4.3 灾变与崛起",
+        "kind": "heading",
+        "level": 4,
+        "start": 69674,
+        "end": 69917,
+        "charCount": 228,
+        "summaryHead": "灾难爆发那天他在通讯室里做例行演练。他按顺序呼叫，总部沉默，各教区沉默。所有频段试完，没有一个信号回来。\n\n第二天他锁了研究所的大门。他把全所人员召集到礼拜堂。"
+      },
+      {
+        "id": "heading-4-1493u1g",
+        "title": "4.4 马格努斯",
+        "kind": "heading",
+        "level": 4,
+        "start": 69917,
+        "end": 70143,
+        "charCount": 212,
+        "summaryHead": "某个深夜，他一个人坐在通讯室里，面前摊着一本他自己修改编写的经文手稿。他看着手稿封面上的署名还是塞缪尔·赫兹。他把那一页撕下来，在空白处写了一个词：Magnus"
+      },
+      {
+        "id": "heading-4-1d3wv9t",
+        "title": "4.5 马格努斯的生物学独特性",
+        "kind": "heading",
+        "level": 4,
+        "start": 70143,
+        "end": 70384,
+        "charCount": 220,
+        "summaryHead": "马格努斯在灾难初期感染了孢子。菌丝在他体内扩散生长，却始终无法穿过血脑屏障侵入他的中枢神经系统——他的神经元细胞膜表面恰好缺乏菌丝锚定所需的受体蛋白。他是免疫幸"
+      },
+      {
+        "id": "heading-4-hygmhu",
+        "title": "4.6 组织架构",
+        "kind": "heading",
+        "level": 4,
+        "start": 70384,
+        "end": 70664,
+        "charCount": 266,
+        "summaryHead": "圣先知。Sanctus Propheta。最高领袖。圣先知对圣萌会一切事务拥有最终裁决权，其命令不可质疑、不可上诉、不可复议。\n\n枢机团。七名枢机主教，直接向圣"
+      },
+      {
+        "id": "heading-4-h4oo5c",
+        "title": "4.7 圣言灌录",
+        "kind": "heading",
+        "level": 4,
+        "start": 70664,
+        "end": 70889,
+        "charCount": 211,
+        "summaryHead": "多梅尼科神父花了数年时间，从共生蕨的数千个亚型中筛出了一株能在脱水休眠后保持完整渗透能力、同时保留机械力敏感通道的菌株。整台装置不含任何金属零件、任何微电子元件"
+      },
+      {
+        "id": "heading-4-1qmhy5u",
+        "title": "4.8 噬神计划",
+        "kind": "heading",
+        "level": 4,
+        "start": 70889,
+        "end": 71235,
+        "charCount": 332,
+        "summaryHead": "马格努斯的目标。马格努斯给玛格达莱娜的任务只有一句话：“我要给那棵树打一个补丁。你告诉我需要什么。”\n\n技术逻辑。菌丝网络会攻击任何上行信号，但它的攻击能力有上"
+      },
+      {
+        "id": "heading-4-1w61rry",
+        "title": "4.9 圣婴计划",
+        "kind": "heading",
+        "level": 4,
+        "start": 71235,
+        "end": 71447,
+        "charCount": 198,
+        "summaryHead": "“把脑袋取出来”不是比喻。圣萌会花了数年时间建立了一套完整的筛选、定罪、收割流水线。\n\n守望修道院的灰袍修士在深夜敲门，告诉信徒需要在认罪书上签字。次日清晨，圣"
+      },
+      {
+        "id": "heading-4-107k1rx",
+        "title": "4.10 各势力渗透深度",
+        "kind": "heading",
+        "level": 4,
+        "start": 71447,
+        "end": 71545,
+        "charCount": 80,
+        "summaryHead": "远西大陆：深度渗透。远南长脊：极深度渗透。复兴会：死敌。天府都：中低度渗透。镇海双枢城：低度渗透。铁壁：极低度渗透。岫岩城：零散渗透。天网城邦：零容忍。"
+      },
+      {
+        "id": "heading-3-l1qgnn",
+        "title": "五、盖亚中枢（巨树）",
+        "kind": "heading",
+        "level": 3,
+        "start": 71545,
+        "end": 72058,
+        "charCount": 498,
+        "summaryHead": "### 五、盖亚中枢（巨树） #### 5.1 核心定义 盖亚中枢是一株植物。它不是地球的免疫系统，不是生态修复工程师，不是一个有意志的神或恶魔。它只是一株被人类用基因改造技术意外唤醒的、带有共生蕨基因的植物。它在做任何植物都会做的事：获取"
+      },
+      {
+        "id": "paragraph-46bd25~34",
+        "title": "内容块 42",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 71560,
+        "end": 71561,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-4-rpyiqv",
+        "title": "5.1 核心定义",
+        "kind": "heading",
+        "level": 4,
+        "start": 71561,
+        "end": 71693,
+        "charCount": 118,
+        "summaryHead": "盖亚中枢是一株植物。它不是地球的免疫系统，不是生态修复工程师，不是一个有意志的神或恶魔。它只是一株被人类用基因改造技术意外唤醒的、带有共生蕨基因的植物。它在做任"
+      },
+      {
+        "id": "heading-4-1yb5j8k",
+        "title": "5.2 正式学名与各势力俗称",
+        "kind": "heading",
+        "level": 4,
+        "start": 71693,
+        "end": 71805,
+        "charCount": 92,
+        "summaryHead": "正式学名“盖亚中枢”（林知意命名）。各势力俗称：铁壁称“巨型菌株聚合体”、天网称“变量Ω”、复兴会称“天树”、镇海双枢城称“大洋之根”、岫岩城称“老树”、圣萌会"
+      },
+      {
+        "id": "heading-4-15epk5m",
+        "title": "5.3 生长阶段",
+        "kind": "heading",
+        "level": 4,
+        "start": 71805,
+        "end": 71980,
+        "charCount": 161,
+        "summaryHead": "2043年初·破土：深根大陆中部荒漠破土而出。2043-2044年·爆发生长：主树干以每年数公里速度冲刺，两年内突破对流层。2045年·突破平流层：接力泵送系统"
+      },
+      {
+        "id": "heading-4-8ex97",
+        "title": "5.4 终局之后",
+        "kind": "heading",
+        "level": 4,
+        "start": 71980,
+        "end": 72058,
+        "charCount": 64,
+        "summaryHead": "共存补丁完成后，人类不再被巨树的排异反应识别为竞争者。共存不是和解，是重新分类。人类从“竞争者”变成了“树荫下的苔藓”。"
+      },
+      {
+        "id": "heading-2-12ruweg",
+        "title": "卷四：叙事工具箱层",
+        "kind": "heading",
+        "level": 2,
+        "start": 72058,
+        "end": 73899,
+        "charCount": 1828,
+        "summaryHead": "## 卷四：叙事工具箱层 ### 一、核心主题清单 知识的责任、人与自然的伦理、异化的边界、文明的重构、个体与群体、资源与权力、技术的选择、恐惧与爱意、修复与共存、师承与传承、文明圈的重聚、核遗产的转化、真相的封存与公开、天空的囚笼与馈赠、"
+      },
+      {
+        "id": "paragraph-46bd25~35",
+        "title": "内容块 43",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 72071,
+        "end": 72072,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-3-1kz03je",
+        "title": "一、核心主题清单",
+        "kind": "heading",
+        "level": 3,
+        "start": 72072,
+        "end": 72359,
+        "charCount": 274,
+        "summaryHead": "知识的责任、人与自然的伦理、异化的边界、文明的重构、个体与群体、资源与权力、技术的选择、恐惧与爱意、修复与共存、师承与传承、文明圈的重聚、核遗产的转化、真相的封"
+      },
+      {
+        "id": "heading-3-xco0i6",
+        "title": "二、术语统一总表",
+        "kind": "heading",
+        "level": 3,
+        "start": 72359,
+        "end": 73899,
+        "charCount": 1527,
+        "summaryHead": "| 术语 | 定义 | 适用范围 | 说明 |\n|------|------|---------|------|\n| 共生体 | 陈暮菌膜装甲“共生体-α”专有"
+      }
+    ],
+    "offset": 200,
+    "limit": 120,
+    "hasMore": false,
+    "next_steps": [
+      "调用 editor.read_range 传入 sectionId 或 cursor 分段读取全文"
+    ]
+  }
+}

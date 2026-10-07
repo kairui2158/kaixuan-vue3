@@ -1,0 +1,46 @@
+{
+  "taskId": "edit-task-1791280421208-2",
+  "status": "running_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "清理故事核心段中的编辑指令残留文本，不触碰正文内容",
+  "executedBatches": [
+    "ai-edit-muwi42tf-5"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "activeBatchId": "ai-edit-muwidpvb-6",
+  "executionPlan": {
+    "goal": "清理故事核心段中的编辑指令残留文本，不触碰正文内容",
+    "batches": [
+      "ai-edit-muwi42tf-5",
+      "ai-edit-muwidpvb-6"
+    ],
+    "batchDetails": {
+      "ai-edit-muwi42tf-5": {
+        "segmentId": "structure-plan",
+        "expectedChange": "remove_duplicate",
+        "range": {
+          "startLine": 0,
+          "endLine": 74312
+        },
+        "writeStrategy": "delete",
+        "invariantResult": "planned-deletion-only"
+      },
+      "ai-edit-muwidpvb-6": {
+        "segmentId": "structure-plan",
+        "expectedChange": "remove_duplicate",
+        "range": {
+          "startLine": 0,
+          "endLine": 74312
+        },
+        "writeStrategy": "delete",
+        "invariantResult": "planned-deletion-only"
+      }
+    }
+  },
+  "batchId": "ai-edit-muwidpvb-6",
+  "segmentId": "structure-plan",
+  "expectedChange": "remove_duplicate",
+  "invariantResult": "planned-deletion-only"
+}

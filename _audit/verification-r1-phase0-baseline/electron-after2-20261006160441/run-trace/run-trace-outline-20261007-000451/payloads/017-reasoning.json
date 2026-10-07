@@ -1,0 +1,217 @@
+Let me analyze the current document structure. The user wants to "restructure the outline in the form of a Word document, without reducing content." 
+
+Looking at the current structure, I can see several issues:
+
+1. There are duplicate sections scattered at the top level (heading-2 level) that also appear within the formal volume structure:
+   - "数据板的局限" (heading-2-z4sxm8) - also appears within 卷一
+   - "菌膜外套：有限资源的临时通行方案" (heading-2-10q4nra) - also appears within 卷一 §7.8
+   - "菌膜外套与共存补丁的关系" (heading-2-28do6r) - also appears within 卷一 §7.9
+
+2. The big issue is that "菌膜外套与共存补丁的关系" section (heading-2-28do6r) contains a LOT more than just the comparison - it includes:
+   - Six major forces overview
+   - Magnus/圣萌会 origin story
+   - 终局之战 (final battle)
+   - Post-ending epilogue
+   - This content doesn't exist elsewhere in the document in a formal volume structure
+
+3. There's also a lot of free-standing narrative content in "背景参考资料" (heading-2-1lka0h8) that overlaps with content in 卷一.
+
+Let me think about what "Word document form" means for this outline. In a Word document, the structure would typically be:
+- Title page
+- Table of contents
+- Clear volume/chapter hierarchy
+- No duplicate sections
+
+The current issues are:
+1. Duplicate sections: "数据板的局限", "菌膜外套" and "菌膜外套与共存补丁的关系" appear both as top-level sections AND within 卷一中 already
+2. The "菌膜外套与共存补丁的关系" section contains narrative content (终局之战, epilogue, Magnus backstory) that doesn't neatly fit as a standalone section
+3. The "背景参考资料" section contains a massive narrative that overlaps with formal volume content
+
+Let me think about what needs to be done:
+
+1. First, I already deleted the duplicate "数据板的局限" that was at the end of "背景参考资料" (done).
+
+2. Now I need to handle the remaining duplicates:
+   - "数据板的局限" (heading-2-z4sxm8) is a standalone section that duplicates content within 卷一. Actually wait - looking more carefully, this IS the section that was already in the document as a standalone. Now that I deleted the duplicate at the end of 背景参考资料, this one remains.
+   
+   But the question is: does 数据板的局限 appear within the formal 卷一 structure? Let me check...
+
+   Looking at the structure map, 卷一 contains sections like 一 through 十二. There's no "数据板的局限" within 卷一. So this might actually be a standalone section that should be integrated somewhere.
+
+   Wait, let me re-check. The structure shows:
+   - heading-2-1lka0h8: 背景参考资料
+   - heading-2-z4sxm8: 数据板的局限 (standalone, level 2)
+   - heading-2-10q4nra: 菌膜外套 (standalone, level 2)
+   - heading-2-28do6r: 菌膜外套与共存补丁的关系 (standalone, level 2)
+   - heading-2-sd0mn1: 世界设定声明
+   - heading-2-171cwmj: 卷一
+
+   These standalone sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) are positioned between 背景参考资料 and 卷一. They seem to be supplementary material that was placed at the top level.
+
+   But 7.8 and 7.9 in 卷一 also contain菌膜外套 and 菌膜外套与共存补丁的关系 content. So these ARE duplicates.
+
+3. "菌膜外套与共存补丁的关系" (heading-2-28do6r) is problematic because while its first ~3 paragraphs are about the comparison (which is duplicated in §7.9), the rest is a massive narrative about:
+   - Six major forces poetic overview
+   - Magnus/圣萌会 origin and plan
+   - 终局之战
+   - Post-ending world
+   
+   This narrative content is NOT duplicated elsewhere. It's essentially the "story spine" or "narrative overview" of the entire novel.
+
+So the restructuring task is:
+- Remove or consolidate duplicate standalone sections
+- Preserve the unique narrative content in 菌膜外套与共存补丁的关系
+- Make the document flow like a Word document with clear hierarchy
+
+Let me reconsider what a "Word document form" would look like. The user likely wants:
+
+1. Clear hierarchical structure with proper headings
+2. No duplicate content
+3. Content flowing logically from one section to the next
+4. Maybe adding some navigation/table of contents structure
+
+Given the massive size (74K words), I should focus on:
+- Consolidating duplicates
+- Moving misplaced content to appropriate locations
+- Ensuring clean heading hierarchy
+
+Let me look at the three standalone sections:
+
+**数据板的局限** (heading-2-z4sxm8): This is unique content about the limitations of the data board. It's not duplicated in 卷一 as a formal section. Keep it as a standalone reference section.
+
+**菌膜外套：有限资源的临时通行方案** (heading-2-10q4nra): This duplicates §7.8 in 卷一. But it might be intentionally placed here as a quick reference.
+
+**菌膜外套与共存补丁的关系** (heading-2-28do6r): First 3 paragraphs duplicate §7.9. The rest is unique narrative content.
+
+OK, let me think about what the user really wants by "Word document form." I think they want:
+
+1. A proper table of contents-like structure at the beginning
+2. All content organized under clear volume headings
+3. No duplicate content floating around
+4. Proper hierarchical headings
+
+But given the constraint "不要缩减内容" (don't reduce content), I can't delete the unique narrative. Let me think about a restructuring plan:
+
+What if the document structure should be:
+
+```
+# 《绿潮》大纲总纲
+
+## 目录 (Table of Contents)
+
+## 叙事框架
+### 故事核心
+### 第一卷
+### 第二卷
+### 第三卷
+
+## 背景参考资料
+
+## 数据板的局限
+
+## 菌膜外套：有限资源的临时通行方案
+
+## 菌膜外套与共存补丁的关系
+[keep the full narrative - this is the story spine]
+
+## 世界设定声明
+
+## 卷一：基石设定层
+[but remove §7.8 and §7.9 which duplicate]
+
+## 卷二：核心人物群像
+
+## 卷三：势力与格局层
+
+## 卷四：叙事工具箱层
+```
+
+Hmm, but this is getting complex. Let me step back and think about what the user actually means. 
+
+Looking at the current document more carefully, the issues are:
+1. Some content is duplicated across different sections
+2. The standalone sections between 背景参考资料 and 卷一 disrupt the flow
+
+The key question is: should the standalone sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) remain as standalone, or should they be integrated into volumes?
+
+I think the answer is:
+- "数据板的局限" should remain standalone (it's reference material)
+- "菌膜外套" standalone should be removed (duplicate of §7.8)
+- "菌膜外套与共存补丁的关系" should be split: the comparison part stays in §7.9, the narrative part should be moved to a new section like "故事总纲" or "全书脉络"
+
+But the user said "不要缩减内容" - so I can't just delete things. Let me think about the cleanest approach.
+
+Actually, wait. Let me re-read the user request: "按照Word文档的形式重构大纲，不要缩减内容。" This means "restructure the outline in Word document format, don't reduce content."
+
+This is actually a very big task. The document is 74K characters. Let me think about what "Word document format" means practically:
+
+In a Word document, you typically have:
+- A cover/title
+- Table of contents
+- Clear chapters/sections with proper numbering
+- No duplicate content
+- Consistent formatting
+- Content flows logically
+
+Given the constraints (can only write 1-10 commands per batch, and the document is huge), I should focus on the most impactful changes:
+
+1. **Handle the duplicate 菌膜外套 standalone section**: The standalone section (heading-2-10q4nra) duplicates §7.8. I should remove the standalone and keep §7.8.
+
+2. **Handle the 菌膜外套与共存补丁的关系 section**: The first part duplicates §7.9. The rest is unique narrative. I should:
+   - Keep the standalone section but rename it to reflect its actual content (story spine/narrative overview)
+   - Remove the duplicated comparison paragraphs from it
+   - Or, keep §7.9 and move the unique narrative elsewhere
+
+3. **Add a table of contents** at the beginning
+
+4. **Standardize heading numbering**
+
+Given the complexity, let me focus on the most critical issue: the "菌膜外套与共存补丁的关系" section contains the entire story spine that doesn't exist elsewhere. This should be preserved and properly positioned.
+
+Let me also check: does §7.9 contain the same content as the standalone? Let me read §7.9.
+
+Actually, I already confirmed from the search that §7.9 (heading-4-1au19n4) contains the comparison content but NOT the full narrative. The standalone section (heading-2-28do6r) contains both the comparison AND the full story narrative.
+
+So my plan:
+1. Keep the standalone "菌膜外套与共存补丁的关系" but rename it to something like "全书故事脉络" or keep it as is but acknowledge it as the story spine
+2. The comparison part is duplicated in §7.9 - that's fine for now (it's a technical reference section vs. narrative section)
+3. Remove the standalone "菌膜外套" (heading-2-10q4nra) since it's fully duplicated in §7.8
+4. Add proper navigation
+
+Actually, wait. Let me reconsider. The standalone sections seem intentionally placed as quick-reference material before the detailed volumes. Maybe that's by design.
+
+Let me take a different approach. "Word document form" might simply mean:
+- Clean up the duplicates I already found
+- Ensure consistent heading hierarchy
+- Make sure content flows logically
+- Nothing is lost
+
+Let me focus on what I can do within the tool constraints:
+
+1. ✅ Already deleted the duplicate "数据板的局限" at end of 背景参考资料
+2. Need to handle the standalone "菌膜外套" → this fully duplicates §7.8. Should I delete the standalone or §7.8?
+   - I think keep §7.8 (it's in the formal volume structure) and remove the standalone
+3. Need to handle the standalone "菌膜外套与共存补丁的关系" → partially duplicates §7.9, but contains unique narrative
+   - Keep standalone for the narrative, remove comparison paragraphs that duplicate §7.9
+   - OR keep both and just note the duplication is intentional
+
+This is getting very complex. Let me focus on what's clearly "wrong" and fix that:
+
+1. ✅ Deleted duplicate paragraph at end of 背景参考资料
+2. The standalone "菌膜外套" section (heading-2-10q4nra) is a complete duplicate of §7.8 - remove it
+3. The standalone "菌膜外套与共存补丁的关系" (heading-2-28do6r) has first ~3 paragraphs duplicated in §7.9, but the rest is unique narrative → keep as is, or extract the comparison part and leave the narrative
+
+Actually, let me reconsider the user's request once more. "按照Word文档的形式重构大纲" - maybe they want the document to be structured like a formal Word document with:
+- Clear part/chapter numbering
+- Consistent styles
+- Professional formatting
+
+Given the constraints of the editor, I think the most impactful changes are:
+1. Remove clear duplicates
+2. Add a table of contents
+3. Reorder sections logically
+4. Ensure consistent heading hierarchy
+
+Let me proceed step by step. First, let me remove the duplicate standalone "菌膜外套" section since it fully duplicates §7.8. Then I'll handle the "菌膜外套与共存补丁的关系" issue.
+
+But I need to be very careful. Let me verify by reading §7.8 and comparing.

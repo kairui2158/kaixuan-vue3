@@ -1,0 +1,17 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "子云剥夺了电磁层",
+      "content": "孢子云剥夺了电磁层",
+      "reason": "补回丢失的“孢”字，修正错字"
+    },
+    {
+      "operation": "replace_match",
+      "target": "物量储备的物理事实",
+      "content": "生物量储备的物理事实",
+      "reason": "补回丢失的“生”字，修正错字"
+    }
+  ],
+  "reason": "修正背景参考资料中两处丢失字符的错字，属于整理阶段的安全修正"
+}

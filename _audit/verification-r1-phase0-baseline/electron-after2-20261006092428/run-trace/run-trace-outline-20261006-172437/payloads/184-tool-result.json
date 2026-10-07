@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-3-11r2knx",
+      "title": "八、变异生物体系",
+      "kind": "heading",
+      "level": 3,
+      "path": "八、变异生物体系"
+    },
+    "range": {
+      "start": 48767,
+      "end": 48867
+    },
+    "offset": 0,
+    "maxChars": 100,
+    "content": "### 八、变异生物体系\n\n#### 8.1 核心设定\n\n约92%的感染动物在感染后失去繁殖能力，成为一次性的“消耗型”变异体。约8%的感染动物保留了无性繁殖能力，形成了稳定的可繁殖变异种群——它们的",
+    "hasMore": true,
+    "nextCursor": "section:heading-3-11r2knx:100",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

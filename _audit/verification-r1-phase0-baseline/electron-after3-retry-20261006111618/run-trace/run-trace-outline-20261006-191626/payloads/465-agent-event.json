@@ -1,0 +1,33 @@
+{
+  "taskId": "edit-task-1791287355683-2",
+  "status": "running_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "按用户确认的「分叉一去重」删除已核实的严格子集重复节7.8",
+  "executedBatches": [],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "activeBatchId": "ai-edit-muwm8phs-8",
+  "executionPlan": {
+    "goal": "按用户确认的「分叉一去重」删除已核实的严格子集重复节7.8",
+    "batches": [
+      "ai-edit-muwm8phs-8"
+    ],
+    "batchDetails": {
+      "ai-edit-muwm8phs-8": {
+        "segmentId": "structure-plan",
+        "expectedChange": "remove_duplicate",
+        "range": {
+          "startLine": 0,
+          "endLine": 74586
+        },
+        "writeStrategy": "delete",
+        "invariantResult": "planned-deletion-only"
+      }
+    }
+  },
+  "batchId": "ai-edit-muwm8phs-8",
+  "segmentId": "structure-plan",
+  "expectedChange": "remove_duplicate",
+  "invariantResult": "planned-deletion-only"
+}

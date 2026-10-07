@@ -1,0 +1,42 @@
+I need to stop reading and start writing. The system is telling me I've been doing only reads for 4 consecutive rounds. Let me now execute the normalize-segment-1 batch of writes. I've read enough structure to understand the document.
+
+Let me now do the normalize-segment-1 commands. I need to:
+
+1. Fix the "菌膜外套与共存补丁的关系" section - it contains narrative content about the six forces and the endgame that should actually be part of the "背景参考资料" or a separate section. But looking more carefully, this seems to be a "story summary" that was placed under this section. This content actually belongs as an independent section - but I shouldn't move content without clear justification from the structure.
+
+Actually wait - looking at the document map again, "菌膜外套与共存补丁的关系" (heading-17520) has 4499 chars and contains a LOT of narrative content that seems to be a full story summary. This was probably placed here as a catch-all section. The user said to organize it like a Word document but NOT to reduce content. So I should leave it in place but maybe fix its header level.
+
+Let me focus on what I can actually fix now: normalize-segment-1 should cover the range [0-46748]. I need to:
+1. Fix the triple-newline after story core ending (already seen: "\n\n\n\n" before "### 第一卷")
+2. Fix various spacing issues
+3. Fix semi-colons and other punctuation if any remain
+
+Let me look at what specific issues I can batch-fix. Let me be practical - I've already done some normalization. Now let me do a sweep of normalize-segment-1 for any remaining issues I can batch-fix.
+
+Key things I can fix in segment 1 (0-46748):
+
+1. The "菌膜外套与共存补丁的关系" section (heading-17520) is currently level 2 (##) but contains a full narrative summary - it's placed at the same level as "背景参考资料", "数据板的局限" etc. This looks like it was placed as a reference section which is fine for now. Let me leave it.
+
+2. Let me focus on actual normalization issues - punctuation, spacing, etc.
+
+Let me search for remaining half-width punctuation in the segment. Actually the search results showed no half-width commas or semicolons, and only a few colons - and those colons are in chemical formulas like "亚油酸（18:2）" which are intentional.
+
+Let me now do the normalize-segment-1 write batch with what I've observed. The main issues I can fix:
+
+- Remove extra blank lines between paragraphs in the story core (already partially done)
+- Fix "陈暮如何在被菌毯忽略的。" - this has a dangling "的" that seems like a grammatical issue, but I should not alter content, only format.
+
+Let me just focus on the blank-line normalization for the segment. I'll batch up the commands.
+
+Actually, I think I should just do the normalize-segment-1 write now. The key issues I've found:
+
+1. Triple blank lines before "### 第一卷·觉醒与扎根" (after story core) - should be double blank line max
+2. The "## 菌膜外套与共存补丁的关系" section has a blank line before the narrative "在大裂谷走廊" that's fine, but the content mix is structural - leave it.
+
+Let me batch the normalize-segment-1 commands. I need to fix the most obvious formatting issues.
+
+Let me focus on what I can definitely fix:
+- The extra blank line after story core (now "\n\n\n\n" before "### 第一卷") - reduce to "\n\n"
+- Any remaining double blank lines between sections that should be single
+
+Let me do the write now.

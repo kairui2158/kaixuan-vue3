@@ -1,0 +1,11 @@
+{
+  "commands": [
+    {
+      "content": "遗漏事实。\n\n## 卷三：势力与格局层",
+      "operation": "replace_match",
+      "reason": "normalize-segment-2：删除探测句后残留的多余空行，规范卷二末与卷三标题间隔",
+      "target": "遗漏事实。\n\n\n## 卷三：势力与格局层"
+    }
+  ],
+  "reason": "normalize-segment-2 整理：规范卷二结尾与卷三标题间的空行，消除探测句删除后遗留的多余空白"
+}

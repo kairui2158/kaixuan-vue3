@@ -1,0 +1,66 @@
+{
+  "taskId": "edit-task-1791304284803-2",
+  "status": "completed",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "处理故事核心粘贴指令残留并将核心张力归位",
+  "executedBatches": [
+    "ai-edit-muwwbk2o-5",
+    "ai-edit-muwwfse4-6",
+    "ai-edit-muwwjpp9-7",
+    "ai-edit-muwwqx34-8"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "处理故事核心粘贴指令残留并将核心张力归位",
+    "batches": [
+      "ai-edit-muwwbk2o-5",
+      "ai-edit-muwwfse4-6",
+      "ai-edit-muwwjpp9-7",
+      "ai-edit-muwwqx34-8"
+    ],
+    "batchDetails": {
+      "ai-edit-muwwbk2o-5": {
+        "segmentId": "structure-repair",
+        "expectedChange": "restructure",
+        "range": {
+          "startLine": 0,
+          "endLine": 74356
+        },
+        "writeStrategy": "structure_repair",
+        "invariantResult": "planned-deletion-only"
+      },
+      "ai-edit-muwwfse4-6": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74356
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      },
+      "ai-edit-muwwjpp9-7": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74356
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      },
+      "ai-edit-muwwqx34-8": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74356
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      }
+    }
+  }
+}

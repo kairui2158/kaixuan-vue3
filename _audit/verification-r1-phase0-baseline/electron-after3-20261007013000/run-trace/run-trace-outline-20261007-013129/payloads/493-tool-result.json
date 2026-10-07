@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-3-17va42n",
+      "title": "第一卷·觉醒与扎根",
+      "kind": "heading",
+      "level": 3,
+      "path": "第一卷·觉醒与扎根"
+    },
+    "range": {
+      "start": 960,
+      "end": 990
+    },
+    "offset": 0,
+    "maxChars": 30,
+    "content": "### 第一卷·觉醒与扎根\n\n第一卷主要聚焦陈暮刚从休眠仓出",
+    "hasMore": true,
+    "nextCursor": "section:heading-3-17va42n:30",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

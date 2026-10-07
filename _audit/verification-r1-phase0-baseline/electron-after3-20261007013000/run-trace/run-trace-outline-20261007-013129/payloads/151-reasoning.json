@@ -1,0 +1,37 @@
+我需要理解当前状态。系统提示说执行计划尚未完成，计划批次数量是 3，已完成 5 批，未覆盖批次：structure-plan。等等，这里有点混乱。
+
+让我重新理解。之前 agent.plan 返回的 steps 有：read-structure, execute-restructure, confirm-duplicates, delete-duplicates, normalize-segments, verify-plan。completionCriteria 提到 planned-deletion-only, normalize-changes-punctuation-whitespace-format-only。
+
+现在系统说"计划批次数量是 3"，"未覆盖批次：structure-plan"。还有"已成功写入 5 批（可信覆盖 5 批）"。
+
+看起来有一个执行计划，包含批次：structure-plan、normalize-segment-1、还有别的。我需要弄清楚具体的批次和剩余工作。
+
+关键要求：
+1. 按 Word 文档形式重构大纲，不缩减内容。
+2. 用 move 把误归位标题移动到正确层级。
+3. 用 insert 为无标题正文补标题。
+4. 用 replace_match/rewrite 修正既有标题层级。
+5. 中文半角标点统一为全角。
+6. 消除标题层级跳变。
+
+系统提示"未覆盖批次：structure-plan"。这说明还有一个 structure-plan 批次需要执行。这个批次应该是关于结构调整的。
+
+让我先看 agent.plan 当前的计划，以及 context.remaining 来了解剩余工作。
+
+实际上，我需要理解"批次数量是 3"具体指什么。可能指三个计划段落/批次：
+1. structure-plan（结构调整）
+2. normalize-segment-1（格式整理 0-74841）
+3. 可能还有一个？
+
+系统说"计划批次数量是 3；执行侧允许的物理请求轮次为 36 轮"。
+
+让我调用 agent.plan 和 context.remaining 获取最新状态。
+
+关键任务是继续执行。我需要：
+1. 读取结构，找出需要 move 的误归位标题。
+2. 检查中文半角标点。
+3. 完成 normalize-segment-1 覆盖 0-74841 全范围。
+
+之前我已经做了一些 normalize 和 structure 修正。但系统说"未覆盖批次：structure-plan"，意味着还有 structure 工作未完成。
+
+让我先获取 agent.plan 和 context.remaining。

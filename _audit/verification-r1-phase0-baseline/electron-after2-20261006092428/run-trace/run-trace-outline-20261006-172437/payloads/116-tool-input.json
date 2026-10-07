@@ -1,0 +1,11 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "11月19日3:14",
+      "content": "11月19日3：14",
+      "reason": "normalize：中文语境时间冒号改为全角"
+    }
+  ],
+  "reason": "normalize-segment-1：统一中文正文语境半角标点为全角；时间戳冒号修正"
+}

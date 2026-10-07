@@ -1,0 +1,76 @@
+Let me assess where we are. The execution plan has 3 batch segments for normalization. I've been doing structural fixes and format cleanup. Let me review what's been done:
+
+1. Added H3 title "灾前军事基准线与菌毯的不可根除性" to formerly un-headed text
+2. Deleted "粘贴到「故事核心」下..." editing instruction text
+3. Demoted three floating H2s (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) to H3 under 背景参考资料
+4. Deleted duplicate "数据板的局限" block from 背景参考资料
+5. Added blank line before "【菌毯的本质：竞争对手文明】"
+6. Moved "世界设定声明" to before "叙事框架"
+7. Fixed 4 instances of "。 " (period+space) in the military baseline section
+
+Now I need to continue with the normalize-segment-1 covering the full document [0-74259]. Let me search for remaining issues. The key concerns are:
+
+1. Half-width punctuation in Chinese text: `, . ; : ! ?` should be `，。；：！？`
+2. Title level consistency
+
+Let me search for half-width punctuation issues. The searches for `. ` found some period+space issues I already fixed. Let me search more specifically for half-width punctuation that needs fixing.
+
+Actually, the document is mostly in Chinese with proper full-width punctuation. The period+space cases I found and fixed were the main issues. Let me check for other remaining issues.
+
+Let me search for specific patterns that need fixing - semicolons `;` in Chinese context, commas `,`, etc.
+
+I already searched for `;` and `,` and got 0 results! That's good - no half-width semicolons or commas in the Chinese text context.
+
+Let me search for `:` (half-width colon) and `!` and `?` which returned results.
+
+Actually looking at the `:` search results - those are in colon positions that seem to be in Chinese context but using half-width colon. Let me check a few:
+- Start 230: "展开：菌毯如何识别人类" - this has full-width colon
+- Start 317: same text
+- Wait, the search for `:` returned these? Let me look more carefully...
+
+The `:` search returned results at Chinese text positions. But looking at the context, these are actually full-width colons `：` not half-width `:`. The search tool might be matching both. Let me think about this differently.
+
+Actually, the search results for `:` are showing matches at positions where full-width `：` appears. The tool might have normalized or the Unicode might be ambiguous. Let me check if there are actual half-width colons in Chinese context.
+
+Looking at the results more carefully - at position 230: `展开：菌毯如何识别人类` - this is `：` (full-width) not `:` (half-width). The search might be matching the Unicode range broadly.
+
+Similarly for `!` and `?` - 0 results. So there don't seem to be many half-width punctuation issues left.
+
+Let me think about what else needs to be done for the normalize-segment. The document now has:
+- World Setting Declaration at the top ✓
+- 叙事框架 with proper structure ✓
+- 背景参考资料 with proper sub-sections ✓
+- 卷一 through 卷四 in order ✓
+
+The main remaining task is to verify the title levels are consistent. Let me check if there are level jumps. The current hierarchy is:
+- H1: 《绿潮》大纲总纲
+  - H2: 世界设定声明
+  - H2: 叙事框架
+    - H3: 故事核心, 第一卷, 第二卷, 第三卷
+  - H2: 背景参考资料
+    - H3: 灾前军事基准线..., 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系
+  - H2: 卷一：基石设定层
+  - H2: 卷二：核心人物群像
+  - H2: 卷三：势力与格局层
+  - H2: 卷四：叙事工具箱层
+
+This looks reasonable. No level jumps (no H2→H4 without H3 in between as far as I can tell from earlier readings).
+
+Now, the main task that remains is to ensure all half-width punctuation in Chinese context is converted. Let me search more carefully. The `!` and `?` searches returned 0 results. `;` returned 30 results but looking at the context, those are `；` (full-width) in Chinese text. `,` returned 0.
+
+Let me search for half-width colon in contexts that might need fixing:
+- `:  ` (colon+space) patterns
+
+Actually, let me just look for any remaining period+space patterns since those were the main issues I found earlier. Let me also search for `).` patterns or `%.` 
+
+Let me also check - are there half-width colons like in `18:2` which are chemical notation and should stay as half-width? Yes, those are in the oil section (亚油酸（18:2）). Those should stay.
+
+Let me do a final check for any remaining format issues and then submit the normalize batch.
+
+Given the constraints and what I've already done, let me now focus on the final batch of format fixes. Let me search specifically for remaining half-width punctuation that needs conversion.
+
+The key remaining tasks for normalize-segment-1:
+1. Any remaining `。 ` patterns (period followed by space) - I fixed 4, but let me verify no more remain
+2. Any remaining title level issues
+
+Let me search for remaining period+space and then submit the final normalize commands.

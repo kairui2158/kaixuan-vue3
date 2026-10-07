@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-2-10q4nra",
+      "title": "菌膜外套：有限资源的临时通行方案",
+      "kind": "heading",
+      "level": 2,
+      "path": "菌膜外套：有限资源的临时通行方案"
+    },
+    "range": {
+      "start": 17356,
+      "end": 17556
+    },
+    "offset": 0,
+    "maxChars": 200,
+    "content": "## 菌膜外套：有限资源的临时通行方案\n\n陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。但林知意在对SC-α备份菌株进行深入研究后，结合方岫岩数据板中关于SC-α菌株信息素伪装机制的理论推导，提出了一个折中方案：仿制一种低版本的单一功效菌膜外套。这里需要强调的是：数据板提供了信息素伪装机制的理论基础——即SC-α菌丝向菌毯广播“无生命有机质”静默声明的分子结构是",
+    "hasMore": true,
+    "nextCursor": "section:heading-2-10q4nra:200",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

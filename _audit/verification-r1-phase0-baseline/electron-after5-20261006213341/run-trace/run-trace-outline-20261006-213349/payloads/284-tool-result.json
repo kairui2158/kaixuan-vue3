@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-2-dxwz25",
+      "title": "第三部分　数据板的局限",
+      "kind": "heading",
+      "level": 2,
+      "path": "第三部分　数据板的局限"
+    },
+    "range": {
+      "start": 16365,
+      "end": 16405
+    },
+    "offset": 0,
+    "maxChars": 40,
+    "content": "## 第三部分　数据板的局限\n\n数据板不是百宝箱。方岫岩在八个月里记录下的，是他",
+    "hasMore": true,
+    "nextCursor": "section:heading-2-dxwz25:40",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

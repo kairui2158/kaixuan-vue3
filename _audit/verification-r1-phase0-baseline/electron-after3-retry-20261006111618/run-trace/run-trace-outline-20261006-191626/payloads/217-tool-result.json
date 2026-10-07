@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-4-1k3kxvb",
+      "title": "7.7 唯一例外：菌膜装甲的原理",
+      "kind": "heading",
+      "level": 4,
+      "path": "7.7 唯一例外：菌膜装甲的原理"
+    },
+    "range": {
+      "start": 47813,
+      "end": 47863
+    },
+    "offset": 340,
+    "maxChars": 50,
+    "content": "落叶。没有异常信号，不需要查验。陈暮不是隐形了，是被系统主动忽略了。这是灾前一项未完成的基础研究所留",
+    "hasMore": true,
+    "nextCursor": "section:heading-4-1k3kxvb:390",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

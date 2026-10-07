@@ -1,0 +1,35 @@
+Let me analyze the current state and plan the work. The user wants me to restructure the outline as a Word document format. Based on the previous audit, several things have already been done:
+
+1. Fixed heading levels in "背景参考资料·军事基准线"
+2. Removed duplicate copy of "数据板的局限"
+3. Converted tab-separated pseudo-tables to GFM tables
+4. Cleaned up edit instruction text in 故事核心
+5. Normalized empty lines before titles
+
+Now the user says "符合我的要求，分叉一允许去重。不用出预览，直接写入" - they're confirming the approach and want me to continue with deduplication (分叉一) and continue writing.
+
+The execution plan has 3 phases:
+1. Read structure, use move/insert/replace_match to fix heading levels and mispositioned content
+2. Read-only confirm duplicates, then delete them
+3. Normalize punctuation, whitespace, numbering, and heading levels across the full document
+
+The key requirement is: 中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）
+
+Let me first check what needs to be done:
+1. Check for remaining duplicate content
+2. Normalize Chinese punctuation (half-width to full-width)
+3. Check heading hierarchy for consistency
+
+Let me start by reading the full document to identify issues. But the document is 74491 chars - too large to read at once. I need to read it in segments.
+
+Let me first check for remaining issues from the previous round. The audit shows:
+- The "粘贴到" fragments were removed
+- The "【】" marks were converted to proper headings
+- The duplicate in 背景参考资料 was handled
+
+Now I need to:
+1. Check for any remaining duplicate content
+2. Normalize Chinese punctuation throughout
+3. Fix any heading level inconsistencies
+
+Let me start by reading the document in sections to find issues.

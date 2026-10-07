@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-2-z4sxm8",
+      "title": "数据板的局限",
+      "kind": "heading",
+      "level": 2,
+      "path": "数据板的局限"
+    },
+    "range": {
+      "start": 16403,
+      "end": 16603
+    },
+    "offset": 0,
+    "maxChars": 200,
+    "content": "## 数据板的局限\n\n数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播“无生命有机质”静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是“推测”和“可能”",
+    "hasMore": true,
+    "nextCursor": "section:heading-2-z4sxm8:200",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

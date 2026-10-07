@@ -1,0 +1,18 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "那个变量。\n#### 核心张力：保护即加速",
+      "content": "那个变量。\n\n#### 核心张力：保护即加速",
+      "reason": "故事核心标题前补空行"
+    },
+    {
+      "operation": "replace_match",
+      "target": "各有各的争法。\n#### 菌毯的本质：竞争对手文明",
+      "content": "各有各的争法。\n\n#### 菌毯的本质：竞争对手文明",
+      "reason": "故事核心标题前补空行"
+    }
+  ],
+  "protocolVersion": 1,
+  "reason": "整理故事核心节标题前空行"
+}

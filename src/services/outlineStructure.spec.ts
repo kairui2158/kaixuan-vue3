@@ -95,6 +95,80 @@ describe('parseOutlineStructure', () => {
     expect(first.mapText).toBe(second.mapText)
     expect(first.mapText).toContain('大纲结构地图')
     expect(first.mapText).toContain('第一卷：风暴起点')
-    expect(first.mapText).toMatch(/\[\w+-\d+\]/)
+    expect(first.mapText).toMatch(/\[[a-z]+-[\w-]+\]/)
+  })
+
+  it('keeps unaffected numbered section ids stable across insertion and deletion', () => {
+    const before = [
+      '第1节 出发',
+      '出发内容。',
+      '第2节 渡口',
+      '渡口内容。',
+      '第3节 归途',
+      '归途内容。'
+    ].join('\n')
+    const inserted = [
+      '第0节 序章',
+      '序章内容。',
+      ...before.split('\n')
+    ].join('\n')
+    const deleted = before.replace('第2节 渡口\n渡口内容。\n', '')
+
+    const beforeIds = parseOutlineStructure(before).nodes.map(node => node.id)
+    const insertedIds = parseOutlineStructure(inserted).nodes.map(node => node.id)
+    const deletedIds = parseOutlineStructure(deleted).nodes.map(node => node.id)
+
+    expect(beforeIds).toHaveLength(3)
+    expect(insertedIds.slice(1)).toEqual(beforeIds)
+    expect(deletedIds).toEqual([beforeIds[0], beforeIds[2]])
+  })
+
+  it('keeps section ids stable when top-level sections are reordered', () => {
+    const source = [
+      '第1节 出发',
+      '出发内容。',
+      '第2节 渡口',
+      '渡口内容。'
+    ].join('\n')
+    const reordered = [
+      '第2节 渡口',
+      '渡口内容。',
+      '第1节 出发',
+      '出发内容。'
+    ].join('\n')
+    const beforeIds = parseOutlineStructure(source).nodes.map(node => node.id)
+    const afterIds = parseOutlineStructure(reordered).nodes.map(node => node.id)
+    expect(afterIds).toEqual([beforeIds[1], beforeIds[0]])
+  })
+
+  it('keeps unaffected paragraph ids stable and disambiguates repeated paragraphs', () => {
+    const first = '甲'.repeat(900)
+    const second = '乙'.repeat(900)
+    const source = [
+      first,
+      '',
+      second,
+      '',
+      first
+    ].join('\n')
+    const inserted = `${'丙'.repeat(900)}\n\n${source}`
+    const beforeIds = parseOutlineStructure(source).nodes.map(node => node.id)
+    const afterIds = parseOutlineStructure(inserted).nodes.map(node => node.id)
+
+    expect(beforeIds).toHaveLength(3)
+    expect(new Set(beforeIds).size).toBe(3)
+    expect(afterIds.slice(1)).toEqual(beforeIds)
+  })
+
+  it('keeps duplicate markdown headings addressable with distinct ids', () => {
+    const source = [
+      '# 第1节',
+      '内容一。',
+      '# 第1节',
+      '内容二。'
+    ].join('\n')
+    const ids = parseOutlineStructure(source).nodes.map(node => node.id)
+    expect(ids).toHaveLength(2)
+    expect(new Set(ids).size).toBe(2)
   })
 })

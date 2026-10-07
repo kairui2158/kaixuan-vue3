@@ -1,0 +1,8 @@
+{
+  "ok": false,
+  "error": {
+    "code": "integrity_failed",
+    "message": "结构完整性校验未通过：发现 1 个严重结构问题，默认阻断应用；具体问题：[critical] heading_count_reduced: 标题数量从 214 降到 213，可能破坏层级。请按具体问题调整后整批重试；原文未修改，预演通过条目也未写入，禁止重复提交原批次，移动整节请使用 move 操作。",
+    "retryable": true
+  }
+}

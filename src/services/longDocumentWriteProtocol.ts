@@ -2,6 +2,15 @@ import type { EditorEditOperation } from './editorEditSemantics'
 import { EDITOR_EDIT_OPERATIONS } from './editorEditSemantics'
 import type { LongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
 
+/**
+ * Single source for the long-document physical-request budget. Prompts,
+ * orchestrator limits, and the shared request counter must all use this
+ * value; otherwise the model is promised more rounds than the runtime allows.
+ */
+export function calculateLongDocumentPhysicalRequestBudget(segmentCount: number): number {
+  return Math.min(64, 24 + Math.max(0, Math.floor(segmentCount) - 1) * 6)
+}
+
 const DIRECT_TARGETED_OPERATIONS: readonly EditorEditOperation[] = [
   'insert',
   'replace_selection',
@@ -119,7 +128,7 @@ export function buildLongDocumentWriteDirective(
 }
 
 function describePhysicalRequestBudget(plan: LongDocumentExecutionPlan): number {
-  return Math.min(64, 24 + Math.max(0, plan.segments.length - 1) * 6)
+  return calculateLongDocumentPhysicalRequestBudget(plan.segments.length)
 }
 
 function describePlannedSegments(plan: LongDocumentExecutionPlan): string {

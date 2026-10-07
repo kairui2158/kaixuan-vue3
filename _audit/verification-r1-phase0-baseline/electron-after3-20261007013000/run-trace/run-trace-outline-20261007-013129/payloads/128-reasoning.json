@@ -1,0 +1,112 @@
+Let me analyze the current state of the document. The user asked me to restructure the outline in a Word document format without reducing content.
+
+Looking at the current state:
+
+1. The document has a top-level `# 《绿潮》大纲总纲` heading
+2. Major sections include:
+   - `## 叙事框架` (with story core + three volumes inside)
+   - `## 背景参考资料` (with military analysis inside)
+   - `## 数据板的局限`
+   - `## 菌膜外套：有限资源的临时通行方案`
+   - `## 菌膜外套与共存补丁的关系` (now fixed to not contain the sub-sections)
+   - `## 六大势力概览` (fixed to h2)
+   - `## 圣萌会的崛起` (fixed to h2)
+   - `## 巨树生长与天府都陷落` (fixed to h2)
+   - `## 世界设定声明`
+   - `## 卷一：基石设定层`
+   - `## 卷二：核心人物群像`
+   - `## 卷三：势力与格局层`
+   - `## 卷四：叙事工具箱层`
+
+So the document structure is already mostly reasonable. The user asked for "Word文档的形式" - this likely means they want a clean, well-organized document with proper hierarchy. But wait - I need to think about what "Word文档的形式" really means.
+
+Actually, looking more carefully, the user wants the outline restructured "like a Word document". This could mean:
+1. Better organized with proper chapters/sections
+2. No loose structural issues (like the ones I already fixed)
+3. Perhaps moving some scattered sections into proper parent hierarchies
+
+Let me think about what still needs fixing:
+
+Looking at the current structure more carefully:
+
+- `## 背景参考资料` contains `### 灾前军事基准线与菌毯的不可根除性` - this seems fine
+- `## 数据板的局限` - standalone section, seems fine
+- `## 菌膜外套：有限资源的临时通行方案` - standalone, already covered in more detail in 卷一
+- `## 菌膜外套与共存补丁的关系` - standalone
+- `## 六大势力概览` - standalone h2 now
+- `## 圣萌会的崛起` - standalone h2 now
+- `## 巨树生长与天府都陷落` - standalone h2 now
+- `## 世界设定声明` - standalone, fine
+
+Then there's:
+- `## 卷一：基石设定层`
+- `## 卷二：核心人物群像`
+- `## 卷三：势力与格局层`
+- `## 卷四：叙事工具箱层`
+
+So the document has a mix of:
+1. Standalone reference sections (背景参考资料, 数据板的局限, 菌膜外套, etc.)
+2. The four main volumes (卷一~卷四)
+
+The "Word document form" restructuring likely means organizing everything under clear major parts, like:
+
+**Part 1: 总纲与叙事框架** (Narrative Framework)
+**Part 2: 背景与参考** (Background & Reference) 
+**Part 3: 卷一：基石设定层**
+**Part 4: 卷二：核心人物群像**
+**Part 5: 卷三：势力与格局层**
+**Part 6: 卷四：叙事工具箱层**
+
+But wait - I can't just change content, I can only restructure headings and fix issues.
+
+Actually, looking at the current structure again after my fixes, it's already in decent shape. The "loose" sections (背景参考资料, 数据板的局限, 菌膜外套, 六大势力概览, etc.) are now properly at h2 level. 
+
+The key things remaining:
+1. The "粘贴到" instruction text was already gone (not found in the re-read)
+2. The "菌毯不是纯自然力更不是无意识的灾害" missing comma - let me fix this
+3. The 【核心张力】section needs proper spacing
+
+Let me re-read the story core more carefully again... ah, I see that the paste instruction text is NOT there - it was already cleaned up in a previous edit. My earlier attempt to delete it was redundant.
+
+What's still visible is:
+- `菌毯不是纯自然力更不是无意识的灾害` - needs a comma
+- `【核心张力：保护即加速】\n陈暮是唯一...` - missing blank line after the title
+
+Let me fix these two issues and then assess the overall structure.
+
+For the "Word document" restructuring, I think the user probably just wants:
+- Clean hierarchy (which we've mostly fixed)
+- No stray content
+- Proper formatting
+
+Let me check if there are any other structural issues. The main thing I see is that some sections like "六大势力概览", "圣萌会的崛起", and "巨树生长与天府都陷落" are now standalone h2 sections but they feel like they should be part of something larger. Perhaps they should be gathered under a parent heading...
+
+Actually, looking at the content again:
+- "六大势力概览" is an overview of the six factions
+- "圣萌会的崛起" is about the rise of St. Germination
+- "巨树生长与天府都陷落" is about the Giant Tree and fall of Tianfudu
+
+These are essentially narrative/background sections that could go under the "背景参考资料" parent... but "背景参考资料" already has military analysis inside it. Hmm.
+
+Actually, I think these three sections ("六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落") were originally structured as part of the background reference material flow. Now they're at h2 level, which makes them siblings to `## 背景参考资料`.
+
+This is actually fine as a Word document structure. In a Word doc, you'd have multiple top-level sections. The structure would look like:
+
+1. 叙事框架 (Narrative Framework)
+2. 背景参考资料 (Background Reference)
+3. 数据板的局限 (Data Board Limitations)
+4. 菌膜外套 (Fungal Membrane Coat)
+5. 菌膜外套与共存补丁的关系 (Coat vs Coexistence Patch)
+6. 六大势力概览 (Six Factions Overview)
+7. 圣萌会的崛起 (Rise of St. Germination)
+8. 巨树生长与天府都陷落 (Giant Tree Growth & Fall of Tianfudu)
+9. 世界设定声明 (World Setting Statement)
+10. 卷一~卷四 (Volumes 1-4)
+
+This actually looks fine for a Word document. Let me just fix the remaining small issues and present the final structure.
+
+Let me fix:
+1. The comma in "菌毯不是纯自然力更不是无意识的灾害"
+2. The spacing before "陈暮是唯一被菌毯忽略的人类" after 【核心张力】
+
+And maybe also check for any other similar issues.

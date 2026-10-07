@@ -1,5 +1,8 @@
 import { getAiService } from './aiService'
-import { appendDialogueToolSurfaceDeclaration } from './dialogueToolSurface'
+import {
+  appendDialogueToolSurfaceDeclaration,
+  buildDialogueToolSurfaceDeclarationAudit,
+} from './dialogueToolSurface'
 import { DeAiSamples } from './deai-samples.js'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from './generationValidity'
 import { loadRealSkill } from './realSkillLoader'
@@ -35,6 +38,7 @@ type CallAiToolResultLike = {
   reasoning?: string
   contextBudget?: NonNullable<RealSkillExecutionResult['apiMeta']>['contextBudget']
   usageReconciliation?: unknown
+  textOrigin?: 'application' | 'model'
 }
 
 function diagnostic(
@@ -507,6 +511,22 @@ function dispatchStepEvent(detail: {
   }
 }
 
+function dispatchToolSurfaceDeclarationAudit(audit: {
+  type: 'dialogue-tool-surface-declaration'
+  source: 'home' | 'outline'
+  trigger: 'request-built'
+  visibleToModel: boolean
+  toolSurface: unknown
+  text: string
+  origin: 'application'
+}) {
+  try {
+    window.dispatchEvent(new CustomEvent('real-skill:dialogue-tool-surface-declaration', { detail: audit }))
+  } catch {
+    // Audit events are diagnostic only; execution must continue without them.
+  }
+}
+
 export async function executeRealSkill(options: RealSkillExecuteOptions): Promise<RealSkillExecutionResult> {
   const diagnostics: RealSkillDiagnostic[] = []
   const errors: string[] = []
@@ -614,6 +634,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
   let finalReasoningText: string | undefined
   let finalContextBudget: NonNullable<RealSkillExecutionResult['apiMeta']>['contextBudget']
   let finalUsageReconciliation: unknown
+  let finalTextOrigin: 'application' | 'model' | undefined
   let postProcessReport: RealSkillPostProcessReport | undefined
   let toolCalls: NonNullable<RealSkillExecutionResult['apiMeta']>['toolCalls']
   let toolResults: NonNullable<RealSkillExecutionResult['apiMeta']>['toolResults']
@@ -665,9 +686,19 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         appendDialogueToolSurfaceDeclaration(
           options.systemPromptSuffix || '',
           options.toolSurface,
-          { activeEditTask: options.activeEditTask },
-        )
+          {
+            activeEditTask: options.activeEditTask,
+            executionPlan: options.executionPlan,
+          },
+        ),
       )
+      const declarationAudit = buildDialogueToolSurfaceDeclarationAudit({
+        source: 'outline',
+        toolSurface: options.toolSurface,
+        activeEditTask: options.activeEditTask,
+        executionPlan: options.executionPlan,
+      })
+      dispatchToolSurfaceDeclarationAudit(declarationAudit)
       const buildRequest = (promptSuffix?: string) => {
         const effectiveSystemPrompt = promptSuffix
           ? `${systemPrompt}\n\n${promptSuffix}`
@@ -923,6 +954,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           finalReasoningText = (result as CallAiToolResultLike).reasoning || finalReasoningText
           finalContextBudget = (result as CallAiToolResultLike).contextBudget || finalContextBudget
           finalUsageReconciliation = (result as CallAiToolResultLike).usageReconciliation ?? finalUsageReconciliation
+          finalTextOrigin = (result as CallAiToolResultLike).textOrigin ?? finalTextOrigin
           toolCalls = (result as CallAiToolResultLike).toolCalls
           toolResults = (result as CallAiToolResultLike).toolResults
           toolRequestDeltas = (result as CallAiToolResultLike).toolRequestDeltas
@@ -966,6 +998,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           reasoningText: finalReasoningText || '',
           contextBudget: finalContextBudget,
           usageReconciliation: finalUsageReconciliation,
+          textOrigin: finalTextOrigin,
           requestMessages: capturedRequestMessages,
             toolCalls,
             toolResults,
@@ -999,6 +1032,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           reasoningText: finalReasoningText || '',
           contextBudget: finalContextBudget,
           usageReconciliation: finalUsageReconciliation,
+          textOrigin: finalTextOrigin,
           requestMessages: capturedRequestMessages,
           toolCalls,
           toolResults,
@@ -1032,6 +1066,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       reasoningText: finalReasoningText || '',
       contextBudget: finalContextBudget,
       usageReconciliation: finalUsageReconciliation,
+      textOrigin: finalTextOrigin,
       requestMessages: capturedRequestMessages,
       toolCalls,
       toolResults,

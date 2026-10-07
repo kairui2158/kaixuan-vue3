@@ -1,0 +1,70 @@
+{
+  "taskId": "edit-task-1791287355683-2",
+  "status": "running_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "按用户确认的「分叉一去重」删除已核实的严格子集重复节7.8",
+  "executedBatches": [
+    "ai-edit-muwm8phs-8",
+    "ai-edit-muwmft7w-9",
+    "ai-edit-muwmmlwi-a"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "activeBatchId": "ai-edit-muwmtetg-b",
+  "executionPlan": {
+    "goal": "按用户确认的「分叉一去重」删除已核实的严格子集重复节7.8",
+    "batches": [
+      "ai-edit-muwm8phs-8",
+      "ai-edit-muwmft7w-9",
+      "ai-edit-muwmmlwi-a",
+      "ai-edit-muwmtetg-b"
+    ],
+    "batchDetails": {
+      "ai-edit-muwm8phs-8": {
+        "segmentId": "structure-plan",
+        "expectedChange": "remove_duplicate",
+        "range": {
+          "startLine": 0,
+          "endLine": 74586
+        },
+        "writeStrategy": "delete",
+        "invariantResult": "planned-deletion-only"
+      },
+      "ai-edit-muwmft7w-9": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74586
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      },
+      "ai-edit-muwmmlwi-a": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74586
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      },
+      "ai-edit-muwmtetg-b": {
+        "segmentId": "structure-repair",
+        "expectedChange": "restructure",
+        "range": {
+          "startLine": 0,
+          "endLine": 74586
+        },
+        "writeStrategy": "structure_repair",
+        "invariantResult": "planned-deletion-only"
+      }
+    }
+  },
+  "batchId": "ai-edit-muwmtetg-b",
+  "segmentId": "structure-repair",
+  "expectedChange": "restructure",
+  "invariantResult": "planned-deletion-only"
+}

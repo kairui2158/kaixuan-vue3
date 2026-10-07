@@ -1,0 +1,17 @@
+The user wants me to restructure the outline into a Word document format without reducing content. I've been working through the structure-repair and normalize-segment phases. Let me now focus on the remaining normalization tasks - specifically looking for any remaining duplicate content (like the "菌膜外套" and "数据板的局限" duplicates between the 叙事框架-背景参考资料 area and the 卷一 area), and finishing the punctuation/formatting normalization.
+
+Let me now search for the duplicate "菌膜外套" section in the main body to verify if it's a duplicate that needs removal, and also check for the duplicate "数据板的局限" section between the 背景参考资料 area and the standalone heading.
+
+The current structure after the write shows:
+- heading-16217 "数据板的局限" (level 2) - this is the standalone one that should remain
+- heading-16772 "菌膜外套：有限资源的临时通行方案" (level 2) - standalone that should remain
+- heading-17520 "菌膜外套与共存补丁的关系" (level 2) - standalone that should remain
+
+But also in 卷一:基石设定层 there are:
+- 7.8 菌膜外套 (in the 变异体攻击人类核心机制 section)
+- 7.9 与终局的衔接 (also there)
+- The 数据板的局限 / 菌膜外套 descriptions may also appear in the earlier sections
+
+Let me search for these potential duplicates and then handle the punctuation normalization for the normalize-segment-2 part. Let me also look for format issues I can fix in a batch.
+
+Let me now read the full current document map to understand the structure, then search for specific issues.

@@ -683,3 +683,52 @@
 - 验证：runTrace 导出/存储专项 81 测试通过，type-check 通过；旧 2026-10-04 导出证据确认正文存在于 payload 文件，本修复让其在主 JSON 中可直接定位。
 - 客户重点复验：导出深度运行记录后，SKILL 层应能直接读取 `apiResponseIndex` 中每个 API 回复的 payload 文件，不再依赖已被外置清空的 `responseText` 字段。
 - 封装：升级 3.74.1 并执行完整 `npm run build` 与 `node scripts/verify-packaging-3-74-1.mjs`；安装器 `dist\神意助手-Setup-3.74.1.exe`，SHA256 `0c3ac48cae8845135e567def24b3c4343de5c5e88fc58f450076fda13b1008cc`，真实启动、renderer 74 文件、`electronAPI` 75 方法与可自选安装目录核验通过。
+
+# 2026-10-05 组件生命周期退役与收敛
+
+- 文件：[_audit/DEV_LOG_2026-10-05_component-lifecycle-retirement.md](_audit/DEV_LOG_2026-10-05_component-lifecycle-retirement.md)
+- 范围：执行组件存在必要性方案，退役流水线旧 AI 工具栏与 `useAiTools`，迁移大纲自动拆解，修复编辑器写入跟随、DeAI 预算续命、`timeoutHint`、旧状态名归一、子 Agent 生命周期与共享物理请求预算根因。
+- 验证：type-check 通过；服务总套件 129 文件 / 1458 测试通过；`build:vue` 通过；`verify-component-lifecycle-electron.mjs` PASSED，证据 `_audit/verification-component-lifecycle/`。子 Agent live 与长文档 live 未冒充通过，详见日志“诚实边界”。
+- 客户重点复验：生成流水线只保留 AI起名；大纲自动拆解可用且有 trace；DeAI 预算耗尽可继续；API 写入时编辑器跟随滚动且用户滚动可接管；运行记录可见 timeout hint。
+
+# 2026-10-06 API 直写覆盖收敛修复
+
+- 文件：[_audit/DEV_LOG_2026-10-06_direct-write-coverage-convergence.md](_audit/DEV_LOG_2026-10-06_direct-write-coverage-convergence.md)
+- 范围：修复 `editor.write` 生产返回 `data.coverage` 被覆盖判定层漏读的问题；单段 direct 成功写入不再被误判为 `partially_applied`，消除 25+ 次物理请求空转到 `physical_request_limit` 的循环。
+- 验证：type-check 通过；服务总套件 129 文件 / 1466 测试通过；`build:vue` 通过；`verify-model-interference-electron.mjs` PASSED，edit-intent 2 次请求完成写入与正文收口，discuss-intent 保持只读。证据 `_audit/verification-model-interference-electron/evidence.json`。
+- 客户重点复验：编辑类请求应一次工具写入后很快收口，不再长时间“正在等待 API 返回”；讨论类请求仍不提供 `editor.write`。
+
+# 2026-10-06 经验文件升级 v8
+
+- 文件：[_audit/DEV_LOG_2026-10-06_experience-file-v8.md](_audit/DEV_LOG_2026-10-06_experience-file-v8.md)
+- 范围：新增 G1.15 系统层递进诊断门禁，要求症状层、链路层、组件组合层、机制层四层定位，并显式假设“正常组件组合后互相干扰”；使用路由同步加读规则。
+- 验证：本轮为经验与方案文档任务，不涉及生产代码；`git diff --check` 通过，G1.15 与使用路由已逐行复核。
+- 后续：文件名仍为 `神意开发经验总结_v7.md`，待用户确认后随“去旧补新”统一改名，避免 v7/v8 双文件并存。
+
+# 2026-10-06 逐轮对话复盘与经验文件 v8.1
+
+- 文件：[_audit/RETROSPECTIVE_2026-10-06_DIALOGUE_ROUND_REPLAY.md](_audit/RETROSPECTIVE_2026-10-06_DIALOGUE_ROUND_REPLAY.md)
+- 范围：按用户要求完成 36 轮逐轮对话因果复盘，每轮登记触发原话、讨论动因、分歧、验证结果与下次第一步；经验文件升级 v8.1，新增 G1.16 对话因果复盘门禁，并把“经验回写必须先回放逐轮因果”加入使用路由。
+- 验证：本轮为文档任务，不涉及生产代码；`git diff --check` 通过；G1.16、DEV_LOG 与总索引登记已逐行复核。
+- 诚实边界：用户原话完整保留；我旧回复不可逐字恢复，因果链由用户原话、当轮交付物、DEV_LOG、方案与代码证据重建，不冒充逐字回放。
+- 后续：文件名仍为 `神意开发经验总结_v7.md`，待用户确认后随“去旧补新”统一改名，避免旧新双文件并存。
+
+# 2026-10-06 执行者自盲区门禁与经验文件 v8.2
+
+- 文件：[_audit/RETROSPECTIVE_2026-10-06_DIALOGUE_ROUND_REPLAY.md](_audit/RETROSPECTIVE_2026-10-06_DIALOGUE_ROUND_REPLAY.md)
+- 范围：追加 R37 用户纠偏；经验文件升级 v8.2，新增 G1.17 执行者自盲区，覆盖证明式验证、设计意图当验收标准、自建组件默认正常、替代证据顶替真实证据、方案确认后停止怀疑五类根源；使用路由新增方案确认后与写码前必须执行作者反证。
+- 验证：本轮为文档门禁任务，不涉及生产代码；`git diff --check` 通过；G1.17、R37、DEV_LOG 与总索引登记已逐行复核。
+- 后续：文件名仍为 `神意开发经验总结_v7.md`，待用户确认后随“去旧补新”统一改名，避免旧新双文件并存。
+
+# 2026-10-06 反偷懒台账门禁与经验文件 v8.3
+
+- 文件：[_audit/DEV_LOG_2026-10-06_experience-file-v8.md](_audit/DEV_LOG_2026-10-06_experience-file-v8.md)
+- 范围：审计经验文件自身偷懒漏洞，确认口头合规、自判路由、无凭证回头看、作者自评成熟度、不可判定停止条件、无冲突裁决顺序六类通道；新增 G0.12 门禁执行台账，要求非平凡任务七节台账与实际行号读证；维护规则新增 L0 > L1 > L2 的门禁冲突裁决；复盘追加 R38。
+- 验证：本轮为文档门禁任务，不涉及生产代码；`git diff --check` 通过；G0.12、R38、DEV_LOG 与总索引登记已逐行复核。
+- 后续：从下一个非平凡任务开始强制执行 `_audit/TASK_LEDGERS/` 台账；文件名仍为 `神意开发经验总结_v7.md`，待用户确认后统一改名。
+
+# 2026-10-06 遗留问题收敛总方案（待审核）
+
+- 文件：[_audit/PROPOSAL_2026-10-06_RESIDUAL_CONVERGENCE_MASTER_PLAN.md](_audit/PROPOSAL_2026-10-06_RESIDUAL_CONVERGENCE_MASTER_PLAN.md)
+- 范围：合并 R1-R7 全部登记遗留：长文档单源重构、子 Agent 退役、供应商 live、意图语料、工具手册固化、1M 实测、Phase 7 heartbeat 收口。
+- 状态：方案待用户审核，未改生产代码；R1 内设 section id 稳定性与滚动上下文两个放行点。

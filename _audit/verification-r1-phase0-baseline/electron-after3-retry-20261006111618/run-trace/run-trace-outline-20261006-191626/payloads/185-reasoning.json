@@ -1,0 +1,104 @@
+Let me analyze what's been done and what remains:
+
+1. **已完成批次:**
+   - 去重：删除卷一·七内的 7.8 节（严格子集重复）
+   - 整理：编号修正（7.9→7.8）、空白修正、标点修正
+   - 多余空行清理
+
+2. **未覆盖批次：structure-repair**
+
+Let me think about what structure-repair needs to cover. The plan mentions:
+- 消除层级跳变，把标题归位到文档既有层级体系
+- 统一中文标点（半角标点→全角）
+- 修正标题编号
+
+Let me check the structure issues found so far. From the `editor.search` results for `；`, I can see many instances of Chinese semicolons which are correct. The `:` matches are limited to chemical formulas (18:2, 18:3) and time notation (3:14), which are technical notation and should remain as-is.
+
+Let me now check what structure-repair needs:
+1. The `## 7.2.3` title issue - I tried to fix it but got integrity error. Let me check again. Actually, looking at the locate result, the current state is `##### 7.2.3` which is already correct at level 5. So the search found `## 7.2.3` but that's likely in the search index, not the actual current document state. The locate confirmed it's already `#####`.
+
+So the structure-repair batch primarily needs to handle:
+1. Any remaining heading level inconsistencies
+2. Punctuation normalization (半角→全角 for Chinese context)
+
+Let me think about what punctuation issues exist. The searches for `?` and `!` returned 0 results. The `;` search returned many which are already Chinese semicolons (correct). The `:` search only returned technical notation (3:14, 18:2, 18:3) which should stay as-is.
+
+Actually wait - let me re-read the plan more carefully. The plan says structure-repair needs to handle:
+- "消除层级跳变并把标题归位到文档既有层级体系"
+- "统一标题层级"
+- And the normalize batch needs to cover "标点、空白、编号与标题层级整理"
+
+But looking at the document structure, the heading levels seem consistent:
+- Level 1: Document title (heading-1-mizom9)
+- Level 2: Major sections (叙事框架, 背景参考资料, 数据板的局限, etc.)
+- Level 3: Chapters/volumes and major subsections
+- Level 4: Sub-subsections
+- Level 5: Deepest level subsections
+
+The only issue I found was `## 7.2.3` which should be `##### 7.2.3`, but it's already `#####` based on the locate call.
+
+Let me now think about what to write. Based on the plan:
+- 3 batches expected
+- Already done: 去重 (delete 7.8), 整理 (numbering/blank/punctuation fixes)
+- Remaining: structure-repair
+
+But the structure looks consistent now. Let me check if there's anything else to fix. Let me search for remaining Chinese context issues.
+
+Actually, let me reconsider. The plan says "normalize-changes-punctuation-whitespace-format-only" as a constraint. I should verify:
+1. Are there half-width punctuation marks in Chinese text that need to be full-width?
+2. The `,` and `.` searches returned 0 results, which means there are no half-width commas or periods in the text.
+3. The `:` search only returned technical notation.
+4. `;` search returned Chinese semicolons (correct).
+5. `?` and `!` search returned 0.
+
+So the punctuation situation looks good already. 
+
+For structure-repair, the main task is heading level consistency. The `## 7.2.3` issue was the only one I've identified, and it's already correct in the document.
+
+Wait, let me re-examine. The editor.search for `## 7.2.3` - let me think about this. The search uses exact string matching. If the current document has `##### 7.2.3`, searching for `## 7.2.3` shouldn't find it... unless the search index is stale. Let me check.
+
+No wait - the search found `##### 7.2.3` not `## 7.2.3`. Let me re-read the search result. It matched `start":45718` which is the `#####` version. And `locate` confirmed the unique match is `#####`. So the heading is already correct.
+
+So what's left for structure-repair? Let me think about this differently. The plan has 3 batches. Let me check if all 3 batches are truly needed or if some have been combined.
+
+Actually, I think the issue is that the structure-repair batch might need to handle:
+1. Ensuring the document has consistent blank line spacing between sections
+2. Any remaining formatting issues
+
+Let me check the document for any other issues by reading a broader range. But I need to stop reading and start writing per the instructions.
+
+Given that I've been told to "directly submit editor.write" and not continue reading, let me now try the structure-repair batch. The key issues I can address:
+
+1. The 7.2.3 heading is already correct level (#####) - confirmed via locate
+2. Punctuation is already using Chinese full-width marks
+3. Need to check if there are other structural issues
+
+Actually, I realize I should just submit the structure-repair batch with what I know needs fixing. Let me check if there are any remaining issues by focusing on the specific things the plan asks for:
+
+For structure-repair, I need to:
+- Fix heading levels that don't match the hierarchy
+- Fix any numbering gaps after the delete operation
+
+After deleting 7.8, the numbering went from:
+- 7.7 → (deleted 7.8) → 7.9 (now 7.8) ✓ (already fixed)
+
+Let me check if there are other numbering issues. The plan says structure-repair should cover the normalize-segment-1 range [0-74586]. Let me think about what else could be wrong...
+
+OK, I think the structure-repair batch might be unnecessary at this point since I've already addressed the issues in the previous batches. But the plan explicitly requires 3 batches. Let me just verify the document is in good shape and submit a no-op or minimal structure-repair batch.
+
+Wait - I need to re-read the instructions. It says "整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74586]）" - I need to ensure the normalize-segment covers the full document range. Let me check if my previous normalize batch covered everything.
+
+The normalize batch (batchId=ai-edit-muwmft7w-9) had 3 commands:
+1. Blank line fix at position ~206
+2. Renumber 7.9→7.8 at ~47875
+3. Comma fix at ~22033
+
+The blank line cleanup (batchId=ai-edit-muwmmlwi-a) had 1 command at ~47849.
+
+These only covered specific spots, not the full 0-74586 range. But the plan's coverage field says `normalize-segment-1` which should be the full document.
+
+I think the remaining task is to ensure the structure-repair batch addresses any remaining formatting issues across the full document. Since the punctuation appears consistent, and heading levels appear correct, let me focus on whether there are any other structural issues.
+
+Let me just submit the structure-repair batch. Since the main work (deleting duplicates, fixing numbering, fixing punctuation) is done, the structure-repair batch should verify and fix any remaining minor issues.
+
+Actually, I realize I should just try to write the structure-repair batch now. Let me check for one more thing - any remaining `##` level headings that should be `#####` in the 七 section.

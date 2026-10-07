@@ -1,0 +1,45 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "## 数据板的局限",
+      "content": "### 数据板的局限",
+      "reason": "将背景参考资料下的误升格标题降为三级标题"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 菌膜外套：有限资源的临时通行方案",
+      "content": "### 菌膜外套：有限资源的临时通行方案",
+      "reason": "将背景参考资料下的误升格标题降为三级标题"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 菌膜外套与共存补丁的关系",
+      "content": "### 菌膜外套与共存补丁的关系",
+      "reason": "将背景参考资料下的误升格标题降为三级标题"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 六大势力速写",
+      "content": "### 六大势力速写",
+      "reason": "将背景参考资料下的误升格标题降为三级标题"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 圣萌会与马格努斯",
+      "content": "### 圣萌会与马格努斯",
+      "reason": "将背景参考资料下的误升格标题降为三级标题"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 终局：共存补丁",
+      "content": "### 终局：共存补丁",
+      "reason": "将背景参考资料下的误升格标题降为三级标题"
+    }
+  ],
+  "reason": "重构标题层级：把背景参考资料区域内被误升格为二级的六个标题统一降为三级，使 Word 文档层级体系一致",
+  "reveal": {
+    "mode": "instant",
+    "firstChange": true
+  }
+}

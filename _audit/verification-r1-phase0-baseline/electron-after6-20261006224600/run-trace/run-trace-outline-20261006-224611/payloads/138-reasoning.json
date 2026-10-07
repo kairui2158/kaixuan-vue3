@@ -1,0 +1,147 @@
+Let me analyze the situation. I need to:
+
+1. First, I need to understand the full structure of the document and identify what needs to be fixed. The user wants me to restructure the outline in "Word document form" without reducing content. From the previous session's audit, I can see that the main work is:
+
+- Phase 1: Fix title hierarchy issues - the "灾前军事基准线与菌毯的不可根除性" section has titles that were accidentally rendered as body text (with `###`/`####` instead of `##`/`###` hierarchy). Also, the "背景参考资料" section has sub-content that starts with `###` which jumps from `##` directly.
+
+- Phase 2: Delete duplicates - the previous session already confirmed a duplicate of "数据板的局限" exists within the "背景参考资料" section.
+
+- Phase 3: Normalize punctuation, whitespace, and numbering.
+
+Let me look at the structure more carefully. The document map shows:
+- `heading-2-1lka0h8` "背景参考资料" (level 2)
+  - Under it: `heading-3-19902vk` "灾前军事基准线与菌毯的不可根除性" (level 3)
+
+But from the content I just read, the section around position 12000-12100 shows:
+```
+### 灾前军事基准线与菌毯的不可根除性
+#### 一、2042年，人类手里有什么
+```
+
+Wait, looking at the document map again, `heading-3-19902vk` starts at 12088 with title "灾前军事基准线与菌毯的不可根除性" - that's a level 3 heading. But the content I read at position 12000 shows:
+```
+存者，以实验室为原点建立了岫岩镇。他把数据板手稿中的技术逐一验证实现...比任何武器都更珍贵。
+### 灾前军事基准线与菌毯的不可根除性
+#### 一、2042年，人类手里有什么
+```
+
+So "灾前军事基准线与菌毯的不可根除性" is `###` (level 3) under `## 背景参考资料` (level 2). This seems correct structurally.
+
+Now let me identify the actual issues:
+
+1. The `#####` headings under "一、2042年，人类手里有什么" (which is `####` level 4) should be `#####` level 5 - this is correct in the structure map.
+
+2. Looking at the previous audit, it mentioned removing:
+   - Duplicate content between the top-level "数据板的局限" (`##`) and a copy within "背景参考资料"
+   - "粘贴到" editing instruction remnants
+
+Wait, the audit says the previous session already did these things. Let me re-read the audit:
+
+From the audit:
+- Already fixed: removed duplicate "数据板的局限" from 背景参考资料, cleaned up `【】` markers, converted tabs to GFM tables, removed editing instructions
+- What remains: "Word document 化" - unifying heading levels, ensuring proper hierarchy
+
+Now I need to actually write. Let me focus on what's still needed. The plan says 3 phases:
+1. Structure/heading level normalization
+2. Duplicate deletion  
+3. Punctuation/whitespace/numbering normalization
+
+The previous session already handled duplicates and basic cleanup. Now I need to handle the remaining normalization.
+
+Let me look at what specific issues remain:
+
+Looking at the content I've read, I see some issues:
+- In the "背景参考资料" section, the content around position 12088 has `### 灾前军事基准线与菌毯的不可根除性` which is level 3 under `## 背景参考资料` (level 2) - this seems fine.
+
+But wait, looking at the section "菌膜外套与共存补丁的关系" (heading-2-28do6r), it has a lot of prose content that jumps between the 六大势力 summary and the 圣萌会 summary. This content seems to be narrative connecting tissue that doesn't have clear section headings. 
+
+Let me focus on Phase 1: Structure normalization. I need to check if there are heading level jumps. The document has:
+- `#` (level 1) for the main title
+- `##` (level 2) for "叙事框架", "背景参考资料", "数据板的局限", "菌膜外套...", "菌膜外套与共存补丁的关系", "世界设定声明", "卷一：基石设定层", "卷二：核心人物群像", "卷三：势力与格局层", "卷四：叙事工具箱层"
+- `###` (level 3) for chapters within volumes
+- `####` (level 4) for sections
+- `#####` (level 5) for sub-sections
+
+This seems consistent. But let me check "背景参考资料" specifically - it has `### 灾前军事基准线...` which is level 3 under `## 背景参考资料`. That's correct.
+
+Now, what about the content within "背景参考资料" before the `### 灾前军事基准线...`? There's a long prose passage (from 10208 to 12088) without a heading. This is the main "背景参考资料" body text.
+
+Actually, looking more carefully at the content around position 12088, the `### 灾前军事基准线与菌毯的不可根除性` appears after the long prose passage. The structure seems correct.
+
+Let me look at what the previous session already fixed:
+- `【菌毯的本质：竞争对手文明】` → `#### 菌毯的本质：竞争对手文明`
+- `【核心张力：保护即加速】` → `#### 核心张力：保护即加速`
+- Removed "粘贴到" editing instruction
+- Removed duplicate "数据板的局限"
+- Converted tab-separated tables to GFM
+
+Now I need to proceed with the remaining normalization. Let me focus on what I can actually address now. The plan says 3 phases, and I need to complete all of them.
+
+Given the instructions say I must now call editor.write, let me do Phase 1: Title hierarchy normalization.
+
+Looking at the document structure more carefully:
+
+1. In the "背景参考资料" section (heading-2-1lka0h8), the content starts at 10198 and "灾前军事基准线与菌毯的不可根除性" starts at 12088 as `###` (level 3). The prose before it (10208-12088) is body text under "背景参考资料". This is fine.
+
+2. Under "灾前军事基准线..." (level 3), we have:
+   - `#### 一、2042年，人类手里有什么` (level 4)
+   - `##### 被孢子云直接废掉的武器系统` (level 5) - OK
+   - `##### 打上去但无效的武器` (level 5) - OK
+   - `##### 打得动但代价人类付不起的武器` (level 5) - OK
+   - `#### 二、菌毯为什么火力推不平` (level 4)
+   - `##### 生物量储备的物理事实` (level 5)
+   - `##### 火力触发报复性生长` (level 5)
+   - `##### 信号放大效应锁死兵力集结` (level 5)
+   - `#### 三、总结：人类真正被压制的根本机制` (level 4)
+
+This all seems correct.
+
+Now let me identify what needs to be done. The previous session's work focused on the "叙事框架" section. Now I need to extend the normalization to the rest of the document:
+
+1. Check for any remaining `【】` markers
+2. Check for semi-colons/colons/periods in Chinese context that should be full-width
+3. Check for blank line consistency
+
+Let me search for remaining issues. The search for `【` returned empty, which is good.
+
+For punctuation, I need to check Chinese text for half-width punctuation. Let me do targeted searches and fixes.
+
+Actually, I think the most productive approach now is to execute Phase 3: punctuation normalization. Let me search for specific half-width punctuation in Chinese contexts and fix them.
+
+But first, let me verify the full document range is covered. I need to read sections in chunks and apply fixes.
+
+Given the size of the document (74491 chars), I should target the most impactful fixes. Let me search for specific patterns:
+
+- `。` - already full-width, fine
+- `，` - already full-width, fine  
+- `；` - already full-width, fine
+- But let me check for `?` (half-width) vs `？` (full-width), `!` vs `！`, `:` vs `：`, `;` vs `；`
+
+From the search results for `.` (half-width period), there were 274 matches. Many of these would be in URLs, numbers, table separators, etc. Let me search specifically for problematic patterns.
+
+Actually, I already searched for `:` and got 3 results (all in chemical formulas like "18:2" which are correct). And `;` returned no results. `.` had 274 matches but many are in numbers (like "0.5°C", "1.8GPa"), file extensions, etc.
+
+Let me search for `?` and `!` to check those.
+
+Actually, I need to stop over-reading and start writing. Let me do Phase 1 first - the title normalization. The key issue from the previous session was:
+
+The "背景参考资料" section has `### 灾前军事基准线与菌毯的不可根除性` which is correct as level 3 under `## 背景参考资料`. But looking at the content flow, the section "背景参考资料" has:
+- Body prose (about 林觉民, 方岫岩, etc.)
+- `### 灾前军事基准线与菌毯的不可根除性` - this is a sub-section
+
+But wait - the previous session's audit mentioned that "灾前军事基准线" was accidentally rendered as body text and needed to be fixed to proper heading. Let me re-read...
+
+From the audit log:
+> 背景参考资料·军事基准线 | 将「灾前军事基准线与菌毯的不可根除性」及「一/二/三」等误排为正文的小标题恢复为规范标题层级 | 结构修复
+
+This suggests these were already fixed in the previous session. And indeed, looking at the document map, they now have proper heading IDs.
+
+OK, I think the main structural work was already done in the previous session. What remains is Phase 3: punctuation normalization.
+
+Let me search for half-width punctuation in Chinese contexts and fix them. Let me search for `\?` (literal question mark) and `!` to see if there are half-width ones in Chinese text.
+
+Actually, I should just proceed with writing Phase 3 now. Let me search for the specific problematic punctuation first, then apply fixes.
+
+Wait - I need to be more strategic. Let me search for `?` and `!` which are the most likely half-width punctuation issues in Chinese text.
+
+Let me batch the remaining reads and writes efficiently. I'll search for `?` and `!` now.

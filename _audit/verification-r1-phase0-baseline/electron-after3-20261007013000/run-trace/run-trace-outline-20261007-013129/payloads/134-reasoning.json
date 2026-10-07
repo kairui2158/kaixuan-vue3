@@ -1,0 +1,160 @@
+The user wants me to restructure the outline in a Word document format without reducing content. Based on the plan, I need to:
+
+1. Fix heading levels - I've already fixed "六大势力概览", "圣萌会的崛起", and "巨树生长与天府都陷落" from h3 to h2
+2. Fix formatting issues (punctuation, whitespace, etc.)
+3. Check for duplicates
+
+Let me now focus on the normalization phase. I need to check for remaining issues:
+
+1. The "背景参考资料" section has tables with tab-separated content that needs proper markdown table formatting
+2. There are duplicate sections of "菌膜外套" content
+3. Content blocks with empty paragraph tags
+4. Various formatting issues
+
+Let me check what's happening with the document structure. The key issues I've identified:
+
+1. "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" - FIXED (moved to h2)
+2. The table in "一、2042年，人类手里有什么" uses tab separators instead of proper markdown table format
+3. The table in "二、菌毯为什么火力推不平" also uses tab separators
+4. Duplicate content: "菌膜外套" appears in multiple places
+5. "菌膜外套与共存补丁的关系" and "7.9 与终局的衔接：菌膜外套与共存补丁的关系" have overlapping content
+
+Now let me focus on the normalization phase. I need to:
+
+1. Convert tab-separated tables to proper markdown tables
+2. Fix any remaining formatting issues
+3. Check for semantic duplicates (not identical text but same content)
+
+Let me look at the specific tables that need to be fixed. The tables in the "背景参考资料" section use tabs instead of pipes.
+
+Let me read those sections more carefully and fix them.
+
+Actually, looking at the structure more carefully:
+
+The current document structure after my fixes:
+```
+# 《绿潮》大纲总纲
+## 叙事框架
+### 故事核心
+### 第一卷·觉醒与扎根
+### 第二卷·连接与陷落
+### 第三卷·远征与暗流
+## 背景参考资料
+### 灾前军事基准线与菌毯的不可根除性
+#### 一、2042年，人类手里有什么
+#### 二、菌毯为什么火力推不平
+#### 三、总结：人类真正被压制的根本机制
+## 数据板的局限
+## 菌膜外套：有限资源的临时通行方案
+## 菌膜外套与共存补丁的关系
+## 六大势力概览
+## 圣萌会的崛起
+## 巨树生长与天府都陷落
+## 世界设定声明
+## 卷一：基石设定层
+...
+## 卷二：核心人物群像
+...
+## 卷三：势力与格局层
+...
+## 卷四：叙事工具箱层
+...
+```
+
+Now I need to focus on the normalization phase (标点、空白、编号与标题层级整理). The plan says I need to cover normalize-segment-1[0-74841].
+
+Key normalization tasks:
+1. Fix tables with tab separators → proper markdown format
+2. Fix half-width punctuation → full-width where appropriate
+3. Fix any remaining title level inconsistencies
+
+Let me focus on the tables that use tab separators. They appear in:
+- "一、2042年，人类手里有什么" - the weapons table
+- "二、菌毯为什么火力推不平" - the biological reserve table
+
+These tables use `\t` as column separators and should use `|` for proper markdown.
+
+But wait - the plan says "normalize-changes-punctuation-whitespace-format-only". Converting tab tables to markdown tables is format normalization but changes the visual output. However, the original document has these tab-separated tables which are not standard markdown, so fixing them would improve readability but also change the content format.
+
+Actually, looking more carefully, the issue is that these tables were meant to be markdown tables but the formatting got lost. The content is still there but the separators are tabs. Converting to proper markdown tables would be a format fix, not a content change.
+
+Let me read the actual content of these tables to see what they look like:
+
+From the earlier reading of "一、2042年，人类手里有什么":
+```
+系统类型	直接致死原因	失效时间线
+卫星制导武器（GPS/北斗/格洛纳斯制导）	低轨道卫星全部坠入大气层...
+```
+
+And "二、菌毯为什么火力推不平":
+```
+层级	成分与结构	生物量占比（估算）	武器可触及性
+地表菌丝层	编织状菌丝交织成毡...
+```
+
+These need to be converted to proper markdown tables. But this is a significant amount of content to fix. Let me focus on what can be done with replace_match operations.
+
+Actually, I need to be careful. The plan says the normalization phase should cover "标点、空白、编号与标题层级整理" - punctuation, whitespace, numbering, and title level fixes. Converting tab-separated content to pipe-separated tables is a formatting fix.
+
+But I also need to be practical about what can be done in a single batch. Let me prioritize:
+
+1. The most impactful fixes first
+2. Work within the 10-command batch limit
+
+Let me focus on the key normalization tasks now. I should look for:
+- Half-width punctuation in Chinese text contexts
+- Missing spacing/whitespace consistency
+- Any remaining title level issues
+
+Let me re-read the document map to check the current structure after my previous edits.
+
+Actually, I think the main remaining work is:
+1. Convert tab-separated tables to markdown format
+2. Fix any half-width punctuation in Chinese context
+
+Let me start by reading the table sections that need fixing. I have the content from previous reads, so let me formulate the replace commands.
+
+For "一、2042年，人类手里有什么", the table starts at "被孢子云直接废掉的武器系统" and goes through the list of weapon systems.
+
+For "二、菌毯为什么火力推不平", the table starts at "层级\t成分与结构" and goes through the biological reserve levels.
+
+These are large tables and would be hard to fix with replace_match. Let me think about the best approach.
+
+Actually wait - looking at the plan more carefully:
+
+The plan steps are:
+1. read-structure - DONE
+2. execute-restructure - IN PROGRESS (heading level fixes done)
+3. confirm-duplicates - Need to check
+4. delete-duplicates - If duplicates found
+5. normalize-segments - Need to do formatting
+6. verify-plan - Final check
+
+The normalize phase needs to process normalize-segment-1[0-74841]. The plan says to handle punctuation, whitespace, and formatting only.
+
+Let me focus on the most impactful normalization tasks:
+
+1. Headings already fixed (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落 → h2)
+2. Format normalization - the tab-separated tables
+3. Any half-width punctuation
+
+Let me now try to fix the tab-separated tables. I need to read them first to get exact content.
+
+Actually, from my earlier reads, I have the content. Let me try to fix the tables.
+
+For the weapons table, I'll need to:
+1. Find "被孢子云直接废掉的武器系统" and the following lines
+2. Replace tab-separated content with markdown pipe tables
+
+But this is a large chunk of text. The approach would be to use replace_match with the full original text and the fixed version.
+
+Let me think about what's practical. The table in section "一、2042年，人类手里有什么" has about 9 rows. Let me try to fix it.
+
+Actually, let me take a step back. The plan says I need to cover all segments. Let me do a systematic approach:
+
+1. First, let me normalize the tables that use tab separators
+2. Then fix any remaining punctuation issues
+
+For the tab tables, I'll read the exact content and create proper markdown tables.
+
+Let me approach this differently - let me read the sections with tab tables to get the exact content for replacement.

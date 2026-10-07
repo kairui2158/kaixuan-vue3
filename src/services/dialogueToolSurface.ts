@@ -30,6 +30,7 @@ import type { SourceContaminationConversationMessage } from './sourceContaminati
 export type {
   AgentToolDefinition,
   EditorRevealer,
+  EditorWriteContaminationDecision,
   EditorWriteApplier,
   EditorWriteApplyInput,
   EditorWriteRetryCarrier,
@@ -250,6 +251,7 @@ export function authorizeDialogueTools(
   const permission = permissionDecision.decision === 'write-authorized'
     ? { ...basePermission, writeEditor: true }
     : basePermission
+  const CONTROL_TOOL_NAMES = new Set(['agent.spawn', 'agent.wait', 'agent.cancel'])
   const sourceTools = Array.isArray(input) ? input : input.tools
   const toolPolicyDiagnostics: NonNullable<DialogueToolSurface['toolPolicyDiagnostics']> = []
   const staticPolicyValid = (tool: AgentToolDefinition): boolean => {
@@ -295,10 +297,23 @@ export function authorizeDialogueTools(
     }
     return true
   }
+  const isReadOnlyRound = !permission.writeEditor
+  const controlToolBlocked = (tool: AgentToolDefinition): boolean => {
+    const isControlTool = tool.control === true || CONTROL_TOOL_NAMES.has(tool.name)
+    if (!isControlTool || !isReadOnlyRound) return false
+    toolPolicyDiagnostics.push({
+      type: 'tool_policy_mismatch',
+      level: 'warning',
+      label: `控制类工具被只读对话拒绝：${tool.name}`,
+      detail: 'control tools can start or cancel requests and are not read-only tools',
+      payload: { toolName: tool.name, policy: tool.policy, control: true },
+    })
+    return true
+  }
   const staticallyValidTools = sourceTools.filter(tool => {
     const builtIn = tool.origin !== 'external'
     if (builtIn) return true
-    return staticPolicyValid(tool)
+    return staticPolicyValid(tool) && !controlToolBlocked(tool)
   })
   const task = taskContext?.activeEditTask
   const activeTask = task && isActiveEditTask(task) ? task : null
@@ -421,7 +436,10 @@ export function describeDialogueToolSurface(
 export function appendDialogueToolSurfaceDeclaration(
   systemPrompt: string,
   toolSurface?: DialogueToolSurfaceSummary,
-  options?: { activeEditTask?: EditTask | null },
+  options?: {
+    activeEditTask?: EditTask | null
+    executionPlan?: LongDocumentExecutionPlan | null
+  },
 ): string {
   if (!toolSurface || toolSurface.length === 0) return systemPrompt
   const toolList = toolSurface
@@ -432,17 +450,43 @@ export function appendDialogueToolSurfaceDeclaration(
     ? options.activeEditTask
     : null
   const activeTaskAwaitsRetry = activeTask?.status === 'awaiting_batch'
+  const executionPlan = options?.executionPlan || null
+  const directWriteAuthorized = hasWrite
+    && executionPlan?.mode === 'edit-task'
+    && executionPlan.operation !== 'discussion'
+  const basePrompt = directWriteAuthorized
+    ? systemPrompt.replace('请给出建议和修改意见。', '应用已授权本轮通过 editor.write 直接写入编辑器，请按执行计划完成写入。')
+    : systemPrompt
+  const writeSurfaceDeclaration = hasWrite
+    ? '本轮工具面包含 editor.write(write)。'
+    : '本轮工具面未包含 editor.write。'
   const activeTaskDeclaration = activeTask
-    ? activeTaskAwaitsRetry && hasWrite
-      ? `当前存在编辑任务 ${activeTask.id}（状态：${activeTask.status}）。写入权限已恢复：必须调用 editor.write 重试当前批次，禁止声称“没有写入权限”或凭记忆直接输出修改稿。`
-      : `当前存在编辑任务 ${activeTask.id}（状态：${activeTask.status}）。本轮未开放 editor.write；用户要求继续任务时必须调用 task.resume，由任务执行器按批次校验并写入，禁止声称“没有写入权限”或凭记忆直接输出修改稿。`
+    ? `当前存在编辑任务 ${activeTask.id}（状态：${activeTask.status}）。${writeSurfaceDeclaration}${activeTaskAwaitsRetry && hasWrite ? '任务状态允许重试当前批次。' : '用户要求继续任务时，任务续跑入口为 task.resume。'}`
     : null
-  const defaultDeclaration = hasWrite
-    ? '你已获得编辑器写入权限：需要修改内容时必须调用写入工具完成，不要凭历史对话判断当前权限。'
-    : '本轮未开放写入工具：请只输出讨论或分析内容，不要声称可以写入编辑器。'
   return [
-    systemPrompt,
+    basePrompt,
     `本轮实际可调用的工具：${toolList}。`,
-    activeTaskDeclaration || defaultDeclaration,
+    activeTaskDeclaration || writeSurfaceDeclaration,
   ].filter(Boolean).join('\n\n')
+}
+
+export function buildDialogueToolSurfaceDeclarationAudit(input: {
+  source: 'home' | 'outline'
+  toolSurface?: DialogueToolSurfaceSummary
+  activeEditTask?: EditTask | null
+  executionPlan?: LongDocumentExecutionPlan | null
+}) {
+  const text = appendDialogueToolSurfaceDeclaration('系统提示', input.toolSurface, {
+    activeEditTask: input.activeEditTask,
+    executionPlan: input.executionPlan,
+  })
+  return {
+    type: 'dialogue-tool-surface-declaration' as const,
+    source: input.source,
+    trigger: 'request-built' as const,
+    visibleToModel: true,
+    toolSurface: input.toolSurface || [],
+    text,
+    origin: 'application' as const,
+  }
 }

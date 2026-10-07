@@ -1,0 +1,77 @@
+The user wants me to restructure the outline into a Word document format. Let me analyze the current structure and plan the changes needed.
+
+Looking at the structure:
+1. The document has `## 叙事框架` (level 2) containing story content that should be organized
+2. There are several `##` level sections that seem like they should be repositioned:
+   - `## 背景参考资料` - this is background reference material
+   - `## 数据板的局限` - this is duplicated content (was already partially cleaned)
+   - `## 菌膜外套：有限资源的临时通行方案` - duplicated content
+   - `## 菌膜外套与共存补丁的关系` - duplicated content
+   - `## 世界设定声明` - this should be part of the setting section
+
+The main issue is the structure: the 叙事框架 section contains the story core and three volumes (卷). Then there are standalone ## sections that seem disconnected. The document has:
+
+1. `## 叙事框架` → contains 故事核心, 第一卷, 第二卷, 第三卷
+2. `## 背景参考资料` → world background
+3. `## 数据板的局限` → this appears to be duplicated (one in background section and one standalone)
+4. `## 菌膜外套...` → duplicated
+5. `## 菌膜外套与共存补丁的关系` → duplicated
+6. `## 世界设定声明` → setting statement
+7. `## 卷一：基石设定层` → core setting
+8. `## 卷二：核心人物群像` → character profiles
+9. `## 卷三：势力与格局层` → factions
+10. `## 卷四：叙事工具箱层` → narrative tools
+
+The user wants it in "Word document form" - which means a clean hierarchical structure without leftover editing artifacts, proper formatting, and organized sections.
+
+Looking at the plan, there are 4 batches:
+- structure-repair
+- structure-plan  
+- normalize-segment-1 [0-46748]
+- normalize-segment-2 [46748-75024]
+
+I've already done:
+- Batch 1 (structure-plan): Fixed 3 punctuation probes, deleted paste instruction
+- Batch 2 (structure-plan): Deleted duplicate "数据板的局限" in background section
+- Batch 3 (structure-plan): Deleted 3 PHASE7 punctuation probe sentences
+- Batch 4 (normalize-segment-1): Fixed spacing between paragraphs
+
+Now I need to continue with normalize-segment-1 and normalize-segment-2. Let me check what needs to be done:
+
+For normalize-segment-1 (0-46748 roughly): This covers from start through 叙事框架, 背景参考资料, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁, 世界设定声明, and 卷一 mostly through section 七.
+
+Issues to fix:
+1. Check for remaining half-width punctuation in Chinese context
+2. Fix the structure so "背景参考资料", "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" are either properly integrated or kept as standalone sections if they're meant to be
+3. The issue is that "背景参考资料" through "菌膜外套与共存补丁的关系" appear as `##` level sections that sit between the narrative framework and the formal 卷一-卷四 structure. They seem like they should probably be part of 叙事框架 or a separate section.
+
+Actually, looking more carefully, the structure is:
+- 叙事框架 (contains 故事核心, 第一卷, 第二卷, 第三卷)
+- 背景参考资料
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系
+- 世界设定声明
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+This is a reasonable structure. The "Word document form" probably means:
+1. Clean up the leftover artifacts (PHASE probes - done)
+2. Remove duplicate content (data板的局限 duplicate - done)
+3. Fix half-width punctuation
+4. Ensure consistent heading levels
+5. Clean spacing
+
+Let me read more sections to find issues and then batch-fix them.
+
+Actually, let me focus on completing the remaining batches. I need to read normalize-segment-1 and normalize-segment-2 to find issues, then write fixes.
+
+Given the instruction to not keep doing reads, let me do a comprehensive read and then write.
+
+Let me first check what the 菌膜外套与共存补丁的关系 section contains, since it seems to contain duplicated content from other sections (like the 六大势力 summaries).
+
+Also, I need to search for half-width punctuation in Chinese text: , . ; : ! ?
+
+Let me search for half-width punctuation patterns in the document.

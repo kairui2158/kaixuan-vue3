@@ -1,0 +1,94 @@
+The user wants me to restructure the outline into a Word document format. Let me analyze what needs to be done systematically.
+
+Looking at the current structure, I need to:
+
+1. **Phase 1: Structure Repair** - Fix the duplicate "数据板的局限" content (appears in both"灾前军事基准线" section end and as its own heading-2 section), fix titles, move misplaced content
+2. **Phase 2: Delete confirmed duplicates** 
+3. **Phase 3: Normalize punctuation and formatting**
+
+From the search results, I found that "数据板的局限" text appears TWICE:
+- At the end of `heading-3-19902vk` (灾前军事基准线与菌毯的不可根除性) - starts at 16179 area
+- As its own `heading-2-z4sxm8` section - starts at 16764
+
+The first occurrence seems to be the content embedded at the end of the "背景参考资料" → "灾前军事基准线" section. The second occurrence is the standalone "## 数据板的局限" section.
+
+Let me verify: the "背景参考资料" section originally was supposed to contain all the background text including the "灾前军事基准线" content. The "数据板的局限" heading was originally separate. The issue is that "数据板的局限" content got embedded at the end of the 灾前军事基准线 section, and then also appears as its own section.
+
+Wait, looking more carefully:
+- In the original outline.get_structure, we had `heading-2-1lka0h8` (背景参考资料, 10230-16801) containing the subsections as paragraphs within it
+- Then separately `heading-2-z4sxm8` (数据板的局限, 16801-17356)
+
+But in the editor, the content was:
+- `heading-2-1lka0h8` - 背景参考资料 (starts at 10188)
+  - `paragraph-1kd06wy` - the main background text (10198-12078)
+  - `heading-3-19902vk` - 灾前军事基准线与菌毯的不可根除性 (12078-16763)
+
+Then at the end of the "灾前军事基准线" heading, there's the "数据板的局限" text that seems to be duplicated content that bleeds from the next section. The actual `heading-2-z4sxm8` then starts at 16764.
+
+Let me check: the "数据板的局限" content at the end of heading-3-19902vk reads:
+"数据板的局限\n数据板不是百宝箱..."
+
+And heading-2-z4sxm8 starts at 16764 with:
+"## 数据板的局限\n\n数据板不是百宝箱..."
+
+This is clearly a duplicate. The first occurrence (embedded at end of heading-3-19902vk) should be removed, keeping only the standalone heading-2-z4sxm8 section.
+
+Now, for the broader restructuring task, the user wants the outline to be in a "Word document format." Looking at what's been done so far and what remains:
+
+Key issues to address:
+1. **Duplicate content**: The "数据板的局限" appears both at the end of the 灾前军事基准线 section AND as its own heading. Need to remove the duplicate from the end of 灾前军事基准线.
+2. **Punctuation normalization**: Chinese half-width punctuation needs to be converted to full-width throughout the document.
+3. **Structure issues**: The `## 背景参考资料` section now has been split into a parent heading with `paragraph-1kd06wy` (the main text) and `heading-3-19902vk` (灾前军事基准线). This is OK.
+
+But wait - there's also a duplicate issue with `数据板的局限` at the end of the heading-3-19902vk section. The content at the end says "数据板的局限\n数据板不是百宝箱..." which is the same as what heading-2-z4sxm8 starts with.
+
+Actually, let me re-read the structure. The original outline had:
+- `heading-2-1lka0h8` 背景参考资料 (10230-16801) - this was one big section containing ALL the background text including the disaster timeline, military baseline, and then "数据板的局限" text at the end
+- `heading-2-z4sxm8` 数据板的局限 (16801-17356)
+
+So the original had data板的局限 content within the 背景参考资料 section AND separately as its own heading. This seems to be a genuine duplicate in the original - the same content appears twice.
+
+Now, the first batch of writes I did:
+- Deleted the paste instruction
+- Added heading `### 灾前军事基准线与菌毯的不可根除性` before the "一、2042年" text  
+- Did some quote normalization in 故事核心
+
+Now I need to:
+1. Delete the duplicate "数据板的局限" content from the end of heading-3-19902vk
+2. Continue the punctuation normalization across the entire document
+
+Let me focus on the most impactful clean-up. The document is huge (74804 chars), and I can only do 10 commands per write batch.
+
+Let me be strategic. The key issues to address:
+
+1. **Remove duplicate 数据板的局限 from heading-3-19902vk end** (the text from "数据板的局限\n数据板不是百宝箱..." to "...数据板提供的是火种，不是火炬。")
+2. **Major punctuation normalization** - need to scan for common patterns
+
+Let me do a focused approach: handle the duplicate first, then do batches of punctuation normalization.
+
+Let me read the boundary area more carefully to craft the exact delete command.
+
+From the read_range at offset 4100 of heading-3-19902vk, the end content is:
+```
+终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。
+
+数据板的局限
+数据板不是百宝箱。...数据板提供的是火种，不是火炬。
+```
+
+And then the next heading-2-z4sxm8 starts with:
+```
+## 数据板的局限
+
+数据板不是百宝箱。...
+```
+
+So the content from "数据板的局限\n" at the end of heading-3-19902vk to the end of that section is a duplicate. I need to delete it.
+
+Let me use a replace_match to remove it - replacing "数据板的局限\n数据板不是百宝箱" at the end with just a newline to separate the sections.
+
+Actually, the simplest approach: replace the duplicated "数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的..." all the way to "...数据板提供的是火种，不是火炬。\n\n\n" with empty string or just "\n".
+
+But the exact text includes `\"` (escaped quotes) in the editor. Let me craft the replacement carefully.
+
+Let me read the exact text at the boundary:

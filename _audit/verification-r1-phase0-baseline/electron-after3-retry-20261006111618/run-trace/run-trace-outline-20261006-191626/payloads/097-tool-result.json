@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-2-1lka0h8",
+      "title": "背景参考资料",
+      "kind": "heading",
+      "level": 2,
+      "path": "背景参考资料"
+    },
+    "range": {
+      "start": 12041,
+      "end": 12241
+    },
+    "offset": 1850,
+    "maxChars": 200,
+    "content": "菌膜净水壶、菌膜睡袋、菌膜粮仓——这些民生技术在末日世界里比任何武器都更珍贵。\n### 灾前军事基准线与菌毯的不可根除性\n\n#### 一、2042年，人类手里有什么\n\n2042年的人类文明正处于一个技术拐点：强人工智能辅助决策、量子计算、定向能武器、高超音速滑翔体、自主蜂群作战系统、基因驱动的生物防御体系——这些技术不再是实验室里的概念，而是已部分列装或即将列装的实战装备。\n\n但在孢子云面前，任何",
+    "hasMore": true,
+    "nextCursor": "section:heading-2-1lka0h8:2050",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

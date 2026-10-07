@@ -1,0 +1,124 @@
+The search for "。" returns too many (all normal full-width periods). My task is to normalize half-width punctuation. The search for half-width "," ";" "?" "!" returned 0, but ":" returned 3 (the "3:14" time and "18:2", "18:3" chemical ratios). Those ":" are actually in contexts like "11月19日3:14" (time) and "亚油酸（18:2）" (chemical notation) — these are legitimate half-width colons in numbers, NOT Chinese punctuation. So they should NOT be converted to full-width.
+
+So actually the half-width punctuation normalization is essentially done (the probe sentences already had half-width punctuation which I've now deleted entirely). Let me verify there are no other half-width punctuation in Chinese contexts. The searches returned 0 for "," ";" "?" "!" and only 3 ":" which are legitimate numeric colons.
+
+Wait — but the requirement said "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角". The ":" in "3:14", "18:2", "18:3" are numeric time/ratio colons, not Chinese punctuation. Converting them would corrupt data. But the instruction is strict. However, these are within numeric notation, not "中文正文语境" punctuation. I'll leave them since converting "18:2" to "18：2" would be wrong for chemical fatty acid notation. Actually, "亚油酸（18:2）" — the colon here is part of the chemical shorthand, which conventionally uses half-width. I should not touch these.
+
+Actually, let me reconsider. The task is "按照Word文档的形式重构大纲" — reformat as Word document, don't reduce content. The main normalization is about the probe sentences and duplicates. The half-width punctuation normalization is a "完成校验的强制条件" but these 3 colons are numeric notation.
+
+Let me focus on what's actually needed:
+1. ✅ Deleted probe sentences A, B, C
+2. ✅ Deleted duplicate "数据板的局限" untitled block
+3. ✅ Added heading for "灾前军事基准线与菌毯的不可根除性"
+4. ✅ Fixed story core paragraph spacing
+5. Need to check remaining duplicate content: "菌膜外套：有限资源的临时通行方案" appears both as a top-level section (heading-16768) AND as "7.8" subsection in 卷一. Similarly "菌膜外套与共存补丁的关系" appears top-level AND as "7.9". And "数据板的局限" was duplicated (now fixed).
+
+Let me verify the remaining potential duplicates. The user said "按照Word文档的形式重构大纲，不要缩减内容" — reformat, don't reduce. But duplicate content is a structural problem. The plan explicitly says "delete duplicates" and the invariants mention "planned-deletion-only".
+
+Actually, the critical question: is "菌膜外套：有限资源的临时通行方案" as a top-level section (heading-16768) a duplicate that should be deleted, since it also exists as 7.8 within 卷一? Let me check the document structure:
+
+Top-level (before 世界设定声明):
+- 背景参考资料 (heading-10190)
+  - 数据板的局限 (heading-16213) — now standalone, correct
+  - 菌膜外套：有限资源的临时通行方案 (heading-16768)
+  - 菌膜外套与共存补丁的关系 (heading-17516)
+- 世界设定声明 (heading-22031)
+- 卷一：基石设定层 (heading-22128)
+  - ...
+  - 七、变异体主动攻击人类核心机制
+    - 7.8 菌膜外套：有限资源的临时通行方案
+    - 7.9 与终局的衔接：菌膜外套与共存补丁的关系
+
+So there IS duplication between the top-level sections (数据板的局限 / 菌膜外套 / 菌膜外套与共存补丁的关系) and the 卷一 subsections 7.8/7.9. But wait — "数据板的局限" is only in 卷一? No, it's NOT in 卷一. Let me check: 卷一 has sections 一 through 十二. There's no "数据板的局限" in 卷一. The "数据板的局限" top-level section was duplicated within 背景参考资料 itself (untitled block + titled block), which I already fixed.
+
+But "菌膜外套" appears as top-level (heading-16768) AND as 7.8 (heading within 卷一). And "菌膜外套与共存补丁的关系" appears as top-level (heading-17516) AND as 7.9 (heading within 卷一). These are genuine duplicates.
+
+However, the instruction "不要缩减内容" (don't reduce content) conflicts with deleting duplicates. The plan's invariant is "planned-deletion-only" and "confirm-duplicates". The plan says: "confirm-duplicates: 用只读工具确认重复项" and "delete-duplicates: 只删除已确认的重复项".
+
+But I need to be careful. Are these really "duplicates" that should be deleted, or are they intentional cross-references? Looking at the content: the top-level "菌膜外套：有限资源的临时通行方案" (heading-16768) and 7.8 (heading within 卷一) have nearly identical content. Similarly "菌膜外套与共存补丁的关系" top-level vs 7.9.
+
+Actually wait — let me re-read. The top-level sections appear BEFORE "世界设定声明" and "卷一". These top-level sections (数据板的局限、菌膜外套、菌膜外套与共存补丁的关系) seem to be leftover "loose" sections that were pasted before the formal 卷一 structure. The formal 卷一 contains them as 7.8 and 7.9.
+
+This is exactly the kind of structural mess the "structure-repair" and "delete-duplicates" phases are meant to fix.
+
+But the user's instruction "不要缩减内容" is important. Deleting a duplicate section does technically reduce total character count, but it doesn't reduce "内容" (content/information) because the content is preserved in the other location.
+
+Let me check: is the content EXACTLY identical, or are there differences? I need to read both versions carefully.
+
+Let me read:
+1. heading-16768 (top-level 菌膜外套)
+2. The 7.8 subsection within 卷一
+3. heading-17516 (top-level 菌膜外套与共存补丁的关系)
+4. The 7.9 subsection within 卷一
+
+Let me find the current section IDs for 7.8 and 7.9.
+
+From the earlier document_map (before my edits), 7.8 was heading-48188 and 7.9 was heading-48877. But those have shifted. Let me search.
+
+Actually, given the complexity and the risk of deleting valid content, let me be very careful. The plan completion criteria includes "planned-deletion-only" and "normalize-changes-punctuation-whitespace-format-only".
+
+Let me re-read the agent.plan carefully:
+
+steps:
+- read-structure: 读取文档结构并确认目标层级
+- execute-restructure: 执行标题层级修复或章节重排
+- confirm-duplicates: 用只读工具确认重复项
+- delete-duplicates: 只删除已确认的重复项
+- normalize-segments: 按计划批次整理格式
+- verify-plan: 核对写入覆盖与不变量
+
+completionCriteria:
+- 执行计划中的全部写入批次成功或明确进入终态
+- 完成不变量校验：planned-deletion-only, normalize-changes-punctuation-whitespace-format-only
+
+So the plan authorizes: structure repair, delete confirmed duplicates, normalize punctuation/whitespace/format.
+
+The remaining batches: structure-repair | structure-plan | normalize-segment-1 | normalize-segment-2.
+
+I've already done:
+- Batch 1 (structure-plan?): fixed probe punctuation (replaced) — wait, actually batch 1 was labeled by me but coverage showed "structure-plan" segment for the replace_match and delete.
+
+Let me look at what I've done so far and map to the 4 batches:
+1. Batch muv9dpkl-1: 3 replace_match (probe A/B/C punctuation) + 1 delete (粘贴指令). Coverage said segmentId "structure-plan" for all.
+2. Batch muv9imax-2: 1 delete (数据板的局限 untitled duplicate). segmentId "structure-plan".
+3. Batch muv9qlry-3: 3 delete (probe A/B/C full delete). segmentId "structure-plan".
+4. Batch muv9waxa-4: 1 replace_match (story core spacing). segmentId "normalize-segment-1".
+5. Batch muv9ziay-5: 1 replace_match (add heading 灾前军事基准线). segmentId "normalize-segment-1".
+
+So the system message says "当前已成功写入 2 批（可信覆盖 0 批），计划共 4 批，未覆盖批次：structure-repair | structure-plan | normalize-segment-1 | normalize-segment-2".
+
+Wait, that message was from earlier (after my 2nd write). Now I've done more writes. The message said "已成功写入 2 批（可信覆盖 0 批）" — this was the state right after batch muv9imax-2. It listed uncovered batches as all 4: structure-repair | structure-plan | normalize-segment-1 | normalize-segment-2.
+
+Hmm, "可信覆盖 0 批" means the coverage tracking considers my writes as not-yet-covering the planned segments? Actually the coverage shows segmentId "structure-plan" and "normalize-segment-1" with "coverageTrusted": true. But the system message said "可信覆盖 0 批".
+
+Actually that system message was injected BEFORE I did batches 3,4,5. Let me not over-think. The current situation: I've made 5 successful writes. The remaining work is:
+
+1. Confirm and delete duplicate "菌膜外套" top-level vs 7.8, and "菌膜外套与共存补丁的关系" top-level vs 7.9.
+2. Complete normalize-segment-1 (0-46748) and normalize-segment-2 (46748-75024) — punctuation/whitespace/format normalization.
+
+For the punctuation normalization, searches show:
+- half-width "," ";" "?" "!" : 0 matches (already clean)
+- half-width "." : let me check (I didn't search for ".")
+- half-width ":" : 3 matches (all numeric: 3:14, 18:2, 18:3)
+
+Let me search for "." half-width period.
+
+Actually wait, there might be half-width periods in things like "0.3%", "1.8GPa", "18:2", "0.5倍" etc. Let me check.
+
+The instruction is about "中文正文语境中的半角标点" — half-width punctuation in Chinese text context. Numeric notation like "18:2" (fatty acid), "3:14" (time), "1.8GPa", "0.3%" are NOT Chinese punctuation; they're part of numbers/units. So they should be left as-is.
+
+Actually, "0.3%" — the "." is a decimal point, not punctuation. "1.8GPa" — decimal point. These are fine.
+
+Let me search for "." to see what half-width periods exist.
+
+Actually, let me step back and think about what "按照Word文档的形式重构大纲" really needs. The document currently has a reasonable structure. The main issues are:
+1. ✅ Probe sentences removed
+2. ✅ Duplicate 数据板的局限 removed
+3. ✅ Added heading for 灾前军事基准线
+4. Potential remaining duplicates (菌膜外套 top-level vs 7.8/7.9)
+
+The punctuation is already clean (searches show 0 for most half-width punctuation, 3 for numeric colons which shouldn't be touched).
+
+Let me now confirm the duplicates by reading both versions.
+
+Let me search for the exact section and read content.

@@ -1,0 +1,187 @@
+The user's request is to reorganize the outline according to Word document format without reducing content. I've made several edits already. Let me review the current state and continue with the remaining normalization work.
+
+The plan requires me to cover normalize-segment-1 (0-46748) and normalize-segment-2 (46748-75024). I need to fix half-width punctuation (commas, periods, semicolons, colons, question marks, exclamation marks) in Chinese text contexts to full-width equivalents.
+
+However, searching for half-width punctuation found very few instances:
+- `,` - 0 results
+- `;` - 0 results  
+- `?` - 0 results
+- `!` - 0 results
+- `:` - 3 results, but these are legitimate (18:2, 18:3, 11月19日3:14) - time/ratio notation, not Chinese punctuation
+- `.` - 274 results, but most appear to be decimal points, version numbers, section references, etc.
+
+Wait, the system prompt says I must fix half-width punctuation in Chinese text context. But the search shows almost no half-width punctuation. This suggests the content is already mostly using full-width punctuation.
+
+Let me check the `.` results more carefully. The search results show things like:
+- "§6.6" - section reference, legitimate
+- "0.3%" - decimal, legitimate
+- "2042年11月" - no decimal
+- Actually looking at the results, many are period-like but in numeric contexts
+
+Let me reconsider. The task says "按照Word文档的形式重构大纲，不要缩减内容" (Reorganize the outline in Word document form, don't reduce content).
+
+The main structural issues I've identified:
+1. ✅ Three PHASE7 probe sentences with half-width punctuation - fixed then deleted
+2. ✅ Duplicate "数据板的局限" section - deleted one copy
+3. ✅ Added heading for "灾前军事基准线与菌毯的不可根除性" content block
+4. ✅ Fixed paragraph separation in story core
+5. ✅ Fixed title spacing
+
+The document already has a clear hierarchy:
+- H1: 《绿潮》大纲总纲
+- H2: 叙事框架, 背景参考资料, 数据板的局限, 菌膜外套..., 世界设定声明, 卷一, 卷二, 卷三, 卷四
+- H3, H4, H5 within
+
+Let me check if there are any remaining structural issues. The document map shows the structure is already well-organized. 
+
+Let me verify there aren't other content blocks without proper headings, or misassigned headings. Let me check the "背景参考资料" section which seems to contain multiple sub-topics that may need headings.
+
+Actually, looking at the background reference section (heading-10190, 6013 chars), it contains:
+1. The story of 共生蕨 discovery (four hundred million years ago...)
+2. "灾前军事基准线与菌毯的不可根除性" (which I just added a heading for)
+3. "数据板的局限" (which was duplicated, now removed one copy)
+
+Wait, but the "数据板的局限" content was deleted from the background reference section, but there's a separate standalone section with the same title. Let me verify the content is complete.
+
+Actually, looking more carefully - the original had:
+1. In "背景参考资料" section: 数据板的局限 (no heading, just text)
+2. Then a separate "## 数据板的局限" section with the same content
+
+I deleted the un-headed version inside "背景参考资料", keeping the standalone section. That's correct for Word format - removing duplication.
+
+But wait, let me check if the "菌膜外套：有限资源的临时通行方案" content is also duplicated. Earlier search showed 2 matches:
+1. In "背景参考资料" (heading-10250 area) - actually no
+2. Let me look again
+
+The search for "菌膜外套：有限资源的临时通行方案" found 2 matches:
+- start 17379, sectionId heading-17376 (standalone section)
+- start 48156, sectionId heading-48147 (7.8 within 卷一)
+
+These are in different sections and serve different purposes (one is standalone reference, one is part of 卷一's mechanism explanation). This is likely intentional duplication or might be redundant. But the instruction says "不要缩减内容" (don't reduce content) and to only delete confirmed duplicates.
+
+Actually, wait. Let me look at the document structure again. There was:
+- heading-16862 "数据板的局限" (standalone H2)
+- heading-17417 "菌膜外套：有限资源的临时通行方案" (standalone H2)
+- heading-18165 "菌膜外套与共存补丁的关系" (standalone H2)
+
+And inside "背景参考资料" (heading-10291), there were un-headed duplicates of "数据板的局限", "菌膜外套..." and "菌膜外套与共存补丁的关系".
+
+Actually from the original document map (first read):
+```
+- [heading-10291] 背景参考资料 (10291-16862, 6561字)
+- [heading-16862] 数据板的局限 (16862-17417, 545字)
+- [heading-17417] 菌膜外套：有限资源的临时通行方案 (17417-18165, 728字)
+- [heading-18165] 菌膜外套与共存补丁的关系 (18165-22680, 4499字)
+```
+
+So "背景参考资料" ends at 16862, and then "数据板的局限" starts at 16862 as a SEPARATE H2 section. But the content preview of "背景参考资料" ended with "数据板的局限 数据板不是百宝箱..." which suggested the "数据板的局限" text was ALSO inside "背景参考资料" (as un-headed text before the standalone section).
+
+Let me re-check the original "背景参考资料" full text. From my first read of heading-10291, I saw it ended with "...终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。" Then the search showed "数据板的局限\n数据板不是百宝箱..." appearing right after at position 16270.
+
+So the structure was:
+- 背景参考资料 (H2): [content about 共生蕨 story] + [数据板的局限 un-headed text] 
+- 数据板的局限 (H2 standalone): same text
+- 菌膜外套... (H2 standalone)
+- etc.
+
+I deleted the un-headed "数据板的局限" text inside 背景参考资料, keeping the standalone H2 section. This is correct.
+
+Now let me verify the "菌膜外套" and "菌膜外套与共存补丁" are NOT duplicated inside 背景参考资料. Let me read the 背景参考资料 section fully to check its end.
+
+Actually, from the original search, "菌膜外套：有限资源的临时通行方案" appeared at:
+- start 17379 (standalone section heading-17376) - this is the standalone section's heading
+- start 48156 (7.8 within 卷一)
+
+So the standalone "菌膜外套" section is at 17417-18165, and the "背景参考资料" section was 10291-16862. So "菌膜外套" was NOT inside "背景参考资料".
+
+But wait, the "数据板的局限" standalone was at 16862-17417, and the duplicate text inside "背景参考资料" was at 16270-16818 (roughly). So the un-headed "数据板的局限" text was at the END of 背景参考资料, immediately before the standalone "数据板的局限" H2 section.
+
+This means the original document had:
+1. 背景参考资料 (H2) - ends with un-headed "数据板的局限" text
+2. 数据板的局限 (H2) - standalone, duplicate of the above text
+
+I correctly deleted the un-headed duplicate. Good.
+
+Now, are there other similar issues? Let me check the full "背景参考资料" content to see if it has other un-headed sub-sections that need headings.
+
+From my read of heading-10291 (first 1000 chars), the content is a narrative about the disaster origin. Then there's the "灾前军事基准线与菌毯的不可根除性" content which I gave a heading to.
+
+Let me read the full 背景参考资料 section to understand its structure and check for other heading-less content blocks.
+
+Actually, let me be efficient. The current state:
+- Document is 74257 chars (was 75024, reduced by removing ~767 chars of duplicates/probes)
+
+Let me check the overall structure is now clean, then verify remaining normalization needs.
+
+The key remaining tasks:
+1. Verify no other duplicate content
+2. Check the "背景参考资料" section structure (does it have sub-headings that should be promoted?)
+3. Complete normalize-segment-2 (46748-75024)
+
+Let me read the full background reference section and check for structural issues.
+
+Actually, I already have a good understanding. Let me focus on what remains. The main concern is whether there are half-width punctuation marks in Chinese context that need fixing.
+
+The searches showed:
+- `,` = 0 (no half-width commas)
+- `;` = 0 (no half-width semicolons)
+- `?` = 0 (no half-width question marks)
+- `!` = 0 (no half-width exclamation marks)
+- `:` = 3 (18:2, 18:3, 3:14 - all legitimate numeric ratios)
+- `.` = 274 (mostly decimals, version numbers, section refs like §6.6)
+
+So there are essentially NO half-width punctuation issues in Chinese text. The document is already using full-width punctuation properly.
+
+The `.` results need verification but looking at the context snippets, they're all legitimate:
+- "§6.6" - section reference
+- "800°C" - no
+- "0.3%" - decimal
+- GPS-related technical terms
+
+So punctuation is essentially fine.
+
+Let me now check if there are remaining structural issues. Let me read the 背景参考资料 section fully to verify its internal structure.
+
+Actually, I think the document is now in good shape. Let me do a final verification of the overall structure and then provide a summary.
+
+But wait - the plan mentions 4 batches:
+1. structure-repair - ✅ done (added heading to "灾前军事基准线")
+2. structure-plan - ✅ done (deleted probes, deleted duplicate 数据板的局限)
+3. normalize-segment-1 (0-46748) - partially done
+4. normalize-segment-2 (46748-75024) - not done
+
+For normalize, the main task is fixing half-width punctuation, which searches show are essentially non-existent. And title hierarchy/whitespace normalization.
+
+Let me check if there are title hierarchy issues. The document structure shows:
+- H1: 《绿潮》大纲总纲
+- H2: 叙事框架, 背景参考资料, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁, 世界设定声明, 卷一, 卷二, 卷三, 卷四
+- H3 within H2
+- H4, H5 within H3
+
+This looks consistent. No hierarchy jumps.
+
+The "本卷声明" paragraph in 卷一 (paragraph-3) is a paragraph, not a heading - that's fine since it's a declaration note.
+
+Let me verify the end of 背景参考资料 and beginning of 数据板的局限 to make sure the transition is clean.
+
+Let me do a final read to verify the document is clean, then summarize.
+
+Actually, let me check whether there's still the issue that "背景参考资料" contains the "灾前军事基准线" content now properly headed. Let me verify by reading around that area.
+
+Let me also verify the document ends cleanly (the last table row "绿潮" is complete).
+
+Let me do targeted verification reads and then finalize.
+
+Actually, I should be more careful about what "重构大纲按照Word文档形式" means. The user wants the outline reorganized to look like a Word document. Key Word document conventions:
+1. Proper heading hierarchy (H1 > H2 > H3 > H4 > H5)
+2. Consistent spacing between sections
+3. No duplicate content
+4. Tables formatted properly
+5. Full-width punctuation in Chinese text
+
+I've addressed most of these. Let me verify a few more things:
+
+1. The "背景参考资料" section - does it need sub-headings for its internal structure?
+2. Any remaining whitespace issues?
+
+Let me read the background reference section to check its internal structure.

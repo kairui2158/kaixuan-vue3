@@ -1,0 +1,11 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "## 叙事框架\n\n\n### 故事核心",
+      "content": "## 叙事框架\n\n### 故事核心",
+      "reason": "压缩标题间多余空行，符合Word文档排版"
+    }
+  ],
+  "reason": "阶段三格式整理：规范化标题间空白"
+}

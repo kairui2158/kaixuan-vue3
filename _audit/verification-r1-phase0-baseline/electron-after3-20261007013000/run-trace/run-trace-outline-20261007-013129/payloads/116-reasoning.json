@@ -1,0 +1,409 @@
+The user wants me to restructure the outline to look more like a Word document. Let me analyze what was done so far:
+
+1. I fixed two typo errors ("子云" → "孢子云", "物量储备" → "生物量储备")
+2. I promoted three chapters from being nested under "菌膜外套与共存补丁的关系" to top-level headings (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落)
+
+Now I need to think about what "Word文档的形式重构大纲" means. Looking at the current structure:
+
+- The outline has a main H1 "# 《绿潮》大纲总纲"
+- Under it are several H2 sections: 叙事框架, 背景参考资料, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 世界设定声明, 卷一:基石设定层, 卷二:核心人物群像, 卷三:势力与格局层, 卷四:叙事工具箱层
+
+The user wants it restructured like a Word document. In a Word document format, there would typically be:
+- Cover page with title
+- Table of contents
+- Clear chapter divisions
+- Consistent heading structure
+- Proper section breaks
+
+But looking more carefully at the current structure, the issue is that the outline has a somewhat messy structure where:
+1. "背景参考资料" contains historical narrative mixed with technical specs
+2. "菌膜外套与共存补丁的关系" had content nested under it that should be separate chapters
+3. The four-volume structure (卷一 through 卷四) is at the same level as narrative framework sections
+
+I think what the user wants is a cleaner, more Word-document-like structure. Let me look at the current structure more carefully:
+
+Current H2 sections (in order):
+- ## 叙事框架
+- ## 背景参考资料
+- ## 数据板的局限
+- ## 菌膜外套：有限资源的临时通行方案
+- ## 菌膜外套与共存补丁的关系
+- ## 世界设定声明
+- ## 卷一：基石设定层
+- ## 卷二：核心人物群像
+- ## 卷三：势力与格局层
+- ## 卷四：叙事工具箱层
+
+After my fix, we also have:
+- ## 六大势力概览
+- ## 圣萌会的崛起
+- ## 巨树生长与天府都陷落
+
+These three now sit between "菌膜外套与共存补丁的关系" and "世界设定声明".
+
+The problem is that the structure is still somewhat messy. The "背景参考资料", "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系", "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" are all at the H2 level, interspersed between the 叙事框架 and the four volumes.
+
+A Word-document-like structure might want to reorganize these so that:
+1. The narrative framework (volumes 1-3) stays as the main story outline
+2. The background/technical content has a clearer organization
+3. The four formal volumes (卷一-卷四) form the main reference architecture
+
+But wait - the user said "不要缩减内容" (don't reduce content). They want restructuring without losing anything.
+
+Let me think about what "Word文档的形式" means more concretely:
+
+Looking at a typical Word document for a novel outline, it would have:
+- Clear part/section numbering
+- Consistent heading hierarchy  
+- All content properly organized under appropriate parent sections
+- No content floating without clear parentage
+
+The current issues I can see:
+1. "背景参考资料" mixes narrative backstory with technical appendices
+2. Some content appears duplicated (菌膜外套 appears both as H2 and as H4 under 卷三)
+3. "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" are now top-level but they feel like they should be under some parent section or clearly labeled
+
+Actually, I think the user may want a more dramatic restructuring. But the challenge is that the content is very large (~74K chars) and the user said not to reduce content. 
+
+Let me reconsider: maybe "按照Word文档的形式重构" means:
+- Adding proper document structure (like a formal 目录/前言/正文/附录 structure)
+- Adding clear section numbering (第一章, 第一节, etc.)
+- Making sure all content is in logical order
+
+But I can't add new content (like a table of contents) because that would be adding content, not restructuring.
+
+Actually, I think the key insight is: the current outline has a somewhat flat structure where background/reference materials are mixed in with the narrative framework. A "Word document" structure would organize everything into clear, logical sections with proper hierarchy.
+
+Let me look at what major restructuring makes sense:
+
+Part 1: 作品概述 (包含故事核心、核心张力、三卷概要)
+Part 2: 背景设定与参考资料 (包含背景参考资料、数据板的局限、菌膜外套、菌膜外套与共存补丁)
+Part 3: 卷一：基石设定层
+Part 4: 卷二：核心人物群像
+Part 5: 卷三：势力与格局层
+Part 6: 卷四：叙事工具箱层
+
+Actually wait, let me re-read the user's request. They said "按照Word文档的形式重构大纲". This is quite open-ended. Let me think about what specific problems exist:
+
+1. There are confusing nesting issues (items under wrong parents)
+2. The overall organization doesn't follow a clear document structure
+3. Some H2 sections feel like they should be at different levels
+
+But I need to be careful - the user said "不要缩减内容", meaning I shouldn't delete any content, only reorganize it.
+
+Let me think about a reasonable restructuring plan:
+
+**Proposed Structure:**
+
+```
+# 《绿潮》大纲总纲
+
+## 第一部分：作品概述与叙事框架
+### 故事核心
+### 第一卷·觉醒与扎根
+### 第二卷·连接与陷落
+### 第三卷·远征与暗流
+
+## 第二部分：背景设定与参考资料
+### 背景参考资料
+### 灾前军事基准线与菌毯的不可根除性
+### 数据板的局限
+### 菌膜外套：有限资源的临时通行方案
+### 菌膜外套与共存补丁的关系
+
+## 第三部分：世界格局纵览
+### 六大势力概览
+### 圣萌会的崛起
+### 巨树生长与天府都陷落
+
+## 世界设定声明
+
+## 卷一：基石设定层
+...
+
+## 卷二：核心人物群像
+...
+
+## 卷三：势力与格局层
+...
+
+## 卷四：叙事工具箱层
+...
+```
+
+Hmm, but this would require significant restructuring. And the "part" headings (第一部分 etc.) would be new content I'm adding. The user might not want that.
+
+Let me take a more conservative approach. The main issues I can fix:
+
+1. Content nested under wrong parents (partially fixed)
+2. The outline currently goes: 叙事框架 → 背景参考资料 → (various tech docs) → 世界设定声明 → 卷一-卷四
+
+This is already somewhat logical. Maybe the user just wants consistency in the document structure - no content floating, proper hierarchy.
+
+Let me look at the current structure again more carefully to identify all issues. Let me re-read the document map...
+
+Actually, I think the biggest remaining issue is that "背景参考资料" currently contains the narrative backstory text + sub-sections for 灾前军事基准线. And the three promoted sections (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) are now floating between 菌膜外套与共存补丁的关系 and 世界设定声明.
+
+Maybe what I should do is:
+
+1. Group "背景参考资料" + "数据板的局限" + "菌膜外套" + "菌膜外套与共存补丁的关系" + "六大势力概览" + "圣萌会的崛起" + "巨树生长与天府都陷落" under a single parent like "背景设定与参考资料" or renumber them properly.
+
+But wait, the user said Word document form, not necessarily academic paper form. Perhaps they just want:
+- Clear hierarchy
+- No orphan sections
+- Consistent formatting
+- Logical order
+
+I think the core issue is that right now the outline has:
+- 叙事框架 (narrative framework) as H2
+- Then a bunch of H2 background sections
+- Then 世界设定声明 as H2
+- Then 卷一-卷四 as H2 sections
+
+In a Word document, you'd typically have these organized as parts or chapters with consistent numbering.
+
+But changing the structure too much could confuse the user. Let me just focus on the clear structural issues:
+
+1. The three newly-promoted H2s (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) - they need proper placement. They contain content that is essentially a summary/overview of the world. They could be placed under a new parent heading, or just left as they are (they're now H2 which is correct for their importance).
+
+2. The 背景参考资料 section contains narrative text + a sub-section 灾前军事基准线. This is fine structurally.
+
+3. There might be duplicate content - 菌膜外套 appears both as an H2 standalone section and as content within 卷三/卷一.
+
+Let me check for actual duplicates vs intentional repetition...
+
+Actually, in the 卷三 section (势力与格局层), under 岫岩城, there's mention of 菌膜外套. And under 卷一 (基石设定层), under 七、变异体主动攻击人类核心机制, there are sections 7.8 and 7.9 that also cover 菌膜外套 and 菌膜外套与共存补丁的关系. These are likely intentional - the standalone H2 sections are detailed reference, while the mentions in 卷一/卷三 are summary/cross-reference.
+
+I think the most impactful thing I can do now is to clean up the structure so it reads more like a well-organized Word document. Let me propose:
+
+1. Move "世界设定声明" to the very beginning (after 叙事框架, before 背景参考资料) - this is a declaration that should come early
+2. Group the background reference sections more logically
+3. Ensure all four volumes (卷一-卷四) are clearly structured as the main body
+
+Actually no, let me not overthink this. Let me look at what the user might concretely mean by "Word文档的形式":
+
+In a Word document, you have:
+- Title page (already have H1)
+- Clear sections with numbering
+- Headers and footers (not applicable in markdown)
+- Consistent formatting
+- Table of contents (not needed)
+- Sections divided by page breaks (not applicable)
+
+The main thing missing is clear section numbering and a logical flow. Let me look at the current flow:
+
+1. H1: 《绿潮》大纲总纲
+2. H2: 叙事框架 (with H3 sub-sections for 故事核心, 第一卷, 第二卷, 第三卷)
+3. H2: 背景参考资料 (with H3: 灾前军事基准线)
+4. H2: 数据板的局限
+5. H2: 菌膜外套：有限资源的临时通行方案
+6. H2: 菌膜外套与共存补丁的关系
+7. H2: 六大势力概览 (newly promoted)
+8. H2: 圣萌会的崛起 (newly promoted)
+9. H2: 巨树生长与天府都陷落 (newly promoted)
+10. H2: 世界设定声明
+11. H2: 卷一：基石设定层
+12. H2: 卷二：核心人物群像
+13. H2: 卷三：势力与格局层
+14. H2: 卷四：叙事工具箱层
+
+Issues:
+- Items 3-9 are reference/background content that sits between 叙事框架 and 世界设定声明+正式卷
+- 世界设定声明 should probably come before 背景参考资料
+- Items 7-9 are essentially a preview/summary of what's detailed in 卷三
+
+For a Word document structure, I think the user might want:
+
+**Part/篇 level grouping:**
+
+Actually, I think the simplest approach that respects "不要缩减内容" is:
+
+1. Keep all content as-is
+2. Reorder sections into a more logical flow
+3. Maybe add a few clear part dividers
+
+But reordering is risky because some sections may reference each other. And the current order has its own logic - narrative first, then background, then formal volumes.
+
+Let me take yet another approach. Let me look at the actual problems the user might be seeing:
+
+1. The outline currently looks more like a collection of notes than a structured document
+2. Some sections feel out of place
+3. The hierarchy is inconsistent
+
+I think the best approach is:
+
+1. Keep the current order but clean up the hierarchy
+2. Make sure every section is at the right level
+3. The three promoted H2 sections (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) should probably be grouped under a parent heading
+
+Let me create a parent for those three:
+
+```
+## 世界格局总览
+### 六大势力概览
+### 圣萌会的崛起
+### 巨树生长与天府都陷落
+```
+
+But wait - "世界格局总览" would be new content. The user said not to add or reduce content, just restructure. Hmm.
+
+OK, I think I'm overthinking this. Let me look at what concrete structural issues remain and fix them, without adding new headings or deleting content.
+
+Current remaining issues I can see:
+
+1. The sections "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" are now at H2 level but they're essentially preview/overview content. They should perhaps be demoted back to H3 or grouped.
+
+Actually wait - these three sections were already demoted from H3 to be standalone H2s by me. That was the right call because they were incorrectly nested under "菌膜外套与共存补丁的关系". But now they're floating H2s.
+
+Let me think about what makes the most sense: maybe they should be grouped under a new H2 like "## 世界格局总览" or maybe they should just stay as H2. The user might have intended them to be at that level.
+
+Actually - looking again at the content, these three sections form a coherent narrative that bridges the "背景参考资料" and the formal "卷" structure. They tell the story of the world in a summary form. In a Word document, this would likely be a separate chapter.
+
+Let me just add a clear parent heading for them and move forward. I'll call it "## 世界格局纵览" and put the three under it.
+
+Wait, but the user said "不要缩减内容" - does adding a heading count as "adding content"? I think adding structural headings for organization is OK as it's part of the restructuring process.
+
+Actually, let me reconsider the entire task. "按照Word文档的形式重构大纲" - maybe they want me to completely reorganize the outline into a proper document structure like:
+
+```
+# 《绿潮》大纲总纲
+
+## 第一章 故事总览
+### 1.1 故事核心
+### 1.2 核心张力
+### 1.3 第一卷·觉醒与扎根
+### 1.4 第二卷·连接与陷落
+### 1.5 第三卷·远征与暗流
+
+## 第二章 背景设定
+### 2.1 背景参考资料
+### 2.2 灾前军事基准线与菌毯的不可根除性
+### 2.3 数据板的局限
+### 2.4 菌膜外套
+### 2.5 菌膜外套与共存补丁的关系
+### 2.6 六大势力概览
+### 2.7 圣萌会的崛起
+### 2.8 巨树生长与天府都陷落
+
+## 世界设定声明
+
+## 第三章 卷一：基石设定层
+...
+
+## 第四章 卷二：核心人物群像
+...
+
+## 第五章 卷三：势力与格局层
+...
+
+## 第六章 卷四：叙事工具箱层
+...
+```
+
+But this would require massive restructuring - changing all the headings, creating new numbering schemes. And it would essentially be rewriting the entire outline's structure while preserving content. This seems like what "Word文档的形式" means.
+
+However, this is extremely ambitious for the tool constraints (10 commands per batch). Let me think about a more practical approach.
+
+Actually, I think the most practical approach given the constraints is to:
+
+1. Add clear part dividers / section headers to organize the outline
+2. Fix the hierarchy of the floating sections
+3. Ensure consistent formatting
+
+Let me do this step by step:
+
+**Step 1**: Group the three promoted H2 sections under a new parent "世界格局纵览"
+**Step 2**: Add clear part numbering to the top-level H2 sections
+**Step 3**: Ensure the flow is logical
+
+Actually, let me step back and think about what the user is really asking. They have a massive outline that has grown organically. It's somewhat messy. They want me to restructure it into a clean "Word document" format without losing any content.
+
+The most impactful change I can make is to organize the top-level sections into clear, numbered parts with consistent hierarchy. Let me do this with minimal new heading text.
+
+Let me propose this structure (using existing headings where possible):
+
+```
+# 《绿潮》大纲总纲
+
+## 第一篇 叙事框架
+### 故事核心
+### 第一卷·觉醒与扎根
+### 第二卷·连接与陷落
+### 第三卷·远征与暗流
+
+## 第二篇 背景设定与参考资料
+### 背景参考资料
+#### 灾前军事基准线与菌毯的不可根除性
+### 数据板的局限
+### 菌膜外套：有限资源的临时通行方案
+### 菌膜外套与共存补丁的关系
+
+## 第三篇 世界格局纵览
+### 六大势力概览
+### 圣萌会的崛起
+### 巨树生长与天府都陷落
+
+## 世界设定声明
+
+## 第四篇 卷一：基石设定层
+...
+
+## 第五篇 卷二：核心人物群像
+...
+
+## 第六篇 卷三：势力与格局层
+...
+
+## 第七篇 卷四：叙事工具箱层
+...
+```
+
+This is a lot of changes and would require many operations. Let me focus on what I can do in a few batches.
+
+Actually, I think the user's intent is simpler than I'm making it. They probably just want:
+1. Fix the broken hierarchy (done)
+2. Make sure the outline reads like a coherent document with proper section organization
+3. Maybe add a few organizational headings
+
+Let me focus on what I can accomplish:
+
+1. The three promoted H2 sections need a parent - I'll add "## 世界格局纵览" and demote them to H3
+2. Maybe organize the background sections under a clearer heading structure
+
+Actually, I think I should just do the most impactful changes and stop. Let me:
+
+1. Demote "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" back to H3 and add a parent H2 "## 世界格局纵览"
+
+Then assess if more is needed.
+
+Wait, but these were H3 before (under 菌膜外套与共存补丁的关系), and I promoted them to H2. Now I'm going to demote them again but under a different parent. This is a bit messy.
+
+Let me just do it cleanly:
+
+The three sections currently are:
+```
+## 六大势力概览
+...
+## 圣萌会的崛起
+...
+## 巨树生长与天府都陷落
+...
+```
+
+I want to change them to:
+```
+## 世界格局纵览
+
+### 六大势力概览
+...
+### 圣萌会的崛起
+...
+### 巨树生长与天府都陷落
+...
+```
+
+This requires: changing `## 六大势力概览` → `### 六大势力概览`, etc. And inserting a new `## 世界格局纵览` line before them.
+
+I need to be careful about how I do this. Let me first read the exact text around these sections.
+
+Actually, let me first read around the transition point to see what the content looks like now after my changes.

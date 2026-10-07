@@ -1,0 +1,230 @@
+我需要继续执行剩余批次。计划共3批，已完成2批（去重阶段）。未覆盖批次：structure-repair 和 normalize-segment-1。
+
+现在我需要执行 structure-repair 阶段（标题层级修复）和 normalize-segment-1（标点整理）。
+
+先看结构，识别层级跳变和误归位标题。从 document_map 已经看到结构。现在需要识别需要修复的标题层级问题。
+
+关键问题：标题层级跳变。文档层级体系是：
+- level 1: 《绿潮》大纲总纲（heading-1-mizom9）
+- level 2: 卷（叙事框架、背景参考资料、数据板的局限、菌膜外套...、世界设定声明、卷一、卷二、卷三、卷四）
+- level 3: 卷下的章节（故事核心、第一卷、第二卷、第三卷等）
+- level 4: 小节
+- level 5: 子小节
+
+但注意到 document_map 中大量 "内容块" 是 paragraph level 1 —— 这些是编辑器自动解析出的段落块，不是真正的标题。它们 level 1 但其实是无标题的空段落（1-2字符，是换行）。
+
+关键观察：paragraph 类 level 1 的内容块（如 paragraph-11m2iyd 内容块 1，2字）其实是换行符产生的段落。这些不是标题。
+
+真正的层级问题是：卷一下的章节标题层级。让我看看当前结构中的层级。
+
+从 structure map 看：
+- heading-1-mizom9 (level 1) 《绿潮》大纲总纲
+  - heading-2-kwf15x (level 2) 叙事框架
+    - heading-3-1heodug (level 3) 故事核心
+    - heading-3-17va42n (level 3) 第一卷·觉醒与扎根
+    - heading-3-by40kw (level 3) 第二卷·连接与陷落
+    - heading-3-1rlyhj7 (level 3) 第三卷·远征与暗流
+  - heading-2-1lka0h8 (level 2) 背景参考资料
+    - heading-3-19902vk (level 3) 灾前军事基准线...
+      - heading-4 ... 一、二、三
+  - heading-2-z4sxm8 (level 2) 数据板的局限
+  - heading-2-10q4nra (level 2) 菌膜外套...
+  - heading-2-28do6r (level 2) 菌膜外套与共存补丁的关系
+  - heading-2-sd0mn1 (level 2) 世界设定声明
+  - heading-2-171cwmj (level 2) 卷一：基石设定层
+    - heading-3-m3hh8a (level 3) 一、书名定义...
+      - heading-4-1vn8oly (level 4) 1.1
+      - heading-4-ggkfny (level 4) 1.2
+    - heading-3-ak0hbf (level 3) 二、灵魂语句
+    - heading-3-gyru41 (level 3) 三、地名...
+      - heading-4 ... 3.1~3.6
+    - heading-3-15su23n (level 3) 四、灾难源头
+      - heading-4-49vwkv 4.1 发现
+        - heading-5-xhlj1c 4.1.1
+        - heading-5-1h8zl26 4.1.2
+      - heading-4-1iiwop5 4.2 源头
+        - heading-5 ... 4.2.1~4.2.5
+      - heading-4-1rvv8cd 4.3 发现者
+        - heading-5 ... 4.3.1~4.3.3
+    - heading-3-g0h8ad (level 3) 五、方岫岩
+      - heading-4-k95ye8 5.1 ... 
+      - ...
+    - heading-3-1cpdqgf (level 3) 六、灾难爆发
+    - heading-3-1ytkqhj (level 3) 七、变异体主动攻击
+      - heading-4-1vezm8l 7.1
+      - heading-4-zzx9e3 7.2
+        - heading-5 7.2.1~7.2.3
+      - heading-4-hef7uj 7.3
+      - heading-4-1yps3vf 7.4
+      - heading-4-uwoesr 7.5
+        - heading-5 7.5.1 7.5.2
+      - heading-4-oltsrt 7.6
+      - heading-4-1k3kxvb 7.7
+      （7.8 7.9 已删除）
+    - heading-3-11r2knx (level 3) 八、变异生物体系
+      - heading-4 8.1~8.7
+    - heading-3-wxe4uv (level 3) 九、真菌网络...
+    - heading-3-taxks7 (level 3) 十、灾后科技
+      - heading-4 10.1~10.4
+        - heading-5 10.3.1 10.3.2
+    - heading-3-1irsv2s (level 3) 十一、生物油脂
+      - heading-4 11.1~11.4
+    - heading-3-lnyvid (level 3) 十二、末日食物
+      - heading-4 12.1~12.7
+  - heading-2-9m9hul (level 2) 卷二：核心人物群像
+    - heading-3-s1j6ko (level 3) 一、陈暮
+      - heading-4 1.1 1.2 1.3
+    - heading-3-1hhb6iq (level 3) 二、五位女主
+      - heading-4 2.1~2.5
+  - heading-2-1kq6z0v (level 2) 卷三：势力与格局层
+    - heading-3-jll4w3 (level 3) 一、菌毯封锁
+      - heading-4 1.1 1.2
+    - heading-3-1mpbijb (level 3) 二、全球幸存者势力分布
+    - heading-3-1o5h3ch (level 3) 三、六大势力
+      - heading-4 3.1 总表
+      - heading-4-34kxki 3.2 铁壁
+        - heading-5 3.2.1~3.2.9
+      - heading-4-heyx5x 3.3 复兴会
+        - heading-5 3.3.1~3.3.8
+      - heading-4-1ihb9ak 3.4 天府都
+        - heading-5 3.4.1~3.4.7
+      - heading-4-uoait2 3.5 岫岩城
+        - heading-5 3.5.1~3.5.7
+      - heading-4-1x0uxw6 3.6 天网
+        - heading-5 3.6.1~3.6.6
+      - heading-4-tvq28n 3.7 镇海
+        - heading-5 3.7.1~3.7.5
+    - heading-3-cnkt1u (level 3) 四、圣萌会
+      - heading-4 4.1~4.10
+    - heading-3-l1qgnn (level 3) 五、盖亚中枢
+      - heading-4 5.1~5.4
+  - heading-2-12ruweg (level 2) 卷四：叙事工具箱层
+    - heading-3-1kz03je (level 3) 一、核心主题清单
+    - heading-3-xco0i6 (level 3) 二、术语统一总表
+
+整体层级体系是清晰的：level1 总纲 → level2 卷 → level3 章 → level4 节 → level5 小节。没有明显的层级跳变。
+
+但是有几个需要修复的问题：
+
+1. "背景参考资料" 这一 heading-2 下有一个 "灾前军事基准线与菌毯的不可根除性" 是 level 3（heading-3-19902vk），但它实际上应该是 level 2 还是 level 3？它没有 "卷" 的编号，是背景参考资料的一个子章节。保持 level 3 合理。
+
+2. 顶层有独立的 "数据板的局限"、"菌膜外套：有限资源的临时通行方案"、"菌膜外套与共存补丁的关系"、"世界设定声明" 都是 level 2，它们不属于任何卷。这是文档原始结构，保持不变。
+
+3. 真正的结构问题可能是：这些顶层 level 2 章节（数据板的局限、菌膜外套等）是否应该归入某个卷？从内容和命名看，它们是独立的顶层设定章节，与"叙事框架""背景参考资料""卷一~卷四"并列。这是合理的顶层结构。
+
+所以 structure-repair 阶段，主要需要处理的是：
+- 段落块（paragraph level 1 的内容块）是否需要修正？这些是空段落（换行），不是标题，不应被当作标题。但它们是编辑器解析的结果，我们无法通过 move 删除空段落而不影响内容？实际上这些 "内容块" 是 markdown 中标题之间的空行段落。
+
+实际上，从 read_range 看，段落如 paragraph-11m2iyd 内容是 "\n\n"（2字符），这些是结构性空行。它们被编辑器识别为 level 1 的 paragraph，但 level 显示为 1 是因为它们挂在 level 1 标题下。
+
+等等，document_map 中这些 paragraph 的 level 都是 1，kind 是 paragraph。它们不是标题，是正文段落块。这不算层级错误。
+
+所以 structure-repair 阶段实际需要做的修复可能已经通过前面的操作完成了（删除编辑指令残留、删除重复小节）。
+
+让我重新审视：计划里 structure-repair 是"执行标题层级修复或章节重排"。但通过我的分析，文档层级体系已经清晰，没有需要 move 的误归位标题。
+
+不过，还有一个明显的结构问题需要处理：顶层那些 level 2 章节的归属。让我再想想。
+
+实际上有一个真正的问题：从 heading-2-kwf15x "叙事框架" 开始，它包含 故事核心、第一卷、第二卷、第三卷 这些 level 3。这没问题。
+
+但顶层还有 5 个孤立 level 2 章节：
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系
+- 世界设定声明
+- （背景参考资料是 level 2，有子内容）
+
+这些孤立 level 2 章节没有一个共同的父级。它们与"叙事框架""背景参考资料""卷一~卷四"并列。这其实是合理的——它们是全书性的补充设定。
+
+所以结构上可能不需要大的 move 操作。
+
+那么 structure-repair 阶段，我应该做什么？计划里说的是"执行标题层级修复或章节重排"。既然没有发现需要重排的，也许这个阶段的核心工作就是我已经做的：删除编辑指令残留文本（已完成）+ 去重（已完成）。
+
+但是为了确保 structure-repair 被覆盖，我应该检查是否还有需要修复的标题层级。
+
+让我搜索一下是否有明显的层级问题。一个可疑点：heading-2-1lka0h8 "背景参考资料" 下，内容块 paragraph-1kd06wy 是 1880 字的大段落（level 1 paragraph），这个段落是"四亿年前..."的正文，没有标题。这没问题，它是正文。
+
+另一个可疑点：heading-3-19902vk "灾前军事基准线与菌毯的不可根除性" 这个标题是 level 3，它的子标题"一、2042年...""二、菌毯为什么...""三、总结..."都是 level 4。这符合层级（3 → 4）。
+
+我觉得 structure-repair 阶段实际上主要就是删除重复内容（已完成 batch 6）和删除编辑指令残留（已完成 batch 5）。
+
+现在关键任务：normalize-segment-1 阶段，即全文档标点规范化。这是必须覆盖全部 0-74312 范围的。
+
+半角标点 , . ; : ! ? 需要转全角 ，。；：！？
+
+但要注意：
+1. 表格中的内容不应被修改？实际上表格里也有冒号等。指令说"中文正文语境中的半角标点必须统一为全角"。表格中的中文内容也应该用全角标点。
+2. 但要注意不能破坏已有正确的全角标点、不能破坏特殊内容如 "18：2"（已是全角）、"SC-α"、"2042-2043" 连字符、数字中的小数点等。
+
+数字小数点 "0.3%"、"1.8GPa"、"3.14" 等——这些是数字小数点，不应改成句号。指令说"中文正文语境中的半角标点"，数字小数点不属于中文标点，应保留。
+
+这是个非常微妙的任务。我需要谨慎处理。
+
+让我先搜索全文中存在的半角标点位置。之前的搜索显示 editor.search 对 ",", ":", ";" 返回 total:0 —— 但这可能是因为搜索不支持标点符号？或者标点被忽略了。
+
+实际上之前的审计显示：
+- editor.search query="。" 返回 hasMore true
+- editor.search query=";" 返回 total 0
+- editor.search query=":" 返回 total 0
+- editor.search query="," 返回 total 0
+
+这说明 editor.search 可能不索引半角标点，或者半角标点被 tokenizer 过滤了。所以无法用 search 定位半角标点。
+
+我需要通过 read_range 分段读取全文来查找半角标点。全文 73105 字符，需要分段读取。
+
+这是个庞大的任务。让我规划：
+- 全文 73105 字符，每次 read 12000 字符，约 7 次读取可覆盖。
+- 然后对每段中的半角标点提交 replace_match 命令。
+
+但 replace_match 需要精确的 target 字符串。对于标点替换，我需要找到每个半角标点所在的上下文片段，然后替换。
+
+一个更高效的方法：对每个含半角标点的句子/短语做 replace_match，把半角标点替换为全角。
+
+但问题是数量可能很多。让我先分段读取全文，找出半角标点。
+
+实际上，让我先读取全文，逐段检查半角标点。
+
+从之前读取的内容看，正文中大部分标点已经是全角（，。；：！？）。但有几个已知位置：
+1. "11月19日3:14" 已修正为 "3：14"（batch 已做）
+2. "18:2" → "18：2"，"18:3" → "18：3"（batch 已做）
+
+可能还有少量半角标点残留。让我分段扫描。
+
+我已经读了：
+- heading-1 offset 0-6000
+- heading-2-kwf15x 0-4000
+- heading-2-28do6r 0-6000（全文）
+- heading-4-896l1n, heading-4-1au19n4, heading-4-1k3kxvb（已删除，无需）
+- 16800-18350 部分
+
+让我系统地分段读取全文并扫描半角标点。
+
+先读 0-12000、12000-24000 等。
+
+实际上更高效的方式：我一次性读大段，找出半角标点，然后在一次 editor.write 中打包多条 replace_match。
+
+让我先读全文的几个大段。
+
+考虑到 token 限制，我需要控制读取量。让我读取剩余未读部分，重点扫描半角标点。
+
+已读范围：
+- 0-6000（heading-1 读取）
+- 6000-10230 部分未读（第一卷结尾、第二卷、第三卷）
+- 10230-16800 部分（背景参考资料）未读
+- 16800-18350 已读
+- 18350-22051 未读（菌膜外套与共存补丁关系后半）
+- 22051-73105 大部分未读
+
+我需要扫描全文找半角标点。让我读取关键段落。
+
+不过，先想想：文档最初 74312 字，正文中标点基本是全角。半角标点可能只出现在：
+1. 数字/时间（已处理）
+2. 少数编辑残留
+
+让我重点扫描。先读几段大的。
+
+实际上，为了高效，我应该用 read_range 按 section 读取，扫描半角标点。但 section 太多。
+
+让我直接分段读 heading-1-mizom9（整个文档）的连续区间。
+
+先读 6000-18000。

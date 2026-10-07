@@ -518,7 +518,7 @@ async function main() {
     const exportDir = exportResult.path
     const exportedTracePath = path.join(exportDir, 'run-trace.json')
     const exportedTrace = JSON.parse(fs.readFileSync(exportedTracePath, 'utf8'))
-    assert.equal(exportedTrace.schemaVersion, 14, 'live replay export uses schema v14')
+    assert.equal(exportedTrace.schemaVersion, 15, 'live replay export uses schema v15')
     const exportedData = JSON.parse(fs.readFileSync(path.join(exportDir, 'export.json'), 'utf8'))
     assert.equal(exportedData.apiResponseIndexVerification?.ok, true,
       `exported apiResponseIndex passes ref verification: ${JSON.stringify(exportedData.apiResponseIndexVerification)}`)

@@ -1,0 +1,120 @@
+Let me analyze what needs to be done for the "Word document" reformatting. The user wants the outline restructured like a Word document - meaning proper heading hierarchy, clean formatting, and no content reduction.
+
+Let me look at the current structure issues I've identified:
+
+1. The "故事核心" section had a stray paste instruction line - already deleted in previous write
+2. There are many `\n` empty "内容块" paragraphs that are just whitespace separators
+3. Need to check for duplicate content sections (like 菌膜外套与共存补丁的关系 appearing both as standalone section and inside 卷七)
+4. Chinese punctuation normalization - `"..."` should become `"..."` (Chinese quotes), and some `"..."` (half-width) exist
+5. The `paragraph-1kd06wy` (内容块 3) is the body text under "背景参考资料" that has been extracted as a paragraph between the heading and its sub-heading `heading-3-19902vk`
+
+Key issues to fix:
+- Remove empty paragraph blocks (内容块 1-39) that are just whitespace
+- Fix any duplicate content
+- Standardize Chinese punctuation
+- Ensure heading hierarchy is clean
+
+Let me focus on the plan's requirements. The plan says:
+- Phase 1: Structure fix (move misplaced titles, add missing titles, fix heading levels)
+- Phase 2: Delete confirmed duplicates
+- Phase 3: Normalize punctuation, whitespace, numbering
+
+The main structural issue I see is that "背景参考资料" has body text that was extracted as a separate "内容块 3" paragraph, but the body text IS the content of "背景参考资料" - it's just how the parser split it. This is actually fine structurally.
+
+The empty "内容块" paragraphs (1-39) are just whitespace artifacts from the parser splitting paragraphs. In a Word document, these would just be paragraph breaks, which is fine.
+
+The bigger issues are:
+1. Duplicate sections - 菌膜外套 appears in two places under ## 叙事框架 level as `heading-2-10q4nra` and `heading-2-28do6r`, and similar content also appears inside 卷七 sections 7.8 and 7.9. These might be intentional (summary overview + detailed version). Let me check.
+
+Looking at the structure:
+- `heading-2-10q4nra` "菌膜外套：有限资源的临时通行方案" is a top-level section
+- `heading-2-28do6r` "菌膜外套与共存补丁的关系" is a top-level section
+- `heading-4-896l1n` "7.8 菌膜外套：有限资源的临时通行方案" inside 卷七
+- `heading-4-1au19n4` "7.9 与终局的衔接：菌膜外套与共存补丁的关系" inside 卷七
+
+Similarly, `heading-2-z4sxm8` "数据板的局限" appears at top level and also has similar content in various places.
+
+These seem to be the same content appearing in multiple locations. But actually looking at the content more carefully - the top-level sections under "背景参考资料" area ARE the detailed content, and the ones inside "卷一" and "卷三" are references.
+
+Wait, let me re-read the structure. The current outline has:
+- `## 叙事框架` (level 2, heading-2-kwf15x)
+- `## 背景参考资料` (level 2, heading-2-1lka0h8) 
+- `## 数据板的局限` (level 2, heading-2-z4sxm8)
+- `## 菌膜外套：有限资源的临时通行方案` (level 2, heading-2-10q4nra)
+- `## 菌膜外套与共存补丁的关系` (level 2, heading-2-28do6r)
+- `## 世界设定声明` (level 2, heading-2-sd0mn1)
+- `## 卷一：基石设定层` (level 2, heading-2-171cwmj)
+- `## 卷二：核心人物群像` (level 2, heading-2-9m9hul)
+- `## 卷三：势力与格局层` (level 2, heading-2-1kq6z0v)
+- `## 卷四：叙事工具箱层` (level 2, heading-2-12ruweg)
+
+So "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" are at the same level as "卷一", "卷二", etc. They're positioned between "背景参考资料" and "卷一". This seems like they were originally part of the background reference but got promoted to level 2 headings.
+
+Also inside 卷七 (在卷一内), sections 7.8 and 7.9 duplicate the same topics. These are likely intentionally placed both as standalone reference and within the structured 卷七.
+
+For the Word document restructure, these duplicate sections might need to be addressed. But the user said "不要缩减内容" (don't reduce content), so I should keep all content.
+
+Let me now focus on what I CAN do:
+
+1. The empty "内容块" paragraphs are fine - they represent paragraph breaks in the original
+2. The duplicate sections are intentional (summary + detailed versions)
+3. The main issue is Chinese punctuation normalization
+
+Actually, let me re-read the user's request: "按照Word文档的形式重构大纲，不要缩减内容" - restructure the outline in Word document form, don't reduce content.
+
+This means: better heading hierarchy, cleaner formatting, proper document structure. The current structure has issues like:
+- Some sections that should be part of others are at the same level
+- "数据板的局限" and "菌膜外套" sections are standalone level-2 headings between background and volume one, when they probably should be subsections of background
+
+But I need to be careful - I can't make structural assumptions. Let me focus on what's clearly wrong:
+
+1. The "核心张力：保护即加速】" text in story-core section - the `】` should be `】` or better yet `【核心张力：保护即加速】` with proper brackets
+2. Various Chinese punctuation issues
+
+Let me now execute Phase 1: fix structural issues I'm confident about, then Phase 3: normalize punctuation.
+
+Actually, I need to be more strategic here. Let me focus on the concrete issues I've identified and write them now.
+
+The key structural issues:
+1. In 故事核心: `核心张力：保护即加速】` should be `【核心张力：保护即加速】`
+2. In 背景参考资料: the body text between the heading and `### 灾前军事基准线...` is extracted as `paragraph-1kd06wy` - this is fine, it's the intro text
+
+For Phase 3 (normalization), I need to fix Chinese punctuation throughout. This is a massive task for a 74k document. Let me focus on systematic patterns.
+
+The most common issues are likely:
+- Half-width `"..."` should be `"..."` in Chinese context  
+- Half-width `,` should be `，`
+- Half-width `;` should be `；`
+- Half-width `:` should be `：`
+- Half-width `!` should be `！`
+- Half-width `?` should be `？`
+- Half-width `.` should be `。` (but careful with numbers/abbreviations)
+
+Given the document size, I need to be strategic. Let me do batch operations.
+
+Let me start with Phase 1 - fixing the obvious structural issues, then move to Phase 3.
+
+For the current write, let me fix:
+1. `核心张力：保护即加速】` → `【核心张力：保护即加速】`
+2. Some clearly wrong half-width punctuation in story-core
+3. Remove the duplicate empty lines (excessive `\n\n`)
+
+Actually, let me focus on what the plan explicitly says to do. The plan has 3 phases:
+1. Structure: move misplaced titles, add missing titles, fix heading levels
+2. Delete confirmed duplicates  
+3. Normalize: punctuation, whitespace, numbering, heading levels
+
+For Phase 1, the main structural issue is that "数据板的局限", "菌膜外套：有限资源的临时通行方案", and "菌膜外套与共存补丁的关系" are level-2 headings that sit between "背景参考资料" and "卷一". In a Word document, these should probably be subsections. But changing heading levels is risky without clear directives.
+
+The other structural issue is that within "故事核心", there's text that should be in square brackets: `核心张力：保护即加速】` is missing the opening `【`.
+
+Let me now execute the writes. I'll start with the clear fixes.
+
+Actually wait - I've been reading too much. Let me just start writing now. For Phase 1:
+
+1. Fix `核心张力：保护即加速】` → `【核心张力：保护即加速】`
+2. Remove the empty "内容块" paragraph artifacts that are just whitespace separators (these are parser artifacts, not real content)
+
+For the empty paragraph blocks, I should NOT delete them because they represent actual paragraph breaks in the document. They're structurally necessary.
+
+Let me focus on actual content issues and start writing.

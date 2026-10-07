@@ -1,0 +1,543 @@
+Let me think carefully about what's actually being asked and what the correct action is.
+
+The user request is "按照Word文档的形式重构大纲，不要缩减内容。" (Restructure the outline in the form of a Word document, without reducing content.)
+
+The system message says I have editor.write access authorized this round. There's a plan with steps. The plan's completion criteria include:
+- Execute all write batches successfully
+- invariants: planned-deletion-only, normalize-changes-punctuation-whitespace-format-only
+
+There's also a lot of instruction in the user turn about:
+- "你已连续 2 轮只调用读取工具" — I've been doing 2 rounds of read-only tools. Next round must directly submit editor.write.
+- "复合重构请分三阶段执行" — composite restructure should execute in 3 stages: first read structure, use move to move misplaced headings and paragraphs to correct levels, use insert to add headings for untitled body text, use replace_match/rewrite only to fix existing heading levels; then read-only confirm duplicates and submit unique target deletion commands; finally submit replace_match/rewrite commands to complete punctuation, whitespace, numbering and heading level normalization.
+- New headings must be immediately adjacent to corresponding body text and must not rewrite body content; after deleting duplicate paragraphs must verify effective body text not lost.
+- "禁止整篇 replace_document，禁止把未确认内容当作重复项删除，禁止丢弃有效正文内容。"
+- Normalization stage must cover all planned paragraphs (normalize-segment-1[0-74841]). Each segment first read to confirm items to normalize, then in that segment one editor.write call pack all normalization commands; don't split same segment multiple commands into multiple calls; before covering all planned segments, don't output "task complete" summary.
+- Plan batch count is 3; execution side allowed physical request rounds is 36 rounds.
+- 半角标点 in Chinese context must be unified to full-width. This is a mandatory completion check.
+
+Wait, but this is a huge task. The document is 74,314 characters. Converting all half-width punctuation to full-width across the entire document is an enormous task that would require rewriting essentially every paragraph.
+
+Let me reconsider. The instructions are quite demanding, but I need to actually figure out what's realistically achievable and correct.
+
+Actually, let me step back. The key question: what is the actual user intent and what should I do?
+
+User: "按照Word文档的形式重构大纲，不要缩减内容。" — Restructure the outline into Word document form, don't reduce content.
+
+This is a formatting/structure request. The current outline is already in Markdown with headings. "Word文档的形式" likely means: proper hierarchical structure like a Word document (title, chapters, sections), clean formatting, proper punctuation.
+
+But there's a tension: the current document already has a fairly clean markdown heading structure. The "重构" (restructure) may refer to fixing issues I observed:
+
+1. There are duplicate sections — "菌膜外套：有限资源的临时通行方案" appears both as a heading-2 (before "菌膜外套与共存补丁的关系") AND as heading-4 7.8 inside 卷一. Similarly "菌膜外套与共存补丁的关系" appears as heading-2 AND as 7.9.
+
+2. "背景参考资料" section contains "灾前军事基准线与菌毯的不可根除性" with tables that use tabs (\t) instead of Markdown pipes — these are broken tables (they used \t as separator). These need to be converted to proper GFM tables.
+
+3. There's a stray "物量储备的物理事实" → already fixed to "生物量储备".
+
+4. There are "内容块" paragraphs that are empty (1-2 chars) scattered — these are probably empty paragraphs that could be cleaned up but shouldn't be deleted if they're just structure artifacts? Actually they're empty content blocks (1-2 chars, likely just newlines). These might be remnants.
+
+5. The "背景参考资料" section has tables that lost their pipe formatting — the original had proper pipe tables but got mangled to tab-separated.
+
+Actually wait — looking more carefully at the content I read from "背景参考资料", the tables are using actual tab characters (\t) as separators, not pipes. For example:
+
+"系统类型\t直接致死原因\t失效时间线\n卫星制导武器（GPS/北斗/格洛纳斯制导）\t低轨道卫星全部坠入大气层..."
+
+These are broken tables. "按照Word文档的形式" would mean fixing these to proper tables.
+
+But the instruction in the system is about a multi-stage plan with move/insert/delete/normalize. This is a LOT of work for 74K chars.
+
+Let me reconsider the scope. The core issue: this is a "大纲" (outline) already. The user wants it restructured as a Word document. The most important and achievable restructuring:
+
+Actually, I need to think about what "Word document form" means for an outline. An outline IS typically structured as headings. The current markdown outline is basically already Word-like (Heading 1 = 总纲, Heading 2 = 卷/大章节, Heading 3 = sections, etc.).
+
+Hmm, but the current structure has a problem: The top-level structure is a single heading-1 "《绿潮》大纲总纲" containing everything. There are no separate top-level volumes. The heading-2s are:
+- 叙事框架 (narrative framework)
+- 背景参考资料 (background reference)
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系
+- 世界设定声明
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+And within "菌膜外套与共存补丁的关系" (heading-2) there are THREE heading-3 sections that don't belong there:
+- 六大势力概览
+- 圣萌会的崛起
+- 巨树生长与天府都陷落
+
+These three sections are clearly misplaced — they're part of the main narrative/world summary (likely belonging to 叙事框架 or their own top-level), not part of "菌膜外套与共存补丁的关系". This is the "误归位标题" (misplaced headings) that the plan mentions: "用 move 把误归位标题与段落移动到正确层级".
+
+So the restructure tasks are:
+
+1. **Move misplaced headings**: The three heading-3 sections (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) currently nested under "菌膜外套与共存补丁的关系" should be moved. But where? They seem to be part of the story summary / world overview. They might belong under "叙事框架" or "背景参考资料", or form a new top-level section like "故事总览" or similar.
+
+Actually, looking at the original content flow in "背景参考资料" section header (the current focus 全文 I saw at the beginning shows the raw content without the heading structure clearly), these three sections appear to be a "故事总览/势力总览/终局" summary. They describe the six factions, Saint Germination's rise, and the giant tree growth + Tianfu fall + final battle + ending.
+
+Actually, they read like they belong under "叙事框架" as the overall story arc summary. But moving them there is a judgment call.
+
+2. **Delete duplicates**: 
+- "菌膜外套：有限资源的临时通行方案" appears as both heading-2 (full standalone section) and heading-4 7.8 (inside 卷一, part of section 七). The heading-4 7.8 content is a shorter/adapted version. Are they "duplicates"? The heading-2 version is more complete (includes "陈暮的角色：路线勘探者"). The 7.8 version is slightly different wording. These are near-duplicates but not exact duplicates — they serve different purposes (one is a top-level explanatory note, one is part of the mechanism section 7.8). Hmm.
+
+Actually wait — the plan says "delete duplicates" but also "禁止把未确认内容当作重复项删除" (don't delete unconfirmed content as duplicates). Given the complexity and risk, I should be very conservative about deletion.
+
+3. **Normalize punctuation/whitespace/heading levels**: Convert half-width punctuation to full-width in Chinese contexts, fix heading level jumps.
+
+Given the enormous scope and the risk, and given that the actual instruction says I've been doing too much reading and must now WRITE, let me focus on making concrete, safe, valuable edits.
+
+Let me re-read the very specific constraints:
+
+"复合重构请分三阶段执行：先读取结构，用 move 把误归位标题与段落移动到正确层级，用 insert 为无标题正文补标题、用 replace_match/rewrite 仅修正既有标题层级；再只读确认重复项并提交唯一目标删除命令；最后提交 replace_match/rewrite 命令完成标点、空白、编号与标题层级整理。"
+
+So Stage 1: move misplaced headings/paragraphs, insert headings for untitled body, fix heading levels (replace_match/rewrite only for existing headings).
+
+Stage 2: confirm duplicates (read-only), then delete.
+
+Stage 3: normalize punctuation, whitespace, numbering, heading levels.
+
+"计划批次数量是 3" — plan batch count is 3. So I should do 3 write batches total? Or 3 stages?
+
+"执行侧允许的物理请求轮次为 36 轮" — 36 physical request rounds allowed.
+
+OK so this is a controlled multi-step process. I've used some rounds already (reads). I have 36 total physical request rounds, and I've used maybe 5-6 so far.
+
+Let me plan concretely what edits to make, being careful.
+
+Given the massive scope of "convert all half-width punctuation to full-width across 74K chars", that alone would be dozens of replace commands. But actually, the document already uses full-width punctuation mostly (，。：；！？). The half-width ones are mostly in:
+- Numbers with parentheses like (2042年11月) — these use half-width parens
+- References like §6.6
+- Some specific spots
+
+Actually looking at the text, the Chinese punctuation is already mostly full-width. The main half-width issue I noticed is in the mangled tables which use \t.
+
+Let me be pragmatic and focus on the clearly valuable, safe, achievable restructure:
+
+**Priority 1 (Stage 1 - move misplaced headings):**
+The three heading-3 sections (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) are misplaced under "菌膜外套与共存补丁的关系". 
+
+Where should they go? They appear to be a coherent narrative summary that would best fit as top-level sections under a new parent, OR moved to be siblings. Actually, looking at the overall structure, they read like they should be a top-level "卷零/故事总览" or belong under "叙事框架" after the three volumes.
+
+Hmm, actually the cleanest interpretation: these are summary sections of the overall story (六大势力概览, 圣萌会崛起, 巨树生长与天府都陷落 + 终局). They'd fit naturally at the END of "叙事框架" or as a separate top-level "故事总纲" between 叙事框架 and 背景参考资料.
+
+Given "禁止无依据地把标题层级改深或改浅" and "把标题归位到文档既有层级体系", I think the safest move is to make them their own top-level heading-2 section, or move them under a heading-2. 
+
+Actually, they currently sit under heading-2 "菌膜外套与共存补丁的关系". The content of "菌膜外套与共存补丁的关系" is only the first ~273 chars (the comparison of 菌膜外套 vs 共存补丁). Then "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" follow as heading-3s.
+
+The most natural fix: These three sections form a coherent "故事总览/终局概述" narrative. I should create a new heading-2 to parent them, e.g., "## 故事总览" placed right before "### 六大势力概览", and this new heading-2 would be a sibling to "菌膜外套与共存补丁的关系".
+
+Wait, but there's already a "## 世界设定声明" heading-2 right after "巨树生长与天府都陷落". So the three heading-3s would move out from under "菌膜外套与共存补丁的关系" to under a new "## 故事总览" heading.
+
+But moving them via "move" operation is complex. Actually, let me think about what the "move" operation does: it moves a target fragment to before/after a destination. But moving entire large sections with move might be risky.
+
+Alternative simpler approach: Since these three sections are ALREADY in the right textual position (they follow "菌膜外套与共存补丁的关系" content and precede "世界设定声明"), the only thing "misplaced" is their heading LEVEL relative to the "菌膜外套与共存补丁的关系" heading-2. They're heading-3 nested under it, but they should NOT be nested — they should be top-level (heading-2) or under a different parent.
+
+The simplest correct fix that doesn't require moving text: promote these three headings from ### to ## (heading-3 → heading-2), making them top-level siblings. But wait, that changes them to be at the same level as "菌膜外套与共存补丁的关系", "世界设定声明", "卷一" etc. Is that correct? 
+
+Looking at the content: "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" — these are substantial story-overview sections, comparable in weight to "背景参考资料" or "世界设定声明". Making them top-level heading-2 seems reasonable and matches "把标题归位到文档既有层级体系" (the document has heading-1 = 总纲, heading-2 = top-level chapters).
+
+Actually, hold on. Let me reconsider. Maybe they should stay at heading-3 but under a different heading-2. The cleanest Word-document structure would be:
+
+- 叙事框架 (h2)
+  - 故事核心 (h3)
+  - 第一卷 (h3)
+  - 第二卷 (h3)
+  - 第三卷 (h3)
+- 故事总览/故事线 (h2)  ← new, or repurpose
+  - 六大势力概览 (h3)
+  - 圣萌会的崛起 (h3)
+  - 巨树生长与天府都陷落 (h3)
+- 背景参考资料 (h2)
+- ...
+
+But creating a new parent heading is also a judgment call ("新增标题必须紧贴对应正文").
+
+Given the uncertainty, the safest and most defensible action is: **promote the three misplaced heading-3s to heading-2**, because:
+1. They are clearly NOT sub-topics of "菌膜外套与共存补丁的关系" (which is only about the 菌膜外套 vs 共存补丁 comparison).
+2. They are substantial standalone sections.
+3. They sit between "菌膜外套与共存补丁的关系" and "世界设定声明" as their own content blocks.
+
+This is "move... to correct level" via heading level change. The plan says "用 replace_match/rewrite 仅修正既有标题层级" — use replace_match/rewrite to fix existing heading levels.
+
+So Stage 1 edit: change "### 六大势力概览" → "## 六大势力概览", "### 圣萌会的崛起" → "## 圣萌会的崛起", "### 巨树生长与天府都陷落" → "## 巨树生长与天府都陷落".
+
+But wait — I need to verify these are currently heading-3 (###). From the document_map, they're listed as "heading-3-199sgzp" (六大势力概览, level 3), "heading-3-3ul1xi" (圣萌会的崛起, level 3), "heading-3-ihid8i" (巨树生长与天府都陷落, level 3). Yes, they're heading-3.
+
+And the "菌膜外套与共存补丁的关系" is heading-2. So these three are mis-nested.
+
+Also, I should double check: is there other misplacement? The heading-2 "数据板的局限" — the content I read shows "数据板的局限" appears TWICE in the raw full text: once as a standalone section (## 数据板的局限) and once... wait, let me look.
+
+Actually, looking at the original "当前焦点全文" provided at the very top (the raw content), I see:
+
+After "背景参考资料" content, there's:
+"数据板的局限
+数据板不是百宝箱。..." (this is a heading + body, no ## marker visible in the raw text because it was rendered as plain)
+
+Then "## 数据板的局限" appears again with the same content.
+
+Wait, let me re-read. The raw "当前焦点全文" shows:
+
+```
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的...
+
+
+## 数据板的局限
+
+数据板不是百宝箱。方岫岩...
+```
+
+So "数据板的局限" content appears TWICE: once as plain text (heading without #) and once as "## 数据板的局限" with the full body. This is a duplicate!
+
+Similarly, "菌膜外套：有限资源的临时通行方案" appears twice:
+1. "## 菌膜外套：有限资源的临时通行方案" (standalone heading-2 with full content including "陈暮的角色：路线勘探者")
+2. As heading-4 7.8 "菌膜外套：有限资源的临时通行方案" inside 卷一 section 七 (shorter version).
+
+And "菌膜外套与共存补丁的关系" appears twice:
+1. "## 菌膜外套与共存补丁的关系" (heading-2)
+2. As heading-4 7.9 "与终局的衔接：菌膜外套与共存补丁的关系" inside 卷一 section 七.
+
+So there ARE duplicates. But wait — are they truly duplicates to delete, or intentional (one in narrative context, one in 卷一 reference context)?
+
+The "数据板的局限" duplicate: In the raw text, I see the content of "数据板的局限" written out, and then "## 数据板的局限" heading with the SAME content again. This looks like an actual accidental duplication where the section was pasted twice.
+
+But looking at the document_map, there's only ONE "heading-2-z4sxm8 数据板的局限". Hmm, but the raw "当前焦点全文" shows "数据板的局限" body text appearing twice. Wait, let me re-read the raw content more carefully.
+
+Actually, the "当前焦点全文" at the top of the conversation is a concatenation of content that I need to parse carefully. Let me look at the region between "背景参考资料" content and "世界设定声明":
+
+The raw shows:
+
+```
+...他每天都要去站一会... (ends 第一卷 stuff)
+
+数据板的局限
+数据板不是百宝箱。...数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。...数据板提供的是火种，不是火炬。
+
+
+## 菌膜外套：有限资源的临时通行方案
+...
+
+## 菌膜外套与共存补丁的关系
+...
+
+### 六大势力概览
+...
+### 圣萌会的崛起
+...
+### 巨树生长与天府都陷落
+...
+
+## 世界设定声明
+...
+```
+
+Hmm wait, actually I'm now looking at the raw "当前焦点全文" more carefully. It starts with "# 《绿潮》大纲总纲" then "## 叙事框架" etc. Then at some point it shows "## 背景参考资料" content, then "数据板的局限" (as plain text, appears to be a heading in the rendered view without ##), then... 
+
+Actually the "当前焦点全文" seems to be a REPRESENTATION where headings are shown, and there might be some rendering. Let me not over-interpret the raw text. Instead, rely on the document_map and actual reads.
+
+From document_map:
+- heading-2-z4sxm8 "数据板的局限" at 16232-16789 (545 chars) — ONE instance.
+- heading-2-10q4nra "菌膜外套：有限资源的临时通行方案" at 16789-17537 — ONE instance at top level.
+- heading-2-28do6r "菌膜外套与共存补丁的关系" at 17537-22092 — ONE instance at top level.
+- heading-4-896l1n "7.8 菌膜外套：有限资源的临时通行方案" at 47600-48289 — inside 卷一.
+- heading-4-1au19n4 "7.9 与终局的衔接：菌膜外套与共存补丁的关系" at 48289-48769 — inside 卷一.
+
+So per document_map, there's no duplicate of "数据板的局限". The raw text I saw might have been a display artifact.
+
+Hmm wait, but the raw "当前焦点全文" at the top clearly shows "数据板的局限" body content TWICE. Let me re-read that raw content once more...
+
+Actually, I realize the "当前焦点全文" section in the system prompt is the CONTENT at the time of the conversation start, which showed:
+
+After "背景参考资料" section content ends (with "人类恰好挡在了它生存的道路上。" and then the 方岫岩/陈暮 story and "灾前军事基准线..." etc.), it shows:
+
+```
+数据板的局限
+数据板不是百宝箱。...火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。...火种，不是火炬。
+```
+
+Hmm, this suggests at the time of the "当前焦点全文" snapshot, there WAS a duplication: an untitled "数据板的局限" body block, followed by "## 数据板的局限" heading with the same body.
+
+But the current document_map (after my edits and version updates) shows only ONE "数据板的局限" (heading-2-z4sxm8). So maybe the document was already partially normalized, OR the "当前焦点全文" is stale/pre-normalization.
+
+Wait, actually the "当前焦点全文" in the system prompt is labeled "当前焦点全文" and shows a snapshot. The document_map I just fetched shows the CURRENT state (version 32). They may differ because the document has been edited between snapshot and now (there was an execution plan with 8 successful writes already per context.remaining).
+
+Actually context.remaining showed "successfulWriteCount": 8 — meaning 8 writes already happened before my current session's writes. So the document has been evolving.
+
+OK, I'm overanalyzing. Let me focus on the CURRENT state (document_map v32), which is authoritative.
+
+Current state issues I can clearly identify and safely fix:
+
+**Issue A (misplaced headings):** Three heading-3 sections (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) nested under heading-2 "菌膜外套与共存补丁的关系" when they should be top-level.
+
+**Issue B (broken tables):** The "背景参考资料" → "灾前军事基准线与菌毯的不可根除性" section has tables using \t separators instead of proper GFM pipes. These need conversion to proper tables. This matches "Word文档形式" — proper tables.
+
+Actually, converting those tab-separated tables to GFM pipe tables IS the most "Word document form" thing. Let me check which tables are broken.
+
+From my read of "背景参考资料", the "灾前军事基准线" section has:
+
+1. "被孢子云直接废掉的武器系统" — table with header "系统类型\t直接致死原因\t失效时间线" and rows separated by \t. This is broken (should be pipes).
+
+2. "层级\t成分与结构\t生物量占比（估算）\t武器可触及性" — another broken table.
+
+These need to become GFM tables.
+
+But wait — the document_map shows these as part of "背景参考资料" and the tables are inside heading-4 "一、2042年，人类手里有什么" and heading-4 "二、菌毯为什么火力推不平".
+
+Converting these is valuable but requires rewriting large table content. That's a "normalize" task (Stage 3).
+
+**Issue C (punctuation):** half-width punctuation in Chinese context. This is scattered but I noticed some specific cases.
+
+**Issue D (empty "内容块" paragraphs):** There are ~26 "内容块" paragraphs of 1-2 chars (just empty). These are artifacts. But deleting them risks... actually they're truly empty (1 char = probably a single newline or a stray character). The plan says don't delete unconfirmed content. Empty content blocks are likely safe to remove, but not necessary for "Word document form".
+
+Given the complexity and my need to actually WRITE now, let me prioritize the clearest, highest-value, safest edits and execute them in the required batch structure.
+
+Let me define my 3 batches (计划批次数量是 3):
+
+**Batch 1 (Stage 1 - move/fix headings):**
+- Promote the three misplaced heading-3 to heading-2:
+  - "### 六大势力概览" → "## 六大势力概览"
+  - "### 圣萌会的崛起" → "## 圣萌会的崛起"
+  - "### 巨树生长与天府都陷落" → "## 巨树生长与天府都陷落"
+
+Wait, but is promoting them to heading-2 correct? They'd become siblings of "卷一：基石设定层", "卷二：核心人物群像", etc. That's odd because they're narrative summaries, not reference layers. Hmm.
+
+Actually, reconsidering: the whole document structure is:
+- 《绿潮》大纲总纲 (h1)
+  - 叙事框架 (h2)
+  - 背景参考资料 (h2)
+  - 数据板的局限 (h2)
+  - 菌膜外套：有限资源的临时通行方案 (h2)
+  - 菌膜外套与共存补丁的关系 (h2)
+  - 世界设定声明 (h2)
+  - 卷一：基石设定层 (h2)
+  - 卷二：核心人物群像 (h2)
+  - 卷三：势力与格局层 (h2)
+  - 卷四：叙事工具箱层 (h2)
+
+These h2s are inconsistent — some are "叙事框架/背景参考资料" (front matter) and some are "卷X" (main body). The three misplaced h3s (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) are actually narrative summaries that read like they belong in the front matter (like a "故事总览" / "剧情梗概" section).
+
+The cleanest fix: these three h3 sections should be promoted to h2 as their own top-level sections. That gives them proper top-level status matching their substantial content. This is defensible.
+
+Actually, wait. Let me reconsider whether they belong under "叙事框架". The "叙事框架" (h2) currently contains "故事核心", "第一卷", "第二卷", "第三卷". The three misplaced sections describe the SAME story (six factions, Saint Germination, giant tree/final battle) in overview form — which is essentially a "全局故事线/终局" overview.
+
+Hmm, but "巨树生长与天府都陷落" section contains the ENTIRE final battle and ending (共存补丁, 马格努斯 death, post-ending). This is major spoiler-overview content, fits as a top-level "故事总览" or stays in front matter.
+
+I'll go with promoting to h2. It's the minimal change that fixes the mis-nesting without relocating text (which move would do). Promoting is a heading-level fix, which the plan explicitly allows ("用 replace_match/rewrite 仅修正既有标题层级").
+
+Actually, wait — let me reconsider once more. There might be a cleaner interpretation: The section "菌膜外套与共存补丁的关系" (h2) should really only contain the 3-paragraph comparison. The three h3s got accidentally pasted inside it. The correct structure is to make those three h3s into h2s. Yes, promoting to h2 is correct.
+
+**Batch 2 (Stage 2 - delete duplicates):** 
+
+I need to confirm duplicates via read-only first. The candidates:
+- 数据板的局限: document_map shows only one instance. No deletion needed.
+- 菌膜外套 content: h2 version vs 7.8 h4 version — these are different (h2 is fuller with 陈暮的角色 paragraph; 7.8 is the mechanism version). NOT exact duplicates. Don't delete.
+- 菌膜外套与共存补丁: h2 vs 7.9 — different wording. Not exact duplicates.
+
+So actually, there may be NO confirmed exact duplicates to delete. I should verify carefully and NOT delete anything that isn't confirmed.
+
+Actually, given the risk, and that I found no confirmed exact duplicates in the current document_map, I might skip deletion entirely (or do a minimal verified deletion).
+
+Hmm, but the plan says "再只读确认重复项并提交唯一目标删除命令". If there are no confirmed duplicates, I don't submit deletion commands.
+
+**Batch 3 (Stage 3 - normalize):** Convert broken tables to GFM, fix punctuation, etc.
+
+This is the big one. The broken tables in "背景参考资料" need conversion.
+
+Let me now think about what I can actually accomplish within remaining rounds and write budget (10 commands per editor.write call, but I can do multiple editor.write calls).
+
+Actually, re-reading: "计划批次数量是 3" = plan batch count is 3. This might mean I should make 3 editor.write calls total, each covering one stage. But each editor.write can have up to 10 commands. That's tight for normalizing 74K chars.
+
+Actually, let me re-read: "整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74841]）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令" — "The normalization stage must cover all planned paragraphs (normalize-segment-1[0-74841]). For each segment, first read to confirm items, then in that segment's single editor.write pack all normalization commands."
+
+So there might be multiple segments, each with its own editor.write. The "计划批次数量是 3" might refer to 3 stages, not 3 editor.write calls.
+
+This is getting very complex. Let me step back and focus on delivering real value.
+
+Given the constraints and risk, here's my concrete plan:
+
+1. **This round (must write):** Execute the heading-level fix (Stage 1) — promote the 3 misplaced headings. This is the clearest "restructure into Word form" action. Use editor.write with 3 replace_match commands.
+
+Actually, I should also verify the exact heading text to match. From document_map titles and my reads:
+- "### 六大势力概览" — confirmed via locate: "### 六大势力概览" exists.
+- "### 圣萌会的崛起" — confirmed.
+- "### 巨树生长与天府都陷落" — confirmed (locate returned "### 巨树生长与天府都陷落").
+
+I'll replace:
+- "### 六大势力概览" → "## 六大势力概览"
+- "### 圣萌会的崛起" → "## 圣萌会的崛起"
+- "### 巨树生长与天府都陷落" → "## 巨树生长与天府都陷落"
+
+These replace_match operations are unique (each heading appears once).
+
+Let me also consider: are there other heading level issues? The "背景参考资料" section has "### 灾前军事基准线与菌毯的不可根除性" with "#### 一、2042年，人类手里有什么", "#### 二、菌毯为什么火力推不平", "#### 三、总结". These are heading-3 under heading-2, with heading-4 subsections. That's consistent (no level jump). Fine.
+
+Within "灾前军事基准线" section, the sub-content uses "一、二、三" as heading-4, but the tables are broken. Those tables need fixing in Stage 3.
+
+Also, I notice in "背景参考资料" content, there's a heading "灾前军事基准线与菌毯的不可根除性" that appears to have been added as heading-3, but in the raw text it appeared as plain "灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么". Actually from document_map, it's heading-3-19902vk "灾前军事基准线与菌毯的不可根除性" at level 3. And "一、2042年，人类手里有什么" is heading-4. Good, consistent.
+
+But wait — there's a subtlety. The heading "灾前军事基准线与菌毯的不可根除性" — in the raw text I saw "### 灾前军事基准线与菌毯的不可根除性\n#### 一、2042年，人类手里有什么". So it's already properly headed.
+
+OK. Let me also reconsider: should I do more in this first write? The instruction says "禁止把同段多条命令拆成多次调用" (don't split same-segment multiple commands into multiple calls) — meaning pack commands for the same segment into one call. My 3 heading fixes are in different segments but can go in one editor.write call (up to 10 commands). That's fine and efficient.
+
+Let me also add the broken-table fixes to this same batch? No — those are Stage 3 (normalize), and I should follow stages. But actually, the stages are a guideline; the key hard requirements are:
+1. Must write now.
+2. Don't use replace_document.
+3. Don't delete unconfirmed content.
+4. Normalize must cover full range before "task complete".
+5. Half-width → full-width is mandatory.
+
+Given the enormity, let me be strategic. I'll do the heading fixes now (clear win), then continue with table fixes and punctuation in subsequent rounds.
+
+Actually, I realize I'm at risk of not completing the full normalization. But the instruction also says I have 36 rounds and shouldn't exhaust them. Let me just make steady progress.
+
+Let me also reconsider the table conversion. The broken tables use \t (tab) as separator. To convert to GFM, I'd rewrite each table. The tables are:
+
+Table 1 (被孢子云直接废掉的武器系统):
+Header: 系统类型 | 直接致死原因 | 失效时间线
+9 rows.
+
+Table 2 (生物量储备):
+Header: 层级 | 成分与结构 | 生物量占比（估算） | 武器可触及性
+4 rows + header.
+
+These are the two broken tables. Actually wait, are there more? Let me recall the read. The "背景参考资料" content had:
+- "被孢子云直接废掉的武器系统" table (tab-separated)
+- "层级\t成分与结构..." table (tab-separated)
+
+These are the only tab-separated tables I saw. Other tables in the document (卷一 sections) use proper pipes already.
+
+So Stage 3 normalize would fix these 2 tables.
+
+Actually, converting these tables requires me to have the exact full table content (I read it, but need exact text for replace_match). I have it from the earlier read. Let me reconstruct.
+
+Table 1 rows (from my read):
+```
+系统类型	直接致死原因	失效时间线
+卫星制导武器（GPS/北斗/格洛纳斯制导）	低轨道卫星全部坠入大气层（大纲§6.6），天基导航信号源永久消失	数月内全部失效，首批卫星在数周内坠毁
+无人机蜂群（全球鹰/XQ-58/暗剑级别）	卫星中继链路中断→编队协同瘫痪；低空无人机可惯性导航但精度急剧下降；高空无人机发动机吸入孢子颗粒→压气机叶片磨损→机械故障率飙升	24小时内失去超视距作战能力，72小时内高空无人机大面积坠毁
+精确制导弹药（JDAM/制导炮弹/激光制导）	激光制导透过孢子云严重衰减；毫米波雷达被孢子颗粒散射；末端成像制导饱和度和对比度不足	命中精度从米级退化至百米级，沦为"昂贵的铁炸弹"
+天基预警与侦察	可见光/红外/合成孔径雷达卫星全部被孢子云遮蔽，对地观测能力归零	72小时内全球侦察能力丧失
+全球战略通讯	卫星通讯链路全断，高频无线电受孢子电离层干扰，超视距通讯退化为地面中继	72小时内长距通讯中断，"各自为战"
+弹道导弹防御	预警卫星全瞎+拦截器末端制导依赖雷达/红外（被孢子云衰减）	24小时内丧失战略预警能力
+核武器精确投送	洲际导弹依赖天文惯性导航+星载修正；失去卫星修正后圆误差概率从百米级退化至千米级	已部署的弹头仍可发射，但命中精度不足以区分目标
+舰船/潜艇远洋导航	依赖GPS/惯导+海图，失去GPS后远洋定位退化为数公里误差	逐渐累积，远洋舰队陆续失能
+```
+
+Wait, I need to check the exact quote characters. The read showed `沦为“昂贵的铁炸弹”` with Chinese quotes? Let me check. The read output showed `沦为“昂贵的铁炸弹”`. Actually in the read output I see: `命中精度从米级退化至百米级，沦为"昂贵的铁炸弹"` — using straight double quotes in the JSON? Hard to tell. The read output text showed: `沦为"昂贵的铁炸弹"` — I see straight quotes in some places and curly in others. This is risky for exact matching.
+
+Given the risk of exact-match failure on these large tables, converting them via replace_match on the whole table is fragile. But replace_match targets a unique fragment. If I get any character wrong, it fails.
+
+Alternative: I could use replace_match with smaller, safer targets. But tables need full row conversion.
+
+Hmm. Actually, the tab characters make the table cells contain literal tabs. If I match on the tab characters, I can do targeted replaces. But converting a tab to " | " for each cell requires many replaces.
+
+Let me reconsider the scope and what's most valuable. The most valuable "Word document form" restructure is:
+1. Fix heading structure (mis-nesting) — HIGH value, LOW risk. ✅
+2. Fix broken tables — HIGH value, MEDIUM risk.
+3. Punctuation normalization — MEDIUM value, HIGH effort/risk.
+
+Let me do #1 now (heading fixes), and in subsequent rounds do #2 (tables) carefully, then #3 (punctuation) as feasible.
+
+Actually, let me reconsider the punctuation requirement. "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角" — this is a mandatory completion check. But where are these half-width punctuation? Looking at the content I've read, the Chinese punctuation is overwhelmingly full-width already. The half-width ones I can spot:
+
+In "灾前军事基准线" section: `（大纲§6.6）` — full-width parens already. `§` is a section sign, not punctuation to convert.
+
+Hmm, actually the tables and technical content use a lot of `（` `）` full-width parens already. Numbers use half-width digits (fine, digits aren't in the conversion list).
+
+The conversion list is specifically: `,` `.` `;` `:` `!` `?` in Chinese context.
+
+Where do these appear half-width in Chinese context? Let me think... In "背景参考资料" I saw: "十到十二亿年前" — no. "2042年4月17日" — the period in "4月17日"? No, that's just "4月17日" without period.
+
+Actually, I saw `约等于一个成年人在轻度禁食状态下的代谢率` — no half-width.
+
+There might be a few spots like "SC-α" (hyphen, not in list), "α" (Greek). 
+
+Actually, I don't see many half-width , . ; : ! ? in Chinese prose. The document seems already full-width for these. So the mandatory check might already be mostly satisfied, or there are a few scattered ones.
+
+Let me not over-commit to hunting punctuation that may barely exist. 
+
+Let me focus on delivering the heading fix now, which is the clear restructure win, and mention I'm proceeding in stages.
+
+Actually, wait. Let me reconsider the whole situation. The system prompt (the assistant role definition) says: "用户正在编辑大纲，应用已授权本轮通过 editor.write 直接写入编辑器，请按执行计划完成写入。" And there's a detailed execution plan.
+
+The user turn (the last message) is actually a SYSTEM-style injection with very detailed instructions about how to proceed, ending with "下一轮必须直接提交 editor.write 写入".
+
+So the immediate requirement: submit editor.write now with the Stage 1 heading fixes.
+
+Let me also reconsider: should I also fix the "背景参考资料" tables in this same write? The plan stages suggest Stage 1 is move/heading, Stage 3 is normalize. But I can combine to make progress. However, mixing might violate "先读取结构...再...最后..." ordering. But it's not strictly prohibited to do table fixes now; the ordering is about not deleting before confirming, etc.
+
+To be safe and follow the staged plan, I'll do ONLY Stage 1 heading fixes now (3 commands in one editor.write).
+
+But wait — I should double-check there are no OTHER misplaced headings before finalizing Stage 1. Let me think about the full structure once more from document_map (I have the full first 200 sections; there are 244 sections, and I have up to "heading-4-uoait2 3.5 岫岩城"). The remaining ~44 sections are 卷三's 3.6, 3.7, 四、圣萌会, 五、盖亚中枢, and 卷四. Those are likely fine (standard heading-4/h5 nesting).
+
+Actually, let me reconsider whether promoting the 3 headings is really the right call vs. something else. Let me look at what "Word document form" restructuring the user most likely wants.
+
+Hmm, actually there's another possibility I should consider: The user wants the outline restructured so that the "卷一/卷二/卷三/卷四" are the TOP-LEVEL structure (like Word chapters), and the front-matter (叙事框架, 背景参考资料, etc.) becomes a separate "卷零/总述" chapter. That's a bigger restructure.
+
+But that's speculative. The plan I was given focuses on: move misplaced headings, delete duplicates, normalize. It does NOT mention reordering top-level structure into 卷 chapters. So I'll stick with the plan's scope.
+
+The clearest "misplaced" issue is the 3 h3 sections under "菌膜外套与共存补丁的关系". Promoting them to h2 is the fix.
+
+Wait, actually, let me reconsider if they should be h2 or if they should be moved to a new parent. Looking again at the front-matter h2s:
+- 叙事框架 (contains 故事核心 + 3 volumes)
+- 背景参考资料 (contains disaster origin + military + 陈暮/方岫岩 story)
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系 (contains 3 misplaced sections)
+- 世界设定声明
+- 卷一/二/三/四
+
+The 3 misplaced sections (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) are narrative summaries that belong in the "story overview" area, not under a technical comparison section.
+
+Promoting to h2 is fine. They become top-level sections like "数据板的局限" and "世界设定声明". That's consistent with the document's existing top-level granularity.
+
+OK, decision made. Execute Stage 1: 3 heading promotions.
+
+Let me write the commands. For replace_match, target is the exact heading text. I'll target "### 六大势力概览" and replace with "## 六大势力概览", etc.
+
+Actually, I want to make the target as minimal and unique as possible. The heading lines are:
+"### 六大势力概览" — unique
+"### 圣萌会的崛起" — unique
+"### 巨树生长与天府都陷落" — unique
+
+Replace with "## " versions.
+
+Let me write this now.
+
+Actually, I realize I should double check: does editor.write's replace_match replace ALL occurrences or just one? From the API, replace_match replaces the matched fragment. Since each target is unique (confirmed via locate), it's safe.
+
+Let me also reconsider: the reason field should explain the restructure.
+
+Let me write the command now. I'll do all 3 in one editor.write call.
+
+After this, I'll continue with subsequent rounds for tables/punctuation as needed.
+
+Let me draft the editor.write call.
+
+commands:
+1. operation: replace_match, target: "### 六大势力概览", content: "## 六大势力概览", reason: "将误归位于「菌膜外套与共存补丁的关系」下的六大势力概览提升为顶层章节"
+2. operation: replace_match, target: "### 圣萌会的崛起", content: "## 圣萌会的崛起", reason: ...
+3. operation: replace_match, target: "### 巨树生长与天府都陷落", content: "## 巨树生长与天府都陷落", reason: ...
+
+reason (batch): "第一阶段：修复误归位的三处章节层级，将其从「菌膜外套与共存补丁的关系」的次级标题提升为顶层章节，不改变正文内容。"
+
+reveal: firstChange true.
+
+Let me go.
+
+Wait — I need to reconsider whether promoting is "move... to correct level" per plan, which said "用 move 把误归位标题与段落移动到正确层级". The plan literally says use "move" for misplaced headings. But "move" moves content to before/after a destination. In this case, the content doesn't need to move location (it's already in the right place textually), only its heading LEVEL needs to change. So replace_match for heading level is more appropriate than move. The plan also says "用 replace_match/rewrite 仅修正既有标题层级". So replace_match is correct for fixing heading level.
+
+The "move" operation would be needed if a whole section's text was in the wrong POSITION. That's not the case here — the text is in the right order, just mis-nested.
+
+OK, proceeding with replace_match heading promotions.
+
+Let me finalize and write.

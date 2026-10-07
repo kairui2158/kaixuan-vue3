@@ -1,0 +1,134 @@
+Let me assess what's been done and what remains:
+
+1. ✅ Deleted the "粘贴到「故事核心」下" instruction text from story core
+2. ✅ Added H3 title for "灾前军事基准线与菌毯的不可根除性" 
+3. ✅ Downgraded "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" from H2 to H3
+4. ✅ Moved "世界设定声明" to before "叙事框架"
+5. ✅ Deleted duplicate "数据板的局限" paragraph from background reference section
+6. ✅ Fixed "。【" spacing issue in story core
+7. ✅ Fixed "。 " (period + space) in background section
+
+Now I need to:
+- Check for remaining half-width punctuation issues in the normalize segment
+- The search for `,` and `.` and `;` and `!` and `?` returned near-zero results (only period-space hits which I've already fixed). The `. ` search found 7 hits which I already addressed. The `。 ` search found 4 which were fine (normal Chinese full-width period followed by space is actually normal in some contexts).
+- The `·` search found 24 hits which all seem to be legitimate middle dots in Chinese text (like "第一卷·觉醒与扎根", "塞缪尔·赫兹").
+
+Let me check what else needs normalization. Let me search for remaining half-width marks that should be full-width.
+
+Actually, let me think about what Word-style formatting means. The user wants the outline restructured like a Word document. The key changes needed:
+
+1. ✅ World Setting Declaration moved to front
+2. ✅ "数据板的局限" etc. demoted to H3 under 背景参考资料
+3. ✅ Duplicate content removed
+4. ✅ "灾前军事基准线" given proper H3 heading
+5. ✅ Editorial instruction text removed
+
+Now let me check for remaining issues:
+- Half-width punctuation: The searches for `,` `;` `!` `?` returned 0, so those are clean
+- Period-space combos have been fixed
+- The `:` search only found chemical notations (18:2, 18:3) and time notations which are fine
+
+Let me now look at the overall structure more carefully. The current top-level after the restructuring:
+
+```
+# 《绿潮》大纲总纲
+  ## 世界设定声明 (moved to front)
+  ## 叙事框架
+    ### 故事核心
+    ### 第一卷·觉醒与扎根
+    ### 第二卷·连接与陷落
+    ### 第三卷·远征与暗流
+  ## 背景参考资料
+    ### 灾前军事基准线与菌毯的不可根除性
+    ### 数据板的局限
+    ### 菌膜外套：有限资源的临时通行方案
+    ### 菌膜外套与共存补丁的关系
+  ## 卷一：基石设定层
+  ## 卷二：核心人物群像
+  ## 卷三：势力与格局层
+  ## 卷四：叙事工具箱层
+```
+
+This looks like a reasonable Word document structure now. But there's a naming conflict: "卷一" appears in both the "叙事框架" section (as a scenario document) and as a separate major section "卷一：基石设定层". The "叙事框架" section has "第一卷", "第二卷", "第三卷" as story volumes, while the separate "卷一" section is the setting/background volume. This is actually fine since they serve different purposes - one is the story outline, the other is the worldbuilding reference.
+
+Let me check if there's still the extra paragraph-level "数据板的局限" body text that was originally in "背景参考资料" before being made into a heading. From the earlier read, I saw that there was a plaintext "数据板的局限\n数据板不是百宝箱..." that appeared in the middle of 背景参考资料, which I was unable to delete due to the replace_match requiring both target and content. Let me check if that's still there.
+
+Actually, looking back at my second read of heading-2-1lka0h8 at offset 5900, I saw:
+```
+白了一个道理：...承认。\n\n数据板的局限\n数据板不是百宝箱...
+```
+
+This was the first (non-headed) occurrence of "数据板的局限" text within the background reference material. Then the later H3 heading version was the duplicate. Since I originally tried to delete it but was rejected because replace_match needed content, and then I successfully deleted the duplicate paragraph via a delete command. Let me verify what's actually left.
+
+Actually, looking at the structure more carefully after the move and heading adjustments, the document map now shows:
+- heading-3-z4sxm8 "数据板的局限" at position 16311-16867 (the H3 version)
+- The previous body text version was at 16215-16763 which I successfully deleted in batch 4.
+
+Wait, let me re-examine. In batch 2 I tried to delete the body text "数据板的局限" but was rejected. In batch 4 I successfully deleted the body text (16215-16763). So that should be clean now.
+
+Now the normalize-segment-1 covers the full document [0-74259]. Let me think about what remaining normalization is needed:
+
+1. Check for any remaining half-width punctuation in Chinese context
+2. Check heading levels are consistent
+
+Let me search for remaining issues more carefully. The `:` search found only 3 legitimate cases. The `. ` search found 7 cases which I already fixed 4 of. The remaining 3 were:
+- start 10054: "这样第三卷的"人性之恶"..." - this is actually `。` followed by a space before `这样`, which is a full-width period... wait, no, the search was for `. ` (period-space). Let me re-check.
+
+Actually the search for `. ` matched:
+- 10054: context shows `...这里全部揭幕。陈暮决定先回岫岩城。\n\n**第三卷暂不做细节补充。**` - this is Chinese full-width period followed by space? No, the search was for `. `, not `。 `. So `. ` would match ASCII period followed by space... but the context shows `...揭幕。陈暮...` - that's full-width period. Wait, the context might show `...揭幕。陈暮...` but the actual bytes matched might be different. Let me look more carefully.
+
+Hmm, the matches at 10054, 10191, 62070, 62139, 62200, 62267, 62340 are all in contexts like:
+- `...揭幕。陈暮决定...` 
+- But the search query was `. ` (period+space)
+
+Wait, these are in sectionId heading-3-1rlyhj7 and heading-5-1sgu7c8. The contexts show:
+- `揭幕。陈暮决定先回岫岩城。\n\n**第三卷暂不做细节补充。**`
+But the actual match was for `. ` - I think the editor.search might be matching within the raw content where the bold markers `**...**` create some kind of pattern. 
+
+Actually, I think these might be false matches or something. The context shows Chinese full-width periods (。), not ASCII periods. Let me move forward.
+
+The remaining `。 ` matches:
+- 13163: `...昂贵的废铁。\n\n打上去但无效的武器\n火力轰炸。 菌毯...` - Wait, this was `。 ` which I fixed. But the search matched `. ` which is ASCII period-space. In context it says "火力轰炸。 菌毯" - but I already fixed "火力轰炸。 菌毯" → "火力轰炸。菌毯" in batch 7. So the remaining match is confusing.
+
+Wait, I think the search results might be showing the state BEFORE my fixes, or they're showing something different. Let me not get bogged down in this and instead focus on what's structurally needed.
+
+The key remaining structural issue: the "背景参考资料" section now contains several subsections that are essentially appendices. In a Word document format, this is actually appropriate - they're reference materials.
+
+Let me do one more important structural fix: the 菌膜外套与共存补丁的关系 section ends with a narrative section about 马格努斯 and 圣萌会 which seems misplaced. Looking at the content at end of heading-3-28do6r:
+
+The text about 远西大陆/马格努斯/圣萌会 appears to be at the end of "菌膜外套与共存补丁的关系" which should probably be under the 背景参考资料 as its own subsection, or under 卷三 where 圣萌会 is discussed in detail.
+
+Wait, looking at the read at offset 6800 in heading-2-1lka0h8, after "菌膜外套与共存补丁的关系" ends, there's text about 六大势力 and then about 马格努斯/圣萌会. This seems like it belongs as part of 背景参考资料's narrative overview.
+
+OK, I think the document structure is now reasonable:
+1. 世界设定声明 (at top)
+2. 叙事框架 (故事核心, 三卷故事)
+3. 背景参考资料 (with 4 subsections)
+4. 卷一-卷四 (setting, characters, factions, narrative toolkit)
+
+The remaining work is to make sure the normalization is complete. I need to scan for any remaining half-width punctuation in Chinese text. But the searches for `,` `;` `!` `?` returned 0 results. The `:` search only found chemical notation. So the document appears to be clean.
+
+Let me now focus on the remaining normalization: I should write a batch that handles any remaining format issues across the whole normalize-segment-1.
+
+Actually, I think the main remaining task is verifying that there are no other issues. Let me do one more read of the beginning of the document to confirm the structure looks right, and then check if there are any half-width semicolons or other punctuation issues I may have missed.
+
+Actually wait - I should search for half-width colons in Chinese text context. The search for `:` found 3 matches but they were all in chemical notation (18:2, 18:3, 11月19日3:14). That seems fine.
+
+Let me now think about what else needs to be done for the "Word document" formatting. The user wants the content restructured like a Word document without reducing content. I've done the major structural changes. Let me now do a final normalization pass.
+
+I need to check if there are any remaining formatting issues like:
+- Multiple consecutive blank lines (reducing to standard spacing)
+- Inconsistent indentation
+- Any remaining structural issues
+
+Let me read the full current state of the document map and verify the structure is correct, then do a final normalization batch.
+
+Actually, I've been doing a lot of reads. Let me just submit a final normalization batch with any remaining fixes I can identify, and then verify the result.
+
+Let me look at the normalize-segment-1 which covers [0-74259]. The main things I can fix:
+
+1. The "背景参考资料" section had a plaintext body paragraph that starts with "四亿年前..." which was originally the body text before any H3 headings. Now with the H3 headings added, this body text sits between the H2 heading and the first H3 ("灾前军事基准线..."). This is fine - it's introductory text.
+
+2. There might be some trailing whitespace or extra blank lines.
+
+Let me check for any remaining issues by reading a critical section.

@@ -1,0 +1,23 @@
+The user is asking "为什么会有这个符号" - "Why is there this symbol?" They're referring to the "**" symbol that appears in their message/request.
+
+Let me understand the context. The user seems to be asking about why the "**" symbol appeared. Looking at the conversation, the user's previous message was "符合我的要求，分叉一允许去重。不用出预览，直接写入" and now they're asking "为什么会有这个符号".
+
+Wait, actually looking more carefully, the user's message shows "用户请求: ** 为什么会有这个符号". This seems like the user is asking why there's a "**" symbol appearing.
+
+Actually, the "**" is likely Markdown bold syntax. The "**" symbols might be appearing somewhere in the document or in the assistant's output. The user is asking why this symbol appeared.
+
+Let me think about this. The "**" in Markdown is used for bold text. When someone writes "**text**" it becomes bold. If the "**" appears literally without closing, it could be a formatting artifact.
+
+The user might be seeing "**" in their document (the outline) or in the assistant's previous responses. They're asking why this symbol is there.
+
+I should investigate. Let me search for "**" in the outline document to see if there are stray markdown bold markers.
+
+Actually, I should first understand what the user is asking. They're asking "为什么会有这个符号" (why is there this symbol). Given the context, they're probably referring to the "**" symbols that might appear in the document.
+
+Let me search the outline for "**" to find these symbols.
+
+Actually, I have editor.search and outline.search tools available. Let me search for "**" in the document.
+
+The "**" might be legitimate markdown bold formatting in some places, or it might be stray/erroneous symbols. Let me investigate.
+
+Let me search for it.

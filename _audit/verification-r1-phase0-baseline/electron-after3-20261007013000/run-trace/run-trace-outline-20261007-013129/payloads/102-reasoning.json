@@ -1,0 +1,290 @@
+Let me analyze the current situation:
+
+1. The user wants to restructure the outline into a "Word document" form without reducing content.
+2. The plan has steps: read-structure, execute-restructure, confirm-duplicates, delete-duplicates, normalize-segments, verify-plan.
+3. I need to first read the document structure, then perform the restructure.
+
+Looking at the document map I already have, the current structure is:
+- `# 《绿潮》大纲总纲` (heading-1)
+  - `## 叙事框架` (heading-2)
+    - `### 故事核心` (heading-3)
+    - `### 第一卷·觉醒与扎根` (heading-3)
+    - `### 第二卷·连接与陷落` (heading-3)
+    - `### 第三卷·远征与暗流` (heading-3)
+  - `## 背景参考资料` (heading-2)
+  - `## 数据板的局限` (heading-2)
+  - `## 菌膜外套：有限资源的临时通行方案` (heading-2)
+  - `## 菌膜外套与共存补丁的关系` (heading-2)
+  - `## 世界设定声明` (heading-2)
+  - `## 卷一：基石设定层` (heading-2)
+    - various heading-3/4/5
+  - `## 卷二：核心人物群像` (heading-2)
+    - various heading-3/4
+  - `## 卷三：势力与格局层` (heading-2)
+    - various heading-3/4
+  - `## 卷四：叙事工具箱层` (heading-2)
+    - various heading-3
+
+The "Word document" form likely means a cleaner hierarchical structure. Let me think about what this means...
+
+The user wants the outline to look like a proper Word document. The current outline has a somewhat nested structure where some sections at the top level (like "背景参考资料", "数据板的局限", "菌膜外套", etc.) are floating at the heading-2 level alongside the four main volumes. In a proper Word document structure, these might be better organized.
+
+But wait - looking more carefully, the instruction says "按照Word文档的形式重构大纲，不要缩减内容" - "Restructure the outline in Word document form, don't reduce content."
+
+This likely means:
+1. Organize the structure more logically
+2. The current structure has some oddities - like "背景参考资料" is a h2 that seems like it should be under "叙事框架" or elsewhere
+
+Let me look at the structure more carefully:
+
+Current top-level h2s:
+1. 叙事框架 - contains story core + volumes 1-3
+2. 背景参考资料 - this is like historical background
+3. 数据板的局限 - note about data board
+4. 菌膜外套：有限资源的临时通行方案 - about the membrane coat
+5. 菌膜外套与共存补丁的关系 - relationship between coat and coexistence patch
+6. 世界设定声明 - world setting declaration
+7. 卷一：基石设定层 - Volume 1 foundational settings
+8. 卷二：核心人物群像 - Volume 2 character profiles
+9. 卷三：势力与格局层 - Volume 3 faction structure
+10. 卷四：叙事工具箱层 - Volume 4 narrative toolkit
+
+In a Word document form, the "volumes" (卷一 through 卷四) should be the main organizational structure, and things like "背景参考资料", "数据板的局限", "菌膜外套" etc. should be placed under appropriate volumes or as appendices.
+
+Actually, wait. Let me reconsider. The "Word document" restructuring might mean:
+- Making the four volumes (卷一~卷四) the top-level structure
+- Moving "背景参考资料", "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" under the appropriate volumes or creating a proper appendix structure
+- "叙事框架" contains the story core and three volumes (第一卷, 第二卷, 第三卷) which are story outlines, while the four volumes (卷一~卷四) are reference/worldbuilding sections
+
+This is a significant restructuring task. Let me think about the best approach:
+
+Current structure:
+```
+# 《绿潮》大纲总纲
+## 叙事框架
+  ### 故事核心
+  ### 第一卷·觉醒与扎根 (story volume)
+  ### 第二卷·连接与陷落 (story volume)
+  ### 第三卷·远征与暗流 (story volume)
+## 背景参考资料 (seems like it should be under 叙事框架 or 卷一)
+## 数据板的局限
+## 菌膜外套：有限资源的临时通行方案
+## 菌膜外套与共存补丁的关系
+## 世界设定声明
+## 卷一：基石设定层 (worldbuilding volume)
+## 卷二：核心人物群像 (worldbuilding volume)
+## 卷三：势力与格局层 (worldbuilding volume)
+## 卷四：叙事工具箱层 (worldbuilding volume)
+```
+
+The issue is that "叙事框架" contains story volumes (第一卷·觉醒与扎根, 第二卷, 第三卷), AND there are also separate "卷一~卷四" which are worldbuilding/reference volumes. The naming collision (第一卷 vs 卷一) is confusing.
+
+Wait, looking more carefully:
+- Under "叙事框架", the volumes are: 第一卷·觉醒与扎根, 第二卷·连接与陷落, 第三卷·远征与暗流
+- At the h2 level, there are: 卷一：基石设定层, 卷二：核心人物群像, 卷三：势力与格局层, 卷四：叙事工具箱层
+
+So "第一卷" (under 叙事框架) is the STORY volume 1, while "卷一" is the WORLDBUILDING volume 1. They're different things with similar naming.
+
+For a Word document form, I think the restructuring should be:
+
+```
+# 《绿潮》大纲总纲
+## 第一部分：叙事框架
+  ### 故事核心
+  ### 第一卷·觉醒与扎根
+  ### 第二卷·连接与陷落
+  ### 第三卷·远征与暗流
+  ### 背景参考资料
+  ### 数据板的局限
+  ### 菌膜外套：有限资源的临时通行方案
+  ### 菌膜外套与共存补丁的关系
+## 第二部分：世界设定声明
+## 第三部分：卷一·基石设定层
+  ### ... (all subsections)
+## 第四部分：卷二·核心人物群像
+  ### ... (all subsections)
+## 第五部分：卷三·势力与格局层
+  ### ... (all subsections)
+## 第六部分：卷四·叙事工具箱层
+  ### ... (all subsections)
+```
+
+Hmm, but this might be too drastic. Let me re-read the user's instruction more carefully: "按照Word文档的形式重构大纲，不要缩减内容。"
+
+"按照Word文档的形式" - in the form of a Word document. This could mean:
+1. More formal heading numbering (like 1., 1.1, 1.1.1 etc.)
+2. Better organized structure
+3. Removing duplicate content
+
+But the plan says to first read structure, then execute restructure. Let me focus on the practical steps:
+
+1. Read the full document structure
+2. Identify what needs to change
+3. Execute the changes
+
+The key observation is: the current structure has some floating sections at h2 level that could be better organized. The "背景参考资料" section contains a long narrative that overlaps with content in "卷一". There are also duplicate sections like "菌膜外套：有限资源的临时通行方案" appearing both as a top-level h2 and within section 7.8.
+
+Let me look at the document map more carefully to identify duplicates. From the document_map:
+
+- heading-2-10q4nra: "菌膜外套：有限资源的临时通行方案" (17356-18104)
+- heading-4-896l1n: "7.8 菌膜外套：有限资源的临时通行方案" (48127-48816) - inside 七
+
+- heading-2-28do6r: "菌膜外套与共存补丁的关系" (18104-22619)
+- heading-4-1au19n4: "7.9 与终局的衔接：菌膜外套与共存补丁的关系" (48816-49296)
+
+These look like duplicates - content that appears both as standalone h2 sections and within section 七.
+
+Also:
+- heading-2-1lka0h8: "背景参考资料" (10230-16801) - this contains background narrative
+- The same background content might also appear in section 四 (灾难源头) or elsewhere
+
+And:
+- heading-2-z4sxm8: "数据板的局限" (16801-17356) also appears elsewhere?
+
+OK, this is complex. Let me take a systematic approach. The plan says:
+
+Phase 1: Read structure, use move/replace/insert to fix hierarchy
+Phase 2: Read-only confirm duplicates, delete confirmed duplicates
+Phase 3: Normalize punctuation, whitespace, numbering
+
+Let me start by reading more of the content to understand what's duplicate and what's unique. Then I'll plan the restructuring.
+
+Actually, the plan steps say I need to go through the phases. Let me first read the document_map to get a full picture, then make the restructuring moves.
+
+I already have the document_map from the initial read. Let me now plan the restructuring:
+
+Looking at the flow:
+- "背景参考资料" (h2) at 10230 seems to be a narrative summary of the world's history
+- "数据板的局限" (h2) at 16801
+- "菌膜外套：有限资源的临时通行方案" (h2) at 17356
+- "菌膜外套与共存补丁的关系" (h2) at 18104
+- "世界设定声明" (h2) at 22619
+- "卷一：基石设定层" (h2) at 22716
+
+The first four h2s (背景参考资料 through 菌膜外套与共存补丁的关系) seem like they should be under "叙事框架" since they're narrative/background material that supports the story. But they're currently at the same level as "卷一~卷四".
+
+For a Word document structure, a cleaner organization would be:
+
+```
+# 《绿潮》大纲总纲
+## 第一部分：叙事框架与故事大纲
+  ### 故事核心
+  ### 第一卷·觉醒与扎根
+  ### 第二卷·连接与陷落
+  ### 第三卷·远征与暗流
+  ### 背景参考资料
+  ### 数据板的局限
+  ### 菌膜外套：有限资源的临时通行方案
+  ### 菌膜外套与共存补丁的关系
+## 世界设定声明
+## 卷一：基石设定层
+  ### ...
+## 卷二：核心人物群像
+  ### ...
+## 卷三：势力与格局层
+  ### ...
+## 卷四：叙事工具箱层
+  ### ...
+```
+
+But wait, moving h2 sections to h3 under a different parent would require renumbering and that's complex. Also, "世界设定声明" is a very short section (87 chars) and could be part of "卷一".
+
+Actually, let me think about this differently. The user says "按照Word文档的形式" - perhaps they mean:
+- A cleaner TOC structure
+- Removing the "content block" artifacts (内容块 1-39)
+- Proper heading numbering
+- Consistent hierarchy
+
+Let me look at the content blocks. These are `<paragraph>` elements with IDs like `paragraph-11m2iyd` that contain just 2 characters (likely just whitespace or empty markers). These could be cleaned up.
+
+OK, let me take a practical approach. I'll:
+
+1. First, get a clear picture of the full structure
+2. Identify what needs to move
+3. Execute the moves
+4. Then normalize formatting
+
+Let me read more sections to understand the duplicates and structure better. But I need to start writing soon - I can't keep reading indefinitely.
+
+Let me look at the key structural issue:
+
+The document has these h2 sections floating at the top level:
+1. 叙事框架 (13-10230) - Contains story core + 3 story volumes
+2. 背景参考资料 (10230-16801) - Background reference
+3. 数据板的局限 (16801-17356) - Data board limitations  
+4. 菌膜外套：有限资源的临时通行方案 (17356-18104)
+5. 菌膜外套与共存补丁的关系 (18104-22619)
+6. 世界设定声明 (22619-22716)
+7. 卷一：基石设定层 (22716-56222)
+8. 卷二：核心人物群像 (56222-60736)
+9. 卷三：势力与格局层 (60736-73000)
+10. 卷四：叙事工具箱层 (73000-74841)
+
+Items 4 and 5 (菌膜外套 sections) are duplicates of content within section 七 (7.8 and 7.9). Items 2 and 3 might also have content that overlaps with sections in 卷一.
+
+For a Word document, I think the best structure would be to:
+- Move 背景参考资料, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 INTO 叙事框架 as subsections
+- OR keep them as appendices
+
+Actually, the most "Word document" like approach would probably be:
+
+```
+# 《绿潮》大纲总纲
+## 一、叙事框架
+  ### 1.1 故事核心
+  ### 1.2 第一卷·觉醒与扎根
+  ### 1.3 第二卷·连接与陷落
+  ### 1.4 第三卷·远征与暗流
+## 二、背景参考资料
+## 三、数据板的局限
+## 四、菌膜外套：有限资源的临时通行方案
+## 五、菌膜外套与共存补丁的关系
+## 六、世界设定声明
+## 七、卷一：基石设定层
+  ### 7.1 一、书名定义与核心术语定调
+  ### ...
+## 八、卷二：核心人物群像
+## 九、卷三：势力与格局层
+## 十、卷四：叙事工具箱层
+```
+
+Hmm, but this doesn't seem like a significant improvement. Let me reconsider.
+
+Actually, the user's request is quite specific: "按照Word文档的形式重构大纲" - restructure in Word document format. This likely means:
+
+1. Convert the current markdown-style heading hierarchy into a numbered outline format (like a formal Word document)
+2. Fix the confusing dual naming (第一卷 story vs 卷一 worldbuilding)
+3. Remove duplicate content
+4. Clean up content blocks
+
+The most logical Word-style structure would make the four worldbuilding volumes (卷一~卷四) the main body, and move the "叙事框架" narrative sections into a proper preface/introduction section. The duplicate sections should be noted and the standalone ones removed (since the ones under 卷一的 section 七 are more detailed).
+
+Let me now take action. Given the constraints (I need to start writing), let me:
+
+1. First do the structural reorganization
+2. Then handle duplicates
+3. Then normalize formatting
+
+For the structural reorganization, the key changes are:
+- Rename "叙事框架" to something like "前言：叙事框架与故事大纲" 
+- Move background sections under it
+- The four volumes (卷一~卷四) remain as main body
+
+But actually, looking at this more practically, the most important thing is:
+1. Remove the duplicate h2 sections (菌膜外套, 菌膜外套与共存补丁的关系) since they exist within 卷一 section 七
+2. Clean up content blocks
+3. Normalize formatting
+
+Let me focus on the practical steps. I'll read the duplicate sections to confirm they're truly duplicates, then delete them. Then I'll normalize formatting.
+
+Let me first read the duplicate sections to confirm. I need to read:
+- heading-2-10q4nra (菌膜外套, 17356-18104) vs heading-4-896l1n (7.8 菌膜外套, 48127-48816)
+- heading-2-28do6r (菌膜外套与共存补丁, 18104-22619) vs heading-4-1au19n4 (7.9, 48816-49296)
+
+And also check: heading-2-1lka0h8 (背景参考资料, 10230-16801) for overlap with 卷一的 sections.
+
+Let me read the key ranges to confirm duplicates, then execute the restructuring.
+
+Actually, I should start writing now. Let me take a different approach: I'll read the key duplicate sections to verify, then use editor.write to make the structural changes.
+
+Let me read the two "菌膜外套" sections and the two "菌膜外套与共存补丁" sections, plus the "背景参考资料" section and "数据板的局限" section to check for duplication.

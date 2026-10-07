@@ -1,0 +1,333 @@
+The user wants me to restructure the outline into a Word document format without reducing content. Let me analyze the current structure and what needs to be done:
+
+Looking at the current structure, the document has these top-level headings (level 1):
+- `# 《绿潮》大纲总纲` (h1)
+
+And these level 2 headings:
+- `## 叙事框架`
+- `## 背景参考资料`
+- `## 数据板的局限`
+- `## 菌膜外套：有限资源的临时通行方案`
+- `## 菌膜外套与共存补丁的关系`
+- `## 世界设定声明`
+- `## 卷一：基石设定层`
+- `## 卷二：核心人物群像`
+- `## 卷三：势力与格局层`
+- `## 卷四：叙事工具箱层`
+
+The current structure has some issues:
+1. "背景参考资料", "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系", "世界设定声明" are all at level 2, same as "卷一" through "卷四" and "叙事框架". These seem like they should be organized differently.
+2. The "叙事框架" section contains "故事核心", "第一卷·觉醒与扎根", "第二卷·连接与陷落", "第三卷·远征与暗流" as level 3 headings.
+3. Some content appears to be duplicated or misplaced.
+
+The user wants this reorganized into a "Word document format" - which I interpret as a cleaner hierarchical structure without the duplicate sections and with proper title levels.
+
+Let me think about what a clean Word document structure would look like:
+
+```
+# 《绿潮》大纲总纲
+
+## 叙事框架
+### 故事核心
+### 第一卷·觉醒与扎根
+### 第二卷·连接与陷落
+### 第三卷·远征与暗流
+
+## 卷一：基石设定层
+### 一、书名定义与核心术语定调
+### 二、灵魂语句
+### 三、地名架空化对照总表
+### 四、灾难源头：共生蕨
+### 五、方岫岩：菌膜装甲的起源
+### 六、灾难爆发完整链条
+### 七、变异体主动攻击人类核心机制
+### 八、变异生物体系
+### 九、真菌网络、水体净化与大地之变
+### 十、灾后科技更新换代体系
+### 十一、生物油脂兼容性
+### 十二、末日食物与营养供给体系
+
+## 卷二：核心人物群像
+### 一、陈暮
+### 二、五位女主（性格独立编制）
+
+## 卷三：势力与格局层
+### 一、菌毯封锁与人类孤岛：末日格局
+### 二、全球幸存者势力分布
+### 三、六大势力完整设定
+### 四、圣萌会：人类第二灾害
+### 五、盖亚中枢（巨树）
+
+## 卷四：叙事工具箱层
+### 一、核心主题清单
+### 二、术语统一总表
+```
+
+Now, the issue is that "背景参考资料", "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系", "世界设定声明" are currently at level 2. Where should they go?
+
+Looking at the content:
+- "背景参考资料" contains the backstory summary - it's essentially a narrative summary/reference
+- "数据板的局限" - this is about the limitations of the databoard
+- "菌膜外套" - about the fungal coat technology
+- "菌膜外套与共存补丁的关系" - relationship between coat and patch
+- "世界设定声明" - world setting declaration
+
+These seem to be supplementary/background material. They could be:
+1. Part of "卷一：基石设定层" (but they're already covered in 卷一 sections like 七)
+2. Their own section
+3. Part of the "叙事框架"
+
+Actually, looking more carefully, "数据板的局限" and "菌膜外套" and "菌膜外套与共存补丁的关系" are already incorporated into 卷一's sections 七 (7.8, 7.9) as well. So these are duplicates.
+
+And "背景参考资料" appears to be a narrative summary that could serve as a preface or appendix.
+
+The key question is: what "Word document format" reorganization does the user want?
+
+I think the user wants a cleaner document where:
+1. The narrative framework comes first
+2. Then the four volumes (卷一 through 卷四) form the main body
+3. Supplementary materials are placed appropriately
+4. Duplicates are removed
+5. The whole thing looks like a properly structured Word document
+
+But the user explicitly said "不要缩减内容" (don't reduce content). So I need to be careful about what I delete.
+
+Let me think about the approach more carefully. The plan says:
+- Phase 1: Read structure, use `move` to reposition misplaced headings, use `insert` for missing headings, use `replace_match`/`rewrite` for fixing heading levels
+- Phase 2: Read-only confirm duplicates, then delete
+- Phase 3: Fix punctuation, whitespace, numbering, heading levels
+
+The plan has 4 batches: structure-repair, structure-plan, normalize-segment-1, normalize-segment-2.
+
+Let me now focus on what needs to be done:
+
+1. **structure-repair**: Fix heading levels and positioning issues
+   - "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" at level 2 may need to be repositioned - but they are separate entities that live between "叙事框架" and the main volumes. Wait, looking at the content again, "背景参考资料" section contains the narrative summary that is essentially what becomes 叙事框架's background. These sections ("数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系") are supplementary explanations that were added as separate level-2 headings. They could be placed as subsections under "叙事框架" or as appendices.
+
+Actually, I think the issue is that the user wants a "Word document" format. The current document is essentially already in a markdown/heading format. The user probably means they want:
+- Proper section numbering
+- Clean hierarchy
+- Remove instruction/note text (like "粘贴到「故事核心」下...")
+- Remove duplicate content
+- Fix the PHASE7 probe sentences
+
+Let me focus on the specific issues I can identify:
+
+1. ~~PHASE7 probe sentences~~ - Already fixed
+2. ~~"粘贴到" instruction text~~ - Already deleted
+3. ~~Duplicate "数据板的局限" without heading~~ - Already deleted
+4. Duplicate "菌膜外套" and "菌膜外套与共存补丁的关系" at level 2 that also appear within 卷一 section 七
+5. The "背景参考资料" at level 2 - this is essentially a narrative summary that could be moved under 叙事框架 or remain as a separate section
+6. "世界设定声明" at level 2 - a short declaration
+
+Now I need to handle the structure repair phase. Let me think about what the final structure should look like.
+
+The user said "按照Word文档的形式重构大纲" - restructure the outline in Word document format. This likely means:
+- A clean hierarchical structure
+- No duplicate sections
+- Proper heading levels
+- Content flows logically
+
+Given that the user wants all content preserved (not reduced), I should be careful. Let me propose a structure where:
+
+The document follows a clear hierarchy:
+```
+# 《绿潮》大纲总纲
+## 叙事框架
+### 故事核心
+### 第一卷·觉醒与扎根
+### 第二卷·连接与陷落
+### 第三卷·远征与暗流
+## 背景参考资料
+## 数据板的局限
+## 菌膜外套：有限资源的临时通行方案
+## 菌膜外套与共存补丁的关系
+## 世界设定声明
+## 卷一：基石设定层
+... (十二个章节)
+## 卷二：核心人物群像
+... 
+## 卷三：势力与格局层
+...
+## 卷四：叙事工具箱层
+...
+```
+
+Hmm, but this is actually very similar to what we already have. The "Word document form" may just mean cleaning up duplicates and making sure the hierarchy is correct.
+
+Wait, let me re-read the original structure more carefully. The key issue is:
+
+1. "菌膜外套" and "菌膜外套与共存补丁的关系" appear TWICE - once as separate level-2 sections, and once within 卷一 > 七 as subsections 7.8 and 7.9. This is a genuine duplication.
+
+2. "背景参考资料" contains a narrative summary that is very similar to some content in 叙事框架.
+
+3. "数据板的局限" also appears within 卷一 > 七 area context.
+
+So the cleanup should:
+- Keep the separate level-2 sections for "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" (they serve as quick reference summaries)
+- BUT remove the duplicates within 卷一 > 七 (sections 7.8 and 7.9 which duplicate the level-2 sections)
+
+Wait, but section 七 has 7.1-7.9 and 7.8/7.9 are part of that section's structure. Removing them would break the numbering.
+
+Actually, looking at it again - sections 7.8 and 7.9 within 卷一 are the same content as the standalone level-2 sections. The standalone sections serve as quick-reference, while the 卷一 versions are integrated into the setting documentation.
+
+Given the user said "不要缩减内容", I should probably keep both but mark one set as references to the other. But that's complex.
+
+Let me take a different approach. The user wants "Word document form" - which in practice means:
+1. Clean hierarchical structure
+2. No leftover editing instructions
+3. No duplicate content
+4. Proper formatting
+
+I think the most practical approach is:
+- Keep the level-2 sections as they are (they act as standalone references)
+- Remove duplicate content from 卷一 that appears elsewhere
+- Fix heading levels where needed
+
+But I need to be more concrete. Let me look at what specific actions to take.
+
+For the structure-repair phase, the main issues are:
+1. The PHASE7 probe sentences should be removed (they're test/placeholder text)
+2. The "背景参考资料" section is essentially a narrative summary - it could be moved to be part of 叙事框架
+3. The duplicates between standalone sections and 卷一 sections need resolution
+
+Let me now focus on what I can actually do with editor.write. I'll need to use specific operations.
+
+Actually, let me step back. The plan says 4 batches:
+- structure-repair
+- structure-plan  
+- normalize-segment-1 [0-46748]
+- normalize-segment-2 [46748-75024]
+
+For structure-repair, I need to fix heading hierarchy issues. Let me look at the actual heading levels and see if there are jumps.
+
+Current h2 headings:
+- 叙事框架
+- 背景参考资料
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系
+- 世界设定声明
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+This is actually a reasonable structure. All h2 headings are at the same level under h1.
+
+Under "叙事框架" (h2):
+- 故事核心 (h3)
+- 第一卷·觉醒与扎根 (h3)
+- 第二卷·连接与陷落 (h3)
+- 第三卷·远征与暗流 (h3)
+
+This is also fine. No level jumps.
+
+Under "卷一：基石设定层" (h2):
+- 一、书名定义... (h3) → 1.1 (h4), 1.2 (h4)
+- 二、灵魂语句 (h3)
+- 三、地名架空化... (h3) → 3.1-3.6 (h4)
+- 四、灾难源头 (h3) → 4.1 (h4) → 4.1.1 (h5), 4.1.2 (h5), 4.2 (h4) → ..., 4.3 (h4) → ...
+- etc.
+
+This hierarchy goes h2 → h3 → h4 → h5 which is fine for a large document.
+
+So the structure itself seems mostly correct. The main issues are content duplication and cleanup.
+
+Let me focus on the concrete tasks:
+1. Delete the PHASE7 probe sentences (they're test content, not real outline content)
+2. Handle duplicate "菌膜外套" and "菌膜外套与共存补丁的关系" content
+3. Handle any duplicate "数据板的局限" 
+4. Fix punctuation (半角 to 全角)
+
+For normalize-segment-1 [0-46748] and normalize-segment-2 [46748-75024], I need to read and fix punctuation.
+
+OK let me just proceed with the work. I'll do the structure-repair phase first by fixing the remaining issues, then move to the normalize phases.
+
+Let me first check what duplicates remain and then handle them.
+
+The standalone sections at level 2:
+- 数据板的局限 (16273-16828)
+- 菌膜外套：有限资源的临时通行方案 (16828-17576)
+- 菌膜外套与共存补丁的关系 (17576-22091)
+
+And within 卷一 > 七:
+- 7.8 菌膜外套：有限资源的临时通行方案 
+- 7.9 与终局的衔接：菌膜外套与共存补丁的关系
+
+These are genuine duplicates. But the user said "不要缩减内容". If I delete either the standalone or the 卷一 versions, I'd be reducing content.
+
+However, having the exact same text twice is not "Word document format" - it's clutter. I think the right approach is to keep one copy and remove the other. Since the standalone sections serve as quick-reference overviews and the 卷一 sections are part of the detailed setting documentation, perhaps I should keep both but that creates duplication.
+
+Actually, wait. The plan says "删除重复段落后必须校验有效正文未丢失". So the plan allows for deletion of duplicates, but I must verify no content is lost.
+
+I think the right approach for a Word document format is:
+- Keep the standalone sections as they are
+- In 卷一 section 七, replace 7.8 and 7.9 with brief cross-references
+
+But that would modify content, which the user might not want.
+
+Alternatively, keep both since they serve different contexts. The standalone ones are overviews, and the 卷一 ones are part of the systematic setting documentation.
+
+Hmm, I think the simplest and safest approach for now:
+1. Fix PHASE7 sentences (done)
+2. Delete the leftover paste instruction (done)  
+3. Delete the duplicate "数据板的局限" without heading in 背景参考资料 (done)
+4. Fix any remaining structural issues
+5. Fix punctuation throughout
+
+For the "菌膜外套" and "菌膜外套与共存补丁的关系" duplication, I think I should keep both since the user said not to reduce content and they serve different structural purposes (standalone reference vs integrated setting documentation).
+
+Let me now focus on the concrete structural and normalization work I can do.
+
+First, let me check if there are still duplicate "数据板的局限" sections. The search showed two matches - one in "背景参考资料" (which I deleted) and one as a standalone heading. Let me verify the deletion worked.
+
+Also, I need to check for the duplicate "菌膜外套" content. The search showed two matches at different locations.
+
+OK, let me just proceed with the normalization phases. Let me read sections for normalize-segment-1 and fix punctuation.
+
+Actually, I think I should approach this differently. The plan mentions 4 batches: structure-repair, structure-plan, normalize-segment-1, normalize-segment-2. Let me focus on completing them.
+
+For structure-repair, the main remaining tasks:
+- Remove the PHASE7 probe sentences entirely (they're not real content)
+- Address the duplicate "菌膜外套" and "菌膜外套与共存补丁的关系" sections
+
+For structure-plan, confirm duplicates and delete.
+
+For normalize-segment-1 and normalize-segment-2, fix half-width punctuation.
+
+Given the constraints (don't reduce content), I think I should:
+1. Keep the PHASE7 probe sentences as they now have correct punctuation (already fixed)
+2. Handle the duplicate sections by keeping both (they're in different structural contexts)
+3. Focus on punctuation normalization
+
+Wait, the PHASE7 sentences ARE test content. They're literally probe/detection sentences. But deleting them would reduce content... However, they're clearly not outline content.
+
+Let me re-read them:
+- "【PHASE7-PUNCT-PROBE-A】这是前段标点整理探测句，需要把半角逗号改成全角逗号；这是必须处理的半角分号。"
+- "【PHASE7-PUNCT-PROBE-B】这是中段标点整理探测句..."
+- "【PHASE7-PUNCT-PROBE-C】这是后段标点整理探测句..."
+
+These are clearly test/marker sentences, not actual outline content. Removing them would be cleanup, not content reduction.
+
+OK, let me now take action. I'll:
+1. Delete the three PHASE7 probe sentences (they're test markers, not content)
+2. Then proceed to normalize punctuation in the two segments
+
+Let me first read the areas around the probe sentences to locate them precisely, then delete them, then normalize punctuation.
+
+Actually, I already know their locations from the initial document read. Let me just proceed with the actions.
+
+But wait - the plan says I should first do structure-repair, then structure-plan for duplicates, then normalize. Let me follow the plan order.
+
+For structure-repair, the concrete actions are:
+1. Delete PHASE7 probe sentences A, B, C
+2. The rest of the structure seems fine
+
+For structure-plan (duplicates):
+1. Handle duplicate "菌膜外套" and "菌膜外套与共存补丁的关系"
+
+For normalize:
+1. Fix half-width punctuation throughout
+
+Let me start with structure-repair: delete the three probe sentences.

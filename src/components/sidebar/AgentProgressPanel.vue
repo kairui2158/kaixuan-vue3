@@ -44,7 +44,7 @@ function mapAgentRecord(record: any) {
   const status = String(record?.status || snapshot?.status || 'idle')
   return {
     id: String(record?.taskId || snapshot?.taskId || 'agent'),
-    status: status === 'running' || status === 'planning' || status === 'compacting'
+    status: status === 'running' || status === 'planning'
       ? 'running'
       : status.startsWith('waiting')
         ? 'waiting'

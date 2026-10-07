@@ -1,0 +1,42 @@
+{
+  "taskId": "edit-task-1791294091895-1",
+  "status": "awaiting_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "重构大纲结构：删除已确认的重复段落，并为无标题正文块补充标题（不缩减内容）",
+  "executedBatches": [
+    "ai-edit-muwq936y-1",
+    "ai-edit-muwqfdcl-2"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "重构大纲结构：删除已确认的重复段落，并为无标题正文块补充标题（不缩减内容）",
+    "batches": [
+      "ai-edit-muwq936y-1",
+      "ai-edit-muwqfdcl-2"
+    ],
+    "batchDetails": {
+      "ai-edit-muwq936y-1": {
+        "segmentId": "structure-plan",
+        "expectedChange": "remove_duplicate",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "delete",
+        "invariantResult": "planned-deletion-only"
+      },
+      "ai-edit-muwqfdcl-2": {
+        "segmentId": "structure-repair",
+        "expectedChange": "restructure",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "structure_repair",
+        "invariantResult": "planned-deletion-only"
+      }
+    }
+  }
+}

@@ -12,6 +12,16 @@ export interface NormalizedToolCall {
   id: string
   name: string
   input: unknown
+  /** Raw provider arguments when the wire value could not be normalized to an object. */
+  argumentsRaw?: string
+  /** Set when the model emitted recoverable malformed JSON arguments. */
+  argumentsRepaired?: boolean
+  /** Provider diagnostics when arguments cannot be converted into a tool input object. */
+  argumentsError?: {
+    code: 'arguments_invalid_json'
+    message: string
+    repairable: boolean
+  }
 }
 
 export interface ProviderToolMessage {
@@ -162,22 +172,118 @@ export function extractProviderToolCalls(
   const calls = data?.choices?.[0]?.message?.tool_calls
   if (!Array.isArray(calls)) return []
   return calls.map((call: any, index: number) => {
+    const rawArguments = call?.function?.arguments
     let input: unknown = {}
-    if (typeof call?.function?.arguments === 'string') {
-      try {
-        input = JSON.parse(call.function.arguments)
-      } catch {
+    let argumentsRaw: string | undefined
+    let argumentsRepaired: boolean | undefined
+    let argumentsError: NormalizedToolCall['argumentsError'] | undefined
+    if (typeof rawArguments === 'string' && rawArguments !== '') {
+      const normalized = normalizeOpenAiToolArguments(rawArguments)
+      if (normalized.ok) {
+        input = normalized.input
+        argumentsRaw = normalized.repaired ? rawArguments : undefined
+        argumentsRepaired = normalized.repaired || undefined
+      } else {
         input = {}
+        argumentsRaw = rawArguments
+        argumentsError = normalized.error
       }
-    } else if (call?.function?.arguments && typeof call.function.arguments === 'object') {
-      input = call.function.arguments
+    } else if (typeof rawArguments === 'string') {
+      argumentsRaw = rawArguments
+    } else if (rawArguments && typeof rawArguments === 'object') {
+      input = rawArguments
     }
     return {
       id: normalizeToolCallId(providerType, call?.id, `openai-${index}`).id,
       name: String(call?.function?.name || ''),
       input,
+      ...(argumentsRaw === undefined ? {} : { argumentsRaw }),
+      ...(argumentsRepaired === undefined ? {} : { argumentsRepaired }),
+      ...(argumentsError === undefined ? {} : { argumentsError }),
     }
   })
+}
+
+type OpenAiToolArgumentsNormalization =
+  | { ok: true; input: Record<string, unknown>; repaired: boolean }
+  | { ok: false; error: NonNullable<NormalizedToolCall['argumentsError']> }
+
+function normalizeOpenAiToolArguments(rawArguments: string): OpenAiToolArgumentsNormalization {
+  try {
+    const parsed = JSON.parse(rawArguments)
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return { ok: true, input: parsed as Record<string, unknown>, repaired: false }
+    }
+  } catch (error) {
+    const repaired = repairUnescapedDoubleQuotes(rawArguments)
+    let repairSucceeded = false
+    if (repaired !== null) {
+      try {
+        const parsed = JSON.parse(repaired)
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          repairSucceeded = true
+          return { ok: true, input: parsed as Record<string, unknown>, repaired: true }
+        }
+      } catch {}
+    }
+    return {
+      ok: false,
+      error: {
+        code: 'arguments_invalid_json',
+        message: `供应商返回的工具参数不是合法 JSON${error instanceof Error ? `：${error.message}` : ''}。请重新提交 editor.write 参数，JSON 字符串值内的双引号必须转义。`,
+        repairable: repairSucceeded,
+      },
+    }
+  }
+  return {
+    ok: false,
+    error: {
+      code: 'arguments_invalid_json',
+      message: '供应商返回的工具参数不是 JSON object。',
+      repairable: false,
+    },
+  }
+}
+
+function repairUnescapedDoubleQuotes(source: string): string | null {
+  let repaired = ''
+  let inString = false
+  let escaped = false
+  for (let index = 0; index < source.length; index++) {
+    const char = source[index]
+    if (escaped) {
+      repaired += char
+      escaped = false
+      continue
+    }
+    if (char === '\\') {
+      repaired += char
+      escaped = true
+      continue
+    }
+    if (char === '"') {
+      if (!inString) {
+        inString = true
+        repaired += char
+        continue
+      }
+      const next = source[index + 1]
+      if (next === undefined || next === ',' || next === '}' || next === ']') {
+        inString = false
+      } else if (next === ':') {
+        inString = false
+      } else if (next === ' ' && (source[index + 2] === ':' || source[index + 2] === ',' || source[index + 2] === '}' || source[index + 2] === ']')) {
+        inString = false
+      } else {
+        repaired += '\\"'
+        continue
+      }
+      repaired += char
+      continue
+    }
+    repaired += char
+  }
+  return repaired
 }
 
 export function buildToolResultMessage(

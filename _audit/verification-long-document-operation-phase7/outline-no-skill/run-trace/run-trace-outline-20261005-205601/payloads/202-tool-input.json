@@ -1,0 +1,17 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "reason": "normalize-segment-1：规范文档标题后的多余空行，使一级标题与二级标题间仅保留一个空行",
+      "target": "# 《绿潮》大纲总纲\n\n\n## 叙事框架",
+      "content": "# 《绿潮》大纲总纲\n\n## 叙事框架"
+    },
+    {
+      "operation": "replace_match",
+      "reason": "normalize-segment-1：规范二级标题与三级标题间的多余空行",
+      "target": "## 叙事框架\n\n\n### 故事核心",
+      "content": "## 叙事框架\n\n### 故事核心"
+    }
+  ],
+  "reason": "normalize-segment-1 空白整理：规范文档开头的标题间空行，使其符合Word式排版"
+}

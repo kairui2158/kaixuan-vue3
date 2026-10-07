@@ -1,0 +1,416 @@
+Let me analyze the current state of the document to understand what needs to be done for the three-stage restructuring:
+
+**Stage 1: structure-repair** - Fix misplaced content:
+From reading the document, I can see issues:
+
+1. **"背景参考资料" (heading-2-1lka0h8)**: This section contains mixed content - it has background narrative, then "灾前军事基准线与菌毯的不可根除性" with its subsections (一、二、三), then "数据板的局限" text at the end. The "数据板的局限" text at the end of this section is duplicated with the standalone "数据板的局限" section (heading-2-z4sxm8).
+
+2. **"菌膜外套与共存补丁的关系" (heading-2-28do6r)**: This section contains the actual 菌膜外套与共存补丁 content at the start, but then has a LOT of other content that should be elsewhere - the six major factions overview, 圣萌会 details, 终局之战, 巨树 content, and post-共存补丁 world. This is a massive section (4499 chars) that contains many different topics stuffed together.
+
+Let me think about the structure issues:
+
+- "背景参考资料" section contains "灾前军事基准线与菌毯的不可根除性" and its subsections (一/二/三), plus "数据板的局限" text duplicated at the end
+- "数据板的局限" exists as standalone heading-2 (正确的)
+- "菌膜外套与共存补丁的关系" section starts correctly but then has all sorts of other content mixed in
+
+The key issues are:
+1. "背景参考资料"末尾的"数据板的局限"文本与独立章节重复
+2. "菌膜外套与共存补丁的关系"中包含了大量不属于该节的正文
+
+Now, the user wants me to restructure this into a "Word文档形式" - meaning a clean, hierarchical document without the duplicate/misplaced sections.
+
+Let me plan the structure repair:
+
+First, the "背景参考资料" section should end before "数据板的局限" (since that's a separate section). The content after "背景参考资料" main text and before "数据板的局限" is the "灾前军事基准线与菌毯的不可根除性" content with subsections 一/二/三.
+
+The "菌膜外套与共存补丁的关系" section has: proper intro paragraphs, then a bunch of content about 六大势力, 圣萌会, 终局之战 etc. that doesn't belong there.
+
+Let me think about what the correct structure should be:
+
+Looking at the top-level structure:
+- 叙事框架
+  - 故事核心
+  - 第一卷
+  - 第二卷
+  - 第三卷
+- 背景参考资料
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系
+- 世界设定声明
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+Now, the "背景参考资料" section at its end has duplicated "数据板的局限" text, and the "菌膜外套与共存补丁的关系" section has a huge amount of content that doesn't belong there (the 六大势力 overview, 圣萌会, 终局之战, post-共存补丁 world).
+
+This is quite complex. Let me focus on what the user asked: "按照Word文档的形式重构大纲，不要缩减内容" - restructure into Word document form, don't reduce content.
+
+The user also said "分叉一允许去重" - meaning I can deduplicate. And "不用出预览，直接写入" - don't show preview, just write.
+
+Given the complexity, I need to:
+
+1. **Stage 1 (structure-repair)**: Fix the structural issues - remove duplicates, move misplaced content
+2. **Stage 2 (structure-plan)**: Finalize the correct hierarchy
+3. **Stage 3 (normalize-segment-1)**: Fix punctuation, whitespace, numbering
+
+Let me think about what specific edits are needed:
+
+### Issue 1: "背景参考资料"末尾与"数据板的局限"重复
+"背景参考资料" (10230-16801) ends with the full "数据板的局限" text. The standalone "数据板的局限" (16801-17356) has the same content. Need to remove from "背景参考资料".
+
+### Issue 2: "菌膜外套与共存补丁的关系" contains misplaced content
+The section "菌膜外套与共存补丁的关系" starts with the proper content about 菌膜外套 vs 共存补丁 (about 3 paragraphs), then has:
+- 六大势力 overview (大裂谷走廊, 垅原, 环障盆地, 南角双港, 海棘三角洲)
+- 圣萌会 background (塞缪尔·赫兹, 马格努斯, etc.)
+- 终局之战 (噬神计划, 陈暮 vs 马格努斯)
+- Post-共存补丁 world
+- 盖亚巨树 conclusion
+
+This content seems to be a "故事梗概/终局概述" that should probably be its own section or be placed elsewhere. But the user said "不要缩减内容" - don't reduce content. So I need to find where this content belongs.
+
+Looking at the content more carefully, this is essentially a narrative summary of the entire story arc - it covers all six factions, 圣萌会, the final battle, and the resolution. It's like a "故事总览" or "终局概述". It could potentially go:
+- As a subsection under 叙事框架
+- As its own top-level section
+- As part of 背景参考资料
+
+Given that it's currently under "菌膜外套与共存补丁的关系" which is wrong, I should move it to a more appropriate location. But the user said to follow a Word document format, and this content seems like it could be a "故事概览" section.
+
+Actually, wait - let me reconsider. The user said "按照Word文档的形式重构大纲". This might mean they want the overall outline document to be restructured into a cleaner Word document format. The key changes would be:
+
+1. Remove duplicates
+2. Fix section hierarchy
+3. Move misplaced content to proper locations
+4. Standardize formatting
+
+Let me think about what the proper structure would be:
+
+Given the current content, the "菌膜外套与共存补丁的关系" section's extra content is essentially a condensed version of the entire story's third act - it's a narrative summary. This could potentially be its own section like "故事总览" or could be appendix material.
+
+But actually, re-reading the user's initial request more carefully - "按照Word文档的形式重构大纲" - I think they want a general restructuring. The "分叉一允许去重" suggests there's a deduplication path.
+
+Let me focus on the concrete, actionable edits:
+
+**Step 1: Remove duplicate "数据板的局限" from end of "背景参考资料"**
+
+The "背景参考资料" section ends with the full "数据板的局限" text. I need to delete this from the end of "背景参考资料".
+
+Let me find the exact boundary. The "背景参考资料" has the "灾前军事基准线" content, then at the end there's "数据板的局限" text. The standalone "数据板的局限" section starts at 16801.
+
+Actually, looking at the read output of "背景参考资料", it ends with the "数据板的局限" text that uses half-width quotes (") while the standalone version uses full-width quotes ("). So they're slightly different textually but the same content.
+
+**Step 2: Handle "菌膜外套与共存补丁的关系" misplaced content**
+
+This section currently contains proper intro + 六大势力 overview + 圣萌会 + 终局之战 + 后记. The proper 菌膜外套与共存补丁 content is just the first few paragraphs. Everything after "菌膜外套是权宜之计，共存补丁是终极解法。" is misplaced.
+
+This misplaced content should be extracted and placed somewhere appropriate. Given the document structure, it could go as a new section after "菌膜外套与共存补丁的关系" - perhaps as "故事概览" or similar.
+
+Let me now plan the specific edits. This is complex so I need to be very careful.
+
+Let me start with Stage 1: structure-repair.
+
+Actually, I realize I should first focus on the most critical issues that affect the document structure. Let me plan:
+
+**Batch 1 (structure-repair):**
+1. Delete the duplicate "数据板的局限" text from the end of "背景参考资料"
+2. Extract the misplaced content from "菌膜外套与共存补丁的关系" and create a new section
+
+For the misplaced content in "菌膜外套与共存补丁的关系", I need to:
+- Keep just the first 3 paragraphs (菌膜外套 vs 共存补丁 relationship)
+- Move the rest (六大势力 overview through the end) to a new section
+
+But creating a new section and moving such a large amount of content is complex. Let me think about the best approach...
+
+Actually, the simplest approach might be:
+1. Insert a new heading before the misplaced content in "菌膜外套与共存补丁的关系"
+2. This turns the misplaced content into its own section
+
+The new heading could be something like "## 故事总览" or "## 终局与六大势力概览"
+
+Let me think about what heading to use. The content covers:
+- 六大势力 overview  
+- 圣萌会 rise
+- 终局之战
+- Post-共存补丁 world
+
+This is essentially a "故事梗概" that covers the entire story arc. It could be "## 故事总览" at the top level.
+
+OK, let me proceed with the edits. For Stage 1, I'll:
+
+1. Delete "数据板的局限\n\n数据板不是百宝箱..." from end of "背景参考资料" (the duplicate)
+2. In "菌膜外套与共存补丁的关系", insert a new heading before the misplaced content to split it into a proper section
+
+Let me locate the exact text boundaries.
+
+From "背景参考资料" read:
+The section ends with the full "数据板的局限" text. The last part of the actual background content is the "三、总结：人类真正被压制的根本机制" section, followed by "数据板的局限" text.
+
+From "菌膜外套与共存补丁的关系" read:
+The proper content ends at:
+"从"让系统暂时看不到我们"到"让系统认识我们"——这就是菌膜外套与共存补丁之间不可跨越的鸿沟。菌膜外套是权宜之计，共存补丁是终极解法。"
+
+Then the misplaced content starts with:
+"\n\n在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮..."
+
+So I need to insert a new heading before this paragraph.
+
+Now let me execute. For the structure-repair batch, I'll use editor.write with multiple commands.
+
+Let me locate the exact fragments:
+
+For the duplicate removal from "背景参考资料":
+I need to find the exact text boundaries. The "背景参考资料" section content shows at the very end: "数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的..." - this is the duplicate that also exists as standalone section.
+
+For the "菌膜外套与共存补丁的关系" split:
+I need to insert "## 故事总览\n\n" before "在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮..."
+
+Let me construct the editor.write commands carefully.
+
+Actually, wait - I should use `replace_match` or `insert` operations. Let me think about which operations to use.
+
+For removing the duplicate from "背景参考资料": I'll use `replace_match` to replace the duplicate text with empty string, effectively deleting it.
+
+For splitting the "菌膜外套与共存补丁的关系": I'll use `replace_match` to insert a heading before the misplaced content.
+
+Let me also check - the user said "分叉一允许去重" which means dedup is allowed. The "数据板的局限" is duplicated (once at end of "背景参考资料", once as standalone section). I should keep the standalone section and remove from "背景参考资料".
+
+But wait - the text in the two locations is slightly different. In "背景参考资料" it uses half-width quotes ("), while the standalone uses full-width quotes ("). So I need to match the exact text in "背景参考资料".
+
+Let me try to locate the exact boundary.
+
+From the read output of 背景参考资料, near the end:
+
+"数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播\"无生命有机质\"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是\"推测\"和\"可能\"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。\n\n数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。\n\n数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。\n\n后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从\"起点\"到\"成果\"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。\n\n\n"
+
+This is the exact text I need to delete from the end of "背景参考资料".
+
+Now for the "菌膜外套与共存补丁的关系" split:
+
+The proper content ends with paragraph:
+"从"让系统暂时看不到我们"到"让系统认识我们"——这就是菌膜外套与共存补丁之间不可跨越的鸿沟。菌膜外套是权宜之计，共存补丁是终极解法。"
+
+Then immediately followed by:
+"\n\n在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮..."
+
+I need to insert a new heading between these. Let me use replace_match to replace the transition text.
+
+Actually, I can do:
+- replace_match: "\n\n在大裂谷走廊" → "\n\n## 故事总览\n\n在大裂谷走廊"
+
+But I need to be careful about exact matching. Let me use editor.locate first to confirm.
+
+Actually, I have the read output with escaped characters. Let me construct the commands carefully.
+
+Let me now build the write commands for Stage 1:
+
+Command 1: Delete duplicate "数据板的局限" from end of "背景参考资料"
+- Use replace_match with the exact duplicate text → empty string
+- But I need the exact text including the leading newline before "数据板的局限"
+
+Command 2: Insert heading in "菌膜外套与共存补丁的关系"
+- Use replace_match to insert "## 故事总览\n\n" before "在大裂谷走廊"
+
+Let me also consider: should I verify the fragments with editor.locate first? The instructions say I need to verify. But the user said "不用出预览，直接写入".
+
+Let me try to write directly with the fragments I have from the reads.
+
+For command 1, I need the exact text from "背景参考资料" that includes "数据板的局限" and everything after it until the end of the section. This is:
+```
+数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播\"无生命有机质\"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是\"推测\"和\"可能\"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。\n\n数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。\n\n数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。\n\n后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从\"起点\"到\"成果\"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。\n\n\n
+```
+
+Wait, but the exact text in the document uses actual newlines and quotes, not escaped versions. Let me think about this more carefully.
+
+The content I read was displayed with \n for newlines and \" for quotes. But the actual document has real newlines and quotes. When I pass the fragment to replace_match, I need to use the actual characters.
+
+Let me try a simpler approach - use a unique fragment to locate:
+
+For the duplicate deletion, I can find the boundary between the real "背景参考资料" content and the duplicate "数据板的局限". The last unique line before the duplicate is:
+
+"末日十年后，所有人类势力都明白了一个道理：菌毯是不可根除的。不是暂时打不过，是永远打不完。弹药用光之前它不会死。人类能做的不是击败菌毯，而是在它的覆盖范围内找到一种与它共存的方式——让菌丝网络不再认为人类是异己。终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。"
+
+Then comes the duplicate "数据板的局限" text.
+
+But this is complex. Let me try a different approach. Instead of trying to locate and delete specific text, let me:
+
+1. First, use `editor.locate` to find the exact position of key fragments
+2. Then use `replace_match`
+
+Actually, let me just try the write directly. The instructions say to do it.
+
+Let me construct the commands:
+
+For deleting the duplicate: I'll locate the fragment that marks the start of the duplicate:
+"数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的"
+
+But I need the actual character-by-character match. Let me use a shorter unique fragment.
+
+Actually, looking at the "背景参考资料" section content I read (with \n and \" escaping), the duplicate text starts with:
+
+`数据板的局限\n数据板不是百宝箱。`
+
+This should be unique enough to locate. Let me try `replace_match` with a carefully constructed target.
+
+Wait - in the document, this text appears twice: once at the end of "背景参考资料" and once at the start of the standalone "数据板的局限" section. So `replace_match` might match either one.
+
+I need to be more specific. Perhaps I should match the text including the transition from the previous content. Like:
+
+`承认。\n\n数据板的局限`
+
+But `承认。` might appear multiple times.
+
+This is getting complicated. Let me take a step back and think about what approach the system wants.
+
+The system says to use `editor.locate` to verify unique fragments. Let me do that first for the key fragments, then construct the write commands.
+
+Actually, looking at this more carefully, I think the simplest approach for the "背景参考资料" duplicate is:
+
+The "背景参考资料" section ends with the duplicate. The boundary is:
+- Before duplicate: `...人类对\"不可战胜\"的承认。\n\n`
+- Duplicate starts: `数据板的局限\n数据板不是百宝箱...`
+
+I can use `replace_match` with the target being the exact duplicate text starting from "数据板的局限" and ending with the final newlines. The replacement would be empty (deletion).
+
+But because this text appears in two places, I need to make my target more unique. Let me include more context.
+
+Actually, let me just try a different approach. Instead of replace_match, I can use `delete` with `replace_selection` or... no, those operations don't seem right.
+
+Let me re-read the available operations:
+- insert
+- replace_selection
+- replace_match
+- append
+- delete
+- move
+- reorder_sections
+- rewrite
+- replace_document
+
+For `replace_match`: the `target` field specifies the fragment to match. If it's not unique, it might fail or pick the wrong one.
+
+Let me try using `editor.locate` first to confirm uniqueness.
+
+OK, enough deliberation. Let me try a pragmatic approach: I'll use editor.locate to find the key fragments, then construct the write commands.
+
+Actually, let me just go ahead and try the writes. The system can return errors if matches aren't unique. Let me try:
+
+Command 1: Delete duplicate from "背景参考资料"  
+- replace_match with target = a unique fragment that bridges the end of real content and start of duplicate
+
+Command 2: Insert heading in "菌膜外套与共存补丁的关系"
+- replace_match inserting "## 故事总览\n\n" before "在大裂谷走廊"
+
+Let me try to construct unique-enough fragments.
+
+For Command 1: The fragment bridging from "背景参考资料" content to the duplicate:
+
+"...不可战胜"的承认。\n\n数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。"
+
+But this might still match in both locations. Let me try to include something unique from before the duplicate that only appears in "背景参考资料".
+
+The unique content before the duplicate in "背景参考资料" is the "三、总结：人类真正被压制的根本机制" text. Let me use a fragment from there.
+
+Actually, let me just try the simplest approach and see what happens. Let me construct one write with two commands.
+
+Let me use editor.locate first to find exact unique fragments.
+
+For "背景参考资料", I want to find the boundary. Let me locate:
+
+"是不可战胜"的承认。\n\n数据板的局限"
+
+This should help me understand if it's unique.
+
+For "菌膜外套与共存补丁的关系", I want to locate:
+
+"菌膜外套是权宜之计，共存补丁是终极解法。\n\n在大裂谷走廊"
+
+OK, let me just use editor.locate for these two fragments first.
+
+Hmm, actually the system said I've been reading too much and need to write. Let me just construct the write commands and try them. If they fail, I'll adjust.
+
+Let me build the Stage 1 write commands:
+
+Command 1 (delete duplicate): 
+- operation: replace_match
+- target: the duplicate text
+- content: "" (empty - deletion)
+
+I need the exact text. From the read output, the duplicate starts with:
+
+```
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。
+```
+
+And continues to the end of the section. This is about 545 chars. Let me use a shorter unique fragment that I can be sure about.
+
+Actually, let me take a completely different approach. Instead of trying to delete the duplicate by matching it, let me:
+
+1. Use `rewrite` to rewrite the "背景参考资料" section to end properly without the duplicate
+2. Or use a combination of simpler operations
+
+But `rewrite` replaces the entire section, which could be dangerous with a 6500-char section.
+
+Let me just try the replace_match approach with a reasonable fragment. Even if it's not perfectly unique, the system should give me a useful error.
+
+Let me try:
+
+Target: `人类对"不可战胜"的承认。\n\n数据板的局限`
+
+This bridges the end of the real content with the start of the duplicate. It should be unique because:
+- The standalone "数据板的局限" section wouldn't have "人类对"不可战胜"的承认。" before it
+- Actually wait, the standalone section starts with `## 数据板的局限\n\n数据板不是百宝箱...` not `数据板的局限\n数据板不是百宝箱...`
+
+Hmm, the section title format might differ. The standalone section has `## 数据板的局限` while the duplicate in "背景参考资料" might be just `数据板的局限` (without ##).
+
+Let me check: from the read output of "背景参考资料", I see at the end:
+`数据板的局限\n数据板不是百宝箱。`
+
+This doesn't have `##` prefix, so it's just plain text, not a heading. The standalone section has `## 数据板的局限` as its heading.
+
+So my fragment `人类对"不可战胜"的承认。\n\n数据板的局限` should be unique - it only appears in "背景参考资料", not in the standalone section.
+
+Let me try this. But wait - I need to match the actual characters in the document, not the escaped version. The `\n\n` in my read output represents two actual newline characters. And `"` might be actual `"` or `"` or `"` depending on the encoding.
+
+Let me use a fragment that avoids ambiguous characters. Let me try:
+
+`承认。\n\n数据板的局限\n数据板不是百宝箱`
+
+This should work. Let me construct the write command now.
+
+For command 2, the target fragment for inserting the heading:
+`菌膜外套是权宜之计，共存补丁是终极解法。\n\n在大裂谷走廊`
+
+Replacement: `菌膜外套是权宜之计，共存补丁是终极解法。\n\n## 故事总览\n\n在大裂谷走廊`
+
+OK let me just go ahead and write. I'll include both commands in one editor.write call.
+
+Wait, I also need to handle the "菌膜外套与共存补丁的关系" section - the current content of that section under 卷三's 七、变异体主动攻击人类核心机制 also has similar content (sections 7.8 and 7.9). But those are properly titled subsections. The issue is with the top-level "菌膜外套与共存补丁的关系" section having extra content.
+
+Let me also check: do I need to handle the 卷三 subsections 7.8 and 7.9 which have similar titles? Those seem to be properly placed within 卷三.
+
+OK, let me just focus on the top-level issues and do the write now.
+
+Let me construct the write:
+
+Commands:
+1. replace_match: target "承认。\n\n数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的" → "" (but this might not match exactly because of encoding)
+
+Actually, let me use a smaller unique fragment and just test:
+
+Target: "人类对\"不可战胜\"的承认。\n\n数据板的局限"
+
+Actually, I think the safest approach is to use editor.locate first with a reasonable fragment, then write.
+
+No - the user said to write directly. Let me just try.
+
+Let me use these two fragments that should be unique:
+
+Fragment 1 (for locating the duplicate start in "背景参考资料"):
+"承认。\n\n数据板的局限\n数据板不是百宝箱"
+
+Fragment 2 (for inserting heading):
+"菌膜外套是权宜之计，共存补丁是终极解法。\n\n在大裂谷走廊，铁壁要塞"
+
+OK let me try a single write with both commands.

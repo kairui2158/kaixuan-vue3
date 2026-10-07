@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-2-kwf15x",
+      "title": "叙事框架",
+      "kind": "heading",
+      "level": 2,
+      "path": "叙事框架"
+    },
+    "range": {
+      "start": 13,
+      "end": 63
+    },
+    "offset": 0,
+    "maxChars": 50,
+    "content": "## 叙事框架\n\n\n### 故事核心\n\n自然成了人类最大的灾难，人类在灾难面前分裂成利用者、自保者和",
+    "hasMore": true,
+    "nextCursor": "section:heading-2-kwf15x:50",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

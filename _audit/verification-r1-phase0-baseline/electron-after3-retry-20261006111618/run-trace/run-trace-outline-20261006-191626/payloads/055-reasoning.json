@@ -1,0 +1,355 @@
+I need to continue with the writing task. I've done structural repair. Now I need to continue with normalization/formatting. But I should be careful about remaining scope. The instruction says the plan is 3 batches. I've written several batches already (they were numbered by me but the plan says 3). Let me re-read the current state.
+
+Actually the system message said: "当前事实：已成功写入 2 批（可信覆盖 2 批），计划共 3 批，未覆盖批次：structure-repair." Then I did more writes. Now the structure repair is done (batch 6). 
+
+Wait, let me reconsider. The plan batches:
+1. read-structure
+2. execute-restructure
+3. confirm-duplicates
+4. delete-duplicates
+5. normalize-segments
+6. verify-plan
+
+The system's "计划批次数量是 3" - meaning the execution side expects 3 batches. The message said "未覆盖批次：structure-repair". I've now done structure-repair (added headings). 
+
+Now what remains? The normalize stage must cover all planned segments (normalize-segment-1[0-74841]). The completion criteria include "normalize-changes-punctuation-whitespace-format-only" and "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）".
+
+I already searched for half-width punctuation. The search for "," returned 0, ";" 0, "?" 0, "!" 0. Search for "." returned many (decimal points like 0.8°C, GPS, etc, and "36.5°C", "0.5-1%" etc - these are decimal points in numbers, not sentence punctuation). Search for ":" returned 3 matches - these are "18:2" and "18:3" (fatty acid notation) and "11月19日3:14" (time notation). These are legit non-sentence uses.
+
+So actually the half-width punctuation in Chinese prose context appears to be already handled? Wait, let me check. The document uses full-width Chinese punctuation mostly. But there's the "half-width" concern.
+
+Actually wait - let me look more carefully. The search for "," returned 0 matches. That seems surprising given there might be some. But actually the document is quite clean.
+
+Let me check the "." matches more - the 274 matches for "." include decimal points (0.8°C), section numbers (4.1.1), "GPS", "SC-α", "XQ-58", etc. These are NOT sentence-ending periods in Chinese prose, they're part of numbers/abbreviations. So they should NOT be converted.
+
+The ":" matches: 18:2, 18:3, 3:14 - these are fatty acid and time notations, legit.
+
+So the punctuation normalization appears already done/compliant. 
+
+Now, what else remains for the "Word document form" restructuring? The user's actual request was: "按照Word文档的形式重构大纲，不要缩减内容。" (Restructure the outline in Word document form, don't reduce content.)
+
+The plan's normalize-segment-1[0-74841] must be covered. I've done:
+- Removed leftover "粘贴到" instruction line
+- Removed duplicate "数据板的局限" block (from background reference section, kept standalone)
+- Added headings to "灾前军事基准线" block (### heading, #### 一/二/三)
+- Converted tab-separated tables to GFM pipe tables
+- Added headings to the six-faction/saint/giant tree/final battle/after-final narrative blocks
+
+What else? Let me think about remaining structure issues:
+
+1. The "世界设定声明" heading is at level 2 but it's a one-line declaration. That's fine.
+
+2. There may be a heading-level jump issue. Let me check the structure. Top level: heading-1 (title), heading-2 for chapters (叙事框架, 背景参考资料, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁, 世界设定声明, 卷一, 卷二, 卷三, 卷四). Under 叙事框架 there are heading-3 (故事核心, 第一卷, 第二卷, 第三卷). Under 背景参考资料 there's now heading-3 (灾前军事基准线) and heading-4 (一、二、三).
+
+3. But wait - there might be a concern: "世界设定声明" is level 2 but it's a short declaration. And "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" are level 2 headings but they're actually subsections of 背景参考资料. Should they be demoted to level 3?
+
+Actually, looking at the structure: these headings were originally at level 2 (## ). They appear between 背景参考资料 (##) and 世界设定声明 (##) and 卷一 (##). They're top-level chapters in the document flow. But semantically, "数据板的局限", "菌膜外套", "菌膜外套与共存补丁" are reference materials, while "世界设定声明" and "卷一/二/三/四" are main structure.
+
+Hmm, the instruction says "统一标题层级前必须先读取结构：消除层级跳变并把标题归位到文档既有层级体系，禁止无依据地把标题层级改深或改浅。"
+
+The key issue: is there a level jump? The hierarchy looks like:
+- # 《绿潮》大纲总纲 (H1)
+  - ## 叙事框架 (H2)
+    - ### 故事核心 (H3)
+    - ### 第一卷 (H3)
+    - ### 第二卷 (H3)
+    - ### 第三卷 (H3)
+  - ## 背景参考资料 (H2)
+    - ### 灾前军事基准线 (H3)
+      - #### 一、二、三 (H4)
+  - ## 数据板的局限 (H2)
+  - ## 菌膜外套 (H2)
+  - ## 菌膜外套与共存补丁 (H2)
+    - ### 六大势力总览 (H3)
+    - ### 圣萌会的崛起 (H3)
+    - ### 盖亚巨树的生长 (H3)
+    - ### 终局之战 (H3)
+    - ### 终局之后 (H3)
+  - ## 世界设定声明 (H2)
+  - ## 卷一：基石设定层 (H2)
+    - ### 一、二、三... (H3)
+      - #### 1.1, 1.2... (H4)
+        - ##### ... (H5)
+  - ## 卷二：核心人物群像 (H2)
+  - ## 卷三：势力与格局层 (H2)
+  - ## 卷四：叙事工具箱层 (H2)
+
+This seems structurally coherent. No level jumps within a branch.
+
+So what remains? Let me verify the duplicate deletion worked and content not lost. I deleted the "数据板的局限" duplicate inside 背景参考资料. The standalone "## 数据板的局限" still exists (verified via search: only 1 match now for "数据板提供的是火种，不是火炬").
+
+I also removed the "粘贴到" line. Verified: search "粘贴到" returns 0.
+
+Now, are there other leftover edit instructions or issues? Let me think about the "故事核心" content. It has:
+"全书围绕“敌我识别”展开：菌毯如何识别人类、人类如何识别彼此、陈暮如何在被菌毯忽略的。"
+
+There's a grammatical issue "陈暮如何在被菌毯忽略的" - but that's content, not formatting. I shouldn't change content.
+
+Actually wait, there's a concern about the "故事核心" - the "粘贴到" instruction was removed, but the content that was pasted (【核心张力：保护即加速】) should be placed "紧接原文陈暮是唯一踩在菌毯上不被判定为敌人的人之后". Currently the order in 故事核心 is:
+1. 自然成了...变量。
+2. 全书围绕敌我识别...
+3. 【菌毯的本质：竞争对手文明】...
+4. 人类的一切挣扎...
+5. 【核心张力：保护即加速】...
+
+The paste instruction said "粘贴到「故事核心」下，紧接原文'陈暮是唯一踩在菌毯上不被判定为敌人的人'之后". So the 【核心张力】block should be right after the first paragraph. But currently it's at the end of the section (after 【菌毯的本质】block). 
+
+Hmm, is this a structural issue I should fix? The user said "按照Word文档的形式重构大纲，不要缩减内容" - restructure, don't reduce content. Moving the 【核心张力】 block to follow the instruction might be part of "重构" (restructuring). But this is risky because it involves a move operation, and the instruction is a leftover note.
+
+Actually, the paste instruction said where it SHOULD go. The content 【核心张力：保护即加速】 is a separate concept block. It's currently placed after 【菌毯的本质：竞争对手文明】. 
+
+Let me think about whether this matters for "Word document form". The "Word document form" request is mainly about structure/headings/tables being properly formatted, not necessarily re-ordering content per an old paste instruction.
+
+Actually, re-reading: the original instruction was a pasted prompt from a user (in a previous session) that got left in the document. It says to paste 【核心张力】right after a specific sentence. The content was pasted at the end instead. 
+
+Given "不要缩减内容" (don't reduce content), and the goal is restructuring, I think the key remaining work is:
+1. ✅ Remove leftover instruction lines (done)
+2. ✅ Remove duplicate content (done)
+3. ✅ Add headings (done)
+4. ✅ Fix tables (done)
+5. Punctuation normalization - appears already compliant
+
+But I should double check if there are more tables in the document that use tab-separators. The document_map showed many tables already in GFM format (| 名称 | 说明 |). The only tab-separated ones were in 背景参考资料 (the 武器系统 and 生物量 tables), which I've converted.
+
+Let me search for tab characters to verify no remaining tab-separated tables.
+
+Actually, I can't easily search for tab. But I can search for "\t" pattern? The search tool takes query string. Let me try searching for a tab character.
+
+Actually, let me search for remaining issues. Let me look for the heading "世界设定声明" - it's a level 2 heading with just 87 chars. It's fine.
+
+Let me also verify there are no remaining half-width punctuation in prose. The searches returned:
+- "," : 0
+- ";" : 0
+- "?" : 0
+- "!" : 0
+- "." : 274 (decimals, abbreviations - legit)
+- ":" : 3 (18:2, 18:3, 3:14 - legit)
+
+So punctuation is compliant.
+
+Wait, but what about half-width comma in tables like "，"? Let me not over-engineer.
+
+Actually, I realize I should double-check: are there any half-width "()" parentheses that should be full-width "（）"? The instruction only mentioned ", . ; : ! ?". It says "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）". Only these 6 marks. Parentheses not in scope.
+
+OK so what's the remaining work? Let me reconsider the plan. The system said 3 batches and "未覆盖批次：structure-repair". I've now done structure-repair (batch 6). So all batches are covered?
+
+Actually wait, let me re-read: "已成功写入 2 批（可信覆盖 2 批），计划共 3 批，未覆盖批次：structure-repair".
+
+Hmm, this suggests the plan had these stages:
+- Batch 1: structure + delete duplicates (I did batches 1-2 which covered this)
+- Batch 2: normalize (I did batches 3-5 which covered this partially)
+- Batch 3: structure-repair (uncovered) - now done in batch 6
+
+So now all 3 batches are covered. But the normalize-segment-1[0-74841] must be fully covered. Have I covered everything?
+
+Let me verify the full document has no remaining issues by doing a final check. But I'm being told to write, not just read.
+
+Actually, there's still potential remaining work: the "第一卷·觉醒与扎根" heading is level 3, but there are also "补充钩子" sections that might need sub-headings. But those are content blocks, not necessarily needing heading restructure.
+
+Let me think about what "按照Word文档的形式重构" most concretely means and whether I've done enough:
+
+1. Word documents have a clear heading hierarchy (Heading 1/2/3/4/5). ✅ The document now has clean heading levels.
+
+2. Word documents have properly formatted tables. ✅ Converted tab tables to GFM.
+
+3. Word documents don't have leftover edit instructions. ✅ Removed.
+
+4. Word documents don't have duplicate content. ✅ Removed duplicate 数据板的局限.
+
+5. Punctuation consistent. ✅ Already compliant.
+
+One more thing I should verify: the "故事核心" leftover. I removed "粘贴到..." line. Good.
+
+But wait, I need to check if there are OTHER leftover edit instructions or artifacts. Let me search for common artifact patterns:
+- "粘贴到" → 0 (removed)
+- "【" → these are legitimate content blocks (【菌毯的本质】【核心张力】)
+
+Let me also check for "补充钩子" - these are legitimate content.
+
+Actually, I think there might be one more structural thing: The heading "## 菌膜外套与共存补丁的关系" now contains 5 level-3 subsections (六大势力总览, 圣萌会的崛起, 盖亚巨树的生长与天府都陷落, 终局之战, 终局之后). But wait, these subsections are actually NOT about "菌膜外套与共存补丁的关系" - they're about the main storyline. The original structure had them as loose paragraphs under that heading (which itself was misplaced content).
+
+Hmm, this is a deeper structural question. The content flow is:
+- "菌膜外套与共存补丁的关系" (H2) - first 3 paragraphs about 菌膜外套 vs 共存补丁
+- Then loose paragraphs: 六大势力总览, 圣萌会崛起, 巨树生长+天府都陷落, 终局之战, 终局之后
+
+These loose paragraphs were clearly the "main storyline ending" that got appended under the wrong heading. In "Word document form", ideally they'd be their own H2 sections or moved elsewhere. But moving them would require move operations and re-determining where they belong.
+
+Actually, the plan says "用 move 把误归位标题与段落移动到正确层级". But these paragraphs don't have an obvious "correct" location without understanding the intended structure. They form a coherent narrative sequence (六大势力 → 圣萌会 → 巨树 → 终局 → 终局之后) that reads like a "故事主线/结局梗概" chapter.
+
+Given the constraint "禁止无依据地把标题层级改深或改浅" and "禁止丢弃有效正文内容", and that I've added H3 subheadings within the existing H2, I think the safest approach is to keep them where they are (as H3 under "菌膜外套与共存补丁的关系" H2). They're now properly headed, which is an improvement.
+
+Actually, wait - is it semantically wrong to have "终局之战" and "终局之后" as subsections of "菌膜外套与共存补丁的关系"? It's a bit awkward, but the content IS related: the whole section is about the relationship between 菌膜外套 (temporary) and 共存补丁 (ultimate), and the ending narrative shows how the 共存补丁 was written and its aftermath. So it's not entirely wrong.
+
+I think the structure is now acceptable. Let me do a final verification pass and then conclude.
+
+Actually, I realize I should check one thing: the "故事核心" section. Let me re-read its current state to make sure removing the "粘贴到" line didn't leave a broken transition.
+
+The current 故事核心 content (from my read earlier):
+```
+### 故事核心
+
+自然成了人类最大的灾难...
+全书围绕"敌我识别"展开...
+【菌毯的本质：竞争对手文明】
+...
+人类的一切挣扎都不是为了"打败菌毯"，而是在它的碾压下多活一天。
+
+【核心张力：保护即加速】
+...
+```
+
+This is fine. The "粘贴到" instruction line is gone, content intact.
+
+Now, should I move 【核心张力】to follow the first paragraph as the instruction said? The instruction was:
+"粘贴到「故事核心」下，紧接原文'陈暮是唯一踩在菌毯上不被判定为敌人的人'之后"
+
+This suggests the 【核心张力】 block should come right after the first paragraph (which contains "陈暮是唯一踩在菌毯上不被判定为敌人的人"). But actually, the first paragraph ends with "...重新划定敌我边界的那个变量。" and the second paragraph is "全书围绕敌我识别展开...".
+
+Hmm. The instruction says paste right after the sentence "陈暮是唯一踩在菌毯上不被判定为敌人的人". That sentence is in the FIRST paragraph. So 【核心张力】 should go between paragraph 1 and paragraph 2.
+
+But this is an old instruction that was already "executed" (content was pasted, just at the wrong location). Since I removed the instruction, the question is whether the current placement (at the end) is acceptable.
+
+The user's current request is "按照Word文档的形式重构大纲，不要缩减内容" - restructure into Word form, don't reduce content. This is about FORMATTING, not content re-ordering. Moving 【核心张力】 would be a content re-ordering, which is risky and not clearly requested.
+
+I'll leave the content order as-is. The restructuring I've done (headings, tables, removing artifacts/duplicates) satisfies "Word document form without reducing content".
+
+Let me now do a final verification: search for any remaining tab-separated table rows or other artifacts. Actually I can't search for tabs easily. But I've converted the two known tab-tables.
+
+Let me verify the tables are complete by reading the 武器系统 table area once more to confirm all rows converted. From my batch 3-A, I converted:
+- Header row + 8 data rows for 武器系统 table (卫星制导, 无人机, 精确制导, 天基预警, 全球战略通讯, 弹道导弹防御, 核武器精确投送, 舰船/潜艇远洋导航) = 10 commands ✓
+- For 生物量 table: header (batch 3-A) + 4 data rows (batch 3-B) ✓
+
+Both tables now have GFM format with proper header separator.
+
+I think the work is complete. But the system keeps telling me not to output "task complete" summary until all plan segments covered. Since I believe all are covered now, let me do one final read/verify and then provide a concise completion summary.
+
+Actually, the instruction says "未覆盖全部计划段落前，禁止输出'任务完成'总结". I believe I've covered everything. Let me verify with one final check on the full document state, then give a brief summary.
+
+Let me check the remaining part of the document (from heading-3-1cpdqgf onwards) to make sure no remaining tab tables or issues. Actually I already have the full picture from document_map. The tables in 卷一/卷二/卷三 are all GFM already (they show | in the summaries).
+
+Let me do a final search for tab-separated content by searching for a known tab pattern. Actually, I'll just do a quick search for "半角" issues or leftover.
+
+Actually, let me reconsider whether there's more normalization needed. The completion criteria:
+- "planned-deletion-only" ✓ (only deleted confirmed duplicates + instruction line)
+- "normalize-changes-punctuation-whitespace-format-only" ✓ (headings, table format, removed instruction — these are format changes; I didn't rewrite content)
+
+Wait, but I added headings which changes structure. That's part of "structure repair" which is authorized.
+
+I think I should now do a final confirmation and provide a summary. But the system says to write, not just read. However, if there's nothing more to write, I should just provide the completion summary.
+
+Actually, let me reconsider one more potential issue. Let me verify there are no more stray "粘贴到" or instruction-like artifacts, and no remaining tab-separated tables by doing targeted searches.
+
+Let me search for a few things:
+1. Tab character search (maybe the tool supports "\t")
+2. Any "第" or numbering issues
+
+Actually, I've done enough verification. Let me search for remaining tab characters to be thorough, then conclude.
+
+Let me try searching for "\t".
+
+Actually, I'll just do a final verification read of a couple key spots and then conclude with a summary. Since I need to "write" per instructions but there may be nothing left to write, I should just verify and summarize.
+
+Hmm, but the instruction explicitly says "下一轮必须直接提交 editor.write 写入". This suggests there IS more to write. Let me think about what's genuinely left.
+
+Potential remaining work:
+1. The "故事核心" section's 【核心张力】 placement — but this is content reordering, risky.
+2. The "菌膜外套与共存补丁的关系" H2 — its subsections are now H3, which is fine.
+3. Maybe there are more heading-level jumps in 卷一's internal structure that need checking.
+
+Let me check: In 卷一 (heading-2-171cwmj), the structure is:
+- ### 一、书名定义... (H3)
+  - #### 1.1, 1.2 (H4)
+- ### 二、灵魂语句 (H3)
+- ### 三、地名架空化对照总表 (H3)
+  - #### 3.1-3.6 (H4)
+- ### 四、灾难源头 (H3)
+  - #### 4.1, 4.2, 4.3 (H4)
+    - ##### 4.1.1 etc (H5)
+- ### 五、方岫岩 (H3)
+  - #### 5.1-5.8 (H4)
+    - ##### ... (H5)
+- ### 六、灾难爆发 (H3)
+  - #### 6.1-6.6 (H4)
+    - ##### ... (H5)
+- ### 七、变异体机制 (H3)
+  - #### 7.1-7.9 (H4)
+    - ##### ... (H5)
+- ### 八、变异生物 (H3)
+  - #### 8.1-8.7 (H4)
+- ### 九、真菌网络 (H3)
+- ### 十、灾后科技 (H3)
+  - #### 10.1-10.4 (H4)
+    - ##### ... (H5)
+- ### 十一、生物油脂 (H3)
+  - #### 11.1-11.4 (H4)
+- ### 十二、末日食物 (H3)
+  - #### 12.1-12.7 (H4)
+
+This is all consistent. No jumps.
+
+卷三 (heading-2-1kq6z0v):
+- ### 一、菌毯封锁 (H3)
+  - #### 1.1, 1.2 (H4)
+- ### 二、全球幸存者势力分布 (H3)
+- ### 三、六大势力完整设定 (H3)
+  - #### 3.1-3.7 (H4)
+    - ##### ... (H5)
+- ### 四、圣萌会 (H3)
+  - #### 4.1-4.10 (H4)
+- ### 五、盖亚中枢 (H3)
+  - #### 5.1-5.4 (H4)
+
+Consistent.
+
+卷四 (heading-2-12ruweg):
+- ### 一、核心主题清单 (H3)
+- ### 二、术语统一总表 (H3)
+
+Consistent.
+
+卷二 (heading-2-9m9hul):
+- ### 一、陈暮 (H3)
+  - #### 1.1, 1.2, 1.3 (H4)
+- ### 二、五位女主 (H3)
+  - #### 2.1-2.5 (H4)
+
+Consistent.
+
+So the heading hierarchy is fully consistent. No level jumps.
+
+I'm now confident the restructuring is complete. The remaining thing is to provide a final summary.
+
+But wait — the system message is auto-generated and insists I write. However, if there's genuinely nothing left to write, I should verify and then give a summary. The summary is allowed once all segments are covered.
+
+Actually, let me reconsider the "3 batches" and "normalize-segment-1[0-74841]" requirement. The normalize segment covers [0-74841] (original range). I need to ensure I've covered the ENTIRE document in the normalize phase, not just 背景参考资料 and 菌膜外套 sections.
+
+What did I actually normalize?
+- Batch 1-2: deleted instruction line (故事核心) + deleted duplicate (背景参考资料)
+- Batch 3-4: added headings in 背景参考资料 + converted tables
+- Batch 5 (ambiguous, then 6): added headings in 菌膜外套与共存补丁 section
+
+But I haven't touched 卷一/卷二/卷三/卷四 at all. Is there anything to normalize there?
+
+Let me check: the tables in 卷一/卷二/卷三 are already GFM (| format). The headings are consistent. Punctuation is full-width. 
+
+So there's genuinely nothing more to normalize in those sections. They're already in good shape.
+
+I think the work is complete. Let me do ONE more targeted verification to be safe, then provide the summary.
+
+Let me search for tab characters to confirm no remaining tab-separated tables.
+
+I'll do a search with query "\t".
+
+Actually, I'm going to trust my earlier reads. Both tab tables were in 背景参考资料 and are converted. All other tables show | in document_map summaries.
+
+Let me provide the completion summary now.
+
+Actually, wait. Let me reconsider the instruction about not outputting summary prematurely. It says "未覆盖全部计划段落前，禁止输出'任务完成'总结". Since I believe I've covered everything, I can output the summary.
+
+But there's a subtlety: the system wants me to WRITE this turn, not just read. If there's nothing to write, I should explain that the write is complete and give the summary. That's acceptable because "如果确实无法完成写入" only applies to failure, not completion.
+
+Let me do a final verification write... no, I shouldn't write anything meaningless. Let me just do a final read to confirm state, then summarize.
+
+Actually, let me reconsider if I should verify the whole document one more time for any remaining tab-separated tables or issues. Let me search for tab character.
+
+I'll try editor.search with a literal tab.

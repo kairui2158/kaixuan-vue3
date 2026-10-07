@@ -1,0 +1,8 @@
+The plan has 3 batches:
+1. structure-repair - completed (just now, batch 7)
+2. duplicate deletion - completed (batches 5 and 6)  
+3. normalize-segment-1 - needs to be done
+
+Now I need to do the normalize-segment-1 pass which covers the entire document [0-73116] for punctuation normalization: half-width `, . ; : ! ?` in Chinese context → full-width `，。；：！？`.
+
+Let me first read the document in segments to find all instances that need normalization. I'll search for these characters systematically.

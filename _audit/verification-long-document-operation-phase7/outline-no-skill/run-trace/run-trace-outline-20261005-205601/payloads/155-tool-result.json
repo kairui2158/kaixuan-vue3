@@ -1,0 +1,35 @@
+{
+  "ok": true,
+  "data": {
+    "status": "written",
+    "batchId": "ai-edit-muv9imax-2",
+    "documentVersion": 6,
+    "contentHash": "fnv1a32_e15c04c5",
+    "repairPolicy": "该批次已写入成功，文档版本已变化。后续读取或写入前必须重新调用 editor.document_map / editor.get_state 获取当前 sectionId 与版本；后续修正请基于当前编辑器内容提交新命令，禁止重复提交本 batchId 的相同参数。",
+    "commandCount": 1,
+    "writtenLength": 74435,
+    "reveal": {
+      "mode": "stream",
+      "firstChange": true
+    },
+    "rollbackAvailable": true,
+    "coverage": {
+      "batchId": "ai-edit-muv9imax-2",
+      "segmentId": "structure-plan",
+      "expectedChange": "remove_duplicate",
+      "writeStrategy": "delete",
+      "coverageTrusted": true,
+      "reason": "declared_segment",
+      "commands": [
+        {
+          "operation": "delete",
+          "segmentId": "structure-plan",
+          "start": 16270,
+          "end": 16818
+        }
+      ],
+      "documentVersion": 6,
+      "contentHash": "fnv1a32_e15c04c5"
+    }
+  }
+}

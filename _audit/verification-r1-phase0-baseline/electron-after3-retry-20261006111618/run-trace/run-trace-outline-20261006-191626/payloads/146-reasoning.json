@@ -1,0 +1,69 @@
+The user wants me to restructure the outline into a Word document format. Let me understand what this means - they want the outline contents reorganized into a more standard document structure, likely with proper hierarchical headings and without the extra paragraph "内容块" markers that are artifacts of the document map.
+
+Looking at the current structure, the outline has many "内容块" (content block) paragraphs that are just empty or near-empty separator markers. These should be removed. The document should flow as a clean Word-like document with proper heading hierarchy.
+
+Let me also check for duplicate content. The user mentioned "分叉一允许去重" - branch one allows deduplication. Looking at the previous context, there are duplicate sections like 7.8/7.9 which also appear at the top level.
+
+Let me first understand the full structure and then plan the restructuring. The key task is:
+1. Remove empty "内容块" paragraphs
+2. Ensure clean heading hierarchy (H1 → H2 → H3 → H4 → H5)
+3. Remove duplicate sections
+4. Keep all substantive content
+
+Given the document is 74,586 characters, I should work through it systematically. Let me first check what duplicates exist and then plan the restructuring.
+
+From the document map, I see the structure:
+- H1: 《绿潮》大纲总纲 (0-74586)
+  - H2: 叙事框架 (13-10197)
+  - H2: 背景参考资料 (10197-16483)
+  - H2: 数据板的局限 (16483-17038)
+  - H2: 菌膜外套：有限资源的临时通行方案 (17038-17786)
+  - H2: 菌膜外套与共存补丁的关系 (17786-22364)
+  - H2: 世界设定声明 (22364-22461)
+  - H2: 卷一：基石设定层 (22461-55967)
+  - H2: 卷二：核心人物群像 (55967-60481)
+  - H2: 卷三：势力与格局层 (60481-72745)
+  - H2: 卷四：叙事工具箱层 (72745-74586)
+
+The "内容块" paragraphs are all just empty markers with 1-2 characters (just a newline). These should be removed.
+
+For duplicates, I need to check:
+- 7.8 and 7.9 appear within 卷一·七 AND also as top-level H2 sections
+- The top-level "菌膜外套" and "菌膜外套与共存补丁的关系" are the fuller versions
+- 7.8 and 7.9 within 卷一·七 are subsets
+
+The approach: This is a massive document. Let me read key sections to identify exact duplicates, then execute deletions. But given the size (74K chars), I need to be strategic.
+
+Let me focus on what I can do:
+1. Identify and delete empty "内容块" paragraphs
+2. Identify and delete duplicate subsections (7.8, 7.9 within 卷一)
+3. Keep the top-level versions
+
+Let me start by reading the duplicate sections more carefully.
+
+Actually, let me re-read the user's instruction: "按照Word文档的形式重构大纲，不要缩减内容。" This means restructure the outline into Word document format, don't reduce content. The "分叉一允许去重" means branch one allows deduplication.
+
+The user in the previous round said "符合我的要求，分叉一允许去重。不用出预览，直接写入" - they approved dedup and want direct writes.
+
+So my plan:
+1. Delete all empty "内容块" paragraphs (they are just structural artifacts)
+2. Delete duplicate subsections 7.8 and 7.9 within 卷一·七 (since they're strict subsets of the top-level versions)
+3. Ensure the final document has clean hierarchy
+
+Let me first understand which "内容块" are truly empty. From the document map, many are just 1-2 characters. Let me read a few to confirm.
+
+The issue is that I need to make many edits. Let me batch them efficiently.
+
+For deleting "内容块" paragraphs - I need to find their exact content. From the map:
+- paragraph-11m2iyd: 2 chars at 11-13
+- paragraph-11m2iyd~2: 2 chars at 21-23
+- paragraph-46bd25: 1 char at 12108-12109
+- etc.
+
+These are basically just blank lines. Let me try to delete them.
+
+But actually, these "内容块" are likely just empty paragraphs (just a newline). They appear after headings and before content. Let me check what they look like.
+
+Let me approach this differently. Instead of trying to delete each one individually (which would be 43+ operations), let me think about whether they actually appear as visible text in the document or are just artifacts of the document map parser.
+
+Let me read around one to see.

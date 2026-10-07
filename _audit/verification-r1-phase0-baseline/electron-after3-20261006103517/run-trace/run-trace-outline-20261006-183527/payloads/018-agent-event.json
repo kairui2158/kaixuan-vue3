@@ -1,0 +1,15 @@
+{
+  "snapshot": {
+    "taskId": "outline-direct-api-1791282930425-40",
+    "status": "failed",
+    "reason": "供应商服务异常：Error 1040: Too many connections (request id: 202610061035305454899398268d9d6D83wNEzi)",
+    "goal": "符合我的要求，分叉一允许去重。不用出预览，直接写入",
+    "stepIndex": 0,
+    "callCount": 1,
+    "successfulWriteCount": 0,
+    "noProgressRounds": 0,
+    "repeatedCallCount": 0,
+    "maxPhysicalRequests": 36,
+    "updatedAt": 1791282931910
+  }
+}

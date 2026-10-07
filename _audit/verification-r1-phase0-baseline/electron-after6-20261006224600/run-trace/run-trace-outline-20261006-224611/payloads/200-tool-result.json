@@ -1,0 +1,8 @@
+{
+  "ok": false,
+  "error": {
+    "code": "target_not_found",
+    "message": "片段不存在，请重新复制原文；优先使用结构锚点缩小目标：heading-1-mizom9 《绿潮》大纲总纲 | heading-2-kwf15x 叙事框架 | heading-3-1heodug 故事核心 | heading-4-vvku0m 菌毯的本质：竞争对手文明 | heading-4-rrgzy8 核心张力：保护即加速",
+    "retryable": true
+  }
+}

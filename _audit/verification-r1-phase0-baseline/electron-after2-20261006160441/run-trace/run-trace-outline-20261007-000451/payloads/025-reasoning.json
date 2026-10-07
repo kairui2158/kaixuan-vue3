@@ -1,0 +1,90 @@
+Let me analyze the current state of the document and plan the next steps.
+
+The user wants to restructure the outline into a Word document format without reducing content. I've already:
+
+1. Deleted a duplicate "数据板的局限" section that was floating at the end of "背景参考资料"
+2. Fixed some heading levels in "背景参考资料" (added ### and #### to untitled sections)
+
+Now I need to:
+1. Read the rest of the document map to understand the full structure
+2. Identify and fix any remaining issues:
+   - Duplicate content (I see "菌膜外套：有限资源的临时通行方案" appears both as heading-2-10q4nra and heading-4-896l1n, and "菌膜外套与共存补丁的关系" appears as heading-2-28do6r and heading-4-1au19n4)
+   - Heading level normalization
+   - Punctuation normalization (half-width to full-width)
+
+Let me first get the full document map to understand the complete structure, then I can plan the normalization.
+
+Let me think about what needs to happen:
+
+1. There are duplicate content sections that appear both as top-level (##) sections between "背景参考资料" and "世界设定声明" AND as subsections within "卷一：基石设定层":
+   - "菌膜外套：有限资源的临时通行方案" - appears as ## heading-2-10q4nra AND as #### heading-4-896l1n (in section 七)
+   - "菌膜外套与共存补丁的关系" - appears as ## heading-2-28do6r AND as #### heading-4-1au19n4 (in section 七)
+
+Wait, actually looking more carefully, these are not simple duplicates. The ## level versions between "背景参考资料" and "世界设定声明" contain additional content (like the 六大势力 summaries, 圣萌会, and the 终局之战 story). The #### versions within 卷一 are condensed versions.
+
+Actually, looking at the content more carefully:
+- heading-2-10q4nra (## 菌膜外套) is 728 chars - this is the standalone version
+- heading-4-896l1n (#### 7.8 菌膜外套) is 663 chars - this is within the numbered system
+
+These appear to be intentional duplicates serving different structural purposes. The top-level ## versions are "reference" sections while the #### versions are within the formal numbered system.
+
+Wait, but the user wants a "Word document format" - meaning a clean hierarchical structure. Having the same content in two places is not a good Word document format. However, the user said "不要缩减内容" (don't reduce content).
+
+Let me reconsider. The ## level sections between "背景参考资料" and "世界设定声明" contain unique narrative content that is NOT in the formal numbered system:
+- heading-2-28do6r contains: 六大势力 summaries + 圣萌会 story + 终局之战 + post-ending. This is unique narrative content.
+- heading-2-10q4nra: contains the same菌膜外套 content as 7.8
+- heading-2-z4sxm8: contains the same 数据板的局限 content as was already in 背景参考资料
+
+So the situation is more complex. The ## sections contain both unique content (narrative summaries of the factions,圣萌会,终局) AND duplicated content (菌膜外套, 数据板的局限).
+
+For the "Word document format", I need to:
+1. Keep all unique content
+2. Eliminate true duplicates while preserving the content in its proper place
+3. Fix heading levels
+4. Normalize punctuation
+
+Let me focus now on the immediate next steps. I should:
+1. Read the full document map (remaining sections)
+2. Check for half-width punctuation issues
+3. Plan the normalization
+
+Let me continue reading the document map and check for the duplicate situation more carefully.
+
+Actually, let me re-read the current state. The section heading-2-28do6r starts at 17575 and goes to 22090. It contains:
+- 菌膜外套与共存补丁的关系 text (duplicate of section 7.9)
+- 六大势力 narrative summaries (unique)
+- 圣萌会 story (unique)
+- 终局之战 (unique)
+- Post-ending (unique)
+
+But wait, the six factions are also covered in 卷三 in much more detail. The version in heading-2-28do6r is more of a narrative summary.
+
+For the Word document format restructuring, I think the best approach would be:
+- The ## sections between 背景参考资料 and 世界设定声明 contain "mid-level" summaries that serve as bridges
+- Some content is duplicated (数据板的局限, 菌膜外套)
+- Some content is unique narrative that doesn't have a home elsewhere (六大势力 narrative summaries, 圣萌会 story, 终局之战)
+
+Since the user wants a Word document format and said "不要缩减内容", I should:
+1. Eliminate true duplicates but keep the unique narrative content
+2. Reorganize into a proper hierarchical structure
+
+But this is a very complex restructuring that goes beyond simple normalization. Let me focus on what I can do:
+
+1. Fix half-width punctuation (critical requirement)
+2. Address the duplicate issue for the already-identified duplications
+3. Fix heading level issues
+
+Let me start by reading more of the document and then executing the punctuation normalization in batches.
+
+Actually, given the complexity, let me focus on the most impactful changes:
+1. First, normalize punctuation (half-width → full-width) across the whole document
+2. Then address remaining structural issues
+
+Let me read more sections and submit writes.
+
+Actually wait - the plan says I should focus on 3 batches:
+- normalize-segment-1[0-74841] - covering all paragraphs
+
+Let me think about what specific issues need to be fixed and execute them efficiently.
+
+Let me search for half-width punctuation issues in the document.

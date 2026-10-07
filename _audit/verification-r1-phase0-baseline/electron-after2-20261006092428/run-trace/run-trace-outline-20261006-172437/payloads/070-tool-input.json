@@ -1,0 +1,29 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "灾前军事基准线与菌毯的不可根除性",
+      "content": "### 灾前军事基准线与菌毯的不可根除性",
+      "reason": "为背景参考资料中的无标题正文补标题层级"
+    },
+    {
+      "operation": "replace_match",
+      "target": "一、2042年，人类手里有什么",
+      "content": "#### 一、2042年，人类手里有什么",
+      "reason": "为背景参考资料中的无标题正文补标题层级"
+    },
+    {
+      "operation": "replace_match",
+      "target": "二、菌毯为什么火力推不平",
+      "content": "#### 二、菌毯为什么火力推不平",
+      "reason": "为背景参考资料中的无标题正文补标题层级"
+    },
+    {
+      "operation": "replace_match",
+      "target": "三、总结：人类真正被压制的根本机制",
+      "content": "#### 三、总结：人类真正被压制的根本机制",
+      "reason": "为背景参考资料中的无标题正文补标题层级"
+    }
+  ],
+  "reason": "structure-repair：为背景参考资料中的无标题伪标题段落补标题层级，不缩减内容"
+}

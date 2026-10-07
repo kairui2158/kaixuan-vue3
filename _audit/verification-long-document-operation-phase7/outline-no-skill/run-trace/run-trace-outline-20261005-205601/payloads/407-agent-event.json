@@ -1,0 +1,12 @@
+{
+  "taskId": "edit-task-1791205287879-1",
+  "batchId": "ai-edit-muv9ziay-5",
+  "segmentId": "normalize-segment-1",
+  "range": {
+    "startLine": 0,
+    "endLine": 46748
+  },
+  "writeStrategy": "replace_match",
+  "expectedChange": "normalize",
+  "estimatedBatches": 5
+}

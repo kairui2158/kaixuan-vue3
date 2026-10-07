@@ -1,0 +1,30 @@
+{
+  "taskId": "edit-task-1791298304395-1",
+  "status": "awaiting_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "阶段一·背景参考资料：将误排为正文的“灾前军事基准线”各级小标题恢复为正式标题层级，不改写正文。",
+  "executedBatches": [
+    "ai-edit-muwsrdka-1"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "阶段一·背景参考资料：将误排为正文的“灾前军事基准线”各级小标题恢复为正式标题层级，不改写正文。",
+    "batches": [
+      "ai-edit-muwsrdka-1"
+    ],
+    "batchDetails": {
+      "ai-edit-muwsrdka-1": {
+        "segmentId": "structure-repair",
+        "expectedChange": "restructure",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "structure_repair",
+        "invariantResult": "planned-deletion-only"
+      }
+    }
+  }
+}

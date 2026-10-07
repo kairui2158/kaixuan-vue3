@@ -1,0 +1,46 @@
+The user wants me to reorganize the outline into a Word-document style format without reducing content. Let me review what I've accomplished so far:
+
+1. ✅ Moved "世界设定声明" to the beginning (before narrative framework)
+2. ✅ Deleted duplicate "数据板的局限" text from 背景参考资料
+3. ✅ Downgraded "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" from H2 to H3, nested under 背景参考资料
+4. ✅ Added H3 heading for "灾前军事基准线与菌毯的不可根除性" 
+5. ✅ Deleted residual edit instruction text ("粘贴到「故事核心」下...")
+6. ✅ Normalized spacing (removed extra blanks, normalized double spaces to single)
+7. ✅ Fixed Chinese punctuation (half-width spaces after periods)
+
+Now I need to check the current state and verify what else needs to be done. The current structure looks like:
+
+```
+# 《绿潮》大纲总纲
+## 世界设定声明
+## 叙事框架
+### 故事核心
+### 第一卷·觉醒与扎根
+### 第二卷·连接与陷落
+### 第三卷·远征与暗流
+## 背景参考资料
+### 灾前军事基准线与菌毯的不可根除性
+### 数据板的局限
+### 菌膜外套：有限资源的临时通行方案
+### 菌膜外套与共存补丁的关系
+[六大势力概述 + 圣萌会概述 + 终局概述]
+## 卷一：基石设定层
+## 卷二：核心人物群像
+## 卷三：势力与格局层
+## 卷四：叙事工具箱层
+```
+
+Let me check if the structure looks good and if there are remaining issues. The current top-level ordering as confirmed from the document map:
+- heading-2-sd0mn1: 世界设定声明 (at position 13, first after title)
+- heading-2-kwf15x: 叙事框架 (at position 109)
+- heading-2-1lka0h8: 背景参考资料 (after 叙事框架)
+- heading-2-171cwmj: 卷一：基石设定层
+- heading-2-9m9hul: 卷二：核心人物群像
+- heading-2-1kq6z0v: 卷三：势力与格局层
+- heading-2-12ruweg: 卷四：叙事工具箱层
+
+This is a reasonable Word document structure. The 世界设定声明 is at the beginning as requested. The 背景参考资料 section now properly contains everything that was scattered.
+
+Let me verify there aren't remaining issues and the document is clean. Let me do a final check on the normalize-segment requirement - the plan says I need to cover the full document range [0-74253].
+
+Let me do a final comprehensive check on any remaining formatting issues.

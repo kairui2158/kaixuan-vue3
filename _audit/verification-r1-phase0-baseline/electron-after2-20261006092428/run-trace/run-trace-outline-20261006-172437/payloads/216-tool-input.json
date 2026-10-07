@@ -1,0 +1,11 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "reason": "structure-repair：为“菌膜外套与共存补丁的关系”标题下混入的势力速览与终局正文补独立标题，纠正误归位，不改写正文",
+      "target": "共存补丁是终极解法。\n\n\n在大裂谷走廊",
+      "content": "共存补丁是终极解法。\n\n## 势力速览与终局\n\n在大裂谷走廊"
+    }
+  ],
+  "reason": "structure-repair：将误归位到“菌膜外套与共存补丁的关系”下的势力速览与终局正文分离为独立标题，保持有效正文完整"
+}

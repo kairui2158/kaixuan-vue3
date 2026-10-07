@@ -250,46 +250,19 @@ describe('createAgentDialogueRuntime', () => {
     expect(forwarded.tools?.map(tool => tool.name)).toContain('agent.plan')
   })
 
-  it('exposes sub-agent tools only to the outer dialogue agent', async () => {
+  it('retires sub-agent control tools on dialogue runs', async () => {
     const callAi = vi.fn(async (): Promise<CallAiResult> => successResult())
-    const runSubAgent = vi.fn(async ({ taskId, goal }: { taskId: string; goal: string }) => ({
-      taskId,
-      status: 'completed' as const,
-      text: '子任务完成',
-      events: [],
-      snapshot: {
-        taskId,
-        status: 'completed' as const,
-        goal,
-        stepIndex: 0,
-        callCount: 1,
-        successfulWriteCount: 0,
-        noProgressRounds: 0,
-        repeatedCallCount: 0,
-        maxPhysicalRequests: 8,
-        updatedAt: Date.now(),
-      },
-    }))
 
-    const outerRuntime = createAgentDialogueRuntime({ ...entry, runSubAgent })
-    const outerResult = await outerRuntime.run({
+    const runtime = createAgentDialogueRuntime({ ...entry })
+    const result = await runtime.run({
       purpose: 'generate',
-      messages: [{ role: 'user', content: '外层任务' }],
+      messages: [{ role: 'user', content: '整理当前段落' }],
       callAi,
     })
-    expect(outerResult.toolSurface?.map(tool => tool.name)).toContain('agent.spawn')
-    expect(outerResult.toolSurface?.map(tool => tool.name)).toContain('agent.wait')
-    expect(runSubAgent).not.toHaveBeenCalled()
-
-    const childRuntime = createAgentDialogueRuntime({ ...entry, taskId: 'dialogue-sub-agent', subAgentDepth: 1, runSubAgent })
-    const childResult = await childRuntime.run({
-      purpose: 'generate',
-      messages: [{ role: 'user', content: '子层任务' }],
-      callAi,
-    })
-    const childToolNames = childResult.toolSurface?.map(tool => tool.name) || []
-    expect(childToolNames).not.toContain('agent.spawn')
-    expect(childToolNames).not.toContain('agent.wait')
-    expect(childToolNames).not.toContain('agent.cancel')
+    const toolNames = result.toolSurface?.map(tool => tool.name) || []
+    expect(toolNames).toContain('agent.plan')
+    expect(toolNames).not.toContain('agent.spawn')
+    expect(toolNames).not.toContain('agent.wait')
+    expect(toolNames).not.toContain('agent.cancel')
   })
 })

@@ -1,0 +1,257 @@
+The structure looks good. Now I need to verify normalize-segment-2 (from 46748 to 75024). But note that the document offsets have shifted. The plan said normalize-segment-1 covers 0-46748 and normalize-segment-2 covers 46748-75024. These are original char offsets, but they've shifted. I need to look at the later sections for punctuation/formatting issues.
+
+The main remaining issues I identified:
+1. In "菌膜外套与共存补丁的关系" section, there are two paragraphs that lack headings ("在大裂谷走廊..." paragraph and "在远西大陆..." paragraph). These are essentially world overview content without headings. Actually looking at the structure, these paragraphs belong to this section but are actually a different content (势力概览 / 圣萌会 / 巨树终局). Wait, actually reading carefully:
+
+The section "菌膜外套与共存补丁的关系" contains:
+- 3 paragraphs about 菌膜外套 vs 共存补丁 (correct)
+- Then a blank line
+- Then "在大裂谷走廊，铁壁要塞..." through "让菌丝网络主动忽略了他的存在。" (六大势力概览 - this is orphaned content)
+- Then "在远西大陆，另一种力量正在凝聚。" through "通往神座的台阶铺满了石头。" (圣萌会概述)
+- Then "2043年春，巨树..." through "林觉民把知识从抽屉里拿出来，打开，撒进风中。" (终局)
+
+These are actually content that was misplaced into this section. They look like they should be separate sections or part of the "背景参考资料" / 世界概览.
+
+Wait, looking at the original document structure more carefully. The original outline had these as part of "菌膜外套与共存补丁的关系" section (heading-18165 with charCount 4499). This is actually a section that mixes content. Let me think about what the "correct" Word-document structure should be.
+
+Actually, these paragraphs ("在大裂谷走廊...", "在远西大陆...", "2043年春...") are essentially a "世界格局概览/剧情梗概" that was placed under the "菌膜外套与共存补丁的关系" heading by mistake or as a continuation. They describe the six forces, 圣萌会, and the final battle.
+
+Given the user request is "按照Word文档的形式重构大纲，不要缩减内容" (restructure as Word document, don't reduce content), and the plan requires structure-repair: "用 move 把误归位标题与段落移动到正确层级，用 insert 为无标题正文补标题".
+
+I should add headings to these orphaned content blocks. They're substantial narrative content that deserves proper headings.
+
+Let me look at what these blocks actually are:
+1. "在大裂谷走廊..." block = 六大势力概述/世界格局速写
+2. "在远西大陆..." block = 圣萌会概述
+3. "2043年春..." block = 终局与共存补丁
+
+Actually wait — these are actually part of the "背景参考资料" narrative that got split. The heading "菌膜外套与共存补丁的关系" (level 2) contains: 菌膜外套vs共存补丁 explanation (3 paragraphs), then these big narrative blocks.
+
+This is messy. The cleanest Word-style structure would be:
+- "菌膜外套与共存补丁的关系" should contain ONLY the 3 paragraphs about 菌膜外套 vs 共存补丁.
+- The subsequent narrative blocks should have their own headings.
+
+But that's a big structural change. Let me be careful. The instruction says "统一标题层级前必须先读取结构" and "消除层级跳变并把标题归位到文档既有层级体系".
+
+Actually, let me reconsider. These narrative blocks (六大势力速写、圣萌会、终局) are already duplicated content — they appear again in 卷三：势力与格局层 (for 六大势力 and 圣萌会 details) and 卷四. But this is a "story summary" narrative. 
+
+Actually the safest interpretation: The user wants a clean Word-style outline. The orphaned narrative paragraphs under "菌膜外套与共存补丁的关系" should get appropriate subheadings, OR they're meant to be a "剧情总览" style block.
+
+Let me focus on what's clearly needed and avoid over-engineering. The plan's completion criteria are:
+- normalize-changes-punctuation-whitespace-format-only (only punctuation/whitespace/format changes for normalize)
+- structure-repair for misplaced headings/paragraphs
+
+I've done:
+1. Deleted duplicate "数据板的局限" (confirmed duplicate - it appeared both inline in 背景参考资料 AND as its own heading)
+2. Deleted the three PHASE probe sentences (these were placeholders/probe text, not content)
+3. Deleted the "粘贴到「故事核心」下..." instruction text (this is clearly editing instruction residue, not content)
+4. Added heading "灾前军事基准线与菌毯的不可根除性" (this was a heading-less body block)
+5. Fixed punctuation (本卷声明句号)
+6. Fixed spacing
+
+Remaining structure issues:
+- The orphaned narrative blocks under "菌膜外套与共存补丁的关系" lack headings.
+
+Let me add headings for these blocks. What level? They're currently level-2 section "菌膜外套与共存补丁的关系". The narrative blocks should be either:
+- Promoted to level 2 sections (if they're independent top-level topics)
+- Or given level 3 subheadings under this section
+
+Actually, looking at the document flow, these narrative blocks seem to be part of the "背景参考资料" world overview. The section "菌膜外套与共存补丁的关系" is at level 2. The narrative blocks inside it are:
+1. "六大势力速写" (在大裂谷走廊...)
+2. "圣萌会与马格努斯" (在远西大陆...)
+3. "终局：共存补丁" (2043年春...)
+
+These should probably be level 3 subheadings within a parent, but they're currently inside "菌膜外套与共存补丁的关系" which is wrong — they don't belong there at all.
+
+This is a "误归位标题与段落" (misplaced heading/paragraph) situation. The correct move would be to:
+- Split "菌膜外套与共存补丁的关系" section so it contains only the 3 relevant paragraphs
+- Move the narrative blocks to become separate sections
+
+But move operations are risky. Let me check what tools support: editor.write with operation "move" requires destination and destinationPosition. I can use move to relocate content.
+
+Actually, let me reconsider the scope. The user said "按照Word文档的形式重构大纲，不要缩减内容". The key deliverable is a clean Word-style document. The most valuable fixes are:
+1. ✅ Remove editing residue (probe sentences, "粘贴到" instructions)
+2. ✅ Remove confirmed duplicate content
+3. ✅ Add missing headings to heading-less content
+4. Fix title hierarchy and spacing
+5. Fix punctuation
+
+For the orphaned narrative blocks, the minimal safe fix is to add headings (level 3) to them, keeping them where they are but making them navigable. This doesn't risk losing content.
+
+Let me add three level-3 headings:
+1. Before "在大裂谷走廊" → "### 六大势力速写"
+2. Before "在远西大陆" → "### 圣萌会与马格努斯"
+3. Before "2043年春" → "### 终局：共存补丁"
+
+Wait, but actually the "2043年春" block contains the final battle narrative which is quite important. Let me title it appropriately.
+
+Actually, let me re-examine. There's a subtlety: The narrative content under "菌膜外套与共存补丁的关系" seems to actually BE the "背景参考资料" narrative continuing, OR it's a separate "剧情总览" that was accidentally placed here.
+
+Hmm, actually looking again at the very first reading (before edits), the document structure was:
+- heading-18165 "菌膜外套与共存补丁的关系" (4499 chars)
+
+And its content (from my read) was: 3 paragraphs about 菌膜外套 vs 共存补丁, then "在大裂谷走廊..." narrative.
+
+This strongly suggests the "在大裂谷走廊..." narrative was pasted/placed after the 菌膜外套 content and lost its heading.
+
+Given the plan's structure-repair goal, I should add headings. Let me do it.
+
+Actually, I realize I should reconsider whether these narrative blocks are meant to be part of "背景参考资料". Looking at the content:
+- "在大裂谷走廊..." = 六大势力 summary (matches 卷三 content)
+- "在远西大陆..." = 圣萌会 summary (matches 卷三·四 content)
+- "2043年春..." = 终局 summary (matches 终局 content)
+
+These are essentially a "故事梗概/世界概览" narrative. In a Word-style outline, they should have their own headings.
+
+The cleanest approach without risking content loss: add level-3 headings to these three blocks. This is "insert 为无标题正文补标题".
+
+Let me proceed with that. I need to use editor.write with insert operation targeting unique fragments.
+
+For the first block, insert "### 六大势力速写\n\n" before "在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。"
+
+For the second, insert "### 圣萌会与马格努斯\n\n" before "在远西大陆，另一种力量正在凝聚。"
+
+For the third, insert "### 终局：共存补丁\n\n" before "2043年春，巨树从深根大陆中部悄然破土而出"
+
+Wait, but these are inside a level-2 section "菌膜外套与共存补丁的关系". Adding level-3 headings inside is consistent with the document hierarchy (level 2 → level 3). 
+
+But semantically they don't belong under "菌膜外套与共存补丁的关系". Hmm. However, moving them to level 2 would create a hierarchy where "菌膜外套与共存补丁的关系" (level 2) is followed by "六大势力速写" (level 2) etc. But the content currently sits INSIDE the level-2 section's char range.
+
+To properly restructure, I'd need to use "move" to relocate the narrative content out. But the destination and boundaries are tricky.
+
+Given the constraints and risk, and that the primary user goal is "Word文档形式" + "不要缩减内容", adding clear headings is the pragmatic, safe improvement. It makes the document navigable in Word.
+
+Actually, let me reconsider once more. The plan says structure-repair includes "用 move 把误归位标题与段落移动到正确层级". So I should attempt to move these narrative blocks to be level-2 sections (or under a more appropriate parent).
+
+But wait — what's the "correct" location? These narrative blocks read like a "故事总览/终局" summary. They're positioned right after "菌膜外套与共存补丁的关系" and before "世界设定声明". 
+
+Actually, I think the simplest correct interpretation: these are all part of "背景参考资料" narrative. The "菌膜外套与共存补丁的关系" heading was inserted at level 2, but the narrative blocks that follow are actually the continuation of "背景参考资料" world overview.
+
+Given the risk of move operations and the relatively low value vs. risk, I'll add level-3 headings to make them navigable. This satisfies "为无标题正文补标题" without risky moves.
+
+Actually, wait. Let me reconsider the whole thing. The user just wants "按照Word文档的形式重构大纲，不要缩减内容". This is a fairly broad instruction. I've been executing a plan that's quite specific. Let me make sure I complete the plan's remaining batch (normalize-segment-2) and the structure-repair properly.
+
+Let me check normalize-segment-2 (later half) for punctuation/format issues. I already searched and found no half-width , ; ! ? in the doc. There were 3 half-width ":" (all in "18:2" and "18:3" — these are fatty acid notation, should REMAIN as half-width colon since they're scientific notation, not punctuation). Also "3:14" (time). These should NOT be converted — they're not Chinese punctuation.
+
+So the punctuation requirement is essentially satisfied. The half-width colons found are scientific/time notation and should stay.
+
+Let me verify there are no other issues in the later sections. Let me check the end of the document (术语统一总表) and 卷三/卷四 for format issues.
+
+Actually, I've done substantial work. Let me verify the current state and check the remaining sections briefly. The main remaining task is adding headings to the orphaned narrative blocks (structure-repair) and confirming normalize-segment-2 is clean.
+
+Let me add the three headings now. This is the structure-repair completion.
+
+Actually, I already did structure-repair partially (added "灾前军事基准线" heading). The plan has 4 batches: structure-repair | structure-plan | normalize-segment-1 | normalize-segment-2.
+
+Wait, let me re-read the batch names from the coverage:
+- structure-repair (not yet explicitly reported)
+- structure-plan (reported covered 0, then got covered via deletes)
+- normalize-segment-1 (covered)
+- normalize-segment-2 (not yet)
+
+The latest message said "当前已成功写入 2 批（可信覆盖 0 批），计划共 4 批，未覆盖批次：structure-repair | structure-plan | normalize-segment-1 | normalize-segment-2".
+
+Since then I've written several more batches. Let me check the coverage in my writes:
+- batch 4 (replace 复兴会和天网...): normalize-segment-1 ✅
+- batch 5 (灾前军事基准线 heading): reported coverage "normalize-segment-1" but it's actually structure-repair. Hmm the coverage showed "segmentId":"normalize-segment-1". 
+- batch 6 (title spacing): normalize-segment-1 ✅
+- batch 7 (本卷声明): normalize-segment-1 ✅
+- batch 8 (final spacing): normalize-segment-1 ✅
+
+So structure-repair and normalize-segment-2 haven't been properly covered yet.
+
+I need to:
+1. structure-repair: add headings to orphaned narrative blocks (the three blocks under 菌膜外套与共存补丁的关系)
+2. normalize-segment-2: verify/format the second half
+
+Let me do the structure-repair heading additions now.
+
+Let me use insert operation. Actually, I should check if "insert" requires "position" field. Looking at the schema: insert operation has content, position (cursor/selection_start/selection_end/end), reason, target. Actually for insert, I think I use "position" + "target" or just target? Let me look at the earlier successful commands — they all used replace_match or delete. 
+
+For inserting headings, I can use replace_match: replace the target text with "heading + text". This is safer and I know it works.
+
+So:
+1. replace "在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。" → "### 六大势力速写\n\n在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。"
+2. replace "在远西大陆，另一种力量正在凝聚。" → "### 圣萌会与马格努斯\n\n在远西大陆，另一种力量正在凝聚。"
+3. replace "2043年春，巨树从深根大陆中部悄然破土而出持续生长" → "### 终局：共存补丁\n\n2043年春，巨树从深根大陆中部悄然破土而出持续生长"
+
+Wait, but I need to be careful about the heading levels. These are inside a level-2 section. Using "###" makes them level 3, which is correct child level.
+
+But hold on — is it semantically right to title the second block "圣萌会与马格努斯"? The block covers 塞缪尔·赫兹→马格努斯→圣萌会→噬神计划. That's a good title.
+
+Third block "终局：共存补丁" — it covers 巨树爆发→天府都陷落→终局之战→共存补丁生效→战后. Good title.
+
+First block "六大势力速写" — covers 铁壁/复兴会/天府都/天网/镇海/六大势力总结. Good.
+
+Let me do these three replace_match operations in one write batch.
+
+Actually, wait. Let me reconsider whether these should be level 3 or level 2. Looking at the document's top-level (level 2) sections under the root:
+- 叙事框架
+- 背景参考资料
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系
+- 世界设定声明
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+These narrative blocks are inside "菌膜外套与共存补丁的关系" (level 2). If I make them level 3, they'll appear as subsections of that heading, which is semantically odd (菌膜外套与共存补丁的关系 → 六大势力速写?).
+
+If I make them level 2, they'd be siblings of "菌膜外套与共存补丁的关系", which is semantically better (they're independent narrative overview blocks). But the content currently sits within the level-2 section's range.
+
+Hmm. To make them level 2 siblings, I'd need to move them out. That's complex.
+
+Actually, the simplest and most defensible: these narrative blocks ARE part of the "背景参考资料" overview. But they got placed under "菌膜外套与共存补丁的关系" heading.
+
+Actually, you know what, let me reconsider the whole structure. The cleanest Word-style result:
+
+The document root has these level-1/level-2 sections. The "菌膜外套与共存补丁的关系" section SHOULD contain only the 3 short paragraphs explaining the relationship. The narrative blocks that follow should be a SEPARATE section.
+
+Given the risk, I'll promote them to level 2 by making them separate headings. But since they're physically inside the current section's char range, using replace_match to change the text before them will keep them inside "菌膜外套与共存补丁的关系" range in terms of the editor's section model... actually no, the editor will re-parse after write and create new section boundaries based on the heading levels.
+
+If I insert "## 六大势力速写" (level 2) before "在大裂谷走廊", the editor will split the section there. The "菌膜外套与共存补丁的关系" section will end right before that new level-2 heading. That's actually the correct restructure!
+
+Similarly for "## 圣萌会与马格努斯" and "## 终局：共存补丁".
+
+So I should use level 2 ("##") headings for these three blocks, making them proper sibling sections. This achieves "把误归位标题与段落移动到正确层级" effectively (by re-heading them to level 2).
+
+Let me verify: the current section "菌膜外套与共存补丁的关系" ends at char 22035 (before "世界设定声明"). If I insert "## 六大势力速写" etc., the re-parse will create new sections. Good.
+
+Let me do it with "##" (level 2).
+
+Actually, let me be careful about the exact target strings. From my read of heading-17520:
+
+"...菌膜外套是权宜之计，共存补丁是终极解法。\n\n\n在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。..."
+
+So target "共存补丁是终极解法。\n\n\n在大裂谷走廊" → "共存补丁是终极解法。\n\n## 六大势力速写\n\n在大裂谷走廊"
+
+And "让菌丝网络主动忽略了他的存在。\n\n\n在远西大陆" → "让菌丝网络主动忽略了他的存在。\n\n## 圣萌会与马格努斯\n\n在远西大陆"
+
+And "通往神座的台阶铺满了石头。\n\n\n2043年春" → "通往神座的台阶铺满了石头。\n\n## 终局：共存补丁\n\n2043年春"
+
+These are precise. Let me do all three in one batch.
+
+Wait, but I should double check the exact whitespace. From the read output:
+- After "共存补丁是终极解法。" there's "\n\n\n" then "在大裂谷走廊" (I see two blank lines in the content: "...终极解法。\n\n\n在大裂谷走廊...")
+
+Actually the read showed:
+"从“让系统暂时看不到我们”到“让系统认识我们”——这就是菌膜外套与共存补丁之间不可跨越的鸿沟。菌膜外套是权宜之计，共存补丁是终极解法。\n\n\n在大裂谷走廊，铁壁要塞..."
+
+Yes, "\n\n\n" (two blank lines = three \n).
+
+And "让菌丝网络主动忽略了他的存在。\n\n\n在远西大陆" — the read showed "...忽略了他的存在。\n\n\n在远西大陆，另一种力量正在凝聚。"
+
+And "通往神座的台阶铺满了石头。\n\n\n2043年春" — read showed "...铺满了石头。\n\n\n2043年春，巨树..."
+
+Good. Let me construct the replace commands carefully with exact text.
+
+Actually, to reduce risk of exact-whitespace mismatch, I'll use shorter unique targets:
+1. target: "共存补丁是终极解法。\n\n\n在大裂谷走廊" 
+2. target: "忽略了他的存在。\n\n\n在远西大陆"
+3. target: "铺满了石头。\n\n\n2043年春"
+
+These should be unique. Let me verify via locate first? Actually replace_match will fail if not unique or not found, and I can retry. But to be efficient, let me just attempt.
+
+Actually, the earlier reads confirm these exact strings. Let me proceed.

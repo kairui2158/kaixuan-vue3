@@ -1,0 +1,3 @@
+The error says command[3] is missing content - but I did include content (empty string). Let me look again... The error says "缺失 content 会被视为替换为空，已拒绝写入" - it's rejecting the empty string as content. I need to use the "delete" operation instead.
+
+Let me retry with the first three replacements and use "delete" for the fourth.

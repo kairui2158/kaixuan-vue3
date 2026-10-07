@@ -1,0 +1,22 @@
+The delete failed because the target fragment doesn't match exactly. Let me re-read the exact text to get the precise match. The fragment must be exactly as it appears in the document. Let me re-read the current content around the area.
+
+Looking at the read result from `heading-3-1heodug`, I see:
+- "粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后："
+
+I notice the quotes around "陈暮是唯一踩在菌毯上不被判定为敌人的人" are Chinese double quotes 「」 and "". Let me check more carefully...
+
+The text is: `粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：`
+
+Wait, the first command (replace_match for 【菌毯的本质】) succeeded? Let me check: the result says succeededIndexes: [0], failed at index 1. So the first one (【菌毯的本质】) was written. But since it's atomic, nothing was actually written.
+
+Actually wait - the error says "批次原子执行：预演通过条目未写入，原文保持不变". So nothing was written. The first command passed pre-flight but since it's atomic and index 1 failed, nothing was actually committed.
+
+The delete target needs the exact text. Let me look at the text more carefully. The issue is likely with the quotes. In the read output, it shows:
+
+`粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：`
+
+The quotes might be different characters in the actual content. Let me try to locate this exact fragment.
+
+Actually, the first `replace_match` for `【菌毯的本质：竞争对手文明】` might have its own issue too if the document version changed from the previous batch. Let me re-read the section.
+
+Actually no, since the batch was atomic and nothing was written, the document is unchanged. The issue is with the delete target. Let me try using `editor.locate` on that fragment.

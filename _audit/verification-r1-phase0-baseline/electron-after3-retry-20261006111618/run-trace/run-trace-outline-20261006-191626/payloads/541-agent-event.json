@@ -1,0 +1,12 @@
+{
+  "taskId": "edit-task-1791288930106-3",
+  "batchId": "ai-edit-muwn6gbo-c",
+  "segmentId": "normalize-segment-1",
+  "range": {
+    "startLine": 0,
+    "endLine": 74586
+  },
+  "writeStrategy": "replace_match",
+  "expectedChange": "normalize",
+  "estimatedBatches": 1
+}

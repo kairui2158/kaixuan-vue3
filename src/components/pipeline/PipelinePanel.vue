@@ -48,20 +48,8 @@
         <div class="pl-tools-section">
           <div class="pl-tools-grid">
             <span class="pl-label pl-tools-label">AI工具:</span>
-            <button id="btn-ai-names" class="btn-sm btn-secondary" @click="openNaming" :disabled="aiLoading">AI起名</button>
-            <button id="btn-writing-rules" class="btn-sm btn-secondary" @click="toolAction('rules')" :disabled="aiLoading">写作规则</button>
-            <button id="btn-timeline" class="btn-sm btn-secondary" @click="toolAction('timeline')" :disabled="aiLoading">时间线</button>
-            <button id="btn-batch-review" class="btn-sm btn-secondary" @click="toolAction('review')" :disabled="aiLoading">批量审阅</button>
-            <button id="btn-revise" class="btn-sm btn-secondary" @click="toolAction('revise')" :disabled="aiLoading">章节修订</button>
-            <button id="btn-translate" class="btn-sm btn-secondary" @click="toolAction('translate')" :disabled="aiLoading">翻译</button>
-            <button id="btn-style-convert" class="btn-sm btn-secondary" @click="toolAction('style')" :disabled="aiLoading">风格转换</button>
-            <button id="btn-regenerate" class="btn-sm btn-secondary" @click="toolAction('regenerate')" :disabled="aiLoading">重新生成</button>
-            <button id="btn-modify" class="btn-sm btn-secondary" @click="toolAction('modify')" :disabled="aiLoading">按指令修改</button>
+            <button id="btn-ai-names" class="btn-sm btn-secondary" @click="openNaming">AI起名</button>
           </div>
-          <div class="pl-tool-result" v-if="toolResult">
-            <div class="message-content" v-html="toolResultHtml"></div>
-          </div>
-          <div class="pl-tool-loading" v-if="aiLoading">{{ aiLoadingText }}</div>
         </div>
           <PipelineFlow v-if="showFlowView" :steps-with-ids="stepsWithIds" :step-agents="stepAgents" :step-skills="stepSkills" :step-skill-modes="stepSkillModes" @toggle-view="showFlowView = false" />
           <div v-show="!showFlowView" class="pl-step-view">
@@ -804,12 +792,10 @@ import { useAiCallTrace, type AiCallContext } from "../../composables/useAiCallT
 import { useModalQueue } from "../../composables/useModalQueue"
 import { useSettingsStore } from "../../stores/settings"
 import { useDeAiStore } from "../../stores/deai"
-import { useAiTools } from "../../composables/useAiTools"
 import { getAiService } from "../../services/aiService"
 import { routeSkill } from "../../services/skillRouter"
 import { createApiCallBudget } from "../../services/apiCallBudget"
 import { formatFolderSkillBoundary } from "../../services/folderSkillBoundary"
-import { renderMarkdown } from "../../utils/markdownService"
 import { getSkillAgentKey, migrateSkillAgentBindings, normalizeSkillAgentBindings } from "../../services/skillAgentBinding"
 import { loadRealSkill } from "../../services/realSkillLoader"
 import { useConfigExchange } from "../../composables/useConfigExchange"
@@ -887,10 +873,7 @@ const bindingImportPreview = ref<{
   source: string
 } | null>(null)
 
-const { generateWritingRules, extractTimeline, batchReviewChapters, reviseChapter, translateText, convertStyle, regenerateContent, modifyContent, isLoading: aiLoading, loadingText: aiLoadingText } = useAiTools()
 
-const toolResult = ref("")
-const toolResultHtml = computed(() => renderMarkdown(toolResult.value))
 const showAddSettingModal = ref(false)
 const newSettingName = ref("")
 const newSettingCategory = ref("其他")
@@ -4557,7 +4540,6 @@ function insertBody() {
         mode: 'ch-body'
       }
     }));
-    toolResult.value = "正文已插入到编辑器";
   }
 }
 
@@ -4589,50 +4571,6 @@ function memoryTextForPipeline(options: {
     : ""
 }
 
-function toolAction(action: string) {
-  toolResult.value = "";
-  try {
-    if (action === "rules") {
-      generateWritingRules(projectStore.outlineText).then(r => {
-        if (r.success) toolResult.value = r.data.map((r: any) => "[" + r.category + "] " + r.rule).join("; ");
-      });
-    } else if (action === "timeline") {
-      extractTimeline(projectStore.outlineText).then(r => {
-        if (r.success) toolResult.value = r.data.map((t: any) => t.time + ": " + t.event).join("; ");
-      });
-    } else if (action === "review") {
-      batchReviewChapters(projectStore.volumes).then(r => {
-        if (r.success) toolResult.value = r.data.map((rv: any) => rv.title + ": " + rv.review.score + "分").join("; ");
-      });
-    } else if (action === "revise") {
-      const vol = projectStore.volumes[selectedVolumeIndex.value];
-      if (vol) {
-        const volId = vol.id || vol.name;
-        const chs = projectStore.chapters[volId] || [];
-        const ch = chs[0];
-        if (ch && ch.body) {
-          reviseChapter(ch.title, ch.body).then(r => { if (r.success) toolResult.value = r.data; });
-        }
-      }
-    } else if (action === "translate") {
-      const text = window.getSelection()?.toString() || projectStore.outlineText.slice(0, 1000);
-      translateText(text, "英文").then(r => { if (r.success) toolResult.value = r.data; });
-    } else if (action === "style") {
-      const text = window.getSelection()?.toString() || projectStore.outlineText.slice(0, 1000);
-      convertStyle(text, "古风").then(r => { if (r.success) toolResult.value = r.data; });
-    } else if (action === "regenerate") {
-      regenerateContent(projectStore.outlineText.slice(0, 500), "你是专业小说创作助手。").then(r => { if (r.success) toolResult.value = r.data; });
-    } else if (action === "modify") {
-      const text = window.getSelection()?.toString() || projectStore.outlineText.slice(0, 1000);
-      const instruction = window.prompt("请输入修改指令：");
-      if (instruction) {
-        modifyContent(text, instruction).then(r => { if (r.success) toolResult.value = r.data; });
-      }
-    }
-  } catch (e: any) {
-    toolResult.value = "错误: " + e.message;
-  }
-}
 
 </script>
 

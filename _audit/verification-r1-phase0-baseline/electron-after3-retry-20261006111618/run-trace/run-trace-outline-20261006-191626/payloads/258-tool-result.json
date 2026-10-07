@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-1-mizom9",
+      "title": "《绿潮》大纲总纲",
+      "kind": "heading",
+      "level": 1,
+      "path": "《绿潮》大纲总纲"
+    },
+    "range": {
+      "start": 45714,
+      "end": 45724
+    },
+    "offset": 45714,
+    "maxChars": 10,
+    "content": "报。\n\n##### ",
+    "hasMore": true,
+    "nextCursor": "section:heading-1-mizom9:45724",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

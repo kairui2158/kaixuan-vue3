@@ -1,0 +1,20 @@
+{
+  "commands": [
+    {
+      "operation": "delete",
+      "reason": "删除开头遗留的标点整理探测句A",
+      "target": "【PHASE7-PUNCT-PROBE-A】这是前段标点整理探测句，需要把半角逗号改成全角逗号；这是必须处理的半角分号。\n"
+    },
+    {
+      "operation": "delete",
+      "reason": "删除中段遗留的标点整理探测句B",
+      "target": "【PHASE7-PUNCT-PROBE-B】这是中段标点整理探测句，需要把半角逗号改成全角逗号；这是必须处理的半角分号。\n"
+    },
+    {
+      "operation": "delete",
+      "reason": "删除后段遗留的标点整理探测句C",
+      "target": "【PHASE7-PUNCT-PROBE-C】这是后段标点整理探测句，需要把半角逗号改成全角逗号；这是必须处理的半角分号。\n"
+    }
+  ],
+  "reason": "清理三处标点整理探测句，恢复Word式规整文档结构，不损失大纲有效内容"
+}

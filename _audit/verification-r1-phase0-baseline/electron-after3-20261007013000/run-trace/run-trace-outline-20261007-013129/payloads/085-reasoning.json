@@ -1,0 +1,73 @@
+Let me assess the current state of the document. Based on the document map and previous operations, the main structural work has been done:
+
+1. ✅ Removed the duplicate "数据板的局限" section that was embedded inside "灾前军事基准线与菌毯的不可根除性"
+2. ✅ Cleaned up residual paste instructions in 故事核心
+3. ✅ Added headings for previously untitled sections:
+   - "灾前军事基准线与菌毯的不可根除性" → now a level-3 heading under 背景参考资料
+   - "一、2042年，人类手里有什么" → level-4
+   - "二、菌毯为什么火力推不平" → level-4
+   - "三、总结：人类真正被压制的根本机制" → level-4
+   - "六大势力概览" → level-3 under 菌膜外套与共存补丁的关系
+   - "圣萌会的崛起" → level-3 under 菌膜外套与共存补丁的关系
+   - "巨树生长与天府都陷落" → level-3 under 菌膜外套与共存补丁的关系
+4. ✅ Standardized half-width quotes to full-width quotes in Chinese context
+5. ✅ Fixed bracket issues in 故事核心
+
+The coverage already processed: 
+- normalize-segment-1: story core quotes, military baseline quotes, all half-width quotes fixed
+- structure-repair: added heading levels, removed duplicate
+- structure-plan: deleted duplicate section
+
+Now I need to verify there are no remaining issues. Let me check:
+- Semi-colons, colons, exclamation/question marks - all showed 0 results (good, already all full-width)
+- Half-width quotes - showed 0 results (all cleaned)
+- Periods - there were 274 hits, but these include things like "大纲§6.6" which uses dot notation that shouldn't be changed. Let me check more carefully.
+
+The remaining period results include things like:
+- "大纲§6.6" - this is a reference marker, the dot is fine
+- Dates like "11月19日" are in Chinese numerals
+- Mathematical notations like "0.3%" - these need to stay
+- Table data with numbers
+
+Let me look at the remaining issues more carefully. I should check if there are other structural problems. Looking at the document map:
+
+The structure now looks reasonable. The key issue was that "菌膜外套与共存补丁的关系" had content that was essentially a narrative summary of the six factions + Saint Germination + the giant tree, which didn't belong under that heading. I've added sub-headings for them.
+
+Let me now check if there are any remaining untitled text blocks or structural issues I should address. Looking at the sections more carefully - the content blocks like "内容块 1" through "内容块 40+" are just empty paragraphs (1-2 characters of whitespace) that are artifacts of the document structure. I should clean these up but they're essentially invisible paragraph breaks. Since they don't contain content, they shouldn't be removed as that could change spacing.
+
+Let me verify the overall structure is clean now:
+
+1. # 《绿潮》大纲总纲 (h1)
+2. ## 叙事框架 (h2)
+   - ### 故事核心 (h3) ✅
+   - ### 第一卷·觉醒与扎根 (h3) ✅
+   - ### 第二卷·连接与陷落 (h3) ✅
+   - ### 第三卷·远征与暗流 (h3) ✅
+3. ## 背景参考资料 (h2)
+   - ### 灾前军事基准线与菌毯的不可根除性 (h3) ✅
+     - #### 一、2042年，人类手里有什么 (h4) ✅
+     - #### 二、菌毯为什么火力推不平 (h4) ✅
+     - #### 三、总结：人类真正被压制的根本机制 (h4) ✅
+4. ## 数据板的局限 (h2) ✅
+5. ## 菌膜外套：有限资源的临时通行方案 (h2) ✅
+6. ## 菌膜外套与共存补丁的关系 (h2)
+   - ### 六大势力概览 (h3) ✅
+   - ### 圣萌会的崛起 (h3) ✅
+   - ### 巨树生长与天府都陷落 (h3) ✅
+7. ## 世界设定声明 (h2) ✅
+8. ## 卷一：基石设定层 (h2) ✅ (with full sub-structure)
+9. ## 卷二：核心人物群像 (h2) ✅ (with full sub-structure)
+10. ## 卷三：势力与格局层 (h2) ✅ (with full sub-structure)
+11. ## 卷四：叙事工具箱层 (h2) ✅ (with full sub-structure)
+
+The overall structure now looks clean. Let me check if there are remaining issues:
+
+- The period search showed 274 hits, but looking at the results, these are mostly:
+  - Proper full-width Chinese periods "。"
+  - References like "§6.6" using dots
+  - "0.3%" etc. numeric notation
+  - These are all correct and shouldn't be changed
+
+Let me verify there are no remaining half-width punctuation issues in Chinese context by searching specifically for patterns that would be incorrect.
+
+Let me do a few more targeted searches to verify completion.

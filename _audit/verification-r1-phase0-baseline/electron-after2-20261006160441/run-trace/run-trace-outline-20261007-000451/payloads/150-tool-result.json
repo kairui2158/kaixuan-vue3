@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "data": {
+    "total": 1,
+    "truncated": false,
+    "offset": 0,
+    "limit": 20,
+    "hasMore": false,
+    "matches": [
+      {
+        "start": 17848,
+        "end": 17854,
+        "sectionId": "heading-3-1ctnag4",
+        "sectionTitle": "六大势力总览",
+        "context": "让系统暂时看不到我们”到“让系统认识我们”——这就是菌膜外套与共存补丁之间不可跨越的鸿沟。菌膜外套是权宜之计，共存补丁是终极解法。\n\n\n### 六大势力总览\n\n在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。韩啸天在废墟上定下名字的那一刻说：“我们要在这里筑一道墙——不是为了挡住什么东西进来，是为了告诉外面，这里还有人。”三十七名强化"
+      }
+    ],
+    "next_steps": [
+      "调用 editor.read_range 传入 sectionId 读取命中节全文"
+    ]
+  }
+}

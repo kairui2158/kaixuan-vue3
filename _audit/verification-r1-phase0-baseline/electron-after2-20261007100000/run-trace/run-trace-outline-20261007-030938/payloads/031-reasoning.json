@@ -1,0 +1,206 @@
+The user wants me to restructure the outline like a Word document without reducing content. Let me first understand the current structure:
+
+The current top-level structure is:
+1. `# 《绿潮》大纲总纲` (H1)
+   - `## 叙事框架` (H2) - contains 故事核心, 第一卷, 第二卷, 第三卷
+   - `## 背景参考资料` (H2) - general background + military baseline + duplicate 数据板局限 text
+   - `## 数据板的局限` (H2) - standalone section
+   - `## 菌膜外套：有限资源的临时通行方案` (H2) - standalone
+   - `## 菌膜外套与共存补丁的关系` (H2) - standalone + extra narrative content (终局之战)
+   - `## 世界设定声明` (H2) - standalone
+   - `## 卷一：基石设定层` (H2) - detailed settings
+   - `## 卷二：核心人物群像` (H2)
+   - `## 卷三：势力与格局层` (H2)
+   - `## 卷四：叙事工具箱层` (H2)
+
+The user wants a Word-document-like organization. A Word document would typically have:
+- Front matter (declaration, preface)
+- Main content organized as chapters/parts
+- Appendices
+
+So the ideal Word-document structure would be:
+1. 世界设定声明 (declaration - front matter)
+2. 叙事框架 (story framework - acts as introduction/preface)
+3. 卷一：基石设定层
+4. 卷二：核心人物群像
+5. 卷三：势力与格局层
+6. 卷四：叙事工具箱层
+7. 背景参考资料 (appendix)
+8. 数据板的局限 (appendix)
+9. 菌膜外套 (appendix)
+10. 菌膜外套与共存补丁的关系 (appendix)
+
+But the execution plan says I can only do move, insert, delete, replace_match, rewrite operations. I cannot use reorder_sections directly. I need to use move operations to rearrange the sections.
+
+Let me first try to delete the duplicate "数据板的局限" text that appears within 背景参考资料. The error said I need to use delete operation instead of replace_match with empty content.
+
+Then I need to use move operations to rearrange the H2 sections into the Word-document order.
+
+Let me first try the delete of the duplicate text, then proceed with moves.
+
+Wait, let me re-read the execution plan rules more carefully:
+
+"复合重构请分三阶段执行：先读取结构，用 move 把误归位标题与段落移动到正确层级，用 insert 为无标题正文补标题、用 replace_match/rewrite 仅修正既有标题层级；再只读确认重复项并提交唯一目标删除命令；最后提交 replace_match/rewrite 命令完成标点、空白、编号与标题层级整理。"
+
+So the phases are:
+1. Read structure, use move to fix misplaced titles/paragraphs, use insert to add titles for untitled text, use replace_match/rewrite only for fixing existing title levels
+2. Read-only confirm duplicates, then submit unique delete commands
+3. Submit replace_match/rewrite to fix punctuation, whitespace, numbering, and title levels
+
+And there are 3 planned batches for normalize-segment-1[0-74841].
+
+First, let me deal with the duplicate text in background reference. Let me use `delete` operation.
+
+But first, I need to locate the exact duplicate text within the background reference section. The duplicate "数据板的局限" text appears at the end of the 背景参考资料 section (right after "菌毯是不可根除的..." and before the standalone H2 "数据板的局限").
+
+Let me try the delete operation on the duplicate. But the issue is that `delete` may need a specific target fragment.
+
+Actually, wait - the error said `replace_match` with empty `content` is rejected, and I should use `delete` operation. But the problem is that both sections contain the same text "数据板的局限" - one inside 背景参考资料 and one as a standalone H2. I need to delete the one inside 背景参考资料 but keep the standalone H2.
+
+Let me try using the `delete` operation on the specific fragment within 背景参考资料.
+
+Actually, looking more carefully, the text at the end of 背景参考资料 is precisely the same paragraph as `## 数据板的局限`. So I need to delete it from the 背景参考资料 section. But the text starts without a heading - it's just the plain paragraph. Let me locate the exact fragment.
+
+The duplicate text starts with:
+"数据板的局限\n数据板不是百宝箱..."
+
+And ends with:
+"...数据板提供的是火种，不是火炬。\n"
+
+This is right before the standalone `## 数据板的局限` heading. Let me use `delete` operation.
+
+Actually, looking at the read_range output more carefully, the text at the end of 背景参考资料 reads:
+
+"终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。
+
+数据板的局限
+数据板不是百宝箱..."
+
+So the duplicate is embedded in the 背景参考资料 section. Let me delete it.
+
+But first let me check - how can I use `delete`? I need to specify a `target` fragment. Let me try.
+
+Actually, wait. Let me re-read the plan. It says the plan batches are 3. Let me focus on what I can do:
+
+Phase 1: Move sections + fix titles
+Phase 2: Delete duplicates
+Phase 3: Normalize formatting
+
+For Phase 1, the key restructuring is to move the H2 sections into Word-document order. I can use `move` operations. But `move` needs a `target` (原文片段) and `destination` + `destinationPosition`.
+
+But wait - `move` is for moving individual items (paragraphs/titles), not entire sections. Moving entire H2 sections with all their subsections would be extremely complex with `move`.
+
+Let me re-think. The execution plan says I CAN use `move`, `insert`, `delete`, `replace_match`, `rewrite`. It explicitly says `reorder_sections` is not allowed in this execution plan context.
+
+But to restructure the whole document to "Word document form", moving entire H2 sections is the main thing needed. Let me try using `move` to move the H2 headings and their associated content.
+
+Actually wait - looking again at the error from my first attempt:
+"当前执行计划不允许该写入操作。复合重构请分三阶段执行..."
+
+This was for `reorder_sections`. Let me try `move` instead.
+
+But the problem with `move` is that it takes a `target` (a unique fragment) and moves it to a `destination`. Moving entire large sections with `move` would be extremely complex and error-prone.
+
+Let me think about what "Word文档的形式" means more concretely:
+
+A typical Word document structure for a novel outline would be:
+1. 声明/前言 (世界设定声明)
+2. 正文部分：叙事框架 → 卷一 → 卷二 → 卷三 → 卷四
+3. 附录：背景参考资料、数据板的局限、菌膜外套、菌膜外套与共存补丁的关系
+
+The current order is:
+- 叙事框架
+- 背景参考资料
+- 数据板的局限
+- 菌膜外套
+- 菌膜外套与共存补丁的关系
+- 世界设定声明
+- 卷一
+- 卷二
+- 卷三
+- 卷四
+
+The desired Word-document order:
+- 世界设定声明 (front matter)
+- 叙事框架 (main body)
+- 卷一 (main body)
+- 卷二 (main body)
+- 卷三 (main body)
+- 卷四 (main body)
+- 背景参考资料 (appendix)
+- 数据板的局限 (appendix)
+- 菌膜外套 (appendix)
+- 菌膜外套与共存补丁的关系 (appendix)
+
+So I need to:
+1. Move 世界设定声明 to before 叙事框架
+2. Move 背景参考资料, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 to after 卷四
+
+For the move operation, I need to provide:
+- target: the unique fragment to move
+- destination: where to move it
+- destinationPosition: "before" or "after"
+
+Let me try moving sections one at a time. But first, let me try with just the first move: 世界设定声明 before 叙事框架.
+
+Actually, this is going to be extremely tedious with individual `move` commands. Let me try a different approach.
+
+Wait, let me re-read the execution plan more carefully. It says:
+"可用操作：move|insert|delete|replace_match|rewrite"
+
+And the error from reorder_sections was:
+"复合重构请分三阶段执行：先读取结构，用 move 把误归位标题与段落移动到正确层级..."
+
+So `move` IS allowed. Let me try moving sections.
+
+But there's a problem - `move` takes a `target` (原文片段), not a section ID. And I need to specify `destination` as a unique fragment and `destinationPosition`.
+
+For moving 世界设定声明: 
+- target would be "## 世界设定声明" or the entire section
+- destination would be a fragment before "## 叙事框架"
+
+Let me try this approach. But moving entire large sections with `move` seems risky. 
+
+Actually, let me reconsider the whole approach. The user wants the outline restructured to look like a Word document. Maybe instead of physically reordering sections, I should think about what other changes would make it look more like a Word document:
+
+1. Add a document title page / cover elements
+2. Add a table of contents
+3. Reorder sections logically
+4. Fix heading hierarchy
+5. Remove editorial notes like "粘贴到「故事核心」下..."
+6. Clean up formatting
+
+But the user explicitly said "不要缩减内容" (don't reduce content). And the physical reordering IS the main structural change.
+
+Let me try the move approach carefully. I'll move one section at a time.
+
+Actually, let me try a different strategy. Given that the execution plan is restrictive about what I can do, let me focus on what's achievable:
+
+1. First batch: Fix structure issues (insert missing titles, fix heading levels, remove editorial notes in story core section like "粘贴到「故事核心」下...")
+2. Second batch: Delete duplicate content (the 数据板的局限 text duplicated in 背景参考资料)  
+3. Third batch: Normalize formatting (punctuation, whitespace)
+
+And for reordering: let me try using `move` to reorder the H2 sections one at a time.
+
+Let me start with Phase 1: structural fixes.
+
+The main structural issues I can see:
+1. "粘贴到「故事核心」下..." - this is an editorial instruction that should be removed or integrated
+2. The text after "粘贴到..." is the 【核心张力：保护即加速】section which should be properly merged into the 故事核心
+3. Missing titles for some sections
+
+Let me focus on these first. But the user said "不要缩减内容" - so I shouldn't delete the editorial notes unless they're truly just instructions.
+
+Actually wait, "粘贴到「故事核心」下，紧接原文..." is clearly an editorial instruction/note, not actual outline content. The content after it (【核心张力：保护即加速】) IS actual content. The instruction line should be removed but the content should stay.
+
+Let me proceed with phase 1. I'll fix the story core section by:
+1. Removing the editorial instruction line
+2. Merging the 【核心张力：保护即加速】content properly into 故事核心
+
+Then delete duplicate 数据板的局限 from 背景参考资料 (phase 2).
+
+Then normalize formatting (phase 3).
+
+For reordering: let me try `move` operations cautiously. Let me start with the simplest move - 世界设定声明 to before 叙事框架.
+
+Let me start with Phase 1 fixes first. Let me read the story core section to understand the exact text.

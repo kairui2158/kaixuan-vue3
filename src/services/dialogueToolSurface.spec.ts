@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   authorizeDialogueTools,
   appendDialogueToolSurfaceDeclaration,
+  buildDialogueToolSurfaceDeclarationAudit,
   buildDialogueToolSurface,
   type DialogueToolSurfaceEntry,
 } from './dialogueToolSurface'
@@ -111,6 +112,25 @@ describe('authorizeDialogueTools', () => {
 
     expect(result.actualToolSurface).toEqual([{ name: 'editor.get_state', policy: 'read' }])
     expect(result.permission.writeEditor).toBe(false)
+  })
+
+  it('never exposes control-capable legacy tools in read-only dialogue rounds', () => {
+    const legacyControlTool: AgentToolDefinition = {
+      name: 'agent.spawn',
+      description: 'legacy sub-agent control tool',
+      policy: 'read',
+      origin: 'external',
+      defaultToolPolicy: 'allowedWithoutPermission',
+      inputSchema: { type: 'object', properties: {} },
+      async execute(): Promise<ToolResult> {
+        return { ok: true }
+      },
+    }
+    const result = authorizeDialogueTools([readTool, writeTool, legacyControlTool], 'discuss')
+    const exposedNames = result.actualToolSurface.map(tool => tool.name)
+    expect(exposedNames).toContain('editor.get_state')
+    expect(exposedNames).not.toContain('agent.spawn')
+    expect(exposedNames).not.toContain('editor.write')
   })
 
   it('keeps discuss read-only even when a legacy workflow authorization is present', () => {
@@ -360,7 +380,7 @@ describe('authorizeDialogueTools', () => {
 })
 
 describe('appendDialogueToolSurfaceDeclaration', () => {
-  it('explains active task semantics and forbids false no-permission claims', () => {
+  it('explains active task semantics as facts without behavior bans', () => {
     const task = activeTask('partially_applied')
     const prompt = appendDialogueToolSurfaceDeclaration(
       '系统提示',
@@ -371,19 +391,57 @@ describe('appendDialogueToolSurfaceDeclaration', () => {
     expect(prompt).toContain(task.id)
     expect(prompt).toContain(task.status)
     expect(prompt).toContain('task.resume')
-    expect(prompt).toContain('禁止声称“没有写入权限”')
+    expect(prompt).toContain('本轮工具面未包含 editor.write')
+    expect(prompt).toContain('当前存在编辑任务')
+    expect(prompt).not.toContain('禁止')
+    expect(prompt).not.toContain('必须')
   })
 
-  it('keeps the ordinary write declaration when no task is active', () => {
+  it('states the ordinary write surface when no task is active', () => {
     const prompt = appendDialogueToolSurfaceDeclaration('系统提示', [
       { name: 'editor.write', policy: 'write' },
     ])
 
-    expect(prompt).toContain('你已获得编辑器写入权限')
+    expect(prompt).toContain('本轮工具面包含 editor.write(write)')
+    expect(prompt).not.toContain('你已获得编辑器写入权限')
+    expect(prompt).not.toContain('不要声称')
     expect(prompt).not.toContain('task.resume')
   })
 
-  it('declares restored write permission for an awaiting retry task', () => {
+  it('states direct-write authorization for an active edit task', () => {
+    const prompt = appendDialogueToolSurfaceDeclaration(
+      '你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。',
+      [
+        { name: 'editor.get_state', policy: 'read' as const },
+        { name: 'editor.write', policy: 'write' as const },
+      ],
+      {
+        activeEditTask: activeTask('partially_applied'),
+        executionPlan: {
+          planId: 'plan-declaration',
+          operation: 'restructure_and_cleanup',
+          operationResolution: { source: 'intent', matched: 'restructure_and_cleanup' },
+          mode: 'edit-task',
+          segments: [],
+          invariants: [],
+          estimatedPhysicalRequests: 1,
+          progressLabel: '重构并整理',
+          finalDraft: false,
+          finalDraftPlan: null,
+          totalChars: 100,
+          estimatedDocumentTokens: 100,
+          contextWindow: { status: 'provider-declared', contextWindowTokens: 128000, maxOutputTokens: null, effectiveInputTokens: 100 },
+          decision: 'fits',
+        },
+      },
+    )
+
+    expect(prompt).toContain('应用已授权本轮通过 editor.write 直接写入编辑器')
+    expect(prompt).not.toContain('请给出建议和修改意见')
+    expect(prompt).toContain('本轮工具面包含 editor.write(write)')
+  })
+
+  it('states restored write capability for an awaiting retry task', () => {
     const task = { ...activeTask('awaiting_batch'), pendingBatches: ['batch-1'] }
     const prompt = appendDialogueToolSurfaceDeclaration(
       '系统提示',
@@ -395,9 +453,29 @@ describe('appendDialogueToolSurfaceDeclaration', () => {
       { activeEditTask: task },
     )
 
-    expect(prompt).toContain('写入权限已恢复')
+    expect(prompt).toContain('本轮工具面包含 editor.write(write)')
     expect(prompt).toContain('editor.write')
-    expect(prompt).not.toContain('本轮未开放 editor.write')
+    expect(prompt).not.toContain('本轮工具面未包含 editor.write')
+  })
+
+  it('exposes the declaration as an auditable prompt injection record', () => {
+    const toolSurface = [{ name: 'editor.get_state', policy: 'read' as const }]
+    const active = activeTask('partially_applied')
+    const record = buildDialogueToolSurfaceDeclarationAudit({
+      source: 'home',
+      toolSurface,
+      activeEditTask: active,
+    })
+
+    expect(record.type).toBe('dialogue-tool-surface-declaration')
+    expect(record.source).toBe('home')
+    expect(record.trigger).toBe('request-built')
+    expect(record.visibleToModel).toBe(true)
+    expect(record.toolSurface).toEqual(toolSurface)
+    expect(record.text).toBe(appendDialogueToolSurfaceDeclaration('系统提示', toolSurface, {
+      activeEditTask: active,
+    }))
+    expect(record.origin).toBe('application')
   })
 })
 

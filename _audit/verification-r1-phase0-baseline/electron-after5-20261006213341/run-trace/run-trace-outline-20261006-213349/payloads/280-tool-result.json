@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-3-1rlyhj7",
+      "title": "第三卷·远征与暗流",
+      "kind": "heading",
+      "level": 3,
+      "path": "第三卷·远征与暗流"
+    },
+    "range": {
+      "start": 9502,
+      "end": 9562
+    },
+    "offset": 0,
+    "maxChars": 60,
+    "content": "### 第三卷·远征与暗流\n\n第三卷开始依旧是岫岩镇的故事。庞大的迁移人口所需事情很多，这里可以详细地展开故事，把岫岩镇",
+    "hasMore": true,
+    "nextCursor": "section:heading-3-1rlyhj7:60",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

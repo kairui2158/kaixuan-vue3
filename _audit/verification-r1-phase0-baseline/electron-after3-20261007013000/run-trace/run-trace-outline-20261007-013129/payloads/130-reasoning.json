@@ -1,0 +1,405 @@
+The story core paste instruction was already not present — good. Now the note "粘贴到「故事核心」下..." isn't in the actual document (it was in the ContextPack/current focus text shown to me, but the actual editor already has it integrated as 【核心张力】 section).
+
+Now let me proceed with the remaining cleanup. The main restructure issues:
+
+1. "背景参考资料" section contains "灾前军事基准线与菌毯的不可根除性" which has sub-headings "一、2042年..." "二、菌毯为什么火力推不平" "三、总结..." at level 4 (####). These are inside a level-2 "背景参考资料", so #### is odd but acceptable. Actually the issue: "灾前军事基准线与菌毯的不可根除性" should be a level-3 (###) heading. Currently it's at level 3 (###), good. Its children "一/二/三" are #### level 4. That's fine within the structure.
+
+Wait — there might be a deeper structural issue. Let me look at the overall structure to identify mis-nested headings. Let me think about the Word-document form.
+
+The top level is `# 《绿潮》大纲总纲`.
+
+Level 2 (##):
+- 叙事框架
+- 背景参考资料
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系
+- 六大势力概览 (now ##)
+- 圣萌会的崛起 (now ##)
+- 巨树生长与天府都陷落 (now ##)
+- 世界设定声明
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+Now, there are issues:
+1. "背景参考资料" (##) contains a large block of narrative text PLUS "灾前军事基准线与菌毯的不可根除性" (###). That's OK.
+
+2. "数据板的局限" (##) content appears TWICE: once in "背景参考资料" (## 背景参考资料 ends with the 数据板 text), and once as standalone "## 数据板的局限". Let me check. Looking at the initial full read:
+
+In "背景参考资料" section (10189-16232), after the narrative about 陈暮 building 岫岩镇 and 菌膜雨衣 etc, there's "灾前军事基准线与菌毯的不可根除性" then "一/二/三". Then the section ends.
+
+Then "## 数据板的局限" (16234-16789) is separate.
+
+But wait, in the [当前焦点全文] shown at the top of my context, I saw:
+
+```
+## 背景参考资料
+...
+他在独行中找到了少量幸存者...
+这些民生技术在末日世界里比任何武器都更珍贵。
+灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么
+...
+三、总结...
+...
+
+数据板的局限
+数据板不是百宝箱...
+数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱...
+数据板提供的是火种，不是火炬。
+```
+
+So "数据板的局限" text appears TWICE: once at the end of "背景参考资料" (without a ## heading, just plain text "数据板的局限" followed by content), and once as a proper "## 数据板的局限" heading with content.
+
+Let me verify by reading the end of "背景参考资料" section and the start of "数据板的局限".
+
+Actually from my earlier read of heading-2-1lka0h8 (背景参考资料), the content ended at "末日十年后，所有人类势力都明白了一个道理：菌毯是不可根除的..." then "终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。" and then blank lines. That's charCount 16232 end.
+
+But wait — that read showed the section ended with the "三、总结" content, NOT with a "数据板的局限" duplicate. Let me re-check. The read of heading-2-1lka0h8 returned content ending with:
+
+"末日十年后，所有人类势力都明白了一个道理：菌毯是不可根除的。不是暂时打不过，是永远打不完。弹药用光之前它不会死。人类能做的不是击败菌毯，而是在它的覆盖范围内找到一种与它共存的方式——让菌丝网络不再认为人类是异己。终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。"
+
+Then blank. So the 背景参考资料 section does NOT contain the duplicate 数据板 text in the current editor. 
+
+But the [当前焦点全文] in my context (which reflects the outline ContextPack, not the editor) showed "数据板的局限" appearing after 背景参考资料 content, then "## 数据板的局限" again. That was the ContextPack (outline source), which may differ from the editor (active_tab = 大纲编辑器). 
+
+Actually the editor IS the outline. The ContextPack at the very top is "来源=outline" — that's a snapshot of the outline content. But the editor content is what I read via editor.read_range.
+
+Hmm, there's a discrepancy. Let me carefully check: The [当前焦点全文] shows after "背景参考资料" narrative ends with "...这些民生技术在末日世界里比任何武器都更珍贵。" then immediately "灾前军事基准线与菌毯的不可根除性" ... "三、总结..." ... then:
+
+"数据板的局限
+数据板不是百宝箱...
+数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱...
+数据板提供的是火种，不是火炬。"
+
+Wait, that's what the 焦点全文 showed. But the editor read of heading-2-1lka0h8 (背景参考资料) showed it ended at "三、总结" content with "不可战胜"的承认" — no duplicate 数据板.
+
+Let me reconcile. The [当前焦点全文] might be showing the outline ContextPack BEFORE my edits, and it might have shown both a duplicate. But actually the ContextPack is "来源=outline" — same as editor? The editor get_state showed targetId "outline".
+
+Actually wait, re-reading the [当前焦点全文] — it's a long text dump. Let me look again at what it showed around "数据板的局限":
+
+From the 焦点全文:
+```
+...他发现自己能在菌毯上自由行走...
+他在独行中找到了少量幸存者，以实验室为原点建立了岫岩镇。他把数据板手稿中的技术逐一验证实现——菌膜雨衣、共生医疗凝胶、菌膜净水壶、菌膜睡袋、菌膜粮仓——这些民生技术在末日世界里比任何武器都更珍贵。
+灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么
+...
+三、总结：人类真正被压制的根本机制
+...
+末日十年后，所有人类势力都明白了一个道理...
+终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。
+
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的...
+数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。方岫岩在八个月里记录下的...
+数据板提供的是火种，不是火炬。
+```
+
+Hmm wait, actually I need to look more carefully. The 焦点全文 I was given shows TWO copies. But the editor read of heading-2-1lka0h8 ended cleanly at "不可战胜"的承认" with blank lines, charCount 16232 end. And heading-2-z4sxm8 (数据板的局限) starts at 16234.
+
+So where does the duplicate "数据板的局限" plain-text copy come from in the 焦点全文? Let me look again...
+
+Actually, I think I misread. Let me re-examine. The 焦点全文 section after "灾前军事基准线" content:
+
+Looking at the 焦点全文 I received, near the end of 背景参考资料:
+"末日十年后，所有人类势力都明白了一个道理：菌毯是不可根除的。不是暂时打不过，是永远打不完。弹药用光之前它不会死。人类能做的不是击败菌毯，而是在它的覆盖范围内找到一种与它共存的方式——让菌丝网络不再认为人类是异己。终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。
+
+数据板的局限
+数据板不是百宝箱。..."
+
+Hmm, wait. Actually in the 焦点全文, after "终局时那行写入的共存补丁..." there's a section labeled "数据板的局限" WITHOUT a "##" markdown, followed by content, then blank, then "## 数据板的局限" with content.
+
+But this could be the ContextPack showing the outline structure in a way where "数据板的局限" appears once as a paragraph (heading text without proper ##?) and once as heading-2. 
+
+Actually, let me look at the outline structure map at the very top of my context:
+```
+- [heading-2-1lka0h8] 背景参考资料 (10230-16801, 6561字)
+- [heading-2-z4sxm8] 数据板的局限 (16801-17356, 545字)
+```
+
+So in the outline ContextPack, 背景参考资料 is 10230-16801, and 数据板的局限 is 16801-17356. That means the "数据板的局限" text appears ONCE as a ## heading at 16801-17356.
+
+But the editor's current positions differ slightly (background 10189-16234, 数据板 16234-16789) because of my edits removing some content? No, my edits were minor (2 char fixes + heading level changes + comma).
+
+Hmm, the discrepancy between outline ContextPack positions (10230, 16801) and editor positions (10189, 16234) suggests the ContextPack is a DIFFERENT/older snapshot than the editor. The ContextPack was captured at version v-3d8cedd1, while editor is at documentVersion 37.
+
+The [当前焦点全文] is likely derived from the ContextPack (outline), which may contain the duplicate "数据板的局限" — OR it may just be showing the heading text "数据板的局限" as a paragraph plus the actual heading.
+
+This is getting complicated. Let me focus on what I can verify in the EDITOR (which is what I'm editing and what matters).
+
+Key question: Does the editor currently contain duplicate content? Let me check by searching for "数据板的局限" in the editor.
+
+Actually, more efficient: use editor.search for "数据板提供的是火种" to see how many occurrences.
+
+Also I should check for the duplicate "菌膜外套" content — there are:
+- "## 菌膜外套：有限资源的临时通行方案" (heading-2, standalone)
+- "#### 7.8 菌膜外套：有限资源的临时通行方案" (heading-4, inside 卷一 七、)
+- "## 菌膜外套与共存补丁的关系" (heading-2, standalone)
+- "#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系" (heading-4, inside 卷一 七、)
+
+These are legitimate duplicates (the 卷一 七、 section includes 7.8 and 7.9 as sub-subsections that repeat the same content as the standalone level-2 sections). This might be intentional in the original, OR it might be duplication to clean up. But the user said "不要缩减内容" (don't reduce content), so I should NOT delete these. They're cross-references within the 卷一 setting layer.
+
+Actually, wait. Let me think about what "按照Word文档的形式重构大纲" means. The user wants the outline restructured to look like a Word document. This likely means:
+1. Fix heading hierarchy (Word-style: 标题1, 标题2, 标题3...)
+2. Ensure tables are proper
+3. Remove artifacts
+
+The key structural problems I've found:
+1. "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" were nested under "菌膜外套与共存补丁的关系" — FIXED.
+2. The 背景参考资料 section has the "灾前军事基准线" content with tables using TAB separators instead of markdown pipe tables.
+
+Let me look more carefully at the tables. In the 焦点全文 and editor reads, I saw tables using TAB (\t) separators:
+
+```
+被孢子云直接废掉的武器系统
+系统类型\t直接致死原因\t失效时间线
+卫星制导武器...\t...\t...
+```
+
+These are tab-separated, which in Word would render as... actually in markdown they render as plain text, not tables. Converting to proper GFM pipe tables would be the "Word document form" improvement. But the user said "不要缩减内容" — converting tabs to pipes doesn't reduce content, it's format normalization.
+
+However, this is a huge undertaking and risky. Let me think about what's the most valuable and safe transformation.
+
+Actually, let me reconsider the scope. The task from agent.plan says:
+- goal: "按照Word文档的形式重构大纲，不要缩减内容。"
+- steps: read-structure, execute-restructure (标题层级修复或章节重排), confirm-duplicates (只删除已确认的重复项), normalize-segments (按计划批次整理格式), verify-plan
+- completionCriteria: 执行计划中的全部写入批次成功; 完成不变量校验: planned-deletion-only, normalize-changes-punctuation-whitespace-format-only
+
+So the plan is:
+1. Fix heading hierarchy (done for 3 headings)
+2. Confirm and delete confirmed duplicates
+3. Normalize format (punctuation, whitespace)
+
+The "normalize-changes-punctuation-whitespace-format-only" invariant means my normalize edits should only change punctuation/whitespace/format, not content.
+
+For "planned-deletion-only" — I should only delete things that are confirmed duplicates or artifacts (like the paste instruction).
+
+Let me now identify all confirmed issues systematically. Let me search for key things.
+
+Let me check:
+1. Is there a duplicate "数据板的局限" in the editor?
+2. Are there duplicate "菌膜外套" and "菌膜外套与共存补丁" — yes (standalone ## + 7.8/7.9 subsections). But these are likely INTENTIONAL (卷一 sets them as 7.8/7.9 with additional context). Actually wait, looking at 7.9's content vs the standalone ## 菌膜外套与共存补丁的关系:
+
+Standalone ## (17537): 
+"菌膜外套是"让系统暂时看不到我们"——临时伪装...菌膜外套是权宜之计，共存补丁是终极解法。" (3 paragraphs, ends there)
+
+7.9 #### (48286):
+"菌膜外套是"让系统暂时看不到我们"——在穿戴者身上覆盖一层伪装层...终局之后...天空的绿色边缘，在十四年后，终于隐约透出一丝蓝。" (much longer, includes 终局之后 content)
+
+So they're NOT exact duplicates — 7.9 is a fuller version. These should be kept.
+
+Similarly 7.8 vs standalone 菌膜外套 — let me check 7.8 content vs standalone. Both describe 菌膜外套 with 4-6 hours, 200-300件 etc. They ARE essentially duplicates but with slight wording differences. These are intentional cross-references in the 卷一 structure (7.8 and 7.9 are part of 七、变异体主动攻击人类核心机制).
+
+Given "不要缩减内容", I should NOT delete these. They're part of the setting layer's chapter 七.
+
+3. The "灾前军事基准线与菌毯的不可根除性" content — the heading is "### 灾前军事基准线与菌毯的不可根除性" (level 3), but it's missing a blank line after the heading and the sub-headings "一/二/三" are "####" (level 4). Within 背景参考资料 (##), level 3 and 4 are appropriate.
+
+4. Tab-separated tables → should convert to GFM pipe tables for "Word document form". But there are MANY tables. Actually, let me count how many tab-separated tables there are.
+
+Actually, in the markdown source, the tables like "势力总表", "地名对照总表" etc are ALREADY pipe tables (I saw them in the document_map summaries with | separators). But the tables in "灾前军事基准线" section (被孢子云直接废掉的武器系统, 层级表) are TAB-separated.
+
+Let me search the editor for tab characters or specific table content.
+
+Actually, given the constraints (this is a huge document, and I should be careful), let me prioritize:
+
+The MOST impactful "Word document form" restructure:
+1. ✅ Fix mis-nested headings (3 fixed)
+2. Fix the tab-separated tables in 灾前军事基准线 → pipe tables
+3. Check and fix any heading level inconsistencies (e.g., "一、2042年，人类手里有什么" should be "###" not "####"? No wait — it's under "### 灾前军事基准线" which is under "## 背景参考资料", so "####" is correct for 一/二/三).
+
+Actually wait, let me reconsider the heading levels more carefully for Word form.
+
+Word document structure:
+- 标题1: 《绿潮》大纲总纲 (level 1)
+- 标题2: 叙事框架, 背景参考资料, 数据板的局限, 菌膜外套..., 世界设定声明, 卷一, 卷二, 卷三, 卷四
+- 标题3: (within each)
+- etc.
+
+Current structure seems mostly correct now.
+
+The remaining format issues I've identified:
+1. Tab-separated tables in 背景参考资料 → 灾前军事基准线 section.
+2. Some headings lack blank lines after them (e.g., "#### 一、2042年，人类手里有什么\n2042年的人类文明..." — the heading is immediately followed by content with no blank line).
+
+Let me verify issue #2 by looking at the read of heading-4-1h0cojh:
+"#### 一、2042年，人类手里有什么\n2042年的人类文明正处于..."
+
+Yes! There's no blank line between "#### 一、2042年，人类手里有什么" and "2042年的人类文明". Compare with proper markdown which needs a blank line. Also the section content uses "#### 一" directly with content.
+
+Similarly "#### 二、菌毯为什么火力推不平\n物量储备的物理事实" — wait I already fixed "物量储备" → "生物量储备". But the heading "#### 二、菌毯为什么火力推不平" is immediately followed by "生物量储备的物理事实" with no blank line? Let me check. From my earlier read of heading-2-1lka0h8:
+
+"#### 二、菌毯为什么火力推不平\n物量储备的物理事实\n菌毯不是一层皮..."
+
+Yes, no blank line after "#### 二" heading.
+
+These missing blank lines are format issues. But there could be many. This is getting into a large normalization effort.
+
+Given the scale and the risk of introducing errors, let me be strategic. The user's core request is "按照Word文档的形式重构大纲，不要缩减内容". 
+
+The most important structural fix (heading hierarchy for the 3 mis-nested sections) is done. The other big "Word form" issue is the tab-separated tables.
+
+Let me focus on converting the tab-separated tables to GFM pipe tables, since those are clearly "not Word/markdown table form" and would look broken.
+
+Let me find all tab-separated tables. There are two in the 灾前军事基准线 section:
+1. "被孢子云直接废掉的武器系统" table (系统类型 | 直接致死原因 | 失效时间线) - 9 rows
+2. "层级 | 成分与结构 | 生物量占比（估算）| 武器可触及性" table - 5 rows
+
+These use \t (tab) as separators. In the read output, I saw them as "系统类型\t直接致死原因\t失效时间线" — literally tab characters.
+
+Let me convert these two tables to GFM pipe tables.
+
+But wait — I need to be careful about the exact tab characters in the target. Let me re-read the exact content to get the exact tabs.
+
+Actually, I already have the content from the earlier read of heading-2-1lka0h8 (the 灾前军事基准线 part) and heading-4-1h0cojh. Let me extract the exact text.
+
+From heading-4-1h0cojh read (which is "一、2042年，人类手里有什么", 12101-14398):
+
+```
+被孢子云直接废掉的武器系统
+系统类型\t直接致死原因\t失效时间线
+卫星制导武器（GPS/北斗/格洛纳斯制导）\t低轨道卫星全部坠入大气层（大纲§6.6），天基导航信号源永久消失\t数月内全部失效，首批卫星在数周内坠毁
+无人机蜂群（全球鹰/XQ-58/暗剑级别）\t卫星中继链路中断→编队协同瘫痪；低空无人机可惯性导航但精度急剧下降；高空无人机发动机吸入孢子颗粒→压气机叶片磨损→机械故障率飙升\t24小时内失去超视距作战能力，72小时内高空无人机大面积坠毁
+精确制导弹药（JDAM/制导炮弹/激光制导）\t激光制导透过孢子云严重衰减；毫米波雷达被孢子颗粒散射；末端成像制导饱和度和对比度不足\t命中精度从米级退化至百米级，沦为“昂贵的铁炸弹”
+天基预警与侦察\t可见光/红外/合成孔径雷达卫星全部被孢子云遮蔽，对地观测能力归零\t72小时内全球侦察能力丧失
+全球战略通讯\t卫星通讯链路全断，高频无线电受孢子电离层干扰，超视距通讯退化为地面中继\t72小时内长距通讯中断，“各自为战”
+弹道导弹防御\t预警卫星全瞎+拦截器末端制导依赖雷达/红外（被孢子云衰减）\t24小时内丧失战略预警能力
+核武器精确投送\t洲际导弹依赖天文惯性导航+星载修正；失去卫星修正后圆误差概率从百米级退化至千米级\t已部署的弹头仍可发射，但命中精度不足以区分目标
+舰船/潜艇远洋导航\t依赖GPS/惯导+海图，失去GPS后远洋定位退化为数公里误差\t逐渐累积，远洋舰队陆续失能
+核心逻辑：孢子云没有摧毁任何一发子弹或一枚核弹头。...
+```
+
+This is a tab-separated table. Converting it to GFM pipe table.
+
+And the second table from heading-4-k50yzv (二、菌毯为什么火力推不平):
+
+```
+层级\t成分与结构\t生物量占比（估算）\t武器可触及性
+地表菌丝层\t编织状菌丝交织成毡...\t约5%\t武直、轰炸机、地面部队均可触及，是最容易摧毁的表层
+菌丝毡下层\t松散的垂直菌丝束...\t约10%\t钻地弹可触及，但菌丝的粘弹性吸收冲击波，毁灭范围远小于对混凝土的
+地下主根须网络\t菌丝沿基岩裂缝和含水层向下扎根...\t约60%\t钻地弹的穿透深度有限（核钻地弹最多数百米），常规弹药完全够不到
+深层菌丝基质\t嵌在岩层和含水层中的菌丝细胞悬浮液与钙化菌丝碎片...\t约25%\t完全无法触及
+```
+
+OK. Converting these two tables to pipe format.
+
+Actually, let me reconsider whether I should convert these tables. The instruction says "如果本次回答需要展示表格，必须使用 GFM 标准表格" — this applies to MY response output, not necessarily to the document content. But "按照Word文档的形式重构大纲" suggests making the document itself cleaner.
+
+The tables with tabs would render poorly. Converting them to markdown pipe tables is a format improvement (whitespace/format only, no content change) — consistent with the "normalize-changes-punctuation-whitespace-format-only" invariant.
+
+Let me do these two table conversions. But I need to be very careful with exact tab characters in the target fragments.
+
+Actually, a cleaner approach: use replace_match on the whole table block. But the fragments are long with special chars. Let me do it carefully.
+
+Actually, maybe I should reconsider the scope of this task. I've already made the key structural fix. Let me assess: is converting tab-tables essential?
+
+The user said "按照Word文档的形式重构大纲". In Word, tables are tables. In markdown, tables should be pipe tables. The tab-separated tables are a markdown rendering problem — they'd show as raw text with tabs.
+
+However, there's risk in doing many large replacements. Let me do the two most obvious ones (the two tab-tables in 灾前军事基准线), since they're clearly format artifacts.
+
+Actually, let me reconsider. Are there really only 2 tab tables? Let me also check for the "层级" table — that's the second one. The first is "被孢子云直接废掉的武器系统". Both are in the 灾前军事基准线 section.
+
+Let me also check: are there other tab-separated tables elsewhere? The document_map summaries show pipe tables (| separated) for 势力总表, 地名, etc. So those are fine. Only the 灾前军事基准线 section uses tabs.
+
+Let me now write the conversion. I'll do it as replace_match for each table. But given the length, I need the exact text.
+
+For table 1, I'll replace the block from "被孢子云直接废掉的武器系统\n系统类型\t直接致死原因\t失效时间线\n" through "...舰船/潜艇远洋导航\t依赖GPS...失能\n" with a pipe version.
+
+Actually, the replace_match needs a UNIQUE target fragment. Let me use the full table block as target and provide the pipe version as content.
+
+Let me be careful with the tab characters. In the read output, tabs appeared as "\t" (I need to check if they're literal tabs or the literal backslash-t). Looking at the read output: "系统类型\t直接致死原因\t失效时间线" — in the JSON it's likely literal tab characters (since the content preview showed actual tabs). Actually, in the tool result, it rendered as "系统类型\t直接致死原因\t失效时间线" — this could be either. But markdown source with actual tabs would be unusual for this document since other tables use pipes.
+
+Hmm, actually, it's possible the original document used tabs and the system is showing them. To be safe, I should read the raw content precisely.
+
+Let me re-read the exact range with a smaller window to see the actual characters. Actually, the read already gave me the content. The "\t" in the JSON output represents a literal TAB character (JSON doesn't escape tabs in the displayed text, but the actual content might have tabs).
+
+Wait, actually in the raw content, if I see "系统类型\t直接致死原因" in the read result, that "\t" is likely the actual tab character being displayed. But it could also be literal "\t" text.
+
+This ambiguity is dangerous for replace_match. Let me use a different strategy: use editor.locate to find a fragment with the tab, or better, read the raw content.
+
+Actually, a safer approach: I can avoid the tab issue by NOT trying to match the tabs exactly. Instead, I could note the issue and focus on the heading restructure which is the primary "Word form" concern.
+
+Let me step back and think about what "重构大纲为Word文档形式" most likely means to this user, and what's achievable safely.
+
+The document currently has markdown structure. "Word文档的形式" likely means:
+1. Clear heading hierarchy (标题1-5) — mostly done, I fixed 3 mis-nested.
+2. Tables rendered properly.
+3. No stray artifacts/instructions.
+
+The tab tables are a real issue but risky to convert via exact tab matching. Let me try a careful approach: read the raw text of just the table header to determine if it's tab or pipe.
+
+Actually, I already have strong evidence: In the earlier full read of heading-2-1lka0h8, I saw:
+
+"被孢子云直接废掉的武器系统\n系统类型\t直接致死原因\t失效时间线\n卫星制导武器..."
+
+The "\t" appearing in the JSON string — in the raw markdown, if these were literal backslash-t (i.e., the characters "\" and "t"), that would be very unusual. More likely they're actual tab characters.
+
+But actually, wait — I recall from the 焦点全文 (ContextPack) at the very top, the tables appeared as:
+
+"系统类型	直接致死原因	失效时间线" (with actual wide spacing = tabs)
+
+Yes, in the 焦点全文, the table was rendered with actual tab characters (shown as whitespace). So the document uses literal tab characters.
+
+To convert safely, I'll match a SHORT unique fragment that doesn't involve tabs, and replace incrementally. But replace_match replaces exact text; I can't "insert pipes around tabs" without matching the tabs.
+
+Alternative: I can match a line WITHOUT tabs and replace it with pipe version. E.g., match "被孢子云直接废掉的武器系统" (header line, no tabs) — but I need to also fix the following lines.
+
+Actually, the cleanest: replace the entire table block in ONE replace_match where target is the exact multi-line text INCLUDING tabs, and content is the pipe version.
+
+To get the exact tabs, let me read the raw range again and carefully transcribe. The read tool returns content with actual tab characters. When I copy them into my replace_match target, I need to reproduce them exactly.
+
+Hmm, but there's risk the tab characters in the read output are actually spaces or something. Let me verify with editor.locate using a fragment that includes the tab.
+
+Actually, let me try a simpler diagnostic: search for a pipe "|" in that section vs tab. 
+
+Let me just try editor.locate with a fragment containing what I believe is a tab, to see if it matches.
+
+Actually, this is getting too deep. Let me take a pragmatic approach:
+
+The heading restructure (the main structural issue) is done. For the tab tables, I'll attempt the conversion but verify carefully. If it fails (target_not_found), I'll re-read and adjust.
+
+Actually, let me reconsider whether converting tab-tables is even in scope. The invariant says "normalize-changes-punctuation-whitespace-format-only". Converting tabs to pipe tables is "format" — yes in scope.
+
+But the bigger question: is it worth the risk? The user wants Word-document form. Tab-separated tables in Word would actually... hmm, in Word, if you paste tab-separated text it can be converted to a table. So maybe the tabs ARE the "Word form" and I should leave them? No, that's overthinking.
+
+Let me focus on what's clearly broken and fix it:
+
+1. ✅ Fixed 3 mis-nested headings.
+2. Missing blank lines after headings (many).
+3. Tab tables.
+
+For #2 and #3, these are pervasive. Doing them ALL would be a massive number of edits and high risk.
+
+Let me reconsider the plan. The agent.plan's completion criteria:
+- 执行计划中的全部写入批次成功
+- 完成不变量校验: planned-deletion-only, normalize-changes-punctuation-whitespace-format-only
+
+So I should complete the plan's write batches. The plan steps are generic (restructure headings, delete confirmed duplicates, normalize segments).
+
+I think the highest-value, lowest-risk remaining work:
+1. Convert the 2 tab tables (format).
+2. Add missing blank lines after the "一/二/三" headings in 灾前军事基准线 (format).
+3. Verify there are no confirmed exact-duplicate paragraphs to delete.
+
+Actually, let me check for exact duplicate paragraphs. The most likely duplicate is the "数据板的局限" content possibly appearing twice. Let me search the editor.
+
+Let me search for "数据板不是百宝箱" and "菌膜外套是" to check counts.
+
+Let me do these searches now.

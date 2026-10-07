@@ -1,0 +1,30 @@
+{
+  "taskId": "edit-task-1791288930106-3",
+  "status": "awaiting_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "structure-repair 批次：将挂在“菌膜外套与共存补丁的关系”技术说明下的五个主线剧情小节提升为独立二级章节，使层级与语义并列关系一致",
+  "executedBatches": [
+    "ai-edit-muwn6gbo-c"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "structure-repair 批次：将挂在“菌膜外套与共存补丁的关系”技术说明下的五个主线剧情小节提升为独立二级章节，使层级与语义并列关系一致",
+    "batches": [
+      "ai-edit-muwn6gbo-c"
+    ],
+    "batchDetails": {
+      "ai-edit-muwn6gbo-c": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74586
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      }
+    }
+  }
+}

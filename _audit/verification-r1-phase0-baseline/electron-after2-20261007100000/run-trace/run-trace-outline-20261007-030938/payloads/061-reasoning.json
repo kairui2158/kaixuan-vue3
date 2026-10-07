@@ -1,0 +1,29 @@
+Let me look at what progress I've made and what remains. The user asked me to restructure the outline as a Word document without reducing content. Let me check the current state:
+
+1. I've moved the "世界设定声明" to the front (before "叙事框架")
+2. I've converted three floating H2 sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁) from H2 to H3, nesting them under 背景参考资料
+3. I've deleted the "粘贴到" editing instruction text
+4. I've deleted the duplicate "数据板的局限" text from within 背景参考资料
+5. I've added an H3 heading for "灾前军事基准线与菌毯的不可根除性"
+6. I've fixed the spacing issue in the story core section
+7. I've removed half-width spaces after Chinese periods in several places
+
+Now let me think about what else needs to be done for the Word document format:
+
+1. The overall structure should now be:
+   - 世界设定声明 (moved to front)
+   - 叙事框架 (故事核心, 第一卷, 第二卷, 第三卷)
+   - 背景参考资料 (includes 灾前军事基准线, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁)
+   - 卷一：基石设定层
+   - 卷二：核心人物群像
+   - 卷三：势力与格局层
+   - 卷四：叙事工具箱层
+
+The structure looks fairly clean now. Let me verify the current document state by reading the document map and checking the beginning and some key sections.
+
+Let me also check if there are other issues like:
+- The 背景参考资料 section now correctly nests the three sub-sections
+- The world setting declaration is at the front
+- Table formatting is correct (tab-separated tables should be converted to markdown tables)
+
+Let me check the state of the document.

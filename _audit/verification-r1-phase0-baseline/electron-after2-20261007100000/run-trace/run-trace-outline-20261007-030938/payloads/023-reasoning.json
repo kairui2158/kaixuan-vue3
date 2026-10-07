@@ -1,0 +1,13 @@
+Let me understand the task. The user wants: "按照Word文档的形式重构大纲，不要缩减内容。" (Restructure the outline in the form of a Word document, without reducing content.)
+
+But the execution plan (agent.plan) has specific rules. Let me read the current execution plan first to understand what I'm actually allowed/required to do.
+
+Actually, I already got an error from reorder_sections saying "operation_not_allowed_by_execution_plan". The error message describes the plan:
+
+"复合重构请分三阶段执行：先读取结构，用 move 把误归位标题与段落移动到正确层级，用 insert 为无标题正文补标题、用 replace_match/rewrite 仅修正既有标题层级；再只读确认重复项并提交唯一目标删除命令；最后提交 replace_match/rewrite 命令完成标点、空白、编号与标题层级整理。新增标题必须紧贴对应正文且不得改写正文内容；删除重复段落后必须校验有效正文未丢失。禁止整篇 replace_document，禁止把未确认内容当作重复项删除，禁止丢弃有效正文内容。整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74841]）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令，禁止把同段多条命令拆成多次调用；未覆盖全部计划段落前，禁止输出"任务完成"总结。计划批次数量是 3；执行侧允许的物理请求轮次为 36 轮，尚未完成前不要把工具轮次耗尽。中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）；这是完成校验的强制条件，不是可选项。统一标题层级前必须先读取结构：消除层级跳变并把标题归位到文档既有层级体系，禁止无依据地把标题层级改深或改浅。"
+
+So I need to read agent.plan to understand the actual plan. Let me call agent.plan.
+
+The key point: The task is to normalize/restructure the outline into a Word-document-like form WITHOUT reducing content. The plan has 3 phases (批次数量 3), 36 physical request rounds.
+
+Let me read the plan first.

@@ -188,7 +188,6 @@ import { getProviderReasoningControl } from '../../services/providerProtocols'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from '../../services/generationValidity'
 import { buildWorkspaceSkillGuidance, createRoutingAwaitState, inferRoutingFallbackIntent, resolvePostProcessTerminalStatus, runWorkspaceSkills, validateRoutingResumeToken, type ChainRoutingEvent, type WorkspaceSkillEngineAdapter, type WorkspaceSkillToolRequest, type WorkspaceSkillTemplate } from '../../services/workspaceSkillEngine'
 import { collectSkillPackageProtocolDiagnostics, type RealSkillDiagnostic } from '../../services/realSkillExecutor'
-import type { EditorWriteContaminationDecision } from '../../services/editorTools'
 import {
   classifyPlainDialogueIntentDetailed,
   routeChainIntentDetailed,
@@ -198,6 +197,7 @@ import {
 } from '../../services/chainIntentRouter'
 import { createApiCallBudget } from '../../services/apiCallBudget'
 import type { ApiCallBudget } from '../../services/apiCallBudget'
+import { LONG_DOCUMENT_ACTIVE_TIMEOUT_MS } from '../../services/stateWatchdog'
 import { getWorkspaceSkillAgentKey } from '../../services/skillAgentBinding'
 import { MCPProtocol } from '../../services/mcp-protocol'
 import { retrieveContext } from '../../services/memoryRetriever'
@@ -214,6 +214,7 @@ import {
   toLongDocumentOperationType,
 } from '../../services/longDocumentExecutionPlanner'
 import type { LongDocumentExecutionPlan } from '../../services/longDocumentExecutionPlanner'
+import { calculateLongDocumentPhysicalRequestBudget } from '../../services/longDocumentWriteProtocol'
 import type { DialoguePermissionDecision, DialogueWriteAuthorization } from '../../services/dialogueToolSurface'
 import type { LongDocumentOperationType } from '../../services/longDocumentPolicy'
 import type { ContextMessage } from '../../types/context'
@@ -232,11 +233,13 @@ import { logEditorEdit, logEditorPresentation } from '../../services/editorEditD
 import { captureWorkspaceSnapshot, clearWorkspaceSnapshot, hasWorkspaceSnapshot, restoreWorkspaceSnapshot } from '../../services/workspaceSnapshot'
 import {
   appendDialogueToolSurfaceDeclaration,
+  buildDialogueToolSurfaceDeclarationAudit,
   authorizeDialogueTools,
   type AgentToolDefinition,
   buildDialogueToolSurface,
   describeDialogueToolSurface,
   type EditorRevealer,
+  type EditorWriteContaminationDecision,
   type EditorWriteApplier,
   type EditorWriteApplyInput,
   type ToolResult,
@@ -246,9 +249,9 @@ import {
 } from '../../services/dialogueToolSurface'
 import { classifyPlainDialogueIntent, type PlainDialogueIntent } from '../../services/plainDialogueIntent'
 import type { ChatMessage } from '../../stores/chat'
-import { useRunTraceStore, type RunTraceMessage, type RunTraceStatus } from '../../stores/runTrace'
+import { useRunTraceStore, type RunTrace, type RunTraceMessage, type RunTraceStatus } from '../../stores/runTrace'
 import { createAgentDialogueRuntime } from '../../services/agentDialogueRuntime'
-import { mapAgentResultToRunTrace } from '../../services/agentTerminalMapping'
+import { mapAgentResultToRunTrace, mergeEditTaskTerminal } from '../../services/agentTerminalMapping'
 import {
   activeExecutionTaskStore,
   type ActiveExecutionTask,
@@ -528,6 +531,7 @@ function startHomeRun(
   skillNames: string[] = [],
   options: {
     intent?: PlainDialogueIntent
+    longDocument?: boolean
     permissionDecision?: DialoguePermissionDecision
     writeMode?: 'direct'
     toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
@@ -535,6 +539,9 @@ function startHomeRun(
   } = {},
 ) {
   const provider = providerStore.activeGenerateProvider
+  const timeoutHint: RunTrace['timeoutHint'] = options.longDocument
+    ? { active: LONG_DOCUMENT_ACTIVE_TIMEOUT_MS }
+    : undefined
   homeStreamLength = 0
   const activeRun = homeRunTraceId ? runTraceStore.getRun(homeRunTraceId) : null
   if (
@@ -557,6 +564,7 @@ function startHomeRun(
       model: provider?.selectedModel || provider?.models?.[0],
       skillNames,
       skillMode: skillNames.length ? mode : undefined,
+      timeoutHint,
       target: homeTraceTarget(),
       context: {
         turns: messages.value.filter(item => item.role === 'user').length
@@ -569,6 +577,7 @@ function startHomeRun(
     skillNames,
     mode,
     intent: options.intent,
+    timeoutHint,
     permissionDecision: options.permissionDecision,
     writeMode: options.writeMode,
     toolSurface: options.toolSurface,
@@ -609,7 +618,11 @@ function finishHomeRun(status: RunTraceStatus, error?: string, resultPreview?: s
   const runId = homeRunTraceId
   if (!runId) return
   if (status === 'canceled' || status === 'failed') {
-    runTraceStore.cancelRunningApiCalls(runId, error || (status === 'canceled' ? '用户取消生成' : '运行失败'))
+    if (status === 'canceled') {
+      runTraceStore.cancelRunningApiCalls(runId, error || '用户取消生成')
+    } else {
+      runTraceStore.failRunningApiCalls(runId, error || '运行失败')
+    }
   }
   const run = runTraceStore.getRun(runId)
   if (run && resultPreview) run.resultPreview = resultPreview
@@ -709,6 +722,7 @@ function finishHomeApiCall(callId: string | undefined, result: {
   contextBudgetDecision?: ContextBudgetDecision
   contextBudgetReason?: string
   usageReconciliation?: unknown
+  textOrigin?: 'application' | 'model'
   toolAudit?: unknown
 }) {
   const runId = homeRunTraceId
@@ -758,6 +772,7 @@ function recordHomePhysicalCall(callId: string | undefined, event: PhysicalCallE
   toolName: string
   toolCallId?: string
   input: unknown
+  argumentsRaw?: string
     result: ToolResult
     durationMs: number
     protocolVersion?: number
@@ -772,6 +787,7 @@ function recordHomePhysicalCall(callId: string | undefined, event: PhysicalCallE
     name: event.toolName,
     toolCallId: event.toolCallId,
     input: event.input,
+    argumentsRaw: event.argumentsRaw,
     result: event.result,
     status: event.result.ok ? 'success' : 'failed',
     durationMs: event.durationMs,
@@ -1076,6 +1092,7 @@ async function continueFinalDraftMessage(message: ChatMessage) {
   const releaseRunTracking = beginActiveHomeRunTracking()
   startHomeRun('continue-final-draft', '继续生成终稿', [], {
     intent: 'generate',
+    longDocument: true,
     writeMode: 'direct',
   })
   const aiService = await getAiService()
@@ -1164,6 +1181,7 @@ async function resumeFinalDraftMessage(message: ChatMessage) {
   const releaseRunTracking = beginActiveHomeRunTracking()
   startHomeRun('resume-final-draft', '从检查点恢复终稿', [], {
     intent: 'generate',
+    longDocument: true,
     writeMode: 'direct',
   })
   const aiService = await getAiService()
@@ -2269,6 +2287,7 @@ async function runHomeCoCreationSkills(
               toolName: toolResult.call.name,
               toolCallId: toolResult.call.id,
               input: toolResult.call.input,
+              argumentsRaw: toolResult.call.argumentsRaw,
               result: toolResult.result as ToolResult,
               durationMs: 0
             })
@@ -2284,6 +2303,7 @@ async function runHomeCoCreationSkills(
             contextBudgetDecision: meta.contextBudget?.decision,
             contextBudgetReason: meta.contextBudget?.reason,
             usageReconciliation: meta.usageReconciliation,
+            textOrigin: meta.textOrigin,
             durationMs
             })
           }
@@ -2338,7 +2358,7 @@ async function runHomeCoCreationSkills(
     }
   })
 
-  if (result.runState === 'awaiting_confirmation' && placeholderMessage) {
+  if (result.runState === 'awaiting_user' && placeholderMessage) {
     const fallbackSkillNames = getHomeSkillTemplates().map(template => template.name || template.id)
     const fallbackRouting = result.awaiting?.routing || result.routing
     const recommendedSkillIds = (result.awaiting?.recommendedSkills || []).map(template => template.id)
@@ -2365,7 +2385,7 @@ async function runHomeCoCreationSkills(
       label: '等待意图确认',
       detail: result.awaiting?.routing?.reason || '未识别到明确意图'
     })
-    if (homeRunTraceId) runTraceStore.startAwaitingUser(homeRunTraceId, 'awaiting_confirmation')
+    if (homeRunTraceId) runTraceStore.startAwaitingUser(homeRunTraceId, 'awaiting_user')
     activeHomeExecutionPlan = null
     return { text: '', toolCallSummary: null }
   }
@@ -2714,6 +2734,9 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     selectedCoCreationSkills.value.map(skill => skillStore.displaySkillName(skill)),
     {
       intent: requestIntent,
+      longDocument: useHomeFinalDraft
+        || homeExecutionPlan.mode === 'edit-task'
+        || homeExecutionPlan.decision !== 'fits',
       permissionDecision: skillSurface?.permissionDecision,
       writeMode: requestTarget.content ? 'direct' : undefined,
       toolSurface: skillToolSurface,
@@ -2832,6 +2855,9 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
   let homeAgentTerminalReason: string | undefined
   let homeTurnOutcomeVerified = false
   let homeTurnSucceeded = false
+  // A direct turn owns its physical-request budget. Reusing the last skill
+  // budget would carry its spent count into an unrelated dialogue path.
+  const directApiBudget = routingDecision.resumedApiBudget || createApiCallBudget(8)
   try {
     const provider = providerStore.activeGenerateProvider
     if (!provider) {
@@ -3135,8 +3161,21 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       const systemPrompt = appendDialogueToolSurfaceDeclaration(
         baseSystemPrompt,
         plainSurface?.actualToolSurface,
-        { activeEditTask: homeEditTask.value },
+        {
+          activeEditTask: homeEditTask.value,
+          executionPlan: homeExecutionPlan,
+        },
       )
+      addHomeTraceEvent({
+        type: 'dialogue-tool-surface-declaration',
+        label: '应用注入工具面事实声明',
+        detail: JSON.stringify(buildDialogueToolSurfaceDeclarationAudit({
+          source: 'home',
+          toolSurface: plainSurface?.actualToolSurface,
+          activeEditTask: homeEditTask.value,
+          executionPlan: homeExecutionPlan,
+        })).slice(0, 20000),
+      })
      const plainResult = await callApi(
        provider,
        model,
@@ -3159,6 +3198,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
         promptSource: composeSkillGuidance.promptSource,
         protocolDiagnostics: composeSkillProtocolDiagnostics,
       } : undefined,
+      directApiBudget,
     )
       response = plainResult.text
       failedTurnMaxTokens = plainResult.maxTokens
@@ -3193,7 +3233,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       // Awaiting confirmation keeps its dedicated bubble and the chat run open;
       // the next user action resumes the active watchdog instead of minting a
       // false success terminal state.
-      if (homeRunTraceId) runTraceStore.startAwaitingUser(homeRunTraceId, 'awaiting_confirmation')
+      if (homeRunTraceId) runTraceStore.startAwaitingUser(homeRunTraceId, 'awaiting_user')
     } else if (response) {
       if (messages.value.length === 0 || messages.value[messages.value.length - 1].role !== 'assistant') {
         chatStore.addMessage({ role: 'assistant', content: response, tabId: chatStore.currentContext?.tabId || '' }, projId)
@@ -3277,8 +3317,9 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
      detail: '运行进入收尾但未发生任何经写入或讨论判定的完成路径',
    })
  }
- const activeHomeEditTask = homeEditTaskSession.activeTask()
- if (homeLongDocumentEditTaskPlan && activeHomeEditTask?.status === 'awaiting_batch') {
+  const activeHomeEditTask = homeEditTaskSession.activeTask()
+  if (homeLongDocumentEditTaskPlan && activeHomeEditTask?.status === 'awaiting_batch') {
+    let finishedHomeEditTask: EditTask | null = null
     const allBatchesWritten = activeHomeEditTask.executedBatches.length > 0
       && activeHomeEditTask.pendingBatches.length === 0
       && activeHomeEditTask.failedBatchIds.length === 0
@@ -3292,7 +3333,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       after: currentHomeTab?.content ?? requestTarget.content,
     }
     if (!homeTurnSucceeded && allBatchesWritten) {
-      homeEditTaskSession.finishActiveTask({ succeeded: false, summaryFailed: true, completion: homeCompletion })
+      finishedHomeEditTask = homeEditTaskSession.finishActiveTask({ succeeded: false, summaryFailed: true, completion: homeCompletion })
       if (homeRunTraceId && runTraceStore.getRun(homeRunTraceId)?.status === 'running') {
         addHomeTraceEvent({
           type: 'edit-task-summary-failed-content-verified',
@@ -3308,9 +3349,29 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
         )
       }
     } else {
-      homeEditTaskSession.finishActiveTask({ succeeded: homeTurnSucceeded, completion: homeCompletion })
+      finishedHomeEditTask = homeEditTaskSession.finishActiveTask({ succeeded: homeTurnSucceeded, completion: homeCompletion })
     }
     reportHomeEditTaskCompletion(homeEditTaskSession.completionReport())
+    if (homeAgentTerminalStatus) {
+      const mergedHomeTerminal = mergeEditTaskTerminal({
+        agentTerminal: {
+          status: homeAgentTerminalStatus,
+          reason: homeAgentTerminalReason || homeAgentTerminalStatus,
+        },
+        editTask: finishedHomeEditTask || homeEditTaskSession.activeTask(),
+        completionReport: homeEditTaskSession.completionReport(),
+      })
+      if (mergedHomeTerminal.override) {
+        addHomeTraceEvent({
+          type: 'edit-task-terminal-override',
+          level: 'warn',
+          label: '动态批次完成度覆盖旧计划口径',
+          detail: `EditTask 已完成并通过内容级校验；${mergedHomeTerminal.evidenceReason}`,
+        })
+        homeAgentTerminalStatus = mergedHomeTerminal.terminal.status
+        homeAgentTerminalReason = mergedHomeTerminal.terminal.reason
+      }
+    }
  }
   if (homeRunTraceId && runTraceStore.isAwaitingUser(homeRunTraceId)) {
     closeActiveHomeApiCall('canceled', '等待用户确认，未发起 API 调用')
@@ -3360,6 +3421,7 @@ async function callApi(
     promptSource: string
     protocolDiagnostics?: RealSkillDiagnostic[]
   },
+  resumedApiBudget?: ApiCallBudget,
 ): Promise<{
   text: string
   maxTokens?: number | null
@@ -3478,6 +3540,9 @@ async function callApi(
   }
   let directStreamText = ''
   const reasoningControl = getProviderReasoningControl(provider.providerType)
+  const agentPhysicalRequestLimit = executionPlan
+    ? calculateLongDocumentPhysicalRequestBudget(executionPlan.segments.length)
+    : Math.max(1, resumedApiBudget?.snapshot().limit ?? 8)
     const agentRuntime = createAgentDialogueRuntime({
       source: 'home',
       taskId: `home-direct-${traceApiCallId || Date.now().toString(36)}`,
@@ -3491,6 +3556,7 @@ async function callApi(
       skillGuidance: skill?.guidance,
       skillIds: skill?.skillIds,
       promptSource: skill?.promptSource,
+      maxPhysicalRequests: agentPhysicalRequestLimit,
       getContextRemaining: () => ({
         contextWindowTokens: resolveEffectiveModelContextWindow({
           model,
@@ -3513,73 +3579,6 @@ async function callApi(
           event.label,
           { reason: event.detail, payload: event.payload },
         )
-      },
-      runSubAgent: async ({ taskId, goal }) => {
-        const subAgentRuntime = createAgentDialogueRuntime({
-          source: 'home',
-          taskId,
-          goal,
-          subAgentDepth: 1,
-          document: {
-            content: requestTarget.content,
-            operationType,
-            executionPlan,
-          },
-          editTaskWorkflow: homeLongDocumentEditTaskPlan,
-          getContextRemaining: () => ({
-            contextWindowTokens: resolveEffectiveModelContextWindow({
-              model,
-              providerContextWindowTokens: provider.contextWindowTokens,
-            }) ?? null,
-            maxOutputTokens: requestMaxTokens,
-          }),
-          onEvent: event => {
-            addHomeTraceEvent({
-              type: `agent-sub-agent-${event.type}`,
-              level: event.level === 'warning' ? 'warn' : event.level,
-              label: event.label,
-              detail: event.detail,
-              payload: event.payload,
-            })
-            const subAgentDiag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
-            subAgentDiag?.log?.(
-              event.level === 'error' ? 'error' : event.level === 'warning' ? 'warn' : 'info',
-              `home/agent-sub-agent/${event.type}`,
-              event.label,
-              { reason: event.detail, payload: event.payload },
-            )
-          },
-        })
-        return await subAgentRuntime.run({
-          purpose: 'generate',
-          messages: [{ role: 'user', content: goal }],
-          model,
-          stream: true,
-          temperature: provider.temperature ?? 0.7,
-          maxTokens: requestMaxTokens,
-          retry: true,
-          signal: activeAbortController?.signal,
-          tools,
-          onPhysicalCall: event => recordHomePhysicalCall(traceApiCallId, event),
-          onReasoning: (text: string) => appendHomeReasoning(traceApiCallId, text),
-    toolPolicy: {
-      scenario: 'direct-tool-intensive',
-      intent: plainIntent,
-    permissionDecision,
-            onToolStart: event => {
-              if (!isAgentRuntimeToolName(event.toolName)) {
-                window.dispatchEvent(new CustomEvent('tool-activity', { detail: { type: 'tool_start', toolName: event.toolName, targetId: requestTarget.targetId, policy: event.policy } }))
-              }
-            },
-            onToolCall: event => {
-              recordHomeToolCall(traceApiCallId, event)
-              if (!isAgentRuntimeToolName(event.toolName)) {
-                window.dispatchEvent(new CustomEvent('tool-activity', { detail: { type: event.result.ok ? 'tool_result' : 'tool_error', toolName: event.toolName, targetId: requestTarget.targetId, policy: event.policy } }))
-              }
-            },
-          },
-          callAi: params => service.callAi(params),
-        })
       },
     })
     const agentResult = await agentRuntime.run({
@@ -3900,8 +3899,9 @@ async function callApi(
     compatibilityWrite: result.compatibilityWrite,
     toolsDowngraded: result.toolsDowngraded,
     downgradeReason: result.compatibilityWrite ? 'compatibility_write' : undefined,
-    maxTokens: result.maxTokens,
-    toolAudit: result.toolAudit
+      maxTokens: result.maxTokens,
+      textOrigin: result.textOrigin,
+      toolAudit: result.toolAudit
   })
   if (result.toolsDowngraded === 'json-protocol' && !compatibilityNotice.value) {
     compatibilityNotice.value = '供应商拒绝原生工具调用，已降级为 JSON 兼容模式'

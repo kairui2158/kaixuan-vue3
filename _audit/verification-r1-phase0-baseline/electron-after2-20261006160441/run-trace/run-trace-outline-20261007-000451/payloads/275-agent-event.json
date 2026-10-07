@@ -1,0 +1,52 @@
+{
+  "goal": "符合我的要求，分叉一允许去重。不用出预览，直接写入",
+  "steps": [
+    {
+      "id": "read-structure",
+      "description": "读取文档结构并确认目标层级",
+      "requiredTools": [
+        "editor.document_map"
+      ]
+    },
+    {
+      "id": "execute-restructure",
+      "description": "执行标题层级修复或章节重排",
+      "requiredTools": [
+        "editor.write"
+      ]
+    },
+    {
+      "id": "confirm-duplicates",
+      "description": "用只读工具确认重复项",
+      "requiredTools": [
+        "editor.locate"
+      ]
+    },
+    {
+      "id": "delete-duplicates",
+      "description": "只删除已确认的重复项",
+      "requiredTools": [
+        "editor.write"
+      ]
+    },
+    {
+      "id": "normalize-segments",
+      "description": "按计划批次整理格式",
+      "requiredTools": [
+        "editor.write"
+      ]
+    },
+    {
+      "id": "verify-plan",
+      "description": "核对写入覆盖与不变量"
+    }
+  ],
+  "completionCriteria": [
+    "执行计划中的全部写入批次成功或明确进入终态",
+    "完成不变量校验：planned-deletion-only, normalize-changes-punctuation-whitespace-format-only"
+  ],
+  "failureCriteria": [
+    "未发生成功写入却输出修改预览或完成说明",
+    "写入操作被执行计划拒绝"
+  ]
+}

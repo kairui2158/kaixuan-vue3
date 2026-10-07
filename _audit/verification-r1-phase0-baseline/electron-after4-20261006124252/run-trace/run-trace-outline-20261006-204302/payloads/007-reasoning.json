@@ -1,0 +1,705 @@
+The user wants me to restructure the outline in the form of a Word document, without reducing content. This is a big task. The current outline is already a markdown document with headings. The user is asking to "按照Word文档的形式重构大纲，不要缩减内容" - reconstruct the outline in Word document form, without reducing content.
+
+Let me understand what "按照Word文档的形式重构" means. In the context of a novel outline, this likely means:
+1. Add a title page / cover structure
+2. Add a table of contents (目录)
+3. Format it like a proper Word document with proper heading levels, page structure, etc.
+
+But actually, this is a markdown-based outline editor. The "Word document form" likely means structuring it like a formal document with:
+- 封面 (cover page)
+- 目录 (table of contents)
+- 正文章节 with consistent heading levels
+- 页眉/页脚 style elements maybe
+
+But I need to be careful. The instruction is to "重构大纲" (restructure the outline) "按照Word文档的形式" (in Word document form) "不要缩减内容" (without reducing content).
+
+The key concern: I should not reduce content. The document is 74841 characters. I need to think about what "Word document form" means here and what's actually achievable and useful.
+
+Let me think about what a "Word文档形式" outline would look like:
+1. 封面：书名、副标题、版本、作者、日期、保密说明
+2. 目录（自动生成目录的占位）
+3. 正文（分卷/分章，层级清晰的标题体系）
+4. 页眉页脚、页码
+5. 修订记录
+
+Actually, given this is a novel outline (小说大纲), the "Word document form" probably means adding document front matter (封面/目录/修订说明) and ensuring consistent heading numbering.
+
+But wait - I need to be careful about not reducing content and not over-interpreting. The user is asking to restructure in Word document form. The safest interpretation that adds value:
+
+1. Add a cover/front matter section (封面页)
+2. Add a 目录 (table of contents) - but this would be a static TOC
+3. Ensure consistent heading structure
+
+Actually, let me reconsider. The outline already has a structure:
+- 《绿潮》大纲总纲 (level 1)
+  - 叙事框架 (level 2)
+    - 故事核心, 第一卷, 第二卷, 第三卷 (level 3)
+  - 背景参考资料 (level 2)
+  - 数据板的局限 (level 2)
+  - 菌膜外套... (level 2)
+  - 菌膜外套与共存补丁的关系 (level 2)
+  - 世界设定声明 (level 2)
+  - 卷一：基石设定层 (level 2)
+  - 卷二：核心人物群像 (level 2)
+  - 卷三：势力与格局层 (level 2)
+  - 卷四：叙事工具箱层 (level 2)
+
+This is already fairly well structured. 
+
+The "Word文档形式" is ambiguous. Let me think about the most likely intent for someone writing a novel outline and asking to convert it to "Word document form":
+
+They likely want:
+1. A proper document structure with 封面 (cover), 目录 (TOC), 修订记录 (revision history)
+2. Consistent hierarchical headings that read like a formal document
+3. Maybe numbered sections
+
+Given the constraint of not reducing content, the main things I can do:
+1. Add a cover page block at the top
+2. Add a 目录 section
+3. Possibly add 页眉/页脚 or 修订说明
+
+But adding a full cover + TOC is a large insertion. And a TOC would need to list all 235 sections, which is a lot.
+
+Actually, let me reconsider the scope. Maybe I should ask a clarifying question? The instruction says "本轮工具面包含 editor.write(write)" which suggests I should actually perform edits. But the request is quite large and ambiguous.
+
+Let me think about what's the most helpful concrete action. The request: "按照Word文档的形式重构大纲，不要缩减内容。"
+
+I think the reasonable interpretation: Format/structure the outline like a formal Word document. This includes:
+1. 封面（文档标题、版本信息）
+2. 目录（章节列表）
+3. 正文分卷
+4. 修订记录/说明
+
+However, "重构" (restructure) with "不要缩减内容" (don't reduce content) suggests reorganizing the existing content into a cleaner document structure, not rewriting.
+
+Given the ambiguity and the risk of doing something wrong with a 74841-character document, I should probably:
+1. First clarify what "Word文档形式" means to them, OR
+2. Make a reasonable interpretation and implement a front matter (cover + TOC) while keeping all content intact.
+
+Actually, given the guidance to be helpful and actually do work, but also the risk... Let me think.
+
+The biggest risk: if I misunderstand and do a massive restructure that isn't what they want, that's costly. But asking one clarifying question might be the right move here given the scale.
+
+Actually, re-reading: "本轮工具面包含 editor.write(write)" and "如果本次回答需要展示表格，必须使用 GFM 标准表格" - this suggests the expected answer involves doing edits and possibly showing tables.
+
+Let me consider a moderate, safe, high-value approach:
+
+Interpretation: Convert to a "Word文档形式" = add document front matter and make it a properly formatted formal document. The concrete deliverable:
+
+1. Insert a 封面 (cover) at the very top:
+   - 《绿潮》大纲总纲
+   - 副标题/类型
+   - 版本、日期、状态
+   
+2. Insert a 目录 (TOC) after cover
+
+3. Insert a 修订说明/使用说明
+
+But actually, a full TOC of 235 sections is unwieldy and would duplicate a lot. A TOC should list the major divisions (level 1-2, maybe level 3), not all 235.
+
+Hmm, but actually maybe the user just wants the content to look like a clean Word document when they export/copy it - with proper title page, TOC, headers, page numbers placeholders.
+
+Let me think about whether to ask or act. Given the tools emphasize doing work (editor.write available), and the request is fairly clear in intent (make it Word-document-like), I'll act but in a careful, additive way that doesn't reduce content.
+
+Actually, I realize I should be even more careful. The instruction context says "用户正在编辑大纲，请给出建议和修改意见" (user is editing the outline, please give suggestions and modification opinions). But then there's the tool face with editor.write. The system prompt first line says "你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。" Then the user request is to restructure.
+
+Hmm wait, let me re-read the system prompt:
+
+"你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。"
+
+"本轮实际可调用的工具：... 本轮工具面包含 editor.write(write)。"
+
+So my role is a novel outline assistant, and I should give suggestions and modification opinions. But this round I have editor.write available, meaning I can actually make edits.
+
+The user request is "按照Word文档的形式重构大纲，不要缩减内容。"
+
+Given the complexity and ambiguity, and that this is a 74k-character document where "不要缩减内容" is a strong constraint (implying they're worried I'll cut content), I think the best approach is:
+
+1. Give my plan/interpretation of "Word document form"
+2. Actually perform the restructuring in a way that:
+   - Adds front matter (封面, 目录, 修订说明)
+   - Keeps ALL existing content unchanged
+   - Possibly normalizes heading structure
+
+But wait - "重构" (restructure) is a strong word. And the document already IS structured with markdown headings. 
+
+Let me think about what concretely changes. The current document is a markdown outline. A "Word文档" would typically have:
+
+1. 封面页
+2. 目录页
+3. 正文（各级标题 + 正文）
+4. 页眉页脚
+
+Since this is markdown, I can simulate the cover and TOC. The headings are already there.
+
+I think the most valuable and safe action is to:
+1. Add a 封面 block at the top
+2. Add a 目录 (目录 of major sections)
+3. Add 修订记录/版本说明
+4. Keep all existing content
+
+Actually, let me reconsider once more. There might be a simpler interpretation: The user has a messy outline with duplicated content (I notice "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" appear BOTH in "背景参考资料" section AND as top-level level-2 sections). This duplication is actually visible in the structure.
+
+Wait, looking at the document map more carefully:
+
+- heading-2-1lka0h8 "背景参考资料" (10230-16801)
+- heading-2-z4sxm8 "数据板的局限" (16801-17356)
+- heading-2-10q4nra "菌膜外套：有限资源的临时通行方案" (17356-18104)
+- heading-2-28do6r "菌膜外套与共存补丁的关系" (18104-22619)
+
+And inside 背景参考资料 (10230-16801), the content preview shows it ends with "数据板提供的是火种，不是火炬。" which is the same text as "数据板的局限" section.
+
+So there IS duplication: "数据板的局限" content appears at the end of 背景参考资料 AND as a separate top-level section. Similarly "菌膜外套" and "菌膜外套与共存补丁的关系".
+
+This is a real structural mess that "重构" (restructure) might refer to - deduplicating and reorganizing.
+
+Hmm, but "不要缩减内容" would caution against removing the duplicate content... Actually, "不要缩减内容" means don't reduce content, but removing exact duplicates isn't "reducing content" - it's deduplication. But it's risky to interpret.
+
+Actually, let me reconsider. The "Word文档形式" restructuring. Let me think about what a well-organized Word document for this novel outline would look like:
+
+```
+《绿潮》大纲总纲
+├── 封面
+├── 目录
+├── 修订记录
+├── 第一部分：叙事框架（卷〇/故事层）
+│   ├── 故事核心
+│   ├── 第一卷·觉醒与扎根
+│   ├── 第二卷·连接与陷落
+│   ├── 第三卷·远征与暗流
+├── 第二部分：背景参考资料
+├── 第三部分：核心设定补丁（数据板的局限、菌膜外套、菌膜外套与共存补丁的关系）
+├── 第四部分：世界设定声明
+├── 卷一：基石设定层
+├── 卷二：核心人物群像
+├── 卷三：势力与格局层
+├── 卷四：叙事工具箱层
+```
+
+This is a cleaner structure. The current structure already roughly does this, but the scattered level-2 sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 世界设定声明) sit awkwardly between 背景参考资料 and 卷一.
+
+OK, I think I'm overanalyzing. Let me make a decision.
+
+Given:
+1. The request is large and somewhat ambiguous
+2. The document is 74k characters
+3. "不要缩减内容" is a strong constraint
+
+I'll take the following approach:
+1. Briefly explain my interpretation of "Word文档形式" and what I'll do
+2. Actually perform a concrete, additive restructuring:
+   a. Add a 封面 (cover) with title, type, version, date
+   b. Add a 目录 (table of contents listing major divisions)
+   c. Add a 修订记录 (revision log)
+   d. Optionally reorganize the scattered level-2 sections
+
+Actually, wait. Let me reconsider whether I should just ask first. The risk of a massive wrong edit is high. But the user gave a clear directive and I have write access. A good assistant should make reasonable progress, not just ask endless questions.
+
+However, I realize there's significant ambiguity in "Word文档形式". Let me consider asking a brief clarifying question while also proposing a concrete plan. Actually, the best approach given the tools is:
+
+1. Propose the concrete structure (a plan) in my response
+2. Ask for confirmation before making massive changes? OR just do it?
+
+Hmm. The system says I should give suggestions and modification opinions, AND I have write access. 
+
+Let me think about what would be most helpful. The user wants "Word文档形式". The clearest, most standard deliverable for a novel outline in Word form:
+
+1. **封面** - 书名、类型、作者、版本、日期、密级
+2. **目录** - 章节导航
+3. **正文** - 分卷分章的正式标题体系
+4. **修订记录表** - 版本管理
+
+I'll implement these as additive changes at the top of the document. I won't touch the body content (preserving "不要缩减内容").
+
+For the TOC, I'll list the main structural divisions (level 2 and key level 3), not all 235 sections.
+
+Actually, let me reconsider the heading structure normalization too. A "Word document" would have consistent numbering. Currently:
+- 叙事框架 has 故事核心/第一卷/第二卷/第三卷 (unnumbered, level 3)
+- 卷一 has 一、二、三... (numbered, level 3)
+- 卷二 has 一、二 (numbered, level 3)
+- 卷三 has 一、二、三、四、五 (numbered, level 3)
+- 卷四 has 一、二 (numbered, level 3)
+
+So there's inconsistency: 叙事框架's children aren't numbered. I could renumber them as "第一章/第二章" or leave as-is.
+
+This is getting too deep. Let me step back and decide on a concrete, safe, valuable plan:
+
+**Plan:**
+1. Add cover page (封面) at the very top
+2. Add 目录 (TOC) after cover
+3. Add 修订记录 (revision log)
+4. Keep all body content intact
+
+I'll do this with editor.write using insert operations.
+
+Actually, let me reconsider even more carefully whether to reorganize the scattered sections. The instruction "重构" strongly implies reorganization. But reorganizing risks breaking content (the editor.write "move" operation is risky for large blocks).
+
+Given the constraint and risk, I'll:
+1. Add front matter (cover + TOC + revision log) — additive, safe
+2. Note the structural issues I see (duplicates, scattered sections) and propose reorganizing them, but NOT do it yet without confirmation — because moving large blocks is risky and "不要缩减内容" makes me cautious.
+
+Actually, I think I should just present a clear plan and do the safe additive parts, while flagging the bigger restructuring for confirmation.
+
+Wait, but actually let me reconsider the whole thing once more. What does "按照Word文档的形式重构" most naturally mean to a Chinese novel writer?
+
+I think it means: 把大纲整理成一份正式的、规范的Word文档，包括封面、目录、分卷分章、页码等格式。也就是让这份大纲看起来像一份可以打印/交付的正式文档。
+
+The key deliverables:
+1. 封面
+2. 目录
+3. 正文（已有的内容，可能需规范标题层级）
+
+I'll do this. Let me now also check: should I show a table? The system mentions tables only "如果本次回答需要展示表格". I might show the TOC as a table or list.
+
+Let me now plan the actual edits.
+
+First, let me read the very beginning of the document to know exactly what's there and where to insert.
+
+The document starts with:
+```
+# 《绿潮》大纲总纲
+
+
+## 叙事框架
+
+
+### 故事核心
+...
+```
+
+So position 0 is "# 《绿潮》大纲总纲".
+
+I want to insert a cover BEFORE the title, or replace the title with cover + title. Actually, in a Word doc, the cover comes first, then TOC, then 正文 which starts with the title.
+
+Current: `# 《绿潮》大纲总纲` is the level-1 heading.
+
+Plan:
+- Insert cover content at position 0 (before `# 《绿潮》大纲总纲`)
+- Insert TOC after the title (or after cover, before 叙事框架)
+
+Let me define the cover content:
+
+```markdown
+# 《绿潮》大纲总纲
+
+> 长篇科幻·末世题材·设定向
+
+| 项目 | 内容 |
+|------|------|
+| 书名 | 《绿潮》 |
+| 类型 | 长篇科幻小说大纲 |
+| 版本 | v1.0 |
+| 状态 | 设定层完整，卷三细节待补 |
+| 密级 | 内部创作资料，禁止外传 |
+| 备注 | 本大纲以 Word 文档体例整理，目录与正文分页 |
+
+---
+```
+
+Hmm, actually I need to think about whether to make this a "cover page" before the existing title or replace the title.
+
+I think cleaner approach:
+1. Replace the current `# 《绿潮》大纲总纲` with a full cover block, ending with the title as heading, then TOC.
+
+Actually, simpler and safer: INSERT a cover block at position 0 (before the existing `# 《绿潮》大纲总纲`), and INSERT a TOC right after the title heading.
+
+Let me get the exact beginning text to anchor inserts properly.
+
+I already know from document map:
+- heading-1-mizom9 "《绿潮》大纲总纲" starts at 0, level 1
+- paragraph-11m2iyd "内容块 1" at 11-13 (2 chars) - this is probably "\n\n" or empty
+- heading-2-kwf15x "叙事框架" at 13
+
+Let me read the beginning to see exact content.
+
+Actually I have enough from the content preview:
+```
+# 《绿潮》大纲总纲\n\n\n## 叙事框架\n\n\n### 故事核心\n\n自然成了...
+```
+
+So:
+- 0: `# 《绿潮》大纲总纲`
+- then `\n\n\n`
+- then `## 叙事框架`
+
+Let me read exact range 0-100 to be safe for anchoring.
+
+Actually, for editor.write, I can use "insert" with "position": "cursor" or use "replace_selection" etc. The available operations: insert, replace_selection, replace_match, append, delete, move, reorder_sections, rewrite, replace_document.
+
+For inserting at the top, I can use insert with position "cursor" (if cursor is at 0) — but cursor is at 74841 (end) per get_state.
+
+Better: use "replace_match" with target being the exact first heading text, and replace it with cover + heading. Or use "insert" with a target/anchor... Let me check the operation semantics.
+
+The operations:
+- insert: needs position (cursor/selection_start/selection_end/end) — inserts at cursor or end. Hmm, but I need to insert at the top (position 0).
+
+Actually, looking at the schema for "insert", there's no "start" position. Only cursor/selection_start/selection_end/end. And "content" field.
+
+For "replace_match": target is a fragment, content replaces it. I can use replace_match to replace `# 《绿潮》大纲总纲` with cover + `# 《绿潮》大纲总纲`.
+
+For "replace_selection": replaces current selection (none currently).
+
+Let me use replace_match on the title. The target fragment `# 《绿潮》大纲总纲` should be unique (appears once at top).
+
+Actually, I could also use "insert" with position "cursor" if I set cursor... but I can't easily move cursor except via reveal. Hmm.
+
+Actually, simplest: use replace_match to replace the title heading with cover+title, and another replace_match to insert TOC before `## 叙事框架`.
+
+But wait, I need to be careful about exact text. Let me read the beginning exact characters first.
+
+Let me read range 0-150.
+
+Actually, let me plan the full content and do it in steps. First read the beginning.
+
+Let me also reconsider: is adding cover+TOC really "重构大纲"? It's adding front matter. The actual "重构" of the body would be reorganizing the scattered sections. 
+
+I think I should do a combination but be careful. Let me first read more of the document to understand the duplication issue, then decide.
+
+Actually, I've already seen from the document map and content preview that:
+1. "背景参考资料" (10230-16801) ends with "数据板提供的是火种，不是火炬。" 
+2. Then "数据板的局限" (16801-17356) is a separate top-level section with the SAME content (the content preview shows identical text).
+3. "菌膜外套：有限资源的临时通行方案" (17356-18104) top-level
+4. "菌膜外套与共存补丁的关系" (18104-22619) top-level - this one is different; it's longer (4499 chars) and contains additional content.
+
+So the structure has:
+- 背景参考资料 includes: [灾前军事基准线..., 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系?] — wait, let me check.
+
+The 背景参考资料 section (10230-16801) content preview shows it contains:
+- 四亿年前...（共生蕨起源）
+- 林觉民发现
+- 方岫岩...陈暮苏醒
+- 灾前军事基准线与菌毯的不可根除性 (this is the big 军事 section with tables)
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系
+- 在大裂谷走廊...六大势力... (another section)
+- 在远西大陆...马格努斯 (圣萌会)
+- 2043年春，巨树... (天府都陷落)
+- 噬神计划最后阶段... (终局)
+- 知识锁在抽屉里...
+
+So 背景参考资料 is a big "story summary / background" section that contains the full narrative background, and it ENDS with "数据板的局限" text, "菌膜外套" text, and "菌膜外套与共存补丁的关系" text as subsections? No wait.
+
+Looking at the structure map again, within 背景参考资料 (level 2), there are NO level 3 children listed in the map. The next level-2 sections are:
+- 数据板的局限 (16801-17356)
+- 菌膜外套 (17356-18104)
+- 菌膜外套与共存补丁的关系 (18104-22619)
+
+So actually, 背景参考资料 contains a bunch of un-headed paragraphs (the narrative background), and then the "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" are SEPARATE top-level sections that DUPLICATE content that already appears at the end of 背景参考资料.
+
+This is confirmed by the 当前焦点全文 which shows "数据板的局限" content appearing twice (once under 背景参考资料's tail, once as its own section).
+
+So this document has genuine structural duplication that needs fixing. This is likely what "重构" is about, at least partly.
+
+OK here's my refined understanding. The user wants:
+1. A clean Word-document-like structure
+2. No content reduction
+
+This means:
+1. Add cover + TOC
+2. Deduplicate the repeated sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 appear both inline in 背景参考资料 AND as standalone sections)
+3. Reorganize scattered top-level sections into a logical hierarchy
+
+But deduplication is risky and "不要缩减内容" might mean "keep the standalone sections and remove from inline" or vice versa. I should be careful.
+
+Actually, "不要缩减内容" (don't reduce content) most likely means: don't cut/abbreviate the actual content while reformatting. It's a common worry when asking someone to "重构" - they fear content loss.
+
+So my job: restructure the FORMAT/ORGANIZATION while keeping 100% of the actual content (deduplicating exact copies is fine, but merging/moving must preserve all unique content).
+
+This is a big job. Let me think about the scope of what I can safely do with editor.write in a few operations.
+
+Given the risk, I think the right approach is:
+
+**Step 1: Understand and plan.** Read the relevant sections to map exact duplicates.
+
+**Step 2: Propose a clear restructuring plan to the user, then execute the safe parts.**
+
+Actually, you know what, I've been going back and forth. Let me commit to a concrete, high-value, LOW-RISK action plan and execute it, while clearly communicating:
+
+**Concrete plan I'll execute:**
+
+1. **Add 封面 (cover)** at the top - document title, metadata table
+2. **Add 目录 (TOC)** - listing the main chapters/volumes
+3. **Add 修订记录 (revision log)** 
+4. **Reorganize the scattered level-2 sections** (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 世界设定声明) into a proper hierarchy — e.g., group them under a "设定补丁与声明" or move them into the right places. AND deduplicate the repeated content.
+
+Actually, moving large sections and deduplicating is where the real risk is. Let me assess what's safely doable.
+
+Given editor.write supports "move" operation with destination fragment, and "delete" operation, and "replace_document", and "reorder_sections".
+
+The cleanest way to do a full restructure without losing content might be "replace_document" with the full new text. But that requires me to produce 74k characters of correctly preserved content, which is error-prone and huge.
+
+Alternatively, I do targeted edits:
+1. Cover + TOC insertion (safe, additive)
+2. Deduplicate: delete the duplicate inline copies (数据板的局限, 菌膜外套) from 背景参考资料, keeping the standalone sections. OR delete standalone, keep inline. Need to verify exact duplicate ranges.
+
+This is getting very complex. Let me take a pragmatic stance:
+
+Given the complexity and the strong "don't reduce content" constraint, I'll:
+1. Do the clearly-safe, clearly-valuable part: add cover + TOC + revision log (front matter) — this makes it "Word文档形式".
+2. Clearly report the structural issues I found (duplicates, scattered sections) and propose a follow-up plan, asking if they want me to deduplicate/reorganize.
+
+But actually, doing only front matter might not satisfy "重构". Hmm.
+
+Let me reconsider the phrase "按照Word文档的形式重构大纲". I now think the most likely literal intent is:
+
+"Reformat the outline to look like a Word document" — i.e., the user wants to eventually export/print this, and wants it structured as a formal document with 封面、目录、分卷、页眉页脚等。
+
+I'll deliver:
+1. 封面
+2. 目录
+3. 修订记录
+4. 规范的章节层级（already mostly there）
+
+And I'll flag the duplication issue as a separate recommendation.
+
+Actually, I just realized I should double check — is the duplication actually duplication, or does 背景参考资料 contain a different version? The content previews suggest it's near-identical. But I should read the exact boundaries before claiming duplication.
+
+Let me read the relevant ranges to verify. I'll read:
+- 16801-18104 (数据板的局限 + 菌膜外套 standalone sections) to see their exact content
+- The tail of 背景参考资料 (say 16300-16801) to see what's inline
+
+Actually, the 当前焦点全文 already shows me the full text! It's provided in the context. Let me use that.
+
+From 当前焦点全文, I can see:
+
+Under 背景参考资料, the text flows:
+"...数据板提供的是火种，不是火炬。\n\n\n## 数据板的局限\n\n数据板不是百宝箱。...[same content]...数据板提供的是火种，不是火炬。\n\n\n## 菌膜外套：有限资源的临时通行方案\n\n...\n\n\n## 菌膜外套与共存补丁的关系\n\n..."
+
+Wait, let me look more carefully at the 当前焦点全文. It shows:
+
+```
+...林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。...[full content]...数据板提供的是火种，不是火炬。
+
+
+## 菌膜外套：有限资源的临时通行方案
+
+陈暮的菌膜装甲是独一无二的...陈暮不必陪同每一次通行——但他的勘探是不可替代的。
+
+
+## 菌膜外套与共存补丁的关系
+
+菌膜外套是“让系统暂时看不到我们”...共存补丁是终极解法。
+```
+
+So looking at the 当前焦点全文, it seems like the document flows: 背景参考资料 → (ends with "数据板提供的是火种，不是火炬") → then "## 数据板的局限" as a NEW heading → content → then "## 菌膜外套" → then "## 菌膜外套与共存补丁的关系".
+
+Wait, but the "数据板的局限" heading appears INSIDE 背景参考资料? Let me look at the 当前焦点全文 structure again.
+
+The 当前焦点全文 shows headings in order:
+1. `# 《绿潮》大纲总纲`
+2. `## 叙事框架`
+3. `### 故事核心`
+4. `### 第一卷·觉醒与扎根`
+5. `### 第二卷·连接与陷落`
+6. `### 第三卷·远征与暗流`
+7. `## 背景参考资料`
+8. [content]
+9. `## 数据板的局限`
+10. [content]
+11. `## 菌膜外套：有限资源的临时通行方案`
+12. [content]
+13. `## 菌膜外套与共存补丁的关系`
+14. [content - this is longer, includes 大裂谷走廊/远西大陆/2043年春巨树/噬神计划 etc.]
+15. `## 世界设定声明`
+16. `## 卷一：基石设定层`
+...
+
+So actually, the 当前焦点全文 shows a CLEAN structure where:
+- 背景参考资料 ends at "数据板提供的是火种，不是火炬。" (the FIRST occurrence)
+- Then "数据板的局限" is a standalone section (with its own content)
+- Then "菌膜外套" standalone
+- Then "菌膜外套与共存补丁的关系" standalone (with the long content)
+
+But wait, there's a problem: The "数据板的局限" content says the SAME thing as the tail of 背景参考资料. Let me look again...
+
+The tail of 背景参考资料:
+"...林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。"
+
+This is the last paragraph of 背景参考资料. This paragraph describes the data板's limitations. Then the "## 数据板的局限" section REPEATS this content in full.
+
+So YES, there IS duplication:
+- 背景参考资料's tail contains a paragraph starting "数据板不是百宝箱..." (the 数据板的局限 content) 
+- AND there's a separate "## 数据板的局限" section with the same content.
+
+Actually wait, let me look really carefully at the 当前焦点全文. In the 背景参考资料 section, I see at the end:
+
+"...林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。"
+
+Hmm, but where does "数据板不是百宝箱" start? Let me search the 当前焦点全文...
+
+Looking at the text under 背景参考资料 heading, I see a long narrative about 四亿年前... 林觉民... 方岫岩... 陈暮苏醒... then "灾前军事基准线与菌毯的不可根除性" (big section with tables)... then "数据板的局限" appears as a sub-content... 
+
+Actually, I see in the 当前焦点全文:
+
+```
+...核弹是唯一"打得疼"的武器...终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。
+
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的...
+
+## 数据板的局限
+
+数据板不是百宝箱。...
+```
+
+So under 背景参考资料, there's a section "数据板的局限" (as plain text, not a heading, or as a heading?) followed by its content, and THEN a separate "## 数据板的局限" heading with the same content.
+
+This is confusing. The document map shows:
+- heading-2-1lka0h8 "背景参考资料" (10230-16801, 6561字)
+- heading-2-z4sxm8 "数据板的局限" (16801-17356, 545字)
+
+So 背景参考资料 is 10230-16801 (6561 chars), and 数据板的局限 is 16801-17356.
+
+The 6561 chars of 背景参考资料 is NOT enough to contain all that narrative + 军事基准线 + 数据板的局限. Wait, 6561 chars... Let me think. Actually the military section alone with all those tables is likely 4000+ chars. Plus the 四亿年前 narrative ~1500 chars. Plus 林觉民/方岫岩 ~2000 chars... That's already over 6561.
+
+Hmm wait, but actually let me recount. The 背景参考资料 section in the document map is 6561 chars (10230-16801). But the 当前焦点全文 shows 背景参考资料 containing a HUGE amount of text (way more than 6561 chars).
+
+This discrepancy suggests the 当前焦点全文 (which is described as "当前焦点全文") might be showing the FULL document, not just a section. And indeed, the 当前焦点全文 in the context shows the ENTIRE document from start to finish (all 74841 chars), rendered as full text.
+
+So the 当前焦点全文 IS the full document text. Let me re-read it as the full document.
+
+OK so from the full document text (当前焦点全文), the structure is:
+
+1. `# 《绿潮》大纲总纲`
+2. `## 叙事框架`
+3. `### 故事核心` + content
+4. `### 第一卷·觉醒与扎根` + content
+5. `### 第二卷·连接与陷落` + content
+6. `### 第三卷·远征与暗流` + content
+7. `## 背景参考资料` + content
+
+The 背景参考资料 content includes:
+- 四亿年前... (共生蕨起源)
+- 林觉民发现... 方岫岩... 陈暮苏醒... (a narrative summary)
+- "灾前军事基准线与菌毯的不可根除性" section with tables
+- "数据板的局限" section content
+- "菌膜外套：有限资源的临时通行方案" content
+- "菌膜外套与共存补丁的关系" content
+- "在大裂谷走廊，铁壁要塞..." (六大势力 summary)
+- "在远西大陆..." (圣萌会/马格努斯 summary)
+- "2043年春，巨树..." (天府都陷落)
+- "噬神计划进入最后阶段..." (终局)
+- "知识锁在抽屉里..." (ending)
+
+8. `## 数据板的局限` + (duplicate content)
+9. `## 菌膜外套：有限资源的临时通行方案` + (duplicate content)
+10. `## 菌膜外套与共存补丁的关系` + content (this standalone one only has the short version, while the inline one has more?)
+
+Hmm wait, this is getting confusing. Let me look at the document map ranges again:
+
+- heading-2-1lka0h8 "背景参考资料" (10230-16801, 6561字)
+- heading-2-z4sxm8 "数据板的局限" (16801-17356, 545字)
+- heading-2-10q4nra "菌膜外套" (17356-18104, 728字)
+- heading-2-28do6r "菌膜外套与共存补丁的关系" (18104-22619, 4499字)
+
+So:
+- 背景参考资料: 10230-16801 = 6561 chars
+- 数据板的局限: 16801-17356 = 545 chars (≈ the length of 数据板的局限 content)
+- 菌膜外套: 17356-18104 = 728 chars (≈ the length of 菌膜外套 content)
+- 菌膜外套与共存补丁的关系: 18104-22619 = 4499 chars
+
+4499 chars for 菌膜外套与共存补丁的关系 — but the short version of that section is only ~450 chars. So the 4499-char section must contain the additional narrative content (六大势力 summary, 圣萌会, 天府都陷落, 终局, 结尾).
+
+So the structure is:
+- 背景参考资料 (6561 chars): contains 四亿年前 narrative + 军事基准线 + 数据板的局限 (inline) + 菌膜外套 (inline) + 菌膜外套与共存补丁的关系 (inline short version)?? 
+
+No wait. If 背景参考资料 is only 6561 chars, it can't contain all that. Let me estimate:
+- 四亿年前 narrative: ~1200 chars
+- 林觉民/方岫岩 narrative: ~1500 chars
+- 军事基准线 (with tables): ~4000 chars
+- 数据板的局限: ~545 chars
+- 菌膜外套: ~728 chars
+- 菌膜外套与共存补丁 short: ~450 chars
+
+Total: ~8400 chars > 6561. Doesn't fit.
+
+Hmm, so maybe the 军事基准线 section is NOT in 背景参考资料 in the document map sense. Let me reconsider.
+
+Actually, maybe the document structure is:
+- 背景参考资料 (10230-16801): 四亿年前 narrative + 林觉民/方岫岩 narrative + ... + ends with "数据板提供的是火种，不是火炬。" Wait no.
+
+I'm confusing myself. Let me just READ the actual document ranges directly to get ground truth. I'll read a few key ranges.
+
+Actually, the 当前焦点全文 IS ground truth for the full text. Let me carefully identify where each heading is by searching.
+
+Let me just use outline.read_range or editor.read_range to get exact sections. Actually, since 当前焦点全文 is provided in full in the context, I should be able to parse it. But it's very long and I might misparse.
+
+Let me use editor.search to find exact positions of the duplicate headings.
+
+Let me search for "## 数据板的局限" and "数据板不是百宝箱" to count occurrences.
+
+Actually, this is the key question: how many times does "数据板不是百宝箱" appear? If twice, there's duplication.
+
+From the 当前焦点全文, I can see:
+1. Under 背景参考资料, near the end: "数据板不是百宝箱。方岫岩在八个月里记录下的..." (first occurrence)
+2. Under "## 数据板的局限" heading: "数据板不是百宝箱。方岫岩在八个月里记录下的..." (second occurrence)
+
+So "数据板不是百宝箱" appears TWICE. Duplication confirmed.
+
+Similarly "菌膜外套" section content "陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。" appears:
+1. Under 背景参考资料 (inline)
+2. Under "## 菌膜外套" standalone
+3. Also in 卷一's 7.8 section "菌膜外套：有限资源的临时通行方案"! 
+
+And "菌膜外套与共存补丁的关系" appears in:
+1. 背景参考资料 (inline)
+2. standalone section
+3. 卷一's 7.9 section
+
+So the document has THREE copies of some content: in 背景参考资料 (as narrative), as standalone top-level sections, and inside 卷一's 7.8/7.9.
+
+This is a genuine mess that "重构" should fix. But "不要缩减内容" makes it tricky — the user might want the content in ALL places, or might be fine with deduplication.
+
+OK, I've spent enough analysis. Let me make a final decision and act:
+
+**Decision:** I will:
+1. First, communicate clearly what I found and my plan.
+2. Execute the SAFE, additive restructuring (cover + TOC + revision log) that makes it "Word文档形式" without touching existing content.
+3. Flag the duplication issue and ask whether to deduplicate (since "不要缩减内容" conflicts with removing duplicates).
+
+Actually, let me reconsider whether to even do the front matter now or just propose. The user said "重构" — they want action. But a wrong action on 74k chars is costly.
+
+Let me do a middle path: 
+- Propose the full plan (including the structural reorganization)
+- Execute the clearly-safe front matter addition now
+- Wait for confirmation on the riskier dedup/reorg
+
+Actually, I'll reconsider one more time what "Word文档形式" specifically requires, and whether I can just do the front matter + numbering normalization safely.
+
+Let me also reconsider: maybe the user simply wants me to ensure the document, when pasted into Word, looks right — i.e., proper heading levels, no markdown artifacts, a TOC, cover, etc. The most impactful and safe action is front matter.
+
+FINAL PLAN (I'll commit now):
+
+1. Read the exact beginning of the document (positions 0-30) to anchor edits.
+2. Execute edits:
+   a. Insert cover block at top (before title), using replace_match on the title or insert.
+   b. Insert TOC after title.
+   c. Insert 修订记录.
+3. Report findings and propose dedup/reorg as follow-up.
+
+Let me read the beginning first.
+
+Actually, I realize I can also just present the plan and NOT execute, given the complexity. But the task clearly provides write access and expects editing. Let me at least do the front matter.
+
+Let me read the exact first ~100 chars.
+
+Actually, I have enough from get_state contentPreview: the document begins with "# 《绿潮》大纲总纲\n\n\n## 叙事框架\n\n\n### 故事核心\n\n自然成了人类最大的灾难..."
+
+Let me verify exact characters around the title and "## 叙事框架" using editor.locate or read_range.
+
+I'll read range 0-60 to see exact bytes. Let me do that now, plus search for duplicates in parallel.
+
+Actually, let me be efficient. I'll do these reads/searches in parallel:
+1. editor.read_range 0-50
+2. editor.search "数据板不是百宝箱" (count occurrences)
+3. editor.search "陈暮的菌膜装甲是独一无二的" (count occurrences)
+
+Wait, editor.search returns positions. Let me use outline.search or editor.search. editor.search searches the editor content. Good.
+
+Let me do these in parallel.

@@ -1,0 +1,29 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "# 《绿潮》大纲总纲\n\n\n## 世界设定声明",
+      "content": "# 《绿潮》大纲总纲\n\n## 世界设定声明",
+      "reason": "规范化文档开头空行"
+    },
+    {
+      "operation": "replace_match",
+      "target": "重新划定敌我边界。\n\n\n\n### 第一卷·觉醒与扎根",
+      "content": "重新划定敌我边界。\n\n### 第一卷·觉醒与扎根",
+      "reason": "规范化第一卷标题前空行"
+    },
+    {
+      "operation": "replace_match",
+      "target": "老师，我又回来了。\n\n\n### 第二卷·连接与陷落",
+      "content": "老师，我又回来了。\n\n### 第二卷·连接与陷落",
+      "reason": "规范化第二卷标题前空行"
+    },
+    {
+      "operation": "replace_match",
+      "target": "没人知道是谁写的。\n\n\n### 第三卷·远征与暗流",
+      "content": "没人知道是谁写的。\n\n### 第三卷·远征与暗流",
+      "reason": "规范化第三卷标题前空行"
+    }
+  ],
+  "reason": "阶段三格式整理：规范化标题前空行"
+}

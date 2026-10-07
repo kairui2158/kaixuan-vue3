@@ -1,0 +1,416 @@
+Let me understand the current state. The system says the execution plan is not complete. There are 3 batches: structure-repair, structure-plan, normalize-segment-1. 
+
+From the previous audit, the structure-repair batch was already done (call_sh0i51jxg0gsxq50clsnfbmx and call_ljf5uk25fbo3zc2vy4qupmd5 succeeded - normalizing title spacing, removing editing instruction text, adding titles to 灾前军事基准线, etc.).
+
+Actually wait, let me re-read. The current facts say: "已成功写入 1 批（可信覆盖 0 批），计划共 3 批，未覆盖批次：structure-repair | structure-plan | normalize-segment-1"
+
+Hmm, so it says only 1 batch successfully written (可信覆盖 0 批), and 3 batches uncovered: structure-repair, structure-plan, normalize-segment-1.
+
+Wait but that's confusing. The previous audit showed multiple successful writes. But the current fact says only 1 batch was credited as covered.
+
+Actually, let me re-read carefully. The system message at the end says:
+
+"当前事实：已成功写入 1 批（可信覆盖 0 批），计划共 3 批，未覆盖批次：structure-repair | structure-plan | normalize-segment-1。"
+
+So the plan has 3 batches:
+1. structure-repair
+2. structure-plan
+3. normalize-segment-1
+
+Only 1 batch has been "successfully written" but "可信覆盖 0 批" (0 trusted coverage). All 3 batches are still uncovered.
+
+Wait, that's odd. But actually the meaning might be: the plan tracks coverage by segments. The "normalize-segment-1[0-74253]" is a segment covering the entire document. The "structure-repair" and "structure-plan" are also segments.
+
+Hmm, but actually the last write I did (delete 7.8 + renumber 7.9→7.8) was within "structure-plan" segment. The write returned coverage with "segmentId":"structure-plan". So that batch should have partially covered structure-plan.
+
+But the system says "可信覆盖 0 批" (0 trusted coverage batches). This might mean the coverage isn't "trusted" because I need to actually verify.
+
+Let me re-read the plan requirements:
+
+"复合重构请分三阶段执行：
+1. 先读取结构，用 move 把误归位标题与段落移动到正确层级，用 insert 为无标题正文补标题、用 replace_match/rewrite 仅修正既有标题层级；
+2. 再只读确认重复项并提交唯一目标删除命令；
+3. 最后提交 replace_match/rewrite 命令完成标点、空白、编号与标题层级整理。"
+
+So three stages:
+1. structure-repair: move misplaced titles/paragraphs, insert missing titles, fix title levels
+2. structure-plan: confirm duplicates (read-only) and submit delete commands
+3. normalize-segment-1: punctuation, whitespace, numbering, title level cleanup
+
+The current fact says all 3 are uncovered. This means I need to actually perform all three stages.
+
+Wait, but the previous audit shows I already did some structure-repair work (moving 数据板的局限 etc from H2 to H3, adding title to 灾前军事基准线, deleting editing instruction text). And I did the structure-plan delete (7.8 菌膜外套).
+
+But the system is now saying only 1 batch written, 0 trusted coverage, 3 uncovered. This is the "current fact" I must accept.
+
+So I need to:
+1. Re-do/verify structure-repair
+2. Do structure-plan (duplicate confirmation + delete)
+3. Do normalize-segment-1 (punctuation/whitespace/numbering)
+
+Actually, wait. Let me reconsider. The instruction says "执行计划尚未完成，禁止把问题或计划当作最终回复。" and gives a detailed plan.
+
+The key constraint: "整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74253]）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令"
+
+And: "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）；这是完成校验的强制条件，不是可选项。"
+
+This is a big task. I need to normalize all half-width punctuation in Chinese context to full-width.
+
+But wait, the document is 73,564 chars now (after deletion). That's a lot of content. I need to systematically go through and fix half-width punctuation.
+
+Let me think about what's actually required and what's feasible.
+
+First, let me get the current state of the document and understand what's been done.
+
+Actually, let me re-read the most recent system message carefully. It's a bit of a "checkpoint" message telling me:
+
+1. The execution plan is not complete
+2. I must do 3 stages
+3. I must not output a summary until all covered
+4. Half-width punctuation must be converted to full-width in Chinese context
+5. Title levels must be read before unified
+6. I must call editor.write when authorized
+7. I must not output preview/summary after write authorization
+8. If I can't complete, stop and explain
+
+Current fact: 1 batch written, 0 trusted coverage, 3 batches: structure-repair, structure-plan, normalize-segment-1. Remaining physical request rounds: 36.
+
+So my job now is to actually complete the plan. Let me be systematic.
+
+Let me first re-read the structure to understand current state. The document_map I already got (before the delete) showed 237 sections. After deleting 7.8 and renumbering 7.9→7.8, the structure changed slightly (addedIds heading-4-xvjiij, removedIds heading-4-896l1n and heading-4-1au19n4).
+
+Wait, actually the renumber created a new heading id "heading-4-xvjiij" for the renumbered "7.8 与终局的衔接".
+
+Let me understand what "structure-repair" needs. From the earlier context, the previous rounds already:
+- Moved "世界设定声明" to top (it's already at top per document map)
+- Compressed title spacing
+- Added H3 title to 灾前军事基准线
+- Demoted 数据板的局限, 菌膜外套, 菌膜外套与共存补丁 from H2 to H3 under 背景参考资料 (already done per document map - they show as level 3 now)
+- Deleted editing instruction text
+
+Actually, looking at the document map from the first tool call in this round, the structure is already clean:
+- heading-1: 《绿潮》大纲总纲
+  - heading-2-sd0mn1: 世界设定声明
+  - heading-2-kwf15x: 叙事框架
+    - heading-3-1heodug: 故事核心
+    - heading-3-17va42n: 第一卷
+    - heading-3-by40kw: 第二卷
+    - heading-3-1rlyhj7: 第三卷
+  - heading-2-1lka0h8: 背景参考资料
+    - heading-3-19902vk: 灾前军事基准线
+    - heading-3-z4sxm8: 数据板的局限
+    - heading-3-10q4nra: 菌膜外套
+    - heading-3-28do6r: 菌膜外套与共存补丁
+  - heading-2-171cwmj: 卷一
+  - heading-2-9m9hul: 卷二
+  - heading-2-1kq6z0v: 卷三
+  - heading-2-12ruweg: 卷四
+
+This structure looks correct already. So structure-repair is essentially done (from prior rounds).
+
+The main remaining work is:
+1. structure-plan: delete duplicates (7.8 菌膜外套 already deleted; are there other duplicates? The "数据板的局限" content - wait, let me check. Earlier context mentioned "删除背景参考资料内堆放的重复"数据板的局限"正文".)
+
+Actually, let me re-check. In the audit, I see the previous round deleted the duplicate 数据板的局限 body. And just now I deleted 7.8 菌膜外套.
+
+Let me search for remaining duplicates. There might be:
+- 7.8 菌膜外套 vs 背景参考资料 菌膜外套 (now deleted the 7.8 one)
+- 7.9 菌膜外套与共存补丁 vs 背景参考资料 菌膜外套与共存补丁 (these are NOT strict duplicates - 7.9 has additional 终局 content)
+
+Actually, wait. Let me check: is there a duplicate of "菌膜外套与共存补丁的关系" that should be deduped?
+
+The 背景参考资料 version (heading-3-28do6r) has:
+- 菌膜外套与共存补丁的关系 (3 paragraphs)
+- Then transitions into the 六大势力 overview + 圣萌会 content (which is actually misplaced? No, it's part of 背景参考资料 flowing into 卷三 content)
+
+Wait, looking at the content of heading-3-28do6r, after the 菌膜外套与共存补丁 3 paragraphs, it has "在大裂谷走廊，铁壁要塞的巨墙..." and 圣萌会 content, 巨树 content, 终局 content. This is a big chunk of narrative that seems to be the "背景参考资料" long prose section.
+
+The 卷一 version (now heading-4-xvjiij, "7.8 与终局的衔接：菌膜外套与共存补丁的关系") has:
+- 菌膜外套 vs 共存补丁 (2 paragraphs, slightly different wording)
+- 终局之后 content (终局之后，人类踩在菌毯上...)
+
+These are related but not strict duplicates. The 7.8 version has 终局 content that's NOT in the 背景参考资料 version. So I should NOT delete 7.8 (now renumbered) entirely.
+
+Actually wait, I already deleted 7.8 菌膜外套 (the 外套 technical spec) which was a strict subset. The 7.9 (now 7.8) 与终局的衔接 is different - it has 终局 content. Let me keep it.
+
+OK so the main remaining work is:
+
+**normalize-segment-1[0-74253]**: This is the punctuation/whitespace/numbering cleanup covering the ENTIRE document.
+
+The requirement: "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）"
+
+This is a massive task. I need to find all half-width punctuation in Chinese context and convert them.
+
+Let me search for half-width punctuation in the document.
+
+Actually, given the constraints (36 physical request rounds, need to cover the whole document), I need to be efficient. Let me search for half-width punctuation systematically.
+
+The half-width characters to find: , . ; : ! ?
+
+Let me think about what's likely to have half-width punctuation:
+1. Tables (should these be exempt? The instruction says "中文正文语境" - Chinese prose context. Table cells with numbers like "2042年11月" might have half-width in technical content. But the instruction seems to want full-width in Chinese prose. Numbers and technical data might legitimately keep half-width for things like "4-6小时", "0.3%", etc.)
+
+Actually, let me re-read: "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）"
+
+So specifically the punctuation marks , . ; : ! ? when in Chinese prose context should be full-width.
+
+But numbers like "0.3%" - the "." there is a decimal point, not a period. It should stay half-width.
+
+This is tricky. I need to be careful.
+
+Let me search for these characters and see what I find.
+
+Let me search for half-width commas, periods, semicolons, colons, etc. in Chinese context.
+
+Actually, given the scale, let me be strategic. Let me search for specific patterns.
+
+Let me first search for "。 " (already done in prior round - found "火力轰炸。 菌毯" which was fixed).
+
+Let me search for half-width punctuation now. I'll do multiple searches.
+
+Actually, given the enormous scope and my request budget, let me focus on what's most impactful and verifiable.
+
+Let me search for half-width characters in the document.
+
+Let me do searches for:
+- Half-width comma "," 
+- Half-width period "."
+- Half-width semicolon ";"
+- Half-width colon ":"
+- Half-width question "?"
+- Half-width exclamation "!"
+
+But wait, these will match tons of content (numbers, decimals, English, table content, etc.). The search results were truncated at 30 matches before.
+
+Actually, let me think about this more carefully. The document has lots of technical content with numbers. Converting all half-width punctuation blindly would be wrong (e.g., "0.3%" should stay, "SC-α" stays, etc.).
+
+The instruction says "中文正文语境" (Chinese prose context). So I need to find half-width punctuation that's acting as sentence punctuation in Chinese prose.
+
+Common issues:
+1. "。 " → "。" (space after period) - already partly fixed
+2. Sentences ending with half-width "." instead of "。"
+3. Half-width "," between Chinese clauses instead of "，"
+4. Half-width ";" ":" "!" "?" in Chinese
+
+Let me search for these. Given the constraint, let me do targeted searches.
+
+Actually, let me step back and think about the overall strategy given limited rounds.
+
+The plan says:
+- "整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74253]）"
+- "每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令"
+
+So I need to read each segment, identify what needs fixing, and submit one editor.write per segment with all fixes.
+
+But the "normalize-segment-1[0-74253]" is a single segment covering the whole document. So maybe it's one segment. But "每段" (each segment) suggests I should break it down.
+
+Actually, re-reading: "整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74253]）" - this says the normalize-segment-1 spans [0-74253], i.e., the whole document. I need to cover all of it.
+
+Given 36 physical request rounds, I can read in chunks and fix.
+
+Let me be pragmatic. The most important verifiable requirement is the half-width → full-width punctuation conversion.
+
+Let me search the document for half-width punctuation and fix them in batches.
+
+Let me start by searching for the specific problematic patterns. I'll search for half-width punctuation that's clearly in Chinese context.
+
+Let me do a search for "," (half-width comma) to see how many there are.
+
+Actually, from the earlier searches, I saw that the document mostly uses full-width punctuation. The half-width issues found earlier were:
+1. "火力轰炸。 菌毯" - space after Chinese period (fixed)
+2. Various "。 " patterns
+
+Let me search more comprehensively now.
+
+Let me search for:
+1. Half-width "," 
+2. Half-width ";" 
+3. Half-width ":" 
+4. Half-width "!" 
+5. Half-width "?"
+
+I'll do these in parallel.
+
+Actually, given the enormous document and that it's mostly full-width already (it was written in Chinese with full-width punctuation throughout), the half-width punctuation might be limited to:
+- Technical numbers (should stay)
+- Table content
+- A few stray half-width marks
+
+Let me search and see.
+
+Let me do parallel searches for half-width punctuation.
+
+Actually, I realize I should think about what "structure-repair" and "structure-plan" still need, since the system says all 3 batches are uncovered.
+
+Wait, actually re-reading the "当前事实": "已成功写入 1 批（可信覆盖 0 批），计划共 3 批，未覆盖批次：structure-repair | structure-plan | normalize-segment-1"
+
+This says: 1 batch successfully written, but 0 trusted coverage. All 3 batches are "uncovered" (未覆盖).
+
+Hmm, this is contradictory. Maybe it means: I've done writes but they weren't attributed to any of the 3 planned segments properly, so from the checker's perspective, none of the 3 planned segments are "covered" (i.e., I haven't marked them as complete with proper coverage).
+
+Actually, I think the issue is that the system tracks "coverage" of segments, and my previous writes didn't establish "trusted coverage" of the 3 planned segments.
+
+The key message: I need to actually complete all 3 stages properly, with the checker recognizing coverage.
+
+But how does coverage get "trusted"? Probably by writing within each segment and having the write return coverage for that segment.
+
+Looking at my last write result: it returned coverage with "segmentId":"structure-plan". So that should cover structure-plan.
+
+But the system says "可信覆盖 0 批". Maybe because the structure-plan coverage wasn't "trusted" - perhaps because I need to do more (confirm all duplicates, not just one).
+
+Let me just proceed methodically to complete the work.
+
+Given the complexity, let me focus on:
+
+**Stage 1 (structure-repair)**: Verify structure is correct. From document_map, structure looks good. But there may be remaining issues:
+- Title levels: Are there any level jumps or misplaced titles?
+
+Let me check the full document map (I only got 80 sections, there are 237 total). Let me get the rest.
+
+Actually, the structure from the map I got (offset 0-80) looks correct and consistent. The later sections (80-237) I should verify too.
+
+**Stage 2 (structure-plan)**: Confirm duplicates. I already deleted 7.8 菌膜外套. Are there other duplicates?
+
+Let me search for other potential duplicates:
+- 菌膜外套与共存补丁的关系 appears in 背景参考资料 (heading-3-28do6r) and 卷一 7.9→7.8 (now heading-4-xvjiij). These are related but not identical (7.8 has 终局 content).
+
+Actually, wait. Let me look again. The 背景参考资料 version of "菌膜外套与共存补丁的关系" ends with "菌膜外套是权宜之计，共存补丁是终极解法。" and then has a huge narrative chunk (六大势力 + 圣萌会 + 巨树 + 终局).
+
+The 卷一 7.8 (与终局的衔接) has the 外套 vs 补丁 comparison + 终局 details.
+
+These overlap partially but both contain unique content. Not strict duplicates. Should keep both? Or should I consolidate?
+
+Actually, this is getting complicated. Let me focus on what I can verify and do well.
+
+**Stage 3 (normalize-segment-1)**: Punctuation cleanup. This is the main remaining task.
+
+Let me start searching for half-width punctuation and fix them.
+
+Let me do a broad search first to understand the scope.
+
+I'll search for these half-width characters in the editor content.
+
+Given the earlier searches showed the document is mostly full-width, let me check what half-width punctuation exists.
+
+Let me search for:
+1. "," (half-width comma) - limit 50
+2. "." (half-width period) - this will match decimals and "SC-α" etc.
+
+Actually, searching for "." will be noisy. Let me be more targeted.
+
+Let me search for patterns like "。[a-z]" no...
+
+Let me just search for half-width comma first.
+
+Actually, I'll take a different approach. Let me read the document in chunks and identify half-width punctuation, then fix.
+
+But 73,564 chars / 12,000 chars per read = ~7 reads. Then fixes. That's feasible within 36 rounds.
+
+Actually, a more efficient approach: use editor.search to find half-width punctuation occurrences with context, then fix them.
+
+Let me search for the specific half-width punctuation marks.
+
+Let me do these searches in parallel:
+1. search "," (half-width comma)
+2. search ";" (half-width semicolon)
+3. search "!" (half-width exclamation)
+4. search "?" (half-width question)
+
+And separately handle "." and ":" which are noisier.
+
+Let me start.
+
+Actually, wait. Let me reconsider the whole situation. The document was provided to me in full in the "当前焦点全文" (current focus full text) at the top of the conversation. Let me look at that text for half-width punctuation.
+
+Looking at the full text provided, I can see it's overwhelmingly full-width punctuation (，。；：！？). The half-width punctuation appears in:
+- Numbers: "2042年", "0.3%", "4-6小时", "72小时", "1.5倍", etc. (decimal points and hyphens)
+- "SC-α" (hyphen)
+- English/Latin: "Magnus", "Sancta Germinatio", "Germinatio", "GPS/北斗"
+- Table cells with numbers
+
+Actually, I notice in the text there might be some half-width punctuation issues. Let me look carefully at the provided full text...
+
+From the "当前焦点全文" I can see the text uses full-width punctuation consistently. For example "自然成了人类最大的灾难，人类在灾难面前分裂成利用者、自保者和争权者。"
+
+So the half-width punctuation issue might be minimal. But the system insists it's a mandatory condition.
+
+Hmm, wait. Actually, looking more carefully, there ARE some issues. Let me look for them.
+
+Actually, I recall from the audit that previous searches found things like:
+- "。 " (space after full-width period) - "火力轰炸。 菌毯"
+- "。 " patterns
+
+And the previous rounds fixed some of these.
+
+Let me search the current document for remaining issues.
+
+Let me be efficient and do parallel searches now.
+
+Actually, I realize I'm overthinking this. Let me just do the work:
+
+1. Get full document map (rest of sections) to verify structure
+2. Search for half-width punctuation
+3. Fix issues
+
+Let me start with searches.
+
+Let me do these searches in parallel:
+- search for half-width comma ","
+- search for half-width semicolon ";"
+- search for half-width exclamation "!"
+- search for half-width question "?"
+
+And also search for half-width colon ":" and period "." separately since they're noisier.
+
+Let me go.
+
+Actually, given the scale and that I need to be efficient, let me first get the rest of the document map to understand full structure, and simultaneously search for half-width punctuation.
+
+Let me do:
+1. document_map offset 80 (to see rest of structure)
+2. search "," 
+3. search ";" 
+4. search "!" 
+5. search "?"
+
+Wait, I already have offset 0-80 from this round. The structure looks good so far. Let me get offset 80 to see the rest (卷三 sections etc).
+
+Actually the document map I got earlier this round shows offset 0 limit 80, hasMore true. Let me get the rest.
+
+Let me plan my searches and reads carefully to maximize efficiency.
+
+Round 1 (parallel):
+- document_map offset 80 limit 120 (get rest of structure)
+- search "," limit 50
+- search ";" limit 50
+- search "!" limit 50
+- search "?" limit 50
+
+Then based on results, do targeted fixes.
+
+Let me go.
+
+Actually, let me also reconsider: the system message says "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角". This explicitly lists ", . ; : ! ?" as the half-width punctuation to convert.
+
+But "." and "," appear in numbers (decimals) and "SC-α" etc. Those are NOT "中文正文语境" (Chinese prose context) - they're numeric/technical context.
+
+So I need to find half-width punctuation used AS punctuation (sentence delimiters, list separators) in Chinese prose.
+
+Common cases:
+1. A half-width "." used as sentence period: e.g., "这是句子.这是下一句"
+2. A half-width "," used as list separator in Chinese: e.g., "苹果,香蕉,梨"
+3. A half-width ";" in Chinese list
+4. A half-width ":" in Chinese context: e.g., "结论:xxx"
+5. A half-width "!" "?" at end of Chinese sentence
+
+Let me search and identify these.
+
+Let me go with the searches now.
+
+Actually, I want to also check for "： " and "， " and "； " (full-width followed by space) which are also formatting issues.
+
+But let me focus on the mandatory half-width → full-width conversion first.
+
+Let me execute the searches.
+
+I'll do a first batch of parallel searches.

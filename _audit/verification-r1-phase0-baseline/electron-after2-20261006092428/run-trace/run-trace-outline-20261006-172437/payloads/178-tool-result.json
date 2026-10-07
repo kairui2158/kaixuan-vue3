@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-4-1k3kxvb",
+      "title": "7.7 唯一例外：菌膜装甲的原理",
+      "kind": "heading",
+      "level": 4,
+      "path": "7.7 唯一例外：菌膜装甲的原理"
+    },
+    "range": {
+      "start": 47199,
+      "end": 47399
+    },
+    "offset": 0,
+    "maxChars": 200,
+    "content": "#### 7.7 唯一例外：菌膜装甲的原理\n\n在菌丝网络的双重交叉验证框架下，存在且仅存在一种绕过验证的方法。方岫岩没有修改人类的基因，他培育了一株特殊的共生蕨菌株——SC-α。\n\nSC-α菌丝的基因序列经过人工筛选，保留了与菌毯网络通信的能力，但删除了生态身份注册功能。当菌膜装甲接触菌毯时，SC-α菌丝与菌毯的探询细丝建立接触。菌毯发送探询脉冲——SC-α菌丝返回的不是身份标签，而是一条合法的网",
+    "hasMore": true,
+    "nextCursor": "section:heading-4-1k3kxvb:200",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

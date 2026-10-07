@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-2-12ruweg",
+      "title": "卷四：叙事工具箱层",
+      "kind": "heading",
+      "level": 2,
+      "path": "卷四：叙事工具箱层"
+    },
+    "range": {
+      "start": 72500,
+      "end": 72700
+    },
+    "offset": 0,
+    "maxChars": 200,
+    "content": "## 卷四：叙事工具箱层\n\n### 一、核心主题清单\n\n知识的责任、人与自然的伦理、异化的边界、文明的重构、个体与群体、资源与权力、技术的选择、恐惧与爱意、修复与共存、师承与传承、文明圈的重聚、核遗产的转化、真相的封存与公开、天空的囚笼与馈赠、水体的净化与重塑、食物的权力、灾难的悖论、武器的进化、科技的更新换代、守密者的救赎、无代价的英雄、血脉与学术的双重传承、多元认知的合流、选择的代价、化为大地",
+    "hasMore": true,
+    "nextCursor": "section:heading-2-12ruweg:200",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

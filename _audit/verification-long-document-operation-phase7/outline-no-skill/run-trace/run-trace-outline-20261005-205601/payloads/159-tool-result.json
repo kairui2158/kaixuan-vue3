@@ -1,0 +1,142 @@
+{
+  "ok": true,
+  "data": {
+    "totalChars": 74435,
+    "estimatedTokens": 38671,
+    "sectionCount": 235,
+    "reorderTopLevelIds": [
+      "heading-0"
+    ],
+    "reorderScope": "top-level",
+    "degraded": false,
+    "sections": [
+      {
+        "id": "heading-10250",
+        "title": "背景参考资料",
+        "kind": "heading",
+        "level": 2,
+        "start": 10250,
+        "end": 16273,
+        "charCount": 6013,
+        "summaryHead": "四亿年前，一株不属于植物、真菌、动物任何一界的古老生命体在竞争中落败，将自身封存于深根大陆地下深处，进入完全代谢休眠。十到十二亿年前，它的祖先就已走上独立的演化"
+      },
+      {
+        "id": "heading-16273",
+        "title": "数据板的局限",
+        "kind": "heading",
+        "level": 2,
+        "start": 16273,
+        "end": 16828,
+        "charCount": 545,
+        "summaryHead": "数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播“无生命有机质”静默声明的分"
+      },
+      {
+        "id": "heading-16828",
+        "title": "菌膜外套：有限资源的临时通行方案",
+        "kind": "heading",
+        "level": 2,
+        "start": 16828,
+        "end": 17576,
+        "charCount": 728,
+        "summaryHead": "陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。但林知意在对SC-α备份菌株进行深入研究后，结合方岫岩数据板中关于SC-α菌株"
+      },
+      {
+        "id": "heading-17576",
+        "title": "菌膜外套与共存补丁的关系",
+        "kind": "heading",
+        "level": 2,
+        "start": 17576,
+        "end": 22091,
+        "charCount": 4499,
+        "summaryHead": "菌膜外套是“让系统暂时看不到我们”——临时伪装，不改变菌丝网络对人类信号的认证逻辑。共存补丁是“让系统认识我们”——将人类物种标签写入菌丝网络的认证数据库，让系"
+      },
+      {
+        "id": "heading-22091",
+        "title": "世界设定声明",
+        "kind": "heading",
+        "level": 2,
+        "start": 22091,
+        "end": 22188,
+        "charCount": 87,
+        "summaryHead": "本书为完全架空世界设定。故事中所有地名、区域名、山川河流名均为虚构创作，不与任何现实地理位置、国家、行政区划存在对应关系。势力名称为故事核心资产，独立于地名体系"
+      },
+      {
+        "id": "heading-22188",
+        "title": "卷一：基石设定层",
+        "kind": "heading",
+        "level": 2,
+        "start": 22188,
+        "end": 55694,
+        "charCount": 33494,
+        "summaryHead": "## 卷一：基石设定层 本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作 ### 一、书名定义与核心术语定调 #### 1.1 关于“绿潮”的名称定义 在本书中，“绿潮”是一个具有特定历史含义的专有名词，指代2042年灾难爆"
+      },
+      {
+        "id": "paragraph-3",
+        "title": "内容块 3",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 22200,
+        "end": 22236,
+        "charCount": 36,
+        "summaryHead": "本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作"
+      },
+      {
+        "id": "heading-22236",
+        "title": "一、书名定义与核心术语定调",
+        "kind": "heading",
+        "level": 3,
+        "start": 22236,
+        "end": 22797,
+        "charCount": 543,
+        "summaryHead": "### 一、书名定义与核心术语定调 #### 1.1 关于“绿潮”的名称定义 在本书中，“绿潮”是一个具有特定历史含义的专有名词，指代2042年灾难爆发时菌毯以惊人速度覆盖全球的历史事件——菌毯如潮水般在数周内席卷大陆，文明在极短时间内崩溃"
+      },
+      {
+        "id": "paragraph-4",
+        "title": "内容块 4",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 22254,
+        "end": 22255,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-22255",
+        "title": "1.1 关于“绿潮”的名称定义",
+        "kind": "heading",
+        "level": 4,
+        "start": 22255,
+        "end": 22361,
+        "charCount": 85,
+        "summaryHead": "在本书中，“绿潮”是一个具有特定历史含义的专有名词，指代2042年灾难爆发时菌毯以惊人速度覆盖全球的历史事件——菌毯如潮水般在数周内席卷大陆，文明在极短时间内崩"
+      },
+      {
+        "id": "heading-22361",
+        "title": "1.2 核心术语定调",
+        "kind": "heading",
+        "level": 4,
+        "start": 22361,
+        "end": 22797,
+        "charCount": 420,
+        "summaryHead": "- “共生体”专属权声明：“共生体”是陈暮菌膜装甲“共生体-α”的专有名称，全书唯一合法用例。天府都所有接受共生改造的人员统一称为“共生战士”，圣萌会追求融合状"
+      },
+      {
+        "id": "heading-22797",
+        "title": "二、灵魂语句",
+        "kind": "heading",
+        "level": 3,
+        "start": 22797,
+        "end": 22900,
+        "charCount": 92,
+        "summaryHead": "> “知识锁在抽屉里，和不存在没有区别。”\n\n这15个字出自周仰川，被林觉民奉为毕生学术信条，直接导致他在2040年将共生蕨全部研究数据开源——这一决定是一切悲"
+      }
+    ],
+    "offset": 8,
+    "limit": 12,
+    "hasMore": true,
+    "nextOffset": 20,
+    "next_steps": [
+      "继续调用 editor.document_map 并传入 nextOffset 获取剩余节"
+    ]
+  }
+}

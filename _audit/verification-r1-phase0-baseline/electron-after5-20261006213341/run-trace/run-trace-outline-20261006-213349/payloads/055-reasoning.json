@@ -1,0 +1,73 @@
+The system note tells me I need to cover all planned segments. Let me understand the current state. The plan has 3 segments: structure-repair, structure-plan, normalize-segment-1[0-74841].
+
+I've completed:
+- structure-plan (remove_duplicate) - batch 1 covered this
+- structure-repair - batch 2 (move + titles) and batch 6 (empty lines)
+- normalize-segment-1 - batches 3, 4, 5 (punctuation)
+
+The note says "未覆盖批次：structure-repair | structure-plan" but actually these have been covered. Wait, it says "已成功写入 5 批（可信覆盖 3 批），计划共 3 批，未覆盖批次：structure-repair | structure-plan".
+
+Hmm, this is confusing. It seems the coverage tracking counts only "可信覆盖" (trusted coverage) as 3 batches. The note is a system-level instruction inserted. Let me focus on what matters: the completion criteria.
+
+The key remaining requirement from the note:
+1. 中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）—— this is a mandatory condition.
+
+I already searched for ", ", ". ", ": " etc. and found 0 matches for ", " and ": ". But I found 7 matches for ". " earlier (which are legitimate list numbering "1. " "2. " etc). Wait, those ". " are in numbered lists like "1. " which are legitimate.
+
+But I need to check for half-width punctuation more carefully. My earlier search for ", " returned 0. But that search was for ", " with space. Let me search for standalone half-width punctuation without space to be thorough.
+
+Actually, the search returned total 0 for ", ", ";", "!", "?", ":", "." Let me re-examine. The search for ", " returned 0. The search for ". " returned 7 (list numbering). The search for ": " returned 0. The search for ";" returned 0, "!" returned 0, "?" returned 0.
+
+Wait, but I need to check for half-width punctuation NOT followed by space too. Like "，→," without space. Let me search for individual half-width punctuation characters more carefully.
+
+Actually the search seems to be token-based. Let me search for specific half-width punctuation in context where it might appear without trailing space.
+
+Let me search for "," (comma) alone, "." alone, etc. But those might return huge numbers. Let me try searching for specific known patterns.
+
+Actually, my concern is whether there are remaining half-width commas in the text. The search for ", " (comma+space) returned 0. But a half-width comma in Chinese text would typically be ", " followed by... actually in Chinese text half-width comma is usually just "," followed directly by next character, or ", " with space. 
+
+Let me search for "，" vs ",". Actually let me just do targeted searches for remaining half-width punctuation patterns.
+
+Let me search for common patterns where half-width punctuation might remain:
+- "， " would be fine
+- Search for "。 " no
+
+Let me just search for "," without space limit to see if any half-width commas exist.
+
+Actually, I should be efficient. The mandatory condition is half-width punctuation in Chinese context must be converted. I've done the main quote conversion. Let me verify by searching for remaining half-width punctuation marks.
+
+Let me search for these patterns in the actual text. Search might not support searching for single punctuation well. Let me try.
+
+Actually earlier searches returned 0 for ";", "!", "?", ": ", ", ". The only remaining ". " are list numbers which are legitimate English list numbering (1. 2. 3.) and should NOT be converted to "。" since they're structural.
+
+Wait, but there might be half-width periods used as sentence ends in Chinese, like "。" vs "." Let me check. My search for ". " found only list numbering contexts (7 matches). So no Chinese sentence-ending half-width periods with trailing space.
+
+But what about half-width "." NOT followed by space, e.g., abbreviations? "XQ-58" etc. Those are fine.
+
+Let me also verify there are no half-width commas without space. Let me search for specific contexts.
+
+Actually, I think I should verify the structure is complete and check for remaining issues. Let me also check the structure-repair segment is fully done: the title hierarchy.
+
+The current top-level structure is:
+- 序 世界设定声明 (h2)
+- 第一部分 叙事框架 (h2)
+- 第二部分 背景参考资料 (h2)
+- 第三部分 数据板的局限 (h2)
+- 第四部分 菌膜外套 (h2)
+- 第五部分 菌膜外套与共存补丁的关系 (h2)
+- 第六部分 卷一：基石设定层 (h2)
+- 第七部分 卷二：核心人物群像 (h2)
+- 第八部分 卷三：势力与格局层 (h2)
+- 第九部分 卷四：叙事工具箱层 (h2)
+
+Wait, the "序 世界设定声明" was moved to before "第一部分". But note the "世界设定声明" content says "本书为完全架空世界设定..." which makes sense as a preamble.
+
+But there's an issue: I should verify the document now reads correctly. Let me check the overall structure via document_map to see the top-level.
+
+Actually, I already have good confidence in the structure. The key remaining task is verifying half-width punctuation is fully normalized.
+
+Let me do targeted searches for remaining half-width punctuation. The search function seems to search literal text. Let me search for "," and "，" to compare.
+
+Actually, a simpler approach: search for specific half-width punctuation that might remain. Let me search for "，" won't help. Let me search for common half-width patterns.
+
+Let me search for "," (just comma).

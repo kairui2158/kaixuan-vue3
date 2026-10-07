@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-1-mizom9",
+      "title": "《绿潮》大纲总纲",
+      "kind": "heading",
+      "level": 1,
+      "path": "《绿潮》大纲总纲"
+    },
+    "range": {
+      "start": 45700,
+      "end": 45800
+    },
+    "offset": 45700,
+    "maxChars": 100,
+    "content": "号源，正在接触菌毯。这就是警报。\n\n##### 7.2.3 双重交叉验证优先级与辐变体的特殊性\n\n双重认证优先级为在线认证高于离线认证。辐变体因为基因被辐射破坏，无法接入菌毯网络，成为唯一的“离线节点",
+    "hasMore": true,
+    "nextCursor": "section:heading-1-mizom9:45800",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

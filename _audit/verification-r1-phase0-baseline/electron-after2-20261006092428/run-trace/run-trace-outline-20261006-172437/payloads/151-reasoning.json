@@ -1,0 +1,218 @@
+The plan says we need to execute the restructuring - deleting duplicates and normalizing. Let me now continue with the remaining steps. The plan has steps:
+
+1. read-structure (done - we have document_map)
+2. execute-restructure - need to handle duplicate sections
+3. confirm-duplicates - need to locate duplicates
+4. delete-duplicates - need to delete confirmed duplicates
+5. normalize-segments - format cleanup
+6. verify-plan - final check
+
+But wait - the user's original request was "按照Word文档的形式重构大纲，不要缩减内容" (restructure the outline in Word document form, don't reduce content). And the current user said "符合我的要求，分叉一允许去重。不用出预览，直接写入" (Meets my requirements, fork one allows dedup. No preview needed, write directly).
+
+The key task is to restructure into a "Word document format" - which likely means a clean, structured document with proper hierarchy, removing the current "大纲" (outline) labeling and making it a proper document.
+
+Looking at the current structure, the document has:
+- 《绿潮》大纲总纲 (main title)
+- Multiple "内容块" (content blocks) that are just blank paragraphs
+- Duplicate content between sections (菌膜外套, 菌膜外套与共存补丁的关系 appear both as standalone sections under heading-2 level and also embedded in 7.8 and 7.9)
+
+The user mentioned "分叉一允许去重" - fork one allows deduplication. So there are duplicate sections that need to be removed.
+
+Let me identify the duplicates:
+1. `heading-2-10q4nra` "菌膜外套：有限资源的临时通行方案" (16827-17575) - This is a standalone heading-2 section
+2. `heading-4-896l1n` "7.8 菌膜外套：有限资源的临时通行方案" (47598-48287) - This is under 七、变异体主动攻击人类核心机制
+
+3. `heading-2-28do6r` "菌膜外套与共存补丁的关系" (17575-22090) - Standalone heading-2
+4. `heading-4-1au19n4` "7.9 与终局的衔接：菌膜外套与共存补丁的关系" (48287-48767) - Under 七
+
+So essentially the same content appears twice. The standalone heading-2 sections seem to be the "expanded" versions with more narrative context, while the heading-4 versions are more compact technical versions within the mechanism section.
+
+Now, the user wants to restructure as a Word document. This means:
+- Clean hierarchy
+- Remove "大纲总纲" framing
+- Remove "内容块" placeholder paragraphs
+- Remove duplicate content (keeping one version of each)
+- Clean up editorial notes like "粘贴到「故事核心」下..." (already deleted)
+
+Also we need to clean up the "内容块" paragraphs which are just empty filler (1-2 chars each).
+
+Let me proceed with the plan:
+
+1. First, delete all "内容块" placeholder paragraphs (they're empty or nearly empty)
+2. Remove duplicate sections - keep the more detailed versions
+3. Clean up any remaining editorial notes
+
+The content blocks appear to be mostly empty whitespace paragraphs. Let me check what they contain.
+
+From the document map, all "内容块" (content blocks) are just 1-2 character paragraphs containing basically nothing meaningful - they seem to be formatting artifacts.
+
+Let me plan the deletions:
+
+Duplicate sections to handle:
+- `heading-2-10q4nra` "菌膜外套：有限资源的临时通行方案" - this is standalone. The content is duplicated in 7.8. Keep 7.8 (it's in the proper context).
+- `heading-2-28do6r` "菌膜外套与共存补丁的关系" - standalone. Content duplicated in 7.9. This one is much larger (4499 chars) and contains extended narrative. Let me read it to compare with 7.9.
+
+Actually, looking more carefully, `heading-2-28do6r` (17575-22090) is 4499 chars and contains narrative about the six major powers plus the finale. It's much broader than the compact 7.9 version. So these might not be simple duplicates - the heading-2 version is an extended narrative version that includes the finale summary.
+
+Let me read these sections to compare.
+
+Actually, I already read `heading-2-28do6r` partially earlier - it contains the extended finale narrative with all the major powers. Let me read it fully.
+
+And `heading-2-10q4nra` - the standalone version of 菌膜外套 - let me compare with 7.8.
+
+From the earlier reads:
+- 7.8 (47598-48287) is 663 chars
+- heading-2-10q4nra (16827-17575) is 728 chars
+
+These are very close in size and content. The 7.8 and heading-2-10q4nra versions are essentially duplicates.
+
+For the 菌膜外套与共存补丁的关系:
+- 7.9 (48287-48767) is 451 chars  
+- heading-2-28do6r (17575-22090) is 4499 chars - much larger, contains extended finale narrative
+
+So the heading-2 versions seem to be earlier/expanded versions. The heading-4 versions are more compact technical versions integrated into the mechanism section.
+
+The user said "分叉一允许去重" - so we should keep the more detailed version and remove the shorter duplicate. But wait, the shorter versions (7.8, 7.9) are properly integrated into the "七、变异体主动攻击人类核心机制" section. The standalone heading-2 versions might have been placed there as supplementary material.
+
+Actually, looking at this more carefully, I think the ideal approach is:
+- Keep 7.8 and 7.9 in their proper context under 七
+- Remove the standalone heading-2 duplicates (heading-2-10q4nra and heading-2-28do6r)
+- But heading-2-28do6r contains the extended finale narrative... 
+
+Let me read heading-2-28do6r fully to understand what's unique there vs 7.9.
+
+Actually, I already read it earlier - it contains all the major power descriptions and the finale narrative. Let me check: 
+
+From earlier read of heading-2-28do6r, it starts with the same 菌膜外套 vs 共存补丁 explanation but then launches into extensive narrative about the six powers and the finale. This is essentially the "finale summary" content that may not exist elsewhere in such a condensed form.
+
+Hmm, but parts of this content also appear elsewhere - the six power descriptions are in 卷三, and the finale appears in the extended sections.
+
+OK, I think the right approach is:
+1. Keep 7.8 and 7.9 in context (they're concise technical summaries)
+2. Remove heading-2-10q4nra (duplicate of 7.8)
+3. For heading-2-28do6r - need to check if its unique content (the extended finale narrative) exists elsewhere
+
+Let me just proceed with what I can confirm:
+- Delete all "内容块" paragraphs (they're empty placeholders)
+- Delete heading-2-10q4nra (confirmed duplicate of 7.8)
+
+Then handle heading-2-28do6r separately.
+
+Let me read heading-2-28do6r to compare with what's already in the document elsewhere.
+
+Actually wait, I already read it earlier. Let me check: from the earlier read, heading-2-28do6r contains:
+- 菌膜外套与共存补丁的关系 explanation
+- Extended narrative about all six major powers  
+- 圣萌会 / 马格努斯
+- 巨树
+- The finale - 陈暮 vs 马格努斯, 共存补丁
+- Post-finale world
+
+This extended narrative is essentially a condensed version of the entire story. Much of this content also appears in other sections (卷三 for powers, 背景参考资料 for the finale, etc.).
+
+For the Word document restructure, I think we should:
+1. Remove all empty "内容块" paragraphs
+2. Remove `heading-2-10q4nra` (duplicate of 7.8 菌膜外套)
+3. Keep `heading-2-28do6r` as a standalone 终局概览 or similar section, since it provides a unique narrative summary
+4. Rename/restructure top-level hierarchy for Word format
+
+Actually, the user asked for "Word文档的形式" which likely means:
+- Clean hierarchical structure
+- No outline/framing labels like "大纲总纲"
+- Proper document title
+- Main sections as chapters
+
+Let me proceed step by step. First, let me clean up by deleting content blocks. Then handle duplicates.
+
+For the "内容块" paragraphs - there are ~34 of them, each 1-2 chars. They're essentially blank separators. In a Word document, these would be removed.
+
+Let me also read heading-2-28do6r to understand its full content before deciding.
+
+Actually, I already have enough info. Let me proceed with the restructuring. The plan steps are clear:
+
+Step 1: Delete all "内容块" paragraphs
+Step 2: Delete heading-2-10q4nra (duplicate of 7.8)
+Step 3: Handle heading-2-28do6r
+Step 4: Normalize formatting
+Step 5: Verify
+
+Let me start with deleting the content blocks. I need to find unique fragments from each to use as targets for delete operations.
+
+From the document map, the 内容块 paragraphs are:
+- paragraph-11m2iyd: 11-13, 2 chars
+- paragraph-11m2iyd~2: 21-23, 2 chars
+- paragraph-1kd06wy: 10240-12120, 1880 chars - wait this is different, it has actual content!
+- paragraph-4mh893: 22199-22235, 36 chars - has content "本卷声明..."
+- paragraph-46bd25 through paragraph-46bd25~34: various 1-char blocks
+- paragraph-109ssix: 44124-44304, 180 chars - has content!
+- paragraph-1xz6gg3: 46007-46158, 151 chars - has content!
+
+So not all "内容块" are empty. Some contain actual text. Let me re-read the ones that have content to understand what they are.
+
+From the earlier reads:
+- paragraph-1kd06wy (10240-12120): Contains the full "背景参考资料" narrative text about the ancient life form, 共生蕨 discovery, etc. This is actual content!
+- paragraph-4mh893 (22199-22235): "本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作" - this is the volume disclaimer
+- paragraph-109ssix (44124-44304): About 变异植物 etc.接入菌丝网络 - this is content that's duplicated in the heading sections
+- paragraph-1xz6gg3 (46007-46158): About 菌毯对异常信号源的响应 - also duplicated content
+
+So the "内容块" paragraphs seem to be content that was placed before the proper heading structure was set up, and some of them duplicate content that now exists under proper headings. The 1-2 char ones are just empty separators.
+
+Let me focus on the key tasks:
+1. Delete truly empty content blocks (1-2 char ones)
+2. For content blocks with actual content, check if they duplicate content in headings
+3. Delete confirmed duplicates
+4. Handle heading-2-10q4nra and heading-2-28do6r
+
+Let me first read the content blocks that might have meaningful content to check for duplication. But this is getting complex. Let me just focus on the most impactful changes:
+
+1. Delete heading-2-10q4nra "菌膜外套：有限资源的临时通行方案" - confirmed duplicate of 7.8
+2. Delete the 1-2 char empty content blocks
+3. Keep heading-2-28do6r as it has extended narrative
+
+For the empty content blocks, I need unique fragments to target them. But they're just whitespace... `editor.write` with `delete` operation needs a `target` fragment. Empty paragraphs are tricky.
+
+Let me think about this differently. Instead of trying to delete individual tiny paragraphs, let me focus on the major structural changes:
+
+1. Delete duplicate heading-2-10q4nra section
+2. The empty "内容块" paragraphs are so small (1-2 chars) they're essentially invisible formatting artifacts
+
+Actually, the user's request "按照Word文档的形式重构大纲" might be more about making the document read like a proper Word document rather than an outline with scattered notes. The key changes would be:
+
+1. Remove editorial/metadata elements (like "内容块", editing instructions)
+2. Remove duplicate content
+3. Ensure clean hierarchy
+
+Let me proceed with what I can do efficiently:
+
+First, delete the confirmed duplicate section heading-2-10q4nra. Let me locate unique text to target it.
+
+From earlier reads, heading-2-10q4nra starts at 16827. Let me find a unique fragment.
+
+The title is "## 菌膜外套：有限资源的临时通行方案" at position 16827. But this same title also appears as "#### 7.8 菌膜外套：有限资源的临时通行方案" at position 47598. So I can't use the title as a unique target.
+
+Let me use the content. The heading-2 version starts with:
+"陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。但林知意在对SC-α备份菌株进行深入研究后，结合方岫岩数据板中关于SC-α菌株信息素伪装机制的理论推导，提出了一个折中方案：仿制一种低版本的单一功效菌膜外套。"
+
+And the heading-4 version (7.8) starts with the same text. So I need to find something unique.
+
+Let me read the end of heading-2-10q4nra and compare with the end of 7.8 to find differences.
+
+From earlier: 
+- 7.8 ends at 48287
+- heading-2-10q4nra ends at 17575
+
+Both sections end with similar content about 陈暮's role as 路线勘探者.
+
+Actually, let me try a different approach. Let me locate the exact boundaries and use a fragment from just before or after the section.
+
+The section heading-2-10q4nra is from 16827 to 17575. After it, heading-2-28do6r starts at 17575.
+
+Let me find a fragment that's unique to the boundary. The text right before heading-2-10q4nra (at the end of heading-2-z4sxm8 "数据板的局限" which ends at 16827) might help.
+
+Actually, let me just use editor.locate to find a unique fragment in heading-2-10q4nra. Let me try a fragment from the end of the section.
+
+Hmm, both sections are essentially identical. The easiest approach would be to use a fragment from the section boundary - the text that transitions from 数据板的局限 to 菌膜外套.
+
+Let me read the area around 16820-16830 to find the unique boundary text.
+
+OK, I'm overcomplicating this. Let me just read the relevant ranges and then delete the section. I'll use a larger fragment that spans the section boundary.

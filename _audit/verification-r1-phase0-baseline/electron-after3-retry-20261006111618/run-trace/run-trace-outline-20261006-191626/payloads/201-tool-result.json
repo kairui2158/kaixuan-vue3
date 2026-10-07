@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-4-1au19n4",
+      "title": "7.9 与终局的衔接：菌膜外套与共存补丁的关系",
+      "kind": "heading",
+      "level": 4,
+      "path": "7.9 与终局的衔接：菌膜外套与共存补丁的关系"
+    },
+    "range": {
+      "start": 48561,
+      "end": 48641
+    },
+    "offset": 0,
+    "maxChars": 80,
+    "content": "#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系\n\n菌膜外套是“让系统暂时看不到我们”——在穿戴者身上覆盖一层伪装层，不改变菌丝网络对人类信号的认证逻辑",
+    "hasMore": true,
+    "nextCursor": "section:heading-4-1au19n4:80",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

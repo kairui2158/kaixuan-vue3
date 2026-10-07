@@ -1,0 +1,11 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "reason": "清理「三、总结」结尾与「数据板的局限」标题之间多余空行，规范为单个空行分隔",
+      "target": "承认。\n\n\n\n\n## 数据板的局限",
+      "content": "承认。\n\n## 数据板的局限"
+    }
+  ],
+  "reason": "normalize-segment-1 收尾：规范章节之间的多余空白行，符合 Word 文档排版，不缩减内容"
+}

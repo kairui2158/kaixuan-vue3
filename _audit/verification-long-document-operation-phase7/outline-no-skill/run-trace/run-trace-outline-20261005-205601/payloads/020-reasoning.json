@@ -1,0 +1,120 @@
+The first batch of edits was successful. Now let me think about the overall request: "按照Word文档的形式重构大纲，不要缩减内容" - reorganize the outline in Word document form without reducing content.
+
+Let me analyze the current structure to understand what needs to be reorganized. The current document has this structure:
+
+1. 《绿潮》大纲总纲 (heading-0)
+2. PHASE7探测句 (已修正)
+3. ## 叙事框架 (heading-74)
+   - ### 故事核心
+   - ### 第一卷·觉醒与扎根
+   - ### 第二卷·连接与陷落
+   - ### 第三卷·远征与暗流
+4. ## 背景参考资料 (heading-10291)
+5. ## 数据板的局限 (heading-16862)
+6. ## 菌膜外套：有限资源的临时通行方案 (heading-17417)
+7. ## 菌膜外套与共存补丁的关系 (heading-18165)
+8. ## 世界设定声明 (heading-22680)
+9. ## 卷一：基石设定层 (heading-22777)
+   - ... (详细设定)
+10. ## 卷二：核心人物群像 (heading-56283)
+11. ## 卷三：势力与格局层 (heading-60858)
+12. ## 卷四：叙事工具箱层 (heading-73122)
+
+The user wants to reorganize it in a "Word document format." Currently, the structure has some issues:
+
+1. The "叙事框架" section contains the story outline (volumes 1-3) as well as the background reference material, but then the background reference section is repeated at heading-10291 with more detail.
+
+2. The document has no clear separation between narrative framework and world-building sections.
+
+3. The current structure mixes story outline with reference materials in a somewhat haphazard way.
+
+Let me think about what a "Word document format" would look like for a novel outline:
+
+- A clear title page/header
+- Table of contents style organization
+- Part/Volume divisions clearly delineated
+- Consistent heading hierarchy
+- Clean separation between story outline, character profiles, world-building, and reference appendices
+
+Looking at the structure more carefully:
+
+The current document has:
+- Top-level: # 《绿潮》大纲总纲
+- Then ## 叙事框架 (contains story core, volume 1-3 summaries)
+- Then ## 背景参考资料 (detailed background)
+- Then ## 数据板的局限, ## 菌膜外套..., ## 菌膜外套与共存补丁的关系
+- Then ## 世界设定声明
+- Then ## 卷一：基石设定层 (detailed world-building)
+- Then ## 卷二：核心人物群像
+- Then ## 卷三：势力与格局层
+- Then ## 卷四：叙事工具箱层
+
+The issue is that "叙事框架" contains story outline AND the beginning of background material, but then "背景参考资料" is a separate section that starts over. Let me check if these are duplicates.
+
+Let me look at the content flow more carefully...
+
+The "叙事框架" section (heading-74) starts with "故事核心", then goes into "第一卷", "第二卷", "第三卷" story outlines. These are the narrative/story outlines.
+
+Then "背景参考资料" (heading-10291) starts with the detailed world background - 4 billion year history, Lin Juemin's discovery, etc. This seems to be a detailed prose version of the background.
+
+Then "数据板的局限" and "菌膜外套" sections are standalone reference pieces.
+
+Then "世界设定声明" is a brief declaration.
+
+Then "卷一：基石设定层" through "卷四" are the formal detailed reference volumes.
+
+So the structure is:
+1. Story outline (叙事框架) - Volumes 1-3 narrative
+2. Background reference prose (背景参考资料 + 数据板的局限 + 菌膜外套相关)
+3. World setting declaration
+4. Formal reference volumes (卷一-卷四)
+
+The user wants this reorganized into "Word document form." I think what they want is:
+- A clean, organized document
+- Remove duplicate/redundant content (like the duplicated sections under narrative framework vs. standalone sections)
+- Proper heading hierarchy
+
+Wait, let me re-read the structure more carefully. The "叙事框架" section at heading-74 goes from position 74 to 10291. Let me check what's at the end of that section... According to the document map, it contains:
+- heading-84: 故事核心
+- heading-1063: 第一卷
+- heading-7438: 第二卷
+- heading-9462: 第三卷
+
+And then heading-10291 starts "背景参考资料."
+
+But the "背景参考资料" section seems to contain the same background prose that was (partially) included in the narrative framework section as "故事核心" content. Let me read a bit more.
+
+Actually, looking at the structure map more carefully: the "叙事框架" section (74-10291, 10209 chars) contains:
+- 故事核心 (84-1063): includes the core story premise, the "菌毯的本质" part, the "核心张力" part
+- 第一卷 (1063-7438): detailed first volume outline
+- 第二卷 (7438-9462): second volume outline  
+- 第三卷 (9462-10291): third volume outline
+
+Then "背景参考资料" (10291-16862) is a separate prose section.
+
+Now, the real question is what "Word文档形式" means. I think the user wants:
+
+1. Remove the PHASE7探测句 artifacts (done)
+2. Remove the "粘贴到..." directive text (done)
+3. Clean up the document structure - make it read like a proper Word document with consistent formatting
+4. Possibly remove duplicates between sections
+
+Let me check for other issues. Let me look for the duplicate sections. There are:
+- "菌膜外套：有限资源的临时通行方案" appears both as a standalone heading at 17417 and within the "菌膜外套与共存补丁的关系" section AND within 卷三.
+- "数据板的局限" appears at heading-16862 and its content seems to be partially duplicated
+- The "背景参考资料" section contains prose that also appears as part of the "故事核心" and "菌膜外套与共存补丁的关系" section
+
+Let me read some key sections to understand the duplication pattern.
+
+Actually, I think the key issue is: this is a "大纲" (outline) document but the user wants it formatted like a "Word文档" - meaning a clean, well-organized reference document. 
+
+Given the complexity, I think the approach should be:
+1. Clean up remaining artifacts (PHASE probes, paste directives - done for the first batch)
+2. Check for significant duplicate content between sections
+3. Reorganize sections into a cleaner hierarchy
+
+Let me focus on what's most actionable. Let me check the duplicate content between sections. Specifically:
+
+The background prose in "背景参考资料" and the prose that appears in "菌膜外套与共存补丁的关系" - are these the same?
+
+Let me read the relevant sections.

@@ -1,0 +1,822 @@
+{
+  "ok": true,
+  "data": {
+    "totalChars": 74253,
+    "estimatedTokens": 38590,
+    "sectionCount": 237,
+    "reorderTopLevelIds": [
+      "heading-1-mizom9"
+    ],
+    "reorderScope": "top-level",
+    "degraded": false,
+    "sections": [
+      {
+        "id": "heading-1-mizom9",
+        "title": "《绿潮》大纲总纲",
+        "kind": "heading",
+        "level": 1,
+        "start": 0,
+        "end": 74253,
+        "charCount": 74242,
+        "summaryHead": "# 《绿潮》大纲总纲 ## 世界设定声明 本书为完全架空世界设定。故事中所有地名、区域名、山川河流名均为虚构创作，不与任何现实地理位置、国家、行政区划存在对应关系。势力名称为故事核心资产，独立于地名体系之外。 ## 叙事框架 ### 故事核"
+      },
+      {
+        "id": "paragraph-46bd25",
+        "title": "内容块 1",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 11,
+        "end": 12,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-2-sd0mn1",
+        "title": "世界设定声明",
+        "kind": "heading",
+        "level": 2,
+        "start": 12,
+        "end": 108,
+        "charCount": 86,
+        "summaryHead": "本书为完全架空世界设定。故事中所有地名、区域名、山川河流名均为虚构创作，不与任何现实地理位置、国家、行政区划存在对应关系。势力名称为故事核心资产，独立于地名体系"
+      },
+      {
+        "id": "heading-2-kwf15x",
+        "title": "叙事框架",
+        "kind": "heading",
+        "level": 2,
+        "start": 108,
+        "end": 10280,
+        "charCount": 10164,
+        "summaryHead": "## 叙事框架 ### 故事核心 自然成了人类最大的灾难，人类在灾难面前分裂成利用者、自保者和争权者。陈暮是唯一踩在菌毯上不被判定为敌人的人——他从一个人活下来，最后成了自然和人类重新划定敌我边界的那个变量。 全书围绕“敌我识别”展开：菌毯"
+      },
+      {
+        "id": "paragraph-46bd25~2",
+        "title": "内容块 2",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 116,
+        "end": 117,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-3-1heodug",
+        "title": "故事核心",
+        "kind": "heading",
+        "level": 3,
+        "start": 117,
+        "end": 1054,
+        "charCount": 928,
+        "summaryHead": "自然成了人类最大的灾难，人类在灾难面前分裂成利用者、自保者和争权者。陈暮是唯一踩在菌毯上不被判定为敌人的人——他从一个人活下来，最后成了自然和人类重新划定敌我边"
+      },
+      {
+        "id": "heading-3-17va42n",
+        "title": "第一卷·觉醒与扎根",
+        "kind": "heading",
+        "level": 3,
+        "start": 1054,
+        "end": 7428,
+        "charCount": 6360,
+        "summaryHead": "第一卷主要聚焦陈暮刚从休眠仓出来，然后探知灾后世界。前因是陈暮遭遇了幸存者，遇见第一批伙伴和大纲里的两位女主，然后共同经历了若干个小故事。这些小故事补全了他的灾"
+      },
+      {
+        "id": "heading-3-by40kw",
+        "title": "第二卷·连接与陷落",
+        "kind": "heading",
+        "level": 3,
+        "start": 7428,
+        "end": 9451,
+        "charCount": 2009,
+        "summaryHead": "第二卷的故事重点是开始与其他势力接触，慢慢铺开更大的世界观和势力观。前期聚焦实验室的改造和内部小故事，然后循序渐进推开其他势力。第一个登场的是天府都。陈暮和天府"
+      },
+      {
+        "id": "heading-3-1rlyhj7",
+        "title": "第三卷·远征与暗流",
+        "kind": "heading",
+        "level": 3,
+        "start": 9451,
+        "end": 10280,
+        "charCount": 815,
+        "summaryHead": "第三卷开始依旧是岫岩镇的故事。庞大的迁移人口所需事情很多，这里可以详细地展开故事，把岫岩镇的变化展现出来。由于在第二卷陈暮和天府都的深入交流知道了这片大陆不止天"
+      },
+      {
+        "id": "heading-2-1lka0h8",
+        "title": "背景参考资料",
+        "kind": "heading",
+        "level": 2,
+        "start": 10280,
+        "end": 22128,
+        "charCount": 11838,
+        "summaryHead": "## 背景参考资料 四亿年前，一株不属于植物、真菌、动物任何一界的古老生命体在竞争中落败，将自身封存于深根大陆地下深处，进入完全代谢休眠。十到十二亿年前，它的祖先就已走上独立的演化道路，保留着三界分化前的原始基因模块——光合作用、几丁质合成"
+      },
+      {
+        "id": "paragraph-1ky4plk",
+        "title": "内容块 3",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 10290,
+        "end": 12171,
+        "charCount": 1881,
+        "summaryHead": "四亿年前，一株不属于植物、真菌、动物任何一界的古老生命体在竞争中落败，将自身封存于深根大陆地下深处，进入完全代谢休眠。十到十二亿年前，它的祖先就已走上独立的演化"
+      },
+      {
+        "id": "heading-3-19902vk",
+        "title": "灾前军事基准线与菌毯的不可根除性",
+        "kind": "heading",
+        "level": 3,
+        "start": 12171,
+        "end": 16305,
+        "charCount": 4113,
+        "summaryHead": "一、2042年，人类手里有什么\n2042年的人类文明正处于一个技术拐点：强人工智能辅助决策、量子计算、定向能武器、高超音速滑翔体、自主蜂群作战系统、基因驱动的生"
+      },
+      {
+        "id": "heading-3-z4sxm8",
+        "title": "数据板的局限",
+        "kind": "heading",
+        "level": 3,
+        "start": 16305,
+        "end": 16861,
+        "charCount": 545,
+        "summaryHead": "数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播“无生命有机质”静默声明的分"
+      },
+      {
+        "id": "heading-3-10q4nra",
+        "title": "菌膜外套：有限资源的临时通行方案",
+        "kind": "heading",
+        "level": 3,
+        "start": 16861,
+        "end": 17610,
+        "charCount": 728,
+        "summaryHead": "陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。但林知意在对SC-α备份菌株进行深入研究后，结合方岫岩数据板中关于SC-α菌株"
+      },
+      {
+        "id": "heading-3-28do6r",
+        "title": "菌膜外套与共存补丁的关系",
+        "kind": "heading",
+        "level": 3,
+        "start": 17610,
+        "end": 22128,
+        "charCount": 4501,
+        "summaryHead": "菌膜外套是“让系统暂时看不到我们”——临时伪装，不改变菌丝网络对人类信号的认证逻辑。共存补丁是“让系统认识我们”——将人类物种标签写入菌丝网络的认证数据库，让系"
+      },
+      {
+        "id": "heading-2-171cwmj",
+        "title": "卷一：基石设定层",
+        "kind": "heading",
+        "level": 2,
+        "start": 22128,
+        "end": 55634,
+        "charCount": 33494,
+        "summaryHead": "## 卷一：基石设定层 本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作 ### 一、书名定义与核心术语定调 #### 1.1 关于“绿潮”的名称定义 在本书中，“绿潮”是一个具有特定历史含义的专有名词，指代2042年灾难爆"
+      },
+      {
+        "id": "paragraph-4mh893",
+        "title": "内容块 4",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 22140,
+        "end": 22176,
+        "charCount": 36,
+        "summaryHead": "本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作"
+      },
+      {
+        "id": "heading-3-m3hh8a",
+        "title": "一、书名定义与核心术语定调",
+        "kind": "heading",
+        "level": 3,
+        "start": 22176,
+        "end": 22737,
+        "charCount": 543,
+        "summaryHead": "### 一、书名定义与核心术语定调 #### 1.1 关于“绿潮”的名称定义 在本书中，“绿潮”是一个具有特定历史含义的专有名词，指代2042年灾难爆发时菌毯以惊人速度覆盖全球的历史事件——菌毯如潮水般在数周内席卷大陆，文明在极短时间内崩溃"
+      },
+      {
+        "id": "paragraph-46bd25~3",
+        "title": "内容块 5",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 22194,
+        "end": 22195,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-4-1vn8oly",
+        "title": "1.1 关于“绿潮”的名称定义",
+        "kind": "heading",
+        "level": 4,
+        "start": 22195,
+        "end": 22301,
+        "charCount": 85,
+        "summaryHead": "在本书中，“绿潮”是一个具有特定历史含义的专有名词，指代2042年灾难爆发时菌毯以惊人速度覆盖全球的历史事件——菌毯如潮水般在数周内席卷大陆，文明在极短时间内崩"
+      },
+      {
+        "id": "heading-4-ggkfny",
+        "title": "1.2 核心术语定调",
+        "kind": "heading",
+        "level": 4,
+        "start": 22301,
+        "end": 22737,
+        "charCount": 420,
+        "summaryHead": "- “共生体”专属权声明：“共生体”是陈暮菌膜装甲“共生体-α”的专有名称，全书唯一合法用例。天府都所有接受共生改造的人员统一称为“共生战士”，圣萌会追求融合状"
+      },
+      {
+        "id": "heading-3-ak0hbf",
+        "title": "二、灵魂语句",
+        "kind": "heading",
+        "level": 3,
+        "start": 22737,
+        "end": 22840,
+        "charCount": 92,
+        "summaryHead": "> “知识锁在抽屉里，和不存在没有区别。”\n\n这15个字出自周仰川，被林觉民奉为毕生学术信条，直接导致他在2040年将共生蕨全部研究数据开源——这一决定是一切悲"
+      },
+      {
+        "id": "heading-3-gyru41",
+        "title": "三、地名架空化对照总表",
+        "kind": "heading",
+        "level": 3,
+        "start": 22840,
+        "end": 24278,
+        "charCount": 1422,
+        "summaryHead": "### 三、地名架空化对照总表 #### 3.1 世界区域 | 名称 | 说明 | |------|------| | 远中大陆 | 菌毯覆盖的核心大陆，六大势力所在之地 | | 灰链群岛 | 火山岛链，归一党所在地 | | 东棘半岛 | "
+      },
+      {
+        "id": "paragraph-46bd25~4",
+        "title": "内容块 6",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 22856,
+        "end": 22857,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-4-qmcomg",
+        "title": "3.1 世界区域",
+        "kind": "heading",
+        "level": 4,
+        "start": 22857,
+        "end": 23159,
+        "charCount": 288,
+        "summaryHead": "| 名称 | 说明 |\n|------|------|\n| 远中大陆 | 菌毯覆盖的核心大陆，六大势力所在之地 |\n| 灰链群岛 | 火山岛链，归一党所在地 |"
+      },
+      {
+        "id": "heading-4-tdlmi2",
+        "title": "3.2 远中大陆内部区域",
+        "kind": "heading",
+        "level": 4,
+        "start": 23159,
+        "end": 23416,
+        "charCount": 239,
+        "summaryHead": "| 名称 | 说明 |\n|------|------|\n| 垅原 | 开阔平原区，复兴会所在地 |\n| 环障盆地 | 四面环山的天然盆地，天府都所在地 |\n| "
+      },
+      {
+        "id": "heading-4-29pzad",
+        "title": "3.3 六大势力核心据点",
+        "kind": "heading",
+        "level": 4,
+        "start": 23416,
+        "end": 23677,
+        "charCount": 243,
+        "summaryHead": "| 势力 | 总部 | 核心据点 |\n|------|------|---------|\n| 铁壁要塞 | 裂谷中枢 | 裂谷东垒、南崖哨城 |\n| 复兴会 |"
+      },
+      {
+        "id": "heading-4-14riyr2",
+        "title": "3.4 山川河流",
+        "kind": "heading",
+        "level": 4,
+        "start": 23677,
+        "end": 23886,
+        "charCount": 195,
+        "summaryHead": "| 名称 | 说明 |\n|------|------|\n| 瘴江 | 贯穿铁壁、天府都、镇海双枢城的核心水道，因江面常年笼罩孢子雾得名 |\n| 湍流河 | 岫岩"
+      },
+      {
+        "id": "heading-4-144hx94",
+        "title": "3.5 天府都四山哨戒网",
+        "kind": "heading",
+        "level": 4,
+        "start": 23886,
+        "end": 23994,
+        "charCount": 90,
+        "summaryHead": "| 名称 | 方位 |\n|------|------|\n| 西屏山 | 盆地西侧 |\n| 北屏山 | 盆地北侧 |\n| 南屏山 | 盆地南侧 |\n| 东屏山 |"
+      },
+      {
+        "id": "heading-4-aj24jz",
+        "title": "3.6 其他重要地名",
+        "kind": "heading",
+        "level": 4,
+        "start": 23994,
+        "end": 24278,
+        "charCount": 268,
+        "summaryHead": "| 名称 | 说明 |\n|------|------|\n| 白障山脉 | 远西大陆中部山脉，圣萌会地下实验室所在地 |\n| 旧圣城 | 圣萌会核心圣殿 |\n| "
+      },
+      {
+        "id": "heading-3-15su23n",
+        "title": "四、灾难源头：共生蕨",
+        "kind": "heading",
+        "level": 3,
+        "start": 24278,
+        "end": 29697,
+        "charCount": 5404,
+        "summaryHead": "### 四、灾难源头：共生蕨 #### 4.1 发现 ##### 4.1.1 时间与地点 2038年3月，松涛山脉·鬼林峡，海拔3200米未开发原生峡谷。 鬼林峡得名于当地猎人的古老传说——“鬼林”意为“活着的森林”。猎人们世代相传，这片峡"
+      },
+      {
+        "id": "paragraph-46bd25~5",
+        "title": "内容块 7",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 24293,
+        "end": 24294,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-4-49vwkv",
+        "title": "4.1 发现",
+        "kind": "heading",
+        "level": 4,
+        "start": 24294,
+        "end": 25369,
+        "charCount": 1063,
+        "summaryHead": "#### 4.1 发现 ##### 4.1.1 时间与地点 2038年3月，松涛山脉·鬼林峡，海拔3200米未开发原生峡谷。 鬼林峡得名于当地猎人的古老传说——“鬼林”意为“活着的森林”。猎人们世代相传，这片峡谷里的树会在夜间发出微弱的银光"
+      },
+      {
+        "id": "paragraph-46bd25~6",
+        "title": "内容块 8",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 24306,
+        "end": 24307,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-5-xhlj1c",
+        "title": "4.1.1 时间与地点",
+        "kind": "heading",
+        "level": 5,
+        "start": 24307,
+        "end": 24456,
+        "charCount": 131,
+        "summaryHead": "2038年3月，松涛山脉·鬼林峡，海拔3200米未开发原生峡谷。\n\n鬼林峡得名于当地猎人的古老传说——“鬼林”意为“活着的森林”。猎人们世代相传，这片峡谷里的树"
+      },
+      {
+        "id": "heading-5-1h8zl26",
+        "title": "4.1.2 鬼林峡",
+        "kind": "heading",
+        "level": 5,
+        "start": 24456,
+        "end": 25369,
+        "charCount": 897,
+        "summaryHead": "那天清晨起了雾。林觉民在峡谷深处的一片岩壁上看到了那片菌丝——银灰色，在雾气中泛着微弱的荧光，覆盖了整面岩壁，向两侧的树干延伸，像一张被织了上千年的网。他蹲下来"
+      },
+      {
+        "id": "heading-4-1iiwop5",
+        "title": "4.2 源头",
+        "kind": "heading",
+        "level": 4,
+        "start": 25369,
+        "end": 28611,
+        "charCount": 3230,
+        "summaryHead": "#### 4.2 源头 ##### 4.2.1 演化史上的独特位置 共生蕨不属于植物界、真菌界或动物界中的任何一个。它的祖先在约十到十二亿年前——远在真核生物三界分化之前——就已经走上了独立的演化道路。 那个时期的原始海洋中，早期真核生物刚"
+      },
+      {
+        "id": "paragraph-46bd25~7",
+        "title": "内容块 9",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 25381,
+        "end": 25382,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-5-v56pqc",
+        "title": "4.2.1 演化史上的独特位置",
+        "kind": "heading",
+        "level": 5,
+        "start": 25382,
+        "end": 25940,
+        "charCount": 536,
+        "summaryHead": "共生蕨不属于植物界、真菌界或动物界中的任何一个。它的祖先在约十到十二亿年前——远在真核生物三界分化之前——就已经走上了独立的演化道路。\n\n那个时期的原始海洋中，"
+      },
+      {
+        "id": "heading-5-1mm019j",
+        "title": "4.2.2 基因备份系统的本质",
+        "kind": "heading",
+        "level": 5,
+        "start": 25940,
+        "end": 26543,
+        "charCount": 581,
+        "summaryHead": "共生蕨的基因组中含有一套全长约二点八兆碱基对的巨型基因簇，林觉民将其命名为“共生元件”。这套基因簇的功能不是编码某种特定的性状，而是提供一个平台——一个允许不同"
+      },
+      {
+        "id": "heading-5-273lug",
+        "title": "4.2.3 修复与感染的分界线",
+        "kind": "heading",
+        "level": 5,
+        "start": 26543,
+        "end": 26972,
+        "charCount": 407,
+        "summaryHead": "但实验室的基因改造跳过了这一切。自然界中，共生蕨的菌丝需要几天到几周才能完成对一个宿主的基因水平转移和代谢调整，而且整个过程都暴露在宿主的免疫监视之下——只有那"
+      },
+      {
+        "id": "heading-5-1g0m0an",
+        "title": "4.2.4 三个分支",
+        "kind": "heading",
+        "level": 5,
+        "start": 26972,
+        "end": 27705,
+        "charCount": 716,
+        "summaryHead": "共生蕨的三个现存分支各自走向了不同的命运。\n\n- 高山分支（折脊山脉）：这是林觉民在鬼林峡发现的分支。它是唯一在自然界中保持活跃状态的分支，维持着小规模的局部分"
+      },
+      {
+        "id": "heading-5-jr0re5",
+        "title": "4.2.5 灾难的真正起因：安全阀被拆除",
+        "kind": "heading",
+        "level": 5,
+        "start": 27705,
+        "end": 28611,
+        "charCount": 879,
+        "summaryHead": "共生蕨在自然界中从未造成生态灾难，不是因为它“温和”，而是因为在自然条件下，它根本长不大。不需要复杂的校验程序来解释——只要抓住一个物理事实就够了。\n\n在自然界"
+      },
+      {
+        "id": "heading-4-1rvv8cd",
+        "title": "4.3 发现者：林觉民",
+        "kind": "heading",
+        "level": 4,
+        "start": 28611,
+        "end": 29697,
+        "charCount": 1069,
+        "summaryHead": "#### 4.3 发现者：林觉民 ##### 4.3.1 个人档案 林觉民，松涛生物研究所研究员，博士生导师，高山植物系统分类学与菌根共生领域的权威学者。在发现共生蕨之前，他已在折脊山脉从事植物多样性调查超过十五年，发表相关论文三十余篇，是"
+      },
+      {
+        "id": "paragraph-46bd25~8",
+        "title": "内容块 10",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 28628,
+        "end": 28629,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-5-19mjyok",
+        "title": "4.3.1 个人档案",
+        "kind": "heading",
+        "level": 5,
+        "start": 28629,
+        "end": 28826,
+        "charCount": 180,
+        "summaryHead": "林觉民，松涛生物研究所研究员，博士生导师，高山植物系统分类学与菌根共生领域的权威学者。在发现共生蕨之前，他已在折脊山脉从事植物多样性调查超过十五年，发表相关论文"
+      },
+      {
+        "id": "heading-5-g6ltoo",
+        "title": "4.3.2 学术底色",
+        "kind": "heading",
+        "level": 5,
+        "start": 28826,
+        "end": 29451,
+        "charCount": 608,
+        "summaryHead": "林觉民的导师周仰川，是松涛生物研究所的创始人。这位老植物学家在学界是一个矛盾的存在——他一生发表过大量论文，是松涛山脉植物志的主要编纂者，但晚年却几乎不再动笔。"
+      },
+      {
+        "id": "heading-5-adj5a7",
+        "title": "4.3.3 发现之后的五年",
+        "kind": "heading",
+        "level": 5,
+        "start": 29451,
+        "end": 29697,
+        "charCount": 226,
+        "summaryHead": "从2038年发现共生蕨到2042年因心脏病突发去世，林觉民用四年的时间研究这个物种。这四年里他做的最重要的事情不是写论文，而是建立一个研究框架——一套让全球科学"
+      },
+      {
+        "id": "heading-3-g0h8ad",
+        "title": "五、方岫岩：菌膜装甲的起源",
+        "kind": "heading",
+        "level": 3,
+        "start": 29697,
+        "end": 39288,
+        "charCount": 9573,
+        "summaryHead": "### 五、方岫岩：菌膜装甲的起源 #### 5.1 方岫岩身份与编制 方岫岩，灾前52岁，云岭生物多样性研究中心“早期生命演化”课题组负责人，研究员，博士生导师。 所在单位为云岭科学院下属基础科学研究机构。课题组经费来源于云岭省科学院基础"
+      },
+      {
+        "id": "paragraph-46bd25~9",
+        "title": "内容块 11",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 29715,
+        "end": 29716,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-4-k95ye8",
+        "title": "5.1 方岫岩身份与编制",
+        "kind": "heading",
+        "level": 4,
+        "start": 29716,
+        "end": 30161,
+        "charCount": 427,
+        "summaryHead": "方岫岩，灾前52岁，云岭生物多样性研究中心“早期生命演化”课题组负责人，研究员，博士生导师。\n\n所在单位为云岭科学院下属基础科学研究机构。课题组经费来源于云岭省"
+      },
+      {
+        "id": "heading-4-2ucwxu",
+        "title": "5.2 研究初衷",
+        "kind": "heading",
+        "level": 4,
+        "start": 30161,
+        "end": 30468,
+        "charCount": 293,
+        "summaryHead": "方岫岩的学术兴趣集中在“真核生物三界分化的演化节点”这一基础科学问题——即植物、真菌、动物三界从共同祖先进化分化的分子机制。共生蕨的细胞同时含有植物纤维素、真菌"
+      },
+      {
+        "id": "heading-4-1gur47s",
+        "title": "5.3 意外发现：菌膜的诞生",
+        "kind": "heading",
+        "level": 4,
+        "start": 30468,
+        "end": 32921,
+        "charCount": 2433,
+        "summaryHead": "#### 5.3 意外发现：菌膜的诞生 ##### 5.3.1 培养皿中的意外 2042年2月，课题组取得关键突破：五种植物DNA混合培养基中，共生蕨菌丝同时与五种植物细胞壁蛋白建立了多靶点锚定。菌膜在混合培养基上形成的膜状结构，其韧性和自"
+      },
+      {
+        "id": "paragraph-46bd25~10",
+        "title": "内容块 12",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 30488,
+        "end": 30489,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-5-uguyl3",
+        "title": "5.3.1 培养皿中的意外",
+        "kind": "heading",
+        "level": 5,
+        "start": 30489,
+        "end": 30847,
+        "charCount": 338,
+        "summaryHead": "2042年2月，课题组取得关键突破：五种植物DNA混合培养基中，共生蕨菌丝同时与五种植物细胞壁蛋白建立了多靶点锚定。菌膜在混合培养基上形成的膜状结构，其韧性和自"
+      },
+      {
+        "id": "heading-5-11u7hwu",
+        "title": "5.3.2 那一夜",
+        "kind": "heading",
+        "level": 5,
+        "start": 30847,
+        "end": 31273,
+        "charCount": 410,
+        "summaryHead": "2042年4月17日，晚上约九点半。距离零号裸鼹鼠爆裂还有不到三十个小时。\n\n陈暮当晚轮值负责最后一次DNA提取物的添加——将提取自墙藓的微量DNA溶液注入试验"
+      },
+      {
+        "id": "heading-5-1seftmi",
+        "title": "5.3.3 试验舱里的十天",
+        "kind": "heading",
+        "level": 5,
+        "start": 31273,
+        "end": 32921,
+        "charCount": 1628,
+        "summaryHead": "从4月17日深夜到4月27日，陈暮在试验舱里度过了十天。\n\n当晚事发后约一小时，陈暮的体感开始出现明显变化。饥饿——不是普通的饥饿，是一种从内脏深处被抽空的感觉"
+      },
+      {
+        "id": "heading-4-1kltbjq",
+        "title": "5.4 灾变：实验室成为孤岛（2042年11月）",
+        "kind": "heading",
+        "level": 4,
+        "start": 32921,
+        "end": 33640,
+        "charCount": 689,
+        "summaryHead": "#### 5.4 灾变：实验室成为孤岛（2042年11月） ##### 5.4.1 灾难降临 消息传到云岭时已是11月20日上午。全球同步爆发的速度远超任何人预期。云岭生物多样性研究中心自4月19日起与外界失去有效联系。研究室大部分科研人员"
+      },
+      {
+        "id": "paragraph-46bd25~11",
+        "title": "内容块 13",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 32951,
+        "end": 32952,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-5-1ve2gjg",
+        "title": "5.4.1 灾难降临",
+        "kind": "heading",
+        "level": 5,
+        "start": 32952,
+        "end": 33126,
+        "charCount": 157,
+        "summaryHead": "消息传到云岭时已是11月20日上午。全球同步爆发的速度远超任何人预期。云岭生物多样性研究中心自4月19日起与外界失去有效联系。研究室大部分科研人员在混乱中变异或"
+      },
+      {
+        "id": "heading-5-gyl3mp",
+        "title": "5.4.2 坚守的决定",
+        "kind": "heading",
+        "level": 5,
+        "start": 33126,
+        "end": 33640,
+        "charCount": 496,
+        "summaryHead": "从这一天起，方岫岩独自一人守着试验舱里的陈暮。\n\n他面临着和陈暮入舱时完全不同的能源状况。备用柴油发电机的燃油满额储备约三百升——这是灾前实验室的标准配置，用于"
+      },
+      {
+        "id": "heading-4-lppy9b",
+        "title": "5.5 方岫岩的最后八个月",
+        "kind": "heading",
+        "level": 4,
+        "start": 33640,
+        "end": 35932,
+        "charCount": 2273,
+        "summaryHead": "#### 5.5 方岫岩的最后八个月 ##### 5.5.1 日常工作 方岫岩独自在实验室中度过了约八个月。他的日常生活被压缩到极致：天亮后检查太阳能板的充电状态，巡视试验舱各项参数——温度、营养液成分、菌膜锚定区形态、陈暮的体温和血氧——"
+      },
+      {
+        "id": "paragraph-46bd25~12",
+        "title": "内容块 14",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 33659,
+        "end": 33660,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-5-fg3b1o",
+        "title": "5.5.1 日常工作",
+        "kind": "heading",
+        "level": 5,
+        "start": 33660,
+        "end": 34157,
+        "charCount": 480,
+        "summaryHead": "方岫岩独自在实验室中度过了约八个月。他的日常生活被压缩到极致：天亮后检查太阳能板的充电状态，巡视试验舱各项参数——温度、营养液成分、菌膜锚定区形态、陈暮的体温和"
+      },
+      {
+        "id": "heading-5-2pu3am",
+        "title": "5.5.2 技术推演",
+        "kind": "heading",
+        "level": 5,
+        "start": 34157,
+        "end": 35184,
+        "charCount": 1010,
+        "summaryHead": "八个月中，他完成了以下工作：\n\n- 信息素伪装机制的理论推导：方岫岩从菌膜表面分泌物的质谱分析入手，逐段比对菌毯信息素受体的结合域，推导了SC-α菌丝向菌毯广播"
+      },
+      {
+        "id": "heading-5-cyodf2",
+        "title": "5.5.3 夜晚的对话",
+        "kind": "heading",
+        "level": 5,
+        "start": 35184,
+        "end": 35932,
+        "charCount": 730,
+        "summaryHead": "八个月。几乎每一个夜晚，方岫岩都会坐在试验舱旁边，隔着舱壁和陈暮说话。陈暮在舱内意识清醒，能通过观察窗看到方岫岩的脸——那张脸在八个月里老了不止八个月。鬓角从灰"
+      },
+      {
+        "id": "heading-4-1skfuzs",
+        "title": "5.6 灾变：方岫岩的最后一天",
+        "kind": "heading",
+        "level": 4,
+        "start": 35932,
+        "end": 37386,
+        "charCount": 1433,
+        "summaryHead": "陈暮分离所需的酶解液配方还未完成，菌膜的五种植物基底中，毛竹的晶化菌丝前体需要用一种特定的几丁质酶来降解锚定结构。这种酶在实验室里有冷冻保存的菌株可以制备，但制"
+      },
+      {
+        "id": "heading-4-1l2hgpj",
+        "title": "5.7 方岫岩的最后一程",
+        "kind": "heading",
+        "level": 4,
+        "start": 37386,
+        "end": 37796,
+        "charCount": 392,
+        "summaryHead": "方岫岩没有留在实验室里等待柴油耗尽。陈暮休眠后的第二天清晨，他收拾了一个简易背包——几天的口粮、一瓶水、一本笔记本、一支笔——走出了实验室。他说过“我会继续研究"
+      },
+      {
+        "id": "heading-4-16wkqjz",
+        "title": "5.8 苏醒：被覆盖的世界（约2051年）",
+        "kind": "heading",
+        "level": 4,
+        "start": 37796,
+        "end": 39288,
+        "charCount": 1465,
+        "summaryHead": "#### 5.8 苏醒：被覆盖的世界（约2051年） ##### 5.8.1 八年后 陈暮不知道自己睡了多久。低温休眠暂停了意识，但不等于暂停了时间——他的身体在休眠状态下以极低的速率消耗着自身脂肪和试验舱内残余的营养物质，菌膜锚定区维持着"
+      },
+      {
+        "id": "paragraph-46bd25~13",
+        "title": "内容块 15",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 37823,
+        "end": 37824,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-5-uk66dc",
+        "title": "5.8.1 八年后",
+        "kind": "heading",
+        "level": 5,
+        "start": 37824,
+        "end": 39288,
+        "charCount": 1448,
+        "summaryHead": "陈暮不知道自己睡了多久。低温休眠暂停了意识，但不等于暂停了时间——他的身体在休眠状态下以极低的速率消耗着自身脂肪和试验舱内残余的营养物质，菌膜锚定区维持着最低限"
+      },
+      {
+        "id": "heading-3-1cpdqgf",
+        "title": "六、灾难爆发完整链条",
+        "kind": "heading",
+        "level": 3,
+        "start": 39288,
+        "end": 43840,
+        "charCount": 4537,
+        "summaryHead": "### 六、灾难爆发完整链条 #### 6.1 学术公开至效率突破（2038-2042年） 2039年，林觉民完成首例“共生蕨-小鼠”DNA融合实验。2040年，完整成果发表在《自然》上并坚持开放获取。论文最后一章写了“生物安全风险”专节，"
+      },
+      {
+        "id": "paragraph-46bd25~14",
+        "title": "内容块 16",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 39303,
+        "end": 39304,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-4-17r4ftj",
+        "title": "6.1 学术公开至效率突破（2038-2042年）",
+        "kind": "heading",
+        "level": 4,
+        "start": 39304,
+        "end": 39631,
+        "charCount": 296,
+        "summaryHead": "2039年，林觉民完成首例“共生蕨-小鼠”DNA融合实验。2040年，完整成果发表在《自然》上并坚持开放获取。论文最后一章写了“生物安全风险”专节，被大多数人视"
+      },
+      {
+        "id": "heading-4-198mpyj",
+        "title": "6.2 灾难转折与全球扩散（2042年11月）",
+        "kind": "heading",
+        "level": 4,
+        "start": 39631,
+        "end": 40190,
+        "charCount": 530,
+        "summaryHead": "2042年3月，深根大陆加尔瓦实验室兔子良性融合实验成功。10月，研究团队引入裸鼹鼠进行二次融合，触发基因战争，激活了共生蕨基因中四亿年来从未被激活的古老程序—"
+      },
+      {
+        "id": "heading-4-b64d8j",
+        "title": "6.3 感染分型",
+        "kind": "heading",
+        "level": 4,
+        "start": 40190,
+        "end": 42402,
+        "charCount": 2198,
+        "summaryHead": "#### 6.3 感染分型 ##### 6.3.1 感染分型总览 感染分型覆盖约65.8亿感染者，按致死路径与在灾难中的角色分为三类： | 感染类型 | 占比 | 人数 | 核心机制 | 在灾难中的角色 | |---------|-----"
+      },
+      {
+        "id": "paragraph-46bd25~15",
+        "title": "内容块 17",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 40204,
+        "end": 40205,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-5-1uh3dbf",
+        "title": "6.3.1 感染分型总览",
+        "kind": "heading",
+        "level": 5,
+        "start": 40205,
+        "end": 40633,
+        "charCount": 409,
+        "summaryHead": "感染分型覆盖约65.8亿感染者，按致死路径与在灾难中的角色分为三类：\n\n| 感染类型 | 占比 | 人数 | 核心机制 | 在灾难中的角色 |\n|-------"
+      },
+      {
+        "id": "heading-5-1y32fk",
+        "title": "6.3.2 融合型",
+        "kind": "heading",
+        "level": 5,
+        "start": 40633,
+        "end": 41544,
+        "charCount": 895,
+        "summaryHead": "融合型感染者体内菌丝以渐进式生长取代宿主原有组织。这一过程持续数天至数周。转化完成后，宿主成为绿潮生态系统中的变异体个体。约92%的融合型转化体失去繁殖能力，成"
+      },
+      {
+        "id": "heading-5-tkuh00",
+        "title": "6.3.3 扩散体",
+        "kind": "heading",
+        "level": 5,
+        "start": 41544,
+        "end": 41939,
+        "charCount": 379,
+        "summaryHead": "扩散体感染者体内发生的是与零号裸鼹鼠完全相同的孢子发生程序。共生蕨基因中四亿年来从未被激活的古老程序被触发，菌丝将宿主的全部有机组织作为孢子生成的培养基。尸体爆"
+      }
+    ],
+    "offset": 0,
+    "limit": 80,
+    "hasMore": true,
+    "nextOffset": 80,
+    "next_steps": [
+      "继续调用 editor.document_map 并传入 nextOffset 获取剩余节"
+    ]
+  }
+}

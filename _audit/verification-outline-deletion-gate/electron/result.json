@@ -1,8 +1,8 @@
 {
   "schema": "shenyi.outline-deletion-confirmation.electron.full-replay",
   "version": 2,
-  "generatedAt": "2026-09-26T22:05:56.161Z",
-  "electronPid": 19064,
+  "generatedAt": "2026-10-05T04:54:28.427Z",
+  "electronPid": 68980,
   "traceRoot": "C:/Users/凯瑞/Desktop/SKILL调试文件/run-trace-outline-20260926-212218-deep",
   "testDocumentPath": "C:/Users/凯瑞/Desktop/测试/《绿潮》大纲总纲.md",
   "replayedTurnId": "turn-1790429963268-209",

@@ -1,0 +1,78 @@
+Let me focus. I need to delete the duplicate content in the 背景参考资料 section. The duplicate block is at the end of the section "三、总结：人类真正被压制的根本机制" (heading-4-1tkh81d), where the text "数据板的局限\n数据板不是百宝箱..." appears as body content (not as a heading), followed by the actual "## 数据板的局限" heading.
+
+I need to delete that duplicated paragraph. Let me use a delete operation with the precise fragment.
+
+The fragment to delete starts at "数据板的局限\n数据板不是百宝箱..." and ends at "数据板提供的是火种，不是火炬。" — this is the duplicate body that sits between "人类对"不可战胜"的承认。" and the "## 数据板的局限" heading.
+
+Actually, looking at the search result: the text "数据板的局限\n数据板不是百宝箱..." appears at start 16305 in section heading-4-1tkh81d. The section heading-4-1tkh81d spans 15878-16856, charCount 955. Wait but its content includes everything until "## 数据板的局限" at 16856.
+
+So the duplicate body is at the END of heading-4-1tkh81d's content (the summary section), right before the "## 数据板的局限" heading (which is heading-2-z4sxm8 starting at 16856).
+
+Let me delete using the `delete` operation with the fragment as target. But wait — I need to make sure I'm deleting the right thing. The locate found the fragment at 16290-16853, which is exactly the duplicate body "数据板的局限\n数据板不是百宝箱...火种，不是火炬。" — but does it include "数据板的局限" heading line?
+
+The locate fragment I gave was: "人类对"不可战胜"的承认。\n\n数据板的局限\n数据板不是百宝箱...火种，不是火炬。"
+
+The result shows unique:true, start:16290, end:16853. Context shows "体。他提出了...数据板提供的是火种，不是火炬。"
+
+Wait, but I need to be careful. The actual "## 数据板的局限" heading is at 16856. The locate end is 16853. So the fragment "数据板的局限\n数据板不是百宝箱...火种，不是火炬。" (without ##) is the duplicate body at 16290(ish) to 16853.
+
+Actually the fragment I searched included "人类对"不可战胜"的承认。" as prefix. So the match starts at the prefix. But locate returned start:16290 which is within... hmm the prefix "人类对"不可战胜"的承认。" would be around 16271-16290. The locate returned start 16290 — that might be just the "数据板的局限\n数据板..." part, not including the prefix because locate might match a substring.
+
+Let me just do the delete with a clean fragment that uniquely identifies the duplicate block. The duplicate block content (using the actual curly quotes "无生命有机质" etc.) Let me use the delete operation targeting the duplicate body.
+
+Actually, simpler and safer: I'll use `delete` operation. The delete operation presumably takes `target` (原文片段). Let me check the schema — delete operation has no "content" field, just target? The commands items have "content", "destination", "target" etc. For delete, I think I provide "target" as the fragment to delete.
+
+Let me construct the delete command with target being the duplicate block. I'll use the exact text with straight quotes since the source uses straight quotes for this block (the 背景参考资料 section uses straight quotes "...").
+
+The duplicate block text (from search result context) is:
+
+数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是"推测"和"可能"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。\n\n数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。\n\n数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。\n\n后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从"起点"到"成果"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。
+
+I'll delete this whole thing plus the preceding "数据板的局限\n" line. Actually "数据板的局限" is part of the duplicate (it's the orphan title line before the body). The locate returned the match including "数据板的局限\n数据板不是百宝箱..."
+
+Let me just provide target as the full fragment from "数据板的局限\n数据板不是百宝箱" through "火种，不是火炬。"
+
+But wait — I need to be careful about the exact quote characters. In the source, this block uses straight double quotes (") based on the read output earlier: 广播"无生命有机质" — actually the read output showed curly quotes in some places and straight in others. Let me look at the search result context which shows: 广播\"无生命有机质\" — escaped straight quotes. So the source uses straight quotes here.
+
+Actually the earlier read_range for heading-2-1lka0h8 showed: 菌膜向菌丝网络发送的静默指令“无生命有机质，免检通过” — curly quotes in that part. But the 灾前军事基准线 part (the summary section) uses straight quotes \"...\" as shown in the read output.
+
+The duplicate "数据板的局限" block uses straight quotes \"...\".
+
+To be safe, let me use the delete with a shorter, unique target. The delete operation likely matches exact text. I'll provide the full block text with straight quotes.
+
+Actually, maybe a cleaner approach: the orphan "数据板的局限" line and its body is the duplicate. But there's risk the "数据板的局限" text also appears as the "## 数据板的局限" heading. So my target must include enough to be unique — including "数据板不是百宝箱。方岫岩在八个月里..." which only appears twice (the duplicate and the heading version).
+
+Hmm, but both the duplicate body AND the "## 数据板的局限" section body have "数据板不是百宝箱..." The difference is the duplicate has straight quotes and no "##" heading, while the real section has curly quotes and "##" heading.
+
+To be safe, I'll delete using the fragment that includes the orphan title "数据板的局限\n数据板不是百宝箱" (without ##). The real section starts with "## 数据板的局限\n\n数据板不是百宝箱" (with ## and blank line). So the orphan version "数据板的局限\n数据板不是百宝箱" (no ##, no blank line between) is unique.
+
+Let me just delete the entire duplicate block. I'll use the full text from the orphan title through "火种，不是火炬。".
+
+Let me write the delete command.
+
+Actually, I realize I should double check what exactly is at the boundary. The search result context for "数据板的局限" showed:
+
+"...人类对\"不可战胜\"的承认。\n\n数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的..."
+
+So after "承认。" there's "\n\n" then "数据板的局限\n数据板不是百宝箱" — no blank line between "数据板的局限" and "数据板不是百宝箱", and no "##" prefix.
+
+So the orphan title is a plain line "数据板的局限" (no markdown #). This is the duplicate block I want to remove entirely (including that orphan title line).
+
+Let me delete from "数据板的局限\n数据板不是百宝箱" through "火种，不是火炬。"
+
+I'll provide target as:
+
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是"推测"和"可能"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。
+
+数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。
+
+数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。
+
+后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从"起点"到"成果"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。
+
+This is a delete operation. Let me submit it.
+
+But there's also the trailing "\n\n" after the block before "## 数据板的局限". Deleting this block will leave the two blank lines. That's fine for formatting.
+
+Let me proceed with the delete.

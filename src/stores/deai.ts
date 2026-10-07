@@ -30,6 +30,24 @@ export interface DeAiProcessingStage {
   ts: number
 }
 
+export type DeAiRunStatus = 'idle' | 'running' | 'waiting_budget' | 'failed'
+
+export interface DeAiBudgetState {
+  used: number
+  limit: number
+  extensions: number
+  blockedReason?: string
+}
+
+export interface DeAiResumeHandle {
+  budget: {
+    tryConsume: (step: string, skillLimit?: number | null) => { status: 'allowed' | 'blocked'; used: number; limit: number; reason?: string; step?: string }
+    extend: (additional: number) => { used: number; limit: number; extensions: number }
+    snapshot: () => { used: number; limit: number; extensions?: number; entries?: unknown[] }
+  }
+  resume: () => void
+}
+
 export const useDeAiStore = defineStore('deai', () => {
  const enabled = ref(false)
  const mode = ref<'chain' | 'split-merge' | 'multi-step'>('chain')
@@ -50,6 +68,9 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
   const errorMessage = ref('')
   const lastFailedStep = ref('')
   const processingStages = ref<DeAiProcessingStage[]>([])
+  const runStatus = ref<DeAiRunStatus>('idle')
+  const budgetState = ref<DeAiBudgetState | null>(null)
+  const resumeHandle = ref<DeAiResumeHandle | null>(null)
 
  async function loadConfig() {
     let data = await window.electronAPI.storageRead(storageKey('deAiConfig'))
@@ -129,13 +150,16 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
     }
   }
 
-  function startProcessing() {
-    isProcessing.value = true
-    progress.value = 0
-    errorMessage.value = ''
-    lastFailedStep.value = ''
-    processingStages.value = []
-  }
+ function startProcessing() {
+   isProcessing.value = true
+   runStatus.value = 'running'
+   progress.value = 0
+   errorMessage.value = ''
+   lastFailedStep.value = ''
+   processingStages.value = []
+   budgetState.value = null
+   resumeHandle.value = null
+ }
 
   function updateProgress(percent: number, step: string) {
     progress.value = percent
@@ -148,14 +172,50 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
     })
   }
 
-  function finishProcessing() {
-    isProcessing.value = false
-    progress.value = 100
-    currentStep.value = 'done'
-  }
+ function finishProcessing() {
+   isProcessing.value = false
+   runStatus.value = 'idle'
+   progress.value = 100
+   currentStep.value = 'done'
+   budgetState.value = null
+   resumeHandle.value = null
+ }
 
-  function setError(message: string, step = '') {
-    errorMessage.value = message || '处理失败，请重试'
+ function setBudgetState(state: DeAiBudgetState | null) {
+   budgetState.value = state
+ }
+
+ function attachBudgetHandle(handle: DeAiResumeHandle | null) {
+   resumeHandle.value = handle
+ }
+
+ function waitBudget(reason: string) {
+   runStatus.value = 'waiting_budget'
+   budgetState.value = {
+     ...(budgetState.value || { used: 0, limit: 0, extensions: 0 }),
+     blockedReason: reason
+   }
+ }
+
+ function extendBudget(additional = 4) {
+   const handle = resumeHandle.value
+   if (!handle || runStatus.value !== 'waiting_budget') return false
+   const snapshot = handle.budget.extend(additional)
+   budgetState.value = {
+     used: snapshot.used,
+     limit: snapshot.limit,
+     extensions: snapshot.extensions,
+     blockedReason: undefined
+   }
+   runStatus.value = 'running'
+   isProcessing.value = true
+   handle.resume()
+   return true
+ }
+
+ function setError(message: string, step = '') {
+   runStatus.value = 'failed'
+   errorMessage.value = message || '处理失败，请重试'
     lastFailedStep.value = step || currentStep.value
     currentStep.value = lastFailedStep.value ? `${lastFailedStep.value}失败` : '处理失败'
   }
@@ -169,11 +229,13 @@ const level = ref<'light' | 'medium' | 'heavy'>('medium')
   enabled, mode, skillIds, agentId, hardruleEnabled, level, splitSize,
   hardRules, hardRuleMode, lastDetectReport, version,
     textType,
-    isProcessing, progress, currentStep, flowPreview, errorMessage, lastFailedStep, processingStages,
+   isProcessing, progress, currentStep, flowPreview, errorMessage, lastFailedStep, processingStages,
+   runStatus, budgetState, resumeHandle,
     loadConfig, saveConfig, setMode, updateFlowPreview,
     setHardRuleMode, setLastDetectReport,
-    startProcessing, updateProgress, finishProcessing, setError, clearError
-  }
+   startProcessing, updateProgress, finishProcessing, setError, clearError,
+   setBudgetState, attachBudgetHandle, waitBudget, extendBudget
+ }
 })
 
 

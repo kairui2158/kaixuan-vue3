@@ -1,0 +1,110 @@
+The user wants me to "按照Word文档的形式重构大纲，不要缩减内容" - restructure the outline in Word document form, without reducing content.
+
+Let me first understand the current state. I have a large outline (74841 characters) with a structure map already provided. The user wants me to restructure it as a Word document form.
+
+Wait, let me think about what this means. The user is editing an outline and wants to restructure it into "Word document form" without reducing content.
+
+Actually, I need to understand what "Word文档的形式" means here. It likely means the outline should be formatted like a proper Word document - with proper heading levels, structure, tables, etc. - rather than the current scattered format.
+
+But wait - the current outline already has a heading structure (the structure map shows headings). Let me look more carefully at the current focus full text.
+
+Looking at the current full text, I can see there are some issues:
+1. The "故事核心" section has a paste instruction embedded that appears to be un-applied: "粘贴到「故事核心」下，紧接原文..." 
+2. There's duplicate content (数据板的局限 appears twice - once in 背景参考资料 and once as standalone heading)
+3. 菌膜外套 appears multiple times
+4. The content seems to be a mix of structured and unstructured content
+
+Actually, let me re-read the user's request: "按照Word文档的形式重构大纲，不要缩减内容。" = "Restructure the outline in Word document format, don't reduce the content."
+
+This is a fairly ambiguous request. Let me think about what they might want:
+- A clean, hierarchical Word-style document
+- Proper heading numbering (一级标题, 二级标题...)
+- Tables formatted properly
+- No content reduction
+
+Actually, I should first check the plan/task context to understand what I'm supposed to do. Let me check the agent plan and context.
+
+Let me first read the current state and plan.
+
+Actually, given the complexity and the size (74841 chars), I need to be careful. The user wants me to restructure the entire document. This is a massive task.
+
+Let me first check what tools I have and the current state. I should:
+1. Check the agent plan
+2. Check editor state
+3. Understand the full document
+
+Let me call the necessary tools first.
+
+Actually, let me think about what "重构大纲" means more precisely. The user says "按照Word文档的形式重构大纲，不要缩减内容" - restructure the outline in the form of a Word document, without reducing content.
+
+This could mean:
+1. Reorganize the heading structure to be cleaner/more Word-like
+2. Remove duplicate content
+3. Apply the pending paste instruction
+4. Format tables properly
+
+But "不要缩减内容" (don't reduce content) is a constraint that means I shouldn't delete content, just reorganize it.
+
+Given the scale, I need to read the full document first, understand its structure, then write a restructured version.
+
+Let me start by checking the plan and reading the document.
+
+Actually, the context pack already gives me a huge amount of the document content (the "当前焦点全文" section appears to contain the full document). But it may be truncated. Let me verify by checking the document map and reading ranges.
+
+Wait, actually the "当前焦点全文" in the context already shows the full document content it seems. It starts with "# 《绿潮》大纲总纲" and goes through all sections ending with "卷二：核心人物群像" ... "卷三：势力与格局层" ... "卷四：叙事工具箱层" and the terminology table.
+
+So the document content is largely available in my context. But I need to verify completeness and check for any truncation.
+
+Let me think about the approach. The task is to restructure into Word document form. Given the constraints:
+
+1. I can use editor.write with operation "replace_document" to replace the entire document, OR use "rewrite".
+
+Actually, looking at the editor.write operations available:
+- insert
+- replace_selection
+- replace_match
+- append
+- delete
+- move
+- reorder_sections
+- rewrite
+- replace_document
+
+"replace_document" could be used to replace the whole document. But I need to be careful - I need to provide the full content.
+
+Actually, this is a huge task. Let me think about what's realistic and what the user actually wants.
+
+The key question: what does "Word文档的形式" actually require?
+
+I think the most reasonable interpretation is:
+- The document should have a clean hierarchical structure (like Word's heading 1/2/3/4)
+- Proper numbered headings
+- Consistent formatting
+- Tables in proper GFM format
+- Remove the embedded "粘贴到..." instructions (apply them)
+- Remove obvious duplication
+
+But "不要缩减内容" means I keep all the substantive content.
+
+Actually, wait. Let me reconsider. The document already IS structured with headings (## 卷一, ### 一、... etc). What would "重构" change?
+
+Looking at the issues in the current document:
+1. There's a "粘贴到「故事核心」下..." instruction that's clearly a pending edit instruction, not actual content - the 【核心张力：保护即加速】 block should be pasted after the specified sentence.
+2. There's duplicate content: "数据板的局限" appears as standalone heading but also in "背景参考资料"; "菌膜外套" appears multiple times.
+3. The "卷一：基石设定层" has a note "本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作"
+4. The structure has "背景参考资料" as a top-level heading-2 that contains 数据板的局限, 菌膜外套... content that's then duplicated.
+
+Hmm, actually I realize I should look at the actual document more carefully via tools rather than relying on my context snapshot which might be stale or truncated.
+
+Let me start with the plan and state reads.
+
+Let me make the tool calls. I'll read:
+1. agent.plan
+2. editor.get_state
+3. context.remaining
+
+These are independent, so I can call them together.
+
+Actually, let me also think - the document map is already in my context. The full text is also largely in my context. But I should verify by reading the actual editor content to make sure I'm working with current data.
+
+Let me do the initial reads.

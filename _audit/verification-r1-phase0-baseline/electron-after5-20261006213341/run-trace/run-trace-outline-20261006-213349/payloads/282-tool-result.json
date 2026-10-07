@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-3-19902vk",
+      "title": "灾前军事基准线与菌毯的不可根除性",
+      "kind": "heading",
+      "level": 3,
+      "path": "灾前军事基准线与菌毯的不可根除性"
+    },
+    "range": {
+      "start": 12227,
+      "end": 12287
+    },
+    "offset": 0,
+    "maxChars": 60,
+    "content": "### 灾前军事基准线与菌毯的不可根除性\n\n一、2042年，人类手里有什么\n2042年的人类文明正处于一个技术拐点：强人",
+    "hasMore": true,
+    "nextCursor": "section:heading-3-19902vk:60",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

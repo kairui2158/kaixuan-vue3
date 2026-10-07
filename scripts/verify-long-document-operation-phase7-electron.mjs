@@ -3,6 +3,9 @@ import path from 'node:path'
 import { execFileSync, spawn } from 'node:child_process'
 import assert from 'node:assert/strict'
 import { chromium } from 'playwright'
+import { createRequire } from 'node:module'
+
+const require = createRequire(import.meta.url)
 
 const ROOT = path.resolve(process.cwd())
 const SCRIPT_NAME = 'verify-long-document-operation-phase7-electron.mjs'
@@ -21,8 +24,8 @@ const EXPORT_ROOT = path.join(ROOT, '_data', 'long-document-operation-phase7-exp
 const EVIDENCE_ROOT = path.join(ROOT, '_audit', 'verification-long-document-operation-phase7')
 const RUN_LOG_PATH = path.join(EVIDENCE_ROOT, 'electron-run.log')
 const MODEL = process.env.SHENYI_LIVE_MODEL || 'deepseek-v4-pro'
-const BASE_URL = process.env.SHENYI_LIVE_BASE_URL || 'https://openapi.cloud-ai.cn/v1'
-const API_KEY = process.env.SHENYI_LIVE_API_KEY || ''
+let BASE_URL = process.env.SHENYI_LIVE_BASE_URL || 'https://openapi.cloud-ai.cn/v1'
+let API_KEY = process.env.SHENYI_LIVE_API_KEY || ''
 // Phase 7 replay can legitimately exceed 30 minutes: the third turn alone made
 // 59 tool calls against a 74k-char outline and finished 1.7s past the old limit.
 const STEP_TIMEOUT_MS = Number(process.env.SHENYI_LIVE_STEP_TIMEOUT_MS || 60 * 60_000)
@@ -31,6 +34,11 @@ const HEARTBEAT_INTERVAL_MS = Number(process.env.SHENYI_PHASE7_HEARTBEAT_INTERVA
 const STALLED_TIMEOUT_MS = Number(process.env.SHENYI_PHASE7_STALLED_TIMEOUT_MS || 5 * 60_000)
 const DEAD_TIMEOUT_MS = Number(process.env.SHENYI_PHASE7_DEAD_TIMEOUT_MS || 15 * 60_000)
 const KEEP_PROFILE = process.env.SHENYI_PHASE7_KEEP_PROFILE === '1'
+const CREDENTIAL_PROFILE_FALLBACKS = [
+  path.join(ROOT, '_data', 'long-document-restructure-phase6-profile'),
+  path.join(ROOT, '_data', 'outline-deletion-live-replay-profile'),
+]
+const { safeStorage } = require('electron')
 
 const exportedTrace = JSON.parse(fs.readFileSync(TRACE_FILE, 'utf8'))
 const clientRun = exportedTrace.run || exportedTrace
@@ -713,7 +721,8 @@ async function runTurn(page, testCase, request, turnIndex) {
           'long-document-policy',
           'execution-mode-selected',
           'final-draft-mode-selected',
-          'final-draft-skill-guidance',
+          'skill-guidance-injected',
+          'agent-skill-guidance-injected',
           'edit-task-batch-planned',
           'source-contamination-detected',
           'edit-task-batch-applied',
@@ -876,6 +885,7 @@ function startHeartbeat(page, entry, electronPid) {
 async function captureCaseEvidence(page, testCase, results) {
   const dir = path.join(EVIDENCE_ROOT, testCase.id)
   fs.mkdirSync(dir, { recursive: true })
+  copyPersistedRunTrace(page, testCase)
   await page.screenshot({ path: path.join(dir, 'final-state.png'), fullPage: false })
   fs.writeFileSync(path.join(dir, 'turns.json'), JSON.stringify(results, null, 2), 'utf8')
   console.log(`[PASS] ${testCase.id}: evidence written`)
@@ -884,6 +894,7 @@ async function captureCaseEvidence(page, testCase, results) {
 async function captureCaseFailure(page, testCase, turns, error) {
   const dir = path.join(EVIDENCE_ROOT, testCase.id)
   fs.mkdirSync(dir, { recursive: true })
+  copyPersistedRunTrace(page, testCase)
   try {
     await page.screenshot({ path: path.join(dir, 'failure-state.png'), fullPage: false })
   } catch {}
@@ -906,13 +917,33 @@ async function captureCaseFailure(page, testCase, turns, error) {
   console.error(`[CASE FAIL] ${testCase.id}: failure evidence written`)
 }
 
+function copyPersistedRunTrace(_page, testCase) {
+  // The renderer autosaves traces under SHENYI_DATA_DIR/run-trace/<source>.
+  // A one-hour live case can die before its first turn terminal state; the
+  // profile cleanup must never destroy the only full request/response record.
+  const sourceDir = path.join(PROFILE, 'documents-data', 'run-trace', testCase.entry)
+  if (!fs.existsSync(sourceDir)) return
+  for (const entry of fs.readdirSync(sourceDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue
+    const runTracePath = path.join(sourceDir, entry.name, 'run-trace.json')
+    if (!fs.existsSync(runTracePath)) continue
+    const targetDir = path.join(EVIDENCE_ROOT, testCase.id, 'run-trace', entry.name)
+    fs.mkdirSync(targetDir, { recursive: true })
+    fs.copyFileSync(runTracePath, path.join(targetDir, 'run-trace.json'))
+    const payloadDir = path.join(sourceDir, entry.name, 'payloads')
+    if (fs.existsSync(payloadDir)) {
+      fs.cpSync(payloadDir, path.join(targetDir, 'payloads'), { recursive: true })
+    }
+  }
+}
+
 function assertCase(testCase, turns) {
   const label = testCase.id
   assert.equal(turns.length, clientTurns.length, `${label}: replay covers all client turns`)
 
   const first = turns[0]
   const guidanceEvents = turns[0].longDocumentEvents
-    .filter(event => event.type === 'final-draft-skill-guidance')
+    .filter(event => event.type === 'skill-guidance-injected' || event.type === 'agent-skill-guidance-injected')
   assert.equal(
     guidanceEvents.length,
     1,
@@ -1051,7 +1082,7 @@ function buildStageStatuses(testCase, turns) {
   stages['skill-ui-selected'] = testCase.withSkill ? 'PASS' : 'N/A'
 
   const guidance = turns[0]?.longDocumentEvents
-    ?.find(event => event.type === 'final-draft-skill-guidance')
+    ?.find(event => event.type === 'skill-guidance-injected' || event.type === 'agent-skill-guidance-injected')
   stages['guidance-hit'] = Boolean(guidance?.detail?.skillGuidancePresent) === testCase.withSkill
     ? 'PASS'
     : 'FAIL'
@@ -1076,14 +1107,39 @@ function buildStageStatuses(testCase, turns) {
   return stages
 }
 
+function restoreLiveCredentialsFromPreviousProfile() {
+  if (process.env.SHENYI_LIVE_API_KEY && process.env.SHENYI_LIVE_BASE_URL) return
+  for (const credentialProfile of CREDENTIAL_PROFILE_FALLBACKS) {
+    const providerPath = path.join(credentialProfile, 'documents-data', 'wa_providers.json')
+    if (!fs.existsSync(providerPath)) continue
+    const stored = JSON.parse(fs.readFileSync(providerPath, 'utf8'))
+    const provider = (stored?.providers || []).find(item =>
+      item?.baseUrl
+      && typeof item?.apiKey === 'string'
+      && (item.apiKey.startsWith('enc:') || item.apiKey.startsWith('sk-')))
+    if (!provider) continue
+    const apiKey = provider.apiKey.startsWith('enc:')
+      ? safeStorage.decryptString(Buffer.from(provider.apiKey.slice(4), 'base64'))
+      : provider.apiKey
+    if (!apiKey) continue
+    process.env.SHENYI_LIVE_API_KEY = apiKey
+    if (!process.env.SHENYI_LIVE_BASE_URL) process.env.SHENYI_LIVE_BASE_URL = provider.baseUrl
+    return
+  }
+  assert(false, 'live credentials are not available from SHENYI_LIVE_* env vars or previous encrypted profiles')
+}
+
 async function main() {
-  assert(API_KEY, 'SHENYI_LIVE_API_KEY is required for real API Phase 7 validation')
   assertFreshRendererBuild()
   removeDir(PROFILE)
   removeDir(EXPORT_ROOT)
   removeDir(EVIDENCE_ROOT)
   fs.mkdirSync(path.join(PROFILE, 'app-data'), { recursive: true })
   fs.mkdirSync(EVIDENCE_ROOT, { recursive: true })
+  restoreLiveCredentialsFromPreviousProfile()
+  API_KEY = process.env.SHENYI_LIVE_API_KEY || ''
+  BASE_URL = process.env.SHENYI_LIVE_BASE_URL || BASE_URL
+  assert(API_KEY, 'SHENYI_LIVE_API_KEY is required for real API Phase 7 validation')
 
   const report = {
     schema: 'shenyi.long-document-operation.phase7.electron',

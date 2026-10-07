@@ -6,6 +6,7 @@ import {
   resolveContextBudget,
   resolveAvailableContextTokens,
   resolveContextWindowTokens,
+  resolvePlanningInputBudget,
 } from './contextBudget'
 
 describe('resolveContextWindowTokens', () => {
@@ -165,6 +166,38 @@ describe('resolveAvailableContextTokens', () => {
   it('uses an explicit output override as the reserve', () => {
     const result = resolveAvailableContextTokens({ contextWindowTokens: 1_000_000, maxOutputTokens: 100_000 })
     expect(result).toBe(Math.floor(1_000_000 * CONTEXT_BUDGET_DEFAULTS.windowSafetyRatio) - 100_000)
+  })
+})
+
+describe('resolvePlanningInputBudget', () => {
+  it('keeps every window class on one formula', () => {
+    const cases = [
+      { contextWindowTokens: 64_000, maxOutputTokens: 8_192 },
+      { contextWindowTokens: 200_000, maxOutputTokens: 8_192 },
+      { contextWindowTokens: 1_000_000, maxOutputTokens: 8_192 },
+      { contextWindowTokens: 1_000_000, maxOutputTokens: null },
+    ]
+
+    for (const item of cases) {
+      const expected = Math.max(
+        0,
+        Math.floor(item.contextWindowTokens * CONTEXT_BUDGET_DEFAULTS.windowSafetyRatio)
+          - (item.maxOutputTokens ?? CONTEXT_BUDGET_DEFAULTS.defaultOutputReserveTokens),
+      )
+      expect(resolvePlanningInputBudget(item)).toBe(expected)
+    }
+  })
+
+  it('stays aligned with the public available-context helper', () => {
+    expect(resolvePlanningInputBudget({ contextWindowTokens: 200_000, maxOutputTokens: 8_192 }))
+      .toBe(resolveAvailableContextTokens({ contextWindowTokens: 200_000, maxOutputTokens: 8_192 }))
+    expect(resolvePlanningInputBudget({ contextWindowTokens: 64_000, maxOutputTokens: null }))
+      .toBe(resolveAvailableContextTokens({ contextWindowTokens: 64_000, maxOutputTokens: null }))
+  })
+
+  it('returns zero for an unknown window rather than inventing a planning budget', () => {
+    expect(resolvePlanningInputBudget({ contextWindowTokens: null, maxOutputTokens: null })).toBe(0)
+    expect(resolvePlanningInputBudget({ contextWindowTokens: 0, maxOutputTokens: 8_192 })).toBe(0)
   })
 })
 

@@ -1,0 +1,17 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "亚油酸（18:2）",
+      "content": "亚油酸（18：2）",
+      "reason": "normalize：中文正文语境半角冒号改为全角"
+    },
+    {
+      "operation": "replace_match",
+      "target": "α-亚麻酸（18:3）",
+      "content": "α-亚麻酸（18：3）",
+      "reason": "normalize：中文正文语境半角冒号改为全角"
+    }
+  ],
+  "reason": "normalize-segment-1：完成全文中文语境半角标点统一为全角"
+}

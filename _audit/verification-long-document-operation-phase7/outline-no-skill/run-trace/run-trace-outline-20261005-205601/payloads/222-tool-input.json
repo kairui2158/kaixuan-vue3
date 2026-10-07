@@ -1,0 +1,23 @@
+{
+  "commands": [
+    {
+      "content": "重新划定敌我边界。\n\n### 第一卷·觉醒与扎根",
+      "operation": "replace_match",
+      "reason": "normalize-segment-1：缩小故事核心结尾与第一卷标题间的多余空行",
+      "target": "重新划定敌我边界。\n\n\n\n### 第一卷·觉醒与扎根"
+    },
+    {
+      "content": "## 菌膜外套与共存补丁的关系\n\n菌膜外套是",
+      "operation": "replace_match",
+      "reason": "normalize-segment-1：规范二级标题后多余空行",
+      "target": "## 菌膜外套与共存补丁的关系\n\n菌膜外套是"
+    },
+    {
+      "content": "更珍贵。\n\n### 灾前军事基准线与菌毯的不可根除性",
+      "operation": "replace_match",
+      "reason": "normalize-segment-1：规范段落与标题间空白，确保一级标题结构清晰",
+      "target": "更珍贵。\n\n### 灾前军事基准线与菌毯的不可根除性"
+    }
+  ],
+  "reason": "normalize-segment-1 最终整理：规范故事核心至第一卷标题间隔、二级标题后空行、背景参考资料内分节空白"
+}

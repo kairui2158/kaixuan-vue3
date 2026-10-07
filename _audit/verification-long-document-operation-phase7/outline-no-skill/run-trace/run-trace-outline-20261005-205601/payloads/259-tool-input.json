@@ -1,0 +1,63 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "一、2042年，人类手里有什么",
+      "content": "#### 一、2042年，人类手里有什么",
+      "reason": "为无标题正文补四级标题，符合 Word 层级体系"
+    },
+    {
+      "operation": "replace_match",
+      "target": "二、菌毯为什么火力推不平",
+      "content": "#### 二、菌毯为什么火力推不平",
+      "reason": "为无标题正文补四级标题"
+    },
+    {
+      "operation": "replace_match",
+      "target": "三、总结：人类真正被压制的根本机制",
+      "content": "#### 三、总结：人类真正被压制的根本机制",
+      "reason": "为无标题正文补四级标题"
+    },
+    {
+      "operation": "replace_match",
+      "target": "被孢子云直接废掉的武器系统",
+      "content": "##### 被孢子云直接废掉的武器系统",
+      "reason": "为无标题正文补五级标题"
+    },
+    {
+      "operation": "replace_match",
+      "target": "打上去但无效的武器",
+      "content": "##### 打上去但无效的武器",
+      "reason": "为无标题正文补五级标题"
+    },
+    {
+      "operation": "replace_match",
+      "target": "打得动但代价人类付不起的武器",
+      "content": "##### 打得动但代价人类付不起的武器",
+      "reason": "为无标题正文补五级标题"
+    },
+    {
+      "operation": "replace_match",
+      "target": "生物量储备的物理事实",
+      "content": "##### 生物量储备的物理事实",
+      "reason": "为无标题正文补五级标题"
+    },
+    {
+      "operation": "replace_match",
+      "target": "火力触发报复性生长",
+      "content": "##### 火力触发报复性生长",
+      "reason": "为无标题正文补五级标题"
+    },
+    {
+      "operation": "replace_match",
+      "target": "信号放大效应锁死兵力集结",
+      "content": "##### 信号放大效应锁死兵力集结",
+      "reason": "为无标题正文补五级标题"
+    }
+  ],
+  "reason": "按 Word 层级体系为「灾前军事基准线」下的无标题小节补标题层级",
+  "reveal": {
+    "firstChange": true,
+    "mode": "instant"
+  }
+}

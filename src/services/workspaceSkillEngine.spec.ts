@@ -1227,7 +1227,7 @@ describe('workspace skill engine', () => {
       adapter,
     })
 
-    expect(result.runState).toBe('awaiting_confirmation')
+    expect(result.runState).toBe('awaiting_user')
     expect(result.routing?.kind).toBe('ambiguous')
     expect(result.routing?.kind === 'ambiguous' && result.routing.fallbackMode).toBe('await-user')
     expect(calls).toHaveLength(0)

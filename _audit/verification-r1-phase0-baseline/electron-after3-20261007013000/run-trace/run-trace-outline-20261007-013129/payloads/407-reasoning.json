@@ -1,0 +1,50 @@
+Let me analyze the current state and what needs to be done:
+
+1. The plan has 3 batches: structure-repair, structure-plan, normalize-segment-1
+2. We've already completed:
+   - structure-plan batch (removed duplicates 7.8 and 7.9, merged content)
+   - normalize-segment-1 batch partially (fixed some formatting)
+   - structure-repair batch (fixed document opening spacing)
+3. Remaining: structure-repair needs completion, normalize-segment-1 needs full coverage
+
+Looking at the current state:
+- The `.` search returned matches - these are mostly in Markdown numberings like `3.1`, `4.1.1`, etc. and abbreviations like `约2.8兆` which are NOT "Chinese text context" semi-width periods - these are legitimate uses.
+- The `,` and `;` searches returned 0 results - no semi-width commas or semicolons found.
+- The `:` and `?` and `!` searches need to be checked.
+
+Let me think about what's actually left to do:
+- The `.` hits are all in headings (like `4.1.1`) or numerical contexts (like `1.8GPa`) - these are structural Markdown numbering, not Chinese text punctuation that needs fixing.
+- No comma/semicolon issues found.
+- The core duplicate removal is done.
+- The formatting normalization (extra blank lines) has been started.
+
+Let me check what remains from the normalize-segment-1 batch more comprehensively. I should search for `:` and `?` and `!` and check the rest of the document for formatting issues.
+
+Actually, let me be more strategic. The plan says:
+- Batch 1: structure-repair - fix heading hierarchies and misplaced content
+- Batch 2: structure-plan - remove duplicates (DONE)
+- Batch 3: normalize-segment-1 - punctuation, whitespace, formatting
+
+The structure-repair batch was partially done (just the opening fix). I need to check if there are heading level issues.
+
+Looking at the document map, the hierarchy seems correct:
+- `#` → heading-1 (总纲)
+- `##` → heading-2 (叙事框架, 背景参考资料, etc.)
+- `###` → heading-3 (故事核心, 第一卷, etc.)
+- `####` → heading-4 (4.1, 5.1, etc.)
+- `#####` → heading-5 (4.1.1, 5.3.1, etc.)
+
+This seems correct. No heading level jumps.
+
+Now for normalize-segment-1: I need to search for remaining punctuation issues. Let me search for `:`, `?`, `!` and also check for specific Chinese punctuation inconsistencies.
+
+Actually wait - searches for `,` and `;` returned 0 results, meaning there are NO semi-width commas or semicolons in the doc. The `.` hits were all in context like "4.2.1" headings, "约2.8兆" numbers, "0.3%" percentages - these are legitimate.
+
+Let me search for `:` and `!` and `?` to check.
+
+Let me also look at what specific areas might need normalization. Let me search for common issues:
+- Double blank lines (already partially fixed)
+- Missing blank lines before/after headings
+- Chinese punctuation consistency
+
+Given the earlier work already cleaned up many issues, let me do a targeted search for remaining problems and fix them in one batch.

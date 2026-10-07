@@ -287,6 +287,8 @@ describe('ConversationContextService', () => {
     expect(resolveModelContextWindow('model-1m')).toBe(1_000_000)
     expect(resolveModelContextWindow('qwen-128k')).toBe(128_000)
     expect(resolveModelContextWindow('deepseek-reasoner')).toBe(128_000)
+    expect(resolveModelContextWindow('deepseek-chat')).toBeUndefined()
+    expect(resolveModelContextWindow('deepseek-v3.1')).toBeUndefined()
     expect(resolveModelContextWindow('custom-private-model')).toBeUndefined()
   })
 

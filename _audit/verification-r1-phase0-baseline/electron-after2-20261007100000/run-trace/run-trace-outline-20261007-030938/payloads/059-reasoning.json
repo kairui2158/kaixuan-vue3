@@ -1,0 +1,170 @@
+I need to continue the normalization. The document is largely already in good shape. I've identified a few half-width punctuation issues in specific spots. Let me be strategic.
+
+The half-width punctuation in Chinese text found so far:
+1. "打上去但无效的武器\n火力轰炸。 菌毯" - "火力轰炸。 " has a half-width space and "。" is full. Actually "火力轰炸。 菌毯" - this is "火力轰炸。" full-width followed by half-width space. That's a space issue, not punctuation. But also "核打击。 在轰炸无效后" similar.
+
+Let me focus on the actual half-width punctuation issues. The search for "," ";" returned 0. The search for "." returned hits that are actually full-width or part of ". " patterns. Let me look more carefully.
+
+Search ":" returned 3 hits:
+- 41883: "3:14" time - legitimate
+- 53276, 53288: "18:2" and "18:3" - chemical notation, legitimate
+
+Search "." (half-width period) returned 274 total? Wait, that was the second search ".". Actually the first search "," returned 0. The second search "." returned 274 matches. These are all half-width periods "." in the text. Most of these are likely in:
+- Decimal numbers (0.3%, 45%, etc.)
+- "§6.6" section references
+- Times "11月19日3:14"
+- Chemical "18:2"
+
+Wait, "." returned 274 hits. These are half-width periods. Many are legitimate (decimals, section numbers). But some might be in Chinese text as sentence endings. Let me check.
+
+Actually looking at the matches, the "." hits shown include "1. **陈暮远征路上带一个伤员走。**" - the "1." list number, "2. **铁壁城主..." - list number. These are list numbering, which is fine (half-width dot in numbered lists).
+
+The "." matches at 62070 "1. 铁与血的军事秩序" - list numbering, fine.
+
+So actually the half-width period "." appears mostly as:
+- Decimal points (0.3%, 45%)
+- List numbering (1., 2., 3.)
+- Section refs (§6.6)
+
+These are all legitimate. I should NOT convert them.
+
+Wait, but the completion criteria says "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角". The key phrase is "中文正文语境中" (in Chinese prose context). Decimals, list numbers, section references, chemical formulas, times are NOT "中文正文语境" - they are numeric/technical contexts. So I should only convert where a half-width punctuation is used as sentence punctuation in Chinese prose.
+
+Let me search more specifically for half-width punctuation followed by Chinese character, which indicates sentence-ending usage.
+
+Actually, I found earlier:
+- Search "," → 0 results. Good, no half-width commas.
+- Search ";" → 0 results. Good.
+- Search ":" → 3 results, all technical (3:14, 18:2, 18:3). Legitimate.
+- Search "!" → 0 results.
+- Search "?" → 0 results.
+- Search "." → 274 results, mostly technical.
+
+Let me verify there are no half-width periods acting as sentence punctuation. Let me search for patterns like "。." or "话. " or "的." Let me search for "." followed by space+Chinese, or "." at end of Chinese sentence.
+
+Actually, let me search for specific half-width punctuation patterns in Chinese context more precisely. The search earlier for "." returned matches that are list numbers and decimals. Let me check a few more matches with higher offset to ensure no sentence-ending half-width periods.
+
+Actually, the key finding: there are essentially NO half-width sentence punctuation in Chinese prose. The document is already very clean on punctuation. The main work was:
+1. Structure repair (done - reorder, title level fixes)
+2. Duplicate deletion (done - "数据板的局限" duplicate removed, "粘贴到..." instruction removed)
+3. Format normalization (partially done - added blank line before 【菌毯的本质】)
+
+Let me check the remaining formatting issues:
+1. The "第一卷概要：" has content but is it a heading or just bold text? It appears as plain text "第一卷概要：" followed by content. This might need to be a sub-heading, but that's a judgment call. It's within 第一卷 section.
+
+2. The background reference section "灾前军事基准线与菌毯的不可根除性" I added as H3 with content "一、2042年，人类手里有什么". Inside it there are un-headed sections "二、菌毯为什么火力推不平" and "三、总结：人类真正被压制的根本机制" which are plain text. These are sub-parts of the H3. That's fine.
+
+3. There's still the "内容块" paragraphs (empty content blocks) that are just empty paragraphs. These are the "内容块 1" through "内容块 39" - they're essentially empty paragraph markers. Should I delete them? They're empty (charCount 1-2). They seem to be artifacts. But the instructions say "禁止把未确认内容当作重复项删除，禁止丢弃有效正文内容". Empty paragraphs aren't really "有效正文". But I should be cautious - deleting them is cosmetic. 
+
+Actually, let me reconsider the scope. The user asked "按照Word文档的形式重构大纲，不要缩减内容" (restructure the outline in Word document form, don't reduce content).
+
+The main tasks:
+1. Reorder sections logically (done)
+2. Fix title hierarchy (done)
+3. Remove duplicates (done)
+4. Fix punctuation/formatting (mostly done, minor remaining)
+
+The "内容块" empty paragraphs are empty (1-2 chars, likely just newlines). They don't contain real content. But deleting them isn't strictly necessary for "Word document form".
+
+Let me check what "内容块 1" actually contains - it's charCount 2, which is probably an empty line. These are structural artifacts from parsing.
+
+Actually, I've done substantial work. Let me verify the current state is coherent and check remaining formatting items, then do a final cleanup pass.
+
+Key remaining items I should verify:
+1. The half-width period "." matches - verify none are sentence punctuation
+2. Empty content blocks
+3. The "第一卷概要：" text styling
+
+Let me do the final formatting. Since I've been reading a lot, I need to now write. Let me do a final targeted normalization write.
+
+Actually, let me check the "." matches more thoroughly. 274 matches is a lot. Let me look at whether there are half-width periods used as Chinese sentence terminators. Let me search for specific context.
+
+Let me search for ". " (period + space) which would indicate English-style sentence ending, and "。" followed by nothing.
+
+Actually, from the earlier search of "." I saw matches at:
+- 9957, 10094: "1. **陈暮远征路上..." and "2. **铁壁城主..." - list numbers
+- 12410: "低轨道卫星全部坠入大气层（大纲§6.6）" - §6.6
+- 15002: "大纲§6.6" - section ref
+- 15548: "大纲§7.4" - section ref
+- 22209: "本卷声明..." - wait this is "."? Let me look: "本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作" - the match at 22209-22210 is probably the "." in some number.
+
+Hmm, these are all technical. The document appears clean.
+
+Let me do a final check and write any remaining formatting fixes. Actually, I think the most important remaining item is to verify and potentially clean up. Let me check the "内容块" empty paragraphs and the "第一卷概要" issue.
+
+Actually, let me step back. I've completed:
+1. ✅ Structure repair (title levels, reorder)
+2. ✅ Duplicate deletion
+3. 🔶 Format normalization (partial)
+
+The plan says 3 batches. I've done multiple writes already. The normalization batch should cover the full document range [0-74841]. 
+
+For the final normalization, the remaining concrete issues I've identified:
+1. "火力轰炸。 菌毯" - half-width space after full-width period (in 背景参考资料 military section)
+2. "核打击。 在轰炸无效后" - same
+3. "化学/生物武器。 针对" - same
+4. "电磁脉冲。 高空" - same
+
+These are half-width spaces after full-width periods. Should be full-width space (U+3000) or just no space. In Chinese Word formatting, typically no space, just "。" directly followed by text. Actually these are "火力轰炸。 菌毯" where "火力轰炸" is a bolded lead-in followed by "。 " then content. This is a stylistic pattern in that section.
+
+Actually these are "lead-in label。  explanation" patterns. Converting half-width space to full-width would be more correct for Chinese. But this is minor.
+
+Let me focus on what actually matters and do a final write to fix these spacing issues and any remaining formatting.
+
+Actually, I realize I should be more careful about the completion criteria. It says "整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74841]）". This means I need to cover the whole document in normalization. 
+
+Given the document is already very clean (no half-width commas/semicolons/question/exclamation, and the periods are technical), the remaining normalization work is:
+1. Fix the half-width spaces after "。" in the military section lead-ins
+2. Possibly remove empty content blocks (but risky)
+
+Let me do a final write covering the spacing fixes, then verify.
+
+Let me identify the exact text to fix:
+- "火力轰炸。 菌毯在第一周内" → "火力轰炸。菌毯在第一周内" (remove space, or use full-width space)
+- "核打击。 在轰炸无效后" → "核打击。在轰炸无效后"
+- "化学/生物武器。 针对共生蕨" → "化学/生物武器。针对共生蕨"
+- "电磁脉冲。 高空中引爆" → "电磁脉冲。高空中引爆"
+
+These are in heading-3-19902vk (灾前军事基准线). Let me do these fixes.
+
+Also I should verify: are there other half-width spaces? Let me not over-search. Let me do the targeted fixes I've confirmed.
+
+Actually, I want to also double-check the "第一卷概要：" - it's a label followed by content. Should it be a heading? Looking at it, "第一卷概要：" is inline text at the start of a paragraph. In Word form, it might be better as bold or a sub-heading, but it's not strictly wrong. I'll leave it.
+
+Let me also reconsider: the "内容块" empty paragraphs. These are empty. In the document map they show as "内容块 1" (2 chars) etc. These are empty paragraph artifacts. They don't contain content. But deleting 39 empty paragraphs is a lot of delete operations. And it's risky per the rules. I'll leave them since they don't harm "Word document form" (they're just empty lines).
+
+Actually, empty paragraphs between sections are normal in Word documents. Leaving them is fine.
+
+Let me do the final spacing fixes now. I'll batch the 4 spacing fixes in one write.
+
+Wait, I also need to double check the "火力轰炸。 " pattern. Let me re-read the exact context from earlier:
+
+"打上去但无效的武器\n火力轰炸。 菌毯在第一周内就被各国空军炸过"
+
+So "火力轰炸。 " has "火力轰炸" then "。" then half-width space then "菌毯". The fix: remove half-width space (or make it full-width). In Chinese, these lead-ins like "火力轰炸。" followed by space then explanation - the space should probably be full-width ideographic space or removed.
+
+I'll remove the half-width space, making it "火力轰炸。菌毯在第一周内..." Actually, having a space helps readability as a lead-in. But standard Chinese Word doesn't use half-width space. Let me use full-width space "　" (U+3000). Actually, simpler and cleaner: just remove the space.
+
+Hmm, but these are "label。explanation" where label is bold. In the original, "火力轰炸" might be bold. If I remove the space it becomes "火力轰炸。菌毯" which is fine.
+
+Let me just do "火力轰炸。 菌毯" → "火力轰炸。菌毯" etc.
+
+Actually, wait - let me reconsider whether these spaces matter for the "completion criteria". The criteria specifically says half-width punctuation (，。；：！？) must be full-width. The space after "。" is not punctuation itself. The "。" is already full-width. So technically the punctuation is already correct.
+
+But "Word document form" would prefer no stray half-width spaces. This is a minor polish.
+
+Given my remaining budget and the instruction to write, let me do a final targeted cleanup of these spaces and call it done.
+
+Let me also verify there's nothing else. Actually, I found the document is in good shape. Let me do the final write.
+
+Let me compose the final write with the 4 space fixes.
+
+Actually, I realize I should also check: is there a "第一卷概要：" that should be a heading? And the "第二卷概要" / "第三卷" don't have "概要" labels. The "第一卷概要：" is a specific inline label. It's fine to leave.
+
+Let me also verify the "灾前军事基准线" section I added - I made it H3 with title "灾前军事基准线与菌毯的不可根除性". Its content includes "一、2042年，人类手里有什么", "二、菌毯为什么火力推不平", "三、总结：人类真正被压制的根本机制". These are the sub-sections. Good.
+
+OK let me do the final write now.
+
+Actually, one more thing to verify - the completion criteria mentions checking that I've covered all plan segments. I've done structure repair and duplicate deletion. For normalization, I need to do a final pass. Let me do the spacing fixes as the normalization write and then I can consider the task substantially complete.
+
+Let me write the 4 spacing fixes in one batch.

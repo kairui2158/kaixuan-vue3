@@ -1,0 +1,153 @@
+Tables converted successfully. Now let me continue checking for other tab-separated tables or issues. Let me search for remaining tab characters in the document, and also check the top-level structure ordering.
+
+Let me look at the document_map again to see the full structure and check ordering. Actually the key concern from the plan is "reorder_sections" - the top-level order. Let me check the current top-level heading order.
+
+Current order from document map:
+1. 《绿潮》大纲总纲 (h1)
+   - 叙事框架 (h2)
+   - 背景参考资料 (h2)
+   - 数据板的局限 (h2)
+   - 菌膜外套：有限资源的临时通行方案 (h2)
+   - 菌膜外套与共存补丁的关系 (h2)
+   - 六大势力概览 (h2) [now fixed]
+   - 圣萌会的崛起 (h2) [now fixed]
+   - 巨树生长与天府都陷落 (h2) [now fixed]
+   - 世界设定声明 (h2)
+   - 卷一：基石设定层 (h2)
+   - 卷二：核心人物群像 (h2)
+   - 卷三：势力与格局层 (h2)
+   - 卷四：叙事工具箱层 (h2)
+
+This is a reasonable order. The "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" are now top-level sections. But wait, these might logically belong somewhere. Let me think about the "Word文档形式" request.
+
+The user's request is: "按照Word文档的形式重构大纲，不要缩减内容。" (Reconstruct the outline in Word document form, don't reduce content.)
+
+This is a bit ambiguous. It likely means: make it look like a proper Word document with proper heading hierarchy and formatting (tables as tables, etc.). 
+
+I've already:
+1. Fixed mis-nested headings (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落 were incorrectly nested under 菌膜外套与共存补丁的关系)
+2. Fixed typos (子云→孢子云, 物量储备→生物量储备)
+3. Fixed punctuation (菌毯不是纯自然力更不是→菌毯不是纯自然力，更不是)
+4. Converted tab-separated tables to GFM tables
+
+Let me check for remaining tab characters that should be converted. Let me search for other tab-separated tables. There may be more tables with \t in the document.
+
+Let me check the remaining sections. There are also tables in the 感染分型总览, 孢子云三阶段, 孢子季节性波动, 威胁等级, 信号放大效应, etc. But those appear to already be in GFM format (with | separators) based on the summary heads.
+
+Let me search for any remaining tab characters. I'll search for a tab pattern. Actually search may not handle tabs well. Let me check specific sections.
+
+Actually, let me focus. The remaining potential issues:
+1. There's a "第一卷概要" which seems fine.
+2. There might be duplicate content - the "数据板的局限" appears twice? Let me check. Earlier in "背景参考资料" section I saw "数据板的局限" content embedded at the end, AND there's a separate "## 数据板的局限" heading. Wait, let me check.
+
+Looking at the original read of "背景参考资料" section (heading-2-1lka0h8, start 10189, end 16234), it ended with:
+"...数据板提供的是火种，不是火炬。" then blank lines, then "## 数据板的局限" would be next.
+
+Wait, actually looking at the first full read (the "当前焦点全文" from the context pack), I saw:
+
+After "背景参考资料" content ends with "数据板提供的是火种，不是火炬。", there's a "## 数据板的局限" section. But wait, in the read of heading-2-1lka0h8 (背景参考资料), the content went up to "数据板提供的是火种，不是火炬。" at the end (before "## 数据板的局限").
+
+Hmm, wait. Let me re-read. The "背景参考资料" section read ended at char 16232 with content "数据板提供的是火种，不是火炬。\n\n\n\n\n## 数据板的局限\n\n数据板不是百宝箱..."
+
+Wait no. The read of heading-2-1lka0h8 returned content ending at:
+"...末日十年后，所有人类势力都明白了一个道理：菌毯是不可根除的。...终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。\n\n\n\n\n"
+
+That was the end of "背景参考资料" section (it ended at char 16234). Then "## 数据板的局限" is a separate h2 section starting at 16234.
+
+But wait, in the FIRST full read (the context pack "当前焦点全文"), I saw this at the end of 背景参考资料:
+
+"后来林知意研发的菌膜外套、禁声幕墙...数据板提供的是火种，不是火炬。\n\n\n## 数据板的局限\n\n数据板不是百宝箱。方岫岩在八个月里..."
+
+So actually the "背景参考资料" section content includes the 数据板的局限 text? No. Let me look more carefully.
+
+Actually in the context pack "当前焦点全文" (the full text), I saw:
+
+Under "## 背景参考资料" heading, there was content about 灾前军事基准线, ending with "...数据板提供的是火种，不是火炬。" 
+
+Then "## 数据板的局限" heading with the 数据板的局限 content.
+
+Then "## 菌膜外套：有限资源的临时通行方案" heading.
+
+Wait, but that "数据板提供的是火种，不是火炬" text appears in TWO places. Let me check.
+
+Actually, looking at the original read of "背景参考资料" (heading-2-1lka0h8), the content is:
+- 四亿年前... (background story)
+- 方岫岩...约2051年陈暮苏醒...
+- 灾前军事基准线与菌毯的不可根除性 (###)
+  - 一、2042年，人类手里有什么
+  - 二、菌毯为什么火力推不平
+  - 三、总结：人类真正被压制的根本机制
+- (ends with "终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。")
+
+But the context pack full text showed "背景参考资料" also containing:
+"后来林知意研发的菌膜外套、禁声幕墙...数据板提供的是火种，不是火炬。" 
+
+Wait, that was actually shown in the "当前焦点全文" BEFORE "## 数据板的局限" heading. Let me re-read that part of the context pack.
+
+From the context pack "当前焦点全文":
+
+"...末日十年后，所有人类势力都明白了一个道理：菌毯是不可根除的。...终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。
+
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的...数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。方岫岩在八个月里记录下的..."
+
+Hmm wait, that shows there's a DUPLICATE. There's a heading "数据板的局限" without ## (plain text) appearing at the end of 背景参考资料, followed by the full 数据板的局限 content, then "## 数据板的局限" heading again with the SAME content.
+
+Let me verify this carefully. This is important because it's a duplication.
+
+Actually, looking at the context pack text again:
+
+After "终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。" there's:
+
+"数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。...数据板提供的是火种，不是火炬。
+
+
+## 数据板的局限
+
+数据板不是百宝箱。方岫岩在八个月里记录下的..."
+
+So YES, there appears to be a duplication:
+1. A plain-text "数据板的局限" heading (without markdown #) followed by the content
+2. Then "## 数据板的局限" heading followed by the SAME content
+
+This is a duplication that should be resolved. The plain-text version is likely the "tail" that was pasted into the 背景参考资料 section.
+
+Similarly, the context pack showed:
+- "## 菌膜外套：有限资源的临时通行方案" content appears twice? Let me check.
+
+From context pack:
+"## 菌膜外套：有限资源的临时通行方案\n\n陈暮的菌膜装甲是独一无二的...陈暮不必陪同每一次通行——但他的勘探是不可替代的。\n\n\n## 菌膜外套与共存补丁的关系\n\n菌膜外套是"让系统暂时看不到我们"...菌膜外套是权宜之计，共存补丁是终极解法。"
+
+And later in 卷一 7.8 and 7.9, there are the SAME contents as #### 7.8 and #### 7.9.
+
+So the 菌膜外套 content appears in BOTH:
+1. As standalone h2 sections (菌膜外套：有限资源的临时通行方案, 菌膜外套与共存补丁的关系) — these are in the "背景参考资料" area
+2. As 7.8 and 7.9 subsections in 卷一 七、变异体主动攻击人类核心机制
+
+These are intentional cross-references/duplicates? Actually, looking more carefully, the 7.8 and 7.9 are slightly different (7.9 has additional "终局之后" content). But 7.8 vs the standalone "菌膜外套" section - they're nearly identical.
+
+Actually, the plan mentions "confirm-duplicates" step: "用只读工具确认重复项" and "delete-duplicates": "只删除已确认的重复项".
+
+Hmm, but the user said "不要缩减内容" (don't reduce content). So I should be very careful about deleting duplicates. Deleting duplicates would reduce content. But actual duplicated content (exact same text appearing twice) is a formatting error, not "content".
+
+Actually, let me re-read the user request: "按照Word文档的形式重构大纲，不要缩减内容。" - "Reconstruct the outline in Word document form, don't reduce content."
+
+The key concern is: don't delete content. But fixing true duplicates and mis-nesting is part of "重构" (restructuring).
+
+Let me focus on what's clearly safe and clearly part of "Word document form":
+1. ✅ Fixed mis-nested headings
+2. ✅ Fixed typos
+3. ✅ Fixed punctuation
+4. ✅ Converted tab-tables to GFM tables
+
+Now, the critical remaining question: is there actual DUPLICATE content that needs deduplication?
+
+Let me verify the "数据板的局限" duplication by reading the actual current document around that area.
+
+Let me read the area around the boundary between 背景参考资料 and 数据板的局限.

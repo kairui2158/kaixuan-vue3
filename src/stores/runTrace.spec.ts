@@ -372,6 +372,42 @@ describe('runTrace store', () => {
     expect(physical?.reasoningText).toBe('流式中断前的部分思考')
   })
 
+  it('exports physical call error text without reopening the terminal call', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: ['卷纲技能'] })
+    const callId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '生成卷纲' }]
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'physical-error-observability',
+      phase: 'normal',
+      status: 'running',
+      requestMessages: [{ role: 'user', content: '生成卷纲' }],
+      responseText: '',
+      streamText: '',
+      reasoningText: ''
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'physical-error-observability',
+      phase: 'normal',
+      status: 'failed' as const,
+      requestMessages: [{ role: 'user', content: '生成卷纲' }],
+      responseText: '',
+      streamText: '',
+      reasoningText: '',
+      error: '供应商返回 502'
+    })
+    const liveRun = store.getRun(runId)!
+    const livePhysical = liveRun.apiCalls[0]?.physicalCalls?.[0]
+    const exported = store.exportRunToJson(liveRun) as unknown as RunTrace
+    const exportedPhysical = exported.apiCalls[0]?.physicalCalls?.[0]
+
+    expect(livePhysical?.status).toBe('failed')
+    expect(livePhysical?.error).toBe('供应商返回 502')
+    expect(exportedPhysical?.status).toBe('failed')
+    expect(exportedPhysical?.error).toBe('供应商返回 502')
+  })
+
   it('backfills an empty top-level response from the last non-empty physical response', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: ['卷纲技能'] })
@@ -1503,7 +1539,40 @@ describe('runTrace store', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
     const exported = store.exportRunToJson(store.getRun(runId)!) as Record<string, unknown>
-    expect(exported.schemaVersion).toBe(14)
+    expect(exported.schemaVersion).toBe(15)
+  })
+
+  it('preserves raw provider arguments through the tool-call trace export', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲共创',
+      mode: 'direct',
+      skillNames: [],
+      sessionKind: 'chat',
+    })
+    store.startTurn(runId, { userRequest: '整理整篇大纲', intent: 'edit' })
+    const callId = store.startApiCall(runId, {
+      source: 'outline',
+      requestMessages: [{ role: 'user', content: '整理整篇大纲' }],
+      intent: 'edit',
+    })
+    store.appendToolCall(runId, callId, {
+      name: 'editor.write',
+      toolCallId: 'call_bad',
+      input: {},
+      argumentsRaw: '{"commands":',
+      status: 'failed',
+    })
+    store.finishApiCall(runId, callId, { status: 'success', responseText: '工具参数解析失败' })
+
+    const exported = store.exportRunToJson(store.getRun(runId)!) as unknown as {
+      apiCalls?: Array<{ toolCalls?: Array<{ argumentsRaw?: string; input?: unknown }> }>
+    }
+    expect(exported.apiCalls?.[0]?.toolCalls?.[0]).toMatchObject({
+      input: {},
+      argumentsRaw: '{"commands":',
+    })
   })
 
   it('records physical, stream, tool, and edit-task activity without firing false stuck warnings', () => {
@@ -1874,7 +1943,7 @@ describe('runTrace store', () => {
     const run = store.getRun(runId)!
     expect(run.events.some(event => event.type === 'chain-handoff-delivery')).toBe(true)
     expect(run.processingReports?.some(report => report.processor === 'chain-handoff')).toBe(true)
-    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(14)
+    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(15)
   })
 
   it('records the requested and actual tool surface separately', () => {
@@ -2134,7 +2203,7 @@ describe('runTrace store', () => {
       sessionKind: 'chat',
       skillNames: []
     })
-    store.startAwaitingUser(runId, 'awaiting_confirmation')
+    store.startAwaitingUser(runId, 'awaiting_user')
     store.startTurn(runId, { userRequest: '确认执行' })
     store.finishAwaitingUser(runId, 'next_turn:确认执行')
 
@@ -2162,6 +2231,63 @@ describe('runTrace store', () => {
     const run = store.getRun(runId)!
     expect(run.status).toBe('running')
     expect(run.events.some(event => event.label === '等待用户确认已恢复')).toBe(false)
+  })
+
+  it('refreshes the timeout hint and watchdog for each chat turn', () => {
+    vi.useFakeTimers()
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'home',
+      stepName: '主页共创',
+      mode: 'direct',
+      sessionKind: 'chat',
+      skillNames: [],
+      timeoutHint: { active: 600_000 },
+    })
+    store.startTurn(runId, { userRequest: '整理长文', timeoutHint: { active: 3_600_000 } })
+
+    vi.advanceTimersByTime(600_001)
+    let run = store.getRun(runId)!
+    expect(run.timeoutHint).toEqual({ active: 3_600_000 })
+    expect(run.events.some(event => event.type === 'state-stuck-detected')).toBe(false)
+
+    store.startAwaitingUser(runId, 'waiting')
+    store.startTurn(runId, { userRequest: '继续讨论', timeoutHint: { active: 600_000 } })
+    store.finishAwaitingUser(runId, 'next_turn:继续讨论')
+    vi.advanceTimersByTime(600_001)
+    run = store.getRun(runId)!
+    expect(run.timeoutHint).toEqual({ active: 600_000 })
+    expect(run.events.some(event => event.type === 'state-stuck-detected')).toBe(true)
+    vi.useRealTimers()
+  })
+
+  it('persists application-authored fallback text origin through export', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲工作台',
+      mode: 'direct',
+      sessionKind: 'chat',
+      skillNames: []
+    })
+    const callId = store.startApiCall(runId, {
+      source: 'outline',
+      requestMessages: [{ role: 'user', content: '整理全文' }],
+      intent: 'edit'
+    })
+    store.finishApiCall(runId, callId, {
+      status: 'failed',
+      responseText: '本轮未完整执行写入计划：任务级物理请求预算已耗尽。',
+      finishReason: 'physical_request_budget_exhausted',
+      textOrigin: 'application'
+    })
+
+    const call = store.getRun(runId)?.apiCalls[0]
+    expect(call?.textOrigin).toBe('application')
+    const exported = store.exportRunToJson(store.getRun(runId)!) as unknown as {
+      apiCalls?: Array<{ textOrigin?: string }>
+    }
+    expect(exported.apiCalls?.[0]?.textOrigin).toBe('application')
   })
 
   it('records unified batch events in the active chat run and exports them', () => {

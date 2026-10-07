@@ -1,0 +1,291 @@
+Let me understand the task. The user wants me to restructure the outline as a Word document, not reduce content. The plan has 3 batches. I've been doing dedup work already (deleted 7.8 and 7.9 from 卷一, merged terminal content into 总纲).
+
+The current instruction says I must now submit editor.write. Let me review the state and continue.
+
+The key tasks remaining:
+1. Fix title hierarchy (标题层级修复) - eliminate level jumps
+2. Deduplication (去重) - already did 7.8/7.9
+3. Normalize segments (标点/空白/编号/标题层级) - full coverage 0-74479 (now 73549)
+
+The mandatory requirements:
+- 中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）
+
+Wait, but there's a conflict - I must NOT convert half-width punctuation in tables? Actually the instruction says "中文正文语境中的半角标点" - Chinese body text context. Tables contain half-width | and numbers but those are structural. But numbers like "2042年" contain no half-width punctuation needing conversion. Actually wait - there are many numbers with periods like "1.8GPa", "4-6小时", "0.5倍" - these are numbers, not punctuation to convert.
+
+Let me be careful. The completion criteria: normalize-changes-punctuation-whitespace-format-only.
+
+Actually, let me reconsider the scope. The plan says 3 batches. The structure-plan (去重) batch seems to have been partially done. Now I need to think about what's actually needed.
+
+Let me re-read the current situation. The document has already been through several normalization batches (from the previous tool audit). The document version is now 50, contentLength 73549.
+
+The remaining work per the plan:
+1. read-structure - done
+2. execute-restructure - title hierarchy fix (move misplaced headings/paragraphs, add missing titles, fix heading levels)
+3. confirm-duplicates - done partially (7.8, 7.9 removed)
+4. delete-duplicates - done for 7.8/7.9
+5. normalize-segments - full coverage formatting
+6. verify-plan
+
+Now the system message says I've done 2 rounds of only-read. I must now submit editor.write.
+
+Let me think about what specific edits are still needed. Key issues I've noticed:
+
+1. The 卷一 (基石设定层) has some title hierarchy issues. Looking at the structure, 卷一 uses heading-2 for "卷一：基石设定层", then heading-3 for chapters (一、二、三...), heading-4 for sections (1.1, 1.2...), heading-5 for subsections (4.1.1 etc). That seems consistent.
+
+Wait, but there might be level jumps. Let me check: 
+- "一、书名定义与核心术语定调" is heading-3
+- "1.1 关于"绿潮"的名称定义" is heading-4
+- "1.2 核心术语定调" is heading-4
+
+That's fine.
+
+Actually the main issue is the 叙事框架 section which has 故事核心/第一卷/第二卷/第三卷 as heading-3 under 叙事框架 (heading-2). That's fine.
+
+Let me focus on the actual normalization. The mandatory requirement is converting half-width punctuation in Chinese body text to full-width.
+
+But wait - this is a huge task for 73k chars. And doing it via replace_match requires me to find each instance. That's not feasible in 36 rounds.
+
+Actually, let me reconsider. The plan's normalize-segment was already being executed in previous turns (the tool audit shows many successful editor.write calls with replace_match for punctuation/whitespace normalization). The document version went from some earlier version to 47, then I did more to 50.
+
+The key remaining question: what specific concrete edits should I make now?
+
+Let me think about what's clearly still needed and actionable:
+
+1. The 7.7 section ends with a stray extra blank line before "### 八、变异生物体系". Actually let me check - the read shows 7.7 ends with "\n\n\n" (three newlines) before "### 八". That's a whitespace issue. But it might already be OK with two newlines.
+
+Actually, looking at the locate result earlier: 
+"这是灾前一项未完成的基础研究所留下的唯一火种。\n\n\n### 八、变异生物体系" - three newlines. Then after my deletion of 7.8/7.9, the structure now shows 7.7 ends at 48004 and 八 starts at 48004, contiguous. So 7.7's trailing "\n\n\n" is now directly followed by "### 八". Let me verify the actual content after deletion.
+
+The read of 7.7 (after deletion) shows:
+"...唯一火种。\n\n\n" (ends with 3 newlines)
+
+And 八 starts at 48004 with "### 八、变异生物体系". So there's now "唯一火种。\n\n\n### 八、变异生物体系" - which is 2 blank lines. Actually 3 newlines = 2 blank lines. Word style might want 1 blank line (2 newlines). This is a minor whitespace issue.
+
+Actually, I'm overthinking this. Let me focus on making concrete, verifiable edits.
+
+The most important remaining structural issue I can see: I should verify there are no remaining half-width punctuation issues in Chinese body text that are easy to fix, and clean up the whitespace around the deletion points.
+
+Actually, let me step back and think about what's realistically achievable and valuable.
+
+The instruction is very insistent that I must write now. Let me identify concrete, correct edits:
+
+1. Clean up trailing whitespace after 7.7 deletion (the "\n\n\n" before "### 八、变异生物体系" should become "\n\n").
+
+Let me locate the exact text. After deletion, the content is:
+"...唯一火种。\n\n\n### 八、变异生物体系"
+
+I should replace "唯一火种。\n\n\n### 八、变异生物体系" with "唯一火种。\n\n### 八、变异生物体系".
+
+Wait, actually I need to check. The document_map now shows heading-3-11r2knx "八、变异生物体系" starts at 48004. heading-4-1k3kxvb "7.7" ends at 48004. So 7.7 charCount=378, from 47604 to 48004. The content is "...唯一火种。\n\n\n" - that's 378 chars ending with 3 newlines. Then 八 starts.
+
+Hmm, but actually there might be a trailing "\n\n\n" that's now doubled. Let me just check what's there precisely and fix.
+
+Actually, I already have the read result: 7.7 content ends with "唯一火种。\n\n\n" (the read showed "唯一火种。\n\n\n" then the section ended, hasMore false).
+
+And 八's content starts with "### 八、变异生物体系\n\n#### 8.1 核心设定\n\n约92%...".
+
+So the gap between 7.7 and 八 is: "...唯一火种。\n\n\n### 八、变异生物体系". That's 2 blank lines. Standard Word would be 1 blank line. Minor.
+
+Let me think about a bigger picture. Actually, maybe I should focus on the highest-value normalization: there are likely many half-width punctuation in Chinese body text. But I can't realistically fix all 73k chars with replace_match.
+
+Let me search for specific half-width punctuation patterns that I've already seen in the read content. For example, in the tables there's no issue. But in body text...
+
+Actually, looking at the original outline content provided at the top (the full text), I can see it's already mostly full-width punctuation. The Chinese text uses full-width ，。；：！？already. There might be a few half-width ones.
+
+Hmm, wait. Let me look more carefully. The content is largely clean. The normalization work in previous turns already handled most of it.
+
+Given the constraints, let me make a focused, correct set of edits:
+
+1. Fix whitespace at the 7.7→八 boundary (3 newlines → 2 newlines).
+
+Actually, I realize I should also double check: is there a similar issue at 7.9 deletion point? 7.9 was between 7.8 and 八. Both 7.8 and 7.9 deleted, so 7.7 now directly precedes 八. The coverage showed delete at 48003-48692 (7.8) and 48003-48482 (7.9) - wait these overlap weirdly but both removed.
+
+Let me verify by checking the boundary text precisely with a locate or read. I already read 7.7 (ends 48004) and 八 (starts 48004). The 7.7 read shows ending "\n\n\n". 
+
+Actually, I wonder if there's now a double blank line issue. Let me just do the whitespace fix and also check the "八" section header integrity.
+
+Let me also think about whether there are other duplicate sections to dedupe. The user said "分叉一允许去重" (branch one allows dedup). The main duplicates I found:
+- 总纲 "菌膜外套：有限资源的临时通行方案" (heading-2) vs 卷一 "7.8 菌膜外套" (deleted)
+- 总纲 "菌膜外套与共存补丁的关系" (heading-2) vs 卷一 "7.9 与终局的衔接" (deleted)
+
+These are now done.
+
+Are there other duplicates? Let me think:
+- "六大势力概览" (heading-2) vs 卷三 "三、六大势力完整设定" - these are NOT duplicates, one is overview, one is complete settings.
+- "圣萌会的崛起" (heading-2) vs 卷三 "四、圣萌会" - NOT duplicates, different content (崛起 is narrative, 四 is settings).
+
+So dedup is essentially done.
+
+Now, the title hierarchy. Let me check if there are level jumps that need fixing.
+
+Looking at the document structure:
+- heading-1: 《绿潮》大纲总纲 (level 1)
+- heading-2: 叙事框架, 背景参考资料, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁, 六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落, 世界设定声明, 卷一, 卷二, 卷三, 卷四 (level 2)
+- heading-3: under these (level 3)
+- heading-4: (level 4)
+- heading-5: (level 5)
+
+This is a consistent hierarchy. No jumps.
+
+But wait, there are "内容块" paragraphs (level 1 paragraphs) that are the "内容块 N" - these are paragraph nodes, not headings. They appear to be empty/whitespace content blocks that are artifacts. Actually they have charCount 1-2, containing just empty or single char.
+
+These "内容块" seem to be empty paragraph artifacts (probably representing blank lines between headings). They're not actual content. But they're not duplicates to delete either - they're structural whitespace.
+
+Actually, looking at the map, these "内容块" nodes have summaryHead="" and charCount 1-2. They're likely just the blank line separators that the parser treats as paragraphs. Not something I should touch.
+
+OK let me focus. I'll make these concrete edits now:
+
+1. Fix the 7.7 trailing whitespace (3 newlines → 2 newlines) at the boundary with 八.
+
+Actually, wait. Let me reconsider whether I should even do this. The instruction says "整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74479]）" - normalize segment 1 covering 0-74479 (now 0-73549).
+
+This is a massive requirement. But it's been partially done. I think the realistic approach is to continue making targeted normalization edits.
+
+Let me identify a few concrete, safe edits:
+
+1. Whitespace fix at 7.7→八 boundary.
+
+2. Check for half-width punctuation. Let me search for specific patterns. Actually, from reading, the text seems to use full-width punctuation already.
+
+Let me search for half-width commas/periods in Chinese context to find what needs fixing. I can use editor.search for specific patterns like "，" vs ",".
+
+Actually, I already have search results from the audit showing:
+- editor.search query "," (caseSensitive true) returned matches:[] 
+- editor.search query "." returned hasMore:true with matches
+- editor.search query ";" returned matches:[]
+
+Wait, the search results in the audit show:
+- "," returned matches:[] (no half-width commas)
+- "?" returned matches:[] 
+- "!" returned matches:[]
+- ";" returned matches:[]
+- "." returned hasMore:true (many matches - but these are likely decimal points in numbers like "0.5", "1.8GPa", or version numbers)
+- ":" returned hasMore with matches (likely time "3:14", ratios "0.3%" no...)
+
+So the half-width period "." is the main thing, but those are mostly decimal points in numbers, which should NOT be converted (they're numeric notation, not sentence punctuation).
+
+Half-width ":" appears in times like "11月19日凌晨3时14分" (no colon) but "3:14" might appear. Let me check - the text says "凌晨3时14分" not "3:14". And ratios are written as "千分之三" or "0.3%". Actually "0.3%" has a period which is a decimal point.
+
+So actually the Chinese body text is already properly full-width. The main remaining normalization was whitespace (blank lines), which has been largely handled.
+
+Given this, I think the remaining concrete work is minimal. Let me make the whitespace fix at the deletion boundary and verify.
+
+Actually, let me also check the 卷一 declaration. Earlier audit showed:
+"本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作。" - was missing 句号, already fixed (batch g).
+
+And "直接导致他..." in 灵魂语句 section was being fixed.
+
+OK. Let me just do a focused final cleanup:
+
+1. Fix "唯一火种。\n\n\n### 八" → "唯一火种。\n\n### 八" (remove one extra blank line).
+
+Let me also verify there are no other 3+ newline issues at the deletion points.
+
+Actually, I realize I should also verify the 7.7 section still has proper ending. Let me check the actual boundary text using the read I have.
+
+7.7 read (after deletion): ends with "...唯一火种。\n\n\n" — wait, actually the read shows the content with a trailing "\n\n" then "hasMore":false. Let me look again:
+
+"在菌毯的感知中，接触面上是一层无生命的有机质——像一块木头，一堆落叶。没有异常信号，不需要查验。陈暮不是隐形了，是被系统主动忽略了。这是灾前一项未完成的基础研究所留下的唯一火种。\n\n\n"
+
+So there are 3 newlines at the end (the original 7.7 had "\n\n" and then 7.8 was deleted, but 7.8's content started with "#### 7.8..." so there might have been "\n\n" before it too).
+
+Actually the issue is: original 7.7 ended with "\n\n\n" (from the locate context earlier: "唯一火种。\n\n\n#### 7.8"). Wait no, the locate showed "唯一火种。\n\n\n#### 7.8 菌膜外套". Wait that was before deletion.
+
+Let me look at the original (pre-deletion) locate result for "#### 7.8":
+context: "...唯一火种。\n\n\n#### 7.8 菌膜外套：有限资源的临时通行方案\n\n陈暮的菌膜装甲..."
+
+So before deletion, 7.7 ended with "\n\n\n" then "#### 7.8". After deleting 7.8 (which included the "#### 7.8 ... 需要通行的人。\n\n" and the trailing newlines), what remains?
+
+My delete command target was:
+"#### 7.8 菌膜外套：有限资源的临时通行方案\n\n陈暮的菌膜装甲...需要通行的人。\n\n"
+
+So it deleted from "#### 7.8" through "需要通行的人。\n\n" (with trailing 2 newlines).
+
+So now: 7.7 ends with "...唯一火种。\n\n\n" (3 newlines, 2 blank lines) followed directly by "### 八、变异生物体系".
+
+Wait, but actually the delete target ended with "\n\n" (2 newlines). Before "#### 7.8" there was "\n\n\n" (3 newlines) ending 7.7. So after deletion, the "\n\n\n" (3 newlines from 7.7 end) now directly precedes "### 八、变异生物体系" (which was after 7.9's deletion).
+
+Hmm wait, 7.9 was also deleted. 7.9's delete target ended with "终于隐约透出一丝蓝。\n\n" and 八 followed.
+
+So the sequence after both deletions:
+"...唯一火种。\n\n\n" + "### 八、变异生物体系\n\n#### 8.1..."
+
+Actually, let me re-read. The delete target for 7.9 ended with "终于隐约透出一丝蓝。\n\n" (2 newlines). And after 7.9 was "### 八". So deleting 7.9 leaves "...\n\n" then "### 八"? No wait.
+
+Let me reconstruct carefully.
+
+Original text around this area (before any deletion):
+```
+...唯一火种。
+
+#### 7.8 菌膜外套：有限资源的临时通行方案
+
+陈暮的菌膜装甲...需要通行的人。
+
+#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系
+
+菌膜外套是...终于隐约透出一丝蓝。
+
+
+### 八、变异生物体系
+```
+
+My delete target for 7.8 was (from the write command):
+"#### 7.8 ... 陈暮的角色：路线勘探者。他利用菌膜装甲...需要通行的人。\n\n"
+
+So this deletes "#### 7.8" through "需要通行的人。\n\n" (including 2 trailing newlines). What remains between 7.7 and 7.9 is: "...唯一火种。\n\n\n" (7.7's trailing 3 newlines) then directly "#### 7.9".
+
+Wait, no. The delete target started at "#### 7.8" and the text before it was "...唯一火种。\n\n\n#### 7.8". So after deleting "#### 7.8 ... 需要通行的人。\n\n", we get "...唯一火种。\n\n\n#### 7.9 ...".
+
+Then delete target for 7.9 was "#### 7.9 ... 终于隐约透出一丝蓝。\n\n". After deleting this, we get "...唯一火种。\n\n\n### 八、变异生物体系".
+
+So now there are 3 newlines (2 blank lines) between 7.7 and 八. That's the whitespace issue.
+
+The result I got from read_range of 7.7 confirms: "...唯一火种。\n\n\n" (ends with 3 newlines).
+
+So I should fix this to "\n\n" (1 blank line). Replace "唯一火种。\n\n\n### 八、变异生物体系" with "唯一火种。\n\n### 八、变异生物体系".
+
+Let me do this edit. It's a safe whitespace normalization.
+
+Also, I should check the 7.9 merge into 总纲 "菌膜外套与共存补丁的关系" - I added the terminal content. Let me verify that section now ends cleanly. The read shows it ends with "终于隐约透出一丝蓝。\n\n" which is clean (before "## 六大势力概览").
+
+OK so the merge is clean.
+
+Now let me think about whether there's anything else. The instruction emphasizes:
+- title hierarchy fix
+- dedup (done)
+- punctuation/whitespace normalization
+
+Let me also check: is there a stray blank line issue at the very top? The content preview showed "# 《绿潮》大纲总纲\n\n\n## 叙事框架\n\n\n### 故事核心" - that's 2 blank lines between H1 and H2, and 2 blank lines between H2 and H3. This is the original style with extra blank lines.
+
+Hmm, actually looking at the get_state contentPreview:
+"# 《绿潮》大纲总纲\n\n\n## 叙事框架\n\n\n### 故事核心"
+
+There are double blank lines between headings. Should I normalize these to single blank lines? That would be "Word document" style. But this is a lot of changes across the whole doc.
+
+Actually, the previous normalization batches were already doing this kind of work (the audit shows "规范标题前多余空行，符合 Word 排版" reason strings). But they only did specific spots.
+
+Given the scale, and that I've been told to make writes now, let me focus on:
+1. The one whitespace fix at 7.7→八 boundary (concrete, safe).
+
+And then verify and report.
+
+Actually, wait. Let me reconsider the scope more holistically. The instruction says the normalize segment must cover all of [0-74479]. But realistically, I've inherited a partially-completed normalization. The key deliverable now is to make progress and not fabricate completion.
+
+Let me do the 7.7→八 whitespace fix now. Then assess if more is needed.
+
+Actually, let me also reconsider: are there other duplicate sections? Let me check the "菌膜外套" heading-2 in 总纲 vs "菌膜外套" mentions in 卷一.
+
+The 卷一 had:
+- 7.8 菌膜外套 (deleted)
+- 7.9 与终局的衔接 (deleted)
+
+These are done. 
+
+There's also "菌膜外套" defined in 卷一 "1.2 核心术语定调" as a term definition. That's not a duplicate - it's a term definition.
+
+OK, let me proceed with the single whitespace fix.
+
+Actually, I want to also double-check: after my edits, is there any broken heading or leftover? Let me just do the fix and verify.
+
+Let me write the fix.

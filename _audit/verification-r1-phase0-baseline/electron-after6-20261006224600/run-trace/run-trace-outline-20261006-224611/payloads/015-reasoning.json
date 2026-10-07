@@ -1,0 +1,260 @@
+The user wants me to restructure the outline into a "Word document form" without reducing content. Let me understand what this means:
+
+Looking at the current structure, the outline is a flat Markdown document with headings. The user wants it restructured into a proper Word-document-like format. This likely means:
+
+1. Ensuring all sections have proper hierarchical numbering
+2. Ensuring consistent heading levels
+3. Removing or handling duplicate content (I notice "数据板的局限" appears twice - once as a heading-2 under "背景参考资料" and once as its own heading-2)
+4. The "背景参考资料" section contains several large subsections that don't have proper heading levels (like "灾前军事基准线与菌毯的不可根除性" which I just fixed)
+5. "菌膜外套与共存补丁的关系" contains a lot of content that seems to be the story ending/finale rather than just explaining the relationship
+
+Looking more carefully at the structure:
+
+The document has these level-2 headings:
+1. 叙事框架
+2. 背景参考资料
+3. 数据板的局限 (first occurrence, inside 背景参考资料)
+4. 菌膜外套：有限资源的临时通行方案
+5. 菌膜外套与共存补丁的关系
+6. 世界设定声明
+7. 卷一：基石设定层
+8. 卷二：核心人物群像
+9. 卷三：势力与格局层
+10. 卷四：叙事工具箱层
+
+Wait, looking more carefully, "数据板的局限" appears twice:
+- Once INSIDE "背景参考资料" as a section of text (around 16801-17356)
+- Once as its own level-2 heading (after 背景参考资料)
+
+But looking at the document_map, the level-2 "数据板的局限" (heading-2-z4sxm8) starts at 16856 and "背景参考资料" ends at 16856. So "数据板的局限" actually IS a separate level-2 section. The content inside 背景参考资料 that mentions "数据板的局限" is part of the narrative text, not a heading.
+
+Looking at the original content, after "背景参考资料" we had text about "数据板的局限" that was just bold text, then at position 16801 it becomes a proper heading "## 数据板的局限".
+
+So the structure seems correct - "数据板的局限" is its own level-2 heading section.
+
+Now, the real issue: "菌膜外套：有限资源的临时通行方案" and "菌膜外套与共存补丁的关系" are level-2 headings, but the content in "菌膜外套与共存补丁的关系" contains a massive amount of content that's actually the finale/ending of the story - it's not just about the relationship between 菌膜外套 and 共存补丁. This content (about the endgame, 圣萌会, the final battle, etc.) seems misplaced.
+
+Let me re-read the user's request: "按照Word文档的形式重构大纲，不要缩减内容。"
+
+They want me to restructure the outline into a Word-document format. This means:
+1. Make it look like a proper Word document outline with consistent numbering
+2. Don't remove any content
+
+Looking at the current structure more carefully, the issue is that "背景参考资料" is a grab-bag section containing:
+- The history of the disaster
+- 方岫岩's story  
+- 灾前军事基准线 (now with proper headings)
+- The finale/ending of the story
+
+And then separate sections for "数据板的局限", "菌膜外套", and "菌膜外套与共存补丁的关系" which contain a lot of content that seems to be the actual story ending.
+
+The user wants a Word-document-like restructuring. Let me think about what a proper "Word document" structure would look like for this outline:
+
+A Word document would typically have:
+- Title page / cover
+- Table of contents
+- Introduction / 总纲
+- Main chapters with clear numbering
+
+Currently the document is structured as:
+```
+# 《绿潮》大纲总纲
+## 叙事框架
+### 故事核心
+### 第一卷·觉醒与扎根
+### 第二卷·连接与陷落
+### 第三卷·远征与暗流
+## 背景参考资料 (mixed bag)
+## 数据板的局限
+## 菌膜外套：有限资源的临时通行方案
+## 菌膜外套与共存补丁的关系
+## 世界设定声明
+## 卷一：基石设定层 (main worldbuilding)
+## 卷二：核心人物群像
+## 卷三：势力与格局层
+## 卷四：叙事工具箱层
+```
+
+The key issues I see:
+1. "背景参考资料" contains narrative prose mixed with worldbuilding - it should be reorganized
+2. "菌膜外套与共存补丁的关系" contains massive endgame/finale content that seems to be the story's ending summary, not just about the relationship
+3. Duplicate content - "数据板的局限" text appears both in 背景参考资料 and as its own section
+4. "菌膜外套" text also appears both in background references and as its own section
+
+Wait, let me recheck. The "数据板的局限" at the end of 背景参考资料 was just bold text "数据板的局限" (not a heading), and then the proper "## 数据板的局限" starts a separate section. Same for "菌膜外套".
+
+Actually looking again at the content around position 16801: the 背景参考资料 section ends with text about 数据板的局限, then there's a separate heading "## 数据板的局限". Looking at my earlier read of heading-2-z4sxm8 (from 16856), the content there is a proper level-2 heading "## 数据板的局限" with text that's almost identical to what appeared at the end of 背景参考资料.
+
+So there IS duplicate content. The text about 数据板的局限 appears both at the end of 背景参考资料 AND as its own section. Same for 菌膜外套.
+
+Now for "菌膜外套与共存补丁的关系" - at 18159, this section contains:
+- Brief explanation of the relationship
+- Then a massive narrative about all six factions
+- Then the entire 圣萌会 story
+- Then the 巨树 story
+- Then the finale/ending
+
+This seems like it should actually be structured as part of the story ending/finale section.
+
+Given the complexity of this restructuring, I think the user wants me to:
+
+1. Fix the overall document structure so it flows like a proper Word document
+2. Remove duplicate content sections
+3. Properly nest subsections
+4. Keep ALL unique content
+
+Let me think about the ideal structure:
+
+```
+# 《绿潮》大纲总纲
+
+## 第一部分：故事框架
+### 一、故事核心
+### 二、第一卷·觉醒与扎根
+### 三、第二卷·连接与陷落
+### 四、第三卷·远征与暗流
+
+## 第二部分：终局概要
+[Content from 菌膜外套与共存补丁的关系 - the finale/ending]
+[Content about 圣萌会, 巨树, 终局之战]
+
+## 第三部分：世界设定声明
+
+## 第四部分：卷一·基石设定层
+[All the worldbuilding]
+
+## 第五部分：卷二·核心人物群像
+
+## 第六部分：卷三·势力与格局层
+
+## 第七部分：卷四·叙事工具箱层
+```
+
+Wait, but I need to be careful. The user said "不要缩减内容" - don't reduce content. So I must keep everything.
+
+Also the "背景参考资料" section has a lot of important worldbuilding content that shouldn't be lost. But it also has duplicates and misplaced content.
+
+Let me reconsider. The 背景参考资料 section content is:
+1. The ancient history of 共生蕨
+2. 林觉民's discovery
+3. The disaster timeline
+4. 方岫岩's story
+5. 陈暮's awakening
+6. 灾前军事基准线 (now with proper headings)
+7. 数据板的局限 (text, duplicate of separate section)
+
+Then the separate sections:
+- 数据板的局限 (duplicate)
+- 菌膜外套 (duplicate of content in 背景参考资料)
+- 菌膜外套与共存补丁的关系 (contains the finale)
+
+OK, I think the approach should be:
+
+1. Restructure the "背景参考资料" section: keep only the unique historical/background content, remove the duplicate 数据板的局限 text
+2. Move the finale content from "菌膜外套与共存补丁的关系" into a proper "终局" section
+3. Keep the standalone sections: 数据板的局限, 菌膜外套, and the 菌膜外套与共存补丁 关系 (but trimmed to just the relationship explanation)
+4. Add proper Word-document-style numbering
+
+Actually, I'm overthinking this. Let me look at what the user actually sees and what "Word文档的形式" means practically. The user likely wants:
+
+1. Proper hierarchical numbering (like 1, 1.1, 1.1.1)
+2. Consistent heading levels
+3. No duplicate sections
+4. Content organized in a logical flow
+
+Given the enormous size of this document (74,841 chars), I need to be strategic. Let me plan the changes:
+
+**Issues to fix:**
+1. "背景参考资料" contains duplicate text of "数据板的局限" at its end - remove the duplicate
+2. "菌膜外套与共存补丁的关系" contains the entire finale narrative that should be its own section
+3. The structure could use better numbering
+
+But actually, the user might just want me to clean up the overall structure. Let me look at this more carefully.
+
+The "背景参考资料" heading-2 section (10230-16856) now contains:
+- 4亿年前 history
+- 2038 discovery
+- 2040-2042 events  
+- 方岫岩's story
+- 陈暮's awakening
+- 灾前军事基准线 (now properly structured with headings)
+- Then at the end: text about "数据板的局限" (which is duplicated in the separate section)
+
+The duplicate "数据板的局限" text appears to be just bold plain text at the end of 背景参考资料 (not a heading), and then the proper "## 数据板的局限" starts the next section. So the text is duplicated.
+
+For the restructuring, since this is a very large document, let me focus on the key structural changes:
+
+1. After "背景参考资料" ends and before "数据板的局限" begins, there's a duplicated block about "数据板的局限" - I should check if this is truly duplicate.
+
+2. "菌膜外套与共存补丁的关系" should be restructured - the long narrative finale content should be moved to its own section or properly sub-sectioned.
+
+Let me take a step back and think about what the user really wants. They said "按照Word文档的形式重构大纲". This most likely means:
+
+- Add proper outline numbering
+- Ensure consistent hierarchy
+- Remove duplicates
+- Make it look like a formal document outline
+
+Given the document's size, I think the most impactful changes are:
+
+1. Remove duplicate content (数据板的局限 repeated)
+2. Break "菌膜外套与共存补丁的关系" into proper subsections (extract the finale narrative)
+3. Add outline numbering
+
+But actually, removing duplicates is risky because the user said "不要缩减内容". Let me verify if there are true duplicates first and handle carefully.
+
+Let me read the specific duplicate areas to confirm, then plan the restructuring.
+
+Actually, I already have the content. Let me verify:
+
+From 背景参考资料 (end), I read:
+"数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的..."
+
+And heading-2-z4sxm8 "数据板的局限" starts:
+"## 数据板的局限\n\n数据板不是百宝箱。方岫岩在八个月里记录下的..."
+
+These are the same content. The first is bold text (not a heading), the second is a proper heading. This is indeed a duplicate.
+
+Similarly for 菌膜外套 content.
+
+OK, let me plan the restructuring. Here's my approach:
+
+Given the massive scope, I'll work in phases:
+
+**Phase 1**: Clean up "背景参考资料" - remove the duplicate "数据板的局限" text at the end (it exists as its own section). But wait, the user said "不要缩减内容". I should keep all unique content.
+
+Actually, the text "数据板的局限" within 背景参考资料 is the SAME text as the separate section. Removing the duplicate from 背景参考资料 doesn't reduce unique content - it just removes the redundancy.
+
+**Phase 2**: Restructure "菌膜外套与共存补丁的关系" - the content after the initial explanation is the story ending. Extract it into proper subsections.
+
+**Phase 3**: The "背景参考资料" now has "灾前军事基准线" as a heading-3 with proper sub-headings. This is good.
+
+Let me now execute this. I'll start with:
+
+1. Remove duplicate "数据板的局限" text from end of 背景参考资料
+2. Then proceed to restructure the 菌膜外套 section
+
+But first, let me precisely locate the duplicate boundary. The 背景参考资料 ends at position 16856 and the separate "数据板的局限" section starts at 16856. The duplicate text in 背景参考资料 is bold text "数据板的局限" followed by the same content.
+
+Let me locate the exact point where the duplicate starts.
+
+Based on my earlier read, the 背景参考资料 section's last content includes:
+- The "三、总结：人类真正被压制的根本机制" section
+- Then text: "...终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。"
+- Then: "\n\n数据板的局限\n数据板不是百宝箱..."
+
+So the duplicate starts after "承认。" with a blank line and then "数据板的局限" as bold text. This entire block is the same as the separate section.
+
+I need to find the exact position to delete. Let me search for the boundary.
+
+Given the complexity, let me take a more practical approach. I'll:
+
+1. Use editor.locate to find the exact boundary
+2. Delete the duplicate text
+3. Then reorganize the sections
+
+Actually, let me just go ahead and do the restructuring. The key changes:
+
+1. In 背景参考资料: Delete the duplicate "数据板的局限" paragraph (the bold text version at the end that duplicates the separate section)
+
+Let me first search for the exact boundary.

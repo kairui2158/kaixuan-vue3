@@ -14,6 +14,7 @@
 3. final-draft（整篇重排 / 格式整理 / 去重等有目标内容的终稿任务）无论是否加载 SKILL，都由应用终稿 runner 执行分段、续写、结构校验和写回；不进入工具循环，也不暴露 `editor.write`。
 4. edit-task / direct 请求无论是否加载 SKILL，都进入同一工具循环；工具面由应用按 intent、任务状态和长文档计划单源授权。
 5. SKILL 包不允许携带 `tools`、`toolPolicy`、`toolSurface`、`writeAuthorization`、`executionPlan` 等执行协议字段；安装、导入、导出和设置页按 `src/services/skillPackageProtocol.json` 单源校验。folder `meta.agent` 的 model / temperature / maxTokens 等执行参数会被忽略并记录诊断。
+6. 当本轮工具面含 `editor.write`、执行计划为 edit-task 且不是 discussion 时，系统提示中的“请给出建议和修改意见。”会被应用替换为“应用已授权本轮通过 editor.write 直接写入编辑器，请按执行计划完成写入。”模板正文不需要、也不应该再用建议口吻覆盖这个执行语义。
 
 ## 一图看懂
 
@@ -209,8 +210,9 @@ Tool loop 控制在 `src/services/aiService.ts:1326` 的 `callAiWithTools()`：
 2. 每批成功后应用写入 checkpoint（`documentVersion + contentHash`）。后续批次基于当前编辑器内容提交，禁止复用旧内容或旧 batchId 参数。
 3. 任务状态机：`planning -> awaiting_batch -> running_batch -> partially_applied / waiting_user`，终态为 `completed / completed_with_warnings / failed_before_write / failed_after_write / canceled`。
 4. 活动任务期间工具面会追加 `task.cancel`；在 `awaiting_batch / waiting_user / partially_applied` 且任务可恢复时会追加 `task.resume`。
-5. 只有 `awaiting_batch` 状态会重新开放 `editor.write`。system 声明会明确“写入权限已恢复：必须调用 editor.write 重试当前批次”；其他活动状态必须调用 `task.resume`，由任务执行器按批次校验并写入。
-6. 模型不得在 EditTask 中凭历史对话宣称“没有写入权限”。当前权限以本轮 `actualToolSurface` 与 system 工具面声明为准。
+5. 只有 `awaiting_batch` 状态会重新开放 `editor.write`。system 声明只陈述事实：“本轮工具面包含 editor.write(write)，任务状态允许重试当前批次”；其他活动状态的续跑入口是 `task.resume`，由任务执行器按批次校验并写入。
+6. 模型不得在 EditTask 中凭历史对话宣称“没有写入权限”。当前权限以本轮 `actualToolSurface` 与 system 工具面声明为准；应用不再用“禁止声称无权限”的禁令句压模型，而是把工具面事实写进 system 并记录 `dialogue-tool-surface-declaration` audit 事件。
+7. 供应商可能用 HTTP 200 返回纯文本额度通知（例如 Coding Plan 套餐额度用完）。应用会把它转成 `quota_exhausted` 终态失败并停止本轮请求；模型不得把这类文本当正文继续消费，SKILL 模板也不得把“额度已耗尽”写成可执行写作指令。
 
 SKILL 模板建议：遇到“整理全文 / 重排整篇”请求时，先输出批次计划（目标范围、每批操作类型），再逐批调用 `editor.write`；每批命令保持在 1-10 条、60000 字符以内。
 
@@ -244,8 +246,8 @@ Run trace 分三层，都记录实际发送的工具面：
 | 层 | 字段 | 含义 |
 |---|---|---|
 | turn | `intent`、`toolSurface`、`actualToolSurface` | 一轮用户对话的入口声明与实际授权面 |
-| API call | `actualToolSurface`、`toolCalls`、`toolResults`、`toolRequests` | 单次 AI 调用实际发送的工具、模型调用、执行结果、每轮请求消息 |
-| event | `api-start`、`tool-call`、`turn-intent-updated`、`routing_result`、`chain_handoff` | 事件流，供 SKILL 调试定位 |
+| API call | `actualToolSurface`、`toolCalls`、`toolResults`、`toolRequests`、`textOrigin` | 单次 AI 调用实际发送的工具、模型调用、执行结果、每轮请求消息；`model` 为模型正文，`application` 为应用本地拼接的终局/降级文本 |
+| event | `api-start`、`tool-call`、`turn-intent-updated`、`routing_result`、`chain_handoff`、`dialogue-tool-surface-declaration` | 事件流；`dialogue-tool-surface-declaration` 记录 request-built 时写入 system 的工具面事实句（`origin: application`、`visibleToModel: true`），供 SKILL 调试定位 |
 
 关键定义在 `src/stores/runTrace.ts`：
 
@@ -273,6 +275,7 @@ Run trace 分三层，都记录实际发送的工具面：
 | `ambiguous_target` | editorTools / locator | 片段多次出现，需扩展片段 |
 | `target_not_found` | editorTools / locator | 片段不存在，需重新复制原文 |
 | `invalid_input` | 工具通用 | 参数结构或必填项错误 |
+| `quota_exhausted` | aiService | 供应商以 HTTP 200 或软错误文本返回额度/余额耗尽；本轮未产生正文，必须停止续发请求 |
 | `tool_execution_failed` | ToolGateway | 工具执行异常 |
 | `tool_not_found` | ToolGateway | 模型调用了不存在的工具名 |
 | `canceled` | ToolGateway | 用户或监督器取消 |

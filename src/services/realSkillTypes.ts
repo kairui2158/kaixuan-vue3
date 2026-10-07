@@ -129,6 +129,8 @@ export interface RealSkillExecutionResult {
       reason: string
     }
     usageReconciliation?: unknown
+    /** Marks locally composed terminal text from the AI service, not model prose. */
+    textOrigin?: 'application' | 'model'
     requestMessages: Array<{ role: string; content: string }>
     toolCalls?: Array<{ name: string; input?: unknown }>
     toolResults?: Array<{ call: { id?: string; name: string; input?: unknown }; result: unknown }>
@@ -164,6 +166,8 @@ export interface RealSkillExecuteOptions {
   toolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
   /** Active edit-task state used to declare restored write permission consistently. */
   activeEditTask?: import('./editTaskService').EditTask | null
+  /** App-owned plan used to declare direct-write authorization consistently. */
+  executionPlan?: import('./longDocumentExecutionPlanner').LongDocumentExecutionPlan | null
   /** Marks that `agent` is an explicit user binding, which takes priority over meta.agent. */
   agentSource?: 'user-binding' | 'step-default' | 'none'
   /** Compose-mode merged template. When present it replaces the folder's static template. */

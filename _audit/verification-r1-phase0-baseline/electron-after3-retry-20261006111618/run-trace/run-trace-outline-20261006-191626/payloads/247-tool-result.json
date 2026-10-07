@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-5-155tzti",
+      "title": "7.2.3 双重交叉验证优先级与辐变体的特殊性",
+      "kind": "heading",
+      "level": 5,
+      "path": "7.2.3 双重交叉验证优先级与辐变体的特殊性"
+    },
+    "range": {
+      "start": 45718,
+      "end": 45738
+    },
+    "offset": 0,
+    "maxChars": 20,
+    "content": "##### 7.2.3 双重交叉验证优先",
+    "hasMore": true,
+    "nextCursor": "section:heading-5-155tzti:20",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

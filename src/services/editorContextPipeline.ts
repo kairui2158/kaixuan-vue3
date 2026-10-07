@@ -1,7 +1,7 @@
 import {
-  CONTEXT_BUDGET_DEFAULTS,
   estimateInputTokens,
   resolveContextWindowTokens,
+  resolvePlanningInputBudget,
 } from './contextBudget'
 import {
   buildPackedMainEditorContextPack,
@@ -101,13 +101,10 @@ export function buildEditorContextPipeline(input: {
   let mode: EditorContextPipelineMode = requestedMode
   let downgradeReason: EditorContextPipelineResult['downgradeReason']
   if (mode === 'full' && windowTokens != null) {
-    const outputReserve = input.maxOutputTokens == null || input.maxOutputTokens <= 0
-      ? CONTEXT_BUDGET_DEFAULTS.defaultOutputReserveTokens
-      : Math.floor(input.maxOutputTokens)
-    const availableContextTokens = Math.max(
-      0,
-      Math.floor(windowTokens * CONTEXT_BUDGET_DEFAULTS.windowSafetyRatio) - outputReserve,
-    )
+    const availableContextTokens = resolvePlanningInputBudget({
+      contextWindowTokens: windowTokens,
+      maxOutputTokens: input.maxOutputTokens,
+    })
     if (estimatedDocumentTokens > availableContextTokens) {
       mode = 'packed'
       downgradeReason = 'full-context-exceeds-available-window'
@@ -122,13 +119,10 @@ export function buildEditorContextPipeline(input: {
   const estimatedInputTokens = estimateInputTokens(content)
   const availableContextTokens = (() => {
     if (windowTokens == null) return null
-    const outputReserve = input.maxOutputTokens == null || input.maxOutputTokens <= 0
-      ? CONTEXT_BUDGET_DEFAULTS.defaultOutputReserveTokens
-      : Math.floor(input.maxOutputTokens)
-    return Math.max(
-      0,
-      Math.floor(windowTokens * CONTEXT_BUDGET_DEFAULTS.windowSafetyRatio) - outputReserve,
-    )
+    return resolvePlanningInputBudget({
+      contextWindowTokens: windowTokens,
+      maxOutputTokens: input.maxOutputTokens,
+    })
   })()
 
   const validation = (() => {

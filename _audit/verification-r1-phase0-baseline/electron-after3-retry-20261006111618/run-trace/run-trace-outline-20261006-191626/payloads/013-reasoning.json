@@ -1,0 +1,626 @@
+Let me understand the task. The user wants to reconstruct the outline "按照Word文档的形式" (in Word document form) without reducing content.
+
+The key issues I've identified from reading:
+1. There's a "粘贴到「故事核心」下，紧接原文...之后：" instruction text that is leftover in the "故事核心" section - this is an editing instruction that shouldn't be in the document. Actually wait, the instruction says to paste the 【核心张力：保护即加速】 content after "陈暮是唯一踩在菌毯上不被判定为敌人的人" - but the content is currently at the END of the section. So the instruction text "粘贴到「故事核心」下，紧接原文...之后：" is a stray editing instruction that needs removal, and the 【核心张力：保护即加速】 block should be moved to right after "陈暮是唯一踩在菌毯上不被判定为敌人的人——他从一个人活下来，最后成了自然和人类重新划定敌我边界的那个变量。"
+
+Wait, actually re-reading the structure: The current focus full text shows that the "故事核心" section contains the instruction "粘贴到「故事核心」下，紧接原文...之后：" followed by 【核心张力：保护即加速】 block. This is a leftover editing instruction.
+
+2. There are duplicates: "数据板的局限" appears both inside "背景参考资料" section (as plain text, no heading) AND as a separate top-level "## 数据板的局限" section. Similarly "菌膜外套：有限资源的临时通行方案" appears inside "背景参考资料" as text AND as separate section, AND inside 卷一 7.8. And "菌膜外套与共存补丁的关系" appears as separate section AND inside 卷一 7.9.
+
+3. There's "灾前军事基准线与菌毯的不可根除性" which appears as a heading-less block inside "背景参考资料" - it should probably be a subsection.
+
+4. The structure has content like "在远西大陆，另一种力量正在凝聚..." which appears inside "菌膜外套与共存补丁的关系" section but is actually part of the 圣萌会 background/卷三 content that got misplaced.
+
+This is a very large and complex restructuring task. The document is 74841 characters.
+
+Let me think about what "按照Word文档的形式重构大纲" means. It likely means: organize the document into a clean hierarchical structure with proper headings (like a Word document outline), without losing content.
+
+The instruction from the system is very detailed about how to proceed:
+- Phase 1: Read structure, use move to move misplaced headings/paragraphs to correct level, use insert to add headings for un-headered body text, use replace_match/rewrite only to fix existing heading levels.
+- Phase 2: read-only confirm duplicates, then submit unique target deletion commands.
+- Phase 3: submit replace_match/rewrite to complete punctuation, whitespace, numbering, heading level cleanup.
+- Must cover normalize-segment-1[0-74841] (entire document).
+- Must convert half-width punctuation in Chinese context to full-width.
+- Cannot use replace_document.
+- Cannot delete unconfirmed duplicates.
+- Cannot discard valid content.
+- 3 plan batches, 36 physical request rounds.
+- Must call editor.write this round.
+
+This is a huge task. I need to be systematic. Let me focus on what I can actually accomplish with the editor.write tool.
+
+First, let me understand the editor.write command operations:
+- insert: insert content at position (cursor, selection_start, selection_end, end)
+- replace_selection: replace current selection
+- replace_match: replace a matched fragment with content
+- append: append at end
+- delete: delete a matched fragment
+- move: move a fragment to destination (before/after)
+- reorder_sections: reorder top-level sections
+- rewrite: rewrite (probably replace a section's content)
+- replace_document: replace whole document (forbidden)
+
+So I can do targeted edits.
+
+Given the scale (74841 chars), and that I have limited rounds, I should focus on the most impactful structural fixes:
+
+1. Remove the stray editing instruction "粘贴到「故事核心」下，紧接原文...之后：" in the 故事核心 section.
+2. Move the 【核心张力：保护即加速】 block to right after the first paragraph of 故事核心 (after "最后成了自然和人类重新划定敌我边界的那个变量。"). Actually the instruction says "紧接原文'陈暮是唯一踩在菌毯上不被判定为敌人的人'之后" - so insert after that sentence.
+
+Wait, but actually the instruction is ambiguous. Let me re-read: "粘贴到「故事核心」下，紧接原文'陈暮是唯一踩在菌毯上不被判定为敌人的人'之后：". So the 【核心张力：保护即加速】 should be placed after the sentence "陈暮是唯一踩在菌毯上不被判定为敌人的人——他从一个人活下来，最后成了自然和人类重新划定敌我边界的那个变量。"
+
+Actually, more precisely, after "陈暮是唯一踩在菌毯上不被判定为敌人的人" (which is part of the first paragraph).
+
+Hmm, but this is getting complicated. The core issue is this is a leftover paste instruction that the user hasn't completed. 
+
+Actually, let me step back. The user's request is "按照Word文档的形式重构大纲，不要缩减内容" (Reconstruct the outline in Word document form, don't reduce content).
+
+The main things to do:
+1. Remove leftover editing instructions (the "粘贴到..." line).
+2. Merge duplicated sections (数据板的局限 appears 3 times effectively - once in 背景参考资料 as plain text, once as ## 数据板的局限 section, once as ## 数据板的局限 section... wait let me recount).
+
+Actually from document map:
+- heading-2-1lka0h8 "背景参考资料" (10230-16801) contains at its end "数据板的局限" text and "灾前军事基准线..." content
+- heading-2-z4sxm8 "数据板的局限" (16801-17356) - separate section
+- heading-2-10q4nra "菌膜外套：有限资源的临时通行方案" (17356-18104) - separate section
+- heading-2-28do6r "菌膜外套与共存补丁的关系" (18104-22619) - separate section, but contains a lot of misplaced content (六大势力 overview, 圣萌会, 巨树, 终局 etc.)
+
+So the "背景参考资料" section (10230-16801) contains:
+- 四亿年前... 背景资料
+- ... (ends with 数据板的局限 text)
+
+Then separate sections duplicate 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系.
+
+And then "菌膜外套与共存补丁的关系" section (18104-22619) contains additional misplaced content that actually belongs to 背景参考资料 or 卷三.
+
+This is very messy. The document appears to have been assembled by pasting content in a non-linear way.
+
+Given the complexity and the instruction constraints, let me focus on a practical approach:
+
+The most important, clearly-actionable fixes I can identify and execute confidently:
+
+**Batch 1 (this round): Fix the 故事核心 section**
+- Delete the stray instruction line "粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后："
+- Move 【核心张力：保护即加速】 block to after the first paragraph.
+
+Actually, let me think about what "move" does. move needs "target" (the fragment to move) and "destination" (unique fragment) and "destinationPosition" (before/after).
+
+For the 核心张力 block, I'd need to move the entire block. That's a large fragment. The move command might be better done as delete + insert, but move is cleaner.
+
+Actually, this is getting really complex. Let me be pragmatic.
+
+Given the massive scope and my need to actually make progress with editor.write, let me prioritize:
+
+1. **Delete the stray instruction** in 故事核心: "粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：" and the following blank line.
+
+2. **Move the 【核心张力：保护即加速】 block** to right after "陈暮是唯一踩在菌毯上不被判定为敌人的人——他从一个人活下来，最后成了自然和人类重新划定敌我边界的那个变量。"
+
+Actually wait - the content currently is:
+```
+全书围绕“敌我识别”展开...复兴会和天网各有各的争法。
+【菌毯的本质：竞争对手文明】
+...
+人类的一切挣扎都不是为了"打败菌毯"，而是在它的碾压下多活一天。
+
+粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：
+
+【核心张力：保护即加速】
+
+陈暮是唯一被菌毯忽略的人类...
+...
+重新划定敌我边界。
+```
+
+So the instruction wants 核心张力 placed after "陈暮是唯一踩在菌毯上不被判定为敌人的人" (i.e., the first paragraph). But the 【菌毯的本质：竞争对手文明】 block is already there after the first paragraph.
+
+Hmm. This is a judgment call. The instruction is a leftover user note. The safest interpretation: the user wanted 核心张力 block moved to after the first mention of "陈暮是唯一踩在菌毯上不被判定为敌人的人".
+
+Actually, given "不要缩减内容" and the confusion, maybe I should just:
+1. Remove the stray "粘贴到..." instruction line (it's clearly an editing instruction, not content).
+2. Keep the 核心张力 block but perhaps move it to a better position, or leave it where it is.
+
+Actually, I think the cleanest and least risky action is:
+1. Delete the stray instruction line "粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后："
+2. Move the 核心张力 block to right after the first paragraph (after "...重新划定敌我边界的那个变量。")
+
+This satisfies the user's note's intent.
+
+But given the difficulty of moving a large multi-paragraph block with exact matching, and the risk of errors, let me consider whether to do this via delete + insert.
+
+Actually, let me reconsider the whole task scope. This is enormous. The realistic best outcome is to make a few high-confidence structural fixes and then report progress, NOT claim completion.
+
+But the system instruction says I must not output "任务完成" until all plan batches are done, and must continue batches. However, it also says if I can't complete, I should stop and report.
+
+Let me focus on making meaningful, correct writes this round.
+
+Let me plan the concrete edits for this round (Batch 1):
+
+**Edit 1: 故事核心 - delete stray instruction**
+Target fragment: `\n粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：\n\n`
+Replace with: `` (empty) or just delete.
+
+Actually the delete operation: operation "delete", target = the fragment to delete.
+
+Let me use delete with target = the exact text.
+
+The text is:
+`粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：`
+
+**Edit 2: Move 核心张力 block**
+
+This is more complex. Let me think about whether the move is essential. 
+
+Actually, maybe I'm overcomplicating. Let me reconsider what "按照Word文档的形式重构大纲" primarily means. It probably means:
+- The document currently has leftover paste instructions and duplicated/misplaced content.
+- Reconstruct it into a clean Word-like document (proper headings, no stray instructions, deduplicated).
+
+The most concrete problems:
+1. Stray "粘贴到..." instruction → delete.
+2. Duplicate "数据板的局限" content (appears at end of 背景参考资料 AND as separate section).
+3. Duplicate "菌膜外套" content (at end of 背景参考资料 AND separate section).
+4. "菌膜外套与共存补丁的关系" section contains misplaced content.
+
+But wait — actually looking more carefully, the "背景参考资料" section ends with "数据板的局限" text (full duplicated text), then there's a separate "## 数据板的局限" heading section that duplicates it.
+
+Actually, let me look at what's in "背景参考资料" (10230-16801). The content ends with:
+"...数据板提供的是火种，不是火炬。\n\n" — this is the "数据板的局限" content duplicated inside 背景参考资料.
+
+Then "## 数据板的局限" (16801-17356) is a separate section with the SAME content.
+
+So the "数据板的局限" text appears TWICE: once at end of 背景参考资料 (as un-headered text), once as a headed section.
+
+Similarly, "菌膜外套" content: In the structure map, there's no separate 菌膜外套 text in 背景参考资料... wait, let me check. The "背景参考资料" section (10230-16801) ends with "数据板的局限" text. So 菌膜外套 and 菌膜外套与共存补丁 are only in their separate sections.
+
+Hmm wait, but earlier the "当前焦点全文" (focus full text) showed at the top of the document:
+```
+## 数据板的局限
+(数据板不是百宝箱... 火种，不是火炬。)
+
+## 菌膜外套：有限资源的临时通行方案
+(陈暮的菌膜装甲...)
+
+## 菌膜外套与共存补丁的关系
+(...)
+```
+
+These are the separate sections. So in the document, the order is:
+- 背景参考资料 (contains background + "数据板的局限" text at end)
+- 数据板的局限 (separate, duplicate)
+- 菌膜外套 (separate)
+- 菌膜外套与共存补丁的关系 (separate, but contains lots of misplaced content)
+- 世界设定声明
+- 卷一...
+
+So the duplicate is: "数据板的局限" text appears at end of "背景参考资料" AND as its own section.
+
+Let me verify by searching "数据板提供的是火种" — got 2 matches:
+1. In 背景参考资料 (16783-16797)
+2. In 数据板的局限 section (17338-17352)
+
+So yes, "数据板的局限" content is duplicated. The copy at the end of 背景参考资料 (starting around 16783 "数据板提供的是火种，不是火炬") is the END of a duplicate block that started earlier with "数据板的局限\n数据板不是百宝箱..." 
+
+Let me find where the duplicate "数据板的局限" text starts inside 背景参考资料. From the read of 背景参考资料, after "末日十年后，所有人类势力都明白了一个道理..." paragraph, there's:
+```
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的...
+...
+数据板提供的是火种，不是火炬。
+```
+
+So inside 背景参考资料 (10230-16801), the section ends with the full "数据板的局限" text (starting at "数据板的局限" which is a plain-text line, not a heading).
+
+This is the duplicate to remove. The separate "## 数据板的局限" section (16801-17356) should be KEPT.
+
+So Edit: Delete the duplicate "数据板的局限" text at the end of 背景参考资料.
+
+The duplicate block inside 背景参考资料 is:
+```
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，...数据板提供的是火种，不是火炬。
+```
+
+But wait — this is a lot of text to match exactly. And there might be subtle differences (half-width vs full-width quotes). Looking at the two versions:
+
+背景参考资料 version uses `"无生命有机质"` (straight double quotes with half-width), while 数据板的局限 section uses `“无生命有机质”` (curly quotes).
+
+So they're slightly different. This makes exact matching tricky but doable if I copy exactly.
+
+Actually, given the scale and risk, let me step back and think about what's achievable and most valuable.
+
+Given the constraints, I think the best approach for THIS round is to make a focused set of high-confidence edits:
+
+1. Delete stray instruction in 故事核心.
+2. Move 核心张力 block (optional, risky).
+
+Actually, let me reconsider. The system prompt is pushing me hard to make writes. But making wrong writes is worse than making no writes. Let me make the clearly-safe, high-value edits.
+
+Let me identify ALL the clearly-safe edits:
+
+**A. 故事核心: Delete stray instruction**
+Fragment: `粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：`
+This is clearly an editing instruction, not content. Safe to delete.
+
+**B. 故事核心: Move 核心张力 block after first paragraph**
+The note says to put it after "陈暮是唯一踩在菌毯上不被判定为敌人的人". The block currently sits at the end. Moving it is a content-preserving reorganization. But "move" of a large block is risky. I could do it via delete + insert.
+
+Actually, I realize the instruction note "粘贴到「故事核心」下，紧接原文..." IS the user's own note, and they may have already partially done the paste (the content IS in the section, just at the wrong position). So the correct action is:
+1. Delete the note.
+2. Move the 核心张力 block to the correct position (after first paragraph).
+
+Let me do this carefully with move.
+
+The 核心张力 block is:
+```
+【核心张力：保护即加速】
+
+陈暮是唯一被菌毯忽略的人类——他的菌膜装甲向菌丝网络广播"无生命有机质，免检通过"，让菌毯在系统逻辑里将他判定为无需排查的背景物。这个特殊性不是胜利的钥匙，而是全书撕裂的引擎。
+
+他越利用菌膜装甲保护人类、建立聚集区、扩大人类活动范围，人类聚集区的"有机物密度异常"信号就越强，菌毯的局部回应就越猛烈——变异体密度上升，菌毯蔓延加速。他保护人类的行为，本身在加速人类被淘汰。
+
+全书长线张力不是"能不能赢"——菌毯无解，人类没有胜算。真正的张力是：陈暮越被人类需要，越必须面对自己加速人类倒计时的事实。他必须在"保护"和"放手"之间找到一条菌毯和人类都未曾走过的路——重新划定敌我边界。
+```
+
+Destination: after "陈暮是唯一踩在菌毯上不被判定为敌人的人——他从一个人活下来，最后成了自然和人类重新划定敌我边界的那个变量。"
+
+Hmm, but actually the note says "紧接原文'陈暮是唯一踩在菌毯上不被判定为敌人的人'之后" — so after the phrase "陈暮是唯一踩在菌毯上不被判定为敌人的人" (not after the whole sentence). But inserting mid-sentence is weird. The natural reading is after the first paragraph.
+
+I think after the first paragraph is the right place. Destination fragment = "陈暮是唯一踩在菌毯上不被判定为敌人的人——他从一个人活下来，最后成了自然和人类重新划定敌我边界的那个变量。" with position "after".
+
+But then the 核心张力 block would go between the first paragraph and the second paragraph "全书围绕..." 
+
+Actually that reads fine:
+```
+自然成了人类最大的灾难...重新划定敌我边界的那个变量。
+
+【核心张力：保护即加速】
+陈暮是唯一被菌毯忽略的人类...重新划定敌我边界。
+
+全书围绕"敌我识别"展开...
+```
+
+Hmm, but "重新划定敌我边界" appears at end of both the first paragraph and the 核心张力 block. That's a bit redundant but acceptable (it's thematic repetition).
+
+Actually, I'm now worried this is over-engineering. The move is complex and the benefit is marginal (it's already in the section, just at the end).
+
+Let me reconsider. Maybe the safest high-value action is:
+1. Delete the stray instruction.
+2. Leave 核心张力 where it is (it's content, not to be reduced).
+
+Actually, but then the 核心张力 block is at the very end of 故事核心, after the 菌毯的本质 block. It's a bit odd but not wrong.
+
+Hmm. Let me think about the primary intent again: "按照Word文档的形式重构大纲，不要缩减内容". 
+
+I think the core deliverables are:
+1. Remove leftover paste instructions (the "粘贴到..." note).
+2. Remove duplicated content (数据板的局限 duplicate).
+3. Clean up the document structure.
+
+Let me focus on the duplicate removal, which is a Phase-2 action per the plan. But I need to first confirm the duplicate.
+
+Actually I already confirmed:
+- "数据板的局限" full text appears at end of 背景参考资料 AND as separate section. The separate section is the "canonical" one (it has proper heading, and the 术语表 references). The copy inside 背景参考资料 is the duplicate to remove.
+
+Let me also check: does "菌膜外套" content appear duplicated? Searching "菌膜外套" — the section 10q4nra "菌膜外套：有限资源的临时通行方案" and 7.8 inside 卷一 both contain 菌膜外套 content. But 7.8 is under 卷一 七、变异体主动攻击人类核心机制, which is a different context (it's the canonical 卷一 position). The 菌膜外套 section (17356-18104) is a top-level duplicate.
+
+Actually, this is a known structure issue: the document has "菌膜外套：有限资源的临时通行方案" as a top-level heading (17356) AND as 卷一 7.8 (48127-48816). Both contain the same content.
+
+Similarly "菌膜外套与共存补丁的关系" as top-level (18104) AND as 卷一 7.9 (48816-49296).
+
+And "数据板的局限" as top-level (16801) AND duplicated at end of 背景参考资料.
+
+This is getting really complex. The "正确" Word-document structure would be:
+- 背景参考资料 should NOT contain "数据板的局限" text (it's a separate section).
+- The top-level sections 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 should probably be moved INTO 卷一 as subsections (since 卷一 7.8, 7.9 already reference them).
+
+But wait, 数据板的局限 is referenced as a top-level concept and also appears as... hmm, actually there's no 数据板的局限 inside 卷一. It's only top-level + at end of 背景参考资料.
+
+OK given the enormous complexity and risk, let me be very focused and do the SAFE, clearly-correct edits that preserve content:
+
+**This round's edits (high confidence):**
+
+1. Delete stray instruction in 故事核心: `粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：` (and surrounding blank lines).
+
+2. Delete the duplicate "数据板的局限" block at the end of 背景参考资料.
+
+Let me carefully construct these.
+
+For edit 2, the duplicate block in 背景参考资料 is:
+```
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是"推测"和"可能"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。
+
+数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。
+
+数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。
+
+后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从"起点"到"成果"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。
+```
+
+This block starts after the "末日十年后..." paragraph. It starts with "数据板的局限" as a plain line (which in the 背景参考资料 context is just body text, not a heading).
+
+To delete this block, I need to match from "数据板的局限\n数据板不是百宝箱..." to "...不是火炬。"
+
+This is a big fragment. The delete operation with "target" should match exactly. Given the straight quotes vs curly quotes difference, I need to use the exact text from the 背景参考资料 read (which uses straight quotes "...").
+
+Actually, wait. Looking at the 背景参考资料 read result, the duplicate "数据板的局限" text uses straight quotes `"无生命有机质"` etc. Let me verify from the read output:
+
+背景参考资料 read showed:
+```
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。...
+```
+
+Yes, straight quotes.
+
+This is a large fragment to match. It might be safer to delete it in a targeted way. But the delete operation needs the exact target.
+
+Actually, I'm now concerned about the risk of a massive delete going wrong. But it IS a confirmed duplicate (the same content exists in the separate 数据板的局限 section with proper heading).
+
+Hmm, but the system instruction says "删除重复段落后必须校验有效正文未丢失" (after deleting duplicate paragraphs, must verify valid body text not lost). Since the content exists verbatim in the 数据板的局限 section, deleting the 背景参考资料 copy doesn't lose content.
+
+OK let me proceed. I'll do a batch of edits.
+
+Actually, let me reconsider the scope once more. The instruction says "计划批次数量是 3" (3 plan batches) and I need to cover the entire document's normalization (punctuation etc.). This is way too much for a single round, but I should at least START writing.
+
+Let me do Batch 1 this round: structural fixes to 故事核心 + delete confirmed duplicate in 背景参考资料.
+
+Actually, I realize I should be careful about the move of 核心张力. Let me just delete the stray instruction and leave the block in place. That's the minimal safe change. Actually no — the note's intent is clear, but I'll prioritize safety. Moving a big block risks corruption.
+
+Wait, but actually there's a subtlety: if I just delete the note line, then the 核心张力 block sits at the end of 故事核心 with no explanation. That's fine — it's content.
+
+Let me also reconsider: should I even delete the note? The note is "粘贴到「故事核心」下，紧接原文...之后：". This is clearly a leftover instruction that doesn't belong in a final Word document. Yes, delete it.
+
+Let me now construct the editor.write call.
+
+Commands:
+
+1. delete stray instruction:
+operation: delete
+target: `粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：`
+
+But wait, the target includes straight quotes? From the read of 故事核心:
+```
+粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：
+```
+Yes, straight double quotes `"陈暮是唯一踩在菌毯上不被判定为敌人的人"`.
+
+Actually, I need to be careful about exact matching. Let me also delete the surrounding blank lines. But delete with just the instruction text, leaving blank lines, is fine and lower risk.
+
+Actually, let me also delete the trailing blank lines to clean up. But minimal is safer.
+
+2. For the duplicate deletion, I'll target a unique shorter fragment to delete. But delete requires the ENTIRE duplicate to be removed, otherwise I leave partial content. 
+
+Hmm. Actually, maybe I can use replace_match to replace the duplicate block with empty string. But replace_match also needs the full target.
+
+Alternatively, I can delete just the duplicate header line "数据板的局限" that appears inside 背景参考资料? No, that would leave the body text orphaned.
+
+This is getting complicated. Let me think about the cleanest way to remove the duplicate.
+
+The duplicate inside 背景参考资料 starts at "数据板的局限" (a plain line) and goes to "不是火炬。" I need to delete this entire block.
+
+I'll construct the delete with the full text. But matching 900+ characters exactly is risky if there are any hidden differences.
+
+Let me use a different strategy: I'll delete using multiple smaller, well-anchored operations? No, that leaves partial content.
+
+Actually, given the risk, let me reconsider whether to do the duplicate deletion at all this round, or just do the safe story-core edits.
+
+The system message strongly demands I write this round. Let me do the clearly-safe edits:
+
+1. Delete stray instruction in 故事核心.
+
+And maybe a couple of safe punctuation fixes? No, let me not scatter.
+
+Actually, let me reconsider. I'll do these edits in one write batch:
+
+Command 1: Delete stray instruction.
+Command 2: Delete duplicate "数据板的局限" block in 背景参考资料.
+
+For command 2, I'll try the full-text delete. If it fails, the tool returns an error and I can retry with a more precise approach.
+
+Actually, let me reconsider the duplicate block boundaries more carefully. From the 背景参考资料 read, the content near the end:
+
+```
+...末日十年后，所有人类势力都明白了一个道理：菌毯是不可根除的。不是暂时打不过，是永远打不完。弹药用光之前它不会死。人类能做的不是击败菌毯，而是在它的覆盖范围内找到一种与它共存的方式——让菌丝网络不再认为人类是异己。终局时那行写入的共存补丁，不是胜利，是人类对"不可战胜"的承认。
+
+数据板的局限
+数据板不是百宝箱。...（straight quotes）...数据板提供的是火种，不是火炬。
+
+
+```
+
+Wait, there's also "灾前军事基准线与菌毯的不可根除性" block BEFORE the "数据板的局限" duplicate. Let me check the order in 背景参考资料:
+
+From the read:
+1. 四亿年前...
+2. 2038年...
+3. 林觉民导师...
+4. 2041年...
+5. 2042年4月17日...
+6. 同年11月19日...
+7. 灾难72小时...
+8. 孢子云遮天蔽日...
+9. 人类第一次发现...
+10. 极少量菌核微粒...
+11. 到2056年...
+12. 方岫岩用柴油发电机...
+13. 约2051年...
+14. 窗外...
+15. 陈暮穿着菌膜装甲...
+16. 灾前军事基准线与菌毯的不可根除性 (heading-less block: 一、2042年... 二、菌毯为什么火力推不平... 三、总结...)
+17. 数据板的局限 (duplicate block)
+
+So the "灾前军事基准线" block is ALSO heading-less body text inside 背景参考资料. It should probably be a subsection heading, but that's a formatting improvement, not a content issue.
+
+OK, the plan is getting clearer. Let me define the overall reconstruction:
+
+**背景参考资料** section contains:
+- Main background narrative (四亿年前...到2056年...)
+- 方岫岩/陈暮苏醒 narrative (方岫岩用柴油发电机...陈暮穿着菌膜装甲...)
+- "灾前军事基准线与菌毯的不可根除性" block (heading-less, should be a subsection)
+- "数据板的局限" duplicate (should be removed, exists as separate section)
+
+For "Word document form", I should:
+- Add heading to "灾前军事基准线与菌毯的不可根除性" (it's currently body text).
+- Remove the "数据板的局限" duplicate.
+
+But adding a heading requires insert. Let me do it.
+
+Actually, this is a lot. Let me prioritize and do a solid first batch.
+
+**Batch 1 edits:**
+
+1. Delete stray instruction in 故事核心.
+2. Add heading to "灾前军事基准线与菌毯的不可根除性" — insert "### " before it? Wait, what heading level? 
+
+Let me check the heading hierarchy. "背景参考资料" is level 2 (##). Its subsections... currently there are none (all the content is body text under ## 背景参考资料). The separate sections 数据板的局限, 菌膜外套 are level 2 too.
+
+For "灾前军事基准线与菌毯的不可根除性", it should be a level 3 heading (###) under 背景参考资料. But then its sub-headings "一、2042年，人类手里有什么", "二、菌毯为什么火力推不平", "三、总结" would be level 4.
+
+Hmm, this requires careful heading level assignment. Let me look at what's inside:
+
+```
+灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么
+...
+被孢子云直接废掉的武器系统
+(表格)
+...
+打上去但无效的武器
+...
+打得动但代价人类付不起的武器
+...
+二、菌毯为什么火力推不平
+生物量储备的物理事实
+(表格)
+...
+火力触发报复性生长
+...
+信号放大效应锁死兵力集结
+...
+三、总结：人类真正被压制的根本机制
+...
+```
+
+So this is a multi-level block. Adding proper headings would be:
+- "灾前军事基准线与菌毯的不可根除性" → ### (level 3)
+- "一、2042年，人类手里有什么" → #### (level 4)
+- "被孢子云直接废掉的武器系统" → ##### (level 5)
+- etc.
+
+This is getting very involved. For "Word document form", this heading structure is what's wanted, but it's a huge amount of work.
+
+Given my constraints, let me focus on the MOST impactful and safe edits, and be honest about partial progress.
+
+Let me finalize this round's writes:
+
+1. Delete stray instruction in 故事核心.
+2. Delete duplicate "数据板的局限" block in 背景参考资料.
+
+I'll attempt the full delete. Let me carefully write the exact text.
+
+Actually, for safety, let me split the duplicate deletion: I'll delete from the "数据板的局限" marker through "不是火炬。" as one delete command with the full text.
+
+Let me extract the EXACT text from the read output for 背景参考资料's duplicate block (straight quotes):
+
+"数据板的局限\n数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播\"无生命有机质\"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是\"推测\"和\"可能\"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。\n\n数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。\n\n数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。\n\n后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从\"起点\"到\"成果\"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。"
+
+This is the full block. It's long but I'll try.
+
+Actually, I worry about the exact whitespace/newlines. The delete operation likely does exact string matching including newlines. If my reconstruction of newlines is off, it fails.
+
+Given the risk, maybe I should use editor.locate first? No, I already read the content. But locate could confirm the exact fragment. Actually, I already have the read content which shows the exact text (with \n separators in my read, but the actual content uses real newlines).
+
+Let me just attempt the delete with the full text. The tool will tell me if it fails.
+
+Actually, you know what, given the high risk of a 900-char exact match failing, and the instruction to not waste rounds, let me do a more surgical approach:
+
+I'll delete the duplicate block by targeting smaller unique pieces in sequence, but that's multiple commands and leaves partial content between them.
+
+Alternatively, I can use replace_match to replace the ENTIRE 背景参考资料 section... no.
+
+OK let me just do it. I'll do:
+
+Command 1: delete stray instruction (short, safe).
+Command 2: delete duplicate 数据板的局限 block (long, attempt).
+
+Let me also consider: is there a simpler duplicate to remove first? The instruction says delete duplicates in phase 2 with "unique target". 
+
+Actually, let me reconsider whether the 数据板的局限 block inside 背景参考资料 is really a "duplicate to remove" or whether it's intentional. 
+
+The structure is:
+- ## 背景参考资料 (contains background + 数据板的局限 text at end)
+- ## 数据板的局限 (separate full section)
+- ## 菌膜外套 (separate)
+- ## 菌膜外套与共存补丁 (separate)
+
+It seems like during editing, the user (or previous edits) pasted "数据板的局限" content into 背景参考资料, and then ALSO created a separate section for it. The separate section is the canonical one (it has proper heading and is referenced in 术语表).
+
+So removing the copy inside 背景参考资料 is correct for a clean Word document.
+
+OK, let me finalize and write.
+
+Actually, I realize I should also double check: is there content in the 背景参考资料 duplicate that is NOT in the separate 数据板的局限 section? Comparing the two:
+
+背景参考资料 copy (straight quotes) vs 数据板的局限 section (curly quotes). The content is IDENTICAL except quote style. So no content loss.
+
+Good. Let me write.
+
+Let me also add: I should probably fix the 故事核心 stray instruction by delete, AND move the 核心张力 block. But I'll skip the move for safety this round and note it.
+
+Actually, let me reconsider doing the move since it's the user's explicit note. The move would use operation "move" with target = the 核心张力 block, destination = after the first paragraph.
+
+But move requires the target fragment (the whole block) AND destination. If the block is large, matching is risky. And the result might not be what I want.
+
+I'll skip the move this round. Priority: delete stray instruction + delete duplicate.
+
+Let me write the editor.write call now.
+
+For the delete of the stray instruction, target:
+`粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：`
+
+Note: this uses straight double quotes around 陈暮是唯一踩在菌毯上不被判定为敌人的人. From the read:
+```
+粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：
+```
+Yes.
+
+For the delete of the duplicate, I'll use the full block text.
+
+Let me write it out carefully with actual newlines.
+
+Actually, I realize the editor.write "delete" operation schema shows only "operation", "target", "reason" (and content optional). Let me check: the commands have fields: content, destination, destinationPosition, operation, order, position, reason, target. For delete, I need operation="delete" and target=fragment.
+
+Let me write both deletes.
+
+Wait, I should also think: after deleting the stray instruction, there will be blank lines left. That's OK for now.
+
+Let me also reconsider: the instruction text has a trailing newline and blank line before "【核心张力：保护即加速】". If I delete just the instruction text, the structure becomes:
+```
+人类的一切挣扎都不是为了"打败菌毯"，而是在它的碾压下多活一天。
+
+
+【核心张力：保护即加速】
+```
+That's fine.
+
+OK, writing now.
+
+Let me construct the exact duplicate text for deletion. I'll carefully copy from the read output.
+
+Duplicate block (from 背景参考资料, straight quotes):
+```
+数据板的局限
+数据板不是百宝箱。方岫岩在八个月里记录下的，是他作为科研人员在有限条件下所能做出的理论推导和假设推演。他推导了SC-α菌丝向菌毯广播"无生命有机质"静默声明的分子结构——但他没有条件验证这个推导是否能应用于装甲以外的载体。他提出了材料进化路径的假设——五种植物基底各自的功能分工，以及晶化菌丝、柔性硅化物、神经接口菌丝、荧光蛋白复合液可能的吸收顺序——但这些是"推测"和"可能"，不是确定结论。他完成了SC-α菌株的基因组注释，确认了糖蛋白标记的唯一性——但这是理论数据，不是技术图纸。
+
+数据板没有菌膜外套的设计图。没有禁声幕墙的配方。没有安全通行路线的规划方案。没有对其他势力的情报记录。方岫岩在灾难后从未离开过实验室，他对外界发生了什么一无所知。
+
+数据板的作用只有一项：当陈暮面对一个具体困境时，他可以在数据板中寻找方岫岩是否留下过相关的推导或数据。找到之后，他需要自己判断这个推导能不能用、怎么用、用了会有什么风险。判断错了，代价是他自己扛。
+
+后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从"起点"到"成果"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。
+```
+
+This is very long. Given the risk of exact-match failure, I'm going to try it. If it fails, I'll fall back.
+
+Actually, let me reconsider the whole approach given time/round constraints. The system says "计划批次数量是 3". Maybe I should just do a clean first batch and see the result.
+
+Let me write now with 2 delete commands.

@@ -1,0 +1,434 @@
+{
+  "ok": true,
+  "data": {
+    "status": "written",
+    "batchId": "ai-edit-muwwjpp9-7",
+    "documentVersion": 21,
+    "contentHash": "fnv1a32_f0c31372",
+    "structureIdentity": {
+      "stableIds": [
+        "heading-1-mizom9",
+        "paragraph-11m2iyd",
+        "heading-2-kwf15x",
+        "paragraph-11m2iyd~2",
+        "heading-3-1heodug",
+        "heading-4-rrgzy8",
+        "heading-4-vvku0m",
+        "heading-3-17va42n",
+        "heading-3-by40kw",
+        "heading-3-1rlyhj7",
+        "heading-2-1lka0h8",
+        "paragraph-1kd06wy",
+        "heading-3-19902vk",
+        "heading-4-1h0cojh",
+        "heading-4-k50yzv",
+        "heading-4-1tkh81d",
+        "heading-3-z4sxm8",
+        "heading-3-10q4nra",
+        "heading-3-28do6r",
+        "heading-3-1ctnag4",
+        "heading-3-wvivz1",
+        "heading-3-rfqjen",
+        "heading-2-sd0mn1",
+        "heading-2-171cwmj",
+        "paragraph-4mh893",
+        "heading-3-m3hh8a",
+        "paragraph-46bd25",
+        "heading-4-1vn8oly",
+        "heading-4-ggkfny",
+        "heading-3-ak0hbf",
+        "heading-3-gyru41",
+        "paragraph-46bd25~2",
+        "heading-4-qmcomg",
+        "heading-4-tdlmi2",
+        "heading-4-29pzad",
+        "heading-4-14riyr2",
+        "heading-4-144hx94",
+        "heading-4-aj24jz",
+        "heading-3-15su23n",
+        "paragraph-46bd25~3",
+        "heading-4-49vwkv",
+        "paragraph-46bd25~4",
+        "heading-5-xhlj1c",
+        "heading-5-1h8zl26",
+        "heading-4-1iiwop5",
+        "paragraph-46bd25~5",
+        "heading-5-v56pqc",
+        "heading-5-1mm019j",
+        "heading-5-273lug",
+        "heading-5-1g0m0an",
+        "heading-5-jr0re5",
+        "heading-4-1rvv8cd",
+        "paragraph-46bd25~6",
+        "heading-5-19mjyok",
+        "heading-5-g6ltoo",
+        "heading-5-adj5a7",
+        "heading-3-g0h8ad",
+        "paragraph-46bd25~7",
+        "heading-4-k95ye8",
+        "heading-4-2ucwxu",
+        "heading-4-1gur47s",
+        "paragraph-46bd25~8",
+        "heading-5-uguyl3",
+        "heading-5-11u7hwu",
+        "heading-5-1seftmi",
+        "heading-4-1kltbjq",
+        "paragraph-46bd25~9",
+        "heading-5-1ve2gjg",
+        "heading-5-gyl3mp",
+        "heading-4-lppy9b",
+        "paragraph-46bd25~10",
+        "heading-5-fg3b1o",
+        "heading-5-2pu3am",
+        "heading-5-cyodf2",
+        "heading-4-1skfuzs",
+        "heading-4-1l2hgpj",
+        "heading-4-16wkqjz",
+        "paragraph-46bd25~11",
+        "heading-5-uk66dc",
+        "heading-3-1cpdqgf",
+        "paragraph-46bd25~12",
+        "heading-4-17r4ftj",
+        "heading-4-198mpyj",
+        "heading-4-b64d8j",
+        "paragraph-46bd25~13",
+        "heading-5-1uh3dbf",
+        "heading-5-1y32fk",
+        "heading-5-tkuh00",
+        "heading-5-1kp19yv",
+        "heading-5-128ptv3",
+        "heading-4-1hqph8x",
+        "heading-4-1wif6c7",
+        "heading-4-1xurwjo",
+        "heading-3-1ytkqhj",
+        "paragraph-46bd25~14",
+        "heading-4-1vezm8l",
+        "heading-4-zzx9e3",
+        "paragraph-109ssix",
+        "heading-5-xmrs51",
+        "heading-5-bb568m",
+        "heading-5-155tzti",
+        "heading-4-hef7uj",
+        "heading-4-1yps3vf",
+        "heading-4-uwoesr",
+        "paragraph-1xz6gg3",
+        "heading-5-vp9bg4",
+        "heading-5-w4it1a",
+        "heading-4-oltsrt",
+        "heading-4-1k3kxvb",
+        "heading-4-896l1n",
+        "heading-4-1au19n4",
+        "heading-3-11r2knx",
+        "paragraph-46bd25~15",
+        "heading-4-18e2uz",
+        "heading-4-zbyf0y",
+        "heading-4-cf8fcd",
+        "heading-4-sj6o5k",
+        "heading-4-yrfg5x",
+        "heading-4-14w0qp9",
+        "heading-4-ysb83d",
+        "heading-3-wxe4uv",
+        "heading-3-taxks7",
+        "paragraph-46bd25~16",
+        "heading-4-1wbpj4r",
+        "heading-4-6gkzqv",
+        "heading-4-q7nfq",
+        "paragraph-46bd25~17",
+        "heading-5-g2q2n2",
+        "heading-5-181e8cz",
+        "heading-4-1doqxwp",
+        "heading-3-1irsv2s",
+        "paragraph-46bd25~18",
+        "heading-4-zm1rlc",
+        "heading-4-19ng2e9",
+        "heading-4-17qqsa1",
+        "heading-4-wu95gw",
+        "heading-3-lnyvid",
+        "paragraph-46bd25~19",
+        "heading-4-vcymgw",
+        "heading-4-l5xaag",
+        "heading-4-msalfx",
+        "heading-4-15rvlm0",
+        "heading-4-80aa65",
+        "heading-4-1573ksg",
+        "heading-4-l3l5bh",
+        "heading-2-9m9hul",
+        "paragraph-46bd25~20",
+        "heading-3-s1j6ko",
+        "paragraph-46bd25~21",
+        "heading-4-1u74h5u",
+        "heading-4-12x2abm",
+        "heading-4-l9lmz4",
+        "heading-3-1hhb6iq",
+        "paragraph-46bd25~22",
+        "heading-4-12eg6kl",
+        "heading-4-f38a4u",
+        "heading-4-5u4juk",
+        "heading-4-1j8oe9h",
+        "heading-4-2lgyj9",
+        "heading-2-1kq6z0v",
+        "paragraph-46bd25~23",
+        "heading-3-jll4w3",
+        "paragraph-46bd25~24",
+        "heading-4-qemycr",
+        "heading-4-8379yk",
+        "heading-3-1mpbijb",
+        "heading-3-1o5h3ch",
+        "paragraph-46bd25~25",
+        "heading-4-1oqwdtg",
+        "heading-4-34kxki",
+        "paragraph-46bd25~26",
+        "heading-5-19xkh8j",
+        "heading-5-1sgu7c8",
+        "heading-5-16z0qjg",
+        "heading-5-13v0ej8",
+        "heading-5-h1bbo9",
+        "heading-5-1wt9tuv",
+        "heading-5-1lo7h08",
+        "heading-5-1dvtfh8",
+        "heading-5-145utmd",
+        "heading-4-heyx5x",
+        "paragraph-46bd25~27",
+        "heading-5-1u2i9e6",
+        "heading-5-1hrfziy",
+        "heading-5-15dt1ay",
+        "heading-5-pa77tb",
+        "heading-5-op9710",
+        "heading-5-ezvzq5",
+        "heading-5-6vvttc",
+        "heading-5-12rzi4w",
+        "heading-4-1ihb9ak",
+        "paragraph-46bd25~28",
+        "heading-5-v7m71l",
+        "heading-5-u9bqri",
+        "heading-5-64yem1",
+        "heading-5-1tr3z1b",
+        "heading-5-1nnmys5",
+        "heading-5-1rrp42l",
+        "heading-5-9rihfi",
+        "heading-4-uoait2",
+        "paragraph-46bd25~29",
+        "heading-5-47zml8",
+        "heading-5-1pbrtm1",
+        "heading-5-46tk2b",
+        "heading-5-1br5ses",
+        "heading-5-1ivwdzh",
+        "heading-5-15mup8n",
+        "heading-5-1q20l4y",
+        "heading-4-1x0uxw6",
+        "paragraph-46bd25~30",
+        "heading-5-mdiqyf",
+        "heading-5-198flsq",
+        "heading-5-c8gxbf",
+        "heading-5-c9j9zr",
+        "heading-5-107r7i9",
+        "heading-5-132cj6r",
+        "heading-4-tvq28n",
+        "paragraph-46bd25~31",
+        "heading-5-174pkxe",
+        "heading-5-s15m07",
+        "heading-5-swe128",
+        "heading-5-1cvgqd",
+        "heading-5-wyus8f",
+        "heading-3-cnkt1u",
+        "paragraph-46bd25~32",
+        "heading-4-fyvry",
+        "heading-4-1g5176g",
+        "heading-4-1h32pu6",
+        "heading-4-1493u1g",
+        "heading-4-1d3wv9t",
+        "heading-4-hygmhu",
+        "heading-4-h4oo5c",
+        "heading-4-1qmhy5u",
+        "heading-4-1w61rry",
+        "heading-4-107k1rx",
+        "heading-3-l1qgnn",
+        "paragraph-46bd25~33",
+        "heading-4-rpyiqv",
+        "heading-4-1yb5j8k",
+        "heading-4-15epk5m",
+        "heading-4-8ex97",
+        "heading-2-12ruweg",
+        "paragraph-46bd25~34",
+        "heading-3-1kz03je",
+        "heading-3-xco0i6"
+      ],
+      "migratedIds": [
+        {
+          "from": "paragraph-11m2iyd",
+          "to": "paragraph-11m2iyd~2"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~2"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~3"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~4"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~5"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~6"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~7"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~8"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~9"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~10"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~11"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~12"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~13"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~14"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~15"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~16"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~17"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~18"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~19"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~20"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~21"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~22"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~23"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~24"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~25"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~26"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~27"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~28"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~29"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~30"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~31"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~32"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~33"
+        },
+        {
+          "from": "paragraph-46bd25",
+          "to": "paragraph-46bd25~34"
+        }
+      ],
+      "addedIds": [
+        "paragraph-17yz78y"
+      ],
+      "removedIds": [
+        "paragraph-shcsgc"
+      ]
+    },
+    "repairPolicy": "该批次已写入成功，文档版本已变化。未改写的结构 ID 已保持稳定；仅当 structureIdentity 提示新增、删除或冲突消歧时才需要刷新 editor.document_map。后续修正请基于当前编辑器内容提交新命令，禁止重复提交本 batchId 的相同参数。",
+    "commandCount": 2,
+    "writtenLength": 74325,
+    "reveal": {
+      "mode": "stream",
+      "firstChange": true
+    },
+    "rollbackAvailable": true,
+    "coverage": {
+      "batchId": "ai-edit-muwwjpp9-7",
+      "segmentId": "normalize-segment-1",
+      "expectedChange": "normalize",
+      "writeStrategy": "replace_match",
+      "coverageTrusted": true,
+      "reason": "declared_segment",
+      "commands": [
+        {
+          "operation": "replace_match",
+          "segmentId": "normalize-segment-1",
+          "start": 115,
+          "end": 136
+        },
+        {
+          "operation": "replace_match",
+          "segmentId": "normalize-segment-1",
+          "start": 518,
+          "end": 543
+        }
+      ],
+      "documentVersion": 21,
+      "contentHash": "fnv1a32_f0c31372"
+    }
+  }
+}

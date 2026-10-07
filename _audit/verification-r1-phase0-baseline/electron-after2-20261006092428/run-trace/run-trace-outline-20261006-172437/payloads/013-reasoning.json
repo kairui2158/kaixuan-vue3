@@ -1,0 +1,98 @@
+Let me analyze the current state of the outline and plan the restructuring. The user wants to restructure the outline in a "Word document" format without reducing content.
+
+Looking at the document structure, I need to understand what needs to happen:
+
+1. **First batch: structure-repair** - Fix heading levels, move misplaced content
+2. **Second batch: structure-plan** - (after confirming duplicates) Delete duplicates
+3. **Third batch: normalize-segment-1** - Format normalization (punctuation, whitespace, numbering)
+
+Let me first understand the current structure issues:
+
+The document has a single H1 "《绿潮》大纲总纲" containing everything. Under it:
+- H2 sections like "叙事框架", "背景参考资料", "数据板的局限", etc.
+- Then H2 "卷一：基石设定层", "卷二：核心人物群像", "卷三：势力与格局层", "卷四：叙事工具箱层"
+
+Looking at the content under "叙事框架" (H2), it contains story narrative content that could be better organized. The "背景参考资料" section contains a long narrative that seems to be background material.
+
+The key observation is that the current structure needs reorganization into a more "Word document" style. This would mean:
+- Better heading hierarchy (consistent levels)
+- Removing unnecessary "内容块" paragraphs (empty separators)
+- Ensuring proper numbering
+- Fixing punctuation issues (half-width to full-width)
+
+But wait - the plan says 3 batches: structure-repair, structure-plan (confirm duplicates), normalize-segment-1.
+
+Let me start with the first batch: structure-repair. I need to understand what structural issues exist.
+
+Major structural issues I can see:
+1. Many "内容块" paragraphs that are just empty 1-2 char separators - these are artifacts
+2. Some sections like "背景参考资料" seem to be at H2 level but contain extensive narrative that could fit better organized
+
+For batch 1 (structure-repair), I need to:
+- Move misplaced titles/paragraphs to correct levels
+- Insert titles for untitled text
+- Fix heading levels
+
+Let me first read the full structure more carefully and identify specific issues. Let me start by reading several key sections to understand content overlap and placement issues.
+
+Actually, looking at the plan more carefully:
+- Batch 1: structure-repair - Fix heading levels, move misplaced content, insert missing titles
+- Batch 2: Confirm duplicates with read-only, then delete
+- Batch 3: normalize-segment-1 - Fix punctuation, whitespace, numbering, heading levels across all segments
+
+Let me start with batch 1. I need to identify structural issues. Let me read some key areas to understand what needs moving/fixing.
+
+Looking at the document map:
+1. "背景参考资料" (H2, 10230-16801) - This contains a mix of background narrative and technical info. Some of its content overlaps with later sections.
+2. "数据板的局限" (H2, 16801-17356) - standalone section
+3. "菌膜外套：有限资源的临时通行方案" (H2, 17356-18104) - standalone
+4. "菌膜外套与共存补丁的关系" (H2, 18104-22619) - This section (4499 chars) seems to contain a LOT of content including full narrative about the endgame. 
+
+The H2 sections before "卷一" (which starts at 22716) are essentially appendices/bonus material that sit between the narrative framework and the formal volumes.
+
+Now, for a "Word document" format, I think the user wants:
+- Clean, consistent heading levels
+- Proper numbering
+- All Chinese punctuation unified
+- No empty separator blocks
+
+Let me start executing. For batch 1 (structure-repair), I'll first read the content in key areas to identify specific issues, then submit write commands.
+
+Let me read a few sections to identify issues:
+
+First, let me look at the "背景参考资料" section and its relation to later sections - there might be duplicated content.
+
+Actually, let me just start with the structure repair. The key issues I can already identify from the document map:
+
+1. **Empty "内容块" paragraphs** - These are 1-2 char empty blocks scattered everywhere. They need to be removed.
+2. **Some content repeats** - "数据板的局限", "菌膜外套：有限资源的临时通行方案", and "菌膜外套与共存补丁的关系" appear both as H2 sections (16801-22619) AND within "卷一：基石设定层" as subsections.
+
+Wait, looking more carefully: 
+- H2 "数据板的局限" at 16801-17356
+- H2 "菌膜外套：有限资源的临时通行方案" at 17356-18104
+- H2 "菌膜外套与共存补丁的关系" at 18104-22619
+
+But within "卷一" (which starts at 22716), under the H3 "七、变异体主动攻击人类核心机制", there are:
+- H4 "7.8 菌膜外套：有限资源的临时通行方案" at 48127-48816
+- H4 "7.9 与终局的衔接：菌膜外套与共存补丁的关系" at 48816-49296
+
+And "数据板的局限" doesn't seem to repeat within 卷一.
+
+So the standalone H2 versions and the 卷一 versions of 菌膜外套 sections MIGHT be duplicates. I need to verify by reading both.
+
+Also, the "背景参考资料" section (10230-16801) contains a long narrative about the backstory that seems to be standalone background material. It's at H2 level and includes content that isn't formally organized into the volume structure.
+
+For "Word document" style, the user probably wants something like:
+- Title page equivalent
+- Proper volume/chapter structure
+- Appendices at the end
+
+Let me start with structure-repair batch. I'll read key sections that need attention.
+
+Actually, I need to be strategic. Let me start with the structure-repair batch by identifying and fixing the most obvious issues first. Let me read the beginning of each major section to understand overlaps.
+
+Let me read some critical ranges to identify issues:
+1. The standalone "菌膜外套" sections vs their counterparts in 卷一
+2. The "背景参考资料" section to understand its content
+
+Let me read multiple sections in parallel.

@@ -1,0 +1,126 @@
+The user wants me to restructure the outline into a Word document format without reducing content. Let me analyze the current structure and plan the restructuring.
+
+Looking at the current document structure, I need to:
+
+1. Fix the document hierarchy - the outline has issues with content placement
+2. Remove duplicate sections
+3. Fix punctuation issues (half-width to full-width)
+4. Ensure proper heading levels
+
+Let me first read the full document structure to understand what needs to be done. The document has these main parts:
+
+Current top-level structure:
+- `# 《绿潮》大纲总纲` (h1)
+  - PHASE7 probes (paragraph)
+  - `## 叙事框架` (h2) 
+    - `### 故事核心` (h3)
+    - `### 第一卷·觉醒与扎根` (h3)
+    - `### 第二卷·连接与陷落` (h3)
+    - `### 第三卷·远征与暗流` (h3)
+  - `## 背景参考资料` (h2)
+  - `## 数据板的局限` (h2)
+  - `## 菌膜外套：有限资源的临时通行方案` (h2)
+  - `## 菌膜外套与共存补丁的关系` (h2)
+  - `## 世界设定声明` (h2)
+  - `## 卷一：基石设定层` (h2)
+    - Various h3, h4, h5 sections
+  - `## 卷二：核心人物群像` (h2)
+    - `### 一、陈暮` (h3)
+    - `### 二、五位女主（性格独立编制）` (h3)
+  - `## 卷三：势力与格局层` (h2)
+    - Various h3, h4, h5 sections
+  - `## 卷四：叙事工具箱层` (h2)
+    - `### 一、核心主题清单` (h3)
+    - `### 二、术语统一总表` (h3)
+
+Now, looking at the issues:
+
+1. The "背景参考资料", "数据板的局限", "菌膜外套：有限资源的临时通行方案", "菌膜外套与共存补丁的关系" sections sit between "叙事框架" and "世界设定声明" - they seem to be in the wrong place. They should be part of the "叙事框架" or integrated properly.
+
+Actually wait - looking more carefully at the structure, the "背景参考资料" section follows the three volumes' outlines. Then there are sections about data board limitations, fungus coat, etc. These seem to be reference/background material that sits between narrative framework and the formal setting layers.
+
+The "卷" structure seems to be:
+- 叙事框架 (containing story core + volumes 1-3)
+- Background reference materials
+- 世界设定声明
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+Wait, but the user says "重构大纲" - they want it as a Word document format. The current structure has some issues:
+
+1. The "背景参考资料" and related sections seem to be floating between narrative framework and world setting
+2. There's "菌膜外套与共存补丁的关系" which contains a lot of narrative content that seems misplaced - it includes the whole story ending with the 终局之战
+3. The three PHASE7 probes need to be removed (they're test sentences)
+
+Actually, looking at the content of "菌膜外套与共存补丁的关系" (heading-18124/old heading-18165), it contains a huge narrative section about all the factions and the final battle. This seems like it should be part of the narrative framework or should be somewhere else.
+
+Let me re-read the structure more carefully. The user's request is simply: "按照Word文档的形式重构大纲，不要缩减内容。" - restructure the outline in Word document format, don't reduce content.
+
+The main restructuring needed appears to be:
+1. Remove the PHASE7 probes (these are test/cleanup markers)
+2. The "菌膜外套与共存补丁的关系" section (heading-18124) actually contains the full story ending narrative - it includes the faction summaries and the final battle. This section seems way too large and contains duplicated content from the formal setting layers.
+
+Actually, I need to be more careful. Let me re-read the plan and understand what needs to happen. The plan says:
+- execute-restructure: Execute heading level fixes or chapter reordering
+- confirm-duplicates: Confirm duplicates with read-only tools
+- delete-duplicates: Only delete confirmed duplicates
+- normalize-segments: Format adjustments
+
+Let me focus on the main structural issues:
+
+1. The PHASE7 probes at the top, middle, and end need to be removed (they're test markers, not actual content)
+2. The section "菌膜外套与共存补丁的关系" (heading-18124 / 4499 chars) contains a massive narrative about all factions ending with the final battle. This appears to be duplicated content that's also found in the formal settings. Let me check...
+
+Actually, looking at it again, the "菌膜外套与共存补丁的关系" section starts with the jacket/patch relationship explanation but then continues into a full narrative about all six factions and the final battle. This seems to be a narrative summary that was placed here. It may overlap with content in "卷三" and elsewhere.
+
+But the user said "不要缩减内容" - don't reduce content. So I need to be careful not to delete anything that's not genuinely duplicated.
+
+Let me focus on what I can clearly identify:
+
+1. Remove PHASE7 probes (test sentences at top, middle, bottom)
+2. The "数据板的局限" appeared twice - one was already deleted (in the background references section). There was the heading version and the unheaded version. The unheaded version was deleted in batch 2. Now we have the headed version remaining.
+
+Let me look at what's left to do:
+
+For the "菌膜外套与共存补丁的关系" section - it contains:
+- The jacket/patch explanation
+- Then goes into a long narrative about all six factions
+- Then the final battle narrative
+- Then the post-ending epilogue
+
+This section is highly irregular as a "h2" section. The content it contains (about factions, final battle, etc.) seems like it should be part of the narrative framework or formal setting, not sandwiched as a standalone h2.
+
+But wait - the plan says I should NOT restructure content, only fix format. Let me re-read...
+
+The user says "按照Word文档的形式重构大纲" - restructure in Word document format. This likely means:
+- Clean heading hierarchy
+- Remove test/cleanup markers
+- Remove duplicate content
+- Fix punctuation
+
+Let me now proceed step by step:
+
+Batch 3 (structure-repair): Fix structural issues - remove PHASE7 probes, fix any wrong heading levels
+Batch 4 (normalize segments): Fix punctuation throughout
+
+Let me first read the full content to understand what needs fixing. The PHASE7 probes at the start, middle, and end should be removed since they're test sentences.
+
+Let me now proceed with the remaining batches.
+
+For the structure repair, I need to:
+1. Remove the three PHASE7 probe paragraphs (they're test markers)
+2. Check if the "菌膜外套与共存补丁的关系" section's content needs better placement
+
+Actually, looking at this more carefully, this is a massive restructuring task. Let me focus on what's achievable:
+
+1. Remove the 3 PHASE7 probes
+2. The document has `heading-18124` "菌膜外套与共存补丁的关系" which is 4499 chars and contains faction summaries + final battle + ending - this seems to be a place where the ending narrative was placed. It's between background reference and world setting declaration.
+
+Let me continue with the actual work. I need to:
+1. Remove PHASE7 probes (they were already fixed for punctuation, now remove them)
+2. Check for duplicate "数据板的局限" and "菌膜外套：有限资源的临时通行方案" sections
+3. Fix any remaining punctuation issues
+
+Let me proceed with the structure repair batch. I'll remove the three PHASE7 probes.

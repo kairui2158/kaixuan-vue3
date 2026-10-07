@@ -1,0 +1,70 @@
+{
+  "commands": [
+    {
+      "operation": "move",
+      "target": "## 世界设定声明\n\n本书为完全架空世界设定。故事中所有地名、区域名、山川河流名均为虚构创作，不与任何现实地理位置、国家、行政区划存在对应关系。势力名称为故事核心资产，独立于地名体系之外。",
+      "destination": "## 叙事框架",
+      "destinationPosition": "before",
+      "reason": "世界设定声明应置于文档开头（叙事框架之前），符合Word文档先声明再展开的逻辑"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 叙事框架",
+      "content": "## 第一部分　叙事框架",
+      "reason": "为##级章节补编号前缀，Word文档格式"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 背景参考资料",
+      "content": "## 第二部分　背景参考资料",
+      "reason": "为##级章节补编号前缀"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 数据板的局限",
+      "content": "## 第三部分　数据板的局限",
+      "reason": "为##级章节补编号前缀"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 菌膜外套：有限资源的临时通行方案",
+      "content": "## 第四部分　菌膜外套：有限资源的临时通行方案",
+      "reason": "为##级章节补编号前缀"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 菌膜外套与共存补丁的关系",
+      "content": "## 第五部分　菌膜外套与共存补丁的关系",
+      "reason": "为##级章节补编号前缀"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 世界设定声明",
+      "content": "## 序　世界设定声明",
+      "reason": "世界设定声明移为首位后改为序"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 卷一：基石设定层",
+      "content": "## 第六部分　卷一：基石设定层",
+      "reason": "为##级章节补编号前缀"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 卷二：核心人物群像",
+      "content": "## 第七部分　卷二：核心人物群像",
+      "reason": "为##级章节补编号前缀"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 卷三：势力与格局层",
+      "content": "## 第八部分　卷三：势力与格局层",
+      "reason": "为##级章节补编号前缀"
+    }
+  ],
+  "reason": "Word文档格式重构：移动世界设定声明到首位，为所有##级章节添加顺序编号，构建清晰文档骨架",
+  "reveal": {
+    "firstChange": true,
+    "mode": "instant"
+  }
+}

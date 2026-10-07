@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-2-sd0mn1",
+      "title": "世界设定声明",
+      "kind": "heading",
+      "level": 2,
+      "path": "世界设定声明"
+    },
+    "range": {
+      "start": 22491,
+      "end": 22588
+    },
+    "offset": 0,
+    "maxChars": 12000,
+    "content": "## 世界设定声明\n\n本书为完全架空世界设定。故事中所有地名、区域名、山川河流名均为虚构创作，不与任何现实地理位置、国家、行政区划存在对应关系。势力名称为故事核心资产，独立于地名体系之外。\n\n\n",
+    "hasMore": false,
+    "next_steps": [
+      "基于已读取内容回答或写入；需要其他节时先调用 editor.document_map"
+    ]
+  }
+}

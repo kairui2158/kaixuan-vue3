@@ -1,0 +1,11 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "# 《绿潮》大纲总纲\n\n\n## 叙事框架\n\n\n### 故事核心",
+      "content": "# 《绿潮》大纲总纲\n\n## 叙事框架\n\n### 故事核心",
+      "reason": "规范文档开头标题之间的多余空行为单空行，符合 Word 排版"
+    }
+  ],
+  "reason": "normalize-segment-1 整理：修复文档开头标题间多余空行"
+}

@@ -1,0 +1,88 @@
+The user wants me to restructure the outline into a "Word document" format without reducing content. Let me analyze what the current structure is and what needs to change.
+
+Looking at the current outline structure:
+
+The document currently has this hierarchy:
+- `# 《绿潮》大纲总纲` (heading-0, level 1)
+  - `## 叙事框架` (heading-74, level 2)
+    - `### 故事核心` (heading-84, level 3)
+    - `### 第一卷·觉醒与扎根` (heading-1063, level 3)
+    - `### 第二卷·连接与陷落` (heading-7438, level 3)
+    - `### 第三卷·远征与暗流` (heading-9462, level 3)
+  - `## 背景参考资料` (level 2)
+  - `## 数据板的局限` (level 2)
+  - `## 菌膜外套...` (level 2)
+  - `## 菌膜外套与共存补丁的关系` (level 2)
+  - `## 世界设定声明` (level 2)
+  - `## 卷一：基石设定层` (level 2)
+    - ... many sub-sections
+  - `## 卷二：核心人物群像` (level 2)
+    - ...
+  - `## 卷三：势力与格局层` (level 2)
+    - ...
+  - `## 卷四：叙事工具箱层` (level 2)
+    - ...
+
+The user wants this restructured into a "Word document" format. Let me think about what this means... In a Word document, the typical structure would be:
+
+A Word document format would typically have:
+- Title page content
+- Proper heading hierarchy (Heading 1, Heading 2, Heading 3, etc.)
+- Clean structure with no markdown artifacts like `[paragraph-N]` entries
+- The content organized in a logical flow
+
+But wait - the current structure already has a hierarchical organization. The "Word document form" request likely means:
+1. Clean up the structure to be more like a formal document
+2. Remove internal markers/artifacts
+3. Make the heading hierarchy consistent
+
+Actually, re-reading the request: "按照Word文档的形式重构大纲，不要缩减内容" - "Restructure the outline in Word document format, don't reduce content."
+
+This likely means converting the current markdown-based outline into a cleaner, more formal Word-like document structure. But since we're working in a markdown editor, this probably means:
+
+1. Making sure all headings follow a consistent hierarchy
+2. Removing the `[paragraph-N]` artifacts that appear as content blocks
+3. Cleaning up any structural issues
+4. Maybe consolidating duplicate content sections
+
+Let me look at the actual issues more carefully. The document has:
+- Some `paragraph-X` entries that are just empty content blocks
+- Some duplicate sections (e.g., "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" appear both in the "背景参考资料" area and as standalone sections)
+- Some headings might need level adjustments
+
+But I need to be careful - the plan says "禁止整篇 replace_document" and "禁止丢弃有效正文内容". 
+
+Let me think about what "Word document format" means practically:
+- It could mean having a proper document title
+- Clear heading hierarchy (not jumping levels)
+- Removing extraneous paragraph markers
+- Making section numbering consistent
+- Maybe adding a table of contents style structure
+
+Given the complexity, let me read more of the document first to understand the full structure, then figure out what restructuring is needed.
+
+Actually, the plan has specific steps:
+1. Read structure and confirm target hierarchy
+2. Execute title hierarchy fixes or chapter reordering
+3. Confirm duplicates with read-only tools
+4. Delete confirmed duplicates only
+5. Normalize segments by plan batch
+6. Verify plan
+
+And the normalization segments are:
+- normalize-segment-1 [0-46748]
+- normalize-segment-2 [46748-75024]
+
+Let me first get the full document map, then read the key sections to understand what needs to change.
+
+Let me start by reading the document map and then reading the content in chunks to understand the full picture before making changes.
+
+Actually, I've been told I've done too many read-only calls. I need to start making writes. But I need to understand the structure first. Let me read the document map and then proceed with writes.
+
+Let me first read the document map and then plan my approach:
+1. First, read the map to understand the full structure
+2. Identify duplicate sections
+3. Identify heading level issues
+4. Then execute writes in batches
+
+Let me start with the document map.

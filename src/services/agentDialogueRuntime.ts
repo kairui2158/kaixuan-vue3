@@ -29,12 +29,6 @@ export interface AgentDialogueRuntimeEntry {
   }
   persistState?: (snapshot: AgentOrchestratorSnapshot) => void | Promise<void>
   onEvent?: (event: AgentOrchestratorEvent, snapshot: AgentOrchestratorSnapshot) => void
-  subAgentDepth?: number
-  runSubAgent?: (input: {
-    taskId: string
-    goal: string
-    tools?: AgentDialogueRunInput['tools']
-  }) => Promise<AgentOrchestratorTaskResult>
 }
 
 interface AgentDialogueRunInput extends CallAiParams {
@@ -152,7 +146,6 @@ export function createAgentDialogueRuntime(entry: AgentDialogueRuntimeEntry) {
       const { callAi, ...request } = input
       const orchestrator = new AgentOrchestrator({
         taskId: entry.taskId,
-        subAgentDepth: entry.subAgentDepth,
         plan: deriveAgentPlan({
           goal: entry.goal,
           executionPlan: entry.document?.executionPlan,
@@ -172,7 +165,6 @@ export function createAgentDialogueRuntime(entry: AgentDialogueRuntimeEntry) {
           skillIds: entry.skillIds,
           promptSource: entry.promptSource,
           maxPhysicalRequests: entry.maxPhysicalRequests,
-          runSubAgent: entry.runSubAgent,
         },
       })
       return await orchestrator.run(request)

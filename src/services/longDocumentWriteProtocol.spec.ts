@@ -119,4 +119,67 @@ describe('longDocumentWriteProtocol', () => {
     expect(directive).toContain('必须调用 editor.write')
     expect(directive).toContain('必须停止调用工具并说明')
   })
+
+  it('keeps the allowed operation set aligned with every planned write strategy', () => {
+    const cases = [
+      {
+        name: 'multi-root restructure',
+        requestText: '重新排序整篇大纲的卷顺序',
+        content: '# 第一卷\n\n甲\n\n# 第二卷\n\n乙',
+        intent: 'edit' as const,
+      },
+      {
+        name: 'single-root structure repair',
+        requestText: '按照Word文档的形式重构大纲，不要缩减内容',
+        content: `# 根标题\n\n## 第一卷\n\n${'雨'.repeat(12_000)}`,
+        intent: 'edit' as const,
+      },
+      {
+        name: 'normalize',
+        requestText: '全文统一标点、编号和标题层级',
+        content: `# 第一卷\n\n${'雨'.repeat(12_000)}`,
+        intent: 'edit' as const,
+      },
+      {
+        name: 'deduplicate',
+        requestText: '只删除大纲里的重复项',
+        content: `# 第一卷\n\n${'雨'.repeat(12_000)}`,
+        intent: 'edit' as const,
+      },
+      {
+        name: 'compound restructure and cleanup',
+        requestText: '按照Word文档形式重构大纲，删除重复项，统一标题层级、编号和标点',
+        content: `# 根标题\n\n## 第一卷\n\n${'雨'.repeat(12_000)}`,
+        intent: 'edit' as const,
+      },
+    ]
+    const requiredOperationsByWriteStrategy: Record<string, readonly string[]> = {
+      delete: ['delete'],
+      structure_repair: ['move', 'insert'],
+      reorder_sections: ['reorder_sections'],
+      replace_match: ['replace_match'],
+      rewrite: ['rewrite'],
+    }
+
+    for (const item of cases) {
+      const plan = buildLongDocumentExecutionPlan({
+        requestText: item.requestText,
+        content: item.content,
+        contextWindowTokens: 128_000,
+        maxOutputTokens: 8_192,
+        intent: item.intent,
+      })
+      const allowed = resolveLongDocumentWriteOperations(plan)
+
+      expect(plan.mode, item.name).toBe('edit-task')
+      expect(plan.segments.length, item.name).toBeGreaterThan(0)
+      for (const segment of plan.segments) {
+        const required = requiredOperationsByWriteStrategy[segment.writeStrategy]
+        expect(required, `${item.name}: ${segment.writeStrategy}`).toBeDefined()
+        for (const operation of required ?? []) {
+          expect(allowed, `${item.name}: ${segment.segmentId} requires ${operation}`).toContain(operation)
+        }
+      }
+    }
+  })
 })

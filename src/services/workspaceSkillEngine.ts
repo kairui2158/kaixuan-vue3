@@ -202,6 +202,7 @@ type AuthorizedWorkspaceToolSurface = {
   actualToolSurface: Array<{ name: string; policy: 'read' | 'write' }>
   permissionDecision: ReturnType<typeof authorizeDialogueTools>['permissionDecision']
   activeEditTask: EditTask | null
+  executionPlan: LongDocumentExecutionPlan | null
 }
 
 export type WorkspaceSkillRunMeta = {
@@ -221,6 +222,7 @@ export type WorkspaceSkillRunMeta = {
     ? T extends { contextBudget?: infer B } ? B : never
     : never
   usageReconciliation?: unknown
+  textOrigin?: 'application' | 'model'
   diagnostics?: Array<{
     type: 'info' | 'warning' | 'error'
     code: string
@@ -232,7 +234,7 @@ export type WorkspaceSkillRunMeta = {
   folderPackageCache?: boolean
   postProcessReport?: RealSkillPostProcessReport
   toolCalls?: Array<{ name: string; input?: unknown }>
-  toolResults?: Array<{ call: { id?: string; name: string; input?: unknown }; result: unknown }>
+  toolResults?: Array<{ call: { id?: string; name: string; input?: unknown; argumentsRaw?: string }; result: unknown }>
   toolRequestDeltas?: Array<{ role: string; content: string }>
   toolAudit?: unknown
 }
@@ -266,7 +268,7 @@ export type WorkspaceSkillRunResult = {
 export type ChainRunState =
   | 'idle'
   | 'routing'
-  | 'awaiting_confirmation'
+  | 'awaiting_user'
   | 'running'
   | 'completed'
   | 'failed'
@@ -830,6 +832,7 @@ function resolveAuthorizedToolSurface(
     })),
     permissionDecision,
     activeEditTask: adapter.getEditTaskContext?.().activeEditTask || null,
+    executionPlan: adapter.getExecutionContext?.().executionPlan || null,
   }
 }
 
@@ -970,6 +973,7 @@ async function callWorkspaceSkill(
         : {}),
       toolSurface: toolSurface.actualToolSurface,
       activeEditTask: toolSurface.activeEditTask,
+      executionPlan: toolSurface.executionPlan,
     })
     if (route.mode === 'folder' && route.folderResult) {
       const folderResult = route.folderResult
@@ -1414,7 +1418,7 @@ export async function runWorkspaceSkills(
     mode: 'chain',
     intent: intentResult.intent,
     routing: effectiveRoutingResult,
-    runState: 'awaiting_confirmation',
+    runState: 'awaiting_user',
         allMetas: [],
         awaiting: {
           routing: effectiveRoutingResult,
@@ -1457,7 +1461,7 @@ export async function runWorkspaceSkills(
         text: '',
         meta: null,
         mode: 'chain',
-        runState: 'awaiting_confirmation',
+        runState: 'awaiting_user',
         routing: effectiveRoutingResult,
         awaiting: { routing: effectiveRoutingResult, recommendedSkills: [] },
       }
@@ -1736,7 +1740,7 @@ export async function runWorkspaceSkills(
       mode: 'compose',
       intent: 'auto',
       routing: composeRouting,
-      runState: 'awaiting_confirmation',
+      runState: 'awaiting_user',
       allMetas: [],
       awaiting: {
         routing: composeRouting,

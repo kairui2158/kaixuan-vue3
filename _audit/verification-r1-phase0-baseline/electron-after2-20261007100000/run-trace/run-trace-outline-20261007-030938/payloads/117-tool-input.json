@@ -1,0 +1,23 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "## 数据板的局限",
+      "content": "### 数据板的局限",
+      "reason": "将误归位的H2标题降为H3，归入背景参考资料"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 菌膜外套：有限资源的临时通行方案",
+      "content": "### 菌膜外套：有限资源的临时通行方案",
+      "reason": "将误归位的H2标题降为H3"
+    },
+    {
+      "operation": "replace_match",
+      "target": "## 菌膜外套与共存补丁的关系",
+      "content": "### 菌膜外套与共存补丁的关系",
+      "reason": "将误归位的H2标题降为H3"
+    }
+  ],
+  "reason": "阶段一结构修正：将三个浮动H2降为H3归入背景参考资料"
+}

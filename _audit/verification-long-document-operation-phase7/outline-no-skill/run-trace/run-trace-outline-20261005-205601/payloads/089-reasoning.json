@@ -1,0 +1,29 @@
+Let me assess the current state. We've done several batches of work:
+
+1. Deleted PHASE7-PUNCT-PROBE sentences (3 probes) ✓
+2. Deleted duplicate "数据板的局限" text in 背景参考资料 ✓
+3. Deleted the paste instruction text ✓
+4. Added heading for "灾前军事基准线与菌毯的不可根除性" with ### ✓
+5. Added headings for "六大势力速写", "圣萌会与马格努斯", "终局：共存补丁" inside the 菌膜外套与共存补丁的关系 section ✓
+6. Fixed heading spacing issues ✓
+7. Fixed 本卷声明 punctuation ✓
+
+Now I need to complete the normalize-segment-2 pass (from ~46748 to end). But first, let me check what still needs to be done. The structure looks good now. Let me check the remaining issues:
+
+The plan says coverage should include:
+- normalize-segment-1 [0-46748] - partially done with some spacing/heading fixes
+- normalize-segment-2 [46748-75024] - need to verify end of document
+
+Looking at the document map, the structure now has the recently added headings (六大势力速写, 圣萌会与马格努斯, 终局：共存补丁). Let me check if there are any remaining issues. The search for `,` and `;` returned 0 results, meaning no half-width commas or semicolons remain in Chinese text. The `?` and `!` searches returned 0. The `.` search returned mostly structural dots in numbered lists and tables. The `:` search returned 3 matches - 2 of which are chemical formulas (18:2, 18:3) which should remain half-width, and 1 is time notation (3:14) which should also remain.
+
+Let me verify the end of the document is clean and check for any remaining structural issues. The structure now looks Word-like with:
+- # H1 title
+- ## H2 sections (叙事框架, 背景参考资料, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁, 六大势力速写, 圣萌会与马格努斯, 终局：共存补丁, 世界设定声明, 卷一-卷四)
+- ### H3 subsections within each
+- #### H4, ##### H5 deeper levels
+
+The recent heading additions (六大势力速写, 圣萌会与马格努斯, 终局：共存补丁) are at H2 level which is appropriate since they sit alongside other H2 sections.
+
+I think the main structure work is done. Let me now verify the normalize-segment-2 area for any remaining issues and complete the final normalization batch.
+
+Let me check the end of the document to ensure it's clean and complete the final batch.

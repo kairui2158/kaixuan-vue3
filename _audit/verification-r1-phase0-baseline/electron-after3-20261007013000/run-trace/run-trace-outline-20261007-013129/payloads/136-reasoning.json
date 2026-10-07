@@ -1,0 +1,50 @@
+The user wants me to restructure the outline like a Word document format. Let me analyze what needs to be done:
+
+1. The current document has some structural issues I've already partially fixed:
+   - Fixed "六大势力概览", "圣萌会的崛起", "巨树生长与天府都陷落" from H3 to H2 level
+   - Fixed two typos ("子云"→"孢子云", "物量储备"→"生物量储备")
+   - Fixed formatting in 故事核心 (comma, blank lines)
+
+2. Now I need to continue normalizing the document. The main tasks based on "按Word文档的形式重构大纲" (restructure as Word document format):
+
+Looking at the current structure, the document has:
+- H1: 《绿潮》大纲总纲
+- H2 sections under it: 叙事框架, 背景参考资料, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落, 世界设定声明, 卷一-卷四
+
+Issues to address:
+- The "背景参考资料" section after 第三卷 contains narrative summary material (六大势力概览, 圣萌会的崛起, 巨树生长与天府都陷落) which I've already fixed to H2. But these seem more like a separate "概览/序幕" section rather than being under "背景参考资料".
+
+- There are some content blocks that are in tab-separated format (tabs) instead of Markdown tables. I need to convert these. For example, in the "被孢子云直接废掉的武器系统" section and "菌毯为什么火力推不平" section, the tables use `\t` (tabs) as separators instead of `|`.
+
+Let me focus on what needs to be done:
+
+1. **Convert tab-separated tables to Markdown tables** - There are several tables using tabs instead of pipe characters
+2. **Normalize title levels** - Ensure consistent heading hierarchy 
+3. **Fix spacing/formatting**
+
+Let me read more sections to find all tab-separated tables that need conversion, then fix them.
+
+The key areas with tab-separated tables:
+- "被孢子云直接废掉的武器系统" - 8 rows of weapon systems
+- "层级	成分与结构	生物量占比（估算）	武器可触及性" - 4 rows of菌毯 layers
+
+Let me now work on converting these tables and doing a comprehensive normalization. I should be efficient and batch my writes.
+
+Let me identify all the issues by scanning the document structure more carefully. The main structural issues are:
+
+1. Tab-separated tables need conversion to pipe tables
+2. The "背景参考资料" section wraps a lot of content including the 灾前军事基准线 section
+3. Some sections have inconsistent blank line spacing
+
+Let me read the tab-table sections more carefully and then batch the conversions.
+
+For the weapon systems table, I need to read the full content first. Let me read the full sections.
+
+Actually, let me take a different approach. Instead of doing piecemeal fixes, let me identify the remaining issues and batch them efficiently.
+
+Key remaining issues:
+1. Tab-separated tables → pipe tables (weapons table, 菌毯 layers table)
+2. The section "## 背景参考资料" wraps contents that should perhaps be restructured
+3. Check if there are any duplicate sections (菌膜外套 appears in multiple places)
+
+Let me read the full weapon systems table and the full 菌毯 layers table to build the correct Markdown versions.

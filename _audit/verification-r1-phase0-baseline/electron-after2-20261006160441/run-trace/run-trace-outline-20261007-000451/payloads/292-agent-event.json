@@ -1,0 +1,30 @@
+{
+  "taskId": "edit-task-1791304284803-2",
+  "status": "awaiting_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "处理故事核心粘贴指令残留并将核心张力归位",
+  "executedBatches": [
+    "ai-edit-muwwbk2o-5"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "处理故事核心粘贴指令残留并将核心张力归位",
+    "batches": [
+      "ai-edit-muwwbk2o-5"
+    ],
+    "batchDetails": {
+      "ai-edit-muwwbk2o-5": {
+        "segmentId": "structure-repair",
+        "expectedChange": "restructure",
+        "range": {
+          "startLine": 0,
+          "endLine": 74356
+        },
+        "writeStrategy": "structure_repair",
+        "invariantResult": "planned-deletion-only"
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "ok": false,
+  "error": {
+    "code": "invalid_input",
+    "message": "必须提供 sectionId，或传入 document map/read_range 返回的 cursor",
+    "retryable": false
+  }
+}

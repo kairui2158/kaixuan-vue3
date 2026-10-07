@@ -1,0 +1,83 @@
+Let me now verify the current state of the document and assess what else needs to be done for the restructuring. Let me check the current status:
+
+1. ✅ Phase 1: Added proper heading levels to "灾前军事基准线" section in 背景参考资料
+2. ✅ Phase 2: Removed duplicate "数据板的局限" text that was in both 背景参考资料 section and as a separate top-level section
+3. ✅ Phase 3: Normalized tab-separated pseudo-tables to GFM tables
+4. ✅ Phase 4: Cleaned up "故事核心" - removed editor instruction text, converted 【】 brackets to proper #### headings
+
+Now I need to think about what "Word文档形式" means. The user wants the outline restructured like a Word document. Key aspects:
+
+1. Proper heading hierarchy (already largely done, but there are some issues)
+2. The "背景参考资料" section should probably be better integrated or renamed
+3. The "菌膜外套与共存补丁的关系" section has a lot of narrative prose that seems like it should be in the main story flow, not here
+4. The document needs clean section breaks, proper TOC structure, etc.
+
+Let me think about what the user actually wants. They said "按照Word文档的形式重构大纲，不要缩减内容" - restructure the outline in the form of a Word document, without reducing content.
+
+A Word document typically has:
+- Clear heading hierarchy (H1 for title, H2 for major sections, H3/H4 for subsections)
+- Clean formatting
+- Consistent numbering
+- No duplicate content
+- No editor notes
+
+Looking at the current structure:
+- H1: 《绿潮》大纲总纲
+- H2 sections: 叙事框架, 背景参考资料, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 世界设定声明, 卷一:基石设定层, 卷二:核心人物群像, 卷三:势力与格局层, 卷四:叙事工具箱层
+
+Some issues:
+1. "背景参考资料" contains what is essentially the story's backstory/世界观, and seems oddly placed between the narrative framework and the technical sections
+2. There are two "菌膜外套" sections (one standalone H2 and one inside 卷三§七 which is H4 level)
+3. "菌膜外套与共存补丁的关系" is a standalone H2 but seems like it should be under 卷三 or integrated into another section
+4. The "灾前军事基准线" section was properly leveled to H3/H4/H5
+
+Let me think about what restructuring makes sense for a Word document format. The user probably wants:
+
+A clean, well-organized outline with:
+- Front matter (title)
+- Part 1: Story Framework (叙事框架 with 故事核心, 第一卷, 第二卷, 第三卷)
+- Part 2: World Setting (背景参考资料 + 数据板的局限 + 菌膜外套 + 菌膜外套的关系 + 世界设定声明)
+- Part 3: Volume 1 - Foundation Settings (卷一)
+- Part 4: Volume 2 - Character Profiles (卷二)
+- Part 5: Volume 3 - Factions (卷三)
+- Part 6: Volume 4 - Narrative Toolkit (卷四)
+
+But the user says "不要缩减内容" so I can't remove anything. The restructuring is mainly about:
+
+1. Proper heading levels
+2. Removing duplicate content (done)
+3. Cleaning editor instructions (done)
+4. Normalizing tables (done)
+5. Possibly reordering the top-level sections for better flow
+
+Actually, let me reconsider. The current structure might actually be somewhat intentional - "背景参考资料" being separate from "卷一：基石设定层" makes sense as the former is background story context while the latter is specific world-building specifications. 
+
+The main issues I've identified and can fix:
+1. Duplicates - already fixed
+2. Non-standard heading levels - partially fixed
+3. Non-standard table formats - fixed
+4. Editor notes in content - fixed
+
+For a "Word文档形式", I think the main remaining tasks are:
+- Ensure consistent heading numbering and hierarchy
+- Clean up any remaining formatting issues
+- Make sure the document flows logically
+
+Let me check if there are any other issues I should address. Let me also verify the current document state.
+
+Actually, looking at this more carefully, I think the main task is largely done. The key structural changes needed were:
+
+1. Proper heading levels for the military baseline section ✅
+2. Removing duplicate 数据板的局限 ✅
+3. Normalizing tables to GFM ✅
+4. Cleaning editor instructions from 故事核心 ✅
+
+The document now has a clean hierarchical structure. Let me verify there are no other obvious issues to fix, then provide a summary.
+
+Let me check one more thing - the 菌膜外套 section appears to exist both as a standalone H2 and inside 卷三. Let me verify this isn't a duplicate.
+
+The standalone "菌膜外套：有限资源的临时通行方案" (H2, at 17411-18159) and the one inside 卷三§七 (heading-4-896l1n, "7.8 菌膜外套：有限资源的临时通行方案") - these appear to have similar content but with different levels of detail. The standalone one is more of a summary, while the H4 one is embedded in the full mechanism section. They serve different purposes - one is a top-level reference card, the other is part of the detailed technical exposition. I'll leave these as they are.
+
+Similarly "菌膜外套与共存补丁的关系" standalone H2 and "7.9 与终局的衔接：菌膜外套与共存补丁的关系" H4 - same pattern, different levels.
+
+Let me verify the document state and provide a summary of what was done.

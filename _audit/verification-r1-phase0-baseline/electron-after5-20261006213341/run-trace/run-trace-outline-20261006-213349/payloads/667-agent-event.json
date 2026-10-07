@@ -1,0 +1,78 @@
+{
+  "taskId": "edit-task-1791295843836-2",
+  "status": "completed",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "分叉一去重：删除第六章“七、变异体主动攻击人类核心机制”内与第四、五部分重复的 7.8、7.9 两节",
+  "executedBatches": [
+    "ai-edit-muwramzx-7",
+    "ai-edit-muwrgaa4-8",
+    "ai-edit-muwro548-9",
+    "ai-edit-muwrto4s-a",
+    "ai-edit-muwrzlcb-b"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "分叉一去重：删除第六章“七、变异体主动攻击人类核心机制”内与第四、五部分重复的 7.8、7.9 两节",
+    "batches": [
+      "ai-edit-muwramzx-7",
+      "ai-edit-muwrgaa4-8",
+      "ai-edit-muwro548-9",
+      "ai-edit-muwrto4s-a",
+      "ai-edit-muwrzlcb-b"
+    ],
+    "batchDetails": {
+      "ai-edit-muwramzx-7": {
+        "segmentId": "structure-plan",
+        "expectedChange": "remove_duplicate",
+        "range": {
+          "startLine": 0,
+          "endLine": 74345
+        },
+        "writeStrategy": "delete",
+        "invariantResult": "planned-deletion-only"
+      },
+      "ai-edit-muwrgaa4-8": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74345
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      },
+      "ai-edit-muwro548-9": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74345
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      },
+      "ai-edit-muwrto4s-a": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74345
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      },
+      "ai-edit-muwrzlcb-b": {
+        "segmentId": "structure-plan",
+        "expectedChange": "remove_duplicate",
+        "range": {
+          "startLine": 0,
+          "endLine": 74345
+        },
+        "writeStrategy": "delete",
+        "invariantResult": "planned-deletion-only"
+      }
+    }
+  }
+}

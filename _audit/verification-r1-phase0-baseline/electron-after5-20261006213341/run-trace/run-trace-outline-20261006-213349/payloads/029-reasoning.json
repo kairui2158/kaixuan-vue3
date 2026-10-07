@@ -1,0 +1,31 @@
+Let me analyze what's been done and what remains. The user wants to reconstruct the outline in Word document format without reducing content. Let me check the current state:
+
+1. I've already:
+   - Deleted the duplicate "数据板的局限" paragraph from the end of "背景参考资料"
+   - Added a heading "灾前军事基准线与菌毯的不可根除性" as ### level
+   - Moved "世界设定声明" to before "叙事框架" (as 序)
+   - Renumbered all ## level headings with Chinese numbering (第一部分 to 第八部分)
+   - Fixed some quotation marks from half-width to full-width
+
+2. What still needs to be done:
+   - "卷四：叙事工具箱层" still has its original ## level heading — it should be renumbered as "第九部分"
+   - Need to check for any remaining half-width quotes
+   - The search for `\"` returned 0 results, meaning all escaped quotes in the search were properly converted
+
+Let me check if "卷四" was properly renumbered or not. Looking at the document map, I see `heading-2-12ruweg` with title "卷四：叙事工具箱层" — it wasn't in the renumber batch because the batch only covered the original ## headings and 卷四 is a ## heading that needs to be addressed.
+
+Wait, looking at the document map result, the heading reads `## 卷四：叙事工具箱层` — this was not included in my batch of renumbering. Let me fix this.
+
+Also, let me check the overall structure now. The document should look like:
+- 序　世界设定声明
+- 第一部分　叙事框架
+- 第二部分　背景参考资料
+- 第三部分　数据板的局限
+- 第四部分　菌膜外套：有限资源的临时通行方案
+- 第五部分　菌膜外套与共存补丁的关系
+- 第六部分　卷一：基石设定层
+- 第七部分　卷二：核心人物群像
+- 第八部分　卷三：势力与格局层
+- 第九部分　卷四：叙事工具箱层
+
+Let me verify and fix the last heading.

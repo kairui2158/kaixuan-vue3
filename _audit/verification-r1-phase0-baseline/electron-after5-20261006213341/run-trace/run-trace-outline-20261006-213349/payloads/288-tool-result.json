@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-4-2lgyj9",
+      "title": "2.5 和歌——将记忆与传承视为使命的归档者",
+      "kind": "heading",
+      "level": 4,
+      "path": "2.5 和歌——将记忆与传承视为使命的归档者"
+    },
+    "range": {
+      "start": 58873,
+      "end": 58903
+    },
+    "offset": 0,
+    "maxChars": 30,
+    "content": "#### 2.5 和歌——将记忆与传承视为使命的归档者\n\n沉",
+    "hasMore": true,
+    "nextCursor": "section:heading-4-2lgyj9:30",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

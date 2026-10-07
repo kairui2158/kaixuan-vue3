@@ -1,0 +1,97 @@
+The user wants me to restructure the outline in a "Word document" format without reducing content. Let me analyze what needs to be done:
+
+1. First, I need to understand the current structure and identify issues
+2. The main problems I can see:
+   - There are 3 standalone level-2 headings (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) that are currently placed between "背景参考资料" and "世界设定声明" - they seem like they should be part of the overall structure
+   - The "灾前军事基准线与菌毯的不可根除性" block was inside "背景参考资料" and I gave it a level-3 heading
+   - There might be content organization issues
+
+Wait, let me re-read the user's request: "按照Word文档的形式重构大纲，不要缩减内容" - Restructure the outline in the form of a Word document, don't reduce content.
+
+This likely means:
+1. Organize the document with proper hierarchical structure (like a Word document with proper heading levels)
+2. Fix any structural issues
+3. Move standalone sections into proper parent sections
+
+Looking at the current structure, I see these "orphan" level-2 headings:
+- `## 数据板的局限` - standalone between 背景参考资料 and 世界设定声明
+- `## 菌膜外套：有限资源的临时通行方案` - standalone
+- `## 菌膜外套与共存补丁的关系` - standalone (this one also contains the endgame narrative, 圣萌会 summary, etc.)
+
+These seem like they should be better organized. But I was told "不要缩减内容" - don't reduce content.
+
+Let me look at what the plan says:
+- Stage 1: Fix misplaced headings/paragraphs, add titles for untitled text
+- Stage 2: Confirm and delete duplicates
+- Stage 3: Normalize punctuation, whitespace, numbering, heading levels
+
+I already:
+1. Deleted the duplicate "数据板的局限" paragraph at the end of "背景参考资料"
+2. Added a level-3 heading to "灾前军事基准线与菌毯的不可根除性"
+
+Now I need to think about what "Word文档形式" means. In a Word document, you'd typically have:
+- A clear table of contents with numbered chapters
+- Consistent heading hierarchy
+- No orphan sections
+
+The current structure has these standalone level-2 sections between 背景参考资料 and 世界设定声明:
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系
+
+These seem like they belong somewhere. The "菌膜外套与共存补丁的关系" section contains the endgame narrative, which is more story-related than reference. 
+
+But the user says "不要缩减内容" - just restructure. Maybe the "Word document" format means organizing it with proper numbering and hierarchy?
+
+Let me look at the big picture:
+- 叙事框架 (level 2) - contains story core and volumes
+- 背景参考资料 (level 2) 
+- 数据板的局限 (level 2) - standalone
+- 菌膜外套 (level 2) - standalone  
+- 菌膜外套与共存补丁的关系 (level 2) - standalone, contains endgame narrative
+- 世界设定声明 (level 2)
+- 卷一：基石设定层 (level 2)
+- 卷二：核心人物群像 (level 2)
+- 卷三：势力与格局层 (level 2)
+- 卷四：叙事工具箱层 (level 2)
+
+The three standalone sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) are floating between 背景参考资料 and 世界设定声明. They seem like they should be consolidated or moved.
+
+However, the agent plan says:
+- normalize-segments: Format by planned batches
+- normalize-changes-punctuation-whitespace-format-only
+
+The plan limits me to format changes. I cannot reorganize content hierarchy substantially. Let me focus on what I can do:
+
+1. The three standalone sections are level-2. Should they be level-2? They're technical reference material. But they're already in the right place conceptually - between background reference and world-setting declaration.
+
+Actually, I think the "Word document" restructuring means:
+- Ensure consistent heading hierarchy
+- Fix punctuation (half-width to full-width for Chinese)
+- Remove empty duplicate paragraphs
+- Ensure numbering is consistent
+
+Let me focus on normalization now. The current state after my edit:
+- The duplicate paragraph was removed
+- "灾前军事基准线" got a level-3 heading
+
+Now I need to normalize the whole document. Let me focus on:
+1. Fixing half-width punctuation to full-width in Chinese contexts
+2. Ensuring heading levels are consistent
+
+But the plan says I need to read first, then write in batches. Let me proceed with the normalization phase. 
+
+Actually, wait - the user's request was to "按照Word文档的形式重构大纲". This implies a significant restructuring, not just formatting. But the plan limits me to normalize-segments (punctuation, whitespace, format only) and planned-deletion-only.
+
+Let me reconsider. The existing structure already has a logical flow:
+1. 叙事框架 (story framework)
+2. 背景参考资料 (background reference)
+3. 数据板的局限 / 菌膜外套 / 菌膜外套与共存补丁的关系 (technical explanations)
+4. 世界设定声明 (world setting declaration)
+5. 卷一-卷四 (detailed settings)
+
+The main issue is that sections 3 (three standalone level-2 headings) don't fit neatly. In a Word document, they might be subsections of "背景参考资料" or a new parent section. But the plan says I can only do format-level changes...
+
+Let me just proceed with the normalization phase: fix punctuation, ensure consistent formatting, and make sure headings are properly numbered.
+
+Let me read the remaining sections and start normalizing.

@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-4-hef7uj",
+      "title": "7.3 人类被攻击的根本原因",
+      "kind": "heading",
+      "level": 4,
+      "path": "7.3 人类被攻击的根本原因"
+    },
+    "range": {
+      "start": 45535,
+      "end": 45653
+    },
+    "offset": 0,
+    "maxChars": 12000,
+    "content": "#### 7.3 人类被攻击的根本原因\n\n人类是唯一同时不满足两套认证条件的生物。未接入菌毯网络，无生态身份标签；信息素被标记为“异常信号”——变异体攻击人类是在“排除异己”；人类聚集被识别为“异常信号扩大”，触发多重排查清除程序。\n\n",
+    "hasMore": false,
+    "next_steps": [
+      "基于已读取内容回答或写入；需要其他节时先调用 editor.document_map"
+    ]
+  }
+}

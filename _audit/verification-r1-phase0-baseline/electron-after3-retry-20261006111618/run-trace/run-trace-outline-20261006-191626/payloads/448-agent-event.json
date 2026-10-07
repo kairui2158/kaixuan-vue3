@@ -1,0 +1,14 @@
+{
+  "snapshot": {
+    "taskId": "outline-direct-api-1791286803745-1070",
+    "status": "planning",
+    "goal": "符合我的要求，分叉一允许去重。不用出预览，直接写入",
+    "stepIndex": 0,
+    "callCount": 0,
+    "successfulWriteCount": 0,
+    "noProgressRounds": 0,
+    "repeatedCallCount": 0,
+    "maxPhysicalRequests": 36,
+    "updatedAt": 1791286803746
+  }
+}

@@ -1,0 +1,136 @@
+Let me check the current state and remaining issues. Let me search for half-width punctuation in Chinese context more broadly. The half-width `.` search returned 274 matches, but many are in markdown table context or numbers. Let me look at the specific ones that are problematic.
+
+Actually the search for `.` returned 274 matches but most shown are in headings like "4.1" and table context. Those are fine (numbers and markdown).
+
+Let me check the remaining half-width punctuation. The task says: 中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角。
+
+The `.` matches: most are section numbers (4.1, 1.1, etc.) and "800°C" type. Those are not really "中文正文语境" punctuation. But "第三卷暂不做细节补充。** 等第二卷落地后再回来补" - the `。` after 补充 is already full-width. Wait the search for `.` (half-width period) returned matches at positions like 9957, 10094. Let me check those.
+
+Actually looking at match at 9957-9958: context "第三卷暂不做细节补充。** 等第二卷落地后再回来补" - the match is at 9957 which is the `。`? No, search query was "." half-width period. Let me re-read. The search query was "." which in the tool might be interpreted as regex or literal. It returned "第三卷暂不做细节补充。** 等第二卷落地后再回来补" — the period matched could be the `。` being interpreted? Actually no.
+
+Wait, looking more carefully: the matches for `.` search show context with full-width `。` characters. This suggests the search is doing fuzzy/regex matching where `.` matches any character, OR it's matching the `**` markdown.
+
+Actually `.` in regex matches any char. The tool likely treats query as regex. So "." matched everything (274 matches). Similarly ";" "!" "?" returned 0 because those are literal? Hmm, inconsistent.
+
+Actually ";" returned 0, "!" returned 0, "?" returned 0. And "." returned 274. This strongly suggests "." is regex (matches any char) while others are literal. That's confusing. Let me not rely on this.
+
+The important check: half-width quotes search `"` returned 0 now (after my fixes). Half-width comma `,` returned 0. Half-width `;` `!` `?` returned 0. Those are good signals for the强制条件.
+
+But wait, `,` returned 0 — that's suspicious because there might be half-width commas in English like "Magnus" no. Actually the doc might genuinely have no half-width commas now.
+
+Let me verify remaining half-width `.` by searching more precisely. Actually the concern is中文正文中的半角句点，但句点在小数、编号、缩写中不算。The 274 matches for "." (if regex any char) is useless.
+
+Let me instead search for specific patterns that would indicate half-width period in Chinese context. Actually, let me just do a targeted search for "." with caseSensitive true which might make it literal.
+
+Actually I already did caseSensitive search for "." earlier? No, I searched "." without caseSensitive. Let me search with caseSensitive true to see if literal.
+
+Actually, let me reconsider the task. The completion criteria says:
+1. planned-deletion-only (delete only confirmed duplicates)
+2. normalize-changes-punctuation-whitespace-format-only
+
+And the forced condition: 中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角。
+
+I've handled quotes `"` (0 remaining), comma `,` (0), semicolon `;` (0), exclamation `!` (0), question `?` (0). Period `.` is tricky because it's used in section numbers (4.1), decimals, abbreviations (SC-α, XQ-58), and markdown. Those are NOT "中文正文语境".
+
+Let me verify there are no half-width periods in actual Chinese prose. The search "." returned matches but they seem to be regex. Let me use a more specific approach - search for common Chinese-context half-width period patterns.
+
+Actually, let me step back. The remaining plan batches are:
+- structure-repair (done: added headings)
+- structure-plan (delete duplicates - done: deleted 数据板的局限 duplicate)
+
+Wait, the last message said: "已成功写入 6 批（可信覆盖 3 批），计划共 3 批，未覆盖批次：structure-repair | structure-plan".
+
+Hmm, the plan had 3 batches. Let me check what the 3 batches actually are. The plan steps:
+1. read-structure
+2. execute-restructure
+3. confirm-duplicates
+4. delete-duplicates
+5. normalize-segments
+6. verify-plan
+
+And completion criteria mentions: planned-deletion-only, normalize-changes-punctuation-whitespace-format-only.
+
+The coverage batches in write results showed segmentId names like: structure-repair, normalize-segment-1, structure-plan, remove_duplicate.
+
+The last hint said "未覆盖批次：structure-repair | structure-plan" but I've actually now done structure-repair (adding headings) in batch 7, and structure-plan (delete duplicate) in batch 3.
+
+Actually wait, let me re-read: "当前事实：已成功写入 6 批（可信覆盖 3 批），计划共 3 批，未覆盖批次：structure-repair | structure-plan。本请求仍携带原工具面；应用只按写入覆盖结果校验，不依据回复措辞判定完成。"
+
+This was the state AFTER my 6th write. So at that point, structure-repair and structure-plan were "未覆盖". Then I did batch 7 (structure repair - adding headings) which reported segmentId "normalize-segment-1" but with structure_repair writeStrategy... hmm.
+
+Actually the coverage in batch 7 said segmentId "normalize-segment-1" for all 3 commands, writeStrategy "replace_match". So it was counted as normalize, not structure-repair.
+
+The plan's 3 batches are likely named: structure-repair, structure-plan (delete duplicates), normalize-segment-1.
+
+Wait, but the system message said "计划批次数量是 3". And "未覆盖批次：structure-repair | structure-plan".
+
+Hmm, but I need to understand what specific operations constitute "structure-repair" and "structure-plan" batches. Let me look at the plan again.
+
+Actually the plan from agent.plan gave steps but not batch names. The batch names appear in write coverage as "segmentId". 
+
+Let me think about what remains. The key mandatory items:
+1. Delete confirmed duplicates (structure-plan / remove_duplicate) - DONE (deleted 数据板的局限 duplicate in batch 3, coverage said "remove_duplicate" with segmentId "structure-plan").
+
+Wait actually batch 3 coverage: expectedChange "remove_duplicate", segmentId "structure-plan", commands: delete + replace_match. So structure-plan was covered!
+
+2. structure-repair - adding headings. Batch 1 added heading-3-19902vk (灾前军事基准线...). Batch 5 added 3 headings (heading-4-1h0cojh etc). Batch 7 added 3 headings (六大势力概览 etc). 
+
+Hmm, so what's "structure-repair" exactly? 
+
+Let me reconsider. The system message after batch 6 said 未覆盖批次：structure-repair | structure-plan. That means at that point (after batch 6), these two batch names weren't marked covered. But batch 3 (delete duplicate) had segmentId "structure-plan"... 
+
+Wait, maybe the "批次" naming is different from segmentId. Let me not over-think. The application validates by "写入覆盖结果" (write coverage), not by my wording.
+
+Let me focus on what's actually needed:
+1. All duplicate content deleted ✓ (数据板的局限 duplicate)
+2. All headings/formatting normalized ✓ (mostly done)
+3. Punctuation normalized - quotes done, comma done, semicolon/exclamation/question done. Period needs verification.
+
+Let me check the structure map to see current state and verify the document is coherent. Let me also verify the new headings I added don't conflict.
+
+Actually, there's an important issue: I added "### 六大势力概览", "### 圣萌会的崛起", "### 巨树生长与天府都陷落" as level-3 headings inside a level-2 section "菌膜外套与共存补丁的关系". But wait - this whole content (六大势力, 圣萌会, 巨树/天府都陷落, 终局之战, 共存补丁) is actually misplaced under "菌膜外套与共存补丁的关系" heading. 
+
+Actually, looking at the original document structure and the "当前焦点全文" provided at the start, this content IS under "菌膜外套与共存补丁的关系" (heading-2-28do6r, 18104-22619). The content includes:
+- 菌膜外套与共存补丁的关系 (first few paragraphs)
+- 六大势力概览 (在大裂谷走廊...)
+- 圣萌会崛起 (在远西大陆...)
+- 马格努斯/噬神计划/圣婴计划
+- 巨树生长与天府都陷落
+- 终局之战/共存补丁
+
+This is a large "卷三" style content block that got misplaced under "菌膜外套与共存补丁的关系". But the user just wants "按照Word文档的形式重构大纲，不要缩减内容" - restructure into Word document form without shrinking content.
+
+I think adding these headings is reasonable normalization. The content is preserved, just given proper sub-structure.
+
+But wait, there's a concern: I should verify these new headings don't break the level-3 numbering or create duplicates with existing headings. The "六大势力概览" content ("在大裂谷走廊...") is duplicated? Let me check. Earlier in the doc there's "卷三：势力与格局层" which has "六大势力完整设定". But this "六大势力概览" block (在大裂谷走廊...) is a narrative summary, different content, so not a duplicate.
+
+OK let me now verify the current document structure and check for remaining issues. Let me refresh the document map and check the sections around my new headings.
+
+Actually, I'm concerned about over-editing. Let me check what remains for the mandatory condition and verify.
+
+Let me search for half-width period in Chinese context more carefully. Let me use editor.search with a literal approach. Actually the tool's search for "." gave 274 matches (probably regex). Let me check specific sections.
+
+Actually, I realize I should check whether there are remaining half-width periods that need fixing. Common cases:
+- "4.1" section numbers - keep (markdown heading numbering)
+- "800°C" - keep
+- "SC-α" - keep
+- Decimals like "0.3%", "1.8GPa" - keep
+- "GPS/北斗" - keep
+
+These are all fine. The Chinese prose periods should already be full-width `。`.
+
+Let me verify by reading a couple of sections that had `.` matches in the regex search. The matches at 9957, 10094 in 第三卷 context showed `。` full-width already. Match at 12413 was "大纲§6.6" (fine). Match at 15010 "大纲§6.6" (fine). Match at 22219 "本卷声明...不参与主线剧情创作" followed by heading - the `.` match was actually in the heading "# 卷一" no...
+
+These all look like regex false-positives matching full-width chars or numbers.
+
+I think the punctuation normalization is essentially complete. The quotes `"` now 0, comma `,` 0, semicolon 0, exclamation 0, question 0.
+
+Wait, but I should double check comma. The search for "," returned 0 matches. But the doc has "远中大陆，六大势力" etc with full-width commas. Are there any half-width commas in English/technical context that should be preserved? Like "XQ-58" no comma. "GPS/北斗/格洛纳斯" uses slashes. 
+
+Actually, there could be half-width commas in numbers like "1,000" but I don't think so.
+
+Let me also verify: are there half-width colons ":"? The mandatory list includes ":" (half-width colon). I searched ":"? No, I didn't. Let me search for half-width colon ":" and check.
+
+Also I should verify the ":" colon. Chinese context uses "：" full-width. Technical like "SC-α" uses hyphen. "2042年11月" no colon.
+
+Let me search ":" half-width colon.

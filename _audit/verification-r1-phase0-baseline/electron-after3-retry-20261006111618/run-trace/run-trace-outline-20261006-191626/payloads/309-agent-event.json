@@ -1,0 +1,30 @@
+{
+  "taskId": "edit-task-1791285681726-1",
+  "status": "awaiting_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "批次一：删除遗留编辑指令与已确认重复段，保留独立章节原文",
+  "executedBatches": [
+    "ai-edit-muwl8tux-1"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "批次一：删除遗留编辑指令与已确认重复段，保留独立章节原文",
+    "batches": [
+      "ai-edit-muwl8tux-1"
+    ],
+    "batchDetails": {
+      "ai-edit-muwl8tux-1": {
+        "segmentId": "structure-plan",
+        "expectedChange": "remove_duplicate",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "delete",
+        "invariantResult": "planned-deletion-only"
+      }
+    }
+  }
+}

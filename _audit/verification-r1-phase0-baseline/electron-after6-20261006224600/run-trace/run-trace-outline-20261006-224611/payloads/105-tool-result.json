@@ -1,0 +1,47 @@
+{
+  "ok": false,
+  "error": {
+    "code": "target_not_found",
+    "message": "批次 3 条命令中 1 条失败； 第 2 条：目标片段不存在：请重新读取原文，并逐字复制目标片段。 重新读取范围：先用结构地图定位，再读取目标节点局部全文。 批次原子执行：预演通过条目未写入，原文保持不变，必须整批重提修正后的批次。",
+    "retryable": true
+  },
+  "data": {
+    "version": 1,
+    "ok": false,
+    "commandCount": 3,
+    "succeededIndexes": [
+      0
+    ],
+    "failedItems": [
+      {
+        "index": 1,
+        "operation": "delete",
+        "target": "粘贴到「故事核心」下，紧接原文“陈暮是唯一踩在菌毯上不被判定为敌人的人”之后：",
+        "reason": "target_not_found",
+        "message": "目标片段不存在：请重新读取原文，并逐字复制目标片段。",
+        "suggestion": "re_read_target"
+      }
+    ],
+    "retryCommand": {
+      "type": "editor_edit",
+      "version": 1,
+      "operation": "rewrite",
+      "content": "{\n  \"repair\": \"请整批重新提交修正后的命令\",\n  \"failedIndexes\": [\n    1\n  ],\n  \"diagnostics\": [\n    {\n      \"index\": 0,\n      \"reason\": \"target_not_found\",\n      \"suggestion\": \"re_read_target\"\n    }\n  ],\n  \"keepIndexes\": [\n    0\n  ]\n}",
+      "target": "RETRY_FAILED_ITEMS_ONLY",
+      "reason": "批次原子执行：预演通过条目未写入；必须整批重提"
+    },
+    "summary": "批次 3 条命令中 1 条失败； 第 2 条：目标片段不存在：请重新读取原文，并逐字复制目标片段。 重新读取范围：先用结构地图定位，再读取目标节点局部全文。 批次原子执行：预演通过条目未写入，原文保持不变，必须整批重提修正后的批次。",
+    "errorCatalog": {
+      "invalid_input": "输入结构非法；按错误信息修正后整批重试",
+      "missing_field": "必填字段缺失；补齐 operation/content/target 后整批重试",
+      "ambiguous_target": "目标片段多命中；扩展片段或改用结构锚点后重试",
+      "target_not_found": "目标片段不存在；按候选重新复制原文后重试",
+      "version_changed": "编辑器版本已变化；重新读取目标后重试",
+      "locked": "目标已锁定；请改为定位讨论或请求用户解锁",
+      "permission_denied": "当前意图无写入权限；等待用户明确写入请求",
+      "duplicate_write_blocked": "连续重复写入被拦截；不要重发相同参数",
+      "integrity_failed": "结构完整性校验失败；按诊断调整命令，禁止删除关键结构后重试"
+    },
+    "repairPolicy": "批次是原子执行：任何条目失败时原文未修改，预演通过条目也没有写入。重试必须提交修正后的完整批次，禁止只重提失败条目或拼接旧批次。移动整节必须使用 move 操作，禁止用删除+插入两条命令拼接移动。"
+  }
+}

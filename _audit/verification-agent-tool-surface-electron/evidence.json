@@ -1,0 +1,89 @@
+{
+  "schema": "shenyi.agent-tool-surface.electron",
+  "version": 1,
+  "generatedAt": "2026-10-06T04:19:42.966Z",
+  "checks": [
+    "outline: provider request and trace exclude agent.spawn/wait/cancel, include context.remaining/agent.plan; run closes",
+    "home: provider request and trace exclude agent.spawn/wait/cancel, include context.remaining/agent.plan; run closes"
+  ],
+  "requests": [
+    {
+      "url": "/v1/chat/completions",
+      "stream": true,
+      "messageCount": 3,
+      "maxTokens": 4096,
+      "reasoningEffort": null,
+      "systemPromptPrefix": "你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。\n\n本轮实际可调用",
+      "intentFallback": false,
+      "toolNames": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.write",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "outline.get_structure",
+        "outline.read_range",
+        "outline.search",
+        "outline.get_summary",
+        "context.remaining",
+        "agent.plan"
+      ]
+    },
+    {
+      "url": "/v1/chat/completions",
+      "stream": true,
+      "messageCount": 5,
+      "maxTokens": 4096,
+      "reasoningEffort": null,
+      "systemPromptPrefix": "你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。\n\n本轮实际可调用",
+      "intentFallback": false,
+      "toolNames": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.write",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "outline.get_structure",
+        "outline.read_range",
+        "outline.search",
+        "outline.get_summary",
+        "context.remaining",
+        "agent.plan"
+      ]
+    },
+    {
+      "url": "/v1/chat/completions",
+      "stream": false,
+      "messageCount": 2,
+      "maxTokens": 96,
+      "reasoningEffort": "none",
+      "systemPromptPrefix": "你是小说创作工作台的意图分类器。只输出 JSON：{\"intent\":\"anal",
+      "intentFallback": true,
+      "toolNames": []
+    },
+    {
+      "url": "/v1/chat/completions",
+      "stream": true,
+      "messageCount": 5,
+      "maxTokens": 4096,
+      "reasoningEffort": null,
+      "systemPromptPrefix": "你是写作助手。\n\n---\n\n参考资料-大纲索引：\n第一卷 风暴起点\n第一章 男主",
+      "intentFallback": false,
+      "toolNames": [
+        "context.remaining",
+        "agent.plan"
+      ]
+    }
+  ],
+  "verdict": "pass"
+}

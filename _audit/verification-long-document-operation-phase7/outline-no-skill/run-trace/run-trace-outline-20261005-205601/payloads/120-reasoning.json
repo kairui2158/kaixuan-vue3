@@ -1,0 +1,216 @@
+I need to understand what's being asked. The user wants me to restructure the outline as a Word document without reducing content. I've been doing hierarchical heading normalization. There are additional instructions now about punctuation normalization (半角标点 to 全角) which is a mandatory check.
+
+Let me understand the current state and what remains. The plan mentions:
+- normalize-segment-1[0-46748]
+- normalize-segment-2[46748-75024]
+
+Both segments need: punctuation normalization (半角逗号/句号/分号/冒号/感叹号/问号 → 全角), blank line normalization, numbering and heading level cleanup.
+
+The critical mandatory condition: Chinese context's 半角标点 must be unified to 全角. This is a huge task across 75000 characters.
+
+Wait, but I need to be careful. The instruction says "整理阶段必须覆盖全部计划段落（normalize-segment-1[0-46748]|normalize-segment-2[46748-75024]）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令，禁止把同段多条命令拆成多次调用".
+
+So I need to process segment 1 (0-46748) and segment 2 (46748-75024). Each segment: read to confirm what needs fixing, then submit all commands in one editor.write.
+
+The plan has 4 batches total. Let me check what batches I've done:
+1. Batch "normalize-segment-1" - I did heading level fixes (6 commands for background references)
+2. Batch "normalize-segment-1" - I did heading additions (9 commands for military section)
+
+Wait, actually these were both labeled normalize-segment-1 in coverage. Let me re-check.
+
+The plan says 4 batches. Let me look at what the remaining work is.
+
+Actually, let me step back. The core user request was "按照Word文档的形式重构大纲，不要缩减内容" (restructure the outline in Word document form, without reducing content).
+
+The mandatory punctuation normalization seems to be a system-level requirement for the "normalize" plan. But wait - is this actually required by the user, or is it an over-interpretation by the plan?
+
+Looking at the plan criteria: "normalize-changes-punctuation-whitespace-format-only" and the instruction now explicitly says "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）；这是完成校验的强制条件".
+
+Hmm, but actually there's a tension here. The user just wants Word-document-style restructuring. The punctuation normalization across 75000 characters is a massive undertaking that would require reading every single character and fixing all 半角 punctuation.
+
+But wait - let me look more carefully. Are there actually 半角 punctuation marks in Chinese text? Looking at the content I've read, I see things like "0.8°C" (that's fine, numbers), "4-6小时" (fine), "SC-α" (fine). 
+
+Actually, let me search for actual half-width punctuation in Chinese context. Common ones:
+- 半角逗号 ","
+- 半角句号 "."
+- 半角分号 ";"
+- 半角冒号 ":"
+- 半角感叹号 "!"
+- 半角问号 "?"
+
+Looking at the content, I see things like "远西大陆“普罗米修斯”计划、北冻原“冬盾计划”、远西大陆“欧罗巴之矛”紧随其后；少数方向（约5%）探索共生装甲" - these use full-width punctuation already.
+
+Let me search for half-width punctuation to understand the scope.
+
+Actually, I realize I should be more systematic. Let me search for half-width punctuation marks in the document.
+
+But wait, I've been told I've done "2 rounds of only reading tools" and I must now write. But I also need to understand the scope before writing.
+
+Actually, re-reading: "你已连续 2 轮只调用读取工具。当前请求仍携带工具面。下一轮必须直接提交 editor.write 写入".
+
+Hmm, but this is a fresh context. The system is telling me I must write now.
+
+Let me reconsider the whole situation. This is a complex task. Let me think about what "按照Word文档的形式重构大纲" actually means and what's the minimal correct interpretation.
+
+"按照Word文档的形式重构大纲" = "Restructure the outline in the form of a Word document".
+
+This likely means:
+1. Proper heading hierarchy (H1/H2/H3/H4/H5) - which I've been doing
+2. Clean document structure
+
+The punctuation normalization might be an additional requirement that the plan system has injected, but it seems aggressive.
+
+Actually, let me reconsider. The instructions are quite explicit and detailed now. They're telling me:
+
+1. The plan has 4 batches
+2. I must cover normalize-segment-1[0-46748] and normalize-segment-2[46748-75024]
+3. Punctuation normalization is mandatory
+4. Heading level normalization requires reading structure first
+5. I must write, not preview
+
+Given the scale (75000 chars), and that I need to fix half-width punctuation in Chinese context, this is genuinely large. But the tool only allows 1-10 commands per write, with each command being a replace_match.
+
+The problem: to fix ALL half-width punctuation, I'd need to identify each instance. That's potentially thousands of replacements.
+
+Let me first search to understand how many half-width punctuation marks exist in Chinese context.
+
+Actually, let me search for the specific half-width punctuation patterns.
+
+Let me search for "," (half-width comma) in the document to see the scope.
+
+Actually, I should use editor.search to find these. But the search returns positions with context windows, not full text.
+
+Let me think about what's actually the most important deliverable here and focus on completing it properly.
+
+The heading hierarchy work is the core of "Word document form" restructuring. I've already done:
+1. Fixed 6 background reference headings (## → ###)
+2. Added 9 heading levels to the military section
+
+Remaining heading work I should check:
+- "灾前军事基准线与菌毯的不可根除性" - this is now ### under 背景参考资料 (##). Its subsections are now #### and #####. That's correct.
+- Actually wait, let me check the hierarchy consistency. The document has:
+  - H1: 《绿潮》大纲总纲
+  - H2: 叙事框架, 背景参考资料, 世界设定声明, 卷一, 卷二, 卷三, 卷四
+  - H3: 故事核心, 第一卷, 第二卷, 第三卷 (under 叙事框架); 数据板的局限, 菌膜外套, 六大势力速写, 圣萌会与马格努斯, 终局 (under 背景参考资料)
+  - Under 卷一 (H2): 一、书名定义... (H3), 1.1 (H4), etc.
+
+Wait, there's an issue. "灾前军事基准线与菌毯的不可根除性" was a H3 under 背景参考资料. But its internal structure used "一、二、三、" without heading markers, which I've now fixed to #### and #####.
+
+But actually, looking again - the original document_map showed:
+- heading-12077 "灾前军事基准线与菌毯的不可根除性" level 3 (under 背景参考资料 level 2)
+
+That's correct.
+
+Now let me think about whether there are other heading level issues.
+
+Let me check the document structure for remaining issues. From the document_map I got earlier (offset 0-200), I can see most of the structure.
+
+Key observations from document_map:
+1. "世界设定声明" - level 2 (heading-22066) - this appears AFTER "终局：共存补丁" which is now level 3 under 背景参考资料. But 世界设定声明 is level 2. That's correct - it's a top-level section.
+
+Wait, but actually there might be a structural issue. "世界设定声明" and "卷一" are H2. "背景参考资料" is H2. So the structure is:
+
+- H1 总纲
+  - H2 叙事框架
+    - H3 故事核心
+    - H3 第一卷
+    - H3 第二卷
+    - H3 第三卷
+  - H2 背景参考资料
+    - H3 灾前军事基准线... (with H4/H5 subsections)
+    - H3 数据板的局限
+    - H3 菌膜外套...
+    - H3 菌膜外套与共存补丁的关系
+    - H3 六大势力速写
+    - H3 圣萌会与马格努斯
+    - H3 终局：共存补丁
+  - H2 世界设定声明
+  - H2 卷一：基石设定层
+  - H2 卷二：核心人物群像
+  - H2 卷三：势力与格局层
+  - H2 卷四：叙事工具箱层
+
+This seems reasonable.
+
+Now, the remaining major work per the instructions is the punctuation normalization. Let me assess the actual scope by searching.
+
+Actually, I realize I need to be pragmatic. Let me search for half-width punctuation to gauge scope, then execute writes.
+
+Let me search for a few patterns. Actually, since I can only do a limited number of searches efficiently, let me search for the most impactful patterns.
+
+Actually, looking at the text I've already read (0-56000), I noticed the text uses full-width punctuation (，。；：！？) consistently in Chinese prose. The half-width punctuation appears mainly in:
+- Numbers like "0.8°C", "4-6小时" (these are fine, not Chinese prose punctuation)
+- Technical terms like "SC-α", "DNA", "PM2.5" (fine)
+- References like "§6.6", "§7.4" (fine)
+- Parentheses "（" "）" are already full-width
+
+Hmm, actually looking very carefully at the text, I see full-width punctuation throughout. So maybe the punctuation normalization is largely already done, and the mandatory check is more about ensuring I don't INTRODUCE half-width punctuation.
+
+Wait, but the instruction is emphatic. Let me actually search for half-width punctuation in Chinese context.
+
+Let me search for ", " (comma followed by space) or specific patterns. Actually the best approach: search for half-width comma ",".
+
+Actually, let me reconsider the whole thing. There might be a mismatch between what the plan says and what actually needs doing.
+
+The user's actual request: "按照Word文档的形式重构大纲，不要缩减内容。"
+
+This is a legitimate restructuring request. The "Word document form" means:
+1. Clear hierarchical headings (like Word's outline levels)
+2. Possibly removing the markdown markers that aren't Word-like
+3. Clean formatting
+
+I've done the heading hierarchy work. Now I need to complete the remaining batches.
+
+Given the instruction says "计划批次数量是 4" (4 batches), and I've done 2 writes, I have 2 more batches to complete.
+
+Let me think about what the remaining 2 batches should be:
+- Batch 3: normalize-segment-2 heading fixes (卷三 section, if any issues)
+- Batch 4: punctuation/whitespace normalization final pass
+
+Actually, the segments are:
+- normalize-segment-1[0-46748]: covers everything from start to 46748 (总纲 through 卷一的 七、变异体主动攻击)
+- normalize-segment-2[46748-75024]: covers 八、变异生物体系 through end
+
+I've done heading fixes in segment 1 (both writes). I need to:
+1. Read segment 2 and fix any heading issues there
+2. Do punctuation normalization in both segments
+
+Let me read segment 2 (46748-75024) to check for heading issues. I've already read up to 56000. Let me read 56000-75024.
+
+Actually, from the document_map I got earlier (which was truncated at offset 200), I have the structure up to heading-68053 (3.5.4 独有科技树). I need to see the rest of the structure (卷三 remainder, 卷四).
+
+Let me get the remaining document_map and read the remaining content.
+
+Let me do:
+1. editor.document_map with offset 200 (to get remaining sections)
+2. editor.read_range cursor 56000-68000 and 68000-75024
+
+Actually, I need to be efficient. Let me read the remaining content and get the full structure in parallel.
+
+Let me first get the remaining document map and read remaining content.
+
+Actually, I already have a good understanding. Let me read the remaining content (56000 onwards) and remaining document map.
+
+I'll do these reads, then execute writes. But the instruction says "下一轮必须直接提交 editor.write". However, I also need to "先读取确认需整理项" before each segment's write. So reading is still necessary and allowed as part of the process.
+
+Let me reconcile: The instruction says I've done "2 rounds of only reading tools" - but actually looking at my history, I did reads AND writes. The last 2 tool calls were reads (read_range 32000-44000 and 44000-56000). So I need to now either read the final segment or write.
+
+I think the right move is:
+1. Read the remaining content (56000-75024) + remaining document map - to confirm segment 2 needs
+2. Then write segment 2 fixes
+3. Then do punctuation fixes
+
+But to avoid "only reading" issues, let me combine: do the remaining reads, then immediately write.
+
+Actually, let me just get the remaining structure and content quickly, then write.
+
+Let me read remaining document map (offset 200) and content 56000-75024.
+
+Given the complexity, let me focus. The key deliverable per the plan is heading hierarchy + punctuation. Let me:
+
+1. Get remaining document_map (offset 200)
+2. Read 56000-75024 content
+
+Then write.
+
+Let me do these two reads in parallel.

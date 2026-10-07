@@ -1,0 +1,15 @@
+{
+  "snapshot": {
+    "taskId": "outline-direct-api-1791316324428-1503",
+    "status": "completed",
+    "reason": "completion criteria satisfied",
+    "goal": "** 为什么会有这个符号",
+    "stepIndex": 0,
+    "callCount": 1,
+    "successfulWriteCount": 0,
+    "noProgressRounds": 0,
+    "repeatedCallCount": 0,
+    "maxPhysicalRequests": 24,
+    "updatedAt": 1791316351113
+  }
+}

@@ -96,6 +96,7 @@ function createTextareaViewport(options: {
   let highlightTimer: ReturnType<typeof setTimeout> | null = null
   const lineIndexCache = createLineIndexCache()
   const scrollListeners = new Set<() => void>()
+  let pendingProgrammaticScroll = false
 
   mirror.setAttribute('aria-hidden', 'true')
   mirror.style.position = 'absolute'
@@ -190,8 +191,8 @@ function createTextareaViewport(options: {
     const startRect = measureOffset(start)
     const endRect = measureOffset(Math.max(start, end))
     highlightLayer.className = active
-      ? 'editor-viewport-active-line'
-      : 'editor-viewport-highlight'
+      ? 'editor-viewport-highlight-layer editor-viewport-active-line'
+      : 'editor-viewport-highlight-layer editor-viewport-highlight'
     highlightLayer.style.left = `${Math.min(startRect.left, endRect.left)}px`
     highlightLayer.style.top = `${startRect.top}px`
     highlightLayer.style.width = `${Math.max(24, Math.abs(endRect.left - startRect.left) + 8)}px`
@@ -204,15 +205,30 @@ function createTextareaViewport(options: {
     }
   }
 
+  function scrollToTarget(input: {
+    top: number
+    height: number
+    strategy: EditorViewportScrollStrategy
+  }) {
+    const nextScrollTop = computeViewportScroll({
+      top: input.top,
+      height: input.height,
+      clientHeight: textarea.clientHeight,
+      scrollTop: textarea.scrollTop,
+      strategy: input.strategy,
+    })
+    if (nextScrollTop === textarea.scrollTop) return
+    pendingProgrammaticScroll = true
+    textarea.scrollTop = nextScrollTop
+  }
+
   function revealTarget(target: EditorViewportTarget) {
     const start = Math.max(0, Number(target.start) || 0)
     const end = Math.max(start, Number(target.end) || start)
     const measurement = measureOffset(start)
-    textarea.scrollTop = computeViewportScroll({
+    scrollToTarget({
       top: measurement.top,
       height: measurement.height,
-      clientHeight: textarea.clientHeight,
-      scrollTop: textarea.scrollTop,
       strategy: resolveScrollStrategy(target.focus || 'auto'),
     })
     textarea.setSelectionRange(start, end)
@@ -229,7 +245,11 @@ function createTextareaViewport(options: {
   }
 
   function onUserScroll() {
-    pauseFollowTemporarily()
+    if (pendingProgrammaticScroll) {
+      pendingProgrammaticScroll = false
+    } else {
+      pauseFollowTemporarily()
+    }
     scrollListeners.forEach(listener => listener())
   }
 
@@ -250,11 +270,9 @@ function createTextareaViewport(options: {
     if (!followEnabled) return
     showHighlight(start, end, true)
     const measurement = measureOffset(start)
-    textarea.scrollTop = computeViewportScroll({
+    scrollToTarget({
       top: measurement.top,
       height: measurement.height,
-      clientHeight: textarea.clientHeight,
-      scrollTop: textarea.scrollTop,
       strategy: 'nearest',
     })
   }
@@ -265,7 +283,7 @@ function createTextareaViewport(options: {
       clearTimeout(followResumeTimer)
       followResumeTimer = null
     }
-    if (highlightLayer && highlightLayer.className === 'editor-viewport-active-line') {
+    if (highlightLayer && highlightLayer.className.includes('editor-viewport-active-line')) {
       highlightLayer.className = ''
     }
   }

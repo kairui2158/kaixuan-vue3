@@ -1,0 +1,273 @@
+{
+  "outcome": "completed",
+  "error": null,
+  "baselineFinding": null,
+  "runBinding": {
+    "runId": "run-1791307889873-1",
+    "runStatus": "running",
+    "currentTurnId": null,
+    "turns": [
+      {
+        "id": "turn-1791307889874-3",
+        "seq": 1,
+        "status": "success",
+        "reason": "edit_task_completed_verified",
+        "startedAt": 1791307889874,
+        "endedAt": 1791312041910
+      },
+      {
+        "id": "turn-1791312049801-2972",
+        "seq": 2,
+        "status": "success",
+        "reason": "edit_task_completed",
+        "startedAt": 1791312049801,
+        "endedAt": 1791313375101
+      },
+      {
+        "id": "turn-1791313392564-4435",
+        "seq": 3,
+        "status": "success",
+        "reason": "plain_dialogue_complete",
+        "startedAt": 1791313392564,
+        "endedAt": 1791313442929
+      }
+    ],
+    "apiCalls": [
+      {
+        "id": "api-1791307889946-8",
+        "seq": 1,
+        "turnId": "turn-1791307889874-3",
+        "status": "success",
+        "responseChars": 87,
+        "toolCallCount": 117,
+        "physicalCallCount": 70
+      },
+      {
+        "id": "api-1791312049945-2977",
+        "seq": 2,
+        "turnId": "turn-1791312049801-2972",
+        "status": "success",
+        "responseChars": 778,
+        "toolCallCount": 63,
+        "physicalCallCount": 37
+      },
+      {
+        "id": "api-1791313393042-4440",
+        "seq": 3,
+        "turnId": "turn-1791313392564-4435",
+        "status": "success",
+        "responseChars": 676,
+        "toolCallCount": 1,
+        "physicalCallCount": 2
+      }
+    ],
+    "eventCount": 4256,
+    "lastEventTypes": [
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "run-activity",
+      "physical-call",
+      "agent-state",
+      "agent-snapshot",
+      "agent-state",
+      "agent-state",
+      "agent-snapshot",
+      "agent-state",
+      "api-tool-surface-updated",
+      "state-transition",
+      "api-success",
+      "tool-call",
+      "turn-finished",
+      "session-active"
+    ]
+  },
+  "sourceOutlineChars": 74841,
+  "turns": [
+    {
+      "request": "按照Word文档的形式重构大纲，不要缩减内容。",
+      "turnStatus": "success",
+      "intent": "edit",
+      "durationMs": 4156457,
+      "physicalCallCount": 70,
+      "toolCallCount": 117,
+      "responseChars": 87,
+      "contentChanged": true,
+      "actualToolSurface": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.write",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "outline.get_structure",
+        "outline.read_range",
+        "outline.search",
+        "outline.get_summary"
+      ]
+    },
+    {
+      "request": "符合我的要求，分叉一允许去重。不用出预览，直接写入",
+      "turnStatus": "success",
+      "intent": "edit",
+      "durationMs": 1330105,
+      "physicalCallCount": 37,
+      "toolCallCount": 63,
+      "responseChars": 778,
+      "contentChanged": true,
+      "actualToolSurface": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.write",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "outline.get_structure",
+        "outline.read_range",
+        "outline.search",
+        "outline.get_summary"
+      ]
+    },
+    {
+      "request": "** 为什么会有这个符号",
+      "turnStatus": "success",
+      "intent": "discuss",
+      "durationMs": 61817,
+      "physicalCallCount": 2,
+      "toolCallCount": 1,
+      "responseChars": 676,
+      "contentChanged": false,
+      "actualToolSurface": [
+        "editor.get_state",
+        "editor.document_map",
+        "editor.read_range",
+        "editor.search",
+        "editor.locate",
+        "editor.reveal",
+        "editor.multi_get_state",
+        "editor.global_search",
+        "editor.workspace_summary",
+        "outline.get_structure",
+        "outline.read_range",
+        "outline.search",
+        "outline.get_summary"
+      ]
+    }
+  ],
+  "totals": {
+    "completedTurns": 3,
+    "physicalCalls": 109,
+    "physicalSuccesses": 109,
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "toolCalls": 181,
+    "toolSuccesses": 169,
+    "toolFailures": [
+      {
+        "name": "editor.write",
+        "status": "failed",
+        "errorCode": "invalid_input"
+      },
+      {
+        "name": "editor.write",
+        "status": "failed",
+        "errorCode": "missing_field"
+      },
+      {
+        "name": "editor.read_range",
+        "status": "failed",
+        "errorCode": "invalid_range"
+      },
+      {
+        "name": "editor.search",
+        "status": "failed",
+        "errorCode": "invalid_range"
+      },
+      {
+        "name": "editor.write",
+        "status": "failed",
+        "errorCode": "target_not_found"
+      },
+      {
+        "name": "editor.read_range",
+        "status": "failed",
+        "errorCode": "invalid_range"
+      },
+      {
+        "name": "editor.read_range",
+        "status": "failed",
+        "errorCode": "invalid_range"
+      },
+      {
+        "name": "editor.read_range",
+        "status": "failed",
+        "errorCode": "invalid_range"
+      },
+      {
+        "name": "editor.write",
+        "status": "failed",
+        "errorCode": "invalid_input"
+      },
+      {
+        "name": "editor.locate",
+        "status": "failed",
+        "errorCode": "target_not_found"
+      },
+      {
+        "name": "editor.locate",
+        "status": "failed",
+        "errorCode": "target_not_found"
+      },
+      {
+        "name": "editor.locate",
+        "status": "failed",
+        "errorCode": "target_not_found"
+      }
+    ],
+    "retiredToolsPresent": []
+  },
+  "copiedRunTraces": [
+    "run-trace-outline-20261007-013129"
+  ],
+  "runTraceExport": {
+    "success": true,
+    "path": "D:\\codex\\novel-workshop-vue3\\_data\\r1-phase0-baseline-exports\\run-trace-outline-20261007-013129-deep",
+    "reason": null
+  },
+  "observability": {
+    "logPath": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-r1-phase0-baseline\\electron-after3-20261007013000\\observability.jsonl",
+    "pageErrors": 14,
+    "requestFailures": 0
+  }
+}

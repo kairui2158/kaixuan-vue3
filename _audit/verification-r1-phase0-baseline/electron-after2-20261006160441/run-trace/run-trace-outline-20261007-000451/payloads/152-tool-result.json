@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "data": {
+    "total": 1,
+    "truncated": false,
+    "offset": 0,
+    "limit": 20,
+    "hasMore": false,
+    "matches": [
+      {
+        "start": 18586,
+        "end": 18597,
+        "sectionId": "heading-3-wvivz1",
+        "sectionTitle": "圣萌会与马格努斯",
+        "context": "类都会触发排异反应。直到陈暮出现。他不是靠武力突破了菌毯封锁——他是靠方岫岩留下的SC-α菌株，让菌丝网络主动忽略了他的存在。\n\n\n### 圣萌会与马格努斯\n\n在远西大陆，另一种力量正在凝聚。\n\n塞缪尔·赫兹是圣座教会派驻生物研究所的信仰监督员。他在这个位置上坐了六年，每一份档案都经过他的手，每一份文件都签过他的名字。他写得一手好备注，措辞"
+      }
+    ],
+    "next_steps": [
+      "调用 editor.read_range 传入 sectionId 读取命中节全文"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "ok": false,
+  "error": {
+    "code": "invalid_input",
+    "message": "query 必须是非空字符串",
+    "retryable": false
+  }
+}

@@ -1,0 +1,89 @@
+The user asked me to restructure the outline into a Word document format without reducing any content. Let me now assess what I've done so far and what remains to be done.
+
+What I've completed:
+1. Removed the editing instruction "粘贴到「故事核心」下..." that was left in the text
+2. Added a proper heading for "灾前军事基准线与菌毯的不可根除性" (was previously just a plain text line without heading markup)
+3. Deleted a duplicate copy of "数据板的局限" that was erroneously placed at the end of the 灾前军事基准线 section
+4. Fixed half-width quotation marks to full-width in the 故事核心 section
+5. Fixed half-width quotation marks in the 灾前军事基准线 section
+6. Fixed a missing bracket in the 核心张力 title
+
+But the user's request was to "按照Word文档的形式重构大纲" (restructure the outline in Word document format). The current outline is essentially already in a hierarchical Markdown format. Let me think about what "Word document format" means here...
+
+Looking at the current structure:
+- The top-level heading is `# 《绿潮》大纲总纲`
+- Under it are `## 叙事框架`, `## 背景参考资料`, `## 数据板的局限`, etc.
+- The 叙事框架 section has `### 故事核心`, `### 第一卷...`, `### 第二卷...`, `### 第三卷...`
+- Then there are separate sections like `## 卷一：基石设定层`, `## 卷二：核心人物群像`, `## 卷三：势力与格局层`, `## 卷四：叙事工具箱层`
+
+The structure is somewhat confused. The narrative framework (叙事框架) section contains the story core, volumes 1-3 summaries, and then background reference materials. But then separately there are "卷一：基石设定层", "卷二：核心人物群像", "卷三：势力与格局层", "卷四：叙事工具箱层" which are the actual detailed settings volumes.
+
+Actually, looking at it more carefully, maybe the issue is:
+1. "叙事框架" contains the high-level story summary and volume outlines
+2. "背景参考资料" is a large prose section that tells the background story
+3. Then "卷一/二/三/四" are the detailed setting documents
+
+I think the restructuring needs might be about cleaning up the hierarchy and making it more readable as a Word document. Let me check if there are other issues...
+
+The key problems I've identified and addressed:
+- Cleaning up editing artifacts (paste instructions)
+- Removing duplicate content
+- Fixing inconsistent punctuation
+- Adding missing section headings
+
+But the main "Word document restructuring" may also involve:
+1. Making the hierarchy cleaner
+2. Removing the "内容块" (content blocks) that are just empty paragraph markers
+3. Ensuring consistent formatting
+
+Let me also check for other duplicates and issues. The search for "菌膜外套与共存补丁的关系" and "菌膜外套：有限资源的临时通行方案" shows they appear both as standalone `##` sections AND as subsections within "七、变异体主动攻击人类核心机制" under "卷一". This means there are duplicates in the document.
+
+Let me check the structure more carefully. The standalone sections are:
+- `## 菌膜外套：有限资源的临时通行方案` (heading-2-10q4nra, 17356-18104)
+- `## 菌膜外套与共存补丁的关系` (heading-2-28do6r, 18104-22619)
+
+And within 卷一 > 七:
+- `#### 7.8 菌膜外套：有限资源的临时通行方案` (heading-4-896l1n)
+- `#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系` (heading-4-1au19n4)
+
+And also `## 数据板的局限` (heading-2-z4sxm8) appears as a standalone as well. And within 七 > 7.7 (唯一例外：菌膜装甲的原理), there's related content but not exactly the same.
+
+So there are duplicates of 数据板的局限, 菌膜外套, and 菌膜外套与共存补丁的关系. These appear both as standalone `##` sections AND as `####` subsections within 卷一.
+
+This is a structural duplication issue. The standalone versions exist between "背景参考资料" and "世界设定声明", right before "卷一". They seem to be positioned as "floating topics" that then get repeated in detail within the actual 卷一 section.
+
+For a proper Word document format, the ideal solution would be to keep them in one place (likely within 卷一 where they belong as detailed setting material) and remove the standalone duplicates. But wait - the user said "不要缩减内容" (don't reduce content). So I can't just delete the duplicates.
+
+Let me think about this differently. The "Word document form" restructuring probably means:
+1. Clean hierarchy (no floating duplicate sections)
+2. Remove editing artifacts
+3. Consistent formatting throughout
+4. Clean empty paragraphs/content blocks
+
+But I need to be careful about "不缩减内容". If content is truly duplicated word-for-word, I should keep one copy and remove the other, but not delete unique content.
+
+Let me verify the duplicates are truly identical. I saw that "数据板的局限" appeared twice - one copy was embedded in the 灾前军事基准线 section (which I already deleted the duplicate of), and one is the standalone `## 数据板的局限`. Now let me check if 菌膜外套 and 菌膜外套与共存补丁的关系 also have truly identical copies.
+
+Actually, looking at the document map, the standalone versions (heading-2-10q4nra and heading-2-28do6r) exist at the same level as other top-level sections, between 数据板的局限 and 世界设定声明. And the subsections (heading-4-896l1n and heading-4-1au19n4) are within 卷一 > 七.
+
+These are likely identical content duplicated in two places. For a clean Word document, I should keep them in one location. But since the user said "不要缩减内容", I need to be very careful.
+
+Let me take a step back and think about what the user really wants. "按照Word文档的形式重构大纲" - they want the outline restructured like a Word document. This likely means:
+- Clean, consistent heading hierarchy
+- No redundant/duplicate sections
+- No editing artifacts
+- Proper formatting
+- Content organized logically
+
+The current structure has these issues:
+1. Duplicate sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系)
+2. Editing artifacts (paste instructions - already removed)
+3. Inconsistent punctuation (half-width vs full-width quotes - partially fixed)
+4. Empty content blocks (内容块 1-39)
+5. Some headings not properly nested
+
+For a proper Word document structure, I should:
+1. Keep the duplicates only once (they are identical content)
+2. The standalone versions of 数据板的局限, 菌膜外套, and 菌膜外套与共存补丁的关系 between 背景参考资料 and 世界设定声明 seem to be "floating" content that doesn't belong there. They should either be removed (since they're duplicated in 卷一) or moved.
+
+Let me verify the duplicates are truly identical by reading them.

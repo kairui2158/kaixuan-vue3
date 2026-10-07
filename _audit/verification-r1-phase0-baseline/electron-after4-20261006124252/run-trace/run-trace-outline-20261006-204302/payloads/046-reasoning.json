@@ -1,0 +1,82 @@
+The user wants me to restructure the outline into a Word document format without reducing content. Let me analyze the current structure and plan the reconstruction.
+
+Looking at the current outline structure, it has a top-level heading "《绿潮》大纲总纲" with these main sections:
+
+1. 叙事框架 (heading-2)
+   - 故事核心
+   - 第一卷·觉醒与扎根
+   - 第二卷·连接与陷落
+   - 第三卷·远征与暗流
+
+2. 背景参考资料 (heading-2)
+3. 数据板的局限 (heading-2)
+4. 菌膜外套：有限资源的临时通行方案 (heading-2)
+5. 菌膜外套与共存补丁的关系 (heading-2)
+6. 世界设定声明 (heading-2)
+7. 卷一：基石设定层 (heading-2)
+8. 卷二：核心人物群像 (heading-2)
+9. 卷三：势力与格局层 (heading-2)
+10. 卷四：叙事工具箱层 (heading-2)
+
+The user wants a Word document format. Looking at the structure, it seems like the content is already well-organized but could use some restructuring. Let me think about what "Word文档形式" means here - likely they want clean heading hierarchy, proper formatting, and potentially some reordering.
+
+But wait - the system says the execution plan hasn't been completed. There was a previous plan with 3 batches: structure-repair, structure-plan, normalize-segment-1. Let me re-read what's needed.
+
+Actually, looking more carefully, the user said "符合我的要求，分叉一允许去重。不用出预览，直接写入" - meaning they confirmed the approach and want me to write directly without preview.
+
+But I also see from the system context that there was a previous execution plan with 3 batches that haven't been completed:
+- structure-repair
+- structure-plan  
+- normalize-segment-1
+
+The system says: "执行计划尚未完成，禁止把问题或计划当作最终回复。"
+
+So I need to execute these 3 batches. Let me understand what each batch does:
+
+1. structure-repair: Fix misplaced headings and paragraphs using move, add missing titles with insert, fix heading levels
+2. structure-plan: Read to confirm duplicates and submit delete commands
+3. normalize-segment-1: Fix punctuation, whitespace, numbering, and heading levels across the full document
+
+The normalize-segment-1 covers 0-74841 (the entire document).
+
+Let me start by reading the full content to understand what needs to be done. The document is 74841 chars long. I'll need to read it in segments.
+
+Let me start with the structure repair phase. First, let me understand the current structure issues.
+
+Looking at the structure map:
+- The document has heading-1 → heading-2 → heading-3 → heading-4 → heading-5 hierarchy
+- There are content blocks (paragraphs) that seem oddly placed
+- Some headings might be at wrong levels
+
+The key issues I can see:
+1. There's a duplicate "数据板的局限" - one under 背景参考资料 and one as its own heading-2 section
+2. Similarly "菌膜外套：有限资源的临时通行方案" appears both under 背景参考资料 context and as its own heading-2 section, and also under 卷一的七 section
+3. "菌膜外套与共存补丁的关系" appears both in 背景参考资料 context and as heading-2
+
+Wait, let me reconsider. The structure shows:
+- heading-2-1lka0h8: 背景参考资料 (10230-16801)
+- heading-2-z4sxm8: 数据板的局限 (16801-17356)
+- heading-2-10q4nra: 菌膜外套：有限资源的临时通行方案 (17356-18104)
+- heading-2-28do6r: 菌膜外套与共存补丁的关系 (18104-22619)
+
+And within 背景参考资料 (which I previously read part of), there's content about 数据板的局限, 菌膜外套, etc. But those sections after 背景参考资料 seem to be duplicates or extracted sections.
+
+Actually, looking more carefully at the structure, the 背景参考资料 section ends at 16801, then 数据板的局限 starts at 16801 as a separate heading-2. This means 数据板的局限 is NOT nested under 背景参考资料 - it's a sibling. But the content within 背景参考资料 also covers these topics. So there may be duplicates.
+
+Let me read the key sections to understand the issues. Given the complexity, let me start by reading the full document in chunks and then plan the restructuring.
+
+Actually, I think the approach should be:
+
+1. Read the full document structure and content
+2. Identify issues (duplicates, wrong heading levels, missing headings, punctuation issues)
+3. Execute the three batches systematically
+
+Let me start with batch 1: structure-repair. I need to:
+- Read sections to identify structural issues
+- Use move to fix misplaced content
+- Use insert to add missing headings
+- Fix heading levels
+
+Let me begin by reading the key problematic areas. I'll read the sections around the boundary between 背景参考资料 and the standalone sections.
+
+Let me be strategic - I'll read multiple sections in parallel where possible.

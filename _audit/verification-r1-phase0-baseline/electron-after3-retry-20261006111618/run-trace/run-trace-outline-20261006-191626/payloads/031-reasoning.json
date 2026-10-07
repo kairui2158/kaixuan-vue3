@@ -1,0 +1,160 @@
+The user wants me to restructure the outline into a Word document format without reducing content. I've already done two batches of edits. Let me understand what still needs to be done:
+
+1. Batch 1: Deleted the paste instruction line in story core, and deleted the duplicate "数据板的局限" content from background references (keeping the standalone chapter)
+2. Batch 2: Added heading titles for untitled sections within the background references
+
+Now I need to complete the structure-repair batch. Let me think about what structure issues remain:
+
+1. The "背景参考资料" section has a lot of content that includes "灾前军事基准线与菌毯的不可根除性" with sub-sections. I've already added headings for these.
+
+2. There's also the issue with "菌膜外套与共存补丁的关系" section - it contains a lot of narrative content about the six major factions, Saint Germination, and the finale that doesn't belong under that heading. This is actually a major structural issue.
+
+Let me read through the content to understand what needs to be done. The "heading-2-28do6r" section titled "菌膜外套与共存补丁的关系" starts at 17517 and ends at 22032, but it contains much more than just the relationship between the bacterial membrane coat and the coexistence patch.
+
+Let me read this section more carefully. Actually, I already read it earlier - it contains:
+- The relationship between bacterial membrane coat and coexistence patch (proper content)
+- Then a narrative about the six major factions
+- Then Saint Germination backstory
+- Then the finale/ending with the coexistence patch being written
+
+This is a major structural issue. The content after "菌膜外套是权宜之计，共存补丁是终极解法。" doesn't belong under this heading. It contains:
+- Six major factions summary
+- Saint Germination backstory
+- The finale: Titan tree, Tianfu fall, phage plan, coexistence patch
+
+These should potentially be moved to their own sections or incorporated into the appropriate parts of the outline.
+
+But wait - the user said "不要缩减内容" (don't reduce content). So I need to keep all content but restructure it properly.
+
+Let me think about what structure would make sense as a Word document:
+
+The current structure is:
+- # 《绿潮》大纲总纲
+  - ## 叙事框架
+    - ### 故事核心
+    - ### 第一卷·觉醒与扎根
+    - ### 第二卷·连接与陷落
+    - ### 第三卷·远征与暗流
+  - ## 背景参考资料 (contains narrative summary + military analysis)
+  - ## 数据板的局限
+  - ## 菌膜外套：有限资源的临时通行方案
+  - ## 菌膜外套与共存补丁的关系 (contains much more than the title suggests - has faction summaries + finale narrative)
+  - ## 世界设定声明
+  - ## 卷一：基石设定层
+  - ## 卷二：核心人物群像
+  - ## 卷三：势力与格局层
+  - ## 卷四：叙事工具箱层
+
+The major issue is the "菌膜外套与共存补丁的关系" section contains a lot of content that doesn't belong there. It seems like an "终局概览" or "故事全景" section got accidentally placed under that heading.
+
+Let me read the exact content around the end of the proper "菌膜外套与共存补丁的关系" content and the beginning of the narrative content to understand where the split should be.
+
+From what I read earlier:
+- "菌膜外套是权宜之计，共存补丁是终极解法。" ends the proper content
+- Then blank lines
+- Then: "在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮..." - this is narrative content about all six factions
+- Then Saint Germination
+- Then finale
+
+This narrative content seems like it should be its own section, maybe under "叙事框架" as a "故事全景概览" or similar. Or maybe it should just be marked clearly as "终局概览" in the background references.
+
+Actually, looking more carefully, this content appears to be a condensed narrative summary of the entire story arc - from faction introductions through to the finale. It's quite important content.
+
+For the Word document restructuring, I think the approach should be:
+1. Keep the overall structure but make it cleaner
+2. The "菌膜外套与共存补丁的关系" section needs to be split - the proper relationship content stays, and the narrative content after it needs to be moved to its own section
+
+Let me think about the best approach. Since the user wants a Word document format, the structure should be logical and hierarchical. Let me propose:
+
+Actually, I think the simplest approach is to create a new section for the narrative content that's currently misplaced. Let me identify the exact boundary:
+
+The proper "菌膜外套与共存补丁的关系" content ends with "菌膜外套是权宜之计，共存补丁是终极解法。" 
+
+Then the narrative content starts: "在大裂谷走廊..." - this is a narrative summary covering all six factions, Saint Germination, the Titan tree, the fall of Tianfu, and the finale.
+
+I should split this into its own section. The question is where to place it. Since it's a narrative overview of the whole story, it could go:
+- Under "叙事框架" as a general overview
+- Or as its own top-level section under the main heading
+
+I think the most logical placement would be to create a new section called something like "故事全景概览" or "终局与各势力概览" as a level-2 heading, placed after "菌膜外套与共存补丁的关系" and before "世界设定声明".
+
+But wait - I should be careful. The user said "按照Word文档的形式重构大纲，不要缩减内容" - restructure in Word document format, don't reduce content. This is about formatting and structure, not about creating new content or moving things around drastically.
+
+Let me re-read the plan requirements. The plan says:
+- Phase 1 (structure-repair): Use move to move misplaced headings and paragraphs to correct levels, use insert to add headings for untitled text, use replace_match/rewrite to fix existing heading levels
+- Phase 2: Confirm duplicates and delete
+- Phase 3: normalize punctuation, whitespace, numbering
+
+I've done batches 1 and 2 which covered deletion of duplicates and adding headings. Now I need to do the remaining structure repair work.
+
+Key issues I still need to address:
+1. The "菌膜外套与共存补丁的关系" section contains narrative content after the proper section content - this needs to be split
+2. Check for any other structural issues
+
+Let me look at where exactly the split should happen. The narrative content after "菌膜外套是权宜之计，共存补丁是终极解法。" covers:
+- Six major factions narrative overview
+- Saint Germination backstory  
+- Finale with Titan tree, Tianfu fall, phage plan, coexistence patch
+
+This doesn't belong under "菌膜外套与共存补丁的关系". I should create a new section for it. Looking at the content, it seems like it could be titled something like "故事全景" or it could be moved under "背景参考资料" or "叙事框架".
+
+Actually, let me look at this from a Word document perspective. In a Word document, this would likely be structured with clear section breaks. The narrative content that's currently under "菌膜外套与共存补丁的关系" reads like a "终局概览" or "故事全貌" section.
+
+Let me take the approach of:
+1. Splitting out the narrative content from "菌膜外套与共存补丁的关系" into its own section
+2. Making sure all headings are properly leveled
+
+The proper "菌膜外套与共存补丁的关系" should only contain:
+- The relationship explanation
+- Then it ends
+
+The narrative content should be a new section. Let me create it.
+
+Now, what should I call it? Looking at the content, it covers the entire story arc - factions, Saint Germination, and the finale. Something like "故事全景" or "终局总览" could work. But I need to be careful not to add new conceptual content, just structure.
+
+Actually, looking at this more carefully, this narrative content is essentially a prose summary of the entire story that ties everything together. In the original outline structure, it seems like this was meant to be part of the "背景参考资料" narrative flow. Let me look at how the content flows:
+
+- "背景参考资料" starts with the ancient history, discovery, disaster chain
+- Then has the military analysis section
+- Then "数据板的局限" 
+- Then "菌膜外套"
+- Then "菌膜外套与共存补丁的关系" 
+- Then (after the proper relationship content) continues with faction overviews, Saint Germination, and finale
+
+So the narrative flow is actually: ancient history → discovery → disaster → military analysis → data board limitations → bacterial membrane coat → coat vs patch relationship → faction overviews → Saint Germination → finale
+
+This is essentially a complete narrative from beginning to end. In a Word document, I'd argue that the content after "菌膜外套与共存补丁的关系" should be its own clearly marked section.
+
+Let me create a new level-2 heading for this narrative content. Something descriptive based on what the content actually is. Let me read the exact boundary text again.
+
+From the earlier read of heading-2-28do6r:
+- Ends proper content with: "菌膜外套是权宜之计，共存补丁是终极解法。"
+- Then: blank lines
+- Then: "在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮..."
+
+I need to split at this boundary and create a new heading. Let me call it something like "各势力与终局概览" or since it's a narrative overview, maybe just separate it clearly.
+
+OK let me just do this. The plan says to use move, insert, replace_match/rewrite. For this case, I'll use replace_match to add a new heading before the narrative content.
+
+Let me also check for any other structural issues. Let me look at whether the top-level structure makes sense for a Word document:
+
+Current top-level structure (level-2 headings):
+- 叙事框架
+- 背景参考资料
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系 (contains extra content)
+- 世界设定声明
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+For a Word document, this is reasonable. The main fix needed is splitting the narrative content from "菌膜外套与共存补丁的关系".
+
+Let me now execute the structure repair. I'll:
+1. Insert a new heading before the narrative content that starts with "在大裂谷走廊"
+
+But I need to read the exact text where this transition happens to make sure I can target it precisely with replace_match.
+
+Let me search for the exact boundary text.

@@ -1,0 +1,14 @@
+Now I need to continue with the normalize-segment-1 work. The segment covers from 0 to before the "## 卷一：基石设定层" section. Let me now look at the document structure more carefully and continue with normalization.
+
+Key issues I've identified so far:
+1. ✅ Deleted 3 PHASE7 probe sentences
+2. ✅ Deleted the duplicative "数据板的局限" in background references
+3. ✅ Fixed paragraph spacing for 【菌毯的本质】
+4. Need to check for half-width punctuation → full-width conversion
+5. Need to check heading levels and structure
+
+Let me now read the remaining sections and continue with normalization. The normalize-segment-1 covers the first half (0 through the end of "背景参考资料" and related sections before "卷一"). Let me read sections that need checking.
+
+Let me systematically check for half-width punctuation issues and other formatting. I should focus on the normalize-segment-1 area first (叙事框架 through 背景参考资料, 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 世界设定声明 sections).
+
+Let me read the key sections that I haven't checked yet - particularly 菌膜外套与共存补丁的关系 and 世界设定声明.

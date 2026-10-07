@@ -1,0 +1,21 @@
+{
+  "commands": [
+    {
+      "operation": "reorder_sections",
+      "order": [
+        "heading-2-sd0mn1",
+        "heading-2-kwf15x",
+        "heading-2-171cwmj",
+        "heading-2-9m9hul",
+        "heading-2-1kq6z0v",
+        "heading-2-12ruweg",
+        "heading-2-1lka0h8",
+        "heading-2-z4sxm8",
+        "heading-2-10q4nra",
+        "heading-2-28do6r"
+      ],
+      "reason": "按Word文档逻辑重排顶层结构：声明→叙事框架→卷一至卷四→附录资料"
+    }
+  ],
+  "reason": "阶段一：重排顶层章节顺序为Word文档逻辑"
+}

@@ -1,0 +1,95 @@
+The user wants me to restructure the outline in Word document format without reducing content. Let me understand what they mean - they want the outline to be restructured more like a formal Word document with proper hierarchy, removing the markers like "粘贴到「故事核心」下" and "PHASE7-PUNCT-PROBE" which are editing notes, and making the structure cleaner.
+
+But looking at the plan, it seems the system is steering me toward a normalization/cleanup process rather than a full restructure. Let me re-read the user's request: "按照Word文档的形式重构大纲，不要缩减内容。"
+
+This means: "Restructure the outline in Word document format, don't reduce content."
+
+Looking at the current outline, there are several issues:
+1. The document starts with `# 《绿潮》大纲总纲` and has content that seems duplicated (like "背景参考资料" appearing twice, "数据板的局限" appearing twice, etc.)
+2. There are editing markers like `【PHASE7-PUNCT-PROBE-A】`, `【PHASE7-PUNCT-PROBE-B】`, `【PHASE7-PUNCT-PROBE-C】` at the beginning, middle and end
+3. There's a note "粘贴到「故事核心」下，紧接原文..." that seems to be an editing instruction left in the content
+4. The "背景参考资料" section appears both in 叙事框架 area and later as a standalone section
+5. "数据板的局限", "菌膜外套：有限资源的临时通行方案", "菌膜外套与共存补丁的关系" appear duplicated
+
+The user wants to clean this up into a proper Word document format. The key actions:
+1. Remove the PHASE7-PUNCT-PROBE markers
+2. Remove editing instructions like "粘贴到「故事核心」下..."
+3. Handle duplicated content (merge or deduplicate)
+4. Fix punctuation (half-width to full-width)
+5. Clean up heading hierarchy
+
+But the system is pushing me toward a phased approach: structure → duplicates → normalization.
+
+Let me first do the actual restructuring. The "Word document format" likely means:
+- Clean heading hierarchy
+- No editing notes
+- No duplicate content
+- Proper Chinese punctuation
+
+Let me start by:
+1. Removing the PHASE7-PUNCT-PROBE lines
+2. Removing the "粘贴到..." instruction
+3. Merging duplicate sections
+4. Fixing punctuation
+
+Given the plan, I need to:
+- Phase 1: Read structure and fix heading hierarchy, move misclassified content
+- Phase 2: Confirm and delete duplicates
+- Phase 3: Normalize punctuation and formatting across two segments
+
+Let me start with the first phase. I need to identify:
+1. The PHASE7-PUNCT-PROBE markers need to be removed
+2. The "粘贴到「故事核心」下" note needs to be removed - it's editing instruction, not content
+3. Duplicate sections: "背景参考资料", "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系"
+
+Let me read the content more carefully to understand the duplicates and plan actions.
+
+Given the complex instructions, let me focus on the practical cleanup steps. The user wants a clean Word-style document. Let me work through the phases.
+
+First, let me identify the key structural issues:
+1. There are "内容块" paragraphs that are empty/content fragments
+2. There are PHASE7-PUNCT-PROBE markers
+3. There's an editing instruction about "粘贴到「故事核心」下"
+4. Duplicate sections exist
+5. Punctuation needs fixing
+
+But the system is warning me that I've been doing too many reads. Let me proceed to the write phase.
+
+Actually, the issue is complex. The user wants to restructure the entire outline. Let me think about what "Word document format" means practically:
+
+The current outline is structured as:
+- # 《绿潮》大纲总纲
+  - ## 叙事框架
+    - ### 故事核心
+    - ### 第一卷·觉醒与扎根
+    - ### 第二卷·连接与陷落
+    - ### 第三卷·远征与暗流
+  - ## 背景参考资料
+  - ## 数据板的局限
+  - ## 菌膜外套...
+  - ## 菌膜外套与共存补丁的关系
+  - ## 世界设定声明
+  - ## 卷一：基石设定层
+  - ## 卷二：核心人物群像
+  - ## 卷三：势力与格局层
+  - ## 卷四：叙事工具箱层
+
+There's a lot of content under "背景参考资料" that seems like narrative overview (六大势力速写, 圣萌会与马格努斯, 终局:共存补丁) that might better belong elsewhere. And some sections appear twice.
+
+Given the complexity, let me focus on the most impactful changes:
+1. Remove editing markers (PHASE7-PUNCT-PROBE, 粘贴到...)
+2. Remove duplicates
+3. Fix punctuation
+4. Clean up heading structure
+
+But the execution plan says I must do this in phases. Let me start with Phase 1: structure fixes.
+
+Actually, looking at this more carefully, the system is trying to force me through a specific normalization pipeline. Let me follow that path but focus on the actual restructuring.
+
+Let me start by addressing the most obvious issues:
+
+1. Remove PHASE7-PUNCT-PROBE-A/B/C lines - these are editing markers
+2. Remove "粘贴到「故事核心」下..." instruction
+3. Handle section duplicates
+
+Let me search for the exact text of these markers.

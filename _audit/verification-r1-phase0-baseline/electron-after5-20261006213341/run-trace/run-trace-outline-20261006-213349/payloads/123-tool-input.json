@@ -1,0 +1,23 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "核弹是唯一\"打得疼\"的武器",
+      "content": "核弹是唯一“打得疼”的武器",
+      "reason": "半角引号统一为全角引号"
+    },
+    {
+      "operation": "replace_match",
+      "target": "类似\"菌丝矿脉\"",
+      "content": "类似“菌丝矿脉”",
+      "reason": "半角引号统一为全角引号"
+    },
+    {
+      "operation": "replace_match",
+      "target": "是人类对\"不可战胜\"的承认",
+      "content": "是人类对“不可战胜”的承认",
+      "reason": "半角引号统一为全角引号"
+    }
+  ],
+  "reason": "整理第二部分（背景参考资料）剩余半角引号，统一为全角引号"
+}

@@ -1,0 +1,322 @@
+{
+  "ok": true,
+  "data": {
+    "totalChars": 74257,
+    "estimatedTokens": 38591,
+    "sectionCount": 237,
+    "reorderTopLevelIds": [
+      "heading-0"
+    ],
+    "reorderScope": "top-level",
+    "degraded": false,
+    "sections": [
+      {
+        "id": "heading-16772",
+        "title": "菌膜外套：有限资源的临时通行方案",
+        "kind": "heading",
+        "level": 2,
+        "start": 16772,
+        "end": 17520,
+        "charCount": 728,
+        "summaryHead": "陈暮的菌膜装甲是独一无二的——SC-α菌株与他的身体建立了永久共生关系，无法复制。但林知意在对SC-α备份菌株进行深入研究后，结合方岫岩数据板中关于SC-α菌株"
+      },
+      {
+        "id": "heading-17520",
+        "title": "菌膜外套与共存补丁的关系",
+        "kind": "heading",
+        "level": 2,
+        "start": 17520,
+        "end": 22035,
+        "charCount": 4499,
+        "summaryHead": "菌膜外套是“让系统暂时看不到我们”——临时伪装，不改变菌丝网络对人类信号的认证逻辑。共存补丁是“让系统认识我们”——将人类物种标签写入菌丝网络的认证数据库，让系"
+      },
+      {
+        "id": "heading-22035",
+        "title": "世界设定声明",
+        "kind": "heading",
+        "level": 2,
+        "start": 22035,
+        "end": 22132,
+        "charCount": 87,
+        "summaryHead": "本书为完全架空世界设定。故事中所有地名、区域名、山川河流名均为虚构创作，不与任何现实地理位置、国家、行政区划存在对应关系。势力名称为故事核心资产，独立于地名体系"
+      },
+      {
+        "id": "heading-22132",
+        "title": "卷一：基石设定层",
+        "kind": "heading",
+        "level": 2,
+        "start": 22132,
+        "end": 55638,
+        "charCount": 33494,
+        "summaryHead": "## 卷一：基石设定层 本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作。 ### 一、书名定义与核心术语定调 #### 1.1 关于“绿潮”的名称定义 在本书中，“绿潮”是一个具有特定历史含义的专有名词，指代2042年灾难"
+      },
+      {
+        "id": "paragraph-4",
+        "title": "内容块 4",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 22144,
+        "end": 22180,
+        "charCount": 36,
+        "summaryHead": "本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作。"
+      },
+      {
+        "id": "heading-22180",
+        "title": "一、书名定义与核心术语定调",
+        "kind": "heading",
+        "level": 3,
+        "start": 22180,
+        "end": 22741,
+        "charCount": 543,
+        "summaryHead": "### 一、书名定义与核心术语定调 #### 1.1 关于“绿潮”的名称定义 在本书中，“绿潮”是一个具有特定历史含义的专有名词，指代2042年灾难爆发时菌毯以惊人速度覆盖全球的历史事件——菌毯如潮水般在数周内席卷大陆，文明在极短时间内崩溃"
+      },
+      {
+        "id": "paragraph-5",
+        "title": "内容块 5",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 22198,
+        "end": 22199,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-22199",
+        "title": "1.1 关于“绿潮”的名称定义",
+        "kind": "heading",
+        "level": 4,
+        "start": 22199,
+        "end": 22305,
+        "charCount": 85,
+        "summaryHead": "在本书中，“绿潮”是一个具有特定历史含义的专有名词，指代2042年灾难爆发时菌毯以惊人速度覆盖全球的历史事件——菌毯如潮水般在数周内席卷大陆，文明在极短时间内崩"
+      },
+      {
+        "id": "heading-22305",
+        "title": "1.2 核心术语定调",
+        "kind": "heading",
+        "level": 4,
+        "start": 22305,
+        "end": 22741,
+        "charCount": 420,
+        "summaryHead": "- “共生体”专属权声明：“共生体”是陈暮菌膜装甲“共生体-α”的专有名称，全书唯一合法用例。天府都所有接受共生改造的人员统一称为“共生战士”，圣萌会追求融合状"
+      },
+      {
+        "id": "heading-22741",
+        "title": "二、灵魂语句",
+        "kind": "heading",
+        "level": 3,
+        "start": 22741,
+        "end": 22844,
+        "charCount": 92,
+        "summaryHead": "> “知识锁在抽屉里，和不存在没有区别。”\n\n这15个字出自周仰川，被林觉民奉为毕生学术信条，直接导致他在2040年将共生蕨全部研究数据开源——这一决定是一切悲"
+      },
+      {
+        "id": "heading-22844",
+        "title": "三、地名架空化对照总表",
+        "kind": "heading",
+        "level": 3,
+        "start": 22844,
+        "end": 24282,
+        "charCount": 1422,
+        "summaryHead": "### 三、地名架空化对照总表 #### 3.1 世界区域 | 名称 | 说明 | |------|------| | 远中大陆 | 菌毯覆盖的核心大陆，六大势力所在之地 | | 灰链群岛 | 火山岛链，归一党所在地 | | 东棘半岛 | "
+      },
+      {
+        "id": "paragraph-6",
+        "title": "内容块 6",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 22860,
+        "end": 22861,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-22861",
+        "title": "3.1 世界区域",
+        "kind": "heading",
+        "level": 4,
+        "start": 22861,
+        "end": 23163,
+        "charCount": 288,
+        "summaryHead": "| 名称 | 说明 |\n|------|------|\n| 远中大陆 | 菌毯覆盖的核心大陆，六大势力所在之地 |\n| 灰链群岛 | 火山岛链，归一党所在地 |"
+      },
+      {
+        "id": "heading-23163",
+        "title": "3.2 远中大陆内部区域",
+        "kind": "heading",
+        "level": 4,
+        "start": 23163,
+        "end": 23420,
+        "charCount": 239,
+        "summaryHead": "| 名称 | 说明 |\n|------|------|\n| 垅原 | 开阔平原区，复兴会所在地 |\n| 环障盆地 | 四面环山的天然盆地，天府都所在地 |\n| "
+      },
+      {
+        "id": "heading-23420",
+        "title": "3.3 六大势力核心据点",
+        "kind": "heading",
+        "level": 4,
+        "start": 23420,
+        "end": 23681,
+        "charCount": 243,
+        "summaryHead": "| 势力 | 总部 | 核心据点 |\n|------|------|---------|\n| 铁壁要塞 | 裂谷中枢 | 裂谷东垒、南崖哨城 |\n| 复兴会 |"
+      },
+      {
+        "id": "heading-23681",
+        "title": "3.4 山川河流",
+        "kind": "heading",
+        "level": 4,
+        "start": 23681,
+        "end": 23890,
+        "charCount": 195,
+        "summaryHead": "| 名称 | 说明 |\n|------|------|\n| 瘴江 | 贯穿铁壁、天府都、镇海双枢城的核心水道，因江面常年笼罩孢子雾得名 |\n| 湍流河 | 岫岩"
+      },
+      {
+        "id": "heading-23890",
+        "title": "3.5 天府都四山哨戒网",
+        "kind": "heading",
+        "level": 4,
+        "start": 23890,
+        "end": 23998,
+        "charCount": 90,
+        "summaryHead": "| 名称 | 方位 |\n|------|------|\n| 西屏山 | 盆地西侧 |\n| 北屏山 | 盆地北侧 |\n| 南屏山 | 盆地南侧 |\n| 东屏山 |"
+      },
+      {
+        "id": "heading-23998",
+        "title": "3.6 其他重要地名",
+        "kind": "heading",
+        "level": 4,
+        "start": 23998,
+        "end": 24282,
+        "charCount": 268,
+        "summaryHead": "| 名称 | 说明 |\n|------|------|\n| 白障山脉 | 远西大陆中部山脉，圣萌会地下实验室所在地 |\n| 旧圣城 | 圣萌会核心圣殿 |\n| "
+      },
+      {
+        "id": "heading-24282",
+        "title": "四、灾难源头：共生蕨",
+        "kind": "heading",
+        "level": 3,
+        "start": 24282,
+        "end": 29701,
+        "charCount": 5404,
+        "summaryHead": "### 四、灾难源头：共生蕨 #### 4.1 发现 ##### 4.1.1 时间与地点 2038年3月，松涛山脉·鬼林峡，海拔3200米未开发原生峡谷。 鬼林峡得名于当地猎人的古老传说——“鬼林”意为“活着的森林”。猎人们世代相传，这片峡"
+      },
+      {
+        "id": "paragraph-7",
+        "title": "内容块 7",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 24297,
+        "end": 24298,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-24298",
+        "title": "4.1 发现",
+        "kind": "heading",
+        "level": 4,
+        "start": 24298,
+        "end": 25373,
+        "charCount": 1063,
+        "summaryHead": "#### 4.1 发现 ##### 4.1.1 时间与地点 2038年3月，松涛山脉·鬼林峡，海拔3200米未开发原生峡谷。 鬼林峡得名于当地猎人的古老传说——“鬼林”意为“活着的森林”。猎人们世代相传，这片峡谷里的树会在夜间发出微弱的银光"
+      },
+      {
+        "id": "paragraph-8",
+        "title": "内容块 8",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 24310,
+        "end": 24311,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-24311",
+        "title": "4.1.1 时间与地点",
+        "kind": "heading",
+        "level": 5,
+        "start": 24311,
+        "end": 24460,
+        "charCount": 131,
+        "summaryHead": "2038年3月，松涛山脉·鬼林峡，海拔3200米未开发原生峡谷。\n\n鬼林峡得名于当地猎人的古老传说——“鬼林”意为“活着的森林”。猎人们世代相传，这片峡谷里的树"
+      },
+      {
+        "id": "heading-24460",
+        "title": "4.1.2 鬼林峡",
+        "kind": "heading",
+        "level": 5,
+        "start": 24460,
+        "end": 25373,
+        "charCount": 897,
+        "summaryHead": "那天清晨起了雾。林觉民在峡谷深处的一片岩壁上看到了那片菌丝——银灰色，在雾气中泛着微弱的荧光，覆盖了整面岩壁，向两侧的树干延伸，像一张被织了上千年的网。他蹲下来"
+      },
+      {
+        "id": "heading-25373",
+        "title": "4.2 源头",
+        "kind": "heading",
+        "level": 4,
+        "start": 25373,
+        "end": 28615,
+        "charCount": 3230,
+        "summaryHead": "#### 4.2 源头 ##### 4.2.1 演化史上的独特位置 共生蕨不属于植物界、真菌界或动物界中的任何一个。它的祖先在约十到十二亿年前——远在真核生物三界分化之前——就已经走上了独立的演化道路。 那个时期的原始海洋中，早期真核生物刚"
+      },
+      {
+        "id": "paragraph-9",
+        "title": "内容块 9",
+        "kind": "paragraph",
+        "level": 1,
+        "start": 25385,
+        "end": 25386,
+        "charCount": 1,
+        "summaryHead": ""
+      },
+      {
+        "id": "heading-25386",
+        "title": "4.2.1 演化史上的独特位置",
+        "kind": "heading",
+        "level": 5,
+        "start": 25386,
+        "end": 25944,
+        "charCount": 536,
+        "summaryHead": "共生蕨不属于植物界、真菌界或动物界中的任何一个。它的祖先在约十到十二亿年前——远在真核生物三界分化之前——就已经走上了独立的演化道路。\n\n那个时期的原始海洋中，"
+      },
+      {
+        "id": "heading-25944",
+        "title": "4.2.2 基因备份系统的本质",
+        "kind": "heading",
+        "level": 5,
+        "start": 25944,
+        "end": 26547,
+        "charCount": 581,
+        "summaryHead": "共生蕨的基因组中含有一套全长约二点八兆碱基对的巨型基因簇，林觉民将其命名为“共生元件”。这套基因簇的功能不是编码某种特定的性状，而是提供一个平台——一个允许不同"
+      },
+      {
+        "id": "heading-26547",
+        "title": "4.2.3 修复与感染的分界线",
+        "kind": "heading",
+        "level": 5,
+        "start": 26547,
+        "end": 26976,
+        "charCount": 407,
+        "summaryHead": "但实验室的基因改造跳过了这一切。自然界中，共生蕨的菌丝需要几天到几周才能完成对一个宿主的基因水平转移和代谢调整，而且整个过程都暴露在宿主的免疫监视之下——只有那"
+      },
+      {
+        "id": "heading-26976",
+        "title": "4.2.4 三个分支",
+        "kind": "heading",
+        "level": 5,
+        "start": 26976,
+        "end": 27709,
+        "charCount": 716,
+        "summaryHead": "共生蕨的三个现存分支各自走向了不同的命运。\n\n- 高山分支（折脊山脉）：这是林觉民在鬼林峡发现的分支。它是唯一在自然界中保持活跃状态的分支，维持着小规模的局部分"
+      }
+    ],
+    "offset": 12,
+    "limit": 30,
+    "hasMore": true,
+    "nextOffset": 42,
+    "next_steps": [
+      "继续调用 editor.document_map 并传入 nextOffset 获取剩余节"
+    ]
+  }
+}

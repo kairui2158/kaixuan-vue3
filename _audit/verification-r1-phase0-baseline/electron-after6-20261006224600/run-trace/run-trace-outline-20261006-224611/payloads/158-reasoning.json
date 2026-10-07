@@ -1,0 +1,339 @@
+The user wants me to continue the restructuring work. Let me analyze the current state:
+
+1. I've completed 2 successful write batches (normalization/whitespace cleanup)
+2. The remaining batch is "structure-repair" - fixing the structure issues
+3. I need to check the overall structure of the document for issues
+
+Let me review what was already done:
+- Batch 1 (earlier session): Fixed tables, removed duplicate content, converted 【】 markers to proper headings, removed edit instructions
+- Batch 2 (earlier session): Whitespace normalization - compressed excessive blank lines
+- Batch 3 (this session): More whitespace normalization + title spacing fix
+
+Now I need to do the "structure-repair" batch. Let me think about what structural issues remain:
+
+Looking at the document structure map, the main structural issue I can see is:
+- The section `## 背景参考资料` contains several misplaced sections that seem like they should be at a higher level or are structured oddly. Let me look more carefully.
+
+From what I've read, the document structure is:
+```
+# 《绿潮》大纲总纲
+## 叙事框架
+### 故事核心
+#### 菌毯的本质：竞争对手文明
+#### 核心张力：保护即加速
+### 第一卷·觉醒与扎根
+### 第二卷·连接与陷落
+### 第三卷·远征与暗流
+## 背景参考资料
+### 灾前军事基准线与菌毯的不可根除性
+...
+## 数据板的局限
+## 菌膜外套：有限资源的临时通行方案
+## 菌膜外套与共存补丁的关系
+## 世界设定声明
+## 卷一：基石设定层
+...
+## 卷二：核心人物群像
+...
+## 卷三：势力与格局层
+...
+## 卷四：叙事工具箱层
+...
+```
+
+The structure seems largely correct. But looking more carefully at the content in the "背景参考资料" section, there's a chunk of narrative content that seems to be between the end of the military baseline section and the start of "## 数据板的局限". This includes the 六大势力 overview and the 圣萌会 backstory - which seems to be duplicate content since these are covered in detail in 卷三.
+
+Wait, let me re-read the "背景参考资料" section more carefully. The content after "### 三、总结：人类真正被压制的根本机制" includes:
+1. The end of the military analysis
+2. Then `## 数据板的局限`
+3. Then `## 菌膜外套...`
+4. Then `## 菌膜外套与共存补丁的关系`
+5. Then a large narrative section about 六大势力 and 圣萌会 and 终局
+6. Then `## 世界设定声明`
+
+The narrative section between "菌膜外套与共存补丁的关系" and "世界设定声明" appears to be part of the "背景参考资料" section - it's a narrative summary of the entire story arc including the endgame. This seems intentional as background reference material.
+
+Now, looking at the structure more carefully, I notice that some sections that should be under "背景参考资料" are actually at the top level (h2). Specifically:
+- `## 数据板的局限` - this is at h2 level, but should it be under `## 背景参考资料`?
+- `## 菌膜外套：有限资源的临时通行方案` - same issue
+- `## 菌膜外套与共存补丁的关系` - same issue
+
+But wait, the structure map shows these are top-level h2 headings. And looking at the content, they serve as standalone reference sections that are cross-referenced throughout the document. I think this structure is intentional.
+
+Actually, the key structural issue I see is that within "## 背景参考资料", there's a mix of content:
+1. A long narrative prologue section (not under any subheading)
+2. `### 灾前军事基准线与菌毯的不可根除性`
+3. Then after that section, more narrative content that isn't under a clear heading
+
+Let me look at the specific transition point. At offset ~12063 in the earlier read:
+
+"这些民生技术在末日世界里比任何武器都更珍贵。\n### 灾前军事基准线与菌毯的不可根除性"
+
+I just fixed this to add a blank line. But the issue is that the narrative content before "灾前军事基准线" is just floating text under "背景参考资料" without its own heading.
+
+Let me now focus on what needs to be done for the "structure-repair" batch. Based on the plan:
+- Fix heading hierarchy issues
+- Ensure proper structure
+- Consolidate/normalize the structure
+
+The main structural issues I can identify:
+1. The long narrative section at the start of "背景参考资料" (the prologue about 共生蕨, 林觉民, etc.) doesn't have its own heading - it's just floating text. But this might be intentional as background reference.
+2. The H2 sections between "背景参考资料" and "世界设定声明" seem correctly placed.
+
+Actually, wait. Let me look at this more carefully. The structure map shows:
+
+```
+## 背景参考资料
+  [paragraph-1kd06wy] - this was the long narrative prologue
+  ### 灾前军事基准线与菌毯的不可根除性
+```
+
+Then after that:
+```
+## 数据板的局限
+## 菌膜外套：有限资源的临时通行方案
+## 菌膜外套与共存补丁的关系
+[more narrative content]
+## 世界设定声明
+## 卷一：基石设定层
+...
+```
+
+Wait, the narrative content between "菌膜外套与共存补丁的关系" and "世界设定声明" - is that part of "菌膜外套与共存补丁的关系" section or separate? Let me look at the structure map again...
+
+Actually looking at the structure map from the beginning:
+- heading-2-28do6r: "菌膜外套与共存补丁的关系" (17754-22269)
+- heading-2-sd0mn1: "世界设定声明" (22269-22366)
+
+So 17754-22269 is all under "菌膜外套与共存补丁的关系". That's 4499 chars, which seems to include both the explanation AND the narrative content about 六大势力, 圣萌会, 终局 etc.
+
+Now the question is: should this narrative content be under "菌膜外套与共存补丁的关系" or should it be its own section?
+
+From the content I read at offsets 12000-24000, the section "菌膜外套与共存补丁的关系" starts with the explanation, then there's a separator (blank line), then a long narrative that covers the entire story arc. This narrative seems to be the "背景参考资料" narrative - it's the full story summary that serves as background. 
+
+I think the structure is actually intentional - the narrative is part of the "背景参考资料" and the H2 headings within it (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) are sub-sections of the background reference that were given H2 status because they're important enough to be referenced independently.
+
+Looking at this from a Word document perspective, I think the current structure is already reasonable. The main work done was:
+1. ✅ Converted 【】 to proper headings
+2. ✅ Removed duplicate content
+3. ✅ Removed edit instruction artifacts
+4. ✅ Normalized whitespace
+5. ✅ Fixed tables to GFM format
+6. ✅ Fixed heading spacing
+
+Now for the "structure-repair" batch, let me check if there are any remaining issues:
+
+Actually, wait. Let me re-read the plan more carefully. The execution plan says:
+- step "execute-restructure": 执行标题层级修复或章节重排
+- step "normalize-segments": 按计划批次整理格式
+
+And the completion criteria: "normalize-changes-punctuation-whitespace-format-only"
+
+The user said "按照Word文档的形式重构大纲，不要缩减内容" - restructure as a Word document format.
+
+Let me think about what "Word document format" means for this outline:
+1. Consistent heading hierarchy (already done - h1 → h2 → h3 → h4 → h5)
+2. Proper spacing between sections
+3. Consistent formatting
+4. Maybe adding some structural markers
+
+I think the major restructuring is done. Let me look for any remaining issues:
+
+1. **Punctuation**: The instructions mention Chinese punctuation must be used (，。；：！？) instead of half-width (, . ; : ! ?). But in the outline, half-width punctuation is used within Markdown table syntax (like `|------|`) and in URLs/technical terms. In the narrative text, Chinese punctuation is already used. So this seems OK.
+
+2. **Heading levels**: Let me verify there's no level skipping. Structure is:
+   - h1: 总纲
+   - h2: 叙事框架, 背景参考资料, 数据板的局限, 菌膜外套..., 菌膜外套与共存补丁..., 世界设定声明, 卷一, 卷二, 卷三, 卷四
+   - h3: under h2
+   - h4: under h3
+   - h5: under h4
+
+This seems consistent. No skipping.
+
+3. **The "background reference" narrative**: The long narrative in 背景参考资料 starts without its own heading. Should I add one? The content is a detailed lore narrative. Maybe I should add a heading like "### 灾难始末" or similar. But the user said not to reduce content, and adding a heading is adding content, which the user might not want.
+
+Actually, looking at the execution plan more carefully, I see the "structure-repair" step and the "normalize-segments" step. The normalize step mentions "标点、空白、编号与标题层级整理" - punctuation, whitespace, numbering, and heading level cleanup.
+
+Let me focus on what's actually broken vs what's just a formatting preference:
+
+1. The headings are properly nested - no jumps
+2. Tables are GFM format
+3. Whitespace is normalized
+4. Duplicate content removed
+5. Edit artifacts removed
+
+I think the structure is now solid. Let me check for any remaining Chinese punctuation issues in the narrative text (not in tables or technical content).
+
+Actually, I think the key remaining task from the plan is to verify the structure and do any final cleanup. Let me check if there are any half-width punctuation marks in the Chinese narrative that should be converted.
+
+Looking at the content I've read, the narrative uses proper Chinese punctuation (，。；：！？). In tables, half-width | and - are correct for GFM format. Technical terms use half-width as needed.
+
+Let me now check if the "背景参考资料" section needs any structural work. The section contains:
+1. A long narrative (unnamed, floating text) - this is the "背景参考资料" main content
+2. `### 灾前军事基准线与菌毯的不可根除性` - a sub-section
+
+The floating text is fine for a reference section. It's just background reading.
+
+I think the structure is actually complete. Let me just make sure there aren't any remaining issues by checking the content around the "背景参考资料" heading.
+
+Wait, I should also check if there's a section that I should verify. Let me look at the structure map for the "背景参考资料" section more carefully. The `paragraph-1kd06wy` was removed (I see it in the removedIds from batch a), and replaced with `paragraph-1ky4plk`. This was from my edit that added a blank line before "### 灾前军事基准线". That's fine.
+
+OK, I think the restructuring is essentially complete. Let me now check if there are any remaining issues with:
+
+1. The narrative content in "背景参考资料" that should have a proper heading
+2. Any half-width punctuation that should be full-width in Chinese text
+3. Any heading level inconsistencies
+
+Actually, re-reading the execution plan requirements:
+
+> 整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74491]）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令
+
+The normalize segment covers the entire document. Let me do a thorough check.
+
+Let me re-read the key transition points to see if there are issues:
+
+1. Around "背景参考资料" heading to "数据板的局限" - the content in between
+2. Around "菌膜外套与共存补丁的关系" to "世界设定声明"
+3. Check for any remaining formatting issues
+
+Actually, I realize I should just focus on completing the plan. The plan has 3 batches. I've done 2 batches (whitespace normalization). The remaining batch is "structure-repair". Let me determine what structural repairs are needed.
+
+Looking at the document structure, I think the only real structural issue is that the "背景参考资料" heading starts a section that contains both narrative text and several H3/H4 sub-sections, but the narrative text itself doesn't have a sub-heading. This is a minor issue and might be intentional.
+
+For a Word document format, I think the current structure is good. The document flows well:
+1. Title
+2. 叙事框架 (with story core and volume summaries)
+3. 背景参考资料 (lore and background)
+4. 数据板的局限 (reference)
+5. 菌膜外套 (reference)
+6. 菌膜外套与共存补丁的关系 (reference)
+7. More background narrative (under previous section)
+8. 世界设定声明
+9. 卷一 through 卷四
+
+Actually, I just realized there's a potential issue. Let me look at the structure more carefully:
+
+Between "菌膜外套与共存补丁的关系" (end 22269) and "世界设定声明" (start 22269), there appears to be no gap - they're contiguous. But from reading the content, the narrative about 六大势力, 圣萌会, and 终局 is contained within "菌膜外套与共存补丁的关系" section (17754-22269). This is a HUGE section (4499 chars) that contains both the explanation of the relationship AND a complete story narrative.
+
+This is actually fine for a reference document - the narrative illustrates the concepts. No structural repair needed.
+
+OK, I think the restructuring is complete. Let me now just do a final check pass. The plan requires me to verify the structure and do any final normalization. Let me submit a final batch if needed, or report completion if the structure is solid.
+
+Actually, wait - I need to re-read the plan more carefully:
+
+The plan steps are:
+1. read-structure ✅
+2. execute-restructure - needs to be done
+3. confirm-duplicates ✅ (done in earlier session)
+4. delete-duplicates ✅ (done in earlier session)
+5. normalize-segments - needs to cover the full document
+6. verify-plan - final verification
+
+And the completion criteria:
+- 执行计划中的全部写入批次成功或明确进入终态
+- 完成不变量校验：planned-deletion-only, normalize-changes-punctuation-whitespace-format-only
+
+I've completed 2 write batches. The "structure-repair" batch needs to be done. Let me think about what structural repairs are actually needed...
+
+Wait, looking at the document structure again, I notice that in the "背景参考资料" section, the narrative prologue content doesn't have a clear heading. It starts right after "## 背景参考资料" with the narrative. Then comes "### 灾前军事基准线与菌毯的不可根除性". 
+
+Also, after the military section ends, there are several H2 headings that follow:
+- ## 数据板的局限
+- ## 菌膜外套：有限资源的临时通行方案
+- ## 菌膜外套与共存补丁的关系
+
+These are at the same level as "## 背景参考资料". So they're NOT sub-sections of 背景参考资料 - they're sibling sections at the H2 level. This is actually correct since they're cross-reference sections.
+
+OK so the structure is:
+```
+# 总纲
+## 叙事框架
+  ### 故事核心
+  ### 第一卷
+  ### 第二卷
+  ### 第三卷
+## 背景参考资料
+  ### 灾前军事基准线...
+## 数据板的局限
+## 菌膜外套...
+## 菌膜外套与共存补丁的关系
+## 世界设定声明
+## 卷一：基石设定层
+  ### 一、书名定义...
+  ...
+## 卷二：核心人物群像
+  ...
+## 卷三：势力与格局层
+  ...
+## 卷四：叙事工具箱层
+  ...
+```
+
+This structure is clean. The background reference section contains both narrative prose and a structured military analysis sub-section. The H2 sections that follow are independent cross-reference sections.
+
+I think the structure is fine. Let me now complete the plan by doing a final verification pass to ensure everything is in order. 
+
+Let me check if there are any half-width punctuation marks in Chinese text that should be converted. But given the technical nature of this outline (lots of numbers, percentages, technical terms), converting ALL half-width punctuation could break things. Let me be conservative and only fix obvious issues.
+
+Actually, looking at the execution plan requirements again:
+
+> 中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）；这是完成校验的强制条件，不是可选项。
+
+This is a mandatory requirement. Let me check the document for half-width punctuation in Chinese text contexts. But wait, this is a massive document (74487 chars) and searching for all half-width punctuation would take many tool calls. Let me be strategic.
+
+I'll search for common patterns where half-width punctuation appears in Chinese text.
+
+Actually, looking at the content I've already read, I notice that the Chinese narrative text uses proper Chinese punctuation. The half-width punctuation appears in:
+1. GFM tables (correctly used)
+2. Technical terms like "SC-α", "7.62×39mm", "0.5-1%" 
+3. URLs and file paths
+4. Latin text within Chinese prose
+
+These are all appropriate uses of half-width characters. I don't think there's a widespread issue with Chinese punctuation being half-width.
+
+Let me just submit the final structure-repair batch with any remaining fixes and then verify.
+
+Actually, I realize I should just complete the structure-repair batch. Let me think about what minimal changes are needed:
+
+1. The document structure is already proper
+2. Headings are properly nested
+3. No duplicate content remains
+4. Whitespace is normalized
+5. Tables are GFM format
+
+The only remaining issue I can think of is that the "背景参考资料" section's long narrative content could benefit from having sub-headings. But the user said "不要缩减内容" (don't reduce content), and adding headings is adding content, which might not be desired.
+
+I think the structure work is done. Let me now focus on completing the plan by verifying and submitting any final normalization batch.
+
+Let me do one more search to check for any remaining issues - specifically looking for patterns that might indicate structural problems.
+
+Actually, let me just verify the current state and report completion. The plan is largely done:
+
+1. ✅ Read structure
+2. ✅ Execute restructure (converted 【】 to headings, fixed table format, removed duplicates/artifacts)
+3. ✅ Confirm duplicates (done in earlier session)
+4. ✅ Delete duplicates (done in earlier session)
+5. ✅ Normalize segments (whitespace normalization done in 2 batches)
+6. Need to verify
+
+Let me do the final verification by reading key transition points in the document to ensure everything is clean.
+
+Actually wait, let me re-read the plan steps:
+
+The execution plan says:
+- `execute-restructure`: 执行标题层级修复或章节重排
+- `normalize-segments`: 按计划批次整理格式
+
+I need to do one final "structure-repair" batch. Let me check what structural issues remain.
+
+Looking at the document structure map, I notice that the "背景参考资料" section has a large chunk of narrative text without a heading. Let me check if this is a problem.
+
+Actually, I think the real "structure-repair" work was already done in the earlier session when the 【】 markers were converted to proper headings and the duplicate content was removed. The remaining work is just normalization (whitespace, formatting).
+
+Let me submit one final batch to clean up any remaining whitespace or formatting issues, then verify.
+
+Let me search for any remaining issues with semi-colons or other half-width punctuation in Chinese text.
+
+Actually, I should check the document for the specific pattern of half-width punctuation: ",", ".", ";", ":", "!", "?" in Chinese text contexts (excluding tables and technical content).
+
+Let me search for these patterns strategically.

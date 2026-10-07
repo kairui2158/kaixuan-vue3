@@ -6,7 +6,7 @@ import { DeAiProcessor } from '../services/de-ai.js'
 import { DeAiSamples } from '../services/deai-samples.js'
 import { getAiService } from '../services/aiService'
 import { routeSkill } from '../services/skillRouter'
-import { createApiCallBudget } from '../services/apiCallBudget'
+import { createApiCallBudget, type ApiCallBudget } from '../services/apiCallBudget'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from '../services/generationValidity'
 import type { RealSkillAgentContext } from '../services/realSkillTypes'
 import { useRunTraceStore } from '../stores/runTrace'
@@ -23,6 +23,30 @@ export function useDeAi() {
   const agentStore = useAgentStore()
   const runTraceStore = useRunTraceStore()
   let deAiTrace: ReturnType<typeof useAiCallTrace> | null = null
+  let deAiBudget: ApiCallBudget | null = null
+
+  function waitForBudgetResume(): Promise<boolean> {
+    return new Promise(resolve => {
+      deAiStore.attachBudgetHandle({
+        budget: deAiBudget!,
+        resume: () => {
+          deAiTrace?.addEvent({
+            type: 'deai-budget',
+            level: 'info',
+            label: 'API 调用预算已追加',
+            detail: JSON.stringify(deAiBudget?.snapshot())
+          })
+          resolve(true)
+        }
+      })
+      deAiTrace?.addEvent({
+        type: 'deai-budget',
+        level: 'warn',
+        label: 'API 调用预算已耗尽',
+        detail: JSON.stringify(deAiBudget?.snapshot())
+      })
+    })
+  }
 
 async function callAiApi(
     systemPrompt: string,
@@ -128,6 +152,35 @@ async function callAiApi(
     const skill = skillStore.skills.find(s => s.id === skillId)
     if (!skill) return text
     const agent = getSkillAgentConfig(agentId)
+    function publishBudgetState(blockedReason?: string) {
+      const snapshot = budget.snapshot()
+      deAiStore.setBudgetState({
+        used: snapshot.used,
+        limit: snapshot.limit,
+        extensions: (snapshot as { extensions?: number }).extensions ?? 0,
+        blockedReason
+      })
+    }
+    function consumeForResume() {
+      const decision = budget.tryConsume(`deai:${skill?.name || skill?.id}:resume`)
+      publishBudgetState(decision.status === 'blocked' ? decision.reason : undefined)
+      return decision
+    }
+
+    while (true) {
+      if (skill.format === 'folder' && skill.folderPath) {
+        const folderDecision = budget.tryConsume(`deai:${skill.name || skill.id}`)
+        publishBudgetState(folderDecision.status === 'blocked' ? folderDecision.reason : undefined)
+        if (folderDecision.status === 'blocked') {
+          deAiStore.waitBudget(folderDecision.reason || 'API 调用预算已耗尽')
+          const resumed = await waitForBudgetResume()
+          if (!resumed) throw new Error(folderDecision.reason || 'API 调用预算已耗尽')
+          const resumeDecision = consumeForResume()
+          if (resumeDecision.status === 'blocked') continue
+        }
+      }
+      break
+    }
 
     if (skill.format === 'folder' && skill.folderPath) {
       if (deAiTrace) {
@@ -299,7 +352,8 @@ async function callAiApi(
     let stepIdx = 0
 
     // GATE-10: S1 runs first on original text, then hardrule, then S2
-    const budget = createApiCallBudget(8)
+    const budget = deAiBudget || createApiCallBudget(8)
+    deAiBudget = budget
     const agentId = cfg.agentId || null
     if (skills.length > 0) {
       recordProcessingStage('S1 rewrite', Math.round((stepIdx / totalSteps) * 100))
@@ -360,7 +414,8 @@ async function callAiApi(
   async function processSplitMerge(text: string, cfg: any): Promise<string> {
     const splitSize = cfg.splitSize || 1000
     const skills = cfg.skillIds || []
-    const budget = createApiCallBudget(8)
+    const budget = deAiBudget || createApiCallBudget(8)
+    deAiBudget = budget
     const agentId = cfg.agentId || null
 
     recordProcessingStage('splitting', 5)
@@ -421,7 +476,8 @@ async function callAiApi(
 
   async function processMultiStep(text: string, cfg: any): Promise<string> {
     const skills = cfg.skillIds || []
-    const budget = createApiCallBudget(8)
+    const budget = deAiBudget || createApiCallBudget(8)
+    deAiBudget = budget
     const agentId = cfg.agentId || null
     const fallbackTemplate = '你是文本分析专家。提取以下文本的事件核心。'
     const fallbackVerifyTemplate = '你是文本校验专家。对以下文本做最小修正。'
@@ -551,6 +607,7 @@ async function callAiApi(
   })
   deAiTrace.begin()
   deAiStore.startProcessing()
+  deAiBudget = createApiCallBudget(8)
   deAiStore.updateFlowPreview()
   const cancelController = new AbortController()
   const cancelHandler = () => { cancelController.abort() }
@@ -592,6 +649,8 @@ async function callAiApi(
     throw e
   } finally {
     window.removeEventListener('deai-cancel', cancelHandler)
+    deAiStore.attachBudgetHandle(null)
+    deAiBudget = null
   }
   }
 

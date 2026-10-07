@@ -1,0 +1,179 @@
+Let me now execute the structure-repair batch. I need to:
+
+1. First, I need to understand the full document structure. The document already has a good hierarchy but I need to check:
+   - The "背景参考资料" section has content that was originally part of "菌膜外套与共存补丁的关系" - the 六大势力 overview and 圣萌会/Magnus story and the 终局之战 content. These are all inside heading-2-28do6r (菌膜外套与共存补丁的关系), which seems like it contains a lot of narrative content that should maybe be in the 叙事框架 section, or the content after "菌膜外套是权宜之计，共存补丁是终极解法。" is actually standalone narrative that got placed under the wrong heading.
+
+Let me re-read the structure. The "菌膜外套与共存补丁的关系" section (heading-2-28do6r) starts at 17517 and ends at 22032. After the opening paragraphs about 菌膜外套 vs 共存补丁 ending with "菌膜外套是权宜之计，共存补丁是终极解法。", there's a long narrative about 六大势力, 圣萌会, 终局之战, and the aftermath. This content (from 17856 onwards) seems to be a narrative overview that was placed under this heading but is actually more of a story overview.
+
+Wait, let me re-read the original structure map more carefully. Actually, looking at the content, the material after "菌膜外套是权宜之计，共存补丁是终极解法。" through to the end of heading-2-28do6r is a narrative summary of the entire story - 六大势力 overview, 圣萌会, the ending, etc. This seems like it should be its own section rather than being under "菌膜外套与共存补丁的关系".
+
+But wait - the user asked me to "按照Word文档的形式重构大纲，不要缩减内容" (restructure the outline in Word document format, don't reduce content). The key issues I've identified so far:
+
+1. ✅ Deleted the "粘贴到" instruction line from 故事核心
+2. ✅ Deleted the duplicate "数据板的局限" paragraph at the end of 背景参考资料 (kept the independent section)
+3. ✅ Added headings to the "灾前军事基准线" content within 背景参考资料
+
+Now I need to do the structure-repair batch. Looking at the document:
+
+The current top-level structure under `# 《绿潮》大纲总纲`:
+- `## 叙事框架` (heading-2)
+  - `### 故事核心`
+  - `### 第一卷·觉醒与扎根`
+  - `### 第二卷·连接与陷落`
+  - `### 第三卷·远征与暗流`
+- `## 背景参考资料` (heading-2) - contains story background, military analysis, and the duplicate was removed
+- `## 数据板的局限` (heading-2)
+- `## 菌膜外套：有限资源的临时通行方案` (heading-2)
+- `## 菌膜外套与共存补丁的关系` (heading-2) - contains the relationship explanation PLUS narrative overview of all factions and the ending
+- `## 世界设定声明` (heading-2)
+- `## 卷一：基石设定层` (heading-2)
+- `## 卷二：核心人物群像` (heading-2)
+- `## 卷三：势力与格局层` (heading-2)
+- `## 卷四：叙事工具箱层` (heading-2)
+
+The issue is that the content after "菌膜外套是权宜之计，共存补丁是终极解法。" in heading-2-28do6r (from ~17856 to 22032) is a narrative overview that doesn't belong under that heading. This content includes:
+- 六大势力 overview
+- 圣萌会 story
+- 终局之战
+- Aftermath
+
+This content seems to be a narrative summary/overview that should either be moved or given its own section. But the user said "不要缩减内容" so I shouldn't delete it. It was placed there in the original outline - maybe it was intended as part of that section as a narrative example of how the 菌膜外套→共存补丁 arc plays out.
+
+Actually, looking more carefully, this seems intentional - the "菌膜外套与共存补丁的关系" section serves as both explanation and narrative illustration of the entire story arc. It's a design choice. The user wants Word document format restructuring, which likely means:
+- Clean up the hierarchy
+- Remove editing artifacts  
+- Make sure the heading structure is consistent
+
+Let me focus on what's actually broken:
+1. The "背景参考资料" section has some content with `\t` (tab) characters in the table that should be proper markdown tables
+2. There might be some inconsistent heading levels
+3. Some sections have the narrative content mixed in with reference material
+
+Let me now focus on the structure-repair: I need to fix the headings that were added in batch 2. The "灾前军事基准线与菌毯的不可根除性" was made `###` and its subsections `####`. But wait - this is inside `## 背景参考资料`. So `###` for the main subsections and `####` for sub-subsections is correct.
+
+Actually wait, let me re-read the structure. The 背景参考资料 section originally had:
+- Main narrative content (no sub-headings)
+- Then "灾前军事基准线与菌毯的不可根除性" with its subsections
+- Then the "数据板的局限" text (which was the duplicate)
+
+Now after my batch 2 changes:
+- `### 灾前军事基准线与菌毯的不可根除性`
+  - `#### 一、2042年，人类手里有什么`
+  - `#### 二、菌毯为什么火力推不平`
+  - `#### 三、总结：人类真正被压制的根本机制`
+
+This looks correct. The hierarchy is: H2 (背景参考资料) > H3 (灾前军事基准线) > H4 (一/二/三).
+
+Now for the structure-repair batch, I need to address:
+- The "菌膜外套与共存补丁的关系" section has a lot of narrative content after the core explanation. This content forms a narrative overview. I should check if it needs to be reorganized.
+
+Let me think about what the user really wants. "按照Word文档的形式重构大纲" - this means proper hierarchical headings, consistent formatting. The current structure mostly works. The main remaining issues I see:
+
+1. The narrative content at the end of "菌膜外套与共存补丁的关系" (about 六大势力, 圣萌会, 终局之战) could be given proper sub-headings
+2. Check for any remaining duplicate content
+3. Make sure heading levels are consistent throughout
+
+Let me now do the structure-repair batch. I'll read the remaining parts I haven't checked and then submit writes.
+
+Actually, looking at the execution plan: "normalize-segment-1[0-74841]" - the plan says to cover the entire document range for normalization. I need to do one more write batch for structure repair and normalization.
+
+Key things to check:
+- The "背景参考资料" section tables use `\t` (tab) characters which should be converted to proper pipe tables
+- Any inconsistent heading levels
+- The narrative content in "菌膜外套与共存补丁的关系" could use sub-headings
+
+Let me read a few more sections to check for issues, then submit the final write batch. Actually, I've been told I need to write now. Let me identify what needs to be done for the structure-repair batch and submit it.
+
+The main remaining structural issues:
+1. In "背景参考资料", the "被孢子云直接废掉的武器系统" and "生物量储备的物理事实" tables use `\t` separators instead of proper GFM pipe tables. These should be converted.
+2. The narrative after "菌膜外套是权宜之计，共存补丁是终极解法。" in heading-2-28do6r spans from 六大势力 overview through 圣萌会 and 终局之战. This is substantive narrative content. It should probably be marked as its own subsection or the section should at least have some sub-headings.
+
+But wait - the user said "不要缩减内容". Converting tab-separated tables to GFM pipe tables is a formatting change. Adding sub-headings to the long narrative section is structural.
+
+Actually, I think the most impactful thing I can do now is:
+1. Convert the tab-separated tables in 背景参考资料 to proper GFM pipe tables
+2. Add sub-headings to the narrative content in "菌膜外套与共存补丁的关系"
+
+But I need to be careful - the execution plan says "normalize-changes-punctuation-whitespace-format-only". So I should focus on formatting normalization.
+
+Let me check for any tab characters and convert the key tables. Let me also look for any remaining half-width punctuation in Chinese text.
+
+The tables with `\t` separators in 背景参考资料:
+- "被孢子云直接废掉的武器系统" table  
+- "生物量储备的物理事实" table
+
+These are tab-separated, not pipe-separated. Converting to GFM pipe tables would be correct normalization.
+
+Let me also check if there are half-width punctuation issues to fix.
+
+OK, let me just do the write now. I'll focus on:
+1. Converting tab-separated tables to GFM pipe tables in 背景参考资料
+2. Any other minor normalization
+
+I'll need to read the exact table content to construct the replacement. Let me read those sections. Wait, I've already read them. Let me construct the replacements.
+
+From my reading of the 背景参考资料 section:
+
+Tab-separated table 1: "被孢子云直接废掉的武器系统"
+```
+系统类型\t直接致死原因\t失效时间线
+卫星制导武器（GPS/北斗/格洛纳斯制导）\t低轨道卫星全部坠入大气层...\t数月内全部失效...
+...
+舰船/潜艇远洋导航\t依赖GPS/惯导+海图...\t逐渐累积，远洋舰队陆续失能
+```
+
+Tab-separated table 2: "生物量储备的物理事实"
+```
+层级\t成分与结构\t生物量占比（估算）\t武器可触及性
+地表菌丝层\t编织状菌丝交织成毡...\t约5%\t武直、轰炸机...
+...
+深层菌丝基质\t嵌在岩层和含水层中...\t约25%\t完全无法触及
+```
+
+These are quite long. Converting them to GFM pipe tables will be complex but necessary. Let me try to do it with replace_match.
+
+Actually, these are very long replacements - each table spans many lines. Let me think about the best approach. I could use replace_match for the table headers and then use multiple replace_match calls for each row, but that's a lot of commands (max 10 per batch).
+
+Let me be strategic. The key formatting issues:
+1. Tab-separated tables → GFM pipe tables
+2. Any remaining half-width punctuation in Chinese text
+
+For the tables, I think the cleanest approach is to do targeted replacements. Let me identify the exact text to match and replace.
+
+Actually, given the complexity and my 10-command limit per batch, let me focus on the most impactful changes:
+
+1. Fix the two tab-separated tables
+2. Fix any half-width punctuation
+
+But converting the tables line-by-line would take too many commands. Let me use a different strategy - I'll use replace_match for the entire table blocks.
+
+Wait, these tables are very long. Let me try to match smaller chunks.
+
+Actually, I think the most practical approach for this batch is to:
+1. Use a few replace_match calls for the table headers and key rows
+2. Check for any other normalization issues
+
+But I'm worried about exceeding the 10-command limit. Let me prioritize.
+
+Let me just focus on converting the table separator lines and a few key formatting issues. The tab characters in the tables make them hard to read but they're functionally fine. The most important thing is ensuring the document has a clean Word-style structure.
+
+Let me now just submit the write batch. I'll focus on:
+- Adding proper sub-headings within "菌膜外套与共存补丁的关系" for the narrative content
+- Any remaining duplicate cleanup
+
+Actually wait - I just realized I should check if there's content overlap between "菌膜外套与共存补丁的关系" and "卷三：势力与格局层". The narrative content in 菌膜外套与共存补丁的关系 includes faction overviews that might overlap with 卷三. But the user said "不要缩减内容" so these are likely intentional - the 菌膜外套 section serves as a story arc overview while 卷三 has the detailed setting.
+
+OK, for this batch let me focus on practical normalization:
+1. The two tab-separated tables in 背景参考资料 → convert headers to GFM format
+2. Add appropriate sub-headings to the narrative portion of "菌膜外套与共存补丁的关系"
+
+Let me construct the write commands now. I have 10 command slots.
+
+For the tables, I'll convert the key structural elements:
+
+Table 1 header: `系统类型\t直接致死原因\t失效时间线` → proper GFM
+Table 2 header: `层级\t成分与结构\t生物量占比（估算）\t武器可触及性` → proper GFM
+
+For the narrative in 菌膜外套与共存补丁的关系, I'll add sub-headings.
+
+Let me do this now.

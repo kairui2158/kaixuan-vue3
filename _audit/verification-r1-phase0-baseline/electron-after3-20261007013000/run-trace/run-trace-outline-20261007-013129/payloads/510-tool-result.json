@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-4-8ex97",
+      "title": "5.4 终局之后",
+      "kind": "heading",
+      "level": 4,
+      "path": "5.4 终局之后"
+    },
+    "range": {
+      "start": 71624,
+      "end": 71702
+    },
+    "offset": 0,
+    "maxChars": 12000,
+    "content": "#### 5.4 终局之后\n\n共存补丁完成后，人类不再被巨树的排异反应识别为竞争者。共存不是和解，是重新分类。人类从“竞争者”变成了“树荫下的苔藓”。\n\n\n",
+    "hasMore": false,
+    "next_steps": [
+      "基于已读取内容回答或写入；需要其他节时先调用 editor.document_map"
+    ]
+  }
+}

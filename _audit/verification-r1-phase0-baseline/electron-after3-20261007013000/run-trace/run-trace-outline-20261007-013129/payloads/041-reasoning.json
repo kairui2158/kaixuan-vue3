@@ -1,0 +1,3 @@
+The section heading-3-19902vk has content range start 12078, end 16763. But offset is relative to section? Actually offset is within section. The section content is 4664 chars (from 12078 to 16763). Wait, but the read_range with offset 4400 returned start 16479, which is absolute? Let me check. Actually earlier read_range with sectionId heading-3-19902vk offset 4400 limit 700 returned range start 16479 end 16764. So offset appears to be... section range start was 12078. 12078+4400 = 16478. Yes offset relative to section start. So section content length is 16763-12078 = 4685.
+
+So I need to read the duplicated "数据板的局限" at absolute 16220-16763 which is offset 16220-12078 = 4142. Let me read offset 4140 limit 700.

@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "data": {
+    "total": 1,
+    "truncated": false,
+    "offset": 0,
+    "limit": 10,
+    "hasMore": false,
+    "matches": [
+      {
+        "start": 60182,
+        "end": 60194,
+        "sectionId": "heading-60182",
+        "sectionTitle": "卷三：势力与格局层",
+        "context": "叛。阅读记录最自然状态，群体中话不多但一开口常是关键信息，追问细节出处，整理归档能力强，表达敬意方式是记住名字和做过的事，不参与争论但事后默默补上遗漏事实。\n\n## 卷三：势力与格局层\n\n### 一、菌毯封锁与人类孤岛：末日格局\n\n#### 1.1 核心痛点：守得住地盘，走不遍大地\n\n绿潮灾变后，真正割裂人类文明、让各大势力彻底龟缩封闭的核心"
+      }
+    ],
+    "next_steps": [
+      "调用 editor.read_range 传入 sectionId 读取命中节全文"
+    ]
+  }
+}

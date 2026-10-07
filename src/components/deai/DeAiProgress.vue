@@ -16,6 +16,13 @@
         <strong>处理未完成</strong>
         <span>{{ deAiStore.errorMessage }}</span>
       </div>
+      <div v-if="deAiStore.runStatus === 'waiting_budget'" id="deai-budget" class="deai-budget" role="status">
+        <div>
+          <strong>API 调用预算已用尽（{{ deAiStore.budgetState?.used }}/{{ deAiStore.budgetState?.limit }}）</strong>
+          <span>{{ deAiStore.budgetState?.blockedReason || '可追加预算后继续处理' }}</span>
+        </div>
+        <button id="deai-budget-extend" class="btn-secondary" @click="extendBudget">追加 4 次并继续</button>
+      </div>
       <!-- step list with dot indicators -->
       <div id="deai-step-list" class="deai-step-list">
         <div
@@ -47,6 +54,10 @@ onBeforeUnmount(() => modalQueue.close('deai-progress'))
 
 function cancelDeAi() {
   window.dispatchEvent(new CustomEvent('deai-cancel'))
+}
+
+function extendBudget() {
+  deAiStore.extendBudget(4)
 }
 
 function closeProgress() {
@@ -145,6 +156,29 @@ function getStepStatusText(index: number): string {
   line-height: 1.5;
 }
 .deai-error strong { font-weight: var(--fw-semibold); }
+.deai-budget {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-6);
+  padding: var(--space-5);
+  border: 1px solid color-mix(in srgb, var(--warning) 45%, transparent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--warning) 10%, transparent);
+  color: var(--warning);
+  font-size: var(--font-size-sm);
+}
+.deai-budget > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.deai-budget strong { font-weight: var(--fw-semibold); }
+.deai-budget button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
 /* step list with dot indicators - matches old arch style.css L7370-7385 */
 .deai-step-list {
   display: flex;

@@ -1,0 +1,18 @@
+Let me check the current state. We've done:
+1. Batch h: Removed duplicate 7.8 and 7.9 from 卷一, merged unique content into 总纲's 菌膜外套与共存补丁的关系
+2. Batch i: Fixed extra blank lines between 7.7 and 八、变异生物体系
+3. Batch j: Fixed document opening title spacing
+4. Batch k: Fixed extra blank lines between 故事核心→第一卷, 第三卷→背景参考资料
+5. Batch l: Fixed extra blank lines between 卷一→卷二, 卷二→卷三, 世界设定声明→卷一
+
+Now I need to:
+- Find and fix the 卷三→卷四 boundary
+- Check for remaining extra blank lines between sections
+- Look at the `structure-repair` batch which hasn't been covered yet
+- Check for the `structure-plan` batch coverage
+
+Let me check:
+- The 卷三末 and 卷四 boundary
+- Remaining double/triple blank lines
+
+Let me look at the 盖亚中枢 section end and 卷四 beginning.

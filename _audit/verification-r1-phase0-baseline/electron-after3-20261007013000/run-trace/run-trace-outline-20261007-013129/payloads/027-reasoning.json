@@ -1,0 +1,103 @@
+Let me analyze the current state of the outline. The user wants to restructure the outline into a Word document form without reducing content. Let me understand the current structure:
+
+The document has:
+- `heading-1-mizom9` - 《绿潮》大纲总纲 (h1)
+  - Various h2 sections: 叙事框架, 背景参考资料, 数据板的局限, 菌膜外套..., 世界设定声明, 卷一：基石设定层, 卷二：核心人物群像, 卷三：势力与格局层, 卷四：叙事工具箱层
+
+The current structure has issues:
+1. There are "内容块" paragraphs that seem to be artifacts
+2. The "背景参考资料" section has a large block of text that was split into a paragraph block + heading for "灾前军事基准线与菌毯的不可根除性"
+3. The "故事核心" had a paste instruction which was removed
+
+The user wants a "Word document form" - this likely means a clean hierarchical structure with proper numbering and clean formatting.
+
+Let me look at the plan:
+- Plan steps: read-structure, execute-restructure, confirm-duplicates, delete-duplicates, normalize-segments, verify-plan
+
+I need to:
+1. Fix heading levels where they're inconsistent
+2. Remove "内容块" paragraphs (they're empty/stray)
+3. Normalize punctuation (half-width to full-width for Chinese context)
+4. Make the structure clean - proper h1 > h2 > h3 > h4 > h5 hierarchy
+
+Let me first read the remaining sections to understand the full document. Then I'll need to execute the restructure.
+
+Wait, I've already done a lot of reading. Let me focus on what needs to be done:
+
+The "内容块" paragraphs are just 1-2 character artifacts. They should be deleted.
+
+Let me focus on the main restructuring tasks:
+
+1. Fix the "背景参考资料" section - it now has a `paragraph-1kd06wy` content block and `heading-3-19902vk` for "灾前军事基准线与菌毯的不可根除性". The paragraph block contains the original background text that was separated from its heading.
+
+2. Clean up all empty/unnecessary "内容块" paragraphs
+
+3. Normalize Chinese punctuation from half-width to full-width
+
+4. Ensure proper heading hierarchy
+
+Let me first read the key sections I haven't checked yet, then execute writes.
+
+Actually, looking at the structure more carefully:
+
+The main issues I can see:
+- Multiple empty "内容块" paragraphs (1-2 chars each) - these are artifacts
+- The "故事核心" had a paste instruction line that was removed - good
+- "背景参考资料" now has the "灾前军事基准线与菌毯的不可根除性" as an h3 - this seems correct
+
+Let me focus on the next batch of work. I should:
+1. Read more of the document to identify all issues
+2. Execute fixes in batches
+
+Let me read the parts I haven't read yet, particularly the sections from 卷三 onwards and the 卷一 section to understand the full structure.
+
+Actually, I need to be more strategic. The plan says I should:
+- Phase 1: Read structure, use move/insert/replace_match/rewrite to fix structure
+- Phase 2: Confirm duplicates with readonly tools and delete
+- Phase 3: Submit replace_match/rewrite for punctuation, whitespace, numbering, heading level cleanup
+
+The "内容块" paragraphs are all 1-2 character artifacts (empty content). Let me delete them.
+
+Also, I need to check: the `paragraph-1kd06wy` block (start 10198, end 12078, 1880 chars) - this contains "四亿年前..." which was part of the background text before the new heading was added. But since I added a heading for "灾前军事基准线", the text before that heading is now orphaned? Let me check.
+
+Actually, looking at the document_map, `paragraph-1kd06wy` (10198-12078) is the main background text (四亿年前...) that was before "灾前军事基准线". And `heading-3-19902vk` (12078-16763) is the military baseline content.
+
+Wait, let me re-read the original structure. The background references section originally was:
+- heading-2-1lka0h8: 背景参考资料 (10230-16801)
+
+Inside that was one big block of text. In my previous write, I replaced "灾前军事基准线与菌毯的不可根除性" to add a heading marker. This created a new h3 heading and the text before it became `paragraph-1kd06wy` and the text after it became `heading-3-19902vk`.
+
+The "四亿年前..." text at the top of 背景参考资料 now sits in the `paragraph-1kd06wy` content block. That's fine - it's the introductory text.
+
+OK, let me proceed with the cleanup. I'll focus on:
+
+1. Delete all the "内容块" empty paragraphs (they contain 1-2 chars of whitespace/empty)
+2. Normalize Chinese punctuation
+
+But I can't delete the "内容块" paragraphs all at once since they have no real content. Let me check - they're all 1 or 2 characters. Let me search for and delete them.
+
+Actually, wait. The execution plan says I should:
+1. First fix structure issues (move misplaced headings, add headings for untitled body text)
+2. Then delete duplicates
+3. Then normalize format
+
+The "内容块" paragraphs are structure artifacts. They seem to be auto-generated from the outline parser. They are empty (1-2 chars) and serve no purpose.
+
+Let me first read more of the document to understand the full picture, then execute the cleanup.
+
+Let me read sections I haven't fully read:
+- The remainder of 背景参考资料
+- 数据板的局限 (already read in the initial full read)
+- Some other areas
+
+Actually, I've been reading too much. Let me just start executing writes. The main tasks:
+
+1. Delete empty "内容块" paragraphs
+2. Ensure headings are properly structured
+3. Normalize Chinese punctuation
+
+But the plan says: "删除重复段落后必须校验有效正文未丢失" and "禁止把未确认内容当作重复项删除，禁止丢弃有效正文内容"
+
+The "内容块" paragraphs contain only 1-2 characters (whitespace). I should confirm they're truly empty/stray before deleting.
+
+Let me read a few of them to confirm.

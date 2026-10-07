@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-3-1ytkqhj",
+      "title": "七、变异体主动攻击人类核心机制",
+      "kind": "heading",
+      "level": 3,
+      "path": "七、变异体主动攻击人类核心机制"
+    },
+    "range": {
+      "start": 44304,
+      "end": 44354
+    },
+    "offset": 0,
+    "maxChars": 50,
+    "content": "### 七、变异体主动攻击人类核心机制\n\n#### 7.1 灾难本质\n\n绿潮灾难的本质，是共生蕨孢子",
+    "hasMore": true,
+    "nextCursor": "section:heading-3-1ytkqhj:50",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

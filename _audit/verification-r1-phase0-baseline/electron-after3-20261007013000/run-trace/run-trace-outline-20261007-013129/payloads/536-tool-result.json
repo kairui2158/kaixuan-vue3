@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-3-xco0i6",
+      "title": "二、术语统一总表",
+      "kind": "heading",
+      "level": 3,
+      "path": "二、术语统一总表"
+    },
+    "range": {
+      "start": 73469,
+      "end": 73539
+    },
+    "offset": 1470,
+    "maxChars": 120,
+    "content": "| 专有名词，指代2042年灾难爆发时菌毯以惊人速度覆盖全球的历史事件 | 全书 | 菌毯如潮水般在数周内席卷大陆，文明在极短时间内崩溃 |",
+    "hasMore": false,
+    "next_steps": [
+      "基于已读取内容回答或写入；需要其他节时先调用 editor.document_map"
+    ]
+  }
+}

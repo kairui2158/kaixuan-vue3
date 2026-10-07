@@ -1,0 +1,608 @@
+Let me understand the situation. The system is telling me that the execution plan is not complete. There are 3 batches planned, and the uncovered batch is "structure-repair". I've already done some deduplication (7.8) and some normalization. Now I need to complete the "structure-repair" batch.
+
+Let me understand what "structure-repair" means. Looking at the plan:
+- read-structure: 读取文档结构并确认目标层级
+- execute-restructure: 执行标题层级修复或章节重排
+- confirm-duplicates: 用只读工具确认重复项
+- delete-duplicates: 只删除已确认的重复项
+- normalize-segments: 按计划批次整理格式
+- verify-plan: 核对写入覆盖与不变量
+
+The batches are:
+1. structure-repair (标题层级修复/章节重排)
+2. delete-duplicates (删除重复)
+3. normalize-segments (格式整理)
+
+I've done:
+- delete-duplicates (7.8 removed)
+- normalize (some punctuation/whitespace fixes)
+
+But "structure-repair" is uncovered. The message says "未覆盖批次：structure-repair".
+
+Wait, but I need to understand what the structure-repair batch actually involves. Let me look at the plan steps and think about what "structure-repair" should do.
+
+The goal from plan: "复合重构请分三阶段执行：先读取结构，用 move 把误归位标题与段落移动到正确层级，用 insert 为无标题正文补标题、用 replace_match/rewrite 仅修正既有标题层级；再只读确认重复项并提交唯一目标删除命令；最后提交 replace_match/rewrite 命令完成标点、空白、编号与标题层级整理。"
+
+So three stages:
+1. structure-repair: move misplaced headings/paragraphs to correct level, insert titles for untitled body text, fix heading levels with replace_match/rewrite
+2. delete-duplicates
+3. normalize-segments
+
+I've done stage 2 (dedupe) and started stage 3 (normalize). But I haven't done stage 1 (structure-repair).
+
+But wait, I need to think carefully about what "structure-repair" actually needs to do in THIS document. The user's original request was "按照Word文档的形式重构大纲，不要缩减内容" (restructure the outline in Word document form, don't reduce content). Then "符合我的要求，分叉一允许去重。不用出预览，直接写入" (meets my requirements, fork one allows dedup, no preview, write directly).
+
+So the overall goal is to restructure the outline in Word document form. The "structure-repair" batch would be about fixing heading hierarchy issues.
+
+Let me re-read the system message constraints carefully:
+
+"复合重构请分三阶段执行：先读取结构，用 move 把误归位标题与段落移动到正确层级，用 insert 为无标题正文补标题、用 replace_match/rewrite 仅修正既有标题层级；再只读确认重复项并提交唯一目标删除命令；最后提交 replace_match/rewrite 命令完成标点、空白、编号与标题层级整理。新增标题必须紧贴对应正文且不得改写正文内容；删除重复段落后必须校验有效正文未丢失。"
+
+So the structure-repair phase involves:
+1. Read structure
+2. Use move to move misplaced headings/paragraphs to correct level
+3. Use insert to add titles for body text without titles
+4. Use replace_match/rewrite to only fix existing heading levels
+
+"统一标题层级前必须先读取结构：消除层级跳变并把标题归位到文档既有层级体系，禁止无依据地把标题层级改深或改浅。"
+
+So I need to:
+1. Read the full structure (document_map)
+2. Identify heading level jumps (e.g., level 2 -> level 4, skipping level 3)
+3. Fix them to match the existing hierarchy system
+
+Let me look at the current structure from what I've read. The document has this hierarchy:
+
+- heading-1: 《绿潮》大纲总纲 (level 1)
+  - heading-2: 叙事框架 (level 2)
+    - heading-3: 故事核心 (level 3)
+      - heading-4: 菌毯的本质：竞争对手文明 (level 4)
+      - heading-4: 核心张力：保护即加速 (level 4)
+    - heading-3: 第一卷·觉醒与扎根 (level 3)
+    - heading-3: 第二卷·连接与陷落 (level 3)
+    - heading-3: 第三卷·远征与暗流 (level 3)
+  - heading-2: 背景参考资料 (level 2)
+    - heading-3: 灾前军事基准线与菌毯的不可根除性 (level 3)
+      - heading-4: 一、2042年，人类手里有什么 (level 4)
+      - heading-4: 二、菌毯为什么火力推不平 (level 4)
+      - heading-4: 三、总结... (level 4)
+  - heading-2: 数据板的局限 (level 2)
+  - heading-2: 菌膜外套：有限资源的临时通行方案 (level 2)
+  - heading-2: 菌膜外套与共存补丁的关系 (level 2)
+    - heading-3: 六大势力总览 (level 3)
+    - heading-3: 圣萌会的崛起 (level 3)
+    - heading-3: 盖亚巨树的生长与天府都陷落 (level 3)
+    - heading-3: 终局之战 (level 3)
+    - heading-3: 终局之后 (level 3)
+  - heading-2: 世界设定声明 (level 2)
+  - heading-2: 卷一：基石设定层 (level 2)
+    - heading-3: 一、书名定义... (level 3)
+      - heading-4: 1.1 ... (level 4)
+      - heading-4: 1.2 ... (level 4)
+    - heading-3: 二、灵魂语句 (level 3)
+    - heading-3: 三、地名架空化对照总表 (level 3)
+      - heading-4: 3.1 ... through 3.6 (level 4)
+    - heading-3: 四、灾难源头：共生蕨 (level 3)
+      - heading-4: 4.1 发现 (level 4)
+        - heading-5: 4.1.1 ... (level 5)
+        - heading-5: 4.1.2 ... (level 5)
+      - heading-4: 4.2 源头 (level 4)
+        - heading-5: 4.2.1 through 4.2.5 (level 5)
+      - heading-4: 4.3 发现者 (level 4)
+        - heading-5: 4.3.1 ... (level 5)
+        - heading-5: 4.3.2 ... (level 5)
+        - heading-5: 4.3.3 ... (level 5)
+    - heading-3: 五、方岫岩... (level 3)
+      - heading-4: 5.1 through 5.8 (level 4)
+        - heading-5: 5.3.1, 5.3.2, 5.3.3 (level 5)
+        - heading-5: 5.4.1, 5.4.2 (level 5)
+        - heading-5: 5.5.1, 5.5.2, 5.5.3 (level 5)
+        - heading-5: 5.8.1 (level 5)
+    - heading-3: 六、灾难爆发完整链条 (level 3)
+      - heading-4: 6.1 ... 6.6 (level 4)
+        - heading-5: 6.3.1 ... 6.3.5 (level 5)
+    - heading-3: 七、变异体主动攻击... (level 3)
+      - heading-4: 7.1 ... 7.8 (level 4)
+        - heading-5: 7.2.1, 7.2.2, 7.2.3 (level 5)
+        - heading-5: 7.5.1, 7.5.2 (level 5)
+    - heading-3: 八、变异生物体系 (level 3)
+      - heading-4: 8.1 ... 8.7 (level 4)
+    - heading-3: 九、真菌网络... (level 3)
+    - heading-3: 十、灾后科技... (level 3)
+      - heading-4: 10.1 ... 10.4 (level 4)
+        - heading-5: 10.3.1, 10.3.2 (level 5)
+    - heading-3: 十一、生物油脂兼容性 (level 3)
+      - heading-4: 11.1 ... 11.4 (level 4)
+    - heading-3: 十二、末日食物... (level 3)
+      - heading-4: 12.1 ... 12.7 (level 4)
+  - heading-2: 卷二：核心人物群像 (level 2)
+    - heading-3: 一、陈暮 (level 3)
+      - heading-4: 1.1, 1.2, 1.3 (level 4)
+    - heading-3: 二、五位女主 (level 3)
+      - heading-4: 2.1 ... 2.5 (level 4)
+  - heading-2: 卷三：势力与格局层 (level 2)
+    - heading-3: 一、菌毯封锁... (level 3)
+      - heading-4: 1.1, 1.2 (level 4)
+    - heading-3: 二、全球幸存者势力分布 (level 3)
+    - heading-3: 三、六大势力完整设定 (level 3)
+      - heading-4: 3.1 ... 3.7 (level 4)
+        - heading-5: 3.2.1 ... 3.2.9 (level 5)
+        - heading-5: 3.3.1 ... 3.3.8 (level 5)
+        - heading-5: 3.4.1 ... 3.4.7 (level 5)
+        - heading-5: 3.5.1 ... 3.5.7 (level 5)
+        - heading-5: 3.6.1 ... 3.6.6 (level 5)
+        - heading-5: 3.7.1 ... 3.7.5 (level 5)
+    - heading-3: 四、圣萌会... (level 3)
+      - heading-4: 4.1 ... 4.10 (level 4)
+    - heading-3: 五、盖亚中枢（巨树） (level 3)
+      - heading-4: 5.1 ... 5.4 (level 4)
+  - heading-2: 卷四：叙事工具箱层 (level 2)
+    - heading-3: 一、核心主题清单 (level 3)
+    - heading-3: 二、术语统一总表 (level 3)
+
+So the heading hierarchy looks quite consistent: level 1 → level 2 → level 3 → level 4 → level 5. This is a clean hierarchy.
+
+Wait, but there's a potential issue. The "叙事框架" section has "故事核心" as a level-3 heading, and inside it "菌毯的本质" and "核心张力" as level-4 headings. But these two level-4 headings were originally marked with 【】 brackets and were converted to level-4 headings in a previous turn (I can see from the audit that a previous write converted "【菌毯的本质：竞争对手文明】" to "#### 菌毯的本质：竞争对手文明").
+
+Actually, wait. Let me reconsider what "structure-repair" needs to do. The system message says the uncovered batch is "structure-repair". Maybe I need to think about what specific structure issues exist.
+
+Actually, I realize I should focus on what the actual plan says and what specific structure issues need repair. But I'm not entirely sure what "structure-repair" specifically refers to in this document.
+
+Let me re-read the key instruction:
+
+"统一标题层级前必须先读取结构：消除层级跳变并把标题归位到文档既有层级体系，禁止无依据地把标题层级改深或改浅。"
+
+So the main task is: eliminate level jumps (层级跳变) and place titles into the existing hierarchy system.
+
+The document currently has a clean hierarchy. But wait—let me check if there are level jumps. Actually the issue might be about the "内容块" (content blocks) that are paragraph level 1 items scattered throughout. These are the empty-ish "内容块 N" paragraphs. These appear to be artifacts of the document parsing.
+
+Actually, looking more carefully, these "内容块" items are paragraphs with level 1 kind, and they appear at odd positions. But they're content blocks, not headings, so they might not be the target of "structure-repair".
+
+Hmm, let me think about what's actually being asked. The user wants to "按照Word文档的形式重构大纲" (restructure in Word document form). The system has a plan with 3 batches. The batches are:
+1. structure-repair
+2. delete-duplicates (done)
+3. normalize-segments (partially done)
+
+I need to figure out what structure-repair entails and execute it.
+
+Actually, wait. Let me reconsider. Maybe I'm overcomplicating this. The previous turns (from the audit) show a lot of work was already done:
+- Table format fixes (tab → pipe)
+- Adding missing headings (六大势力总览, 圣萌会的崛起 etc.)
+- Converting 【】marked headings to proper #### headings
+- Deleting duplicate 7.8 section
+
+So the "structure-repair" might be about remaining heading level issues.
+
+Let me actually read the full document structure to identify any remaining issues. But actually, I already have a very detailed structure map from the context provided at the top, and I've read a lot of it.
+
+Actually, let me step back. The critical system message says:
+
+"整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74586]）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令，禁止把同段多条命令拆成多次调用；未覆盖全部计划段落前，禁止输出"任务完成"总结。计划批次数量是 3；执行侧允许的物理请求轮次为 36 轮，尚未完成前不要把工具轮次耗尽。"
+
+And:
+
+"中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）；这是完成校验的强制条件，不是可选项。"
+
+This is a HARD requirement: all half-width punctuation in Chinese text must be converted to full-width. This is a huge task across the entire document (0-74586).
+
+Wait, but that's a massive undertaking. The document is 74586 characters. Converting all half-width punctuation to full-width would require identifying every half-width comma, period, semicolon, colon, exclamation, question mark in Chinese context.
+
+Actually, wait. Let me reconsider. The "normalize-segment-1[0-74586]" is the segment for the normalization batch. But there are 3 batches. Let me focus.
+
+Actually, I think the key insight is: the system is telling me I haven't completed all 3 batches. The batches are:
+1. structure-repair (未覆盖)
+2. delete-duplicates (已覆盖 via my 7.8 deletion)
+3. normalize-segments (partially covered)
+
+I need to complete structure-repair and finish normalize-segments.
+
+But honestly, the half-width to full-width punctuation conversion across 74586 characters is an enormous task that can't be done reliably with replace_match operations (each comma is not unique).
+
+Let me re-read the actual current task message more carefully:
+
+"执行计划尚未完成，禁止把问题或计划当作最终回复。"
+
+"当前事实：已成功写入 3 批（可信覆盖 3 批），计划共 3 批，未覆盖批次：structure-repair。本请求仍携带原工具面；应用只按写入覆盖结果校验，不依据回复措辞判定完成。"
+
+Hmm wait, this says "已成功写入 3 批（可信覆盖 3 批），计划共 3 批，未覆盖批次：structure-repair". This is contradictory—it says 3 batches written, 3 total, but structure-repair is uncovered. 
+
+Actually I think the "3 批" refers to my write operations (batches 8, 9, a = 3 successful write calls), but they don't cover the "structure-repair" phase of the plan.
+
+So the plan has 3 phases/stages:
+1. structure-repair
+2. delete-duplicates  
+3. normalize-segments
+
+I've done delete-duplicates (7.8) and started normalize-segments (punctuation fixes). But I haven't done structure-repair.
+
+The structure-repair phase requires:
+1. Read structure
+2. Use move to move misplaced headings/paragraphs
+3. Use insert to add titles for untitled body text
+4. Use replace_match/rewrite to fix heading levels
+
+Let me think about what specific structure issues exist in this document.
+
+Actually, I already read the document_map earlier and it showed a clean hierarchy. But maybe there are specific issues I need to identify.
+
+Let me think about what "按照Word文档的形式重构" means. The user wants a Word-document-style restructure. This likely means:
+- Proper heading hierarchy (H1 → H2 → H3 → H4 → H5)
+- Consistent formatting
+- No level jumps
+
+Given the document already has a clean hierarchy, the structure-repair might be minimal or might involve specific fixes.
+
+Actually, let me reconsider the whole situation. The previous turns (audit) show the agent was already doing a lot of this work. The current state is that the agent (me) has been doing:
+1. Deduplication (7.8 deleted)
+2. Normalization (punctuation, whitespace, numbering)
+
+The system is now telling me structure-repair is uncovered.
+
+But wait—maybe I should reconsider whether there are actually heading level issues. Let me look at the document structure again very carefully for level jumps.
+
+Actually, I realize I should look at this from a different angle. Let me look at the specific areas that might have issues:
+
+1. "故事核心" (level 3) contains "菌毯的本质：竞争对手文明" and "核心张力：保护即加速" as level 4. These were previously 【】brackets, now converted. This seems fine.
+
+2. The "叙事框架" level 2 section has level 3 children that are the volume outlines (第一卷, 第二卷, 第三卷). This is fine.
+
+3. Actually, there's a potential issue: "故事核心" is a level 3 heading, but it's at the same level as "第一卷·觉醒与扎根", "第二卷", "第三卷". Is that intended? Looking at the content, "故事核心" seems to be a subsection of "叙事框架" along with the volumes. That's consistent.
+
+Hmm, I'm struggling to identify specific structure issues. Let me actually read the document more to find issues.
+
+Actually, let me focus on a concrete, verifiable approach. Let me:
+
+1. Re-read the full document_map (all 250 sections) to get the complete structure.
+2. Identify any level jumps or inconsistencies.
+3. Fix them.
+
+But actually, I already have the full structure from the context at the top AND from my earlier document_map call. Let me analyze it for level jumps.
+
+Looking at the structure map from the very top of the conversation:
+
+```
+- heading-1: 《绿潮》大纲总纲 (0-74586)
+  - heading-2: 叙事框架 (13-10197)
+    - heading-3: 故事核心 (23-969)
+      - heading-4: 菌毯的本质：竞争对手文明 (214-655)
+      - heading-4: 核心张力：保护即加速 (655-969)
+    - heading-3: 第一卷·觉醒与扎根 (969-7344)
+    - heading-3: 第二卷·连接与陷落 (7344-9368)
+    - heading-3: 第三卷·远征与暗流 (9368-10197)
+  - heading-2: 背景参考资料 (10197-16483)
+    - heading-3: 灾前军事基准线与菌毯的不可根除性 (12087-16483)
+      - heading-4: 一、2042年，人类手里有什么 (12109-14529)
+      - heading-4: 二、菌毯为什么火力推不平 (14529-16052)
+      - heading-4: 三、总结 (16052-16483)
+  ...
+```
+
+This all looks clean. Level 1 → 2 → 3 → 4 → 5, no jumps.
+
+Wait, but actually there might be an issue I'm missing. Let me look at the "背景参考资料" section. It has:
+- heading-2: 背景参考资料 (10197-16483)
+  - paragraph-1kd06wy: 内容块 4 (10207-12087) - this is a LONG paragraph (1880 chars) that's the actual "背景参考资料" body text
+  - heading-3: 灾前军事基准线与菌毯的不可根除性 (12087-16483)
+
+So the "背景参考资料" body text (the "四亿年前..." narrative) is a paragraph, not under any heading-3. This might be OK since it's directly under the level-2 heading.
+
+Actually, I don't see obvious structure problems that need "move" or "insert" operations.
+
+Let me reconsider. Maybe the structure-repair batch is about something else entirely. Let me think about what "分叉一" (fork one) means. The user said "符合我的要求，分叉一允许去重" (meets my requirements, fork one allows dedup).
+
+This suggests there was a previous discussion where the agent proposed "分叉一" (fork/branch one) as a strategy. Without seeing that history, I can only infer. The "分叉一" likely refers to "deduplication allowed" strategy for handling the duplicate content.
+
+OK here's my plan. I think I'm overanalyzing. Let me just:
+
+1. Read the remaining parts of the document structure I haven't verified (document_map offset 200-250).
+2. Identify and fix any remaining structure issues.
+3. Continue and complete the normalization (half-width → full-width punctuation).
+
+But the punctuation conversion is the hard requirement. Let me think about how to do that efficiently.
+
+Actually, wait. Let me reconsider the scale. The document is ~74000 characters. There are hundreds of half-width punctuation marks in Chinese context (commas, periods, colons, etc.). Doing this with replace_match would require each replacement to have a unique target, which is impossible for a simple "," → "，" conversion since there are many commas.
+
+Actually, looking at the earlier audit, the agent tried `editor.search` with query "," and got "total: 0" results, meaning the search doesn't index punctuation. So I can't even search for them.
+
+Hmm, but actually, looking at the document content I've been reading, I notice the Chinese text uses full-width punctuation mostly (，。：；！？). Let me check... 
+
+Looking at the content: "自然成了人类最大的灾难，人类在灾难面前分裂成利用者、自保者和争权者。" - uses full-width ，。、。
+
+Looking at table content: "| 卫星制导武器（GPS/北斗/格洛纳斯制导） | ..." - uses full-width （）and ／.
+
+Looking at "6.3.3 扩散体" content: "零号裸鼹鼠爆裂（11月19日3:14）" - the "3:14" has a half-width colon, but that's a time notation, not Chinese punctuation.
+
+Actually, I think the document mostly already uses full-width punctuation. The half-width punctuation is mainly in:
+1. Times like "3:14"
+2. Numbers like "0.8°C", "1.8GPa"
+3. The "→" arrows
+4. Technical notation
+
+These are NOT Chinese punctuation that needs conversion. The rule says "中文正文语境中的半角标点" - half-width punctuation in Chinese text context. Times and technical notation are not Chinese punctuation.
+
+So actually, the normalization might be nearly complete already, or the remaining half-width punctuation is minimal.
+
+Wait, but there ARE some genuine half-width commas in Chinese text. Let me search my memory of the content...
+
+Actually, from what I've read, the text seems to consistently use full-width punctuation. Let me look for specific examples...
+
+"陈暮是唯一踩在菌毯上不被判定为敌人的人" - full width
+"菌毯如何识别人类、人类如何识别彼此、陈暮如何在被菌毯忽略的。" - full width
+
+Hmm, one thing I notice: "陈暮如何在被菌毯忽略的。" - this looks like a typo (should be "陈暮如何被菌毯忽略的" or "陈暮如何在菌毯面前被忽略的"), but that's a content issue, not punctuation.
+
+Let me focus on what I can verify and do:
+
+1. Complete structure-repair: Read remaining structure, identify issues.
+2. Complete normalize-segments: Fix punctuation/whitespace/numbering.
+
+Actually, let me reconsider the whole thing. The system message is quite insistent that I must complete all 3 batches and that structure-repair is uncovered. Let me focus on doing meaningful structure-repair work.
+
+What structure issues can I actually identify and fix?
+
+1. **"故事核心" heading level**: The "故事核心" is a level-3 heading, and "菌毯的本质" / "核心张力" are level-4. But wait, looking at the original context, these were:
+   - "### 故事核心" (level 3)
+   - "#### 菌毯的本质：竞争对手文明" (level 4) - previously 【菌毯的本质：竞争对手文明】
+   - "#### 核心张力：保护即加速" (level 4) - previously 【核心张力：保护即加速】
+
+   This seems fine.
+
+2. Actually, let me look for a potential issue: the "叙事框架" section's first subsection is "故事核心" which contains the core story. But then "第一卷" through "第三卷" are also level 3. This is consistent.
+
+Let me take yet another approach and actually read the remaining document structure to find real issues.
+
+Actually, you know what, I think the most productive thing is to:
+
+1. Read the full document_map (I have most of it, need offset 200+).
+2. Look for level jumps or orphan headings.
+3. Do targeted fixes.
+
+Let me also reconsider: maybe "structure-repair" is about the fact that some sections have content that belongs elsewhere. For example:
+
+- "数据板的局限" (heading-2, 16483-17038) - standalone level-2 section
+- "菌膜外套：有限资源的临时通行方案" (heading-2, 17038-17786) - standalone level-2
+- "菌膜外套与共存补丁的关系" (heading-2, 17786-22364) - level-2 containing 六大势力总览, 圣萌会的崛起, 盖亚巨树, 终局之战, 终局之后
+
+Wait, this is interesting! The "菌膜外套与共存补丁的关系" section contains "六大势力总览", "圣萌会的崛起", "盖亚巨树的生长与天府都陷落", "终局之战", "终局之后". But these subsections are NOT about "菌膜外套与共存补丁的关系"! They're about the world's factions and the ending.
+
+This looks like a structure issue. The "六大势力总览" through "终局之后" content was probably originally standalone sections (part of "叙事框架" or a "世界观" section), but they got placed under "菌膜外套与共存补丁的关系".
+
+Actually, looking at the audit history, a previous turn added the "### 六大势力总览" and "### 圣萌会的崛起" headings to content that was already under "## 菌膜外套与共存补丁的关系". So these were mis-attributed.
+
+Hmm, but is this a structure-repair issue? The content "在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮..." is about the six factions, and it's currently under "菌膜外套与共存补丁的关系" (level 2).
+
+Actually, let me re-read the content flow:
+
+"## 菌膜外套与共存补丁的关系" section:
+1. 菌膜外套 vs 共存补丁 explanation (paragraphs)
+2. "### 六大势力总览" - the six factions overview
+3. "### 圣萌会的崛起" - Saint Germination's rise
+4. "### 盖亚巨树的生长与天府都陷落"
+5. "### 终局之战"
+6. "### 终局之后"
+
+This is clearly a structural mismatch. The "六大势力总览" through "终局之后" content is a narrative summary (世界观主线) that doesn't belong under "菌膜外套与共存补丁的关系".
+
+But wait, should I move it? The instruction says "用 move 把误归位标题与段落移动到正确层级". This might be exactly the kind of misplacement to fix.
+
+However, moving this content would be a significant restructuring, and I need to be careful. Where should it go? 
+
+Actually, looking at the top-level structure:
+- 叙事框架 (contains 故事核心, 第一卷, 第二卷, 第三卷)
+- 背景参考资料
+- 数据板的局限
+- 菌膜外套：有限资源的临时通行方案
+- 菌膜外套与共存补丁的关系 (contains 六大势力总览, 圣萌会的崛起, 盖亚巨树, 终局之战, 终局之后)
+- 世界设定声明
+- 卷一：基石设定层
+- 卷二：核心人物群像
+- 卷三：势力与格局层
+- 卷四：叙事工具箱层
+
+The "六大势力总览" through "终局之后" content is essentially a summary of the entire story arc (world overview + ending). It reads like it should be part of the "叙事框架" (narrative framework) as an overview, or a standalone section.
+
+Actually, looking at it more carefully, the content of "六大势力总览" through "终局之后" is a prose summary of the whole story. It's like an "全书主线概要" or "世界主线".
+
+Hmm, but I shouldn't over-engineer this. The user's instruction is to "重构大纲" (restructure), and "分叉一允许去重" (fork one allows dedup). The main task seems to be dedup + structure cleanup.
+
+Let me reconsider. Maybe the structure-repair is simpler than I think, and I should focus on the concrete, verifiable issues:
+
+1. The "六大势力总览" / "圣萌会的崛起" etc. are misnested under "菌膜外套与共存补丁的关系".
+
+Actually, wait. Let me reconsider this. Looking at the content again:
+
+"## 菌膜外套与共存补丁的关系" starts at 17786.
+Its first content (paragraph-a97lus, 17802-18075) is the explanation of 菌膜外套 vs 共存补丁.
+Then "### 六大势力总览" (18075-18811) with content "在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮..."
+Then "### 圣萌会的崛起" (18811-19868)
+Then "### 盖亚巨树的生长与天府都陷落" (19868-20578)
+Then "### 终局之战" (20578-21726)
+Then "### 终局之后" (21726-22364)
+
+This is a big chunk of narrative that's about the overall story, not about 菌膜外套/共存补丁.
+
+I think this IS a structure-repair issue. But where to move it?
+
+Actually, thinking about it more, the document seems to have this overall structure issue: the "六大势力总览" through "终局之后" is essentially a "全书主线概要" (main plot summary) that got filed under the wrong heading.
+
+But actually, I realize I might be over-thinking this. Let me look at what the user actually wants and what's most valuable.
+
+The user said "按照Word文档的形式重构大纲，不要缩减内容" - restructure as Word document, don't reduce content.
+
+And the system plan has 3 phases: structure-repair, delete-duplicates, normalize.
+
+I've done dedup. Now I need structure-repair and complete normalize.
+
+For structure-repair, the concrete actionable items are:
+1. Fix heading level jumps (if any)
+2. Move misplaced content
+3. Add titles for untitled body text
+
+Let me identify the actual issues by reading the full structure. I'll get the remaining document_map sections.
+
+Actually, I already have a very comprehensive structure map from the initial context. Let me analyze it for real issues.
+
+Looking at the initial structure map again, I notice:
+
+1. Under "背景参考资料" (heading-2), there's a "内容块 4" paragraph (10207-12087, 1880 chars) that is the main body text, and then "### 灾前军事基准线" (heading-3). This seems OK—the body text is directly under the level-2, and then a level-3 subsection follows.
+
+2. Under "卷一：基石设定层" (heading-2), the structure is clean.
+
+3. The main issue I see is the "菌膜外套与共存补丁的关系" containing "六大势力总览" through "终局之后".
+
+Actually, wait. Let me reconsider whether this is really an issue to fix. The "六大势力总览" through "终局之后" content is currently under "菌膜外套与共存补丁的关系". 
+
+Actually, re-reading the flow, I think there might have been an editing error where these sections ended up under the wrong parent. The "菌膜外套与共存补丁的关系" explanation ends with "菌膜外套是权宜之计，共存补丁是终极解法。" and then immediately "### 六大势力总览" follows with "在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮..."
+
+This "六大势力总览" through "终局之后" content is really a "主线剧情概要" or "世界观主线" section.
+
+Hmm, but I'm not confident enough about the intended structure to make a big move. The instruction says "禁止无依据地把标题层级改深或改浅" and "move 把误归位标题与段落移动到正确层级".
+
+Let me think about what's clearly wrong and fixable:
+
+Actually, I wonder if the real issue is different. Let me reconsider the document's top-level organization:
+
+The document has these level-2 sections:
+1. 叙事框架
+2. 背景参考资料
+3. 数据板的局限
+4. 菌膜外套：有限资源的临时通行方案
+5. 菌膜外套与共存补丁的关系
+6. 世界设定声明
+7. 卷一：基石设定层
+8. 卷二：核心人物群像
+9. 卷三：势力与格局层
+10. 卷四：叙事工具箱层
+
+This is a reasonable structure. The "六大势力总览" through "终局之后" under #5 is the only anomaly.
+
+But actually, maybe this IS the intended structure and I shouldn't move it. The user's previous turns already added the "### 六大势力总览" heading to this location, suggesting the agent (in previous turns) decided this content belongs here.
+
+OK, I think I'm going in circles. Let me take a concrete action-oriented approach:
+
+1. Read the full document_map (remaining sections) to have complete info.
+2. Based on careful analysis, do the structure-repair fixes that are clearly correct.
+3. Continue normalization.
+
+Actually, let me reconsider the meta-situation. The system is telling me the structure-repair batch is uncovered. This means I need to DO structure-repair work. But what specifically?
+
+The plan's step "execute-restructure" says: "执行标题层级修复或章节重排". So it's about heading level fixes OR section reordering.
+
+Given the document's hierarchy is already clean (1→2→3→4→5, no jumps), the "章节重排" (section reordering) might be the relevant part, OR there are specific heading level issues I need to find.
+
+Let me actually look for heading level issues more carefully by reading the actual content around headings.
+
+Actually, I just realized something. Let me look at the "卷一：基石设定层" section. Its level-3 headings are:
+- 一、书名定义与核心术语定调
+- 二、灵魂语句
+- 三、地名架空化对照总表
+- 四、灾难源头：共生蕨
+- 五、方岫岩：菌膜装甲的起源
+- 六、灾难爆发完整链条
+- 七、变异体主动攻击人类核心机制
+- 八、变异生物体系
+- 九、真菌网络、水体净化与大地之变
+- 十、灾后科技更新换代体系
+- 十一、生物油脂兼容性
+- 十二、末日食物与营养供给体系
+
+And "卷二：核心人物群像" has:
+- 一、陈暮
+- 二、五位女主
+
+"卷三：势力与格局层" has:
+- 一、菌毯封锁与人类孤岛：末日格局
+- 二、全球幸存者势力分布
+- 三、六大势力完整设定
+- 四、圣萌会：人类第二灾害
+- 五、盖亚中枢（巨树）
+
+"卷四：叙事工具箱层" has:
+- 一、核心主题清单
+- 二、术语统一总表
+
+This all looks clean and consistent.
+
+Hmm wait, actually there's a subtle thing. The "叙事框架" section (heading-2) contains "故事核心" (heading-3) and the three volumes (第一卷, 第二卷, 第三卷) as heading-3. But the three volumes are also essentially the "main plot" which is quite different from "故事核心" (story core).
+
+But this is a content organization choice, not a level jump.
+
+OK, let me just be pragmatic. I'll:
+
+1. Read the remaining document_map.
+2. Do a careful scan for any actual level jumps.
+3. Fix what's clearly wrong.
+4. Continue the normalization with the punctuation work (focusing on genuine Chinese-context half-width punctuation).
+
+Let me read the remaining document map sections first.
+
+Actually, I realize I should also reconsider: the system says "计划批次数量是 3". So there are exactly 3 batches:
+1. structure-repair
+2. delete-duplicates  
+3. normalize-segments
+
+Wait, but I've been treating "delete-duplicates" and "normalize-segments" as already partially done. The system says "未覆盖批次：structure-repair". So I need to do structure-repair.
+
+For structure-repair, the plan step is "execute-restructure": "执行标题层级修复或章节重排" with tools: editor.write.
+
+And the instruction: "先读取结构，用 move 把误归位标题与段落移动到正确层级，用 insert 为无标题正文补标题、用 replace_match/rewrite 仅修正既有标题层级".
+
+So structure-repair = move misplaced headings + insert missing titles + fix heading levels.
+
+Let me identify these concretely. Let me read the full document to find:
+1. Misplaced headings/paragraphs (needs move)
+2. Untitled body text (needs insert)
+3. Heading level issues (needs replace_match)
+
+Let me get the full document map first.
+
+Actually, I already have a LOT of the structure from the context. Let me just get the remaining sections (offset 200+) to be complete, then analyze.
+
+Let me proceed with reading and then doing structure-repair.
+
+Actually, let me reconsider once more. The key realization: I should just DO the work, not over-deliberate. Let me:
+
+1. Read remaining document_map (offset 200).
+2. Read specific sections to verify issues.
+3. Execute structure-repair via editor.write.
+
+For structure-repair, the most likely concrete fix is the "菌膜外套与共存补丁的关系" section containing unrelated content. But I need to be careful.
+
+Actually, let me reconsider the content flow one more time. The section "## 菌膜外套与共存补丁的关系" contains the 六大势力总览 through 终局之后. Looking at the audit history, previous turns already:
+- Added "### 六大势力总览" heading before "在大裂谷走廊..."
+- Added "### 圣萌会的崛起" heading before "在远西大陆，另一种力量正在凝聚。"
+- These were in a batch that also added other headings.
+
+Wait, actually the audit shows:
+```
+call_j1bvcgdghcphia1eggutnz5p editor.write success: input={"commands":[{"content":"### 六大势力总览\n\n在大裂谷走廊，铁壁要塞的巨墙挡住了变异体潮。","operation":"replace_match",...},{"content":"### 圣萌会的崛起\n\n在远西大陆，另一种力量正在凝聚。",...
+```
+
+So a previous turn added these headings. This means the content "在大裂谷走廊..." and "在远西大陆..." was already there without headings, and got headings added.
+
+So the "structure-repair" of adding headings was PARTIALLY done in previous turns. What remains?
+
+Hmm, this is getting complicated. Let me just focus on what I can verify and do concretely.
+
+Let me re-read the current state and look for:
+1. Any remaining untitled body text
+2. Any heading level jumps
+3. Any misplaced content
+
+Let me read the document systematically. I'll read the remaining document_map first.
+
+Actually, I already called document_map with limit 200 and got the first 200 sections. There are 250 sections. Let me get the rest (offset 200).
+
+Wait, actually in my earlier document_map call, I got 200 sections with hasMore: true, nextOffset: 200. Then I did other things. Let me get the remaining 50 sections.
+
+Let me also think about what concrete structure-repair actions to take. I'll plan:
+
+1. Read document_map offset 200 (remaining ~50 sections).
+2. Analyze full structure.
+3. Execute structure-repair.
+
+Let me go.
+
+Actually, I want to be efficient with my tool calls. Let me read the remaining document map AND start identifying issues in parallel where possible.
+
+Let me read the remaining structure first.

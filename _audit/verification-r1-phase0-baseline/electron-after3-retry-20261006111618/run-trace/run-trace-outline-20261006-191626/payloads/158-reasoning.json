@@ -1,0 +1,43 @@
+Let me analyze the current state. The user wants me to restructure the outline like a Word document without reducing content. The plan says:
+
+1. Phase 1: Read structure, fix heading levels
+2. Phase 2: Confirm and delete duplicates
+3. Phase 3: Normalize punctuation/whitespace/format
+
+The duplicate 7.8 has been deleted. Now I need to proceed with the normalization phase. Let me look at what needs to be done:
+
+1. The document has been edited - 7.8 was removed. Now the structure shows `heading-4-1au19n4` (7.9) follows `heading-4-1k3kxvb` (7.7) directly.
+
+2. I need to normalize Chinese punctuation: half-width `, . ; : ! ?` → full-width `，。；：！？`
+
+Let me read the document in chunks and apply normalization. Let me start with the beginning section.
+
+Actually, looking at the plan more carefully, the three phases are:
+- Phase 1: Fix heading levels 
+- Phase 2: Remove duplicates (done for 7.8)
+- Phase 3: Normalize punctuation/format
+
+Let me check the heading structure for issues. Looking at the document_map, I see:
+
+- `heading-3-1heodug` "故事核心" contains `#### 菌毯的本质：竞争对手文明` and `#### 核心张力：保护即加速` - these are properly level 4
+- The heading `#### 菌毯的本质：竞争对手文明` at `heading-4-vvku0m` starts at 214, but the text `####` suggests it's a level 4 heading which looks correct in the structure.
+
+Let me focus on Phase 3 now - normalization. The document is ~74K chars. I should process it in chunks. Let me read segments and apply normalization.
+
+Actually, the task says "按Word文档的形式重构大纲" - this likely means making the outline more structured like a proper Word document with consistent heading levels, proper formatting, etc. And "分叉一允许去重" suggests the duplicate removal was one fork.
+
+Let me check what specific issues remain. The plan says:
+- `normalize-segment-1[0-74586]` - need to normalize across the entire document
+- normalize-changes-punctuation-whitespace-format-only
+
+So I need to scan for half-width punctuation in Chinese context and convert it. Let me search for specific half-width marks.
+
+Let me do targeted searches and then apply fixes. Since the document is 74K chars, I should be efficient. Let me search for common half-width punctuation patterns in Chinese text.
+
+For the "Word文档形式" restructuring, I should also look at:
+- Are there any heading level issues?
+- Are the blank lines consistent?
+
+Let me first look at what needs normalizing and then submit a batch of edits. Let me search for specific half-width punctuation marks.
+
+Actually, let me be strategic. The document is large. Let me search for specific patterns and fix them in batches. Let me start with the most common ones: commas and periods.

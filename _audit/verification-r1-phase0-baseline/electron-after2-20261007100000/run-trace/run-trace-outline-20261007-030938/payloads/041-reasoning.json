@@ -1,0 +1,73 @@
+Let me analyze the current state and what needs to be done. The user wants to restructure the outline into a Word document format without reducing content. 
+
+Looking at the current structure, I've been working on:
+1. Fixed H2→H3 for three floating sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁)
+2. Deleted the editing instruction text in 故事核心
+3. Added H3 heading for 灾前军事基准线
+
+Now I need to:
+- Delete the duplicate 数据板的局限 content in the 背景参考资料 section (the one that appears as plain text before the H3 version)
+- Continue with normalize-segment-1 for the full document: fixing half-width punctuation to full-width in Chinese context
+
+Let me check what still needs to be done. The duplicate text "数据板的局限\n数据板不是百宝箱..." appears at position ~16215 in the 背景参考资料 section (as plain text), and there's now a proper H3 heading version after it.
+
+I need to:
+1. Delete the duplicate plain-text version of 数据板的局限 in 背景参考资料
+2. Then start the normalize pass covering all segments
+
+But first, I need to confirm the duplicate. From the reading:
+- At ~16215 in 背景参考资料: "数据板的局限\n数据板不是百宝箱..." (plain text, no heading)
+- After it (~16766+): "### 数据板的局限\n\n数据板不是百宝箱..." (properly headed)
+
+So the plain-text version at the end of 背景参考资料 is a duplicate that needs to be deleted.
+
+Let me also check - are there duplicates for 菌膜外套 and 菌膜外套与共存补丁? From the structure, those were originally standalone H2 sections that I've now converted to H3 under 背景参考资料. They appear after the 数据板的局限 H3. Let me verify there are no duplicates.
+
+From what I read, the content after "菌膜外套与共存补丁的关系" H3 is unique - it flows from there into the 六大势力 summary and then into 圣萌会 content, which seems to be part of 背景参考资料.
+
+But wait - looking at the original structure, 背景参考资料 originally had content about:
+- The history of the disaster
+- 灾前军事基准线 (now with H3 heading)
+- Then the duplicate 数据板的局限 (plain text)
+- Then separate H2 sections for 数据板的局限, 菌膜外套, 菌膜外套与共存补丁
+
+Now that I've converted those H2s to H3s under 背景参考资料, the duplicate plain-text 数据板的局限 needs to be removed. Let me proceed.
+
+Let me now:
+1. Delete the duplicate plain-text 数据板的局限 content
+2. Start normalize-segment-1 for punctuation normalization
+
+For step 1, I need to delete the plain-text version. Let me find the exact text to use as target.
+
+From the reading at offset 5900 in heading-2-1lka0h8:
+"白了一个道理：菌毯是不可根除的…人类对\"不可战胜\"的承认。\n\n数据板的局限\n数据板不是百宝箱…"
+
+The duplicate runs from "数据板的局限\n数据板不是百宝箱..." through "...数据板提供的是火种，不是火炬。\n\n\n### 数据板的局限"
+
+So I need to delete from "数据板的局限\n数据板不是百宝箱" through to just before "### 数据板的局限".
+
+Let me construct the delete command. Actually, this is going to be a complex delete. Let me use the delete operation with a unique fragment.
+
+Actually, looking at this more carefully, the plain-text "数据板的局限" is at the end of the 背景参考资料 section, right before the H3 version. I need to delete everything from "数据板的局限\n数据板不是百宝箱..." up to (but not including) "### 数据板的局限".
+
+Let me use a delete command with a fragment that uniquely identifies the start of the duplicate.
+
+Actually, let me think about this differently. The structure now has:
+- 背景参考资料 (H2) containing:
+  - Main narrative content
+  - 灾前军事基准线 (H3)
+  - Then plain text "数据板的局限\n数据板不是百宝箱...数据板提供的是火种，不是火炬。" (DUPLICATE)
+  - Then "### 数据板的局限\n\n数据板不是百宝箱..." (H3, proper)
+  - Then "### 菌膜外套..." (H3)
+  - Then "### 菌膜外套与共存补丁的关系..." (H3)
+  - Then more narrative (六大势力 summary, 圣萌会 content, etc.)
+
+I need to delete the duplicate plain-text section. Let me use a delete command.
+
+For the normalize pass, I need to handle the entire document (74841 chars) for Chinese punctuation normalization. This is a massive task - I should focus on the most impactful changes.
+
+Let me start by deleting the duplicate, then move on to the normalize pass.
+
+Let me try a different approach - use replace_match to replace the duplicate with nothing (using delete operation).
+
+I'll use a delete with a unique fragment from the start of the duplicate section.

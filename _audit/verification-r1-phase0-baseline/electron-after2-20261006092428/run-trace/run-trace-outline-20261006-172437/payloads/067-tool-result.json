@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "data": {
+    "total": 1,
+    "truncated": false,
+    "offset": 0,
+    "limit": 20,
+    "hasMore": false,
+    "matches": [
+      {
+        "start": 12120,
+        "end": 12127,
+        "sectionId": "heading-2-1lka0h8",
+        "sectionTitle": "背景参考资料",
+        "context": "原点建立了岫岩镇。他把数据板手稿中的技术逐一验证实现——菌膜雨衣、共生医疗凝胶、菌膜净水壶、菌膜睡袋、菌膜粮仓——这些民生技术在末日世界里比任何武器都更珍贵。\n灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么\n2042年的人类文明正处于一个技术拐点：强人工智能辅助决策、量子计算、定向能武器、高超音速滑翔体、自主蜂群作"
+      }
+    ],
+    "next_steps": [
+      "调用 editor.read_range 传入 sectionId 读取命中节全文"
+    ]
+  }
+}

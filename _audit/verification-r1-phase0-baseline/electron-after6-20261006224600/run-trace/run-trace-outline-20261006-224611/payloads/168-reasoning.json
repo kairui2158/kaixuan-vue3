@@ -1,0 +1,135 @@
+The user wants me to continue the Word document formatting of the outline. Let me analyze what's been done and what remains:
+
+What's been done so far (across all batches):
+1. Fixed 【】 markers to proper headings in 故事核心
+2. Deleted the duplicate "数据板的局限" section and editorial instruction lines
+3. Converted tab-separated pseudo-tables to GFM tables
+4. Normalized excessive blank lines around section headings in 叙事框架
+5. Normalized blank lines before "### 灾前军事基准线" in 背景参考资料
+6. Compressed excessive blank lines in various places
+
+Now I need to check for remaining issues. Let me look at what I've read:
+
+Looking at the "背景参考资料" section around the "景参考资料" (which appears to be a truncated heading `## 背`), I notice:
+- The heading appears as `景参考资料` instead of `## 背景参考资料` - this is a structure issue
+
+Wait, let me re-read. The range starts at 10196 and the content begins with "景参考资料\n\n" - this is because the heading `## 背景参考资料` starts at 10198 and the range starts at 10196, so we're seeing the tail end. Actually wait - the heading starts at 10198. Let me check... The heading is "## 背景参考资料" and starts at position 10198, and the range starts at 10196, so "景参考资料" is the tail of the heading. That's fine, it's just a display artifact from reading at offset 10196.
+
+Now, what remains to be done? Looking at the execution plan, there are 3 batches total:
+- Batch 1 (normalize): Done - fixed heading formats in 故事核心
+- Batch 2 (dedup): Done - removed duplicates and residual instructions  
+- Batch 3 (structure-repair): This still needs to be done
+
+The structure-repair batch would involve fixing the heading level issues, particularly:
+1. In the "背景参考资料" section, there are some headings that were previously plain text (`### 灾前军事基准线...` was fixed), but I need to check if the subsection numbering is consistent
+2. Check for any remaining structural issues
+
+Let me also check for the "structure-plan" batch which is the final formatting pass.
+
+Actually, looking at the plan more carefully:
+- The plan says 3 batches: structure-repair | structure-plan
+- I've executed normalize and dedup batches
+- The remaining is the structure-repair/plan batch
+
+Let me now focus on what's actually needed. The main remaining issues I can see:
+
+1. The "背景参考资料" section has headings that need consistent formatting
+2. Some subsections under 背景参考资料 may have incorrect heading levels
+3. There could be remaining punctuation normalization needed
+
+Let me now systematically go through the remaining areas. From reading the 10196-22196 range, I can see:
+
+The heading structure under 背景参考资料 seems mostly correct now. The `### 灾前军事基准线与菌毯的不可根除性` is at level 3, `#### 一、2042年` is at level 4, etc.
+
+Let me check for any remaining issues in the later sections (卷三, 卷四) that I haven't read yet.
+
+Actually, I read through most of the document already. Let me now check for specific issues:
+
+1. The "背景参考资料" heading - was it properly prefixed? Let me check... It starts at 10198 as "## 背景参考资料". That looks correct.
+
+2. Looking at the text around "景参考资料" in the range read - this is because the read range starts at 10196, and the actual heading `## 背景参考资料` starts at 10198. So we see just the tail end "景参考资料". This is fine, it's a read offset artifact.
+
+Let me focus on what the structure-repair batch should do. Looking at the document structure:
+
+The main structural concern I see is that under "背景参考资料", there's a long narrative about 圣萌会, 巨树, 终局之战 etc. that is essentially the same content that appears later in the proper structured sections (卷三). But this might be intentional - the "背景参考资料" section serves as a narrative summary/overview, while the later sections provide the structured details. These aren't duplicates - they serve different purposes.
+
+Wait, let me re-read the instructions more carefully. The plan says "structure-repair" is about fixing heading levels and structure issues. Let me check what structural issues remain:
+
+1. The `### 灾前军事基准线` heading - it was previously `###灾前军事基准线` (no space after ###) and I already fixed the blank line before it. Let me verify it's now `### 灾前军事基准线...` - yes, it should be fixed.
+
+2. Looking at the content, I notice the "背景参考资料" section has headings like `##### 被孢子云直接废掉的武器系统` which is level 5. Under `#### 一、2042年` (level 4), having `#####` (level 5) sub-headings is correct hierarchy.
+
+Let me now check for remaining issues systematically. The key remaining task is the "structure-plan" batch which should:
+- Verify all heading levels are consistent
+- Verify no remaining excessive blank lines
+- Check punctuation consistency
+
+Looking at the data I've read, the document seems to be in good shape now. The remaining issues from the original formatting problems have been largely addressed. Let me check if there are any specific areas still needing attention.
+
+From the search results, I notice that `\n\n\n\n` (4+ consecutive newlines) now returns 0 results - good, excessive blank lines have been cleaned up.
+
+Let me now think about what the "structure-repair" and "structure-plan" batches actually entail. The execution plan says these are about:
+- Fixing heading level jumps
+- Ensuring headings fit the document's established hierarchy
+- Final formatting normalization
+
+Given the extensive work already done, let me check one more thing - whether the "背景参考资料" section between the narrative overview and the structured "卷一" section has any orphaned content or heading issues.
+
+Looking at the flow:
+- `## 背景参考资料` (level 2) - contains narrative
+- Under it: `### 灾前军事基准线...` (level 3) - this is nested under 背景参考资料
+- Then after 背景参考资料 ends: `## 数据板的局限` (level 2)
+- Then: `## 菌膜外套...` (level 2)
+- Then: `## 菌膜外套与共存补丁的关系` (level 2)
+- Then narrative about 六大势力, 圣萌会, 终局...
+- Then: `## 世界设定声明` (level 2)
+- Then: `## 卷一：基石设定层` (level 2)
+
+The narrative between `## 菌膜外套与共存补丁的关系` and `## 世界设定声明` is not under any specific heading - it's just narrative text flowing between level-2 headings. This seems intentional as it's background/reference material.
+
+OK, I think the main remaining work for the structure-repair batch would be to ensure consistent blank line spacing throughout. Let me now execute the final formatting batch.
+
+Let me check if there are any remaining multiple-blank-line sequences in the document, and also check the spacing between "## 背景参考资料" and "## 数据板的局限" etc.
+
+I've been reading through most of the document. Let me now look for remaining specific issues to fix in the final batch. Let me think about what needs to be done:
+
+1. The heading `### 灾前军事基准线与菌毯的不可根除性` under `## 背景参考资料` - I already added a blank line before it
+2. The subsections under it look correctly formatted
+
+Let me now check the later parts I haven't fully examined. Let me read around the 22000-23000 area where the transition from 背景参考资料 narrative to 世界设定声明 happens, and also check the remaining sections.
+
+Actually wait - I've already read 0-12000, 12000-24000, 24000-36000, 36000-48000, 48000-60000, 60000-72000, and 72000-74487. So I've essentially read the entire document. Let me now check if there are any remaining issues I need to fix.
+
+The main thing I notice: now that I look at the 10196-22196 range, the heading `### 灾前军事基准线与菌毯的不可根除性` appears correct. But I notice the section `## 背景参考资料` was read and the heading seems truncated to "景参考资料" in the output - this is because the read started at offset 10196 and the heading starts at 10198.
+
+Let me now focus on what the final structure-repair batch should address. The key issues:
+
+1. The blank line between `## 背景参考资料` narrative and `### 灾前军事基准线...` - I fixed this already
+2. The blank line before `## 数据板的局限` - I fixed this already 
+3. The section under 背景参考资料 about 方岫岩/陈暮 (around offset 11800-12088) - this is narrative, no heading issues
+4. Remaining blank line consistency throughout
+
+Let me check for any remaining "double blank line" patterns. The search for `\n\n\n\n` returned 0 results. Good. Let me search for `\n\n\n` to check if there are any triple blank lines left.
+
+Actually, looking at the content I've read, there's a `\n\n\n` before `方岫岩用柴油发电机...` in the 背景参考资料 section (around offset 11800). Let me check:
+- After "人类恰好挡在了它生存的道路上。\n\n\n方岫岩用柴油发电机..." - that's a double blank line before 方岫岩 paragraph. This is fine for a section break within narrative.
+
+But wait, I need to check if there's `\n\n\n` that should be `\n\n`. Let me search...
+
+Actually, the searches for `\n\n\n\n` returned 0, so quadruple blank lines are already eliminated. Triple blank lines (`\n\n\n`) would be one blank line (the `\n` after a paragraph) plus two more, resulting in two visible blank lines between paragraphs - which for section breaks can be acceptable.
+
+Let me now focus on what the "structure-repair" batch should actually do. I think at this point, the document is in pretty good shape structurally. The main things that remain might be:
+
+1. Ensuring the heading levels in "背景参考资料" are consistent - the "### 灾前军事基准线" is at the right level (3), with "#### 一/二/三" at level 4, "#####" sub-sections at level 5. This looks correct.
+
+2. The text between `## 菌膜外套与共存补丁的关系` and `## 世界设定声明` is unstyled narrative - it should probably remain as is since it's reference material.
+
+Given all the work done, let me now do the final structure-repair pass. I think the remaining issues are minimal. Let me search for any triple-blank-line sequences and fix those.
+
+Actually, let me just do a final check and fix any remaining spacing issues. Let me search for `\n\n\n` patterns and fix them to `\n\n` where appropriate.
+
+Let me also check if there are any remaining punctuation issues. The search for half-width `.` in the Chinese text showed matches - but looking at the context, most of these are in table cells or technical content (like "0.8°C", "§6.6", GPS, etc.) where half-width periods are correct.
+
+Similarly, half-width `,` searches returned 0 results - good, commas are properly full-width in Chinese text.
+
+Let me now execute the structure-repair batch. I'll search for triple blank lines and fix them, plus do any final formatting.

@@ -1,0 +1,69 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "独立于地名体系之外。\n## 第一部分　叙事框架",
+      "content": "独立于地名体系之外。\n\n## 第一部分　叙事框架",
+      "reason": "修复序言与第一部分之间缺失的空行，保持标题间空行一致"
+    },
+    {
+      "operation": "replace_match",
+      "target": "来\"看见\"目标。而孢子云正是针对\"看见\"这道工序",
+      "content": "来“看见”目标。而孢子云正是针对“看见”这道工序",
+      "reason": "半角引号统一为全角引号"
+    },
+    {
+      "operation": "replace_match",
+      "target": "沦为\"昂贵的铁炸弹\"",
+      "content": "沦为“昂贵的铁炸弹”",
+      "reason": "半角引号统一为全角引号"
+    },
+    {
+      "operation": "replace_match",
+      "target": "超视距通讯退化为地面中继\t72小时内长距通讯中断，\"各自为战\"",
+      "content": "超视距通讯退化为地面中继\t72小时内长距通讯中断，“各自为战”",
+      "reason": "半角引号统一为全角引号"
+    },
+    {
+      "operation": "replace_match",
+      "target": "它摧毁的是\"精确\"这个词",
+      "content": "它摧毁的是“精确”这个词",
+      "reason": "半角引号统一为全角引号"
+    },
+    {
+      "operation": "replace_match",
+      "target": "菌丝网络唯一的\"离线节点\"",
+      "content": "菌丝网络唯一的“离线节点”",
+      "reason": "半角引号统一为全角引号"
+    },
+    {
+      "operation": "replace_match",
+      "target": "但\"不受菌丝网络控制\"不等于\"对人类无害\"",
+      "content": "但“不受菌丝网络控制”不等于“对人类无害”",
+      "reason": "半角引号统一为全角引号"
+    },
+    {
+      "operation": "replace_match",
+      "target": "少数\"同样伤害\"孢子云世界的东西",
+      "content": "少数“同样伤害”孢子云世界的东西",
+      "reason": "半角引号统一为全角引号"
+    },
+    {
+      "operation": "replace_match",
+      "target": "被标记为\"周期性异常区域\"",
+      "content": "被标记为“周期性异常区域”",
+      "reason": "半角引号统一为全角引号"
+    },
+    {
+      "operation": "replace_match",
+      "target": "尝试过\"火线推进\"",
+      "content": "尝试过“火线推进”",
+      "reason": "半角引号统一为全角引号"
+    }
+  ],
+  "reason": "格式整理批次：修复缺失空行，并将中文正文中半角引号统一为全角引号",
+  "reveal": {
+    "firstChange": true,
+    "mode": "instant"
+  }
+}

@@ -1,0 +1,594 @@
+Let me understand the task. The user wants to "按照Word文档的形式重构大纲，不要缩减内容" (restructure the outline in Word document form, without reducing content).
+
+The current outline is in Markdown format with various heading levels and some free-floating paragraphs. The task involves:
+1. Reading structure and confirming target hierarchy
+2. Execute title hierarchy fixes or chapter reordering (move misplaced headings/paragraphs to correct level, add titles to untitled paragraphs, fix existing title levels with replace_match/rewrite)
+3. Confirm duplicates with read-only tools, then delete confirmed duplicates
+4. Normalize format (punctuation, whitespace, numbering, title levels)
+
+I already deleted one confirmed duplicate (the free-floating "数据板的局限" section that appeared after 背景参考资料 and duplicated the formal section).
+
+Now I need to continue with the restructuring. Let me think about what "按照Word文档的形式重构大纲" means concretely.
+
+Looking at the structure, the outline has:
+- # 《绿潮》大纲总纲 (H1)
+- ## 叙事框架 (H2)
+  - ### 故事核心 (H3)
+  - ### 第一卷·觉醒与扎根 (H3)
+  - ### 第二卷·连接与陷落 (H3)
+  - ### 第三卷·远征与暗流 (H3)
+- ## 背景参考资料 (H2) — contains loose content
+- ## 数据板的局限 (H2)
+- ## 菌膜外套：有限资源的临时通行方案 (H2)
+- ## 菌膜外套与共存补丁的关系 (H2) — contains loose content that should probably be under a proper section
+- ## 世界设定声明 (H2)
+- ## 卷一：基石设定层 (H2)
+- ## 卷二：核心人物群像 (H2)
+- ## 卷三：势力与格局层 (H2)
+- ## 卷四：叙事工具箱层 (H2)
+
+The "Word document form" likely means:
+1. A clean hierarchical document where each section has proper headings
+2. The "背景参考资料" section contains a lot of loose content (data板, 菌膜外套, 菌膜外套与共存补丁关系, 灾前军事基准线, 各势力简述, 圣萌会, 终局) that are actually standalone chapters that got misplaced.
+
+Looking at the current outline structure more carefully, there's a lot of content in "背景参考资料" that has its own headings already (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系). These are H2 headings that appear after 背景参考资料 ends.
+
+Actually, the issue is that "背景参考资料" section (heading-2-1lka0h8, 10230-16801) contains content that flows continuously, and then there are separate H2 sections for 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系.
+
+Wait, but the structure map shows these as siblings at H2 level, not children of 背景参考资料. Let me re-read the structure map:
+
+- [heading-2-1lka0h8] 背景参考资料 (10230-16801, 6561字)
+- [heading-2-z4sxm8] 数据板的局限 (16801-17356, 545字)
+- [heading-2-10q4nra] 菌膜外套：有限资源的临时通行方案 (17356-18104, 728字)
+- [heading-2-28do6r] 菌膜外套与共存补丁的关系 (18104-22619, 4499字)
+- [heading-2-sd0mn1] 世界设定声明 (22619-22716, 87字)
+- [heading-2-171cwmj] 卷一：基石设定层 (22716-56222, 33494字)
+...
+
+So these are all H2 siblings. The 背景参考资料 section (10230-16801) contains the actual background reference content. Then 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 are separate H2 sections.
+
+But wait — 菌膜外套与共存补丁的关系 (18104-22619) contains 4499 chars of content that is actually the FULL story synopsis (六大势力简介, 圣萌会, 终局之战, 结局). This is a lot of misplaced content.
+
+Hmm, actually looking at it again, this is the issue: the "菌膜外套与共存补丁的关系" section heading is at 18104, but its content from 18104 onwards includes:
+1. The actual 菌膜外套与共存补丁 content (short)
+2. Then "在大裂谷走廊，铁壁要塞..." — the 六大势力 overview
+3. Then "在远西大陆..." — 圣萌会
+4. Then "2043年春，巨树..." — 终局之战
+5. Then the ending
+
+This is a big mess where a lot of narrative content got dumped under a section with a technical heading.
+
+This is a substantial restructure. However, I need to be very careful. The task says "不要缩减内容" (don't reduce content) and the plan says I should:
+- Use move to move misplaced headings/paragraphs to correct level
+- Use insert to add titles to untitled paragraphs
+- Use replace_match/rewrite only to fix existing title levels
+
+But I should not rewrite actual content. This is a huge restructuring task.
+
+Actually, let me step back. The instruction from the system is quite specific and constraining. The key constraints:
+1. Must call editor.write this round (I've done 2 read-only rounds already)
+2. Cannot use replace_document
+3. Cannot delete unconfirmed content as duplicates
+4. Cannot drop valid content
+5. Must cover normalize-segment-1[0-74841]
+6. Punctuation normalization: half-width punctuation (, . ; : ! ?) in Chinese context must become full-width (，。；：！？)
+7. This is mandatory completion criterion
+8. Must read structure before unifying heading levels
+9. When authorized to write and this round needs to modify editor, must call editor.write
+
+Wait, but there's tension here. The task is "restructure outline in Word form without reducing content." But the plan has a "normalize-segments" step covering the whole document [0-74841] with punctuation normalization.
+
+Given the complexity, I think the most important thing is to make progress with editor.write. Let me focus on what I can concretely do.
+
+Let me think about what "Word document form" means in practical terms and what the highest-value restructuring actions are:
+
+1. The document has duplicate content already (数据板的局限 duplicated — I deleted one).
+2. The "菌膜外套" and "菌膜外套与共存补丁的关系" are duplicated inside 卷一部分 as 7.8 and 7.9 (but those are slightly different versions with additional content, so they're NOT pure duplicates — they're integrated into the 卷一 structure. I should NOT delete those).
+3. There's loose narrative content in "菌膜外套与共存补丁的关系" section that should be reorganized.
+
+Actually, wait. Let me reconsider the scope. The prompt says "按照Word文档的形式重构大纲" — restructure the outline in Word document form. This is likely about:
+- Clean heading hierarchy (H1 > H2 > H3 > H4 > H5)
+- Proper section organization
+- No loose/misplaced content
+
+But given the constraints and the risk, I should focus on the clearly-safe, clearly-beneficial changes first, then continue.
+
+The most clearly misplaced content issue I identified:
+- "菌膜外套与共存补丁的关系" (H2, heading-2-28do6r) contains narrative content (六大势力简介, 圣萌会, 终局) that doesn't belong under that technical heading.
+
+But restructuring this would require moving large chunks and possibly adding new headings, which is risky.
+
+Actually, let me reconsider. The system message gave me a specific plan with specific steps:
+1. read-structure — read document structure and confirm target hierarchy
+2. execute-restructure — execute title hierarchy fix or chapter reorder (move misplaced headings/paragraphs to correct level, insert titles for untitled paragraphs, replace_match/rewrite only to fix existing title levels)
+3. confirm-duplicates — confirm duplicates with read-only tools
+4. delete-duplicates — delete only confirmed duplicates
+5. normalize-segments — normalize format in batches
+6. verify-plan — verify write coverage and invariants
+
+Completion criteria:
+- All planned write batches succeed or clearly reach terminal state
+- Complete invariant check: planned-deletion-only, normalize-changes-punctuation-whitespace-format-only
+
+So I need to:
+1. Already read structure (done at start via document_map)
+2. Execute restructure (move/insert/fix titles)
+3. Confirm and delete duplicates (done one)
+4. Normalize segments (punctuation etc.)
+5. Verify
+
+Given the massive scope (74841 chars) and the constraint that I must normalize the ENTIRE document's punctuation, this is a huge task. But I can only submit 1-10 commands per editor.write call.
+
+Let me be pragmatic. The most important, verifiable, and safe action is:
+
+First, the restructure. The document has a clear hierarchy. The main structural problems:
+1. "背景参考资料" section has loose content with a heading "灾前军事基准线与菌毯的不可根除性" appearing as body text (not a heading) — this is a major untitled heading issue.
+2. "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" are H2 sections that contain narrative content.
+
+Actually, I realize I'm overcomplicating this. Let me focus on the concrete normalization tasks that are clearly within scope and verifiable:
+
+1. Fix the misplaced "灾前军事基准线与菌毯的不可根除性" — this appears as plain text but is clearly a section title that should be a heading. Actually, looking at the current focus full text, it appears as:
+
+"灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么
+..."
+
+This is inside "背景参考资料" section. The "灾前军事基准线与菌毯的不可根除性" should be a heading (H3 or H4).
+
+Hmm, but this requires reading the exact content first and then inserting a heading.
+
+Let me reconsider my approach. Given the extreme constraints and the risk of messing up a 74841-char document, I think the safest high-value action is:
+
+1. The document already has mostly-correct structure. The main "restructure" deliverable that's clearly safe and beneficial:
+   - Delete the confirmed duplicate (done)
+   
+2. Normalize punctuation — but this is enormous.
+
+Actually, wait. Let me re-read the constraint more carefully:
+
+"整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74841]）"
+
+This says I must cover the ENTIRE document in the normalize phase. But realistically, doing a full punctuation normalization of 74k chars via editor.write with 10 commands per call would require reading every segment, identifying punctuation issues, and submitting replace commands. This is not feasible in the remaining ~30 tool rounds.
+
+However, the instruction also says "如果确实无法完成写入，必须停止调用工具并输出...本轮未写入...继续执行剩余批次".
+
+Let me take a step back and think about what's actually achievable and most valuable.
+
+The core request is: "按照Word文档的形式重构大纲，不要缩减内容。"
+
+I think the most important interpretation is: restructure the outline into a clean Word-document-like hierarchy. The key issues to fix:
+
+1. Duplicate "数据板的局限" — DONE (deleted the free-floating duplicate).
+
+2. The loose content structure. Looking at the full focus text I was given, I can see the document structure. The narrative content in "菌膜外套与共存补丁的关系" section is a major problem — but actually, looking more carefully, these might be intentional "背景参考资料" content that got placed at H2 level incorrectly.
+
+Actually, let me look at what headings exist at H2 level and whether the narrative content should be reorganized.
+
+Current H2 sections (top level under H1):
+1. 叙事框架
+2. 背景参考资料
+3. 数据板的局限
+4. 菌膜外套：有限资源的临时通行方案
+5. 菌膜外套与共存补丁的关系
+6. 世界设定声明
+7. 卷一：基石设定层
+8. 卷二：核心人物群像
+9. 卷三：势力与格局层
+10. 卷四：叙事工具箱层
+
+The issue: sections 3, 4, 5 are technical topics that were placed at the same level as the major "卷" (volume) sections. But they're actually part of "背景参考资料" — they're reference material about specific technical limitations.
+
+Also, the "菌膜外套与共存补丁的关系" section contains a LOT of narrative content (六大势力 overview, 圣萌会, 终局之战, ending) that is NOT about 菌膜外套 at all.
+
+This is a real structural problem. But fixing it properly would require:
+- Moving the narrative content out of "菌膜外套与共存补丁的关系"
+- Creating new headings for that narrative content
+
+This is risky without being able to see all content clearly.
+
+OK let me just be decisive and do what I can with high confidence.
+
+Actually, re-reading once more, I think I'm overanalyzing. The key deliverable right now per the system instruction is:
+
+"下一轮必须直接提交 editor.write 写入"
+
+I've already done a delete. Now I need to continue with meaningful restructure work.
+
+Let me identify the concrete, safe, high-value edits I can make right now:
+
+**Edit 1: Fix the "灾前军事基准线与菌毯的不可根除性" untitled heading.**
+
+This text appears in "背景参考资料" as a plain paragraph but is clearly a section title. Let me search for it to locate it precisely.
+
+Actually, I already have it in the current focus full text. It appears as:
+
+"灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么"
+
+This should be a heading. But I need to know the exact context. Let me search.
+
+Actually, I realize I should just make progress efficiently. Let me identify the most impactful and safest structural fix.
+
+Given the document already reads reasonably well, and the main "Word document form" concern is:
+1. Clean heading levels (already mostly OK)
+2. No duplicate content (one fixed)
+3. Consistent punctuation
+
+The punctuation normalization is the biggest, most mechanical, and most verifiable task. But it's enormous.
+
+Let me think about whether I can do targeted punctuation fixes. The document has many half-width punctuation in Chinese context. For example:
+- "2042年，人类手里有什么" — this uses Chinese comma correctly
+- But there are things like "进入完全代谢休眠。" 
+
+Actually, looking at the content, the Chinese text mostly uses full-width punctuation already. Let me look for specific half-width punctuation issues.
+
+From the search results earlier, I saw: "数据板不是百宝箱。方岫岩在八个月里记录下的..." — full width, correct.
+
+Hmm, actually the content looks fairly clean in terms of punctuation. Let me check for specific patterns.
+
+Actually, I noticed in the "故事核心" section there's:
+"全书围绕"敌我识别"展开：菌毯如何识别人类、人类如何识别彼此、陈暮如何在被菌毯忽略的。"
+
+Wait — "陈暮如何在被菌毯忽略的" — this seems like a grammatical error (missing 存在/存活?). But I shouldn't rewrite content.
+
+Let me focus on what I can concretely do and make a meaningful write.
+
+Actually, let me reconsider the whole situation. The plan steps and the system's latest message are pushing me to:
+
+1. Execute restructure (move misplaced content, add headings, fix title levels)
+2. Delete duplicates
+3. Normalize punctuation
+
+The most concrete, valuable restructure I can identify with confidence from what I've read:
+
+**Issue A: "菌膜外套与共存补丁的关系" (heading-2-28do6r) contains unrelated narrative content.**
+
+Its content (18104-22619, ~4499 chars) is:
+1. 菌膜外套与共存补丁 relationship (3 paragraphs, correct)
+2. Then "在大裂谷走廊..." (六大势力 overview)
+3. Then "在远西大陆..." (圣萌会)
+4. Then "2043年春..." (终局之战)
+5. Then ending paragraphs
+
+This narrative content is essentially a full story synopsis that belongs either in "叙事框架" or as a separate section, NOT under "菌膜外套与共存补丁的关系".
+
+But wait — actually this content also duplicates the "背景参考资料" content? No. Let me check. The "背景参考资料" section (10230-16801) contains the disaster origin story (林觉民, 共生蕨, 方岫岩, 陈暮苏醒). Then the narrative content in "菌膜外套与共存补丁的关系" is the LATER story (六大势力, 圣萌会, 终局).
+
+Actually, these are DIFFERENT content. The "背景参考资料" is the disaster background. The content in "菌膜外套与共存补丁的关系" is actually the full story ending synopsis.
+
+Hmm, this is getting complicated. This narrative content (六大势力简介 + 圣萌会 + 终局 + 结局) actually looks like it should be part of "叙事框架" (the narrative framework) — specifically it's the story's later-plot overview.
+
+Actually, I realize this narrative content might be INTENTIONAL — it's a "story overview" that's been placed here. The heading "菌膜外套与共存补丁的关系" got attached to the wrong content.
+
+Given the risk, I should NOT try to move this large chunk without a clear destination and plan. Moving it wrong could damage the document.
+
+Let me focus on smaller, safer, clearly-correct fixes:
+
+**Safe fix 1: The "灾前军事基准线与菌毯的不可根除性" untitled heading.**
+
+This is clearly a section title rendered as plain text. I can convert it to a heading. But I need to determine the right level. The "背景参考资料" is H2, so a subsection within it would be H3.
+
+Actually, looking at the structure map, "背景参考资料" (H2) has NO child headings — it's all plain paragraphs (paragraph-11m2iyd is just "内容块"). So the content is one big block of text. Within it, there are pseudo-headings like:
+- "灾前军事基准线与菌毯的不可根除性"
+- "一、2042年，人类手里有什么"
+- "二、菌毯为什么火力推不平"
+- "三、总结：人类真正被压制的根本机制"
+
+These are plain text, not headings. Converting "灾前军事基准线与菌毯的不可根除性" to an H3 heading would improve structure.
+
+But this is a single heading fix among many. And the "一、二、三" subsections are also pseudo-headings.
+
+Honestly, I think the realistic and valuable approach given my constraints is:
+
+1. Complete the restructure of the most obvious misplaced content.
+2. Do targeted punctuation fixes I can verify.
+3. Report progress honestly.
+
+But the system is demanding I cover the ENTIRE document's punctuation. That's not feasible. Let me focus on making concrete progress and being honest about it.
+
+Actually, let me re-read the final instruction block once more:
+
+"整理阶段必须覆盖全部计划段落（normalize-segment-1[0-74841]）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令，禁止把同段多条命令拆成多次调用；未覆盖全部计划段落前，禁止输出"任务完成"总结。"
+
+So the normalize phase should cover the whole document, reading each segment first, then submitting all normalize commands for that segment in ONE editor.write call.
+
+"计划批次数量是 3" — planned batch count is 3.
+
+So there are 3 batches: restructure, delete-duplicates, normalize. I've done part of delete-duplicates.
+
+Given I've done the duplicate deletion, and the restructure... let me think about what the restructure batch should concretely contain.
+
+I think the cleanest interpretation of "按照Word文档的形式重构大纲" combined with the plan is:
+
+**The document's top-level organization should be a clean Word-style hierarchy. The key issue is that several standalone sections are misplaced or duplicated.**
+
+Let me enumerate the concrete restructure actions with high confidence:
+
+1. ✅ Delete duplicate "数据板的局限" (done)
+
+2. The narrative content under "菌膜外套与共存补丁的关系" — this is the biggest issue but risky to move.
+
+Let me actually look at this differently. The content under "菌膜外套与共存补丁的关系" starting from "在大裂谷走廊" is:
+
+This is essentially the "全书故事脉络" (full story arc) content. It describes 六大势力, 圣萌会, 终局, 结局. This is narrative framework content.
+
+Actually, you know what, I bet the intended structure is that all this content (六大势力简介, 圣萌会, 终局) is part of "背景参考资料" — the background reference material — because it's a summary of the world and plot.
+
+But it got separated by the "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" headings.
+
+Hmm. This is a document that has been edited in pieces and has structural drift.
+
+Given the difficulty, let me take the pragmatic path:
+
+**Focus this round on the restructure: convert the clearly-identifiable pseudo-headings in "背景参考资料" into proper headings, and fix the "灾前军事基准线" untitled heading.**
+
+Actually, I realize I need to be more careful and efficient. Let me search for the exact text of "灾前军事基准线" to locate it precisely, then make the heading fix.
+
+Wait, I already have this text in the "当前焦点全文" (current focus full text) provided at the start. It shows:
+
+"灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么"
+
+And before that:
+"他在独行中找到了少量幸存者...这些民生技术在末日世界里比任何武器都更珍贵。
+灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么"
+
+So "灾前军事基准线与菌毯的不可根除性" is a pseudo-heading (plain text line) within "背景参考资料".
+
+To convert it to a heading, I'd use replace_match to replace:
+"灾前军事基准线与菌毯的不可根除性\n一、2042年"
+with:
+"### 灾前军事基准线与菌毯的不可根除性\n\n一、2042年"
+
+But wait, I need to check the exact formatting. Let me search to get exact context.
+
+Actually, let me be efficient. I'll do a search to locate these pseudo-headings precisely, then make the heading conversions in one write batch.
+
+Let me search for key pseudo-headings:
+- "灾前军事基准线与菌毯的不可根除性"
+- "一、2042年，人类手里有什么"
+- "二、菌毯为什么火力推不平"
+- "三、总结：人类真正被压制的根本机制"
+
+These are within "背景参考资料" (H2 section 1lka0h8).
+
+Let me do these searches now, plus verify the current state after my delete.
+
+Actually, I already did a lot of reading. Let me just make a decisive write now.
+
+The clearest, safest restructure action: Convert the pseudo-heading "灾前军事基准线与菌毯的不可根除性" into a proper H3 heading (since 背景参考资料 is H2). Its subsections "一、二、三" could become H4 headings, but that might be over-engineering.
+
+Actually, let me reconsider what level. Looking at the document hierarchy:
+- # 《绿潮》大纲总纲 (H1)
+- ## 叙事框架 (H2)
+  - ### 故事核心 (H3)
+  - ### 第一卷 (H3)
+- ## 背景参考资料 (H2) — currently no H3 children, all flat text
+- ## 卷一：基石设定层 (H2)
+  - ### 一、书名定义 (H3)
+    - #### 1.1 (H4)
+
+So "背景参考资料" is H2. Its content includes:
+1. The 四亿年前 disaster origin story
+2. 方岫岩 story
+3. "灾前军事基准线与菌毯的不可根除性" (pseudo-heading)
+4. 数据板的局限 (now deleted the duplicate, but there's a separate H2 section)
+
+Wait, actually the "数据板的局限" content was BOTH in 背景参考资料 (as free text) AND as a separate H2 section. I deleted the one in 背景参考资料. Good.
+
+So "背景参考资料" now ends with "...方岫岩留给陈暮的全部遗产...这些民生技术...比任何武器都更珍贵。" and then "灾前军事基准线与菌毯的不可根除性" starts.
+
+Hmm wait, but the structure map showed 背景参考资料 as 10230-16801 (6561 chars), and 数据板的局限 as 16801-17356. After my delete, the ranges shifted but the section boundaries remain.
+
+Let me verify: the free-floating "数据板的局限" that I deleted was at the END of 背景参考资料 (before the "## 数据板的局限" H2 heading). The content I deleted was:
+
+"数据板的局限\n数据板不是百宝箱...数据板提供的是火种，不是火炬。"
+
+Yes, that was at start 16257-16797 (within 背景参考资料 10230-16801). Deleted correctly.
+
+So now 背景参考资料 ends right before "## 数据板的局限".
+
+The pseudo-heading "灾前军事基准线与菌毯的不可根除性" is at some position within 背景参考资料, before "数据板的局限" content.
+
+OK here's my decisive plan for this round:
+
+Convert the pseudo-heading "灾前军事基准线与菌毯的不可根除性" into an H3 heading. This is clearly correct: it's a section title within 背景参考资料, currently rendered as plain text.
+
+I need the exact surrounding text. From the current focus full text:
+
+"灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么
+2042年的人类文明正处于一个技术拐点..."
+
+And before it:
+"...这些民生技术在末日世界里比任何武器都更珍贵。
+灾前军事基准线与菌毯的不可根除性"
+
+So I'll replace:
+"这些民生技术在末日世界里比任何武器都更珍贵。\n灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么"
+
+with:
+"这些民生技术在末日世界里比任何武器都更珍贵。\n\n### 灾前军事基准线与菌毯的不可根除性\n\n一、2042年，人类手里有什么"
+
+Actually, I should use replace_match with the unique fragment "灾前军事基准线与菌毯的不可根除性" and its context.
+
+Hmm, but I need to be careful about exact whitespace. Let me use editor.locate to find the exact text first... but that's another read round. The system said I must write THIS round.
+
+Let me just do the write with a replace_match targeting a fragment I'm confident about. The fragment "比任何武器都更珍贵。\n灾前军事基准线与菌毯的不可根除性" — I need to make sure this is exact.
+
+Actually, from the current focus text, I see:
+
+"菌膜粮仓——这些民生技术在末日世界里比任何武器都更珍贵。
+灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么"
+
+The text "这些民生技术在末日世界里比任何武器都更珍贵。\n灾前军事基准线与菌毯的不可根除性" should be unique.
+
+Let me use replace_match on "灾前军事基准线与菌毯的不可根除性" → "### 灾前军事基准线与菌毯的不可根除性".
+
+But wait, there's also the subsection "一、2042年，人类手里有什么", "二、菌毯为什么火力推不平", "三、总结：人类真正被压制的根本机制" — these are also pseudo-headings. Converting them to H4 would be nice but let me focus on the main one.
+
+Also I should check: is "灾前军事基准线与菌毯的不可根除性" unique? It might appear once. Let me assume yes based on what I've seen.
+
+Actually, let me reconsider the whole approach. There might be MANY pseudo-headings throughout the document. Let me check the structure map again:
+
+Looking at the structure map, most sections have proper headings. The "背景参考资料" section (H2) has NO H3 children — everything is flat. This suggests ALL its sub-content (including the disaster origin, 方岫岩 story, 军事基准线, and the now-deleted 数据板局限) is flat text without proper sub-headings.
+
+But the disaster origin story and 方岫岩 story are narrative prose, not sectioned content. Only "灾前军事基准线与菌毯的不可根除性" and its "一、二、三" subsections are clearly structured content needing headings.
+
+OK, let me make the decision: I'll convert "灾前军事基准线与菌毯的不可根除性" to H3, and its three subsections to H4. This is a clean, verifiable restructure.
+
+But I need exact text for each. From current focus text:
+
+"灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么
+2042年的人类文明正处于一个技术拐点..."
+
+"二、菌毯为什么火力推不平
+生物量储备的物理事实
+菌毯不是一层皮..."
+
+"三、总结：人类真正被压制的根本机制
+孢子云剥夺了电磁层..."
+
+So the three subsections are:
+1. "一、2042年，人类手里有什么"
+2. "二、菌毯为什么火力推不平" (with sub "生物量储备的物理事实" and "火力触发报复性生长" and "信号放大效应锁死兵力集结")
+3. "三、总结：人类真正被压制的根本机制"
+
+I'll convert:
+- "灾前军事基准线与菌毯的不可根除性" → "### 灾前军事基准线与菌毯的不可根除性"
+- "一、2042年，人类手里有什么" → "#### 一、2042年，人类手里有什么"
+- "二、菌毯为什么火力推不平" → "#### 二、菌毯为什么火力推不平"
+- "三、总结：人类真正被压制的根本机制" → "#### 三、总结：人类真正被压制的根本机制"
+
+But wait, "一、2042年，人类手里有什么" — is this unique? It should be. Similarly the others.
+
+Actually, let me be careful with the "二、菌毯为什么火力推不平" — this exact text might appear once. OK.
+
+Let me also reconsider: is there a risk that these strings appear in a different form (e.g., with different whitespace)? The current focus text shows them on their own lines. I'll use replace_match with the exact line text.
+
+But actually, there's a subtlety: replace_match replaces the FIRST/unique occurrence of the match. If I replace "一、2042年，人类手里有什么" with "#### 一、2042年，人类手里有什么", I need to ensure this is the only occurrence. Given the document, "一、2042年" appears only here.
+
+However, I also need to add blank lines around headings for proper Markdown. But that's a formatting nicety; the main thing is the "####" prefix.
+
+Actually, the concern with just adding "#### " prefix without newlines: the heading needs to be on its own line. Since these pseudo-headings are already on their own lines (preceded and followed by newlines), just adding the prefix will make them proper headings.
+
+Let me verify: from current focus text:
+
+"...这些民生技术在末日世界里比任何武器都更珍贵。
+灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么
+2042年的人类文明正处于一个技术拐点..."
+
+So "灾前军事基准线与菌毯的不可根除性" is on its own line (between two newlines). Replacing it with "### 灾前军事基准线与菌毯的不可根除性" will make it a proper H3 heading on its own line. Good.
+
+Similarly "一、2042年，人类手里有什么" is on its own line. Replacing with "#### 一、2042年，人类手里有什么" makes it H4.
+
+OK let me also think about whether there are OTHER untitled/pseudo-headings to fix in this round. But given my limited read budget, let me focus on these 4 heading fixes as the "restructure" batch, plus maybe check for the "数据板" duplicate deletion was sufficient.
+
+Actually, I already did the duplicate deletion. Let me now do the restructure (heading fixes) as a single editor.write batch.
+
+Let me also reconsider: are there other pseudo-headings I know about from the current focus text?
+
+From the current focus text, I can see:
+- "【菌毯的本质：竞争对手文明】" — this is a note-style pseudo-heading in 故事核心
+- "【核心张力：保护即加速】" — this is the user's paste instruction (not yet in doc? Actually the user's message included "粘贴到「故事核心」下...【核心张力：保护即加速】..." — but this was a PASTE INSTRUCTION, and I see the current focus text does NOT contain "【核心张力：保护即加速】" in the 故事核心 section. Let me check...)
+
+Actually, the current focus full text at the top shows 故事核心 ends with "人类的一切挣扎都不是为了"打败菌毯"，而是在它的碾压下多活一天。" and then the user's paste instruction block is shown separately (it's the user message, not part of the doc).
+
+Wait, re-reading the current focus full text — it contains the user's paste instruction inline? Let me look:
+
+"【菌毯的本质：竞争对手文明】\n\n菌毯不是纯自然力...人类的一切挣扎都不是为了"打败菌毯"，而是在它的碾压下多活一天。\n\n粘贴到「故事核心」下，紧接原文"陈暮是唯一踩在菌毯上不被判定为敌人的人"之后：\n\n【核心张力：保护即加速】..."
+
+Hmm, this is confusing. The "当前焦点全文" section in the system prompt includes the user's paste instruction text inline. But that's the USER MESSAGE being shown as part of context, not necessarily the document content.
+
+Actually, looking at the document structure map and the editor.get_state contentPreview, the document's 故事核心 section ends with "人类的一切挣扎都不是为了"打败菌毯"，而是在它的碾压下多活一天。"
+
+The "粘贴到..." text and "【核心张力：保护即加速】" text are part of the USER'S REQUEST (the paste instruction), shown in the conversation, NOT part of the current document.
+
+Wait, but actually, re-reading the very beginning of the system prompt: "用户请求: 按照Word文档的形式重构大纲，不要缩减内容。"
+
+And then there's a big "当前焦点全文" block. This block seems to be the CURRENT DOCUMENT content shown as context. But it includes what looks like the user's earlier paste instruction embedded.
+
+Hmm, actually I think the "当前焦点全文" is showing the document AS IT WAS at some point, and it may have included a previously-pasted instruction. But the editor.get_state shows contentLength 74841 and a contentPreview that starts with "# 《绿潮》大纲总纲\n\n\n## 叙事框架..."
+
+I'm now uncertain whether "【核心张力：保护即加速】" is in the document or not. Let me not worry about it — the user's current request is "restructure the outline in Word form."
+
+Let me focus on the concrete, verifiable restructure actions and stop over-thinking.
+
+Decision for this round's editor.write:
+
+Convert these 4 pseudo-headings in 背景参考资料 into proper headings:
+1. "灾前军事基准线与菌毯的不可根除性" → "### 灾前军事基准线与菌毯的不可根除性"
+2. "一、2042年，人类手里有什么" → "#### 一、2042年，人类手里有什么"
+3. "二、菌毯为什么火力推不平" → "#### 二、菌毯为什么火力推不平"
+4. "三、总结：人类真正被压制的根本机制" → "#### 三、总结：人类真正被压制的根本机制"
+
+Wait, but I should verify these are unique and exact. Let me use replace_match with these exact strings. If they're not unique, the write will fail or replace wrong content.
+
+Actually, the system said editor.locate can verify uniqueness, but that's a read tool and I've been told to write this round. I'll trust my knowledge from the current focus text and search results.
+
+Actually, let me reconsider the heading level. "背景参考资料" is H2. Its direct subsections should be H3. "灾前军事基准线与菌毯的不可根除性" is a major topic within 背景参考资料, so H3 is right. Its "一、二、三" subsections are H4.
+
+But wait — there's a subtlety. The document already has "卷一：基石设定层" as H2 with H3 subsections like "一、书名定义" and H4 like "1.1". So the convention is:
+- H2: major section (卷一, 卷二, etc.)
+- H3: numbered "一、二、三" topics
+- H4: "1.1" etc.
+- H5: "4.1.1" etc.
+
+For 背景参考资料, "灾前军事基准线与菌毯的不可根除性" is an unnumbered major topic → H3 is appropriate. Its "一、二、三" are numbered → H4.
+
+OK, let me also consider: should I also convert the other pseudo-headings? The 背景参考资料 also has implicit structure like "四亿年前..." story which is prose. I'll leave those.
+
+Let me finalize and write.
+
+Actually, wait. Let me reconsider one more time whether these are actually in the document in this exact form. The "当前焦点全文" is the document content. It shows:
+
+"这些民生技术在末日世界里比任何武器都更珍贵。
+灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么
+2042年的人类文明正处于一个技术拐点："
+
+Yes, this is the document content. These lines exist.
+
+But I'm worried about exact newline formatting. In Markdown, "灾前军事基准线与菌毯的不可根除性" might be immediately followed by newline then "一、2042年，人类手里有什么". Let me use replace_match with just the heading text (without newlines) to be safe.
+
+For replace_match, the "target" is the fragment to find, and "content" is the replacement. Let me use:
+
+Command 1: replace_match
+- target: "灾前军事基准线与菌毯的不可根除性"
+- content: "### 灾前军事基准线与菌毯的不可根除性"
+
+Command 2: replace_match
+- target: "一、2042年，人类手里有什么"
+- content: "#### 一、2042年，人类手里有什么"
+
+Command 3: replace_match
+- target: "二、菌毯为什么火力推不平"
+- content: "#### 二、菌毯为什么火力推不平"
+
+Command 4: replace_match
+- target: "三、总结：人类真正被压制的根本机制"
+- content: "#### 三、总结：人类真正被压制的根本机制"
+
+Wait, but "三、总结：人类真正被压制的根本机制" contains a colon which in the doc is full-width "：" (from the current focus text: "三、总结：人类真正被压制的根本机制"). Let me use the full-width colon as shown.
+
+Also "二、菌毯为什么火力推不平" — from current focus text: "二、菌毯为什么火力推不平". OK.
+
+Now, one concern: "灾前军事基准线与菌毯的不可根除性" — is "不可根除性" the right reading? From current focus text: "灾前军事基准线与菌毯的不可根除性". Yes.
+
+Let me also double check "一、2042年，人类手里有什么" — full-width comma after 2042年. Yes.
+
+Alright, let me write these 4 commands in one batch.
+
+Actually, I realize I should also verify these aren't going to cause issues with the "unique" requirement. Let me think: could "一、2042年，人类手里有什么" appear elsewhere? Unlikely — 2042年 is specific. "二、菌毯为什么火力推不平" — unique. "三、总结：人类真正被压制的根本机制" — unique. "灾前军事基准线与菌毯的不可根除性" — unique.
+
+OK, writing now.
+
+Actually, let me also reconsider: the plan says "execute-restructure: 执行标题层级修复或章节重排". The heading conversion IS a title hierarchy fix. Good, this aligns.
+
+Let me also consider adding the "一、二、三" subsections' sub-headings? No, too deep. Keep it simple.
+
+Let me write.

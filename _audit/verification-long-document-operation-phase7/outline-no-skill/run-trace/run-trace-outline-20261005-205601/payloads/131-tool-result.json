@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "data": {
+    "workspace": "outline",
+    "targetId": "outline",
+    "label": "大纲编辑器",
+    "contentLength": 75024,
+    "contentPreview": "# 《绿潮》大纲总纲\n\n\n【PHASE7-PUNCT-PROBE-A】这是前段标点整理探测句,需要把半角逗号改成全角逗号;这是必须处理的半角分号.\n## 叙事框架\n\n\n### 故事核心\n\n自然成了人类最大的灾难，人类在灾难面前分裂成利用者、自保者和争权者。陈暮是唯一踩在菌毯上不被判定为敌人的人——他从一个人活下来，最后成了自然和人类重新划定敌我边界的那个变量。\n\n全书围绕“敌我识别”展开：菌毯如何识别人类、人类如何识别彼此、陈暮如何在被菌毯忽略的。每一卷都是“敌我边界”的一次",
+    "contentVersion": 1,
+    "selectionStart": 75024,
+    "selectionEnd": 75024,
+    "hasSelection": false,
+    "selectedTextPreview": ""
+  }
+}

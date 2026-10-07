@@ -1,0 +1,587 @@
+Let me understand the task. The user wants to restructure the outline in Word document format without reducing content. There's also an explicit instruction from the system about phases: normalize-segment-1[0-46748] and normalize-segment-2[46748-75024], with plan batches = 4.
+
+The actual "PHASE7-PUNCT-PROBE" text doesn't exist in the current document - my search returned 0 matches, and locate failed. So those probe sentences are NOT in the document anymore. Good.
+
+Let me think about what "按照Word文档的形式重构大纲" means. It means: restructure the outline into Word-document form. That means:
+1. Clean up the heading hierarchy (proper title levels)
+2. Remove duplicate sections (there are duplicates: "数据板的局限" appears twice, "菌膜外套..." appears twice, "菌膜外套与共存补丁的关系" appears twice)
+3. Fix punctuation (half-width to full-width)
+
+Actually the system prompt is giving me a specific plan to execute. Let me focus on what's actually actionable and safe.
+
+The key issues I've identified:
+1. Duplicate content: 
+   - "数据板的局限" heading appears at heading-16215 (level 2) and then again as a separate heading later (the full text I read shows "## 数据板的局限" appears twice in the 背景参考资料 area)
+   - "菌膜外套：有限资源的临时通行方案" appears twice (heading-16770 and inside 卷一 as 7.8)
+   - "菌膜外套与共存补丁的关系" appears twice (heading-17518 and inside 卷一 as 7.9)
+   
+   Actually, looking more carefully at the full text I read: after "## 背景参考资料" section, there's content, then "## 数据板的局限" appears. But wait, in the "当前焦点全文" section at the top of the context, I see duplicates clearly.
+
+   Let me look at the document map again. The structure shows:
+   - heading-10186 "背景参考资料" (level 2)
+   - paragraph-3 内容块 3 (10196-12077) - this is content that belongs to 背景参考资料
+   - heading-12077 "灾前军事基准线与菌毯的不可根除性" (level 3)
+   - heading-16215 "数据板的局限" (level 2)
+   - heading-16770 "菌膜外套：有限资源的临时通行方案" (level 2)
+   - heading-17518 "菌膜外套与共存补丁的关系" (level 2)
+   - heading-17806 "六大势力速写" (level 2)
+   - heading-18540 "圣萌会与马格努斯" (level 2)
+   - heading-19597 "终局：共存补丁" (level 2)
+   - heading-22066 "世界设定声明" (level 2)
+   - heading-22163 "卷一：基石设定层" (level 2)
+
+   Wait, but in the "当前焦点全文" I saw at the very top, after "## 背景参考资料" there's the full 背景参考资料 content, then:
+   "## 数据板的局限" ... (full content)
+   then "## 数据板的局限" AGAIN (duplicate full content)
+   then "## 菌膜外套..." ... then "## 菌膜外套与共存补丁的关系" ...
+   
+   Hmm wait, actually looking at the "当前焦点全文" more carefully - it showed the ENTIRE document. And in it, I saw:
+   - "## 数据板的局限" content appears, then immediately "## 数据板的局限" again (duplicate).
+   
+   Actually wait, let me re-read. The focus text shows:
+   
+   "数据板的局限\n数据板不是百宝箱。..." (this is in 背景参考资料 area, appears as heading-16215)
+   
+   Then later in the document (卷一 area, section 7.8 and 7.9):
+   "#### 7.8 菌膜外套：有限资源的临时通行方案" and "#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系"
+   
+   So there's duplication between the "背景参考资料" level-2 sections (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系) and the "卷一" level-4 sections (7.8, 7.9).
+
+   These are real duplicates. The level-2 standalone sections "数据板的局限", "菌膜外套...", "菌膜外套与共存补丁的关系" appear to be duplicated content that also exists inside 卷一 sections 7.8 and 7.9.
+
+   Actually, from my full text read, I can see the structure clearly now. The document map shows:
+   - heading-16215 "数据板的局限" (level 2, 545 chars) - this is at position 16215-16770
+   - heading-16770 "菌膜外套..." (level 2, 728 chars)
+   - heading-17518 "菌膜外套与共存补丁的关系" (level 2, 272 chars)
+   
+   But these positions are BEFORE the "卷一：基石设定层" which starts at 22163. So these are in the "背景参考资料" area (which is 10186-16215... wait no).
+
+   Hmm, actually the structure map from document_map shows heading-10186 "背景参考资料" ends at 16215. Then heading-16215 "数据板的局限" is level 2. But wait - the "背景参考资料" summary head shows its content continues with "四亿年前..." and then "灾前军事基准线..." etc.
+
+   Let me re-read the actual text I got from read_range. The content flowed:
+   1. "# 《绿潮》大纲总纲" / "## 叙事框架" / "### 故事核心" / ... / "### 第一卷" / "### 第二卷" / "### 第三卷"
+   2. "## 背景参考资料" + content (四亿年前... 林觉民... 方岫岩... 陈暮...) + "灾前军事基准线与菌毯的不可根除性" (this appears to be a heading within 背景参考资料)
+   3. Then "## 数据板的局限" content
+   4. Then "## 菌膜外套：有限资源的临时通行方案" content
+   5. Then "## 菌膜外套与共存补丁的关系" content
+   6. Then "六大势力速写" content, "圣萌会与马格努斯", "终局：共存补丁"
+   7. "## 世界设定声明"
+   8. "## 卷一：基石设定层" ...
+
+   And in the "当前焦点全文" (which is the current document text), I can see there are indeed DUPLICATES:
+   - "## 数据板的局限" appears TWICE (with full content each time)
+   - "## 菌膜外套..." appears TWICE
+   - "## 菌膜外套与共存补丁的关系" appears TWICE
+
+   Wait, actually looking at the focus text again very carefully:
+
+   ```
+   ## 背景参考资料
+   [content...]
+   
+   数据板的局限
+   数据板不是百宝箱。...
+   [full 数据板 content]
+   
+   
+   ## 数据板的局限
+   
+   数据板不是百宝箱。...
+   [full 数据板 content again]
+   
+   
+   ## 菌膜外套：有限资源的临时通行方案
+   [content]
+   
+   ## 菌膜外套与共存补丁的关系
+   [content]
+   ```
+
+   Hmm, this is confusing. Actually I think the "当前焦点全文" is showing the ENTIRE document linearly, and there ARE duplicates.
+
+   Actually, let me look more carefully. The focus text begins with:
+   ```
+   # 《绿潮》大纲总纲
+   【PHASE7-PUNCT-PROBE-A】...
+   ## 叙事框架
+   ### 故事核心
+   ...
+   ```
+
+   But document_map shows the document starts at heading-0 "《绿潮》大纲总纲" (0-74287), with paragraph-1 at 11-12, heading-12 "叙事框架" at 12.
+
+   So the "当前焦点全文" includes the probe text "【PHASE7-PUNCT-PROBE-A】..." at position 11-ish, but document_map shows paragraph-1 (内容块1) at 11-12 (1 char). Hmm, and search for "PHASE7-PUNCT-PROBE" returned 0 matches.
+
+   This is contradictory. The focus text shows probe markers but search returns 0. Let me check - the search might have a different index. Actually the "当前焦点全文" shown in the context might be STALE (from before a previous edit that already removed the probes). The get_state returned contentLength 74287, but the earlier structure map from the context pack said 75024 chars. So the document was already edited (75024 → 74287), removing ~737 chars (the probe sentences).
+
+   Indeed: 75024 - 74287 = 737 chars removed. That's consistent with the three probe sentences (A, B, C) being removed already.
+
+   So the current document (74287 chars) already has the probes removed. Good. The "当前焦点全文" is stale and shows the OLD version with probes.
+
+   OK so what do I actually need to do? The user request: "按照Word文档的形式重构大纲，不要缩减内容。" = "Restructure the outline in Word document form, don't reduce content."
+
+   And the system's normalization plan:
+   - normalize-segment-1[0-46748]: fix punctuation (half-width → full-width), heading levels
+   - normalize-segment-2[46748-75024]: same
+   - Remove duplicates (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系 appear twice)
+   - Plan batches = 4
+
+   Let me identify concrete actions:
+
+   **Phase 1: Heading level fixes & structure (restructure into Word form)**
+   
+   The document has a consistent hierarchy already:
+   - Level 1: 《绿潮》大纲总纲
+   - Level 2: 叙事框架, 背景参考资料, 世界设定声明, 卷一, 卷二, 卷三, 卷四
+   - Level 3: 故事核心, 第一卷, 第二卷, 第三卷 (within 叙事框架); 一、二、三... (within 卷一/卷二/卷三/卷四)
+   - Level 4: 1.1, 1.2, ... ; 3.1, 3.2...; 4.1...
+   - Level 5: 4.1.1, 4.1.2...
+
+   The hierarchy looks mostly fine. Some issues:
+   - "灾前军事基准线与菌毯的不可根除性" (heading-12077) is level 3 inside "背景参考资料" (level 2), but it's a distinct topic that might deserve to stay as level 3 or be part of 背景参考资料. It's fine as level 3.
+   - "数据板的局限", "菌膜外套...", "菌膜外套与共存补丁的关系", "六大势力速写", "圣萌会与马格努斯", "终局：共存补丁" are level 2 headings inside what should be "背景参考资料". These are misplaced—they should be level 3 under 背景参考资料, OR they're separate top-level sections.
+
+   Actually wait, looking at the structure, these are all at level 2 (same as 叙事框架, 背景参考资料, 世界设定声明, 卷一...). So the document has MANY level-2 sections. That's the "Word form" issue: the background reference material contains multiple level-2 headings that should be consolidated.
+
+   Actually, I think the main structural issue is:
+   1. "背景参考资料" (level 2) contains a lot of content including "灾前军事基准线..." (level 3), "数据板的局限" (level 2, but should be level 3), "菌膜外套..." (level 2, should be level 3), "菌膜外套与共存补丁的关系" (level 2, should be level 3), "六大势力速写" (level 2), "圣萌会与马格努斯" (level 2), "终局：共存补丁" (level 2).
+   
+   These should all be level 3 under "背景参考资料".
+
+   2. Duplicates: "数据板的局限", "菌膜外套...", "菌膜外套与共存补丁的关系" appear both in 背景参考资料 AND in 卷一 (as 7.8, 7.9 and a separate "数据板的局限" appears... hmm).
+
+   Actually wait, let me check for real duplicates by looking at what I've read.
+
+   From the read_range of heading-0 (0-12000), I read up to "...以实验室为原点建立" (cut off at 12000). This doesn't cover the duplicate area.
+
+   From the document_map summary heads, I can see:
+   - heading-16215 "数据板的局限" (level 2) - summary: "数据板不是百宝箱。方岫岩在八个月里记录下的..."
+   - This is separate from 卷一's content.
+
+   Let me look at the "当前焦点全文" to find duplicates. In the focus text (stale, but structure should be similar), I see:
+
+   ```
+   ## 数据板的局限
+   数据板不是百宝箱。... [content]
+   
+   ## 数据板的局限
+   数据板不是百宝箱。... [content AGAIN - this is a DUPLICATE]
+   ```
+
+   Yes, in the focus text there's clearly a duplicate "## 数据板的局限" section.
+
+   Also:
+   ```
+   ## 菌膜外套：有限资源的临时通行方案
+   [content]
+   
+   ## 菌膜外套与共存补丁的关系
+   [content]
+   ```
+   And these also appear in 卷一 as 7.8 and 7.9.
+
+   So there are duplicates. Let me identify exactly which sections are duplicated.
+
+   Actually, this is getting complex. Given the constraints and risk of destroying content, let me be careful and methodical.
+
+   The system says: "计划批次数量是 4" (plan batch count = 4). So I should execute in ~4 write batches:
+   1. Structure fixes (heading levels) + maybe move misplaced headings
+   2. Delete confirmed duplicates
+   3. normalize-segment-1 [0-46748] punctuation
+   4. normalize-segment-2 [46748-75024] punctuation
+
+   But wait, the segments [0-46748] and [46748-75024] don't match the current document (74287 chars). These offsets are from the OLD 75024-char version. Hmm. Actually they probably still roughly correspond.
+
+   Let me focus on what's most important and safe:
+
+   **Priority 1: Fix the duplicate content** (this is "不要缩减内容" but remove accidental duplicates).
+
+   **Priority 2: Fix heading levels** to proper Word structure.
+
+   **Priority 3: Fix punctuation** (half-width → full-width). This is a huge task across 74K chars and very risky with replace_match on individual sentences.
+
+   Actually, the punctuation normalization across the whole document via individual replace_match would be impractical (hundreds of commands). The system says "每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令".
+
+   Given the practical constraints, let me focus on the most impactful, safe, and verifiable actions:
+
+   1. **Restructure headings into proper Word form** - fix the misplaced level-2 headings under 背景参考资料 to be level 3.
+
+   2. **Delete confirmed duplicates** (数据板的局限 duplicate, and the 菌膜外套/菌膜外套与共存补丁关系 duplicates between 背景参考资料 and 卷一 7.8/7.9).
+
+   Wait, but I need to be careful. Are these ACTUALLY duplicates? Let me think.
+
+   The document has:
+   - 背景参考资料 (level 2) at 10186-16215
+   - Then 数据板的局限 (level 2) at 16215-16770
+   - 菌膜外套 (level 2) at 16770-17518
+   - 菌膜外套与共存补丁的关系 (level 2) at 17518-17806
+   - 六大势力速写 (level 2) at 17806-18540
+   - 圣萌会与马格努斯 (level 2) at 18540-19597
+   - 终局：共存补丁 (level 2) at 19597-22066
+   - 世界设定声明 (level 2) at 22066-22163
+   - 卷一：基石设定层 (level 2) at 22163-55669
+
+   And 卷一 contains:
+   - 7.8 菌膜外套：有限资源的临时通行方案 (level 4) at 47574-48263
+   - 7.9 与终局的衔接：菌膜外套与共存补丁的关系 (level 4) at 48263-48743
+
+   So "数据板的局限" only appears ONCE in the current document map (heading-16215). But in the focus text (stale), it appeared twice. Hmm wait, let me recount from the focus text.
+
+   Actually, the focus text shows at the "背景参考资料" section:
+   1. Background content (四亿年前... 林觉民... 方岫岩... 陈暮...)
+   2. "灾前军事基准线与菌毯的不可根除性" heading + content
+   3. "数据板的局限" heading + content
+   4. Then AGAIN "## 数据板的局限" heading + content (duplicate!)
+   5. "## 菌膜外套：有限资源的临时通行方案" + content
+   6. "## 菌膜外套与共存补丁的关系" + content
+   7. "六大势力速写"...
+   
+   Hmm wait, but the document_map for the CURRENT document shows only ONE "数据板的局限" heading. So maybe the duplicate was already removed, OR the document_map and focus text are out of sync.
+
+   Actually, the focus text is described as "当前焦点全文" (current focus full text) in the context pack. But get_state shows contentVersion 19 and the context pack says outline version v-4ebffbff. The focus text might be from a different version.
+
+   Given the confusion, the SAFEST approach is to work with the CURRENT document map (which reflects the current state) and only delete things I can verify via locate/read.
+
+   Let me check: does the current document have duplicate "数据板的局限"? The document map shows only heading-16215. So NO duplicate in current doc.
+
+   But wait, the focus text clearly showed "## 数据板的局限" twice. And "菌膜外套" appears as both a level-2 standalone AND as 7.8/7.9 inside 卷一. Those 7.8/7.9 are legitimately part of 卷一 (they're cross-referenced in the structure). The standalone level-2 "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" in 背景参考资料 area might be misplaced/duplicated.
+
+   This is getting too deep. Let me step back and think about what's the RIGHT thing to do for "按照Word文档的形式重构大纲".
+
+   The core deliverables of "Word document form":
+   1. A proper title hierarchy (标题1 = 卷/章, 标题2 = 节, 标题3 = 小节, etc.)
+   2. Consistent heading numbering
+   3. No duplicate sections
+   4. Proper punctuation (full-width in Chinese)
+   5. Clean structure
+
+   Given the risk, let me do the following concrete, verifiable, safe operations:
+
+   **Batch 1 (structure/heading fixes):** 
+   - The level-2 headings that belong under "背景参考资料" should become level 3: 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 六大势力速写, 圣萌会与马格努斯, 终局：共存补丁. Also "灾前军事基准线" is already level 3 (good).
+   
+   Wait, but actually I need to check: are these level-2 headings SUPPOSED to be under 背景参考资料? The 背景参考资料 section (10186-16215) already contains a LOT of narrative content. Then these level-2 headings (数据板的局限 etc.) are SEPARATE top-level sections that got promoted to level 2 by mistake.
+
+   Looking at the flow, these seem to be continuation of 背景参考资料 content. So they should be level 3 (###) under 背景参考资料.
+
+   But actually, "六大势力速写", "圣萌会与马格努斯", "终局：共存补丁" read like narrative summaries that are part of 背景参考资料. And "数据板的局限", "菌膜外套", "菌膜外套与共存补丁的关系" are the same content as 卷一 7.8/7.9.
+
+   This is a significant restructuring. Given the high risk and the system's strong warnings, let me focus on what I can do safely and correctly.
+
+   Actually, let me reconsider the whole situation. The system is pushing me to EXECUTE WRITE commands and not just read. The plan is clear:
+   1. read structure ✓ (done)
+   2. execute restructure (heading level fixes)
+   3. confirm duplicates (read-only)
+   4. delete duplicates
+   5. normalize segments 1 & 2 (punctuation)
+
+   Let me now actually look at the remaining part of the document (offset 200-240 in document map) to understand the full structure, then execute.
+
+   Actually, I've been told repeatedly to STOP reading and START writing. I have enough info from the document_map I already read (offset 0-200, covering up to heading-68053). Let me get the rest via a quick read... no wait, I'm told to write next.
+
+   Let me re-read the key instruction: "下一轮必须直接提交 editor.write 写入". So this turn I MUST call editor.write.
+
+   Let me plan my first write batch carefully. I'll do the heading-level fixes that are unambiguous and safe.
+
+   The heading level issue: Several headings are at level 2 but should be level 3 (they're subsections of 背景参考资料). Let me identify them and use rewrite (which allows changing heading level? or replace_match on the heading text).
+
+   Actually, the operations available: insert, replace_selection, replace_match, append, delete, move, reorder_sections, rewrite, replace_document.
+
+   For changing a heading's level, I'd use replace_match to replace "## 数据板的局限" with "### 数据板的局限". But that's risky because "数据板的局限" might appear multiple times.
+
+   Wait, the instruction says: "用 replace_match/rewrite 仅修正既有标题层级" (use replace_match/rewrite only to fix existing heading levels).
+
+   Let me do the heading level fixes for the 背景参考资料 subsections. These are:
+   - "## 数据板的局限" → "### 数据板的局限"
+   - "## 菌膜外套：有限资源的临时通行方案" → "### 菌膜外套：有限资源的临时通行方案"
+   - "## 菌膜外套与共存补丁的关系" → "### 菌膜外套与共存补丁的关系"
+   - "## 六大势力速写" → "### 六大势力速写"
+   - "## 圣萌会与马格努斯" → "### 圣萌会与马格努斯"
+   - "## 终局：共存补丁" → "### 终局：共存补丁"
+
+   But wait, I need to check: are these the only occurrences? "数据板的局限" - from document_map, only heading-16215 exists. But in 卷一 7.9 there's "与终局的衔接：菌膜外套与共存补丁的关系" which is different text. So "菌膜外套与共存补丁的关系" as a standalone might be unique... but actually there's "7.9 与终局的衔接：菌膜外套与共存补丁的关系" which CONTAINS "菌膜外套与共存补丁的关系" as substring.
+
+   So replace_match with exact "## 菌膜外套与共存补丁的关系" (with ## prefix) would only match the level-2 heading, not the level-4 heading. Good, the ## prefix disambiguates.
+
+   Similarly "## 菌膜外套：有限资源的临时通行方案" vs "#### 7.8 菌膜外套：有限资源的临时通行方案" - the ## vs #### prefix disambiguates.
+
+   And "## 数据板的局限" - unique.
+
+   OK so my first write batch can fix these 6 heading levels. But wait - is this actually the right restructuring? Let me reconsider.
+
+   Actually, thinking about "Word document form" more holistically: The document should have:
+   - 第一部分：叙事框架（故事核心、第一卷、第二卷、第三卷）
+   - 第二部分：背景参考资料（包含所有背景设定）
+   - 世界设定声明
+   - 卷一：基石设定层
+   - 卷二：核心人物群像
+   - 卷三：势力与格局层
+   - 卷四：叙事工具箱层
+
+   The level-2 headings "数据板的局限" etc. are orphaned content that should be under "背景参考资料" as level 3. So demoting them to ### is correct.
+
+   But actually, "六大势力速写", "圣萌会与马格努斯", "终局：共存补丁" — these are narrative and belong to 背景参考资料 too.
+
+   Hmm, but there's also the "灾前军事基准线与菌毯的不可根除性" which is already level 3 (###). So the pattern is: 背景参考资料 should contain level-3 subsections. The current doc has some at level 3 (灾前军事基准线) and some at level 2 (数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 六大势力速写, 圣萌会与马格努斯, 终局：共存补丁). Demoting the level-2 ones to level 3 makes it consistent.
+
+   OK, I'm confident. Let me execute this first batch.
+
+   Actually, wait. Let me also reconsider the duplicate issue. The document map (current) shows NO duplicate "数据板的局限". Let me verify by checking if there's content duplication between 背景参考资料's "菌膜外套" (16770-17518, 728 chars) and 卷一's "7.8 菌膜外套" (47574-48263, 663 chars). These are DIFFERENT lengths (728 vs 663), so slightly different content. They might be intentional (one is narrative summary, one is technical spec). Actually 728 vs 663 = 65 char difference. The 7.8 version is the technical spec version; the 背景参考资料 version might have a slightly different framing.
+
+   Hmm, actually I should NOT delete these unless clearly duplicated. The user said "不要缩减内容" (don't reduce content). So I should be VERY conservative about deletions.
+
+   Let me check the focus text for the actual duplicate "## 数据板的局限" appearing twice. In the focus text, I saw:
+
+   ```
+   数据板的局限
+   数据板不是百宝箱。方岫岩在八个月里记录下的，... 
+   数据板提供的是火种，不是火炬。
+   
+   
+   ## 数据板的局限
+   
+   数据板不是百宝箱。方岫岩在八个月里记录下的，...
+   数据板提供的是火种，不是火炬。
+   ```
+
+   Wait, actually looking again at the focus text I received in the context pack (not the read_range result), the structure was:
+
+   After "## 背景参考资料" content, I see:
+   1. "数据板的局限" (heading without ## in the stale focus text? or with ##?)
+   
+   Actually the focus text showed:
+
+   ```
+   数据板的局限
+   数据板不是百宝箱。...
+   [content]
+   
+   
+   ## 数据板的局限
+   
+   数据板不是百宝箱。...
+   [content]
+   ```
+
+   So the FIRST "数据板的局限" appears to be at the END of the "背景参考资料" content block (as a heading level 3 or just bold text?), and the SECOND "## 数据板的局限" is a level-2 heading.
+
+   Hmm, this is confusing. Let me look at the document_map again:
+   - heading-10186 "背景参考资料" (level 2, 10186-16215) — summary shows it contains "四亿年前... 林觉民... 方岫岩... 陈暮..." but NOT "数据板的局限".
+   - heading-16215 "数据板的局限" (level 2, 16215-16770).
+
+   So in the CURRENT doc, "数据板的局限" is a single level-2 heading at 16215. There's no duplicate "数据板的局限" inside 背景参考资料 (which ends at 16215).
+
+   But the focus text (stale, v-4ebffbff, 75024 chars) showed a duplicate. The current doc (v19, 74287 chars) may have already removed that duplicate.
+
+   OK, so in the CURRENT document, there are NO text-level duplicates of "数据板的局限". Good. I don't need to delete duplicates there.
+
+   However, there IS still the issue of "菌膜外套" and "菌膜外套与共存补丁的关系" appearing in both 背景参考资料 (as level-2, 16770-17806) AND 卷一 (as 7.8, 7.9). But these are legitimately different content with different framing (the 7.8/7.9 are the technical specs with more detail). So I should NOT delete these—they're not exact duplicates, and the user wants content preserved.
+
+   So my plan simplifies to:
+   1. Fix heading levels (demote the 6 level-2 headings under 背景参考资料 to level 3).
+   2. Normalize punctuation (half-width → full-width) across the document.
+
+   For punctuation, this is the big task. Let me find actual half-width punctuation in the document. From my read of heading-0 (0-12000), I saw mostly full-width punctuation already. Let me look for specific half-width instances.
+
+   Actually, looking at the read content, the Chinese text uses full-width punctuation (,。) correctly. But there are some half-width instances in numbers like "2042年4月17日" (fine, those are digits), and things like "SC-α" (fine, Latin), "0.3%" (fine).
+
+   Hmm, but the system insists "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角". Let me search for specific half-width punctuation patterns.
+
+   Actually, I recall from the read content, there's a table that might have issues, and the probe sentences (already removed) had half-width punctuation.
+
+   Let me search the current document for half-width punctuation in Chinese context. I'll do a few searches. But I'm being told to write now.
+
+   OK, given the complexity and my uncertainty about exact punctuation instances, let me take a pragmatic approach:
+
+   **First write batch**: Fix the 6 heading levels (safe, verifiable, high-value for "Word form").
+
+   Then in subsequent turns, handle punctuation and any remaining structure issues.
+
+   Let me write the heading fixes now.
+
+   For replace_match, I need to provide the exact text and replacement. Let me be careful.
+
+   Commands:
+   1. replace_match: "## 数据板的局限" → "### 数据板的局限"
+   2. replace_match: "## 菌膜外套：有限资源的临时通行方案" → "### 菌膜外套：有限资源的临时通行方案"
+   3. replace_match: "## 菌膜外套与共存补丁的关系" → "### 菌膜外套与共存补丁的关系"
+   4. replace_match: "## 六大势力速写" → "### 六大势力速写"
+   5. replace_match: "## 圣萌会与马格努斯" → "### 圣萌会与马格努斯"
+   6. replace_match: "## 终局：共存补丁" → "### 终局：共存补丁"
+
+   Wait, but these headings need to be verified as unique. Let me check:
+   - "## 数据板的局限" - unique (only heading-16215 is level 2 with this title).
+   - "## 菌膜外套：有限资源的临时通行方案" - unique as level 2 (7.8 is level 4 with "#### 7.8 菌膜外套：有限资源的临时通行方案").
+   - "## 菌膜外套与共存补丁的关系" - unique as level 2 (7.9 is level 4 with "#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系").
+   - "## 六大势力速写" - unique.
+   - "## 圣萌会与马格努斯" - unique.
+   - "## 终局：共存补丁" - unique.
+
+   But wait, will replace_match match the "##" prefix correctly? The replace_match operation likely matches a substring. "## 数据板的局限" as a substring — is there any other "## 数据板的局限" in the doc? From the map, only one level-2 "数据板的局限". Good.
+
+   However, I'm worried about the "##" being part of a larger match. "## 菌膜外套与共存补丁的关系" — the 7.9 heading is "#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系", which contains "菌膜外套与共存补丁的关系" but NOT "## 菌膜外套与共存补丁的关系" (because it's "#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系"). So the "## 菌膜外套与共存补丁的关系" substring won't match 7.9. Good.
+
+   Actually, hmm, but "## 菌膜外套与共存补丁的关系" — is the "## " (two hashes + space) a unique prefix? The 7.9 heading starts with "####" (four hashes). So "## " (two hashes + space) would match the first two hashes of "####"? No! "####" = four hashes in a row. "## " = two hashes + space. The third character of "####" is "#", not space. So "## " does NOT match "####". Good.
+
+   So my replacements are safe. Let me write them.
+
+   Actually, let me reconsider whether demoting these headings is truly correct, or whether I'm overcomplicating.
+
+   The user's request is simply "按照Word文档的形式重构大纲，不要缩减内容" (restructure the outline in Word form, don't reduce content). 
+
+   "Word form" typically means:
+   - Proper heading styles/levels
+   - A title page-like top (already have # 《绿潮》大纲总纲)
+   - Consistent hierarchy
+   - Maybe a table of contents structure
+
+   The main structural problem is the inconsistent heading levels in 背景参考资料. Demoting the orphaned level-2 headings to level-3 under 背景参考资料 is the right "Word form" fix.
+
+   Let me proceed with the write.
+
+   Actually, I realize I should also verify the "六大势力速写" heading. Looking at the document map, I don't see "六大势力速写" in the map I got (offset 0-200). Let me check... The map shows:
+   - heading-16770 "菌膜外套：有限资源的临时通行方案"
+   - heading-17518 "菌膜外套与共存补丁的关系"
+   - heading-17806 ... wait, no, I see heading-17806 is missing from what I read.
+
+   Let me re-check the document_map output. The sections I see around there:
+   - heading-16215 "数据板的局限" (level 2, 16215-16770)
+   - heading-16770 "菌膜外套：有限资源的临时通行方案" (level 2, 16770-17518)
+   - heading-17518 "菌膜外套与共存补丁的关系" (level 2, 17518-17806)
+   - heading-17806 "六大势力速写" (level 2, 17806-18540) — wait, is this in my map output?
+
+   Looking at the map output text I received, after heading-17518, I see:
+   "heading-17806" — actually I need to scroll. The output shows:
+   ```
+   {"id":"heading-17518","title":"菌膜外套与共存补丁的关系","kind":"heading","level":2,"start":17518,"end":17806,...}
+   ```
+   Hmm, but then the next one isn't shown in what I got (the output was truncated at "nextOffset":200).
+
+   Wait, actually the map output I received shows sections up to heading-68053 "3.5.4 独有科技树" (end 68210), with "hasMore":true. So it DID include the 背景参考资料 level-2 sections. Let me look... Actually the map output text I received is quite long and includes:
+   - heading-10186 背景参考资料
+   - heading-12077 灾前军事基准线与菌毯的不可根除性
+   - heading-16215 数据板的局限
+   - heading-16770 菌膜外套：有限资源的临时通行方案
+   - heading-17518 菌膜外套与共存补丁的关系
+   - heading-17806 六大势力速写
+   - heading-18540 圣萌会与马格努斯
+   - heading-19597 终局：共存补丁
+   - heading-22066 世界设定声明
+   - heading-22163 卷一：基石设定层
+
+   Yes! These are all in the map output. Confirmed.
+
+   So the 6 level-2 headings to demote are confirmed: 数据板的局限, 菌膜外套, 菌膜外套与共存补丁的关系, 六大势力速写, 圣萌会与马格努斯, 终局：共存补丁.
+
+   Wait, but "六大势力速写" content (17806-18540) is about 六大势力 narrative. And "圣萌会与马格努斯" (18540-19597), "终局：共存补丁" (19597-22066). These are all part of 背景参考资料 narrative.
+
+   So demoting them to ### is correct.
+
+   Let me write batch 1 now.
+
+   Actually, I realize I should double check whether these headings currently appear with "## " (level 2) markdown or something else. From my read of heading-0 (0-12000), the markdown uses "# " for level 1, "## " for level 2, "### " for level 3. And the document map confirms levels. So "## 数据板的局限" etc. is correct markdown.
+
+   But wait — I only read up to 12000 chars, which doesn't include the 数据板的局限 section (16215). Let me verify the exact markdown by reading a small range around 16215... but I'm told to write now.
+
+   The document map is authoritative on heading levels, and the markdown convention is consistent. I'll trust "## " prefix.
+
+   Actually, let me be extra safe and read the exact text of one heading via read_range around 16200-16300 to confirm the markdown before replacing. But the system says write next...
+
+   Hmm. The system's message is auto-generated and aggressive, but I should still do the right thing. The document map already gives me the exact heading titles and levels. I'm confident enough. Let me write.
+
+   Let me construct the write command with 6 replace_match operations.
+
+   Actually, I also want to consider: should I also fix "灾前军事基准线与菌毯的不可根除性" which is level 3 but contains its own content? It's already level 3, consistent with the demoted headings. Good, no change needed.
+
+   Also, the heading "世界设定声明" (22066-22163) is level 2, which is correct as a separate section (it's a standalone statement). Keep as level 2.
+
+   Let me write batch 1.
+
+   For the write command format, I need:
+   - commands: array of {operation, target, ...}
+   - For replace_match, I think the format is {operation: "replace_match", target: "old text", content: "new text"}? Let me check the schema.
+
+   The schema for editor.write commands:
+   - operation: "insert" | "replace_selection" | "replace_match" | "append" | "delete" | "move" | "reorder_sections" | "rewrite" | "replace_document"
+   - content: string
+   - target: string (for move: destination; for others presumably the text to match?)
+   - destination: move only
+   - destinationPosition: move only
+   - order: reorder_sections only
+   - position: cursor/selection_start/selection_end/end
+   - reason: string
+
+   Hmm, the schema doesn't explicitly define "target" for replace_match. Let me infer: for replace_match, "target" is the text to find, and "content" is the replacement. For delete, "target" is the text to delete. For insert, "content" + "position". For append, "content".
+
+   Actually the schema is a bit ambiguous. Let me look at the command properties more carefully:
+
+   ```
+   "commands": {
+     "items": {
+       "properties": {
+         "content": {"type": "string"},
+         "destination": {"description": "move 专用：目标位置的唯一原文片段", "type": "string"},
+         "destinationPosition": {"description": "move 专用：...", "enum": ["before", "after"]},
+         "operation": {"enum": [...]},
+         "order": {"description": "reorder_sections 专用：...", "items": {"type": "string"}},
+         "position": {"enum": ["cursor", "selection_start", "selection_end", "end"]},
+         "reason": {"type": "string"},
+         "target": {"type": "string"}
+       },
+       "required": ["operation"]
+     }
+   }
+   ```
+
+   So "target" is a generic string. For replace_match, "target" = the text to match, "content" = replacement text. For delete, "target" = text to delete. This is my best interpretation.
+
+   Actually, for the earlier locate failure, I used "fragment" for locate. For write's replace_match, I'll use "target" for the match text and "content" for replacement.
+
+   Let me write it. I'll also add a "reason" for the whole batch.
+
+   Let me finalize the 6 replace commands and submit.
+
+   Actually, I want to reconsider one more time whether demoting is right, because there's a subtlety: "背景参考资料" currently ENDS at 16215, and "数据板的局限" starts at 16215 as a level-2 SIBLING. If I demote 数据板的局限 to ###, it becomes a CHILD of 背景参考资料, which means 背景参考资料's end would extend to 17806 (or wherever the next level-2 heading is). That's the intended effect—these become subsections of 背景参考资料.
+
+   But wait, does "背景参考资料" currently have the narrative content that SHOULD precede these subsections? Looking at the map:
+   - heading-10186 背景参考资料 (10186-16215) — contains "四亿年前... 林觉民... 方岫岩... 陈暮..." narrative
+   - paragraph-3 内容块 3 (10196-12077) — the narrative content
+   - heading-12077 灾前军事基准线 (level 3, 12077-16215)
+
+   So 背景参考资料 currently contains: narrative intro + "灾前军事基准线" (###). Then level-2 siblings: 数据板的局限, 菌膜外套, 菌膜外套与共存补丁, 六大势力速写, 圣萌会与马格努斯, 终局：共存补丁.
+
+   Demoting these 6 to ### makes them subsections of 背景参考资料, consistent with "灾前军事基准线" already being ###.
+
+   This is correct. Proceeding.
+
+   Let me also think: is there anything about the "世界设定声明" that should be inside 背景参考资料? No, it's a standalone legal-ish statement. Keep level 2.
+
+   OK, writing now.
+
+   One more consideration: the order of sections. "数据板的局限" appears BEFORE "菌膜外套" and "菌膜外套与共存补丁" and then "六大势力速写" etc. This order is fine.
+
+   Let me also reconsider: the heading "灾前军事基准线与菌毯的不可根除性" — is it at level 3? Map says level 3. It's currently a child of 背景参考资料. Good, consistent.
+
+   Final check on uniqueness for each target string (with "## " prefix):
+   1. "## 数据板的局限" — only one. ✓
+   2. "## 菌膜外套：有限资源的临时通行方案" — the 7.8 heading is "#### 7.8 菌膜外套：有限资源的临时通行方案", so "## 菌膜外套..." (with ## + space) does NOT match "#### 7.8...". But wait, could there be a "## 菌膜外套：有限资源的临时通行方案" elsewhere? The standalone level-2 at 16770 is the only one. ✓
+   3. "## 菌膜外套与共存补丁的关系" — 7.9 is "#### 7.9 与终局的衔接：菌膜外套与共存补丁的关系". "## 菌膜外套与共存补丁的关系" ≠ substring of that (7.9 has "与终局的衔接：" between "7.9 " and "菌膜外套与共存补丁的关系"). So unique. ✓
+   4. "## 六大势力速写" — unique. ✓
+   5. "## 圣萌会与马格努斯" — unique. ✓
+   6. "## 终局：共存补丁" — unique. ✓
+
+   Great. Writing batch 1 now.
+
+   Wait, I should double-check: is there a "圣萌会与马格努斯" that also appears elsewhere? In 卷三 there's "四、圣萌会：人类第二灾害" (different title). And "马格努斯" appears many times but "## 圣萌会与马格努斯" as a heading is unique. ✓
+
+   "## 终局：共存补丁" — "共存补丁" appears many times, but "## 终局：共存补丁" as a heading is unique. ✓
+
+   Proceeding with the write.
+
+   Actually, let me reconsider the replacement content. I'm changing "## 数据板的局限" to "### 数据板的局限". This adds one #. The "content" field should be "### 数据板的局限".
+
+   Let me write all 6 commands in one editor.write call.
+
+   I'll set reveal mode to instant, firstChange true (default).
+
+   Let me go.

@@ -1,0 +1,59 @@
+The user asked me to restructure the outline in a Word document format without reducing content. Let me review what's been done so far:
+
+1. Fixed three PHASE-PUNCT-PROBE sentences (semi-colons/commas to full-width) - DONE
+2. Deleted the "粘贴到「故事核心」下..." paste instruction text - DONE
+3. Deleted duplicate "数据板的局限" body text from within background reference section - DONE
+4. Deleted all three PHASE-PUNCT-PROBE marker sentences - DONE
+5. Added proper heading levels for orphaned text blocks:
+   - "灾前军事基准线与菌毯的不可根除性" --> ### (level-3 heading)
+   - "六大势力速写" --> ## (level-2 heading)
+   - "圣萌会与马格努斯" --> ## (level-2 heading)
+   - "终局：共存补丁" --> ## (level-2 heading)
+6. Fixed various spacing/blank line issues
+7. Fixed the "本卷声明" trailing period
+
+Now the main remaining issue from the plan is: normalize-segment-1 and normalize-segment-2. Let me check what's still needed:
+- Normalize-segment-1 covers positions 0 to ~46748
+- Normalize-segment-2 covers positions ~46748 to ~74287
+
+The reading I've done shows the document is now in pretty good shape structurally. Let me check for any remaining semi-colons/commas in Chinese text, and examine normalize-segment-2 more carefully.
+
+Looking at the last search results for "." - they were mostly in the ##/### section titles (which are markdown) and in table cells/specific syntax like lists, which should remain as half-width. The semi-colon/colon searches returned empty or only results in valid contexts.
+
+The normalize-segment-2 area (46748 onwards) needs attention. Let me look at what I've read from the end of the document - the 卷四 section looks clean.
+
+I've used up my tool call rounds at this point (the system says "工具调用轮次已达上限"). Let me provide the final answer based on what's been accomplished.
+
+Actually wait - let me re-read the instructions. It says "工具调用轮次已达上限。当前请求不携带任何工具。禁止输出 tool call" - so I should output a final summary.
+
+Let me compile what was accomplished and what remains:
+
+COMPLETED:
+1. ✅ Fixed 3 PHASE-PUNCT-PROBE half-width punctuation → full-width
+2. ✅ Deleted paste instruction text from story core
+3. ✅ Deleted duplicate "数据板的局限" body text (the orphaned copy in 背景参考资料)
+4. ✅ Deleted all 3 PHASE-PUNCT-PROBE marker sentences
+5. ✅ Added level-3 heading "### 灾前军事基准线与菌毯的不可根除性" 
+6. ✅ Added level-2 headings: "## 六大势力速写", "## 圣萌会与马格努斯", "## 终局：共存补丁"
+7. ✅ Fixed spacing between document title and first H2
+8. ✅ Fixed spacing between H2 "叙事框架" and H3 "故事核心"
+9. ✅ Fixed spacing between "故事核心" ending and "第一卷·觉醒与扎根"
+10. ✅ Fixed 本卷声明 ending punctuation (added 。)
+11. ✅ Fixed spacing between 卷二 end and 卷三 heading
+12. ✅ Various blank line normalizations
+
+The document is now structured as a proper Word-style document with:
+- H1: 《绿潮》大纲总纲
+- H2 sections: 叙事框架, 背景参考资料, 灾前军事基准线与菌毯的不可根除性, 数据板的局限, 菌膜外套：有限资源的临时通行方案, 菌膜外套与共存补丁的关系, 六大势力速写, 圣萌会与马格努斯, 终局：共存补丁, 世界设定声明, 卷一：基石设定层, 卷二：核心人物群像, 卷三：势力与格局层, 卷四：叙事工具箱层
+- Deep H3-H5 nesting within each 卷
+
+Major accomplishments:
+- Removed 3 leftover formatting probe markers
+- Removed 1 leftover paste instruction
+- Removed 1 duplicate content block
+- Added 4 missing section headings to properly structure the outline
+- Normalized spacing and punctuation throughout
+
+The remaining normalize-segment-1 and normalize-segment-2 work for half-width punctuation in Chinese context would require more extensive processing. Given the tool call limit has been reached, I should summarize what was done and note what still needs attention.
+
+Actually, looking back at the instructions more carefully, the plan had 4 batch items: structure-repair, structure-plan, normalize-segment-1, normalize-segment-2. The structure-repair and structure-plan have been substantially completed through the various writes. The normalize work has been partially done but not systematically completed for both segments. However, I've run out of tool calls. I need to clearly state this and provide the final status.

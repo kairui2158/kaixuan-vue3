@@ -45,6 +45,27 @@ export const CONTEXT_BUDGET_DEFAULTS = {
   windowSafetyRatio: 0.9,
 } as const
 
+/**
+ * Single planning budget shared by every caller. Keep this as the only
+ * hand-written safety-ratio computation so planner, pipeline, and request
+ * accounting cannot drift apart.
+ */
+export function resolvePlanningInputBudget(input: {
+  contextWindowTokens: number | null
+  maxOutputTokens?: number | null
+}): number {
+  const contextWindow = Number(input.contextWindowTokens)
+  if (!Number.isFinite(contextWindow) || contextWindow <= 0) return 0
+  const outputReserve = Number(input.maxOutputTokens)
+  const effectiveOutputReserve = Number.isFinite(outputReserve) && outputReserve > 0
+    ? Math.floor(outputReserve)
+    : CONTEXT_BUDGET_DEFAULTS.defaultOutputReserveTokens
+  return Math.max(
+    0,
+    Math.floor(contextWindow * CONTEXT_BUDGET_DEFAULTS.windowSafetyRatio) - effectiveOutputReserve,
+  )
+}
+
 export function resolveContextWindowTokens(provider: ContextBudgetProviderLike): number {
   const raw = provider?.contextWindowTokens
   const value = typeof raw === 'string' ? Number(raw) : raw
@@ -87,14 +108,7 @@ export function resolveAvailableContextTokens(input: {
 }): number | null {
   const contextWindow = Number(input.contextWindowTokens)
   if (!Number.isFinite(contextWindow) || contextWindow <= 0) return null
-  const outputReserve = Number(input.maxOutputTokens)
-  const effectiveOutputReserve = Number.isFinite(outputReserve) && outputReserve > 0
-    ? Math.floor(outputReserve)
-    : CONTEXT_BUDGET_DEFAULTS.defaultOutputReserveTokens
-  return Math.max(
-    0,
-    Math.floor(contextWindow * CONTEXT_BUDGET_DEFAULTS.windowSafetyRatio) - effectiveOutputReserve,
-  )
+  return resolvePlanningInputBudget(input)
 }
 
 export function resolveContextBudget(input: {

@@ -1,0 +1,22 @@
+Let me analyze the current state. The user asked to restructure the outline into a Word document format without reducing content. I've been working through this in phases:
+
+1. Phase 1: Removed the "粘贴到" instruction line from 故事核心, added a heading for 灾前军事基准线, removed duplicate 数据板的局限 section
+2. Phase 2: Fixed bracket issues and normalized quotes
+
+Now I need to continue the normalization work. Let me check what's left:
+
+1. Remove excess blank lines (paragraph blocks that are just `\n\n`)
+2. Check for duplicate content between heading-2-10q4nra (菌膜外套) and heading-4-896l1n (7.8 菌膜外套) - these appear to be the same content in different sections
+3. Check for duplicate between heading-2-28do6r 的 starting paragraph and heading-4-1au19n4
+4. Continue normalizing Chinese punctuation
+
+Let me also check for the "正文块" paragraphs that are just empty lines and clean those up.
+
+Let me first check for any remaining duplicates and then do a broader search for half-width punctuation in Chinese context.
+
+Let me focus on what needs to be done:
+1. Check for duplicates between 菌膜外套 sections (heading-2-10q4nra vs heading-4-896l1n) and 菌膜外套与共存补丁 (heading-2-28do6r vs heading-4-1au19n4)
+2. Remove empty paragraph blocks that only contain whitespace
+3. Continue half-width to full-width punctuation normalization throughout the document
+
+Let me read the duplicate sections to confirm they are duplicates before deleting.

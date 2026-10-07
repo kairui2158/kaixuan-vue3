@@ -1,0 +1,248 @@
+I need to continue executing writes. I've done several batches already. Let me now do a comprehensive normalization batch covering more segments. I've read enough to confirm some issues.
+
+Key remaining issues I've identified:
+1. `heading-4-896l1n` (7.8) and `heading-2-10q4nra` (菌膜外套) are near-duplicate content but they're in different sections (one is 卷一卷 setting layer subsection 7.8, other is top-level heading-2). These are NOT exact duplicates to delete - they are intentional duplicates in different sections? Actually looking carefully:
+- heading-2-10q4nra "菌膜外套：有限资源的临时通行方案" (top-level)
+- heading-4-896l1n "7.8 菌膜外套：有限资源的临时通行方案" (subsection under 七)
+
+Both contain nearly identical content. But these may be intentional (the heading-2 versions are "standalone reference" and heading-4 is the in-context subsection). The plan says "只删除已确认的重复项" - the 数据板 one was clearly a duplicated block where heading-2 and the misplaced copy both existed, and I deleted the misplaced one (the one under 灾前军事基准线 section that lacked proper heading).
+
+For 菌膜外套, both have proper headings in different locations. This appears to be intentional structure duplication (the outline has "菌膜外套：有限资源的临时通行方案" as a top-level H2 AND as 7.8 under 卷一). Actually looking at the original structure, both existed from the start. These are legitimately part of the document (one is a standalone reference card, the other is the numbered subsection). I should NOT delete these as duplicates without user confirmation - they're in the original structure.
+
+Actually wait - the original ContextPack shows:
+- heading-2-10q4nra 菌膜外套：有限资源的临时通行方案 (top level H2)
+- heading-4-896l1n 7.8 菌膜外套：有限资源的临时通行方案 (subsection)
+
+Both were in the original document. So they're intentional. Keep both.
+
+Similarly:
+- heading-2-28do6r 菌膜外套与共存补丁的关系 (H2)
+- heading-4-1au19n4 7.9 与终局的衔接：菌膜外套与共存补丁的关系 (subsection)
+
+Both intentional.
+
+So no more deletions needed. My main remaining task is punctuation normalization and possibly heading level fixes.
+
+Let me focus on completing the normalization with a comprehensive batch. The document is 74256 chars now. I need to normalize half-width punctuation to full-width in Chinese context. That's a huge number of replacements though. Let me be strategic.
+
+Actually, the instruction says "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角". This is a massive task across 74k chars. But I've already fixed the most prominent ones in 故事核心 and 灾前军事基准线.
+
+Let me look at what half-width punctuation remains. The searches showed half-width quotes still in several places. Let me check remaining half-width punctuation systematically.
+
+Actually, given the constraint that I must write now and can't keep reading indefinitely, let me do targeted writes on remaining known issues. But I need to be careful not to break tables (which legitimately use half-width | and - and :).
+
+Tables use half-width `|` in markdown tables — those must NOT be changed. But `:` in tables also appears. So I should only change punctuation in prose, not in tables.
+
+This is getting extremely complex. Let me focus on:
+1. Remaining half-width quotes `"..."` in prose → full-width
+2. Remaining half-width punctuation in prose
+
+Let me search for remaining half-width quotes and do a batch.
+
+Actually I already know from earlier search there are still half-width quotes. Let me find all remaining `"` occurrences efficiently. Earlier search showed matches but was truncated. Let me search with nextOffset.
+
+Actually, I'm burning rounds. Let me do a focused batch now on what I've confirmed, then continue.
+
+Let me write a batch fixing the remaining known half-width quotes. I know these exist from earlier search results:
+- 灾前军事基准线 section still has many half-width quotes (the "看见" ones I fixed, but there are more like "各自为战", "昂贵的铁炸弹" fixed, "菌丝矿脉" fixed)
+
+Let me search for remaining `"` to get exact targets, but I must write now. Let me do one search + write in same turn? No - I should do the write. But I need accurate targets for replace_match.
+
+Actually, I can do a broader approach: I still have plenty of physical request rounds (36 max, used maybe 15). Let me do targeted search then write.
+
+But the instruction says I must submit editor.write NOW. Let me do a write with the targets I'm confident about, then continue.
+
+Actually, let me reconsider. I have confirmed remaining half-width quotes exist. Let me get exact list first via a couple searches in parallel, but that's reading again (would be 4th round). The instruction is very explicit: "下一轮必须直接提交 editor.write 写入".
+
+Let me submit a write batch now. I'll target the remaining issues I'm confident about from earlier reads.
+
+From earlier reads, confirmed remaining half-width quotes:
+1. `heading-3-19902vk` section: "各自为战" (全球战略通讯 row), and others I haven't fixed yet.
+
+From the read of heading-3-19902vk, I saw:
+- `来"看见"目标` — fixed
+- `"看见"这道工序` — fixed  
+- `沦为"昂贵的铁炸弹"` — fixed
+- `类似"菌丝矿脉"` — fixed
+
+But there are more in that section (tables have quotes too? No, tables have half-width | but content may have quotes). Actually table cells like `高频无线电受孢子电离层干扰，超视距通讯退化为地面中继` — no quotes.
+
+The remaining `"` matches from search were mostly in tables? Let me recall: search for `"` showed matches at 12281 (看见 - fixed), 12643 (昂贵的铁炸弹 - fixed), and more at nextOffset.
+
+Let me just do a search for remaining `"` now combined with write? No.
+
+OK let me be decisive. I'll submit a write batch that:
+1. Fixes the "各自为战" and other quotes I can reliably target from the 灾前军事基准线 read.
+
+From the full text I read earlier (heading-2-1lka0h8 read showed the 灾前军事 section with half-width quotes):
+- `超视距通讯退化为地面中继	72小时内长距通讯中断，"各自为战"` — has "各自为战"
+- `"昂贵的铁炸弹"` — fixed
+- Various other quotes in that section
+
+Let me write these now. I'll target:
+- `长距通讯中断，"各自为战"` → `长距通讯中断，“各自为战”`
+- `核心逻辑：孢子云没有摧毁任何一发子弹或一枚核弹头。它摧毁的是"精确"这个词` → 全角
+- `最先进的武器倒退为最昂贵的废铁` (no quotes)
+
+Also from heading-2-28do6r read, I saw:
+- `“也就是说，你只需要脑干？”“是的”，“那就不需要人”，“把脑袋取出来。”` — this has MIXED quotes. Some are full-width already, but "那就不需要人" uses half-width? Let me check: `“是的”，“那就不需要人”，“把脑袋取出来。”` — the outer quotes are full-width “ ”. Actually looking at the raw text: `“也就是说，你只需要脑干？”“是的”，“那就不需要人”，“把脑袋取出来。”` — all full-width already.
+
+OK. Let me focus on writing a batch. I'll target the confirmed remaining half-width quotes in 灾前军事基准线 section that I read.
+
+Actually, I realize I should just do a comprehensive search to enumerate all remaining half-width quotes and punctuation, then batch-fix them. But the system is pushing me to write NOW.
+
+Let me compromise: submit one write batch now with the targets I'm 100% sure about from prior reads, and in that same response I cannot also search. So I'll write, then next round search+write.
+
+Let me write the batch for remaining quotes in 灾前军事基准线 section.
+
+Targets I'm confident about (from the read of heading-2-1lka0h8 which included this section's beginning, and the search results):
+
+1. `长距通讯中断，"各自为战"` 
+2. `它摧毁的是"精确"这个词`
+3. From search earlier: `他推导了SC-α菌丝向菌毯广播\"无生命有机质\"` — but that's in the deleted duplicate + the kept version uses full-width already. Wait, the kept heading-2-z4sxm8 version uses full-width "无生命有机质". The deleted copy used half-width. So no action needed.
+
+Let me also check heading-4-896l1n (7.8) — it uses full-width quotes already (from read).
+
+OK, let me write a batch. But I only have a few confident targets. Let me make them count.
+
+Actually, a better use: fix the 灾前军事基准线 section's remaining quotes comprehensively. I read that section up to offset 4100. The beginning portion (0-2400ish) was in the original ContextPack (which used full-width in the display but actually the raw has half-width as search revealed). 
+
+Let me recall the half-width quotes in 灾前军事基准线 from search results (first 20 matches showed):
+- 12281: `来"看见"目标` ✓ fixed
+- 12284: `"看见"` ✓ fixed  
+- 12296: `来"看见"` ✓ fixed
+- 12299: `"看见"这道工序` ✓ fixed
+- 12643: `"昂贵的铁炸弹"` ✓ fixed
+- 12650: `"昂贵的铁炸弹"` ✓ fixed
+
+The nextOffset would show more. Common remaining ones in that section:
+- `"各自为战"` (twice - 72小时 row and 核心逻辑... no)
+- `"昂贵的铁炸弹"` already fixed
+- `"菌丝矿脉"` fixed
+- `"周期性异常区域"` 
+- `"愈合"` (菌毯对物理损伤的响应是生长——不是愈合，是生长) — full-width in original? The ContextPack shows full-width. But raw might be half-width.
+- `"打得疼"` 
+- `"不可战胜"` — I fixed this one (人类对"不可战胜"的承认 → fixed)
+- `"离线节点"` 
+- `"不受菌丝网络控制"` 
+- `"维护工"` etc in later sections
+
+This is a lot. Let me just do a comprehensive search for `"` and get all matches, then batch them.
+
+I'll do search in this turn AND... no, I must write.
+
+Let me make a decision: I'll write a batch now fixing the quotes I'm most confident about, accepting that more rounds are needed. The targets:
+
+1. `长距通讯中断，"各自为战"` → full-width
+2. `它摧毁的是"精确"这个词` → full-width
+
+Actually, I only have these two highly confident. That's weak. Let me instead do the move operation that's clearly needed, plus punctuation.
+
+Hmm, actually there may be a structural issue I should address: the heading-3-19902vk "灾前军事基准线与菌毯的不可根除性" contains sub-headings "一、2042年，人类手里有什么" "二、菌毯为什么火力推不平" "三、总结" as plain text (bold?), not as proper headings. Looking at the read, they appear as plain paragraphs:
+```
+灾前军事基准线与菌毯的不可根除性
+一、2042年，人类手里有什么
+2042年的人类文明...
+```
+
+These "一、二、三" should perhaps be heading-4 or heading-5. But the plan says "新增标题必须紧贴对应正文且不得改写正文内容". This would be adding heading levels to these. That's part of "为无标题正文补标题" and "统一标题层级".
+
+Actually, these "一、二、三" are already there as text lines. They're just not formatted as markdown headings (no #). Making them headings would be "标题层级修复".
+
+But this is risky and I'm not sure it's required. The user said "按照Word文档的形式重构大纲" (restructure the outline in Word document form). This suggests making headings proper and structure clean.
+
+Given the complexity and risk, and that I've already done the key structural fixes (removed duplicate, added missing heading, fixed brackets), let me now focus on completing punctuation normalization which is the explicit mandatory requirement.
+
+Let me write a batch now targeting remaining confirmed half-width quotes. I'll gather from what I've already seen.
+
+Actually, let me reconsider the whole situation. I've done 4 successful write batches. The document is mostly in good shape. The remaining work is:
+1. Half-width punctuation → full-width across prose (mandatory)
+2. Possibly heading level fixes for "一、二、三" inside 灾前军事基准线
+
+For #1, there are potentially hundreds of half-width punctuation marks. Doing this via replace_match one-by-one is infeasible in remaining rounds. 
+
+But wait — are there really that many? Let me think. The original document (from ContextPack display) shows full-width punctuation throughout in the narrative prose. But the raw editor content (revealed by search) shows half-width quotes `"` in some places and the tables use half-width `|`.
+
+The search for `"` returned "total: 40" then later "total: 18" (after fixes). So there were ~40 half-width quotes total, now ~18 remaining. And half-width `,` `;` `:` etc — the search for `。` returned 1000+ (full-width already dominant). 
+
+So the main remaining issue is ~18 half-width quotes + possibly some half-width commas/colons in prose.
+
+Let me get the exact remaining `"` matches (18 total) and fix them all in one batch. I'll do the search and write. But I must write NOW per instruction.
+
+OK, final decision: I'll do the write NOW with a batch that fixes the remaining half-width quotes I can reconstruct. Since I need exact targets for replace_match, and I can't be sure of exact text without reading, I'll instead fix a few I'm confident about, and use this round productively.
+
+Let me write with these targets (high confidence from earlier reads/search):
+
+From 灾前军事基准线 (I read most of it via heading-2-1lka0h8 and search):
+1. `退化为地面中继\t72小时内长距通讯中断，"各自为战"` — actually the tab is in table. The fragment `长距通讯中断，"各自为战"` should be unique.
+
+Actually let me reconsider — the table row content: `全球战略通讯\t卫星通讯链路全断，高频无线电受孢子电离层干扰，超视距通讯退化为地面中继\t72小时内长距通讯中断，"各自为战"`. The `"各自为战"` is inside a table cell. Changing quotes there is fine (not affecting table structure).
+
+2. `核心逻辑：孢子云没有摧毁任何一发子弹或一枚核弹头。它摧毁的是"精确"这个词。`
+
+These two are confident. Let me also add:
+3. From 灾前军事基准线: `这个区域被排异信号反复触发的频率远高于别处` — no quotes.
+
+I'll write a batch with just the high-confidence quote fixes, plus fix the "一、二、三" heading structure by making them proper H4 headings (they're currently plain text). Actually that requires knowing exact text. The three headings are:
+- `一、2042年，人类手里有什么`
+- `二、菌毯为什么火力推不平`
+- `三、总结：人类真正被压制的根本机制`
+
+These are plain text lines. To make them headings, I'd replace `一、2042年，人类手里有什么` with `#### 一、2042年，人类手里有什么`. But is that what "重构" wants? It's a reasonable structural improvement. However, the plan's normalize phase says "replace_match/rewrite 仅修正既有标题层级" and "为无标题正文补标题". These "一、二、三" lines ARE de-facto headings without markdown markup.
+
+I'll do this: add `#### ` prefix to these three section titles. They're within heading-3-19902vk (level 3), so their subsections should be level 4 (####).
+
+Wait, but there might be additional sub-sub-levels like "被孢子云直接废掉的武器系统" which is also a plain text heading. Looking at the read:
+```
+被孢子云直接废掉的武器系统
+系统类型	直接致死原因	失效时间线
+```
+"被孢子云直接废掉的武器系统" is a plain text line followed by a table. It should be H5 (#####) since it's under "一、2042年" (H4).
+
+Similarly:
+- `打上去但无效的武器` (under 一)
+- `打得动但代价人类付不起的武器` (under 一)
+- `生物量储备的物理事实` (under 二)
+- `火力触发报复性生长` (under 二)
+- `信号放大效应锁死兵力集结` (under 二)
+- `被孢子云直接废掉的武器系统` (under 一)
+
+And "核心逻辑：..." is a paragraph.
+
+This is getting complex. Converting all these plain-text sub-headings to proper markdown headings would be a thorough "Word document form" restructure.
+
+Given the risk of breaking things and my remaining rounds, let me do a focused, valuable batch:
+1. Fix remaining half-width quotes (a few confident ones)
+2. Promote the top-level "一、二、三" lines to H4
+
+Let me write this batch now.
+
+For exact targets:
+- `一、2042年，人类手里有什么` → `#### 一、2042年，人类手里有什么`
+- `二、菌毯为什么火力推不平` → `#### 二、菌毯为什么火力推不平`
+- `三、总结：人类真正被压制的根本机制` → `#### 三、总结：人类真正被压制的根本机制`
+
+These three lines are unique enough.
+
+But wait — the read showed these as:
+`灾前军事基准线与菌毯的不可根除性\n一、2042年，人类手里有什么\n2042年的人类文明正处于...`
+
+So `一、2042年，人类手里有什么` appears as its own line. Replacing it with `#### 一、2042年，人类手里有什么` should work if the string is unique. Let me verify it's not matching inside other text — unlikely.
+
+For the quotes, let me use:
+- `长距通讯中断，"各自为战"` → `长距通讯中断，“各自为战”`
+- `它摧毁的是"精确"这个词` → `它摧毁的是“精确”这个词`
+
+Let me also add more confident quote fixes from 灾前军事基准线 that I recall from the full ContextPack display (which used full-width, suggesting raw has half-width in places):
+
+From the original read of the section (heading-2-1lka0h8, first 3000 chars), these had half-width in raw:
+- `来"看见"目标` ✓ done
+- `针对"看见"这道工序` ✓ done
+
+Beyond that I need the actual raw. The search for `"` earlier gave 18 remaining matches but I only saw first 20 of 40 originally. After my fixes, ~18 remain.
+
+Let me just fix the confident ones and continue next round with a fresh search.
+
+Actually, I'll make this batch also include fixing the "各自为战" and "精确" quotes plus the three H4 promotions. That's 5 commands. Good.
+
+Let me write.

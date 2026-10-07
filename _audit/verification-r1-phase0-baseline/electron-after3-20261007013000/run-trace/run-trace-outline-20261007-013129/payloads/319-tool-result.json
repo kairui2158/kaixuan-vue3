@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "data": {
+    "total": 1,
+    "truncated": false,
+    "offset": 0,
+    "limit": 20,
+    "hasMore": false,
+    "matches": [
+      {
+        "start": 12358,
+        "end": 12369,
+        "sectionId": "heading-4-1h0cojh",
+        "sectionTitle": "一、2042年，人类手里有什么",
+        "context": "天地一体的信息网络来“看见”目标。而孢子云正是针对“看见”这道工序的精准打击——不是摧毁武器本身，是拔掉武器的眼睛、耳朵和神经。\n\n被孢子云直接废掉的武器系统\n系统类型\t直接致死原因\t失效时间线\n卫星制导武器（GPS/北斗/格洛纳斯制导）\t低轨道卫星全部坠入大气层（大纲§6.6），天基导航信号源永久消失\t数月内全部失效，首批卫星在数周内坠毁"
+      }
+    ],
+    "next_steps": [
+      "调用 editor.read_range 传入 sectionId 读取命中节全文"
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "taskId": "edit-task-1791303212269-1",
+  "status": "running_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "删除已确认的重复段落（背景参考资料末尾的游离“数据板的局限”与正式章节完全重复），保留正式章节",
+  "executedBatches": [
+    "ai-edit-muwvokie-1",
+    "ai-edit-muwvtl6d-2"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "activeBatchId": "ai-edit-muww039g-3",
+  "executionPlan": {
+    "goal": "删除已确认的重复段落（背景参考资料末尾的游离“数据板的局限”与正式章节完全重复），保留正式章节",
+    "batches": [
+      "ai-edit-muwvokie-1",
+      "ai-edit-muwvtl6d-2",
+      "ai-edit-muww039g-3"
+    ],
+    "batchDetails": {
+      "ai-edit-muwvokie-1": {
+        "segmentId": "structure-plan",
+        "expectedChange": "remove_duplicate",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "delete",
+        "invariantResult": "planned-deletion-only"
+      },
+      "ai-edit-muwvtl6d-2": {
+        "segmentId": "structure-repair",
+        "expectedChange": "restructure",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "structure_repair",
+        "invariantResult": "planned-deletion-only"
+      },
+      "ai-edit-muww039g-3": {
+        "segmentId": "normalize-segment-1",
+        "expectedChange": "normalize",
+        "range": {
+          "startLine": 0,
+          "endLine": 74841
+        },
+        "writeStrategy": "replace_match",
+        "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+      }
+    }
+  },
+  "batchId": "ai-edit-muww039g-3",
+  "segmentId": "normalize-segment-1",
+  "expectedChange": "normalize",
+  "invariantResult": "normalize-changes-punctuation-whitespace-format-only"
+}

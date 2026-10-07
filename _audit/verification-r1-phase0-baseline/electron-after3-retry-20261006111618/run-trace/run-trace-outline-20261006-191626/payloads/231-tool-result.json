@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "data": {
+    "total": 1,
+    "truncated": false,
+    "offset": 0,
+    "limit": 20,
+    "hasMore": false,
+    "matches": [
+      {
+        "start": 47885,
+        "end": 47904,
+        "sectionId": "heading-4-xvjiij",
+        "sectionTitle": "7.8 与终局的衔接：菌膜外套与共存补丁的关系",
+        "context": "——像一块木头，一堆落叶。没有异常信号，不需要查验。陈暮不是隐形了，是被系统主动忽略了。这是灾前一项未完成的基础研究所留下的唯一火种。\n\n\n\n#### 7.8 与终局的衔接：菌膜外套与共存补丁的关系\n\n菌膜外套是“让系统暂时看不到我们”——在穿戴者身上覆盖一层伪装层，不改变菌丝网络对人类信号的认证逻辑。共存补丁是“让系统认识我们”——将人类物种标签写入菌丝"
+      }
+    ],
+    "next_steps": [
+      "调用 editor.read_range 传入 sectionId 读取命中节全文"
+    ]
+  }
+}

@@ -1,0 +1,145 @@
+The system is telling me I've done 5 rounds of only reading. I need to submit an editor.write now. But I'm in the "normalize" phase where I need to find half-width punctuation to fix. The searches for ",", ";", "?", "!", ":" returned 0 matches. Wait, the search returned 0 matches for "," etc. That's strange — the document should contain commas. But search might be treating these specially or the search function doesn't index punctuation.
+
+Actually, looking back, the search queries for "," returned 0 matches. That means the search tool doesn't match punctuation, or there truly are no half-width commas. Given the content I've seen, it uses full-width punctuation already (，。；：！？).
+
+The task instruction says half-width punctuation must be unified. But searches show 0 matches for half-width punctuation. However, search may not support punctuation queries. Let me think.
+
+Actually I should just check the content directly. I've read a lot of content and it all uses full-width punctuation (，。；：——). The document appears already normalized.
+
+But there's still the question of what "按照Word文档的形式重构大纲" means and what actual changes are needed. The plan has 3 phases:
+1. Structure: move misplaced headings/paragraphs to correct level, insert headings for untitled body text, fix heading levels
+2. Confirm duplicates and delete
+3. Normalize punctuation/whitespace/numbering/heading levels
+
+I've already deleted the duplicates (7.8, 7.9). I've done some whitespace normalization.
+
+The remaining issue: the instruction keeps pushing me to write. I need to find something legitimate to write.
+
+Let me think about what structure issues exist in the document:
+
+Looking at the document map:
+- 第二部分 背景参考资料 (heading-2-k05bfs) contains:
+  - paragraph-1ky4plk (内容块 3) — this is body text (1881 chars) without a heading, then
+  - heading-3-19902vk "灾前军事基准线与菌毯的不可根除性"
+
+So there's body text (内容块 3) under 第二部分 that has no heading, followed by a ### heading. This is a structure issue — the 背景参考资料 body text doesn't have a subsection heading but the 灾前军事基准线 does. Actually that might be intentional: the 背景参考资料 has intro body text then a subsection.
+
+- 第六部分 卷一：基石设定层 contains:
+  - paragraph-4mh893 "内容块 4" (36 chars) = "本卷声明：本卷只作为故事背景或回忆，辅助参考，不参与主线剧情创作"
+  - Then ### 一、书名定义与核心术语定调
+
+The "本卷声明" paragraph is body text without a heading — but that's fine, it's a declaration at the top of the 卷.
+
+Actually the real issue I was asked about originally: "按照Word文档的形式重构大纲，不要缩减内容" — restructure the outline in Word document form, don't reduce content.
+
+And then "符合我的要求，分叉一允许去重。不用出预览，直接写入" — complies with requirements, branch one allows dedup, no preview, write directly.
+
+So the main task was: restructure to Word document form (which means proper heading hierarchy), and dedup is allowed (branch one).
+
+I've done the dedup. Now I need to complete the normalization.
+
+The system prompt keeps insisting I write. But I need to be careful not to fabricate changes. Let me look for actual structure problems to fix.
+
+Actually, let me reconsider. The key instruction from the system is now: I must submit editor.write in the next round. And I need to cover the normalize segment.
+
+Let me identify concrete normalization targets I've actually verified:
+
+1. Whitespace: I already fixed 第四/第五部分 boundaries and 第五/第六部分 boundaries.
+
+2. There might be double blank lines elsewhere. Let me think about what I've seen:
+- "## 第九部分" was renamed (previous round)
+- Heading "## 卷四：叙事工具箱层" → "## 第九部分　卷四：叙事工具箱层" (done in previous round per audit)
+
+3. The document map shows many "内容块 N" paragraphs which are just "\n" (single newline char) — these are empty paragraph nodes between headings. These are artifacts of the structure parser, not actual content issues.
+
+Actually, I think the core remaining work per the plan's normalize phase is punctuation. But searches for half-width punctuation return 0. Let me verify by searching for a specific known half-width token.
+
+Wait — actually in the content I read, I saw things like "4-6小时", "200-300件" — hyphens, fine. I saw "SC-α" — fine.
+
+Let me check for half-width periods ".", specifically in contexts like "0.3%" or "1.8GPa" — these are legitimate decimal points, should NOT be converted to full-width (they're numbers). The instruction says "中文正文语境中的半角标点" — in Chinese text context. Numbers with decimals are not "中文正文语境".
+
+Actually, I found "0.3%" and "1.8GPa", "0.5-1%", "36.5°C", "0.8°C" — these are numeric contexts, not to be converted.
+
+So actually there may be genuinely nothing to fix in punctuation — the document already uses full-width punctuation in prose.
+
+Given the constraints, I think the honest thing is to make the write I can justify. Let me look for the remaining whitespace normalization targets that I can actually verify from my reads.
+
+From my reads I saw:
+- Fourth part ends: "但他的勘探是不可替代的。\n\n\n## 第五部分" — I already fixed this to "\n\n## 第五部分"? Wait, let me re-check. My last successful write batch (batchId 8) did:
+  1. "林觉民把知识从抽屉里拿出来，打开，撒进风中。\n\n\n\n\n## 第六部分" → "林觉民把知识从抽屉里拿出来，打开，撒进风中。\n\n## 第六部分"
+  2. "陈暮不必陪同每一次通行——但他的勘探是不可替代的。\n\n\n## 第五部分" → "陈暮不必陪同每一次通行——但他的勘探是不可替代的。\n\n## 第五部分"
+
+Both succeeded.
+
+But wait, in the later search result, I saw the context around 17689 shows: "陈暮不必陪同每一次通行——但他的勘探是不可替代的。\n\n## 第五部分　菌膜外套与共存补丁的关系" — good, single blank line now.
+
+And the search for "有限资源的临时通行方案" at 16938 shows: "数据板提供的是火种，不是火炬。\n\n\n## 第四部分" — wait, there are THREE newlines before "## 第四部分"? Let me look:
+
+context: "数据板提供的是火种，不是火炬。\n\n\n## 第四部分　菌膜外套：有限资源的临时通行方案\n\n陈暮..."
+
+So there's still a triple blank line before "## 第四部分" (between 第三部分 and 第四部分). I should fix that.
+
+Also I saw in my read of heading-2-dxwz25 (第三部分) which ended, and there was "\n\n\n## 第四部分".
+
+Let me verify the boundaries between 第三部分 and 第四部分.
+
+From the locate of "## 第四部分": context was "数据板提供的是火种，不是火炬。\n\n\n## 第四部分　菌膜外套..."
+
+Yes! Triple newline there. That's a legitimate normalization target.
+
+Let me also check other section boundaries. The structure shows:
+- 序 (heading-2-qj6fky) ends at 110
+- 第一部分 (heading-2-lpcyzp) starts at 110
+
+From my read of heading-1-mizom9 first 300 chars: "## 序　世界设定声明\n\n本书...\n\n## 第一部分　叙事框架\n\n### 故事核心" — that looks clean (single blank lines).
+
+Now, are there other triple/quadruple blank lines? Let me check the boundaries I haven't verified.
+
+Actually, rather than keep reading (which triggers warnings), I should make a targeted write for the confirmed issue (第三部分→第四部分 triple blank line), plus any other confirmed items.
+
+But the instruction says I must submit editor.write NOW, not read more. However, I also need accurate targets for replace_match.
+
+I have a confirmed target: 
+"数据板提供的是火种，不是火炬。\n\n\n## 第四部分　菌膜外套：有限资源的临时通行方案"
+→ "数据板提供的是火种，不是火炬。\n\n## 第四部分　菌膜外套：有限资源的临时通行方案"
+
+This is verified from the search context and locate context.
+
+Let me also check: are there other "内容块" body-text-without-heading issues that need insert operations? The plan mentioned "用 insert 为无标题正文补标题".
+
+Looking at structure:
+- 第二部分 背景参考资料: has body "内容块 3" (1881 chars) without heading, then "### 灾前军事基准线". 
+
+Hmm, but the 背景参考资料 body text IS the intro, and "灾前军事基准线" is a subsection. That's a legitimate structure — the intro doesn't need its own heading.
+
+Actually wait — should I be adding headings? The user said "按照Word文档的形式重构大纲" = restructure as Word document form. This might mean ensuring proper heading hierarchy.
+
+But I must not fabricate. The safest, most defensible write right now is the whitespace fix I've confirmed.
+
+Let me also reconsider — is there actually still a 第三部分→第四部分 triple newline? The locate result from earlier (call for "## 第四部分") showed:
+
+context: "会有什么风险。判断错了，代价是他自己扛。\n\n后来林知意研发的菌膜外套、禁声幕墙，陈暮自己摸索出的菌膜装甲进化路径——这些成果的起点确实是方岫岩的数据板，但从"起点"到"成果"之间，是陈暮的反复试错、林知意的独立研发、以及无数次的失败和修正。数据板提供的是火种，不是火炬。\n\n\n## 第四部分　菌膜外套：有限资源的临时通行方案\n\n陈暮的菌膜装甲..."
+
+Yes, "不是火炬。\n\n\n## 第四部分" — triple newline. Confirmed.
+
+So I'll write a batch to fix this. Since I can submit 1-10 commands, and I've confirmed this one, let me submit it.
+
+Actually, let me also recall — are there other triple newlines I've confirmed? 
+
+From the earlier full read (the very first read_range of the whole doc in the audit), I don't have full text now. But from the reads I've done in this session:
+
+1. heading-2-1juoyxh (第四部分) content ended with "但他的勘探是不可替代的。\n\n\n" — wait no, that was before my fix. After fix it's clean.
+
+2. heading-2-1dmhdrb (第五部分) content ended with "林觉民把知识从抽屉里拿出来，打开，撒进风中。\n\n\n\n\n" — I fixed this.
+
+3. The search at 16938 shows triple newline before ## 第四部分.
+
+So the remaining confirmed issue is the 第三→第四 boundary.
+
+Let me just submit this one write. It's defensible and confirmed.
+
+Actually, I want to be more thorough but I'm constrained to write now. Let me submit the single confirmed fix.
+
+Wait, but actually I should double-check: is there a possibility the triple newline before "## 第四部分" was actually already there and is intentional? No — the standard I've been applying is single blank line between sections. Triple is inconsistent with the rest (which uses single).
+
+Let me write it.

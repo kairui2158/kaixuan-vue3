@@ -1,0 +1,16 @@
+{
+  "ok": false,
+  "error": {
+    "code": "section_not_found",
+    "message": "节不存在：heading-10190。写入会改变节 id，请重新调用 editor.document_map，并使用当前版本返回的 sectionId；本次失败前的 cursor 不可复用。",
+    "retryable": true
+  },
+  "data": {
+    "candidates": [],
+    "contentVersion": 13,
+    "recovery": [
+      "重新调用 editor.document_map",
+      "使用当前 document_map 返回的 sectionId"
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+Let me now check what's remaining. The plan has 3 batches: structure-repair, structure-plan, and normalize-segment-1. Let me review what's been covered:
+
+- normalize-segment-1: This has been partially covered with multiple batches (j, k, l, m). I've been fixing extra blank lines between sections. Let me check what remains - I should check for:
+  1. Remaining extra blank lines between sections
+  2. The `.` (半角句号) in Chinese text that should be `。` (全角)
+  3. Any other formatting issues
+
+Let me now search for remaining issues - particularly the `.` issue. The search for `.` returned many matches but they appeared to be in URLs, version numbers, table headers, etc. - not in Chinese prose. Let me look more carefully.
+
+The search for `,` and `;` returned 0 results, which is good. The search for `:` returned matches that appeared legitimate (technical notational uses like "(18:2)", "约0.7-0.8", etc.). The search for `!` and `?` returned 0 results.
+
+But wait - the plan says "中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）" - this is a mandatory condition.
+
+Let me check if there are any `.` in Chinese text context that should be converted. The earlier search found 272 `.` matches but they were mostly in version numbers, technical notation, abbreviations like "α", etc. Let me search more specifically for Chinese text followed by `. `.
+
+Actually, let me think about this more carefully. The document has been through multiple rounds of editing. The `.` search returned results that appeared to be in non-Chinese-prose contexts. Let me re-check.
+
+Actually, looking at the search results more carefully:
+- "陈暮决定先回岫岩城。" - this uses full-width `。`, good
+- Most `.` matches are in contexts like "§6.6", "800°C", "0.3%", "GPS/北斗", etc.
+- Some are in table content
+- Some seem to be in Chinese prose context
+
+Let me search for the specific pattern of Chinese character followed by `.` - but actually, I can't do regex. Let me look at the search results more carefully.
+
+The search for `.` returned things like:
+- "陈暮决定先回岫岩城。" - wait no, that should be `。`. Let me re-read...
+
+Actually, the search for `.` matched the period character, which in Unicode is U+002E (ASCII period). Let me check if there are actually ASCII periods being used where full-width `。` should be.
+
+Let me read a few sections to verify. Actually, I should search for a pattern like `\u3002` (。) vs `.` carefully. But I can't use regex in the search.
+
+Let me take a different approach - read some key sections and verify they use proper full-width punctuation.
+
+Actually wait - I just realized the search for `.` returned 272 matches, and looking at the context, many are legitimate technical uses. But I should verify that Chinese prose paragraphs don't use `.` instead of `。`.
+
+Let me read a few key narrative sections to check.
+
+Let me also check for any remaining `structure-repair` and `structure-plan` issues. Looking at the plan:
+- structure-repair: has been covered (batch j fixed the opening blank lines)
+- structure-plan: has been partially covered (batches h, i - deleted duplicates and merged content)
+- normalize-segment-1: has been partially covered (batches j, k, l, m)
+
+Let me now check if there are remaining issues to address, particularly:
+1. Any remaining extra blank lines within sections
+2. The `.` in Chinese text issue
+
+Let me search for patterns that might indicate remaining formatting issues.

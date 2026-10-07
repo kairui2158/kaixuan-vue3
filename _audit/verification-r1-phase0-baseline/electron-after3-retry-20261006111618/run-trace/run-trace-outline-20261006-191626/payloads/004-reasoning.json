@@ -1,0 +1,45 @@
+Let me review what I've done so far and what's left:
+
+1. Batch 1: Deleted the "粘贴到" instruction line and the duplicate "数据板的局限" section from background references. ✅
+2. Batch 2: Added proper headings to the "灾前军事基准线与菌毯的不可根除性" section within background references. ✅
+3. Batch 3-A: Converted all GFM table rows in "被孢子云直接废掉的武器系统" from tab-separated to pipe format. ✅
+4. Batch 3-B: Converted the "生物量储备的物理事实" table rows from tab-separated to pipe format. ✅
+5. Batch 6: Added headings for the main narrative sections within "菌膜外套与共存补丁的关系" (六大势力总览, 圣萌会的崛起, 盖亚巨树的生长与天府都陷落, 终局之战, 终局之后). ✅
+6. Batch 7: Converted 【菌毯的本质：竞争对手文明】and 【核心张力：保护即加速】to proper markdown headings. ✅
+
+Now I need to verify the overall structure is coherent and check for any remaining issues:
+
+- The document now has the following top-level structure:
+  - # 《绿潮》大纲总纲
+    - ## 叙事框架
+      - ### 故事核心 (with sub-headings for 菌毯的本质 and 核心张力)
+      - ### 第一卷·觉醒与扎根
+      - ### 第二卷·连接与陷落
+      - ### 第三卷·远征与暗流
+    - ## 背景参考资料 (with sub-headings for 灾前军事基准线...)
+    - ## 数据板的局限
+    - ## 菌膜外套：有限资源的临时通行方案
+    - ## 菌膜外套与共存补丁的关系 (with sub-headings for 六大势力总览, 圣萌会的崛起, etc.)
+    - ## 世界设定声明
+    - ## 卷一：基石设定层
+    - ## 卷二：核心人物群像
+    - ## 卷三：势力与格局层
+    - ## 卷四：叙事工具箱层
+
+This looks like a coherent Word document structure. Let me verify that all duplicates have been removed, the "粘贴到" instruction is gone, and the tables are properly formatted.
+
+The key remaining issue: I should verify the heading levels in "背景参考资料" are consistent. The "灾前军事基准线..." is now heading-3 under 背景参考资料 (heading-2), with 一/二/三 as heading-4. That's correct.
+
+Let me also verify the "菌膜外套与共存补丁的关系" section - the new headings (六大势力总览, etc.) are heading-3 under that heading-2, which is correct.
+
+I think the restructuring is mostly complete. Let me verify a few more things and then provide a summary. But wait - the execution plan says there are 3 planned batches and I've written more than 3. Let me check what the plan is expecting.
+
+The plan says 3 planned batches but I've written 7 successful batches. The overall goal is to "按照Word文档的形式重构大纲，不要缩减内容" - meaning restructure the outline in Word document format without reducing content.
+
+I think the core work done is:
+1. Removed duplicate content (粘贴指令, duplicate 数据板的局限)
+2. Added proper hierarchical headings throughout
+3. Converted tab-separated tables to GFM format
+4. Maintained all original content
+
+The document now reads like a proper Word document outline with clear hierarchical structure. Let me provide a summary of changes made.
