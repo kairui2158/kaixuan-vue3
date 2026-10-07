@@ -1,0 +1,15 @@
+{
+  "snapshot": {
+    "taskId": "outline-direct-api-1791353530266-95",
+    "status": "waiting_tool",
+    "reason": "physical request dispatched",
+    "goal": "请在第 7 节结尾新增一句：纸伞骨上的旧漆裂开一道细缝。",
+    "stepIndex": 0,
+    "callCount": 1,
+    "successfulWriteCount": 0,
+    "noProgressRounds": 0,
+    "repeatedCallCount": 0,
+    "maxPhysicalRequests": 12,
+    "updatedAt": 1791353534027
+  }
+}

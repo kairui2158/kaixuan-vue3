@@ -1,0 +1,11 @@
+{
+  "commands": [
+    {
+      "operation": "move",
+      "reason": "将第15节「盐仓档案」整节移动到第5节「南货铺的钟」之前",
+      "target": "## 第15节 盐仓档案",
+      "destination": "## 第5节 南货铺的钟",
+      "destinationPosition": "before"
+    }
+  ]
+}

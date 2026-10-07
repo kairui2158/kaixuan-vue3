@@ -183,6 +183,41 @@ describe('createAgentDialogueRuntime', () => {
     ).toBe(true)
   })
 
+  it('sanitizes SKILL guidance before the first system message is injected', async () => {
+    const callAi = vi.fn(async (): Promise<CallAiResult> => successResult())
+    const runtime = createAgentDialogueRuntime({
+      ...entry,
+      skillGuidance: [
+        '领域能力：保持玄枵派设定一致。',
+        '### 修改预览',
+        '### 批准写回',
+        '### 写入未执行',
+        'status: pending',
+        'await_user: true',
+      ].join('\n'),
+      skillIds: ['folder-outline-skill'],
+      promptSource: 'folder-system-prompt',
+    })
+    const result = await runtime.run({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '整理大纲' }],
+      callAi,
+    })
+
+    expect(result.status).toBe('completed')
+    const forwarded = (callAi as unknown as { mock: { calls: Array<[CallAiParams]> } }).mock.calls[0]?.[0]
+    const systemMessage = forwarded?.messages.find(message => message.role === 'system')
+    const systemContent = String(systemMessage?.content || '')
+    expect(systemContent).toContain('领域能力：保持玄枵派设定一致')
+    expect(systemContent).toContain('执行协议、工具权限、写入方式以应用系统提示为准')
+    expect(systemContent).not.toContain('修改预览')
+    expect(systemContent).not.toContain('批准写回')
+    expect(systemContent).not.toContain('写入未执行')
+    expect(systemContent).not.toContain('status: pending')
+    expect(systemContent).not.toContain('await_user')
+    expect(result.events.some(event => event.type === 'skill-guidance-sanitized')).toBe(true)
+  })
+
   it('marks empty guidance as absent for SKILL-neutral evidence', async () => {
     const callAi = vi.fn(async (): Promise<CallAiResult> => successResult())
     const runtime = createAgentDialogueRuntime({

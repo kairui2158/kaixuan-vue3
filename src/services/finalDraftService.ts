@@ -2,6 +2,10 @@ import { mergeContinuationText, type ContinuationSnapshot } from './continuation
 import type { AiService, CallAiParams, CallAiResult } from './aiService'
 import type { LongDocumentExecutionOperation } from './longDocumentExecutionPlanner'
 import { parseOutlineStructure } from './outlineStructure'
+import {
+  SKILL_GUIDANCE_PROTOCOL_GUARD,
+  sanitizeSkillGuidance,
+} from './skillGuidanceSanitizer'
 
 const SEGMENT_SEAM_MAX_OVERLAP_CHARS = 8000
 const SEGMENT_SEAM_MIN_OVERLAP_CHARS = 120
@@ -187,13 +191,15 @@ export const FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT = 8000
 export function normalizeFinalDraftSkillGuidance(
   skillGuidance?: string,
 ): { text: string; truncated: boolean } | null {
-  const text = (skillGuidance || '').trim()
-  if (!text) return null
-  if (text.length <= FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT) {
-    return { text, truncated: false }
+  const sanitized = sanitizeSkillGuidance(skillGuidance)
+  if (!sanitized.text) return null
+  const guardLength = SKILL_GUIDANCE_PROTOCOL_GUARD.length + 1
+  if (sanitized.text.length <= FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT) {
+    return { text: sanitized.text, truncated: false }
   }
   return {
-    text: text.slice(0, FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT),
+    text: `${SKILL_GUIDANCE_PROTOCOL_GUARD}\n${sanitized.text
+      .slice(guardLength, FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT)}`,
     truncated: true,
   }
 }

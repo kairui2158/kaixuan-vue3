@@ -189,6 +189,9 @@ export function createEditorDocumentMapTools(options: {
     mapCache.set(snapshot, { map, entries })
     return { snapshot, map, entries }
   }
+  const readRangeCache = new WeakMap<EditorTargetSnapshot, Map<string, ToolResult>>()
+  const readRangeCacheKey = (sectionId: string, offset: number, maxChars: number) =>
+    `${sectionId}::${offset}::${maxChars}`
 
   const documentMap: AgentToolDefinition = {
     name: 'editor.document_map',
@@ -345,7 +348,7 @@ export function createEditorDocumentMapTools(options: {
       }
       const content = current.snapshot.content.slice(readStart, readEnd)
       const hasMore = readEnd < section.end
-      return {
+      const result: ToolResult = {
         ok: true,
         data: {
           section: {
@@ -366,6 +369,29 @@ export function createEditorDocumentMapTools(options: {
             : ['基于已读取内容回答或写入；需要其他节时先调用 editor.document_map'],
         },
       }
+      let cache = readRangeCache.get(current.snapshot)
+      if (!cache) {
+        cache = new Map<string, ToolResult>()
+        readRangeCache.set(current.snapshot, cache)
+      }
+      const cacheKey = readRangeCacheKey(section.id, offset, maxChars)
+      const cachedResult = cache.get(cacheKey)
+      if (cachedResult) {
+        const cachedData =
+          typeof cachedResult.data === 'object' && cachedResult.data !== null
+            ? (cachedResult.data as Record<string, unknown>)
+            : {}
+        return {
+          ...cachedResult,
+          data: {
+            ...cachedData,
+            duplicate_read: true,
+            duplicate_read_notice: '同一版本同一读取范围已返回过；请基于已读取内容继续，不要重复读取。',
+          },
+        }
+      }
+      cache.set(cacheKey, result)
+      return result
     },
   }
 

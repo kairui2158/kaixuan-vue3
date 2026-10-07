@@ -1,0 +1,89 @@
+用户想把第15节整节移动到第5节前面。这意味着需要重新排序大纲的章节。当前结构：
+
+- 第1节 雨落石桥
+- 第2节 渡口的灯
+- 第3节 旧账簿
+- 第4节 青苔与铁锈
+- 第5节 南货铺的钟
+- 第6节 退潮线
+- ...
+- 第14节 鱼汛
+- 第15节 盐仓档案
+- 第16节 风眼
+- ...
+
+移动后应该变成：
+- 第1节 雨落石桥
+- 第2节 渡口的灯
+- 第3节 旧账簿
+- 第4节 青苔与铁锈
+- 第15节 盐仓档案
+- 第5节 南货铺的钟
+- 第6节 退潮线
+- ...
+- 第14节 鱼汛
+- 第16节 风眼
+- ...
+
+我需要使用 editor.write 的 reorder_sections 操作。但首先需要获取当前的文档地图来确定顶层结构 ID。
+
+让我先看一下文档地图中的结构 ID。当前的结构是：
+- heading-1-1h6ox9k 青石镇的雨季 (标题)
+  - paragraph-46bd25 内容块
+  - heading-2-1voe54f 第1节
+  - heading-2-rg901k 第2节
+  - heading-2-1h7qvms 第3节
+  - heading-2-ukykz8 第4节
+  - heading-2-1de2kut 第5节
+  - heading-2-oubc98 第6节
+  - heading-2-409dqk 第7节
+  - heading-2-1pnmhy6 第8节
+  - heading-2-zt7j7u 第9节
+  - heading-2-x8n67m 第10节
+  - heading-2-1s73jj6 第11节
+  - heading-2-13w2wzt 第12节
+  - heading-2-wksvn7 第13节
+  - heading-2-1ifbd3l 第14节
+  - heading-2-ev2dx 第15节
+  - heading-2-96nxmo 第16节
+  - heading-2-1dihcoy 第17节
+  - heading-2-1a26thy 第18节
+  - heading-2-159p8q8 第19节
+  - heading-2-6c8r0j 第20节
+
+reorder_sections 需要当前编辑目标的完整有序顶层结构 ID 列表。但这里有两个层级：heading-1 和 heading-2。heading-1 是顶层标题"青石镇的雨季"，heading-2 是各节。
+
+根据 reorder_sections 的描述："当前编辑目标的完整有序顶层结构 ID 列表。不是 document_map 的全部层级 ID；集合必须与顶层结构完全一致"。
+
+这里的"顶层结构"可能是指 heading-1 下面的直接子节点？也就是所有 heading-2 节 + paragraph-46bd25 内容块。
+
+让我确认一下：paragraph-46bd25 是"内容块 1 (9-10, 1字)"，这应该是一个段落节点。heading-1 是最大的标题。顶层结构可能是指 heading-1 下面的直接子节点。
+
+让我排列新的顺序：把 heading-2-ev2dx（第15节）移到 heading-2-1de2kut（第5节）前面。
+
+新顺序：
+- paragraph-46bd25
+- heading-2-1voe54f (第1节)
+- heading-2-rg901k (第2节)
+- heading-2-1h7qvms (第3节)
+- heading-2-ukykz8 (第4节)
+- heading-2-ev2dx (第15节) ← 移到这里
+- heading-2-1de2kut (第5节)
+- heading-2-oubc98 (第6节)
+- heading-2-409dqk (第7节)
+- heading-2-1pnmhy6 (第8节)
+- heading-2-zt7j7u (第9节)
+- heading-2-x8n67m (第10节)
+- heading-2-1s73jj6 (第11节)
+- heading-2-13w2wzt (第12节)
+- heading-2-wksvn7 (第13节)
+- heading-2-1ifbd3l (第14节)
+- heading-2-96nxmo (第16节)
+- heading-2-1dihcoy (第17节)
+- heading-2-1a26thy (第18节)
+- heading-2-159p8q8 (第19节)
+- heading-2-6c8r0j (第20节)
+
+但是这个 reorder 操作是针对编辑目标（editor）的还是大纲（outline）的？用户说"当前编辑区=大纲编辑器"。但 reorder_sections 是 editor.write 的操作。当前的大纲和编辑目标可能是同一个东西。
+
+让我先确认编辑目标的当前状态。

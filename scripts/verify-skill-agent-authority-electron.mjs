@@ -556,6 +556,9 @@ async function runTurn(page, testCase, request) {
       skillGuidanceEvents: events
         .filter(event => event.type === 'skill-guidance-injected' || event.type === 'agent-skill-guidance-injected')
         .map(event => ({ type: event.type, detail: parseDetail(event.detail), payload: event.payload || null })),
+      sanitizedGuidanceEvents: events
+        .filter(event => event.type === 'skill-guidance-sanitized' || event.type === 'agent-skill-guidance-sanitized')
+        .map(event => ({ type: event.type, detail: parseDetail(event.detail), payload: event.payload || null })),
       assistantReply: (chat || [])
         .filter(item => item?.role === 'assistant')
         .at(-1)?.content || '',
@@ -568,7 +571,7 @@ async function runTurn(page, testCase, request) {
   return { before, after, request, ...result }
 }
 
-function assertReadonlyTurn(testCase, turn, requestIndex) {
+function assertReadonlyTurn(testCase, turn, requestIndex, roundRequests) {
   const label = `${testCase.id}: readonly turn ${requestIndex + 1}`
   assert.equal(turn.turnStatus, 'success', `${label}: turn succeeds`)
   assert.equal(turn.intent, 'discuss', `${label}: intent remains discuss`)
@@ -599,6 +602,17 @@ function assertReadonlyTurn(testCase, turn, requestIndex) {
     turn.apiStatuses.length > 0 && turn.apiStatuses.every(status => status !== 'running'),
     `${label}: API calls reach terminal state`,
   )
+  for (const record of roundRequests) {
+    if (record.isIntentClassifier) continue
+    assert(
+      !record.systemPrompt.includes('【修改预览】')
+        && !record.systemPrompt.includes('【批准写回】')
+        && !record.systemPrompt.includes('【写入未执行】')
+        && !record.systemPrompt.includes('await_user: true')
+        && !record.systemPrompt.includes('status: pending'),
+      `${label}: provider prompt carries no removed SKILL execution protocol`,
+    )
+  }
   assert.equal(
     turn.turnPermissionDecision?.decision,
     'read-only',
@@ -613,6 +627,15 @@ function assertReadonlyTurn(testCase, turn, requestIndex) {
     assert.equal(decision?.decision, 'read-only', `${label}: every API call records read-only`)
   }
   if (testCase.withSkill) {
+    assert(
+      turn.eventTypes.includes('agent-skill-guidance-sanitized')
+        || turn.eventTypes.includes('skill-guidance-sanitized'),
+      `${label}: sanitized guidance event is visible in the trace`,
+    )
+    assert(
+      turn.sanitizedGuidanceEvents.length > 0,
+      `${label}: sanitized guidance evidence is captured`,
+    )
     assert(
       turn.eventTypes.includes('skill-tool-declarations-ignored'),
       `${label}: SKILL forbidden-field declaration is visible in the trace`,
@@ -692,8 +715,8 @@ function assertEditTurn(testCase, turn, roundRequests) {
 
 function assertCase(testCase, turns, requestWindows) {
   assert.equal(turns.length, 3, `${testCase.id}: three turns are executed`)
-  assertReadonlyTurn(testCase, turns[0], 0)
-  assertReadonlyTurn(testCase, turns[1], 1)
+  assertReadonlyTurn(testCase, turns[0], 0, requestWindows[0])
+  assertReadonlyTurn(testCase, turns[1], 1, requestWindows[1])
   assertEditTurn(testCase, turns[2], requestWindows[2])
 
   const guidanceEvents = turns.flatMap(turn => turn.skillGuidanceEvents)
@@ -720,6 +743,21 @@ function assertCase(testCase, turns, requestWindows) {
       }),
       `${testCase.id}: no-SKILL guidance events, if emitted, must report no guidance`,
     )
+  }
+  if (testCase.withSkill) {
+    for (const turn of turns) {
+      assert(
+        turn.sanitizedGuidanceEvents.length > 0,
+        `${testCase.id}: every turn records sanitized guidance`,
+      )
+    }
+  } else {
+    for (const turn of turns) {
+      assert(
+        turn.sanitizedGuidanceEvents.length === 0,
+        `${testCase.id}: no-SKILL turns must not emit sanitizer evidence`,
+      )
+    }
   }
   for (const event of guidanceEvents) {
     const payload = event.payload || event.detail

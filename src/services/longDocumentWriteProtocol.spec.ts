@@ -3,6 +3,7 @@ import { buildLongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
 import {
   buildLongDocumentWriteDirective,
   buildLongDocumentWriteRejectionMessage,
+  calculateLongDocumentPhysicalRequestBudget,
   describeLongDocumentWriteProtocol,
   resolveLongDocumentWriteOperations,
 } from './longDocumentWriteProtocol'
@@ -71,9 +72,36 @@ describe('longDocumentWriteProtocol', () => {
     expect(buildLongDocumentWriteDirective(plan)).toContain('normalize-segment-')
     expect(buildLongDocumentWriteDirective(plan)).toContain('禁止输出“任务完成”总结')
     expect(buildLongDocumentWriteDirective(plan)).toContain('计划批次数量是')
-    expect(buildLongDocumentWriteDirective(plan)).toContain('物理请求轮次为')
+    expect(buildLongDocumentWriteDirective(plan)).toContain('按计划批次执行；如无法继续，停止调用工具并说明具体缺失信息')
+    expect(buildLongDocumentWriteDirective(plan)).not.toContain('物理请求轮次')
     expect(buildLongDocumentWriteDirective(plan)).toContain('禁止无依据地把标题层级改深或改浅')
     expect(buildLongDocumentWriteDirective(plan)).toContain('半角标点（, . ; : ! ?）必须统一为对应全角')
+  })
+
+  it('derives the physical-request safety net from the execution plan without a linear runway', () => {
+    const makePlan = (segmentCount: number) => ({
+      mode: 'edit-task' as const,
+      operation: 'normalize' as const,
+      segments: Array.from({ length: segmentCount }, (_, index) => ({
+        segmentId: `segment-${index + 1}`,
+        range: { startLine: 0, endLine: 100 },
+        readStrategy: 'slice' as const,
+        writeStrategy: 'replace_match' as const,
+        expectedChange: 'normalize' as const,
+        commandLimit: 10,
+      })),
+    })
+
+    expect(calculateLongDocumentPhysicalRequestBudget(makePlan(1))).toBe(8)
+    expect(calculateLongDocumentPhysicalRequestBudget(makePlan(3))).toBe(12)
+    expect(calculateLongDocumentPhysicalRequestBudget(makePlan(12))).toBe(30)
+    expect(calculateLongDocumentPhysicalRequestBudget(makePlan(80))).toBe(64)
+    expect(calculateLongDocumentPhysicalRequestBudget(null)).toBe(12)
+    expect(calculateLongDocumentPhysicalRequestBudget({
+      mode: 'direct',
+      operation: 'targeted_edit',
+      segments: makePlan(80).segments,
+    })).toBe(12)
   })
 
   it('keeps compound restructure and cleanup executable instead of a dead-end plan', () => {

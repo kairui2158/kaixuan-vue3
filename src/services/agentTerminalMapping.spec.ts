@@ -160,9 +160,9 @@ describe('EditTask terminal evidence', () => {
     executionPlan: writePlan,
   })
 
-  it('lets a content-verified completed EditTask supersede stale plan coverage', () => {
+  it('lets a content-verified completed EditTask supersede a non-coverage agent verdict', () => {
     const merged = mergeEditTaskTerminal({
-      agentTerminal,
+      agentTerminal: { ...agentTerminal, status: 'degraded', reason: 'stalled/physical_request_limit' },
       editTask: {
         status: 'completed',
         executedBatches: [
@@ -179,7 +179,7 @@ describe('EditTask terminal evidence', () => {
 
     expect(merged.terminal).toMatchObject({
       status: 'success',
-      reason: 'edit_task_completed_verified',
+      reason: 'edit_task_completed',
     })
     expect(merged.override).toBe(true)
     expect(merged.evidenceReason).toBe('dynamic_batches_completed:4')
@@ -187,7 +187,7 @@ describe('EditTask terminal evidence', () => {
 
   it('keeps the agent verdict when EditTask is not a verified completed task', () => {
     const merged = mergeEditTaskTerminal({
-      agentTerminal,
+      agentTerminal: { ...agentTerminal, status: 'degraded', reason: 'stalled/physical_request_limit' },
       editTask: {
         status: 'partially_applied',
         executedBatches: ['batch-1'],
@@ -198,11 +198,56 @@ describe('EditTask terminal evidence', () => {
     })
 
     expect(merged.terminal).toMatchObject({
+      status: 'degraded',
+      reason: 'stalled/physical_request_limit',
+    })
+    expect(merged.override).toBe(false)
+    expect(merged.evidenceReason).toBe('edit_task_not_authoritative:partially_applied')
+  })
+
+  it('does not upgrade incomplete plan coverage to EditTask completion', () => {
+    const merged = mergeEditTaskTerminal({
+      agentTerminal,
+      editTask: {
+        status: 'completed',
+        executedBatches: ['batch-1'],
+        pendingBatches: [],
+        failedBatchIds: [],
+      },
+      completionReport: { verified: true, violations: [] },
+    })
+
+    expect(merged.terminal).toMatchObject({
       status: 'partially_applied',
       reason: 'partially_applied',
     })
     expect(merged.override).toBe(false)
-    expect(merged.evidenceReason).toBe('edit_task_not_authoritative:partially_applied')
+    expect(merged.evidenceReason).toBe('plan_coverage_incomplete')
+  })
+
+  it('does not override a failed original plan with a completed dynamic EditTask', () => {
+    const failedOriginalPlanTerminal = mapAgentResultToRunTrace({
+      agentResult: agentResult('stalled', 'partially_applied'),
+      executionPlan: writePlan,
+    })
+    const merged = mergeEditTaskTerminal({
+      agentTerminal: failedOriginalPlanTerminal,
+      originalExecutionPlan: writePlan,
+      editTask: {
+        status: 'completed',
+        executedBatches: ['dynamic-batch-1'],
+        pendingBatches: [],
+        failedBatchIds: [],
+      },
+      completionReport: { verified: true, violations: [] },
+    })
+
+    expect(merged.terminal).toMatchObject({
+      status: 'partially_applied',
+      reason: 'partially_applied',
+    })
+    expect(merged.override).toBe(false)
+    expect(merged.evidenceReason).toBe('original_plan_not_complete')
   })
 
   it('keeps the agent verdict when all batches are written but completion is unverified', () => {

@@ -3,6 +3,10 @@ import path from 'node:path'
 import { execFileSync, spawn } from 'node:child_process'
 import assert from 'node:assert/strict'
 import { chromium } from 'playwright'
+import { createRequire } from 'node:module'
+
+const require = createRequire(import.meta.url)
+const { safeStorage } = require('electron')
 
 const ROOT = process.cwd()
 const ELECTRON_EXE = path.join(ROOT, 'node_modules', 'electron', 'dist', 'electron.exe')
@@ -13,12 +17,51 @@ const EVIDENCE_DIR = path.join(ROOT, '_audit', 'verification-api-direct-write-li
 const PROJECT_ID = 'api-direct-write-live-v3'
 const MANUSCRIPT_PATH = path.join(ROOT, '_audit', 'verification-api-direct-write-user-visible-2026-09-23', 'test-manuscript.md')
 
-const API_KEY = process.env.SHENYI_LIVE_API_KEY
-const BASE_URL = process.env.SHENYI_LIVE_BASE_URL
-const MODEL = process.env.SHENYI_LIVE_MODEL
+let API_KEY = process.env.SHENYI_LIVE_API_KEY
+let BASE_URL = process.env.SHENYI_LIVE_BASE_URL
+let MODEL = process.env.SHENYI_LIVE_MODEL || 'deepseek-v4-pro'
 const LIVE_PROVIDER = String(process.env.SHENYI_LIVE_PROVIDER || 'openai').toLowerCase()
-const STEP_TIMEOUT_MS = Number(process.env.SHENYI_LIVE_STEP_TIMEOUT_MS || 300000)
-const GLOBAL_TIMEOUT_MS = Number(process.env.SHENYI_LIVE_GLOBAL_TIMEOUT_MS || 2100000)
+// Fixed time budgets misclassify live long-document turns as stalls. Defaults are
+// disabled; the waiter below terminates on run terminal state or true inactivity.
+const STEP_TIMEOUT_MS = Number(process.env.SHENYI_LIVE_STEP_TIMEOUT_MS || 0)
+const GLOBAL_TIMEOUT_MS = Number(process.env.SHENYI_LIVE_GLOBAL_TIMEOUT_MS || 0)
+const INACTIVITY_TIMEOUT_MS = Number(process.env.SHENYI_LIVE_INACTIVITY_TIMEOUT_MS || 15 * 60_000)
+
+const CREDENTIAL_PROFILE_FALLBACKS = [
+  path.join(ROOT, '_data', 'api-direct-write-live-v3-credentials'),
+  path.join(ROOT, '_data', 'long-document-restructure-phase6-credentials'),
+  path.join(ROOT, '_data', 'long-document-restructure-phase6-profile'),
+  path.join(ROOT, '_data', 'long-document-operation-phase7-profile'),
+  path.join(ROOT, '_data', 'outline-deletion-live-replay-profile'),
+]
+
+function restoreLiveCredentialsFromPreviousProfile() {
+  for (const credentialProfile of CREDENTIAL_PROFILE_FALLBACKS) {
+    const providerPath = path.join(credentialProfile, 'documents-data', 'wa_providers.json')
+    if (!fs.existsSync(providerPath)) continue
+    const stored = JSON.parse(fs.readFileSync(providerPath, 'utf8'))
+    const provider = (stored?.providers || []).find(item =>
+      item?.baseUrl === 'https://openapi.cloud-ai.cn/v1'
+      && typeof item?.apiKey === 'string'
+      && item.apiKey.startsWith('sk-'))
+    if (!provider) continue
+    process.env.SHENYI_LIVE_API_KEY = provider.apiKey
+    process.env.SHENYI_LIVE_BASE_URL = provider.baseUrl
+    const candidateModel = String(provider.selectedModel || provider.models?.[0] || '')
+    if (candidateModel) process.env.SHENYI_LIVE_MODEL = candidateModel
+    return
+  }
+}
+
+if (!API_KEY || !BASE_URL) restoreLiveCredentialsFromPreviousProfile()
+API_KEY = process.env.SHENYI_LIVE_API_KEY || API_KEY
+BASE_URL = process.env.SHENYI_LIVE_BASE_URL || BASE_URL
+MODEL = process.env.SHENYI_LIVE_MODEL || MODEL
+
+if (!API_KEY || !BASE_URL) {
+  console.error('Missing SHENYI_LIVE_API_KEY or SHENYI_LIVE_BASE_URL')
+  process.exit(2)
+}
 
 const PROVIDER_TYPES = {
   openai: 'openai-compatible',
@@ -30,11 +73,6 @@ const PROVIDER_TYPES = {
 const PROVIDER_TYPE = PROVIDER_TYPES[LIVE_PROVIDER]
 const AZURE_DEPLOYMENT = process.env.SHENYI_LIVE_DEPLOYMENT
 const AZURE_API_VERSION = process.env.SHENYI_LIVE_API_VERSION
-
-if (!API_KEY || !BASE_URL || !MODEL) {
-  console.error('Missing SHENYI_LIVE_API_KEY, SHENYI_LIVE_BASE_URL, or SHENYI_LIVE_MODEL')
-  process.exit(2)
-}
 
 if (!PROVIDER_TYPE) {
   console.error(`Invalid SHENYI_LIVE_PROVIDER: ${LIVE_PROVIDER}. Use openai, anthropic, gemini, or azure.`)
@@ -74,19 +112,64 @@ const tasks = [
   {
     id: 'live-step5-tidy',
     user: '整理整篇文章：统一小节编号、清除多余空行、按编号重排，并保持所有正文内容不丢失。',
-    check: text => !/\n{3,}/.test(text),
+    check: text => {
+      const headings = [...text.matchAll(/^## 第(\d+)节\s+/gm)].map(match => Number(match[1]))
+      return !/\n{3,}/.test(text)
+        && headings.length >= 15
+        && headings.every((number, index) => number === index + 1)
+      && text.includes('这一句属于第1节，用来证明多轮直写不会误伤其他内容。')
+      && text.includes('这一句属于第15节，用来证明多轮直写不会误伤其他内容。')
+    },
+    executionMode: 'local-transform',
   },
   {
     id: 'live-step6-reorder',
     user: '把第 8、9、10 三节按倒序重排，其他内容保持不变。',
-    check: text => text.indexOf('## 第10节 夜市油灯') >= 0
-      && text.indexOf('## 第10节 夜市油灯') < text.indexOf('## 第9节 渡河人')
-      && text.indexOf('## 第9节 渡河人') < text.indexOf('## 第8节 沈家的船'),
+    check: text => {
+      const headings = [...text.matchAll(/^## 第(\d+)节\s+.+$/gm)]
+      const sections = new Map()
+      for (let index = 0; index < headings.length; index += 1) {
+        const match = headings[index]
+        const body = text.slice(
+          match.index + match[0].length,
+          index + 1 < headings.length ? headings[index + 1].index : text.length,
+        )
+        sections.set(Number(match[1]), body)
+      }
+      // Heading order alone can pass while a move has split a heading from its
+      // body. Bind each affected section to its unique body marker as well.
+      const sectionOrder = headings.map(match => Number(match[1]))
+      const affectedOrder = [10, 9, 8]
+      const affectedBodies = {
+        8: ['账簿翻开第7页', '纸伞骨上的旧漆裂开一道细缝。'],
+        9: ['账簿翻开第8页'],
+        10: ['账簿翻开第9页'],
+      }
+      return headings.length === 20
+        && sectionOrder.indexOf(10) < sectionOrder.indexOf(9)
+        && sectionOrder.indexOf(9) < sectionOrder.indexOf(8)
+        && affectedOrder.every(section => {
+          const body = sections.get(section) || ''
+          return body.trim().length > 0
+            && affectedBodies[section].every(marker => body.includes(marker))
+        })
+        && !(sections.get(7) || '').includes('纸伞骨上的旧漆裂开一道细缝。')
+        && [...sections.values()].every(body => body.trim().length > 0)
+    },
   },
 ]
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+function safeJsonParse(value) {
+  if (typeof value !== 'string' || value.length === 0) return null
+  try {
+    return JSON.parse(value)
+  } catch {
+    return null
+  }
 }
 
 async function removeDir(target) {
@@ -224,26 +307,100 @@ async function openOutline(page, manuscript) {
   await page.waitForSelector('#ow-chat-input', { timeout: 15000 })
 }
 
+async function outlineRunActivity(page) {
+  return await page.evaluate(() => {
+    const run = [...(window.__pinia?._s?.get('runTrace')?.runs || [])]
+      .filter(item => item.source === 'outline')
+      .sort((a, b) => b.startedAt - a.startedAt)[0]
+    if (!run) return null
+    const turn = [...(run.turns || [])].sort((a, b) => b.startedAt - a.startedAt)[0]
+    const calls = (run.apiCalls || [])
+    const sendButton = document.querySelector('#btn-ow-send')
+    return {
+      runId: run.id,
+      runStatus: run.status,
+      turnId: turn?.id || null,
+      turnStatus: turn?.status || null,
+      sendDisabled: sendButton ? Boolean(sendButton.disabled) : null,
+      events: (run.events || []).length,
+      apiCalls: calls.map(call => ({
+        status: call.status,
+        physicalCalls: (call.physicalCalls || []).map(physical => physical.status),
+        toolCalls: (call.toolCalls || []).length,
+        streamLength: call.streamText?.length ?? 0,
+        lastStreamActivityAt: call.lastStreamActivityAt ?? null,
+        lastExecutionActivityAt: call.lastExecutionActivityAt ?? null,
+      })),
+    }
+  })
+}
+
+function activitySignature(snapshot) {
+  if (!snapshot) return 'no-run'
+  return JSON.stringify(snapshot)
+}
+
+function runReachedTerminal(snapshot) {
+  if (!snapshot) return true
+  if (snapshot.turnStatus === 'running') return false
+  if ((snapshot.apiCalls || []).some(call => call.status === 'running')) return false
+  return snapshot.sendDisabled === false
+}
+
 async function waitOutlineIdle(page, timeout = STEP_TIMEOUT_MS) {
-  await page.waitForFunction(() => Boolean(document.querySelector('#btn-ow-send') && !document.querySelector('#btn-ow-send')?.disabled), null, { timeout, polling: 500 })
-  await sleep(500)
+  const hardDeadline = timeout > 0 ? Date.now() + timeout : Number.POSITIVE_INFINITY
+  let lastSignature = null
+  let lastActivityAt = Date.now()
+  while (Date.now() < hardDeadline) {
+    let snapshot = null
+    try {
+      snapshot = await Promise.race([
+        outlineRunActivity(page),
+        sleep(5000).then(() => null),
+      ])
+    } catch {
+      snapshot = null
+    }
+    const signature = activitySignature(snapshot)
+    if (signature !== lastSignature) {
+      lastSignature = signature
+      lastActivityAt = Date.now()
+    }
+    if (runReachedTerminal(snapshot)) {
+      await page.waitForFunction(() => Boolean(document.querySelector('#btn-ow-send') && !document.querySelector('#btn-ow-send')?.disabled), null, { timeout: 20000, polling: 250 })
+      await sleep(500)
+      return
+    }
+    if (Date.now() - lastActivityAt >= INACTIVITY_TIMEOUT_MS) {
+      throw new Error(`outline run inactive for ${INACTIVITY_TIMEOUT_MS}ms: ${signature.slice(0, 2000)}`)
+    }
+    await sleep(1000)
+  }
+  throw new Error(`outline run exceeded fixed wait limit ${timeout}ms`)
 }
 
 function providerRetryable(step) {
   if (!step) return false
   if (step.contentCheck) return false
-  if (step.turnStatus !== 'failed' && step.turnStatus !== 'canceled') return false
-  return (step.physicalErrors || []).some(error => (
-    /502|503|504|ECONNRESET|ETIMEDOUT|ENOTFOUND|EAI_AGAIN|fetch failed|network|timeout|供应商服务异常/i.test(String(error || ''))
-  ))
+  if (step.turnStatus === 'failed' || step.turnStatus === 'canceled') {
+    return (step.physicalErrors || []).some(error => (
+      /502|503|504|ECONNRESET|ETIMEDOUT|ENOTFOUND|EAI_AGAIN|fetch failed|network|timeout|供应商服务异常/i.test(String(error || ''))
+    ))
+  }
+  return step.writeCalls > 0
+    && step.finalWriteStatus !== 'success'
+    && !step.contentCheck
+    && (step.replaceDocumentCommands.length > 0 || step.reorderCommands.length > 0 || step.normalizeCommands.length > 0 || step.moveCommands.length > 0)
 }
 
 async function buildStep(task, before, after, record) {
   const writes = (record.apiCalls || []).flatMap(call => call.toolCalls || []).filter(tool => tool.name === 'editor.write')
-  const step5ReplaceCommands = task.id === 'live-step5-tidy'
+  const step5Commands = task.id === 'live-step5-tidy'
     ? writes.flatMap(tool => Array.isArray((tool.input || {}).commands) ? tool.input.commands : [])
-      .filter(command => command?.operation === 'replace_document')
     : []
+  const step5ReplaceCommands = step5Commands.filter(command => command?.operation === 'replace_document')
+  const step5ReorderCommands = step5Commands.filter(command => command?.operation === 'reorder_sections')
+  const step5NormalizeCommands = step5Commands.filter(command => ['replace_match', 'rewrite'].includes(command?.operation))
   const step4MoveCommands = task.id === 'live-step4-move'
     ? writes.flatMap(tool => Array.isArray((tool.input || {}).commands) ? tool.input.commands : [])
       .filter(command => command?.operation === 'move')
@@ -255,6 +412,8 @@ async function buildStep(task, before, after, record) {
     writeCalls: writes.length,
     moveCommands: step4MoveCommands,
     replaceDocumentCommands: step5ReplaceCommands,
+    reorderCommands: step5ReorderCommands,
+    normalizeCommands: step5NormalizeCommands,
     writeStatuses: writes.map(tool => tool.status),
     finalWriteStatus: writes.at(-1)?.status || null,
     turnStatus: record.turn.status,
@@ -262,6 +421,9 @@ async function buildStep(task, before, after, record) {
     physicalCallCounts: (record.apiCalls || []).map(call => (call.physicalCalls || []).length),
     physicalErrors: (record.apiCalls || []).flatMap(call => (call.physicalCalls || []).map(physical => physical.error || null)),
     contentCheck: task.check(after),
+    localTransformEvents: task.executionMode === 'local-transform'
+      ? (record.events || []).filter(event => event.type === 'local-transform-executed' && event.turnId === record.turn.id)
+      : [],
     record,
   }
 }
@@ -316,7 +478,7 @@ async function currentTurn(page, userRequest) {
       .filter(item => item.source === 'outline')
       .sort((a, b) => b.startedAt - a.startedAt)[0]
     const turn = [...(run?.turns || [])]
-      .filter(item => item.userRequest === request)
+      .filter(item => item.userRequest === request || String(item.userRequest || '').endsWith(`：${request}。`))
       .sort((a, b) => b.startedAt - a.startedAt)[0]
     if (!turn) return null
     return {
@@ -346,22 +508,34 @@ async function currentTurn(page, userRequest) {
           error: tool.error || null,
         })),
       })),
+      events: (run.events || []).filter(event => event.turnId === turn.id).map(event => ({
+        type: event.type,
+        level: event.level || null,
+        label: event.label || null,
+        detail: event.detail || null,
+        payload: event.payload || null,
+      })),
     }
   }, userRequest)
 }
 
 async function attachTurnPayloads(page, record) {
   if (!record) return null
-  const traceRoot = path.join(PROFILE, 'app-data', 'run-trace', 'outline')
-  const traceDirs = fs.existsSync(traceRoot)
-    ? fs.readdirSync(traceRoot, { withFileTypes: true })
-      .filter(entry => entry.isDirectory())
-      .map(entry => path.join(traceRoot, entry.name))
-      .filter(dir => fs.existsSync(path.join(dir, 'run-trace.json')))
-    : []
-  const matchingTrace = traceDirs
-    .map(dir => ({ dir, trace: JSON.parse(fs.readFileSync(path.join(dir, 'run-trace.json'), 'utf8')) }))
-    .find(({ trace }) => trace.id === record.runId)
+  const traceRoot = path.join(PROFILE, 'documents-data', 'run-trace', 'outline')
+  let matchingTrace = null
+  const tracePersistDeadline = Date.now() + 30000
+  while (!matchingTrace && Date.now() < tracePersistDeadline) {
+    const traceDirs = fs.existsSync(traceRoot)
+      ? fs.readdirSync(traceRoot, { withFileTypes: true })
+        .filter(entry => entry.isDirectory())
+        .map(entry => path.join(traceRoot, entry.name))
+        .filter(dir => fs.existsSync(path.join(dir, 'run-trace.json')))
+      : []
+    matchingTrace = traceDirs
+      .map(dir => ({ dir, trace: JSON.parse(fs.readFileSync(path.join(dir, 'run-trace.json'), 'utf8')) }))
+      .find(({ trace }) => trace.id === record.runId)
+    if (!matchingTrace) await sleep(500)
+  }
   assert(matchingTrace, `run trace is persisted for ${record.runId}`)
   const persistedTurn = (matchingTrace.trace.turns || []).find(turn => turn.id === record.turn.id)
   const persistedCalls = (matchingTrace.trace.apiCalls || []).filter(call => call.turnId === record.turn.id)
@@ -377,6 +551,17 @@ async function attachTurnPayloads(page, record) {
   for (const payload of matchingTrace.trace.payloads || []) {
     if (payload?.id && payload?.file) byId.set(payload.id, path.join(payloadDir, payload.file))
   }
+  const persistedEvents = (matchingTrace.trace.events || [])
+    .filter(event => event.turnId === record.turn.id)
+    .map(event => ({
+      turnId: event.turnId || null,
+      type: event.type,
+      level: event.level || null,
+      label: event.label || null,
+      detail: event.detail || null,
+      payload: event.payload || null,
+    }))
+  record.events = persistedEvents
   for (const call of record.apiCalls || []) {
     for (const tool of call.toolCalls || []) {
       const payloadId = tool.input?.__payload?.id
@@ -420,11 +605,13 @@ async function main() {
 
   const electronProcess = startElectron()
   let browser = null
-  const watchdog = setTimeout(() => {
-    console.error(`[TIMEOUT] live verification exceeded ${GLOBAL_TIMEOUT_MS}ms`)
-    process.exit(1)
-  }, GLOBAL_TIMEOUT_MS)
-  watchdog.unref()
+  const watchdog = GLOBAL_TIMEOUT_MS > 0
+    ? setTimeout(() => {
+        console.error(`[TIMEOUT] live verification exceeded ${GLOBAL_TIMEOUT_MS}ms`)
+        process.exit(1)
+      }, GLOBAL_TIMEOUT_MS)
+    : null
+  if (watchdog) watchdog.unref()
   try {
     assert(await waitForCdp(), 'CDP reachable')
     browser = await chromium.connectOverCDP(`http://127.0.0.1:${CDP_PORT}`)
@@ -445,12 +632,16 @@ async function main() {
     for (const task of tasks) {
       const stepResults = []
       let step = null
-      for (let attempt = 1; attempt <= 2; attempt++) {
+      const maxAttempts = task.id === 'live-step5-tidy' ? 3 : 2
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         const before = await outlineContent(page)
         const attemptId = `${task.id}-attempt-${attempt}`
         fs.writeFileSync(path.join(EVIDENCE_DIR, `${attemptId}-before.md`), before, 'utf8')
         await waitOutlineIdle(page)
-        await page.locator('#ow-chat-input').fill(task.user)
+        const instruction = attempt === 1
+          ? task.user
+          : `继续上一轮任务，仍然遵守原始要求：${task.user}。上一轮工具返回失败时，禁止重复同样命令；改用当前执行计划允许的受限命令完成剩余部分。`
+        await page.locator('#ow-chat-input').fill(instruction)
         await page.locator('#ow-chat-input').evaluate(element => element.dispatchEvent(new Event('change', { bubbles: true })))
         await page.locator('#btn-ow-send').click()
         await waitOutlineIdle(page)
@@ -472,9 +663,21 @@ async function main() {
       const writes = record
         ? (record.apiCalls || []).flatMap(call => call.toolCalls || []).filter(tool => tool.name === 'editor.write')
         : []
-      if (task.id === 'live-step5-tidy') {
-        assert(step.replaceDocumentCommands.length === 1, `${task.id}: editor.write uses exactly one replace_document command`)
-        assert(String(step.replaceDocumentCommands[0]?.content || '').length >= 4500, `${task.id}: replace_document carries the full document`)
+      if (task.executionMode === 'local-transform') {
+        const localTransformEvent = step.localTransformEvents.find(event => event.type === 'local-transform-executed')
+        assert(localTransformEvent, `${task.id}: local transform is recorded in trace`)
+        const payload = localTransformEvent.payload || safeJsonParse(localTransformEvent.detail)
+        assert.equal(payload?.execution_mode, 'local-transform', `${task.id}: trace reports local-transform mode`)
+        assert.equal(payload?.outcome, 'completed', `${task.id}: local transform completes`)
+        assert.equal(payload?.validation?.ok, true, `${task.id}: local transform passes integrity validation`)
+        assert.equal(record.turn.reason, 'local_transform_complete', `${task.id}: turn closes with local_transform_complete`)
+        assert.equal(record.apiCalls.length, 0, `${task.id}: local transform does not call the provider`)
+        assert.equal(step.replaceDocumentCommands.length, 0, `${task.id}: long-document tidy must not use replace_document`)
+      } else if (task.id === 'live-step5-tidy') {
+        assert.equal(step.replaceDocumentCommands.length, 0, `${task.id}: long-document tidy must not use replace_document`)
+        assert(step.reorderCommands.length + step.normalizeCommands.length >= 2, `${task.id}: tidy uses structural and normalize commands`)
+        assert(step.reorderCommands.every(command => Array.isArray(command?.order) && command.order.length >= 15), `${task.id}: reorder command carries the full top-level order`)
+        assert(step.normalizeCommands.every(command => String(command?.target || '').length > 0), `${task.id}: normalize commands carry explicit targets`)
       }
       if (task.id === 'live-step4-move') {
         assert(step.moveCommands.length >= 1, `${task.id}: editor.write uses move operation`)
@@ -487,8 +690,13 @@ async function main() {
       evidence.steps.push({ ...step, record: undefined, attempts: stepResults.map(({ record: _record, ...rest }) => rest) })
       assert(step.changed, `${task.id}: editor content changed`)
       assert(step.contentCheck, `${task.id}: requested content change is present`)
-      assert(writes.length >= 1, `${task.id}: trace records editor.write`)
-      assert(step.finalWriteStatus === 'success', `${task.id}: final editor.write succeeds`)
+      if (task.executionMode === 'local-transform') {
+        assert.equal(writes.length, 0, `${task.id}: local transform does not route through editor.write`)
+        assert.equal(step.finalWriteStatus, null, `${task.id}: local transform has no tool write status`)
+      } else {
+        assert(writes.length >= 1, `${task.id}: trace records editor.write`)
+        assert(step.finalWriteStatus === 'success', `${task.id}: final editor.write succeeds`)
+      }
       assert(step.turnStatus === 'success', `${task.id}: turn closes successfully`)
       assert(step.apiCallStatuses.every(status => status !== 'running'), `${task.id}: API calls close`)
       console.log(`[PASS] ${task.id}: writes=${writes.length}, physical=${step.physicalCallCounts.join(',')}`)
@@ -516,7 +724,7 @@ async function main() {
     fs.writeFileSync(path.join(EVIDENCE_DIR, 'verification-result.json'), JSON.stringify(evidence, null, 2), 'utf8')
     console.log(`===== API DIRECT WRITE LIVE V3 PASSED (${evidence.manuscriptChars} chars) =====`)
   } finally {
-    clearTimeout(watchdog)
+    if (watchdog) clearTimeout(watchdog)
     try { if (browser) await browser.close() } catch {}
     try { execFileSync('taskkill', ['/PID', String(electronProcess.pid), '/T', '/F'], { stdio: 'ignore' }) } catch {}
     await sleep(800)

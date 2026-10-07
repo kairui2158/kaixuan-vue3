@@ -1,0 +1,7 @@
+The text in section 3 contains "账簿翻开第3页". I need to change to "账簿翻到第三页". This is in the outline editor. I should use outline writing? Wait, the active tab is 大纲编辑器 (outline editor). The write tool available is editor.write. But the outline content... The editor.write operates on "当前编辑器". There's also outline tools but no outline.write listed. Actually the tool面 includes editor.write. The current editing target is 大纲编辑器.
+
+Wait, but the content is in outline. The editor.write writes to "当前编辑器". The active_tab is 大纲编辑器. So editor.write should write to outline? Let me check. The editor.get_state would tell. But there's ambiguity between editor (编辑目标) and outline (大纲).
+
+Actually the workspace has "编辑目标" (editor) and "大纲" (outline). The current focus shows outline content. The active tab is "大纲编辑器". So the editor.write likely targets the outline editor.
+
+Let me verify by checking editor.get_state to understand current editing target.

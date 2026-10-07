@@ -45,6 +45,7 @@ export interface AiApiCallFinish {
   responseText?: string
   reasoningText?: string
   finishReason?: string
+  convergenceReason?: string
   usage?: unknown
   error?: string
 }

@@ -1,0 +1,123 @@
+{
+  "ok": false,
+  "error": {
+    "code": "ambiguous_target",
+    "message": "批次 1 条命令中 1 条失败； 第 1 条：目标片段出现多次：请扩展片段或使用结构锚点使其唯一。 扩大上下文：复制更长的原文片段，直到目标唯一。 批次原子执行：预演通过条目未写入，原文保持不变，必须整批重提修正后的批次。",
+    "retryable": true
+  },
+  "data": {
+    "version": 1,
+    "ok": false,
+    "commandCount": 1,
+    "succeededIndexes": [],
+    "failedItems": [
+      {
+        "index": 0,
+        "operation": "replace_match",
+        "target": "她抬头看向窗外的运河，货船吃水很深，船工喊号的声音被雨压低，像隔着几层湿布传来。",
+        "reason": "ambiguous_target",
+        "message": "目标片段出现多次：请扩展片段或使用结构锚点使其唯一。",
+        "suggestion": "extend_fragment",
+        "matches": [
+          {
+            "start": 480,
+            "end": 520
+          },
+          {
+            "start": 855,
+            "end": 895
+          },
+          {
+            "start": 1232,
+            "end": 1272
+          },
+          {
+            "start": 1609,
+            "end": 1649
+          },
+          {
+            "start": 1985,
+            "end": 2025
+          },
+          {
+            "start": 2360,
+            "end": 2400
+          },
+          {
+            "start": 2752,
+            "end": 2792
+          },
+          {
+            "start": 3128,
+            "end": 3168
+          },
+          {
+            "start": 3508,
+            "end": 3548
+          },
+          {
+            "start": 3890,
+            "end": 3930
+          },
+          {
+            "start": 4273,
+            "end": 4313
+          },
+          {
+            "start": 4657,
+            "end": 4697
+          },
+          {
+            "start": 5039,
+            "end": 5079
+          },
+          {
+            "start": 5423,
+            "end": 5463
+          },
+          {
+            "start": 5805,
+            "end": 5845
+          },
+          {
+            "start": 6187,
+            "end": 6227
+          },
+          {
+            "start": 6569,
+            "end": 6609
+          },
+          {
+            "start": 6952,
+            "end": 6992
+          },
+          {
+            "start": 7336,
+            "end": 7376
+          }
+        ]
+      }
+    ],
+    "retryCommand": {
+      "type": "editor_edit",
+      "version": 1,
+      "operation": "rewrite",
+      "content": "{\n  \"repair\": \"请整批重新提交修正后的命令\",\n  \"failedIndexes\": [\n    0\n  ],\n  \"diagnostics\": [\n    {\n      \"index\": 0,\n      \"reason\": \"ambiguous_target\",\n      \"suggestion\": \"extend_fragment\"\n    }\n  ],\n  \"keepIndexes\": []\n}",
+      "target": "RETRY_FAILED_ITEMS_ONLY",
+      "reason": "批次原子执行：预演通过条目未写入；必须整批重提"
+    },
+    "summary": "批次 1 条命令中 1 条失败； 第 1 条：目标片段出现多次：请扩展片段或使用结构锚点使其唯一。 扩大上下文：复制更长的原文片段，直到目标唯一。 批次原子执行：预演通过条目未写入，原文保持不变，必须整批重提修正后的批次。",
+    "errorCatalog": {
+      "invalid_input": "输入结构非法；按错误信息修正后整批重试",
+      "missing_field": "必填字段缺失；补齐 operation/content/target 后整批重试",
+      "ambiguous_target": "目标片段多命中；扩展片段或改用结构锚点后重试",
+      "target_not_found": "目标片段不存在；按候选重新复制原文后重试",
+      "version_changed": "编辑器版本已变化；重新读取目标后重试",
+      "locked": "目标已锁定；请改为定位讨论或请求用户解锁",
+      "permission_denied": "当前意图无写入权限；等待用户明确写入请求",
+      "duplicate_write_blocked": "连续重复写入被拦截；不要重发相同参数",
+      "integrity_failed": "结构完整性校验失败；按诊断调整命令，禁止删除关键结构后重试"
+    },
+    "repairPolicy": "批次是原子执行：任何条目失败时原文未修改，预演通过条目也没有写入。重试必须提交修正后的完整批次，禁止只重提失败条目或拼接旧批次。移动整节必须使用 move 操作，禁止用删除+插入两条命令拼接移动。"
+  }
+}

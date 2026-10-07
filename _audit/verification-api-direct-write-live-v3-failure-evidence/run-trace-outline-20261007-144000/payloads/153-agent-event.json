@@ -1,0 +1,29 @@
+{
+  "taskId": "edit-task-1791355302845-3",
+  "status": "completed",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "删除第11节断桨中「船工喊号的声音被雨压低」",
+  "executedBatches": [
+    "ai-edit-muxqp1vg-4"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "删除第11节断桨中「船工喊号的声音被雨压低」",
+    "batches": [
+      "ai-edit-muxqp1vg-4"
+    ],
+    "batchDetails": {
+      "ai-edit-muxqp1vg-4": {
+        "segmentId": "targeted-edit",
+        "expectedChange": "rewrite",
+        "range": {
+          "startLine": 0,
+          "endLine": 7617
+        },
+        "writeStrategy": "replace_match"
+      }
+    }
+  }
+}

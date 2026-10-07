@@ -170,7 +170,6 @@ const views = [
   { id: 'project', modalId: 'project-modal', minWidth: 800 },
   { id: 'naming', modalId: 'ai-naming' },
   { id: 'skill-bind', modalId: 'skill-bind-modal' },
-  { id: 'diff', modalId: 'diff-modal' },
   { id: 'help', modalId: 'help-guide' },
   { id: 'run-trace', modalId: 'run-trace-panel' },
   { id: 'agent-import-preview', modalId: 'agent-import-preview' },
@@ -535,16 +534,6 @@ async function openView(page, view) {
       detail: { type: 'chapter', id: 'stress' }
     })))
     await page.waitForSelector('.skill-bind-content', { state: 'visible' })
-    return
-  }
-  if (view === 'diff') {
-    await page.evaluate(() => window.dispatchEvent(new CustomEvent('show-diff', {
-      detail: {
-        original: '这是用于响应式验证的原始文本。',
-        modified: '这是用于响应式验证的修改后文本，长度更长一些，用来检查换行与边界。'
-      }
-    })))
-    await page.waitForSelector('.diff-modal-content', { state: 'visible' })
     return
   }
   if (view === 'help') {

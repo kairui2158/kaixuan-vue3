@@ -187,6 +187,64 @@ describe('buildEditPlan', () => {
       '',
     ].join('\n'))
   })
+
+  it('moves after a heading destination as after the whole section, not inside it', () => {
+    const sectionContent = [
+      '# 第一卷',
+      '第一卷正文甲。',
+      '',
+      '# 第二卷',
+      '第二卷正文乙。',
+      '',
+      '# 第三卷',
+      '第三卷正文丙。',
+      '',
+    ].join('\n')
+    const target = createEditorTargetSnapshot({
+      workspace: 'outline',
+      targetId: 'outline-tab',
+      label: '大纲编辑器',
+      mode: 'outline',
+      content: sectionContent,
+    })
+
+    const bareHeading = buildEditPlan(target, {
+      type: 'editor_edit',
+      version: 1,
+      operation: 'move',
+      target: '# 第二卷\n第二卷正文乙。',
+      destination: '# 第一卷',
+      destinationPosition: 'after',
+      reason: '移到第一卷整节之后',
+    }, { content: sectionContent })
+
+    expect(bareHeading.ok).toBe(true)
+    expect(bareHeading.next.indexOf('# 第一卷')).toBeLessThan(bareHeading.next.indexOf('# 第二卷'))
+    expect(bareHeading.next.indexOf('第一卷正文甲。')).toBeLessThan(bareHeading.next.indexOf('# 第二卷'))
+
+    const copiedSection = buildEditPlan(target, {
+      type: 'editor_edit',
+      version: 1,
+      operation: 'move',
+      target: '# 第二卷\n第二卷正文乙。\n',
+      destination: '# 第一卷\n第一卷正文甲。',
+      destinationPosition: 'after',
+      reason: '模型复制标题加正文时的整节移动',
+    }, { content: sectionContent })
+
+    expect(copiedSection.ok).toBe(true)
+    expect(copiedSection.next).toBe([
+      '# 第一卷',
+      '第一卷正文甲。',
+      '',
+      '# 第二卷',
+      '第二卷正文乙。',
+      '',
+      '# 第三卷',
+      '第三卷正文丙。',
+      '',
+    ].join('\n'))
+  })
 })
 
 describe('buildEditorEditPrompt', () => {

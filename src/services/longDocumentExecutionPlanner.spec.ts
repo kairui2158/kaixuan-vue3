@@ -20,6 +20,59 @@ function makeInput(overrides: Partial<LongDocumentExecutionPlannerInput> = {}): 
 }
 
 describe('buildLongDocumentExecutionPlan', () => {
+  it('routes deterministic format operations to local-transform', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '整理整篇文章，统一标点和空行',
+      content: '# 第2节 二节\n\n二节正文,\n\n# 第1节 一节\n\n一节正文;',
+    }))
+
+    expect(plan.mode).toBe('local-transform')
+    expect(plan.segments).toEqual([])
+    expect(plan.estimatedPhysicalRequests).toBe(0)
+    expect(plan.localTransformOperations).toEqual([
+      'normalize_punctuation',
+      'normalize_blank_lines',
+    ])
+  })
+
+  it('keeps outline first-turn tidy wording on the deterministic compound path without intent', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '整理整篇文章：统一小节编号、清除多余空行、按编号重排，并保持所有正文内容不丢失。',
+      content: [
+        '# 第2节 二节',
+        '二节正文,',
+        '',
+        '',
+        '',
+        '# 第1节 一节',
+        '一节正文;',
+        '',
+      ].join('\n'),
+    }))
+
+    expect(plan.operation).toBe('restructure_and_cleanup')
+    expect(plan.operationResolution).toEqual({
+      source: 'lexical',
+      matched: 'restructure_and_cleanup',
+    })
+    expect(plan.mode).toBe('local-transform')
+    expect(plan.estimatedPhysicalRequests).toBe(0)
+    expect(plan.localTransformOperations).toEqual([
+      'reorder_sections',
+      'normalize_blank_lines',
+      'normalize_numbering',
+    ])
+  })
+
+  it('keeps semantic rewrite on the model path', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '全文重写，把故事改成悲剧结局',
+      content: '# 第1节 标题\n\n正文',
+    }))
+
+    expect(plan.mode).toBe('final-draft')
+    expect(plan.localTransformOperations).toBeNull()
+  })
   it('plans whole-document restructure as an atomic EditTask reorder operation', () => {
     const plan = buildLongDocumentExecutionPlan(makeInput({
       content: `# 第一卷\n\n${'雨'.repeat(12_000)}\n\n# 第二卷\n\n${'雨'.repeat(12_000)}`,
@@ -50,7 +103,7 @@ describe('buildLongDocumentExecutionPlan', () => {
     expect(plan.mode).toBe('edit-task')
     expect(plan.segments).toHaveLength(1)
     expect(plan.segments[0].writeStrategy).toBe('reorder_sections')
-    expect(plan.estimatedPhysicalRequests).toBe(1)
+    expect(plan.estimatedPhysicalRequests).toBe(8)
   })
 
   it('keeps a short targeted edit on the direct path while still producing a plan', () => {
@@ -64,7 +117,7 @@ describe('buildLongDocumentExecutionPlan', () => {
     expect(plan.finalDraft).toBe(false)
     expect(plan.finalDraftPlan).toBeNull()
     expect(plan.segments[0].writeStrategy).toBe('replace_match')
-    expect(plan.estimatedPhysicalRequests).toBe(1)
+    expect(plan.estimatedPhysicalRequests).toBe(12)
   })
 
   it('plans normalize work as segmented EditTask commands instead of final-draft generation', () => {
@@ -79,6 +132,19 @@ describe('buildLongDocumentExecutionPlan', () => {
     expect(plan.finalDraft).toBe(false)
     expect(plan.finalDraftPlan).toBeNull()
     expect(plan.segments.length).toBeGreaterThan(1)
+    expect(plan.invariants).toEqual(['normalize-changes-punctuation-whitespace-format-only'])
+  })
+
+  it('keeps pure blank-line and numbering cleanup on the normalize path', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '清除多余空行，统一小节编号，不要改变正文内容和章节顺序。',
+      content: Array.from({ length: 12 }, (_, index) => `# 第${index + 1}卷\n\n${'雨'.repeat(2_000)}\n\n\n`).join(''),
+      contextWindowTokens: 12_000,
+    }))
+
+    expect(plan.operation).toBe('normalize')
+    expect(plan.mode).toBe('local-transform')
+    expect(plan.localTransformOperations).toEqual(['normalize_blank_lines', 'normalize_numbering'])
     expect(plan.invariants).toEqual(['normalize-changes-punctuation-whitespace-format-only'])
   })
 
@@ -489,6 +555,53 @@ describe('buildLongDocumentExecutionPlan', () => {
     expect(plan.invariants).toEqual([
       'planned-deletion-only',
       'normalize-changes-punctuation-whitespace-format-only',
+    ])
+  })
+
+  it('classifies tidy requests with numbering, blank lines, and reordering as compound cleanup', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '整理整篇文章：统一小节编号、清除多余空行、按编号重排，并保持所有正文内容不丢失。',
+      content: `# 根标题\n\n## 第1节\n\n${'段'.repeat(74_841)}`,
+      intent: 'edit',
+    }))
+
+    expect(plan.operation).toBe('restructure_and_cleanup')
+    expect(plan.operationResolution).toEqual({
+      source: 'intent',
+      intent: 'edit',
+      matched: 'restructure_and_cleanup',
+    })
+    expect(plan.mode).toBe('edit-task')
+    expect(plan.segments.some(segment => segment.writeStrategy === 'structure_repair' || segment.writeStrategy === 'reorder_sections')).toBe(true)
+    expect(plan.segments.some(segment => segment.segmentId.startsWith('normalize-'))).toBe(true)
+    expect(plan.invariants).toEqual([
+      'planned-deletion-only',
+      'normalize-changes-punctuation-whitespace-format-only',
+    ])
+  })
+
+  it('carries requested cleanup items into compound local transformations', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '整理整篇文章：统一小节编号、清除多余空行、按编号重排，并保持所有正文内容不丢失。',
+      content: [
+        '# 第2节 二节',
+        '二节正文,',
+        '',
+        '',
+        '',
+        '# 第1节 一节',
+        '一节正文;',
+        '',
+      ].join('\n'),
+      intent: 'edit',
+    }))
+
+    expect(plan.operation).toBe('restructure_and_cleanup')
+    expect(plan.mode).toBe('local-transform')
+    expect(plan.localTransformOperations).toEqual([
+      'reorder_sections',
+      'normalize_blank_lines',
+      'normalize_numbering',
     ])
   })
 

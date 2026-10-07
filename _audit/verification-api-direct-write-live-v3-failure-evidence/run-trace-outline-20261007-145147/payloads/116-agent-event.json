@@ -1,0 +1,31 @@
+{
+  "taskId": "edit-task-1791355996251-2",
+  "status": "running_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "在第7节《纸伞》结尾新增指定句子",
+  "executedBatches": [],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "activeBatchId": "ai-edit-muxr3wwp-2",
+  "executionPlan": {
+    "goal": "在第7节《纸伞》结尾新增指定句子",
+    "batches": [
+      "ai-edit-muxr3wwp-2"
+    ],
+    "batchDetails": {
+      "ai-edit-muxr3wwp-2": {
+        "segmentId": "targeted-edit",
+        "expectedChange": "rewrite",
+        "range": {
+          "startLine": 0,
+          "endLine": 7602
+        },
+        "writeStrategy": "replace_match"
+      }
+    }
+  },
+  "batchId": "ai-edit-muxr3wwp-2",
+  "segmentId": "targeted-edit",
+  "expectedChange": "rewrite"
+}

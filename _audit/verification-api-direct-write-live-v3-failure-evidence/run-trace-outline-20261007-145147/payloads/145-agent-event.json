@@ -1,0 +1,30 @@
+{
+  "goal": "把第 15 节整节移动到第 5 节前面，并保持节内文字不变。",
+  "steps": [
+    {
+      "id": "locate-target",
+      "description": "定位用户指定目标",
+      "requiredTools": [
+        "editor.locate"
+      ]
+    },
+    {
+      "id": "write-target",
+      "description": "写入局部修改",
+      "requiredTools": [
+        "editor.write"
+      ]
+    },
+    {
+      "id": "verify-plan",
+      "description": "核对写入覆盖与不变量"
+    }
+  ],
+  "completionCriteria": [
+    "执行计划中的全部写入批次成功或明确进入终态"
+  ],
+  "failureCriteria": [
+    "未发生成功写入却输出修改预览或完成说明",
+    "写入操作被执行计划拒绝"
+  ]
+}

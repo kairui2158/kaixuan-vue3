@@ -1,0 +1,79 @@
+用户想把第15节（盐仓档案）整节移动到第5节（南货铺的钟）前面。让我先确认当前的大纲结构。
+
+从大纲结构地图来看，当前节顺序是：
+- 第1节 雨落石桥
+- 第2节 渡口的灯
+- 第3节 旧账簿
+- 第4节 青苔与铁锈
+- 第5节 南货铺的钟
+- ...
+- 第15节 盐仓档案
+- ...
+
+用户要把第15节移到第5节前面。这意味着第15节将变成新的第4节和第5节之间——即第15节应该插入到第4节之后、第5节之前。
+
+使用 `reorder_sections` 操作，需要提供完整的顶层结构 ID 列表。
+
+当前顶层结构：
+- heading-1-1h6ox9k (青石镇的雨季) - 这是卷级别
+- 然后 heading-2 级别的是各节
+
+等等，`reorder_sections` 需要的是"当前编辑目标的完整有序顶层结构 ID 列表"，而编辑目标是整个大纲。让我再看看地图：顶层是 heading-1-1h6ox9k，但下面有 paragraph-46bd25 和各个 heading-2。
+
+实际上，让我看看 editor.write 的 reorder_sections 说明："当前编辑目标的完整有序顶层结构 ID 列表。不是 document_map 的全部层级 ID；集合必须与顶层结构完全一致"。
+
+对于大纲编辑器，顶层结构可能是这些 heading-2 节。让我再看一下结构地图。从地图来看，heading-1-1h6ox9k 是根标题 "青石镇的雨季"，其下包含 paragraph-46bd25（内容块）和 20 个 heading-2 节。
+
+如果我用 reorder_sections 重新排序这些 heading-2 节和 paragraph-46bd25，需要列出完整列表。
+
+当前顺序：
+1. paragraph-46bd25 (内容块 1)
+2. heading-2-1voe54f (第1节)
+3. heading-2-rg901k (第2节)
+4. heading-2-1h7qvms (第3节)
+5. heading-2-ukykz8 (第4节)
+6. heading-2-1de2kut (第5节)
+7. heading-2-oubc98 (第6节)
+8. heading-2-409dqk (第7节)
+9. heading-2-1pnmhy6 (第8节)
+10. heading-2-zt7j7u (第9节)
+11. heading-2-x8n67m (第10节)
+12. heading-2-1s73jj6 (第11节)
+13. heading-2-13w2wzt (第12节)
+14. heading-2-wksvn7 (第13节)
+15. heading-2-1ifbd3l (第14节)
+16. heading-2-ev2dx (第15节)
+17. heading-2-96nxmo (第16节)
+18. heading-2-1dihcoy (第17节)
+19. heading-2-1a26thy (第18节)
+20. heading-2-159p8q8 (第19节)
+21. heading-2-6c8r0j (第20节)
+
+目标：把 heading-2-ev2dx (第15节) 移到 heading-2-1de2kut (第5节) 前面。
+
+新顺序：
+1. paragraph-46bd25
+2. heading-2-1voe54f (第1节)
+3. heading-2-rg901k (第2节)
+4. heading-2-1h7qvms (第3节)
+5. heading-2-ukykz8 (第4节)
+6. heading-2-ev2dx (第15节) - 移到这里
+7. heading-2-1de2kut (第5节)
+8. heading-2-oubc98 (第6节)
+9. heading-2-409dqk (第7节)
+10. heading-2-1pnmhy6 (第8节)
+11. heading-2-zt7j7u (第9节)
+12. heading-2-x8n67m (第10节)
+13. heading-2-1s73jj6 (第11节)
+14. heading-2-13w2wzt (第12节)
+15. heading-2-wksvn7 (第13节)
+16. heading-2-1ifbd3l (第14节)
+17. heading-2-96nxmo (第16节)
+18. heading-2-1dihcoy (第17节)
+19. heading-2-1a26thy (第18节)
+20. heading-2-159p8q8 (第19节)
+21. heading-2-6c8r0j (第20节)
+
+注意：reorder_sections 的 order 参数需要的是"当前编辑目标的完整有序顶层结构 ID 列表"。这里的"顶层结构"可能是指 heading-1 下的直接子节点，即 paragraph-46bd25 和所有 heading-2。
+
+让我执行这个操作。

@@ -206,7 +206,7 @@
                   }"
                   :current-content="projectStore.outlineText || ''"
                     :stored-hunks="outlineBatchDiffView(i)!.hunks"
-                  :busy="isGenerating"
+              :busy="isGenerating"
                   @rollback-hunk="hunkIndex => rollbackOutlineBatchHunk(i, hunkIndex)"
                   @reveal-hunk="hunk => revealOutlineBatchHunk(i, hunk)"
                 />
@@ -253,7 +253,7 @@
           </div>
           <EditTaskBanner
             :task="outlineEditTask"
-            :busy="isGenerating"
+                  :busy="isGenerating"
             @resume="resumeOutlineEditTask"
             @cancel="cancelOutlineEditTask"
           />
@@ -261,7 +261,7 @@
             <ApiChatInput
               v-model="inputText"
               placeholder="和AI讨论大纲..."
-              :send-disabled="isGenerating"
+                :send-disabled="outlineInputBlocked"
               send-label="发送"
               :show-cancel="isGenerating"
               cancel-label="取消生成"
@@ -345,6 +345,7 @@ import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useModalQueue } from '../../composables/useModalQueue'
 import { useRunTraceStore, type RunTrace, type RunTraceMessage, type RunTraceStatus } from '../../stores/runTrace'
 import { createAgentDialogueRuntime } from '../../services/agentDialogueRuntime'
+import type { AgentOrchestratorStatus } from '../../services/agentOrchestrator'
 import { mapAgentResultToRunTrace, mergeEditTaskTerminal } from '../../services/agentTerminalMapping'
 import {
   activeExecutionTaskStore,
@@ -436,6 +437,7 @@ import {
   toLongDocumentOperationType,
   type LongDocumentExecutionPlan,
 } from '../../services/longDocumentExecutionPlanner'
+import { transformDocument } from '../../services/documentTransformService'
 import { calculateLongDocumentPhysicalRequestBudget } from '../../services/longDocumentWriteProtocol'
 import type { DialogueWriteAuthorization } from '../../services/dialogueToolSurface'
 import {
@@ -1063,6 +1065,7 @@ async function runOutlineFinalDraftTurn(options: {
   const releaseRunTracking = beginActiveOutlineRunTracking()
   try {
     isGenerating.value = true
+    outlineInputUnlockedByAgent.value = false
     generationStatus.value = '正在生成终稿...'
     addOutlineTraceEvent({
       type: 'final-draft-mode-selected',
@@ -1173,6 +1176,7 @@ async function continueOutlineFinalDraft(index: number) {
   let latestTask: FinalDraftTask | undefined
   try {
     isGenerating.value = true
+    outlineInputUnlockedByAgent.value = false
     generationStatus.value = '正在继续生成终稿...'
     projectStore.updateOutlineChatAt(index, { content: '正在继续生成终稿...' })
     const aiService = await getAiService()
@@ -1308,6 +1312,7 @@ async function retryOutlineFinalDraftSegment(index: number, providerId?: string)
   let latestTask: FinalDraftTask | undefined
   try {
     isGenerating.value = true
+    outlineInputUnlockedByAgent.value = false
     generationStatus.value = '正在重试当前终稿分段...'
     projectStore.updateOutlineChatAt(index, { content: '正在重试当前终稿分段...' })
     const aiService = await getAiService()
@@ -1411,6 +1416,7 @@ async function resumeOutlineFinalDraft(index: number) {
   let latestTask: FinalDraftTask | undefined
   try {
     isGenerating.value = true
+    outlineInputUnlockedByAgent.value = false
     generationStatus.value = '正在恢复终稿检查点...'
     projectStore.updateOutlineChatAt(index, { content: '正在恢复终稿检查点...' })
     const aiService = await getAiService()
@@ -1765,6 +1771,7 @@ function finishOutlineApiCall(callId: string | undefined, result: {
   responseText?: string
   reasoningText?: string
   finishReason?: string
+  convergenceReason?: string
   usage?: unknown
   usageUnavailable?: boolean
   durationMs?: number
@@ -1814,6 +1821,7 @@ function recordOutlinePhysicalCall(callId: string | undefined, event: PhysicalCa
     contextBudgetReason: event.contextBudget?.reason,
     usageReconciliation: event.usageReconciliation,
     interruptionCode: event.interruptionCode,
+    contextCompactedMessageCount: event.contextCompactedMessageCount,
     heartbeat: event.heartbeat,
   })
   const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
@@ -2353,6 +2361,119 @@ function createOutlineActiveTask(input: {
   })
 }
 
+function describeLocalTransformResult(outcome: 'completed' | 'no_change', changedLineCount: number, durationMs: number) {
+  return outcome === 'completed'
+    ? `已本地完成整理：${changedLineCount} 行发生变化，耗时 ${durationMs}ms。未发起模型请求。`
+    : `已检查当前大纲：没有需要本地整理的变化，耗时 ${durationMs}ms。未发起模型请求。`
+}
+
+function recordOutlineLocalTransform(input: {
+  plan: LongDocumentExecutionPlan
+  result: ReturnType<typeof transformDocument>
+  sourceChars: number
+  beforeHash: string
+  afterHash: string
+}) {
+  const payload = {
+    execution_mode: 'local-transform',
+    planId: input.plan.planId,
+    operations: input.result.operations,
+    outcome: input.result.outcome,
+    durationMs: input.result.durationMs,
+    changedLineCount: input.result.changedLineCount,
+    validation: input.result.validation,
+    sourceChars: input.sourceChars,
+    beforeHash: input.beforeHash,
+    afterHash: input.afterHash,
+    reason: input.result.reason || null,
+  }
+  addOutlineTraceEvent({
+    type: 'local-transform-executed',
+    level: 'info',
+    label: '确定性整理已本地执行',
+    detail: JSON.stringify(payload),
+    payload,
+  })
+  ;(typeof window !== 'undefined' ? (window as any).DiagLogger : null)?.log?.(
+    'info',
+    'outline/local-transform-executed',
+    '确定性整理已本地执行',
+    payload,
+  )
+}
+
+async function runOutlineLocalTransformIfReady(input: {
+  plan: LongDocumentExecutionPlan
+  snapshot: ReturnType<typeof createOutlineRequestTarget>
+  intent: PlainDialogueIntent | ChainIntent
+  mode: 'direct' | string
+}): Promise<boolean> {
+  if (input.plan.mode !== 'local-transform' || !input.plan.localTransformOperations) return false
+  const traceIntent: PlainDialogueIntent = input.intent === 'auto' ? 'discuss' : input.intent
+  const result = transformDocument({
+    content: input.snapshot.content,
+    operations: input.plan.localTransformOperations,
+  })
+  if (result.outcome !== 'completed' && result.outcome !== 'no_change') return false
+  startOutlineRun(input.mode, currentOutlineUserRequest, [], {
+    intent: traceIntent,
+    longDocument: true,
+    toolSurface: [],
+    actualToolSurface: [],
+  })
+  const beforeHash = hashOutlineContent(input.snapshot.content)
+  const afterHash = hashOutlineContent(result.content)
+  recordOutlineLocalTransform({
+    plan: input.plan,
+    result,
+    sourceChars: input.snapshot.content.length,
+    beforeHash,
+    afterHash,
+  })
+  const content = describeLocalTransformResult(result.outcome, result.changedLineCount, result.durationMs)
+  if (result.outcome === 'no_change') {
+    activeExecutionTaskStore.complete(
+      'outline',
+      outlineProjectId(),
+      input.snapshot.contentVersion,
+      hashOutlineContent(input.snapshot.content),
+    )
+  }
+  if (result.outcome === 'completed') {
+    if (!commitOutlineChange(result.content)) {
+      projectStore.appendOutlineChat({
+        role: 'assistant',
+        content: '本地整理未能写入：大纲当前被锁定，请解锁后重试。',
+      })
+      finishOutlineRun('failed', '大纲锁定或内容未变化', undefined, 'local_transform_write_failed')
+      await scrollToBottom()
+      return true
+    }
+    const nextSnapshot = createOutlineRequestTarget()
+    activeExecutionTaskStore.complete(
+      'outline',
+      outlineProjectId(),
+      nextSnapshot?.contentVersion || 0,
+      hashOutlineContent(nextSnapshot?.content || result.content),
+    )
+    const firstChange = firstOutlineDifference(input.snapshot.content, result.content)
+    window.dispatchEvent(new CustomEvent('diff-locate', {
+      detail: {
+        workspace: 'outline',
+        targetId: 'outline',
+        range: {
+          start: firstChange,
+          end: Math.max(firstChange + 1, firstChange + (result.content.length - input.snapshot.content.length)),
+        },
+      },
+    }))
+  }
+  projectStore.appendOutlineChat({ role: 'assistant', content })
+  finishOutlineRun('success', undefined, content, 'local_transform_complete')
+  await scrollToBottom()
+  return true
+}
+
 function buildOutlineExecutionPlanForRequest(options: {
   requestText: string
   content: string
@@ -2470,6 +2591,8 @@ const findWholeWord = ref(false)
 const findUseRegex = ref(false)
 const findRef = ref<HTMLInputElement | null>(null)
 const isGenerating = ref(false)
+const outlineInputUnlockedByAgent = ref(false)
+const outlineInputBlocked = computed(() => isGenerating.value && !outlineInputUnlockedByAgent.value)
 const generationStatus = ref('')
 const streamingContent = ref('')
 // Test-only hook for Electron CDP verification of the live API status surface.
@@ -4114,7 +4237,7 @@ function insertAtCursor(text: string) {
 
 async function sendMessage() {
   const text = inputText.value.trim()
-  if (!text || isGenerating.value) return
+  if (!text || outlineInputBlocked.value) return
   if (isOutlineDeletionAffirmativeInput(text)) {
     const consumed = await consumeOutlineDeletionAffirmativeTurn(text)
     if (consumed) {
@@ -4226,7 +4349,21 @@ function addOutlineRoutingDiagnostics(
 }
 
 async function askAi(requestText: string, routingDecision: OutlineRoutingDecision = {}) {
-  if (isGenerating.value) return
+  if (outlineInputBlocked.value) {
+    const activeOutlineTraceId = outlineRunTraceId
+      ? runTraceStore.getRun(outlineRunTraceId)
+      : null
+    const latestCall = activeOutlineTraceId?.apiCalls.at(-1)
+    if (activeOutlineTraceId?.status === 'running' && latestCall?.status === 'running') {
+      addOutlineTraceEvent({
+        type: 'input-guard-deferred',
+        level: 'warn',
+        label: '当前任务仍在执行，输入已延后',
+        detail: '物理请求仍在进行；为避免并发写编辑器，本轮输入未发送',
+      })
+    }
+    return
+  }
   currentOutlineUserRequest = requestText
   const templates = getWorkspaceTemplates()
   const provider = providerStore.activeGenerateProvider
@@ -4238,11 +4375,30 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
   const model = provider.selectedModel || provider.models?.[0] || 'gpt-4o'
   // The per-turn token limit is recorded from the actual request result.
   configureOutlineContextCompaction(model, provider.contextWindowTokens)
+  const detailedIntent = routingDecision.forcedIntent
+    ? null
+    : await classifyHomeIntentDetailed(requestText)
+  const resolvedIntent: PlainDialogueIntent = routingDecision.forcedIntent
+    || (detailedIntent ? detailedIntent.intent : 'discuss')
+  if (detailedIntent) {
+    currentRoutingIntent.value = resolvedIntent
+    recordIntentRoutingSample({
+      projectId: outlineProjectId(),
+      projectName: projectStore.projectName,
+      workspace: 'outline-workbench',
+      runId: outlineRunTraceId,
+      turnId: outlineRunTurnId || undefined,
+      requestText,
+      routing: detailedIntent.routing,
+    })
+    addOutlineRoutingDiagnostics(detailedIntent.diagnostics)
+  }
   const requestTarget = createOutlineRequestTarget()
   const outlinePlan = buildOutlineExecutionPlanForRequest({
     requestText,
     content: requestTarget.content,
     provider,
+    intent: resolvedIntent,
   })
   activeOutlineExecutionPlan = outlinePlan.plan
   if (isOutlineFinalDraftRequest(outlinePlan.plan, requestText, requestTarget.content)) {
@@ -4276,6 +4432,13 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     })
     return
   }
+  const localTransform = await runOutlineLocalTransformIfReady({
+    plan: outlinePlan.plan,
+    snapshot: requestTarget,
+    intent: resolvedIntent,
+    mode: workspaceSkillMode.value,
+  })
+  if (localTransform) return
   if (templates.length === 0) {
     await askPlainAi(requestText)
     return
@@ -4321,6 +4484,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
   })
   generationController = new AbortController()
   isGenerating.value = true
+  outlineInputUnlockedByAgent.value = false
   generationStatus.value = '正在连接 API...'
   streamingContent.value = ''
   pendingOutlineDirectWrite.value = null
@@ -4812,6 +4976,13 @@ async function askPlainAi(
     })
     return
   }
+  const plainLocalTransform = await runOutlineLocalTransformIfReady({
+    plan: outlineExecutionPlan,
+    snapshot: requestTarget,
+    intent: plainIntent,
+    mode: 'direct',
+  })
+  if (plainLocalTransform) return
   const useOutlineEditTaskPlan = outlineExecutionPlan.mode === 'edit-task'
   const isLongDocumentRequest = useOutlineEditTaskPlan || outlineExecutionPlan.decision !== 'fits'
   const outlineLongDocumentOperationType = toLongDocumentOperationType(outlineExecutionPlan.operation)
@@ -4934,11 +5105,12 @@ async function askPlainAi(
   }
   generationController = new AbortController()
   cancelController = new AbortController()
-  isGenerating.value = true
   generationStatus.value = '正在连接 API...'
-  streamingContent.value = ''
+    streamingContent.value = ''
   pendingOutlineDirectWrite.value = null
-  outlineFailedWriteBatch = null
+    outlineFailedWriteBatch = null
+    isGenerating.value = true
+    outlineInputUnlockedByAgent.value = false
   const startedAt = performance.now()
   const requestStartedAt = Date.now()
   let firstChunkSeen = false
@@ -5088,13 +5260,32 @@ async function askPlainAi(
       skillIds: options.skillIds,
       promptSource: options.promptSource,
       maxPhysicalRequests: outlineExecutionPlan
-        ? calculateLongDocumentPhysicalRequestBudget(outlineExecutionPlan.segments.length)
+        ? calculateLongDocumentPhysicalRequestBudget(outlineExecutionPlan)
         : Math.max(1, options.resumedApiBudget?.snapshot().limit ?? 8),
       getContextRemaining: () => ({
         contextWindowTokens: outlineProviderWindowDeclared ? outlineProviderWindow : null,
         maxOutputTokens: outlineMaxOutputTokens,
       }),
-      onEvent: event => {
+      onEvent: (event, snapshot) => {
+        if (event.type === 'state') {
+          const status = snapshot.status
+          if (status === 'needs_user' || status === 'stalled'
+            || status === 'failed' || status === 'canceled' || status === 'completed') {
+            isGenerating.value = false
+            generationStatus.value = status === 'needs_user'
+              ? '模型等待你的回复'
+              : status === 'completed' ? '正在收尾...' : ''
+          }
+        }
+        if (event.type === 'interactive_response' && outlineInputBlocked.value) {
+          outlineInputUnlockedByAgent.value = true
+          addOutlineTraceEvent({
+            type: 'input-unlocked-interactive-response',
+            level: 'info',
+            label: '模型已给出正文，输入已解锁',
+            detail: 'agent_interactive_response',
+          })
+        }
         addOutlineTraceEvent({
           type: `agent-${event.type}`,
           level: event.level === 'warning' ? 'warn' : event.level,
@@ -5146,7 +5337,7 @@ async function askPlainAi(
       toolPolicy: tools ? {
         scenario: 'direct-tool-intensive',
         maxToolIterations: (window as any).__outlineDeletionReplayMaxToolIterations
-          || Math.min(64, 24 + Math.max(0, outlineExecutionPlan.segments.length - 1) * 6),
+          || calculateLongDocumentPhysicalRequestBudget(outlineExecutionPlan),
           intent: plainIntent,
           permissionDecision: outlinePermissionDecision,
         onPermissionDenied: event => {
@@ -5163,7 +5354,7 @@ async function askPlainAi(
             type: 'tool-convergence-started',
             level: 'info',
             label: '开始收敛最终回答',
-            detail: '工具调用轮次达到上限，已停止工具执行并开始最终回答请求'
+            detail: '应用已判定继续工具循环不可取（写入终态拒绝、参数反复无效、覆盖检查未通过或轮次耗尽），正在请求不带工具的最终说明'
           })
           toolRunSupervisor.dispose()
         },
@@ -5290,6 +5481,7 @@ async function askPlainAi(
       responseText,
       reasoningText: result.reasoning || '',
       finishReason: result.finishReason,
+      convergenceReason: result.convergenceReason,
       usage: result.usage,
       durationMs: result.durationMs,
       error: plainOutcome.error,
@@ -5711,6 +5903,7 @@ async function askPlainAi(
       if (outlineAgentTerminal) {
         const mergedOutlineTerminal = mergeEditTaskTerminal({
           agentTerminal: outlineAgentTerminal,
+          originalExecutionPlan: activeOutlineExecutionPlan ?? undefined,
           editTask: finalOutlineEditTask,
           completionReport,
         })
@@ -5767,6 +5960,7 @@ async function continueOutlineMessage(index: number) {
     detail: `已生成 ${snapshot.accumulatedText.length} 字，finish_reason=${snapshot.finishReason}，第 ${snapshot.continuationCount + 1} 次续生成`
   })
   isGenerating.value = true
+  outlineInputUnlockedByAgent.value = false
   generationStatus.value = '正在续生成…'
   streamingContent.value = snapshot.accumulatedText
   generationController = new AbortController()

@@ -415,10 +415,20 @@ function buildDirectWriteCoverage(input: {
   batchId: string
   items: Array<{ command: EditorEditCommand; plan: { range: { start: number; end: number } } }>
 }): NonNullable<EditorWriteApplyInput['coverage']> {
-  const range = input.items.reduce((total, item) => ({
-    start: Math.min(total.start, item.plan.range.start),
-    end: Math.max(total.end, item.plan.range.end),
-  }), { start: Number.POSITIVE_INFINITY, end: Number.NEGATIVE_INFINITY })
+  // buildEditPlan reports insertion points as zero-width ranges. Coverage is
+  // about the written span, so extend those commands by their content length.
+  const normalizeCoverageRange = (command: EditorEditCommand, range: { start: number; end: number }) => (
+    command.operation === 'append' || command.operation === 'insert'
+      ? { start: Math.min(range.start, range.end), end: Math.min(range.start, range.end) + String(command.content || '').length }
+      : range
+  )
+  const range = input.items.reduce((total, item) => {
+    const itemRange = normalizeCoverageRange(item.command, item.plan.range)
+    return {
+      start: Math.min(total.start, itemRange.start),
+      end: Math.max(total.end, itemRange.end),
+    }
+  }, { start: Number.POSITIVE_INFINITY, end: Number.NEGATIVE_INFINITY })
   const rangeSegments = input.plan.segments.filter(segment =>
     segmentRangeIntersects(range, segment))
   // Direct writes are model-initiated and carry no batch declaration. A
@@ -432,14 +442,17 @@ function buildDirectWriteCoverage(input: {
     reason: trusted
       ? input.plan.segments.length === 1 ? 'single_segment_plan' : 'declared_segment'
       : 'undeclared_segment',
-    commands: input.items.map(item => ({
+    commands: input.items.map(item => {
+      const itemRange = normalizeCoverageRange(item.command, item.plan.range)
+      return {
       operation: item.command.operation,
       ...(trusted && input.plan.segments.length === 1
         ? { segmentId: input.plan.segments[0].segmentId }
         : {}),
-      start: item.plan.range.start,
-      end: item.plan.range.end,
-    })),
+      start: itemRange.start,
+      end: itemRange.end,
+      }
+    }),
   }
 }
 

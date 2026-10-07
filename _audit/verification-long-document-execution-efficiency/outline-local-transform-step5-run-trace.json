@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 15,
+  "id": "run-1791388989894-1",
+  "source": "outline",
+  "sourceName": "大纲工作台",
+  "stepName": "大纲共创",
+  "mode": "chain",
+  "projectId": "long-document-local-transform-project",
+  "projectName": "Long Document Local Transform",
+  "providerId": "local-transform-guard-provider",
+  "providerName": "Local Transform Guard",
+  "model": "local-transform-guard-model",
+  "skillNames": [],
+  "target": {
+    "type": "outline",
+    "id": "outline",
+    "name": "Long Document Local Transform",
+    "activeTab": "大纲编辑器",
+    "locked": false
+  },
+  "context": {
+    "turns": 1
+  },
+  "status": "running",
+  "startedAt": 1791388989894,
+  "timeoutHint": {
+    "active": 3600000
+  },
+  "stateHistory": [],
+  "events": [
+    {
+      "id": "event-1791388989894-2",
+      "ts": 1791388989894,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始大纲工作台 大纲共创运行"
+    },
+    {
+      "id": "event-1791388989895-4",
+      "ts": 1791388989895,
+      "turnId": "turn-1791388989895-3",
+      "seq": 2,
+      "type": "user-request",
+      "level": "info",
+      "label": "用户请求",
+      "detail": "整理整篇文章：统一小节编号、清除多余空行、按编号重排，并保持所有正文内容不丢失。"
+    },
+    {
+      "id": "event-1791388989895-5",
+      "ts": 1791388989895,
+      "turnId": "turn-1791388989895-3",
+      "seq": 3,
+      "level": "info",
+      "type": "local-transform-executed",
+      "label": "确定性整理已本地执行",
+      "detail": "{\"execution_mode\":\"local-transform\",\"planId\":\"long-document-muyar2yt\",\"operations\":[\"reorder_sections\",\"normalize_blank_lines\",\"normalize_numbering\"],\"outcome\":\"completed\",\"durationMs\":0.40000009536743164,\"changedLineCount\":11,\"validation\":{\"ok\":true,\"problems\":[],\"checks\":{\"structureCoverage\":true,\"bodyMultisetUnchanged\":true,\"duplicateRemovalOnly\":true}},\"sourceChars\":105,\"beforeHash\":\"fnv1a32_81541a1a\",\"afterHash\":\"fnv1a32_36ad860a\",\"reason\":null}",
+      "payloadRefs": [
+        "payload-001"
+      ]
+    },
+    {
+      "id": "event-1791388989907-6",
+      "ts": 1791388989907,
+      "turnId": "turn-1791388989895-3",
+      "seq": 4,
+      "type": "turn-finished",
+      "level": "info",
+      "label": "第 1 轮完成",
+      "detail": "local_transform_complete"
+    },
+    {
+      "id": "event-1791388989907-7",
+      "ts": 1791388989907,
+      "seq": 5,
+      "type": "session-active",
+      "level": "info",
+      "label": "会话仍在进行",
+      "detail": "第 1 轮已完成；本条 chat run 保持 running，等待下一轮用户输入"
+    }
+  ],
+  "apiCalls": [],
+  "sessionKind": "chat",
+  "turns": [
+    {
+      "id": "turn-1791388989895-3",
+      "seq": 1,
+      "startedAt": 1791388989895,
+      "status": "success",
+      "userRequest": "整理整篇文章：统一小节编号、清除多余空行、按编号重排，并保持所有正文内容不丢失。",
+      "skillNames": [],
+      "mode": "chain",
+      "intent": "edit",
+      "writeMode": "direct",
+      "toolSurface": [],
+      "actualToolSurface": [],
+      "reason": "local_transform_complete",
+      "endedAt": 1791388989907,
+      "durationMs": 12
+    }
+  ],
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [
+    {
+      "id": "payload-001",
+      "kind": "agent-event",
+      "file": "001-agent-event.json",
+      "bytes": 567,
+      "chars": 567,
+      "sha256": "8959c4ccc1b569ab5526e3bc9d5958000de661d983550cfa29c5dbaf2d03893f",
+      "duplicateCount": 1,
+      "createdAt": 1791388990114
+    }
+  ],
+  "resultPreview": "已本地完成整理：11 行发生变化，耗时 0.40000009536743164ms。未发起模型请求。",
+  "sessionSnapshot": true,
+  "apiResponseIndex": [],
+  "payloadIntegrityWarnings": []
+}

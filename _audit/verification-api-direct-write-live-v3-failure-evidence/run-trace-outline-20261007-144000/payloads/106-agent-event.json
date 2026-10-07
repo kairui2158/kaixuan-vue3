@@ -1,0 +1,29 @@
+{
+  "taskId": "edit-task-1791355206947-1",
+  "status": "completed",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "用户要求将第3节“账簿翻开第3页”改为“账簿翻到第三页”。",
+  "executedBatches": [
+    "ai-edit-muxqmzvj-1"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "用户要求将第3节“账簿翻开第3页”改为“账簿翻到第三页”。",
+    "batches": [
+      "ai-edit-muxqmzvj-1"
+    ],
+    "batchDetails": {
+      "ai-edit-muxqmzvj-1": {
+        "segmentId": "targeted-edit",
+        "expectedChange": "rewrite",
+        "range": {
+          "startLine": 0,
+          "endLine": 7602
+        },
+        "writeStrategy": "replace_match"
+      }
+    }
+  }
+}

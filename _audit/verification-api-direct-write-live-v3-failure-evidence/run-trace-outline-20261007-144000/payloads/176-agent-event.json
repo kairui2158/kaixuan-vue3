@@ -1,0 +1,29 @@
+{
+  "taskId": "edit-task-1791355411987-4",
+  "status": "completed",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "将第15节整节移动到第5节前面，保持节内文字不变",
+  "executedBatches": [
+    "ai-edit-muxqre36-5"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "将第15节整节移动到第5节前面，保持节内文字不变",
+    "batches": [
+      "ai-edit-muxqre36-5"
+    ],
+    "batchDetails": {
+      "ai-edit-muxqre36-5": {
+        "segmentId": "targeted-edit",
+        "expectedChange": "rewrite",
+        "range": {
+          "startLine": 0,
+          "endLine": 7605
+        },
+        "writeStrategy": "replace_match"
+      }
+    }
+  }
+}

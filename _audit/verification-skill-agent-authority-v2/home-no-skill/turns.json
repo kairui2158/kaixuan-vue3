@@ -55,6 +55,7 @@
         "user-request",
         "long-document-policy",
         "routing-diagnostics",
+        "dialogue-tool-surface-declaration",
         "api-start",
         "editor-context-policy",
         "agent-plan",
@@ -69,6 +70,10 @@
         "long-request-in-progress",
         "physical-call",
         "physical-call",
+        "agent-interactive_response",
+        "agent-snapshot",
+        "input-unlocked-interactive-response",
+        "agent-interactive_response",
         "agent-state",
         "agent-snapshot",
         "agent-state",
@@ -102,7 +107,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muuebjnu",
+            "planId": "long-document-muycqv1w",
             "operation": "discussion",
             "legacyOperationType": "discussion",
             "mode": "direct",
@@ -110,7 +115,7 @@
             "reason": "execution-plan-direct",
             "segments": 0,
             "invariants": [],
-            "estimatedPhysicalRequests": 1,
+            "estimatedPhysicalRequests": 12,
             "contextWindow": {
               "status": "unknown",
               "contextWindowTokens": 1000000,
@@ -124,6 +129,7 @@
         }
       ],
       "skillGuidanceEvents": [],
+      "sanitizedGuidanceEvents": [],
       "assistantReply": "这段钩子的作用是把旧信和灯塔并置，让悬念先于设定出现。\n\n---\n\n**提示：** 本次回复未包含编辑操作。如需修改内容，请明确告诉 AI 要改什么。"
     },
     {
@@ -180,6 +186,7 @@
         "user-request",
         "long-document-policy",
         "routing-diagnostics",
+        "dialogue-tool-surface-declaration",
         "api-start",
         "editor-context-policy",
         "agent-plan",
@@ -194,6 +201,10 @@
         "long-request-in-progress",
         "physical-call",
         "physical-call",
+        "agent-interactive_response",
+        "agent-snapshot",
+        "input-unlocked-interactive-response",
+        "agent-interactive_response",
         "agent-state",
         "agent-snapshot",
         "agent-state",
@@ -227,7 +238,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muuebkg6",
+            "planId": "long-document-muycqvwg",
             "operation": "discussion",
             "legacyOperationType": "discussion",
             "mode": "direct",
@@ -235,7 +246,7 @@
             "reason": "execution-plan-direct",
             "segments": 0,
             "invariants": [],
-            "estimatedPhysicalRequests": 1,
+            "estimatedPhysicalRequests": 12,
             "contextWindow": {
               "status": "unknown",
               "contextWindowTokens": 1000000,
@@ -249,6 +260,7 @@
         }
       ],
       "skillGuidanceEvents": [],
+      "sanitizedGuidanceEvents": [],
       "assistantReply": "如果修改，旧信信息会提前半段出现；本次保持只读，没有写入。\n\n---\n\n**提示：** 本次回复未包含编辑操作。如需修改内容，请明确告诉 AI 要改什么。"
     },
     {
@@ -317,6 +329,7 @@
         "user-request",
         "long-document-policy",
         "routing-diagnostics",
+        "dialogue-tool-surface-declaration",
         "api-start",
         "editor-context-policy",
         "agent-plan",
@@ -371,7 +384,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muuebl90",
+            "planId": "long-document-muycqwq4",
             "operation": "targeted_edit",
             "legacyOperationType": "targeted-edit",
             "mode": "direct",
@@ -379,7 +392,7 @@
             "reason": "execution-plan-direct",
             "segments": 1,
             "invariants": [],
-            "estimatedPhysicalRequests": 1,
+            "estimatedPhysicalRequests": 12,
             "contextWindow": {
               "status": "unknown",
               "contextWindowTokens": 1000000,
@@ -393,6 +406,7 @@
         }
       ],
       "skillGuidanceEvents": [],
+      "sanitizedGuidanceEvents": [],
       "assistantReply": "已完成合法写入，稳定段落末尾已追加测试标记。\n\n---\n\n**提示：** 连续多次未识别编辑指令。如需 AI 直接修改内容，请明确指示，例如「请重写第三段」或「在开头插入一段环境描写」。"
     }
   ],
@@ -413,10 +427,7 @@
           "editor.global_search",
           "editor.workspace_summary",
           "context.remaining",
-          "agent.plan",
-          "agent.spawn",
-          "agent.wait",
-          "agent.cancel"
+          "agent.plan"
         ]
       }
     ],
@@ -436,10 +447,7 @@
           "editor.global_search",
           "editor.workspace_summary",
           "context.remaining",
-          "agent.plan",
-          "agent.spawn",
-          "agent.wait",
-          "agent.cancel"
+          "agent.plan"
         ]
       }
     ],
@@ -460,10 +468,7 @@
           "editor.global_search",
           "editor.workspace_summary",
           "context.remaining",
-          "agent.plan",
-          "agent.spawn",
-          "agent.wait",
-          "agent.cancel"
+          "agent.plan"
         ]
       },
       {
@@ -482,10 +487,7 @@
           "editor.global_search",
           "editor.workspace_summary",
           "context.remaining",
-          "agent.plan",
-          "agent.spawn",
-          "agent.wait",
-          "agent.cancel"
+          "agent.plan"
         ]
       }
     ]

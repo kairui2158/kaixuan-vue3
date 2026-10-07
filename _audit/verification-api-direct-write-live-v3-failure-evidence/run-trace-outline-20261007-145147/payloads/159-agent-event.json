@@ -1,0 +1,31 @@
+{
+  "taskId": "edit-task-1791356106845-4",
+  "status": "running_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "API 直写 1 条大纲命令",
+  "executedBatches": [],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "activeBatchId": "ai-edit-muxr6a8s-4",
+  "executionPlan": {
+    "goal": "API 直写 1 条大纲命令",
+    "batches": [
+      "ai-edit-muxr6a8s-4"
+    ],
+    "batchDetails": {
+      "ai-edit-muxr6a8s-4": {
+        "segmentId": "targeted-edit",
+        "expectedChange": "rewrite",
+        "range": {
+          "startLine": 0,
+          "endLine": 7605
+        },
+        "writeStrategy": "replace_match"
+      }
+    }
+  },
+  "batchId": "ai-edit-muxr6a8s-4",
+  "segmentId": "targeted-edit",
+  "expectedChange": "rewrite"
+}

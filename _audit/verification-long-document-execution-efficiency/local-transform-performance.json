@@ -1,0 +1,60 @@
+{
+  "schema": "shenyi.long-document-local-transform-performance",
+  "generatedAt": "2026-10-07T15:47:02.423Z",
+  "nodeVersion": "v24.16.0",
+  "runner": "vite:ssrLoadModule:production-source",
+  "service": {
+    "path": "D:\\codex\\novel-workshop-vue3\\src\\services\\documentTransformService.ts",
+    "sha256": "5f40b1c69db00584d1b9369ff5de89ebae7b1ab819a45edf50447fd20de19fdd"
+  },
+  "cases": [
+    {
+      "id": "step5-real-7.6k",
+      "inputChars": 7602,
+      "outputChars": 7582,
+      "changedLineCount": 205,
+      "durationMs": 3.319,
+      "durationBudgetMs": 1000,
+      "operations": [
+        "normalize_punctuation",
+        "normalize_blank_lines",
+        "normalize_numbering"
+      ],
+      "validation": {
+        "ok": true,
+        "problems": [],
+        "checks": {
+          "structureCoverage": true,
+          "bodyMultisetUnchanged": true,
+          "duplicateRemovalOnly": true
+        }
+      },
+      "sourceNote": "Preserved step5 manuscript; trace snapshot differed by 5 newline characters.",
+      "sourceHash": "0decb3b9c97bf939613f5a87af5ed1ff52489cdcf01c87eed95cadb9922f0e67"
+    },
+    {
+      "id": "synthetic-1m",
+      "inputChars": 1035784,
+      "outputChars": 1033783,
+      "changedLineCount": 7600,
+      "durationMs": 61.561,
+      "durationBudgetMs": 3000,
+      "operations": [
+        "normalize_punctuation",
+        "normalize_blank_lines",
+        "normalize_numbering"
+      ],
+      "validation": {
+        "ok": true,
+        "problems": [],
+        "checks": {
+          "structureCoverage": true,
+          "bodyMultisetUnchanged": true,
+          "duplicateRemovalOnly": true
+        }
+      },
+      "sourceNote": null,
+      "sourceHash": "b0eeee7c33555aa6555658e10d6d20c329795dc8513e9dee0e744389a00209a9"
+    }
+  ]
+}

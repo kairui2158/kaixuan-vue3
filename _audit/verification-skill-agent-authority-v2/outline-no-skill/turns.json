@@ -85,6 +85,10 @@
         "long-request-in-progress",
         "physical-call",
         "physical-call",
+        "agent-interactive_response",
+        "agent-snapshot",
+        "input-unlocked-interactive-response",
+        "agent-interactive_response",
         "agent-state",
         "agent-snapshot",
         "agent-state",
@@ -118,7 +122,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muueb8zl",
+            "planId": "long-document-muycqkiu",
             "operation": "discussion",
             "legacyOperationType": "discussion",
             "mode": "direct",
@@ -126,7 +130,7 @@
             "reason": "execution-plan-direct",
             "segments": 0,
             "invariants": [],
-            "estimatedPhysicalRequests": 1,
+            "estimatedPhysicalRequests": 12,
             "contextWindow": {
               "status": "unknown",
               "contextWindowTokens": 1000000,
@@ -140,6 +144,7 @@
         }
       ],
       "skillGuidanceEvents": [],
+      "sanitizedGuidanceEvents": [],
       "assistantReply": "这段钩子的作用是把旧信和灯塔并置，让悬念先于设定出现。"
     },
     {
@@ -226,6 +231,10 @@
         "long-request-in-progress",
         "physical-call",
         "physical-call",
+        "agent-interactive_response",
+        "agent-snapshot",
+        "input-unlocked-interactive-response",
+        "agent-interactive_response",
         "agent-state",
         "agent-snapshot",
         "agent-state",
@@ -259,7 +268,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muueb9sv",
+            "planId": "long-document-muycql8y",
             "operation": "discussion",
             "legacyOperationType": "discussion",
             "mode": "direct",
@@ -267,7 +276,7 @@
             "reason": "execution-plan-direct",
             "segments": 0,
             "invariants": [],
-            "estimatedPhysicalRequests": 1,
+            "estimatedPhysicalRequests": 12,
             "contextWindow": {
               "status": "unknown",
               "contextWindowTokens": 1000000,
@@ -281,6 +290,7 @@
         }
       ],
       "skillGuidanceEvents": [],
+      "sanitizedGuidanceEvents": [],
       "assistantReply": "如果修改，旧信信息会提前半段出现；本次保持只读，没有写入。"
     },
     {
@@ -417,7 +427,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muuebali",
+            "planId": "long-document-muycqlsg",
             "operation": "targeted_edit",
             "legacyOperationType": "targeted-edit",
             "mode": "direct",
@@ -425,7 +435,7 @@
             "reason": "execution-plan-direct",
             "segments": 1,
             "invariants": [],
-            "estimatedPhysicalRequests": 1,
+            "estimatedPhysicalRequests": 12,
             "contextWindow": {
               "status": "unknown",
               "contextWindowTokens": 1000000,
@@ -439,6 +449,7 @@
         }
       ],
       "skillGuidanceEvents": [],
+      "sanitizedGuidanceEvents": [],
       "assistantReply": "已完成合法写入，稳定段落末尾已追加测试标记。"
     }
   ],
@@ -463,10 +474,7 @@
           "outline.search",
           "outline.get_summary",
           "context.remaining",
-          "agent.plan",
-          "agent.spawn",
-          "agent.wait",
-          "agent.cancel"
+          "agent.plan"
         ]
       }
     ],
@@ -490,10 +498,7 @@
           "outline.search",
           "outline.get_summary",
           "context.remaining",
-          "agent.plan",
-          "agent.spawn",
-          "agent.wait",
-          "agent.cancel"
+          "agent.plan"
         ]
       }
     ],
@@ -518,10 +523,7 @@
           "outline.search",
           "outline.get_summary",
           "context.remaining",
-          "agent.plan",
-          "agent.spawn",
-          "agent.wait",
-          "agent.cancel"
+          "agent.plan"
         ]
       },
       {
@@ -544,10 +546,7 @@
           "outline.search",
           "outline.get_summary",
           "context.remaining",
-          "agent.plan",
-          "agent.spawn",
-          "agent.wait",
-          "agent.cancel"
+          "agent.plan"
         ]
       }
     ]

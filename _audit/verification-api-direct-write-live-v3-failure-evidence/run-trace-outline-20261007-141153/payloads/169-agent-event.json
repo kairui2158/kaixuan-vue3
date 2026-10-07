@@ -1,0 +1,14 @@
+{
+  "snapshot": {
+    "taskId": "outline-direct-api-1791353695520-591",
+    "status": "planning",
+    "goal": "整理整篇文章：统一小节编号、清除多余空行、按编号重排，并保持所有正文内容不丢失。",
+    "stepIndex": 0,
+    "callCount": 0,
+    "successfulWriteCount": 0,
+    "noProgressRounds": 0,
+    "repeatedCallCount": 0,
+    "maxPhysicalRequests": 8,
+    "updatedAt": 1791353695520
+  }
+}

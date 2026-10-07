@@ -1,0 +1,137 @@
+用户要求把第15节整节移动到第5节前面，保持节内文字不变。
+
+让我理解当前结构。大纲的章节如下：
+
+- heading-1-1h6ox9k 青石镇的雨季
+  - paragraph-46bd25 内容块 1
+  - heading-2-1voe54f 第1节 雨落石桥
+  - heading-2-rg901k 第2节 渡口的灯
+  - heading-2-1h7qvms 第3节 旧账簿
+  - heading-2-ukykz8 第4节 青苔与铁锈
+  - heading-2-1de2kut 第5节 南货铺的钟
+  - heading-2-oubc98 第6节 退潮线
+  - heading-2-409dqk 第7节 纸伞
+  - heading-2-1pnmhy6 第8节 沈家的船
+  - heading-2-zt7j7u 第9节 渡河人
+  - heading-2-x8n67m 第10节 夜市油灯
+  - heading-2-1s73jj6 第11节 断桨
+  - heading-2-13w2wzt 第12节 修船匠
+  - heading-2-wksvn7 第13节 北巷水洼
+  - heading-2-1ifbd3l 第14节 鱼汛
+  - heading-2-ev2dx 第15节 盐仓档案
+  - heading-2-96nxmo 第16节 风眼
+  - heading-2-1dihcoy 第17节 旧堤
+  - heading-2-1a26thy 第18节 船钉
+  - heading-2-159p8q8 第19节 灯下信
+  - heading-2-6c8r0j 第20节 雨停之前
+
+用户要把第15节移动到第5节前面，即第15节应该放在第5节之前，也就是第4节之后、第5节之前。
+
+但需要注意，移动后章节编号会变吗？用户说"保持节内文字不变"，但节标题"第15节 盐仓档案"会不会变？移动后如果保持文字不变，那么标题仍是"第15节 盐仓档案"，但位置在第5节前面。这样编号会混乱。
+
+让我仔细想想。用户说"把第15节整节移动到第5节前面，并保持节内文字不变"。这意味着移动整个节（包括标题和内容），保持节内文字不变。那么节标题"第15节 盐仓档案"也会被移动。
+
+但这里有一个问题：移动后，原来的顺序会变成：
+
+1. 第1节
+2. 第2节
+3. 第3节
+4. 第4节
+5. 第15节（移动过来的）
+6. 第5节
+7. 第6节
+...
+14. 第14节
+15. 第16节
+...
+
+这样标题编号就不连续了。但用户明确要求"保持节内文字不变"，所以我应该按用户要求执行，即移动整个节（含标题"第15节 盐仓档案"和其内容），不重新编号。
+
+不过，这可能是大纲工具的一个操作。我需要使用 editor.write 的 reorder_sections 操作？还是有 move 操作？
+
+editor.write 支持的操作有：
+- insert
+- replace_selection
+- replace_match
+- append
+- delete
+- move
+- reorder_sections
+- rewrite
+- replace_document
+
+move 操作：需要 destination（目标位置的唯一原文片段）和 destinationPosition（before/after）。
+
+reorder_sections 操作：需要 order（完整有序顶层结构 ID 列表）。
+
+这里我处理的是大纲编辑器。当前编辑目标是"大纲编辑器"。但结构地图是 outline 的结构。
+
+实际上，我看到的上下文里，编辑目标是什么？"当前编辑区（来源=active_tab）：大纲编辑器"。
+
+大纲结构地图显示的结构是 outline 的结构。但 editor 工具是编辑"当前编辑目标"。让我看看 editor 的目标是什么。
+
+实际上，前面几轮操作中，我使用了 editor.write 来修改内容（比如替换"账簿翻开第3页"）。所以 editor 操作的是当前编辑目标，即大纲编辑器里的文本。
+
+而 outline 工具是读取大纲结构的。这两者可能是同一份内容的不同视图。
+
+让我先了解一下当前的编辑目标状态和结构。我应该调用 editor.get_state 和 editor.document_map 来了解当前编辑目标。
+
+对于"移动整节"，最合适的是 reorder_sections 或 move 操作。
+
+reorder_sections 的 order 是"当前编辑目标的完整有序顶层结构 ID 列表"。这里顶层结构可能是那些 heading-2 节。但根据 document_map 的说明，顶层结构 ID 可能与 outline 结构 ID 不同。
+
+让我先读取 editor.get_state 和 editor.document_map。
+
+实际上，我需要谨慎。让我先读取当前状态。
+
+让我调用 editor.get_state 和 editor.document_map。
+
+关于 move 操作：move 需要 target（要移动的内容）和 destination（目标位置的唯一原文片段）和 destinationPosition。
+
+但我需要了解 editor 的 move 操作的具体语义。从 schema 看：
+- operation: "move"
+- target: 要移动的内容？
+- destination: move 专用：目标位置的唯一原文片段
+- destinationPosition: before/after
+
+实际上 target 字段在 move 中是"要移动的内容"吗？schema 里 target 描述是"定位目标"？让我再看。
+
+editor.write 的 commands items properties:
+- content: string
+- destination: "move 专用：目标位置的唯一原文片段"
+- destinationPosition: "move 专用：插入到 destination 之前或之后"
+- operation: enum
+- order: "reorder_sections 专用"
+- position: enum [cursor, selection_start, selection_end, end]
+- reason: string
+- target: string
+
+target 的描述没有明确说明，但应该是定位目标（要操作的文本片段或范围）。
+
+对于 move，target 应该是要移动的内容片段，destination 是目标位置片段，destinationPosition 是 before/after。
+
+这比较适合移动文本块。
+
+对于 reorder_sections，order 是顶层结构 ID 列表。
+
+考虑到要移动"第15节整节"到"第5节前面"，有两种做法：
+
+1. 使用 reorder_sections：给出完整的顶层结构 ID 顺序列表，把第15节移到第5节前面。
+
+2. 使用 move：target 是第15节的完整文本，destination 是第5节的标题（或第5节开头），destinationPosition 是 before。
+
+reorder_sections 更干净，因为它是结构级别的操作，不需要复制大量文本。
+
+但 reorder_sections 需要"当前编辑目标的完整有序顶层结构 ID 列表"。我需要先知道 editor 的顶层结构 ID。这些 ID 可能与 outline 的 heading-2 ID 一致，也可能不同。
+
+让我先调用 editor.document_map 和 editor.get_state 来了解情况。
+
+我先并行调用这两个工具。
+
+实际上，让我思考：outline 结构地图已经给了节点 ID（heading-2-xxx）。而 editor 可能操作的是同一份文档。editor.document_map 会返回节列表和节 ID。
+
+让我调用 editor.get_state 和 editor.document_map。
+
+然后根据 editor.document_map 返回的顶层结构 ID 来确定 reorder_sections 的 order。
+
+让我开始。

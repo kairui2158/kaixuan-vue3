@@ -1,0 +1,31 @@
+{
+  "taskId": "edit-task-1791353559139-2",
+  "status": "running_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "在第7节纸伞结尾新增用户指定的一句",
+  "executedBatches": [],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "activeBatchId": "ai-edit-muxpnof3-2",
+  "executionPlan": {
+    "goal": "在第7节纸伞结尾新增用户指定的一句",
+    "batches": [
+      "ai-edit-muxpnof3-2"
+    ],
+    "batchDetails": {
+      "ai-edit-muxpnof3-2": {
+        "segmentId": "targeted-edit",
+        "expectedChange": "rewrite",
+        "range": {
+          "startLine": 0,
+          "endLine": 7602
+        },
+        "writeStrategy": "replace_match"
+      }
+    }
+  },
+  "batchId": "ai-edit-muxpnof3-2",
+  "segmentId": "targeted-edit",
+  "expectedChange": "rewrite"
+}

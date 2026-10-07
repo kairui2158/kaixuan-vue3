@@ -1,0 +1,29 @@
+{
+  "taskId": "edit-task-1791355236332-2",
+  "status": "completed",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "在第7节结尾新增一句“纸伞骨上的旧漆裂开一道细缝。”",
+  "executedBatches": [
+    "ai-edit-muxqnmju-2"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "在第7节结尾新增一句“纸伞骨上的旧漆裂开一道细缝。”",
+    "batches": [
+      "ai-edit-muxqnmju-2"
+    ],
+    "batchDetails": {
+      "ai-edit-muxqnmju-2": {
+        "segmentId": "targeted-edit",
+        "expectedChange": "rewrite",
+        "range": {
+          "startLine": 0,
+          "endLine": 7602
+        },
+        "writeStrategy": "replace_match"
+      }
+    }
+  }
+}

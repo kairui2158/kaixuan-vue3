@@ -442,7 +442,6 @@ body:not(.light-theme) [data-tooltip]:focus-visible::after {
 .dashboard-bar-fill.success { background: var(--success); }
 .dashboard-bar-fill.warning { background: var(--warning); }
 .chapter-overview.visible { display: flex; }
-.diff-modal-content { display: flex; flex-direction: column; height: 100%; }
 .token-bar-hidden { display: none !important; }
 .pl-label-mb { margin-bottom: var(--space-2); }
 .vm-close { cursor: pointer; color: var(--text-muted); }

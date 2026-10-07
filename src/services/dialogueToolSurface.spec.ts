@@ -393,6 +393,8 @@ describe('appendDialogueToolSurfaceDeclaration', () => {
     expect(prompt).toContain('task.resume')
     expect(prompt).toContain('本轮工具面未包含 editor.write')
     expect(prompt).toContain('当前存在编辑任务')
+    expect(prompt).toContain('当前不是权限缺失')
+    expect(prompt).toContain('新的直写请求需要先恢复或取消当前任务')
     expect(prompt).not.toContain('禁止')
     expect(prompt).not.toContain('必须')
   })
@@ -422,6 +424,7 @@ describe('appendDialogueToolSurfaceDeclaration', () => {
           operation: 'restructure_and_cleanup',
           operationResolution: { source: 'intent', matched: 'restructure_and_cleanup' },
           mode: 'edit-task',
+          localTransformOperations: null,
           segments: [],
           invariants: [],
           estimatedPhysicalRequests: 1,

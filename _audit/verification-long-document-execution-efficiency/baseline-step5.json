@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-10-07T12:05:51.671Z",
+  "sourceTrace": "_data\\api-direct-write-live-v3-profile\\documents-data\\run-trace\\outline\\run-trace-outline-20261007-185019\\run-trace.json",
+  "callId": "api-1791370423507-594",
+  "requestText": "整理整篇文章：统一小节编号、清除多余空行、按编号重排，并保持所有正文内容不丢失。",
+  "documentChars": 7607,
+  "physicalRequests": 23,
+  "toolCalls": 24,
+  "editorWriteCalls": 7,
+  "readToolCalls": 17,
+  "cumulativeRequestDurationMs": 954174,
+  "longestRequestDurationMs": 422951,
+  "inputTokenFirst": 11014,
+  "inputTokenLast": 38165,
+  "providerContextWindowTokens": 1000000,
+  "modelContextWindowTokens": 0,
+  "modelContextWindowSource": "unknown",
+  "contextBudgetDecision": "fits",
+  "statusAtCapture": "running"
+}

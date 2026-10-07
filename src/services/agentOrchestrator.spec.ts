@@ -8,6 +8,8 @@ import {
 } from './agentOrchestrator'
 import type { CallAiParams, CallAiResult } from './aiService'
 import { buildLongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
+import { createEditorTools, ToolGateway } from './editorTools'
+import { createEditorTargetSnapshot } from './editorTarget'
 
 const plan: AgentOrchestratorPlan = {
   goal: '整理长文档',
@@ -45,6 +47,37 @@ describe('AgentOrchestrator state machine', () => {
     expect(agent.getEvents().some(event => event.type === 'state' && event.label.includes('completed'))).toBe(true)
   })
 
+  it('completes a discussion plan after one text answer without dispatching another request', async () => {
+    const executionPlan = buildLongDocumentExecutionPlan({
+      requestText: '这段设定应该写在哪里？请帮我定位',
+      content: '# 第一卷\n\n第一章大纲。\n\n# 第二卷\n\n第二章大纲。',
+      contextWindowTokens: 120_000,
+      maxOutputTokens: 8_000,
+      intent: 'discuss',
+    })
+    expect(executionPlan.operation).toBe('discussion')
+    expect(executionPlan.mode).toBe('direct')
+    const callAi = vi.fn(async (): Promise<CallAiResult> => successResult(
+      '这段设定建议放在第三章之后的补充节点，用来承接旧信出处。',
+    ) as CallAiResult)
+    const runtime: AgentOrchestratorRuntime = {
+      callAi,
+      document: {
+        content: '# 第一卷\n\n第一章大纲。\n\n# 第二卷\n\n第二章大纲。',
+        operationType: 'discussion',
+        executionPlan,
+      },
+      maxPhysicalRequests: 12,
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+
+    expect(result.status).toBe('completed')
+    expect(result.text).toContain('第三章之后')
+    expect(callAi).toHaveBeenCalledTimes(1)
+    expect(agent.getSnapshot().callCount).toBe(1)
+  })
+
   it('does not complete an authorized write task from preview-only text', async () => {
     const executionPlan = buildLongDocumentExecutionPlan({
       requestText: '按照Word文档的形式重构大纲，不要缩减内容',
@@ -74,6 +107,78 @@ describe('AgentOrchestrator state machine', () => {
       event.type === 'no_progress'
       && (event.payload as { reason?: string } | undefined)?.reason === 'legacy_preview_response',
     )).toBe(true)
+  })
+
+  it('completes a direct append write after one physical request', async () => {
+    const content = '第一段：旧句。\n第二段：验证正文。'
+    const executionPlan = buildLongDocumentExecutionPlan({
+      requestText: '在文末追加一段总结',
+      content,
+      contextWindowTokens: 128_000,
+      maxOutputTokens: 8_000,
+      intent: 'edit',
+    })
+    expect(executionPlan.mode).toBe('direct')
+    expect(executionPlan.segments).toHaveLength(1)
+
+    const snapshot = createEditorTargetSnapshot({
+      workspace: 'main',
+      targetId: 'chapter-1',
+      label: '主页直写',
+      content,
+      selectionStart: 0,
+      selectionEnd: 0,
+    })
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => snapshot,
+      mode: 'direct',
+      executionPlan,
+      applyWrite: async () => ({ ok: true, rollbackAvailable: true }),
+    }))
+    const writeResult = await gateway.execute('editor.write', {
+      commands: [{ operation: 'append', content: '第三段：追加总结。' }],
+    }, {
+      projectId: 'p1',
+      workspace: 'main',
+      targetId: 'chapter-1',
+      sessionId: 's1',
+      iteration: 1,
+    })
+    expect(writeResult.ok).toBe(true)
+
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn(async (params: CallAiParams): Promise<CallAiResult> => {
+        params.toolPolicy?.onToolCall?.({
+          toolName: 'editor.write',
+          policy: 'write',
+          iteration: 1,
+          input: { commands: [{ operation: 'append', content: '第三段：追加总结。' }] },
+          result: writeResult,
+          durationMs: 1,
+        })
+        return {
+          ...successResult('已在文末追加总结。'),
+          toolResults: [{
+            call: { name: 'editor.write' },
+            result: writeResult,
+          }],
+        } as CallAiResult
+      }),
+      document: {
+        content,
+        operationType: 'targeted-edit',
+        executionPlan,
+      },
+      editTaskWorkflow: true,
+      maxPhysicalRequests: 3,
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+
+    expect(result.status).toBe('completed')
+    expect(result.reason).toBe('completion criteria satisfied')
+    expect(runtime.callAi).toHaveBeenCalledTimes(1)
   })
 
   it('does not complete a write task when only part of the planned writes succeed', async () => {
@@ -336,6 +441,70 @@ describe('AgentOrchestrator state machine', () => {
     expect(result.reason).toBe('write_not_executed')
     expect(runtime.callAi).toHaveBeenCalledTimes(1)
     expect(result.text).toContain('本轮未写入')
+  })
+
+  it('maps terminal write convergence after successful writes to partially applied', async () => {
+    const executionPlan = buildLongDocumentExecutionPlan({
+      requestText: '按照Word文档的形式重构大纲，不要缩减内容',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      contextWindowTokens: 120_000,
+      maxOutputTokens: 8_000,
+      intent: 'edit',
+    })
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn(async (params: CallAiParams) => {
+        const toolResults = [
+          {
+            call: { name: 'editor.write', input: { commands: [{ operation: 'rewrite', target: 'section-15', content: '第十五节' }] } },
+            result: { ok: true, data: { coverageTrusted: true } },
+          },
+          {
+            call: { name: 'editor.write', input: { commands: [{ operation: 'replace_document' }] } },
+            result: {
+              ok: false,
+              error: {
+                code: 'document_too_large_for_whole_replacement',
+                message: '整篇替换在 1M 档必须被拒绝',
+              },
+            },
+          },
+        ]
+        toolResults.forEach((item) => {
+          params.toolPolicy?.onToolCall?.({
+            toolName: item.call.name,
+            policy: 'write',
+            input: item.call.input,
+            result: item.result,
+            iteration: 1,
+            durationMs: 0,
+          })
+        })
+        return {
+          ...successResult('已完成第 15 节重排；后续整篇替换被拒绝，剩余批次未执行。'),
+          finishReason: 'tool_converged',
+          convergenceReason: 'terminal write failure: document_too_large_for_whole_replacement',
+          toolResults,
+        } as CallAiResult
+      }),
+      document: {
+        content: '段'.repeat(74_841),
+        operationType: 'whole-document-restructure',
+        executionPlan,
+      },
+      editTaskWorkflow: true,
+      maxPhysicalRequests: 8,
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+
+    expect(result.status).toBe('stalled')
+    expect(result.reason).toBe('partially_applied')
+    expect(result.snapshot.successfulWriteCount).toBe(1)
+    expect(runtime.callAi).toHaveBeenCalledTimes(1)
+    expect(agent.getEvents().some(event =>
+      event.type === 'tool'
+      && (event.payload as { reason?: string } | undefined)?.reason === 'partially_applied',
+    )).toBe(true)
   })
 
   it('consumes the incomplete-write checkpoint without dispatching another request', async () => {
@@ -824,6 +993,40 @@ describe('AgentOrchestrator state machine', () => {
     const result = await agent.run(runInput)
     expect(result.status).toBe('completed')
     expect(agent.getEvents().some(event => event.type === 'pseudo_tool')).toBe(true)
+  })
+
+  it('emits an interactive response only for real answer text', async () => {
+    const events: string[] = []
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn(async (): Promise<CallAiResult> => successResult(
+        '这段设定建议放在第三章之后，用于承接旧信出处。',
+      ) as CallAiResult),
+      onEvent: event => events.push(event.type),
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+
+    expect(result.status).toBe('completed')
+    expect(events).toContain('interactive_response')
+    const interactive = agent.getEvents().find(event => event.type === 'interactive_response')
+    expect(interactive?.payload).toMatchObject({
+      textPreview: '这段设定建议放在第三章之后，用于承接旧信出处。',
+      hasSuccessfulWrite: false,
+      callCount: 1,
+    })
+  })
+
+  it('does not emit an interactive response for pseudo tool text', async () => {
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn(async (): Promise<CallAiResult> => successResult(
+        '{"name":"editor.write","arguments":{"commands":[]}}',
+      ) as CallAiResult),
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+
+    expect(result.status).toBe('completed')
+    expect(agent.getEvents().some(event => event.type === 'interactive_response')).toBe(false)
   })
 
   it('persists every state transition through the runtime hook', async () => {

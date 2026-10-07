@@ -12,6 +12,7 @@ import {
   findAgentToolNameConflicts,
   removeConflictingExternalTools,
 } from './agentToolConflict'
+import { sanitizeSkillGuidance } from './skillGuidanceSanitizer'
 
 export type AgentOrchestratorStatus =
   | 'planning'
@@ -55,11 +56,13 @@ export interface AgentOrchestratorEvent {
     | 'physical_request_limit'
     | 'repeated_call'
     | 'pseudo_tool'
+    | 'interactive_response'
     | 'idle_timeout'
     | 'error'
     | 'tool_conflict'
     | 'plan-origin'
     | 'skill-guidance-injected'
+    | 'skill-guidance-sanitized'
   level: 'info' | 'warning' | 'error'
   label: string
   detail?: string
@@ -244,6 +247,8 @@ function isTerminalWriteConvergence(result: CallAiResult): boolean {
   // must consume it instead of dispatching another request.
   if (result.finishReason === 'physical_request_budget_exhausted') return true
   if (result.finishReason === 'incomplete_write_coverage_checkpoint') return true
+  if (result.finishReason === 'needs_user_handoff') return true
+  if (result.finishReason === 'legacy_preview_response') return true
   if (result.finishReason !== 'tool_converged' && result.finishReason !== 'tool_converged_local') {
     return false
   }
@@ -377,6 +382,7 @@ export class AgentOrchestrator {
   private cancelRequested = false
   private effectiveToolSurface: Array<{ name: string; policy: 'read' | 'write' }> = []
   private sharedPhysicalRequestBudget: (input?: { inCall?: boolean }) => boolean
+  private sanitizedSkillGuidance: ReturnType<typeof sanitizeSkillGuidance>
 
   constructor(input: {
     taskId?: string
@@ -389,11 +395,12 @@ export class AgentOrchestrator {
     this.maxPhysicalRequests = this.normalizeMaxPhysicalRequests(input.runtime.maxPhysicalRequests)
     this.sharedPhysicalRequestBudget = ({ inCall } = {}) => this.callCount
       < this.maxPhysicalRequests - (inCall ? 1 : 0)
+    this.sanitizedSkillGuidance = sanitizeSkillGuidance(input.runtime.skillGuidance)
     if (input.runtime.skillGuidance !== undefined) {
       this.emit({
         type: 'skill-guidance-injected',
         level: 'info',
-        label: input.runtime.skillGuidance.trim()
+        label: this.sanitizedSkillGuidance.text
           ? 'SKILL guidance 已接入统一执行底座'
           : 'SKILL guidance 无可注入内容',
         payload: {
@@ -403,6 +410,23 @@ export class AgentOrchestrator {
           skillGuidancePresent: input.runtime.skillGuidance.length > 0,
         },
       })
+      const sanitized = this.sanitizedSkillGuidance
+      if (input.runtime.skillGuidance.trim() && sanitized.removedCategories.length > 0) {
+        this.emit({
+          type: 'skill-guidance-sanitized',
+          level: 'warning',
+          label: 'SKILL guidance 已剥离应用执行协议语义',
+          detail: 'folder SKILL 仅保留领域能力；执行协议与工具权限由应用单源控制',
+          payload: {
+            skillIds: input.runtime.skillIds || [],
+            promptSource: input.runtime.promptSource || 'unknown',
+            originalChars: sanitized.originalChars,
+            retainedChars: sanitized.text.length,
+            removedChars: sanitized.removedChars,
+            removedCategories: sanitized.removedCategories,
+          },
+        })
+      }
     }
     this.emit({
       type: 'plan',
@@ -437,7 +461,7 @@ export class AgentOrchestrator {
   }
 
   private appendSkillGuidance(messages: CallAiParams['messages']): CallAiParams['messages'] {
-    const guidance = String(this.runtime.skillGuidance || '').trim()
+    const guidance = this.sanitizedSkillGuidance.text
     if (!guidance) return messages
 
     const systemIndex = messages.findIndex(message => message.role === 'system')
@@ -700,6 +724,22 @@ export class AgentOrchestrator {
       supervisor.stop()
       lastResult = result
       const convergence = judgeConvergenceText({ text: result.text })
+      const hasInteractiveResponseText = Boolean(String(result.text || '').trim())
+        && convergence.kind !== 'pseudo_tool_call'
+      if (hasInteractiveResponseText) {
+        this.emit({
+          type: 'interactive_response',
+          level: 'info',
+          label: '模型已给出可回复内容',
+          payload: {
+            textPreview: String(result.text).slice(0, 500),
+            finishReason: result.finishReason || null,
+            hasSuccessfulWrite: (result.toolResults || []).some(item =>
+              item.result.ok && String(item.call.name).startsWith('editor.write')),
+            callCount: this.callCount,
+          },
+        })
+      }
       if (convergence.kind === 'pseudo_tool_call') {
         this.emit({
           type: 'pseudo_tool',
@@ -728,19 +768,34 @@ export class AgentOrchestrator {
       const suppliedEvaluator = this.runtime.evaluateRound
       const executionPlan = this.runtime.document?.executionPlan
       if (isTerminalWriteConvergence(result)) {
+        const hasSuccessfulWrite = (result.toolResults || []).some(item =>
+          item.result.ok && String(item.call.name).startsWith('editor.write'))
         const terminalReason = result.finishReason === 'physical_request_budget_exhausted'
           ? 'physical_request_limit'
                   : result.finishReason === 'incomplete_write_coverage_checkpoint'
                     ? 'partially_applied'
-                    : 'write_not_executed'
-        this.transition('stalled', terminalReason)
+                    : result.finishReason === 'needs_user_handoff'
+                      ? 'needs_user'
+                      : result.finishReason === 'legacy_preview_response'
+                        ? 'legacy_preview_response'
+                        : hasSuccessfulWrite || this.successfulWriteCount > 0
+                          ? 'partially_applied'
+                          : 'write_not_executed'
+        if (terminalReason === 'needs_user') {
+          this.transition('waiting_user', terminalReason)
+        }
+        this.transition(terminalReason === 'needs_user' ? 'needs_user' : 'stalled', terminalReason)
         this.emit({
           type: 'tool',
-          level: 'warning',
+          level: terminalReason === 'needs_user' ? 'info' : 'warning',
           label: result.finishReason === 'physical_request_budget_exhausted'
             ? '物理请求预算耗尽'
             : result.finishReason === 'incomplete_write_coverage_checkpoint'
               ? '写入覆盖不完整'
+              : result.finishReason === 'needs_user_handoff'
+                ? '模型等待用户回复'
+                : result.finishReason === 'legacy_preview_response'
+                  ? 'SKILL 旧执行协议残留'
               : '写入任务终局收敛',
           detail: result.convergenceReason
             || 'editor.write 已被应用终态拒绝；保留收敛回复，不再发起物理请求',

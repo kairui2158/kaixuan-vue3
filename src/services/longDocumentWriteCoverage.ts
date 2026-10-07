@@ -89,6 +89,11 @@ function segmentRangeMatches(
   const end = record.end
   const segmentStart = segment.range.startLine
   const segmentEnd = segment.range.endLine
+  // Append coverage starts at the old document boundary; count that boundary
+  // as part of the planned segment so an authorized append can complete.
+  if (record.operation === 'append') {
+    return start <= segmentEnd && end > segmentStart
+  }
   return start < segmentEnd && end > segmentStart
 }
 

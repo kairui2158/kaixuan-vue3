@@ -1,0 +1,5 @@
+The user wants to change "账簿翻开第3页" in section 3 to "账簿翻到第三页". This is a simple edit request. Let me use editor.write with replace_match operation.
+
+The target text is "账簿翻开第3页" which should be unique to section 3 (other sections have 第1页, 第2页, etc.). Let me verify by locating, but actually the current focus text shows it clearly. Let me just do the replace_match.
+
+The fragment "账簿翻开第3页" appears in section 3. Let me do the edit.

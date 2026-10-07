@@ -1,7 +1,7 @@
 # API 对话工具面与 Folder SKILL 执行说明（交付给 SKILL 层）
 
-日期：2026-10-04
-适用版本：神意助手 3.75.0（SKILL / 无 SKILL 执行体系统一已接入）
+日期：2026-10-08
+适用版本：神意助手 3.77.0（SKILL / 无 SKILL 执行体系统一已接入）
 适用位置：主页 API 对话、大纲工作台 API 对话、大纲/主页共创 SKILL 链路  
 不适用：生成流水线正文/卷纲/章节等 pipeline 层（该层禁止交互式工具）
 
@@ -10,11 +10,17 @@
 ## 0. SKILL 中立执行总则
 
 1. 有 SKILL 和无 SKILL 走同一套执行链路。加载 SKILL 不会改变执行器选择、长文档路由、工具面、写回协议或 trace 字段。
-2. SKILL 只允许注入领域能力：模板正文、执行指引、领域约束、输出风格。final-draft 请求中，这些内容作为 `skillGuidance` 附加到系统提示，单份上限 8000 字符，超限截断并记录 `skill-guidance-truncated`。
+2. SKILL 只允许注入领域能力：模板正文、执行指引、领域约束、输出风格。所有进入执行链的 SKILL guidance 都先经过 `sanitizeSkillGuidance()` 净化，再作为 `skillGuidance` 附加到系统提示；final-draft 单份上限 8000 字符，超限截断并记录 `skill-guidance-truncated`。
 3. final-draft（整篇重排 / 格式整理 / 去重等有目标内容的终稿任务）无论是否加载 SKILL，都由应用终稿 runner 执行分段、续写、结构校验和写回；不进入工具循环，也不暴露 `editor.write`。
 4. edit-task / direct 请求无论是否加载 SKILL，都进入同一工具循环；工具面由应用按 intent、任务状态和长文档计划单源授权。
 5. SKILL 包不允许携带 `tools`、`toolPolicy`、`toolSurface`、`writeAuthorization`、`executionPlan` 等执行协议字段；安装、导入、导出和设置页按 `src/services/skillPackageProtocol.json` 单源校验。folder `meta.agent` 的 model / temperature / maxTokens 等执行参数会被忽略并记录诊断。
 6. 当本轮工具面含 `editor.write`、执行计划为 edit-task 且不是 discussion 时，系统提示中的“请给出建议和修改意见。”会被应用替换为“应用已授权本轮通过 editor.write 直接写入编辑器，请按执行计划完成写入。”模板正文不需要、也不应该再用建议口吻覆盖这个执行语义。
+7. `sanitizeSkillGuidance()` 会在注入前剥离三类旧执行语义：
+   - 旧预览状态机标题：`### 修改预览`、`### 批准写回`、`### 写入未执行`。
+   - 执行控制标记：`【下一问】`、`【写回状态】`、`【修改预览】`、`【批准写回】`、`【写入未执行】`、`status: pending`、`await_user: true`。
+   - 执行协议语义行：涉及写入权限、物理请求轮次、长文档路由、工具调用策略的句子。
+8. 净化不是提示词装饰，而是单源边界：SKILL guidance 中的执行协议、工具权限、写入方式、轮次上限、路由策略一律无效；应用系统提示和工具面声明优先生效。
+9. 当 `sanitizeSkillGuidance()` 剥离了内容，Agent 会记录 `skill-guidance-sanitized` 事件，包含原字符数、保留字符数、剥离字符数和剥离类别，供 SKILL 调试定位。
 
 ## 一图看懂
 
@@ -284,12 +290,14 @@ Run trace 分三层，都记录实际发送的工具面：
 
 ## 8. 与旧确认预览的关系
 
-旧的 `editor.propose_edits` / 待确认编辑链路已删除。现在写入只有两条路：
+旧的 `editor.propose_edits` / 待确认编辑链路已删除，UI 级 diff 确认弹窗也已删除。现在写入只有两条路：
 
 1. 原生 tool call 调 `editor.write`。
 2. 兼容模式输出 JSON 协议，由应用转成 `editor.write`。
 
-SKILL 不要再输出“待确认编辑”或等待按钮确认的协议；那不会被执行。
+主页聊天消息上的“插入到编辑器 / 替换全文”同样是直写语义：用户点击后直接写入当前编辑器目标，并进入同一套撤销历史、`manual-direct-write-applied` trace 与 `editor-external-change` / `diff-locate` 观测。若当前存在挂起 EditTask，手动写入会被拒绝并提示先恢复或取消该任务；这是任务状态约束，不是权限缺失。
+
+SKILL 不要再输出“待确认编辑”或等待按钮确认的协议；那不会被执行，也不会出现预览弹窗。
 
 ## 9. 快速自检清单
 

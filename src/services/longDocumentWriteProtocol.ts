@@ -3,12 +3,19 @@ import { EDITOR_EDIT_OPERATIONS } from './editorEditSemantics'
 import type { LongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
 
 /**
- * Single source for the long-document physical-request budget. Prompts,
- * orchestrator limits, and the shared request counter must all use this
- * value; otherwise the model is promised more rounds than the runtime allows.
+ * Single source for the long-document physical-request safety net. This is a
+ *失控防线，不是任务目标，也不能进入提示词向模型宣传可用跑道。
+ * 估算：每批 1 读 + 1 写，全局结构确认 2 次，有限重试缓冲 4 次。
  */
-export function calculateLongDocumentPhysicalRequestBudget(segmentCount: number): number {
-  return Math.min(64, 24 + Math.max(0, Math.floor(segmentCount) - 1) * 6)
+export function calculateLongDocumentPhysicalRequestBudget(
+  plan?: Pick<LongDocumentExecutionPlan, 'mode' | 'operation' | 'segments'> | null,
+): number {
+  if (!plan) return 12
+  if (plan.mode === 'local-transform') return 0
+  if (plan.mode === 'final-draft' || plan.mode === 'direct') return 12
+  if (plan.operation === 'discussion') return 12
+  const segmentCount = Math.max(1, Math.floor(plan.segments.length))
+  return Math.min(64, segmentCount * 2 + 6)
 }
 
 const DIRECT_TARGETED_OPERATIONS: readonly EditorEditOperation[] = [
@@ -95,7 +102,7 @@ export function buildLongDocumentWriteDirective(
           ? '复合重构请分三阶段执行：先读取结构，用 move 把误归位标题与段落移动到正确层级，用 insert 为无标题正文补标题、用 replace_match/rewrite 仅修正既有标题层级；再只读确认重复项并提交唯一目标删除命令；最后提交 replace_match/rewrite 命令完成标点、空白、编号与标题层级整理。新增标题必须紧贴对应正文且不得改写正文内容；删除重复段落后必须校验有效正文未丢失。'
           : '复合重构请分三阶段执行：先提交唯一顶层结构重排命令，再只读确认重复项并提交唯一目标删除命令，最后提交 replace_match/rewrite 命令完成标点、空白、编号与标题层级整理。',
         '禁止整篇 replace_document，禁止把未确认内容当作重复项删除，禁止丢弃有效正文内容。',
-        `整理阶段必须覆盖全部计划段落（${describePlannedSegments(plan)}）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令，禁止把同段多条命令拆成多次调用；未覆盖全部计划段落前，禁止输出“任务完成”总结。计划批次数量是 ${plan.segments.length}；执行侧允许的物理请求轮次为 ${describePhysicalRequestBudget(plan)} 轮，尚未完成前不要把工具轮次耗尽。`,
+        `整理阶段必须覆盖全部计划段落（${describePlannedSegments(plan)}）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令，禁止把同段多条命令拆成多次调用；未覆盖全部计划段落前，禁止输出“任务完成”总结。计划批次数量是 ${plan.segments.length}。按计划批次执行；如无法继续，停止调用工具并说明具体缺失信息。`,
         '中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）；这是完成校验的强制条件，不是可选项。',
         '统一标题层级前必须先读取结构：消除层级跳变并把标题归位到文档既有层级体系，禁止无依据地把标题层级改深或改浅。',
         POST_AUTHORIZATION_WRITE_RULES,
@@ -103,7 +110,7 @@ export function buildLongDocumentWriteDirective(
     case 'normalize':
       return [
         '格式整理请按分段 replace_match/rewrite 提交，只改变标点、空白、编号与标题层级；禁止整篇 replace_document。',
-        `执行范围必须覆盖全部计划段落（${describePlannedSegments(plan)}）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令，禁止把同段多条命令拆成多次调用；未覆盖全部计划段落前，禁止输出“任务完成”总结。计划批次数量是 ${plan.segments.length}；执行侧允许的物理请求轮次为 ${describePhysicalRequestBudget(plan)} 轮，尚未完成前不要把工具轮次耗尽。`,
+        `执行范围必须覆盖全部计划段落（${describePlannedSegments(plan)}）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令，禁止把同段多条命令拆成多次调用；未覆盖全部计划段落前，禁止输出“任务完成”总结。计划批次数量是 ${plan.segments.length}。按计划批次执行；如无法继续，停止调用工具并说明具体缺失信息。`,
         '中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）；这是完成校验的强制条件，不是可选项。',
         '统一标题层级前必须先读取结构：消除层级跳变并把标题归位到文档既有层级体系，禁止无依据地把标题层级改深或改浅。',
         POST_AUTHORIZATION_WRITE_RULES,
@@ -113,7 +120,7 @@ export function buildLongDocumentWriteDirective(
     case 'deduplicate_and_normalize':
       return [
         '复合整理请分两阶段执行：先只读确认重复项并提交唯一目标删除命令，完成后再提交 replace_match/rewrite 命令，仅整理标点、空白、编号与标题层级；禁止整篇 replace_document，禁止把未确认内容当作重复项删除。',
-        `整理阶段必须覆盖全部计划段落（${describePlannedSegments(plan)}）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令，禁止把同段多条命令拆成多次调用；未覆盖全部计划段落前，禁止输出“任务完成”总结。计划批次数量是 ${plan.segments.length}；执行侧允许的物理请求轮次为 ${describePhysicalRequestBudget(plan)} 轮，尚未完成前不要把工具轮次耗尽。`,
+        `整理阶段必须覆盖全部计划段落（${describePlannedSegments(plan)}）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令，禁止把同段多条命令拆成多次调用；未覆盖全部计划段落前，禁止输出“任务完成”总结。计划批次数量是 ${plan.segments.length}。按计划批次执行；如无法继续，停止调用工具并说明具体缺失信息。`,
         '中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）；这是完成校验的强制条件，不是可选项。删除重复项后仍需完成剩余段落的标点归一。',
         '统一标题层级前必须先读取结构：消除层级跳变并把标题归位到文档既有层级体系，禁止无依据地把标题层级改深或改浅。',
         '整理与删除阶段都禁止丢弃测试或提示类插入句；这些句子不属于重复项，必须原地保留并完成标点归一。除计划删除目标外，任何正文行不得从文档中消失。',
@@ -125,10 +132,6 @@ export function buildLongDocumentWriteDirective(
     default:
       return '长文档局部修改请提交受限编辑命令；禁止整篇 replace_document。\n' + POST_AUTHORIZATION_WRITE_RULES
   }
-}
-
-function describePhysicalRequestBudget(plan: LongDocumentExecutionPlan): number {
-  return calculateLongDocumentPhysicalRequestBudget(plan.segments.length)
 }
 
 function describePlannedSegments(plan: LongDocumentExecutionPlan): string {

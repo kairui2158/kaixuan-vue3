@@ -3,6 +3,7 @@ import {
   appendDialogueToolSurfaceDeclaration,
   buildDialogueToolSurfaceDeclarationAudit,
 } from './dialogueToolSurface'
+import { sanitizeSkillGuidance } from './skillGuidanceSanitizer'
 import { DeAiSamples } from './deai-samples.js'
 import { classifyGenerationValidity, GENERATION_VALIDITY_MESSAGES } from './generationValidity'
 import { loadRealSkill } from './realSkillLoader'
@@ -251,14 +252,15 @@ function buildSystemPrompt(
     .filter(resource => resource.path && resource.content.trim())
     .map(resource => `[folder resource: ${resource.path}]\n${resource.content}`)
   const normalizedSkillBody = skillBody?.trim()
-  return [
+  const assembled = [
     agentPrompt?.trim(),
     // Fallback packages already use SKILL.md as template; don't inject it twice.
     normalizedSkillBody && normalizedSkillBody !== template.trim() ? normalizedSkillBody : '',
     template.trim(),
     ...resourceBlocks,
-    systemPromptSuffix?.trim()
+    systemPromptSuffix?.trim(),
   ].filter(Boolean).join('\n\n')
+  return sanitizeSkillGuidance(assembled).text
 }
 
 function mergeContinuationText(previous: string, continuation: string): string {

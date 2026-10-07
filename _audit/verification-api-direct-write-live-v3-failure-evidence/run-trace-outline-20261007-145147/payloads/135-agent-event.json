@@ -1,0 +1,31 @@
+{
+  "taskId": "edit-task-1791356032775-3",
+  "status": "running_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "删除第11节《断桨》中指定分句，保留前后句结构",
+  "executedBatches": [],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "activeBatchId": "ai-edit-muxr4p38-3",
+  "executionPlan": {
+    "goal": "删除第11节《断桨》中指定分句，保留前后句结构",
+    "batches": [
+      "ai-edit-muxr4p38-3"
+    ],
+    "batchDetails": {
+      "ai-edit-muxr4p38-3": {
+        "segmentId": "targeted-edit",
+        "expectedChange": "rewrite",
+        "range": {
+          "startLine": 0,
+          "endLine": 7617
+        },
+        "writeStrategy": "replace_match"
+      }
+    }
+  },
+  "batchId": "ai-edit-muxr4p38-3",
+  "segmentId": "targeted-edit",
+  "expectedChange": "rewrite"
+}

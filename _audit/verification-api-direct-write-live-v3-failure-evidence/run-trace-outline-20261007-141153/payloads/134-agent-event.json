@@ -1,0 +1,31 @@
+{
+  "taskId": "edit-task-1791353621279-3",
+  "status": "running_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "删除第11节断桨中船工喊号相关整句",
+  "executedBatches": [],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "activeBatchId": "ai-edit-muxpp0d9-3",
+  "executionPlan": {
+    "goal": "删除第11节断桨中船工喊号相关整句",
+    "batches": [
+      "ai-edit-muxpp0d9-3"
+    ],
+    "batchDetails": {
+      "ai-edit-muxpp0d9-3": {
+        "segmentId": "targeted-edit",
+        "expectedChange": "rewrite",
+        "range": {
+          "startLine": 0,
+          "endLine": 7617
+        },
+        "writeStrategy": "replace_match"
+      }
+    }
+  },
+  "batchId": "ai-edit-muxpp0d9-3",
+  "segmentId": "targeted-edit",
+  "expectedChange": "rewrite"
+}

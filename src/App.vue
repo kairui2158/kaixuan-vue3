@@ -43,8 +43,6 @@
       <button class="save-error-dismiss" @click="rendererRecoveryNotice = ''">知道了</button>
     </div>
 
-   <DiffModal :visible="diffVisible" :original="diffOriginal" :modified="diffModified" :edit-meta="diffEditMeta" @close="closeDiffModal" @apply="applyDiffResult" />
-
     <InlineMenu :visible="inlineMenu.visible" :x="inlineMenu.x" :y="inlineMenu.y" :selectedText="inlineMenu.text" @close="inlineMenu.visible=false" @action="handleInlineAction" />
     <SkillBindModal :visible="skillBindVisible" :type="skillBindType" :id="skillBindId" @close="skillBindVisible=false" />
     <AgentProgressPanel />
@@ -85,7 +83,6 @@ import ExitConfirmModal from './components/common/ExitConfirmModal.vue'
 import AppConfirmModal from './components/common/AppConfirmModal.vue'
 import MemoryPanel from './components/common/MemoryPanel.vue'
 import PluginMarket from './components/common/PluginMarket.vue'
-import DiffModal from './components/common/DiffModal.vue'
 import InlineMenu from './components/common/InlineMenu.vue'
 import SkillBindModal from './components/common/SkillBindModal.vue'
 import AgentProgressPanel from './components/sidebar/AgentProgressPanel.vue'
@@ -147,26 +144,11 @@ useShortcuts({
 
 const activePanel = ref('')
 const pipelineMinimized = ref(false)
-const diffVisible = ref(false)
-const diffOriginal = ref('')
-const diffModified = ref('')
-const diffEditMeta = ref<{ targetLabel: string; operationLabel: string; failureReason?: string; dangerous?: boolean } | null>(null)
 const skillBindVisible = ref(false)
 const skillBindType = ref('')
 const skillBindId = ref('')
 const inlineMenu = ref({ visible: false, x: 0, y: 0, text: '' })
 const rendererRecoveryNotice = ref('')
-window.addEventListener('show-diff', (e: Event) => {
-  const detail = (e as CustomEvent).detail
-  diffOriginal.value = detail?.original || ''
-  diffModified.value = detail?.modified || ''
-  diffEditMeta.value = detail?.editMeta || null
-  diffVisible.value = true
-})
-window.addEventListener('hide-diff', () => {
-  diffVisible.value = false
-  diffEditMeta.value = null
-})
 const selectedModel = computed({
   get: () => providerStore.activeGenerateProvider?.selectedModel || '',
   set: (v: string) => {
@@ -183,16 +165,6 @@ function handleNavigate(panel: string) {
   }
 }
 
-function applyDiffResult(text: string, acceptedIndexes?: number[], options?: { allowCritical?: boolean }) {
-  window.dispatchEvent(new CustomEvent('diff-applied', { detail: { text, acceptedIndexes, allowCritical: options?.allowCritical === true } }))
- diffVisible.value = false
- diffEditMeta.value = null
-}
-function closeDiffModal() {
-  diffVisible.value = false
-  diffEditMeta.value = null
-  window.dispatchEvent(new CustomEvent('diff-closed'))
-}
 function handleInlineAction(action: string, text: string) {
   window.dispatchEvent(new CustomEvent('inline-action', { detail: { action, text } }))
 }

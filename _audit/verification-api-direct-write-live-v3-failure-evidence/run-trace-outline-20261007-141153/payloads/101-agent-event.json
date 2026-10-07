@@ -1,0 +1,15 @@
+{
+  "snapshot": {
+    "taskId": "outline-direct-api-1791353513571-8",
+    "status": "completed",
+    "reason": "completion criteria satisfied",
+    "goal": "请把第 3 节里“账簿翻开第3页”改成“账簿翻到第三页”。",
+    "stepIndex": 0,
+    "callCount": 1,
+    "successfulWriteCount": 1,
+    "noProgressRounds": 0,
+    "repeatedCallCount": 0,
+    "maxPhysicalRequests": 12,
+    "updatedAt": 1791353528443
+  }
+}

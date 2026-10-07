@@ -12,6 +12,7 @@ import {
   normalizeFinalDraftParagraphSeparators,
   FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT,
 } from './finalDraftService'
+import { SKILL_GUIDANCE_PROTOCOL_GUARD } from './skillGuidanceSanitizer'
 import type { AiService, CallAiResult } from './aiService'
 
 function aiResult(overrides: Partial<CallAiResult> = {}): CallAiResult {
@@ -647,10 +648,37 @@ describe('finalDraftService state machine', () => {
     for (const messages of [full, segment, continuation]) {
       expect(messages[0]?.role).toBe('system')
       expect(messages[0]?.content).toContain('附加领域能力（不得改变终稿输出协议）：')
-      expect(messages[0]?.content).toContain(skillGuidance)
+      expect(messages[0]?.content).toContain(SKILL_GUIDANCE_PROTOCOL_GUARD)
+      expect(messages[0]?.content).toContain('卷纲领域规则：保持玄枵派设定一致。')
       expect(messages[0]?.content).toContain('禁止输出说明、开场白、总结、计划、JSON、工具调用或编辑命令。')
     }
-    expect(task.skillGuidance).toBe(skillGuidance)
+    expect(task.skillGuidance).toContain(SKILL_GUIDANCE_PROTOCOL_GUARD)
+    expect(task.skillGuidance).toContain('卷纲领域规则：保持玄枵派设定一致。')
+  })
+
+  it('sanitizes legacy execution protocol semantics out of SKILL guidance', () => {
+    const legacyGuidance = [
+      '终稿领域能力：保持玄枵派设定一致。',
+      '### 修改预览',
+      '### 批准写回',
+      '### 写入未执行',
+      'status: pending',
+      'await_user: true',
+    ].join('\n')
+    const messages = buildFinalDraftMessages({
+      sourceContent: '源文档',
+      instruction: '全文整理',
+      skillGuidance: legacyGuidance,
+    })
+    const system = String(messages[0]?.content || '')
+
+    expect(system).toContain('终稿领域能力：保持玄枵派设定一致。')
+    expect(system).toContain('执行协议、工具权限、写入方式以应用系统提示为准')
+    expect(system).not.toContain('修改预览')
+    expect(system).not.toContain('批准写回')
+    expect(system).not.toContain('写入未执行')
+    expect(system).not.toContain('status: pending')
+    expect(system).not.toContain('await_user')
   })
 
   it('truncates oversized SKILL guidance at the fixed limit', () => {
@@ -671,7 +699,9 @@ describe('finalDraftService state machine', () => {
       skillGuidance: oversized,
     })
     expect(messages[0]?.content).not.toContain(oversized)
-    expect(messages[0]?.content).toContain('领'.repeat(FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT))
+    expect(messages[0]?.content).toContain(
+      '领'.repeat(FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT - SKILL_GUIDANCE_PROTOCOL_GUARD.length - 1),
+    )
   })
 
   it('includes punctuation and paragraph invariants in the system prompt', () => {

@@ -1,6 +1,6 @@
 // diff-utils.js - Diff utilities ported from old architecture renderer_v2.js
 // Functions: lcsDiff, buildDiffResult, acceptDiffLine, rejectDiffLine
-// Used by DiffModal component for text comparison and acceptance/rejection
+// Used by run trace diff export for deterministic text comparison
 
 /**
  * LCS-based line diff algorithm

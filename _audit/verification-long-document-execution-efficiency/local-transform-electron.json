@@ -1,0 +1,63 @@
+{
+  "schema": "shenyi.long-document-local-transform-electron",
+  "version": 1,
+  "generatedAt": "2026-10-07T16:03:03.638Z",
+  "electron": {
+    "pid": 58328,
+    "visible": true,
+    "cdpPort": 9296
+  },
+  "request": "整理整篇文章：统一小节编号、清除多余空行、按编号重排，并保持所有正文内容不丢失。",
+  "document": {
+    "chars": 105,
+    "sha256": "691a917d4a6d1ec6219a153074c73dd609bf648a6ffa4bf1aa2f4727fb616728"
+  },
+  "cases": [
+    {
+      "entry": "outline-workbench",
+      "elapsedMs": 181,
+      "beforeChars": 105,
+      "afterChars": 102,
+      "beforeHash": "691a917d4a6d1ec6219a153074c73dd609bf648a6ffa4bf1aa2f4727fb616728",
+      "afterHash": "9b4cd91411d2d2394717cce0c6960e40823435d9eb40cd7d14b6dbc99da1fdef",
+      "changedLineCount": 11,
+      "operations": [
+        "reorder_sections",
+        "normalize_blank_lines",
+        "normalize_numbering"
+      ],
+      "durationMs": 0.40000009536743164,
+      "providerRequests": 0,
+      "apiCalls": 0,
+      "toolCalls": 0,
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-long-document-execution-efficiency\\outline-local-transform-step5-run-trace.json"
+    },
+    {
+      "entry": "home-editor",
+      "elapsedMs": 165,
+      "beforeChars": 105,
+      "afterChars": 102,
+      "beforeHash": "691a917d4a6d1ec6219a153074c73dd609bf648a6ffa4bf1aa2f4727fb616728",
+      "afterHash": "9b4cd91411d2d2394717cce0c6960e40823435d9eb40cd7d14b6dbc99da1fdef",
+      "changedLineCount": 11,
+      "operations": [
+        "reorder_sections",
+        "normalize_blank_lines",
+        "normalize_numbering"
+      ],
+      "durationMs": 0.20000004768371582,
+      "providerRequests": 0,
+      "apiCalls": 0,
+      "toolCalls": 0,
+      "exportPath": "D:\\codex\\novel-workshop-vue3\\_audit\\verification-long-document-execution-efficiency\\home-local-transform-step5-run-trace.json"
+    }
+  ],
+  "assertions": {
+    "zeroProviderRequests": true,
+    "zeroApiCalls": true,
+    "zeroToolCalls": true,
+    "bothEntriesTransformed": true,
+    "bothEntriesUnder1000Ms": true,
+    "bothTracesDeepExported": true
+  }
+}

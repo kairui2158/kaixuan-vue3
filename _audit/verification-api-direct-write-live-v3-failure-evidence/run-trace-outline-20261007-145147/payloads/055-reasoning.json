@@ -1,0 +1,54 @@
+用户想把第15节（盐仓档案，heading-2-ev2dx）移动到第5节（南货铺的钟，heading-2-1de2kut）前面。也就是说，新的顺序应该是：
+
+第1节 → 第2节 → 第3节 → 第4节 → **第15节** → 第5节 → 第6节 → ... → 第14节 → 第16节 → ... → 第20节
+
+这需要用到 `reorder_sections` 操作。但 `reorder_sections` 要求的是当前编辑目标的完整有序顶层结构 ID 列表。从 document_map 来看，`reorderTopLevelIds` 是 `["heading-1-1h6ox9k"]`，说明这些 section 的父级是 `heading-1-1h6ox9k`，而 `reorderScope` 是 "top-level"。
+
+所以 `reorder_sections` 可能要求的是顶层结构 ID 列表，但这里的顶层只有一个 `heading-1-1h6ox9k`。而第1-20节是 heading-2 级别，它们在 `heading-1-1h6ox9k` 之下。
+
+让我看看 `reorder_sections` 的说明："reorder_sections 专用：当前编辑目标的完整有序顶层结构 ID 列表。不是 document_map 的全部层级 ID；集合必须与顶层结构完全一致"。
+
+这里顶层只有一个 heading-1，但我们需要重新排序的是 heading-2 级别的内容。也许应该使用 `move` 操作。
+
+`move` 操作：需要 `target`（要移动的原文片段）、`destination`（目标位置的唯一原文片段）、`destinationPosition`（before/after）。
+
+要把第15节整节移动到第5节前面。需要：
+- target: 第15节的完整内容（从 "## 第15节 盐仓档案" 到第16节标题前）
+- destination: 第5节标题 "## 第5节 南货铺的钟"
+- destinationPosition: before
+
+但 `move` 操作的 target 应该是一个唯一片段。让我先读取第15节的完整内容，以及第5节标题处的内容。
+
+我需要先读取第15节内容，确认其精确起止。从 document_map：
+- heading-2-ev2dx 第15节 盐仓档案：start=5310, end=5694
+- heading-2-96nxmo 第16节 风眼：start=5694
+
+所以第15节内容在 5310-5694 之间。
+
+第5节（heading-2-1de2kut）在 start=1511, end=1888。
+
+但 move 操作需要 target 是一个唯一原文片段。对于大段内容移动，可能需要用 replace_document 方式或者其他方式...
+
+等等，让我重新考虑。也许更好的方式是使用 `reorder_sections` 但需要确认它支持哪些层级。让我先读取当前 editor state 看看。
+
+实际上，让我再思考一下。`reorder_sections` 说"当前编辑目标的完整有序顶层结构 ID 列表"。当前编辑目标是整个大纲，顶层结构 ID 是 ["heading-1-1h6ox9k"]。但 reorder_sections 可能也支持嵌套结构...
+
+让我试一下读取第15节的完整内容用于 move 操作。
+
+更好的方式可能是：先用 move 操作。move 需要 target（唯一原文片段），destination（唯一原文片段），destinationPosition。
+
+对于 target，我可以使用第15节的开头唯一片段。对于 destination，使用第5节的开头唯一片段。
+
+但 move 会把 target 内容移动到 destination 前面/后面。问题是 move 操作实际上是移动选中的文本，不是整节。
+
+也许我可以使用 replace_document 来重新排列整个文档？但那样太麻烦了。
+
+让我试试 reorder_sections，看它是否接受 heading-2 级别的 ID。文档说"当前编辑目标的完整有序顶层结构 ID 列表"。当前编辑目标是整个大纲，顶层结构是 heading-1-1h6ox9k。但如果我提供 heading-2 的列表...
+
+不，文档明确说"不是 document_map 的全部层级 ID；集合必须与顶层结构完全一致"。
+
+所以 reorder_sections 在这里只能重新排序顶层结构，但顶层只有一个 heading-1。
+
+那就只能用 move 了。move 需要 target 片段唯一。我可以把第15节整节作为 target，使用足够长的唯一片段。让我先读取第15节内容。
+
+读取第15节和第5节开头的内容，然后构造 move 命令。

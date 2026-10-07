@@ -732,3 +732,26 @@
 - 文件：[_audit/PROPOSAL_2026-10-06_RESIDUAL_CONVERGENCE_MASTER_PLAN.md](_audit/PROPOSAL_2026-10-06_RESIDUAL_CONVERGENCE_MASTER_PLAN.md)
 - 范围：合并 R1-R7 全部登记遗留：长文档单源重构、子 Agent 退役、供应商 live、意图语料、工具手册固化、1M 实测、Phase 7 heartbeat 收口。
 - 状态：方案待用户审核，未改生产代码；R1 内设 section id 稳定性与滚动上下文两个放行点。
+
+# 2026-10-07 长文档执行效率修复
+
+- 文件：[_audit/DEV_LOG_2026-10-07_long_document_execution_efficiency.md](_audit/DEV_LOG_2026-10-07_long_document_execution_efficiency.md)
+- 范围：新增确定性本地变换执行器与 `local-transform` 路由；工具上下文压缩；`no_write_progress` 收敛门；双入口即时反馈；修复首页 trace 用户原话丢失与活动任务写入前版本收口。
+- 验证：72/72 相关单测、type-check、build:vue、性能基准与 Electron 可见 UI 双入口复刻全部通过；7,602 字 3.319ms、1,035,784 字 61.561ms；双入口 0 物理请求 / 0 API call / 0 工具调用。
+- 诚实边界：真实 API 语义分支 `untested`，无可用 live key，禁止 mock 冒充；版本封装未执行。
+- 客户重点复验：发送“整理整篇文章：统一小节编号、清除多余空行、按编号重排，并保持所有正文内容不丢失。”应本地即时完成并导出 `execution_mode: local-transform` trace；语义改写类请求仍走模型路径。
+
+# 2026-10-07 API 直写四线拆解修复
+
+- 文件：[_audit/DEV_LOG_2026-10-07_direct_write_four_line_untangle.md](_audit/DEV_LOG_2026-10-07_direct_write_four_line_untangle.md)
+- 范围：SKILL guidance 执行协议净化器；内层用户交接/协议违例停止门；物理请求预算单源；UI 终态事件驱动解锁。
+- 验证：Electron 负路径、四态 SKILL 权限、双入口等价、S/M/L 三档矩阵通过；2026-10-08 新鲜复跑 297 条相关单测通过。
+- 诚实边界：真实 live API 语义分支 `untested`；SKILL 手册待复核；版本封装未执行。
+- 客户重点复验：加载 SKILL 后运行记录应出现 guidance 净化事件；模型提问时输入框立即解锁；预览形态立即停止不续发请求。
+
+# 2026-10-08 API 直写残留缺口收口与 3.77.0
+
+- 文件：[_audit/DEV_LOG_2026-10-08_api_direct_write_residual_gap_closure.md](_audit/DEV_LOG_2026-10-08_api_direct_write_residual_gap_closure.md)
+- 范围：本地重排多重集校验；活动任务手动写入护栏；主页手动插入/修订直写化并删除 DiffModal；SKILL 手册 3.77.0 同步；live v3 六步真实验证；heading move 语义修复；工具上下文压缩 live 证据收口。
+- 验证：live v3 6/6 通过（deepseek-v4-pro）；132 files / 1545 tests 全绿；type-check、build:vue、负路径 Electron、直写压测、provider wire matrix、3.77.0 打包真实启动全部通过。
+- 客户重点复验：手动插入/修订不弹预览；活动任务挂起时手动写入提示恢复/取消；整节移动落在 section 边界；整理类请求出现 `local-transform-executed`。

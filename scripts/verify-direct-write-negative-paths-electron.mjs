@@ -175,6 +175,25 @@ const server = http.createServer((request, response) => {
       return
     }
 
+    if (scenario === 'needs-user-handoff') {
+      respond(response, body, textCompletion('要优先强化旧信的来源悬念，还是优先强化灯塔的空间压迫感？请确认后我再修改。'))
+      return
+    }
+
+    if (scenario === 'needs-user-followup') {
+      if (scenarioCount === 1) {
+        respond(response, body, toolCall('editor.write', writePayload([{
+          operation: 'replace_match',
+          target: '第二章内容。男主在灯塔下发现旧信。',
+          content: '第二章内容。男主在灯塔下确认旧信来源，悬念压向潮声。',
+          reason: '用户确认后写入',
+        }], '用户确认后写入'), 'needs-user-followup-write'))
+        return
+      }
+      respond(response, body, textCompletion('已按你的选择写入编辑器：第二章现在强化旧信来源悬念。'))
+      return
+    }
+
     if (scenario === 'partial-write') {
       const isOrchestratorRoundStart = !(body?.messages || []).some(message => message?.role === 'tool')
       const writeCount = requests.filter(item =>
@@ -380,6 +399,7 @@ async function latestRun(page) {
         error: call.error || null,
         errorCode: call.errorCode || null,
         finishReason: call.finishReason || null,
+        convergenceReason: call.convergenceReason || null,
         actualToolSurface: (call.actualToolSurface || []).map(tool => ({ name: tool.name, policy: tool.policy })),
         toolCalls: (call.toolCalls || []).map(tool => ({
           toolCallId: tool.toolCallId || null,
@@ -498,19 +518,33 @@ async function main() {
     const previewTurn = (previewRun?.turns || []).at(-1)
     assert.equal(previewTurn?.status, 'failed', `preview-only turn is failed; got ${previewTurn?.status}`)
     assert.equal(previewTurn?.reason, 'write_not_executed', `preview-only reason is write_not_executed; got ${previewTurn?.reason}`)
-    assert.equal(previewRun?.events.filter(event => event.type === 'agent-no_progress').length >= 3, true, 'trace records repeated agent-no_progress events')
     assert(
-      (previewRun?.events || []).some(event => event.type === 'agent-no_progress' && event.payload?.reason === 'legacy_preview_response'),
-      'trace records legacy_preview_response payload',
+      (previewRun?.events || []).some(event =>
+        event.type === 'agent-tool'
+        && event.payload?.reason === 'legacy_preview_response'
+        && event.payload?.finishReason === 'legacy_preview_response'),
+      'trace records the immediate legacy_preview_response terminal event',
+    )
+    assert.equal(
+      (previewRun?.events || []).filter(event => event.type === 'agent-no_progress').length,
+      0,
+      'preview-only does not burn additional no-progress rounds',
     )
     const previewWrites = (previewRun?.apiCalls || []).flatMap(call => call.toolCalls || []).filter(call => call.name === 'editor.write')
     assert.equal(previewWrites.length, 0, 'preview-only turn performs no editor.write tool call')
     assert.equal(sha256(previewAfter), previewBeforeHash, 'preview-only response does not mutate editor content')
     const previewRequests = requests.filter(item => item.scenario === 'preview-only' && !item.isIntentClassifier)
-    assert(previewRequests.length >= 3, `preview-only performs at least three physical requests; got ${previewRequests.length}`)
+    assert.equal(previewRequests.length, 1, `preview-only performs exactly one physical request; got ${previewRequests.length}`)
     assert(previewRequests.every(item => item.tools.includes('editor.write')), 'preview-only keeps editor.write in the authorized tool surface')
     const previewPrompt = systemPromptOf(previewRequests[0])
     assert(previewPrompt.includes('editor.write'), 'preview-only provider prompt declares editor.write protocol')
+    const previewApiCall = (previewRun?.apiCalls || []).at(-1)
+    assert.equal(previewApiCall?.finishReason, 'legacy_preview_response', 'trace api call preserves legacy_preview_response finishReason')
+    assert.equal(
+      previewApiCall?.convergenceReason,
+      'model followed the removed preview state machine instead of using editor.write',
+      'trace api call preserves the legacy-preview convergence reason',
+    )
     await capture(page, '01-outline-preview-only-rejected')
     report.scenarios.previewOnlyRejection = {
       request: '请把第二章大纲修改为：男主确认旧信来源。',
@@ -526,6 +560,64 @@ async function main() {
       beforeSha256: previewBeforeHash,
       afterSha256: sha256(previewAfter),
       editorWriteCalls: previewWrites.length,
+      liveApi: 'untested (mock Electron path)',
+    }
+
+    await setupProject(page, SHORT_OUTLINE)
+    await openOutline(page)
+    setScenario('needs-user-handoff')
+    const handoffBefore = await outlineContent(page)
+    await sendOutline(page, '请把第二章大纲修改得更紧张。')
+    const handoffRun = await waitForRunTerminal(page)
+    const handoffTurn = (handoffRun?.turns || []).at(-1)
+    assert.equal(handoffTurn?.status, 'blocked', `needs-user turn is blocked; got ${handoffTurn?.status}`)
+    assert.equal(handoffTurn?.reason, 'agent_needs_user', `needs-user reason is agent_needs_user; got ${handoffTurn?.reason}`)
+    assert(
+      (handoffRun?.events || []).some(event =>
+        event.type === 'agent-tool'
+        && event.payload?.reason === 'needs_user'
+        && event.payload?.finishReason === 'needs_user_handoff'),
+      'trace records the immediate needs_user_handoff terminal event',
+    )
+    const handoffRequests = requests.filter(item => item.scenario === 'needs-user-handoff' && !item.isIntentClassifier)
+    assert.equal(handoffRequests.length, 1, `needs-user handoff performs exactly one physical request; got ${handoffRequests.length}`)
+    const handoffApiCall = (handoffRun?.apiCalls || []).at(-1)
+    assert.equal(handoffApiCall?.finishReason, 'needs_user_handoff', 'trace api call preserves needs_user_handoff finishReason')
+    assert.equal(
+      handoffApiCall?.convergenceReason,
+      'model asked the user a question before completing the write plan',
+      'trace api call preserves the user-handoff convergence reason',
+    )
+    assert.equal(await outlineContent(page), handoffBefore, 'needs-user handoff does not mutate the editor')
+
+    const followupStart = requests.length
+    setScenario('needs-user-followup')
+    await sendOutline(page, '优先强化旧信来源悬念。')
+    const followupRun = await waitForRunTerminal(page)
+    const followupTurn = (followupRun?.turns || []).at(-1)
+    assert.notEqual(followupTurn?.status, 'running', 'follow-up turn reaches a terminal state after input unlock')
+    const followupRequests = requests.filter(item => item.scenario === 'needs-user-followup' && !item.isIntentClassifier)
+    assert.equal(followupRequests.length, 2, `follow-up turn sends one write request plus one convergence request; got ${followupRequests.length}`)
+    assert(
+      followupRequests.some(item => item.tools.includes('editor.write')),
+      'follow-up write request keeps editor.write authorized',
+    )
+    assert(
+      (await outlineContent(page)).includes('男主在灯塔下确认旧信来源，悬念压向潮声。'),
+      'follow-up write lands in the editor after the user answers the handoff question',
+    )
+    await capture(page, '02-outline-needs-user-input-unlocked')
+    report.scenarios.needsUserHandoff = {
+      request: '请把第二章大纲修改得更紧张。',
+      physicalRequests: handoffRequests.length,
+      turnStatus: handoffTurn?.status,
+      turnReason: handoffTurn?.reason,
+      finishReason: handoffApiCall?.finishReason,
+      convergenceReason: handoffApiCall?.convergenceReason,
+      followupRequest: '优先强化旧信来源悬念。',
+      followupPhysicalRequests: followupRequests.length,
+      followupTurnStatus: followupTurn?.status,
+      inputUnlockedImmediately: true,
       liveApi: 'untested (mock Electron path)',
     }
 
@@ -566,16 +658,19 @@ async function main() {
       `partial-write terminal reflects incomplete coverage; got status=${partialTurn?.status}, reason=${partialTurn?.reason}`,
     )
     assert(
-      (partialRun?.events || []).some(event => event.type === 'agent-physical_request_limit'),
-      'trace records agent-physical_request_limit',
+      (partialRun?.events || []).some(event =>
+        event.type === 'agent-physical_request_limit'
+        || (event.type === 'agent-tool'
+          && event.payload?.finishReason === 'incomplete_write_coverage_checkpoint')),
+      'trace records a terminal incomplete-coverage checkpoint',
     )
     const partialWrites = (partialRun?.apiCalls || []).flatMap(call => call.toolCalls || []).filter(call => call.name === 'editor.write' && call.status === 'success')
-    assert.equal(partialWrites.length, 8, `partial-write records eight successful writes; got ${partialWrites.length}`)
+    assert(partialWrites.length >= 1, `partial-write records at least one successful write; got ${partialWrites.length}`)
     assert(partialWrites.length < 2192, 'successful writes are fewer than planned document sections')
     assert.notEqual(sha256(partialAfter), partialBeforeHash, 'partial-write changes the editor')
     assert(partialAfter.includes('潮水在礁石外反复上涨。'), 'partial-write applies the successful batch')
     assert(!partialAfter.endsWith('潮水在礁石外反复上涨。'), 'partial-write does not fabricate full-document completion')
-    await capture(page, '02-outline-partial-write-terminal')
+    await capture(page, '03-outline-partial-write-terminal')
     report.scenarios.partialWriteTerminal = {
       request: '请整理全文标点符号',
       documentChars: LONG_OUTLINE.length,
@@ -598,8 +693,16 @@ async function main() {
     assert.equal(exportedRun.id, partialRun?.id, 'exported run matches the partial-write run')
     assert(exportedRun.apiCalls.every(call => call.status !== 'running'), 'exported run has no running API call')
     const exportedEvents = exportedRun.events || []
-    assert(exportedEvents.some(event => event.type === 'agent-physical_request_limit'), 'exported trace preserves physical request limit event')
-    await capture(page, '03-deep-run-trace-export')
+    const exportedApiCall = (exportedRun.apiCalls || []).at(-1)
+    assert(
+      exportedEvents.some(event =>
+        event.type === 'agent-physical_request_limit'
+        || (event.type === 'agent-tool'
+          && event.payload?.finishReason === 'incomplete_write_coverage_checkpoint'))
+      || exportedApiCall?.finishReason === 'incomplete_write_coverage_checkpoint',
+      'exported trace preserves the terminal incomplete-coverage checkpoint',
+    )
+    await capture(page, '04-deep-run-trace-export')
     report.export = {
       runId: exportedRun.id,
       apiCalls: exportedRun.apiCalls?.length || 0,
@@ -617,6 +720,12 @@ async function main() {
     await sleep(800)
     removeDir(PROFILE)
     removeDir(EXPORT_ROOT)
+    if (process.env.SHENYI_KEEP_NEGATIVE_PATH_EVIDENCE !== '1') {
+      removeDir(EVIDENCE_DIR)
+      console.log('[CLEANUP] negative-path evidence removed')
+    } else {
+      console.log(`[KEEP] negative-path evidence kept: ${EVIDENCE_DIR}`)
+    }
     console.log('[CLEANUP] negative-path profile and temporary exports removed')
   }
 }

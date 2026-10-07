@@ -1,0 +1,15 @@
+{
+  "snapshot": {
+    "taskId": "outline-direct-api-1791353564271-201",
+    "status": "running",
+    "reason": "physical response received",
+    "goal": "删除第 11 节里“船工喊号的声音被雨压低”这一句。",
+    "stepIndex": 0,
+    "callCount": 1,
+    "successfulWriteCount": 1,
+    "noProgressRounds": 0,
+    "repeatedCallCount": 0,
+    "maxPhysicalRequests": 12,
+    "updatedAt": 1791353625785
+  }
+}

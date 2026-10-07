@@ -204,6 +204,7 @@ describe('runTrace store', () => {
       status: 'success',
       responseText: 'R'.repeat(1500),
       finishReason: 'stop',
+      convergenceReason: 'model answered the question and tool loop converged',
       usage: { total_tokens: 123 },
       durationMs: 456
     })
@@ -215,6 +216,7 @@ describe('runTrace store', () => {
     expect(call?.requestMessages[1].content).toHaveLength(1200)
     expect(call?.streamText).toHaveLength(1200)
     expect(call?.responseText).toHaveLength(1500)
+    expect(call?.convergenceReason).toBe('model answered the question and tool loop converged')
     expect(call?.seq).toBe(1)
     expect(run?.events.map(e => e.type)).toContain('api-start')
     expect(run?.events.map(e => e.type)).toContain('api-success')

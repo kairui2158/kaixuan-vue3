@@ -1,0 +1,8 @@
+{
+  "ok": false,
+  "error": {
+    "code": "document_too_large_for_whole_replacement",
+    "message": "当前执行计划不允许该写入操作。\n当前顶层结构只有单一根节点，reorder_sections 必然空转；请先读取结构，然后用 move 把误归位的标题与段落移动到正确层级，并用 replace_match/rewrite 仅修正标题层级，保持正文内容不丢失。禁止整篇 replace_document，禁止无依据重写正文。\n当执行计划已授权写入且本轮请求需要修改编辑器时，必须调用 editor.write 执行写入。\n写入授权后禁止输出【修改预览】、完成总结或仅描述将要执行的动作；除非工具明确返回 needs_user，禁止再次请求用户确认。\n如果无法完成写入，必须停止调用工具并说明具体失败原因、被拒绝的操作和剩余执行计划。\n可用操作：move|replace_match|rewrite。",
+    "retryable": true
+  }
+}

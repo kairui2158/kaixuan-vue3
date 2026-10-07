@@ -63,7 +63,7 @@
     </div>
     <EditTaskBanner
       :task="homeEditTask"
-      :busy="isStreaming"
+      :busy="homeInputBlocked"
       @resume="resumeHomeEditTask"
       @cancel="cancelHomeEditTask"
     />
@@ -71,7 +71,7 @@
       <ApiChatInput
         v-model="inputText"
         placeholder="输入消息..."
-        :send-disabled="isStreaming"
+        :send-disabled="homeInputBlocked"
         send-label="发送"
         show-reset
         reset-label="重置对话"
@@ -214,6 +214,7 @@ import {
   toLongDocumentOperationType,
 } from '../../services/longDocumentExecutionPlanner'
 import type { LongDocumentExecutionPlan } from '../../services/longDocumentExecutionPlanner'
+import { transformDocument } from '../../services/documentTransformService'
 import { calculateLongDocumentPhysicalRequestBudget } from '../../services/longDocumentWriteProtocol'
 import type { DialoguePermissionDecision, DialogueWriteAuthorization } from '../../services/dialogueToolSurface'
 import type { LongDocumentOperationType } from '../../services/longDocumentPolicy'
@@ -251,6 +252,7 @@ import { classifyPlainDialogueIntent, type PlainDialogueIntent } from '../../ser
 import type { ChatMessage } from '../../stores/chat'
 import { useRunTraceStore, type RunTrace, type RunTraceMessage, type RunTraceStatus } from '../../stores/runTrace'
 import { createAgentDialogueRuntime } from '../../services/agentDialogueRuntime'
+import type { AgentOrchestratorStatus } from '../../services/agentOrchestrator'
 import { mapAgentResultToRunTrace, mergeEditTaskTerminal } from '../../services/agentTerminalMapping'
 import {
   activeExecutionTaskStore,
@@ -447,6 +449,142 @@ function closeInvalidActiveExecutionTaskForEditTask(task: EditTask): void {
     return
   }
   activeExecutionTaskStore.clear('main', String(projectId.value))
+}
+
+function completeHomeActiveTaskAfterLocalTransform(input: {
+  target: EditorTargetSnapshot
+  nextContent: string
+}): void {
+  const snapshot = buildSnapshot({
+    workspace: 'main',
+    targetId: input.target.targetId,
+    label: input.target.label,
+    chapterId: input.target.chapterId,
+    mode: input.target.mode,
+    content: input.nextContent,
+    selectionStart: input.target.selectionStart,
+    selectionEnd: input.target.selectionEnd,
+  })
+  activeExecutionTaskStore.complete(
+    'main',
+    String(projectId.value),
+    snapshot.contentVersion,
+    hashEditorContent(snapshot.content),
+  )
+}
+
+function describeHomeLocalTransformResult(outcome: 'completed' | 'no_change', changedLineCount: number, durationMs: number) {
+  return outcome === 'completed'
+    ? `已本地完成整理：${changedLineCount} 行发生变化，耗时 ${durationMs}ms。未发起模型请求。`
+    : `已检查当前文档：没有需要本地整理的变化，耗时 ${durationMs}ms。未发起模型请求。`
+}
+
+function recordHomeLocalTransform(input: {
+  plan: LongDocumentExecutionPlan
+  result: ReturnType<typeof transformDocument>
+  sourceChars: number
+  beforeHash: string
+  afterHash: string
+}) {
+  const payload = {
+    execution_mode: 'local-transform',
+    planId: input.plan.planId,
+    operations: input.result.operations,
+    outcome: input.result.outcome,
+    durationMs: input.result.durationMs,
+    changedLineCount: input.result.changedLineCount,
+    validation: input.result.validation,
+    sourceChars: input.sourceChars,
+    beforeHash: input.beforeHash,
+    afterHash: input.afterHash,
+    contextCompactedMessageCount: 0,
+    reason: input.result.reason || null,
+  }
+  addHomeTraceEvent({
+    type: 'local-transform-executed',
+    level: 'info',
+    label: '确定性整理已本地执行',
+    detail: JSON.stringify(payload),
+    payload,
+  })
+  ;(typeof window !== 'undefined' ? (window as any).DiagLogger : null)?.log?.(
+    'info',
+    'home/local-transform-executed',
+    '确定性整理已本地执行',
+    payload,
+  )
+}
+
+async function runHomeLocalTransform(input: {
+  plan: LongDocumentExecutionPlan
+  target: EditorTargetSnapshot
+  intent: PlainDialogueIntent
+  requestText: string
+}): Promise<boolean> {
+  if (input.plan.mode !== 'local-transform' || !input.plan.localTransformOperations) return false
+  const result = transformDocument({
+    content: input.target.content,
+    operations: input.plan.localTransformOperations,
+  })
+  if (result.outcome !== 'completed' && result.outcome !== 'no_change') return false
+  const tab = editorStore.tabs.find(item => item.id === input.target.targetId)
+  if (!tab) return false
+  const currentContent = tab.content || ''
+  if (currentContent !== input.target.content) return false
+  startHomeRun('direct', input.requestText, [], {
+    intent: input.intent,
+    longDocument: true,
+    toolSurface: [],
+    actualToolSurface: [],
+  })
+  const beforeHash = hashEditorContent(input.target.content)
+  const afterHash = hashEditorContent(result.content)
+  recordHomeLocalTransform({
+    plan: input.plan,
+    result,
+    sourceChars: input.target.content.length,
+    beforeHash,
+    afterHash,
+  })
+  if (result.outcome === 'completed') {
+    editorStore.pushUndoTransactionForTab(tab.id, currentContent, 'api', '本地确定性整理')
+    editorStore.updateContent(tab.id, result.content)
+    window.dispatchEvent(new CustomEvent('editor-external-change', {
+      detail: { tabId: tab.id, content: result.content },
+    }))
+    completeHomeActiveTaskAfterLocalTransform({
+      target: input.target,
+      nextContent: result.content,
+    })
+    const firstChange = firstContentDifference(currentContent, result.content)
+    window.dispatchEvent(new CustomEvent('diff-locate', {
+      detail: {
+        workspace: 'main',
+        targetId: tab.id,
+        range: {
+          start: firstChange,
+          end: Math.max(firstChange + 1, firstChange + (result.content.length - currentContent.length)),
+        },
+      },
+    }))
+  }
+  const content = describeHomeLocalTransformResult(result.outcome, result.changedLineCount, result.durationMs)
+  if (result.outcome === 'no_change') {
+    activeExecutionTaskStore.complete(
+      'main',
+      String(projectId.value),
+      input.target.contentVersion,
+      hashEditorContent(input.target.content),
+    )
+  }
+  chatStore.addMessage({ role: 'user', content: input.requestText, tabId: chatStore.currentContext?.tabId || '' }, String(projectId.value))
+  chatStore.addMessage({ role: 'assistant', content, tabId: chatStore.currentContext?.tabId || '' }, String(projectId.value))
+  inputText.value = ''
+  chatStore.setGenerationState('idle')
+  finishHomeRun('success', undefined, content, 'local_transform_complete')
+  await nextTick()
+  scrollToBottom()
+  return true
 }
 
 async function resumeHomeEditTask(task: { id: string }) {
@@ -707,6 +845,7 @@ function finishHomeApiCall(callId: string | undefined, result: {
   responseText?: string
   reasoningText?: string
   finishReason?: string
+  convergenceReason?: string
   usage?: unknown
   usageUnavailable?: boolean
   durationMs?: number
@@ -764,6 +903,7 @@ function recordHomePhysicalCall(callId: string | undefined, event: PhysicalCallE
     contextBudgetReason: event.contextBudget?.reason,
     usageReconciliation: event.usageReconciliation,
     interruptionCode: event.interruptionCode,
+    contextCompactedMessageCount: event.contextCompactedMessageCount,
     heartbeat: event.heartbeat,
   })
 }
@@ -836,7 +976,6 @@ function compatibilityNoticeFor(result: {
 const inputText = ref('')
 const _pendingInlineOriginal = ref('')
 const _pendingInlineSelection = ref<{ tabId: string; start: number; end: number } | null>(null)
-const pendingEditorTarget = ref<EditorTargetSnapshot | null>(null)
 let homeFailedWriteBatch: {
   workspace: string
   targetId: string
@@ -847,6 +986,8 @@ let homeFailedWriteBatch: {
 let lastToolCallSummary: string | null = null
 const messagesContainer = ref<HTMLElement | null>(null)
 const isStreaming = computed(() => chatStore.generationStatus === 'preparing' || chatStore.generationStatus === 'streaming' || chatStore.generationStatus === 'retrying')
+const homeInputUnlockedByAgent = ref(false)
+const homeInputBlocked = computed(() => isStreaming.value && !homeInputUnlockedByAgent.value)
 const generationStatus = computed(() => chatStore.generationStatus)
 const generationMessage = computed(() => chatStore.generationMessage)
 const liveApiStatusLines = useLiveApiStatus(computed<LiveApiStatusInput>(() => ({
@@ -1914,7 +2055,7 @@ function createHomeSkillAdapter(
             type: 'tool-convergence-started',
             level: 'info',
             label: '开始收敛最终回答',
-            detail: '工具调用轮次达到上限，已停止工具执行并开始最终回答请求'
+            detail: '应用已判定继续工具循环不可取（写入终态拒绝、参数反复无效、覆盖检查未通过或轮次耗尽），正在请求不带工具的最终说明'
           })
         },
         onPermissionDenied: event => {
@@ -2587,8 +2728,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('editor-action', handleEditorAction)
-  window.removeEventListener('diff-applied', handleDiffApplied)
-  window.removeEventListener('diff-closed', handleDiffClosed)
 })
 
 function handleEditorAction(e: any) {
@@ -2640,13 +2779,14 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
   const projId = projectId.value
   let text = (typeof requestText === 'string' ? requestText : inputText.value).trim()
   const originalRequest = text
-  if (!text || isStreaming.value) return
+  if (!text || homeInputBlocked.value) return
   if (!chatStore.activeSession) {
     await appConfirm.alert('当前没有可用对话会话，请重新打开项目后再试')
     return
   }
   activeAbortController?.abort()
   activeAbortController = new AbortController()
+  homeInputUnlockedByAgent.value = false
   const pendingOriginal = _pendingInlineOriginal.value
   _pendingInlineOriginal.value = ''
   lastToolCallSummary = null
@@ -2701,6 +2841,12 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
   activeHomeExecutionPlan = homeExecutionPlan
   const homeLongDocumentOperationType = toLongDocumentOperationType(homeExecutionPlan.operation)
   const useHomeFinalDraft = isHomeFinalDraftRequest(homeExecutionPlan, text, requestTarget.content)
+  if (await runHomeLocalTransform({
+    plan: homeExecutionPlan,
+    target: requestTarget,
+    intent: requestIntent,
+    requestText: text,
+  })) return
   const skillSurfaceModel = providerStore.activeGenerateProvider?.selectedModel
     || providerStore.activeGenerateProvider?.models?.[0] || ''
   const skillSurface = requestTarget.content
@@ -3264,9 +3410,13 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       consecutiveNoEditCount.value = 0
     }
     if (requestIntent !== 'discuss' && pendingOriginal && response && pendingOriginal !== response) {
-        window.dispatchEvent(new CustomEvent('show-diff', {
-          detail: { original: pendingOriginal, modified: response }
-        }));
+        addHomeTraceEvent({
+          type: 'manual-inline-preview-removed',
+          level: 'info',
+          label: '主页内联改写已统一直写语义',
+          detail: '内联响应不再弹出 diff 预览；如需写入请使用插入/替换命令',
+          turnId: homeRunTurnId,
+        })
     }
     finishHomeRun(
       homeAgentTerminalStatus ?? homeSkillTerminalStatus ?? 'success',
@@ -3429,6 +3579,7 @@ async function callApi(
   terminalStatus?: RunTraceStatus
   terminalReason?: string
 }> {
+  const inputLockController = activeAbortController
   // The per-turn token limit is recorded from the actual request result.
   configureHomeContextCompaction(model, provider.contextWindowTokens)
   const requestTarget = externalRequestTarget || createMainEditorTargetSnapshot(editorStore.activeTab, projId)
@@ -3478,6 +3629,31 @@ async function callApi(
 
   const service = await getAiService()
   const requestMaxTokens = Number(provider.maxTokens) > 0 ? Number(provider.maxTokens) : null
+  const releaseInputOnTerminalState = (status: AgentOrchestratorStatus) => {
+    if (status !== 'needs_user' && status !== 'stalled'
+      && status !== 'failed' && status !== 'canceled' && status !== 'completed') return
+    if (activeAbortController !== inputLockController) return
+    if (homeInputBlocked.value) {
+      homeInputUnlockedByAgent.value = true
+      addHomeTraceEvent({
+        type: 'input-unlocked-terminal-state',
+        level: status === 'completed' ? 'info' : 'warn',
+        label: 'Agent 已进入终态，输入已解锁',
+        detail: `agent_status:${status}`,
+      })
+    }
+  }
+  const releaseInputOnInteractiveResponse = () => {
+    if (activeAbortController !== inputLockController) return
+    if (!homeInputBlocked.value) return
+    homeInputUnlockedByAgent.value = true
+    addHomeTraceEvent({
+      type: 'input-unlocked-interactive-response',
+      level: 'info',
+      label: '模型已给出正文，输入已解锁',
+      detail: 'agent_interactive_response',
+    })
+  }
   const tracePipelineMetadata = buildContextPack(requestTarget, undefined, {
     provider,
     model,
@@ -3541,7 +3717,7 @@ async function callApi(
   let directStreamText = ''
   const reasoningControl = getProviderReasoningControl(provider.providerType)
   const agentPhysicalRequestLimit = executionPlan
-    ? calculateLongDocumentPhysicalRequestBudget(executionPlan.segments.length)
+    ? calculateLongDocumentPhysicalRequestBudget(executionPlan)
     : Math.max(1, resumedApiBudget?.snapshot().limit ?? 8)
     const agentRuntime = createAgentDialogueRuntime({
       source: 'home',
@@ -3564,7 +3740,13 @@ async function callApi(
         }) ?? null,
         maxOutputTokens: requestMaxTokens,
       }),
-      onEvent: event => {
+      onEvent: (event, snapshot) => {
+        if (event.type === 'state') {
+          releaseInputOnTerminalState(snapshot.status)
+        }
+        if (event.type === 'interactive_response') {
+          releaseInputOnInteractiveResponse()
+        }
         addHomeTraceEvent({
           type: `agent-${event.type}`,
           level: event.level === 'warning' ? 'warn' : event.level,
@@ -3606,7 +3788,7 @@ async function callApi(
        type: 'tool-convergence-started',
        level: 'info',
        label: '开始收敛最终回答',
-       detail: '工具调用轮次达到上限，已停止工具执行并开始最终回答请求'
+       detail: '应用已判定继续工具循环不可取（写入终态拒绝、参数反复无效、覆盖检查未通过或轮次耗尽），正在请求不带工具的最终说明'
      })
    },
    onPermissionDenied: event => {
@@ -3851,6 +4033,7 @@ async function callApi(
       responseText: retryResult.text || '',
       reasoningText: retryResult.reasoning || '',
       finishReason: retryResult.finishReason,
+      convergenceReason: retryResult.convergenceReason,
       usage: retryResult.usage,
       retryStrategy,
       maxTokens: retryResult.maxTokens ?? retryMaxTokens ?? null,
@@ -4080,6 +4263,7 @@ async function continueMessage(message: any) {
       responseText: result.text || '',
       reasoningText: result.reasoning || '',
       finishReason: result.finishReason,
+      convergenceReason: result.convergenceReason,
       usage: result.usage
     })
     finishHomeRun('success', undefined, result.text, 'continuation_complete')
@@ -4139,6 +4323,8 @@ async function insertToEditor(content: string) {
     await appConfirm.alert('请先打开或创建一个章节，再插入到编辑器')
     return
   }
+  const manualWriteBlocked = await rejectManualWriteWhenTaskActive('manual-insert')
+  if (manualWriteBlocked) return
   const editor = document.getElementById('editor-content') as HTMLTextAreaElement | null
   const selectionStart = editor?.selectionStart ?? (tab.content || '').length
   const selectionEnd = editor?.selectionEnd ?? selectionStart
@@ -4164,20 +4350,59 @@ async function insertToEditor(content: string) {
     await appConfirm.alert('无法插入：' + (plan.failureReason || '编辑目标不可用'))
     return
   }
-  pendingEditorTarget.value = target
-  window.dispatchEvent(new CustomEvent('show-diff', {
-    detail: {
-      original: plan.original,
-      modified: plan.next,
-      editMeta: {
-        workspace: 'main',
-        targetId: target.targetId,
-        targetLabel: target.label,
-        operationLabel: plan.operation,
-        dangerous: selectionStart < selectionEnd
-      }
-    }
+  const original = tab.content || ''
+  editorStore.pushUndoTransactionForTab(tab.id, original, 'api', '手动插入直写')
+  editorStore.updateContent(tab.id, plan.next)
+  window.dispatchEvent(new CustomEvent('editor-external-change', {
+    detail: { tabId: tab.id, content: plan.next }
   }))
+  const start = firstContentDifference(original, plan.next)
+  window.dispatchEvent(new CustomEvent('diff-locate', {
+    detail: {
+      workspace: 'main',
+      targetId: tab.id,
+      range: { start, end: Math.max(start + 1, start + (plan.next.length - original.length)) },
+    },
+  }))
+  addHomeTraceEvent({
+    type: 'manual-direct-write-applied',
+    level: 'info',
+    label: '主页手动插入已直写',
+    detail: `targetId=${tab.id}; operation=${plan.operation}`,
+    payload: {
+      targetId: tab.id,
+      operation: plan.operation,
+      originalLength: original.length,
+      nextLength: plan.next.length,
+    },
+    turnId: homeRunTurnId,
+  })
+  logEditorEdit({
+    requestId: `chat-manual-direct-write_${Date.now()}`,
+    workspace: 'main',
+    tabId: tab.id,
+    operation: 'editor_write',
+    result: 'applied',
+    targetLength: original.length,
+    contentLength: Math.max(0, plan.next.length - original.length),
+    durationMs: 0,
+    detail: '用户手动插入已按直写语义写入编辑器',
+  })
+}
+
+async function rejectManualWriteWhenTaskActive(operation: 'manual-insert' | 'manual-replace') {
+  const activeHomeEditTask = homeEditTaskSession.activeTask()
+  if (!activeHomeEditTask || isTerminalEditTaskStatus(activeHomeEditTask.status)) return false
+  addHomeTraceEvent({
+    type: 'manual-write-task-paused',
+    level: 'warn',
+    label: '存在挂起编辑任务，手动写入未执行',
+    detail: `taskId=${activeHomeEditTask.id}; status=${activeHomeEditTask.status}`,
+    payload: { taskId: activeHomeEditTask.id, taskStatus: activeHomeEditTask.status, operation },
+    turnId: homeRunTurnId,
+  })
+  await appConfirm.alert('当前存在挂起的编辑任务，新的写入请求需要先恢复或取消该任务。')
+  return true
 }
 
 function buildChatEditorTools(requestTarget: EditorTargetSnapshot) {
@@ -4500,59 +4725,6 @@ function rollbackEditorBatch(message: ChatMessage) {
   }).catch(error => console.error('[CHAT] 记录 AI 批次回滚上下文失败', error))
 }
 
-let applyingEditorEdit = false
-function handleDiffApplied(event: Event) {
-  const detail = (event as CustomEvent).detail
-  const target = pendingEditorTarget.value
-  const text = detail?.text
-  if (applyingEditorEdit || !target || typeof text !== 'string') return
-  const tab = editorStore.tabs.find(item => item.id === target.targetId)
-  if (!tab) return
-  const validation = validateEditorTarget(target, { content: tab.content || '' })
-  if (!validation.valid) {
-    pendingEditorTarget.value = null
-    logEditorEdit({
-      requestId: `chat-edit_${Date.now()}`,
-      workspace: 'main',
-      tabId: target.targetId,
-      result: 'rejected',
-      targetLength: target.content.length,
-      failureReason: validation.reason,
-      durationMs: 0,
-      detail: '请求返回后编辑目标内容已变化，拒绝写入'
-    })
-    void appConfirm.alert('编辑目标已变化，请重新发起编辑请求')
-    return
-  }
-  applyingEditorEdit = true
-  try {
-    const finalText = text
-    editorStore.pushUndoState(tab.id, tab.content || '')
-    editorStore.updateContent(tab.id, finalText)
-    // P3: AI 批次 checkpoint 通过 editorStore undo 栈联动
-    // 经验引用: §1 规则6（不得重新赋值）、§7 规则19（AI 批次专用回滚栈）
-    // ChatPanel 不持有撤销栈，通过事件通知 EditorPanel 同步展示
-    window.dispatchEvent(new CustomEvent('editor-external-change', {
-      detail: { tabId: tab.id, content: finalText }
-    }))
-    _pendingInlineSelection.value = null
-    pendingEditorTarget.value = null
-    logEditorEdit({
-      requestId: `chat-edit_${Date.now()}`,
-      workspace: 'main',
-      tabId: target.targetId,
-      operation: target.selectedText ? 'replace_selection' : 'insert',
-      result: 'applied',
-      targetLength: target.content.length,
-      contentLength: Math.max(0, finalText.length - target.content.length),
-      durationMs: 0,
-      detail: '用户确认后已写入主页编辑器'
-    })
-  } finally {
-    applyingEditorEdit = false
-  }
-}
-
 function editorContentForBatch(message: ChatMessage): string {
   const record = normalizeEditorBatchRecord(message.editorBatchRecord)
   if (!record) return ''
@@ -4779,13 +4951,6 @@ function revealEditorBatch(message: ChatMessage) {
   })
 }
 
-function handleDiffClosed() {
-  pendingEditorTarget.value = null
-}
-
-window.addEventListener('diff-applied', handleDiffApplied)
-window.addEventListener('diff-closed', handleDiffClosed)
-
 async function replaceWhole(content: string) {
   const pending = _pendingInlineSelection.value
   const tab = editorStore.activeTab
@@ -4793,17 +4958,77 @@ async function replaceWhole(content: string) {
     await appConfirm.alert('请先打开或创建一个章节，再替换编辑器内容')
     return
   }
+  const manualWriteBlocked = await rejectManualWriteWhenTaskActive('manual-replace')
+  if (manualWriteBlocked) return
   if (pending && tab && pending.tabId === tab.id && pending.end > pending.start) {
     const original = tab.content || ''
     const start = Math.max(0, Math.min(pending.start, original.length))
     const end = Math.max(start, Math.min(pending.end, original.length))
-    editorStore.updateContent(tab.id, original.substring(0, start) + content + original.substring(end))
+    const next = original.substring(0, start) + content + original.substring(end)
+    editorStore.pushUndoTransactionForTab(tab.id, original, 'api', '手动替换直写')
+    editorStore.updateContent(tab.id, next)
+    window.dispatchEvent(new CustomEvent('editor-external-change', {
+      detail: { tabId: tab.id, content: next }
+    }))
+    window.dispatchEvent(new CustomEvent('diff-locate', {
+      detail: {
+        workspace: 'main',
+        targetId: tab.id,
+        range: { start, end: Math.max(start + 1, start + (next.length - original.length)) },
+      },
+    }))
+    recordManualReplaceWrite(tab.id, original, next, 'replace_selection')
     _pendingInlineSelection.value = null
     return
   }
-  if (tab && await appConfirm.confirm({ title: '替换整章', message: '当前没有可用选区，将替换整章内容，确认继续？', confirmText: '替换', danger: true })) {
-    editorStore.updateContent(tab.id, content)
-  }
+  if (!tab || !(await appConfirm.confirm({
+    title: '替换整章',
+    message: '当前没有可用选区，将替换整章内容，确认继续？',
+    confirmText: '替换',
+    danger: true,
+  }))) return
+  const original = tab.content || ''
+  editorStore.pushUndoTransactionForTab(tab.id, original, 'api', '手动替换直写')
+  editorStore.updateContent(tab.id, content)
+  window.dispatchEvent(new CustomEvent('editor-external-change', {
+    detail: { tabId: tab.id, content }
+  }))
+  const firstChange = firstContentDifference(original, content)
+  window.dispatchEvent(new CustomEvent('diff-locate', {
+    detail: {
+      workspace: 'main',
+      targetId: tab.id,
+      range: { start: firstChange, end: Math.max(firstChange + 1, firstChange + (content.length - original.length)) },
+    },
+  }))
+  recordManualReplaceWrite(tab.id, original, content, 'replace_document')
+}
+
+function recordManualReplaceWrite(tabId: string, original: string, next: string, operation: 'replace_selection' | 'replace_document') {
+  addHomeTraceEvent({
+    type: 'manual-direct-write-applied',
+    level: 'info',
+    label: '主页手动替换已直写',
+    detail: `targetId=${tabId}; operation=${operation}`,
+    payload: {
+      targetId: tabId,
+      operation,
+      originalLength: original.length,
+      nextLength: next.length,
+    },
+    turnId: homeRunTurnId,
+  })
+  logEditorEdit({
+    requestId: `chat-manual-direct-write_${Date.now()}`,
+    workspace: 'main',
+    tabId,
+    operation: 'editor_write',
+    result: 'applied',
+    targetLength: original.length,
+    contentLength: Math.max(0, next.length - original.length),
+    durationMs: 0,
+    detail: '用户手动替换已按直写语义写入编辑器',
+  })
 }
 
 async function clearMessages() {

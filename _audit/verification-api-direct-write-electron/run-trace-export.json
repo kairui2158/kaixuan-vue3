@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 14,
-  "id": "run-1791124421476-2185",
+  "schemaVersion": 15,
+  "id": "run-1791399752110-2549",
   "source": "outline",
   "sourceName": "大纲工作台",
   "stepName": "大纲共创",
@@ -22,21 +22,21 @@
     "turns": 26
   },
   "status": "running",
-  "startedAt": 1791124421476,
+  "startedAt": 1791399752110,
   "stateHistory": [],
   "events": [
     {
-      "id": "event-1791124421477-2186",
-      "ts": 1791124421477,
+      "id": "event-1791399752110-2550",
+      "ts": 1791399752110,
       "seq": 1,
       "type": "started",
       "level": "info",
       "label": "开始大纲工作台 大纲共创运行"
     },
     {
-      "id": "event-1791124421477-2188",
-      "ts": 1791124421477,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752110-2552",
+      "ts": 1791399752110,
+      "turnId": "turn-1791399752110-2551",
       "seq": 2,
       "type": "user-request",
       "level": "info",
@@ -44,9 +44,9 @@
       "detail": "只读说明一下上下文预算状态"
     },
     {
-      "id": "event-1791124421477-2189",
-      "ts": 1791124421477,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752110-2553",
+      "ts": 1791399752110,
+      "turnId": "turn-1791399752110-2551",
       "seq": 3,
       "level": "info",
       "type": "routing-diagnostics",
@@ -54,19 +54,19 @@
       "detail": "{\"router\":{\"version\":\"v6.1\",\"layers\":[\"rule\",\"keyword\",\"embedding\",\"llm-fallback\"],\"decisionLayer\":\"rule\",\"embeddingModel\":null,\"scores\":{},\"thresholds\":{\"analyze\":0.3,\"edit\":0.34,\"generate\":0.34,\"discuss\":0.3},\"ambiguityThreshold\":0.08,\"ambiguityThresholds\":{\"analyze\":0.06,\"edit\":0.08,\"generate\":0.08,\"discuss\":0.06},\"oosThreshold\":0.24,\"thresholdSource\":\"calibrated:v6.1-phase6:79-samples:151-examples:train-dev-test:oos-audited\"}}"
     },
     {
-      "id": "event-1791124421477-2190",
-      "ts": 1791124421478,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752110-2554",
+      "ts": 1791399752110,
+      "turnId": "turn-1791399752110-2551",
       "seq": 4,
       "level": "info",
       "type": "long-document-policy",
       "label": "使用短文档工具任务策略",
-      "detail": "{\"planId\":\"long-document-mutx8go4\",\"operation\":\"discussion\",\"legacyOperationType\":\"discussion\",\"mode\":\"direct\",\"decision\":\"fits\",\"reason\":\"execution-plan-direct\",\"segments\":0,\"invariants\":[],\"estimatedPhysicalRequests\":1,\"contextWindow\":{\"status\":\"provider-declared\",\"contextWindowTokens\":5000,\"maxOutputTokens\":4096,\"effectiveInputTokens\":404},\"estimatedDocumentTokens\":23,\"outlineChars\":42,\"request\":\"只读说明一下上下文预算状态\"}"
+      "detail": "{\"planId\":\"long-document-muyh5r58\",\"operation\":\"discussion\",\"legacyOperationType\":\"discussion\",\"mode\":\"direct\",\"decision\":\"fits\",\"reason\":\"execution-plan-direct\",\"segments\":0,\"invariants\":[],\"estimatedPhysicalRequests\":12,\"contextWindow\":{\"status\":\"provider-declared\",\"contextWindowTokens\":5000,\"maxOutputTokens\":4096,\"effectiveInputTokens\":404},\"estimatedDocumentTokens\":23,\"outlineChars\":42,\"request\":\"只读说明一下上下文预算状态\"}"
     },
     {
-      "id": "event-1791124421669-2191",
-      "ts": 1791124421669,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752256-2555",
+      "ts": 1791399752256,
+      "turnId": "turn-1791399752110-2551",
       "seq": 5,
       "level": "info",
       "type": "editor-context-policy",
@@ -74,9 +74,9 @@
       "detail": "{\"targetId\":\"outline\",\"label\":\"大纲编辑器\",\"targetLength\":42,\"contentVersion\":1,\"versionSource\":\"stable_content_version\",\"selectionSource\":\"real\",\"selectionStart\":42,\"selectionEnd\":42,\"contextInjectionMode\":\"packed\",\"pipeline\":{\"stages\":[\"retrieve\",\"filter\",\"rank\",\"assemble\",\"validate\"],\"estimatedInputTokens\":130,\"availableContextTokens\":404,\"windowDeclared\":true,\"validationReason\":\"within-available-window\",\"validationValid\":true},\"historyNeutralization\":{\"neutralizedMessageCount\":0,\"markers\":{}}}"
     },
     {
-      "id": "event-1791124421670-2193",
-      "ts": 1791124421670,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752257-2557",
+      "ts": 1791399752257,
+      "turnId": "turn-1791399752110-2551",
       "seq": 6,
       "type": "api-start",
       "level": "info",
@@ -84,9 +84,9 @@
       "detail": "{\"skillName\":\"直接对话\",\"model\":\"api-direct-write-electron-model\",\"actualToolSurface\":[{\"name\":\"editor.get_state\",\"policy\":\"read\"},{\"name\":\"editor.document_map\",\"policy\":\"read\"},{\"name\":\"editor.read_range\",\"policy\":\"read\"},{\"name\":\"editor.search\",\"policy\":\"read\"},{\"name\":\"editor.locate\",\"policy\":\"read\"},{\"name\":\"editor.reveal\",\"policy\":\"read\"},{\"name\":\"editor.multi_get_state\",\"policy\":\"read\"},{\"name\":\"editor.global_search\",\"policy\":\"read\"},{\"name\":\"editor.workspace_summary\",\"policy\":\"read\"},{\"name\":\"outline.get_structure\",\"policy\":\"read\"},{\"name\":\"outline.read_range\",\"policy\":\"read\"},{\"name\":\"outline.search\",\"policy\":\"read\"},{\"name\":\"outline.get_summary\",\"policy\":\"read\"}],\"permissionDecision\":{\"source\":\"dialogue-intent\",\"decision\":\"read-only\",\"intent\":\"discuss\",\"operation\":\"discussion\",\"mode\":\"direct\",\"reason\":\"discuss/analyze intents are always read-only\"}}"
     },
     {
-      "id": "event-1791124421670-2194",
-      "ts": 1791124421670,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752257-2558",
+      "ts": 1791399752257,
+      "turnId": "turn-1791399752110-2551",
       "seq": 7,
       "type": "agent-plan",
       "level": "info",
@@ -96,9 +96,9 @@
       ]
     },
     {
-      "id": "event-1791124421670-2195",
-      "ts": 1791124421670,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752257-2559",
+      "ts": 1791399752257,
+      "turnId": "turn-1791399752110-2551",
       "seq": 8,
       "type": "agent-snapshot",
       "level": "info",
@@ -108,9 +108,9 @@
       ]
     },
     {
-      "id": "event-1791124421670-2196",
-      "ts": 1791124421670,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752257-2560",
+      "ts": 1791399752257,
+      "turnId": "turn-1791399752110-2551",
       "seq": 9,
       "level": "info",
       "type": "agent-plan",
@@ -120,18 +120,18 @@
       ]
     },
     {
-      "id": "event-1791124421670-2197",
-      "ts": 1791124421670,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752258-2561",
+      "ts": 1791399752258,
+      "turnId": "turn-1791399752110-2551",
       "seq": 10,
       "type": "agent-state",
       "level": "info",
       "label": "任务状态：running"
     },
     {
-      "id": "event-1791124421670-2198",
-      "ts": 1791124421670,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752258-2562",
+      "ts": 1791399752258,
+      "turnId": "turn-1791399752110-2551",
       "seq": 11,
       "type": "agent-snapshot",
       "level": "info",
@@ -141,18 +141,18 @@
       ]
     },
     {
-      "id": "event-1791124421670-2199",
-      "ts": 1791124421670,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752261-2563",
+      "ts": 1791399752261,
+      "turnId": "turn-1791399752110-2551",
       "seq": 12,
       "level": "info",
       "type": "agent-state",
       "label": "任务状态：running"
     },
     {
-      "id": "event-1791124421671-2200",
-      "ts": 1791124421671,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752261-2564",
+      "ts": 1791399752261,
+      "turnId": "turn-1791399752110-2551",
       "seq": 13,
       "type": "agent-state",
       "level": "info",
@@ -160,9 +160,9 @@
       "detail": "physical request dispatched"
     },
     {
-      "id": "event-1791124421671-2201",
-      "ts": 1791124421671,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752261-2565",
+      "ts": 1791399752261,
+      "turnId": "turn-1791399752110-2551",
       "seq": 14,
       "type": "agent-snapshot",
       "level": "info",
@@ -173,9 +173,9 @@
       ]
     },
     {
-      "id": "event-1791124421671-2202",
-      "ts": 1791124421671,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752261-2566",
+      "ts": 1791399752261,
+      "turnId": "turn-1791399752110-2551",
       "seq": 15,
       "level": "info",
       "type": "agent-state",
@@ -183,8 +183,8 @@
       "detail": "physical request dispatched"
     },
     {
-      "id": "event-1791124421672-2204",
-      "ts": 1791124421672,
+      "id": "event-1791399752263-2568",
+      "ts": 1791399752263,
       "seq": 16,
       "type": "run-activity",
       "level": "info",
@@ -195,9 +195,9 @@
       ]
     },
     {
-      "id": "event-1791124421672-2205",
-      "ts": 1791124421672,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752263-2569",
+      "ts": 1791399752263,
+      "turnId": "turn-1791399752110-2551",
       "seq": 17,
       "type": "long-request-in-progress",
       "level": "info",
@@ -208,9 +208,9 @@
       ]
     },
     {
-      "id": "event-1791124421672-2206",
-      "ts": 1791124421672,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752263-2570",
+      "ts": 1791399752263,
+      "turnId": "turn-1791399752110-2551",
       "seq": 18,
       "type": "physical-call",
       "level": "info",
@@ -218,8 +218,8 @@
       "detail": "normal / 直接对话 / api-direct-write-electron-model"
     },
     {
-      "id": "event-1791124421712-2207",
-      "ts": 1791124421712,
+      "id": "event-1791399752285-2571",
+      "ts": 1791399752285,
       "seq": 19,
       "type": "run-activity",
       "level": "info",
@@ -230,9 +230,9 @@
       ]
     },
     {
-      "id": "event-1791124421787-2208",
-      "ts": 1791124421787,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752323-2572",
+      "ts": 1791399752323,
+      "turnId": "turn-1791399752110-2551",
       "seq": 20,
       "type": "physical-call",
       "level": "info",
@@ -240,114 +240,161 @@
       "detail": "normal / 直接对话 / api-direct-write-electron-model / stop"
     },
     {
-      "id": "event-1791124421788-2209",
-      "ts": 1791124421788,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752324-2573",
+      "ts": 1791399752324,
+      "turnId": "turn-1791399752110-2551",
       "seq": 21,
-      "type": "agent-state",
+      "type": "agent-interactive_response",
       "level": "info",
-      "label": "任务状态：running",
-      "detail": "physical response received"
-    },
-    {
-      "id": "event-1791124421788-2210",
-      "ts": 1791124421788,
-      "turnId": "turn-1791124421477-2187",
-      "seq": 22,
-      "type": "agent-snapshot",
-      "level": "info",
-      "label": "任务快照：running",
-      "detail": "physical response received",
+      "label": "模型已给出可回复内容",
       "payloadRefs": [
         "payload-011"
       ]
     },
     {
-      "id": "event-1791124421788-2211",
-      "ts": 1791124421788,
-      "turnId": "turn-1791124421477-2187",
+      "id": "event-1791399752324-2574",
+      "ts": 1791399752324,
+      "turnId": "turn-1791399752110-2551",
+      "seq": 22,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：waiting_tool",
+      "detail": "physical request dispatched",
+      "payloadRefs": [
+        "payload-012"
+      ]
+    },
+    {
+      "id": "event-1791399752324-2575",
+      "ts": 1791399752324,
+      "turnId": "turn-1791399752110-2551",
       "seq": 23,
+      "level": "info",
+      "type": "input-unlocked-interactive-response",
+      "label": "模型已给出正文，输入已解锁",
+      "detail": "agent_interactive_response"
+    },
+    {
+      "id": "event-1791399752324-2576",
+      "ts": 1791399752324,
+      "turnId": "turn-1791399752110-2551",
+      "seq": 24,
+      "level": "info",
+      "type": "agent-interactive_response",
+      "label": "模型已给出可回复内容",
+      "payloadRefs": [
+        "payload-011"
+      ]
+    },
+    {
+      "id": "event-1791399752325-2577",
+      "ts": 1791399752325,
+      "turnId": "turn-1791399752110-2551",
+      "seq": 25,
+      "type": "agent-state",
+      "level": "info",
+      "label": "任务状态：running",
+      "detail": "physical response received"
+    },
+    {
+      "id": "event-1791399752325-2578",
+      "ts": 1791399752325,
+      "turnId": "turn-1791399752110-2551",
+      "seq": 26,
+      "type": "agent-snapshot",
+      "level": "info",
+      "label": "任务快照：running",
+      "detail": "physical response received",
+      "payloadRefs": [
+        "payload-013"
+      ]
+    },
+    {
+      "id": "event-1791399752325-2579",
+      "ts": 1791399752325,
+      "turnId": "turn-1791399752110-2551",
+      "seq": 27,
       "level": "info",
       "type": "agent-state",
       "label": "任务状态：running",
       "detail": "physical response received"
     },
     {
-      "id": "event-1791124421788-2212",
-      "ts": 1791124421788,
-      "turnId": "turn-1791124421477-2187",
-      "seq": 24,
+      "id": "event-1791399752326-2580",
+      "ts": 1791399752326,
+      "turnId": "turn-1791399752110-2551",
+      "seq": 28,
       "type": "agent-state",
       "level": "info",
       "label": "任务状态：completed",
       "detail": "completion criteria satisfied"
     },
     {
-      "id": "event-1791124421788-2213",
-      "ts": 1791124421788,
-      "turnId": "turn-1791124421477-2187",
-      "seq": 25,
+      "id": "event-1791399752327-2581",
+      "ts": 1791399752327,
+      "turnId": "turn-1791399752110-2551",
+      "seq": 29,
       "type": "agent-snapshot",
       "level": "info",
       "label": "任务快照：completed",
       "detail": "completion criteria satisfied",
       "payloadRefs": [
-        "payload-012"
+        "payload-014"
       ]
     },
     {
-      "id": "event-1791124421789-2214",
-      "ts": 1791124421789,
-      "turnId": "turn-1791124421477-2187",
-      "seq": 26,
+      "id": "event-1791399752327-2582",
+      "ts": 1791399752327,
+      "turnId": "turn-1791399752110-2551",
+      "seq": 30,
       "level": "info",
       "type": "agent-state",
       "label": "任务状态：completed",
       "detail": "completion criteria satisfied"
     },
     {
-      "id": "event-1791124421789-2215",
-      "ts": 1791124421789,
-      "turnId": "turn-1791124421477-2187",
-      "seq": 27,
+      "id": "event-1791399752349-2583",
+      "ts": 1791399752349,
+      "turnId": "turn-1791399752110-2551",
+      "seq": 31,
       "type": "api-tool-surface-updated",
       "level": "info",
       "label": "第 1 次 API 调用工具面已回填",
-      "detail": "editor.get_state,editor.document_map,editor.read_range,editor.search,editor.locate,editor.reveal,editor.multi_get_state,editor.global_search,editor.workspace_summary,outline.get_structure,outline.read_range,outline.search,outline.get_summary,context.remaining,agent.plan,agent.spawn,agent.wait,agent.cancel / read-only/dialogue-intent"
+      "detail": "editor.get_state,editor.document_map,editor.read_range,editor.search,editor.locate,editor.reveal,editor.multi_get_state,editor.global_search,editor.workspace_summary,outline.get_structure,outline.read_range,outline.search,outline.get_summary,context.remaining,agent.plan / read-only/dialogue-intent"
     },
     {
-      "id": "event-1791124421790-2216",
-      "ts": 1791124421790,
-      "turnId": "turn-1791124421477-2187",
-      "seq": 28,
+      "id": "event-1791399752350-2584",
+      "ts": 1791399752350,
+      "turnId": "turn-1791399752110-2551",
+      "seq": 32,
       "type": "state-transition",
       "level": "info",
       "label": "RunTraceStatus：running → success",
-      "detail": "apiCall=api-1791124421669-2192 seq=1"
+      "detail": "apiCall=api-1791399752257-2556 seq=1"
     },
     {
-      "id": "event-1791124421790-2217",
-      "ts": 1791124421790,
-      "turnId": "turn-1791124421477-2187",
-      "seq": 29,
+      "id": "event-1791399752351-2585",
+      "ts": 1791399752351,
+      "turnId": "turn-1791399752110-2551",
+      "seq": 33,
       "type": "api-success",
       "level": "info",
       "label": "第 1 次 API 调用完成",
       "detail": "直接对话 / api-direct-write-electron-model"
     },
     {
-      "id": "event-1791124422090-2218",
-      "ts": 1791124422090,
-      "seq": 30,
+      "id": "event-1791399752380-2586",
+      "ts": 1791399752380,
+      "seq": 34,
       "type": "turn-finished",
       "level": "info",
       "label": "第 1 轮完成",
       "detail": "plain_dialogue_complete"
     },
     {
-      "id": "event-1791124422090-2219",
-      "ts": 1791124422090,
-      "seq": 31,
+      "id": "event-1791399752380-2587",
+      "ts": 1791399752380,
+      "seq": 35,
       "type": "session-active",
       "level": "info",
       "label": "会话仍在进行",
@@ -356,8 +403,8 @@
   ],
   "apiCalls": [
     {
-      "id": "api-1791124421669-2192",
-      "turnId": "turn-1791124421477-2187",
+      "id": "api-1791399752257-2556",
+      "turnId": "turn-1791399752110-2551",
       "seq": 1,
       "skillName": "直接对话",
       "providerId": "api-direct-write-electron-provider",
@@ -487,18 +534,6 @@
         {
           "name": "agent.plan",
           "policy": "read"
-        },
-        {
-          "name": "agent.spawn",
-          "policy": "read"
-        },
-        {
-          "name": "agent.wait",
-          "policy": "read"
-        },
-        {
-          "name": "agent.cancel",
-          "policy": "read"
         }
       ],
       "requestMessages": {
@@ -512,11 +547,11 @@
         }
       },
       "status": "success",
-      "startedAt": 1791124421669,
+      "startedAt": 1791399752257,
       "physicalCalls": [
         {
-          "id": "physical-1791124421671-2203",
-          "physicalCallId": "physical-1791124421671-0",
+          "id": "physical-1791399752262-2567",
+          "physicalCallId": "physical-1791399752262-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",
@@ -537,9 +572,9 @@
             "totalTokens": 5268
           },
           "usageUnavailable": false,
-          "startedAt": 1791124421671,
-          "durationMs": 116,
-          "endedAt": 1791124421787,
+          "startedAt": 1791399752263,
+          "durationMs": 61,
+          "endedAt": 1791399752323,
           "toolsEnabled": true,
           "toolsDowngraded": false,
           "maxTokens": 4096,
@@ -552,43 +587,43 @@
             "protocolRequiredMaxTokens": 32768
           },
           "providerContextWindowTokens": 5000,
-          "estimatedInputTokens": 571,
+          "estimatedInputTokens": 560,
           "contextBudgetDecision": "fits",
-          "contextBudgetReason": "上下文可容纳：输入 571 / 可用 904",
+          "contextBudgetReason": "上下文可容纳：输入 560 / 可用 904",
           "usageReconciliation": {
             "status": "available",
-            "estimatedInputTokens": 571,
+            "estimatedInputTokens": 560,
             "actualInputTokens": 5230,
-            "driftRatio": 8.159369527145358,
-            "correctedRatio": 9.159369527145358
+            "driftRatio": 8.339285714285714,
+            "correctedRatio": 9.339285714285714
           },
           "heartbeat": false,
           "responseTextPayloadRef": "payload-002",
           "responseTextPreview": "已完成 5K 只读上下文预算抽测。"
         }
       ],
-      "lastExecutionActivityAt": 1791124421712,
-      "lastStreamActivityAt": 1791124421712,
+      "lastExecutionActivityAt": 1791399752285,
+      "lastStreamActivityAt": 1791399752285,
       "semantic": {
-        "conversationId": "run-1791124421476-2185",
-        "turnId": "turn-1791124421477-2187",
+        "conversationId": "run-1791399752110-2549",
+        "turnId": "turn-1791399752110-2551",
         "usage": {
           "inputTokens": 5230,
           "outputTokens": 38,
           "totalTokens": 5268
         },
-        "timeToFirstChunkMs": 235
+        "timeToFirstChunkMs": 175
       },
       "providerContextWindowTokens": 5000,
-      "estimatedInputTokens": 571,
+      "estimatedInputTokens": 560,
       "contextBudgetDecision": "fits",
-      "contextBudgetReason": "上下文可容纳：输入 571 / 可用 904",
+      "contextBudgetReason": "上下文可容纳：输入 560 / 可用 904",
       "usageReconciliation": {
         "status": "available",
-        "estimatedInputTokens": 571,
+        "estimatedInputTokens": 560,
         "actualInputTokens": 5230,
-        "driftRatio": 8.159369527145358,
-        "correctedRatio": 9.159369527145358
+        "driftRatio": 8.339285714285714,
+        "correctedRatio": 9.339285714285714
       },
       "finishReason": "stop",
       "usage": {
@@ -597,7 +632,7 @@
         "totalTokens": 5268
       },
       "usageUnavailable": false,
-      "durationMs": 115,
+      "durationMs": 59,
       "toolAudit": {
         "version": 1,
         "protocolVersion": 1,
@@ -605,7 +640,7 @@
         "orphanToolCallIds": [],
         "truncated": false
       },
-      "endedAt": 1791124421789,
+      "endedAt": 1791399752349,
       "responseTextPayloadRef": "payload-002",
       "responseTextPreview": "已完成 5K 只读上下文预算抽测。"
     }
@@ -613,9 +648,9 @@
   "sessionKind": "chat",
   "turns": [
     {
-      "id": "turn-1791124421477-2187",
+      "id": "turn-1791399752110-2551",
       "seq": 1,
-      "startedAt": 1791124421477,
+      "startedAt": 1791399752110,
       "status": "success",
       "userRequest": "只读说明一下上下文预算状态",
       "skillNames": [],
@@ -739,8 +774,8 @@
         }
       ],
       "reason": "plain_dialogue_complete",
-      "endedAt": 1791124422090,
-      "durationMs": 613
+      "endedAt": 1791399752380,
+      "durationMs": 270
     }
   ],
   "promptSnapshots": [],
@@ -750,11 +785,11 @@
       "id": "payload-001",
       "kind": "request",
       "file": "001-request.json",
-      "bytes": 3999,
-      "chars": 2703,
-      "sha256": "68d0fe610ac0191a5aba4197cb9748364c80276bbe0ad19e3627ec1d04af3b28",
+      "bytes": 3937,
+      "chars": 2691,
+      "sha256": "e4d26324bfd9fd40b92cc301f79912a4b6ea1a9aad1c5685b5f4c9c2ccdba263",
       "duplicateCount": 2,
-      "createdAt": 1791124422699
+      "createdAt": 1791399752912
     },
     {
       "id": "payload-002",
@@ -764,7 +799,7 @@
       "chars": 17,
       "sha256": "18d8d9208c564a70b561763c9b243ff8934fe6c0430478640667c6537487291f",
       "duplicateCount": 2,
-      "createdAt": 1791124422699
+      "createdAt": 1791399752912
     },
     {
       "id": "payload-003",
@@ -774,7 +809,7 @@
       "chars": 17,
       "sha256": "18d8d9208c564a70b561763c9b243ff8934fe6c0430478640667c6537487291f",
       "duplicateCount": 2,
-      "createdAt": 1791124422699
+      "createdAt": 1791399752912
     },
     {
       "id": "payload-004",
@@ -784,37 +819,37 @@
       "chars": 167,
       "sha256": "cc6330ef27f66a1eadafefa34d70f8c2279e38e3946d97e9939adb594b808b2c",
       "duplicateCount": 2,
-      "createdAt": 1791124422699
+      "createdAt": 1791399752912
     },
     {
       "id": "payload-005",
       "kind": "agent-event",
       "file": "005-agent-event.json",
-      "bytes": 346,
-      "chars": 320,
-      "sha256": "9afab534ceea6413f20e8d0e14793c9dc900da82f5cb392e7b6fa8174da36c15",
+      "bytes": 347,
+      "chars": 321,
+      "sha256": "9ff03d58ffcf39607f8c79ca252c6c4acfa3c763bc2182f6214eec49cc5604e2",
       "duplicateCount": 1,
-      "createdAt": 1791124422699
+      "createdAt": 1791399752912
     },
     {
       "id": "payload-006",
       "kind": "agent-event",
       "file": "006-agent-event.json",
-      "bytes": 345,
-      "chars": 319,
-      "sha256": "1b971d22d951235f501a550ad1d12650b44822dce3656a5cca30ee5a08399bca",
+      "bytes": 346,
+      "chars": 320,
+      "sha256": "03e1193ff258cfc3a6522ee7011e8e34fbd3180d40067590c339fac4c7b09780",
       "duplicateCount": 1,
-      "createdAt": 1791124422699
+      "createdAt": 1791399752912
     },
     {
       "id": "payload-007",
       "kind": "agent-event",
       "file": "007-agent-event.json",
-      "bytes": 395,
-      "chars": 369,
-      "sha256": "1e0231333ae4bc17a850a18da3e2ff34c52c713cbce26838145eff5cb9572964",
+      "bytes": 396,
+      "chars": 370,
+      "sha256": "5aedb957a896cec5d5bd292f295555734b6708074e2bc2b478ea531b17788f13",
       "duplicateCount": 1,
-      "createdAt": 1791124422699
+      "createdAt": 1791399752912
     },
     {
       "id": "payload-008",
@@ -824,7 +859,7 @@
       "chars": 61,
       "sha256": "59eaa9e903f20d3e3d7791d3357f2aa19224db60862306f6469659587f409c49",
       "duplicateCount": 1,
-      "createdAt": 1791124422699
+      "createdAt": 1791399752912
     },
     {
       "id": "payload-009",
@@ -832,9 +867,9 @@
       "file": "009-agent-event.json",
       "bytes": 87,
       "chars": 87,
-      "sha256": "46e2e59d8f305ff13ce9540efab1e686b27a3203ef5751b77a1411755c8e7d4f",
+      "sha256": "99e979f46d8800b5d4b8c401a1648aec248cfeec04cd4926e9dd5ac46e7d0544",
       "duplicateCount": 1,
-      "createdAt": 1791124422699
+      "createdAt": 1791399752912
     },
     {
       "id": "payload-010",
@@ -844,35 +879,55 @@
       "chars": 55,
       "sha256": "858789c38410963859b64d352a3cfd72097208433b5e2227d6356672913542dc",
       "duplicateCount": 1,
-      "createdAt": 1791124422699
+      "createdAt": 1791399752912
     },
     {
       "id": "payload-011",
       "kind": "agent-event",
       "file": "011-agent-event.json",
-      "bytes": 389,
-      "chars": 363,
-      "sha256": "0ae031a71c0b0f7f53a8120bb6fa499b00680144f118073a703a4d0c26dd1d67",
-      "duplicateCount": 1,
-      "createdAt": 1791124422699
+      "bytes": 141,
+      "chars": 115,
+      "sha256": "3d28b7a2679bc7c53120e9afa3ec9f0749f72feccc4a061c570257861be7b700",
+      "duplicateCount": 2,
+      "createdAt": 1791399752912
     },
     {
       "id": "payload-012",
       "kind": "agent-event",
       "file": "012-agent-event.json",
-      "bytes": 394,
-      "chars": 368,
-      "sha256": "7d9c444a514784ff75421e51fd27343d6c422ce94c03ad11074e7bf8e8f41d3c",
+      "bytes": 396,
+      "chars": 370,
+      "sha256": "01b170defc955d4d9e874d12fbf461f11e122a96970ef45deb93f15aebe0fc93",
       "duplicateCount": 1,
-      "createdAt": 1791124422699
+      "createdAt": 1791399752912
+    },
+    {
+      "id": "payload-013",
+      "kind": "agent-event",
+      "file": "013-agent-event.json",
+      "bytes": 390,
+      "chars": 364,
+      "sha256": "fb6a06cf12c51d2c891db8dec9b0e78357e2ee46d07eb131beed065e9aebbf91",
+      "duplicateCount": 1,
+      "createdAt": 1791399752912
+    },
+    {
+      "id": "payload-014",
+      "kind": "agent-event",
+      "file": "014-agent-event.json",
+      "bytes": 395,
+      "chars": 369,
+      "sha256": "eac1c1e5d8ee332f1566aa8da2419dc2d618cbe4ac8e100ed0af13d993756880",
+      "duplicateCount": 1,
+      "createdAt": 1791399752912
     }
   ],
   "resultPreview": "已完成 5K 只读上下文预算抽测。",
   "sessionSnapshot": true,
   "apiResponseIndex": [
     {
-      "apiCallId": "api-1791124421669-2192",
-      "turnId": "turn-1791124421477-2187",
+      "apiCallId": "api-1791399752257-2556",
+      "turnId": "turn-1791399752110-2551",
       "seq": 1,
       "status": "success",
       "response": {
@@ -892,7 +947,7 @@
       },
       "physicalCalls": [
         {
-          "physicalCallId": "physical-1791124421671-0",
+          "physicalCallId": "physical-1791399752262-0",
           "seq": 1,
           "phase": "normal",
           "status": "success",

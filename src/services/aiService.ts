@@ -62,6 +62,7 @@ import {
   summarizeLongDocumentWriteCoverage,
 } from './longDocumentWriteCoverage'
 import { getToolLoopPolicy, normalizeToolIterations } from './toolLoopPolicy'
+import { compactToolContextMessages } from './toolContextCompactor'
 import {
   buildEditorWriteProtocolPrompt,
   parseEditorWriteProtocol,
@@ -200,6 +201,8 @@ export interface CallAiParams {
   retry?: boolean
   /** @internal Suppresses tool-protocol-looking stream output for tool-related convergence requests. */
   suppressToolProtocolStream?: boolean
+  /** @internal Number of older successful read tool results compacted for this physical request. */
+  contextCompactedMessageCount?: number
   /** @internal Used by tool-loop and downgrade wrappers to classify physical requests. */
   physicalPhase?: PhysicalCallEvent['phase']
   /** @internal Wraps the caller's onChunk to capture per-request stream deltas. */
@@ -259,6 +262,8 @@ export interface PhysicalCallEvent {
   heartbeat?: boolean
   /** Stable classification for transport interruptions delegated to a task layer. */
   interruptionCode?: 'slow_stream_interrupted'
+  /** Number of older successful read tool results compacted for this physical request. */
+  contextCompactedMessageCount?: number
 }
 
 export interface CallAiResult {
@@ -291,6 +296,8 @@ export interface CallAiResult {
   contextBudget?: ContextBudgetResult
   /** Reconciles estimated input tokens against provider-reported usage. */
   usageReconciliation?: UsageReconciliation
+  /** Total older successful read tool results compacted during native tool rounds. */
+  contextCompactedMessageCount?: number
   retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
   /** Effective max_tokens after overrides, provider defaults, or a 400 downgrade. */
   maxTokens?: number | null
@@ -451,6 +458,51 @@ export function judgeConvergenceText(input: { text?: string | null }): Convergen
   return { kind: 'usable', text }
 }
 
+export type UserHandoffVerdict =
+  | { kind: 'none' }
+  | { kind: 'legacy_preview_response' }
+  | { kind: 'needs_user_handoff' }
+
+const LEGACY_PREVIEW_HANDOFF_MARKERS = [
+  /【(?:修改预览|写回状态|批准写回|写入未执行)】/,
+  /^#{2,6}\s*(?:修改预览|批准写回|写入未执行)\s*$/im,
+  /\bstatus\s*:\s*pending\b/i,
+  /\bawait_user\s*:\s*true\b/i,
+  /等待(?:你|用户|作者)?(?:确认|批准|批准写回)/,
+]
+
+const USER_HANDOFF_QUESTION_MARKERS = [
+  /(?:是否|要不要|需要我|请(?:确认|选择|回复|告诉我)|你(?:希望|想要|倾向)|等(?:你|用户|作者)?(?:确认|回复|选择))/,
+  /[？?]\s*$/,
+]
+
+export function detectUserHandoffResponse(input: {
+  text?: string | null
+  executionPlan?: LongDocumentExecutionPlan | null
+  hasSuccessfulWrite?: boolean
+}): UserHandoffVerdict {
+  const text = String(input?.text || '').trim()
+  if (!text) return { kind: 'none' }
+  const executionPlan = input.executionPlan || null
+  const writeTaskIncomplete = Boolean(executionPlan
+    && executionPlan.mode !== 'final-draft'
+    && executionPlan.operation !== 'discussion'
+    && !input.hasSuccessfulWrite)
+
+  if (LEGACY_PREVIEW_HANDOFF_MARKERS.some(pattern => pattern.test(text))) {
+    return { kind: 'legacy_preview_response' }
+  }
+
+  // Only a write task that has not produced a successful write may stop on a
+  // user question. A completed write followed by a question is normal prose.
+  if (writeTaskIncomplete) {
+    const asksUser = USER_HANDOFF_QUESTION_MARKERS.some(pattern => pattern.test(text))
+    const requestsChoice = /(?:二选一|两个方案|几个选项|选择[：:])/i.test(text)
+    if (asksUser || requestsChoice) return { kind: 'needs_user_handoff' }
+  }
+  return { kind: 'none' }
+}
+
 /**
  * M72 single-source guard: keeps tool-call protocol text out of UI streams on
  * every tool-related path (native tools, compatibility JSON, and downgrade).
@@ -550,11 +602,13 @@ function hasModelCorrectableToolFailure(
 
 const TERMINAL_WRITE_FAILURE_CODES = new Set([
   'permission_denied',
-  'document_too_large_for_whole_replacement',
   'invariant_violation',
   'write_target_mismatch',
   'final_draft_mode_active',
 ])
+
+const WHOLE_DOCUMENT_REPLACEMENT_CODE = 'document_too_large_for_whole_replacement'
+const WHOLE_DOCUMENT_REPLACEMENT_VIOLATION_LIMIT = 2
 
 function findTerminalWriteFailure(
   results: Array<{ call: NormalizedToolCall; result: ToolResult }>,
@@ -2123,6 +2177,7 @@ export function createAiService(
     )
     const sharedPhysicalBudget = params.toolPolicy?.consumePhysicalRequestBudget
     let messages: CallAiParams['messages'] = params.messages.map(message => ({ ...message }))
+    let contextCompactedMessageCount = 0
     const allToolCalls: NormalizedToolCall[] = []
     const allToolResults: Array<{ call: NormalizedToolCall; result: ToolResult }> = []
     const toolRequestDeltas: CallAiParams['messages'] = []
@@ -2133,8 +2188,12 @@ export function createAiService(
     let writeContinuationSteeringSent = false
     let steerAfterToolResults = false
     let lastRoundToolResults: Array<{ call: NormalizedToolCall; result: ToolResult }> = []
+    let successfulWriteProgressCount = 0
+    let consecutiveNoWriteProgressRounds = 0
     let consecutiveInvalidInputRounds = 0
     let invalidInputLoopSignature = ''
+    let wholeDocumentReplacementViolations = 0
+    let wholeDocumentSteeringSent = false
     const zeroTextWarnThreshold = 2
     const readOnlyConvergenceThreshold = 2
     const invalidInputConvergenceThreshold = 3
@@ -2228,9 +2287,16 @@ export function createAiService(
           convergenceReason: 'shared physical request budget exhausted during tool iteration',
         }
       }
+      const contextCompaction = compactToolContextMessages(messages)
+      contextCompactedMessageCount += contextCompaction.compactedMessageCount
+      if (contextCompaction.compactedMessageCount > 0) {
+        params.toolPolicy?.onToolWarning?.(
+          `第 ${iteration} 轮工具请求已压缩 ${contextCompaction.compactedMessageCount} 条历史读取结果；原文保留在运行记录`,
+        )
+      }
       const response = await callAiWithoutTools({
         ...params,
-        messages,
+        messages: contextCompaction.messages,
         tools: effectiveTools,
         retry: params.retry,
         jsonMode: false,
@@ -2240,6 +2306,9 @@ export function createAiService(
         timeoutMs: params.timeoutMs,
         physicalPhase: iteration === 1 ? 'normal' : 'tool_iteration',
       })
+      if (contextCompaction.compactedMessageCount > 0) {
+        response.contextCompactedMessageCount = contextCompaction.compactedMessageCount
+      }
       lastResult = response
       lastRawResponse = response.raw ?? null
       if (iteration === 1) {
@@ -2263,6 +2332,48 @@ export function createAiService(
           actualToolSurface: (effectiveTools || []).map(tool => ({ name: tool.name, policy: tool.policy })),
         })
         reportToolAuditDiagnostics(lastToolAudit)
+        const executionPlan = params.toolPolicy?.executionPlan
+        const coverageSummary = executionPlan
+          ? summarizeLongDocumentWriteCoverage({
+            plan: executionPlan,
+            coverageRecords: collectLongDocumentWriteCoverage(allToolResults),
+            toolResults: allToolResults,
+          })
+          : null
+        const successfulWriteCount = coverageSummary?.successfulWriteCount ?? allToolResults.filter(item =>
+          item.result.ok
+          && String(item.call.name).startsWith('editor.write')).length
+        const handoffVerdict = detectUserHandoffResponse({
+          text: response.text,
+          executionPlan,
+          hasSuccessfulWrite: successfulWriteCount > 0,
+        })
+        if (handoffVerdict.kind !== 'none') {
+          const legacyHandoff = handoffVerdict.kind === 'legacy_preview_response'
+          const convergenceReason = legacyHandoff
+            ? 'model followed the removed preview state machine instead of using editor.write'
+            : 'model asked the user a question before completing the write plan'
+          params.toolPolicy?.onToolWarning?.(
+            legacyHandoff
+              ? '模型输出了已删除的修改预览协议；保留原文并停止物理请求'
+              : '模型向用户交接了未完成的写入任务；保留问题并停止物理请求',
+          )
+          return {
+            ...response,
+            toolCalls: allToolCalls,
+            toolResults: allToolResults,
+            toolRequestDeltas,
+            toolAudit: lastToolAudit,
+            contextBudget,
+            contextCompactedMessageCount,
+            usageReconciliation: buildUsageReconciliation({
+              estimatedInputTokens: contextBudget.estimatedInputTokens,
+              usage: response.usage,
+            }),
+            finishReason: handoffVerdict.kind,
+            convergenceReason,
+          }
+        }
         const finalVerdict = judgeConvergenceText(response)
         if (allToolCalls.length > 0 && finalVerdict.kind === 'pseudo_tool_call') {
           params.toolPolicy?.onConvergencePseudoCall?.({
@@ -2287,17 +2398,33 @@ export function createAiService(
           lastResult = convergence
           return convergence
         }
-        const executionPlan = params.toolPolicy?.executionPlan
-        const coverageSummary = executionPlan
-          ? summarizeLongDocumentWriteCoverage({
-            plan: executionPlan,
-            coverageRecords: collectLongDocumentWriteCoverage(allToolResults),
+        // A forbidden whole-document replacement is a terminal safety decision.
+        // If the model stops calling tools and explains that decision to the
+        // user, the correct next action is user choice, not another physical
+        // continuation request that re-sends the same oversized document.
+        const wholeDocumentReplacementRejected = wholeDocumentSteeringSent
+          && wholeDocumentReplacementViolations > 0
+          && successfulWriteCount === 0
+        if (wholeDocumentReplacementRejected && finalVerdict.kind !== 'pseudo_tool_call') {
+          params.toolPolicy?.onToolWarning?.(
+            `整篇替换被拒后模型已停止调用工具；已停止物理请求，保留用户决策权`,
+          )
+          return {
+            ...response,
+            toolCalls: allToolCalls,
             toolResults: allToolResults,
-          })
-          : null
-        const successfulWriteCount = coverageSummary?.successfulWriteCount ?? allToolResults.filter(item =>
-          item.result.ok
-          && String(item.call.name).startsWith('editor.write')).length
+            toolRequestDeltas,
+            toolAudit: lastToolAudit,
+            contextBudget,
+            contextCompactedMessageCount,
+            usageReconciliation: buildUsageReconciliation({
+              estimatedInputTokens: contextBudget.estimatedInputTokens,
+              usage: response.usage,
+            }),
+            finishReason: 'tool_converged',
+            convergenceReason: `terminal write failure: ${WHOLE_DOCUMENT_REPLACEMENT_CODE}`,
+          }
+        }
         const planRequiresMoreWrites = Boolean(coverageSummary
           && executionPlan
           && executionPlan.mode === 'edit-task'
@@ -2348,6 +2475,7 @@ export function createAiService(
           toolRequestDeltas,
           toolAudit: lastToolAudit,
           contextBudget,
+          contextCompactedMessageCount,
           usageReconciliation: buildUsageReconciliation({
             estimatedInputTokens: contextBudget.estimatedInputTokens,
             usage: response.usage,
@@ -2654,6 +2782,39 @@ export function createAiService(
 
       const previousMessageCount = messages.length
       lastRoundToolResults = toolResults
+      if (params.toolPolicy?.executionPlan?.mode === 'edit-task') {
+        const successfulWritesThisRound = toolResults.filter(item =>
+          item.result.ok && String(item.call.name).startsWith('editor.write')).length
+        if (successfulWritesThisRound > 0) {
+          successfulWriteProgressCount += successfulWritesThisRound
+          consecutiveNoWriteProgressRounds = 0
+        } else if (successfulWriteProgressCount > 0) {
+          consecutiveNoWriteProgressRounds += 1
+        }
+        if (consecutiveNoWriteProgressRounds >= 2) {
+          params.toolPolicy?.onToolWarning?.(
+            `长文档编辑任务已连续 ${consecutiveNoWriteProgressRounds} 轮没有新增写入；已停止物理请求并保留检查点`,
+          )
+          return {
+            text: `本轮未完整执行写入计划：模型已连续 2 轮无新增写入。已执行的写入与工具结果已保存到运行记录，请继续剩余批次。`,
+            textOrigin: 'application' as const,
+            reasoning: '',
+            usage: lastResult?.usage,
+            usageUnavailable: !lastResult?.usage,
+            providerId,
+            model,
+            durationMs: Date.now() - startTime,
+            toolCalls: allToolCalls,
+            toolResults: allToolResults,
+            toolRequestDeltas,
+            toolAudit: lastToolAudit,
+            contextBudget,
+            contextCompactedMessageCount,
+            finishReason: 'no_write_progress',
+            convergenceReason: 'two consecutive edit-task rounds added no write progress',
+          }
+        }
+      }
       const invalidInputResults = toolResults.filter(item =>
         item.result.ok === false && item.result.error?.code === 'invalid_input')
       if (invalidInputResults.length > 0) {
@@ -2675,6 +2836,16 @@ export function createAiService(
         params.toolPolicy?.onToolWarning?.(
           `模型连续 ${consecutiveInvalidInputRounds} 轮相同参数校验失败；已停止工具循环并要求直接说明失败原因`,
         )
+      }
+      const wholeDocumentReplacementFailure = toolResults.find(item =>
+        item.call.name === 'editor.write'
+        && item.result.ok === false
+        && item.result.error?.code === WHOLE_DOCUMENT_REPLACEMENT_CODE)
+      if (wholeDocumentReplacementFailure) {
+        wholeDocumentReplacementViolations += 1
+      } else {
+        wholeDocumentReplacementViolations = 0
+        wholeDocumentSteeringSent = false
       }
       messages = buildToolResultChatMessages(
         providerType,
@@ -2702,6 +2873,22 @@ export function createAiService(
         toolRequestDeltas.push({ ...steeringSystem })
         steerAfterToolResults = false
       }
+      if (wholeDocumentReplacementFailure && !wholeDocumentSteeringSent) {
+        wholeDocumentSteeringSent = true
+        const steeringSystem = {
+          role: 'system' as const,
+          content: [
+            `上一轮 editor.write 被拒绝（${WHOLE_DOCUMENT_REPLACEMENT_CODE}）：当前长文档计划禁止整篇替换。`,
+            '下一轮必须继续使用受限局部命令：reorder_sections、replace_match、rewrite、delete_match、insert_after。禁止使用 replace_document 或再次提交整篇内容。',
+            '必须基于已读取的文档与计划批次继续执行；如果无法继续，停止调用工具并说明缺失信息。',
+          ].join('\n'),
+        }
+        messages = [...messages, steeringSystem]
+        toolRequestDeltas.push({ ...steeringSystem })
+        params.toolPolicy?.onToolWarning?.(
+          `editor.write 拒绝整篇替换；已保留工具面并要求下一轮改用受限局部命令`,
+        )
+      }
       if (hitInvalidInputConvergence) {
         const convergence = await requestToolConvergence({
           reason: 'repeated identical invalid tool inputs',
@@ -2717,6 +2904,35 @@ export function createAiService(
           toolRequestDeltas,
           lastToolAudit,
         })
+        return convergence
+      }
+      if (wholeDocumentReplacementFailure
+        && wholeDocumentReplacementViolations >= WHOLE_DOCUMENT_REPLACEMENT_VIOLATION_LIMIT) {
+        const errorCode = wholeDocumentReplacementFailure.result.error?.code || 'unknown'
+        const errorMessage = wholeDocumentReplacementFailure.result.error?.message || '写入被拒绝'
+        params.toolPolicy?.onToolWarning?.(
+          `editor.write 连续 ${wholeDocumentReplacementViolations} 次违反整篇替换禁令；已停止工具循环并要求模型直接说明原因`,
+        )
+        const convergence = await requestToolConvergence({
+          reason: `terminal write failure: ${errorCode}`,
+          systemPrompt: [
+            `上一次 editor.write 已被应用终态拒绝，错误码：${errorCode}。`,
+            `拒绝原因：${errorMessage}`,
+            `此前已明确要求禁止整篇 replace_document，模型仍连续 ${wholeDocumentReplacementViolations} 次尝试同类写入。`,
+            '当前请求不携带任何工具。禁止再次调用工具、输出工具协议或提出新的执行计划；直接向用户说明已写入内容、未完成批次、被拒绝的操作，以及用户可以采取的下一步操作。',
+          ].join('\n'),
+          params,
+          messages,
+          startTime,
+          providerId,
+          model,
+          lastResult,
+          allToolCalls,
+          allToolResults,
+          toolRequestDeltas,
+          lastToolAudit,
+        })
+        lastResult = convergence
         return convergence
       }
       const terminalWriteFailure = findTerminalWriteFailure(toolResults)
@@ -2789,6 +3005,7 @@ export function createAiService(
       toolAudit: lastToolAudit,
       finishReason: hitToolLoopLimit ? 'tool_loop_limit' : (lastResult?.finishReason || 'tool_loop_limit'),
       contextBudget,
+      contextCompactedMessageCount,
       usageReconciliation: buildUsageReconciliation({
         estimatedInputTokens: contextBudget.estimatedInputTokens,
         usage: lastResult?.usage,
@@ -3121,6 +3338,7 @@ export function createAiService(
           maxTokens: result?.maxTokens ?? effectiveMaxTokens(),
           modelCapability,
           contextBudget,
+          contextCompactedMessageCount: params.contextCompactedMessageCount,
           usageReconciliation: buildUsageReconciliation({
             estimatedInputTokens: contextBudget.estimatedInputTokens,
             usage: result?.usage,

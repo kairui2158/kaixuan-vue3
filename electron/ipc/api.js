@@ -7,6 +7,18 @@ const {
 
 const activeStreams = new Map()
 const PROVIDER_NET_STREAM_IDLE_TIMEOUT_MS = Number(process.env.SHENYI_PROVIDER_NET_STREAM_IDLE_TIMEOUT_MS || 15 * 60_000)
+const providerNetLog = process.env.SHENYI_PROVIDER_NET_TRACE === '1'
+  ? require('electron-log/main')
+  : null
+
+function traceProviderNet(event, message, detail) {
+  if (!providerNetLog) return
+  try {
+    providerNetLog.info('provider-net-trace: ' + event + ' ' + message + ' ' + JSON.stringify(detail || {}))
+  } catch (e) {
+    providerNetLog.warn('provider-net-trace-failed: ' + (e && e.message))
+  }
+}
 
 function errorKindForStatus(statusCode) {
   if (statusCode === 401 || statusCode === 403) return 'auth'
@@ -79,6 +91,14 @@ function registerProviderNetHandlers(ipc) {
   })
 
   ipc.handle('providerNet:stream', async function(event, request) {
+    traceProviderNet(event.sender.id, 'entry', {
+      signalId: request && request.signalId,
+      url: request && request.url,
+      slowStreamTolerant: Boolean(request && request.slowStreamTolerant),
+      messageCount: request && request.body && Array.isArray(request.body.messages)
+        ? request.body.messages.length
+        : null,
+    })
     if (!request || typeof request.url !== 'string') {
       return { ok: false, kind: 'http', message: '请求缺少有效 URL' }
     }
@@ -118,6 +138,10 @@ function registerProviderNetHandlers(ipc) {
         event: 'start',
         statusCode: response.status,
       })
+      traceProviderNet(event.sender.id, 'start', {
+        signalId,
+        statusCode: response.status,
+      })
       const decoder = new TextDecoder()
       const reader = response.body.getReader()
       const armIdleTimer = () => {
@@ -138,10 +162,20 @@ function registerProviderNetHandlers(ipc) {
           event: 'chunk',
           text: decoder.decode(chunk.value, { stream: true }),
         })
+        traceProviderNet(event.sender.id, 'chunk', {
+          signalId,
+          bytes: chunk.value ? chunk.value.byteLength : 0,
+        })
       }
       event.sender.send('providerNet:streamChunk', { signalId, event: 'end' })
+      traceProviderNet(event.sender.id, 'end', { signalId })
       return { ok: true, statusCode: response.status }
     } catch (e) {
+      traceProviderNet(event.sender.id, 'error', {
+        signalId,
+        name: e && e.name,
+        message: e && e.message,
+      })
       if (e.name === 'AbortError') {
         if (idleTimedOut) {
           event.sender.send('providerNet:streamChunk', {

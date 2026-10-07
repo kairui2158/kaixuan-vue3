@@ -1,5 +1,7 @@
 import { CONTEXT_BUDGET_DEFAULTS, estimateInputTokens } from './contextBudget'
+import { type DocumentTransformOperation, transformDocument } from './documentTransformService'
 import type { LongDocumentOperationType } from './longDocumentPolicy'
+import { calculateLongDocumentPhysicalRequestBudget } from './longDocumentWriteProtocol'
 import { parseOutlineStructure } from './outlineStructure'
 
 type PlannerIntent = 'analyze' | 'edit' | 'generate' | 'discuss' | 'auto'
@@ -14,7 +16,7 @@ export type LongDocumentExecutionOperation =
   | 'rewrite_segments'
   | 'discussion'
 
-export type LongDocumentExecutionMode = 'direct' | 'edit-task' | 'final-draft'
+export type LongDocumentExecutionMode = 'direct' | 'edit-task' | 'final-draft' | 'local-transform'
 
 export type LongDocumentExecutionDecision =
   | 'fits'
@@ -77,6 +79,7 @@ export interface LongDocumentExecutionPlan {
   estimatedPhysicalRequests: number
   progressLabel: string
   finalDraft: boolean
+  localTransformOperations: DocumentTransformOperation[] | null
   finalDraftPlan: {
     sourceChars: number
     instruction: string
@@ -106,10 +109,74 @@ export interface LongDocumentExecutionPlannerInput {
   }
 }
 
+export function resolveLocalTransformOperations(
+  operation: LongDocumentExecutionOperation,
+  requestText: string,
+): DocumentTransformOperation[] | null {
+  if (operation === 'normalize') {
+    if (NORMALIZE_HEADING_PATTERN.test(requestText)) return null
+    const operations: DocumentTransformOperation[] = []
+    if (/(标点|符号)/.test(requestText)) operations.push('normalize_punctuation')
+    if (/(空行|空白行)/.test(requestText)) operations.push('normalize_blank_lines')
+    if (/编号/.test(requestText)) operations.push('normalize_numbering')
+    if (WORD_FORMAT_RESTRUCTURE_PATTERN.test(requestText)) operations.push('word_layout_normalize')
+    return operations.length ? operations : null
+  }
+  if (operation === 'restructure') return ['reorder_sections']
+  if (operation === 'deduplicate') return ['remove_exact_duplicates']
+  const collectCleanupOperations = (): DocumentTransformOperation[] => {
+    const operations: DocumentTransformOperation[] = []
+    if (/(标点|符号)/.test(requestText)) operations.push('normalize_punctuation')
+    if (/(空行|空白行)/.test(requestText)) operations.push('normalize_blank_lines')
+    if (/编号/.test(requestText)) operations.push('normalize_numbering')
+    return operations
+  }
+  if (operation === 'deduplicate_and_normalize') {
+    return ['remove_exact_duplicates', ...collectCleanupOperations()]
+  }
+  if (operation === 'restructure_and_cleanup') {
+    return ['reorder_sections', ...collectCleanupOperations()]
+  }
+  if (operation === 'targeted_edit') return null
+  if (operation === 'rewrite_segments') return null
+  if (operation === 'discussion') return null
+  if (WORD_FORMAT_RESTRUCTURE_PATTERN.test(requestText)) return ['word_layout_normalize']
+  return null
+}
+
+export function isLocalTransformCandidate(
+  operation: LongDocumentExecutionOperation,
+  requestText: string,
+): boolean {
+  return resolveLocalTransformOperations(operation, requestText) !== null
+}
+
+export function canExecuteLocalTransform(input: {
+  operation: LongDocumentExecutionOperation
+  requestText: string
+  content: string
+}): boolean {
+  const operations = resolveLocalTransformOperations(input.operation, input.requestText)
+  if (!operations) return false
+  const needsDeduplicate = hasDeduplicateIntent(input.requestText)
+  if (needsDeduplicate && !operations.includes('remove_exact_duplicates')) return false
+  if (needsDeduplicate) {
+    // Similar-but-different repeats need model judgment. Local execution is
+    // allowed only when exact duplicate sections actually exist.
+    const deduplicateTrial = transformDocument({
+      content: input.content,
+      operations: ['remove_exact_duplicates'],
+    })
+    if (deduplicateTrial.outcome !== 'completed') return false
+  }
+  const trial = transformDocument({ content: input.content, operations })
+  return trial.outcome === 'completed'
+}
+
 const RESTRUCTURE_PATTERN = /(重排|排序|重新整理排序|整理排序|统一编号|统一格式|调整顺序)/
 const RESTRUCTURE_ALIAS_PATTERN = /(重构|重新组织|Word文档|word文档|WORD文档)/
 const WORD_FORMAT_RESTRUCTURE_PATTERN = /(?:Word|word|WORD)文档(?:的)?(?:形式|格式|样式|排版|结构)/
-const NORMALIZE_PATTERN = /(标点|格式整理|整理.*格式|符号|排版)/
+const NORMALIZE_PATTERN = /(标点|格式整理|整理.*格式|符号|排版|空行|空白行|编号.*统一|统一.*编号|编号.*一致|一致.*编号)/
 const DEDUPLICATE_PATTERN = /(重复项|重复的|重复内容|重复章节|去重|删.*重复|重复.*删)/
 const DEDUPLICATE_NEGATED_CONTEXT_PATTERN = /(未|不|没(?:有)?|无|非)重复/g
 const NORMALIZE_HEADING_PATTERN = /(标题层级|编号.*标点|标点.*编号)/
@@ -130,6 +197,17 @@ function classifyOperation(requestText: string): LongDocumentExecutionOperation 
   if (NORMALIZE_PATTERN.test(text)) return 'normalize'
   if (TARGETED_EDIT_PATTERN.test(text)) return 'targeted_edit'
   return 'discussion'
+}
+
+function hasCompoundCleanupIntent(text: string): boolean {
+  // Numbering-only wording often describes structural ordering, not format
+  // cleanup. Require an explicit cleanup dimension before the lexical path
+  // grants compound-write semantics without a routed intent.
+  return hasRestructureIntent(text)
+    && (
+      /(标点|符号|空行|空白行)/.test(text)
+      || hasDeduplicateIntent(text)
+    )
 }
 
 function isReadOnlyIntent(intent: PlannerIntent): boolean {
@@ -195,6 +273,12 @@ function resolveOperation(
     }
   }
   const classified = classifiedForIntent
+  if (classified === 'restructure' && hasCompoundCleanupIntent(input.requestText)) {
+    return {
+      operation: 'restructure_and_cleanup',
+      resolution: { source: 'lexical', matched: 'restructure_and_cleanup' },
+    }
+  }
   if (classified === 'deduplicate' && hasNormalizeIntent(input.requestText)) {
     return {
       operation: 'deduplicate_and_normalize',
@@ -258,9 +342,12 @@ function classifyWritableOperation(requestText: string): LongDocumentExecutionOp
 function resolveExecutionMode(input: {
   operation: LongDocumentExecutionOperation
   decision: LongDocumentExecutionDecision
+  requestText: string
+  content: string
 }): LongDocumentExecutionMode {
   if (input.operation === 'discussion') return 'direct'
   if (input.operation === 'rewrite_segments') return 'final-draft'
+  if (canExecuteLocalTransform(input)) return 'local-transform'
   if (input.operation === 'targeted_edit') {
     return input.decision === 'fits' || input.decision === 'provider_configuration_conflict'
       ? 'direct'
@@ -314,6 +401,10 @@ export function toLongDocumentOperationType(
   if (operation === 'normalize' || operation === 'deduplicate'
     || operation === 'deduplicate_and_normalize') return 'large-scope-edit'
   return 'targeted-edit'
+}
+
+export function calculateLocalTransformPhysicalRequests(): 0 {
+  return 0
 }
 
 function resolveWindow(input: LongDocumentExecutionPlannerInput): LongDocumentExecutionPlannerWindow {
@@ -427,6 +518,7 @@ function buildSegments(input: {
   content: string
   effectiveInputTokens: number
 }): LongDocumentExecutionPlanSegment[] {
+  if (input.mode === 'local-transform') return []
   if (input.operation === 'discussion') return []
   if (input.operation === 'deduplicate_and_normalize') {
     const normalizeSegments = buildSegments({
@@ -575,12 +667,17 @@ export function buildLongDocumentExecutionPlan(
   const window = resolveWindow(input)
   const estimatedDocumentTokens = estimateInputTokens(input.content)
   const decision = resolveDecision({ window, estimatedDocumentTokens })
-  const mode = resolveExecutionMode({ operation, decision })
+  const mode = resolveExecutionMode({
+    operation,
+    decision,
+    requestText: input.requestText,
+    content: input.content,
+  })
   const finalDraft = mode === 'final-draft'
   const finalDraftSegments = finalDraft && decision !== 'fits' && decision !== 'provider_configuration_conflict'
     ? buildFinalDraftSegments({ content: input.content, effectiveInputTokens: window.effectiveInputTokens })
     : []
-  const segments = mode === 'final-draft'
+  const segments = mode === 'final-draft' || mode === 'local-transform'
     ? []
     : buildSegments({
       operation,
@@ -599,6 +696,14 @@ export function buildLongDocumentExecutionPlan(
     rewrite_segments: '终稿重写',
     discussion: '讨论',
   }
+  const localTransformOperations = mode === 'local-transform'
+    ? resolveLocalTransformOperations(operation, input.requestText)
+    : null
+  if (mode === 'local-transform' && !localTransformOperations) {
+    // Defensive: a future operation must never silently fall back into
+    // edit-task; route it to direct instead.
+    return buildLongDocumentExecutionPlan({ ...input, requestText: '' })
+  }
   return {
     planId: `long-document-${Date.now().toString(36)}`,
     operation,
@@ -606,8 +711,13 @@ export function buildLongDocumentExecutionPlan(
     mode,
     segments,
     invariants,
-    estimatedPhysicalRequests: mode === 'final-draft' ? 1 : mode === 'direct' ? 1 : segments.length,
+    estimatedPhysicalRequests: calculateLongDocumentPhysicalRequestBudget({
+      mode,
+      operation,
+      segments,
+    }),
     finalDraft,
+    localTransformOperations,
     finalDraftPlan: finalDraft ? {
       sourceChars: input.content.length,
       instruction: input.requestText,
@@ -617,7 +727,9 @@ export function buildLongDocumentExecutionPlan(
         ? finalDraftSegments
         : [{ segmentId: 'segment-1', start: 0, end: input.content.length }],
     } : null,
-    progressLabel: finalDraft
+    progressLabel: mode === 'local-transform'
+      ? `${operationLabels[operation]}：本地执行`
+      : finalDraft
       ? `${operationLabels[operation]}：生成中`
       : `${operationLabels[operation]}：0/${segments.length}`,
     totalChars: input.content.length,

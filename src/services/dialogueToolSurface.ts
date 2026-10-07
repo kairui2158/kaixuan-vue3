@@ -450,6 +450,7 @@ export function appendDialogueToolSurfaceDeclaration(
     ? options.activeEditTask
     : null
   const activeTaskAwaitsRetry = activeTask?.status === 'awaiting_batch'
+  const writePausedByActiveTask = activeTask && !hasWrite
   const executionPlan = options?.executionPlan || null
   const directWriteAuthorized = hasWrite
     && executionPlan?.mode === 'edit-task'
@@ -461,7 +462,7 @@ export function appendDialogueToolSurfaceDeclaration(
     ? '本轮工具面包含 editor.write(write)。'
     : '本轮工具面未包含 editor.write。'
   const activeTaskDeclaration = activeTask
-    ? `当前存在编辑任务 ${activeTask.id}（状态：${activeTask.status}）。${writeSurfaceDeclaration}${activeTaskAwaitsRetry && hasWrite ? '任务状态允许重试当前批次。' : '用户要求继续任务时，任务续跑入口为 task.resume。'}`
+    ? `当前存在编辑任务 ${activeTask.id}（状态：${activeTask.status}）。${writeSurfaceDeclaration}${activeTaskAwaitsRetry && hasWrite ? '任务状态允许重试当前批次。' : '用户要求继续任务时，任务续跑入口为 task.resume。'}${writePausedByActiveTask ? '当前不是权限缺失；新的直写请求需要先恢复或取消当前任务。' : ''}`
     : null
   return [
     basePrompt,

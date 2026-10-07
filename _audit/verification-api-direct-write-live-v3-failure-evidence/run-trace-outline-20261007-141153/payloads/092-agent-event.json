@@ -1,0 +1,29 @@
+{
+  "taskId": "edit-task-1791353525278-1",
+  "status": "completed",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "修改第3节旧账簿中的一处表述",
+  "executedBatches": [
+    "ai-edit-muxpmyaj-1"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "修改第3节旧账簿中的一处表述",
+    "batches": [
+      "ai-edit-muxpmyaj-1"
+    ],
+    "batchDetails": {
+      "ai-edit-muxpmyaj-1": {
+        "segmentId": "targeted-edit",
+        "expectedChange": "rewrite",
+        "range": {
+          "startLine": 0,
+          "endLine": 7602
+        },
+        "writeStrategy": "replace_match"
+      }
+    }
+  }
+}

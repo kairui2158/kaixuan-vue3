@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": {
+    "section": {
+      "id": "heading-2-1de2kut",
+      "title": "第5节 南货铺的钟",
+      "kind": "heading",
+      "level": 2,
+      "path": "第5节 南货铺的钟"
+    },
+    "range": {
+      "start": 1511,
+      "end": 1561
+    },
+    "offset": 0,
+    "maxChars": 50,
+    "content": "## 第5节 南货铺的钟\n青石镇的雨从第5天开始变密，檐水沿着瓦当连成细线，落在巷口那块被踩得发亮的",
+    "hasMore": true,
+    "nextCursor": "section:heading-2-1de2kut:50",
+    "next_steps": [
+      "继续调用 editor.read_range 并传入 nextCursor"
+    ]
+  }
+}

@@ -10,10 +10,46 @@ import { hashEditorContent } from './editorTarget'
 const workspaceRoot = resolve(__dirname, '../..')
 
 function readComponentSource(relativePath: string): string {
-  return readFileSync(resolve(workspaceRoot, relativePath), 'utf8')
+  // Windows checkouts may use CRLF; wiring assertions describe source semantics, not byte-level line endings.
+  return readFileSync(resolve(workspaceRoot, relativePath), 'utf8').replace(/\r\n/g, '\n')
 }
 
 describe('direct write production wiring', () => {
+  it('short-circuits deterministic local transforms before skill and agent paths in both workspaces', () => {
+    const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
+    const home = readComponentSource('src/components/chat/ChatPanel.vue')
+
+    for (const source of [outline, home]) {
+      expect(source).toContain("plan.mode !== 'local-transform'")
+      expect(source).toContain('input.plan.localTransformOperations')
+      expect(source).toContain('transformDocument({')
+      expect(source).toContain("outcome === 'completed'")
+      expect(source).toContain("type: 'local-transform-executed'")
+      expect(source).toContain("'local_transform_complete'")
+      expect(source).toContain('activeExecutionTaskStore.complete')
+      expect(source).toContain('contextCompactedMessageCount')
+    }
+    expect(outline).toContain('const localTransform = await runOutlineLocalTransformIfReady({')
+    expect(outline).toContain('if (localTransform) return')
+    expect(outline).toContain('const plainLocalTransform = await runOutlineLocalTransformIfReady({')
+    expect(outline).toContain('if (plainLocalTransform) return')
+    expect(home).toContain('if (await runHomeLocalTransform({')
+    expect(home).toContain('})) return')
+  })
+
+  it('records the real request text and closes no-change local transforms in both workspaces', () => {
+    const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
+    const home = readComponentSource('src/components/chat/ChatPanel.vue')
+
+    expect(home).toContain('requestText: text,')
+    expect(home).not.toContain('requestText: inputText.value,')
+    for (const source of [outline, home]) {
+      expect(source).toContain("result.outcome === 'no_change'")
+      expect(source).toContain('activeExecutionTaskStore.complete')
+      expect(source).toContain('local_transform_complete')
+    }
+  })
+
   it('emits legacy history neutralization from both outline and home production entries', () => {
     for (const relativePath of [
       'src/components/common/OutlineWorkspace.vue',
@@ -68,6 +104,36 @@ describe('direct write production wiring', () => {
       "finishOutlineRunIfRunning('success', undefined, streamingContent.value, 'plain_dialogue_complete')",
     )
     expect(home).not.toContain("homeSkillTerminalStatus || 'success'")
+  })
+
+  it('unlocks dialogue input from the Agent snapshot terminal state in both production entries', () => {
+    const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
+    const home = readComponentSource('src/components/chat/ChatPanel.vue')
+
+    expect(outline).toContain('onEvent: (event, snapshot)')
+    expect(outline).toContain('const status = snapshot.status')
+    expect(outline).toContain('isGenerating.value = false')
+    expect(home).toContain('const homeInputBlocked = computed(() => isStreaming.value && !homeInputUnlockedByAgent.value)')
+    expect(home).toContain('if (!text || homeInputBlocked.value) return')
+    expect(home).toContain(':send-disabled="homeInputBlocked"')
+    expect(home).toContain('const inputLockController = activeAbortController')
+    expect(home).toContain('releaseInputOnTerminalState(snapshot.status)')
+    expect(home).not.toContain("chatStore.setGenerationState('preparing')")
+    expect(home).not.toContain('event.payload as { status?: AgentOrchestratorStatus }')
+    expect(outline).not.toContain('event.payload as { status?: AgentOrchestratorStatus }')
+  })
+
+  it('unlocks dialogue input after an Agent interactive response while background work continues', () => {
+    const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
+    const home = readComponentSource('src/components/chat/ChatPanel.vue')
+
+    expect(home).toContain("event.type === 'interactive_response'")
+    expect(home).toContain('releaseInputOnInteractiveResponse()')
+    expect(outline).toContain('const outlineInputBlocked = computed(() => isGenerating.value && !outlineInputUnlockedByAgent.value)')
+    expect(outline).toContain('outlineInputUnlockedByAgent.value = true')
+    expect(outline).toContain("type: 'input-unlocked-interactive-response'")
+    expect(outline).toContain('if (!text || outlineInputBlocked.value) return')
+    expect(outline).not.toContain('if (!text || isGenerating.value) return')
   })
 
   it('merges EditTask completion evidence into the terminal in both production entries', () => {

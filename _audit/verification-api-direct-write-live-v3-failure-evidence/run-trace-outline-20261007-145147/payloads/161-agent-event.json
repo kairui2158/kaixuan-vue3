@@ -1,0 +1,12 @@
+{
+  "taskId": "edit-task-1791356106845-4",
+  "batchId": "ai-edit-muxr6a8s-4",
+  "segmentId": "targeted-edit",
+  "range": {
+    "startLine": 0,
+    "endLine": 7605
+  },
+  "writeStrategy": "replace_match",
+  "expectedChange": "rewrite",
+  "estimatedBatches": 1
+}

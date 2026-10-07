@@ -16,6 +16,7 @@ export interface AgentRunTraceTerminalInput {
 
 export interface EditTaskTerminalEvidenceInput {
   agentTerminal: AgentRunTraceTerminal
+  originalExecutionPlan?: LongDocumentExecutionPlan
   editTask: Pick<EditTask,
     'status'
     | 'executedBatches'
@@ -83,6 +84,24 @@ export function mapAgentResultToRunTrace(input: AgentRunTraceTerminalInput): Age
 export function mergeEditTaskTerminal(input: EditTaskTerminalEvidenceInput): EditTaskTerminalEvidence {
   const { agentTerminal, editTask } = input
   if (!editTask) return { terminal: agentTerminal, override: false, evidenceReason: 'edit_task_missing' }
+
+  if (input.originalExecutionPlan && agentTerminal.status !== 'success') {
+    return {
+      terminal: agentTerminal,
+      override: false,
+      evidenceReason: 'original_plan_not_complete',
+    }
+  }
+
+  const planCoverageIncomplete = agentTerminal.status === 'partially_applied'
+    && agentTerminal.reason === 'partially_applied'
+  if (planCoverageIncomplete) {
+    return {
+      terminal: agentTerminal,
+      override: false,
+      evidenceReason: 'plan_coverage_incomplete',
+    }
+  }
 
   const allBatchesWritten = editTask.executedBatches.length > 0
     && editTask.pendingBatches.length === 0

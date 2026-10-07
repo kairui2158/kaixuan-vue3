@@ -1,0 +1,15 @@
+{
+  "snapshot": {
+    "taskId": "outline-direct-api-1791355309102-361",
+    "status": "completed",
+    "reason": "completion criteria satisfied",
+    "goal": "把第 15 节整节移动到第 5 节前面，并保持节内文字不变。",
+    "stepIndex": 0,
+    "callCount": 1,
+    "successfulWriteCount": 1,
+    "noProgressRounds": 0,
+    "repeatedCallCount": 0,
+    "maxPhysicalRequests": 12,
+    "updatedAt": 1791355416583
+  }
+}

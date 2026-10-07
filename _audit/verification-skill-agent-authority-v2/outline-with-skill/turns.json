@@ -78,6 +78,9 @@
         "agent-skill-guidance-injected",
         "agent-snapshot",
         "agent-skill-guidance-injected",
+        "agent-skill-guidance-sanitized",
+        "agent-snapshot",
+        "agent-skill-guidance-sanitized",
         "agent-plan",
         "agent-snapshot",
         "agent-plan",
@@ -90,6 +93,10 @@
         "long-request-in-progress",
         "physical-call",
         "physical-call",
+        "agent-interactive_response",
+        "agent-snapshot",
+        "input-unlocked-interactive-response",
+        "agent-interactive_response",
         "agent-state",
         "agent-snapshot",
         "agent-state",
@@ -125,7 +132,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muuebeej",
+            "planId": "long-document-muycqpv7",
             "operation": "discussion",
             "legacyOperationType": "discussion",
             "mode": "direct",
@@ -133,7 +140,7 @@
             "reason": "execution-plan-direct",
             "segments": 0,
             "invariants": [],
-            "estimatedPhysicalRequests": 1,
+            "estimatedPhysicalRequests": 12,
             "contextWindow": {
               "status": "unknown",
               "contextWindowTokens": 1000000,
@@ -167,6 +174,42 @@
             "promptSource": "folder-system-prompt",
             "guidanceChars": 5754,
             "skillGuidancePresent": true
+          }
+        }
+      ],
+      "sanitizedGuidanceEvents": [
+        {
+          "type": "agent-skill-guidance-sanitized",
+          "detail": "folder SKILL 仅保留领域能力；执行协议与工具权限由应用单源控制",
+          "payload": {
+            "skillIds": [
+              "folder:L1-B"
+            ],
+            "promptSource": "folder-system-prompt",
+            "originalChars": 5754,
+            "retainedChars": 5356,
+            "removedChars": 449,
+            "removedCategories": [
+              "execution_control_markers",
+              "execution_protocol_semantics"
+            ]
+          }
+        },
+        {
+          "type": "agent-skill-guidance-sanitized",
+          "detail": "folder SKILL 仅保留领域能力；执行协议与工具权限由应用单源控制",
+          "payload": {
+            "skillIds": [
+              "folder:L1-B"
+            ],
+            "promptSource": "folder-system-prompt",
+            "originalChars": 5754,
+            "retainedChars": 5356,
+            "removedChars": 449,
+            "removedCategories": [
+              "execution_control_markers",
+              "execution_protocol_semantics"
+            ]
           }
         }
       ],
@@ -249,6 +292,9 @@
         "agent-skill-guidance-injected",
         "agent-snapshot",
         "agent-skill-guidance-injected",
+        "agent-skill-guidance-sanitized",
+        "agent-snapshot",
+        "agent-skill-guidance-sanitized",
         "agent-plan",
         "agent-snapshot",
         "agent-plan",
@@ -261,6 +307,10 @@
         "long-request-in-progress",
         "physical-call",
         "physical-call",
+        "agent-interactive_response",
+        "agent-snapshot",
+        "input-unlocked-interactive-response",
+        "agent-interactive_response",
         "agent-state",
         "agent-snapshot",
         "agent-state",
@@ -297,7 +347,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muuebf6p",
+            "planId": "long-document-muycqqot",
             "operation": "discussion",
             "legacyOperationType": "discussion",
             "mode": "direct",
@@ -305,7 +355,7 @@
             "reason": "execution-plan-direct",
             "segments": 0,
             "invariants": [],
-            "estimatedPhysicalRequests": 1,
+            "estimatedPhysicalRequests": 12,
             "contextWindow": {
               "status": "unknown",
               "contextWindowTokens": 1000000,
@@ -339,6 +389,42 @@
             "promptSource": "folder-system-prompt",
             "guidanceChars": 5754,
             "skillGuidancePresent": true
+          }
+        }
+      ],
+      "sanitizedGuidanceEvents": [
+        {
+          "type": "agent-skill-guidance-sanitized",
+          "detail": "folder SKILL 仅保留领域能力；执行协议与工具权限由应用单源控制",
+          "payload": {
+            "skillIds": [
+              "folder:L1-B"
+            ],
+            "promptSource": "folder-system-prompt",
+            "originalChars": 5754,
+            "retainedChars": 5356,
+            "removedChars": 449,
+            "removedCategories": [
+              "execution_control_markers",
+              "execution_protocol_semantics"
+            ]
+          }
+        },
+        {
+          "type": "agent-skill-guidance-sanitized",
+          "detail": "folder SKILL 仅保留领域能力；执行协议与工具权限由应用单源控制",
+          "payload": {
+            "skillIds": [
+              "folder:L1-B"
+            ],
+            "promptSource": "folder-system-prompt",
+            "originalChars": 5754,
+            "retainedChars": 5356,
+            "removedChars": 449,
+            "removedCategories": [
+              "execution_control_markers",
+              "execution_protocol_semantics"
+            ]
           }
         }
       ],
@@ -433,6 +519,9 @@
         "agent-skill-guidance-injected",
         "agent-snapshot",
         "agent-skill-guidance-injected",
+        "agent-skill-guidance-sanitized",
+        "agent-snapshot",
+        "agent-skill-guidance-sanitized",
         "agent-plan",
         "agent-snapshot",
         "agent-plan",
@@ -487,7 +576,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muuebg02",
+            "planId": "long-document-muycqr98",
             "operation": "targeted_edit",
             "legacyOperationType": "targeted-edit",
             "mode": "direct",
@@ -495,7 +584,7 @@
             "reason": "execution-plan-direct",
             "segments": 1,
             "invariants": [],
-            "estimatedPhysicalRequests": 1,
+            "estimatedPhysicalRequests": 12,
             "contextWindow": {
               "status": "unknown",
               "contextWindowTokens": 1000000,
@@ -532,6 +621,42 @@
           }
         }
       ],
+      "sanitizedGuidanceEvents": [
+        {
+          "type": "agent-skill-guidance-sanitized",
+          "detail": "folder SKILL 仅保留领域能力；执行协议与工具权限由应用单源控制",
+          "payload": {
+            "skillIds": [
+              "folder:L1-B"
+            ],
+            "promptSource": "folder-system-prompt",
+            "originalChars": 5754,
+            "retainedChars": 5356,
+            "removedChars": 449,
+            "removedCategories": [
+              "execution_control_markers",
+              "execution_protocol_semantics"
+            ]
+          }
+        },
+        {
+          "type": "agent-skill-guidance-sanitized",
+          "detail": "folder SKILL 仅保留领域能力；执行协议与工具权限由应用单源控制",
+          "payload": {
+            "skillIds": [
+              "folder:L1-B"
+            ],
+            "promptSource": "folder-system-prompt",
+            "originalChars": 5754,
+            "retainedChars": 5356,
+            "removedChars": 449,
+            "removedCategories": [
+              "execution_control_markers",
+              "execution_protocol_semantics"
+            ]
+          }
+        }
+      ],
       "assistantReply": "已完成合法写入，稳定段落末尾已追加测试标记。"
     }
   ],
@@ -556,10 +681,7 @@
           "outline.search",
           "outline.get_summary",
           "context.remaining",
-          "agent.plan",
-          "agent.spawn",
-          "agent.wait",
-          "agent.cancel"
+          "agent.plan"
         ]
       }
     ],
@@ -583,10 +705,7 @@
           "outline.search",
           "outline.get_summary",
           "context.remaining",
-          "agent.plan",
-          "agent.spawn",
-          "agent.wait",
-          "agent.cancel"
+          "agent.plan"
         ]
       }
     ],
@@ -611,10 +730,7 @@
           "outline.search",
           "outline.get_summary",
           "context.remaining",
-          "agent.plan",
-          "agent.spawn",
-          "agent.wait",
-          "agent.cancel"
+          "agent.plan"
         ]
       },
       {
@@ -637,10 +753,7 @@
           "outline.search",
           "outline.get_summary",
           "context.remaining",
-          "agent.plan",
-          "agent.spawn",
-          "agent.wait",
-          "agent.cancel"
+          "agent.plan"
         ]
       }
     ]

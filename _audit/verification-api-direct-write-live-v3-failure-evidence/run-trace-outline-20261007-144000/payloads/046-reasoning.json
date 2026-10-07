@@ -1,0 +1,183 @@
+The reorder_sections expects only top-level IDs. The top-level ID is just heading-1-1h6ox9k. So reorder_sections can't reorder children. I need to move the section content manually using editor.write operations.
+
+I need to move the entire 15th section (盐仓档案) to before the 5th section (南货铺的钟). I can do this with delete + insert, or move operation.
+
+Let me plan:
+1. Delete the entire 15th section content including heading and trailing blank lines.
+2. Insert that content before the 5th section heading.
+
+The move operation requires "target" (the fragment to move) and "destination" (unique fragment) and "destinationPosition" (before/after).
+
+Let me use the move operation. Target = the full 15th section text. Destination = "## 第5节 南货铺的钟". destinationPosition = before.
+
+But move operation semantics: target is the text to move, destination is a unique original fragment where it should be inserted. Let me check the move operation schema: fields: content, destination, destinationPosition, order, operation, position, reason, target.
+
+For move: target (the unique original fragment to move), destination (target location unique fragment), destinationPosition (before/after).
+
+So I'll do:
+operation: "move"
+target: full text of 15th section
+destination: "## 第5节 南货铺的钟"
+destinationPosition: "before"
+
+I need to include the heading and the trailing blank lines. The section text ends with two blank lines after "泡软。\n\n\n". Actually the section range is 5310-5694. The content includes heading + body + "\n\n\n"? Let me look: content shows "泡软。\n\n\n" then hasMore false. So the section content includes two blank lines after 泡软.
+
+When moving, I want to keep the section text intact. Let me capture exactly:
+
+Target fragment:
+"## 第15节 盐仓档案\n青石镇的雨从第15天开始变密，檐水沿着瓦当连成细线，落在巷口那块被踩得发亮的石板上。\n沈萤把伞收在门后，账簿翻开第15页，纸页上还留着上一任渡口管事用朱笔圈出的数字：255。\n她抬头看向窗外的运河，货船吃水很深，船工喊号的声音被雨压低，像隔着几层湿布传来。\n雨声敲在伞面上，像有人在很远的地方数着铜钱。这一句属于第15节，用来证明多轮直写不会误伤其他内容。\n桥洞下停着三条空船，缆绳被水汽浸得发黑。这一句属于第15节，用来证明多轮直写不会误伤其他内容。\n老周把门板卸下一半，用木棍撑住，站在门口看水位。这一句属于第15节，用来证明多轮直写不会误伤其他内容。\n米铺的伙计挑着两袋米走过，鞋底踩进水洼又拔出来。这一句属于第15节，用来证明多轮直写不会误伤其他内容。\n镇上的人说，这样的雨季里旧账最容易翻出来，因为水会把藏在木板缝里的字泡软。"
+
+I'll not include the trailing blank lines in the target, and instead handle spacing. Actually to be safe, moving just the heading+body text without trailing blank lines, and insert before "## 第5节 南货铺的钟".
+
+But there's a concern: after removing the section, there will be leftover blank lines. And the section before 15th (第14节) ends with blank lines, then 15th section, then blank lines, then 16th. If I move only the heading+body (without trailing "\n\n\n"), the removal leaves the blank lines. Let me think about what remains.
+
+Current layout around sections 14, 15, 16:
+第14节 body ... 泡软。\n\n\n## 第15节 盐仓档案\n...泡软。\n\n\n## 第16节 风眼\n...
+
+If target = "## 第15节 盐仓档案\n...泡软。" (without trailing newlines), then after removal, we get:
+第14节 ... 泡软。\n\n\n\n\n\n## 第16节 ... (extra blank lines, because the two \n\n\n after 14 and two \n\n\n after 15 both remain? Actually the blank lines are: after 14th body there's "\n\n\n" then "## 第15节..." then "泡软。" then "\n\n\n" then "## 第16节".)
+
+If I delete only the heading+body (from "## 第15节" through "泡软。"), remaining is:
+第14节...泡软。\n\n\n \n\n\n## 第16节
+
+Wait more precisely. The content string of 15th section (range 5310-5694) is:
+"## 第15节 盐仓档案\n...泡软。\n\n\n"
+
+The preceding section 14 range ends at 5310, and its content ends with "泡软。\n\n\n" too? Actually section 14 range 4928-5310. Its content (from map) ends before 5310. Let me check: 第14节 content would end with "...泡软。\n\n\n" where the last chars are two newlines, and the 15th heading starts at 5310.
+
+Hmm, but the read of 15th returned content starting "## 第15节 盐仓档案" at start 5310. And the read of 15th content ends "泡软。\n\n\n" with hasMore false and range end 5694.
+
+So between sections there are "\n\n" blank lines (the third newline is the start of next heading? Let's parse: "泡软。\n\n\n" = 泡软。 + \n + \n + \n. That's three newlines = two blank lines followed by... actually "泡软。" then newline ends the line, then "\n" makes one blank line, then "\n" makes another blank line. Then next heading starts. So there are 2 empty lines between sections.
+
+To keep things clean, I'll move the full section including its trailing "\n\n\n"? That's tricky because the trailing newlines are shared structure.
+
+Simpler approach: use move with target = full section heading+body (no trailing newlines), destination = "## 第5节 南货铺的钟", before. Then afterwards clean up blank lines if needed. But I can't easily predict leftover.
+
+Actually, maybe better: use delete + insert approach where I explicitly control spacing.
+
+Let me think about using a single move operation. The move tool probably handles removing the target text and inserting at destination. If target text doesn't include trailing newlines, the blank lines remain at the old location, potentially causing extra blank lines between section 14 and 16. And at destination, inserting before "## 第5节" — I need to ensure proper spacing: currently before 第5节 there's "泡软。\n\n\n## 第5节". If I insert "## 第15节...泡软。" right before "## 第5节", I get "泡软。\n\n\n## 第15节...泡软。## 第5节" — the moved text has no trailing newline so "泡软。" (moved) would be directly adjacent to "## 第5节". That's a problem.
+
+So I need to include proper newlines. Let me include in target the full section including trailing "\n\n" (two blank lines), and destination before the heading, so insertion provides the separators.
+
+Alternative cleaner approach: Use delete and insert as two operations in one batch? But batch is atomic and operations apply to a snapshot. If I do delete of section 15 (full including trailing newlines) and insert the same content before section 5, both in same batch — but insert needs to reference the document after delete? The batch is atomic, likely applied sequentially in order within the batch. Actually ambiguous. Better do sequential separate writes: first delete, then insert. But between writes I need to re-verify.
+
+Actually, let me reconsider. There's a "move" operation designed exactly for this. Let me use it properly.
+
+Move semantics (from schema): operation "move", fields target (unique original fragment to move), destination (unique original fragment), destinationPosition (before/after).
+
+I'll set:
+target: full section 15 text including heading and body, ending at "泡软。" WITHOUT trailing newlines — but then spacing issue.
+
+Alternatively include trailing newlines. Let me define target as the section text including the trailing two blank lines:
+
+"## 第15节 盐仓档案\n青石镇的雨从第15天开始变密，檐水沿着瓦当连成细线，落在巷口那块被踩得发亮的石板上。\n沈萤把伞收在门后，账簿翻开第15页，纸页上还留着上一任渡口管事用朱笔圈出的数字：255。\n她抬头看向窗外的运河，货船吃水很深，船工喊号的声音被雨压低，像隔着几层湿布传来。\n雨声敲在伞面上，像有人在很远的地方数着铜钱。这一句属于第15节，用来证明多轮直写不会误伤其他内容。\n桥洞下停着三条空船，缆绳被水汽浸得发黑。这一句属于第15节，用来证明多轮直写不会误伤其他内容。\n老周把门板卸下一半，用木棍撑住，站在门口看水位。这一句属于第15节，用来证明多轮直写不会误伤其他内容。\n米铺的伙计挑着两袋米走过，鞋底踩进水洼又拔出来。这一句属于第15节，用来证明多轮直写不会误伤其他内容。\n镇上的人说，这样的雨季里旧账最容易翻出来，因为水会把藏在木板缝里的字泡软。\n\n"
+
+If I include "\n\n" (two newlines) at the end, then:
+- Removing: section 14 ends "泡软。\n\n\n" where the third \n is... wait, let me count the actual bytes. This is getting complicated.
+
+Let me just read the exact region around sections 14-16 and 4-5 to see exact newlines.
+
+Actually the read already shows each section's content ends with "泡软。\n\n\n" (I can see in the content strings there's a trailing "\n\n\n"). Let me look at read output for 第15节: content ends "泡软。\n\n\n" then hasMore false. And for 第5节: ends "泡软。\n\n\n".
+
+So each section's string (as returned by read_range for that section id) = heading + body + "\n\n\n" (three newlines). The three newlines separate it from the next section: "泡软。\n" (end of last body line) + "\n" (blank line 1) + "\n" (blank line 2), and then next heading. Wait three newlines = two blank lines + line ending? Let me just count: text "...泡软。" then "\n" → moves to next line (line 1, empty), "\n" → line 2 empty, "\n" → line 3 empty. So there are 3 empty lines between "泡软。" and next heading? That seems too many but whatever, it's what's in the doc.
+
+Actually looking at the full focus text in the context, between sections there are blank lines. In the displayed text, between 泡软。 and ## next heading there are 2 empty lines (i.e., "\n\n\n" total newlines? The display shows:
+
+"...泡软。\n\n\n## 第2节..."
+
+So "泡软。" + 3 newlines + heading. That's 2 blank lines.
+
+OK regardless, the read_range for a section returns the section's full content INCLUDING the trailing separator newlines (because range end includes them). So if I use the exact full content as returned as the move target, moving it will move both the section and its trailing separator newlines together, keeping spacing correct at both ends.
+
+So target = the full content string exactly as returned by read_range for 第15节 (which is unique since it says "第15节" etc.). Then destination = "## 第5节 南货铺的钟" (unique). destinationPosition before.
+
+Result:
+- Remove section 15 content (heading+body+trailing "\n\n\n") → section 14 now ends "泡软。\n\n\n" (its own trailing newlines) followed directly by "## 第16节". Wait, section 14's own content also ends with "\n\n\n" (it's part of section 14 range). Then section 15's content (which I moved) included "## 第15节...泡软。\n\n\n". After removing it, section 14 ends with its "\n\n\n" and then next is "## 第16节". So spacing preserved. Good.
+
+- Insert before "## 第5节": currently section 4 ends "泡软。\n\n\n" then "## 第5节". Inserting section15 content (ending with "\n\n\n") before "## 第5节" gives: section4 "...泡软。\n\n\n" + [section15 content "## 第15节...泡软。\n\n\n"] + "## 第5节...". 
+
+So spacing is correct.
+
+Now, is the target fragment unique? The full content of section 15 is unique because it contains "第15节" and "账簿翻开第15页" and "数字：255". Yes unique.
+
+The destination "## 第5节 南货铺的钟" is unique.
+
+Let me verify the move operation field names. Schema for move:
+- operation: "move"
+- target: string (the unique original fragment to move)
+- destination: string (move 专用：目标位置的唯一原文片段)
+- destinationPosition: "before" | "after"
+
+content is not used for move. reason optional.
+
+Let me construct the exact target string from read output. I'll copy exactly:
+
+"## 第15节 盐仓档案\n青石镇的雨从第15天开始变密，檐水沿着瓦当连成细线，落在巷口那块被踩得发亮的石板上。\n沈萤把伞收在门后，账簿翻开第15页，纸页上还留着上一任渡口管事用朱笔圈出的数字：255。\n她抬头看向窗外的运河，货船吃水很深，船工喊号的声音被雨压低，像隔着几层湿布传来。\n雨声敲在伞面上，像有人在很远的地方数着铜钱。这一句属于第15节，用来证明多轮直写不会误伤其他内容。\n桥洞下停着三条空船，缆绳被水汽浸得发黑。这一句属于第15节，用来证明多轮直写不会误伤其他内容。\n老周把门板卸下一半，用木棍撑住，站在门口看水位。这一句属于第15节，用来证明多轮直写不会误伤其他内容。\n米铺的伙计挑着两袋米走过，鞋底踩进水洼又拔出来。这一句属于第15节，用来证明多轮直写不会误伤其他内容。\n镇上的人说，这样的雨季里旧账最容易翻出来，因为水会把藏在木板缝里的字泡软。\n\n\n"
+
+Wait, but does the read content actually end with "\n\n\n" (3 newlines) or "\n\n" (2)? The content string in read output ends with "泡软。\n\n\n" — I see in the JSON: "...字泡软。\n\n\n". Let me re-examine. The content field: "...镇上的人说，这样的雨季里旧账最容易翻出来，因为水会把藏在木板缝里的字泡软。\n\n\n"
+
+Yes, three \n. Actually I see in the tool result content it's "泡软。\n\n\n". Hmm but is there really 3? Let me look at the actual returned text in the read result for 第15节:
+
+"content":"## 第15节 盐仓档案\n...镇上的人说，这样的雨季里旧账最容易翻出来，因为水会把藏在木板缝里的字泡软。\n\n\n","hasMore":false
+
+So yes 3 newlines.
+
+But wait, there's ambiguity about whether that third newline belongs to section 15's range or is the boundary. The range end is 5694 and section 16 starts at 5694. So the "\n\n\n" (3 newlines) are fully within section 15's range. Section 16's content starts with "## 第16节 风眼" (heading) at 5694, no leading newline. So each section's range = heading + body + "\n\n\n" (three trailing newlines as separator). The last section (第20节) also ends with "\n\n\n"? Its range 7223-7604, and 7604 is total. Probably ends with "\n" (just one). Not important.
+
+So using the full content including the trailing 3 newlines as target is correct and keeps spacing.
+
+But hold on — will including trailing newlines in target cause the move to also remove section 16's leading position correctly? After removal, section 14's range ends with its own "\n\n\n", then immediately "## 第16节". Yes correct spacing (2 blank lines between 14 and 16).
+
+Now let me also verify there isn't an issue with the "move" operation requiring target to be found exactly. It should be fine.
+
+Actually, wait — should I reconsider whether move operation's "target" should be the exact unique fragment. The full section text is long but should be fine.
+
+Let me also double check: the previous reorder attempt failed because reorder_sections works on top-level only (heading-1). So I must use move.
+
+Let me proceed with move operation.
+
+One more consideration: the move operation might need "destination" to be a unique fragment and it inserts the moved text before/after it. Inserting before "## 第5节 南货铺的钟". Since section 5 heading is unique, good.
+
+Let me write the command.
+
+Actually, I realize I should double-check whether I should include trailing newlines in target. If the move removes exactly the target text (including 3 newlines) and inserts it before destination, then:
+
+Before:
+...第14节 ...泡软。\n\n\n ##第15节...泡软。\n\n\n ##第16节...
+
+Actually wait, I need to check: does section 14's content end with "\n\n\n"? Its range is 4928-5310. Section 15 starts at 5310. Section 14's content ends with "泡软。\n\n\n" (3 newlines) occupying chars up to 5310. Then section 15 heading at 5310.
+
+Hmm, but that means the separator between 14 and 15 is the "\n\n\n" that belongs to section 14's range. And section 15's own trailing "\n\n\n" is the separator before section 16.
+
+So target = section15 content including its trailing 3 newlines. After removing target, we have:
+第14节 ...泡软。\n\n\n + ## 第16节 ...
+
+Correct: 14's trailing separator (3 newlines) now directly precedes 16. 
+
+At destination: insert before "## 第5节 南货铺的钟". Currently:
+第4节 ...泡软。\n\n\n + ## 第5节 ...
+
+After inserting target (which ends with 3 newlines) before "## 第5节":
+第4节 ...泡软。\n\n\n + [## 第15节...泡软。\n\n\n] + ## 第5节 ...
+
+Correct spacing. 
+
+So include trailing 3 newlines.
+
+Let me finalize target string exactly. I'll reproduce it carefully.
+
+Target:
+## 第15节 盐仓档案
+青石镇的雨从第15天开始变密，檐水沿着瓦当连成细线，落在巷口那块被踩得发亮的石板上。
+沈萤把伞收在门后，账簿翻开第15页，纸页上还留着上一任渡口管事用朱笔圈出的数字：255。
+她抬头看向窗外的运河，货船吃水很深，船工喊号的声音被雨压低，像隔着几层湿布传来。
+雨声敲在伞面上，像有人在很远的地方数着铜钱。这一句属于第15节，用来证明多轮直写不会误伤其他内容。
+桥洞下停着三条空船，缆绳被水汽浸得发黑。这一句属于第15节，用来证明多轮直写不会误伤其他内容。
+老周把门板卸下一半，用木棍撑住，站在门口看水位。这一句属于第15节，用来证明多轮直写不会误伤其他内容。
+米铺的伙计挑着两袋米走过，鞋底踩进水洼又拔出来。这一句属于第15节，用来证明多轮直写不会误伤其他内容。
+镇上的人说，这样的雨季里旧账最容易翻出来，因为水会把藏在木板缝里的字泡软。
+(plus three newlines)
+
+I'll write it as a single string with \n.
+
+Let me submit.

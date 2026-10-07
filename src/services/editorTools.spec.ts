@@ -7,6 +7,10 @@ import {
 } from './editorTools'
 import { createEditorTargetSnapshot } from './editorTarget'
 import { buildLongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
+import {
+  collectLongDocumentWriteCoverage,
+  summarizeLongDocumentWriteCoverage,
+} from './longDocumentWriteCoverage'
 import type { ToolEventSink } from './editorTools'
 
 const snapshot = createEditorTargetSnapshot({
@@ -679,7 +683,7 @@ describe('editorTools', () => {
       '同一句重复内容,标点待整理。',
       '',
       '## 第2节',
-      '同一句重复内容,标点待整理。',
+      '同一句相似但不同的重复内容,标点待整理。',
       '',
       '## 第3节',
       '未重复的游离段落,标点待整理。',
@@ -710,7 +714,7 @@ describe('editorTools', () => {
     }))
 
     const deletion = await gateway.execute('editor.write', {
-      commands: [{ operation: 'delete', target: '## 第2节\n同一句重复内容,标点待整理。', reason: '删除第2节重复项' }],
+      commands: [{ operation: 'delete', target: '## 第2节\n同一句相似但不同的重复内容,标点待整理。', reason: '删除第2节重复项' }],
     }, { ...makeContext(), workspace: 'outline' })
     expect(deletion.ok).toBe(true)
     expect(appliedBatches[0].batchDetail).toMatchObject({
@@ -1465,6 +1469,66 @@ describe('editorTools', () => {
     const normalizeCoverage = (coverage: any) => ({ ...coverage, batchId: undefined })
     expect(normalizeCoverage(coverageByAuthorization.get('unauthorized')))
       .toEqual(normalizeCoverage(coverageByAuthorization.get('authorized')))
+  })
+
+  it('editor.write direct coverage completes for append, insert, replace, and delete', async () => {
+    const directContent = '第一段：旧句。\n第二段：验证正文。'
+    const plan = buildLongDocumentExecutionPlan({
+      requestText: '修改这份短文中的指定内容',
+      content: directContent,
+      contextWindowTokens: 128_000,
+      maxOutputTokens: 8_000,
+      intent: 'edit',
+    })
+    expect(plan.mode).toBe('direct')
+    expect(plan.segments).toHaveLength(1)
+
+    const commands = [
+      { operation: 'append', content: '第三段：追加正文。' },
+      { operation: 'insert', position: 'cursor', content: '插入句。' },
+      { operation: 'replace_match', target: '第一段：旧句。', content: '第一段：新句。' },
+      { operation: 'delete', target: '第二段：验证正文。' },
+    ] as const
+
+    for (const command of commands) {
+      const snapshot = createEditorTargetSnapshot({
+        workspace: 'main',
+        targetId: 'chapter-1',
+        label: '主页直写',
+        content: directContent,
+        selectionStart: 0,
+        selectionEnd: 0,
+      })
+      const gateway = new ToolGateway()
+      gateway.registerAll(createEditorTools({
+        getSnapshot: () => snapshot,
+        mode: 'direct',
+        executionPlan: plan,
+        applyWrite: async () => ({ ok: true, rollbackAvailable: true }),
+      }))
+
+      const result = await gateway.execute('editor.write', {
+        commands: [command],
+      }, makeContext())
+      expect(result.ok).toBe(true)
+
+      const toolResults = [{
+        call: { name: 'editor.write' },
+        result,
+      }]
+      const summary = summarizeLongDocumentWriteCoverage({
+        plan,
+        coverageRecords: collectLongDocumentWriteCoverage(toolResults),
+        toolResults,
+      })
+
+      expect(summary).toMatchObject({
+        complete: true,
+        trusted: true,
+        successfulWriteCount: 1,
+        trustedWriteCount: 1,
+      })
+    }
   })
 
   it('editor.write does not trust a partial direct write in a multi-segment plan', async () => {

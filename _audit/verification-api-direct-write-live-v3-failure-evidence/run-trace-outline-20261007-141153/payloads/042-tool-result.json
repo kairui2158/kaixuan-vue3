@@ -1,0 +1,61 @@
+{
+  "ok": true,
+  "data": {
+    "status": "written",
+    "batchId": "ai-edit-muxpp0d9-3",
+    "documentVersion": 4,
+    "contentHash": "fnv1a32_41783a57",
+    "structureIdentity": {
+      "stableIds": [
+        "heading-1-1h6ox9k",
+        "paragraph-46bd25",
+        "heading-2-1voe54f",
+        "heading-2-rg901k",
+        "heading-2-1h7qvms",
+        "heading-2-ukykz8",
+        "heading-2-1de2kut",
+        "heading-2-oubc98",
+        "heading-2-409dqk",
+        "heading-2-1pnmhy6",
+        "heading-2-zt7j7u",
+        "heading-2-x8n67m",
+        "heading-2-1s73jj6",
+        "heading-2-13w2wzt",
+        "heading-2-wksvn7",
+        "heading-2-1ifbd3l",
+        "heading-2-ev2dx",
+        "heading-2-96nxmo",
+        "heading-2-1dihcoy",
+        "heading-2-1a26thy",
+        "heading-2-159p8q8",
+        "heading-2-6c8r0j"
+      ],
+      "migratedIds": [],
+      "addedIds": [],
+      "removedIds": []
+    },
+    "repairPolicy": "该批次已写入成功，文档版本已变化。未改写的结构 ID 已保持稳定；仅当 structureIdentity 提示新增、删除或冲突消歧时才需要刷新 editor.document_map。后续修正请基于当前编辑器内容提交新命令，禁止重复提交本 batchId 的相同参数。",
+    "commandCount": 1,
+    "writtenLength": 7576,
+    "reveal": {
+      "mode": "stream",
+      "firstChange": true
+    },
+    "rollbackAvailable": true,
+    "coverage": {
+      "batchId": "ai-edit-muxpp0d9-3",
+      "coverageTrusted": true,
+      "reason": "single_segment_plan",
+      "commands": [
+        {
+          "operation": "replace_match",
+          "segmentId": "targeted-edit",
+          "start": 3845,
+          "end": 3930
+        }
+      ],
+      "documentVersion": 4,
+      "contentHash": "fnv1a32_41783a57"
+    }
+  }
+}

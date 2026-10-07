@@ -143,6 +143,8 @@ export interface RunTraceApiCall {
   /** Wall clock of the latest physical request or tool activity, including body-less tool rounds. */
   lastExecutionActivityAt?: number
   finishReason?: string
+  /** Why a tool-loop convergence/checkpoint result was produced. */
+  convergenceReason?: string
   usage?: unknown
   usageUnavailable?: boolean
   durationMs?: number
@@ -272,6 +274,8 @@ export interface RunTracePhysicalCall {
   heartbeat?: boolean
   /** Non-empty only for transport interruptions that must surface in exported traces. */
   interruptionCode?: 'slow_stream_interrupted'
+  /** Number of older successful read tool results compacted for this physical request. */
+  contextCompactedMessageCount?: number
 }
 
 export interface RunTraceTurn {
@@ -581,6 +585,7 @@ export interface FinishApiCallInput {
   responseText?: string
   reasoningText?: string
   finishReason?: string
+  convergenceReason?: string
   usage?: unknown
   usageUnavailable?: boolean
   durationMs?: number
@@ -640,6 +645,7 @@ export interface PhysicalCallInput {
   usageReconciliation?: unknown
   interruptionCode?: RunTracePhysicalCall['interruptionCode']
   heartbeat?: boolean
+  contextCompactedMessageCount?: number
 }
 
 export interface ToolCallInput {
@@ -1286,6 +1292,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       existing.contextBudgetReason = input.contextBudgetReason ?? existing.contextBudgetReason
       existing.usageReconciliation = input.usageReconciliation ?? existing.usageReconciliation
       existing.interruptionCode = input.interruptionCode ?? existing.interruptionCode
+      existing.contextCompactedMessageCount = input.contextCompactedMessageCount ?? existing.contextCompactedMessageCount
       if (input.heartbeat) existing.heartbeat = true
       addEvent(runId, {
         type: 'physical-call',
@@ -1328,6 +1335,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       contextBudgetReason: input.contextBudgetReason,
       usageReconciliation: input.usageReconciliation,
       interruptionCode: input.interruptionCode,
+      contextCompactedMessageCount: input.contextCompactedMessageCount,
       heartbeat: input.heartbeat,
     }
     call.physicalCalls.push(physical)
@@ -1725,6 +1733,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       call.reasoningText = patchReasoning
     }
     call.finishReason = patch.finishReason ?? call.finishReason
+    call.convergenceReason = patch.convergenceReason ?? call.convergenceReason
     call.usage = patch.usage ?? call.usage
     call.usageUnavailable = patch.usageUnavailable ?? (patch.usage ? false : call.usageUnavailable)
     call.durationMs = patch.durationMs ?? (Date.now() - call.startedAt)
@@ -2190,6 +2199,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
         `状态：${call.status}`,
         `耗时：${call.durationMs ?? 0}ms`,
         `finish_reason：${call.finishReason || '-'}`,
+        `convergence_reason：${call.convergenceReason || '-'}`,
         `技能：${call.skillName || call.skillId || '-'}`,
         `智能体：${call.agentName || call.agentId || '-'}`,
         `供应商：${call.providerName || call.providerId || '-'}`,

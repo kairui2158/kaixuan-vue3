@@ -191,7 +191,6 @@ const server = http.createServer((request, response) => {
     }
     requests.push(record)
     console.log(`[MOCK] ${scenario} #${scenarioCount}: ${record.tools.join(', ') || '(no tools)'}`)
-
     if (isIntentClassifier) {
       assert.equal(record.tools.length, 0, 'intent classifier request must not carry editor tools')
       const classifierInput = (body?.messages || [])
@@ -221,7 +220,7 @@ const server = http.createServer((request, response) => {
     if (scenario === 'cross-turn-permission') {
       let payload
       if (scenarioTurn === 1) {
-        payload = textCompletion('我先说明：这轮我没有写入权限，只能讨论位置。')
+        payload = textCompletion('这段设定建议放在第三章之后的补充节点，用来承接旧信出处。')
       } else if (scenarioCount === 1) {
         payload = toolCall('editor.write', writePayload([{
           operation: 'append',
@@ -670,6 +669,25 @@ async function waitOutlineIdle(page, timeout = 60000) {
   await sleep(250)
 }
 
+async function waitOutlineTurnFinished(page, text, timeout = 120000) {
+  await page.waitForFunction(request => {
+    const run = [...(window.__pinia?._s?.get('runTrace')?.runs || [])]
+      .filter(item => item.source === 'outline')
+      .sort((a, b) => b.startedAt - a.startedAt)[0]
+    const turn = [...(run?.turns || [])]
+      .filter(item => item.userRequest === request)
+      .sort((a, b) => b.startedAt - a.startedAt)[0]
+    const sendButton = document.querySelector('#btn-ow-send')
+    return Boolean(
+      turn
+      && turn.status
+      && turn.status !== 'running'
+      && sendButton
+      && !sendButton.disabled,
+    )
+  }, text, { timeout, polling: 250 })
+}
+
 async function sendOutline(page, text, waitFor) {
   await waitOutlineIdle(page)
   scenarioTurn += 1
@@ -700,9 +718,13 @@ async function sendOutlineExpectEvents(page, text, expectedEvents) {
   await page.locator('#ow-chat-input').fill(text)
   await page.locator('#ow-chat-input').evaluate(element => element.dispatchEvent(new Event('change', { bubbles: true })))
   await page.locator('#btn-ow-send').click()
-  await page.waitForFunction(() => Boolean(document.querySelector('#btn-ow-send') && !document.querySelector('#btn-ow-send')?.disabled), null, { timeout: 90000, polling: 250 })
+  await waitOutlineTurnFinished(page, text)
   const run = await latestRun(page, 'outline')
-  const eventTypes = (run?.events || []).map(event => event.type)
+  const turn = (run?.turns || []).find(item => item.userRequest === text)
+  assert(turn, `outline event turn is recorded for "${text}"`)
+  const eventTypes = (run?.events || [])
+    .filter(event => event.turnId === turn.id)
+    .map(event => event.type)
   const missing = expectedEvents.filter(eventType => !eventTypes.includes(eventType))
   assert.equal(missing.length, 0, `outline events are all recorded for "${text}"; missing: ${missing.join(', ')}; got: ${eventTypes.join(', ') || '(none)'}`)
   await waitOutlineIdle(page)
@@ -838,9 +860,10 @@ function assertWriteSurface(record, label) {
   const prompt = systemPromptOf(record)
   const restoredTaskDeclaration = prompt.includes('写入权限已恢复')
     && prompt.includes('必须调用 editor.write')
+  const currentDeclaration = prompt.includes('本轮工具面包含 editor.write(write)')
   assert(
-    prompt.includes('你已获得编辑器写入权限') || restoredTaskDeclaration,
-    `${label}: system prompt declares write permission`,
+    currentDeclaration || restoredTaskDeclaration,
+    `${label}: system prompt declares the current write tool surface`,
   )
   assert(prompt.includes('editor.write(write)'), `${label}: system prompt lists editor.write`)
 }
@@ -848,7 +871,10 @@ function assertWriteSurface(record, label) {
 function assertReadSurface(record, label) {
   assert(!record?.tools.includes('editor.write'), `${label}: provider request omits editor.write`)
   const prompt = systemPromptOf(record)
-  assert(prompt.includes('本轮未开放写入工具'), `${label}: system prompt declares no write permission`)
+  assert(
+    prompt.includes('本轮工具面未包含 editor.write'),
+    `${label}: system prompt declares the read-only tool surface`,
+  )
 }
 
 function assertTaskControlSurface(record, label) {
@@ -941,7 +967,7 @@ async function main() {
     // B. Discuss turn first, then edit turn. Permission declaration must flip
     // with the actual tool surface instead of inheriting stale history.
     setScenario('cross-turn-permission')
-    await sendOutline(page, '这段设定应该写在哪里？请帮我定位', '这轮我没有写入权限')
+    await sendOutline(page, '这段设定应该写在哪里？请帮我定位', '放在第三章之后')
     content = await outlineContent(page)
     assert.equal(content, await expectedOutlineAfterFormat(), 'discuss turn does not write')
     const discussRequests = requests.filter(item => item.scenario === 'cross-turn-permission')
@@ -1439,7 +1465,7 @@ async function main() {
     assert.equal(
       millionForbiddenDialogueRequests.length,
       2,
-      'forbidden whole-document replacement performs one write attempt and one convergence request',
+      'forbidden whole-document replacement performs one write attempt and one steering correction',
     )
     assertWriteSurface(millionForbiddenDialogueRequests[0], 'million forbidden write request')
     const millionContentAfterForbidden = await outlineContent(page)

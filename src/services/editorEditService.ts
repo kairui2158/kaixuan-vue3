@@ -135,11 +135,12 @@ export function buildEditPlan(
     const targetAtLineStart = locatedTarget.start === 0 || content[locatedTarget.start - 1] === '\n'
     let cutStart = locatedTarget.start
     let cutEnd = locatedTarget.end
-    let movedSourceText = targetText
+    let movedSourceText = content.slice(cutStart, cutEnd)
     let movedWholeHeading = false
-    if (targetAtLineStart && HEADING_LINE_PATTERN.test(content.slice(locatedTarget.start, locatedTarget.end))) {
+    const targetFirstLine = content.slice(locatedTarget.start, locatedTarget.end).split(/\r?\n/, 1)[0] || ''
+    if (targetAtLineStart && HEADING_LINE_PATTERN.test(targetFirstLine)) {
       // Moving a heading without its section body would leave orphan text behind.
-      const level = /^#{1,6}/.exec(content.slice(locatedTarget.start, locatedTarget.end))?.[0].length ?? 1
+      const level = /^#{1,6}/.exec(targetFirstLine)?.[0].length ?? 1
       cutEnd = findHeadingSectionEnd(content, locatedTarget.end, level)
       movedSourceText = content.slice(cutStart, cutEnd)
       movedWholeHeading = true
@@ -169,14 +170,23 @@ export function buildEditPlan(
       : locatedDestination.end
     let insertionText = movedText
     if (movedWholeHeading) {
+      // `destination` may be either a bare heading or a heading-plus-body
+      // section copied from the document. Treating a heading destination as
+      // "after the heading line" splits that section from its body, which is
+      // never a valid section reorder.
+      const destinationSlice = contentWithoutTarget.slice(
+        locatedDestination.start,
+        locatedDestination.end,
+      )
+      const destinationHeadingLevel = /^#{1,6}/.exec(destinationSlice)?.[0].length
+        ?? (HEADING_LINE_PATTERN.test(destinationSlice.split(/\r?\n/, 1)[0] || '')
+          ? /^#{1,6}/.exec(destinationSlice.split(/\r?\n/, 1)[0])?.[0].length ?? 1
+          : 1)
       if (command.destinationPosition === 'after') {
-        const destinationLevel = /^#{1,6}/.exec(
-          contentWithoutTarget.slice(locatedDestination.start, locatedDestination.end)
-        )?.[0].length ?? 1
         insertionIndex = findHeadingSectionEnd(
           contentWithoutTarget,
           locatedDestination.end,
-          destinationLevel,
+          destinationHeadingLevel,
         )
       }
       // Normalize a moved heading section to one trailing newline, then keep
@@ -186,7 +196,10 @@ export function buildEditPlan(
       const needsLeadingBlankLine = hasTextBefore
         && !contentWithoutTarget.slice(0, insertionIndex).endsWith('\n\n')
       if (needsLeadingBlankLine) insertionText = '\n' + insertionText
-      if (insertionIndex < contentWithoutTarget.length) insertionText += '\n'
+      const charAfterInsertion = contentWithoutTarget[insertionIndex]
+      if (insertionIndex < contentWithoutTarget.length
+        && charAfterInsertion !== '\n'
+        && charAfterInsertion !== '\r') insertionText += '\n'
     } else if (movedText) {
       const destinationAtLineStart = locatedDestination.start === 0
         || contentWithoutTarget[locatedDestination.start - 1] === '\n'

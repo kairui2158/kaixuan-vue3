@@ -1,7 +1,7 @@
 {
   "schema": "shenyi.skill-agent-authority.electron",
   "version": 1,
-  "generatedAt": "2026-10-04T22:31:36.057Z",
+  "generatedAt": "2026-10-07T16:58:36.900Z",
   "script": "verify-skill-agent-authority-electron.mjs",
   "provider": "http://127.0.0.1:59951",
   "skillId": "folder:L1-B",
@@ -17,7 +17,7 @@
       "id": "outline-no-skill",
       "entry": "outline",
       "withSkill": false,
-      "durationMs": 6358,
+      "durationMs": 5384,
       "turns": [
         {
           "request": "先不动正文，解释一下第一卷钩子的设计目的。",
@@ -81,7 +81,7 @@
       "id": "outline-with-skill",
       "entry": "outline",
       "withSkill": true,
-      "durationMs": 6341,
+      "durationMs": 6896,
       "turns": [
         {
           "request": "先不动正文，解释一下第一卷钩子的设计目的。",
@@ -145,7 +145,7 @@
       "id": "home-no-skill",
       "entry": "home",
       "withSkill": false,
-      "durationMs": 6014,
+      "durationMs": 6195,
       "turns": [
         {
           "request": "先不动正文，解释一下第一卷钩子的设计目的。",
@@ -209,7 +209,7 @@
       "id": "home-with-skill",
       "entry": "home",
       "withSkill": true,
-      "durationMs": 5869,
+      "durationMs": 4865,
       "turns": [
         {
           "request": "先不动正文，解释一下第一卷钩子的设计目的。",

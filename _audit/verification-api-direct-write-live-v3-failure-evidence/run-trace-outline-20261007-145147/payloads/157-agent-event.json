@@ -1,0 +1,15 @@
+{
+  "snapshot": {
+    "taskId": "outline-direct-api-1791356040772-381",
+    "status": "waiting_tool",
+    "reason": "physical request dispatched",
+    "goal": "把第 15 节整节移动到第 5 节前面，并保持节内文字不变。",
+    "stepIndex": 0,
+    "callCount": 1,
+    "successfulWriteCount": 0,
+    "noProgressRounds": 0,
+    "repeatedCallCount": 0,
+    "maxPhysicalRequests": 12,
+    "updatedAt": 1791356082452
+  }
+}

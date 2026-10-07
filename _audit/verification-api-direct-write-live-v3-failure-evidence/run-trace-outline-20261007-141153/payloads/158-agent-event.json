@@ -1,0 +1,31 @@
+{
+  "taskId": "edit-task-1791353689753-4",
+  "status": "running_batch",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "将第15节「盐仓档案」整节移动到第5节「南货铺的钟」之前",
+  "executedBatches": [],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "activeBatchId": "ai-edit-muxpqh7a-4",
+  "executionPlan": {
+    "goal": "将第15节「盐仓档案」整节移动到第5节「南货铺的钟」之前",
+    "batches": [
+      "ai-edit-muxpqh7a-4"
+    ],
+    "batchDetails": {
+      "ai-edit-muxpqh7a-4": {
+        "segmentId": "targeted-edit",
+        "expectedChange": "rewrite",
+        "range": {
+          "startLine": 0,
+          "endLine": 7576
+        },
+        "writeStrategy": "replace_match"
+      }
+    }
+  },
+  "batchId": "ai-edit-muxpqh7a-4",
+  "segmentId": "targeted-edit",
+  "expectedChange": "rewrite"
+}

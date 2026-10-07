@@ -1,0 +1,30 @@
+{
+  "taskId": "edit-task-1791355478391-5",
+  "status": "completed",
+  "source": "outline",
+  "targetId": "outline",
+  "goal": "批次1：将第15节盐仓档案移动到第16节之前，按编号重排",
+  "executedBatches": [
+    "ai-edit-muxqstbp-6"
+  ],
+  "pendingBatches": [],
+  "failedBatches": [],
+  "executionPlan": {
+    "goal": "批次1：将第15节盐仓档案移动到第16节之前，按编号重排",
+    "batches": [
+      "ai-edit-muxqstbp-6"
+    ],
+    "batchDetails": {
+      "ai-edit-muxqstbp-6": {
+        "segmentId": "structure-repair",
+        "expectedChange": "restructure",
+        "range": {
+          "startLine": 0,
+          "endLine": 7607
+        },
+        "writeStrategy": "structure_repair",
+        "invariantResult": "planned-deletion-only"
+      }
+    }
+  }
+}

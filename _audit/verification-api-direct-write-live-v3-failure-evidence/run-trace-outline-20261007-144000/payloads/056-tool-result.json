@@ -1,0 +1,14 @@
+{
+  "ok": false,
+  "error": {
+    "code": "reorder_id_set_mismatch",
+    "message": "reorder_sections 的 order 必须与当前顶层结构 ID 集合完全一致（共 1 个）：heading-1-1h6ox9k。document_map 返回的子节点 ID 不参与整篇重排；缺失 heading-1-1h6ox9k，多余 paragraph-46bd25 | heading-2-1voe54f | heading-2-rg901k | heading-2-1h7qvms | heading-2-ukykz8",
+    "retryable": true
+  },
+  "data": {
+    "expectedTopLevelIds": [
+      "heading-1-1h6ox9k"
+    ],
+    "repairPolicy": "请仅使用 expectedTopLevelIds 中的 ID 重新提交一次完整有序列表；不要混入子节点 ID，不要改写正文。"
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 15,
+  "id": "run-1791388990578-8",
+  "source": "home",
+  "sourceName": "主页编辑器",
+  "stepName": "主页共创",
+  "mode": "direct",
+  "projectId": "long-document-local-transform-project",
+  "projectName": "Long Document Local Transform",
+  "providerId": "local-transform-guard-provider",
+  "providerName": "Local Transform Guard",
+  "model": "local-transform-guard-model",
+  "skillNames": [],
+  "target": {
+    "type": "ch-body",
+    "id": "local-transform-main-tab",
+    "name": "灯塔旧信",
+    "activeTab": "灯塔旧信",
+    "locked": false
+  },
+  "context": {
+    "turns": 0
+  },
+  "status": "running",
+  "startedAt": 1791388990578,
+  "timeoutHint": {
+    "active": 3600000
+  },
+  "stateHistory": [],
+  "events": [
+    {
+      "id": "event-1791388990578-9",
+      "ts": 1791388990578,
+      "seq": 1,
+      "type": "started",
+      "level": "info",
+      "label": "开始主页编辑器 主页共创运行"
+    },
+    {
+      "id": "event-1791388990578-11",
+      "ts": 1791388990578,
+      "turnId": "turn-1791388990578-10",
+      "seq": 2,
+      "type": "user-request",
+      "level": "info",
+      "label": "用户请求",
+      "detail": "整理整篇文章：统一小节编号、清除多余空行、按编号重排，并保持所有正文内容不丢失。"
+    },
+    {
+      "id": "event-1791388990578-12",
+      "ts": 1791388990578,
+      "turnId": "turn-1791388990578-10",
+      "seq": 3,
+      "level": "info",
+      "type": "local-transform-executed",
+      "label": "确定性整理已本地执行",
+      "detail": "{\"execution_mode\":\"local-transform\",\"planId\":\"long-document-muyar3ht\",\"operations\":[\"reorder_sections\",\"normalize_blank_lines\",\"normalize_numbering\"],\"outcome\":\"completed\",\"durationMs\":0.20000004768371582,\"changedLineCount\":11,\"validation\":{\"ok\":true,\"problems\":[],\"checks\":{\"structureCoverage\":true,\"bodyMultisetUnchanged\":true,\"duplicateRemovalOnly\":true}},\"sourceChars\":105,\"beforeHash\":\"fnv1a32_81541a1a\",\"afterHash\":\"fnv1a32_36ad860a\",\"contextCompactedMessageCount\":0,\"reason\":null}",
+      "payloadRefs": [
+        "payload-001"
+      ]
+    },
+    {
+      "id": "event-1791388990581-13",
+      "ts": 1791388990581,
+      "turnId": "turn-1791388990578-10",
+      "seq": 4,
+      "type": "selection-restore",
+      "level": "info",
+      "label": "编辑器选区恢复：auto",
+      "detail": "{\"source\":\"external-write\",\"mode\":\"auto\",\"reason\":\"write-before-selection\",\"start\":102,\"end\":102}",
+      "selectionRestoreMode": "auto"
+    },
+    {
+      "id": "event-1791388990587-14",
+      "ts": 1791388990587,
+      "turnId": "turn-1791388990578-10",
+      "seq": 5,
+      "type": "turn-finished",
+      "level": "info",
+      "label": "第 1 轮完成",
+      "detail": "local_transform_complete"
+    },
+    {
+      "id": "event-1791388990587-15",
+      "ts": 1791388990587,
+      "seq": 6,
+      "type": "session-active",
+      "level": "info",
+      "label": "会话仍在进行",
+      "detail": "第 1 轮已完成；本条 chat run 保持 running，等待下一轮用户输入"
+    }
+  ],
+  "apiCalls": [],
+  "sessionKind": "chat",
+  "turns": [
+    {
+      "id": "turn-1791388990578-10",
+      "seq": 1,
+      "startedAt": 1791388990578,
+      "status": "success",
+      "userRequest": "整理整篇文章：统一小节编号、清除多余空行、按编号重排，并保持所有正文内容不丢失。",
+      "skillNames": [],
+      "mode": "direct",
+      "intent": "edit",
+      "toolSurface": [],
+      "actualToolSurface": [],
+      "reason": "local_transform_complete",
+      "endedAt": 1791388990587,
+      "durationMs": 9
+    }
+  ],
+  "promptSnapshots": [],
+  "processingReports": [],
+  "payloads": [
+    {
+      "id": "payload-001",
+      "kind": "agent-event",
+      "file": "001-agent-event.json",
+      "bytes": 604,
+      "chars": 604,
+      "sha256": "19a4580bb2727cc0d400f0057f7f1500f2d87eb90729f81bf96ca2d2a26b2400",
+      "duplicateCount": 1,
+      "createdAt": 1791388990807
+    }
+  ],
+  "resultPreview": "已本地完成整理：11 行发生变化，耗时 0.20000004768371582ms。未发起模型请求。",
+  "sessionSnapshot": true,
+  "apiResponseIndex": [],
+  "payloadIntegrityWarnings": []
+}

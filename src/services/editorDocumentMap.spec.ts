@@ -162,6 +162,24 @@ describe('editorDocumentMap', () => {
     expect((shorthand.data as any).content.startsWith('## 第1节 出发')).toBe(true)
   })
 
+  it('read_range returns a duplicate_read warning for the same version and range', async () => {
+    const { gateway } = makeGateway()
+    const documentMap = await gateway.execute('editor.document_map', {}, makeContext())
+    const section = ((documentMap.data as any).sections || [])[0] as { id: string }
+    expect(section?.id).toBeTruthy()
+    const input = { sectionId: section.id, offset: 0, limit: 100 }
+    const first = await gateway.execute('editor.read_range', input, makeContext())
+    const second = await gateway.execute('editor.read_range', input, makeContext())
+
+    expect(first.ok).toBe(true)
+    expect((first.data as any).content.length).toBeGreaterThan(0)
+    expect((first.data as { duplicate_read?: boolean }).duplicate_read).toBeUndefined()
+    expect(second.ok).toBe(true)
+    expect((second.data as { duplicate_read?: boolean }).duplicate_read).toBe(true)
+    expect((second.data as { duplicate_read_notice?: string }).duplicate_read_notice)
+      .toContain('不要重复读取')
+  })
+
   it('read_range rejects mixed pagination modes with one unambiguous rule', async () => {
     const { gateway } = makeGateway()
     const map = buildEditorDocumentMap(structuredContent)

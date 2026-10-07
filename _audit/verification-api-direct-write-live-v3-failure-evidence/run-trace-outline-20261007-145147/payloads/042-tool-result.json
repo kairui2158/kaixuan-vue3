@@ -1,0 +1,8 @@
+{
+  "ok": false,
+  "error": {
+    "code": "ambiguous_target",
+    "message": "片段出现多次，必须扩展片段使其唯一；优先使用结构锚点缩小目标：heading-1-1h6ox9k 青石镇的雨季 | heading-2-rg901k 第2节 渡口的灯 | heading-2-1h7qvms 第3节 旧账簿 | heading-2-ukykz8 第4节 青苔与铁锈 | heading-2-1de2kut 第5节 南货铺的钟",
+    "retryable": true
+  }
+}

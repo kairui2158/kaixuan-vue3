@@ -55,6 +55,7 @@
         "user-request",
         "long-document-policy",
         "routing-diagnostics",
+        "dialogue-tool-surface-declaration",
         "api-start",
         "folder-diagnostics",
         "skill-tool-declarations-ignored",
@@ -62,6 +63,9 @@
         "agent-skill-guidance-injected",
         "agent-snapshot",
         "agent-skill-guidance-injected",
+        "agent-skill-guidance-sanitized",
+        "agent-snapshot",
+        "agent-skill-guidance-sanitized",
         "agent-plan",
         "agent-snapshot",
         "agent-plan",
@@ -74,6 +78,10 @@
         "long-request-in-progress",
         "physical-call",
         "physical-call",
+        "agent-interactive_response",
+        "agent-snapshot",
+        "input-unlocked-interactive-response",
+        "agent-interactive_response",
         "agent-state",
         "agent-snapshot",
         "agent-state",
@@ -109,7 +117,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muuebob5",
+            "planId": "long-document-muycqzkl",
             "operation": "discussion",
             "legacyOperationType": "discussion",
             "mode": "direct",
@@ -117,7 +125,7 @@
             "reason": "execution-plan-direct",
             "segments": 0,
             "invariants": [],
-            "estimatedPhysicalRequests": 1,
+            "estimatedPhysicalRequests": 12,
             "contextWindow": {
               "status": "unknown",
               "contextWindowTokens": 1000000,
@@ -151,6 +159,42 @@
             "promptSource": "folder-system-prompt",
             "guidanceChars": 5754,
             "skillGuidancePresent": true
+          }
+        }
+      ],
+      "sanitizedGuidanceEvents": [
+        {
+          "type": "agent-skill-guidance-sanitized",
+          "detail": "folder SKILL 仅保留领域能力；执行协议与工具权限由应用单源控制",
+          "payload": {
+            "skillIds": [
+              "folder:L1-B"
+            ],
+            "promptSource": "folder-system-prompt",
+            "originalChars": 5754,
+            "retainedChars": 5356,
+            "removedChars": 449,
+            "removedCategories": [
+              "execution_control_markers",
+              "execution_protocol_semantics"
+            ]
+          }
+        },
+        {
+          "type": "agent-skill-guidance-sanitized",
+          "detail": "folder SKILL 仅保留领域能力；执行协议与工具权限由应用单源控制",
+          "payload": {
+            "skillIds": [
+              "folder:L1-B"
+            ],
+            "promptSource": "folder-system-prompt",
+            "originalChars": 5754,
+            "retainedChars": 5356,
+            "removedChars": 449,
+            "removedCategories": [
+              "execution_control_markers",
+              "execution_protocol_semantics"
+            ]
           }
         }
       ],
@@ -210,6 +254,7 @@
         "user-request",
         "long-document-policy",
         "routing-diagnostics",
+        "dialogue-tool-surface-declaration",
         "api-start",
         "folder-diagnostics",
         "skill-tool-declarations-ignored",
@@ -217,6 +262,9 @@
         "agent-skill-guidance-injected",
         "agent-snapshot",
         "agent-skill-guidance-injected",
+        "agent-skill-guidance-sanitized",
+        "agent-snapshot",
+        "agent-skill-guidance-sanitized",
         "agent-plan",
         "agent-snapshot",
         "agent-plan",
@@ -229,6 +277,10 @@
         "long-request-in-progress",
         "physical-call",
         "physical-call",
+        "agent-interactive_response",
+        "agent-snapshot",
+        "input-unlocked-interactive-response",
+        "agent-interactive_response",
         "agent-state",
         "agent-snapshot",
         "agent-state",
@@ -265,7 +317,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muuebp28",
+            "planId": "long-document-muycr09g",
             "operation": "discussion",
             "legacyOperationType": "discussion",
             "mode": "direct",
@@ -273,7 +325,7 @@
             "reason": "execution-plan-direct",
             "segments": 0,
             "invariants": [],
-            "estimatedPhysicalRequests": 1,
+            "estimatedPhysicalRequests": 12,
             "contextWindow": {
               "status": "unknown",
               "contextWindowTokens": 1000000,
@@ -307,6 +359,42 @@
             "promptSource": "folder-system-prompt",
             "guidanceChars": 5754,
             "skillGuidancePresent": true
+          }
+        }
+      ],
+      "sanitizedGuidanceEvents": [
+        {
+          "type": "agent-skill-guidance-sanitized",
+          "detail": "folder SKILL 仅保留领域能力；执行协议与工具权限由应用单源控制",
+          "payload": {
+            "skillIds": [
+              "folder:L1-B"
+            ],
+            "promptSource": "folder-system-prompt",
+            "originalChars": 5754,
+            "retainedChars": 5356,
+            "removedChars": 449,
+            "removedCategories": [
+              "execution_control_markers",
+              "execution_protocol_semantics"
+            ]
+          }
+        },
+        {
+          "type": "agent-skill-guidance-sanitized",
+          "detail": "folder SKILL 仅保留领域能力；执行协议与工具权限由应用单源控制",
+          "payload": {
+            "skillIds": [
+              "folder:L1-B"
+            ],
+            "promptSource": "folder-system-prompt",
+            "originalChars": 5754,
+            "retainedChars": 5356,
+            "removedChars": 449,
+            "removedCategories": [
+              "execution_control_markers",
+              "execution_protocol_semantics"
+            ]
           }
         }
       ],
@@ -378,6 +466,7 @@
         "user-request",
         "long-document-policy",
         "routing-diagnostics",
+        "dialogue-tool-surface-declaration",
         "api-start",
         "folder-diagnostics",
         "skill-tool-declarations-ignored",
@@ -385,6 +474,9 @@
         "agent-skill-guidance-injected",
         "agent-snapshot",
         "agent-skill-guidance-injected",
+        "agent-skill-guidance-sanitized",
+        "agent-snapshot",
+        "agent-skill-guidance-sanitized",
         "agent-plan",
         "agent-snapshot",
         "agent-plan",
@@ -441,7 +533,7 @@
         {
           "type": "long-document-policy",
           "detail": {
-            "planId": "long-document-muuebpu7",
+            "planId": "long-document-muycr0rw",
             "operation": "targeted_edit",
             "legacyOperationType": "targeted-edit",
             "mode": "direct",
@@ -449,7 +541,7 @@
             "reason": "execution-plan-direct",
             "segments": 1,
             "invariants": [],
-            "estimatedPhysicalRequests": 1,
+            "estimatedPhysicalRequests": 12,
             "contextWindow": {
               "status": "unknown",
               "contextWindowTokens": 1000000,
@@ -486,6 +578,42 @@
           }
         }
       ],
+      "sanitizedGuidanceEvents": [
+        {
+          "type": "agent-skill-guidance-sanitized",
+          "detail": "folder SKILL 仅保留领域能力；执行协议与工具权限由应用单源控制",
+          "payload": {
+            "skillIds": [
+              "folder:L1-B"
+            ],
+            "promptSource": "folder-system-prompt",
+            "originalChars": 5754,
+            "retainedChars": 5356,
+            "removedChars": 449,
+            "removedCategories": [
+              "execution_control_markers",
+              "execution_protocol_semantics"
+            ]
+          }
+        },
+        {
+          "type": "agent-skill-guidance-sanitized",
+          "detail": "folder SKILL 仅保留领域能力；执行协议与工具权限由应用单源控制",
+          "payload": {
+            "skillIds": [
+              "folder:L1-B"
+            ],
+            "promptSource": "folder-system-prompt",
+            "originalChars": 5754,
+            "retainedChars": 5356,
+            "removedChars": 449,
+            "removedCategories": [
+              "execution_control_markers",
+              "execution_protocol_semantics"
+            ]
+          }
+        }
+      ],
       "assistantReply": "已完成合法写入，稳定段落末尾已追加测试标记。\n\n---\n\n**提示：** 连续多次未识别编辑指令。如需 AI 直接修改内容，请明确指示，例如「请重写第三段」或「在开头插入一段环境描写」。"
     }
   ],
@@ -506,10 +634,7 @@
           "editor.global_search",
           "editor.workspace_summary",
           "context.remaining",
-          "agent.plan",
-          "agent.spawn",
-          "agent.wait",
-          "agent.cancel"
+          "agent.plan"
         ]
       }
     ],
@@ -529,10 +654,7 @@
           "editor.global_search",
           "editor.workspace_summary",
           "context.remaining",
-          "agent.plan",
-          "agent.spawn",
-          "agent.wait",
-          "agent.cancel"
+          "agent.plan"
         ]
       }
     ],
@@ -553,10 +675,7 @@
           "editor.global_search",
           "editor.workspace_summary",
           "context.remaining",
-          "agent.plan",
-          "agent.spawn",
-          "agent.wait",
-          "agent.cancel"
+          "agent.plan"
         ]
       },
       {
@@ -575,10 +694,7 @@
           "editor.global_search",
           "editor.workspace_summary",
           "context.remaining",
-          "agent.plan",
-          "agent.spawn",
-          "agent.wait",
-          "agent.cancel"
+          "agent.plan"
         ]
       }
     ]

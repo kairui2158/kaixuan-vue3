@@ -1,0 +1,11 @@
+{
+  "commands": [
+    {
+      "operation": "replace_match",
+      "target": "账簿翻开第3页",
+      "content": "账簿翻到第三页",
+      "reason": "按用户要求修改第3节中账簿翻页表述"
+    }
+  ],
+  "reason": "用户要求将第3节“账簿翻开第3页”改为“账簿翻到第三页”。"
+}

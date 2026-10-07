@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { SKILL_GUIDANCE_PROTOCOL_GUARD } from './skillGuidanceSanitizer'
 
 vi.mock('./realSkillLoader', () => ({
   loadRealSkill: vi.fn()
@@ -200,7 +201,8 @@ describe('realSkillExecutor single pass', () => {
     const params = callAi.mock.calls[0]![0] as CallAiParams
     const systemMessage = params.messages[0]
     const systemPrompt = systemMessage?.content ?? ''
-    expect(systemPrompt.startsWith('智能体指令')).toBe(true)
+    expect(systemPrompt.startsWith(SKILL_GUIDANCE_PROTOCOL_GUARD)).toBe(true)
+    expect(systemPrompt).toContain('智能体指令')
     expect(systemPrompt).toContain('请处理输入文本，保持事件与语义不变。')
     expect(systemPrompt).toContain('[folder resource: references/protocol.md]\n协议资源')
     expect(params.model).toBe('test-model')
@@ -228,7 +230,8 @@ describe('realSkillExecutor single pass', () => {
     expect(result.status).toBe('success')
     const params = callAi.mock.calls[0]![0] as CallAiParams
     const systemPrompt = params.messages[0]?.content ?? ''
-    expect(systemPrompt.startsWith('智能体指令')).toBe(true)
+    expect(systemPrompt.startsWith(SKILL_GUIDANCE_PROTOCOL_GUARD)).toBe(true)
+    expect(systemPrompt).toContain('智能体指令')
     expect(systemPrompt).toContain('[folder resource: references/protocol.md]\n协议资源\n\n降AI约束')
   })
 
@@ -502,6 +505,39 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(params.temperature).toBe(0.7)
     expect(params.maxTokens).toBeUndefined()
     expect(params.messages[0]?.content).toContain('技能默认智能体指令')
+  })
+
+  it('sanitizes legacy execution protocol semantics from the folder package system prompt', async () => {
+    const callAi = vi.fn(async () => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        body: [
+          '领域能力：卷纲钩子必须服务悬念张力。',
+          '### 修改预览',
+          '### 批准写回',
+          '### 写入未执行',
+          'status: pending',
+          'await_user: true',
+        ].join('\n'),
+        resources: []
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
+
+    expect(result.status).toBe('success')
+    const params = (callAi.mock.calls[0] as unknown as Array<CallAiParams>)[0]
+    const systemPrompt = String(params.messages[0]?.content || '')
+    expect(systemPrompt).toContain('领域能力：卷纲钩子必须服务悬念张力。')
+    expect(systemPrompt).toContain('执行协议、工具权限、写入方式以应用系统提示为准')
+    expect(systemPrompt).not.toContain('修改预览')
+    expect(systemPrompt).not.toContain('批准写回')
+    expect(systemPrompt).not.toContain('写入未执行')
+    expect(systemPrompt).not.toContain('status: pending')
+    expect(systemPrompt).not.toContain('await_user')
   })
 
   it('keeps an explicit user-bound agent over meta.agent', async () => {
