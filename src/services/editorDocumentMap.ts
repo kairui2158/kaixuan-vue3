@@ -308,8 +308,9 @@ export function createEditorDocumentMapTools(options: {
         if (!entry) return sectionNotFound('cursor', cursor.sectionId)
         section = entry.section
         path = entry.path
-        if (cursor.offset >= section.charCount) {
-          return toolError('invalid_range', `cursor offset ${cursor.offset} 超出节内容长度 ${section.charCount}`)
+        const addressableChars = Math.max(0, section.end - section.start)
+        if (cursor.offset >= addressableChars) {
+          return toolError('invalid_range', `cursor offset ${cursor.offset} 超出节内容长度 ${addressableChars}`)
         }
       } else {
         const entry = current.entries.get((params.sectionId as string).trim())
@@ -338,8 +339,9 @@ export function createEditorDocumentMapTools(options: {
         return toolError('range_too_large', `当前上下文预算过小，单次至少需要 ${minimumReadChars} 字符`)
       }
       const offset = cursor ? cursor.offset : (hasExplicitOffset ? explicitOffset : 0)
-      if (offset >= section.charCount) {
-        return toolError('invalid_range', `offset ${offset} 超出节内容长度 ${section.charCount}`)
+      const addressableChars = Math.max(0, section.end - section.start)
+      if (offset >= addressableChars) {
+        return toolError('invalid_range', `offset ${offset} 超出节内容长度 ${addressableChars}`)
       }
       const readStart = section.start + offset
       const readEnd = Math.min(section.end, readStart + maxChars)

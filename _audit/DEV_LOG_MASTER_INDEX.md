@@ -755,3 +755,10 @@
 - 范围：本地重排多重集校验；活动任务手动写入护栏；主页手动插入/修订直写化并删除 DiffModal；SKILL 手册 3.77.0 同步；live v3 六步真实验证；heading move 语义修复；工具上下文压缩 live 证据收口。
 - 验证：live v3 6/6 通过（deepseek-v4-pro）；132 files / 1545 tests 全绿；type-check、build:vue、负路径 Electron、直写压测、provider wire matrix、3.77.0 打包真实启动全部通过。
 - 客户重点复验：手动插入/修订不弹预览；活动任务挂起时手动写入提示恢复/取消；整节移动落在 section 边界；整理类请求出现 `local-transform-executed`。
+
+# 2026-10-08 Active Plan Continuation 与 1M 读取坐标修复
+
+- 文件：[_audit/DEV_LOG_2026-10-08_active-plan-continuation-and-million-read-range.md](_audit/DEV_LOG_2026-10-08_active-plan-continuation-and-million-read-range.md)
+- 范围：跨轮计划 T1/T2/T3 单源续接；修复 `editor.read_range` 标题独占节与尾部分页混用 `charCount` / 完整区间两套坐标的缺陷。
+- 验证：TDD 红测转绿；133 files / 1562 tests 全绿；type-check、build:vue、Electron 全量 stress E2E（含 1M 场景）通过；整篇替换负路径仍被安全阻断。
+- 客户重点复验：百万字大纲的分批读取不再出现“offset 0 超出节内容长度 0”；T1 建计划、T2 讨论、T3 确认会复用同一执行计划并完成写入。

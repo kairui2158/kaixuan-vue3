@@ -125,6 +125,28 @@ describe('editorDocumentMap', () => {
     expect(snapshot.content).toBe(content)
   })
 
+  it('read_range reads a heading-only section as addressable content', async () => {
+    const content = [
+      '第一卷 百万字大纲',
+      '第1节 百万字大纲压测。男主沿着灯塔石阶检查灯芯。',
+      '第2节 百万字大纲压测。潮声在礁石外反复退去。',
+    ].join('\n')
+    const { gateway } = makeGateway(content)
+    const map = buildEditorDocumentMap(content)
+    const section = map.sections.find(item => item.id === 'section-1')
+    expect(section).toBeTruthy()
+
+    const result = await gateway.execute('editor.read_range', {
+      sectionId: section!.id,
+    }, makeContext())
+
+    expect(result.ok).toBe(true)
+    const data = result.ok ? result.data as any : null
+    expect(data?.content).toBe('第1节 百万字大纲压测。男主沿着灯塔石阶检查灯芯。\n')
+    expect(data?.hasMore).toBe(false)
+    expect(data?.nextCursor).toBeUndefined()
+  })
+
   it('read_range supports sectionId offset/limit pagination and cursor shorthand', async () => {
     const longBody = '雨'.repeat(2000)
     const content = `## 第1节 出发\n${longBody}\n## 第2节 渡口\n灯塔。`
@@ -160,6 +182,30 @@ describe('editorDocumentMap', () => {
     expect(shorthand.ok).toBe(true)
     expect((shorthand.data as any).offset).toBe(0)
     expect((shorthand.data as any).content.startsWith('## 第1节 出发')).toBe(true)
+  })
+
+  it('read_range uses one offset coordinate across section pagination', async () => {
+    const heading = '## 第1节 出发'
+    const longBody = '雨'.repeat(1250)
+    const content = `${heading}\n${longBody}`
+    const { gateway } = makeGateway(content)
+    const map = buildEditorDocumentMap(content)
+    const section = map.sections.find(item => item.title === '第1节 出发')
+    expect(section).toBeTruthy()
+
+    const page1 = await gateway.execute('editor.read_range', {
+      sectionId: section!.id,
+      limit: 1255,
+    }, makeContext())
+    expect(page1.ok).toBe(true)
+    expect((page1.data as any).hasMore).toBe(true)
+
+    const page2 = await gateway.execute('editor.read_range', {
+      cursor: (page1.data as any).nextCursor,
+    }, makeContext())
+    expect(page2.ok).toBe(true)
+    expect((page2.data as any).content).toBe(content.slice(1255))
+    expect((page2.data as any).hasMore).toBe(false)
   })
 
   it('read_range returns a duplicate_read warning for the same version and range', async () => {
