@@ -7,13 +7,13 @@ import { _electron } from 'playwright'
 import asar from '@electron/asar'
 
 const ROOT = path.resolve(process.cwd())
-const VERSION = '3.79.0'
+const VERSION = '3.80.0'
 const APP_DIR = path.join(ROOT, 'dist', 'win-unpacked')
 const APP_EXE = path.join(APP_DIR, '神意助手.exe')
 const ASAR_FILE = path.join(APP_DIR, 'resources', 'app.asar')
 const INSTALLER_FILE = path.join(ROOT, 'dist', `神意助手-Setup-${VERSION}.exe`)
 const RENDERER_DIR = path.join(ROOT, 'dist-renderer')
-const OUTPUT_FILE = path.join(ROOT, '_audit', 'verification-packaging-3-79-0', 'packaging-evidence.json')
+const OUTPUT_FILE = path.join(ROOT, '_audit', 'verification-packaging-3-80-0', 'packaging-evidence.json')
 const SOURCE_ROOTS = ['src', 'electron', 'public', 'build', 'resources']
 const CONFIG_FILES = ['package.json', 'package-lock.json', 'vite.config.mts', 'vite.protocols.config.mts', 'electron/preload.js']
 const LAUNCH_TIMEOUT_MS = 90_000
@@ -115,7 +115,7 @@ try {
   assert(!/无法加载|白屏/.test(bodyText), 'packaged app does not show loading failure')
 
   const evidence = {
-    schemaVersion: 'packaging-3-79-0-v1',
+    schemaVersion: 'packaging-3-80-0-v1',
     generatedAt: new Date().toISOString(),
     version: packageJson.version,
     productName: packageJson.build?.productName,

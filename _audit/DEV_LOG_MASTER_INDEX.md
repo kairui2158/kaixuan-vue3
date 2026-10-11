@@ -790,3 +790,11 @@
 - 范围：卷纲/设定/正文三层产物契约与编排器、runTrace schema 17、统一终态归并、`storage:remove` 同步删除 `.bak` 断点。
 - 验证：147 files / 1757 tests 全绿；type-check 与 build:vue 通过；真实 Electron UI + API live 四层 success，三层导出回放全部 `RESULT: ACCEPTED`；三条旧 schema 记录按 `EXPECTED-FAIL` 口径登记。
 - 诚实边界：`electron-run.log` 只承载 Electron 子进程输出，`PASSED` 由验证器主进程输出；完成证据以 `summary.json`、三层 trace 导出与回放复核为准。
+
+# 2026-10-12 3.80.0 流水线产物契约统一封装
+
+- 文件：[_audit/DEV_LOG_2026-10-12-packaging-3-80-0.md](_audit/DEV_LOG_2026-10-12-packaging-3-80-0.md)
+- 范围：升级 3.80.0；新增 3.80.0 封装验证器；完整 NSIS 重打包与真实启动核验；清理 3.79.0 旧安装包、旧验证器与旧证据目录。
+- 验证：147 files / 1757 tests、type-check、build:vue、NSIS 打包、asar 版本、renderer 新鲜度、75 项 `electronAPI`、可见正文与 SHA256 全部通过。
+- 安装包：`dist/神意助手-Setup-3.80.0.exe`，231,515,087 bytes，SHA256 `f2086c8c60636e63380a34b688819b7c7882815ef0ee1bd254271e444fe35e5f`。
+- 客户重点复验：生成流水线卷纲/设定/正文应出现产物契约验收事件；删除带断点的存储文件后 `.bak` 不应残留。
