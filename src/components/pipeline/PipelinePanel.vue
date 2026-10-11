@@ -825,6 +825,8 @@ import { selectCompleteChapters, validateChapterNarrative, validateVolumeNarrati
 import { buildVolumePrompt, clampGeneratedVolumes, hasVolumeContent } from "../../services/volumeGeneration"
 import { buildVolumePlanIntegrity, clampVolumeWordsToPlan } from "../../services/volumePlanIntegrity"
 import type { VolumeGenerateMode } from "../../services/volumeGeneration"
+import { buildChapterHistoryFacts, renderChapterHistoryContext, validateChapterGenerationLedger, type ChapterBatchContract } from "../../services/chapterGenerationContract"
+import { generateChapterBatch } from "../../services/chapterBatchOrchestrator"
 import { DeAiProcessor, DEAI_METHODOLOGY_PROMPT } from "../../services/de-ai"
 import type { RealSkillExecutionResult } from "../../services/realSkillTypes"
 import RealSkillDiagnosticsPanel from "../common/RealSkillDiagnosticsPanel.vue"
@@ -3673,43 +3675,63 @@ async function genChapters() {
     const settingsTextForChapters = allSettings.map((s: any) => s.name + " - " + JSON.stringify(s.attrs)).join("\n")
     const boundSettingsTextForChapters = getBoundSettingsText()
     const batch = Math.max(1, Math.min(chapterBatchSize.value || 5, 20))
+    const batchContracts: ChapterBatchContract[] = collected.length > 0
+      ? [{
+          volumeId: String(volId),
+          batchIndex: 0,
+          expectedStart: 1,
+          expectedEnd: collected.length,
+          requestedCount: collected.length,
+          totalChapters
+        }]
+      : []
     while (collected.length < totalChapters) {
       const start = collected.length
       const requested = Math.min(batch, totalChapters - start)
       const end = start + requested
       const phase = start > 0 ? 'supplement' : 'batch'
-      pipelineStore.updateProgress(Math.round((start / totalChapters) * 100), "生成 " + (start + 1) + "-" + end + "/" + totalChapters)
-      chapterGenerationLogs.value.push(
-        (phase === 'supplement' ? "补充生成" : "正在生成") + "第" + (start + 1) + "章到第" + end + "章（共" + totalChapters + "章）"
-      )
-      const prompt = "[全书大纲]\n" + projectStore.pipelineOutlineText
+      const contract: ChapterBatchContract = {
+        volumeId: String(volId),
+        batchIndex: batchContracts.length,
+        expectedStart: start + 1,
+        expectedEnd: end,
+        requestedCount: requested,
+        totalChapters
+      }
+      const historyFacts = buildChapterHistoryFacts(collected)
+      const historyContext = renderChapterHistoryContext(historyFacts)
+      const basePrompt = "[全书大纲]\n" + projectStore.pipelineOutlineText
         + "\n\n[设定]\n" + (settingsTextForChapters || "（暂无设定）")
         + (boundSettingsTextForChapters ? "\n\n[绑定设定]\n" + boundSettingsTextForChapters : "")
         + "\n\n[卷纲]\n" + vol.name + " - " + volOutline
         + (styleCtxForChapters ? "\n\n[风格与节奏]\n" + styleCtxForChapters : "")
         + "\n\n[本卷总章数]\n" + totalChapters
         + "\n\n[单章字数]\n" + wordsPerChapter
-        + "\n\n已有" + start + "章，" + (phase === 'supplement' ? "继续" : "请") + "生成第" + (start + 1) + "章到第" + end + "章的章节列表。不要重复已有章节。输出JSON数组，每项含title/plot字段。数组长度应为" + requested + "。"
-      let added: any[] = []
-      let lastError: any = null
-      for (let retry = 0; retry < 5 && added.length === 0; retry++) {
-        try {
-          const result = await callChapterApi(prompt)
-          const existingTitles = new Set(collected.map(c => c.title))
-          const chapters = selectCompleteChapters((extractJsonArray(result) as any[]).slice(0, requested * 2))
-          added = chapters.filter((c: any) => !existingTitles.has(String(c.title).trim())).slice(0, requested)
-          if (added.length === 0) {
-            lastError = new Error("API 返回空章节或重复章节")
-            if (retry < 4) await new Promise((r) => setTimeout(r, 5000))
-          }
-        } catch (retryErr: any) {
-          if (pipelineStore.isGenerationCanceled()) throw retryErr
-          lastError = retryErr
-          await saveChapterBreakpoint('retry-wait')
-          if (retry < 4) await new Promise((r) => setTimeout(r, 10000))
+      pipelineStore.updateProgress(Math.round((start / totalChapters) * 100), "生成 " + (start + 1) + "-" + end + "/" + totalChapters)
+      chapterGenerationLogs.value.push(
+        (phase === 'supplement' ? "补充生成" : "正在生成") + "第" + (start + 1) + "章到第" + end + "章（共" + totalChapters + "章）"
+      )
+      const batchResult = await generateChapterBatch({
+        contract,
+        historyTitles: new Set(collected.map(c => String(c.title || '').trim())),
+        basePrompt,
+        historyContext,
+        callChapterApi,
+        shouldContinue: () => !pipelineStore.isGenerationCanceled(),
+        onAttempt: (attempt) => {
+          trace.addEvent({
+            type: "chapter-batch-attempt",
+            level: attempt.status === 'complete' ? 'info' : attempt.status === 'error' ? 'error' : 'warn',
+            label: "章节批次验收",
+            detail: JSON.stringify(attempt)
+          })
         }
+      })
+      if (batchResult.status !== 'complete') {
+        await saveChapterBreakpoint('batch-incomplete')
+        throw new Error(batchResult.errors.join("; ") || `批次未能补齐：第${contract.expectedStart}章到第${contract.expectedEnd}章`)
       }
-      if (added.length === 0) throw lastError || new Error("未能生成新的章节")
+      const added = batchResult.chapters
       added.forEach((c: any, idx: number) => {
         if (!c.id) c.id = "ch-" + String(volId).replace(/[^a-zA-Z0-9_-]/g, "-") + "-" + String(collected.length + idx + 1).padStart(3, "0")
         c.pipelineGenerated = true
@@ -3717,12 +3739,26 @@ async function genChapters() {
         if (c.bodyGenerated === undefined) c.bodyGenerated = false
         if (c.wordCount === undefined) c.wordCount = 0
       })
+      batchContracts.push(contract)
       collected.push(...added)
       projectStore.setChapters(volId, [...untouchedChapters, ...collected])
       projectStore.refreshTree()
       await saveChapterBreakpoint('progress')
       chapterGenerationLogs.value.push("已生成 " + collected.length + "/" + totalChapters + " 章")
-      trace.addEvent({ type: "write", level: "info", label: "章节批次已写入", detail: `已生成 ${collected.length}/${totalChapters} 章` })
+      trace.addEvent({
+        type: "chapter-batch-validated",
+        level: "info",
+        label: "章节批次验收通过",
+        detail: JSON.stringify({
+          batchIndex: contract.batchIndex,
+          expectedStart: contract.expectedStart,
+          expectedEnd: contract.expectedEnd,
+          requestedCount: contract.requestedCount,
+          actualCount: added.length,
+          repairAttempts: batchResult.attempts.filter(attempt => attempt.repairAttempt > 0).length,
+          status: batchResult.status
+        })
+      })
     }
     if (collected.length > 0) {
       const vr = validateChapters(collected, totalChapters)
@@ -3730,6 +3766,13 @@ async function genChapters() {
         await saveChapterBreakpoint('failed-validation')
         pipelineStore.failGeneration(vr.errors.join("; "))
         chapterGenerationLogs.value.push("章节校验失败：" + vr.errors.join("; "))
+        return
+      }
+      const ledger = validateChapterGenerationLedger(batchContracts, totalChapters)
+      if (!ledger.valid) {
+        await saveChapterBreakpoint('failed-validation')
+        pipelineStore.failGeneration(ledger.errors.join("; "))
+        chapterGenerationLogs.value.push("章节台账校验失败：" + ledger.errors.join("; "))
         return
       }
       pipelineStore.updateProgress(100, "章节生成完成")

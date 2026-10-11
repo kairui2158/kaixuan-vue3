@@ -769,6 +769,13 @@
 - 范围：升级 3.79.0；新增 3.79.0 封装验证器；完整 NSIS 重打包与真实启动核验；清理 3.78.0 旧安装产物、旧验证器与旧证据目录。
 - 前置成果：single-pass 全上下文重构、主页终稿流 OOM 修复、崩溃检测硬化、工具运行预算、读取台账与双入口真实链路验证。
 
+# 2026-10-11 章节层批次契约与历史标题台账
+
+- 文件：[_audit/DEV_LOG_2026-10-11_chapter-batch-contract-live-verification.md](_audit/DEV_LOG_2026-10-11_chapter-batch-contract-live-verification.md)
+- 范围：章节批次显式契约、短产补生成、失败断点、全量历史标题单源注入、runTrace schema 16 与批次验收事件。
+- 验证：专项 105/105、全量 1697/1697、type-check、build:vue 通过；27MB 事故回放在 B5 短产处 REJECTED。live 成功轮按用户批准以 summary 口径登记，payload 原件因清理策略未留存。
+- 客户重点复验：短产批次不再滑动推进；第 2、3 批请求应包含 `[已生成章节标题清单]`；runTrace 应出现 `chapter-batch-validated`。
+
 # 2026-10-10 全文上下文一次成型真实链路验证
 
 - 文件：[_audit/DEV_LOG_2026-10-10_full-context-single-pass-live-verification.md](_audit/DEV_LOG_2026-10-10_full-context-single-pass-live-verification.md)

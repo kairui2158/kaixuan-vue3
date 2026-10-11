@@ -1633,7 +1633,7 @@ describe('runTrace store', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
     const exported = store.exportRunToJson(store.getRun(runId)!) as Record<string, unknown>
-    expect(exported.schemaVersion).toBe(15)
+    expect(exported.schemaVersion).toBe(16)
   })
 
   it('preserves raw provider arguments through the tool-call trace export', () => {
@@ -2120,7 +2120,7 @@ describe('runTrace store', () => {
     const run = store.getRun(runId)!
     expect(run.events.some(event => event.type === 'chain-handoff-delivery')).toBe(true)
     expect(run.processingReports?.some(report => report.processor === 'chain-handoff')).toBe(true)
-    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(15)
+    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(16)
   })
 
   it('records the requested and actual tool surface separately', () => {
