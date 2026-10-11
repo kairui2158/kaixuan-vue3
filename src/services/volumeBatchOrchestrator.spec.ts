@@ -73,6 +73,24 @@ describe('buildVolumeBatchPrompt', () => {
     expect(prompt).toContain('只输出缺失卷')
     expect(prompt).toContain('数组长度必须为1')
   })
+
+  it('renders the previous validation errors and forbidden volume names in repair prompts', () => {
+    const prompt = buildVolumeBatchPrompt({
+      contract: { ...contract, mode: 'single', expectedCount: 1, existingCount: 2 },
+      repair: true,
+      missingStart: 3,
+      missingCount: 1,
+      basePrompt: '[大纲] 全书大纲',
+      historyContext: '[已生成卷事实清单]\n第1卷《第一卷》',
+      repairErrors: ['卷名与历史重复：「第一卷」'],
+      forbiddenVolumeNames: ['第一卷', '第二卷']
+    })
+
+    expect(prompt).toContain('【上一次验收失败原因】')
+    expect(prompt).toContain('卷名与历史重复：「第一卷」')
+    expect(prompt).toContain('【禁止重复的已有卷名】')
+    expect(prompt).toContain('第一卷、第二卷')
+  })
 })
 
 describe('generateVolumeBatch', () => {
@@ -177,6 +195,27 @@ describe('generateVolumeBatch', () => {
     expect(result.volumes.map(item => item.name)).toEqual(['第一卷', '第二卷', '第三卷'])
     expect(calls[1]).toContain('补充生成第3卷到第3卷，共1卷')
     expect(result.attempts[1].repairAttempt).toBe(1)
+  })
+
+  it('passes duplicate errors and forbidden volume names into the repair prompt', async () => {
+    const calls: string[] = []
+    const result = await generateVolumeBatch({
+      contract,
+      historyVolumes: [volume('第一卷')],
+      basePrompt: '[大纲] 全书大纲',
+      historyContext: '[已生成卷事实清单]\n第1卷《第一卷》',
+      callVolumeApi: async prompt => {
+        calls.push(prompt)
+        return calls.length === 1 ? json(['第一卷', '第二卷']) : json(['第三卷', '第四卷'])
+      },
+      maxRepairAttempts: 2
+    })
+
+    expect(result.status).toBe('complete')
+    expect(calls[1]).toContain('【上一次验收失败原因】')
+    expect(calls[1]).toContain('卷名与历史重复：「第一卷」')
+    expect(calls[1]).toContain('【禁止重复的已有卷名】')
+    expect(calls[1]).toContain('第一卷')
   })
 
   it('truncates extra volumes in single and continue modes and records the reason', async () => {

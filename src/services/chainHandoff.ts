@@ -39,6 +39,8 @@ export interface ChainHandoffArtifact {
 export interface ChainHandoffTemplateMeta {
   chainHandoff?: {
     requiresFullPreviousOutput?: boolean
+    /** Folder pass input=previous should also keep the declared upstream chain context. */
+    requiresFullUpstreamContext?: boolean
     previousOutput?: 'full' | 'excerpt' | 'structured'
     requires?: string[]
   }

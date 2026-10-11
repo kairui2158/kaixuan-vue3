@@ -48,6 +48,8 @@ export function buildVolumeBatchPrompt(input: {
   basePrompt: string
   historyContext: string
   requestPolicy?: 'batch' | 'single-volume'
+  repairErrors?: string[]
+  forbiddenVolumeNames?: string[]
 }): string {
   const { contract } = input
   if (input.requestPolicy === 'single-volume') {
@@ -73,7 +75,15 @@ export function buildVolumeBatchPrompt(input: {
       '',
       `补充生成第${missingStart}卷到第${missingEnd}卷，共${missingCount}卷。只输出缺失卷，不要重复任何已有卷名。`,
       '输出JSON数组，每项含name/outline/summary/allocatedWords字段。数组长度必须为' + missingCount + '。'
-    ].join('\n')
+    ].concat(input.repairErrors?.length ? [
+      '',
+      '【上一次验收失败原因】',
+      ...input.repairErrors
+    ] : []).concat(input.forbiddenVolumeNames?.length ? [
+      '',
+      '【禁止重复的已有卷名】',
+      input.forbiddenVolumeNames.join('、')
+    ] : []).join('\n')
   }
   return [
     input.basePrompt,
@@ -109,12 +119,14 @@ export async function generateVolumeBatch(input: GenerateVolumeBatchInput): Prom
 
   const accepted: any[] = []
   const existingNames = new Set(input.historyVolumes.map(item => volumeName(item?.name)))
+  const forbiddenVolumeNames = Array.from(existingNames)
   const progressVolumes: ExistingVolumeRef[] = [...input.historyVolumes]
   const renderProgressContext = () => renderVolumeHistoryContext(
     buildVolumeHistoryFacts(progressVolumes)
   )
   let repairAttempt = 0
   let stalledAttempts = 0
+  let previousErrors: string[] = []
 
   while (true) {
     if (input.shouldContinue && !input.shouldContinue()) {
@@ -138,7 +150,9 @@ export async function generateVolumeBatch(input: GenerateVolumeBatchInput): Prom
       missingCount,
       basePrompt: input.basePrompt,
       historyContext: progressContext,
-      requestPolicy
+      requestPolicy,
+      repairErrors: previousErrors,
+      forbiddenVolumeNames
     })
 
     const acceptedCountBefore = accepted.length
@@ -227,6 +241,7 @@ export async function generateVolumeBatch(input: GenerateVolumeBatchInput): Prom
 
     const currentMissingStart = input.contract.existingCount + accepted.length + 1
     const currentMissingCount = expectedCount - accepted.length
+    previousErrors = validationErrors
     attempts.push({
       repairAttempt,
       status: 'short',

@@ -815,7 +815,7 @@ import { classifyRunOutcome, type RunOutcomeStatus } from "../../services/genera
 import { extractJsonArray, extractJsonObject } from "../../services/jsonExtraction"
 import type { RunTraceStatus } from "../../stores/runTrace"
 import { buildChapterExecutionPrompt, createChapterExecutionPackage } from "../../services/chapterExecutionPackage"
-import { appendMemoryPromptOnce, buildChainSkillPrompt, dedupeChainIntermediateOutput, detectChainOutputEcho, formatMemoryPrompt, slimChainUpstreamPrompt, templateReferencesPreviousOutput } from "../../services/chainExecution"
+import { appendMemoryPromptOnce, buildChainSkillPrompt, dedupeChainIntermediateOutput, detectChainOutputEcho, formatMemoryPrompt, shouldRepairChainEcho, slimChainUpstreamPrompt, templateReferencesPreviousOutput } from "../../services/chainExecution"
 import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from "../../services/skillValidation"
 import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainResumePoint } from "../../services/chainBreakpoint"
 import { describeChainHandoffEvent, makeChainHandoffArtifact, resolveChainPreviousOutput } from "../../services/chainHandoff"
@@ -833,7 +833,8 @@ import { normalizeSettingsCategory } from "../../services/settingsArtifactContra
 import { generateBodyArtifact } from "../../services/bodyArtifactOrchestrator"
 import { countBodyWords } from "../../services/bodyArtifactContract"
 import { resolvePipelineRunOutcome } from "../../services/pipelineRunOutcome"
-import { DeAiProcessor, DEAI_METHODOLOGY_PROMPT } from "../../services/de-ai"
+import { buildPipelineChainWarningLine, coalescePipelineStepWarning } from "../../services/pipelineStepLog"
+import { DeAiProcessor, resolveDeaiPromptForChainStep } from "../../services/de-ai"
 import type { RealSkillExecutionResult } from "../../services/realSkillTypes"
 import RealSkillDiagnosticsPanel from "../common/RealSkillDiagnosticsPanel.vue"
 import RunTracePanel from "../common/RunTracePanel.vue"
@@ -933,15 +934,18 @@ function legacyLogsFor(run: RunTrace) {
 
 function closeSettingsGenerationFeedback() {
   settingsGenerationLogs.value = []
+  resetPipelineStepWarningCounts()
   if (activeGenerationFeedbackStep.value === 1) activeGenerationFeedbackStep.value = null
 }
 function closeVolumeGenerationFeedback() {
   volumeGenerationLogs.value = []
+  resetPipelineStepWarningCounts()
   if (activeGenerationFeedbackStep.value === 2) activeGenerationFeedbackStep.value = null
 }
 
 function closeChapterGenerationFeedback() {
   chapterGenerationLogs.value = []
+  resetPipelineStepWarningCounts()
   if (activeGenerationFeedbackStep.value === 3) activeGenerationFeedbackStep.value = null
 }
 
@@ -1023,13 +1027,36 @@ function handleRealSkillStep(event: Event) {
   skillStepStates.value.push({ ...detail })
 }
 
+function handleRealSkillFolderPassInput(event: Event) {
+  const detail = (event as CustomEvent<{
+    passIndex: number
+    inputMode: 'original' | 'previous'
+    inputLength: number
+    userPromptLength: number
+    systemPromptLength: number
+    sampleCount: number
+    isRetry: boolean
+  }>).detail
+  if (!detail || typeof detail.passIndex !== 'number') return
+  const runId = runTraceStore.currentRunId
+  if (!runId) return
+  runTraceStore.addEvent(runId, {
+    type: 'folder-pass-input',
+    level: 'info',
+    label: `Folder pass 输入口径 ${detail.passIndex + 1}${detail.isRetry ? '（重试）' : ''}`,
+    detail: JSON.stringify(detail)
+  })
+}
+
 onMounted(() => {
   window.addEventListener('real-skill:step', handleRealSkillStep)
   window.addEventListener('real-skill:pass', handleRealSkillPass)
+  window.addEventListener('real-skill:folder-pass-input', handleRealSkillFolderPassInput)
 })
 onBeforeUnmount(() => {
   window.removeEventListener('real-skill:step', handleRealSkillStep)
   window.removeEventListener('real-skill:pass', handleRealSkillPass)
+  window.removeEventListener('real-skill:folder-pass-input', handleRealSkillFolderPassInput)
 })
 const activeVolumeGenerationIndex = ref(-1)
 // The volume that owns the generation currently being executed. Skills use it
@@ -1055,6 +1082,7 @@ const bodyGenerationFeedbackVisible = computed(() =>
 
 function closeBodyGenerationFeedback() {
   bodyGenerationLogs.value = []
+  resetPipelineStepWarningCounts()
   if (activeGenerationFeedbackStep.value === 4) activeGenerationFeedbackStep.value = null
 }
 
@@ -1218,6 +1246,47 @@ function appendStepLog(step: number, line: string) {
   if (!clean) return
   logs.value.push(clean)
   autoScrollLog(step)
+}
+
+const pipelineStepWarningCounts = new Map<string, { count: number; lastLine: string }>()
+
+function resetPipelineStepWarningCounts() {
+  pipelineStepWarningCounts.clear()
+}
+
+function appendPipelineChainWarning(input: {
+  step: number
+  skillIndex: number
+  code: string
+  summary: string
+}) {
+  const key = `${input.step}:${input.code}`
+  const existing = pipelineStepWarningCounts.get(key)
+  if (!existing) {
+    const line = buildPipelineChainWarningLine({
+      step: input.step,
+      skillIndex: input.skillIndex,
+      code: input.code as any,
+      summary: input.summary
+    })
+    pipelineStepWarningCounts.set(key, { count: 1, lastLine: line })
+    appendStepLog(input.step, line)
+    return
+  }
+  const next = coalescePipelineStepWarning({
+    line: existing.lastLine,
+    code: input.code,
+    state: existing
+  })
+  const logs = input.step === 1 ? settingsGenerationLogs : input.step === 2 ? volumeGenerationLogs : input.step === 3 ? chapterGenerationLogs : bodyGenerationLogs
+  const index = logs.value.findIndex(item => item === existing.lastLine)
+  if (index >= 0) {
+    logs.value.splice(index, 1, next.line)
+    autoScrollLog(input.step)
+  } else {
+    appendStepLog(input.step, next.line)
+  }
+  pipelineStepWarningCounts.set(key, { count: next.count, lastLine: next.line })
 }
 
 const LOG_CONTAINER_IDS: Record<number, string> = {
@@ -1893,7 +1962,8 @@ async function callValidatedSkill(
   baseTemplateOverride: string | undefined = undefined,
   resolvedTemplate: string | undefined = undefined,
   templateVariables: Record<string, unknown> | undefined = undefined,
-  validateOutputSchema: boolean = false
+  validateOutputSchema: boolean = false,
+  chainUpstreamContext: string | undefined = undefined
 ): Promise<string> {
   validateSkillInputOrThrow(template, inputContext)
   if (template.skill && template.skill.format === "folder" && template.skill.folderPath) {
@@ -1902,6 +1972,7 @@ async function callValidatedSkill(
     const agentSource = skillAgentId ? "user-binding" : agentId ? "step-default" : "none"
     const traceRunId = runTraceStore.currentRunId
     const fallbackProviderId = activeProviderId()
+    const systemPromptSuffix = resolveDeaiPromptForChainStep(step)
     const traceCallId = traceRunId
       ? runTraceStore.startApiCall(traceRunId, {
         step,
@@ -1967,7 +2038,8 @@ async function callValidatedSkill(
           systemPrompt: agentConfig.systemPrompt
         } : null,
         agentSource,
-        systemPromptSuffix: step === 4 ? DEAI_METHODOLOGY_PROMPT : "",
+        systemPromptSuffix,
+        chainUpstreamContext,
         baseTemplateOverride,
         resolvedTemplate,
         templateVariables,
@@ -2598,7 +2670,7 @@ async function callApiWithAgent(step: number, skillTemplate: string, prompt: str
  const skillPart = promptParts?.systemSkill ?? skillTemplate ?? ""
  const agentPart = agentConfig?.systemPrompt || ""
  // P1: 正文层注入降AI方法论（17条生成阶段约束）
- const deaiPrompt = step === 4 ? DEAI_METHODOLOGY_PROMPT : ""
+ const deaiPrompt = resolveDeaiPromptForChainStep(step)
  const systemPrompt = [skillPart, agentPart, deaiPrompt].filter(Boolean).join("\n\n") || "你是专业小说创作助手。"
   const userPrompt = [promptParts?.userPrefix, prompt, promptParts?.userSuffix].filter(Boolean).join("\n\n")
   const messages = [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }]
@@ -2898,7 +2970,7 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         : !isFolderSkill && templateReferencesPreviousOutput(t.template)
       const requiresFullUpstream =
         templateMeta?.chainHandoff?.requiresFullPreviousOutput === true ||
-        (templateMeta?.chainHandoff as { requiresFullUpstreamContext?: unknown } | undefined)?.requiresFullUpstreamContext === true
+        templateMeta?.chainHandoff?.requiresFullUpstreamContext === true
       const upstreamPrompt = slimChainUpstreamPrompt({
         prompt: generationPrompt,
         isPrimaryConsumer,
@@ -2911,10 +2983,12 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           label: `链式步骤 ${si + 1}/${templates.length} 上下文决策`,
           detail: JSON.stringify({
             decision: upstreamPrompt.slimmed ? "slim" : "full",
+            measurement: "upstream_prompt_only",
             reason: upstreamPrompt.reason,
             isPrimaryConsumer,
             requiresFullUpstream,
             declarationSource: templateMeta ? "folder-meta" : "default",
+            declaredFullUpstream: templateMeta?.chainHandoff?.requiresFullUpstreamContext === true,
             originalPromptLength: upstreamPrompt.originalLength,
             finalPromptLength: upstreamPrompt.prompt.length,
             outlineOriginalLength: upstreamPrompt.outlineLength
@@ -2977,6 +3051,12 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
         const contractMiss = previousResolution.contractMiss
         if (contractMiss) {
           const contractMissDetail = JSON.stringify(contractMiss)
+          appendPipelineChainWarning({
+            step,
+            skillIndex: si,
+            code: 'chain-handoff-contract-miss',
+            summary: `Handoff 契约未命中：${contractMiss.reason}`
+          })
           runTraceStore.addEvent(runTraceStore.currentRunId, {
             type: "chain-handoff-contract-miss",
             level: "warn",
@@ -3023,7 +3103,8 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           undefined,
           resolvedTemplate,
           ctxForSkill,
-          si < templates.length - 1
+          si < templates.length - 1,
+          upstreamPrompt.prompt
         )
         if (si > 0 && handoffDelivery !== 'full_text') {
           validateSkillOutputOrThrow(t, stepOutput)
@@ -3033,6 +3114,12 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           if (dedupedOutput !== stepOutput) {
             const removedChars = stepOutput.length - dedupedOutput.length
             stepOutput = dedupedOutput
+            appendPipelineChainWarning({
+              step,
+              skillIndex: si,
+              code: 'chain-dedupe',
+              summary: `中间产物去重：剔除 ${removedChars} 字符`
+            })
             if (runTraceStore.currentRunId) {
               runTraceStore.addEvent(runTraceStore.currentRunId, {
                 type: "chain-dedupe",
@@ -3047,12 +3134,55 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
           si === 0 ? undefined : previousResolution.output,
           stepOutput
         )
-        if (runTraceStore.currentRunId && echoDiagnostic) {
+        if (
+          echoDiagnostic &&
+          shouldRepairChainEcho(si, templates.length, echoDiagnostic.echoRatio)
+        ) {
+          appendPipelineChainWarning({
+            step,
+            skillIndex: si,
+            code: 'chain-output-echo-repair',
+            summary: '终步输出与上一步高度重复，已带反馈重试一次'
+          })
+          if (runTraceStore.currentRunId) {
+            runTraceStore.addEvent(runTraceStore.currentRunId, {
+              type: 'chain-output-echo-repair',
+              level: 'warn',
+              label: `链式步骤 ${si + 1}/${templates.length} 终步回显修复重试`,
+              detail: JSON.stringify({ echoRatio: echoDiagnostic.echoRatio })
+            })
+          }
+          stepOutput = await callValidatedSkill(
+            step,
+            t,
+            injection,
+            `${nextPrompt}\n\n[修复反馈] 上一步输出与本步输出高度重复。请只输出本步骤定稿产物，不要复述上一步内容。`,
+            { ...ctxForSkill, previousOutput },
+            timeoutMs,
+            skillAgentId,
+            undefined,
+            resolvedTemplate,
+            ctxForSkill,
+            si < templates.length - 1,
+            upstreamPrompt.prompt
+          )
+        }
+        const repairedEchoDiagnostic = detectChainOutputEcho(
+          si === 0 ? undefined : previousResolution.output,
+          stepOutput
+        )
+        if (runTraceStore.currentRunId && repairedEchoDiagnostic) {
+          appendPipelineChainWarning({
+            step,
+            skillIndex: si,
+            code: 'chain-output-echo',
+            summary: `输出回显警告：${repairedEchoDiagnostic.message}`
+          })
           runTraceStore.addEvent(runTraceStore.currentRunId, {
-            type: echoDiagnostic.code,
+            type: repairedEchoDiagnostic.code,
             level: "warn",
             label: `链式步骤 ${si + 1}/${templates.length} 输出回显警告`,
-            detail: `${echoDiagnostic.message}（前序长度 ${echoDiagnostic.previousLength}，当前长度 ${stepOutput.length}）`
+            detail: `${repairedEchoDiagnostic.message}（前序长度 ${repairedEchoDiagnostic.previousLength}，当前长度 ${stepOutput.length}）`
           })
         }
         current = stepOutput
@@ -3121,6 +3251,12 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
                 fromDelivery: handoffDelivery,
                 reason: error instanceof Error ? error.message : String(error)
               })
+              appendPipelineChainWarning({
+                step,
+                skillIndex: si,
+                code: 'chain-handoff-escalation',
+                summary: `Handoff 契约未命中升级全文重试：${handoffDelivery}`
+              })
               runTraceStore.addEvent(runTraceStore.currentRunId, {
                 type: "chain-handoff-escalation",
                 level: "warn",
@@ -3159,7 +3295,8 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               undefined,
               fullRetryResolvedTemplate,
               ctxForSkill,
-              si < templates.length - 1
+              si < templates.length - 1,
+              upstreamPrompt.prompt
             )
             validateSkillOutputOrThrow(t, stepOutput)
             if (si < templates.length - 1) {
@@ -3167,6 +3304,12 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
               if (dedupedOutput !== stepOutput) {
                 const removedChars = stepOutput.length - dedupedOutput.length
                 stepOutput = dedupedOutput
+                appendPipelineChainWarning({
+                  step,
+                  skillIndex: si,
+                  code: 'chain-dedupe',
+                  summary: `升级重试中间产物去重：剔除 ${removedChars} 字符`
+                })
                 if (runTraceStore.currentRunId) {
                   runTraceStore.addEvent(runTraceStore.currentRunId, {
                     type: "chain-dedupe",
@@ -3179,6 +3322,12 @@ async function _runStepSkillsInner(step: number, prompt: string, timeoutMs: numb
             }
             const echoDiagnostic = detectChainOutputEcho(current, stepOutput)
             if (runTraceStore.currentRunId && echoDiagnostic) {
+              appendPipelineChainWarning({
+                step,
+                skillIndex: si,
+                code: 'chain-output-echo',
+                summary: `升级重试输出回显警告：${echoDiagnostic.message}`
+              })
               runTraceStore.addEvent(runTraceStore.currentRunId, {
                 type: echoDiagnostic.code,
                 level: "warn",

@@ -132,6 +132,12 @@ export interface RealSkillExecutionResult {
     /** Marks locally composed terminal text from the AI service, not model prose. */
     textOrigin?: 'application' | 'model'
     requestMessages: Array<{ role: string; content: string }>
+    /** Every top-level attempt request, keyed by pass and retry attempt. */
+    attemptRequestMessages?: Array<{
+      passIndex: number
+      attempt: number
+      messages: Array<{ role: string; content: string }>
+    }>
     toolCalls?: Array<{ name: string; input?: unknown }>
     toolResults?: Array<{ call: { id?: string; name: string; input?: unknown }; result: unknown }>
     toolRequestDeltas?: Array<{ role: string; content: string }>
@@ -152,6 +158,8 @@ export interface RealSkillAgentContext {
 export interface RealSkillExecuteOptions {
   folderPath: string
   input: string
+  /** Declared upstream chain context; used only when SKILL meta declares requiresFullUpstreamContext. */
+  chainUpstreamContext?: string
   /** Editor target identity for tool execution; must match the active write target. */
   toolContext?: {
     projectId?: string
@@ -204,7 +212,7 @@ export interface RealSkillExecuteOptions {
     /** null means the request intentionally omitted the output limit. */
     maxTokens?: number | null
   }) => void
-  /** Fires once when the real request messages have been built, before the API call. */
+  /** Fires for every top-level attempt request, before the API call. */
   onRequestBuilt?: (messages: Array<{ role: string; content: string }>) => void
   /** When true, schema.json is enforced even for a non-final chain step; failures are warnings, not retries. */
   validateOutputSchema?: boolean

@@ -798,3 +798,18 @@
 - 验证：147 files / 1757 tests、type-check、build:vue、NSIS 打包、asar 版本、renderer 新鲜度、75 项 `electronAPI`、可见正文与 SHA256 全部通过。
 - 安装包：`dist/神意助手-Setup-3.80.0.exe`，231,515,087 bytes，SHA256 `f2086c8c60636e63380a34b688819b7c7882815ef0ee1bd254271e444fe35e5f`。
 - 客户重点复验：生成流水线卷纲/设定/正文应出现产物契约验收事件；删除带断点的存储文件后 `.bak` 不应残留。
+# 2026-10-12 流水线修复反馈与链路可观测统一
+
+- 文件：[_audit/DEV_LOG_2026-10-12_pipeline-repair-feedback-unification.md](_audit/DEV_LOG_2026-10-12_pipeline-repair-feedback-unification.md)
+- 范围：schema 重试反馈、folder pass 物理口径事件、五类 chain warning 步骤日志聚合、S2 全上下文声明、DEAI 创作步正向化、续写防滚雪球与终步回显修复；章节/卷纲修复请求携带验收错误与禁止重复清单。
+- 验证：专项 83 tests、type-check、全量 149 files / 1775 tests、build:vue、真实 Electron + 真实供应商 API 三场景（baseline / schema-retry / echo-retry）全部 success；三份新 trace 回放 ACCEPTED，旧正文层历史 trace 保持 EXPECTED-FAIL。
+- 回头看修正：续写请求保留原始 system/template 上下文，仅将 user 限制为 32,000 字符尾部窗口，并新增单测锁死该契约。
+- live 超时口径：单步 30 分钟、全局 3 小时；测试 SKILL `preProcess` 使用 `{ hook, payload }`；trace 归档先于断言。
+
+# 2026-10-12 3.81.0 流水线修复反馈统一封装
+
+- 文件：[_audit/DEV_LOG_2026-10-12-packaging-3-81-0.md](_audit/DEV_LOG_2026-10-12-packaging-3-81-0.md)
+- 范围：升级 3.81.0；新增 3.81.0 封装验证器；完整 NSIS 重打包与真实启动核验；清理 3.80.0 旧安装包、旧验证器与旧证据目录。
+- 验证：NSIS 打包、asar 3.81.0、renderer 新鲜度、74 个 renderer 文件、75 项 `electronAPI`、可见正文与 SHA256 全部通过。
+- 安装包：`dist/神意助手-Setup-3.81.0.exe`，231,516,909 bytes，SHA256 `72e6116228ea4783ea69a434cbaed2e307e5487004cec30e7261be669dfc3186`。
+- 客户重点复验：正文层 schema 失败后的下一轮请求应包含具体校验错误；warning 应出现在步骤日志而非仅事件流；终步回显不足时应出现一次带反馈修复。

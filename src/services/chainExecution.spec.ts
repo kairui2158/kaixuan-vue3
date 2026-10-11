@@ -6,6 +6,7 @@ import {
   dedupeChainIntermediateOutput,
   detectChainOutputEcho,
   formatMemoryPrompt,
+  shouldRepairChainEcho,
   slimChainUpstreamPrompt,
   templateReferencesPreviousOutput
 } from "./chainExecution"
@@ -137,6 +138,13 @@ describe("body chain execution contract", () => {
     expect(diagnostic?.code).toBe("chain-output-echo")
     expect(diagnostic?.echoRatio).toBeGreaterThan(0.25)
     expect(detectChainOutputEcho(previous, "全新内容：" + "配角开始独立行动 ".repeat(30))).toBeNull()
+  })
+
+  it("repairs high echo only once and only on the final chain step", () => {
+    expect(shouldRepairChainEcho(2, 3, 0.93)).toBe(true)
+    expect(shouldRepairChainEcho(1, 3, 0.93)).toBe(false)
+    expect(shouldRepairChainEcho(0, 1, 0.93)).toBe(false)
+    expect(shouldRepairChainEcho(2, 3, 0.84)).toBe(false)
   })
 
   it("keeps S1 full upstream context and slims later steps deterministically", () => {

@@ -40,6 +40,8 @@ export function buildChapterBatchPrompt(input: {
   missingCount?: number
   basePrompt: string
   historyContext: string
+  repairErrors?: string[]
+  forbiddenTitles?: string[]
 }): string {
   const { contract } = input
   if (input.repair) {
@@ -53,7 +55,15 @@ export function buildChapterBatchPrompt(input: {
       '',
       `补充生成第${missingStart}章到第${missingEnd}章，共${missingCount}章。只输出缺失章节，不要重复任何已有标题。`,
       '输出JSON数组，每项含title/plot字段。数组长度必须为' + missingCount + '。'
-    ].join('\n')
+    ].concat(input.repairErrors?.length ? [
+      '',
+      '【上一次验收失败原因】',
+      ...input.repairErrors
+    ] : []).concat(input.forbiddenTitles?.length ? [
+      '',
+      '【禁止重复的已有标题】',
+      input.forbiddenTitles.join('、')
+    ] : []).join('\n')
   }
   return [
     input.basePrompt,
@@ -92,7 +102,9 @@ export async function generateChapterBatch(input: GenerateChapterBatchInput): Pr
 
   const accepted: any[] = []
   const existingTitles = new Set(input.historyTitles)
+  const forbiddenTitles = Array.from(existingTitles)
   let repairAttempt = 0
+  let previousErrors: string[] = []
 
   while (true) {
     if (input.shouldContinue && !input.shouldContinue()) {
@@ -111,7 +123,9 @@ export async function generateChapterBatch(input: GenerateChapterBatchInput): Pr
       missingStart,
       missingCount,
       basePrompt: input.basePrompt,
-      historyContext: input.historyContext
+      historyContext: input.historyContext,
+      repairErrors: previousErrors,
+      forbiddenTitles
     })
 
     let raw: string
@@ -173,6 +187,7 @@ export async function generateChapterBatch(input: GenerateChapterBatchInput): Pr
 
     const currentMissingStart = input.contract.expectedStart + accepted.length
     const currentMissingCount = input.contract.requestedCount - accepted.length
+    previousErrors = validationErrors
     recordAttempt(attempts, {
       repairAttempt,
       status: 'short',

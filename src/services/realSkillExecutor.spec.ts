@@ -32,6 +32,7 @@ vi.stubGlobal('window', {
 })
 
 import { executeRealSkill } from './realSkillExecutor'
+import { buildFolderPassInputMeasurement } from './realSkillExecutor'
 import { loadRealSkill } from './realSkillLoader'
 import { DeAiSamples } from './deai-samples.js'
 import { getAiService } from './aiService'
@@ -67,6 +68,129 @@ function createPackage(overrides: Record<string, unknown> = {}) {
 }
 
 describe('realSkillExecutor single pass', () => {
+  it('measures the real request caliber for a folder pass', () => {
+    const measurement = buildFolderPassInputMeasurement({
+      passIndex: 1,
+      inputMode: 'previous',
+      input: '上一步输出',
+      userPrompt: '用户请求 1000 字',
+      systemPrompt: '系统提示 2000 字',
+      sampleCount: 2,
+      isRetry: true,
+      declaredFullUpstream: true,
+      appliedFullUpstream: true
+    })
+
+    expect(measurement).toEqual({
+      passIndex: 1,
+      inputMode: 'previous',
+      inputLength: '上一步输出'.length,
+      userPromptLength: '用户请求 1000 字'.length,
+      systemPromptLength: '系统提示 2000 字'.length,
+      sampleCount: 2,
+      isRetry: true,
+      declaredFullUpstream: true,
+      appliedFullUpstream: true
+    })
+  })
+
+  it('keeps declared upstream context in a previous-input pass', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        meta: {
+          executionMode: 'multi-pass',
+          chainHandoff: { requiresFullUpstreamContext: true },
+          passes: [
+            { name: '第一步' },
+            { name: '第二步', input: 'previous' }
+          ]
+        }
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async () => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      chainUpstreamContext: '上游设定：北境雪城'
+    })
+
+    expect(result.status).toBe('success')
+    const secondPassUserPrompt = result.apiMeta?.attemptRequestMessages?.[1]?.messages
+      ?.find(message => message.role === 'user')?.content || ''
+    expect(secondPassUserPrompt).toContain('[declared upstream context]')
+    expect(secondPassUserPrompt).toContain('上游设定：北境雪城')
+    expect(secondPassUserPrompt).toContain('[style reference]')
+  })
+
+  it('keeps previous-input behavior unchanged without the upstream declaration', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        meta: {
+          executionMode: 'multi-pass',
+          passes: [
+            { name: '第一步' },
+            { name: '第二步', input: 'previous' }
+          ]
+        }
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async () => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      chainUpstreamContext: '上游设定：北境雪城'
+    })
+
+    expect(result.status).toBe('success')
+    const secondPassUserPrompt = result.apiMeta?.attemptRequestMessages?.[1]?.messages
+      ?.find(message => message.role === 'user')?.content || ''
+    expect(secondPassUserPrompt).not.toContain('[declared upstream context]')
+    expect(secondPassUserPrompt).not.toContain('上游设定：北境雪城')
+  })
+
+  it('warns and keeps previous-only input when declared upstream context is empty', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        meta: {
+          executionMode: 'multi-pass',
+          chainHandoff: { requiresFullUpstreamContext: true },
+          passes: [
+            { name: '第一步' },
+            { name: '第二步', input: 'previous' }
+          ]
+        }
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async () => ({ text: '输出' }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget()
+    })
+
+    expect(result.status).toBe('success')
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      code: 'chain-upstream-context-empty'
+    }))
+    const secondPassUserPrompt = result.apiMeta?.attemptRequestMessages?.[1]?.messages
+      ?.find(message => message.role === 'user')?.content || ''
+    expect(secondPassUserPrompt).not.toContain('[declared upstream context]')
+  })
+
   it('retries reasoning exhaustion once in direct-output mode and fails if it stays empty', async () => {
     const eventSpy = vi.fn()
     loadRealSkillMock.mockResolvedValueOnce({
@@ -172,6 +296,64 @@ describe('realSkillExecutor single pass', () => {
     expect(result.output).not.toContain('主角进入北境。主角进入北境。')
     expect(result.apiMeta?.reasoningText).toBe('续写调用思考')
     expect(result.diagnostics.some(item => item.code === 'generation-truncated')).toBe(true)
+  })
+
+  it('stops after one truncated continuation and keeps the usable output', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const callAi = vi.fn(async () => ({
+      text: '卷纲开头，主角进入北境。',
+      finishReason: 'length'
+    }))
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget()
+    })
+
+    expect(callAi).toHaveBeenCalledTimes(2)
+    expect(result.output).toContain('卷纲开头，主角进入北境。')
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({
+      code: 'generation-truncated-after-continuation'
+    }))
+  })
+
+  it('sends only the bounded output tail in a continuation request', async () => {
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage(),
+      error: null,
+      folderPackageCache: false
+    })
+    const firstOutput = '开'.repeat(40000)
+    const callAi = vi.fn(async (_params: CallAiParams) => {
+      if (callAi.mock.calls.length === 1) {
+        return { text: firstOutput, finishReason: 'length' }
+      }
+      return { text: '续写结尾', finishReason: 'stop' }
+    })
+    getAiServiceMock.mockResolvedValueOnce({ callAi } as any)
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget()
+    })
+
+    expect(callAi).toHaveBeenCalledTimes(2)
+    const continuationMessages = callAi.mock.calls[1]![0].messages
+    const continuationMessage = continuationMessages.find(message => message.role === 'user')!
+    expect(continuationMessage.role).toBe('user')
+    expect(continuationMessages.some(message =>
+      message.role === 'system' && String(message.content).includes('请处理输入文本')))
+      .toBe(true)
+    expect((continuationMessage.content as string).length).toBeLessThanOrEqual(32100)
+    expect((continuationMessage.content as string)).toContain('最后部分')
+    expect(result.output).toBe(firstOutput + '\n续写结尾')
   })
 
   it('injects agent prompt before skill template and passes agent parameters', async () => {
@@ -834,8 +1016,79 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     )
   })
 
+  it('captures the real request caliber for every pass and schema retry', async () => {
+    const callAi = vi.fn(async (_params: CallAiParams) => {
+      if (callAi.mock.calls.length === 1) return { text: '{"wrong": true}' }
+      if (callAi.mock.calls.length === 2) return { text: JSON.stringify({ output: '第一步输出' }) }
+      return { text: JSON.stringify({ output: '第二步输出' }) }
+    })
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        meta: {
+          executionMode: 'multi-pass',
+          passes: [
+            { name: '第一步' },
+            { name: '第二步', input: 'previous' }
+          ]
+        },
+        schema: {
+          type: 'object',
+          required: ['output'],
+          properties: { output: { type: 'string' } }
+        }
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+    const onRequestBuilt = vi.fn()
+    const observedEvents: CustomEvent[] = []
+    const originalDispatchEvent = window.dispatchEvent
+    window.dispatchEvent = vi.fn((event: Event) => {
+      if (event instanceof CustomEvent) observedEvents.push(event)
+      return true
+    })
+
+    const result = await executeRealSkill({
+      folderPath: 'D:/skill',
+      input: '原文',
+      budget: createBudget(),
+      onRequestBuilt
+    })
+    window.dispatchEvent = originalDispatchEvent
+
+    expect(result.status).toBe('success')
+    expect(callAi).toHaveBeenCalledTimes(3)
+    expect(onRequestBuilt).toHaveBeenCalledTimes(3)
+    expect(result.apiMeta?.attemptRequestMessages).toHaveLength(3)
+    const firstPass = result.apiMeta?.attemptRequestMessages?.[0]
+    expect(firstPass).toMatchObject({ passIndex: 0, attempt: 1 })
+    expect(firstPass?.messages[1]?.content).toContain('原文')
+    const schemaRetry = result.apiMeta?.attemptRequestMessages?.[1]
+    expect(schemaRetry).toMatchObject({ passIndex: 0, attempt: 2 })
+    expect(schemaRetry?.messages[0]?.content).toContain('上一次输出未通过校验')
+    const secondPass = result.apiMeta?.attemptRequestMessages?.[2]
+    expect(secondPass).toMatchObject({ passIndex: 1, attempt: 1 })
+    expect(secondPass?.messages[1]?.content).toContain('第一步输出')
+    expect(result.apiMeta?.requestMessages).toEqual(secondPass?.messages)
+
+    const passInputEvents = observedEvents.filter(event => event.type === 'real-skill:folder-pass-input')
+    expect(passInputEvents).toHaveLength(3)
+    expect(passInputEvents.map(event => event.detail)).toEqual([
+      expect.objectContaining({ passIndex: 0, inputMode: 'original', isRetry: false }),
+      expect.objectContaining({ passIndex: 0, inputMode: 'original', isRetry: true }),
+      expect.objectContaining({ passIndex: 1, inputMode: 'previous', isRetry: false })
+    ])
+    const secondPassMeasurement = passInputEvents[2]!.detail as {
+      userPromptLength: number
+      inputLength: number
+    }
+    expect(secondPassMeasurement.inputLength).toBeGreaterThan('第一步输出'.length)
+    expect(secondPassMeasurement.userPromptLength).toBeGreaterThan(0)
+  })
+
   it('retries schema validation up to three attempts and returns degraded output', async () => {
-    const callAi = vi.fn(async () => ({ text: '{"wrong": true}' }))
+    const callAi = vi.fn(async (_params: CallAiParams) => ({ text: '{"wrong": true}' }))
     getAiServiceMock.mockResolvedValue({ callAi } as any)
     loadRealSkillMock.mockResolvedValueOnce({
       package: createPackage({
@@ -852,6 +1105,60 @@ describe('realSkillExecutor phase 4 upgrades', () => {
     expect(result.status).toBe('degraded')
     expect(callAi).toHaveBeenCalledTimes(3)
     expect(result.errors.length).toBeGreaterThanOrEqual(4)
+  })
+
+  it('injects the previous validation errors into schema retry requests', async () => {
+    const callAi = vi.fn(async (_params: CallAiParams) => ({
+      text: callAi.mock.calls.length === 1 ? '{"wrong": true}' : JSON.stringify({ output: '修复后的输出' })
+    }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        schema: {
+          type: 'object',
+          required: ['output'],
+          properties: { output: { type: 'string' } }
+        }
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
+
+    expect(result.status).toBe('success')
+    expect(result.output).toBe(JSON.stringify({ output: '修复后的输出' }))
+    expect(callAi).toHaveBeenCalledTimes(2)
+    const retrySystemPrompt = callAi.mock.calls[1]![0].messages[0]?.content || ''
+    expect(retrySystemPrompt).toContain('上一次输出未通过校验')
+    expect(retrySystemPrompt).toContain('$.output 缺少必填字段')
+    expect(retrySystemPrompt).toContain('请修复上述错误')
+  })
+
+  it('keeps validation feedback on every schema retry attempt', async () => {
+    const callAi = vi.fn(async (_params: CallAiParams) => ({ text: '{"wrong": true}' }))
+    getAiServiceMock.mockResolvedValue({ callAi } as any)
+    loadRealSkillMock.mockResolvedValueOnce({
+      package: createPackage({
+        schema: {
+          type: 'object',
+          required: ['output'],
+          properties: { output: { type: 'string' } }
+        }
+      }),
+      error: null,
+      folderPackageCache: false
+    })
+
+    const result = await executeRealSkill({ folderPath: 'D:/skill', input: '原文', budget: createBudget() })
+
+    expect(result.status).toBe('degraded')
+    expect(callAi).toHaveBeenCalledTimes(3)
+    for (let index = 1; index < callAi.mock.calls.length; index += 1) {
+      const systemPrompt = callAi.mock.calls[index]![0].messages[0]?.content || ''
+      expect(systemPrompt).toContain('上一次输出未通过校验')
+      expect(systemPrompt).toContain('$.output 缺少必填字段')
+    }
   })
 
   it('emits retry attempts through the real-skill step event', async () => {

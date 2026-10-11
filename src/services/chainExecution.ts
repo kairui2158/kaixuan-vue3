@@ -183,6 +183,17 @@ export function detectChainOutputEcho(
   }
 }
 
+/** Repair is reserved for the final chain step; intermediate steps only warn. */
+export function shouldRepairChainEcho(
+  stepIndex: number,
+  totalSteps: number,
+  echoRatio: number
+): boolean {
+  if (totalSteps <= 1) return false
+  if (stepIndex !== totalSteps - 1) return false
+  return Number.isFinite(echoRatio) && echoRatio >= 0.85
+}
+
 function normalizeChainText(text: string): string {
   return text.replace(/\s+/g, '').toLowerCase()
 }

@@ -20,16 +20,44 @@ import type {
 
 export type { RealSkillDiagnostic } from './realSkillTypes'
 
+
 const ALLOWED_PRE_FIELDS = new Set(['input', 'template', 'samples'])
 const ALLOWED_POST_FIELDS = new Set(['output', 'valid', 'message', 'errors', 'issues'])
 const TEMPLATE_LIMIT = 20000
 const RETRY_LIMIT = 3
 const SMART_SAMPLE_CHAR_LIMIT = 4000
+const CONTINUATION_TAIL_CHAR_LIMIT = 32000
 const DIRECT_OUTPUT_SUFFIX = [
   '【直出模式】',
   '跳过所有内部思考、分析过程和推理说明，不输出任何标签。',
   '从回复第一个字符开始直接输出最终正文内容。'
 ].join('\n')
+
+export type RealSkillPassInputMode = 'original' | 'previous'
+
+export function buildFolderPassInputMeasurement(input: {
+  passIndex: number
+  inputMode: RealSkillPassInputMode
+  input: string
+  userPrompt: string
+  systemPrompt: string
+  sampleCount: number
+  isRetry: boolean
+  declaredFullUpstream: boolean
+  appliedFullUpstream: boolean
+}) {
+  return {
+    passIndex: input.passIndex,
+    inputMode: input.inputMode,
+    inputLength: input.input.length,
+    userPromptLength: input.userPrompt.length,
+    systemPromptLength: input.systemPrompt.length,
+    sampleCount: input.sampleCount,
+    isRetry: input.isRetry,
+    declaredFullUpstream: input.declaredFullUpstream,
+    appliedFullUpstream: input.appliedFullUpstream
+  }
+}
 
 type CallAiToolResultLike = {
   toolCalls?: Array<{ name: string; input: unknown }>
@@ -98,6 +126,12 @@ const OUTPUT_DEGRADING_WARNING_CODES = new Set([
   'script-hook-exception',
   'hook-result-ignored',
   'hook-field-ignored',
+  'schema-validation-exhausted'
+])
+
+// A failed schema attempt that is later recovered by a valid retry is normal
+// repair behavior. Only exhausting all retries downgrades the delivered output.
+const NON_DEGRADING_RECOVERY_WARNING_CODES = new Set([
   'schema-validation-failed'
 ])
 
@@ -119,6 +153,7 @@ function isOutputDegradingPostProcessCode(code: string): boolean {
 
 function isOutputDegradingWarning(item: RealSkillDiagnostic): boolean {
   if (item.type !== 'warning') return false
+  if (NON_DEGRADING_RECOVERY_WARNING_CODES.has(item.code)) return false
   if (OUTPUT_DEGRADING_WARNING_CODES.has(item.code)) return true
   if (!item.code.startsWith('post-process-issue:')) return false
   return isOutputDegradingPostProcessCode(item.code.slice('post-process-issue:'.length))
@@ -277,6 +312,23 @@ function mergeContinuationText(previous: string, continuation: string): string {
   return `${left}\n${right}`
 }
 
+function buildContinuationMessages(
+  requestMessages: Array<{ role: string; content: string }>,
+  output: string
+): Array<{ role: string; content: string }> {
+  const tail = output.length > CONTINUATION_TAIL_CHAR_LIMIT
+    ? output.slice(-CONTINUATION_TAIL_CHAR_LIMIT)
+    : output
+  const continuationContext = requestMessages.filter(message => message.role !== 'user')
+  return [
+    ...continuationContext,
+    {
+      role: 'user',
+      content: `以下是未完成输出的最后部分，请从中断处自然续写，不要重复已有内容，也不要重新输出开头：\n${tail}`
+    }
+  ]
+}
+
 function mergeSkillAgentDefaults(
   agent: RealSkillExecuteOptions['agent'],
   skillDefaults: RealSkillAgentContext | undefined,
@@ -329,6 +381,21 @@ function appendSkillAgentGuidance(primary: string, guidance?: string): string {
 function buildUserPrompt(input: string, samples: string[]): string {
   if (samples.length === 0) return input
   return `[style reference]\n${samples.join('\n')}\n\n--- text ---\n${input}`
+}
+
+function buildFolderPassUserPrompt(input: {
+  input: string
+  samples: string[]
+  chainUpstreamContext?: string
+  requiresFullUpstreamContext: boolean
+  isPreviousInput: boolean
+}): string {
+  const upstream = input.chainUpstreamContext?.trim()
+  if (!input.requiresFullUpstreamContext || !input.isPreviousInput || !upstream) {
+    return buildUserPrompt(input.input, input.samples)
+  }
+  const base = buildUserPrompt(input.input, input.samples)
+  return `[declared upstream context]\n${upstream}\n\n--- current input ---\n${base}`
 }
 
 function normalizePasses(value: unknown): Array<{ name?: string; input?: 'original' | 'previous' }> {
@@ -405,6 +472,14 @@ function normalizeTemplate(
 
 function buildValidationErrorReport(errors: string[]): string {
   return errors.slice(0, 10).join('\n')
+}
+
+function buildSchemaRetryFeedback(errors: string[]): string {
+  return [
+    '上一次输出未通过校验。具体错误如下：',
+    buildValidationErrorReport(errors),
+    '请修复上述错误，只输出符合 schema 的完整结果，不要输出解释。'
+  ].join('\n')
 }
 
 /**
@@ -627,6 +702,11 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
   const normalizedPasses = normalizePasses(pkg.meta.passes)
   const isMultiPass = pkg.meta.executionMode === 'multi-pass' && normalizedPasses.length > 0
   const passList = isMultiPass ? normalizedPasses : [{ name: 'default', input: 'original' as const }]
+  const chainHandoffMeta = (pkg.meta.chainHandoff || {}) as {
+    requiresFullUpstreamContext?: unknown
+  }
+  const declaredFullUpstream = chainHandoffMeta.requiresFullUpstreamContext === true
+  const chainUpstreamContext = options.chainUpstreamContext?.trim() || ''
   let currentInput = preInput
   let output = ''
   let finishReason: string | undefined
@@ -643,14 +723,25 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
   let toolRequestDeltas: NonNullable<RealSkillExecutionResult['apiMeta']>['toolRequestDeltas']
   let toolAudit: NonNullable<RealSkillExecutionResult['apiMeta']>['toolAudit']
   const capturedRequestMessages: Array<{ role: string; content: string }> = []
+  const capturedAttemptRequestMessages: Array<NonNullable<NonNullable<RealSkillExecutionResult['apiMeta']>['attemptRequestMessages']>[number]> = []
 
-  function captureRequestMessages(messages: CallAiToolResultLike['toolRequestDeltas']) {
+  function captureRequestMessages(
+    messages: Array<{ role: string; content: string }>,
+    passIndex: number,
+    attempt: number
+  ) {
+    capturedRequestMessages.length = 0
     for (const message of messages || []) {
       capturedRequestMessages.push({
         role: String(message.role || ''),
         content: typeof message.content === 'string' ? message.content : ''
       })
     }
+    capturedAttemptRequestMessages.push({
+      passIndex,
+      attempt,
+      messages: capturedRequestMessages.map(message => ({ ...message }))
+    })
   }
 
   for (let passIndex = 0; passIndex < passList.length; passIndex += 1) {
@@ -662,7 +753,16 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       dispatchStepEvent({ skillId: pkg.id, index: 0, total: 1, status: 'running' })
     }
     const passInput = pass.input === 'previous' && output ? output : currentInput
+    const isPreviousInput = pass.input === 'previous' && Boolean(output)
+    if (declaredFullUpstream && isPreviousInput && !chainUpstreamContext) {
+      diagnostics.push(diagnostic(
+        'warning',
+        'chain-upstream-context-empty',
+        'SKILL 声明 requiresFullUpstreamContext，但上游上下文为空，已按 previous-only 口径继续'
+      ))
+    }
     let lastAttempt: { output: string; validation: { valid: boolean; errors: string[] } } | null = null
+    let schemaRetryFeedback: string | undefined
 
     for (let attempt = 1; attempt <= RETRY_LIMIT; attempt += 1) {
       const budgetStep = `real-skill:${options.skillId || pkg.id}${isMultiPass ? `:pass-${passIndex + 1}` : ''}`
@@ -705,20 +805,40 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         const effectiveSystemPrompt = promptSuffix
           ? `${systemPrompt}\n\n${promptSuffix}`
           : systemPrompt
-        const userPrompt = buildUserPrompt(passInput, selectedSamples)
+        const userPrompt = buildFolderPassUserPrompt({
+          input: passInput,
+          samples: selectedSamples,
+          chainUpstreamContext,
+          requiresFullUpstreamContext: declaredFullUpstream,
+          isPreviousInput
+        })
         const messages = options.messageBuilder
           ? options.messageBuilder(effectiveSystemPrompt, userPrompt)
           : [
               { role: 'system', content: effectiveSystemPrompt },
               { role: 'user', content: userPrompt }
             ]
-        if (passIndex === 0 && attempt === 1 && !promptSuffix) {
-          captureRequestMessages(messages)
-          options.onRequestBuilt?.(messages)
+        const passMeasurement = buildFolderPassInputMeasurement({
+          passIndex,
+          inputMode: pass.input === 'previous' && output ? 'previous' : 'original',
+          input: passInput,
+          userPrompt,
+          declaredFullUpstream,
+          appliedFullUpstream: declaredFullUpstream && isPreviousInput && Boolean(chainUpstreamContext),
+          systemPrompt: effectiveSystemPrompt,
+          sampleCount: selectedSamples.length,
+          isRetry: attempt > 1
+        })
+        try {
+          window.dispatchEvent(new CustomEvent('real-skill:folder-pass-input', { detail: passMeasurement }))
+        } catch {
+          // Diagnostic only; request construction must continue.
         }
+        captureRequestMessages(messages, passIndex, attempt)
+        options.onRequestBuilt?.(messages)
         return messages
       }
-      let requestMessages = buildRequest()
+      let requestMessages = buildRequest(schemaRetryFeedback)
 
       try {
         const callAiOnce = async (
@@ -853,13 +973,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           diagnostics.push(diagnostic('warning', 'generation-direct-retry-recovered', '直出模式重试后已生成正文'))
         } else if (validity.kind === 'truncated') {
           diagnostics.push(diagnostic('warning', 'generation-truncated', validity.message))
-          const continuationMessages = [
-            ...requestMessages,
-            {
-              role: 'user' as const,
-              content: `以下是未完成的输出，请从中断处自然续写，不要重复已有内容：\n${result.text}`
-            }
-          ]
+          const continuationMessages = buildContinuationMessages(requestMessages, result.text)
           const continuation = await callAiOnce(continuationMessages)
           const continuationValidity = classifyGenerationValidity({
             text: continuation.text,
@@ -968,6 +1082,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         }
 
         const report = buildValidationErrorReport(validation.errors)
+        schemaRetryFeedback = buildSchemaRetryFeedback(validation.errors)
         errors.push(`第 ${attempt}/${RETRY_LIMIT} 次输出未通过校验：${report}`)
         diagnostics.push(diagnostic('warning', 'schema-validation-failed', `尝试 ${attempt}/${RETRY_LIMIT}：${report}`))
         dispatchStepEvent({
@@ -1002,6 +1117,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           usageReconciliation: finalUsageReconciliation,
           textOrigin: finalTextOrigin,
           requestMessages: capturedRequestMessages,
+          attemptRequestMessages: capturedAttemptRequestMessages,
             toolCalls,
             toolResults,
             toolRequestDeltas,
@@ -1036,6 +1152,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           usageReconciliation: finalUsageReconciliation,
           textOrigin: finalTextOrigin,
           requestMessages: capturedRequestMessages,
+          attemptRequestMessages: capturedAttemptRequestMessages,
           toolCalls,
           toolResults,
           toolRequestDeltas,
@@ -1070,6 +1187,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       usageReconciliation: finalUsageReconciliation,
       textOrigin: finalTextOrigin,
       requestMessages: capturedRequestMessages,
+      attemptRequestMessages: capturedAttemptRequestMessages,
       toolCalls,
       toolResults,
       toolRequestDeltas,

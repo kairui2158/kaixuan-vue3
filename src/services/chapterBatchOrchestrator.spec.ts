@@ -53,6 +53,25 @@ describe('buildChapterBatchPrompt', () => {
     expect(prompt).toContain('只输出缺失章节')
     expect(prompt).toContain('数组长度必须为4')
   })
+
+  it('renders the previous validation errors and forbidden titles in repair prompts', () => {
+    const prompt = buildChapterBatchPrompt({
+      contract,
+      repair: true,
+      missingStart: 2,
+      missingCount: 4,
+      basePrompt: '[卷纲] 第一卷',
+      historyContext: '[已生成章节标题清单]\n第1章《第一章》',
+      repairErrors: ['章节标题与历史重复：「第一章」', '返回数量不足：期望5章，实际4章'],
+      forbiddenTitles: ['第一章', '第二章']
+    })
+
+    expect(prompt).toContain('【上一次验收失败原因】')
+    expect(prompt).toContain('章节标题与历史重复：「第一章」')
+    expect(prompt).toContain('返回数量不足：期望5章，实际4章')
+    expect(prompt).toContain('【禁止重复的已有标题】')
+    expect(prompt).toContain('第一章、第二章')
+  })
 })
 
 describe('generateChapterBatch', () => {
@@ -88,7 +107,7 @@ describe('generateChapterBatch', () => {
         calls.push(prompt)
         return calls.length === 1
           ? json(['第一章', '第二章', '第三章', '第四章'])
-          : json(['第五章'])
+          : json(['第五章', '第六章'])
       }
     })
 
@@ -99,6 +118,29 @@ describe('generateChapterBatch', () => {
     expect(result.attempts[1].repairAttempt).toBe(1)
     expect(result.attempts[1].missingStart).toBe(5)
     expect(result.attempts[1].missingCount).toBe(1)
+  })
+
+  it('passes duplicate errors and forbidden titles into the chapter repair prompt', async () => {
+    const calls: string[] = []
+    const result = await generateChapterBatch({
+      contract,
+      historyTitles: new Set(['第一章']),
+      basePrompt: '[卷纲] 第一卷',
+      historyContext: '[已生成章节标题清单]\n第1章《第一章》',
+      callChapterApi: async (prompt) => {
+        calls.push(prompt)
+        return calls.length === 1
+          ? json(['第一章', '第二章', '第三章', '第四章'])
+          : json(['第五章', '第六章'])
+      },
+      maxRepairAttempts: 2
+    })
+
+    expect(result.status).toBe('complete')
+    expect(calls[1]).toContain('【上一次验收失败原因】')
+    expect(calls[1]).toContain('章节标题与历史重复：「第一章」')
+    expect(calls[1]).toContain('【禁止重复的已有标题】')
+    expect(calls[1]).toContain('第一章')
   })
 
   it('filters history duplicates and keeps repairing', async () => {

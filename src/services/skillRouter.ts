@@ -17,6 +17,7 @@ export interface RoutedSkill {
 
 export interface SkillRouteOptions {
   input: string
+  chainUpstreamContext?: string
   agent?: RealSkillAgentContext | null
   purpose?: 'rewrite' | 'verify' | 'generate'
   budget: { tryConsume: (step: string, skillLimit?: number | null) => any }
@@ -115,6 +116,7 @@ export async function routeSkill(
   const executeOptions = {
     folderPath: skill.folderPath,
     input: options.input,
+    chainUpstreamContext: options.chainUpstreamContext,
     toolContext: options.toolContext,
     agent: options.agent,
     agentSource: options.agentSource,
