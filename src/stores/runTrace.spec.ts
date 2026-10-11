@@ -1633,7 +1633,66 @@ describe('runTrace store', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
     const exported = store.exportRunToJson(store.getRun(runId)!) as Record<string, unknown>
-    expect(exported.schemaVersion).toBe(16)
+    expect(exported.schemaVersion).toBe(17)
+  })
+
+  it('exports pipeline artifact validation events for all three stages', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ source: 'pipeline', stepName: '生成流水线', mode: 'chain' })
+    const eventTypes = [
+      'volume-batch-validated',
+      'settings-artifact-validated',
+      'body-artifact-validated'
+    ]
+    eventTypes.forEach(type => {
+      store.addEvent(runId, {
+        type,
+        level: 'info',
+        label: '产物验收',
+        detail: JSON.stringify({ type })
+      })
+    })
+    const run = store.getRun(runId)!
+    const exported = store.exportRunToJson(run) as unknown as RunTrace & { schemaVersion: number }
+
+    eventTypes.forEach(type => {
+      expect(run.events.some(event => event.type === type)).toBe(true)
+      expect(exported.events?.some(event => event.type === type)).toBe(true)
+      expect(store.exportRunToText(run)).toContain(type)
+    })
+    expect(exported.schemaVersion).toBe(17)
+  })
+
+  it('keeps a successful final body artifact successful while preserving degraded call evidence', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ source: 'pipeline', stepName: '正文层', mode: 'single' })
+    store.addEvent(runId, {
+      type: 'api-degraded',
+      level: 'warn',
+      label: '第 2 次 API 调用完成（降级）',
+      detail: 'folder schema validation exhausted'
+    })
+    store.addEvent(runId, {
+      type: 'body-artifact-validated',
+      level: 'info',
+      label: '正文批次验收通过',
+      detail: JSON.stringify({ chapterId: 'ch-1', targetWords: 1200, wordCount: 2091, ratio: 1.74 })
+    })
+    store.addEvent(runId, {
+      type: 'body-artifact-recovered',
+      level: 'warn',
+      label: '正文中间尝试曾降级，最终产物已通过契约验收',
+      detail: JSON.stringify({ degradedApiCalls: 2, finalStatus: 'complete' })
+    })
+    store.finishRun(runId, 'success', undefined, 'body_generation_complete')
+
+    const run = store.getRun(runId)!
+    const exported = store.exportRunToJson(run) as Record<string, unknown>
+    expect(run.status).toBe('success')
+    expect(run.events.some(event => event.type === 'api-degraded')).toBe(true)
+    expect(run.events.some(event => event.type === 'body-artifact-recovered')).toBe(true)
+    const stateHistory = exported.stateHistory as Array<{ reason?: string }>
+    expect(stateHistory.at(-1)?.reason).toContain('body_generation_complete')
   })
 
   it('preserves raw provider arguments through the tool-call trace export', () => {
@@ -2120,7 +2179,7 @@ describe('runTrace store', () => {
     const run = store.getRun(runId)!
     expect(run.events.some(event => event.type === 'chain-handoff-delivery')).toBe(true)
     expect(run.processingReports?.some(report => report.processor === 'chain-handoff')).toBe(true)
-    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(16)
+    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(17)
   })
 
   it('records the requested and actual tool surface separately', () => {

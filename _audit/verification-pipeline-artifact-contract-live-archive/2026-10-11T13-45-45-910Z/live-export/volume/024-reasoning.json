@@ -1,0 +1,211 @@
+We need answer only final JSON array. User asks current step generate第2卷 only? Wait context contradictory. They say: "请生成3卷的卷纲" then later "已生成卷事实清单... 第1卷... 本次只生成第2卷，不生成其他卷。全书计划到第3卷。输出JSON数组，每项含name/outline/summary/allocatedWords字段。数组长度必须为1。请基于单独提供的“上一步 SKILL 完整输出”执行当前 SKILL，只输出当前步骤的定稿产物。" They provided previous step output for volume1. Need generate volume2, array length 1. We need ensure valid JSON only. Need follow rules: no extra text, only JSON array. Need name likely 第2卷 from outline? The initial plan: 第二卷 雾中港：港口交易、旧盟约与失踪船队让矛盾升级，主角必须选择立场。 But previous generated volume1 named 《废墟之上》 which differs from initial planned first volume. User's current instruction "本次只生成第2卷" probably based on previous generated vol1. Need generate volume2. We need include name. Maybe "雾中港" or "暗流港口"? Use provided outline indicates volumes: 第一卷 风暴起点, 第二卷 雾中港, 第三卷 南方航线. But previous vol1 was "废墟之上" not "风暴起点". The prompt says "已生成卷事实清单 第1卷《废墟之上》". But earlier text had "全书围绕灯塔、旧航道和南方航线展开..." then plan 第一卷 风暴起点. Conflict. We need use current task: generate volume2. Need decide name. We can use "雾中港" as planned, maybe with volume2 title "雾中港：旧盟约与失踪船队". Need avoid duplicating other volumes. Output only one.
+
+Need build outline with all required sections and keywords. Need include four stage structure, each segment 400 chars, each plot point 100 chars, fall points, micro scene anchors with carrying intervals from ch1 to volume end sequential. Need chapter progress index. Need volume status all state block including exact terms 情感债务, 悬念库存, 卷级钩子. Need continuity from vol1: 上卷衔接 not "无(首卷)" because vol2. Need refer previous volume state: 陈暮 exposed old library coordinates, left north lighthouse and south route tension. We can build it. Need not output extra. Need ensure no forbidden markers. We can include character names. Avoid English terms. Need not use 【】 markers. Need no "Stability" etc.
+
+Need maybe volume2 story: 陈暮 arrives at foggy port? Previous vol1 was apocalyptic remnant, but initial world is voyage. Need bridge: after exposing old library coordinate, he follows clues to port. We can create coherent story: 陈暮 enters 雾中港 to trade knowledge/supplies, gets entangled in port factions, old covenant, missing fleet. Must choose stance. Volume 2 plot: opening he arrives at port, seeking old library coordinate? Actually volume1 ended exposing old library coordinates and left northern lighthouse/south route tension. Volume2 could be port conflict. Need outline. We must ensure volume2 name maybe "雾中港". Summary <=150 chars.
+
+Need include full outline >=2000. Need ensure each plot point >=100 Chinese chars. Need include four segments. We can write more robust.
+
+Need decide allocatedWords. Previous vol1 allocated 3300, total 10000. Remaining for vol2? 10000 - 3300 = 6700, but volume3 remains. User says total 10000, volume2 perhaps 3300? The previous volume1 3300. Need allocatedWords integer positive. Need maybe allocate volume2 3300 or 3400? There is no explicit remaining split. Could use 3300 to leave 3400 for volume3. But if total 10000 and vol1 3300, remaining 6700. We can assign volume2 3300 and volume3 3400. But user explicitly says "各卷allocatedWords之和应等于全书总字数" for all 3, but now only vol2. We can use 3300. Need maybe not exceed remaining; 3300 <= 6700. Good. Use allocatedWords 3300. Could also 3400. But previous vol1 was 3300; likely equal.
+
+Need ensure outline first character? The final output begins `[`. No code fence. Need escape newline as \n in JSON string. We can produce single line JSON? Need no raw newlines inside strings. Use \n. Could produce with actual line breaks between fields? JSON allows whitespace outside strings, but strings must have newline escaped. Use one long line maybe easier. Must ensure not use unescaped English double quotes in string? We can use Chinese quotes. Avoid double quotes entirely. Need no trailing comma.
+
+Need construct outline. Need include sections with exact keywords:
+- 本卷故事走向
+- 卷的开篇约四分之一
+- 卷的中段约四分之一
+- 卷的后段约四分之一
+- 卷末约四分之一
+- 角色弧光
+- 核心冲突与代价
+- 伏笔与意象
+- 感官调色板
+- 潜台词
+- 卷末状态
+- 上卷衔接
+- 伏笔索引
+- 章节进度索引
+
+Need maybe include "起承转合" keyword. Could phrase "起承转合四段情节概要：" But rules require? It says must include引导词 "起承转合、角色弧光、核心冲突、伏笔与意象、感官调色板、潜台词、卷末状态、章节进度索引". We can include "起承转合" in outline text maybe near four stage. We'll include "起承转合四段按卷的开篇、卷的中段、卷的后段、卷末展开。" But "起承转合" appears.
+
+Need plot point structure: Each plot point 100+ Chinese chars, includes event, behavior, conflict, result. End with 落点快照: 人物状态、关系变化、信息变化、伏笔状态、承诺状态. Need each segment have段落落点. Need four stage each with plot points. Could do 2 plot points per stage? Need maybe 8 plot points. Need ensure each 100+ chars. Could create 7 or 8. Need micro scene anchors for all segments? Rule from previous examples: each plot point maybe one or more. Need "微场景锚点保留五项结构，并标注承载区间：约N-M章". Need every micro anchor carrying interval sequential from ch1 to end. We can include 7 micro anchors like examples. Need no gaps/overlap. With chapters maybe 1-21? But 3300 words, maybe chapters? Could still use chapters as plan. But previous volume1? Not relevant.
+
+Need maybe chapter intervals should be realistic for 3300 words? But not issue. Could use 1-6, 7-12, 13-18, 19-24. Need all anchors sequentially from chapter 1 to last. We can set 7 anchors: 1-3, 4-6, 7-9, 10-12, 13-15, 16-18, 19-21. That's fine. Need plot points 7. Each stage:
+- 开篇: plot 1 and 2; anchors 1-6? Actually 2 anchors for opening.
+- 中段: plot 3 and 4; anchors 7-12.
+- 后段: plot 5 and 6; anchors 13-18.
+- 卷末: plot 7 maybe anchor 19-21.
+Need chapter progress index cover all.
+
+Need ensure "上一卷悬念有推进或回收" etc. Include under 上卷衔接. Need "情感债务" etc in 卷末状态. Need include "悬念库存" and "卷级钩子". Need maybe "伏笔 V2-1 ..." etc. Need preserve previous volume's F-ID maybe? Could use V2-1, V2-2, V2-3. Need maybe previous volume's悬念: 北方灯塔与南方航线. We can mention V1? Since previous volume generated had no explicit V-ID? But we can include "伏笔 V2-1 ..." only; also "跨卷衔接：上一卷暴露的旧图书馆坐标推进为北灯塔方位与南方航线入口的冲突。" Need not use V1 if not given. Could mention "上卷伏笔延续：旧图书馆坐标继续指向两条方向".
+
+Need avoid forbidden markers. Don't use "【" anywhere. Don't use "继承自", "因果前提", "压力转变", "残留债", "对应叙事阶段", "Lie", "Stability". Need avoid "鬼" etc from character? Not relevant.
+
+Need output exactly JSON array. Need maybe use Chinese punctuation. Ensure no actual newline inside string. We'll produce one JSON object string. Since entire output can be pretty with line breaks outside string; but to avoid errors, produce one line with escaped \n. That may be long. Need ensure all \n as backslash+n not actual line breaks. Could produce one line. That's acceptable.
+
+Let's draft outline carefully. We need maybe write enough. Let's plan story volume2.
+
+Volume2: 雾中港. 陈暮 arrives at fog port after leaving ruins. He carries old library coordinates and intends to find north lighthouse/south route? He needs ship/supplies? The port is controlled by three factions: harbor guild, old covenant families, missing fleet's survivors? He must choose stance. We can name characters? Since only main character known. Could invent: 陈暮, 港口守门人林栈, 旧盟约代表苏珈, 失踪船队最后幸存者沈锚. Is inventing new characters okay? User didn't forbid, but input didn't provide. We can create for volume2? Might be necessary. But maybe better keep minimal, using roles: 港务长, 旧盟约代理人, 失踪船队幸存者. But role names okay. Use "港务长" and "黑帆代理人". Need not overdo.
+
+Need follow no engineering terms. Use natural language.
+
+Plot:
+- 陈暮 arrives at 雾中港, requires passage/水图 to translate old library coordinates into北灯塔 or南航线. He meets port authorities, must trade information. He realizes port factions are using missing fleet debts to corner resources. He saves or helps a survivor? He must decide whether to give old library info to 旧盟约 or harbor guild. Moral dilemma: knowledge circulation vs leverage. The old covenant wants use missing fleet list to restart slave-like salvage? He refuses? Eventually he chooses with missing fleet survivors, reveals partial old library coordinate, causing old covenant to open south route? By end he gains ship but owes debt, reveals coordinates split: northern lighthouse signal and southern route marker; next volume sets south route.
+
+Need incorporate previous volume: 陈暮 from passive knowledge keeper to active rescuer. Volume2: he moves from solitary knowledge holder to choosing faction, learning knowledge has price and alliances.
+
+Need four stages:
+
+开篇:
+剧情点1 陈暮抵港，港口因雾封锁，他只带旧图书馆坐标碎片。他拿知识换临时泊位，港务长试探旧航道. 落点.
+剧情点2 他遇到失踪船队幸存者偷水，被迫掩护，港务长发现后把偷水案与旧盟约债务挂钩. 落点.
+段落落点.
+
+中段:
+剧情点3 陈暮被迫在港务长与旧盟约间选择，他潜入档案室查失踪船队记录，发现旧盟约用失踪船队名单逼迫家属签卖身契. 落点.
+剧情点4 他与幸存者合作，用一份假水图诱出旧盟约代理人，真图保留但被港务长截获一角; 关系 from distrust to temporary cooperation. 落点.
+段落落点.
+
+后段:
+剧情点5 陈暮决定公开部分旧图书馆坐标给失踪船队家属，换取群众庇护；旧盟约封锁码头，他不得不提前远航. 落点.
+剧情点6 出港遭遇风暴信标/雾障? He must decide whether用旧图书馆坐标指向北灯塔 or 南航线。他选择南航线入口，但代价: 港务长烧毁他留下的知识备份，幸存者中一人为了启动信号被抓. 落点.
+段落落点.
+
+卷末:
+剧情点7 陈暮冲出雾中港，进入南航线边缘，身后港口响起北灯塔钟声；他收到旧盟约的债务清单，明白南方航线不只是路而是旧盟约的补给线. 落点.
+Maybe needs chapter intervals.
+
+Need include "微场景锚点". We can embed after plot points in respective segments.
+
+Need ensure each plot point has 100+ Chinese chars. We'll write relatively long.
+
+Need maybe "角色弧光": 陈暮 from "知识只用于自保与个别搭救" to "知识必须选择公开对象并承担代价". Need mention 内心变化, relationship. Not use "Need" English. Use Chinese "表面想要...深层需要..." maybe that's okay? Avoid Need word. We can say "他原以为保存知识就能不产生伤害，经过港内交易与背叛，他意识到知识若不平等地公开，只会被旧盟约变成新的锁链."
+
+核心冲突与代价: 近敌=港务长, 中敌=旧盟约代理人, 远敌=风暴信标背后的南方航线垄断, 自我敌对=他舍不得唯一的地图线索. Need include不可逆代价: 他烧毁/失去一部分旧图书馆坐标? Could be that港务长 breaks his old library notes? Let's say "他失去旧图书馆坐标中北灯塔部分，只保留南航线片段". Need not conflict with next volume? Volume3南方航线. That works.
+
+伏笔与意象: "雾中港" as image, 旧信/旧图书馆坐标? Need mention "旧信上的蓝墨水航线" as image evolving? Need maybe previous volume had old letters. Use 旧信 as kept item. Also image: 雾、灯塔钟声、南方航线的盐雾. Could list.
+
+感官调色板: "主色调灰青与盐白，气味是腐烂缆绳、湿盐、灯油，触感是冷雾和湿木，听觉是雾笛与铁链，空间感逼仄狭窄，氛围由试探压抑转为决断后开阔". Ensure each affects judgment/action.
+
+潜台词: "陈暮对港务长说只要路，其实内心怕被当旧盟约棋子；读者知道他保留南航线片段，角色们不知；旧盟约代理人说帮助失踪船队，实际要回收名单控制人." Good.
+
+卷末状态: Update人物身份、关系、资源、信息、伏笔、承诺、悬念. Include exact terms.
+- 人物身份：陈暮成为被雾中港通缉的逃亡者/南航线闯入者.
+- 关系：与港务长为敌对，与旧盟约为未了债务，与幸存者沈锚/群体为临时同盟.
+- 资源：一只破船、残缺盐雾水图、旧图书馆坐标南航线片段.
+- 信息：知道南方航线是旧盟约补给线，北灯塔钟声只是诱航线.
+- 伏笔：V2-1 港务长烧毁北灯塔坐标，可能留副本；V2-2 沈锚被抓/失踪，携带幸存者名单.
+- 承诺：对家属承诺带失踪船队线索南下.
+- 悬念：南航线入口后会遇到什么，旧盟约债务如何追来.
+- 情感债务：陈暮因利用家属信任换取出港而欠债未偿还.
+- 悬念库存：旧盟约的北灯塔陷阱、幸存者名单、旧图书馆坐标的另一半.
+- 卷级钩子：南航线首夜，雾中传来失踪船队的旧船号子.
+
+Need mention "上卷衔接": "承接上一卷卷末：陈暮暴露旧图书馆坐标后逃亡，北灯塔与南方航线张力被雾中港两派利用；上一卷情感债务——对知识外传的犹豫——在本卷中转为公开对象选择的债务；上一卷意象终态为灯塔光穿雾，延续为雾中港的雾笛与北灯塔钟声。上一卷悬念旧图书馆坐标在本卷回收一半（南方航线入口），保留北灯塔陷阱。" Need maybe this fulfills.
+
+Need "伏笔索引" with V2-1 etc. Include maybe "跨卷 V-ID 不改号"? We didn't have V1. Fine. Format "伏笔 V2-1 | 简要 | 埋设于卷的开篇 | 回收卷: 第3卷".
+
+Need "章节进度索引" with natural language. Include chapter intervals and tasks.
+
+Need ensure no missing "起承转合". Could include in line before four segments: "起承转合四段情节概要：卷的开篇...". But need maybe "起承转合" exactly. We'll include.
+
+Now draft outline string. It will be long. Let's compose.
+
+Potential issue: Must not output extra report. Only JSON. We'll output.
+
+Need think about JSON escaping. We must use backslash n in string. In final, we'll write actual JSON with `\n` sequences. Since final answer will be parsed? We need ensure no raw newlines within string. We can put all in one line. Need avoid double quotes inside string. Use Chinese quotes. Need maybe no English double quotes except entire JSON field delim. Fine.
+
+Let's ensure each plot point more than 100 Chinese chars. We'll make them substantial.
+
+Let's write outline:
+
+本卷故事走向：陈暮带着上一卷暴露的旧图书馆坐标残片进入雾中港，要在港口交易、旧盟约与失踪船队三方僵局中换取出海南图。他的表层目标是从港务长手里拿到南航线水图，实际必须决定知识该公开给谁、用多大代价换取信任。本卷推动力是旧图书馆坐标既是他唯一的资本，也是旧盟约急欲灭口或控制的引线。
+
+起承转合四段情节概要：卷的开篇约四分之一，陈暮被雾锁码头扣住，被迫用旧图书馆坐标换取临时泊位，并撞见失踪船队幸存者偷水。卷的中段约四分之一，他查到旧盟约用失踪船队名单逼家属签劳役契，并与幸存者形成临时合作。卷的后段约四分之一，他公开部分旧图书馆坐标给家属换取出港窗口，遭到旧盟约封锁，只能选择南航线入口。卷末约四分之一，他冲入南航线边缘，发现南方航线是旧盟约的补给线，北灯塔钟声成为追兵信号。氛围从试探压抑、背叛冲击、决断爆发到出港后的空旷不安。
+
+卷的开篇约四分之一：陈暮进入雾中港，港口因雾季封闭，所有船舶必须挂旧盟约旗才能靠岸。他只有旧图书馆坐标残片和少量净水，无力支付高额泊费。剧情点一：陈暮与港务长林栈谈判，提出用一段旧航道标记换取临时泊位和出海水图。林栈先答应，却只给他一张被雾水泡烂的近岸图，并派人暗中检查他的行囊。陈暮察觉地图没有南航线标注，反而出现北方灯塔的假航标。他当夜改睡在旧船棚，用旧信上的蓝墨水路线比对港口灯桩，确认雾中港灯桩被改动。落点快照：人物状态快照——陈暮从逃亡者转为试探中的交易者；关系变化——与港务长建立互相试探关系；信息变化——确认港务长在地图上做了假航标；伏笔状态——港务长对旧图书馆坐标产生灭口兴趣；承诺状态——陈暮未做出正式承诺。剧情点二：陈暮在码头水仓附近撞见失踪船队幸存者沈锚偷取备用淡水，沈锚认出他外乡人身份，求他帮忙躲过铺查。陈暮起初拒绝，因为不想背负额外债务，但巡夜人逼近，他只能把旧地图盖在沈锚身上，并对巡夜人称自己也在找水。巡夜人离开后，沈锚说失踪船队名单上的人被旧盟约当作“活抵押”，家属每夜都要交赎。陈暮意识到自己手中的旧航道标记可能牵连名单。落点快照：人物状态快照——陈暮从交易者转为被迫掩护者；关系变化——与沈锚建立暂时默契；信息变化——知道失踪船队家属被旧盟约勒索；伏笔状态——旧盟约的名单债务成为本卷核心引线；承诺状态——陈暮尚未承诺帮助，但已无法完全脱身。段落落点：人物状态快照——陈暮从入港的准备状态进入被两方注意的暴露状态；关系变化——与港务长为试探性敌对，与沈锚为临时默契；信息变化——确认地图被改、灯桩错位、旧盟约利用名单勒索；伏笔状态——旧盟约活抵押名单完成埋设；承诺状态——未建立正式承诺，但被迫卷入。
+
+微场景锚点一：陈暮在雾中码头与港务长谈判；场景目的=建立港口规则与假航标线索；进入状态=陈暮只有旧图书馆坐标与少量净水；退出状态=陈暮拿到假图并发现灯桩错位；mustAdvance=港务长对坐标产生兴趣；mustPreserve=陈暮不交出完整旧图书馆坐标；承载区间：约1-3章。
+微场景锚点二：陈暮在旧船棚比对旧信与港口灯桩；场景目的=让旧信成为确认假航标的钥匙；进入状态=陈暮手持假图与旧信；退出状态=他确认港口被重排过；mustAdvance=北灯塔假航标浮出；mustPreserve=旧信不被港务长看到；承载区间：约4-6章。
+
+卷的中段约四分之一：陈暮为换得真实水图，不得不进入旧盟约把持的档案船。他发现失踪船队名单被单独锁在“雾债簿”里，家属按人头交雾税。剧情点三：陈暮以帮港务长测绘灯桩为借口登上档案船，在雾债簿夹层中发现一份旧盟约文书，写明失踪船队不是遇难，而是被派往南方航线运送信标燃料，船队逾期未归后旧盟约故意隐瞒回港坐标，以便继续向家属收赎。陈暮想带走一页证据，被旧盟约代理人苏珈撞见。苏珈没有抓他，反而表示只要他交出旧图书馆坐标中的南航线入口，就可以释放十名家属，并给他一条出港船。陈暮假意应下，把一页假抄本留下，真本折进靴底。落点快照：人物状态快照——陈暮进入主动取证状态；关系变化——与旧盟约代理人形成相互利用；信息变化——确认失踪船队被旧盟约故意隐瞒回港坐标；伏笔状态——南方航线入口成为双方争夺焦点；承诺状态——陈暮对旧盟约做出虚假承诺。剧情点四：陈暮与沈锚在废船底会合，家属们聚集在盐仓外等待陈暮答复。陈暮原本只想带沈锚一人出港，但沈锚指出若只救一人，名单上其他人会被旧盟约连夜转移。陈暮决定用旧图书馆坐标中的“北灯塔标记”制造一次假交易，把旧盟约的人引到北礁，同时让家属争夺雾债簿真本。行动中港务长突然封锁水门，苏珈当众撕毁假抄本，称陈暮是偷盗旧盟约户籍的贼。陈暮被迫把真本中的一页南航线标记塞进沈锚衣角，让他从排水道逃走，自己留下吸引巡夜人。落点快照：人物状态快照——陈暮进入代价承担阶段；关系变化——与沈锚从临时默契转为共担风险；信息变化——旧盟约公开污名化陈暮，北灯塔标记被证明是陷阱；伏笔状态——南航线标记被拆散并转移到沈锚手中；承诺状态——陈暮对家属形成未履行的救援承诺。段落落点：人物状态快照——陈暮从取证者变为被通缉者；关系变化——与沈锚成为同盟，与旧盟约代理人彻底敌对；信息变化——旧盟约隐瞒船队坐标的真相固定，北灯塔成为陷阱；伏笔状态——雾债簿真本成为关键证据，南航线标记拆散；承诺状态——陈暮对家属的救援承诺进入高压状态。
+
+微场景锚点三：陈暮潜入旧盟约档案船查找雾债簿；场景目的=揭示失踪船队被隐瞒的真相；进入状态=陈暮以测绘灯桩为借口登船；退出状态=他取得一页真证并见到旧盟约代理人；mustAdvance=旧盟约以释放家属换取南航线入口；mustPreserve=陈暮不交出完整南航线标记；承载区间：约7-9章。
+微场景锚点四：陈暮在盐仓与家属见面并策划假交易；场景目的=把个人脱身目标改成集体救援；进入状态=陈暮持有一页真证与北灯塔假标记；退出状态=行动失败，沈锚带走南航线标记；mustAdvance=旧盟约与港务长联合封锁；mustPreserve=雾债簿真本关键页不被夺走；承载区间：约10-12章。
+
+卷的后段约四分之一：陈暮被港务长扣在旧灯塔底舱，林栈给他两条路：要么把旧图书馆坐标卖给旧盟约换自由，要么被交给家属当替罪羊。陈暮意识到坐标不能直接给出，否则旧盟约会关闭南方航线入口并让更多船队成为活抵押。剧情点五：陈暮假装受刑后招供，向港务长透露北灯塔假坐标，并称南航线入口藏在灯塔钟声节奏里。林栈派人去敲钟，钟声触动了旧盟约的雾中浮标，浮标升起后暴露了旧盟约私设的补给航线。港务长与旧盟约发生火并，陈暮趁乱逃出底舱，救下被押来对峙的沈锚。两人会合后发现有半张旧图书馆坐标被巡夜人撕去，上面的南航线刻度只剩轮廓。落点快照：人物状态快照——陈暮进入以计谋换取生门的决断状态；关系变化——与港务长彻底撕破，与沈锚形成生死同盟；信息变化——北灯塔假坐标成功离间两派，南航线刻度残缺；伏笔状态——南航线入口仍未完整，北灯塔钟声与补给航线关联被发现；承诺状态——营救家属承诺被暂时悬置。剧情点六：陈暮决定不再独自保存坐标，而是在雾笛台上向港口家属广播雾债簿真相的一部分，让旧盟约无法私下处置名单。广播之后，旧盟约切断雾笛，港务长放火烧毁陈暮留在旧船棚里的旧信备份，黑帆从南面围来。陈暮与沈锚只得抢一艘废弃的近海雾船，把最后完整的南航线轮廓对准南方雾墙。开船瞬间，沈锚为了挡住追来的缆绳，自己跳上栈桥拉断系缆，被抓前朝陈暮喊出“去南方，名单在雾债簿第三层”。陈暮没有回头，船冲过雾墙，旧灯台传来北灯塔钟声。落点快照：人物状态快照——陈暮进入不可逆逃亡状态；关系变化——与沈锚分离，留下未完成救援债务；信息变化——雾债簿第三层成为回收方向，南航线入口被启用；伏笔状态——北灯塔陷阱转为旧盟约追兵信号，雾债簿真本未夺回；承诺状态——对家属与沈锚的承诺转成卷末未偿债务。段落落点：人物状态快照——陈暮完成从被动交易到主动决断的转变；关系变化——与沈锚的同盟被迫中断，与旧盟约、港务长为双重敌对；信息变化——雾债簿第三层与南航线入口成为下一卷任务；伏笔状态——南航线轮廓残缺被补上，旧图书馆坐标北半部被毁或散失；承诺状态——陈暮带着未履行的救援承诺出海。
+
+微场景锚点五：陈暮在旧灯塔底舱被审并假意招供；场景目的=完成离间港口两派；进入状态=陈暮被扣，沈锚被带来对质；退出状态=陈暮用北灯塔假坐标引发两派火并；mustAdvance=旧盟约私设补给航线曝光；mustPreserve=陈暮不交出真实南航线入口；承载区间：约13-15章。
+微场景锚点六：陈暮在雾笛台向家属广播雾债簿真相；场景目的=把孤身知识变成公共证据；进入状态=陈暮与沈锚短暂会合；退出状态=雾笛被断，旧信备份被烧，港口合围；mustAdvance=旧盟约无法私下清洗名单；mustPreserve=沈锚别被抓但最终失败；承载区间：约16-18章。
+微场景锚点七：陈暮抢船冲过雾墙；场景目的=完成本卷不可逆逃亡并进入南航线；进入状态=码头追兵合围，南航线轮廓残缺；退出状态=陈暮进入南方航线边缘，沈锚被抓；mustAdvance=下一卷南方航线任务确立；mustPreserve=雾债簿第三层信息不被旧盟约收回；承载区间：约19-21章。
+
+卷末约四分之一：陈暮进入南航线边缘，发现这里的雾不是自然形成，而是浮标和信标燃料烧成的灰。他身后雾中港仍在封锁，沈锚被抓，旧盟约债务清单随潮水漂进船舱。剧情点七：陈暮在无人掌舵的情况下拆读沈锚留下的半张南航线标记，发现航路每隔七座浮标就有一座刻有旧盟约债纹。他意识到南方航线不是自由航道，而是旧盟约的补给线，北灯塔钟声只是吸引外来船只进入雾中港的诱航信号。此时船头撞到一块漂来的舱板，上面写着“失踪船队未死，正在南方等债还清”。陈暮把舱板投入炉灶续火，决定不改航向，因为南下既是他对沈锚的承诺，也是唯一能接触失踪船队的地点。他回望雾中港，雾墙合拢，只剩北灯塔钟声一次比一次远。落点快照：人物状态快照——陈暮成为南航线闯入者；关系变化——与沈锚分隔，与旧盟约债务关系转成追杀关系；信息变化——明白南方航线是旧盟约补给线，失踪船队可能在南方；伏笔状态——雾债簿第三层与债纹浮标延续到下一卷；承诺状态——陈暮确认带名单南下救援的承诺。段落落点：人物状态快照——陈暮完成本卷身份更新，从港内被追捕者变成航线闯入者；关系变化——与旧盟约、港务长的恶意转化为跨海追债；信息变化——南方航线不是自由出口而是旧盟约控制区；伏笔状态——失踪船队未死的信息埋下，债纹浮标成为下一卷路标；承诺状态——陈暮对沈锚和家属的救援承诺进入下一卷。
+
+角色弧光：陈暮从“保存知识绝不外传、只做点对点帮助”的躲藏者，转变为“必须把知识交给具体对象并承担公开后果”的行动者。他一开始以为旧图书馆坐标只是航海线索，经过雾中港的勒索、假交易与广播失败，他学会知识不是护身符，而是会咬人的证据；他不再追求一个人安全离开，而是带着一群人的债务逃向南航线，这种变化由剧情点的被迫选择和沈锚被抓造成。
+
+核心冲突与代价：近敌港务长林栈用假航标和泊位垄断逼陈暮交出坐标；中敌旧盟约代理人苏珈用失踪船队家属当活抵押，试图把旧图书馆坐标变成灯塔陷阱；远敌是南方航线背后的信标燃料补给势力，让雾中港成为收割船队的入口；自我敌对是陈暮舍不得交出任何知识线索，差点导致沈锚和家属被合围。本卷不可逆代价是：陈暮失去旧图书馆坐标中的北灯塔部分，沈锚被抓，他只能带着南航线残缺标记和未偿救援债务出海。
+
+伏笔与意象：本卷埋设雾债簿第三层作为失踪船队的释放关键，埋设北灯塔钟声为旧盟约诱航信号，埋设债纹浮标为南方航线控制节点。旧信中的蓝墨水路线在本卷演变为残缺南航线标记；核心意象“雾”从压迫港口的封闭物变成掩盖旧盟约补给线的燃料灰，最后成为主角突破后的旧世界边界。港务长烧毁的旧信备份并非唯一原件，陈暮靴底还保留一角。
+
+感官调色板：主色调为灰青、盐白与锈红；气味是腐烂的缆绳绳油、湿盐、旧盟约灯油和焚烧纸张；触感是冷雾黏在皮肤、湿木阶梯打滑、锁链上的薄霜；听觉是雾笛、铁链、北灯塔钟声和家属的低声讨债；空间感从码头拥挤货棚、底舱逼仄梁柱，到雾笛台高空尖啸，最终变为南航线雾墙后的开阔漆黑；氛围由试探压抑、中段黏稠恐惧、后段众人喧哗，转为卷末的孤独麻木。
+
+潜台词：陈暮对港务长说“我只换一张图”，心里却是怕坐标全交后自己失去最后价值；对家属广播时他说“我只说事实”，内心更怕雾笛一响就再无退路。旧盟约代理人嘴上说释放家属，真实意图是回收名单并让南方航线继续吞掉欠债者。读者知道陈暮靴底还有一角旧信，但沈锚和港口两派不知道；读者也知道失踪船队未死，陈暮直到卷末才确认。
+
+卷末状态：人物身份——陈暮成为被雾中港通缉的南航线闯入者；关系——与沈锚的临时同盟转为分隔后的未偿债务，与港务长林栈为敌对，与旧盟约代理人苏珈为追债关系；资源——废弃近海雾船、半张南航线标记、旧信残角、少量淡水和雾债簿一页残片；信息——旧盟约用雾债簿控制失踪船队家属，南方航线是补给线，北灯塔钟声是诱航信号；伏笔——V2-1北灯塔假坐标与港务长烧毁副本是否还有存根，V2-2沈锚被抓且雾债簿第三层未取出，V2-3失踪船队未死的信息指向南方航线深处；承诺——陈暮向沈锚与家属承诺南下救援并带名单回来；悬念——旧盟约跨海追债、南方航线债纹浮标、失踪船队是否真的在南方。情感债务：陈暮利用家属的信任换取出港窗口，又丢下沈锚独自逃走，这笔未被清偿的救援债务成为下一卷行动负担。悬念库存：北灯塔诱航信号、雾债簿第三层、旧盟约南方补给线、港务长被离间后是否倒向旧盟约。卷级钩子：南航线首夜，雾中传来失踪船队旧船号子，船舱里漂来第二张债单，上面写着陈暮的名字。
+
+上卷衔接：承接上一卷卷末状态，陈暮暴露旧图书馆坐标后进入流亡，上一卷情感债务“知识是否外传”在本卷转化为“知识必须交到谁手上”；上一卷悬念北方灯塔与南方航线在本卷推进为北灯塔陷阱与南航线入口；上一卷意象终态旧灯照破废墟，延续为雾中港北灯塔钟声。上一卷造成的旧图书馆坐标暴露在本卷回收一半，保留南方航线深处的另一半。
+
+伏笔 V2-1 | 港务长烧毁旧信备份但可能留下北灯塔坐标存根 | 埋设于卷末约四分之一 | 回收卷: 第3卷
+伏笔 V2-2 | 沈锚被抓并留下雾债簿第三层线索 | 埋设于卷的后段 | 回收卷: 第3卷
+伏笔 V2-3 | 失踪船队未死在南方深处 | 埋设于卷末约四分之一 | 回收卷: 第3卷
+
+章节进度索引：本卷建议承载21章。卷的开篇为第1至6章，第1章陈暮入港被雾锁，第2章与港务长谈判并拿假图，第3章发现灯桩错位，第4章撞见沈锚偷水，第5章掩护沈锚，第6章由名单债务引出旧盟约；其中微场景锚点一对应约1-3章，微场景锚点二对应约4-6章。卷的中段为第7至12章，第7章陈暮登档案船，第8章发现雾债簿，第9章被苏珈发现并假意交易，第10章与沈锚、家属会合计划假交易，第11章港务长封锁水门，第12章沈锚带走南航线标记；其中微场景锚点三对应约7-9章，微场景锚点四对应约10-12章。卷的后段为第13至18章，第13章陈暮被扣底舱，第14章林栈逼供，第15章陈暮假意透露北灯塔坐标并引发火并，第16章雾笛台广播，第17章旧信备份被烧与港口合围，第18章沈锚断缆被抓；其中微场景锚点五对应约13-15章，微场景锚点六对应约16-18章。卷末为第19至21章，第19章陈暮冲过雾墙进入南航线边缘，第20章发现债纹浮标与旧盟约补给线，第21章接到带名债单并决定南下；其中微场景锚点七对应约19-21章。关系变化区间为开篇试探、中段合作、后段生死同盟、卷末分隔；信息差释放区间在第1至6章港口保密封锁、第7至12章雾债簿真相、第13至18章北灯塔诱航信号、第19至21章南方航线补给线；伏笔操作区间在第1至6章埋设活抵押名单，第7至12章推进雾债簿第三层，第13至18章埋设并回收北灯塔假航标一部分，第19至21章埋设失踪船队未死与债单；卷末收束任务为完成陈暮的南航线闯入身份、把沈锚与家属的救援承诺转为下一卷行动目标、为第三卷南方航线真相留下债纹浮标与雾债簿第三层。
+
+Need ensure "起承转合" appears; yes. Need not include "Want/Need" English. We didn't. Need no forbidden markers. Okay.
+
+Check plot point lengths? Some maybe less than 100 Chinese? Let's inspect:
+剧情点一: long enough.
+剧情点二: long.
+剧情点三: long.
+剧情点四: long.
+剧情点五: long.
+剧情点六: long.
+剧情点七: long.
+
+Need maybe "每个剧情点末尾写落点快照：人物状态、关系变化、信息变化、伏笔状态、承诺状态." We do.
+
+Need maybe "相邻落点用增量表达，无变化项写‘承接’." We mostly do. Some are incremental. okay.
+
+Need "每段末写段落落点" We do.
+
+Need "outline 总字数不低于 2000" likely yes.
+
+Need "每段不低于400" Probably each stage has plot points + micro anchors so >400. Need "每段先写段落概要，再写剧情点" We wrote opening: "卷的开篇约四分之一：陈暮进入雾中港，港口因雾季封闭... Then 剧情点一..." good.
+
+Need "微场景锚点保留五项结构，并标注承载区间". We have scenario purpose, entering state, exiting state, mustAdvance, mustPreserve, carrying range. Good.
+
+Need "所有承载区间从第1章顺序衔接至卷末，不重叠、不断档." We have 1-3,4-6,7-9,10-12,13-15,16-18,19-21. Good.
+
+Need "章节进度索引必须覆盖全部剧情点、微场景锚点、关系变化、信息差释放和伏笔操作." Yes.
+
+Need "卷末状态必须包含全量状态块：人物身份、关系、资源、信息、伏笔、承诺、悬念." We include "悬念——". Good.
+
+Need "卷末段落必须完整执行剧情点结构...禁止只写钩子或只写结论." We have.
+
+Need "情感债务”“悬念库存”“卷级钩子”三个词必须原样出现在卷末状态内" We include exactly in 卷末状态 text (情感债务：..., 悬念库存：..., 卷级钩子：...). Good.
+
+Need maybe "卷间衔接校验" First? We have 上卷衔接 section. Need first line "上卷衔接：承接上一卷卷末状态..." Good.
+
+Need maybe "首卷写无（首卷）" not applicable.
+
+Potential issue: allocatedWords maybe 3300. Good.
+
+Need output only array. I'll now form final JSON. Need ensure no actual newline in string; I'll write one line. Use Chinese quotes. Avoid English double quotes inside string. There are no. Use backslash n for all line breaks. Need avoid trailing comma. The JSON field `summary` needs <=150 Chinese chars. Let's craft summary: "陈暮进入雾中港，为换取出海图卷入旧盟约与失踪船队的债务冲突，被迫公开部分旧图书馆坐标并失去同伴，最终冲入南方航线。" Count? Around 55 Chinese. Good.
+
+Need ensure final answer starts with `[` and ends `]`. We can include line breaks outside string for readability? The instruction "字符串内换行必须写 \n" but outside string newlines maybe allowed. However "禁止输出代码围栏、JSON 前后的说明文字或尾随逗号." Pretty JSON with newlines outside strings is okay. To be safe, output one line. That's valid. Need no literal newline. I'll produce single line.
+
+Let's ensure escaped \n not mistaken as actual newline. In final, type `\n`. That is backslash n. Fine.
+
+Need maybe JSON string includes `\n` sequences and no actual newline. Need no accidental unescaped backslash? Use `\n` not `\` alone. Fine.
+
+Let's produce final.

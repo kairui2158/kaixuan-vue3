@@ -783,3 +783,10 @@
 - 验证：4/4 场景 `success / final_draft_complete`；74,293 字大纲均成功重排写回，`finishReason: stop`；3 个场景 1 次物理请求，`home-no-skill` 为 2 次物理请求。
 - 诚实边界：`home-no-skill` 的第二次全文生成与约 1,261 秒总耗时登记为效率疑点；带 SKILL 场景首字延迟约 40-68 秒登记为观察项。live 证据覆盖单轮整篇重构，多轮会话连续性由代码契约和单测保证；本轮未重新封装，版本保持 3.78.0。
 - 客户重点复验：对可容纳窗口内的大纲发送“按叙事逻辑重排、合并删除重复项、统一标点和标题层级、按 Word 格式整理”，应直接生成终稿并写回编辑器，不出现读取循环或工具调用。
+
+# 2026-10-11 流水线产物契约统一与存储断点修复
+
+- 文件：[_audit/DEV_LOG_2026-10-11_pipeline-artifact-contract-unification.md](_audit/DEV_LOG_2026-10-11_pipeline-artifact-contract-unification.md)
+- 范围：卷纲/设定/正文三层产物契约与编排器、runTrace schema 17、统一终态归并、`storage:remove` 同步删除 `.bak` 断点。
+- 验证：147 files / 1757 tests 全绿；type-check 与 build:vue 通过；真实 Electron UI + API live 四层 success，三层导出回放全部 `RESULT: ACCEPTED`；三条旧 schema 记录按 `EXPECTED-FAIL` 口径登记。
+- 诚实边界：`electron-run.log` 只承载 Electron 子进程输出，`PASSED` 由验证器主进程输出；完成证据以 `summary.json`、三层 trace 导出与回放复核为准。

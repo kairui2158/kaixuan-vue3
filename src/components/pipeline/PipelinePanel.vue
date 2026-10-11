@@ -814,7 +814,6 @@ import { retrieveContext } from "../../services/memoryRetriever"
 import { classifyRunOutcome, type RunOutcomeStatus } from "../../services/generationValidity"
 import { extractJsonArray, extractJsonObject } from "../../services/jsonExtraction"
 import type { RunTraceStatus } from "../../stores/runTrace"
-import { parseGenerationResult } from "../../services/generationResult"
 import { buildChapterExecutionPrompt, createChapterExecutionPackage } from "../../services/chapterExecutionPackage"
 import { appendMemoryPromptOnce, buildChainSkillPrompt, dedupeChainIntermediateOutput, detectChainOutputEcho, formatMemoryPrompt, slimChainUpstreamPrompt, templateReferencesPreviousOutput } from "../../services/chainExecution"
 import { getSkillMaxAttempts, validateSkillInput, validateSkillOutput, validateSkillRules } from "../../services/skillValidation"
@@ -822,11 +821,18 @@ import { createChainFailureBreakpoint, createChainSuccessBreakpoint, getChainRes
 import { describeChainHandoffEvent, makeChainHandoffArtifact, resolveChainPreviousOutput } from "../../services/chainHandoff"
 import type { ChainHandoffTemplateMeta } from "../../services/chainHandoff"
 import { selectCompleteChapters, validateChapterNarrative, validateVolumeNarrative } from "../../services/narrativeValidation"
-import { buildVolumePrompt, clampGeneratedVolumes, hasVolumeContent } from "../../services/volumeGeneration"
+import { buildVolumePrompt, hasVolumeContent } from "../../services/volumeGeneration"
 import { buildVolumePlanIntegrity, clampVolumeWordsToPlan } from "../../services/volumePlanIntegrity"
 import type { VolumeGenerateMode } from "../../services/volumeGeneration"
 import { buildChapterHistoryFacts, renderChapterHistoryContext, validateChapterGenerationLedger, type ChapterBatchContract } from "../../services/chapterGenerationContract"
 import { generateChapterBatch } from "../../services/chapterBatchOrchestrator"
+import { buildVolumeHistoryFacts, renderVolumeHistoryContext, validateVolumeGenerationLedger, type VolumeGenerationContract } from "../../services/volumeGenerationContract"
+import { generateVolumeBatch } from "../../services/volumeBatchOrchestrator"
+import { generateSettingsArtifact } from "../../services/settingsArtifactOrchestrator"
+import { normalizeSettingsCategory } from "../../services/settingsArtifactContract"
+import { generateBodyArtifact } from "../../services/bodyArtifactOrchestrator"
+import { countBodyWords } from "../../services/bodyArtifactContract"
+import { resolvePipelineRunOutcome } from "../../services/pipelineRunOutcome"
 import { DeAiProcessor, DEAI_METHODOLOGY_PROMPT } from "../../services/de-ai"
 import type { RealSkillExecutionResult } from "../../services/realSkillTypes"
 import RealSkillDiagnosticsPanel from "../common/RealSkillDiagnosticsPanel.vue"
@@ -1189,17 +1195,21 @@ function traceStatusFromAiResult(result: {
   })
 }
 
-function traceStatusFromRun(runId: string): RunTraceStatus {
+function traceOutcomeFromRun(runId: string, finalArtifactAccepted = false) {
   const run = runTraceStore.runs.find(item => item.id === runId)
-  if (!run) return 'success'
-  if (pipelineStore.generationStatus === 'canceled' || run.apiCalls.some(call => call.status === 'canceled')) return 'canceled'
-  if (pipelineStore.generationStatus.startsWith('failed') || run.apiCalls.some(call => call.status === 'failed')) return 'failed'
-  if (pipelineStore.generationStatus.startsWith('blocked') || run.apiCalls.some(call => call.status === 'blocked')) return 'blocked'
-  if (run.apiCalls.some(call => call.status === 'degraded')) return 'degraded'
-  const folderStatus = folderDiagnosticsStatus(run.folderDiagnostics || [])
-  if (folderStatus === 'failed') return 'failed'
-  if (folderStatus === 'degraded') return 'degraded'
-  return 'success'
+  if (!run) {
+    return { status: 'success' as RunTraceStatus, recoveredFromDegraded: false, degradedApiCalls: 0 }
+  }
+  return resolvePipelineRunOutcome({
+    generationStatus: pipelineStore.generationStatus,
+    apiCalls: run.apiCalls,
+    folderStatus: folderDiagnosticsStatus(run.folderDiagnostics || []),
+    finalArtifactAccepted
+  })
+}
+
+function traceStatusFromRun(runId: string, finalArtifactAccepted = false): RunTraceStatus {
+  return traceOutcomeFromRun(runId, finalArtifactAccepted).status
 }
 
 function appendStepLog(step: number, line: string) {
@@ -3370,48 +3380,72 @@ async function genSettings() {
     trace.addEvent({ type: "prompt-built", level: "info", label: "设定层提示词已构建" })
     const prompt = "[已确认大纲]\n" + projectStore.pipelineOutlineText + "\n\n请基于这份已确认的大纲，提取并生成设定项。根据内容自动分配category；没有合适分类时使用设定类。输出JSON数组，每项含name/category/attrsText字段。"
     settingsGenerationLogs.value.push("请求已发送：正在等待 API 返回设定内容")
-    const result = await runStepSkills(1, prompt, undefined, "你是设定生成专家。基于小说大纲生成详细设定。")
-    settingsGenerationLogs.value.push("API 已返回：正在解析设定 JSON 并检查设定名称")
-    pipelineStore.updateProgress(70, "正在解析设定内容")
-    const settings = extractJsonArray(result) as any[]
-    if (settings.length > 0) {
-      const valid = settings.filter((s: any) => s.name)
-      if (valid.length > 0) {
-        const sc2 = projectStore.getSettingsCollection()
-        for (const item of valid) {
-          const cat = (item.category || "其他")
-          const name = (item.name || "")
-          const existingArr = sc2.items[cat] || []
-          if (existingArr.some((e: any) => e.name === name)) continue
-          if (!sc2.categories.includes(cat)) sc2.categories.push(cat)
-          if (!sc2.items[cat]) sc2.items[cat] = []
-          sc2.items[cat].push({
-            id: "set_" + Date.now() + "_" + Math.random().toString(36).substr(2,6),
-            name: name,
-            category: cat,
-            content: (item.attrsText || (item.attrs ? JSON.stringify(item.attrs) : "")),
-            attrs: item.attrs || { desc: (item.attrsText || "") },
-            isBound: false,
-            boundTo: [],
-            createdAt: Date.now(),
-            updatedAt: Date.now()
-          })
-        }
-        projectStore.saveProject()
-        if (sc2.categories.length > 0) {
-          selectedSettingCategory.value = firstCategoryWithSettings(["设定类", ...sc2.categories])
-        }
-        settingsGenerationLogs.value.push("设定已写入分类并保存到当前项目")
-        trace.addEvent({ type: "write", level: "info", label: "设定已写入项目", detail: "新增 " + valid.length + " 项" })
-        pipelineStore.updateProgress(100, "设定生成完成")
-        styleCardExpanded.value = true
-      } else {
-        settingsGenerationLogs.value.push("API 返回内容缺少有效设定名称")
-        pipelineStore.failGeneration("未能解析设定内容")
+    const settingsCollection = projectStore.getSettingsCollection()
+    const existingSettings = settingsCollection.categories.flatMap(category => {
+      const items = settingsCollection.items[category] || []
+      return items.map((item: any) => ({ category: item.category || category, name: item.name }))
+    })
+    const artifact = await generateSettingsArtifact({
+      basePrompt: prompt,
+      existing: existingSettings,
+      callSettingsApi: (requestPrompt) => runStepSkills(1, requestPrompt, undefined, "你是设定生成专家。基于小说大纲生成详细设定。"),
+      shouldContinue: () => !pipelineStore.isGenerationCanceled(),
+      onAttempt: (attempt) => {
+        trace.addEvent({
+          type: "settings-artifact-attempt",
+          level: attempt.status === 'complete' ? 'info' : attempt.status === 'error' ? 'error' : 'warn',
+          label: "设定批次验收",
+          detail: JSON.stringify(attempt)
+        })
       }
-    } else {
-      settingsGenerationLogs.value.push("API 返回内容不是可用的设定数组")
-      pipelineStore.failGeneration("未能解析设定JSON")
+    })
+    settingsGenerationLogs.value.push("API 已返回：正在解析设定 JSON 并执行应用层契约验收")
+    pipelineStore.updateProgress(70, "正在解析设定内容")
+    if (artifact.status !== 'complete') {
+      const failure = artifact.errors.join("; ") || "设定项没有可接受输出"
+      pipelineStore.failGeneration(failure)
+      settingsGenerationLogs.value.push("设定契约校验失败：" + failure)
+      return
+    }
+    if (artifact.accepted.length > 0) {
+      const sc2 = projectStore.getSettingsCollection()
+      const repairAttempts = artifact.attempts.filter(attempt => attempt.repairAttempt > 0).length
+      for (const item of artifact.accepted) {
+        const cat = normalizeSettingsCategory(item.category)
+        const name = item.name
+        if (!sc2.categories.includes(cat)) sc2.categories.push(cat)
+        if (!sc2.items[cat]) sc2.items[cat] = []
+        sc2.items[cat].push({
+          id: "set_" + Date.now() + "_" + Math.random().toString(36).substr(2,6),
+          name: name,
+          category: cat,
+          content: (item.attrsText || (item.attrs ? JSON.stringify(item.attrs) : "")),
+          attrs: item.attrs || { desc: (item.attrsText || "") },
+          isBound: false,
+          boundTo: [],
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        })
+      }
+      projectStore.saveProject()
+      if (sc2.categories.length > 0) {
+        selectedSettingCategory.value = firstCategoryWithSettings(["设定类", ...sc2.categories])
+      }
+      settingsGenerationLogs.value.push("设定已写入分类并保存到当前项目")
+      trace.addEvent({
+        type: "settings-artifact-validated",
+        level: "info",
+        label: "设定批次验收通过",
+        detail: JSON.stringify({
+          acceptedCount: artifact.accepted.length,
+          rejectedCount: artifact.rejected.length,
+          reasons: [...new Set(artifact.rejected.map(item => item.reason))],
+          repairAttempts
+        })
+      })
+      trace.addEvent({ type: "write", level: "info", label: "设定已写入项目", detail: "新增 " + artifact.accepted.length + " 项" })
+      pipelineStore.updateProgress(100, "设定生成完成")
+      styleCardExpanded.value = true
     }
     pipelineStore.finishGeneration()
   } catch (e: any) {
@@ -3451,6 +3485,17 @@ async function genVolumes(mode: string) {
     const effectiveVolumes = Math.max(1, volumeCount.value)
     const existingCount = previousVolumes.length
     const totalWords = Math.max(0, Math.round(bookWordCount.value * 10000))
+    const volumeHistoryFacts = buildVolumeHistoryFacts(previousVolumes)
+    const volumeHistoryContext = renderVolumeHistoryContext(volumeHistoryFacts)
+    const expectedVolumeCount = mode === "auto"
+      ? Math.max(0, effectiveVolumes - existingCount)
+      : 1
+    const volumeContract: VolumeGenerationContract = {
+      mode: mode as VolumeGenerationContract["mode"],
+      expectedCount: expectedVolumeCount,
+      existingCount,
+      totalPlannedVolumes: effectiveVolumes
+    }
     const volumePlan = buildVolumePlanIntegrity({
       plannedVolumeCount: effectiveVolumes,
       totalWords,
@@ -3473,29 +3518,34 @@ async function genVolumes(mode: string) {
       allocatedSum: volumePlan.allocatedWords,
       existingVolumes: previousVolumes
     })
+    const basePrompt = prompt + "\n\n" + volumeHistoryContext
     volumeGenerationLogs.value.push("请求已发送：正在等待 API 返回卷纲内容")
-    const result = await runStepSkills(2, prompt, 600000, "你是卷纲生成专家。基于大纲和设定生成卷纲。")
+    const batchResult = await generateVolumeBatch({
+      contract: volumeContract,
+      historyVolumes: previousVolumes,
+      basePrompt,
+      historyContext: volumeHistoryContext,
+      callVolumeApi: (requestPrompt) => runStepSkills(2, requestPrompt, 600000, "你是卷纲生成专家。基于大纲和设定生成卷纲。"),
+      requestPolicy: getStepSkillTemplates(2).some(t => t.skill?.format === "folder" && t.skill.folderPath) ? "single-volume" : "batch",
+      shouldContinue: () => !pipelineStore.isGenerationCanceled(),
+      onAttempt: (attempt) => {
+        trace.addEvent({
+          type: "volume-batch-attempt",
+          level: attempt.status === 'complete' ? 'info' : attempt.status === 'error' ? 'error' : 'warn',
+          label: "卷纲批次验收",
+          detail: JSON.stringify(attempt)
+        })
+      }
+    })
     volumeGenerationLogs.value.push("API 已返回：正在解析卷纲 JSON 并校验卷数")
     pipelineStore.updateProgress(70, "正在解析卷纲内容")
-    let volumes = extractJsonArray(result) as any[]
-    if (volumes.length === 0) {
-      volumeGenerationLogs.value.push("卷纲解析失败，正在重试一次")
-      pipelineStore.updateProgress(75, "卷纲解析失败，重试中")
-      const retryResult = await runStepSkills(2, prompt + "\n\n注意：上一次输出无法解析为JSON数组。请严格只输出JSON数组，每项含name/outline/summary/allocatedWords字段，不要输出解释文字。", 600000, "你是卷纲生成专家。基于大纲和设定生成卷纲。")
-      volumes = extractJsonArray(retryResult)
+    if (batchResult.status !== 'complete') {
+      const failure = batchResult.errors.join("; ") || "卷纲批次未能补齐"
+      pipelineStore.failGeneration(failure)
+      volumeGenerationLogs.value.push("卷纲契约校验失败：" + failure)
+      return
     }
-    const clamped = clampGeneratedVolumes(mode as VolumeGenerateMode, volumes, existingCount, effectiveVolumes)
-    if (clamped.truncated) {
-      const modeLabel = mode === "single" ? "逐卷" : "续生成"
-      volumeGenerationLogs.value.push("模型返回 " + volumes.length + " 项，已按" + modeLabel + "模式截取前 " + clamped.volumes.length + " 项")
-      trace.addEvent({
-        type: "parse",
-        level: "warn",
-        label: "卷纲数量已按模式截取",
-        detail: `返回 ${volumes.length} 项，截取 ${clamped.volumes.length} 项`
-      })
-    }
-    volumes = clamped.volumes
+    const volumes = batchResult.volumes
     if (volumes.length > 0) {
       const vr = validateVolumes(volumes)
       if (!vr.valid) {
@@ -3535,7 +3585,7 @@ async function genVolumes(mode: string) {
           totalWords,
           existingVolumes: []
         })
-        projectStore.volumes = volumes.map((v: any) => {
+        projectStore.volumes = [...previousVolumes, ...volumes.map((v: any) => {
           const requestedWords = Math.max(0, Math.round(Number(v.allocatedWords || v.suggestedWords) || 0))
           const clamped = clampVolumeWordsToPlan(requestedWords, plannedWords)
           if (clamped.clamped) {
@@ -3555,10 +3605,28 @@ async function genVolumes(mode: string) {
             boundTo: [],
             bodyGenerated: false
           }
-        })
+        })]
       }
       projectStore.saveProject()
       volumeGenerationLogs.value.push("卷纲已写入卷框并保存到当前项目")
+      const ledger = validateVolumeGenerationLedger(projectStore.volumes.length, effectiveVolumes, mode as VolumeGenerationContract["mode"])
+      if (!ledger.valid) {
+        pipelineStore.failGeneration(ledger.errors.join("; "))
+        volumeGenerationLogs.value.push("卷纲台账校验失败：" + ledger.errors.join("; "))
+        return
+      }
+      trace.addEvent({
+        type: "volume-batch-validated",
+        level: "info",
+        label: "卷纲批次验收通过",
+        detail: JSON.stringify({
+          mode,
+          expectedCount: volumeContract.expectedCount,
+          actualCount: volumes.length,
+          repairAttempts: batchResult.attempts.filter(attempt => attempt.repairAttempt > 0).length,
+          status: batchResult.status
+        })
+      })
       trace.addEvent({ type: "write", level: "info", label: "卷纲已写入项目", detail: "写入 " + volumes.length + " 卷" })
       pipelineStore.updateProgress(100, "卷纲生成完成")
     } else {
@@ -3812,6 +3880,7 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
   resetPipelineStreamState(4)
   const _bodyWordsPerChapter = Number(vol.wordsPerChapter || chapterWords.value || 3500)
     bodyGenerationLogs.value = ["已选择卷「" + (vol.name || "未命名") + "」，章节：「" + (ch.title || "未命名") + "」，目标字数：" + _bodyWordsPerChapter]
+  let bodyArtifactDelivered = false
   try {
     bodyGenerationLogs.value.push("正在构建章节执行包…")
     const sc = projectStore.getSettingsCollection()
@@ -3863,10 +3932,35 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
       label: "正文层执行包已构建",
       detail: JSON.stringify({ volume: vol.name, chapter: ch.title, targetWords: _bodyWordsPerChapter })
     })
-    const rawResult = await runStepSkills(4, prompt, undefined, "你是小说写作专家。请基于章节剧情点生成正文。")
-    pipelineStore.updateProgress(80, "API 返回完成，正在解析正文")
-    bodyGenerationLogs.value.push("API 已返回，正在解析正文内容")
-    const generationResult = parseGenerationResult(rawResult)
+    const bodyArtifact = await generateBodyArtifact({
+      contract: {
+        chapterId: String(ch.id || `${volId}-chapter-${chapterIndex + 1}`),
+        targetWords: _bodyWordsPerChapter
+      },
+      basePrompt: prompt,
+      callBodyApi: (requestPrompt) => runStepSkills(4, requestPrompt, undefined, "你是小说写作专家。请基于章节剧情点生成正文。"),
+      shouldContinue: () => !pipelineStore.isGenerationCanceled(),
+      onAttempt: (attempt) => {
+        trace.addEvent({
+          type: "body-artifact-attempt",
+          level: attempt.status === 'complete' ? 'info' : attempt.status === 'error' ? 'error' : 'warn',
+          label: "正文批次验收",
+          detail: JSON.stringify(attempt)
+        })
+      }
+    })
+    pipelineStore.updateProgress(80, "API 返回完成，正在执行正文契约验收")
+    bodyGenerationLogs.value.push("API 已返回，正在执行正文契约验收")
+    if (bodyArtifact.status !== 'complete') {
+      const failure = bodyArtifact.errors.join("; ") || "正文未通过验收"
+      pipelineStore.failGeneration(failure)
+      bodyGenerationLogs.value.push("正文契约校验失败：" + failure)
+      return
+    }
+    const generationResult = {
+      body: bodyArtifact.body,
+      metadata: bodyArtifact.metadata
+    }
     // P2: 后处理层 — 自动降AI清洗
     let finalBody = generationResult.body || ""
     if (finalBody.length > 0 && deAiStore.hardruleEnabled) {
@@ -3905,6 +3999,15 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
             startedAt: deaiStartedAt,
             endedAt: Date.now(),
             durationMs: Date.now() - deaiStartedAt
+          })
+          trace.addEvent({
+            type: 'deai-post-processed',
+            level: 'info',
+            label: '降AI兼容清洗完成',
+            detail: JSON.stringify({
+              beforeWords: bodyArtifact.attempts[bodyArtifact.attempts.length - 1]?.wordCount ?? 0,
+              afterWords: countBodyWords(finalBody)
+            })
           })
         } else {
           // V2：检测报告/深度修复都先出报告；检测模式不改写正文。
@@ -3976,7 +4079,22 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     ch.body = finalBody
     ch.generationMetadata = generationResult.metadata
     ch.bodyGenerated = true
+    const validatedAttempt = bodyArtifact.attempts[bodyArtifact.attempts.length - 1]
+    trace.addEvent({
+      type: "body-artifact-validated",
+      level: "info",
+      label: "正文批次验收通过",
+      detail: JSON.stringify({
+        chapterId: String(ch.id || ''),
+        targetWords: _bodyWordsPerChapter,
+        wordCount: validatedAttempt?.wordCount ?? (finalBody || '').length,
+        ratio: validatedAttempt?.ratio ?? 0,
+        status: bodyArtifact.status,
+        repairAttempts: bodyArtifact.attempts.filter(attempt => attempt.repairAttempt > 0).length
+      })
+    })
     await projectStore.saveProject()
+    bodyArtifactDelivered = true
     projectStore.refreshTree()
     syncChapterManager(volId, ch, finalBody)
     bodyGenerationLogs.value.push("正文生成完成，字数：" + (finalBody || "").length)
@@ -3998,8 +4116,19 @@ async function genBody(volumeIndex: number, chapterIndex: number) {
     bodyGenerationLogs.value.push("API 调用失败：" + (e.message || "未知错误"))
     trace.addEvent({ type: "failed", level: "error", label: "正文运行失败", detail: e.message || "未知错误" })
   } finally {
-    const traceStatus = traceStatusFromRun(trace.runId!)
-    trace.finish(traceStatus, undefined, traceStatus === 'success' ? 'body_generation_complete' : 'generation_failed')
+    const outcome = traceOutcomeFromRun(trace.runId!, bodyArtifactDelivered)
+    if (bodyArtifactDelivered && outcome.recoveredFromDegraded) {
+      trace.addEvent({
+        type: "body-artifact-recovered",
+        level: "warn",
+        label: "正文中间尝试曾降级，最终产物已通过契约验收",
+        detail: JSON.stringify({
+          degradedApiCalls: outcome.degradedApiCalls,
+          finalStatus: 'complete'
+        })
+      })
+    }
+    trace.finish(outcome.status, undefined, outcome.status === 'success' ? 'body_generation_complete' : 'generation_failed')
   }
 }
 

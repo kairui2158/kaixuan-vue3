@@ -1,0 +1,72 @@
+import { describe, expect, it } from 'vitest'
+import { resolvePipelineRunOutcome } from './pipelineRunOutcome'
+
+describe('resolvePipelineRunOutcome', () => {
+  it('keeps a successful final artifact successful despite intermediate degraded calls', () => {
+    const outcome = resolvePipelineRunOutcome({
+      generationStatus: '',
+      apiCalls: [
+        { status: 'success' },
+        { status: 'degraded' },
+        { status: 'degraded' },
+        { status: 'success' }
+      ],
+      folderStatus: 'degraded',
+      finalArtifactAccepted: true
+    })
+
+    expect(outcome.status).toBe('success')
+    expect(outcome.recoveredFromDegraded).toBe(true)
+    expect(outcome.degradedApiCalls).toBe(2)
+  })
+
+  it('does not let intermediate degraded calls mask a failed final artifact', () => {
+    const outcome = resolvePipelineRunOutcome({
+      generationStatus: '',
+      apiCalls: [{ status: 'degraded' }],
+      folderStatus: null,
+      finalArtifactAccepted: false
+    })
+
+    expect(outcome.status).toBe('degraded')
+    expect(outcome.recoveredFromDegraded).toBe(false)
+  })
+
+  it('keeps failure priority above artifact acceptance', () => {
+    const outcome = resolvePipelineRunOutcome({
+      generationStatus: 'failed: 写入失败',
+      apiCalls: [{ status: 'success' }],
+      folderStatus: null,
+      finalArtifactAccepted: true
+    })
+
+    expect(outcome.status).toBe('failed')
+    expect(outcome.recoveredFromDegraded).toBe(false)
+  })
+
+  it('preserves canceled and blocked semantics', () => {
+    expect(resolvePipelineRunOutcome({
+      generationStatus: 'canceled',
+      apiCalls: [{ status: 'success' }],
+      finalArtifactAccepted: true
+    }).status).toBe('canceled')
+
+    expect(resolvePipelineRunOutcome({
+      generationStatus: '',
+      apiCalls: [{ status: 'blocked' }],
+      finalArtifactAccepted: true
+    }).status).toBe('blocked')
+  })
+
+  it('returns success when no run evidence reports a problem', () => {
+    const outcome = resolvePipelineRunOutcome({
+      generationStatus: '',
+      apiCalls: [{ status: 'success' }],
+      folderStatus: null,
+      finalArtifactAccepted: true
+    })
+
+    expect(outcome.status).toBe('success')
+    expect(outcome.recoveredFromDegraded).toBe(false)
+  })
+})

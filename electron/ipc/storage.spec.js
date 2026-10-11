@@ -36,6 +36,10 @@ describe('electron ipc storage', () => {
     return await handlers.get('storage:read')(null, key)
   }
 
+  async function remove(key) {
+    return await handlers.get('storage:remove')(null, key)
+  }
+
   it('recovers the backup after a crash leaves the primary file missing', async () => {
     await write('checkpoint', { id: 'last-good', status: 'saved' })
     await fs.rename(
@@ -53,5 +57,15 @@ describe('electron ipc storage', () => {
 
     expect(await read('never-written')).toBeNull()
     await expect(fs.access(path.join(dataDir, 'never-written.json.bak'))).resolves.toBeUndefined()
+  })
+
+  it('does not resurrect a removed key from its backup', async () => {
+    await write('breakpoint', { status: 'step-3-completed' })
+    await write('breakpoint', { status: 'step-4-completed' })
+
+    expect(await remove('breakpoint')).toBe(true)
+    expect(await read('breakpoint')).toBeNull()
+    await expect(fs.access(path.join(dataDir, 'breakpoint.json'))).rejects.toThrow()
+    await expect(fs.access(path.join(dataDir, 'breakpoint.json.bak'))).rejects.toThrow()
   })
 })

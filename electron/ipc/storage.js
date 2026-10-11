@@ -213,6 +213,7 @@ function registerStorageHandlers(targetIpc) {
       await migrateOldDataIfNeeded()
       var filePath = path.join(dataDir, safeKey(key) + '.json')
       try { await fs.unlink(filePath) } catch(e) { /* not found */ }
+      try { await fs.unlink(filePath + '.bak') } catch(e) { /* not found */ }
       if (legacyDir) {
         var legacyPath = path.join(legacyDir, safeKey(key) + '.json')
         try { await fs.unlink(legacyPath) } catch(e) { /* not found */ }
