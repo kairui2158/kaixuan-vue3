@@ -45,6 +45,11 @@ function buildDualEntryDocument() {
 }
 
 const MILLION_OUTLINE_LINE = '第{n}节：百万字大纲压测。男主沿着灯塔石阶检查灯芯，潮声在礁石外反复退去，旧信的日期被潮气晕开。'
+const SCRIPT_OWNED_EVIDENCE_FILES = [
+  'dual-entry-equivalence.json',
+  'run-trace-export.json',
+  'three-tier-matrix.json',
+]
 
 function buildMillionOutline() {
   const sections = ['第一卷 百万字大纲']
@@ -107,6 +112,16 @@ async function removeDir(target) {
   }
 }
 
+function cleanScriptOwnedEvidence() {
+  fs.mkdirSync(SCREENSHOT_DIR, { recursive: true })
+  const existingPng = fs.existsSync(SCREENSHOT_DIR)
+    ? fs.readdirSync(SCREENSHOT_DIR).filter(name => name.endsWith('.png'))
+    : []
+  for (const name of [...SCRIPT_OWNED_EVIDENCE_FILES, ...existingPng]) {
+    fs.rmSync(path.join(SCREENSHOT_DIR, name), { force: true })
+  }
+}
+
 function assertFreshRendererBuild() {
   const rendererIndex = path.join(ROOT, 'dist-renderer', 'index.html')
   assert(fs.existsSync(rendererIndex), 'dist-renderer/index.html exists; run npm run build:vue first')
@@ -157,12 +172,10 @@ function toolCall(name, input, id) {
 let scenario = 'warmup'
 const requests = []
 let scenarioTurn = 0
-let scenarioCount = 0
 
 function setScenario(name) {
   scenario = name
   scenarioTurn = 0
-  scenarioCount = 0
 }
 
 const writePayload = (commands, reason) => ({
@@ -180,24 +193,30 @@ const server = http.createServer((request, response) => {
     const isIntentClassifier = (body?.messages || []).some(message =>
       message?.role === 'system' && String(message.content || '').includes('意图分类器')
     )
-    if (!isIntentClassifier) scenarioCount += 1
+    const currentScenario = scenario
+    const currentScenarioTurn = scenarioTurn
+    const requestCount = requests.filter(item =>
+      item.scenario === currentScenario
+      && item.turn === currentScenarioTurn
+      && !item.isIntentClassifier
+    ).length + 1
     const record = {
-      scenario,
-      turn: scenarioTurn,
-      requestCount: scenarioCount,
+      scenario: currentScenario,
+      turn: currentScenarioTurn,
+      requestCount,
       isIntentClassifier,
       tools: (body?.tools || []).map(tool => tool?.function?.name || tool?.name || '').filter(Boolean),
       body,
     }
     requests.push(record)
-    console.log(`[MOCK] ${scenario} #${scenarioCount}: ${record.tools.join(', ') || '(no tools)'}`)
+    console.log(`[MOCK] ${currentScenario} #${requestCount}: ${record.tools.join(', ') || '(no tools)'}`)
     if (isIntentClassifier) {
       assert.equal(record.tools.length, 0, 'intent classifier request must not carry editor tools')
       const classifierInput = (body?.messages || [])
         .filter(message => message?.role === 'user')
         .map(message => String(message.content || ''))
         .join('\n')
-      const intent = /重新整理排序/.test(classifierInput)
+      const intent = /重新整理排序|替换第二章内容/.test(classifierInput)
         ? 'edit'
         : 'discuss'
       respond(response, body, textCompletion(`{"intent":"${intent}","confidence":0.95,"reason":"按用户请求语义分类"}`))
@@ -205,7 +224,7 @@ const server = http.createServer((request, response) => {
     }
 
     if (scenario === 'format-edit') {
-      const payload = scenarioCount === 1
+      const payload = requestCount === 1
         ? toolCall('editor.write', writePayload([{
           operation: 'replace_match',
           target: '第二章内容。男主在灯塔下发现旧信。',
@@ -221,7 +240,7 @@ const server = http.createServer((request, response) => {
       let payload
       if (scenarioTurn === 1) {
         payload = textCompletion('这段设定建议放在第三章之后的补充节点，用来承接旧信出处。')
-      } else if (scenarioCount === 1) {
+      } else if (requestCount === 1) {
         payload = toolCall('editor.write', writePayload([{
           operation: 'append',
           content: '第二轮明确授权后的新增卷纲节点。',
@@ -235,7 +254,7 @@ const server = http.createServer((request, response) => {
     }
 
     if (scenario === 'stuck-retry') {
-      if (scenarioCount === 1) {
+      if (requestCount === 1) {
         response.writeHead(200, {
           'Content-Type': 'text/event-stream; charset=utf-8',
           'Cache-Control': 'no-cache',
@@ -244,7 +263,7 @@ const server = http.createServer((request, response) => {
         response.write(': hold\n\n')
         return
       }
-      const payload = scenarioCount === 2
+      const payload = requestCount === 2
         ? toolCall('editor.write', writePayload([{
           operation: 'append',
           content: '停滞隔离重试后的写入结果。',
@@ -268,10 +287,10 @@ const server = http.createServer((request, response) => {
         reason: '恢复后重试',
       }], '恢复任务重试'), 'partial-retry-write')
       const payload = scenarioTurn <= 2
-        ? (scenarioCount === 1 ? failedWrite : textCompletion('首次写入失败，任务已终态。'))
+        ? (requestCount === 1 ? failedWrite : textCompletion('首次写入失败，任务已终态。'))
         : (scenarioTurn === 4
-          ? (scenarioCount === 1 ? failedWrite : textCompletion('第二次写入失败，任务已终态。'))
-          : (scenarioCount === 1 ? retryWrite : textCompletion('恢复重试完成。')))
+          ? (requestCount === 1 ? failedWrite : textCompletion('第二次写入失败，任务已终态。'))
+          : (requestCount === 1 ? retryWrite : textCompletion('恢复重试完成。')))
       respond(response, body, payload)
       return
     }
@@ -295,7 +314,7 @@ const server = http.createServer((request, response) => {
           reason: '删除',
         }], '第 3 轮删除'), 'loop-write-3'),
       ]
-      const payload = scenarioCount === 1
+      const payload = requestCount === 1
         ? payloads[Math.min(scenarioTurn - 1, payloads.length - 1)]
         : textCompletion('循环写入完成。')
       respond(response, body, payload)
@@ -322,7 +341,7 @@ const server = http.createServer((request, response) => {
           reason: '混合轮删除',
         }], '主页混合轮删除'), 'home-write-3'),
       ]
-      const payload = scenarioCount === 1
+      const payload = requestCount === 1
         ? payloads[Math.min(scenarioTurn - 1, payloads.length - 1)]
         : textCompletion(scenarioTurn === 1 ? '已处理当前请求。' : '主页混合轮完成。')
       respond(response, body, payload)
@@ -367,7 +386,7 @@ const server = http.createServer((request, response) => {
         '句号删掉了。',
         '那一行不要了，已经删掉。',
       ]
-      const payload = scenarioCount === 1
+      const payload = requestCount === 1
         ? payloads[Math.min(scenarioTurn - 1, payloads.length - 1)]
         : textCompletion(finalTexts[Math.min(scenarioTurn - 1, finalTexts.length - 1)])
       respond(response, body, payload)
@@ -389,10 +408,32 @@ const server = http.createServer((request, response) => {
           reason: '长文档第二批修改',
         }], '长文档第二批'), 'long-document-write-2'),
       ]
-      const payload = scenarioCount <= 2
-        ? payloads[scenarioCount - 1]
+      const payload = requestCount <= 2
+        ? payloads[requestCount - 1]
         : textCompletion('长文档两批修改全部完成。')
       respond(response, body, payload)
+      return
+    }
+
+    if (scenario === 'active-plan-continuation') {
+      if (scenarioTurn === 1) {
+        respond(response, body, textCompletion('我准备分两批重排并保留第二卷钩子，是否按这个方案执行？'))
+        return
+      }
+      if (scenarioTurn === 2) {
+        respond(response, body, textCompletion('第二卷钩子保留在原位。第一批完成后，请在第1节句尾追加【计划续接完成】。'))
+        return
+      }
+      if (requestCount === 1) {
+        respond(response, body, toolCall('editor.write', writePayload([{
+          operation: 'replace_match',
+          target: '第1节：长文档多批执行抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复退去。',
+          content: '第1节：长文档多批执行抽测。男主沿着灯塔石阶检查灯芯，潮水在礁石外反复上涨。【计划续接完成】',
+          reason: '复用用户确认后的执行计划',
+        }], '计划续接第一批'), 'active-plan-write'))
+        return
+      }
+      respond(response, body, textCompletion('已按确认后的计划完成写入。'))
       return
     }
 
@@ -422,7 +463,7 @@ const server = http.createServer((request, response) => {
           reason: '双入口删除对照',
         }], '双入口删除'), 'dual-entry-delete'),
       ]
-      const payload = scenarioCount === 1
+      const payload = requestCount === 1
         ? payloads[Math.min(scenarioTurn - 1, payloads.length - 1)]
         : textCompletion('双入口对照操作完成。')
       respond(response, body, payload)
@@ -455,7 +496,7 @@ const server = http.createServer((request, response) => {
           reason: '双入口删除对照',
         }], '双入口删除'), 'dual-entry-outline-delete'),
       ]
-      const payload = scenarioCount === 1
+      const payload = requestCount === 1
         ? payloads[Math.min(scenarioTurn - 1, payloads.length - 1)]
         : textCompletion('双入口对照操作完成。')
       respond(response, body, payload)
@@ -471,7 +512,7 @@ const server = http.createServer((request, response) => {
     if (scenario === 'million-document-edit-task') {
       const nonIntentRequests = requests.filter(item =>
         item.scenario === 'million-document-edit-task' && !item.isIntentClassifier)
-      const step = scenarioCount
+      const step = requestCount
       if (step === 1 && scenarioTurn === 1) {
         respond(response, body, toolCall('editor.write', writePayload([{
           operation: 'replace_document',
@@ -540,7 +581,7 @@ function respond(response, body, payload, usage) {
       Connection: 'keep-alive',
     })
     response.write(`data: ${JSON.stringify({
-      id: `api-direct-write-electron-${scenario}-${scenarioCount}`,
+      id: `api-direct-write-electron-${scenario}-${requests.at(-1)?.requestCount || 0}`,
       object: 'chat.completion.chunk',
       choices: [{
         index: 0,
@@ -691,7 +732,6 @@ async function waitOutlineTurnFinished(page, text, timeout = 120000) {
 async function sendOutline(page, text, waitFor) {
   await waitOutlineIdle(page)
   scenarioTurn += 1
-  scenarioCount = 0
   const before = requests.length
   await page.locator('#ow-chat-input').fill(text)
   await page.locator('#ow-chat-input').evaluate(element => element.dispatchEvent(new Event('change', { bubbles: true })))
@@ -707,13 +747,13 @@ async function sendOutline(page, text, waitFor) {
     }
   }
   await waitOutlineIdle(page)
+  await waitOutlineTurnFinished(page, text)
   return requests.slice(before)
 }
 
 async function sendOutlineExpectEvents(page, text, expectedEvents) {
   await waitOutlineIdle(page)
   scenarioTurn += 1
-  scenarioCount = 0
   const before = requests.length
   await page.locator('#ow-chat-input').fill(text)
   await page.locator('#ow-chat-input').evaluate(element => element.dispatchEvent(new Event('change', { bubbles: true })))
@@ -736,10 +776,28 @@ async function waitHomeIdle(page, timeout = 60000) {
   await sleep(250)
 }
 
+async function waitHomeTurnFinished(page, text, timeout = 120000) {
+  await page.waitForFunction(request => {
+    const run = [...(window.__pinia?._s?.get('runTrace')?.runs || [])]
+      .filter(item => item.source === 'home')
+      .sort((a, b) => b.startedAt - a.startedAt)[0]
+    const turn = [...(run?.turns || [])]
+      .filter(item => item.userRequest === request)
+      .sort((a, b) => b.startedAt - a.startedAt)[0]
+    const sendButton = document.querySelector('#btn-send')
+    return Boolean(
+      turn
+      && turn.status
+      && turn.status !== 'running'
+      && sendButton
+      && !sendButton.disabled,
+    )
+  }, text, { timeout, polling: 250 })
+}
+
 async function sendHome(page, text, waitFor) {
   await waitHomeIdle(page)
   scenarioTurn += 1
-  scenarioCount = 0
   const before = requests.length
   await page.locator('#user-input').fill(text)
   await page.locator('#btn-send').click()
@@ -754,6 +812,7 @@ async function sendHome(page, text, waitFor) {
     }
   }
   await waitHomeIdle(page)
+  await waitHomeTurnFinished(page, text)
   return requests.slice(before)
 }
 
@@ -926,7 +985,7 @@ async function main() {
   await new Promise(resolve => server.listen(MOCK_PORT, '127.0.0.1', resolve))
   removeDir(PROFILE)
   removeDir(EXPORT_ROOT)
-  removeDir(SCREENSHOT_DIR)
+  cleanScriptOwnedEvidence()
   fs.mkdirSync(path.join(PROFILE, 'app-data'), { recursive: true })
   fs.mkdirSync(EXPORT_ROOT, { recursive: true })
 
@@ -952,14 +1011,14 @@ async function main() {
     // A. Format-edit request routes to write and writes through the real UI.
     await openOutline(page)
     setScenario('format-edit')
-    await sendOutline(page, '你把大纲的标点符号格式重新排版', '已完成格式排版。')
+    await sendOutline(page, '请把第二章内容替换成新的第二章大纲', '已完成格式排版。')
     let content = await outlineContent(page)
     assert(content.includes('第二章大纲。男主在灯塔下确认旧信来源。'), 'format-edit writes the outline')
     const formatRequests = requests.filter(item => item.scenario === 'format-edit')
     assert(formatRequests.length >= 2, 'format-edit performs tool write then final answer')
     assertWriteSurface(formatRequests[0], 'format-edit first request')
     const formatRun = await latestRun(page, 'outline')
-    assertTurnWriteSurface(formatRun, '你把大纲的标点符号格式重新排版', 'format-edit')
+    assertTurnWriteSurface(formatRun, '请把第二章内容替换成新的第二章大纲', 'format-edit')
     const formatWrite = (formatRun?.apiCalls || []).flatMap(call => call.toolCalls || []).find(call => call.name === 'editor.write')
     assert.equal(formatWrite?.status, 'success', 'format-edit editor.write succeeds')
     await capture(page, '01-outline-format-edit')
@@ -1442,6 +1501,72 @@ async function main() {
     assert.equal(await page.locator('.edit-task-banner').count(), 0, 'finished multi-batch task removes the banner')
     await capture(page, '12-outline-long-document-edit-task')
 
+    // E3b. Cross-turn continuation: T1 registers the plan and waits, T2 stays
+    // read-only while its answer becomes authorized plan context, and T3
+    // confirms the original plan instead of rebuilding a new task.
+    await page.evaluate(text => {
+      const store = window.__pinia?._s?.get('project')
+      if (!store) throw new Error('project store not found')
+      store.outlineText = text
+    }, buildLongOutline())
+    await sleep(500)
+    const beforeActivePlan = await outlineContent(page)
+    setScenario('active-plan-continuation')
+    const t1Requests = await sendOutline(
+      page,
+      '请重新整理排序整篇大纲',
+      '是否按这个方案执行？',
+    )
+    let activePlanRun = await latestRun(page, 'outline')
+    const activePlanEvent = (activePlanRun?.events || []).find(event =>
+      event.type === 'active-plan-awaiting-user'
+    )
+    assert(activePlanEvent, 'T1 records active-plan-awaiting-user')
+    const t1PlanId = parseTraceDetail(activePlanEvent?.detail).planId
+    assert(t1PlanId, 'T1 awaiting event carries planId')
+    assert.equal(await outlineContent(page), beforeActivePlan, 'T1 waiting turn does not write')
+    assert(t1Requests.some(record => record.tools.includes('editor.write')), 'T1 builds a write-capable plan before asking the user')
+
+    const t2Requests = await sendOutline(
+      page,
+      '执行前先解释一下第二卷钩子怎么处理',
+      '第二卷钩子保留在原位',
+    )
+    const t2DialogueRequests = t2Requests.filter(record => !record.isIntentClassifier)
+    assert(t2DialogueRequests.length >= 1, 'T2 discussion performs a provider request')
+    for (const record of t2DialogueRequests) assertReadSurface(record, 'T2 discussion')
+    assert.equal(await outlineContent(page), beforeActivePlan, 'T2 discussion does not write')
+    activePlanRun = await latestRun(page, 'outline')
+    assert(!(activePlanRun?.events || []).some(event =>
+      event.type === 'active-plan-awaiting-user' && event.turnId !== activePlanEvent?.turnId
+    ), 'T2 does not rebuild the active plan')
+
+    const t3Requests = await sendOutline(
+      page,
+      '开始执行',
+      '已按确认后的计划完成写入。',
+    )
+    const t3DialogueRequests = t3Requests.filter(record => !record.isIntentClassifier)
+    assert(t3DialogueRequests.length >= 2, 'T3 performs a write request and a final answer')
+    assertWriteSurface(t3DialogueRequests[0], 'T3 confirmation restores editor.write')
+    const activePlanContent = await outlineContent(page)
+    assert(activePlanContent.includes('【计划续接完成】'), 'T3 executes a real editor write')
+    activePlanRun = await latestRun(page, 'outline')
+    const t3Turn = (activePlanRun?.turns || [])
+      .filter(turn => turn.userRequest === '开始执行')
+      .sort((a, b) => String(a.id).localeCompare(String(b.id))).at(-1)
+    assert(t3Turn, 'T3 confirmation turn is recorded')
+    const t3LongPolicyEvents = (activePlanRun?.events || []).filter(event =>
+      event.type === 'long-document-policy' && event.turnId === t3Turn.id
+    )
+    const t3PlanEvent = t3LongPolicyEvents
+      .map(event => parseTraceDetail(event.detail))
+      .find(detail => detail.planId === t1PlanId)
+    assert(t3PlanEvent, 'T3 reuses the T1 planId')
+    assert.equal(t3PlanEvent?.operationResolution?.source, 'active-plan-continuation', 'T3 plan reuses the awaiting plan')
+    assert(activePlanRun?.events?.some(event => event.type === 'edit-task-task-finished'), 'T3 task converges to finished')
+    await capture(page, '14-outline-active-plan-continuation')
+
     // E4. Phase 7 L tier: a 1M-character outline must use document map,
     // segmented reads, and checkpointed batches. A whole-document
     // replacement attempt must be rejected without changing the editor.
@@ -1679,6 +1804,7 @@ async function main() {
     await sleep(800)
     removeDir(PROFILE)
     removeDir(EXPORT_ROOT)
+    cleanScriptOwnedEvidence()
     console.log('[CLEANUP] stress profile and temporary exports removed')
   }
 }

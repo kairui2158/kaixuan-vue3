@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { buildToolErrorKey, createToolRunSupervisor } from './toolRunSupervisor'
+import {
+  buildToolErrorKey,
+  createToolRunSupervisor,
+  physicalCallReportsProgress,
+} from './toolRunSupervisor'
 
 describe('createToolRunSupervisor', () => {
   it('aborts the controller when the idle timeout expires', () => {
@@ -175,6 +179,37 @@ describe('createToolRunSupervisor', () => {
     })
     supervisor.reportProgress()
     vi.advanceTimersByTime(101)
+    expect(controller.signal.aborted).toBe(true)
+    expect(onStuck).toHaveBeenCalledWith(expect.objectContaining({ reason: 'stuck_timeout' }))
+    supervisor.dispose()
+    vi.useRealTimers()
+  })
+
+  it('does not count transport liveness or heartbeat as idle progress', () => {
+    expect(physicalCallReportsProgress({ status: 'running', heartbeat: true })).toBe(false)
+    expect(physicalCallReportsProgress({ status: 'running' })).toBe(false)
+  })
+
+  it('counts stream output and request outcomes as idle progress', () => {
+    expect(physicalCallReportsProgress({ status: 'running', streamText: '正文' })).toBe(true)
+    expect(physicalCallReportsProgress({ status: 'running', reasoningText: '思考' })).toBe(true)
+    expect(physicalCallReportsProgress({ status: 'success', responseText: '' })).toBe(true)
+    expect(physicalCallReportsProgress({ status: 'failed' })).toBe(true)
+    expect(physicalCallReportsProgress({ status: 'canceled' })).toBe(true)
+  })
+
+  it('never lets heartbeat reset the idle clock', () => {
+    vi.useFakeTimers()
+    const controller = new AbortController()
+    const onStuck = vi.fn()
+    const supervisor = createToolRunSupervisor({
+      controller,
+      idleTimeoutMs: 100,
+      hardDeadlineMs: null,
+      onStuck,
+    })
+    vi.advanceTimersByTime(80)
+    vi.advanceTimersByTime(80)
     expect(controller.signal.aborted).toBe(true)
     expect(onStuck).toHaveBeenCalledWith(expect.objectContaining({ reason: 'stuck_timeout' }))
     supervisor.dispose()

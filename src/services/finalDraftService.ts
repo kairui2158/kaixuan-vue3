@@ -75,6 +75,54 @@ export interface FinalDraftSourceSegment {
   end: number
 }
 
+export interface FinalDraftTaskView {
+  taskId: string
+  destination: FinalDraftDestination
+  targetId: string
+  status: FinalDraftStatus
+  operation?: LongDocumentExecutionOperation
+  activeSegmentIndex: number
+  segmentCount: number
+  continuationCount: number
+  sourceChars: number
+  completedChars: number
+  accumulatedChars: number
+  sourceContentHash: string
+  error?: string
+  finishReason?: string
+  lastTelemetry?: FinalDraftTask['lastTelemetry']
+  lastStreamActivityAt?: number
+  createdAt: number
+  updatedAt: number
+}
+
+/**
+ * Persistent chat messages must never retain document-sized task fields. The
+ * runner keeps the authoritative live task and checkpoints hold recovery data.
+ */
+export function toFinalDraftTaskView(task: FinalDraftTask): FinalDraftTaskView {
+  return {
+    taskId: task.taskId,
+    destination: task.destination,
+    targetId: task.targetId,
+    status: task.status,
+    operation: task.operation,
+    activeSegmentIndex: task.activeSegmentIndex,
+    segmentCount: task.sourceSegments.length,
+    continuationCount: task.continuationCount,
+    sourceChars: task.sourceContent.length,
+    completedChars: task.completedText.length,
+    accumulatedChars: task.accumulatedText.length,
+    sourceContentHash: task.sourceContentHash,
+    error: task.error,
+    finishReason: task.finishReason,
+    lastTelemetry: task.lastTelemetry,
+    lastStreamActivityAt: task.lastStreamActivityAt,
+    createdAt: task.createdAt,
+    updatedAt: task.updatedAt,
+  }
+}
+
 /**
  * Pinia stores FinalDraftTask values as reactive proxies, which structuredClone
  * cannot clone. Tasks are persisted as JSON, so a JSON snapshot is both stable
@@ -165,8 +213,17 @@ export type FinalDraftEvent =
   | { type: 'segment_order_planned'; segmentOrder: string[]; fallback: boolean; now: number }
   | { type: 'segment_started'; segmentId: string; now: number }
   | { type: 'segment_retry_started'; segmentId: string; reason: string; now: number }
+  | {
+    type: 'heading_boundary_repaired'
+    segmentId: string
+    missingHeadings: string[]
+    repairedHeadings: string[]
+    bodyProofs: string[]
+    now: number
+  }
   | { type: 'segment_user_retry_started'; segmentId: string; reason: string; now: number }
   | { type: 'segment_completed'; segmentId: string; now: number }
+  | { type: 'draft_deduplicated'; removedBlocks: number; removedChars: number; now: number }
   | { type: 'write_started'; now: number }
   | { type: 'write_succeeded'; documentVersion: number; contentHash: string; now: number }
   | { type: 'write_failed'; error: string; now: number }
@@ -180,11 +237,13 @@ const FINAL_DRAFT_SYSTEM_PROMPT = [
   '禁止输出说明、开场白、总结、计划、JSON、工具调用或编辑命令。',
   '保留原文的有效内容、语义和结构信息，并执行用户的整理、重排、重写或清理要求。',
   '逐段处理源文：每个源文段落在终稿中必须保持为独立段落；可以把一个段落拆成多个段落，禁止把多个源文段落合并成一个段落。',
-  '以 # 开头的标题行必须逐字保留，并且必须独立成段；段落开头的编号、标识和冒号前缀必须保留。',
+  '以 # 开头的标题行的标题文字必须逐字保留，并且必须独立成段；除非用户明确要求统一标题层级，否则标题层级也必须保持不变。段落开头的编号、标识和冒号前缀必须保留。',
   '整理和清理包括标点与空白：连续重复的标点只保留一个，连续空格只保留一个；英文标点按中文正文语境统一为中文标点。',
   '如果单次输出被截断，必须在截断处直接停止；不要总结，不要强行收尾。',
   '严格遵守保护范围约束。',
 ].join('\n')
+
+const HEADING_LEVEL_NORMALIZATION_PATTERN = /(?:统一|规范化?|归一)[^。；，\n]{0,12}(?:标题层级|标题等级)|(?:标题层级|标题等级)[^。；，\n]{0,12}(?:统一|规范化?|归一)/
 
 export const FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT = 8000
 
@@ -319,7 +378,7 @@ export function buildFinalDraftSegmentMessages(
     : ''
   const constraints = [...(task.constraints || [])]
   if (options.structureRetry) {
-    constraints.push('结构重试：上一次输出丢失了标题行或段落结构。标题行必须逐字保留并独立成段；每个段落开头的编号、标识和冒号前缀必须保留。')
+    constraints.push('结构重试：上一次输出丢失了标题行或段落结构。每个源文标题的标题文字必须逐字保留并独立成段；除非用户明确要求统一标题层级，否则标题层级也必须保持不变。每个段落开头的编号、标识和冒号前缀必须保留。')
   }
   const protectedRanges = protectedRangesForSegment(task, segment)
   if (protectedRanges.length) {
@@ -334,7 +393,7 @@ export function buildFinalDraftSegmentMessages(
     { role: 'system', content: appendFinalDraftSkillGuidance(FINAL_DRAFT_SYSTEM_PROMPT, options.skillGuidance) },
     {
       role: 'user',
-      content: `终稿要求：${task.instruction}${constraintText}${segmentMap}${previousTail}${boundaryText}\n\n本次需要生成终稿的源文分段：\n${segmentContent}\n\n段落结构硬约束：本段源文共有 ${sourceBlockCount} 个段落。终稿至少输出 ${sourceBlockCount} 个段落；每个源文段落对应至少一个终稿段落，段落之间必须使用空行分隔，禁止把多个源文段落合并成一个段落。以 # 开头的标题行必须逐字保留，并且必须独立成段；每个段落开头的编号、标识和冒号前缀必须保留。`,
+      content: `终稿要求：${task.instruction}${constraintText}${segmentMap}${previousTail}${boundaryText}\n\n本次需要生成终稿的源文分段：\n${segmentContent}\n\n段落结构硬约束：本段源文共有 ${sourceBlockCount} 个段落。终稿至少输出 ${sourceBlockCount} 个段落；每个源文段落对应至少一个终稿段落，段落之间必须使用空行分隔，禁止把多个源文段落合并成一个段落。以 # 开头的标题行的标题文字必须逐字保留，并且必须独立成段；除非用户明确要求统一标题层级，否则标题层级也必须保持不变。每个段落开头的编号、标识和冒号前缀必须保留。`,
     },
   ]
 }
@@ -363,6 +422,7 @@ export function validateFinalDraft(
     acceptTruncated?: boolean
     sourceContent?: string
     operation?: LongDocumentExecutionOperation
+    instruction?: string
   } = {},
 ): FinalDraftValidationResult {
   const issues: FinalDraftValidationIssue[] = []
@@ -374,8 +434,13 @@ export function validateFinalDraft(
     issues.push({ code: 'unfinished_draft', message: '终稿仍处于截断状态，未执行写入。' })
   }
   const authorizedRewrite = options.operation === 'rewrite_segments'
+    || options.operation === 'restructure'
+    || options.operation === 'restructure_and_cleanup'
   const authorizedDeletion = options.operation === 'deduplicate'
     || options.operation === 'deduplicate_and_normalize'
+  const authorizedHeadingLevelChange = authorizedRewrite
+    && !authorizedDeletion
+    && HEADING_LEVEL_NORMALIZATION_PATTERN.test(options.instruction || '')
   if (
     !authorizedRewrite && !authorizedDeletion &&
     options.sourceContent !== undefined &&
@@ -394,16 +459,20 @@ export function validateFinalDraft(
   if (hasDuplicatedBlock(text)) {
     issues.push({ code: 'duplicate_block', message: '终稿中部存在大段重复，未执行写入。' })
   }
-  if (
-    options.sourceContent !== undefined
-    && hasMarkdownHeadings(options.sourceContent)
-    && hasFinalDraftHeadingDifference(text, options.sourceContent)
-  ) {
-    const summary = summarizeFinalDraftHeadingDifference(text, options.sourceContent)
-    issues.push({
-      code: 'heading_boundary_lost',
-      message: `终稿标题边界校验失败，未执行写入。（${summary}）`,
+  if (options.sourceContent !== undefined && hasMarkdownHeadings(options.sourceContent)) {
+    const headingDifference = summarizeFinalDraftHeadingDifference(text, options.sourceContent, {
+      allowHeadingLevelChange: authorizedHeadingLevelChange,
+      allowDuplicateHeadingRemoval: authorizedDeletion,
     })
+    const headingBoundaryLost = authorizedRewrite
+      ? headingDifference.missingCount > 0
+      : headingDifference.missingCount > 0 || headingDifference.addedCount > 0
+    if (headingBoundaryLost) {
+      issues.push({
+        code: 'heading_boundary_lost',
+        message: `终稿标题边界校验失败，未执行写入。（${headingDifference.summary}）`,
+      })
+    }
   }
   if (
     !authorizedRewrite
@@ -470,31 +539,131 @@ function headingMultiset(text: string): string[] {
     .filter(line => /^#{1,6}\s+/.test(line))
 }
 
-function hasFinalDraftHeadingDifference(draft: string, source: string): boolean {
-  return summarizeFinalDraftHeadingDifference(draft, source).length > 0
+function headingIdentity(line: string): string {
+  return line.replace(/^#{1,6}\s+/, '').trim()
 }
 
-function summarizeFinalDraftHeadingDifference(draft: string, source: string): string {
+function summarizeFinalDraftHeadingDifference(
+  draft: string,
+  source: string,
+  options: { allowHeadingLevelChange?: boolean; allowDuplicateHeadingRemoval?: boolean } = {},
+): {
+  summary: string
+  missingCount: number
+  addedCount: number
+  missingHeadings: string[]
+  addedHeadings: string[]
+} {
   const expected = new Map<string, number>()
   for (const heading of headingMultiset(source)) {
-    expected.set(heading, (expected.get(heading) || 0) + 1)
+    const key = options.allowHeadingLevelChange ? headingIdentity(heading) : heading
+    expected.set(key, (expected.get(key) || 0) + 1)
   }
   const actual = new Map<string, number>()
   for (const heading of headingMultiset(draft)) {
-    actual.set(heading, (actual.get(heading) || 0) + 1)
+    const key = options.allowHeadingLevelChange ? headingIdentity(heading) : heading
+    actual.set(key, (actual.get(key) || 0) + 1)
   }
   let missingCount = 0
   let addedCount = 0
+  const missingHeadings: string[] = []
+  const addedHeadings: string[] = []
   for (const [heading, count] of expected) {
-    missingCount += Math.max(0, count - (actual.get(heading) || 0))
+    const allowedRemovals = options.allowDuplicateHeadingRemoval ? Math.max(0, count - 1) : 0
+    const deficit = Math.max(0, count - (actual.get(heading) || 0) - allowedRemovals)
+    missingCount += deficit
+    for (let index = 0; index < deficit; index += 1) missingHeadings.push(heading)
   }
   for (const [heading, count] of actual) {
-    addedCount += Math.max(0, count - (expected.get(heading) || 0))
+    const surplus = Math.max(0, count - (expected.get(heading) || 0))
+    addedCount += surplus
+    for (let index = 0; index < surplus; index += 1) addedHeadings.push(heading)
   }
-  if (!missingCount && !addedCount) return ''
-  return `源文标题 ${[...expected.values()].reduce((sum, count) => sum + count, 0)} / 终稿标题 ${
-    [...actual.values()].reduce((sum, count) => sum + count, 0)
-  }，缺失 ${missingCount}，新增 ${addedCount}`
+  const summary = missingCount || addedCount
+    ? `源文标题 ${[...expected.values()].reduce((sum, count) => sum + count, 0)} / 终稿标题 ${
+      [...actual.values()].reduce((sum, count) => sum + count, 0)
+    }，缺失 ${missingCount}，新增 ${addedCount}`
+    : '源文标题与终稿标题一致'
+  return { summary, missingCount, addedCount, missingHeadings, addedHeadings }
+}
+
+interface FinalDraftHeadingRepair {
+  text: string
+  repairedHeadings: string[]
+  bodyProofs: string[]
+}
+
+function normalizeTextWithMap(text: string): { normalized: string; indexes: number[] } {
+  const normalized: string[] = []
+  const indexes: number[] = []
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index]
+    if (/[\s\p{P}\p{S}]/u.test(char)) continue
+    normalized.push(char)
+    indexes.push(index)
+  }
+  return { normalized: normalized.join(''), indexes }
+}
+
+function repairMissingFinalDraftHeadings(
+  draft: string,
+  source: string,
+  missingHeadings: string[],
+  options: { allowHeadingLevelChange?: boolean } = {},
+): FinalDraftHeadingRepair | null {
+  if (missingHeadings.length === 0) return null
+  const sourceLines = String(source || '').split(/\r?\n/)
+  const headingIndexes = sourceLines
+    .map((line, index) => (/^#{1,6}\s+/.test(line.trim()) ? index : -1))
+    .filter(index => index >= 0)
+  const sectionsByKey = new Map<string, Array<{ heading: string; body: string }>>()
+  headingIndexes.forEach((headingIndex, ordinal) => {
+    const nextHeadingIndex = headingIndexes[ordinal + 1] ?? sourceLines.length
+    const heading = sourceLines[headingIndex].trim()
+    const key = options.allowHeadingLevelChange ? headingIdentity(heading) : heading
+    const body = sourceLines.slice(headingIndex + 1, nextHeadingIndex).join('\n').trim()
+    const list = sectionsByKey.get(key) || []
+    list.push({ heading, body })
+    sectionsByKey.set(key, list)
+  })
+
+  const draftMap = normalizeTextWithMap(draft)
+  const plannedRepairs: Array<{ rawIndex: number; heading: string; bodyProof: string }> = []
+  for (const missingHeading of missingHeadings) {
+    const sections = sectionsByKey.get(missingHeading)
+    // Duplicate headings are ambiguous; leave them to the conservative retry path.
+    if (!sections || sections.length !== 1) return null
+    const section = sections[0]
+    const paragraphs = section.body
+      .split(/\n\s*\n/)
+      .map(paragraph => paragraph.trim())
+      .filter(Boolean)
+    if (paragraphs.length === 0) return null
+    const normalizedParagraphs = paragraphs.map(paragraph => normalizeTextWithMap(paragraph).normalized)
+    const allBodiesSurvive = normalizedParagraphs.every(paragraph =>
+      paragraph.length > 0 && draftMap.normalized.includes(paragraph))
+    if (!allBodiesSurvive) return null
+
+    const firstParagraph = normalizedParagraphs[0]
+    const normalizedIndex = draftMap.normalized.indexOf(firstParagraph)
+    if (normalizedIndex < 0) return null
+    const rawIndex = draftMap.indexes[normalizedIndex] ?? -1
+    if (rawIndex < 0) return null
+    const prefix = draft.slice(0, rawIndex)
+    const paragraphBreaks = [...prefix.matchAll(/\n[ \t]*\r?\n/g)]
+    const lastBreak = paragraphBreaks[paragraphBreaks.length - 1]
+    const insertAt = lastBreak ? (lastBreak.index ?? 0) + lastBreak[0].length : 0
+    plannedRepairs.push({ rawIndex: insertAt, heading: section.heading, bodyProof: paragraphs[0] })
+  }
+  let text = draft
+  for (const repair of [...plannedRepairs].sort((left, right) => right.rawIndex - left.rawIndex)) {
+    text = `${text.slice(0, repair.rawIndex)}${repair.heading}\n\n${text.slice(repair.rawIndex)}`
+  }
+  return {
+    text,
+    repairedHeadings: plannedRepairs.map(repair => repair.heading),
+    bodyProofs: plannedRepairs.map(repair => repair.bodyProof),
+  }
 }
 
 function leafBodyMultiset(text: string): string[] {
@@ -638,6 +807,7 @@ export async function continueFinalDraft(
       acceptTruncated: true,
       sourceContent: activeSegmentSource(current),
       operation: current.operation,
+      instruction: current.instruction,
     })
     if (!continuationValidation.valid) {
       const failed = applyFinalDraftEventWithHooks(current, {
@@ -700,11 +870,15 @@ async function writeCompletedDraft(
   options: FinalDraftGenerationOptions,
 ): Promise<FinalDraftTask> {
   const draft = finalDraftText(task)
-  const normalizedDraft = normalizeFinalDraftParagraphSeparators(draft)
+  let normalizedDraft = normalizeFinalDraftParagraphSeparators(draft)
+  normalizedDraft = normalizeFinalDraftParagraphSeparators(
+    cleanupAuthorizedDuplicateBlocks(task, normalizedDraft, options).text,
+  )
   const validation = validateFinalDraft(normalizedDraft, {
     finishReason: task.finishReason,
     sourceContent: deps.sourceContent || task.sourceContent,
     operation: task.operation,
+    instruction: task.instruction,
   })
   if (!validation.valid) {
     const failed = applyFinalDraftEventWithHooks(task, {
@@ -849,22 +1023,74 @@ async function runPendingSegments(
         : result.text || '',
       finishReason: result.finishReason,
     })
-    const segmentValidation = validateFinalDraft(normalizeFinalDraftParagraphSeparators(task.accumulatedText), {
+    const segmentCleanup = cleanupAuthorizedDuplicateBlocks(
+      task,
+      normalizeFinalDraftParagraphSeparators(task.accumulatedText),
+      options,
+    )
+    task = segmentCleanup.task
+    const segmentValidation = validateFinalDraft(segmentCleanup.text, {
       finishReason: result.finishReason,
       acceptTruncated: true,
       sourceContent: activeSegmentSource(task),
       operation: task.operation,
+      instruction: task.instruction,
     })
-    const retryableStructureLoss = !segmentValidation.valid
+    let segmentText = segmentCleanup.text
+    const headingIssue = segmentValidation.issues.find(issue => issue.code === 'heading_boundary_lost')
+    if (headingIssue && !isTruncated(result.finishReason)) {
+      const headingDifference = summarizeFinalDraftHeadingDifference(
+        segmentText,
+        activeSegmentSource(task),
+        {
+          allowHeadingLevelChange: authorizedHeadingLevelChange(task),
+          allowDuplicateHeadingRemoval: isAuthorizedDuplicateCleanup(task.operation),
+        },
+      )
+      const repair = headingDifference.addedHeadings.length === 0
+        ? repairMissingFinalDraftHeadings(
+          segmentText,
+          activeSegmentSource(task),
+          headingDifference.missingHeadings,
+          { allowHeadingLevelChange: authorizedHeadingLevelChange(task) },
+        )
+        : null
+      if (repair) {
+        task = updateTask(task, { accumulatedText: repair.text })
+        segmentText = repair.text
+        task = applyFinalDraftEventWithHooks(task, {
+          type: 'heading_boundary_repaired',
+          segmentId: segment.segmentId,
+          missingHeadings: headingDifference.missingHeadings,
+          repairedHeadings: repair.repairedHeadings,
+          bodyProofs: repair.bodyProofs,
+          now: now(),
+        }, options)
+        emitTask(task, options)
+      }
+    }
+    const effectiveValidation = segmentText === segmentCleanup.text
+      ? segmentValidation
+      : validateFinalDraft(segmentText, {
+        finishReason: result.finishReason,
+        acceptTruncated: true,
+        sourceContent: activeSegmentSource(task),
+        operation: task.operation,
+        instruction: task.instruction,
+      })
+    const retryableStructureLoss = !effectiveValidation.valid
       && !isTruncated(result.finishReason)
-      && segmentValidation.issues.some(issue => issue.code === 'paragraph_structure_lost')
+      && (
+        effectiveValidation.issues.some(issue => issue.code === 'paragraph_structure_lost')
+          || effectiveValidation.issues.some(issue => issue.code === 'heading_boundary_lost')
+      )
       && !structureRetried
     if (retryableStructureLoss) {
       structureRetried = true
       task = applyFinalDraftEventWithHooks(task, {
         type: 'segment_retry_started',
         segmentId: segment.segmentId,
-        reason: segmentValidation.issues.map(issue => issue.message).join(' '),
+        reason: effectiveValidation.issues.map(issue => issue.message).join(' '),
         now: now(),
       }, options)
       emitTask(task, options)
@@ -876,11 +1102,18 @@ async function runPendingSegments(
         accumulatedText: retryResult.text || '',
         finishReason: retryResult.finishReason,
       })
-      const retryValidation = validateFinalDraft(normalizeFinalDraftParagraphSeparators(task.accumulatedText), {
+      const retryCleanup = cleanupAuthorizedDuplicateBlocks(
+        task,
+        normalizeFinalDraftParagraphSeparators(task.accumulatedText),
+        options,
+      )
+      task = retryCleanup.task
+      const retryValidation = validateFinalDraft(retryCleanup.text, {
         finishReason: retryResult.finishReason,
         acceptTruncated: true,
         sourceContent: activeSegmentSource(task),
         operation: task.operation,
+        instruction: task.instruction,
       })
       if (!retryValidation.valid) {
         const failed = applyFinalDraftEventWithHooks(task, {
@@ -900,10 +1133,10 @@ async function runPendingSegments(
         emitTask(task, options)
         return task
       }
-    } else if (!segmentValidation.valid) {
+    } else if (!effectiveValidation.valid) {
       const failed = applyFinalDraftEventWithHooks(task, {
         type: 'task_failed',
-        error: segmentValidation.issues.map(issue => issue.message).join(' '),
+        error: effectiveValidation.issues.map(issue => issue.message).join(' '),
         now: now(),
       }, options)
       emitTask(failed, options)
@@ -937,6 +1170,25 @@ function completeActiveSegment(task: FinalDraftTask, options: FinalDraftGenerati
     segmentId: segment.segmentId,
     now: now(),
   }, options)
+}
+
+function cleanupAuthorizedDuplicateBlocks(
+  task: FinalDraftTask,
+  text: string,
+  options: FinalDraftGenerationOptions,
+): { task: FinalDraftTask; text: string } {
+  if (!isAuthorizedDuplicateCleanup(task.operation)) return { task, text }
+  const cleanup = removeAuthorizedDuplicateBlocks(text)
+  if (!cleanup) return { task, text }
+  const next = updateTask(task, { accumulatedText: cleanup.text })
+  const deduplicated = applyFinalDraftEventWithHooks(next, {
+    type: 'draft_deduplicated',
+    removedBlocks: cleanup.removedBlocks,
+    removedChars: cleanup.removedChars,
+    now: now(),
+  }, options)
+  emitTask(deduplicated, options)
+  return { task: deduplicated, text: cleanup.text }
 }
 
 export async function retryFinalDraftSegment(
@@ -1128,6 +1380,8 @@ function reduceFinalDraftEvent(task: FinalDraftTask, event: FinalDraftEvent): Fi
       return transition(task, 'generating', 'generating', {})
     case 'segment_retry_started':
       return { ...task }
+    case 'heading_boundary_repaired':
+      return { ...task, updatedAt: event.now }
     case 'segment_user_retry_started':
       return transition(task, ['generating', 'awaiting_continuation', 'interrupted'], 'generating', {
         accumulatedText: '',
@@ -1141,6 +1395,8 @@ function reduceFinalDraftEvent(task: FinalDraftTask, event: FinalDraftEvent): Fi
         activeSegmentIndex: task.activeSegmentIndex + 1,
       }
     }
+    case 'draft_deduplicated':
+      return { ...task, updatedAt: event.now }
     case 'write_started':
       return transition(task, ['generating', 'awaiting_continuation'], 'writing', {})
     case 'write_succeeded':
@@ -1230,6 +1486,18 @@ export function describeFinalDraftEvent(event: FinalDraftEvent): {
         level: 'warn',
         payload: { segmentId: event.segmentId, reason: event.reason },
       }
+    case 'heading_boundary_repaired':
+      return {
+        type: 'final-draft-heading-boundary-repaired',
+        label: `终稿标题边界已本地修复：${event.segmentId}`,
+        level: 'warn',
+        payload: {
+          segmentId: event.segmentId,
+          missingHeadings: event.missingHeadings,
+          repairedHeadings: event.repairedHeadings,
+          bodyProofs: event.bodyProofs,
+        },
+      }
     case 'segment_user_retry_started':
       return {
         type: 'final-draft-segment-user-retry-started',
@@ -1239,6 +1507,13 @@ export function describeFinalDraftEvent(event: FinalDraftEvent): {
       }
     case 'segment_completed':
       return { type: 'final-draft-segment-completed', label: `终稿分段完成：${event.segmentId}`, level: 'info', payload: { segmentId: event.segmentId } }
+    case 'draft_deduplicated':
+      return {
+        type: 'final-draft-draft-deduplicated',
+        label: '终稿重复块已按授权清理',
+        level: 'info',
+        payload: { removedBlocks: event.removedBlocks, removedChars: event.removedChars },
+      }
     case 'write_started':
       return { type: 'final-draft-write-started', label: '终稿写入开始', level: 'info', payload: {} }
     case 'write_succeeded':
@@ -1265,6 +1540,164 @@ export function describeFinalDraftEvent(event: FinalDraftEvent): {
 
 function isTruncated(finishReason?: string): boolean {
   return finishReason === 'length'
+}
+
+function isAuthorizedDuplicateCleanup(operation?: LongDocumentExecutionOperation): boolean {
+  return operation === 'deduplicate'
+    || operation === 'deduplicate_and_normalize'
+    || operation === 'restructure_and_cleanup'
+}
+
+function authorizedHeadingLevelChange(task: FinalDraftTask): boolean {
+  return task.operation !== 'deduplicate'
+    && task.operation !== 'deduplicate_and_normalize'
+    && HEADING_LEVEL_NORMALIZATION_PATTERN.test(task.instruction || '')
+}
+
+interface AuthorizedDuplicateCleanup {
+  text: string
+  removedBlocks: number
+  removedChars: number
+}
+
+function removeAuthorizedDuplicateBlocks(text: string): AuthorizedDuplicateCleanup | null {
+  let current = text
+  let removedBlocks = 0
+  let removedChars = 0
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const removal = removeNextAuthorizedDuplicateBlock(current, DUPLICATE_BLOCK_CHARS)
+      ?? (current.replace(/\s+/g, ' ').trim().length >= DUPLICATE_BLOCK_SMALL_CHARS * 4
+        ? removeNextAuthorizedDuplicateBlock(current, DUPLICATE_BLOCK_SMALL_CHARS)
+        : null)
+    if (!removal) break
+    current = removal.text
+    removedBlocks += 1
+    removedChars += removal.removedChars
+  }
+  if (!removedBlocks) return null
+  return { text: current, removedBlocks, removedChars }
+}
+
+function removeNextAuthorizedDuplicateBlock(
+  text: string,
+  blockChars: number,
+): { text: string; removedChars: number } | null {
+  const normalized: string[] = []
+  const originalIndexes: number[] = []
+  for (let index = 0; index < text.length; index += 1) {
+    if (/\s/.test(text[index])) {
+      continue
+    } else {
+      normalized.push(text[index])
+      originalIndexes.push(index)
+    }
+  }
+  const match = findDuplicatedWindowRange(normalized, blockChars)
+  if (!match) return null
+
+  let { first, second, length } = match
+  while (
+    first > 0
+    && second > 0
+    && normalized[first - 1] === normalized[second - 1]
+    && !crossesParagraphBoundary(text, originalIndexes[first - 1], originalIndexes[first])
+    && !crossesParagraphBoundary(text, originalIndexes[second - 1], originalIndexes[second])
+  ) {
+    first -= 1
+    second -= 1
+  }
+  while (
+    first + length < normalized.length
+    && second + length < normalized.length
+    && normalized[first + length] === normalized[second + length]
+    && !crossesParagraphBoundary(text, originalIndexes[first + length - 1], originalIndexes[first + length])
+    && !crossesParagraphBoundary(text, originalIndexes[second + length - 1], originalIndexes[second + length])
+  ) {
+    length += 1
+  }
+
+  const originalStart = originalIndexes[second]
+  const originalEnd = originalIndexes[second + length - 1] + 1
+  const removal = paragraphAwareRemovalRange(text, originalStart, originalEnd)
+  return {
+    text: text.slice(0, removal.start) + text.slice(removal.end),
+    removedChars: removal.end - removal.start,
+  }
+}
+
+function paragraphAwareRemovalRange(
+  text: string,
+  duplicateStart: number,
+  duplicateEnd: number,
+): { start: number; end: number } {
+  const parts = text.split(/(\n\s*\n)/)
+  const paragraphs: Array<{ start: number; end: number }> = []
+  const separators: Array<{ start: number; end: number }> = []
+  let offset = 0
+  parts.forEach(part => {
+    if (!part) return
+    if (/^\n\s*\n$/.test(part)) separators.push({ start: offset, end: offset + part.length })
+    else paragraphs.push({ start: offset, end: offset + part.length })
+    offset += part.length
+  })
+
+  const covered = paragraphs.filter(paragraph =>
+    paragraph.start >= duplicateStart && paragraph.end <= duplicateEnd,
+  )
+  if (!covered.length) return { start: duplicateStart, end: duplicateEnd }
+
+  const first = covered[0]
+  const last = covered[covered.length - 1]
+  const followingSeparator = separators.find(separator => separator.start === last.end)
+  if (followingSeparator) return { start: first.start, end: followingSeparator.end }
+  const precedingSeparator = separators
+    .filter(separator => separator.end === first.start)
+    .at(-1)
+  if (precedingSeparator) return { start: precedingSeparator.start, end: last.end }
+  return { start: first.start, end: last.end }
+}
+
+function crossesParagraphBoundary(text: string, beforeIndex: number, afterIndex: number): boolean {
+  if (beforeIndex < 0 || afterIndex >= text.length || beforeIndex >= afterIndex) return true
+  return /\n\s*\n/.test(text.slice(beforeIndex + 1, afterIndex))
+}
+
+function findDuplicatedWindowRange(
+  normalized: string[],
+  blockChars: number,
+): { first: number; second: number; length: number } | null {
+  if (normalized.length < blockChars * 2) return null
+  const base = 131n
+  const mod = 1_000_000_007n
+  const highestWeight = base ** BigInt(blockChars) % mod
+  let hash = 0n
+  for (let index = 0; index < blockChars; index += 1) {
+    hash = (hash * base + BigInt(normalized[index].charCodeAt(0))) % mod
+  }
+  const firstByHash = new Map<string, number>([[hash.toString(), 0]])
+  for (let index = blockChars; index < normalized.length; index += 1) {
+    const outgoing = BigInt(normalized[index - blockChars].charCodeAt(0)) * highestWeight % mod
+    const incoming = BigInt(normalized[index].charCodeAt(0))
+    hash = (hash * base + incoming + mod - outgoing) % mod
+    const currentStart = index - blockChars + 1
+    const first = firstByHash.get(hash.toString())
+    if (
+      first !== undefined
+      && currentStart - first >= blockChars
+      && windowsEqual(normalized, first, currentStart, blockChars)
+    ) {
+      return { first, second: currentStart, length: blockChars }
+    }
+    if (first === undefined) firstByHash.set(hash.toString(), currentStart)
+  }
+  return null
+}
+
+function windowsEqual(normalized: string[], left: number, right: number, length: number): boolean {
+  for (let offset = 0; offset < length; offset += 1) {
+    if (normalized[left + offset] !== normalized[right + offset]) return false
+  }
+  return true
 }
 
 function isUserCanceled(error: unknown): boolean {

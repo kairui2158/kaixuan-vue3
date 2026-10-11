@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createEditorTargetSnapshot } from './editorTarget'
 import { ToolGateway } from './editorTools'
 import { createOutlineTools } from './outlineTools'
+import { createDocumentReadLedger } from './documentReadLedger'
 
 const outlineText = [
   '第一卷 风暴起点',
@@ -28,6 +29,14 @@ function makeGateway(content = outlineText) {
   const gateway = new ToolGateway()
   gateway.registerAll(createOutlineTools({ getSnapshot: () => target }))
   return gateway
+}
+
+function makeLedgerGateway(content = outlineText) {
+  const target = createEditorTargetSnapshot({ workspace: 'outline', targetId: 'outline', label: '大纲', content })
+  const readLedger = createDocumentReadLedger({ workspace: 'outline', targetId: target.targetId })
+  const gateway = new ToolGateway()
+  gateway.registerAll(createOutlineTools({ getSnapshot: () => target, readLedger }))
+  return { gateway, readLedger }
 }
 
 async function call(name: string, input: Record<string, unknown>) {
@@ -91,6 +100,33 @@ describe('outlineTools', () => {
     expect(secondData.readChars).toBe(500)
     expect(secondData.hasMore).toBe(true)
     expect(secondData.readStart).toBe(firstData.readEnd)
+  })
+
+  it('classifies continuation paging as unique reads and repeats as duplicates', async () => {
+    const longOutline = `第一卷 长卷\n${'甲'.repeat(1200)}`
+    const { gateway, readLedger } = makeLedgerGateway(longOutline)
+    const context = {
+      projectId: 'p1',
+      workspace: 'outline' as const,
+      targetId: 'outline',
+      sessionId: 's1',
+      iteration: 1,
+    }
+    const first = await gateway.execute('outline.read_range', { nodeId: 'volume-1', limit: 500 }, context)
+    const second = await gateway.execute('outline.read_range', {
+      nodeId: 'volume-1',
+      limit: 500,
+      offset: (first.data as any).nextOffset,
+    }, context)
+    const repeated = await gateway.execute('outline.read_range', { nodeId: 'volume-1', limit: 500 }, context)
+
+    expect((first.data as any).duplicate_read).toBeUndefined()
+    expect((second.data as any).duplicate_read).toBeUndefined()
+    expect((repeated.data as any).duplicate_read).toBe(true)
+    expect(readLedger.snapshot()).toMatchObject({
+      uniqueReadCount: 2,
+      duplicateReadCount: 1,
+    })
   })
 
   it('search returns matches with owning nodes and read guidance', async () => {

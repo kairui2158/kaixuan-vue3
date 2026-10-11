@@ -1,5 +1,10 @@
 import type { EditorTargetSnapshot } from './editorTarget'
 import type { AgentToolContext, AgentToolDefinition, ToolResult } from './editorTools'
+import {
+  documentReadKey,
+  documentReadLedgerKey,
+  type DocumentReadLedger,
+} from './documentReadLedger'
 import { parseOutlineStructure, type OutlineStructure, type OutlineStructureNode } from './outlineStructure'
 
 const DEFAULT_MAP_LIMIT = 160
@@ -88,6 +93,8 @@ function searchContext(content: string, start: number, end: number): string {
 
 export function createOutlineTools(options: {
   getSnapshot: () => EditorTargetSnapshot | null
+  /** Session-scoped read ledger shared by all read tools for this target. */
+  readLedger?: DocumentReadLedger
 }): AgentToolDefinition[] {
   const indexCache = new WeakMap<EditorTargetSnapshot, OutlineSnapshotIndex>()
 
@@ -102,7 +109,10 @@ export function createOutlineTools(options: {
 
   const getSnapshot = (): { snapshot: EditorTargetSnapshot; index: OutlineSnapshotIndex } | null => {
     const snapshot = options.getSnapshot()
-    return snapshot ? { snapshot, index: getIndex(snapshot) } : null
+    if (!snapshot) return null
+    const index = getIndex(snapshot)
+    options.readLedger?.setStructureIdentity(index.structure.structureIdentity)
+    return { snapshot, index }
   }
 
   const getStructure: AgentToolDefinition = {
@@ -143,6 +153,7 @@ export function createOutlineTools(options: {
           degraded: current.index.structure.degraded,
           degradedReason: current.index.structure.degradedReason,
           mapText: selected.join('\n'),
+          structureIdentity: current.index.structure.structureIdentity,
           totalLines: lines.length,
           offset,
           limit,
@@ -231,7 +242,7 @@ export function createOutlineTools(options: {
       const readEnd = Math.min(rangeEnd, readStart + limit)
       const content = current.snapshot.content.slice(readStart, readEnd)
       const hasMore = readEnd < rangeEnd
-      return {
+      const result: ToolResult = {
         ok: true,
         data: {
           node: node
@@ -253,6 +264,46 @@ export function createOutlineTools(options: {
             : ['基于已读取全文回答或提案，不要凭摘要推测细节'],
         },
       }
+      if (options.readLedger) {
+        const readKey = documentReadKey({
+          source: 'outline',
+          toolName: 'outline.read_range',
+          nodeId: hasNodeId ? String(params.nodeId).trim() : null,
+          range: hasCharRange ? { start: rangeStart, end: rangeEnd } : null,
+          offset,
+          maxChars: limit,
+        })
+        const ledgerKey = documentReadLedgerKey({
+          source: 'outline',
+          toolName: 'outline.read_range',
+          targetId: current.snapshot.targetId,
+          nodeId: hasNodeId ? String(params.nodeId).trim() : null,
+          range: hasCharRange ? { start: rangeStart, end: rangeEnd } : null,
+          offset,
+          maxChars: limit,
+        })
+        options.readLedger.registerLedgerKey(ledgerKey, readKey)
+        const data = result.data as Record<string, unknown>
+        data.readLedgerKey = ledgerKey
+        const classification = options.readLedger.classifyRead({
+          source: 'outline',
+          toolName: 'outline.read_range',
+          readKey,
+          contentVersion: current.snapshot.contentVersion,
+          structureIdentity: options.readLedger.getStructureIdentity(),
+        })
+        if (classification.duplicate) {
+          const data = result.data as Record<string, unknown>
+          data.duplicate_read = true
+          if (classification.rereadAfterCompaction) {
+            data.reread_after_compaction = true
+            data.duplicate_read_notice = '该读取曾被应用压缩，原文保留在运行记录中；本次按读取锚点恢复返回。'
+          } else {
+            data.duplicate_read_notice = '同一结构身份和读取范围已返回过；请基于已读取内容继续，不要重复读取。'
+          }
+        }
+      }
+      return result
     },
   }
 

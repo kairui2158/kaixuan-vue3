@@ -1,0 +1,128 @@
+{
+  "script": "verify-single-pass-live-replay.mjs",
+  "generatedAt": "2026-10-11T02:27:53.848Z",
+  "provider": {
+    "baseUrl": "https://openapi.cloud-ai.cn/v1",
+    "model": "deepseek-v4-pro"
+  },
+  "sourceTrace": "C:\\Users\\凯瑞\\Desktop\\SKILL调试文件\\run-trace-outline-20261009-095906-deep\\run-trace.json",
+  "outlineChars": 74293,
+  "cases": [
+    {
+      "caseId": "outline-no-skill",
+      "entry": "outline",
+      "withSkill": false,
+      "request": "请对全文做一次完整整理重排：按叙事逻辑重新排序，合并或删除重复项，统一中文标点和标题层级，按Word文档格式整理。",
+      "runId": "run-1791681136878-1",
+      "turnId": "turn-1791681136879-3",
+      "turnStatus": "success",
+      "intent": "generate",
+      "turnReason": "final_draft_complete",
+      "physicalCalls": 1,
+      "toolCalls": [],
+      "finishReasons": [
+        "stop"
+      ],
+      "beforeChars": 74293,
+      "afterChars": 74146,
+      "durationMs": 486176,
+      "rendererMemory": {
+        "samples": 96,
+        "peakJsHeapUsedBytes": 22942324,
+        "peakJsHeapTotalBytes": 37752832,
+        "jsHeapLimitBytes": null,
+        "crashed": false,
+        "crashReasons": [],
+        "pageErrors": []
+      },
+      "persistedTrace": "_audit\\verification-single-pass-live-replay\\outline-no-skill\\run-trace"
+    },
+    {
+      "caseId": "outline-with-skill",
+      "entry": "outline",
+      "withSkill": true,
+      "request": "请对全文做一次完整整理重排：按叙事逻辑重新排序，合并或删除重复项，统一中文标点和标题层级，按Word文档格式整理。",
+      "runId": "run-1791681636300-1",
+      "turnId": "turn-1791681636301-3",
+      "turnStatus": "success",
+      "intent": "generate",
+      "turnReason": "final_draft_complete",
+      "physicalCalls": 1,
+      "toolCalls": [],
+      "finishReasons": [
+        "stop"
+      ],
+      "beforeChars": 74293,
+      "afterChars": 74323,
+      "durationMs": 638142,
+      "rendererMemory": {
+        "samples": 126,
+        "peakJsHeapUsedBytes": 24459516,
+        "peakJsHeapTotalBytes": 39002112,
+        "jsHeapLimitBytes": null,
+        "crashed": false,
+        "crashReasons": [],
+        "pageErrors": []
+      },
+      "persistedTrace": "_audit\\verification-single-pass-live-replay\\outline-with-skill\\run-trace"
+    },
+    {
+      "caseId": "home-with-skill",
+      "entry": "home",
+      "withSkill": true,
+      "request": "请对全文做一次完整整理重排：按叙事逻辑重新排序，合并或删除重复项，统一中文标点和标题层级，按Word文档格式整理。",
+      "runId": "run-1791683560027-1",
+      "turnId": "turn-1791683560028-3",
+      "turnStatus": "success",
+      "intent": "edit",
+      "turnReason": "final_draft_complete",
+      "physicalCalls": 1,
+      "toolCalls": [],
+      "finishReasons": [
+        "stop"
+      ],
+      "beforeChars": 74293,
+      "afterChars": 74282,
+      "durationMs": 541404,
+      "rendererMemory": {
+        "samples": 107,
+        "peakJsHeapUsedBytes": 26879492,
+        "peakJsHeapTotalBytes": 38612992,
+        "jsHeapLimitBytes": null,
+        "crashed": false,
+        "crashReasons": [],
+        "pageErrors": []
+      },
+      "persistedTrace": "_audit\\verification-single-pass-live-replay\\home-with-skill\\run-trace"
+    },
+    {
+      "caseId": "home-no-skill",
+      "entry": "home",
+      "withSkill": false,
+      "request": "请对全文做一次完整整理重排：按叙事逻辑重新排序，合并或删除重复项，统一中文标点和标题层级，按Word文档格式整理。",
+      "runId": "run-1791685681571-1",
+      "turnId": "turn-1791685681572-3",
+      "turnStatus": "success",
+      "intent": "edit",
+      "turnReason": "final_draft_complete",
+      "physicalCalls": 1,
+      "toolCalls": [],
+      "finishReasons": [
+        "stop"
+      ],
+      "beforeChars": 74293,
+      "afterChars": 74146,
+      "durationMs": 509597,
+      "rendererMemory": {
+        "samples": 101,
+        "peakJsHeapUsedBytes": 22753332,
+        "peakJsHeapTotalBytes": 38510592,
+        "jsHeapLimitBytes": null,
+        "crashed": false,
+        "crashReasons": [],
+        "pageErrors": []
+      },
+      "persistedTrace": "_audit\\verification-single-pass-live-replay\\home-no-skill\\run-trace"
+    }
+  ]
+}

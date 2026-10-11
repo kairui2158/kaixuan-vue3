@@ -122,6 +122,61 @@ describe('chain intent router v3', () => {
       && result.reason === 'active-edit-task-continuation').toBe(false)
   })
 
+  it('routes an active awaiting-user-plan confirmation as an edit continuation', () => {
+    const result = routeChainIntent('开始执行', {
+      activePlanStatus: 'awaiting_user_plan',
+    })
+    expect(result).toEqual({
+      kind: 'matched',
+      intent: 'edit',
+      confidence: 0.96,
+      reason: 'active-plan-continuation',
+      decisionLayer: 'rule',
+    })
+  })
+
+  it('routes a second-person active-plan confirmation as an edit continuation', () => {
+    const result = routeChainIntent('你按照方案写入', {
+      activePlanStatus: 'awaiting_user_plan',
+    })
+    expect(result).toEqual({
+      kind: 'matched',
+      intent: 'edit',
+      confidence: 0.96,
+      reason: 'active-plan-continuation',
+      decisionLayer: 'rule',
+    })
+  })
+
+  it('routes a plan confirmation after an interrupted active task as an edit continuation', () => {
+    const result = routeChainIntent('你按照方案写入', {
+      activePlanStatus: 'active',
+    })
+    expect(result).toEqual({
+      kind: 'matched',
+      intent: 'edit',
+      confidence: 0.96,
+      reason: 'active-plan-continuation',
+      decisionLayer: 'rule',
+    })
+  })
+
+  it('does not route plan confirmations as edits without an awaiting plan', () => {
+    const result = routeChainIntent('开始执行')
+    expect(result.reason).not.toBe('active-plan-continuation')
+    expect(result.kind === 'matched'
+      && result.intent === 'edit'
+      && result.reason === 'active-plan-continuation').toBe(false)
+  })
+
+  it('keeps questions readonly during an awaiting plan', () => {
+    const result = routeChainIntent('开始执行之前，这个方案会不会丢正文？', {
+      activePlanStatus: 'awaiting_user_plan',
+    })
+    expect(result.reason).not.toBe('active-plan-continuation')
+    expect(result.kind === 'matched' && result.intent).toBe('discuss')
+  })
+
   it('returns no match for low-confidence chit-chat', () => {
     const result = routeChainIntent('今天天气不错呀')
     expect(result.kind).toBe('no_match')

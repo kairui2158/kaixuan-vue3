@@ -74,6 +74,26 @@ describe('useLiveApiStatus', () => {
     ])
   })
 
+  it('shows live native tool-argument generation even when body text is empty', () => {
+    const lines = buildLiveApiStatusLines({
+      active: true,
+      message: '正在等待 API 返回',
+      latestCall: {
+        status: 'running',
+        streamLength: 0,
+        lastStreamActivityAt: undefined,
+        lastExecutionActivityAt: Date.now() - 1_000,
+        lastToolArgumentProgressAt: Date.now() - 1_000,
+        lastToolArgumentProgress: { toolCallCount: 1, argumentCharacters: 74820 },
+        retrying: false,
+      }
+    })
+    expect(lines).toEqual([
+      { kind: 'connecting', text: '正在等待 API 返回' },
+      { kind: 'streaming', text: '正在生成工具调用 · 1 个调用 · 已生成 74820 字' }
+    ])
+  })
+
   it('keeps streaming live when a body delta arrived within the active window', () => {
     const lines = buildLiveApiStatusLines({
       active: true,
@@ -89,6 +109,36 @@ describe('useLiveApiStatus', () => {
     expect(lines).toEqual([
       { kind: 'connecting', text: '正在接收 AI 输出…' },
       { kind: 'streaming', text: '流式接收中 · 已接收 33 字' }
+    ])
+  })
+
+  it('shows classified execution state without exposing tool identities', () => {
+    const lines = buildLiveApiStatusLines({
+      active: true,
+      message: '正在整理长文档',
+      latestCall: {
+        status: 'running',
+        streamLength: 0,
+        lastExecutionActivityAt: Date.now() - 1_000,
+        retrying: false,
+        executionSettlement: {
+          phase: 'locating',
+          readToolCalls: 18,
+          maxReadToolCalls: 90,
+          writeToolCalls: 1,
+          reservedWriteToolCalls: 9,
+          successfulWriteCount: 1,
+          trustedCoverageCount: 1,
+          planComplete: false,
+        },
+      },
+    })
+    expect(lines).toEqual([
+      { kind: 'connecting', text: '正在整理长文档' },
+      {
+        kind: 'connecting',
+        text: '执行状态 · 定位阶段 · 读取 18/90 · 写入容量 1/9 · 已成功写入 1 次 · 已确认覆盖 1 项',
+      },
     ])
   })
 })

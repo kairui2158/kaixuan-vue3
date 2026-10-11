@@ -17,6 +17,11 @@ export interface OutlineIntegrityOptions {
   authorizedDeletedLength?: number
   /** Enables whole-document body-preservation checks; leave false for ordinary scoped edits. */
   validateDocumentBody?: boolean
+  /**
+   * Single-pass whole-document rewrites legitimately merge or remove duplicate
+   * and malformed sections. Global structure and length guards stay active.
+   */
+  allowWholeDocumentRewrite?: boolean
 }
 
 export interface OutlineIntegrityReport {
@@ -71,7 +76,7 @@ export function validateOutlineIntegrity(
   const afterHeadingCount = next.match(/^(?:#{1,6}\s|第[0-9一二三四五六七八九十百千万零两\s]+[卷章节回])/gm)?.length || 0
   if (beforeHeadingCount > 0 && afterHeadingCount < beforeHeadingCount) {
     issues.push({
-      level: 'critical',
+      level: options.allowWholeDocumentRewrite ? 'warning' : 'critical',
       type: 'heading_count_reduced',
       message: `标题数量从 ${beforeHeadingCount} 降到 ${afterHeadingCount}，可能破坏层级`
     })
@@ -85,9 +90,11 @@ export function validateOutlineIntegrity(
     const missingBodies = beforeBodies.filter(body => !afterBodies.some(candidate => candidate.includes(body)))
     if (missingBodies.length) {
       issues.push({
-        level: 'critical',
+        level: options.allowWholeDocumentRewrite ? 'warning' : 'critical',
         type: 'body_content_lost',
-        message: `整篇替换后有 ${missingBodies.length} 个小节正文丢失，需保留全部小节正文`
+        message: options.allowWholeDocumentRewrite
+          ? `整篇重排合并/清理了 ${missingBodies.length} 个旧小节正文（已在计划内）`
+          : `整篇替换后有 ${missingBodies.length} 个小节正文丢失，需保留全部小节正文`
       })
     }
   }

@@ -442,7 +442,7 @@ describe('editorTools', () => {
       executionPlan: buildLongDocumentExecutionPlan({
         requestText: '全文重写整篇大纲',
         content: `# 第一卷\n\n${'雨'.repeat(12_000)}\n\n# 第二卷\n\n${'雨'.repeat(12_000)}`,
-        contextWindowTokens: 128_000,
+        contextWindowTokens: 32_000,
         maxOutputTokens: 8_192,
       }),
       applyWrite: async input => {
@@ -476,8 +476,8 @@ describe('editorTools', () => {
       executionPlan: buildLongDocumentExecutionPlan({
         requestText: '整理整篇大纲的标点符号和格式',
         content: Array.from({ length: 12 }, (_, index) => `# 第${index + 1}卷\n\n${'雨'.repeat(2_000)}\n\n`).join(''),
-        contextWindowTokens: 12_000,
-        maxOutputTokens: 4_096,
+        contextWindowTokens: 16_000,
+        maxOutputTokens: 2_000,
       }),
       applyWrite: async input => {
         appliedBatches.push(input)
@@ -528,8 +528,8 @@ describe('editorTools', () => {
       executionPlan: buildLongDocumentExecutionPlan({
         requestText: '把整篇大纲重新整理排序',
         content: longContent,
-        contextWindowTokens: 12_000,
-        maxOutputTokens: 2_048,
+        contextWindowTokens: 8_000,
+        maxOutputTokens: 2_000,
       }),
       applyWrite: async input => {
         appliedBatches.push(input)
@@ -571,6 +571,9 @@ describe('editorTools', () => {
       '## 第4节',
       '未重复的游离段落。',
       '',
+      '## 第5节',
+      '整'.repeat(1_500),
+      '',
     ].join('\n')
     const deduplicateSnapshot = createEditorTargetSnapshot({
       workspace: 'outline',
@@ -584,12 +587,17 @@ describe('editorTools', () => {
     gateway.registerAll(createEditorTools({
       getSnapshot: () => ({ ...deduplicateSnapshot, content: currentContent }),
       mode: 'direct',
-      executionPlan: buildLongDocumentExecutionPlan({
-        requestText: '删除大纲里的重复项，未重复的游离段落不动',
-        content: longContent,
-        contextWindowTokens: 12_000,
-        maxOutputTokens: 2_048,
-      }),
+      executionPlan: (() => {
+        const plan = buildLongDocumentExecutionPlan({
+          requestText: '删除大纲里的重复项，未重复的游离段落不动',
+          content: longContent,
+          contextWindowTokens: 1_000,
+          maxOutputTokens: 32,
+        })
+        expect(plan.mode).toBe('edit-task')
+        expect(plan.decision).toBe('needs_segmentation')
+        return plan
+      })(),
       applyWrite: async input => {
         currentContent = input.next
         appliedBatches.push(input)
@@ -650,7 +658,7 @@ describe('editorTools', () => {
       executionPlan: buildLongDocumentExecutionPlan({
         requestText: '整理整篇大纲的标点符号，未重复的游离段落保持不动',
         content: longContent,
-        contextWindowTokens: 12_000,
+        contextWindowTokens: 32_000,
         maxOutputTokens: 2_048,
       }),
       applyWrite: async input => {
@@ -688,6 +696,9 @@ describe('editorTools', () => {
       '## 第3节',
       '未重复的游离段落,标点待整理。',
       '',
+      '## 第4节',
+      '整'.repeat(1_500),
+      '',
     ].join('\n')
     let content = longContent
     const appliedBatches: any[] = []
@@ -700,12 +711,17 @@ describe('editorTools', () => {
         content,
       }),
       mode: 'direct',
-      executionPlan: buildLongDocumentExecutionPlan({
-        requestText: '重复项删除，同时统一标题层级、编号和标点',
-        content: longContent,
-        contextWindowTokens: 128_000,
-        maxOutputTokens: 8_192,
-      }),
+      executionPlan: (() => {
+        const plan = buildLongDocumentExecutionPlan({
+          requestText: '重复项删除，同时统一标题层级、编号和标点',
+          content: longContent,
+          contextWindowTokens: 1_000,
+          maxOutputTokens: 32,
+        })
+        expect(plan.mode).toBe('edit-task')
+        expect(plan.decision).toBe('needs_segmentation')
+        return plan
+      })(),
       applyWrite: async input => {
         content = input.next
         appliedBatches.push(input)
@@ -1036,8 +1052,8 @@ describe('editorTools', () => {
       executionPlan: buildLongDocumentExecutionPlan({
         requestText: '把整篇大纲重新整理排序',
         content: longContent,
-        contextWindowTokens: 12_000,
-        maxOutputTokens: 2_048,
+        contextWindowTokens: 8_000,
+        maxOutputTokens: 2_000,
       }),
       applyWrite: async input => {
         appliedBatches.push(input)
@@ -1060,6 +1076,46 @@ describe('editorTools', () => {
     expect(result.error?.message).toContain('reorder_sections')
     expect(result.error?.retryable).toBe(true)
     expect(appliedBatches).toHaveLength(0)
+  })
+
+  it('editor.write accepts an over-60000-character replace_document under a single-pass plan', async () => {
+    const longContent = `# 全文整理\n\n${'整'.repeat(80_000)}`
+    const singlePassSnapshot = createEditorTargetSnapshot({
+      workspace: 'outline',
+      targetId: 'chapter-1',
+      label: '一次成型整篇写入',
+      content: longContent,
+    })
+    const replacement = `# 全文整理\n\n${'改'.repeat(80_000)}`
+    const appliedBatches: any[] = []
+    const gateway = new ToolGateway()
+    gateway.registerAll(createEditorTools({
+      getSnapshot: () => singlePassSnapshot,
+      mode: 'direct',
+      executionPlan: buildLongDocumentExecutionPlan({
+        requestText: '把整篇大纲重新整理排序，清理重复项并统一标点',
+        content: longContent,
+        contextWindowTokens: 1_000_000,
+        maxOutputTokens: 32_768,
+      }),
+      applyWrite: async input => {
+        appliedBatches.push(input)
+        return { ok: true, rollbackAvailable: true }
+      },
+    }))
+
+    const result = await gateway.execute('editor.write', {
+      commands: [{
+        operation: 'replace_document',
+        content: replacement,
+        reason: '一次成型整篇原子写入',
+      }],
+    }, { ...makeContext(), workspace: 'outline' })
+
+    expect(result.ok).toBe(true)
+    expect(appliedBatches).toHaveLength(1)
+    expect(appliedBatches[0].next).toBe(replacement)
+    expect((result.data as any).writtenLength).toBe(replacement.length)
   })
 
   it('editor.write atomically reorders all sections by structure id under a restructure plan', async () => {
@@ -1091,8 +1147,8 @@ describe('editorTools', () => {
       executionPlan: buildLongDocumentExecutionPlan({
         requestText: '把整篇大纲重新整理排序',
         content: longContent,
-        contextWindowTokens: 12_000,
-        maxOutputTokens: 2_048,
+        contextWindowTokens: 9_000,
+        maxOutputTokens: 2_000,
       }),
       applyWrite: async input => {
         appliedBatches.push(input)
@@ -1146,6 +1202,12 @@ describe('editorTools', () => {
       '## 第3节 旧信',
       '同一句重复内容。',
       '',
+      '## 第4节',
+      '整'.repeat(760),
+      '',
+      '## 第5节',
+      '整'.repeat(760),
+      '',
     ].join('\n')
     let content = longContent
     const appliedBatches: any[] = []
@@ -1158,13 +1220,18 @@ describe('editorTools', () => {
         content,
       }),
       mode: 'direct',
-      executionPlan: buildLongDocumentExecutionPlan({
-        requestText: '重排全文结构并清理重复内容',
-        content: longContent,
-        contextWindowTokens: 12_000,
-        maxOutputTokens: 2_048,
-        intent: 'edit',
-      }),
+      executionPlan: (() => {
+        const plan = buildLongDocumentExecutionPlan({
+          requestText: '重排全文结构并清理重复内容',
+          content: longContent,
+          contextWindowTokens: 1_000,
+          maxOutputTokens: 32,
+          intent: 'edit',
+        })
+        expect(plan.mode).toBe('edit-task')
+        expect(plan.decision).toBe('needs_segmentation')
+        return plan
+      })(),
       applyWrite: async input => {
         content = input.next
         appliedBatches.push(input)
@@ -1224,6 +1291,8 @@ describe('editorTools', () => {
       '',
       '第2节 渡口',
       '潮水退去。',
+      '',
+      '整'.repeat(1_500),
     ].join('\n')
     let content = longContent
     const appliedBatches: any[] = []
@@ -1236,13 +1305,18 @@ describe('editorTools', () => {
         content,
       }),
       mode: 'direct',
-      executionPlan: buildLongDocumentExecutionPlan({
-        requestText: '重排全文结构并清理重复内容，同时统一标题层级和标点',
-        content: longContent,
-        contextWindowTokens: 12_000,
-        maxOutputTokens: 2_048,
-        intent: 'edit',
-      }),
+      executionPlan: (() => {
+        const plan = buildLongDocumentExecutionPlan({
+          requestText: '重排全文结构并清理重复内容，同时统一标题层级和标点',
+          content: longContent,
+          contextWindowTokens: 1_000,
+          maxOutputTokens: 32,
+          intent: 'edit',
+        })
+        expect(plan.mode).toBe('edit-task')
+        expect(plan.decision).toBe('needs_segmentation')
+        return plan
+      })(),
       applyWrite: async input => {
         content = input.next
         appliedBatches.push(input)
@@ -1312,8 +1386,8 @@ describe('editorTools', () => {
       executionPlan: buildLongDocumentExecutionPlan({
         requestText: '重排全文结构并清理重复内容，同时统一标题层级和标点',
         content: longContent,
-        contextWindowTokens: 12_000,
-        maxOutputTokens: 2_048,
+        contextWindowTokens: 64,
+        maxOutputTokens: 48,
         intent: 'edit',
       }),
       applyWrite: async input => {
@@ -1358,7 +1432,7 @@ describe('editorTools', () => {
     const plan = buildLongDocumentExecutionPlan({
       requestText: '把第一段的旧句改成新句',
       content: directContent,
-      contextWindowTokens: 128_000,
+      contextWindowTokens: 32_000,
       maxOutputTokens: 8_000,
       intent: 'edit',
     })
@@ -1410,7 +1484,7 @@ describe('editorTools', () => {
     const plan = buildLongDocumentExecutionPlan({
       requestText: '把第一段的旧句改成新句',
       content: directContent,
-      contextWindowTokens: 128_000,
+      contextWindowTokens: 32_000,
       maxOutputTokens: 8_000,
       intent: 'edit',
     })
@@ -1476,7 +1550,7 @@ describe('editorTools', () => {
     const plan = buildLongDocumentExecutionPlan({
       requestText: '修改这份短文中的指定内容',
       content: directContent,
-      contextWindowTokens: 128_000,
+      contextWindowTokens: 32_000,
       maxOutputTokens: 8_000,
       intent: 'edit',
     })
@@ -1549,7 +1623,7 @@ describe('editorTools', () => {
     const plan = buildLongDocumentExecutionPlan({
       requestText: '整理整篇大纲',
       content: longContent,
-      contextWindowTokens: 12_000,
+      contextWindowTokens: 32_000,
       maxOutputTokens: 2_048,
       intent: 'edit',
     })
@@ -1627,8 +1701,8 @@ describe('editorTools', () => {
       executionPlan: buildLongDocumentExecutionPlan({
         requestText: '把整篇大纲重新整理排序',
         content: longContent,
-        contextWindowTokens: 12_000,
-        maxOutputTokens: 2_048,
+        contextWindowTokens: 8_000,
+        maxOutputTokens: 2_000,
       }),
       applyWrite: async input => {
         appliedBatches.push(input)
@@ -1669,8 +1743,8 @@ describe('editorTools', () => {
       executionPlan: buildLongDocumentExecutionPlan({
         requestText: '把整篇大纲重新整理排序',
         content: longContent,
-        contextWindowTokens: 12_000,
-        maxOutputTokens: 2_048,
+        contextWindowTokens: 9_000,
+        maxOutputTokens: 2_000,
       }),
       applyWrite: async () => ({ ok: true, rollbackAvailable: true }),
     }))

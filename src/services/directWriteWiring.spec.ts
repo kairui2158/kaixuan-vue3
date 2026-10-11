@@ -75,6 +75,57 @@ describe('direct write production wiring', () => {
     }
   })
 
+  it('wires active plan continuation through both production entries', () => {
+    const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
+    const home = readComponentSource('src/components/chat/ChatPanel.vue')
+
+    for (const source of [outline, home]) {
+      expect(source).toContain('activePlanStatus:')
+      expect(source).toContain('markAwaitingUserPlan')
+      expect(source).toContain('appendAuthorizedExcerpt')
+      expect(source).toContain('authorizedPlanExcerpts:')
+      expect(source).toContain('plan: input.plan,')
+      expect(source).toContain('supersedeAwaitingUserPlan')
+      expect(source).toContain('activePlanConfirmation:')
+      expect(source).toContain("'active-plan-continuation'")
+    }
+
+    expect(outline).toContain("activeOutlineTask?.status === 'awaiting_user_plan'")
+    expect(home).toContain("activeHomeTask?.status === 'awaiting_user_plan'")
+    expect(outline).toContain('shouldPreservePlainAwaitingOutlinePlan')
+    expect(outline).toContain('shouldPreserveAwaitingOutlinePlan')
+    expect(home).toContain('shouldPreserveHomeAwaitingPlan')
+
+    for (const source of [outline, home]) {
+      expect(source).not.toContain('createOutlineActiveTask({\n    requestText,\n    plan: outlineExecutionPlan,\n    snapshot: requestTarget,\n  })\n  if (')
+    }
+  })
+
+  it('wires real progress and agent idle timeouts into both production entries', () => {
+    const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
+    const home = readComponentSource('src/components/chat/ChatPanel.vue')
+
+    for (const source of [outline, home]) {
+      expect(source).toContain('onStreamToolProgress')
+      expect(source).toContain('runTraceStore.reportToolArgumentProgress')
+      expect(source).toContain('physicalCallReportsProgress(event)')
+      expect(source).not.toContain('transportLivenessIsProgress:')
+      expect(source).not.toContain('reportTransportLiveness()')
+    }
+    expect(outline).toContain('idleTimeoutMs: options.longDocument ? LONG_TOOL_RUN_IDLE_TIMEOUT_MS : DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS')
+    expect(home).toContain('idleTimeoutMs: longDocument ? LONG_TOOL_RUN_IDLE_TIMEOUT_MS : DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS')
+  })
+
+  it('keeps authorized API direct writes from being rejected by the manual outline lock gate', () => {
+    const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
+
+    expect(outline).toContain('authorized: input.writeAuthorization?.lockOverride === true')
+    expect(outline).toContain('options.authorized')
+    expect(outline).not.toContain('function commitOutlineChange(next: string) {\n'
+      + "  const current = projectStore.outlineText || ''\n"
+      + '  if (next === current || projectStore.outlineLocked) return false')
+  })
+
   it('keeps completed tasks continuable and closes failed or canceled tasks in both production entries', () => {
     for (const relativePath of [
       'src/components/common/OutlineWorkspace.vue',
@@ -106,6 +157,22 @@ describe('direct write production wiring', () => {
     expect(home).not.toContain("homeSkillTerminalStatus || 'success'")
   })
 
+  it('keeps outline supervisor failures terminal instead of defaulting them to plain-dialogue success', () => {
+    const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
+
+    expect(outline).toContain(
+      "supervisorReason === 'stuck_timeout' || supervisorReason === 'hard_deadline' || supervisorReason === 'repeated_tool_error'",
+    )
+    expect(outline).toContain("finishOutlineRun('failed', supervisorMessage, streamingContent.value, supervisorReason)")
+    expect(outline).not.toContain(
+      "finishOutlineRun('canceled', '用户取消生成', streamingContent.value, supervisorReason)",
+    )
+    expect(outline).toContain("if (run && run.status !== 'running')")
+    expect(outline).toContain("type: 'status-conflict-ignored'")
+    expect(outline).toContain("runTraceStore.failRunningApiCalls(runId, error || '运行失败')")
+    expect(outline).not.toContain("runTraceStore.cancelRunningApiCalls(runId, error || '运行失败')")
+  })
+
   it('unlocks dialogue input from the Agent snapshot terminal state in both production entries', () => {
     const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
     const home = readComponentSource('src/components/chat/ChatPanel.vue')
@@ -113,7 +180,11 @@ describe('direct write production wiring', () => {
     expect(outline).toContain('onEvent: (event, snapshot)')
     expect(outline).toContain('const status = snapshot.status')
     expect(outline).toContain('isGenerating.value = false')
-    expect(home).toContain('const homeInputBlocked = computed(() => isStreaming.value && !homeInputUnlockedByAgent.value)')
+    expect(home).toContain('const homeInputBlocked = computed(() =>')
+    expect(home).toContain('(isStreaming.value || homeSendStarting.value)')
+    expect(home).toContain('!homeInputUnlockedByAgent.value')
+    expect(home).toContain('const homeSendStarting = ref(false)')
+    expect(home).toContain('homeSendStarting.value = false')
     expect(home).toContain('if (!text || homeInputBlocked.value) return')
     expect(home).toContain(':send-disabled="homeInputBlocked"')
     expect(home).toContain('const inputLockController = activeAbortController')
@@ -129,7 +200,14 @@ describe('direct write production wiring', () => {
 
     expect(home).toContain("event.type === 'interactive_response'")
     expect(home).toContain('releaseInputOnInteractiveResponse()')
-    expect(outline).toContain('const outlineInputBlocked = computed(() => isGenerating.value && !outlineInputUnlockedByAgent.value)')
+    expect(outline).toContain('const outlineInputBlocked = computed(() =>')
+    expect(outline).toContain('(isGenerating.value || outlineSendStarting.value)')
+    expect(outline).toContain('!outlineInputUnlockedByAgent.value')
+    expect(outline).toContain('const outlineExecutionLocked = computed(() =>')
+    expect(outline).toContain('if (outlineExecutionLocked.value) {')
+    expect(outline).not.toContain('if (outlineInputBlocked.value) {\n    const activeOutlineTraceId')
+    expect(outline).toContain('const outlineSendStarting = ref(false)')
+    expect(outline).toContain('outlineSendStarting.value = false')
     expect(outline).toContain('outlineInputUnlockedByAgent.value = true')
     expect(outline).toContain("type: 'input-unlocked-interactive-response'")
     expect(outline).toContain('if (!text || outlineInputBlocked.value) return')
@@ -233,6 +311,22 @@ describe('direct write production wiring', () => {
     expect(outline).not.toContain("runTraceStore.cancelRunningApiCalls(outlineRunTraceId, generationStatus.value === '已取消生成' ? '用户取消生成' : '运行收尾时仍未闭合')")
   })
 
+  it('treats verified all-batch writes as success even when the supplier summary stalls in both workspaces', () => {
+    const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
+    const home = readComponentSource('src/components/chat/ChatPanel.vue')
+
+    for (const source of [outline, home]) {
+      expect(source).toContain('const allBatchesWritten =')
+      expect(source).toContain('.pendingBatches.length === 0')
+      expect(source).toContain('.failedBatchIds.length === 0')
+      expect(source).toContain('summaryFailed: true')
+      expect(source).toContain("type: 'edit-task-summary-failed-content-verified'")
+      expect(source).toContain("'edit_task_written_summary_failed'")
+    }
+    expect(outline).toContain('finishOutlineRunIfRunning(')
+    expect(home).toContain('finishHomeRun(')
+  })
+
   it('wires long-document timeout hints through both workspaces', () => {
     const outline = readComponentSource('src/components/common/OutlineWorkspace.vue')
     const home = readComponentSource('src/components/chat/ChatPanel.vue')
@@ -244,10 +338,31 @@ describe('direct write production wiring', () => {
     }
     expect(home).toContain('longDocument: true')
     expect(home).toContain('longDocument: useHomeFinalDraft')
+    for (const source of [outline, home]) {
+      expect(source).toContain('usesLongDocumentToolRuntime')
+      expect(source).not.toContain("plan.decision !== 'fits'")
+    }
     expect(outline).toContain('longDocument: true')
-    expect(outline).toContain('longDocument: outlinePlan.plan.mode === \'edit-task\' || outlinePlan.plan.decision !== \'fits\'')
-    expect(outline).toContain('const isLongDocumentRequest = useOutlineEditTaskPlan || outlineExecutionPlan.decision !== \'fits\'')
+    expect(outline).toContain('longDocument: usesLongDocumentToolRuntime(outlinePlan.plan)')
+    expect(outline).toContain('const isLongDocumentRequest = useOutlineEditTaskPlan || usesLongDocumentToolRuntime(outlineExecutionPlan)')
     expect(outline).toContain('longDocument: isLongDocumentRequest')
+    for (const source of [outline, home]) {
+      expect(source).toContain('LONG_TOOL_RUN_IDLE_TIMEOUT_MS')
+      expect(source).toContain('longIdleLimitMs')
+    }
+    expect(outline).toContain('idleTimeoutMs: options.longDocument ? LONG_TOOL_RUN_IDLE_TIMEOUT_MS : DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS')
+    expect(outline).toContain('idleTimeoutMs: isLongDocumentRequest ? LONG_TOOL_RUN_IDLE_TIMEOUT_MS : DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS')
+    expect(home).toContain('idleTimeoutMs: longDocument ? LONG_TOOL_RUN_IDLE_TIMEOUT_MS : DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS')
+    expect(home).toContain('idleTimeoutMs: homeLongDocumentEditTaskPlan || (executionPlan ? usesLongDocumentToolRuntime(executionPlan) : false)')
+    for (const source of [outline, home]) {
+      expect(source).toContain('shouldRetryStalledDirectWrite({')
+      expect(source).toContain("|| 'read-only-dialogue'")
+      expect(outline).toContain('longDocumentRetry: false')
+      expect(home).toContain('longDocumentRetry: stallRetryDecision.longDocumentRetry')
+    }
+    expect(outline).toContain('const stallRetry = shouldRetryStalledDirectWrite({')
+    expect(home).toContain("supervisorReason: homeSupervisorReason")
+    expect(home).toContain("reason: 'stall_retry_valid'")
   })
 
   it('wires the DeAI budget extension loop through store, composable, and progress UI', () => {

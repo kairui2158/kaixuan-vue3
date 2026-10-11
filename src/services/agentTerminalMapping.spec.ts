@@ -19,9 +19,12 @@ function agentResult(
       stepIndex: 0,
       callCount: 1,
       successfulWriteCount: 0,
+      trustedCoverageCount: 0,
+      planComplete: false,
       noProgressRounds: 0,
       repeatedCallCount: 0,
       maxPhysicalRequests: 8,
+      executionPhase: 'settling',
       updatedAt: 1,
     },
   }

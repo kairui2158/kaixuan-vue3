@@ -7,6 +7,7 @@ import type { LongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
 import type { AgentOrchestratorSnapshot } from './agentOrchestrator'
 import type { AgentOrchestratorEvent } from './agentOrchestrator'
 import type { AgentOrchestratorPlan } from './agentOrchestrator'
+import type { ToolRunBudgetSnapshot } from './toolRunBudget'
 
 export interface AgentDialogueRuntimeEntry {
   source: RunTraceSource
@@ -22,7 +23,9 @@ export interface AgentDialogueRuntimeEntry {
   skillGuidance?: string
   skillIds?: string[]
   promptSource?: string
+  idleTimeoutMs?: number
   maxPhysicalRequests?: number
+  toolRunBudget?: ToolRunBudgetSnapshot
   getContextRemaining?: (input: { messages: CallAiParams['messages'] }) => {
     contextWindowTokens?: number | null
     maxOutputTokens?: number | null
@@ -58,7 +61,12 @@ function deriveAgentPlan(input: {
   const steps: AgentOrchestratorPlan['steps'] = []
   const completionCriteria: string[] = []
   const operation = plan.operation
-  if (operation === 'restructure' || operation === 'restructure_and_cleanup') {
+  if (plan.mode === 'single-pass') {
+    steps.push({
+      id: 'single-pass-prose',
+      description: '基于已注入全文直接流式输出整理后的完整全文',
+    })
+  } else if (operation === 'restructure' || operation === 'restructure_and_cleanup') {
     steps.push({
       id: 'read-structure',
       description: '读取文档结构并确认目标层级',
@@ -70,7 +78,7 @@ function deriveAgentPlan(input: {
       requiredTools: ['editor.write'],
     })
   }
-  if (operation === 'deduplicate' || operation === 'restructure_and_cleanup' || operation === 'deduplicate_and_normalize') {
+  else if (operation === 'deduplicate' || operation === 'deduplicate_and_normalize') {
     steps.push({
       id: 'confirm-duplicates',
       description: '用只读工具确认重复项',
@@ -82,7 +90,7 @@ function deriveAgentPlan(input: {
       requiredTools: ['editor.write'],
     })
   }
-  if (operation === 'normalize' || operation === 'restructure_and_cleanup' || operation === 'deduplicate_and_normalize') {
+  else if (operation === 'normalize') {
     steps.push({
       id: 'normalize-segments',
       description: '按计划批次整理格式',
@@ -108,7 +116,9 @@ function deriveAgentPlan(input: {
     })
   }
   steps.push({ id: 'verify-plan', description: '核对写入覆盖与不变量' })
-  completionCriteria.push('执行计划中的全部写入批次成功或明确进入终态')
+  completionCriteria.push(plan.mode === 'single-pass'
+    ? '完整正文输出成功或明确进入终态'
+    : '执行计划中的全部写入批次成功或明确进入终态')
   if (plan.invariants.length) {
     completionCriteria.push(`完成不变量校验：${plan.invariants.join(', ')}`)
   }
@@ -164,7 +174,9 @@ export function createAgentDialogueRuntime(entry: AgentDialogueRuntimeEntry) {
           skillGuidance: entry.skillGuidance,
           skillIds: entry.skillIds,
           promptSource: entry.promptSource,
+          idleTimeoutMs: entry.idleTimeoutMs,
           maxPhysicalRequests: entry.maxPhysicalRequests,
+          toolRunBudget: entry.toolRunBudget,
         },
       })
       return await orchestrator.run(request)

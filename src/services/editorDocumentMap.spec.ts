@@ -6,6 +6,8 @@ import {
 } from './editorDocumentMap'
 import { createEditorTargetSnapshot } from './editorTarget'
 import { ToolGateway } from './editorTools'
+import { createDocumentReadLedger } from './documentReadLedger'
+import { parseOutlineStructure } from './outlineStructure'
 
 const structuredContent = [
   '# 第一卷 北境',
@@ -34,6 +36,23 @@ function makeGateway(content = structuredContent, options: { maxReadChars?: () =
   const gateway = new ToolGateway()
   gateway.registerAll(tools)
   return { gateway, snapshot }
+}
+
+function makeLedgerGateway(content = structuredContent) {
+  const snapshot = createEditorTargetSnapshot({
+    workspace: 'main',
+    targetId: 'chapter-1',
+    label: '第一章',
+    content,
+  })
+  const readLedger = createDocumentReadLedger({ workspace: 'main', targetId: snapshot.targetId })
+  const tools = createEditorDocumentMapTools({
+    getSnapshot: () => snapshot,
+    readLedger,
+  })
+  const gateway = new ToolGateway()
+  gateway.registerAll(tools)
+  return { gateway, snapshot, readLedger }
 }
 
 function makeContext() {
@@ -226,6 +245,24 @@ describe('editorDocumentMap', () => {
       .toContain('不要重复读取')
   })
 
+  it('keeps structure identity stable across prose-only writes', () => {
+    const { snapshot } = makeLedgerGateway()
+    const before = buildEditorDocumentMap(snapshot.content)
+    const updatedContent = snapshot.content.replace('少年在雪原行走。', '少年在雪原行走。他回头。')
+    const updated = createEditorTargetSnapshot({
+      workspace: 'main',
+      targetId: snapshot.targetId,
+      label: snapshot.label,
+      content: updatedContent,
+    })
+    const after = buildEditorDocumentMap(updated.content)
+
+    const updatedStructure = parseOutlineStructure(updatedContent)
+    expect(updatedStructure.nodes.some(node => node.children.some(child => child.kind === 'paragraph'))).toBe(true)
+    expect(after.sections.map(section => section.id)).toEqual(before.sections.map(section => section.id))
+    expect(after.topLevelSectionIds).toEqual(before.topLevelSectionIds)
+  })
+
   it('read_range rejects mixed pagination modes with one unambiguous rule', async () => {
     const { gateway } = makeGateway()
     const map = buildEditorDocumentMap(structuredContent)
@@ -266,7 +303,10 @@ describe('editorDocumentMap', () => {
     expect(Array.isArray((missing.data as any).candidates)).toBe(true)
     expect((missing.error as any).retryable).toBe(true)
     expect((missing.data as any).contentVersion).toBeGreaterThan(0)
-    expect((missing.data as any).recovery).toContain('重新调用 editor.document_map')
+    expect(String(missing.error?.message)).toContain('正文写入不会改变节 id')
+    expect(String(missing.error?.message)).toContain('structureIdentity 变化')
+    expect((missing.data as any).recovery.join('\n')).toContain('只有新增、删除或移动节后 structureIdentity 变化时才重新调用 editor.document_map')
+    expect((missing.data as any).recovery.join('\n')).toContain('正文写入不会改变结构 ID')
 
     const map = buildEditorDocumentMap(structuredContent)
     const section = map.sections[0]

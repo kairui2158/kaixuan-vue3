@@ -9,6 +9,17 @@ export interface LiveApiStatusLine {
 
 import type { RunTraceStatus } from '../stores/runTrace'
 
+export interface LiveApiExecutionSettlement {
+  phase: 'locating' | 'planning' | 'writing' | 'settling'
+  readToolCalls: number
+  maxReadToolCalls: number
+  writeToolCalls: number
+  reservedWriteToolCalls: number
+  successfulWriteCount: number
+  trustedCoverageCount: number
+  planComplete: boolean
+}
+
 export interface LiveApiStatusInput {
   active: boolean
   message: string
@@ -17,12 +28,33 @@ export interface LiveApiStatusInput {
     streamLength: number
     lastStreamActivityAt?: number
     lastExecutionActivityAt?: number
+    lastToolArgumentProgressAt?: number
+    lastToolArgumentProgress?: { toolCallCount: number; argumentCharacters: number } | null
     retrying: boolean
+    executionSettlement?: LiveApiExecutionSettlement | null
   } | null
 }
 
 const STREAM_MIN_LENGTH = 1
 const STREAM_ACTIVE_WINDOW_MS = 8000
+
+const PHASE_TEXT: Record<LiveApiExecutionSettlement['phase'], string> = {
+  locating: '定位阶段',
+  planning: '规划阶段',
+  writing: '写入阶段',
+  settling: '结算阶段',
+}
+
+function buildExecutionStatusLine(settlement: LiveApiExecutionSettlement): string {
+  const phase = PHASE_TEXT[settlement.phase] || settlement.phase
+  const read = `读取 ${settlement.readToolCalls}/${settlement.maxReadToolCalls}`
+  const write = `写入容量 ${settlement.writeToolCalls}/${settlement.reservedWriteToolCalls}`
+  const writes = `已成功写入 ${settlement.successfulWriteCount} 次`
+  const coverage = settlement.planComplete
+    ? '计划已完成'
+    : `已确认覆盖 ${settlement.trustedCoverageCount} 项`
+  return `执行状态 · ${phase} · ${read} · ${write} · ${writes} · ${coverage}`
+}
 
 /**
  * UI-only live status view. Tool identities and tool events intentionally
@@ -38,6 +70,16 @@ export function buildLiveApiStatusLines(input: LiveApiStatusInput, now = Date.no
   if (input.message) lines.push({ kind: call?.retrying ? 'retrying' : 'connecting', text: input.message })
   else lines.push({ kind: 'connecting', text: '正在连接 API...' })
 
+  if (call?.status === 'running'
+    && call.lastToolArgumentProgress
+    && call.lastToolArgumentProgressAt !== undefined
+    && now - call.lastToolArgumentProgressAt <= STREAM_ACTIVE_WINDOW_MS) {
+    const progress = call.lastToolArgumentProgress
+    lines.push({
+      kind: 'streaming',
+      text: `正在生成工具调用 · ${progress.toolCallCount} 个调用 · 已生成 ${progress.argumentCharacters} 字`,
+    })
+  }
   if (call?.status === 'running' && call.streamLength >= STREAM_MIN_LENGTH) {
     const streamActive = call.lastStreamActivityAt === undefined
       || now - call.lastStreamActivityAt <= STREAM_ACTIVE_WINDOW_MS
@@ -48,6 +90,9 @@ export function buildLiveApiStatusLines(input: LiveApiStatusInput, now = Date.no
     } else {
       lines.push({ kind: 'connecting', text: '等待模型输出正文…' })
     }
+  }
+  if (call?.status === 'running' && call.executionSettlement) {
+    lines.push({ kind: 'connecting', text: buildExecutionStatusLine(call.executionSettlement) })
   }
   return lines
 }

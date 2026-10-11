@@ -762,3 +762,17 @@
 - 范围：跨轮计划 T1/T2/T3 单源续接；修复 `editor.read_range` 标题独占节与尾部分页混用 `charCount` / 完整区间两套坐标的缺陷。
 - 验证：TDD 红测转绿；133 files / 1562 tests 全绿；type-check、build:vue、Electron 全量 stress E2E（含 1M 场景）通过；整篇替换负路径仍被安全阻断。
 - 客户重点复验：百万字大纲的分批读取不再出现“offset 0 超出节内容长度 0”；T1 建计划、T2 讨论、T3 确认会复用同一执行计划并完成写入。
+
+# 2026-10-11 3.79.0 版本封装
+
+- 文件：[_audit/DEV_LOG_2026-10-11-packaging-3-79-0.md](_audit/DEV_LOG_2026-10-11-packaging-3-79-0.md)
+- 范围：升级 3.79.0；新增 3.79.0 封装验证器；完整 NSIS 重打包与真实启动核验；清理 3.78.0 旧安装产物、旧验证器与旧证据目录。
+- 前置成果：single-pass 全上下文重构、主页终稿流 OOM 修复、崩溃检测硬化、工具运行预算、读取台账与双入口真实链路验证。
+
+# 2026-10-10 全文上下文一次成型真实链路验证
+
+- 文件：[_audit/DEV_LOG_2026-10-10_full-context-single-pass-live-verification.md](_audit/DEV_LOG_2026-10-10_full-context-single-pass-live-verification.md)
+- 范围：真实 Electron UI + 真实 API 验证大纲/首页、无 SKILL/有 SKILL 共 4 个整篇重构场景；确认零工具调用、全文完整写入与 runTrace 归属正确。SKILL 场景均通过真实 UI 下拉选择。
+- 验证：4/4 场景 `success / final_draft_complete`；74,293 字大纲均成功重排写回，`finishReason: stop`；3 个场景 1 次物理请求，`home-no-skill` 为 2 次物理请求。
+- 诚实边界：`home-no-skill` 的第二次全文生成与约 1,261 秒总耗时登记为效率疑点；带 SKILL 场景首字延迟约 40-68 秒登记为观察项。live 证据覆盖单轮整篇重构，多轮会话连续性由代码契约和单测保证；本轮未重新封装，版本保持 3.78.0。
+- 客户重点复验：对可容纳窗口内的大纲发送“按叙事逻辑重排、合并删除重复项、统一标点和标题层级、按 Word 格式整理”，应直接生成终稿并写回编辑器，不出现读取循环或工具调用。

@@ -808,6 +808,9 @@ function resolveAuthorizedToolSurface(
     ...(executionContext.writeAuthorization !== undefined
       ? { writeAuthorization: executionContext.writeAuthorization }
       : {}),
+    ...(executionContext.executionPlan !== undefined
+      ? { executionPlan: executionContext.executionPlan }
+      : {}),
   }
   const { tools: authorizedTools, permissionDecision } = authorizeDialogueTools(
     requestedSurface.tools || [],

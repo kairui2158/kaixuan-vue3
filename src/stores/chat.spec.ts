@@ -1,0 +1,161 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
+import { useChatStore } from './chat'
+import type { FinalDraftTask } from '../services/finalDraftService'
+
+const storageWrite = vi.fn().mockResolvedValue(true)
+const storageRead = vi.fn().mockResolvedValue(null)
+
+describe('chat store saveSessions coalescing', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    storageWrite.mockClear()
+    storageRead.mockClear()
+    vi.stubGlobal('window', {
+      electronAPI: { storageWrite, storageRead },
+    })
+  })
+
+  it('coalesces rapid final-draft message updates into one storageWrite', async () => {
+    const store = useChatStore()
+    store.loadSessions('test-coalesce')
+    store.ensureSession('tab-1', 'chapter-1', '第一章', 'test-coalesce')
+    const message = store.addMessage({ role: 'assistant', content: '准备中', tabId: 'tab-1' }, 'test-coalesce')
+    expect(message).toBeTruthy()
+    storageWrite.mockClear()
+
+    store.updateMessageFinalDraftTask(message!.id, createTask({ taskId: 'task-1' }))
+    store.updateMessageContent(message!.id, '正在生成')
+    store.updateMessageFinalDraftTask(message!.id, createTask({ taskId: 'task-1', accumulatedText: '片段' }))
+    store.updateMessageContent(message!.id, '正在生成 100 字')
+
+    await new Promise(resolve => setTimeout(resolve, 400))
+
+    const chatWrites = storageWrite.mock.calls.filter(call => call[0] === 'wa_chat_test-coalesce')
+    expect(chatWrites).toHaveLength(1)
+    expect(chatWrites[0]?.[1]).toEqual(store.sessions)
+  })
+
+  it('persists rapid updates to the requested project bucket', async () => {
+    const store = useChatStore()
+    store.ensureSession('tab-1', 'chapter-1', '第一章', 'project-A')
+    const message = store.addMessage({ role: 'assistant', content: '准备中', tabId: 'tab-1' }, 'project-A')
+    expect(message).toBeTruthy()
+    storageWrite.mockClear()
+
+    store.updateMessageContent(message!.id, '正在生成', store.activeSession?.id)
+
+    await new Promise(resolve => setTimeout(resolve, 400))
+
+    const keys = storageWrite.mock.calls.map(call => call[0])
+    expect(keys).toContain('wa_chat_project-A')
+    expect(keys).not.toContain('wa_chat_default')
+  })
+
+  it('starts a fresh save window after the previous coalesced write', async () => {
+    const store = useChatStore()
+    store.ensureSession('tab-1', 'chapter-1', '第一章', 'project-A')
+    const message = store.addMessage({ role: 'assistant', content: '准备中', tabId: 'tab-1' }, 'project-A')
+    expect(message).toBeTruthy()
+    storageWrite.mockClear()
+
+    store.updateMessageContent(message!.id, '第一轮更新', store.activeSession?.id)
+    await new Promise(resolve => setTimeout(resolve, 400))
+    store.updateMessageContent(message!.id, '第二轮更新', store.activeSession?.id)
+    await new Promise(resolve => setTimeout(resolve, 400))
+
+    const chatWrites = storageWrite.mock.calls.filter(call => call[0] === 'wa_chat_project-A')
+    expect(chatWrites).toHaveLength(2)
+    expect((chatWrites[0]?.[1] as any[])[0]?.messages?.[0]?.content).toBe('第一轮更新')
+    expect((chatWrites[1]?.[1] as any[])[0]?.messages?.[0]?.content).toBe('第二轮更新')
+  })
+
+  it('persists final-draft task snapshots on status transitions rather than every stream chunk', async () => {
+    const store = useChatStore()
+    store.ensureSession('tab-1', 'chapter-1', '第一章', 'project-A')
+    const message = store.addMessage({ role: 'assistant', content: '准备中', tabId: 'tab-1' }, 'project-A')
+    expect(message).toBeTruthy()
+    storageWrite.mockClear()
+
+    store.updateMessageFinalDraftTask(message!.id, createTask({ status: 'planning' }), store.activeSession?.id, 'project-A')
+    store.updateMessageFinalDraftTask(message!.id, createTask({ status: 'generating', accumulatedText: '片段' }), store.activeSession?.id, 'project-A')
+    store.updateMessageFinalDraftTask(message!.id, createTask({ status: 'generating', accumulatedText: '片段继续' }), store.activeSession?.id, 'project-A')
+    store.updateMessageFinalDraftTask(message!.id, createTask({ status: 'writing' }), store.activeSession?.id, 'project-A')
+    store.updateMessageFinalDraftTask(message!.id, createTask({ status: 'completed' }), store.activeSession?.id, 'project-A')
+
+    await new Promise(resolve => setTimeout(resolve, 400))
+
+    const persisted = storageWrite.mock.calls
+      .find(call => call[0] === 'wa_chat_project-A')?.[1] as any[]
+    const persistedTask = persisted?.[0]?.messages?.find((item: any) => item.id === message!.id)?.finalDraftTask
+    expect(persistedTask).toMatchObject({
+      taskId: 'task-1',
+      status: 'completed',
+      sourceChars: '源文'.length,
+      completedChars: 0,
+      accumulatedChars: 0,
+      continuationCount: 0,
+      sourceContentHash: 'hash-1',
+    })
+    expect(persistedTask).not.toHaveProperty('sourceContent')
+    expect(persistedTask).not.toHaveProperty('completedText')
+    expect(persistedTask).not.toHaveProperty('accumulatedText')
+  })
+
+  it('persists only slim final-draft task views', async () => {
+    const store = useChatStore()
+    store.ensureSession('tab-1', 'chapter-1', '第一章', 'project-A')
+    const message = store.addMessage({ role: 'assistant', content: '准备中', tabId: 'tab-1' }, 'project-A')
+    expect(message).toBeTruthy()
+    storageWrite.mockClear()
+
+    store.updateMessageFinalDraftTask(
+      message!.id,
+      createTask({
+        status: 'interrupted',
+        completedText: '已完成全文',
+        accumulatedText: '已完成全文\n\n中断流',
+      }),
+      store.activeSession?.id,
+      'project-A',
+    )
+
+    await new Promise(resolve => setTimeout(resolve, 400))
+    const persisted = storageWrite.mock.calls
+      .find(call => call[0] === 'wa_chat_project-A')?.[1] as any[]
+    const persistedTask = persisted?.[0]?.messages?.find((item: any) => item.id === message!.id)?.finalDraftTask
+    expect(persistedTask).toMatchObject({
+      taskId: 'task-1',
+      status: 'interrupted',
+      sourceChars: 2,
+      completedChars: 5,
+      accumulatedChars: 10,
+    })
+    expect(persistedTask).not.toHaveProperty('sourceContent')
+    expect(persistedTask).not.toHaveProperty('completedText')
+    expect(persistedTask).not.toHaveProperty('accumulatedText')
+  })
+})
+
+function createTask(patch: Partial<FinalDraftTask>): FinalDraftTask {
+  return {
+    taskId: 'task-1',
+    destination: 'home-editor',
+    targetId: 'target-1',
+    instruction: '整理全文',
+    constraints: [],
+    protectedRanges: [],
+    sourceContent: '源文',
+    sourceSegments: [],
+    segmentOrder: [],
+    activeSegmentIndex: 0,
+    completedText: '',
+    accumulatedText: '',
+    continuationCount: 0,
+    status: 'planning',
+    sourceContentHash: 'hash-1',
+    createdAt: 1,
+    updatedAt: 1,
+    ...patch,
+  }
+}

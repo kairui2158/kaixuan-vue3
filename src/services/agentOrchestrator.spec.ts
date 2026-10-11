@@ -6,7 +6,7 @@ import {
   type AgentOrchestratorPlan,
   type AgentOrchestratorRuntime,
 } from './agentOrchestrator'
-import type { CallAiParams, CallAiResult } from './aiService'
+import type { CallAiParams, CallAiResult, PhysicalCallEvent } from './aiService'
 import { buildLongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
 import { createEditorTools, ToolGateway } from './editorTools'
 import { createEditorTargetSnapshot } from './editorTarget'
@@ -78,14 +78,44 @@ describe('AgentOrchestrator state machine', () => {
     expect(agent.getSnapshot().callCount).toBe(1)
   })
 
+  it('completes a single-pass plan from prose output without editor.write', async () => {
+    const executionPlan = buildLongDocumentExecutionPlan({
+      requestText: '按照Word文档形式重构全文，删除重复项并统一标点',
+      content: `# 全书大纲\n\n${'雨落灯塔。'.repeat(20_000)}`,
+      contextWindowTokens: 1_000_000,
+      maxOutputTokens: 32_768,
+      intent: 'edit',
+    })
+    expect(executionPlan.mode).toBe('single-pass')
+    const callAi = vi.fn(async (): Promise<CallAiResult> => successResult(
+      '# 全书大纲\n\n整理后的完整正文。',
+    ) as CallAiResult)
+    const runtime: AgentOrchestratorRuntime = {
+      callAi,
+      document: {
+        content: `# 全书大纲\n\n${'雨落灯塔。'.repeat(20_000)}`,
+        operationType: 'whole-document-restructure',
+        executionPlan,
+      },
+      maxPhysicalRequests: 1,
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+
+    expect(result.status).toBe('completed')
+    expect(result.reason).toBe('completion criteria satisfied')
+    expect(callAi).toHaveBeenCalledTimes(1)
+  })
+
   it('does not complete an authorized write task from preview-only text', async () => {
     const executionPlan = buildLongDocumentExecutionPlan({
       requestText: '按照Word文档的形式重构大纲，不要缩减内容',
       content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
-      contextWindowTokens: 120_000,
-      maxOutputTokens: 8_000,
+      contextWindowTokens: 32_000,
+      maxOutputTokens: 4_000,
       intent: 'edit',
     })
+    expect(executionPlan.mode).toBe('edit-task')
     const runtime: AgentOrchestratorRuntime = {
       callAi: vi.fn(async (): Promise<CallAiResult> => ({
         ...successResult('【修改预览】\n本轮先给出重构预览，等待确认。'),
@@ -185,7 +215,7 @@ describe('AgentOrchestrator state machine', () => {
     const executionPlan = buildLongDocumentExecutionPlan({
       requestText: '按照Word文档的形式重构大纲，删除重复项，统一标题层级、编号和标点',
       content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
-      contextWindowTokens: 120_000,
+      contextWindowTokens: 30_000,
       maxOutputTokens: 8_000,
       intent: 'edit',
     })
@@ -230,7 +260,7 @@ describe('AgentOrchestrator state machine', () => {
     const executionPlan = buildLongDocumentExecutionPlan({
       requestText: '按照Word文档的形式重构大纲，删除重复项，统一标题层级、编号和标点',
       content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
-      contextWindowTokens: 120_000,
+      contextWindowTokens: 30_000,
       maxOutputTokens: 8_000,
       intent: 'edit',
     })
@@ -323,48 +353,26 @@ describe('AgentOrchestrator state machine', () => {
     const executionPlan = buildLongDocumentExecutionPlan({
       requestText: '按照Word文档的形式重构大纲，统一标题层级并删除重复内容',
       content: `# 根标题\n\n## 权威章节\n\n### 六大势力总览\n\n${'潮'.repeat(74_841)}`,
-      contextWindowTokens: 64_000,
-      maxOutputTokens: 8_192,
+      contextWindowTokens: 40_000,
+      maxOutputTokens: 5_000,
       intent: 'edit',
     })
     expect(executionPlan.segments.map(segment => segment.segmentId)).toContain('structure-repair')
     expect(executionPlan.segments.map(segment => segment.segmentId)).toContain('structure-plan')
     expect(executionPlan.segments.map(segment => segment.segmentId)).toContain('normalize-segment-1')
 
-    const coverageRecords = [{
+    const coverageRecords = executionPlan.segments.map(segment => ({
       coverageTrusted: true,
       reason: 'declared_segment' as const,
-      segmentId: 'structure-repair',
-      writeStrategy: 'structure_repair',
+      segmentId: segment.segmentId,
+      writeStrategy: segment.writeStrategy,
       commands: [{
-        operation: 'replace_match',
-        segmentId: 'structure-repair',
-        start: 0,
-        end: 40_000,
+        operation: segment.writeStrategy === 'delete' ? 'delete_duplicates' : 'replace_match',
+        segmentId: segment.segmentId,
+        start: segment.range.startLine,
+        end: segment.range.endLine,
       }],
-    }, {
-      coverageTrusted: true,
-      reason: 'declared_segment' as const,
-      segmentId: 'structure-plan',
-      writeStrategy: 'delete',
-      commands: [{
-        operation: 'delete_duplicates',
-        segmentId: 'structure-plan',
-        start: 0,
-        end: 74_800,
-      }],
-    }, {
-      coverageTrusted: true,
-      reason: 'declared_segment' as const,
-      segmentId: 'normalize-segment-1',
-      writeStrategy: 'replace_match',
-      commands: [{
-        operation: 'replace_match',
-        segmentId: 'normalize-segment-1',
-        start: 70_000,
-        end: 74_800,
-      }],
-    }]
+    }))
     const runtime: AgentOrchestratorRuntime = {
       callAi: vi.fn(async (params: CallAiParams): Promise<CallAiResult> => {
         const toolResults = coverageRecords.map(coverage => ({
@@ -511,7 +519,7 @@ describe('AgentOrchestrator state machine', () => {
     const executionPlan = buildLongDocumentExecutionPlan({
       requestText: '按照Word文档的形式重构大纲，删除重复项并统一标点',
       content: `# 第一卷\n\n${'雨'.repeat(20_000)}\n\n# 第二卷\n\n${'潮'.repeat(20_000)}`,
-      contextWindowTokens: 64_000,
+      contextWindowTokens: 30_000,
       maxOutputTokens: 8_192,
       intent: 'edit',
     })
@@ -655,10 +663,30 @@ describe('AgentOrchestrator state machine', () => {
     expect(runtime.callAi).toHaveBeenCalledTimes(3)
     expect(result.snapshot.callCount).toBe(3)
     expect((result.snapshot as any).maxPhysicalRequests).toBe(3)
+    expect((result.snapshot as any).executionPhase).toBe('locating')
     expect(events).toHaveLength(1)
   })
 
-  it('passes the shared physical-request budget to in-call tool iterations', async () => {
+  it('records classified phase and settlement in the terminal snapshot', async () => {
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn(async (): Promise<CallAiResult> => ({
+        ...successResult('已写入第一段'),
+        toolResults: [{
+          call: { name: 'editor.write' },
+          result: { ok: true, data: { written: true } },
+        }],
+      }) as CallAiResult),
+      maxPhysicalRequests: 1,
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+    expect(result.snapshot.executionPhase).toBe('settling')
+    expect(result.snapshot.toolRunBudget?.physicalRequests).toBe(0)
+    expect(result.snapshot.toolRunBudget?.writeToolCalls).toBe(0)
+    expect(result.snapshot.successfulWriteCount).toBe(0)
+  })
+
+  it('passes one classified task budget to every outer round', async () => {
     const runtime: AgentOrchestratorRuntime = {
       callAi: vi.fn(async (params: any): Promise<CallAiResult> => ({
         ...successResult(''),
@@ -669,25 +697,21 @@ describe('AgentOrchestrator state machine', () => {
       }) as CallAiResult),
       maxPhysicalRequests: 2,
     }
-    const sharedBudgets: Array<(() => boolean) | undefined> = []
+    const budgets: unknown[] = []
     const originalCallAi = runtime.callAi
     runtime.callAi = async (params: any) => {
-      sharedBudgets.push(params.toolPolicy?.consumePhysicalRequestBudget)
+      budgets.push(params.toolPolicy?.toolRunBudget)
       return originalCallAi(params)
     }
     const agent = new AgentOrchestrator({ plan, runtime })
     await agent.run(runInput)
 
-    expect(sharedBudgets).toHaveLength(2)
-    expect(sharedBudgets[0]).toBeTypeOf('function')
-    expect(sharedBudgets[1]).toBeTypeOf('function')
-    // Budget callbacks are alive after the run; the second dispatch leaves
-    // no remaining capacity for another in-call iteration.
-    expect(sharedBudgets[0]!()).toBe(false)
-    expect(sharedBudgets[1]!()).toBe(false)
+    expect(budgets).toHaveLength(2)
+    expect(budgets[0]).toBe(budgets[1])
+    expect((budgets[0] as any).snapshot().maxPhysicalRequests).toBe(2)
   })
 
-  it('consumes extra in-call physical requests from the shared budget without double-charging the round', async () => {
+  it('keeps write capacity classified while the task budget owns physical requests', async () => {
     const runtime: AgentOrchestratorRuntime = {
       callAi: vi.fn(async (): Promise<CallAiResult> => ({
         ...successResult(''),
@@ -698,23 +722,115 @@ describe('AgentOrchestrator state machine', () => {
       }) as CallAiResult),
       maxPhysicalRequests: 2,
     }
-    const calls: Array<(input?: { inCall?: boolean }) => boolean> = []
+    const snapshots: unknown[] = []
     const originalCallAi = runtime.callAi
     runtime.callAi = async (params: any) => {
-      const budget = params.toolPolicy?.consumePhysicalRequestBudget
-      calls.push(budget)
-      // Round 1 already prepaid one request. The first extra in-call request
-      // must consume the next slot; after that, the shared budget is dry.
-      expect(budget?.({ inCall: true })).toBe(true)
-      expect(budget?.({ inCall: true })).toBe(false)
+      const budget = params.toolPolicy?.toolRunBudget
+      snapshots.push(budget?.snapshot())
       return originalCallAi(params)
     }
     const agent = new AgentOrchestrator({ plan, runtime })
     await agent.run(runInput)
 
-    expect(calls).toHaveLength(1)
-    expect(calls[0]!({ inCall: true })).toBe(false)
-    expect(calls[0]!()).toBe(true)
+    expect(snapshots).toHaveLength(2)
+    const secondSnapshot = snapshots[1] as any
+    // Physical requests are recorded by the transport after a successful
+    // provider call. The orchestrator must not precharge the same budget.
+    expect(secondSnapshot.physicalRequests).toBe((snapshots[0] as any).physicalRequests)
+    expect(snapshots[1]).toMatchObject({ maxPhysicalRequests: 2 })
+    expect(snapshots[0]).toMatchObject({ maxPhysicalRequests: 2 })
+  })
+
+  it('feeds physical-call heartbeats into the idle supervisor', async () => {
+    vi.useFakeTimers()
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn((params: CallAiParams) => new Promise<CallAiResult>(resolve => {
+        const heartbeat = setInterval(() => params.onPhysicalCall?.({
+          phase: 'tool_iteration',
+          status: 'running',
+          attempt: 1,
+          heartbeat: true,
+        } as PhysicalCallEvent), 10)
+        setTimeout(() => {
+          clearInterval(heartbeat)
+          resolve(successResult('供应商长推理后返回') as CallAiResult)
+        }, 40)
+      })),
+      idleTimeoutMs: 20,
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const running = agent.run(runInput)
+    await vi.advanceTimersByTimeAsync(50)
+    const result = await running
+
+    expect(result.status).toBe('completed')
+    expect(result.reason).toBe('completion criteria satisfied')
+    vi.useRealTimers()
+  })
+
+  it('forwards physical-call events to the caller while preserving supervisor progress', async () => {
+    const forwarded: PhysicalCallEvent[] = []
+    const events: Array<Pick<PhysicalCallEvent, 'status' | 'phase'>> = [
+      { status: 'running', phase: 'tool_iteration' },
+      { status: 'success', phase: 'tool_iteration' },
+    ]
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn(async (params: CallAiParams) => {
+        for (const event of events) {
+          params.onPhysicalCall?.({
+            physicalCallId: 'physical-call-test',
+            attempt: 1,
+            durationMs: 10,
+            requestMessages: [],
+            responseText: '',
+            streamText: '',
+            reasoningText: '',
+            toolsEnabled: true,
+            toolsDowngraded: false,
+            ...event,
+          } as PhysicalCallEvent)
+        }
+        return successResult() as CallAiResult
+      }),
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run({
+      ...runInput,
+      onPhysicalCall: event => forwarded.push(event),
+    })
+
+    expect(result.status).toBe('completed')
+    expect(forwarded.map(event => ({ status: event.status, phase: event.phase }))).toEqual(events)
+    expect(forwarded.every(event => event.physicalCallId === 'physical-call-test')).toBe(true)
+  })
+
+  it('does not overwrite a classified task budget with the orchestrator default', async () => {
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn(async (): Promise<CallAiResult> => successResult() as CallAiResult),
+      toolRunBudget: {
+        maxPhysicalRequests: 24,
+        physicalRequests: 4,
+        maxReadToolCalls: 40,
+        readToolCalls: 5,
+        reservedWriteToolCalls: 12,
+        writeToolCalls: 1,
+        plannedWriteCount: 4,
+        controlToolCalls: 0,
+        exhaustedClasses: [],
+        operation: 'restructure_and_cleanup',
+      },
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+
+    expect(result.snapshot.maxPhysicalRequests).toBe(24)
+    expect(result.snapshot.toolRunBudget).toMatchObject({
+      maxPhysicalRequests: 24,
+      maxReadToolCalls: 40,
+      reservedWriteToolCalls: 12,
+      plannedWriteCount: 4,
+    })
+    expect(agent.getEvents().some(event => event.type === 'physical_request_limit')).toBe(false)
   })
 
   it('enters needs_user when a tool result asks for user input', async () => {
@@ -753,16 +869,111 @@ describe('AgentOrchestrator state machine', () => {
   })
 
   it('fails visibly on idle timeout', async () => {
+    vi.useFakeTimers()
     const runtime: AgentOrchestratorRuntime = {
       callAi: vi.fn((): Promise<CallAiResult> => new Promise(resolve =>
         setTimeout(() => resolve(successResult() as CallAiResult), 20))),
       idleTimeoutMs: 1,
     }
     const agent = new AgentOrchestrator({ plan, runtime })
-    const result = await agent.run(runInput)
+    const running = agent.run(runInput)
+    await vi.advanceTimersByTimeAsync(25)
+    const result = await running
     expect(result.status).toBe('failed')
     expect(result.reason).toBe('idle_timeout')
     expect(agent.getEvents().some(event => event.type === 'idle_timeout')).toBe(true)
+    vi.useRealTimers()
+  })
+
+  it('aborts a never-returning physical request on idle timeout and closes the run', async () => {
+    vi.useFakeTimers()
+    const seenSignals: AbortSignal[] = []
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn((params: CallAiParams): Promise<CallAiResult> =>
+        new Promise<CallAiResult>((_resolve, reject) => {
+          seenSignals.push(params.signal as AbortSignal)
+          params.signal?.addEventListener('abort', () =>
+            reject(new Error('The operation was aborted')), { once: true })
+        })),
+      idleTimeoutMs: 20,
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const running = agent.run(runInput)
+    await vi.advanceTimersByTimeAsync(21)
+    const result = await running
+
+    expect(seenSignals).toHaveLength(1)
+    expect(seenSignals[0].aborted).toBe(true)
+    expect(result.status).toBe('failed')
+    expect(result.reason).toBe('idle_timeout')
+    expect(agent.getEvents().some(event => event.type === 'idle_timeout')).toBe(true)
+    vi.useRealTimers()
+  })
+
+  it('keeps a long idle window alive while physical requests and tool stream deltas progress', async () => {
+    vi.useFakeTimers()
+    const seenSignals: AbortSignal[] = []
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn((params: CallAiParams) => new Promise<CallAiResult>((_resolve, reject) => {
+        seenSignals.push(params.signal as AbortSignal)
+        const progress = setInterval(() => params.onStreamToolProgress?.({
+          protocol: 'openai-compatible',
+          toolCallCount: 1,
+          argumentCharacters: 10,
+        }), 10)
+        let tickCount = 0
+        const progressTimer = setInterval(() => {
+          tickCount += 1
+          if (tickCount >= 4) {
+            clearInterval(progressTimer)
+            clearInterval(progress)
+          }
+        }, 10)
+        params.signal?.addEventListener('abort', () => {
+          clearInterval(progress)
+          clearInterval(progressTimer)
+          reject(new Error('The operation was aborted'))
+        }, { once: true })
+      })),
+      idleTimeoutMs: 20,
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const running = agent.run(runInput)
+    await vi.advanceTimersByTimeAsync(19)
+    expect(seenSignals[0]?.aborted).toBe(false)
+    await vi.advanceTimersByTimeAsync(1)
+    const result = await running
+    expect(result.status).toBe('failed')
+    expect(result.reason).toBe('idle_timeout')
+    vi.useRealTimers()
+  })
+
+  it('forwards tool stream progress to the caller while keeping idle supervision alive', async () => {
+    vi.useFakeTimers()
+    const callerProgress = vi.fn()
+    const runtime: AgentOrchestratorRuntime = {
+      callAi: vi.fn((params: CallAiParams) => new Promise<CallAiResult>(resolve => {
+        params.onStreamToolProgress?.({ protocol: 'openai-compatible', toolCallCount: 1, argumentCharacters: 120 })
+        setTimeout(() => resolve({
+          ...successResult('完成'),
+        } as CallAiResult), 5)
+      })),
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const running = agent.run({
+      ...runInput,
+      onStreamToolProgress: callerProgress,
+    })
+    await vi.advanceTimersByTimeAsync(6)
+    const result = await running
+    expect(result.status).toBe('completed')
+    expect(callerProgress).toHaveBeenCalledTimes(1)
+    expect(callerProgress).toHaveBeenCalledWith({
+      protocol: 'openai-compatible',
+      toolCallCount: 1,
+      argumentCharacters: 120,
+    })
+    vi.useRealTimers()
   })
 
   it('exposes context and plan through read-only tools', async () => {
@@ -774,9 +985,12 @@ describe('AgentOrchestrator state machine', () => {
       stepIndex: 0,
       callCount: 0,
       successfulWriteCount: 0,
+      trustedCoverageCount: 0,
+      planComplete: false,
       noProgressRounds: 0,
       repeatedCallCount: 0,
       maxPhysicalRequests: 8,
+      executionPhase: 'settling',
       updatedAt: 0,
     }), () => ({ contextWindowTokens: null, estimatedInputTokens: 120 }))
     const remainingResult = await remaining.execute({}, {
@@ -880,13 +1094,13 @@ describe('AgentOrchestrator state machine', () => {
       goal: '统一大纲时间线并整理排序',
       callAi: vi.fn(async (): Promise<CallAiResult> => successResult() as CallAiResult),
       document: {
-        content: '段'.repeat(12_000),
+        content: '段'.repeat(24_000),
         operationType: 'whole-document-restructure',
         executionPlan: buildLongDocumentExecutionPlan({
           requestText: '统一大纲时间线并整理排序',
-          content: '段'.repeat(12_000),
-          contextWindowTokens: 120_000,
-          maxOutputTokens: 8_000,
+          content: '段'.repeat(24_000),
+          contextWindowTokens: 12_000,
+          maxOutputTokens: 2_000,
         }),
       },
     }
@@ -900,6 +1114,72 @@ describe('AgentOrchestrator state machine', () => {
       event => event.type === 'plan-origin'
         && (event.payload as { source?: string } | undefined)?.source === 'agent-fallback',
     )).toBe(false)
+  })
+
+  it('runs a single-pass whole-document restructure without routing it away from direct tools', async () => {
+    const executionPlan = buildLongDocumentExecutionPlan({
+      requestText: '按照Word文档的形式重构大纲，删除重复项，统一标题层级、编号和标点',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      contextWindowTokens: 1_000_000,
+      maxOutputTokens: 32_768,
+      intent: 'edit',
+    })
+    expect(executionPlan.mode).toBe('single-pass')
+
+    const runtime: AgentOrchestratorRuntime = {
+      goal: '一次成型整理整篇大纲',
+      callAi: vi.fn(async (): Promise<CallAiResult> => successResult() as CallAiResult),
+      document: {
+        content: '段'.repeat(74_841),
+        operationType: 'whole-document-restructure',
+        executionPlan,
+      },
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run(runInput)
+
+    expect(result.status).not.toBe('needs_user')
+    expect(result.reason).not.toContain('edit_task_required')
+    expect(result.reason).not.toContain('final_draft_required')
+    expect(runtime.callAi).toHaveBeenCalled()
+  })
+
+  it('does not append runtime introspection tools to a single-pass write surface', async () => {
+    const executionPlan = buildLongDocumentExecutionPlan({
+      requestText: '按照Word文档的形式重构大纲，删除重复项，统一标题层级、编号和标点',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      contextWindowTokens: 1_000_000,
+      maxOutputTokens: 32_768,
+      intent: 'edit',
+    })
+    expect(executionPlan.mode).toBe('single-pass')
+
+    const runtime: AgentOrchestratorRuntime = {
+      goal: '一次成型整理整篇大纲',
+      callAi: vi.fn(async (): Promise<CallAiResult> => successResult() as CallAiResult),
+      document: {
+        content: '段'.repeat(74_841),
+        operationType: 'whole-document-restructure',
+        executionPlan,
+      },
+    }
+    const agent = new AgentOrchestrator({ plan, runtime })
+    const result = await agent.run({
+      ...runInput,
+      tools: [{
+        name: 'editor.write',
+        description: 'write',
+        policy: 'write',
+        inputSchema: { type: 'object', properties: {} },
+        execute: async () => ({ ok: true, data: {} }),
+      }],
+    })
+
+    // The mocked provider does not execute the write tool, so the round can
+    // stall on coverage; this test is scoped to the authorized tool surface.
+    expect(result.toolSurface).toEqual([
+      { name: 'editor.write', policy: 'write' },
+    ])
   })
 
   it('routes whole-document replacement to final draft from a supplied execution plan', async () => {

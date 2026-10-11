@@ -25,6 +25,7 @@ export type RunActivitySource =
   | 'physical_call_running'
   | 'physical_call_heartbeat'
   | 'stream_delta'
+  | 'tool_argument_delta'
   | 'tool_call'
   | 'edit_task'
 
@@ -105,6 +106,31 @@ export interface RunTracePermissionDecision {
   reason: string
 }
 
+export interface RunTraceExecutionSettlement {
+  phase: 'locating' | 'planning' | 'writing' | 'settling'
+  readToolCalls: number
+  maxReadToolCalls: number
+  writeToolCalls: number
+  reservedWriteToolCalls: number
+  controlToolCalls: number
+  physicalRequests: number
+  maxPhysicalRequests: number
+  exhaustedClasses: Array<'read' | 'write' | 'control'>
+  successfulWriteCount: number
+  trustedCoverageCount: number
+  planComplete: boolean
+}
+
+export interface RunTraceReadLedgerSnapshot {
+  workspace: 'main' | 'outline'
+  targetId: string
+  uniqueReadCount: number
+  duplicateReadCount: number
+  rereadAfterCompactionCount: number
+  compactedReadCount: number
+  structureIdentity: string
+}
+
 export interface RunTraceApiCall {
   id: string
   turnId?: string
@@ -140,11 +166,18 @@ export interface RunTraceApiCall {
   reasoningText: string
   /** Wall clock of the latest response-body delta; distinguishes live streaming from tool rounds. */
   lastStreamActivityAt?: number
+  /** Latest native tool-argument stream progress; visible even while body text is empty. */
+  lastToolArgumentProgressAt?: number
+  lastToolArgumentProgress?: { toolCallCount: number; argumentCharacters: number }
   /** Wall clock of the latest physical request or tool activity, including body-less tool rounds. */
   lastExecutionActivityAt?: number
   finishReason?: string
   /** Why a tool-loop convergence/checkpoint result was produced. */
   convergenceReason?: string
+  /** Classified execution budget and coverage settlement for this API call. */
+  executionSettlement?: RunTraceExecutionSettlement
+  /** Read-cache observation for this API call. */
+  readLedger?: RunTraceReadLedgerSnapshot
   usage?: unknown
   usageUnavailable?: boolean
   durationMs?: number
@@ -254,6 +287,9 @@ export interface RunTracePhysicalCall {
   toolsEnabled?: boolean
   toolsDowngraded?: boolean
   downgradeReason?: string
+  /** Native tool calls parsed from this physical response; distinguishes parse loss from trace loss. */
+  toolCallCount?: number
+  toolCallNames?: string[]
   retryStrategy?: 'thinking_disabled' | 'max_tokens_raised' | 'prompt_only'
   /** null records an undeclared output limit; a number records the effective wire limit. */
   maxTokens?: number | null
@@ -607,6 +643,8 @@ export interface FinishApiCallInput {
   /** Stable transport-interruption classification delegated to a task layer. */
   interruptionCode?: 'slow_stream_interrupted'
   toolAudit?: unknown
+  executionSettlement?: RunTraceExecutionSettlement
+  readLedger?: RunTraceReadLedgerSnapshot
 }
 
 export interface AttachSemanticInput {
@@ -634,6 +672,8 @@ export interface PhysicalCallInput {
   toolsEnabled?: boolean
   toolsDowngraded?: boolean
   downgradeReason?: string
+  toolCallCount?: number
+  toolCallNames?: string[]
   retryStrategy?: RunTracePhysicalCall['retryStrategy']
   /** null records an undeclared output limit; a number records the effective wire limit. */
   maxTokens?: number | null
@@ -759,6 +799,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
   const stateWatchdogByRunId = new Map<string, StateWatchdog>()
   const awaitingUserRunIds = new Set<string>()
   const editTaskPlannedBatchIds = new Set<string>()
+  const lastStreamActivityEventAtByCallId = new Map<string, number>()
+  const lastToolArgumentActivityEventAtByCallId = new Map<string, number>()
 
   function resetRunActivityDeduplication(runId: string) {
     reportedLongRequestPhysicalIds.delete(runId)
@@ -1044,6 +1086,33 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     return true
   }
 
+  function reportToolArgumentProgress(
+    runId: string,
+    callId: string,
+    progress: { toolCallCount: number; argumentCharacters: number },
+  ) {
+    const call = getRun(runId)?.apiCalls.find(item => item.id === callId)
+    if (!call || call.status !== 'running') return false
+    const now = Date.now()
+    if (call.lastToolArgumentProgressAt === undefined || call.lastToolArgumentProgressAt <= now) {
+      call.lastToolArgumentProgressAt = now
+    }
+    call.lastToolArgumentProgress = {
+      toolCallCount: Math.max(0, Math.floor(progress.toolCallCount || 0)),
+      argumentCharacters: Math.max(0, Math.floor(progress.argumentCharacters || 0)),
+    }
+    call.lastExecutionActivityAt = now
+    const lastEventAt = lastToolArgumentActivityEventAtByCallId.get(callId) ?? 0
+    if (now - lastEventAt < 1000) return true
+    lastToolArgumentActivityEventAtByCallId.set(callId, now)
+    reportRunActivity(runId, 'tool_argument_delta', [
+      `apiCall=${call.seq}`,
+      `toolCalls=${call.lastToolArgumentProgress.toolCallCount}`,
+      `arguments=${call.lastToolArgumentProgress.argumentCharacters}`,
+    ].join('/'))
+    return true
+  }
+
   function startTurn(runId: string, input: StartTurnInput) {
     const run = getRun(runId)
     if (!run || run.sessionKind !== 'chat') return ''
@@ -1143,12 +1212,20 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     const run = getRun(runId)
     if (!run) return
     const seq = run.events.reduce((max, item) => Math.max(max, item.seq || 0), 0) + 1
+    const { turnId: explicitTurnId, ...rest } = event
     run.events.push({
       id: nextId('event'),
       ts: Date.now(),
-      turnId: run.currentTurnId,
       seq,
-      ...event,
+      // Explicit turnId wins. Otherwise use the run's active turn; if an
+      // exporter removed that transient pointer mid-stream, the latest running
+      // turn is the only semantically valid owner.
+      turnId: explicitTurnId
+        || run.currentTurnId
+        || (run.sessionKind === 'chat'
+          ? [...(run.turns || [])].reverse().find(turn => turn.status === 'running')?.id
+          : undefined),
+      ...rest,
     })
   }
 
@@ -1232,6 +1309,34 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     return true
   }
 
+  function updateApiCallExecutionSettlement(
+    runId: string,
+    callId: string,
+    input: {
+      executionSettlement: RunTraceExecutionSettlement
+      readLedger?: RunTraceReadLedgerSnapshot
+    },
+  ) {
+    const run = getRun(runId)
+    const call = run?.apiCalls.find(item => item.id === callId)
+    if (!run || !call || call.status !== 'running') return false
+    call.executionSettlement = { ...input.executionSettlement }
+    if (input.readLedger) call.readLedger = { ...input.readLedger }
+    addEvent(runId, {
+      type: 'api-execution-settlement-updated',
+      level: input.executionSettlement.exhaustedClasses.length ? 'warn' : 'info',
+      label: `第 ${call.seq} 次 API 调用执行状态更新`,
+      detail: [
+        input.executionSettlement.phase,
+        `读取 ${input.executionSettlement.readToolCalls}/${input.executionSettlement.maxReadToolCalls}`,
+        `写入 ${input.executionSettlement.writeToolCalls}/${input.executionSettlement.reservedWriteToolCalls}`,
+        input.executionSettlement.planComplete ? '计划完成' : `覆盖 ${input.executionSettlement.trustedCoverageCount}`,
+      ].join(' / '),
+    })
+    void saveRunToDisk(run)
+    return true
+  }
+
   function appendPhysicalCall(runId: string, callId: string, input: PhysicalCallInput): string {
     const call = getRun(runId)?.apiCalls.find(item => item.id === callId)
     if (!call) return ''
@@ -1283,6 +1388,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       existing.toolsEnabled = input.toolsEnabled ?? existing.toolsEnabled
       existing.toolsDowngraded = input.toolsDowngraded ?? existing.toolsDowngraded
       existing.downgradeReason = input.downgradeReason ?? existing.downgradeReason
+      existing.toolCallCount = input.toolCallCount ?? existing.toolCallCount
+      existing.toolCallNames = input.toolCallNames ?? existing.toolCallNames
       existing.retryStrategy = input.retryStrategy ?? existing.retryStrategy
       existing.maxTokens = input.maxTokens ?? existing.maxTokens
       existing.modelCapability = input.modelCapability ?? existing.modelCapability
@@ -1326,6 +1433,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       toolsEnabled: input.toolsEnabled,
       toolsDowngraded: input.toolsDowngraded,
       downgradeReason: input.downgradeReason,
+      toolCallCount: input.toolCallCount,
+      toolCallNames: input.toolCallNames,
       retryStrategy: input.retryStrategy,
       maxTokens: input.maxTokens,
       modelCapability: input.modelCapability,
@@ -1623,7 +1732,14 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     const terminalAppendAllowed = call.status === 'running'
       || (call.endedAt !== undefined && Date.now() - call.endedAt <= terminalAppendWindowMs)
     if (!terminalAppendAllowed || !text) return
-    if (text) reportRunActivity(runId, 'stream_delta', `apiCall=${call.seq}`)
+    if (text) {
+      const now = Date.now()
+      const lastEventAt = lastStreamActivityEventAtByCallId.get(callId) ?? 0
+      if (now - lastEventAt >= 1000) {
+        lastStreamActivityEventAtByCallId.set(callId, now)
+        reportRunActivity(runId, 'stream_delta', `apiCall=${call.seq}`)
+      }
+    }
     const previousStreamText = call.streamText
     call.streamText += text
     const responseWasStreamFallback = !String(call.responseText || '').trim()
@@ -1708,6 +1824,11 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     const run = getRun(runId)
     const call = run?.apiCalls.find(item => item.id === callId)
     if (!run || !call) return
+    if (call.streamText) {
+      reportRunActivity(runId, 'stream_delta', `apiCall=${call.seq}/terminal`)
+    }
+    lastStreamActivityEventAtByCallId.delete(callId)
+    lastToolArgumentActivityEventAtByCallId.delete(callId)
     // Cancellation can sweep a call before a late callback lands. Keep the
     // terminal status instead of letting success overwrite canceled/failed.
     if (call.status !== 'running') return
@@ -1734,6 +1855,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     }
     call.finishReason = patch.finishReason ?? call.finishReason
     call.convergenceReason = patch.convergenceReason ?? call.convergenceReason
+    if (patch.executionSettlement) call.executionSettlement = patch.executionSettlement
+    if (patch.readLedger) call.readLedger = patch.readLedger
     call.usage = patch.usage ?? call.usage
     call.usageUnavailable = patch.usageUnavailable ?? (patch.usage ? false : call.usageUnavailable)
     call.durationMs = patch.durationMs ?? (Date.now() - call.startedAt)
@@ -2294,7 +2417,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
   }
 
   function exportRunToJson(run: RunTrace) {
-    const exportable = createExportSnapshot(run) as Partial<RunTrace>
+    const snapshot = createExportSnapshot(run)
+    const exportable = (run === snapshot ? JSON.parse(JSON.stringify(snapshot)) : snapshot) as Partial<RunTrace>
     delete exportable.currentTurnId
     delete exportable.dirName
     return {
@@ -2374,6 +2498,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     reportEditTaskActivity,
     reportEditTaskCompletion,
     reportRunActivity,
+    reportToolArgumentProgress,
     startRun,
     startTurn,
     finishTurn,
@@ -2389,6 +2514,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     registerPayload,
     attachSemantic,
     updateApiCallToolSurface,
+    updateApiCallExecutionSettlement,
     markContextCompacted,
     appendStream,
     appendReasoning,

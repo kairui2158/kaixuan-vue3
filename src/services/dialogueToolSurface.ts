@@ -26,9 +26,12 @@ import {
   removeConflictingExternalTools,
 } from './agentToolConflict'
 import type { SourceContaminationConversationMessage } from './sourceContaminationDetector'
+import { createDocumentReadLedger, type DocumentReadLedger } from './documentReadLedger'
 
 export type {
   AgentToolDefinition,
+  DirectWriteStallRetryDecision,
+  DirectWriteStallRetryInput,
   EditorRevealer,
   EditorWriteContaminationDecision,
   EditorWriteApplier,
@@ -36,6 +39,8 @@ export type {
   EditorWriteRetryCarrier,
   ToolResult,
 } from './editorTools'
+
+export { shouldRetryStalledDirectWrite } from './editorTools'
 
 export type { LongDocumentExecutionPlan }
 
@@ -65,7 +70,10 @@ export interface DialogueToolSurfaceEntry {
   writeAuthorization?: DialogueWriteAuthorization | null
   conversationMarkers?: SourceContaminationConversationMessage[]
   userRequestText?: string
+  authorizedPlanExcerpts?: readonly string[]
   onContaminationDecision?: (decision: EditorWriteContaminationDecision) => void
+  /** Session-scoped read ledger shared by editor and outline read tools. */
+  readLedger?: DocumentReadLedger
   activeEditTask?: EditTask | null
   onResumeEditTask?: (taskId: string) => Promise<ToolResult>
   onCancelEditTask?: (taskId: string) => Promise<ToolResult>
@@ -77,6 +85,7 @@ export interface DialogueWriteAuthorization {
   operation: LongDocumentExecutionOperation
   mode: LongDocumentExecutionMode
   reason?: string
+  lockOverride?: boolean
 }
 
 export interface DialoguePermissionDecision {
@@ -86,6 +95,7 @@ export interface DialoguePermissionDecision {
   operation: LongDocumentExecutionOperation
   mode: LongDocumentExecutionMode
   reason: string
+  lockOverride?: boolean
 }
 
 export interface DialogueToolSurface {
@@ -113,6 +123,10 @@ export function buildDialogueToolSurface(
   entry: DialogueToolSurfaceEntry,
 ): DialogueToolSurface {
   const currentTarget = entry.getSnapshot()
+  const readLedger: DocumentReadLedger = entry.readLedger ?? createDocumentReadLedger({
+    workspace: entry.workspace,
+    targetId: currentTarget?.targetId || 'current-target',
+  })
   const readableTargets = entry.readableTargets?.length
     ? entry.readableTargets
     : [...new Set([
@@ -157,7 +171,9 @@ export function buildDialogueToolSurface(
         takeFailedBatch: entry.takeFailedBatch,
         conversationMarkers: entry.conversationMarkers,
         userRequestText: entry.userRequestText,
+        authorizedPlanExcerpts: entry.authorizedPlanExcerpts,
         onContaminationDecision: entry.onContaminationDecision,
+        readLedger,
       }),
       ...safeExternalTools,
     ],
@@ -169,6 +185,7 @@ export function buildDialogueToolSurface(
     onResumeEditTask: entry.onResumeEditTask,
     onCancelEditTask: entry.onCancelEditTask,
     writeAuthorization: entry.writeAuthorization,
+    executionPlan: entry.executionPlan,
   })
   return {
     ...authorized,
@@ -202,6 +219,17 @@ function resolveDialoguePermissionDecision(
   if (authorization.intent !== normalizedIntent) return dialogueDecision
   if (authorization.operation === 'discussion') return dialogueDecision
   if (authorization.mode === 'final-draft') return dialogueDecision
+  if (authorization.mode === 'single-pass') {
+    return {
+      source: 'long-document-workflow',
+      decision: 'read-only',
+      intent: normalizedIntent,
+      operation: authorization.operation,
+      mode: authorization.mode,
+      reason: 'single-pass writes are app-owned after model prose output',
+      ...(authorization.lockOverride ? { lockOverride: true } : {}),
+    }
+  }
   if (authorization.mode === 'edit-task') {
     return {
       source: 'long-document-workflow',
@@ -209,7 +237,8 @@ function resolveDialoguePermissionDecision(
       intent: normalizedIntent,
       operation: authorization.operation,
       mode: authorization.mode,
-      reason: authorization.reason || 'workflow authorization triple matched (edit-task mode)',
+      reason: authorization.reason || `workflow authorization triple matched (${authorization.mode} mode)`,
+      ...(authorization.lockOverride ? { lockOverride: true } : {}),
     }
   }
   if (authorization.mode !== 'direct') return dialogueDecision
@@ -221,6 +250,33 @@ function resolveDialoguePermissionDecision(
     operation: authorization.operation,
     mode: authorization.mode,
     reason: authorization.reason || 'workflow authorization triple matched',
+    ...(authorization.lockOverride ? { lockOverride: true } : {}),
+  }
+}
+
+export function buildWorkflowWriteAuthorizationFromPlan(input: {
+  workspace: 'outline' | 'main'
+  intent: DialogueIntent
+  plan: LongDocumentExecutionPlan
+  locked?: boolean
+}): DialogueWriteAuthorization | null {
+  const intent = input.intent === 'auto' ? 'discuss' : input.intent
+  if (intent !== 'edit' && intent !== 'generate') return null
+  if (input.plan.mode === 'final-draft') return null
+  if (input.plan.operation === 'discussion') return null
+  if (
+    input.plan.mode !== 'edit-task'
+    && input.plan.mode !== 'single-pass'
+    && input.plan.operation !== 'targeted_edit'
+  ) return null
+  const locked = input.workspace === 'outline' && input.locked === true
+  return {
+    source: 'long-document-workflow',
+    intent,
+    operation: input.plan.operation,
+    mode: input.plan.mode,
+    reason: input.workspace === 'outline' ? 'outline-execution-plan' : 'home-execution-plan',
+    ...(locked ? { lockOverride: true } : {}),
   }
 }
 
@@ -229,6 +285,7 @@ export interface DialogueToolSurfaceTaskContext {
   onResumeEditTask?: (taskId: string) => Promise<ToolResult>
   onCancelEditTask?: (taskId: string) => Promise<ToolResult>
   writeAuthorization?: DialogueWriteAuthorization | null
+  executionPlan?: LongDocumentExecutionPlan | null
 }
 
 export function authorizeDialogueTools(
@@ -248,9 +305,13 @@ export function authorizeDialogueTools(
     intent,
     taskContext?.writeAuthorization,
   )
-  const permission = permissionDecision.decision === 'write-authorized'
+  const permission = permissionDecision.mode === 'single-pass'
+    ? { ...basePermission, writeEditor: false }
+    : permissionDecision.decision === 'write-authorized'
     ? { ...basePermission, writeEditor: true }
     : basePermission
+  const singlePassProseOutput = permissionDecision.mode === 'single-pass'
+    || taskContext?.executionPlan?.mode === 'single-pass'
   const CONTROL_TOOL_NAMES = new Set(['agent.spawn', 'agent.wait', 'agent.cancel'])
   const sourceTools = Array.isArray(input) ? input : input.tools
   const toolPolicyDiagnostics: NonNullable<DialogueToolSurface['toolPolicyDiagnostics']> = []
@@ -329,7 +390,7 @@ export function authorizeDialogueTools(
       .filter(tool => tool.policy !== 'write' && permission.readTarget)
       .map(tool => tool.name),
   )
-  const authorizedTools = staticallyValidTools
+  const authorizedTools = singlePassProseOutput ? [] : staticallyValidTools
     .filter(tool => tool.policy !== 'write'
       ? permission.readTarget && !taskToolNames.has(tool.name)
       : writeToolsAllowed)
@@ -441,7 +502,27 @@ export function appendDialogueToolSurfaceDeclaration(
     executionPlan?: LongDocumentExecutionPlan | null
   },
 ): string {
-  if (!toolSurface || toolSurface.length === 0) return systemPrompt
+  const executionPlan = options?.executionPlan || null
+  const singlePassPlan = executionPlan?.mode === 'single-pass'
+    && executionPlan.operation !== 'discussion'
+  const finalDraftPlan = executionPlan?.mode === 'final-draft'
+    && executionPlan.operation !== 'discussion'
+  if (!toolSurface || toolSurface.length === 0) {
+    if (!singlePassPlan && !finalDraftPlan) return systemPrompt
+    const proseProtocol = singlePassPlan
+      ? [
+        '一次成型整篇正文输出协议：全文已在当前上下文中，无需再查询或分批获取任何内容。',
+        '请基于用户指令直接流式输出整理后的完整全文；禁止提交编辑命令或调用写入工具。',
+        '除计划删除目标外不得丢失有效正文；应用会在正文完成后一次性整文写入编辑器。',
+        '如果无法完成，直接说明具体失败原因；不要输出工具调用、编辑命令或修改预览。',
+      ].join('\n')
+      : '终稿生成模式：直接输出完整终稿正文，禁止提交编辑命令或调用写入工具；应用会在终稿完成后写入编辑器。'
+    return [
+      systemPrompt,
+      proseProtocol,
+      '本轮工具面为空：模型侧没有编辑工具，本次任务由应用按正文输出执行。',
+    ].join('\n\n')
+  }
   const toolList = toolSurface
     .map(tool => `${tool.name}(${tool.policy})`)
     .join('、')
@@ -451,11 +532,25 @@ export function appendDialogueToolSurfaceDeclaration(
     : null
   const activeTaskAwaitsRetry = activeTask?.status === 'awaiting_batch'
   const writePausedByActiveTask = activeTask && !hasWrite
-  const executionPlan = options?.executionPlan || null
+  // Single-pass normally presents an empty tool surface. Keep a defensive
+  // declaration for legacy callers that still hand us a write tool so they
+  // cannot silently re-enter the tool loop.
+  const singlePassAuthorized = singlePassPlan
+    && executionPlan.operation !== 'discussion'
+    && hasWrite
   const directWriteAuthorized = hasWrite
     && executionPlan?.mode === 'edit-task'
     && executionPlan.operation !== 'discussion'
-  const basePrompt = directWriteAuthorized
+  const basePrompt = singlePassAuthorized
+    ? systemPrompt.replace(
+      '请给出建议和修改意见。',
+      [
+        '一次成型整篇正文输出协议：全文已在当前上下文中，无需再查询或分批获取任何内容。',
+        '请基于用户指令直接流式输出整理后的完整全文；禁止提交编辑命令或调用写入工具。',
+        '除计划删除目标外不得丢失有效正文；应用会在正文完成后一次性整文写入编辑器。',
+      ].join('\n'),
+    )
+    : directWriteAuthorized
     ? systemPrompt.replace('请给出建议和修改意见。', '应用已授权本轮通过 editor.write 直接写入编辑器，请按执行计划完成写入。')
     : systemPrompt
   const writeSurfaceDeclaration = hasWrite

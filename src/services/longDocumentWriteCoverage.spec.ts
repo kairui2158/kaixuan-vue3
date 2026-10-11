@@ -89,8 +89,8 @@ describe('longDocumentWriteCoverage', () => {
     const restructurePlan = buildLongDocumentExecutionPlan({
       requestText: '重排全文结构并清理重复内容',
       content: '# 第一卷\n\n## 第1节 出发\n她在灯塔下看旧信。\n\n## 第2节 渡口\n同一句重复内容。\n',
-      contextWindowTokens: 12_000,
-      maxOutputTokens: 2_048,
+      contextWindowTokens: 100,
+      maxOutputTokens: 80,
       intent: 'edit',
     })
     const record = {

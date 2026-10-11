@@ -3,6 +3,7 @@ import { type DocumentTransformOperation, transformDocument } from './documentTr
 import type { LongDocumentOperationType } from './longDocumentPolicy'
 import { calculateLongDocumentPhysicalRequestBudget } from './longDocumentWriteProtocol'
 import { parseOutlineStructure } from './outlineStructure'
+import type { ActiveExecutionTaskStatus } from './activeExecutionTaskStore'
 
 type PlannerIntent = 'analyze' | 'edit' | 'generate' | 'discuss' | 'auto'
 
@@ -16,7 +17,12 @@ export type LongDocumentExecutionOperation =
   | 'rewrite_segments'
   | 'discussion'
 
-export type LongDocumentExecutionMode = 'direct' | 'edit-task' | 'final-draft' | 'local-transform'
+export type LongDocumentExecutionMode =
+  | 'direct'
+  | 'edit-task'
+  | 'final-draft'
+  | 'local-transform'
+  | 'single-pass'
 
 export type LongDocumentExecutionDecision =
   | 'fits'
@@ -31,6 +37,19 @@ export type LongDocumentExpectedChange =
   | 'normalize'
   | 'remove_duplicate'
   | 'rewrite'
+
+// Whole-document work stays on the EditTask path even when a huge provider
+// window reports "fits": a single direct turn has no batch checkpoints and
+// still hits the short-document hard deadline.
+const WHOLE_DOCUMENT_EDIT_TASK_MIN_CHARS = 20_000
+
+export function usesLongDocumentToolRuntime(plan: LongDocumentExecutionPlan): boolean {
+  if (plan.mode === 'edit-task' || plan.mode === 'final-draft' || plan.mode === 'single-pass') return true
+  // "fits" describes the provider window, not the amount of editor work. A
+  // large document still needs the long-document watchdog and no fixed hard
+  // deadline even when a targeted edit stays on the direct path.
+  return plan.totalChars >= WHOLE_DOCUMENT_EDIT_TASK_MIN_CHARS
+}
 
 export type LongDocumentWriteStrategy =
   | 'move'
@@ -69,7 +88,12 @@ export interface LongDocumentExecutionPlan {
   planId: string
   operation: LongDocumentExecutionOperation
   operationResolution: {
-    source: 'intent' | 'intent-fallback' | 'lexical' | 'active-task-continuation'
+    source:
+      | 'intent'
+      | 'intent-fallback'
+      | 'lexical'
+      | 'active-task-continuation'
+      | 'active-plan-continuation'
     intent?: PlannerIntent
     matched: LongDocumentOperationType | LongDocumentExecutionOperation
   }
@@ -100,12 +124,15 @@ export interface LongDocumentExecutionPlannerInput {
   maxOutputTokens?: number | null
   /** Routed dialogue intent; read-only intents override lexical fallback. */
   intent?: PlannerIntent
+  /** True only for a routed confirmation of the awaiting plan, not for any new edit request. */
+  activePlanConfirmation?: boolean
   /** Active compound task supplied by the workspace; continuation only, never a SKILL grant. */
   activeTask?: {
     taskId: string
     operation: LongDocumentExecutionOperation
     originalRequest: string
-    status?: 'active' | 'terminal'
+    status?: ActiveExecutionTaskStatus
+    plan?: LongDocumentExecutionPlan
   }
 }
 
@@ -289,7 +316,11 @@ function resolveOperation(
     input.activeTask &&
     input.activeTask.operation !== 'discussion' &&
     input.activeTask.operation !== 'rewrite_segments' &&
-    input.activeTask.status !== 'terminal' &&
+    input.activeTask.status !== 'completed' &&
+    input.activeTask.status !== 'failed' &&
+    input.activeTask.status !== 'invalidated' &&
+    input.activeTask.status !== 'narrowed' &&
+    input.activeTask.status !== 'reset' &&
     hasContinuationSemantics(input.requestText)
   ) {
     const base = input.activeTask.operation
@@ -348,6 +379,18 @@ function resolveExecutionMode(input: {
   if (input.operation === 'discussion') return 'direct'
   if (input.operation === 'rewrite_segments') return 'final-draft'
   if (canExecuteLocalTransform(input)) return 'local-transform'
+  if (
+    input.operation !== 'targeted_edit' &&
+    input.decision === 'fits'
+  ) {
+    return 'single-pass'
+  }
+  if (
+    input.operation !== 'targeted_edit' &&
+    input.content.length >= WHOLE_DOCUMENT_EDIT_TASK_MIN_CHARS
+  ) {
+    return 'edit-task'
+  }
   if (input.operation === 'targeted_edit') {
     return input.decision === 'fits' || input.decision === 'provider_configuration_conflict'
       ? 'direct'
@@ -389,6 +432,10 @@ function resolveInvariants(
     default:
       return []
   }
+}
+
+function hasSingleTopLevelStructure(content: string): boolean {
+  return parseOutlineStructure(content).nodes.length <= 1
 }
 
 export function toLongDocumentOperationType(
@@ -518,6 +565,7 @@ function buildSegments(input: {
   content: string
   effectiveInputTokens: number
 }): LongDocumentExecutionPlanSegment[] {
+  if (input.mode === 'single-pass') return []
   if (input.mode === 'local-transform') return []
   if (input.operation === 'discussion') return []
   if (input.operation === 'deduplicate_and_normalize') {
@@ -663,6 +711,22 @@ function buildSegments(input: {
 export function buildLongDocumentExecutionPlan(
   input: LongDocumentExecutionPlannerInput,
 ): LongDocumentExecutionPlan {
+  if (
+    (input.activeTask?.status === 'awaiting_user_plan' ||
+      input.activeTask?.status === 'active') &&
+    input.intent === 'edit' &&
+    input.activePlanConfirmation === true &&
+    input.activeTask.plan
+  ) {
+    return {
+      ...input.activeTask.plan,
+      operationResolution: {
+        ...input.activeTask.plan.operationResolution,
+        source: 'active-plan-continuation',
+        intent: input.intent,
+      },
+    }
+  }
   const { operation, resolution: operationResolution } = resolveOperation(input)
   const window = resolveWindow(input)
   const estimatedDocumentTokens = estimateInputTokens(input.content)
@@ -674,10 +738,11 @@ export function buildLongDocumentExecutionPlan(
     content: input.content,
   })
   const finalDraft = mode === 'final-draft'
+  const singlePass = mode === 'single-pass'
   const finalDraftSegments = finalDraft && decision !== 'fits' && decision !== 'provider_configuration_conflict'
     ? buildFinalDraftSegments({ content: input.content, effectiveInputTokens: window.effectiveInputTokens })
     : []
-  const segments = mode === 'final-draft' || mode === 'local-transform'
+  const segments = mode === 'final-draft' || mode === 'local-transform' || mode === 'single-pass'
     ? []
     : buildSegments({
       operation,
@@ -685,7 +750,14 @@ export function buildLongDocumentExecutionPlan(
       content: input.content,
       effectiveInputTokens: window.effectiveInputTokens,
     })
-  const invariants = resolveInvariants(operation, segments)
+  const invariants = mode === 'single-pass'
+    ? resolveInvariants(
+      operation,
+      hasSingleTopLevelStructure(input.content)
+        ? [{ segmentId: 'structure-repair', range: { startLine: 0, endLine: 0 }, readStrategy: 'full', writeStrategy: 'structure_repair', expectedChange: 'restructure', commandLimit: 1 }]
+        : [],
+    )
+    : resolveInvariants(operation, segments)
   const operationLabels: Record<LongDocumentExecutionOperation, string> = {
     restructure: '结构重排',
     restructure_and_cleanup: '结构重排与整理',
@@ -711,24 +783,30 @@ export function buildLongDocumentExecutionPlan(
     mode,
     segments,
     invariants,
-    estimatedPhysicalRequests: calculateLongDocumentPhysicalRequestBudget({
-      mode,
-      operation,
-      segments,
-    }),
+    estimatedPhysicalRequests: mode === 'local-transform'
+      ? 0
+      : calculateLongDocumentPhysicalRequestBudget({
+        mode,
+        operation,
+        segments,
+      }),
     finalDraft,
     localTransformOperations,
-    finalDraftPlan: finalDraft ? {
+    finalDraftPlan: finalDraft || singlePass ? {
       sourceChars: input.content.length,
       instruction: input.requestText,
       continuationEnabled: true,
-      segmented: finalDraftSegments.length > 1,
-      segments: finalDraftSegments.length
-        ? finalDraftSegments
-        : [{ segmentId: 'segment-1', start: 0, end: input.content.length }],
+      segmented: finalDraft ? finalDraftSegments.length > 1 : false,
+      segments: finalDraft
+        ? (finalDraftSegments.length
+          ? finalDraftSegments
+          : [{ segmentId: 'segment-1', start: 0, end: input.content.length }])
+        : [{ segmentId: 'whole-document', start: 0, end: input.content.length }],
     } : null,
     progressLabel: mode === 'local-transform'
       ? `${operationLabels[operation]}：本地执行`
+      : mode === 'single-pass'
+      ? `${operationLabels[operation]}：一次成型`
       : finalDraft
       ? `${operationLabels[operation]}：生成中`
       : `${operationLabels[operation]}：0/${segments.length}`,

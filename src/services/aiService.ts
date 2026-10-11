@@ -78,6 +78,11 @@ import { extractJsonCandidates } from './jsonExtraction'
 import {
   normalizeUsage as normalizeTraceUsage,
 } from './traceFieldNormalizer'
+import {
+  classifyToolBudgetClass,
+  type ToolRunBudget,
+  type ToolRunBudgetClass,
+} from './toolRunBudget'
 
 // ── Types (carried from Step 2 interface) ──────────────────────────
 
@@ -140,19 +145,16 @@ export interface CallAiParams {
     editTaskWorkflow?: boolean
     /** Single-source execution plan used for steering and tool policy. */
     executionPlan?: LongDocumentExecutionPlan
-    /**
-     * Shared physical-request budget for orchestrator and in-call tool
-     * iterations. The orchestrator prepays one request per outer round; an
-     * in-call tool iteration must pass `inCall: true` so the additional
-     * provider call is charged against the same task-level limit.
-     */
-    consumePhysicalRequestBudget?: (input?: { inCall?: boolean }) => boolean
+    /** Task-owned classified read/write budget; one object spans the whole tool run. */
+    toolRunBudget?: ToolRunBudget
     onCompatibilityMode?: (reason: string) => void
     onConvergenceStart?: () => void
     onConvergencePseudoCall?: (event: { text: string; reason: string }) => void
     onConvergenceCorrected?: () => void
     onConvergenceLocalFallback?: (reason: string) => void
     onToolWarning?: (message: string) => void
+    /** Native tool-call stream delta; used for progress reporting, not transport liveness. */
+    onStreamToolProgress?: (progress: StreamToolProgressEvent) => void
     onPermissionDenied?: (event: {
       toolName: string
       policy: 'read' | 'write'
@@ -225,6 +227,8 @@ export interface CallAiParams {
   onChunk?: (text: string) => void
   /** Stream callback contract: receives only the newly emitted reasoning text for this chunk. */
   onReasoning?: (text: string) => void
+  /** Stream callback contract: a native tool-call delta arrived, which is task progress. */
+  onStreamToolProgress?: (progress: StreamToolProgressEvent) => void
   onUsage?: (usage: any) => void
   onProgress?: (percent: number, label: string) => void
   /** @internal Keep the legacy public path clean; P6 callers receive a typed helper instead. */
@@ -264,6 +268,10 @@ export interface PhysicalCallEvent {
   interruptionCode?: 'slow_stream_interrupted'
   /** Number of older successful read tool results compacted for this physical request. */
   contextCompactedMessageCount?: number
+  /** Number of provider tool calls extracted from this physical response. */
+  toolCallCount?: number
+  /** Provider tool-call names extracted from this physical response. */
+  toolCallNames?: string[]
 }
 
 export interface CallAiResult {
@@ -278,6 +286,8 @@ export interface CallAiResult {
   finishReason?: string
   /** Why a tool-loop convergence/checkpoint result was produced; distinguishes terminal write failures and budget stops from discussion convergence. */
   convergenceReason?: string
+  /** Which classified budget stopped the run; separates read starvation from write exhaustion. */
+  toolRunBudgetPhase?: ToolRunBudgetClass
   toolCalls?: NormalizedToolCall[]
   toolResults?: Array<{ call: { id?: string; name: string; input?: unknown; argumentsRaw?: string }; result: ToolResult }>
   /** Compact cross-turn audit for the next request's system context. */
@@ -328,6 +338,10 @@ const IDLE_THRESHOLD_LOW = 10_000
 // no bytes and no error, so an idle stream is treated as a network drop and
 // routed through the physical retry path.
 const MAIN_NET_STREAM_IDLE_TIMEOUT_MS = 15 * 60_000
+// Slow-stream tolerance is for output that has already started. A silent
+// connection before the first content/reasoning delta is still a dead
+// transport and must re-enter the full-request physical retry path.
+const MAIN_NET_STREAM_FIRST_OUTPUT_TIMEOUT_MS = 3 * 60_000
 // Some OpenAI-compatible providers keep the socket alive while sending
 // protocol-only SSE frames (empty deltas/usage pings). This watchdog only
 // resets on content or reasoning progress, so those live-but-silent streams
@@ -384,7 +398,8 @@ function hasEditorWriteTool(params: CallAiParams): boolean {
 }
 
 function isFinalDraftPlan(params: CallAiParams): boolean {
-  return params.toolPolicy?.executionPlan?.mode === 'final-draft'
+  const mode = params.toolPolicy?.executionPlan?.mode
+  return mode === 'final-draft' || mode === 'single-pass'
 }
 
 function resolveFinalDraftToolSurface(params: CallAiParams): CallAiParams {
@@ -480,14 +495,20 @@ export function detectUserHandoffResponse(input: {
   text?: string | null
   executionPlan?: LongDocumentExecutionPlan | null
   hasSuccessfulWrite?: boolean
+  successfulWriteCount?: number
+  plannedWriteCount?: number
 }): UserHandoffVerdict {
   const text = String(input?.text || '').trim()
   if (!text) return { kind: 'none' }
   const executionPlan = input.executionPlan || null
+  const successfulWriteCount = input.successfulWriteCount
+    ?? (input.hasSuccessfulWrite ? 1 : 0)
+  const plannedWriteCount = input.plannedWriteCount
+    ?? (executionPlan?.segments.length || (successfulWriteCount > 0 ? successfulWriteCount : 1))
   const writeTaskIncomplete = Boolean(executionPlan
     && executionPlan.mode !== 'final-draft'
     && executionPlan.operation !== 'discussion'
-    && !input.hasSuccessfulWrite)
+    && successfulWriteCount < plannedWriteCount)
 
   if (LEGACY_PREVIEW_HANDOFF_MARKERS.some(pattern => pattern.test(text))) {
     return { kind: 'legacy_preview_response' }
@@ -609,6 +630,20 @@ const TERMINAL_WRITE_FAILURE_CODES = new Set([
 
 const WHOLE_DOCUMENT_REPLACEMENT_CODE = 'document_too_large_for_whole_replacement'
 const WHOLE_DOCUMENT_REPLACEMENT_VIOLATION_LIMIT = 2
+
+function isBlankReplaceMatchFailure(item: { call: NormalizedToolCall; result: ToolResult }): boolean {
+  return item.call.name === 'editor.write'
+    && item.result.ok === false
+    && item.result.error?.code === 'invalid_input'
+    && typeof item.result.error?.message === 'string'
+    && item.result.error.message.includes('若目的是删除原文，请使用 delete 操作')
+}
+
+function isReorderCommandAsPhantomToolFailure(item: { call: NormalizedToolCall; result: ToolResult }): boolean {
+  return item.call.name === 'editor.reorder_sections'
+    && item.result.ok === false
+    && item.result.error?.code === 'tool_not_found'
+}
 
 function findTerminalWriteFailure(
   results: Array<{ call: NormalizedToolCall; result: ToolResult }>,
@@ -1033,6 +1068,13 @@ interface StreamCallbacks {
   onChunk?: (text: string) => void
   onReasoning?: (text: string) => void
   onUsage?: (usage: any) => void
+  onToolProgress?: (progress: StreamToolProgressEvent) => void
+}
+
+export interface StreamToolProgressEvent {
+  protocol: string
+  toolCallCount: number
+  argumentCharacters: number
 }
 
 type MainNetStreamResult = {
@@ -1117,28 +1159,38 @@ function createStreamToolCallState(): StreamToolCallState {
   }
 }
 
-function collectStreamToolCalls(json: any, protocolName: string, state: StreamToolCallState): void {
+function collectStreamToolCalls(json: any, protocolName: string, state: StreamToolCallState): boolean {
   if (protocolName === 'gemini') {
     const parts = json?.candidates?.[0]?.content?.parts
-    if (!Array.isArray(parts)) return
+    if (!Array.isArray(parts)) return false
+    let progressed = false
     for (const part of parts) {
       if (!part?.functionCall?.name) continue
       state.geminiParts.push({ functionCall: { name: String(part.functionCall.name), args: part.functionCall.args ?? {} } })
+      progressed = true
     }
-    return
+    return progressed
   }
 
   if (protocolName === 'anthropic') {
+    let progressed = false
     if (json?.type === 'content_block_start' && json?.content_block?.type === 'tool_use') {
       state.anthropicBlocks.set(Number(json.index ?? 0), {
         id: json.content_block.id ? String(json.content_block.id) : undefined,
         name: json.content_block.name ? String(json.content_block.name) : undefined,
         json: '',
       })
+      progressed = true
     }
     if (json?.type === 'content_block_delta' && json?.delta?.type === 'input_json_delta') {
       const block = state.anthropicBlocks.get(Number(json.index ?? 0))
-      if (block) block.json += String(json.delta.partial_json || '')
+      if (block) {
+        const partialJson = String(json.delta.partial_json || '')
+        if (partialJson) {
+          block.json += partialJson
+          progressed = true
+        }
+      }
     }
     if (json?.type === 'content_block_stop') {
       const index = Number(json.index ?? 0)
@@ -1153,24 +1205,61 @@ function collectStreamToolCalls(json: any, protocolName: string, state: StreamTo
           input,
         })
         state.anthropicBlocks.delete(index)
+        progressed = true
       }
     }
-    return
+    return progressed
   }
 
   const deltas = json?.choices?.[0]?.delta?.tool_calls
   const calls = Array.isArray(deltas) ? deltas : json?.choices?.[0]?.message?.tool_calls
-  if (!Array.isArray(calls)) return
+  if (!Array.isArray(calls)) return false
+  let progressed = false
   for (const delta of calls) {
     const index = Number.isFinite(delta?.index) ? Number(delta.index) : state.openAIToolCalls.length
     while (state.openAIToolCalls.length <= index) {
       state.openAIToolCalls.push({ id: '', type: 'function', function: { name: '', arguments: '' } })
     }
     const target = state.openAIToolCalls[index]
-    if (delta?.id) target.id = String(delta.id)
-    if (delta?.function?.name) target.function.name = String(delta.function.name)
-    if (typeof delta?.function?.arguments === 'string') target.function.arguments += delta.function.arguments
+    if (delta?.id) {
+      target.id = String(delta.id)
+      progressed = true
+    }
+    if (delta?.function?.name) {
+      target.function.name = String(delta.function.name)
+      progressed = true
+    }
+    if (typeof delta?.function?.arguments === 'string' && delta.function.arguments) {
+      target.function.arguments += delta.function.arguments
+      progressed = true
+    }
   }
+  return progressed
+}
+
+function summarizeStreamToolProgress(protocolName: string, state: StreamToolCallState): StreamToolProgressEvent {
+  if (protocolName === 'anthropic') {
+    let argumentCharacters = 0
+    for (const block of state.anthropicBlocks.values()) argumentCharacters += block.json.length
+    for (const item of state.anthropicContent) {
+      try { argumentCharacters += JSON.stringify(item.input || {}).length } catch { /* ignore malformed progress payload */ }
+    }
+    return {
+      protocol: protocolName,
+      toolCallCount: state.anthropicBlocks.size + state.anthropicContent.length,
+      argumentCharacters,
+    }
+  }
+  if (protocolName === 'gemini') {
+    let argumentCharacters = 0
+    for (const part of state.geminiParts) {
+      try { argumentCharacters += JSON.stringify(part.functionCall.args ?? {}).length } catch { /* ignore malformed progress payload */ }
+    }
+    return { protocol: protocolName, toolCallCount: state.geminiParts.length, argumentCharacters }
+  }
+  let argumentCharacters = 0
+  for (const call of state.openAIToolCalls) argumentCharacters += call.function.arguments.length
+  return { protocol: protocolName, toolCallCount: state.openAIToolCalls.length, argumentCharacters }
 }
 
 function streamToolCallRaw(protocolName: string, state: StreamToolCallState): any | undefined {
@@ -1269,7 +1358,9 @@ async function parseSSEStream(
         if (json?.error || json?.message || json?.msg) {
           streamError = json
         }
-        collectStreamToolCalls(json, protocolName, toolCallState)
+        if (collectStreamToolCalls(json, protocolName, toolCallState)) {
+          cb.onToolProgress?.(summarizeStreamToolProgress(protocolName, toolCallState))
+        }
         if (protocolName === 'gemini') {
           const text = (json?.candidates?.[0]?.content?.parts || []).map((part: any) => part?.text || '').join('')
           if (text) {
@@ -1795,9 +1886,12 @@ async function mainNetStream(
   const startedAt = Date.now()
   let idleTimedOut = false
   let progressTimedOut = false
+  let firstOutputTimedOut = false
   let streamSettled = false
+  let sawStreamOutput = false
   let streamProgressTimer: ReturnType<typeof setTimeout> | null = null
   let idleTimer: ReturnType<typeof setTimeout> | null = null
+  let firstOutputTimer: ReturnType<typeof setTimeout> | null = null
   const clearIdleWatchdog = () => {
     if (!idleTimer) return
     clearTimeout(idleTimer)
@@ -1834,12 +1928,41 @@ async function mainNetStream(
       }
     }, MAIN_NET_STREAM_PROGRESS_TIMEOUT_MS)
   }
+  const clearFirstOutputWatchdog = () => {
+    if (!firstOutputTimer) return
+    clearTimeout(firstOutputTimer)
+    firstOutputTimer = null
+  }
+  const armFirstOutputWatchdog = () => {
+    if (!slowStreamTolerant) return
+    clearFirstOutputWatchdog()
+    firstOutputTimer = setTimeout(() => {
+      firstOutputTimedOut = true
+      streamError = '慢流请求首字超时，已按网络断流处理'
+      ended = true
+      if (resolveChunk) {
+        const resolve = resolveChunk
+        resolveChunk = null
+        resolve()
+      }
+    }, MAIN_NET_STREAM_FIRST_OUTPUT_TIMEOUT_MS)
+  }
+  const markStreamOutput = () => {
+    if (!sawStreamOutput) {
+      sawStreamOutput = true
+      clearFirstOutputWatchdog()
+    }
+  }
   // Slow-stream callers own stall handling at the task layer. Transport
   // watchdogs must not kill a live-but-slow final-draft stream and force the
-  // current segment to restart from zero.
+  // current segment to restart from zero. The first-output watchdog is the
+  // exception: until content or reasoning actually starts, there is no
+  // partial result worth protecting and the request must reconnect.
   if (!slowStreamTolerant) {
     armIdleWatchdog()
     armProgressWatchdog()
+  } else {
+    armFirstOutputWatchdog()
   }
 
   const abortHandler = () => {
@@ -1885,13 +2008,20 @@ async function mainNetStream(
           const json = JSON.parse(payload)
           if (!progressTimedOut) {
             const delta = extractProtocolStreamDelta(json, protocol)
-            if (delta.content || delta.reasoning) armProgressWatchdog()
+            if (delta.content || delta.reasoning) {
+              markStreamOutput()
+              if (!slowStreamTolerant) armProgressWatchdog()
+            }
           }
-          collectStreamToolCalls(json, protocolName, toolCallState)
+          if (collectStreamToolCalls(json, protocolName, toolCallState)) {
+            callbacks.onToolProgress?.(summarizeStreamToolProgress(protocolName, toolCallState))
+            if (!slowStreamTolerant) armProgressWatchdog()
+          }
           const delta = extractProtocolStreamDelta(json, protocol)
           finishReason = delta.finishReason || finishReason
           if (delta.reasoning) {
-            armProgressWatchdog()
+            markStreamOutput()
+            if (!slowStreamTolerant) armProgressWatchdog()
             const emitted = reasoningFilter.push(delta.reasoning)
             if (emitted) {
               reasoningText += emitted
@@ -1899,7 +2029,8 @@ async function mainNetStream(
             }
           }
           if (delta.content) {
-            armProgressWatchdog()
+            markStreamOutput()
+            if (!slowStreamTolerant) armProgressWatchdog()
             fullText += delta.content
             const emitted = chunkFilter.push(delta.content)
             if (emitted) callbacks.onChunk?.(emitted)
@@ -1922,6 +2053,9 @@ async function mainNetStream(
     }
     if (progressTimedOut) {
       throw new AiServiceErrorImpl({ kind: 'network', message: streamError || '流式响应长时间无正文或推理增量' })
+    }
+    if (firstOutputTimedOut) {
+      throw new AiServiceErrorImpl({ kind: 'network', message: streamError || '慢流请求首字超时' })
     }
     const invokeResult = await invoke
     if (!invokeResult.ok) {
@@ -1975,6 +2109,7 @@ async function mainNetStream(
   } finally {
     clearProgressWatchdog()
     clearIdleWatchdog()
+    clearFirstOutputWatchdog()
     externalSignal?.removeEventListener('abort', abortHandler)
     if (typeof offChunk === 'function') offChunk()
     if (!streamSettled) {
@@ -1994,21 +2129,25 @@ export function createAiService(
 ): AiService {
   const log = logger || null
   const compatibilityWriteGuards = new Map<string, RepeatedWriteGuard>()
-  let sharedPhysicalRequestBudget: (() => boolean) | undefined
+  let activeToolRunBudget: ToolRunBudget | undefined
 
   async function _rawCall(
     provider: ProviderLike,
     params: CallAiParams,
     timeoutMs: number | null
   ): Promise<{ text: string; reasoning: string; usage?: any; finishReason?: string; raw?: any; maxTokens?: number | null; modelCapability?: ModelCapability }> {
-    if (sharedPhysicalRequestBudget && !sharedPhysicalRequestBudget()) {
+    if (activeToolRunBudget && !activeToolRunBudget.canStartPhysicalRequest('read')) {
       throw new AiServiceErrorImpl({
         kind: 'network',
-        message: '任务级物理请求预算已耗尽，已阻止本次供应商外呼',
+        message: '任务级物理请求安全网已达到，已阻止本次供应商外呼',
         providerId: provider.id,
         purpose: params.purpose,
       })
     }
+    // Count at dispatch, not completion. The live panel must show a request
+    // as consumed while it is in flight, and failed calls still spend the
+    // transport safety net.
+    activeToolRunBudget?.recordPhysicalRequest()
     const model = resolveModel(provider, params.model)
     const providerType = normalizeProviderType(provider.providerType)
     const headers = buildProviderHeaders(providerType, provider.apiKey)
@@ -2072,6 +2211,7 @@ export function createAiService(
           {
             onChunk: requestParams.onChunk,
             onReasoning: requestParams.onReasoning,
+            onToolProgress: requestParams.onStreamToolProgress,
             onUsage: (u: any) => {
               streamUsage = u
               if (requestParams.onUsage) requestParams.onUsage(u)
@@ -2090,6 +2230,7 @@ export function createAiService(
           {
             onChunk: requestParams.onChunk,
             onReasoning: requestParams.onReasoning,
+            onToolProgress: requestParams.onStreamToolProgress,
             onUsage: (u: any) => {
               streamUsage = u
               if (requestParams.onUsage) requestParams.onUsage(u)
@@ -2148,13 +2289,13 @@ export function createAiService(
    */
   async function callAi(params: CallAiParams): Promise<CallAiResult> {
     const prepared = resolveFinalDraftToolSurface(params)
-    const previousSharedPhysicalRequestBudget = sharedPhysicalRequestBudget
-    sharedPhysicalRequestBudget = prepared.toolPolicy?.consumePhysicalRequestBudget
+    const previousToolRunBudget = activeToolRunBudget
+    activeToolRunBudget = prepared.toolPolicy?.toolRunBudget
     try {
       if (!prepared.tools || prepared.tools.length === 0) return await callAiWithoutTools(prepared)
       return await callAiWithToolFallback(prepared)
     } finally {
-      sharedPhysicalRequestBudget = previousSharedPhysicalRequestBudget
+      activeToolRunBudget = previousToolRunBudget
     }
   }
 
@@ -2175,7 +2316,7 @@ export function createAiService(
       loopScenario,
       params.toolPolicy?.maxToolIterations,
     )
-    const sharedPhysicalBudget = params.toolPolicy?.consumePhysicalRequestBudget
+    const toolRunBudget = params.toolPolicy?.toolRunBudget
     let messages: CallAiParams['messages'] = params.messages.map(message => ({ ...message }))
     let contextCompactedMessageCount = 0
     const allToolCalls: NormalizedToolCall[] = []
@@ -2267,12 +2408,17 @@ export function createAiService(
     }
 
     for (let iteration = 1; iteration <= maxIterations; iteration++) {
-      if (iteration > 1 && sharedPhysicalBudget && !sharedPhysicalBudget({ inCall: true })) {
+      if (
+        iteration > 1
+        && toolRunBudget
+        && !toolRunBudget.canStartPhysicalRequest('read')
+      ) {
+        const snapshot = toolRunBudget.snapshot()
         params.toolPolicy?.onToolWarning?.(
-          `任务级物理请求预算已耗尽，已停止第 ${iteration} 轮工具迭代并转入终局收口`,
+          `任务级物理请求安全网已达到：物理请求 ${snapshot.physicalRequests}/${snapshot.maxPhysicalRequests}，读取 ${snapshot.readToolCalls}/${snapshot.maxReadToolCalls}，写入 ${snapshot.writeToolCalls}/${snapshot.reservedWriteToolCalls}。已停止第 ${iteration} 轮工具迭代并转入终局收口`,
         )
         return {
-          text: '本轮未完整执行写入计划：任务级物理请求预算已耗尽。已执行的写入与工具结果已保存到运行记录，请根据剩余批次继续下一轮。',
+          text: `本轮未完整执行写入计划：物理请求安全网已达到（${snapshot.physicalRequests}/${snapshot.maxPhysicalRequests}）。已执行的写入与工具结果已保存到运行记录，请根据剩余批次继续下一轮。`,
           reasoning: '',
           usage: lastResult?.usage,
           usageUnavailable: !lastResult?.usage,
@@ -2283,8 +2429,9 @@ export function createAiService(
           toolResults: allToolResults,
           toolRequestDeltas,
           toolAudit: lastToolAudit,
-          finishReason: 'physical_request_budget_exhausted',
-          convergenceReason: 'shared physical request budget exhausted during tool iteration',
+          finishReason: 'tool_budget_exhausted',
+          convergenceReason: 'classified tool run budget exhausted during tool iteration',
+          toolRunBudgetPhase: 'control',
         }
       }
       const contextCompaction = compactToolContextMessages(messages)
@@ -2317,6 +2464,32 @@ export function createAiService(
 
       const calls = extractProviderToolCallsFromResponse(providerType, response)
       if (calls.length === 0) {
+        if (response.finishReason === 'tool_calls') {
+          const protocolMessage = `供应商返回 finish_reason=tool_calls，但响应载荷中没有可执行的工具调用（providerType=${providerType}，正文 ${String(response.text || '').length} 字，推理 ${String(response.reasoning || '').length} 字）。已停止工具循环，避免静默续发物理请求`
+          params.toolPolicy?.onToolWarning?.(protocolMessage)
+          return {
+            text: protocolMessage,
+            textOrigin: 'application' as const,
+            reasoning: '',
+            usage: response.usage,
+            usageUnavailable: response.usageUnavailable,
+            providerId,
+            model,
+            durationMs: Date.now() - startTime,
+            toolCalls: allToolCalls,
+            toolResults: allToolResults,
+            toolRequestDeltas,
+            toolAudit: lastToolAudit,
+            contextBudget,
+            contextCompactedMessageCount,
+            usageReconciliation: buildUsageReconciliation({
+              estimatedInputTokens: contextBudget.estimatedInputTokens,
+              usage: response.usage,
+            }),
+            finishReason: 'tool_calls_payload_missing',
+            convergenceReason: 'provider finished with tool_calls but the response payload contained no executable tool calls',
+          }
+        }
         if (hasProviderSoftQuotaError(response.text || '')) {
           throwProviderSoftError(
             { message: response.text },
@@ -2347,8 +2520,26 @@ export function createAiService(
           text: response.text,
           executionPlan,
           hasSuccessfulWrite: successfulWriteCount > 0,
+          successfulWriteCount,
+          plannedWriteCount: executionPlan?.segments.length,
         })
         if (handoffVerdict.kind !== 'none') {
+          const planAllowsOneContinuation = Boolean(
+            coverageSummary
+            && executionPlan
+            && executionPlan.mode === 'edit-task'
+            && coverageSummary.successfulWriteCount > 0
+            && !coverageSummary.complete
+            && !writeContinuationSteeringSent,
+          )
+          if (
+            handoffVerdict.kind === 'needs_user_handoff'
+            && planAllowsOneContinuation
+          ) {
+            // Partial progress plus a question first gets one continuation
+            // steering round. A repeated question then becomes a real user
+            // handoff, so an interactive question cannot silently checkpoint.
+          } else {
           const legacyHandoff = handoffVerdict.kind === 'legacy_preview_response'
           const convergenceReason = legacyHandoff
             ? 'model followed the removed preview state machine instead of using editor.write'
@@ -2372,6 +2563,7 @@ export function createAiService(
             }),
             finishReason: handoffVerdict.kind,
             convergenceReason,
+          }
           }
         }
         const finalVerdict = judgeConvergenceText(response)
@@ -2466,6 +2658,7 @@ export function createAiService(
             toolAudit: lastToolAudit,
             finishReason: 'incomplete_write_coverage_checkpoint',
             convergenceReason: 'model emitted a final summary before long-document coverage was complete',
+            toolRunBudgetPhase: 'write',
           }
         }
         return {
@@ -2527,6 +2720,61 @@ export function createAiService(
       for (const call of calls) {
         allToolCalls.push(call)
         const tool = params.tools?.find(item => item.name === call.name)
+        const budgetClass = classifyToolBudgetClass({
+          name: call.name,
+          policy: tool?.policy,
+        })
+        const budgetSnapshot = toolRunBudget?.snapshot()
+        const budgetRejection = toolRunBudget && !toolRunBudget.canStartToolCall(budgetClass)
+          ? {
+              ok: false as const,
+              error: {
+                code: `${budgetClass}_budget_exhausted`,
+                message: budgetClass === 'write'
+                  ? `写入预算已用尽（计划 ${budgetSnapshot?.reservedWriteToolCalls ?? 0} 次），请停止继续写入并基于已执行结果收口`
+                  : budgetClass === 'read'
+                    ? `读取预算已用尽（安全网 ${budgetSnapshot?.maxReadToolCalls ?? 0} 次），请停止继续读取并基于已执行结果收口`
+                    : '控制类工具预算已用尽（上限 16 次），请基于当前计划与上下文收口',
+                retryable: false,
+              },
+            }
+          : null
+        if (budgetRejection) {
+          toolResults.push({ call, result: budgetRejection })
+          allToolResults.push({ call, result: budgetRejection })
+          params.toolPolicy?.onToolStart?.({
+            toolName: call.name,
+            policy: tool?.policy || 'read',
+            iteration,
+            input: call.input,
+          })
+          params.toolPolicy?.onToolCall?.({
+            toolName: call.name,
+            toolCallId: call.id,
+            policy: tool?.policy || 'read',
+            iteration,
+            input: call.input,
+            argumentsRaw: call.argumentsRaw,
+            result: budgetRejection,
+            durationMs: 0,
+            toolCapability: 'native_tools',
+            rejectionCategory: classifyToolRejection(budgetRejection),
+          })
+          logToolRequest(log, {
+            purpose: params.purpose,
+            providerId,
+            model,
+            toolName: call.name,
+            iteration,
+            input: call.input,
+            result: budgetRejection,
+            durationMs: 0,
+            toolCapability: 'native_tools',
+            rejectionCategory: classifyToolRejection(budgetRejection),
+          })
+          continue
+        }
+        toolRunBudget?.recordToolCall(budgetClass)
         if (call.argumentsError) {
           const rawSummary = (call.argumentsRaw || '')
             .slice(0, 300)
@@ -2841,6 +3089,8 @@ export function createAiService(
         item.call.name === 'editor.write'
         && item.result.ok === false
         && item.result.error?.code === WHOLE_DOCUMENT_REPLACEMENT_CODE)
+      const blankReplaceMatchFailure = toolResults.find(isBlankReplaceMatchFailure)
+      const reorderCommandAsPhantomToolFailure = toolResults.find(isReorderCommandAsPhantomToolFailure)
       if (wholeDocumentReplacementFailure) {
         wholeDocumentReplacementViolations += 1
       } else {
@@ -2887,6 +3137,36 @@ export function createAiService(
         toolRequestDeltas.push({ ...steeringSystem })
         params.toolPolicy?.onToolWarning?.(
           `editor.write 拒绝整篇替换；已保留工具面并要求下一轮改用受限局部命令`,
+        )
+      }
+      if (blankReplaceMatchFailure) {
+        const steeringSystem = {
+          role: 'system' as const,
+          content: [
+            '上一轮 editor.write 被拒绝：replace_match 缺失 content 会被视为替换为空，应用不会执行该写入。',
+            '若目的是删除原文，下一轮必须改用 delete 操作，并保持 target 唯一；若是替换文本，下一轮必须提交非空 content。',
+            '禁止重复提交相同的空 replace_match 命令；若无法继续，停止调用工具并说明具体原因。',
+          ].join('\n'),
+        }
+        messages = [...messages, steeringSystem]
+        toolRequestDeltas.push({ ...steeringSystem })
+        params.toolPolicy?.onToolWarning?.(
+          'editor.write 拒绝空 content；已要求下一轮改用 delete 删除原文',
+        )
+      }
+      if (reorderCommandAsPhantomToolFailure) {
+        const steeringSystem = {
+          role: 'system' as const,
+          content: [
+            '上一轮调用了不存在的工具 editor.reorder_sections。',
+            'reorder_sections 是 editor.write 里的命令，不是独立工具；下一轮必须改用 editor.write，并在 commands[0].operation 中提交 reorder_sections，同时提供完整有序顶层结构 ID 数组 order。',
+            '禁止把编辑命令名直接当作工具名调用；若无法继续，停止调用工具并说明缺失信息。',
+          ].join('\n'),
+        }
+        messages = [...messages, steeringSystem]
+        toolRequestDeltas.push({ ...steeringSystem })
+        params.toolPolicy?.onToolWarning?.(
+          'editor.reorder_sections 不是独立工具；已要求下一轮改用 editor.write 的 reorder_sections 命令',
         )
       }
       if (hitInvalidInputConvergence) {
@@ -3047,8 +3327,9 @@ export function createAiService(
       role: 'system',
       content: systemPrompt,
     }
+    const convergenceCompaction = compactToolContextMessages(messages)
     let convergenceMessages: CallAiParams['messages'] = [
-      ...messages,
+      ...convergenceCompaction.messages,
       convergenceSystem,
     ]
     toolRequestDeltas.push({ ...convergenceSystem })
@@ -3139,17 +3420,19 @@ export function createAiService(
     try {
       return await callAiWithTools(params)
     } catch (error: any) {
-      if (error?.message?.includes('任务级物理请求预算已耗尽')) {
+      if (error?.message?.includes('任务级物理请求安全网已达到')) {
+        const snapshot = params.toolPolicy?.toolRunBudget?.snapshot()
         return {
-          text: '本轮未完整执行写入计划：任务级物理请求预算已耗尽。已执行的写入与工具结果已保存到运行记录，请根据剩余批次继续下一轮。',
+          text: `本轮未完整执行写入计划：物理请求安全网已达到（${snapshot ? `${snapshot.physicalRequests}/${snapshot.maxPhysicalRequests}` : '已耗尽'}）。已执行的写入与工具结果已保存到运行记录，请根据剩余批次继续下一轮。`,
           textOrigin: 'application' as const,
           reasoning: '',
           providerId: error?.providerId,
           durationMs: 0,
           toolCalls: [],
           toolResults: [],
-          finishReason: 'physical_request_budget_exhausted',
-          convergenceReason: 'shared physical request budget exhausted before provider dispatch',
+          finishReason: 'tool_budget_exhausted',
+          convergenceReason: 'classified tool run budget exhausted before provider dispatch',
+          toolRunBudgetPhase: 'control',
         }
       }
       const isClientError = error?.statusCode === 400 || error?.statusCode === 422
@@ -3317,6 +3600,12 @@ export function createAiService(
           physicalCallId = `physical-${startTime}-${attempt}`
           physicalCallIds.set(attempt, physicalCallId)
         }
+        const physicalToolCalls = requestedTools
+          ? extractProviderToolCallsFromResponse(providerType, {
+            toolCalls: result?.toolCalls,
+            raw: result?.raw,
+          } as CallAiResult)
+          : []
         params.onPhysicalCall?.({
           physicalCallId,
           phase: overridePhase || (attempt > 0 ? 'retry' : basePhase),
@@ -3346,6 +3635,8 @@ export function createAiService(
           heartbeat: status === 'running'
             ? Boolean(heartbeat || physicalHeartbeatTimer !== null)
             : undefined,
+          toolCallCount: requestedTools ? physicalToolCalls.length : 0,
+          toolCallNames: requestedTools ? physicalToolCalls.map(call => call.name) : [],
           ...interruption,
         })
       } catch { /* trace must never break the AI request */ }
@@ -3389,14 +3680,14 @@ export function createAiService(
           if (visibleText && originalOnChunk) originalOnChunk(visibleText)
         } }
       : params
-    const reasoningTraceParams = originalOnReasoning
-      ? { ...traceParams, onReasoning: (text: string) => {
-          if (!text) return
-          reasoningBuffer += text
-          originalOnReasoning(text)
-        } }
-      : traceParams
-    params = reasoningTraceParams
+    // Reasoning is physical progress even when no caller listens to it. Always
+    // accumulate it so long-thinking requests do not look idle in the trace
+    // and are not killed by the outer tool-run watchdog.
+    params = { ...traceParams, onReasoning: (text: string) => {
+      if (!text) return
+      reasoningBuffer += text
+      originalOnReasoning?.(text)
+    } }
 
     try {
       for (let attempt = 0; attempt <= physicalRetryCeiling; attempt++) {

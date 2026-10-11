@@ -1,0 +1,29 @@
+{
+  "caseId": "outline-with-skill",
+  "entry": "outline",
+  "withSkill": true,
+  "request": "请对全文做一次完整整理重排：按叙事逻辑重新排序，合并或删除重复项，统一中文标点和标题层级，按Word文档格式整理。",
+  "runId": "run-1791681636300-1",
+  "turnId": "turn-1791681636301-3",
+  "turnStatus": "success",
+  "intent": "generate",
+  "turnReason": "final_draft_complete",
+  "physicalCalls": 1,
+  "toolCalls": [],
+  "finishReasons": [
+    "stop"
+  ],
+  "beforeChars": 74293,
+  "afterChars": 74323,
+  "durationMs": 638142,
+  "rendererMemory": {
+    "samples": 126,
+    "peakJsHeapUsedBytes": 24459516,
+    "peakJsHeapTotalBytes": 39002112,
+    "jsHeapLimitBytes": null,
+    "crashed": false,
+    "crashReasons": [],
+    "pageErrors": []
+  },
+  "persistedTrace": "_audit\\verification-single-pass-live-replay\\outline-with-skill\\run-trace"
+}

@@ -1,23 +1,23 @@
 {
-  "schemaVersion": "packaging-3-77-0-v1",
-  "generatedAt": "2026-10-07T19:11:56.891Z",
-  "version": "3.77.0",
+  "schemaVersion": "packaging-3-79-0-v1",
+  "generatedAt": "2026-10-11T03:32:02.838Z",
+  "version": "3.79.0",
   "main": "electron/main.js",
-  "installer": "dist\\神意助手-Setup-3.77.0.exe",
-  "installerBytes": 231502179,
-  "installerSha256": "eef0019410554319c828e650b1eb486f2ac679068f885f161f085fd4df0e6236",
+  "installer": "dist\\神意助手-Setup-3.79.0.exe",
+  "installerBytes": 231512640,
+  "installerSha256": "56cc8755eadd37a9cc0a3fb0c00e5190c8b8462bdd1fe0ffd1eca55c0ff471a2",
   "nsis": {
     "source": "package.json",
     "oneClick": false,
     "allowToChangeInstallationDirectory": true
   },
   "asarFile": "dist\\win-unpacked\\resources\\app.asar",
-  "asarMtime": "2026-10-07T19:09:53.325Z",
+  "asarMtime": "2026-10-11T03:22:09.775Z",
   "latestSourceFile": {
     "file": "package-lock.json",
-    "mtime": 1791399955090.2231
+    "mtime": 1791688603388.2998
   },
-  "latestSourceMtime": "2026-10-07T19:05:55.090Z",
+  "latestSourceMtime": "2026-10-11T03:16:43.388Z",
   "rendererFileCount": 74,
   "electronApiKeyCount": 75,
   "electronApiKeys": [
@@ -97,6 +97,6 @@
     "windowOpenProject",
     "windowSetCurrentProject"
   ],
-  "bodyTextLength": 411,
+  "bodyTextLength": 2272,
   "verdict": "pass"
 }

@@ -171,6 +171,46 @@ describe('validateOutlineIntegrity', () => {
     expect(report.issues.some(issue => issue.type === 'body_content_lost' && issue.level === 'critical')).toBe(true)
   })
 
+  it('allows planned merge and cleanup in a single-pass whole-document rewrite', () => {
+    const original = [
+      '## 第1节 旧信',
+      '旧信压在箱底。',
+      'paste 到「故事核心」下',
+      '## 第2节 故事核心',
+      '灯塔在雨里亮着。',
+      '灯塔在雨里亮着。',
+    ].join('\n')
+    const rewritten = [
+      '## 第1节 故事核心',
+      '旧信压在箱底。灯塔在雨里亮着。',
+    ].join('\n')
+    const report = validateOutlineIntegrity(original, rewritten, {
+      validateDocumentBody: true,
+      allowWholeDocumentRewrite: true,
+    })
+
+    expect(report.issues.some(issue => issue.type === 'body_content_lost')).toBe(true)
+    expect(report.issues.some(issue => issue.type === 'heading_count_reduced')).toBe(true)
+    expect(report.issues.every(issue => issue.level === 'warning')).toBe(true)
+    expect(report.ok).toBe(true)
+  })
+
+  it('still blocks catastrophic loss in a single-pass rewrite', () => {
+    const original = [
+      '## 第1节 旧信',
+      '旧信压在箱底，始终没有寄出去。',
+      '## 第2节 灯塔',
+      '灯塔在雨里亮着。',
+    ].join('\n').repeat(20)
+    const report = validateOutlineIntegrity(original, '## 第1节 空稿', {
+      validateDocumentBody: true,
+      allowWholeDocumentRewrite: true,
+    })
+
+    expect(report.ok).toBe(false)
+    expect(report.issues.some(issue => issue.type === 'content_loss' && issue.level === 'critical')).toBe(true)
+  })
+
   it('does not falsely flag a reordered body as lost when sections contain duplicate paragraphs', () => {
     const sharedBody = '这一句属于本节，用来证明多轮直写不会误伤其他内容。'
     const sections = [

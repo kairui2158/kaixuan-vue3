@@ -7,7 +7,11 @@ import type { EditorDiffHunkView } from '../services/editorDiffHunks'
 import type { EditorBatchRecord } from '../services/editorBatchRecord'
 import type { WorkspaceSkillRunMeta } from '../services/workspaceSkillEngine'
 import type { ChainRoutingResult } from '../services/chainIntentRouter'
-import type { FinalDraftTask } from '../services/finalDraftService'
+import {
+  toFinalDraftTaskView,
+  type FinalDraftTask,
+  type FinalDraftTaskView,
+} from '../services/finalDraftService'
 
 export interface ChatMessage {
   id: string
@@ -46,7 +50,7 @@ export interface ChatMessage {
     budgetToken?: string
   }
   skillRunDiagnostics?: Pick<WorkspaceSkillRunMeta, 'status' | 'diagnostics' | 'requestMessages' | 'budget' | 'folderPackageCache'>
-  finalDraftTask?: FinalDraftTask
+  finalDraftTask?: FinalDraftTaskView | FinalDraftTask
 }
 
 export interface ChatSession {
@@ -81,9 +85,30 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
-  async function saveSessions(projectId?: string) {
+  const SESSIONS_SAVE_INTERVAL_MS = 250
+  let sessionsSavePending: Promise<boolean> | null = null
+  let sessionsSaveTimer: ReturnType<typeof setTimeout> | null = null
+
+  async function persistSessions(id: string): Promise<boolean> {
+    // Serialize once here; callers mutate the live Pinia state and must not
+    // trigger a full deep clone for every stream chunk.
+    const snapshot = JSON.parse(JSON.stringify(sessions.value)) as ChatSession[]
+    return window.electronAPI.storageWrite(storageKey('chat_' + id), snapshot)
+  }
+
+  function saveSessions(projectId?: string): Promise<boolean> {
     const id = projectId || currentProjectId.value || 'default'
-    await window.electronAPI.storageWrite(storageKey('chat_' + id), JSON.parse(JSON.stringify(sessions.value)))
+    if (projectId) currentProjectId.value = projectId
+    if (sessionsSaveTimer) return sessionsSavePending ?? Promise.resolve(true)
+    sessionsSavePending = new Promise(resolve => {
+      sessionsSaveTimer = setTimeout(async () => {
+        sessionsSaveTimer = null
+        const result = await persistSessions(id)
+        sessionsSavePending = null
+        resolve(result)
+      }, SESSIONS_SAVE_INTERVAL_MS)
+    })
+    return sessionsSavePending
   }
 
   function ensureSession(tabId: string, chapterId: string, title: string, projectId?: string) {
@@ -166,13 +191,15 @@ export const useChatStore = defineStore('chat', () => {
     return true
   }
 
-  function updateMessageFinalDraftTask(messageId: string, task: FinalDraftTask, sessionId?: string) {
+  function updateMessageFinalDraftTask(messageId: string, task: FinalDraftTask, sessionId?: string, projectId?: string) {
     const session = sessions.value.find(item => item.id === (sessionId || activeSessionId.value))
     const message = session?.messages.find(item => item.id === messageId)
     if (!session || !message) return false
-    message.finalDraftTask = task
+    // Persist a slim view even on state transitions. Document-sized fields
+    // belong to the live runner and checkpoint recovery, not chat storage.
+    message.finalDraftTask = toFinalDraftTaskView(task)
     session.updatedAt = Date.now()
-    void saveSessions(currentProjectId.value)
+    void saveSessions(projectId || currentProjectId.value)
     return true
   }
 

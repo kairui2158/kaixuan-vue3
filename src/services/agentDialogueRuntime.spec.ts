@@ -79,6 +79,30 @@ describe('createAgentDialogueRuntime', () => {
     expect(forwarded?.toolPolicy?.executionPlan).toBe(executionPlan)
   })
 
+  it('forwards the entry idle timeout to the orchestrator runtime', async () => {
+    const seenSignals: AbortSignal[] = []
+    const callAi = vi.fn((params: CallAiParams): Promise<CallAiResult> =>
+      new Promise<CallAiResult>((_resolve, reject) => {
+        seenSignals.push(params.signal as AbortSignal)
+        params.signal?.addEventListener('abort', () =>
+          reject(new Error('The operation was aborted')), { once: true })
+      }))
+    const runtime = createAgentDialogueRuntime({
+      ...entry,
+      idleTimeoutMs: 20,
+    })
+    const result = await runtime.run({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '整理全文' }],
+      callAi,
+    })
+
+    expect(callAi).toHaveBeenCalledTimes(1)
+    expect(seenSignals[0]?.aborted).toBe(true)
+    expect(result.status).toBe('failed')
+    expect(result.reason).toBe('idle_timeout')
+  })
+
   it('passes editTaskWorkflow through so edit-task runs keep their write workflow', async () => {
     const executionPlan = buildLongDocumentExecutionPlan({
       requestText: '重新整理全文',
@@ -111,13 +135,15 @@ describe('createAgentDialogueRuntime', () => {
     const executionPlan = buildLongDocumentExecutionPlan({
       requestText: '按照Word文档的形式重构大纲，删除重复项，统一标题层级、编号和标点',
       content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
-      contextWindowTokens: 120_000,
+      contextWindowTokens: 30_000,
       maxOutputTokens: 8_000,
       intent: 'edit',
     })
+    expect(executionPlan.mode).toBe('edit-task')
     const callAi = vi.fn(async (): Promise<CallAiResult> => successResult())
     const runtime = createAgentDialogueRuntime({
       ...entry,
+      persistState: async () => {},
       document: {
         content: entry.document!.content,
         operationType: entry.document!.operationType,
@@ -136,9 +162,6 @@ describe('createAgentDialogueRuntime', () => {
       steps: [
         { id: 'read-structure' },
         { id: 'execute-restructure' },
-        { id: 'confirm-duplicates' },
-        { id: 'delete-duplicates' },
-        { id: 'normalize-segments' },
         { id: 'verify-plan' },
       ],
       completionCriteria: expect.arrayContaining([
@@ -146,6 +169,42 @@ describe('createAgentDialogueRuntime', () => {
         '完成不变量校验：planned-deletion-only, normalize-changes-punctuation-whitespace-format-only',
       ]),
     })
+  })
+
+  it('derives a read-free single-pass plan when the full document fits the window', async () => {
+    const executionPlan = buildLongDocumentExecutionPlan({
+      requestText: '按照Word文档的形式重构大纲，删除重复项，统一标题层级、编号和标点',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      contextWindowTokens: 1_000_000,
+      maxOutputTokens: 32_768,
+      intent: 'edit',
+    })
+    expect(executionPlan.mode).toBe('single-pass')
+    const callAi = vi.fn(async (): Promise<CallAiResult> => successResult())
+    const runtime = createAgentDialogueRuntime({
+      ...entry,
+      document: {
+        content: entry.document!.content,
+        operationType: 'whole-document-restructure',
+        executionPlan,
+      },
+    })
+    const result = await runtime.run({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '整理全篇' }],
+      callAi,
+    })
+
+    const planEvent = result.events.find(event => event.type === 'plan')
+    expect(planEvent?.payload).toMatchObject({
+      steps: [
+        { id: 'single-pass-prose' },
+        { id: 'verify-plan' },
+      ],
+    })
+    const serialized = JSON.stringify(planEvent?.payload)
+    expect(serialized).not.toContain('read-structure')
+    expect(serialized).not.toContain('confirm-duplicates')
   })
 
   it('injects SKILL guidance into the first system message before each physical request', async () => {

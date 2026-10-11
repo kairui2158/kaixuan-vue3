@@ -11,13 +11,79 @@ const snapshot: AgentOrchestratorSnapshot = {
   stepIndex: 0,
   callCount: 1,
   successfulWriteCount: 0,
+  trustedCoverageCount: 0,
+  planComplete: false,
   noProgressRounds: 0,
   repeatedCallCount: 0,
   maxPhysicalRequests: 8,
+  executionPhase: 'locating',
+  toolRunBudget: {
+    maxPhysicalRequests: 8,
+    physicalRequests: 1,
+    maxReadToolCalls: 24,
+    readToolCalls: 3,
+    reservedWriteToolCalls: 2,
+    writeToolCalls: 0,
+    plannedWriteCount: 2,
+    controlToolCalls: 0,
+    exhaustedClasses: [],
+    operation: 'reorder_sections',
+  },
   updatedAt: 1,
 }
 
 describe('agentTraceBridge', () => {
+  it('backfills live execution settlement on the current running api call', () => {
+    const pinia = createPinia()
+    const store = useRunTraceStore(pinia)
+    const runId = store.startRun({ source: 'home', mode: 'direct', projectId: 'p1' })
+    const callId = store.startApiCall(runId, {
+      source: 'home',
+      requestMessages: [{ role: 'user', content: '整理全文' }],
+    })
+    const bridge = createAgentTraceBridge({ pinia, source: 'home' })
+
+    bridge.attach()({
+      type: 'state',
+      level: 'info',
+      label: '任务状态：running',
+    }, snapshot)
+
+    const call = store.getRun(runId)?.apiCalls.find(item => item.id === callId)
+    expect(call?.status).toBe('running')
+    expect(call?.executionSettlement).toMatchObject({
+      phase: 'locating',
+      readToolCalls: 3,
+      maxReadToolCalls: 24,
+      writeToolCalls: 0,
+      reservedWriteToolCalls: 2,
+      successfulWriteCount: 0,
+    })
+    expect(store.getRun(runId)?.events.some(item => item.type === 'api-execution-settlement-updated')).toBe(true)
+  })
+
+  it('does not reopen or overwrite a finished api call', () => {
+    const pinia = createPinia()
+    const store = useRunTraceStore(pinia)
+    const runId = store.startRun({ source: 'outline', mode: 'direct', projectId: 'p1' })
+    const callId = store.startApiCall(runId, {
+      source: 'outline',
+      requestMessages: [{ role: 'user', content: '整理全文' }],
+    })
+    store.finishApiCall(runId, callId, { status: 'success', responseText: '完成' })
+    const bridge = createAgentTraceBridge({ pinia, source: 'outline' })
+
+    bridge.attach()({
+      type: 'state',
+      level: 'info',
+      label: '任务状态：running',
+    }, snapshot)
+
+    const call = store.getRun(runId)?.apiCalls.find(item => item.id === callId)
+    expect(call?.status).toBe('success')
+    expect(call?.executionSettlement).toBeUndefined()
+  })
+
   it('writes agent events and snapshot payloads into the current run', () => {
     const pinia = createPinia()
     const store = useRunTraceStore(pinia)

@@ -26,6 +26,8 @@ export interface LongDocumentWriteCoverageSummary {
   trusted: boolean
   successfulWriteCount: number
   trustedWriteCount: number
+  planComplete: boolean
+  untrustedWriteCount: number
   coveredSegments: string[]
   missingSegments: string[]
   invalidRecords?: Array<Pick<LongDocumentWriteCoverageRecord, 'reason' | 'segmentId'>>
@@ -62,8 +64,14 @@ function readCoverageRecord(value: unknown): LongDocumentWriteCoverageRecord | n
       }
     })
     .filter((command): command is LongDocumentWriteCoverageCommand => command !== null)
-  if (record.coverageTrusted !== true || normalizedCommands.length === 0) return null
   if (normalizedCommands.length !== commands.length) return null
+  if (normalizedCommands.length === 0) return null
+  const coverageTrusted = record.coverageTrusted === true
+  if (!coverageTrusted
+    && typeof record.segmentId !== 'string'
+    && !normalizedCommands.some(command => command.segmentId)) {
+    return null
+  }
   return {
     batchId: typeof record.batchId === 'string' ? record.batchId : undefined,
     documentVersion: typeof record.documentVersion === 'number' ? record.documentVersion : undefined,
@@ -71,7 +79,7 @@ function readCoverageRecord(value: unknown): LongDocumentWriteCoverageRecord | n
     segmentId: typeof record.segmentId === 'string' ? record.segmentId : undefined,
     expectedChange: typeof record.expectedChange === 'string' ? record.expectedChange : undefined,
     writeStrategy: typeof record.writeStrategy === 'string' ? record.writeStrategy : undefined,
-    coverageTrusted: true,
+    coverageTrusted,
     reason: record.reason,
     commands: normalizedCommands,
   }
@@ -125,12 +133,15 @@ export function summarizeLongDocumentWriteCoverage(input: {
     ? countSuccessfulWrites(input.toolResults)
     : input.coverageRecords.length
   const segments = input.plan.segments
+  const complete = successfulWriteCount > 0
   if (!segments.length) {
     return {
-      complete: successfulWriteCount > 0,
+      complete,
       trusted: true,
       successfulWriteCount,
       trustedWriteCount: successfulWriteCount,
+      planComplete: complete,
+      untrustedWriteCount: 0,
       coveredSegments: [],
       missingSegments: [],
     }
@@ -221,6 +232,8 @@ export function summarizeLongDocumentWriteCoverage(input: {
     trusted: trustedWriteCount === successfulWriteCount,
     successfulWriteCount,
     trustedWriteCount,
+    planComplete: segments.every(segment => covered.has(segment.segmentId)),
+    untrustedWriteCount: Math.max(0, successfulWriteCount - trustedWriteCount),
     coveredSegments: segments
       .filter(segment => covered.has(segment.segmentId))
       .map(segment => segment.segmentId),

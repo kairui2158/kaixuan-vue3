@@ -113,12 +113,17 @@ const LEGACY_HISTORY_MARKERS = [
   { name: '批准写回', pattern: /【批准写回】/g, replacement: '[历史批准请求已中和]' },
   { name: '写入未执行', pattern: /【写入未执行】/g, replacement: '[历史未执行状态已中和]' },
   { name: '等待确认', pattern: /等待(用户)?确认(后再?写入)?/g, replacement: '[历史等待确认已中和]' },
+  {
+    name: '写入权限自述',
+    pattern: /((当前|本轮)(会话)?工具面(中)?不包含\s*`?editor\.write`?|(没有|无)(写入|修改|删除)权限|无法(实际)?(执行|调用)((移动|删除|合并|修改|写入|整理|重排)[^。；\n]*|[^。；\n]*`?editor\.write`?))/g,
+    replacement: '[历史写入权限自述已中和]',
+  },
 ] as const
 
 const LEGACY_HISTORY_NEUTRALIZATION_NOTE = [
   '[旧交互模式已中和]',
-  '以下历史回复来自已废弃的预览/确认写入模式；历史预览内容仅作背景参考。',
-  '当前写入权限与执行协议以本轮系统提示和执行计划为准；禁止继续等待用户确认或要求批准写回。',
+  '以下历史回复中的旧交互状态和模型自述权限仅为背景；模型自述不是当前工具面的权限事实。',
+  '当前写入权限、工具面与执行协议一律以本轮系统提示和执行计划为准；禁止继续等待用户确认或要求批准写回。',
 ].join('\n')
 
 function neutralizeLegacyHistoryMessage(message: ContextMessage): {
@@ -319,10 +324,34 @@ function contentVersion(value: unknown): string {
   return `v-${hash.toString(16).padStart(8, '0')}`
 }
 
-export function buildOutlineContextPack(outline: string, selectedText: string): string {
+function normalizeInjectedOutlineContextPack(pack: string): string {
+  if (!pack.includes('[当前全文已注入]')) return pack
+  return pack
+    .split('\n')
+    .filter(line =>
+      !line.includes('需要细节时必须先读取节点内容')
+      && !line.includes('需要读取其他区域时请使用只读工具'))
+    .join('\n')
+}
+
+export interface OutlineContextPackOptions {
+  maxFocusChars?: number | null
+}
+
+export function buildOutlineContextPack(
+  outline: string,
+  selectedText: string,
+  options: OutlineContextPackOptions = {},
+): string {
   const source = clean(outline)
   if (!source) return ''
   const structure = parseOutlineStructure(source)
+  const rawFocus = selectedText.trim() || source
+  const maxFocusChars = options.maxFocusChars == null ? null : Math.max(0, Math.floor(options.maxFocusChars))
+  const truncated = maxFocusChars != null && rawFocus.length > maxFocusChars
+  const focus = truncated
+    ? `${rawFocus.slice(0, maxFocusChars)}\n[提示] 以上为当前焦点全文截断；其余内容请使用只读工具读取。`
+    : rawFocus
   const lines = [
     '[事实优先级]',
     '1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。',
@@ -334,7 +363,7 @@ export function buildOutlineContextPack(outline: string, selectedText: string): 
     structure.mapText,
     '',
     '[当前焦点全文]',
-    selectedText.trim() || source
+    focus
   ]
   return lines.join('\n')
 }
@@ -449,19 +478,22 @@ function contextMessage(bundle: ContextBundle, policy: ContextPolicy): ContextMe
         '[事实优先级]',
         '1. 用户当前指令与当前选中文本优先级最高，必须完整遵守。',
         '2. 锁定大纲与设定是稳定事实，不得凭推测改写。',
-        '3. 结构地图只描述位置，不替代局部全文；需要细节时必须先读取节点内容。',
+        '3. 大纲全文已由上游注入；结构地图仅用于定位，不需要额外读取。',
         '4. 会话历史与摘要仅用于延续讨论，与当前大纲冲突时以当前大纲为准。',
         '',
         '[大纲结构地图]',
         structure.mapText,
         '',
-        '[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。需要读取其他区域时请使用只读工具。',
+        '[提示] 大纲全文已由 SKILL 模板变量注入，此处仅提供结构地图。',
       ].join('\n')
       sections.push(`当前大纲 ContextPack（来源=outline，版本=${contentVersion(mapOnly)}）：\n${mapOnly}`)
     } else {
-      const pack = buildOutlineContextPack(
-        bundle.workspace.outline,
-        bundle.workspace.selectedText || ''
+      const pack = normalizeInjectedOutlineContextPack(
+        bundle.workspace.outlineContextPack
+        || buildOutlineContextPack(
+          bundle.workspace.outline,
+          bundle.workspace.selectedText || ''
+        )
       )
       sections.push(`当前大纲 ContextPack（来源=outline，版本=${contentVersion(pack)}）：\n${pack}`)
     }
@@ -674,8 +706,12 @@ export class ConversationContextService {
     }
   }
 
-  buildOutlineContextPack(outline: unknown, selectedText?: unknown): string {
-    return buildOutlineContextPack(clean(outline), clean(selectedText))
+    buildOutlineContextPack(
+      outline: unknown,
+      selectedText?: unknown,
+      options?: OutlineContextPackOptions,
+    ): string {
+      return buildOutlineContextPack(clean(outline), clean(selectedText), options)
   }
 
   async buildContextBundle(input: ContextBuildInput): Promise<ContextBundle> {
@@ -891,12 +927,19 @@ export class ConversationContextService {
     const blocks: DialogueContextBlock[] = []
     const outline = clean(bundle.workspace.outline)
     if (outline) {
-      const pack = bundle.workspace.outlineContextPack || buildOutlineContextPack(outline, bundle.workspace.selectedText || '')
+      const pack = bundle.workspace.outlineContextPack
+        || buildOutlineContextPack(outline, bundle.workspace.selectedText || '')
+      const coverage = pack.includes('[当前全文已注入]')
+        ? ('full' as const)
+        : pack.includes('[提示] 以上为当前焦点全文截断')
+          ? ('packed' as const)
+          : ('structure_map' as const)
       blocks.push({
         source: 'outline',
         version: contentVersion(pack),
-        coverage: 'structure_map',
+        coverage,
         content: pack,
+        ...(coverage === 'packed' ? { truncated: true } : {}),
       })
     }
     const editorContent = clean(bundle.workspace.editorContent)

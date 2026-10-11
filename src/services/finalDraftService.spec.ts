@@ -8,6 +8,7 @@ import {
   generateFinalDraft,
   hashContent,
   retryFinalDraftSegment,
+  toFinalDraftTaskView,
   validateFinalDraft,
   normalizeFinalDraftParagraphSeparators,
   FINAL_DRAFT_SKILL_GUIDANCE_CHAR_LIMIT,
@@ -65,6 +66,59 @@ function createAi(results: CallAiResult[]) {
 }
 
 describe('finalDraftService state machine', () => {
+  it('creates a slim task view without persisting full document bodies', () => {
+    const sourceContent = '第一段源文。\n\n第二段源文。'
+    const task = applyFinalDraftEvent(
+      createFinalDraftTask({
+        destination: 'home-editor',
+        targetId: 'home-tab-1',
+        sourceContent,
+        instruction: '全文整理',
+        operation: 'restructure',
+        now: 1000,
+      }),
+      { type: 'generation_started', now: 1001 },
+    )
+    const live: typeof task = {
+      ...task,
+      status: 'interrupted',
+      completedText: '已完成部分',
+      accumulatedText: '已完成部分\n\n流式中断部分',
+      error: 'slow stream interrupted',
+      finishReason: 'slow_stream_interrupted',
+      lastTelemetry: {
+        tenSecondCharsPerSecond: 1,
+        sixtySecondCharsPerSecond: 1,
+        throughputStatus: 'streaming_slow',
+        estimatedRemainingMs: 1000,
+      },
+      lastStreamActivityAt: 1002,
+    }
+
+    const view = toFinalDraftTaskView(live)
+    expect(view).toMatchObject({
+      taskId: live.taskId,
+      destination: 'home-editor',
+      targetId: 'home-tab-1',
+      status: 'interrupted',
+      operation: 'restructure',
+      activeSegmentIndex: live.activeSegmentIndex,
+      sourceChars: sourceContent.length,
+      completedChars: live.completedText.length,
+      accumulatedChars: live.accumulatedText.length,
+      sourceContentHash: live.sourceContentHash,
+      error: 'slow stream interrupted',
+      finishReason: 'slow_stream_interrupted',
+      lastTelemetry: live.lastTelemetry,
+      lastStreamActivityAt: 1002,
+      createdAt: live.createdAt,
+      updatedAt: live.updatedAt,
+    })
+    expect(view).not.toHaveProperty('sourceContent')
+    expect(view).not.toHaveProperty('completedText')
+    expect(view).not.toHaveProperty('accumulatedText')
+  })
+
   it('creates a planning task with a source hash', () => {
     const task = createFinalDraftTask({
       destination: 'home-editor',
@@ -75,7 +129,7 @@ describe('finalDraftService state machine', () => {
     })
     expect(task.status).toBe('planning')
     expect(task.sourceContentHash).toBe(hashContent('源文档'))
-    expect(task.taskId).toBe('final-draft-1000-1')
+    expect(task.taskId).toMatch(/^final-draft-1000-\d+$/)
   })
 
   it('generates, validates, and writes a completed final draft', async () => {
@@ -332,6 +386,81 @@ describe('finalDraftService state machine', () => {
   it('does not flag normal long prose for duplicate blocks', () => {
     const text = Array.from({ length: 120 }, (_, index) => `第${index + 1}段：独立正文内容各不相同。`).join('\n\n')
     expect(validateFinalDraft(text).issues.map(issue => issue.code)).not.toContain('duplicate_block')
+  })
+
+  it('removes an authorized duplicate block once before writing and records the cleanup', async () => {
+    const block = [
+      '雨夜灯塔的第一组叶片在风中停摆，',
+      '守塔人把编号三十七的齿轮卸下，',
+      '用黄铜钥匙敲出三短一长的信号。',
+      '灯室里的潮气贴着玻璃凝成细线，',
+      '钟摆仍记得沉船前最后一次整点。',
+      '海岸线在旧地图上偏了半寸，',
+      '档案柜里躺着两份同名航海日志，',
+      '第一份结尾写着：待复核。',
+      '第二份结尾写着：已复核，仍待复核。',
+      '礁石上的铁链刻着两种水位，',
+      '较低的一种对应风暴夜的暗号，',
+      '较高的一种对应灯塔换班的清晨。',
+      '守塔人把两枚钥匙分别挂上木钉，',
+      '左边那枚从不借给任何人。',
+      '右边的锁孔里塞着盐粒和纸屑。',
+      '木箱深处压着一张退潮时的照片，',
+      '照片背面的字迹被海水泡开。',
+      '守塔人只认得其中两个字：等他。',
+      '风把窗框吹得像旧船的肋骨，',
+      '灯芯剪下的黑色碎屑落进铁盘。',
+      '盘底还留着上一任守塔人的刻痕。',
+      '铁盘边缘有三道缺口，',
+      '每一道对应一场没有归航的风暴。',
+      '守塔人睡前会把怀表上满两次，',
+      '一次给时间，一次给等待。',
+    ].join('')
+    const sourceContent = `## 第一节\n\n开头正文。\n\n${block}\n\n衔接正文。\n\n${block}\n\n结尾正文。`
+    const draft = `## 第一节\n\n开头正文。\n\n${block}\n\n衔接正文。\n\n${block}\n\n结尾正文。`
+    const { adapter, getContent } = createAdapter(sourceContent)
+    const { aiService } = createAi([aiResult({ text: draft })])
+    const task = createFinalDraftTask({
+      destination: 'home-editor',
+      targetId: 'home-tab-1',
+      sourceContent,
+      instruction: '删除重复项并整理格式',
+      operation: 'deduplicate_and_normalize',
+      now: 1000,
+    })
+    const events: string[] = []
+    const finished = await generateFinalDraft(
+      { aiService, adapter, task, sourceContent },
+      { onTaskEvent: (_changed, event) => events.push(event.type) },
+    )
+    expect(finished.status).toBe('completed')
+    expect(getContent()).toBe(`## 第一节\n\n开头正文。\n\n${block}\n\n衔接正文。\n\n结尾正文。`)
+    expect(getContent().match(new RegExp(block, 'g'))).toHaveLength(1)
+    expect(events).toContain('draft_deduplicated')
+  })
+
+  it('keeps blocking duplicate blocks when the operation is not authorized', async () => {
+    const block = '独立终稿节点内容，用于验证未授权去重必须继续保持阻断。'.repeat(24)
+    const sourceContent = `## 第一节\n\n开头正文。\n\n${block}\n\n衔接正文。\n\n${block}\n\n结尾正文。`
+    const { adapter, getContent } = createAdapter(sourceContent)
+    const { aiService } = createAi([aiResult({ text: sourceContent })])
+    const task = createFinalDraftTask({
+      destination: 'home-editor',
+      targetId: 'home-tab-1',
+      sourceContent,
+      instruction: '全文整理',
+      operation: 'normalize',
+      now: 1000,
+    })
+    const events: string[] = []
+    const finished = await generateFinalDraft(
+      { aiService, adapter, task, sourceContent },
+      { onTaskEvent: (_changed, event) => events.push(event.type) },
+    )
+    expect(finished.status).toBe('failed')
+    expect(finished.error).toContain('终稿中部存在大段重复')
+    expect(events).not.toContain('draft_deduplicated')
+    expect(getContent()).toBe(sourceContent)
   })
 
   it('continues the active segment with source and constraints in the messages', async () => {
@@ -799,7 +928,7 @@ describe('finalDraftService state machine', () => {
     const sourceContent = '## 第一节\n\n1-1：第一段源文。\n\n1-2：第二段源文。'
     const { adapter, getContent } = createAdapter(sourceContent)
     const { aiService, callAi } = createAi([
-      aiResult({ text: '1-1：第一段源文。1-2：第二段源文。' }),
+      aiResult({ text: '与源文无关的终稿正文。' }),
       aiResult({ text: '## 第一节\n\n1-1：第一段源文。\n\n1-2：第二段源文。' }),
     ])
     const task = createFinalDraftTask({
@@ -807,6 +936,7 @@ describe('finalDraftService state machine', () => {
       targetId: 'home-tab-1',
       sourceContent,
       instruction: '全文整理',
+      operation: 'restructure_and_cleanup',
       sourceSegments: [{ segmentId: 'segment-1', start: 0, end: sourceContent.length }],
       now: 1000,
     })
@@ -821,21 +951,213 @@ describe('finalDraftService state machine', () => {
     expect(getContent()).toBe('## 第一节\n\n1-1：第一段源文。\n\n1-2：第二段源文。')
     const retryRequest = callAi.mock.calls[1]?.[0] as { messages: Array<{ role: string; content: string }> }
     expect(String(retryRequest.messages.at(-1)?.content)).toContain('结构重试')
-    expect(String(retryRequest.messages.at(-1)?.content)).toContain('标题行必须逐字保留')
+    expect(String(retryRequest.messages.at(-1)?.content)).toContain('每个源文标题的标题文字必须逐字保留')
   })
 
-  it('does not run whole-document validation after a failed segment validation', async () => {
-    const sourceContent = '## 第一节\n\n1-1：第一段源文。'
+  it('repairs a missing heading locally when its source body survives', async () => {
+    const sourceContent = [
+      '## 第一节',
+      '',
+      '1-1：第一段源文。',
+      '',
+      '## 第二节',
+      '',
+      '2-1：第二段源文。',
+    ].join('\n')
     const { adapter, getContent } = createAdapter(sourceContent)
     const { aiService, callAi } = createAi([
-      aiResult({ text: '1-1：第一段源文。' }),
-      aiResult({ text: '1-1：第一段源文。' }),
+      aiResult({ text: '1-1：第一段源文。\n\n2-1：第二段源文。' }),
     ])
     const task = createFinalDraftTask({
       destination: 'home-editor',
       targetId: 'home-tab-1',
       sourceContent,
       instruction: '全文整理',
+      operation: 'restructure_and_cleanup',
+      sourceSegments: [{ segmentId: 'segment-1', start: 0, end: sourceContent.length }],
+      now: 1000,
+    })
+    const events: string[] = []
+    const finished = await generateFinalDraft(
+      { aiService, adapter, task, sourceContent },
+      { onTaskEvent: (_task, event) => events.push(event.type) },
+    )
+
+    expect(finished.status).toBe('completed')
+    expect(callAi).toHaveBeenCalledTimes(1)
+    expect(events).toContain('heading_boundary_repaired')
+    expect(events).not.toContain('segment_retry_started')
+    expect(getContent()).toBe('## 第一节\n\n1-1：第一段源文。\n\n## 第二节\n\n2-1：第二段源文。')
+  })
+
+  it('does not locally repair a missing heading when its source body is missing', async () => {
+    const sourceContent = '## 第一节\n\n1-1：第一段源文。'
+    const { adapter, getContent } = createAdapter(sourceContent)
+    const { aiService, callAi } = createAi([
+      aiResult({ text: '与源文无关的终稿正文。' }),
+      aiResult({ text: '## 第一节\n\n1-1：第一段源文。' }),
+    ])
+    const task = createFinalDraftTask({
+      destination: 'home-editor',
+      targetId: 'home-tab-1',
+      sourceContent,
+      instruction: '全文整理',
+      operation: 'restructure_and_cleanup',
+      sourceSegments: [{ segmentId: 'segment-1', start: 0, end: sourceContent.length }],
+      now: 1000,
+    })
+    const events: string[] = []
+    const finished = await generateFinalDraft(
+      { aiService, adapter, task, sourceContent },
+      { onTaskEvent: (_task, event) => events.push(event.type) },
+    )
+
+    expect(finished.status).toBe('completed')
+    expect(callAi).toHaveBeenCalledTimes(2)
+    expect(events).toContain('segment_retry_started')
+    expect(events).not.toContain('heading_boundary_repaired')
+    expect(getContent()).toBe('## 第一节\n\n1-1：第一段源文。')
+  })
+
+  it('does not locally repair duplicate source headings', async () => {
+    const sourceContent = [
+      '## 第一节',
+      '',
+      '1-1：第一段源文。',
+      '',
+      '## 第一节',
+      '',
+      '1-2：第二段源文。',
+    ].join('\n')
+    const { adapter, getContent } = createAdapter(sourceContent)
+    const { aiService, callAi } = createAi([
+      aiResult({ text: '1-1：第一段源文。\n\n1-2：第二段源文。' }),
+      aiResult({ text: sourceContent }),
+    ])
+    const task = createFinalDraftTask({
+      destination: 'home-editor',
+      targetId: 'home-tab-1',
+      sourceContent,
+      instruction: '全文整理',
+      operation: 'restructure_and_cleanup',
+      sourceSegments: [{ segmentId: 'segment-1', start: 0, end: sourceContent.length }],
+      now: 1000,
+    })
+    const events: string[] = []
+    const finished = await generateFinalDraft(
+      { aiService, adapter, task, sourceContent },
+      { onTaskEvent: (_task, event) => events.push(event.type) },
+    )
+
+    expect(finished.status).toBe('completed')
+    expect(callAi).toHaveBeenCalledTimes(2)
+    expect(events).toContain('segment_retry_started')
+    expect(events).not.toContain('heading_boundary_repaired')
+    expect(getContent()).toBe(sourceContent)
+  })
+
+  it('repairs a missing heading by identity when heading levels are authorized to change', async () => {
+    const sourceContent = '## 第一节\n\n1-1：第一段源文。'
+    const { adapter, getContent } = createAdapter(sourceContent)
+    const { aiService, callAi } = createAi([
+      aiResult({ text: '1-1：第一段源文。' }),
+    ])
+    const task = createFinalDraftTask({
+      destination: 'home-editor',
+      targetId: 'home-tab-1',
+      sourceContent,
+      instruction: '全文整理，统一标题层级',
+      operation: 'restructure_and_cleanup',
+      sourceSegments: [{ segmentId: 'segment-1', start: 0, end: sourceContent.length }],
+      now: 1000,
+    })
+    const events: string[] = []
+    const finished = await generateFinalDraft(
+      { aiService, adapter, task, sourceContent },
+      { onTaskEvent: (_task, event) => events.push(event.type) },
+    )
+
+    expect(finished.status).toBe('completed')
+    expect(callAi).toHaveBeenCalledTimes(1)
+    expect(events).toContain('heading_boundary_repaired')
+    expect(getContent()).toBe('## 第一节\n\n1-1：第一段源文。')
+  })
+
+  it('keeps the historical 74,841-char edit-task failure shape on the single-pass path', async () => {
+    const chapter = (index: number) => [
+      `## 第${index}节`,
+      '',
+      `${index}-1：旧执行链会在读取、定位、写入之间滚动循环。`,
+      '',
+      `${index}-2：现在全文进入同一次请求，由终稿状态机单源收口。`,
+    ].join('\n')
+    const sourceContent = Array.from({ length: 26 }, (_, index) => chapter(index + 1)).join('\n\n')
+    expect(sourceContent.length).toBeGreaterThan(1000)
+    const duplicateBody = Array.from({ length: 24 }, (_, index) =>
+      `第${index + 1}条历史重放事实：旧链路的读取、定位、写入账本互相分叉，终稿路径必须单源收口。`).join('')
+    const sourceWithDuplicate = `${sourceContent}\n\n## 重复节\n\n${duplicateBody}\n\n${duplicateBody}`
+    const draftBody = (index: number) => [
+      `${index}-1：旧执行链会在读取、定位、写入之间滚动循环。`,
+      '',
+      `${index}-2：现在全文进入同一次请求，由终稿状态机单源收口。`,
+    ].join('\n')
+    // Models in the historical failure often dropped a heading while preserving its body.
+    const draft = [
+      draftBody(1),
+      Array.from({ length: 25 }, (_, index) => `## 第${index + 2}节\n\n${draftBody(index + 2)}`).join('\n\n'),
+      '## 重复节',
+      '',
+      duplicateBody,
+      '',
+      duplicateBody,
+    ].join('\n\n')
+
+    const { adapter, getContent, restoreDocument } = createAdapter(sourceWithDuplicate)
+    const { aiService, callAi } = createAi([aiResult({ text: draft, finishReason: 'stop' })])
+    const task = createFinalDraftTask({
+      destination: 'home-editor',
+      targetId: 'home-tab-1',
+      sourceContent: sourceWithDuplicate,
+      instruction: '按叙事逻辑重排，删除重复项，统一中文标点和标题层级，按Word文档格式整理。',
+      operation: 'restructure_and_cleanup',
+      sourceSegments: [{ segmentId: 'segment-1', start: 0, end: sourceWithDuplicate.length }],
+      now: 1000,
+    })
+    const events: string[] = []
+    const finished = await generateFinalDraft(
+      { aiService, adapter, task, sourceContent: sourceWithDuplicate },
+      { onTaskEvent: (_changed, event) => events.push(event.type) },
+    )
+
+    expect(finished.status).toBe('completed')
+    expect(finished.finishReason).toBe('stop')
+    expect(callAi).toHaveBeenCalledTimes(1)
+    const request = callAi.mock.calls[0]?.[0] as { tools: unknown[]; messages: Array<{ role: string; content: string }> }
+    expect(request.tools).toEqual([])
+    expect(String(request.messages.at(-1)?.content)).toContain(sourceContent)
+    expect(events).toContain('heading_boundary_repaired')
+    expect(events).toContain('draft_deduplicated')
+    expect(events).not.toContain('segment_retry_started')
+    expect(events).toContain('write_succeeded')
+    expect(getContent()).toContain('## 第1节\n\n1-1：旧执行链')
+    expect(getContent().split(duplicateBody).length - 1).toBe(1)
+    expect(getContent().length).toBeLessThan(sourceWithDuplicate.length)
+    expect(restoreDocument).not.toHaveBeenCalled()
+  })
+
+  it('does not run whole-document validation after a failed segment validation', async () => {
+    const sourceContent = '## 第一节\n\n1-1：第一段源文。'
+    const { adapter, getContent } = createAdapter(sourceContent)
+    const { aiService, callAi } = createAi([
+      aiResult({ text: '与源文无关的终稿正文。' }),
+      aiResult({ text: '与源文无关的终稿正文。' }),
+    ])
+    const task = createFinalDraftTask({
+      destination: 'home-editor',
+      targetId: 'home-tab-1',
+      sourceContent,
+      instruction: '全文整理',
+      operation: 'restructure_and_cleanup',
       sourceSegments: [{ segmentId: 'segment-1', start: 0, end: sourceContent.length }],
       now: 1000,
     })
@@ -845,7 +1167,8 @@ describe('finalDraftService state machine', () => {
       { onTaskEvent: (_task, event) => events.push(event.type) },
     )
     expect(finished.status).toBe('failed')
-    expect(finished.error).toContain('终稿段落数量少于源文，疑似发生段落合并，未执行写入。（终稿 1 段 / 源文 2 段）')
+    expect(finished.error).toContain('终稿标题边界校验失败，未执行写入。（源文标题 1 / 终稿标题 0，缺失 1，新增 0）')
+    expect(finished.error).not.toContain('终稿段落数量少于源文，疑似发生段落合并')
     expect(events.filter(type => type === 'task_failed')).toHaveLength(1)
     expect(callAi).toHaveBeenCalledTimes(2)
     expect(getContent()).toBe(sourceContent)
@@ -966,7 +1289,7 @@ describe('finalDraftService state machine', () => {
       }),
       { segmentId: 'segment-1', start: 0, end: sourceContent.length },
     )
-    expect(String(messages[0].content)).toContain('以 # 开头的标题行必须逐字保留')
+    expect(String(messages[0].content)).toContain('以 # 开头的标题行的标题文字必须逐字保留')
     expect(String(messages[1].content)).toContain('段落开头的编号、标识和冒号前缀必须保留')
   })
 
@@ -985,6 +1308,63 @@ describe('finalDraftService state machine', () => {
     expect(result.issues.map(issue => issue.code)).toContain('heading_boundary_lost')
   })
 
+  it('allows authorized heading level normalization while preserving heading text', () => {
+    const sourceContent = '#### 7.8 菌膜外套\n\n正文一。\n\n#### 7.9 与终局的衔接\n\n正文二。'
+    const draft = '## 7.8 菌膜外套\n\n正文一。\n\n## 7.9 与终局的衔接\n\n正文二。'
+    const result = validateFinalDraft(draft, {
+      sourceContent,
+      operation: 'restructure_and_cleanup',
+      instruction: '统一中文标点和标题层级',
+    })
+    expect(result.valid).toBe(true)
+  })
+
+  it('still blocks heading level changes when the instruction does not authorize them', () => {
+    const sourceContent = '#### 第一节\n\n正文一。'
+    const draft = '## 第一节\n\n正文一。'
+    const result = validateFinalDraft(draft, {
+      sourceContent,
+      operation: 'rewrite_segments',
+      instruction: '重写正文，不要调整标题层级',
+    })
+    expect(result.valid).toBe(false)
+    expect(result.issues.map(issue => issue.code)).toContain('heading_boundary_lost')
+  })
+
+  it('allows deduplicate to merge repeated headings but blocks unique heading removal', () => {
+    const sourceContent = '#### 7.8 菌膜外套\n\n重复正文。\n\n#### 7.8 菌膜外套\n\n重复正文。\n\n#### 7.9 终局衔接\n\n唯一正文。'
+    const merged = '#### 7.8 菌膜外套\n\n重复正文。\n\n#### 7.9 终局衔接\n\n唯一正文。'
+    expect(validateFinalDraft(merged, {
+      sourceContent,
+      operation: 'deduplicate',
+      instruction: '删除重复项',
+    }).valid).toBe(true)
+
+    const uniqueRemoved = '#### 7.8 菌膜外套\n\n重复正文。'
+    const result = validateFinalDraft(uniqueRemoved, {
+      sourceContent,
+      operation: 'deduplicate',
+      instruction: '删除重复项',
+    })
+    expect(result.valid).toBe(false)
+    expect(result.issues.map(issue => issue.code)).toContain('heading_boundary_lost')
+  })
+
+  it('allows an authorized rewrite to add structural headings without dropping source headings', () => {
+    const sourceContent = '## 第一节\n\n1-1：第一段源文。\n\n## 第二节\n\n2-1：第二段源文。'
+    const draft = '## 第一部分\n\n## 第一节\n\n1-1：第一段重写后的正文。\n\n## 第二节\n\n2-1：第二段重写后的正文。'
+    const result = validateFinalDraft(draft, { sourceContent, operation: 'restructure' })
+    expect(result.valid).toBe(true)
+  })
+
+  it('still blocks an unauthorized cleanup when headings are added', () => {
+    const sourceContent = '## 第一节\n\n1-1：第一段源文。'
+    const draft = '## 第一部分\n\n## 第一节\n\n1-1：第一段源文。'
+    const result = validateFinalDraft(draft, { sourceContent, operation: 'normalize' })
+    expect(result.valid).toBe(false)
+    expect(result.issues.map(issue => issue.code)).toContain('heading_boundary_lost')
+  })
+
   it('allows deduplicate to remove duplicate leaves but not unique leaves', () => {
     const sourceContent = '## 第一节\n\n1-1：重复正文。\n\n1-2：重复正文。\n\n1-3：唯一正文。'
     const duplicateRemoved = '## 第一节\n\n1-1：重复正文。\n\n1-3：唯一正文。'
@@ -996,6 +1376,34 @@ describe('finalDraftService state machine', () => {
     const result = validateFinalDraft(uniqueRemoved, { sourceContent, operation: 'deduplicate' })
     expect(result.valid).toBe(false)
     expect(result.issues.map(issue => issue.code)).toContain('leaf_body_integrity_lost')
+  })
+
+  it('retries once when an authorized draft loses a unique heading', async () => {
+    const sourceContent = '## 第一节\n\n1-1：第一段源文。\n\n## 第二节\n\n2-1：第二段源文。'
+    const { adapter, getContent } = createAdapter(sourceContent)
+    const { aiService, callAi } = createAi([
+      aiResult({ text: '## 第一节\n\n1-1：第一段重写后的正文。\n\n2-1：第二段正文被合并。' }),
+      aiResult({ text: '## 第一节\n\n1-1：第一段重写后的正文。\n\n## 第二节\n\n2-1：第二段重写后的正文。' }),
+    ])
+    const task = createFinalDraftTask({
+      destination: 'home-editor',
+      targetId: 'home-tab-1',
+      sourceContent,
+      instruction: '全文重排',
+      operation: 'rewrite_segments',
+      sourceSegments: [{ segmentId: 'segment-1', start: 0, end: sourceContent.length }],
+      now: 1000,
+    })
+    const events: string[] = []
+    const finished = await generateFinalDraft(
+      { aiService, adapter, task, sourceContent },
+      { onTaskEvent: (_task, event) => events.push(event.type) },
+    )
+    expect(finished.status).toBe('completed')
+    expect(events).toContain('segment_retry_started')
+    expect(getContent()).toBe('## 第一节\n\n1-1：第一段重写后的正文。\n\n## 第二节\n\n2-1：第二段重写后的正文。')
+    const retryRequest = callAi.mock.calls[1]?.[0] as { messages: Array<{ role: string; content: string }> }
+    expect(String(retryRequest.messages.at(-1)?.content)).toContain('结构重试')
   })
 
   it('keeps the conservative gate when the operation is unknown or missing', () => {

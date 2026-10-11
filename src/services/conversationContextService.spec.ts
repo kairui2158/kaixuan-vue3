@@ -836,8 +836,8 @@ describe('ConversationContextService', () => {
 
     const neutralized = assembled.filter(message => message.role === 'assistant' && message.content.includes('[旧交互模式已中和]'))
     expect(neutralized).toHaveLength(1)
-    expect(neutralized[0].content).toContain('历史预览内容仅作背景参考')
-    expect(neutralized[0].content).toContain('当前写入权限与执行协议以本轮系统提示和执行计划为准')
+    expect(neutralized[0].content).toContain('模型自述不是当前工具面的权限事实')
+    expect(neutralized[0].content).toContain('当前写入权限、工具面与执行协议一律以本轮系统提示和执行计划为准')
     expect(neutralized[0].content).toContain('禁止继续等待用户确认')
     expect(neutralized[0].meta?.neutralizedMarkers).toEqual(['修改预览', '批准写回', '写入未执行', '等待确认'])
 
@@ -849,6 +849,42 @@ describe('ConversationContextService', () => {
       markers: { '修改预览': 1, '批准写回': 1, '写入未执行': 1, '等待确认': 1 },
     })
     expect(assembled.some(message => message.content.includes('【修改预览】'))).toBe(false)
+  })
+
+  it('发送前中和历史写入权限自述，当前权限仍由本轮系统提示决定', async () => {
+    const storage = createStorage()
+    const service = new ConversationContextService({
+      storage,
+      projectReader: async () => ({ outline: '', settings: {}, memories: null }),
+    })
+    const ref = { projectId: 'p-neutralize-permission-hallucination', workspace: 'outline' as const, purpose: 'generate' as const }
+    await service.recordTurn(ref, {
+      user: '你按照方案写入',
+      assistant: '当前会话工具面不包含 `editor.write`，我没有写入权限，无法实际执行移动、删除和合并。',
+    })
+    await service.recordTurn(ref, { user: '继续执行写入', assistant: '已按当前协议处理。' })
+    const bundle = await service.buildContextBundle(ref)
+
+    const assembled = service.assembleMessages(
+      bundle,
+      { ...service.getPolicy('generate'), chatHistory: 'full', includeOutline: false, includeSettings: false, includeMemory: false },
+      baseMessages,
+    )
+
+    const neutralized = assembled.filter(message => message.role === 'assistant' && message.content.includes('[旧交互模式已中和]'))
+    expect(neutralized).toHaveLength(1)
+    expect(neutralized[0].content).toContain('[历史写入权限自述已中和]')
+    expect(neutralized[0].content).not.toContain('工具面不包含 `editor.write`')
+    expect(neutralized[0].content).toContain('模型自述不是当前工具面的权限事实')
+    expect(neutralized[0].meta?.neutralizedMarkers).toEqual(['写入权限自述'])
+
+    const stored = bundle.session.recentMessages
+    expect(stored.some(message => message.content.includes('当前会话工具面不包含 `editor.write`'))).toBe(true)
+    expect(bundle.execution.historyNeutralization).toEqual({
+      neutralizedMessageCount: 1,
+      markers: { '写入权限自述': 3 },
+    })
+    expect(assembled.some(message => message.content.includes('当前会话工具面不包含 `editor.write`'))).toBe(false)
   })
 
   it('单例代理调用实例方法时保持服务上下文', () => {
@@ -921,6 +957,35 @@ describe('ConversationContextService', () => {
 
     expect(context?.content).toContain(outline)
     expect(context?.content.endsWith('…')).toBe(false)
+  })
+
+  it('全文已注入时移除旧读取引导并将 outline 覆盖度标记为 full', async () => {
+    const outline = '第一卷 风暴起点\n第一卷主线围绕北方风暴展开。'
+    const service = new ConversationContextService({
+      storage: createStorage(),
+      projectReader: async () => ({ outline, settings: {}, memories: null })
+    })
+    const bundle = await service.buildContextBundle({
+      projectId: 'p-full-outline-injected',
+      workspace: 'outline',
+      purpose: 'generate',
+      workspaceState: {
+        outline,
+        outlineContextPack: `[当前全文已注入]\n${outline}`,
+      },
+    })
+    const assembled = service.assembleMessages(bundle, service.getPolicy('generate'), [])
+    const context = assembled.find(message => message.content.includes('当前大纲 ContextPack'))
+
+    expect(context?.content).toContain('[当前全文已注入]')
+    expect(context?.content).toContain(outline)
+    expect(context?.content).not.toContain('需要细节时必须先读取节点内容')
+    expect(context?.content).not.toContain('需要读取其他区域时请使用只读工具')
+
+    const blocks = service.buildDialogueContextBlocks(bundle, service.getPolicy('generate'))
+    const outlineBlock = blocks.find(block => block.source === 'outline')
+    expect(outlineBlock?.coverage).toBe('full')
+    expect(outlineBlock?.truncated).toBeUndefined()
   })
 
   it('设定作为稳定事实完整注入，不使用 5000 字截断', async () => {

@@ -211,16 +211,24 @@ function collectPayloads(run) {
     }
   })
   ;(run.events || []).forEach(function(event) {
-    if (event && event.payload !== undefined) add('agent-event', event.payload)
+    // Agent/telemetry payloads are small high-frequency diagnostics. Keeping
+    // them inline avoids hundreds of payload files per long stream; large
+    // request/response bodies are still externalized below.
   })
   return payloads
 }
 
 function payloadIdentity(kind, value) {
+  if (kind === 'agent-event') return 'inline:' + agentEventIdentity(value)
   var content = kind === 'prompt' ? promptIdentityContent(value) : payloadContent(kind, value)
   var text = typeof content === 'string' ? content : JSON.stringify(content, null, 2)
   if (text === undefined) text = ''
   return crypto.createHash('sha256').update(text, 'utf8').digest('hex')
+}
+
+function agentEventIdentity(value) {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value) || 'null'
+  return JSON.stringify(value, Object.keys(value).sort())
 }
 
 function deduplicatePayloads(payloads) {
@@ -329,11 +337,7 @@ function replacePayloadFields(run, byIdentity) {
   })
   ;(output.events || []).forEach(function(event) {
     if (event && event.payload !== undefined) {
-      var agentItem = byIdentity.get('agent-event:' + payloadIdentity('agent-event', event.payload))
-      if (agentItem) {
-        event.payloadRefs = [agentItem.duplicateOf || agentItem.id]
-      }
-      event.payload = undefined
+      event.payloadRefs = undefined
     }
   })
   return output

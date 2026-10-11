@@ -16,6 +16,7 @@ const AGENT_TRACE_LEVELS: Record<AgentOrchestratorEvent['level'], 'info' | 'warn
 
 export function createAgentTraceBridge(input: AgentTraceBridgeInput) {
   let runId = input.runId ?? null
+  let lastExecutionKey = ''
 
   return {
     setRunId(nextRunId: string | null) {
@@ -26,6 +27,39 @@ export function createAgentTraceBridge(input: AgentTraceBridgeInput) {
         const store = useRunTraceStore(input.pinia)
         const targetRunId = runId || store.currentRunIdBySource?.[input.source]
         if (!targetRunId) return
+        const callId = store.getApiCallId(input.source)
+        const budget = snapshot.toolRunBudget
+        const executionKey = budget
+          ? [
+              snapshot.executionPhase,
+              budget.readToolCalls,
+              budget.writeToolCalls,
+              budget.controlToolCalls,
+              budget.physicalRequests,
+              snapshot.successfulWriteCount,
+              snapshot.trustedCoverageCount,
+              snapshot.planComplete,
+            ].join(':')
+          : ''
+        if (callId && budget && executionKey && executionKey !== lastExecutionKey) {
+          store.updateApiCallExecutionSettlement(targetRunId, callId, {
+            executionSettlement: {
+              phase: snapshot.executionPhase,
+              readToolCalls: budget.readToolCalls,
+              maxReadToolCalls: budget.maxReadToolCalls,
+              writeToolCalls: budget.writeToolCalls,
+              reservedWriteToolCalls: budget.reservedWriteToolCalls,
+              controlToolCalls: budget.controlToolCalls,
+              physicalRequests: budget.physicalRequests,
+              maxPhysicalRequests: budget.maxPhysicalRequests,
+              exhaustedClasses: budget.exhaustedClasses,
+              successfulWriteCount: snapshot.successfulWriteCount,
+              trustedCoverageCount: snapshot.trustedCoverageCount,
+              planComplete: snapshot.planComplete,
+            },
+          })
+          lastExecutionKey = executionKey
+        }
         store.addEvent(targetRunId, {
           type: `agent-${event.type}`,
           level: AGENT_TRACE_LEVELS[event.level],

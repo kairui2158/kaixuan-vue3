@@ -1,0 +1,40 @@
+{
+  "tracePath": "D:\\codex\\novel-workshop-vue3\\_data\\outline-lock-override-live-replay-profile\\documents-data\\run-trace\\outline\\run-trace-outline-20261010-003831\\run-trace.json",
+  "traceSizeBytes": 3213608,
+  "schemaVersion": 15,
+  "traceStatus": "running",
+  "eventCount": 1825,
+  "payloadCount": 833,
+  "apiCallIndexCount": 1,
+  "physicalRequestCount": 84,
+  "toolCallCount": 136,
+  "readCallCount": 116,
+  "writeCallCount": 10,
+  "otherToolCallCount": 10,
+  "successfulWriteCount": 5,
+  "failedWriteCount": 5,
+  "agentToolCount": 238,
+  "batchPlannedCount": 5,
+  "batchStartedCount": 5,
+  "batchSucceededCount": 5,
+  "interactiveResponseCount": 14,
+  "convergenceRequestCount": 4,
+  "stateHistoryCount": 0,
+  "terminalState": "running",
+  "readToolBreakdown": {
+    "editor.document_map": 18,
+    "editor.get_state": 7,
+    "editor.locate": 9,
+    "editor.read_range": 48,
+    "editor.search": 18,
+    "outline.read_range": 16
+  },
+  "writeToolBreakdown": {
+    "editor.write": 10
+  },
+  "otherToolBreakdown": {
+    "agent.plan": 6,
+    "context.remaining": 2,
+    "outline.get_structure": 2
+  }
+}

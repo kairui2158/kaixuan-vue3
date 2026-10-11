@@ -48,9 +48,23 @@
 - 构建：`npm run build:vue` 通过；输出仅含既有登记的 Node externals、chunk size 与 Vite native config warning。
 - Electron 真实 UI 全量复刻：`node scripts/verify-api-direct-write-electron.mjs` → `===== API DIRECT WRITE ELECTRON STRESS E2E PASSED =====`；1M 场景截图 `_audit/verification-api-direct-write-electron/13-outline-million-document-edit-task.png`，其中整篇替换被 `document_too_large_for_whole_replacement` 正确拒绝，分批路径完成。
 
+### 6.3 回头看补漏（本轮追加）
+
+- 复查 `PlainDialogueIntent = analyze | edit | generate | discuss` 与 planner 的只读意图归一逻辑：`analyze` 会归一为 `discussion`，等待计划保留判定天然覆盖；已新增 `activePlanContinuation.spec.ts` 断言，防止后续改动破坏该分支。
+- 授权摘录补齐 `analyze`：`ChatPanel.vue` 与 `OutlineWorkspace.vue` 的讨论后摘录条件从 `discuss` 扩为 `discuss | analyze`，双入口一致。
+- 按新旧并存清零原则删除无生产调用点的 `markStatus`，并更新对应测试。
+- 验证：定向 6 个 spec `178/178` 通过；全量服务测试与 type-check 见本轮最终记录。
+
+### 6.4 回头看二轮（本轮追加）
+
+- 大纲入口自锁回归：`outlineSendStarting` 被并入 `outlineInputBlocked` 后，`askAi` 在同一次发送内被自己拦截，出现 `[OUTLINE TIMEOUT]` 且无 API 请求。修复为新增 `outlineExecutionLocked` 只看生成态；`outlineInputBlocked` 仅负责 UI 防重复提交。首页补 `homeSendStarting` 防重复提交，无对称自锁路径；`directWriteWiring.spec.ts` 增加双入口守卫并完成红灯验证。
+- Electron 验证脚本 `respond()` 旧引用已删除的 `scenarioCount`，会抛 `ReferenceError`；修复为读取本轮请求记录内的 `requestCount`，并修正每个 scenario/turn 的计数语义。
+- 首个格式编辑场景文案被本地 `normalize` 转换分流，未走 API 直写；场景改为 `请把第二章内容替换成新的第二章大纲`，mock 分类器同步补词。
+- 验证：`npm run test:services` → `Test Files 133 passed (133)`、`Tests 1565 passed (1565)`；`npm run type-check` 通过；`node scripts/verify-api-direct-write-electron.mjs` 连续两轮输出 `===== API DIRECT WRITE ELECTRON STRESS E2E PASSED =====`。脚本中 cancel、integrity_failed、物理请求预算耗尽为刻意负路径，最终收敛 PASS。
+
 ## 7. 缺口清单
 
-- 本轮修复范围内无登记缺陷缺口：坐标修复、测试、类型、构建与 Electron 1M 全量复刻均已闭环。
+- 本轮修复范围内无登记缺陷缺口：坐标修复、测试、类型、构建与 Electron 1M 全量复刻均已闭环；回头看补漏已完成 `analyze` 覆盖、授权摘录与旧接口清理。
 - 版本号保持 3.77.0，未执行重新封装；按用户前序要求，升级版本与封装需用户再次确认。
 - Vite 构建仍有既有登记 warning（Node externals、chunk size、`__dirname` native config 提示），不属于本轮新增缺陷。
 - 工作区还包含本任务前序已确认的未提交改动；本轮只叠加 `editorDocumentMap.ts` 与其测试，不回滚、不清理无关文件。

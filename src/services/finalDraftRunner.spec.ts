@@ -290,6 +290,52 @@ describe('finalDraftRunner', () => {
     expect(getContent()).toBe('源文档')
   })
 
+  it('throttles continuation task publication and flushes the final state', async () => {
+    const { adapter } = createAdapter()
+    const { aiService } = createAi([
+      aiResult({ text: '第一段', finishReason: 'length' }),
+      aiResult({ text: '第一段第二段', finishReason: 'stop' }),
+    ])
+    const { hooks } = createHooks()
+    const initial = createFinalDraftTask({
+      destination: 'home-editor',
+      targetId: 'home-tab-1',
+      sourceContent: '源文档',
+      instruction: '全文重排',
+    })
+    const truncated = await runFinalDraft({
+      aiService,
+      adapter,
+      destination: initial.destination,
+      targetId: initial.targetId,
+      sourceContent: initial.sourceContent,
+      instruction: initial.instruction,
+    }, hooks)
+    expect(truncated.status).toBe('awaiting_continuation')
+
+    const continuationService = { ...aiService }
+    const continuationCall = vi.fn(async (request: CallAiParams) => {
+      request.onChunk?.('第二')
+      request.onChunk?.('段')
+      request.onChunk?.('终稿')
+      return aiResult({ text: '第一段第二段终稿', finishReason: 'stop' })
+    })
+    continuationService.callAi = continuationCall as unknown as Pick<AiService, 'callAi'>['callAi']
+    const changes: string[] = []
+    const finished = await continueFinalDraftTask({
+      aiService: continuationService,
+      adapter,
+      task: truncated,
+      onTaskChange: changed => changes.push(changed.accumulatedText),
+    }, hooks)
+
+    expect(finished.status).toBe('completed')
+    expect(changes.length).toBeLessThan(6)
+    expect(changes.at(-1)).toBe('第一段第二段终稿')
+    expect(changes).not.toContain('第二')
+    expect(changes).not.toContain('第二段')
+  })
+
   it('forwards state-machine task events while keeping runner wrapper events separate', async () => {
     const { adapter, getContent } = createAdapter()
     const { aiService } = createAi([aiResult({ text: '完整终稿。' })])

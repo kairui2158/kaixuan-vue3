@@ -10,6 +10,7 @@ export type ChainRoutingContext = {
   recentAssistantSummaries?: string[]
   activeSkillIds?: string[]
   activeEditTaskStatus?: 'awaiting_batch'
+  activePlanStatus?: 'active' | 'awaiting_user_plan'
   llmClassifier?: LlmIntentClassifier
 }
 
@@ -359,6 +360,19 @@ const CONTINUATION_INPUTS = new Set([
 ])
 const EDIT_TASK_CONTINUATION_PATTERN =
   /^(?:请|麻烦|帮我|先)?(?:继续|接着|恢复)(?:执行|重试|运行|完成)?(?:刚才的|当前的|这个|该)?(?:编辑)?任务[吧呗。！？!，,.~～\s]*$/
+const ACTIVE_PLAN_CONFIRMATION_PATTERN =
+  /^(?:请|麻烦|帮我|你|那就|好的|可以)?(?:直接)?(?:开始|启动|按|按照|照|执行|落地|写入)(?:这个|该|你的|上面|上述|刚才的)?(?:方案|计划|批处理|安排)?(?:执行|写入|落地|运行|开始|来|吧)?[吧呗。！？!，,.~～\s]*$/
+const BARE_ACTIVE_PLAN_CONFIRMATION_PATTERN =
+  /^(?:确认|同意|可以|好的|好|行|就这样|按方案来|照方案执行)[吧呗。！？!，,.~～\s]*$/
+
+function isActivePlanConfirmationInput(input: string): boolean {
+  return (
+    (ACTIVE_PLAN_CONFIRMATION_PATTERN.test(input.trim()) ||
+      BARE_ACTIVE_PLAN_CONFIRMATION_PATTERN.test(input.trim())) &&
+    !NON_ACTIONABLE_PROHIBITION_PATTERN.test(input) &&
+    !isQuestionInput(input)
+  )
+}
 const WORKSPACE_DOMAIN_PATTERN =
   /(大纲|卷纲|章节|正文|设定|人物|角色|伏笔|钩子|时间线|叙事|故事|情节|主线|支线|世界观|编辑器|文本|文案|开篇|结尾|节奏|弧光|场景|对话|标题|书名|简介|命名|前史|反转|反派|背景|悬念|下一章|结构|断层|顺便问一下|过渡|番外|梗概|关系图|体系|三幕|描写|节点|稿子|文稿|文档)/
 const WORKSPACE_GENERATIVE_ACTION_PATTERN =
@@ -1420,6 +1434,20 @@ export function routeChainIntent(
   }
 
   if (
+    (context?.activePlanStatus === 'awaiting_user_plan' ||
+      context?.activePlanStatus === 'active') &&
+    isActivePlanConfirmationInput(normalizedInput)
+  ) {
+    return {
+      kind: 'matched',
+      intent: 'edit',
+      confidence: 0.96,
+      reason: 'active-plan-continuation',
+      decisionLayer: 'rule',
+    }
+  }
+
+  if (
     isLikelyContextualReply(normalizedInput) &&
     findAwaitingUserMessage(context?.recentHistory)
   ) {
@@ -1954,6 +1982,7 @@ export async function classifyPlainDialogueIntentDetailed(
     projectId?: string
     activeSkillIds?: string[]
     activeEditTaskStatus?: ChainRoutingContext['activeEditTaskStatus']
+    activePlanStatus?: ChainRoutingContext['activePlanStatus']
     llmClassifier?: LlmIntentClassifier
   },
 ): Promise<PlainDialogueIntentDetailed> {
@@ -1965,6 +1994,9 @@ export async function classifyPlainDialogueIntentDetailed(
     ...(options?.llmClassifier ? { llmClassifier: options.llmClassifier } : {}),
     ...(options?.activeEditTaskStatus
       ? { activeEditTaskStatus: options.activeEditTaskStatus }
+      : {}),
+    ...(options?.activePlanStatus
+      ? { activePlanStatus: options.activePlanStatus }
       : {}),
   })
   const intent: PlainDialogueIntentDetailed['intent'] =

@@ -212,10 +212,11 @@ import type { ContextBudgetDecision } from '../../services/contextBudget'
 import {
   buildLongDocumentExecutionPlan,
   toLongDocumentOperationType,
+  usesLongDocumentToolRuntime,
 } from '../../services/longDocumentExecutionPlanner'
 import type { LongDocumentExecutionPlan } from '../../services/longDocumentExecutionPlanner'
 import { transformDocument } from '../../services/documentTransformService'
-import { calculateLongDocumentPhysicalRequestBudget } from '../../services/longDocumentWriteProtocol'
+import { createToolRunBudget } from '../../services/toolRunBudget'
 import type { DialoguePermissionDecision, DialogueWriteAuthorization } from '../../services/dialogueToolSurface'
 import type { LongDocumentOperationType } from '../../services/longDocumentPolicy'
 import type { ContextMessage } from '../../types/context'
@@ -226,6 +227,7 @@ import { saveContinuation, loadContinuation, removeContinuation } from '../../se
 import { buildEditorReadonlyPrompt, type EditorEditCommand } from '../../services/editorEditProtocol'
 import type { EditTaskCompletionReport } from '../../services/editTaskCompletion'
 import { hashEditorContent, validateEditorTarget, type EditorTargetSnapshot } from '../../services/editorTarget'
+import { createDocumentReadLedger, type DocumentReadLedger } from '../../services/documentReadLedger'
 import { buildEditPlan } from '../../services/editorEditService'
 import { canRollbackEditorBatch, createEditorBatchRecord, findEditorBatchUndoContent, normalizeEditorBatchRecord, toDialogueBatchEvent, updateEditorBatchRecord } from '../../services/editorBatchRecord'
 import { applyAcceptedItems, planEditorEditBatch } from '../../services/editorEditBatch'
@@ -247,12 +249,30 @@ import {
   type DialogueToolSurfaceIntent,
   type DialogueToolSurfaceSummary,
   type EditorWriteRetryCarrier,
+  buildWorkflowWriteAuthorizationFromPlan,
+  shouldRetryStalledDirectWrite,
 } from '../../services/dialogueToolSurface'
 import { classifyPlainDialogueIntent, type PlainDialogueIntent } from '../../services/plainDialogueIntent'
 import type { ChatMessage } from '../../stores/chat'
-import { useRunTraceStore, type RunTrace, type RunTraceMessage, type RunTraceStatus } from '../../stores/runTrace'
+import {
+  useRunTraceStore,
+  type RunTrace,
+  type RunTraceExecutionSettlement,
+  type RunTraceMessage,
+  type RunTraceReadLedgerSnapshot,
+  type RunTraceStatus
+} from '../../stores/runTrace'
 import { createAgentDialogueRuntime } from '../../services/agentDialogueRuntime'
 import type { AgentOrchestratorStatus } from '../../services/agentOrchestrator'
+import {
+  createToolRunSupervisor,
+  DIRECT_TOOL_RUN_HARD_DEADLINE_MS,
+  DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS,
+  LONG_TOOL_RUN_IDLE_TIMEOUT_MS,
+  buildToolErrorKey,
+  physicalCallReportsProgress,
+  type ToolRunSupervisor,
+} from '../../services/toolRunSupervisor'
 import { mapAgentResultToRunTrace, mergeEditTaskTerminal } from '../../services/agentTerminalMapping'
 import {
   activeExecutionTaskStore,
@@ -271,7 +291,7 @@ import {
   snapshotFinalDraftTask,
 } from '../../services/finalDraftRunner'
 import { createElectronFinalDraftCheckpointStore } from '../../services/finalDraftCheckpointElectron'
-import { finalDraftCheckpointId } from '../../services/finalDraftCheckpoint'
+import { finalDraftCheckpointId, resolveFinalDraftTaskFromView } from '../../services/finalDraftCheckpoint'
 import { formatFinalDraftProgress } from '../../services/finalDraftProgress'
 import {
   type FinalDraftEvent as FinalDraftRunnerTaskEvent,
@@ -311,10 +331,47 @@ let homeLastDirectRequestId = 0
 let homeStreamLength = 0
 let homeRunTurnId: string | null = null
 let homeSessionId = ''
+let homeSessionReadLedger: DocumentReadLedger | null = null
+let homeReadLedgerSessionKey = ''
 let lastHomeToolAudit: unknown
 let homeLongDocumentEditTaskPlan = false
 let activeHomeExecutionPlan: LongDocumentExecutionPlan | null = null
 let activeHomeRoutingIntent: PlainDialogueIntent = 'discuss'
+let homeToolRunSupervisor: (ReturnType<typeof createToolRunSupervisor> & {
+  readonly reason: string | null
+}) | null = null
+
+function createHomeToolRunSupervisor(longDocument: boolean) {
+  let supervisorReason: string | null = null
+  const supervisor = createToolRunSupervisor({
+    idleTimeoutMs: longDocument ? LONG_TOOL_RUN_IDLE_TIMEOUT_MS : DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS,
+    hardDeadlineMs: longDocument ? null : DIRECT_TOOL_RUN_HARD_DEADLINE_MS,
+    onStuck: ({ reason, idleMs, totalMs, message }) => {
+      supervisorReason = reason
+      chatStore.setGenerationState('error', message)
+      addHomeTraceEvent({
+        type: 'state-stuck-aborted',
+        level: 'warn',
+        label: '停滞请求已自动中止',
+        detail: `reason=${reason} idleMs=${Math.round(idleMs)} totalMs=${Math.round(totalMs)} idleLimitMs=${longDocument ? LONG_TOOL_RUN_IDLE_TIMEOUT_MS : DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS} longDocument=${longDocument} hardDeadlineMs=${longDocument ? null : DIRECT_TOOL_RUN_HARD_DEADLINE_MS}`
+      })
+      const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
+      diag?.log?.('warn', 'home/tool-run-supervisor', message, {
+        reason,
+        idleMs: Math.round(idleMs),
+        totalMs: Math.round(totalMs),
+        idleLimitMs: longDocument ? LONG_TOOL_RUN_IDLE_TIMEOUT_MS : DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS,
+        longIdleLimitMs: longDocument ? LONG_TOOL_RUN_IDLE_TIMEOUT_MS : null,
+        hardDeadlineMs: longDocument ? null : DIRECT_TOOL_RUN_HARD_DEADLINE_MS,
+      })
+      activeAbortController?.abort()
+    },
+  })
+  return {
+    ...supervisor,
+    get reason() { return supervisorReason },
+  }
+}
 
 function createHomeActiveTask(input: {
   requestText: string
@@ -334,24 +391,9 @@ function createHomeActiveTask(input: {
     createdAt: now,
     updatedAt: now,
     status: 'active',
+    plan: input.plan,
+    authorizedExcerpts: [],
   })
-}
-
-function buildHomeWorkflowWriteAuthorization(input: {
-  intent: PlainDialogueIntent
-  plan: LongDocumentExecutionPlan
-}): DialogueWriteAuthorization | null {
-  if (input.intent !== 'edit' && input.intent !== 'generate') return null
-  if (input.plan.mode === 'final-draft') return null
-  if (input.plan.operation === 'discussion') return null
-  if (input.plan.mode !== 'edit-task' && input.plan.operation !== 'targeted_edit') return null
-  return {
-    source: 'long-document-workflow',
-    intent: input.intent,
-    operation: input.plan.operation,
-    mode: input.plan.mode,
-    reason: 'home-execution-plan',
-  }
 }
 
 function isHomeWorkflowWriteAuthorization(
@@ -808,7 +850,8 @@ function addHomeTraceEvent(event: { type: string; label: string; level?: 'info' 
     type: event.type,
     label: event.label,
     detail: event.detail?.slice(0, 20000),
-    ...(event.payload !== undefined ? { payload: event.payload } : {})
+    ...(event.payload !== undefined ? { payload: event.payload } : {}),
+    ...(event.turnId ? { turnId: event.turnId } : {})
   })
 }
 
@@ -863,6 +906,8 @@ function finishHomeApiCall(callId: string | undefined, result: {
   usageReconciliation?: unknown
   textOrigin?: 'application' | 'model'
   toolAudit?: unknown
+  executionSettlement?: RunTraceExecutionSettlement
+  readLedger?: RunTraceReadLedgerSnapshot
 }) {
   const runId = homeRunTraceId
   if (!runId || !callId) return
@@ -905,6 +950,8 @@ function recordHomePhysicalCall(callId: string | undefined, event: PhysicalCallE
     interruptionCode: event.interruptionCode,
     contextCompactedMessageCount: event.contextCompactedMessageCount,
     heartbeat: event.heartbeat,
+    toolCallCount: event.toolCallCount,
+    toolCallNames: event.toolCallNames,
   })
 }
 
@@ -987,7 +1034,10 @@ let lastToolCallSummary: string | null = null
 const messagesContainer = ref<HTMLElement | null>(null)
 const isStreaming = computed(() => chatStore.generationStatus === 'preparing' || chatStore.generationStatus === 'streaming' || chatStore.generationStatus === 'retrying')
 const homeInputUnlockedByAgent = ref(false)
-const homeInputBlocked = computed(() => isStreaming.value && !homeInputUnlockedByAgent.value)
+const homeSendStarting = ref(false)
+const homeInputBlocked = computed(() =>
+  (isStreaming.value || homeSendStarting.value) && !homeInputUnlockedByAgent.value
+)
 const generationStatus = computed(() => chatStore.generationStatus)
 const generationMessage = computed(() => chatStore.generationMessage)
 const liveApiStatusLines = useLiveApiStatus(computed<LiveApiStatusInput>(() => ({
@@ -1002,7 +1052,10 @@ const liveApiStatusLines = useLiveApiStatus(computed<LiveApiStatusInput>(() => (
       streamLength: call.streamText.length,
       lastStreamActivityAt: call.lastStreamActivityAt,
       lastExecutionActivityAt: call.lastExecutionActivityAt,
-      retrying: chatStore.generationStatus === 'retrying'
+      lastToolArgumentProgressAt: call.lastToolArgumentProgressAt,
+      lastToolArgumentProgress: call.lastToolArgumentProgress,
+      retrying: chatStore.generationStatus === 'retrying',
+      executionSettlement: call.executionSettlement,
     }
   })()
 })))
@@ -1083,7 +1136,7 @@ function recordHomeFinalDraftTaskEvent(task: FinalDraftTask, event: FinalDraftEv
 }
 
 function isHomeFinalDraftRequest(plan: LongDocumentExecutionPlan, requestText: string, targetContent: string) {
-  return plan.mode === 'final-draft'
+  return (plan.mode === 'final-draft' || plan.mode === 'single-pass')
     && Boolean(targetContent)
     && !requestText.trim().startsWith('@')
 }
@@ -1145,8 +1198,10 @@ async function runHomeFinalDraft(options: {
 }
 
 function syncHomeFinalDraftMessage(messageId: string, task: FinalDraftTask) {
-  chatStore.updateMessageFinalDraftTask(messageId, task, chatStore.activeSession?.id)
-  chatStore.updateMessageContent(messageId, createFinalDraftStatusMessage(task), chatStore.activeSession?.id)
+  const sessionId = chatStore.activeSession?.id
+  const projId = projectId.value
+  chatStore.updateMessageFinalDraftTask(messageId, task, sessionId, projId)
+  chatStore.updateMessageContent(messageId, createFinalDraftStatusMessage(task), sessionId)
 }
 
 async function runHomeFinalDraftTurn(options: {
@@ -1180,6 +1235,19 @@ async function runHomeFinalDraftTurn(options: {
   scrollToBottom()
   try {
     chatStore.setGenerationState('preparing', '正在准备终稿生成…')
+    addHomeTraceEvent({
+      type: 'final-draft-mode-selected',
+      level: 'info',
+      label: '长文档终稿模式已启动',
+      detail: JSON.stringify({
+        planId: options.plan.planId,
+        operation: options.plan.operation,
+        destination: 'home-editor',
+        targetId: options.targetId,
+        sourceChars: options.sourceContent.length,
+        segments: options.plan.finalDraftPlan?.segments?.length || 1,
+      }),
+    })
     const finalDraftTask = await runHomeFinalDraft({
       requestText: options.requestText,
       targetId: options.targetId,
@@ -1220,7 +1288,13 @@ async function runHomeFinalDraftTurn(options: {
 
 async function continueFinalDraftMessage(message: ChatMessage) {
   if (isStreaming.value) return
-  const task = message.finalDraftTask
+  const sourceContent = editorStore.tabs.find(tab => tab.id === message.finalDraftTask?.targetId)?.content || ''
+  const resolved = await resolveFinalDraftTaskFromView(
+    message.finalDraftTask,
+    sourceContent,
+    createElectronFinalDraftCheckpointStore(),
+  )
+  const task = resolved.ok ? resolved.task : undefined
   if (!task || !finalDraftStatusNeedsAction(task)) return
   const provider = providerStore.activeGenerateProvider
   if (!provider?.apiKey) {
@@ -1304,7 +1378,14 @@ function finalDraftResumeErrorText(reason: string) {
 
 async function resumeFinalDraftMessage(message: ChatMessage) {
   if (isStreaming.value) return
-  const task = message.finalDraftTask
+  const storedTask = message.finalDraftTask
+  const sourceContent = editorStore.tabs.find(tab => tab.id === storedTask?.targetId)?.content || ''
+  const resolved = await resolveFinalDraftTaskFromView(
+    storedTask,
+    sourceContent,
+    createElectronFinalDraftCheckpointStore(),
+  )
+  const task = resolved.ok ? resolved.task : undefined
   if (!task || task.status !== 'generating') return
   const provider = providerStore.activeGenerateProvider
   if (!provider?.apiKey) {
@@ -1371,7 +1452,14 @@ async function resumeFinalDraftMessage(message: ChatMessage) {
 }
 
 async function retryFinalDraftSegmentMessage(message: ChatMessage, providerId?: string) {
-  const existingTask = message.finalDraftTask
+  const storedTask = message.finalDraftTask
+  const sourceContent = editorStore.tabs.find(tab => tab.id === storedTask?.targetId)?.content || ''
+  const resolved = await resolveFinalDraftTaskFromView(
+    storedTask,
+    sourceContent,
+    createElectronFinalDraftCheckpointStore(),
+  )
+  const existingTask = resolved.ok ? resolved.task : undefined
   if (
     !existingTask
     || (
@@ -1384,10 +1472,7 @@ async function retryFinalDraftSegmentMessage(message: ChatMessage, providerId?: 
     && existingTask.lastTelemetry?.throughputStatus === 'stalled'
   if (isStreaming.value && !stalled) return
   // Capture the retry snapshot before aborting; abort marks the live task canceled/failed.
-  const retryTaskSnapshot = snapshotFinalDraftTask(
-    chatStore.activeSession?.messages.find(item => item.id === message.id)?.finalDraftTask
-    || message.finalDraftTask,
-  )
+  const retryTaskSnapshot = snapshotFinalDraftTask(existingTask)
   if (isStreaming.value) {
     activeAbortController?.abort()
     await activeHomeRunPromise?.catch(() => {})
@@ -1745,6 +1830,13 @@ const coCreationAgentId = computed({
 async function classifyHomeIntentDetailed(
   requestText: string,
 ): Promise<DetailedChainRoutingResult> {
+  const requestTarget = createMainEditorTargetSnapshot(editorStore.activeTab)
+  const activeHomePlanTask = activeExecutionTaskStore.getValidSnapshot(
+    'main',
+    String(projectId.value),
+    requestTarget.contentVersion,
+    hashEditorContent(requestTarget.content),
+  )
   const recentHistory = getChatContextMessages(requestText)
     .slice(-4)
     .map(message => ({
@@ -1756,6 +1848,9 @@ async function classifyHomeIntentDetailed(
     workspace: 'home-editor',
     activeEditTaskStatus: homeEditTask.value?.status === 'awaiting_batch'
       ? 'awaiting_batch'
+      : undefined,
+    activePlanStatus: activeHomePlanTask?.status === 'awaiting_user_plan' || activeHomePlanTask?.status === 'active'
+      ? activeHomePlanTask.status
       : undefined,
     recentUserMessages: recentHistory
       .filter(message => message.role === 'user')
@@ -2016,7 +2111,8 @@ function createHomeSkillAdapter(
     getExecutionContext: () => ({
       executionPlan: activeHomeExecutionPlan ?? undefined,
       writeAuthorization: activeHomeExecutionPlan
-        ? buildHomeWorkflowWriteAuthorization({
+        ? buildWorkflowWriteAuthorizationFromPlan({
+          workspace: 'main',
           intent: activeHomeRoutingIntent,
           plan: activeHomeExecutionPlan,
         })
@@ -2039,7 +2135,8 @@ function createHomeSkillAdapter(
           undefined,
           activeHomeExecutionPlan ?? undefined,
           activeHomeExecutionPlan
-            ? buildHomeWorkflowWriteAuthorization({
+            ? buildWorkflowWriteAuthorizationFromPlan({
+              workspace: 'main',
               intent: activeHomeRoutingIntent,
               plan: activeHomeExecutionPlan,
             })
@@ -2773,13 +2870,52 @@ function buildHomeConversationMarkers(limit = 8): Array<{ role: string; content:
     .map(message => ({ role: message.role, content: String(message.content || '') }))
 }
 
+const homeDirectStallRetryDecisions: Array<{
+  intent: 'analyze' | 'edit' | 'generate' | 'discuss'
+  longDocument: boolean
+  toolSurface: Array<{ name: string; policy: 'read' | 'write' }>
+}> = []
+let homeDirectStallRetryRequest: {
+  provider: any
+  model: string
+  systemPrompt: string
+  originalRequest: string
+  maxDepth: number
+  projId: string
+  engineInput: string
+  tools?: AgentToolDefinition[]
+  requestTarget: EditorTargetSnapshot
+  plainIntent: PlainDialogueIntent
+  actualToolSurface?: Array<{ name: string; policy: 'read' | 'write' }>
+  workflowWrite?: DialogueWriteAuthorization
+  permissionDecision?: DialoguePermissionDecision
+  executionPlan?: LongDocumentExecutionPlan
+  operationType?: LongDocumentOperationType
+  skill?: {
+    guidance: string
+    skillIds: string[]
+    promptSource: string
+    protocolDiagnostics?: RealSkillDiagnostic[]
+  }
+  directApiBudget: ApiCallBudget
+} | null = null
+
+function retryStalledHomeDirectRequest(): void {
+  homeToolRunSupervisor?.dispose()
+  homeToolRunSupervisor = createHomeToolRunSupervisor(false)
+  activeAbortController = new AbortController()
+}
+
 async function sendMessage(requestText?: string, routingDecision: HomeRoutingDecision = {}) {
+  if (homeSendStarting.value) return
   const editRequestId = `chat-edit_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
   const editStartedAt = performance.now()
   const projId = projectId.value
   let text = (typeof requestText === 'string' ? requestText : inputText.value).trim()
   const originalRequest = text
   if (!text || homeInputBlocked.value) return
+  homeSendStarting.value = true
+  try {
   if (!chatStore.activeSession) {
     await appConfirm.alert('当前没有可用对话会话，请重新打开项目后再试')
     return
@@ -2804,6 +2940,9 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
   const requestIntentDetailed = await classifyHomeIntentDetailed(text)
   const requestIntent: PlainDialogueIntent =
     requestIntentDetailed.kind === 'matched' ? requestIntentDetailed.intent : 'discuss'
+  const requestRoutingReason = requestIntentDetailed.kind === 'matched'
+    ? requestIntentDetailed.reason
+    : ''
   activeHomeRoutingIntent = requestIntent
   const homeProviderForRouting = providerStore.activeGenerateProvider
   const homeModelForRouting = homeProviderForRouting?.selectedModel || homeProviderForRouting?.models?.[0] || ''
@@ -2827,22 +2966,59 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     maxOutputTokens: homeMaxOutputTokens,
     intent: requestIntent,
     activeTask: activeHomeTask || undefined,
+    activePlanConfirmation: requestRoutingReason === 'active-plan-continuation',
   })
-  createHomeActiveTask({
-    requestText: text,
-    plan: homeExecutionPlan,
-    snapshot: requestTarget,
-  })
-  homeLongDocumentEditTaskPlan = homeExecutionPlan.mode === 'edit-task'
-  const homeWorkflowWriteAuthorization = buildHomeWorkflowWriteAuthorization({
+  const shouldReuseHomeActiveTask = Boolean(
+    (activeHomeTask?.status === 'awaiting_user_plan' || activeHomeTask?.status === 'active')
+    && activeHomeTask.plan
+    && requestRoutingReason === 'active-plan-continuation',
+  )
+  const shouldPreserveHomeAwaitingPlan = Boolean(
+    activeHomeTask?.status === 'awaiting_user_plan'
+    && activeHomeTask.plan
+    && !shouldReuseHomeActiveTask
+    && activeExecutionTaskStore.isAwaitingPlanSupersededByPlan(
+      'main',
+      String(projectId.value),
+      homeExecutionPlan.operation,
+    ) === false,
+  )
+  if (!shouldReuseHomeActiveTask && !shouldPreserveHomeAwaitingPlan) {
+    if (activeHomeTask?.status === 'awaiting_user_plan') {
+      activeExecutionTaskStore.supersedeAwaitingUserPlan(
+        'main',
+        String(projectId.value),
+        'new-edit-request',
+      )
+    }
+    createHomeActiveTask({
+      requestText: text,
+      plan: homeExecutionPlan,
+      snapshot: requestTarget,
+    })
+    const supersededPlan = activeExecutionTaskStore.consumeLastSupersededPlan()
+    if (supersededPlan) {
+      addHomeTraceEvent({
+        type: 'active-plan-superseded',
+        level: 'info',
+        label: '旧等待计划已由新编辑请求替换',
+        detail: JSON.stringify(supersededPlan),
+      })
+    }
+  }
+  // Keep planner as the single place that marks a reused awaiting plan.
+  const effectiveHomeExecutionPlan = homeExecutionPlan
+  homeLongDocumentEditTaskPlan = effectiveHomeExecutionPlan.mode === 'edit-task'
+  const homeWorkflowWriteAuthorization = buildWorkflowWriteAuthorizationFromPlan({
+    workspace: 'main',
     intent: requestIntent,
-    plan: homeExecutionPlan,
+    plan: effectiveHomeExecutionPlan,
   })
-  activeHomeExecutionPlan = homeExecutionPlan
-  const homeLongDocumentOperationType = toLongDocumentOperationType(homeExecutionPlan.operation)
-  const useHomeFinalDraft = isHomeFinalDraftRequest(homeExecutionPlan, text, requestTarget.content)
+  activeHomeExecutionPlan = effectiveHomeExecutionPlan
+  const homeLongDocumentOperationType = toLongDocumentOperationType(effectiveHomeExecutionPlan.operation)
+  const useHomeFinalDraft = isHomeFinalDraftRequest(effectiveHomeExecutionPlan, text, requestTarget.content)
   if (await runHomeLocalTransform({
-    plan: homeExecutionPlan,
+    plan: effectiveHomeExecutionPlan,
     target: requestTarget,
     intent: requestIntent,
     requestText: text,
@@ -2854,9 +3030,10 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       requestTarget,
       requestIntent,
       skillSurfaceModel,
-      homeExecutionPlan,
+          effectiveHomeExecutionPlan,
       homeWorkflowWriteAuthorization,
       text,
+      activeHomeTask?.authorizedExcerpts || [],
     )
     : undefined
   const skillToolSurface = useHomeFinalDraft ? undefined : skillSurface?.actualToolSurface
@@ -2880,9 +3057,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     selectedCoCreationSkills.value.map(skill => skillStore.displaySkillName(skill)),
     {
       intent: requestIntent,
-      longDocument: useHomeFinalDraft
-        || homeExecutionPlan.mode === 'edit-task'
-        || homeExecutionPlan.decision !== 'fits',
+      longDocument: useHomeFinalDraft || usesLongDocumentToolRuntime(effectiveHomeExecutionPlan),
       permissionDecision: skillSurface?.permissionDecision,
       writeMode: requestTarget.content ? 'direct' : undefined,
       toolSurface: skillToolSurface,
@@ -2911,7 +3086,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       targetId: requestTarget.targetId,
       sourceContent: requestTarget.content,
       model: providerForFinalDraft.selectedModel || providerForFinalDraft.models?.[0] || 'gpt-4o',
-      plan: homeExecutionPlan,
+      plan: effectiveHomeExecutionPlan,
       skillGuidance: buildHomeSkillGuidance(),
       conversationMarkers: buildHomeConversationMarkers(),
     })
@@ -2920,42 +3095,46 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
   addHomeTraceEvent({
     type: 'long-document-policy',
     level: 'info',
-    label: homeExecutionPlan.mode === 'edit-task'
+    label: effectiveHomeExecutionPlan.mode === 'edit-task'
       ? '长文档进入 EditTask 多批执行'
-      : homeExecutionPlan.decision !== 'fits'
+      : effectiveHomeExecutionPlan.mode === 'single-pass'
+        ? '全文一次成型执行'
+      : usesLongDocumentToolRuntime(effectiveHomeExecutionPlan)
         ? '启用长文档工具任务策略'
         : '使用短文档工具任务策略',
     detail: JSON.stringify({
-      planId: homeExecutionPlan.planId,
-      operation: homeExecutionPlan.operation,
+      planId: effectiveHomeExecutionPlan.planId,
+      operation: effectiveHomeExecutionPlan.operation,
+      operationResolution: effectiveHomeExecutionPlan.operationResolution,
       legacyOperationType: homeLongDocumentOperationType,
-      mode: homeExecutionPlan.mode,
-      decision: homeExecutionPlan.decision,
+      mode: effectiveHomeExecutionPlan.mode,
+      decision: effectiveHomeExecutionPlan.decision,
       reason: homeLongDocumentEditTaskPlan
         ? 'execution-plan-edit-task'
-        : homeExecutionPlan.decision !== 'fits'
+        : usesLongDocumentToolRuntime(effectiveHomeExecutionPlan)
           ? 'execution-plan-long-document'
           : 'execution-plan-direct',
-      segments: homeExecutionPlan.segments.length,
-      invariants: homeExecutionPlan.invariants,
-      estimatedPhysicalRequests: homeExecutionPlan.estimatedPhysicalRequests,
-      contextWindow: homeExecutionPlan.contextWindow,
-      estimatedDocumentTokens: homeExecutionPlan.estimatedDocumentTokens,
-      targetChars: homeExecutionPlan.totalChars,
+      segments: effectiveHomeExecutionPlan.segments.length,
+      invariants: effectiveHomeExecutionPlan.invariants,
+      estimatedPhysicalRequests: effectiveHomeExecutionPlan.estimatedPhysicalRequests,
+      contextWindow: effectiveHomeExecutionPlan.contextWindow,
+      estimatedDocumentTokens: effectiveHomeExecutionPlan.estimatedDocumentTokens,
+      targetChars: effectiveHomeExecutionPlan.totalChars,
       request: text.slice(0, 120),
     })
   })
   const homeLongDocumentDiag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
-  homeLongDocumentDiag?.log?.('info', 'home/long-document-policy', `executionPlan=${homeExecutionPlan.planId}`, {
-    reason: `execution-plan-${homeExecutionPlan.decision}`,
-    executionMode: homeExecutionPlan.mode,
-    executionModeReason: `operation=${homeExecutionPlan.operation}`,
-    planId: homeExecutionPlan.planId,
-    decision: homeExecutionPlan.decision,
-    contextWindow: homeExecutionPlan.contextWindow,
-    estimatedDocumentTokens: homeExecutionPlan.estimatedDocumentTokens,
+  homeLongDocumentDiag?.log?.('info', 'home/long-document-policy', `executionPlan=${effectiveHomeExecutionPlan.planId}`, {
+    reason: `execution-plan-${effectiveHomeExecutionPlan.decision}`,
+    executionMode: effectiveHomeExecutionPlan.mode,
+    executionModeReason: `operation=${effectiveHomeExecutionPlan.operation}`,
+    operationResolution: effectiveHomeExecutionPlan.operationResolution,
+    planId: effectiveHomeExecutionPlan.planId,
+    decision: effectiveHomeExecutionPlan.decision,
+    contextWindow: effectiveHomeExecutionPlan.contextWindow,
+    estimatedDocumentTokens: effectiveHomeExecutionPlan.estimatedDocumentTokens,
     requestText: text,
-    targetChars: homeExecutionPlan.totalChars,
+    targetChars: effectiveHomeExecutionPlan.totalChars,
   })
   consumeIntentCorpusInference({
     projectId: projectId.value,
@@ -2985,6 +3164,11 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     requestText: text,
     routing: requestIntentDetailed,
   })
+
+  homeToolRunSupervisor?.dispose()
+  homeToolRunSupervisor = createHomeToolRunSupervisor(
+    homeLongDocumentEditTaskPlan || usesLongDocumentToolRuntime(effectiveHomeExecutionPlan),
+  )
 
   chatStore.addMessage({ role: 'user', content: text, tabId: chatStore.currentContext?.tabId || '' }, projId)
   addHomeRoutingDiagnostics(requestIntentDetailed.diagnostics)
@@ -3283,13 +3467,20 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
           plainRequestTarget,
           plainIntent,
           model,
-          homeExecutionPlan,
+      effectiveHomeExecutionPlan,
           homeWorkflowWriteAuthorization,
           text,
+          activeHomeTask?.authorizedExcerpts || [],
         )
         : undefined
       const plainTools = plainSurface?.tools
       const homePermissionDecision = plainSurface?.permissionDecision
+      homeDirectStallRetryDecisions.length = 0
+      homeDirectStallRetryDecisions.push({
+        intent: plainIntent,
+        longDocument: homeLongDocumentEditTaskPlan || usesLongDocumentToolRuntime(effectiveHomeExecutionPlan),
+        toolSurface: plainSurface?.actualToolSurface || [],
+      })
       for (const conflict of plainSurface?.toolConflicts || []) {
         addHomeTraceEvent({
           type: 'tool-conflict',
@@ -3309,7 +3500,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
         plainSurface?.actualToolSurface,
         {
           activeEditTask: homeEditTask.value,
-          executionPlan: homeExecutionPlan,
+          executionPlan: effectiveHomeExecutionPlan,
         },
       )
       addHomeTraceEvent({
@@ -3319,10 +3510,34 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
           source: 'home',
           toolSurface: plainSurface?.actualToolSurface,
           activeEditTask: homeEditTask.value,
-          executionPlan: homeExecutionPlan,
+          executionPlan: effectiveHomeExecutionPlan,
         })).slice(0, 20000),
       })
-     const plainResult = await callApi(
+      homeDirectStallRetryRequest = {
+        provider,
+        model,
+        systemPrompt,
+        originalRequest,
+        maxDepth,
+        projId,
+        engineInput: text,
+        tools: plainTools,
+        requestTarget: plainRequestTarget,
+        plainIntent,
+        actualToolSurface: plainSurface?.actualToolSurface,
+        workflowWrite: homeWorkflowWriteAuthorization ?? undefined,
+        permissionDecision: homePermissionDecision,
+        executionPlan: effectiveHomeExecutionPlan,
+        operationType: homeLongDocumentOperationType,
+        skill: composeSkillGuidance?.skillIds.length ? {
+          guidance: composeSkillGuidance.guidance,
+          skillIds: composeSkillGuidance.skillIds,
+          promptSource: composeSkillGuidance.promptSource,
+          protocolDiagnostics: composeSkillProtocolDiagnostics,
+        } : undefined,
+        directApiBudget,
+      }
+      const plainResult = await callApi(
        provider,
        model,
        systemPrompt,
@@ -3336,7 +3551,7 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       plainSurface?.actualToolSurface,
       homeWorkflowWriteAuthorization ?? undefined,
       homePermissionDecision,
-      homeExecutionPlan,
+      effectiveHomeExecutionPlan,
       homeLongDocumentOperationType,
       composeSkillGuidance?.skillIds.length ? {
         guidance: composeSkillGuidance.guidance,
@@ -3346,6 +3561,8 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       } : undefined,
       directApiBudget,
     )
+      homeDirectStallRetryDecisions.length = 0
+      homeDirectStallRetryRequest = null
       response = plainResult.text
       failedTurnMaxTokens = plainResult.maxTokens
       lastToolCallSummary = plainResult.toolCallSummary
@@ -3429,23 +3646,121 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     homeTurnOutcomeVerified = true
     homeTurnSucceeded = true
  } catch (e: any) {
-   if (e?.kind === 'canceled' || activeAbortController?.signal.aborted) {
+   const homeSupervisorReason = homeToolRunSupervisor?.reason || ''
+   const stallRetryContext = homeDirectStallRetryDecisions[0] && homeDirectStallRetryRequest
+     ? homeDirectStallRetryRequest
+     : null
+   if (
+     homeSupervisorReason === 'stuck_timeout' &&
+     e?.kind === 'canceled' &&
+     stallRetryContext &&
+     shouldRetryStalledDirectWrite({
+       supervisorReason: homeSupervisorReason,
+       intent: homeDirectStallRetryDecisions[0].intent,
+       longDocument: homeDirectStallRetryDecisions[0].longDocument,
+       toolSurface: homeDirectStallRetryDecisions[0].toolSurface,
+     }).retryable
+   ) {
+     const stallRetryDecision = shouldRetryStalledDirectWrite({
+       supervisorReason: homeSupervisorReason,
+       intent: homeDirectStallRetryDecisions[0].intent,
+       longDocument: homeDirectStallRetryDecisions[0].longDocument,
+       toolSurface: homeDirectStallRetryDecisions[0].toolSurface,
+     })
+     homeDirectStallRetryDecisions.length = 0
+     addHomeTraceEvent({
+       type: 'state-stuck-retry',
+       level: 'warn',
+      label: '直接对话请求无进展，已自动隔离重试',
+      detail: JSON.stringify({
+        reason: 'stall_retry_valid',
+        scope: stallRetryDecision.scope || 'read-only-dialogue',
+        inheritedSignal: false,
+        inheritedTimeout: false,
+       longDocumentRetry: stallRetryDecision.longDocumentRetry,
+     }),
+   })
+   homeDirectStallRetryRequest = null
+     chatStore.setGenerationState('retrying', 'AI 请求无进展，已自动隔离重试')
+     retryStalledHomeDirectRequest()
+     const stallRetryResult = await callApi(
+       stallRetryContext.provider,
+       stallRetryContext.model,
+       stallRetryContext.systemPrompt,
+       stallRetryContext.originalRequest,
+       stallRetryContext.maxDepth,
+       stallRetryContext.projId,
+       stallRetryContext.engineInput,
+       stallRetryContext.tools,
+       stallRetryContext.requestTarget,
+       stallRetryContext.plainIntent,
+       stallRetryContext.actualToolSurface,
+       stallRetryContext.workflowWrite,
+       stallRetryContext.permissionDecision,
+       stallRetryContext.executionPlan,
+       stallRetryContext.operationType,
+       stallRetryContext.skill,
+       stallRetryContext.directApiBudget,
+     )
+     response = stallRetryResult.text
+     failedTurnMaxTokens = stallRetryResult.maxTokens
+     lastToolCallSummary = stallRetryResult.toolCallSummary
+     homeAgentTerminalStatus = stallRetryResult.terminalStatus
+     homeAgentTerminalReason = stallRetryResult.terminalReason
+     if (response?.trim()) {
+       await conversationContextService.recordTurn({
+         projectId: projId,
+         workspace: 'main',
+         purpose: 'generate'
+       }, {
+         user: originalRequest,
+         assistant: response,
+         reservedOutputTokens: stallRetryResult.maxTokens,
+         meta: {
+           source: 'ChatPanel.sendMessage:stall-retry',
+           model: stallRetryContext.model,
+           agentId: coCreationAgentId.value || undefined,
+           toolCalls: stallRetryResult.toolCallSummary,
+         }
+       })
+     }
+     if (messages.value.length === 0 || messages.value[messages.value.length - 1].role !== 'assistant') {
+       chatStore.addMessage({ role: 'assistant', content: response, tabId: chatStore.currentContext?.tabId || '' }, projId)
+     } else if (response) {
+       chatStore.updateMessageContent(messages.value[messages.value.length - 1].id, response, chatStore.activeSessionId || undefined)
+     }
+    finishHomeRun(
+      homeAgentTerminalStatus ?? 'success',
+      undefined,
+      response,
+      homeAgentTerminalReason ?? 'stall_retry_valid',
+    )
+     homeTurnOutcomeVerified = true
+     homeTurnSucceeded = true
+   } else if (e?.kind === 'canceled' || activeAbortController?.signal.aborted) {
      closeActiveHomeApiCall('canceled', '用户取消生成')
      removeEmptyAssistantMessage()
      chatStore.setGenerationState('canceled', '已取消生成')
      finishHomeRun('canceled', '用户取消生成', undefined, 'user_cancel')
    } else {
-     closeActiveHomeApiCall('failed', e?.message || String(e))
-     finishHomeTraceSession('failed', e?.message || String(e))
+     const homeFailureMessage = homeSupervisorReason === 'stuck_timeout'
+       ? 'AI 请求无进展，已自动中止。请缩小问题范围、分段处理，或稍后重试。'
+       : homeSupervisorReason === 'hard_deadline'
+         ? '本轮工具任务超过总时间上限，已自动中止。请把长文档任务拆分为多轮处理。'
+         : homeSupervisorReason === 'repeated_tool_error'
+           ? '同一工具连续失败，已自动中止。请检查模型是否支持当前工具参数。'
+           : (e?.message || String(e))
+     closeActiveHomeApiCall('failed', homeFailureMessage)
+     finishHomeTraceSession('failed', homeFailureMessage)
      removeEmptyAssistantMessage()
      lastFailedText.value = text
-     chatStore.setGenerationState('error', '生成失败：' + (e?.message || String(e)))
-     chatStore.addMessage({ role: 'assistant', content: '请求失败：' + (e?.message || String(e)), tabId: chatStore.currentContext?.tabId || '' }, projId)
+     chatStore.setGenerationState('error', '生成失败：' + homeFailureMessage)
+     chatStore.addMessage({ role: 'assistant', content: '请求失败：' + homeFailureMessage, tabId: chatStore.currentContext?.tabId || '' }, projId)
      finishHomeRun(
        'failed',
-       e?.message || String(e),
+       homeFailureMessage,
        undefined,
-       homeTurnOutcomeVerified ? 'post_outcome_runtime_exception' : 'runtime_exception',
+       homeSupervisorReason || (homeTurnOutcomeVerified ? 'post_outcome_runtime_exception' : 'runtime_exception'),
      )
      void conversationContextService.recordTurn({
        projectId: projId,
@@ -3523,6 +3838,8 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
       }
     }
  }
+  homeToolRunSupervisor?.dispose()
+  homeToolRunSupervisor = null
   if (homeRunTraceId && runTraceStore.isAwaitingUser(homeRunTraceId)) {
     closeActiveHomeApiCall('canceled', '等待用户确认，未发起 API 调用')
   } else {
@@ -3537,6 +3854,25 @@ async function sendMessage(requestText?: string, routingDecision: HomeRoutingDec
     await nextTick()
     scrollToBottom()
   }
+  } finally {
+    homeSendStarting.value = false
+  }
+}
+
+function getHomeSessionReadLedger(targetId: string): DocumentReadLedger {
+  const sessionKey = chatStore.currentContext?.tabId || 'default'
+  if (
+    !homeSessionReadLedger
+    || homeSessionReadLedger.snapshot().targetId !== targetId
+    || homeReadLedgerSessionKey !== sessionKey
+  ) {
+    homeSessionReadLedger = createDocumentReadLedger({
+      workspace: 'main',
+      targetId,
+    })
+    homeReadLedgerSessionKey = sessionKey
+  }
+  return homeSessionReadLedger
 }
 
 function removeEmptyAssistantMessage() {
@@ -3564,7 +3900,7 @@ async function callApi(
  workflowWrite?: DialogueWriteAuthorization | undefined,
  permissionDecision?: DialoguePermissionDecision | undefined,
  executionPlan?: LongDocumentExecutionPlan,
-  operationType?: LongDocumentOperationType,
+ operationType?: LongDocumentOperationType,
   skill?: {
     guidance: string
     skillIds: string[]
@@ -3716,9 +4052,10 @@ async function callApi(
   }
   let directStreamText = ''
   const reasoningControl = getProviderReasoningControl(provider.providerType)
-  const agentPhysicalRequestLimit = executionPlan
-    ? calculateLongDocumentPhysicalRequestBudget(executionPlan)
-    : Math.max(1, resumedApiBudget?.snapshot().limit ?? 8)
+    const agentToolRunBudget = createToolRunBudget({
+      plan: executionPlan,
+      operation: operationType,
+    })
     const agentRuntime = createAgentDialogueRuntime({
       source: 'home',
       taskId: `home-direct-${traceApiCallId || Date.now().toString(36)}`,
@@ -3732,7 +4069,10 @@ async function callApi(
       skillGuidance: skill?.guidance,
       skillIds: skill?.skillIds,
       promptSource: skill?.promptSource,
-      maxPhysicalRequests: agentPhysicalRequestLimit,
+      idleTimeoutMs: homeLongDocumentEditTaskPlan || (executionPlan ? usesLongDocumentToolRuntime(executionPlan) : false)
+        ? LONG_TOOL_RUN_IDLE_TIMEOUT_MS
+        : DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS,
+      toolRunBudget: agentToolRunBudget.snapshot(),
       getContextRemaining: () => ({
         contextWindowTokens: resolveEffectiveModelContextWindow({
           model,
@@ -3743,6 +4083,24 @@ async function callApi(
       onEvent: (event, snapshot) => {
         if (event.type === 'state') {
           releaseInputOnTerminalState(snapshot.status)
+          if (snapshot.status === 'needs_user') {
+            const awaitingHomeTask = activeExecutionTaskStore.markAwaitingUserPlan(
+              'main',
+              projId,
+            )
+            if (awaitingHomeTask) {
+              addHomeTraceEvent({
+                type: 'active-plan-awaiting-user',
+                level: 'info',
+                label: '执行计划已登记，等待用户确认',
+                detail: JSON.stringify({
+                  taskId: awaitingHomeTask.taskId,
+                  planId: awaitingHomeTask.plan?.planId,
+                  operation: awaitingHomeTask.operation,
+                }),
+              })
+            }
+          }
         }
         if (event.type === 'interactive_response') {
           releaseInputOnInteractiveResponse()
@@ -3775,6 +4133,13 @@ async function callApi(
     tools,
     onPhysicalCall: (event) => {
       recordHomePhysicalCall(traceApiCallId, event)
+      if (physicalCallReportsProgress(event)) homeToolRunSupervisor?.reportProgress()
+    },
+    onStreamToolProgress: progress => {
+      homeToolRunSupervisor?.reportProgress()
+      if (homeRunTraceId && traceApiCallId) {
+        runTraceStore.reportToolArgumentProgress(homeRunTraceId, traceApiCallId, progress)
+      }
     },
     onReasoning: (text: string) => {
       appendHomeReasoning(traceApiCallId, text)
@@ -3783,7 +4148,9 @@ async function callApi(
    scenario: 'direct-tool-intensive',
    intent: plainIntent,
   permissionDecision,
+   toolRunBudget: agentToolRunBudget,
    onConvergenceStart: () => {
+     homeToolRunSupervisor?.dispose()
      addHomeTraceEvent({
        type: 'tool-convergence-started',
        level: 'info',
@@ -3837,6 +4204,7 @@ async function callApi(
      })
   },
   onToolStart: (event) => {
+    homeToolRunSupervisor?.reportProgress()
     // P7: 通知编辑器实时反馈
     if (!isAgentRuntimeToolName(event.toolName)) {
       window.dispatchEvent(new CustomEvent('tool-activity', { detail: { type: 'tool_start', toolName: event.toolName, targetId: requestTarget.targetId, policy: event.policy } }))
@@ -3849,6 +4217,14 @@ async function callApi(
    },
   onToolCall: (event) => {
     recordHomeToolCall(traceApiCallId, event)
+    homeToolRunSupervisor?.reportProgress()
+    if (!event.result.ok) {
+      homeToolRunSupervisor?.reportToolError(
+        buildToolErrorKey(event.toolName, event.result.error?.code, event.input),
+        3,
+        event.iteration,
+      )
+    }
      // P2: 实时校验写入目标一致性
      if (event.policy === 'write' && event.result.ok) {
        const writableTarget = event.result.data && typeof event.result.data === 'object'
@@ -3925,6 +4301,23 @@ async function callApi(
       agentResult,
       executionPlan,
     })
+    const budgetSnapshot = agentResult.snapshot.toolRunBudget
+    const executionSettlement: RunTraceExecutionSettlement | undefined = budgetSnapshot
+      ? {
+        phase: agentResult.snapshot.executionPhase,
+        readToolCalls: budgetSnapshot.readToolCalls,
+        maxReadToolCalls: budgetSnapshot.maxReadToolCalls,
+        writeToolCalls: budgetSnapshot.writeToolCalls,
+        reservedWriteToolCalls: budgetSnapshot.reservedWriteToolCalls,
+        controlToolCalls: budgetSnapshot.controlToolCalls,
+        physicalRequests: budgetSnapshot.physicalRequests,
+        maxPhysicalRequests: budgetSnapshot.maxPhysicalRequests,
+        exhaustedClasses: budgetSnapshot.exhaustedClasses,
+        successfulWriteCount: agentResult.snapshot.successfulWriteCount,
+        trustedCoverageCount: agentResult.snapshot.trustedCoverageCount,
+        planComplete: agentResult.snapshot.planComplete,
+      }
+      : undefined
     if (agentResult.toolSurface?.length) {
       runTraceStore.updateApiCallToolSurface(homeRunTraceId || '', traceApiCallId || '', {
         actualToolSurface: agentResult.toolSurface,
@@ -4084,8 +4477,10 @@ async function callApi(
     downgradeReason: result.compatibilityWrite ? 'compatibility_write' : undefined,
       maxTokens: result.maxTokens,
       textOrigin: result.textOrigin,
-      toolAudit: result.toolAudit
-  })
+      toolAudit: result.toolAudit,
+      executionSettlement,
+      readLedger: getHomeSessionReadLedger(requestTarget.targetId).snapshot(),
+    })
   if (result.toolsDowngraded === 'json-protocol' && !compatibilityNotice.value) {
     compatibilityNotice.value = '供应商拒绝原生工具调用，已降级为 JSON 兼容模式'
   }
@@ -4102,6 +4497,25 @@ async function callApi(
 
     const responseText = result.text
     if (responseText) chatStore.updateLastMessage(responseText)
+    if ((plainIntent === 'discuss' || plainIntent === 'analyze') && responseText.trim()) {
+      const excerptAppended = activeExecutionTaskStore.appendAuthorizedExcerpt(
+        'main',
+        projId,
+        responseText,
+      )
+      const excerptObservation = activeExecutionTaskStore
+        .consumeLastAuthorizedExcerptObservation()
+      if (excerptAppended && excerptObservation) {
+        addHomeTraceEvent({
+          type: 'authorized-plan-excerpt',
+          level: excerptObservation.outcome === 'appended' ? 'info' : 'warn',
+          label: excerptObservation.outcome === 'appended'
+            ? '讨论回复已进入计划授权上下文'
+            : '讨论回复未进入计划授权上下文',
+          detail: JSON.stringify(excerptObservation),
+        })
+      }
+    }
   const finishReason = result.finishReason || 'unknown'
   const continuationStatus = finishReason === 'length' || finishReason === 'timeout' || finishReason === 'network_error' || finishReason === 'canceled'
     ? continuationStatusFor(finishReason as any, Boolean(result.text))
@@ -4607,10 +5021,12 @@ function buildHomeDialogueToolSurface(
   executionPlan?: LongDocumentExecutionPlan,
   writeAuthorization?: DialogueWriteAuthorization | null,
   requestText?: string,
+  authorizedPlanExcerpts?: readonly string[],
 ): ReturnType<typeof buildDialogueToolSurface> {
   return buildDialogueToolSurface({
     workspace: 'main',
     intent,
+    readLedger: getHomeSessionReadLedger(requestTarget.targetId),
     writeAuthorization: writeAuthorization || null,
     maxReadChars: () => getReadCapChars(
       providerStore.activeGenerateProvider,
@@ -4620,6 +5036,7 @@ function buildHomeDialogueToolSurface(
     ...buildChatEditorTools(requestTarget),
     conversationMarkers: buildHomeConversationMarkers(),
     userRequestText: requestText,
+    authorizedPlanExcerpts: authorizedPlanExcerpts || [],
     onContaminationDecision: (decision: EditorWriteContaminationDecision) => addHomeTraceEvent({
       type: decision.type,
       level: decision.type === 'write-contamination-rejected' ? 'warn' : 'info',

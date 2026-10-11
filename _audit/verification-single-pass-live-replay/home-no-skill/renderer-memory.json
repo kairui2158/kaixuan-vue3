@@ -1,0 +1,818 @@
+{
+  "curve": [
+    {
+      "at": "2026-10-11T02:28:01.704Z",
+      "jsHeapUsedBytes": 22753332,
+      "jsHeapTotalBytes": 35741696,
+      "jsHeapLimitBytes": -1,
+      "documents": 7,
+      "nodes": 1349
+    },
+    {
+      "at": "2026-10-11T02:28:06.782Z",
+      "jsHeapUsedBytes": 9112688,
+      "jsHeapTotalBytes": 31567872,
+      "jsHeapLimitBytes": -1,
+      "documents": 3,
+      "nodes": 652
+    },
+    {
+      "at": "2026-10-11T02:28:11.846Z",
+      "jsHeapUsedBytes": 10147788,
+      "jsHeapTotalBytes": 31567872,
+      "jsHeapLimitBytes": -1,
+      "documents": 3,
+      "nodes": 679
+    },
+    {
+      "at": "2026-10-11T02:28:16.901Z",
+      "jsHeapUsedBytes": 11602336,
+      "jsHeapTotalBytes": 31830016,
+      "jsHeapLimitBytes": -1,
+      "documents": 3,
+      "nodes": 679
+    },
+    {
+      "at": "2026-10-11T02:28:21.961Z",
+      "jsHeapUsedBytes": 12775240,
+      "jsHeapTotalBytes": 31830016,
+      "jsHeapLimitBytes": -1,
+      "documents": 3,
+      "nodes": 679
+    },
+    {
+      "at": "2026-10-11T02:28:27.026Z",
+      "jsHeapUsedBytes": 9376284,
+      "jsHeapTotalBytes": 11120640,
+      "jsHeapLimitBytes": -1,
+      "documents": 3,
+      "nodes": 675
+    },
+    {
+      "at": "2026-10-11T02:28:32.097Z",
+      "jsHeapUsedBytes": 10129032,
+      "jsHeapTotalBytes": 11382784,
+      "jsHeapLimitBytes": -1,
+      "documents": 8,
+      "nodes": 1004
+    },
+    {
+      "at": "2026-10-11T02:28:37.198Z",
+      "jsHeapUsedBytes": 10273768,
+      "jsHeapTotalBytes": 13479936,
+      "jsHeapLimitBytes": -1,
+      "documents": 4,
+      "nodes": 741
+    },
+    {
+      "at": "2026-10-11T02:28:42.281Z",
+      "jsHeapUsedBytes": 10805592,
+      "jsHeapTotalBytes": 15577088,
+      "jsHeapLimitBytes": -1,
+      "documents": 23,
+      "nodes": 1871
+    },
+    {
+      "at": "2026-10-11T02:28:47.352Z",
+      "jsHeapUsedBytes": 12684720,
+      "jsHeapTotalBytes": 20336640,
+      "jsHeapLimitBytes": -1,
+      "documents": 18,
+      "nodes": 1623
+    },
+    {
+      "at": "2026-10-11T02:28:52.420Z",
+      "jsHeapUsedBytes": 12128396,
+      "jsHeapTotalBytes": 19881984,
+      "jsHeapLimitBytes": -1,
+      "documents": 20,
+      "nodes": 1717
+    },
+    {
+      "at": "2026-10-11T02:28:57.483Z",
+      "jsHeapUsedBytes": 9624176,
+      "jsHeapTotalBytes": 18939904,
+      "jsHeapLimitBytes": -1,
+      "documents": 13,
+      "nodes": 1208
+    },
+    {
+      "at": "2026-10-11T02:29:02.523Z",
+      "jsHeapUsedBytes": 9401616,
+      "jsHeapTotalBytes": 19202048,
+      "jsHeapLimitBytes": -1,
+      "documents": 4,
+      "nodes": 723
+    },
+    {
+      "at": "2026-10-11T02:29:07.589Z",
+      "jsHeapUsedBytes": 10722772,
+      "jsHeapTotalBytes": 27852800,
+      "jsHeapLimitBytes": -1,
+      "documents": 9,
+      "nodes": 1042
+    },
+    {
+      "at": "2026-10-11T02:29:12.669Z",
+      "jsHeapUsedBytes": 15143592,
+      "jsHeapTotalBytes": 27852800,
+      "jsHeapLimitBytes": -1,
+      "documents": 27,
+      "nodes": 2084
+    },
+    {
+      "at": "2026-10-11T02:29:17.745Z",
+      "jsHeapUsedBytes": 10841584,
+      "jsHeapTotalBytes": 27852800,
+      "jsHeapLimitBytes": -1,
+      "documents": 18,
+      "nodes": 1749
+    },
+    {
+      "at": "2026-10-11T02:29:22.838Z",
+      "jsHeapUsedBytes": 13143856,
+      "jsHeapTotalBytes": 27590656,
+      "jsHeapLimitBytes": -1,
+      "documents": 14,
+      "nodes": 1343
+    },
+    {
+      "at": "2026-10-11T02:29:27.904Z",
+      "jsHeapUsedBytes": 10211856,
+      "jsHeapTotalBytes": 28639232,
+      "jsHeapLimitBytes": -1,
+      "documents": 7,
+      "nodes": 902
+    },
+    {
+      "at": "2026-10-11T02:29:32.970Z",
+      "jsHeapUsedBytes": 11239904,
+      "jsHeapTotalBytes": 29466624,
+      "jsHeapLimitBytes": -1,
+      "documents": 25,
+      "nodes": 2034
+    },
+    {
+      "at": "2026-10-11T02:29:38.046Z",
+      "jsHeapUsedBytes": 12305564,
+      "jsHeapTotalBytes": 28942336,
+      "jsHeapLimitBytes": -1,
+      "documents": 20,
+      "nodes": 1717
+    },
+    {
+      "at": "2026-10-11T02:29:43.111Z",
+      "jsHeapUsedBytes": 10673280,
+      "jsHeapTotalBytes": 28942336,
+      "jsHeapLimitBytes": -1,
+      "documents": 13,
+      "nodes": 1326
+    },
+    {
+      "at": "2026-10-11T02:29:48.173Z",
+      "jsHeapUsedBytes": 16942180,
+      "jsHeapTotalBytes": 29466624,
+      "jsHeapLimitBytes": -1,
+      "documents": 8,
+      "nodes": 957
+    },
+    {
+      "at": "2026-10-11T02:29:53.265Z",
+      "jsHeapUsedBytes": 15504500,
+      "jsHeapTotalBytes": 28114944,
+      "jsHeapLimitBytes": -1,
+      "documents": 5,
+      "nodes": 836
+    },
+    {
+      "at": "2026-10-11T02:29:58.336Z",
+      "jsHeapUsedBytes": 13953092,
+      "jsHeapTotalBytes": 28639232,
+      "jsHeapLimitBytes": -1,
+      "documents": 22,
+      "nodes": 1995
+    },
+    {
+      "at": "2026-10-11T02:30:03.382Z",
+      "jsHeapUsedBytes": 15594348,
+      "jsHeapTotalBytes": 28680192,
+      "jsHeapLimitBytes": -1,
+      "documents": 18,
+      "nodes": 1573
+    },
+    {
+      "at": "2026-10-11T02:30:08.434Z",
+      "jsHeapUsedBytes": 11149788,
+      "jsHeapTotalBytes": 28639232,
+      "jsHeapLimitBytes": -1,
+      "documents": 13,
+      "nodes": 1150
+    },
+    {
+      "at": "2026-10-11T02:30:13.491Z",
+      "jsHeapUsedBytes": 14844256,
+      "jsHeapTotalBytes": 29163520,
+      "jsHeapLimitBytes": -1,
+      "documents": 6,
+      "nodes": 1227
+    },
+    {
+      "at": "2026-10-11T02:30:18.554Z",
+      "jsHeapUsedBytes": 17493056,
+      "jsHeapTotalBytes": 29990912,
+      "jsHeapLimitBytes": -1,
+      "documents": 9,
+      "nodes": 1146
+    },
+    {
+      "at": "2026-10-11T02:30:23.621Z",
+      "jsHeapUsedBytes": 17137216,
+      "jsHeapTotalBytes": 30777344,
+      "jsHeapLimitBytes": -1,
+      "documents": 9,
+      "nodes": 984
+    },
+    {
+      "at": "2026-10-11T02:30:28.681Z",
+      "jsHeapUsedBytes": 13988056,
+      "jsHeapTotalBytes": 29425664,
+      "jsHeapLimitBytes": -1,
+      "documents": 4,
+      "nodes": 685
+    },
+    {
+      "at": "2026-10-11T02:30:33.750Z",
+      "jsHeapUsedBytes": 12295744,
+      "jsHeapTotalBytes": 29728768,
+      "jsHeapLimitBytes": -1,
+      "documents": 21,
+      "nodes": 1784
+    },
+    {
+      "at": "2026-10-11T02:30:38.821Z",
+      "jsHeapUsedBytes": 13322648,
+      "jsHeapTotalBytes": 28639232,
+      "jsHeapLimitBytes": -1,
+      "documents": 12,
+      "nodes": 1277
+    },
+    {
+      "at": "2026-10-11T02:30:43.906Z",
+      "jsHeapUsedBytes": 10339096,
+      "jsHeapTotalBytes": 28639232,
+      "jsHeapLimitBytes": -1,
+      "documents": 4,
+      "nodes": 699
+    },
+    {
+      "at": "2026-10-11T02:30:48.991Z",
+      "jsHeapUsedBytes": 16007060,
+      "jsHeapTotalBytes": 28901376,
+      "jsHeapLimitBytes": -1,
+      "documents": 22,
+      "nodes": 1831
+    },
+    {
+      "at": "2026-10-11T02:30:54.062Z",
+      "jsHeapUsedBytes": 10795012,
+      "jsHeapTotalBytes": 29204480,
+      "jsHeapLimitBytes": -1,
+      "documents": 15,
+      "nodes": 1388
+    },
+    {
+      "at": "2026-10-11T02:30:59.147Z",
+      "jsHeapUsedBytes": 15594796,
+      "jsHeapTotalBytes": 30736384,
+      "jsHeapLimitBytes": -1,
+      "documents": 10,
+      "nodes": 1077
+    },
+    {
+      "at": "2026-10-11T02:31:04.304Z",
+      "jsHeapUsedBytes": 15332284,
+      "jsHeapTotalBytes": 30736384,
+      "jsHeapLimitBytes": -1,
+      "documents": 24,
+      "nodes": 2146
+    },
+    {
+      "at": "2026-10-11T02:31:09.384Z",
+      "jsHeapUsedBytes": 18106076,
+      "jsHeapTotalBytes": 31825920,
+      "jsHeapLimitBytes": -1,
+      "documents": 20,
+      "nodes": 1925
+    },
+    {
+      "at": "2026-10-11T02:31:14.452Z",
+      "jsHeapUsedBytes": 16240004,
+      "jsHeapTotalBytes": 31301632,
+      "jsHeapLimitBytes": -1,
+      "documents": 17,
+      "nodes": 1508
+    },
+    {
+      "at": "2026-10-11T02:31:19.521Z",
+      "jsHeapUsedBytes": 18846116,
+      "jsHeapTotalBytes": 32350208,
+      "jsHeapLimitBytes": -1,
+      "documents": 11,
+      "nodes": 1218
+    },
+    {
+      "at": "2026-10-11T02:31:24.589Z",
+      "jsHeapUsedBytes": 15700136,
+      "jsHeapTotalBytes": 32088064,
+      "jsHeapLimitBytes": -1,
+      "documents": 10,
+      "nodes": 1107
+    },
+    {
+      "at": "2026-10-11T02:31:29.665Z",
+      "jsHeapUsedBytes": 13201052,
+      "jsHeapTotalBytes": 32542720,
+      "jsHeapLimitBytes": -1,
+      "documents": 25,
+      "nodes": 2108
+    },
+    {
+      "at": "2026-10-11T02:31:34.725Z",
+      "jsHeapUsedBytes": 18382904,
+      "jsHeapTotalBytes": 31907840,
+      "jsHeapLimitBytes": -1,
+      "documents": 18,
+      "nodes": 1744
+    },
+    {
+      "at": "2026-10-11T02:31:39.805Z",
+      "jsHeapUsedBytes": 11343396,
+      "jsHeapTotalBytes": 29990912,
+      "jsHeapLimitBytes": -1,
+      "documents": 14,
+      "nodes": 1511
+    },
+    {
+      "at": "2026-10-11T02:31:44.869Z",
+      "jsHeapUsedBytes": 12486924,
+      "jsHeapTotalBytes": 30253056,
+      "jsHeapLimitBytes": -1,
+      "documents": 10,
+      "nodes": 1105
+    },
+    {
+      "at": "2026-10-11T02:31:49.954Z",
+      "jsHeapUsedBytes": 11475620,
+      "jsHeapTotalBytes": 30253056,
+      "jsHeapLimitBytes": -1,
+      "documents": 25,
+      "nodes": 2202
+    },
+    {
+      "at": "2026-10-11T02:31:55.018Z",
+      "jsHeapUsedBytes": 17328640,
+      "jsHeapTotalBytes": 29949952,
+      "jsHeapLimitBytes": -1,
+      "documents": 19,
+      "nodes": 1646
+    },
+    {
+      "at": "2026-10-11T02:32:00.089Z",
+      "jsHeapUsedBytes": 13048156,
+      "jsHeapTotalBytes": 31977472,
+      "jsHeapLimitBytes": -1,
+      "documents": 11,
+      "nodes": 1274
+    },
+    {
+      "at": "2026-10-11T02:32:05.161Z",
+      "jsHeapUsedBytes": 14200184,
+      "jsHeapTotalBytes": 30736384,
+      "jsHeapLimitBytes": -1,
+      "documents": 5,
+      "nodes": 742
+    },
+    {
+      "at": "2026-10-11T02:32:10.251Z",
+      "jsHeapUsedBytes": 15729452,
+      "jsHeapTotalBytes": 31039488,
+      "jsHeapLimitBytes": -1,
+      "documents": 24,
+      "nodes": 1949
+    },
+    {
+      "at": "2026-10-11T02:32:15.328Z",
+      "jsHeapUsedBytes": 13583344,
+      "jsHeapTotalBytes": 31301632,
+      "jsHeapLimitBytes": -1,
+      "documents": 19,
+      "nodes": 1644
+    },
+    {
+      "at": "2026-10-11T02:32:20.387Z",
+      "jsHeapUsedBytes": 18548296,
+      "jsHeapTotalBytes": 30777344,
+      "jsHeapLimitBytes": -1,
+      "documents": 12,
+      "nodes": 1213
+    },
+    {
+      "at": "2026-10-11T02:32:25.463Z",
+      "jsHeapUsedBytes": 16876072,
+      "jsHeapTotalBytes": 30474240,
+      "jsHeapLimitBytes": -1,
+      "documents": 8,
+      "nodes": 923
+    },
+    {
+      "at": "2026-10-11T02:32:30.542Z",
+      "jsHeapUsedBytes": 13540172,
+      "jsHeapTotalBytes": 30474240,
+      "jsHeapLimitBytes": -1,
+      "documents": 26,
+      "nodes": 2117
+    },
+    {
+      "at": "2026-10-11T02:32:35.607Z",
+      "jsHeapUsedBytes": 11881968,
+      "jsHeapTotalBytes": 29990912,
+      "jsHeapLimitBytes": -1,
+      "documents": 18,
+      "nodes": 1763
+    },
+    {
+      "at": "2026-10-11T02:32:40.664Z",
+      "jsHeapUsedBytes": 17661492,
+      "jsHeapTotalBytes": 30253056,
+      "jsHeapLimitBytes": -1,
+      "documents": 16,
+      "nodes": 1423
+    },
+    {
+      "at": "2026-10-11T02:32:45.754Z",
+      "jsHeapUsedBytes": 13759568,
+      "jsHeapTotalBytes": 31563776,
+      "jsHeapLimitBytes": -1,
+      "documents": 9,
+      "nodes": 1112
+    },
+    {
+      "at": "2026-10-11T02:32:50.827Z",
+      "jsHeapUsedBytes": 13045240,
+      "jsHeapTotalBytes": 30736384,
+      "jsHeapLimitBytes": -1,
+      "documents": 6,
+      "nodes": 963
+    },
+    {
+      "at": "2026-10-11T02:32:55.907Z",
+      "jsHeapUsedBytes": 11262608,
+      "jsHeapTotalBytes": 30474240,
+      "jsHeapLimitBytes": -1,
+      "documents": 4,
+      "nodes": 723
+    },
+    {
+      "at": "2026-10-11T02:33:00.987Z",
+      "jsHeapUsedBytes": 17703788,
+      "jsHeapTotalBytes": 30777344,
+      "jsHeapLimitBytes": -1,
+      "documents": 22,
+      "nodes": 1924
+    },
+    {
+      "at": "2026-10-11T02:33:06.142Z",
+      "jsHeapUsedBytes": 16301280,
+      "jsHeapTotalBytes": 30777344,
+      "jsHeapLimitBytes": -1,
+      "documents": 19,
+      "nodes": 1740
+    },
+    {
+      "at": "2026-10-11T02:33:11.260Z",
+      "jsHeapUsedBytes": 20126036,
+      "jsHeapTotalBytes": 33660928,
+      "jsHeapLimitBytes": -1,
+      "documents": 13,
+      "nodes": 1515
+    },
+    {
+      "at": "2026-10-11T02:33:16.326Z",
+      "jsHeapUsedBytes": 16894732,
+      "jsHeapTotalBytes": 33398784,
+      "jsHeapLimitBytes": -1,
+      "documents": 10,
+      "nodes": 1215
+    },
+    {
+      "at": "2026-10-11T02:33:21.399Z",
+      "jsHeapUsedBytes": 17609656,
+      "jsHeapTotalBytes": 31260672,
+      "jsHeapLimitBytes": -1,
+      "documents": 10,
+      "nodes": 1055
+    },
+    {
+      "at": "2026-10-11T02:33:26.463Z",
+      "jsHeapUsedBytes": 18083880,
+      "jsHeapTotalBytes": 31260672,
+      "jsHeapLimitBytes": -1,
+      "documents": 7,
+      "nodes": 880
+    },
+    {
+      "at": "2026-10-11T02:33:31.517Z",
+      "jsHeapUsedBytes": 13842736,
+      "jsHeapTotalBytes": 31563776,
+      "jsHeapLimitBytes": -1,
+      "documents": 25,
+      "nodes": 2124
+    },
+    {
+      "at": "2026-10-11T02:33:36.588Z",
+      "jsHeapUsedBytes": 16096492,
+      "jsHeapTotalBytes": 31563776,
+      "jsHeapLimitBytes": -1,
+      "documents": 22,
+      "nodes": 1931
+    },
+    {
+      "at": "2026-10-11T02:33:41.666Z",
+      "jsHeapUsedBytes": 16966496,
+      "jsHeapTotalBytes": 33333248,
+      "jsHeapLimitBytes": -1,
+      "documents": 20,
+      "nodes": 1821
+    },
+    {
+      "at": "2026-10-11T02:33:46.751Z",
+      "jsHeapUsedBytes": 18714732,
+      "jsHeapTotalBytes": 34668544,
+      "jsHeapLimitBytes": -1,
+      "documents": 4,
+      "nodes": 731
+    },
+    {
+      "at": "2026-10-11T02:33:51.804Z",
+      "jsHeapUsedBytes": 11598416,
+      "jsHeapTotalBytes": 34144256,
+      "jsHeapLimitBytes": -1,
+      "documents": 3,
+      "nodes": 662
+    },
+    {
+      "at": "2026-10-11T02:33:56.860Z",
+      "jsHeapUsedBytes": 13069028,
+      "jsHeapTotalBytes": 34709504,
+      "jsHeapLimitBytes": -1,
+      "documents": 21,
+      "nodes": 1940
+    },
+    {
+      "at": "2026-10-11T02:34:01.933Z",
+      "jsHeapUsedBytes": 17044460,
+      "jsHeapTotalBytes": 31715328,
+      "jsHeapLimitBytes": -1,
+      "documents": 19,
+      "nodes": 1726
+    },
+    {
+      "at": "2026-10-11T02:34:06.996Z",
+      "jsHeapUsedBytes": 18883160,
+      "jsHeapTotalBytes": 32088064,
+      "jsHeapLimitBytes": -1,
+      "documents": 13,
+      "nodes": 1234
+    },
+    {
+      "at": "2026-10-11T02:34:12.061Z",
+      "jsHeapUsedBytes": 19991636,
+      "jsHeapTotalBytes": 32088064,
+      "jsHeapLimitBytes": -1,
+      "documents": 30,
+      "nodes": 2108
+    },
+    {
+      "at": "2026-10-11T02:34:17.138Z",
+      "jsHeapUsedBytes": 18550732,
+      "jsHeapTotalBytes": 31563776,
+      "jsHeapLimitBytes": -1,
+      "documents": 16,
+      "nodes": 1675
+    },
+    {
+      "at": "2026-10-11T02:34:22.193Z",
+      "jsHeapUsedBytes": 16426804,
+      "jsHeapTotalBytes": 32350208,
+      "jsHeapLimitBytes": -1,
+      "documents": 12,
+      "nodes": 1583
+    },
+    {
+      "at": "2026-10-11T02:34:27.270Z",
+      "jsHeapUsedBytes": 14189876,
+      "jsHeapTotalBytes": 33136640,
+      "jsHeapLimitBytes": -1,
+      "documents": 12,
+      "nodes": 1241
+    },
+    {
+      "at": "2026-10-11T02:34:32.327Z",
+      "jsHeapUsedBytes": 16566180,
+      "jsHeapTotalBytes": 32309248,
+      "jsHeapLimitBytes": -1,
+      "documents": 6,
+      "nodes": 920
+    },
+    {
+      "at": "2026-10-11T02:34:37.458Z",
+      "jsHeapUsedBytes": 11688380,
+      "jsHeapTotalBytes": 31784960,
+      "jsHeapLimitBytes": -1,
+      "documents": 25,
+      "nodes": 2087
+    },
+    {
+      "at": "2026-10-11T02:34:42.561Z",
+      "jsHeapUsedBytes": 13236752,
+      "jsHeapTotalBytes": 32612352,
+      "jsHeapLimitBytes": -1,
+      "documents": 19,
+      "nodes": 1832
+    },
+    {
+      "at": "2026-10-11T02:34:47.643Z",
+      "jsHeapUsedBytes": 17088048,
+      "jsHeapTotalBytes": 33796096,
+      "jsHeapLimitBytes": -1,
+      "documents": 17,
+      "nodes": 1658
+    },
+    {
+      "at": "2026-10-11T02:34:52.712Z",
+      "jsHeapUsedBytes": 13645144,
+      "jsHeapTotalBytes": 32612352,
+      "jsHeapLimitBytes": -1,
+      "documents": 18,
+      "nodes": 1620
+    },
+    {
+      "at": "2026-10-11T02:34:57.790Z",
+      "jsHeapUsedBytes": 18640968,
+      "jsHeapTotalBytes": 32088064,
+      "jsHeapLimitBytes": -1,
+      "documents": 15,
+      "nodes": 1551
+    },
+    {
+      "at": "2026-10-11T02:35:02.954Z",
+      "jsHeapUsedBytes": 13957956,
+      "jsHeapTotalBytes": 32792576,
+      "jsHeapLimitBytes": -1,
+      "documents": 15,
+      "nodes": 1384
+    },
+    {
+      "at": "2026-10-11T02:35:08.029Z",
+      "jsHeapUsedBytes": 19759280,
+      "jsHeapTotalBytes": 33861632,
+      "jsHeapLimitBytes": -1,
+      "documents": 13,
+      "nodes": 1252
+    },
+    {
+      "at": "2026-10-11T02:35:13.095Z",
+      "jsHeapUsedBytes": 16305484,
+      "jsHeapTotalBytes": 32874496,
+      "jsHeapLimitBytes": -1,
+      "documents": 12,
+      "nodes": 1510
+    },
+    {
+      "at": "2026-10-11T02:35:18.159Z",
+      "jsHeapUsedBytes": 14161184,
+      "jsHeapTotalBytes": 32833536,
+      "jsHeapLimitBytes": -1,
+      "documents": 9,
+      "nodes": 1022
+    },
+    {
+      "at": "2026-10-11T02:35:23.234Z",
+      "jsHeapUsedBytes": 14749424,
+      "jsHeapTotalBytes": 31784960,
+      "jsHeapLimitBytes": -1,
+      "documents": 7,
+      "nodes": 936
+    },
+    {
+      "at": "2026-10-11T02:35:28.304Z",
+      "jsHeapUsedBytes": 15813128,
+      "jsHeapTotalBytes": 32571392,
+      "jsHeapLimitBytes": -1,
+      "documents": 4,
+      "nodes": 753
+    },
+    {
+      "at": "2026-10-11T02:35:33.373Z",
+      "jsHeapUsedBytes": 16400872,
+      "jsHeapTotalBytes": 33357824,
+      "jsHeapLimitBytes": -1,
+      "documents": 6,
+      "nodes": 883
+    },
+    {
+      "at": "2026-10-11T02:35:38.445Z",
+      "jsHeapUsedBytes": 18550644,
+      "jsHeapTotalBytes": 35512320,
+      "jsHeapLimitBytes": -1,
+      "documents": 5,
+      "nodes": 792
+    },
+    {
+      "at": "2026-10-11T02:35:43.514Z",
+      "jsHeapUsedBytes": 21457696,
+      "jsHeapTotalBytes": 35045376,
+      "jsHeapLimitBytes": -1,
+      "documents": 12,
+      "nodes": 1237
+    },
+    {
+      "at": "2026-10-11T02:35:48.592Z",
+      "jsHeapUsedBytes": 12367088,
+      "jsHeapTotalBytes": 31793152,
+      "jsHeapLimitBytes": -1,
+      "documents": 4,
+      "nodes": 697
+    },
+    {
+      "at": "2026-10-11T02:35:53.663Z",
+      "jsHeapUsedBytes": 20798276,
+      "jsHeapTotalBytes": 34615296,
+      "jsHeapLimitBytes": -1,
+      "documents": 10,
+      "nodes": 1165
+    },
+    {
+      "at": "2026-10-11T02:35:58.726Z",
+      "jsHeapUsedBytes": 15196952,
+      "jsHeapTotalBytes": 32370688,
+      "jsHeapLimitBytes": -1,
+      "documents": 4,
+      "nodes": 725
+    },
+    {
+      "at": "2026-10-11T02:36:03.791Z",
+      "jsHeapUsedBytes": 22218016,
+      "jsHeapTotalBytes": 36601856,
+      "jsHeapLimitBytes": -1,
+      "documents": 10,
+      "nodes": 1176
+    },
+    {
+      "at": "2026-10-11T02:36:08.863Z",
+      "jsHeapUsedBytes": 15949204,
+      "jsHeapTotalBytes": 32743424,
+      "jsHeapLimitBytes": -1,
+      "documents": 6,
+      "nodes": 871
+    },
+    {
+      "at": "2026-10-11T02:36:13.921Z",
+      "jsHeapUsedBytes": 18925052,
+      "jsHeapTotalBytes": 38510592,
+      "jsHeapLimitBytes": -1,
+      "documents": 13,
+      "nodes": 1384
+    },
+    {
+      "at": "2026-10-11T02:36:19.000Z",
+      "jsHeapUsedBytes": 18186408,
+      "jsHeapTotalBytes": 33955840,
+      "jsHeapLimitBytes": -1,
+      "documents": 4,
+      "nodes": 717
+    },
+    {
+      "at": "2026-10-11T02:36:24.072Z",
+      "jsHeapUsedBytes": 20098072,
+      "jsHeapTotalBytes": 35500032,
+      "jsHeapLimitBytes": -1,
+      "documents": 9,
+      "nodes": 1222
+    },
+    {
+      "at": "2026-10-11T02:36:29.136Z",
+      "jsHeapUsedBytes": 14817828,
+      "jsHeapTotalBytes": 33783808,
+      "jsHeapLimitBytes": -1,
+      "documents": 8,
+      "nodes": 1036
+    }
+  ],
+  "crashEvidence": {
+    "crashed": false,
+    "reasons": [],
+    "exitCode": null,
+    "pageErrors": []
+  }
+}

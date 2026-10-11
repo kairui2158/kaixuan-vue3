@@ -110,6 +110,30 @@ describe('finalDraftCheckpoint', () => {
     expect(restored.task?.status).toBe('generating')
   })
 
+  it('restores an interrupted checkpoint with its live accumulated text', async () => {
+    const { sourceContent, task } = createSegmentedTask()
+    const store = createInMemoryFinalDraftCheckpointStore()
+    const interrupted = {
+      ...task,
+      status: 'interrupted' as const,
+      activeSegmentIndex: 1,
+      completedText: '第一段终稿',
+      accumulatedText: '第二段中断前流式正文',
+    }
+    await saveFinalDraftCheckpoint(interrupted, store, 1004)
+    const loaded = await loadFinalDraftCheckpoint(`final-draft-${interrupted.taskId}`, store)
+    expect(loaded.ok).toBe(true)
+    if (!loaded.ok) throw new Error('checkpoint missing')
+
+    const restored = restoreFinalDraftTaskFromCheckpoint(loaded.checkpoint, sourceContent)
+    expect(restored.ok).toBe(true)
+    if (!restored.ok) throw new Error('restore rejected')
+    expect(restored.task.status).toBe('interrupted')
+    expect(restored.task.completedText).toBe('第一段终稿')
+    expect(restored.task.accumulatedText).toBe('第二段中断前流式正文')
+    expect(restored.task.sourceContent).toBe(sourceContent)
+  })
+
   it('refuses to restore when the source document changed', async () => {
     const { task } = createSegmentedTask()
     const store = createInMemoryFinalDraftCheckpointStore()

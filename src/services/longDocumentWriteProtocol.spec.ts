@@ -9,6 +9,32 @@ import {
 } from './longDocumentWriteProtocol'
 
 describe('longDocumentWriteProtocol', () => {
+  it('uses model prose output plus an app-owned write for single-pass plans', () => {
+    const plan = buildLongDocumentExecutionPlan({
+      requestText: '把整篇大纲重新整理排序，统一编号',
+      content: `# 根标题\n\n## 第一卷\n\n${'雨'.repeat(30_000)}`,
+      contextWindowTokens: 1_000_000,
+      maxOutputTokens: 32_768,
+      intent: 'edit',
+    })
+
+    expect(plan.mode).toBe('single-pass')
+    expect(resolveLongDocumentWriteOperations(plan)).toEqual([])
+    const directive = buildLongDocumentWriteDirective(plan)
+    expect(directive).toContain('一次成型整篇正文输出协议')
+    expect(directive).toContain('全文已在当前上下文中')
+    expect(directive).toContain('直接流式输出整理后的完整全文')
+    expect(directive).toContain('禁止提交编辑命令或调用写入工具')
+    expect(directive).toContain('应用会在正文完成后一次性整文写入编辑器')
+    expect(directive).toContain('禁止分批读取')
+    expect(directive).toContain('禁止进入读取循环')
+    expect(directive).not.toContain('每段先读取确认')
+    expect(directive).not.toContain('replace_document')
+    expect(buildLongDocumentWriteRejectionMessage(plan)).toContain('一次成型整篇正文输出')
+    expect(describeLongDocumentWriteProtocol(plan)).toContain('完整全文')
+    expect(describeLongDocumentWriteProtocol(plan)).not.toContain('replace_document')
+  })
+
   it('disables editor commands for final-draft plans', () => {
     const plan = buildLongDocumentExecutionPlan({
       requestText: '全文重写整篇大纲，统一编号',
@@ -60,8 +86,8 @@ describe('longDocumentWriteProtocol', () => {
     const plan = buildLongDocumentExecutionPlan({
       requestText: '三处重复项删掉，再统一标题层级、编号和标点',
       content: `# 第一卷\n\n${'雨'.repeat(12_000)}\n\n# 第一卷\n\n${'雨'.repeat(12_000)}`,
-      contextWindowTokens: 128_000,
-      maxOutputTokens: 8_192,
+      contextWindowTokens: 8_000,
+      maxOutputTokens: 1_000,
     })
 
     expect(plan.operation).toBe('deduplicate_and_normalize')
@@ -92,10 +118,10 @@ describe('longDocumentWriteProtocol', () => {
       })),
     })
 
-    expect(calculateLongDocumentPhysicalRequestBudget(makePlan(1))).toBe(8)
-    expect(calculateLongDocumentPhysicalRequestBudget(makePlan(3))).toBe(12)
-    expect(calculateLongDocumentPhysicalRequestBudget(makePlan(12))).toBe(30)
-    expect(calculateLongDocumentPhysicalRequestBudget(makePlan(80))).toBe(64)
+    expect(calculateLongDocumentPhysicalRequestBudget(makePlan(1))).toBe(24)
+    expect(calculateLongDocumentPhysicalRequestBudget(makePlan(3))).toBe(24)
+    expect(calculateLongDocumentPhysicalRequestBudget(makePlan(12))).toBe(36)
+    expect(calculateLongDocumentPhysicalRequestBudget(makePlan(80))).toBe(128)
     expect(calculateLongDocumentPhysicalRequestBudget(null)).toBe(12)
     expect(calculateLongDocumentPhysicalRequestBudget({
       mode: 'direct',
@@ -108,8 +134,8 @@ describe('longDocumentWriteProtocol', () => {
     const plan = buildLongDocumentExecutionPlan({
       requestText: '按照Word文档形式重构大纲，删除重复项，统一标题层级、编号和标点，调整错误段落的归位',
       content: `# 根标题\n\n## 第一卷\n\n${'雨'.repeat(12_000)}\n\n## 第二卷\n\n${'雨'.repeat(12_000)}`,
-      contextWindowTokens: 128_000,
-      maxOutputTokens: 8_192,
+      contextWindowTokens: 8_000,
+      maxOutputTokens: 1_000,
       intent: 'edit',
     })
 
@@ -142,10 +168,10 @@ describe('longDocumentWriteProtocol', () => {
     })
 
     const directive = buildLongDocumentWriteDirective(plan)
-    expect(directive).toContain('写入授权后禁止输出【修改预览】')
-    expect(directive).toContain('禁止再次请求用户确认')
-    expect(directive).toContain('必须调用 editor.write')
-    expect(directive).toContain('必须停止调用工具并说明')
+    expect(directive).toContain('一次成型整篇正文输出协议')
+    expect(directive).toContain('禁止提交编辑命令或调用写入工具')
+    expect(directive).toContain('应用会在正文完成后一次性整文写入编辑器')
+    expect(directive).toContain('如果无法完成，直接说明具体失败原因')
   })
 
   it('keeps the allowed operation set aligned with every planned write strategy', () => {
@@ -181,7 +207,7 @@ describe('longDocumentWriteProtocol', () => {
         intent: 'edit' as const,
       },
     ]
-    const requiredOperationsByWriteStrategy: Record<string, readonly string[]> = {
+      const requiredOperationsByWriteStrategy: Record<string, readonly string[]> = {
       delete: ['delete'],
       structure_repair: ['move', 'insert'],
       reorder_sections: ['reorder_sections'],
@@ -190,11 +216,17 @@ describe('longDocumentWriteProtocol', () => {
     }
 
     for (const item of cases) {
+      // The planner's fits threshold is floor(window * 0.9) - 200. Keep the
+      // fixtures just below that boundary so every case stays batched.
+      const documentTokens = Math.ceil(item.content.length / 1.7)
+      const contextWindowTokens = Math.floor(documentTokens / 0.9)
       const plan = buildLongDocumentExecutionPlan({
         requestText: item.requestText,
         content: item.content,
-        contextWindowTokens: 128_000,
-        maxOutputTokens: 8_192,
+        // Force the batched path: output reserve consumes planning budget,
+        // so every fixture must exceed the remaining input window.
+        contextWindowTokens,
+        maxOutputTokens: 200,
         intent: item.intent,
       })
       const allowed = resolveLongDocumentWriteOperations(plan)

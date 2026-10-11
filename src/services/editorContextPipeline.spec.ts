@@ -105,7 +105,7 @@ describe('buildEditorContextPipeline', () => {
     expect(result.validation.reason).toBe('missing-editor-read-guidance')
   })
 
-  it('preserves the outline structure pack through the pipeline', () => {
+  it('preserves the packed outline structure pack when no window can be resolved', () => {
     const result = buildEditorContextPipeline({
       target: buildMainSnapshot({
         workspace: 'outline',
@@ -115,14 +115,60 @@ describe('buildEditorContextPipeline', () => {
         selectionStart: 0,
         selectionEnd: 2,
       }, 'project-1'),
-      provider: { contextWindowTokens: 128_000 },
-      model: 'gpt-4o',
-      maxOutputTokens: 8192,
+      provider: null,
+      model: 'no-window-model',
     })
 
     expect(result.workspace).toBe('outline')
     expect(result.mode).toBe('packed')
     expect(result.content).toContain('[大纲结构地图]')
     expect(result.content).toContain('[当前焦点全文]')
+  })
+
+  it('injects the whole outline as full context when the declared window fits', () => {
+    const outline = Array.from({ length: 40 }, (_, index) =>
+      `# 第${index + 1}卷\n\n${'雨'.repeat(500)}\n\n`).join('')
+    const result = buildEditorContextPipeline({
+      target: buildMainSnapshot({
+        workspace: 'outline',
+        targetId: 'outline',
+        label: '大纲编辑器',
+        content: outline,
+        selectionStart: 0,
+        selectionEnd: 0,
+      }, 'project-1'),
+      provider: { contextWindowTokens: 1_000_000 },
+      model: 'million-window-model',
+      maxOutputTokens: 32_768,
+    })
+
+    expect(result.workspace).toBe('outline')
+    expect(result.mode).toBe('full')
+    expect(result.content).toContain('[当前全文已注入]')
+    expect(result.content).toContain(outline)
+    expect(result.content).not.toContain('[当前焦点全文]')
+    expect(result.content).not.toContain('需要细节时必须先读取节点内容')
+    expect(result.validation.valid).toBe(true)
+  })
+
+  it('keeps the outline packed mode when the full document exceeds the window', () => {
+    const outline = `${'雨'.repeat(100_000)}`
+    const result = buildEditorContextPipeline({
+      target: buildMainSnapshot({
+        workspace: 'outline',
+        targetId: 'outline',
+        label: '大纲编辑器',
+        content: outline,
+        selectionStart: 0,
+        selectionEnd: 0,
+      }, 'project-1'),
+      provider: { contextWindowTokens: 20_000 },
+      model: 'small-window-model',
+      maxOutputTokens: 6_000,
+    })
+
+    expect(result.mode).toBe('packed')
+    expect(result.content).toContain('[当前焦点全文]')
+    expect(result.validation.valid).toBe(true)
   })
 })

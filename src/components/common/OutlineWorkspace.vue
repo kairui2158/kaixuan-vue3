@@ -131,7 +131,7 @@
               >
                 <div class="ow-routing-title">终稿生成：{{ outlineFinalDraftStatusLabel(msg.finalDraftTask.status) }}</div>
                 <div class="ow-routing-desc">
-                  源文 {{ msg.finalDraftTask.sourceContent.length }} 字；终稿 {{ (msg.finalDraftTask.completedText || msg.finalDraftTask.accumulatedText).length }} 字；续生成 {{ msg.finalDraftTask.continuationCount }} 次。
+                  源文 {{ msg.finalDraftTask.sourceChars }} 字；终稿 {{ msg.finalDraftTask.completedChars || msg.finalDraftTask.accumulatedChars }} 字；续生成 {{ msg.finalDraftTask.continuationCount }} 次。
                 </div>
                 <div class="ow-routing-desc" v-if="msg.finalDraftTask.error">{{ msg.finalDraftTask.error }}</div>
                 <div class="ow-routing-desc ow-final-draft-stalled" v-if="outlineFinalDraftStalled(msg.finalDraftTask)">
@@ -343,7 +343,14 @@ import { applyOutlineReplacement } from '../../services/outlineReplace'
 import { computeEditorMatches, type SearchOptions } from '../../services/editorReplace'
 import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useModalQueue } from '../../composables/useModalQueue'
-import { useRunTraceStore, type RunTrace, type RunTraceMessage, type RunTraceStatus } from '../../stores/runTrace'
+import {
+  useRunTraceStore,
+  type RunTrace,
+  type RunTraceExecutionSettlement,
+  type RunTraceMessage,
+  type RunTraceReadLedgerSnapshot,
+  type RunTraceStatus
+} from '../../stores/runTrace'
 import { createAgentDialogueRuntime } from '../../services/agentDialogueRuntime'
 import type { AgentOrchestratorStatus } from '../../services/agentOrchestrator'
 import { mapAgentResultToRunTrace, mergeEditTaskTerminal } from '../../services/agentTerminalMapping'
@@ -388,6 +395,7 @@ import {
   buildDialogueToolSurfaceDeclarationAudit,
   authorizeDialogueTools,
   buildDialogueToolSurface,
+  buildWorkflowWriteAuthorizationFromPlan,
   type DialogueToolSurfaceSummary,
   type EditorWriteContaminationDecision,
   type ToolResult,
@@ -431,14 +439,17 @@ import {
   getReadCapChars,
 } from '../../services/editorEntryFacade'
 import { createOutlineTools } from '../../services/outlineTools'
+import { createDocumentReadLedger, type DocumentReadLedger } from '../../services/documentReadLedger'
 import { LONG_DOCUMENT_CHAR_THRESHOLD, type LongDocumentOperationType } from '../../services/longDocumentPolicy'
 import {
   buildLongDocumentExecutionPlan,
   toLongDocumentOperationType,
+  usesLongDocumentToolRuntime,
   type LongDocumentExecutionPlan,
 } from '../../services/longDocumentExecutionPlanner'
-import { transformDocument } from '../../services/documentTransformService'
 import { calculateLongDocumentPhysicalRequestBudget } from '../../services/longDocumentWriteProtocol'
+import { transformDocument } from '../../services/documentTransformService'
+import { createToolRunBudget, shouldRetryStalledDirectWrite } from '../../services/toolRunBudget'
 import type { DialogueWriteAuthorization } from '../../services/dialogueToolSurface'
 import {
   continueFinalDraftTask,
@@ -448,9 +459,8 @@ import {
   resumeFinalDraftTask,
   retryFinalDraftSegmentTask,
   runFinalDraft,
-  snapshotFinalDraftTask,
 } from '../../services/finalDraftRunner'
-import { canResumeFinalDraftTask, finalDraftCheckpointId } from '../../services/finalDraftCheckpoint'
+import { canResumeFinalDraftTask, finalDraftCheckpointId, resolveFinalDraftTaskFromView } from '../../services/finalDraftCheckpoint'
 import { createElectronFinalDraftCheckpointStore } from '../../services/finalDraftCheckpointElectron'
 import { formatFinalDraftProgress } from '../../services/finalDraftProgress'
 import {
@@ -459,6 +469,8 @@ import {
   FinalDraftDocumentState,
   FinalDraftEditorAdapter,
   FinalDraftTask,
+  FinalDraftTaskView,
+  toFinalDraftTaskView,
 } from '../../services/finalDraftService'
 import type { FinalDraftEvent } from '../../services/finalDraftService'
 import type { ContextBudgetDecision } from '../../services/contextBudget'
@@ -467,6 +479,8 @@ import {
   createToolRunSupervisor,
   DIRECT_TOOL_RUN_HARD_DEADLINE_MS,
   DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS,
+  LONG_TOOL_RUN_IDLE_TIMEOUT_MS,
+  physicalCallReportsProgress,
   type ToolRunSupervisor,
 } from '../../services/toolRunSupervisor'
 import type { ContextMessage } from '../../types/context'
@@ -723,6 +737,7 @@ function reportOutlineSourceContamination(sourceContent: string) {
 let lastWorkspaceSkillMeta: WorkspaceSkillRunMeta | null = null
 let outlineRunTurnId: string | null = null
 let outlineSessionProjectId = ''
+let outlineSessionReadLedger: DocumentReadLedger | null = null
 let outlineApiBudget: ApiCallBudget | null = null
 const outlineBudgetTokens = new WeakMap<ApiCallBudget, string>()
 let outlineBudgetTokenSeq = 0
@@ -1115,7 +1130,7 @@ async function runOutlineFinalDraftTurn(options: {
       onTaskChange: changed => {
         latestTask = changed
         projectStore.updateOutlineChatAt(placeholderIndex, {
-          finalDraftTask: JSON.parse(JSON.stringify(changed)),
+          finalDraftTask: toFinalDraftTaskView(changed),
           content: createFinalDraftStatusMessage(changed),
         })
       },
@@ -1124,7 +1139,7 @@ async function runOutlineFinalDraftTurn(options: {
     const finalTask = task || latestTask
     if (!finalTask) throw new Error('final_draft_task_missing')
     projectStore.updateOutlineChatAt(placeholderIndex, {
-      finalDraftTask: JSON.parse(JSON.stringify(finalTask)),
+      finalDraftTask: toFinalDraftTaskView(finalTask),
       content: createFinalDraftStatusMessage(finalTask),
     })
     const statusMessage = createFinalDraftStatusMessage(finalTask)
@@ -1140,7 +1155,7 @@ async function runOutlineFinalDraftTurn(options: {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     projectStore.updateOutlineChatAt(placeholderIndex, {
-      finalDraftTask: latestTask ? JSON.parse(JSON.stringify(latestTask)) : undefined,
+      finalDraftTask: latestTask ? toFinalDraftTaskView(latestTask) : undefined,
       content: `终稿任务失败：${message}`,
     })
     finishOutlineRunIfRunning('failed', message, undefined, 'final_draft_runtime_exception')
@@ -1157,7 +1172,10 @@ async function runOutlineFinalDraftTurn(options: {
 
 async function continueOutlineFinalDraft(index: number) {
   if (isGenerating.value) return
-  const task = messages.value[index]?.finalDraftTask as FinalDraftTask | undefined
+  const storedTask = messages.value[index]?.finalDraftTask
+  const sourceContent = projectStore.outlineText || ''
+  const resolved = await resolveFinalDraftTaskFromView(storedTask, sourceContent, createElectronFinalDraftCheckpointStore())
+  const task = resolved.ok ? resolved.task : undefined
   if (!task || !finalDraftStatusNeedsAction(task)) return
   const provider = providerStore.activeGenerateProvider
   if (!provider?.apiKey) {
@@ -1204,7 +1222,7 @@ async function continueOutlineFinalDraft(index: number) {
       onTaskChange: changed => {
         latestTask = changed
         projectStore.updateOutlineChatAt(index, {
-          finalDraftTask: JSON.parse(JSON.stringify(changed)),
+          finalDraftTask: toFinalDraftTaskView(changed),
           content: createFinalDraftStatusMessage(changed),
         })
       },
@@ -1212,7 +1230,7 @@ async function continueOutlineFinalDraft(index: number) {
     }, outlineFinalDraftTraceHooks())
     if (latestTask) {
       projectStore.updateOutlineChatAt(index, {
-        finalDraftTask: JSON.parse(JSON.stringify(latestTask)),
+        finalDraftTask: toFinalDraftTaskView(latestTask),
         content: createFinalDraftStatusMessage(latestTask),
       })
     }
@@ -1229,7 +1247,7 @@ async function continueOutlineFinalDraft(index: number) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     projectStore.updateOutlineChatAt(index, {
-      finalDraftTask: latestTask ? JSON.parse(JSON.stringify(latestTask)) : undefined,
+      finalDraftTask: latestTask ? toFinalDraftTaskView(latestTask) : undefined,
       content: `终稿续生成失败：${message}`,
     })
     finishOutlineRunIfRunning('failed', message, undefined, 'final_draft_continuation_runtime_exception')
@@ -1258,7 +1276,10 @@ function outlineFinalDraftResumeErrorText(reason: string) {
 }
 
 async function retryOutlineFinalDraftSegment(index: number, providerId?: string) {
-  const existingTask = messages.value[index]?.finalDraftTask as FinalDraftTask | undefined
+  const storedTask = messages.value[index]?.finalDraftTask
+  const sourceContent = projectStore.outlineText || ''
+  const resolved = await resolveFinalDraftTaskFromView(storedTask, sourceContent, createElectronFinalDraftCheckpointStore())
+  const existingTask = resolved.ok ? resolved.task : undefined
   if (
     !existingTask
     || (
@@ -1270,10 +1291,7 @@ async function retryOutlineFinalDraftSegment(index: number, providerId?: string)
   const stalled = outlineFinalDraftStalled(existingTask)
   if (isGenerating.value && !stalled) return
   // Capture the retry snapshot before aborting; abort marks the live task canceled/failed.
-  const retryTaskSnapshot = snapshotFinalDraftTask(
-    messages.value[index]?.finalDraftTask as FinalDraftTask | undefined
-    || existingTask,
-  )
+  const retryTaskSnapshot = existingTask
   if (isGenerating.value) {
     generationController?.abort()
     await activeOutlineRunPromise?.catch(() => {})
@@ -1295,7 +1313,6 @@ async function retryOutlineFinalDraftSegment(index: number, providerId?: string)
     await appConfirm.alert('未配置 API 提供方或 API Key，无法重试当前终稿分段')
     return
   }
-  const sourceContent = projectStore.outlineText || ''
   if (!sourceContent) {
     await appConfirm.alert('大纲源文为空，无法重试当前段。请先恢复原大纲内容后再试。')
     return
@@ -1352,14 +1369,14 @@ async function retryOutlineFinalDraftSegment(index: number, providerId?: string)
       onTaskChange: changed => {
         latestTask = changed
         projectStore.updateOutlineChatAt(index, {
-          finalDraftTask: JSON.parse(JSON.stringify(changed)),
+          finalDraftTask: toFinalDraftTaskView(changed),
           content: createFinalDraftStatusMessage(changed),
         })
       },
       onTaskEvent: recordOutlineFinalDraftTaskEvent,
     }, outlineFinalDraftTraceHooks())
     projectStore.updateOutlineChatAt(index, {
-      finalDraftTask: JSON.parse(JSON.stringify(latestTask)),
+      finalDraftTask: toFinalDraftTaskView(latestTask),
       content: createFinalDraftStatusMessage(latestTask),
     })
     const statusMessage = createFinalDraftStatusMessage(latestTask)
@@ -1375,7 +1392,7 @@ async function retryOutlineFinalDraftSegment(index: number, providerId?: string)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     projectStore.updateOutlineChatAt(index, {
-      finalDraftTask: latestTask ? JSON.parse(JSON.stringify(latestTask)) : undefined,
+      finalDraftTask: latestTask ? toFinalDraftTaskView(latestTask) : undefined,
       content: `终稿当前段重试失败：${message}`,
     })
     finishOutlineRunIfRunning('failed', message, undefined, 'final_draft_segment_retry_runtime_exception')
@@ -1390,20 +1407,23 @@ async function retryOutlineFinalDraftSegment(index: number, providerId?: string)
   }
 }
 
-function canResumeOutlineFinalDraft(task: FinalDraftTask) {
-  return task.status === 'awaiting_continuation' || task.status === 'interrupted' || canResumeFinalDraftTask(task)
+function canResumeOutlineFinalDraft(task: FinalDraftTask | FinalDraftTaskView) {
+  if (task.status === 'awaiting_continuation' || task.status === 'interrupted') return true
+  return 'sourceContent' in task && canResumeFinalDraftTask(task)
 }
 
 async function resumeOutlineFinalDraft(index: number) {
   if (isGenerating.value) return
-  const task = messages.value[index]?.finalDraftTask as FinalDraftTask | undefined
+  const storedTask = messages.value[index]?.finalDraftTask
+  const sourceContent = projectStore.outlineText || ''
+  const resolved = await resolveFinalDraftTaskFromView(storedTask, sourceContent, createElectronFinalDraftCheckpointStore())
+  const task = resolved.ok ? resolved.task : undefined
   if (!task || task.status !== 'generating') return
   const provider = providerStore.activeGenerateProvider
   if (!provider?.apiKey) {
     await appConfirm.alert('未配置 API 提供方或 API Key，无法恢复终稿生成')
     return
   }
-  const sourceContent = projectStore.outlineText || ''
   if (!sourceContent) {
     await appConfirm.alert('大纲源文为空，无法恢复。请先恢复原大纲内容后再试。')
     return
@@ -1445,14 +1465,14 @@ async function resumeOutlineFinalDraft(index: number) {
       onTaskChange: changed => {
         latestTask = changed
         projectStore.updateOutlineChatAt(index, {
-          finalDraftTask: JSON.parse(JSON.stringify(changed)),
+          finalDraftTask: toFinalDraftTaskView(changed),
           content: createFinalDraftStatusMessage(changed),
         })
       },
       onTaskEvent: recordOutlineFinalDraftTaskEvent,
     }, outlineFinalDraftTraceHooks())
     projectStore.updateOutlineChatAt(index, {
-      finalDraftTask: JSON.parse(JSON.stringify(latestTask)),
+      finalDraftTask: toFinalDraftTaskView(latestTask),
       content: createFinalDraftStatusMessage(latestTask),
     })
     const statusMessage = createFinalDraftStatusMessage(latestTask)
@@ -1472,7 +1492,7 @@ async function resumeOutlineFinalDraft(index: number) {
       : rawMessage
     const text = outlineFinalDraftResumeErrorText(reason)
     projectStore.updateOutlineChatAt(index, {
-      finalDraftTask: latestTask ? JSON.parse(JSON.stringify(latestTask)) : undefined,
+      finalDraftTask: latestTask ? toFinalDraftTaskView(latestTask) : undefined,
       content: text,
     })
     finishOutlineRunIfRunning('failed', text, undefined, 'final_draft_resume_runtime_exception')
@@ -1622,7 +1642,7 @@ function isOutlineFinalDraftRequest(
   requestText: string,
   targetContent: string,
 ) {
-  return plan.mode === 'final-draft'
+  return (plan.mode === 'final-draft' || plan.mode === 'single-pass')
     && Boolean(targetContent)
     && !requestText.trim().startsWith('@')
 }
@@ -1783,8 +1803,10 @@ function finishOutlineApiCall(callId: string | undefined, result: {
     contextBudgetDecision?: ContextBudgetDecision
     contextBudgetReason?: string
     usageReconciliation?: unknown
-    textOrigin?: 'application' | 'model'
-    toolAudit?: unknown
+  textOrigin?: 'application' | 'model'
+  toolAudit?: unknown
+  executionSettlement?: RunTraceExecutionSettlement
+  readLedger?: RunTraceReadLedgerSnapshot
 }) {
   const runId = outlineRunTraceId
   if (!runId || !callId) return
@@ -1823,6 +1845,8 @@ function recordOutlinePhysicalCall(callId: string | undefined, event: PhysicalCa
     interruptionCode: event.interruptionCode,
     contextCompactedMessageCount: event.contextCompactedMessageCount,
     heartbeat: event.heartbeat,
+    toolCallCount: event.toolCallCount,
+    toolCallNames: event.toolCallNames,
   })
   const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
   if (diag && typeof diag.log === 'function') {
@@ -1944,8 +1968,8 @@ function readableToolLoopError(error: any, finishReason?: string) {
   if (effectiveReason === 'tool_loop_limit') {
     return 'AI 连续尝试工具调用但未能产出回答，已中止。请简化问题或更换模型。'
   }
-  if (effectiveReason === 'physical_request_budget_exhausted') {
-    return '长文档任务已达到本轮物理请求预算，已停止继续外呼。已执行内容已保存，请继续剩余批次或重新发起下一轮。'
+  if (effectiveReason === 'tool_budget_exhausted') {
+    return '长文档执行预算已按读取/写入分类结算。已执行的写入已保存；若写入容量尚未耗尽，请继续剩余批次，否则请从当前文档状态重新发起下一轮。'
   }
   if (effectiveReason === 'incomplete_write_coverage_checkpoint') {
     return '模型声称完成，但写入覆盖校验仍未确认全部批次完成。已执行内容已保存，请继续剩余批次。'
@@ -1957,8 +1981,20 @@ type OutlineToolCallEvent = Parameters<
   NonNullable<NonNullable<CallAiParams['toolPolicy']>['onToolCall']>
 >[0]
 
-function toolRunSupervisorEventDetail(reason: string, idleMs: number, totalMs: number) {
-  return `reason=${reason} idleMs=${Math.round(idleMs)} totalMs=${Math.round(totalMs)} idleLimitMs=${DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS} hardDeadlineMs=${DIRECT_TOOL_RUN_HARD_DEADLINE_MS}`
+function toolRunSupervisorEventDetail(reason: string, idleMs: number, totalMs: number, longDocument = false) {
+  const idleLimitMs = longDocument ? LONG_TOOL_RUN_IDLE_TIMEOUT_MS : DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS
+  return `reason=${reason} idleMs=${Math.round(idleMs)} totalMs=${Math.round(totalMs)} idleLimitMs=${idleLimitMs} longDocument=${longDocument} hardDeadlineMs=${longDocument ? null : DIRECT_TOOL_RUN_HARD_DEADLINE_MS}`
+}
+
+function getOutlineSessionReadLedger(): DocumentReadLedger {
+  const currentProjectId = outlineProjectId()
+  if (!outlineSessionReadLedger || outlineSessionProjectId !== currentProjectId) {
+    outlineSessionReadLedger = createDocumentReadLedger({
+      workspace: 'outline',
+      targetId: 'outline',
+    })
+  }
+  return outlineSessionReadLedger
 }
 
 function toolRunSupervisorReadableMessage(reason: string) {
@@ -1975,6 +2011,7 @@ function createOutlineToolRunSupervisor(
   let supervisorReason: string | null = null
   const supervisor = createToolRunSupervisor({
     controller: undefined,
+    idleTimeoutMs: options.longDocument ? LONG_TOOL_RUN_IDLE_TIMEOUT_MS : DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS,
     hardDeadlineMs: options.longDocument ? null : DIRECT_TOOL_RUN_HARD_DEADLINE_MS,
     onStuck: ({ reason, idleMs, totalMs, message }) => {
       supervisorReason = reason
@@ -1983,7 +2020,7 @@ function createOutlineToolRunSupervisor(
         type: 'state-stuck-aborted',
         level: 'warn',
         label: '停滞请求已自动中止',
-        detail: toolRunSupervisorEventDetail(reason, idleMs, totalMs)
+        detail: toolRunSupervisorEventDetail(reason, idleMs, totalMs, options.longDocument)
       })
       const diag = (typeof window !== 'undefined') ? (window as any).DiagLogger : null
       diag?.log?.('warn', 'outline/tool-run-supervisor', message, {
@@ -1991,6 +2028,7 @@ function createOutlineToolRunSupervisor(
         idleMs: Math.round(idleMs),
         totalMs: Math.round(totalMs),
         idleLimitMs: DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS,
+        longIdleLimitMs: options.longDocument ? LONG_TOOL_RUN_IDLE_TIMEOUT_MS : null,
         hardDeadlineMs: options.longDocument ? null : DIRECT_TOOL_RUN_HARD_DEADLINE_MS,
       })
       getController()?.abort()
@@ -2113,7 +2151,16 @@ async function applyOutlineDirectWrite(input: {
   if (input.targetId !== 'outline') {
     return { ok: false, code: 'write_target_mismatch', message: '大纲直写只允许写入大纲编辑器' }
   }
-  if (projectStore.outlineLocked) {
+  if (!input.writeAuthorization?.lockOverride && projectStore.outlineLocked) {
+    addOutlineTraceEvent({
+      type: 'write-authorization-mismatch',
+      level: 'error',
+      label: '写入缺少大纲锁定覆盖授权',
+      detail: JSON.stringify({
+        targetId: input.targetId,
+        reason: 'missing-lock-override',
+      }),
+    })
     recordOutlineEditorPresentation({
       phase: 'failed',
       workspace: 'outline',
@@ -2122,7 +2169,7 @@ async function applyOutlineDirectWrite(input: {
       commands: input.commands.length,
       reason: 'locked',
     })
-    return { ok: false, code: 'locked', message: '大纲已锁定，本轮只允许定位讨论，不允许写入' }
+    return { ok: false, code: 'locked', message: '大纲已锁定，本次写入缺少 API 锁定覆盖授权' }
   }
   if ((projectStore.outlineText || '') !== input.original) {
     recordOutlineEditorPresentation({
@@ -2157,6 +2204,8 @@ async function applyOutlineDirectWrite(input: {
     && input.batchDetail.expectedChange === 'remove_duplicate'
   const integrity = validateOutlineIntegrity(input.original, input.next, {
     validateDocumentBody: isWholeDocumentReplacement,
+    allowWholeDocumentRewrite: isWholeDocumentReplacement
+      && input.writeAuthorization?.mode === 'single-pass',
     allowAuthorizedDeletion: authorizationMatches || workflowDeletionAuthorized,
     ...(authorizationMatches
       ? { authorizedDeletedLength: authorization.expectedDeletedLength }
@@ -2212,7 +2261,9 @@ async function applyOutlineDirectWrite(input: {
       message: decision.message,
     }
   }
-  if (!commitOutlineChange(input.next)) {
+  if (!commitOutlineChange(input.next, {
+    authorized: input.writeAuthorization?.lockOverride === true,
+  })) {
     recordOutlineEditorPresentation({
       phase: 'failed',
       workspace: 'outline',
@@ -2353,6 +2404,8 @@ function createOutlineActiveTask(input: {
     projectId: outlineProjectId(),
     originalRequest: input.requestText,
     operation: input.plan.operation,
+    plan: input.plan,
+    authorizedExcerpts: [],
     documentVersion: input.snapshot.contentVersion,
     contentHash: hashOutlineContent(input.snapshot.content),
     createdAt: now,
@@ -2480,6 +2533,7 @@ function buildOutlineExecutionPlanForRequest(options: {
   provider: NonNullable<typeof providerStore.activeGenerateProvider>
   intent?: PlainDialogueIntent
   activeTask?: ActiveExecutionTaskSnapshot
+  activePlanConfirmation?: boolean
 }): { plan: LongDocumentExecutionPlan; providerWindow: number | null } {
   const model = options.provider.selectedModel || options.provider.models?.[0] || 'gpt-4o'
   const providerWindow = resolveEffectiveModelContextWindow({
@@ -2496,27 +2550,11 @@ function buildOutlineExecutionPlanForRequest(options: {
       maxOutputTokens,
       intent: options.intent,
       activeTask: options.activeTask,
+      activePlanConfirmation: options.activePlanConfirmation,
     }),
   }
 }
 
-function buildWorkflowWriteAuthorization(input: {
-  intent: PlainDialogueIntent | ChainIntent
-  plan: LongDocumentExecutionPlan
-}): DialogueWriteAuthorization | null {
-  const intent = input.intent === 'auto' ? 'discuss' : input.intent
-  if (intent !== 'edit' && intent !== 'generate') return null
-  if (input.plan.mode === 'final-draft') return null
-  if (input.plan.operation === 'discussion') return null
-  if (input.plan.mode !== 'edit-task' && input.plan.operation !== 'targeted_edit') return null
-  return {
-    source: 'long-document-workflow',
-    intent,
-    operation: input.plan.operation,
-    mode: input.plan.mode,
-    reason: 'outline-execution-plan',
-  }
-}
 
 function isWorkflowDeletionAuthorization(
   writeAuthorization: unknown,
@@ -2592,7 +2630,15 @@ const findUseRegex = ref(false)
 const findRef = ref<HTMLInputElement | null>(null)
 const isGenerating = ref(false)
 const outlineInputUnlockedByAgent = ref(false)
-const outlineInputBlocked = computed(() => isGenerating.value && !outlineInputUnlockedByAgent.value)
+const outlineSendStarting = ref(false)
+const outlineInputBlocked = computed(() =>
+  (isGenerating.value || outlineSendStarting.value) && !outlineInputUnlockedByAgent.value
+)
+// The send-starting flag only suppresses duplicate UI submits. askAi is part
+// of that same send flow, so execution gating must use the generation state.
+const outlineExecutionLocked = computed(() =>
+  isGenerating.value && !outlineInputUnlockedByAgent.value
+)
 const generationStatus = ref('')
 const streamingContent = ref('')
 // Test-only hook for Electron CDP verification of the live API status surface.
@@ -2614,7 +2660,10 @@ const liveApiStatusLines = useLiveApiStatus(computed<LiveApiStatusInput>(() => (
       streamLength: call.streamText.length,
       lastStreamActivityAt: call.lastStreamActivityAt,
       lastExecutionActivityAt: call.lastExecutionActivityAt,
-      retrying: Boolean(call.retryStrategy)
+      lastToolArgumentProgressAt: call.lastToolArgumentProgressAt,
+      lastToolArgumentProgress: call.lastToolArgumentProgress,
+      retrying: Boolean(call.retryStrategy),
+      executionSettlement: call.executionSettlement,
     }
   })()
 })))
@@ -2636,7 +2685,7 @@ function beginActiveOutlineRunTracking(): () => void {
     activeOutlineRunPromise = null
   }
 }
-function outlineFinalDraftStalled(task: FinalDraftTask) {
+function outlineFinalDraftStalled(task: FinalDraftTask | FinalDraftTaskView) {
   return task.status === 'generating' && task.lastTelemetry?.throughputStatus === 'stalled'
 }
 const outlineStalledRetryProviders = computed(() =>
@@ -2755,13 +2804,16 @@ function createWorkspaceSkillAdapter(
         intent: intent === 'auto' ? 'discuss' : intent,
       }).plan
     const outlineSkillExecutionPlanFallback = !activeOutlineExecutionPlan
-    const outlineSkillWriteAuthorization = buildWorkflowWriteAuthorization({
+    const outlineSkillWriteAuthorization = buildWorkflowWriteAuthorizationFromPlan({
+      workspace: 'outline',
       intent,
       plan: outlineSkillExecutionPlan,
+      locked: projectStore.outlineLocked,
     })
     const surface = buildDialogueToolSurface({
       workspace: 'outline',
       intent,
+      readLedger: getOutlineSessionReadLedger(),
       maxReadChars: () => getReadCapChars(
         providerStore.activeGenerateProvider,
         providerStore.activeGenerateProvider?.selectedModel || providerStore.activeGenerateProvider?.models?.[0] || '',
@@ -2797,7 +2849,8 @@ function createWorkspaceSkillAdapter(
         }))
       },
       extraTools: createOutlineTools({
-        getSnapshot: () => createOutlineRequestTarget()
+        getSnapshot: () => createOutlineRequestTarget(),
+        readLedger: getOutlineSessionReadLedger()
       }),
       readableTargets: ['outline', 'outline-settings'],
       writableTarget: 'outline',
@@ -2870,9 +2923,11 @@ function createWorkspaceSkillAdapter(
     getExecutionContext: () => ({
       executionPlan: activeOutlineExecutionPlan ?? undefined,
       writeAuthorization: activeOutlineExecutionPlan
-        ? buildWorkflowWriteAuthorization({
+        ? buildWorkflowWriteAuthorizationFromPlan({
+          workspace: 'outline',
           intent: currentRoutingIntent.value,
           plan: activeOutlineExecutionPlan,
+          locked: projectStore.outlineLocked,
         })
         : null,
     }),
@@ -3074,9 +3129,9 @@ function recordUndoAction(
   ;(typeof window !== 'undefined' ? (window as any).DiagLogger : null)?.log?.('info', 'editor-undo', `大纲编辑器${action === 'undo' ? '撤销' : '重做'}`, detail)
 }
 
-function commitOutlineChange(next: string) {
+function commitOutlineChange(next: string, options: { authorized?: boolean } = {}) {
   const current = projectStore.outlineText || ''
-  if (next === current || projectStore.outlineLocked) return false
+  if (next === current || (projectStore.outlineLocked && !options.authorized)) return false
   editorStore.pushUndoTransactionForTab('outline', current, 'manual', '大纲编辑')
   lastEditorHistoryAt = Date.now()
   projectStore.outlineText = next
@@ -4236,8 +4291,11 @@ function insertAtCursor(text: string) {
 }
 
 async function sendMessage() {
+  if (outlineSendStarting.value) return
   const text = inputText.value.trim()
   if (!text || outlineInputBlocked.value) return
+  outlineSendStarting.value = true
+  try {
   if (isOutlineDeletionAffirmativeInput(text)) {
     const consumed = await consumeOutlineDeletionAffirmativeTurn(text)
     if (consumed) {
@@ -4254,6 +4312,9 @@ async function sendMessage() {
   lastUserRequest.value = text
   await scrollToBottom()
   await askAi(text)
+  } finally {
+    outlineSendStarting.value = false
+  }
 }
 
 async function regenerateMsg(index: number) {
@@ -4312,6 +4373,18 @@ async function classifyHomeIntentDetailed(requestText: string): Promise<PlainDia
     activeEditTaskStatus: outlineEditTask.value?.status === 'awaiting_batch'
       ? 'awaiting_batch'
       : undefined,
+    activePlanStatus: (() => {
+      const snapshot = createOutlineRequestTarget()
+      const snapshotStatus = activeExecutionTaskStore.getValidSnapshot(
+        'outline',
+        outlineProjectId(),
+        snapshot?.contentVersion || 0,
+        hashOutlineContent(snapshot?.content || ''),
+      )?.status
+      return snapshotStatus === 'awaiting_user_plan' || snapshotStatus === 'active'
+        ? snapshotStatus
+        : undefined
+    })(),
     llmClassifier: createIntentLlmFallback({
       activeVerifyProvider: providerStore.activeVerifyProvider,
       activeGenerateProvider: providerStore.activeGenerateProvider,
@@ -4349,7 +4422,7 @@ function addOutlineRoutingDiagnostics(
 }
 
 async function askAi(requestText: string, routingDecision: OutlineRoutingDecision = {}) {
-  if (outlineInputBlocked.value) {
+  if (outlineExecutionLocked.value) {
     const activeOutlineTraceId = outlineRunTraceId
       ? runTraceStore.getRun(outlineRunTraceId)
       : null
@@ -4380,6 +4453,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     : await classifyHomeIntentDetailed(requestText)
   const resolvedIntent: PlainDialogueIntent = routingDecision.forcedIntent
     || (detailedIntent ? detailedIntent.intent : 'discuss')
+  const resolvedRoutingReason = detailedIntent?.routing.reason || ''
   if (detailedIntent) {
     currentRoutingIntent.value = resolvedIntent
     recordIntentRoutingSample({
@@ -4394,17 +4468,64 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
     addOutlineRoutingDiagnostics(detailedIntent.diagnostics)
   }
   const requestTarget = createOutlineRequestTarget()
+  const outlineActiveTaskBeforeRun = activeExecutionTaskStore.getValidSnapshot(
+    'outline',
+    outlineProjectId(),
+    requestTarget.contentVersion,
+    hashOutlineContent(requestTarget.content),
+  )
   const outlinePlan = buildOutlineExecutionPlanForRequest({
     requestText,
     content: requestTarget.content,
     provider,
     intent: resolvedIntent,
+    activeTask: outlineActiveTaskBeforeRun || undefined,
+    activePlanConfirmation: resolvedRoutingReason === 'active-plan-continuation',
   })
+  const shouldReuseAwaitingOutlinePlan = Boolean(
+    (outlineActiveTaskBeforeRun?.status === 'awaiting_user_plan' ||
+      outlineActiveTaskBeforeRun?.status === 'active')
+    && outlineActiveTaskBeforeRun.plan
+    && resolvedRoutingReason === 'active-plan-continuation',
+  )
+  const shouldPreserveAwaitingOutlinePlan = Boolean(
+    outlineActiveTaskBeforeRun?.status === 'awaiting_user_plan'
+    && outlineActiveTaskBeforeRun.plan
+    && !shouldReuseAwaitingOutlinePlan
+    && activeExecutionTaskStore.isAwaitingPlanSupersededByPlan(
+      'outline',
+      outlineProjectId(),
+      outlinePlan.plan.operation,
+    ) === false,
+  )
+  if (!shouldReuseAwaitingOutlinePlan && !shouldPreserveAwaitingOutlinePlan) {
+    if (outlineActiveTaskBeforeRun?.status === 'awaiting_user_plan') {
+      activeExecutionTaskStore.supersedeAwaitingUserPlan(
+        'outline',
+        outlineProjectId(),
+        'new-edit-request',
+      )
+    }
+    createOutlineActiveTask({
+      requestText,
+      plan: outlinePlan.plan,
+      snapshot: requestTarget,
+    })
+    const supersededPlan = activeExecutionTaskStore.consumeLastSupersededPlan()
+    if (supersededPlan) {
+      addOutlineTraceEvent({
+        type: 'active-plan-superseded',
+        level: 'info',
+        label: '旧等待计划已由新编辑请求替换',
+        detail: JSON.stringify(supersededPlan),
+      })
+    }
+  }
   activeOutlineExecutionPlan = outlinePlan.plan
   if (isOutlineFinalDraftRequest(outlinePlan.plan, requestText, requestTarget.content)) {
     startOutlineRun(workspaceSkillMode.value, requestText, templates.map(template => template.name), {
       intent: routingDecision.forcedIntent || 'generate',
-      longDocument: outlinePlan.plan.mode === 'edit-task' || outlinePlan.plan.decision !== 'fits',
+      longDocument: usesLongDocumentToolRuntime(outlinePlan.plan),
       toolSurface: [],
       actualToolSurface: [],
     })
@@ -4464,7 +4585,7 @@ async function askAi(requestText: string, routingDecision: OutlineRoutingDecisio
   const fallbackMessages = buildOutlineFallbackMessages(requestText)
   startOutlineRun(workspaceSkillMode.value, requestText, templates.map(template => template.name), {
     intent: routingDecision.forcedIntent,
-    longDocument: outlinePlan.plan.mode === 'edit-task' || outlinePlan.plan.decision !== 'fits',
+    longDocument: usesLongDocumentToolRuntime(outlinePlan.plan),
     toolSurface: [],
     actualToolSurface: [],
   })
@@ -4907,6 +5028,7 @@ async function askPlainAi(
   const plainIntentDetailed = await classifyHomeIntentDetailed(requestText)
   const plainIntent: PlainDialogueIntent = plainIntentDetailed.intent
   currentRoutingIntent.value = plainIntent
+  const plainRoutingReason = plainIntentDetailed.routing.reason
   const requestTarget = createOutlineRequestTarget()
   const activeOutlineTask = activeExecutionTaskStore.getValidSnapshot(
     'outline',
@@ -4920,13 +5042,49 @@ async function askPlainAi(
     provider,
     intent: plainIntent,
     activeTask: activeOutlineTask || undefined,
+    activePlanConfirmation: plainRoutingReason === 'active-plan-continuation',
   })
+  const shouldReusePlainAwaitingOutlinePlan = Boolean(
+    (activeOutlineTask?.status === 'awaiting_user_plan' ||
+      activeOutlineTask?.status === 'active')
+    && activeOutlineTask.plan
+    && plainRoutingReason === 'active-plan-continuation',
+  )
+  // Keep planner as the single place that marks a reused awaiting plan.
   const outlineExecutionPlan = outlinePlan.plan
-  createOutlineActiveTask({
-    requestText,
-    plan: outlineExecutionPlan,
-    snapshot: requestTarget,
-  })
+  const shouldPreservePlainAwaitingOutlinePlan = Boolean(
+    activeOutlineTask?.status === 'awaiting_user_plan'
+    && activeOutlineTask.plan
+    && !shouldReusePlainAwaitingOutlinePlan
+    && activeExecutionTaskStore.isAwaitingPlanSupersededByPlan(
+      'outline',
+      outlineProjectId(),
+      outlineExecutionPlan.operation,
+    ) === false,
+  )
+  if (!shouldReusePlainAwaitingOutlinePlan && !shouldPreservePlainAwaitingOutlinePlan) {
+    if (activeOutlineTask?.status === 'awaiting_user_plan') {
+      activeExecutionTaskStore.supersedeAwaitingUserPlan(
+        'outline',
+        outlineProjectId(),
+        'new-edit-request',
+      )
+    }
+    createOutlineActiveTask({
+      requestText,
+      plan: outlineExecutionPlan,
+      snapshot: requestTarget,
+    })
+    const supersededPlan = activeExecutionTaskStore.consumeLastSupersededPlan()
+    if (supersededPlan) {
+      addOutlineTraceEvent({
+        type: 'active-plan-superseded',
+        level: 'info',
+        label: '旧等待计划已由新编辑请求替换',
+        detail: JSON.stringify(supersededPlan),
+      })
+    }
+  }
   const outlineProviderWindowDeclared = typeof outlinePlan.providerWindow === 'number'
   const outlineProviderWindow = outlinePlan.providerWindow
   const outlineMaxOutputTokens = Number(provider.maxTokens) > 0 ? Number(provider.maxTokens) : null
@@ -4984,17 +5142,20 @@ async function askPlainAi(
   })
   if (plainLocalTransform) return
   const useOutlineEditTaskPlan = outlineExecutionPlan.mode === 'edit-task'
-  const isLongDocumentRequest = useOutlineEditTaskPlan || outlineExecutionPlan.decision !== 'fits'
+  const isLongDocumentRequest = useOutlineEditTaskPlan || usesLongDocumentToolRuntime(outlineExecutionPlan)
   const outlineLongDocumentOperationType = toLongDocumentOperationType(outlineExecutionPlan.operation)
   outlineDirectWriteMultiBatch = useOutlineEditTaskPlan
-  const workflowWriteAuthorization = buildWorkflowWriteAuthorization({
+  const workflowWriteAuthorization = buildWorkflowWriteAuthorizationFromPlan({
+    workspace: 'outline',
     intent: plainIntent,
     plan: outlineExecutionPlan,
+    locked: projectStore.outlineLocked,
   })
-  const plainSurface = requestTarget.content
-    ? buildDialogueToolSurface({
+    const plainSurface = requestTarget.content
+      ? buildDialogueToolSurface({
       workspace: 'outline',
       intent: plainIntent,
+      readLedger: getOutlineSessionReadLedger(),
       maxReadChars: () => getReadCapChars(providerStore.activeGenerateProvider, model),
       getSnapshot: () => createOutlineRequestTarget(),
       getAllSnapshots: buildOutlineWorkspaceSnapshots,
@@ -5003,6 +5164,7 @@ async function askPlainAi(
       writeAuthorization: workflowWriteAuthorization,
       conversationMarkers: buildOutlineConversationMarkers(),
       userRequestText: requestText,
+      authorizedPlanExcerpts: activeOutlineTask?.authorizedExcerpts || [],
       onContaminationDecision: (decision: EditorWriteContaminationDecision) => addOutlineTraceEvent({
         type: decision.type,
         level: decision.type === 'write-contamination-rejected' ? 'warn' : 'info',
@@ -5030,7 +5192,8 @@ async function askPlainAi(
         }))
       },
       extraTools: createOutlineTools({
-        getSnapshot: () => createOutlineRequestTarget()
+        getSnapshot: () => createOutlineRequestTarget(),
+        readLedger: getOutlineSessionReadLedger()
       }),
       readableTargets: ['outline', 'outline-settings'],
       writableTarget: 'outline',
@@ -5118,6 +5281,10 @@ async function askPlainAi(
   let compatibilityModeUsed = false
   let plainAiResult: { finishReason?: string; maxTokens?: number | null } | null = null
   let outlineAgentTerminal: { status: RunTraceStatus; reason: string } | undefined
+  const outlineToolRunBudget = createToolRunBudget({
+    plan: outlineExecutionPlan,
+    operation: outlineLongDocumentOperationType,
+  })
   let aiService: Awaited<ReturnType<typeof getAiService>> | null = null
   let contextRef: Parameters<typeof conversationContextService.recordTurn>[0] | null = null
   let traceApiCallId: string | undefined
@@ -5132,12 +5299,15 @@ async function askPlainAi(
     level: 'info',
     label: useOutlineEditTaskPlan
       ? '长文档进入 EditTask 多批执行'
+      : outlineExecutionPlan.mode === 'single-pass'
+        ? '全文一次成型执行'
       : isLongDocumentRequest
         ? '启用长文档工具任务策略'
         : '使用短文档工具任务策略',
     detail: JSON.stringify({
       planId: outlineExecutionPlan.planId,
       operation: outlineExecutionPlan.operation,
+      operationResolution: outlineExecutionPlan.operationResolution,
       legacyOperationType: outlineLongDocumentOperationType,
       mode: outlineExecutionPlan.mode,
       decision: outlineExecutionPlan.decision,
@@ -5160,6 +5330,7 @@ async function askPlainAi(
     reason: `execution-plan-${outlineExecutionPlan.decision}`,
     executionMode: useOutlineEditTaskPlan ? 'edit-task' : 'direct',
     executionModeReason: `operation=${outlineExecutionPlan.operation}`,
+    operationResolution: outlineExecutionPlan.operationResolution,
     planId: outlineExecutionPlan.planId,
     decision: outlineExecutionPlan.decision,
     contextWindow: outlineExecutionPlan.contextWindow,
@@ -5259,9 +5430,10 @@ async function askPlainAi(
       skillGuidance: options.skillGuidance,
       skillIds: options.skillIds,
       promptSource: options.promptSource,
-      maxPhysicalRequests: outlineExecutionPlan
-        ? calculateLongDocumentPhysicalRequestBudget(outlineExecutionPlan)
-        : Math.max(1, options.resumedApiBudget?.snapshot().limit ?? 8),
+      idleTimeoutMs: isLongDocumentRequest ? LONG_TOOL_RUN_IDLE_TIMEOUT_MS : DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS,
+      toolRunBudget: outlineExecutionPlan || !useOutlineEditTaskPlan
+        ? outlineToolRunBudget.snapshot()
+        : undefined,
       getContextRemaining: () => ({
         contextWindowTokens: outlineProviderWindowDeclared ? outlineProviderWindow : null,
         maxOutputTokens: outlineMaxOutputTokens,
@@ -5275,6 +5447,24 @@ async function askPlainAi(
             generationStatus.value = status === 'needs_user'
               ? '模型等待你的回复'
               : status === 'completed' ? '正在收尾...' : ''
+          }
+          if (status === 'needs_user') {
+            const awaitingOutlineTask = activeExecutionTaskStore.markAwaitingUserPlan(
+              'outline',
+              outlineProjectId(),
+            )
+            if (awaitingOutlineTask) {
+              addOutlineTraceEvent({
+                type: 'active-plan-awaiting-user',
+                level: 'info',
+                label: '执行计划已登记，等待用户确认',
+                detail: JSON.stringify({
+                  taskId: awaitingOutlineTask.taskId,
+                  planId: awaitingOutlineTask.plan?.planId,
+                  operation: awaitingOutlineTask.operation,
+                }),
+              })
+            }
           }
         }
         if (event.type === 'interactive_response' && outlineInputBlocked.value) {
@@ -5330,14 +5520,21 @@ async function askPlainAi(
       retry: false,
       tools,
       timeoutMs: isLongDocumentRequest ? null : DIRECT_TOOL_RUN_HARD_DEADLINE_MS,
+      onStreamToolProgress: progress => {
+        toolRunSupervisor.reportProgress()
+        if (outlineRunTraceId && traceApiCallId) {
+          runTraceStore.reportToolArgumentProgress(outlineRunTraceId, traceApiCallId, progress)
+        }
+      },
       onPhysicalCall: (event) => {
         recordOutlinePhysicalCall(traceApiCallId, event)
-        if (event.status === 'running' || event.heartbeat || event.streamText || event.responseText) toolRunSupervisor.reportProgress()
+        if (physicalCallReportsProgress(event)) toolRunSupervisor.reportProgress()
       },
       toolPolicy: tools ? {
         scenario: 'direct-tool-intensive',
         maxToolIterations: (window as any).__outlineDeletionReplayMaxToolIterations
           || calculateLongDocumentPhysicalRequestBudget(outlineExecutionPlan),
+        toolRunBudget: outlineToolRunBudget,
           intent: plainIntent,
           permissionDecision: outlinePermissionDecision,
         onPermissionDenied: event => {
@@ -5460,6 +5657,23 @@ async function askPlainAi(
       agentResult,
       executionPlan: outlineExecutionPlan,
     })
+    const budgetSnapshot = agentResult.snapshot.toolRunBudget
+    const executionSettlement: RunTraceExecutionSettlement | undefined = budgetSnapshot
+      ? {
+        phase: agentResult.snapshot.executionPhase,
+        readToolCalls: budgetSnapshot.readToolCalls,
+        maxReadToolCalls: budgetSnapshot.maxReadToolCalls,
+        writeToolCalls: budgetSnapshot.writeToolCalls,
+        reservedWriteToolCalls: budgetSnapshot.reservedWriteToolCalls,
+        controlToolCalls: budgetSnapshot.controlToolCalls,
+        physicalRequests: budgetSnapshot.physicalRequests,
+        maxPhysicalRequests: budgetSnapshot.maxPhysicalRequests,
+        exhaustedClasses: budgetSnapshot.exhaustedClasses,
+        successfulWriteCount: agentResult.snapshot.successfulWriteCount,
+        trustedCoverageCount: agentResult.snapshot.trustedCoverageCount,
+        planComplete: agentResult.snapshot.planComplete,
+      }
+      : undefined
     if (agentResult.toolSurface?.length) {
       runTraceStore.updateApiCallToolSurface(outlineRunTraceId || '', traceApiCallId || '', {
         actualToolSurface: agentResult.toolSurface,
@@ -5493,7 +5707,9 @@ async function askPlainAi(
       contextBudgetDecision: result.contextBudget?.decision,
       contextBudgetReason: result.contextBudget?.reason,
       usageReconciliation: result.usageReconciliation,
-      toolAudit: result.toolAudit
+      toolAudit: result.toolAudit,
+      executionSettlement,
+      readLedger: getOutlineSessionReadLedger().snapshot(),
     })
     if (result.compatibilityMode || result.toolsDowngraded) {
       addOutlineTraceEvent({
@@ -5527,6 +5743,25 @@ async function askPlainAi(
       const emptyError: any = new Error('API 返回为空')
       emptyError.finishReason = result.finishReason
       throw emptyError
+    }
+    if ((plainIntent === 'discuss' || plainIntent === 'analyze') && responseText.trim()) {
+      const excerptAppended = activeExecutionTaskStore.appendAuthorizedExcerpt(
+        'outline',
+        outlineProjectId(),
+        responseText,
+      )
+      const excerptObservation = activeExecutionTaskStore
+        .consumeLastAuthorizedExcerptObservation()
+      if (excerptAppended && excerptObservation) {
+        addOutlineTraceEvent({
+          type: 'authorized-plan-excerpt',
+          level: excerptObservation.outcome === 'appended' ? 'info' : 'warn',
+          label: excerptObservation.outcome === 'appended'
+            ? '讨论回复已进入计划授权上下文'
+            : '讨论回复未进入计划授权上下文',
+          detail: JSON.stringify(excerptObservation),
+        })
+      }
     }
     await conversationContextService.recordTurn(contextRef, {
       user: requestText,
@@ -5578,16 +5813,24 @@ async function askPlainAi(
           durationMs: Date.now() - requestStartedAt,
           error: toolRunSupervisorReadableMessage(supervisorReason),
         })
-        const canRetryStuckRequest =
-          supervisorReason === 'stuck_timeout' &&
-          plainIntent === 'edit' &&
-          (plainToolSurface?.some(tool => tool.policy === 'write') ?? false)
-        if (canRetryStuckRequest) {
+        const stallRetry = shouldRetryStalledDirectWrite({
+          supervisorReason,
+          intent: plainIntent,
+          longDocument: isLongDocumentRequest,
+          toolSurface: plainToolSurface,
+        })
+        if (stallRetry.retryable) {
           addOutlineTraceEvent({
             type: 'state-stuck-retry',
             level: 'warn',
             label: '编辑请求无进展，已自动隔离重试',
-            detail: '本轮已授权 editor.write；中止原请求后重新发起一次，不继承原 signal/timeout'
+            detail: JSON.stringify({
+              scope: stallRetry.scope || 'read-only-dialogue',
+              authorizedTool: 'editor.write',
+              inheritedSignal: false,
+              inheritedTimeout: false,
+              longDocumentRetry: false,
+            })
           })
           generationController = new AbortController()
           cancelController = new AbortController()
@@ -5632,11 +5875,12 @@ async function askPlainAi(
               timeoutMs: isLongDocumentRequest ? null : DIRECT_TOOL_RUN_HARD_DEADLINE_MS,
               onPhysicalCall: (event: PhysicalCallEvent) => {
                 recordOutlinePhysicalCall(retryTraceApiCallId, event)
-                if (event.status === 'running' || event.streamText || event.responseText) toolRunSupervisor.reportProgress()
+                if (physicalCallReportsProgress(event)) toolRunSupervisor.reportProgress()
               },
       toolPolicy: tools ? {
         scenario: 'direct-tool-intensive',
           maxToolIterations: (window as any).__outlineDeletionReplayMaxToolIterations || 12,
+          toolRunBudget: outlineToolRunBudget,
                 intent: plainIntent,
                 permissionDecision: outlinePermissionDecision,
                 onPermissionDenied: event => {

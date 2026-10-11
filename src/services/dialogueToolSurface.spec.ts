@@ -5,6 +5,7 @@ import {
   appendDialogueToolSurfaceDeclaration,
   buildDialogueToolSurfaceDeclarationAudit,
   buildDialogueToolSurface,
+  buildWorkflowWriteAuthorizationFromPlan,
   type DialogueToolSurfaceEntry,
 } from './dialogueToolSurface'
 import { createEditTask, type EditTask } from './editTaskService'
@@ -73,6 +74,44 @@ function entry(intent: DialogueToolSurfaceEntry['intent']): DialogueToolSurfaceE
 }
 
 describe('authorizeDialogueTools', () => {
+  it('uses an empty model tool surface for single-pass prose output', () => {
+    const result = authorizeDialogueTools([readTool, writeTool], 'edit', 'direct', {
+      writeAuthorization: {
+        source: 'long-document-workflow',
+        intent: 'edit',
+        operation: 'restructure_and_cleanup',
+        mode: 'single-pass',
+        reason: 'test',
+      },
+      executionPlan: {
+        planId: 'plan-test',
+        operation: 'restructure_and_cleanup',
+        operationResolution: { source: 'intent', intent: 'edit', matched: 'restructure_and_cleanup' },
+        mode: 'single-pass',
+        localTransformOperations: null,
+        segments: [],
+        invariants: ['planned-deletion-only'],
+        estimatedPhysicalRequests: 1,
+        progressLabel: '一次成型整理',
+        finalDraft: false,
+        finalDraftPlan: null,
+        totalChars: 100,
+        estimatedDocumentTokens: 100,
+        contextWindow: { status: 'provider-declared', contextWindowTokens: 1000000, maxOutputTokens: null, effectiveInputTokens: 100 },
+        decision: 'fits',
+      },
+    })
+
+    expect(result.actualToolSurface).toEqual([])
+    expect(result.permission.writeEditor).toBe(false)
+    expect(result.permissionDecision).toMatchObject({
+      source: 'long-document-workflow',
+      decision: 'read-only',
+      mode: 'single-pass',
+      reason: 'single-pass writes are app-owned after model prose output',
+    })
+  })
+
   it('disables external tools that do not declare a static tool policy', () => {
     const result = authorizeDialogueTools([
       readTool,
@@ -191,6 +230,23 @@ describe('authorizeDialogueTools', () => {
       operation: 'targeted_edit',
       mode: 'direct',
       reason: 'workflow authorization triple matched',
+    })
+  })
+
+  it('carries lockOverride through the permission decision', () => {
+    const result = authorizeDialogueTools([readTool, writeTool], 'edit', 'direct', {
+      writeAuthorization: {
+        source: 'long-document-workflow',
+        intent: 'edit',
+        operation: 'targeted_edit',
+        mode: 'direct',
+        lockOverride: true,
+      },
+    })
+
+    expect(result.permissionDecision).toMatchObject({
+      decision: 'write-authorized',
+      lockOverride: true,
     })
   })
 
@@ -379,6 +435,80 @@ describe('authorizeDialogueTools', () => {
   })
 })
 
+describe('buildWorkflowWriteAuthorizationFromPlan', () => {
+  const plan = {
+    planId: 'plan-lock-override',
+    operation: 'restructure_and_cleanup',
+    operationResolution: { source: 'intent', matched: 'restructure_and_cleanup' },
+    mode: 'edit-task',
+    segments: [],
+    invariants: [],
+    estimatedPhysicalRequests: 1,
+    finalDraft: false,
+    localTransformOperations: null,
+    finalDraftPlan: null,
+    progressLabel: '结构重排与整理',
+    decision: 'needs_segmentation',
+    contextWindow: {
+      status: 'provider-declared',
+      contextWindowTokens: 128_000,
+      maxOutputTokens: 8_192,
+      effectiveInputTokens: 100_000,
+    },
+    estimatedDocumentTokens: 60_000,
+    totalChars: 74_841,
+  } as Parameters<typeof buildWorkflowWriteAuthorizationFromPlan>[0]['plan']
+
+  it('marks outline API writes with lockOverride when the outline is locked', () => {
+    const authorization = buildWorkflowWriteAuthorizationFromPlan({
+      workspace: 'outline',
+      intent: 'edit',
+      plan,
+      locked: true,
+    })
+    expect(authorization).toEqual({
+      source: 'long-document-workflow',
+      intent: 'edit',
+      operation: 'restructure_and_cleanup',
+      mode: 'edit-task',
+      reason: 'outline-execution-plan',
+      lockOverride: true,
+    })
+  })
+
+  it('never marks home writes as lock overrides', () => {
+    const authorization = buildWorkflowWriteAuthorizationFromPlan({
+      workspace: 'main',
+      intent: 'edit',
+      plan,
+      locked: true,
+    })
+    expect(authorization?.lockOverride).toBeUndefined()
+  })
+
+  it('authorizes a single-pass whole-document plan as a direct write workflow', () => {
+    const authorization = buildWorkflowWriteAuthorizationFromPlan({
+      workspace: 'outline',
+      intent: 'edit',
+      plan: {
+        ...plan,
+        mode: 'single-pass',
+        decision: 'fits',
+        segments: [],
+      },
+      locked: true,
+    })
+
+    expect(authorization).toMatchObject({
+      source: 'long-document-workflow',
+      intent: 'edit',
+      operation: 'restructure_and_cleanup',
+      mode: 'single-pass',
+      lockOverride: true,
+    })
+  })
+})
+
 describe('appendDialogueToolSurfaceDeclaration', () => {
   it('explains active task semantics as facts without behavior bans', () => {
     const task = activeTask('partially_applied')
@@ -444,6 +574,47 @@ describe('appendDialogueToolSurfaceDeclaration', () => {
     expect(prompt).toContain('本轮工具面包含 editor.write(write)')
   })
 
+  it('declares single-pass prose protocol without exposing model tools', () => {
+    const prompt = appendDialogueToolSurfaceDeclaration(
+      '你是小说大纲创作助手。用户正在编辑大纲，请给出建议和修改意见。',
+      [{ name: 'editor.write', policy: 'write' as const }],
+      {
+        executionPlan: {
+          planId: 'plan-single-pass-declaration',
+          operation: 'restructure_and_cleanup',
+          operationResolution: { source: 'intent', matched: 'restructure_and_cleanup' },
+          mode: 'single-pass',
+          localTransformOperations: null,
+          segments: [],
+          invariants: ['planned-deletion-only'],
+          estimatedPhysicalRequests: 1,
+          progressLabel: '一次成型整理',
+          finalDraft: false,
+          finalDraftPlan: {
+            sourceChars: 100,
+            instruction: '整理全文',
+            continuationEnabled: true,
+            segmented: false,
+            segments: [{ segmentId: 'whole-document', start: 0, end: 100 }],
+          },
+          totalChars: 100,
+          estimatedDocumentTokens: 100,
+          contextWindow: { status: 'provider-declared', contextWindowTokens: 128000, maxOutputTokens: null, effectiveInputTokens: 100 },
+          decision: 'fits',
+        },
+      },
+    )
+
+    expect(prompt).toContain('一次成型整篇正文输出协议')
+    expect(prompt).toContain('全文已在当前上下文中')
+    expect(prompt).toContain('直接流式输出整理后的完整全文')
+    expect(prompt).toContain('禁止提交编辑命令或调用写入工具')
+    expect(prompt).toContain('应用会在正文完成后一次性整文写入编辑器')
+    expect(prompt).not.toContain('唯一一条 replace_document')
+    expect(prompt).not.toContain('请给出建议和修改意见')
+    expect(prompt).not.toContain('读取')
+  })
+
   it('states restored write capability for an awaiting retry task', () => {
     const task = { ...activeTask('awaiting_batch'), pendingBatches: ['batch-1'] }
     const prompt = appendDialogueToolSurfaceDeclaration(
@@ -459,6 +630,37 @@ describe('appendDialogueToolSurfaceDeclaration', () => {
     expect(prompt).toContain('本轮工具面包含 editor.write(write)')
     expect(prompt).toContain('editor.write')
     expect(prompt).not.toContain('本轮工具面未包含 editor.write')
+  })
+
+  it('declares single-pass prose protocol when the model tool surface is empty', () => {
+    const prompt = appendDialogueToolSurfaceDeclaration(
+      '系统提示',
+      [],
+      {
+        executionPlan: {
+          planId: 'plan-single-pass-empty',
+          operation: 'restructure_and_cleanup',
+          operationResolution: { source: 'intent', matched: 'restructure_and_cleanup' },
+          mode: 'single-pass',
+          localTransformOperations: null,
+          segments: [],
+          invariants: ['planned-deletion-only'],
+          estimatedPhysicalRequests: 1,
+          progressLabel: '一次成型整理',
+          finalDraft: false,
+          finalDraftPlan: null,
+          totalChars: 100,
+          estimatedDocumentTokens: 100,
+          contextWindow: { status: 'provider-declared', contextWindowTokens: 128000, maxOutputTokens: null, effectiveInputTokens: 100 },
+          decision: 'fits',
+        },
+      },
+    )
+
+    expect(prompt).toContain('一次成型整篇正文输出协议')
+    expect(prompt).toContain('全文已在当前上下文中')
+    expect(prompt).toContain('本轮工具面为空')
+    expect(prompt).toContain('禁止提交编辑命令或调用写入工具')
   })
 
   it('exposes the declaration as an auditable prompt injection record', () => {

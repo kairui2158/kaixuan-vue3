@@ -205,6 +205,29 @@ describe('runTrace store', () => {
       responseText: 'R'.repeat(1500),
       finishReason: 'stop',
       convergenceReason: 'model answered the question and tool loop converged',
+      executionSettlement: {
+        phase: 'writing',
+        readToolCalls: 20,
+        maxReadToolCalls: 90,
+        writeToolCalls: 4,
+        reservedWriteToolCalls: 9,
+        controlToolCalls: 2,
+        physicalRequests: 12,
+        maxPhysicalRequests: 27,
+        exhaustedClasses: [],
+        successfulWriteCount: 4,
+        trustedCoverageCount: 3,
+        planComplete: false,
+      },
+      readLedger: {
+        workspace: 'outline',
+        targetId: 'outline',
+        uniqueReadCount: 18,
+        duplicateReadCount: 2,
+        rereadAfterCompactionCount: 1,
+        compactedReadCount: 1,
+        structureIdentity: 'structure:standard:node-1',
+      },
       usage: { total_tokens: 123 },
       durationMs: 456
     })
@@ -217,6 +240,9 @@ describe('runTrace store', () => {
     expect(call?.streamText).toHaveLength(1200)
     expect(call?.responseText).toHaveLength(1500)
     expect(call?.convergenceReason).toBe('model answered the question and tool loop converged')
+    expect(call?.executionSettlement?.successfulWriteCount).toBe(4)
+    expect(call?.executionSettlement?.trustedCoverageCount).toBe(3)
+    expect(call?.readLedger?.duplicateReadCount).toBe(2)
     expect(call?.seq).toBe(1)
     expect(run?.events.map(e => e.type)).toContain('api-start')
     expect(run?.events.map(e => e.type)).toContain('api-success')
@@ -241,6 +267,72 @@ describe('runTrace store', () => {
 
     const physical = store.getRun(runId)?.apiCalls[0]?.physicalCalls?.[0]
     expect(physical?.responseText).toBe('第一次物理响应')
+  })
+
+  it('updates the running api call execution settlement without changing terminal calls', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲共创',
+      mode: 'chat',
+      sessionKind: 'chat',
+      skillNames: []
+    })
+    const callId = store.startApiCall(runId, {
+      source: 'outline',
+      requestMessages: [{ role: 'user', content: '整理全文' }]
+    })
+
+    expect(store.updateApiCallExecutionSettlement(runId, callId, {
+      executionSettlement: {
+        phase: 'locating',
+        readToolCalls: 3,
+        maxReadToolCalls: 24,
+        writeToolCalls: 0,
+        reservedWriteToolCalls: 2,
+        controlToolCalls: 0,
+        physicalRequests: 1,
+        maxPhysicalRequests: 8,
+        exhaustedClasses: [],
+        successfulWriteCount: 0,
+        trustedCoverageCount: 0,
+        planComplete: false,
+      },
+      readLedger: {
+        workspace: 'outline',
+        targetId: 'outline',
+        uniqueReadCount: 3,
+        duplicateReadCount: 0,
+        rereadAfterCompactionCount: 0,
+        compactedReadCount: 0,
+        structureIdentity: 'structure:standard:node-1',
+      },
+    })).toBe(true)
+
+    const call = store.getRun(runId)?.apiCalls[0]
+    expect(call?.status).toBe('running')
+    expect(call?.executionSettlement?.readToolCalls).toBe(3)
+    expect(call?.readLedger?.uniqueReadCount).toBe(3)
+    expect(store.getRun(runId)?.events.some(event => event.type === 'api-execution-settlement-updated')).toBe(true)
+
+    store.finishApiCall(runId, callId, { status: 'success', responseText: '完成' })
+    expect(store.updateApiCallExecutionSettlement(runId, callId, {
+      executionSettlement: {
+        phase: 'settling',
+        readToolCalls: 4,
+        maxReadToolCalls: 24,
+        writeToolCalls: 1,
+        reservedWriteToolCalls: 2,
+        controlToolCalls: 0,
+        physicalRequests: 2,
+        maxPhysicalRequests: 8,
+        exhaustedClasses: [],
+        successfulWriteCount: 1,
+        trustedCoverageCount: 1,
+        planComplete: true,
+      },
+    })).toBe(false)
+    expect(call?.executionSettlement?.phase).toBe('locating')
   })
 
   it('does not mark usage unavailable while a physical call is still running', () => {
@@ -1579,6 +1671,7 @@ describe('runTrace store', () => {
 
   it('records physical, stream, tool, and edit-task activity without firing false stuck warnings', () => {
     vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-09T00:00:00Z'))
     const store = useRunTraceStore()
     const runId = store.startRun({
       source: 'outline',
@@ -1644,6 +1737,88 @@ describe('runTrace store', () => {
     )).toBe(true)
     vi.advanceTimersByTime(600_001)
     expect(run.events.some(event => event.type === 'state-stuck-detected')).toBe(true)
+    store.finishRun(runId, 'success')
+    vi.useRealTimers()
+  })
+
+  it('throttles stream activity events while preserving the full stream response', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-09T00:00:00Z'))
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲共创',
+      mode: 'chat',
+      sessionKind: 'chat',
+      skillNames: []
+    })
+    const callId = store.startApiCall(runId, {
+      source: 'outline',
+      requestMessages: [{ role: 'user', content: '整理整篇大纲' }]
+    })
+
+    for (let i = 0; i < 80; i++) store.appendStream(runId, callId, '字')
+    vi.advanceTimersByTime(1000)
+    for (let i = 80; i < 100; i++) store.appendStream(runId, callId, '字')
+    vi.advanceTimersByTime(1000)
+    for (let i = 100; i < 110; i++) store.appendStream(runId, callId, '字')
+
+    const run = store.getRun(runId)!
+    const activity = run.events.filter(event =>
+      event.type === 'run-activity'
+      && (event.payload as { source?: string } | undefined)?.source === 'stream_delta')
+    expect(activity.length).toBeGreaterThan(0)
+    expect(activity.length).toBeLessThan(20)
+    const call = run.apiCalls.find(item => item.id === callId)!
+    expect(call.streamText).toHaveLength(110)
+    expect(call.responseText).toHaveLength(110)
+    expect(call.lastStreamActivityAt).toBeDefined()
+    store.finishRun(runId, 'success')
+    vi.setSystemTime(new Date('2026-10-09T00:01:00Z'))
+    const continuationCallId = store.startApiCall(runId, {
+      source: 'outline',
+      requestMessages: [{ role: 'user', content: '继续整理' }]
+    })
+    for (let i = 0; i < 120; i++) store.appendStream(runId, continuationCallId, '字')
+    const continuationCall = store.getRun(runId)!.apiCalls.find(item => item.id === continuationCallId)!
+    expect(continuationCall.streamText).toHaveLength(120)
+    expect(continuationCall.responseText).toHaveLength(120)
+    vi.useRealTimers()
+  })
+
+  it('throttles tool-argument progress and exposes the latest progress to live UI', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-10T00:00:00Z'))
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'outline',
+      stepName: '大纲共创',
+      mode: 'chat',
+      sessionKind: 'chat',
+      skillNames: []
+    })
+    const callId = store.startApiCall(runId, {
+      source: 'outline',
+      requestMessages: [{ role: 'user', content: '整理整篇大纲' }]
+    })
+
+    for (let i = 1; i <= 80; i++) {
+      store.reportToolArgumentProgress(runId, callId, { toolCallCount: 1, argumentCharacters: i * 100 })
+    }
+    vi.advanceTimersByTime(1000)
+    for (let i = 81; i <= 100; i++) {
+      store.reportToolArgumentProgress(runId, callId, { toolCallCount: 1, argumentCharacters: i * 100 })
+    }
+
+    const run = store.getRun(runId)!
+    const activity = run.events.filter(event =>
+      event.type === 'run-activity'
+      && (event.payload as { source?: string } | undefined)?.source === 'tool_argument_delta')
+    expect(activity.length).toBeGreaterThan(0)
+    expect(activity.length).toBeLessThan(20)
+    const call = run.apiCalls.find(item => item.id === callId)!
+    expect(call.lastToolArgumentProgress).toEqual({ toolCallCount: 1, argumentCharacters: 10_000 })
+    expect(call.lastExecutionActivityAt).toBe(Date.now())
     store.finishRun(runId, 'success')
     vi.useRealTimers()
   })
@@ -1994,6 +2169,43 @@ describe('runTrace store', () => {
     expect(exported.stateHistory?.some(item => item.reason === 'export_snapshot_synthesized_from_last_turn')).toBe(false)
   })
 
+  it('does not mutate the live run while exporting an in-flight chat trace', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({
+      source: 'home',
+      stepName: '主页对话',
+      mode: 'chat',
+      sessionKind: 'chat',
+      skillNames: [],
+    })
+    const turnId = store.startTurn(runId, { userRequest: '全文重排', mode: 'chat' })
+    const liveRun = store.getRun(runId)!
+
+    store.exportRunToJson(liveRun)
+
+    expect(liveRun.currentTurnId).toBe(turnId)
+    store.addEvent(runId, { type: 'stream-activity', level: 'info', label: '流式活动' })
+    expect(liveRun.events.at(-1)?.turnId).toBe(turnId)
+
+    // Spread order regression: a caller that explicitly passes
+    // `turnId: undefined` (a common reportRunActivity shape) must not erase
+    // the active-turn fallback above.
+    store.addEvent(runId, {
+      type: 'undefined-turn-activity',
+      level: 'info',
+      label: '显式空轮事件',
+      turnId: undefined,
+    })
+    expect(liveRun.events.at(-1)?.turnId).toBe(turnId)
+
+    // The historical mutation path must also stay recoverable: even if a
+    // transient pointer is lost, an event emitted during a running turn still
+    // belongs to that turn instead of becoming run-level noise.
+    liveRun.currentTurnId = undefined
+    store.addEvent(runId, { type: 'late-stream-activity', level: 'info', label: '迟到的流式活动' })
+    expect(liveRun.events.at(-1)?.turnId).toBe(turnId)
+  })
+
   it('keeps the last failed or partially applied chat turn visible in export snapshots', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({
@@ -2279,7 +2491,7 @@ describe('runTrace store', () => {
     })
     store.finishApiCall(runId, callId, {
       status: 'failed',
-      responseText: '本轮未完整执行写入计划：任务级物理请求预算已耗尽。',
+      responseText: '本轮未完整执行写入计划：任务级物理请求安全网已达到。',
       finishReason: 'physical_request_budget_exhausted',
       textOrigin: 'application'
     })

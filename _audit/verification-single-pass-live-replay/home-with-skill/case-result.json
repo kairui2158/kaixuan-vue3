@@ -1,0 +1,29 @@
+{
+  "caseId": "home-with-skill",
+  "entry": "home",
+  "withSkill": true,
+  "request": "请对全文做一次完整整理重排：按叙事逻辑重新排序，合并或删除重复项，统一中文标点和标题层级，按Word文档格式整理。",
+  "runId": "run-1791683560027-1",
+  "turnId": "turn-1791683560028-3",
+  "turnStatus": "success",
+  "intent": "edit",
+  "turnReason": "final_draft_complete",
+  "physicalCalls": 1,
+  "toolCalls": [],
+  "finishReasons": [
+    "stop"
+  ],
+  "beforeChars": 74293,
+  "afterChars": 74282,
+  "durationMs": 541404,
+  "rendererMemory": {
+    "samples": 107,
+    "peakJsHeapUsedBytes": 26879492,
+    "peakJsHeapTotalBytes": 38612992,
+    "jsHeapLimitBytes": null,
+    "crashed": false,
+    "crashReasons": [],
+    "pageErrors": []
+  },
+  "persistedTrace": "_audit\\verification-single-pass-live-replay\\home-with-skill\\run-trace"
+}

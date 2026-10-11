@@ -3,6 +3,7 @@ import {
   buildLongDocumentExecutionPlan,
   type LongDocumentExecutionPlannerInput,
   toLongDocumentOperationType,
+  usesLongDocumentToolRuntime,
 } from './longDocumentExecutionPlanner'
 import {
   buildLongDocumentWriteDirective,
@@ -76,6 +77,8 @@ describe('buildLongDocumentExecutionPlan', () => {
   it('plans whole-document restructure as an atomic EditTask reorder operation', () => {
     const plan = buildLongDocumentExecutionPlan(makeInput({
       content: `# 第一卷\n\n${'雨'.repeat(12_000)}\n\n# 第二卷\n\n${'雨'.repeat(12_000)}`,
+      contextWindowTokens: 12_000,
+      maxOutputTokens: 2_000,
     }))
 
     expect(plan.operation).toBe('restructure')
@@ -98,12 +101,102 @@ describe('buildLongDocumentExecutionPlan', () => {
       `# 第${index + 1}节\n\n${'雨'.repeat(1_000)}\n\n`).join('')
 
     const plan = buildLongDocumentExecutionPlan(makeInput({ content }))
+    // The default window no longer forces EditTask when the full document
+    // fits. Exercise the batched path through a small declared window.
+    expect(plan.decision).not.toBe('fits')
 
     expect(plan.operation).toBe('restructure')
     expect(plan.mode).toBe('edit-task')
     expect(plan.segments).toHaveLength(1)
     expect(plan.segments[0].writeStrategy).toBe('reorder_sections')
-    expect(plan.estimatedPhysicalRequests).toBe(8)
+    expect(plan.estimatedPhysicalRequests).toBe(24)
+  })
+
+  it('routes whole-document restructure to single-pass when a large window reports fits', () => {
+    const content = Array.from({ length: 40 }, (_, index) =>
+      `# 第${index + 1}节\n\n${'雨'.repeat(500)}\n\n`).join('')
+
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      content,
+      contextWindowTokens: 1_000_000,
+      maxOutputTokens: 32_768,
+    }))
+
+    expect(plan.operation).toBe('restructure')
+    expect(plan.decision).toBe('fits')
+    expect(plan.mode).toBe('single-pass')
+    expect(plan.segments).toEqual([])
+    expect(plan.finalDraft).toBe(false)
+    expect(plan.finalDraftPlan).toMatchObject({
+      sourceChars: content.length,
+      instruction: '把整篇大纲重新整理排序，统一编号',
+      continuationEnabled: true,
+      segmented: false,
+      segments: [{ segmentId: 'whole-document', start: 0, end: content.length }],
+    })
+    expect(plan.progressLabel).toBe('结构重排：一次成型')
+    expect(plan.progressLabel).not.toMatch(/\d+\/\d+/)
+    expect(plan.estimatedPhysicalRequests).toBeLessThanOrEqual(4)
+  })
+
+  it('keeps whole-document restructure on EditTask when the full document does not fit', () => {
+    const content = Array.from({ length: 40 }, (_, index) =>
+      `# 第${index + 1}节\n\n${'雨'.repeat(5_000)}\n\n`).join('')
+
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      content,
+      contextWindowTokens: 32_000,
+      maxOutputTokens: 8_192,
+    }))
+
+    expect(plan.operation).toBe('restructure')
+    expect(plan.decision).toBe('exceeds_provider')
+    expect(plan.mode).toBe('edit-task')
+    expect(plan.segments.length).toBeGreaterThan(0)
+  })
+
+  it('routes every whole-document cleanup operation to single-pass only when the full document fits', () => {
+    const cases = [
+      { requestText: '重新排序整篇大纲的卷顺序' },
+      { requestText: '按照Word文档形式重构大纲，删除重复项，统一标题层级、编号和标点' },
+      { requestText: '整理整篇大纲的标点符号和格式' },
+      { requestText: '删除大纲里重复的章节条目' },
+      { requestText: '先删除重复项，再统一标点和编号' },
+    ]
+
+    for (const item of cases) {
+      const plan = buildLongDocumentExecutionPlan(makeInput({
+        requestText: item.requestText,
+        content: `# 根标题\n\n## 第一卷\n\n${'雨'.repeat(30_000)}`,
+        contextWindowTokens: 1_000_000,
+        maxOutputTokens: 32_768,
+        intent: 'edit',
+      }))
+
+      expect(plan.mode, item.requestText).toBe('single-pass')
+      expect(plan.segments, item.requestText).toEqual([])
+      expect(plan.finalDraftPlan, item.requestText).toMatchObject({
+        sourceChars: 30_000 + `# 根标题\n\n## 第一卷\n\n`.length,
+        continuationEnabled: true,
+        segmented: false,
+      })
+      expect(plan.decision, item.requestText).toBe('fits')
+    }
+  })
+
+  it('keeps a large targeted edit on the long-document tool runtime even when the window fits', () => {
+    const plan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '修改第 37 卷中的一句话',
+      content: `# 根标题\n\n## 第37卷\n\n${'段'.repeat(74_841)}`,
+      contextWindowTokens: 1_000_000,
+      maxOutputTokens: 32_768,
+      intent: 'edit',
+    }))
+
+    expect(plan.operation).toBe('targeted_edit')
+    expect(plan.decision).toBe('fits')
+    expect(plan.mode).toBe('direct')
+    expect(usesLongDocumentToolRuntime(plan)).toBe(true)
   })
 
   it('keeps a short targeted edit on the direct path while still producing a plan', () => {
@@ -152,6 +245,8 @@ describe('buildLongDocumentExecutionPlan', () => {
     const plan = buildLongDocumentExecutionPlan(makeInput({
       requestText: '删除大纲里重复的章节条目',
       content: `# 第一章\n\n${'重复内容'.repeat(2_000)}\n\n# 第一章\n\n${'重复内容'.repeat(2_000)}`,
+      contextWindowTokens: 8_000,
+      maxOutputTokens: 1_000,
     }))
 
     expect(plan.operation).toBe('deduplicate')
@@ -186,13 +281,15 @@ describe('buildLongDocumentExecutionPlan', () => {
     const plan = buildLongDocumentExecutionPlan(makeInput({
       requestText: '1，三处重复项，删 。 2，是在编辑器里统一标题层级、编号和标点',
       content: `# 第一卷\n\n${'雨'.repeat(12_000)}\n\n# 第一卷\n\n${'雨'.repeat(12_000)}`,
-      contextWindowTokens: 128_000,
+      contextWindowTokens: 8_000,
+      maxOutputTokens: 1_000,
     }))
 
     expect(plan.operation).toBe('deduplicate_and_normalize')
     expect(plan.mode).toBe('edit-task')
     expect(plan.finalDraft).toBe(false)
-    expect(plan.segments.map(segment => segment.writeStrategy)).toEqual(['delete', 'replace_match'])
+    expect(plan.segments[0].writeStrategy).toBe('delete')
+    expect(plan.segments.slice(1).every(segment => segment.writeStrategy === 'replace_match')).toBe(true)
     expect(plan.invariants).toEqual([
       'planned-deletion-only',
       'normalize-changes-punctuation-whitespace-format-only',
@@ -310,6 +407,8 @@ describe('buildLongDocumentExecutionPlan', () => {
       requestText: '按照Word文档的形式重构大纲，不要缩减内容',
       content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
       intent: 'edit',
+      contextWindowTokens: 32_000,
+      maxOutputTokens: 4_000,
     }))
 
     expect(plan.operation).toBe('restructure_and_cleanup')
@@ -331,6 +430,8 @@ describe('buildLongDocumentExecutionPlan', () => {
       requestText: '按照Word文档的形式重构大纲，不要缩减内容',
       content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
       intent: 'edit',
+      contextWindowTokens: 32_000,
+      maxOutputTokens: 4_000,
     }))
 
     expect(resolveLongDocumentWriteOperations(plan)).toEqual([
@@ -403,6 +504,8 @@ describe('buildLongDocumentExecutionPlan', () => {
       requestText: '按照Word文档形式重构大纲，删除重复项，统一标题层级、编号和标点，调整错误段落的归位',
       content: '段'.repeat(74_841),
       intent: 'edit',
+      contextWindowTokens: 32_000,
+      maxOutputTokens: 4_000,
     }))
 
     expect(plan.operation).toBe('restructure_and_cleanup')
@@ -491,6 +594,30 @@ describe('buildLongDocumentExecutionPlan', () => {
     expect(resolveLongDocumentWriteOperations(plan)).toContain('delete')
   })
 
+  it('replaces an awaiting-user plan when the next edit is a new request', () => {
+    const originalPlan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '把整篇大纲重新整理排序，统一标点和编号',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      intent: 'edit',
+    }))
+
+    const replacementPlan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '算了，只把第一卷标题改成风暴起点',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      intent: 'edit',
+      activeTask: {
+        taskId: 'active-task-1',
+        operation: originalPlan.operation,
+        originalRequest: '把整篇大纲重新整理排序，统一标点和编号',
+        status: 'awaiting_user_plan',
+        plan: originalPlan,
+      },
+    }))
+
+    expect(replacementPlan.planId).not.toBe(originalPlan.planId)
+    expect(replacementPlan.operationResolution.source).not.toBe('active-plan-continuation')
+  })
+
   it('classifies an explicit whole-document replacement request as final-draft work', () => {
     const plan = buildLongDocumentExecutionPlan(makeInput({
       requestText: '请把整篇大纲一次性替换成新版本',
@@ -516,7 +643,7 @@ describe('buildLongDocumentExecutionPlan', () => {
         taskId: 'terminal-task-1',
         operation: 'normalize',
         originalRequest: '全文统一标点符号',
-        status: 'terminal' as const,
+        status: 'failed' as const,
       },
     }))
 
@@ -543,6 +670,8 @@ describe('buildLongDocumentExecutionPlan', () => {
         operation: 'restructure',
         originalRequest: '按照Word文档的形式重构大纲，不要缩减内容',
       },
+      contextWindowTokens: 32_000,
+      maxOutputTokens: 4_000,
     }))
 
     expect(plan.operation).toBe('restructure_and_cleanup')
@@ -563,6 +692,8 @@ describe('buildLongDocumentExecutionPlan', () => {
       requestText: '整理整篇文章：统一小节编号、清除多余空行、按编号重排，并保持所有正文内容不丢失。',
       content: `# 根标题\n\n## 第1节\n\n${'段'.repeat(74_841)}`,
       intent: 'edit',
+      contextWindowTokens: 32_000,
+      maxOutputTokens: 4_000,
     }))
 
     expect(plan.operation).toBe('restructure_and_cleanup')
@@ -615,6 +746,8 @@ describe('buildLongDocumentExecutionPlan', () => {
         operation: 'restructure_and_cleanup',
         originalRequest: '按照Word文档的形式重构大纲，删除重复项并统一格式',
       },
+      contextWindowTokens: 32_000,
+      maxOutputTokens: 4_000,
     }))
 
     expect(plan.operation).toBe('deduplicate')
@@ -664,6 +797,85 @@ describe('buildLongDocumentExecutionPlan', () => {
       intent: 'edit',
       matched: 'restructure_and_cleanup',
     })
+  })
+
+  it('reuses the stored plan when an awaiting-user plan is confirmed', () => {
+    const originalPlan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '把整篇大纲重新整理排序，统一标点和编号',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      intent: 'edit',
+    }))
+
+    const confirmedPlan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '开始执行',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      intent: 'edit',
+      activePlanConfirmation: true,
+      activeTask: {
+        taskId: 'active-task-1',
+        operation: originalPlan.operation,
+        originalRequest: '把整篇大纲重新整理排序，统一标点和编号',
+        status: 'awaiting_user_plan',
+        plan: originalPlan,
+      },
+    }))
+
+    expect(confirmedPlan.planId).toBe(originalPlan.planId)
+    expect(confirmedPlan.operation).toBe(originalPlan.operation)
+    expect(confirmedPlan.mode).toBe(originalPlan.mode)
+    expect(confirmedPlan.segments).toEqual(originalPlan.segments)
+    expect(confirmedPlan.operationResolution.source).toBe('active-plan-continuation')
+  })
+
+  it('does not reuse an awaiting-user plan for a discussion turn', () => {
+    const originalPlan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '把整篇大纲重新整理排序，统一标点和编号',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      intent: 'edit',
+    }))
+
+    const discussionPlan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '这个方案要保留第二卷钩子，先解释一下利弊',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      intent: 'discuss',
+      activeTask: {
+        taskId: 'active-task-1',
+        operation: originalPlan.operation,
+        originalRequest: '把整篇大纲重新整理排序，统一标点和编号',
+        status: 'awaiting_user_plan',
+        plan: originalPlan,
+      },
+    }))
+
+    expect(discussionPlan.operation).toBe('discussion')
+    expect(discussionPlan.mode).toBe('direct')
+    expect(discussionPlan.operationResolution.source).not.toBe('active-plan-continuation')
+  })
+
+  it('reuses an active plan after an interrupted run when the user confirms it', () => {
+    const originalPlan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '把整篇大纲重新整理排序，统一标点和编号',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      intent: 'edit',
+    }))
+
+    const resumedPlan = buildLongDocumentExecutionPlan(makeInput({
+      requestText: '你按照方案写入',
+      content: `# 根标题\n\n## 二级标题\n\n${'段'.repeat(74_841)}`,
+      intent: 'edit',
+      activePlanConfirmation: true,
+      activeTask: {
+        taskId: 'active-task-1',
+        operation: originalPlan.operation,
+        originalRequest: '把整篇大纲重新整理排序，统一标点和编号',
+        status: 'active',
+        plan: originalPlan,
+      },
+    }))
+
+    expect(resumedPlan.planId).toBe(originalPlan.planId)
+    expect(resumedPlan.invariants).toEqual(originalPlan.invariants)
+    expect(resumedPlan.operationResolution.source).toBe('active-plan-continuation')
   })
 
   it('keeps routed discussion intent read-only even when the sentence mentions edit verbs', () => {

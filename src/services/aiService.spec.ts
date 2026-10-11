@@ -2,8 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { buildChatUrl, buildModelsUrl, extractNonStreamText, extractStreamDelta, isSSEDataLine, isSSEDone, normalizeFinishReason, resolveFinishReason, resolveModel, resolveTemperature, resolveMaxTokens } from './providerAdapter';
 import { buildProviderChatUrl, buildProviderModelsUrl, buildProviderHeaders, buildProviderModelsHeaders, getProviderProtocol, httpErrorMessage, sanitizeUrlForLog } from './providerProtocols';
 import { resolveProvider, tryResolveProvider } from './providerRouter';
-import { createAiService, createThinkingTagStreamFilter, filterThinkingTags, resolveRequestTimeout, AiServiceErrorImpl, classifyToolRejection } from './aiService';
+import { createAiService, createThinkingTagStreamFilter, filterThinkingTags, resolveRequestTimeout, AiServiceErrorImpl, classifyToolRejection, detectUserHandoffResponse } from './aiService';
 import { buildLongDocumentExecutionPlan } from './longDocumentExecutionPlanner';
+import { createToolRunBudget } from './toolRunBudget';
 
 // ── providerAdapter tests ──────────────────────────────────────────
 
@@ -380,6 +381,124 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   });
 
+  it('aggregates segmented main-process delta tool_calls and records them on physical calls', async () => {
+    let emitMainNetEvent: ((payload: any) => void) | null = null;
+    let currentSignalId = '';
+    const emitCurrentStream = (events: any[]) => {
+      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+    };
+    const streamMock = vi.fn()
+      .mockImplementationOnce((request: any) => {
+        currentSignalId = request.signalId;
+        emitCurrentStream([
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{"reasoning_content":"先定位目标"}}]}\n\n' },
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"","role":"assistant","tool_calls":[{"function":{"arguments":"","name":"editor.get_state"},"id":"call_stream_1","index":0,"type":"function"}]},"index":0}]}\n\n' },
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"","role":"assistant","tool_calls":[{"function":{"arguments":"{\\"query\\":"},"index":0}]},"index":0}]}\n\n' },
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"","role":"assistant","tool_calls":[{"function":{"arguments":"\\"第3节\\"}"},"index":0}]},"index":0}]}\n\n' },
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":""},"finish_reason":"tool_calls","index":0}]}\n\n' },
+          { event: 'chunk', text: 'data: [DONE]\n\n' },
+          { event: 'end' },
+        ]);
+        return Promise.resolve({ ok: true, statusCode: 200 });
+      })
+      .mockImplementationOnce((request: any) => {
+        currentSignalId = request.signalId;
+        emitCurrentStream([
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"已完成读取"}}]}\n\n' },
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n' },
+          { event: 'chunk', text: 'data: [DONE]\n\n' },
+          { event: 'end' },
+        ]);
+        return Promise.resolve({ ok: true, statusCode: 200 });
+      });
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
+        providerNetStream: streamMock,
+        providerNetAbort: vi.fn(() => Promise.resolve()),
+        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+          emitMainNetEvent = listener;
+          return () => { emitMainNetEvent = null; };
+        },
+      },
+    });
+    const physicalEvents: any[] = [];
+    const streamToolProgress = vi.fn();
+    const tool = {
+      name: 'editor.get_state',
+      description: '读取编辑器状态',
+      policy: 'read' as const,
+      inputSchema: { type: 'object' as const, properties: { query: { type: 'string' } } },
+      async execute() { return { ok: true, data: { length: 12 } } },
+    };
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '读取第3节' }],
+      tools: [tool],
+      stream: true,
+      retry: false,
+      onPhysicalCall: event => physicalEvents.push(event),
+      onStreamToolProgress: streamToolProgress,
+    });
+    expect(result.toolCalls).toEqual([{ id: 'call_stream_1', name: 'editor.get_state', input: { query: '第3节' } }]);
+    expect(result.text).toBe('已完成读取');
+    expect(streamMock).toHaveBeenCalledTimes(2);
+    const firstPhysical = physicalEvents.find(event => event.status === 'success' && event.phase === 'normal');
+    expect(firstPhysical?.toolCallCount).toBe(1);
+    expect(firstPhysical?.toolCallNames).toEqual(['editor.get_state']);
+    expect(streamToolProgress).toHaveBeenCalled();
+    const secondPhysical = physicalEvents.find(event => event.status === 'success' && event.phase === 'tool_iteration');
+    expect(secondPhysical?.toolCallCount).toBe(0);
+    vi.unstubAllGlobals();
+  });
+
+  it('stops with a protocol diagnosis when finish_reason is tool_calls but the payload is empty', async () => {
+    const toolCallsSse = [
+      'data: {"choices":[{"delta":{"content":"","role":"assistant"},"finish_reason":"tool_calls","index":0}]}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const finalSse = [
+      'data: {"choices":[{"delta":{"content":"不应该再发第二次请求"}}]}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const makeStream = (payload: string) => new Response(new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(payload));
+        controller.close();
+      },
+    }), { status: 200 });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(() => Promise.resolve(makeStream(toolCallsSse)))
+      .mockImplementationOnce(() => Promise.resolve(makeStream(finalSse)));
+    vi.stubGlobal('fetch', fetchMock);
+    const warnings: string[] = [];
+    const tool = {
+      name: 'editor.get_state',
+      description: '读取编辑器状态',
+      policy: 'read' as const,
+      inputSchema: { type: 'object' as const, properties: {} },
+      async execute() { return { ok: true, data: {} } },
+    };
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '读取第3节' }],
+      tools: [tool],
+      stream: true,
+      retry: false,
+      toolPolicy: {
+        onToolWarning: message => warnings.push(message),
+      },
+    });
+    expect(result.finishReason).toBe('tool_calls_payload_missing');
+    expect(result.textOrigin).toBe('application');
+    expect(result.toolCalls).toEqual([]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(warnings.join('\n')).toContain('finish_reason=tool_calls');
+    vi.unstubAllGlobals();
+  });
+
   it('aggregates Gemini SSE function calls into a native tool loop', async () => {
     const sse = [
       'data: {"candidates":[{"content":{"parts":[{"functionCall":{"name":"editor_get_state","args":{"query":"第3节"}}}]},"finishReason":"STOP"}],"usageMetadata":{"promptTokenCount":10,"candidatesTokenCount":5,"totalTokenCount":15}}\n\n',
@@ -652,6 +771,118 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   });
 
+  it('retries a slow-stream-tolerant request that never emits first output', async () => {
+    const abortCalls: string[] = [];
+    let emitMainNetEvent: ((payload: any) => void) | null = null;
+    let currentSignalId = '';
+    const emitCurrentStream = (events: any[]) => {
+      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+    };
+    const streamMock = vi.fn()
+      .mockImplementationOnce((request: any) => {
+        currentSignalId = request.signalId;
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      })
+      .mockImplementationOnce((request: any) => {
+        currentSignalId = request.signalId;
+        emitCurrentStream([
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"recovered"}}]}\n\n' },
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n' },
+          { event: 'chunk', text: 'data: [DONE]\n\n' },
+          { event: 'end' },
+        ]);
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      });
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
+        providerNetStream: streamMock,
+        providerNetAbort: vi.fn((signalId: string) => {
+          abortCalls.push(signalId);
+          return Promise.resolve();
+        }),
+        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+          emitMainNetEvent = listener;
+          return () => { emitMainNetEvent = null; };
+        },
+      },
+    });
+    vi.useFakeTimers();
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      retry: false,
+      timeoutMs: null,
+      slowStreamTolerant: true,
+      onChunk: () => {},
+      onPhysicalCall: (event: any) => physicalEvents.push(event),
+    });
+    const assertion = expect(request).resolves.toMatchObject({ text: 'recovered' });
+    await vi.advanceTimersByTimeAsync(3 * 60_000);
+    await vi.advanceTimersByTimeAsync(2_000);
+    await assertion;
+    expect(streamMock).toHaveBeenCalledTimes(2);
+    expect(abortCalls).toHaveLength(1);
+    expect(physicalEvents.filter(event => event.status === 'failed')).toHaveLength(1);
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  }, 30_000);
+
+  it('keeps a slow first-output wait alive after a slow stream has started', async () => {
+    let emitMainNetEvent: ((payload: any) => void) | null = null;
+    let currentSignalId = '';
+    const emitCurrentStream = (events: any[]) => {
+      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+    };
+    const streamMock = vi.fn()
+      .mockImplementationOnce((request: any) => {
+        currentSignalId = request.signalId;
+        emitCurrentStream([
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"first"}}]}\n\n' },
+        ]);
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      });
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
+        providerNetStream: streamMock,
+        providerNetAbort: vi.fn(() => Promise.resolve()),
+        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+          emitMainNetEvent = listener;
+          return () => { emitMainNetEvent = null; };
+        },
+      },
+    });
+    vi.useFakeTimers();
+    const service = createAiService(runtimeStore());
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      retry: false,
+      timeoutMs: null,
+      slowStreamTolerant: true,
+      onChunk: () => {},
+    });
+    await vi.advanceTimersByTimeAsync(4 * 60_000);
+    emitCurrentStream([
+      { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"-second"}}]}\n\n' },
+    ]);
+    await vi.advanceTimersByTimeAsync(4 * 60_000);
+    emitCurrentStream([
+      { event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n' },
+      { event: 'chunk', text: 'data: [DONE]\n\n' },
+      { event: 'end' },
+    ]);
+    await expect(request).resolves.toMatchObject({ text: 'first-second' });
+    expect(streamMock).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  }, 30_000);
+
   it('keeps filtered reasoning deltas and the flushed tail in the final result', async () => {
     const sse = [
       'data: {"choices":[{"delta":{"reasoning_content":"<reasoning>open"}}]}\n\n',
@@ -675,6 +906,36 @@ describe('createAiService.callAi', () => {
       onReasoning: text => reasoningDeltas.push(text),
     })).resolves.toMatchObject({ text: 'body', reasoning: 'open tail' });
     expect(reasoningDeltas.join('')).toBe('open tail');
+    vi.unstubAllGlobals();
+  });
+
+  it('records reasoning progress on physical calls even without an onReasoning listener', async () => {
+    const sse = [
+      'data: {"choices":[{"delta":{"reasoning_content":"先定位目标"}}]}\n\n',
+      'data: {"choices":[{"delta":{"reasoning_content":"再确认批次"}}]}\n\n',
+      'data: {"choices":[{"delta":{"content":"body"}}]}\n\n',
+      'data: [DONE]\n\n',
+    ].join('');
+    const makeResponse = () => new Response(new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(sse));
+        controller.close();
+      },
+    }), { status: 200 });
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(makeResponse()));
+    vi.stubGlobal('fetch', fetchMock);
+    const physicalEvents: any[] = [];
+    const service = createAiService(runtimeStore());
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      retry: false,
+      stream: true,
+      onPhysicalCall: event => physicalEvents.push(event),
+    });
+    expect(result).toMatchObject({ text: 'body', reasoning: '先定位目标再确认批次' });
+    const successEvent = physicalEvents.find(event => event.status === 'success');
+    expect(successEvent?.reasoningText).toBe('先定位目标再确认批次');
     vi.unstubAllGlobals();
   });
 
@@ -1627,6 +1888,144 @@ describe('createAiService.callAi tools', () => {
     vi.unstubAllGlobals();
   });
 
+  it('steers a blank replace_match retry toward the delete command', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      description: '写入编辑目标',
+      policy: 'write' as const,
+      inputSchema: {
+        type: 'object' as const,
+        properties: {
+          commands: { type: 'array' as const },
+        },
+        required: ['commands'],
+      },
+      async execute() {
+        return {
+          ok: false,
+          error: {
+            code: 'invalid_input',
+            message: 'commands[0]：replace_match 必须同时携带 target（原文）与 content（新文）；缺失 content 会被视为替换为空，已拒绝写入；若目的是删除原文，请使用 delete 操作',
+          },
+        }
+      },
+    }
+    const blankReplaceResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{
+            id: 'call_blank_replace',
+            type: 'function',
+            function: {
+              name: 'editor.write',
+              arguments: '{"commands":[{"operation":"replace_match","target":"唯一原文片段"}]}',
+            },
+          }],
+        },
+      }],
+    }), { status: 200 });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => blankReplaceResponse())
+      .mockImplementationOnce(async () => blankReplaceResponse())
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        choices: [{ finish_reason: 'stop', message: { role: 'assistant', content: '已改为删除操作。' } }],
+      }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const warnings: string[] = [];
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '删除唯一原文片段' }],
+      tools: [writeTool],
+      stream: false,
+      retry: false,
+      toolPolicy: {
+        intent: 'edit',
+        maxToolIterations: 6,
+        onToolWarning: message => warnings.push(message),
+      },
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    const bodies = fetchMock.mock.calls.map(call => JSON.parse((call[1] as RequestInit).body as string));
+    expect(bodies[1].messages.at(-1)).toMatchObject({
+      role: 'system',
+      content: expect.stringContaining('若目的是删除原文，下一轮必须改用 delete 操作'),
+    });
+    expect(warnings).toContain('editor.write 拒绝空 content；已要求下一轮改用 delete 删除原文');
+    expect(result.text).toBe('已改为删除操作。');
+    vi.unstubAllGlobals();
+  });
+
+  it('steers a phantom reorder tool call toward the editor.write command', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      description: '写入编辑目标',
+      policy: 'write' as const,
+      inputSchema: {
+        type: 'object' as const,
+        properties: {
+          commands: { type: 'array' as const },
+        },
+        required: ['commands'],
+      },
+      async execute() {
+        return { ok: true, data: { status: 'written' } }
+      },
+    }
+    const phantomReorderResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{
+            id: 'call_phantom_reorder',
+            type: 'function',
+            function: {
+              name: 'editor.reorder_sections',
+              arguments: '{"order":["section-2","section-1"]}',
+            },
+          }],
+        },
+      }],
+    }), { status: 200 });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => phantomReorderResponse())
+      .mockImplementationOnce(async () => phantomReorderResponse())
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        choices: [{ finish_reason: 'stop', message: { role: 'assistant', content: '已改用 editor.write。' } }],
+      }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const warnings: string[] = [];
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '重排两个章节' }],
+      tools: [tool, writeTool],
+      stream: false,
+      retry: false,
+      toolPolicy: {
+        intent: 'edit',
+        maxToolIterations: 6,
+        onToolWarning: message => warnings.push(message),
+      },
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    const bodies = fetchMock.mock.calls.map(call => JSON.parse((call[1] as RequestInit).body as string));
+    expect(bodies[1].messages.at(-1)).toMatchObject({
+      role: 'system',
+      content: expect.stringContaining('reorder_sections 是 editor.write 里的命令，不是独立工具'),
+    });
+    expect(warnings).toContain('editor.reorder_sections 不是独立工具；已要求下一轮改用 editor.write 的 reorder_sections 命令');
+    expect(result.text).toBe('已改用 editor.write。');
+    vi.unstubAllGlobals();
+  });
+
   it('keeps tools available when a read-only tool returns tool_not_found', async () => {
     const readonlyTool = {
       ...tool,
@@ -1861,6 +2260,82 @@ describe('createAiService.callAi tools', () => {
     expect(compactedOldResult.content.length).toBeLessThan(firstOldResult.content.length);
     expect(result.toolRequestDeltas?.some(message =>
       message.role === 'tool' && message.toolCallId === 'old-read' && message.content === largeReadResult)).toBe(true);
+    vi.unstubAllGlobals();
+  });
+
+  it('compacts older successful read results for no-tools convergence requests', async () => {
+    const largeReadResult = JSON.stringify({ ok: true, data: { text: 'x'.repeat(1_000) } });
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => new Response(JSON.stringify({
+        choices: [{
+          finish_reason: 'tool_calls',
+          message: {
+            role: 'assistant',
+            content: '',
+            tool_calls: [{ id: 'old-read', type: 'function', function: { name: 'editor.get_state', arguments: '{}' } }]
+          }
+        }]
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } }))
+      .mockImplementationOnce(async () => new Response(JSON.stringify({
+        choices: [{
+          finish_reason: 'tool_calls',
+          message: {
+            role: 'assistant',
+            content: '',
+            tool_calls: [{ id: 'recent-read-1', type: 'function', function: { name: 'editor.get_state', arguments: '{}' } }]
+          }
+        }]
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } }))
+      .mockImplementationOnce(async () => new Response(JSON.stringify({
+        choices: [{
+          finish_reason: 'tool_calls',
+          message: {
+            role: 'assistant',
+            content: '',
+            tool_calls: [{ id: 'recent-write', type: 'function', function: { name: 'editor.write', arguments: '{}' } }]
+          }
+        }]
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        choices: [{ finish_reason: 'stop', message: { role: 'assistant', content: '本轮未写入。' } }]
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+    vi.stubGlobal('fetch', fetchMock);
+    const service = createAiService(runtimeStore());
+    const largeReadTool = {
+      ...tool,
+      async execute() {
+        return { ok: true, data: { text: 'x'.repeat(1_000) } };
+      },
+    };
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      async execute() {
+        return { ok: false, error: { code: 'permission_denied', message: '写入被拒绝' } };
+      },
+    };
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '长文整理' }],
+      tools: [largeReadTool, writeTool],
+      stream: false,
+      retry: false,
+      toolPolicy: {
+        maxToolIterations: 4,
+      },
+    });
+    expect(result.text).toBe('本轮未写入。');
+    expect(result.convergenceReason).toBe('terminal write failure: permission_denied');
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    const convergenceRequest = JSON.parse((fetchMock.mock.calls[3][1] as RequestInit).body as string);
+    expect(convergenceRequest.tools).toBeUndefined();
+    const compactedOldResult = convergenceRequest.messages.find((message: any) => message.tool_call_id === 'old-read');
+    const recentReadResult = convergenceRequest.messages.find((message: any) => message.tool_call_id === 'recent-read-1');
+    const writeResult = convergenceRequest.messages.find((message: any) => message.tool_call_id === 'recent-write');
+    expect(compactedOldResult?.content).toContain('_compacted');
+    expect(compactedOldResult.content.length).toBeLessThan(largeReadResult.length);
+    expect(recentReadResult?.content).toBe(largeReadResult);
+    expect(writeResult?.content).toContain('permission_denied');
     vi.unstubAllGlobals();
   });
 
@@ -3445,7 +3920,91 @@ describe('createAiService.callAi tools', () => {
     vi.unstubAllGlobals();
   });
 
-  it('exhausts the shared physical budget during tool iterations and stops extra provider calls', async () => {
+  it('keeps reserved writes executable after read amplification exhausts the read safety net', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      async execute() {
+        return { ok: true, data: { status: 'written' } }
+      },
+    }
+    const readResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_read', type: 'function', function: { name: 'editor.read_range', arguments: '{}' } }],
+        },
+      }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const writeResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [
+            { id: 'call_read', type: 'function', function: { name: 'editor.read_range', arguments: '{}' } },
+            { id: 'call_write', type: 'function', function: { name: 'editor.write', arguments: '{"commands":[{"operation":"append","content":"x"}]}' } },
+          ],
+        },
+      }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const finalResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'stop',
+        message: { role: 'assistant', content: '写入完成' },
+      }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const readTool = {
+      ...tool,
+      name: 'editor.read_range',
+      policy: 'read' as const,
+      async execute() {
+        return { ok: true, data: { text: 'x' } }
+      },
+    }
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => readResponse())
+      .mockImplementationOnce(async () => readResponse())
+      .mockImplementationOnce(async () => writeResponse())
+      .mockImplementationOnce(async () => finalResponse());
+    vi.stubGlobal('fetch', fetchMock);
+    const warnings: string[] = [];
+    const service = createAiService(runtimeStore());
+    // Round 1 executes a read. Round 2 submits a read plus a write in the
+    // same turn: the read is rejected by the exhausted read class while the
+    // reserved write capacity still executes editor.write.
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '分批写入长文档' }],
+      tools: [readTool, writeTool],
+      toolPolicy: {
+        maxToolIterations: 3,
+        intent: 'edit',
+        toolRunBudget: createToolRunBudget({
+          maxPhysicalRequests: 4,
+          maxReadToolCalls: 2,
+          reservedWriteToolCalls: 1,
+          plannedWriteCount: 1,
+        }),
+        onToolWarning: warning => warnings.push(warning),
+      },
+      retry: false,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(result.toolResults?.filter(item => item.call.name === 'editor.write').every(item => item.result.ok)).toBe(true);
+    expect(result.text).toBe('写入完成');
+    expect(result.convergenceReason).toBe('tool iterations exhausted without usable natural-language text');
+    const rejectedRead = result.toolResults?.find(item =>
+      item.result.error?.code === 'read_budget_exhausted');
+    expect(rejectedRead?.call.name).toBe('editor.read_range');
+    vi.unstubAllGlobals();
+  });
+
+  it('counts one physical request once and starts a fresh turn with full direct budget', async () => {
     const writeTool = {
       ...tool,
       name: 'editor.write',
@@ -3460,7 +4019,11 @@ describe('createAiService.callAi tools', () => {
         message: {
           role: 'assistant',
           content: '',
-          tool_calls: [{ id: 'call_budget', type: 'function', function: { name: 'editor.write', arguments: '{"commands":[{"operation":"append","content":"x"}]}' } }],
+          tool_calls: [{
+            id: 'call_write',
+            type: 'function',
+            function: { name: 'editor.write', arguments: '{"commands":[{"operation":"append","content":"x"}]}' },
+          }],
         },
       }],
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
@@ -3472,36 +4035,60 @@ describe('createAiService.callAi tools', () => {
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     const fetchMock = vi.fn()
       .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(async () => finalResponse())
       .mockImplementationOnce(async () => toolResponse())
       .mockImplementationOnce(async () => finalResponse());
     vi.stubGlobal('fetch', fetchMock);
-    const warnings: string[] = [];
+    const firstBudget = createToolRunBudget({
+      maxPhysicalRequests: 2,
+      maxReadToolCalls: 12,
+      reservedWriteToolCalls: 12,
+      plannedWriteCount: 0,
+      operation: 'targeted_edit',
+    })
+    const secondBudget = createToolRunBudget({
+      maxPhysicalRequests: 2,
+      maxReadToolCalls: 12,
+      reservedWriteToolCalls: 12,
+      plannedWriteCount: 0,
+      operation: 'targeted_edit',
+    })
     const service = createAiService(runtimeStore());
-    // The orchestrator prepays the first request. The first in-call request
-    // consumes the second slot, and the third iteration must be stopped.
-    let remaining = 1;
-    const result = await service.callAi({
+
+    const first = await service.callAi({
       purpose: 'generate',
-      messages: [{ role: 'user', content: '分批写入长文档' }],
+      messages: [{ role: 'user', content: '写入第一轮' }],
       tools: [writeTool],
-      toolPolicy: {
-        maxToolIterations: 3,
-        intent: 'edit',
-        consumePhysicalRequestBudget: ({ inCall } = {}) => {
-          if (!inCall) return true
-          if (remaining <= 0) return false
-          remaining -= 1
-          return true
-        },
-        onToolWarning: warning => warnings.push(warning),
-      },
+      stream: false,
       retry: false,
+      toolPolicy: {
+        maxToolIterations: 2,
+        intent: 'edit',
+        toolRunBudget: firstBudget,
+      },
     });
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(result.finishReason).toBe('physical_request_budget_exhausted');
-    expect(result.convergenceReason).toBe('shared physical request budget exhausted during tool iteration');
-    expect(result.text).toContain('任务级物理请求预算已耗尽');
-    expect(warnings.join('\n')).toContain('已停止第 3 轮工具迭代');
+    const second = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '继续明确写入' }],
+      tools: [writeTool],
+      stream: false,
+      retry: false,
+      toolPolicy: {
+        maxToolIterations: 2,
+        intent: 'edit',
+        toolRunBudget: secondBudget,
+      },
+    });
+
+    expect(first.text).toBe('写入完成')
+    expect(firstBudget.snapshot()).toMatchObject({ physicalRequests: 2, writeToolCalls: 1 })
+    expect(second.text).toBe('写入完成')
+    expect(secondBudget.snapshot()).toMatchObject({
+      physicalRequests: 2,
+      writeToolCalls: 1,
+      exhaustedClasses: ['control'],
+    })
+    expect(fetchMock).toHaveBeenCalledTimes(4)
     vi.unstubAllGlobals();
   });
 
@@ -3518,8 +4105,8 @@ describe('createAiService.callAi tools', () => {
       requestText: '按照Word文档形式重构大纲，删除重复项并统一标点',
       content: `# 第一卷\n\n${'雨'.repeat(20_000)}\n\n# 第二卷\n\n${'潮'.repeat(20_000)}`,
       intent: 'edit',
-      contextWindowTokens: 64_000,
-      maxOutputTokens: 8_192,
+      contextWindowTokens: 30_000,
+      maxOutputTokens: 6_000,
     })
     expect(plan.segments.length).toBeGreaterThan(1)
     const toolResponse = () => new Response(JSON.stringify({
@@ -3532,10 +4119,10 @@ describe('createAiService.callAi tools', () => {
         }
       }]
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-    const questionResponse = () => new Response(JSON.stringify({
+    const partialSummaryResponse = () => new Response(JSON.stringify({
       choices: [{
         finish_reason: 'stop',
-        message: { role: 'assistant', content: '我已完成第一段，是否继续处理第二段？' }
+        message: { role: 'assistant', content: '我已完成第一段，现在继续处理第二段。' }
       }]
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     const falseCompletionResponse = () => new Response(JSON.stringify({
@@ -3546,7 +4133,7 @@ describe('createAiService.callAi tools', () => {
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     const fetchMock = vi.fn()
       .mockImplementationOnce(async () => toolResponse())
-      .mockImplementationOnce(async () => questionResponse())
+      .mockImplementationOnce(async () => partialSummaryResponse())
       .mockImplementationOnce(async () => falseCompletionResponse());
     vi.stubGlobal('fetch', fetchMock);
     const service = createAiService(runtimeStore());
@@ -3591,8 +4178,8 @@ describe('createAiService.callAi tools', () => {
       requestText: '按照Word文档形式重构大纲，删除重复项并统一标点',
       content: `# 第一卷\n\n${'雨'.repeat(20_000)}\n\n# 第二卷\n\n${'潮'.repeat(20_000)}`,
       intent: 'edit',
-      contextWindowTokens: 64_000,
-      maxOutputTokens: 8_192,
+      contextWindowTokens: 30_000,
+      maxOutputTokens: 6_000,
     })
     expect(plan.mode).toBe('edit-task')
     const writeResponse = () => new Response(JSON.stringify({
@@ -3677,8 +4264,8 @@ describe('createAiService.callAi tools', () => {
       requestText: '按照Word文档形式重构大纲，删除重复项并统一标点',
       content: `# 第一卷\n\n${'雨'.repeat(20_000)}\n\n# 第二卷\n\n${'潮'.repeat(20_000)}`,
       intent: 'edit',
-      contextWindowTokens: 64_000,
-      maxOutputTokens: 8_192,
+      contextWindowTokens: 30_000,
+      maxOutputTokens: 6_000,
     })
     expect(plan.mode).toBe('edit-task')
     const previewResponse = () => new Response(JSON.stringify({
@@ -3736,8 +4323,8 @@ describe('createAiService.callAi tools', () => {
       requestText: '按照Word文档形式重构大纲，删除重复项并统一标点',
       content: `# 第一卷\n\n${'雨'.repeat(20_000)}\n\n# 第二卷\n\n${'潮'.repeat(20_000)}`,
       intent: 'edit',
-      contextWindowTokens: 64_000,
-      maxOutputTokens: 8_192,
+      contextWindowTokens: 30_000,
+      maxOutputTokens: 6_000,
     })
     const questionResponse = () => new Response(JSON.stringify({
       choices: [{
@@ -3818,13 +4405,71 @@ describe('createAiService.callAi tools', () => {
     vi.unstubAllGlobals();
   });
 
+  it('keeps single-pass requests on the prose path without editor.write', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      execute: vi.fn(async () => ({
+        ok: false,
+        error: { code: 'single_pass_tool_forbidden', message: 'single-pass is prose output' },
+      })),
+    }
+    const plan = buildLongDocumentExecutionPlan({
+      requestText: '按照Word文档形式重构大纲，删除重复项并统一标点',
+      content: `# 全书大纲\n\n${'雨落灯塔。'.repeat(14_968)}`,
+      intent: 'edit',
+      contextWindowTokens: 1_000_000,
+      maxOutputTokens: 32_768,
+    })
+    expect(plan.mode).toBe('single-pass')
+    expect(plan.segments).toHaveLength(0)
+    const proseResponse = new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'stop',
+        message: {
+          role: 'assistant',
+          content: '# 全书大纲\n\n重构后的完整全文。',
+        },
+      }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const unexpectedFollowUpResponse = new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'stop',
+        message: { role: 'assistant', content: '这条回复不应该被请求。' },
+      }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } })
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => proseResponse)
+      .mockImplementationOnce(async () => unexpectedFollowUpResponse)
+    vi.stubGlobal('fetch', fetchMock)
+    const service = createAiService(runtimeStore())
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '整理全文并写入' }],
+      tools: [writeTool],
+      stream: false,
+      retry: false,
+      toolPolicy: {
+        maxToolIterations: 4,
+        intent: 'edit',
+        executionPlan: plan,
+      },
+    })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(writeTool.execute).not.toHaveBeenCalled()
+    expect(result.finishReason).toBe('stop')
+    expect(result.text).toContain('重构后的完整全文')
+    vi.unstubAllGlobals();
+  });
+
   it('does not misread a question after successful writes as a handoff failure', async () => {
     const plan = buildLongDocumentExecutionPlan({
       requestText: '统一第一卷标点',
       content: '# 第一卷\n\n雨，雨。',
       intent: 'edit',
-      contextWindowTokens: 64_000,
-      maxOutputTokens: 8_192,
+      contextWindowTokens: 20,
+      maxOutputTokens: 18,
     })
     const segment = plan.segments[0]!;
     const writeTool = {
@@ -3890,6 +4535,91 @@ describe('createAiService.callAi tools', () => {
     expect(result.text).toContain('已完成写入');
     vi.unstubAllGlobals();
   });
+
+  it('does not hand a completed single-batch plan back to the user', async () => {
+    const plan = buildLongDocumentExecutionPlan({
+      requestText: '统一第一卷标点',
+      content: '# 第一卷\n\n雨，雨。',
+      intent: 'edit',
+      contextWindowTokens: 20,
+      maxOutputTokens: 18,
+    });
+    expect(plan.mode).toBe('edit-task');
+    expect(plan.segments.length).toBeGreaterThan(0);
+
+    expect(detectUserHandoffResponse({
+      text: '已完成统一标点并写入。还需要检查第二卷吗？',
+      executionPlan: plan,
+      hasSuccessfulWrite: true,
+    })).toEqual({ kind: 'none' });
+  });
+
+  it('steers a partial write question once, then hands off if the model still asks', async () => {
+    const baseTool = {
+      name: 'editor.get_state',
+      description: '读取编辑器状态',
+      policy: 'read' as const,
+      inputSchema: { type: 'object' as const, properties: {} },
+      async execute() { return { ok: true, data: {} } },
+    };
+    const writeTool = {
+      ...baseTool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      async execute() {
+        return { ok: true, data: { status: 'written' } }
+      },
+    }
+    const plan = buildLongDocumentExecutionPlan({
+      requestText: '按照Word文档形式重构大纲，删除重复项并统一标点',
+      content: `# 第一卷\n\n${'雨'.repeat(20_000)}\n\n# 第二卷\n\n${'潮'.repeat(20_000)}`,
+      intent: 'edit',
+      contextWindowTokens: 30_000,
+      maxOutputTokens: 6_000,
+    })
+    expect(plan.segments.length).toBeGreaterThan(1)
+    const toolResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_write', type: 'function', function: { name: 'editor.write', arguments: '{"commands":[{"operation":"replace_match","target":"雨","content":"雨，"}]}' } }],
+        },
+      }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } })
+    const questionResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'stop',
+        message: { role: 'assistant', content: '第一批已经写入。第二批需要保留原编号还是重新编号？' },
+      }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } })
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(async () => questionResponse())
+      .mockImplementationOnce(async () => questionResponse())
+    vi.stubGlobal('fetch', fetchMock)
+    const service = createAiService(runtimeStore())
+    const warnings: string[] = []
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '整理全文并写入' }],
+      tools: [writeTool],
+      stream: false,
+      retry: false,
+      toolPolicy: {
+        maxToolIterations: 4,
+        intent: 'edit',
+        executionPlan: plan,
+        onToolWarning: warning => warnings.push(warning),
+      },
+    })
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    expect(result.finishReason).toBe('needs_user_handoff')
+    expect(result.convergenceReason).toBe('model asked the user a question before completing the write plan')
+    expect(warnings.join('\n')).toContain('写入计划尚未完成')
+    vi.unstubAllGlobals()
+  })
 
   it('still executes plain-JSON tool_calls returned while a native tool request asked for streaming', async () => {
     const toolBody = JSON.stringify({
@@ -4330,6 +5060,60 @@ describe('createAiService.callAi tools', () => {
     vi.unstubAllGlobals();
   });
 
+  it('stops the tool loop after a terminal write permission rejection', async () => {
+    const writeTool = {
+      ...tool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      async execute() {
+        return { ok: true, data: { status: 'written' } }
+      },
+    }
+    const writeResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_write', type: 'function', function: { name: 'editor.write', arguments: '{"commands":[{"operation":"append","content":"x"}]}' } }]
+        }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } })
+    const convergenceResponse = new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'stop',
+        message: { role: 'assistant', content: '本轮未写入：当前意图不允许编辑器写入。' }
+      }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } })
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => writeResponse())
+      .mockImplementationOnce(async () => convergenceResponse)
+    vi.stubGlobal('fetch', fetchMock)
+    const service = createAiService(runtimeStore())
+    const warnings: string[] = []
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '帮我写入' }],
+      tools: [writeTool],
+      stream: false,
+      retry: false,
+      toolPolicy: {
+        intent: 'discuss',
+        maxToolIterations: 4,
+        onToolWarning: message => warnings.push(message),
+      },
+    })
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(result.toolResults).toHaveLength(1)
+    expect(result.finishReason).toBe('tool_converged')
+    expect(result.convergenceReason).toBe('terminal write failure: permission_denied')
+    expect(result.text).toContain('本轮未写入')
+    expect(warnings.join('\n')).toContain('permission_denied')
+    const convergenceBody = JSON.parse((fetchMock.mock.calls[1][1] as RequestInit).body as string)
+    expect(convergenceBody.tools).toBeUndefined()
+    vi.unstubAllGlobals();
+  });
+
   it('rejects a workflow write marker when the routed intent is discuss', async () => {
     const writeTool = {
       ...tool,
@@ -4511,10 +5295,11 @@ describe('createAiService.callAi tools', () => {
     vi.stubGlobal('fetch', fetchMock);
     const service = createAiService(runtimeStore());
     const executionPlan = buildLongDocumentExecutionPlan({
-      requestText: '重新整理排序整篇大纲',
-      content: '第一卷\n第一章\n第二卷'.repeat(1000),
-      contextWindowTokens: 120_000,
-      maxOutputTokens: 8_000,
+      requestText: '只重排章节顺序，不改正文内容',
+      content: `# 第一卷\n\n${'雨'.repeat(20_000)}\n\n# 第二卷\n\n${'潮'.repeat(20_000)}`,
+      intent: 'edit',
+      contextWindowTokens: 30_000,
+      maxOutputTokens: 6_000,
     });
     await service.callAi({
       purpose: 'generate',
@@ -4693,6 +5478,92 @@ describe('createAiService.fetchModels', () => {
     await expect(service.fetchModels('runtime')).resolves.toEqual(['model-a'])
     expect(entries.at(-1)).toMatchObject({ providerId: 'runtime', status: 'success' })
     vi.unstubAllGlobals()
+  })
+
+  it('steers a partial write question once, then hands off if the model still asks', async () => {
+    const baseTool = {
+      name: 'editor.get_state',
+      description: '读取编辑器状态',
+      policy: 'read' as const,
+      inputSchema: { type: 'object' as const, properties: {} },
+      async execute() { return { ok: true, data: {} } },
+    };
+    const writeTool = {
+      ...baseTool,
+      name: 'editor.write',
+      policy: 'write' as const,
+      async execute() {
+        return { ok: true, data: { status: 'written' } }
+      },
+    }
+    const plan = buildLongDocumentExecutionPlan({
+      requestText: '按照Word文档形式重构大纲，删除重复项并统一标点',
+      content: `# 第一卷\n\n${'雨'.repeat(20_000)}\n\n# 第二卷\n\n${'潮'.repeat(20_000)}`,
+      intent: 'edit',
+      contextWindowTokens: 30_000,
+      maxOutputTokens: 6_000,
+    })
+    expect(plan.segments.length).toBeGreaterThan(1)
+    const toolResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'tool_calls',
+        message: {
+          role: 'assistant',
+          content: '',
+          tool_calls: [{ id: 'call_write', type: 'function', function: { name: 'editor.write', arguments: '{"commands":[{"operation":"replace_match","target":"雨","content":"雨，"}]}' } }],
+        },
+      }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } })
+    const questionResponse = () => new Response(JSON.stringify({
+      choices: [{
+        finish_reason: 'stop',
+        message: { role: 'assistant', content: '第一批已经写入。第二批需要保留原编号还是重新编号？' },
+      }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } })
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => toolResponse())
+      .mockImplementationOnce(async () => questionResponse())
+      .mockImplementationOnce(async () => questionResponse())
+    vi.stubGlobal('fetch', fetchMock)
+    const service = createAiService(runtimeStore())
+    const warnings: string[] = []
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: '整理全文并写入' }],
+      tools: [writeTool],
+      stream: false,
+      retry: false,
+      toolPolicy: {
+        maxToolIterations: 4,
+        intent: 'edit',
+        executionPlan: plan,
+        onToolWarning: warning => warnings.push(warning),
+      },
+    })
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    expect(result.finishReason).toBe('needs_user_handoff')
+    expect(result.convergenceReason).toBe('model asked the user a question before completing the write plan')
+    expect(warnings.join('\n')).toContain('写入计划尚未完成')
+    vi.unstubAllGlobals()
+  })
+
+  it('keeps a partially completed multi-batch plan as a user handoff candidate', async () => {
+    const plan = buildLongDocumentExecutionPlan({
+      requestText: '把整篇大纲重新整理排序，统一标点和编号',
+      content: Array.from({ length: 400 }, (_, index) => `第${index + 1}章 旧稿正文。`).join('\n\n'),
+      intent: 'edit',
+      contextWindowTokens: 1_000,
+      maxOutputTokens: 100,
+    })
+    expect(plan.segments.length).toBeGreaterThan(1)
+
+    expect(detectUserHandoffResponse({
+      text: '第一批已经写入。第二批需要保留原编号还是重新编号？',
+      executionPlan: plan,
+      hasSuccessfulWrite: true,
+      successfulWriteCount: 1,
+      plannedWriteCount: plan.segments.length,
+    })).toEqual({ kind: 'needs_user_handoff' })
   })
 
   it('classifies model-list auth failures', async () => {

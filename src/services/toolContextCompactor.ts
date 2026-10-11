@@ -1,8 +1,10 @@
 import type { ProviderToolMessage } from './providerTools'
+import { markDocumentReadCompacted } from './documentReadLedger'
 
 export interface ToolContextCompactionResult {
   messages: ProviderToolMessage[]
   compactedMessageCount: number
+  compactedReadLedgerKeys: string[]
 }
 
 const MAX_RECENT_TOOL_ROUNDS = 2
@@ -115,7 +117,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
 }
 
-function compactResultContent(content: string): string {
+function compactResultContent(content: string, toolName: string): string {
   const parsed = safeJsonParse(content)
   if (!isRecord(parsed)) {
     return content.length <= COMPACTED_RESULT_CHARS
@@ -127,6 +129,15 @@ function compactResultContent(content: string): string {
     _summary: `Older tool result compacted by the application; original call is retained in run trace.`,
     _keys: Object.keys(parsed).slice(0, 20),
     _preview: JSON.stringify(parsed).slice(0, 240),
+    ...(isRecord(parsed.data) && typeof parsed.data.readLedgerKey === 'string'
+      ? {
+          _readLedgerKey: parsed.data.readLedgerKey,
+          _compactionAnchor: {
+            recoverable: true,
+            instruction: '原文保留在运行记录中；若需要该范围细节，请按 readLedgerKey 重读，结果会标记 reread_after_compaction。',
+          },
+        }
+      : {}),
   }
   const serialized = JSON.stringify(compacted)
   if (serialized.length < content.length) return serialized
@@ -151,7 +162,7 @@ export function compactToolContextMessages(
 ): ToolContextCompactionResult {
   const windows = findToolWindows(messages)
   if (windows.length <= MAX_RECENT_TOOL_ROUNDS) {
-    return { messages, compactedMessageCount: 0 }
+    return { messages, compactedMessageCount: 0, compactedReadLedgerKeys: [] }
   }
 
   const olderWindows = windows.slice(0, windows.length - MAX_RECENT_TOOL_ROUNDS)
@@ -160,6 +171,7 @@ export function compactToolContextMessages(
     end: window.end,
   }))
   let compactedMessageCount = 0
+  const compactedReadLedgerKeys: string[] = []
   const output = messages.map((message, index) => {
     const inOlderWindow = compactableRanges.some(range =>
       index >= range.start && index < range.end)
@@ -172,10 +184,21 @@ export function compactToolContextMessages(
     const content = message.content || ''
     if (content.length <= COMPACTED_RESULT_CHARS) return message
     compactedMessageCount += 1
+    const parsedBeforeCompaction = safeJsonParse(content)
+    const readLedgerKey = parsedBeforeCompaction
+      && isRecord(parsedBeforeCompaction)
+      && isRecord(parsedBeforeCompaction.data)
+      && typeof parsedBeforeCompaction.data.readLedgerKey === 'string'
+      ? parsedBeforeCompaction.data.readLedgerKey
+      : null
+    if (readLedgerKey) {
+      compactedReadLedgerKeys.push(readLedgerKey)
+      markDocumentReadCompacted(readLedgerKey, message.toolName || '')
+    }
     return {
       ...message,
-      content: compactResultContent(content),
+      content: compactResultContent(content, message.toolName || ''),
     }
   })
-  return { messages: output, compactedMessageCount }
+  return { messages: output, compactedMessageCount, compactedReadLedgerKeys }
 }

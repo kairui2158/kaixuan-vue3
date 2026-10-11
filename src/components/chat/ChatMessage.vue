@@ -281,9 +281,13 @@ const finalDraftStatusLabel = computed(() => {
 const finalDraftStatusMeta = computed(() => {
   const task = finalDraftTask.value
   if (!task) return ''
-  const draftChars = (task.completedText || task.accumulatedText).length
+  // Current sessions persist FinalDraftTaskView; legacy sessions may still hold
+  // a full task, so read character counts without retaining document text.
+  const draftChars = 'completedChars' in task
+    ? task.completedChars || task.accumulatedChars
+    : (task.completedText?.length || task.accumulatedText?.length || 0)
   const parts = [
-    `源文 ${task.sourceContent.length} 字`,
+    `源文 ${'sourceChars' in task ? task.sourceChars : (task.sourceContent?.length || 0)} 字`,
     `终稿 ${draftChars} 字`,
     `续生成 ${task.continuationCount} 次`,
   ]

@@ -48,6 +48,12 @@ interface ProviderWindowLike {
   contextWindowTokens?: number | string | null
 }
 
+interface OutlineContextPackOptions {
+  maxFocusChars?: number | null
+}
+
+const OUTLINE_PACK_OVERHEAD_CHARS = 4_000
+
 function resolveWindow(input: {
   provider: ProviderWindowLike | null | undefined
   model: string
@@ -64,10 +70,15 @@ function resolveWindow(input: {
 function buildPackedContent(
   target: EditorTargetSnapshot,
   mode: EditorContextPipelineMode,
+  maxFocusChars?: number | null,
 ): string {
-  if (mode === 'full') return target.content
+  if (mode === 'full') {
+    return target.workspace === 'outline'
+      ? `[当前全文已注入]\n${target.content}`
+      : target.content
+  }
   if (target.workspace === 'outline') {
-    return buildOutlineContextPack(target.content, target.selectedText)
+    return buildOutlineContextPack(target.content, target.selectedText, { maxFocusChars })
   }
   return buildPackedMainEditorContextPack({
     label: target.label,
@@ -93,10 +104,19 @@ export function buildEditorContextPipeline(input: {
     model: input.model || '',
   })
   const contentLength = input.target.content.length
-  const requestedMode = input.target.workspace === 'outline'
-    ? 'packed' as const
-    : editorContextInjectionMode(contentLength)
   const estimatedDocumentTokens = estimateInputTokens(input.target.content)
+  const requestedMode = input.target.workspace === 'outline'
+    ? (() => {
+      if (windowTokens == null) return 'packed' as const
+      const availableForOutline = resolvePlanningInputBudget({
+        contextWindowTokens: windowTokens,
+        maxOutputTokens: input.maxOutputTokens,
+      })
+      return estimatedDocumentTokens <= availableForOutline
+        ? 'full' as const
+        : 'packed' as const
+    })()
+    : editorContextInjectionMode(contentLength)
 
   let mode: EditorContextPipelineMode = requestedMode
   let downgradeReason: EditorContextPipelineResult['downgradeReason']
@@ -113,9 +133,19 @@ export function buildEditorContextPipeline(input: {
 
   // assemble: only the target itself is currently a first-class context source.
   // Future sources enter here, keeping mode selection and validation unchanged.
+  const maxFocusChars = (() => {
+    if (windowTokens == null) return null
+    const availableContextTokensForPack = resolvePlanningInputBudget({
+      contextWindowTokens: windowTokens,
+      maxOutputTokens: input.maxOutputTokens,
+    })
+    if (availableContextTokensForPack <= 0) return 0
+    const maxPackChars = Math.floor(availableContextTokensForPack * 1.7) - OUTLINE_PACK_OVERHEAD_CHARS
+    return Math.max(0, maxPackChars)
+  })()
   const content = input.forceInvalidPackForTest
     ? ''
-    : buildPackedContent(input.target, mode)
+    : buildPackedContent(input.target, mode, maxFocusChars)
   const estimatedInputTokens = estimateInputTokens(content)
   const availableContextTokens = (() => {
     if (windowTokens == null) return null

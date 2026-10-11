@@ -29,6 +29,37 @@ export type ToolRunSupervisor = ReturnType<typeof createToolRunSupervisor>
 
 export const DIRECT_TOOL_RUN_IDLE_TIMEOUT_MS = 150_000
 export const DIRECT_TOOL_RUN_HARD_DEADLINE_MS = 300_000
+/**
+ * Large-context models can legitimately spend several minutes reasoning
+ * before their first byte while reading a full novel outline. This is the
+ * request-level counterpart of LONG_DOCUMENT_ACTIVE_TIMEOUT_MS; heartbeat
+ * transport liveness still never resets it.
+ */
+export const LONG_TOOL_RUN_IDLE_TIMEOUT_MS = 600_000
+
+type SupervisorPhysicalCall = {
+  status?: unknown
+  heartbeat?: unknown
+  streamText?: unknown
+  reasoningText?: unknown
+  responseText?: unknown
+}
+
+/**
+ * Physical-call "running" is transport liveness, not task progress: aiService
+ * emits it on every 15-second heartbeat even when no stream byte has arrived.
+ * Only transport output or a request outcome is real progress for the idle
+ * watchdog.
+ */
+export function physicalCallReportsProgress(event: SupervisorPhysicalCall): boolean {
+  if (event.status === 'success' || event.status === 'failed' || event.status === 'canceled') return true
+  if (event.status !== 'running') return false
+  return Boolean(
+    event.streamText
+    || event.reasoningText
+    || event.responseText
+  )
+}
 
 function stableErrorInput(value: unknown): string {
   if (value === undefined) return ''
@@ -97,7 +128,7 @@ export function createToolRunSupervisor(options: ToolRunSupervisorOptions = {}) 
     const totalMs = Date.now() - startedAt
     const idleMs = Date.now() - lastProgressAt
     const message = reason === 'stuck_timeout'
-      ? 'AI 请求超过 150 秒无进展，已自动中止。请缩小问题范围、分段处理，或稍后重试。'
+      ? `AI 请求超过 ${Math.round(idleTimeoutMs / 1000)} 秒无进展，已自动中止。请缩小问题范围、分段处理，或稍后重试。`
       : reason === 'hard_deadline'
         ? '本轮工具任务超过 300 秒总上限，已自动中止。请把长文档任务拆分为多轮处理。'
         : fallbackMessage

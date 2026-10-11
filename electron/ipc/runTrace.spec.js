@@ -81,6 +81,29 @@ describe('run trace payload deduplication', () => {
     )
   })
 
+  it('keeps high-frequency agent diagnostics inline and out of payload files', () => {
+    const payload = {
+      taskId: 'final-draft-1',
+      streamingChars: 42,
+      throughputStatus: 'streaming_active'
+    }
+    const run = {
+      events: [
+        { id: 'event-1', type: 'final-draft-throughput-streaming_active', payload },
+        { id: 'event-2', type: 'final-draft-throughput-streaming_active', payload }
+      ]
+    }
+
+    const built = buildRunWithPayloadRefs(run)
+    expect(built.payloads).toHaveLength(0)
+    expect(built.run.payloads).toHaveLength(0)
+    built.run.events.forEach(event => {
+      expect(event.payload).toEqual(payload)
+      expect(event.payloadRefs).toBeUndefined()
+    })
+    expect(JSON.stringify(built.run)).toContain('streaming_active')
+  })
+
   it('externally stores tool request deltas separately from logical requests', () => {
     const request = [
       { role: 'system', content: '初始系统提示' },

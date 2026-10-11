@@ -142,6 +142,50 @@ export interface FinalDraftResumeInput {
   onProgress?: FinalDraftRunInput['onProgress']
 }
 
+interface FinalDraftTaskPublisher {
+  publish(task: FinalDraftTask): void
+  flush(task?: FinalDraftTask): void
+}
+
+function createFinalDraftTaskPublisher(
+  onPublish: (task: FinalDraftTask) => void,
+  intervalMs = 250,
+): FinalDraftTaskPublisher {
+  let pendingTask: FinalDraftTask | null = null
+  let timer: ReturnType<typeof setTimeout> | null = null
+  const publishPending = () => {
+    const task = pendingTask
+    pendingTask = null
+    if (task) onPublish(task)
+  }
+  return {
+    publish(task) {
+      pendingTask = task
+      if (timer === null) {
+        timer = setTimeout(() => {
+          timer = null
+          publishPending()
+        }, intervalMs)
+      }
+    },
+    flush(task) {
+      if (task) pendingTask = task
+      if (timer !== null) {
+        clearTimeout(timer)
+        timer = null
+      }
+      publishPending()
+    },
+  }
+}
+
+function publishableFinalDraftTask(task: FinalDraftTask): FinalDraftTask {
+  if (task.status === 'completed' && !task.accumulatedText && task.completedText) {
+    return { ...task, accumulatedText: task.completedText }
+  }
+  return task
+}
+
 export async function runFinalDraft(input: FinalDraftRunInput, hooks: FinalDraftTraceHooks): Promise<FinalDraftTask> {
   const guidance = normalizeFinalDraftSkillGuidance(input.skillGuidance)
   const contamination = detectSourceContamination(input.sourceContent, input.conversationMarkers || [])
@@ -190,7 +234,6 @@ export async function runFinalDraft(input: FinalDraftRunInput, hooks: FinalDraft
       },
     })
   }
-  const activeCallId: { current?: string } = {}
   hooks.addEvent({
     type: 'final-draft-skill-guidance',
     label: guidance ? '终稿领域能力已注入' : '未注入终稿领域能力',
@@ -235,6 +278,8 @@ export async function runFinalDraft(input: FinalDraftRunInput, hooks: FinalDraft
     streamedText: '',
     lastStreamActivityAt: Date.now(),
   }
+  const activeCallId: { current?: string } = {}
+  const taskPublisher = createFinalDraftTaskPublisher(task => input.onTaskChange?.(task))
   const taskChangedOnStream = () => {
     const current = {
       ...progressState.task,
@@ -242,7 +287,7 @@ export async function runFinalDraft(input: FinalDraftRunInput, hooks: FinalDraft
       updatedAt: Date.now(),
     }
     progressState.task = current
-    input.onTaskChange?.(current)
+    taskPublisher.publish(current)
   }
   const telemetry = createFinalDraftThroughputTracker()
   const lastEventAt = { value: 0 }
@@ -281,10 +326,12 @@ export async function runFinalDraft(input: FinalDraftRunInput, hooks: FinalDraft
         if (
           previous.activeSegmentIndex !== changed.activeSegmentIndex
           || (previous.status !== 'generating' && changed.status === 'generating')
+          || changed.status === 'awaiting_continuation'
+          || changed.status === 'interrupted'
         ) {
           void persistCheckpoint(hooks, changed, input.checkpointStore)
         }
-        input.onTaskChange?.(changed)
+        taskPublisher.publish(changed)
       },
       onTaskEvent: input.onTaskEvent,
       onProgress: event => input.onProgress?.(event),
@@ -292,6 +339,8 @@ export async function runFinalDraft(input: FinalDraftRunInput, hooks: FinalDraft
         // The service reducer still holds the last segment-start snapshot;
         // keep the live partial stream instead of checkpointing an empty one.
         restoreLivePartialStream(progressState, partialText + progressState.streamedText)
+        taskPublisher.flush(progressState.task)
+        void persistCheckpoint(hooks, progressState.task, input.checkpointStore)
         input.onTaskChange?.(progressState.task)
         return progressState.task.accumulatedText
       },
@@ -316,6 +365,7 @@ export async function runFinalDraft(input: FinalDraftRunInput, hooks: FinalDraft
     })
   } finally {
     heartbeat.stop()
+    taskPublisher.flush(publishableFinalDraftTask(progressState.task))
   }
 }
 
@@ -621,6 +671,7 @@ export async function continueFinalDraftTask(
     streamedText: '',
     lastStreamActivityAt: Date.now(),
   }
+  const taskPublisher = createFinalDraftTaskPublisher(task => input.onTaskChange?.(task))
   const taskChangedOnStream = () => {
     const current = {
       ...progressState.task,
@@ -628,7 +679,7 @@ export async function continueFinalDraftTask(
       updatedAt: Date.now(),
     }
     progressState.task = current
-    input.onTaskChange?.(current)
+    taskPublisher.publish(current)
   }
   const telemetry = createFinalDraftThroughputTracker()
   const lastEventAt = { value: 0 }
@@ -664,10 +715,12 @@ export async function continueFinalDraftTask(
         if (
           previous.activeSegmentIndex !== changed.activeSegmentIndex
           || (previous.status !== 'generating' && changed.status === 'generating')
+          || changed.status === 'awaiting_continuation'
+          || changed.status === 'interrupted'
         ) {
           void persistCheckpoint(hooks, changed, input.checkpointStore)
         }
-        input.onTaskChange?.(changed)
+        taskPublisher.publish(changed)
       },
       onTaskEvent: input.onTaskEvent,
       onProgress: event => {
@@ -677,7 +730,8 @@ export async function continueFinalDraftTask(
       onSlowStreamInterrupted: partialText => {
         // Preserve the continuation stream that the service reducer has not merged yet.
         restoreLivePartialStream(progressState, partialText + progressState.streamedText)
-        input.onTaskChange?.(progressState.task)
+        taskPublisher.flush(progressState.task)
+        void persistCheckpoint(hooks, progressState.task, input.checkpointStore)
         return progressState.task.accumulatedText
       },
       onChunk: text => {
@@ -699,6 +753,7 @@ export async function continueFinalDraftTask(
     })
   } finally {
     heartbeat.stop()
+    taskPublisher.flush(publishableFinalDraftTask(progressState.task))
   }
 }
 
@@ -759,6 +814,7 @@ export async function retryFinalDraftSegmentTask(
     streamedText: '',
     lastStreamActivityAt: Date.now(),
   }
+  const taskPublisher = createFinalDraftTaskPublisher(task => input.onTaskChange?.(task))
   const telemetry = createFinalDraftThroughputTracker()
   const lastEventAt = { value: 0 }
   const lastMessageTelemetryStatus = { value: input.task.lastTelemetry?.throughputStatus }
@@ -793,10 +849,12 @@ export async function retryFinalDraftSegmentTask(
           if (
             previous.activeSegmentIndex !== changed.activeSegmentIndex
             || (previous.status !== 'generating' && changed.status === 'generating')
+            || changed.status === 'awaiting_continuation'
+            || changed.status === 'interrupted'
           ) {
             void persistCheckpoint(hooks, changed, input.checkpointStore)
           }
-          input.onTaskChange?.(changed)
+          taskPublisher.publish(changed)
         },
         onTaskEvent: input.onTaskEvent,
         onProgress: event => {
@@ -806,13 +864,21 @@ export async function retryFinalDraftSegmentTask(
       onSlowStreamInterrupted: partialText => {
         // Keep the live partial stream for the same reason as generation.
         restoreLivePartialStream(progressState, partialText + progressState.streamedText)
-        input.onTaskChange?.(progressState.task)
+        taskPublisher.flush(progressState.task)
+        void persistCheckpoint(hooks, progressState.task, input.checkpointStore)
         return progressState.task.accumulatedText
-        },
-        onChunk: text => {
-          hooks.appendStream(text)
+      },
+      onChunk: text => {
+        hooks.appendStream(text)
         progressState.streamedText += text
-          publishFinalDraftProgress({
+        const current = {
+          ...progressState.task,
+          accumulatedText: progressState.baseStreamText + progressState.streamedText,
+          updatedAt: Date.now(),
+        }
+        progressState.task = current
+        taskPublisher.publish(current)
+        publishFinalDraftProgress({
             hooks,
             state: progressState,
             telemetry,
@@ -828,6 +894,7 @@ export async function retryFinalDraftSegmentTask(
     )
   } finally {
     heartbeat.stop()
+    taskPublisher.flush(publishableFinalDraftTask(progressState.task))
   }
 }
 
@@ -889,6 +956,8 @@ export async function resumeFinalDraftTask(
     streamedText: '',
     lastStreamActivityAt: Date.now(),
   }
+  const activeCallId: { current?: string } = {}
+  const taskPublisher = createFinalDraftTaskPublisher(task => input.onTaskChange?.(task))
   const telemetry = createFinalDraftThroughputTracker()
   const lastEventAt = { value: 0 }
   const lastMessageTelemetryStatus = { value: restored.task.lastTelemetry?.throughputStatus }
@@ -906,7 +975,7 @@ export async function resumeFinalDraftTask(
   try {
     return await generateFinalDraft(
     {
-      aiService: wrapAiService(input.aiService, hooks, {}, input.model, input.providerId),
+      aiService: wrapAiService(input.aiService, hooks, activeCallId, input.model, input.providerId),
       adapter: input.adapter,
       task: restored.task,
       sourceContent: input.sourceContent,
@@ -924,16 +993,19 @@ export async function resumeFinalDraftTask(
         if (
           previous.activeSegmentIndex !== changed.activeSegmentIndex
           || (previous.status !== 'generating' && changed.status === 'generating')
+          || changed.status === 'awaiting_continuation'
+          || changed.status === 'interrupted'
         ) {
           void persistCheckpoint(hooks, changed, input.checkpointStore)
         }
-        input.onTaskChange?.(changed)
+        taskPublisher.publish(changed)
       },
       onTaskEvent: input.onTaskEvent,
       onSlowStreamInterrupted: partialText => {
         // A resumed partial segment must keep its live stream when interrupted.
         restoreLivePartialStream(progressState, partialText + progressState.streamedText)
-        input.onTaskChange?.(progressState.task)
+        taskPublisher.flush(progressState.task)
+        void persistCheckpoint(hooks, progressState.task, input.checkpointStore)
         return progressState.task.accumulatedText
       },
       resumePartialSegment: true,
@@ -944,6 +1016,13 @@ export async function resumeFinalDraftTask(
       onChunk: text => {
         hooks.appendStream(text)
         progressState.streamedText += text
+        const current = {
+          ...progressState.task,
+          accumulatedText: progressState.baseStreamText + progressState.streamedText,
+          updatedAt: Date.now(),
+        }
+        progressState.task = current
+        taskPublisher.publish(current)
         publishFinalDraftProgress({
           hooks,
           state: progressState,
@@ -955,10 +1034,11 @@ export async function resumeFinalDraftTask(
           onProgress: event => input.onProgress?.(event),
         })
       },
-      onPhysicalCall: undefined,
+      onPhysicalCall: event => hooks.recordPhysicalCall(activeCallId.current, event),
     })
   } finally {
     heartbeat.stop()
+    taskPublisher.flush(publishableFinalDraftTask(progressState.task))
   }
 }
 

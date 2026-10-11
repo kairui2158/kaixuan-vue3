@@ -1,6 +1,7 @@
 import type { EditorEditOperation } from './editorEditSemantics'
 import { EDITOR_EDIT_OPERATIONS } from './editorEditSemantics'
 import type { LongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
+import { createToolRunBudget } from './toolRunBudget'
 
 /**
  * Single source for the long-document physical-request safety net. This is a
@@ -10,12 +11,7 @@ import type { LongDocumentExecutionPlan } from './longDocumentExecutionPlanner'
 export function calculateLongDocumentPhysicalRequestBudget(
   plan?: Pick<LongDocumentExecutionPlan, 'mode' | 'operation' | 'segments'> | null,
 ): number {
-  if (!plan) return 12
-  if (plan.mode === 'local-transform') return 0
-  if (plan.mode === 'final-draft' || plan.mode === 'direct') return 12
-  if (plan.operation === 'discussion') return 12
-  const segmentCount = Math.max(1, Math.floor(plan.segments.length))
-  return Math.min(64, segmentCount * 2 + 6)
+  return createToolRunBudget({ plan }).snapshot().maxPhysicalRequests
 }
 
 const DIRECT_TARGETED_OPERATIONS: readonly EditorEditOperation[] = [
@@ -42,6 +38,7 @@ const POST_AUTHORIZATION_WRITE_RULES = [
 export function resolveLongDocumentWriteOperations(
   plan?: LongDocumentExecutionPlan | null,
 ): readonly EditorEditOperation[] {
+  if (plan?.mode === 'single-pass') return []
   if (plan?.mode === 'final-draft') return []
   if (plan?.operation === 'discussion') return []
   if (!plan || plan.mode !== 'edit-task') return EDITOR_EDIT_OPERATIONS
@@ -76,6 +73,14 @@ export function resolveLongDocumentWriteOperations(
 export function buildLongDocumentWriteDirective(
   plan?: LongDocumentExecutionPlan | null,
 ): string {
+  if (plan?.mode === 'single-pass') {
+    return [
+      '一次成型整篇正文输出协议：全文已在当前上下文中，禁止分批读取，禁止进入读取循环。',
+      '请基于用户指令直接流式输出整理后的完整全文；禁止提交编辑命令或调用写入工具。',
+      '除计划删除目标外不得丢失有效正文；应用会在正文完成后一次性整文写入编辑器。',
+      '如果无法完成，直接说明具体失败原因；不要输出工具调用、编辑命令或修改预览。',
+    ].join('\n')
+  }
   if (plan?.mode === 'final-draft') {
     return '终稿生成模式：直接输出完整终稿正文，禁止提交编辑命令或调用写入工具；应用会在终稿完成后写入编辑器。'
   }
@@ -116,10 +121,10 @@ export function buildLongDocumentWriteDirective(
         POST_AUTHORIZATION_WRITE_RULES,
       ].join('\n')
     case 'deduplicate':
-      return '去重请先用只读工具确认重复项，再提交唯一目标删除命令；删除范围需通过完整性校验，未确认候选禁止顺手删除。\n' + POST_AUTHORIZATION_WRITE_RULES
+      return '去重请先用只读工具确认重复项，再提交唯一目标删除命令；删除必须使用 delete 操作，禁止用 replace_match 携带空 content 代替删除；删除范围需通过完整性校验，未确认候选禁止顺手删除。\n' + POST_AUTHORIZATION_WRITE_RULES
     case 'deduplicate_and_normalize':
       return [
-        '复合整理请分两阶段执行：先只读确认重复项并提交唯一目标删除命令，完成后再提交 replace_match/rewrite 命令，仅整理标点、空白、编号与标题层级；禁止整篇 replace_document，禁止把未确认内容当作重复项删除。',
+        '复合整理请分两阶段执行：先只读确认重复项并提交唯一目标删除命令，删除必须使用 delete 操作，禁止用 replace_match 携带空 content 代替删除；完成后再提交 replace_match/rewrite 命令，仅整理标点、空白、编号与标题层级；禁止整篇 replace_document，禁止把未确认内容当作重复项删除。',
         `整理阶段必须覆盖全部计划段落（${describePlannedSegments(plan)}）。每段先读取确认需整理项，再在该段一次 editor.write 中打包提交全部整理命令，禁止把同段多条命令拆成多次调用；未覆盖全部计划段落前，禁止输出“任务完成”总结。计划批次数量是 ${plan.segments.length}。按计划批次执行；如无法继续，停止调用工具并说明具体缺失信息。`,
         '中文正文语境中的半角标点（, . ; : ! ?）必须统一为对应全角（，。；：！？）；这是完成校验的强制条件，不是可选项。删除重复项后仍需完成剩余段落的标点归一。',
         '统一标题层级前必须先读取结构：消除层级跳变并把标题归位到文档既有层级体系，禁止无依据地把标题层级改深或改浅。',
@@ -144,6 +149,12 @@ function describePlannedSegments(plan: LongDocumentExecutionPlan): string {
 export function describeLongDocumentWriteProtocol(
   plan?: LongDocumentExecutionPlan | null,
 ): string {
+  if (plan?.mode === 'single-pass') {
+    return [
+      '当前执行计划为一次成型整篇正文输出：本轮没有可用编辑命令。',
+      buildLongDocumentWriteDirective(plan),
+    ].join('\n')
+  }
   if (plan?.mode === 'final-draft') {
     return [
       '当前执行计划为终稿生成模式：本轮没有可用编辑命令。',
@@ -166,6 +177,12 @@ export function describeLongDocumentWriteProtocol(
 export function buildLongDocumentWriteRejectionMessage(
   plan?: LongDocumentExecutionPlan | null,
 ): string {
+  if (plan?.mode === 'single-pass') {
+    return [
+      '当前执行计划为一次成型整篇正文输出，编辑命令与写入工具均已关闭。',
+      buildLongDocumentWriteDirective(plan),
+    ].join('\n')
+  }
   if (plan?.mode === 'final-draft') {
     return [
       '当前执行计划为终稿生成模式，编辑命令与写入工具均已关闭。',

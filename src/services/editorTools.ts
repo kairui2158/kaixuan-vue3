@@ -32,6 +32,7 @@ import {
   createEditorDocumentMapTools,
   enhanceEditorSearchWithDocumentMap,
 } from './editorDocumentMap'
+import { createDocumentReadLedger, type DocumentReadLedger } from './documentReadLedger'
 import {
   buildSourceContaminationMarkers,
   SOURCE_CONTAMINATION_MARKER_MIN_CHARS,
@@ -89,6 +90,45 @@ export interface AgentToolDefinition {
   execute(input: unknown, context: AgentToolContext): Promise<ToolResult>
 }
 
+export interface DirectWriteStallRetryInput {
+  supervisorReason: string | null | undefined
+  intent: 'analyze' | 'edit' | 'generate' | 'discuss'
+  longDocument: boolean
+  toolSurface?: Array<{ policy: AgentToolPolicy }> | null
+}
+
+export interface DirectWriteStallRetryDecision {
+  retryable: boolean
+  scope: 'short-document-edit' | 'read-only-dialogue' | null
+  longDocumentRetry: boolean
+}
+
+/**
+ * One place decides which direct-write stalls may be retried automatically.
+ *
+ * Long-document edit runs are excluded on purpose: a stalled write may already
+ * have been applied by the supplier, and a second run could duplicate or
+ * interleave batches. Read-only discussion and analysis turns have no write
+ * side effects and may recover once from a provider stall.
+ */
+export function shouldRetryStalledDirectWrite(input: DirectWriteStallRetryInput): DirectWriteStallRetryDecision {
+  if (input.supervisorReason !== 'stuck_timeout') {
+    return { retryable: false, scope: null, longDocumentRetry: false }
+  }
+  if (input.intent === 'edit' && !input.longDocument) {
+    const hasWriteTool = Boolean(input.toolSurface?.some(tool => tool.policy === 'write'))
+    return {
+      retryable: hasWriteTool,
+      scope: hasWriteTool ? 'short-document-edit' : null,
+      longDocumentRetry: false,
+    }
+  }
+  if (input.intent === 'discuss' || input.intent === 'analyze') {
+    return { retryable: true, scope: 'read-only-dialogue', longDocumentRetry: false }
+  }
+  return { retryable: false, scope: null, longDocumentRetry: false }
+}
+
 export interface ToolCallEvent {
   toolName: string
   toolCallId?: string
@@ -144,10 +184,17 @@ function collectWriteContamination(
 function isUserProvidedWriteContent(
   command: EditorEditCommand,
   userRequestText: string | undefined,
+  authorizedPlanExcerpts: readonly string[] | undefined,
 ): boolean {
-  if (!userRequestText) return false
+  const authorizedTexts = [
+    ...(userRequestText ? [userRequestText] : []),
+    ...(authorizedPlanExcerpts || []),
+  ]
+  if (!authorizedTexts.length) return false
   return [command.content, command.target, command.destination]
-    .some(fragment => typeof fragment === 'string' && userRequestText.includes(fragment))
+    .some(fragment =>
+      typeof fragment === 'string' &&
+      authorizedTexts.some(text => text.includes(fragment)))
 }
 
 function guardEditorWriteContamination(
@@ -155,6 +202,7 @@ function guardEditorWriteContamination(
   options: {
     conversationMarkers?: SourceContaminationConversationMessage[]
     userRequestText?: string
+    authorizedPlanExcerpts?: readonly string[]
     onContaminationDecision?: (decision: EditorWriteContaminationDecision) => void
   },
 ): ToolResult | null {
@@ -162,7 +210,11 @@ function guardEditorWriteContamination(
   const contamination = collectWriteContamination(commands, options.conversationMarkers)
   if (!contamination.commandIndexes.length) return null
   const userProvidedIndexes = contamination.commandIndexes.filter(index =>
-    isUserProvidedWriteContent(commands[index], options.userRequestText))
+    isUserProvidedWriteContent(
+      commands[index],
+      options.userRequestText,
+      options.authorizedPlanExcerpts,
+    ))
   const bypassed = contamination.commandIndexes.length === userProvidedIndexes.length
   options.onContaminationDecision?.({
     type: bypassed ? 'write-contamination-bypassed' : 'write-contamination-rejected',
@@ -842,8 +894,15 @@ export function createEditorTools(options: {
   writeAuthorization?: LongDocumentWriteAuthorization
   conversationMarkers?: SourceContaminationConversationMessage[]
   userRequestText?: string
+  authorizedPlanExcerpts?: readonly string[]
   onContaminationDecision?: (decision: EditorWriteContaminationDecision) => void
+  /** Shared read ledger keeps duplicate/reread decisions stable across workspaces. */
+  readLedger?: DocumentReadLedger
 }): AgentToolDefinition[] {
+  const readLedger = options.readLedger ?? createDocumentReadLedger({
+    workspace: options.workspace === 'outline' ? 'outline' : 'main',
+    targetId: options.getSnapshot()?.targetId || 'current-target',
+  })
   const getState: AgentToolDefinition = {
     name: 'editor.get_state',
     description: '读取当前编辑目标摘要：目标、字数、选区、快照版本。不返回全文。',
@@ -1051,16 +1110,20 @@ export function createEditorTools(options: {
         return toolError('write_target_mismatch', '工具目标与当前编辑目标不一致，禁止跨目标写入')
       }
 
+      const rawCommandsForLimit = params.commands as Array<Record<string, unknown>>
+      const singlePassReplaceDocument = options.executionPlan?.mode === 'single-pass'
+        && rawCommandsForLimit.length === 1
+        && normalizeEditorEditOperation(rawCommandsForLimit[0]?.operation) === 'replace_document'
       const totalLength = params.commands.reduce((sum, command) => {
         const item = command as { content?: unknown; target?: unknown }
         return sum + (typeof item?.content === 'string' ? item.content.length : 0) +
           (typeof item?.target === 'string' ? item.target.length : 0)
       }, 0)
-      if (totalLength > 60000) {
+      if (totalLength > 60000 && !singlePassReplaceDocument) {
         return toolError('batch_too_large', '批次内容超过 60000 字符上限')
       }
 
-      const rawCommands = params.commands as Array<Record<string, unknown>>
+      const rawCommands = rawCommandsForLimit
       const isRestructurePlan = options.executionPlan?.mode === 'edit-task' &&
         options.executionPlan.operation === 'restructure'
       if (
@@ -1094,8 +1157,10 @@ export function createEditorTools(options: {
           true,
         )
       }
+      const singlePassWholeDocumentWrite = Boolean(singlePassReplaceDocument)
       const disallowedCommand = rawCommands.find(rawCommand => {
         const operation = normalizeEditorEditOperation(rawCommand.operation)
+        if (singlePassWholeDocumentWrite && operation === 'replace_document') return false
         return operation !== null && !allowedOperations.includes(operation)
       })
       if (disallowedCommand) {
@@ -1700,6 +1765,7 @@ export function createEditorTools(options: {
       ...createEditorDocumentMapTools({
         getSnapshot: options.getSnapshot,
         maxReadChars: options.maxReadChars,
+        readLedger,
       }),
       search,
       locate,

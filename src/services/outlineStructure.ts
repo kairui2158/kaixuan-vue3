@@ -17,6 +17,8 @@ export interface OutlineStructure {
   nodes: OutlineStructureNode[]
   degraded: boolean
   degradedReason: string | null
+  /** Stable identity of the structural node set, independent of ranges and prose. */
+  structureIdentity: string
   totalChars: number
   volumeCount: number
   chapterCount: number
@@ -268,12 +270,11 @@ export function parseOutlineStructure(text: string): OutlineStructure {
   const paragraphOccurrences = new Map<string, number>()
   const makeParagraph = (start: number, end: number): OutlineStructureNode => {
     paragraphSeq += 1
-    const body = source.slice(start, end)
-    const identity = stableIdentitySuffix(body)
-    const occurrence = (paragraphOccurrences.get(identity) ?? 0) + 1
-    paragraphOccurrences.set(identity, occurrence)
+    paragraphSeq += 1
+    const occurrence = paragraphSeq
+    const identity = `gap-${paragraphSeq}`
     return {
-      id: occurrence > 1 ? `paragraph-${identity}~${occurrence}` : `paragraph-${identity}`,
+      id: `paragraph-${identity}`,
       title: `内容块 ${paragraphSeq}`,
       kind: 'paragraph',
       level: 1,
@@ -300,7 +301,26 @@ export function parseOutlineStructure(text: string): OutlineStructure {
     chapterCount: countKind('chapter'),
     sectionCount: countKind('section')
   }
-  return { ...base, mapText: buildMapText(base) }
+  const baseWithIdentity = {
+    ...base,
+    structureIdentity: buildStructureIdentity(base),
+  }
+  return { ...baseWithIdentity, mapText: buildMapText(baseWithIdentity) }
+}
+
+function buildStructureIdentity(
+  structure: Omit<OutlineStructure, 'mapText' | 'structureIdentity'>,
+): string {
+  const ids: string[] = []
+  const walk = (nodes: OutlineStructureNode[]) => {
+    for (const node of nodes) {
+      ids.push(node.id)
+      walk(node.children)
+    }
+  }
+  walk(structure.nodes)
+  const identity = `${structure.degraded ? 'degraded' : 'standard'}|${ids.join('|')}`
+  return `structure-${stableIdentitySuffix(identity)}`
 }
 
 function countKindIn(node: OutlineStructureNode, kind: OutlineNodeKind): number {

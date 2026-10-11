@@ -172,6 +172,20 @@
 {{ call.contextBudgetReason || '' }}
 usage 对账：{{ renderText(JSON.stringify(call.usageReconciliation || {}, null, 2)) }}</pre>
                   </details>
+                  <details v-if="call.executionSettlement || call.readLedger">
+                    <summary>执行预算 / 覆盖结算</summary>
+                    <pre>阶段：{{ executionPhaseText(call.executionSettlement?.phase) }}
+读取：{{ call.executionSettlement?.readToolCalls ?? '未记录' }}/{{ call.executionSettlement?.maxReadToolCalls ?? '未记录' }}
+写入容量：{{ call.executionSettlement?.writeToolCalls ?? '未记录' }}/{{ call.executionSettlement?.reservedWriteToolCalls ?? '未记录' }}
+控制调用：{{ call.executionSettlement?.controlToolCalls ?? '未记录' }}
+物理请求安全网：{{ call.executionSettlement?.physicalRequests ?? '未记录' }}/{{ call.executionSettlement?.maxPhysicalRequests ?? '未记录' }}
+已成功写入：{{ call.executionSettlement?.successfulWriteCount ?? '未记录' }}
+已确认覆盖：{{ call.executionSettlement?.trustedCoverageCount ?? '未记录' }}
+计划完成：{{ call.executionSettlement?.planComplete ? '是' : call.executionSettlement ? '否' : '未记录' }}
+耗尽分类：{{ call.executionSettlement?.exhaustedClasses?.length ? call.executionSettlement.exhaustedClasses.join('、') : '无' }}
+读取缓存：唯一 {{ call.readLedger?.uniqueReadCount ?? '未记录' }} / 重复 {{ call.readLedger?.duplicateReadCount ?? '未记录' }} / 压缩后重读 {{ call.readLedger?.rereadAfterCompactionCount ?? '未记录' }} / 已压缩 {{ call.readLedger?.compactedReadCount ?? '未记录' }}
+结构标识：{{ call.readLedger?.structureIdentity || '未记录' }}</pre>
+                  </details>
                   <details>
                     <summary>流式输出</summary>
                     <pre>{{ call.streamText || '本次没有流式内容。' }}</pre>
@@ -186,6 +200,7 @@ usage 对账：{{ renderText(JSON.stringify(call.usageReconciliation || {}, null
                       <strong>#{{ physical.seq }} {{ physical.phase }}</strong>
                       <span :class="'is-' + physical.status">{{ statusText(physical.status) }}</span>
                       <span>{{ physical.durationMs ? physical.durationMs + 'ms' : '未记录耗时' }}</span>
+                      <span>工具调用 {{ physical.toolCallCount ?? 0 }} 次{{ physical.toolCallNames?.length ? '：' + physical.toolCallNames.join('、') : '' }}</span>
                       <pre v-for="(message, index) in physical.requestMessages" :key="index">[{{ message.role }}]
 {{ renderText(message.content) }}</pre>
                       <pre>{{ renderText(physical.responseText || '本次没有返回内容。') }}</pre>
@@ -402,6 +417,14 @@ function contextBudgetDecisionText(decision?: string) {
   if (decision === 'fits') return '可容纳'
   if (decision === 'needs_segmentation') return '需要分段'
   if (decision === 'exceeds_provider') return '超过供应商窗口'
+  return '未记录'
+}
+
+function executionPhaseText(phase?: string) {
+  if (phase === 'locating') return '定位'
+  if (phase === 'planning') return '规划'
+  if (phase === 'writing') return '写入'
+  if (phase === 'settling') return '结算'
   return '未记录'
 }
 

@@ -1,5 +1,11 @@
 import { EDITOR_CONTEXT_FULL_CONTENT_MAX_CHARS } from './editorContextPolicy'
 import { estimateInputTokens } from './contextBudget'
+import {
+  buildDocumentStructureIdentity,
+  documentReadKey,
+  documentReadLedgerKey,
+  type DocumentReadLedger,
+} from './documentReadLedger'
 import type { AgentToolContext, AgentToolDefinition, ToolResult } from './editorTools'
 import { parseOutlineStructure, type OutlineStructureNode } from './outlineStructure'
 import type { EditorTargetSnapshot } from './editorTarget'
@@ -173,6 +179,8 @@ export function createEditorDocumentMapTools(options: {
   getSnapshot: () => EditorTargetSnapshot | null
   /** Optional hard cap used by callers that know the provider window. */
   maxReadChars?: () => number
+  /** Session-scoped read ledger shared by all read tools for this target. */
+  readLedger?: DocumentReadLedger
 }): AgentToolDefinition[] {
   const mapCache = new WeakMap<EditorTargetSnapshot, {
     map: EditorDocumentMap
@@ -183,10 +191,24 @@ export function createEditorDocumentMapTools(options: {
     const snapshot = options.getSnapshot()
     if (!snapshot) return null
     const cached = mapCache.get(snapshot)
-    if (cached) return { snapshot, ...cached }
+    if (cached) {
+      options.readLedger?.setStructureIdentity(
+        buildDocumentStructureIdentity({
+          degraded: cached.map.degraded,
+          nodeIds: cached.map.sections.map(section => section.id),
+        }),
+      )
+      return { snapshot, ...cached }
+    }
     const map = buildEditorDocumentMap(snapshot.content)
     const entries = buildSectionIndex(map)
     mapCache.set(snapshot, { map, entries })
+    options.readLedger?.setStructureIdentity(
+      buildDocumentStructureIdentity({
+        degraded: map.degraded,
+        nodeIds: map.sections.map(section => section.id),
+      }),
+    )
     return { snapshot, map, entries }
   }
   const readRangeCache = new WeakMap<EditorTargetSnapshot, Map<string, ToolResult>>()
@@ -229,6 +251,7 @@ export function createEditorDocumentMapTools(options: {
           degraded: current.map.degraded,
           degradedReason: current.map.degradedReason,
           sections: selected,
+          structureIdentity: options.readLedger?.getStructureIdentity(),
           offset,
           limit,
           hasMore,
@@ -291,17 +314,18 @@ export function createEditorDocumentMapTools(options: {
         ok: false,
         error: {
           code: 'section_not_found',
-          message: `${source === 'cursor' ? 'cursor 中的节' : '节'}不存在：${requestedId}。写入会改变节 id，请重新调用 editor.document_map，并使用当前版本返回的 sectionId；本次失败前的 cursor 不可复用。`,
+          message: `${source === 'cursor' ? 'cursor 中的节' : '节'}不存在：${requestedId}。请优先从候选 sectionId 中核对正确目标；正文写入不会改变节 id。只有新增、删除或移动节导致 structureIdentity 变化时，才需要重新调用 editor.document_map 并使用当前版本返回的 sectionId。`,
           retryable: true,
         },
-        data: {
-          candidates: sectionCandidates(current.entries, requestedId),
-          contentVersion: current.snapshot.contentVersion,
-          recovery: [
-            '重新调用 editor.document_map',
-            '使用当前 document_map 返回的 sectionId',
-          ],
-        },
+      data: {
+        candidates: sectionCandidates(current.entries, requestedId),
+        contentVersion: current.snapshot.contentVersion,
+        structureIdentity: options.readLedger?.getStructureIdentity(),
+        recovery: [
+          '优先核对候选 sectionId；只有新增、删除或移动节后 structureIdentity 变化时才重新调用 editor.document_map',
+          '正文写入不会改变结构 ID，无需为每次写入刷新地图',
+        ],
+      },
       })
       if (cursor) {
         const entry = current.entries.get(cursor.sectionId)
@@ -371,28 +395,95 @@ export function createEditorDocumentMapTools(options: {
             : ['基于已读取内容回答或写入；需要其他节时先调用 editor.document_map'],
         },
       }
-      let cache = readRangeCache.get(current.snapshot)
-      if (!cache) {
-        cache = new Map<string, ToolResult>()
-        readRangeCache.set(current.snapshot, cache)
-      }
-      const cacheKey = readRangeCacheKey(section.id, offset, maxChars)
-      const cachedResult = cache.get(cacheKey)
-      if (cachedResult) {
-        const cachedData =
-          typeof cachedResult.data === 'object' && cachedResult.data !== null
-            ? (cachedResult.data as Record<string, unknown>)
-            : {}
-        return {
-          ...cachedResult,
-          data: {
-            ...cachedData,
-            duplicate_read: true,
-            duplicate_read_notice: '同一版本同一读取范围已返回过；请基于已读取内容继续，不要重复读取。',
-          },
+      if (options.readLedger) {
+        const readKey = documentReadKey({
+          source: 'editor',
+          toolName: 'editor.read_range',
+          sectionId: section.id,
+          offset,
+          maxChars,
+        })
+        const ledgerKey = documentReadLedgerKey({
+          source: 'editor',
+          toolName: 'editor.read_range',
+          targetId: current.snapshot.targetId,
+          sectionId: section.id,
+          offset,
+          maxChars,
+        })
+        options.readLedger.registerLedgerKey(ledgerKey, readKey)
+        const enrichedData = {
+          ...(result.data as Record<string, unknown>),
+          readLedgerKey: documentReadLedgerKey({
+            source: 'editor',
+            toolName: 'editor.read_range',
+            targetId: current.snapshot.targetId,
+            sectionId: section.id,
+            offset,
+            maxChars,
+          }),
+        } as typeof result.data
+        result.data = enrichedData
+        const classification = options.readLedger.classifyRead({
+          source: 'editor',
+          toolName: 'editor.read_range',
+          readKey,
+          contentVersion: current.snapshot.contentVersion,
+          structureIdentity: options.readLedger.getStructureIdentity(),
+        })
+        if (classification.duplicate && !classification.rereadAfterCompaction) {
+          const cachedData =
+            typeof result.data === 'object' && result.data !== null
+              ? (result.data as Record<string, unknown>)
+              : {}
+          return {
+            ...result,
+            data: {
+              ...cachedData,
+              duplicate_read: true,
+              duplicate_read_notice: '同一结构身份和读取范围已返回过；请基于已读取内容继续，不要重复读取。',
+            },
+          }
         }
+        if (classification.duplicate && classification.rereadAfterCompaction) {
+          const cachedData =
+            typeof result.data === 'object' && result.data !== null
+              ? (result.data as Record<string, unknown>)
+              : {}
+          return {
+            ...result,
+            data: {
+              ...cachedData,
+              duplicate_read: true,
+              reread_after_compaction: true,
+              duplicate_read_notice: '该读取曾被应用压缩，原文保留在运行记录中；本次按读取锚点恢复返回。',
+            },
+          }
+        }
+      } else {
+        let cache = readRangeCache.get(current.snapshot)
+        if (!cache) {
+          cache = new Map<string, ToolResult>()
+          readRangeCache.set(current.snapshot, cache)
+        }
+        const cacheKey = readRangeCacheKey(section.id, offset, maxChars)
+        const cachedResult = cache.get(cacheKey)
+        if (cachedResult) {
+          const cachedData =
+            typeof cachedResult.data === 'object' && cachedResult.data !== null
+              ? (cachedResult.data as Record<string, unknown>)
+              : {}
+          return {
+            ...cachedResult,
+            data: {
+              ...cachedData,
+              duplicate_read: true,
+              duplicate_read_notice: '同一版本同一读取范围已返回过；请基于已读取内容继续，不要重复读取。',
+            },
+          }
+        }
+        cache.set(cacheKey, result)
       }
-      cache.set(cacheKey, result)
       return result
     },
   }

@@ -1,4 +1,4 @@
-import type { FinalDraftTask } from './finalDraftService'
+import type { FinalDraftTask, FinalDraftTaskView } from './finalDraftService'
 import { hashContent } from './finalDraftService'
 
 export const FINAL_DRAFT_CHECKPOINT_SCHEMA_VERSION = 1
@@ -49,6 +49,7 @@ const RESUMABLE_STATUSES = new Set<FinalDraftTask['status']>([
   'planning',
   'generating',
   'awaiting_continuation',
+  'interrupted',
 ])
 
 export function finalDraftCheckpointId(taskId: string): string {
@@ -58,6 +59,32 @@ export function finalDraftCheckpointId(taskId: string): string {
 export function canResumeFinalDraftTask(task: FinalDraftTask): boolean {
   return task.status === 'awaiting_continuation'
     || (task.status === 'generating' && task.activeSegmentIndex > 0)
+}
+
+export function isFinalDraftTask(value: FinalDraftTask | FinalDraftTaskView | undefined | null): value is FinalDraftTask {
+  return Boolean(
+    value
+    && typeof (value as FinalDraftTask).sourceContent === 'string'
+    && Array.isArray((value as FinalDraftTask).sourceSegments)
+    && typeof (value as FinalDraftTask).segmentOrder !== 'undefined'
+  )
+}
+
+/**
+ * Chat persistence stores only a slim task view. Continuation entry points use
+ * this helper to recover the authoritative full task, preferring a legacy full
+ * task for old sessions and checkpoint data for current sessions.
+ */
+export async function resolveFinalDraftTaskFromView(
+  view: FinalDraftTask | FinalDraftTaskView | undefined | null,
+  sourceContent: string,
+  store: FinalDraftCheckpointStore,
+): Promise<{ ok: true; task: FinalDraftTask } | { ok: false; reason: string }> {
+  if (!view) return { ok: false, reason: 'checkpoint_not_found' }
+  if (isFinalDraftTask(view)) return { ok: true, task: view }
+  const loaded = await loadFinalDraftCheckpoint(finalDraftCheckpointId(view.taskId), store)
+  if (!loaded.ok) return loaded
+  return restoreFinalDraftTaskFromCheckpoint(loaded.checkpoint, sourceContent)
 }
 
 export function createInMemoryFinalDraftCheckpointStore(): FinalDraftCheckpointStore {
