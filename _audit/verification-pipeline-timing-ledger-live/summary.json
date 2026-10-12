@@ -1,0 +1,40 @@
+{
+  "schema": "shenyi.pipeline-timing-ledger.electron-live",
+  "version": 1,
+  "generatedAt": "2026-10-12T06:48:50.948Z",
+  "script": "verify-pipeline-timing-ledger-electron.mjs",
+  "model": "deepseek-v4-pro",
+  "baseUrl": "https://openapi.cloud-ai.cn/v1",
+  "projectId": "pipeline-timing-ledger-live",
+  "runId": "run-1791784391203-1",
+  "runStatus": "success",
+  "apiCallCount": 12,
+  "physicalCallCount": 13,
+  "retryPhysicalCallCount": 1,
+  "top3": [
+    {
+      "key": "outputSumMs",
+      "label": "模型流式输出",
+      "value": 3276691,
+      "kind": "conclusion"
+    },
+    {
+      "key": "firstTokenSumMs",
+      "label": "模型首 token 等待",
+      "value": 658956,
+      "kind": "conclusion"
+    },
+    {
+      "key": "postProcessSumMs",
+      "label": "后处理",
+      "value": 115,
+      "kind": "conclusion"
+    }
+  ],
+  "hardRules": {
+    "visibleElectron": true,
+    "realDropdownSelection": "#pl-s3-skill / #pl-s3-add-skill / #pl-s3-skills-list",
+    "noInjectionImpersonation": true,
+    "liveCredentialSource": "D:\\codex\\novel-workshop-vue3\\_data\\outline-lock-override-live-replay-profile"
+  }
+}

@@ -1,4 +1,4 @@
-# 2026-10-12 流水线耗时账本 Phase 1 任务台账
+# 2026-10-12 流水线耗时账本 Phase 1 / Phase 2 任务台账
 
 ## 1. 目标与原话
 
@@ -103,9 +103,17 @@
 
 ## 7. 缺口清单
 
-本轮无登记缺口。
+Phase 1 无登记缺口。
 
-边界说明 2 项：
+### Phase 2 登记缺口（2 项）
 
-1. 尚未基于新账本生成真实流水线 Top 3 耗时报告；这是阶段 2 数据采集任务，不是本阶段缺陷。
-2. `localOverheadMs` 是候选线索，不是结论；同起点的物理重试可能重复计入，方案已注明不得直接当优化依据。
+1. **重试路径污染 `localOverheadMs`。** `run-1791784391203-1` 第 3 个 API call 的逻辑 `durationMs` 从重试开始计时，而 `physicalDurationSumMs` 包含失败请求与成功请求两段，导致 `localOverheadSumMs=-598,995ms`。账本字段仍是“候选线索”，但负数本身证明口径必须修复后才能用于阶段 3。
+2. **600 秒流式超时切断长输出。** 第 3 个 API call 第一次物理请求已有 `firstTokenMs=7,707ms`、`outputMs=592,306ms`、`heartbeat=true`，仍因总时长 600,013ms 被标记“请求超时”并重跑；重试请求首 token 等待 615,502ms。需要在阶段 3 前单独设计“有流式进度不按总时长切断”的超时策略。
+
+## 8. Phase 2 执行证据
+
+- `node scripts/verify-pipeline-timing-ledger-electron.mjs` → `===== PIPELINE TIMING LEDGER ELECTRON LIVE PASSED =====`
+- run：`run-1791784391203-1`，状态 `success`，12 API call / 13 物理请求 / 0 失败 API call / 3 卷输出。
+- Top 3：`outputSumMs=3,276,691ms`，`firstTokenSumMs=658,956ms`，`postProcessSumMs=115ms`。
+- 证据目录：`_audit/verification-pipeline-timing-ledger-live/`
+- 失败 run 归档：`_audit/verification-pipeline-timing-ledger-live-archive/`
