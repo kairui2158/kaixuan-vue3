@@ -181,6 +181,8 @@ export interface RunTraceApiCall {
   usage?: unknown
   usageUnavailable?: boolean
   durationMs?: number
+  /** Observability only; local phases must not change execution behavior. */
+  timingLedger?: RunTraceTimingLedger
   status: RunTraceStatus
   error?: string
   compatibilityMode?: 'json-protocol'
@@ -283,6 +285,10 @@ export interface RunTracePhysicalCall {
   startedAt: number
   endedAt?: number
   durationMs?: number
+  /** Time from physical request start to the first body/reasoning delta. */
+  firstTokenMs?: number
+  /** Streaming time after the first delta; durationMs - firstTokenMs. */
+  outputMs?: number
   error?: string
   toolsEnabled?: boolean
   toolsDowngraded?: boolean
@@ -314,12 +320,35 @@ export interface RunTracePhysicalCall {
   contextCompactedMessageCount?: number
 }
 
+export interface RunTraceTimingLedger {
+  apiCallCount?: number
+  firstTokenSumMs?: number
+  outputSumMs?: number
+  localOverheadSumMs?: number
+  requestBuildSumMs?: number
+  schemaValidateSumMs?: number
+  retrySumMs?: number
+  postProcessSumMs?: number
+  physicalCallCount?: number
+  retryPhysicalCallCount?: number
+  physicalDurationSumMs?: number
+  minFirstTokenMs?: number
+  maxFirstTokenMs?: number
+  localOverheadMs?: number
+  requestBuildMs?: number
+  schemaValidateMs?: number
+  retryMs?: number
+  postProcessMs?: number
+}
+
 export interface RunTraceTurn {
   id: string
   seq: number
   startedAt: number
   endedAt?: number
   durationMs?: number
+  /** Aggregated observability across API calls; never gates execution. */
+  timingLedger?: RunTraceTimingLedger
   status: RunTraceStatus
   reason?: string
   userRequest: string
@@ -360,6 +389,8 @@ export interface RunTrace {
   startedAt: number
   endedAt?: number
   durationMs?: number
+  /** Aggregated timing observability for API/local phases. */
+  timingLedger?: RunTraceTimingLedger
   events: RunTraceEvent[]
   apiCalls: RunTraceApiCall[]
   turns?: RunTraceTurn[]
@@ -645,6 +676,7 @@ export interface FinishApiCallInput {
   toolAudit?: unknown
   executionSettlement?: RunTraceExecutionSettlement
   readLedger?: RunTraceReadLedgerSnapshot
+  timingLedger?: RunTraceTimingLedger
 }
 
 export interface AttachSemanticInput {
@@ -667,6 +699,8 @@ export interface PhysicalCallInput {
   usage?: unknown
   usageUnavailable?: boolean
   durationMs?: number
+  firstTokenMs?: number
+  outputMs?: number
   status?: RunTraceStatus
   error?: string
   toolsEnabled?: boolean
@@ -747,7 +781,7 @@ export interface RunMetadataInput {
   model?: string
 }
 
-const RUN_TRACE_SCHEMA_VERSION = 17
+const RUN_TRACE_SCHEMA_VERSION = 18
 const reportedLongRequestPhysicalIds = new Set<string>()
 const reportedTerminalMergeTaskIds = new Set<string>()
 
@@ -1384,6 +1418,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       existing.usageUnavailable = input.usageUnavailable ?? (input.usage ? false : existing.usageUnavailable)
       existing.endedAt = Date.now()
       existing.durationMs = input.durationMs ?? existing.durationMs
+      existing.firstTokenMs = input.firstTokenMs ?? existing.firstTokenMs
+      existing.outputMs = input.outputMs ?? existing.outputMs
       existing.error = input.error
       existing.toolsEnabled = input.toolsEnabled ?? existing.toolsEnabled
       existing.toolsDowngraded = input.toolsDowngraded ?? existing.toolsDowngraded
@@ -1428,6 +1464,8 @@ export const useRunTraceStore = defineStore('runTrace', () => {
       usageUnavailable: input.usageUnavailable,
       startedAt: Date.now(),
       durationMs: input.durationMs,
+      firstTokenMs: input.firstTokenMs,
+      outputMs: input.outputMs,
       endedAt: input.durationMs ? Date.now() : undefined,
       error: input.error,
       toolsEnabled: input.toolsEnabled,
@@ -1820,6 +1858,46 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     }
   }
 
+  function computeApiCallTimingLedger(call: RunTraceApiCall): RunTraceTimingLedger {
+    const physicalCalls = call.physicalCalls || []
+    const firstTokens = physicalCalls
+      .map(item => item.firstTokenMs)
+      .filter((value): value is number => typeof value === 'number')
+    const physicalDurationSumMs = physicalCalls.reduce((sum, item) => sum + (item.durationMs || 0), 0)
+    const callDurationMs = call.durationMs || 0
+    return {
+      physicalCallCount: physicalCalls.length,
+      retryPhysicalCallCount: physicalCalls.filter(item => item.phase === 'retry').length,
+      physicalDurationSumMs,
+      minFirstTokenMs: firstTokens.length ? Math.min(...firstTokens) : undefined,
+      maxFirstTokenMs: firstTokens.length ? Math.max(...firstTokens) : undefined,
+      localOverheadMs: callDurationMs - physicalDurationSumMs
+    }
+  }
+
+  function computeRunTimingLedger(run: RunTrace): RunTraceTimingLedger {
+    const ledgers = run.apiCalls.map(call => call.timingLedger).filter(Boolean) as RunTraceTimingLedger[]
+    const sum = (pick: (ledger: RunTraceTimingLedger) => number | undefined) =>
+      ledgers.reduce((total, ledger) => total + (pick(ledger) || 0), 0)
+    return {
+      apiCallCount: run.apiCalls.length,
+      physicalCallCount: sum(ledger => ledger.physicalCallCount),
+      retryPhysicalCallCount: sum(ledger => ledger.retryPhysicalCallCount),
+      physicalDurationSumMs: sum(ledger => ledger.physicalDurationSumMs),
+      firstTokenSumMs: sum(ledger => ledger.maxFirstTokenMs),
+      outputSumMs: sum(ledger =>
+        typeof ledger.physicalDurationSumMs === 'number' && typeof ledger.maxFirstTokenMs === 'number'
+          ? ledger.physicalDurationSumMs - ledger.maxFirstTokenMs
+          : undefined
+      ),
+      localOverheadSumMs: sum(ledger => ledger.localOverheadMs),
+      requestBuildSumMs: sum(ledger => ledger.requestBuildMs),
+      schemaValidateSumMs: sum(ledger => ledger.schemaValidateMs),
+      retrySumMs: sum(ledger => ledger.retryMs),
+      postProcessSumMs: sum(ledger => ledger.postProcessMs)
+    }
+  }
+
   function finishApiCall(runId: string, callId: string, patch: FinishApiCallInput) {
     const run = getRun(runId)
     const call = run?.apiCalls.find(item => item.id === callId)
@@ -1857,9 +1935,13 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     call.convergenceReason = patch.convergenceReason ?? call.convergenceReason
     if (patch.executionSettlement) call.executionSettlement = patch.executionSettlement
     if (patch.readLedger) call.readLedger = patch.readLedger
+    call.durationMs = patch.durationMs ?? (Date.now() - call.startedAt)
+    call.timingLedger = {
+      ...computeApiCallTimingLedger(call),
+      ...patch.timingLedger
+    }
     call.usage = patch.usage ?? call.usage
     call.usageUnavailable = patch.usageUnavailable ?? (patch.usage ? false : call.usageUnavailable)
-    call.durationMs = patch.durationMs ?? (Date.now() - call.startedAt)
     call.error = patch.error
     call.compatibilityMode = patch.compatibilityMode ?? call.compatibilityMode
     call.compatibilityWrite = patch.compatibilityWrite ?? call.compatibilityWrite
@@ -1940,6 +2022,7 @@ export const useRunTraceStore = defineStore('runTrace', () => {
     }
     const fromStatus = 'running'
     run.status = status
+    run.timingLedger = computeRunTimingLedger(run)
     run.endedAt = Date.now()
     run.durationMs = run.endedAt - run.startedAt
     run.error = error

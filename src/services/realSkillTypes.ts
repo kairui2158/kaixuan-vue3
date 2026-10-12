@@ -143,6 +143,13 @@ export interface RealSkillExecutionResult {
     toolRequestDeltas?: Array<{ role: string; content: string }>
     /** Compact cross-turn tool audit for the next request's system context. */
     toolAudit?: unknown
+    /** Observability-only local timing; never changes execution behavior. */
+    timingLedger?: {
+      requestBuildMs?: number
+      schemaValidateMs?: number
+      retryMs?: number
+      postProcessMs?: number
+    }
   }
 }
 

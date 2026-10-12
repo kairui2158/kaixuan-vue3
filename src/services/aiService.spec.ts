@@ -1592,6 +1592,55 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   });
 
+  it('records first-token timing for streamed physical calls', async () => {
+    vi.useFakeTimers();
+    let emitMainNetEvent: ((payload: any) => void) | null = null;
+    const streamMock = vi.fn()
+      .mockImplementationOnce((request: any) => {
+        const signalId = request.signalId;
+        setTimeout(() => {
+          emitMainNetEvent?.({ event: 'chunk', text: 'data: {"choices":[{"delta":{"reasoning_content":"thinking"}}]}\n\n', signalId });
+          emitMainNetEvent?.({ event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"first"}}]}\n\n', signalId });
+        }, 200);
+        setTimeout(() => {
+          emitMainNetEvent?.({ event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"-second"}}]}\n\n', signalId });
+          emitMainNetEvent?.({ event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n', signalId });
+          emitMainNetEvent?.({ event: 'chunk', text: 'data: [DONE]\n\n', signalId });
+          emitMainNetEvent?.({ event: 'end', signalId });
+        }, 500);
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      });
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: vi.fn(),
+        providerNetStream: streamMock,
+        providerNetAbort: vi.fn(() => Promise.resolve()),
+        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+          emitMainNetEvent = listener;
+          return () => { emitMainNetEvent = null; };
+        },
+      },
+    });
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      timeoutMs: null,
+      onChunk: () => {},
+      onPhysicalCall: (event: any) => physicalEvents.push(event),
+    });
+    await vi.advanceTimersByTimeAsync(600);
+    await expect(request).resolves.toMatchObject({ text: 'first-second' });
+    const terminal = physicalEvents.find(event => event.status === 'success');
+    expect(terminal?.firstTokenMs).toBeGreaterThanOrEqual(180);
+    expect(terminal?.firstTokenMs).toBeLessThan(300);
+    expect(terminal?.outputMs).toBeGreaterThan(0);
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
   it('emits physical heartbeat progress while a silent request is in flight', async () => {
     vi.useFakeTimers();
     let releaseRequest: ((value: Response) => void) | undefined;

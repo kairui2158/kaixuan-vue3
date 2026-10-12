@@ -722,6 +722,12 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
   let toolResults: NonNullable<RealSkillExecutionResult['apiMeta']>['toolResults']
   let toolRequestDeltas: NonNullable<RealSkillExecutionResult['apiMeta']>['toolRequestDeltas']
   let toolAudit: NonNullable<RealSkillExecutionResult['apiMeta']>['toolAudit']
+  const timingLedger = {
+    requestBuildMs: 0,
+    schemaValidateMs: 0,
+    retryMs: 0,
+    postProcessMs: 0
+  }
   const capturedRequestMessages: Array<{ role: string; content: string }> = []
   const capturedAttemptRequestMessages: Array<NonNullable<NonNullable<RealSkillExecutionResult['apiMeta']>['attemptRequestMessages']>[number]> = []
 
@@ -802,6 +808,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       })
       dispatchToolSurfaceDeclarationAudit(declarationAudit)
       const buildRequest = (promptSuffix?: string) => {
+        const requestBuildStartedAt = Date.now()
         const effectiveSystemPrompt = promptSuffix
           ? `${systemPrompt}\n\n${promptSuffix}`
           : systemPrompt
@@ -836,6 +843,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
         }
         captureRequestMessages(messages, passIndex, attempt)
         options.onRequestBuilt?.(messages)
+        timingLedger.requestBuildMs += Date.now() - requestBuildStartedAt
         return messages
       }
       let requestMessages = buildRequest(schemaRetryFeedback)
@@ -970,6 +978,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             retryStrategy,
             maxTokens: result.maxTokens ?? retryMaxTokens,
           })
+          timingLedger.retryMs += Date.now() - retryStartedAt
           diagnostics.push(diagnostic('warning', 'generation-direct-retry-recovered', '直出模式重试后已生成正文'))
         } else if (validity.kind === 'truncated') {
           diagnostics.push(diagnostic('warning', 'generation-truncated', validity.message))
@@ -1015,6 +1024,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           })),
           durationMs: Date.now() - postStartedAt
         }
+        timingLedger.postProcessMs += Date.now() - postStartedAt
         for (const issue of postIssues) {
           const issueCode = issue.code ? `post-process-issue:${issue.code}` : 'post-process-issue'
           diagnostics.push(diagnostic(
@@ -1024,6 +1034,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           ))
         }
 
+        const schemaValidateStartedAt = Date.now()
         const hasPostValidation = typeof postResult.fields.valid === 'boolean' || postIssues.some(issue => issue.severity === 'blocking')
         const validation = hasPostValidation
           ? {
@@ -1036,6 +1047,7 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
             ? validateSkillOutput(candidateOutput, { outputFormat: 'json', outputSchema: pkg.schema })
             : { valid: true, errors: [] }
         const hasBlockingPostIssue = postIssues.some(issue => issue.severity === 'blocking')
+        timingLedger.schemaValidateMs += Date.now() - schemaValidateStartedAt
         if (!validation.valid && hasBlockingPostIssue) {
           throw new Error(postIssues
             .filter(issue => issue.severity === 'blocking')
@@ -1107,21 +1119,22 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           diagnostics,
           folderPackageCache: loaded.folderPackageCache === true,
           postProcessReport,
-        apiMeta: {
-          finishReason: finishReason || 'error',
-          providerId,
-          usage,
-          maxTokens: finalMaxTokens,
-          reasoningText: finalReasoningText || '',
-          contextBudget: finalContextBudget,
-          usageReconciliation: finalUsageReconciliation,
-          textOrigin: finalTextOrigin,
-          requestMessages: capturedRequestMessages,
-          attemptRequestMessages: capturedAttemptRequestMessages,
+          apiMeta: {
+            finishReason: finishReason || 'error',
+            providerId,
+            usage,
+            maxTokens: finalMaxTokens,
+            reasoningText: finalReasoningText || '',
+            contextBudget: finalContextBudget,
+            usageReconciliation: finalUsageReconciliation,
+            textOrigin: finalTextOrigin,
+            requestMessages: capturedRequestMessages,
+            attemptRequestMessages: capturedAttemptRequestMessages,
             toolCalls,
             toolResults,
             toolRequestDeltas,
-            toolAudit
+            toolAudit,
+            timingLedger: { ...timingLedger }
           }
         }
       }
@@ -1156,11 +1169,11 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
           toolCalls,
           toolResults,
           toolRequestDeltas,
-          toolAudit
+          toolAudit,
+          timingLedger: { ...timingLedger }
         }
       }
     }
-
     currentInput = output
     if (!isMultiPass) {
       dispatchStepEvent({ skillId: pkg.id, index: 0, total: 1, status: 'done', attempts: 1 })
@@ -1191,7 +1204,8 @@ export async function executeRealSkill(options: RealSkillExecuteOptions): Promis
       toolCalls,
       toolResults,
       toolRequestDeltas,
-      toolAudit
+      toolAudit,
+      timingLedger: { ...timingLedger }
     }
   }
 }

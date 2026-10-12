@@ -272,6 +272,10 @@ export interface PhysicalCallEvent {
   toolCallCount?: number
   /** Provider tool-call names extracted from this physical response. */
   toolCallNames?: string[]
+  /** Request start to first body/reasoning delta. */
+  firstTokenMs?: number
+  /** Streaming time after the first delta. */
+  outputMs?: number
 }
 
 export interface CallAiResult {
@@ -3579,6 +3583,7 @@ export function createAiService(
     const basePhase = params.physicalPhase || 'normal'
     const effectiveMaxTokens = () => resolveMaxTokens(provider, params.maxTokens ?? provider.maxTokens)
     const physicalCallIds = new Map<number, string>()
+    let physicalFirstTokenAt: number | null = null
     let physicalHeartbeatTimer: ReturnType<typeof setInterval> | null = null
     const stopPhysicalHeartbeat = () => {
       if (!physicalHeartbeatTimer) return
@@ -3637,6 +3642,10 @@ export function createAiService(
             : undefined,
           toolCallCount: requestedTools ? physicalToolCalls.length : 0,
           toolCallNames: requestedTools ? physicalToolCalls.map(call => call.name) : [],
+          firstTokenMs: physicalFirstTokenAt === null ? undefined : physicalFirstTokenAt - startTime,
+          outputMs: physicalFirstTokenAt === null
+            ? undefined
+            : Date.now() - physicalFirstTokenAt,
           ...interruption,
         })
       } catch { /* trace must never break the AI request */ }
@@ -3675,6 +3684,7 @@ export function createAiService(
     const traceParams = (originalOnChunk || toolStreamGuard || params.slowStreamTolerant === true)
       ? { ...params, onChunk: (text: string) => {
           if (!text) return
+          if (physicalFirstTokenAt === null) physicalFirstTokenAt = Date.now()
           streamBuffer += text
           const visibleText = toolStreamGuard ? toolStreamGuard.push(text) : text
           if (visibleText && originalOnChunk) originalOnChunk(visibleText)
@@ -3685,6 +3695,7 @@ export function createAiService(
     // and are not killed by the outer tool-run watchdog.
     params = { ...traceParams, onReasoning: (text: string) => {
       if (!text) return
+      if (physicalFirstTokenAt === null) physicalFirstTokenAt = Date.now()
       reasoningBuffer += text
       originalOnReasoning?.(text)
     } }
@@ -3694,6 +3705,7 @@ export function createAiService(
         try {
         streamBuffer = ''
         reasoningBuffer = ''
+        physicalFirstTokenAt = null
           currentPhysicalAttempt = attempt
           reportPhysical(attempt, 'running')
           physicalHeartbeatTimer = setInterval(() => {

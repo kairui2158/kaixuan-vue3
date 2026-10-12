@@ -269,6 +269,94 @@ describe('runTrace store', () => {
     expect(physical?.responseText).toBe('第一次物理响应')
   })
 
+  it('stores physical timing segments and computes api call timing ledger', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: ['卷纲技能'] })
+    const callId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '生成卷纲' }]
+    })
+
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'timing-normal',
+      requestMessages: [{ role: 'user', content: '生成卷纲' }],
+      responseText: '第一次物理响应',
+      durationMs: 1200,
+      firstTokenMs: 300,
+      outputMs: 900
+    })
+    store.appendPhysicalCall(runId, callId, {
+      physicalCallId: 'timing-retry',
+      phase: 'retry',
+      requestMessages: [{ role: 'user', content: '生成卷纲' }],
+      responseText: '第二次物理响应',
+      durationMs: 700,
+      firstTokenMs: 200,
+      outputMs: 500
+    })
+    store.finishApiCall(runId, callId, {
+      status: 'success',
+      responseText: '第二次物理响应',
+      durationMs: 2500,
+      timingLedger: {
+        requestBuildMs: 80,
+        schemaValidateMs: 45,
+        retryMs: 60,
+        postProcessMs: 15
+      }
+    })
+
+    const call = store.getRun(runId)?.apiCalls[0]
+    expect(call?.physicalCalls?.[0]?.firstTokenMs).toBe(300)
+    expect(call?.physicalCalls?.[0]?.outputMs).toBe(900)
+    expect(call?.timingLedger).toMatchObject({
+      physicalCallCount: 2,
+      retryPhysicalCallCount: 1,
+      physicalDurationSumMs: 1900,
+      minFirstTokenMs: 200,
+      maxFirstTokenMs: 300,
+      localOverheadMs: 600,
+      requestBuildMs: 80,
+      schemaValidateMs: 45,
+      retryMs: 60,
+      postProcessMs: 15
+    })
+  })
+
+  it('computes run timing ledger when finishing a run', () => {
+    const store = useRunTraceStore()
+    const runId = store.startRun({ step: 2, stepName: '卷纲层', mode: 'single', skillNames: ['卷纲技能'] })
+    const callId = store.startApiCall(runId, {
+      requestMessages: [{ role: 'user', content: '生成卷纲' }]
+    })
+    store.appendPhysicalCall(runId, callId, {
+      requestMessages: [{ role: 'user', content: '生成卷纲' }],
+      responseText: '物理响应',
+      durationMs: 1000,
+      firstTokenMs: 250,
+      outputMs: 750
+    })
+    store.finishApiCall(runId, callId, {
+      status: 'success',
+      responseText: '物理响应',
+      durationMs: 1500,
+      timingLedger: { requestBuildMs: 100, schemaValidateMs: 50 }
+    })
+    store.finishRun(runId, 'success')
+
+    const run = store.getRun(runId)
+    expect(run?.timingLedger).toMatchObject({
+      apiCallCount: 1,
+      physicalCallCount: 1,
+      retryPhysicalCallCount: 0,
+      physicalDurationSumMs: 1000,
+      firstTokenSumMs: 250,
+      outputSumMs: 750,
+      localOverheadSumMs: 500,
+      requestBuildSumMs: 100,
+      schemaValidateSumMs: 50
+    })
+  })
+
   it('updates the running api call execution settlement without changing terminal calls', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({
@@ -1633,7 +1721,7 @@ describe('runTrace store', () => {
     const store = useRunTraceStore()
     const runId = store.startRun({ stepName: '卷纲层', mode: 'single', skillNames: [] })
     const exported = store.exportRunToJson(store.getRun(runId)!) as Record<string, unknown>
-    expect(exported.schemaVersion).toBe(17)
+    expect(exported.schemaVersion).toBe(18)
   })
 
   it('exports pipeline artifact validation events for all three stages', () => {
@@ -1660,7 +1748,7 @@ describe('runTrace store', () => {
       expect(exported.events?.some(event => event.type === type)).toBe(true)
       expect(store.exportRunToText(run)).toContain(type)
     })
-    expect(exported.schemaVersion).toBe(17)
+    expect(exported.schemaVersion).toBe(18)
   })
 
   it('keeps a successful final body artifact successful while preserving degraded call evidence', () => {
@@ -2179,7 +2267,7 @@ describe('runTrace store', () => {
     const run = store.getRun(runId)!
     expect(run.events.some(event => event.type === 'chain-handoff-delivery')).toBe(true)
     expect(run.processingReports?.some(report => report.processor === 'chain-handoff')).toBe(true)
-    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(17)
+    expect((store.exportRunToJson(run) as Record<string, unknown>).schemaVersion).toBe(18)
   })
 
   it('records the requested and actual tool surface separately', () => {

@@ -813,3 +813,11 @@
 - 验证：NSIS 打包、asar 3.81.0、renderer 新鲜度、74 个 renderer 文件、75 项 `electronAPI`、可见正文与 SHA256 全部通过。
 - 安装包：`dist/神意助手-Setup-3.81.0.exe`，231,516,909 bytes，SHA256 `72e6116228ea4783ea69a434cbaed2e307e5487004cec30e7261be669dfc3186`。
 - 客户重点复验：正文层 schema 失败后的下一轮请求应包含具体校验错误；warning 应出现在步骤日志而非仅事件流；终步回显不足时应出现一次带反馈修复。
+
+# 2026-10-12 流水线耗时账本 Phase 1
+
+- 文件：[_audit/DEV_LOG_2026-10-12_pipeline-timing-ledger.md](_audit/DEV_LOG_2026-10-12_pipeline-timing-ledger.md)
+- 范围：runTrace schema 17→18；物理请求 first token / output 分段；API call 与 run 级 timingLedger 自动汇总；requestBuild / schemaValidate / retry / postProcess 本地分段；PipelinePanel 观测接线。只加观测，不改行为，旧 trace 兼容。
+- 验证：149 files / 1778 tests、type-check、build:vue 全部通过；baseline / schema-retry / echo-repair 三份 live trace 回放全部 `RESULT: ACCEPTED`。
+- 回头看修正：`schemaValidateMs` 计时起点曾覆盖 postProcess，已改为后处理结束后计时，避免耗时账本重叠失真。
+- 后续：用真实流水线运行生成带账本 trace，按数据排序 Top 3 耗时来源，再进入上下文与等待优化。

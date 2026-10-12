@@ -2023,7 +2023,8 @@ async function callValidatedSkill(
         estimatedInputTokens: apiMeta?.contextBudget?.estimatedInputTokens,
         contextBudgetDecision: apiMeta?.contextBudget?.decision,
         contextBudgetReason: apiMeta?.contextBudget?.reason,
-        usageReconciliation: apiMeta?.usageReconciliation
+        usageReconciliation: apiMeta?.usageReconciliation,
+        timingLedger: apiMeta?.timingLedger
       })
     }
     let route: Awaited<ReturnType<typeof routeSkill>>
@@ -2102,7 +2103,9 @@ async function callValidatedSkill(
             contextBudgetReason: event.contextBudget?.reason,
             usageReconciliation: event.usageReconciliation,
             interruptionCode: event.interruptionCode,
-            heartbeat: event.heartbeat
+            heartbeat: event.heartbeat,
+            firstTokenMs: event.firstTokenMs,
+            outputMs: event.outputMs
           })
         }
       })
