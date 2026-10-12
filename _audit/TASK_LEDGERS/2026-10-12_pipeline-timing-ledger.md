@@ -1,4 +1,4 @@
-# 2026-10-12 流水线耗时账本 Phase 1 / Phase 2 任务台账
+# 2026-10-12 流水线耗时账本 Phase 1 / Phase 2 / Phase 3 任务台账
 
 ## 1. 目标与原话
 
@@ -117,3 +117,93 @@ Phase 1 无登记缺口。
 - Top 3：`outputSumMs=3,276,691ms`，`firstTokenSumMs=658,956ms`，`postProcessSumMs=115ms`。
 - 证据目录：`_audit/verification-pipeline-timing-ledger-live/`
 - 失败 run 归档：`_audit/verification-pipeline-timing-ledger-live-archive/`
+
+## 9. Phase 3 修复台账
+
+### 9.1 目标与原话
+
+用户确认执行 Phase 2 登记缺口修复。最终可感知行为：
+
+1. 重试物理请求在 runTrace 中的 `durationMs` 从本次物理请求开始计时，API call 不再出现负 local overhead。
+2. 已产生流式输出的长生成不因 600 秒总时长被切断；首输出前超时保护不变，输出后停滞由 idle / progress watchdog 判定。
+3. Agent 编排器把正文与思考流式增量视作活跃进度，不再把正在输出的长轮次误判为 idle。
+
+### 9.2 门禁读证
+
+读证文件：`_audit/神意开发经验总结_v7.md`（v8.8）。
+
+- G0.3 诚实闭环（`神意开发经验总结_v7.md:36`）：区分已验证与未验证；本轮明确未重新跑 live 流水线，验证口径为 TDD 单测、全量服务测试与 type-check。
+- G0.5 回头看（`:52`）：补登记前核对当前 diff、三个修复点与测试断言；本节即 Phase 3 回头看记录。
+- G0.7 正反推研磨（`:68`）：反推覆盖“总时长超时被禁用后是否仍有首输出前保护”，负向测试保留超时合同。
+- G1.5 验证器自身质量（`:164`）：首个 active-stream 测试因 fake timer 未触发 `AbortSignal.timeout` 而假绿，已补负向路径测试确认超时仍生效。
+- G1.9 状态机与终态收敛（`:212`）：重试、失败、成功路径的 physical event 均按自身 attempt 收口。
+- G1.11 测试契约（`:230`）：三个新测试先失败后修复，不为绿灯固化旧契约。
+- G1.19 耗时观测先于性能决策（`:306`）：观测仪器本身必须在重试路径上验证；活跃流式输出被总时长切断必须登记为缺陷而非归因模型。
+
+### 9.3 路由判定
+
+加入门禁：G0.1、G0.3、G0.4、G0.5、G0.7、G0.9、G0.12、G1.1、G1.4、G1.5、G1.9、G1.11、G1.19。
+
+排除项及理由：
+
+- G0.11 真实交互冒充禁令：本轮未执行 Electron UI 验证，不涉及用户交互冒充。
+- G1.13 Electron 验证标准：用户确认的是根因修复；live 复跑属于后续采账需求，不在本轮目标内。
+- G1.15 系统层递进诊断：本阶段已完成四层定位并进入修复执行；无新复杂症状。
+- 封装门禁：用户未要求升版与封装，版本保持 3.81.0。
+
+### 9.4 影响圈与作者反证
+
+打算修改：
+
+- `src/services/aiService.ts`
+- `src/services/aiService.spec.ts`
+- `src/services/agentOrchestrator.ts`
+
+可能碰到但已反证未破坏：
+
+- 非 stream 请求：`physicalStartedAt` 只参与 `durationMs` 计算，不影响请求与响应语义。
+- `timeoutMs: null` 生产路径：本轮未改动，终稿与大纲长文档请求继续显式无超时。
+- Agent 编排器回调链：`onChunk` / `onReasoning` 先上报进度再原样转发，不改文本内容与顺序。
+
+最可能错的假设与证伪方式：
+
+1. 假设重试时只错在 `durationMs`。证伪：专项测试断言失败请求与重试请求各自 `durationMs` 落在实际耗时区间，且重试时长小于失败请求累计时长。
+2. 假设首输出后禁用总时长超时不会引入挂死。证伪：现有 idle / progress watchdog 继续负责停滞检测；本轮不改其阈值与逻辑。
+3. 假设编排器进度上报只差 chunk/reasoning。证伪：审读 `agentOrchestrator.ts` 物理请求调用点，确认 tool event、physical running、stream tool progress 已有上报，本轮补齐正文与思考增量两类。
+
+### 9.5 停止条件
+
+完成条件（全部满足）：
+
+1. 三个专项测试通过，且至少两个测试在修复前失败。
+2. `aiService.spec.ts + agentOrchestrator.spec.ts` 全绿。
+3. `npm run test:services` 全绿。
+4. `npm run type-check` exit 0。
+5. DEV_LOG、任务台账、G1.19、主索引全部登记。
+6. git diff 逐行自审，工作区只保留本轮相关改动并提交。
+
+失败条件：
+
+- `durationMs` 仍使用逻辑起点、活跃流被总时长切断、首输出前超时失效、编排器把活跃流误判 idle、任一测试或 type-check 失败。
+
+### 9.6 执行证据
+
+- `npx vitest run src/services/aiService.spec.ts -t "measures each physical retry from its own start time"` → passed；修复前失败值约 `3540ms`，修复后失败请求约 2400-2900ms、重试请求小于 1500ms。
+- `npx vitest run src/services/aiService.spec.ts -t "does not kill an actively progressing stream at the total timeout"` → passed；8 分钟以上持续流式输出只调用 1 次 stream，最终文本 `first-middle-tail`。
+- `npx vitest run src/services/aiService.spec.ts -t "still enforces the total timeout before a stream produces output"` → passed；600 秒无输出触发 `请求超时`，stream 只调用 1 次。
+- `npx vitest run src/services/aiService.spec.ts src/services/agentOrchestrator.spec.ts` → `Tests 210 passed (210)`。
+- `npm run test:services` → `Test Files 149 passed (149)`、`Tests 1781 passed (1781)`。
+- `npm run type-check` → exit 0。
+- 实现锚点：
+  - `src/services/aiService.ts:3596`（`physicalStartedAt`）
+  - `src/services/aiService.ts:3629`（per-attempt `durationMs`）
+  - `src/services/aiService.ts:3719`（attempt 重置计时）
+  - `src/services/aiService.ts:1867`（`streamActivitySignal`）
+  - `src/services/aiService.ts:1955`（`markStreamOutput`）
+  - `src/services/agentOrchestrator.ts:758`（回调捕获与进度上报）
+  - `src/services/agentOrchestrator.ts:800`（chunk/reasoning 包裹）
+
+### 9.7 Phase 3 缺口清单
+
+1. **未重新执行完整 live 流水线。** 本轮修复为计时口径与挂死保护，缺陷复现证据来自 Phase 2 live run，验证使用 TDD 单测、全量服务测试与 type-check。后续需要重新采账或验证真实长流不再被切断时，用 `scripts/verify-pipeline-timing-ledger-electron.mjs` 复跑 live。
+2. **供应商覆盖仍为单供应商样本。** Phase 2 live 只有当前供应商形态；跨供应商超时与流式行为未新增证据，属后续效率优化阶段的采样范围。

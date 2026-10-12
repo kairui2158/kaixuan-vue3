@@ -1864,6 +1864,7 @@ async function mainNetStream(
     signalId,
     slowStreamTolerant,
   })
+  const streamActivitySignal = new AbortController()
   invoke
     .then((result: MainNetResult) => {
       // The stream IPC returns failures without emitting a stream event. Wake
@@ -1955,6 +1956,10 @@ async function mainNetStream(
     if (!sawStreamOutput) {
       sawStreamOutput = true
       clearFirstOutputWatchdog()
+      // A wall-clock timeout protects the connection only until output has
+      // started. After that, the idle and progress watchdogs own stall
+      // detection so an actively streaming long response is never restarted.
+      streamActivitySignal.abort()
     }
   }
   // Slow-stream callers own stall handling at the task layer. Transport
@@ -1973,6 +1978,10 @@ async function mainNetStream(
     ;(window as any).electronAPI.providerNetAbort(signalId)
   }
   externalSignal?.addEventListener('abort', abortHandler, { once: true })
+  streamActivitySignal.signal.addEventListener('abort', () => {
+    if (sawStreamOutput) return
+    ;(window as any).electronAPI.providerNetAbort(signalId)
+  }, { once: true })
 
   const decoder = new TextDecoder()
   let buffer = ''
@@ -3584,6 +3593,7 @@ export function createAiService(
     const effectiveMaxTokens = () => resolveMaxTokens(provider, params.maxTokens ?? provider.maxTokens)
     const physicalCallIds = new Map<number, string>()
     let physicalFirstTokenAt: number | null = null
+    let physicalStartedAt: number | null = null
     let physicalHeartbeatTimer: ReturnType<typeof setInterval> | null = null
     const stopPhysicalHeartbeat = () => {
       if (!physicalHeartbeatTimer) return
@@ -3616,7 +3626,7 @@ export function createAiService(
           phase: overridePhase || (attempt > 0 ? 'retry' : basePhase),
           status,
           attempt: attempt + 1,
-          durationMs: Date.now() - startTime,
+          durationMs: physicalStartedAt === null ? 0 : Date.now() - physicalStartedAt,
           requestMessages: params.messages,
           responseText: result?.text || '',
           streamText: streamBuffer,
@@ -3706,6 +3716,7 @@ export function createAiService(
         streamBuffer = ''
         reasoningBuffer = ''
         physicalFirstTokenAt = null
+        physicalStartedAt = Date.now()
           currentPhysicalAttempt = attempt
           reportPhysical(attempt, 'running')
           physicalHeartbeatTimer = setInterval(() => {

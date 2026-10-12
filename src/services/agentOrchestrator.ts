@@ -755,6 +755,8 @@ export class AgentOrchestrator {
         const callerOnToolCall = input.toolPolicy?.onToolCall
         const callerOnPhysicalCall = input.onPhysicalCall
         const callerOnStreamToolProgress = input.onStreamToolProgress
+        const callerOnChunk = input.onChunk
+        const callerOnReasoning = input.onReasoning
         result = await this.runtime.callAi({
           ...input,
           messages: this.appendSkillGuidance(input.messages),
@@ -794,6 +796,14 @@ export class AgentOrchestrator {
           onPhysicalCall: event => {
             if (event.status === 'running') supervisor.reportProgress()
             callerOnPhysicalCall?.(event)
+          },
+          onChunk: text => {
+            if (text) supervisor.reportProgress()
+            callerOnChunk?.(text)
+          },
+          onReasoning: text => {
+            if (text) supervisor.reportProgress()
+            callerOnReasoning?.(text)
           },
         })
       } catch (error) {

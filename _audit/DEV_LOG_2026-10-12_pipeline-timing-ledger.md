@@ -1,4 +1,4 @@
-# 2026-10-12 流水线耗时账本 Phase 1 / Phase 2
+# 2026-10-12 流水线耗时账本 Phase 1 / Phase 2 / Phase 3
 
 ## 背景
 
@@ -68,3 +68,40 @@ Top 3：
 - 修复 retry 场景下 API call `durationMs` 与物理请求合计的口径，禁止负 local overhead。
 - 独立评估流式长输出的超时策略：有持续 heartbeat 与流式输出时，600 秒总时长不应触发切断；无输出停滞才进入超时。
 - 拿到修正口径后，再评估重复上下文与无效串行等待、受控并发、模型路由与增量校验，禁止用本 run 的单一供应商样本直接改策略。
+
+## Phase 3 口径与超时修复
+
+用户确认两个 Phase 2 根因后执行本阶段，目标只修观测口径与挂死保护，不改变流水线产物与审批语义。
+
+### 修复 1：物理重试 durationMs 口径
+
+- 根因：`reportPhysical` 复用逻辑 call 的 `startTime` 计算 `durationMs`。第一次物理请求失败后，重试请求会把自己的时长覆盖成“从逻辑起点到重试结束”的累计值，导致 API call `durationMs < physicalDurationSumMs`，Phase 2 中的 `localOverheadSumMs=-598,995ms` 即此口径错误。
+- 修复：`callAiWithoutTools` 增加 `physicalStartedAt`，每个物理 attempt 开始时重置为 `Date.now()`；`reportPhysical` 的 `durationMs` 改为 `Date.now() - physicalStartedAt`。
+- 保持不变：`firstTokenMs` 仍按逻辑起点计算，因为它的语义是“从用户请求开始到首个可用 token”的等待，不随物理重试重置。
+
+### 修复 2：活跃流式输出不再被 600 秒总时长切断
+
+- 根因：`mainNetStream` 的总时长超时与外部 signal 组合后，不区分“连接前 / 首 token 前挂死”和“已持续输出的长生成”。Phase 2 中已输出 592 秒、heartbeat 仍为 true 的物理请求被总时长超时切断，重跑后又等待 615 秒才拿到首 token。
+- 修复：新增 `streamActivitySignal`。首输出前保留总时长超时合同；`markStreamOutput()` 命中首个正文或思考增量后 abort 该 signal，使总时长超时永远不再触发。输出开始后的停滞由既有 idle / progress watchdog 负责。
+- 范围：本次修复主进程流式路径。`timeoutMs: null` 的显式无超时路径原本就存在，终稿与大纲长文档请求已在生产使用；本轮未改动该入口。
+
+### 修复 3：AgentOrchestrator idle supervisor 盲区
+
+- 根因：编排器只在 tool event、physical `running` 事件、stream tool progress 时上报进度；纯 `onChunk` / `onReasoning` 增量没有 reset idle supervisor，长流式输出会被误判为 idle 并中断。
+- 修复：物理请求调用处包裹 `onChunk` / `onReasoning`，每个非空增量先 `supervisor.reportProgress()` 再转发原回调。
+
+### Phase 3 验证
+
+TDD 顺序：先补失败测试再修复。
+
+- `npx vitest run src/services/aiService.spec.ts -t "measures each physical retry from its own start time"` → passed；修复前该测试失败，重试请求被误记为约 3540ms（实际约 2.5 秒内完成），修复后失败请求与重试请求均按自身起点计时。
+- `npx vitest run src/services/aiService.spec.ts -t "does not kill an actively progressing stream at the total timeout"` → passed；600 秒 timeout 下持续流式输出超过 8 分钟仍不重启、不重试，最终完成并得到完整文本。
+- `npx vitest run src/services/aiService.spec.ts -t "still enforces the total timeout before a stream produces output"` → passed；首输出前总时长超时仍然触发，超时事件保留 `请求超时`。
+- `npx vitest run src/services/aiService.spec.ts src/services/agentOrchestrator.spec.ts` → 210 passed。
+- `npm run test:services` → 149 files / 1781 tests passed。
+- `npm run type-check` → exit 0。
+
+### Phase 3 后续
+
+- 未重新跑完整 live 流水线：本轮修复的是计时口径与挂死保护，已有 Phase 2 live run 提供缺陷复现证据，单测与 fake timer 覆盖了失败路径。后续性能优化阶段如需再次采账，用同一脚本重新 live 采样即可。
+- 下一阶段仍从真实耗时分布出发，评估重复上下文与无效串行等待、受控并发、模型路由与增量校验；禁止凭单次供应商样本直接改并发策略。

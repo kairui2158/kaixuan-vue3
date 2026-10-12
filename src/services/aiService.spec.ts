@@ -415,7 +415,10 @@ describe('createAiService.callAi', () => {
       electronAPI: {
         providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
         providerNetStream: streamMock,
-        providerNetAbort: vi.fn(() => Promise.resolve()),
+        providerNetAbort: vi.fn(() => {
+          emitCurrentStream([{ event: 'canceled' }]);
+          return Promise.resolve();
+        }),
         onProviderNetStreamChunk: (listener: (payload: any) => void) => {
           emitMainNetEvent = listener;
           return () => { emitMainNetEvent = null; };
@@ -771,6 +774,55 @@ describe('createAiService.callAi', () => {
     vi.unstubAllGlobals();
   });
 
+  it('measures each physical retry from its own start time', async () => {
+    let emitMainNetEvent: ((payload: any) => void) | null = null;
+    let currentSignalId = '';
+    const emitCurrentStream = (events: any[]) => {
+      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+    };
+    const streamMock = vi.fn()
+      .mockImplementationOnce(() => new Promise((_, reject) => setTimeout(() => reject(new Error('socket hang up')), 2_500)))
+      .mockImplementationOnce((request: any) => {
+        currentSignalId = request.signalId;
+        emitCurrentStream([
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"recovered"}}]}\n\n' },
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n' },
+          { event: 'chunk', text: 'data: [DONE]\n\n' },
+          { event: 'end' },
+        ]);
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      });
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
+        providerNetStream: streamMock,
+        providerNetAbort: vi.fn(() => Promise.resolve()),
+        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+          emitMainNetEvent = listener;
+          return () => { emitMainNetEvent = null; };
+        },
+      },
+    });
+    const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
+    const result = await service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      timeoutMs: 120_000,
+      onPhysicalCall: event => physicalEvents.push(event),
+    });
+    expect(result.text).toBe('recovered');
+    const failed = physicalEvents.find(event => event.status === 'failed');
+    const succeeded = physicalEvents.find(event => event.status === 'success' && event.phase === 'retry');
+    expect(failed?.durationMs).toBeGreaterThanOrEqual(2_400);
+    expect(failed?.durationMs).toBeLessThan(2_900);
+    expect(succeeded?.durationMs).toBeGreaterThanOrEqual(0);
+    expect(succeeded?.durationMs).toBeLessThan(1_500);
+    expect(succeeded?.durationMs).toBeLessThan(failed?.durationMs ?? Number.MAX_SAFE_INTEGER);
+    vi.unstubAllGlobals();
+  }, 30_000);
+
   it('retries a slow-stream-tolerant request that never emits first output', async () => {
     const abortCalls: string[] = [];
     let emitMainNetEvent: ((payload: any) => void) | null = null;
@@ -858,6 +910,7 @@ describe('createAiService.callAi', () => {
     });
     vi.useFakeTimers();
     const service = createAiService(runtimeStore());
+    const physicalEvents: any[] = [];
     const request = service.callAi({
       purpose: 'generate',
       messages: [{ role: 'user', content: 'test' }],
@@ -879,6 +932,104 @@ describe('createAiService.callAi', () => {
     ]);
     await expect(request).resolves.toMatchObject({ text: 'first-second' });
     expect(streamMock).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  }, 30_000);
+
+  it('does not kill an actively progressing stream at the total timeout', async () => {
+    let emitMainNetEvent: ((payload: any) => void) | null = null;
+    let currentSignalId = '';
+    const emitCurrentStream = (events: any[]) => {
+      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+    };
+    const streamMock = vi.fn()
+      .mockImplementationOnce((request: any) => {
+        currentSignalId = request.signalId;
+        emitCurrentStream([
+          { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"first"}}]}\n\n' },
+        ]);
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      });
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
+        providerNetStream: streamMock,
+        providerNetAbort: vi.fn(() => Promise.resolve()),
+        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+          emitMainNetEvent = listener;
+          return () => { emitMainNetEvent = null; };
+        },
+      },
+    });
+    vi.useFakeTimers();
+    const service = createAiService(runtimeStore());
+    const timeoutPhysicalEvents: any[] = [];
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      retry: false,
+      timeoutMs: 600_000,
+      onChunk: () => {},
+      onPhysicalCall: event => timeoutPhysicalEvents.push(event),
+    });
+    await vi.advanceTimersByTimeAsync(4 * 60_000);
+    emitCurrentStream([
+      { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"-middle"}}]}\n\n' },
+    ]);
+    await vi.advanceTimersByTimeAsync(4 * 60_000);
+    emitCurrentStream([
+      { event: 'chunk', text: 'data: {"choices":[{"delta":{"content":"-tail"}}]}\n\n' },
+      { event: 'chunk', text: 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n' },
+      { event: 'chunk', text: 'data: [DONE]\n\n' },
+      { event: 'end' },
+    ]);
+    await expect(request).resolves.toMatchObject({ text: 'first-middle-tail' });
+    expect(streamMock).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  }, 30_000);
+
+  it('still enforces the total timeout before a stream produces output', async () => {
+    let emitMainNetEvent: ((payload: any) => void) | null = null;
+    let currentSignalId = '';
+    const emitCurrentStream = (events: any[]) => {
+      for (const event of events) emitMainNetEvent?.({ ...event, signalId: currentSignalId });
+    };
+    const streamMock = vi.fn()
+      .mockImplementationOnce((request: any) => {
+        currentSignalId = request.signalId;
+        return Promise.resolve({ ok: true, statusCode: 200, text: '' });
+      });
+    vi.stubGlobal('window', {
+      electronAPI: {
+        providerNetRequest: vi.fn(() => Promise.resolve({ ok: true, statusCode: 200, text: '' })),
+        providerNetStream: streamMock,
+        providerNetAbort: vi.fn(() => Promise.resolve()),
+        onProviderNetStreamChunk: (listener: (payload: any) => void) => {
+          emitMainNetEvent = listener;
+          return () => { emitMainNetEvent = null; };
+        },
+      },
+    });
+    vi.useFakeTimers();
+    const service = createAiService(runtimeStore());
+    const timeoutPhysicalEvents: any[] = [];
+    const request = service.callAi({
+      purpose: 'generate',
+      messages: [{ role: 'user', content: 'test' }],
+      stream: true,
+      retry: false,
+      timeoutMs: 600_000,
+      onChunk: () => {},
+      onPhysicalCall: event => timeoutPhysicalEvents.push(event),
+    });
+    const assertion = expect(request).rejects.toMatchObject({ kind: 'timeout' });
+    await vi.advanceTimersByTimeAsync(600_000);
+    await vi.advanceTimersByTimeAsync(2_000);
+    await assertion;
+    expect(streamMock).toHaveBeenCalledTimes(1);
+    expect(timeoutPhysicalEvents.filter(event => event.status === 'failed').map(event => event.error)).toContain('请求超时');
     vi.useRealTimers();
     vi.unstubAllGlobals();
   }, 30_000);

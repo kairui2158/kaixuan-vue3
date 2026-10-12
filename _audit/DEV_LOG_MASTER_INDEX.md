@@ -1,6 +1,6 @@
 # 开发日志总索引（DEV_LOG MASTER INDEX）
 
-更新日期：2026-10-04
+更新日期：2026-10-12
 
 本文件是 `_audit/DEV_LOG_*.md` 的唯一总索引。每条记录按项目演进顺序编号，并说明当时开发的“功能是什么”和“对应用的用途”。以后新增开发日志时，必须同步在对应阶段末尾追加一行，禁止只写日志不登记索引。
 
@@ -820,4 +820,6 @@
 - 范围：runTrace schema 17→18；物理请求 first token / output 分段；API call 与 run 级 timingLedger 自动汇总；requestBuild / schemaValidate / retry / postProcess 本地分段；PipelinePanel 观测接线。只加观测，不改行为，旧 trace 兼容。
 - 验证：149 files / 1778 tests、type-check、build:vue 全部通过；baseline / schema-retry / echo-repair 三份 live trace 回放全部 `RESULT: ACCEPTED`。
 - 回头看修正：`schemaValidateMs` 计时起点曾覆盖 postProcess，已改为后处理结束后计时，避免耗时账本重叠失真。
-- 后续：用真实流水线运行生成带账本 trace，按数据排序 Top 3 耗时来源，再进入上下文与等待优化。
+- Phase 2 live run：3 卷 x S1-S4 完整通过；Top 3 为流式输出 3,276,691ms、首 token 658,956ms、postProcess 115ms；同时暴露 retry 口径负开销与 600 秒总时长切断活跃流两个缺陷。
+- Phase 3 修复：物理重试 durationMs 改为 per-attempt 起点；首输出后禁用总时长超时并交给 idle / progress watchdog；Agent 编排器把 chunk/reasoning 增量上报为进度。TDD 专项 3 条、全量 149 files / 1781 tests、type-check 全部通过；未重新跑 live，后续采账时复用验证脚本。
+- 后续：基于修正后的真实耗时分布，评估重复上下文与无效串行等待、受控并发、模型路由与增量校验。
